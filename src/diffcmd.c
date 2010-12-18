@@ -28,6 +28,14 @@
 #define DIFF_NOEOLWS  0x02    /* Ignore whitespace at the end of lines */
 
 /*
+** Print the "Index:" message that patch wants to see at the top of a diff.
+*/
+void diff_print_index(const char *zFile){
+  printf("Index: %s\n======================================="
+         "============================\n", zFile);
+}
+
+/*
 ** Show the difference between two files, one in memory and one on disk.
 **
 ** The difference is the set of edits needed to transform pFile1 into
@@ -36,7 +44,7 @@
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
 ** command zDiffCmd to do the diffing.
 */
-static void diff_file(
+void diff_file(
   Blob *pFile1,             /* In memory content to compare from */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
@@ -106,7 +114,7 @@ static void diff_file(
 ** Use the internal diff logic if zDiffCmd is NULL.  Otherwise call the
 ** command zDiffCmd to do the diffing.
 */
-static void diff_file_mem(
+void diff_file_mem(
   Blob *pFile1,             /* In memory content to compare from */
   Blob *pFile2,             /* In memory content to compare to */
   const char *zName,        /* Display name of the file */
@@ -259,10 +267,7 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      printf("Index: %s\n======================================="
-             "============================\n",
-             zPathname
-      );
+      diff_print_index(zPathname);
       diff_file(&content, zFullName, zPathname, zDiffCmd, ignoreEolWs);
       blob_reset(&content);
     }
@@ -309,8 +314,7 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int rid;
   const char *zName =  pFrom ? pFrom->zName : pTo->zName;
-  printf("Index: %s\n======================================="
-         "============================\n", zName);
+  diff_print_index(zName);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
     content_get(rid, &f1);

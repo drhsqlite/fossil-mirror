@@ -182,6 +182,7 @@ static void stash_apply(int stashid, int nConflict){
     char *zNPath = mprintf("%s%s", g.zLocalRoot, zNew);
     Blob delta;
     undo_save(zNew);
+    blob_zero(&delta);
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
       blob_write_to_file(&delta, zNPath);
@@ -211,8 +212,9 @@ static void stash_apply(int stashid, int nConflict){
       }
       blob_reset(&a);
       blob_reset(&b);
-      blob_reset(&delta);
+      blob_reset(&disk);
     }
+    blob_reset(&delta);
     if( strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
       unlink(zOPath);
@@ -222,6 +224,52 @@ static void stash_apply(int stashid, int nConflict){
   if( nConflict ){
     printf("WARNING: merge conflicts - see messages above for details.\n");
   }
+}
+
+/*
+** Show the diffs associate with a single stash.
+*/
+static void stash_diff(int stashid, const char *zDiffCmd){
+  Stmt q;
+  Blob empty;
+  blob_zero(&empty);
+  db_prepare(&q,
+     "SELECT rid, isRemoved, isExec, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d",
+     stashid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    int isRemoved = db_column_int(&q, 1);
+    const char *zOrig = db_column_text(&q, 3);
+    const char *zNew = db_column_text(&q, 4);
+    char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
+    Blob delta;
+    if( rid==0 ){
+      db_ephemeral_blob(&q, 5, &delta);
+      printf("ADDED %s\n", zNew);
+      diff_print_index(zNew);
+      diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
+    }else if( isRemoved ){
+      printf("DELETE %s\n", zOrig);
+      blob_read_from_file(&delta, zOPath);
+      diff_print_index(zNew);
+      diff_file_mem(&delta, &empty, zOrig, zDiffCmd, 0);
+    }else{
+      Blob a, b, disk;
+      db_ephemeral_blob(&q, 5, &delta);
+      blob_read_from_file(&disk, zOPath);     
+      content_get(rid, &a);
+      blob_delta_apply(&a, &delta, &b);
+      printf("CHANGED %s\n", zNew);
+      diff_file_mem(&disk, &b, zNew, zDiffCmd, 0);
+      blob_reset(&a);
+      blob_reset(&b);
+      blob_reset(&disk);
+    }
+    blob_reset(&delta);
+ }
+  db_finalize(&q);
 }
 
 /*
@@ -258,49 +306,55 @@ static int stash_get_id(const char *zStashId){
 /*
 ** COMMAND: stash
 **
-** Usage: %fossil COMMAND ARGS...
+** Usage: %fossil stash SUBCOMMAND ARGS...
 **
-**    fossil stash
-**    fossil stash save ?-m COMMENT? ?FILES...?
+**  fossil stash
+**  fossil stash save ?-m COMMENT? ?FILES...?
 **
-**         Save the current changes in the working tree as a new stash.
-**         Then revert the changes back to the last check-in.  If FILES
-**         are listed, then only stash and revert the named files.  The
-**         "save" verb can be omitted if and only if there are no other
-**         arguments.
+**     Save the current changes in the working tree as a new stash.
+**     Then revert the changes back to the last check-in.  If FILES
+**     are listed, then only stash and revert the named files.  The
+**     "save" verb can be omitted if and only if there are no other
+**     arguments.
 **
-**    fossil stash list
+**  fossil stash list
 **
-**         List all changes sets currently stashed.
+**     List all changes sets currently stashed.
 **
-**    fossil stash pop
+**  fossil stash pop
 **
-**         Apply the most recently create stash to the current working
-**         check-out.  Then delete that stash.  This is equivalent to
-**         doing an "apply" and a "drop" against the most recent stash.
-**         This command is undoable.
+**     Apply the most recently create stash to the current working
+**     check-out.  Then delete that stash.  This is equivalent to
+**     doing an "apply" and a "drop" against the most recent stash.
+**     This command is undoable.
 **
-**    fossil stash apply ?STASHID?
+**  fossil stash apply ?STASHID?
 **
-**         Apply the identified stash to the current working check-out.
-**         If no STASHID is specifed, use the most recent stash.  Unlike
-**         the "pop" command, the stash is retained so that it can be used
-**         again.  This command is undoable.
+**     Apply the identified stash to the current working check-out.
+**     If no STASHID is specifed, use the most recent stash.  Unlike
+**     the "pop" command, the stash is retained so that it can be used
+**     again.  This command is undoable.
 **
-**    fossil stash goto ?STASHID?
+**  fossil stash goto ?STASHID?
 **
-**         Update to the baseline checkout for STASHID then apply the
-**         changes of STASHID.  Keep STASHID so that it can be reused
-**         This command is undoable.
+**     Update to the baseline checkout for STASHID then apply the
+**     changes of STASHID.  Keep STASHID so that it can be reused
+**     This command is undoable.
 **
-**    fossil drop ?STASHID?
+**  fossil drop ?STASHID?
 **
-**         Forget everything about STASHID.  This command is undoable.
+**     Forget everything about STASHID.  This command is undoable.
 **
-**    fossil stash snapshot ?-m COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m COMMENT? ?FILES...?
 **
-**         Save the current changes in the working tress as a new stash
-**         but, unlike "save", do not revert those changes.
+**     Save the current changes in the working tress as a new stash
+**     but, unlike "save", do not revert those changes.
+**
+**  fossil stash diff ?STASHID?
+**  fossil stash gdiff ?STASHID?
+**
+**     Show diffs of the current working directory and what that
+**     directory would be if STASHID were applied.  
 */
 void stash_cmd(void){
   const char *zDb;
@@ -393,8 +447,20 @@ void stash_cmd(void){
                   stashid);
     undo_finish();
   }else
+  if( memcmp(zCmd, "diff", nCmd)==0 ){
+    const char *zDiffCmd = db_get("diff-command", 0);
+    if( g.argc>4 ) usage("stash diff STASHID");
+    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stash_diff(stashid, zDiffCmd);
+  }else
+  if( memcmp(zCmd, "gdiff", nCmd)==0 ){
+    const char *zDiffCmd = db_get("gdiff-command", 0);
+    if( g.argc>4 ) usage("stash diff STASHID");
+    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stash_diff(stashid, zDiffCmd);
+  }else
   {
-    usage("apply|drop|goto|list|pop|save|snapshot ARGS...");
+    usage("SUBCOMMAND ARGS...");
   }
   db_end_transaction(0);
 }
