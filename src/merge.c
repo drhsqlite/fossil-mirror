@@ -440,10 +440,7 @@ void merge_cmd(void){
   /* Report on conflicts
   */
   if( nConflict && !nochangeFlag ){
-    printf(
-      "WARNING: merge conflicts - see messages above for details.\n"
-      "HINT:    The \"fossil undo\" command will back out this merge if "
-                "you want\n");
+    printf("WARNING: merge conflicts - see messages above for details.\n");
   }
   
   /*

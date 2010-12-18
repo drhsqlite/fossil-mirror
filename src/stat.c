@@ -111,8 +111,7 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",
                    SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
-  zDb = "repository";
-  if( strcmp(g.zMainDbType, zDb)==0 ) zDb = "main";
+  zDb = db_name("repository");
   @ %s(zBuf)
   @ </td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>

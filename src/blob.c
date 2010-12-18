@@ -281,7 +281,8 @@ char *blob_terminate(Blob *p){
 }
 
 /*
-** Compare two blobs.
+** Compare two blobs.  Return negative, zero, or positive if the first
+** blob is less then, equal to, or greater than the second.
 */
 int blob_compare(Blob *pA, Blob *pB){
   int szA, szB, sz, rc;

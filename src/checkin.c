@@ -51,7 +51,7 @@ static void status_report(
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
-    char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zPathname);
@@ -176,7 +176,7 @@ void ls_cmd(void){
     int isNew = db_column_int(&q,2)==0;
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
-    char *zFullName = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isBrief ){
       printf("%s\n", zPathname);
     }else if( isNew ){

@@ -63,6 +63,7 @@ set src {
   shun
   skins
   sqlcmd
+  stash
   stat
   style
   sync

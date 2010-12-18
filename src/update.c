@@ -29,6 +29,36 @@ int is_a_version(int rid){
   return db_exists("SELECT 1 FROM event WHERE objid=%d AND type='ci'", rid);
 }
 
+/* This variable is set if we are doing an internal update.  It is clear
+** when running the "update" command.
+*/
+static int internalUpdate = 0;
+static int internalConflictCnt = 0;
+
+/*
+** Do an update to version vid.  
+**
+** Start an undo session but do not terminate it.  Do not autosync.
+*/
+int update_to(int vid){
+  int savedArgc;
+  char **savedArgv;
+  char *newArgv[3];
+  newArgv[0] = g.argv[0];
+  newArgv[1] = "update";
+  newArgv[2] = 0;
+  savedArgv = g.argv;
+  savedArgc = g.argc;
+  g.argc = 2;
+  g.argv = newArgv;
+  internalUpdate = vid;
+  internalConflictCnt = 0;
+  update_cmd();
+  g.argc = savedArgc;
+  g.argv = savedArgv;
+  return internalConflictCnt;
+}
+
 /*
 ** COMMAND: update
 **
@@ -69,8 +99,10 @@ void update_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
 
-  undo_capture_command_line();
-  url_proxy_options();
+  if( !internalUpdate ){
+    undo_capture_command_line();
+    url_proxy_options();
+  }
   latestFlag = find_option("latest",0, 0)!=0;
   nochangeFlag = find_option("nochange","n",0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
@@ -83,9 +115,11 @@ void update_cmd(void){
   if( !nochangeFlag && db_exists("SELECT 1 FROM vmerge") ){
     fossil_fatal("cannot update an uncommitted merge");
   }
-  if( !nochangeFlag ) autosync(AUTOSYNC_PULL);
+  if( !nochangeFlag && !internalUpdate ) autosync(AUTOSYNC_PULL);
 
-  if( g.argc>=3 ){
+  if( internalUpdate ){
+    tid = internalUpdate;
+  }else if( g.argc>=3 ){
     if( strcmp(g.argv[2], "current")==0 ){
       /* If VERSION is "current", then use the same algorithm to find the
       ** target as if VERSION were omitted. */
@@ -147,7 +181,7 @@ void update_cmd(void){
   if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1, 0);
-  if( !nochangeFlag ) undo_begin();
+  if( !nochangeFlag && !internalUpdate ) undo_begin();
   load_vfile_from_rid(tid);
 
   /*
@@ -371,10 +405,11 @@ void update_cmd(void){
   /* Report on conflicts
   */
   if( nConflict && !nochangeFlag ){
-    printf(
-      "WARNING: merge conflicts - see messages above for details.\n"
-      "HINT:    The \"fossil undo\" command will back out this update if "
-                "you want\n");
+    if( internalUpdate ){
+      internalConflictCnt = nConflict;
+    }else{
+      printf("WARNING: merge conflicts - see messages above for details.\n");
+    }
   }
   
   /*
@@ -394,7 +429,7 @@ void update_cmd(void){
       ** checkout unchanged. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
     }
-    undo_finish();
+    if( !internalUpdate ) undo_finish();
     db_end_transaction(0);
   }
 }
@@ -522,10 +557,20 @@ void revert_cmd(void){
     if( errCode==2 ){
       fossil_warning("file not in repository: %s", zFile);
     }else{
-      char *zFull = mprintf("%//%/", g.zLocalRoot, zFile);
+      char *zFull = mprintf("%/%/", g.zLocalRoot, zFile);
       undo_save(zFile);
       blob_write_to_file(&record, zFull);
       printf("REVERTED: %s\n", zFile);
+      if( zRevision==0 ){
+        sqlite3_int64 mtime = file_mtime(zFull);
+        db_multi_exec(
+           "UPDATE vfile"
+           "   SET mtime=%lld, chnged=0, deleted=0,"
+           "       pathname=coalesce(origname,pathname), origname=NULL"     
+           " WHERE pathname=%Q",
+           mtime, zFile
+        );
+      }
       free(zFull);
     }
     blob_reset(&record);
@@ -533,5 +578,4 @@ void revert_cmd(void){
   db_finalize(&q);
   undo_finish();
   db_end_transaction(0);
-  printf("\"fossil undo\" is available to undo the changes shown above.\n");
 }
