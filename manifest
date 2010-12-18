@@ -1,5 +1,5 @@
-C Get\sthe\s"stash\ssave"\scommand\sworking\sfor\sthe\scase\swhen\sa\sdirectory\sis\nspecified\sas\san\sargument.
-D 2010-12-18T22:25:52
+C For\sthe\sgit-fast-export\sinterchange\sformat,\smake\ssure\slabels\sfor\sblobs\sand\nlabels\sfor\scheck-ins\sdo\snot\scollide\ssince\sgit\scannot\sdeal\swith\sthat.\nTicket\s[536c3399075d06]
+D 2010-12-18T23:59:10
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -61,7 +61,7 @@ F src/diffcmd.c 64e57185cb1f35b8f3b696c153bb344968b4ac18
 F src/doc.c 7a6f0faefbbaca6fabfa0e7536505915d7325ffd
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c 89bdf9e346d5cf81ad62c1c6691b04eaabb85284
-F src/export.c 9665562c480751a7daadaccd707ca22ca1ccbab1
+F src/export.c 493b6d6ee9322a98a1400c81d4e8bcf1d0878da9
 F src/file.c aaf85336aacc66e1925135625070498e1e3b9675
 F src/finfo.c a1a7eeca4010edefc080825ab79c2fd57fe7433d
 F src/graph.c 97998b592069992827fea6031b25550ca53d5803
@@ -284,7 +284,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 12a2a5eaf20f2d2439e16fdd2e08918cfbb94fdd
-R 3ea1f9ea7791085a04ee695dbffb88d6
+P fc6aea52baa78b1d555dc5b308eb522b3c1de356
+R 1b8c544d885a7969e63fe1e287f986c0
 U drh
-Z 08b84e417301e00fc5891b36f27014eb
+Z 76ddbf5f8889e30bdb51720f1d0cf6d2

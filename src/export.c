@@ -101,6 +101,7 @@ static void print_person(const char *zUser){
 void export_cmd(void){
   Stmt q;
   int i;
+  int firstCkin;       /* Integer offset to check-in marks */
   Bag blobs, vers;
   bag_init(&blobs);
   bag_init(&vers);
@@ -129,6 +130,7 @@ void export_cmd(void){
 
   /* Output the commit records.
   */
+  firstCkin = db_int(0, "SELECT max(rid) FROM blob")+1;
   db_prepare(&q,
     "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
     "       coalesce(user,euser),"
@@ -155,7 +157,7 @@ void export_cmd(void){
     for(i=0; zBr[i]; i++){
       if( !fossil_isalnum(zBr[i]) ) zBr[i] = '_';
     }
-    printf("commit refs/heads/%s\nmark :%d\n", zBr, ckinId);
+    printf("commit refs/heads/%s\nmark :%d\n", zBr, ckinId+firstCkin);
     free(zBr);
     printf("committer");
     print_person(zUser);
@@ -167,7 +169,7 @@ void export_cmd(void){
     for(i=0; i<p->nParent; i++){
       int pid = fast_uuid_to_rid(p->azParent[i]);
       if( pid==0 || !bag_find(&vers, pid) ) continue;
-      printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i]));
+      printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
       zFromType = "merge";
     }
     printf("deleteall\n");
@@ -200,7 +202,7 @@ void export_cmd(void){
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
     printf("tag %s\n", zTagname);
-    printf("from :%d\n", rid);
+    printf("from :%d\n", rid+firstCkin);
     printf("tagger <tagger> %lld +0000\n", secSince1970);
     printf("data 0\n");
   }
