@@ -1438,14 +1438,14 @@ void ci_edit_page(void){
   zCloseFlag = P("close") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
-    char *zDate;
+    char *zNow;
     int nChng = 0;
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
-    blob_appendf(&ctrl, "D %s\n", zDate);
+    zNow = db_text(0, "SELECT datetime('now')");
+    zNow[10] = 'T';
+    blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
      && (fPropagateColor!=fNewPropagateColor || strcmp(zColor,zNewColor)!=0)
