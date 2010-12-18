@@ -165,8 +165,7 @@ static int undoDisable = 0;
 void undo_capture_command_line(void){
   Blob cmdline;
   int i;
-  assert( undoCmd==0 );
-  if( undoDisable ) return;
+  if( undoCmd!=0 || undoDisable ) return;
   blob_zero(&cmdline);
   for(i=1; i<g.argc; i++){
     if( i>1 ) blob_append(&cmdline, " ", 1);

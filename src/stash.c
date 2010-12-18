@@ -163,6 +163,98 @@ static void stash_create(void){
 }
 
 /*
+** Apply a stash to the current check-out.
+*/
+static void stash_apply(int stashid, int nConflict){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT rid, isRemoved, isExec, origname, newname, delta"
+     "  FROM stashfile WHERE stashid=%d",
+     stashid
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    int isRemoved = db_column_int(&q, 1);
+    const char *zOrig = db_column_text(&q, 3);
+    const char *zNew = db_column_text(&q, 4);
+    char *zOPath = mprintf("%s/%s", g.zLocalRoot, zOrig);
+    char *zNPath = mprintf("%s/%s", g.zLocalRoot, zNew);
+    undo_save(zNPath);
+    Blob delta;
+    if( rid==0 ){
+      db_ephemeral_blob(&q, 5, &delta);
+      blob_write_to_file(&delta, zNPath);
+      printf("ADD %s\n", zNew);
+    }else if( isRemoved ){
+      printf("DELETE %s\n", zOrig);
+      unlink(zOPath);
+    }else{
+      Blob a, b, out, disk;
+      db_ephemeral_blob(&q, 5, &delta);
+      blob_read_from_file(&disk, zOPath);     
+      content_get(rid, &a);
+      blob_delta_apply(&a, &delta, &b);
+      if( blob_compare(&disk, &a)==0 ){
+        blob_write_to_file(&b, zNPath);
+        printf("UPDATE %s\n", zNew);
+      }else{
+        int rc = blob_merge(&a, &disk, &b, &out);
+        blob_write_to_file(&out, zNPath);
+        if( rc ){
+          printf("CONFLICT %s\n", zNew);
+          nConflict++;
+        }else{
+          printf("MERGE %s\n", zNew);
+        }
+        blob_reset(&out);
+      }
+      blob_reset(&a);
+      blob_reset(&b);
+      blob_reset(&delta);
+    }
+    if( strcmp(zOrig,zNew)!=0 ){
+      undo_save(zOPath);
+      unlink(zOPath);
+    }
+  }
+  db_finalize(&q);
+  if( nConflict ){
+    printf("WARNING: merge conflicts - see messages above for details.\n");
+  }
+}
+
+/*
+** Drop the indicates stash
+*/
+static void stash_drop(int stashid){
+  db_multi_exec(
+    "DELETE FROM stash WHERE stashid=%d;"
+    "DELETE FROM stashfile WHERE stashid=%d;",
+    stashid, stashid
+  );
+}
+
+/*
+** If zStashId is non-NULL then interpret is as a stash number and
+** return that number.  Or throw a fatal error if it is not a valid
+** stash number.  If it is NULL, return the most recent stash or
+** throw an error if the stash is empty.
+*/
+static int stash_get_id(const char *zStashId){
+  int stashid = 0;
+  if( zStashId==0 ){
+    stashid = db_int(0, "SELECT max(stashid) FROM stash");
+    if( stashid==0 ) fossil_fatal("empty stash");
+  }else{
+    stashid = atoi(zStashId);
+    if( !db_exists("SELECT 1 FROM stash WHERE stashid=%d", stashid) ){
+      fossil_fatal("no such stash: %d\n", stashid);
+    }
+  }
+  return stashid;
+}
+
+/*
 ** COMMAND: stash
 **
 ** Usage: %fossil COMMAND ARGS...
@@ -209,6 +301,7 @@ void stash_cmd(void){
   const char *zDb = "localdb";
   const char *zCmd;
   int nCmd;
+  undo_capture_command_line();
   db_must_be_within_tree();
   db_begin_transaction();
   if( strcmp(g.zMainDbType, zDb)==0 ) zDb = "main";
@@ -222,6 +315,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "save", nCmd)==0 ){
     stash_create();
     undo_disable();
+    g.argc = 2;
     revert_cmd();
   }else
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
@@ -229,6 +323,7 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "list", nCmd)==0 ){
     Stmt q;
+    int n = 0;
     verify_all_options();
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
@@ -236,6 +331,7 @@ void stash_cmd(void){
        " ORDER BY ctime DESC"
     );
     while( db_step(&q)==SQLITE_ROW ){
+      n++;
       const char *zCom;
       printf("%5d: [%.14s] on %s\n",
         db_column_int(&q, 0),
@@ -244,19 +340,40 @@ void stash_cmd(void){
       );
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
-        printf("      ");
+        printf("       ");
         comment_print(zCom, 7, 79);
       }
     }
     db_finalize(&q);
+    if( n==0 ) printf("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 ){
+    if( g.argc>4 ) usage("stash apply STASHID");
+    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    stash_drop(stashid);
   }else
   if( memcmp(zCmd, "pop", nCmd)==0 ){
+    if( g.argc>3 ) usage("stash pop");
+    int stashid = stash_get_id(0);
+    undo_begin();
+    stash_apply(stashid, 0);
+    undo_finish();
+    stash_drop(stashid);
   }else
   if( memcmp(zCmd, "apply", nCmd)==0 ){
+    if( g.argc>4 ) usage("stash apply STASHID");
+    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    undo_begin();
+    stash_apply(stashid, 0);
+    undo_finish();
   }else
   if( memcmp(zCmd, "goto", nCmd)==0 ){
+    if( g.argc>4 ) usage("stash apply STASHID");
+    int stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    undo_begin();
+    update_to(db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid));
+    stash_apply(stashid, 0);
+    undo_finish();
   }else
   {
     usage("apply|drop|goto|list|pop|save|snapshot ARGS...");

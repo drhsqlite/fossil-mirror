@@ -1,5 +1,5 @@
-C Begin\sadding\scode\sto\simplement\sthe\s"stash"\scommand.\s\sThe\scode\scompiles\sand\nruns\sbut\sis\scurrently\sincomplete.\s\sThis\sis\san\sincremental\scheck-in\sto\spreserve\nstate.\s\s(Ironically,\sif\s"stash"\swere\sworking,\sI'd\shave\sprobably\sjust\sdone\na\s"stash\ssnapshot"\sto\scapture\sthis\sstate,\srather\sthan\san\sexperimental\sbranch.)
-D 2010-12-18T17:24:21
+C The\s"stash"\sfunctionality\sis\snow\sin\splace.\s\sNeed\sto\stest\smore\sprior\sto\smerging\ninto\strunk.
+D 2010-12-18T18:56:34
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -39,7 +39,7 @@ F src/allrepo.c 80a4ff9364e33341c4096d6fa6d2cd0dbe701dce
 F src/attach.c 52c3130291561030caa95c18df0e0e5834393fcc
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c a58a20d4e9ddb64fc20cb1c70af8dea00dcea5ba
-F src/blob.c 882f5c6ad3047e6d259fa28934b35b68e83e0acc
+F src/blob.c 8c7994b7d69dc051e6435d99bb3693692decff90
 F src/branch.c 26a10ec1a6bcc4db07d81e858a3a438f8f6626ad
 F src/browse.c 46262a33f8c3293d3b4eb21ff5b3ccd708257598
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
@@ -79,7 +79,7 @@ F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 6af0f07684d9a106f7fff7708cec9f1f0d2a6153
 F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c e2954e0bf89c982c618f9886a8d17465b860a0dc
+F src/merge.c 6131cabe35fb8c8dd8d9b96ad2a66da3e4a5d5e0
 F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
 F src/mkindex.c e7baf1a83ad6fa46d98185a16136bd2ad67af95d
 F src/name.c 9a03e3ae43aec33afc344b3edf5336487ff56b59
@@ -100,7 +100,7 @@ F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
 F src/sqlcmd.c f5e8a3673f51f8a81e72964353243345e26a353a
 F src/sqlite3.c 88f58121fd587d5b1ac8a16f830639973ed7941b
 F src/sqlite3.h 6bae8833f0dbb127cf7ded5f886b3b4a3fd8aaa8
-F src/stash.c 01c6fc85342a37263631ed859ffa83e8305d2e40
+F src/stash.c 45ab33f629a0ffbaeeb7d3c604604447797b25c7
 F src/stat.c 79be3ec204dbd3968fa98ef2ee3f720c2cfb72ac
 F src/style.c e1a62beba3bd9bdcd53c8d72538454fb71f608a3
 F src/sync.c e841008b8690c0b4d34187d05da4310996bfbff8
@@ -113,8 +113,8 @@ F src/timeline.c 67012f886895eec9b2598628125cff34364c1ad2
 F src/tkt.c d7a71ae5fcc3307738de2c7624bf2cdd3ed1cb80
 F src/tktsetup.c 392c112e2e6e26b414d971675c31e71fa3c3ecf4
 F src/translate.c 8296736b7b204a9ac4f3b3a9fb416376a623fffd
-F src/undo.c 31f4737ab3a33ff38a3a19ec38baa19f2572758f
-F src/update.c 874f4d431c26f6a1ad1d66b9932da0f54d00ee38
+F src/undo.c fdc5feee8b38328b99ccb05ac9c12ddd8e33a6a5
+F src/update.c 0e4d01c5773a83906641dfa8d4d413b26808ae91
 F src/url.c c849e06b053163318a9af69ff27ff19a40963991
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -284,11 +284,7 @@ F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
 F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P 30981b64a4fcf74d2a0019d03c1e7479abbc8437
-R 4a93674d01150a782b9963639f174d51
-T *bgcolor * #c0ffc0
-T *branch * experimental
-T *sym-experimental *
-T -sym-trunk *
+P b3dadcc4a6dbe5b89a7979f7f1b6ff5d93d2382d
+R 8d2f478141b70451fc3c856e24946635
 U drh
-Z 50ade80aad48e921f0bedf922b053a60
+Z 75c8fd50a8a96eec43ae31d07e42ef56
