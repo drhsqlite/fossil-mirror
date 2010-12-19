@@ -1,5 +1,5 @@
-C Added\sa\spermuted\sdocumentation\sindex.
-D 2010-12-19T20:59:29
+C When\san\sambiguous\scommand\sprefix\sis\sentered,\sreport\sall\spossible\smatches\sas\npart\sof\sthe\serror\smessage.
+D 2010-12-19T21:08:09
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -72,7 +72,7 @@ F src/http_transport.c f280e7f07c067a19d3f8c84178a10d1ec4af000b
 F src/import.c 60a5ff0f90dacb1425b3ee6603bbb9a9cdcdac2d
 F src/info.c fb6f2ba279972a3437fcf79658355e1e98562f97
 F src/login.c 88f740b9475f5c6db67b14d053f541e41038665d
-F src/main.c d06813adffe6ef851b855adeab6c0c8e1551e49e
+F src/main.c 22a7ce72d8d9af9faa2cbc4d31f7bd501a7767dd
 F src/main.mk 1886945f06dbd2ee23ff1abe220ac4684d0be02e
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -286,7 +286,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P bbbb35a3c68f96f01bcae4700d8b23bb9ecaa936
-R 7c2ccd9ee29d7bad14d6bc0890c424dd
+P 169a10dd5e2d4589925c08765bef7c320d0ca9f4
+R 03c5c6b3cccd72b34d9c927283d502ec
 U drh
-Z db3167945cf930bca4eb4f3e46f82ff3
+Z 9f80e4c7840340856a556c2ab27b8d3d

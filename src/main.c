@@ -253,9 +253,19 @@ int main(int argc, char **argv){
                    argv[0], zCmdName, argv[0]);
     fossil_exit(1);
   }else if( rc==2 ){
+    int i, n;
+    Blob couldbe;
+    blob_zero(&couldbe);
+    n = strlen(zCmdName);
+    for(i=0; i<count(aCommand); i++){
+      if( memcmp(zCmdName, aCommand[i].zName, n)==0 ){
+        blob_appendf(&couldbe, " %s", aCommand[i].zName);
+      }
+    }
     fprintf(stderr,"%s: ambiguous command prefix: %s\n"
+                   "%s: could be any of:%s\n"
                    "%s: use \"help\" for more information\n",
-                   argv[0], zCmdName, argv[0]);
+                   argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
     fossil_exit(1);
   }
   aCommand[idx].xFunc();
