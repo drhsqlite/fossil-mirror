@@ -250,7 +250,7 @@ void finfo_page(void){
     if( zBr==0 ) zBr = "trunk";
     gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr);
     if( memcmp(zDate, zPrevDate, 10) ){
-      sprintf(zPrevDate, "%.10s", zDate);
+      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>

@@ -348,7 +348,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "s";
     g.noPswd = 1;
-    strcpy(g.zCsrfToken, "localhost");
+    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
   }
 
   /* Check the login cookie to see if it matches a known valid user.
@@ -413,7 +413,7 @@ void login_check_credentials(void){
       uid = -1;
       zCap = "";
     }
-    strcpy(g.zCsrfToken, "none");
+    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "none");
   }
 
   /* At this point, we know that uid!=0.  Find the privileges associated

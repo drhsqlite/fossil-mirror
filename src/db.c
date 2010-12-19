@@ -779,7 +779,7 @@ int db_open_local(void){
   while( n>0 ){
     if( access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      strcpy(&zPwd[n], aDbName[i]);
+      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -1229,7 +1229,7 @@ char *db_conceal(const char *zContent, int n){
   }else{
     sha1sum_step_text(zContent, n);
     sha1sum_finish(&out);
-    strcpy(zHash, blob_str(&out));
+    sqlite3_snprintf(sizeof(zHash), zHash, "%s", blob_str(&out));
     blob_reset(&out);
     db_multi_exec(
        "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",

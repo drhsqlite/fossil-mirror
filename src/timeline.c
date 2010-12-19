@@ -234,7 +234,7 @@ void www_print_timeline(
       continue;
     }
     if( memcmp(zDate, zPrevDate, 10) ){
-      sprintf(zPrevDate, "%.10s", zDate);
+      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
@@ -1022,7 +1022,7 @@ void print_timeline(Stmt *q, int mxLine){
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
     
-    sprintf(zUuid, "%.10s", zId);
+    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       printf("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);

@@ -977,7 +977,7 @@ static void hexdump(Blob *pBlob){
     zLine[2] = zHex[(i>>8)&0xf];
     zLine[3] = zHex[i&0xf];
     zLine[4] = ':';
-    sprintf(zLine, "%04x: ", i);
+    sqlite3_snprintf(sizeof(zLine), zLine, "%04x: ", i);
     for(j=0; j<16; j++){
       k = 5+j*3;
       zLine[k] = ' ';
@@ -1480,7 +1480,7 @@ void ci_edit_page(void){
       int tagid = db_column_int(&q, 0);
       const char *zTag = db_column_text(&q, 1);
       char zLabel[30];
-      sprintf(zLabel, "c%d", tagid);
+      sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
       if( P(zLabel) ){
         db_multi_exec("REPLACE INTO newtags VALUES(%Q,'-',NULL)", zTag);
       }
@@ -1615,7 +1615,7 @@ void ci_edit_page(void){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];
-    sprintf(zLabel, "c%d", tagid);
+    sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
     if( P(zLabel) ){
       @ <br /><input type="checkbox" name="c%d(tagid)" checked="checked" />
     }else{
