@@ -23,6 +23,7 @@
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
+<li> [./permutedindex.wiki | Doc Index]
 <li> Mailing list
      <ul>
      <li> [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | sign-up]

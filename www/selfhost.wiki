@@ -1,5 +1,4 @@
 <title>Fossil Self-Hosting Repositories</title>
-<h1 align="center">Fossil Self-Hosting Repositories</h1>
 
 Fossil has self-hosted since 2007-07-21.  As of this writing (2009-08-24)
 there are three publicly accessible repositories for the Fossil source code:

@@ -1,4 +1,5 @@
-<h1>Wiki In [./index.wiki  | Fossil]</h1>
+<title>Wiki In Fossil</title>
+<h2>Introduction</h2>
 
 Fossil uses [/wiki_rules | wiki markup] for many things:
 

@@ -1,7 +1,6 @@
+<title>Fossil Delta Format</title>
 <nowiki>
-<h1 align="center">
-Fossil Delta Format
-</h1>
+<h2>Abstract</h2>
 
 <p>Fossil achieves efficient storage and low-bandwidth synchronization
 through the use of delta-compression.  Instead of storing

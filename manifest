@@ -1,5 +1,5 @@
-C Clear\scompiler\swarnings\son\sOpenBSD.\s\sNo\sfunctional\scode\schanges.
-D 2010-12-19T02:09:28
+C Added\sa\spermuted\sdocumentation\sindex.
+D 2010-12-19T20:59:29
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -203,8 +203,8 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki d9a600d56dae317af2668cf6172f63091a887b9a
-F www/bugtheory.wiki b809c20d72cf39859dea9f23009b576799d1b806
+F www/branching.wiki f5c81633deb58a29905cd280230881bf1fd5a8da
+F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
 F www/build-icons/mac.gif e8de26198384613dbd2b9f3ad81f59946d55d119
@@ -232,15 +232,15 @@ F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
 F www/copyright-release.html 7fa63d1ca4eb770f9b2b88ed29061905e0f60db5
-F www/custom_ticket.wiki 5483db507a120a026f383eeddf391debb6619326
+F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
 F www/delta3.gif ecdccfa728b9e060d8d9541b7851818e4ff435a2
 F www/delta4.gif 235b08d75ca98d34ba8b5bcaf38aeaf975ec51b4
 F www/delta5.gif 990001794fe052e5163bc5423ad0968fdc9ced92
 F www/delta6.gif 325bffc28f96aa9a73696e260cba68a1668ac31a
-F www/delta_encoder_algorithm.wiki 4cdc9058d2a3b4d42d3d312adc355c597326400c
-F www/delta_format.wiki 4f786152399dc855fe8b32930fc3c2690465d3d3
+F www/delta_encoder_algorithm.wiki 9686168c940fc6e88065a845918e9b7e77e881c8
+F www/delta_format.wiki 20dd8049e46a7ae1d0b86269ee22e157f6095e5c
 F www/embeddeddoc.wiki 90ff3cae1f811a7b57647c438ebe7cf25bdcdcc7
 F www/encode1.gif d75ce317b5f940c6f557cf76540de2aa1cde8c0b
 F www/encode10.gif 36b56c4055dc85e63cf28d7b07e0004b20e2a7bf
@@ -265,26 +265,28 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 64dc1a0ddd59b6d47c1e8b063eadeb6d5f3cb26f
+F www/index.wiki 3461ba1058f26f1d46338fe86c855a423431cde7
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/mkdownload.tcl d705564e670f5b357c666b98dc42e41884496b79
+F www/mkindex.tcl ba12f517bebaca6137eca501f2efc178c5d2e1ea
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
+F www/permutedindex.wiki 1146000dca31062270cdad9e67186f27f89fbd50
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 038e7d5de60a50b749afa6964760d0f429db12b4
 F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
 F www/reviews.wiki 50033359c634904410c6e610bf57df96a3b5a377
 F www/selfcheck.wiki 149da47380440a81d3bdf4f9d65e126c2309e8b2
-F www/selfhost.wiki 78cc85288e81a6b9ffdbe6c57dcb1688fd3d81b1
-F www/server.wiki 798fb85038218374ceeaae058ac36b1508005347
+F www/selfhost.wiki c45f49f532f7e0169617d76ef64fb80931fe0ea4
+F www/server.wiki 0532a325f6ce6d87c7022497b669f2ed00e87487
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
-F www/sync.wiki d6cbb8a817f115bf670eaba1017905ed88580ab1
+F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
-F www/webui.wiki ee72c72e52ab277949e0d9f2be05f3ecfdc9373e
-F www/wikitheory.wiki 8b81a5dfc4d5c671aaebc2890d1bf9b891c9be10
-P d45502b066b03052682e723d0e03e0bf12960483
-R 70e5d2193d1ed66e43f680c11966cc9e
+F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
+F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
+P bbbb35a3c68f96f01bcae4700d8b23bb9ecaa936
+R 7c2ccd9ee29d7bad14d6bc0890c424dd
 U drh
-Z 64c173a372700b4128743d320b8fa8b4
+Z db3167945cf930bca4eb4f3e46f82ff3

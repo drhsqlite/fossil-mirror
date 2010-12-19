@@ -1,7 +1,6 @@
+<title>Fossil Delta Encoding Algorithm</title>
 <nowiki>
-<h1 align="center">
-Fossil Delta Encoding Algorithm
-</h1>
+<h2>Abstract</h2>
 
 <p>A key component for the efficient storage of multiple revisions of
 a file in fossil repositories is the use of delta-compression, i.e. to

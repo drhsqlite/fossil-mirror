@@ -1,7 +1,5 @@
-<title>Fossil Documentation</title>
-<h1 align="center">
-Branching, Forking, Merging, and Tagging
-</h1>
+<title>Branching, Forking, Merging, and Tagging</title>
+<h2>Background</h2>
 
 In a simple and perfect world, the development of a project would proceed
 linearly, as shown in figure 1.

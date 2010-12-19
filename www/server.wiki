@@ -1,5 +1,5 @@
-﻿<nowiki>
-<h1 align="center">Server Setup Guide</h1>
+<title>How To Configure A Fossil Server</title>
+<nowiki>
 <p>This guide is intended to help guide you in setting up a Fossil server.</p>
 
 <h2>Standalone server</h2><blockquote>

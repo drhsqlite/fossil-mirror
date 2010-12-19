@@ -1,4 +1,5 @@
-<h1 align="center">The Fossil Web Interface</h1>
+<title>The Fossil Web Interface</title>
+<h2>Overview</h2>
 
 One of the innovative features of fossil is its built-in web interface.
 This web interface provides everything you need to run a software
