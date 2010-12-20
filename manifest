@@ -1,5 +1,5 @@
-C For\sclone\sand\ssync,\sreport\sthe\scorrect\snetwork\straffic\stotals\seven\sif\sthose\ntotals\sexceed\s2\sGiB.
-D 2010-12-20T02:14:00
+C Get\sthe\s--ignore\soption\sand\signore-glob\ssetting\sworking\sfor\sthe\s"clean"\ncommand.\s\sTicket\s[0bc90d7235404d16].
+D 2010-12-20T12:49:03
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -44,7 +44,7 @@ F src/branch.c 26a10ec1a6bcc4db07d81e858a3a438f8f6626ad
 F src/browse.c 46262a33f8c3293d3b4eb21ff5b3ccd708257598
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c 42c009d5cb6072f658118cd281046ef21ed6ec47
-F src/checkin.c bc8f69ddb6287c3bbef05cea14c20755101cb8ce
+F src/checkin.c 3aebde77a5585e6ead3583fca3c0d1ce87a547e2
 F src/checkout.c 45ccc5ea4d73fc17f18eba1d29eab1b92f5d115d
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 152ad6f32b17633e49777e4e0fa328cd67c58d3a
@@ -286,7 +286,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P f6263ed6ce5fb60f8a11abab87d072199e9eac82
-R 28df6ae16c431862df5fa437ad32c6b5
+P a9e05e23e9f085b35b1b0bc9350d6121b01fb53c
+R 59ca21cd5a2e4c34bc61f8766449621d
 U drh
-Z 5db73038f5e946b39eaaec1061d62ad1
+Z f721f73033131d58cdb253730ae67391

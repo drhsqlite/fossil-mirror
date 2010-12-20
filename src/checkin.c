@@ -264,6 +264,10 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 **
 ** Files and subdirectories whose names begin with "." are normally
 ** ignored but can be included by adding the --dotfiles option.
+**
+** The GLOBPATTERN is a comma-separated list of GLOB expressions for
+** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
+** is used if the --ignore option is omitted.
 */
 void extra_cmd(void){
   Blob path;
@@ -302,7 +306,7 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?--force? ?--dotfiles?
+** Usage: %fossil clean ?--force? ?--dotfiles? ?--ignore GLOBPATTERN?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
@@ -315,25 +319,34 @@ void extra_cmd(void){
 ** Files and subdirectories whose names begin with "." are
 ** normally ignored.  They are included if the "--dotfiles" option
 ** is used.
+**
+** The GLOBPATTERN is a comma-separated list of GLOB expressions for
+** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
+** is used if the --ignore option is omitted.
 */
 void clean_cmd(void){
   int allFlag;
   int dotfilesFlag;
+  const char *zIgnoreFlag;
   Blob path, repo;
   Stmt q;
   int n;
   allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
+  zIgnoreFlag = find_option("ignore",0,1);
   db_must_be_within_tree();
+  if( zIgnoreFlag==0 ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s)"
+      " WHERE x NOT IN (%s) AND NOT %s"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names()
+      g.zLocalRoot, fossil_all_reserved_names(), glob_expr("x",zIgnoreFlag)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
