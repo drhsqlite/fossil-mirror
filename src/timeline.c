@@ -464,7 +464,11 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.mu-1];
     @     var y0 = u.y+5;
-    @     drawThinLine(x0,y1,x1,y1);
+    @     if( x1==p.x ){
+    @       y1 -= 2;
+    @     }else{
+    @       drawThinLine(x0,y1,x1,y1);
+    @     }
     @     drawThinLine(x1,y0,x1,y1);
     @   }
     @   var n = p.au.length;
@@ -479,7 +483,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     var y0 = p.y+5;
     @     var mx = p.mi[j]*20 + left;
     @     if( mx>p.x ){
-    @       drawThinArrow(y0,mx,p.x+5);
+    @       drawThinArrow(y0,mx,p.x+6);
     @     }else{
     @       drawThinArrow(y0,mx,p.x-5);
     @     }

@@ -247,9 +247,6 @@ static void assignChildrenToRail(GraphRow *pBottom){
       pPrior = pPrior->pPrev;
       assert( pPrior!=0 );
     }
-    if( pCurrent->pPrev ){
-      pCurrent->pPrev->railInUse |= mask;
-    }
   }
 }
 
@@ -382,8 +379,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pParent->aiRaiser[pRow->iRail] = pRow->idx;
     }
     mask = 1<<pRow->iRail;
-/*    if( pRow->pPrev ) pRow->pPrev->railInUse |= mask; */
-    if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+    pRow->railInUse |= mask;
     if( pRow->pChild==0 ){
       inUse &= ~mask;
     }else{
@@ -391,7 +387,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       assignChildrenToRail(pRow);
     }
     if( pParent ){
-      for(pLoop=pParent; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
+      for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
         pLoop->railInUse |= mask;
       }
     }
@@ -407,10 +403,9 @@ void graph_finish(GraphContext *p, int omitDescenders){
       if( pDesc==0 ) continue;
       if( pDesc->mergeOut<0 ){
         int iTarget = (pRow->iRail + pDesc->iRail)/2;
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
+        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx-1, 0, iTarget);
         pDesc->mergeUpto = pRow->idx;
         mask = 1<<pDesc->mergeOut;
-        pDesc->railInUse |= mask;
         for(pLoop=pRow->pNext; pLoop && pLoop->rid!=parentRid;
              pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
@@ -430,10 +425,9 @@ void graph_finish(GraphContext *p, int omitDescenders){
       assert( pDesc!=0 && pDesc!=pRow );
       if( pDesc->mergeOut<0 ){
         int iTarget = (pRow->iRail + pDesc->iRail)/2;
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
+        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx-1, 0, iTarget);
         pDesc->mergeUpto = pRow->idx;
         mask = 1<<pDesc->mergeOut;
-        pDesc->railInUse |= mask;
         for(pLoop=pRow->pNext; pLoop && pLoop!=pDesc; pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
         }
