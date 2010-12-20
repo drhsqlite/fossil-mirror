@@ -111,7 +111,7 @@ foreach s [lsort $src] {
 puts "\n"
 puts -nonewline "TRANS_SRC ="
 foreach s [lsort $src] {
-  puts -nonewline " \\\n  ${s}_.c"
+  puts -nonewline " \\\n  \$(OBJDIR)/${s}_.c"
 }
 puts "\n"
 puts -nonewline "OBJ ="
@@ -131,14 +131,14 @@ install:	$(APPNAME)
 $(OBJDIR):
 	-mkdir $(OBJDIR)
 
-translate:	$(SRCDIR)/translate.c
-	$(BCC) -o translate $(SRCDIR)/translate.c
+$(OBJDIR)/translate:	$(SRCDIR)/translate.c
+	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
 
-makeheaders:	$(SRCDIR)/makeheaders.c
-	$(BCC) -o makeheaders $(SRCDIR)/makeheaders.c
+$(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
+	$(BCC) -o $(OBJDIR)/makeheaders $(SRCDIR)/makeheaders.c
 
-mkindex:	$(SRCDIR)/mkindex.c
-	$(BCC) -o mkindex $(SRCDIR)/mkindex.c
+$(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
+	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -146,14 +146,14 @@ mkindex:	$(SRCDIR)/mkindex.c
 test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
-VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
 	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}' \
-		$(SRCDIR)/../manifest.uuid >VERSION.h
+		$(SRCDIR)/../manifest.uuid >$(OBJDIR)/VERSION.h
 	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}' \
-		$(SRCDIR)/../manifest.uuid >>VERSION.h
+		$(SRCDIR)/../manifest.uuid >>$(OBJDIR)/VERSION.h
 	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n",\
 		substr($$2,1,10),substr($$2,12)}' \
-		$(SRCDIR)/../manifest >>VERSION.h
+		$(SRCDIR)/../manifest >>$(OBJDIR)/VERSION.h
 
 EXTRAOBJ = \
   $(OBJDIR)/sqlite3.o \
@@ -161,7 +161,7 @@ EXTRAOBJ = \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o
 
-$(APPNAME):	headers $(OBJ) $(EXTRAOBJ)
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build
@@ -171,8 +171,7 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:	
-	rm -f $(OBJDIR)/*.o *_.c $(APPNAME) VERSION.h
-	rm -f translate makeheaders mkindex page_index.h headers}
+	rm -f $(OBJDIR)/* $(APPNAME) $(OBJDIR)/VERSION.h $(OBJDIR)/headers}
 
 set hfiles {}
 foreach s [lsort $src] {lappend hfiles $s.h}
@@ -180,29 +179,27 @@ puts "\trm -f $hfiles\n"
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " ${s}_.c:$s.h"
+  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
-append mhargs " VERSION.h"
-puts "page_index.h: \$(TRANS_SRC) mkindex"
-puts "\t./mkindex \$(TRANS_SRC) >$@"
-puts "headers:\tpage_index.h makeheaders VERSION.h"
-puts "\t./makeheaders $mhargs"
-puts "\ttouch headers"
-puts "headers: Makefile"
+append mhargs " \$(OBJDIR)/VERSION.h"
+puts "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
+puts "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@"
+puts "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
+puts "\t\$(OBJDIR)/makeheaders $mhargs"
+puts "\ttouch \$(OBJDIR)/headers"
+puts "\$(OBJDIR)/headers: Makefile"
 puts "Makefile:"
-set extra_h(main) page_index.h
+set extra_h(main) \$(OBJDIR)/page_index.h
 
 foreach s [lsort $src] {
-  puts "${s}_.c:\t\$(SRCDIR)/$s.c translate"
-  puts "\t./translate \$(SRCDIR)/$s.c >${s}_.c\n"
-  puts "\$(OBJDIR)/$s.o:\t${s}_.c $s.h $extra_h($s) \$(SRCDIR)/config.h"
-  puts "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c ${s}_.c\n"
-  puts "$s.h:\theaders"
-#  puts "\t./makeheaders $mhargs\n\ttouch headers\n"
-#  puts "\t./makeheaders ${s}_.c:${s}.h\n"
+  puts "\$(OBJDIR)/${s}_.c:\t\$(SRCDIR)/$s.c \$(OBJDIR)/translate"
+  puts "\t\$(OBJDIR)/translate \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
+  puts "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
+  puts "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
+  puts "$s.h:\t\$(OBJDIR)/headers"
 }
 
 
