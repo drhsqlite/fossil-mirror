@@ -43,6 +43,7 @@
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  int nErr = 0;
 
   url_proxy_options();
   if( g.argc < 4 ){
@@ -95,11 +96,15 @@ void clone_cmd(void){
     );
     url_enable_proxy(0);
     g.xlinkClusterOnly = 1;
-    client_sync(0,0,1,CONFIGSET_ALL,0);
+    nErr = client_sync(0,0,1,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
     db_close();
+    if( nErr ){
+      unlink(g.argv[3]);
+      fossil_fatal("server returned an error - clone aborted");
+    }
     db_open_repository(g.argv[3]);
   }
   db_begin_transaction();
