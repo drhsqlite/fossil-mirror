@@ -740,7 +740,7 @@ void page_xfer(void){
   blob_zero(&xfer.err);
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
-  xfer.mxSend = db_get_int("max-download", 20000000);
+  xfer.mxSend = db_get_int("max-download", 5000000);
   g.xferPanic = 1;
 
   db_begin_transaction();
