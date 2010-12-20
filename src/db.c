@@ -943,6 +943,25 @@ void db_must_be_within_tree(void){
 void db_close(void){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
+  if( g.fSqlTrace ){
+    int cur, hiwtr;
+    sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- LOOKASIDE_USED %10d %10d\n", cur, hiwtr);
+    sqlite3_db_status(g.db, SQLITE_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- CACHE_USED     %10d\n", cur);
+    sqlite3_db_status(g.db, SQLITE_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- SCHEMA_USED    %10d\n", cur);
+    sqlite3_db_status(g.db, SQLITE_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- STMT_USED      %10d\n", cur);
+    sqlite3_status(SQLITE_STATUS_MEMORY_USED, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- MEMORY_USED    %10d %10d\n", cur, hiwtr);
+    sqlite3_status(SQLITE_STATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- MALLOC_SIZE               %10d\n", hiwtr);
+    sqlite3_status(SQLITE_STATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- MALLOC_COUNT   %10d %10d\n", cur, hiwtr);
+    sqlite3_status(SQLITE_STATUS_PAGECACHE_OVERFLOW, &cur, &hiwtr, 0);
+    fprintf(stderr, "-- PCACHE_OVFLOW  %10d %10d\n", cur, hiwtr);
+  }
   while( pAllStmt ){
     db_finalize(pAllStmt);
   }
