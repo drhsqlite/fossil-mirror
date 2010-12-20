@@ -440,7 +440,7 @@ int delta_create(
       }
 
       /* If we reach this point, it means no match is found so far */
-      if( base+i+NHASH>lenOut ){
+      if( base+i+NHASH>=lenOut ){
         /* We have reached the end of the file and have not found any
         ** matches.  Do an "insert" for everything that does not match */
         putInt(lenOut-base, &zDelta);
