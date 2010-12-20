@@ -1126,7 +1126,7 @@ int client_sync(
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
   const char *zCookie;    /* Server cookie */
-  int nSent, nRcvd;       /* Bytes sent and received (after compression) */
+  i64 nSent, nRcvd;       /* Bytes sent and received (after compression) */
   int cloneSeqno = 1;     /* Sequence number for clones */
   Blob send;              /* Text we are sending to the server */
   Blob recv;              /* Reply we got back from the server */
@@ -1568,7 +1568,7 @@ int client_sync(
     if( cloneSeqno<=0 ) go = 0;   
   };
   transport_stats(&nSent, &nRcvd, 1);
-  fossil_print("Total network traffic: %d bytes sent, %d bytes received\n",
+  fossil_print("Total network traffic: %lld bytes sent, %lld bytes received\n",
                nSent, nRcvd);
   transport_close();
   transport_global_shutdown();

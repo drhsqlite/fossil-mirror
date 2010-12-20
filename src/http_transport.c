@@ -32,8 +32,8 @@ static struct {
   int nAlloc;             /* Space allocated for transportBuf[] */
   int nUsed ;             /* Space of transportBuf[] used */
   int iCursor;            /* Next unread by in transportBuf[] */
-  int nSent;              /* Number of bytes sent */
-  int nRcvd;              /* Number of bytes received */
+  i64 nSent;              /* Number of bytes sent */
+  i64 nRcvd;              /* Number of bytes received */
   FILE *pFile;            /* File I/O for FILE: */
   char *zOutFile;         /* Name of outbound file for FILE: */
   char *zInFile;          /* Name of inbound file for FILE: */
@@ -66,7 +66,7 @@ const char *transport_errmsg(void){
 ** Retrieve send/receive counts from the transport layer.  If "resetFlag"
 ** is true, then reset the counts.
 */
-void transport_stats(int *pnSent, int *pnRcvd, int resetFlag){
+void transport_stats(i64 *pnSent, i64 *pnRcvd, int resetFlag){
   if( pnSent ) *pnSent = transport.nSent;
   if( pnRcvd ) *pnRcvd = transport.nRcvd;
   if( resetFlag ){
