@@ -1,6 +1,6 @@
 #!/usr/bin/tclsh
 #
-# Run this script to build the "download" page on standard output.
+# Run this script to build the "download.html" page on standard output.
 #
 #
 puts \
@@ -17,7 +17,7 @@ puts \
   </div>
   <div class="title">Fossil Downloads</div>
 </div>
-<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/leaves'>Leaves</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
+<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
 <div class="content">
 <p>
 
@@ -27,16 +27,6 @@ recent versions of <a href="/fossil">Fossil</a>.
 The historical source code is also available in the
 <a href="/fossil/doc/tip/www/selfhost.wiki">self-hosting
 Fossil repositories</a>.
-</p>
-
-<p>
-<u>Important Note:</u>
-After upgrading to a newer version of fossil, it is always a good idea
-to run:
-<blockquote><pre>
-<b><big><tt>fossil all rebuild</tt></big></b>
-</pre></blockquote>
-Running "rebuild" this way is not always necessary, but it never hurts.
 </p>
 
 <table cellpadding="10">
