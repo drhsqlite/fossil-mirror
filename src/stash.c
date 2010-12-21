@@ -341,7 +341,7 @@ static int stash_get_id(const char *zStashId){
 **     changes of STASHID.  Keep STASHID so that it can be reused
 **     This command is undoable.
 **
-**  fossil drop ?STASHID? ?--all?
+**  fossil stash drop ?STASHID? ?--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     --all flag is used.  Individual drops are undoable but --all is not.
