@@ -171,11 +171,9 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:	
-	rm -f $(OBJDIR)/* $(APPNAME) $(OBJDIR)/VERSION.h $(OBJDIR)/headers}
+	rm -rf $(OBJDIR)/* $(APPNAME)
 
-set hfiles {}
-foreach s [lsort $src] {lappend hfiles $s.h}
-puts "\trm -f $hfiles\n"
+}
 
 set mhargs {}
 foreach s [lsort $src] {

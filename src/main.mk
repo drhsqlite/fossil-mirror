@@ -293,8 +293,8 @@ $(SRCDIR)/../manifest:
 	# noop
 
 clean:	
-	rm -f $(OBJDIR)/* $(APPNAME) $(OBJDIR)/VERSION.h $(OBJDIR)/headers
-	rm -f add.h allrepo.h attach.h bag.h bisect.h blob.h branch.h browse.h captcha.h cgi.h checkin.h checkout.h clearsign.h clone.h comformat.h configure.h content.h db.h delta.h deltacmd.h descendants.h diff.h diffcmd.h doc.h encode.h event.h export.h file.h finfo.h graph.h http.h http_socket.h http_ssl.h http_transport.h import.h info.h login.h main.h manifest.h md5.h merge.h merge3.h name.h pivot.h popen.h pqueue.h printf.h rebuild.h report.h rss.h schema.h search.h setup.h sha1.h shun.h skins.h sqlcmd.h stash.h stat.h style.h sync.h tag.h th_main.h timeline.h tkt.h tktsetup.h undo.h update.h url.h user.h verify.h vfile.h wiki.h wikiformat.h winhttp.h xfer.h zip.h
+	rm -rf $(OBJDIR)/* $(APPNAME)
+
 
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
