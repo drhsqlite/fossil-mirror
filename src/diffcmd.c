@@ -206,7 +206,7 @@ static void diff_all_against_disk(
     }
     load_vfile_from_rid(rid);
     blob_appendf(&sql,
-      "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.mrid"
+      "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid"
       "  FROM vfile v1, vfile v2 "
       " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
       "   AND (v2.deleted OR v2.chnged OR v1.mrid!=v2.rid)"
@@ -227,7 +227,7 @@ static void diff_all_against_disk(
     );
   }else{
     blob_appendf(&sql,
-      "SELECT pathname, deleted, chnged , rid==0, mrid"
+      "SELECT pathname, deleted, chnged , rid==0, rid"
       "  FROM vfile"
       " WHERE vid=%d"
       "   AND (deleted OR chnged OR rid==0)"
