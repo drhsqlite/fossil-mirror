@@ -798,7 +798,7 @@ void setup_access(void){
                   "auto-captcha", "autocaptcha", 0);
   @ <p>When enabled, a button appears on the login screen for user
   @ "anonymous" that will automatically fill in the CAPTCHA password.
-  @ This is less secure that forcing the user to do it manually, but is
+  @ This is less secure than forcing the user to do it manually, but is
   @ probably secure enough and it is certainly more convenient for
   @ anonymous users.</p>
 
