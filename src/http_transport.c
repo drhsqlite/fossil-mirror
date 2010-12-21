@@ -37,6 +37,7 @@ static struct {
   FILE *pFile;            /* File I/O for FILE: */
   char *zOutFile;         /* Name of outbound file for FILE: */
   char *zInFile;          /* Name of inbound file for FILE: */
+  FILE *pLog;             /* Log output here */
 } transport = {
   0, 0, 0, 0, 0, 0, 0
 };
@@ -228,6 +229,10 @@ void transport_close(void){
     transport.nAlloc = 0;
     transport.nUsed = 0;
     transport.iCursor = 0;
+    if( transport.pLog ){
+      fclose(transport.pLog);
+      transport.pLog = 0;
+    }
     if( g.urlIsSsh ){
       /* No-op */
     }else if( g.urlIsHttps ){
@@ -305,6 +310,18 @@ void transport_flip(void){
 }
 
 /*
+** Log all input to a file.  The transport layer will take responsibility
+** for closing the log file when it is done.
+*/
+void transport_log(FILE *pLog){
+  if( transport.pLog ){
+    fclose(transport.pLog);
+    transport.pLog = 0;
+  }
+  transport.pLog = pLog;
+}
+
+/*
 ** This routine is called when the inbound message has been received
 ** and it is time to start sending again.
 */
@@ -342,6 +359,10 @@ static int transport_fetch(char *zBuf, int N){
     got = socket_receive(0, zBuf, N);
   }
   /* printf("received %d of %d bytes\n", got, N); fflush(stdout);  */
+  if( transport.pLog ){
+    fwrite(zBuf, 1, got, transport.pLog);
+    fflush(transport.pLog);
+  }
   return got;
 }
 

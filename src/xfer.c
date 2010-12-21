@@ -554,9 +554,6 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
-      if( g.fHttpTrace ){
-        fprintf(stderr, "# login [%s] with capabilities [%s]\n", g.zLogin,zCap);
-      }
     }
   }
   db_finalize(&q);
@@ -1284,10 +1281,6 @@ int client_sync(
 
     /* Process the reply that came back from the server */
     while( blob_line(&recv, &xfer.line) ){
-      if( g.fHttpTrace ){
-        printf("\rGOT: %.*s", (int)blob_size(&xfer.line),
-                              blob_buffer(&xfer.line));
-      }
       if( blob_buffer(&xfer.line)[0]=='#' ){
         const char *zLine = blob_buffer(&xfer.line);
         if( memcmp(zLine, "# timestamp ", 12)==0 ){

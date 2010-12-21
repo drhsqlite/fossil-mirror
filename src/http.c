@@ -165,22 +165,25 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   ** output and into a file.  The file can then be used to drive the
   ** server-side like this:
   **
-  **      ./fossil http <http-trace-1.txt
+  **      ./fossil test-http <http-request-1.txt
   */
   if( g.fHttpTrace ){
     static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
     traceCnt++;
-    zOutFile = mprintf("http-trace-%d.txt", traceCnt);
-    printf("HTTP SEND: (%s)\n%s%s=======================\n", 
-        zOutFile, blob_str(&hdr), blob_str(&payload));
+    zOutFile = mprintf("http-request-%d.txt", traceCnt);
     out = fopen(zOutFile, "w");
     if( out ){
       fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), out);
       fwrite(blob_buffer(&payload), 1, blob_size(&payload), out);
       fclose(out);
     }
+    free(zOutFile);
+    zOutFile = mprintf("http-reply-%d.txt", traceCnt);
+    out = fopen(zOutFile, "w");
+    transport_log(out);
+    free(zOutFile);
   }
 
   /*
@@ -280,9 +283,6 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     fossil_fatal("server sends error: %s", z);
   }
   if( isCompressed ) blob_uncompress(pReply, pReply);
-  if( g.fHttpTrace ){
-    /*printf("HTTP RECEIVE:\n%s\n=======================\n",blob_str(pReply));*/
-  }
 
   /*
   ** Close the connection to the server if appropriate.
