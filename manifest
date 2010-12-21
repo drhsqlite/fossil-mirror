@@ -1,5 +1,5 @@
-C Change\sthe\s--httptrace\soption\sto\sstore\sboth\sthe\srequest\sand\sthe\sreply\sin\nseparate\stext\sfiles.\s\sNothing\sis\ssent\sto\sstderr\sany\smore.
-D 2010-12-21T15:28:52
+C Bug\sfix\sfor\slarge\ssyncs\sinvolving\sdelta-manifests.
+D 2010-12-21T16:26:15
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -77,7 +77,7 @@ F src/main.mk bc6bb1f6d77c1bbab92e00af970951326637fb23
 F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 660db821fc7c3f3f22f39b85d37913ec96b5af6e
-F src/manifest.c c816489c51c925d2e72a0f27822123edec8bbf59
+F src/manifest.c 8fddfecc25fdd62a4fecfc37f239ced2cc8774a4
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 6131cabe35fb8c8dd8d9b96ad2a66da3e4a5d5e0
 F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
@@ -286,7 +286,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 13920cd0f459c35d2dac68c7ca82d43e0e1ce83b
-R 10c978a1a46388d9c199ca10639052ac
+P abe892304a60f9e90137c410b3587c56541cf6ee
+R b9d8fd8358315bccaa1ebaee861d63c1
 U drh
-Z bd63fbbc3b3aa2c2ba02ac0440771f79
+Z 9d78d3fe1d2c7fadab0e574a13a77538

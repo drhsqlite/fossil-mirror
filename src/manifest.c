@@ -948,7 +948,7 @@ static int fetch_baseline(Manifest *p, int throwError){
     }
     p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST);
     if( p->pBaseline==0 ){
-      if( !throwError && db_exists("SELECT 1 FROM phantom WHERE rid=%d",rid) ){
+      if( !throwError ){
         db_multi_exec(
            "INSERT OR IGNORE INTO orphan(rid, baseline) VALUES(%d,%d)",
            rid, p->rid
