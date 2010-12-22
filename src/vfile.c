@@ -137,6 +137,12 @@ void vfile_build(int vid){
 **
 ** If VFILE.DELETED is null or if VFILE.RID is zero, then we can assume
 ** the file has changed without having the check the on-disk image.
+**
+** If the size of the file has changed, then we assume that it has
+** changed.  If the mtime of the file has not changed and useSha1sum is false
+** and the mtime-changes setting is true (the default) then we assume that
+** the file has not changed.  If the mtime has changed, we go ahead and
+** double-check that the file has changed by looking at its SHA1 sum.
 */
 void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
   int nErr = 0;
@@ -146,7 +152,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
-                 "       vfile.mrid, deleted, chnged, uuid, mtime"
+                 "       vfile.mrid, deleted, chnged, uuid, size, mtime"
                  "  FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid"
                  " WHERE vid=%d ", g.zLocalRoot, vid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -162,7 +168,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     rid = db_column_int(&q, 2);
     isDeleted = db_column_int(&q, 3);
     oldChnged = db_column_int(&q, 4);
-    oldMtime = db_column_int64(&q, 6);
+    oldMtime = db_column_int64(&q, 7);
     if( isDeleted ){
       chnged = 1;
     }else if( !file_isfile(zName) && file_size(0)>=0 ){
@@ -178,6 +184,12 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     }
     if( chnged!=1 ){
       currentMtime = file_mtime(0);
+      i64 origSize = db_column_int64(&q, 6);
+      if( origSize!=file_size(0) ){
+        /* A file size change is definitive - the file has changed.  No
+        ** need to check the sha1sum */
+        chnged = 1;
+      }
     }
     if( chnged!=1 && (checkMtime==0 || currentMtime!=oldMtime) ){
       db_ephemeral_blob(&q, 5, &origCksum);
