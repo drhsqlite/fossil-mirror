@@ -268,6 +268,9 @@ void login_page(void){
   @ "Login" button.  Your user name will be stored in a browser cookie.
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
+  @
+  @ <p>If you do not have an account, you can 
+  @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
     char const *zDecoded = captcha_decode(uSeed);
@@ -625,4 +628,125 @@ void login_verify_csrf_secret(void){
     return;
   }
   fossil_fatal("Cross-site request forgery attempt");
+}
+
+/*
+** WEBPAGE: register
+**
+** Generate the register page.
+**
+*/
+void register_page(void){
+  const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
+
+  style_header("Register");
+  zUsername = P("u");
+  zPasswd = P("p");
+  zConfirm = P("cp");
+  zContact = P("c");
+  zCap = P("cap");
+  zCS = P("cs"); /* Captcha Secret */
+
+  /* Try to make any sense from user input. */
+  if( P("new") ){
+    if( zCS==0 ) fossil_redirect_home();  /* Forged request */
+    zPw = captcha_decode((unsigned int)atoi(zCS));
+    if( !(zUsername && zPasswd && zConfirm && zContact) ){
+      @ <p><span class="loginError">
+      @ All fields are obligatory.
+      @ </span></p>
+    }else if( strcmp(zPasswd,zConfirm)!=0 ){
+      @ <p><span class="loginError">
+      @ The two copies of your new passwords do not match.
+      @ </span></p>
+    }else if( strcasecmp(zPw, zCap)!=0 ){
+      @ <p><span class="loginError">
+      @ Captcha text invalid.
+      @ </span></p>
+    }else{
+      /* This almost is stupid copy-paste of code from user.c:user_cmd(). */
+      Blob passwd, login, contact;
+
+      blob_init(&login, zUsername, -1);
+      blob_init(&contact, zContact, -1);
+      blob_init(&passwd, zPasswd, -1);
+
+      if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
+        /* Here lies the reason I don't use zErrMsg - it would not substitute
+         * this %s(zUsername), or at least I don't know how to force it to.*/
+        @ <p><span class="loginError">
+        @ %s(zUsername) already exists.
+        @ </span></p>
+      }else{
+        char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
+        db_multi_exec(
+            "INSERT INTO user(login,pw,cap,info)"
+            "VALUES(%B,%Q,'u',%B)", /* u - register as reader, not developer! */
+            &login, zPw, &contact
+            );
+        free(zPw);
+
+        /* The user is registered, now just log him in. */
+        int uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
+        char *zCookie;
+        const char *zCookieName = login_cookie_name();
+        const char *zExpire = db_get("cookie-expire","8766");
+        int expires = atoi(zExpire)*3600;
+        const char *zIpAddr = PD("REMOTE_ADDR","nil");
+
+        zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
+        cgi_set_cookie(zCookieName, zCookie, 0, expires);
+        db_multi_exec(
+            "UPDATE user SET cookie=%Q, ipaddr=%Q, "
+            "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+            zCookie, zIpAddr, expires, uid
+            );
+        redirect_to_g();
+
+      }
+    }
+  }
+
+  /* Prepare the captcha. */
+  unsigned int uSeed = captcha_seed();
+  char const *zDecoded = captcha_decode(uSeed);
+  char *zCaptcha = captcha_render(zDecoded);
+
+  /* Print out the registration form. */
+  @ <form action="register" method="post">
+  if( P("g") ){
+    @ <input type="hidden" name="g" value="%h(P("g"))" />
+  }
+  @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
+  @ <table class="login_out">
+  @ <tr>
+  @   <td class="login_out_label" align="right">User ID:</td>
+  @   <td><input type="text" id="u" name="u" value="" size="30" /></td>
+  @ </tr>
+  @ <tr>
+  @   <td class="login_out_label" align="right">Password:</td>
+  @   <td><input type="password" id="p" name="p" value="" size="30" /></td>
+  @ </tr>
+  @ <tr>
+  @   <td class="login_out_label" align="right">Confirm password:</td>
+  @   <td><input type="password" id="cp" name="cp" value="" size="30" /></td>
+  @ </tr>
+  @ <tr>
+  @   <td class="login_out_label" align="right">Contact info:</td>
+  @   <td><input type="text" id="c" name="c" value="" size="30" /></td>
+  @ </tr>
+  @ <tr>
+  @   <td class="login_out_label" align="right">Captcha text (below):</td>
+  @   <td><input type="text" id="cap" name="cap" value="" size="30" /></td>
+  @ </tr>
+  @ <tr><td></td>
+  @ <td><input type="submit" name="new" value="Register" /></td></tr>
+  @ </table>
+  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ %s(zCaptcha)
+  @ </pre></td></tr></table>
+  @ </form>
+  style_footer();
+
+  free(zCaptcha);
 }
