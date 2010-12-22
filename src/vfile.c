@@ -247,24 +247,29 @@ void vfile_to_disk(
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
+    content_get(rid, &content);
+    if( file_is_the_same(&content, zName) ){
+      blob_reset(&content);
+      continue;
+    }
     if( promptFlag ){
-      if( file_size(zName)>=0 ){
-        Blob ans;
-        char *zMsg;
-        char cReply;
-        zMsg = mprintf("overwrite %s (a=always/y/N)? ", zName);
-        prompt_user(zMsg, &ans);
-        free(zMsg);
-        cReply = blob_str(&ans)[0];
-        blob_reset(&ans);
-        if( cReply=='a' || cReply=='A' ){
-          promptFlag = 0;
-          cReply = 'y';
-        }
-        if( cReply=='n' || cReply=='N' ) continue;
+      Blob ans;
+      char *zMsg;
+      char cReply;
+      zMsg = mprintf("overwrite %s (a=always/y/N)? ", zName);
+      prompt_user(zMsg, &ans);
+      free(zMsg);
+      cReply = blob_str(&ans)[0];
+      blob_reset(&ans);
+      if( cReply=='a' || cReply=='A' ){
+        promptFlag = 0;
+        cReply = 'y';
+      }
+      if( cReply=='n' || cReply=='N' ){
+        blob_reset(&content);
+        continue;
       }
     }
-    content_get(rid, &content);
     if( verbose ) printf("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
     blob_reset(&content);

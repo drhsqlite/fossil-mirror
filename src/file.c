@@ -561,3 +561,23 @@ void file_tempname(int nBuf, char *zBuf){
     zBuf[j] = 0;
   }while( access(zBuf,0)==0 );
 }
+
+
+/*
+** Return true if a file named zName exists and has identical content
+** to the blob pContent.  If zName does not exist or if the content is
+** different in any way, then return false.
+*/
+int file_is_the_same(Blob *pContent, const char *zName){
+  i64 iSize;
+  int rc;
+  Blob onDisk;
+
+  iSize = file_size(zName);
+  if( iSize<0 ) return 0;
+  if( iSize!=blob_size(pContent) ) return 0;
+  blob_read_from_file(&onDisk, zName);
+  rc = blob_compare(&onDisk, pContent);
+  blob_reset(&onDisk);
+  return rc==0;
+}
