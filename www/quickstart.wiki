@@ -112,8 +112,8 @@ and painlessly.</p>
     <b>fossil info</b><br>
     <b>fossil status</b><br>
     <b>fossil changes</b><br>
+    <b>fossil diff</b><br>
     <b>fossil timeline</b><br>
-    <b>fossil leaves</b><br>
     <b>fossil ls</b><br>
     <b>fossil branch list</b><br>
     </blockquote>
@@ -129,8 +129,8 @@ and painlessly.</p>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
-    <p>(Note that this requires you to have checked out a local tree
-    beforehand.)</p>
+    <p>You can omit the <i>repository-filename</i> from the command above
+    if you are inside a checked-out local tree.</p>
 
     <p>This starts a web server then automatically launches your
     web browser and makes it point to this web server.  If your system
@@ -167,10 +167,7 @@ and painlessly.</p>
     </blockquote>
 
     <p>You will be prompted for check-in comments using whatever editor
-    is specified by your VISUAL or EDITOR environment variable.  If you
-    have GPG installed, you may be prompted for your GPG passphrase so
-    that the check-in can be signed with your GPG signature.  After
-    this your changes will be checked in.</p>
+    is specified by your VISUAL or EDITOR environment variable.</p>
 
 </blockquote><h2>Sharing Changes</h2><blockquote>
 
@@ -199,15 +196,16 @@ and painlessly.</p>
     local tree, use <b>update</b>:</p>
 
     <blockquote>
-    <b>fossil update</b> <i>AID</i>
+    <b>fossil update</b> <i>VERSION</i>
     </blockquote>
 
-    <p>The <i>AID</i> is some unique abbreviation to the 40-character
-    artifact identifier (AID) for a particular check-in.  If you omit
-    the <i>AID</i> fossil moves you to the
-    leaf version of the branch your are currently on.  If your branch
-    has multiple leaves, you get an error - you'll have to specify the
-    leaf you want using a <i>AID</i> argument.</p>
+    <p>The <i>VERSION</i> can be the name of a branch or tag or any
+    abbreviation to the 40-character
+    artifact identifier for a particular check-in, or it can be a
+    date/time stamp.  (<a href="./checkin_names.wiki">More information</a>.)
+    If you omit
+    the <i>VERSION</i>, then fossil moves you to the
+    latest version of the branch your are currently on.</p>
 
 </blockquote><h2>Branching And Merging</h2><blockquote>
 
@@ -217,14 +215,35 @@ and painlessly.</p>
     of the leaf of the other branch:</p>
 
     <blockquote>
-    <b>fossil merge</b> <i>AID</i>
+    <b>fossil merge</b> <i>VERSION</i>
     </blockquote>
 
-    <p>Test to make sure your merge didn't mess up the code, then
-    <b>commit</b> and possibly also <b>push</b> your changes.   Remember
-    that nobody else can see your changes until you <b>commit</b> and
-    if other are using a different repository you will also need to
-    <b>push</b>.</p>
+    <p>The <i>VERSION</i> can be any of the forms allowed for <b>update</b>.
+    After performing the merge, you will normally want to test it to
+    make sure it does not break anything, then
+    <b>commit</b> your chagnes.  In the default configuration, the <b>commit</b>
+    command will also automatically <b>push</b> your changes, but that
+    feature can be disabled.  (More information about 
+    <a href="concepts.wiki#workflow">autosync</a> and how to disable it.)
+    Remember that your coworkers can not see your changes until you 
+    <b>commit</b> and <b>push</b> them.</p>
+
+    <p>The merge command has options to cherrypick individual
+    changes, or to back out individual changes.</p>
+
+    <p>If a merge or update doesn't work out (perhaps something breaks or
+    there are many merge conflicts) then you back up using:</p>
+
+    <blockquote>
+    <b>fossil undo</b>
+    </blockquote>
+
+    <p>This will back out the changes that the merge or update made to the
+    working checkout.  There is also a <b>redo</b> command if you undo by
+    mistake.  Undo and redo only work for changes that have
+    not yet been checked in using <b>commit</b> and there is only a single
+    level of undo/redo.</p>
+
 
 <a name="serversetup"></a>
 </blockquote><h2>Setting Up A Server</h2><blockquote>
