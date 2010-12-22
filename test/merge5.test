@@ -38,6 +38,13 @@ proc checkout-test {testid expected_content} {
   }    
 }
 
+catch {exec $::fossilexe info} res
+puts res=$res
+if {![regexp {not within an open checkout} $res]} {
+  puts stderr "Cannot run this test within an open checkout"
+  return
+}
+
 # Construct a test repository
 #
 exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql

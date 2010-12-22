@@ -25,14 +25,14 @@ proc merge-test {testid basis v1 v2 result1 result2} {
   fossil test-3-way-merge t1 t2 t3 t4
   fossil test-3-way-merge t1 t3 t2 t5
   set x [read_file t4]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT} $x {>} x
-  regsub -all {============================} $x {=} x
-  regsub -all {>>>>>>> END MERGE CONFLICT} $x {<} x
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<<} $x {>} x
+  regsub -all {=======.*=======} $x {=} x
+  regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $x {<} x
   set x [split [string trim $x] \n]
   set y [read_file t5]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT} $y {>} y
-  regsub -all {============================} $y {=} y
-  regsub -all {>>>>>>> END MERGE CONFLICT} $y {<} y
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT.*<<} $y {>} y
+  regsub -all {=======.*=======} $y {=} y
+  regsub -all {>>>>>>> END MERGE CONFLICT.*>>>>} $y {<} y
   set y [split [string trim $y] \n]
   set result1 [string trim $result1]
   if {$x!=$result1} {
