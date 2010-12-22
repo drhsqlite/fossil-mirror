@@ -354,13 +354,14 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ /* <![CDATA[ */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
+      cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
         pRow->idx,
         pRow->zBgClr,
         pRow->iRail,
         pRow->bDescender,
         pRow->mergeOut,
         pRow->mergeUpto,
+        pRow->mergeDown,
         pRow->aiRaiser[pRow->iRail]
       );
       cSep = '[';
@@ -486,6 +487,9 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @       drawThinArrow(y0,mx,p.x+6);
     @     }else{
     @       drawThinArrow(y0,mx,p.x-5);
+    @     }
+    @     if( (1<<p.mi[j])&p.md ){
+    @       drawThinLine(mx,y0,mx,btm);
     @     }
     @   }
     @ }
