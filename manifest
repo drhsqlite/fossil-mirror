@@ -1,5 +1,5 @@
-C Do\snot\soverwrite\sfiles\son\sdisk,\sand\sespecially\sdo\snot\sprompt\sthe\suser\sfor\npermission\sto\soverwrite,\sif\sthere\swould\sultimately\sbe\sno\schange\sin\sthe\nfile\scontent.
-D 2010-12-22T22:33:48
+C Fix\sto\sthe\sprevious\scheck-in\sso\sthat\sit\sdoes\snot\sprompt\sthe\suser\sto\sconfirm\noverwrite\sif\sthe\sfile\sdoes\snot\sexist\sin\sthe\sfirst\splace.
+D 2010-12-22T23:43:17
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -118,7 +118,7 @@ F src/update.c b9e1f9505c978cc38940d5d22a0ab8f3bbfec357
 F src/url.c c849e06b053163318a9af69ff27ff19a40963991
 F src/user.c 5a7d65bd4f7d5bb2b23a8791967469309b315f27
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
-F src/vfile.c b4acbb79bda20c025049d2c2e4c99b10a40f9210
+F src/vfile.c c29687498c6bee1abb365ff9a1a9d16a59b17a15
 F src/wiki.c f9a0976df28d3f932c869b6a6599e2d684a0d1d7
 F src/wikiformat.c d657b004558928fc793e911058d7bf42ce254a3a
 F src/winhttp.c f367576083ab58913a8707352a6f1d474a27faaa
@@ -286,7 +286,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P e9ffc4cdfba78b130cebc3814c503d9794947bfa
-R 7302ae03fd588ccfb789a12618ea9e42
+P aa9ea7961afe45e2832cc9cabbba367041902a58
+R f61789e8e677c7d2a649696f476fb15d
 U drh
-Z 80a1c07978c4874a47e7acb3c9e41b05
+Z 7c7ade79c466478d637193c5a9a36eb6

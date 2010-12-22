@@ -252,7 +252,7 @@ void vfile_to_disk(
       blob_reset(&content);
       continue;
     }
-    if( promptFlag ){
+    if( promptFlag && file_size(zName)>=0 ){
       Blob ans;
       char *zMsg;
       char cReply;
