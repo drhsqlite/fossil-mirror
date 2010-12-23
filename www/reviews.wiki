@@ -1,4 +1,12 @@
-<h2 align="center">What People Are Saying About Fossil</h2>
+<title>Reviews</title>
+<b>External links:</b>
+ 
+  *  [http://sheddingbikes.com/posts/1276624594.html | Why I Use Fossil]
+     by Zed A. Shaw.
+
+<b>See Also:</b>
+
+  *  [./quotes.wiki | Short Quotes on Fossil, Git, And DVCSes]
 
 <b>Daniel writes on 2009-01-06:</b>
 
@@ -7,6 +15,23 @@ The reasons I use fossil are that it's the only version control I
 have found that I can get working through the VERY annoying MS
 firewalls at work.. (albeit through an ntlm proxy) and I just love
 single .exe applications!
+</blockquote>
+
+
+<b>Joshua Paine on 2010-10-22:</b>
+
+<blockquote>
+With one of my several hats on, I'm in a small team using git. Another 
+team member just checked some stuff into trunk that should have been on 
+a branch. Nothing else had happened since, so in fossil I would have 
+just edited that commit and put it on a new branch. In git that can't 
+actually be done without danger once other people have pulled, so I had 
+to create a new commit rolling back the changes, then branch and cherry 
+pick the earlier changes, then figure out how to make my new branch 
+shared instead of private. Just want to say thanks for fossil making my 
+life easier on most of my projects, and being able to move commits to 
+another branch after the fact and shared-by-default branches are good 
+features. Also not having a misanthropic command line interface.
 </blockquote>
 
 <b>Stephen Beal writes on 2009-01-11:</b>

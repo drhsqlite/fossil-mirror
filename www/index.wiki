@@ -100,7 +100,8 @@ internet these days. What makes Fossil worthy of attention?
 <hr>
 <h3>Links For Fossil Users:</h3>
 
-  *  [./reviews.wiki | Testimonials] from satisfied fossil users.
+  *  [./reviews.wiki | Testimonials] from satisfied fossil users and
+     [./quotes.wiki | Quotes] about Fossil and other DVCSes.
   *  [./faq.wiki | FAQ]
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./quickstart.wiki | Quick Start] guide to using fossil
