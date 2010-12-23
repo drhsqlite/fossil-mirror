@@ -105,6 +105,8 @@ void all_cmd(void){
     zCmd = "rebuild";
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+  }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+    zCmd = "test-integrity";
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
     db_begin_transaction();

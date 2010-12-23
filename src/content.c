@@ -748,3 +748,45 @@ void test_content_deltify_cmd(void){
   db_must_be_within_tree();
   content_deltify(atoi(g.argv[2]), atoi(g.argv[3]), atoi(g.argv[4]));
 }
+
+/*
+** COMMAND: test-integrity
+**
+** Verify that all content can be extracted from the BLOB table correctly.
+** If the BLOB table is correct, then the repository can always be
+** successfully reconstructed using "fossil rebuild".
+*/
+void test_integrity(void){
+  Stmt q;
+  Blob content;
+  Blob cksum;
+  int n1 = 0;
+  int n2 = 0;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    int size = db_column_int(&q, 2);
+    n1++;
+    if( size<0 ){
+      printf("skip phantom %d %s\n", rid, zUuid);
+      continue;  /* Ignore phantoms */
+    }
+    content_get(rid, &content);
+    if( blob_size(&content)!=size ){
+      fossil_fatal("size mismatch on blob rid=%d:  %d vs %d",
+                   rid, blob_size(&content), size);
+    }
+    sha1sum_blob(&content, &cksum);
+    if( strcmp(blob_str(&cksum), zUuid)!=0 ){
+      fossil_fatal("checksum mismatch on blob rid=%d: %s vs %s",
+                   rid, blob_str(&cksum), zUuid);
+    }
+    blob_reset(&cksum);
+    blob_reset(&content);
+    n2++;
+  }
+  db_finalize(&q);
+  printf("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
+}
