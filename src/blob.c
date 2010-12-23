@@ -828,7 +828,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   blob_resize(&temp, nOut+1);
   nOut2 = (long int)nOut;
   rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2, 
-                  &inBuf[4], blob_size(pIn));
+                  &inBuf[4], nIn - 4);
   if( rc!=Z_OK ){
     blob_reset(&temp);
     return 1;
