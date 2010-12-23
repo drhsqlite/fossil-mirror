@@ -45,13 +45,21 @@ get a bug-tracking system to work with mercurial.
 <i>rawjeev at [http://stackoverflow.com/questions/156322/what-do-people-think-of-the-fossil-dvcs]</i>
 </blockquote>
 
+<li>Fossil is awesome!!! I have never seen an app like that before, 
+such simplicity and flexibility!!!
+
+<blockquote>
+<i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
+</blockquote>
+
+
 </ol>
 
 
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=5>
+<li value=6>
 Just want to say thanks for fossil making my life easier.... 
 Also [for] not having a misanthropic command line interface.
 
