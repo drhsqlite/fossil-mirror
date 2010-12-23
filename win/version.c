@@ -1,3 +1,8 @@
+/*
+** This C program exists to do the job that AWK would do for the unix
+** makefile - to extract information from the "mainfest" and "manifest.uuid"
+** files for this project in order to generate the "VERSION.h" header file.
+*/
 #include <stdio.h>
 
 int main(int argc, char *argv[]){

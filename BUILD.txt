@@ -1,14 +1,13 @@
 All of the source code for fossil is contained in the src/ subdirectory.
 But there is a lot of generated code, so you will probably want to
-use the Makefile.  To do a complete build, just type:
+use the Makefile.  To do a complete build on unix, just type:
 
    make
 
-That should work out-of-the-box on Macs and Linux systems. If you are
-building on a Windows box, install MinGW as well as MinGW's make (or
-MSYS). You can then type:
+On a windows box, use one of the Makefiles in the win/ subdirectory,
+according to your compiler and environment.  For example:
 
-   make -f Makefile.w32
+   make -f win/Makefile.w32
 
 If you have trouble, or you want to do something fancy, just look at
 top level makefile. There are 6 configuration options that are all well
@@ -16,8 +15,8 @@ commented. Instead of editing the Makefile, consider copying the Makefile
 to an alternative name such as "GNUMakefile", "BSDMakefile", or "makefile"
 and editing the copy.
 
-Out of source builds?
---------------------------------------------------------------------------
+
+BUILDING OUTSIDE THE SOURCE TREE
 
 An out of source build is pretty easy:
 
