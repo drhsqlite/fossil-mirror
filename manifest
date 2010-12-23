@@ -1,5 +1,5 @@
-C Another\sfavorable\squote\sabout\sfossil\sfor\sthe\scollection.
-D 2010-12-23T14:17:40
+C Modify\smakeheaders\sso\sthat\sit\signores\sthe\s":"\scharacter\sif\sit\sis\sthe\nsecond\scharacter\sin\sa\scommand-line\sargument,\sthus\sallowing\sdrive-specifiers\non\swindows\sfilenames.\s\sThis\sis\srelated\sto,\sbut\sis\snot\sa\sfix\sfor\nticket\s[fa403b6a123659d885e3].
+D 2010-12-23T15:04:18
 F BUILD.txt 10b5d2480a07d390ab78a308c37dad6888d40696
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile ddd5ac10b74ee059deb643509fed9bfa0e499360
@@ -74,7 +74,7 @@ F src/info.c 8c1d39741d5b61701a8a1908807cacac93d3cde1
 F src/login.c 24107b88a32ac7e2503c5f7c4b6c609147d9231e
 F src/main.c bd0acd027e051b63e43a20e5c604dd63cf76a616
 F src/main.mk bc6bb1f6d77c1bbab92e00af970951326637fb23
-F src/makeheaders.c 4313451d393aa39549c11e2bc46bbf8a207c4743
+F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
 F src/makemake.tcl 660db821fc7c3f3f22f39b85d37913ec96b5af6e
 F src/manifest.c e0c9be0237df268654d5012a7c0b6b4bc0b71668
@@ -287,7 +287,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 6a9fe32e4ae0a7ecaad1fffb0b74de43d8de637c
-R 1a93d93ed070cc2ac09e1700ac933751
+P b43740b1f11a4a59e471e60c65ec41dca9c53cc7
+R 45036ba738a2b09d2793121585da8d91
 U drh
-Z c820a25acdcd76f63ecbf9ebbd8fb8ba
+Z 68c7ad0c83703eb8ca903e13d7be39a8

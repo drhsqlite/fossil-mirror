@@ -3012,10 +3012,16 @@ static InFile *CreateInFile(char *zArg, int *pnErr){
   int i;
 
   /* 
-  ** Get the name of the input file to be scanned
+  ** Get the name of the input file to be scanned.  The input file is
+  ** everything before the first ':' or the whole file if no ':' is seen.
+  **
+  ** Except, on windows, ignore any ':' that occurs as the second character
+  ** since it might be part of the drive specifier.  So really, the ":' has
+  ** to be the 3rd or later character in the name.  This precludes 1-character
+  ** file names, which really should not be a problem.
   */
   zSrc = zArg;
-  for(nSrc=0; zSrc[nSrc] && zArg[nSrc]!=':'; nSrc++){}
+  for(nSrc=2; zSrc[nSrc] && zArg[nSrc]!=':'; nSrc++){}
   pFile = SafeMalloc( sizeof(InFile) );
   memset(pFile,0,sizeof(InFile));
   pFile->zSrc = StrDup(zSrc,nSrc);
