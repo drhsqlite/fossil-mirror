@@ -27,8 +27,6 @@ used both Fossil and Git for other opinions.
 <tr><td>Lots of little tools</td><td>Single executable</td></tr>
 <tr><td>Pile-of-files repository</td><td>Single file repository</td></tr>
 <tr><td>Uses "<tt>rebase</tt>"</td><td>Immutable</td></tr>
-<tr><td>Multiple [./branching.wiki#dag | DAGs]; one per branch</td>
-    <td>All branches on one [./branching.wiki#dag | DAG]</td></tr>
 <tr><td>GPL</td><td>BSD</td></tr>
 </table></center></blockquote>
 
@@ -194,15 +192,7 @@ needed.  This can make the history of a project messy, but it also
 makes it more honest.  The lack of a "rebase" function is considered
 a feature of Fossil, not a bug.
 
-<h3>3.9 Single DAG</h3>
-
-Git maintains a separate directed acyclic graph (DAG) for each branch
-of a repository.  Fossil maintains a single DAG for all branches.  In
-Git, the branch that a specific check-in belongs to is determined by
-which DAG it is part of.  In Fossil, the branch of a check-in is determined
-by [./branching.wiki#tags | tags and properties] attached to the check-in.
-
-<h3>3.10 License</h3>
+<h3>3.9 License</h3>
 
 Both Git and Fossil are open-source.  Git is under 
 [http://www.gnu.org/licenses/gpl.html | GPL] whereas Fossil is
