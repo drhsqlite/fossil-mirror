@@ -229,7 +229,7 @@ void www_print_timeline(
       @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
     }
-    if( strcmp(zType,"div")==0 ){
+    if( fossil_strcmp(zType,"div")==0 ){
       @ <tr><td colspan="3"><hr /></td></tr>
       continue;
     }
@@ -1053,7 +1053,7 @@ void print_timeline(Stmt *q, int mxLine){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], zBrType);
       n = strlen(zPrefix);
     }
-    if( zCurrentUuid && strcmp(zCurrentUuid,zId)==0 ){
+    if( fossil_strcmp(zCurrentUuid,zId)==0 ){
       sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
       n += strlen(zPrefix);
     }

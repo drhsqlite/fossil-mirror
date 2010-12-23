@@ -513,7 +513,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
         p->aFile[i].zUuid = zUuid;
         p->aFile[i].zPerm = zPerm;
         p->aFile[i].zPrior = zPriorName;
-        if( i>0 && strcmp(p->aFile[i-1].zName, zName)>=0 ){
+        if( i>0 && fossil_strcmp(p->aFile[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
         break;
@@ -542,7 +542,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
         i = p->nField++;
         p->aField[i].zName = zName;
         p->aField[i].zValue = zValue;
-        if( i>0 && strcmp(p->aField[i-1].zName, zName)>=0 ){
+        if( i>0 && fossil_strcmp(p->aField[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
         break;
@@ -598,7 +598,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
         }
         i = p->nCChild++;
         p->azCChild[i] = zUuid;
-        if( i>0 && strcmp(p->azCChild[i-1], zUuid)>=0 ){
+        if( i>0 && fossil_strcmp(p->azCChild[i-1], zUuid)>=0 ){
           goto manifest_syntax_error;
         }
         break;
@@ -686,7 +686,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
         p->aTag[i].zName = zName;
         p->aTag[i].zUuid = zUuid;
         p->aTag[i].zValue = zValue;
-        if( i>0 && strcmp(p->aTag[i-1].zName, zName)>=0 ){
+        if( i>0 && fossil_strcmp(p->aTag[i-1].zName, zName)>=0 ){
           goto manifest_syntax_error;
         }
         break;
@@ -1005,7 +1005,7 @@ ManifestFile *manifest_file_next(
         ** entry from the baseline. */
         if( pB->iFile<pB->nFile ) pOut = &pB->aFile[pB->iFile++];
         break;
-      }else if( (cmp = strcmp(pB->aFile[pB->iFile].zName,
+      }else if( (cmp = fossil_strcmp(pB->aFile[pB->iFile].zName,
                               p->aFile[p->iFile].zName)) < 0 ){
         /* The next baseline entry comes before the next delta entry.
         ** So return the baseline entry. */
@@ -1119,7 +1119,7 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
   lwr = 0;
   upr = p->nFile - 1;
   if( p->iFile>=lwr && p->iFile<upr ){
-    c = strcmp(p->aFile[p->iFile+1].zName, zName);
+    c = fossil_strcmp(p->aFile[p->iFile+1].zName, zName);
     if( c==0 ){
       return &p->aFile[++p->iFile];
     }else if( c>0 ){
@@ -1130,7 +1130,7 @@ static ManifestFile *manifest_file_seek_base(Manifest *p, const char *zName){
   }
   while( lwr<=upr ){
     i = (lwr+upr)/2;
-    c = strcmp(p->aFile[i].zName, zName);
+    c = fossil_strcmp(p->aFile[i].zName, zName);
     if( c<0 ){
       lwr = i+1;
     }else if( c>0 ){
@@ -1163,20 +1163,6 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
     pFile = manifest_file_seek_base(p->pBaseline, zName);
   }
   return pFile;
-}
-
-/*
-** This strcmp() function handles NULL arguments.  NULLs sort first.
-*/
-static int strcmp_null(const char *zOne, const char *zTwo){
-  if( zOne==0 ){
-    if( zTwo==0 ) return 0;
-    return -1;
-  }else if( zTwo==0 ){
-    return +1;
-  }else{
-    return strcmp(zOne, zTwo);
-  }
 }
 
 /*
@@ -1251,7 +1237,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
          if( pChildFile->zUuid ){
            add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
          }
-       }else if( strcmp_null(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
+       }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
                        pChildFile->zName, 0);
        }
@@ -1364,7 +1350,7 @@ void manifest_ticket_event(
   );
   if( !isNew ){
     for(i=0; i<pManifest->nField; i++){
-      if( strcmp(pManifest->aField[i].zName, zStatusColumn)==0 ){
+      if( fossil_strcmp(pManifest->aField[i].zName, zStatusColumn)==0 ){
         zNewStatus = pManifest->aField[i].zValue;
       }
     }

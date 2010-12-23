@@ -159,7 +159,7 @@ void login_page(void){
          @ your password.  Your password is unchanged.
          @ </span></p>
       ;
-    }else if( strcmp(zNew1,zNew2)!=0 ){
+    }else if( fossil_strcmp(zNew1,zNew2)!=0 ){
       zErrMsg = 
          @ <p><span class="loginError">
          @ The two copies of your new passwords do not match.
@@ -440,7 +440,7 @@ void login_check_credentials(void){
   ** "nobody" user is a special case in that g.zLogin==0.
   */
   g.userUid = uid;
-  if( g.zLogin && strcmp(g.zLogin,"nobody")==0 ){
+  if( fossil_strcmp(g.zLogin,"nobody")==0 ){
     g.zLogin = 0;
   }
 
@@ -460,7 +460,7 @@ void login_set_anon_nobody_capabilities(void){
     /* All logged-in users inherit privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
     login_set_capabilities(zCap);
-    if( strcmp(g.zLogin, "nobody")!=0 ){
+    if( fossil_strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
       zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap);
@@ -618,9 +618,8 @@ void login_insert_csrf_secret(void){
 ** so emits an error message and abort.
 */
 void login_verify_csrf_secret(void){
-  const char *zCsrf;            /* The CSRF secret */
   if( g.okCsrf ) return;
-  if( (zCsrf = P("csrf"))!=0 && strcmp(zCsrf, g.zCsrfToken)==0 ){
+  if( fossil_strcmp(P("csrf"), g.zCsrfToken)==0 ){
     g.okCsrf = 1;
     return;
   }

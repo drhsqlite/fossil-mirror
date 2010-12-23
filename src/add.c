@@ -100,7 +100,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
   file_tree_name(zName, &pathname, 1);
   zPath = blob_str(&pathname);
   for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
-    if( strcmp(zPath, zReserved)==0 ) break;
+    if( fossil_strcmp(zPath, zReserved)==0 ) break;
   }
   if( zReserved || (pOmit && blob_compare(&pathname, pOmit)==0) ){
     fossil_warning("cannot add %s", zPath);

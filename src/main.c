@@ -421,6 +421,21 @@ int fossil_system(const char *zOrigCmd){
 }
 
 /*
+** Like strcmp() except that it accepts NULL pointers.  NULL sorts before
+** all non-NULL string pointers.
+*/
+int fossil_strcmp(const char *zA, const char *zB){
+  if( zA==0 ){
+    if( zB==0 ) return 0;
+    return -1;
+  }else if( zB==0 ){
+    return +1;
+  }else{
+    return strcmp(zA,zB);
+  }
+}
+
+/*
 ** Turn off any NL to CRNL translation on the stream given as an
 ** argument.  This is a no-op on unix but is necessary on windows.
 */
@@ -529,7 +544,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         remove_from_argv(i, 1+hasArg);
         break;
       }
-    }else if( zShort!=0 && strcmp(z,zShort)==0 ){
+    }else if( fossil_strcmp(z,zShort)==0 ){
       zReturn = g.argv[i+hasArg];
       remove_from_argv(i, 1+hasArg);
       break;
@@ -929,7 +944,7 @@ void cmd_cgi(void){
   const char *zFile;
   const char *zNotFound = 0;
   Blob config, line, key, value;
-  if( g.argc==3 && strcmp(g.argv[1],"cgi")==0 ){
+  if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
   }else{
     zFile = g.argv[1];

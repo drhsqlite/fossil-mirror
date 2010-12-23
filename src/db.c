@@ -1311,7 +1311,7 @@ int is_truth(const char *zVal){
   static const char *azOn[] = { "on", "yes", "true", "1" };
   int i;
   for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
-    if( strcmp(zVal,azOn[i])==0 ) return 1;
+    if( fossil_strcmp(zVal,azOn[i])==0 ) return 1;
   }
   return 0;
 }
@@ -1319,7 +1319,7 @@ int is_false(const char *zVal){
   static const char *azOff[] = { "off", "no", "false", "0" };
   int i;
   for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
-    if( strcmp(zVal,azOff[i])==0 ) return 1;
+    if( fossil_strcmp(zVal,azOff[i])==0 ) return 1;
   }
   return 0;
 }
@@ -1714,7 +1714,7 @@ void setting_cmd(void){
     if( !ctrlSettings[i].name ){
       fossil_fatal("no such setting: %s", zName);
     }
-    isManifest = strcmp(ctrlSettings[i].name, "manifest")==0;
+    isManifest = fossil_strcmp(ctrlSettings[i].name, "manifest")==0;
     if( isManifest && globalFlag ){
       fossil_fatal("cannot set 'manifest' globally");
     }

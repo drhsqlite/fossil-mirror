@@ -122,7 +122,7 @@ const char *configure_next_name(int iMask){
 int configure_is_exportable(const char *zName){
   int i;
   for(i=0; i<count(aConfig); i++){
-    if( strcmp(zName, aConfig[i].zName)==0 ){
+    if( fossil_strcmp(zName, aConfig[i].zName)==0 ){
       int m = aConfig[i].groupMask;
       if( !g.okAdmin ){
         m &= ~CONFIGSET_USER;
@@ -144,7 +144,7 @@ int configure_is_exportable(const char *zName){
 */
 void configure_render_special_name(const char *zName, Blob *pOut){
   Stmt q;
-  if( strcmp(zName, "@shun")==0 ){
+  if( fossil_strcmp(zName, "@shun")==0 ){
     db_prepare(&q, "SELECT uuid FROM shun");
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n", 
@@ -152,7 +152,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
       );
     }
     db_finalize(&q);
-  }else if( strcmp(zName, "@reportfmt")==0 ){
+  }else if( fossil_strcmp(zName, "@reportfmt")==0 ){
     db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
@@ -163,7 +163,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
       );
     }
     db_finalize(&q);
-  }else if( strcmp(zName, "@user")==0 ){
+  }else if( fossil_strcmp(zName, "@user")==0 ){
     db_prepare(&q, 
         "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
         "       cap, info, quote(photo) FROM user");
@@ -178,7 +178,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
       );
     }
     db_finalize(&q);
-  }else if( strcmp(zName, "@concealed")==0 ){
+  }else if( fossil_strcmp(zName, "@concealed")==0 ){
     db_prepare(&q, "SELECT hash, content FROM concealed");
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(pOut, "INSERT OR IGNORE INTO concealed(hash,content)"
@@ -483,14 +483,14 @@ void configuration_cmd(void){
       if( (aConfig[i].groupMask & mask)==0 ) continue;
       if( zName[0]!='@' ){
         db_multi_exec("DELETE FROM config WHERE name=%Q", zName);
-      }else if( strcmp(zName,"@user")==0 ){
+      }else if( fossil_strcmp(zName,"@user")==0 ){
         db_multi_exec("DELETE FROM user");
         db_create_default_users(0, 0);
-      }else if( strcmp(zName,"@concealed")==0 ){
+      }else if( fossil_strcmp(zName,"@concealed")==0 ){
         db_multi_exec("DELETE FROM concealed");
-      }else if( strcmp(zName,"@shun")==0 ){
+      }else if( fossil_strcmp(zName,"@shun")==0 ){
         db_multi_exec("DELETE FROM shun");
-      }else if( strcmp(zName,"@reportfmt")==0 ){
+      }else if( fossil_strcmp(zName,"@reportfmt")==0 ){
         db_multi_exec("DELETE FROM reportfmt");
       }
     }

@@ -171,7 +171,7 @@ void event_page(void){
     @ [<a href="%s(g.zTop)/timeline?c=%T(zATime)">%s(zATime)</a>]:</p>
     @ <blockquote>
     for(i=0; i<pEvent->nTag; i++){
-      if( strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
+      if( fossil_strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
         zClr = pEvent->aTag[i].zValue;
       }
     }
@@ -250,7 +250,7 @@ void eventedit_page(void){
     zClr = "";
   }
   zClr = PD("clr",zClr);
-  if( strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
+  if( fossil_strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
 
 
   /* If editing an existing event, extract the key fields to use as

@@ -299,7 +299,7 @@ const char *mimetype_from_name(const char *zName){
     while( first<=last ){
       int c;
       i = (first+last)/2;
-      c = strcmp(zSuffix, aMime[i].zSuffix);
+      c = fossil_strcmp(zSuffix, aMime[i].zSuffix);
       if( c==0 ) return aMime[i].zMimetype;
       if( c<0 ){
         last = i-1;
@@ -348,10 +348,10 @@ void doc_page(void){
   if( !file_is_simple_pathname(zName) ){
     goto doc_not_found;
   }
-  if( strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
     sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
   }
-  if( strcmp(zBaseline,"ckout")==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 ){
     /* Read from the local checkout */
     char *zFullpath;
     db_must_be_within_tree();
@@ -364,7 +364,7 @@ void doc_page(void){
     }
   }else{
     db_begin_transaction();
-    if( strcmp(zBaseline,"tip")==0 ){
+    if( fossil_strcmp(zBaseline,"tip")==0 ){
       vid = db_int(0, "SELECT objid FROM event WHERE type='ci'"
                       " ORDER BY mtime DESC LIMIT 1");
     }else{
@@ -445,7 +445,7 @@ void doc_page(void){
                                      "  FROM blob WHERE rid=%d", vid));
   Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
                                   " WHERE objid=%d AND type='ci'", vid));
-  if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
@@ -455,7 +455,7 @@ void doc_page(void){
       wiki_convert(&filebody, 0, 0);
     }
     style_footer();
-  }else if( strcmp(zMime, "text/plain")==0 ){
+  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>
     @ %h(blob_str(&filebody))

@@ -679,7 +679,7 @@ void vdiff_page(void){
     }else if( pFileTo==0 ){
       cmp = -1;
     }else{
-      cmp = strcmp(pFileFrom->zName, pFileTo->zName);
+      cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
@@ -689,7 +689,7 @@ void vdiff_page(void){
       append_file_change_line(pFileTo->zName, 
                               0, pFileTo->zUuid, 0);
       pFileTo = manifest_file_next(pTo, 0);
-    }else if( strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
+    }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
       /* No changes */
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
@@ -1074,7 +1074,7 @@ int artifact_from_ci_and_filename(void){
   if( pManifest==0 ) return 0;
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
-    if( strcmp(zFilename, pFile->zName)==0 ){
+    if( fossil_strcmp(zFilename, pFile->zName)==0 ){
       int rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", pFile->zUuid);
       manifest_destroy(pManifest);
       return rid;
@@ -1130,7 +1130,7 @@ void artifact_page(void){
           "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
-    if( strcmp(zMime, "text/html")==0 ){
+    if( fossil_strcmp(zMime, "text/html")==0 ){
       if( P("txt") ){
         style_submenu_element("Html", "Html",
                               "%s/artifact?name=%s", g.zTop, zUuid);
@@ -1139,7 +1139,7 @@ void artifact_page(void){
         style_submenu_element("Text", "Text",
                               "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
       }
-    }else if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
+    }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
       if( P("txt") ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact?name=%s", g.zTop, zUuid);
@@ -1341,7 +1341,7 @@ void render_color_chooser(
     }else{
       @ <td>
     }
-    if( strcmp(zDefaultColor, aColor[i].zColor)==0 ){
+    if( fossil_strcmp(zDefaultColor, aColor[i].zColor)==0 ){
       @ <input type="radio" name="%s(zId)" value="%h(aColor[i].zColor)"
       @  checked="checked" />
       stdClrFound=1;
@@ -1424,7 +1424,7 @@ void ci_edit_page(void){
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
   zNewColor = PD("clr",zColor);
-  if( strcmp(zNewColor,"##")==0 ){
+  if( fossil_strcmp(zNewColor,"##")==0 ){
     zNewColor = P("clrcust");
   }
   fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
@@ -1460,15 +1460,15 @@ void ci_edit_page(void){
     if( zNewColor[0]==0 && zColor[0]!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
     }
-    if( strcmp(zComment,zNewComment)!=0 ){
+    if( fossil_strcmp(zComment,zNewComment)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
                     zNewComment);
     }
-    if( strcmp(zDate,zNewDate)!=0 ){
+    if( fossil_strcmp(zDate,zNewDate)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('date','+',%Q)",
                     zNewDate);
     }
-    if( strcmp(zUser,zNewUser)!=0 ){
+    if( fossil_strcmp(zUser,zNewUser)!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('user','+',%Q)", zNewUser);
     }
     db_prepare(&q,

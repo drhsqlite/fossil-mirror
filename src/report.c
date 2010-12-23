@@ -66,7 +66,9 @@ void view_list(void){
     if( g.okTktFmt ){
       blob_appendf(&ril, "[<a href=\"rptedit?rn=%d&amp;copy=1\" rel=\"nofollow\">copy</a>] ", rn);
     }
-    if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+    if( g.okAdmin 
+     || (g.okWrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
+    ){
       blob_appendf(&ril, "[<a href=\"rptedit?rn=%d\" rel=\"nofollow\">edit</a>] ", rn);
     }
     if( g.okTktFmt ){
@@ -425,7 +427,7 @@ void view_edit(void){
   @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
-  if( !g.okAdmin && strcmp(zOwner,g.zLogin)!=0 ){
+  if( !g.okAdmin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
     @ <p>This report format is owned by %h(zOwner).  You are not allowed
     @ to change it.</p>
     @ </form>

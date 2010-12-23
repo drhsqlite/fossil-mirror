@@ -149,7 +149,7 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 static char *persistBranchName(GraphContext *p, const char *zBranch){
   int i;
   for(i=0; i<p->nBranch; i++){
-    if( strcmp(zBranch, p->azBranch[i])==0 ) return p->azBranch[i];
+    if( fossil_strcmp(zBranch, p->azBranch[i])==0 ) return p->azBranch[i];
   }
   p->nBranch++;
   p->azBranch = fossil_realloc(p->azBranch, sizeof(char*)*p->nBranch);

@@ -319,7 +319,7 @@ void update_cmd(void){
 
     zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
-    nameChng = strcmp(zName, zNewName);
+    nameChng = fossil_strcmp(zName, zNewName);
     if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
@@ -463,7 +463,7 @@ int historical_version_of_file(
   if( pManifest ){
     manifest_file_rewind(pManifest);
     while( (pFile = manifest_file_next(pManifest,0))!=0 ){
-      if( strcmp(pFile->zName, file)==0 ){
+      if( fossil_strcmp(pFile->zName, file)==0 ){
         rid = uuid_to_rid(pFile->zUuid, 0);
         manifest_destroy(pManifest);
         return content_get(rid, content);

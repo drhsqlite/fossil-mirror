@@ -217,7 +217,7 @@ void branch_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
-      int isCur = zCurrent!=0 && strcmp(zCurrent,zBr)==0;
+      int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
       printf("%s%s\n", (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);

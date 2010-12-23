@@ -72,7 +72,7 @@ void style_submenu_element(
 static int submenuCompare(const void *a, const void *b){
   const struct Submenu *A = (const struct Submenu*)a;
   const struct Submenu *B = (const struct Submenu*)b;
-  return strcmp(A->zLabel, B->zLabel);
+  return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
 /*

@@ -176,7 +176,7 @@ void attachview_page(void){
   }
   g.okRead = 1;
   cgi_replace_parameter("name",zUUID);
-  if( strcmp(g.zPath,"attachview")==0 ){
+  if( fossil_strcmp(g.zPath,"attachview")==0 ){
     artifact_page();
   }else{
     cgi_replace_parameter("m", mimetype_from_name(zFile));

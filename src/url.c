@@ -143,7 +143,7 @@ void url_parse(const char *zUrl){
         g.urlPath[i] = 0;
         i++;
       }
-      if( strcmp(zName,"fossil")==0 ){
+      if( fossil_strcmp(zName,"fossil")==0 ){
         g.urlFossil = zValue;
         dehttpize(g.urlFossil);
         zExe = mprintf("?fossil=%T", g.urlFossil);

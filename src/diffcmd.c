@@ -360,7 +360,7 @@ static void diff_all_two_versions(
     }else if( pToFile==0 ){
       cmp = -1;
     }else{
-      cmp = strcmp(pFromFile->zName, pToFile->zName);
+      cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
     if( cmp<0 ){
       printf("DELETED %s\n", pFromFile->zName);
@@ -374,7 +374,7 @@ static void diff_all_two_versions(
         diff_manifest_entry(0, pToFile, zDiffCmd, ignoreEolWs);
       }
       pToFile = manifest_file_next(pTo,0);
-    }else if( strcmp(pFromFile->zUuid, pToFile->zUuid)==0 ){
+    }else if( fossil_strcmp(pFromFile->zUuid, pToFile->zUuid)==0 ){
       /* No changes */
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);

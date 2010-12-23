@@ -184,7 +184,7 @@ char *tag_to_uuid(const char *zTag){
         break;
       }
     }
-    if( zUuid==0 && strcmp(zTag, "tip")==0 ){
+    if( zUuid==0 && fossil_strcmp(zTag, "tip")==0 ){
       zUuid = db_text(0,
         "SELECT blob.uuid"
         "  FROM event, blob"
@@ -194,13 +194,14 @@ char *tag_to_uuid(const char *zTag){
       );
     }
     if( zUuid==0 && g.localOpen && (vid=db_lget_int("checkout",0))!=0 ){
-      if( strcmp(zTag, "current")==0 ){
+      if( fossil_strcmp(zTag, "current")==0 ){
         zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
-      }else if( strcmp(zTag, "prev")==0 || strcmp(zTag, "previous")==0 ){
+      }else if( fossil_strcmp(zTag, "prev")==0 
+                || fossil_strcmp(zTag, "previous")==0 ){
         zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
                            "(SELECT pid FROM plink WHERE cid=%d AND isprim)",
                            vid);
-      }else if( strcmp(zTag, "next")==0 ){
+      }else if( fossil_strcmp(zTag, "next")==0 ){
         zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
                            "(SELECT cid FROM plink WHERE pid=%d AND isprim"
                            "  ORDER BY mtime DESC)",

@@ -231,7 +231,7 @@ void remote_url_cmd(void){
     usage("remote-url ?URL|off?");
   }
   if( g.argc==3 ){
-    if( strcmp(g.argv[2],"off")==0 ){
+    if( fossil_strcmp(g.argv[2],"off")==0 ){
       db_unset("last-sync-url", 0);
       db_unset("last-sync-pw", 0);
     }else{

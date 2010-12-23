@@ -222,7 +222,7 @@ static void finish_commit(void){
   }else{
     zFromBranch = 0;
   }
-  if( zFromBranch==0 || strcmp(zFromBranch, gg.zBranch)!=0 ){
+  if( fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
     blob_appendf(&record, "T *branch * %F\n", gg.zBranch);
     blob_appendf(&record, "T *sym-%F *\n", gg.zBranch);
     if( zFromBranch ){
@@ -508,7 +508,7 @@ static void git_fast_import(FILE *pIn){
         pFile = import_add_file();
         pFile->zName = import_strdup(zName);
       }
-      pFile->isExe = (strcmp(zPerm, "100755")==0);
+      pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
       fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
       pFile->isFrom = 0;

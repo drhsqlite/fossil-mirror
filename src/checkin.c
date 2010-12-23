@@ -651,19 +651,19 @@ static void create_manifest(
       zPerm = "";
     }
     if( !g.markPrivate ) content_make_public(frid);
-    while( pFile && strcmp(pFile->zName,zName)<0 ){
+    while( pFile && fossil_strcmp(pFile->zName,zName)<0 ){
       blob_appendf(pOut, "F %F\n", pFile->zName);
       pFile = manifest_file_next(pBaseline, 0);
       nFBcard++;
     }
     cmp = 1;
     if( pFile==0
-      || (cmp = strcmp(pFile->zName,zName))!=0
-      || strcmp(pFile->zUuid, zUuid)!=0
+      || (cmp = fossil_strcmp(pFile->zName,zName))!=0
+      || fossil_strcmp(pFile->zUuid, zUuid)!=0
     ){
       blob_resize(&filename, nBasename);
       if( zOrig && !isSelected ){ zName = zOrig; zOrig = 0; }
-      if( zOrig==0 || strcmp(zOrig,zName)==0 ){
+      if( zOrig==0 || fossil_strcmp(zOrig,zName)==0 ){
         blob_appendf(pOut, "F %F %s%s\n", zName, zUuid, zPerm);
       }else{
         if( zPerm[0]==0 ){ zPerm = " w"; }

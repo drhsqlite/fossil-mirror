@@ -68,7 +68,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     " WHERE vid=%d AND (chnged OR deleted OR origname NOT NULL OR mrid==0)",
     vid
   );
-  if( strcmp(zTreename,".")!=0 ){
+  if( fossil_strcmp(zTreename,".")!=0 ){
     blob_appendf(&sql,
       "   AND (pathname GLOB '%q/*' OR origname GLOB '%q/*'"
             "  OR pathname=%Q OR origname=%Q)",
@@ -215,7 +215,7 @@ static void stash_apply(int stashid, int nConflict){
       blob_reset(&disk);
     }
     blob_reset(&delta);
-    if( strcmp(zOrig,zNew)!=0 ){
+    if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
       unlink(zOPath);
     }
