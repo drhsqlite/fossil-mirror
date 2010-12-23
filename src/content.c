@@ -779,8 +779,8 @@ void test_integrity(void){
     }
     content_get(rid, &content);
     if( blob_size(&content)!=size ){
-      fossil_fatal("size mismatch on blob rid=%d:  %d vs %d",
-                   rid, blob_size(&content), size);
+      fossil_warning("size mismatch on blob rid=%d:  %d vs %d",
+                     rid, blob_size(&content), size);
     }
     sha1sum_blob(&content, &cksum);
     if( strcmp(blob_str(&cksum), zUuid)!=0 ){
