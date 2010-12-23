@@ -762,13 +762,17 @@ void test_integrity(void){
   Blob cksum;
   int n1 = 0;
   int n2 = 0;
+  int total;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
+  total = db_int(0, "SELECT max(rid) FROM blob");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     n1++;
+    printf("  %d/%d\r", n1, total);
+    fflush(stdout);
     if( size<0 ){
       printf("skip phantom %d %s\n", rid, zUuid);
       continue;  /* Ignore phantoms */
