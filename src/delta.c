@@ -538,7 +538,7 @@ int delta_apply(
       case '@': {
         zDelta++; lenDelta--;
         ofst = getInt(&zDelta, &lenDelta);
-        if( zDelta[0]!=',' ){
+        if( lenDelta>0 && zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }
