@@ -288,13 +288,18 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_SSL=1
 
+#### The directory in which the zlib compression library is installed.
+#
+#
+ZLIBDIR = /programs/gnuwin32
+
 #### C Compile and options for use in building executables that 
 #    will run on the target platform.  This is usually the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L/mingw/lib -I/mingw/include
+TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -396,9 +401,12 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 $(SRCDIR)/../manifest:	
 	# noop
 
+# Requires msys to be installed in addition to the mingw, for the "rm"
+# command.  "del" will not work here because it is not a separate command
+# but a MSDOS-shell builtin.
+#
 clean:	
-	del $(OBJDIR)/*
-	del $(APPNAME)
+	rm -rf $(OBJDIR) $(APPNAME)
 
 }
 
@@ -414,6 +422,7 @@ writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
+writeln "\techo Done >\$(OBJDIR)/headers"
 writeln ""
 writeln "\$(OBJDIR)/headers: Makefile"
 writeln "Makefile:"
