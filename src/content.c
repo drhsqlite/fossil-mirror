@@ -453,7 +453,14 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
   }else{
     blob_init(&hash, zUuid, -1);
   }
-  size = nBlob ? nBlob : blob_size(pBlob);
+  if( nBlob ){
+    size = nBlob;
+  }else{
+    size = blob_size(pBlob);
+    if( srcId ){
+      size = delta_output_size(blob_buffer(pBlob), size);
+    }
+  }
   db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
