@@ -682,11 +682,12 @@ void help_cmd(void){
 
 /*
 ** WEBPAGE: help
-** URL: /help?cmd=CMD
+** URL: /help/CMD
 */
 void help_page(void){
     const char * zCmd = P("cmd");
-     
+
+    if( zCmd==0 ) zCmd = P("name");
     style_header("Command-line Help");
     if( zCmd ){
       int rc, idx;

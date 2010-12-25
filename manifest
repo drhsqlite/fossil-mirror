@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\s"help"\swebpage.
-D 2010-12-25T23:55:56
+C All\sthe\shelp\sURL\sto\shave\sits\scommand\sspecified\sas\sa\spath\sextension\sin\saddition\nto\sthe\s"cmd"\squery\sparameter.
+D 2010-12-25T23:58:09
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_transport.c bac34bcf45ba3d2c8a9210ba4f4d498e5dd35d44
 F src/import.c ae713391c763e3fe7b390305457b9d222fc817c4
 F src/info.c 8c1d39741d5b61701a8a1908807cacac93d3cde1
 F src/login.c 24107b88a32ac7e2503c5f7c4b6c609147d9231e
-F src/main.c 36bc04856bc7b6a8cdb0c350d272a9b28c6b922f
+F src/main.c 36ae19b8bd323974d036307e9e4bc8a35722d97d
 F src/main.mk 39287b20313054d23d07f84fcb94fa90bdc5a413
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -287,7 +287,7 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 8bdd09e409ea2bcb0895f3fe44059d1c96a2d88b
-R 802821079af14af517d7b6dc5aee0f41
+P 01b3c9c1a8f31327ae3822e64a57a74dbf7fd1cd
+R 33e0c755b63e928599dc6143559fd067
 U drh
-Z 0b9dc0860065a6d5608f376f44ca2eab
+Z a4ab9358351330437a61c7f22324687b
