@@ -686,13 +686,14 @@ void help_cmd(void){
 */
 void help_page(void){
     const char * zCmd = P("cmd");
-    
-    style_header("Command line help %s%s",zCmd?" - ":"",zCmd?zCmd:"");
+     
+    style_header("Command-line Help");
     if( zCmd ){
       int rc, idx;
       char *z, *s, *d;
 
-      @ <h1>%s(zCmd)</h1>
+      style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
+      @ <h1>The "%s(zCmd)" command:</h1>
       rc = name_search(zCmd, aCommand, count(aCommand), &idx);
       if( rc==1 ){
         @ unknown command: %s(zCmd)
@@ -712,22 +713,40 @@ void help_page(void){
 	    }
 	  }
 	  *d = 0;
-	  @ <pre>%s(z)</pre>
+	  @ <blockquote><pre>
+          @ %h(z)
+          @ </pre></blockquote>
 	  free(z);
 	}
       }
-      @ <hr/><a href="help">available commands</a> in fossil
-      @ version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
     }else{
-      int i;
-      
-      @ <h1>Available commands</h1>
-      for(i=0; i<count(aCommand); i++){
-        if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
-        @ <kbd><a href="help?cmd=%s(aCommand[i].zName)">
-        @ %s(aCommand[i].zName)</a></kbd>
+      int i, j, n;
+
+      @ <h1>Available commands:</h1>
+      @ <table border="0"><tr>
+      for(i=j=0; i<count(aCommand); i++){
+        const char *z = aCommand[i].zName;
+        if( strncmp(z,"test",4)==0 ) continue;
+        j++;
       }
-      @ <hr/>fossil version %s(MANIFEST_VERSION" "MANIFEST_DATE) UTC
+      n = (j+6)/7;
+      for(i=j=0; i<count(aCommand); i++){
+        const char *z = aCommand[i].zName;
+        if( strncmp(z,"test",4)==0 ) continue;
+        if( j==0 ){
+          @ <td valign="top"><ul>
+        }
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a>
+        j++;
+        if( j>=n ){
+          @ </ul></td>
+          j = 0;
+        }
+      }
+      if( j>0 ){
+        @ </ul></td>
+      }
+      @ </tr></table>
     }
     style_footer();
 }
