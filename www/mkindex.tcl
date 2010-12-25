@@ -26,6 +26,8 @@ set doclist {
   pop.wiki {Principles Of Operations}
   qandc.wiki {Questions And Criticisms}
   quickstart.wiki {Fossil Quick Start Guide}
+  quotes.wiki
+      {Quotes: What People Are Saying About Fossil, Git, and DVCSes in General}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
@@ -38,7 +40,7 @@ set doclist {
 }
 
 set permindex {}
-set stopwords {fossil and a in of on the to}
+set stopwords {fossil and a in of on the to are about}
 foreach {file title} $doclist {
   set n [llength $title]
   lappend permindex [list $title $file]

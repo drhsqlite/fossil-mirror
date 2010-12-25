@@ -22,6 +22,7 @@
 <li><a href="theory1.wiki">Design Of The Fossil DVCS &#151; Thoughts On The</a></li>
 <li><a href="embeddeddoc.wiki">Documentation &#151; Embedded Project</a></li>
 <li><a href="theory1.wiki">DVCS &#151; Thoughts On The Design Of The Fossil</a></li>
+<li><a href="quotes.wiki">DVCSes in General &#151; Quotes: What People Are Saying About Fossil, Git, and</a></li>
 <li><a href="embeddeddoc.wiki">Embedded Project Documentation</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Encoding Algorithm &#151; Fossil Delta</a></li>
 <li><a href="inout.wiki">Export To And From Git &#151; Import And</a></li>
@@ -37,11 +38,14 @@
 <li><a href="selfcheck.wiki">Fossil Repository Integrity Self Checks</a></li>
 <li><a href="selfhost.wiki">Fossil Self Hosting Repositories</a></li>
 <li><a href="fossil-v-git.wiki">Fossil Versus Git</a></li>
+<li><a href="quotes.wiki">Fossil, Git, and DVCSes in General &#151; Quotes: What People Are Saying About</a></li>
 <li><a href="faq.wiki">Frequently Asked Questions</a></li>
 <li><a href="shunning.wiki">From Fossil &#151; Deleting Content</a></li>
 <li><a href="inout.wiki">From Git &#151; Import And Export To And</a></li>
+<li><a href="quotes.wiki">General &#151; Quotes: What People Are Saying About Fossil, Git, and DVCSes in</a></li>
 <li><a href="fossil-v-git.wiki">Git &#151; Fossil Versus</a></li>
 <li><a href="inout.wiki">Git &#151; Import And Export To And From</a></li>
+<li><a href="quotes.wiki">Git, and DVCSes in General &#151; Quotes: What People Are Saying About Fossil,</a></li>
 <li><a href="quickstart.wiki">Guide &#151; Fossil Quick Start</a></li>
 <li><a href="index.wiki">Home Page</a></li>
 <li><a href="selfhost.wiki">Hosting Repositories &#151; Fossil Self</a></li>
@@ -56,6 +60,7 @@
 <li><a href="pop.wiki">Operations &#151; Principles Of</a></li>
 <li><a href="index.wiki">Page &#151; Home</a></li>
 <li><a href="password.wiki">Password Management And Authentication</a></li>
+<li><a href="quotes.wiki">People Are Saying About Fossil, Git, and DVCSes in General &#151; Quotes: What</a></li>
 <li><a href="stats.wiki">Performance Statistics</a></li>
 <li><a href="pop.wiki">Principles Of Operations</a></li>
 <li><a href="embeddeddoc.wiki">Project Documentation &#151; Embedded</a></li>
@@ -63,8 +68,10 @@
 <li><a href="faq.wiki">Questions &#151; Frequently Asked</a></li>
 <li><a href="qandc.wiki">Questions And Criticisms</a></li>
 <li><a href="quickstart.wiki">Quick Start Guide &#151; Fossil</a></li>
+<li><a href="quotes.wiki">Quotes: What People Are Saying About Fossil, Git, and DVCSes in General</a></li>
 <li><a href="selfhost.wiki">Repositories &#151; Fossil Self Hosting</a></li>
 <li><a href="selfcheck.wiki">Repository Integrity Self Checks &#151; Fossil</a></li>
+<li><a href="quotes.wiki">Saying About Fossil, Git, and DVCSes in General &#151; Quotes: What People Are</a></li>
 <li><a href="selfcheck.wiki">Self Checks &#151; Fossil Repository Integrity</a></li>
 <li><a href="selfhost.wiki">Self Hosting Repositories &#151; Fossil</a></li>
 <li><a href="server.wiki">Server &#151; How To Configure A Fossil</a></li>
@@ -81,5 +88,6 @@
 <li><a href="checkin_names.wiki">Version Names &#151; Checkin And</a></li>
 <li><a href="fossil-v-git.wiki">Versus Git &#151; Fossil</a></li>
 <li><a href="webui.wiki">Web Interface &#151; The Fossil</a></li>
+<li><a href="quotes.wiki">What People Are Saying About Fossil, Git, and DVCSes in General &#151; Quotes:</a></li>
 <li><a href="wikitheory.wiki">Wiki In Fossil</a></li>
 </ul>
