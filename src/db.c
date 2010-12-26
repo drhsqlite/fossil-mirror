@@ -1606,6 +1606,7 @@ struct stControlSettings const ctrlSettings[] = {
 /*
 ** COMMAND: settings
 ** COMMAND: unset
+**
 ** %fossil settings ?PROPERTY? ?VALUE? ?-global?
 ** %fossil unset PROPERTY ?-global?
 **

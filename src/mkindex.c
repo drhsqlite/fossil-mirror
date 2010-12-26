@@ -61,7 +61,7 @@ typedef struct Entry {
 /*
 ** Maximum size of a help message
 */
-#define MX_HELP 10000
+#define MX_HELP 25000
 
 /*
 ** Table of entries
@@ -130,8 +130,12 @@ void scan_for_func(char *zLine){
   int i,j,k;
   char *z;
   if( nUsed<=nFixed ) return;
-  if( strncmp(zLine, "**", 2)==0 && isspace(zLine[2])
-       && strlen(zLine)<sizeof(zHelp)-nHelp-1 && nUsed>nFixed ){
+  if( strncmp(zLine, "**", 2)==0
+   && isspace(zLine[2])
+   && strlen(zLine)<sizeof(zHelp)-nHelp-1
+   && nUsed>nFixed
+   && memcmp(zLine,"** COMMAND:",11)!=0
+  ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
     }else{
