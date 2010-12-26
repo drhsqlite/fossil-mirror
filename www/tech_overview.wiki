@@ -6,8 +6,8 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 <h2>1.0 Introduction</h2>
 
 At its lowest level, a Fossil repository consists of an unordered set
-of immutable "artifacts".  Think of these artifacts as "files", since in
-many cases the artifacts do indeed exactly correspond to source code files
+of immutable "artifacts".  You might think of these artifacts as "files",
+since in many cases the artifacts exactly correspond to source code files
 that are stored in the Fossil repostory.  But other "control artifacts" 
 are also included in the mix.  These control artifacts define the relationships
 between artifacts - which files go together to form a particular
@@ -17,8 +17,8 @@ are the edit histories of each wiki page, what bug reports or tickets are
 included, who contributed to the evolution of each ticket, and so forth,
 and so on.  This low-level file format is called the "global state" of
 the repository, since this is the information that is synced to peer
-repositories using push and pull operations.   the low-level file format
-is also called "enduring" since it is intended to last for generations.
+repositories using push and pull operations.   The low-level file format
+is also called "enduring" since it is intended to last for many years.
 The details of the low-level, enduring, global file format 
 are [./fileformat.wiki | described separately].
 
@@ -31,15 +31,15 @@ some detail on how Fossil actually stores information on disk.
 
 Fossil stores state information in 
 [http://www.sqlite.org/ | SQLite] database files.
-SQLite stores an entire relational database, including multiple tables and
+SQLite keeps an entire relational database, including multiple tables and
 indices, in a single disk file.  The SQLite library allows the database
 files to be efficiently queried and updated using the industry-standard
 SQL language.  And SQLite makes updates to these database files atomic,
-even in the face of system crashes and power failures, meaning that even
-a power loss in the middle of a commit will not damage the Fossil repository
-content.
+even if a system crashe or power failure occurs in the middle of the
+update, meaning that repository content is protected even during severe
+malfunctions.
 
-Fossil uses three separate SQLite databases:
+Fossil uses three separate classes of SQLite databases:
 
 <ol>
 <li>The configuration database
@@ -54,6 +54,17 @@ file that people are normally referring to when they say
 "a Fossil repository".  The checkout database is found in the working
 checkout for a project and contains state information that is unique
 to that working checkout.
+
+Fossil does not always use all three databaes files.  The web interface,
+for example, typically only uses the repository database.  And the
+[/help/all | fossil setting] command only opens the configuration database
+when the --global option is used.  But other commands use all three
+databases at once.  For example, the [/help/status | fossil status]
+command will first locate the checkout database, then use the checkout
+database to find the repository database, then open the configuration
+database.  Whenever multiple databases are used at the same time,
+they are all opened on the same SQLite database connection using
+SQLite's [http://www.sqlite.org/lang_attach.html | ATTACH] command.
 
 The chart below provides a quick summary of how each of these
 database files are used by Fossil, with detailed discussion following.
@@ -82,6 +93,7 @@ database files are used by Fossil, with detailed discussion following.
 <td width="33%" valign="top">
 <h3 align="center">Checkout Database<br>"_FOSSIL_"</h3>
 <ul>
+<li>The repository database used by this checkout
 <li>The version currently checked out
 <li>Other versions [/help/merge | merged] in but not
     yet [/help/commit | committed]
@@ -99,8 +111,69 @@ database files are used by Fossil, with detailed discussion following.
 
 <h3>2.1 The Configuration Database</h3>
 
+The configuration database holds cross-repository preferences and a list of all
+repositories for a single user.
 
+The [/help/setting | fossil setting] command can be used to specify various
+operating parameters and preferences for Fossil repositories.  Settings can
+apply to a single repository, or they can apply globally to all repositories
+for a user.  If both a global and a repository value exists for a setting,
+then the repository-specific value takes precedence.  All of the settings
+have reasonable defaults, and so many users will never need to change them.
+But if changes to settings are desired, the configuration database provides
+a why to change settings for all repositories with a single command, rather
+than having to change the setting individually on each repository.
 
+The configuration database also maintains a list of respositories.  This
+list is used by the [/help/all | fossil all] command in order to run various
+operations such as "sync" or "rebuild" on all repositories managed by a user.
+
+On unix systems, the configuration database is named ".fossil" and is
+located in the user's home directory.  On windows, the configuration
+database is named "_fossil" (using an underscore as the first character
+instead of a dot) and is located in the directory specified by the
+LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
 
 <h3>2.2 Repository Databases</h3>
+
+The repository database is the file that is commonly referred to as 
+"the repository".  This is because the responsitory database contains,
+among other than, the complete revision, ticket, and wiki history for
+a project.  It is customary to name the respository database after then
+name of the project, with a ".fossil" suffix.  For example, the respository
+database for the self-hosting Fossil repository is called "fossil.fossil"
+and the repository database for SQLite is called "sqlite.fossil".
+
+<h4>2.2.1 Global Project State</h4>
+
+The bulk of the repository database (typically 75 to 85%) consists
+of the artifacts that comprise the 
+[./fileformat.wiki | enduring, global, shared state] of the project.
+The artifacts are stored as BLOBs, compressed using
+[http://www.zlib.net/ | zlib compression] and, where applicable,
+using [./delta_encoder_algorithm.wiki | delta compression].
+The combination of zlib and delta compression results in a considerable
+space savings.  For the SQLite project, at the time of this writing,
+the total size of all artifacts is over 1.7 GB but thanks to the
+combined zlib and delta compression, that content only takes up
+51.4 MB of space in the repository database, for a compression ratio
+of about 33 to 1.
+
+Note that the zlib and delta compression is not an inherient part of
+Fossil file format; it is just an optimization.  
+The enduring file format for Fossil is the unordered
+set of artifacts and the compression techniques are just a detail of
+how the current implementation of Fossil happens to store these artifacts
+efficiently on disk.
+
+All of the original uncompressed and undeltaed artifacts can be extracted
+from a Fossil repository database using 
+the [/help/deconstruct | fossil deconstruct]
+command.  Going the other way, the [/help/reconstruct | fossil reconstruct]
+command will scan a directory hierarchy and add all files found to
+a new repository database.  The [/help/artifact | fossil artifact] command
+can be used to extract individual artifacts from the repository database.
+
+
+
 <h3>2.3 Checkout Databases</h3>
