@@ -1,5 +1,5 @@
-C Change\sthe\s"setting"\scommand\sso\sthat\sit\sworks\sfor\sglobal\ssettings\seven\sif\nit\sis\srun\soutside\sof\sa\scheck-out\sand\swith\sno\srepository\sspecified\susing\s-R.
-D 2010-12-26T13:22:12
+C corrected\sdmc\smakefile\sgenerate,\sresource\scompile\sfailed
+D 2010-12-26T14:15:08
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -75,7 +75,7 @@ F src/main.c 36ae19b8bd323974d036307e9e4bc8a35722d97d
 F src/main.mk 39287b20313054d23d07f84fcb94fa90bdc5a413
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl 5fac3b677cee27f446e4c34634f84e224d2a7dce
+F src/makemake.tcl 8d1b3d8d9b5b85f593a68542834eca6da2dcfe78
 F src/manifest.c e0c9be0237df268654d5012a7c0b6b4bc0b71668
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 6131cabe35fb8c8dd8d9b96ad2a66da3e4a5d5e0
@@ -186,7 +186,7 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 361bcd10369ef39e4ccf639c40877c4e333a83df
-F win/Makefile.dmc 03a36a337f734a04f25f832f685022b23e3c5851
+F win/Makefile.dmc c9d093d0c214ca9d1bda15a91045a6344f935ddf
 F win/Makefile.mingw d699f396d1cca60aa03876c228ba5644083a9758
 F win/Makefile.msc 011caa2c0014bcae041e77af065bb2ecbb8a54f9
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -288,7 +288,7 @@ F www/tech_overview.wiki 78644886eb214bb07c704f7613dd473efa5f8e95
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 0e1447a6ea799421066336cd1ed7dda53b34b1f6
-R 95ac7752386dc6aa26e78bc9ae4287e6
-U drh
-Z 3517dd6cf1bb05e0320b221afc7baddd
+P 3d59229789df4de496ea7bfaa5daf6a517a8510d
+R d85a1b178b30606baa6b8ddee608253b
+U wolfgang
+Z b7b999057572f11b77ab87569d51548b

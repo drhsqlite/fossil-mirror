@@ -528,9 +528,9 @@ foreach s [lsort $src] {
 writeln "shell sqlcmd sqlite3 th th_lang > \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo fossil >> \$@"
-writeln "\t+echo \$(LIBS) >> \$@\n\n"
-writeln "\t+echo. >> \$@\n\n"
-writeln "\t+echo fossil >> \$@\n\n"
+writeln "\t+echo \$(LIBS) >> \$@"
+writeln "\t+echo. >> \$@"
+writeln "\t+echo fossil >> \$@"
 
 writeln {
 translate$E: $(SRCDIR)\translate.c

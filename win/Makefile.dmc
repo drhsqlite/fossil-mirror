@@ -48,14 +48,8 @@ $(OBJDIR)\link: $B\win\Makefile.dmc
 	+echo fossil >> $@
 	+echo fossil >> $@
 	+echo $(LIBS) >> $@
-
-
 	+echo. >> $@
-
-
 	+echo fossil >> $@
-
-
 
 translate$E: $(SRCDIR)\translate.c
 	$(BCC) -o$@ $**
