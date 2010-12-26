@@ -1,0 +1,106 @@
+<title>Technical Overview</title>
+<h2 align="center">
+A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
+</h2>
+
+<h2>1.0 Introduction</h2>
+
+At its lowest level, a Fossil repository consists of an unordered set
+of immutable "artifacts".  Think of these artifacts as "files", since in
+many cases the artifacts do indeed exactly correspond to source code files
+that are stored in the Fossil repostory.  But other "control artifacts" 
+are also included in the mix.  These control artifacts define the relationships
+between artifacts - which files go together to form a particular
+version of the project, who checked in that version and when, what was
+the check-in comment, what wiki pages are included with the project, what
+are the edit histories of each wiki page, what bug reports or tickets are
+included, who contributed to the evolution of each ticket, and so forth,
+and so on.  This low-level file format is called the "global state" of
+the repository, since this is the information that is synced to peer
+repositories using push and pull operations.   the low-level file format
+is also called "enduring" since it is intended to last for generations.
+The details of the low-level, enduring, global file format 
+are [./fileformat.wiki | described separately].
+
+This article is about how Fossil is currently implemented.  Instead of
+dealing with vague abstractions of "enduring file formats" as the
+[./fileformat.wiki | that other document] does, this article provides
+some detail on how Fossil actually stores information on disk.  
+
+<h2>2.0 Three Databases</h2>
+
+Fossil stores state information in 
+[http://www.sqlite.org/ | SQLite] database files.
+SQLite stores an entire relational database, including multiple tables and
+indices, in a single disk file.  The SQLite library allows the database
+files to be efficiently queried and updated using the industry-standard
+SQL language.  And SQLite makes updates to these database files atomic,
+even in the face of system crashes and power failures, meaning that even
+a power loss in the middle of a commit will not damage the Fossil repository
+content.
+
+Fossil uses three separate SQLite databases:
+
+<ol>
+<li>The configuration database
+<li>Repository databases
+<li>Checkout databases
+</ol>
+
+The configuration database is a one-per-user database that holds
+global configuration information used by Fossil.  There is one
+repository database per project.  The repository database is the
+file that people are normally referring to when they say 
+"a Fossil repository".  The checkout database is found in the working
+checkout for a project and contains state information that is unique
+to that working checkout.
+
+The chart below provides a quick summary of how each of these
+database files are used by Fossil, with detailed discussion following.
+
+<center><table border="1" width="80%" cellpadding="0">
+<tr>
+<td width="33%" valign="top">
+<h3 align="center">Configuration Database<br>"~/.fossil"</h3>
+<ul>
+<li>Global [/help/setting |settings]
+<li>List of active repositories used by the [/help/all | all] command
+</ul>
+</td>
+<td width="34%" valign="top">
+<h3 align="center">Repository Database<br>"<i>project</i>.fossil"</h3>
+<ul>
+<li>[./fileformat.wiki | Global state of the project]
+    encoded using delta-compression
+<li>Local [/help/setting|settings]
+<li>Web interface display preferences
+<li>User credentials and permissions
+<li>Meta-data about the global state to facilitate rapid
+    queries
+</ul>
+</td>
+<td width="33%" valign="top">
+<h3 align="center">Checkout Database<br>"_FOSSIL_"</h3>
+<ul>
+<li>The version currently checked out
+<li>Other versions [/help/merge | merged] in but not
+    yet [/help/commit | committed]
+<li>Changes from the [/help/add | add], [/help/delete | delete],
+    and [/help/rename | rename] commands that have not yet been committed
+<li>"mtime" values and other information used to efficiently detect
+     local edits
+<li>The "[/help/stash | stash]"
+<li>Information needed to "[/help/undo|undo]" or "[/help/redo|redo]"
+</ul>
+</td>
+</tr>
+</table>
+</center>
+
+<h3>2.1 The Configuration Database</h3>
+
+
+
+
+<h3>2.2 Repository Databases</h3>
+<h3>2.3 Checkout Databases</h3>
