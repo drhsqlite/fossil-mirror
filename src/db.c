@@ -1694,7 +1694,9 @@ void setting_cmd(void){
   int globalFlag = find_option("global","g",0)!=0;
   int unsetFlag = g.argv[1][0]=='u';
   db_open_config(1);
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  if( !globalFlag ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
+  }
   if( !g.repositoryOpen ){
     globalFlag = 1;
   }
