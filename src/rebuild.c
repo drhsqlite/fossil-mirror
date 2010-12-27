@@ -431,6 +431,74 @@ void test_createcluster_cmd(void){
 }
 
 /*
+** COMMAND: test-clusters
+**
+** Verify that all non-private and non-shunned artifacts are accessible
+** through the cluster chain.
+*/
+void test_clusters_cmd(void){
+  Bag pending;
+  Stmt q;
+  int n;
+  
+  db_find_and_open_repository(0, 2);
+  bag_init(&pending);
+  db_multi_exec(
+    "CREATE TEMP TABLE xdone(x INTEGER PRIMARY KEY);"
+    "INSERT INTO xdone SELECT rid FROM unclustered;"
+    "INSERT OR IGNORE INTO xdone SELECT rid FROM private;"
+    "INSERT OR IGNORE INTO xdone"
+         " SELECT blob.rid FROM shun JOIN blob USING(uuid);"
+  );
+  db_prepare(&q,
+    "SELECT rid FROM unclustered WHERE rid IN"
+    " (SELECT rid FROM tagxref WHERE tagid=%d)", TAG_CLUSTER
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    bag_insert(&pending, db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+  while( bag_count(&pending)>0 ){
+    Manifest *p;
+    int rid = bag_first(&pending);
+    int i;
+    
+    bag_remove(&pending, rid);
+    p = manifest_get(rid, CFTYPE_CLUSTER);
+    if( p==0 ){
+      fossil_fatal("bad cluster: rid=%d", rid);
+    }
+    for(i=0; i<p->nCChild; i++){
+      const char *zUuid = p->azCChild[i];
+      int crid = name_to_rid(zUuid);
+      if( crid==0 ){
+         fossil_warning("cluster (rid=%d) references unknown artifact %s",
+                        rid, zUuid);
+         continue;
+      }
+      db_multi_exec("INSERT OR IGNORE INTO xdone VALUES(%d)", crid);
+      if( db_exists("SELECT 1 FROM tagxref WHERE tagid=%d AND rid=%d",
+                    TAG_CLUSTER, crid) ){
+        bag_insert(&pending, crid);
+      }
+    }
+    manifest_destroy(p);
+  }
+  n = db_int(0, "SELECT count(*) FROM /*scan*/"
+                "  (SELECT rid FROM blob EXCEPT SELECT x FROM xdone)");
+  if( n==0 ){
+    printf("all artifacts reachable through clusters\n");
+  }else{
+    printf("%d unreachable artifacts:\n", n);
+    db_prepare(&q, "SELECT rid, uuid FROM blob WHERE rid NOT IN xdone");
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("  %3d %s\n", db_column_int(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }
+}
+
+/*
 ** COMMAND: scrub
 ** %fossil scrub [--verily] [--force] [REPOSITORY]
 **

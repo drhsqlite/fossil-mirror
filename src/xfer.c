@@ -586,9 +586,11 @@ static void send_unsent(Xfer *pXfer){
 */
 void create_cluster(void){
   Blob cluster, cksum;
+  Blob deleteWhere;
   Stmt q;
   int nUncl;
   int nRow = 0;
+  int rid;
 
   /* We should not ever get any private artifacts in the unclustered table.
   ** But if we do (because of a bug) now is a good time to delete them. */
@@ -601,6 +603,7 @@ void create_cluster(void){
                                       " WHERE rid=unclustered.rid)");
   if( nUncl>=100 ){
     blob_zero(&cluster);
+    blob_zero(&deleteWhere);
     db_prepare(&q, "SELECT uuid FROM unclustered, blob"
                    " WHERE NOT EXISTS(SELECT 1 FROM phantom"
                    "                   WHERE rid=unclustered.rid)"
@@ -614,14 +617,19 @@ void create_cluster(void){
         md5sum_blob(&cluster, &cksum);
         blob_appendf(&cluster, "Z %b\n", &cksum);
         blob_reset(&cksum);
-        content_put(&cluster, 0, 0, 0);
+        rid = content_put(&cluster, 0, 0, 0);
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
+        blob_appendf(&deleteWhere, ",%d", rid);
       }
     }
     db_finalize(&q);
-    db_multi_exec("DELETE FROM unclustered");
+    db_multi_exec(
+      "DELETE FROM unclustered WHERE rid NOT IN (0 %s)", 
+      blob_str(&deleteWhere)
+    );
+    blob_reset(&deleteWhere);
     if( nRow>0 ){
       md5sum_blob(&cluster, &cksum);
       blob_appendf(&cluster, "Z %b\n", &cksum);
