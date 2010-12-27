@@ -35,7 +35,7 @@ SQLite keeps an entire relational database, including multiple tables and
 indices, in a single disk file.  The SQLite library allows the database
 files to be efficiently queried and updated using the industry-standard
 SQL language.  And SQLite makes updates to these database files atomic,
-even if a system crashe or power failure occurs in the middle of the
+even if a system crashes or power failure occurs in the middle of the
 update, meaning that repository content is protected even during severe
 malfunctions.
 
@@ -55,7 +55,7 @@ file that people are normally referring to when they say
 checkout for a project and contains state information that is unique
 to that working checkout.
 
-Fossil does not always use all three databaes files.  The web interface,
+Fossil does not always use all three database files.  The web interface,
 for example, typically only uses the repository database.  And the
 [/help/all | fossil setting] command only opens the configuration database
 when the --global option is used.  But other commands use all three
@@ -121,7 +121,7 @@ for a user.  If both a global and a repository value exists for a setting,
 then the repository-specific value takes precedence.  All of the settings
 have reasonable defaults, and so many users will never need to change them.
 But if changes to settings are desired, the configuration database provides
-a why to change settings for all repositories with a single command, rather
+a way to change settings for all repositories with a single command, rather
 than having to change the setting individually on each repository.
 
 The configuration database also maintains a list of respositories.  This
@@ -137,8 +137,8 @@ LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
 <h3>2.2 Repository Databases</h3>
 
 The repository database is the file that is commonly referred to as 
-"the repository".  This is because the responsitory database contains,
-among other than, the complete revision, ticket, and wiki history for
+"the repository".  This is because the repository database contains,
+among other things, the complete revision, ticket, and wiki history for
 a project.  It is customary to name the respository database after then
 name of the project, with a ".fossil" suffix.  For example, the respository
 database for the self-hosting Fossil repository is called "fossil.fossil"
@@ -157,12 +157,12 @@ space savings.  For the SQLite project, at the time of this writing,
 the total size of all artifacts is over 1.7 GB but thanks to the
 combined zlib and delta compression, that content only takes up
 51.4 MB of space in the repository database, for a compression ratio
-of about 33 to 1.
+of about 33:1.
 
-Note that the zlib and delta compression is not an inherient part of
+Note that the zlib and delta compression is not an inherent part of the
 Fossil file format; it is just an optimization.  
 The enduring file format for Fossil is the unordered
-set of artifacts and the compression techniques are just a detail of
+set of artifacts. The compression techniques are just a detail of
 how the current implementation of Fossil happens to store these artifacts
 efficiently on disk.
 
