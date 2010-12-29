@@ -958,6 +958,7 @@ void rptview_page(void){
     @ <table border="1" cellpadding="2" cellspacing="0" class="report">
     sState.rn = rn;
     sState.nCount = 0;
+    (void)fossil_localtime(0);  /* initialize the g.fTimeFormat variable */
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
     sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);

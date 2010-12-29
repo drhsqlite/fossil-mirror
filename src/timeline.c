@@ -1249,6 +1249,7 @@ struct tm *fossil_localtime(const time_t *clock){
       g.fTimeFormat = 2;
     }
   }
+  if( clock==0 ) return 0;
   if( g.fTimeFormat==1 ){
     return gmtime(clock);
   }else{
