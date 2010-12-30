@@ -799,14 +799,14 @@ void page_timeline(void){
         "AND (EXISTS(SELECT 1 FROM tagxref"
                     " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)", tagid);
 
-      if( zBrName && zType[0]=='c' ){
+      if( zBrName ){
+        url_add_parameter(&url, "r", zBrName);
         /* The next two blob_appendf() calls add SQL that causes checkins that
         ** are not part of the branch which are parents or childen of the branch
         ** to be included in the report.  This related check-ins are useful
         ** in helping to visualize what has happened on a quiescent branch 
         ** that is infrequently merged with a much more activate branch.
         */
-        url_add_parameter(&url, "r", zBrName);
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
                      " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)", tagid);
