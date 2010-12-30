@@ -47,10 +47,10 @@ struct GraphRow {
   u8 isDup;                   /* True if this is duplicate of a prior entry */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
-  i8 mergeOut;                /* Merge out to this rail */
+  i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
   int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
-  u32 mergeIn;                /* Merge in from other rails */
-  int mergeUpto;              /* Draw the merge rail up to this level */
+  u32 mergeIn;                /* Merge in from other rails on this bitmask */
+  int mergeUpto;              /* Draw the mergeOut rail up to this level */
   u32 mergeDown;              /* Draw merge lines up from bottom of graph */
 
   u32 railInUse;              /* Mask of occupied rails at this row */
@@ -345,9 +345,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
           pRow->iRail = ++p->mxRail;
         }
         mask = 1<<(pRow->iRail);
-        if( omitDescenders ){
-          if( pRow->pNext ) pRow->pNext->railInUse |= mask;
-        }else{
+        if( !omitDescenders ){
           pRow->bDescender = pRow->nParent>0;
           for(pLoop=pRow; pLoop; pLoop=pLoop->pNext){
             pLoop->railInUse |= mask;
