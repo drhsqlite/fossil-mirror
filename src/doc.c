@@ -51,7 +51,7 @@ const char *mimetype_from_content(Blob *pBlob){
   } aMime[] = {
     { "GIF87a",                  6, "image/gif"  },
     { "GIF89a",                  6, "image/gif"  },
-    { "\211PNG\r\n\032\r",       8, "image/png"  },
+    { "\211PNG\r\n\032\n",       8, "image/png"  },
     { "\377\332\377",            3, "image/jpeg" },
     { "\377\330\377",            3, "image/jpeg" },
   };
