@@ -18,6 +18,7 @@
 ** Code to generate the ticket listings
 */
 #include "config.h"
+#include <time.h>
 #include "report.h"
 #include <assert.h>
 
