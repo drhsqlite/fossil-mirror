@@ -352,9 +352,41 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     char cSep;
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
+
+    /* the rowinfo[] array contains all the information needed to generate
+    ** the graph.  Each entry contains information for a single row:
+    **
+    **   id:  The id of the <div> element for the row. This is an integer.
+    **        to get an actual id, prepend "m" to the integer.  The top node
+    **        is 1 and numbers increase moving down the timeline.
+    **   bg:  The background color for this row
+    **    r:  The "rail" that the node for this row sits on.  The left-most
+    **        rail is 0 and the number increases to the right.
+    **    d:  True if there is a "descender" - an arrow coming from the bottom
+    **        of the page straight up to this node.
+    **   mo:  "merge-out".  If non-negative, this is a rail number on which
+    **        a merge arrow travels upward.  The merge arrow is drawn upwards
+    **        to the row identified by mu:.  This value is negative then
+    **        node has no merge children and no merge-out line is drawn.
+    **   mu:  The id of the row which is the top of the merge-out arrow.
+    **   md:  A bitmask of rails on which merge-arrow descenders should be
+    **        drawn from this row to the bottom of the page.  The least
+    **        significant bit (1) corresponds to rail 0.  The 2-bit corresponds
+    **        to rail 1.  And so forth.  This value is 0 if there are no
+    **        merge-arrow descenders.
+    **    u:  Draw a think child-line out of the top of this node and up to
+    **        the node with an id equal to this value.  0 if there is no
+    **        thick-line riser.
+    **   au:  An array of integers that define thick-line risers for branches.
+    **        The integers are in pairs.  For each pair, the first integer is
+    **        is the rail on which the riser should run and the second integer
+    **        is the id of the node upto which the riser should run.
+    **   mi:  "merge-in".  An array of integer rail numbers from which
+    **        merge arrows should be drawn into this node.
+    */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:\"m%d\",bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
+      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
         pRow->idx,
         pRow->zBgClr,
         pRow->iRail,
@@ -362,13 +394,13 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
         pRow->mergeOut,
         pRow->mergeUpto,
         pRow->mergeDown,
-        pRow->aiRaiser[pRow->iRail]
+        pRow->aiRiser[pRow->iRail]
       );
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
-        if( pRow->aiRaiser[i]>0 ){
-          cgi_printf("%c%d,%d", cSep, i, pRow->aiRaiser[i]);
+        if( pRow->aiRiser[i]>0 ){
+          cgi_printf("%c%d,%d", cSep, i, pRow->aiRiser[i]);
           cSep = ',';
         }
       }
@@ -499,10 +531,10 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     canvasDiv.removeChild(canvasDiv.firstChild);
     @   }
     @   var canvasY = absoluteY("timelineTable");
-    @   var left = absoluteX(rowinfo[0].id) - absoluteX("canvas") + 15;
+    @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
     @   var width = nrail*20;
     @   for(var i in rowinfo){
-    @     rowinfo[i].y = absoluteY(rowinfo[i].id) + 10 - canvasY;
+    @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
@@ -530,7 +562,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     drawNode(rowinfo[i], left, btm);
     @   }
     @ }
-    @ var lastId = rowinfo[rowinfo.length-1].id;
+    @ var lastId = "m"+rowinfo[rowinfo.length-1].id;
     @ var lastY = 0;
     @ function checkHeight(){
     @   var h = absoluteY(lastId);

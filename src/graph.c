@@ -33,7 +33,7 @@
 */
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
-  int nParent;                /* Number of parents */
+  i8 nParent;                 /* Number of parents */
   int aParent[GR_MAX_PARENT]; /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
@@ -45,15 +45,15 @@ struct GraphRow {
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
-  int iRail;                  /* Which rail this check-in appears on. 0-based.*/
-  int aiRaiser[GR_MAX_RAIL];  /* Raisers from this node to a higher row. */
-  int bDescender;             /* Raiser from bottom of graph to here. */
+  u8 bDescender;              /* True if riser from bottom of graph to here. */
+  i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
+  i8 mergeOut;                /* Merge out to this rail */
+  int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
   u32 mergeIn;                /* Merge in from other rails */
-  int mergeOut;               /* Merge out to this rail */
   int mergeUpto;              /* Draw the merge rail up to this level */
   u32 mergeDown;              /* Draw merge lines up from bottom of graph */
 
-  u32 railInUse;              /* Mask of occupied rails */
+  u32 railInUse;              /* Mask of occupied rails at this row */
 };
 
 /* Context while building a graph
@@ -244,7 +244,7 @@ static void assignChildrenToRail(GraphRow *pBottom){
     assert( pCurrent->iRail<0 );
     pCurrent->iRail = iRail;
     pCurrent->railInUse |= mask;
-    pPrior->aiRaiser[iRail] = pCurrent->idx;
+    pPrior->aiRiser[iRail] = pCurrent->idx;
     while( pPrior->idx > pCurrent->idx ){
       pPrior->railInUse |= mask;
       pPrior = pPrior->pPrev;
@@ -281,6 +281,27 @@ void graph_finish(GraphContext *p, int omitDescenders){
     hashInsert(p, pRow, 1);
   }
   p->mxRail = -1;
+
+  /* Purge merge-parents that are out-of-graph if descenders are not
+  ** drawn.
+  **
+  ** Each node has one primary parent and zero or more "merge" parents.
+  ** A merge parent is a prior checkin from which changes were merged into
+  ** the current check-in.  If a merge parent is not in the visible section
+  ** of this graph, then no arrows will be drawn for it, so remove it from
+  ** the aParent[] array.
+  */
+  if( omitDescenders ){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      for(i=1; i<pRow->nParent; i++){
+        if( hashFind(p, pRow->aParent[i])==0 ){
+          pRow->aParent[i] = pRow->aParent[--pRow->nParent];
+          i--;
+        }
+      }
+    }
+  }
+
 
   /* Find the pChild pointer for each node. 
   **
@@ -362,7 +383,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         continue;
       }
       pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
-      pParent->aiRaiser[pRow->iRail] = pRow->idx;
+      pParent->aiRiser[pRow->iRail] = pRow->idx;
     }
     mask = 1<<pRow->iRail;
     pRow->railInUse |= mask;
