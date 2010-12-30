@@ -1169,7 +1169,6 @@ void artifact_page(void){
       @ </pre>
     }else if( strncmp(zMime, "image/", 6)==0 ){
       @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
-      style_submenu_element("Hex","Hex", "%s/hexdump?name=%s", g.zTop, zUuid);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
