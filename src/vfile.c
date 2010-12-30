@@ -183,8 +183,8 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       chnged = 1;
     }
     if( chnged!=1 ){
-      currentMtime = file_mtime(0);
       i64 origSize = db_column_int64(&q, 6);
+      currentMtime = file_mtime(0);
       if( origSize!=file_size(0) ){
         /* A file size change is definitive - the file has changed.  No
         ** need to check the sha1sum */
