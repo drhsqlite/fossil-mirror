@@ -364,9 +364,9 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **        rail is 0 and the number increases to the right.
     **    d:  True if there is a "descender" - an arrow coming from the bottom
     **        of the page straight up to this node.
-    **   mo:  "merge-out".  If non-negative, this is a rail number on which
+    **   mo:  "merge-out".  If non-zero, this is one more than the rail on which
     **        a merge arrow travels upward.  The merge arrow is drawn upwards
-    **        to the row identified by mu:.  This value is negative then
+    **        to the row identified by mu:.  If this value is zero then
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
     **   md:  A bitmask of rails on which merge-arrow descenders should be
@@ -391,7 +391,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
         pRow->zBgClr,
         pRow->iRail,
         pRow->bDescender,
-        pRow->mergeOut,
+        pRow->mergeOut+1,
         pRow->mergeUpto,
         pRow->mergeDown,
         pRow->aiRiser[pRow->iRail]
@@ -491,8 +491,8 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   if( p.d ){
     @     drawUpArrow(p.x, p.y+6, btm);
     @   } 
-    @   if( p.mo>=0 ){
-    @     var x1 = p.mo*20 + left;
+    @   if( p.mo>0 ){
+    @     var x1 = (p.mo-1)*20 + left;
     @     var y1 = p.y-3;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.mu-1];

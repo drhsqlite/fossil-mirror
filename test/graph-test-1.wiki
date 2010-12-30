@@ -8,6 +8,11 @@ the correct operation of the graph drawing logic.
   *  [/timeline?n=40&y=ci&b=2010-11-08]
   *  [/timeline?n=1000&y=ci&b=2010-11-08]
   *  [/timeline?f=3ea66260b5555d2e]
+  *  [/timeline?d=e5fe4164f74a7576&p=e5fe4164f74a7576&n=3] - 
+     multiple merge descenders from the penultimate node.
+  *  [/timeline?y=ci&a=2010-12-20] - multiple branch risers.
+  *  [/timeline?y=ci&a=2010-12-20&n=18]
+  *  [/timeline?y=ci&a=2010-12-20&n=9]
   *  [/timeline?r=experimental]
   *  [/timeline?r=experimental&n=1000]
   *  [/timeline?r=creole]
