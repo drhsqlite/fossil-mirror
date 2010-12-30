@@ -436,7 +436,7 @@ static const char zDefaultEdit[] =
 @         if {$username ne $login} {
 @           set ctxt "$ctxt claiming to be [htmlize $username]"
 @         }
-@         set ctxt "$ctxt added on [date]:</i><br />\n$cmappnd"
+@         set ctxt "$ctxt added on [date] UTC:</i><br />\n$cmappnd"
 @         append_field comment $ctxt
 @       }
 @     }
