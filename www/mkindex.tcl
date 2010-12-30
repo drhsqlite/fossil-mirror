@@ -22,6 +22,7 @@ set doclist {
   fossil-v-git.wiki {Fossil Versus Git}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
+  makefile.wiki {The Fossil Build Process}
   password.wiki {Password Management And Authentication}
   pop.wiki {Principles Of Operations}
   qandc.wiki {Questions And Criticisms}

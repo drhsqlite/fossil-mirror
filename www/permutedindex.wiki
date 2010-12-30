@@ -7,6 +7,7 @@
 <li><a href="password.wiki">Authentication &#151; Password Management And</a></li>
 <li><a href="branching.wiki">Branching, Forking, Merging, and Tagging</a></li>
 <li><a href="bugtheory.wiki">Bug Tracking In Fossil</a></li>
+<li><a href="makefile.wiki">Build Process &#151; The Fossil</a></li>
 <li><a href="build.wiki">Building and Installing Fossil</a></li>
 <li><a href="checkin_names.wiki">Checkin And Version Names</a></li>
 <li><a href="selfcheck.wiki">Checks &#151; Fossil Repository Integrity Self</a></li>
@@ -63,6 +64,7 @@
 <li><a href="quotes.wiki">People Are Saying About Fossil, Git, and DVCSes in General &#151; Quotes: What</a></li>
 <li><a href="stats.wiki">Performance Statistics</a></li>
 <li><a href="pop.wiki">Principles Of Operations</a></li>
+<li><a href="makefile.wiki">Process &#151; The Fossil Build</a></li>
 <li><a href="embeddeddoc.wiki">Project Documentation &#151; Embedded</a></li>
 <li><a href="sync.wiki">Protocol &#151; The Fossil Sync</a></li>
 <li><a href="faq.wiki">Questions &#151; Frequently Asked</a></li>
@@ -80,6 +82,7 @@
 <li><a href="sync.wiki">Sync Protocol &#151; The Fossil</a></li>
 <li><a href="custom_ticket.wiki">System &#151; Customizing The Ticket</a></li>
 <li><a href="branching.wiki">Tagging &#151; Branching, Forking, Merging, and</a></li>
+<li><a href="makefile.wiki">The Fossil Build Process</a></li>
 <li><a href="sync.wiki">The Fossil Sync Protocol</a></li>
 <li><a href="webui.wiki">The Fossil Web Interface</a></li>
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
