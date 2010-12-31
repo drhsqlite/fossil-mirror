@@ -61,7 +61,7 @@ such simplicity and flexibility!!!
 <ol>
 <li value=6>
 Just want to say thanks for fossil making my life easier.... 
-Also [for] not having a misanthropic command line interface.
+Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
 <blockquote>
 <i>Joshua Paine at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg02736.html]</i>

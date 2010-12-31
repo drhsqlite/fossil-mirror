@@ -205,7 +205,7 @@ and painlessly.</p>
 <h2>Branching And Merging</h2>
 
     <p>You can create branches by doing multiple commits off of the
-    same base version.  To merge to branches back together, first
+    same base version.  To merge two branches back together, first
     [/help/update | update] to the leaf of one branch.  Then do a
     [/help/merge | merge] of the leaf of the other branch:</p>
 

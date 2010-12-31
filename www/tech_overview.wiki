@@ -8,7 +8,7 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 At its lowest level, a Fossil repository consists of an unordered set
 of immutable "artifacts".  You might think of these artifacts as "files",
 since in many cases the artifacts exactly correspond to source code files
-that are stored in the Fossil repostory.  But other "control artifacts" 
+that are stored in the Fossil repository.  But other "control artifacts" 
 are also included in the mix.  These control artifacts define the relationships
 between artifacts - which files go together to form a particular
 version of the project, who checked in that version and when, what was
@@ -86,7 +86,7 @@ database files are used by Fossil, with detailed discussion following.
 <li>Local [/help/setting|settings]
 <li>Web interface display preferences
 <li>User credentials and permissions
-<li>Meta-data about the global state to facilitate rapid
+<li>Metadata about the global state to facilitate rapid
     queries
 </ul>
 </td>
@@ -124,7 +124,7 @@ But if changes to settings are desired, the configuration database provides
 a way to change settings for all repositories with a single command, rather
 than having to change the setting individually on each repository.
 
-The configuration database also maintains a list of respositories.  This
+The configuration database also maintains a list of repositories.  This
 list is used by the [/help/all | fossil all] command in order to run various
 operations such as "sync" or "rebuild" on all repositories managed by a user.
 
@@ -139,8 +139,8 @@ LOCALAPPDATA, APPDATA, or HOMEPATH environment variables, in that order.
 The repository database is the file that is commonly referred to as 
 "the repository".  This is because the repository database contains,
 among other things, the complete revision, ticket, and wiki history for
-a project.  It is customary to name the respository database after then
-name of the project, with a ".fossil" suffix.  For example, the respository
+a project.  It is customary to name the repository database after then
+name of the project, with a ".fossil" suffix.  For example, the repository
 database for the self-hosting Fossil repository is called "fossil.fossil"
 and the repository database for SQLite is called "sqlite.fossil".
 
@@ -169,11 +169,169 @@ efficiently on disk.
 All of the original uncompressed and undeltaed artifacts can be extracted
 from a Fossil repository database using 
 the [/help/deconstruct | fossil deconstruct]
-command.  Going the other way, the [/help/reconstruct | fossil reconstruct]
+command. Individual artifacts can be extracted using the
+[/help/artifact | fossil artifact] command.
+When accessing the repository database using raw SQL and the
+[/help/sqlite3 | fossil sql] command, the extension function
+"<tt>content()</tt>" with a single argument which is the SHA1 hash
+of an artifact will return the complete undeleted and uncompressed
+content of that artifact.  
+
+Going the other way, the [/help/reconstruct | fossil reconstruct]
 command will scan a directory hierarchy and add all files found to
-a new repository database.  The [/help/artifact | fossil artifact] command
-can be used to extract individual artifacts from the repository database.
+a new repository database.  The [/help/import | fossil import] command
+works by reading the input git-fast-export stream and using it to construct
+corresponding artifacts which are then written into the repository database.
 
+<h4>2.2.2 Project Metadata</h4>
 
+The global project state information in the repository database is
+supplemented by computed metadata that makes querying the project state
+more efficient.  Metadata includes but information such as the following:
+
+  *  The names for all files found in any checkin.
+  *  All check-ins that modify a given file
+  *  Parents and children of each checkin.
+  *  Potential timeline rows.
+  *  The names of all symbolic tags and the checkins they apply to.
+  *  The names of all wiki pages and the artifacts that comprise each
+     wiki page.
+  *  Attachments and the wiki pages or tickets they apply to.
+  *  Current content of each ticket.
+  *  Cross-references between tickets, checkins, and wiki pages.
+
+The metadata is held in various SQL tables in the repository database.
+The metadata is designed to facilitate queries for the various timelines and
+reports that Fossil generates.  
+As the functionality of Fossil evolves,
+the schema for the metadata can and does change from time to time.
+But schema changes do no invalidate the repository.  Remember that the
+metadata contains no new information - only information that has been
+extracted from the canonical artifacts and saved in a more useful form.
+Hence, when the metadata schema changes, the prior metadata can be discarded
+and the entire metadata corpus can be recomputed from the canonical
+artifacts.  That is what the
+[/help/rebuild | fossil rebuild] command does.
+
+<h4>2.2.3 Display And Processing Preferences</h4>
+
+The repository database also holds information used to help format
+the display of web pages and configuration settings that override the
+global configuration settings for the specific repository.  All of
+this information (and the user credentials and privileges too) is
+local to each repository database; it is not shared between repositories
+by [/help/sync | fossil sync].  That is because it is entirely reasonable
+that two different websites for the same project might have completely
+different display preferences and user communities.  One instance of the
+project might be a fork of the other, for example, which pulls from the
+other but never pushes and extends the project in ways that the keepers of
+the other website disapprove of.  
+
+Display and processing information includes the following:
+
+  *  The name and description of the project
+  *  The CSS file, header, and footer used by all web pages
+  *  The project logo image
+  *  Fields of tickets that are considered "significant" and which are
+     therefore collected from artifacts and made available for display
+  *  Templates for screens to view, edit, and create tickets
+  *  Ticket report formats and display preferences
+  *  Local values for [/help/setting | settings] that override the
+     global values defined in the per-user configuration database.
+
+Though the display and processing preferences do not move between
+repository instances using [/help/sync | fossil sync], this information
+can be shared between repositories using the
+[/help/config | fossil config push] and 
+[/help/config | fossil config pull] commands.
+The display and processing information is also copied into new
+repositories when they are created using
+[/help/clone | fossil clone].
+
+<h4>2.2.4 User Credentials And Privileges</h4>
+
+Just because two development teams are collaborating on a project and allow
+push and/or pull between their repositories does not mean that they 
+trust each other enough to share passwords and access privileges.
+Hence the names and emails and passwords and privileges of users are
+considered private information that is kept locally in each repository.
+
+Each repository database has a table holding the username, privileges,
+and login credentials for users authorized to interact with that particular
+database.  In addition, there is a table named "concealed" that maps the 
+SHA1 hash of each users email address back into their true email address.
+The concealed table allows just the SHA1 hash of email addresses to
+be stored in tickets, and thus prevents actual email addresses from falling
+into the hands of spammers who happen to clone the repository. 
+
+The content of the user and concealed tables can be pushed and pulled using the
+[/help/config | fossil config push] and
+[/help/config | fossil config pull] commands with the "user" and
+"email" as the AREA argument, but only if you have administrative
+privileges on the remote repository.
+
+<h4>2.2.5 Shunned Artifact List</h4>
+
+The set of canonical artifacts for a project - the global state for the
+project - is intended to be an append-only database.  In other words,
+new artifacts can be added but artifacts can never be removed.  But
+it sometimes happens that inappropriate content can be mistakenly or
+maliciously added to a repository.  When that happens, the only way
+to get rid of the content is to [./shunning.wiki | "shun"] it.
+The "shun" table in the repository database records the SHA1 hash of 
+all shunned artifacts.
+
+The shun table can be pushed or pulled using
+the [/help/config | fossil config] command with the "shun" AREA argument.
+The shun table is also copied during a [/help/clone | clone].
 
 <h3>2.3 Checkout Databases</h3>
+
+Unlike several other popular DVCSes, Fossil allows a single repository
+to have multiple working checkouts.  Each working checkout has a single
+database in its root directory that records the state of that checkout.
+The checkout database is named "_FOSSIL_" by default, but can be renamed
+to ".fos" if desired.  (Future versions of Fossil might make ".fos" the
+default name.)  The checkout database records information such as the
+following:
+
+  *  The full pathname of the repository database file.
+  *  The version that is currently checked out.
+  *  Files that have been [/help/add | added],
+     [/help/rm | removed], or [/help/mv | renamed] but not
+     yet committed.
+  *  The mtime and size of files as they were originally checked out,
+     in order to expedite checking which files have been edited.
+  *  Other checkins that have been [/help/merge | merged] into the
+     working checkout but not yet committed.
+  *  Copies of files prior to the most recent undoable operation - needed to
+     implement the [/help/undo | undo] and [/help/redo | redo] commands.
+  *  The [/help/stash | stash].
+  *  State information for the [/help/bisect | bisect] command.
+
+For Fossil commands that run from within a working checkout, the
+first thing that happens is that Fossil locates the checkout database.
+Fossil first looks in the current directory.  If not found there, it
+looks in the parent directory.  If not found there, the parent of the
+parent.  And so forth until either the checkout database is found
+or the search reaches the root of the filesystem.  (In the latter case,
+Fossil returns an error, of course.)  Once the checkout database is
+located, it is used to locate the repository database.
+
+Notice that the checkout database contains a pointer to the repository
+database but that the repository database has no record of the checkout
+databases.  That means that a working checkout directory tree can be
+freely renamed or copied or deleted without consequence.  But the
+repository database file, on the other hand, has to stay in the same
+place with the same name or else the open checkout databases will not
+be able to find it.
+
+A checkout database is created by the [/help/open | fossil open] command.
+A checkout database is deleted by [/help/close | fossil close].  The
+fossil close command really isn't needed; one can accomplish the same
+thing simply by deleting the checkout database.
+
+Note that the stash, the undo stack, and the state of the bisect command
+are all contained within the checkout database.  That means that the
+fossil close command will delete all stash content, the undo stack, and
+the bisect state.  The close command is not undoable.  Use it with care.

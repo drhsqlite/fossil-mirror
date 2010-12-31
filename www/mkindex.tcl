@@ -32,16 +32,19 @@ set doclist {
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
-  shunning.wiki {Deleting Content From Fossil}
+  shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
   sync.wiki {The Fossil Sync Protocol}
+  tech_overview.wiki {A Technical Overview Of The Design And Implementation
+                      Of Fossil}
+  tech_overview.wiki {SQLite Databases Used By Fossil}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}
 }
 
 set permindex {}
-set stopwords {fossil and a in of on the to are about}
+set stopwords {fossil and a in of on the to are about used by}
 foreach {file title} $doclist {
   set n [llength $title]
   lappend permindex [list $title $file]
