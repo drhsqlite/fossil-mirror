@@ -21,3 +21,6 @@ the correct operation of the graph drawing logic.
   *  [/timeline?r=release]
   *  [/finfo?name=Makefile]
   *  [/timeline?a=1970-01-01]
+  *  [/timeline?y=ci&n=1000000] - All checkins - a huge graph
+  *  [/timeline?f=8dfed953f7530442] - This malformed commit has a 
+     merge parent which is not a valid checkin.
