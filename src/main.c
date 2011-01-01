@@ -685,71 +685,89 @@ void help_cmd(void){
 ** URL: /help/CMD
 */
 void help_page(void){
-    const char * zCmd = P("cmd");
+  const char * zCmd = P("cmd");
 
-    if( zCmd==0 ) zCmd = P("name");
-    style_header("Command-line Help");
-    if( zCmd ){
-      int rc, idx;
-      char *z, *s, *d;
+  if( zCmd==0 ) zCmd = P("name");
+  style_header("Command-line Help");
+  if( zCmd ){
+    int rc, idx;
+    char *z, *s, *d;
 
-      style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
-      @ <h1>The "%s(zCmd)" command:</h1>
-      rc = name_search(zCmd, aCommand, count(aCommand), &idx);
-      if( rc==1 ){
-        @ unknown command: %s(zCmd)
-      }else if( rc==2 ){
-        @ ambiguous command prefix: %s(zCmd)
-      }else{
-        z = (char*)aCmdHelp[idx];
-        if( z==0 ){
-          @ no help available for the %s(aCommand[idx].zName) command
-        }else{
-          z=s=d=mprintf("%s",z);
-	  while( *s ){
-	    if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
-	      s++;
-	    }else{
-	      *d++ = *s++;
-	    }
-	  }
-	  *d = 0;
-	  @ <blockquote><pre>
-          @ %h(z)
-          @ </pre></blockquote>
-	  free(z);
-	}
-      }
+    style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
+    @ <h1>The "%s(zCmd)" command:</h1>
+    rc = name_search(zCmd, aCommand, count(aCommand), &idx);
+    if( rc==1 ){
+      @ unknown command: %s(zCmd)
+    }else if( rc==2 ){
+      @ ambiguous command prefix: %s(zCmd)
     }else{
-      int i, j, n;
-
-      @ <h1>Available commands:</h1>
-      @ <table border="0"><tr>
-      for(i=j=0; i<count(aCommand); i++){
-        const char *z = aCommand[i].zName;
-        if( strncmp(z,"test",4)==0 ) continue;
-        j++;
-      }
-      n = (j+6)/7;
-      for(i=j=0; i<count(aCommand); i++){
-        const char *z = aCommand[i].zName;
-        if( strncmp(z,"test",4)==0 ) continue;
-        if( j==0 ){
-          @ <td valign="top"><ul>
+      z = (char*)aCmdHelp[idx];
+      if( z==0 ){
+        @ no help available for the %s(aCommand[idx].zName) command
+      }else{
+        z=s=d=mprintf("%s",z);
+        while( *s ){
+          if( *s=='%' && strncmp(s, "%fossil", 7)==0 ){
+            s++;
+          }else{
+            *d++ = *s++;
+          }
         }
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a>
-        j++;
-        if( j>=n ){
-          @ </ul></td>
-          j = 0;
-        }
+        *d = 0;
+        @ <blockquote><pre>
+        @ %h(z)
+        @ </pre></blockquote>
+        free(z);
       }
-      if( j>0 ){
-        @ </ul></td>
-      }
-      @ </tr></table>
     }
-    style_footer();
+  }else{
+    int i, j, n;
+
+    @ <h1>Available commands:</h1>
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)==0 ) continue;
+      j++;
+    }
+    n = (j+6)/7;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( strncmp(z,"test",4)==0 ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a>
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+  }
+  style_footer();
+}
+
+/*
+** WEBPAGE: test-all-help
+**
+** Show all help text on a single page.  Useful for proof-reading.
+*/
+void test_all_help_page(void){
+  int i;
+  style_header("Testpage: All Help Text");
+  for(i=0; i<count(aCommand); i++){
+    if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
+    @ <h2>%s(aCommand[i].zName):</h2>
+    @ <blockquote><pre>
+    @ %h(aCmdHelp[i])
+    @ </pre></blockquote>
+  }
+  style_footer();
 }
 
 /*
