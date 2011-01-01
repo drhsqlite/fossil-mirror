@@ -1145,6 +1145,8 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   /* NOT REACHED */  
   fossil_exit(1);
 #endif
+  /* NOT REACHED */
+  return 0;
 }
 
 
