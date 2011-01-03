@@ -1,5 +1,5 @@
-C Fix\sanother\sNULL\spointer\sderef\sassociated\swith\sdelta\smanifests.
-D 2011-01-03T12:17:10
+C Fix\sthe\smakefile\son\sunix\sso\sthat\sit\sworks\swith\s"make\s-j2".
+D 2011-01-03T15:46:42
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -72,10 +72,10 @@ F src/import.c ae713391c763e3fe7b390305457b9d222fc817c4
 F src/info.c 60b77d8bcdbeda8dc72fa3876260e228d57ba6d3
 F src/login.c 24107b88a32ac7e2503c5f7c4b6c609147d9231e
 F src/main.c 145ba6b70aeb6d85b5d37968fc535c97372065b1
-F src/main.mk 39287b20313054d23d07f84fcb94fa90bdc5a413
+F src/main.mk f01af656bb631168b0fcf5dacefeead7aea022f5
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
-F src/makemake.tcl c3e04662b88faa93898028050149c7fb3c7da8d1
+F src/makemake.tcl ade5abc55b345722be9ae9ede861b3fa95596dff
 F src/manifest.c e0c9be0237df268654d5012a7c0b6b4bc0b71668
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 6131cabe35fb8c8dd8d9b96ad2a66da3e4a5d5e0
@@ -291,7 +291,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P a35e8c0db14c09a7d7b3079c932e0620a292bf03
-R 10870ddfde5974038336fb721d477c7c
+P 315048eef6b32c8035de7a5fe6de3642b6db8e7f
+R 78e5a97d7e3c5b34db12aa5397667301
 U drh
-Z 2308acecd5d9cd506c31b41e7fc877f5
+Z f1692cf04ed34f581c84659e51e5f5a6

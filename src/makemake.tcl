@@ -230,7 +230,7 @@ foreach s [lsort $src] {
   writeln "\t\$(OBJDIR)/translate \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/$s.h:\t\$(OBJDIR)/headers"
 }
 
 
