@@ -116,6 +116,7 @@ void vfile_build(int vid){
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
   while( (pFile = manifest_file_next(p,0))!=0 ){
+    if( pFile->zUuid==0 ) continue;
     rid = uuid_to_rid(pFile->zUuid, 0);
     vfile_verify_not_phantom(rid, pFile->zName, pFile->zUuid);
     db_bind_int(&ins, ":id", rid);
