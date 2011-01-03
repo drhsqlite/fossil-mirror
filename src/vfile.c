@@ -537,6 +537,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
   }
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest,0))!=0 ){
+    if( pFile->zUuid==0 ) continue;
     fid = uuid_to_rid(pFile->zUuid, 0);
     md5sum_step_text(pFile->zName, -1);
     content_get(fid, &file);
