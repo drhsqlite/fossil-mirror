@@ -811,7 +811,10 @@ void fossil_print(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    vprintf(zFormat, ap);
+    Blob b = empty_blob;
+    vxprintf(&b, zFormat, ap);
+    fwrite(blob_buffer(&b), 1, blob_size(&b), stdout);
+    blob_reset(&b);
   }
 }
 
