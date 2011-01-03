@@ -34,7 +34,7 @@ FOSSIL_ENABLE_SSL=1
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
 #TCC = gcc -g -Os -Wall
 #TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0 -L/usr/local/lib -I/usr/local/include
-TCC=i686-pc-mingw32-gcc -O3 -s -Wall -DFOSSIL_I18N=0 -L/mingw/lib -I/mingw/include
+TCC=i686-pc-mingw32-gcc -O3 -s -Wall -DFOSSIL_I18N=0
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
