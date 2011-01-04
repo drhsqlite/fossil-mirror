@@ -339,9 +339,10 @@ struct NameChange {
 ** to checkin iTo.
 **
 ** The number of name changes is written into *pnChng.  For each name
-** change, to integers are allocated for *piChng.  The first is the original
-** name and the second is the new name.  Space to hold *piChng is obtained
-** from fossil_malloc() and should be released by the caller.
+** change, two integers are allocated for *piChng.  The first is the 
+** filename.fnid for the original name and the second is for new name.
+** Space to hold *piChng is obtained from fossil_malloc() and should
+** be released by the caller.
 **
 ** This routine really has nothing to do with bisection.  It is located
 ** in this bisect.c module in order to leverage some of the bisect
@@ -370,8 +371,12 @@ void find_filename_changes(
   db_prepare(&q1,
      "SELECT pfnid, fnid FROM mlink WHERE mid=:mid AND pfnid>0"
   );
-  for(p=bisect.pStart->u.pTo; p; p=p->u.pTo){
+  for(p=bisect.pStart; p; p=p->u.pTo){
     int fnid, pfnid;
+    if( !p->fromIsParent && (p->u.pTo==0 || p->u.pTo->fromIsParent) ){
+      /* Skip nodes where the parent is not on the path */
+      continue;
+    }
     db_bind_int(&q1, ":mid", p->rid);
     while( db_step(&q1)==SQLITE_ROW ){
       if( p->fromIsParent ){
