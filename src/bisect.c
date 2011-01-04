@@ -365,7 +365,7 @@ void find_filename_changes(
   *pnChng = 0;
   *aiChng = 0;
   bisect_reset();
-  p = bisect_shortest_path(iFrom, iTo, 1);
+  p = bisect_shortest_path(iFrom, iTo, 0);
   if( p==0 ) return;
   bisect_reverse_path();
   db_prepare(&q1,
