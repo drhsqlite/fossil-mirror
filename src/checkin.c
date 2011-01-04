@@ -638,11 +638,13 @@ static void create_manifest(
     int isSelected = db_column_int(&q, 5);
     const char *zPerm;
     int cmp;
-    blob_append(&filename, zName, -1);
 #if !defined(_WIN32)
     /* For unix, extract the "executable" permission bit directly from
     ** the filesystem.  On windows, the "executable" bit is retained
-    ** unchanged from the original. */
+    ** unchanged from the original. 
+    */
+    blob_resize(&filename, nBasename);
+    blob_append(&filename, zName, -1);
     isexe = file_isexe(blob_str(&filename));
 #endif
     if( isexe ){
@@ -661,7 +663,6 @@ static void create_manifest(
       || (cmp = fossil_strcmp(pFile->zName,zName))!=0
       || fossil_strcmp(pFile->zUuid, zUuid)!=0
     ){
-      blob_resize(&filename, nBasename);
       if( zOrig && !isSelected ){ zName = zOrig; zOrig = 0; }
       if( zOrig==0 || fossil_strcmp(zOrig,zName)==0 ){
         blob_appendf(pOut, "F %F %s%s\n", zName, zUuid, zPerm);
