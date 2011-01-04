@@ -1586,6 +1586,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "autosync",      0,                0, "on"                  },
   { "binary-glob",   0,               32, ""                    },
   { "clearsign",     0,                0, "off"                 },
+  { "default-perms", 0,               16, "u"                   },
   { "diff-command",  0,               16, ""                    },
   { "dont-push",     0,                0, "off"                 },
   { "editor",        0,               16, ""                    },
@@ -1598,6 +1599,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
   { "repo-cksum",    0,                0, "on"                  },
+  { "self-register", 0,                0, "off"                 },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1636,6 +1638,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
+**
+**    default-perms    Permissions given automatically to new users.  For more
+**                     information on permissions see Users page in Server
+**                     Administration of the HTTP UI. Default: u.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -1679,6 +1685,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     as a double-check of correctness.  Defaults to "on".
 **                     Disable on large repositories for a performance
 **                     improvement.
+**
+**    self-register    Allow users to register themselves through the HTTP UI.
+**                     This is useful if you want to see other names than
+**                     "Anonymous" in e.g. ticketing system. On the other hand
+**                     users can not be deleted. Default: off.
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.

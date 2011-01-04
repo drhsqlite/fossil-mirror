@@ -268,9 +268,10 @@ void login_page(void){
   @ "Login" button.  Your user name will be stored in a browser cookie.
   @ You must configure your web browser to accept cookies in order for
   @ the login to take.</p>
-  @
-  @ <p>If you do not have an account, you can 
-  @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
+  if( db_get_boolean("self-register", 0) ){
+    @ <p>If you do not have an account, you can 
+    @ <a href="%s(g.zTop)/register?g=%T(P("G"))">create one</a>.
+  }
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
     char const *zDecoded = captcha_decode(uSeed);
@@ -638,6 +639,13 @@ void login_verify_csrf_secret(void){
 */
 void register_page(void){
   const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
+  if( !db_get_boolean("self-register", 0) ){
+    style_header("Registration not possible");
+    @ <p>This project does not allow user self-registration. Please contact the
+    @ project administrator to obtain an account.</p>
+    style_footer();
+    return;
+  }
 
   style_header("Register");
   zUsername = P("u");
@@ -655,6 +663,10 @@ void register_page(void){
       @ <p><span class="loginError">
       @ All fields are obligatory.
       @ </span></p>
+    }else if( strlen(zPasswd) < 6){
+      @ <p><span class="loginError">
+      @ Password too weak.
+      @ </span></p>
     }else if( strcmp(zPasswd,zConfirm)!=0 ){
       @ <p><span class="loginError">
       @ The two copies of your new passwords do not match.
@@ -665,10 +677,11 @@ void register_page(void){
       @ </span></p>
     }else{
       /* This almost is stupid copy-paste of code from user.c:user_cmd(). */
-      Blob passwd, login, contact;
+      Blob passwd, login, caps, contact;
 
       blob_init(&login, zUsername, -1);
       blob_init(&contact, zContact, -1);
+      blob_init(&caps, db_get("default-perms", "u"), -1);
       blob_init(&passwd, zPasswd, -1);
 
       if( db_exists("SELECT 1 FROM user WHERE login=%B", &login) ){
@@ -681,8 +694,8 @@ void register_page(void){
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info)"
-            "VALUES(%B,%Q,'u',%B)", /* u - register as reader, not developer! */
-            &login, zPw, &contact
+            "VALUES(%B,%Q,%B,%B)",
+            &login, zPw, &caps, &contact
             );
         free(zPw);
 
