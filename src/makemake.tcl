@@ -493,7 +493,7 @@ SSL    =
 
 I18N   =  -DFOSSIL_I18N=0
 
-CFLAGS = -o 
+CFLAGS = -o -Dstrcasecmp=stricmp
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
@@ -521,10 +521,10 @@ $(APPNAME) : translate$E mkindex$E headers  $(OBJ) $(OBJDIR)\link
 	cd $(OBJDIR) 
 	$(DMDIR)\bin\link @link
 
-fossil.res:	$B\win\fossil.rc
+$(OBJDIR)\fossil.res:	$B\win\fossil.rc
 	$(RC) $(RCFLAGS) -o$@ $**
 
-$(OBJDIR)\link: $B\win\Makefile.dmc}
+$(OBJDIR)\link: $B\win\Makefile.dmc $(OBJDIR)\fossil.res}
 writeln -nonewline "\t+echo "
 foreach s [lsort $src] {
   writeln -nonewline "$s "
