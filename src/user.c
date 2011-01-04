@@ -182,8 +182,9 @@ void user_cmd(void){
   }
   n = strlen(g.argv[2]);
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
-    Blob passwd, login, contact;
+    Blob passwd, login, caps, contact;
     char *zPw;
+    blob_init(&caps, db_get("default-perms", "u"), -1);
 
     if( g.argc>=4 ){
       blob_init(&login, g.argv[3], -1);
@@ -206,8 +207,8 @@ void user_cmd(void){
     zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
     db_multi_exec(
       "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%Q,'v',%B)",
-      &login, zPw, &contact
+      "VALUES(%B,%Q,%B,%B)",
+      &login, zPw, &caps, &contact
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){

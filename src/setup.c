@@ -794,6 +794,22 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
+  onoff_attribute("Allow users to register themselves",
+                  "self-register", "selfregister", 0);
+  @ <p>Allow users to register themselves through the HTTP UI. 
+  @ The registration form always requires filling in a CAPTCHA 
+  @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
+  @ can register under any user name. This option is useful for public projects
+  @ where you do not want everyone in any ticket discussion to be named 
+  @ "Anonymous".</p>
+
+  @ <hr />
+  entry_attribute("Default privileges", 10, "default-perms", "defaultperms", "u");
+  @ <p>Permissions given to users that register themselves using the HTTP UI
+  @ or are registered by the administrator using the command line interface.
+  @ </p>
+
+  @ <hr />
   onoff_attribute("Show javascript button to fill in CAPTCHA",
                   "auto-captcha", "autocaptcha", 0);
   @ <p>When enabled, a button appears on the login screen for user
