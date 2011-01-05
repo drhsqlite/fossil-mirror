@@ -670,7 +670,7 @@ void register_page(void){
       @ <p><span class="loginError">
       @ The two copies of your new passwords do not match.
       @ </span></p>
-    }else if( strcasecmp(zPw, zCap)!=0 ){
+    }else if( fossil_stricmp(zPw, zCap)!=0 ){
       @ <p><span class="loginError">
       @ Captcha text invalid.
       @ </span></p>

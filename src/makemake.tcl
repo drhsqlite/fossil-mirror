@@ -493,7 +493,7 @@ SSL    =
 
 I18N   =  -DFOSSIL_I18N=0
 
-CFLAGS = -o -Dstrcasecmp=stricmp
+CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
