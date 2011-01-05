@@ -1306,18 +1306,42 @@ void render_color_chooser(
      const char *zColor;
   } aColor[] = {
      { "(none)",  "" },
-     { "#f2dcdc", "#f2dcdc" },
-     { "#f0ffc0", "#f0ffc0" },
-     { "#bde5d6", "#bde5d6" },
-     { "#c0ffc0", "#c0ffc0" },
-     { "#c0fff0", "#c0fff0" },
-     { "#c0f0ff", "#c0f0ff" },
-     { "#d0c0ff", "#d0c0ff" },
-     { "#ffc0ff", "#ffc0ff" },
-     { "#ffc0d0", "#ffc0d0" },
-     { "#fff0c0", "#fff0c0" },
-     { "#c0c0c0", "#c0c0c0" },
-     { "custom",  "##"      },
+     { "#f2dcdc", 0 },
+     { "#bde5d6", 0 },
+     { "#a0a0a0", 0 },
+     { "#b0b0b0", 0 },
+     { "#c0c0c0", 0 },
+     { "#d0d0d0", 0 },
+     { "#e0e0e0", 0 },
+
+     { "#c0ffc0", 0 },
+     { "#c0fff0", 0 },
+     { "#c0f0ff", 0 },
+     { "#d0c0ff", 0 },
+     { "#ffc0ff", 0 },
+     { "#ffc0d0", 0 },
+     { "#fff0c0", 0 },
+     { "#f0ffc0", 0 },
+
+     { "#a8d3c0", 0 },
+     { "#a8c7d3", 0 },
+     { "#aaa8d3", 0 },
+     { "#cba8d3", 0 },
+     { "#d3a8bc", 0 },
+     { "#d3b5a8", 0 },
+     { "#d1d3a8", 0 },
+     { "#b1d3a8", 0 },
+
+     { "#8eb2a1", 0 }, 
+     { "#8ea7b2", 0 },
+     { "#8f8eb2", 0 },
+     { "#ab8eb2", 0 },
+     { "#b28e9e", 0 },
+     { "#b2988e", 0 },
+     { "#b0b28e", 0 },
+     { "#95b28e", 0 },
+
+     { "custom",  "##" },
   };
   int nColor = sizeof(aColor)/sizeof(aColor[0])-1;
   int stdClrFound = 0;
@@ -1335,20 +1359,22 @@ void render_color_chooser(
   }
   @ <tr>
   for(i=0; i<nColor; i++){
-    if( aColor[i].zColor[0] ){
-      @ <td style="background-color: %h(aColor[i].zColor);">
+    const char *zClr = aColor[i].zColor;
+    if( zClr==0 ) zClr = aColor[i].zCName;
+    if( zClr[0] ){
+      @ <td style="background-color: %h(zClr);">
     }else{
       @ <td>
     }
-    if( fossil_strcmp(zDefaultColor, aColor[i].zColor)==0 ){
-      @ <input type="radio" name="%s(zId)" value="%h(aColor[i].zColor)"
+    if( fossil_strcmp(zDefaultColor, zClr)==0 ){
+      @ <input type="radio" name="%s(zId)" value="%h(zClr)"
       @  checked="checked" />
       stdClrFound=1;
     }else{
-      @ <input type="radio" name="%s(zId)" value="%h(aColor[i].zColor)" />
+      @ <input type="radio" name="%s(zId)" value="%h(zClr)" />
     }
     @ %h(aColor[i].zCName)</td>
-    if( (i%6)==5 && i+1<nColor ){
+    if( (i%8)==7 && i+1<nColor ){
       @ </tr><tr>
     }
   }
