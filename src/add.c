@@ -89,9 +89,38 @@ const char *fossil_all_reserved_names(void){
 
 
 /*
-** Add a single file
+** The pIgnore statement is query of the form:
+**
+**      SELECT (:x GLOB ... OR :x GLOB ... OR ...)
+**
+** In other words, it is a query that returns true if the :x value
+** should be ignored.  Evaluate the query and return true to ignore
+** and false to not ignore.
+**
+** If pIgnore is NULL, then do not ignore.
 */
-static void add_one_file(const char *zName, int vid, Blob *pOmit){
+static int shouldBeIgnored(Stmt *pIgnore, const char *zName){
+  int rc = 0;
+  if( pIgnore ){
+    db_bind_text(pIgnore, ":x", zName);
+    db_step(pIgnore);
+    rc = db_column_int(pIgnore, 0);
+    db_reset(pIgnore);
+  }
+  return rc;
+}
+
+
+/*
+** Add a single file named zName to the VFILE table with vid.
+**
+** Omit any file whose name is pOmit.
+*/
+static void add_one_file(
+  const char *zName,   /* Name of file to add */
+  int vid,             /* Add to this VFILE */
+  Blob *pOmit
+){
   Blob pathname;
   const char *zPath;
   int i;
@@ -132,7 +161,7 @@ static void add_one_file(const char *zName, int vid, Blob *pOmit){
 /*
 ** All content of the zDir directory to the SFILE table.
 */
-void add_directory_content(const char *zDir){
+void add_directory_content(const char *zDir, Stmt *pIgnore){
   DIR *d;
   int origSize;
   struct dirent *pEntry;
@@ -152,8 +181,10 @@ void add_directory_content(const char *zDir){
       }
       blob_appendf(&path, "/%s", pEntry->d_name);
       zPath = blob_str(&path);
-      if( file_isdir(zPath)==1 ){
-        add_directory_content(zPath);
+      if( shouldBeIgnored(pIgnore, zPath) ){
+        /* Noop */
+      }else if( file_isdir(zPath)==1 ){
+        add_directory_content(zPath, pIgnore);
       }else if( file_isfile(zPath) ){
         db_multi_exec("INSERT INTO sfile VALUES(%Q)", zPath);
       }
@@ -167,9 +198,9 @@ void add_directory_content(const char *zDir){
 /*
 ** Add all content of a directory.
 */
-void add_directory(const char *zDir, int vid, Blob *pOmit){
+void add_directory(const char *zDir, int vid, Blob *pOmit, Stmt *pIgnore){
   Stmt q;
-  add_directory_content(zDir);
+  add_directory_content(zDir, pIgnore);
   db_prepare(&q, "SELECT x FROM sfile ORDER BY x");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
@@ -190,14 +221,24 @@ void add_directory(const char *zDir, int vid, Blob *pOmit){
 ** When adding files recursively, filenames that begin with "." are
 ** excluded by default.  To include such files, add the "--dotfiles"
 ** option to the command-line.
+**
+** The --ignore option overrides the "ignore-glob" setting.  See
+** documentation on the "setting" command for further information.
 */
 void add_cmd(void){
   int i;
   int vid;
+  const char *zIgnoreFlag;
   Blob repo;
+  Stmt ignoreTest;     /* Test to see if a name should be ignored */
+  Stmt *pIgnore;       /* Pointer to ignoreTest or to NULL */
 
+  zIgnoreFlag = find_option("ignore",0,1);
   includeDotFiles = find_option("dotfiles",0,0)!=0;
   db_must_be_within_tree();
+  if( zIgnoreFlag==0 ){
+    zIgnoreFlag = db_get("ignore-glob", 0);
+  }
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
     fossil_panic("no checkout to add to");
@@ -213,6 +254,12 @@ void add_cmd(void){
      "  ON vfile(pathname COLLATE nocase)"
   );
 #endif
+  if( zIgnoreFlag && zIgnoreFlag[0] ){
+    db_prepare(&ignoreTest, "SELECT %s", glob_expr(":x", zIgnoreFlag));
+    pIgnore = &ignoreTest;
+  }else{
+    pIgnore = 0;
+  }
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
@@ -220,7 +267,7 @@ void add_cmd(void){
     zName = mprintf("%/", g.argv[i]);
     isDir = file_isdir(zName);
     if( isDir==1 ){
-      add_directory(zName, vid, &repo);
+      add_directory(zName, vid, &repo, pIgnore);
     }else if( isDir==0 ){
       fossil_fatal("not found: %s", zName);
     }else if( access(zName, R_OK) ){
@@ -230,6 +277,7 @@ void add_cmd(void){
     }
     free(zName);
   }
+  if( pIgnore ) db_finalize(pIgnore);
   db_end_transaction(0);
 }
 
