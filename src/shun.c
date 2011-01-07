@@ -50,7 +50,7 @@ void shun_page(void){
     login_needed();
   }
   if( P("rebuild") ){
-    db_close();
+    db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
     rebuild_db(0,0);

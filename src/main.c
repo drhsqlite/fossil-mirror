@@ -296,7 +296,7 @@ const char *fossil_nameofexe(void){
 ** Exit.  Take care to close the database first.
 */
 void fossil_exit(int rc){
-  db_close();
+  db_close(1);
   exit(rc);
 }
 
@@ -839,7 +839,7 @@ static char *enter_chroot_jail(char *zRepo){
     setgid(sStat.st_gid);
     setuid(sStat.st_uid);
     if( g.db!=0 ){
-      db_close();
+      db_close(1);
       db_open_repository(zRepo);
     }
   }
@@ -1021,7 +1021,7 @@ void cmd_cgi(void){
       continue;
     }
     if( blob_eq(&key, "directory:") && blob_token(&line, &value) ){
-      db_close();
+      db_close(1);
       g.zRepositoryName = mprintf("%s", blob_str(&value));
       blob_reset(&value);
       continue;
@@ -1230,7 +1230,7 @@ void cmd_webserver(void){
 #endif
     zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
   }
-  db_close();
+  db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
@@ -1250,7 +1250,7 @@ void cmd_webserver(void){
     zBrowser = db_get("web-browser", "start");
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
-  db_close();
+  db_close(1);
   win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
 }

@@ -81,7 +81,7 @@ static int sqlcmd_autoinit(
 void sqlite3_cmd(void){
   extern int sqlite3_shell(int, char**);
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-  db_close();
+  db_close(1);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
 }

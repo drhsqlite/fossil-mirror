@@ -128,24 +128,35 @@ void db_end_transaction(int rollbackFlag){
     for(i=0; doRollback==0 && i<nCommitHook; i++){
       doRollback |= aHook[i].xHook();
     }
+    while( pAllStmt ){
+      db_finalize(pAllStmt);
+    }
     db_multi_exec(doRollback ? "ROLLBACK" : "COMMIT");
     doRollback = 0;
   }
 }
+
+/*
+** Force a rollback and shutdown the database
+*/
 void db_force_rollback(void){
   static int busy = 0;
   if( busy || g.db==0 ) return;
   busy = 1;
   undo_rollback();
+  while( pAllStmt ){
+    db_finalize(pAllStmt);
+  }
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     nBegin = 0;
     if( isNewRepo ){
-      db_close();
+      db_close(0);
       unlink(g.zRepositoryName);
     }
   }
   busy = 0;
+  db_close(0);
 }
 
 /*
@@ -922,7 +933,7 @@ void move_repo_cmd(void){
   }
   db_open_or_attach(zRepo, "test_repo");
   db_lset("repository", blob_str(&repo));
-  db_close();
+  db_close(1);
 }
 
 
@@ -939,8 +950,11 @@ void db_must_be_within_tree(void){
 
 /*
 ** Close the database connection.
+**
+** Check for unfinalized statements and report errors if the reportErrors
+** argument is true.  Ignore unfinalized statements when false.
 */
-void db_close(void){
+void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
   if( g.fSqlTrace ){
@@ -973,8 +987,10 @@ void db_close(void){
   }
   db_end_transaction(1);
   pStmt = 0;
-  while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
-    fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+  if( reportErrors ){
+    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
+      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+    }
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;

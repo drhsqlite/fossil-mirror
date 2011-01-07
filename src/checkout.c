@@ -292,6 +292,6 @@ void close_cmd(void){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
   unlink_local_database(1);
-  db_close();
+  db_close(1);
   unlink_local_database(0);
 }

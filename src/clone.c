@@ -59,7 +59,7 @@ void clone_cmd(void){
   url_parse(g.argv[2]);
   if( g.urlIsFile ){
     file_copy(g.urlName, g.argv[3]);
-    db_close();
+    db_close(1);
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
@@ -100,7 +100,7 @@ void clone_cmd(void){
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
-    db_close();
+    db_close(1);
     if( nErr ){
       unlink(g.argv[3]);
       fossil_fatal("server returned an error - clone aborted");

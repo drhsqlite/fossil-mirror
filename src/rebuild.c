@@ -366,7 +366,7 @@ void rebuild_database(void){
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
-    db_close();
+    db_close(1);
     db_open_repository(g.zRepositoryName);
   }
   db_begin_transaction();
@@ -422,7 +422,7 @@ void test_createcluster_cmd(void){
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
-    db_close();
+    db_close(1);
     db_open_repository(g.zRepositoryName);
   }
   db_begin_transaction();

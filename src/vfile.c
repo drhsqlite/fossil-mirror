@@ -74,7 +74,7 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 
 /*
 ** Verify that an object is not a phantom.  If the object is
-** a phantom, output an error message and quick.
+** a phantom, output an error message and quit.
 */
 static void vfile_verify_not_phantom(
   int rid,                  /* The RID to verify */
@@ -82,7 +82,8 @@ static void vfile_verify_not_phantom(
   const char *zUuid         /* UUID.  Might be NULL */
 ){
   if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0
-      && (zUuid==0 || !db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid)) ){
+   && (zUuid==0 || !db_exists("SELECT 1 FROM shun WHERE uuid='%s'",zUuid))
+  ){
     if( zFilename ){
       fossil_fatal("content missing for %s", zFilename);
     }else{
