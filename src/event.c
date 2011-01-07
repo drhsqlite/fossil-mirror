@@ -286,8 +286,7 @@ void eventedit_page(void){
     db_begin_transaction();
     login_verify_csrf_secret();
     blob_appendf(&event, "C %F\n", zComment);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
     zETime[10] = 'T';

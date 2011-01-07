@@ -259,8 +259,7 @@ void attachadd_page(void){
     if( n>0 ){
       blob_appendf(&manifest, "C %F\n", zComment);
     }
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
@@ -339,8 +338,7 @@ void attachdel_page(void){
     zFile += n;
     if( zFile[0]==0 ) zFile = "unknown";
     blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);

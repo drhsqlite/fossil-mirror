@@ -130,10 +130,11 @@ in the comment.
 A manifest must have exactly one D-card.  The sole argument to
 the D-card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
-The format is:
+The format one of:
 
 <blockquote>
-<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i>
+<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><br>
+<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
 </blockquote>
 
 A manifest has zero or more F-cards.  Each F-card identifies a file

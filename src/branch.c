@@ -86,7 +86,6 @@ void branch_new(void){
   zComment = mprintf("Create new branch named \"%h\"", zBranch);
   blob_appendf(&branch, "C %F\n", zComment);
   zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
-  zDate[10] = 'T';
   blob_appendf(&branch, "D %s\n", zDate);
 
   /* Copy all of the content from the parent into the branch */

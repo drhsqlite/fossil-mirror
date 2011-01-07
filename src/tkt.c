@@ -431,8 +431,7 @@ static int submitTicketCmd(
   login_verify_csrf_secret();
   zUuid = (const char *)pUuid;
   blob_zero(&tktchng);
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
+  zDate = date_in_standard_format("now");
   blob_appendf(&tktchng, "D %s\n", zDate);
   free(zDate);
   for(i=0; i<nField; i++){
@@ -1031,8 +1030,7 @@ void ticket_cmd(void){
         { /* add the time to the ticket manifest */
           char *zDate;
 
-          zDate = db_text(0, "SELECT datetime('now')");
-          zDate[10] = 'T';
+          zDate = date_in_standard_format("now");
           blob_appendf(&tktchng, "D %s\n", zDate);
           free(zDate);
         }

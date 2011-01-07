@@ -307,8 +307,7 @@ void wikiedit_page(void){
       db_set("sandbox",zBody,0);
     }else{
       login_verify_csrf_secret();
-      zDate = db_text(0, "SELECT datetime('now')");
-      zDate[10] = 'T';
+      zDate = date_in_standard_format("now");
       blob_appendf(&wiki, "D %s\n", zDate);
       free(zDate);
       blob_appendf(&wiki, "L %F\n", zPageName);
@@ -480,8 +479,7 @@ void wikiappend_page(void){
       }
       blob_zero(&wiki);
       db_begin_transaction();
-      zDate = db_text(0, "SELECT datetime('now')");
-      zDate[10] = 'T';
+      zDate = date_in_standard_format("now");
       blob_appendf(&wiki, "D %s\n", zDate);
       blob_appendf(&wiki, "L %F\n", zPageName);
       if( rid ){
@@ -802,8 +800,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   }
 
   blob_zero(&wiki);
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
+  zDate = date_in_standard_format("now");
   blob_appendf(&wiki, "D %s\n", zDate);
   free(zDate);
   blob_appendf(&wiki, "L %F\n", zPageName );

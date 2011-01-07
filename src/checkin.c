@@ -564,14 +564,15 @@ static void checkin_verify_younger(
 ** print a fatal error and quit.
 */
 char *date_in_standard_format(const char *zInputDate){
-  char *zDate = db_text(0, "SELECT datetime(%Q)", zInputDate);
+  char *zDate;
+  zDate = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
+                  zInputDate);
   if( zDate[0]==0 ){
-    fossil_fatal("unrecognized date format (%s): use \"YYYY-MM-DD HH:MM:SS\"",
-                 zInputDate);
+    fossil_fatal(
+      "unrecognized date format (%s): use \"YYYY-MM-DD HH:MM:SS.SSS\"",
+      zInputDate
+    );
   }
-  assert( strlen(zDate)==19 );
-  assert( zDate[10]==' ' );
-  zDate[10] = 'T';
   return zDate;
 }
 

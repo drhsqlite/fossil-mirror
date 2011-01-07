@@ -1468,8 +1468,7 @@ void ci_edit_page(void){
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
-    zNow = db_text(0, "SELECT datetime('now')");
-    zNow[10] = 'T';
+    zNow = date_in_standard_format("now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]

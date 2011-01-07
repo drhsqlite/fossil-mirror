@@ -296,7 +296,6 @@ void tag_add_artifact(
   }
 #endif
   zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
-  zDate[10] = 'T';
   blob_appendf(&ctrl, "D %s\n", zDate);
   blob_appendf(&ctrl, "T %c%s%F %b",
                zTagtype[tagtype], zPrefix, zTagname, &uuid);
