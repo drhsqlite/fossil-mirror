@@ -182,11 +182,12 @@ void export_cmd(void){
       if( !bag_find(&blobs, fid) ) continue;
       printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
     }
-    manifest_destroy(p);
+    manifest_cache_insert(p);
     printf("\n");
   }
   db_finalize(&q);
   bag_clear(&blobs);
+  manifest_cache_clear();
 
 
   /* Output tags */
