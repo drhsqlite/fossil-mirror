@@ -44,12 +44,14 @@ static struct {
   int nData;                  /* Bytes of data */
   char *zTag;                 /* Name of a tag */
   char *zBranch;              /* Name of a branch for a commit */
+  char *zPrevBranch;          /* The branch of the previous check-in */
   char *aData;                /* Data content */
   char *zMark;                /* The current mark */
   char *zDate;                /* Date/time stamp */
   char *zUser;                /* User name */
   char *zComment;             /* Comment of a commit */
   char *zFrom;                /* from value as a UUID */
+  char *zPrevCheckin;         /* Name of the previous check-in */
   char *zFromMark;            /* The mark of the "from" field */
   int nMerge;                 /* Number of merge values */
   int nMergeAlloc;            /* Number of slots in azMerge[] */
@@ -59,6 +61,19 @@ static struct {
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
 } gg;
+
+/*
+** Duplicate a string.
+*/
+static char *import_strdup(const char *zOrig){
+  char *z = 0;
+  if( zOrig ){
+    int n = strlen(zOrig);
+    z = fossil_malloc( n+1 );
+    memcpy(z, zOrig, n+1);
+  }
+  return z;
+}
 
 /*
 ** A no-op "xFinish" method
@@ -95,6 +110,8 @@ static void import_reset(int freeAll){
   memset(gg.aFile, 0, gg.nFile*sizeof(gg.aFile[0]));
   gg.nFile = 0;
   if( freeAll ){
+    fossil_free(gg.zPrevBranch);
+    fossil_free(gg.zPrevCheckin);
     fossil_free(gg.azMerge);
     fossil_free(gg.aFile);
     memset(&gg, 0, sizeof(gg));
@@ -106,8 +123,11 @@ static void import_reset(int freeAll){
 ** Insert an artifact into the BLOB table if it isn't there already.
 ** If zMark is not zero, create a cross-reference from that mark back
 ** to the newly inserted artifact.
+**
+** If saveUuid is true, then pContent is a commit record.  Record its
+** UUID in gg.zPrevCheckin.
 */
-static int fast_insert_content(Blob *pContent, const char *zMark){
+static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   Blob hash;
   Blob cmpr;
   int rid;
@@ -140,6 +160,10 @@ static int fast_insert_content(Blob *pContent, const char *zMark){
         &hash, rid, &hash
     );
   }
+  if( saveUuid ){
+    fossil_free(gg.zPrevCheckin);
+    gg.zPrevCheckin = import_strdup(blob_str(&hash));
+  }
   blob_reset(&hash);
   return rid;
 }
@@ -151,7 +175,7 @@ static int fast_insert_content(Blob *pContent, const char *zMark){
 static void finish_blob(void){
   Blob content;
   blob_init(&content, gg.aData, gg.nData);
-  fast_insert_content(&content, gg.zMark);
+  fast_insert_content(&content, gg.zMark, 0);
   blob_reset(&content);
   import_reset(0);
 }
@@ -169,7 +193,7 @@ static void finish_tag(void){
     blob_appendf(&record, "U %F\n", gg.zUser);
     md5sum_blob(&record, &cksum);
     blob_appendf(&record, "Z %b\n", &cksum);
-    fast_insert_content(&record, 0);
+    fast_insert_content(&record, 0, 0);
     blob_reset(&record);
     blob_reset(&cksum);
   }
@@ -196,6 +220,12 @@ static void finish_commit(void){
   int i;
   char *zFromBranch;
   Blob record, cksum;
+  if( gg.zFrom==0 && gg.zPrevCheckin!=0 
+   && fossil_strcmp(gg.zBranch, gg.zPrevBranch)==0
+  ){
+     gg.zFrom = gg.zPrevCheckin;
+     gg.zPrevCheckin = 0;
+  }
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
@@ -238,10 +268,12 @@ static void finish_commit(void){
   blob_appendf(&record, "U %F\n", gg.zUser);
   md5sum_blob(&record, &cksum);
   blob_appendf(&record, "Z %b\n", &cksum);
-  fast_insert_content(&record, gg.zMark);
+  fast_insert_content(&record, gg.zMark, 1);
   blob_reset(&record);
   blob_reset(&cksum);
-  import_reset(0);  
+  fossil_free(gg.zPrevBranch);
+  gg.zPrevBranch = gg.zBranch;
+  gg.zBranch = 0;
   import_reset(0);
 }
 
@@ -251,19 +283,6 @@ static void finish_commit(void){
 static void trim_newline(char *z){
   while( z[0] && z[0]!='\n' ){ z++; }
   z[0] = 0;
-}
-
-/*
-** Duplicate a string.
-*/
-static char *import_strdup(const char *zOrig){
-  char *z = 0;
-  if( zOrig ){
-    int n = strlen(zOrig);
-    z = fossil_malloc( n+1 );
-    memcpy(z, zOrig, n+1);
-  }
-  return z;
 }
 
 /*
