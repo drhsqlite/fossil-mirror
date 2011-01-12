@@ -303,7 +303,7 @@ static const struct AllowedMarkup {
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
  { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
-                    AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN|AMSK_CLASS  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,

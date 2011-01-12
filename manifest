@@ -1,5 +1,5 @@
-C Improvements\sto\s"help":\s\sList\scommands\sif\sthe\scommand\sfor\swhich\shelp\sis\s\nrequested\sis\sunknown.\s\sIf\sthe\scommand\sprefix\sis\sambiguous,\sshow\sall\nalternatives.
-D 2011-01-12T02:24:06.238
+C Fix\sfor\san\sapparent\sminor\serror\sin\sallowed\smarkup\stypes\sfor\sinline\stext.
+D 2011-01-12T15:53:47
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -119,7 +119,7 @@ F src/user.c 55bf51446c23c223cbaf0231530df000c2e08ad3
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 90e0ebb3a003867a230c9fee2c8cec15571df808
 F src/wiki.c 8c0f26790f35b8ef7bd68b82a83eb259726db2a3
-F src/wikiformat.c d657b004558928fc793e911058d7bf42ce254a3a
+F src/wikiformat.c db46e9e18d7fdcdb0d101e0ffb51a8e3d3e3accc
 F src/winhttp.c f367576083ab58913a8707352a6f1d474a27faaa
 F src/xfer.c 1b4e0af28ee2a5c53514818df3c95e43a009187e
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
@@ -291,7 +291,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P a00888f666373812fd1a0417805d830e0c06d3e3
-R d07f2945f85ef5aa935720994f799e8a
-U drh
-Z dac5f983f30e3d6841e03180b52fe884
+P 1b159db28210a14b82f001f8c1f002d1d61a9b9c
+R 51b66b494ce4316d00d003031dffa263
+U lrem
+Z 6dc53c36dc16d7e472a3a7496a211461
