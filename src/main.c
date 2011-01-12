@@ -605,17 +605,16 @@ static void multi_column_list(const char **azWord, int nWord){
 }
 
 /*
-** COM -off- MAND: commands
-**
-** Usage: %fossil commands
-** List all supported commands.
+** List of commands starting with zPrefix, or all commands if zPrefix is NULL.
 */
-void cmd_cmd_list(void){
+static void cmd_cmd_list(const char *zPrefix){
   int i, nCmd;
+  int nPrefix = zPrefix ? strlen(zPrefix) : 0;
   const char *aCmd[count(aCommand)];
   for(i=nCmd=0; i<count(aCommand); i++){
-    if( strncmp(aCommand[i].zName,"test",4)==0 ) continue;
-    /* if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue; */
+    const char *z = aCommand[i].zName;
+    if( memcmp(z,"test",4)==0 ) continue;
+    if( zPrefix && memcmp(zPrefix, z, nPrefix)!=0 ) continue;
     aCmd[nCmd++] = aCommand[i].zName;
   }
   multi_column_list(aCmd, nCmd);
@@ -633,7 +632,6 @@ void cmd_test_cmd_list(void){
   const char *aCmd[count(aCommand)];
   for(i=nCmd=0; i<count(aCommand); i++){
     if( strncmp(aCommand[i].zName,"test",4)!=0 ) continue;
-    /* if( strcmp(aCommand[i].zName, g.argv[1])==0 ) continue; */
     aCmd[nCmd++] = aCommand[i].zName;
   }
   multi_column_list(aCmd, nCmd);
@@ -662,18 +660,23 @@ void version_cmd(void){
 void help_cmd(void){
   int rc, idx;
   const char *z;
-  if( g.argc!=3 ){
+  if( g.argc<3 ){
     printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n",
            fossil_nameofexe());
-    cmd_cmd_list();
+    cmd_cmd_list(0);
     version_cmd();
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fossil_fatal("unknown command: %s", g.argv[2]);
+    fossil_print("unknown command: %s\nAvailable commands:\n", g.argv[2]);
+    cmd_cmd_list(0);
+    fossil_exit(1);
   }else if( rc==2 ){
-    fossil_fatal("ambiguous command prefix: %s", g.argv[2]);
+    fossil_print("ambiguous command prefix: %s\nMatching commands:\n",
+                 g.argv[2]);
+    cmd_cmd_list(g.argv[2]);
+    fossil_exit(1);
   }
   z = aCmdHelp[idx];
   if( z==0 ){
