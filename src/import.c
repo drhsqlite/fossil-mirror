@@ -220,12 +220,6 @@ static void finish_commit(void){
   int i;
   char *zFromBranch;
   Blob record, cksum;
-  if( gg.zFrom==0 && gg.zPrevCheckin!=0 
-   && fossil_strcmp(gg.zBranch, gg.zPrevBranch)==0
-  ){
-     gg.zFrom = gg.zPrevCheckin;
-     gg.zPrevCheckin = 0;
-  }
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
@@ -363,6 +357,12 @@ static void import_prior_files(void){
   ImportFile *pNew;
   if( gg.fromLoaded ) return;
   gg.fromLoaded = 1;
+  if( gg.zFrom==0 && gg.zPrevCheckin!=0 
+   && fossil_strcmp(gg.zBranch, gg.zPrevBranch)==0
+  ){
+     gg.zFrom = gg.zPrevCheckin;
+     gg.zPrevCheckin = 0;
+  }
   if( gg.zFrom==0 ) return;
   rid = fast_uuid_to_rid(gg.zFrom);
   if( rid==0 ) return;
