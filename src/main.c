@@ -244,7 +244,19 @@ int main(int argc, char **argv){
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
-    zCmdName = argv[1];
+    if( find_option("help",0,0)!=0 ){
+      /* --help anywhere on the command line is translated into
+      ** "fossil help argv[1] argv[2]..." */
+      int i;
+      char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
+      for(i=1; i<g.argc; i++) zNewArgv[i+1] = argv[i];
+      zNewArgv[i+1] = 0;
+      zNewArgv[0] = argv[0];
+      zNewArgv[1] = "help";
+      g.argc++;
+      g.argv = zNewArgv;
+    }
+    zCmdName = g.argv[1];
   }
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
@@ -521,7 +533,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   const char *zReturn = 0;
   assert( hasArg==0 || hasArg==1 );
   nLong = strlen(zLong);
-  for(i=2; i<g.argc; i++){
+  for(i=1; i<g.argc; i++){
     char *z;
     if (i+hasArg >= g.argc) break;
     z = g.argv[i];

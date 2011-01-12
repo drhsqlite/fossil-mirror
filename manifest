@@ -1,5 +1,5 @@
-C On\sthe\s"import"\scommand,\swhen\sthe\s"from"\scommit\sis\simplied,\sbe\ssure\sto\sload\nall\sof\sthe\sfiles\sof\sthe\simplied\s"from"\scommit\sprior\sto\sprocessing\sthe\nchanges.
-D 2011-01-12T01:57:44.486
+C Allow\s--help\sanywhere\son\sthe\scommand-line\sas\san\salternative\sway\sto\sget\n"help"\sfor\sa\scommand.
+D 2011-01-12T02:08:18.510
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_transport.c bac34bcf45ba3d2c8a9210ba4f4d498e5dd35d44
 F src/import.c 0ace3764dd183a147ba3f690d75b67635a2585f2
 F src/info.c 5abf4e323046b4a9be14842a3c811671034b546a
 F src/login.c b31088a9215fadafc66751798ef4ba63cb86a3ac
-F src/main.c 392b8bd2dd07c138b6e0a991300fb23c93ab5f3f
+F src/main.c 15804b5394b3b884d2f4564339af668bab36e91d
 F src/main.mk f01af656bb631168b0fcf5dacefeead7aea022f5
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -291,7 +291,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 25201dd86f61314215b3e575669623ad01385ab9
-R b74fb325b33322f7444e14b99b3050e8
+P b1cbae5de44ab85e635628d281f859bf04ac4c8b
+R 476c639c7feb8e8bf1729fc1693a4158
 U drh
-Z a2b11e779bcacc17f90435ad7890fd8d
+Z 7b1e27b74b2c6f9c8a9a41d799c861e7
