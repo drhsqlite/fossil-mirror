@@ -36,7 +36,7 @@ Fossil repositories</a>.
 #
 foreach file [glob -nocomplain download/fossil-*.zip] {
   if {[regexp {(\d+).zip$} $file all datetime]
-       && [string length $datetime]==14} {
+       && [string length $datetime]>=14} {
     set adate($datetime) 1
   }
 }
