@@ -1,0 +1,37 @@
+#
+# Copyright (c) 2011 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# File utilities
+#
+
+proc simplify-name {testname args} {
+  set i 1
+  foreach {path result} $args {
+    fossil test-simplify-name $path
+    test simplify-name-$testname.$i {$::RESULT=="\[$path\] -> \[$result\]"}
+    incr i
+  }
+}
+
+simplify-name 100 . . .// . .. .. ..///// ..
+simplify-name 101 {} . / / ///////// / ././././ .
+simplify-name 102 x x /x /x ///x /x
+simplify-name 103 a/b a/b /a/b /a/b a///b a/b ///a///b///// /a/b
+simplify-name 104 a/b/../c/ a/c /a/b/../c /a/c /a/b//../c /a/c /a/b/..///c /a/c
+simplify-name 105 a/b/../../x/y x/y /a/b/../../x/y /x/y
+simplify-name 106 a/b/../../../x/y ../x/y /a/b/../../../x/y /../x/y
+simplify-name 107 a/./b/.././../x/y x/y a//.//b//..//.//..//x//y/// x/y
