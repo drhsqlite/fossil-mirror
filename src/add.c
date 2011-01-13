@@ -418,10 +418,10 @@ void import_cmd(void){
   int nAdd = 0;
   int nDelete = 0;
 
+  db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
     fossil_panic("no checkout to add to");
