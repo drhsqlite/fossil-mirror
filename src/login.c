@@ -638,6 +638,9 @@ void login_verify_csrf_secret(void){
 */
 void register_page(void){
   const char *zUsername, *zPasswd, *zConfirm, *zContact, *zCS, *zPw, *zCap;
+  unsigned int uSeed;
+  char const *zDecoded;
+  char *zCaptcha;
   if( !db_get_boolean("self-register", 0) ){
     style_header("Registration not possible");
     @ <p>This project does not allow user self-registration. Please contact the
@@ -691,6 +694,12 @@ void register_page(void){
         @ </span></p>
       }else{
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
+        int uid;
+        char *zCookie;
+        const char *zCookieName;
+        const char *zExpire;
+        int expires;
+        const char *zIpAddr;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info)"
             "VALUES(%B,%Q,%B,%B)",
@@ -699,12 +708,11 @@ void register_page(void){
         free(zPw);
 
         /* The user is registered, now just log him in. */
-        int uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
-        char *zCookie;
-        const char *zCookieName = login_cookie_name();
-        const char *zExpire = db_get("cookie-expire","8766");
-        int expires = atoi(zExpire)*3600;
-        const char *zIpAddr = PD("REMOTE_ADDR","nil");
+        uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
+        zCookieName = login_cookie_name();
+        zExpire = db_get("cookie-expire","8766");
+        expires = atoi(zExpire)*3600;
+        zIpAddr = PD("REMOTE_ADDR","nil");
 
         zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
         cgi_set_cookie(zCookieName, zCookie, 0, expires);
@@ -720,9 +728,9 @@ void register_page(void){
   }
 
   /* Prepare the captcha. */
-  unsigned int uSeed = captcha_seed();
-  char const *zDecoded = captcha_decode(uSeed);
-  char *zCaptcha = captcha_render(zDecoded);
+  uSeed = captcha_seed();
+  zDecoded = captcha_decode(uSeed);
+  zCaptcha = captcha_render(zDecoded);
 
   /* Print out the registration form. */
   @ <form action="register" method="post">
