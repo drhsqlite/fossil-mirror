@@ -1251,10 +1251,15 @@ void info_page(void){
   
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
-  if( validate16(zName, strlen(zName))
-   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
-    tktview_page();
-    return;
+  if( validate16(zName, strlen(zName)) ){
+    if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
+      tktview_page();
+      return;
+    }
+    if( db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'event-%q*'", zName) ){
+      event_page();
+      return;
+    }
   }
   blob_set(&uuid, zName);
   if( name_to_uuid(&uuid, 1) ){
