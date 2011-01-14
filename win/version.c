@@ -4,6 +4,7 @@
 ** files for this project in order to generate the "VERSION.h" header file.
 */
 #include <stdio.h>
+#include <string.h>
 
 int main(int argc, char *argv[]){
     FILE *m,*u;
