@@ -118,8 +118,8 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   win32_create_child_process((char*)zCmd, 
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
-  *pfdIn = _open_osfhandle((long)hStdoutRd, 0);
-  fd = _open_osfhandle((long)hStdinWr, 0);
+  *pfdIn = _open_osfhandle((intptr_t)hStdoutRd, 0);
+  fd = _open_osfhandle((intptr_t)hStdinWr, 0);
   *ppOut = _fdopen(fd, "w");
   CloseHandle(hStdinRd); 
   CloseHandle(hStdoutWr);
