@@ -47,34 +47,12 @@ static void shorten_uuid(char *zDest, const char *zSrc){
 ** Generate a hyperlink to a version.
 */
 void hyperlink_to_uuid(const char *zUuid){
-  char zShortUuid[UUID_SIZE+1];
-  shorten_uuid(zShortUuid, zUuid);
+  char z[UUID_SIZE+1];
+  shorten_uuid(z, zUuid);
   if( g.okHistory ){
-    @ <a class="timelineHistLink" href="%s(g.zTop)/info/%s(zShortUuid)">
-    @ [%s(zShortUuid)]</a>
+    @ <a class="timelineHistLink" href="%s(g.zTop)/info/%s(z)">[%s(z)]</a>
   }else{
-    @ <span class="timelineHistDsp">[%s(zShortUuid)]</span>
-  }
-}
-
-/*
-** Generate a hyperlink that invokes javascript to highlight
-** a version on mouseover.
-*/
-void hyperlink_to_uuid_with_mouseover(
-  const char *zUuid,   /* The UUID to display */
-  const char *zIn,     /* Javascript proc for mouseover */
-  const char *zOut,    /* Javascript proc for mouseout */
-  int id               /* Argument to javascript procs */
-){
-  char zShortUuid[UUID_SIZE+1];
-  shorten_uuid(zShortUuid, zUuid);
-  if( g.okHistory ){
-    @ <a onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'
-    @    href="%s(g.zTop)/vinfo/%s(zShortUuid)">[%s(zShortUuid)]</a>
-  }else{
-    @ <b onmouseover='%s(zIn)("m%d(id)")' onmouseout='%s(zOut)("m%d(id)")'>
-    @ [%s(zShortUuid)]</b>
+    @ <span class="timelineHistDsp">[%s(z)]</span>
   }
 }
 
