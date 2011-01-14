@@ -182,6 +182,7 @@ void www_print_timeline(
   int suppressCnt = 0;
   char zPrevDate[20];
   GraphContext *pGraph = 0;
+  int prevWasDivider = 0;     /* True if previous output row was <hr> */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -230,9 +231,13 @@ void www_print_timeline(
       suppressCnt = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
-      @ <tr><td colspan="3"><hr /></td></tr>
+      if( !prevWasDivider ){
+        @ <tr><td colspan="3"><hr /></td></tr>
+      }
+      prevWasDivider = 1;
       continue;
     }
+    prevWasDivider = 0;
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -657,9 +662,17 @@ static void timeline_submenu(
 /*
 ** zDate is a localtime date.  Insert records into the
 ** "timeline" table to cause <hr> to be inserted before and after
-** entries of that date.
+** entries of that date.  If zDate==NULL then put dividers around
+** the event identified by rid.
 */
-static void timeline_add_dividers(const char *zDate){
+static void timeline_add_dividers(const char *zDate, int rid){
+  char *zToDel = 0;
+  if( zDate==0 ){
+    zToDel = db_text(0,"SELECT datetime(mtime,'localtime') FROM event"
+                       " WHERE objid=%d", rid);
+    zDate = zToDel;
+    if( zDate==0 ) zDate = "1";
+  }
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
     "VALUES(-1,julianday(%Q,'utc')-5.0e-6,'div')",
@@ -670,6 +683,7 @@ static void timeline_add_dividers(const char *zDate){
     "VALUES(-2,julianday(%Q,'utc')+5.0e-6,'div')",
      zDate
   );
+  fossil_free(zToDel);
 }
 
 
@@ -690,6 +704,7 @@ static void timeline_add_dividers(const char *zDate){
 **    y=TYPE         'ci', 'w', 't', 'e'
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
+**    nd             Suppress "divider" lines
 **    f=RID          Show family (immediate parents and children) of RID
 **
 ** p= and d= can appear individually or together.  If either p= or d=
@@ -716,6 +731,7 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
+  int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -770,10 +786,7 @@ void page_timeline(void){
         db_multi_exec("%s", blob_str(&sql));
         blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       }
-      timeline_add_dividers(
-        db_text("1","SELECT datetime(mtime,'localtime') FROM event"
-                    " WHERE objid=%d", d_rid)
-      );
+      if( useDividers ) timeline_add_dividers(0, d_rid);
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
@@ -784,12 +797,7 @@ void page_timeline(void){
         blob_appendf(&desc, "%d ancestors", np);
         db_multi_exec("%s", blob_str(&sql));
       }
-      if( d_rid==0 ){
-        timeline_add_dividers(  
-          db_text("1","SELECT datetime(mtime,'localtime') FROM event"
-                      " WHERE objid=%d", p_rid)
-        );
-      }
+      if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
     if( g.okHistory ){
       blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
@@ -809,10 +817,7 @@ void page_timeline(void){
     );
     blob_appendf(&sql, " AND event.objid IN ok");
     db_multi_exec("%s", blob_str(&sql));
-    timeline_add_dividers(
-      db_text("1","SELECT datetime(mtime,'localtime') FROM event"
-                  " WHERE objid=%d", f_rid)
-    );
+    if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     if( g.okHistory ){
@@ -938,7 +943,7 @@ void page_timeline(void){
             rCirca
         );
         nEntry -= (nEntry+1)/2;
-        timeline_add_dividers(zCirca);
+        if( useDividers ) timeline_add_dividers(zCirca, 0);
         url_add_parameter(&url, "c", zCirca);
       }else{
         zCirca = 0;
