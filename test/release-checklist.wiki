@@ -1,0 +1,66 @@
+<title>Release Checklist</title>
+
+This file describes the testing procedures for Fossil prior to an
+official release.
+
+<ol>
+<li><p>
+From a private directory (not the source tree) run 
+"<b>tclsh $FOSSIL $SRC/test/tester.tcl</b>" where $FOSSIL is the
+name of the executable under test and $SRC is the source tree.
+Verify that there are no errors.
+
+<li><p>
+Click on each of the links in in the
+[./graph-test-1.wiki] document and verify that all graphs are
+rendered correctly.
+
+<li><p>
+Compile for all of the following platforms:
+<ol type="a">
+<li> Linux x86
+<li> Linux x86_64
+<li> Mac x86
+<li> Mac x86_64
+<li> Windows (mingw)
+<li> OpenBSD
+</ol>
+
+<li><p>
+Run at least one occurrence of the the following commands on every
+platform:
+<ol type="a">
+<li> <b>fossil rebuild</b>
+<li> <b>fossil sync</b>
+<li> <b>fossil test-integrity</b>
+</ol>
+
+<li><p>
+Run the following commands on Linux and verify no major memory leaks
+and no run-time errors or warnings (except for the well-known jump on an
+uninitialized value that occurs within zlib).
+<ol type="a">
+<li> <b>valgrind fossil rebuild</b>
+<li> <b>valgrind fossil sync</b>
+</ol>
+
+<li><p>
+Inspect all code changes since the previous release, paying particular
+attention to the following details:
+<ol type="a">
+<li> Can a malicious HTTP request cause a buffer overrun.
+<li> Can a malicious HTTP request expose privileged information to
+     unauthorized users.
+</ol>
+
+
+<li><p>
+Use the release candidate version of fossil in production on the
+[http://www.fossil-scm.org/] website for at least 48 hours (without
+incident) prior to making the release official.
+</ol>
+
+<hr>
+
+Upon successful completion of all tests above, tag the release candidate
+with the "release" tag and set its background color to "#d0c0ff".

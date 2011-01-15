@@ -1,5 +1,5 @@
-C Fix\sthe\s/info\sURL\sso\sthat\sit\sworks\sfor\sevents.\nTicket\s[b5efc3a47bd10f0510].
-D 2011-01-14T21:07:12.626
+C Add\sthe\srelease-checklist.wiki\sdocument.
+D 2011-01-15T01:09:31.645
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -132,6 +132,7 @@ F test/merge3.test 860f092f47d31118ee0f2c128dd2898ee85b117f
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
+F test/release-checklist.wiki c6c1b4a989908897790b3c9b4662baa02c6dee7f
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -292,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P cbc41ff4c9cf38ff73e67a8eccddacdecc52cdc4
-R 3b42f9e6c2aab1379922c0848d25da58
+P 1e801c5f6452183a93f27b52acb6b97f42e7b6db
+R ec8c1350423c78f977e67efe66f903d3
 U drh
-Z fbec88e3eb17ded25212b7ea2b229544
+Z 967ae1e66a6caf928db6aaad2139e08e
