@@ -1,5 +1,5 @@
-C A\sbetter\sfix\sfor\sthe\sintptr_t\scasting\sproblem\s-\sthis\sone\sworks\son\solder\ncompilers.\s\sTicket\s[6585b6c5d9058212ceb]
-D 2011-01-17T02:38:45.351
+C Fix\san\sincorrect\scomment\sin\sfinfo.c.\s\sNo\scode\schanges.
+D 2011-01-17T02:39:24.093
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -62,7 +62,7 @@ F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c b77370e1379434a390ae9d329a0d87f4b28d1d66
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
 F src/file.c ea4b6e84586205dc485c3b388bbe87607babd964
-F src/finfo.c 4b90f6e27daddb0f07c1bfddcc682cf3cd611aa5
+F src/finfo.c cb0c42daa1872790c8400f264f938ade4bc72fdb
 F src/graph.c 08c87427392a778bbdf1d1d01cf77eb55ec4f0aa
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P e2e5667057867f928d1bcd9758f716d45d018055
-R fff14e45981c51e834f22445bf5974c3
+P c1f6df703a9b8693040e7810563cc5837351809f
+R 921d87fee2c30b628608a946a83c288d
 U drh
-Z 06d45659d2a08b3377f653e1d8c0bf1c
+Z 54b01a2a36172bf1cdf6cee5f65cdf0f

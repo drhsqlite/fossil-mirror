@@ -209,8 +209,8 @@ void finfo_page(void){
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* File rid */
-    " mlink.fid,"                                    /* Parent file rid */
+    " mlink.pid,"                                    /* Parent rid */
+    " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
