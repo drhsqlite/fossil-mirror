@@ -95,7 +95,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     db_bind_int(&ins, ":isadd", rid==0);
     db_bind_int(&ins, ":isrm", deleted);
 #ifdef _WIN32
-    db_bind_int(&ins, ":isexe", db_column_int(&q, 2));
+    db_bind_int(&ins, ":isexe", db_column_int(&q, 1));
 #endif
     db_bind_text(&ins, ":orig", zOrig);
     db_bind_text(&ins, ":new", zName);
