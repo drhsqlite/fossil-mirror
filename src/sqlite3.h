@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.4"
-#define SQLITE_VERSION_NUMBER 3007004
-#define SQLITE_SOURCE_ID      "2010-12-21 21:28:38 b0888047bb6d9ac55e29b9224df2ff650728bb78"
+#define SQLITE_VERSION        "3.7.5"
+#define SQLITE_VERSION_NUMBER 3007005
+#define SQLITE_SOURCE_ID      "2011-01-17 02:24:12 b93f6f3e679c7710f42580a8dd9ce43136376c1d"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -720,6 +720,12 @@ struct sqlite3_io_methods {
 ** to the [sqlite3_file] object associated with a particular database
 ** connection.  See the [sqlite3_file_control()] documentation for
 ** additional information.
+**
+** The [SQLITE_FCNTL_SYNC] opcode is used internally. SQLite calls
+** the file-control method with this opcode immediately after the database
+** file is synced, or if the database is running in synchronous=off mode
+** immediately after it would have been synced otherwise. This makes it
+** easier to write special VFS modules that depend on the xSync call.
 */
 #define SQLITE_FCNTL_LOCKSTATE        1
 #define SQLITE_GET_LOCKPROXYFILE      2
@@ -728,6 +734,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_SIZE_HINT        5
 #define SQLITE_FCNTL_CHUNK_SIZE       6
 #define SQLITE_FCNTL_FILE_POINTER     7
+#define SQLITE_FCNTL_SYNC             8
 
 
 /*
@@ -1866,6 +1873,8 @@ SQLITE_API void sqlite3_free_table(char **result);
 ** the zero terminator.  So the longest string that can be completely
 ** written will be n-1 characters.
 **
+** ^The sqlite3_vsnprintf() routine is a varargs version of sqlite3_snprintf().
+**
 ** These routines all implement some additional formatting
 ** options that are useful for constructing SQL statements.
 ** All of the usual printf() formatting options apply.  In addition, there
@@ -1929,6 +1938,7 @@ SQLITE_API void sqlite3_free_table(char **result);
 SQLITE_API char *sqlite3_mprintf(const char*,...);
 SQLITE_API char *sqlite3_vmprintf(const char*, va_list);
 SQLITE_API char *sqlite3_snprintf(int,char*,const char*, ...);
+SQLITE_API char *sqlite3_vsnprintf(int,char*,const char*, va_list);
 
 /*
 ** CAPI3REF: Memory Allocation Subsystem
@@ -2306,7 +2316,7 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** case the database must already exist, otherwise an error is returned.</dd>)^
 **
 ** ^(<dt>[SQLITE_OPEN_READWRITE] | [SQLITE_OPEN_CREATE]</dt>
-** <dd>The database is opened for reading and writing, and is creates it if
+** <dd>The database is opened for reading and writing, and is created if
 ** it does not already exist. This is the behavior that is always used for
 ** sqlite3_open() and sqlite3_open16().</dd>)^
 ** </dl>
@@ -3416,7 +3426,7 @@ SQLITE_API int sqlite3_reset(sqlite3_stmt *pStmt);
 ** ^(The fifth parameter is an arbitrary pointer.  The implementation of the
 ** function can gain access to this pointer using [sqlite3_user_data()].)^
 **
-** ^The seventh, eighth and ninth parameters, xFunc, xStep and xFinal, are
+** ^The sixth, seventh and eighth parameters, xFunc, xStep and xFinal, are
 ** pointers to C-language functions that implement the SQL function or
 ** aggregate. ^A scalar SQL function requires an implementation of the xFunc
 ** callback only; NULL pointers must be passed as the xStep and xFinal
@@ -3425,7 +3435,7 @@ SQLITE_API int sqlite3_reset(sqlite3_stmt *pStmt);
 ** SQL function or aggregate, pass NULL poiners for all three function
 ** callbacks.
 **
-** ^(If the tenth parameter to sqlite3_create_function_v2() is not NULL,
+** ^(If the ninth parameter to sqlite3_create_function_v2() is not NULL,
 ** then it is destructor for the application data pointer. 
 ** The destructor is invoked when the function is deleted, either by being
 ** overloaded or when the database connection closes.)^
@@ -3529,7 +3539,7 @@ SQLITE_API SQLITE_DEPRECATED int sqlite3_memory_alarm(void(*)(void*,sqlite3_int6
 ** The xFunc (for scalar functions) or xStep (for aggregates) parameters
 ** to [sqlite3_create_function()] and [sqlite3_create_function16()]
 ** define callbacks that implement the SQL functions and aggregates.
-** The 4th parameter to these callbacks is an array of pointers to
+** The 3rd parameter to these callbacks is an array of pointers to
 ** [protected sqlite3_value] objects.  There is one [sqlite3_value] object for
 ** each parameter to the SQL function.  These routines are used to
 ** extract values from the [sqlite3_value] objects.
@@ -5694,11 +5704,13 @@ typedef struct sqlite3_pcache sqlite3_pcache;
 ** first parameter, szPage, is the size in bytes of the pages that must
 ** be allocated by the cache.  ^szPage will not be a power of two.  ^szPage
 ** will the page size of the database file that is to be cached plus an
-** increment (here called "R") of about 100 or 200.  SQLite will use the
+** increment (here called "R") of less than 250.  SQLite will use the
 ** extra R bytes on each page to store metadata about the underlying
 ** database page on disk.  The value of R depends
 ** on the SQLite version, the target platform, and how SQLite was compiled.
-** ^R is constant for a particular build of SQLite.  ^The second argument to
+** ^(R is constant for a particular build of SQLite. Except, there are two
+** distinct values of R when SQLite is compiled with the proprietary
+** ZIPVFS extension.)^  ^The second argument to
 ** xCreate(), bPurgeable, is true if the cache being created will
 ** be used to cache database pages of a file stored on disk, or
 ** false if it is used for an in-memory database. The cache implementation
@@ -5730,7 +5742,7 @@ typedef struct sqlite3_pcache sqlite3_pcache;
 ** If the requested page is already in the page cache, then the page cache
 ** implementation must return a pointer to the page buffer with its content
 ** intact.  If the requested page is not already in the cache, then the
-** behavior of the cache implementation should use the value of the createFlag
+** cache implementation should use the value of the createFlag
 ** parameter to help it determined what action to take:
 **
 ** <table border=1 width=85% align=center>
