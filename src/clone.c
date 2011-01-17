@@ -109,7 +109,7 @@ void clone_cmd(void){
   }
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1);
+  rebuild_db(0, 1, 0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);

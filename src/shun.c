@@ -53,7 +53,7 @@ void shun_page(void){
     db_close(1);
     db_open_repository(g.zRepositoryName);
     db_begin_transaction();
-    rebuild_db(0,0);
+    rebuild_db(0, 0, 0);
     db_end_transaction(0);
   }
   if( zUuid ){

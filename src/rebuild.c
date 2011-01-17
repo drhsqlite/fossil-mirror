@@ -245,7 +245,7 @@ static void rebuild_tag_trunk(void){
 ** ability of fossil to accept records in any order and still
 ** construct a sane repository.
 */
-int rebuild_db(int randomize, int doOut){
+int rebuild_db(int randomize, int doOut, int doClustering){
   Stmt s;
   int errCnt = 0;
   char *zTable;
@@ -330,7 +330,7 @@ int rebuild_db(int randomize, int doOut){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
-  create_cluster();
+  if( doClustering ) create_cluster();
   if( !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
@@ -349,16 +349,25 @@ int rebuild_db(int randomize, int doOut){
 ** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
 ** executable in a way that changes the database schema.
+**
+** Options:
+**
+**   --noverify    Skip the verification of changes to the BLOB table
+**   --force       Force the rebuild to complete even if errors are seen
+**   --randomize   Scan artifacts in a random order
+**   --cluster     Compute clusters for unclustered artifacts
 */
 void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
   int errCnt;
   int omitVerify;
+  int doClustering;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
+  doClustering = find_option("cluster", 0, 0)!=0;
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
@@ -371,7 +380,7 @@ void rebuild_database(void){
   }
   db_begin_transaction();
   ttyOutput = 1;
-  errCnt = rebuild_db(randomizeFlag, 1);
+  errCnt = rebuild_db(randomizeFlag, 1, doClustering);
   db_multi_exec(
     "REPLACE INTO config(name,value) VALUES('content-schema','%s');"
     "REPLACE INTO config(name,value) VALUES('aux-schema','%s');",
@@ -554,7 +563,7 @@ void scrub_cmd(void){
     db_end_transaction(0);
     db_multi_exec("VACUUM;");
   }else{
-    rebuild_db(0, 1);
+    rebuild_db(0, 1, 0);
     db_end_transaction(0);
   }
 }
@@ -631,7 +640,7 @@ void reconstruct_cmd(void) {
   recon_read_dir(g.argv[3]);
   printf("\nBuilding the Fossil repository...\n");
 
-  rebuild_db(0, 1);
+  rebuild_db(0, 1, 1);
 
   /* Reconstruct the private table.  The private table contains the rid
   ** of every manifest that is tagged with "private" and every file that

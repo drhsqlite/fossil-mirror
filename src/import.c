@@ -659,7 +659,7 @@ void git_import_cmd(void){
   db_end_transaction(0);
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1);
+  rebuild_db(0, 1, 1);
   verify_cancel();
   db_end_transaction(0);
   printf("Vacuuming..."); fflush(stdout);
