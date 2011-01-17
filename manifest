@@ -1,5 +1,5 @@
-C Do\snot\sbuild\sclusters\son\sa\s"rebuild"\scommand\sunless\sthe\s--cluster\scommand-line\noption\sis\sused.\s\sBut\sdo\sbuild\sclusters\son\san\s"import"\sor\sa\s"reconstruct".
-D 2011-01-17T16:14:02.051
+C Extra\sresilience\son\sthe\sautomatic\schroot\smechanism.
+D 2011-01-17T23:47:23.401
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_transport.c bac34bcf45ba3d2c8a9210ba4f4d498e5dd35d44
 F src/import.c d3d5580078176e60fdd29c047d42f9c4f8da6718
 F src/info.c 42427346142a7dff81d3a8408cd1fb1666605f49
 F src/login.c 4d8632fa58986f95e223b98365b55445bce23e37
-F src/main.c 438c3009c4e3ff7110cd585efce87b0f06033e0b
+F src/main.c 1915a53b429b9cca3909f2fbdcfaf69418f68e42
 F src/main.mk c4023a76e74b5450e8d0e1ec1115cb6ca5074cea
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 3c3db86a7666b26b001d63a0e2da83bd2cdacf77
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 464775a520c71127b353ae721a9eea7fab219722
-R ec225d42618cd09d32a2143d616ff83c
+P afc4bf41fa54d8038786b39001be2d68faed832c
+R 6e8547e1b37c260c4acbe2e52ad1f2a2
 U drh
-Z 0b3f804cd15cfa5277fc56c62a8da36b
+Z d00a3fbf104d4232f7624d9b0e0e2b61

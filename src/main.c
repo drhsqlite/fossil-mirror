@@ -836,15 +836,17 @@ static char *enter_chroot_jail(char *zRepo){
     file_canonical_name(zRepo, &dir);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
-      chdir(zDir);
-      chroot(zDir);
+      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+        fossil_fatal("unable to chroot into %s", zDir);
+      }
       zRepo = "/";
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
       if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
       zDir[i] = 0;
-      chdir(zDir);
-      chroot(zDir);
+      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+        fossil_fatal("unable to chroot into %s", zDir);
+      }
       zDir[i] = '/';
       zRepo = &zDir[i];
     }
