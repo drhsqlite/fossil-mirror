@@ -31,6 +31,32 @@ static void win32_fatal_error(const char *zMsg){
 }
 #endif
 
+/*
+** The following macros are used to cast pointers to integers and
+** integers to pointers.  The way you do this varies from one compiler
+** to the next, so we have developed the following set of #if statements
+** to generate appropriate macros for a wide range of compilers.
+**
+** The correct "ANSI" way to do this is to use the intptr_t type. 
+** Unfortunately, that typedef is not available on all compilers, or
+** if it is available, it requires an #include of specific headers
+** that vary from one machine to the next.
+**
+** This code is copied out of SQLite.
+*/
+#if defined(__PTRDIFF_TYPE__)  /* This case should work for GCC */
+# define INT_TO_PTR(X)  ((void*)(__PTRDIFF_TYPE__)(X))
+# define PTR_TO_INT(X)  ((int)(__PTRDIFF_TYPE__)(X))
+#elif !defined(__GNUC__)       /* Works for compilers other than LLVM */
+# define INT_TO_PTR(X)  ((void*)&((char*)0)[X])
+# define PTR_TO_INT(X)  ((int)(((char*)X)-(char*)0))
+#elif defined(HAVE_STDINT_H)   /* Use this case if we have ANSI headers */
+# define INT_TO_PTR(X)  ((void*)(intptr_t)(X))
+# define PTR_TO_INT(X)  ((int)(intptr_t)(X))
+#else                          /* Generates a warning - but it always works */
+# define INT_TO_PTR(X)  ((void*)(X))
+# define PTR_TO_INT(X)  ((int)(X))
+#endif
 
 
 #ifdef _WIN32
@@ -118,8 +144,8 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   win32_create_child_process((char*)zCmd, 
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
-  *pfdIn = _open_osfhandle((intptr_t)hStdoutRd, 0);
-  fd = _open_osfhandle((intptr_t)hStdinWr, 0);
+  *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
+  fd = _open_osfhandle(PTR_TO_INT(hStdinWr), 0);
   *ppOut = _fdopen(fd, "w");
   CloseHandle(hStdinRd); 
   CloseHandle(hStdoutWr);
