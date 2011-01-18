@@ -98,6 +98,7 @@ void update_cmd(void){
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
+  Stmt mtimeXfer;       /* Statment to transfer mtimes */
 
   if( !internalUpdate ){
     undo_capture_command_line();
@@ -302,6 +303,10 @@ void update_cmd(void){
   db_prepare(&q, 
     "SELECT fn, idv, ridv, idt, ridt, chnged, fnt FROM fv ORDER BY 1"
   );
+  db_prepare(&mtimeXfer,
+    "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
+    " WHERE id=:idt"
+  );
   assert( g.zLocalRoot!=0 );
   assert( strlen(g.zLocalRoot)>1 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
@@ -388,17 +393,22 @@ void update_cmd(void){
       blob_reset(&e);
       blob_reset(&t);
       blob_reset(&r);
-    }else if( verboseFlag ){
+    }else{
       if( chnged ){
-        printf("EDITED %s\n", zName);
+        if( verboseFlag ) printf("EDITED %s\n", zName);
       }else{
-        printf("UNCHANGED %s\n", zName);
+        db_bind_int(&mtimeXfer, ":idv", idv);
+        db_bind_int(&mtimeXfer, ":idt", idt);
+        db_step(&mtimeXfer);
+        db_reset(&mtimeXfer);
+        if( verboseFlag ) printf("UNCHANGED %s\n", zName);
       }
     }
     free(zFullPath);
     free(zFullNewPath);
   }
   db_finalize(&q);
+  db_finalize(&mtimeXfer);
   printf("--------------\n");
   show_common_info(tid, "updated-to:", 1, 0);
 
