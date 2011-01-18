@@ -1095,7 +1095,7 @@ static void find_server_repository(int disallowDir){
 **
 ** COMMAND: http
 **
-** Usage: %fossil http REPOSITORY [--notfound URL]
+** Usage: %fossil http REPOSITORY [--notfound URL] [--host HOSTNAME] [--https]
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
@@ -1107,11 +1107,19 @@ static void find_server_repository(int disallowDir){
 ** pathname selects among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
+**
+** The --host option can be used to specify the hostname for the server.
+** The --https option indicates that the request came from HTTPS rather
+** than HTTP.
 */
 void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
+  const char *zHost;
   zNotFound = find_option("notfound", 0, 1);
+  if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
+  zHost = find_option("host", 0, 1);
+  if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     fossil_fatal("no repository specified");
