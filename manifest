@@ -1,5 +1,5 @@
-C Improved\shyperlinking\sin\sthe\sRSS\sfeed.
-D 2011-01-18T14:43:56.842
+C Remote\sthe\snumber\sof\smerge\sconflicts\son\san\supdate.\nTicket\s[769b4ed7b23e4cb7]
+D 2011-01-18T18:36:08.141
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -113,7 +113,7 @@ F src/tkt.c 1a1a0b83a0a12c856c8dc5ef356577a5d2fafb0d
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 615528bf6dde5396f4e67f8ff98259c28b118c3b
-F src/update.c 2a9e42a28f70d7be0ebeba51c5077d0242c01193
+F src/update.c 7fafa82267266748c984a1bf35944adfa92a5c9c
 F src/url.c 28548c078f3ca992a234572cc4d3887a81dd816f
 F src/user.c 55bf51446c23c223cbaf0231530df000c2e08ad3
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P abdedb21da0e2c8df754393f62f0a36a947b404a
-R 75fb09c602eb12d302733fc6c4bd05e2
+P 66d93f33d56adbd3b39d376a555a78b407b7210d
+R 59f2387bd02332996ba7a096e040b8c3
 U drh
-Z 6c2ea428474c0fab6f400ff00693bde9
+Z af72fa0ea65f5ab8e8c8687812112759

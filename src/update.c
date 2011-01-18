@@ -408,7 +408,8 @@ void update_cmd(void){
     if( internalUpdate ){
       internalConflictCnt = nConflict;
     }else{
-      printf("WARNING: merge conflicts - see messages above for details.\n");
+      printf("WARNING: %d merge conflicts - see messages above for details.\n",
+              nConflict);
     }
   }
   
