@@ -129,11 +129,11 @@ void page_timeline_rss(void){
 
     @     <item>
     @       <title>%s(zPrefix)%h(zCom)</title>
-    @       <link>%s(g.zBaseURL)/ci/%s(zId)</link>
+    @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
     @       <description>%s(zPrefix)%h(zCom)</description>
     @       <pubDate>%s(zDate)</pubDate>
     @       <author>%h(zAuthor)</author>
-    @       <guid>%s(g.zBaseURL)/ci/%s(zId)</guid>
+    @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
     @     </item>
     free(zDate);
     nLine++;
