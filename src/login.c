@@ -118,6 +118,28 @@ static int isValidAnonymousLogin(
 }
 
 /*
+** Make a record of a login attempt, if login record keeping is enabled.
+*/
+static void record_login_attempt(
+  const char *zUsername,     /* Name of user logging in */
+  const char *zIpAddr,       /* IP address from which they logged in */
+  int bSuccess               /* True if the attempt was a success */
+){
+  if( !db_get_boolean("access-log", 0) ) return;
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS %s.accesslog("
+    "  uname TEXT,"
+    "  ipaddr TEXT,"
+    "  success BOOLEAN,"
+    "  mtime TIMESTAMP"
+    ");"
+    "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
+    "VALUES(%Q,%Q,%d,julianday('now'));",
+    db_name("repository"), zUsername, zIpAddr, bSuccess
+  );
+}
+
+/*
 ** WEBPAGE: login
 ** WEBPAGE: logout
 ** WEBPAGE: my
@@ -137,6 +159,7 @@ void login_page(void){
   char *zErrMsg = "";
   int uid;                     /* User id loged in user */
   char *zSha1Pw;
+  const char *zIpAddr;         /* IP address of requestor */
 
   login_check_credentials();
   zUsername = P("u");
@@ -175,15 +198,14 @@ void login_page(void){
       return;
     }
   }
+  zIpAddr = PD("REMOTE_ADDR","nil");
   uid = isValidAnonymousLogin(zUsername, zPasswd);
   if( uid>0 ){
     char *zNow;                  /* Current time (julian day number) */
-    const char *zIpAddr;         /* IP address of requestor */
     char *zCookie;               /* The login cookie */
     const char *zCookieName;     /* Name of the login cookie */
     Blob b;                      /* Blob used during cookie construction */
 
-    zIpAddr = PD("REMOTE_ADDR","nil");
     zCookieName = login_cookie_name();
     zNow = db_text("0", "SELECT julianday('now')");
     blob_init(&b, zNow, -1);
@@ -193,6 +215,7 @@ void login_page(void){
     blob_reset(&b);
     free(zNow);
     cgi_set_cookie(zCookieName, zCookie, 0, 6*3600);
+    record_login_attempt("anonyous", zIpAddr, 1);
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
@@ -211,6 +234,7 @@ void login_page(void){
          @ You entered an unknown user or an incorrect password.
          @ </span></p>
       ;
+      record_login_attempt(zUsername, zIpAddr, 0);
     }else{
       char *zCookie;
       const char *zCookieName = login_cookie_name();
@@ -220,6 +244,7 @@ void login_page(void){
  
       zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
       cgi_set_cookie(zCookieName, zCookie, 0, expires);
+      record_login_attempt(zUsername, zIpAddr, 1);
       db_multi_exec(
         "UPDATE user SET cookie=%Q, ipaddr=%Q, "
         "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
@@ -716,6 +741,7 @@ void register_page(void){
 
         zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
         cgi_set_cookie(zCookieName, zCookie, 0, expires);
+        record_login_attempt(zUsername, zIpAddr, 1);
         db_multi_exec(
             "UPDATE user SET cookie=%Q, ipaddr=%Q, "
             "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",

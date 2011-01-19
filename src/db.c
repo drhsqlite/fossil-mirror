@@ -1597,6 +1597,7 @@ struct stControlSettings {
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
+  { "access-log",    0,                0, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, "on"                  },
   { "auto-shun",     0,                0, "on"                  },
   { "autosync",      0,                0, "on"                  },
