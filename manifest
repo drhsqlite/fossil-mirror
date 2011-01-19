@@ -1,5 +1,5 @@
-C Optionally\srecord\ssuccessful\sand\sfailed\slogin\sattempts\sin\sthe\sACCESSLOG\stable.\nThis\sdefaults\sto\soff.
-D 2011-01-19T02:35:03.587
+C Add\sa\sprimitive\sdisplay\sof\sthe\saccess-log\shistory.
+D 2011-01-19T02:57:28.628
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -91,7 +91,7 @@ F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c d9af8db3b459edf86f3accd357a884f5ac41cf2e
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
-F src/setup.c b21cc2cb1b78d4eb395cc4aaf7fcd4774dad14a3
+F src/setup.c 77785ea77c7b9ef7d409835243736195dc93bd38
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
 F src/shell.c de359a1421654acdb921da2f16367acebff21a85
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
@@ -115,7 +115,7 @@ F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 615528bf6dde5396f4e67f8ff98259c28b118c3b
 F src/update.c 4f9c1e0d0cc57a375ad8dec1909d95fcfc4877b8
 F src/url.c 28548c078f3ca992a234572cc4d3887a81dd816f
-F src/user.c 55bf51446c23c223cbaf0231530df000c2e08ad3
+F src/user.c 7be11f6a0326cdfb22bc5044074a2467dce7b139
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 90e0ebb3a003867a230c9fee2c8cec15571df808
 F src/wiki.c 8c0f26790f35b8ef7bd68b82a83eb259726db2a3
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P ffe1b60a36be25258a514d4834f12c07687ded84
-R 8beeb8d3db27a6ec199d7952600c3d23
+P 6fdf52980316e49823efd9bdebf463f6118ee192
+R a0e886749788e66970d170806dab4382
 U drh
-Z 959161eb22e88d1e8444602a572debf9
+Z b4e9f66ce4ca12bd2696841d151ff01f

@@ -387,3 +387,48 @@ void user_hash_passwords_cmd(void){
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
 }
+
+/*
+** WEBPAGE: access_log
+**
+**    s        Success only
+**    f        Failures only
+**    n=N      Number of entries to show
+**    o=N      Skip this many entries
+*/
+void access_log_page(void){
+  int bSuccessOnly = P("s")!=0;
+  int bFailOnly = P("f")!=0;
+  int n = atoi(PD("n","50"));
+  int skip = atoi(PD("o","0"));
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okAdmin ){ login_needed(); return; }
+
+  style_header("Access Log");
+  db_prepare(&q,
+    "SELECT uname, ipaddr, datetime(mtime), success"
+    "  FROM accesslog ORDER BY mtime DESC"
+    " LIMIT %d OFFSET %d", n, skip);
+  @ <table border="1" cellpadding="5">
+  @ <tr><th>Date</th><th>User</th><th>IP Address</th><th>Success?</th></tr>
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zIP = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    int bSuccess = db_column_int(&q, 3);
+    if( bSuccessOnly && bSuccess==0 ) continue;
+    if( bFailOnly && bSuccess!=0 ) continue;
+    if( bSuccess ){
+      @ <tr>
+    }else{
+      @ <tr bgcolor="#ffacc0">
+    }
+    @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td>
+    @ <td>%s(bSuccess?"yes":"no")</td></tr>
+  }
+  @ </table>
+  db_finalize(&q);
+  style_footer();
+}

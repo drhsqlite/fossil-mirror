@@ -86,6 +86,8 @@ void setup_page(void){
     "Show artifacts that are shunned by this repository");
   setup_menu_entry("Log", "rcvfromlist",
     "A record of received artifacts and their sources");
+  setup_menu_entry("User-Log", "access_log",
+    "A record of login attempts");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
   @ </table>
