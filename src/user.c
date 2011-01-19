@@ -407,6 +407,23 @@ void access_log_page(void){
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
 
+  if( P("delall") && P("delallbtn") ){
+    db_multi_exec("DELETE FROM accesslog");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delanon") && P("delanonbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delold") && P("deloldbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE rowid in"
+                  "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
+                  " LIMIT -1 OFFSET 200)");
+    cgi_redirectf("%s/access_log?y=%d&n=%d", g.zTop, y, n);
+    return;
+  }
   style_header("Access Log");
   blob_zero(&sql);
   blob_append(&sql, 
@@ -418,7 +435,7 @@ void access_log_page(void){
   }else if( y==2 ){
     blob_append(&sql, "  WHERE NOT success", -1);
   }
-  blob_appendf(&sql,"  ORDER BY mtime DESC LIMIT %d OFFSET %d", n+1, skip);
+  blob_appendf(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
   if( skip ){
     style_submenu_element("Newer", "Newer entries",
               "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
@@ -453,5 +470,21 @@ void access_log_page(void){
   }
   @ </table></center>
   db_finalize(&q);
+  @ <hr>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delold">
+  @ Delete all but the most recent 200 entries</input>
+  @ <input type="submit" name="deloldbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delanon">
+  @ Delete all entries for user "anonymous"</input>
+  @ <input type="submit" name="delanonbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delall">
+  @ Delete all entries</input>
+  @ <input type="submit" name="delallbtn" value="Delete"></input>
+  @ </form>
   style_footer();
 }
