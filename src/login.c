@@ -215,7 +215,7 @@ void login_page(void){
     blob_reset(&b);
     free(zNow);
     cgi_set_cookie(zCookieName, zCookie, 0, 6*3600);
-    record_login_attempt("anonyous", zIpAddr, 1);
+    record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){

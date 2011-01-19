@@ -391,44 +391,67 @@ void user_hash_passwords_cmd(void){
 /*
 ** WEBPAGE: access_log
 **
-**    s        Success only
-**    f        Failures only
+**    y=N      1: success only.  2: failure only.  3: both
 **    n=N      Number of entries to show
 **    o=N      Skip this many entries
 */
 void access_log_page(void){
-  int bSuccessOnly = P("s")!=0;
-  int bFailOnly = P("f")!=0;
+  int y = atoi(PD("y","3"));
   int n = atoi(PD("n","50"));
   int skip = atoi(PD("o","0"));
+  const char *zNow;
+  Blob sql;
   Stmt q;
+  int cnt = 0;
 
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
 
   style_header("Access Log");
-  db_prepare(&q,
-    "SELECT uname, ipaddr, datetime(mtime), success"
-    "  FROM accesslog ORDER BY mtime DESC"
-    " LIMIT %d OFFSET %d", n, skip);
-  @ <table border="1" cellpadding="5">
-  @ <tr><th>Date</th><th>User</th><th>IP Address</th><th>Success?</th></tr>
+  blob_zero(&sql);
+  blob_append(&sql, 
+    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
+    "  FROM accesslog", -1
+  );
+  if( y==1 ){
+    blob_append(&sql, "  WHERE success", -1);
+  }else if( y==2 ){
+    blob_append(&sql, "  WHERE NOT success", -1);
+  }
+  blob_appendf(&sql,"  ORDER BY mtime DESC LIMIT %d OFFSET %d", n+1, skip);
+  if( skip ){
+    style_submenu_element("Newer", "Newer entries",
+              "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
+              n, y);
+  }
+  db_prepare(&q, blob_str(&sql));
+  zNow = db_text(0, "SELECT datetime('now','localtime');");
+  @ <center><table border="1" cellpadding="5">
+  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     int bSuccess = db_column_int(&q, 3);
-    if( bSuccessOnly && bSuccess==0 ) continue;
-    if( bFailOnly && bSuccess!=0 ) continue;
+    cnt++;
+    if( cnt>n ){
+      style_submenu_element("Older", "Older entries",
+                  "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip+n, n, y);
+      break;
+    }
     if( bSuccess ){
       @ <tr>
     }else{
       @ <tr bgcolor="#ffacc0">
     }
-    @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td>
-    @ <td>%s(bSuccess?"yes":"no")</td></tr>
+    @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
   }
-  @ </table>
+  if( skip>0 || cnt>n ){
+    style_submenu_element("All", "All entries",
+          "%s/access_log?n=10000000", g.zTop);
+  }
+  @ </table></center>
   db_finalize(&q);
   style_footer();
 }
