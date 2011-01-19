@@ -399,10 +399,10 @@ void access_log_page(void){
   int y = atoi(PD("y","3"));
   int n = atoi(PD("n","50"));
   int skip = atoi(PD("o","0"));
-  const char *zNow;
   Blob sql;
   Stmt q;
   int cnt = 0;
+  int rc;
 
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
@@ -441,12 +441,11 @@ void access_log_page(void){
               "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
               n, y);
   }
-  db_prepare(&q, blob_str(&sql));
-  zNow = db_text(0, "SELECT datetime('now','localtime');");
+  rc = db_prepare_ignore_error(&q, blob_str(&sql));
   @ <center><table border="1" cellpadding="5">
   @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr>
-  while( db_step(&q)==SQLITE_ROW ){
+  while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
