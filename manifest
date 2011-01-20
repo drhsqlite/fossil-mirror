@@ -1,5 +1,5 @@
-C Do\snot\sdrop\sthe\saccesslog\stable\son\sa\srebuild.\s\sIf\sthe\saccesslog\stable\sdoes\nnot\sexist,\sdo\snot\sgenerate\sand\serror\son\sthe\sUser-Log\sreport.
-D 2011-01-19T16:28:30.214
+C Change\sthe\sDOCTYPE\sto\shtml5.\s\sTicket\s[9cb4a4d74b2eca66b5f].\s\sTested\son\nFF,\sChrome,\sSafari,\sOpera,\sand\sIE\sand\sseems\sto\swork\sfine.
+D 2011-01-20T17:49:39.174
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -101,7 +101,7 @@ F src/sqlite3.c 2707bee15b2e1cd0896f54cf864e44bd9b61158e
 F src/sqlite3.h 765c97e9a91bed455ddbec5103277e49b5d009e6
 F src/stash.c 8423568c07a34d3a02368d3baeae1aa840bca613
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
-F src/style.c cc06d0bfbc2d2b3a77fd39b9dffb46e681a125fe
+F src/style.c 2e47c560f494841720c258e7ace481a69ccfe5b3
 F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
 F src/tag.c 8eb14bdeb8df83aaf82a68761427b65c4a76b7fc
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P a37abeca655ec69154a0db5827f4a5259765f64c
-R f6fc880ae69c37dddd09ea6b38d22ed4
+P f1efc9059545e0caaffb619eda6586a2fd772bb1
+R e1d9f4d7c6db41a854ae21c6477ba671
 U drh
-Z 3a6243eac1072a0568b601ffabfdcf90
+Z 4a0b8498bd42ef3d5c9ffed0fe3c95e0

@@ -89,9 +89,7 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
-  cgi_printf("%s",
-     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""
-     " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+  cgi_printf("%s","<!DOCTYPE html>");
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
