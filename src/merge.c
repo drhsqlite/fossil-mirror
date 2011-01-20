@@ -42,6 +42,11 @@
 **
 ** Other options:
 **
+**   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
+**                           of the nearest common ancestor.  This allows
+**                           a sequence of changes in a branch to be merged
+**                           without having to merge the entire branch.
+**
 **   --detail                Show additional details of the merge
 **
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
@@ -60,6 +65,7 @@ void merge_cmd(void){
   int backoutFlag;      /* True if the --backout option is present */
   int nochangeFlag;     /* True if the --nochange or -n option is present */
   const char *zBinGlob; /* The value of --binary */
+  const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
   int nChng;            /* Number of file name changes */
   int *aChng;           /* An array of file name changes */
@@ -82,6 +88,7 @@ void merge_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
   nochangeFlag = find_option("nochange","n",0)!=0;
+  zPivot = find_option("baseline",0,1);
   if( g.argc!=3 ){
     usage("VERSION");
   }
@@ -92,21 +99,21 @@ void merge_cmd(void){
     fossil_fatal("nothing is checked out");
   }
   mid = name_to_rid(g.argv[2]);
-  if( mid==0 ){
+  if( mid==0 || !is_a_version(mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
-  if( !is_a_version(mid) ){
-    fossil_fatal("not a version: %s", g.argv[2]);
-  }
-  if( pickFlag || backoutFlag ){
+  if( zPivot ){
+    pid = name_to_rid(zPivot);
+    if( pid==0 || !is_a_version(pid) ){
+      fossil_fatal("not a version: %s", zPivot);
+    }
+    if( pickFlag ){
+      fossil_fatal("incompatible options: --cherrypick & --baseline");
+    }
+  }else if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
-    }
-    if( backoutFlag ){
-      int t = pid;
-      pid = mid;
-      mid = t;
     }
   }else{
     pivot_set_primary(mid);
@@ -121,6 +128,11 @@ void merge_cmd(void){
       fossil_fatal("cannot find a common ancestor between the current "
                    "checkout and %s", g.argv[2]);
     }
+  }
+  if( backoutFlag ){
+    int t = pid;
+    pid = mid;
+    mid = t;
   }
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
