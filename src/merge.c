@@ -110,6 +110,7 @@ void merge_cmd(void){
     if( pickFlag ){
       fossil_fatal("incompatible options: --cherrypick & --baseline");
     }
+    pickFlag = 1;  /* Using --baseline is really like doing a cherrypick */
   }else if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
