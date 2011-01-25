@@ -392,6 +392,7 @@ void stash_cmd(void){
       newArgv[0] = g.argv[0];
       g.argv = newArgv;
       g.argc = nFile+2;
+      if( nFile==0 ) return;
     }
     g.argv[1] = "revert";
     revert_cmd();
