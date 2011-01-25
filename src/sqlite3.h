@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.5"
 #define SQLITE_VERSION_NUMBER 3007005
-#define SQLITE_SOURCE_ID      "2011-01-17 02:24:12 b93f6f3e679c7710f42580a8dd9ce43136376c1d"
+#define SQLITE_SOURCE_ID      "2011-01-25 18:30:51 c17703ec1e604934f8bd5b1f66f34b19d17a6d1f"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -721,11 +721,15 @@ struct sqlite3_io_methods {
 ** connection.  See the [sqlite3_file_control()] documentation for
 ** additional information.
 **
-** The [SQLITE_FCNTL_SYNC] opcode is used internally. SQLite calls
-** the file-control method with this opcode immediately after the database
-** file is synced, or if the database is running in synchronous=off mode
-** immediately after it would have been synced otherwise. This makes it
-** easier to write special VFS modules that depend on the xSync call.
+** ^(The [SQLITE_FCNTL_SYNC_OMITTED] opcode is generated internally by
+** SQLite and sent to all VFSes in place of a call to the xSync method
+** when the database connection has [PRAGMA synchronous] set to OFF.)^
+** Some specialized VFSes need this signal in order to operate correctly
+** when [PRAGMA synchronous | PRAGMA synchronous=OFF] is set, but most 
+** VFSes do not need this signal and should silently ignore this opcode.
+** Applications should not call [sqlite3_file_control()] with this
+** opcode as doing so may disrupt the operation of the specilized VFSes
+** that do require it.  
 */
 #define SQLITE_FCNTL_LOCKSTATE        1
 #define SQLITE_GET_LOCKPROXYFILE      2
@@ -734,7 +738,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_SIZE_HINT        5
 #define SQLITE_FCNTL_CHUNK_SIZE       6
 #define SQLITE_FCNTL_FILE_POINTER     7
-#define SQLITE_FCNTL_SYNC             8
+#define SQLITE_FCNTL_SYNC_OMITTED     8
 
 
 /*
@@ -1854,7 +1858,7 @@ SQLITE_API void sqlite3_free_table(char **result);
 ** NULL pointer if [sqlite3_malloc()] is unable to allocate enough
 ** memory to hold the resulting string.
 **
-** ^(In sqlite3_snprintf() routine is similar to "snprintf()" from
+** ^(The sqlite3_snprintf() routine is similar to "snprintf()" from
 ** the standard C library.  The result is written into the
 ** buffer supplied as the second parameter whose size is given by
 ** the first parameter. Note that the order of the
@@ -2666,7 +2670,7 @@ SQLITE_API const char *sqlite3_sql(sqlite3_stmt *pStmt);
 ** CAPI3REF: Determine If An SQL Statement Writes The Database
 **
 ** ^The sqlite3_stmt_readonly(X) interface returns true (non-zero) if 
-** and only if the [prepared statement] X is makes no direct changes to
+** and only if the [prepared statement] X makes no direct changes to
 ** the content of the database file.
 **
 ** Note that [application-defined SQL functions] or
@@ -3083,13 +3087,17 @@ SQLITE_API const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
 ** be the case that the same database connection is being used by two or
 ** more threads at the same moment in time.
 **
-** For all versions of SQLite up to and including 3.6.23.1, it was required
-** after sqlite3_step() returned anything other than [SQLITE_ROW] that
-** [sqlite3_reset()] be called before any subsequent invocation of
-** sqlite3_step().  Failure to invoke [sqlite3_reset()] in this way would
-** result in an [SQLITE_MISUSE] return from sqlite3_step().  But after
-** version 3.6.23.1, sqlite3_step() began calling [sqlite3_reset()] 
-** automatically in this circumstance rather than returning [SQLITE_MISUSE].  
+** For all versions of SQLite up to and including 3.6.23.1, a call to
+** [sqlite3_reset()] was required after sqlite3_step() returned anything
+** other than [SQLITE_ROW] before any subsequent invocation of
+** sqlite3_step().  Failure to reset the prepared statement using 
+** [sqlite3_reset()] would result in an [SQLITE_MISUSE] return from
+** sqlite3_step().  But after version 3.6.23.1, sqlite3_step() began
+** calling [sqlite3_reset()] automatically in this circumstance rather
+** than returning [SQLITE_MISUSE].  This is not considered a compatibility
+** break because any application that ever receives an SQLITE_MISUSE error
+** is broken by definition.  The [SQLITE_OMIT_AUTORESET] compile-time option
+** can be used to restore the legacy behavior.
 **
 ** <b>Goofy Interface Alert:</b> In the legacy interface, the sqlite3_step()
 ** API always returns a generic error code, [SQLITE_ERROR], following any
@@ -5267,7 +5275,8 @@ SQLITE_API int sqlite3_mutex_notheld(sqlite3_mutex*);
 #define SQLITE_MUTEX_STATIC_OPEN      4  /* sqlite3BtreeOpen() */
 #define SQLITE_MUTEX_STATIC_PRNG      5  /* sqlite3_random() */
 #define SQLITE_MUTEX_STATIC_LRU       6  /* lru page list */
-#define SQLITE_MUTEX_STATIC_LRU2      7  /* lru page list */
+#define SQLITE_MUTEX_STATIC_LRU2      7  /* NOT USED */
+#define SQLITE_MUTEX_STATIC_PMEM      7  /* sqlite3PageMalloc() */
 
 /*
 ** CAPI3REF: Retrieve the mutex for a database connection

@@ -1,5 +1,5 @@
-C Do\snot\smake\sa\spermanent\snotation\sof\sa\smerge\susing\s--baseline.\s\sThe\n--baseline\soption\sis\sreally\sa\smulti-checkin\svariation\sof\s--cherrypick.
-D 2011-01-20T19:02:26.720
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.5\sbeta.
+D 2011-01-25T19:03:15.499
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -93,12 +93,12 @@ F src/schema.c d9af8db3b459edf86f3accd357a884f5ac41cf2e
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
 F src/setup.c 77785ea77c7b9ef7d409835243736195dc93bd38
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
-F src/shell.c de359a1421654acdb921da2f16367acebff21a85
+F src/shell.c f0d83fcb1ad8055ef1ab022ca9905b75d1371ff4
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
 F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
-F src/sqlite3.c 2707bee15b2e1cd0896f54cf864e44bd9b61158e
-F src/sqlite3.h 765c97e9a91bed455ddbec5103277e49b5d009e6
+F src/sqlite3.c 160a91e065dff5c9ad0e77a340b2243cbf372626
+F src/sqlite3.h e1cf0095cd32b1db359b856fea4473b852d0716c
 F src/stash.c 8423568c07a34d3a02368d3baeae1aa840bca613
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 2e47c560f494841720c258e7ace481a69ccfe5b3
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P f7b4517ca7f51d0e4a3369381d57c4b89916da59
-R 823c4e6e18b8ba84349b6db748037c90
+P 94c60f3c7ec78de407517cca01468da0c1e15cf3
+R 2339ff855944cc1fcfa24913208f2066
 U drh
-Z e300d416f68bb451cb829068b9b60051
+Z d7bb755ea3d60deea794bd780961bfb2
