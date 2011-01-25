@@ -212,7 +212,10 @@ void page_dir(void){
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
       if( nD>0 && memcmp(pFile->zName, zD, nD-1)!=0 ) continue;
-      if( pPrev && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0 ){
+      if( pPrev
+       && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
+       && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
+      ){
         continue;
       }
       db_bind_text(&ins, ":x", &pFile->zName[nD]);

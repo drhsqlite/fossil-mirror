@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.5\sbeta.
-D 2011-01-25T19:03:15.499
+C Fix\sthe\sdisplay\sof\sfile\sand\sdirectory\slistings\sso\sthat\sit\sworks\scorrectly\neven\swhen\sone\sfile\sin\sa\sdirectory\sis\sa\sprefix\sof\sanother.\nTicket\s[8e13d170f2d6d6e3].
+D 2011-01-25T21:59:35.308
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -40,7 +40,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 7f643960d721e02b750db389cfb39c8cd2bca4f7
 F src/blob.c 0fea3d3fc34bf307fdc2eeee84175dfa4d7168c0
 F src/branch.c 26f8dae2f322acc43bc8cd71ad77e9002580c0ea
-F src/browse.c 46262a33f8c3293d3b4eb21ff5b3ccd708257598
+F src/browse.c a02a022407e1d7f57dafe4569a3e78e7bc4ab028
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c cea43b3cb6d8593e7bc1c8b4f568d52af9145177
 F src/checkin.c c5dd8cc03e0168d0b9fbad7497514cb48c487019
@@ -293,7 +293,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 41ab11efd9cc1423464d5482a0802935533f28b7
 F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 94c60f3c7ec78de407517cca01468da0c1e15cf3
-R 2339ff855944cc1fcfa24913208f2066
+P 07556099ab20600be46ccdd07f1fc2c524e98d3b
+R 133d06de00cc741f6f8354cd65865f3b
 U drh
-Z d7bb755ea3d60deea794bd780961bfb2
+Z 4c73476cc4e72da18d8360411433b4d4
