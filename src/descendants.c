@@ -321,7 +321,7 @@ void leaves_page(void){
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> A <div class="sideboxDescribed">leaf</div>
-  @ is a check-in with no descendants.</li>
+  @ is a check-in with no descendants in the same branch.</li>
   @ <li> An <div class="sideboxDescribed">open leaf</div>
   @ is a leaf that does not have a "closed" tag
   @ and is thus assumed to still be in use.</li>
