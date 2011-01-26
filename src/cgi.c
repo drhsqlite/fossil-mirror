@@ -223,7 +223,7 @@ static char *cgi_add_etag(char *zTxt, int nLen){
     bprintf(&zETag[j],sizeof(zETag)-j,"%02x",(int)digest[i]);
   }
   blob_appendf(&extraHeader, "ETag: %s\r\n", zETag);
-  return strdup(zETag);
+  return fossil_strdup(zETag);
 }
 
 /*
@@ -243,14 +243,14 @@ static int check_cache_control(void){
   char *zMatch = P("HTTP_IF_NONE_MATCH");
 
   if( zETag!=0 && zMatch!=0 ) {
-    char *zBuf = strdup(zMatch);
+    char *zBuf = fossil_strdup(zMatch);
     if( zBuf!=0 ){
       char *zTok = 0;
       char *zPos;
       for( zTok = strtok_r(zBuf, ",\"",&zPos);
            zTok && fossil_stricmp(zTok,zETag);
            zTok =  strtok_r(0, ",\"",&zPos)){}
-      free(zBuf);
+      fossil_free(zBuf);
       if(zTok) return 1;
     }
   }

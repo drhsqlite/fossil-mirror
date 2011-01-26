@@ -65,7 +65,7 @@ static struct {
 /*
 ** Duplicate a string.
 */
-static char *import_strdup(const char *zOrig){
+char *fossil_strdup(const char *zOrig){
   char *z = 0;
   if( zOrig ){
     int n = strlen(zOrig);
@@ -162,7 +162,7 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   }
   if( saveUuid ){
     fossil_free(gg.zPrevCheckin);
-    gg.zPrevCheckin = import_strdup(blob_str(&hash));
+    gg.zPrevCheckin = fossil_strdup(blob_str(&hash));
   }
   blob_reset(&hash);
   return rid;
@@ -371,9 +371,9 @@ static void import_prior_files(void){
   manifest_file_rewind(p);
   while( (pOld = manifest_file_next(p, 0))!=0 ){
     pNew = import_add_file();
-    pNew->zName = import_strdup(pOld->zName);
+    pNew->zName = fossil_strdup(pOld->zName);
     pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
-    pNew->zUuid = import_strdup(pOld->zUuid);
+    pNew->zUuid = fossil_strdup(pOld->zUuid);
     pNew->isFrom = 1;
   }
   manifest_destroy(p);
@@ -428,14 +428,14 @@ static void git_fast_import(FILE *pIn){
       z = &zLine[7];
       for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
       if( z[i+1]!=0 ) z += i+1;
-      gg.zBranch = import_strdup(z);
+      gg.zBranch = fossil_strdup(z);
       gg.fromLoaded = 0;
     }else
     if( memcmp(zLine, "tag ", 4)==0 ){
       gg.xFinish();
       gg.xFinish = finish_tag;
       trim_newline(&zLine[4]);
-      gg.zTag = import_strdup(&zLine[4]);
+      gg.zTag = fossil_strdup(&zLine[4]);
     }else
     if( memcmp(zLine, "reset ", 4)==0 ){
       gg.xFinish();
@@ -479,7 +479,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "mark ", 5)==0 ){
       trim_newline(&zLine[5]);
       fossil_free(gg.zMark);
-      gg.zMark = import_strdup(&zLine[5]);
+      gg.zMark = fossil_strdup(&zLine[5]);
     }else
     if( memcmp(zLine, "tagger ", 7)==0 || memcmp(zLine, "committer ",10)==0 ){
       sqlite3_int64 secSince1970;
@@ -490,7 +490,7 @@ static void git_fast_import(FILE *pIn){
       if( zLine[i]==0 ) goto malformed_line;
       zLine[i] = 0;
       fossil_free(gg.zUser);
-      gg.zUser = import_strdup(z);
+      gg.zUser = fossil_strdup(z);
       secSince1970 = 0;
       for(i=i+2; fossil_isdigit(zLine[i]); i++){
         secSince1970 = secSince1970*10 + zLine[i] - '0';
@@ -502,7 +502,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "from ", 5)==0 ){
       trim_newline(&zLine[5]);
       fossil_free(gg.zFromMark);
-      gg.zFromMark = import_strdup(&zLine[5]);
+      gg.zFromMark = fossil_strdup(&zLine[5]);
       fossil_free(gg.zFrom);
       gg.zFrom = resolve_committish(&zLine[5]);
     }else
@@ -525,7 +525,7 @@ static void git_fast_import(FILE *pIn){
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile==0 ){
         pFile = import_add_file();
-        pFile->zName = import_strdup(zName);
+        pFile->zName = fossil_strdup(zName);
       }
       pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
       fossil_free(pFile->zUuid);
@@ -562,10 +562,10 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = import_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(pFile->zName);
         }
         pNew->isExe = pFile->isExe;
-        pNew->zUuid = import_strdup(pFile->zUuid);
+        pNew->zUuid = fossil_strdup(pFile->zUuid);
         pNew->isFrom = 0;
       }
     }else
@@ -584,7 +584,7 @@ static void git_fast_import(FILE *pIn){
         if( strlen(pFile->zName)>nFrom ){
           pNew->zName = mprintf("%s%s", zTo, pFile->zName[nFrom]);
         }else{
-          pNew->zName = import_strdup(pFile->zName);
+          pNew->zName = fossil_strdup(pFile->zName);
         }
         pNew->zPrior = pFile->zName;
         pNew->isExe = pFile->isExe;
