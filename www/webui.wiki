@@ -26,7 +26,7 @@ including the document you are now reading,
 is rendered using the stock fossil web interface, with no enhancements,
 and little customization.
 
-Note also that because fossil is a distribute system, you can run
+Note also that because fossil is a distributed system, you can run
 the web interface on your local machine while off network (for example,
 while on an airplane) including
 making changes to wiki pages and/or trouble ticket, then synchronize with your
