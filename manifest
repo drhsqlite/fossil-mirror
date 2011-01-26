@@ -1,5 +1,5 @@
-C fixed\sa\stypo\sin\swebui.wiki
-D 2011-01-26T08:58:21.921
+C Fixed\sa\stypo\sin\sdocumentation\s(closes\sticket\s[1f82e0e1e])
+D 2011-01-26T12:02:51.790
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -292,8 +292,8 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 8e6ced1f38ac6094f9234e1d41a766f64807b4bf
-F www/wikitheory.wiki f2136b3705cae41decfd2ed5783a65a52d9384b1
-P 2dd7b4b500bdb5c75e3c6e7c9510b14137c8e78e
-R b8ac1b0d0fa77a46ae985005b0a527f8
+F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
+P ef80fd87f32b40bb6b01af74dc8588c86fa4115d
+R ab6b80c273ab5fd5df501cdf6eaee66d
 U BM
-Z 751858b793412b16f71eccdf4334ed1f
+Z 166bf4debb88210b05b4d61db9b3b004
