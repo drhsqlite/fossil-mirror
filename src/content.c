@@ -387,9 +387,15 @@ void after_dephantomize(int rid, int linkFlag){
     }
 
     /* Recursively dephantomize all artifacts that are derived by
-    ** delta from artifact rid */
+    ** delta from artifact rid and which have not already been
+    ** cross-linked.  */
     nChildUsed = 0;
-    db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+    db_prepare(&q, 
+       "SELECT rid FROM delta"
+       " WHERE srcid=%d"
+       "   AND NOT EXISTS(SELECT 1 FROM mlink WHERE mid=delta.rid)",
+       rid
+    );
     while( db_step(&q)==SQLITE_ROW ){
       int child = db_column_int(&q, 0);
       if( nChildUsed>=nChildAlloc ){
