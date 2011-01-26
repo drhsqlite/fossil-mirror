@@ -105,7 +105,7 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
 **    ci=LABEL         Show only files in this check-in.  Optional.
 */
 void page_dir(void){
-  const char *zD = P("name");
+  char *zD = fossil_strdup(P("name"));
   int nD = zD ? strlen(zD)+1 : 0;
   int mxLen;
   int nCol, nRow;
@@ -121,6 +121,7 @@ void page_dir(void){
 
   login_check_credentials();
   if( !g.okHistory ){ login_needed(); return; }
+  while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
