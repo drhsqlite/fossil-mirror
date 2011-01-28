@@ -53,6 +53,7 @@ set src {
   http_transport
   import
   info
+  leaf
   login
   main
   manifest

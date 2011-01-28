@@ -87,6 +87,9 @@ static void tag_propagate(
           db_step(&eventupdate);
           db_reset(&eventupdate);
         }
+        if( tagid==TAG_BRANCH ){
+          leaf_eventually_check(cid);
+        }
       }
     }
     db_reset(&s);
@@ -176,6 +179,7 @@ int tag_insert(
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);
   db_finalize(&s);
+  if( tagid==TAG_BRANCH ) leaf_eventually_check(rid);
   if( tagtype==0 ){
     zValue = 0;
   }
