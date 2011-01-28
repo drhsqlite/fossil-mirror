@@ -742,6 +742,32 @@ static int isValidLocalDb(const char *zDbName){
     sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN isexe BOOLEAN", 0, 0, 0);
   }
 
+  /* If the "islink" column is missing from the vfile table, then
+  ** add it now.   This code added on 2011-01-17.  After all users have
+  ** upgraded, this code can be safely deleted. 
+  */
+  rc = sqlite3_prepare(g.db, "SELECT islink FROM vfile", -1, &pStmt, 0);
+  sqlite3_finalize(pStmt);
+  if( rc==SQLITE_ERROR ){
+    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN islink BOOLEAN", 0, 0, 0);
+  }
+
+#if 0  
+  /* If the "isLink" column is missing from the stashfile table, then
+  ** add it now.   This code added on 2011-01-18.  After all users have
+  ** upgraded, this code can be safely deleted. 
+  **
+  ** Table stashfile may not exist at all. We don't handle this case,
+  ** and leave it to sqlite.
+  */
+  rc = sqlite3_prepare(g.db, "SELECT isLink FROM stashfile", -1, &pStmt, 0);
+  sqlite3_finalize(pStmt);
+  /* NOTE: this prints "SQLITE_ERROR: no such column: isLink" for some reason */
+  if( rc==SQLITE_ERROR ){
+    sqlite3_exec(g.db, "ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN", 0, 0, 0);
+  }
+#endif
+
 #if 0
   /* If the "mtime" column is missing from the vfile table, then
   ** add it now.   This code added on 2008-12-06.  After all users have
@@ -849,6 +875,8 @@ void db_open_repository(const char *zDbName){
   db_open_or_attach(zDbName, "repository");
   g.repositoryOpen = 1;
   g.zRepositoryName = mprintf("%s", zDbName);
+  /* Cache "allow-symlinks" option, because we'll need it on every stat call */
+  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }
 
 /*
@@ -1607,6 +1635,7 @@ struct stControlSettings {
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
+  { "allow-symlinks",0,                0, "off"                 },
   { "access-log",    0,                0, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, "on"                  },
   { "auto-shun",     0,                0, "on"                  },
@@ -1645,6 +1674,12 @@ struct stControlSettings const ctrlSettings[] = {
 **
 ** The "unset" command clears a property setting.
 **
+**
+**    allow-symlinks   If enabled, don't follow symlinks, and instead treat
+**                     them as symlinks on Unix. Has no effect on Windows
+**                     (existing links in repository created on Unix become 
+**                     plain-text files with link destination path inside).
+**                     Default: off
 **
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on

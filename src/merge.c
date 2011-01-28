@@ -161,7 +161,9 @@ void merge_cmd(void){
     "  ridp INTEGER,"             /* Record ID for pivot */
     "  ridm INTEGER,"             /* Record ID for merge */
     "  fnp TEXT,"                 /* The filename in the pivot */
-    "  fnm TEXT"                  /* the filename in the merged version */
+    "  fnm TEXT,"                 /* the filename in the merged version */
+    "  islinkv BOOLEAN,"          /* True if current version is a symlink */
+    "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
     ");"
   );
 
@@ -306,6 +308,17 @@ void merge_cmd(void){
   db_finalize(&q);
   
   /*
+  **  Add islink information for files in V and M
+  **
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " islinkm=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0)",
+    vid, mid
+  );
+  
+  /*
   ** Find files that have changed from P->M but not P->V. 
   ** Copy the M content over into V.
   */
@@ -334,7 +347,7 @@ void merge_cmd(void){
   ** Do a three-way merge on files that have changes on both P->M and P->V.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s, fn FROM fv"
+    "SELECT ridm, idv, ridp, ridv, %s, fn, islinkv, islinkm FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -346,6 +359,8 @@ void merge_cmd(void){
     int ridv = db_column_int(&q, 3);
     int isBinary = db_column_int(&q, 4);
     const char *zName = db_column_text(&q, 5);
+    int islinkv = db_column_int(&q, 6);
+    int islinkm = db_column_int(&q, 7);
     int rc;
     char *zFullPath;
     Blob m, p, v, r;
@@ -355,35 +370,40 @@ void merge_cmd(void){
     }else{
       printf("MERGE %s\n", zName);
     }
-    undo_save(zName);
-    zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-    content_get(ridp, &p);
-    content_get(ridm, &m);
-    blob_zero(&v);
-    blob_read_from_file(&v, zFullPath);
-    if( isBinary ){
-      rc = -1;
-      blob_zero(&r);
+    if( islinkv || islinkm /* || file_islink(zFullPath) */ ){
+      printf("***** Cannot merge symlink %s\n", zName);
+      nConflict++;        
     }else{
-      rc = blob_merge(&p, &v, &m, &r);
-    }
-    if( rc>=0 ){
-      if( !nochangeFlag ){
-        blob_write_to_file(&r, zFullPath);
+      undo_save(zName);
+      zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      content_get(ridp, &p);
+      content_get(ridm, &m);
+      blob_zero(&v);
+      blob_read_from_file(&v, zFullPath);
+      if( isBinary ){
+        rc = -1;
+        blob_zero(&r);
+      }else{
+        rc = blob_merge(&p, &v, &m, &r);
       }
-      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
-      if( rc>0 ){
-        printf("***** %d merge conflicts in %s\n", rc, zName);
+      if( rc>=0 ){
+        if( !nochangeFlag ){
+          blob_write_to_file(&r, zFullPath);
+        }
+        db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
+        if( rc>0 ){
+          printf("***** %d merge conflicts in %s\n", rc, zName);
+          nConflict++;
+        }
+      }else{
+        printf("***** Cannot merge binary file %s\n", zName);
         nConflict++;
       }
-    }else{
-      printf("***** Cannot merge binary file %s\n", zName);
-      nConflict++;
+      blob_reset(&p);
+      blob_reset(&m);
+      blob_reset(&v);
+      blob_reset(&r);
     }
-    blob_reset(&p);
-    blob_reset(&m);
-    blob_reset(&v);
-    blob_reset(&r);
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
                   idv,ridm);
   }

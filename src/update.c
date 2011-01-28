@@ -197,6 +197,8 @@ void update_cmd(void){
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idt INTEGER,"              /* VFILE entry for target version */
     "  chnged BOOLEAN,"           /* True if current version has been edited */
+    "  islinkv BOOLEAN,"          /* True if current file is a link */
+    "  islinkt BOOLEAN,"          /* True if target file is a link */
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  fnt TEXT"                  /* Filename of same file on target version */
@@ -248,16 +250,29 @@ void update_cmd(void){
     tid, tid
   );
 
+  /*
+  ** Add islink information
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0),"
+    " islinkt=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    vid, tid
+  );
+
+
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnt, chnged, ridv, ridt FROM fv"
+       "SELECT rowid, fn, fnt, chnged, ridv, ridt, islinkv, islinkt FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       printf("%3d: ridv=%-4d ridt=%-4d chnged=%d\n",
+       printf("%3d:  ridv=%-4d  ridt=%-4d  chnged=%d  islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
-          db_column_int(&q, 3));
+          db_column_int(&q, 3),
+          db_column_int(&q, 6),
+          db_column_int(&q, 7));
        printf("     fnv = [%s]\n", db_column_text(&q, 1));
        printf("     fnt = [%s]\n", db_column_text(&q, 2));
     }
@@ -301,7 +316,7 @@ void update_cmd(void){
   ** target
   */
   db_prepare(&q, 
-    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt FROM fv ORDER BY 1"
+    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, islinkv, islinkt FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -318,6 +333,8 @@ void update_cmd(void){
     int ridt = db_column_int(&q, 4);            /* RecordID for target */
     int chnged = db_column_int(&q, 5);          /* Current is edited */
     const char *zNewName = db_column_text(&q,6);/* New filename */
+    int islinkv = db_column_int(&q, 7);         /* Is current file is a link */
+    int islinkt = db_column_int(&q, 8);         /* Is target file is a link */
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
@@ -371,28 +388,34 @@ void update_cmd(void){
       }else{
         printf("MERGE %s\n", zName);
       }
-      undo_save(zName);
-      content_get(ridt, &t);
-      content_get(ridv, &v);
-      blob_zero(&e);
-      blob_read_from_file(&e, zFullPath);
-      rc = blob_merge(&v, &e, &t, &r);
-      if( rc>=0 ){
-        if( !nochangeFlag ) blob_write_to_file(&r, zFullNewPath);
-        if( rc>0 ){
-          printf("***** %d merge conflicts in %s\n", rc, zNewName);
+      if( islinkv || islinkt /* || file_islink(zFullPath) */ ){
+        //if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
+        printf("***** Cannot merge symlink %s\n", zNewName);
+        nConflict++;        
+      }else{
+        undo_save(zName);
+        content_get(ridt, &t);
+        content_get(ridv, &v);
+        blob_zero(&e);
+        blob_read_from_file(&e, zFullPath);
+        rc = blob_merge(&v, &e, &t, &r);
+        if( rc>=0 ){
+          if( !nochangeFlag ) blob_write_to_file(&r, zFullNewPath);
+          if( rc>0 ){
+            printf("***** %d merge conflicts in %s\n", rc, zNewName);
+            nConflict++;
+          }
+        }else{
+          if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
+          printf("***** Cannot merge binary file %s\n", zNewName);
           nConflict++;
         }
-      }else{
-        if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
-        printf("***** Cannot merge binary file %s\n", zNewName);
-        nConflict++;
+        if( nameChng && !nochangeFlag ) unlink(zFullPath);
+        blob_reset(&v);
+        blob_reset(&e);
+        blob_reset(&t);
+        blob_reset(&r);
       }
-      if( nameChng && !nochangeFlag ) unlink(zFullPath);
-      blob_reset(&v);
-      blob_reset(&e);
-      blob_reset(&t);
-      blob_reset(&r);
     }else{
       if( chnged ){
         if( verboseFlag ) printf("EDITED %s\n", zName);
@@ -454,6 +477,7 @@ int historical_version_of_file(
   const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
+  int *isLink,             /* Put islink here. Pass NULL if you don't need it */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
@@ -477,6 +501,9 @@ int historical_version_of_file(
       if( fossil_strcmp(pFile->zName, file)==0 ){
         rid = uuid_to_rid(pFile->zUuid, 0);
         manifest_destroy(pManifest);
+        if( isLink!=NULL ){
+          *isLink = strstr(pFile->zPerm, "l") ? 1 : 0;
+        }
         return content_get(rid, content);
       }
     }
@@ -552,9 +579,10 @@ void revert_cmd(void){
   blob_zero(&record);
   db_prepare(&q, "SELECT name FROM torevert");
   while( db_step(&q)==SQLITE_ROW ){
+    int isLink = 0;
     zFile = db_column_text(&q, 0);
     if( zRevision!=0 ){
-      errCode = historical_version_of_file(zRevision, zFile, &record, 2);
+      errCode = historical_version_of_file(zRevision, zFile, &record, &isLink, 2);
     }else{
       rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile);
       if( rid==0 ){
@@ -570,16 +598,23 @@ void revert_cmd(void){
     }else{
       char *zFull = mprintf("%/%/", g.zLocalRoot, zFile);
       undo_save(zFile);
-      blob_write_to_file(&record, zFull);
+      if( file_size(zFull)>=0 && (isLink || file_islink(zFull)) ){
+        unlink(zFull);
+      }
+      if( isLink ){
+        create_symlink(blob_str(&record), zFull);
+      }else{
+        blob_write_to_file(&record, zFull);
+      }
       printf("REVERTED: %s\n", zFile);
       if( zRevision==0 ){
         sqlite3_int64 mtime = file_mtime(zFull);
         db_multi_exec(
            "UPDATE vfile"
-           "   SET mtime=%lld, chnged=0, deleted=0,"
+           "   SET mtime=%lld, chnged=0, deleted=0, islink=%d,"
            "       pathname=coalesce(origname,pathname), origname=NULL"     
            " WHERE pathname=%Q",
-           mtime, zFile
+           mtime, isLink, zFile
         );
       }
       free(zFull);

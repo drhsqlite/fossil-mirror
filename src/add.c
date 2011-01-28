@@ -185,7 +185,7 @@ void add_directory_content(const char *zDir, Stmt *pIgnore){
         /* Noop */
       }else if( file_isdir(zPath)==1 ){
         add_directory_content(zPath, pIgnore);
-      }else if( file_isfile(zPath) ){
+      }else if( file_isfile_or_link(zPath) ){
         db_multi_exec("INSERT INTO sfile VALUES(%Q)", zPath);
       }
       blob_resize(&path, origSize);
@@ -306,7 +306,7 @@ void del_directory_content(const char *zDir){
       zPath = blob_str(&path);
       if( file_isdir(zPath)==1 ){
         del_directory_content(zPath);
-      }else if( file_isfile(zPath) ){
+      }else if( file_isfile_or_link(zPath) ){
         char *zFilePath;
         Blob pathname;
         file_tree_name(zPath, &pathname, 1);
@@ -464,7 +464,7 @@ void import_cmd(void){
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
-    if( !file_isfile(zPath) ){
+    if( !file_isfile_or_link(zPath) ){
       if( !isTest ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }

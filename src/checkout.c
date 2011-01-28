@@ -104,7 +104,8 @@ static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
 
 /*
 ** Set or clear the execute permission bit (as appropriate) for all
-** files in the current check-out.
+** files in the current check-out, and replace files that have
+** symlink bit with actual symlinks.
 */
 void checkout_set_all_exe(int vid){
   Blob filename;

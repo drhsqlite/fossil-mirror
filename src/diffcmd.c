@@ -61,7 +61,11 @@ void diff_file(
     if( file_size(zFile2)<0 ){
       zName2 = "/dev/null";
     }else{
-      blob_read_from_file(&file2, zFile2);
+      if( file_islink(zFile2) ){
+        blob_read_link(&file2, zFile2);
+      }else{
+        blob_read_from_file(&file2, zFile2);
+      }
       zName2 = zName;
     }
 
@@ -170,9 +174,14 @@ static void diff_one_against_disk(
 ){
   Blob fname;
   Blob content;
+  int isLink;
   file_tree_name(g.argv[2], &fname, 1);
-  historical_version_of_file(zFrom, blob_str(&fname), &content, 0);
-  diff_file(&content, g.argv[2], g.argv[2], zDiffCmd, ignoreEolWs);
+  historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0);
+  if( !isLink != !file_islink(zFrom) ){
+    printf("cannot compute difference between symlink and regular file\n");
+  }else{
+    diff_file(&content, g.argv[2], g.argv[2], zDiffCmd, ignoreEolWs);
+  }
   blob_reset(&content);
   blob_reset(&fname);
 }
@@ -206,18 +215,18 @@ static void diff_all_against_disk(
     }
     load_vfile_from_rid(rid);
     blob_appendf(&sql,
-      "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid"
+      "SELECT v2.pathname, v2.deleted, v2.chnged, v2.rid==0, v1.rid, v1.islink"
       "  FROM vfile v1, vfile v2 "
       " WHERE v1.pathname=v2.pathname AND v1.vid=%d AND v2.vid=%d"
       "   AND (v2.deleted OR v2.chnged OR v1.mrid!=v2.rid)"
       "UNION "
-      "SELECT pathname, 1, 0, 0, 0"
+      "SELECT pathname, 1, 0, 0, 0, islink"
       "  FROM vfile v1"
       " WHERE v1.vid=%d"
       "   AND NOT EXISTS(SELECT 1 FROM vfile v2"
                         " WHERE v2.vid=%d AND v2.pathname=v1.pathname)"
       "UNION "
-      "SELECT pathname, 0, 0, 1, 0"
+      "SELECT pathname, 0, 0, 1, 0, islink"
       "  FROM vfile v2"
       " WHERE v2.vid=%d"
       "   AND NOT EXISTS(SELECT 1 FROM vfile v1"
@@ -227,7 +236,7 @@ static void diff_all_against_disk(
     );
   }else{
     blob_appendf(&sql,
-      "SELECT pathname, deleted, chnged , rid==0, rid"
+      "SELECT pathname, deleted, chnged , rid==0, rid, islink"
       "  FROM vfile"
       " WHERE vid=%d"
       "   AND (deleted OR chnged OR rid==0)"
@@ -242,6 +251,7 @@ static void diff_all_against_disk(
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3);
     int srcid = db_column_int(&q, 4);
+    int isLink = db_column_int(&q, 5);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     char *zToFree = zFullName;
     int showDiff = 1;
@@ -261,6 +271,12 @@ static void diff_all_against_disk(
       if( !asNewFile ){ showDiff = 0; }
     }
     if( showDiff ){
+      if( !isLink != !file_islink(zFullName) ){
+        diff_print_index(zPathname);
+        printf("--- %s\n+++ %s\n", zPathname, zPathname);
+        printf("cannot compute difference between symlink and regular file\n");
+        continue;
+      }
       Blob content;
       if( srcid>0 ){
         content_get(srcid, &content);
@@ -291,11 +307,17 @@ static void diff_one_two_versions(
   char *zName;
   Blob fname;
   Blob v1, v2;
+  int isLink1, isLink2;
   file_tree_name(g.argv[2], &fname, 1);
   zName = blob_str(&fname);
-  historical_version_of_file(zFrom, zName, &v1, 0);
-  historical_version_of_file(zTo, zName, &v2, 0);
-  diff_file_mem(&v1, &v2, zName, zDiffCmd, ignoreEolWs);
+  historical_version_of_file(zFrom, zName, &v1, &isLink1, 0);
+  historical_version_of_file(zTo, zName, &v2, &isLink2, 0);
+  if( isLink1 != isLink2 ){
+    printf("--- %s\n+++ %s\n", zName, zName);
+    printf("cannot compute difference between symlink and regular file\n");
+  }else{
+    diff_file_mem(&v1, &v2, zName, zDiffCmd, ignoreEolWs);
+  }
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&fname);
