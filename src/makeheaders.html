@@ -45,7 +45,7 @@ files for a C or C++ programming project.
 <li><a href=makeheaders.html#H0016>5.0 Compiling The Makeheaders Program</a>
 
 <li><a href=makeheaders.html#H0017>6.0 Summary And Conclusion</a>
-</ul><a name=H0002>
+</ul><a name="H0002"></a>
 <h2>1.0 Background</h2>
 
 <p>
@@ -100,7 +100,7 @@ In this way, the .h files define the interface to a subsystem and
 the .c files define how the subsystem is implemented.
 </p>
 
-<a name=H0003>
+<a name="H0003"></a>
 <h3>1.1 Problems With The Traditional Approach</h3>
 
 <p>
@@ -154,7 +154,7 @@ files.
 </ol>
 </p>
 
-<a name=H0004>
+<a name="H0004"></a>
 <h3>1.2 The Makeheaders Solution</h3>
 
 <p>
@@ -217,7 +217,7 @@ It will easily process tens of thousands of lines of source
 code per second.
 </p>
 
-<a name=H0005>
+<a name="H0005"></a>
 <h2>2.0 Running The Makeheaders Program</h2>
 
 <p>
@@ -365,7 +365,7 @@ line to cause all subsequent command line arguments to be treated as
 filenames even if their names beginn with ``-''.
 </p>
 
-<a name=H0006>
+<a name="H0006"></a>
 <h2>3.0 Preparing Source Files For Use With Makeheaders</h2>
 
 <p>
@@ -377,7 +377,7 @@ makes sense in the makeheaders context.
 This section will describe several typical uses of makeheaders.
 </p>
 
-<a name=H0007>
+<a name="H0007"></a>
 <h3>3.1 The Basic Setup</h3>
 
 <p>
@@ -476,7 +476,7 @@ The makeheaders program will recognize and ignore any files it
 has previously generated that show up on its input list.
 </p>
 
-<a name=H0008>
+<a name="H0008"></a>
 <h3>3.2 What Declarations Get Copied</h3>
 
 <p>
@@ -579,7 +579,7 @@ declaration of another structure ``Y'', then Y will appear
 first in the generated headers.
 </p>
 
-<a name=H0009>
+<a name="H0009"></a>
 <h3>3.3 How To Avoid Having To Write Any Header Files</h3>
 
 <p>
@@ -646,7 +646,7 @@ You should also note that a single .c file can contain as many
 ``#if INTERFACE'' regions as desired.
 </p>
 
-<a name=H0010>
+<a name="H0010"></a>
 <h3>3.4 Designating Declarations For Export</h3>
 
 <p>
@@ -735,7 +735,7 @@ but since it's use in a .h file would be redundant, we haven't mentioned
 it before.)
 </p>
 
-<a name=H0011>
+<a name="H0011"></a>
 <h3>3.5 Local declarations processed by makeheaders</h3>
 
 <p>
@@ -773,7 +773,7 @@ objects declared in a LOCAL_INTERFACE are only visible to the
 file containing the LOCAL_INTERFACE.
 </p>
 
-<a name=H0012>
+<a name="H0012"></a>
 <h3>3.6 Using Makeheaders With C++ Code</h3>
 
 <p>
@@ -872,7 +872,7 @@ C++ syntax such as templates and namespaces.
 Perhaps these issued will be addressed in future revisions.
 </p>
 
-<a name=H0013>
+<a name="H0013"></a>
 <h3>3.7 Conditional Compilation</h3>
 
 <p>
@@ -905,7 +905,7 @@ Makeheaders also recognizes the special case of
 and treats the enclosed text as a comment.
 </p>
 
-<a name=H0014>
+<a name="H0014"></a>
 <h3>3.8 Caveats</h3>
 
 <p>
@@ -975,7 +975,7 @@ probably be able to figure out what you want and will do the right
 thing.
 </p>
 
-<a name=H0015>
+<a name="H0015"></a>
 <h2>4.0 Using Makeheaders To Generate Documentation</h2>
 
 <p>
@@ -1039,7 +1039,7 @@ It is simple to understand and parse and should be obvious to
 anyone who inspects some sample output.
 </p>
 
-<a name=H0016>
+<a name="H0016"></a>
 <h2>5.0 Compiling The Makeheaders Program</h2>
 
 <p>
@@ -1052,7 +1052,7 @@ It is known to compile using several variations of GCC for Unix
 as well as Cygwin32 and MSVC 5.0 for Win32.
 </p>
 
-<a name=H0017>
+<a name="H0017"></a>
 <h2>6.0 Summary And Conclusion</h2>
 
 <p>
