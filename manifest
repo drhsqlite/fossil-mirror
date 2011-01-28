@@ -1,5 +1,8 @@
-C Add\shyperlinks\sto\sthe\s"user:"\sand\s"tags:"\smarks\sin\stimelines.
-D 2011-01-28T14:09:57.932
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Create\snew\sbranch\snamed\s"symlinks"
+D 2011-01-28T18:57:07.988
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -293,7 +296,27 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki 8e6ced1f38ac6094f9234e1d41a766f64807b4bf
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 8854d6b615d5c309b7e40b4f94d4f3de3fd5dbc5
+P 13165785e1deb2de3b1fb9014f5c7c7b290f0f4e
 R f200a4b6ffae0c5ed54f6df560beafd7
-U drh
-Z cfcedf587758406fb86c0b7ff72ce8ca
+T *branch * symlinks
+T *sym-symlinks *
+T -sym-trunk *
+U dmitry
+Z 7e25e0f3769ee1f517f0ccdb481baf3b
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG/MacGPG2 v2.0.16 (Darwin)
+
+iQIcBAEBAgAGBQJNQxGIAAoJEM6h8ywga0WVNyIQAIfnPXLnRgIZryYASVK4r/mf
+FgbN+ASUHw8NuGcuv+KlJ5ukfO6flzy38uHY68ES33NIa4ERT/SNeTp9smgUIysZ
+dR3c8FO2ywCptxWOY5ZRfBXIHc0E6Rib70R8535bSS1ULpDx9SY/IOTO8lUr9olc
+jgx2lzmi6B6kIuOKKG1U26iuPTEMWpbwZC8x0YlrGzFd6oybesX8yPGkqo8BV3/n
+N8mHF2hHMnUEVgm6Sh31iyV7/gprZZ7W8dab3Wy5nXsurPjoN/lGLiEGkxWayqjo
+MnY0NV07A52rc/DDQUEUtxj1xBLqF+6b0cVwVXzKptTdCUojbriBhGr3Qv5jj/XU
+CIvdqc0NpImEIe+Jxp/NFU5xvcYRupbXmZWG1qn04MKvsHokdC19RFsgz1C+K0S4
+j91jwL9TB9E81EZfvufNw3dtZ/Bp58XNPmMAD5FhxsQFZANNB4oc0x4dMpu7ygqe
+10htqs0vpL41JOlzy2Hq3A76Z05EfdbAjZRt0sS4+/DSeHIXxqTz7q6wREI312EK
+HJJpBDs9LHKwHzkjZI3xwxsbIXtuIiW07q0cg4xhkp6kXzsncvl/LEJbqH7BEzvr
+PuR8M6B07pN+3BafrcvTRH0K6UFAb7A1bLaaoXUzyXWwHDpnPAtddiuNv0g2YFY0
+dJbV87Dc8ktZxxQrE2y2
+=Z2Gz
+-----END PGP SIGNATURE-----
