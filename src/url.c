@@ -300,8 +300,8 @@ struct HQuery {
   Blob url;                  /* The URL */
   const char *zBase;         /* The base URL */
   int nParam;                /* Number of parameters.  Max 10 */
-  const char *azName[10];    /* Parameter names */
-  const char *azValue[10];   /* Parameter values */
+  const char *azName[15];    /* Parameter names */
+  const char *azValue[15];   /* Parameter values */
 };
 #endif
 
@@ -352,7 +352,8 @@ char *url_render(
       z = zValue2;
       if( z==0 ) continue;
     }
-    blob_appendf(&p->url, "%s%s=%T", zSep, p->azName[i], z);
+    blob_appendf(&p->url, "%s%s", zSep, p->azName[i]);
+    if( z && z[0] ) blob_appendf(&p->url, "=%T", z);
     zSep = "&amp;";
   }
   if( zName1 && zValue1 ){

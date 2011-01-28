@@ -151,6 +151,8 @@ int count_nonbranch_children(int pid){
 void www_print_timeline(
   Stmt *pQuery,          /* Query to implement the timeline */
   int tmFlags,           /* Flags controlling display behavior */
+  const char *zThisUser, /* Suppress links to this user */
+  const char *zThisTag,  /* Suppress links to this tag */
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
   int wikiFlags;
@@ -292,11 +294,50 @@ void www_print_timeline(
       wiki_convert(&comment, 0, wikiFlags);
     }
     blob_reset(&comment);
-    if( zTagList && zTagList[0] ){
-      @ (user: %h(zUser), tags: %h(zTagList))
+
+    /* Generate the "user: USERNAME" at the end of the comment, together
+    ** with a hyperlink to another timeline for that user.
+    */
+    if( zTagList && zTagList[0]==0 ) zTagList = 0;
+    if( g.okHistory && fossil_strcmp(zUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%s/timeline?u=%h&c=%t&nd",
+                            g.zTop, zUser, zDate);
+      @ (user: <a href="%s(zLink)">%h(zUser)</a>%s(zTagList?",":"\051")
+      fossil_free(zLink);
     }else{
-      @ (user: %h(zUser))
+      @ (user: %h(zUser)%s(zTagList?",":"\051")
     }
+
+    /* Generate the "tags: TAGLIST" at the end of the comment, together
+    ** with hyperlinks to the tag list.
+    */
+    if( zTagList ){
+      if( g.okHistory ){
+        int i;
+        const char *z = zTagList;
+        Blob links;
+        blob_zero(&links);
+        while( z && z[0] ){
+          for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
+          if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
+            blob_appendf(&links,
+                  "<a href=\"%s/timeline?r=%.*t&nd&c=%s\">%.*h</a>%.2s",
+                  g.zTop, i, z, zDate, i, z, &z[i]
+            );
+          }else{
+            blob_appendf(&links, "%.*h", i+2, z);
+          }
+          if( z[i]==0 ) break;
+          z += i+2;
+        }
+        @ tags: %s(blob_str(&links)))
+        blob_reset(&links);
+      }else{
+        @ tags: %h(zTagList))
+      }
+    }
+
+    /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
       xExtra(rid);
     }
@@ -710,9 +751,11 @@ void page_timeline(void){
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
-  HQuery url;                        /* URL for various branch links */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
+  const char *zThisTag = 0;          /* Suppress links to this tag */
+  const char *zThisUser = 0;         /* Suppress links to this user */
+  HQuery url;                        /* URL for various branch links */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -720,8 +763,10 @@ void page_timeline(void){
   if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ login_needed(); return; }
   if( zTagName && g.okRead ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
+    zThisTag = zTagName;
   }else if( zBrName && g.okRead ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
+    zThisTag = zBrName;
   }else{
     tagid = 0;
   }
@@ -741,6 +786,8 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
+  url_initialize(&url, "timeline");
+  if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -809,7 +856,6 @@ void page_timeline(void){
     const char *zEType = "timeline item";
     char *zDate;
     char *zNEntry = mprintf("%d", nEntry);
-    url_initialize(&url, "timeline");
     url_add_parameter(&url, "n", zNEntry);
     if( tagid>0 ){
       blob_appendf(&sql,
@@ -876,6 +922,7 @@ void page_timeline(void){
     if( zUser ){
       blob_appendf(&sql, " AND event.user=%Q", zUser);
       url_add_parameter(&url, "u", zUser);
+      zThisUser = zUser;
     }
     if ( zSearch ){
       blob_appendf(&sql,
@@ -1004,7 +1051,7 @@ void page_timeline(void){
   db_prepare(&q, "SELECT * FROM timeline ORDER BY sortby DESC /*scan*/");
   @ <h2>%b(&desc)</h2>
   blob_reset(&desc);
-  www_print_timeline(&q, tmFlags, 0);
+  www_print_timeline(&q, tmFlags, zThisUser, zThisTag, 0);
   db_finalize(&q);
   style_footer();
 }

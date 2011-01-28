@@ -579,7 +579,7 @@ void whistory_page(void){
   db_prepare(&q, zSQL);
   free(zSQL);
   zWikiPageName = zPageName;
-  www_print_timeline(&q, TIMELINE_ARTID, wiki_history_extra);
+  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, wiki_history_extra);
   db_finalize(&q);
   style_footer();
 }

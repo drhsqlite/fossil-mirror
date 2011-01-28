@@ -585,7 +585,7 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, tagtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, tagtimeline_extra);
   db_finalize(&q);
   @ <br />
   @ <script  type="text/JavaScript">

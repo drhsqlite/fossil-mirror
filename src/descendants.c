@@ -344,7 +344,7 @@ void leaves_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, TIMELINE_LEAFONLY, leaves_extra);
+  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, leaves_extra);
   db_finalize(&q);
   @ <br />
   @ <script  type="text/JavaScript">
