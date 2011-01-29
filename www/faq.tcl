@@ -11,10 +11,11 @@ proc faq {question answer} {
 faq {
   What GUIs are available for fossil?
 } {
-  The fossil executable comes with a web-based GUI built in.  Just run:
+  The fossil executable comes with a [./webui.wiki | web-based GUI] built in.
+  Just run:
 
   <blockquote>
-  <b>fossil ui</b> <i>REPOSITORY-FILENAME</i>
+  <b>fossil [/help/ui|ui]</b> <i>REPOSITORY-FILENAME</i>
   </blockquote>
 
   And your default web browser should pop up and automatically point to
@@ -32,21 +33,21 @@ faq {
 
 
 faq {
-  How do I create a new branch in fossil?
+  How do I create a new branch?
 } {
   There are lots of ways:
 
-  When you are checking in a new change using the <b>commit</b>
+  When you are checking in a new change using the <b>[/help/commit|commit]</b>
   command, you can add the option  "--branch <i>BRANCH-NAME</i>" to
-  make the change be the founding check-in for a new branch.  You can
+  make the new check-in be the first check-in for a new branch.  You can
   also add the "--bgcolor <i>COLOR</i>" option to give the branch a
   specific background color on timelines.
 
-  If you want to create a new branch whose founding check-in is the
+  If you want to create a new branch whose initial content is the
   same as an existing check-in, use this command:
 
   <blockquote>
-  <b>fossil branch new</b> <i>BRANCH-NAME BASIS</i>
+  <b>fossil [/help/branch|branch] new</b> <i>BRANCH-NAME BASIS</i>
   </blockquote>
 
   The <i>BRANCH-NAME</i> argument is the name of the new branch and the
@@ -56,13 +57,41 @@ faq {
   If you already have a fork in your check-in tree and you want to convert
   that fork to a branch, you can do this from the web interface.
   First locate the check-in that you want to be
-  the founding check-in of your branch on the timeline and click on its
+  the initial check-in of your branch on the timeline and click on its
   link so that you are on the <b>ci</b> page.  Then find the "<b>edit</b>"
   link (near the "Commands:" label) and click on that.  On the 
   "Edit Check-in" page, check the box beside "Branching:" and fill in 
   the name of your new branch to the right and press the "Apply Changes"
   button.
 }
+
+faq {
+  How do I tag a check-in?
+} {
+  There are several ways:
+
+  When you are checking in a new change using the <b>[/help/commit|commit]</b>
+  command, you can add a tag to that check-in using the
+  "--tag <i>TAGNAME</i>" command-line option.
+
+  If you want add a tag to an existing check-in, you can use the
+  <b>[/help/tag|tag]</b> command.  For example:
+
+  <blockquote>
+  <b>fossil [/help/branch|tag] add</b> <i>TAGNAME</i> <i>CHECK-IN</i>
+  </blockquote>
+
+  The CHECK-IN in the previous line can be any
+  [./checkin_names.wiki | valid check-in name format].
+
+  You can also add (and remove) tags from a check-in using the
+  [./webui.wiki | web interface].  First locate the check-in that you 
+  what to tag on the tmline, then click on the link to go the detailed
+  information page for that check-in.  Then find the "<b>edit</b>"
+  link (near the "Commands:" label) and click on that.  There are
+  controls on the edit page that allow new tags to be added and existing
+  tags to be removed.
+}  
 
 faq {
   How do I create a private branch that won't get pushed back to the
@@ -99,21 +128,29 @@ faq {
 } {
   Any of the following commands should work:
   <blockquote><pre>
-  fossil  clone  http://www.fossil-scm.org/  fossil.fossil<br>
-  fossil  clone  http://www2.fossil-scm.org/  fossil.fossil<br>
-  fossil  clone  http://www.hwaci.com/cgi-bin/fossil  fossil.fossil
+  fossil [/help/clone|clone]  http://www.fossil-scm.org/  fossil.fossil<br>
+  fossil [/help/clone|clone]  http://www2.fossil-scm.org/  fossil.fossil<br>
+  fossil [/help/clone|clone]  http://www3.fossli-scm.org/site.cgi  fossil.fossil
   </pre></blockquote>
   Once you have the repository cloned, you can open a local check-out
   as follows:
   <blockquote><pre>
-  mkdir src; cd src; fossil open ../fossil.fossil
+  mkdir src; cd src; fossil [/help/open|open] ../fossil.fossil
   </pre></blockquote>
   Thereafter you should be able to keep your local check-out up to date
   with the latest code in the public repository by typing:
   <blockquote><pre>
-  fossil update
+  fossil [/help/update|update]
   </pre></blockquote>
 }
+
+faq {
+  How do I import or export content from and to other version control systems?
+} {
+  Please see [./inout.wiki | Import And Export]
+}
+
+
 
 #############################################################################
 # Code to actually generate the FAQ
