@@ -68,8 +68,10 @@ void diff_file(
     /* Compute and output the differences */
     blob_zero(&out);
     text_diff(pFile1, &file2, &out, 5, ignoreEolWs);
-    printf("--- %s\n+++ %s\n", zName, zName2);
-    printf("%s\n", blob_str(&out));
+    if( blob_size(&out) ){
+      printf("--- %s\n+++ %s\n", zName, zName2);
+      printf("%s\n", blob_str(&out));
+    }
 
     /* Release memory resources */
     blob_reset(&file2);
