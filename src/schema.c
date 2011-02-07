@@ -42,7 +42,7 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "1"
-#define AUX_SCHEMA      "2010-11-24"
+#define AUX_SCHEMA      "2011-01-28"
 
 #endif /* INTERFACE */
 
@@ -191,11 +191,11 @@ const char zRepositorySchema2[] =
 @   name TEXT UNIQUE             -- Name of file page
 @ );
 @
-@ -- Linkages between manifests, files created by that manifest, and
+@ -- Linkages between checkins, files created by each checkin, and
 @ -- the names of those files.
 @ --
-@ -- pid==0 if the file is added by check-in mid.
-@ -- fid==0 if the file is removed by check-in mid.
+@ -- pid==0 if the file is added by checkin mid.
+@ -- fid==0 if the file is removed by checkin mid.
 @ --
 @ CREATE TABLE mlink(
 @   mid INTEGER REFERENCES blob,        -- Manifest ID where change occurs
@@ -209,7 +209,7 @@ const char zRepositorySchema2[] =
 @ CREATE INDEX mlink_i3 ON mlink(fid);
 @ CREATE INDEX mlink_i4 ON mlink(pid);
 @
-@ -- Parent/child linkages
+@ -- Parent/child linkages between checkins
 @ --
 @ CREATE TABLE plink(
 @   pid INTEGER REFERENCES blob,    -- Parent manifest
@@ -219,6 +219,15 @@ const char zRepositorySchema2[] =
 @   UNIQUE(pid, cid)
 @ );
 @ CREATE INDEX plink_i2 ON plink(cid,pid);
+@
+@ -- A "leaf" checkin is a checkin that has no children in the same
+@ -- branch.  The set of all leaves is easily computed with a join,
+@ -- between the plink and tagxref tables, but it is a slower join for
+@ -- very large repositories (repositories with 100,000 or more checkins)
+@ -- and so it makes sense to precompute the set of leaves.  There is
+@ -- one entry in the following table for each leaf.
+@ --
+@ CREATE TABLE leaf(rid INTEGER PRIMARY KEY);
 @
 @ -- Events used to generate a timeline
 @ --

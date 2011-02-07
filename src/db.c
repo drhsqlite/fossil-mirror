@@ -125,6 +125,7 @@ void db_end_transaction(int rollbackFlag){
   nBegin--;
   if( nBegin==0 ){
     int i;
+    if( doRollback==0 ) leaf_do_pending_checks();
     for(i=0; doRollback==0 && i<nCommitHook; i++){
       doRollback |= aHook[i].xHook();
     }

@@ -87,7 +87,7 @@ the exceptions described above.
 <h1>3.0 Automatically generated files</h1>
 
 The "VERSION.h" header file contains some C preprocessor macros that
-identify the version of Fossil that is to be build.  The VERSION.h file
+identify the version of Fossil that is to be build.  The VERSION.h file is
 generated automatically from information extracted from the "manifest"
 and "manifest.uuid" source files in the root directory of the source tree.
 (The "manifest" and "manifest.uuid" files are automatically generated and
@@ -114,7 +114,7 @@ the generated VERSION.h file is the third and final argument.
 
 There are three preprocessors for the Fossil sources.  The mkindex
 and translate preprocessors can be run in any order.  The makeheaders
-preprocessor has to be run after translate.
+preprocessor must be run after translate.
 
 <h2>4.1 The mkindex preprocessor</h2>
 

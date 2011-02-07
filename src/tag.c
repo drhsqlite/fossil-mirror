@@ -87,6 +87,9 @@ static void tag_propagate(
           db_step(&eventupdate);
           db_reset(&eventupdate);
         }
+        if( tagid==TAG_BRANCH ){
+          leaf_eventually_check(cid);
+        }
       }
     }
     db_reset(&s);
@@ -176,6 +179,7 @@ int tag_insert(
   db_bind_double(&s, ":mtime", mtime);
   db_step(&s);
   db_finalize(&s);
+  if( tagid==TAG_BRANCH ) leaf_eventually_check(rid);
   if( tagtype==0 ){
     zValue = 0;
   }
@@ -538,33 +542,6 @@ void taglist_page(void){
 }
 
 /*
-** Draw the names of all tags added to check-in rid.  Only tags
-** that are directly applied to rid are named.  Propagated tags
-** are omitted.
-*/
-static void tagtimeline_extra(int rid){
-  Stmt q;
-  db_prepare(&q, 
-    "SELECT substr(tagname,5) FROM tagxref, tag"
-    " WHERE tagxref.rid=%d"
-    "   AND tagxref.tagid=tag.tagid"
-    "   AND tagxref.tagtype>0 AND tagxref.srcid>0"
-    "   AND tag.tagname GLOB 'sym-*'",
-    rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zTagName = db_column_text(&q, 0);
-    if( g.okHistory ){
-      @ <a class="tagLink" href="%s(g.zTop)/timeline?t=%T(zTagName)">
-      @ [%h(zTagName)]</a>
-    }else{
-      @ <span class="tagDsp">[%h(zTagName)]</span>
-    }
-  }
-  db_finalize(&q);
-}
-
-/*
 ** WEBPAGE: /tagtimeline
 */
 void tagtimeline_page(void){
@@ -585,7 +562,7 @@ void tagtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www()
   );
-  www_print_timeline(&q, 0, 0, 0, tagtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   @ <script  type="text/JavaScript">

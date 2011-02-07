@@ -640,12 +640,7 @@ const char *timeline_query_for_www(void){
     @   datetime(event.mtime,'localtime') AS timestamp,
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
-    @   NOT EXISTS(SELECT 1 FROM plink
-    @               WHERE pid=blob.rid
-    @                AND coalesce((SELECT value FROM tagxref
-    @                              WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @                  = coalesce((SELECT value FROM tagxref
-    @                              WHERE tagid=%d AND rid=plink.cid), 'trunk')),
+    @   blob.rid IN leaf,
     @   bgcolor,
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref

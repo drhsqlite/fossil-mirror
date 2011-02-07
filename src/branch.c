@@ -207,12 +207,13 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    compute_leaves(0, 1);
     db_prepare(&q,
       "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL AND rid IN leaves"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
       " ORDER BY value /*sort*/",
-      TAG_BRANCH
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
@@ -247,7 +248,6 @@ void brlist_page(void){
     style_submenu_element("Closed","Closed","brlist?closed");
   }
   login_anonymous_available();
-  compute_leaves(0, 1);
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed"><a href="brlist">
@@ -265,26 +265,14 @@ void brlist_page(void){
   style_sidebox_end();
 
   cnt = 0;
-  if( !showClosed ){
-    db_prepare(&q,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaves"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH
-    );
-  }else{
-    db_prepare(&q,
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      " EXCEPT "
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaves"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH, TAG_BRANCH
-    );
-  }
+  db_prepare(&q,
+    "SELECT DISTINCT value FROM tagxref"
+    " WHERE tagid=%d AND value NOT NULL"
+    "   AND rid IN leaf"
+    "   AND %s %z"
+    " ORDER BY value /*sort*/",
+    TAG_BRANCH, showClosed ? "" : "NOT", leaf_is_closed_sql("tagxref.rid")
+  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){

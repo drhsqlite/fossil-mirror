@@ -1,7 +1,7 @@
 <title>Check-in Names</title>
 
-Many Fossil commands and [./webui.wiki | web-interface] URLs accept
-check-in names as an argument.  For example, the "info" command
+Many Fossil [/help|commands] and [./webui.wiki | web-interface] URLs accept
+check-in names as an argument.  For example, the "[/help/info|info]" command
 accepts an optional check-in name to identify the specific checkout
 about which information is desired:
 
@@ -112,7 +112,7 @@ optionally be followed by "<b>utc</b>".
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
 distributed projects where participants are scattered around the globe.
-But there is an open on the Admin/Timeline page of the web-interface to
+But there is an option on the Admin/Timeline page of the web-interface to
 switch to local time.  The "<b>utc</b>" suffix on an timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
 everything, but if Fossil has been switched to localtime mode, then the
