@@ -150,12 +150,12 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   }
   if( zMark ){
     db_multi_exec(
-        "INSERT INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xtag(tname, trid, tuuid)"
         "VALUES(%Q,%d,%B)", 
         zMark, rid, &hash
     );
     db_multi_exec(
-        "INSERT INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xtag(tname, trid, tuuid)"
         "VALUES(%B,%d,%B)", 
         &hash, rid, &hash
     );
