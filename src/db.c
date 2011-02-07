@@ -1623,6 +1623,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "off"                 },
   { "manifest",      0,                0, "off"                 },
+  { "max-upload",    0,               25, "250000"              },
   { "mtime-changes", 0,                0, "on"                  },
   { "pgp-command",   0,               32, "gpg --clearsign -o " },
   { "proxy",         0,               32, "off"                 },
@@ -1698,6 +1699,9 @@ struct stControlSettings const ctrlSettings[] = {
 **    manifest         If enabled, automatically create files "manifest" and
 **                     "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
+**
+**    max-upload       A limit on the size of uplink HTTP requests.  The
+**                     default is 250000 bytes.
 **
 **    mtime-changes    Use file modification times (mtimes) to detect when
 **                     files have been modified.  (Default "on".)
