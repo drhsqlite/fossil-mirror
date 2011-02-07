@@ -501,8 +501,8 @@ int historical_version_of_file(
       if( fossil_strcmp(pFile->zName, file)==0 ){
         rid = uuid_to_rid(pFile->zUuid, 0);
         manifest_destroy(pManifest);
-        if( isLink!=NULL && pFile->zPerm != 0){
-          *isLink = strstr(pFile->zPerm, "l") ? 1 : 0;
+        if( isLink!=NULL ){
+          *isLink = pFile->zPerm && strstr(pFile->zPerm, "l") ? 1 : 0;
         }
         return content_get(rid, content);
       }
