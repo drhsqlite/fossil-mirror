@@ -23,7 +23,6 @@
 
 #if INTERFACE
 
-#define GR_MAX_PARENT 10      /* Max number of parents for any one node */
 #define GR_MAX_RAIL   32      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
@@ -34,7 +33,7 @@
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
   i8 nParent;                 /* Number of parents */
-  int aParent[GR_MAX_PARENT]; /* Array of parents.  0 element is primary .*/
+  int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
 
@@ -169,10 +168,13 @@ int graph_add_row(
   const char *zBgClr   /* Background color. NULL or "" for white. */
 ){
   GraphRow *pRow;
+  int nByte;
 
   if( p->nErr ) return 0;
-  if( nParent>GR_MAX_PARENT ){ p->nErr++; return 0; }
-  pRow = (GraphRow*)safeMalloc( sizeof(GraphRow) );
+  nByte = sizeof(GraphRow);
+  nByte += sizeof(pRow->aParent[0])*nParent;
+  pRow = (GraphRow*)safeMalloc( nByte );
+  pRow->aParent = (int*)&pRow[1];
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
