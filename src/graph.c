@@ -461,6 +461,8 @@ void graph_finish(GraphContext *p, int omitDescenders){
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
     if( pRow->mergeOut>p->mxRail ) p->mxRail = pRow->mergeOut;
-    while( pRow->mergeDown>((1<<(p->mxRail+1))-1) ) p->mxRail++;
+    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
+      p->mxRail++;
+    }
   }
 }

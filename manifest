@@ -1,5 +1,5 @@
-C Ignore\sduplicate\stags\swhen\sinterpreting\sgit-fast-export\stext\sfor\simport.
-D 2011-02-07T18:02:28.997
+C Fix\sa\spotential\sinfinite\sloop\sin\sthe\sgraph\sgenerator\sfor\soverly-complex\nchange\sgraphs.
+D 2011-02-07T18:21:28.823
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -63,7 +63,7 @@ F src/event.c b77370e1379434a390ae9d329a0d87f4b28d1d66
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
 F src/file.c ea4b6e84586205dc485c3b388bbe87607babd964
 F src/finfo.c cb0c42daa1872790c8400f264f938ade4bc72fdb
-F src/graph.c 75bc003e1995d56cc755a31f3b1d860c63d96302
+F src/graph.c 8aaab399975a362209f8f3ec6d4b470429042961
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 49cbf5e519b9c10f93e6df34106bbff6d26f2101
-R b01bf576470d037818c4a6ac486cc77a
+P 355bd99669da65550b311b49c13add25ecf481fd
+R 1d02e6c0aa621d037e3b621942d561d8
 U drh
-Z 50c9bc4645e7bf51fe6d58f0545b36a3
+Z 70d7186bc272e9bf265af8eb8f195986
