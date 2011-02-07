@@ -1,5 +1,5 @@
-C Provide\san\sinterface\sto\sthe\smax-upload\ssetting.
-D 2011-02-07T20:53:57.270
+C Transfer\sthe\scontent\sof\sthe\signore-glob\ssetting\sas\spart\sof\sthe\s"proj"\nconfiguration.\s\sTicket\s[1b5773eed1758a03a].
+D 2011-02-07T20:59:31.222
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -49,7 +49,7 @@ F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 2e9ed1833f509d98f5163a4c5c7af242df01fa66
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c bf989ae67595c6f528bfc46c10cd09c9e95643b7
+F src/configure.c 72516b026c9d7154edc77d194a1497f5faf4d763
 F src/content.c 162ebee1b7b63b91910f5b63e79b0330f8d11d6a
 F src/db.c e721665274775a5b245b9950275b96c212e2d320
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 838283273ac6323706c331e08f7ac4b97988b139
-R b4c15be73b56953293a28925c392b159
+P c0c3b0810d2cf504091d0a913d8f00e8d2c6c6b0
+R 4197c15f932a4fe456b1696137a351ac
 U drh
-Z b970658908a5278a7a38008d8188363a
+Z 573742407d40a92da663610252d0a7ce
