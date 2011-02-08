@@ -1,5 +1,5 @@
-C Transfer\sthe\scontent\sof\sthe\signore-glob\ssetting\sas\spart\sof\sthe\s"proj"\nconfiguration.\s\sTicket\s[1b5773eed1758a03a].
-D 2011-02-07T20:59:31.222
+C Exclude\sdirectories\sfrom\sfile\stests\sin\sthe\stest\ssuite.\s\sFix\san\serror\sin\nthe\srelease\schecklist.
+D 2011-02-08T12:52:37.609
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -124,16 +124,16 @@ F src/wikiformat.c db46e9e18d7fdcdb0d101e0ffb51a8e3d3e3accc
 F src/winhttp.c f367576083ab58913a8707352a6f1d474a27faaa
 F src/xfer.c 1b4e0af28ee2a5c53514818df3c95e43a009187e
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
-F test/delta1.test a93cd778baa353a7370bfb33a0335d06de25867a
+F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
 F test/graph-test-1.wiki 36472ba878873d8beec274557e48775e60af16ed
 F test/merge1.test 956f7abb5e7f318424c16adebd5dd697b83aac6c
-F test/merge2.test 68ff7665cf370fc1e1a984f46614b437b73bb844
+F test/merge2.test 60194e41fa120b44f2a561b890f55ddba18aebe6
 F test/merge3.test 860f092f47d31118ee0f2c128dd2898ee85b117f
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/release-checklist.wiki c6c1b4a989908897790b3c9b4662baa02c6dee7f
+F test/release-checklist.wiki b7fc8d1f7ed288bfebc04e0bdc1bbc173c94f1b3
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c0c3b0810d2cf504091d0a913d8f00e8d2c6c6b0
-R 4197c15f932a4fe456b1696137a351ac
+P 7bb3db9b64b8c404c210a102ca8165dba300e906
+R 791a51b4b3d191e3e729b7ae86d07a2a
 U drh
-Z 573742407d40a92da663610252d0a7ce
+Z 63efe28ec8c029489012e5b66ff07cba

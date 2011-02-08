@@ -6,7 +6,7 @@ official release.
 <ol>
 <li><p>
 From a private directory (not the source tree) run 
-"<b>tclsh $FOSSIL $SRC/test/tester.tcl</b>" where $FOSSIL is the
+"<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
 Verify that there are no errors.
 
