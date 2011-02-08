@@ -1510,7 +1510,7 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?--keep?
+** Usage: %fossil open FILENAME ?VERSION? ?--keep? ?--nested?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
@@ -1524,13 +1524,16 @@ void cmd_open(void){
   Blob path;
   int vid;
   int keepFlag;
+  int allowNested;
   static char *azNewArgv[] = { 0, "checkout", "--prompt", "--latest", 0, 0 };
+
   url_proxy_options();
   keepFlag = find_option("keep",0,0)!=0;
+  allowNested = find_option("nested",0,0)!=0;
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
-  if( db_open_local() ){
+  if( !allowNested && db_open_local() ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
   }
   file_canonical_name(g.argv[2], &path);
