@@ -366,8 +366,9 @@ in time when the change was entered.  The U card is the login of the
 programmer who entered this change.  The Z card is the checksum over
 the entire artifact.
 
-Every ticket has a unique ID.  The ticket to which this change is applied
-is specified by the K card.  A ticket exists if it contains one or
+Every ticket has a distinct ticket-id:
+40-character lower-case hexadecimal number.
+The ticket-id is given in the K-card.  A ticket exists if it contains one or
 more changes.  The first "change" to a ticket is what brings the
 ticket into existence.
 

@@ -1,5 +1,5 @@
-C Always\sgo\sat\sleast\stwo\srounds\son\sa\sclone\ssince\sconfiguration\sdata\sis\snot\nsent\suntil\sthe\ssecond\sround.\s\sTicket\s[8473eeb9ffb012e1d]
-D 2011-02-09T03:33:02.401
+C Try\sto\smake\sit\sclear\sthat\sa\sticket-id\smust\sbe\sa\s40-character\slower-case\nhexadecimal\snumber.
+D 2011-02-09T23:08:48.476
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -260,7 +260,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl 5ff29021eeb48b35d86b637f8f11a6c87ac03fcf
 F www/faq.wiki 400b519892af0f3e7cd9a86f722b9bee073cf0ec
-F www/fileformat.wiki 7342f61f33518b63fdbb3578cac99fc8ae3c649c
+F www/fileformat.wiki c1b237355556700c09267a9fdfe521a94047fdd3
 F www/fossil-v-git.wiki 0948dc9d9832dd49404fc697e611f2e48e47db86
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f15943f3399ae794bfda602074cd8fe122b399d6
-R b028512ddf15e01d1b272b36a285da85
+P addf6709812a3b6c0cbf7d90f26ca68577cd9327
+R 44bffc021e876804e1a60dac04c98a9a
 U drh
-Z aa82f0f87bbe0225e3a4a8ff1fc58930
+Z 34beb460d3d706c4bb532eb7d884672d
