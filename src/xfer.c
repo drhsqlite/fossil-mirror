@@ -1393,7 +1393,7 @@ int client_sync(
           zPCode = mprintf("%b", &xfer.aToken[2]);
           db_set("project-code", zPCode, 0);
         }
-        blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
+        if( cloneSeqno>0 ) blob_appendf(&send, "clone 3 %d\n", cloneSeqno);
         nCardSent++;
       }else
       
@@ -1565,8 +1565,12 @@ int client_sync(
     /* If this is a clone, the go at least two rounds */
     if( cloneFlag && nCycle==1 ) go = 1;
 
-    /* Stop the cycle if the server sends a "clone_seqno 0" card */
-    if( cloneSeqno<=0 ) go = 0;   
+    /* Stop the cycle if the server sends a "clone_seqno 0" card and
+    ** we have gone at least two rounds.  Always go at least two rounds
+    ** on a clone in order to be sure to retrieve the configuration
+    ** information which is only sent on the second round.
+    */
+    if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
   };
   transport_stats(&nSent, &nRcvd, 1);
   fossil_print("Total network traffic: %lld bytes sent, %lld bytes received\n",
