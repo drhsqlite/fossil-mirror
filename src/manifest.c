@@ -865,6 +865,7 @@ manifest_syntax_error:
 Manifest *manifest_get(int rid, int cfType){
   Blob content;
   Manifest *p;
+  if( !rid ) return 0;
   p = manifest_cache_find(rid);
   if( p ){
     if( cfType!=CFTYPE_ANY && cfType!=p->type ){
@@ -933,25 +934,17 @@ void manifest_test_parse_cmd(void){
 ** Return 0 on success.  If unable to parse the baseline,
 ** throw an error.  If the baseline is a manifest, throw an
 ** error if throwError is true, or record that p is an orphan
-** and return 1 throwError is false.
+** and return 1 if throwError is false.
 */
 static int fetch_baseline(Manifest *p, int throwError){
   if( p->zBaseline!=0 && p->pBaseline==0 ){
-    int rid = uuid_to_rid(p->zBaseline, 0);
-    if( rid==0 && !throwError ){
-      rid = content_new(p->zBaseline);
-      db_multi_exec(
-         "INSERT OR IGNORE INTO orphan(rid, baseline) VALUES(%d,%d)",
-         rid, p->rid
-      );
-      return 1;
-    }
+    int rid = uuid_to_rid(p->zBaseline, 1);
     p->pBaseline = manifest_get(rid, CFTYPE_MANIFEST);
     if( p->pBaseline==0 ){
       if( !throwError ){
         db_multi_exec(
            "INSERT OR IGNORE INTO orphan(rid, baseline) VALUES(%d,%d)",
-           rid, p->rid
+           p->rid, rid
         );
         return 1;
       }    
