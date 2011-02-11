@@ -1315,3 +1315,53 @@ struct tm *fossil_localtime(const time_t *clock){
     return localtime(clock);
   }
 }
+
+
+/*
+** COMMAND: test-timewarp-list
+**
+** Usage: %fossil test-timewarp-list
+**
+** Display all instances of child checkins that appear earlier in time
+** than their parent.
+*/
+void test_timewarp_cmd(void){
+  Stmt q;
+
+  db_find_and_open_repository(0, 0);
+  db_prepare(&q,
+     "SELECT blob.uuid "
+     "  FROM plink p, plink c, blob"
+     " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
+     "   AND blob.rid=c.pid"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    printf("%s\n", db_column_text(&q, 0));
+  }
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: test_timewarps
+*/
+void test_timewarp_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead || !g.okHistory ){ login_needed(); return; }
+  style_header("Instances of timewarp");
+  @ <ul>
+  db_prepare(&q,
+     "SELECT blob.uuid "
+     "  FROM plink p, plink c, blob"
+     " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
+     "   AND blob.rid=c.pid"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    @ <li>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
+  }
+  db_finalize(&q);
+  style_footer();
+}
