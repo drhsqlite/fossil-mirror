@@ -1207,10 +1207,12 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     content_deltify(pParent->pBaseline->rid, cid, 0);
   }
 
-  /* Remember all children less than 2 seconds younger than their parent,
+  /* Remember all children less than a few seconds younger than their parent,
   ** as we might want to fudge the times for those children.
   */
-  if( pChild->rDate<pParent->rDate+2.3e-5 && manifest_crosslink_busy ){
+  if( pChild->rDate<pParent->rDate+AGE_FUDGE_WINDOW
+      && manifest_crosslink_busy
+  ){
     db_multi_exec(
        "INSERT OR REPLACE INTO time_fudge VALUES(%d, %.17g, %d, %.17g);",
        pParent->rid, pParent->rDate, pChild->rid, pChild->rDate
@@ -1267,13 +1269,27 @@ void manifest_crosslink_begin(void){
   db_multi_exec(
      "CREATE TEMP TABLE pending_tkt(uuid TEXT UNIQUE);"
      "CREATE TEMP TABLE time_fudge("
-     "  mid INTEGER PRIMARY KEY,"
-     "  m1 REAL,"
-     "  cid INTEGER,"
-     "  m2 REAL"
+     "  mid INTEGER PRIMARY KEY,"    /* The rid of a manifest */
+     "  m1 REAL,"                    /* The timestamp on mid */
+     "  cid INTEGER,"                /* A child or mid */
+     "  m2 REAL"                     /* Timestamp on the child */
      ");"
   );
 }
+
+#if INTERFACE
+/* Timestamps might be adjusted slightly to ensure that checkins appear
+** on the timeline in chronological order.  This is the maximum amount
+** of the adjustment window, in days.
+*/
+#define AGE_FUDGE_WINDOW      (2.0/86400.0)       /* 2 seconds */
+
+/* This is increment (in days) by which timestamps are adjusted for
+** use on the timeline.
+*/
+#define AGE_ADJUST_INCREMENT  (25.0/86400000.0)   /* 25 milliseconds */
+
+#endif /* LOCAL_INTERFACE */
 
 /*
 ** Finish up a sequence of manifest_crosslink calls.
@@ -1290,9 +1306,19 @@ void manifest_crosslink_end(void){
   db_finalize(&q);
   db_multi_exec("DROP TABLE pending_tkt");
 
-  db_prepare(&q, "UPDATE time_fudge SET m1=m2-2.8935e-7 WHERE m1>=m2");
-  db_prepare(&u, "UPDATE time_fudge SET m2="
-        "(SELECT x.m1 FROM time_fudge AS x WHERE x.mid=time_fudge.cid)");
+  /* If multiple check-ins happen close together in time, adjust their
+  ** times by a few milliseconds to make sure they appear in chronological
+  ** order.
+  */
+  db_prepare(&q,
+      "UPDATE time_fudge SET m1=m2-:incr WHERE m1>=m2 AND m1<m2+:window"
+  );
+  db_bind_double(&q, ":incr", AGE_ADJUST_INCREMENT);
+  db_bind_double(&q, ":window", AGE_FUDGE_WINDOW);
+  db_prepare(&u,
+      "UPDATE time_fudge SET m2="
+         "(SELECT x.m1 FROM time_fudge AS x WHERE x.mid=time_fudge.cid)"
+  );
   for(i=0; i<30; i++){
     db_step(&q);
     db_reset(&q);
