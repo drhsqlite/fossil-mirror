@@ -1,5 +1,5 @@
-C Revise\sthe\stimewarp\scommands\sto\sshow\sthe\schild\sthat\sis\sout\sof\sorder,\snot\nthe\sparent.
-D 2011-02-11T17:37:35.542
+C Make\ssure\sthe\sEVENT.OMTIME\svalue\sis\srecorded\scorrectly\swhen\sparsing\sa\ncheck-in\smanifest.
+D 2011-02-11T20:09:03.940
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -77,7 +77,7 @@ F src/main.mk 1a3e1ab02b7bc1f77023eabc4163812aacbd7ab0
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 754fb63d0cb5e4cd88099820b54b1e89eef7824a
-F src/manifest.c 67849a383dce33d54d76ae329b1358481323d732
+F src/manifest.c f254d802a9446fbde84d6559eb2f5d1256994b5d
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c 89410104fb097e76d62ec8de40753ada395a2e76
 F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9b9d52bbb9c5b60a4dd9a2d384ab95f99e4e27e4
-R 4314e95555c3b190b1c39a39a2dbaf82
+P 2fc80c21b9c1bbb8b6a18c209d8b50ddc75f3ab8
+R 783b0209555d19c0a77452b9943c0c90
 U drh
-Z 335365e13e1d466071afca38b93e307b
+Z eb8c282fa6ec1d600d7bdad038d72158

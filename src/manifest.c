@@ -1485,7 +1485,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       db_multi_exec(
         "REPLACE INTO event(type,mtime,objid,user,comment,"
-                           "bgcolor,euser,ecomment)"
+                           "bgcolor,euser,ecomment,omtime)"
         "VALUES('ci',"
         "  coalesce("
         "    (SELECT julianday(value) FROM tagxref WHERE tagid=%d AND rid=%d),"
@@ -1494,12 +1494,12 @@ int manifest_crosslink(int rid, Blob *pContent){
         "  %d,%Q,%Q,"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d AND tagtype>0),"
         "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),"
-        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d));",
+        "  (SELECT value FROM tagxref WHERE tagid=%d AND rid=%d),%.17g);",
         TAG_DATE, rid, p->rDate,
         rid, p->zUser, p->zComment, 
         TAG_BGCOLOR, rid,
         TAG_USER, rid,
-        TAG_COMMENT, rid
+        TAG_COMMENT, rid, p->rDate
       );
       zCom = db_text(0, "SELECT coalesce(ecomment, comment) FROM event"
                         " WHERE rowid=last_insert_rowid()");
