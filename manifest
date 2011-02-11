@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sEVENT.OMTIME\svalue\sis\srecorded\scorrectly\swhen\sparsing\sa\ncheck-in\smanifest.
-D 2011-02-11T20:09:03.940
+C Add\sthe\s--detail\soption\sto\sthe\stest-timewarp-list\scommand.
+D 2011-02-11T20:53:12.277
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -109,7 +109,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c f666730bea1c1fc461d4e1d2d9e1c5c9a5761f53
+F src/timeline.c 938f9ab896a2c9ab93f52cd298052cdcfb9166df
 F src/tkt.c 2815a8c846805b16c94c395f34f4548636fc79da
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2fc80c21b9c1bbb8b6a18c209d8b50ddc75f3ab8
-R 783b0209555d19c0a77452b9943c0c90
+P 1d83ecc5d5b05e3954957884165238cfe509986d
+R b74b6f117cf1027032fd00478dda7db2
 U drh
-Z eb8c282fa6ec1d600d7bdad038d72158
+Z a659a49527802c87dbab5213fa07d153

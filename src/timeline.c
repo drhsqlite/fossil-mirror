@@ -1328,23 +1328,35 @@ struct tm *fossil_localtime(const time_t *clock){
 /*
 ** COMMAND: test-timewarp-list
 **
-** Usage: %fossil test-timewarp-list
+** Usage: %fossil test-timewarp-list ?--detail?
 **
 ** Display all instances of child checkins that appear earlier in time
-** than their parent.
+** than their parent.  If the --detail option is provided, both the
+** parent and child checking and their times are shown.
 */
 void test_timewarp_cmd(void){
   Stmt q;
+  int showDetail;
 
   db_find_and_open_repository(0, 0);
+  showDetail = find_option("detail", 0, 0)!=0;
   db_prepare(&q,
-     "SELECT blob.uuid "
-     "  FROM plink p, plink c, blob"
+     "SELECT (SELECT uuid FROM blob WHERE rid=p.cid),"
+     "       (SELECT uuid FROM blob WHERE rid=c.cid),"
+     "       datetime(p.mtime), datetime(c.mtime)"
+     "  FROM plink p, plink c"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
-     "   AND blob.rid=c.cid"
   );
   while( db_step(&q)==SQLITE_ROW ){
-    printf("%s\n", db_column_text(&q, 0));
+    if( !showDetail ){
+      printf("%s\n", db_column_text(&q, 1));
+    }else{
+      printf("%.14s -> %.14s   %s -> %s\n",
+         db_column_text(&q, 0),
+         db_column_text(&q, 1),
+         db_column_text(&q, 2),
+         db_column_text(&q, 3));
+    }
   }
   db_finalize(&q);
 }
