@@ -1,5 +1,5 @@
-C Add\sthe\stest-timewarp-list\scommand\sand\sthe\stest_timewarp\sweb\spage.
-D 2011-02-11T15:33:54.649
+C Improved\sgraph\srendering\sin\sthe\scase\sof\sa\stime-warp.
+D 2011-02-11T16:52:18.167
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -63,7 +63,7 @@ F src/event.c b77370e1379434a390ae9d329a0d87f4b28d1d66
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
 F src/file.c ea4b6e84586205dc485c3b388bbe87607babd964
 F src/finfo.c cb0c42daa1872790c8400f264f938ade4bc72fdb
-F src/graph.c 8aaab399975a362209f8f3ec6d4b470429042961
+F src/graph.c 21862072415d63ca857958826b953ddaff080c55
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
@@ -109,7 +109,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c 2796b2ea7e7d37de44053d25bc346382260551e2
+F src/timeline.c 38efa59bfaf62095b2cff8a8616d9570d733ff28
 F src/tkt.c 2815a8c846805b16c94c395f34f4548636fc79da
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P feaab7baf1c424e5de9f853416c322ddac3ca62c
-R 02b987685414e4f1590867cb93479e43
+P a327bd29bcc567a7cebfba226d269498fdd4fab3
+R b3c2d3d410ad243b61c755b73157502c
 U drh
-Z 6043091b51678ef49cfb3c9c5a4296ab
+Z 5c75041578d02f1bdc67cd6a1a8615d8

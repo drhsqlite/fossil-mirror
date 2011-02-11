@@ -316,11 +316,11 @@ void graph_finish(GraphContext *p, int omitDescenders){
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->isDup ) continue;
-    if( pRow->nParent==0 ) continue;
+    if( pRow->nParent==0 ) continue;                   /* Root node */
     pParent = hashFind(p, pRow->aParent[0]);
-    if( pParent==0 ) continue;
-    if( pParent->zBranch!=pRow->zBranch ) continue;
-    if( pParent->idx <= pRow->idx ) continue;
+    if( pParent==0 ) continue;                         /* Parent off-screen */
+    if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
+    if( pParent->idx <= pRow->idx ) continue;          /* Time-warp */
     if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
@@ -377,13 +377,27 @@ void graph_finish(GraphContext *p, int omitDescenders){
       parentRid = pRow->aParent[0];
       pParent = hashFind(p, parentRid);
       if( pParent==0 ){
-        /* Time skew */
         pRow->iRail = ++p->mxRail;
         pRow->railInUse = 1<<pRow->iRail;
         continue;
       }
-      pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
-      pParent->aiRiser[pRow->iRail] = pRow->idx;
+      if( pParent->idx>pRow->idx ){
+        /* Common case:  Child occurs after parent and is above the
+        ** parent in the timeline */
+        pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
+        pParent->aiRiser[pRow->iRail] = pRow->idx;
+      }else{
+        /* Timewarp case:  Child occurs earlier in time than parent and
+        ** appears below the parent in the timeline. */
+        int iDownRail = ++p->mxRail;
+        pRow->iRail = ++p->mxRail;
+        pRow->railInUse = 1<<pRow->iRail;
+        pParent->aiRiser[iDownRail] = pRow->idx;
+        mask = 1<<iDownRail;
+        for(pLoop=p->pFirst; pLoop; pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
+        }
+      }
     }
     mask = 1<<pRow->iRail;
     pRow->railInUse |= mask;

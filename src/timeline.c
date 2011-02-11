@@ -534,9 +534,17 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   for(var i=0; i<n; i+=2){
     @     var x1 = p.au[i]*20 + left;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
-    @     drawBox("black",x0,p.y,x1,p.y+1);
     @     var u = rowinfo[p.au[i+1]-1];
-    @     drawUpArrow(x1, u.y+6, p.y);
+    @     if(u.id<p.id){
+    @       drawBox("black",x0,p.y,x1,p.y+1);
+    @       drawUpArrow(x1, u.y+6, p.y);
+    @     }else{
+    @       drawBox("#600000",x0,p.y,x1,p.y+1);
+    @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
+    @       drawBox("#600000",x1,u.y,u.x-6,u.y+1);
+    @       drawBox("#600000",u.x-9,u.y-1,u.x-8,u.y+2);
+    @       drawBox("#600000",u.x-11,u.y-2,u.x-10,u.y+3);
+    @     }
     @   }
     @   for(var j in p.mi){
     @     var y0 = p.y+5;
