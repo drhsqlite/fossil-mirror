@@ -1341,7 +1341,7 @@ void test_timewarp_cmd(void){
      "SELECT blob.uuid "
      "  FROM plink p, plink c, blob"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
-     "   AND blob.rid=c.pid"
+     "   AND blob.rid=c.cid"
   );
   while( db_step(&q)==SQLITE_ROW ){
     printf("%s\n", db_column_text(&q, 0));
@@ -1363,7 +1363,7 @@ void test_timewarp_page(void){
      "SELECT blob.uuid "
      "  FROM plink p, plink c, blob"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
-     "   AND blob.rid=c.pid"
+     "   AND blob.rid=c.cid"
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
