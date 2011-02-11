@@ -390,6 +390,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         /* Timewarp case:  Child occurs earlier in time than parent and
         ** appears below the parent in the timeline. */
         int iDownRail = ++p->mxRail;
+        if( iDownRail<1 ) iDownRail = ++p->mxRail;
         pRow->iRail = ++p->mxRail;
         pRow->railInUse = 1<<pRow->iRail;
         pParent->aiRiser[iDownRail] = pRow->idx;
