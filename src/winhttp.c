@@ -125,8 +125,8 @@ end_request:
   if( out ) fclose(out);
   if( in ) fclose(in);
   closesocket(p->s);
-  unlink(zRequestFName);
-  unlink(zReplyFName);
+  file_delete(zRequestFName);
+  file_delete(zReplyFName);
   free(p);
 }
 
@@ -148,7 +148,7 @@ void win32_http_server(
   int iPort = mnPort;
   char *zNotFoundOption;
 
-  if( zStopper ) unlink(zStopper);
+  if( zStopper ) file_delete(zStopper);
   if( zNotFound ){
     zNotFoundOption = mprintf(" --notfound %s", zNotFound);
   }else{

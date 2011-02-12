@@ -61,7 +61,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       blob_write_to_file(&new, zFullname);
     }else{
       printf("DELETE %s\n", zPathname);
-      unlink(zFullname);
+      file_delete(zFullname);
     }
     blob_reset(&new);
     free(zFullname);

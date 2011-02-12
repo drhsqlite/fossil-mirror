@@ -353,7 +353,7 @@ void clean_cmd(void){
   }
   while( db_step(&q)==SQLITE_ROW ){
     if( allFlag ){
-      unlink(db_column_text(&q, 0));
+      file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
       char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
@@ -361,7 +361,7 @@ void clean_cmd(void){
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       if( blob_str(&ans)[0]=='y' ){
-        unlink(db_column_text(&q, 0));
+        file_delete(db_column_text(&q, 0));
       }
     }
   }
@@ -460,7 +460,7 @@ static void prepare_commit_comment(
     }
   }
   blob_remove_cr(&text);
-  unlink(zFile);
+  file_delete(zFile);
   free(zFile);
   blob_zero(pComment);
   while( blob_line(&text, &line) ){

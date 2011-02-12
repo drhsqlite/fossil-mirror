@@ -360,7 +360,7 @@ void update_cmd(void){
       }else{
         printf("REMOVE %s\n", zName);
         undo_save(zName);
-        if( !nochangeFlag ) unlink(zFullPath);
+        if( !nochangeFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
@@ -388,7 +388,7 @@ void update_cmd(void){
         printf("***** Cannot merge binary file %s\n", zNewName);
         nConflict++;
       }
-      if( nameChng && !nochangeFlag ) unlink(zFullPath);
+      if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&e);
       blob_reset(&t);

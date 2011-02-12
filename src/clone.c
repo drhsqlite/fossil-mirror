@@ -102,7 +102,7 @@ void clone_cmd(void){
     db_end_transaction(0);
     db_close(1);
     if( nErr ){
-      unlink(g.argv[3]);
+      file_delete(g.argv[3]);
       fossil_fatal("server returned an error - clone aborted");
     }
     db_open_repository(g.argv[3]);

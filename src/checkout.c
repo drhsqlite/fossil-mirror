@@ -159,12 +159,12 @@ void manifest_to_disk(int vid){
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
       zManFile = mprintf("%smanifest", g.zLocalRoot);
-      unlink(zManFile);
+      file_delete(zManFile);
       free(zManFile);
     }
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
       zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-      unlink(zManFile);
+      file_delete(zManFile);
       free(zManFile);
     }
   }
@@ -270,7 +270,7 @@ static void unlink_local_database(int manifestOnly){
     if( manifestOnly==0 || zReserved[0]=='m' ){
       char *z;
       z = mprintf("%s%s", g.zLocalRoot, zReserved);
-      unlink(z);
+      file_delete(z);
       free(z);
     }
   }

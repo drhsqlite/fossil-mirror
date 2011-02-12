@@ -137,6 +137,13 @@ const char *file_tail(const char *z){
 }
 
 /*
+** Delete a file.
+*/
+void file_delete(const char *zFilename){
+  unlink(zFilename);
+}
+
+/*
 ** Copy the content of a file from one place to another.
 */
 void file_copy(const char *zFrom, const char *zTo){
@@ -152,6 +159,42 @@ void file_copy(const char *zFrom, const char *zTo){
   }
   fclose(in);
   fclose(out);
+}
+
+/*
+** Rename a file.
+*/
+void file_move(const char *zFrom, const char *zTo){
+#if defined(_WIN32)
+  /* if( MoveFileW(zFrom, zTo) ) return; */
+#else
+  if( rename(zFrom, zTo)==0 ) return;
+#endif
+  file_copy(zFrom, zTo);
+  file_delete(zFrom);
+}
+
+/*
+** If the named file exists, move it out of the way so that it will not
+** be overwritten by subsequent operations.
+*/
+void file_dont_overwrite(const char *z){
+  char *zNow;
+  char *zNewName;
+  int cnt = 0;
+  if( file_mtime(z)<0 ) return;
+  if( !file_isfile(0) ){
+    fossil_fatal("cannot overwrite \"%s\"  - not an ordinary file");
+  }
+  zNow = db_text(0, "SELECT strftime('%%Y%%m%%d%%H%%M%%S', 'now')");
+  while(1){
+    zNewName = mprintf("%s-%s-%d", z, zNow, cnt++);
+    if( file_mtime(zNewName)<0 ) break;
+    fossil_free(zNewName);
+  }
+  fossil_free(zNow);
+  file_move(z, zNewName);
+  fossil_free(zNewName);
 }
 
 /*
@@ -184,7 +227,7 @@ int file_mkdir(const char *zName, int forceFlag){
   int rc = file_isdir(zName);
   if( rc==2 ){
     if( !forceFlag ) return 1;
-    unlink(zName);
+    file_delete(zName);
   }
   if( rc!=1 ){
 #if defined(_WIN32)

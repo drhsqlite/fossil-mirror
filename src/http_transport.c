@@ -244,8 +244,8 @@ void transport_close(void){
         fclose(transport.pFile);
         transport.pFile = 0;
       }
-      unlink(transport.zInFile);
-      unlink(transport.zOutFile);
+      file_delete(transport.zInFile);
+      file_delete(transport.zOutFile);
       free(transport.zInFile);
       free(transport.zOutFile);
     }else{
