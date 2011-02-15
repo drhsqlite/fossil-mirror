@@ -319,6 +319,7 @@ static int stash_get_id(const char *zStashId){
 **     arguments.
 **
 **  fossil stash list
+**  fossil stash ls
 **
 **     List all changes sets currently stashed.
 **
@@ -400,7 +401,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
   }else
-  if( memcmp(zCmd, "list", nCmd)==0 ){
+    if( (memcmp(zCmd, "list", nCmd)==0)||((memcmp(zCmd, "ls", nCmd)==0) )){
     Stmt q;
     int n = 0;
     verify_all_options();

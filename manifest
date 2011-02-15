@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Create\snew\sbranch\snamed\s"bch"
-D 2011-02-15T05:18:19.643
+C "stash\sls",\sin\saddition\sto\s"stash\slist"
+D 2011-02-15T05:19:18.094
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -103,7 +100,7 @@ F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 160a91e065dff5c9ad0e77a340b2243cbf372626
 F src/sqlite3.h e1cf0095cd32b1db359b856fea4473b852d0716c
-F src/stash.c 7797f22924ad053facb1b88c21d3802b1053bb77
+F src/stash.c c4efefafadaa96405d9c23c32dcc52cb9aed2acb
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 2e47c560f494841720c258e7ace481a69ccfe5b3
 F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
@@ -297,17 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e7b6434112be8a00ef00f2a5ca7f1d483a5df79f
-R b74b6f117cf1027032fd00478dda7db2
-T *branch * bch
-T *sym-bch *
-T -sym-trunk *
+P 8b5556c9feaeb36b3483c149f3d1d1fcef3fd703
+R a609e578134506d903852823a50025e6
 U bharder
-Z 7fc1de8eef50d2acffc0568ea50d1154
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (NetBSD)
-
-iEYEARECAAYFAk1aDJsACgkQad0Kwpwugm9qygCfXAHimRcnNrgHMqx9ib+bdmqR
-e9IAoOVizT8/+ztq7DS7Tswy2Wu1Mo7h
-=pLmy
------END PGP SIGNATURE-----
+Z c245fbc796d0437a3e9ca64ed627d8fc
