@@ -1,5 +1,5 @@
-C For\sthe\sssh:\stransport\smethod,\suse\sthe\s-T\soption\sto\sdisable\spseudottys.\nIncrease\sthe\ssize\sof\sthe\sbuffer\sfor\sholding\sthe\sMOTD.
-D 2011-02-16T19:13:40.216
+C Always\sclose\sopendir()\sobjects\sif\sand\sonly\sif\ssuccessfully\sopened.\nTicket\s[6f8614716702180a0]
+D 2011-02-16T19:19:28.032
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -33,7 +33,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 38d70ffa9404da16dd850c9e42a6b8858ffec3c4
+F src/add.c 5759e1b3f6c9be4112a3d77c1b58ab32a10ae9b1
 F src/allrepo.c 3283814c47d253c72770ed061c6993c51a0eb8a7
 F src/attach.c f2fe216041a1fd51f623633c29705a866a0e99de
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -87,7 +87,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
-F src/rebuild.c da068c837416babcfd98934761884685e39499a3
+F src/rebuild.c 3e198b05250a501c51ab5cbfde8365d2df155092
 F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c 9fb95983534ac4e38b062cc74f105e55b829e2fc
@@ -118,7 +118,7 @@ F src/update.c 4f9c1e0d0cc57a375ad8dec1909d95fcfc4877b8
 F src/url.c 64b90f7daff5e451bd1319a0c4f290260081a10f
 F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
-F src/vfile.c 90e0ebb3a003867a230c9fee2c8cec15571df808
+F src/vfile.c 3bb9c1e42b57a747806be1d06a0c24dced1d9886
 F src/wiki.c cf3ac77db4a4389173b74dc2d4b13909273393b1
 F src/wikiformat.c db46e9e18d7fdcdb0d101e0ffb51a8e3d3e3accc
 F src/winhttp.c f367576083ab58913a8707352a6f1d474a27faaa
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 352066b267c392ff958628a99cc99896dd055b8c
-R 60a4ee4eeb396704406b9b2fd06a7561
+P 7c8519003de911f5cba05af7e04f3b73af79db13
+R 178ccb7b093e2e285aff43264fcf5b50
 U drh
-Z 4e604b6c12867366271c454aeca3cbb0
+Z 28700ed4429b55f91cc031890e533164

@@ -604,6 +604,7 @@ void recon_read_dir(char *zPath){
       printf("\r%d", ++nFileRead);
       fflush(stdout);
     }
+    closedir(d);
   }else {
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);

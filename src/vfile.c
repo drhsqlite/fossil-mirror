@@ -312,8 +312,8 @@ void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
       }
       blob_resize(pPath, origSize);
     }
+    closedir(d);
   }
-  closedir(d);
 }
 
 /*
