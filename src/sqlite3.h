@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.5"
-#define SQLITE_VERSION_NUMBER 3007005
-#define SQLITE_SOURCE_ID      "2011-01-25 18:30:51 c17703ec1e604934f8bd5b1f66f34b19d17a6d1f"
+#define SQLITE_VERSION        "3.7.6"
+#define SQLITE_VERSION_NUMBER 3007006
+#define SQLITE_SOURCE_ID      "2011-02-16 23:32:24 31fc4ba66e76876b2e7b6b2b74c07f47571938ce"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -390,7 +390,7 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_INTERRUPT    9   /* Operation terminated by sqlite3_interrupt()*/
 #define SQLITE_IOERR       10   /* Some kind of disk I/O error occurred */
 #define SQLITE_CORRUPT     11   /* The database disk image is malformed */
-#define SQLITE_NOTFOUND    12   /* NOT USED. Table or record not found */
+#define SQLITE_NOTFOUND    12   /* Unknown opcode in sqlite3_file_control() */
 #define SQLITE_FULL        13   /* Insertion failed because database is full */
 #define SQLITE_CANTOPEN    14   /* Unable to open the database file */
 #define SQLITE_PROTOCOL    15   /* Database lock protocol error */
@@ -622,7 +622,9 @@ struct sqlite3_file {
 ** core reserves all opcodes less than 100 for its own use.
 ** A [SQLITE_FCNTL_LOCKSTATE | list of opcodes] less than 100 is available.
 ** Applications that define a custom xFileControl method should use opcodes
-** greater than 100 to avoid conflicts.
+** greater than 100 to avoid conflicts.  VFS implementations should
+** return [SQLITE_NOTFOUND] for file control opcodes that they do not
+** recognize.
 **
 ** The xSectorSize() method returns the sector size of the
 ** device that underlies the file.  The sector size is the
@@ -2669,7 +2671,7 @@ SQLITE_API const char *sqlite3_sql(sqlite3_stmt *pStmt);
 /*
 ** CAPI3REF: Determine If An SQL Statement Writes The Database
 **
-** ^The sqlite3_stmt_readonly(X) interface returns true (non-zero) if 
+** ^The sqlite3_stmt_readonly(X) interface returns true (non-zero) if
 ** and only if the [prepared statement] X makes no direct changes to
 ** the content of the database file.
 **
@@ -5537,24 +5539,21 @@ SQLITE_API int sqlite3_db_status(sqlite3*, int op, int *pCur, int *pHiwtr, int r
 ** ^(<dt>SQLITE_DBSTATUS_LOOKASIDE_HIT</dt>
 ** <dd>This parameter returns the number malloc attempts that were 
 ** satisfied using lookaside memory. Only the high-water value is meaningful;
-** the current value is always zero.
-** checked out.</dd>)^
+** the current value is always zero.)^
 **
 ** ^(<dt>SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE</dt>
 ** <dd>This parameter returns the number malloc attempts that might have
 ** been satisfied using lookaside memory but failed due to the amount of
 ** memory requested being larger than the lookaside slot size.
 ** Only the high-water value is meaningful;
-** the current value is always zero.
-** checked out.</dd>)^
+** the current value is always zero.)^
 **
 ** ^(<dt>SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL</dt>
 ** <dd>This parameter returns the number malloc attempts that might have
 ** been satisfied using lookaside memory but failed due to all lookaside
 ** memory already being in use.
 ** Only the high-water value is meaningful;
-** the current value is always zero.
-** checked out.</dd>)^
+** the current value is always zero.)^
 **
 ** ^(<dt>SQLITE_DBSTATUS_CACHE_USED</dt>
 ** <dd>This parameter returns the approximate number of of bytes of heap
@@ -6253,8 +6252,101 @@ SQLITE_API int sqlite3_wal_autocheckpoint(sqlite3 *db, int N);
 ** from SQL.  ^The [sqlite3_wal_autocheckpoint()] interface and the
 ** [wal_autocheckpoint pragma] can be used to cause this interface to be
 ** run whenever the WAL reaches a certain size threshold.
+**
+** See also: [sqlite3_wal_checkpoint_v2()]
 */
 SQLITE_API int sqlite3_wal_checkpoint(sqlite3 *db, const char *zDb);
+
+/*
+** CAPI3REF: Checkpoint a database
+**
+** Run a checkpoint operation on WAL database zDb attached to database 
+** handle db. The specific operation is determined by the value of the 
+** eMode parameter:
+**
+** <dl>
+** <dt>SQLITE_CHECKPOINT_PASSIVE<dd>
+**   Checkpoint as many frames as possible without waiting for any database 
+**   readers or writers to finish. Sync the db file if all frames in the log
+**   are checkpointed. This mode is the same as calling 
+**   sqlite3_wal_checkpoint(). The busy-handler callback is never invoked.
+**
+** <dt>SQLITE_CHECKPOINT_FULL<dd>
+**   This mode blocks (calls the busy-handler callback) until there is no
+**   database writer and all readers are reading from the most recent database
+**   snapshot. It then checkpoints all frames in the log file and syncs the
+**   database file. This call blocks database writers while it is running,
+**   but not database readers.
+**
+** <dt>SQLITE_CHECKPOINT_RESTART<dd>
+**   This mode works the same way as SQLITE_CHECKPOINT_FULL, except after 
+**   checkpointing the log file it blocks (calls the busy-handler callback)
+**   until all readers are reading from the database file only. This ensures 
+**   that the next client to write to the database file restarts the log file 
+**   from the beginning. This call blocks database writers while it is running,
+**   but not database readers.
+** </dl>
+**
+** If pnLog is not NULL, then *pnLog is set to the total number of frames in
+** the log file before returning. If pnCkpt is not NULL, then *pnCkpt is set to
+** the total number of checkpointed frames (including any that were already
+** checkpointed when this function is called). *pnLog and *pnCkpt may be
+** populated even if sqlite3_wal_checkpoint_v2() returns other than SQLITE_OK.
+** If no values are available because of an error, they are both set to -1
+** before returning to communicate this to the caller.
+**
+** All calls obtain an exclusive "checkpoint" lock on the database file. If
+** any other process is running a checkpoint operation at the same time, the 
+** lock cannot be obtained and SQLITE_BUSY is returned. Even if there is a 
+** busy-handler configured, it will not be invoked in this case.
+**
+** The SQLITE_CHECKPOINT_FULL and RESTART modes also obtain the exclusive 
+** "writer" lock on the database file. If the writer lock cannot be obtained
+** immediately, and a busy-handler is configured, it is invoked and the writer
+** lock retried until either the busy-handler returns 0 or the lock is
+** successfully obtained. The busy-handler is also invoked while waiting for
+** database readers as described above. If the busy-handler returns 0 before
+** the writer lock is obtained or while waiting for database readers, the
+** checkpoint operation proceeds from that point in the same way as 
+** SQLITE_CHECKPOINT_PASSIVE - checkpointing as many frames as possible 
+** without blocking any further. SQLITE_BUSY is returned in this case.
+**
+** If parameter zDb is NULL or points to a zero length string, then the
+** specified operation is attempted on all WAL databases. In this case the
+** values written to output parameters *pnLog and *pnCkpt are undefined. If 
+** an SQLITE_BUSY error is encountered when processing one or more of the 
+** attached WAL databases, the operation is still attempted on any remaining 
+** attached databases and SQLITE_BUSY is returned to the caller. If any other 
+** error occurs while processing an attached database, processing is abandoned 
+** and the error code returned to the caller immediately. If no error 
+** (SQLITE_BUSY or otherwise) is encountered while processing the attached 
+** databases, SQLITE_OK is returned.
+**
+** If database zDb is the name of an attached database that is not in WAL
+** mode, SQLITE_OK is returned and both *pnLog and *pnCkpt set to -1. If
+** zDb is not NULL (or a zero length string) and is not the name of any
+** attached database, SQLITE_ERROR is returned to the caller.
+*/
+SQLITE_API int sqlite3_wal_checkpoint_v2(
+  sqlite3 *db,                    /* Database handle */
+  const char *zDb,                /* Name of attached database (or NULL) */
+  int eMode,                      /* SQLITE_CHECKPOINT_* value */
+  int *pnLog,                     /* OUT: Size of WAL log in frames */
+  int *pnCkpt                     /* OUT: Total number of frames checkpointed */
+);
+
+/*
+** CAPI3REF: Checkpoint operation parameters
+**
+** These constants can be used as the 3rd parameter to
+** [sqlite3_wal_checkpoint_v2()].  See the [sqlite3_wal_checkpoint_v2()]
+** documentation for additional information about the meaning and use of
+** each of these values.
+*/
+#define SQLITE_CHECKPOINT_PASSIVE 0
+#define SQLITE_CHECKPOINT_FULL    1
+#define SQLITE_CHECKPOINT_RESTART 2
+
 
 /*
 ** Undo the hack that converts floating point types to integer for
