@@ -452,8 +452,27 @@ static void git_fast_import(FILE *pIn){
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
       z = &zLine[7];
+
+      /* The argument to the "commit" line might match either of these
+      ** patterns:
+      **
+      **   (A)  refs/heads/BRANCHNAME
+      **   (B)  refs/tags/TAGNAME
+      **
+      ** If pattern A is used, then the branchname used is as shown.
+      ** Except, the "master" branch which is the default branch name in
+      ** Git is changed to "trunk" which is the default name in Fossil.
+      ** If the pattern is B, then the new commit should be on the same
+      ** branch as its parent.  And, we might need to add the TAGNAME
+      ** tag to the new commit.  However, if there are multiple instances
+      ** of pattern B with the same TAGNAME, then only put the tag on the
+      ** last commit that holds that tag.
+      **
+      ** None of the above is explained in the git-fast-export
+      ** documentation.  We had to figure it out via trial and error.
+      */
       for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
-      gg.tagCommit = memcmp(&z[i-4], "tags", 4)==0;
+      gg.tagCommit = memcmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
       if( z[i+1]!=0 ) z += i+1;
       if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);
@@ -690,12 +709,14 @@ void git_import_cmd(void){
   **
   ** The XBRANCH table maps commit marks and symbols into the branch those
   ** commits belong to.  If xbranch.tname is a fast-import symbol for a
-  ** check-in then xbranch.brnm is the branch that checkin is part of.
+  ** checkin then xbranch.brnm is the branch that checkin is part of.
   **
   ** The XTAG table records information about tags that need to be applied
   ** to various branches after the import finishes.  The xtag.tcontent field
   ** contains the text of an artifact that will add a tag to a check-in.
-  ** These artifacts should all be added at the end of the import.
+  ** The git-fast-export file format might specify the same tag multiple
+  ** times but only the last tag should be used.  And we do not know which
+  ** occurrence of the tag is the last until the import finishes.
   */
   db_multi_exec(
      "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
