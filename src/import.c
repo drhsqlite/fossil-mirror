@@ -60,6 +60,7 @@ static struct {
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
+  int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
 /*
@@ -150,12 +151,12 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   }
   if( zMark ){
     db_multi_exec(
-        "INSERT OR IGNORE INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
         "VALUES(%Q,%d,%B)", 
         zMark, rid, &hash
     );
     db_multi_exec(
-        "INSERT OR IGNORE INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
         "VALUES(%B,%d,%B)", 
         &hash, rid, &hash
     );
@@ -246,7 +247,7 @@ static void finish_commit(void){
   }else{
     zFromBranch = 0;
   }
-  if( fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
+  if( !gg.tagCommit && fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
     blob_appendf(&record, "T *branch * %F\n", gg.zBranch);
     blob_appendf(&record, "T *sym-%F *\n", gg.zBranch);
     if( zFromBranch ){
@@ -255,7 +256,7 @@ static void finish_commit(void){
   }
   free(zFromBranch);
   if( gg.zFrom==0 ){
-    blob_appendf(&record, "T +sym-trunk *\n");
+    blob_appendf(&record, "T *sym-trunk *\n");
   }
   db_multi_exec("INSERT INTO xbranch(tname, brnm) VALUES(%Q,%Q)",
                 gg.zMark, gg.zBranch);
@@ -265,6 +266,31 @@ static void finish_commit(void){
   fast_insert_content(&record, gg.zMark, 1);
   blob_reset(&record);
   blob_reset(&cksum);
+
+  /* The "git fast-export" command might output multiple "commit" lines
+  ** that reference a tag using "refs/tags/TAGNAME".  The tag should only
+  ** be applied to the last commit that is output.  The problem is we do not
+  ** know at this time if the current commit is the last one to hold this
+  ** tag or not.  So make an entry in the XTAG table to record this tag
+  ** but overwrite that entry if a later instance of the same tag appears.
+  **
+  ** This behavior seems like a bug in git-fast-export, but it is easier
+  ** to work around the problem than to fix git-fast-export.
+  */
+  if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    blob_appendf(&record, "D %s\n", gg.zDate);
+    blob_appendf(&record, "T +sym-%F %s\n", gg.zBranch, gg.zPrevCheckin);
+    blob_appendf(&record, "U %F\n", gg.zUser);
+    md5sum_blob(&record, &cksum);
+    blob_appendf(&record, "Z %b\n", &cksum);
+    db_multi_exec(
+       "INSERT OR REPLACE INTO xtag(tname, tcontent)"
+       " VALUES(%Q,%Q)", gg.zBranch, blob_str(&record)
+    );
+    blob_reset(&record);
+    blob_reset(&cksum);
+  }
+
   fossil_free(gg.zPrevBranch);
   gg.zPrevBranch = gg.zBranch;
   gg.zBranch = 0;
@@ -328,7 +354,7 @@ static char *rest_of_line(char **pzIn){
 static char *resolve_committish(const char *zCommittish){
   char *zRes;
 
-  zRes = db_text(0, "SELECT tuuid FROM xtag WHERE tname=%Q", zCommittish);
+  zRes = db_text(0, "SELECT tuuid FROM xmark WHERE tname=%Q", zCommittish);
   return zRes;
 }
 
@@ -426,8 +452,29 @@ static void git_fast_import(FILE *pIn){
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
       z = &zLine[7];
+
+      /* The argument to the "commit" line might match either of these
+      ** patterns:
+      **
+      **   (A)  refs/heads/BRANCHNAME
+      **   (B)  refs/tags/TAGNAME
+      **
+      ** If pattern A is used, then the branchname used is as shown.
+      ** Except, the "master" branch which is the default branch name in
+      ** Git is changed to "trunk" which is the default name in Fossil.
+      ** If the pattern is B, then the new commit should be on the same
+      ** branch as its parent.  And, we might need to add the TAGNAME
+      ** tag to the new commit.  However, if there are multiple instances
+      ** of pattern B with the same TAGNAME, then only put the tag on the
+      ** last commit that holds that tag.
+      **
+      ** None of the above is explained in the git-fast-export
+      ** documentation.  We had to figure it out via trial and error.
+      */
       for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
+      gg.tagCommit = memcmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
       if( z[i+1]!=0 ) z += i+1;
+      if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);
       gg.fromLoaded = 0;
     }else
@@ -633,7 +680,9 @@ malformed_line:
 void git_import_cmd(void){
   char *zPassword;
   FILE *pIn;
+  Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
+
   find_option("git",0,0);  /* Skip the --git option for now */
   verify_all_options();
   if( g.argc!=3  && g.argc!=4 ){
@@ -649,13 +698,44 @@ void git_import_cmd(void){
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
+
+  /* The following temp-tables are used to hold information needed for
+  ** the import.
+  **
+  ** The XMARK table provides a mapping from fast-import "marks" and symbols
+  ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts). 
+  ** Given any valid fast-import symbol, the corresponding fossil rid and
+  ** uuid can found by searching against the xmark.tname field.
+  **
+  ** The XBRANCH table maps commit marks and symbols into the branch those
+  ** commits belong to.  If xbranch.tname is a fast-import symbol for a
+  ** checkin then xbranch.brnm is the branch that checkin is part of.
+  **
+  ** The XTAG table records information about tags that need to be applied
+  ** to various branches after the import finishes.  The xtag.tcontent field
+  ** contains the text of an artifact that will add a tag to a check-in.
+  ** The git-fast-export file format might specify the same tag multiple
+  ** times but only the last tag should be used.  And we do not know which
+  ** occurrence of the tag is the last until the import finishes.
+  */
   db_multi_exec(
-     "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+     "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
      "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
+     "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
   );
+
+
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
   git_fast_import(pIn);
+  db_prepare(&q, "SELECT tcontent FROM xtag");
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob record;
+    db_ephemeral_blob(&q, 0, &record);
+    fast_insert_content(&record, 0, 0);
+    import_reset(0);
+  }
+  db_finalize(&q);
   db_end_transaction(0);
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");

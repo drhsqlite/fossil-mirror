@@ -190,8 +190,8 @@ void add_directory_content(const char *zDir, Stmt *pIgnore){
       }
       blob_resize(&path, origSize);
     }
+    closedir(d);
   }
-  closedir(d);
   blob_reset(&path);
 }
 
@@ -323,8 +323,8 @@ void del_directory_content(const char *zDir){
       }
       blob_resize(&path, origSize);
     }
+    closedir(d);
   }
-  closedir(d);
   blob_reset(&path);
 }
 

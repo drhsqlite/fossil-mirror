@@ -612,7 +612,7 @@ void user_edit(void){
   @ The <span class="capability">EMail</span> privilege allows the display of
   @ sensitive information such as the email address of users and contact
   @ information on tickets. Recommended OFF for 
-  @ <span class="usertype">anonymousy</span> and for
+  @ <span class="usertype">anonymous</span> and for
   @ <span class="usertype">nobody</span> but ON for
   @ <span class="usertype">developer</span>.
   @ </p></li>

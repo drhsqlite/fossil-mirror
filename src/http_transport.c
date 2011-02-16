@@ -111,15 +111,15 @@ void transport_global_startup(void){
     const char *zSsh;  /* The base SSH command */
     Blob zCmd;         /* The SSH command */
     char *zHost;       /* The host name to contact */
-    char zIn[200];     /* An input line received back from remote */
+    char *zIn;         /* An input line received back from remote */
 
     zSsh = db_get("ssh-command", zDefaultSshCmd);
     blob_init(&zCmd, zSsh, -1);
     if( g.urlPort!=g.urlDfltPort ){
 #ifdef __MINGW32__
-      blob_appendf(&zCmd, " -P %d", g.urlPort);
+      blob_appendf(&zCmd, " -T -P %d", g.urlPort);
 #else
-      blob_appendf(&zCmd, " -p %d", g.urlPort);
+      blob_appendf(&zCmd, " -e none -T -p %d", g.urlPort);
 #endif
     }
     if( g.urlUser && g.urlUser[0] ){
@@ -148,7 +148,7 @@ void transport_global_startup(void){
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, zHost);
     free(zHost);
-    /* printf("%s\n", blob_str(&zCmd)); */
+    /* printf("%s\n", blob_str(&zCmd));  */
     popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
@@ -160,11 +160,13 @@ void transport_global_startup(void){
     */
     fprintf(sshOut, "echo test\n");
     fflush(sshOut);
-    sshin_read(zIn, sizeof(zIn));
+    zIn = fossil_malloc(16000);
+    sshin_read(zIn, 16000);
     if( memcmp(zIn, "test", 4)!=0 ){
       pclose2(sshIn, sshOut, sshPid);
       fossil_fatal("ssh connection failed: [%s]", zIn);
     }
+    fossil_free(zIn);
   }
 }
 
@@ -187,7 +189,7 @@ int transport_open(void){
       shell_escape(&cmd, g.urlFossil);
       blob_append(&cmd, " test-http ", -1);
       shell_escape(&cmd, g.urlPath);
-      /* fprintf(stdout, "%s\n", blob_str(&cmd)); */
+      /* printf("%s\n", blob_str(&cmd)); fflush(stdout); */
       fprintf(sshOut, "%s\n", blob_str(&cmd));
       fflush(sshOut);
       blob_reset(&cmd);
@@ -341,6 +343,7 @@ static int transport_fetch(char *zBuf, int N){
     int x;
     int wanted = N;
     got = 0;
+    /* printf("want %d bytes...\n", wanted); fflush(stdout); */
     while( wanted>0 ){
       x = read(sshIn, &zBuf[got], wanted);
       if( x<=0 ) break;
@@ -358,7 +361,7 @@ static int transport_fetch(char *zBuf, int N){
   }else{
     got = socket_receive(0, zBuf, N);
   }
-  /* printf("received %d of %d bytes\n", got, N); fflush(stdout);  */
+  /* printf("received %d of %d bytes\n", got, N); fflush(stdout); */
   if( transport.pLog ){
     fwrite(zBuf, 1, got, transport.pLog);
     fflush(transport.pLog);
@@ -375,7 +378,7 @@ int transport_receive(char *zBuf, int N){
   int nByte = 0;    /* Bytes of content received */
 
   onHand = transport.nUsed - transport.iCursor;
-  /* printf("request %d with %d on hand\n", N, onHand); fflush(stdout);  */
+  /* printf("request %d with %d on hand\n", N, onHand); fflush(stdout); */
   if( onHand>0 ){
     int toMove = onHand;
     if( toMove>N ) toMove = N;
@@ -449,7 +452,7 @@ char *transport_receive_line(void){
   i = iStart = transport.iCursor;
   while(1){
     if( i >= transport.nUsed ){
-      transport_load_buffer(1000);
+      transport_load_buffer(g.urlIsSsh ? 2 : 1000);
       i -= iStart;
       iStart = 0;
       if( i >= transport.nUsed ){
@@ -468,7 +471,7 @@ char *transport_receive_line(void){
     }
     i++;
   }
-  /* printf("Got line: [%s]\n", &transport.pBuf[iStart]); */
+   /* printf("Got line: [%s]\n", &transport.pBuf[iStart]); */
   return &transport.pBuf[iStart];
 }
 
