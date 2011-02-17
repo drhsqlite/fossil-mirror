@@ -1094,6 +1094,7 @@ void commit_cmd(void){
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);
+  assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
   printf("New_Version: %s\n", zUuid);

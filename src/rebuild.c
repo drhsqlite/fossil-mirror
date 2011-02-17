@@ -176,8 +176,9 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       blob_write_to_file(pUse,zFile);
       free(zFile);
       free(zUuid);
+      blob_reset(pUse);
     }
-    blob_reset(pUse);
+    assert( blob_is_reset(pUse) );
     rebuild_step_done(rid);
   
     /* Call all children recursively */

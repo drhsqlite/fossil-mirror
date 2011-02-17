@@ -73,7 +73,10 @@ static void content_cache_expire_oldest(void){
 }
 
 /*
-** Add an entry to the content cache
+** Add an entry to the content cache.
+**
+** This routines hands responsibility for the artifact over to the cache.
+** The cache will deallocate memory when it has finished with it.
 */
 void content_cache_insert(int rid, Blob *pBlob){
   struct cacheLine *p;
@@ -363,7 +366,7 @@ void after_dephantomize(int rid, int linkFlag){
     if( linkFlag ){
       content_get(rid, &content);
       manifest_crosslink(rid, &content);
-      blob_reset(&content);
+      assert( blob_is_reset(&content) );
     }
 
     /* Parse all delta-manifests that depend on baseline-manifest rid */
@@ -380,7 +383,7 @@ void after_dephantomize(int rid, int linkFlag){
     for(i=0; i<nChildUsed; i++){
       content_get(aChild[i], &content);
       manifest_crosslink(aChild[i], &content);
-      blob_reset(&content);
+      assert( blob_is_reset(&content) );
     }
     if( nChildUsed ){
       db_multi_exec("DELETE FROM orphan WHERE baseline=%d", rid);
@@ -439,6 +442,10 @@ void content_enable_dephantomize(int onoff){
 **
 ** If the record already exists but is a phantom, the pBlob content
 ** is inserted and the phatom becomes a real record.
+**
+** The original content of pBlob is not disturbed.  The caller continues
+** to be responsible for pBlob.  This routine does *not* take over
+** responsiblity for freeing pBlob.
 */
 int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
   int size;

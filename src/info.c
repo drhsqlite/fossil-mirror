@@ -1558,6 +1558,7 @@ void ci_edit_page(void){
       g.markPrivate = content_is_private(rid);
       nrid = content_put(&ctrl, 0, 0, 0);
       manifest_crosslink(nrid, &ctrl);
+      assert( blob_is_reset(&ctrl) );
       db_end_transaction(0);
     }
     cgi_redirectf("ci?name=%s", zUuid);

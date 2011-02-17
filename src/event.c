@@ -348,7 +348,7 @@ void eventedit_page(void){
     nrid = content_put(&event, 0, 0, 0);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     manifest_crosslink(nrid, &event);
-    blob_reset(&event);
+    assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
     cgi_redirectf("event?name=%T", zEventId);

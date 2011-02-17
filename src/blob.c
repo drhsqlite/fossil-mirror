@@ -62,13 +62,18 @@ struct Blob {
 
 /*
 ** Make sure a blob does not contain malloced memory.
+**
+** This might fail if we are unlucky and x is uninitialized.  For that
+** reason it should only be used locally for debugging.  Leave it turned
+** off for production.
 */
 #if 0  /* Enable for debugging only */
-#define blob_is_reset(x) \
-  assert((x)->xRealloc!=blobReallocMalloc || (x)->nAlloc==0)
+#define assert_blob_is_reset(x) assert(blob_is_reset(x))
 #else
-#define blob_is_reset(x)
+#define assert_blob_is_reset(x)
 #endif
+
+
 
 /*
 ** We find that the built-in isspace() function does not work for
@@ -180,12 +185,25 @@ void blob_reset(Blob *pBlob){
   pBlob->xRealloc(pBlob, 0);
 }
 
+
+/*
+** Return true if the blob has been zeroed - in other words if it contains
+** no malloced memory.  This only works reliably if the blob has been
+** initialized - it can return a false negative on an uninitialized blob.
+*/
+int blob_is_reset(Blob *pBlob){
+  if( pBlob==0 ) return 1;
+  if( pBlob->nUsed ) return 0;
+  if( pBlob->xRealloc==blobReallocMalloc && pBlob->nAlloc ) return 0;
+  return 1;
+}
+
 /*
 ** Initialize a blob to a string or byte-array constant of a specified length.
 ** Any prior data in the blob is discarded.
 */
 void blob_init(Blob *pBlob, const char *zData, int size){
-  blob_is_reset(pBlob);
+  assert_blob_is_reset(pBlob);
   if( zData==0 ){
     *pBlob = empty_blob;
   }else{
@@ -210,7 +228,7 @@ void blob_set(Blob *pBlob, const char *zStr){
 */
 void blob_zero(Blob *pBlob){
   static const char zEmpty[] = "";
-  blob_is_reset(pBlob);
+  assert_blob_is_reset(pBlob);
   pBlob->nUsed = 0;
   pBlob->nAlloc = 1;
   pBlob->aData = (char*)zEmpty;
@@ -359,7 +377,7 @@ void blob_dehttpize(Blob *pBlob){
 */
 int blob_extract(Blob *pFrom, int N, Blob *pTo){
   blob_is_init(pFrom);
-  blob_is_reset(pTo);
+  assert_blob_is_reset(pTo);
   if( pFrom->iCursor + N > pFrom->nUsed ){
     N = pFrom->nUsed - pFrom->iCursor;
     if( N<=0 ){
@@ -737,7 +755,7 @@ void blob_compress(Blob *pIn, Blob *pOut){
   compress(&outBuf[4], &nOut2,
            (unsigned char*)blob_buffer(pIn), blob_size(pIn));
   if( pOut==pIn ) blob_reset(pOut);
-  blob_is_reset(pOut);
+  assert_blob_is_reset(pOut);
   *pOut = temp;
   blob_resize(pOut, nOut2+4);
 }
@@ -790,7 +808,7 @@ void blob_compress2(Blob *pIn1, Blob *pIn2, Blob *pOut){
   deflateEnd(&stream);
   if( pOut==pIn1 ) blob_reset(pOut);
   if( pOut==pIn2 ) blob_reset(pOut);
-  blob_is_reset(pOut);
+  assert_blob_is_reset(pOut);
   *pOut = temp;
 }
 
@@ -835,7 +853,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   }
   blob_resize(&temp, nOut2);
   if( pOut==pIn ) blob_reset(pOut);
-  blob_is_reset(pOut);
+  assert_blob_is_reset(pOut);
   *pOut = temp;
   return 0;
 }

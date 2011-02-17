@@ -266,6 +266,7 @@ void attachadd_page(void){
     blob_appendf(&manifest, "Z %b\n", &cksum);
     rid = content_put(&manifest, 0, 0, 0);
     manifest_crosslink(rid, &manifest);
+    assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
     cgi_redirect(zFrom);
   }

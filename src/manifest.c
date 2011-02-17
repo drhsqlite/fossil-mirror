@@ -124,6 +124,7 @@ void manifest_destroy(Manifest *p){
     free(p->aTag);
     free(p->aField);
     if( p->pBaseline ) manifest_destroy(p->pBaseline);
+    memset(p, 0, sizeof(*p));
     fossil_free(p);
   }
 }
@@ -1435,6 +1436,8 @@ void manifest_ticket_event(
 ** If global variable g.xlinkClusterOnly is true, then ignore all 
 ** control artifacts other than clusters.
 **
+** This routine always resets the pContent blob before returning.
+**
 ** Historical note:  This routine original processed manifests only.
 ** Processing for other control artifacts was added later.  The name
 ** of the routine, "manifest_crosslink", and the name of this source
@@ -1449,14 +1452,17 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( (p = manifest_cache_find(rid))!=0 ){
     blob_reset(pContent);
   }else if( (p = manifest_parse(pContent, rid))==0 ){
+    assert( blob_is_reset(pContent) || pContent==0 );
     return 0;
   }
   if( g.xlinkClusterOnly && p->type!=CFTYPE_CLUSTER ){
     manifest_destroy(p);
+    assert( blob_is_reset(pContent) );
     return 0;
   }
   if( p->type==CFTYPE_MANIFEST && fetch_baseline(p, 0) ){
     manifest_destroy(p);
+    assert( blob_is_reset(pContent) );
     return 0;
   }
   db_begin_transaction();
@@ -1714,5 +1720,6 @@ int manifest_crosslink(int rid, Blob *pContent){
   }else{
     manifest_destroy(p);
   }
+  assert( blob_is_reset(pContent) );
   return 1;
 }

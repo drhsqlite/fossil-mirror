@@ -165,10 +165,12 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   blob_reset(&hash);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
+    blob_reset(&content);
   }else{
     content_make_public(rid);
     manifest_crosslink(rid, &content);
   }
+  assert( blob_is_reset(&content) );
   remote_has(rid);
 }
 

@@ -326,7 +326,7 @@ void wikiedit_page(void){
       nrid = content_put(&wiki, 0, 0, 0);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
     }
     db_end_transaction(0);
@@ -498,7 +498,7 @@ void wikiappend_page(void){
       nrid = content_put(&wiki, 0, 0, 0);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
       db_end_transaction(0);
     }
@@ -822,7 +822,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   nrid = content_put( &wiki, 0, 0, 0);
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   manifest_crosslink(nrid,&wiki);
-  blob_reset(&wiki);
+  assert( blob_is_reset(&wiki) );
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
   autosync(AUTOSYNC_PUSH);  

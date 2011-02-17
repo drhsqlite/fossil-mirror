@@ -313,6 +313,7 @@ void tag_add_artifact(
   blob_appendf(&ctrl, "Z %b\n", &cksum);
   nrid = content_put(&ctrl, 0, 0, 0);
   manifest_crosslink(nrid, &ctrl);
+  assert( blob_is_reset(&ctrl) );
 }
 
 /*
