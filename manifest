@@ -1,5 +1,5 @@
-C Print\sthe\sSSH\scommand\sthat\sis\sissued\sfor\sssh:\saccess,\sscrubbed\sof\sany\npassword\scontent.\s\sRemove\sredundant\s-e\sand\s-T\soptions\sfrom\sthe\sssh\scommand.
-D 2011-02-17T13:43:49.229
+C Update\sthe\scopyright\sagreement\ssuch\sthat\sprivate\sextensions\sto\sFossil\sare\nexcluded\sand\sare\snot\stransferred\sto\sHwaci.
+D 2011-02-17T17:23:40.742
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -236,7 +236,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
-F www/copyright-release.html 7fa63d1ca4eb770f9b2b88ed29061905e0f60db5
+F www/copyright-release.html ffd8bab168c8dfef0261144a151c672d0da67ae4
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
 F www/delta1.gif fc676aedbef6ec9670dca75fd815371f6fbd7143
 F www/delta2.gif 305bcc078165737af0fc8001c37b42fca568fa72
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ae73c07be0f53003a939a3a74cb536d24e3e9128
-R f0cc4f22241a24bc7f839ab785d886af
+P f63ff9fc683b1aa3373d28cc44bb11f01dd74852
+R e704a972807e9c892b7a7b32db0fa9ce
 U drh
-Z 4653431fa008b098f67e8489675ec3da
+Z 994d1d05d92bf889533a45cc3ca6f109
