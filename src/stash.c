@@ -349,6 +349,7 @@ static int stash_get_id(const char *zStashId){
 **     --all flag is used.  Individual drops are undoable but --all is not.
 **
 **  fossil stash snapshot ?-m COMMENT? ?FILES...?
+**  fossil stash make ?-m COMMENT? ?FILES...?
 **
 **     Save the current changes in the working tress as a new stash
 **     but, unlike "save", do not revert those changes.
@@ -398,7 +399,7 @@ void stash_cmd(void){
     g.argv[1] = "revert";
     revert_cmd();
   }else
-  if( memcmp(zCmd, "snapshot", nCmd)==0 ){
+  if( memcmp(zCmd, "snapshot", nCmd)==0 || memcmp(zCmd, "make", nCmd)==0 ){
     stash_create();
   }else
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
