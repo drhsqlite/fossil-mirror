@@ -117,15 +117,16 @@ void transport_global_startup(void){
     blob_init(&zCmd, zSsh, -1);
     if( g.urlPort!=g.urlDfltPort ){
 #ifdef __MINGW32__
-      blob_appendf(&zCmd, " -T -P %d", g.urlPort);
+      blob_appendf(&zCmd, " -P %d", g.urlPort);
 #else
-      blob_appendf(&zCmd, " -e none -T -p %d", g.urlPort);
+      blob_appendf(&zCmd, " -p %d", g.urlPort);
 #endif
     }
+    printf("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
     if( g.urlUser && g.urlUser[0] ){
       zHost = mprintf("%s@%s", g.urlUser, g.urlName);
 #ifdef __MINGW32__
-      /* Only win32 (and specifically PLINK.EXE support the -pw option */
+      /* Only win32 (and specifically PLINK.EXE) support the -pw option */
       if( g.urlPasswd && g.urlPasswd[0] ){
         Blob pw;
         blob_zero(&pw);
@@ -140,6 +141,7 @@ void transport_global_startup(void){
         blob_append(&zCmd, " -pw ", -1);
         shell_escape(&zCmd, blob_str(&pw));
         blob_reset(&pw);
+        printf(" -pw ********");  /* Do not show the password text */
       }
 #endif
     }else{
@@ -147,8 +149,8 @@ void transport_global_startup(void){
     }
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, zHost);
+    printf(" %s\n", zHost);  /* Show the conclusion of the SSH command */
     free(zHost);
-    /* printf("%s\n", blob_str(&zCmd));  */
     popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);

@@ -1,5 +1,5 @@
-C Merge\sin\sBrad\sHarder's\s"stash\sls"\scommand.
-D 2011-02-17T00:05:13.027
+C Print\sthe\sSSH\scommand\sthat\sis\sissued\sfor\sssh:\saccess,\sscrubbed\sof\sany\npassword\scontent.\s\sRemove\sredundant\s-e\sand\s-T\soptions\sfrom\sthe\sssh\scommand.
+D 2011-02-17T13:43:49.229
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -67,7 +67,7 @@ F src/graph.c eede34999b73a6d59b7e2c4ab8059e11e364b04a
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
-F src/http_transport.c 1236272be265c259dff2c0a391ebff2cbcee9898
+F src/http_transport.c 0d5d2c5bbe4374f935545e8d5651d92b30bd74b0
 F src/import.c 1bf94be008d52b63fec4163b1168b8ccf346d2c6
 F src/info.c 42427346142a7dff81d3a8408cd1fb1666605f49
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c616cef3f787d6b3f4c853a40949e375b74ac24a 0eaf7528b160d4d6492ff884cc42e943600e8cab
-R e2ba5ef508c74a4ba5802915009a4bfc
+P ae73c07be0f53003a939a3a74cb536d24e3e9128
+R f0cc4f22241a24bc7f839ab785d886af
 U drh
-Z 6858e32be3072ccff95b63ac53a70923
+Z 4653431fa008b098f67e8489675ec3da
