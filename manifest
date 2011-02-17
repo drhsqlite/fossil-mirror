@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\spre-release\sSQLite\sversion\s(as\spart\sof\sthe\sSQLite\stesting\nprocess).\s\sUpdate\sthe\smakefiles\sto\suse\sSQLITE_ENABLE_STAT2.
-D 2011-02-16T23:47:58.871
+C Merge\sin\sBrad\sHarder's\s"stash\sls"\scommand.
+D 2011-02-17T00:05:13.027
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -100,7 +100,7 @@ F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 583d5c58f9920fcb2099144ecad430b71f6b8d70
 F src/sqlite3.h 8b61a7e51bdb8fd79ff91fe157bb40b693d74636
-F src/stash.c 7797f22924ad053facb1b88c21d3802b1053bb77
+F src/stash.c 411ca6ee9733ffcd0c17bf9462497bf10cbfbee2
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 2e47c560f494841720c258e7ace481a69ccfe5b3
 F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
@@ -294,7 +294,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f73ed21d3b6e58b54066d5312bacd0c936dc4b77
-R ee18f034ace091b9c8a80782f45ac0f7
+P c616cef3f787d6b3f4c853a40949e375b74ac24a 0eaf7528b160d4d6492ff884cc42e943600e8cab
+R e2ba5ef508c74a4ba5802915009a4bfc
 U drh
-Z 65a93516e8ad5915e728043b760a5062
+Z 6858e32be3072ccff95b63ac53a70923
