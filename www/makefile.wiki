@@ -4,17 +4,20 @@
 
 The build process for Fossil is tricky in that the source code
 needs to be processed by three different preprocessor programs
-before it is compiled.  Most users will download a precompiled
-binary so this is of no consequence to them, and even those who
-want to compile the code themselves can use one of the existing
-makefiles.  So must people do not need to be concerned with the
-build complexities of Fossil.  But hard-cord developers who desire
+before it is compiled.  Most users will download a 
+[http://www.fossil-scm.org/download.html | precompiled binary]
+so this is of no consequence to them, and even those who
+want to compile the code themselves can use one of the 
+[./build.wiki | existing makefiles].  
+So must people do not need to be concerned with the
+build complexities of Fossil.  But hard-core developers who desire
 a deep understanding of how Fossil is put together can benefit
 from reviewing this article.
 
 <h1>2.0 Source Code Tour</h1>
 
-The source code for Fossil is found in the src/ subdirectory of the
+The source code for Fossil is found in the 
+[/dir?ci=trunk&name=src | src/] subdirectory of the
 source tree.  The src/ subdirectory contains all code, including
 the code for the separate preprocessor programs.
 
@@ -199,6 +202,7 @@ When compiling sqlite.c, the following macros are recommended:
   *  -DSQLITE_ENABLE_LOCKING_STYLE=0
   *  -DSQLITE_THREADSAFE=0
   *  -DSQLITE_DEFAULT_FILE_FORMAT=4
+  *  -DSQLITE_ENABLE_STAT2
 
 The first and second symbol definitions above are required; the others
 are merely recommended.  The "localtime()" library function in SQLite must
