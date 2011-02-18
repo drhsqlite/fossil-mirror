@@ -1180,24 +1180,28 @@ void artifact_page(void){
         while( z[0] ){
           n++;
           for(i=0; z[i] && z[i]!='\n'; i++){}
-          if( n==iStart ) cgi_append_content("<b id=\"dln\">", -1);
+          if( n==iStart-15 ) cgi_append_content("<span id=\"topln\">", -1);
+          if( n==iStart ){
+            cgi_append_content("<div class=\"selectedText\">",-1);
+          }
           cgi_printf("%06d  ", n);
           if( i>0 ){
             char *zHtml = htmlize(z, i);
             cgi_append_content(zHtml, -1);
             fossil_free(zHtml);
           }
-          if( n==iEnd ) cgi_append_content("</b>", -1);
-          cgi_append_content("\n", 1);
+          if( n==iStart-15 ) cgi_append_content("</span>", -1);
+          if( n==iEnd ) cgi_append_content("</div>", -1);
+          else cgi_append_content("\n", 1);
           z += i;
           if( z[0]=='\n' ) z++;
         }
-        if( n<iEnd ) cgi_printf("</b>");
+        if( n<iEnd ) cgi_printf("</div>");
         @ </pre>
         if( iStart ){
           @ <script type="text/JavaScript">
           @ /* <![CDATA[ */
-          @ document.getElementById('dln').scrollIntoView(true);
+          @ document.getElementById('topln').scrollIntoView(true);
           @ /* ]]> */
           @ </script>
         }

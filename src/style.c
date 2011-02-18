@@ -641,6 +641,13 @@ const struct strctCssDefaults {
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
   },
+  { "div.selectedText",
+    "selected lines of text within a linenumbered artifact display",
+    @   font-weight: bold;
+    @   color: blue;
+    @   background-color: #d5d5ff;
+    @   border: 1px blue solid;
+  },
   { "p.missingPriv",
     "format for missing priviliges note on user setup page",
     @  color: blue;
