@@ -390,7 +390,7 @@ void ci_page(void){
     @ </td></tr>
     @ <tr><th>Date:</th><td>
     hyperlink_to_date(zDate, "</td></tr>");
-    if( zOrigDate ){
+    if( zOrigDate && fossil_strcmp(zDate, zOrigDate)!=0 ){
       @ <tr><th>Original&nbsp;Date:</th><td>
       hyperlink_to_date(zOrigDate, "</td></tr>");
     }
