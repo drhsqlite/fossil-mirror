@@ -485,6 +485,9 @@ int historical_version_of_file(
       fossil_fatal("file %s does not exist in checkin: %s", file, revision);
     }
   }else if( errCode<=0 ){
+    if( revision==0 ){
+      revision = db_text("current", "SELECT uuid FROM blob WHERE rid=%d", rid);
+    }
     fossil_panic("could not parse manifest for checkin: %s", revision);
   }
   return errCode;
