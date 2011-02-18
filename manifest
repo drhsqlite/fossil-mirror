@@ -1,5 +1,5 @@
-C Add\sa\snew\scontributor\sagreement\sthat\sis\sbased\sloosely\son\sthe\s\nOracle\sCLA.
-D 2011-02-17T22:43:38.517
+C Additional\sdocumentation,\sespecially\snotes\son\show\sto\scontribute\scode\sor\ndocumentation\sto\sFossil.
+D 2011-02-18T00:52:55.579
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -216,7 +216,8 @@ F www/build-icons/mac.gif e8de26198384613dbd2b9f3ad81f59946d55d119
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 2960be793bc9edcdc632e520902f92e105b2041c
+F www/build.wiki 19b8586f482baa8e4d7a5a32d5b1ce15fb6e5b99
+F www/checkin.wiki 4da78d129995e49acca38a9ff2744d08eb3aacc1
 F www/checkin_names.wiki 29652e9e5896c2a36a1bf20889ed5dafdc87a2c1
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -236,6 +237,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
+F www/contribute.wiki b7cc62191e1165d543b93b81c4ce576488583476
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
@@ -271,14 +273,14 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 079c3eb0a289b8f7b0caddbecd95e8fff94c5fd0
+F www/index.wiki 59f5040108ece9a6efd5c3ac3bb7baaf50e7754c
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/makefile.wiki ae83f4f0ee9a534fffec7603b1a049366b8ccde9
 F www/mkdownload.tcl a38e77cddcaed06219cfe902973d858c19f756e2
-F www/mkindex.tcl 17203ac291ee977f028c2e3a6fbe3da17dc69a2b
+F www/mkindex.tcl c9d678fcb384af1c089fd658dbb7f293d14ed9cf
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki 61dfc7a8d686a0556bbf90853d9f720d6f90fb47
+F www/permutedindex.wiki 9c7aa0b64e829cf2943fcc38ea20ec5beeace0bf
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 781bccce6fb42c66d576450fa5c063098158f09e
@@ -290,12 +292,13 @@ F www/selfhost.wiki c45c0d784f65ac5bc7a457d492f2ebbb3bcdadb7
 F www/server.wiki 0532a325f6ce6d87c7022497b669f2ed00e87487
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
+F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d22519e500b37a55a1dcb34a2bb95fbb81e26246
-R 2f0abf558d00d09979e1942733ef7dcd
+P 252e83d9526da79fdb1f73e54dc6620492b3ed0a
+R 41d28719e665f6069b607ab7d857f9eb
 U drh
-Z 24d8a16445d86be23f58e3bf79e7171c
+Z a4f9be59e9859593cee4f1805f834c5c

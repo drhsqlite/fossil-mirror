@@ -142,6 +142,8 @@ internet these days. What makes Fossil worthy of attention?
 
 <h3>Links For Fossil Developer:</h3>
 
+  *  [./contribute.wiki | Contributing] code or documentation to the
+     Fossil project.
   *  [./theory1.wiki | Thoughts On The Design Of Fossil].
   *  [./pop.wiki | Principles Of Operation]
   *  [./tech_overview.wiki | A Technical Overview Of Fossil].

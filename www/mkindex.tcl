@@ -11,7 +11,9 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Building and Installing Fossil}
   checkin_names.wiki {Checkin And Version Names}
+  copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
+  contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
@@ -29,11 +31,13 @@ set doclist {
   quickstart.wiki {Fossil Quick Start Guide}
   quotes.wiki
       {Quotes: What People Are Saying About Fossil, Git, and DVCSes in General}
+  ../test/release-checklist.wiki {Pre-Release Testing Checklist}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
   shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
+  style.wiki {Source Code Style Guidelines}
   sync.wiki {The Fossil Sync Protocol}
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}

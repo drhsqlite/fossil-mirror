@@ -72,7 +72,8 @@ in step 8 above.</p>
 
 <ol>
 <li value="9">
-<p>The finished binary is named "fossil".  Put this binary in a 
+<p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
+Put this binary in a 
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>
 
