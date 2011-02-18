@@ -1,5 +1,5 @@
-C Only\sshow\sthe\s"Original\sDate"\sif\sits\sdisplay\stime\sis\sdifferent\sfrom\sthe\n"Date".\s\sIgnore\sdifferences\sin\smilliseconds.
-D 2011-02-18T17:26:33.147
+C Enhance\sthe\s/artifact\smethod\sso\sthat\sthe\sln=M,N\sargument\sshows\slinenumbers\nand\shighlights\slines\sbetween\sM\sand\sN.
+D 2011-02-18T19:31:31.859
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -69,7 +69,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 0d5d2c5bbe4374f935545e8d5651d92b30bd74b0
 F src/import.c 1bf94be008d52b63fec4163b1168b8ccf346d2c6
-F src/info.c e07c004829c2614d7d04c584ed9f0ecd4f61824f
+F src/info.c 2afa3cb74beaec89de7fb1ec606d6e3d6de9a68e
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
 F src/login.c 875d20622a56e190826bd246c0a27b1c27899ad2
 F src/main.c 53c7b3ab58b02ad1e14190ab8bbd51f8a2b31f99
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2a02aa49e1bc6724c28d037e56a7aaf3b2a6963f
-R 4034557001e64ae0d63b07c095f345e2
+P 022a74a93fa739aaba4ab5b2a36f3a944f5f3b33
+R 01d7dfaa66f513db5932a601dac27de8
 U drh
-Z dbecce97b3557843e8c5fdb2889c07e3
+Z 7a3985d6c4fa096028ed6f329cf75ac8

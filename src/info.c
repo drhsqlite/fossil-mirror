@@ -1164,9 +1164,48 @@ void artifact_page(void){
     zMime = mimetype_from_content(&content);
     @ <blockquote>
     if( zMime==0 ){
-      @ <pre>
-      @ %h(blob_str(&content))
-      @ </pre>
+      const char *zLn = P("ln");
+      const char *z = blob_str(&content);
+      if( zLn ){
+        int iStart, iEnd;
+        int n = 0;
+        int i;
+        iStart = iEnd = atoi(zLn);
+        if( iStart>0 ){
+          for(i=0; zLn[i] && zLn[i]!=','; i++){}
+          if( zLn[i] ) iEnd = atoi(&zLn[i+1]);
+          if( iEnd<iStart ) iEnd = iStart;
+        }
+        @ <pre>
+        while( z[0] ){
+          n++;
+          for(i=0; z[i] && z[i]!='\n'; i++){}
+          if( n==iStart ) cgi_append_content("<b id=\"dln\">", -1);
+          cgi_printf("%06d  ", n);
+          if( i>0 ){
+            char *zHtml = htmlize(z, i);
+            cgi_append_content(zHtml, -1);
+            fossil_free(zHtml);
+          }
+          if( n==iEnd ) cgi_append_content("</b>", -1);
+          cgi_append_content("\n", 1);
+          z += i;
+          if( z[0]=='\n' ) z++;
+        }
+        if( n<iEnd ) cgi_printf("</b>");
+        @ </pre>
+        if( iStart ){
+          @ <script type="text/JavaScript">
+          @ /* <![CDATA[ */
+          @ document.getElementById('dln').scrollIntoView(true);
+          @ /* ]]> */
+          @ </script>
+        }
+      }else{
+        @ <pre>
+        @ %h(z);
+        @ </pre>
+      }
     }else if( strncmp(zMime, "image/", 6)==0 ){
       @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
     }else{
