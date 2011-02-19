@@ -339,7 +339,9 @@ void ci_page(void){
   int rid;
   int isLeaf;
   int showDiff;
-  const char *zName;
+  const char *zName;   /* Name of the checkin to be displayed */
+  const char *zUuid;   /* UUID of zName */
+  const char *zParent; /* UUID of the parent checkin (if any) */
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
@@ -351,6 +353,12 @@ void ci_page(void){
     style_footer();
     return;
   }
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zParent = db_text(0,
+    "SELECT uuid FROM plink, blob"
+    " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
+    rid
+  );
   isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
   db_prepare(&q, 
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
@@ -430,9 +438,15 @@ void ci_page(void){
       const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
       @   <a href="%s(g.zTop)/timeline?f=%S(zUuid)">family</a>
-      @ | <a href="%s(g.zTop)/timeline?p=%S(zUuid)">ancestors</a>
-      @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)">descendants</a>
-      @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
+      if( zParent ){
+        @ | <a href="%s(g.zTop)/timeline?p=%S(zUuid)">ancestors</a>
+      }
+      if( !isLeaf ){
+        @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)">descendants</a>
+      }
+      if( zParent && !isLeaf ){
+        @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
+      }
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
@@ -464,38 +478,42 @@ void ci_page(void){
   }
   db_finalize(&q);
   showTags(rid, "");
-  @ <div class="section">Changes</div>
-  showDiff = g.zPath[0]!='c';
-  if( db_get_boolean("show-version-diffs", 0)==0 ){
-    showDiff = !showDiff;
-    if( showDiff ){
-      @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a><br/>
+  if( zParent ){
+    @ <div class="section">Changes</div>
+    showDiff = g.zPath[0]!='c';
+    if( db_get_boolean("show-version-diffs", 0)==0 ){
+      showDiff = !showDiff;
+      if( showDiff ){
+        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
+      }else{
+        @ <a href="%s(g.zTop)/ci/%T(zName)">[show&nbsp;diffs]</a>
+      }
     }else{
-      @ <a href="%s(g.zTop)/ci/%T(zName)">[show&nbsp;diffs]</a><br/>
+      if( showDiff ){
+        @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
+      }else{
+        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[show&nbsp;diffs]</a>
+      }
     }
-  }else{
-    if( showDiff ){
-      @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a><br/>
-    }else{
-      @ <a href="%s(g.zTop)/vinfo/%T(zName)">[show&nbsp;diffs]</a><br/>
+    @ &nbsp;&nbsp;
+    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    db_prepare(&q,
+       "SELECT name,"
+       "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
+       "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
+       "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
+       " WHERE mlink.mid=%d"
+       " ORDER BY name",
+       rid
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q,0);
+      const char *zOld = db_column_text(&q,1);
+      const char *zNew = db_column_text(&q,2);
+      append_file_change_line(zName, zOld, zNew, showDiff);
     }
+    db_finalize(&q);
   }
-  db_prepare(&q,
-     "SELECT name,"
-     "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-     "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
-     "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
-     " WHERE mlink.mid=%d"
-     " ORDER BY name",
-     rid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q,0);
-    const char *zOld = db_column_text(&q,1);
-    const char *zNew = db_column_text(&q,2);
-    append_file_change_line(zName, zOld, zNew, showDiff);
-  }
-  db_finalize(&q);
   style_footer();
 }
 

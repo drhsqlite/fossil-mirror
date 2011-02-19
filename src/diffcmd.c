@@ -28,11 +28,26 @@
 #define DIFF_NOEOLWS  0x02    /* Ignore whitespace at the end of lines */
 
 /*
+** Output the results of a diff.  Output goes to stdout for command-line
+** or to the CGI/HTTP result buffer for web pages.
+*/
+static void diff_printf(const char *zFormat, ...){
+  va_list ap;
+  va_start(ap, zFormat);
+  if( g.cgiOutput ){
+    cgi_vprintf(zFormat, ap);
+  }else{
+    vprintf(zFormat, ap);
+  }
+  va_end(ap);
+}
+
+/*
 ** Print the "Index:" message that patch wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile){
-  printf("Index: %s\n======================================="
-         "============================\n", zFile);
+  diff_printf("Index: %s\n======================================="
+              "============================\n", zFile);
 }
 
 /*
@@ -69,8 +84,8 @@ void diff_file(
     blob_zero(&out);
     text_diff(pFile1, &file2, &out, 5, ignoreEolWs);
     if( blob_size(&out) ){
-      printf("--- %s\n+++ %s\n", zName, zName2);
-      printf("%s\n", blob_str(&out));
+      diff_printf("--- %s\n+++ %s\n", zName, zName2);
+      diff_printf("%s\n", blob_str(&out));
     }
 
     /* Release memory resources */
@@ -128,8 +143,8 @@ void diff_file_mem(
 
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, 5, ignoreEolWs);
-    printf("--- %s\n+++ %s\n", zName, zName);
-    printf("%s\n", blob_str(&out));
+    diff_printf("--- %s\n+++ %s\n", zName, zName);
+    diff_printf("%s\n", blob_str(&out));
 
     /* Release memory resources */
     blob_reset(&out);
@@ -248,17 +263,17 @@ static void diff_all_against_disk(
     char *zToFree = zFullName;
     int showDiff = 1;
     if( isDeleted ){
-      printf("DELETED  %s\n", zPathname);
+      diff_printf("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = "/dev/null"; }
     }else if( access(zFullName, 0) ){
-      printf("MISSING  %s\n", zPathname);
+      diff_printf("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
-      printf("ADDED    %s\n", zPathname);
+      diff_printf("ADDED    %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
-      printf("ADDED_BY_MERGE %s\n", zPathname);
+      diff_printf("ADDED_BY_MERGE %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -365,13 +380,13 @@ static void diff_all_two_versions(
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
     if( cmp<0 ){
-      printf("DELETED %s\n", pFromFile->zName);
+      diff_printf("DELETED %s\n", pFromFile->zName);
       if( asNewFlag ){
         diff_manifest_entry(pFromFile, 0, zDiffCmd, ignoreEolWs);
       }
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
-      printf("ADDED   %s\n", pToFile->zName);
+      diff_printf("ADDED   %s\n", pToFile->zName);
       if( asNewFlag ){
         diff_manifest_entry(0, pToFile, zDiffCmd, ignoreEolWs);
       }
@@ -381,7 +396,7 @@ static void diff_all_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }else{
-      printf("CHANGED %s\n", pFromFile->zName);
+      diff_printf("CHANGED %s\n", pFromFile->zName);
       diff_manifest_entry(pFromFile, pToFile, zDiffCmd, ignoreEolWs);
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
@@ -461,4 +476,19 @@ void diff_cmd(void){
       diff_all_two_versions(zFrom, zTo, zDiffCmd, diffFlags);
     }
   }
+}
+
+/*
+** WEBPAGE: vpatch
+** URL vpatch?from=UUID&amp;to=UUID
+*/
+void vpatch_page(void){
+  const char *zFrom = P("from");
+  const char *zTo = P("to");
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
+  if( zFrom==0 || zTo==0 ) fossil_redirect_home();
+
+  cgi_set_content_type("text/plain");
+  diff_all_two_versions(zFrom, zTo, 0, DIFF_NEWFILE);
 }
