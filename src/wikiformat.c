@@ -56,11 +56,12 @@
 #define ATTR_SIZE               19
 #define ATTR_SRC                20
 #define ATTR_START              21
-#define ATTR_TYPE               22
-#define ATTR_VALIGN             23
-#define ATTR_VALUE              24
-#define ATTR_VSPACE             25
-#define ATTR_WIDTH              26
+#define ATTR_TARGET             22
+#define ATTR_TYPE               23
+#define ATTR_VALIGN             24
+#define ATTR_VALUE              25
+#define ATTR_VSPACE             26
+#define ATTR_WIDTH              27
 #define AMSK_ALIGN              0x0000001
 #define AMSK_ALT                0x0000002
 #define AMSK_BGCOLOR            0x0000004
@@ -87,6 +88,7 @@
 #define AMSK_VSPACE             0x0800000
 #define AMSK_WIDTH              0x1000000
 #define AMSK_CLASS              0x2000000
+#define AMSK_TARGET             0x4000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -114,6 +116,7 @@ static const struct AllowedAttribute {
   { "size",          AMSK_SIZE,           },
   { "src",           AMSK_SRC,            },
   { "start",         AMSK_START,          },
+  { "target",        AMSK_TARGET,         },
   { "type",          AMSK_TYPE,           },
   { "valign",        AMSK_VALIGN,         },
   { "value",         AMSK_VALUE,          },
@@ -240,7 +243,7 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },

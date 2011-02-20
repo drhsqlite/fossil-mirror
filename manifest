@@ -1,5 +1,5 @@
-C Augment\sthe\sfdiff\sweb\smethod\sto\saccept\sa\s"patch"\squery\sparameter\sand\soutput\ntext/plain\sif\sthe\sparameter\sis\spresent.
-D 2011-02-20T00:12:27.788
+C Allow\sthe\starget\sattribute\son\s&lt;a&gt;\smarkup.\nTicket\s[577663c2727505a]
+D 2011-02-20T20:44:24.474
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -120,7 +120,7 @@ F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
 F src/vfile.c 3bb9c1e42b57a747806be1d06a0c24dced1d9886
 F src/wiki.c 382b710f9e2aaffb7c6a041c3c469bcb6ff64eb2
-F src/wikiformat.c db46e9e18d7fdcdb0d101e0ffb51a8e3d3e3accc
+F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c f367576083ab58913a8707352a6f1d474a27faaa
 F src/xfer.c 210c04b4e87354278d25d93783418aada23dfaed
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4bdf71b1ce3e16c5fa309405f183d14b35816f7e
-R fa670147e5750484f54768acd2105a2c
+P c190bcc3ceaa7a726ed3c4f3d3cb66dfdb83037d
+R 988a977c7b3089e4dd1486cfda321cb3
 U drh
-Z 19dd7b311829de6057280cd5da9c0320
+Z 6595d2a2767dd259e6ca22a05becac65
