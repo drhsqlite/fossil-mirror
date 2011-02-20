@@ -396,7 +396,7 @@ static void diff_all_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }else{
-      diff_printf("CHANGED %s\n", pFromFile->zName);
+      /* diff_printf("CHANGED %s\n", pFromFile->zName); */
       diff_manifest_entry(pFromFile, pToFile, zDiffCmd, ignoreEolWs);
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);

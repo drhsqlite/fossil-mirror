@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slastest\s3.7.6\salpha\sout\sof\sthe\shead\sof\nthe\sSQLite\strunk.
-D 2011-02-20T20:57:51.433
+C Suppress\sunnecessary\s"CHANGED"\slines\sin\sdiff\soutput.
+D 2011-02-20T21:24:14.596
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -56,7 +56,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c 69df36fbfa0aedb7034d0cf530648eb5c1b3f3b1
 F src/diff.c 4ed3cdb38c7935cf327e7f77117fd11f3399b50f
-F src/diffcmd.c 73fa1c05af0bfb77052e1be188cabbfb5a595498
+F src/diffcmd.c 3a20b0054c5306c9af8e2ef8a08f860d797484ef
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c 8a7c29c1a6aa479fea34c98847bcb918d834bb5d
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fde81c6109780dec90cd298bb9e5e25907815f1d
-R 5a5a6ceeda2d53d0b3ddfcf2538b7801
+P d1790d6954558d7c97c371dabc9fb60d915550da
+R fd5bb79b62a3e1c39b10c9004e6afe14
 U drh
-Z 7b8951629569c2ca9e76a7e19b50635e
+Z f9948fd19e5ea57d712178d385dc8bad
