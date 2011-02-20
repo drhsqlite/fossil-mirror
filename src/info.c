@@ -919,40 +919,54 @@ void object_description(
 
 /*
 ** WEBPAGE: fdiff
+** URL: fdiff?v1=UUID&v2=UUID&patch
 **
-** Two arguments, v1 and v2, are integers.  Show the difference between
-** the two records.
+** Two arguments, v1 and v2, identify the files to be diffed.  Show the 
+** difference between the two artifacts.  Generate plaintext if "patch"
+** is present.
 */
 void diff_page(void){
   int v1, v2;
-  Blob c1, c2, diff;
+  int isPatch;
+  Blob c1, c2, diff, *pOut;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
-  style_header("Diff");
-  @ <h2>Differences From:</h2>
-  @ <blockquote><p>
-  object_description(v1, 1, 0);
-  @ </p></blockquote>
-  @ <h2>To:</h2>
-  @ <blockquote><p>
-  object_description(v2, 1, 0);
-  @ </p></blockquote>
-  @ <hr />
-  @ <blockquote><pre>
+  isPatch = P("patch")!=0;
+  if( isPatch ){
+    pOut = cgi_output_blob();
+    cgi_set_content_type("text/plain");
+  }else{
+    blob_zero(&diff);
+    pOut = &diff;
+  }
   content_get(v1, &c1);
   content_get(v2, &c2);
-  blob_zero(&diff);
-  text_diff(&c1, &c2, &diff, 4, 1);
+  text_diff(&c1, &c2, pOut, 4, 1);
   blob_reset(&c1);
   blob_reset(&c2);
-  @ %h(blob_str(&diff))
-  @ </pre></blockquote>
-  blob_reset(&diff);
-  style_footer();
+  if( !isPatch ){
+    style_header("Diff");
+    style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
+                          g.zTop, P("v1"), P("v2"));
+    @ <h2>Differences From:</h2>
+    @ <blockquote><p>
+    object_description(v1, 1, 0);
+    @ </p></blockquote>
+    @ <h2>To:</h2>
+    @ <blockquote><p>
+    object_description(v2, 1, 0);
+    @ </p></blockquote>
+    @ <hr />
+    @ <blockquote><pre>
+    @ %h(blob_str(&diff))
+    @ </pre></blockquote>
+    blob_reset(&diff);
+    style_footer();
+  }
 }
 
 /*
