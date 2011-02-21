@@ -333,19 +333,57 @@ void delta_3waymerge_cmd(void){
 }
 
 /*
-** This routine is a wrapper around blob_merge() with enhancements:
+** aSubst is an array of string pairs.  The first element of each pair is
+** a string that begins with %.  The second element is a replacement for that
+** string.
+**
+** This routine makes a copy of zInput into memory obtained from malloc and
+** performance all applicable substitutions on that string.
+*/
+char *string_subst(const char *zInput, int nSubst, const char **azSubst){
+  Blob x;
+  int i, j;
+  blob_zero(&x);
+  while( zInput[0] ){
+    for(i=0; zInput[i] && zInput[i]!='%'; i++){}
+    if( i>0 ){
+      blob_append(&x, zInput, i);
+      zInput += i;
+    }
+    if( zInput[i]==0 ) break;
+    for(j=0; j<nSubst; j+=2){
+      int n = strlen(azSubst[j]);
+      if( memcmp(zInput, azSubst[j], n)==0 ){
+        blob_append(&x, azSubst[j+1], -1);
+        zInput += n;
+        break;
+      }
+    }
+    if( j>=nSubst ){
+      blob_append(&x, "%", 1);
+      zInput++;
+    }
+  }
+  return blob_str(&x);
+}
+
+
+/*
+** This routine is a wrapper around blob_merge() with the following
+** enhancements:
 **
 **    (1) If the merge-command is defined, then use the external merging
 **        program specified instead of the built-in blob-merge to do the
 **        merging.  Panic if the external merger fails.
+**        ** Not currently implemented **
 **
 **    (2) If gmerge-command is defined and there are merge conflicts in
 **        blob_merge() then invoke the external graphical merger to resolve
 **        the conflicts.
 **
-** Otherwise, the interface and actions are the same as for blob_merge().
-**
-** The enhancements are planned - they are not yet implemented.
+**    (3) If a merge conflict occurs and gmerge-command is not defined,
+**        then write the pivot, original, and merge-in files to the
+**        filesystem.
 */
 int merge_3way(
   Blob *pPivot,       /* Common ancestor (older) */
@@ -358,6 +396,41 @@ int merge_3way(
 
   blob_read_from_file(&v1, zV1);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
+  if( rc>0 ){
+    char *zPivot;   /* Name of the pivot file */
+    char *zOrig;    /* Name of the original content file */
+    char *zOther;   /* Name of the merge file */
+    const char *zGMerge;   /* Name of the gmerge command */
+
+    zPivot = file_newname(zV1, "baseline", 1);
+    blob_write_to_file(pPivot, zPivot);
+    zOrig = file_newname(zV1, "original", 1);
+    blob_write_to_file(&v1, zOrig);
+    zOther = file_newname(zV1, "merge", 1);
+    blob_write_to_file(pV2, zOther);
+    zGMerge = db_get("gmerge-command", 0);
+    if( zGMerge && zGMerge[0] ){
+      char *zOut;     /* Temporary output file */
+      char *zCmd;     /* Command to invoke */
+      const char *azSubst[8];  /* Strings to be substituted */
+
+      zOut = file_newname(zV1, "output", 1);
+      azSubst[0] = "%baseline";  azSubst[1] = zPivot;
+      azSubst[2] = "%original";  azSubst[3] = zOrig;
+      azSubst[4] = "%merge";     azSubst[5] = zOther;
+      azSubst[6] = "%output";    azSubst[7] = zOut;
+      zCmd = string_subst(zGMerge, 8, azSubst);
+      printf("%s\n", zCmd); fflush(stdout);
+      fossil_system(zCmd);
+      if( file_size(zOut)>=0 ) blob_read_from_file(pOut, zOut);
+      unlink(zOut);
+      fossil_free(zCmd);
+      fossil_free(zOut);
+    }
+    fossil_free(zPivot);
+    fossil_free(zOrig);
+    fossil_free(zOther);
+  }
   blob_reset(&v1);
   return rc;
 }

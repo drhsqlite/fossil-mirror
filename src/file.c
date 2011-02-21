@@ -124,6 +124,31 @@ int file_isdir(const char *zFilename){
 }
 
 /*
+** Find an unused filename similar to zBase with zSuffix appended.
+**
+** Make the name relative to the working directory if relFlag is true.
+**
+** Space to hold the new filename is obtained form mprintf() and should
+** be freed by the caller.
+*/
+char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
+  char *z = 0;
+  int cnt = 0;
+  z = mprintf("%s-%s", zBase, zSuffix);
+  while( file_size(z)>=0 ){
+    fossil_free(z);
+    z = mprintf("%s-%s-%d", zBase, zSuffix, cnt++);
+  }
+  if( relFlag ){
+    Blob x;
+    file_relative_name(z, &x);
+    fossil_free(z);
+    z = blob_str(&x);
+  }
+  return z;
+}
+
+/*
 ** Return the tail of a file pathname.  The tail is the last component
 ** of the path.  For example, the tail of "/a/b/c.d" is "c.d".
 */

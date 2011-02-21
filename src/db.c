@@ -1622,6 +1622,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "dont-push",     0,                0, "off"                 },
   { "editor",        0,               16, ""                    },
   { "gdiff-command", 0,               16, "gdiff"               },
+  { "gmerge-command",0,               40, ""                    },
   { "ignore-glob",   0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "off"                 },
@@ -1686,6 +1687,11 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
+**
+**    gmerge-command   A graphical merge conflict resolver command operating
+**                     on four files.
+**                     Ex:  kdiff3 %baseline %original %merge -o %output
+**                     Ex:  xxdiff %original %baseline %merge -M %output
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
