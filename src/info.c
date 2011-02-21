@@ -1115,6 +1115,66 @@ int artifact_from_ci_and_filename(void){
   return 0;
 }
 
+/*
+** The "z" argument is a string that contains the text of a source code
+** file.  This routine appends that text to the HTTP reply with line numbering.
+**
+** zLn is the ?ln= parameter for the HTTP query.  If there is an argument,
+** then highlight that line number and scroll to it once the page loads.
+** If there are two line numbers, highlight the range of lines.
+*/
+static void output_text_with_line_numbers(
+  const char *z,
+  const char *zLn
+){
+  int iStart, iEnd;    /* Start and end of region to highlight */
+  int n = 0;           /* Current line number */
+  int i;               /* Loop index */
+  int iTop = 0;        /* Scroll so that this line is on top of screen. */
+
+  iStart = iEnd = atoi(zLn);
+  if( iStart>0 ){
+    for(i=0; fossil_isdigit(zLn[i]); i++){}
+    if( zLn[i]==',' || zLn[i]=='-' || zLn[i]=='.' ){
+      i++;
+      while( zLn[i]=='.' ){ i++; }
+      iEnd = atoi(&zLn[i]);
+    }
+    if( iEnd<iStart ) iEnd = iStart;
+    iTop = iStart - 15 + (iEnd-iStart)/4;
+    if( iTop>iStart - 2 ) iTop = iStart-2;
+  }
+  @ <pre>
+  while( z[0] ){
+    n++;
+    for(i=0; z[i] && z[i]!='\n'; i++){}
+    if( n==iTop ) cgi_append_content("<span id=\"topln\">", -1);
+    if( n==iStart ){
+      cgi_append_content("<div class=\"selectedText\">",-1);
+    }
+    cgi_printf("%6d  ", n);
+    if( i>0 ){
+      char *zHtml = htmlize(z, i);
+      cgi_append_content(zHtml, -1);
+      fossil_free(zHtml);
+    }
+    if( n==iStart-15 ) cgi_append_content("</span>", -1);
+    if( n==iEnd ) cgi_append_content("</div>", -1);
+    else cgi_append_content("\n", 1);
+    z += i;
+    if( z[0]=='\n' ) z++;
+  }
+  if( n<iEnd ) cgi_printf("</div>");
+  @ </pre>
+  if( iStart ){
+    @ <script type="text/JavaScript">
+    @ /* <![CDATA[ */
+    @ document.getElementById('topln').scrollIntoView(true);
+    @ /* ]]> */
+    @ </script>
+  }
+}
+
 
 /*
 ** WEBPAGE: artifact
@@ -1199,44 +1259,7 @@ void artifact_page(void){
       const char *zLn = P("ln");
       const char *z = blob_str(&content);
       if( zLn ){
-        int iStart, iEnd;
-        int n = 0;
-        int i;
-        iStart = iEnd = atoi(zLn);
-        if( iStart>0 ){
-          for(i=0; zLn[i] && zLn[i]!=','; i++){}
-          if( zLn[i] ) iEnd = atoi(&zLn[i+1]);
-          if( iEnd<iStart ) iEnd = iStart;
-        }
-        @ <pre>
-        while( z[0] ){
-          n++;
-          for(i=0; z[i] && z[i]!='\n'; i++){}
-          if( n==iStart-15 ) cgi_append_content("<span id=\"topln\">", -1);
-          if( n==iStart ){
-            cgi_append_content("<div class=\"selectedText\">",-1);
-          }
-          cgi_printf("%06d  ", n);
-          if( i>0 ){
-            char *zHtml = htmlize(z, i);
-            cgi_append_content(zHtml, -1);
-            fossil_free(zHtml);
-          }
-          if( n==iStart-15 ) cgi_append_content("</span>", -1);
-          if( n==iEnd ) cgi_append_content("</div>", -1);
-          else cgi_append_content("\n", 1);
-          z += i;
-          if( z[0]=='\n' ) z++;
-        }
-        if( n<iEnd ) cgi_printf("</div>");
-        @ </pre>
-        if( iStart ){
-          @ <script type="text/JavaScript">
-          @ /* <![CDATA[ */
-          @ document.getElementById('topln').scrollIntoView(true);
-          @ /* ]]> */
-          @ </script>
-        }
+        output_text_with_line_numbers(z, zLn);
       }else{
         @ <pre>
         @ %h(z);
