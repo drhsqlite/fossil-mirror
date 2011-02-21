@@ -1,5 +1,5 @@
-C Do\snot\sassume\sthat\sthe\sPATH_INFO\senvironment\svariable\sis\sset\sby\sCGI.\nGive\sit\sa\sdefault\svalue\sto\savoid\ssegfaults\s(on\sSolaris).
-D 2011-02-21T13:17:28.681
+C Infrastructure\schanges\stoward\sadding\sgraphical\smerging\soptions.
+D 2011-02-21T14:21:57.889
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -79,8 +79,8 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 264e1360e84f11aed2992e6c3545399ec083d4bb
 F src/manifest.c 05d06132503ecdf89faa4a68c28f73381259b8e8
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c 89410104fb097e76d62ec8de40753ada395a2e76
-F src/merge3.c 63b5f85ca71dea14e916b276e5a287cfe717d5de
+F src/merge.c eaf87ed7808f9de964a45d3672cb8e34deaf57d2
+F src/merge3.c 6a2b5a6848597c410cf9b0daa65cc5ac5f1d2762
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/name.c 184a5a029f192581bdb398b1c916f5e870d9ba07
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -100,7 +100,7 @@ F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 4d71a91b5f2a97f3d36736c35f6d5c6873e78a6c
 F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
-F src/stash.c 411ca6ee9733ffcd0c17bf9462497bf10cbfbee2
+F src/stash.c 92bb250c5dd7bca5437405108bb89391e24f8431
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
 F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
@@ -114,7 +114,7 @@ F src/tkt.c 49749602844418a2a7f474a38ecb365291e87751
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 615528bf6dde5396f4e67f8ff98259c28b118c3b
-F src/update.c aa1d1eee1be89d5559c1e5f5cecdbdf9589a2fa4
+F src/update.c 97fda09d8c5a833967b8f5a0df04d90a9b061307
 F src/url.c 64b90f7daff5e451bd1319a0c4f290260081a10f
 F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 31ba9820c45b49561804ab0c34e4b954d6d254f7
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1d49c2f65c3b6f789b0a8a4ab8f493ec63d7ed45
-R ebd2a62cb5817d54c2a11cf7c3ad4509
+P 88383d8d4ac1dd71f953f1305f3d395c8c9583da
+R 104768a85d5b30d34afac06860af9588
 U drh
-Z 71858b44a383e499354f06d23bd9ccbb
+Z 421d646de2f98322e736c0d159f0564a

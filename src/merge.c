@@ -348,7 +348,7 @@ void merge_cmd(void){
     const char *zName = db_column_text(&q, 5);
     int rc;
     char *zFullPath;
-    Blob m, p, v, r;
+    Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( detailFlag ){
       printf("MERGE %s  (pivot=%d v1=%d v2=%d)\n", zName, ridp, ridm, ridv);
@@ -359,13 +359,11 @@ void merge_cmd(void){
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
     content_get(ridp, &p);
     content_get(ridm, &m);
-    blob_zero(&v);
-    blob_read_from_file(&v, zFullPath);
     if( isBinary ){
       rc = -1;
       blob_zero(&r);
     }else{
-      rc = blob_merge(&p, &v, &m, &r);
+      rc = merge_3way(&p, zFullPath, &m, &r);
     }
     if( rc>=0 ){
       if( !nochangeFlag ){
@@ -382,7 +380,6 @@ void merge_cmd(void){
     }
     blob_reset(&p);
     blob_reset(&m);
-    blob_reset(&v);
     blob_reset(&r);
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
                   idv,ridm);

@@ -201,7 +201,7 @@ static void stash_apply(int stashid, int nConflict){
         blob_write_to_file(&b, zNPath);
         printf("UPDATE %s\n", zNew);
       }else{
-        int rc = blob_merge(&a, &disk, &b, &out);
+        int rc = merge_3way(&a, zOPath, &b, &out);
         blob_write_to_file(&out, zNPath);
         if( rc ){
           printf("CONFLICT %s\n", zNew);

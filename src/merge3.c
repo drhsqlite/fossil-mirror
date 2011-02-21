@@ -146,7 +146,7 @@ static int output_one_side(
 ** conflicts, the merge proceeds as best as it can and the number 
 ** of conflicts is returns
 */
-int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
+static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int *aC1;              /* Changes from pPivot to pV1 */
   int *aC2;              /* Changes from pPivot to pV2 */
   int i1, i2;            /* Index into aC1[] and aC2[] */
@@ -330,4 +330,34 @@ void delta_3waymerge_cmd(void){
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&merged);
+}
+
+/*
+** This routine is a wrapper around blob_merge() with enhancements:
+**
+**    (1) If the merge-command is defined, then use the external merging
+**        program specified instead of the built-in blob-merge to do the
+**        merging.  Panic if the external merger fails.
+**
+**    (2) If gmerge-command is defined and there are merge conflicts in
+**        blob_merge() then invoke the external graphical merger to resolve
+**        the conflicts.
+**
+** Otherwise, the interface and actions are the same as for blob_merge().
+**
+** The enhancements are planned - they are not yet implemented.
+*/
+int merge_3way(
+  Blob *pPivot,       /* Common ancestor (older) */
+  const char *zV1,    /* Name of file for version merging into (mine) */
+  Blob *pV2,          /* Version merging from (yours) */
+  Blob *pOut          /* Output written here */
+){
+  Blob v1;            /* Content of zV1 */
+  int rc;             /* Return code of subroutines and this routine */
+
+  blob_read_from_file(&v1, zV1);
+  rc = blob_merge(pPivot, &v1, pV2, pOut);
+  blob_reset(&v1);
+  return rc;
 }

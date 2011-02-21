@@ -364,7 +364,7 @@ void update_cmd(void){
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
-      Blob e, r, t, v;
+      Blob r, t, v;
       int rc;
       if( nameChng ){
         printf("MERGE %s -> %s\n", zName, zNewName);
@@ -374,9 +374,7 @@ void update_cmd(void){
       undo_save(zName);
       content_get(ridt, &t);
       content_get(ridv, &v);
-      blob_zero(&e);
-      blob_read_from_file(&e, zFullPath);
-      rc = blob_merge(&v, &e, &t, &r);
+      rc = merge_3way(&v, zFullPath, &t, &r);
       if( rc>=0 ){
         if( !nochangeFlag ) blob_write_to_file(&r, zFullNewPath);
         if( rc>0 ){
@@ -390,7 +388,6 @@ void update_cmd(void){
       }
       if( nameChng && !nochangeFlag ) unlink(zFullPath);
       blob_reset(&v);
-      blob_reset(&e);
       blob_reset(&t);
       blob_reset(&r);
     }else{
