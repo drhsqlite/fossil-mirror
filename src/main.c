@@ -885,7 +885,7 @@ static void process_one_web_page(const char *zNotFound){
   /* If the repository has not been opened already, then find the
   ** repository based on the first element of PATH_INFO and open it.
   */
-  zPathInfo = P("PATH_INFO");
+  zPathInfo = PD("PATH_INFO","");
   if( !g.repositoryOpen ){
     char *zRepo;
     const char *zOldScript = PD("SCRIPT_NAME", "");

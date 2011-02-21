@@ -1,5 +1,5 @@
-C Suppress\sunnecessary\s"CHANGED"\slines\sin\sdiff\soutput.
-D 2011-02-20T21:24:14.596
+C Do\snot\sassume\sthat\sthe\sPATH_INFO\senvironment\svariable\sis\sset\sby\sCGI.\nGive\sit\sa\sdefault\svalue\sto\savoid\ssegfaults\s(on\sSolaris).
+D 2011-02-21T13:17:28.681
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -72,7 +72,7 @@ F src/import.c 1bf94be008d52b63fec4163b1168b8ccf346d2c6
 F src/info.c 4e4c582318bc5a72fcaad92fded038723a777c88
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
 F src/login.c 875d20622a56e190826bd246c0a27b1c27899ad2
-F src/main.c 53c7b3ab58b02ad1e14190ab8bbd51f8a2b31f99
+F src/main.c 4b8d03c99a4f4c761220ba904bf3f7c540b4b973
 F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d1790d6954558d7c97c371dabc9fb60d915550da
-R fd5bb79b62a3e1c39b10c9004e6afe14
+P 1d49c2f65c3b6f789b0a8a4ab8f493ec63d7ed45
+R ebd2a62cb5817d54c2a11cf7c3ad4509
 U drh
-Z f9948fd19e5ea57d712178d385dc8bad
+Z 71858b44a383e499354f06d23bd9ccbb
