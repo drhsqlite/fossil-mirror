@@ -676,12 +676,16 @@ malformed_line:
 ** The git-fast-export file format is currently the only VCS interchange
 ** format that is understood, though other interchange formats may be added
 ** in the future.
+**
+** The --incremental option allows an existing repository to be extended
+** with new content.
 */
 void git_import_cmd(void){
   char *zPassword;
   FILE *pIn;
   Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
+  int incrFlag = find_option("incremental", "i", 0)!=0;
 
   find_option("git",0,0);  /* Skip the --git option for now */
   verify_all_options();
@@ -694,8 +698,10 @@ void git_import_cmd(void){
     pIn = stdin;
     fossil_binary_mode(pIn);
   }
-  if( forceFlag ) unlink(g.argv[2]);
-  db_create_repository(g.argv[2]);
+  if( !incrFlag ){
+    if( forceFlag ) unlink(g.argv[2]);
+    db_create_repository(g.argv[2]);
+  }
   db_open_repository(g.argv[2]);
   db_open_config(0);
 
@@ -726,7 +732,7 @@ void git_import_cmd(void){
 
 
   db_begin_transaction();
-  db_initial_setup(0, 0, 1);
+  if( !incrFlag ) db_initial_setup(0, 0, 1);
   git_fast_import(pIn);
   db_prepare(&q, "SELECT tcontent FROM xtag");
   while( db_step(&q)==SQLITE_ROW ){
