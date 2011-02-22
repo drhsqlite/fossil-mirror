@@ -751,8 +751,10 @@ void git_import_cmd(void){
   printf("Vacuuming..."); fflush(stdout);
   db_multi_exec("VACUUM");
   printf(" ok\n");
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
-  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  if( !incrFlag ){
+    printf("project-id: %s\n", db_get("project-code", 0));
+    printf("server-id:  %s\n", db_get("server-code", 0));
+    zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+    printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  }
 }
