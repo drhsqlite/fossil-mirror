@@ -370,6 +370,7 @@ void login_check_credentials(void){
   */
   zRemoteAddr = PD("REMOTE_ADDR","nil");
   if( strcmp(zRemoteAddr, "127.0.0.1")==0
+   && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
   ){

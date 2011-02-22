@@ -765,13 +765,27 @@ void setup_access(void){
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0);
-  @ <p>When enabled, the password sign-in is required for
-  @ web access coming from 127.0.0.1.  When disabled, web access
-  @ from 127.0.0.1 is allows without any login - the user id is selected
-  @ from the ~/.fossil database. Password login is always required
-  @ for incoming web connections on internet addresses other than
-  @ 127.0.0.1.</p>
-
+  @ <p>When enabled, the password sign-in is always required for
+  @ web access.  When disabled, unrestricted web access from 127.0.0.1
+  @ is allowed for the <a href="%s(g.zTop)/help/ui">fossil ui</a> command or
+  @ from the <a href="%s(g.zTop)/help/server">fossil server</a>,
+  @ <a href="%s(g.zTop)/help/http">fossil http</a> commands when the
+  @ "--localauth" command line options is used, or from the
+  @ <a href="%s(g.zTop)/help/cgi">fossil cgi</a> if a line containing
+  @ the word "localauth" appears in the CGI script.
+  @
+  @ <p>A password is always required if any one or more
+  @ of the following are true:
+  @ <ol>
+  @ <li> This button is checked
+  @ <li> The inbound TCP/IP connection is not from 127.0.0.1
+  @ <li> The server is started using either of the
+  @ <a href="%s(g.zTop)/help/server">fossil server</a> or
+  @ <a href="%s(g.zTop)/help/server">fossil http</a> commands
+  @ without the "--localauth" option.
+  @ <li> The server is started from CGI without the "localauth" keyword
+  @ in the CGI script.
+  @ </ol>
   @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0);

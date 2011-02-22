@@ -104,6 +104,7 @@ struct Global {
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
+  int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
 
@@ -1048,6 +1049,10 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
+    if( blob_eq(&key, "localauth") ){
+      g.useLocalauth = 1;
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 ){
@@ -1111,12 +1116,19 @@ static void find_server_repository(int disallowDir){
 ** The --host option can be used to specify the hostname for the server.
 ** The --https option indicates that the request came from HTTPS rather
 ** than HTTP.
+**
+** Other options:
+**
+**    --localauth      Password signin is not required if this is true and
+**                     the input comes from 127.0.0.1 and the "localauth"
+**                     setting is not disabled.
 */
 void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
   const char *zHost;
   zNotFound = find_option("notfound", 0, 1);
+  g.useLocalauth = find_option("localauth", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
@@ -1203,6 +1215,12 @@ static int binaryOnPath(const char *zBinary){
 ** that contains one or more respositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
+**
+** By default, the "ui" command provides full administrative access without
+** having to log in.  This can be disabled by setting turning off the
+** "localauth" setting.  Automatic login for the "server" command is available
+** if the --localauth option is present and the "localauth" setting is off
+** and the connection is from localhost.
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
@@ -1219,6 +1237,7 @@ void cmd_webserver(void){
 #endif
 
   g.thTrace = find_option("th-trace", 0, 0)!=0;
+  g.useLocalauth = find_option("localauth", 0, 0)!=0;
   if( g.thTrace ){
     blob_zero(&g.thLog);
   }
@@ -1226,7 +1245,10 @@ void cmd_webserver(void){
   zNotFound = find_option("notfound", 0, 1);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
-  if( isUiCmd ) flags |= HTTP_SERVER_LOCALHOST;
+  if( isUiCmd ){
+    flags |= HTTP_SERVER_LOCALHOST;
+    g.useLocalauth = 1;
+  }
   find_server_repository(isUiCmd);
   if( zPort ){
     iPort = mxPort = atoi(zPort);

@@ -30,10 +30,10 @@
 */
 typedef struct HttpRequest HttpRequest;
 struct HttpRequest {
-  int id;             /* ID counter */
-  SOCKET s;           /* Socket on which to receive data */
-  SOCKADDR_IN addr;   /* Address from which data is coming */
-  const char *zNotFound;  /* --notfound option, or an empty string */
+  int id;                /* ID counter */
+  SOCKET s;              /* Socket on which to receive data */
+  SOCKADDR_IN addr;      /* Address from which data is coming */
+  const char *zOptions;  /* --notfound and/or --localauth options */
 };
 
 /*
@@ -111,7 +111,7 @@ void win32_process_one_http_request(void *pAppData){
   out = 0;
   sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s%s",
     fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName, 
-    inet_ntoa(p->addr.sin_addr), p->zNotFound
+    inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
   in = fopen(zReplyFName, "rb");
@@ -146,13 +146,15 @@ void win32_http_server(
   SOCKADDR_IN addr;
   int idCnt = 0;
   int iPort = mnPort;
-  char *zNotFoundOption;
+  Blob options;
 
   if( zStopper ) unlink(zStopper);
+  blob_zero(&options);
   if( zNotFound ){
-    zNotFoundOption = mprintf(" --notfound %s", zNotFound);
-  }else{
-    zNotFoundOption = "";
+    blob_appendf(&options, " --notfound %s", zNotFound);
+  }
+  if( g.useLocalauth ){
+    blob_appendf(&options, " --localauth");
   }
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
@@ -215,7 +217,7 @@ void win32_http_server(
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
-    p->zNotFound = zNotFoundOption;
+    p->zOptions = blob_str(&options);
     _beginthread(win32_process_one_http_request, 0, (void*)p);
   }
   closesocket(s);
