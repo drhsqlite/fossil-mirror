@@ -1690,8 +1690,8 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    gmerge-command   A graphical merge conflict resolver command operating
 **                     on four files.
-**                     Ex:  kdiff3 %baseline %original %merge -o %output
-**                     Ex:  xxdiff %original %baseline %merge -M %output
+**                     Ex: kdiff3 "%baseline" "%original" "%merge" -o "%output"
+**                     Ex: xxdiff "%original" "%baseline" "%merge" -M "%output"
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080

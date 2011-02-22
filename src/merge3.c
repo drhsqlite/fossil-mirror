@@ -350,10 +350,10 @@ char *string_subst(const char *zInput, int nSubst, const char **azSubst){
       blob_append(&x, zInput, i);
       zInput += i;
     }
-    if( zInput[i]==0 ) break;
+    if( zInput[0]==0 ) break;
     for(j=0; j<nSubst; j+=2){
       int n = strlen(azSubst[j]);
-      if( memcmp(zInput, azSubst[j], n)==0 ){
+      if( strncmp(zInput, azSubst[j], n)==0 ){
         blob_append(&x, azSubst[j+1], -1);
         zInput += n;
         break;
@@ -422,8 +422,13 @@ int merge_3way(
       zCmd = string_subst(zGMerge, 8, azSubst);
       printf("%s\n", zCmd); fflush(stdout);
       fossil_system(zCmd);
-      if( file_size(zOut)>=0 ) blob_read_from_file(pOut, zOut);
-      unlink(zOut);
+      if( file_size(zOut)>=0 ){
+        blob_read_from_file(pOut, zOut);
+        unlink(zPivot);
+        unlink(zOrig);
+        unlink(zOther);
+        unlink(zOut);
+      }
       fossil_free(zCmd);
       fossil_free(zOut);
     }
