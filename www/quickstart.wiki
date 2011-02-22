@@ -16,11 +16,10 @@ and painlessly.</p>
 <a name="fslclone"></a>
 <h2>General Work Flow</h2>
 
-    <p>Fossil works with repository files, a database with the project's
-    complete history, and with checked-out local trees, the working directory
-    you use to do your work.  In most operations that require you to work on a
-    specific repository you must have a checked out tree in place to work  from.
-    The resulting workflow looks like this:</p>
+    <p>Fossil works with repository files (a database with the project's
+    complete history) and with checked-out local trees (the working directory
+    you use to do your work).
+    The workflow looks like this:</p>
 
     <ul>
         <li>Create or clone a repository file.  ([/help/new|fossil new] or
@@ -115,7 +114,7 @@ and painlessly.</p>
     
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
-    local configuration.  This is easily accomplished using the webserver
+    local configuration.  This is easily accomplished using the web-server
     that is built into fossil.  Start the fossil webserver like this:
     ([/help/ui | more info])</p>
     
@@ -348,11 +347,6 @@ and painlessly.</p>
 
 <h2>More Hints</h2>
 
-    <p>Try these commands:</p>
-
-    <blockquote><b>
-    [/help/help | fossil help]<br>
-    [/help/test-command | fossil test-commands]
-    </b></blockquote>
+    <p>A [/help | complete list of commands] is available.
 
     <p>Explore and have fun!</p>
