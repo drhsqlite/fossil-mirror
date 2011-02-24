@@ -405,32 +405,34 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
 static void send_compressed_file(Xfer *pXfer, int rid){
   const char *zContent;
   const char *zUuid;
-  char *zDelta;
+  const char *zDelta;
   int szU;
   int szC;
   int rc;
-  Stmt s;
+  static Stmt q1;
 
-  db_prepare(&s,
-    "SELECT uuid, size, content FROM blob"
-    " WHERE rid=%d"
+  db_static_prepare(&q1,
+    "SELECT uuid, size, content,"
+         "  (SELECT uuid FROM delta, blob"
+         "    WHERE delta.rid=:rid AND delta.srcid=blob.rid)"
+    " FROM blob"
+    " WHERE rid=:rid"
     "   AND size>=0"
     "   AND uuid NOT IN shun"
     "   AND rid NOT IN private",
     rid
   );
-  rc = db_step(&s);
+  db_bind_int(&q1, ":rid", rid);
+  rc = db_step(&q1);
   if( rc==SQLITE_ROW ){
-    zUuid = db_column_text(&s, 0);
-    szU = db_column_int(&s, 1);
-    szC = db_column_bytes(&s, 2);
-    zContent = db_column_raw(&s, 2);
-    zDelta = db_text(0, "SELECT uuid FROM blob WHERE rid="
-                        "  (SELECT srcid FROM delta WHERE rid=%d)", rid);
+    zUuid = db_column_text(&q1, 0);
+    szU = db_column_int(&q1, 1);
+    szC = db_column_bytes(&q1, 2);
+    zContent = db_column_raw(&q1, 2);
+    zDelta = db_column_text(&q1, 3);
     blob_appendf(pXfer->pOut, "cfile %s ", zUuid);
     if( zDelta ){
       blob_appendf(pXfer->pOut, "%s ", zDelta);
-      fossil_free(zDelta);
       pXfer->nDeltaSent++;
     }else{
       pXfer->nFileSent++;
@@ -439,7 +441,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     blob_append(pXfer->pOut, zContent, szC);
     blob_append(pXfer->pOut, "\n", 1);
   }
-  db_finalize(&s);
+  db_reset(&q1);
 }
 
 /*
