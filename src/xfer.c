@@ -64,7 +64,7 @@ static int rid_from_uuid(Blob *pUuid, int phantomize){
   }
   db_reset(&q);
   if( rid==0 && phantomize ){
-    rid = content_new(blob_str(pUuid));
+    rid = content_new(blob_str(pUuid), 0);
   }
   return rid;
 }
@@ -134,7 +134,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
       srcid = 0;
       pXfer->nFileRcvd++;
     }
-    rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, 0);
+    rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, 0, 0);
     remote_has(rid);
     blob_reset(&content);
     return;
@@ -143,7 +143,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     Blob src, next;
     srcid = rid_from_uuid(&pXfer->aToken[2], 1);
     if( content_get(srcid, &src)==0 ){
-      rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, 0);
+      rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, 0, 0);
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       content_make_public(rid);
@@ -161,7 +161,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
     blob_appendf(&pXfer->err, "content does not match sha1 hash");
   }
-  rid = content_put(&content, blob_str(&hash), 0, 0);
+  rid = content_put_ex(&content, blob_str(&hash), 0, 0, 0);
   blob_reset(&hash);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
@@ -228,7 +228,7 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
     srcid = 0;
     pXfer->nFileRcvd++;
   }
-  rid = content_put(&content, blob_str(&pXfer->aToken[1]), srcid, szC);
+  rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, szC, 0);
   remote_has(rid);
   blob_reset(&content);
 }
@@ -619,7 +619,7 @@ void create_cluster(void){
         md5sum_blob(&cluster, &cksum);
         blob_appendf(&cluster, "Z %b\n", &cksum);
         blob_reset(&cksum);
-        rid = content_put(&cluster, 0, 0, 0);
+        rid = content_put(&cluster);
         blob_reset(&cluster);
         nUncl -= nRow;
         nRow = 0;
@@ -636,7 +636,7 @@ void create_cluster(void){
       md5sum_blob(&cluster, &cksum);
       blob_appendf(&cluster, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      content_put(&cluster, 0, 0, 0);
+      content_put(&cluster);
       blob_reset(&cluster);
     }
   }
@@ -1370,7 +1370,7 @@ int client_sync(
         if( rid>0 ){
           content_make_public(rid);
         }else if( pullFlag || cloneFlag ){
-          rid = content_new(blob_str(&xfer.aToken[1]));
+          rid = content_new(blob_str(&xfer.aToken[1]), 0);
           if( rid ) newPhantom = 1;
         }
         remote_has(rid);

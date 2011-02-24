@@ -1120,7 +1120,7 @@ void db_initial_setup(
     md5sum_blob(&manifest, &hash);
     blob_appendf(&manifest, "Z %b\n", &hash);
     blob_reset(&hash);
-    rid = content_put(&manifest, 0, 0, 0);
+    rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
   }
 }

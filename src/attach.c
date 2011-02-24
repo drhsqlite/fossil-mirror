@@ -243,7 +243,7 @@ void attachadd_page(void){
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    rid = content_put(&content, 0, 0, 0);
+    rid = content_put(&content);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
@@ -264,7 +264,7 @@ void attachadd_page(void){
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest, 0, 0, 0);
+    rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
     assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
@@ -344,7 +344,7 @@ void attachdel_page(void){
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest, 0, 0, 0);
+    rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
     db_end_transaction(0);
     cgi_redirect(zFrom);

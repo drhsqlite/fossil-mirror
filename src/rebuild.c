@@ -598,7 +598,7 @@ void recon_read_dir(char *zPath){
         fossil_panic("some unknown error occurred while reading \"%s\"", 
                      blob_str(&path));
       }
-      content_put(&aContent, 0, 0, 0);
+      content_put(&aContent);
       blob_reset(&path);
       blob_reset(&aContent);
       free(zSubpath);

@@ -52,8 +52,9 @@ int fast_uuid_to_rid(const char *zUuid){
 ** For this routine, the UUID must be exact.  For a match against
 ** user input with mixed case, use resolve_uuid().
 **
-** If the UUID is not found and phantomize is 1, then attempt to 
-** create a phantom record.
+** If the UUID is not found and phantomize is 1 or 2, then attempt to 
+** create a phantom record.  A private phantom is created for 2 and
+** a public phantom is created for 1.
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
@@ -67,7 +68,7 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   canonical16(z, sz);
   rid = fast_uuid_to_rid(z);
   if( rid==0 && phantomize ){
-    rid = content_new(zUuid);
+    rid = content_new(zUuid, phantomize-1);
   }
   return rid;
 }

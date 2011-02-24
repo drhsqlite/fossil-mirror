@@ -311,7 +311,7 @@ void tag_add_artifact(
   blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
-  nrid = content_put(&ctrl, 0, 0, 0);
+  nrid = content_put(&ctrl);
   manifest_crosslink(nrid, &ctrl);
   assert( blob_is_reset(&ctrl) );
 }

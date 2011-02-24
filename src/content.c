@@ -432,7 +432,9 @@ void content_enable_dephantomize(int onoff){
 ** content is already in the database, just return the record ID.
 **
 ** If srcId is specified, then pBlob is delta content from
-** the srcId record.  srcId might be a phantom.  If nBlob>0 then the
+** the srcId record.  srcId might be a phantom.  
+**
+** pBlob is normally uncompressed text.  But if nBlob>0 then the
 ** pBlob value has already been compressed and nBlob is its uncompressed
 ** size.  If nBlob>0 then zUuid must be valid.
 **
@@ -447,7 +449,13 @@ void content_enable_dephantomize(int onoff){
 ** to be responsible for pBlob.  This routine does *not* take over
 ** responsiblity for freeing pBlob.
 */
-int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
+int content_put_ex(
+  Blob *pBlob,              /* Content to add to the repository */
+  const char *zUuid,        /* SHA1 hash of reconstructed pBlob */
+  int srcId,                /* pBlob is a delta from this entry */
+  int nBlob,                /* pBlob is compressed. Original size is this */
+  int isPrivate             /* The content should be marked private */
+){
   int size;
   int rid;
   Stmt s1;
@@ -537,7 +545,7 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
-    if( g.markPrivate ){
+    if( g.markPrivate || isPrivate ){
       db_multi_exec("INSERT INTO private VALUES(%d)", rid);
       markAsUnclustered = 0;
     }
@@ -577,9 +585,25 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId, int nBlob){
 }
 
 /*
+** This is the simple common case for inserting content into the
+** repository.  pBlob is the content to be inserted.
+**
+** pBlob is uncompressed and is not deltaed.  It is exactly the content
+** to be inserted.
+**
+** The original content of pBlob is not disturbed.  The caller continues
+** to be responsible for pBlob.  This routine does *not* take over
+** responsiblity for freeing pBlob.
+*/
+int content_put(Blob *pBlob){
+  return content_put_ex(pBlob, 0, 0, 0, 0);
+}
+
+
+/*
 ** Create a new phantom with the given UUID and return its artifact ID.
 */
-int content_new(const char *zUuid){
+int content_new(const char *zUuid, int isPrivate){
   int rid;
   static Stmt s1, s2, s3;
   
@@ -601,7 +625,7 @@ int content_new(const char *zUuid){
   );
   db_bind_int(&s2, ":rid", rid);
   db_exec(&s2);
-  if( g.markPrivate ){
+  if( g.markPrivate || isPrivate ){
     db_multi_exec("INSERT INTO private VALUES(%d)", rid);
   }else{
     db_static_prepare(&s3,
@@ -628,7 +652,7 @@ void test_content_put_cmd(void){
   db_must_be_within_tree();
   user_select();
   blob_read_from_file(&content, g.argv[2]);
-  rid = content_put(&content, 0, 0, 0);
+  rid = content_put(&content);
   printf("inserted as record %d\n", rid);
 }
 
