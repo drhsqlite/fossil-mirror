@@ -88,6 +88,8 @@ void all_cmd(void){
   char *zFossil;
   char *zQFilename;
   int nMissing;
+  int stopOnError = find_option("dontstop",0,0)==0;
+  int rc;
   
   if( g.argc<3 ){
     usage("list|ls|pull|push|rebuild|sync");
@@ -142,9 +144,13 @@ void all_cmd(void){
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
-    fossil_system(zSyscmd);
+    rc = fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
+    if( stopOnError && rc ){
+      nMissing = 0;
+      break;
+    }
   }
   
   /* If any repositories whose names appear in the ~/.fossil file could not
