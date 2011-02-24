@@ -90,6 +90,7 @@ static struct sCommitHook {
   int sequence;        /* Call functions in sequence order */
 } aHook[5];
 static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
+static int nPrepare = 0;    /* Number of calls to sqlite3_prepare() */
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
@@ -201,6 +202,7 @@ int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
+  nPrepare++;
   rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0);
   if( rc!=0 && !errOk ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
@@ -738,6 +740,7 @@ static int isValidLocalDb(const char *zDbName){
   ** upgraded, this code can be safely deleted. 
   */
   rc = sqlite3_prepare(g.db, "SELECT isexe FROM vfile", -1, &pStmt, 0);
+  nPrepare++;
   sqlite3_finalize(pStmt);
   if( rc==SQLITE_ERROR ){
     sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN isexe BOOLEAN", 0, 0, 0);
@@ -968,30 +971,31 @@ void db_must_be_within_tree(void){
 void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
-  if( g.fSqlTrace ){
+  if( g.fSqlStats ){
     int cur, hiwtr;
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- LOOKASIDE_USED %10d %10d\n", cur, hiwtr);
+    fprintf(stderr, "-- LOOKASIDE_USED         %10d %10d\n", cur, hiwtr);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_HIT, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- LOOKASIDE_HIT             %10d\n", hiwtr);
+    fprintf(stderr, "-- LOOKASIDE_HIT                     %10d\n", hiwtr);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE, &cur,&hiwtr,0);
-    fprintf(stderr, "-- LOOKASIDE_MISS_SIZE       %10d\n", hiwtr);
+    fprintf(stderr, "-- LOOKASIDE_MISS_SIZE               %10d\n", hiwtr);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL, &cur,&hiwtr,0);
-    fprintf(stderr, "-- LOOKASIDE_MISS_FULL       %10d\n", hiwtr);
+    fprintf(stderr, "-- LOOKASIDE_MISS_FULL               %10d\n", hiwtr);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- CACHE_USED     %10d\n", cur);
+    fprintf(stderr, "-- CACHE_USED             %10d\n", cur);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- SCHEMA_USED    %10d\n", cur);
+    fprintf(stderr, "-- SCHEMA_USED            %10d\n", cur);
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- STMT_USED      %10d\n", cur);
+    fprintf(stderr, "-- STMT_USED              %10d\n", cur);
     sqlite3_status(SQLITE_STATUS_MEMORY_USED, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- MEMORY_USED    %10d %10d\n", cur, hiwtr);
+    fprintf(stderr, "-- MEMORY_USED            %10d %10d\n", cur, hiwtr);
     sqlite3_status(SQLITE_STATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- MALLOC_SIZE               %10d\n", hiwtr);
+    fprintf(stderr, "-- MALLOC_SIZE                       %10d\n", hiwtr);
     sqlite3_status(SQLITE_STATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- MALLOC_COUNT   %10d %10d\n", cur, hiwtr);
+    fprintf(stderr, "-- MALLOC_COUNT           %10d %10d\n", cur, hiwtr);
     sqlite3_status(SQLITE_STATUS_PAGECACHE_OVERFLOW, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- PCACHE_OVFLOW  %10d %10d\n", cur, hiwtr);
+    fprintf(stderr, "-- PCACHE_OVFLOW          %10d %10d\n", cur, hiwtr);
+    fprintf(stderr, "-- prepared statements    %10d\n", nPrepare);
   }
   while( pAllStmt ){
     db_finalize(pAllStmt);

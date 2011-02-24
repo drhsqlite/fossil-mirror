@@ -37,7 +37,7 @@
 */
 static void verify_rid(int rid){
   Blob uuid, hash, content;
-  if( db_int(0, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+  if( content_size(rid, 0)<0 ){
     return;  /* No way to verify phantoms */
   }
   blob_zero(&uuid);

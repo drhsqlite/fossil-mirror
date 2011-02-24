@@ -131,6 +131,21 @@ static int findSrcid(int rid){
 }
 
 /*
+** Return the blob.size field given blob.rid
+*/
+int content_size(int rid, int dflt){
+  static Stmt q;
+  int sz = dflt;
+  db_static_prepare(&q, "SELECT size FROM blob WHERE rid=:r");
+  db_bind_int(&q, ":r", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    sz = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return sz;
+}
+
+/*
 ** Check to see if content is available for artifact "rid".  Return
 ** true if it is.  Return false if rid is a phantom or depends on
 ** a phantom.
@@ -145,7 +160,7 @@ int content_is_available(int rid){
     if( bag_find(&contentCache.available, rid) ){
       return 1;
     }
-    if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    if( content_size(rid, -1)<0 ){
       bag_insert(&contentCache.missing, rid);
       return 0;
     }

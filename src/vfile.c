@@ -94,7 +94,7 @@ void vfile_build(int vid){
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     rid = uuid_to_rid(pFile->zUuid, 0);
-    if( rid==0 || db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    if( rid==0 || content_size(rid, -1)<0 ){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
