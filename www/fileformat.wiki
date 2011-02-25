@@ -202,10 +202,10 @@ the login of the user who created the manifest.  The login name
 is encoded using the same character escapes as is used for the
 check-in comment argument to the C-card.
 
-A manifest has an optional Z-card as its last line.  The argument
+A manifest must have a single Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
-character that immediately precedes the "Z".  The Z-card is just
+character that immediately precedes the "Z".  The Z-card is 
 a sanity check to prove that the manifest is well-formed and
 consistent.
 
@@ -248,8 +248,7 @@ line.  Each M card has a single argument which is the artifact ID of
 another artifact in the repository.  The Z card work exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
-prior cards in the cluster.  Note that the Z card is required
-on a cluster.
+prior cards in the cluster.  The Z-card is required.
 
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
@@ -309,7 +308,7 @@ The "branch" tag sets the name of the branch that at check-in
 belongs to.  Symbolic tags begin with the "sym-" prefix.
 
 The U card is the name of the user that created the control 
-artifact.  The Z card is the usual artifact checksum.
+artifact.  The Z card is the usual required artifact checksum.
 
 An example control artifacts can be seen [/info/9d302ccda8 | here].
 
@@ -336,7 +335,7 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
-the usual checksum over the either artifact.
+the usual checksum over the either artifact and is required.
 
 The W card is used to specify the text of the wiki page.  The
 argument to the W card is an integer which is the number of bytes
@@ -363,7 +362,7 @@ The following cards are allowed on a ticket change artifact:
 
 The D card is the usual date and time stamp and represents the point
 in time when the change was entered.  The U card is the login of the
-programmer who entered this change.  The Z card is the checksum over
+programmer who entered this change.  The Z card is the required checksum over
 the entire artifact.
 
 Every ticket has a distinct ticket-id:
@@ -426,6 +425,7 @@ A single U card gives the name of the user to added the attachment.
 If an attachment is added anonymously, then the U card may be omitted.
 
 The Z card is the usual checksum over the rest of the attachment artifact.
+The Z card is required.
 
 
 <a name="event"></a>
@@ -487,7 +487,7 @@ A single W card provides wiki text for the document associated with the
 event.  The format of the W card is exactly the same as for a 
 [#wikichng | wiki artifact].
 
-The Z card is the usual checksum over the rest of the attachment artifact.
+The Z card is the required checksum over the rest of the artifact.
 
 
 <a name="summary"></a>
