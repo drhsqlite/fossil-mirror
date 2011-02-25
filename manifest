@@ -1,5 +1,5 @@
-C Another\sschema\stweak\sto\sgo\swith\sthe\sprevious\scheck-in.\s\sThis\sone\swill\nrequire\sa\srebuild\sin\sorder\sto\suse\sthe\snew\s"parent"\stag.\s\sBut\sthat\nfunctionality\shas\snot\sbeen\sinstalled,\sso\sthere\sis\sno\sneed\sto\srebuild\syet.
-D 2011-02-25T01:27:40.058
+C Comment\sand\sdocumentation\supdates\son\sthe\stagging\smechanism.\s\sNo\ssubstantive\ncode\schanges.
+D 2011-02-25T14:20:37.098
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -90,7 +90,7 @@ F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
 F src/rebuild.c d0a579bdd65e4580979db8bfa46e23761160fa70
 F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
-F src/schema.c bf3589d4bc3cc6026143e70f609d5fee1f75a8b7
+F src/schema.c a57f43d39b15360ffecacf60e987a4bdc781fabb
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
 F src/setup.c 36596f56b25cd01303742066a5163cb39540cd3a
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
@@ -104,7 +104,7 @@ F src/stash.c 92bb250c5dd7bca5437405108bb89391e24f8431
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
 F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
-F src/tag.c b7c5e272ee685d7f35d8bd1bbe283f34fb61e3a9
+F src/tag.c e94b6f3027dc2d287490099ec7f2b38bf7147eaf
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
@@ -263,7 +263,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl 5ff29021eeb48b35d86b637f8f11a6c87ac03fcf
 F www/faq.wiki 400b519892af0f3e7cd9a86f722b9bee073cf0ec
-F www/fileformat.wiki c1b237355556700c09267a9fdfe521a94047fdd3
+F www/fileformat.wiki 3a75033c319a66639f9b7d4edd1ea7c5a8c0ccce
 F www/fossil-v-git.wiki 0948dc9d9832dd49404fc697e611f2e48e47db86
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f8b3d24759e0c085713087a7580f39b72e0d6d96
-R 4cde8e9667e41f340b5f930857bfa88e
+P e6740e9badd01bbcf1446881d081c9d657d6c188
+R de453945c23a5736c8366898aab83f6f
 U drh
-Z 4c1eed1b552ba1c76d279f0424cf83c4
+Z 993fa4ed26096a096dd7e07c72a3a480

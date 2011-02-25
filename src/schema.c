@@ -316,7 +316,7 @@ const char zRepositorySchema2[] =
 @ --
 @ CREATE TABLE tagxref(
 @   tagid INTEGER REFERENCES tag,   -- The tag that added or removed
-@   tagtype INTEGER,                -- 0:cancel  1:single  2:branch
+@   tagtype INTEGER,                -- 0:-,cancel  1:+,single  2:*,propagate
 @   srcid INTEGER REFERENCES blob,  -- Artifact of tag. 0 for propagated tags
 @   origid INTEGER REFERENCES blob, -- check-in holding propagated tag
 @   value TEXT,                     -- Value of the tag.  Might be NULL.

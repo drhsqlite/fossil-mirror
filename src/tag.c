@@ -28,8 +28,8 @@
 ** propagated and that the tag is already present in pid.
 **
 ** If tagtype is 2 then the tag is being propagated from an
-** ancestor node.  If tagtype is 0 it means a branch tag is
-** being cancelled.
+** ancestor node.  If tagtype is 0 it means a propagating tag is
+** being blocked.
 */
 static void tag_propagate(
   int pid,             /* Propagate the tag to children of this node */
@@ -39,21 +39,30 @@ static void tag_propagate(
   const char *zValue,  /* Value of the tag.  Might be NULL */
   double mtime         /* Timestamp on the tag */
 ){
-  PQueue queue;
-  Stmt s, ins, eventupdate;
+  PQueue queue;        /* Queue of check-ins to be tagged */
+  Stmt s;              /* Query the children of :pid to which to propagate */
+  Stmt ins;            /* INSERT INTO tagxref */
+  Stmt eventupdate;    /* UPDATE event */
 
   assert( tagType==0 || tagType==2 );
   pqueue_init(&queue);
   pqueue_insert(&queue, pid, 0.0);
+
+  /* Query for children of :pid to which to propagate the tag.
+  ** Three returns:  (1) rid of the child.  (2) timestamp of child.
+  ** (3) True to propagate or false to block.
+  */
   db_prepare(&s, 
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
      " WHERE pid=:pid AND isprim",
-     tagType!=0, tagid
+     tagType==2, tagid
   );
   db_bind_double(&s, ":mtime", mtime);
+
   if( tagType==2 ){
+    /* Set the propagated tag marker on checkin :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -61,6 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
+    /* Remove all references to the tag from checkin :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid

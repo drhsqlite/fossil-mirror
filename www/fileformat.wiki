@@ -288,12 +288,12 @@ some other artifact.  The T card has two or three values.  The
 second argument is the 40 character lowercase artifact ID of the artifact
 to which the tag is to be applied. The
 first value is the tag name.  The first character of the tag
-is either "+", "-", or "*".  A "+" means the tag should be added
+is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct descendants (but not branches) of the artifact down
+and all direct descendants (but not descendents through a merge) down
 to but not including the first descendant that contains a 
-more recent "-" tag with the same name.
+more recent "-" or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
 without a value is a boolean.
 
