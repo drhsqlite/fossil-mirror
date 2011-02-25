@@ -42,7 +42,7 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "1"
-#define AUX_SCHEMA      "2011-02-25"
+#define AUX_SCHEMA      "2011-02-25 14:52"
 
 #endif /* INTERFACE */
 
@@ -202,7 +202,8 @@ const char zRepositorySchema2[] =
 @   pid INTEGER REFERENCES blob,        -- File ID in parent manifest
 @   fid INTEGER REFERENCES blob,        -- Changed file ID in this manifest
 @   fnid INTEGER REFERENCES filename,   -- Name of the file
-@   pfnid INTEGER REFERENCES filename   -- Previous name. 0 if unchanged
+@   pfnid INTEGER REFERENCES filename,  -- Previous name. 0 if unchanged
+@   mperm INTEGER                       -- File permissions.  1==exec
 @ );
 @ CREATE INDEX mlink_i1 ON mlink(mid);
 @ CREATE INDEX mlink_i2 ON mlink(fnid);

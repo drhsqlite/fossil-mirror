@@ -1053,6 +1053,18 @@ static int filename_to_fnid(const char *zFilename){
 }
 
 /*
+** Compute an appropriate mlink.mperm integer for the permission string
+** of a file.
+*/
+int manifest_file_mperm(ManifestFile *pFile){
+  int mperm = 0;
+  if( pFile && pFile->zPerm && strstr(pFile->zPerm,"x")!=0 ){
+    mperm = 1;
+  }
+  return mperm;
+}
+
+/*
 ** Add a single entry to the mlink table.  Also add the filename to
 ** the filename table if it is not there already.
 */
@@ -1061,7 +1073,8 @@ static void add_one_mlink(
   const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
   const char *zToUuid,      /* UUID for the mlink.fid. "" to delele */
   const char *zFilename,    /* Filename */
-  const char *zPrior        /* Previous filename. NULL if unchanged */
+  const char *zPrior,       /* Previous filename. NULL if unchanged */
+  int mperm                 /* 1: exec */
 ){
   int fnid, pfnid, pid, fid;
   static Stmt s1;
@@ -1083,14 +1096,15 @@ static void add_one_mlink(
     fid = uuid_to_rid(zToUuid, 1);
   }
   db_static_prepare(&s1,
-    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid)"
-    "VALUES(:m,:p,:f,:n,:pfn)"
+    "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
+    "VALUES(:m,:p,:f,:n,:pfn,:mp)"
   );
   db_bind_int(&s1, ":m", mid);
   db_bind_int(&s1, ":p", pid);
   db_bind_int(&s1, ":f", fid);
   db_bind_int(&s1, ":n", fnid);
   db_bind_int(&s1, ":pfn", pfnid);
+  db_bind_int(&s1, ":mp", mperm);
   db_exec(&s1);
   if( pid && fid ){
     content_deltify(pid, fid, 0);
@@ -1160,11 +1174,12 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
 }
 
 /*
-** Add mlink table entries associated with manifest cid.  The
-** parent manifest is pid.
+** Add mlink table entries associated with manifest cid, pChild.  The
+** parent manifest is pid, pParent.  One of either pChild or pParent
+** will be NULL and it will be computed based on cid/pid.
 **
-** A single mlink entry is added for every file that changed content
-** and/or name going from pid to cid.
+** A single mlink entry is added for every file that changed content,
+** name, and/or permissions going from pid to cid.
 **
 ** Deleted files have mlink.fid=0.
 ** Added files have mlink.pid=0.
@@ -1178,12 +1193,18 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   Manifest **ppOther;
   static Stmt eq;
 
+  /* If mlink table entires are already set for cid, then abort early
+  ** doing no work.
+  */
   db_static_prepare(&eq, "SELECT 1 FROM mlink WHERE mid=:mid");
   db_bind_int(&eq, ":mid", cid);
   rc = db_step(&eq);
   db_reset(&eq);
   if( rc==SQLITE_ROW ) return;
 
+  /* Compute the value of the missing pParent or pChild parameter.
+  ** Fetch the baseline checkins for both.
+  */
   assert( pParent==0 || pChild==0 );
   if( pParent==0 ){
     ppOther = &pParent;
@@ -1202,6 +1223,10 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     manifest_destroy(*ppOther);
     return;
   }
+
+  /* Try to make the parent manifest a delta from the child, if that
+  ** is an appropriate thing to do.
+  */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
   }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
@@ -1219,40 +1244,59 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        pParent->rid, pParent->rDate, pChild->rid, pChild->rDate
     );
   }
-  
+
+  /* First look at all files in pChild, ignoring its baseline.  This
+  ** is where most of the changes will be found.
+  */  
   for(i=0, pChildFile=pChild->aFile; i<pChild->nFile; i++, pChildFile++){
+    int mperm = manifest_file_mperm(pChildFile);
     if( pChildFile->zPrior ){
        pParentFile = manifest_file_seek(pParent, pChildFile->zPrior);
        if( pParentFile ){
+         /* File with name change */
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, pChildFile->zPrior);
+                       pChildFile->zName, pChildFile->zPrior, mperm);
+       }else{
+         /* File name changed, but the old name is not found in the parent!
+         ** Treat this like a new file. */
+         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0, mperm);
        }
     }else{
        pParentFile = manifest_file_seek(pParent, pChildFile->zName);
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
-           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
+           /* A new file */
+           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName,0,mperm);
          }
-       }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0 ){
+       }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0
+              || manifest_file_mperm(pParentFile)!=mperm ){
+         /* Changes in file content or permissions */
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, 0);
+                       pChildFile->zName, 0, mperm);
        }
     }
   }
   if( pParent->zBaseline && pChild->zBaseline ){
+    /* Both parent and child are delta manifests.  Look for files that
+    ** are marked as deleted in the parent but which reappear in the child
+    ** and show such files as being added in the child. */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
       if( pParentFile->zUuid ) continue;
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile ){
-        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0);
+        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+                      manifest_file_mperm(pChildFile));
       }
     }
   }else if( pChild->zBaseline==0 ){
+    /* Parent is a delta but pChild is a baseline.  Look for files that are
+    ** present in pParent but which are missing from pChild and mark them
+    ** has having been deleted. */
     manifest_file_rewind(pParent);
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile==0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0);
+        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0, 0);
       }
     }
   }
@@ -1485,8 +1529,11 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       db_finalize(&q);
       if( p->nParent==0 ){
+        /* For root files (files without parents) add mlink entries
+        ** showing all content as new. */
         for(i=0; i<p->nFile; i++){
-          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0);
+          add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
+                        manifest_file_mperm(&p->aFile[i]));
         }
       }
       db_multi_exec(
