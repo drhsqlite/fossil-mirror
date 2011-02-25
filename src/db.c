@@ -1621,6 +1621,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "autosync",      0,                0, "on"                  },
   { "binary-glob",   0,               32, ""                    },
   { "clearsign",     0,                0, "off"                 },
+  { "crnl-glob",     0,               16, ""                    },
   { "default-perms", 0,               16, "u"                   },
   { "diff-command",  0,               16, ""                    },
   { "dont-push",     0,                0, "off"                 },
@@ -1676,6 +1677,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
+**
+**    crnl-glob        A comma-separated list of GLOB patterns for text files
+**                     in which it is ok to have CR+NL line endings.
+**                     Set to "*" to disable CR+NL checking.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server

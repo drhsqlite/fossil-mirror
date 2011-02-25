@@ -1,5 +1,5 @@
-C Track\sfile\spermission\schanges\sin\sthe\smlink\stable.\s\sUpdating\sthrough\sthis\ncheck-in\srequires\sa\srebuild.
-D 2011-02-25T16:20:56.438
+C Add\sthe\snew\scrnl-glob\ssetting\swhich\sdefines\sfiles\sfor\swhich\sit\sis\sOK\sto\shave\nCRNL\sline\sendings.\s\sWindows\sprojects\son\swhich\sthis\sis\spreferred\scan\sset\nthe\scrnl-glob\spattern\sto\s'*'.
+D 2011-02-25T17:40:20.964
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -43,15 +43,15 @@ F src/branch.c 41ee31fccc30d3a8476a4a94e12107ffdddebc6a
 F src/browse.c 3b24ad986d00db1095a08d136975488eebac5ec5
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c 2aea3df0eb6172cd29e5e34705750432b61da245
-F src/checkin.c 330ebdc91d4680acd489f05860fbd6d09a56f5fa
+F src/checkin.c 33adafa12db8a00e82bbfcea604cfba413a52a08
 F src/checkout.c 9babc7a227ed30b5cfccb8d2d9f4577d25aacd13
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 2e9ed1833f509d98f5163a4c5c7af242df01fa66
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c 72516b026c9d7154edc77d194a1497f5faf4d763
+F src/configure.c 26a1319be865db7afd9b09d1fd6e0a7c975333f9
 F src/content.c c71aee46dd7757d1179fe313d232fb4059716b60
-F src/db.c b6d25be1fb232cf52766dfdb1edecc9e2ae5190f
+F src/db.c 4e4fa23b782cc9783c87047543c44f3f9eade05e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c 69df36fbfa0aedb7034d0cf530648eb5c1b3f3b1
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e166ea6aebffd12f904e3ab97fd896f580a218ed
-R b6b7c9eabac8ef8ee1211311b8e9de88
+P 7f11789bf1522a21183dff8f4802bb2b3dc287a1
+R e3a520bae0a25503fcfb5509c0392374
 U drh
-Z fd1dcb0a27e03ed2ebe0bf54e06459d4
+Z 03438b92f42f390d580ae49ac50a0616

@@ -741,6 +741,57 @@ static void create_manifest(
   if( pnFBcard ) *pnFBcard = nFBcard;
 }
 
+/*
+** Issue a warning and give the user an opportunity to abandon out
+** if a \r\n line ending is seen in a text file.
+*/
+static void cr_warning(const Blob *p, const char *zFilename){
+  int nCrNl = 0;          /* Number of \r\n line endings seen */
+  const unsigned char *z; /* File text */
+  int n;                  /* Size of the file in bytes */
+  int lastNl = 0;         /* Characters since last \n */
+  int i;                  /* Loop counter */
+  char *zMsg;             /* Warning message */
+  Blob fname;             /* Relative pathname of the file */
+  Blob ans;               /* Answer to continue prompt */
+  static int allOk = 0;   /* Set to true to disable this routine */
+
+  if( allOk ) return;
+  z = (unsigned char*)blob_buffer(p);
+  n = blob_size(p);
+  for(i=0; i<n-1; i++){
+    unsigned char c = z[i];
+    if( c==0 ) return;   /* It's binary */
+    if( c=='\n' ){
+      if( i>0 && z[i-1]=='\r' ){
+        nCrNl++;
+        if( i>10000 ) break;
+      }
+      lastNl = 0;
+    }else{
+      lastNl++;
+      if( lastNl>1000 ) return;   /* Binary if any line longer than 1000 */
+    }
+  }
+  if( nCrNl ){
+    char c;
+    file_relative_name(zFilename, &fname);
+    blob_zero(&ans);
+    zMsg = mprintf("%s contains CR/NL line endings; commit anyhow (y/N/a)?", 
+                   blob_str(&fname));
+    prompt_user(zMsg, &ans);
+    fossil_free(zMsg);
+    c = blob_str(&ans)[0];
+    if( c=='a' ){
+      allOk = 1;
+    }else if( c!='y' ){
+      fossil_fatal("Abandoning commit due to CR+NL line endings in %s",
+                   blob_str(&fname));
+    }
+    blob_reset(&ans);
+    blob_reset(&fname);
+  }
+}
 
 /*
 ** COMMAND: ci
@@ -930,7 +981,7 @@ void commit_cmd(void){
       " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
     );
     if( strlen(blob_str(&unmodified)) ){
-      fossil_panic("file %s has not changed", blob_str(&unmodified));
+      fossil_fatal("file %s has not changed", blob_str(&unmodified));
     }
   }
 
@@ -981,21 +1032,24 @@ void commit_cmd(void){
   ** the identified fils are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)"
-    , g.zLocalRoot
+    "SELECT id, %Q || pathname, mrid, %s FROM vfile "
+    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
+    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
+    int crnlOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
+    crnlOk = db_column_int(&q, 3);
 
     blob_zero(&content);
     blob_read_from_file(&content, zFullname);
+    if( !crnlOk ) cr_warning(&content, zFullname);
     nrid = content_put(&content);
     blob_reset(&content);
     if( rid>0 ){
