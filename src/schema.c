@@ -42,7 +42,7 @@ const char zConfigSchema[] =
 ** the aux schema changes, all we need to do is rebuild the database.
 */
 #define CONTENT_SCHEMA  "1"
-#define AUX_SCHEMA      "2011-01-28"
+#define AUX_SCHEMA      "2011-02-25"
 
 #endif /* INTERFACE */
 
@@ -392,9 +392,10 @@ const char zRepositorySchema2[] =
 # define TAG_CLUSTER    7     /* A cluster */
 # define TAG_BRANCH     8     /* Value is name of the current branch */
 # define TAG_CLOSED     9     /* Do not display this check-in as a leaf */
+# define TAG_PARENT     10    /* Change to parentage on a checkin */
 #endif
 #if EXPORT_INTERFACE
-# define MAX_INT_TAG    9     /* The largest pre-assigned tag id */
+# define MAX_INT_TAG    16    /* The largest pre-assigned tag id */
 #endif
 
 /*
