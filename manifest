@@ -1,5 +1,5 @@
-C Add\sthe\snew\scrnl-glob\ssetting\swhich\sdefines\sfiles\sfor\swhich\sit\sis\sOK\sto\shave\nCRNL\sline\sendings.\s\sWindows\sprojects\son\swhich\sthis\sis\spreferred\scan\sset\nthe\scrnl-glob\spattern\sto\s'*'.
-D 2011-02-25T17:40:20.964
+C Remove\sa\ssuperfluous\s';'\sfrom\sthe\send\sof\sartifact\slistings.
+D 2011-02-25T17:49:55.267
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -69,7 +69,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 0d5d2c5bbe4374f935545e8d5651d92b30bd74b0
 F src/import.c aa2b4a743166d2dd2e295f06e3cf5fbba795bf1f
-F src/info.c de3be16a71a1311b69606d3b19f13b6a87f27a3e
+F src/info.c b98304cf78009cd86c68babecdc0569187aa8933
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
 F src/login.c 435d4ff861600fdfe34082f1c4b5842df8497365
 F src/main.c b97679ae837a4fa3ad24cc687d4dfca76ed5c313
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7f11789bf1522a21183dff8f4802bb2b3dc287a1
-R e3a520bae0a25503fcfb5509c0392374
+P 046658848c21cd54749a48bebe7719d62cc9ecef
+R 35f370ab4678ec4d286b7150b7e45535
 U drh
-Z 03438b92f42f390d580ae49ac50a0616
+Z 2a60165c91192266db75863f9e2375d8

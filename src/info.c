@@ -1276,7 +1276,7 @@ void artifact_page(void){
         output_text_with_line_numbers(z, zLn);
       }else{
         @ <pre>
-        @ %h(z);
+        @ %h(z)
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
