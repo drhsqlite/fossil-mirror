@@ -307,6 +307,7 @@ const char zRepositorySchema2[] =
 @ INSERT INTO tag VALUES(7, 'cluster');         -- TAG_CLUSTER
 @ INSERT INTO tag VALUES(8, 'branch');          -- TAG_BRANCH
 @ INSERT INTO tag VALUES(9, 'closed');          -- TAG_CLOSED
+@ INSERT INTO tag VALUES(10,'parent');          -- TAG_PARENT
 @
 @ -- Assignments of tags to baselines.  Note that we allow tags to
 @ -- have values assigned to them.  So we are not really dealing with
