@@ -357,6 +357,9 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 **   --force       Force the rebuild to complete even if errors are seen
 **   --randomize   Scan artifacts in a random order
 **   --cluster     Compute clusters for unclustered artifacts
+**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
+**   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --vacuum      Run VACUUM on the database after rebuilding
 */
 void rebuild_database(void){
   int forceFlag;
@@ -364,11 +367,26 @@ void rebuild_database(void){
   int errCnt;
   int omitVerify;
   int doClustering;
+  const char *zPagesize;
+  int newPagesize = 0;
+  int activateWal;
+  int runVacuum;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
+  runVacuum = find_option("vacuum",0,0)!=0;
+  zPagesize = find_option("pagesize",0,1);
+  if( zPagesize ){
+    newPagesize = atoi(zPagesize);
+    if( newPagesize<512 || newPagesize>65536
+        || (newPagesize&(newPagesize-1))!=0
+    ){
+      fossil_fatal("page size must be a power of two between 512 and 65536");
+    }
+  }
+  activateWal = find_option("wal",0,0)!=0;
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
@@ -394,6 +412,20 @@ void rebuild_database(void){
   }else{
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
+    db_close(0);
+    db_open_repository(g.zRepositoryName);
+    if( newPagesize ){
+      db_multi_exec("PRAGMA page_size=%d", newPagesize);
+      runVacuum = 1;
+    }
+    if( runVacuum ){
+      printf("Vacuuming the database... "); fflush(stdout);
+      db_multi_exec("VACUUM");
+      printf("done\n");
+    }
+    if( activateWal ){
+      db_multi_exec("PRAGMA journal_mode=WAL;");
+    }
   }
 }
 
