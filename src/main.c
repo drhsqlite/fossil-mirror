@@ -136,6 +136,7 @@ struct Global {
   int okTktFmt;           /* t: create new ticket report formats */
   int okRdAddr;           /* e: read email addresses or other private data */
   int okZip;              /* z: download zipped artifact via /zip URL */
+  int okPrivate;          /* x: can send and receive private content */
 
   /* For defense against Cross-site Request Forgery attacks */
   char zCsrfToken[12];    /* Value of the anti-CSRF token */

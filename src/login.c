@@ -537,6 +537,7 @@ void login_set_capabilities(const char *zCap){
       case 'c':   g.okApndTkt = 1;                              break;
       case 't':   g.okTktFmt = 1;                               break;
       case 'b':   g.okAttach = 1;                               break;
+      case 'x':   g.okPrivate = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */

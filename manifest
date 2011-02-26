@@ -1,5 +1,5 @@
-C Adding\sa\snew\sskin\soption\swith\sgradients,\sshadows,\sand\srounded\scorners.
-D 2011-02-26T16:57:18.970
+C First\scut\sat\scode\sto\senable\ssyncing\sprivate\sbranches.\s\sCode\scompiles\sbut\sis\notherwise\suntested.\s\sThe\s"x"\sprivilege\sis\srequired\son\sthe\sserver\sin\sorder\nto\ssync\sprivately.
+D 2011-02-26T21:49:43.492
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -46,10 +46,10 @@ F src/cgi.c 2aea3df0eb6172cd29e5e34705750432b61da245
 F src/checkin.c 33adafa12db8a00e82bbfcea604cfba413a52a08
 F src/checkout.c 9babc7a227ed30b5cfccb8d2d9f4577d25aacd13
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
-F src/clone.c 2e9ed1833f509d98f5163a4c5c7af242df01fa66
+F src/clone.c 7d3ef6c6e87f66f3207e4b993fe7f2baac0ddf33
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c 26a1319be865db7afd9b09d1fd6e0a7c975333f9
+F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
 F src/content.c c71aee46dd7757d1179fe313d232fb4059716b60
 F src/db.c 4e4fa23b782cc9783c87047543c44f3f9eade05e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -71,8 +71,8 @@ F src/http_transport.c 0d5d2c5bbe4374f935545e8d5651d92b30bd74b0
 F src/import.c aa2b4a743166d2dd2e295f06e3cf5fbba795bf1f
 F src/info.c b98304cf78009cd86c68babecdc0569187aa8933
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
-F src/login.c 435d4ff861600fdfe34082f1c4b5842df8497365
-F src/main.c b97679ae837a4fa3ad24cc687d4dfca76ed5c313
+F src/login.c 8e2001c55bf72efe0bc7d03a63ca85a3855a93d6
+F src/main.c 2e6fa46dfac17bd846c32d31dbc7c54c1d7b84f5
 F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -92,7 +92,7 @@ F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
-F src/setup.c 36596f56b25cd01303742066a5163cb39540cd3a
+F src/setup.c 8064b75528672fde5fffcd779cd83d67de0ef2fe
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
 F src/shell.c 7f7112e9359eda8f8e5960d63b19c8a89076df8a
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
@@ -103,7 +103,7 @@ F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
 F src/stash.c 92bb250c5dd7bca5437405108bb89391e24f8431
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
-F src/sync.c a3d8f9f4293ca7adcf05e4cbfd0571bb3d59ceea
+F src/sync.c 2981f30816261d109764a9839d140bc7dea4c3bc
 F src/tag.c e94b6f3027dc2d287490099ec7f2b38bf7147eaf
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
@@ -122,7 +122,7 @@ F src/vfile.c 9ce78c8231a9871e1742d1374aa796f98b04ec6a
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
-F src/xfer.c 0a76557ab93ad4bad75c503f5260a0a3e0692459
+F src/xfer.c 8c3ce9af3ee6789dc7fa224a8513522e8ddf10d6
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
@@ -298,7 +298,11 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7fcbbb1da0dd28bf2d889ed6046c53cccda47836
-R ce4dadedb7f2ecdac8cf25bad16e97fc
+P babe3fb52a79603f781f077e0569584381132f8a
+R 832b1755dc2687ca66c8da9fab012af4
+T *bgcolor * #a8c7d3
+T *branch * private-sync
+T *sym-private-sync *
+T -sym-trunk *
 U drh
-Z 4007b06a2b9c5c29b1427253d51abfff
+Z 725f380006f82be1ba9ba73d7e742621

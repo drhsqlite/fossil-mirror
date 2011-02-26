@@ -40,6 +40,8 @@ struct Xfer {
   int nDeltaRcvd;     /* Number of deltas received */
   int nDanglingFile;  /* Number of dangling deltas received */
   int mxSend;         /* Stop sending "file" with pOut reaches this size */
+  u8 sendPrivate;     /* True to enable sending private content */
+  u8 nextIsPrivate;   /* If true, next "file" received is a private */
 };
 
 
@@ -51,7 +53,7 @@ struct Xfer {
 ** Compare to uuid_to_rid().  This routine takes a blob argument
 ** and does less error checking.
 */
-static int rid_from_uuid(Blob *pUuid, int phantomize){
+static int rid_from_uuid(Blob *pUuid, int phantomize, int isPrivate){
   static Stmt q;
   int rid;
 
@@ -64,7 +66,7 @@ static int rid_from_uuid(Blob *pUuid, int phantomize){
   }
   db_reset(&q);
   if( rid==0 && phantomize ){
-    rid = content_new(blob_str(pUuid), 0);
+    rid = content_new(blob_str(pUuid), isPrivate);
   }
   return rid;
 }
@@ -108,7 +110,10 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   int rid;
   int srcid = 0;
   Blob content, hash;
+  int isPriv;
   
+  isPriv = pXfer->nextIsPrivate;
+  pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<3 
    || pXfer->nToken>4
    || !blob_is_uuid(&pXfer->aToken[1])
@@ -126,24 +131,30 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     /* Ignore files that have been shunned */
     return;
   }
+  if( isPriv && !g.okPrivate ){
+    /* Do not accept private files if not authorized */
+    return;
+  }
   if( cloneFlag ){
     if( pXfer->nToken==4 ){
-      srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+      srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
       pXfer->nDeltaRcvd++;
     }else{
       srcid = 0;
       pXfer->nFileRcvd++;
     }
-    rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, 0, 0);
+    rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+                         0, isPriv);
     remote_has(rid);
     blob_reset(&content);
     return;
   }
   if( pXfer->nToken==4 ){
     Blob src, next;
-    srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+    srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     if( content_get(srcid, &src)==0 ){
-      rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, 0, 0);
+      rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+                           0, isPriv);
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       content_make_public(rid);
@@ -161,13 +172,13 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   if( !blob_eq_str(&pXfer->aToken[1], blob_str(&hash), -1) ){
     blob_appendf(&pXfer->err, "content does not match sha1 hash");
   }
-  rid = content_put_ex(&content, blob_str(&hash), 0, 0, 0);
+  rid = content_put_ex(&content, blob_str(&hash), 0, 0, isPriv);
   blob_reset(&hash);
   if( rid==0 ){
     blob_appendf(&pXfer->err, "%s", g.zErrMsg);
     blob_reset(&content);
   }else{
-    content_make_public(rid);
+    if( !isPriv ) content_make_public(rid);
     manifest_crosslink(rid, &content);
   }
   assert( blob_is_reset(&content) );
@@ -203,7 +214,10 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   int rid;
   int srcid = 0;
   Blob content;
+  int isPriv;
   
+  isPriv = pXfer->nextIsPrivate;
+  pXfer->nextIsPrivate = 0;
   if( pXfer->nToken<4 
    || pXfer->nToken>5
    || !blob_is_uuid(&pXfer->aToken[1])
@@ -215,6 +229,10 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
     blob_appendf(&pXfer->err, "malformed cfile line");
     return;
   }
+  if( isPriv && !g.okPrivate ){
+    /* Do not accept private files if not authorized */
+    return;
+  }
   blob_zero(&content);
   blob_extract(pXfer->pIn, szC, &content);
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
@@ -222,13 +240,14 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
     return;
   }
   if( pXfer->nToken==5 ){
-    srcid = rid_from_uuid(&pXfer->aToken[2], 1);
+    srcid = rid_from_uuid(&pXfer->aToken[2], 1, isPriv);
     pXfer->nDeltaRcvd++;
   }else{
     srcid = 0;
     pXfer->nFileRcvd++;
   }
-  rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid, szC, 0);
+  rid = content_put_ex(&content, blob_str(&pXfer->aToken[1]), srcid,
+                       szC, isPriv);
   remote_has(rid);
   blob_reset(&content);
 }
@@ -447,15 +466,16 @@ static void send_compressed_file(Xfer *pXfer, int rid){
 /*
 ** Send a gimme message for every phantom.
 **
-** It should not be possible to have a private phantom.  But just to be
-** sure, take care not to send any "gimme" messagse on private artifacts.
+** Except: do not request shunned artifacts.  And do not request
+** private artifacts if we are not doing a private transfer.
 */
 static void request_phantoms(Xfer *pXfer, int maxReq){
   Stmt q;
   db_prepare(&q, 
     "SELECT uuid FROM phantom JOIN blob USING(rid)"
-    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
+    " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
+    (pXfer->sendPrivate ? "" :
+         "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)")
   );
   while( db_step(&q)==SQLITE_ROW && maxReq-- > 0 ){
     const char *zUuid = db_column_text(&q, 0);
@@ -645,6 +665,23 @@ void create_cluster(void){
 }
 
 /*
+** Send igot messages for every private artifact
+*/
+static int send_private(Xfer *pXfer){
+  int cnt = 0;
+  Stmt q;
+  if( pXfer->sendPrivate ){
+    db_prepare(&q, "SELECT uuid FROM private JOIN blob USING(rid)");
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(pXfer->pOut, "igot %s 1\n", db_column_text(&q,0));
+      cnt++;
+    }
+    db_finalize(&q);
+  }
+  return cnt;
+}
+
+/*
 ** Send an igot message for every entry in unclustered table.
 ** Return the number of cards sent.
 */
@@ -654,8 +691,8 @@ static int send_unclustered(Xfer *pXfer){
   db_prepare(&q, 
     "SELECT uuid FROM unclustered JOIN blob USING(rid)"
     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
+    "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
   );
   while( db_step(&q)==SQLITE_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
@@ -813,23 +850,28 @@ void page_xfer(void){
     ){
       nGimme++;
       if( isPull ){
-        int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid ){
           send_file(&xfer, rid, &xfer.aToken[1], deltaFlag);
         }
       }
     }else
 
-    /*   igot UUID
+    /*   igot UUID ?ISPRIVATE?
     **
-    ** Client announces that it has a particular file.
+    ** Client announces that it has a particular file.  If the ISPRIVATE
+    ** argument exists and is non-zero, then the file is a private file.
     */
-    if( xfer.nToken==2
+    if( xfer.nToken>=2
      && blob_eq(&xfer.aToken[0], "igot")
      && blob_is_uuid(&xfer.aToken[1])
     ){
       if( isPush ){
-        rid_from_uuid(&xfer.aToken[1], 1);
+        if( xfer.nToken==2 || blob_eq(&xfer.aToken[1],"1")==0 ){
+          rid_from_uuid(&xfer.aToken[1], 1, 0);
+        }else if( g.okPrivate ){
+          rid_from_uuid(&xfer.aToken[1], 1, 1);
+        }
       }
     }else
   
@@ -931,7 +973,7 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
       if( disableLogin ){
-        g.okRead = g.okWrite = 1;
+        g.okRead = g.okWrite = g.okPrivate = 1;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
@@ -1031,6 +1073,35 @@ void page_xfer(void){
       /* Process the cookie */
     }else
 
+
+    /*    private
+    **
+    ** This card indicates that the next "file" or "cfile" will contain
+    ** private content.
+    */
+    if( blob_eq(&xfer.aToken[0], "private") ){
+      xfer.nextIsPrivate = 1;
+    }else
+
+
+    /*    pragma NAME VALUE...
+    **
+    ** The client issue pragmas to try to influence the behavior of the
+    ** server.  These are requests only.  Unknown pragmas are silently
+    ** ignored.
+    */
+    if( blob_eq(&xfer.aToken[0], "set") && xfer.nToken>=2 ){
+      /*   pragma send-private
+      **
+      ** If the user has the "x" privilege (which must be set explicitly -
+      ** it is not automatic with "a" or "s") then this pragma causes
+      ** private information to be pulled in addition to public records.
+      */
+      if( blob_eq(&xfer.aToken[1], "send-private") ){
+        if( g.okPrivate ) xfer.sendPrivate = 1;
+      }
+    }else
+
     /* Unknown message
     */
     {
@@ -1051,9 +1122,11 @@ void page_xfer(void){
     ** and expeditiously.
     */
     send_all(&xfer);
+    if( xfer.sendPrivate ) send_private(&xfer);
   }else if( isPull ){
     create_cluster();
     send_unclustered(&xfer);
+    if( xfer.sendPrivate ) send_private(&xfer);
   }
   if( recvConfig ){
     configure_finalize_receive();
@@ -1122,6 +1195,7 @@ int client_sync(
   int pushFlag,           /* True to do a push (or a sync) */
   int pullFlag,           /* True to do a pull (or a sync) */
   int cloneFlag,          /* True if this is a clone */
+  int privateFlag,        /* True to exchange private branches */
   int configRcvMask,      /* Receive these configuration items */
   int configSendMask      /* Send these configuration items */
 ){
@@ -1157,6 +1231,10 @@ int client_sync(
   xfer.pIn = &recv;
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
+  if( privateFlag ){
+    g.okPrivate = 1;
+    xfer.sendPrivate = 1;
+  }
 
   assert( pushFlag | pullFlag | cloneFlag | configRcvMask | configSendMask );
   db_begin_transaction();
@@ -1203,6 +1281,13 @@ int client_sync(
     zCookie = db_get("cookie", 0);
     if( zCookie ){
       blob_appendf(&send, "cookie %s\n", zCookie);
+    }
+    
+    /* Send a pragma to alert the server that we want private content if
+    ** doing a private push, pull, sync, or clone.
+    */
+    if( privateFlag ){
+      blob_append(&send, "pragma send-private\n", -1);
     }
     
     /* Generate gimme cards for phantoms and leaf cards
@@ -1351,28 +1436,36 @@ int client_sync(
        && blob_is_uuid(&xfer.aToken[1])
       ){
         if( pushFlag ){
-          int rid = rid_from_uuid(&xfer.aToken[1], 0);
+          int rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
           if( rid ) send_file(&xfer, rid, &xfer.aToken[1], 0);
         }
       }else
   
-      /*   igot UUID
+      /*   igot UUID  ?PRIVATEFLAG?
       **
       ** Server announces that it has a particular file.  If this is
       ** not a file that we have and we are pulling, then create a
       ** phantom to cause this file to be requested on the next cycle.
       ** Always remember that the server has this file so that we do
       ** not transmit it by accident.
+      **
+      ** If the PRIVATE argument exists and is 1, then the file is 
+      ** private.  Pretend it does not exists if we are not pulling
+      ** private files.
       */
-      if( xfer.nToken==2
+      if( xfer.nToken>=2
        && blob_eq(&xfer.aToken[0], "igot")
        && blob_is_uuid(&xfer.aToken[1])
       ){
-        int rid = rid_from_uuid(&xfer.aToken[1], 0);
+        int rid;
+        int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[1],"1");
+        rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
-          content_make_public(rid);
+          if( !isPriv ) content_make_public(rid);
+        }else if( !g.okPrivate ){
+          /* ignore private files */
         }else if( pullFlag || cloneFlag ){
-          rid = content_new(blob_str(&xfer.aToken[1]), 0);
+          rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
           if( rid ) newPhantom = 1;
         }
         remote_has(rid);
@@ -1456,6 +1549,17 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0], "cookie") && xfer.nToken==2 ){
         db_set("cookie", blob_str(&xfer.aToken[1]), 0);
       }else
+
+
+      /*    private
+      **
+      ** This card indicates that the next "file" or "cfile" will contain
+      ** private content.
+      */
+      if( blob_eq(&xfer.aToken[0], "private") ){
+        xfer.nextIsPrivate = 1;
+      }else
+
 
       /*    clone_seqno N
       **

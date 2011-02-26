@@ -37,14 +37,17 @@
 **
 ** Options:
 **
-**    --admin-user|-A USERNAME
+**    --admin-user|-A USERNAME    Make USERNAME the administrator
+**    --private                   Also clone private branches 
 **
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
   int nErr = 0;
+  int bPrivate;               /* Also clone private branches */
 
+  bPrivate = find_option("private",0,0)!=0;
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -96,7 +99,7 @@ void clone_cmd(void){
     );
     url_enable_proxy(0);
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(0,0,1,CONFIGSET_ALL,0);
+    nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
