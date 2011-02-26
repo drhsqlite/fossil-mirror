@@ -1,5 +1,5 @@
-C Extend\sthe\sfile\sformat\sfor\smanifests\sto\sinclude\sthe\sQ-card\sfor\srecording\ncherry-picks.\s\sParse\sand\signore\sthese\scards\sfor\snow.
-D 2011-02-26T15:32:47.983
+C Adding\sa\snew\sskin\soption\swith\sgradients,\sshadows,\sand\srounded\scorners.
+D 2011-02-26T16:57:18.970
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -96,7 +96,7 @@ F src/setup.c 36596f56b25cd01303742066a5163cb39540cd3a
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
 F src/shell.c 7f7112e9359eda8f8e5960d63b19c8a89076df8a
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
-F src/skins.c 720221721b5db2a81bae12510cbb9fed670dfc18
+F src/skins.c ba93ea1dd329ed55fbebee250e6de0bf3280c4e5
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 4d71a91b5f2a97f3d36736c35f6d5c6873e78a6c
 F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 51c3f3b6709bf630b9016f9fd2011fe816ad90cd
-R ecb062381ed1880778d940ce7e30a852
+P 7fcbbb1da0dd28bf2d889ed6046c53cccda47836
+R ce4dadedb7f2ecdac8cf25bad16e97fc
 U drh
-Z 17b7ecba1cc5829bc6b15179aed4d12e
+Z 4007b06a2b9c5c29b1427253d51abfff
