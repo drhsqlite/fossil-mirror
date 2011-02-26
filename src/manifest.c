@@ -76,6 +76,11 @@ struct Manifest {
   int nParent;          /* Number of parents. */
   int nParentAlloc;     /* Slots allocated in azParent[] */
   char **azParent;      /* UUIDs of parents.  One for each P card argument */
+  int nCherrypick;      /* Number of entries in aCherrypick[] */
+  struct {            
+    char *zCPTarget;    /* UUID of cherry-picked version w/ +|- prefix */
+    char *zCPBase;      /* UUID of cherry-pick baseline. NULL for singletons */
+  } *aCherrypick;
   int nCChild;          /* Number of cluster children */
   int nCChildAlloc;     /* Number of closts allocated in azCChild[] */
   char **azCChild;      /* UUIDs of referenced objects in a cluster. M cards */
@@ -123,6 +128,7 @@ void manifest_destroy(Manifest *p){
     free(p->azCChild);
     free(p->aTag);
     free(p->aField);
+    free(p->aCherrypick);
     if( p->pBaseline ) manifest_destroy(p->pBaseline);
     memset(p, 0, sizeof(*p));
     fossil_free(p);
@@ -623,6 +629,30 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
           }
           i = p->nParent++;
           p->azParent[i] = zUuid;
+        }
+        break;
+      }
+
+      /*
+      **     Q (+|-)<uuid> ?<uuid>?
+      **
+      ** Specify one or a range of checkins that are cherrypicked into
+      ** this checkin ("+") or backed out of this checkin ("-").
+      */
+      case 'Q': {
+        if( (zUuid = next_token(&x, &sz))==0 ) goto manifest_syntax_error;
+        if( sz!=UUID_SIZE+1 ) goto manifest_syntax_error;
+        if( zUuid[0]!='+' && zUuid[0]!='-' ) goto manifest_syntax_error;
+        if( !validate16(&zUuid[1], UUID_SIZE) ) goto manifest_syntax_error;
+        n = p->nCherrypick;
+        p->nCherrypick++;
+        p->aCherrypick = fossil_realloc(p->aCherrypick,
+                                 p->nCherrypick*sizeof(p->aCherrypick[0]));
+        p->aCherrypick[n].zCPTarget = zUuid;
+        p->aCherrypick[n].zCPBase = zUuid = next_token(&x, &sz);
+        if( zUuid ){
+          if( sz!=UUID_SIZE ) goto manifest_syntax_error;
+          if( !validate16(zUuid, UUID_SIZE) ) goto manifest_syntax_error;
         }
         break;
       }

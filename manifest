@@ -1,5 +1,5 @@
-C Update\sthe\sfile\sformat\sdocumentation\sto\smake\sit\sclear\sthat\sa\sZ-card\sis\nrequired\son\sall\sartifacts.
-D 2011-02-25T17:59:25.611
+C Extend\sthe\sfile\sformat\sfor\smanifests\sto\sinclude\sthe\sQ-card\sfor\srecording\ncherry-picks.\s\sParse\sand\signore\sthese\scards\sfor\snow.
+D 2011-02-26T15:32:47.983
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -77,7 +77,7 @@ F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 264e1360e84f11aed2992e6c3545399ec083d4bb
-F src/manifest.c 43634612ab7eb6dd0800b56d346566aef227159b
+F src/manifest.c 9d4807c24d53767b1e7c32daa0d686aed7c5b965
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c eaf87ed7808f9de964a45d3672cb8e34deaf57d2
 F src/merge3.c 70f80fdc8f0fded21cba533b8f47477e8dcf16e7
@@ -263,7 +263,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl 5ff29021eeb48b35d86b637f8f11a6c87ac03fcf
 F www/faq.wiki 400b519892af0f3e7cd9a86f722b9bee073cf0ec
-F www/fileformat.wiki a7cf7b7b6d315b441d4df7214a6982e2b82c6959
+F www/fileformat.wiki dc9aca3a4a3b5b6e11f9e3125992075ff015decf
 F www/fossil-v-git.wiki 0948dc9d9832dd49404fc697e611f2e48e47db86
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a48c661d9a06a5eea05becc8bf8b8e9cdd8e9fa3
-R 588b6bdc4f5dcc3c2b7e9e3233ac4b6b
+P 51c3f3b6709bf630b9016f9fd2011fe816ad90cd
+R ecb062381ed1880778d940ce7e30a852
 U drh
-Z a1d25b70b57b2ce04212eed704e2318d
+Z 17b7ecba1cc5829bc6b15179aed4d12e

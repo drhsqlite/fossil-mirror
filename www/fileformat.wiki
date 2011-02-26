@@ -102,6 +102,7 @@ Allowed cards in the manifest are as follows:
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
 <b>R</b> <i>repository-checksum</i><br>
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  <b>*</b> ?value?</i><br>
 <b>U</b> <i>user-login</i><br>
@@ -171,6 +172,25 @@ Other arguments define manifests with which the first was
 merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
 project has no ancestors and thus has no P-card.
+
+A manifest has zero or more Q-cards.  A Q-card is similar to a P-card
+in that it defines a predecessor to the current check-in.  But
+whereas a P-card defines the immediate ancestor or a merge
+ancestor, the Q-card is used to identify a single check-in or a small
+range of check-ins which were cherry-picked for inclusion in or
+exclusion from the the current manifest.  The first argument of
+the Q-card is the artifact ID of another manifest (the "target")
+which has had its changes included or excluded in the current manifest.  
+The target is preceeded by "+" or "-" to show inclusion or
+exclusion, respectively.  The optional second argument to the
+Q-card is another manifest artifact ID which is the "baseline"
+for the cherry-pick.  If omitted, the baseline is the primary
+parent of the target.  The
+changes included or excluded consist of all changes moving from
+the baseline to the target.  
+
+The Q-card was added to the interface specification on 2011-02-26.  
+Older versions of Fossil will reject manifests that contain Q-cards.
 
 A manifest may optionally have a single R-card.  The R-card has
 a single argument which is the MD5 checksum of all files in 
@@ -616,6 +636,16 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+</tr>
+<tr>
+<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid uuid</i></td>
+<td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
