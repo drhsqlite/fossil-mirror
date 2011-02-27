@@ -1,5 +1,5 @@
-C Fix\sthe\s"revert"\scommand\sso\sthat\sit\srestores\sthe\scorrect\sexecute\spermission\nto\sthe\sfile.\s\sTicket\s[baf9b6b11e08c1]
-D 2011-02-27T21:45:36.127
+C Change\sthe\sZIP\sfile\sgenerator\sso\sthat\sit\ssets\sthe\sexecute\sbit\sapproprately.\nTicket\s[baf9b6b11e08c1d].
+D 2011-02-27T23:31:27.376
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -123,7 +123,7 @@ F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
 F src/xfer.c a410cf661faf2ecfa59cf51965b98f8a8de0141a
-F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
+F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
 F test/graph-test-1.wiki 36472ba878873d8beec274557e48775e60af16ed
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 8b8cc4f1b7626f1eade85ac9d4c2b287cee1dec6
-R 91e1f57795491118dd08084371303748
+P 3c39caac39b3d89e149accf25f7727c252e09e7d
+R 8c8b76c39021f752bd7adb2a11732566
 U drh
-Z f7762df0e0283d109e85e6ca2189f6dd
+Z 089d79b923571a7dcf9c94e0e22143b7

@@ -106,7 +106,7 @@ void zip_add_folders(char *zName){
         nDir++;
         azDir = fossil_realloc(azDir, sizeof(azDir[0])*nDir);
         azDir[j] = mprintf("%s", zName);
-        zip_add_file(zName, 0);
+        zip_add_file(zName, 0, 0);
       }
       zName[i+1] = c;
     }
@@ -119,7 +119,7 @@ void zip_add_folders(char *zName){
 ** pFile is the file to be appended.  zName is the name
 ** that the file should be saved as.
 */
-void zip_add_file(const char *zName, const Blob *pFile){
+void zip_add_file(const char *zName, const Blob *pFile, int isExe){
   z_stream stream;
   int nameLen;
   int toOut = 0;
@@ -141,7 +141,7 @@ void zip_add_file(const char *zName, const Blob *pFile){
   nBlob = pFile ? blob_size(pFile) : 0;
   if( nBlob>0 ){
     iMethod = 8;
-    iMode = 0100644;
+    iMode =  isExe ? 0100755 : 0100644;
   }else{
     iMethod = 0;
     iMode = 040755;
@@ -289,7 +289,7 @@ void filezip_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
-    zip_add_file(g.argv[i], &file);
+    zip_add_file(g.argv[i], &file, file_isexe(g.argv[i]));
     blob_reset(&file);
   }
   zip_close(&zip);
@@ -343,14 +343,14 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       zip_add_folders(zName);
-      zip_add_file(zName, &mfile);
+      zip_add_file(zName, &mfile, 0);
       sha1sum_blob(&mfile, &hash);
       blob_reset(&mfile);
       blob_append(&hash, "\n", 1);
       blob_resize(&filename, nPrefix);
       blob_append(&filename, "manifest.uuid", -1);
       zName = blob_str(&filename);
-      zip_add_file(zName, &hash);
+      zip_add_file(zName, &hash, 0);
       blob_reset(&hash);
     }
     manifest_file_rewind(pManifest);
@@ -362,7 +362,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
         blob_append(&filename, pFile->zName, -1);
         zName = blob_str(&filename);
         zip_add_folders(zName);
-        zip_add_file(zName, &file);
+        zip_add_file(zName, &file, manifest_file_mperm(pFile));
         blob_reset(&file);
       }
     }
