@@ -102,7 +102,7 @@ void finfo_cmd(void){
 
     file_tree_name(g.argv[2], &fname, 1);
     if( zRevision ){
-      historical_version_of_file(zRevision, blob_str(&fname), &record, 0);
+      historical_version_of_file(zRevision, blob_str(&fname), &record, 0, 0);
     }else{
       int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
       if( rid==0 ){

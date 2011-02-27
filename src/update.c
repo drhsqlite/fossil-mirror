@@ -451,6 +451,7 @@ int historical_version_of_file(
   const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
+  int *pIsExe,             /* Set to true if file is executable */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
@@ -469,13 +470,12 @@ int historical_version_of_file(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   
   if( pManifest ){
-    manifest_file_rewind(pManifest);
-    while( (pFile = manifest_file_next(pManifest,0))!=0 ){
-      if( fossil_strcmp(pFile->zName, file)==0 ){
-        rid = uuid_to_rid(pFile->zUuid, 0);
-        manifest_destroy(pManifest);
-        return content_get(rid, content);
-      }
+    pFile = manifest_file_seek(pManifest, file);
+    if( pFile ){
+      rid = uuid_to_rid(pFile->zUuid, 0);
+      if( pIsExe ) *pIsExe = manifest_file_mperm(pFile);
+      manifest_destroy(pManifest);
+      return content_get(rid, content);
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
@@ -511,7 +511,6 @@ void revert_cmd(void){
   Blob record;
   int i;
   int errCode;
-  int rid = 0;
   Stmt q;
 
   undo_capture_command_line();  
@@ -551,35 +550,30 @@ void revert_cmd(void){
   }
   blob_zero(&record);
   db_prepare(&q, "SELECT name FROM torevert");
+  if( zRevision==0 ){
+    int vid = db_lget_int("checkout", 0);
+    zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+  }
   while( db_step(&q)==SQLITE_ROW ){
+    int isExe = 0;
     zFile = db_column_text(&q, 0);
-    if( zRevision!=0 ){
-      errCode = historical_version_of_file(zRevision, zFile, &record, 2);
-    }else{
-      rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile);
-      if( rid==0 ){
-        errCode = 2;
-      }else{
-        content_get(rid, &record);
-        errCode = 0;
-      }
-    }
-
+    errCode = historical_version_of_file(zRevision, zFile, &record, &isExe,2);
     if( errCode==2 ){
       fossil_warning("file not in repository: %s", zFile);
     }else{
       char *zFull = mprintf("%/%/", g.zLocalRoot, zFile);
       undo_save(zFile);
       blob_write_to_file(&record, zFull);
+      file_setexe(zFull, isExe);
       printf("REVERTED: %s\n", zFile);
       if( zRevision==0 ){
         sqlite3_int64 mtime = file_mtime(zFull);
         db_multi_exec(
            "UPDATE vfile"
-           "   SET mtime=%lld, chnged=0, deleted=0,"
+           "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d,"
            "       pathname=coalesce(origname,pathname), origname=NULL"     
            " WHERE pathname=%Q",
-           mtime, zFile
+           mtime, isExe, zFile
         );
       }
       free(zFull);

@@ -1,5 +1,5 @@
-C Merge\sthe\s--private\ssync\senhancement\sinto\sthe\strunk.
-D 2011-02-27T21:08:04.389
+C Fix\sthe\s"revert"\scommand\sso\sthat\sit\srestores\sthe\scorrect\sexecute\spermission\nto\sthe\sfile.\s\sTicket\s[baf9b6b11e08c1]
+D 2011-02-27T21:45:36.127
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -56,13 +56,13 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c 69df36fbfa0aedb7034d0cf530648eb5c1b3f3b1
 F src/diff.c 4ed3cdb38c7935cf327e7f77117fd11f3399b50f
-F src/diffcmd.c 3a20b0054c5306c9af8e2ef8a08f860d797484ef
+F src/diffcmd.c 1c57ba999321058cf53b12b6cda12e72041bf073
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
 F src/file.c e44e50371388d2a94f6a9ea112505e56a2b9a6cf
-F src/finfo.c cb0c42daa1872790c8400f264f938ade4bc72fdb
+F src/finfo.c 1e712203d4362b0f55b32dadbc7d73e5578e925d
 F src/graph.c eede34999b73a6d59b7e2c4ab8059e11e364b04a
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
@@ -114,7 +114,7 @@ F src/tkt.c 7377bab8cf8cffba5e50892091746d4b30fbddbe
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 615528bf6dde5396f4e67f8ff98259c28b118c3b
-F src/update.c 97fda09d8c5a833967b8f5a0df04d90a9b061307
+F src/update.c 485608877d7231f42e8d4b109108874591f2e336
 F src/url.c 64b90f7daff5e451bd1319a0c4f290260081a10f
 F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P babe3fb52a79603f781f077e0569584381132f8a bbf257dc9e633c29c6b2d2cae8f5c7da50e43241
-R 9f456e9c8fe3ba958af71985bb8f57e9
+P 8b8cc4f1b7626f1eade85ac9d4c2b287cee1dec6
+R 91e1f57795491118dd08084371303748
 U drh
-Z a4a7461a0a15ea496ad9ce31ff487f8c
+Z f7762df0e0283d109e85e6ca2189f6dd
