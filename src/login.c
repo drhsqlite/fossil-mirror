@@ -376,7 +376,7 @@ void login_check_credentials(void){
   ){
     uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
-    zCap = "s";
+    zCap = "sx";
     g.noPswd = 1;
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
   }

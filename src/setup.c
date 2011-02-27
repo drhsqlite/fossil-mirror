@@ -124,7 +124,6 @@ void setup_ulist(void){
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zCap = db_column_text(&s, 2);
-    if( strstr(zCap, "s") ) zCap = "s";
     @ <tr>
     @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
