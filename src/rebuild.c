@@ -542,7 +542,7 @@ void test_clusters_cmd(void){
 
 /*
 ** COMMAND: scrub
-** %fossil scrub [--verily] [--force] [REPOSITORY]
+** %fossil scrub [--verily] [--force] [--private] [REPOSITORY]
 **
 ** The command removes sensitive information (such as passwords) from a
 ** repository so that the respository can be sent to an untrusted reader.
@@ -550,7 +550,8 @@ void test_clusters_cmd(void){
 ** By default, only passwords are removed.  However, if the --verily option
 ** is added, then private branches, concealed email addresses, IP
 ** addresses of correspondents, and similar privacy-sensitive fields
-** are also purged.
+** are also purged.  If the --private option is used, then only private
+** branches are removed and all other information is left intact.
 **
 ** This command permanently deletes the scrubbed information.  The effects
 ** of this command are irreversible.  Use with caution.
@@ -561,6 +562,7 @@ void test_clusters_cmd(void){
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
   int bForce = find_option("force", "f", 0)!=0;
+  int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   if( g.argc==2 ){
@@ -571,26 +573,33 @@ void scrub_cmd(void){
   if( !bForce ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("Scrubbing the repository will permanently remove user\n"
-                "passwords and other information. Changes cannot be undone.\n"
-                "Continue (y/N)? ", &ans);
+    prompt_user("Scrubbing the repository will permanently information.\n"
+                "Changes cannot be undone.  Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       fossil_exit(1);
     }
   }
   db_begin_transaction();
-  db_multi_exec(
-    "UPDATE user SET pw='';"
-    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-  );
-  if( bVerily ){
+  if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
     db_multi_exec(
-      "DELETE FROM concealed;"
-      "UPDATE rcvfrom SET ipaddr='unknown';"
-      "UPDATE user SET photo=NULL, info='';"
-      "INSERT INTO shun SELECT uuid FROM blob WHERE rid IN private;"
+      "DELETE FROM blob WHERE rid IN private;"
+      "DELETE FROM delta WHERE rid IN private;"
+      "DELETE FROM private;"
     );
+  }
+  if( !privateOnly ){
+    db_multi_exec(
+      "UPDATE user SET pw='';"
+      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    );
+    if( bVerily ){
+      db_multi_exec(
+        "DELETE FROM concealed;"
+        "UPDATE rcvfrom SET ipaddr='unknown';"
+        "UPDATE user SET photo=NULL, info='';"
+      );
+    }
   }
   if( !bNeedRebuild ){
     db_end_transaction(0);
