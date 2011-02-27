@@ -466,9 +466,9 @@ void configuration_cmd(void){
     user_select();
     url_enable_proxy("via proxy: ");
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,0,0,mask);
+      client_sync(0,0,0,0,0,mask);
     }else{
-      client_sync(0,0,0,mask,0);
+      client_sync(0,0,0,0,mask,0);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){

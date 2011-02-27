@@ -207,6 +207,12 @@ int tag_insert(
       zCol = "euser";
       break;
     }
+    case TAG_PRIVATE: {
+      db_multi_exec(
+        "INSERT OR IGNORE INTO private(rid) VALUES(%d);",
+        rid
+      );
+    }
   }
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);

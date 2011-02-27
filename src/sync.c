@@ -80,7 +80,7 @@ int autosync(int flags){
 #endif
   printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
-  rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
+  rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, configSync, 0);
   if( rc ) fossil_warning("Autosync failed");
   return rc;
 }
@@ -91,12 +91,13 @@ int autosync(int flags){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-static int process_sync_args(void){
+static void process_sync_args(int *pConfigSync, int *pPrivate){
   const char *zUrl = 0;
   const char *zPw = 0;
   int configSync = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
+  *pPrivate = find_option("private",0,0)!=0;
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
@@ -128,7 +129,7 @@ static int process_sync_args(void){
     printf("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
-  return configSync;
+  *pConfigSync = configSync;
 }
 
 /*
@@ -148,11 +149,16 @@ static int process_sync_args(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to pull private branches from the
+** remote repository.
+**
 ** See also: clone, push, sync, remote-url
 */
 void pull_cmd(void){
-  int syncFlags = process_sync_args();
-  client_sync(0,1,0,syncFlags,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(0,1,0,bPrivate,syncFlags,0);
 }
 
 /*
@@ -172,11 +178,16 @@ void pull_cmd(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to push private branches to the
+** remote repository.
+**
 ** See also: clone, pull, sync, remote-url
 */
 void push_cmd(void){
-  process_sync_args();
-  client_sync(1,0,0,0,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(1,0,0,bPrivate,0,0);
 }
 
 
@@ -202,11 +213,16 @@ void push_cmd(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to sync private branches with the
+** remote repository.
+**
 ** See also:  clone, push, pull, remote-url
 */
 void sync_cmd(void){
-  int syncFlags = process_sync_args();
-  client_sync(1,1,0,syncFlags,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(1,1,0,bPrivate,syncFlags,0);
 }
 
 /*

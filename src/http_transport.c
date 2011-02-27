@@ -304,7 +304,7 @@ void transport_flip(void){
   }else if( g.urlIsFile ){
     char *zCmd;
     fclose(transport.pFile);
-    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1",
+    zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1 --localauth",
        fossil_nameofexe(), g.urlName, transport.zOutFile, transport.zInFile
     );
     fossil_system(zCmd);

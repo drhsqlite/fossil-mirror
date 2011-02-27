@@ -124,7 +124,6 @@ void setup_ulist(void){
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zCap = db_column_text(&s, 2);
-    if( strstr(zCap, "s") ) zCap = "s";
     @ <tr>
     @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
@@ -190,6 +189,8 @@ void setup_ulist(void){
      @   user <tt>developer</tt></td></tr>
      @ <tr><td valign="top"><b>w</b></td>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
+     @ <tr><td valign="top"><b>x</b></td>
+     @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
      @   <tt>/zip</tt> URL even without 
@@ -245,7 +246,7 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oau, *oav, *oab, *oaz;
+  char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *inherit[128];
   int doWrite;
   int uid;
@@ -302,6 +303,7 @@ void user_edit(void){
     int at = P("at")!=0;
     int au = P("au")!=0;
     int av = P("av")!=0;
+    int ax = P("ax")!=0;
     int az = P("az")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ab ){ zCap[i++] = 'b'; }
@@ -324,6 +326,7 @@ void user_edit(void){
     if( au ){ zCap[i++] = 'u'; }
     if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
+    if( ax ){ zCap[i++] = 'x'; }
     if( az ){ zCap[i++] = 'z'; }
 
     zCap[i] = 0;
@@ -362,7 +365,7 @@ void user_edit(void){
   zCap = "";
   zPw = "";
   oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oaz = "";
+        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -389,6 +392,7 @@ void user_edit(void){
     if( strchr(zCap, 'u') ) oau = " checked=\"checked\"";
     if( strchr(zCap, 'v') ) oav = " checked=\"checked\"";
     if( strchr(zCap, 'w') ) oaw = " checked=\"checked\"";
+    if( strchr(zCap, 'x') ) oax = " checked=\"checked\"";
     if( strchr(zCap, 'z') ) oaz = " checked=\"checked\"";
   }
 
@@ -486,6 +490,7 @@ void user_edit(void){
   @    <input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket<br />
   @    <input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket<br />
   @    <input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report<br />
+  @    <input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private<br />
   @    <input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
   @   </td>
   @ </tr>

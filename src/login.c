@@ -376,7 +376,7 @@ void login_check_credentials(void){
   ){
     uid = db_int(0, "SELECT uid FROM user WHERE cap LIKE '%%s%%'");
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
-    zCap = "s";
+    zCap = "sx";
     g.noPswd = 1;
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
   }
@@ -537,6 +537,7 @@ void login_set_capabilities(const char *zCap){
       case 'c':   g.okApndTkt = 1;                              break;
       case 't':   g.okTktFmt = 1;                               break;
       case 'b':   g.okAttach = 1;                               break;
+      case 'x':   g.okPrivate = 1;                              break;
 
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */
