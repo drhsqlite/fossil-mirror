@@ -1500,7 +1500,7 @@ int client_sync(
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
           if( !isPriv ) content_make_public(rid);
-        }else if( !g.okPrivate ){
+        }else if( isPriv && !g.okPrivate ){
           /* ignore private files */
         }else if( pullFlag || cloneFlag ){
           rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
