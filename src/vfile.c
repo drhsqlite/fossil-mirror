@@ -87,8 +87,8 @@ void vfile_build(int vid){
   if( p==0 ) return;
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
-    "INSERT INTO vfile(vid,rid,mrid,pathname) "
-    " VALUES(:vid,:id,:id,:name)");
+    "INSERT INTO vfile(vid,isexe,rid,mrid,pathname) "
+    " VALUES(:vid,:isexe,:id,:id,:name)");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
   while( (pFile = manifest_file_next(p,0))!=0 ){
@@ -98,6 +98,7 @@ void vfile_build(int vid){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
+    db_bind_int(&ins, ":isexe", manifest_file_mperm(pFile));
     db_bind_int(&ins, ":id", rid);
     db_bind_text(&ins, ":name", pFile->zName);
     db_step(&ins);
@@ -209,27 +210,32 @@ void vfile_to_disk(
   int nRepos = strlen(g.zLocalRoot);
 
   if( vid>0 && id==0 ){
-    db_prepare(&q, "SELECT id, %Q || pathname, mrid"
+    db_prepare(&q, "SELECT id, %Q || pathname, mrid, isexe"
                    "  FROM vfile"
                    " WHERE vid=%d AND mrid>0",
                    g.zLocalRoot, vid);
   }else{
     assert( vid==0 && id>0 );
-    db_prepare(&q, "SELECT id, %Q || pathname, mrid"
+    db_prepare(&q, "SELECT id, %Q || pathname, mrid, isexe"
                    "  FROM vfile"
                    " WHERE id=%d AND mrid>0",
                    g.zLocalRoot, id);
   }
   while( db_step(&q)==SQLITE_ROW ){
-    int id, rid;
+    int id, rid, isExe;
     const char *zName;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
+    isExe = db_column_int(&q, 3);
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
+      if( file_setexe(zName, isExe) ){
+        db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
+                      file_mtime(zName), id);
+      }
       continue;
     }
     if( promptFlag && file_size(zName)>=0 ){
@@ -252,6 +258,7 @@ void vfile_to_disk(
     }
     if( verbose ) printf("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
+    file_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
                   file_mtime(zName), id);

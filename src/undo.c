@@ -32,23 +32,29 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, existsflag FROM undo WHERE pathname=%Q AND redoflag=%d",
+    "SELECT content, existsflag, isExe FROM undo"
+    " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
   if( db_step(&q)==SQLITE_ROW ){
     int old_exists;
     int new_exists;
+    int old_exe;
+    int new_exe;
     Blob current;
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     new_exists = file_size(zFullname)>=0;
     if( new_exists ){
       blob_read_from_file(&current, zFullname);
+      new_exe = file_isexe(zFullname);
     }else{
       blob_zero(&current);
+      new_exe = 0;
     }
     blob_zero(&new);
     old_exists = db_column_int(&q, 1);
+    old_exe = db_column_int(&q, 2);
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
@@ -59,6 +65,7 @@ static void undo_one(const char *zPathname, int redoFlag){
         printf("NEW %s\n", zPathname);
       }
       blob_write_to_file(&new, zFullname);
+      file_setexe(zFullname, old_exe);
     }else{
       printf("DELETE %s\n", zPathname);
       unlink(zFullname);
@@ -67,9 +74,10 @@ static void undo_one(const char *zPathname, int redoFlag){
     free(zFullname);
     db_finalize(&q);
     db_prepare(&q, 
-       "UPDATE undo SET content=:c, existsflag=%d, redoflag=NOT redoflag"
+       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d,"
+             " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
-       new_exists, zPathname
+       new_exists, new_exe, zPathname
     );
     if( new_exists ){
       db_bind_blob(&q, ":c", &current);
@@ -202,6 +210,7 @@ void undo_begin(void){
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
+    @   isExe BOOLEAN,                    -- True if the file is executable
     @   content BLOB                      -- Saved content
     @ );
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
@@ -248,9 +257,9 @@ void undo_save(const char *zPathname){
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
   db_prepare(&q,
-    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,content)"
-    " VALUES(%Q,0,%d,:c)",
-    zPathname, existsFlag
+    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,content)"
+    " VALUES(%Q,0,%d,%d,:c)",
+    zPathname, existsFlag, file_isexe(zFullname)
   );
   if( existsFlag ){
     blob_read_from_file(&content, zFullname);

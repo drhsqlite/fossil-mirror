@@ -561,21 +561,20 @@ void revert_cmd(void){
     if( errCode==2 ){
       fossil_warning("file not in repository: %s", zFile);
     }else{
+      sqlite3_int64 mtime;
       char *zFull = mprintf("%/%/", g.zLocalRoot, zFile);
       undo_save(zFile);
       blob_write_to_file(&record, zFull);
       file_setexe(zFull, isExe);
       printf("REVERTED: %s\n", zFile);
-      if( zRevision==0 ){
-        sqlite3_int64 mtime = file_mtime(zFull);
-        db_multi_exec(
-           "UPDATE vfile"
-           "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d,"
-           "       pathname=coalesce(origname,pathname), origname=NULL"     
-           " WHERE pathname=%Q",
-           mtime, isExe, zFile
-        );
-      }
+      mtime = file_mtime(zFull);
+      db_multi_exec(
+         "UPDATE vfile"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d,"
+         "       pathname=coalesce(origname,pathname), origname=NULL"     
+         " WHERE pathname=%Q",
+         mtime, isExe, zFile
+      );
       free(zFull);
     }
     blob_reset(&record);

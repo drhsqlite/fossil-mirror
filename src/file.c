@@ -180,22 +180,27 @@ void file_copy(const char *zFrom, const char *zTo){
 }
 
 /*
-** Set or clear the execute bit on a file.
+** Set or clear the execute bit on a file.  Return true if a change
+** occurred and false if this routine is a no-op.
 */
-void file_setexe(const char *zFilename, int onoff){
+int file_setexe(const char *zFilename, int onoff){
+  int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( stat(zFilename, &buf)!=0 ) return;
+  if( stat(zFilename, &buf)!=0 ) return 0;
   if( onoff ){
     if( (buf.st_mode & 0111)!=0111 ){
       chmod(zFilename, buf.st_mode | 0111);
+      rc = 1;
     }
   }else{
     if( (buf.st_mode & 0111)!=0 ){
       chmod(zFilename, buf.st_mode & ~0111);
+      rc = 1;
     }
   }
 #endif /* _WIN32 */
+  return rc;
 }
 
 /*
