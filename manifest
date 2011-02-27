@@ -1,5 +1,5 @@
-C Bug\sfix:\sPull\spublic\sartifacts\swhen\s--private\sis\snot\sused.
-D 2011-02-27T17:48:11.551
+C Fix\sissues\swith\sfile-to-file\ssync.\s\sAllow\s--localauth\sto\senable\s--private\nsyncing.
+D 2011-02-27T21:03:02.502
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -67,7 +67,7 @@ F src/graph.c eede34999b73a6d59b7e2c4ab8059e11e364b04a
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
-F src/http_transport.c 0d5d2c5bbe4374f935545e8d5651d92b30bd74b0
+F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c aa2b4a743166d2dd2e295f06e3cf5fbba795bf1f
 F src/info.c b98304cf78009cd86c68babecdc0569187aa8933
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
@@ -122,7 +122,7 @@ F src/vfile.c 9ce78c8231a9871e1742d1374aa796f98b04ec6a
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
-F src/xfer.c 806c56623577eae4eac6a15d1607ef3c6bd92488
+F src/xfer.c a410cf661faf2ecfa59cf51965b98f8a8de0141a
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ef1c65a4287c0ad3b3f42c7c14dd9ffaeb90ffe4
-R f17eb2fd1d76be053302488bc0c53abb
+P e3e368c3298ee6908c53fa13ae291646eab22276
+R 9f456e9c8fe3ba958af71985bb8f57e9
 U drh
-Z 8dffa0888467440d59e7eb316d440f45
+Z dbc8f6aa2ea6b100d07c65ff8c6b68c9

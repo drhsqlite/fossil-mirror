@@ -425,9 +425,11 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   }
   remote_has(rid);
   blob_reset(&uuid);
+#if 0
   if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
     blob_appendf(pXfer->pOut, "\n", 1);
   }
+#endif
 }
 
 /*
@@ -823,6 +825,7 @@ void page_xfer(void){
   manifest_crosslink_begin();
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
+    if( blob_size(&xfer.line)==0 ) continue;
     xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
 
     /*   file UUID SIZE \n CONTENT
@@ -1131,6 +1134,7 @@ void page_xfer(void){
       ** private information to be pulled in addition to public records.
       */
       if( blob_eq(&xfer.aToken[1], "send-private") ){
+        login_check_credentials();
         if( !g.okPrivate ){
           server_private_xfer_not_authorized();
         }else{
