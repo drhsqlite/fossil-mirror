@@ -1,5 +1,5 @@
-C Progress\son\sgetting\sprivate\ssync\sto\swork.\s\sCloning\swith\s--private\sworks.\nSync\salso\sworks,\sbut\sit\scurrently\sloses\sthe\sprivate\smarker.
-D 2011-02-27T03:12:20.835
+C Private\ssync\snow\sappears\sto\sbe\sworking\sin\sall\smodes.\s\sMore\stesting\sand\nfail-safe\smechanisms\sare\sdesired\sbefore\smerging\swith\sthe\strunk.
+D 2011-02-27T11:51:53.442
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -122,7 +122,7 @@ F src/vfile.c 9ce78c8231a9871e1742d1374aa796f98b04ec6a
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
-F src/xfer.c 6768993ce54ac82f944347c6e5f64c5b72801e43
+F src/xfer.c 322929b24a4cf30fd4ca85681ac77f1abe30deee
 F src/zip.c dcade4c362d9b37ae286b511c86ac9ef6568ec0f
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4a17f851820a266bd4454eb145e4ecb4ad82872f
-R 93b0314495373eea98b6e315b0407d8a
+P 6da5d4ad5f478c99e81b3a11f5c411d60abdb239
+R 896124d88274cc7e54dae3bc54c30853
 U drh
-Z 793cadea05caea00f301b56206ce79c0
+Z 95a4fecab4dfdad2076f6eea6bb2328b

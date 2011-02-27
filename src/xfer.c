@@ -157,7 +157,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
                            0, isPriv);
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
-      content_make_public(rid);
+      if( !isPriv ) content_make_public(rid);
       return;
     }
     pXfer->nDeltaRcvd++;
@@ -303,7 +303,6 @@ static int send_delta_parent(
       if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
       blob_appendf(pXfer->pOut, "file %b %s %d\n", pUuid, zUuid, size);
       blob_append(pXfer->pOut, blob_buffer(&delta), size);
-      /* blob_appendf(pXfer->pOut, "\n", 1); */
     }
     blob_reset(&delta);
     free(zUuid);
@@ -426,6 +425,9 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
   }
   remote_has(rid);
   blob_reset(&uuid);
+  if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
+    blob_appendf(pXfer->pOut, "\n", 1);
+  }
 }
 
 /*
@@ -472,7 +474,9 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     }
     blob_appendf(pXfer->pOut, "%d %d\n", szU, szC);
     blob_append(pXfer->pOut, zContent, szC);
-    blob_append(pXfer->pOut, "\n", 1);
+    if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
+      blob_appendf(pXfer->pOut, "\n", 1);
+    }
   }
   db_reset(&q1);
 }
@@ -759,6 +763,15 @@ static void send_config_card(Xfer *pXfer, const char *zName){
 
 
 /*
+** Called when there is an attempt to transfer private content to and
+** from a server without authorization.
+*/
+static void server_private_xfer_not_authorized(void){
+  @ error not\sauthorized\sto\ssync\sprivate\scontent
+}
+
+
+/*
 ** If this variable is set, disable login checks.  Used for debugging
 ** only.
 */
@@ -881,10 +894,12 @@ void page_xfer(void){
      && blob_is_uuid(&xfer.aToken[1])
     ){
       if( isPush ){
-        if( xfer.nToken==2 || blob_eq(&xfer.aToken[1],"1")==0 ){
+        if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
           rid_from_uuid(&xfer.aToken[1], 1, 0);
         }else if( g.okPrivate ){
           rid_from_uuid(&xfer.aToken[1], 1, 1);
+        }else{
+          server_private_xfer_not_authorized();
         }
       }
     }else
@@ -1094,7 +1109,11 @@ void page_xfer(void){
     ** private content.
     */
     if( blob_eq(&xfer.aToken[0], "private") ){
-      xfer.nextIsPrivate = 1;
+      if( !g.okPrivate ){
+        server_private_xfer_not_authorized();
+      }else{
+        xfer.nextIsPrivate = 1;
+      }
     }else
 
 
@@ -1112,7 +1131,11 @@ void page_xfer(void){
       ** private information to be pulled in addition to public records.
       */
       if( blob_eq(&xfer.aToken[1], "send-private") ){
-        if( g.okPrivate ) xfer.syncPrivate = 1;
+        if( !g.okPrivate ){
+          server_private_xfer_not_authorized();
+        }else{
+          xfer.syncPrivate = 1;
+        }
       }
     }else
 
@@ -1310,6 +1333,7 @@ int client_sync(
     if( pushFlag ){
       send_unsent(&xfer);
       nCardSent += send_unclustered(&xfer);
+      if( privateFlag ) send_private(&xfer);
     }
 
     /* Send configuration parameter requests.  On a clone, delay sending
@@ -1472,7 +1496,7 @@ int client_sync(
        && blob_is_uuid(&xfer.aToken[1])
       ){
         int rid;
-        int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[1],"1");
+        int isPriv = xfer.nToken>=3 && blob_eq(&xfer.aToken[2],"1");
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
           if( !isPriv ) content_make_public(rid);
