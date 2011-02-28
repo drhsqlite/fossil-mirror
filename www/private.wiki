@@ -85,7 +85,7 @@ be asked to confirm before continuing.  Once the private branches are
 removed, they cannot be retrieved (unless you have synced them to another
 repository.)  So be careful with the command.
 
-<h2>Additional Nodes</h2>
+<h2>Additional Notes</h2>
 
 All of the features above apply to <u>all</u> private branches in a 
 single repository at once.  There is no mechanism in Fossil (currently)
