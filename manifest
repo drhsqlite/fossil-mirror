@@ -1,5 +1,5 @@
-C Change\sthe\sZIP\sfile\sgenerator\sso\sthat\sit\ssets\sthe\sexecute\sbit\sapproprately.\nTicket\s[baf9b6b11e08c1d].
-D 2011-02-27T23:31:27.376
+C All\sof\sthe\sexecute\spermission\sbit\shandling\sappears\sto\sbe\sworking\snow,\nthough\sbeta\stesting\swould\sbe\sgood.\s\sTicket\s[baf9b6b11e08c1].
+D 2011-02-28T14:18:55.082
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -33,7 +33,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 5759e1b3f6c9be4112a3d77c1b58ab32a10ae9b1
+F src/add.c 732cf6a6fcda025f216521f203abda9abef18416
 F src/allrepo.c 9bbb3978c8ec5b707683759b8d7d3316f908380d
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -61,7 +61,7 @@ F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c 515f057353fb923adacb2d73d9c2cab0f0423944
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
-F src/file.c e44e50371388d2a94f6a9ea112505e56a2b9a6cf
+F src/file.c 0fde121b4261732821d2fb014c86ccb8b35e760a
 F src/finfo.c 1e712203d4362b0f55b32dadbc7d73e5578e925d
 F src/graph.c eede34999b73a6d59b7e2c4ab8059e11e364b04a
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
@@ -79,7 +79,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 264e1360e84f11aed2992e6c3545399ec083d4bb
 F src/manifest.c 9d4807c24d53767b1e7c32daa0d686aed7c5b965
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c eaf87ed7808f9de964a45d3672cb8e34deaf57d2
+F src/merge.c ab387bf0c34512540a3030d45dc12b098cc78982
 F src/merge3.c 70f80fdc8f0fded21cba533b8f47477e8dcf16e7
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/name.c 184a5a029f192581bdb398b1c916f5e870d9ba07
@@ -100,7 +100,7 @@ F src/skins.c ba93ea1dd329ed55fbebee250e6de0bf3280c4e5
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 4d71a91b5f2a97f3d36736c35f6d5c6873e78a6c
 F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
-F src/stash.c 92bb250c5dd7bca5437405108bb89391e24f8431
+F src/stash.c 601b766bf4e65370d8d8facdabce4b3cc88e64be
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
 F src/sync.c 2981f30816261d109764a9839d140bc7dea4c3bc
@@ -113,12 +113,12 @@ F src/timeline.c 938f9ab896a2c9ab93f52cd298052cdcfb9166df
 F src/tkt.c 7377bab8cf8cffba5e50892091746d4b30fbddbe
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
-F src/undo.c 615528bf6dde5396f4e67f8ff98259c28b118c3b
-F src/update.c 485608877d7231f42e8d4b109108874591f2e336
+F src/undo.c dcc00132ae0c492c64aca501541c41f28bcbd6c7
+F src/update.c 99d5170cecc0f092f282519ec05febc5ca68a120
 F src/url.c 64b90f7daff5e451bd1319a0c4f290260081a10f
 F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 9ce78c8231a9871e1742d1374aa796f98b04ec6a
+F src/vfile.c 622e33ed5108f8c66367b204050031b7edeb8832
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3c39caac39b3d89e149accf25f7727c252e09e7d
-R 8c8b76c39021f752bd7adb2a11732566
+P b57bc473b0cf7632bf02aaa8d79a4ef60fac870f 157eed29f4a93afaab20fe37a69f1042a398b231
+R 196d1c00803c6afce6ee79182e512f79
 U drh
-Z 089d79b923571a7dcf9c94e0e22143b7
+Z a7f3077116a4fa81067da609d4969693

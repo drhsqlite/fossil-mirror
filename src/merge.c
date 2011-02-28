@@ -160,6 +160,7 @@ void merge_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridp INTEGER,"             /* Record ID for pivot */
     "  ridm INTEGER,"             /* Record ID for merge */
+    "  isexe BOOLEAN,"            /* Execute permission enabled */
     "  fnp TEXT,"                 /* The filename in the pivot */
     "  fnm TEXT"                  /* the filename in the merged version */
     ");"
@@ -168,8 +169,9 @@ void merge_cmd(void){
   /* Add files found in V
   */
   db_multi_exec(
-    "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
-    " SELECT pathname, pathname, pathname, id, 0, 0, rid, 0, 0, chnged "
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, id, 0, 0, rid, 0, 0, isexe, chnged "
     " FROM vfile WHERE vid=%d",
     vid
   );
@@ -196,8 +198,9 @@ void merge_cmd(void){
   /* Add files found in P but not in V
   */
   db_multi_exec(
-    "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
-    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, 0 "
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
     "  WHERE vid=%d AND pathname NOT IN (SELECT fnp FROM fv)",
     pid
@@ -222,8 +225,9 @@ void merge_cmd(void){
   /* Add files found in M but not in P or V.
   */
   db_multi_exec(
-    "INSERT OR IGNORE INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,chnged)"
-    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, 0 "
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
     "   FROM vfile"
     "  WHERE vid=%d"
     "    AND pathname NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
@@ -244,15 +248,16 @@ void merge_cmd(void){
 
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm FROM fv"
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, isexe FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       printf("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d\n",
+       printf("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 5),
           db_column_int(&q, 6),
           db_column_int(&q, 7),
-          db_column_int(&q, 4));
+          db_column_int(&q, 4),
+          db_column_int(&q, 8));
        printf("     fn  = [%s]\n", db_column_text(&q, 1));
        printf("     fnp = [%s]\n", db_column_text(&q, 2));
        printf("     fnm = [%s]\n", db_column_text(&q, 3));
@@ -290,8 +295,8 @@ void merge_cmd(void){
     int idv;
     const char *zName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,pathname)"
-      "  SELECT %d,3,0,rid,mrid,pathname FROM vfile WHERE id=%d",
+      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,pathname)"
+      "  SELECT %d,3,0,rid,mrid,isexe,pathname FROM vfile WHERE id=%d",
       vid, idm
     );
     idv = db_last_insert_rowid();
@@ -334,7 +339,7 @@ void merge_cmd(void){
   ** Do a three-way merge on files that have changes on both P->M and P->V.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s, fn FROM fv"
+    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -346,6 +351,7 @@ void merge_cmd(void){
     int ridv = db_column_int(&q, 3);
     int isBinary = db_column_int(&q, 4);
     const char *zName = db_column_text(&q, 5);
+    int isExe = db_column_int(&q, 6);
     int rc;
     char *zFullPath;
     Blob m, p, r;
@@ -368,6 +374,7 @@ void merge_cmd(void){
     if( rc>=0 ){
       if( !nochangeFlag ){
         blob_write_to_file(&r, zFullPath);
+        file_setexe(zFullPath, isExe);
       }
       db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
       if( rc>0 ){
