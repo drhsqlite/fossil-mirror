@@ -8,6 +8,7 @@
 <li><a href="delta_encoder_algorithm.wiki">Algorithm &#151; Fossil Delta Encoding</a></li>
 <li><a href="faq.wiki">Asked Questions &#151; Frequently</a></li>
 <li><a href="password.wiki">Authentication &#151; Password Management And</a></li>
+<li><a href="private.wiki">Branches &#151; Creating, Syncing, and Deleting Private</a></li>
 <li><a href="branching.wiki">Branching, Forking, Merging, and Tagging</a></li>
 <li><a href="bugtheory.wiki">Bug Tracking In Fossil</a></li>
 <li><a href="makefile.wiki">Build Process &#151; The Fossil</a></li>
@@ -23,10 +24,12 @@
 <li><a href="contribute.wiki">Contributing Code or Documentation To The Fossil Project</a></li>
 <li><a href="copyright-release.html">Contributor License Agreement</a></li>
 <li><a href="concepts.wiki">Core Concepts &#151; Fossil</a></li>
+<li><a href="private.wiki">Creating, Syncing, and Deleting Private Branches</a></li>
 <li><a href="qandc.wiki">Criticisms &#151; Questions And</a></li>
 <li><a href="custom_ticket.wiki">Customizing The Ticket System</a></li>
 <li><a href="tech_overview.wiki">Databases Used By Fossil &#151; SQLite</a></li>
 <li><a href="shunning.wiki">Deleting Content From Fossil &#151; Shunning:</a></li>
+<li><a href="private.wiki">Deleting Private Branches &#151; Creating, Syncing, and</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Delta Encoding Algorithm &#151; Fossil</a></li>
 <li><a href="delta_format.wiki">Delta Format &#151; Fossil</a></li>
 <li><a href="tech_overview.wiki">Design And Implementation Of Fossil &#151; A Technical Overview Of The</a></li>
@@ -81,6 +84,7 @@
 <li><a href="stats.wiki">Performance Statistics</a></li>
 <li><a href="../test/release-checklist.wiki">Pre-Release Testing Checklist</a></li>
 <li><a href="pop.wiki">Principles Of Operations</a></li>
+<li><a href="private.wiki">Private Branches &#151; Creating, Syncing, and Deleting</a></li>
 <li><a href="makefile.wiki">Process &#151; The Fossil Build</a></li>
 <li><a href="contribute.wiki">Project &#151; Contributing Code or Documentation To The Fossil</a></li>
 <li><a href="embeddeddoc.wiki">Project Documentation &#151; Embedded</a></li>
@@ -102,6 +106,7 @@
 <li><a href="stats.wiki">Statistics &#151; Performance</a></li>
 <li><a href="style.wiki">Style Guidelines &#151; Source Code</a></li>
 <li><a href="sync.wiki">Sync Protocol &#151; The Fossil</a></li>
+<li><a href="private.wiki">Syncing, and Deleting Private Branches &#151; Creating,</a></li>
 <li><a href="custom_ticket.wiki">System &#151; Customizing The Ticket</a></li>
 <li><a href="branching.wiki">Tagging &#151; Branching, Forking, Merging, and</a></li>
 <li><a href="tech_overview.wiki">Technical Overview Of The Design And Implementation Of Fossil &#151; A</a></li>

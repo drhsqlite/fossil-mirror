@@ -115,6 +115,8 @@ faq {
   a single check-in.
   Of course, you can also keep your branch private forever simply
   by not merging the changes in the private branch back into the trunk.
+
+  [./private.wiki | Additional information]
 }
 
 faq {

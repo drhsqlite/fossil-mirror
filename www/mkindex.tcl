@@ -27,6 +27,7 @@ set doclist {
   makefile.wiki {The Fossil Build Process}
   password.wiki {Password Management And Authentication}
   pop.wiki {Principles Of Operations}
+  private.wiki {Creating, Syncing, and Deleting Private Branches}
   qandc.wiki {Questions And Criticisms}
   quickstart.wiki {Fossil Quick Start Guide}
   quotes.wiki
