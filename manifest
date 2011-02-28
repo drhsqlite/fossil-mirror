@@ -1,5 +1,5 @@
-C Changes\sto\sget\sthe\s"merge"\scommand\sto\sprocess\sexecute\spermission\scorrectly.\nTicket\s[baf9b6b11e08c1d0].
-D 2011-02-28T02:54:41.900
+C Try\sto\sget\sthe\s"stash"\scommand\susing\sexecute\spermission\sbits\scorrectly.\nContinuing\swork\son\sthe\s"revert"\scommand\s-\sbut\sit\sis\sstill\snot\sworking\nquite\sright.\s\sTicket\s[baf9b6b11e08c1d0b].
+D 2011-02-28T03:26:50.760
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -33,7 +33,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 5759e1b3f6c9be4112a3d77c1b58ab32a10ae9b1
+F src/add.c 732cf6a6fcda025f216521f203abda9abef18416
 F src/allrepo.c 9bbb3978c8ec5b707683759b8d7d3316f908380d
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -100,7 +100,7 @@ F src/skins.c ba93ea1dd329ed55fbebee250e6de0bf3280c4e5
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c 4d71a91b5f2a97f3d36736c35f6d5c6873e78a6c
 F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
-F src/stash.c 92bb250c5dd7bca5437405108bb89391e24f8431
+F src/stash.c 601b766bf4e65370d8d8facdabce4b3cc88e64be
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
 F src/sync.c 2981f30816261d109764a9839d140bc7dea4c3bc
@@ -114,7 +114,7 @@ F src/tkt.c 7377bab8cf8cffba5e50892091746d4b30fbddbe
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c dcc00132ae0c492c64aca501541c41f28bcbd6c7
-F src/update.c 488db85abec64c9accf9a49d71c5ee3024ca66b7
+F src/update.c 5c506420a8fa49f8ee04cc9ce4c0577efb3fe5b8
 F src/url.c 64b90f7daff5e451bd1319a0c4f290260081a10f
 F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -298,7 +298,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 55bf7a0ff289091c9869fd0c1f2ff49146914a83
-R ebd9204d05b2b17b325780eb090bebac
+P 7a4d75fc8c415d1a2f43b27beee1f829d7003b35
+R 77e809e73e7110ef995aa619e1aff8d1
 U drh
-Z c570c0316724ea8fc4ddf25f92e13320
+Z a3d8615ca037e204252ed44cc697a08d

@@ -566,13 +566,17 @@ void revert_cmd(void){
   }
   while( db_step(&q)==SQLITE_ROW ){
     int isExe = 0;
+    char *zFull;
     zFile = db_column_text(&q, 0);
+    zFull = mprintf("%/%/", g.zLocalRoot, zFile);
     errCode = historical_version_of_file(zRevision, zFile, &record, &isExe,2);
     if( errCode==2 ){
-      fossil_warning("file not in repository: %s", zFile);
+      undo_save(zFile);
+      unlink(zFull);
+      printf("DELETE: %s\n", zFile);
+      db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
     }else{
       sqlite3_int64 mtime;
-      char *zFull = mprintf("%/%/", g.zLocalRoot, zFile);
       undo_save(zFile);
       blob_write_to_file(&record, zFull);
       file_setexe(zFull, isExe);
@@ -585,9 +589,9 @@ void revert_cmd(void){
          " WHERE pathname=%Q",
          mtime, isExe, zFile
       );
-      free(zFull);
     }
     blob_reset(&record);
+    free(zFull);
   }
   db_finalize(&q);
   undo_finish();

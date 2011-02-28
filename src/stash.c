@@ -94,9 +94,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
     db_bind_int(&ins, ":isrm", deleted);
-#ifdef _WIN32
     db_bind_int(&ins, ":isexe", db_column_int(&q, 1));
-#endif
     db_bind_text(&ins, ":orig", zOrig);
     db_bind_text(&ins, ":new", zName);
     if( rid==0 ){
@@ -177,6 +175,7 @@ static void stash_apply(int stashid, int nConflict){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
+    int isExec = db_column_int(&q, 2);
     const char *zOrig = db_column_text(&q, 3);
     const char *zNew = db_column_text(&q, 4);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
@@ -187,6 +186,7 @@ static void stash_apply(int stashid, int nConflict){
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
       blob_write_to_file(&delta, zNPath);
+      file_setexe(zNPath, isExec);
       printf("ADD %s\n", zNew);
     }else if( isRemoved ){
       printf("DELETE %s\n", zOrig);
@@ -199,10 +199,12 @@ static void stash_apply(int stashid, int nConflict){
       blob_delta_apply(&a, &delta, &b);
       if( blob_compare(&disk, &a)==0 ){
         blob_write_to_file(&b, zNPath);
+        file_setexe(zNPath, isExec);
         printf("UPDATE %s\n", zNew);
       }else{
         int rc = merge_3way(&a, zOPath, &b, &out);
         blob_write_to_file(&out, zNPath);
+        file_setexe(zNPath, isExec);
         if( rc ){
           printf("CONFLICT %s\n", zNew);
           nConflict++;
