@@ -571,9 +571,13 @@ void revert_cmd(void){
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
     errCode = historical_version_of_file(zRevision, zFile, &record, &isExe,2);
     if( errCode==2 ){
-      undo_save(zFile);
-      unlink(zFull);
-      printf("DELETE: %s\n", zFile);
+      if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
+        printf("UNMANAGE: %s\n", zFile);
+      }else{
+        undo_save(zFile);
+        unlink(zFull);
+        printf("DELETE: %s\n", zFile);
+      }
       db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
     }else{
       sqlite3_int64 mtime;
@@ -584,7 +588,7 @@ void revert_cmd(void){
       mtime = file_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d,"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, mrid=rid,"
          "       pathname=coalesce(origname,pathname), origname=NULL"     
          " WHERE pathname=%Q",
          mtime, isExe, zFile
