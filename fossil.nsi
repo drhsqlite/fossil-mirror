@@ -10,7 +10,7 @@
 Name "Fossil"
 
 ; The file to write
-OutFile "fossil-setup-7c0bd3ee08.exe"
+OutFile "fossil-setup.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Fossil
@@ -28,7 +28,7 @@ Section "Fossil (required)"
   ; Set output path to the installation directory.
   SetOutPath $INSTDIR
   ; Put file there
-  File ".\build\fossil.exe"
+  File ".\fossil.exe"
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Fossil "Install_Dir" "$INSTDIR"
   ; Write the uninstall keys for Windows

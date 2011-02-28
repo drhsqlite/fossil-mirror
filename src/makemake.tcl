@@ -309,7 +309,7 @@ TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
-TCC += -DFOSSIL_ENABLE_SSL=1
+TCC += -static -DFOSSIL_ENABLE_SSL=1
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs
@@ -319,16 +319,20 @@ endif
 #    chroot jail.
 #
 #LIB = -lz -lws2_32
-LIB = -lmingwex -lz -lws2_32
 # OpenSSL:
 ifdef FOSSIL_ENABLE_SSL
-LIB += -lcrypto -lssl
+LIB += -lssl -lcrypto -lgdi32
 endif
+LIB = -lmingwex -lz -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
 #
 TCLSH = tclsh
+
+#### Nullsoft installer makensis location
+#
+MAKENSIS = "c:\Program Files\NSIS\makensis.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -364,6 +368,9 @@ VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
+$(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
+	cp $(SRCDIR)/../win/icon.rc $(OBJDIR)
+	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
 
 install:	$(APPNAME)
 	mv $(APPNAME) $(INSTALLDIR)
@@ -398,8 +405,8 @@ EXTRAOBJ = \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -413,6 +420,9 @@ $(SRCDIR)/../manifest:
 #
 clean:	
 	rm -rf $(OBJDIR) $(APPNAME)
+
+setup: $(OBJDIR) $(APPNAME)
+	$(MAKENSIS) ./fossil.nsi
 
 }
 

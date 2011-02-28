@@ -1,5 +1,5 @@
-C Cause\sa\smerge\swith\s--baseline\sto\srecord\sthe\smergepoint\srather\sthan\signore\sit.
-D 2011-02-28T19:30:37.703
+C Mingw\smakefile\schanges\sfrom\sMark\sJanssen.
+D 2011-02-28T23:35:00.977
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -30,7 +30,7 @@ F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
-F fossil.nsi b8accfec94b426e04f5aa11ed250e4e6723f5235
+F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c 732cf6a6fcda025f216521f203abda9abef18416
@@ -76,7 +76,7 @@ F src/main.c 2e6fa46dfac17bd846c32d31dbc7c54c1d7b84f5
 F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 264e1360e84f11aed2992e6c3545399ec083d4bb
+F src/makemake.tcl b17ba6e13a65fefbcb147d8f53aca4205d765683
 F src/manifest.c 9d4807c24d53767b1e7c32daa0d686aed7c5b965
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c f350672f45c7d0e54dfbe9cf828512a395d63fc6
@@ -191,11 +191,12 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 361bcd10369ef39e4ccf639c40877c4e333a83df
 F win/Makefile.dmc 8d7cd4949fb8be685e3735fd02a415a7984d4197
-F win/Makefile.mingw 70313773d67f2738f3317d3c5abcbc912ec888be
+F win/Makefile.mingw c438d43109c3022a1c34de5ddcf884baa9810084
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 05efef2c5498de7f3ac4d5394cd5adf4d92f1385
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
+F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
 F win/include/dirent.h 6d92ab4f8a822f3ae05f6c5d29584ef7cd747bb8
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F win/version.c dce253ba1f1c664725560c9e657368ea9bf8951a
@@ -299,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9e5c37ed46a92359e3014a19c18652255cad6a3f
-R ed39dd58814e461a708ef96c229c1863
+P e1ff6c0e35206473df2640bade196a9d1a3f2194
+R 62670a5c3cfad38f396390156498ab52
 U drh
-Z 2010fa6259f293f8cc98b851dbe7546d
+Z 8720bd96f95a7156c3058e8974a38cd9
