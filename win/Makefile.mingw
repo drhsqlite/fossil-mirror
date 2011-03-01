@@ -53,7 +53,7 @@ endif
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
-LIB = -lmingwex -lz -lws2_32
+LIB += -lmingwex -lz -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
