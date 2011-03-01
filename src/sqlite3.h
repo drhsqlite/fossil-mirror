@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.6"
 #define SQLITE_VERSION_NUMBER 3007006
-#define SQLITE_SOURCE_ID      "2011-02-19 23:18:12 e87d499a4f8a456111c1f96ca6da31d0810fb7c8"
+#define SQLITE_SOURCE_ID      "2011-02-25 03:25:07 4e50b0362ab6604a4b6c9f4ad849ec1733d6ce1a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -482,6 +482,8 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_OPEN_SHAREDCACHE      0x00020000  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_PRIVATECACHE     0x00040000  /* Ok for sqlite3_open_v2() */
 #define SQLITE_OPEN_WAL              0x00080000  /* VFS only */
+
+/* Reserved:                         0x00F00000 */
 
 /*
 ** CAPI3REF: Device Characteristics

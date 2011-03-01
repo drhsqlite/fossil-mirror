@@ -1,5 +1,5 @@
-C Do\snot\sbuild\sclusters\sfollowing\san\sincremental\simport.
-D 2011-03-01T22:14:35.632
+C Update\sthe\sbuilt-in\sversion\sof\sSQLite\sto\sthe\slastest\sin\sthe\sstable\strunk\nversion.
+D 2011-03-01T22:23:49.802
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -98,8 +98,8 @@ F src/shell.c 7f7112e9359eda8f8e5960d63b19c8a89076df8a
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
 F src/skins.c ba93ea1dd329ed55fbebee250e6de0bf3280c4e5
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
-F src/sqlite3.c 4d71a91b5f2a97f3d36736c35f6d5c6873e78a6c
-F src/sqlite3.h e4734867940277ef600534f06fb00701707ce6d0
+F src/sqlite3.c f2ac7ede91c2d1d85f5f8f1641de7113a71f2430
+F src/sqlite3.h 144892d7d2f9744185e6b46c304eae804550fba4
 F src/stash.c 601b766bf4e65370d8d8facdabce4b3cc88e64be
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e2122bd6200ec0332ccab6cea9d0a558525a0dd9
-R 1945e4d9f4c5b0441722173f41fd8447
+P 769e3d8e56a30ff3be094cbf0c770200fc39c454
+R 9a556edc8f3bda4c3c2fe86a83f834a3
 U drh
-Z 4ee0784c95e94def8b917fdf3f5f792d
+Z 69da6cb9caf7f0b27b1e66547daa54e2
