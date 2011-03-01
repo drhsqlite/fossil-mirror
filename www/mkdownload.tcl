@@ -50,8 +50,13 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
   set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
-  puts "<tr><td colspan=5 align=center><hr>"
-  puts "<b>Fossil snapshot as of <a href=\"$hr\">$dt</a><td width=30></b>"
+  puts "<tr><td colspan=6 align=left><hr>"
+  puts "<center><b><a href=\"$hr\">$dt</a></b></center>"
+  if {[file exists download/releasenotes-$datetime.html]} {
+    set rn [open download/releasenotes-$datetime.html]
+    puts "[read $rn]"
+    close $rn
+  }
   puts "</td></tr>"
   
   foreach {prefix suffix img desc} {
