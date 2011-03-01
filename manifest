@@ -1,5 +1,5 @@
-C Fix\smerge\sso\sthat\sit\sdoes\snot\ssegfault\swhen\smerging\stext\sfiles\sthat\ndo\snot\send\sin\s\\n\sand\syet\shave\schanges\sat\sthe\svery\send.\nTicket\s[c43d2d9477c2d59a].
-D 2011-03-01T22:07:59.453
+C Do\snot\sbuild\sclusters\sfollowing\san\sincremental\simport.
+D 2011-03-01T22:14:35.632
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -68,7 +68,7 @@ F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
-F src/import.c aa2b4a743166d2dd2e295f06e3cf5fbba795bf1f
+F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c b98304cf78009cd86c68babecdc0569187aa8933
 F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
 F src/login.c 8ce0492ee66fb2ace369335cd61c9ff8869921d0
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1d93222627a3be27face3d8f3da2068e9226c1ea
-R dad0a1cbdc08fae88f4c1f242760fbf4
+P e2122bd6200ec0332ccab6cea9d0a558525a0dd9
+R 1945e4d9f4c5b0441722173f41fd8447
 U drh
-Z a5295845545c9880bfa1f84ca0b96219
+Z 4ee0784c95e94def8b917fdf3f5f792d
