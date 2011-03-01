@@ -517,7 +517,7 @@ writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlcmd\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -539,7 +539,7 @@ writeln -nonewline "\t+echo "
 foreach s [lsort $src] {
   writeln -nonewline "$s "
 }
-writeln "shell sqlcmd sqlite3 th th_lang > \$@"
+writeln "shell sqlite3 th th_lang > \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo \$(LIBS) >> \$@"
@@ -561,9 +561,6 @@ version$E: $B\win\version.c
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
 	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
-
-$(OBJDIR)\sqlcmd$O : $(SRCDIR)\sqlcmd.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
 
 $(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
@@ -622,6 +619,7 @@ writeln {# DO NOT EDIT
 B      = ..
 SRCDIR = $B\src
 OBJDIR = .
+OX     = .
 O      = .obj
 E      = .exe
 
@@ -653,7 +651,8 @@ TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
-writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
+regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
+writeln "SQLITE_OPTIONS = $MSC_SQLITE_OPTIONS\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -661,20 +660,20 @@ foreach s [lsort $src] {
 writeln "\n"
 writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
-  writeln -nonewline "\$(OBJDIR)\\$s\$O "
+  writeln -nonewline "\$(OX)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OX)\\shell\$O \$(OX)\\sqlite3\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
 writeln {
 
-APPNAME = $(OBJDIR)\fossil$(E)
+APPNAME = $(OX)\fossil$(E)
 
-all: $(OBJDIR) $(APPNAME)
+all: $(OX) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OBJDIR)\linkopts
-	cd $(OBJDIR) 
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+	cd $(OX) 
 	link -LINK -OUT:$@ $(LIBDIR) @linkopts
 
-$(OBJDIR)\linkopts: $B\win\Makefile.msc}
+$(OX)\linkopts: $B\win\Makefile.msc}
 writeln -nonewline "\techo "
 foreach s [lsort $src] {
   writeln -nonewline "$s "
@@ -684,7 +683,7 @@ writeln "\techo \$(LIBS) >> \$@\n\n"
 
 writeln {
 
-$(OBJDIR):
+$(OX):
 	@-mkdir $@
 
 translate$E: $(SRCDIR)\translate.c
@@ -699,13 +698,16 @@ mkindex$E: $(SRCDIR)\mkindex.c
 version$E: $B\win\version.c
 	$(BCC) $**
 
-$(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
+$(OX)\shell$O : $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS)  -c shell_.c
+
+$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
 
-$(OBJDIR)\th$O : $(SRCDIR)\th.c
+$(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
 
-$(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
+$(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
 VERSION.h : version$E $B\manifest.uuid $B\manifest
@@ -715,7 +717,7 @@ page_index.h: mkindex$E $(SRC)
 	$** > $@
 
 clean:
-	-del $(OBJDIR)\*.obj
+	-del $(OX)\*.obj
 	-del *.obj *_.c *.h *.map
 	-del headers linkopts
 
@@ -724,7 +726,7 @@ realclean:
 
 }
 foreach s [lsort $src] {
-  writeln "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
+  writeln "\$(OX)\\$s\$O : ${s}_.c ${s}.h"
   writeln "\t\$(TCC) /Fo\$@ -c ${s}_.c\n"
   writeln "${s}_.c : \$(SRCDIR)\\$s.c"
   writeln "\ttranslate\$E \$** > \$@\n"
