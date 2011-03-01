@@ -1,5 +1,5 @@
-C Remove\sa\sstray\sNIL\scharacter\sfrom\sthe\smakemake.tcl\sfile\sand\sadd\sa\s"+"\nthat\swas\somitted\sfrom\sthe\sprevious\sedit.
-D 2011-03-01T02:11:38.793
+C New\s--compress\soption\sto\s"rebuild"\scauses\smore\sagressive\sdelta\scompression\nwhich\scan\sresult\sin\sa\s30%\sor\sbetter\ssize\sreduction\sin\sthe\sdatabase\sfile,\nwith\scorresponding\sspeedup\sof\scloning.
+D 2011-03-01T13:20:54.192
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -50,7 +50,7 @@ F src/clone.c 7d3ef6c6e87f66f3207e4b993fe7f2baac0ddf33
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
-F src/content.c c71aee46dd7757d1179fe313d232fb4059716b60
+F src/content.c 01c8c02d6a3cbd131e8a06dc2ec0550fbdafb069
 F src/db.c 4e4fa23b782cc9783c87047543c44f3f9eade05e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
@@ -77,7 +77,7 @@ F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 66f7de56cdd0fdc07d9776e5d17b9795008fddf6
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e06270dc97ffea106818ee7ab5ea7fd57cbfc789
-F src/manifest.c 9d4807c24d53767b1e7c32daa0d686aed7c5b965
+F src/manifest.c 5824ca5d52c438a02785030c47085f02b19bf2c9
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c f350672f45c7d0e54dfbe9cf828512a395d63fc6
 F src/merge3.c 70f80fdc8f0fded21cba533b8f47477e8dcf16e7
@@ -87,7 +87,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
-F src/rebuild.c 34611e97a7c7c42d6bf3afe7c085410a07575337
+F src/rebuild.c b12aa64f825960221eaf8bdb434d2935f17a3eb8
 F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3c657e8e0ca52108f143e25d195f77705b8a3444
-R 286a60bc5fca3c31308b37a88de6ad02
+P a668e2ad73887858ae91e2aafede7e55281e32fc
+R 953a434959174912eb434bf65e4c3a2e
 U drh
-Z d3bfb5f68de3e8c76a63191818442007
+Z d9ecfb0ff4149621b09066d1f83617ae

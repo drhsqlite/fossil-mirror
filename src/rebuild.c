@@ -343,6 +343,63 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 }
 
 /*
+** Attempt to convert more full-text blobs into delta-blobs for
+** storage efficiency.
+*/
+static void extra_deltification(void){
+  Stmt q;
+  int topid, previd, rid;
+  int prevfnid, fnid;
+  db_begin_transaction();
+  db_prepare(&q,
+     "SELECT rid FROM event, blob"
+     " WHERE blob.rid=event.objid"
+     "   AND event.type='ci'"
+     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+     " ORDER BY event.mtime DESC"
+  );
+  topid = previd = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+    if( topid==0 ){
+      topid = previd = rid;
+    }else{
+      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
+        content_deltify(rid, topid, 0);
+      }
+      previd = rid;
+    }
+  }
+  db_finalize(&q);
+
+  db_prepare(&q,
+     "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
+     " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+     "   AND mlink.fid=blob.rid"
+     "   AND mlink.mid=plink.cid"
+     "   AND plink.cid=mlink.mid"
+     " ORDER BY mlink.fnid, plink.mtime DESC"
+  );
+  prevfnid = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+    fnid = db_column_int(&q, 1);
+    if( prevfnid!=fnid ){
+      prevfnid = fnid;
+      topid = previd = rid;
+    }else{
+      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
+        content_deltify(rid, topid, 0);
+      }
+      previd = rid;
+    }
+  }
+  db_finalize(&q);
+
+  db_end_transaction(0);
+}
+
+/*
 ** COMMAND:  rebuild
 **
 ** Usage: %fossil rebuild ?REPOSITORY?
@@ -359,6 +416,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
 **   --cluster     Compute clusters for unclustered artifacts
 **   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
 **   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --compress    Strive to make the database as small as possible
 **   --vacuum      Run VACUUM on the database after rebuilding
 */
 void rebuild_database(void){
@@ -371,12 +429,14 @@ void rebuild_database(void){
   int newPagesize = 0;
   int activateWal;
   int runVacuum;
+  int runCompress;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
+  runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
@@ -410,8 +470,14 @@ void rebuild_database(void){
             errCnt);
     db_end_transaction(1);
   }else{
+    if( runCompress ){
+      printf("Extra delta compression... "); fflush(stdout);
+      extra_deltification();
+      runVacuum = 1;
+    }
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
+    if( runCompress ) printf("done\n");
     db_close(0);
     db_open_repository(g.zRepositoryName);
     if( newPagesize ){

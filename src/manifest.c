@@ -1255,7 +1255,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   }
 
   /* Try to make the parent manifest a delta from the child, if that
-  ** is an appropriate thing to do.
+  ** is an appropriate thing to do.  For a new baseline, make the 
+  ** previoius baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
