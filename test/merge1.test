@@ -348,9 +348,9 @@ write_file_indented t3 {
 }
 write_file_indented t23 {
   abcd
+  <<<<<<< BEGIN MERGE CONFLICT: original content first <<<<<<<
   efgh 2
   ijkl 2
-  <<<<<<< BEGIN MERGE CONFLICT: original content first <<<<<<<
   mnop 
   qrst
   uvwx
@@ -358,6 +358,8 @@ write_file_indented t23 {
   CDEF 2
   GHIJ 2
   ======= original content above; conflict below =============
+  efgh
+  ijkl
   mnop 3
   qrst 3
   uvwx 3

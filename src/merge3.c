@@ -41,14 +41,15 @@
 static int sameLines(Blob *pV1, Blob *pV2, int N){
   char *z1, *z2;
   int i;
+  char c;
 
   if( N==0 ) return 1;
   z1 = &blob_buffer(pV1)[blob_tell(pV1)];
   z2 = &blob_buffer(pV2)[blob_tell(pV2)];
-  for(i=0; z1[i]==z2[i]; i++){
-    if( z1[i]=='\n' ){
+  for(i=0; (c=z1[i])==z2[i]; i++){
+    if( c=='\n' || c==0 ){
       N--;
-      if( N==0 ) return 1;
+      if( N==0 || c==0 ) return 1;
     }
   }
   return 0;
