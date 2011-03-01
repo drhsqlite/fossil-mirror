@@ -301,6 +301,8 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
 /*
 ** COMMAND:  test-3-way-merge
 **
+** Usage: %fossil test-3-way-merge PIVOT V1 V2 MERGED
+**
 ** Combine change in going from PIVOT->VERSION1 with the change going
 ** from PIVOT->VERSION2 and write the combined changes into MERGED.
 */

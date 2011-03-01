@@ -759,8 +759,8 @@ int content_deltify(int rid, int srcid, int force){
   Stmt s1, s2;
   int rc = 0;
 
-  if( srcid==rid ) return;
-  if( !force && findSrcid(rid)>0 ) return;
+  if( srcid==rid ) return 0;
+  if( !force && findSrcid(rid)>0 ) return 0;
   if( content_is_private(srcid) && !content_is_private(rid) ){
     return 0;
   }
