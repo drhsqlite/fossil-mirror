@@ -6,7 +6,7 @@ useful contributions.
 
 <h2>1.0 Contributor Agreement</h2>
 
-In order your contributions, we <u>must</u> have a
+In order to accept your contributions, we <u>must</u> have a
 [./copyright-release.pdf | Contributor Agreement (PDF)]
 (or [./copyright-release.html | as HTML]) on file for you.  We require
 this in order to maintain clear title to the Fossil code and prevent

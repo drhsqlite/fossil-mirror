@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sversion\sof\sSQLite\sto\sthe\slastest\sin\sthe\sstable\strunk\nversion.
-D 2011-03-01T22:23:49.802
+C Fix\stypo\sin\sthe\scontribute.wiki\spage.
+D 2011-03-02T19:38:23.842
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -238,7 +238,7 @@ F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
-F www/contribute.wiki b7cc62191e1165d543b93b81c4ce576488583476
+F www/contribute.wiki 89f4fb73197df4a566cdde1c5ada90acb83ebf65
 F www/copyright-release.html 76db86c906d5d09347b000e07d1bda8ca5754ad6
 F www/copyright-release.pdf 7caa5bde467050c092bd63656e164f29950d6434
 F www/custom_ticket.wiki 4083c719eee18ea9dad81d335e45e9af8e29ec4e
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 769e3d8e56a30ff3be094cbf0c770200fc39c454
-R 9a556edc8f3bda4c3c2fe86a83f834a3
+P 4cd9309c508373c6aa4a371941835bd1512c5ac2
+R 8e99db53e2b4ea3b5675987cb5c5e5d8
 U drh
-Z 69da6cb9caf7f0b27b1e66547daa54e2
+Z 948eb79e46a9520c18368113a6ef5946
