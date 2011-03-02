@@ -1,5 +1,5 @@
-C Fix\stypo\sin\sthe\scontribute.wiki\spage.
-D 2011-03-02T19:38:23.842
+C Be\smore\sforgiving\sof\stime\sskew\swhen\stransferring\slarge\spackets\sover\nslow\snetworks.\s\sTicket\s[25d3f8d5641deed]
+D 2011-03-02T22:49:54.892
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -122,7 +122,7 @@ F src/vfile.c 622e33ed5108f8c66367b204050031b7edeb8832
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
-F src/xfer.c a410cf661faf2ecfa59cf51965b98f8a8de0141a
+F src/xfer.c d45061ac12a9bcda8ba6db83ddb8279a32159ca1
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test 63068fe7e37893d5ff1122cfcbd9bb1c892935a5
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4cd9309c508373c6aa4a371941835bd1512c5ac2
-R 8e99db53e2b4ea3b5675987cb5c5e5d8
+P 6e18150e49721d63d4ee0f77c5a7479751dc9ee3
+R 9df1dfa4a38722c0daa9fe4b9c6514f0
 U drh
-Z 948eb79e46a9520c18368113a6ef5946
+Z 6ebe307ba8ec4379b7c053b51ad48a7d
