@@ -687,15 +687,16 @@ static const char zBuiltinSkin4[] =
 @ /* The page title at the top of each page */
 @ div.title {
 @   display: table-cell;
-@   padding-left: 1em;
+@   padding-left: 10px;
 @   font-size: 2em;
-@   font-weight: bold;
 @   margin: 10px 0 10px -20px;
 @   vertical-align: bottom;
 @   text-align: left;
 @   width: 80%;
-@   font-family: Georgia, serif;
-@   font-weight:normal;
+@   font-family: Verdana, sans-serif;
+@   font-weight: bold;
+@   color: #558195;
+@   text-shadow: 0px 2px 2px #999999;
 @ }
 @ 
 @ /* The login status message in the top right-hand corner */
@@ -720,7 +721,7 @@ static const char zBuiltinSkin4[] =
 @   -border-top-left-radius: 5px;
 @   border-top-left-radius: 5px;
 @   border-top-right-radius: 5px;
-@   padding-top: 1em;
+@   vertical-align: center;
 @   min-height: 2em;
 @   background-color: #446979;
 @   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
