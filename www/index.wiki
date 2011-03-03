@@ -54,6 +54,15 @@ internet these days. What makes Fossil worthy of attention?
       [/timeline?n=100&y=ci | graphical history] and status information
       on that project.
 
+      This entire website (except the
+      [http://www.fossil-scm.org/download.html | download] page)
+      is just a running instance of Fossil.  The pages you see here
+      are all [./wikitheory.wiki | wiki] or
+      [./embeddeddoc.wiki | embedded documentation].
+      When you clone Fossil from one of its
+      [./selfhost.wiki | self-hosting repositories], 
+      you get more than just source code - you get this entire website.
+
   3.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
       which helps to keep projects moving
