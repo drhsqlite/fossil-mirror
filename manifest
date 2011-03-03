@@ -1,5 +1,5 @@
-C Additional\stweaks\sto\sthe\sdownload\spage\sgenerator.
-D 2011-03-03T13:56:55.344
+C Add\san\sexecutive\ssummary\ssidebar\sto\sthe\sCheck-in\sNames\sdocumentation\spage.
+D 2011-03-03T14:12:38.741
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -219,7 +219,7 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 19b8586f482baa8e4d7a5a32d5b1ce15fb6e5b99
 F www/checkin.wiki 4da78d129995e49acca38a9ff2744d08eb3aacc1
-F www/checkin_names.wiki 29652e9e5896c2a36a1bf20889ed5dafdc87a2c1
+F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
 F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c2c7af53023dbb88d100bb9611bda17799699a35
-R 01bbdc0aea65ed8201d0faa4c0700485
+P 9ad77bd96b703bf3019a87e72c4e73c026dc0261
+R fa51a3594293861478432251ad87c7fb
 U drh
-Z e6fb2a7a20de7ef985406fe81f19743b
+Z 6890da157588970ddb3109cf09ce41d7
