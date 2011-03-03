@@ -21,10 +21,10 @@ puts \
 <div class="content">
 <p>
 
-<p>
-To install Fossil, simply download one of the stand-alone executables
-below and put it on your $PATH.
-</p>
+<p><big>
+<b>To install Fossil &rarr;</b> download a stand-alone executable
+and put it on your $PATH.
+</big></p>
 
 <table cellpadding="10">
 }
