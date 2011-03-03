@@ -15,10 +15,9 @@
 <tr><td>
 <table border="0" cellpadding="10" bgcolor="white">
 <tr><td>
-<h3>Quick Links</h3>
 <ul>
-<li> [./quickstart.wiki | Quick Start]
 <li> [http://www.fossil-scm.org/download.html | Download]
+<li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]

@@ -22,11 +22,8 @@ puts \
 <p>
 
 <p>
-Click on links below to download prebuilt binaries and source tarballs for 
-recent versions of <a href="/fossil">Fossil</a>.
-The historical source code is also available in the
-<a href="/fossil/doc/tip/www/selfhost.wiki">self-hosting
-Fossil repositories</a>.
+To install Fossil, simply download one of the stand-alone executables
+below and put it on your $PATH.
 </p>
 
 <table cellpadding="10">
@@ -52,11 +49,6 @@ foreach datetime [lsort -decr [array names adate]] {
   set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
   puts "<tr><td colspan=6 align=left><hr>"
   puts "<center><b><a href=\"$hr\">$dt</a></b></center>"
-  if {[file exists download/releasenotes-$datetime.html]} {
-    set rn [open download/releasenotes-$datetime.html]
-    puts "[read $rn]"
-    close $rn
-  }
   puts "</td></tr>"
   
   foreach {prefix suffix img desc} {
@@ -86,6 +78,13 @@ foreach datetime [lsort -decr [array names adate]] {
     }
   }
   puts "</tr>"
+  if {[file exists download/releasenotes-$datetime.html]} {
+    puts "<tr><td colspan=6 align=left>"
+    set rn [open download/releasenotes-$datetime.html]
+    puts "[read $rn]"
+    close $rn
+    puts "</td></tr>"
+  }
 }
 puts "<tr><td colspan=5><hr></td></tr>"
 
