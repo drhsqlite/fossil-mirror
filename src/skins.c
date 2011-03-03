@@ -611,7 +611,7 @@ static const char zBuiltinSkin3[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><ul><th1>
+@ <div class="mainmenu"><th1>
 @ html "<li><a href=''$home$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
 @   html "<li><a href=''$home/timeline''>Timeline</a></li>"
@@ -720,6 +720,7 @@ static const char zBuiltinSkin4[] =
 @   -border-top-left-radius: 5px;
 @   border-top-left-radius: 5px;
 @   border-top-right-radius: 5px;
+@   padding-top: 1em;
 @   min-height: 2em;
 @   background-color: #446979;
 @   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
