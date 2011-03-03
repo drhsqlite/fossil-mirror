@@ -10,8 +10,9 @@
 
 <h3>Why Use Fossil?</h3>
 
-<table border="0" cellpadding="1" bgcolor="#558195" align="right" hspace="10">
-<tr><td>
+<table border="0" cellspacing="10" bgcolor="white" align="right"
+cellpadding="2">
+<tr><td bgcolor="#446979">
 <table border="0" cellpadding="10" bgcolor="white">
 <tr><td>
 <ul>
