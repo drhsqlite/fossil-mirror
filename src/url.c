@@ -371,7 +371,7 @@ char *url_render(
 */
 void url_prompt_for_password(void){
   if( isatty(fileno(stdin)) ){
-    char *zPrompt = mprintf("password for %s: ", g.urlUser);
+    char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
     prompt_for_password(zPrompt, &x, 0);
     free(zPrompt);
@@ -380,5 +380,17 @@ void url_prompt_for_password(void){
   }else{
     fossil_fatal("missing or incorrect password for user \"%s\"",
                  g.urlUser);
+  }
+}
+
+/* Preemptively prompt for a password if a username is given in the
+** URL but no password.
+*/
+void url_get_password_if_needed(void){
+  if( (g.urlUser && g.urlUser[0])
+   && (g.urlPasswd==0 || g.urlPasswd[0]==0)
+   && isatty(fileno(stdin)) 
+  ){
+    url_prompt_for_password();
   }
 }

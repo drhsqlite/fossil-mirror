@@ -98,6 +98,7 @@ void clone_cmd(void){
       " VALUES('server-code', lower(hex(randomblob(20))));"
     );
     url_enable_proxy(0);
+    url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
     nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
