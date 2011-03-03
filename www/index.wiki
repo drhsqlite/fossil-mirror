@@ -2,8 +2,7 @@
 
 
 <p align="center">
-<font size="5">
-<b>Fossil:</b>
+<font size="3">
 <i>Simple, high-reliability, distributed software configuration management</i>
 </font>
 </p>

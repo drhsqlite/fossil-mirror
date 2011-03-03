@@ -1,5 +1,5 @@
-C Add\san\sexecutive\ssummary\ssidebar\sto\sthe\sCheck-in\sNames\sdocumentation\spage.
-D 2011-03-03T14:12:38.741
+C Adjust\sthe\stext\sand\sfont-size\sof\sthe\sheader\son\sthe\shomepage\sand\son\nthe\sdownload\spage.
+D 2011-03-03T15:22:17.096
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -274,10 +274,10 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 3e2846d2d28e5c129506321ff196262553ace341
+F www/index.wiki 04d14037ee464b42cdc517fcbc459e6fa2f4467f
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/makefile.wiki 80fbe3e7e68c60ac60189e28b42dfcb0a6170350
-F www/mkdownload.tcl e37ea585ebafe4084ba0c4ab09867a8844e6296a
+F www/mkdownload.tcl 47e30067a25257366225e53d958b52de1c124771
 F www/mkindex.tcl da0d589ebda97b31a71147dd0c1e7e2dbb6fbb69
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9ad77bd96b703bf3019a87e72c4e73c026dc0261
-R fa51a3594293861478432251ad87c7fb
+P a022a51a609d30f5938301faa06cd5cb1d436240
+R db90924f5f4121abf9c182b5d3943620
 U drh
-Z 6890da157588970ddb3109cf09ce41d7
+Z 8388adf6db6674223cc35c120ca560dd
