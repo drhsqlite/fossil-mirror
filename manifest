@@ -1,5 +1,5 @@
-C Clarify\sthe\slicense\sstatus\sfor\smakeheaders.
-D 2011-03-04T13:03:38.813
+C Make\sall\sfiles\smentioned\sby\sa\spublic\smanifest\spublic\sas\swell.\nTicket\s[5f194e2c8f475c].
+D 2011-03-04T13:11:02.594
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -77,7 +77,7 @@ F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
 F src/makeheaders.c 6d58c6d765c30ee7f2861fcada9b74a3af51d6a9
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e06270dc97ffea106818ee7ab5ea7fd57cbfc789
-F src/manifest.c 5824ca5d52c438a02785030c47085f02b19bf2c9
+F src/manifest.c fd250e9d999589e9d1dca7a024fb5ed5bbd5efc3
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c f350672f45c7d0e54dfbe9cf828512a395d63fc6
 F src/merge3.c 185ae0b338a70175716e5474d30703443e6b71b1
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ae89a7ce79517e34c4fbef4466bf4b4a22e9f59e
-R 2c4a9904ef335a8b214ea35993e2d946
+P f2359f22c2c6f8fb984371f0a7fb68980b035643
+R f21ec7c7c87591c789baec171d5aa627
 U drh
-Z 5a0731901fd3099c7add582bc0bc697d
+Z 74cf25c3fa699b68d79a013f2476babf

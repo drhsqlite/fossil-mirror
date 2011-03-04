@@ -1104,6 +1104,7 @@ static void add_one_mlink(
   const char *zToUuid,      /* UUID for the mlink.fid. "" to delele */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
+  int isPublic,             /* True if mid is not a private manifest */
   int mperm                 /* 1: exec */
 ){
   int fnid, pfnid, pid, fid;
@@ -1124,6 +1125,7 @@ static void add_one_mlink(
     fid = 0;
   }else{
     fid = uuid_to_rid(zToUuid, 1);
+    if( isPublic ) content_make_public(fid);
   }
   db_static_prepare(&s1,
     "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
@@ -1222,6 +1224,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   ManifestFile *pChildFile, *pParentFile;
   Manifest **ppOther;
   static Stmt eq;
+  int isPublic;                /* True if pChild is non-private */
 
   /* If mlink table entires are already set for cid, then abort early
   ** doing no work.
@@ -1253,6 +1256,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     manifest_destroy(*ppOther);
     return;
   }
+  isPublic = !content_is_private(cid);
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the 
@@ -1286,24 +1290,26 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
        if( pParentFile ){
          /* File with name change */
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, pChildFile->zPrior, mperm);
+                       pChildFile->zName, pChildFile->zPrior, isPublic, mperm);
        }else{
          /* File name changed, but the old name is not found in the parent!
          ** Treat this like a new file. */
-         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0, mperm);
+         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+                       isPublic, mperm);
        }
     }else{
        pParentFile = manifest_file_seek(pParent, pChildFile->zName);
        if( pParentFile==0 ){
          if( pChildFile->zUuid ){
            /* A new file */
-           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName,0,mperm);
+           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+                         isPublic, mperm);
          }
        }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid)!=0
               || manifest_file_mperm(pParentFile)!=mperm ){
          /* Changes in file content or permissions */
          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
-                       pChildFile->zName, 0, mperm);
+                       pChildFile->zName, 0, isPublic, mperm);
        }
     }
   }
@@ -1316,7 +1322,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile ){
         add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                      manifest_file_mperm(pChildFile));
+                      isPublic, manifest_file_mperm(pChildFile));
       }
     }
   }else if( pChild->zBaseline==0 ){
@@ -1327,7 +1333,8 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile==0 ){
-        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0, 0);
+        add_one_mlink(cid, pParentFile->zUuid, 0, pParentFile->zName, 0, 
+                      isPublic, 0);
       }
     }
   }
@@ -1562,9 +1569,10 @@ int manifest_crosslink(int rid, Blob *pContent){
       if( p->nParent==0 ){
         /* For root files (files without parents) add mlink entries
         ** showing all content as new. */
+        int isPublic = !content_is_private(rid);
         for(i=0; i<p->nFile; i++){
           add_one_mlink(rid, 0, p->aFile[i].zUuid, p->aFile[i].zName, 0,
-                        manifest_file_mperm(&p->aFile[i]));
+                        isPublic, manifest_file_mperm(&p->aFile[i]));
         }
       }
       db_multi_exec(
