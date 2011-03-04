@@ -632,7 +632,12 @@ void scrub_cmd(void){
   int bNeedRebuild = 0;
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   if( g.argc==2 ){
-    db_must_be_within_tree();
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close(1);
+    db_open_repository(g.zRepositoryName);
   }else{
     db_open_repository(g.argv[2]);
   }
@@ -782,7 +787,11 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct
 **
-** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+** Usage %fossil deconstruct ?OPTIONS? DESTIONATION
+**
+** Options:
+**   -R|--repository REPOSITORY
+**   -L|--prefixlength N
 **
 ** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory

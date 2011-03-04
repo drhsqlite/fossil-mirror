@@ -1,5 +1,5 @@
-C Make\sall\sfiles\smentioned\sby\sa\spublic\smanifest\spublic\sas\swell.\nTicket\s[5f194e2c8f475c].
-D 2011-03-04T13:11:02.594
+C Fix\sthe\s"scrub"\scommand\sso\sthat\sit\sworks\sfrom\swithin\sa\scheckout\swithout\nhaving\sto\sspecify\sthe\srepository.\s\sTicket\s[77c58e1415e06fd].\nAlso\sfix\shelp\stext\sfor\sthe\s"deconstruct"\scommand.
+D 2011-03-04T13:19:08.044
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -87,7 +87,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 4a43f2cdcc3e52a0922d1d15f338e327c41f9443
 F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
-F src/rebuild.c b12aa64f825960221eaf8bdb434d2935f17a3eb8
+F src/rebuild.c 1434a921dc677c32b4248dfc9682d7b04888d5ef
 F src/report.c f20ed0e8ffd4c7a8abfa9537db766d65989bb5bc
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f2359f22c2c6f8fb984371f0a7fb68980b035643
-R f21ec7c7c87591c789baec171d5aa627
+P 2985120d93c5fa77657d57a26eb181c7ee27ff38
+R 7eaebbafb4829b25b38a12fab36459eb
 U drh
-Z 74cf25c3fa699b68d79a013f2476babf
+Z 07eb16f8068708a1f7d0935bc2c8f0c3
