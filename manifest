@@ -1,5 +1,5 @@
-C Fix\sthe\s"scrub"\scommand\sso\sthat\sit\sworks\sfrom\swithin\sa\scheckout\swithout\nhaving\sto\sspecify\sthe\srepository.\s\sTicket\s[77c58e1415e06fd].\nAlso\sfix\shelp\stext\sfor\sthe\s"deconstruct"\scommand.
-D 2011-03-04T13:19:08.044
+C Remove\san\sobsolete\sRCS\sident\sstring\sfrom\smakeheaders.c.
+D 2011-03-07T02:55:54.959
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -74,7 +74,7 @@ F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
 F src/login.c 8ce0492ee66fb2ace369335cd61c9ff8869921d0
 F src/main.c bf5e510271062d2f260a53e19431f1c330ea3b3e
 F src/main.mk e2a75c0de6a9524992b28f4d849d8c6b46b14b1a
-F src/makeheaders.c 6d58c6d765c30ee7f2861fcada9b74a3af51d6a9
+F src/makeheaders.c 5d82282d3675d7d1c661acbb6c3c7443ecc96fdd
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e06270dc97ffea106818ee7ab5ea7fd57cbfc789
 F src/manifest.c fd250e9d999589e9d1dca7a024fb5ed5bbd5efc3
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2985120d93c5fa77657d57a26eb181c7ee27ff38
-R 7eaebbafb4829b25b38a12fab36459eb
+P c92ec16f819eeee6e4a886a6292fdce3a83eee22
+R 2757a6dc9ef7283da321af7f5408894e
 U drh
-Z 07eb16f8068708a1f7d0935bc2c8f0c3
+Z 2f7ad7f16124aa361041ebd7384d8c1a

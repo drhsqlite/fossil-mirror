@@ -1,4 +1,3 @@
-static const char ident[] = "@(#) $Header: /cvstrac/cvstrac/makeheaders.c,v 1.4 2005/03/16 22:17:51 drh Exp $";
 /*
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
