@@ -417,6 +417,11 @@ void access_log_page(void){
     cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
     return;
   }
+  if( P("delfail") && P("delfailbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE NOT success");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
   if( P("delold") && P("deloldbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE rowid in"
                   "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
@@ -479,6 +484,11 @@ void access_log_page(void){
   @ <input type="checkbox" name="delanon">
   @ Delete all entries for user "anonymous"</input>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delfail">
+  @ Delete all failed login attempts</input>
+  @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
   @ <input type="checkbox" name="delall">

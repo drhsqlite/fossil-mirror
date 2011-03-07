@@ -1,5 +1,5 @@
-C Remove\san\sobsolete\sRCS\sident\sstring\sfrom\smakeheaders.c.
-D 2011-03-07T02:55:54.959
+C Add\sa\sbutton\sto\sdelete\sfailed\slogin\sattempts\sfrom\sthe\saccess\slog\shistory.
+D 2011-03-07T03:00:48.073
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -116,7 +116,7 @@ F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c dcc00132ae0c492c64aca501541c41f28bcbd6c7
 F src/update.c 99d5170cecc0f092f282519ec05febc5ca68a120
 F src/url.c 8e08b09e1318bc4b0eb505aa02a729718390834b
-F src/user.c ed19f0145de51e2edab976772e7b7ac1f0e73ae1
+F src/user.c 0c4d6a0228ed8df4040286a1786995888038bd53
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 622e33ed5108f8c66367b204050031b7edeb8832
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c92ec16f819eeee6e4a886a6292fdce3a83eee22
-R 2757a6dc9ef7283da321af7f5408894e
+P 3531091646bd760121cb07bedfda1ab8decde48c
+R e218b5b56dc2cb3c2d90971d8016b258
 U drh
-Z 2f7ad7f16124aa361041ebd7384d8c1a
+Z adf22a6b9d49f92ed147e8076d4e5684
