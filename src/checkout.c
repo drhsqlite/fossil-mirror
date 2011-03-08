@@ -247,7 +247,7 @@ void checkout_cmd(void){
   db_lset_int("checkout", vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
-  if( !keepFlag ){
+  if( !keepFlag && db_get_boolean("repo-cksum",1) ){
     vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
     vfile_aggregate_checksum_disk(vid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
