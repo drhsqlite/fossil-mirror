@@ -1,5 +1,5 @@
-C Do\snot\sverify\sany\sof\sthe\schecksums\safter\sa\scheckout\sif\sthe\srepo-cksum\nsetting\sis\sturned\soff.
-D 2011-03-08T17:13:56.738
+C Do\snot\soffer\sto\sundo\sa\snull-merge.
+D 2011-03-08T17:32:04.487
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -79,7 +79,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl e06270dc97ffea106818ee7ab5ea7fd57cbfc789
 F src/manifest.c fd250e9d999589e9d1dca7a024fb5ed5bbd5efc3
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
-F src/merge.c f350672f45c7d0e54dfbe9cf828512a395d63fc6
+F src/merge.c 477f902c70b18b7034b07b769dad0ff825a3baca
 F src/merge3.c 185ae0b338a70175716e5474d30703443e6b71b1
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/name.c 184a5a029f192581bdb398b1c916f5e870d9ba07
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0ca36443675b13ce66dd78d0c5af776bd2104820
-R 22f60250cab0bbc2e111703b80ca0164
+P 46ef28939210944798f9e7d3c37305681ef7b559
+R 0b6e23c7a8ec037decb1f2ecc7270a9a
 U drh
-Z b937007f0d3c2da73f78523b64c55eaf
+Z ee83dd42b5a175908f6b2b820ce47844

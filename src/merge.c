@@ -140,7 +140,7 @@ void merge_cmd(void){
   }
   vfile_check_signature(vid, 1, 0);
   db_begin_transaction();
-  undo_begin();
+  if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);
   load_vfile_from_rid(pid);
 
