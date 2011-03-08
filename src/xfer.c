@@ -1630,6 +1630,15 @@ int client_sync(
         if( zMsg ) fossil_print("\rServer says: %s\n", zMsg);
       }else
 
+      /*    pragma NAME VALUE...
+      **
+      ** The server can send pragmas to try to convey meta-information to
+      ** the client.  These are informational only.  Unknown pragmas are 
+      ** silently ignored.
+      */
+      if( blob_eq(&xfer.aToken[0], "pragma") && xfer.nToken>=2 ){
+      }else
+
       /*   error MESSAGE
       **
       ** Report an error and abandon the sync session.
