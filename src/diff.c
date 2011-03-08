@@ -237,7 +237,14 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
       na += R[r+i*3];
       nb += R[r+i*3];
     }
-    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n", a+skip+1, na, b+skip+1, nb);
+    /*
+     * If the patch changes an empty file or results in an empty file,
+     * the block header must use 0,0 as position indicator and not 1,0.
+     * Otherwise, patch would be confused and may reject the diff.
+     */
+    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
+      na ? a+skip+1 : 0, na,
+      nb ? b+skip+1 : 0, nb);
 
     /* Show the initial common area */
     a += skip;
