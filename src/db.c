@@ -907,19 +907,27 @@ const char *db_name(const char *zDb){
 }
 
 /*
+** Return TRUE if the schema is out-of-date
+*/
+int db_schema_is_outofdate(void){
+  return db_exists("SELECT 1 FROM config"
+                   " WHERE name='aux-schema'"
+                   "   AND value<>'%s'", AUX_SCHEMA);
+}
+
+/*
 ** Verify that the repository schema is correct.  If it is not correct,
 ** issue a fatal error and die.
 */
 void db_verify_schema(void){
-  if( db_exists("SELECT 1 FROM config"
-                " WHERE name='aux-schema'"
-                "   AND value<>'%s'", AUX_SCHEMA) ){
+  if( db_schema_is_outofdate() ){
     fossil_warning("incorrect repository schema version");
     fossil_warning("you have version \"%s\" but you need version \"%s\"",
           db_get("aux-schema",0), AUX_SCHEMA);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
 }
+
 
 /*
 ** COMMAND: test-move-repository

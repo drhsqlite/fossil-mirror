@@ -964,7 +964,7 @@ static void process_one_web_page(const char *zNotFound){
     dehttpize(g.zExtra);
     cgi_set_parameter_nocopy("name", g.zExtra);
   }
-  
+
   /* Locate the method specified by the path and execute the function
   ** that implements that method.
   */
@@ -973,6 +973,10 @@ static void process_one_web_page(const char *zNotFound){
     cgi_set_status(404,"Not Found");
     @ <h1>Not Found</h1>
     @ <p>Page not found: %h(g.zPath)</p>
+  }else if( aWebpage[idx].xFunc!=page_xfer && db_schema_is_outofdate() ){
+    @ <h1>Server Configuration Error</h1>
+    @ <p>The database schema on the server is out-of-date.  Please ask
+    @ the administrator to run <b>fossil rebuild</b>.</p>
   }else{
     aWebpage[idx].xFunc();
   }

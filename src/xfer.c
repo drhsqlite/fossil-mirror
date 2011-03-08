@@ -812,6 +812,10 @@ void page_xfer(void){
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
+  if( db_schema_is_outofdate() ){
+    @ error database\sschema\sis\out-of-date\son\sthe\sserver.
+    return;
+  }
   blob_zero(&xfer.err);
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
