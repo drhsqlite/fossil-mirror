@@ -1,5 +1,5 @@
-C Do\snot\soffer\sto\sundo\sa\snull-merge.
-D 2011-03-08T17:32:04.487
+C The\s"open"\scommand\snow\sautomatically\sopens\sto\sthe\s"trunk",\sor\sto\ssome\nother\sbranch\sdesignated\sby\sthe\snew\s"main-branch"\ssetting.
+D 2011-03-08T18:28:23.916
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
-F src/db.c ba5a9b1d6824e1e7d1bb08c2ca37ec7ef63f8c54
+F src/db.c 9b290c488eaeeca5fa680db8ffebd5b88e77964f
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c 69df36fbfa0aedb7034d0cf530648eb5c1b3f3b1
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 46ef28939210944798f9e7d3c37305681ef7b559
-R 0b6e23c7a8ec037decb1f2ecc7270a9a
+P ad39c28195ef657df2a37c5a4b6f8d68cc37ed4b
+R 2f6b985dd9070aff0860444abbe76264
 U drh
-Z ee83dd42b5a175908f6b2b820ce47844
+Z 1ff66d80c9ee6949b4a53ec472202270
