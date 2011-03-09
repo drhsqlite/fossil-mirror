@@ -77,8 +77,8 @@ int uuid_to_rid(const char *zUuid, int phantomize){
 ** Build a catalog of all files in a checkin.
 */
 void vfile_build(int vid){
-  int rid;
-  Stmt ins;
+  int rid, size;
+  Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
 
@@ -89,12 +89,21 @@ void vfile_build(int vid){
   db_prepare(&ins,
     "INSERT INTO vfile(vid,isexe,rid,mrid,pathname) "
     " VALUES(:vid,:isexe,:id,:id,:name)");
+  db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
-    rid = uuid_to_rid(pFile->zUuid, 0);
-    if( rid==0 || content_size(rid, -1)<0 ){
+    db_bind_text(&ridq, ":uuid", pFile->zUuid);
+    if( db_step(&ridq)==SQLITE_ROW ){
+      rid = db_column_int(&ridq, 0);
+      size = db_column_int(&ridq, 0);
+    }else{
+      rid = 0;
+      size = 0;
+    }
+    db_reset(&ridq);
+    if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
@@ -104,6 +113,7 @@ void vfile_build(int vid){
     db_step(&ins);
     db_reset(&ins);
   }
+  db_finalize(&ridq);
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);

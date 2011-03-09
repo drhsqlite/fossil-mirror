@@ -1,5 +1,5 @@
-C Fix\sdiffs\sfrom\sor\sto\san\sempty\sfile\sto\suse\sthe\sspecial\sposition\smarker\n0,0.\sMakes\s"fossil\sdiff\s-N"\screate\spatches\sthat\sare\saccepted\sby\spatch.
-D 2011-03-08T22:13:04.852
+C Inline\suuid_to_rid\sand\scontent_size.\sSaves\sone\sSQL\sstatement\sper\sfile\sin\nthe\scheckout.
+D 2011-03-09T00:09:30.569
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -118,7 +118,7 @@ F src/update.c 99d5170cecc0f092f282519ec05febc5ca68a120
 F src/url.c 8e08b09e1318bc4b0eb505aa02a729718390834b
 F src/user.c 0c4d6a0228ed8df4040286a1786995888038bd53
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 622e33ed5108f8c66367b204050031b7edeb8832
+F src/vfile.c 9d6eca8cbc96839384f8312ecdbcec4826efcecc
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
@@ -300,7 +300,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 85b235982e99d31ca981c8630d05f5db5e48c251
-R 2a4a0a47e60515742f18cd0f66ec0433
+P 4e77507e70d0a467c49c88c1b22a0c46bee44bc8
+R c5138e77097565818cffcb3869ff1dfe
 U joerg
-Z fca981afedbebeaeb17915b79af8f850
+Z b6c4e615dda4df814f3f9c1e8d33c811
