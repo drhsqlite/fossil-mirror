@@ -728,6 +728,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
 **    f=RID          Show family (immediate parents and children) of RID
+**    from=RID       Path from...
+**    to=RID           ... to this
+**    nomerge          ... avoid merge links on the path
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -759,6 +762,9 @@ void page_timeline(void){
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
+  int from_rid = name_to_rid(P("from"));  /* from= for path timelines */
+  int to_rid = name_to_rid(P("to"));      /* to= for path timelines */
+  int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -791,7 +797,38 @@ void page_timeline(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
-  if( (p_rid || d_rid) && g.okRead ){
+  if( from_rid && to_rid && g.okRead ){
+    /* If from= and to= are present, display all nodes on a path connecting
+    ** the two */
+    BisectNode *p;
+    const char *z;
+
+    bisect_shortest_path(from_rid, to_rid, noMerge);
+    p = bisect_reverse_path();
+    blob_append(&sql, " AND event.objid IN (0", -1);
+    while( p ){
+      blob_appendf(&sql, ",%d", p->rid);
+      p = p->u.pTo;
+    }
+    blob_append(&sql, ")", -1);
+    bisect_reset();
+    blob_append(&desc, "All nodes on the path from ", -1);
+    z = P("from");
+    if( g.okHistory ){
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop, z, z);
+    }else{
+      blob_appendf(&desc, "[%h]", z);
+    }
+    blob_append(&desc, " and ", -1);
+    z = P("to");
+    if( g.okHistory ){
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, z, z);
+    }else{
+      blob_appendf(&desc, "[%h].", z);
+    }
+    db_multi_exec("%s", blob_str(&sql));
+
+  }else if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -855,6 +892,7 @@ void page_timeline(void){
       blob_appendf(&desc, "[%.10s]", zUuid);
     }
   }else{
+    /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "timeline item";
     char *zDate;

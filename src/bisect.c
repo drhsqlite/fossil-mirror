@@ -23,9 +23,9 @@
 #include "bisect.h"
 #include <assert.h>
 
+#if INTERFACE
 /* Nodes for the shortest path algorithm.
 */
-typedef struct BisectNode BisectNode;
 struct BisectNode {
   int rid;                 /* ID for this node */
   int fromIsParent;        /* True if pFrom is the parent of rid */
@@ -36,6 +36,7 @@ struct BisectNode {
   } u;
   BisectNode *pAll;        /* List of all nodes */
 };
+#endif
 
 /*
 ** Local variables for this module
@@ -73,7 +74,7 @@ static BisectNode *bisect_new_node(int rid, BisectNode *pFrom, int isParent){
 /*
 ** Reset memory used by the shortest path algorithm.
 */
-static void bisect_reset(void){
+void bisect_reset(void){
   BisectNode *p;
   while( bisect.pAll ){
     p = bisect.pAll;
@@ -93,7 +94,7 @@ static void bisect_reset(void){
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
 */
-static BisectNode *bisect_shortest_path(int iFrom, int iTo, int directOnly){
+BisectNode *bisect_shortest_path(int iFrom, int iTo, int directOnly){
   Stmt s;
   BisectNode *pPrev;
   BisectNode *p;
@@ -141,13 +142,14 @@ static BisectNode *bisect_shortest_path(int iFrom, int iTo, int directOnly){
 /*
 ** Construct the path from bisect.pStart to bisect.pEnd in the u.pTo fields.
 */
-static void bisect_reverse_path(void){
+BisectNode *bisect_reverse_path(void){
   BisectNode *p;
   for(p=bisect.pEnd; p && p->pFrom; p = p->pFrom){
     p->pFrom->u.pTo = p;
   }
   bisect.pEnd->u.pTo = 0;
   assert( p==bisect.pStart );
+  return p;
 }
 
 /*
@@ -190,6 +192,18 @@ void shortest_path_test_cmd(void){
       printf("\n");
     }
   }
+}
+
+/*
+** WEBPAGE:  path
+**
+** example:  /path?from=trunk&to=experimental&nomerge
+**
+** Show a timeline of all changes along a path between two versions.
+*/
+void path_page(void){
+  login_check_credentials();
+  if( !g.okRead ){ login_needed(); return; }
 }
 
 /*
