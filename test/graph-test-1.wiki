@@ -24,3 +24,8 @@ the correct operation of the graph drawing logic.
   *  [/timeline?y=ci&n=1000000] - All checkins - a huge graph
   *  [/timeline?f=8dfed953f7530442] - This malformed commit has a 
      merge parent which is not a valid checkin.
+
+External:
+
+  *  [http://www.sqlite.org/src/timeline?c=2010-09-29&nd] - timewarp due to
+     a mis-configured system clock.
