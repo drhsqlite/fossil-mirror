@@ -48,6 +48,7 @@ set src {
   file
   finfo
   graph
+  gzip
   http
   http_socket
   http_transport
