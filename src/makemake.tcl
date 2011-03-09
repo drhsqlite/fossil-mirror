@@ -81,6 +81,7 @@ set src {
   style
   sync
   tag
+  tar
   th_main
   timeline
   tkt

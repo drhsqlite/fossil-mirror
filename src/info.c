@@ -472,8 +472,12 @@ void ci_page(void){
       @   <td>
       @     <a href="%s(g.zTop)/dir?ci=%S(zUuid)">files</a>
       if( g.okZip ){
+        char *zUrl = mprintf("%s/tarball/%s-%S.tar.gz?uuid=%s",
+                             g.zTop, zProjName, zUuid, zUuid);
+        @ | <a href="%s(zUrl)">Tarball</a>
         @ | <a href="%s(g.zTop)/zip/%s(zProjName)-%S(zUuid).zip?uuid=%s(zUuid)">
         @         ZIP archive</a>
+        fossil_free(zUrl);
       }
       @   | <a href="%s(g.zTop)/artifact/%S(zUuid)">manifest</a>
       if( g.okWrite ){
