@@ -1,5 +1,5 @@
-C Add\sthe\sability\sto\sdeliver\scompressed\starballs\sin\saddition\sto\sZIP\sarchives.
-D 2011-03-09T02:23:34.155
+C Change\sthe\starball\sgenerator\sto\suse\sthe\sUSTAR\star\sformat.
+D 2011-03-09T15:45:52.969
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -106,7 +106,7 @@ F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 704f8d3ef4264b7423f08aa1a782dda2358e90ea
 F src/sync.c 2981f30816261d109764a9839d140bc7dea4c3bc
 F src/tag.c b62793a69077b526bf2eff709568a8704a36d94a
-F src/tar.c 8850032107f18ff3a7aefcf060cb84569b506cf4
+F src/tar.c da3b21044e9e41e22ba61de6d7e373da2fbc211d
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
@@ -302,7 +302,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 34d9a5e5c50706015526738514162fa73cbef720
-R c4948cad3a72766f12c19fac18509303
+P d5d676f0c7f37d6bafbfe7446d243e7f4a035f41
+R 36d23223a27946cda6dbc193a79729ac
 U drh
-Z 233db73fef6135d2d276eac6a340fc43
+Z ec2265c9979ef484a6f4584449b4cd5b

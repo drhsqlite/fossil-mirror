@@ -28,6 +28,7 @@
 static struct tarball_t {
   unsigned char *aHdr;      /* Space for building headers */
   char *zSpaces;            /* Spaces for padding */
+  char *zPrevDir;           /* Name of directory for previous entry */
 } tball;
 
 /*
@@ -37,11 +38,13 @@ static struct tarball_t {
 */
 static void tar_begin(void){
   assert( tball.aHdr==0 );
-  tball.aHdr = fossil_malloc(1024);
+  tball.aHdr = fossil_malloc(512+512+256);
+  memset(tball.aHdr, 0, 512+512+256);
   tball.zSpaces = (char*)&tball.aHdr[512];
-  memset(tball.aHdr, 0, 512);
+  tball.zPrevDir = (char*)&tball.zSpaces[512];
   memcpy(&tball.aHdr[108], "0000000", 8);  /* Owner ID */
   memcpy(&tball.aHdr[116], "0000000", 8);  /* Group ID */
+  memcpy(&tball.aHdr[257], "ustar  ", 7);  /* Format */
   gzip_begin();
   db_multi_exec(
     "CREATE TEMP TABLE dir(name UNIQUE);"
@@ -62,9 +65,15 @@ static void tar_add_header(
 ){
   unsigned int cksum = 0;
   int i;
-  assert( nName<100 );
-  memcpy(tball.aHdr, zName, nName);
-  memset(&tball.aHdr[nName], 0, 100-nName);
+  if( nName>100 ){
+    memcpy(&tball.aHdr[345], zName, nName-100);
+    memcpy(tball.aHdr, &zName[nName-100], 100);
+    memset(&tball.aHdr[245+nName], 0, 267-nName);
+  }else{
+    memcpy(tball.aHdr, zName, nName);
+    memset(&tball.aHdr[nName], 0, 100-nName);
+    memset(&tball.aHdr[345], 0, 167);
+  }
   sqlite3_snprintf(8, (char*)&tball.aHdr[100], "%07o", iMode);
   sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", iSize);
   sqlite3_snprintf(12, (char*)&tball.aHdr[136], "%011o", mTime);
@@ -88,10 +97,13 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
+  if( tball.zPrevDir[i]==0 && memcmp(tball.zPrevDir, zName, i)==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%.*q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
   tar_add_header(zName, i, 0755, mTime, 0, 5);
+  memcpy(tball.zPrevDir, zName, i);
+  tball.zPrevDir[i] = 0;
 }
 
 /*
@@ -107,12 +119,17 @@ static void tar_add_file(
   int n = blob_size(pContent);
   int lastPage;
 
+  if( nName>=250 ){
+    fossil_fatal("name too long for ustar format: \"%s\"", zName);
+  }
   tar_add_directory_of(zName, nName, mTime);
   tar_add_header(zName, nName, isExe ? 0755 : 0644, mTime, n, 0);
-  gzip_step(blob_buffer(pContent), n);
-  lastPage = n % 512;
-  if( lastPage!=0 ){
-    gzip_step(tball.zSpaces, 512 - lastPage);
+  if( n ){
+    gzip_step(blob_buffer(pContent), n);
+    lastPage = n % 512;
+    if( lastPage!=0 ){
+      gzip_step(tball.zSpaces, 512 - lastPage);
+    }
   }
 }
 
