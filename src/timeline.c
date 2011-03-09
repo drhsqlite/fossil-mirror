@@ -826,8 +826,8 @@ void page_timeline(void){
     }else{
       blob_appendf(&desc, "[%h].", z);
     }
+    tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_str(&sql));
-
   }else if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
