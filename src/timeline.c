@@ -800,18 +800,18 @@ void page_timeline(void){
   if( from_rid && to_rid && g.okRead ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
-    BisectNode *p;
+    PathNode *p;
     const char *z;
 
-    bisect_shortest_path(from_rid, to_rid, noMerge);
-    p = bisect_reverse_path();
+    path_shortest(from_rid, to_rid, noMerge);
+    p = path_reverse_path();
     blob_append(&sql, " AND event.objid IN (0", -1);
     while( p ){
       blob_appendf(&sql, ",%d", p->rid);
       p = p->u.pTo;
     }
     blob_append(&sql, ")", -1);
-    bisect_reset();
+    path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
     z = P("from");
     if( g.okHistory ){
