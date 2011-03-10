@@ -164,8 +164,8 @@ void compute_ancestors(int rid, int N){
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
+  pqueue_insert(&queue, rid, 0.0, 0);
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
     Stmt q;
     db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
     db_prepare(&q,
@@ -176,7 +176,7 @@ void compute_ancestors(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, -mtime);
+        pqueue_insert(&queue, pid, -mtime, 0);
       }
     }
     db_finalize(&q);
@@ -195,8 +195,8 @@ void compute_descendants(int rid, int N){
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
+  pqueue_insert(&queue, rid, 0.0, 0);
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
     Stmt q;
     db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
     db_prepare(&q,"SELECT cid, mtime FROM plink WHERE pid=%d", rid);
@@ -204,7 +204,7 @@ void compute_descendants(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, mtime);
+        pqueue_insert(&queue, pid, mtime, 0);
       }
     }
     db_finalize(&q);

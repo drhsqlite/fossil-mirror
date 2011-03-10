@@ -26,7 +26,8 @@
 */
 struct PathNode {
   int rid;                 /* ID for this node */
-  int fromIsParent;        /* True if pFrom is the parent of rid */
+  u8 fromIsParent;         /* True if pFrom is the parent of rid */
+  u8 isPrim;               /* True if primary side of common ancestor */
   PathNode *pFrom;         /* Node we came from */
   union {
     PathNode *pPeer;       /* List of nodes of the same generation */
@@ -45,6 +46,7 @@ static struct {
   Bag seen;             /* Nodes seen before */
   int nStep;            /* Number of steps from first to last */
   PathNode *pStart;     /* Earliest node */
+  PathNode *pPivot;     /* Common ancestor of pStart and pEnd */
   PathNode *pEnd;       /* Most recent */
 } path;
 
@@ -66,6 +68,7 @@ static PathNode *path_new_node(int rid, PathNode *pFrom, int isParent){
   PathNode *p;
 
   p = fossil_malloc( sizeof(*p) );
+  memset(p, 0, sizeof(*p));
   p->rid = rid;
   p->fromIsParent = isParent;
   p->pFrom = pFrom;
@@ -73,7 +76,6 @@ static PathNode *path_new_node(int rid, PathNode *pFrom, int isParent){
   path.pCurrent = p;
   p->pAll = path.pAll;
   path.pAll = p;
-  path.pEnd = p;
   bag_insert(&path.seen, rid);
   return p;
 }
@@ -96,10 +98,28 @@ void path_reset(void){
 }
 
 /*
+** Construct the path from path.pStart to path.pEnd in the u.pTo fields.
+*/
+void path_reverse_path(void){
+  PathNode *p;
+  for(p=path.pEnd; p && p->pFrom; p = p->pFrom){
+    p->pFrom->u.pTo = p;
+  }
+  path.pEnd->u.pTo = 0;
+  assert( p==path.pStart );
+}
+
+/*
 ** Compute the shortest path from iFrom to iTo
 **
 ** If directOnly is true, then use only the "primary" links from parent to
 ** child.  In other words, ignore merges.
+**
+** Return a pointer to the beginning of the path (the iFrom node).  
+** Elements of the path can be traversed by following the PathNode.u.pTo
+** pointer chain.
+**
+** Return NULL if no path is found.
 */
 PathNode *path_shortest(int iFrom, int iTo, int directOnly){
   Stmt s;
@@ -135,28 +155,18 @@ PathNode *path_shortest(int iFrom, int iTo, int directOnly){
         p = path_new_node(cid, pPrev, isParent);
         if( cid==iTo ){
           db_finalize(&s);
-          return p;
+          path.pEnd = p;
+          path_reverse_path();
+          return path.pStart;
         }
       }
       db_reset(&s);
       pPrev = pPrev->u.pPeer;
     }
   }
+  db_finalize(&s);
   path_reset();
   return 0;
-}
-
-/*
-** Construct the path from path.pStart to path.pEnd in the u.pTo fields.
-*/
-PathNode *path_reverse_path(void){
-  PathNode *p;
-  for(p=path.pEnd; p && p->pFrom; p = p->pFrom){
-    p->pFrom->u.pTo = p;
-  }
-  path.pEnd->u.pTo = 0;
-  assert( p==path.pStart );
-  return p;
 }
 
 /*
@@ -195,7 +205,6 @@ void shortest_path_test_cmd(void){
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
-  path_reverse_path();
   for(n=1, p=path.pStart; p; p=p->u.pTo, n++){
     char *z;
     z = db_text(0,
@@ -212,6 +221,105 @@ void shortest_path_test_cmd(void){
     }
   }
 }
+
+/*
+** Find the closest common ancestor of two nodes.  "Closest" means the
+** fewest number of arcs.
+*/
+int path_common_ancestor(int iMe, int iYou){
+  Stmt s;
+  PathNode *pPrev;
+  PathNode *p;
+  Bag me, you;
+
+  if( iMe==iYou ) return iMe;
+  if( iMe==0 || iYou==0 ) return 0;
+  path_reset();
+  path.pStart = path_new_node(iMe, 0, 0);
+  path.pStart->isPrim = 1;
+  path.pEnd = path_new_node(iYou, 0, 0);
+  db_prepare(&s, "SELECT pid FROM plink WHERE cid=:cid");
+  bag_init(&me);
+  bag_insert(&me, iMe);
+  bag_init(&you);
+  bag_insert(&you, iYou);
+  while( path.pCurrent ){
+    pPrev = path.pCurrent;
+    path.pCurrent = 0;
+    while( pPrev ){
+      db_bind_int(&s, ":cid", pPrev->rid);
+      while( db_step(&s)==SQLITE_ROW ){
+        int pid = db_column_int(&s, 0);
+        if( bag_find(pPrev->isPrim ? &you : &me, pid) ){
+          /* pid is the common ancestor */
+          PathNode *pNext;
+          for(p=path.pAll; p && p->rid!=pid; p=p->pAll){}
+          assert( p!=0 );
+          pNext = p;
+          while( pNext ){
+            pNext = p->pFrom;
+            p->pFrom = pPrev;
+            pPrev = p;
+            p = pNext;
+          }
+          if( pPrev==path.pStart ) path.pStart = path.pEnd;
+          path.pEnd = pPrev;
+          path_reverse_path();
+          db_finalize(&s);
+          return pid;
+        }else if( bag_find(&path.seen, pid) ){
+          /* pid is just an alternative path on one of the legs */
+          continue;
+        }
+        p = path_new_node(pid, pPrev, 0);
+        p->isPrim = pPrev->isPrim;
+        bag_insert(pPrev->isPrim ? &me : &you, pid);
+      }
+      db_reset(&s);
+      pPrev = pPrev->u.pPeer;
+    }
+  }
+  db_finalize(&s);
+  path_reset();
+  return 0;
+}
+
+/*
+** COMMAND:  test-ancestor-path
+**
+** Usage: %fossil test-ancestor-path VERSION1 VERSION2
+**
+** Report the path from VERSION1 to VERSION2 through their most recent
+** common ancestor.
+*/
+void ancestor_path_test_cmd(void){
+  int iFrom;
+  int iTo;
+  int iPivot;
+  PathNode *p;
+  int n;
+
+  db_find_and_open_repository(0,0);
+  if( g.argc!=4 ) usage("VERSION1 VERSION2");
+  iFrom = name_to_rid(g.argv[2]);
+  iTo = name_to_rid(g.argv[3]);
+  iPivot = path_common_ancestor(iFrom, iTo);
+  for(n=1, p=path.pStart; p; p=p->u.pTo, n++){
+    char *z;
+    z = db_text(0,
+      "SELECT substr(uuid,1,12) || ' ' || datetime(mtime)"
+      "  FROM blob, event"
+      " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
+      p->rid, p->rid);
+    printf("%4d: %s", n, z);
+    fossil_free(z);
+    if( p->rid==iFrom ) printf(" VERSION1");
+    if( p->rid==iTo ) printf(" VERSION2");
+    if( p->rid==iPivot ) printf(" PIVOT");
+    printf("\n");
+  }
+}
+
 
 /*
 ** A record of a file rename operation.

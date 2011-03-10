@@ -34,7 +34,7 @@ static struct {
 /*
 ** Find the shortest path between bad and good.
 */
-static PathNode *bisect_path(void){
+void bisect_path(void){
   PathNode *p;
   bisect.bad = db_lget_int("bisect-bad", 0);
   if( bisect.bad==0 ){
@@ -53,7 +53,6 @@ static PathNode *bisect_path(void){
     fossil_fatal("no path from good ([%S]) to bad ([%S]) or back",
                  zGood, zBad);
   }
-  return p;
 }
 
 /*
