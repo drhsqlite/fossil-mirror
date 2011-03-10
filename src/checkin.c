@@ -404,6 +404,7 @@ static void prepare_commit_comment(
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
+  blob_appendf(&text, "# user: %s\n", g.zLogin);
   if( zBranch && zBranch[0] ){
     blob_appendf(&text, "# tags: %s\n#\n", zBranch);
   }else{
