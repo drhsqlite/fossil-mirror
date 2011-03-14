@@ -400,7 +400,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **        significant bit (1) corresponds to rail 0.  The 2-bit corresponds
     **        to rail 1.  And so forth.  This value is 0 if there are no
     **        merge-arrow descenders.
-    **    u:  Draw a think child-line out of the top of this node and up to
+    **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if there is no
     **        thick-line riser.
     **   au:  An array of integers that define thick-line risers for branches.
@@ -413,15 +413,16 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
-        pRow->idx,
-        pRow->zBgClr,
-        pRow->iRail,
-        pRow->bDescender,
-        pRow->mergeOut+1,
-        pRow->mergeUpto,
-        pRow->mergeDown,
-        pRow->aiRiser[pRow->iRail]
+        pRow->idx,                      /* id */
+        pRow->zBgClr,                   /* bg */
+        pRow->iRail,                    /* r */
+        pRow->bDescender,               /* d */
+        pRow->mergeOut+1,               /* mo */
+        pRow->mergeUpto,                /* mu */
+        pRow->mergeDown,                /* md */
+        pRow->aiRiser[pRow->iRail]      /* u */
       );
+      /* u */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -432,6 +433,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       }
       if( cSep=='[' ) cgi_printf("[");
       cgi_printf("],mi:");
+      /* mi */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn & (1<<i) ){
@@ -518,13 +520,13 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     drawUpArrow(p.x, p.y+6, btm);
     @   } 
     @   if( p.mo>0 ){
-    @     var x1 = (p.mo-1)*20 + left;
+    @     var x1 = (p.mo-1)*20 + left + 4;
     @     var y1 = p.y-3;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.mu-1];
     @     var y0 = u.y+5;
-    @     if( x1==p.x ){
-    @       y1 -= 2;
+    @     if( x1==p.x+4 ){
+    @       y1 = p.y-5;
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
@@ -548,7 +550,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   }
     @   for(var j in p.mi){
     @     var y0 = p.y+5;
-    @     var mx = p.mi[j]*20 + left;
+    @     var mx = p.mi[j]*20 + left + 4;
     @     if( mx>p.x ){
     @       drawThinArrow(y0,mx,p.x+6);
     @     }else{

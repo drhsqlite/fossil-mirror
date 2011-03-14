@@ -255,6 +255,43 @@ static void assignChildrenToRail(GraphRow *pBottom){
   }
 }
 
+/*
+** Create a merge-arrow riser going from pParent up to pChild.
+*/
+static void createMergeRiser(
+  GraphContext *p,
+  GraphRow *pParent,
+  GraphRow *pChild
+){
+  int u;
+  u32 mask;
+  GraphRow *pLoop;
+
+  if( pParent->mergeOut<0 ){
+    u = pParent->aiRiser[pParent->iRail];
+    if( u>0 && u<pChild->idx ){
+      /* The thick arrow up to the next primary child of pDesc goes
+      ** further up than the thin merge arrow riser, so draw them both
+      ** on the same rail. */
+      pParent->mergeOut = pParent->iRail;
+      pParent->mergeUpto = pChild->idx;
+    }else{
+      /* The thin merge arrow riser is taller than the thick primary
+      ** child riser, so use separate rails. */
+      int iTarget = pParent->iRail;
+      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1,
+                                       0, iTarget);
+      pParent->mergeUpto = pChild->idx;
+      mask = 1<<pParent->mergeOut;
+      for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
+           pLoop=pLoop->pNext){
+        pLoop->railInUse |= mask;
+      }
+    }
+  }
+  pChild->mergeIn |= 1<<pParent->mergeOut;
+}
+
 
 /*
 ** Compute the complete graph
@@ -433,17 +470,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         }
       }else{
         /* Merge from an on-screen node */
-        if( pDesc->mergeOut<0 ){
-          int iTarget = (pRow->iRail + pDesc->iRail)/2;
-          pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx-1,0,iTarget);
-          pDesc->mergeUpto = pRow->idx;
-          mask = 1<<pDesc->mergeOut;
-          for(pLoop=pRow->pNext; pLoop && pLoop->rid!=parentRid;
-               pLoop=pLoop->pNext){
-            pLoop->railInUse |= mask;
-          }
-        }
-        pRow->mergeIn |= 1<<pDesc->mergeOut;
+        createMergeRiser(p, pDesc, pRow);
       }
     }
   }
@@ -456,16 +483,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       if( !pRow->isDup ) continue;
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
-      if( pDesc->mergeOut<0 ){
-        int iTarget = (pRow->iRail + pDesc->iRail)/2;
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx-1, 0, iTarget);
-        pDesc->mergeUpto = pRow->idx;
-        mask = 1<<pDesc->mergeOut;
-        for(pLoop=pRow->pNext; pLoop && pLoop!=pDesc; pLoop=pLoop->pNext){
-          pLoop->railInUse |= mask;
-        }
-      }
-      pRow->mergeIn |= 1<<pDesc->mergeOut;
+      createMergeRiser(p, pDesc, pRow);
     }
   }
 
