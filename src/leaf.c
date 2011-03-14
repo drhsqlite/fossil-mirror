@@ -111,7 +111,9 @@ char *leaf_is_closed_sql(const char *zVar){
 void leaf_eventually_check(int rid){
   static Stmt parentsOf;
 
-  db_static_prepare(&parentsOf, "SELECT pid FROM plink WHERE cid=:rid");
+  db_static_prepare(&parentsOf, 
+     "SELECT pid FROM plink WHERE cid=:rid AND pid>0"
+  );
   db_bind_int(&parentsOf, ":rid", rid);
   bag_insert(&needToCheck, rid);
   while( db_step(&parentsOf)==SQLITE_ROW ){

@@ -1,5 +1,5 @@
-C Further\simprovements\sto\sthe\slayout\sof\smerge\sarrows.
-D 2011-03-14T20:14:01.751
+C Fix\san\sissue\swith\sthe\sleaf-tracker\sthat\scomes\sup\sif\sa\scheck-in\sspecifies\na\sshunned\scheck-in\sas\sits\sparent\sor\smerge\sparent.
+D 2011-03-14T21:36:00.151
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 654fc91156ea0f7e5ae822c699223a87c3690282
-F src/leaf.c 73d5657b303f488be98560dceeb245c4c963cc46
+F src/leaf.c 750147ea90d07371ffae04224257c2111c7f8906
 F src/login.c 8ce0492ee66fb2ace369335cd61c9ff8869921d0
 F src/main.c 3238a32d7d7bc164f6c3a3e6b959898f6bf1b037
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 313cd3c8322e2ab9a27845e432139407004ecdf9
-R 2158b349311ea6369abcdaa91a111106
+P a6934b4437780904bf8813ec55c81bdca55d57ab
+R ddacb1ce4b089701d04d5e517d847635
 U drh
-Z 49c644da74114357251fc926850bf010
+Z 0b4cac7b4d57fe5a5dc645424aed33ec
