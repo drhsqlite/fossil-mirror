@@ -128,7 +128,10 @@ PathNode *path_shortest(int iFrom, int iTo, int directOnly){
 
   path_reset();
   path.pStart = path_new_node(iFrom, 0, 0);
-  if( iTo==iFrom ) return path.pStart;
+  if( iTo==iFrom ){
+    path.pEnd = path.pStart;
+    return path.pStart;
+  }
   if( directOnly ){
     db_prepare(&s, 
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
@@ -362,6 +365,7 @@ void find_filename_changes(
 
   *pnChng = 0;
   *aiChng = 0;
+  if( iFrom==iTo ) return;
   path_reset();
   p = path_shortest(iFrom, iTo, 0);
   if( p==0 ) return;
