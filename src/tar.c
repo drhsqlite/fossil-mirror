@@ -139,6 +139,8 @@ static void tar_add_file(
 */
 static void tar_finish(Blob *pOut){
   db_multi_exec("DROP TABLE dir");
+  gzip_step(tball.zSpaces, 512);
+  gzip_step(tball.zSpaces, 512);
   gzip_finish(pOut);
   fossil_free(tball.aHdr);
   tball.aHdr = 0;
