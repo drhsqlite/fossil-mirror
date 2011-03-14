@@ -62,6 +62,7 @@ set src {
   merge
   merge3
   name
+  path
   pivot
   popen
   pqueue

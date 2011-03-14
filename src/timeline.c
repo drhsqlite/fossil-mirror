@@ -765,6 +765,8 @@ void page_timeline(void){
   int from_rid = name_to_rid(P("from"));  /* from= for path timelines */
   int to_rid = name_to_rid(P("to"));      /* to= for path timelines */
   int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
+  int me_rid = name_to_rid(P("me"));    /* me= for common ancestory path */
+  int you_rid = name_to_rid(P("you"));/* you= for common ancst path */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -797,34 +799,42 @@ void page_timeline(void){
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
-  if( from_rid && to_rid && g.okRead ){
+  if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
-    BisectNode *p;
-    const char *z;
+    PathNode *p = 0;
+    const char *zFrom = 0;
+    const char *zTo = 0;
 
-    bisect_shortest_path(from_rid, to_rid, noMerge);
-    p = bisect_reverse_path();
+    if( from_rid && to_rid ){
+      p = path_shortest(from_rid, to_rid, noMerge);
+      zFrom = P("from");
+      zTo = P("to");
+    }else{
+      if( path_common_ancestor(me_rid, you_rid) ){
+        p = path_first();
+      }
+      zFrom = P("me");
+      zTo = P("you");
+    }
     blob_append(&sql, " AND event.objid IN (0", -1);
     while( p ){
       blob_appendf(&sql, ",%d", p->rid);
       p = p->u.pTo;
     }
     blob_append(&sql, ")", -1);
-    bisect_reset();
+    path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
-    z = P("from");
     if( g.okHistory ){
-      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop, z, z);
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop,zFrom,zFrom);
     }else{
-      blob_appendf(&desc, "[%h]", z);
+      blob_appendf(&desc, "[%h]", zFrom);
     }
     blob_append(&desc, " and ", -1);
-    z = P("to");
     if( g.okHistory ){
-      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, z, z);
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, zTo, zTo);
     }else{
-      blob_appendf(&desc, "[%h].", z);
+      blob_appendf(&desc, "[%h].", zTo);
     }
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_str(&sql));
