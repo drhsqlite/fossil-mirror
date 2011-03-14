@@ -390,16 +390,11 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **        rail is 0 and the number increases to the right.
     **    d:  True if there is a "descender" - an arrow coming from the bottom
     **        of the page straight up to this node.
-    **   mo:  "merge-out".  If non-zero, this is one more than the rail on which
-    **        a merge arrow travels upward.  The merge arrow is drawn upwards
+    **   mo:  "merge-out".  If non-zero, this is one more than the x-coordinate
+    **        for the upward portion of a merge arrow.  The merge arrow goes up
     **        to the row identified by mu:.  If this value is zero then
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
-    **   md:  A bitmask of rails on which merge-arrow descenders should be
-    **        drawn from this row to the bottom of the page.  The least
-    **        significant bit (1) corresponds to rail 0.  The 2-bit corresponds
-    **        to rail 1.  And so forth.  This value is 0 if there are no
-    **        merge-arrow descenders.
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if there is no
     **        thick-line riser.
@@ -407,19 +402,27 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
     **        is the id of the node upto which the riser should run.
-    **   mi:  "merge-in".  An array of integer rail numbers from which
-    **        merge arrows should be drawn into this node.
+    **   mi:  "merge-in".  An array of integer x-coordinates from which
+    **        merge arrows should be drawn into this node.  If the value is
+    **        negative, then the x-coordinate is the absolute value of mi[]
+    **        and a thin merge-arrow descender is drawn to the bottom of
+    **        the screen.
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
+      int mo = pRow->mergeOut;
+      if( mo<0 ){
+        mo = 0;
+      }else{
+        mo = (mo/4)*20 - 3 + 4*(mo&3);
+      }
+      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
         pRow->idx,                      /* id */
         pRow->zBgClr,                   /* bg */
         pRow->iRail,                    /* r */
         pRow->bDescender,               /* d */
-        pRow->mergeOut+1,               /* mo */
+        mo,                             /* mo */
         pRow->mergeUpto,                /* mu */
-        pRow->mergeDown,                /* md */
         pRow->aiRiser[pRow->iRail]      /* u */
       );
       /* u */
@@ -436,8 +439,10 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       /* mi */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
-        if( pRow->mergeIn & (1<<i) ){
-          cgi_printf("%c%d", cSep, i);
+        if( pRow->mergeIn[i] ){
+          int mi = i*20 - 8 + 4*pRow->mergeIn[i];
+          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
       }
@@ -520,12 +525,12 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @     drawUpArrow(p.x, p.y+6, btm);
     @   } 
     @   if( p.mo>0 ){
-    @     var x1 = (p.mo-1)*20 + left + 4;
+    @     var x1 = p.mo + left - 1;
     @     var y1 = p.y-3;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.mu-1];
     @     var y0 = u.y+5;
-    @     if( x1==p.x+4 ){
+    @     if( x1>=p.x-5 && x1<=p.x+5 ){
     @       y1 = p.y-5;
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
@@ -550,14 +555,17 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   }
     @   for(var j in p.mi){
     @     var y0 = p.y+5;
-    @     var mx = p.mi[j]*20 + left + 4;
+    @     var mx = p.mi[j];
+    @     if( mx<0 ){
+    @       mx = left-mx;
+    @       drawThinLine(mx,y0,mx,btm);
+    @     }else{
+    @       mx += left;
+    @     }
     @     if( mx>p.x ){
     @       drawThinArrow(y0,mx,p.x+6);
     @     }else{
     @       drawThinArrow(y0,mx,p.x-5);
-    @     }
-    @     if( (1<<p.mi[j])&p.md ){
-    @       drawThinLine(mx,y0,mx,btm);
     @     }
     @   }
     @ }
