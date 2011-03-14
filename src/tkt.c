@@ -854,7 +854,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 **         Run the ticket report, identified by the report format title
 **         used in the gui. The data is written as flat file on stdout,
-**         using "," as separator. The seperator "," can be changed using
+**         using "," as separator. The separator "," can be changed using
 **         the -l or --limit option.
 **         If TICKETFILTER is given on the commandline, the query is
 **         limited with a new WHERE-condition.

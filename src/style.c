@@ -626,7 +626,7 @@ const struct strctCssDefaults {
     @   color: blue;
   },
   { "span.capability",
-    "format for capabilites, mentioned on the user edit page",
+    "format for capabilities, mentioned on the user edit page",
     @   font-weight: bold;
   },
   { "span.usertype",

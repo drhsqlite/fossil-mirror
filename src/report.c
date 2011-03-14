@@ -1119,7 +1119,7 @@ void rptshow(
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);
       rpt_list_reports();
-      fossil_fatal("unkown report format(%s)!",zRep);
+      fossil_fatal("unknown report format(%s)!",zRep);
     }
     zTitle = db_column_malloc(&q, 0);
     zSql = db_column_malloc(&q, 1);

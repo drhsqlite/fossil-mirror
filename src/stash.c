@@ -335,7 +335,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash apply ?STASHID?
 **
 **     Apply the identified stash to the current working check-out.
-**     If no STASHID is specifed, use the most recent stash.  Unlike
+**     If no STASHID is specified, use the most recent stash.  Unlike
 **     the "pop" command, the stash is retained so that it can be used
 **     again.  This command is undoable.
 **
