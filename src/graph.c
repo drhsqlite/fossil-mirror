@@ -275,7 +275,7 @@ static void createMergeRiser(
 
   if( pParent->mergeOut<0 ){
     u = pParent->aiRiser[pParent->iRail];
-    if( u>0 && u<pChild->idx ){
+    if( u>=0 && u<pChild->idx ){
       /* The thick arrow up to the next primary child of pDesc goes
       ** further up than the thin merge arrow riser, so draw them both
       ** on the same rail. */
