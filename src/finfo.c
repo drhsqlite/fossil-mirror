@@ -248,7 +248,7 @@ void finfo_page(void){
     char zShort[20];
     char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr);
+    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 1);
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -303,6 +303,6 @@ void finfo_page(void){
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph);
+  timeline_output_graph_javascript(pGraph, 1);
   style_footer();
 }

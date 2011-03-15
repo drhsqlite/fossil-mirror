@@ -44,6 +44,8 @@ struct GraphRow {
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
+  u8 isLeaf;                  /* True if this is a leaf node */
+  u8 timeWarp;                /* Child is earlier in time */
   u8 bDescender;              /* True if riser from bottom of graph to here. */
   i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
   i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
@@ -165,7 +167,8 @@ int graph_add_row(
   int nParent,         /* Number of parents */
   int *aParent,        /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
-  const char *zBgClr   /* Background color. NULL or "" for white. */
+  const char *zBgClr,  /* Background color. NULL or "" for white. */
+  int isLeaf           /* True if this row is a leaf */
 ){
   GraphRow *pRow;
   int nByte;
@@ -178,6 +181,8 @@ int graph_add_row(
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
+  pRow->isLeaf = isLeaf;
+  memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
   if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
   pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
@@ -226,6 +231,7 @@ static int findFreeRail(
     }
   }
   if( iBestDist>1000 ) p->nErr++;
+  if( iBest>p->mxRail ) p->mxRail = iBest;
   return iBest;
 }
 
@@ -358,7 +364,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
     pParent = hashFind(p, pRow->aParent[0]);
     if( pParent==0 ) continue;                         /* Parent off-screen */
     if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
-    if( pParent->idx <= pRow->idx ) continue;          /* Time-warp */
+    if( pParent->idx <= pRow->idx ){
+       pParent->timeWarp = 1;
+       continue;                                       /* Time-warp */
+    }
     if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
@@ -403,7 +412,17 @@ void graph_finish(GraphContext *p, int omitDescenders){
     int parentRid;
 
     if( pRow->iRail>=0 ){
-      if( pRow->pChild==0 ) inUse &= ~(1<<pRow->iRail);
+      if( pRow->pChild==0 && !pRow->timeWarp ){
+        if( pRow->isLeaf || omitDescenders ){
+          inUse &= ~(1<<pRow->iRail);
+        }else{
+          pRow->aiRiser[pRow->iRail] = 0;
+          mask = 1<<pRow->iRail;
+          for(pLoop=pRow; pLoop; pLoop=pLoop->pPrev){
+            pLoop->railInUse |= mask;
+          }
+        }
+      }
       continue;
     }
     if( pRow->isDup ){
@@ -433,6 +452,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         pRow->railInUse = 1<<pRow->iRail;
         pParent->aiRiser[iDownRail] = pRow->idx;
         mask = 1<<iDownRail;
+        inUse |= mask;
         for(pLoop=p->pFirst; pLoop; pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
         }

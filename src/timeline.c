@@ -256,7 +256,7 @@ void www_print_timeline(
       }else{
         zBr = "trunk";
       }
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr);
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
@@ -364,14 +364,14 @@ void www_print_timeline(
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
 }
 
 /*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
-void timeline_output_graph_javascript(GraphContext *pGraph){
+void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
   if( pGraph && pGraph->nErr==0 ){
     GraphRow *pRow;
     int i;
@@ -398,6 +398,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if there is no
     **        thick-line riser.
+    **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
@@ -416,14 +417,15 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       }else{
         mo = (mo/4)*20 - 3 + 4*(mo&3);
       }
-      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,au:",
+      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
         pRow->zBgClr,                   /* bg */
         pRow->iRail,                    /* r */
         pRow->bDescender,               /* d */
         mo,                             /* mo */
         pRow->mergeUpto,                /* mu */
-        pRow->aiRiser[pRow->iRail]      /* u */
+        pRow->aiRiser[pRow->iRail],     /* u */
+        pRow->isLeaf ? 1 : 0            /* f */
       );
       /* u */
       cSep = '[';
@@ -517,13 +519,12 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ function drawNode(p, left, btm){
     @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ){
-    @     var u = rowinfo[p.u-1];
-    @     drawUpArrow(p.x, u.y+6, p.y-5);
-    @   }
-    @   if( p.d ){
-    @     drawUpArrow(p.x, p.y+6, btm);
-    @   } 
+    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    if( !omitDescenders ){
+      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
+      @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
+      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+    } 
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
     @     var y1 = p.y-3;

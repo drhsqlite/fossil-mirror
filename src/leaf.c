@@ -42,7 +42,8 @@ void leaf_rebuild(void){
     "   WHERE coalesce((SELECT value FROM tagxref"
                        " WHERE tagid=%d AND rid=plink.pid),'trunk')"
          " == coalesce((SELECT value FROM tagxref"
-                       " WHERE tagid=%d AND rid=plink.cid),'trunk');",
+                       " WHERE tagid=%d AND rid=plink.cid),'trunk')"
+      "   AND isprim",
     TAG_BRANCH, TAG_BRANCH
   );
 }
@@ -64,7 +65,7 @@ void leaf_check(int rid){
 
   db_static_prepare(&checkIfLeaf,
     "SELECT 1 FROM plink"
-    " WHERE pid=:rid"
+    " WHERE pid=:rid AND isprim"
     "   AND coalesce((SELECT value FROM tagxref"
                     " WHERE tagid=%d AND rid=:rid),'trunk')"
        " == coalesce((SELECT value FROM tagxref"
