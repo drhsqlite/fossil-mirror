@@ -101,7 +101,9 @@ void branch_new(void){
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
   blob_appendf(&branch, "P %s\n", zUuid);
-  blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  if( pParent->zRepoCksum ){
+    blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  }
   manifest_destroy(pParent);
 
   /* Add the symbolic branch name and the "branch" tag to identify
