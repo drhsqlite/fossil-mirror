@@ -91,9 +91,9 @@ GraphContext *graph_init(void){
 }
 
 /*
-** Destroy a GraphContext;
+** Clear all content from a graph
 */
-void graph_free(GraphContext *p){
+static void graph_clear(GraphContext *p){
   int i;
   GraphRow *pRow;
   while( p->pFirst ){
@@ -104,6 +104,15 @@ void graph_free(GraphContext *p){
   for(i=0; i<p->nBranch; i++) free(p->azBranch[i]);
   free(p->azBranch);
   free(p->apHash);
+  memset(p, 0, sizeof(*p));
+  p->nErr = 1;
+}
+
+/*
+** Destroy a GraphContext;
+*/
+void graph_free(GraphContext *p){
+  graph_clear(p);
   free(p);
 }
 
@@ -393,6 +402,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         }else{
           pRow->iRail = ++p->mxRail;
         }
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
         mask = 1<<(pRow->iRail);
         if( !omitDescenders ){
           pRow->bDescender = pRow->nParent>0;
@@ -427,6 +437,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
     }
     if( pRow->isDup ){
       pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
+      if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
       pDesc = pRow;
       pParent = 0;
     }else{
@@ -435,6 +446,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pParent = hashFind(p, parentRid);
       if( pParent==0 ){
         pRow->iRail = ++p->mxRail;
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
         pRow->railInUse = 1<<pRow->iRail;
         continue;
       }
@@ -442,6 +454,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         /* Common case:  Child occurs after parent and is above the
         ** parent in the timeline */
         pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
         pParent->aiRiser[pRow->iRail] = pRow->idx;
       }else{
         /* Timewarp case:  Child occurs earlier in time than parent and
@@ -449,6 +462,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
         int iDownRail = ++p->mxRail;
         if( iDownRail<1 ) iDownRail = ++p->mxRail;
         pRow->iRail = ++p->mxRail;
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
         pRow->railInUse = 1<<pRow->iRail;
         pParent->aiRiser[iDownRail] = pRow->idx;
         mask = 1<<iDownRail;
@@ -483,6 +497,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       if( pDesc==0 ){
         /* Merge from a node that is off-screen */
         int iMrail = findFreeRail(p, pRow->idx, p->nRow, 0, 0);
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
         mask = 1<<iMrail;
         pRow->mergeIn[iMrail] = 2;
         pRow->mergeDown |= mask;
@@ -492,6 +507,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       }else{
         /* Merge from an on-screen node */
         createMergeRiser(p, pDesc, pRow);
+        if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
       }
     }
   }
@@ -506,6 +522,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       assert( pDesc!=0 && pDesc!=pRow );
       createMergeRiser(p, pDesc, pRow);
     }
+    if( p->mxRail>=GR_MAX_RAIL ){ graph_clear(p); return; }
   }
 
   /*
