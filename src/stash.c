@@ -381,7 +381,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "save", nCmd)==0 ){
     stashid = stash_create();
     undo_disable();
-    if( g.argc>=3 ){
+    if( g.argc>=2 ){
       int nFile = db_int(0, "SELECT count(*) FROM stashfile WHERE stashid=%d",
                          stashid);
       char **newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
