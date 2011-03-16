@@ -257,7 +257,7 @@ void login_page(void){
       db_multi_exec(
         "UPDATE user SET cookie=%Q, ipaddr=%Q, "
         "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-        zCookie, zIpAddr, expires, uid
+        zCookie, ipPrefix(zIpAddr), expires, uid
       );
       redirect_to_g();
     }
@@ -402,7 +402,7 @@ void login_check_credentials(void){
             "   AND cookie=%Q"
             "   AND ipaddr=%Q"
             "   AND cexpire>julianday('now')",
-            atoi(zCookie), zCookie, zRemoteAddr
+            atoi(zCookie), zCookie, ipPrefix(zRemoteAddr)
          );
     }else if( memcmp(zCookie,"anon/",5)==0 ){
       /* Cookies of the form "anon/TIME/HASH".  The TIME must not be
@@ -756,7 +756,7 @@ void register_page(void){
         db_multi_exec(
             "UPDATE user SET cookie=%Q, ipaddr=%Q, "
             "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-            zCookie, zIpAddr, expires, uid
+            zCookie, ipPrefix(zIpAddr), expires, uid
             );
         redirect_to_g();
 

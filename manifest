@@ -1,5 +1,5 @@
-C "ls"\salias\sto\s"list"\ssubcommand\sof\s"fossil\sbranch"\scommand.
-D 2011-03-16T04:12:51.782
+C Only\srecord\sthe\sfirst\s16\sbits\sof\sthe\sIP\saddress\sas\spart\sof\sthe\slogin\scookie.\nThis\sallows\susers\swith\sshifting\sIP\saddresses\sto\sstay\slogged\sin.\nHopefully,\sthis\swill\saddress\sticket\s[305143bd876f6].
+D 2011-03-16T11:19:14.655
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -72,7 +72,7 @@ F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 654fc91156ea0f7e5ae822c699223a87c3690282
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
-F src/login.c e3fed782b23e1652ea5da6c2d50bd4d37f2457a6
+F src/login.c db876d9340e0667a71a1bb5441e70fdb135d1fc5
 F src/main.c 3238a32d7d7bc164f6c3a3e6b959898f6bf1b037
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
 F src/makeheaders.c 5d82282d3675d7d1c661acbb6c3c7443ecc96fdd
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c7de5f7b6ec924569b92d6a3d441adc099d9a86a
-R 2e736d2fdec7dcb5019feefed60d8424
-U bharder
-Z e8a1c9ecb9f9b08f8fc91f469d22f067
+P 302213ed1244867b3a3e64bc93c31ffbfbb35945
+R 5c7c5506d2703f30db8262b90322b023
+U drh
+Z b6cff25a3d79b30190d1a9979e01be47
