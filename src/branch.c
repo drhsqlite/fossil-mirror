@@ -184,7 +184,8 @@ void branch_new(void){
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
 **        You can optionally give the branch a default color.
 **
-**    %fossil branch list
+**    %fossil branch list  *or*
+**    %fossil branch ls
 **
 **        List all branches
 **
@@ -194,13 +195,13 @@ void branch_cmd(void){
   const char *zCmd = "list";
   db_find_and_open_repository(0, 0);
   if( g.argc<2 ){
-    usage("new|list ...");
+    usage("new|list|ls ...");
   }
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
-  }else if( strncmp(zCmd,"list",n)==0 ){
+  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
     Stmt q;
     int vid;
     char *zCurrent = 0;
@@ -226,7 +227,7 @@ void branch_cmd(void){
     db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
-                 "new list");
+                 "new list ls");
   }
 }
 
