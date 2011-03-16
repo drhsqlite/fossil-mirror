@@ -406,6 +406,7 @@ void access_log_page(void){
 
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
+  create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");

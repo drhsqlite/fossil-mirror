@@ -118,6 +118,20 @@ static int isValidAnonymousLogin(
 }
 
 /*
+** Make sure the accesslog table exists.  Create it if it does not
+*/
+void create_accesslog_table(void){
+  db_multi_exec(
+    "CREATE TABLE IF NOT EXISTS %s.accesslog("
+    "  uname TEXT,"
+    "  ipaddr TEXT,"
+    "  success BOOLEAN,"
+    "  mtime TIMESTAMP"
+    ");", db_name("repository")
+  );
+}
+
+/*
 ** Make a record of a login attempt, if login record keeping is enabled.
 */
 static void record_login_attempt(
@@ -126,16 +140,11 @@ static void record_login_attempt(
   int bSuccess               /* True if the attempt was a success */
 ){
   if( !db_get_boolean("access-log", 0) ) return;
+  create_accesslog_table();
   db_multi_exec(
-    "CREATE TABLE IF NOT EXISTS %s.accesslog("
-    "  uname TEXT,"
-    "  ipaddr TEXT,"
-    "  success BOOLEAN,"
-    "  mtime TIMESTAMP"
-    ");"
     "INSERT INTO accesslog(uname,ipaddr,success,mtime)"
     "VALUES(%Q,%Q,%d,julianday('now'));",
-    db_name("repository"), zUsername, zIpAddr, bSuccess
+    zUsername, zIpAddr, bSuccess
   );
 }
 
