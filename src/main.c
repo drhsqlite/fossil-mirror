@@ -892,32 +892,50 @@ static void process_one_web_page(const char *zNotFound){
   */
   zPathInfo = PD("PATH_INFO","");
   if( !g.repositoryOpen ){
-    char *zRepo;
+    char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
     char *zNewScript;
     int j, k;
+    i64 szFile;
 
     i = 1;
-    while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
-    zRepo = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
+    while( 1 ){
+      while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
+      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
-    /* To avoid mischief, make sure the repository basename contains no
-    ** characters other than alphanumerics, "-", and "_".
-    */
-    for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
-      if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
-    }
-    if( zRepo[0]=='/' && zRepo[1]=='/' ) zRepo++;
-
-    if( file_size(zRepo)<1024 ){
-      if( zNotFound ){
-        cgi_redirect(zNotFound);
-      }else{
-        @ <h1>Not Found</h1>
-        cgi_set_status(404, "not found");
-        cgi_reply();
+      /* To avoid mischief, make sure the repository basename contains no
+      ** characters other than alphanumerics, "-", "/", and "_".
+      */
+      for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
+        if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
+          zRepo[j] = '_';
+        }
       }
-      return;
+      if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
+
+      szFile = file_size(zRepo);
+      if( zPathInfo[i]=='/' && szFile<0 ){
+        assert( strcmp(&zRepo[j], ".fossil")==0 );
+        zRepo[j] = 0;
+        if( file_isdir(zRepo)==1 ){
+          fossil_free(zToFree);
+          i++;
+          continue;
+        }
+        zRepo[j] = '.';
+      }
+
+      if( szFile<1024 ){
+        if( zNotFound ){
+          cgi_redirect(zNotFound);
+        }else{
+          @ <h1>Not Found</h1>
+          cgi_set_status(404, "not found");
+          cgi_reply();
+        }
+        return;
+      }
+      break;
     }
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
