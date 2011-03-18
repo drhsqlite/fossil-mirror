@@ -1,5 +1,5 @@
-C Add\sa\slink\sto\sthe\sOpenSuSE\sRPMs\son\sthe\sdownload\spage.
-D 2011-03-17T17:20:45.506
+C Allow\sup\sto\stwo\s//\scharacters\sat\sthe\sbeginning\sof\sa\spathname\ssince\sthis\nis\simportant\son\swindows.
+D 2011-03-18T02:13:28.019
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -61,7 +61,7 @@ F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c 0830c306b834b397f2af920f591cc6ca656beb85
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
-F src/file.c 0fde121b4261732821d2fb014c86ccb8b35e760a
+F src/file.c 4ad3d43232a7c56849a46d35a49fc8a589f95b3b
 F src/finfo.c a49d667bef83164add23a0ccc8fdafe8bd06ecf1
 F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c a9b94f8f9cca4e64d614bdba30cb3e2a607cb986
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9ca5bbf8a6d452abf2c4c896c74d6d81363f82de
-R b098ec482b5161975a1ea92e0eb6a883
+P 7e995f54ff0d54bcb8c7bccd3e7a84f845af6847
+R a2fe4d6187fe411b6ba8b612180595eb
 U drh
-Z 412e695c1e1a6f062ca779bf1060a919
+Z 433d7cc553ca97e37c7942af01ad7da0

@@ -301,8 +301,9 @@ int file_simplify_name(char *z, int n){
   /* Removing trailing "/" characters */
   while( n>1 && z[n-1]=='/' ){ n--; }
 
-  /* Remove duplicate '/' characters */
-  for(i=j=0; i<n; i++){
+  /* Remove duplicate '/' characters.  Except, two // at the beginning
+  ** of a pathname is allowed since this is important on windows. */
+  for(i=j=1; i<n; i++){
     z[j++] = z[i];
     while( z[i]=='/' && i<n-1 && z[i+1]=='/' ) i++;
   }
