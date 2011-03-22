@@ -75,6 +75,7 @@ struct Global {
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
+  int sslNotAvailable;    /* SSL is not available.  Do not redirect to https: */
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiOutput;          /* Write error and status messages to CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
@@ -1148,6 +1149,9 @@ static void find_server_repository(int disallowDir){
 **    --localauth      Password signin is not required if this is true and
 **                     the input comes from 127.0.0.1 and the "localauth"
 **                     setting is not disabled.
+**
+**    --nossl          SSL connections are not available so do not
+**                     redirect from http: to https:.
 */
 void cmd_http(void){
   const char *zIpAddr;
@@ -1155,6 +1159,7 @@ void cmd_http(void){
   const char *zHost;
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
@@ -1307,6 +1312,7 @@ void cmd_webserver(void){
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
+  g.sslNotAvailable = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
   if( g.fHttpTrace || g.fSqlTrace ){

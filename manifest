@@ -1,5 +1,5 @@
-C Enhancements\sto\s"fossil\sadd"\sand\s"fossil\srm"\sso\sthat\sthey\swork\srecursively\non\sdirectories\sand\signore\strailing\s/\scharacters.\s\sPatches\sfrom\nCarles\sPagès.
-D 2011-03-19T18:14:45.849
+C Add\sthe\shttps-login\ssetting\swhich\sforces\sa\sswitch\sto\sHTTPS\sfor\sany\nnon-anonymous\slogin.
+D 2011-03-22T17:00:32.807
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
-F src/db.c 5dcc72fb684451ac8311b0849dfec1fd56fb468c
+F src/db.c 25f924eb88dfb88faa245041590932ef3aad8707
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c ef0949e8613a4cb8b1b68ef9f1bfc89e372d0ad7
@@ -72,8 +72,8 @@ F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 654fc91156ea0f7e5ae822c699223a87c3690282
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
-F src/login.c db876d9340e0667a71a1bb5441e70fdb135d1fc5
-F src/main.c e99311cd99400b7977d7c6d1ae9063bf95468c2e
+F src/login.c 75d636cc49ba360f1a0266ed425d78d4e5be8eb5
+F src/main.c 2c40890bcdd1e44a3e6c35be4c071ef733252f0b
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
 F src/makeheaders.c 5d82282d3675d7d1c661acbb6c3c7443ecc96fdd
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -124,7 +124,7 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 9d6eca8cbc96839384f8312ecdbcec4826efcecc
 F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
-F src/winhttp.c 20f7e854b632367327735ba4b6318009866a211b
+F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
 F src/xfer.c c521fd74b90992314929fa26e5140df9b6d3e1c0
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d04fa1e1438ec7428afccc76af1a00ce53564dbc
-R 39ca957107fa347d04c27608d9de0ff2
+P 04ddad7ab8e5c8bfe23daad995a73ead05d428fd
+R 1b20e574a389cce8204d4408ebafaccc
 U drh
-Z 705b92741874eefdc08fde2239a2f6fe
+Z 01bd44727ff5156d581c8e338ca53a99

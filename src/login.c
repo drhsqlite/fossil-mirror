@@ -288,10 +288,24 @@ void login_page(void){
   }
   @ <tr>
   @   <td></td>
-  @   <td><input type="submit" name="in" value="Login" /></td>
+  @   <td><input type="submit" name="in" value="Login"
+  @        onClick="chngAction(this.form)" /></td>
   @ </tr>
   @ </table>
-  @ <script type="text/JavaScript">document.getElementById('u').focus()</script>
+  @ <script type="text/JavaScript">
+  @   document.getElementById('u').focus()
+  @   function chngAction(form){
+  if( g.sslNotAvailable==0
+   && memcmp(g.zBaseURL,"https:",6)!=0
+   && db_get_boolean("https-login",0)
+  ){
+     char *zSSL = mprintf("https:%s", &g.zBaseURL[5]);
+     @  if( form.u.value!="anonymous" ){
+     @     form.action = "%h(zSSL)/login";
+     @  }
+  }
+  @ }
+  @ </script>
   if( g.zLogin==0 ){
     @ <p>Enter
   }else{
