@@ -1,5 +1,5 @@
-C Always\sredirect\sto\sa\sfully\squalified\sURL.\s\sGive\sthe\ssetup\suser\san\nopportunity\sto\sredirecct\sfrom\stest_env\sfor\stesting\spurposes.
-D 2011-03-22T18:47:55.866
+C fix\s[1ee813d6]\s--\sdo\snot\sautocommit\son\swiki\scommit\sfrom\scmdline
+D 2011-03-23T11:25:57.662
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -122,7 +122,7 @@ F src/url.c 8e08b09e1318bc4b0eb505aa02a729718390834b
 F src/user.c 8d6664137d80aac60f3e0a7ce6de9c32c18ab8db
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 9d6eca8cbc96839384f8312ecdbcec4826efcecc
-F src/wiki.c ec7f90ca825ab72e5595bd8f1498325749595a08
+F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c d6cc026a1c20b01287814afdebf839b61f3f8f5d
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
 F src/xfer.c c521fd74b90992314929fa26e5140df9b6d3e1c0
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P be0e8041307397bc30ebc5aa4f6391cd21b7418d
-R e5cc5f28d6822cc31cb6c4fd52f9d7ad
-U drh
-Z f0f433cc4f8561451e6365f759e11b13
+P 63958fc5a726ba0060c09f0591279ac22a70efce
+R 6f124128d61c94c92f58735f49b67062
+U ron
+Z 608ceff30631682cda20f20f26032352
