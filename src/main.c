@@ -798,10 +798,14 @@ void test_all_help_page(void){
 */
 void set_base_url(void){
   int i;
-  const char *zHost = PD("HTTP_HOST","");
-  const char *zMode = PD("HTTPS","off");
-  const char *zCur = PD("SCRIPT_NAME","/");
+  const char *zHost;
+  const char *zMode;
+  const char *zCur;
 
+  if( g.zBaseURL!=0 ) return;
+  zHost = PD("HTTP_HOST","");
+  zMode = PD("HTTPS","off");
+  zCur = PD("SCRIPT_NAME","/");
   i = strlen(zCur);
   while( i>0 && zCur[i-1]=='/' ) i--;
   if( strcmp(zMode,"on")==0 ){
@@ -1125,6 +1129,11 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
   const char *zNotFound = 0;         /* Not found URL */
   const char *zName = P("name");
+  set_base_url();          
+  if( zName==0 ){
+    zName = P("SCRIPT_NAME");
+    if( zName && zName[0]=='/' ) zName++;
+  }
   if( zName && validate16(zName, strlen(zName)) ){
     for(i=0; i<nRedirect; i++){
       if( strcmp(azRedirect[i*2],"*")==0 ){

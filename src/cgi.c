@@ -344,14 +344,17 @@ void cgi_reply(void){
 void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
-  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
+  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
+  }else if( *zURL=='/' ){
+    zLocation = mprintf("Location: %.*s%s\r\n",
+         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
   cgi_append_header(zLocation);
   cgi_reset_content();
-  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zURL);
+  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
   cgi_set_status(302, "Moved Temporarily");
   free(zLocation);
   cgi_reply();
