@@ -1058,10 +1058,7 @@ static void openHyperlink(
     }
   }else if( is_valid_uuid(zTarget) ){
     int isClosed = 0;
-    if( !in_this_repo(zTarget) ){
-      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
-      zTerm = "]</span>";
-    }else if( is_ticket(zTarget, &isClosed) ){
+    if( is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
       */
@@ -1087,6 +1084,9 @@ static void openHyperlink(
           zTerm = "]";
         }
       }
+    }else if( !in_this_repo(zTarget) ){
+      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+      zTerm = "]</span>";
     }else if( g.okHistory ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">[", g.zTop, zTarget);
       zTerm = "]</a>";

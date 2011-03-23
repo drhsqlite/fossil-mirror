@@ -1,5 +1,5 @@
-C Always\sput\s&#91;..&#93;\smarks\saround\sSHA1\shyperlinks.\s\sFor\sunknown\sSHA1\nnumbers,\senclose\sin\s&lt;span\sclass="brokenlink"&gt;.
-D 2011-03-23T16:16:03.738
+C Fix\sto\sthe\sprior\scheck-in\s([a99e9c9164])\sso\sthat\sticket\shyperlinks\sare\ndisplayed\scorrectly.
+D 2011-03-23T17:24:19.890
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -123,7 +123,7 @@ F src/user.c 8d6664137d80aac60f3e0a7ce6de9c32c18ab8db
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 9d6eca8cbc96839384f8312ecdbcec4826efcecc
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
-F src/wikiformat.c d3e96063823513e59800145fc0833429a7ca33c5
+F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
 F src/xfer.c c521fd74b90992314929fa26e5140df9b6d3e1c0
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P dbc2098a6a089d02975f7c814cf5eaf149c6fd1d
-R b2624362a31e83e7494b6f6c3e1a5165
+P a99e9c91648c0a8fa00bbf6a4b8d2c5634da8d4d
+R 0b7a8e082fec9d0cfc33b39a3a7200c3
 U drh
-Z 1c37f942b44ba0df3484738cbf9eafb9
+Z c369e27eed22687b3006bed20df0e862
