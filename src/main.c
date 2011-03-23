@@ -1142,11 +1142,12 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   if( zNotFound ){
     cgi_redirectf(zNotFound, zName);
   }else{
-    printf(
-      "Status: 200 Ok\r\n\r\n"
-      "<p>No such object: %s</p>\n",
-      zName
-    );
+    @ <html>
+    @ <head><title>No Such Object</title></head>
+    @ <body>
+    @ <p>No such object: <b>%h(zName)</b></p>
+    @ </body>
+    cgi_reply();
   }
 }
 
