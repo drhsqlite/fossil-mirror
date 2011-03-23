@@ -1026,7 +1026,9 @@ static void process_one_web_page(const char *zNotFound){
 void cmd_cgi(void){
   const char *zFile;
   const char *zNotFound = 0;
-  Blob config, line, key, value;
+  char **azRedirect = 0;             /* List of repositories to redirect to */
+  int nRedirect = 0;                 /* Number of entries in azRedirect */
+  Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
   }else{
@@ -1080,13 +1082,72 @@ void cmd_cgi(void){
       g.useLocalauth = 1;
       continue;
     }
+    if( blob_eq(&key, "redirect:") && blob_token(&line, &value)
+            && blob_token(&line, &value2) ){
+      nRedirect++;
+      azRedirect = fossil_realloc(azRedirect, 2*nRedirect*sizeof(char*));
+      azRedirect[nRedirect*2-2] = mprintf("%s", blob_str(&value));
+      azRedirect[nRedirect*2-1] = mprintf("%s", blob_str(&value2));
+      blob_reset(&value);
+      blob_reset(&value2);
+      continue;
+    }
   }
   blob_reset(&config);
-  if( g.db==0 && g.zRepositoryName==0 ){
+  if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
     cgi_panic("Unable to find or open the project repository");
   }
   cgi_init();
-  process_one_web_page(zNotFound);
+  if( nRedirect ){
+    redirect_web_page(nRedirect, azRedirect);
+  }else{
+    process_one_web_page(zNotFound);
+  }
+}
+
+/* If the CGI program contains one or more lines of the form
+**
+**    redirect:  repository-filename  http://hostname/path/%s
+**
+** then control jumps here.  Search each repository for an artifact ID 
+** that matches the "name" CGI parameter and for the first match,
+** redirect to the corresponding URL with the "name" CGI parameter
+** inserted.  Paint an error page if no match is found.
+**
+** If there is a line of the form:
+**
+**    redirect: * URL
+**
+** Then a redirect is made to URL if no match is found.  Otherwise a
+** very primative error message is returned.
+*/
+void redirect_web_page(int nRedirect, char **azRedirect){
+  int i;                             /* Loop counter */
+  const char *zNotFound = 0;         /* Not found URL */
+  const char *zName = P("name");
+  if( zName && validate16(zName, strlen(zName)) ){
+    for(i=0; i<nRedirect; i++){
+      if( strcmp(azRedirect[i*2],"*")==0 ){
+        zNotFound = azRedirect[i*2+1];
+        continue;
+      }
+      db_open_repository(azRedirect[i*2]);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1], zName);
+        return;
+      }
+      db_close(1);
+    }
+  }
+  if( zNotFound ){
+    cgi_redirectf(zNotFound, zName);
+  }else{
+    printf(
+      "Status: 200 Ok\r\n\r\n"
+      "<p>No such object: %s</p>\n",
+      zName
+    );
+  }
 }
 
 /*
