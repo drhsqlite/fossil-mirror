@@ -943,6 +943,22 @@ static int is_valid_uuid(const char *z){
 }
 
 /*
+** Return TRUE if a UUID corresponds to an artifact in this
+** repository.
+*/
+static int in_this_repo(const char *zUuid){
+  static Stmt q;
+  int rc;
+  db_static_prepare(&q, 
+     "SELECT 1 FROM blob WHERE uuid>=:u AND +uuid GLOB (:u || '*')"
+  );
+  db_bind_text(&q, ":u", zUuid);
+  rc = db_step(&q);
+  db_reset(&q);
+  return rc==SQLITE_ROW;
+}
+
+/*
 ** zTarget is guaranteed to be a UUID.  It might be the UUID of a ticket.
 ** If it is, store in *pClosed a true or false depending on whether or not
 ** the ticket is closed and return true. If zTarget
@@ -1042,32 +1058,38 @@ static void openHyperlink(
     }
   }else if( is_valid_uuid(zTarget) ){
     int isClosed = 0;
-    if( is_ticket(zTarget, &isClosed) ){
+    if( !in_this_repo(zTarget) ){
+      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+      zTerm = "]</span>";
+    }else if( is_ticket(zTarget, &isClosed) ){
       /* Special display processing for tickets.  Display the hyperlink
       ** as crossed out if the ticket is closed.
       */
       if( isClosed ){
         if( g.okHistory ){
           blob_appendf(p->pOut,
-             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
+             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">[",
              g.zTop, zTarget
           );
-          zTerm = "</span></a>";
+          zTerm = "]</span></a>";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">");
-          zTerm = "</span>";
+          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
+          zTerm = "]</span>";
         }
       }else{
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">",
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[",
               g.zTop, zTarget
           );
+          zTerm = "]</a>";
         }else{
-          zTerm = "";
+          blob_appendf(p->pOut, "[");
+          zTerm = "]";
         }
       }
     }else if( g.okHistory ){
-      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zTop, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">[", g.zTop, zTarget);
+      zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
@@ -1079,7 +1101,7 @@ static void openHyperlink(
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else{
-    blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
+    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
   }
   assert( strlen(zTerm)<nClose );

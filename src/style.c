@@ -737,6 +737,10 @@ const struct strctCssDefaults {
     "format for artifact lines beeing shunned",
     @   color: blue;
   },
+  { "span.brokenlink",
+    "a broken hyperlink",
+    @   color: red;
+  },
   { 0,
     0,
     0
