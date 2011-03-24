@@ -922,7 +922,8 @@ int db_schema_is_outofdate(void){
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
     fossil_warning("incorrect repository schema version");
-    fossil_warning("you have version \"%s\" but you need version \"%s\"",
+    fossil_warning("your repository has schema version \"%s\" "
+          "but this binary expects version \"%s\"",
           db_get("aux-schema",0), AUX_SCHEMA);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
