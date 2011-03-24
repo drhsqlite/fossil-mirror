@@ -813,7 +813,7 @@ void page_xfer(void){
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
   if( db_schema_is_outofdate() ){
-    @ error database\sschema\sis\out-of-date\son\sthe\sserver.
+    @ error database\sschema\sis\sout-of-date\son\sthe\sserver.
     return;
   }
   blob_zero(&xfer.err);
