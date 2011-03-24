@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.6"
 #define SQLITE_VERSION_NUMBER 3007006
-#define SQLITE_SOURCE_ID      "2011-03-06 21:54:33 3bfbf026dd6a0eeef07f8f5f1ebf74c9cfebcd61"
+#define SQLITE_SOURCE_ID      "2011-03-24 01:34:03 b6e268fce12829f058f1dfa223731ec8479493f8"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -898,10 +898,23 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** date and time if that method is available (if iVersion is 2 or 
 ** greater and the function pointer is not NULL) and will fall back
 ** to xCurrentTime() if xCurrentTimeInt64() is unavailable.
+**
+** ^The xSetSystemCall(), xGetSystemCall(), and xNestSystemCall() interfaces
+** are not used by the SQLite core.  These optional interfaces are provided
+** by some VFSes to facilitate testing of the VFS code. By overriding 
+** system calls with functions under its control, a test program can
+** simulate faults and error conditions that would otherwise be difficult
+** or impossible to induce.  The set of system calls that can be overridden
+** varies from one VFS to another, and from one version of the same VFS to the
+** next.  Applications that use these interfaces must be prepared for any
+** or all of these interfaces to be NULL or for their behavior to change
+** from one release to the next.  Applications must not attempt to access
+** any of these methods if the iVersion of the VFS is less than 3.
 */
 typedef struct sqlite3_vfs sqlite3_vfs;
+typedef void (*sqlite3_syscall_ptr)(void);
 struct sqlite3_vfs {
-  int iVersion;            /* Structure version number (currently 2) */
+  int iVersion;            /* Structure version number (currently 3) */
   int szOsFile;            /* Size of subclassed sqlite3_file */
   int mxPathname;          /* Maximum file pathname length */
   sqlite3_vfs *pNext;      /* Next registered VFS */
@@ -927,6 +940,13 @@ struct sqlite3_vfs {
   int (*xCurrentTimeInt64)(sqlite3_vfs*, sqlite3_int64*);
   /*
   ** The methods above are in versions 1 and 2 of the sqlite_vfs object.
+  ** Those below are for version 3 and greater.
+  */
+  int (*xSetSystemCall)(sqlite3_vfs*, const char *zName, sqlite3_syscall_ptr);
+  sqlite3_syscall_ptr (*xGetSystemCall)(sqlite3_vfs*, const char *zName);
+  const char *(*xNextSystemCall)(sqlite3_vfs*, const char *zName);
+  /*
+  ** The methods above are in versions 1 through 3 of the sqlite_vfs object.
   ** New fields may be appended in figure versions.  The iVersion
   ** value will increment whenever this happens. 
   */
@@ -1111,17 +1131,12 @@ SQLITE_API int sqlite3_config(int, ...);
 ** The sqlite3_db_config() interface is used to make configuration
 ** changes to a [database connection].  The interface is similar to
 ** [sqlite3_config()] except that the changes apply to a single
-** [database connection] (specified in the first argument).  The
-** sqlite3_db_config() interface should only be used immediately after
-** the database connection is created using [sqlite3_open()],
-** [sqlite3_open16()], or [sqlite3_open_v2()].  
+** [database connection] (specified in the first argument).
 **
 ** The second argument to sqlite3_db_config(D,V,...)  is the
-** configuration verb - an integer code that indicates what
-** aspect of the [database connection] is being configured.
-** The only choice for this value is [SQLITE_DBCONFIG_LOOKASIDE].
-** New verbs are likely to be added in future releases of SQLite.
-** Additional arguments depend on the verb.
+** [SQLITE_DBCONIG_LOOKASIDE | configuration verb] - an integer code 
+** that indicates what aspect of the [database connection] is being configured.
+** Subsequent arguments vary depending on the configuration verb.
 **
 ** ^Calls to sqlite3_db_config() return SQLITE_OK if and only if
 ** the call is considered successful.
@@ -1346,7 +1361,9 @@ struct sqlite3_mem_methods {
 ** [SQLITE_ENABLE_MEMSYS5] are defined, then the alternative memory
 ** allocator is engaged to handle all of SQLites memory allocation needs.
 ** The first pointer (the memory pointer) must be aligned to an 8-byte
-** boundary or subsequent behavior of SQLite will be undefined.</dd>
+** boundary or subsequent behavior of SQLite will be undefined.
+** The minimum allocation size is capped at 2^12. Reasonable values
+** for the minimum allocation size are 2^5 through 2^8.</dd>
 **
 ** <dt>SQLITE_CONFIG_MUTEX</dt>
 ** <dd> ^(This option takes a single argument which is a pointer to an
@@ -1467,9 +1484,31 @@ struct sqlite3_mem_methods {
 ** memory is in use leaves the configuration unchanged and returns 
 ** [SQLITE_BUSY].)^</dd>
 **
+** <dt>SQLITE_DBCONFIG_ENABLE_FKEY</dt>
+** <dd> ^This option is used to enable or disable the enforcement of
+** [foreign key constraints].  There should be two additional arguments.
+** The first argument is an integer which is 0 to disable FK enforcement,
+** positive to enable FK enforcement or negative to leave FK enforcement
+** unchanged.  The second parameter is a pointer to an integer into which
+** is written 0 or 1 to indicate whether FK enforcement is off or on
+** following this call.  The second parameter may be a NULL pointer, in
+** which case the FK enforcement setting is not reported back. </dd>
+**
+** <dt>SQLITE_DBCONFIG_ENABLE_TRIGGER</dt>
+** <dd> ^This option is used to enable or disable [CREATE TRIGGER | triggers].
+** There should be two additional arguments.
+** The first argument is an integer which is 0 to disable triggers,
+** positive to enable trigers or negative to leave the setting unchanged.
+** The second parameter is a pointer to an integer into which
+** is written 0 or 1 to indicate whether triggers are disabled or enabled
+** following this call.  The second parameter may be a NULL pointer, in
+** which case the trigger setting is not reported back. </dd>
+**
 ** </dl>
 */
-#define SQLITE_DBCONFIG_LOOKASIDE    1001  /* void* int int */
+#define SQLITE_DBCONFIG_LOOKASIDE       1001  /* void* int int */
+#define SQLITE_DBCONFIG_ENABLE_FKEY     1002  /* int int* */
+#define SQLITE_DBCONFIG_ENABLE_TRIGGER  1003  /* int int* */
 
 
 /*
