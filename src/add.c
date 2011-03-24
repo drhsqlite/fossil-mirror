@@ -370,17 +370,7 @@ void delete_cmd(void){
       if( sz>0 && zName[sz-1]=='/' ){ zName[sz-1] = 0; }
       del_directory_content(zName);
     } else {
-      char *zPath;
-      Blob pathname;
-      file_tree_name(zName, &pathname, 1);
-      zPath = blob_str(&pathname);
-      if( !db_exists(
-               "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
-        fossil_fatal("not in the repository: %s", zName);
-      }else{
-        delete_one_file(zPath);
-      }
-      blob_reset(&pathname);
+      delete_one_file(zName);
     }
     free(zName);
   }
