@@ -134,6 +134,9 @@ int ssl_open(void){
 char *connStr ;
   ssl_global_init();
 
+  /* If client certificate/key has been set, load them into the SSL context. */
+  load_client_authfiles();
+
   /* Get certificate for current server from global config and
    * (if we have it in config) add it to certificate store.
    */
@@ -286,6 +289,39 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
+}
+
+/*
+** Read client certificate and key, if set, and store them in the SSL context
+** to allow communication with servers which are configured to verify client
+** certificates and certificate chains.
+** We only support PEM and don't support password protected keys.
+*/
+void load_client_authfiles(void)
+{
+  const char *certfile;
+  const char *keyfile;
+
+  certfile = getenv("FOSSIL_CCERT");
+  if( certfile == NULL )
+	  return;
+
+  keyfile = getenv("FOSSIL_CKEY");
+
+  /* Assume the key is in the certificate file if key file was not specified */
+  if( certfile && !keyfile )
+    keyfile = certfile;
+
+  if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM) <= 0 ){
+    fossil_fatal("Unable to open client certificate in %s.", certfile);
+  }
+  if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM) <= 0 ){
+    fossil_fatal("Unable to open client key in %s.", keyfile);
+  }
+
+  if( !SSL_CTX_check_private_key(sslCtx) ){
+    fossil_fatal("Private key does not match the certificate public key.");
+  }
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
