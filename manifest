@@ -1,5 +1,5 @@
-C Use\sthe\ssomewhat\ssimpler\sjoin\sin\splace\sof\sa\ssubselect
-D 2011-03-25T02:53:13.822
+C Move\svfile_check_signature\sinto\s"finfo\s--status"\sbranch.\sThe\sother\noptions\sdon't\suse\sit\sand\sit\sinvolves\sa\slot\sof\sIO.
+D 2011-03-25T02:55:20.786
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -62,7 +62,7 @@ F src/encode.c 0830c306b834b397f2af920f591cc6ca656beb85
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
 F src/file.c 4ad3d43232a7c56849a46d35a49fc8a589f95b3b
-F src/finfo.c 253622c15c89cfa6cd16245a5d3acf3ab2a4cdb4
+F src/finfo.c 1a856cfcb3b75310fbf93566d6db383dce1ea73f
 F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P dc87a9075b26d1bd1b629c73a7487020cfd100f2
-R 6915c616a64c04865f2d7bcca9942e24
+P 7563c241ce93422867eb379c550f2f355103fc61
+R 70a42d9b82b27c4e1c6b41e011d6f09f
 U joerg
-Z 01971da203c004083d4c6b1e20b2cf89
+Z 0c2cf594a9265b581c8f6ba1e6d02734
