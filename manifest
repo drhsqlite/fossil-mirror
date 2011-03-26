@@ -1,5 +1,5 @@
-C Move\svfile_check_signature\sinto\s"finfo\s--status"\sbranch.\sThe\sother\noptions\sdon't\suse\sit\sand\sit\sinvolves\sa\slot\sof\sIO.
-D 2011-03-25T02:55:20.786
+C Add\sthe\s--private\soption\sto\sthe\s"fossil\sbranch\snew"\scommand.\s\sGive\sa\sdefault\norange\scolor\sto\sprivate\sbranches\screated\sby\s"fossil\sbranch\snew".\s\sIf\sthe\snew\nbranch\screated\sby\s"fossil\sbranch\snew"\sis\soff\sof\sa\sprivate\sbranch,\smake\sthe\nnew\sbranch\sprivate\stoo.\s\sTicket\s[e24ec32b1da5f8f5e4abe]
+D 2011-03-26T12:53:45.847
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -39,7 +39,7 @@ F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 378ff72f560eebdf48e767d0994f6a8406f42ec5
 F src/blob.c e830421a20f1583c6813777a2ea8da0609ac2443
-F src/branch.c ec7cd6b196b98374cefd6e68f44c14bac8b17a7b
+F src/branch.c f05733e7126ebf48ca350276f8e31d289579fd63
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c db727b1ff1323c30610e4aaf8cbe14a95523567c
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7563c241ce93422867eb379c550f2f355103fc61
-R 70a42d9b82b27c4e1c6b41e011d6f09f
-U joerg
-Z 0c2cf594a9265b581c8f6ba1e6d02734
+P ae84e6c7d1b14febea30e29f7d936b19657080c5
+R 7341059591921b0ee2ac5be91184bb81
+U drh
+Z c340e45eda71137d38b90d70b0d9b6f4
