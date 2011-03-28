@@ -506,7 +506,6 @@ void login_check_credentials(void){
 ** Memory of settings
 */
 static int login_anon_once = 1;
-static char login_settings[26];
 
 /*
 ** Add the default privileges of users "nobody" and "anonymous" as appropriate
@@ -535,9 +534,6 @@ void login_set_capabilities(const char *zCap){
   static char *zUser = 0;
   int i;
   for(i=0; zCap[i]; i++){
-    int c = zCap[i];
-    if( c<'a' || c>'z' ) continue;
-    login_settings[c-'a'] = 1;
     switch( zCap[i] ){
       case 's':   g.okSetup = 1;  /* Fall thru into Admin */
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okZip =
@@ -676,7 +672,8 @@ void login_restrict_capabilities(const char *zAllowed){
   seen['u'-'a'] = 0;
   seen['v'-'a'] = 0;
   for(i=0; i<sizeof(seen); i++){
-    if( seen[i] && login_settings[i] ) zNew[nNew++] = i+'a';
+    char c = i+'a';
+    if( seen[i] && login_has_capability(&c,1) ) zNew[nNew++] = i+'a';
   }
   zNew[nNew] = 0;
 
@@ -703,7 +700,6 @@ void login_restrict_capabilities(const char *zAllowed){
   g.okRdAddr = 0;
   g.okZip = 0;
   g.okPrivate = 0;
-  memset(login_settings, 0, sizeof(login_settings));
 
   /* Set the reduced capabilities */
   login_set_capabilities(zNew);
