@@ -1,5 +1,5 @@
-C Use\s"password"\sinstead\sof\s"passwd"\sbecause\sit's\scomplete\sand\sproper,\sand\splays\snicely\sw/\sEmacs\s"send-invisible"\scapabilities\sthat\skeep\styped\stext\sfrom\sechoing\son\sscreen.
-D 2011-03-28T07:40:13.946
+C Allow\sfor\sthe\screation\sof\s"sub-repositories"\sthat\scan\sbe\saccessed\sthrough\nthe\sweb\sinterface\susing\sthe\ssame\slogin\scredentials\sas\sthe\sparent\srepository.
+D 2011-03-28T18:08:45.415
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -73,7 +73,7 @@ F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 7a54e1d92573ca2ee9e158e7ba2545cebff1861c
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
 F src/login.c 75d636cc49ba360f1a0266ed425d78d4e5be8eb5
-F src/main.c 848078966ecdf6ae0343b0e0dcfedb44520804b1
+F src/main.c 4156b7c1fa41b3c2f706b2ea40c88f1200efcb4b
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 99532f33af895815de5366021789d5be4ce54734
-R f54c9e4e475ca682cade12efb346b34d
-U bharder
-Z 94c759f762eb24334bba1cfa0c41a263
+P 13ceb46e49d28ab9af26e821fa396f27b350f9af
+R 665e73e51c09fb05bf18fead1821090a
+U drh
+Z 4d3c332892a5d7db81958072f2f4911a
