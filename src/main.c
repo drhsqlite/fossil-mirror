@@ -970,15 +970,57 @@ static void process_one_web_page(const char *zNotFound){
     zPath = mprintf("%s", zPathInfo);
   }
 
-  /* Remove the leading "/" at the beginning of the path.
+  /* Make g.zPath point to the first element of the path.  Make
+  ** g.zExtra point to everything past that point.
   */
-  g.zPath = &zPath[1];
-  for(i=1; zPath[i] && zPath[i]!='/'; i++){}
-  if( zPath[i]=='/' ){
-    zPath[i] = 0;
-    g.zExtra = &zPath[i+1];
-  }else{
-    g.zExtra = 0;
+  while(1){
+    char *zAltRepo = 0;
+    g.zPath = &zPath[1];
+    for(i=1; zPath[i] && zPath[i]!='/'; i++){}
+    if( zPath[i]=='/' ){
+      zPath[i] = 0;
+      g.zExtra = &zPath[i+1];
+
+      /* Look for sub-repositories.  A sub-repository is another repository
+      ** that accepts the login credentials of the current repository.  A
+      ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
+      ** where NAME is the first component of the path.  The value of the
+      ** the CONFIG entries is the string "USER:FILENAME" where USER is the
+      ** USER name to log in as in the subrepository and FILENAME is the
+      ** repository filename. 
+      */
+      zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
+                         g.zPath);
+      if( zAltRepo ){
+        int nHost;
+        int jj;
+        char *zUser = zAltRepo;
+        login_check_credentials();
+        for(jj=0; zAltRepo[jj] && zAltRepo[jj]!=':'; jj++){}
+        if( zAltRepo[jj]==':' ){
+          zAltRepo[jj] = 0;
+          zAltRepo += jj+1;
+        }else{
+          zUser = "nobody";
+        }
+        if( zAltRepo[0]!='/' ){
+          zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
+          file_simplify_name(zAltRepo, -1);
+        }
+        db_close(1);
+        db_open_repository(zAltRepo);
+        login_as_user(zUser);
+        g.okPassword = 0;
+        zPath += i;
+        nHost = g.zTop - g.zBaseURL;
+        g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);
+        g.zTop = g.zBaseURL + nHost;
+        continue;
+      }
+    }else{
+      g.zExtra = 0;
+    }
+    break;
   }
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile

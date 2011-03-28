@@ -503,12 +503,16 @@ void login_check_credentials(void){
 }
 
 /*
+** Memory of settings
+*/
+static int login_anon_once = 1;
+
+/*
 ** Add the default privileges of users "nobody" and "anonymous" as appropriate
 ** for the user g.zLogin.
 */
 void login_set_anon_nobody_capabilities(void){
-  static int once = 1;
-  if( g.zLogin && once ){
+  if( g.zLogin && login_anon_once ){
     const char *zCap;
     /* All logged-in users inherit privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
@@ -518,7 +522,7 @@ void login_set_anon_nobody_capabilities(void){
       zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap);
     }
-    once = 0;
+    login_anon_once = 0;
   }
 }
 
@@ -619,13 +623,63 @@ int login_has_capability(const char *zCap, int nCap){
       /* case 'u': READER    */
       /* case 'v': DEVELOPER */
       case 'w':  rc = g.okWrTkt;     break;
-      /* case 'x': */
+      case 'x':  rc = g.okPrivate;   break;
       /* case 'y': */
       case 'z':  rc = g.okZip;       break;
       default:   rc = 0;             break;
     }
   }
   return rc;
+}
+
+/*
+** Change the login to zUser.
+*/
+void login_as_user(const char *zUser){
+  char *zCap = "";   /* New capabilities */
+
+  /* Turn off all capabilities from prior logins */
+  g.okSetup = 0;
+  g.okAdmin = 0;
+  g.okDelete = 0;
+  g.okPassword = 0;
+  g.okQuery = 0;
+  g.okWrite = 0;
+  g.okRead = 0;
+  g.okHistory = 0;
+  g.okClone = 0;
+  g.okRdWiki = 0;
+  g.okNewWiki = 0;
+  g.okApndWiki = 0;
+  g.okWrWiki = 0;
+  g.okRdTkt = 0;
+  g.okNewTkt = 0;
+  g.okApndTkt = 0;
+  g.okWrTkt = 0;
+  g.okAttach = 0;
+  g.okTktFmt = 0;
+  g.okRdAddr = 0;
+  g.okZip = 0;
+  g.okPrivate = 0;
+
+  /* Set the global variables recording the userid and login.  The
+  ** "nobody" user is a special case in that g.zLogin==0.
+  */
+  g.userUid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUser);
+  if( g.userUid==0 ){
+    zUser = 0;
+    g.userUid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
+  }
+  if( g.userUid ){
+    zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", g.userUid);
+  }
+  if( fossil_strcmp(zUser,"nobody")==0 ) zUser = 0;
+  g.zLogin = fossil_strdup(zUser);
+
+  /* Set the capabilities */
+  login_set_capabilities(zCap);
+  login_anon_once = 1;
+  login_set_anon_nobody_capabilities();
 }
 
 /*
