@@ -633,51 +633,12 @@ int login_has_capability(const char *zCap, int nCap){
 }
 
 /*
-** For every character in zCap between 'a' and 'z' set a byte in seen[].
+** Change the login to zUser.
 */
-static void setCap(const char *zCap, char *seen){
-  int c;
-  if( zCap ){
-    while( (c = *(zCap++))!=0 ){
-      if( c>='a' && c<='z' ) seen[c-'a'] = 1;
-    }
-  }
-}
+void login_as_user(const char *zUser){
+  char *zCap = "";   /* New capabilities */
 
-/*
-** Remove privileges such that previleges are restricted to the
-** set given in the argument.
-*/
-void login_restrict_capabilities(const char *zAllowed){
-  char zNew[30];
-  char seen[26];
-  int nNew = 0;
-  int i;
-
-  /* Compute the intersection of current settings with zAllowed[] and
-  ** store the result in zNew[]
-  */
-  memset(seen, 0, sizeof(seen));
-  setCap(zAllowed, seen);
-  if( seen['v'-'a'] ){
-    char *z = db_text(0, "SELECT cap FROM user WHERE login='developer'");
-    setCap(z, seen);
-    fossil_free(z);
-  }
-  if( seen['u'-'a'] ){
-    char *z = db_text(0, "SELECT cap FROM user WHERE login='reader'");
-    setCap(z, seen);
-    fossil_free(z);
-  }
-  seen['u'-'a'] = 0;
-  seen['v'-'a'] = 0;
-  for(i=0; i<sizeof(seen); i++){
-    char c = i+'a';
-    if( seen[i] && login_has_capability(&c,1) ) zNew[nNew++] = i+'a';
-  }
-  zNew[nNew] = 0;
-
-  /* Turn off all capabilities */
+  /* Turn off all capabilities from prior logins */
   g.okSetup = 0;
   g.okAdmin = 0;
   g.okDelete = 0;
@@ -701,8 +662,22 @@ void login_restrict_capabilities(const char *zAllowed){
   g.okZip = 0;
   g.okPrivate = 0;
 
-  /* Set the reduced capabilities */
-  login_set_capabilities(zNew);
+  /* Set the global variables recording the userid and login.  The
+  ** "nobody" user is a special case in that g.zLogin==0.
+  */
+  g.userUid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUser);
+  if( g.userUid==0 ){
+    zUser = 0;
+    g.userUid = db_int(0, "SELECT uid FROM user WHERE login='nobody'");
+  }
+  if( g.userUid ){
+    zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", g.userUid);
+  }
+  if( fossil_strcmp(zUser,"nobody")==0 ) zUser = 0;
+  g.zLogin = fossil_strdup(zUser);
+
+  /* Set the capabilities */
+  login_set_capabilities(zCap);
   login_anon_once = 1;
   login_set_anon_nobody_capabilities();
 }
