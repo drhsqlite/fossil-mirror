@@ -985,20 +985,31 @@ static void process_one_web_page(const char *zNotFound){
       ** that accepts the login credentials of the current repository.  A
       ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
       ** where NAME is the first component of the path.  The value of the
-      ** the CONFIG entries is the name of the repository.
+      ** the CONFIG entries is the string "CAP:FILENAME" where CAP is the
+      ** maximum capability string and FILENAME is the new repository 
+      ** filename. 
       */
       zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
                          g.zPath);
       if( zAltRepo ){
         int nHost;
+        int jj;
+        char *zInheritCap = zAltRepo;
         login_check_credentials();
+        for(jj=0; zAltRepo[jj] && zAltRepo[jj]!=':'; jj++){}
+        if( zAltRepo[jj]==':' ){
+          zAltRepo[jj] = 0;
+          zAltRepo += jj+1;
+        }else{
+          zInheritCap = "";
+        }
         if( zAltRepo[0]!='/' ){
-          zAltRepo = mprintf("%s/../%z", g.zRepositoryName, zAltRepo);
+          zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1);
         }
         db_close(1);
         db_open_repository(zAltRepo);
-        fossil_free(zAltRepo);
+        login_restrict_capabilities(zInheritCap);
         zPath += i;
         nHost = g.zTop - g.zBaseURL;
         g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);

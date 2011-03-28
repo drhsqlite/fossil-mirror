@@ -503,12 +503,17 @@ void login_check_credentials(void){
 }
 
 /*
+** Memory of settings
+*/
+static int login_anon_once = 1;
+static char login_settings[26];
+
+/*
 ** Add the default privileges of users "nobody" and "anonymous" as appropriate
 ** for the user g.zLogin.
 */
 void login_set_anon_nobody_capabilities(void){
-  static int once = 1;
-  if( g.zLogin && once ){
+  if( g.zLogin && login_anon_once ){
     const char *zCap;
     /* All logged-in users inherit privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
@@ -518,7 +523,7 @@ void login_set_anon_nobody_capabilities(void){
       zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
       login_set_capabilities(zCap);
     }
-    once = 0;
+    login_anon_once = 0;
   }
 }
 
@@ -530,6 +535,9 @@ void login_set_capabilities(const char *zCap){
   static char *zUser = 0;
   int i;
   for(i=0; zCap[i]; i++){
+    int c = zCap[i];
+    if( c<'a' || c>'z' ) continue;
+    login_settings[c-'a'] = 1;
     switch( zCap[i] ){
       case 's':   g.okSetup = 1;  /* Fall thru into Admin */
       case 'a':   g.okAdmin = g.okRdTkt = g.okWrTkt = g.okZip =
@@ -619,13 +627,88 @@ int login_has_capability(const char *zCap, int nCap){
       /* case 'u': READER    */
       /* case 'v': DEVELOPER */
       case 'w':  rc = g.okWrTkt;     break;
-      /* case 'x': */
+      case 'x':  rc = g.okPrivate;   break;
       /* case 'y': */
       case 'z':  rc = g.okZip;       break;
       default:   rc = 0;             break;
     }
   }
   return rc;
+}
+
+/*
+** For every character in zCap between 'a' and 'z' set a byte in seen[].
+*/
+static void setCap(const char *zCap, char *seen){
+  int c;
+  if( zCap ){
+    while( (c = *(zCap++))!=0 ){
+      if( c>='a' && c<='z' ) seen[c-'a'] = 1;
+    }
+  }
+}
+
+/*
+** Remove privileges such that previleges are restricted to the
+** set given in the argument.
+*/
+void login_restrict_capabilities(const char *zAllowed){
+  char zNew[30];
+  char seen[26];
+  int nNew = 0;
+  int i;
+
+  /* Compute the intersection of current settings with zAllowed[] and
+  ** store the result in zNew[]
+  */
+  memset(seen, 0, sizeof(seen));
+  setCap(zAllowed, seen);
+  if( seen['v'-'a'] ){
+    char *z = db_text(0, "SELECT cap FROM user WHERE login='developer'");
+    setCap(z, seen);
+    fossil_free(z);
+  }
+  if( seen['u'-'a'] ){
+    char *z = db_text(0, "SELECT cap FROM user WHERE login='reader'");
+    setCap(z, seen);
+    fossil_free(z);
+  }
+  seen['u'-'a'] = 0;
+  seen['v'-'a'] = 0;
+  for(i=0; i<sizeof(seen); i++){
+    if( seen[i] && login_settings[i] ) zNew[nNew++] = i+'a';
+  }
+  zNew[nNew] = 0;
+
+  /* Turn off all capabilities */
+  g.okSetup = 0;
+  g.okAdmin = 0;
+  g.okDelete = 0;
+  g.okPassword = 0;
+  g.okQuery = 0;
+  g.okWrite = 0;
+  g.okRead = 0;
+  g.okHistory = 0;
+  g.okClone = 0;
+  g.okRdWiki = 0;
+  g.okNewWiki = 0;
+  g.okApndWiki = 0;
+  g.okWrWiki = 0;
+  g.okRdTkt = 0;
+  g.okNewTkt = 0;
+  g.okApndTkt = 0;
+  g.okWrTkt = 0;
+  g.okAttach = 0;
+  g.okTktFmt = 0;
+  g.okRdAddr = 0;
+  g.okZip = 0;
+  g.okPrivate = 0;
+  memset(login_settings, 0, sizeof(login_settings));
+
+  /* Set the reduced capabilities */
+  login_set_capabilities(zNew);
+  login_anon_once = 1;
+  login_set_anon_nobody_capabilities();
 }
 
 /*
