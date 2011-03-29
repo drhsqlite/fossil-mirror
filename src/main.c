@@ -75,6 +75,7 @@ struct Global {
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
   char *zErrMsg;          /* Text of an error message */
+  int sslNotAvailable;    /* SSL is not available.  Do not redirect to https: */
   Blob cgiIn;             /* Input to an xfer www method */
   int cgiOutput;          /* Write error and status messages to CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
@@ -797,10 +798,14 @@ void test_all_help_page(void){
 */
 void set_base_url(void){
   int i;
-  const char *zHost = PD("HTTP_HOST","");
-  const char *zMode = PD("HTTPS","off");
-  const char *zCur = PD("SCRIPT_NAME","/");
+  const char *zHost;
+  const char *zMode;
+  const char *zCur;
 
+  if( g.zBaseURL!=0 ) return;
+  zHost = PD("HTTP_HOST","");
+  zMode = PD("HTTPS","off");
+  zCur = PD("SCRIPT_NAME","/");
   i = strlen(zCur);
   while( i>0 && zCur[i-1]=='/' ) i--;
   if( strcmp(zMode,"on")==0 ){
@@ -892,32 +897,50 @@ static void process_one_web_page(const char *zNotFound){
   */
   zPathInfo = PD("PATH_INFO","");
   if( !g.repositoryOpen ){
-    char *zRepo;
+    char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
     char *zNewScript;
     int j, k;
+    i64 szFile;
 
     i = 1;
-    while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
-    zRepo = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
+    while( 1 ){
+      while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
+      zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
-    /* To avoid mischief, make sure the repository basename contains no
-    ** characters other than alphanumerics, "-", and "_".
-    */
-    for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
-      if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' ) zRepo[j] = '_';
-    }
-    if( zRepo[0]=='/' && zRepo[1]=='/' ) zRepo++;
-
-    if( file_size(zRepo)<1024 ){
-      if( zNotFound ){
-        cgi_redirect(zNotFound);
-      }else{
-        @ <h1>Not Found</h1>
-        cgi_set_status(404, "not found");
-        cgi_reply();
+      /* To avoid mischief, make sure the repository basename contains no
+      ** characters other than alphanumerics, "-", "/", and "_".
+      */
+      for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
+        if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
+          zRepo[j] = '_';
+        }
       }
-      return;
+      if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
+
+      szFile = file_size(zRepo);
+      if( zPathInfo[i]=='/' && szFile<0 ){
+        assert( strcmp(&zRepo[j], ".fossil")==0 );
+        zRepo[j] = 0;
+        if( file_isdir(zRepo)==1 ){
+          fossil_free(zToFree);
+          i++;
+          continue;
+        }
+        zRepo[j] = '.';
+      }
+
+      if( szFile<1024 ){
+        if( zNotFound ){
+          cgi_redirect(zNotFound);
+        }else{
+          @ <h1>Not Found</h1>
+          cgi_set_status(404, "not found");
+          cgi_reply();
+        }
+        return;
+      }
+      break;
     }
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
@@ -947,15 +970,57 @@ static void process_one_web_page(const char *zNotFound){
     zPath = mprintf("%s", zPathInfo);
   }
 
-  /* Remove the leading "/" at the beginning of the path.
+  /* Make g.zPath point to the first element of the path.  Make
+  ** g.zExtra point to everything past that point.
   */
-  g.zPath = &zPath[1];
-  for(i=1; zPath[i] && zPath[i]!='/'; i++){}
-  if( zPath[i]=='/' ){
-    zPath[i] = 0;
-    g.zExtra = &zPath[i+1];
-  }else{
-    g.zExtra = 0;
+  while(1){
+    char *zAltRepo = 0;
+    g.zPath = &zPath[1];
+    for(i=1; zPath[i] && zPath[i]!='/'; i++){}
+    if( zPath[i]=='/' ){
+      zPath[i] = 0;
+      g.zExtra = &zPath[i+1];
+
+      /* Look for sub-repositories.  A sub-repository is another repository
+      ** that accepts the login credentials of the current repository.  A
+      ** subrepository is identified by a CONFIG table entry "subrepo:NAME"
+      ** where NAME is the first component of the path.  The value of the
+      ** the CONFIG entries is the string "USER:FILENAME" where USER is the
+      ** USER name to log in as in the subrepository and FILENAME is the
+      ** repository filename. 
+      */
+      zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
+                         g.zPath);
+      if( zAltRepo ){
+        int nHost;
+        int jj;
+        char *zUser = zAltRepo;
+        login_check_credentials();
+        for(jj=0; zAltRepo[jj] && zAltRepo[jj]!=':'; jj++){}
+        if( zAltRepo[jj]==':' ){
+          zAltRepo[jj] = 0;
+          zAltRepo += jj+1;
+        }else{
+          zUser = "nobody";
+        }
+        if( zAltRepo[0]!='/' ){
+          zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
+          file_simplify_name(zAltRepo, -1);
+        }
+        db_close(1);
+        db_open_repository(zAltRepo);
+        login_as_user(zUser);
+        g.okPassword = 0;
+        zPath += i;
+        nHost = g.zTop - g.zBaseURL;
+        g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);
+        g.zTop = g.zBaseURL + nHost;
+        continue;
+      }
+    }else{
+      g.zExtra = 0;
+    }
+    break;
   }
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
@@ -1007,7 +1072,9 @@ static void process_one_web_page(const char *zNotFound){
 void cmd_cgi(void){
   const char *zFile;
   const char *zNotFound = 0;
-  Blob config, line, key, value;
+  char **azRedirect = 0;             /* List of repositories to redirect to */
+  int nRedirect = 0;                 /* Number of entries in azRedirect */
+  Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
   }else{
@@ -1061,13 +1128,78 @@ void cmd_cgi(void){
       g.useLocalauth = 1;
       continue;
     }
+    if( blob_eq(&key, "redirect:") && blob_token(&line, &value)
+            && blob_token(&line, &value2) ){
+      nRedirect++;
+      azRedirect = fossil_realloc(azRedirect, 2*nRedirect*sizeof(char*));
+      azRedirect[nRedirect*2-2] = mprintf("%s", blob_str(&value));
+      azRedirect[nRedirect*2-1] = mprintf("%s", blob_str(&value2));
+      blob_reset(&value);
+      blob_reset(&value2);
+      continue;
+    }
   }
   blob_reset(&config);
-  if( g.db==0 && g.zRepositoryName==0 ){
+  if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
     cgi_panic("Unable to find or open the project repository");
   }
   cgi_init();
-  process_one_web_page(zNotFound);
+  if( nRedirect ){
+    redirect_web_page(nRedirect, azRedirect);
+  }else{
+    process_one_web_page(zNotFound);
+  }
+}
+
+/* If the CGI program contains one or more lines of the form
+**
+**    redirect:  repository-filename  http://hostname/path/%s
+**
+** then control jumps here.  Search each repository for an artifact ID 
+** that matches the "name" CGI parameter and for the first match,
+** redirect to the corresponding URL with the "name" CGI parameter
+** inserted.  Paint an error page if no match is found.
+**
+** If there is a line of the form:
+**
+**    redirect: * URL
+**
+** Then a redirect is made to URL if no match is found.  Otherwise a
+** very primative error message is returned.
+*/
+void redirect_web_page(int nRedirect, char **azRedirect){
+  int i;                             /* Loop counter */
+  const char *zNotFound = 0;         /* Not found URL */
+  const char *zName = P("name");
+  set_base_url();          
+  if( zName==0 ){
+    zName = P("SCRIPT_NAME");
+    if( zName && zName[0]=='/' ) zName++;
+  }
+  if( zName && validate16(zName, strlen(zName)) ){
+    for(i=0; i<nRedirect; i++){
+      if( strcmp(azRedirect[i*2],"*")==0 ){
+        zNotFound = azRedirect[i*2+1];
+        continue;
+      }
+      db_open_repository(azRedirect[i*2]);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1], zName);
+        return;
+      }
+      db_close(1);
+    }
+  }
+  if( zNotFound ){
+    cgi_redirectf(zNotFound, zName);
+  }else{
+    @ <html>
+    @ <head><title>No Such Object</title></head>
+    @ <body>
+    @ <p>No such object: <b>%h(zName)</b></p>
+    @ </body>
+    cgi_reply();
+  }
 }
 
 /*
@@ -1130,6 +1262,9 @@ static void find_server_repository(int disallowDir){
 **    --localauth      Password signin is not required if this is true and
 **                     the input comes from 127.0.0.1 and the "localauth"
 **                     setting is not disabled.
+**
+**    --nossl          SSL connections are not available so do not
+**                     redirect from http: to https:.
 */
 void cmd_http(void){
   const char *zIpAddr;
@@ -1137,6 +1272,7 @@ void cmd_http(void){
   const char *zHost;
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
+  g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
@@ -1289,6 +1425,7 @@ void cmd_webserver(void){
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
+  g.sslNotAvailable = 1;
   g.httpIn = stdin;
   g.httpOut = stdout;
   if( g.fHttpTrace || g.fSqlTrace ){

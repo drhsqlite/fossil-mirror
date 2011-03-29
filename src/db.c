@@ -922,7 +922,8 @@ int db_schema_is_outofdate(void){
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
     fossil_warning("incorrect repository schema version");
-    fossil_warning("you have version \"%s\" but you need version \"%s\"",
+    fossil_warning("your repository has schema version \"%s\" "
+          "but this binary expects version \"%s\"",
           db_get("aux-schema",0), AUX_SCHEMA);
     fossil_fatal("run \"fossil rebuild\" to fix this problem");
   }
@@ -1638,6 +1639,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "editor",        0,               16, ""                    },
   { "gdiff-command", 0,               16, "gdiff"               },
   { "gmerge-command",0,               40, ""                    },
+  { "https-login",   0,                0, "off"                 },
   { "ignore-glob",   0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "off"                 },
@@ -1716,6 +1718,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
+**
+**    https-login      Send login creditials using HTTPS instead of HTTP
+**                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma-separated list of GLOB patterns
 **                     specifying files that the "extra" command will ignore.

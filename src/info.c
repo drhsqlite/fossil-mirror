@@ -1364,6 +1364,7 @@ void info_page(void){
   const char *zName;
   Blob uuid;
   int rid;
+  int rc;
   
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
@@ -1378,8 +1379,16 @@ void info_page(void){
     }
   }
   blob_set(&uuid, zName);
-  if( name_to_uuid(&uuid, 1) ){
-    fossil_redirect_home();
+  rc = name_to_uuid(&uuid, -1);
+  if( rc==1 ){
+    style_header("No Such Object");
+    @ <p>No such object: %h(zName)</p>
+    style_footer();
+    return;
+  }else if( rc==2 ){
+    cgi_set_parameter("src","info");
+    ambiguous_page();
+    return;
   }
   zName = blob_str(&uuid);
   rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);

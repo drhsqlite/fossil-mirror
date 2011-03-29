@@ -2346,7 +2346,9 @@ static int ParseFile(Token *pList, int initFlags){
          break;
 
        case 'i':
-         if( pList->nText==6 && strncmp(pList->zText,"inline",6)==0 ){
+         if( pList->nText==6 && strncmp(pList->zText,"inline",6)==0
+          && (flags & PS_Static)==0
+         ){
            nErr += ProcessInlineProc(pList,flags,&resetFlag);
          }
          break;

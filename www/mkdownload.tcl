@@ -24,7 +24,11 @@ puts \
 <center><font size=4>
 <b>To install Fossil &rarr;</b> download the stand-alone executable
 and put it on your $PATH.
-</font></center>
+</font><p>
+RPMs available
+<a href="http://download.opensuse.org/repositories/home:/rmax:/fossil/">
+here</a>
+</center>
 
 <table cellpadding="10">
 }

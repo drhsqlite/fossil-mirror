@@ -40,6 +40,7 @@ struct PQueue {
   int sz;    /* Number of slots in a[] */
   struct QueueElement {
     int id;          /* ID of the element */
+    void *p;         /* Content pointer */
     double value;    /* Value of element.  Kept in ascending order */
   } *a;
 };
@@ -71,7 +72,7 @@ static void pqueue_resize(PQueue *p, int N){
 /*
 ** Insert element e into the queue.
 */
-void pqueue_insert(PQueue *p, int e, double v){
+void pqueue_insert(PQueue *p, int e, double v, void *pData){
   int i, j;
   if( p->cnt+1>p->sz ){
     pqueue_resize(p, p->cnt+5);
@@ -85,6 +86,7 @@ void pqueue_insert(PQueue *p, int e, double v){
     }
   }
   p->a[i].id = e;
+  p->a[i].p = pData;
   p->a[i].value = v;
   p->cnt++;
 }
@@ -94,12 +96,14 @@ void pqueue_insert(PQueue *p, int e, double v){
 ** the smallest value) and return its ID.  Return 0 if the queue
 ** is empty.
 */
-int pqueue_extract(PQueue *p){
+int pqueue_extract(PQueue *p, void **pp){
   int e, i;
   if( p->cnt==0 ){
+    if( pp ) *pp = 0;
     return 0;
   }
   e = p->a[0].id;
+  if( pp ) *pp = p->a[0].p;
   for(i=0; i<p->cnt-1; i++){
     p->a[i] = p->a[i+1];
   }

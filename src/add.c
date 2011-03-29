@@ -268,6 +268,8 @@ void add_cmd(void){
     zName = mprintf("%/", g.argv[i]);
     isDir = file_isdir(zName);
     if( isDir==1 ){
+      int sz = strlen(zName);
+      if( sz>0 && zName[sz-1]=='/' ){ zName[sz-1] = 0; }
       add_directory(zName, vid, &repo, pIgnore);
     }else if( isDir==0 ){
       fossil_fatal("not found: %s", zName);
@@ -280,6 +282,25 @@ void add_cmd(void){
   }
   if( pIgnore ) db_finalize(pIgnore);
   db_end_transaction(0);
+}
+
+
+/*
+** Unmangage a single file.
+*/
+void delete_one_file(const char *zName){
+  char *zPath;
+  Blob pathname;
+  file_tree_name(zName, &pathname, 1);
+  zPath = blob_str(&pathname);
+  if( !db_exists(
+           "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
+    fossil_fatal("not in the repository: %s", zName);
+  }else{
+    db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
+    printf("DELETED  %s\n", zPath);
+  }
+  blob_reset(&pathname);
 }
 
 /*
@@ -308,19 +329,7 @@ void del_directory_content(const char *zDir){
       if( file_isdir(zPath)==1 ){
         del_directory_content(zPath);
       }else if( file_isfile(zPath) ){
-        char *zFilePath;
-        Blob pathname;
-        file_tree_name(zPath, &pathname, 1);
-        zFilePath = blob_str(&pathname);
-        if( !db_exists(
-            "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zFilePath)
-        ){
-          printf("SKIPPED  %s\n", zPath);
-        }else{
-          db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-          printf("DELETED  %s\n", zPath);
-        }
-        blob_reset(&pathname);
+        delete_one_file(zPath);
       }
       blob_resize(&path, origSize);
     }
@@ -357,20 +366,11 @@ void delete_cmd(void){
 
     zName = mprintf("%/", g.argv[i]);
     if( file_isdir(zName) == 1 ){
+      int sz = strlen(zName);
+      if( sz>0 && zName[sz-1]=='/' ){ zName[sz-1] = 0; }
       del_directory_content(zName);
     } else {
-      char *zPath;
-      Blob pathname;
-      file_tree_name(zName, &pathname, 1);
-      zPath = blob_str(&pathname);
-      if( !db_exists(
-               "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
-        fossil_fatal("not in the repository: %s", zName);
-      }else{
-        db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-        printf("DELETED  %s\n", zPath);
-      }
-      blob_reset(&pathname);
+      delete_one_file(zName);
     }
     free(zName);
   }

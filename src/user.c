@@ -117,7 +117,7 @@ void prompt_for_password(
     prompt_for_passphrase(zPrompt, pPassphrase);
     if( verify==0 ) break;
     if( verify==1 && blob_size(pPassphrase)==0 ) break;
-    prompt_for_passphrase("Again: ", &secondTry);
+    prompt_for_passphrase("Retype new password: ", &secondTry);
     if( blob_compare(pPassphrase, &secondTry) ){
       printf("Passphrases do not match.  Try again...\n");
     }else{
@@ -244,7 +244,7 @@ void user_cmd(void){
     if( g.argc==5 ){
       blob_init(&pw, g.argv[4], -1);
     }else{
-      zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
+      zPrompt = mprintf("New password for %s: ", g.argv[3]);
       prompt_for_password(zPrompt, &pw, 1);
     }
     if( blob_size(&pw)==0 ){
@@ -406,6 +406,7 @@ void access_log_page(void){
 
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
+  create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");

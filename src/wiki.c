@@ -825,7 +825,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   assert( blob_is_reset(&wiki) );
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);  
   return 1;
 }
 

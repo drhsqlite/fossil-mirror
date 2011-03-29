@@ -41,9 +41,11 @@ void branch_new(void){
   Blob mcksum;           /* Self-checksum on the manifest */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
+  int isPrivate = 0;     /* True if the branch should be private */
  
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
@@ -101,16 +103,24 @@ void branch_new(void){
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
   blob_appendf(&branch, "P %s\n", zUuid);
-  blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  if( pParent->zRepoCksum ){
+    blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  }
   manifest_destroy(pParent);
 
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
+  if( content_is_private(rootid) ) isPrivate = 1;
+  if( isPrivate && zColor==0 ) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
+  if( isPrivate ){
+    blob_appendf(&branch, "T +private *\n");
+    noSign = 1;
+  }
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -177,12 +187,14 @@ void branch_new(void){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME BASIS ?-bgcolor COLOR? 
+**    %fossil branch new BRANCH-NAME BASIS ?--bgcolor COLOR? ?--private?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        You can optionally give the branch a default color.
+**        You can optionally give the branch a default color.  The
+**        --private option makes the branch private.
 **
 **    %fossil branch list
+**    %fossil branch ls
 **
 **        List all branches
 **
@@ -192,13 +204,13 @@ void branch_cmd(void){
   const char *zCmd = "list";
   db_find_and_open_repository(0, 0);
   if( g.argc<2 ){
-    usage("new|list ...");
+    usage("new|list|ls ...");
   }
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
-  }else if( strncmp(zCmd,"list",n)==0 ){
+  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
     Stmt q;
     int vid;
     char *zCurrent = 0;
@@ -224,7 +236,7 @@ void branch_cmd(void){
     db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
-                 "new list");
+                 "new list ls");
   }
 }
 

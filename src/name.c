@@ -149,7 +149,7 @@ char *tag_to_uuid(const char *zTag){
     db_text(0,
        "SELECT blob.uuid"
        "  FROM tag, tagxref, event, blob"
-       " WHERE tag.tagname='sym-'||%Q "
+       " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
        "   AND blob.rid=event.objid "
@@ -173,7 +173,7 @@ char *tag_to_uuid(const char *zTag){
         zUuid = db_text(0,
           "SELECT blob.uuid"
           "  FROM tag, tagxref, event, blob"
-          " WHERE tag.tagname='sym-'||%Q "
+          " WHERE tag.tagname='sym-%q' "
           "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
           "   AND event.objid=tagxref.rid "
           "   AND blob.rid=event.objid "

@@ -139,6 +139,8 @@ static void tar_add_file(
 */
 static void tar_finish(Blob *pOut){
   db_multi_exec("DROP TABLE dir");
+  gzip_step(tball.zSpaces, 512);
+  gzip_step(tball.zSpaces, 512);
   gzip_finish(pOut);
   fossil_free(tball.aHdr);
   tball.aHdr = 0;
@@ -309,10 +311,18 @@ void tarball_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid",""));
   nRid = strlen(zRid);
-  for(nName=strlen(zName)-1; nName>5; nName--){
-    if( zName[nName]=='.' ){
-      zName[nName] = 0;
-      break;
+  if( nName>7 && strcmp(&zName[nName-7], ".tar.gz")==0 ){
+    /* Special case:  Remove the ".tar.gz" suffix.  */
+    nName -= 7;
+    zName[nName] = 0;
+  }else{
+    /* If the file suffix is not ".tar.gz" then just remove the
+    ** suffix up to and including the last "." */
+    for(nName=strlen(zName)-1; nName>5; nName--){
+      if( zName[nName]=='.' ){
+        zName[nName] = 0;
+        break;
+      }
     }
   }
   rid = name_to_rid(nRid?zRid:zName);
