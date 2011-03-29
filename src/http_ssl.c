@@ -135,7 +135,7 @@ char *connStr ;
   ssl_global_init();
 
   /* If client certificate/key has been set, load them into the SSL context. */
-  load_client_authfiles();
+  ssl_load_client_authfiles();
 
   /* Get certificate for current server from global config and
    * (if we have it in config) add it to certificate store.
@@ -296,32 +296,90 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 ** to allow communication with servers which are configured to verify client
 ** certificates and certificate chains.
 ** We only support PEM and don't support password protected keys.
+**
+** Always try the environment variables first, and if they aren't set, then
+** use the global config.
 */
-void load_client_authfiles(void)
+void ssl_load_client_authfiles(void)
 {
-  const char *certfile;
-  const char *keyfile;
+  char *cafile;
+  char *capath;
+  char *certfile;
+  char *keyfile;
 
-  certfile = getenv("FOSSIL_CCERT");
-  if( certfile == NULL )
+  cafile = ssl_get_and_set_file_ref("FOSSIL_CAFILE", "cafile");
+  capath = ssl_get_and_set_file_ref("FOSSIL_CAPATH", "capath");
+
+  if( cafile || capath ){
+     /* The OpenSSL documentation warns that if several CA certificates match
+      * the same name, key identifier and serial number conditions, only the
+      * first will be examined. The caveat situation is when one stores an
+      * expired CA certificate among the valid ones.
+      * Simply put: Do not mix expired and valid certificates.
+		*/
+	  if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath) == 0){
+		  fossil_fatal("SSL: Unable to load CA verification file/path");
+	  }
+  }else{
+    fossil_warning("SSL: CA file/path missing for certificate verification.");
+  }
+
+  certfile = ssl_get_and_set_file_ref("FOSSIL_CCERT", "ccert");
+  if( !certfile ){
+	  free(capath);
+	  free(cafile);
 	  return;
+  }
 
-  keyfile = getenv("FOSSIL_CKEY");
+  keyfile = ssl_get_and_set_file_ref("FOSSIL_CKEY", "ckey");
 
   /* Assume the key is in the certificate file if key file was not specified */
   if( certfile && !keyfile )
     keyfile = certfile;
 
   if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM) <= 0 ){
-    fossil_fatal("Unable to open client certificate in %s.", certfile);
+    fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
   }
   if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM) <= 0 ){
-    fossil_fatal("Unable to open client key in %s.", keyfile);
+    fossil_fatal("SSL: Unable to open client key in %s.", keyfile);
   }
 
   if( !SSL_CTX_check_private_key(sslCtx) ){
-    fossil_fatal("Private key does not match the certificate public key.");
+    fossil_fatal("SSL: Private key does not match the certificate public "
+        "key.");
   }
+
+  free(keyfile);
+  free(certfile);
+  free(capath);
+  free(cafile);
+}
+
+/*
+** Get SSL authentication file reference from environment variable. If set,
+** then store varaible in global config. If environment variable was not set,
+** attempt to get variable from global config.
+**/
+char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar)
+{
+  char *zVar;
+  char *zTmp;
+
+  zTmp = mprintf("%s:%s", dbvar, g.urlName);
+
+  zVar = getenv(envvar);
+  if( zVar ){
+    zVar = strdup(zVar);
+	 if( zVar == NULL ){
+      fossil_fatal("Unable to allocate memory for %s value.", envvar);
+	 }
+    db_set(zTmp, zVar, 1);
+  }else{
+    zVar = db_get(zTmp, NULL);
+  }
+  free(zTmp);
+
+  return zVar;
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
