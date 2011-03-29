@@ -316,19 +316,19 @@ void ssl_load_client_authfiles(void)
       * first will be examined. The caveat situation is when one stores an
       * expired CA certificate among the valid ones.
       * Simply put: Do not mix expired and valid certificates.
-		*/
-	  if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath) == 0){
-		  fossil_fatal("SSL: Unable to load CA verification file/path");
-	  }
+      */
+    if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath) == 0){
+      fossil_fatal("SSL: Unable to load CA verification file/path");
+    }
   }else{
     fossil_warning("SSL: CA file/path missing for certificate verification.");
   }
 
   certfile = ssl_get_and_set_file_ref("FOSSIL_CCERT", "ccert");
   if( !certfile ){
-	  free(capath);
-	  free(cafile);
-	  return;
+     free(capath);
+     free(cafile);
+     return;
   }
 
   keyfile = ssl_get_and_set_file_ref("FOSSIL_CKEY", "ckey");
@@ -370,9 +370,9 @@ char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar)
   zVar = getenv(envvar);
   if( zVar ){
     zVar = strdup(zVar);
-	 if( zVar == NULL ){
+    if( zVar == NULL ){
       fossil_fatal("Unable to allocate memory for %s value.", envvar);
-	 }
+    }
     db_set(zTmp, zVar, 1);
   }else{
     zVar = db_get(zTmp, NULL);
