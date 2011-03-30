@@ -1,5 +1,5 @@
-C Added\sthe\s"detail"\squery\sparameter\sto\sthe\stimeline\sweb\spage.
-D 2011-03-30T21:45:44.041
+C Change\sthe\stimeline\sparameter\sfor\sfile\sdetails\sfrom\s"detail"\sto\s"filechng".\nAdd\sdefault\sCSS\selements.
+D 2011-03-30T23:55:35.123
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -104,7 +104,7 @@ F src/sqlite3.c cc5477b9f464259a2a5c2b8d3684c6b26282b412
 F src/sqlite3.h a4cb013f9a36fb9b876b4b87be7a93f9cba8594f
 F src/stash.c f5765c7bb2981ac1a19224cc86c619001f807823
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
-F src/style.c 9d03ff78cda3c77e00178dde7a2d31172751638b
+F src/style.c 9201c34af54f9d7b6709c4cb59ec54695e795dc2
 F src/sync.c 2981f30816261d109764a9839d140bc7dea4c3bc
 F src/tag.c 301af5373dc6dee06d612e61b177914aae08ca04
 F src/tar.c 2732f788de3c3116ded924c07c09b5f5c0f7b961
@@ -112,7 +112,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c daf993f588c824f30b1f25659bbc98093b707314
+F src/timeline.c 195d863f2c70e9567e0ab6c80cd5d4f7cba60d4f
 F src/tkt.c 30bd794ff0f0cd189cd64ee0088c3e7bb84932f7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a8b0c6ffdbd89b1e270d4e3fca2d451bd57b114a
-R 5f6f9233ffa379f5666c6ed6e5ec8d69
+P bde16926b023e361358b7d55ef4f1d0939049482
+R b3eef4cdeabf36dfc374ca80a5e7d688
 U drh
-Z 1eb36b4d413457f2068830cee77db117
+Z 85fc8f16885816a5f6ed12956e14d056

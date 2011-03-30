@@ -365,7 +365,7 @@ void www_print_timeline(
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
         if( !inUl ){
-          @ <ul>
+          @ <ul class="filelist">
           inUl = 1;
         }
         if( isNew ){
@@ -779,7 +779,7 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
-**    detail         Show details of files changed
+**    filechng       Show details of files changed
 **    f=RID          Show family (immediate parents and children) of RID
 **    from=RID       Path from...
 **    to=RID           ... to this
@@ -842,9 +842,6 @@ void page_timeline(void){
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
   }
-  if( P("detail")!=0 ){
-    tmFlags |= TIMELINE_FCHANGES;
-  }
 
   style_header("Timeline");
   login_anonymous_available();
@@ -854,6 +851,11 @@ void page_timeline(void){
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
+  if( P("filechng")!=0 ){
+    tmFlags |= TIMELINE_FCHANGES;
+    url_add_parameter(&url, "filechng", 0);
+    
+  }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
     /* If from= and to= are present, display all nodes on a path connecting

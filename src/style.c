@@ -741,6 +741,11 @@ const struct strctCssDefaults {
     "a broken hyperlink",
     @   color: red;
   },
+  { "ul.filelist",
+    "List of files in a timeline",
+    @   margin-top: 3px;
+    @   line-height: 100%;
+  },
   { 0,
     0,
     0
