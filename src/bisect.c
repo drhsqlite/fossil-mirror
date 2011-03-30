@@ -90,6 +90,9 @@ void bisect_cmd(void){
   int n;
   const char *zCmd;
   db_must_be_within_tree();
+  if( g.argc<3 ){
+    usage("bisect SUBCOMMAND ARGS...");
+  }
   zCmd = g.argv[2];
   n = strlen(zCmd);
   if( n==0 ) zCmd = "-";
