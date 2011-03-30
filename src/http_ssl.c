@@ -525,7 +525,7 @@ void cert_cmd(void){
     db_swap_connections();
     if( db_exists(
         "SELECT 1 FROM certs"
-        " WHERE name='%s'",
+        " WHERE name='%q'",
         zContainer)!=0 ){
       fossil_fatal("certificate group \"%s\" already exists", zContainer);
     }
@@ -603,7 +603,7 @@ void cert_cmd(void){
     db_swap_connections();
     db_begin_transaction();
 
-    db_multi_exec("DELETE FROM global_config WHERE name='certgroup:%s'",
+    db_multi_exec("DELETE FROM global_config WHERE name='certgroup:%q'",
         zURL);
     if( db_changes() == 0 ){
       fossil_warning("No certificate group associated with URL \"%s\".",
