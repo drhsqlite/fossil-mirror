@@ -31,13 +31,6 @@ const char zConfigSchema[] =
 @   name TEXT PRIMARY KEY,
 @   value TEXT
 @ );
-@ CREATE TABLE certs(
-@   name TEXT NOT NULL,
-@   type TEXT NOT NULL,
-@   filepath TEXT NOT NULL,
-@   PRIMARY KEY(name, type),
-@   UNIQUE(name, type)
-@ );
 ;
 
 #if INTERFACE

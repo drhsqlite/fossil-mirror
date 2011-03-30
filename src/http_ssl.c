@@ -31,17 +31,36 @@
 ** be compiled without SSL support (which requires OpenSSL library)
 */
 
-#include "config.h"
 
 #ifdef FOSSIL_ENABLE_SSL
-
 #include <openssl/bio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
-#include "http_ssl.h"
 #include <assert.h>
 #include <sys/types.h>
+#endif
+
+#include "config.h"
+#include "http_ssl.h"
+
+/*
+** Make sure the CERT table exists in the ~/.fossil database.
+**
+** This routine must be called in between two calls to db_swap_databases().
+*/
+static void create_cert_table_if_not_exist(void){
+  static const char zSql[] = 
+     @ CREATE TABLE IF NOT EXISTS certs(
+     @   name TEXT NOT NULL,
+     @   type TEXT NOT NULL,
+     @   filepath TEXT NOT NULL,
+     @   PRIMARY KEY(name, type)
+     @ );
+     ;
+  db_multi_exec(zSql);    
+}
+
+#ifdef FOSSIL_ENABLE_SSL
 
 /*
 ** There can only be a single OpenSSL IO connection open at a time.
@@ -291,72 +310,6 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   return total;
 }
 
-#if 0
-/*
-** Read client certificate and key, if set, and store them in the SSL context
-** to allow communication with servers which are configured to verify client
-** certificates and certificate chains.
-** We only support PEM and don't support password protected keys.
-**
-** Always try the environment variables first, and if they aren't set, then
-** use the global config.
-*/
-void ssl_load_client_authfiles(void){
-  char *cafile;
-  char *capath;
-  char *certfile;
-  char *keyfile;
-
-  cafile = ssl_get_and_set_file_ref("FOSSIL_CAFILE", "cafile");
-  capath = ssl_get_and_set_file_ref("FOSSIL_CAPATH", "capath");
-
-  if( cafile || capath ){
-    /* The OpenSSL documentation warns that if several CA certificates match
-    ** the same name, key identifier and serial number conditions, only the
-    ** first will be examined. The caveat situation is when one stores an
-    ** expired CA certificate among the valid ones.
-    ** Simply put: Do not mix expired and valid certificates.
-    */
-    if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath) == 0){
-      fossil_fatal("SSL: Unable to load CA verification file/path");
-    }
-  }else{
-    fossil_warning("SSL: CA file/path missing for certificate verification.");
-  }
-
-  certfile = ssl_get_and_set_file_ref("FOSSIL_CCERT", "ccert");
-  if( !certfile ){
-     free(capath);
-     free(cafile);
-     return;
-  }
-
-  keyfile = ssl_get_and_set_file_ref("FOSSIL_CKEY", "ckey");
-
-  /* Assume the key is in the certificate file if key file was not specified */
-  if( certfile && !keyfile ){
-    keyfile = certfile;
-  }
-
-  if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM) <= 0 ){
-    fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
-  }
-  if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM) <= 0 ){
-    fossil_fatal("SSL: Unable to open client key in %s.", keyfile);
-  }
-
-  if( !SSL_CTX_check_private_key(sslCtx) ){
-    fossil_fatal("SSL: Private key does not match the certificate public "
-        "key.");
-  }
-
-  free(keyfile);
-  free(certfile);
-  free(capath);
-  free(cafile);
-}
-#endif
-
 /*
 ** If an certgroup has been specified on the command line, then use it to look
 ** up certificates and keys, and then store the URL-certgroup association in
@@ -389,6 +342,7 @@ void ssl_load_client_authfiles(void){
   }
 
   db_swap_connections();
+  create_cert_table_if_not_exist();
   cafile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
                       " AND type='cafile'", zGroupName);
   capath = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
@@ -431,34 +385,8 @@ void ssl_load_client_authfiles(void){
   free(capath);
   free(cafile);
 }
+#endif /* FOSSIL_ENABLE_SSL */
 
-#if 0
-/*
-** Get SSL authentication file reference from environment variable. If set,
-** then store varaible in global config. If environment variable was not set,
-** attempt to get variable from global config.
-**/
-char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar){
-  char *zVar;
-  char *zTmp;
-
-  zTmp = mprintf("%s:%s", dbvar, g.urlName);
-
-  zVar = getenv(envvar);
-  if( zVar ){
-    zVar = strdup(zVar);
-    if( zVar == NULL ){
-      fossil_fatal("Unable to allocate memory for %s value.", envvar);
-    }
-    db_set(zTmp, zVar, 1);
-  }else{
-    zVar = db_get(zTmp, NULL);
-  }
-  free(zTmp);
-
-  return zVar;
-}
-#endif
 
 /*
 ** COMMAND: cert
@@ -523,13 +451,12 @@ void cert_cmd(void){
 
     db_open_config(0);
     db_swap_connections();
-    if( db_exists(
-        "SELECT 1 FROM certs"
-        " WHERE name='%q'",
-        zContainer)!=0 ){
+    create_cert_table_if_not_exist();
+    db_begin_transaction();
+    if( db_exists("SELECT 1 FROM certs WHERE name='%q'", zContainer)!=0 ){
+      db_end_transaction(0);
       fossil_fatal("certificate group \"%s\" already exists", zContainer);
     }
-    db_begin_transaction();
     if( zCKey ){
       db_multi_exec("INSERT INTO certs (name,type,filepath) "
           "VALUES(%Q,'ckey',%Q)",
@@ -558,6 +485,7 @@ void cert_cmd(void){
 
     db_open_config(0);
     db_swap_connections();
+    create_cert_table_if_not_exist();
 
     db_prepare(&q, "SELECT name,type,filepath FROM certs"
                    " WHERE type NOT IN ('server')"
@@ -602,7 +530,6 @@ void cert_cmd(void){
     db_open_config(0);
     db_swap_connections();
     db_begin_transaction();
-
     db_multi_exec("DELETE FROM global_config WHERE name='certgroup:%q'",
         zURL);
     if( db_changes() == 0 ){
@@ -643,5 +570,3 @@ void cert_cmd(void){
                  "add list disassociate delete");
   }
 }
-
-#endif /* FOSSIL_ENABLE_SSL */

@@ -1,5 +1,5 @@
-C Fix\stwo\spotential\sSQL\sinjection\sattacks.
-D 2011-03-30T20:58:05.140
+C Code\scleanup.\s\sFix\sthe\s"cert"\scommand\sso\sthat\sit\scompiles\seven\sif\nFOSSIL_ENABLE_SSL\sis\snot\sused.
+D 2011-03-30T21:00:58.228
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -67,7 +67,7 @@ F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 1937a2ba6e29f13d2aaf56d8f5aba8ce2d950603
+F src/http_ssl.c 442c395ec971d576387e5a717f6ba01f2de1c6e3
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 7a54e1d92573ca2ee9e158e7ba2545cebff1861c
@@ -92,7 +92,7 @@ F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
 F src/rebuild.c 1434a921dc677c32b4248dfc9682d7b04888d5ef
 F src/report.c 8c408654f3b001ff13e90803f3705410fac7f658
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
-F src/schema.c 5a34164c9d008b5fd13c1a5e921a3e25a2ef0447
+F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
 F src/setup.c cc8ff03a3b11027bfe724c654148190f83c6b7da
 F src/sha1.c 72a27303650be5f1add8e5cc1a087c865b43328c
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1a1aa98a4091d6552e0645dfaa9e44fbb8887883
-R 9089874991abcdea6bab55ac737652bf
+P 71384ce6688c9dbea3083527fcebb442f238f1fd
+R f5675303a77eb1698676ae1db37cd519
 U drh
-Z c4e0b464f70689e177ed67bed57960e2
+Z 23895cffc4782dc416785fd9ae5dd83d
