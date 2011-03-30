@@ -291,6 +291,7 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
   return total;
 }
 
+#if 0
 /*
 ** Read client certificate and key, if set, and store them in the SSL context
 ** to allow communication with servers which are configured to verify client
@@ -354,7 +355,84 @@ void ssl_load_client_authfiles(void){
   free(capath);
   free(cafile);
 }
+#endif
 
+/*
+** If an certgroup has been specified on the command line, then use it to look
+** up certificates and keys, and then store the URL-certgroup association in
+** the global database. If no certgroup has been specified on the command line,
+** see if there's an entry for the url in global_config, and use it if
+** applicable.
+*/
+void ssl_load_client_authfiles(void){
+  char *zGroupName = NULL;
+  char *cafile;
+  char *capath;
+  char *certfile;
+  char *keyfile;
+
+  if( g.urlCertGroup ){
+    char *zName;
+    zName = mprintf("certgroup:%s", g.urlName);
+    db_set(zName, g.urlCertGroup, 1);
+    free(zName);
+    zGroupName = strdup(g.urlCertGroup);
+  }else{
+    db_swap_connections();
+    zGroupName = db_text(0, "SELECT value FROM global_config"
+                            " WHERE name='certgroup:%q'", g.urlName);
+    db_swap_connections();
+  }
+  if( !zGroupName ){
+    /* No cert group specified or found cached */
+    return;
+  }
+
+  db_swap_connections();
+  cafile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
+                      " AND type='cafile'", zGroupName);
+  capath = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
+                      " AND type='capath'", zGroupName);
+  db_swap_connections();
+
+  if( cafile || capath ){
+    /* The OpenSSL documentation warns that if several CA certificates match
+    ** the same name, key identifier and serial number conditions, only the
+    ** first will be examined. The caveat situation occurs when one stores an
+    ** expired CA certificate among the valid ones.
+    ** Simply put: Do not mix expired and valid certificates.
+    */
+    if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath)==0 ){
+      fossil_fatal("SSL: Unable to load CA verification file/path");
+    }
+  }
+
+  db_swap_connections();
+  keyfile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
+                       " AND type='ckey'", zGroupName);
+  certfile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
+                        " AND type='ccert'", zGroupName);
+  db_swap_connections();
+
+  if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM)<=0 ){
+    fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
+  }
+  if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM)<=0 ){
+    fossil_fatal("SSL: Unable to open client key in %s.", keyfile);
+  }
+
+  if( !SSL_CTX_check_private_key(sslCtx) ){
+    fossil_fatal("SSL: Private key does not match the certificate public "
+        "key.");
+  }
+
+  free(keyfile);
+  free(certfile);
+  free(capath);
+  free(cafile);
+}
+
+#if 0
 /*
 ** Get SSL authentication file reference from environment variable. If set,
 ** then store varaible in global config. If environment variable was not set,
@@ -380,6 +458,7 @@ char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar){
 
   return zVar;
 }
+#endif
 
 /*
 ** COMMAND: cert
@@ -410,6 +489,7 @@ char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar){
 **
 **        Remove the credential group NAME and all it's associated URL
 **        associations.
+**
 */
 void cert_cmd(void){
   int n;
