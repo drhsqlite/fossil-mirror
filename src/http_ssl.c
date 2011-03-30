@@ -131,15 +131,15 @@ void ssl_close(void){
 int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
-char *connStr ;
+  char *connStr;
   ssl_global_init();
 
   /* If client certificate/key has been set, load them into the SSL context. */
   ssl_load_client_authfiles();
 
   /* Get certificate for current server from global config and
-   * (if we have it in config) add it to certificate store.
-   */
+  ** (if we have it in config) add it to certificate store.
+  */
   cert = ssl_get_certificate();
   if ( cert!=NULL ){
     X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
@@ -150,10 +150,10 @@ char *connStr ;
   iBio = BIO_new_ssl_connect(sslCtx);
   BIO_get_ssl(iBio, &ssl);
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-  if( iBio==NULL ) {
+  if( iBio==NULL ){
     ssl_set_errmsg("SSL: cannot open SSL (%s)", 
                     ERR_reason_error_string(ERR_get_error()));
-    return 1;    
+    return 1;
   }
   
   connStr = mprintf("%s:%d", g.urlName, g.urlPort);
@@ -300,8 +300,7 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 ** Always try the environment variables first, and if they aren't set, then
 ** use the global config.
 */
-void ssl_load_client_authfiles(void)
-{
+void ssl_load_client_authfiles(void){
   char *cafile;
   char *capath;
   char *certfile;
@@ -311,12 +310,12 @@ void ssl_load_client_authfiles(void)
   capath = ssl_get_and_set_file_ref("FOSSIL_CAPATH", "capath");
 
   if( cafile || capath ){
-     /* The OpenSSL documentation warns that if several CA certificates match
-      * the same name, key identifier and serial number conditions, only the
-      * first will be examined. The caveat situation is when one stores an
-      * expired CA certificate among the valid ones.
-      * Simply put: Do not mix expired and valid certificates.
-      */
+    /* The OpenSSL documentation warns that if several CA certificates match
+    ** the same name, key identifier and serial number conditions, only the
+    ** first will be examined. The caveat situation is when one stores an
+    ** expired CA certificate among the valid ones.
+    ** Simply put: Do not mix expired and valid certificates.
+    */
     if( SSL_CTX_load_verify_locations(sslCtx, cafile, capath) == 0){
       fossil_fatal("SSL: Unable to load CA verification file/path");
     }
@@ -334,8 +333,9 @@ void ssl_load_client_authfiles(void)
   keyfile = ssl_get_and_set_file_ref("FOSSIL_CKEY", "ckey");
 
   /* Assume the key is in the certificate file if key file was not specified */
-  if( certfile && !keyfile )
+  if( certfile && !keyfile ){
     keyfile = certfile;
+  }
 
   if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM) <= 0 ){
     fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
