@@ -360,8 +360,7 @@ void ssl_load_client_authfiles(void){
 ** then store varaible in global config. If environment variable was not set,
 ** attempt to get variable from global config.
 **/
-char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar)
-{
+char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar){
   char *zVar;
   char *zTmp;
 
@@ -380,6 +379,189 @@ char *ssl_get_and_set_file_ref(const char *envvar, const char *dbvar)
   free(zTmp);
 
   return zVar;
+}
+
+/*
+** COMMAND: cert
+**
+** Usage: %fossil cert SUBCOMMAND ...
+**
+** Manage/group PKI keys/certificates to be able to use client
+** certificates and register CA certificates for SSL verifications.
+**
+**    %fossil cert add NAME ?--key KEYFILE? ?--cert CERTFILE?
+**           ?--cafile CAFILE? ?--capath CAPATH?
+**
+**        Create a certificate group NAME with the associated
+**        certificates/keys. If a client certificate is specified but no
+**        key, it is assumed that the key is located in the client
+**        certificate file. The file format must be PEM.
+**
+**    %fossil cert list
+**
+**        List all credential groups, their values and their URL
+**        associations.
+**
+**    %fossil cert disassociate URL
+**
+**        Disassociate URL from any credential group(s).
+**
+**    %fossil cert delete NAME
+**
+**        Remove the credential group NAME and all it's associated URL
+**        associations.
+*/
+void cert_cmd(void){
+  int n;
+  const char *zCmd = "list";
+  if( g.argc>=3 ){
+    zCmd = g.argv[2];
+  }
+  n = strlen(zCmd);
+  if( strncmp(zCmd, "add", n)==0 ){
+    const char *zContainer;
+    const char *zCKey;
+    const char *zCCert;
+    const char *zCAFile;
+    const char *zCAPath;
+    if( g.argc<5 ){
+      usage("add NAME ?--key CLIENTKEY? ?--cert CLIENTCERT? ?--cafile CAFILE? "
+          "?--capath CAPATH?");
+    }
+    zContainer = g.argv[3];
+    zCKey = find_option("key",0,1);
+    zCCert = find_option("cert",0,1);
+    zCAFile = find_option("cafile",0,1);
+    zCAPath = find_option("capath",0,1);
+
+    /* If a client certificate was specified, but a key was not, assume the
+     * key is stored in the same file as the certificate.
+     */
+    if( !zCKey && zCCert ){
+      zCKey = zCCert;
+    }
+
+    db_open_config(0);
+    db_swap_connections();
+    if( db_exists(
+        "SELECT 1 FROM certs"
+        " WHERE name='%s'",
+        zContainer)!=0 ){
+      fossil_fatal("certificate group \"%s\" already exists", zContainer);
+    }
+    db_begin_transaction();
+    if( zCKey ){
+      db_multi_exec("INSERT INTO certs (name,type,filepath) "
+          "VALUES(%Q,'ckey',%Q)",
+          zContainer, zCKey);
+    }
+    if( zCCert ){
+      db_multi_exec("INSERT INTO certs (name,type,filepath) "
+          "VALUES(%Q,'ccert',%Q)",
+          zContainer, zCCert);
+    }
+    if( zCAFile ){
+      db_multi_exec("INSERT INTO certs (name,type,filepath) "
+          "VALUES(%Q,'cafile',%Q)",
+          zContainer, zCAFile);
+    }
+    if( zCAPath ){
+      db_multi_exec("INSERT INTO certs (name,type,filepath) "
+          "VALUES(%Q,'capath',%Q)",
+          zContainer, zCAPath);
+    }
+    db_end_transaction(0);
+    db_swap_connections();
+  }else if(strncmp(zCmd, "list", n)==0){
+    Stmt q;
+    char *grp = NULL;
+
+    db_open_config(0);
+    db_swap_connections();
+
+    db_prepare(&q, "SELECT name,type,filepath FROM certs"
+                   " WHERE type NOT IN ('server')"
+                   " ORDER BY name,type");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zCont = db_column_text(&q, 0);
+      const char *zType = db_column_text(&q, 1);
+      const char *zFilePath = db_column_text(&q, 2);
+      if( fossil_strcmp(zCont, grp)!=0 ){
+        free(grp);
+        grp = strdup(zCont);
+        puts(zCont);
+      }
+      printf("\t%s=%s\n", zType, zFilePath);
+    }
+    db_finalize(&q);
+
+    /* List the URL associations. */
+    db_prepare(&q, "SELECT name FROM global_config"
+                   " WHERE name LIKE 'certgroup:%%' AND value=%Q"
+                   " ORDER BY name", grp);
+    free(grp);
+
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      static int first = 1;
+      if( first ) {
+        puts("\tAssociations");
+        first = 0;
+      }
+      printf("\t\t%s\n", zName+10);
+    }
+
+    db_swap_connections();
+  }else if(strncmp(zCmd, "disassociate", n)==0){
+    const char *zURL;
+    if( g.argc<4 ){
+      usage("disassociate URL");
+    }
+    zURL = g.argv[3];
+
+    db_open_config(0);
+    db_swap_connections();
+    db_begin_transaction();
+
+    db_multi_exec("DELETE FROM global_config WHERE name='certgroup:%s'",
+        zURL);
+    if( db_changes() == 0 ){
+      fossil_warning("No certificate group associated with URL \"%s\".",
+          zURL);
+    }else{
+      printf("%s disassociated from its certificate group.\n", zURL);
+    }
+    db_end_transaction(0);
+    db_swap_connections();
+
+  }else if(strncmp(zCmd, "delete", n)==0){
+    const char *zContainer;
+    if( g.argc<4 ){
+      usage("delete NAME");
+    }
+    zContainer = g.argv[3];
+
+    db_open_config(0);
+    db_swap_connections();
+    db_begin_transaction();
+    db_multi_exec("DELETE FROM certs WHERE name=%Q", zContainer);
+    if( db_changes() == 0 ){
+      fossil_warning("No certificate group named \"%s\" found",
+          zContainer);
+    }else{
+      printf("%d entries removed\n", db_changes());
+    }
+    db_multi_exec("DELETE FROM global_config WHERE name LIKE 'certgroup:%%'"
+        " AND value=%Q", zContainer);
+    if( db_changes() > 0 ){
+      printf("%d associations removed\n", db_changes());
+    }
+    db_end_transaction(0);
+    db_swap_connections();
+  }else{
+    fossil_panic("cert subcommand should be one of: "
+                 "add list disassociate delete");
+  }
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
