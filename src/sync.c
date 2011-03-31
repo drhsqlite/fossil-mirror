@@ -98,7 +98,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
   *pPrivate = find_option("private",0,0)!=0;
-  g.urlCertGroup = find_option("certgroup",0,1);
+  g.urlCertBundle = find_option("certbundle",0,1);
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
@@ -153,7 +153,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
 ** Use the --private option to pull private branches from the
 ** remote repository.
 **
-** Use the "--certgroup NAME" option to specify the name of the
+** Use the "--certbundle NAME" option to specify the name of the
 ** certificate/key bundle to use for https connections. If this option
 ** is not specified, a cached value associated with the URL will be
 ** used if it exists.
@@ -187,7 +187,7 @@ void pull_cmd(void){
 ** Use the --private option to push private branches to the
 ** remote repository.
 **
-** Use the "--certgroup NAME" option to specify the name of the
+** Use the "--certbundle NAME" option to specify the name of the
 ** certificate/key bundle to use for https connections. If this option
 ** is not specified, a cached value associated with the URL will be
 ** used if it exists.
@@ -227,7 +227,7 @@ void push_cmd(void){
 ** Use the --private option to sync private branches with the
 ** remote repository.
 **
-** Use the "--certgroup NAME" option to specify the name of the
+** Use the "--certbundle NAME" option to specify the name of the
 ** certificate/key bundle to use for https connections. If this option
 ** is not specified, a cached value associated with the URL will be
 ** used if it exists.

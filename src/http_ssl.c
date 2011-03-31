@@ -311,42 +311,42 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 }
 
 /*
-** If an certgroup has been specified on the command line, then use it to look
-** up certificates and keys, and then store the URL-certgroup association in
-** the global database. If no certgroup has been specified on the command line,
-** see if there's an entry for the url in global_config, and use it if
+** If a certbundle has been specified on the command line, then use it to look
+** up certificates and keys, and then store the URL-certbundle association in
+** the global database. If no certbundle has been specified on the command
+** line, see if there's an entry for the url in global_config, and use it if
 ** applicable.
 */
 void ssl_load_client_authfiles(void){
-  char *zGroupName = NULL;
+  char *zBundleName = NULL;
   char *cafile;
   char *capath;
   char *certfile;
   char *keyfile;
 
-  if( g.urlCertGroup ){
+  if( g.urlCertBundle ){
     char *zName;
-    zName = mprintf("certgroup:%s", g.urlName);
-    db_set(zName, g.urlCertGroup, 1);
+    zName = mprintf("certbundle:%s", g.urlName);
+    db_set(zName, g.urlCertBundle, 1);
     free(zName);
-    zGroupName = strdup(g.urlCertGroup);
+    zBundleName = strdup(g.urlCertBundle);
   }else{
     db_swap_connections();
-    zGroupName = db_text(0, "SELECT value FROM global_config"
-                            " WHERE name='certgroup:%q'", g.urlName);
+    zBundleName = db_text(0, "SELECT value FROM global_config"
+                            " WHERE name='certbundle:%q'", g.urlName);
     db_swap_connections();
   }
-  if( !zGroupName ){
-    /* No cert group specified or found cached */
+  if( !zBundleName ){
+    /* No cert bundle specified on command line or found cached for URL */
     return;
   }
 
   db_swap_connections();
   create_cert_table_if_not_exist();
   cafile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
-                      " AND type='cafile'", zGroupName);
+                      " AND type='cafile'", zBundleName);
   capath = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
-                      " AND type='capath'", zGroupName);
+                      " AND type='capath'", zBundleName);
   db_swap_connections();
 
   if( cafile || capath ){
@@ -363,9 +363,9 @@ void ssl_load_client_authfiles(void){
 
   db_swap_connections();
   keyfile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
-                       " AND type='ckey'", zGroupName);
+                       " AND type='ckey'", zBundleName);
   certfile = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
-                        " AND type='ccert'", zGroupName);
+                        " AND type='ccert'", zBundleName);
   db_swap_connections();
 
   if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM)<=0 ){
@@ -393,35 +393,35 @@ void ssl_load_client_authfiles(void){
 **
 ** Usage: %fossil cert SUBCOMMAND ...
 **
-** Manage/group PKI keys/certificates to be able to use client
-** certificates and register CA certificates for SSL verifications.
+** Manage/bundle PKI client keys/certificates and CA certificates for SSL
+** certificate chain verifications.
 **
 **    %fossil cert add NAME ?--key KEYFILE? ?--cert CERTFILE?
 **           ?--cafile CAFILE? ?--capath CAPATH?
 **
-**        Create a certificate group NAME with the associated
+**        Create a certificate bundle NAME with the associated
 **        certificates/keys. If a client certificate is specified but no
 **        key, it is assumed that the key is located in the client
-**        certificate file. The file format must be PEM.
+**        certificate file.
+**        The file formats must be PEM.
 **
 **    %fossil cert list
 **
-**        List all credential groups, their values and their URL
+**        List all certificate bundles, their values and their URL
 **        associations.
 **
 **    %fossil cert disassociate URL
 **
-**        Disassociate URL from any credential group(s).
+**        Disassociate URL from any certificate bundle.
 **
 **    %fossil cert delete NAME
 **
-**        Remove the credential group NAME and all it's associated URL
-**        associations.
+**        Remove the certificate bundle NAME and all its URL associations.
 **
 */
 void cert_cmd(void){
   int n;
-  const char *zCmd = "list";
+  const char *zCmd = "list";	/* Default sub-command */
   if( g.argc>=3 ){
     zCmd = g.argv[2];
   }
@@ -433,7 +433,7 @@ void cert_cmd(void){
     const char *zCAFile;
     const char *zCAPath;
     if( g.argc<5 ){
-      usage("add NAME ?--key CLIENTKEY? ?--cert CLIENTCERT? ?--cafile CAFILE? "
+      usage("add NAME ?--key KEYFILE? ?--cert CERTFILE? ?--cafile CAFILE? "
           "?--capath CAPATH?");
     }
     zContainer = g.argv[3];
@@ -443,8 +443,8 @@ void cert_cmd(void){
     zCAPath = find_option("capath",0,1);
 
     /* If a client certificate was specified, but a key was not, assume the
-     * key is stored in the same file as the certificate.
-     */
+    ** key is stored in the same file as the certificate.
+    */
     if( !zCKey && zCCert ){
       zCKey = zCCert;
     }
@@ -455,7 +455,7 @@ void cert_cmd(void){
     db_begin_transaction();
     if( db_exists("SELECT 1 FROM certs WHERE name='%q'", zContainer)!=0 ){
       db_end_transaction(0);
-      fossil_fatal("certificate group \"%s\" already exists", zContainer);
+      fossil_fatal("certificate bundle \"%s\" already exists", zContainer);
     }
     if( zCKey ){
       db_multi_exec("INSERT INTO certs (name,type,filepath) "
@@ -481,7 +481,7 @@ void cert_cmd(void){
     db_swap_connections();
   }else if(strncmp(zCmd, "list", n)==0){
     Stmt q;
-    char *grp = NULL;
+    char *bndl = NULL;
 
     db_open_config(0);
     db_swap_connections();
@@ -494,9 +494,9 @@ void cert_cmd(void){
       const char *zCont = db_column_text(&q, 0);
       const char *zType = db_column_text(&q, 1);
       const char *zFilePath = db_column_text(&q, 2);
-      if( fossil_strcmp(zCont, grp)!=0 ){
-        free(grp);
-        grp = strdup(zCont);
+      if( fossil_strcmp(zCont, bndl)!=0 ){
+        free(bndl);
+        bndl = strdup(zCont);
         puts(zCont);
       }
       printf("\t%s=%s\n", zType, zFilePath);
@@ -505,9 +505,9 @@ void cert_cmd(void){
 
     /* List the URL associations. */
     db_prepare(&q, "SELECT name FROM global_config"
-                   " WHERE name LIKE 'certgroup:%%' AND value=%Q"
-                   " ORDER BY name", grp);
-    free(grp);
+                   " WHERE name LIKE 'certbundle:%%' AND value=%Q"
+                   " ORDER BY name", bndl);
+    free(bndl);
 
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
@@ -516,7 +516,7 @@ void cert_cmd(void){
         puts("\tAssociations");
         first = 0;
       }
-      printf("\t\t%s\n", zName+10);
+      printf("\t\t%s\n", zName+11);
     }
 
     db_swap_connections();
@@ -530,13 +530,13 @@ void cert_cmd(void){
     db_open_config(0);
     db_swap_connections();
     db_begin_transaction();
-    db_multi_exec("DELETE FROM global_config WHERE name='certgroup:%q'",
+    db_multi_exec("DELETE FROM global_config WHERE name='certbundle:%q'",
         zURL);
     if( db_changes() == 0 ){
-      fossil_warning("No certificate group associated with URL \"%s\".",
+      fossil_warning("No certificate bundle associated with URL \"%s\".",
           zURL);
     }else{
-      printf("%s disassociated from its certificate group.\n", zURL);
+      printf("%s disassociated from its certificate bundle.\n", zURL);
     }
     db_end_transaction(0);
     db_swap_connections();
@@ -550,15 +550,16 @@ void cert_cmd(void){
 
     db_open_config(0);
     db_swap_connections();
+    create_cert_table_if_not_exist();
     db_begin_transaction();
     db_multi_exec("DELETE FROM certs WHERE name=%Q", zContainer);
     if( db_changes() == 0 ){
-      fossil_warning("No certificate group named \"%s\" found",
+      fossil_warning("No certificate bundle named \"%s\" found",
           zContainer);
     }else{
       printf("%d entries removed\n", db_changes());
     }
-    db_multi_exec("DELETE FROM global_config WHERE name LIKE 'certgroup:%%'"
+    db_multi_exec("DELETE FROM global_config WHERE name LIKE 'certbundle:%%'"
         " AND value=%Q", zContainer);
     if( db_changes() > 0 ){
       printf("%d associations removed\n", db_changes());

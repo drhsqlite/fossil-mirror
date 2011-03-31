@@ -104,7 +104,7 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
-  const char *urlCertGroup; /* Which ceritificate group to use for URL */
+  const char *urlCertBundle; /* Which ceritificate bundle to use for URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   int useLocalauth;       /* No login required if from 127.0.0.1 */

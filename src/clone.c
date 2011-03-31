@@ -39,7 +39,7 @@
 **
 **    --admin-user|-A USERNAME    Make USERNAME the administrator
 **    --private                   Also clone private branches 
-**    --certgroup NAME            Use certificate group NAME for https
+**    --certbundle NAME           Use certificate bundle NAME for https
 **                                connections
 **
 */
@@ -50,7 +50,7 @@ void clone_cmd(void){
   int bPrivate;               /* Also clone private branches */
 
   bPrivate = find_option("private",0,0)!=0;
-  g.urlCertGroup = find_option("certgroup",0,1);
+  g.urlCertBundle = find_option("certbundle",0,1);
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");

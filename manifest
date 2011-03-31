@@ -1,5 +1,5 @@
-C Code\scleanup.\s\sFix\sthe\s"cert"\scommand\sso\sthat\sit\scompiles\seven\sif\nFOSSIL_ENABLE_SSL\sis\snot\sused.
-D 2011-03-30T21:00:58.228
+C Some\srephrasing\sand\scode\scleanup.
+D 2011-03-31T15:30:45.063
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -46,7 +46,7 @@ F src/cgi.c db727b1ff1323c30610e4aaf8cbe14a95523567c
 F src/checkin.c 95af20ffa23140caf6da5630b7e98cfca00c0ecb
 F src/checkout.c ed791540c1effdc7a6969a37d1c9a1fb1a707b11
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
-F src/clone.c d60d28104c2c8e61d3085a733267fe3f7b91e56d
+F src/clone.c c6ace3376d3b2cb5a34b3e089482f64efc8b9c1a
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
@@ -67,13 +67,13 @@ F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 442c395ec971d576387e5a717f6ba01f2de1c6e3
+F src/http_ssl.c 562f72c56812cbf68e75e24af700d67569a4d37f
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 7a54e1d92573ca2ee9e158e7ba2545cebff1861c
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
 F src/login.c 7188ae99434a24e736f1b56d17046698bbc987d9
-F src/main.c a4bcf28eed21d180beeac1f7d82906501580da3a
+F src/main.c 5765a80837cb9c27f9d609861087665137998e37
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -105,7 +105,7 @@ F src/sqlite3.h a4cb013f9a36fb9b876b4b87be7a93f9cba8594f
 F src/stash.c f5765c7bb2981ac1a19224cc86c619001f807823
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 9d03ff78cda3c77e00178dde7a2d31172751638b
-F src/sync.c 38936546fe7c86fedebd627fb90c8bef30208a30
+F src/sync.c ede3d9b73c35de8fa9d9f1a616b5fd9234574cb0
 F src/tag.c 301af5373dc6dee06d612e61b177914aae08ca04
 F src/tar.c 2732f788de3c3116ded924c07c09b5f5c0f7b961
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 71384ce6688c9dbea3083527fcebb442f238f1fd
-R f5675303a77eb1698676ae1db37cd519
-U drh
-Z 23895cffc4782dc416785fd9ae5dd83d
+P ebe1faabbc586cecb40cd222d86744ae3aac6faa
+R e1cf764c6eb24374ccf8409b8f16a27c
+U jan
+Z 77357610fc35e34dd2b359acaeff00ab
