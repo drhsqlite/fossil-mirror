@@ -779,7 +779,7 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
-**    filechng       Show details of files changed
+**    fc             Show details of files changed
 **    f=RID          Show family (immediate parents and children) of RID
 **    from=RID       Path from...
 **    to=RID           ... to this
@@ -851,10 +851,9 @@ void page_timeline(void){
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
-  if( P("filechng")!=0 ){
+  if( P("fc")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
-    url_add_parameter(&url, "filechng", 0);
-    
+    url_add_parameter(&url, "fc", 0);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
@@ -1150,6 +1149,13 @@ void page_timeline(void){
       }
       if( nEntry<200 ){
         timeline_submenu(&url, "200 Entries", "n", "200", 0);
+      }
+      if( zType[0]=='a' || zType[0]=='c' ){
+        if( tmFlags & TIMELINE_FCHANGES ){
+          timeline_submenu(&url, "Hide Files", "fc", 0, 0);
+        }else{
+          timeline_submenu(&url, "Show Files", "fc", "", 0);
+        }
       }
     }
   }
