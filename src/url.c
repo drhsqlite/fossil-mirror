@@ -357,10 +357,12 @@ char *url_render(
     zSep = "&amp;";
   }
   if( zName1 && zValue1 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName1, zValue1);
+    blob_appendf(&p->url, "%s%s", zSep, zName1);
+    if( zValue1[0] ) blob_appendf(&p->url, "=%T", zValue1);
   }
   if( zName2 && zValue2 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName2, zValue2);
+    blob_appendf(&p->url, "%s%s", zSep, zName2);
+    if( zValue2[0] ) blob_appendf(&p->url, "=%T", zValue2);
   }
   return blob_str(&p->url);
 }

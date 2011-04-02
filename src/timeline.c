@@ -130,6 +130,7 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
 #define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
 #endif
 
 /*
@@ -163,6 +164,8 @@ void www_print_timeline(
   char zPrevDate[20];
   GraphContext *pGraph = 0;
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
+  int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
+  Stmt fchngQuery;            /* Query for file changes on check-ins */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -341,6 +344,43 @@ void www_print_timeline(
     if( xExtra ){
       xExtra(rid);
     }
+
+    /* Generate the file-change list if requested */
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' ){
+      int inUl = 0;
+      if( !fchngQueryInit ){
+        db_prepare(&fchngQuery, 
+          "SELECT (pid==0) AS isnew,"
+          "       (fid==0) AS isdel,"
+          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name"
+          "  FROM mlink"
+          " WHERE mid=:mid AND pid!=fid"
+          " ORDER BY 3"
+        );
+        fchngQueryInit = 1;
+      }
+      db_bind_int(&fchngQuery, ":mid", rid);
+      while( db_step(&fchngQuery)==SQLITE_ROW ){
+        const char *zFilename = db_column_text(&fchngQuery, 2);
+        int isNew = db_column_int(&fchngQuery, 0);
+        int isDel = db_column_int(&fchngQuery, 1);
+        if( !inUl ){
+          @ <ul class="filelist">
+          inUl = 1;
+        }
+        if( isNew ){
+          @ <li> %h(zFilename) (new file)</li>
+        }else if( isDel ){
+          @ <li> %h(zFilename) (deleted)</li>
+        }else{
+          @ <li> %h(zFilename) </li>
+        }
+      }
+      db_reset(&fchngQuery);
+      if( inUl ){
+        @ </ul>
+      }
+    }
     @ </td></tr>
   }
   if( suppressCnt ){
@@ -364,6 +404,7 @@ void www_print_timeline(
     }
   }
   @ </table>
+  if( fchngQueryInit ) db_finalize(&fchngQuery);
   timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
 }
 
@@ -738,6 +779,7 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
+**    fc             Show details of files changed
 **    f=RID          Show family (immediate parents and children) of RID
 **    from=RID       Path from...
 **    to=RID           ... to this
@@ -809,6 +851,10 @@ void page_timeline(void){
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
+  if( P("fc")!=0 || P("detail")!=0 ){
+    tmFlags |= TIMELINE_FCHANGES;
+    url_add_parameter(&url, "fc", 0);
+  }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
   if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
     /* If from= and to= are present, display all nodes on a path connecting
@@ -1103,6 +1149,13 @@ void page_timeline(void){
       }
       if( nEntry<200 ){
         timeline_submenu(&url, "200 Entries", "n", "200", 0);
+      }
+      if( zType[0]=='a' || zType[0]=='c' ){
+        if( tmFlags & TIMELINE_FCHANGES ){
+          timeline_submenu(&url, "Hide Files", "fc", 0, 0);
+        }else{
+          timeline_submenu(&url, "Show Files", "fc", "", 0);
+        }
       }
     }
   }

@@ -38,21 +38,54 @@ void bisect_path(void){
   PathNode *p;
   bisect.bad = db_lget_int("bisect-bad", 0);
   if( bisect.bad==0 ){
-    bisect.bad = db_int(0, "SELECT cid FROM plink ORDER BY mtime DESC LIMIT 1");
-    db_lset_int("bisect-bad", bisect.bad);
+    fossil_fatal("no \"bad\" version has been identified");
   }
   bisect.good = db_lget_int("bisect-good", 0);
   if( bisect.good==0 ){
-    bisect.good = db_int(0,"SELECT pid FROM plink ORDER BY mtime LIMIT 1");
-    db_lset_int("bisect-good", bisect.good);
+    fossil_fatal("no \"good\" version has been identified");
   }
-  p = path_shortest(bisect.good, bisect.bad, 0);
+  p = path_shortest(bisect.good, bisect.bad, bisect_option("direct-only"));
   if( p==0 ){
     char *zBad = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", bisect.bad);
     char *zGood = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", bisect.good);
     fossil_fatal("no path from good ([%S]) to bad ([%S]) or back",
                  zGood, zBad);
   }
+}
+
+/*
+** The set of all bisect options.
+*/
+static const struct {
+  const char *zName;
+  const char *zDefault;
+  const char *zDesc;
+} aBisectOption[] = {
+  { "auto-next",    "on",    "Automatically run \"bisect next\" after each "
+                             "\"bisect good\" or \"bisect bad\"" },
+  { "direct-only",  "on",    "Follow only primary parent-child links, not "
+                             "merges\n" },
+};
+
+/*
+** Return the value of a boolean bisect option.
+*/
+int bisect_option(const char *zName){
+  unsigned int i;
+  int r = -1;
+  for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+    if( strcmp(zName, aBisectOption[i].zName)==0 ){
+      char *zLabel = mprintf("bisect-%s", zName);
+      char *z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
+      if( is_truth(z) ) r = 1;
+      if( is_false(z) ) r = 0;
+      if( r<0 ) r = is_truth(aBisectOption[i].zDefault);
+      free(zLabel);
+      break;
+    }
+  }
+  assert( r>=0 );
+  return r;
 }
 
 /*
@@ -77,6 +110,11 @@ void bisect_path(void){
 **     Update to the next version that is halfway between the working and
 **     non-working versions.
 **
+**   fossil bisect options ?NAME? ?VALUE?
+**
+**     List all bisect options, or the value of a single option, or set the
+**     value of a bisect option.
+**
 **   fossil bisect reset
 **
 **     Reinitialize a bisect session.  This cancels prior bisect history
@@ -90,6 +128,9 @@ void bisect_cmd(void){
   int n;
   const char *zCmd;
   db_must_be_within_tree();
+  if( g.argc<3 ){
+    usage("bisect SUBCOMMAND ARGS...");
+  }
   zCmd = g.argv[2];
   n = strlen(zCmd);
   if( n==0 ) zCmd = "-";
@@ -101,6 +142,15 @@ void bisect_cmd(void){
       ridBad = name_to_rid(g.argv[3]);
     }
     db_lset_int("bisect-bad", ridBad);
+    if( ridBad>0
+     && bisect_option("auto-next")
+     && db_lget_int("bisect-good",0)>0
+    ){
+      zCmd = "next";
+      n = 4;
+    }else{
+      return;
+    }
   }else if( memcmp(zCmd, "good", n)==0 ){
     int ridGood;
     if( g.argc==3 ){
@@ -109,7 +159,17 @@ void bisect_cmd(void){
       ridGood = name_to_rid(g.argv[3]);
     }
     db_lset_int("bisect-good", ridGood);
-  }else if( memcmp(zCmd, "next", n)==0 ){
+    if( ridGood>0
+     && bisect_option("auto-next")
+     && db_lget_int("bisect-bad",0)>0
+    ){
+      zCmd = "next";
+      n = 4;
+    }else{
+      return;
+    }
+  }
+  if( memcmp(zCmd, "next", n)==0 ){
     PathNode *pMid;
     bisect_path();
     pMid = path_midpoint();
@@ -121,12 +181,39 @@ void bisect_cmd(void){
     g.argc = 3;
     g.fNoSync = 1;
     update_cmd();
+  }else if( memcmp(zCmd, "options", n)==0 ){
+    if( g.argc==3 ){
+      unsigned int i;
+      for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+        char *z = mprintf("bisect-%s", aBisectOption[i].zName);
+        printf("  %-15s  %-6s  ", aBisectOption[i].zName,
+               db_lget(z, (char*)aBisectOption[i].zDefault));
+        fossil_free(z);
+        comment_print(aBisectOption[i].zDesc, 27, 79);
+      }
+    }else if( g.argc==4 || g.argc==5 ){
+      unsigned int i;
+      n = strlen(g.argv[3]);
+      for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
+        if( memcmp(g.argv[3], aBisectOption[i].zName, n)==0 ){
+          char *z = mprintf("bisect-%s", aBisectOption[i].zName);
+          if( g.argc==5 ){
+            db_lset(z, g.argv[4]);
+          }
+          printf("%s\n", db_lget(z, (char*)aBisectOption[i].zDefault));
+          fossil_free(z);
+          break;
+        }
+      }
+      if( i>=sizeof(aBisectOption)/sizeof(aBisectOption[0]) ){
+        fossil_fatal("no such bisect option: %s", g.argv[3]);
+      }
+    }else{
+      usage("bisect option ?NAME? ?VALUE?");
+    }
   }else if( memcmp(zCmd, "reset", n)==0 ){
     db_multi_exec(
-      "REPLACE INTO vvar(name, value) "
-      "  SELECT 'bisect-good', pid FROM plink ORDER BY mtime LIMIT 1;"
-      "REPLACE INTO vvar(name, value) "
-      "  SELECT 'bisect-bad', cid FROM plink ORDER BY mtime DESC LIMIT 1;"
+      "DELETE FROM vvar WHERE name IN ('bisect-good', 'bisect-bad');"
     );
   }else if( memcmp(zCmd, "vlist", n)==0 ){
     PathNode *p;
