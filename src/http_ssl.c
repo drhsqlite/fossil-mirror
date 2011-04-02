@@ -240,35 +240,41 @@ int ssl_open(void){
 }
 
 /*
-** Save certificate to global config.
+** Save certificate to global certificate/key store.
 */
 void ssl_save_certificate(X509 *cert){
   BIO *mem;
-  char *zCert, *zHost;
+  char *zCert;
 
   mem = BIO_new(BIO_s_mem());
   PEM_write_bio_X509(mem, cert);
   BIO_write(mem, "", 1); // null-terminate mem buffer
   BIO_get_mem_data(mem, &zCert);
-  zHost = mprintf("cert:%s", g.urlName);
-  db_set(zHost, zCert, 1);
-  free(zHost);
+  db_swap_connections();
+  create_cert_table_if_not_exist();
+  db_begin_transaction();
+  db_multi_exec("REPLACE INTO certs(name,type,filepath) "
+      "VALUES(%Q,'scert',%Q)", g.urlName, zCert);
+  db_end_transaction(0);
+  db_swap_connections();
   BIO_free(mem);  
 }
 
 /*
-** Get certificate for g.urlName from global config.
+** Get certificate for g.urlName from global certificate/key store.
 ** Return NULL if no certificate found.
 */
 X509 *ssl_get_certificate(void){
-  char *zHost, *zCert;
+  char *zCert;
   BIO *mem;
   X509 *cert;
 
-  zHost = mprintf("cert:%s", g.urlName);
-  zCert = db_get(zHost, NULL);
-  free(zHost);
-  if ( zCert==NULL )
+  db_swap_connections();
+  create_cert_table_if_not_exist();
+  zCert = db_text(0, "SELECT filepath FROM certs WHERE name=%Q"
+                     " AND type='scert'", g.urlName);
+  db_swap_connections();
+  if( zCert==NULL )
     return NULL;
   mem = BIO_new(BIO_s_mem());
   BIO_puts(mem, zCert);
@@ -333,7 +339,7 @@ void ssl_load_client_authfiles(void){
   }else{
     db_swap_connections();
     zBundleName = db_text(0, "SELECT value FROM global_config"
-                            " WHERE name='certbundle:%q'", g.urlName);
+                             " WHERE name='certbundle:%q'", g.urlName);
     db_swap_connections();
   }
   if( !zBundleName ){
@@ -368,19 +374,28 @@ void ssl_load_client_authfiles(void){
                         " AND type='ccert'", zBundleName);
   db_swap_connections();
 
-  if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM)<=0 ){
-    fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
-  }
-  if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM)<=0 ){
-    fossil_fatal("SSL: Unable to open client key in %s.", keyfile);
+  if( certfile ){
+    /* If a client certificate is explicitly specified, but a key is not, then
+    ** assume the key is in the same file as the certificate.
+    */
+    if( !keyfile ){
+      keyfile = certfile;
+    }
+    if( SSL_CTX_use_certificate_file(sslCtx, certfile, SSL_FILETYPE_PEM)<=0 ){
+      fossil_fatal("SSL: Unable to open client certificate in %s.", certfile);
+    }
+    if( SSL_CTX_use_PrivateKey_file(sslCtx, keyfile, SSL_FILETYPE_PEM)<=0 ){
+      fossil_fatal("SSL: Unable to open client key in %s.", keyfile);
+    }
+    if( certfile && keyfile && !SSL_CTX_check_private_key(sslCtx) ){
+      fossil_fatal("SSL: Private key does not match the certificate public "
+          "key.");
+    }
   }
 
-  if( !SSL_CTX_check_private_key(sslCtx) ){
-    fossil_fatal("SSL: Private key does not match the certificate public "
-        "key.");
+  if( keyfile != certfile ){
+    free(keyfile);
   }
-
-  free(keyfile);
   free(certfile);
   free(capath);
   free(cafile);
