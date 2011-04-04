@@ -119,6 +119,26 @@ void vfile_build(int vid){
   db_end_transaction(0);
 }
 
+
+/*
+** Poll db for current exe-status of a file.
+*/
+static int test_isexe(const char *zFilename, int vid){
+  static Stmt s;
+  int isexe;
+  db_static_prepare(&s,
+    "UPDATE vfile SET isexe=:isexe"
+    " WHERE vid=:vid AND pathname=:path AND isexe!=:isexe"
+  );
+  db_bind_int(&s, ":vid", vid);
+  db_bind_text(&s, ":path", zFilename);
+  db_step(&s);
+  isexe = db_column_int(&s, 0);
+  db_reset(&s);
+
+  return isexe;
+}
+
 /*
 ** Check the file signature of the disk image for every VFILE of vid.
 **
@@ -171,6 +191,8 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     }else if( oldChnged>=2 ){
       chnged = oldChnged;
     }else if( rid==0 ){
+      chnged = 1;
+    }else if(file_isexe(zName)!=test_isexe(zName,vid)){
       chnged = 1;
     }
     if( chnged!=1 ){

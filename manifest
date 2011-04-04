@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-C Create\snew\sbranch\snamed\s"betterExeHandling"
-D 2011-04-04T01:10:36.227
+C "fossil\schan"\swill\srecognize\saddition\sof\sexe-bit
+D 2011-04-04T01:14:10.446
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -68,7 +65,7 @@ F src/file.c 4ad3d43232a7c56849a46d35a49fc8a589f95b3b
 F src/finfo.c 1a856cfcb3b75310fbf93566d6db383dce1ea73f
 F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
-F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
+F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43 x
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
@@ -124,7 +121,7 @@ F src/update.c 99d5170cecc0f092f282519ec05febc5ca68a120
 F src/url.c 55c48215da33082bc7d9d9ad27433747715a2b95
 F src/user.c 2d7a73d74230546ce4305d3539f4ca1e14e72021
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 9d6eca8cbc96839384f8312ecdbcec4826efcecc
+F src/vfile.c 7422dd2b61afeb8356a77902fd6de40159007500
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
@@ -306,18 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fa81575c8d8d2121852c0c9cb1ad500262d25e8a
-R 892b9e154db050078de4938b7db37f5a
-T *bgcolor * #334499
-T *branch * betterExeHandling
-T *sym-betterExeHandling *
-T -sym-trunk *
+P 85c6c1d7ebfb6b9e0c74ef00013f4367a302ef25
+R 76e89fe46f11771ba7a19adf9a4edc82
 U bharder
-Z 10f947c0a780fe21db9112e1c2cce8ad
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (NetBSD)
-
-iEYEARECAAYFAk2ZGowACgkQad0Kwpwugm/8egCg1592FlDrG7WrdeHIgU3wG0in
-LcQAoNh4S9onNESN85hdjAKwHdO1EqYn
-=dV2G
------END PGP SIGNATURE-----
+Z 20b6abeb2bad30828e7226197da7572a
