@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.6"
 #define SQLITE_VERSION_NUMBER 3007006
-#define SQLITE_SOURCE_ID      "2011-03-24 01:34:03 b6e268fce12829f058f1dfa223731ec8479493f8"
+#define SQLITE_SOURCE_ID      "2011-04-04 03:27:16 f8e98ab3062a6e56924a86e8f3204c30d0f3d906"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2980,7 +2980,9 @@ SQLITE_API int sqlite3_column_count(sqlite3_stmt *pStmt);
 ** column number.  ^The leftmost column is number 0.
 **
 ** ^The returned string pointer is valid until either the [prepared statement]
-** is destroyed by [sqlite3_finalize()] or until the next call to
+** is destroyed by [sqlite3_finalize()] or until the statement is automatically
+** reprepared by the first call to [sqlite3_step()] for a particular run
+** or until the next call to
 ** sqlite3_column_name() or sqlite3_column_name16() on the same column.
 **
 ** ^If sqlite3_malloc() fails during the processing of either routine
@@ -3006,7 +3008,9 @@ SQLITE_API const void *sqlite3_column_name16(sqlite3_stmt*, int N);
 ** the database name, the _table_ routines return the table name, and
 ** the origin_ routines return the column name.
 ** ^The returned string is valid until the [prepared statement] is destroyed
-** using [sqlite3_finalize()] or until the same information is requested
+** using [sqlite3_finalize()] or until the statement is automatically
+** reprepared by the first call to [sqlite3_step()] for a particular run
+** or until the same information is requested
 ** again in a different encoding.
 **
 ** ^The names returned are the original un-aliased names of the
