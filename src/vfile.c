@@ -127,8 +127,8 @@ static int test_isexe(const char *zFilename, int vid){
   static Stmt s;
   int isexe;
   db_static_prepare(&s,
-    "UPDATE vfile SET isexe=:isexe"
-    " WHERE vid=:vid AND pathname=:path AND isexe!=:isexe"
+    "SELECT isexe"
+    " FROM vfile where vid=:vid AND pathname=:path"
   );
   db_bind_int(&s, ":vid", vid);
   db_bind_text(&s, ":path", zFilename);
