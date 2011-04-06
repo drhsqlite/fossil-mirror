@@ -980,10 +980,18 @@ void page_timeline(void){
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
-                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)", tagid);
-        blob_appendf(&sql,
-          " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-                     " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)", tagid);
+                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+           tagid
+        );
+        if( P("mionly")==0 ){
+          blob_appendf(&sql,
+            " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+            tagid
+          );
+        }else{
+          url_add_parameter(&url, "mionly", "1");
+        }
       }else{
         url_add_parameter(&url, "t", zTagName);
       }
