@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.6"
 #define SQLITE_VERSION_NUMBER 3007006
-#define SQLITE_SOURCE_ID      "2011-04-04 03:27:16 f8e98ab3062a6e56924a86e8f3204c30d0f3d906"
+#define SQLITE_SOURCE_ID      "2011-04-05 22:08:24 3eeb0ff78d04891b5fd1a3d99a9fb8cfbed77a81"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1134,7 +1134,7 @@ SQLITE_API int sqlite3_config(int, ...);
 ** [database connection] (specified in the first argument).
 **
 ** The second argument to sqlite3_db_config(D,V,...)  is the
-** [SQLITE_DBCONIG_LOOKASIDE | configuration verb] - an integer code 
+** [SQLITE_DBCONFIG_LOOKASIDE | configuration verb] - an integer code 
 ** that indicates what aspect of the [database connection] is being configured.
 ** Subsequent arguments vary depending on the configuration verb.
 **
