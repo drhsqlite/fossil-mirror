@@ -291,7 +291,7 @@ static void append_file_change_line(
     }else if( zOld==0 ){
       @ <p>Added %h(zName)</p>
     }else if( fossil_strcmp(zNew, zOld)==0 ){
-      @ <p>Execute permission %s(mperm?"set":"cleared") for %h(zName)
+      @ <p>Execute permission %s(mperm?"set":"cleared") for %h(zName)</p>
     }else{
       @ <p>Changes to %h(zName)</p>
     }
