@@ -1446,3 +1446,16 @@ void cmd_webserver(void){
   win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
 #endif
 }
+
+/*
+** COMMAND:  test-echo
+**
+** Echo all command-line arguments (enclosed in [...]) to the screen so that
+** wildcard expansion behavior of the host shell can be investigated.
+*/
+void test_echo_cmd(void){
+  int i;
+  for(i=0; i<g.argc; i++){
+    printf("argv[%d] = [%s]\n", i, g.argv[i]);
+  }
+}
