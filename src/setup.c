@@ -250,6 +250,8 @@ void user_edit(void){
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
   char *oat, *oau, *oav, *oab, *oax, *oaz;
+  const char *zGroup;
+  const char *zOldLogin;
   const char *inherit[128];
   int doWrite;
   int uid;
@@ -340,6 +342,7 @@ void user_edit(void){
     }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
+    zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
     if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
@@ -357,6 +360,39 @@ void user_edit(void){
        "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
       uid, P("login"), P("info"), zPw, zCap
     );
+    if( atoi(PD("all","0"))>0 ){
+      Blob sql;
+      char *zErr = 0;
+      blob_zero(&sql);
+      if( zOldLogin==0 ){
+        blob_appendf(&sql,
+          "INSERT INTO user(login)"
+          "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
+          zLogin, zLogin
+        );
+        zOldLogin = zLogin;
+      }
+      blob_appendf(&sql, 
+        "UPDATE user SET login=%Q,"
+        "  pw=coalesce(shared_secret(%Q,%Q,"
+                "(SELECT value FROM config WHERE name='project-code')),pw),"
+        "  info=%Q,"
+        "  cap=%Q"
+        " WHERE login=%Q;",
+        zLogin, P("pw"), zLogin, P("info"), zCap,
+        zOldLogin
+      );
+      login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
+      blob_reset(&sql);
+      if( zErr ){
+        style_header("User Change Error");
+        @ <span class="loginError">%s(zErr)</span>
+        @
+        @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+        style_footer();
+        return;
+      }
+    }
     cgi_redirect("setup_ulist");
     return;
   }
@@ -507,6 +543,17 @@ void user_edit(void){
     @   <td><input type="password" name="pw" value="" /></td>
   }
   @ </tr>
+  zGroup = db_get("login-group-name", 0);
+  if( zGroup ){
+    @ <tr>
+    @ <td valign="top" align="right">Scope:</td>
+    @ <td valign="top">
+    @ <input type="radio" name="all" checked value="0">
+    @ Apply changes to this repository only.<br />
+    @ <input type="radio" name="all" value="1">
+    @ Apply changes to all repositories in the "<b>%h(zGroup)</b>"
+    @ login group.</td></tr>
+  }
   if( !higherUser ){
     @ <tr>
     @   <td>&nbsp;</td>

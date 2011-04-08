@@ -399,7 +399,7 @@ void sha1_shared_secret_sql_function(
 
   assert( argc==2 || argc==3 );
   zPw = (const char*)sqlite3_value_text(argv[0]);
-  if( zPw==0 ) return;
+  if( zPw==0 || zPw[0]==0 ) return;
   zLogin = (const char*)sqlite3_value_text(argv[1]);
   if( zLogin==0 ) return;
   if( argc==3 ){
