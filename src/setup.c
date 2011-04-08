@@ -46,7 +46,7 @@ void setup_menu_entry(
   }else{
     @ %h(zTitle)
   }
-  @ </td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
 }
 
 /*
@@ -59,7 +59,7 @@ void setup_page(void){
   }
 
   style_header("Server Administration");
-  @ <table border="0" cellspacing="20">
+  @ <table border="0" cellspacing="7">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   setup_menu_entry("Access", "setup_access",
@@ -70,6 +70,9 @@ void setup_page(void){
     "Web interface to the \"fossil settings\" command");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Login-Group", "setup_login_group",
+    "Manage single sign-on between this repository and others"
+    " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -333,7 +336,7 @@ void user_edit(void){
     zPw = P("pw");
     zLogin = P("login");
     if( isValidPwString(zPw) ){
-      zPw = sha1_shared_secret(zPw, zLogin);
+      zPw = sha1_shared_secret(zPw, zLogin, 0);
     }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
@@ -825,7 +828,8 @@ void setup_access(void){
   @ "Anonymous".</p>
 
   @ <hr />
-  entry_attribute("Default privileges", 10, "default-perms", "defaultperms", "u");
+  entry_attribute("Default privileges", 10, "default-perms",
+                  "defaultperms", "u");
   @ <p>Permissions given to users that register themselves using the HTTP UI
   @ or are registered by the administrator using the command line interface.
   @ </p>
@@ -843,6 +847,101 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_login_group
+*/
+void setup_login_group(void){
+  const char *zGroup;
+  char *zErrMsg = 0;
+  Blob fullName;
+  char *zSelfRepo;
+  const char *zRepo = PD("repo", "");
+  const char *zLogin = PD("login", "");
+  const char *zPw = PD("pw", "");
+  const char *zNewName = PD("newname", "New Login Group");
+
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  file_canonical_name(g.zRepositoryName, &fullName);
+  zSelfRepo = mprintf(blob_str(&fullName));
+  blob_reset(&fullName);
+  if( P("join")!=0 ){
+    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+  }else if( P("leave") ){
+    login_group_leave(&zErrMsg);
+  }
+  style_header("Login Group Configuration");
+  if( zErrMsg ){
+    @ <p class="generalError">%s(zErrMsg)</p>
+  }
+  zGroup = db_get("login-group-name", 0);
+  if( zGroup==0 ){
+    @ <p>This repository (in the file named "%h(zSelfRepo)")
+    @ is not currently part of any login-group.
+    @ To join a login group, fill out the form below.</p>
+    @
+    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    login_insert_csrf_secret();
+    @ <blockquote><table broder="0">
+    @
+    @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
+    @
+    @ <td align="right"><b>Login on the above repo:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
+    @
+    @ <td align="right"><b>Password:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="password" size="20" name="pw"></td></tr>
+    @
+    @ <tr><td align="right"><b>Name of login-group:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="30" value="%h(zNewName)" name="newname">
+    @ (only used if creating a new login-group).</td></tr>
+    @
+    @ <tr><td colspan="3" align="center">
+    @ <input type="submit" value="Join" name="join"></td></tr>
+    @ </table>
+  }else{
+    Stmt q;
+    int n = 0;
+    @ <p>This repository (in the file "%h(zSelfRepo)")
+    @ is currently part of the "<b>%h(zGroup)</b>" login group.
+    @ Other repositories in that group are:</p>
+    @ <table border="0" cellspacing="4">
+    @ <tr><td colspan="2"><th align="left">Project Name<td>
+    @ <th align="left">Repository File</tr>
+    db_prepare(&q,
+       "SELECT value,"
+       "       (SELECT value FROM config"
+       "         WHERE name=('peer-name-' || substr(x.name,11)))"
+       "  FROM config AS x"
+       " WHERE name GLOB 'peer-repo-*'"
+       " ORDER BY value"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zRepo = db_column_text(&q, 0);
+      const char *zTitle = db_column_text(&q, 1);
+      n++;
+      @ <tr><td align="right">%d(n).</td><td width="4">
+      @ <td>%h(zTitle)<td width="10"><td>%h(zRepo)</tr>
+    }
+    db_finalize(&q);
+    @ </table>
+    @
+    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    login_insert_csrf_secret();
+    @ To leave this login group press
+    @ <input type="submit" value="Leave Login Group" name="leave">
+    @ </form></p>
+  }
   style_footer();
 }
 

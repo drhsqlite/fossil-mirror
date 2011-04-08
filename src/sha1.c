@@ -344,24 +344,31 @@ char *sha1sum(const char *zIn){
 ** are obtained even if two users select the same password, or if a 
 ** single user selects the same password for multiple projects.
 */
-char *sha1_shared_secret(const char *zPw, const char *zLogin){
+char *sha1_shared_secret(
+  const char *zPw,        /* The password to encrypt */
+  const char *zLogin,     /* Username */
+  const char *zProjCode   /* Project-code.  Use built-in project code if NULL */
+){
   static char *zProjectId = 0;
   SHA1Context ctx;
   unsigned char zResult[20];
   char zDigest[41];
 
   SHA1Init(&ctx);
-  if( zProjectId==0 ){
-    zProjectId = db_get("project-code", 0);
-
-    /* On the first xfer request of a clone, the project-code is not yet
-    ** known.  Use the cleartext password, since that is all we have.
-    */
+  if( zProjCode==0 ){
     if( zProjectId==0 ){
-      return mprintf("%s", zPw);
+      zProjectId = db_get("project-code", 0);
+
+      /* On the first xfer request of a clone, the project-code is not yet
+      ** known.  Use the cleartext password, since that is all we have.
+      */
+      if( zProjectId==0 ){
+        return mprintf("%s", zPw);
+      }
     }
+    zProjCode = zProjectId;
   }
-  SHA1Update(&ctx, (unsigned char*)zProjectId, strlen(zProjectId));
+  SHA1Update(&ctx, (unsigned char*)zProjCode, strlen(zProjCode));
   SHA1Update(&ctx, (unsigned char*)"/", 1);
   SHA1Update(&ctx, (unsigned char*)zLogin, strlen(zLogin));
   SHA1Update(&ctx, (unsigned char*)"/", 1);
@@ -369,6 +376,40 @@ char *sha1_shared_secret(const char *zPw, const char *zLogin){
   SHA1Final(&ctx, zResult);
   DigestToBase16(zResult, zDigest);
   return mprintf("%s", zDigest);
+}
+
+/*
+** Implement the shared_secret() SQL function.  shared_secret() takes two or
+** three arguments; the third argument is optional.
+**
+** (1) The cleartext password
+** (2) The login name
+** (3) The project code
+**
+** Returns sha1($password/$login/$projcode).
+*/
+void sha1_shared_secret_sql_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const char *zPw;
+  const char *zLogin;
+  const char *zProjid;
+
+  assert( argc==2 || argc==3 );
+  zPw = (const char*)sqlite3_value_text(argv[0]);
+  if( zPw==0 ) return;
+  zLogin = (const char*)sqlite3_value_text(argv[1]);
+  if( zLogin==0 ) return;
+  if( argc==3 ){
+    zProjid = (const char*)sqlite3_value_text(argv[2]);
+    if( zProjid && zProjid[0]==0 ) zProjid = 0;
+  }else{
+    zProjid = 0;
+  }
+  sqlite3_result_text(context, sha1_shared_secret(zPw, zLogin, zProjid), -1,
+                      fossil_free);
 }
 
 /*

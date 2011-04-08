@@ -581,7 +581,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       ** again with the SHA1 password.
       */
       const char *zPw = db_column_text(&q, 0);
-      char *zSecret = sha1_shared_secret(zPw, blob_str(pLogin));
+      char *zSecret = sha1_shared_secret(zPw, blob_str(pLogin), 0);
       blob_zero(&combined);
       blob_copy(&combined, pNonce);
       blob_append(&combined, zSecret, -1);

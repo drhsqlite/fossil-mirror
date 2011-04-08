@@ -180,7 +180,7 @@ void login_page(void){
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
-    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin);
+    zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
                   g.userUid, zPasswd, zSha1Pw) ){
@@ -199,12 +199,27 @@ void login_page(void){
          @ </span></p>
       ;
     }else{
-      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin);
+      char *zNewPw = sha1_shared_secret(zNew1, g.zLogin, 0);
+      char *zChngPw;
+      char *zErr;
       db_multi_exec(
          "UPDATE user SET pw=%Q WHERE uid=%d", zNewPw, g.userUid
       );
-      redirect_to_g();
-      return;
+      fossil_free(zNewPw);
+      zChngPw = mprintf(
+         "UPDATE user"
+         "   SET pw=shared_secret(%Q,%Q,"
+         "        (SELECT value FROM config WHERE name='project-code'))"
+         " WHERE login=%Q",
+         zNew1, g.zLogin, g.zLogin
+      );
+      if( login_group_sql(zChngPw, "<p>", "</p>\n", &zErr) ){
+        zErrMsg = mprintf("<span class=\"loginError\">%s</span>", zErr);
+        fossil_free(zErr);
+      }else{
+        redirect_to_g();
+        return;
+      }
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");
@@ -228,7 +243,7 @@ void login_page(void){
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
-    zSha1Pw = sha1_shared_secret(zPasswd, zUsername);
+    zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
     uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q"
@@ -797,7 +812,7 @@ void register_page(void){
         @ %s(zUsername) already exists.
         @ </span></p>
       }else{
-        char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
+        char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
         char *zCookie;
         const char *zCookieName;
@@ -874,4 +889,242 @@ void register_page(void){
   style_footer();
 
   free(zCaptcha);
+}
+
+/*
+** Return an abbreviated project code.
+**
+** Memory is obtained from malloc.
+*/
+static char *abbreviated_project_code(const char *zFullCode){
+  return mprintf("%.16s", zFullCode);
+}
+
+/*
+** Run SQL on the repository database for every repository in our
+** login group.  The SQL is run in a separate database connection.
+**
+** Any members of the login group whose repository database file
+** cannot be found is silently removed from the group.
+**
+** Error messages accumulate and are returned in *pzErrorMsg.  The
+** memory used to hold these messages should be freed using
+** fossil_free() if one desired to avoid a memory leak.  The
+** zPrefix and zSuffix strings surround each error message.
+**
+** Return the number of errors.
+*/
+int login_group_sql(
+  const char *zSql,        /* The SQL to run */
+  const char *zPrefix,     /* Prefix to each error message */
+  const char *zSuffix,     /* Suffix to each error message */
+  char **pzErrorMsg        /* Write error message here, if not NULL */
+){
+  sqlite3 *pPeer;          /* Connection to another database */
+  int nErr = 0;            /* Number of errors seen so far */
+  int rc;                  /* Result code from subroutine calls */
+  char *zErr;              /* SQLite error text */
+  char *zSelfCode;         /* Project code for ourself */
+  Blob err;                /* Accumulate errors here */
+  Stmt q;                  /* Query of all peer-* entries in CONFIG */
+
+  if( zPrefix==0 ) zPrefix = "";
+  if( zSuffix==0 ) zSuffix = "";
+  if( pzErrorMsg ) *pzErrorMsg = 0;
+  zSelfCode = abbreviated_project_code(db_get("project-code", "x"));
+  blob_zero(&err);
+  db_prepare(&q, 
+    "SELECT name, value FROM config"
+    " WHERE name GLOB 'peer-repo-*'"
+    "   AND name <> 'peer-repo-%q'"
+    " ORDER BY +value",
+    zSelfCode
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zRepoName = db_column_text(&q, 1);
+    if( file_size(zRepoName)<0 ){
+      /* Silently remove non-existant repositories from the login group. */
+      const char *zLabel = db_column_text(&q, 0);
+      db_multi_exec(
+         "DELETE FROM config WHERE name GLOB 'peer-*-%q'",
+         &zLabel[10]
+      );
+      continue;
+    }
+    rc = sqlite3_open_v2(zRepoName, &pPeer, SQLITE_OPEN_READWRITE, 0);
+    if( rc!=SQLITE_OK ){
+      blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
+                   sqlite3_errmsg(pPeer), zSuffix);
+      nErr++;
+      sqlite3_close(pPeer);
+      continue;
+    }
+    sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
+                            0, sha1_shared_secret_sql_function, 0, 0);
+    zErr = 0;
+    rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
+    if( zErr ){
+      blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName, zErr, zSuffix);
+      sqlite3_free(zErr);
+      nErr++;
+    }else if( rc!=SQLITE_OK ){
+      blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
+                   sqlite3_errmsg(pPeer), zSuffix);
+      nErr++;
+    }
+    sqlite3_close(pPeer);
+  }
+  db_finalize(&q);
+  if( pzErrorMsg && blob_size(&err)>0 ){
+    *pzErrorMsg = fossil_strdup(blob_str(&err));
+  }
+  blob_reset(&err);
+  fossil_free(zSelfCode);
+  return nErr;
+}
+
+/*
+** Attempt to join a login-group.
+**
+** If problems arise, leave an error message in *pzErrMsg.
+*/
+void login_group_join(
+  const char *zRepo,         /* Repository file in the login group */
+  const char *zLogin,        /* Login name for the other repo */
+  const char *zPassword,     /* Password to prove we are authorized to join */
+  const char *zNewName,      /* Name of new login group if making a new one */
+  char **pzErrMsg            /* Leave an error message here */
+){
+  Blob fullName;             /* Blob for finding full pathnames */
+  sqlite3 *pOther;           /* The other repository */
+  int rc;                    /* Return code from sqlite3 functions */
+  char *zOtherProjCode;      /* Project code for pOther */
+  char *zPwHash;             /* Password hash on pOther */
+  char *zSelfRepo;           /* Name of our repository */
+  char *zSelfLabel;          /* Project-name for our repository */
+  char *zSelfProjCode;       /* Our project-code */
+  char *zSql;                /* SQL to run on all peers */
+  const char *zSelf;         /* The ATTACH name of our repository */
+
+  *pzErrMsg = 0;   /* Default to no errors */
+  zSelf = db_name("repository");
+
+  /* Get the full pathname of the other repository */  
+  file_canonical_name(zRepo, &fullName);
+  zRepo = mprintf(blob_str(&fullName));
+  blob_reset(&fullName);
+
+  /* Get the full pathname for our repository.  Also the project code
+  ** and project name for ourself. */
+  file_canonical_name(g.zRepositoryName, &fullName);
+  zSelfRepo = mprintf(blob_str(&fullName));
+  blob_reset(&fullName);
+  zSelfProjCode = db_get("project-code", "unknown");
+  zSelfLabel = db_get("project-name", 0);
+  if( zSelfLabel==0 ){
+    zSelfLabel = zSelfProjCode;
+  }
+
+  /* Make sure we are not trying to join ourselves */
+  if( strcmp(zRepo, zSelfRepo)==0 ){
+    *pzErrMsg = mprintf("The \"other\" repository is the same as this one.");
+    return;
+  }
+
+  /* Make sure the other repository is a valid Fossil database */
+  if( file_size(zRepo)<0 ){
+    *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
+    return;
+  }
+  rc = sqlite3_open(zRepo, &pOther);
+  if( rc!=SQLITE_OK ){
+    *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
+  }else{
+    rc = sqlite3_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);
+  }
+  sqlite3_close(pOther);
+  if( rc ) return;
+
+  /* Attach the other respository.  Make sure the username/password is
+  ** valid and has Setup permission.
+  */
+  db_multi_exec("ATTACH %Q AS other", zRepo);
+  zOtherProjCode = db_text("x", "SELECT value FROM other.config"
+                                " WHERE name='project-code'");
+  zPwHash = sha1_shared_secret(zPassword, zLogin, zOtherProjCode);
+  if( !db_exists(
+    "SELECT 1 FROM other.user"
+    " WHERE login=%Q AND cap GLOB '*s*'"
+    "   AND (pw=%Q OR pw=%Q)",
+    zLogin, zPassword, zPwHash)
+  ){
+    db_multi_exec("DETACH other");
+    *pzErrMsg = "The supplied username/password does not correspond to a"
+                " user Setup permission on the other repository.";
+    return;
+  }
+
+  /* Create all the necessary CONFIG table entries on both the
+  ** other repository and on our own repository.
+  */
+  zSelfProjCode = abbreviated_project_code(zSelfProjCode);
+  db_begin_transaction();
+  db_multi_exec(
+    "DELETE FROM %s.config WHERE name GLOB 'peer-*';"
+    "INSERT INTO %s.config(name,value) VALUES('peer-repo-%s',%Q);"
+    "INSERT INTO %s.config(name,value) "
+    "  SELECT 'peer-name-%q', value FROM other.config"
+    "   WHERE name='project-name';",
+    zSelf,
+    zSelf, zOtherProjCode, zRepo,
+    zSelf, zOtherProjCode
+  );
+  db_multi_exec(
+    "INSERT OR IGNORE INTO other.config(name,value)"
+    " VALUES('login-group-name',%Q);",
+    zNewName
+  );
+  db_multi_exec(
+    "REPLACE INTO %s.config(name,value)"
+    "  SELECT name, value FROM other.config"
+    "   WHERE name GLOB 'peer-*' OR name='login-group-name'",
+    zSelf
+  );
+  db_end_transaction(0);
+  db_multi_exec("DETACH other");
+
+  /* Propagate the changes to all other members of the login-group */
+  zSql = mprintf(
+    "BEGIN;"
+    "REPLACE INTO config(name, value) VALUES('peer-name-%q', %Q);"
+    "REPLACE INTO config(name, value) VALUES('peer-repo-%q', %Q);"
+    "COMMIT;",
+    zSelfProjCode, zSelfLabel, zSelfProjCode, zSelfRepo
+  );
+  login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
+  fossil_free(zSql);
+}
+
+/*
+** Leave the login group that we are currently part of.
+*/
+void login_group_leave(char **pzErrMsg){
+  char *zProjCode;
+  char *zSql;
+
+  *pzErrMsg = 0;
+  zProjCode = abbreviated_project_code(db_get("project-code","x"));
+  zSql = mprintf(
+    "DELETE FROM config WHERE name GLOB 'peer-*-%q';"
+    "DELETE FROM config"
+    " WHERE name='login-group-name'"
+    "   AND (SELECT count(*) FROM config WHERE name GLOB 'peer-*')==0;",
+    zProjCode
+  );
+  fossil_free(zProjCode);
+  login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
+  fossil_free(zSql);
+  db_multi_exec(
+    "DELETE FROM config WHERE name GLOB 'peer-*' OR name='login-group-name';"
+  );
 }
