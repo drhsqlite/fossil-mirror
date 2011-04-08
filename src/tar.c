@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2011 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to generate ZIP archives.
+** This file contains code used to generate tarballs.
 */
 #include <assert.h>
 #include <zlib.h>
