@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2011-04-02T14:42:26.623
+C Cache\spassphrase\sfor\sprotected\sPEM\sfiles\sto\savoid\shaving\sto\sre-type\spassphrase\sfor\seach\snew\shttps\sconnection.
+D 2011-04-10T00:27:40.383
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -67,7 +67,7 @@ F src/graph.c 89060e19d89f212cb786acf028f4c838f4683209
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 458743aa8c6270f825357e08f89abaad2b1a7b43
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c fec4848792dc05e10cd5322bd4cce1eec55f9389
+F src/http_ssl.c 6ff01a19e9e137bd2387fbe272184a9fc7c70ea7
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c d0fe09013e5a03b70a5a9320901d88f61311fcd1
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c44bb083e9a10219ad8f5bc1b0ef00238abc87d0 fa81575c8d8d2121852c0c9cb1ad500262d25e8a
-R c73a82d6021b81f69c028d0dad122486
+P e4ebc85e66cf8da8f31227ada77547cc1d401aa0
+R 04ebc2cf7207a5e606ede8f42f824337
 U jan
-Z 825c622c46241c9210c5f4684b3e8e4b
+Z 495cf6d665c8a69030712d04001afdc6

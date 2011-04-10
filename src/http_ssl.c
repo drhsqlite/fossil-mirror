@@ -72,6 +72,7 @@ static BIO *iBio;            /* OpenSSL I/O abstraction */
 static char *sslErrMsg = 0;  /* Text of most recent OpenSSL error */
 static SSL_CTX *sslCtx;      /* SSL context */
 static SSL *ssl;
+static char *pempasswd = 0;  /* Passphrase used to unlock key */
 
 
 /*
@@ -101,6 +102,30 @@ const char *ssl_errmsg(void){
 }
 
 /*
+** Called by SSL when a passphrase protected file needs to be unlocked.
+** We cache the passphrase so the user doesn't have to re-enter it for each new
+** connection.
+*/
+static int ssl_passwd_cb(char *buf, int size, int rwflag, void *userdata){
+  if( userdata==0 ){
+    Blob passwd;
+    prompt_for_password("\nPEM unlock passphrase: ", &passwd, 0);
+    strncpy(buf, (char *)blob_str(&passwd), size);
+    buf[size-1] = '\0';
+    blob_reset(&passwd);
+    pempasswd = strdup(buf);
+    if( !pempasswd ){
+      fossil_panic("Unable to allocate memory for PEM passphrase.");
+    }
+    SSL_CTX_set_default_passwd_cb_userdata(sslCtx, pempasswd);
+  }else{
+    strncpy(buf, (char *)userdata, size);
+  }
+
+  return strlen(buf);
+}
+
+/*
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
@@ -112,6 +137,8 @@ void ssl_global_init(void){
     OpenSSL_add_all_algorithms();    
     sslCtx = SSL_CTX_new(SSLv23_client_method());
     X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    SSL_CTX_set_default_passwd_cb(sslCtx, ssl_passwd_cb);
+    SSL_CTX_set_default_passwd_cb_userdata(sslCtx, NULL);
     sslIsInit = 1;
   }
 }
