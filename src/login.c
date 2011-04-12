@@ -48,15 +48,49 @@
 #include <time.h>
 
 /*
-** Return the name of the login cookie
+** Return the login-group name.  Or return 0 if this repository is
+** not a member of a login-group.
+*/
+const char *login_group_name(void){
+  static const char *zGroup = 0;
+  static int once = 1;
+  if( once ){
+    zGroup = db_get("login-group-name", 0);
+    once = 0;
+  }
+  return zGroup;
+}
+
+/*
+** Return a path appropriate for setting a cookie.
+**
+** The path is g.zTop for single-repo cookies.  It is "/" for
+** cookies of a login-group.
+*/
+static const char *login_cookie_path(void){
+  if( login_group_name()==0 ){
+    return g.zTop;
+  }else{
+    return "/";
+  }
+}
+
+/*
+** Return the name of the login cookie.
+**
+** The login cookie name is always of the form:  fossil-XXXXXXXXXXXXXXXX
+** where the Xs are the first 16 characters of the login-group-code or
+** the project-code if we are not a member of any login-group.
 */
 static char *login_cookie_name(void){
   static char *zCookieName = 0;
   if( zCookieName==0 ){
-    unsigned int h = 0;
-    const char *z = g.zBaseURL;
-    while( *z ){ h = (h<<3) ^ (h>>26) ^ *(z++); }
-    zCookieName = mprintf("fossil_login_%08x", h);
+    zCookieName = db_text(0,
+       "SELECT 'fossil-' || substr(value,1,16)"
+       "  FROM config"
+       " WHERE name IN ('project-code','login-group-code')"
+       " ORDER BY name;"
+    );
   }
   return zCookieName;
 }
@@ -91,7 +125,16 @@ static char *ipPrefix(const char *zIP){
   }
   return mprintf("%.*s", i, zIP);
 }
-        
+
+/*
+** Return an abbreviated project code.
+**
+** Memory is obtained from malloc.
+*/
+static char *abbreviated_project_code(const char *zFullCode){
+  return mprintf("%.16s", zFullCode);
+}
+
 
 /*
 ** Check to see if the anonymous login is valid.  If it is valid, return
@@ -169,6 +212,7 @@ void login_page(void){
   int uid;                     /* User id loged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
+  char *zRemoteAddr;           /* Abbreviated IP address of requestor */
 
   login_check_credentials();
   zUsername = P("u");
@@ -176,7 +220,7 @@ void login_page(void){
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
     const char *zCookieName = login_cookie_name();
-    cgi_set_cookie(zCookieName, "", 0, -86400);
+    cgi_set_cookie(zCookieName, "", login_cookie_path(), -86400);
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
@@ -223,6 +267,7 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");
+  zRemoteAddr = ipPrefix(zIpAddr);
   uid = isValidAnonymousLogin(zUsername, zPasswd);
   if( uid>0 ){
     char *zNow;                  /* Current time (julian day number) */
@@ -233,12 +278,12 @@ void login_page(void){
     zCookieName = login_cookie_name();
     zNow = db_text("0", "SELECT julianday('now')");
     blob_init(&b, zNow, -1);
-    blob_appendf(&b, "/%z/%s", ipPrefix(zIpAddr), db_get("captcha-secret",""));
+    blob_appendf(&b, "/%s/%s", zRemoteAddr, db_get("captcha-secret",""));
     sha1sum_blob(&b, &b);
-    zCookie = sqlite3_mprintf("anon/%s/%s", zNow, blob_buffer(&b));
+    zCookie = sqlite3_mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
     blob_reset(&b);
     free(zNow);
-    cgi_set_cookie(zCookieName, zCookie, 0, 6*3600);
+    cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -247,6 +292,7 @@ void login_page(void){
     uid = db_int(0,
         "SELECT uid FROM user"
         " WHERE login=%Q"
+        "   AND length(cap)>0 AND length(pw)>0"
         "   AND login NOT IN ('anonymous','nobody','developer','reader')"
         "   AND (pw=%Q OR pw=%Q)",
         zUsername, zPasswd, zSha1Pw
@@ -264,15 +310,17 @@ void login_page(void){
       const char *zCookieName = login_cookie_name();
       const char *zExpire = db_get("cookie-expire","8766");
       int expires = atoi(zExpire)*3600;
-      const char *zIpAddr = PD("REMOTE_ADDR","nil");
- 
-      zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-      cgi_set_cookie(zCookieName, zCookie, 0, expires);
+      char *zCode = abbreviated_project_code(db_get("project-code",""));
+      char *zHash;
+  
+      zHash = db_text(0, "SELECT hex(randomblob(25))");
+      zCookie = mprintf("%s/%s/%s", zHash, zCode, zUsername);
+      cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
       record_login_attempt(zUsername, zIpAddr, 1);
       db_multi_exec(
         "UPDATE user SET cookie=%Q, ipaddr=%Q, "
         "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-        zCookie, ipPrefix(zIpAddr), expires, uid
+        zHash, zRemoteAddr, expires, uid
       );
       redirect_to_g();
     }
@@ -383,6 +431,89 @@ void login_page(void){
   style_footer();
 }
 
+/*
+** Attempt to find login credentials for user zLogin on a peer repository
+** with project code zCode.  Transfer those credentials to the local 
+** repository.
+**
+** Return true if a transfer was made and false if not.
+*/
+static int login_transfer_credentials(
+  const char *zLogin,          /* Login we are looking for */
+  const char *zCode,           /* Project code of peer repository */
+  const char *zHash,           /* HASH from login cookie HASH/CODE/LOGIN */
+  const char *zRemoteAddr      /* Request comes from here */
+){
+  sqlite3 *pOther = 0;         /* The other repository */
+  sqlite3_stmt *pStmt;         /* Query against the other repository */
+  char *zSQL;                  /* SQL of the query against other repo */
+  char *zOtherRepo;            /* Filename of the other repository */
+  int rc;                      /* Result code from SQLite library functions */
+  int nXfer = 0;               /* Number of credentials transferred */
+
+  zOtherRepo = db_text(0, 
+       "SELECT value FROM config WHERE name='peer-repo-%q'",
+       zCode
+  );
+  if( zOtherRepo==0 ) return 0;
+
+  rc = sqlite3_open(zOtherRepo, &pOther);
+  if( rc==SQLITE_OK ){
+    zSQL = mprintf(
+      "SELECT cexpire FROM user"
+      " WHERE cookie=%Q"
+      "   AND ipaddr=%Q"
+      "   AND login=%Q"
+      "   AND length(cap)>0"
+      "   AND length(pw)>0"
+      "   AND cexpire>julianday('now')",
+      zHash, zRemoteAddr, zLogin
+    );
+    pStmt = 0;
+    rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
+    if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+      db_multi_exec(
+        "UPDATE user SET cookie=%Q, ipaddr=%Q, cexpire=%.17g"
+        " WHERE login=%Q",
+        zHash, zRemoteAddr,
+        sqlite3_column_double(pStmt, 0), zLogin
+      );
+      nXfer++;
+    }
+    sqlite3_finalize(pStmt);
+  }
+  sqlite3_close(pOther);
+  fossil_free(zOtherRepo);
+  return nXfer;
+}
+
+/*
+** Lookup the uid for a user with zLogin and zCookie and zRemoteAddr.
+** Return 0 if not found.
+*/
+static int login_find_user(
+  const char *zLogin,            /* User name */
+  const char *zCookie,           /* Login cookie value */
+  const char *zRemoteAddr        /* Abbreviated IP address for valid login */
+){
+  int uid;
+  if( fossil_strcmp(zLogin, "anonymous")==0 ) return 0;
+  if( fossil_strcmp(zLogin, "nobody")==0 ) return 0;
+  if( fossil_strcmp(zLogin, "developer")==0 ) return 0;
+  if( fossil_strcmp(zLogin, "reader")==0 ) return 0;
+  uid = db_int(0, 
+    "SELECT uid FROM user"
+    " WHERE login=%Q"
+    "   AND cookie=%Q"
+    "   AND ipaddr=%Q"
+    "   AND cexpire>julianday('now')"
+    "   AND length(cap)>0"
+    "   AND length(pw)>0",
+    zLogin, zCookie, zRemoteAddr
+  );
+  return uid;
+}
+
 
 
 /*
@@ -394,7 +525,7 @@ void login_page(void){
 void login_check_credentials(void){
   int uid = 0;                  /* User id */
   const char *zCookie;          /* Text of the login cookie */
-  const char *zRemoteAddr;      /* IP address of the requestor */
+  char *zRemoteAddr;            /* IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
 
   /* Only run this check once.  */
@@ -406,7 +537,7 @@ void login_check_credentials(void){
   ** then there is no need to check user credentials.
   **
   */
-  zRemoteAddr = PD("REMOTE_ADDR","nil");
+  zRemoteAddr = ipPrefix(PD("REMOTE_ADDR","nil"));
   if( strcmp(zRemoteAddr, "127.0.0.1")==0
    && g.useLocalauth
    && db_get_int("localauth",0)==0
@@ -422,44 +553,56 @@ void login_check_credentials(void){
   /* Check the login cookie to see if it matches a known valid user.
   */
   if( uid==0 && (zCookie = P(login_cookie_name()))!=0 ){
-    if( fossil_isdigit(zCookie[0]) ){
-      /* Cookies of the form "uid/randomness".  There must be a
-      ** corresponding entry in the user table. */
-      uid = db_int(0, 
-            "SELECT uid FROM user"
-            " WHERE uid=%d"
-            "   AND cookie=%Q"
-            "   AND ipaddr=%Q"
-            "   AND cexpire>julianday('now')",
-            atoi(zCookie), zCookie, ipPrefix(zRemoteAddr)
-         );
-    }else if( memcmp(zCookie,"anon/",5)==0 ){
-      /* Cookies of the form "anon/TIME/HASH".  The TIME must not be
-      ** too old and the sha1 hash of TIME+IPADDR+SECRET must match HASH.
+    /* Parse the cookie value up into HASH/ARG/USER */
+    char *zHash = fossil_strdup(zCookie);
+    char *zArg = 0;
+    char *zUser = 0;
+    int i, c;
+    for(i=0; (c = zHash[i])!=0; i++){
+      if( c=='/' ){
+        zHash[i++] = 0;
+        if( zArg==0 ){
+          zArg = &zHash[i];
+        }else{
+          zUser = &zHash[i];
+          break;
+        }
+      }
+    }
+    if( zUser==0 ){
+      /* Invalid cookie */
+    }else if( strcmp(zUser, "anonymous")==0 ){
+      /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
+      ** too old and the sha1 hash of TIME/IPADDR/SECRET must match HASH.
       ** SECRET is the "captcha-secret" value in the repository.
       */
-      double rTime;
-      int i;
+      double rTime = atof(zArg);
       Blob b;
-      rTime = atof(&zCookie[5]);
-      for(i=5; zCookie[i] && zCookie[i]!='/'; i++){}
-      blob_init(&b, &zCookie[5], i-5);
-      if( zCookie[i]=='/' ){ i++; }
-      blob_append(&b, "/", 1);
-      blob_appendf(&b, "%z/%s", ipPrefix(zRemoteAddr),
-                   db_get("captcha-secret",""));
+      blob_zero(&b);
+      blob_appendf(&b, "%s/%s/%s", 
+                   zArg, zRemoteAddr, db_get("captcha-secret",""));
       sha1sum_blob(&b, &b);
-      uid = db_int(0, 
-          "SELECT uid FROM user WHERE login='anonymous'"
-          " AND length(cap)>0"
-          " AND length(pw)>0"
-          " AND %f+0.25>julianday('now')"
-          " AND %Q=%Q",
-          rTime, &zCookie[i], blob_buffer(&b)
-      );
+      if( fossil_strcmp(zHash, blob_str(&b))==0 ){
+        uid = db_int(0, 
+            "SELECT uid FROM user WHERE login='anonymous'"
+            " AND length(cap)>0"
+            " AND length(pw)>0"
+            " AND %.17g+0.25>julianday('now')",
+            rTime
+        );
+      }
       blob_reset(&b);
+    }else{
+      /* Cookies of the form "HASH/CODE/USER".  Search first in the
+      ** local user table, then the user table for project CODE if we
+      ** are part of a login-group.
+      */
+      uid = login_find_user(zUser, zHash, zRemoteAddr);
+      if( uid==0 && login_transfer_credentials(zUser,zArg,zHash,zRemoteAddr) ){
+        uid = login_find_user(zUser, zHash, zRemoteAddr);
+      }
     }
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zCookie);
+    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zHash);
   }
 
   /* If no user found and the REMOTE_USER environment variable is set,
@@ -834,13 +977,13 @@ void register_page(void){
         zIpAddr = PD("REMOTE_ADDR","nil");
 
         zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-        cgi_set_cookie(zCookieName, zCookie, 0, expires);
+        cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
         record_login_attempt(zUsername, zIpAddr, 1);
         db_multi_exec(
             "UPDATE user SET cookie=%Q, ipaddr=%Q, "
             "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
             zCookie, ipPrefix(zIpAddr), expires, uid
-            );
+        );
         redirect_to_g();
 
       }
@@ -889,15 +1032,6 @@ void register_page(void){
   style_footer();
 
   free(zCaptcha);
-}
-
-/*
-** Return an abbreviated project code.
-**
-** Memory is obtained from malloc.
-*/
-static char *abbreviated_project_code(const char *zFullCode){
-  return mprintf("%.16s", zFullCode);
 }
 
 /*
@@ -1081,13 +1215,15 @@ void login_group_join(
   );
   db_multi_exec(
     "INSERT OR IGNORE INTO other.config(name,value)"
-    " VALUES('login-group-name',%Q);",
+    " VALUES('login-group-name',%Q);"
+    "INSERT OR IGNORE INTO other.config(name,value)"
+    " VALUES('login-group-code',lower(hex(randomblob(8))));",
     zNewName
   );
   db_multi_exec(
     "REPLACE INTO %s.config(name,value)"
     "  SELECT name, value FROM other.config"
-    "   WHERE name GLOB 'peer-*' OR name='login-group-name'",
+    "   WHERE name GLOB 'peer-*' OR name GLOB 'login-group-*'",
     zSelf
   );
   db_end_transaction(0);
@@ -1125,6 +1261,8 @@ void login_group_leave(char **pzErrMsg){
   login_group_sql(zSql, "<li> ", "</li>", pzErrMsg);
   fossil_free(zSql);
   db_multi_exec(
-    "DELETE FROM config WHERE name GLOB 'peer-*' OR name='login-group-name';"
+    "DELETE FROM config "
+    " WHERE name GLOB 'peer-*'"
+    "    OR name GLOB 'login-group-*';"
   );
 }

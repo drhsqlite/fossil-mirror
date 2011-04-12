@@ -543,7 +543,7 @@ void user_edit(void){
     @   <td><input type="password" name="pw" value="" /></td>
   }
   @ </tr>
-  zGroup = db_get("login-group-name", 0);
+  zGroup = login_group_name();
   if( zGroup ){
     @ <tr>
     @ <td valign="top" align="right">Scope:</td>
@@ -926,7 +926,7 @@ void setup_login_group(void){
   if( zErrMsg ){
     @ <p class="generalError">%s(zErrMsg)</p>
   }
-  zGroup = db_get("login-group-name", 0);
+  zGroup = login_group_name();
   if( zGroup==0 ){
     @ <p>This repository (in the file named "%h(zSelfRepo)")
     @ is not currently part of any login-group.

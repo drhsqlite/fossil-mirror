@@ -1,5 +1,5 @@
-C User\sedits\scan\sbe\sapplied\sto\sa\ssingle\srepository\sor\sacross\sthe\sentire\nlogin\sgroup.
-D 2011-04-08T18:45:22.635
+C Update\sweb\slogins\sso\sthat\sthey\sspan\sall\smembers\sof\sa\slogin\sgroup.
+D 2011-04-12T22:44:46.315
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -72,7 +72,7 @@ F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c a4860a776ec1b142c8083f44c7a38f10a1a5e151
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
-F src/login.c e0438c9209b39f5826496d0e7cc5301c5dfe1c5c
+F src/login.c b02ceac6da49941e5ee501c085acc6b3bcf39b61
 F src/main.c 7391106b7cc58d18a77dd7e0e570c822390d2004
 F src/main.mk a693d2a290756f7c41e4cf54a1157e5585d557bc
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
@@ -94,7 +94,7 @@ F src/report.c 8c408654f3b001ff13e90803f3705410fac7f658
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
-F src/setup.c 0569fc254ae15cd9e705fe135b5ef681e7d1400c
+F src/setup.c 1846955f116e8d45bcfb6b20fb62638f4a9f23cf
 F src/sha1.c f25e6093f17488de748ef54283d2a7ac8f8c874b
 F src/shell.c d275901b531cf10b09449606854884b467e37e79
 F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P eec32b99dd74d226824fff2aa585d1ac06024cdf
-R 5d0e6d969ed2c90ac7610064b0175e3b
+P a3fbd4fa9d7628568a7744888ff2808d953130dd
+R 64b70003fba07c6ec510b13f3ed64b41
 U drh
-Z ef74f078b8f79921fe265a259de4cd39
+Z 9ffed38a74ae6e23b1ff62ad0eae40cc
