@@ -19,12 +19,16 @@
 **
 ** Notes:
 **
-** There are two special-case user-ids: "anonymous" and "nobody".
+** There are four special-case user-ids:  "anonymous", "nobody",
+** "developer" and "reader".
+**
 ** The capabilities of the nobody user are available to anyone,
 ** regardless of whether or not they are logged in.  The capabilities
 ** of anonymous are only available after logging in, but the login
 ** screen displays the password for the anonymous login, so this
-** should not prevent a human user from doing so.
+** should not prevent a human user from doing so.  The capabilities
+** of developer and reader are inherited by any user that has the
+** "v" and "u" capabilities, respectively.
 **
 ** The nobody user has capabilities that you want spiders to have.
 ** The anonymous user has capabilities that you want people without
@@ -80,7 +84,7 @@ static const char *login_cookie_path(void){
 **
 ** The login cookie name is always of the form:  fossil-XXXXXXXXXXXXXXXX
 ** where the Xs are the first 16 characters of the login-group-code or
-** the project-code if we are not a member of any login-group.
+** of the project-code if we are not a member of any login-group.
 */
 static char *login_cookie_name(void){
   static char *zCookieName = 0;
@@ -109,11 +113,10 @@ static void redirect_to_g(void){
 }
 
 /*
-** The IP address of the client is stored as part of the anonymous
-** login cookie for additional security.  But some clients are behind
-** firewalls that shift the IP address with each HTTP request.  To
-** allow such (broken) clients to log in, extract just a prefix of the
-** IP address.  
+** The IP address of the client is stored as part of login cookies.
+** But some clients are behind firewalls that shift the IP address 
+** with each HTTP request.  To allow such (broken) clients to log in, 
+** extract just a prefix of the IP address.  
 */
 static char *ipPrefix(const char *zIP){
   int i, j; 
@@ -127,7 +130,8 @@ static char *ipPrefix(const char *zIP){
 }
 
 /*
-** Return an abbreviated project code.
+** Return an abbreviated project code.  The abbreviation is the first
+** 16 characters of the project code.
 **
 ** Memory is obtained from malloc.
 */
@@ -219,11 +223,13 @@ void login_page(void){
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
+    /* To logout, change the cookie value to an empty string */
     const char *zCookieName = login_cookie_name();
     cgi_set_cookie(zCookieName, "", login_cookie_path(), -86400);
     redirect_to_g();
   }
   if( g.okPassword && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+    /* The user requests a password change */
     zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
@@ -266,10 +272,18 @@ void login_page(void){
       }
     }
   }
-  zIpAddr = PD("REMOTE_ADDR","nil");
-  zRemoteAddr = ipPrefix(zIpAddr);
+  zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
+  zRemoteAddr = ipPrefix(zIpAddr);     /* Abbreviated IP address */
   uid = isValidAnonymousLogin(zUsername, zPasswd);
   if( uid>0 ){
+    /* Successful login as anonymous.  Set a cookie that looks like
+    ** this:
+    **
+    **    HASH/TIME/anonymous
+    **
+    ** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which IPADDR
+    ** is the abbreviated IP address and SECRET is captcha-secret.
+    */
     char *zNow;                  /* Current time (julian day number) */
     char *zCookie;               /* The login cookie */
     const char *zCookieName;     /* Name of the login cookie */
@@ -288,6 +302,8 @@ void login_page(void){
     redirect_to_g();
   }
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
+    /* Attempting to log in as a user other than anonymous.
+    */
     zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
     uid = db_int(0,
         "SELECT uid FROM user"
@@ -306,6 +322,13 @@ void login_page(void){
       ;
       record_login_attempt(zUsername, zIpAddr, 0);
     }else{
+      /* Non-anonymous login is successful.  Set a cookie of the form:
+      **
+      **    HASH/PROJECT/LOGIN
+      **
+      ** where HASH is a random hex number, PROJECT is either project
+      ** code prefix, and LOGIN is the user name.
+      */
       char *zCookie;
       const char *zCookieName = login_cookie_name();
       const char *zExpire = db_get("cookie-expire","8766");
@@ -455,7 +478,7 @@ static int login_transfer_credentials(
        "SELECT value FROM config WHERE name='peer-repo-%q'",
        zCode
   );
-  if( zOtherRepo==0 ) return 0;
+  if( zOtherRepo==0 ) return 0;  /* No such peer repository */
 
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
@@ -514,12 +537,12 @@ static int login_find_user(
   return uid;
 }
 
-
-
 /*
 ** This routine examines the login cookie to see if it exists and
 ** and is valid.  If the login cookie checks out, it then sets 
-** g.zUserUuid appropriately.
+** global variables appropriately.  Global variables set include
+** g.userUid and g.zLogin and of the g.okRead family of permission
+** booleans.
 **
 */
 void login_check_credentials(void){
@@ -531,11 +554,12 @@ void login_check_credentials(void){
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
 
-
   /* If the HTTP connection is coming over 127.0.0.1 and if
   ** local login is disabled and if we are using HTTP and not HTTPS, 
   ** then there is no need to check user credentials.
   **
+  ** This feature allows the "fossil ui" command to give the user
+  ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(PD("REMOTE_ADDR","nil"));
   if( strcmp(zRemoteAddr, "127.0.0.1")==0
@@ -1202,6 +1226,7 @@ void login_group_join(
   ** other repository and on our own repository.
   */
   zSelfProjCode = abbreviated_project_code(zSelfProjCode);
+  zOtherProjCode = abbreviated_project_code(zOtherProjCode);
   db_begin_transaction();
   db_multi_exec(
     "DELETE FROM %s.config WHERE name GLOB 'peer-*';"
