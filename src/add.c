@@ -417,7 +417,8 @@ void delete_cmd(void){
 ** This command can be used to track third party software.
 **
 **
-** SUMMARY: fossil addremove ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
+** SUMMARY: fossil addremove
+** Options: ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
 */
 void import_cmd(void){
   Blob path;
