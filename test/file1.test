@@ -28,9 +28,9 @@ proc simplify-name {testname args} {
 }
 
 simplify-name 100 . . .// . .. .. ..///// ..
-simplify-name 101 {} . / / ///////// / ././././ .
-simplify-name 102 x x /x /x ///x /x
-simplify-name 103 a/b a/b /a/b /a/b a///b a/b ///a///b///// /a/b
+simplify-name 101 {} {} / / ///////// / ././././ .
+simplify-name 102 x x /x /x ///x //x
+simplify-name 103 a/b a/b /a/b /a/b a///b a/b ///a///b///// //a/b
 simplify-name 104 a/b/../c/ a/c /a/b/../c /a/c /a/b//../c /a/c /a/b/..///c /a/c
 simplify-name 105 a/b/../../x/y x/y /a/b/../../x/y /x/y
 simplify-name 106 a/b/../../../x/y ../x/y /a/b/../../../x/y /../x/y
