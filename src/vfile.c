@@ -300,17 +300,39 @@ void vfile_unlink(int vid){
 ** of pPath when inserting into the SFILE table.
 **
 ** Subdirectories are scanned recursively.
-** Omit files named in VFILE.vid
+** Omit files named in VFILE.
+**
+** Files whose names begin with "." are omitted unless allFlag is true.
+**
+** Any files or directories that match the glob pattern pIgnore are 
+** excluded from the scan.  Name matching occurs after the first
+** nPrefix characters are elided from the filename.
 */
-void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
+void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   DIR *d;
   int origSize;
   const char *zDir;
   struct dirent *pEntry;
-  static const char *zSql = "SELECT 1 FROM vfile "
-                            " WHERE pathname=%Q AND NOT deleted";
+  int skipAll = 0;
+  static Stmt ins;
+  static int depth = 0;
 
   origSize = blob_size(pPath);
+  if( pIgnore ){
+    blob_appendf(pPath, "/");
+    if( glob_match(pIgnore, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    blob_resize(pPath, origSize);
+  }
+  if( skipAll ) return;
+
+  if( depth==0 ){
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO sfile(x) SELECT :file"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+    );
+  }
+  depth++;
+
   zDir = blob_str(pPath);
   d = opendir(zDir);
   if( d ){
@@ -323,14 +345,23 @@ void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
       }
       blob_appendf(pPath, "/%s", pEntry->d_name);
       zPath = blob_str(pPath);
-      if( file_isdir(zPath)==1 ){
-        vfile_scan(vid, pPath, nPrefix, allFlag);
-      }else if( file_isfile(zPath) && !db_exists(zSql, &zPath[nPrefix+1]) ){
-        db_multi_exec("INSERT INTO sfile VALUES(%Q)", &zPath[nPrefix+1]);
+      if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
+        /* do nothing */
+      }else if( file_isdir(zPath)==1 ){
+        vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+      }else if( file_isfile(zPath) ){
+        db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+        db_step(&ins);
+        db_reset(&ins);
       }
       blob_resize(pPath, origSize);
     }
     closedir(d);
+  }
+
+  depth--;
+  if( depth==0 ){
+    db_finalize(&ins);
   }
 }
 

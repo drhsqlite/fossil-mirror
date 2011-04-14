@@ -87,30 +87,6 @@ const char *fossil_all_reserved_names(void){
   return zAll;
 }
 
-
-/*
-** The pIgnore statement is query of the form:
-**
-**      SELECT (:x GLOB ... OR :x GLOB ... OR ...)
-**
-** In other words, it is a query that returns true if the :x value
-** should be ignored.  Evaluate the query and return true to ignore
-** and false to not ignore.
-**
-** If pIgnore is NULL, then do not ignore.
-*/
-static int shouldBeIgnored(Stmt *pIgnore, const char *zName){
-  int rc = 0;
-  if( pIgnore ){
-    db_bind_text(pIgnore, ":x", zName);
-    db_step(pIgnore);
-    rc = db_column_int(pIgnore, 0);
-    db_reset(pIgnore);
-  }
-  return rc;
-}
-
-
 /*
 ** Add a single file named zName to the VFILE table with vid.
 **
@@ -162,7 +138,7 @@ static void add_one_file(
 /*
 ** All content of the zDir directory to the SFILE table.
 */
-void add_directory_content(const char *zDir, Stmt *pIgnore){
+void add_directory_content(const char *zDir, Glob *pIgnore){
   DIR *d;
   int origSize;
   struct dirent *pEntry;
@@ -182,7 +158,7 @@ void add_directory_content(const char *zDir, Stmt *pIgnore){
       }
       blob_appendf(&path, "/%s", pEntry->d_name);
       zPath = blob_str(&path);
-      if( shouldBeIgnored(pIgnore, zPath) ){
+      if( glob_match(pIgnore, zPath) ){
         /* Noop */
       }else if( file_isdir(zPath)==1 ){
         add_directory_content(zPath, pIgnore);
@@ -199,7 +175,7 @@ void add_directory_content(const char *zDir, Stmt *pIgnore){
 /*
 ** Add all content of a directory.
 */
-void add_directory(const char *zDir, int vid, Blob *pOmit, Stmt *pIgnore){
+void add_directory(const char *zDir, int vid, Blob *pOmit, Glob *pIgnore){
   Stmt q;
   add_directory_content(zDir, pIgnore);
   db_prepare(&q, "SELECT x FROM sfile ORDER BY x");
@@ -223,11 +199,10 @@ void add_directory(const char *zDir, int vid, Blob *pOmit, Stmt *pIgnore){
 ** with "." are excluded by default.  To include such files, add
 ** the "--dotfiles" option to the command-line.
 **
-** The --ignore option specifies the patterns for files to be excluded,
-** like *.o,*.obj,*.exe. If not specified, the "ignore-glob" setting is
-** used.  See ** documentation on the "settings" command for further
-** information.
-**
+** The --ignore option is a comma-separate list of glob patterns for files
+** to be excluded.  Example:  '*.o,*.obj,*.exe'  If the --ignore option
+** does not appear on the command line then the "ignore-glob" setting is
+** used.
 **
 ** SUMMARY: fossil add ?OPTIONS? FILE1 ?FILE2 ...?
 ** Options: --dotfiles, --ignore
@@ -237,8 +212,7 @@ void add_cmd(void){
   int vid;
   const char *zIgnoreFlag;
   Blob repo;
-  Stmt ignoreTest;     /* Test to see if a name should be ignored */
-  Stmt *pIgnore;       /* Pointer to ignoreTest or to NULL */
+  Glob *pIgnore;       /* Ignore everything matching this glob pattern */
 
   zIgnoreFlag = find_option("ignore",0,1);
   includeDotFiles = find_option("dotfiles",0,0)!=0;
@@ -261,12 +235,7 @@ void add_cmd(void){
      "  ON vfile(pathname COLLATE nocase)"
   );
 #endif
-  if( zIgnoreFlag && zIgnoreFlag[0] ){
-    db_prepare(&ignoreTest, "SELECT %s", glob_expr(":x", zIgnoreFlag));
-    pIgnore = &ignoreTest;
-  }else{
-    pIgnore = 0;
-  }
+  pIgnore = glob_create(zIgnoreFlag);
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
@@ -286,7 +255,7 @@ void add_cmd(void){
     }
     free(zName);
   }
-  if( pIgnore ) db_finalize(pIgnore);
+  glob_free(pIgnore);
   db_end_transaction(0);
 }
 
@@ -431,6 +400,7 @@ void import_cmd(void){
   Blob repo;
   int nAdd = 0;
   int nDelete = 0;
+  Glob *pIgnore;
 
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -445,7 +415,9 @@ void import_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
-  vfile_scan(0, &path, blob_size(&path), allFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  glob_free(pIgnore);
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
@@ -454,11 +426,9 @@ void import_cmd(void){
   db_prepare(&q,
       "SELECT x, %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
-      "   AND NOT %s"
       " ORDER BY 1",
       g.zLocalRoot,
-      fossil_all_reserved_names(),
-      glob_expr("x", zIgnoreFlag)
+      fossil_all_reserved_names()
   );
   while( db_step(&q)==SQLITE_ROW ){
     add_one_file(db_column_text(&q, 1), vid, 0);

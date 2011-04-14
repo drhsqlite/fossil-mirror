@@ -223,6 +223,7 @@ void extra_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int outputManifest;
+  Glob *pIgnore;
 
   db_must_be_within_tree();
   outputManifest = db_get_boolean("manifest",0);
@@ -232,14 +233,14 @@ void extra_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  vfile_scan(0, &path, blob_size(&path), allFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
-      "   AND NOT %s"
       " ORDER BY 1",
-      fossil_all_reserved_names(),
-      glob_expr("x", zIgnoreFlag)
+      fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
@@ -280,6 +281,8 @@ void clean_cmd(void){
   allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
   zIgnoreFlag = find_option("ignore",0,1);
+  Glob *pIgnore;
+
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -287,12 +290,14 @@ void clean_cmd(void){
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), dotfilesFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s) AND NOT %s"
+      " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names(), glob_expr("x",zIgnoreFlag)
+      g.zLocalRoot, fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
