@@ -346,13 +346,15 @@ void www_print_timeline(
     }
 
     /* Generate the file-change list if requested */
-    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' ){
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.okHistory ){
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
           "SELECT (pid==0) AS isnew,"
           "       (fid==0) AS isdel,"
-          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name"
+          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+          "       (SELECT uuid FROM blob WHERE rid=fid),"
+          "       (SELECT uuid FROM blob WHERE rid=pid)"
           "  FROM mlink"
           " WHERE mid=:mid AND pid!=fid"
           " ORDER BY 3"
@@ -364,16 +366,22 @@ void www_print_timeline(
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOld = db_column_text(&fchngQuery, 4);
+        const char *zNew = db_column_text(&fchngQuery, 3);
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
         }
         if( isNew ){
-          @ <li> %h(zFilename) (new file)</li>
+          @ <li> %h(zFilename) (new file) &nbsp;
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
+          @ </a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else{
-          @ <li> %h(zFilename) </li>
+          @ <li> %h(zFilename) &nbsp;
+          @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
+          @ target="diffwindow">[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
