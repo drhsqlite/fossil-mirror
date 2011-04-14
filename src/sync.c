@@ -104,7 +104,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
     zPw = unobscure(db_get("last-sync-pw", 0));
-    if( db_get_boolean("auto-sync",1) ) configSync = CONFIGSET_SHUN;
+    if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
