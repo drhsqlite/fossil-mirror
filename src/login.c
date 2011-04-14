@@ -548,7 +548,8 @@ static int login_find_user(
 void login_check_credentials(void){
   int uid = 0;                  /* User id */
   const char *zCookie;          /* Text of the login cookie */
-  char *zRemoteAddr;            /* IP address of the requestor */
+  const char *zIpAddr;          /* Raw IP address of the requestor */
+  char *zRemoteAddr;            /* Abbreviated IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
 
   /* Only run this check once.  */
@@ -561,8 +562,8 @@ void login_check_credentials(void){
   ** This feature allows the "fossil ui" command to give the user
   ** full access rights without having to log in.
   */
-  zRemoteAddr = ipPrefix(PD("REMOTE_ADDR","nil"));
-  if( strcmp(zRemoteAddr, "127.0.0.1")==0
+  zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
+  if( strcmp(zIpAddr, "127.0.0.1")==0
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
