@@ -28,9 +28,9 @@
 **
 ** Usage: %fossil merge [--cherrypick] [--backout] VERSION
 **
-** The argument is a version that should be merged into the current
-** checkout.  All changes from VERSION back to the nearest common
-** ancestor are merged.  Except, if either of the --cherrypick or
+** The argument VERSION is a version that should be merged into the
+** current checkout.  All changes from VERSION back to the nearest
+** common ancestor are merged.  Except, if either of the --cherrypick or
 ** --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
@@ -285,7 +285,7 @@ void merge_cmd(void){
   /*
   ** Add to V files that are not in V or P but are in M
   */
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT idm, rowid, fnm FROM fv AS x"
     " WHERE idp=0 AND idv=0 AND idm>0"
   );
@@ -309,9 +309,9 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
-  
+
   /*
-  ** Find files that have changed from P->M but not P->V. 
+  ** Find files that have changed from P->M but not P->V.
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -459,7 +459,7 @@ void merge_cmd(void){
   if( nConflict && !nochangeFlag ){
     printf("WARNING: merge conflicts - see messages above for details.\n");
   }
-  
+
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */

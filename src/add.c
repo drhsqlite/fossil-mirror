@@ -214,17 +214,23 @@ void add_directory(const char *zDir, int vid, Blob *pOmit, Stmt *pIgnore){
 /*
 ** COMMAND: add
 **
-** Usage: %fossil add FILE...
+** Usage: %fossil add ?OPTIONS? FILE1 ?FILE2 ...?
 **
-** Make arrangements to add one or more files to the current checkout
-** at the next commit.
+** Make arrangements to add one or more files or directories to the
+** current checkout at the next commit.
 **
-** When adding files recursively, filenames that begin with "." are
-** excluded by default.  To include such files, add the "--dotfiles"
-** option to the command-line.
+** When adding files or directories recursively, filenames that begin
+** with "." are excluded by default.  To include such files, add
+** the "--dotfiles" option to the command-line.
 **
-** The --ignore option overrides the "ignore-glob" setting.  See
-** documentation on the "setting" command for further information.
+** The --ignore option specifies the patterns for files to be excluded,
+** like *.o,*.obj,*.exe. If not specified, the "ignore-glob" setting is
+** used.  See ** documentation on the "settings" command for further
+** information.
+**
+**
+** SUMMARY: fossil add ?OPTIONS? FILE1 ?FILE2 ...?
+** Options: --dotfiles, --ignore
 */
 void add_cmd(void){
   int i;
@@ -342,14 +348,17 @@ void del_directory_content(const char *zDir){
 ** COMMAND: rm
 ** COMMAND: delete
 **
-** Usage: %fossil rm FILE...
-**    or: %fossil delete FILE...
+** Usage: %fossil rm FILE1 ?FILE2 ...?
+**    or: %fossil delete FILE1 ?FILE2 ...?
 **
-** Remove one or more files from the tree.
+** Remove one or more files or directories from the repository.
 **
-** This command does not remove the files from disk.  It just marks the
+** This command does NOT remove the files from disk.  It just marks the
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
+**
+** SUMMARY: fossil rm FILE1 ?FILE2 ...?
+**      or: fossil delete FILE1 ?FILE2 ...?
 */
 void delete_cmd(void){
   int i;
@@ -384,7 +393,7 @@ void delete_cmd(void){
 ** Usage: %fossil addremove ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
 **
 ** Do all necessary "add" and "rm" commands to synchronize the repository
-** with the content of the working checkout
+** with the content of the working checkout:
 **
 **  *  All files in the checkout but not in the repository (that is,
 **     all files displayed using the "extra" command) are added as
@@ -401,11 +410,15 @@ void delete_cmd(void){
 ** the --dotfiles option is used.
 **
 ** The --ignore option overrides the "ignore-glob" setting.  See
-** documentation on the "setting" command for further information.
+** documentation on the "settings" command for further information.
 **
 ** The --test option shows what would happen without actually doing anything.
 **
 ** This command can be used to track third party software.
+**
+**
+** SUMMARY: fossil addremove
+** Options: ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
 */
 void import_cmd(void){
   Blob path;
@@ -438,7 +451,7 @@ void import_cmd(void){
   }
 
   /* step 1: search for extra files */
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT x, %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
       "   AND NOT %s"
@@ -453,7 +466,7 @@ void import_cmd(void){
   }
   db_finalize(&q);
   /* step 2: search for missing files */
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT pathname,%Q || pathname,deleted FROM vfile"
       " WHERE deleted!=1"
       " ORDER BY 1",
@@ -501,11 +514,16 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** Usage: %fossil mv|rename OLDNAME NEWNAME
 **    or: %fossil mv|rename OLDNAME... DIR
 **
-** Move or rename one or more files within the tree
+** Move or rename one or more files or directories within the repository tree.
+** You can either rename a file or directory or move it to another subdirectory.
 **
-** This command does not rename the files on disk.  This command merely
+** This command does NOT rename or move the files on disk.  This command merely
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
+**
+**
+** SUMMARY: fossil mv|rename OLDNAME NEWNAME
+**      or: fossil mv|rename OLDNAME... DIR
 */
 void mv_cmd(void){
   int i;
