@@ -92,99 +92,68 @@ const char *fossil_all_reserved_names(void){
 **
 ** Omit any file whose name is pOmit.
 */
-static void add_one_file(
-  const char *zName,   /* Name of file to add */
-  int vid,             /* Add to this VFILE */
-  Blob *pOmit
+static int add_one_file(
+  const char *zPath,   /* Tree-name of file to add. */
+  int vid              /* Add to this VFILE */
 ){
-  Blob pathname;
-  const char *zPath;
-  int i;
-  const char *zReserved;
-
-  file_tree_name(zName, &pathname, 1);
-  zPath = blob_str(&pathname);
-  for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
-    if( fossil_strcmp(zPath, zReserved)==0 ) break;
+  if( !file_is_simple_pathname(zPath) ){
+    fossil_fatal("filename contains illegal characters: %s", zPath);
   }
-  if( zReserved || (pOmit && blob_compare(&pathname, pOmit)==0) ){
-    fossil_warning("cannot add %s", zPath);
-  }else{
-    if( !file_is_simple_pathname(zPath) ){
-      fossil_fatal("filename contains illegal characters: %s", zPath);
-    }
 #if defined(_WIN32)
-    if( db_exists("SELECT 1 FROM vfile"
-                  " WHERE pathname=%Q COLLATE nocase", zPath) ){
-      db_multi_exec("UPDATE vfile SET deleted=0"
-                    " WHERE pathname=%Q COLLATE nocase", zPath);
-    }
+  if( db_exists("SELECT 1 FROM vfile"
+                " WHERE pathname=%Q COLLATE nocase", zPath) ){
+    db_multi_exec("UPDATE vfile SET deleted=0"
+                  " WHERE pathname=%Q COLLATE nocase", zPath);
+  }
 #else
-    if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
-      db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
-    }
+  if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
+    db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
+  }
 #endif
-    else{
-      db_multi_exec(
-        "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe)"
-        "VALUES(%d,0,0,0,%Q,%d)",
-        vid, zPath,file_isexe(zName));
-    }
-    printf("ADDED  %s\n", zPath);
+  else{
+    char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
+    db_multi_exec(
+      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe)"
+      "VALUES(%d,0,0,0,%Q,%d)",
+      vid, zPath, file_isexe(zFullname));
+    fossil_free(zFullname);
   }
-  blob_reset(&pathname);
+  printf("ADDED  %s\n", zPath);
+  return 1;
 }
 
 /*
-** All content of the zDir directory to the SFILE table.
+** Add all files in the sfile temp table.
+**
+** Automatically exclude the repository file.
 */
-void add_directory_content(const char *zDir, Glob *pIgnore){
-  DIR *d;
-  int origSize;
-  struct dirent *pEntry;
-  Blob path;
-
-  blob_zero(&path);
-  blob_append(&path, zDir, -1);
-  origSize = blob_size(&path);
-  d = opendir(zDir);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      char *zPath;
-      if( pEntry->d_name[0]=='.' ){
-        if( !includeDotFiles ) continue;
-        if( pEntry->d_name[1]==0 ) continue;
-        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
-      }
-      blob_appendf(&path, "/%s", pEntry->d_name);
-      zPath = blob_str(&path);
-      if( glob_match(pIgnore, zPath) ){
-        /* Noop */
-      }else if( file_isdir(zPath)==1 ){
-        add_directory_content(zPath, pIgnore);
-      }else if( file_isfile(zPath) ){
-        db_multi_exec("INSERT INTO sfile VALUES(%Q)", zPath);
-      }
-      blob_resize(&path, origSize);
+static int add_files_in_sfile(int vid){
+  const char *zRepo;        /* Name of the repository database file */
+  int nAdd = 0;             /* Number of files added */
+  int i;                    /* Loop counter */
+  const char *zReserved;    /* Name of a reserved file */
+  Blob repoName;            /* Treename of the repository */
+  Stmt loop;                /* SQL to loop over all files to add */
+ 
+  if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
+    blob_zero(&repoName);
+    zRepo = "";
+  }else{
+    zRepo = blob_str(&repoName);
+  }
+  db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
+  while( db_step(&loop)==SQLITE_ROW ){
+    const char *zToAdd = db_column_text(&loop, 0);
+    if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
+    for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
+      if( fossil_strcmp(zToAdd, zReserved)==0 ) break;
     }
-    closedir(d);
+    if( zReserved ) continue;
+    nAdd += add_one_file(zToAdd, vid);
   }
-  blob_reset(&path);
-}
-
-/*
-** Add all content of a directory.
-*/
-void add_directory(const char *zDir, int vid, Blob *pOmit, Glob *pIgnore){
-  Stmt q;
-  add_directory_content(zDir, pIgnore);
-  db_prepare(&q, "SELECT x FROM sfile ORDER BY x");
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    add_one_file(zName, vid, pOmit);
-  }
-  db_finalize(&q);
-  db_multi_exec("DELETE FROM sfile");
+  db_finalize(&loop);
+  blob_reset(&repoName);
+  return nAdd;
 }
 
 /*
@@ -208,11 +177,11 @@ void add_directory(const char *zDir, int vid, Blob *pOmit, Glob *pIgnore){
 ** Options: --dotfiles, --ignore
 */
 void add_cmd(void){
-  int i;
-  int vid;
-  const char *zIgnoreFlag;
-  Blob repo;
-  Glob *pIgnore;       /* Ignore everything matching this glob pattern */
+  int i;                     /* Loop counter */
+  int vid;                   /* Currently checked out version */
+  int nRoot;                 /* Full path characters in g.zLocalRoot */
+  const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
+  Glob *pIgnore;             /* Ignore everything matching this glob pattern */
 
   zIgnoreFlag = find_option("ignore",0,1);
   includeDotFiles = find_option("dotfiles",0,0)!=0;
@@ -225,9 +194,6 @@ void add_cmd(void){
     fossil_panic("no checkout to add to");
   }
   db_begin_transaction();
-  if( !file_tree_name(g.zRepositoryName, &repo, 0) ){
-    blob_zero(&repo);
-  }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
 #if defined(_WIN32)
   db_multi_exec(
@@ -236,81 +202,37 @@ void add_cmd(void){
   );
 #endif
   pIgnore = glob_create(zIgnoreFlag);
+  nRoot = strlen(g.zLocalRoot);
+  
+  /* Load the names of all files that are to be added into sfile temp table */
   for(i=2; i<g.argc; i++){
     char *zName;
     int isDir;
+    Blob fullName;
 
-    zName = mprintf("%/", g.argv[i]);
+    file_canonical_name(g.argv[i], &fullName);
+    zName = blob_str(&fullName);
     isDir = file_isdir(zName);
     if( isDir==1 ){
-      int sz = strlen(zName);
-      if( sz>0 && zName[sz-1]=='/' ){ zName[sz-1] = 0; }
-      add_directory(zName, vid, &repo, pIgnore);
+      vfile_scan(&fullName, nRoot-1, includeDotFiles, pIgnore);
     }else if( isDir==0 ){
       fossil_fatal("not found: %s", zName);
     }else if( access(zName, R_OK) ){
       fossil_fatal("cannot open %s", zName);
     }else{
-      add_one_file(zName, vid, &repo);
+      char *zTreeName = &zName[nRoot];
+      db_multi_exec(
+         "INSERT OR IGNORE INTO sfile(x)"
+         "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=%Q)",
+         zTreeName, zTreeName
+      );
     }
     free(zName);
   }
   glob_free(pIgnore);
+
+  add_files_in_sfile(vid);  
   db_end_transaction(0);
-}
-
-
-/*
-** Unmangage a single file.
-*/
-void delete_one_file(const char *zName){
-  char *zPath;
-  Blob pathname;
-  file_tree_name(zName, &pathname, 1);
-  zPath = blob_str(&pathname);
-  if( !db_exists(
-           "SELECT 1 FROM vfile WHERE pathname=%Q AND NOT deleted", zPath) ){
-    fossil_fatal("not in the repository: %s", zName);
-  }else{
-    db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zPath);
-    printf("DELETED  %s\n", zPath);
-  }
-  blob_reset(&pathname);
-}
-
-/*
-** Remove all contents of zDir
-*/
-void del_directory_content(const char *zDir){
-  DIR *d;
-  int origSize;
-  struct dirent *pEntry;
-  Blob path;
-
-  blob_zero(&path);
-  blob_append(&path, zDir, -1);
-  origSize = blob_size(&path);
-  d = opendir(zDir);
-  if( d ){
-    while( (pEntry=readdir(d))!=0 ){
-      char *zPath;
-      if( pEntry->d_name[0]=='.'){
-        if( !includeDotFiles ) continue;
-        if( pEntry->d_name[1]==0 ) continue;
-        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
-      }
-      blob_appendf(&path, "/%s", pEntry->d_name);
-      zPath = blob_str(&path);
-      if( file_isdir(zPath)==1 ){
-        del_directory_content(zPath);
-      }else if( file_isfile(zPath) ){
-        delete_one_file(zPath);
-      }
-      blob_resize(&path, origSize);
-    }
-    closedir(d);
-  }
-  blob_reset(&path);
 }
 
 /*
@@ -332,6 +254,7 @@ void del_directory_content(const char *zDir){
 void delete_cmd(void){
   int i;
   int vid;
+  Stmt loop;
 
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
@@ -339,20 +262,32 @@ void delete_cmd(void){
     fossil_panic("no checkout to remove from");
   }
   db_begin_transaction();
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   for(i=2; i<g.argc; i++){
-    char *zName;
+    Blob treeName;
+    char *zTreeName;
 
-    zName = mprintf("%/", g.argv[i]);
-    if( file_isdir(zName) == 1 ){
-      int sz = strlen(zName);
-      if( sz>0 && zName[sz-1]=='/' ){ zName[sz-1] = 0; }
-      del_directory_content(zName);
-    } else {
-      delete_one_file(zName);
-    }
-    free(zName);
+    file_tree_name(g.argv[i], &treeName, 1);
+    zTreeName = blob_str(&treeName);
+    db_multi_exec(
+       "INSERT OR IGNORE INTO sfile"
+       " SELECT pathname FROM vfile"
+       "  WHERE (pathname=%Q"
+       "     OR (pathname>'%q/' AND pathname<'%q0'))"
+       "    AND NOT deleted",
+       zTreeName, zTreeName, zTreeName
+    );
+    blob_reset(&treeName);
   }
-  db_multi_exec("DELETE FROM vfile WHERE deleted AND rid=0");
+  
+  db_prepare(&loop, "SELECT x FROM sfile");
+  while( db_step(&loop)==SQLITE_ROW ){
+    printf("DELETED %s\n", db_column_text(&loop, 0));
+  }
+  db_finalize(&loop);
+  db_multi_exec(
+    "UPDATE vfile SET deleted=1 WHERE pathname IN sfile"
+  );
   db_end_transaction(0);
 }
 
@@ -397,7 +332,6 @@ void import_cmd(void){
   int n;
   Stmt q;
   int vid;
-  Blob repo;
   int nAdd = 0;
   int nDelete = 0;
   Glob *pIgnore;
@@ -411,6 +345,13 @@ void import_cmd(void){
     fossil_panic("no checkout to add to");
   }
   db_begin_transaction();
+
+  /* step 1:  
+  ** Populate the temp table "sfile" with the names of all unmanged
+  ** files currently in the check-out, except for files that match the
+  ** --ignore or ignore-glob patterns and dot-files.  Then add all of
+  ** the files in the sfile temp table to the set of managed files.
+  */
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
@@ -418,27 +359,12 @@ void import_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
   glob_free(pIgnore);
-  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
-    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
-  }
+  nAdd = add_files_in_sfile(vid);
 
-  /* step 1: search for extra files */
-  db_prepare(&q,
-      "SELECT x, %Q || x FROM sfile"
-      " WHERE x NOT IN (%s)"
-      " ORDER BY 1",
-      g.zLocalRoot,
-      fossil_all_reserved_names()
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    add_one_file(db_column_text(&q, 1), vid, 0);
-    nAdd++;
-  }
-  db_finalize(&q);
   /* step 2: search for missing files */
   db_prepare(&q,
-      "SELECT pathname,%Q || pathname,deleted FROM vfile"
-      " WHERE deleted!=1"
+      "SELECT pathname, %Q || pathname, deleted FROM vfile"
+      " WHERE NOT deleted"
       " ORDER BY 1",
       g.zLocalRoot
   );
@@ -544,9 +470,9 @@ void mv_cmd(void){
       db_prepare(&q,
          "SELECT pathname FROM vfile"
          " WHERE vid=%d"
-         "   AND (pathname='%s' OR pathname GLOB '%s/*')"
+         "   AND (pathname='%q' OR (pathname>'%q/' AND pathname<'%q0'))"
          " ORDER BY 1",
-         vid, zOrig, zOrig
+         vid, zOrig, zOrig, zOrig
       );
       while( db_step(&q)==SQLITE_ROW ){
         const char *zPath = db_column_text(&q, 0);

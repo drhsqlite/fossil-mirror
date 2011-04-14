@@ -1,5 +1,5 @@
-C Refactoring\sthe\sdirectory\sscanning\scode\sused\sby\srecursive\sadd,\sextra,\sand\nclean.\s\sSeems\sto\swork\sbut\sneeds\smore\stesting\sprior\sto\sfolding\sinto\strunk.
-D 2011-04-14T18:09:30.139
+C Refactoring\sthe\s"add",\s"del",\sand\s"addremove"\scommands.
+D 2011-04-14T22:41:01.665
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -33,7 +33,7 @@ F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
 F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
-F src/add.c 7926167f4ac55a7c0b1802e4d2f9086c1056445d
+F src/add.c 4ef0b1f5f36fc24a88edd079797d77dd5d1adc15
 F src/allrepo.c 9bbb3978c8ec5b707683759b8d7d3316f908380d
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -304,11 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 289ea2a9b6582a67c1603825cd1cf352aba1f648
-R 69bc001f3b02ef80b08ebe3d28d1bd50
-T *bgcolor * #c0ffc0
-T *branch * experimental
-T *sym-experimental *
-T -sym-trunk *
+P f60f56025c7f6e1407100a46ac5c97caf2b576de
+R cf5845104503456025055c87dc47c71c
 U drh
-Z 8591dbdc046d8bb6fefc68ec3d57e1d8
+Z 2b0cd29b24608f21ad1b44d872cb522e
