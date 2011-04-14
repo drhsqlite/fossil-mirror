@@ -47,6 +47,7 @@ set src {
   export
   file
   finfo
+  glob
   graph
   gzip
   http

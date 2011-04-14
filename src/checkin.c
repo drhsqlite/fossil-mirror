@@ -202,60 +202,6 @@ void ls_cmd(void){
 }
 
 /*
-** Construct and return a string which is an SQL expression that will
-** be TRUE if value zVal matches any of the GLOB expressions in the list
-** zGlobList.  For example:
-**
-**    zVal:       "x"
-**    zGlobList:  "*.o,*.obj"
-**
-**    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
-**
-** Each element of the GLOB list may optionally be enclosed in either '...'
-** or "...".  This allows commas in the expression.  Whitespace at the
-** beginning and end of each GLOB pattern is ignored, except when enclosed
-** within '...' or "...".
-**
-** This routine makes no effort to free the memory space it uses.
-*/
-char *glob_expr(const char *zVal, const char *zGlobList){
-  Blob expr;
-  char *zSep = "(";
-  int nTerm = 0;
-  int i;
-  int cTerm;
-
-  if( zGlobList==0 || zGlobList[0]==0 ) return "0";
-  blob_zero(&expr);
-  while( zGlobList[0] ){
-    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
-    if( zGlobList[0]==0 ) break;
-    if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
-      cTerm = zGlobList[0];
-      zGlobList++;
-    }else{
-      cTerm = ',';
-    }
-    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
-    if( cTerm==',' ){
-      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
-    }
-    blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
-    zSep = " OR ";
-    if( cTerm!=',' && zGlobList[i] ) i++;
-    zGlobList += i;
-    if( zGlobList[0] ) zGlobList++;
-    nTerm++;
-  }
-  if( nTerm ){
-    blob_appendf(&expr, ")");
-    return blob_str(&expr);
-  }else{
-    return "0";
-  }
-}
-
-/*
 ** COMMAND: extras
 ** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
 **
