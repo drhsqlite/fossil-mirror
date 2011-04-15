@@ -286,7 +286,8 @@ void delete_cmd(void){
   }
   db_finalize(&loop);
   db_multi_exec(
-    "UPDATE vfile SET deleted=1 WHERE pathname IN sfile"
+    "UPDATE vfile SET deleted=1 WHERE pathname IN sfile;"
+    "DELETE FROM vfile WHERE rid=0 AND deleted;"
   );
   db_end_transaction(0);
 }
