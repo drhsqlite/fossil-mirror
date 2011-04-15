@@ -202,7 +202,7 @@ void checkout_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
-  promptFlag = find_option("prompt",0,0)!=0;  /* Prompt user before overwrite */
+  promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
