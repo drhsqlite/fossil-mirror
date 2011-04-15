@@ -625,6 +625,7 @@ void login_check_credentials(void){
       uid = login_find_user(zUser, zHash, zRemoteAddr);
       if( uid==0 && login_transfer_credentials(zUser,zArg,zHash,zRemoteAddr) ){
         uid = login_find_user(zUser, zHash, zRemoteAddr);
+        if( uid ) record_login_attempt(zUser, zIpAddr, 1);
       }
     }
     sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zHash);
