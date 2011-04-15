@@ -777,8 +777,10 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
-      zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
-                       g.zTop, zUuid, zUuid, zDate, zUser);
+      zLabel = mprintf(
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
+          g.zTop, zUuid, zUuid, zDate, zUser
+      );
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
