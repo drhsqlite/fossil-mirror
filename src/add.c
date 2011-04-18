@@ -227,7 +227,7 @@ void add_cmd(void){
          zTreeName, zTreeName
       );
     }
-    free(zName);
+    blob_reset(&fullName);
   }
   glob_free(pIgnore);
 
