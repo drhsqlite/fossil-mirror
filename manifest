@@ -1,5 +1,5 @@
-C Fix\san\sinvalid\scall\sto\sfree()\sthat\soccurs\swhen\s"fossil\sadd\s."\sis\srun.\nTicket\s[157ef3e5a7a06b].
-D 2011-04-18T12:01:01.809
+C Add\sthe\sPT()\sand\sPDT()\smacros\sfor\sextracting\squery\sparameters\swith\nleading\sand\strailing\swhitespace\sremoved.\s\sUse\sthose\smacros\sto\sin\sthe\ncheck-in\sedit\spage.\s\sDo\snot\screate\sbranches\sor\stags\swith\sempty\snames.\nTicket\s[e613f452fada00].
+D 2011-04-18T12:29:15.159
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -42,7 +42,7 @@ F src/blob.c e830421a20f1583c6813777a2ea8da0609ac2443
 F src/branch.c f05733e7126ebf48ca350276f8e31d289579fd63
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
-F src/cgi.c db727b1ff1323c30610e4aaf8cbe14a95523567c
+F src/cgi.c 244e157a944200642ec0ed1de2462da1dae527c9
 F src/checkin.c da901cc8140d49787b02644e92357957cb02ba16
 F src/checkout.c c48169a99731dd6b4ba902f8b397051b2a19b92b
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
@@ -71,7 +71,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
-F src/info.c a4860a776ec1b142c8083f44c7a38f10a1a5e151
+F src/info.c 3b6627945e29d787b1495a200cf29b00fec07456
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
 F src/login.c ab467d2b4b2998767167d2e582b73f0cd15b63ae
 F src/main.c 7391106b7cc58d18a77dd7e0e570c822390d2004
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7b700dfacd9d7d5b7d6c3b57e58f7f2647b1e121
-R 458a767e5ea48e2a15dfebf3d03e7627
+P ed5c19cd435421dbeece014a7991bd940c3cd7b3
+R 7a510722df4977d808b867665a76eb88
 U drh
-Z 45836ab1fc2a56922cc6f023d67a255f
+Z ea4f58235d809ed303329e71e1cabdd0

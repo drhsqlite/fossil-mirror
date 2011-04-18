@@ -1581,25 +1581,25 @@ void ci_edit_page(void){
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
   if( zUser==0 ) fossil_redirect_home();
-  zNewUser = PD("u",zUser);
+  zNewUser = PDT("u",zUser);
   zDate = db_text(0, "SELECT datetime(mtime)"
                      "  FROM event WHERE objid=%d", rid);
   if( zDate==0 ) fossil_redirect_home();
-  zNewDate = PD("dt",zDate);
+  zNewDate = PDT("dt",zDate);
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
-  zNewColor = PD("clr",zColor);
+  zNewColor = PDT("clr",zColor);
   if( fossil_strcmp(zNewColor,"##")==0 ){
-    zNewColor = P("clrcust");
+    zNewColor = PT("clrcust");
   }
   fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
                               " WHERE rid=%d AND tagid=%d",
                               rid, TAG_BGCOLOR)==2;
   fNewPropagateColor = P("clr")!=0 ? P("pclr")!=0 : fPropagateColor;
   zNewTagFlag = P("newtag") ? " checked" : "";
-  zNewTag = PD("tagname","");
+  zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
-  zNewBranch = PD("brname","");
+  zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
@@ -1653,10 +1653,10 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
     }
-    if( zNewTagFlag[0] ){
+    if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
     }
-    if( zNewBrFlag[0] ){
+    if( zNewBrFlag[0] && zNewBranch[0] ){
       db_multi_exec(
         "REPLACE INTO newtags "
         " SELECT tagname, '-', NULL FROM tagxref, tag"

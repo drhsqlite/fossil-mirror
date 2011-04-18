@@ -57,8 +57,8 @@
 */
 #define P(x)        cgi_parameter((x),0)
 #define PD(x,y)     cgi_parameter((x),(y))
-#define QP(x)       quotable_string(cgi_parameter((x),0))
-#define QPD(x,y)    quotable_string(cgi_parameter((x),(y)))
+#define PT(x)       cgi_parameter_trimmed((x),0)
+#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 
 
 /*
@@ -788,6 +788,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Return the value of a CGI parameter with leading and trailing
+** spaces removed.
+*/
+char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
+  const char *zIn;
+  char *zOut;
+  int i;
+  zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) zIn = zDefault;
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  zOut = fossil_strdup(zIn);
+  for(i=0; zOut[i]; i++){}
+  while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
+  return zOut;
 }
 
 /*
