@@ -7,7 +7,14 @@ use the Makefile.  To do a complete build on unix, just type:
 On a windows box, use one of the Makefiles in the win/ subdirectory,
 according to your compiler and environment.  For example:
 
-   make -f win/Makefile.w32
+   make -f win/Makefile.mingw
+
+Note:
+Some of the Makefiles require that you build in the src directory,
+rather than the toplevel directory. These include: Makefile.msc,
+Makefile.dmc and Makefile.PellesCGMake.
+
+Fossil requires the zlib library as its only external dependency.
 
 If you have trouble, or you want to do something fancy, just look at
 top level makefile. There are 6 configuration options that are all well
@@ -28,7 +35,7 @@ An out of source build is pretty easy:
 
   3. type: "make"
 
-This will now keep all generates files seperate from the maintained
+This will now keep all generates files separate from the maintained
 source code.
 
 --------------------------------------------------------------------------
@@ -43,7 +50,7 @@ Here are some notes on what is happening behind the scenes:
 
 * The *.h header files are automatically generated using a program
   called "makeheaders".  Source code to the makeheaders program is
-  found in src/makeheaders.c.  Documentation is found in 
+  found in src/makeheaders.c.  Documentation is found in
   src/makeheaders.html.
 
 * Most *.c source files are preprocessed using a program called

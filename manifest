@@ -1,6 +1,6 @@
-C Online\shelp\sfor\sthe\sfirst\sfew\scommands\sedited\s-\sto\shelp\swith\svery\s\nlong\sexplanations,\sthe\scommand\sis\ssummarised\sat\sthe\send\sfor\sthose\swho\njust\swant\sto\scheck\sthe\sprecise\soptions
-D 2011-04-13T11:47:32.332
-F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
+C Added\ssome\sinformation\son\show\sto\sbuild\son\sWindows
+D 2011-04-18T10:04:17.894
+F BUILD.txt 5b3fceec028a664169978944cea56994add09270
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -303,9 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1f851f846733f1b7531033b788580b5401686e13
-R 2f63baa3f95d5fc609fca72354a63093
-T *branch * arjen-doc-updates
-T *sym-arjen-doc-updates *
+P a3ecba52f03cc3bfb42df7c9d3ae33d67915a6f6
+R 20f717035cb2c62d5978a33838358858
 U Arjen\sMarkus
-Z 20d5dd10d5de1f260292335b2687d33f
+Z 907937c4ba2c954859077cd856c36bff
