@@ -1,5 +1,5 @@
-C Fix\sanother\sissue\swith\sdirectory\ssearch\sfor\sCGI.
-D 2011-04-18T19:32:59.903
+C Enhance\sthe\smerge-conflict\snotation\sto\sshow\sboth\sthe\stwo\srecent\sversions\nand\salso\sthe\scommon\sancestor\sversion.
+D 2011-04-18T23:46:55.612
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -82,7 +82,7 @@ F src/makemake.tcl e289e5ff0bf08dca58e2b6acffe1636eff9a2588
 F src/manifest.c 724f4c3ac0b42176efba9a550a9990beadbaab1b
 F src/md5.c 5f7f55a1e70ada8671134eb7fca456b5aa391d40
 F src/merge.c ffd8edee2b6b06ad0ed62436f7f9c1a6aa208d1a
-F src/merge3.c 185ae0b338a70175716e5474d30703443e6b71b1
+F src/merge3.c a133c2548796d26308b0d89929485d15d6affe30
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/name.c 70abc383dab12122b2859fcff767774e958afdfa
 F src/path.c 3ec2fa3b31e592d8404ee7b2c4f5f982adc9a88b
@@ -131,9 +131,9 @@ F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki 279b369d61d115ad3336e0d15d6dad86ce7b268d
-F test/merge1.test ff51976a54d12f64b56d60aea79458010ef1907a
+F test/merge1.test 2b9aaabfbcc632d76d39365fd5e07e03ce682059
 F test/merge2.test 60194e41fa120b44f2a561b890f55ddba18aebe6
-F test/merge3.test 860f092f47d31118ee0f2c128dd2898ee85b117f
+F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 71a1c7b22bc86757d3f1871e3b295d85f59a802f
-R ac7801f35c1adff0877875287a62d418
+P 0fc9b5e1f2110b7b0dc1ca40bde3e47455429830
+R ca24d133c205e91bbd118c49f326405c
 U drh
-Z c1d76a3103c4210f3f43fd1ee06d0656
+Z ac618979cbef739bba65deb4c83cb8f3
