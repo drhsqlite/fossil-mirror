@@ -179,7 +179,7 @@ void update_cmd(void){
                     " ORDER BY event.mtime DESC"); 
   }
 
-  if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
+  if( tid==vid ) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1, 0);
   if( !nochangeFlag && !internalUpdate ) undo_begin();

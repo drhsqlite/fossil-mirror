@@ -1,5 +1,5 @@
-C Update\sthe\sdownload\spage\sgenerator\sscript\sto\salso\sgenerate\sa\spage\nshowing\sthe\sSHA1\schecksums\sof\sall\sbuild\sproducts.
-D 2011-04-18T12:45:27.112
+C Make\ssure\sthe\s"update"\scommand\salways\sworks\sthe\ssame\swith\sor\swithout\sthe\s-v\noption.\s\sTicket\s[40a7d777a465].
+D 2011-04-18T18:25:16.798
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -118,7 +118,7 @@ F src/tkt.c 30bd794ff0f0cd189cd64ee0088c3e7bb84932f7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c dcc00132ae0c492c64aca501541c41f28bcbd6c7
-F src/update.c 99d5170cecc0f092f282519ec05febc5ca68a120
+F src/update.c 31e32a9f41624067d1a1a2a2a20902b2a7adf47b
 F src/url.c 55c48215da33082bc7d9d9ad27433747715a2b95
 F src/user.c 99d51fd8ba328f7b152ee34bf054867eef71f28e
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 655e78209bc8fd35c58596cc9490d0c5a1e5fc15
-R 2e5643426af5a272ae26a4dfa8156953
+P cea065c7f2709af078ab9a1eff855b2544bedf2e
+R ab4ae5a0e8ae61fe48771c507751e691
 U drh
-Z 34276163f3f0570823c66382ca0e0f2d
+Z d7f8e662accdc3795e6157e5a994ef9d
