@@ -911,7 +911,7 @@ static void process_one_web_page(const char *zNotFound){
       /* To avoid mischief, make sure the repository basename contains no
       ** characters other than alphanumerics, "-", "/", and "_".
       */
-      for(j=strlen(g.zRepositoryName)+1, k=0; k<i-1; j++, k++){
+      for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
         if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
           zRepo[j] = '_';
         }
