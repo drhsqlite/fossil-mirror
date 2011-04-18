@@ -903,7 +903,7 @@ static void process_one_web_page(const char *zNotFound){
     int j, k;
     i64 szFile;
 
-    i = 1;
+    i = zPathInfo[0]!=0;
     while( 1 ){
       while( zPathInfo[i] && zPathInfo[i]!='/' ){ i++; }
       zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
