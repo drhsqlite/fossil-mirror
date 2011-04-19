@@ -1,5 +1,5 @@
-C Enhance\sthe\smerge-conflict\snotation\sto\sshow\sboth\sthe\stwo\srecent\sversions\nand\salso\sthe\scommon\sancestor\sversion.
-D 2011-04-18T23:46:55.612
+C Fix\sa\scopy\sof\sminor\sdisplay\sproblems\sout\sthe\soutput\sof\s"fossil\spush".
+D 2011-04-19T20:30:31.128
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -69,7 +69,7 @@ F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 194a26afe0b09f841ee311b6dc052a6b46b18075
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
-F src/http_transport.c 7d7328799378ccc2f58d802eb722a9beb382a685
+F src/http_transport.c 31ed9be8b19a7c7ee3dd344c77f3f893dfa7a985
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c 3b6627945e29d787b1495a200cf29b00fec07456
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
@@ -126,7 +126,7 @@ F src/vfile.c ae05f3c9e4a47c5c297c34006163c56b63ae9dda
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
-F src/xfer.c 2c4ae028f02ee1819fd42fd5cc2563b64da159c8
+F src/xfer.c 36a2997f571d984f3d4e6714faf38c58cac646ff
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0fc9b5e1f2110b7b0dc1ca40bde3e47455429830
-R ca24d133c205e91bbd118c49f326405c
+P 792a3bc94afe729512da8ce1a6edd7b0f29b1c5b
+R 2c246935f765598b272998ed7df0ec47
 U drh
-Z ac618979cbef739bba65deb4c83cb8f3
+Z 6519f124eee430120b3a17d49ce81d82

@@ -434,6 +434,7 @@ static void transport_load_buffer(int N){
   if( N>0 ){
     i = transport_fetch(&transport.pBuf[transport.nUsed], N);
     if( i>0 ){
+      transport.nRcvd += i;
       transport.nUsed += i;
     }
   }

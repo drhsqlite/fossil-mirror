@@ -1443,6 +1443,7 @@ int client_sync(
              g.clockSkewSeen = 1;
           }
         }
+        nCardRcvd++;
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
