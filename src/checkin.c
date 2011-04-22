@@ -470,7 +470,7 @@ void select_commit_files(void){
 
 /*
 ** Return true if the check-in with RID=rid is a leaf.
-** A leaf has no children in the same branch. 
+** A leaf has no primary children in the same branch. 
 */
 int is_a_leaf(int rid){
   int rc;
@@ -481,6 +481,7 @@ int is_a_leaf(int rid){
     @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
     @       =coalesce((SELECT value FROM tagxref
     @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+    @    AND isprim
   ;
   rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
   return rc==0;

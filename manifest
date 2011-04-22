@@ -1,5 +1,5 @@
-C Fix\sa\scopy\sof\sminor\sdisplay\sproblems\sout\sthe\soutput\sof\s"fossil\spush".
-D 2011-04-19T20:30:31.128
+C Fix\sthe\sis_a_leaf()\sfunction\sso\sthat\sit\scorrectly\sidentifies\snodes\sas\sleaves\nif\sthey\shave\sno\snon-merge\schildren\sin\sthe\ssame\sbranch.
+D 2011-04-22T13:49:13.064
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -43,7 +43,7 @@ F src/branch.c f05733e7126ebf48ca350276f8e31d289579fd63
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c 244e157a944200642ec0ed1de2462da1dae527c9
-F src/checkin.c da901cc8140d49787b02644e92357957cb02ba16
+F src/checkin.c 66ca42da43676926464a58c5b468857d905f95e8
 F src/checkout.c c48169a99731dd6b4ba902f8b397051b2a19b92b
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 5c5d35551f921d95fe3bdef245c37d68cc900bc9
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 792a3bc94afe729512da8ce1a6edd7b0f29b1c5b
-R 2c246935f765598b272998ed7df0ec47
+P 085b6a1bbba91bbdd07c030935191d95a06fe10b
+R 72a49ec53111fcca5a7ae45b09cefdbc
 U drh
-Z 6519f124eee430120b3a17d49ce81d82
+Z 7f997bc13e0fa0e59a91c126b92294c8
