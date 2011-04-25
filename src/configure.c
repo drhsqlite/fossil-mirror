@@ -16,6 +16,7 @@
 *******************************************************************************
 **
 ** This file contains code used to manage repository configurations.
+**
 ** By "responsitory configure" we mean the local state of a repository
 ** distinct from the versioned files.
 */
@@ -120,6 +121,11 @@ const char *configure_next_name(int iMask){
 /*
 ** Return the mask for the named configuration parameter if it can be
 ** safely exported.  Return 0 if the parameter is not safe to export.
+**
+** "Safe" in the previous paragraph means the permission is created to
+** export the property.  In other words, the requesting side has presented
+** login credentials and has sufficient capabilities to access the requested
+** information.
 */
 int configure_is_exportable(const char *zName){
   int i;
@@ -299,6 +305,46 @@ void configure_prepare_to_receive(int replaceFlag){
 **
 ** Mask consists of one or more CONFIGSET_* values ORed together, to
 ** designate what types of configuration we are allowed to receive.
+**
+** NEW FORMAT:
+**
+** zName is one of "/config", "/user", "/shun", "/reportfmt", or "/concealed".
+** zName indicates the table that holds the configuration information being
+** transferred.  pContent is a string that consist of alternating Fossil
+** and SQL tokens.  The First token is a timestamp in seconds since 1970.
+** The second token is a primary key for the table identified by zName.  If
+** The entry with the corresponding primary key exists and has a more recent
+** mtime, then nothing happens.  If the entry does not exist or if it has
+** an older mtime, then the content described by subsequent token pairs is 
+** inserted.  The first element of each token pair is a column name and
+** the second is its value.
+**
+** In overview, we have:
+**
+**    NAME        CONTENT
+**    -------     -----------------------------------------------------------
+**    /config     $MTIME $NAME value $VALUE
+**    /user       $MTIME $LOGIN pw $VALUE cap $VALUE info $VALUE photo $VALUE
+**    /shun       $MTIME $UUID scom $VALUE
+**    /reportfmt  $MTIME $TITLE owner $VALUE cols $VALUE sqlcode $VALUE
+**    /concealed  $MTIME $HASH content $VALUE
+**
+** OLD FORMAT:
+**
+** The old format is retained for backwards compatiblity, but is deprecated.
+** The cutover from old format to new was on 2011-04-25.  After sufficient
+** time has passed, support for the old format will be removed.
+**
+** zName is either the NAME of an element of the CONFIG table, or else
+** one of the special names "@shun", "@reportfmt", "@user", or "@concealed".
+** If zName is a CONFIG table name, then CONTENT replaces (overwrites) the
+** element in the CONFIG table.  For one of the @-labels, CONTENT is raw
+** SQL that is evaluated.  Note that the raw SQL in CONTENT might not
+** insert directly into the target table but might instead use a proxy
+** table like _fer_reportfmt or _xfer_user.  Such tables must be created
+** ahead of time using configure_prepare_to_receive().  Then after multiple
+** calls to this routine, configure_finalize_receive() to transfer the
+** information received into the true target table.
 */
 void configure_receive(const char *zName, Blob *pContent, int mask){
   if( (configure_is_exportable(zName) & mask)==0 ) return;
