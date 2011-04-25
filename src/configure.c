@@ -294,6 +294,40 @@ void configure_prepare_to_receive(int replaceFlag){
 }
 
 /*
+** Process a single "config" card received from the other side of a
+** sync session.
+**
+** Mask consists of one or more CONFIGSET_* values ORed together, to
+** designate what types of configuration we are allowed to receive.
+*/
+void configure_receive(const char *zName, Blob *pContent, int mask){
+  if( (configure_is_exportable(zName) & mask)==0 ) return;
+  if( strcmp(zName, "logo-image")==0 ){
+    Stmt ins;
+    db_prepare(&ins,
+      "REPLACE INTO config(name, value) VALUES(:name, :value)"
+    );
+    db_bind_text(&ins, ":name", zName);
+    db_bind_blob(&ins, ":value", pContent);
+    db_step(&ins);
+    db_finalize(&ins);
+  }else if( zName[0]=='@' ){
+    /* Notice that we are evaluating arbitrary SQL received from the
+    ** client.  But this can only happen if the client has authenticated
+    ** as an administrator, so presumably we trust the client at this
+    ** point.
+    */
+    db_multi_exec("%s", blob_str(pContent));
+  }else{
+    db_multi_exec(
+       "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+       zName, blob_str(pContent)
+    );
+  }
+}
+
+
+/*
 ** After receiving configuration data, call this routine to transfer
 ** the results into the main database.
 */

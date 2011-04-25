@@ -1054,34 +1054,11 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      if( zName[0]!='@' ){
-        if( strcmp(zName, "logo-image")==0 ){
-          Stmt ins;
-          db_prepare(&ins,
-            "REPLACE INTO config(name, value) VALUES(:name, :value)"
-          );
-          db_bind_text(&ins, ":name", zName);
-          db_bind_blob(&ins, ":value", &content);
-          db_step(&ins);
-          db_finalize(&ins);
-        }else{
-          db_multi_exec(
-              "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-              zName, blob_str(&content)
-          );
-        }
-      }else{
-        /* Notice that we are evaluating arbitrary SQL received from the
-        ** client.  But this can only happen if the client has authenticated
-        ** as an administrator, so presumably we trust the client at this
-        ** point.
-        */
-        if( !recvConfig ){
-          configure_prepare_to_receive(0);
-          recvConfig = 1;
-        }
-        db_multi_exec("%s", blob_str(&content));
+      if( !recvConfig ){
+        configure_prepare_to_receive(0);
+        recvConfig = 1;
       }
+      configure_receive(zName, &content, CONFIGSET_ALL);
       blob_reset(&content);
       blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
     }else
@@ -1547,6 +1524,9 @@ int client_sync(
       /*   config NAME SIZE \n CONTENT
       **
       ** Receive a configuration value from the server.
+      **
+      ** The received configuration setting is silently ignored if it was
+      ** not requested by a prior "reqconfig" sent from client to server.
       */
       if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
           && blob_is_int(&xfer.aToken[2], &size) ){
@@ -1555,32 +1535,7 @@ int client_sync(
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
         g.okAdmin = g.okRdAddr = 1;
-        if( configure_is_exportable(zName) & origConfigRcvMask ){
-          if( zName[0]!='@' ){
-            if( strcmp(zName, "logo-image")==0 ){
-              Stmt ins;
-              db_prepare(&ins,
-                "REPLACE INTO config(name, value) VALUES(:name, :value)"
-              );
-              db_bind_text(&ins, ":name", zName);
-              db_bind_blob(&ins, ":value", &content);
-              db_step(&ins);
-              db_finalize(&ins);
-            }else{
-              db_multi_exec(
-                  "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-                  zName, blob_str(&content)
-              );
-            }
-          }else{
-            /* Notice that we are evaluating arbitrary SQL received from the
-            ** server.  But this can only happen if we have specifically
-            ** requested configuration information from the server, so
-            ** presumably the operator trusts the server.
-            */
-            db_multi_exec("%s", blob_str(&content));
-          }
-        }
+        configure_receive(zName, &content, origConfigRcvMask);
         nCardSent++;
         blob_reset(&content);
         blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
