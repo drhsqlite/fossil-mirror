@@ -203,8 +203,8 @@ char *tag_to_uuid(const char *zTag){
                            vid);
       }else if( fossil_strcmp(zTag, "next")==0 ){
         zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
-                           "(SELECT cid FROM plink WHERE pid=%d AND isprim"
-                           "  ORDER BY mtime DESC)",
+                           "(SELECT cid FROM plink WHERE pid=%d"
+                           "  ORDER BY isprim DESC, mtime DESC)",
                            vid);
       }
     }

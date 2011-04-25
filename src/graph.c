@@ -424,7 +424,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
-        if( pRow->isLeaf || omitDescenders ){
+        if( omitDescenders || count_nonbranch_children(pRow->rid)==0 ){
           inUse &= ~(1<<pRow->iRail);
         }else{
           pRow->aiRiser[pRow->iRail] = 0;

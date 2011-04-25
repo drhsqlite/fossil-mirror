@@ -100,28 +100,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 }
 
 /*
-** Count the number of primary non-branch children for the given check-in.
-**
-** A primary child is one where the parent is the primary parent, not
-** a merge parent.
-**
-** A non-branch child is one which is on the same branch as the parent.
-*/
-int count_nonbranch_children(int pid){
-  int nNonBranch;
-  static const char zSql[] = 
-    @ SELECT count(*) FROM plink
-    @  WHERE pid=%d AND isprim
-    @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
-  ;
-  nNonBranch = db_int(0, zSql, pid, TAG_BRANCH, TAG_BRANCH);
-  return nNonBranch;
-}
-
-/*
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE

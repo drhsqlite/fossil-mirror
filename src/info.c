@@ -370,7 +370,7 @@ void ci_page(void){
     " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
     rid
   );
-  isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
+  isLeaf = is_a_leaf(rid);
   db_prepare(&q, 
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
      "       datetime(omtime, 'localtime')"
