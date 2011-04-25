@@ -802,6 +802,10 @@ void object_description(
     @ - %w(zCom) by 
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
+    if( g.okHistory ){
+      @ <a href="%s(g.zTop)/annotate?checkin=%S(zVers)&filename=%T(zName)">
+      @ [annotate]</a>
+    }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zName, -1);

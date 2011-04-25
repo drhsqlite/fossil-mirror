@@ -1,5 +1,5 @@
-C Further\swork\stoward\stwo-way\sconfiguration\ssync.\s\sNeed\sto\scheck\sin\sthese\nchanges\sbefore\sthey\sare\scomplete\sin\sorder\sto\sdeal\swith\sanother\sissue.
-D 2011-04-25T20:10:41.478
+C Add\shyperlink\sto\sthe\sannotation\sof\sa\sfile\sin\sthe\sobject\sdescription\nheader.
+D 2011-04-25T20:26:48.792
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 31ed9be8b19a7c7ee3dd344c77f3f893dfa7a985
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
-F src/info.c 3b6627945e29d787b1495a200cf29b00fec07456
+F src/info.c 94eecaf4729fc240b883f6a489e5d7142b9979d5
 F src/leaf.c 11a33c733f2ac414397a93c2f227c1ccca637ad4
 F src/login.c ab467d2b4b2998767167d2e582b73f0cd15b63ae
 F src/main.c 8722a350fc52637af7d41090cc91cf2f56fc66b0
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b44d4a89d0f0a3eb8965cbd7fa462b813d818e36
-R 7a4c75f53e24659d6968d3daad3c2c22
+P 71fc181feef52f367aa1b8a457e42698600cefe7
+R b06a4a6cd4d3600d1e8c61b85c695631
 U drh
-Z fbfdd12ef0b26d33901310c08e3f3655
+Z 97d6df3bf775ecc4d28ffee894df2ae2
