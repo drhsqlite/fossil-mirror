@@ -482,6 +482,132 @@ void configure_receive(const char *zName, Blob *pContent, int mask){
   }
 }
 
+/*
+** Send "config" cards using the new format for all elements of a group
+** that have recently changed.
+**
+** Output goes into pOut.  The groupMask identifies the group(s) to be sent.
+** Send only entries whose timestamp is later than or equal to iStart.
+*/
+void configure_send_group(
+  Blob *pOut,              /* Write output here */
+  int groupMask,           /* Mask of groups to be send */
+  sqlite3_int64 iStart     /* Only write values changed since this time */
+){
+  Stmt q;
+  Blob rec;
+  int ii;
+
+  blob_zero(&rec);
+  if( groupMask & CONFIGSET_SHUN ){
+    db_prepare(&q, "SELECT mtime, quote(uuid), quote(scom) FROM shun"
+                   " WHERE mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s scom %s\n",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2)
+      );
+      blob_appendf(pOut, "config /shun %d\n%s",
+                   blob_size(&rec), blob_str(&rec));
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  if( groupMask & CONFIGSET_USER ){
+    db_prepare(&q, "SELECT mtime, quote(login), quote(pw), quote(cap),"
+                   "       quote(info), quote(photo) FROM user"
+                   " WHERE mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s pw %s cap %s info %s photo %s\n",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2),
+        db_column_text(&q, 3),
+        db_column_text(&q, 4),
+        db_column_text(&q, 5)
+      );
+      blob_appendf(pOut, "config /user %d\n%s",
+                   blob_size(&rec), blob_str(&rec));
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  if( groupMask & CONFIGSET_TKT ){
+    db_prepare(&q, "SELECT mtime, quote(title), quote(owner), quote(cols),"
+                   "       quote(sqlcode) FROM reportfmt"
+                   " WHERE mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s owner %s cols %s sqlcode %s\n",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2),
+        db_column_text(&q, 3),
+        db_column_text(&q, 4)
+      );
+      blob_appendf(pOut, "config /reportfmt %d\n%s",
+                   blob_size(&rec), blob_str(&rec));
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  if( groupMask & CONFIGSET_ADDR ){
+    db_prepare(&q, "SELECT mtime, quote(hash), quote(content) FROM concealed"
+                   " WHERE mtime>=%lld", iStart);
+    while( db_step(&q)==SQLITE_ROW ){
+      blob_appendf(&rec,"%s %s content %s\n",
+        db_column_text(&q, 0),
+        db_column_text(&q, 1),
+        db_column_text(&q, 2)
+      );
+      blob_appendf(pOut, "config /concealed %d\n%s",
+                   blob_size(&rec), blob_str(&rec));
+      blob_reset(&rec);
+    }
+    db_finalize(&q);
+  }
+  db_prepare(&q, "SELECT mtime, quote(name), quote(value) FROM config"
+                 " WHERE name=:name AND mtime>=%lld", iStart);
+  for(ii=0; ii<count(aConfig); ii++){
+    if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
+      db_bind_text(&q, ":name", aConfig[ii].zName);
+      while( db_step(&q)==SQLITE_ROW ){
+        blob_appendf(&rec,"%s %s value %s\n",
+          db_column_text(&q, 0),
+          db_column_text(&q, 1),
+          db_column_text(&q, 2)
+        );
+        blob_appendf(pOut, "config /config %d\n%s",
+                     blob_size(&rec), blob_str(&rec));
+        blob_reset(&rec);
+      }
+      db_reset(&q);
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** COMMAND: test-config-send
+**
+** Usage: %fossil test-config-send GROUP START
+*/
+void test_config_send(void){
+  Blob out;
+  sqlite3_int64 iStart;
+  int i;
+  blob_zero(&out);
+  db_find_and_open_repository(0,0);
+  if( g.argc!=4 ) usage("GROUP START");
+  iStart = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
+  for(i=0; i<count(aGroupName); i++){
+    if( fossil_strcmp(g.argv[2], aGroupName[i].zName)==0 ){
+      configure_send_group(&out, aGroupName[i].groupMask, iStart);
+      printf("%s", blob_str(&out));
+      blob_reset(&out);
+    }
+  }
+}
 
 /*
 ** After receiving configuration data, call this routine to transfer

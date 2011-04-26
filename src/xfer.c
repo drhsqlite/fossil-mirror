@@ -740,7 +740,7 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
-** Send a single config card for configuration item zName
+** Send a single old-style config card for configuration item zName
 */
 static void send_config_card(Xfer *pXfer, const char *zName){
   if( zName[0]!='@' ){
@@ -762,7 +762,6 @@ static void send_config_card(Xfer *pXfer, const char *zName){
     blob_reset(&content);
   }
 }
-
 
 /*
 ** Called when there is an attempt to transfer private content to and
