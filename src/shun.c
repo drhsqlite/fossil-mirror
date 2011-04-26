@@ -83,13 +83,27 @@ void shun_page(void){
     }
   }
   if( zUuid && P("add") ){
+    int rid, tagid;
     login_verify_csrf_secret();
-    db_multi_exec("INSERT OR IGNORE INTO shun VALUES('%s')", zUuid);
+    db_multi_exec(
+      "INSERT OR IGNORE INTO shun(uuid,mtime)"
+      " VALUES('%s', strftime('%%s','now'))", zUuid);
     @ <p class="shunned">Artifact
     @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> has been
     @ shunned.  It will no longer be pushed.
     @ It will be removed from the repository the next time the respository
     @ is rebuilt using the <b>fossil rebuild</b> command-line</p>
+    db_multi_exec("DELETE FROM attachment WHERE src=%Q", zUuid);
+    rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
+    if( rid ){
+      db_multi_exec("DELETE FROM event WHERE objid=%d", rid);
+    }
+    tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='tkt-%q'", zUuid);
+    if( tagid ){
+      db_multi_exec("DELETE FROM ticket WHERE tkt_uuid=%Q", zUuid);
+      db_multi_exec("DELETE FROM tag WHERE tagid=%d", tagid);
+      db_multi_exec("DELETE FROM tagxref WHERE tagid=%d", tagid);
+    }
   }
   @ <p>A shunned artifact will not be pushed nor accepted in a pull and the
   @ artifact content will be purged from the repository the next time the

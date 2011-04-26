@@ -1,5 +1,5 @@
-C Begin\simplementing\sthe\sprotocol\schanges\sfor\sconfiguration\ssync.
-D 2011-04-26T00:45:27.557
+C Schema\schanges\sthat\san\smtime\sfield\sto\sall\sconfiguration\stables\sand\smake\n"title"\sa\sunique\sfield\son\sthe\sreportfmt\stable.\s\sOnly\slightly\stested.
+D 2011-04-26T01:33:06.478
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -90,15 +90,15 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
-F src/rebuild.c 1434a921dc677c32b4248dfc9682d7b04888d5ef
+F src/rebuild.c 84bfba7be92549d1e8266f73e9a5faa948ba7b7f
 F src/report.c 8c408654f3b001ff13e90803f3705410fac7f658
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
-F src/schema.c 6b31926648e29b3b313104f027a95499e477fa9a
+F src/schema.c e85b0ce867cd14175d5e3059d631924165e78e17
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
 F src/setup.c 1846955f116e8d45bcfb6b20fb62638f4a9f23cf
 F src/sha1.c f25e6093f17488de748ef54283d2a7ac8f8c874b
 F src/shell.c d275901b531cf10b09449606854884b467e37e79
-F src/shun.c 2a59a4fbe06887d4574e9ac96872661e243dd012
+F src/shun.c 484601b9a75d68f5a160b44eef0cb5c794f58bcc
 F src/skins.c 2618dc6ab376b7e1c816804d8a840b370340523f
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
 F src/sqlite3.c f38df08547efae0ff4343da607b723f588bbd66b
@@ -126,7 +126,7 @@ F src/vfile.c ae05f3c9e4a47c5c297c34006163c56b63ae9dda
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
-F src/xfer.c c33178eaf0f102de24a4804221412ed9b83c3cba
+F src/xfer.c e07c95fd93be475718e7c0949acdb86d61db6df0
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -304,11 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e17fc71319e0534b3c5bf2df9754bc6933c909dd
-R 842d1f210ac810bce630f029b120258b
-T *bgcolor * #b0b28e
-T *branch * config-sync
-T *sym-config-sync *
-T -sym-trunk *
+P f99e3fa9e6b2715e3c5656612a86b1ce6608e51f
+R 2a7efd44c9ba57a2e42eed7cbc3d85e7
 U drh
-Z 42280751cc7ca5ad8cdbf28181a69694
+Z b55fd73ad33302110d7ce5a7974f79a7

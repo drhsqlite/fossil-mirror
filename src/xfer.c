@@ -456,7 +456,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     " FROM blob"
     " WHERE rid=:rid"
     "   AND size>=0"
-    "   AND uuid NOT IN shun"
+    "   AND NOT EXISTS(SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)"
   );
   db_bind_int(&q1, ":rid", rid);
   rc = db_step(&q1);
