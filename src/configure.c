@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -39,6 +39,7 @@
 #define CONFIGSET_ALL       0x0000ff     /* Everything */
 
 #define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
+#define CONFIGSET_OLDFORMAT 0x200000     /* Use the legacy format */
 
 #endif /* INTERFACE */
 
@@ -50,13 +51,13 @@ static struct {
   int groupMask;       /* Mask for that configuration set */
   const char *zHelp;   /* What it does */
 } aGroupName[] = {
-  { "email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
-  { "project",      CONFIGSET_PROJ,  "Project name and description"         },
-  { "skin",         CONFIGSET_SKIN,  "Web interface apparance settings"     },
-  { "shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
-  { "ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
-  { "user",         CONFIGSET_USER,  "Users and privilege settings"         },
-  { "all",          CONFIGSET_ALL,   "All of the above"                     },
+  { "/email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
+  { "/project",      CONFIGSET_PROJ,  "Project name and description"         },
+  { "/skin",         CONFIGSET_SKIN,  "Web interface apparance settings"     },
+  { "/shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
+  { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
+  { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
+  { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
 
@@ -110,11 +111,25 @@ const char *configure_first_name(int iMask){
   return configure_next_name(iMask);
 }
 const char *configure_next_name(int iMask){
-  while( iConfig<count(aConfig) ){
-    if( aConfig[iConfig].groupMask & iMask ){
-      return aConfig[iConfig++].zName;
-    }else{
-      iConfig++;
+  if( iMask & CONFIGSET_OLDFORMAT ){
+    while( iConfig<count(aConfig) ){
+      if( aConfig[iConfig].groupMask & iMask ){
+        return aConfig[iConfig++].zName;
+      }else{
+        iConfig++;
+      }
+    }
+  }else{
+    if( iConfig==0 && (iMask & CONFIGSET_ALL)==CONFIGSET_ALL ){
+      iConfig = count(aGroupName);
+      return "/all";
+    }
+    while( iConfig<count(aGroupName)-1 ){
+      if( aGroupName[iConfig].groupMask & iMask ){
+        return aGroupName[iConfig++].zName;
+      }else{
+        iConfig++;
+      }
     }
   }
   return 0;
@@ -305,6 +320,22 @@ void configure_prepare_to_receive(int replaceFlag){
     configHasBeenReset = 0;
     db_multi_exec(zSQL2);
   }
+}
+
+/*
+** After receiving configuration data, call this routine to transfer
+** the results into the main database.
+*/
+void configure_finalize_receive(void){
+  static const char zSQL[] =
+    @ DELETE FROM user;
+    @ INSERT INTO user SELECT * FROM _xfer_user;
+    @ DELETE FROM reportfmt;
+    @ INSERT INTO reportfmt SELECT * FROM _xfer_reportfmt;
+    @ DROP TABLE _xfer_user;
+    @ DROP TABLE _xfer_reportfmt;
+  ;
+  db_multi_exec(zSQL);
 }
 
 /*
@@ -536,8 +567,10 @@ void configure_receive_all(Blob *pIn, int groupMask){
 **
 ** Output goes into pOut.  The groupMask identifies the group(s) to be sent.
 ** Send only entries whose timestamp is later than or equal to iStart.
+**
+** Return the number of cards sent.
 */
-void configure_send_group(
+int configure_send_group(
   Blob *pOut,              /* Write output here */
   int groupMask,           /* Mask of groups to be send */
   sqlite3_int64 iStart     /* Only write values changed since this time */
@@ -545,6 +578,7 @@ void configure_send_group(
   Stmt q;
   Blob rec;
   int ii;
+  int nCard = 0;
 
   blob_zero(&rec);
   if( groupMask & CONFIGSET_SHUN ){
@@ -558,6 +592,7 @@ void configure_send_group(
       );
       blob_appendf(pOut, "config /shun %d\n%s",
                    blob_size(&rec), blob_str(&rec));
+      nCard++;
       blob_reset(&rec);
     }
     db_finalize(&q);
@@ -577,6 +612,7 @@ void configure_send_group(
       );
       blob_appendf(pOut, "config /user %d\n%s",
                    blob_size(&rec), blob_str(&rec));
+      nCard++;
       blob_reset(&rec);
     }
     db_finalize(&q);
@@ -595,6 +631,7 @@ void configure_send_group(
       );
       blob_appendf(pOut, "config /reportfmt %d\n%s",
                    blob_size(&rec), blob_str(&rec));
+      nCard++;
       blob_reset(&rec);
     }
     db_finalize(&q);
@@ -610,6 +647,7 @@ void configure_send_group(
       );
       blob_appendf(pOut, "config /concealed %d\n%s",
                    blob_size(&rec), blob_str(&rec));
+      nCard++;
       blob_reset(&rec);
     }
     db_finalize(&q);
@@ -627,69 +665,35 @@ void configure_send_group(
         );
         blob_appendf(pOut, "config /config %d\n%s",
                      blob_size(&rec), blob_str(&rec));
+        nCard++;
         blob_reset(&rec);
       }
       db_reset(&q);
     }
   }
   db_finalize(&q);
-}
-
-/*
-** COMMAND: test-config-send
-**
-** Usage: %fossil test-config-send GROUP START
-*/
-void test_config_send(void){
-  Blob out;
-  sqlite3_int64 iStart;
-  int i;
-  blob_zero(&out);
-  db_find_and_open_repository(0,0);
-  if( g.argc!=4 ) usage("GROUP START");
-  iStart = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
-  for(i=0; i<count(aGroupName); i++){
-    if( fossil_strcmp(g.argv[2], aGroupName[i].zName)==0 ){
-      configure_send_group(&out, aGroupName[i].groupMask, iStart);
-      printf("%s", blob_str(&out));
-      blob_reset(&out);
-    }
-  }
-}
-
-/*
-** After receiving configuration data, call this routine to transfer
-** the results into the main database.
-*/
-void configure_finalize_receive(void){
-  static const char zSQL[] =
-    @ DELETE FROM user;
-    @ INSERT INTO user SELECT * FROM _xfer_user;
-    @ DELETE FROM reportfmt;
-    @ INSERT INTO reportfmt SELECT * FROM _xfer_reportfmt;
-    @ DROP TABLE _xfer_user;
-    @ DROP TABLE _xfer_reportfmt;
-  ;
-  db_multi_exec(zSQL);
+  return nCard;
 }
 
 /*
 ** Identify a configuration group by name.  Return its mask.
 ** Throw an error if no match.
 */
-static int find_area(const char *z){
+int configure_name_to_mask(const char *z, int notFoundIsFatal){
   int i;
   int n = strlen(z);
   for(i=0; i<count(aGroupName); i++){
-    if( strncmp(z, aGroupName[i].zName, n)==0 ){
+    if( strncmp(z, &aGroupName[i].zName[1], n)==0 ){
       return aGroupName[i].groupMask;
     }
   }
-  printf("Available configuration areas:\n");
-  for(i=0; i<count(aGroupName); i++){
-    printf("  %-10s %s\n", aGroupName[i].zName, aGroupName[i].zHelp);
+  if( notFoundIsFatal ){
+    printf("Available configuration areas:\n");
+    for(i=0; i<count(aGroupName); i++){
+      printf("  %-10s %s\n", &aGroupName[i].zName[1], aGroupName[i].zHelp);
+    }
+    fossil_fatal("no such configuration area: \"%s\"", z);
   }
-  fossil_fatal("no such configuration area: \"%s\"", z);
   return 0;
 }
 
@@ -746,21 +750,27 @@ static void export_config(
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
-**         server is used. 
+**         server is used. Use the --legacy option for the older protocol
+**         (when talking to servers compiled prior to 2011-04-27.)  Use
+**         the --overwrite flag to completely replace local settings with
+**         content received from URL.
 **
 **    %fossil configuration push AREA ?URL?
 **
 **         Push the local configuration into the remote server identified
 **         by URL.  Admin privilege is required on the remote server for
-**         this to work.
+**         this to work.  When the same record exists both locally and on
+**         the remote end, the one that was most recently changed wins.
+**         Use the --legacy flag when talking to holder servers.
 **
 **    %fossil configuration reset AREA
 **
 **         Restore the configuration to the default.  AREA as above.
 **
-** WARNING: Do not import, merge, or pull configurations from an untrusted
-** source.  The inbound configuration is not checked for safety and can
-** introduce security vulnerabilities.
+**    %fossil configuration sync AREA ?URL?
+**
+**         Synchronize configuration changes in the local repository with
+**         the remote repository at URL.  
 */
 void configuration_cmd(void){
   int n;
@@ -778,7 +788,7 @@ void configuration_cmd(void){
     if( g.argc!=5 ){
       usage("export AREA FILENAME");
     }
-    mask = find_area(g.argv[3]);
+    mask = configure_name_to_mask(g.argv[3], 1);
     if( zSince ){
       iStart = db_multi_exec(
          "SELECT coalesce(strftime('%%s',%Q),strftime('%%s','now',%Q))+0",
@@ -804,15 +814,24 @@ void configuration_cmd(void){
     configure_receive_all(&in, groupMask);
     db_end_transaction(0);
   }else
-  if( strncmp(zMethod, "pull", n)==0 || strncmp(zMethod, "push", n)==0 ){
+  if( strncmp(zMethod, "pull", n)==0
+   || strncmp(zMethod, "push", n)==0
+   || strncmp(zMethod, "sync", n)==0
+  ){
     int mask;
     const char *zServer;
     const char *zPw;
+    int legacyFlag = 0;
+    int overwriteFlag = 0;
+    if( zMethod[0]!='s' ) legacyFlag = find_option("legacy",0,0)!=0;
+    if( strncmp(zMethod,"pull",n)==0 ){
+      overwriteFlag = find_option("overwrite",0,0)!=0;
+    }
     url_proxy_options();
     if( g.argc!=4 && g.argc!=5 ){
       usage("pull AREA ?URL?");
     }
-    mask = find_area(g.argv[3]);
+    mask = configure_name_to_mask(g.argv[3], 1);
     if( g.argc==5 ){
       zServer = g.argv[4];
       zPw = 0;
@@ -828,17 +847,21 @@ void configuration_cmd(void){
     if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
     user_select();
     url_enable_proxy("via proxy: ");
+    if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
+    if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
       client_sync(0,0,0,0,0,mask);
-    }else{
+    }else if( strncmp(zMethod, "pull", n)==0 ){
       client_sync(0,0,0,0,mask,0);
+    }else{
+      client_sync(0,0,0,0,mask,mask);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){
     int mask, i;
     char *zBackup;
     if( g.argc!=4 ) usage("reset AREA");
-    mask = find_area(g.argv[3]);
+    mask = configure_name_to_mask(g.argv[3], 1);
     zBackup = db_text(0, 
        "SELECT strftime('config-backup-%%Y%%m%%d%%H%%M%%f','now')");
     db_begin_transaction();

@@ -740,9 +740,12 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
-** Send a single old-style config card for configuration item zName
+** Send a single old-style config card for configuration item zName.
+**
+** This routine and the functionality it implements is scheduled for
+** removal on 2012-05-01.
 */
-static void send_config_card(Xfer *pXfer, const char *zName){
+static void send_legacy_config_card(Xfer *pXfer, const char *zName){
   if( zName[0]!='@' ){
     Blob val;
     blob_zero(&val);
@@ -1030,8 +1033,15 @@ void page_xfer(void){
     ){
       if( g.okRead ){
         char *zName = blob_str(&xfer.aToken[1]);
-        if( configure_is_exportable(zName) ){
-          send_config_card(&xfer, zName);
+        if( zName[0]=='/' ){
+          /* New style configuration transfer */
+          int groupMask = configure_name_to_mask(&zName[0], 0);
+          if( !g.okAdmin ) groupMask &= ~CONFIGSET_USER;
+          if( !g.okRdAddr ) groupMask &= ~CONFIGSET_ADDR;
+          configure_send_group(xfer.pOut, groupMask, 0);
+        }else if( configure_is_exportable(zName) ){
+          /* Old style configuration transfer */
+          send_legacy_config_card(&xfer, zName);
         }
       }
     }else
@@ -1053,7 +1063,7 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      if( !recvConfig ){
+      if( !recvConfig && zName[0]=='@' ){
         configure_prepare_to_receive(0);
         recvConfig = 1;
       }
@@ -1332,8 +1342,11 @@ int client_sync(
         zName = configure_next_name(configRcvMask);
         nCardSent++;
       }
-      if( configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
-        configure_prepare_to_receive(0);
+      if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
+       && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
+      ){
+        int overwrite = (configRcvMask & CONFIGSET_OVERWRITE)!=0;
+        configure_prepare_to_receive(overwrite);
       }
       origConfigRcvMask = configRcvMask;
       configRcvMask = 0;
@@ -1341,12 +1354,16 @@ int client_sync(
 
     /* Send configuration parameters being pushed */
     if( configSendMask ){
-      const char *zName;
-      zName = configure_first_name(configSendMask);
-      while( zName ){
-        send_config_card(&xfer, zName);
-        zName = configure_next_name(configSendMask);
-        nCardSent++;
+      if( configSendMask & CONFIGSET_OLDFORMAT ){
+        const char *zName;
+        zName = configure_first_name(configSendMask);
+        while( zName ){
+          send_legacy_config_card(&xfer, zName);
+          zName = configure_next_name(configSendMask);
+          nCardSent++;
+        }
+      }else{
+        nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
       }
       configSendMask = 0;
     }
@@ -1648,7 +1665,9 @@ int client_sync(
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    if( origConfigRcvMask & (CONFIGSET_TKT|CONFIGSET_USER) ){
+    if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
+     && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
+    ){
       configure_finalize_receive();
     }
     origConfigRcvMask = 0;

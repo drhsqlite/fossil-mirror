@@ -1,5 +1,5 @@
-C Update\sthe\s"configure"\scommand\sso\sthat\sthe\s"import",\s"export",\sand\s"merge"\nsubcommands\suse\sthe\snew\sconfig\sformat.
-D 2011-04-26T18:36:36.898
+C Hook\sup\sthe\snew\sconfiguration\stransfer\slogic\sto\s"push"\sand\s"pull".\s\sCompiles\ncleanly\sbut\sotherwise\suntested.
+D 2011-04-26T23:11:21.022
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -49,7 +49,7 @@ F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 2ec60f44955792308c8539adbb94a80889534667
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c a43bdb439599cd723827f8788ede4cda11c7ed2a
+F src/configure.c ffca828b1417eb64eee86afff6b1048ca11045b2
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
 F src/db.c b7123de7d278c2f08b764fd79daacbaa08328742
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -126,7 +126,7 @@ F src/vfile.c ae05f3c9e4a47c5c297c34006163c56b63ae9dda
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
-F src/xfer.c badcb77b0670ea8e28c5d4233475aaadf0d4222b
+F src/xfer.c 043a492385dce5fde1ff3927dd59b5da9735f699
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9522964b24384ddb0ce8a0d44315d9ce419b688d
-R 7aac29c346a1a8147db05ce447470781
+P 42911838825ae9ce1d7f0f707f142323257166dc
+R 2137d4c015552096bf45206979db9e45
 U drh
-Z a7ac25e06a581c65b8c2729f767a5e6f
+Z 74ddd5bb1a2c71ff268169cc8dbb2d65
