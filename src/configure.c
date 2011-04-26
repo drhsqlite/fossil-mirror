@@ -300,6 +300,46 @@ void configure_prepare_to_receive(int replaceFlag){
 }
 
 /*
+** Return true if z[] is not a "safe" SQL token.  A safe token is one of:
+**
+**   *   A string literal
+**   *   A blob literal
+**   *   An integer literal  (no floating point)
+**   *   NULL
+*/
+static int safeSql(const char *z){
+  int i;
+  if( z==0 || z[0]==0 ) return 0;
+  if( (z[0]=='x' || z[0]=='X') && z[1]=='\'' ) z++;
+  if( z[0]=='\'' ){
+    for(i=1; z[i]; i++){
+      if( z[i]=='\'' ){
+        i++;
+        if( z[i]=='\'' ){ continue; }
+        return z[i]==0;
+      }
+    }
+    return 0;
+  }else{
+    char c;
+    for(i=0; (c = z[i])!=0; i++){
+      if( !fossil_isalnum(c) ) return 0;
+    }
+  }
+  return 1;
+}
+
+/*
+** Return true if z[] consists of nothing but digits
+*/
+static int safeInt(const char *z){
+  int i;
+  if( z==0 || z[0]==0 ) return 0;
+  for(i=0; fossil_isdigit(z[i]); i++){}
+  return z[i]==0;
+}
+
+/*
 ** Process a single "config" card received from the other side of a
 ** sync session.
 **
@@ -347,28 +387,98 @@ void configure_prepare_to_receive(int replaceFlag){
 ** information received into the true target table.
 */
 void configure_receive(const char *zName, Blob *pContent, int mask){
-  if( (configure_is_exportable(zName) & mask)==0 ) return;
-  if( strcmp(zName, "logo-image")==0 ){
-    Stmt ins;
-    db_prepare(&ins,
-      "REPLACE INTO config(name, value) VALUES(:name, :value)"
-    );
-    db_bind_text(&ins, ":name", zName);
-    db_bind_blob(&ins, ":value", pContent);
-    db_step(&ins);
-    db_finalize(&ins);
-  }else if( zName[0]=='@' ){
-    /* Notice that we are evaluating arbitrary SQL received from the
-    ** client.  But this can only happen if the client has authenticated
-    ** as an administrator, so presumably we trust the client at this
-    ** point.
-    */
-    db_multi_exec("%s", blob_str(pContent));
+  if( zName[0]=='/' ){
+    /* The new format */
+    char *azToken[12];
+    int nToken = 0;
+    int ii, jj;
+    Blob name, value, sql;
+    static const struct receiveType {
+      const char *zName;
+      const char *zPrimKey;
+      int nField;
+      const char *azField[4];
+    } aType[] = {
+      { "/config",    "name",  1, { "value", 0, 0, 0 }              },
+      { "@user",      "login", 4, { "pw", "cap", "info", "photo" }  },
+      { "@shun",      "uuid",  1, { "scom", 0, 0, 0 }               },
+      { "@reportfmt", "title", 3, { "owner", "cols", "sqlcode", 0 } },
+      { "@concealed", "hash",  1, { "content", 0, 0, 0 }            },
+    };
+    for(ii=0; ii<count(aType); ii++){
+      if( fossil_strcmp(&aType[ii].zName[1],&zName[1])==0 ) break;
+    }
+    if( ii>=count(aType) ) return;
+    while( blob_token(pContent, &name) && blob_sqltoken(pContent, &value) ){
+      char *z = blob_terminate(&name);
+      if( !safeSql(z) ) return;
+      if( nToken>0 ){
+        for(jj=0; jj<aType[ii].nField; jj++){
+          if( fossil_strcmp(aType[ii].azField[jj], z)==0 ) break;
+        }
+        if( jj>=aType[ii].nField ) continue;
+      }else{
+        if( !safeInt(z) ) return;
+      }
+      azToken[nToken++] = z;
+      azToken[nToken++] = z = blob_terminate(&value);
+      if( !safeSql(z) ) return;
+      if( nToken>=count(azToken) ) break;
+    }
+    if( nToken<2 ) return;
+    if( aType[ii].zName[0]=='/' ){
+      if( (configure_is_exportable(azToken[1]) & mask)==0 ) return;
+    }else{
+      if( (configure_is_exportable(aType[ii].zName) & mask)==0 ) return;
+    }
+    
+    blob_reset(&sql);
+    blob_appendf(&sql, "INSERT OR IGNORE INTO %s(%s, mtime",
+                 &zName[1], aType[ii].zPrimKey);
+    for(jj=2; jj<nToken; jj+=2){
+       blob_appendf(&sql, ",%s", azToken[jj]);
+    }
+    blob_appendf(&sql,") VALUES(%s,%s", azToken[1], azToken[0]);
+    for(jj=2; jj<nToken; jj+=2){
+       blob_appendf(&sql, ",%s", azToken[jj+1]);
+    }
+    db_multi_exec("%s", blob_str(&sql));
+    if( db_changes()==0 ){
+      blob_reset(&sql);
+      blob_appendf(&sql, "UPDATE %s SET mtime=%s,", &zName[1], azToken[0]);
+      for(jj=2; jj<nToken; jj+=2){
+        blob_appendf(&sql, ", %s=%s", azToken[jj], azToken[jj+1]);
+      }
+      blob_appendf(&sql, " WHERE %s=%s AND mtime<%s",
+                   aType[ii].zPrimKey, azToken[1], azToken[0]);
+      db_multi_exec("%s", blob_str(&sql));
+    }
+    blob_reset(&sql);
   }else{
-    db_multi_exec(
-       "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-       zName, blob_str(pContent)
-    );
+    /* Otherwise, the old format */
+    if( (configure_is_exportable(zName) & mask)==0 ) return;
+    if( strcmp(zName, "logo-image")==0 ){
+      Stmt ins;
+      db_prepare(&ins,
+        "REPLACE INTO config(name, value) VALUES(:name, :value)"
+      );
+      db_bind_text(&ins, ":name", zName);
+      db_bind_blob(&ins, ":value", pContent);
+      db_step(&ins);
+      db_finalize(&ins);
+    }else if( zName[0]=='@' ){
+      /* Notice that we are evaluating arbitrary SQL received from the
+      ** client.  But this can only happen if the client has authenticated
+      ** as an administrator, so presumably we trust the client at this
+      ** point.
+      */
+      db_multi_exec("%s", blob_str(pContent));
+    }else{
+      db_multi_exec(
+         "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+         zName, blob_str(pContent)
+      );
+    }
   }
 }
 
