@@ -39,7 +39,7 @@ static void status_report(
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
@@ -109,6 +109,9 @@ static void status_report(
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**
+** SUMMARY: fossil changes ?--sha1sum?
 */
 void changes_cmd(void){
   Blob report;
@@ -133,6 +136,9 @@ void changes_cmd(void){
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**
+** SUMMARY: fossil status ?--sha1sum?
 */
 void status_cmd(void){
   int vid;
@@ -155,6 +161,9 @@ void status_cmd(void){
 **
 ** Show the names of all files in the current checkout.  The -l provides
 ** extra information about each file.
+**
+**
+** SUMMARY: fossil ls ?-l?
 */
 void ls_cmd(void){
   int vid;
@@ -259,7 +268,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 ** COMMAND: extras
 ** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
 **
-** Print a list of all files in the source tree that are not part of
+** Print a list of all files in the source tree that are NOT part of
 ** the current checkout.  See also the "clean" command.
 **
 ** Files and subdirectories whose names begin with "." are normally
@@ -267,7 +276,11 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 **
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** setting is used if the --ignore option is omitted. (See the settings
+** command for more information.)
+**
+**
+** SUMMARY: fossil extras ?-dotfiles? ?--ignore globpattern?
 */
 void extra_cmd(void){
   Blob path;
@@ -287,7 +300,7 @@ void extra_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vfile_scan(0, &path, blob_size(&path), allFlag);
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
       "   AND NOT %s"
@@ -310,11 +323,13 @@ void extra_cmd(void){
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
 ** files that are not officially part of the checkout.  See also
-** the "extra" command. This operation cannot be undone. 
+** the "extras" command.
+**
+** TAKE CARE: This operation cannot be undone!
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
+** --force flag and no prompts will be issued.
 **
 ** Files and subdirectories whose names begin with "." are
 ** normally ignored.  They are included if the "--dotfiles" option
@@ -322,7 +337,11 @@ void extra_cmd(void){
 **
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
+** setting is used if the --ignore option is omitted. (See the settings
+** command for more information.)
+**
+**
+** SUMMARY: fossil clean ?--force? ?--dotfiles? ?--ignore globpattern?
 */
 void clean_cmd(void){
   int allFlag;
@@ -342,7 +361,7 @@ void clean_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s) AND NOT %s"
       " ORDER BY 1",
@@ -519,11 +538,11 @@ void select_commit_files(void){
 
 /*
 ** Return true if the check-in with RID=rid is a leaf.
-** A leaf has no children in the same branch. 
+** A leaf has no children in the same branch.
 */
 int is_a_leaf(int rid){
   int rc;
-  static const char zSql[] = 
+  static const char zSql[] =
     @ SELECT 1 FROM plink
     @  WHERE pid=%d
     @    AND coalesce((SELECT value FROM tagxref
@@ -561,7 +580,7 @@ static void checkin_verify_younger(
 
 /*
 ** zDate should be a valid date string.  Convert this string into the
-** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date, 
+** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date,
 ** print a fatal error and quit.
 */
 char *date_in_standard_format(const char *zInputDate){
@@ -643,7 +662,7 @@ static void create_manifest(
 #if !defined(_WIN32)
     /* For unix, extract the "executable" permission bit directly from
     ** the filesystem.  On windows, the "executable" bit is retained
-    ** unchanged from the original. 
+    ** unchanged from the original.
     */
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
@@ -735,7 +754,7 @@ static void create_manifest(
       blob_appendf(pOut, "T -%F *\n", zTag);
     }
     db_finalize(&q);
-  }  
+  }
   blob_appendf(pOut, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(pOut, &mcksum);
   blob_appendf(pOut, "Z %b\n", &mcksum);
@@ -778,7 +797,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
     char c;
     file_relative_name(zFilename, &fname);
     blob_zero(&ans);
-    zMsg = mprintf("%s contains CR/NL line endings; commit anyhow (y/N/a)?", 
+    zMsg = mprintf("%s contains CR/NL line endings; commit anyhow (y/N/a)?",
                    blob_str(&fname));
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
@@ -802,7 +821,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a 
+** the comment has been specified on the command-line using "-m" or a
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
 ** the "VISUAL" or "EDITOR" environment variables (in that order) if
@@ -836,7 +855,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 **    --baseline
 **    --delta
 **    --tag TAG-NAME
-**    
+**
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */
@@ -868,7 +887,7 @@ void commit_cmd(void){
   Blob cksum1b;          /* Checksum recorded in the manifest */
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
- 
+
   url_proxy_options();
   noSign = find_option("nosign",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
@@ -962,7 +981,7 @@ void commit_cmd(void){
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
     fossil_fatal("no such user: %s", g.zLogin);
   }
-  
+
   hasChanges = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
@@ -977,7 +996,7 @@ void commit_cmd(void){
     Blob unmodified;
     memset(&unmodified, 0, sizeof(Blob));
     blob_init(&unmodified, 0, 0);
-    db_blob(&unmodified, 
+    db_blob(&unmodified,
       "SELECT pathname FROM vfile"
       " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
     );
@@ -995,7 +1014,7 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf 
+  ** Do not allow a commit against a closed leaf
   */
   if( db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
@@ -1028,7 +1047,7 @@ void commit_cmd(void){
     db_begin_transaction();
   }
 
-  /* Step 1: Insert records for all modified files into the blob 
+  /* Step 1: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
   ** the identified fils are inserted (if they have been modified).
   */
@@ -1130,7 +1149,7 @@ void commit_cmd(void){
   }
 
   /* If the --test option is specified, output the manifest file
-  ** and rollback the transaction.  
+  ** and rollback the transaction.
   */
   if( testRun ){
     blob_write_to_file(&manifest, "");
@@ -1162,7 +1181,7 @@ void commit_cmd(void){
     blob_reset(&muuid);
   }
 
-  
+
   /* Update the vfile and vmerge tables */
   db_multi_exec(
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
@@ -1186,7 +1205,7 @@ void commit_cmd(void){
                    "up in the repository:  %b versus %b",
                    &cksum1, &cksum2);
     }
-  
+
     /* Verify that the manifest checksum matches the expected checksum */
     vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
     if( blob_compare(&cksum1, &cksum1b) ){
@@ -1198,7 +1217,7 @@ void commit_cmd(void){
          "working checkout does not match manifest after commit: "
          "%b versus %b", &cksum1, &cksum2);
     }
-  
+
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
@@ -1218,7 +1237,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync(AUTOSYNC_PUSH);  
+    autosync(AUTOSYNC_PUSH);
   }
   if( count_nonbranch_children(vid)>1 ){
     printf("**** warning: a fork has occurred *****\n");

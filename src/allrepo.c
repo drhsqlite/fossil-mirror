@@ -57,6 +57,9 @@ static char *quoteFilename(const char *zFilename){
 ** user.  This command performs certain operations on all repositories
 ** that can be useful before or after a period of disconnected operation.
 **
+** The rebuild subcommand is especially useful if the repositories were built
+** with an older version of fossil.
+**
 ** On Win32 systems, the file is named "_fossil" and is located in
 ** %LOCALAPPDATA%, %APPDATA% or %HOMEPATH%.
 **
@@ -79,6 +82,11 @@ static char *quoteFilename(const char *zFilename){
 ** when one of the following commands against the repository: clone, info,
 ** pull, push, or sync.  Even previously ignored repositories are added back
 ** to the list of repositories by these commands.
+**
+**
+** SUMMARY:     fossil all subcommand|subcommand repository1 ?repository2 ...?
+** Subcommands: list, ls, pull push, rebuild or sync
+** Or:          ignore repository1 ...
 */
 void all_cmd(void){
   int n;
@@ -90,7 +98,7 @@ void all_cmd(void){
   int nMissing;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
-  
+
   if( g.argc<3 ){
     usage("list|ls|pull|push|rebuild|sync");
   }
@@ -152,7 +160,7 @@ void all_cmd(void){
       break;
     }
   }
-  
+
   /* If any repositories whose names appear in the ~/.fossil file could not
   ** be found, remove those names from the ~/.fossil file.
   */

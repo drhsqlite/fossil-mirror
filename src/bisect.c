@@ -93,7 +93,9 @@ int bisect_option(const char *zName){
 **
 ** Usage: %fossil bisect SUBCOMMAND ...
 **
-** Run various subcommands useful for searching for bugs.
+** Run various subcommands useful for searching for bugs. It does so
+** by marking versions as "good" and "bad" and allowing you to "interpolate"
+** as it were between these two versions.
 **
 **   fossil bisect bad ?VERSION?
 **
@@ -123,6 +125,11 @@ int bisect_option(const char *zName){
 **   fossil bisect vlist
 **
 **     List the versions in between "bad" and "good".
+**
+** SUMMARY:     fossil bisect subcommand ...
+** Subcommands: bad, good ?VERSION?
+** Or:          next, reset, vlist
+** Or:          options ?NAME? ?VALUE?
 */
 void bisect_cmd(void){
   int n;
