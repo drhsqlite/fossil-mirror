@@ -29,14 +29,16 @@
 ** Configuration transfers occur in groups.  These are the allowed
 ** groupings:
 */
-#define CONFIGSET_SKIN   0x000001     /* WWW interface appearance */
-#define CONFIGSET_TKT    0x000002     /* Ticket configuration */
-#define CONFIGSET_PROJ   0x000004     /* Project name */
-#define CONFIGSET_SHUN   0x000008     /* Shun settings */
-#define CONFIGSET_USER   0x000010     /* The USER table */
-#define CONFIGSET_ADDR   0x000020     /* The CONCEALED table */
+#define CONFIGSET_SKIN      0x000001     /* WWW interface appearance */
+#define CONFIGSET_TKT       0x000002     /* Ticket configuration */
+#define CONFIGSET_PROJ      0x000004     /* Project name */
+#define CONFIGSET_SHUN      0x000008     /* Shun settings */
+#define CONFIGSET_USER      0x000010     /* The USER table */
+#define CONFIGSET_ADDR      0x000020     /* The CONCEALED table */
 
-#define CONFIGSET_ALL    0xffffff     /* Everything */
+#define CONFIGSET_ALL       0x0000ff     /* Everything */
+
+#define CONFIGSET_OVERWRITE 0x100000     /* Causes overwrite instead of merge */
 
 #endif /* INTERFACE */
 
@@ -129,8 +131,13 @@ const char *configure_next_name(int iMask){
 */
 int configure_is_exportable(const char *zName){
   int i;
+  int n = strlen(zName);
+  if( n>2 && zName[0]=='\'' && zName[n-1]=='\'' ){
+    zName++;
+    n -= 2;
+  }
   for(i=0; i<count(aConfig); i++){
-    if( fossil_strcmp(zName, aConfig[i].zName)==0 ){
+    if( memcmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
       if( !g.okAdmin ){
         m &= ~CONFIGSET_USER;
@@ -202,34 +209,35 @@ void configure_render_special_name(const char *zName, Blob *pOut){
 /*
 ** Two SQL functions:
 **
-**        flag_test(int)
-**        flag_clear(int)
+**        config_is_reset(int)
+**        config_reset(int)
 **
-** The flag_test() function takes the integer valued argument and
-** ANDs it against the static variable "flag_value" below.  The
-** function returns TRUE or false depending on the result.  The
-** flag_clear() function masks off the bits from "flag_value" that
+** The config_is_reset() function takes the integer valued argument and
+** ANDs it against the static variable "configHasBeenReset" below.  The
+** function returns TRUE or FALSE depending on the result depending on 
+** whether or not the corresponding configuration table has been reset.  The
+** config_reset() function adds the bits to "configHasBeenReset" that
 ** are given in the argument.
 **
 ** These functions are used below in the WHEN clause of a trigger to
 ** get the trigger to fire exactly once.
 */
-static int flag_value = 0xffff;
-static void flag_test_function(
+static int configHasBeenReset = 0;
+static void config_is_reset_function(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
   int m = sqlite3_value_int(argv[0]);
-  sqlite3_result_int(context, (flag_value&m)!=0 );
+  sqlite3_result_int(context, (configHasBeenReset&m)!=0 );
 }
-static void flag_clear_function(
+static void config_reset_function(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
   int m = sqlite3_value_int(argv[0]);
-  flag_value &= ~m;
+  configHasBeenReset |= m;
 }
 
 /*
@@ -275,26 +283,26 @@ void configure_prepare_to_receive(int replaceFlag){
   if( replaceFlag ){
     static const char zSQL2[] =
       @ CREATE TRIGGER _xfer_r1 BEFORE INSERT ON _xfer_reportfmt
-      @ WHEN flag_test(1) BEGIN
+      @ WHEN NOT config_is_reset(2) BEGIN
       @   DELETE FROM _xfer_reportfmt;
-      @   SELECT flag_clear(1);
+      @   SELECT config_reset(2);
       @ END;
       @ CREATE TRIGGER _xfer_r2 BEFORE INSERT ON _xfer_user
-      @ WHEN flag_test(2) BEGIN
+      @ WHEN NOT config_is_reset(16) BEGIN
       @   DELETE FROM _xfer_user;
-      @   SELECT flag_clear(2);
+      @   SELECT config_reset(16);
       @ END;
       @ CREATE TEMP TRIGGER _xfer_r3 BEFORE INSERT ON shun
-      @ WHEN flag_test(4) BEGIN
+      @ WHEN NOT config_is_reset(8) BEGIN
       @   DELETE FROM shun;
-      @   SELECT flag_clear(4);
+      @   SELECT config_reset(8);
       @ END;
     ;
-    sqlite3_create_function(g.db, "flag_test", 1, SQLITE_UTF8, 0,
-         flag_test_function, 0, 0);
-    sqlite3_create_function(g.db, "flag_clear", 1, SQLITE_UTF8, 0,
-         flag_clear_function, 0, 0);
-    flag_value = 0xffff;
+    sqlite3_create_function(g.db, "config_is_reset", 1, SQLITE_UTF8, 0,
+         config_is_reset_function, 0, 0);
+    sqlite3_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
+         config_reset_function, 0, 0);
+    configHasBeenReset = 0;
     db_multi_exec(zSQL2);
   }
 }
@@ -386,12 +394,13 @@ static int safeInt(const char *z){
 ** calls to this routine, configure_finalize_receive() to transfer the
 ** information received into the true target table.
 */
-void configure_receive(const char *zName, Blob *pContent, int mask){
+void configure_receive(const char *zName, Blob *pContent, int groupMask){
   if( zName[0]=='/' ){
     /* The new format */
     char *azToken[12];
     int nToken = 0;
     int ii, jj;
+    int thisMask;
     Blob name, value, sql;
     static const struct receiveType {
       const char *zName;
@@ -427,14 +436,23 @@ void configure_receive(const char *zName, Blob *pContent, int mask){
     }
     if( nToken<2 ) return;
     if( aType[ii].zName[0]=='/' ){
-      if( (configure_is_exportable(azToken[1]) & mask)==0 ) return;
+      thisMask = configure_is_exportable(azToken[1]);
     }else{
-      if( (configure_is_exportable(aType[ii].zName) & mask)==0 ) return;
+      thisMask = configure_is_exportable(aType[ii].zName);
     }
+    if( (thisMask & groupMask)==0 ) return;
     
-    blob_reset(&sql);
-    blob_appendf(&sql, "INSERT OR IGNORE INTO %s(%s, mtime",
-                 &zName[1], aType[ii].zPrimKey);
+    blob_zero(&sql);
+    if( groupMask & CONFIGSET_OVERWRITE ){
+      if( (thisMask & configHasBeenReset)==0 && aType[ii].zName[0]!='/' ){
+        db_multi_exec("DELETE FROM %s", &aType[ii].zName[1]);
+        configHasBeenReset |= thisMask;
+      }
+      blob_append(&sql, "REPLACE INTO ", -1);
+    }else{
+      blob_append(&sql, "INSERT OR IGNORE INTO ", -1);
+    }
+    blob_appendf(&sql, "%s(%s, mtime", &zName[1], aType[ii].zPrimKey);
     for(jj=2; jj<nToken; jj+=2){
        blob_appendf(&sql, ",%s", azToken[jj]);
     }
@@ -442,10 +460,10 @@ void configure_receive(const char *zName, Blob *pContent, int mask){
     for(jj=2; jj<nToken; jj+=2){
        blob_appendf(&sql, ",%s", azToken[jj+1]);
     }
-    db_multi_exec("%s", blob_str(&sql));
+    db_multi_exec("%s)", blob_str(&sql));
     if( db_changes()==0 ){
       blob_reset(&sql);
-      blob_appendf(&sql, "UPDATE %s SET mtime=%s,", &zName[1], azToken[0]);
+      blob_appendf(&sql, "UPDATE %s SET mtime=%s", &zName[1], azToken[0]);
       for(jj=2; jj<nToken; jj+=2){
         blob_appendf(&sql, ", %s=%s", azToken[jj], azToken[jj+1]);
       }
@@ -456,11 +474,11 @@ void configure_receive(const char *zName, Blob *pContent, int mask){
     blob_reset(&sql);
   }else{
     /* Otherwise, the old format */
-    if( (configure_is_exportable(zName) & mask)==0 ) return;
+    if( (configure_is_exportable(zName) & groupMask)==0 ) return;
     if( strcmp(zName, "logo-image")==0 ){
       Stmt ins;
       db_prepare(&ins,
-        "REPLACE INTO config(name, value) VALUES(:name, :value)"
+        "REPLACE INTO config(name, value, mtime) VALUES(:name, :value, now())"
       );
       db_bind_text(&ins, ":name", zName);
       db_bind_blob(&ins, ":value", pContent);
@@ -475,12 +493,42 @@ void configure_receive(const char *zName, Blob *pContent, int mask){
       db_multi_exec("%s", blob_str(pContent));
     }else{
       db_multi_exec(
-         "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+         "REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
          zName, blob_str(pContent)
       );
     }
   }
 }
+
+/*
+** Process a file full of "config" cards.
+*/
+void configure_receive_all(Blob *pIn, int groupMask){
+  Blob line;
+  int nToken;
+  int size;
+  Blob aToken[4];
+
+  configHasBeenReset = 0;
+  while( blob_line(pIn, &line) ){
+    if( blob_buffer(&line)[0]=='#' ) continue;
+    nToken = blob_tokenize(&line, aToken, count(aToken));
+    if( blob_eq(&aToken[0],"config")
+     && nToken==3
+     && blob_is_int(&aToken[2], &size)
+    ){
+      const char *zName = blob_str(&aToken[1]);
+      Blob content;
+      blob_zero(&content);
+      blob_extract(pIn, size, &content);
+      g.okAdmin = g.okRdAddr = 1;
+      configure_receive(zName, &content, groupMask);
+      blob_reset(&content);
+      blob_seek(pIn, 1, BLOB_SEEK_CUR);
+    }
+  }
+}
+    
 
 /*
 ** Send "config" cards using the new format for all elements of a group
@@ -650,36 +698,21 @@ static int find_area(const char *z){
 ** area identified by mask to its current state from any other state.
 */
 static void export_config(
-  int mask,                 /* Mask indicating which configuration to export */
+  int groupMask,            /* Mask indicating which configuration to export */
   const char *zMask,        /* Name of the configuration */
+  sqlite3_int64 iStart,     /* Start date */
   const char *zFilename     /* Write into this file */
 ){
-  int i;
   Blob out;
   blob_zero(&out);
   blob_appendf(&out, 
-    "-- The \"%s\" configuration exported from\n"
-    "-- repository \"%s\"\n"
-    "-- on %s\n",
+    "# The \"%s\" configuration exported from\n"
+    "# repository \"%s\"\n"
+    "# on %s\n",
     zMask, g.zRepositoryName,
     db_text(0, "SELECT datetime('now')")
   );
-  for(i=0; i<count(aConfig); i++){
-    if( (aConfig[i].groupMask & mask)!=0 ){
-      const char *zName = aConfig[i].zName;
-      if( zName[0]!='@' ){
-        char *zValue = db_text(0, 
-            "SELECT quote(value) FROM config WHERE name=%Q", zName);
-        if( zValue ){
-          blob_appendf(&out,"REPLACE INTO config VALUES(%Q,%s);\n", 
-                       zName, zValue);
-        }
-        free(zValue);
-      }else{
-        configure_render_special_name(zName, &out);
-      }
-    }
-  }
+  configure_send_group(&out, groupMask, iStart);
   blob_write_to_file(&out, zFilename);
   blob_reset(&out);
 }
@@ -740,21 +773,35 @@ void configuration_cmd(void){
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){
     int mask;
+    const char *zSince = find_option("since",0,1);
+    sqlite3_int64 iStart;
     if( g.argc!=5 ){
       usage("export AREA FILENAME");
     }
     mask = find_area(g.argv[3]);
-    export_config(mask, g.argv[3], g.argv[4]);
+    if( zSince ){
+      iStart = db_multi_exec(
+         "SELECT coalesce(strftime('%%s',%Q),strftime('%%s','now',%Q))+0",
+         zSince, zSince
+      );
+    }else{
+      iStart = 0;
+    }
+    export_config(mask, g.argv[3], iStart, g.argv[4]);
   }else
   if( strncmp(zMethod, "import", n)==0 
        || strncmp(zMethod, "merge", n)==0 ){
     Blob in;
+    int groupMask;
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
     blob_read_from_file(&in, g.argv[3]);
     db_begin_transaction();
-    configure_prepare_to_receive(zMethod[0]=='i');
-    db_multi_exec("%s", blob_str(&in));
-    configure_finalize_receive();
+    if( zMethod[0]=='i' ){
+      groupMask = CONFIGSET_ALL | CONFIGSET_OVERWRITE;
+    }else{
+      groupMask = CONFIGSET_ALL;
+    }
+    configure_receive_all(&in, groupMask);
     db_end_transaction(0);
   }else
   if( strncmp(zMethod, "pull", n)==0 || strncmp(zMethod, "push", n)==0 ){
@@ -795,7 +842,7 @@ void configuration_cmd(void){
     zBackup = db_text(0, 
        "SELECT strftime('config-backup-%%Y%%m%%d%%H%%M%%f','now')");
     db_begin_transaction();
-    export_config(mask, g.argv[3], zBackup);
+    export_config(mask, g.argv[3], 0, zBackup);
     for(i=0; i<count(aConfig); i++){
       const char *zName = aConfig[i].zName;
       if( (aConfig[i].groupMask & mask)==0 ) continue;

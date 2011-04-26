@@ -27,7 +27,8 @@
 ** and no logo image.
 */
 static const char zBuiltinSkin1[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
 @   padding: 0px;
@@ -154,7 +155,7 @@ static const char zBuiltinSkin1[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -206,7 +207,8 @@ static const char zBuiltinSkin1[] =
 @ }
 @ </th1></div>
 @ ');
-@ REPLACE INTO config VALUES('footer','<div class="footer">
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('footer',now(),'<div class="footer">
 @ Fossil version $manifest_version $manifest_date 
 @ </div>
 @ </body></html>
@@ -218,7 +220,8 @@ static const char zBuiltinSkin1[] =
 ** and no logo image.
 */
 static const char zBuiltinSkin2[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @   margin: 0ex 0ex;
 @   padding: 0px;
@@ -356,7 +359,7 @@ static const char zBuiltinSkin2[] =
 @   padding: 0.2ex 2ex;
 @ }
 @ ');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -407,7 +410,8 @@ static const char zBuiltinSkin2[] =
 @ }
 @ </th1></div>
 @ ');
-@ REPLACE INTO config VALUES('footer','<div class="footer">
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('footer',now(),'<div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
@@ -419,7 +423,8 @@ static const char zBuiltinSkin2[] =
 ** stuck on the left-hand side.
 */
 static const char zBuiltinSkin3[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @     margin:0px 0px 0px 0px;
 @     padding:0px;
@@ -588,7 +593,7 @@ static const char zBuiltinSkin3[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -642,7 +647,7 @@ static const char zBuiltinSkin3[] =
 @ </th1></ul></div>
 @ <div id="container">
 @ ');
-@ REPLACE INTO config VALUES('footer','</div>
+@ REPLACE INTO config(name,mtime,value) VALUES('footer',now(),'</div>
 @ <div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
@@ -655,7 +660,8 @@ static const char zBuiltinSkin3[] =
 ** Gradients and rounded corners.
 */
 static const char zBuiltinSkin4[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ html {
 @   min-height: 100%;
 @ }
@@ -882,7 +888,7 @@ static const char zBuiltinSkin4[] =
 @ textarea {
 @   font-size: 1em;
 @ }');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -936,7 +942,7 @@ static const char zBuiltinSkin4[] =
 @ </th1></ul></div>
 @ <div id="container">
 @ ');
-@ REPLACE INTO config VALUES('footer','</div>
+@ REPLACE INTO config(name,mtime,value) VALUES('footer',now(),'</div>
 @ <div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
@@ -986,13 +992,16 @@ static char *skinVarName(const char *zSkinName, int ifExists){
 static char *getSkin(int useDefault){
   Blob val;
   blob_zero(&val);
-  blob_appendf(&val, "REPLACE INTO config VALUES('css',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('css',%Q,now());\n",
      useDefault ? zDefaultCSS : db_get("css", (char*)zDefaultCSS)
   );
-  blob_appendf(&val, "REPLACE INTO config VALUES('header',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('header',%Q,now());\n",
      useDefault ? zDefaultHeader : db_get("header", (char*)zDefaultHeader)
   );
-  blob_appendf(&val, "REPLACE INTO config VALUES('footer',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('footer',%Q,now());\n",
      useDefault ? zDefaultFooter : db_get("footer", (char*)zDefaultFooter)
   );
   return blob_str(&val);
@@ -1050,7 +1059,7 @@ void setup_skin(void){
       zErr = mprintf("Skin name \"%h\" already exists. "
                      "Choose a different name.", P("sn"));
     }else{
-      db_multi_exec("INSERT INTO config VALUES(%Q,%Q)",
+      db_multi_exec("INSERT INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
          zName, zCurrent
       );
     }
@@ -1071,9 +1080,9 @@ void setup_skin(void){
     }
     if( !seen ){
       db_multi_exec(
-        "INSERT INTO config VALUES("
+        "INSERT INTO config(name,value,mtime) VALUES("
         "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-        "  %Q)", zCurrent
+        "  %Q,now())", zCurrent
       );
     }
     seen = 0;

@@ -532,8 +532,8 @@ void rebuild_database(void){
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
   db_multi_exec(
-    "REPLACE INTO config(name,value) VALUES('content-schema','%s');"
-    "REPLACE INTO config(name,value) VALUES('aux-schema','%s');",
+    "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
     CONTENT_SCHEMA, AUX_SCHEMA
   );
   if( errCnt && !forceFlag ){

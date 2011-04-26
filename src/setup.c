@@ -1288,14 +1288,14 @@ void setup_logo(void){
     Stmt ins;
     blob_init(&img, aImg, szImg);
     db_prepare(&ins,
-        "REPLACE INTO config(name, value)"
-        " VALUES('logo-image',:bytes)"
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('logo-image',:bytes,now())"
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
-       "REPLACE INTO config(name, value) VALUES('logo-mimetype',%Q)",
+       "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zMime
     );
     db_end_transaction(0);

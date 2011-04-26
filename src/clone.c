@@ -66,10 +66,10 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "REPLACE INTO config(name,value)"
-      " VALUES('last-sync-url', '%q');",
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
     db_multi_exec(
@@ -94,8 +94,8 @@ void clone_cmd(void){
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
     url_get_password_if_needed();
