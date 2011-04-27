@@ -585,12 +585,12 @@ int configure_send_group(
     db_prepare(&q, "SELECT mtime, quote(uuid), quote(scom) FROM shun"
                    " WHERE mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s scom %s\n",
+      blob_appendf(&rec,"%s %s scom %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2)
       );
-      blob_appendf(pOut, "config /shun %d\n%s",
+      blob_appendf(pOut, "config /shun %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);
@@ -602,7 +602,7 @@ int configure_send_group(
                    "       quote(info), quote(photo) FROM user"
                    " WHERE mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s pw %s cap %s info %s photo %s\n",
+      blob_appendf(&rec,"%s %s pw %s cap %s info %s photo %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2),
@@ -610,7 +610,7 @@ int configure_send_group(
         db_column_text(&q, 4),
         db_column_text(&q, 5)
       );
-      blob_appendf(pOut, "config /user %d\n%s",
+      blob_appendf(pOut, "config /user %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);
@@ -622,14 +622,14 @@ int configure_send_group(
                    "       quote(sqlcode) FROM reportfmt"
                    " WHERE mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s owner %s cols %s sqlcode %s\n",
+      blob_appendf(&rec,"%s %s owner %s cols %s sqlcode %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2),
         db_column_text(&q, 3),
         db_column_text(&q, 4)
       );
-      blob_appendf(pOut, "config /reportfmt %d\n%s",
+      blob_appendf(pOut, "config /reportfmt %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);
@@ -640,12 +640,12 @@ int configure_send_group(
     db_prepare(&q, "SELECT mtime, quote(hash), quote(content) FROM concealed"
                    " WHERE mtime>=%lld", iStart);
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(&rec,"%s %s content %s\n",
+      blob_appendf(&rec,"%s %s content %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2)
       );
-      blob_appendf(pOut, "config /concealed %d\n%s",
+      blob_appendf(pOut, "config /concealed %d\n%s\n",
                    blob_size(&rec), blob_str(&rec));
       nCard++;
       blob_reset(&rec);
@@ -658,12 +658,12 @@ int configure_send_group(
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
       db_bind_text(&q, ":name", aConfig[ii].zName);
       while( db_step(&q)==SQLITE_ROW ){
-        blob_appendf(&rec,"%s %s value %s\n",
+        blob_appendf(&rec,"%s %s value %s",
           db_column_text(&q, 0),
           db_column_text(&q, 1),
           db_column_text(&q, 2)
         );
-        blob_appendf(pOut, "config /config %d\n%s",
+        blob_appendf(pOut, "config /config %d\n%s\n",
                      blob_size(&rec), blob_str(&rec));
         nCard++;
         blob_reset(&rec);

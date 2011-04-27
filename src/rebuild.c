@@ -84,41 +84,56 @@ static const char zSchemaUpdates2[] =
 
 static void rebuild_update_schema(void){
   int rc;
-  sqlite3_stmt *pStmt;
   db_multi_exec(zSchemaUpdates1);
   db_multi_exec(zSchemaUpdates2);
 
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM user", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='user' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
     db_multi_exec(
-      "ALTER TABLE user ADD COLUMN mtime INTEGER;"
-      "UPDATE user SET mtime=(SELECT strftime('%%s','now'));"
+      "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
+      "DROP TABLE user;"
+      "CREATE TABLE user(\n"
+      "  uid INTEGER PRIMARY KEY,\n"
+      "  login TEXT UNIQUE,\n"
+      "  pw TEXT,\n"
+      "  cap TEXT,\n"
+      "  cookie TEXT,\n"
+      "  ipaddr TEXT,\n"
+      "  cexpire DATETIME,\n"
+      "  info TEXT,\n"
+      "  mtime DATE,\n"
+      "  photo BLOB\n"
+      ");"
+      "INSERT OR IGNORE INTO user"
+        " SELECT uid, login, pw, cap, cookie,"
+               " ipaddr, cexpire, info, now(), photo FROM temp_user;"
+      "DROP TABLE temp_user;"
     );
   }
 
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM config", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='config' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
     db_multi_exec(
       "ALTER TABLE config ADD COLUMN mtime INTEGER;"
-      "UPDATE config SET mtime=(SELECT strftime('%%s','now'));"
+      "UPDATE config SET mtime=now();"
     );
   }
 
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM shun", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='shun' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
     db_multi_exec(
       "ALTER TABLE shun ADD COLUMN mtime INTEGER;"
       "ALTER TABLE shun ADD COLUMN scom TEXT;"
-      "UPDATE shun SET mtime=(SELECT strftime('%%s','now'));"
+      "UPDATE shun SET mtime=now();"
     );
   }
 
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM reportfmt", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='reportfmt' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
     db_multi_exec(
       "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
       "DROP TABLE reportfmt;"
@@ -126,20 +141,19 @@ static void rebuild_update_schema(void){
     db_multi_exec(zSchemaUpdates2);
     db_multi_exec(
       "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
-        " SELECT rn, owner, title, cols, sqlcode,"
-        "        (SELECT strftime('%%s','now')+0) FROM old_fmt;"
+        " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
       "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
-        " SELECT rn, owner, title || ' (' || rn || ')', cols, sqlcode,"
-        "        (SELECT strftime('%%s','now')+0) FROM old_fmt;"
+        " SELECT rn, owner, title || ' (' || rn || ')', cols, sqlcode, now()"
+        "   FROM old_fmt;"
     );
   }
 
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM concealed", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='concealed' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
     db_multi_exec(
       "ALTER TABLE concealed ADD COLUMN mtime INTEGER;"
-      "UPDATE concealed SET mtime=(SELECT strftime('%%s','now'));"
+      "UPDATE concealed SET mtime=now();"
     );
   }
 }  

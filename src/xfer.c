@@ -1011,7 +1011,7 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
       if( disableLogin ){
-        g.okRead = g.okWrite = g.okPrivate = 1;
+        g.okRead = g.okWrite = g.okPrivate = g.okAdmin = 1;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
@@ -1035,7 +1035,7 @@ void page_xfer(void){
         char *zName = blob_str(&xfer.aToken[1]);
         if( zName[0]=='/' ){
           /* New style configuration transfer */
-          int groupMask = configure_name_to_mask(&zName[0], 0);
+          int groupMask = configure_name_to_mask(&zName[1], 0);
           if( !g.okAdmin ) groupMask &= ~CONFIGSET_USER;
           if( !g.okRdAddr ) groupMask &= ~CONFIGSET_ADDR;
           configure_send_group(xfer.pOut, groupMask, 0);
@@ -1196,10 +1196,10 @@ void page_xfer(void){
 */
 void cmd_test_xfer(void){
   int notUsed;
+  db_find_and_open_repository(0,0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
   }
-  db_must_be_within_tree();
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;

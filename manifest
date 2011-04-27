@@ -1,5 +1,5 @@
-C Hook\sup\sthe\snew\sconfiguration\stransfer\slogic\sto\s"push"\sand\s"pull".\s\sCompiles\ncleanly\sbut\sotherwise\suntested.
-D 2011-04-26T23:11:21.022
+C Simple\stest\scases\sfor\sconfiguration\ssync\sare\snow\sworking.
+D 2011-04-27T00:49:47.238
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -49,7 +49,7 @@ F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
 F src/clone.c 2ec60f44955792308c8539adbb94a80889534667
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c ffca828b1417eb64eee86afff6b1048ca11045b2
+F src/configure.c 4a75184caec2ea27cbda0263cb2ab6272ff31a36
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
 F src/db.c b7123de7d278c2f08b764fd79daacbaa08328742
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -90,12 +90,12 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c a0eea6c951f8d60ee3ecc08f5a828a6011cbc7dc
-F src/rebuild.c 581d2a833b0ec372d01f95f413b0215724ca5d1e
+F src/rebuild.c d4a8df9cb29799e732243400230cd66923e69a89
 F src/report.c 8c408654f3b001ff13e90803f3705410fac7f658
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
-F src/schema.c e85b0ce867cd14175d5e3059d631924165e78e17
+F src/schema.c cd67fe706044ad622c9ecc919d7afd17ea0b5a50
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
-F src/setup.c 407343a6414f231169fa82293960e1f6a2c619ed
+F src/setup.c 0ddd7e38ea4e9eb3fdd831720896df8b8a32fa6f
 F src/sha1.c f25e6093f17488de748ef54283d2a7ac8f8c874b
 F src/shell.c d275901b531cf10b09449606854884b467e37e79
 F src/shun.c 484601b9a75d68f5a160b44eef0cb5c794f58bcc
@@ -120,13 +120,13 @@ F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c dcc00132ae0c492c64aca501541c41f28bcbd6c7
 F src/update.c 31e32a9f41624067d1a1a2a2a20902b2a7adf47b
 F src/url.c 55c48215da33082bc7d9d9ad27433747715a2b95
-F src/user.c 99d51fd8ba328f7b152ee34bf054867eef71f28e
+F src/user.c f1c939fa01225be1ae2d6bbaf4735d8a5c5e5d5a
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c ae05f3c9e4a47c5c297c34006163c56b63ae9dda
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
-F src/xfer.c 043a492385dce5fde1ff3927dd59b5da9735f699
+F src/xfer.c 9630ce6207197e4cdefa967bd84924aa7e539870
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 42911838825ae9ce1d7f0f707f142323257166dc
-R 2137d4c015552096bf45206979db9e45
+P 9d35e1dbf0a3ee60ed4d8094af5ec9e5e9000ff2
+R f76541bd88de0f721a7b35809f105e94
 U drh
-Z 74ddd5bb1a2c71ff268169cc8dbb2d65
+Z 4e6c5bee986730b5b672f4a5a3a7b661

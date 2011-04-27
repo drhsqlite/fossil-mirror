@@ -112,7 +112,7 @@ const char zRepositorySchema1[] =
 @ --
 @ CREATE TABLE user(
 @   uid INTEGER PRIMARY KEY,        -- User ID
-@   login TEXT,                     -- login name of the user
+@   login TEXT UNIQUE,              -- login name of the user
 @   pw TEXT,                        -- password
 @   cap TEXT,                       -- Capabilities of this user
 @   cookie TEXT,                    -- WWW login cookie

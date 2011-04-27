@@ -356,8 +356,8 @@ void user_edit(void){
     }
     login_verify_csrf_secret();
     db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
+       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
       uid, P("login"), P("info"), zPw, zCap
     );
     if( atoi(PD("all","0"))>0 ){
@@ -377,7 +377,8 @@ void user_edit(void){
         "  pw=coalesce(shared_secret(%Q,%Q,"
                 "(SELECT value FROM config WHERE name='project-code')),pw),"
         "  info=%Q,"
-        "  cap=%Q"
+        "  cap=%Q,"
+        "  mtime=now()"
         " WHERE login=%Q;",
         zLogin, P("pw"), zLogin, P("info"), zCap,
         zOldLogin
