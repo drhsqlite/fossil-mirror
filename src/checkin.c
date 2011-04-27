@@ -138,9 +138,9 @@ void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  printf("repository:   %s\n", db_lget("repository",""));
-  printf("local-root:   %s\n", g.zLocalRoot);
-  printf("server-code:  %s\n", db_get("server-code", ""));
+  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("local-root:   %s\n", g.zLocalRoot);
+  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -178,23 +178,23 @@ void ls_cmd(void){
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isBrief ){
-      printf("%s\n", zPathname);
+      fossil_print("%s\n", zPathname);
     }else if( isNew ){
-      printf("ADDED      %s\n", zPathname);
+      fossil_print("ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
+      fossil_print("DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
       if( access(zFullName, 0)==0 ){
-        printf("NOT_A_FILE %s\n", zPathname);
+        fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
-        printf("MISSING    %s\n", zPathname);
+        fossil_print("MISSING    %s\n", zPathname);
       }
     }else if( chnged ){
-      printf("EDITED     %s\n", zPathname);
+      fossil_print("EDITED     %s\n", zPathname);
     }else if( renamed ){
-      printf("RENAMED    %s\n", zPathname);
+      fossil_print("RENAMED    %s\n", zPathname);
     }else{
-      printf("UNCHANGED  %s\n", zPathname);
+      fossil_print("UNCHANGED  %s\n", zPathname);
     }
     free(zFullName);
   }
@@ -246,7 +246,7 @@ void extra_cmd(void){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   while( db_step(&q)==SQLITE_ROW ){
-    printf("%s\n", db_column_text(&q, 0));
+    fossil_print("%s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
 }
@@ -397,7 +397,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
-    printf("%s\n", zCmd);
+    fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_panic("editor aborted");
     }
@@ -1086,7 +1086,7 @@ void commit_cmd(void){
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("New_Version: %s\n", zUuid);
+  fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
@@ -1155,6 +1155,6 @@ void commit_cmd(void){
     autosync(AUTOSYNC_PUSH);  
   }
   if( count_nonbranch_children(vid)>1 ){
-    printf("**** warning: a fork has occurred *****\n");
+    fossil_print("**** warning: a fork has occurred *****\n");
   }
 }

@@ -499,7 +499,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "progress ", 9)==0 ){
       gg.xFinish();
       trim_newline(&zLine[9]);
-      printf("%s\n", &zLine[9]);
+      fossil_print("%s\n", &zLine[9]);
       fflush(stdout);
     }else
     if( memcmp(zLine, "data ", 5)==0 ){
@@ -744,17 +744,17 @@ void git_import_cmd(void){
   db_finalize(&q);
   db_end_transaction(0);
   db_begin_transaction();
-  printf("Rebuilding repository meta-data...\n");
+  fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, !incrFlag);
   verify_cancel();
   db_end_transaction(0);
-  printf("Vacuuming..."); fflush(stdout);
+  fossil_print("Vacuuming..."); fflush(stdout);
   db_multi_exec("VACUUM");
-  printf(" ok\n");
+  fossil_print(" ok\n");
   if( !incrFlag ){
-    printf("project-id: %s\n", db_get("project-code", 0));
-    printf("server-id:  %s\n", db_get("server-code", 0));
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
     zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-    printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+    fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   }
 }

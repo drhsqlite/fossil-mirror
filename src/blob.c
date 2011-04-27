@@ -113,7 +113,7 @@ void isspace_cmd(void){
       assert( !fossil_isspace((char)i) );
     }
   }
-  printf("All 256 characters OK\n");
+  fossil_print("All 256 characters OK\n");
 }
 
 /*
@@ -927,7 +927,7 @@ void test_cycle_compress(void){
     blob_reset(&b2);
     blob_reset(&b3);
   }
-  printf("ok\n");
+  fossil_print("ok\n");
 }
 
 #if defined(_WIN32)

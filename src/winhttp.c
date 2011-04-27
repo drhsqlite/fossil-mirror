@@ -192,13 +192,13 @@ void win32_http_server(
     }
   }
   zTempPrefix = mprintf("fossil_server_P%d_", iPort);
-  printf("Listening for HTTP requests on TCP port %d\n", iPort);
+  fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
-    printf("Launch webbrowser: %s\n", zBrowser);
+    fossil_print("Launch webbrowser: %s\n", zBrowser);
     fossil_system(zBrowser);
   }
-  printf("Type Ctrl-C to stop the HTTP server\n");
+  fossil_print("Type Ctrl-C to stop the HTTP server\n");
   for(;;){
     SOCKET client;
     SOCKADDR_IN client_addr;

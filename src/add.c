@@ -118,7 +118,7 @@ static int add_one_file(
       vid, zPath, file_isexe(zFullname));
     fossil_free(zFullname);
   }
-  printf("ADDED  %s\n", zPath);
+  fossil_print("ADDED  %s\n", zPath);
   return 1;
 }
 
@@ -282,7 +282,7 @@ void delete_cmd(void){
   
   db_prepare(&loop, "SELECT x FROM sfile");
   while( db_step(&loop)==SQLITE_ROW ){
-    printf("DELETED %s\n", db_column_text(&loop, 0));
+    fossil_print("DELETED %s\n", db_column_text(&loop, 0));
   }
   db_finalize(&loop);
   db_multi_exec(
@@ -379,13 +379,13 @@ void import_cmd(void){
       if( !isTest ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }
-      printf("DELETED  %s\n", zFile);
+      fossil_print("DELETED  %s\n", zFile);
       nDelete++;
     }
   }
   db_finalize(&q);
   /* show cmmand summary */
-  printf("added %d files, deleted %d files\n", nAdd, nDelete);
+  fossil_print("added %d files, deleted %d files\n", nAdd, nDelete);
 
   db_end_transaction(isTest);
 }
@@ -397,7 +397,7 @@ void import_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
-  printf("RENAME %s %s\n", zOrig, zNew);
+  fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
     "UPDATE vfile SET pathname='%s' WHERE pathname='%s' AND vid=%d",
     zNew, zOrig, vid

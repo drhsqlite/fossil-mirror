@@ -352,9 +352,9 @@ void cmd_test_simplify_name(void){
   char *z;
   for(i=2; i<g.argc; i++){
     z = mprintf("%s", g.argv[i]);
-    printf("[%s] -> ", z);
+    fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1);
-    printf("[%s]\n", z);
+    fossil_print("[%s]\n", z);
     fossil_free(z);
   }
 }
@@ -379,8 +379,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
   }else{
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-      fossil_exit(1);
+      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
     }
     blob_zero(pOut);
     blob_appendf(pOut, "%//%/", zPwd, zOrigName);
@@ -403,15 +402,15 @@ void cmd_test_canonical_name(void){
     char zBuf[100];
     const char *zName = g.argv[i];
     file_canonical_name(zName, &x);
-    printf("[%s] -> [%s]\n", zName, blob_buffer(&x));
+    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName));
-    printf("  file_size   = %s\n", zBuf);
+    fossil_print("  file_size   = %s\n", zBuf);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName));
-    printf("  file_mtime  = %s\n", zBuf);
-    printf("  file_isfile = %d\n", file_isfile(zName));
-    printf("  file_isexe  = %d\n", file_isexe(zName));
-    printf("  file_isdir  = %d\n", file_isdir(zName));
+    fossil_print("  file_mtime  = %s\n", zBuf);
+    fossil_print("  file_isfile = %d\n", file_isfile(zName));
+    fossil_print("  file_isexe  = %d\n", file_isexe(zName));
+    fossil_print("  file_isdir  = %d\n", file_isdir(zName));
   }
 }
 
@@ -455,8 +454,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
     Blob tmp;
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-      fossil_exit(1);
+      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
     }
     for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}
     if( zPath[i]==0 ){
@@ -504,7 +502,7 @@ void cmd_test_relative_name(void){
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     file_relative_name(g.argv[i], &x);
-    printf("%s\n", blob_buffer(&x));
+    fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
 }
@@ -559,7 +557,7 @@ void cmd_test_tree_name(void){
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     if( file_tree_name(g.argv[i], &x, 1) ){
-      printf("%s\n", blob_buffer(&x));
+      fossil_print("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }
   }

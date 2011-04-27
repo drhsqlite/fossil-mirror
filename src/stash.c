@@ -187,9 +187,9 @@ static void stash_apply(int stashid, int nConflict){
       db_ephemeral_blob(&q, 5, &delta);
       blob_write_to_file(&delta, zNPath);
       file_setexe(zNPath, isExec);
-      printf("ADD %s\n", zNew);
+      fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
-      printf("DELETE %s\n", zOrig);
+      fossil_print("DELETE %s\n", zOrig);
       unlink(zOPath);
     }else{
       Blob a, b, out, disk;
@@ -200,16 +200,16 @@ static void stash_apply(int stashid, int nConflict){
       if( blob_compare(&disk, &a)==0 ){
         blob_write_to_file(&b, zNPath);
         file_setexe(zNPath, isExec);
-        printf("UPDATE %s\n", zNew);
+        fossil_print("UPDATE %s\n", zNew);
       }else{
         int rc = merge_3way(&a, zOPath, &b, &out);
         blob_write_to_file(&out, zNPath);
         file_setexe(zNPath, isExec);
         if( rc ){
-          printf("CONFLICT %s\n", zNew);
+          fossil_print("CONFLICT %s\n", zNew);
           nConflict++;
         }else{
-          printf("MERGE %s\n", zNew);
+          fossil_print("MERGE %s\n", zNew);
         }
         blob_reset(&out);
       }
@@ -225,7 +225,7 @@ static void stash_apply(int stashid, int nConflict){
   }
   db_finalize(&q);
   if( nConflict ){
-    printf("WARNING: merge conflicts - see messages above for details.\n");
+    fossil_print("WARNING: merge conflicts - see messages above for details.\n");
   }
 }
 
@@ -250,11 +250,11 @@ static void stash_diff(int stashid, const char *zDiffCmd){
     Blob delta;
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
-      printf("ADDED %s\n", zNew);
+      fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew);
       diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
     }else if( isRemoved ){
-      printf("DELETE %s\n", zOrig);
+      fossil_print("DELETE %s\n", zOrig);
       blob_read_from_file(&delta, zOPath);
       diff_print_index(zNew);
       diff_file_mem(&delta, &empty, zOrig, zDiffCmd, 0);
@@ -264,7 +264,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       blob_read_from_file(&disk, zOPath);     
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
-      printf("CHANGED %s\n", zNew);
+      fossil_print("CHANGED %s\n", zNew);
       diff_file_mem(&disk, &b, zNew, zDiffCmd, 0);
       blob_reset(&a);
       blob_reset(&b);
@@ -415,19 +415,19 @@ void stash_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zCom;
       n++;
-      printf("%5d: [%.14s] on %s\n",
+      fossil_print("%5d: [%.14s] on %s\n",
         db_column_int(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 3)
       );
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
-        printf("       ");
+        fossil_print("       ");
         comment_print(zCom, 7, 79);
       }
     }
     db_finalize(&q);
-    if( n==0 ) printf("empty stash\n");
+    if( n==0 ) fossil_print("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;

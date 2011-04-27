@@ -266,7 +266,7 @@ void vfile_to_disk(
         continue;
       }
     }
-    if( verbose ) printf("%s\n", &zName[nRepos]);
+    if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
     file_setexe(zName, isExe);
     blob_reset(&content);
@@ -493,22 +493,23 @@ void vfile_compare_repository_to_disk(int vid){
     blob_zero(&disk);
     rc = blob_read_from_file(&disk, zFullpath);
     if( rc<0 ){
-      printf("ERROR: cannot read file [%s]\n", zFullpath);
+      fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
       blob_reset(&disk);
       continue;
     }
     blob_zero(&repo);
     content_get(rid, &repo);
     if( blob_size(&repo)!=blob_size(&disk) ){
-      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+      fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
     }
     if( blob_compare(&repo, &disk) ){
-      printf("ERROR: [%s] is different on disk compared to the repository\n",
-             zName);
+      fossil_print(
+          "ERROR: [%s] is different on disk compared to the repository\n",
+          zName);
     }
     blob_reset(&disk);
     blob_reset(&repo);

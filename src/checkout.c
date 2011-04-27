@@ -251,10 +251,10 @@ void checkout_cmd(void){
     vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
     vfile_aggregate_checksum_disk(vid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      printf("WARNING: manifest checksum does not agree with disk\n");
+      fossil_print("WARNING: manifest checksum does not agree with disk\n");
     }
     if( blob_size(&cksum1b) && blob_compare(&cksum1, &cksum1b) ){
-      printf("WARNING: manifest checksum does not agree with manifest\n");
+      fossil_print("WARNING: manifest checksum does not agree with manifest\n");
     }
   }
   db_end_transaction(0);

@@ -137,12 +137,12 @@ void all_cmd(void){
     }
     if( !file_is_canonical(zFilename) ) nMissing++;
     if( zCmd[0]=='l' ){
-      printf("%s\n", zFilename);
+      fossil_print("%s\n", zFilename);
       continue;
     }
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
-    printf("%s\n", zSyscmd);
+    fossil_print("%s\n", zSyscmd);
     fflush(stdout);
     rc = fossil_system(zSyscmd);
     free(zSyscmd);

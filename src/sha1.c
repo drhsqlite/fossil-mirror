@@ -432,7 +432,7 @@ void sha1sum_test(void){
     }else{
       sha1sum_file(g.argv[i], &cksum);
     }
-    printf("%s  %s\n", blob_str(&cksum), g.argv[i]);
+    fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);
   }
 }

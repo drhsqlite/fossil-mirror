@@ -269,12 +269,12 @@ void test_name_to_id(void){
   db_must_be_within_tree();
   for(i=2; i<g.argc; i++){
     blob_init(&name, g.argv[i], -1);
-    printf("%s -> ", g.argv[i]);
+    fossil_print("%s -> ", g.argv[i]);
     if( name_to_uuid(&name, 1) ){
-      printf("ERROR: %s\n", g.zErrMsg);
+      fossil_print("ERROR: %s\n", g.zErrMsg);
       fossil_error_reset();
     }else{
-      printf("%s\n", blob_buffer(&name));
+      fossil_print("%s\n", blob_buffer(&name));
     }
     blob_reset(&name);
   }

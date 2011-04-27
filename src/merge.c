@@ -251,16 +251,16 @@ void merge_cmd(void){
        "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, isexe FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       printf("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d\n",
+       fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 5),
           db_column_int(&q, 6),
           db_column_int(&q, 7),
           db_column_int(&q, 4),
           db_column_int(&q, 8));
-       printf("     fn  = [%s]\n", db_column_text(&q, 1));
-       printf("     fnp = [%s]\n", db_column_text(&q, 2));
-       printf("     fnm = [%s]\n", db_column_text(&q, 3));
+       fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
+       fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
+       fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
     }
     db_finalize(&q);
   }
@@ -276,7 +276,7 @@ void merge_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    printf("WARNING - no common ancestor: %s\n", zName);
+    fossil_warning("WARNING - no common ancestor: %s\n", zName);
     free(zName);
     db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
   }
@@ -302,7 +302,7 @@ void merge_cmd(void){
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
-    printf("ADDED %s\n", zName);
+    fossil_print("ADDED %s\n", zName);
     if( !nochangeFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
@@ -324,7 +324,7 @@ void merge_cmd(void){
     int ridm = db_column_int(&q, 1);
     const char *zName = db_column_text(&q, 2);
     /* Copy content from idm over into idv.  Overwrite idv. */
-    printf("UPDATE %s\n", zName);
+    fossil_print("UPDATE %s\n", zName);
     if( !nochangeFlag ){
       undo_save(zName);
       db_multi_exec(
@@ -357,9 +357,10 @@ void merge_cmd(void){
     Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( detailFlag ){
-      printf("MERGE %s  (pivot=%d v1=%d v2=%d)\n", zName, ridp, ridm, ridv);
+      fossil_print("MERGE %s  (pivot=%d v1=%d v2=%d)\n", 
+                   zName, ridp, ridm, ridv);
     }else{
-      printf("MERGE %s\n", zName);
+      fossil_print("MERGE %s\n", zName);
     }
     undo_save(zName);
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
@@ -378,11 +379,11 @@ void merge_cmd(void){
       }
       db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
       if( rc>0 ){
-        printf("***** %d merge conflicts in %s\n", rc, zName);
+        fossil_print("***** %d merge conflicts in %s\n", rc, zName);
         nConflict++;
       }
     }else{
-      printf("***** Cannot merge binary file %s\n", zName);
+      fossil_print("***** Cannot merge binary file %s\n", zName);
       nConflict++;
     }
     blob_reset(&p);
@@ -405,9 +406,9 @@ void merge_cmd(void){
     const char *zName = db_column_text(&q, 1);
     int chnged = db_column_int(&q, 2);
     /* Delete the file idv */
-    printf("DELETE %s\n", zName);
+    fossil_print("DELETE %s\n", zName);
     if( chnged ){
-      printf("WARNING: local edits lost for %s\n", zName);
+      fossil_warning("WARNING: local edits lost for %s\n", zName);
       nConflict++;
     }
     undo_save(zName);
@@ -435,7 +436,7 @@ void merge_cmd(void){
     int idv = db_column_int(&q, 0);
     const char *zOldName = db_column_text(&q, 1);
     const char *zNewName = db_column_text(&q, 2);
-    printf("RENAME %s -> %s\n", zOldName, zNewName);
+    fossil_print("RENAME %s -> %s\n", zOldName, zNewName);
     undo_save(zOldName);
     undo_save(zNewName);
     db_multi_exec(
@@ -457,7 +458,8 @@ void merge_cmd(void){
   /* Report on conflicts
   */
   if( nConflict && !nochangeFlag ){
-    printf("WARNING: merge conflicts - see messages above for details.\n");
+    fossil_warning(
+       "WARNING: merge conflicts - see messages above for details.\n");
   }
 
   /*

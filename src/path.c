@@ -215,12 +215,13 @@ void shortest_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    printf("%4d: %s", n, z);
+    fossil_print("%4d: %s", n, z);
     fossil_free(z);
     if( p->u.pTo ){
-      printf(" is a %s of\n", p->u.pTo->fromIsParent ? "parent" : "child");
+      fossil_print(" is a %s of\n", 
+                   p->u.pTo->fromIsParent ? "parent" : "child");
     }else{
-      printf("\n");
+      fossil_print("\n");
     }
   }
 }
@@ -314,12 +315,12 @@ void ancestor_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    printf("%4d: %s", n, z);
+    fossil_print("%4d: %s", n, z);
     fossil_free(z);
-    if( p->rid==iFrom ) printf(" VERSION1");
-    if( p->rid==iTo ) printf(" VERSION2");
-    if( p->rid==iPivot ) printf(" PIVOT");
-    printf("\n");
+    if( p->rid==iFrom ) fossil_print(" VERSION1");
+    if( p->rid==iTo ) fossil_print(" VERSION2");
+    if( p->rid==iPivot ) fossil_print(" PIVOT");
+    fossil_print("\n");
   }
 }
 
@@ -447,7 +448,7 @@ void test_name_change(void){
 
     zFrom = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
     zTo = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
-    printf("[%s] -> [%s]\n", zFrom, zTo);
+    fossil_print("[%s] -> [%s]\n", zFrom, zTo);
     fossil_free(zFrom);
     fossil_free(zTo);
   }

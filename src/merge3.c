@@ -316,21 +316,17 @@ void delta_3waymerge_cmd(void){
     usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[2]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[2]);
   }
   if( blob_read_from_file(&v1, g.argv[3])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[3]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[3]);
   }
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[4]);
   }
   blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
-    fprintf(stderr,"cannot write %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot write %s\n", g.argv[4]);
   }
   blob_reset(&pivot);
   blob_reset(&v1);

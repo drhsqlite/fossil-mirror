@@ -690,9 +690,9 @@ int configure_name_to_mask(const char *z, int notFoundIsFatal){
     }
   }
   if( notFoundIsFatal ){
-    printf("Available configuration areas:\n");
+    fossil_print("Available configuration areas:\n");
     for(i=0; i<count(aGroupName); i++){
-      printf("  %-10s %s\n", &aGroupName[i].zName[1], aGroupName[i].zHelp);
+      fossil_print("  %-10s %s\n", &aGroupName[i].zName[1], aGroupName[i].zHelp);
     }
     fossil_fatal("no such configuration area: \"%s\"", z);
   }
@@ -885,8 +885,8 @@ void configuration_cmd(void){
       }
     }
     db_end_transaction(0);
-    printf("Configuration reset to factory defaults.\n");
-    printf("To recover, use:  %s %s import %s\n", 
+    fossil_print("Configuration reset to factory defaults.\n");
+    fossil_print("To recover, use:  %s %s import %s\n", 
             fossil_nameofexe(), g.argv[1], zBackup);
   }else
   {

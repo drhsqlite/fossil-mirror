@@ -1204,7 +1204,7 @@ void cmd_test_xfer(void){
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;
   page_xfer();
-  printf("%s\n", cgi_extract_content(&notUsed));
+  fossil_print("%s\n", cgi_extract_content(&notUsed));
 }
 
 /*
@@ -1388,7 +1388,7 @@ int client_sync(
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
     if( !g.cgiOutput && !g.fQuiet ){
-      printf("waiting for server...");
+      fossil_print("waiting for server...");
     }
     fflush(stdout);
     if( http_exchange(&send, &recv, cloneFlag==0 || nCycle>0) ){
@@ -1444,7 +1444,7 @@ int client_sync(
       if( !g.cgiOutput && !g.fQuiet && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
         if( pctDone!=lastPctDone ){
-          printf("\rprocessed: %d%%         ", pctDone);
+          fossil_print("\rprocessed: %d%%         ", pctDone);
           lastPctDone = pctDone;
           fflush(stdout);
         }

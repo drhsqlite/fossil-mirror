@@ -567,10 +567,6 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
-#if defined(_WIN32)
-extern char *sqlite3_win32_mbcs_to_utf8(const char*);
-#endif
-
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
@@ -585,9 +581,6 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-#if defined(_WIN32)
-  zFileName = sqlite3_win32_mbcs_to_utf8(zFileName);
-#endif
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
@@ -633,9 +626,6 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3 *db;
 
   zVfs = getenv("FOSSIL_VFS");
-#if defined(_WIN32)
-  zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
-#endif
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -662,9 +652,6 @@ static void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zMainDbType = zLabel;
     db_connection_init();
   }else{
-#if defined(_WIN32)
-    zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
-#endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
   }
 }
@@ -1191,10 +1178,11 @@ void create_repository_cmd(void){
   db_begin_transaction();
   db_initial_setup(zDate, zDefaultUser, 1);
   db_end_transaction(0);
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (initial password is \"%s\")\n", 
+               g.zLogin, zPassword);
 }
 
 /*
@@ -1212,7 +1200,7 @@ static void db_sql_print(
   if( g.fSqlPrint ){
     for(i=0; i<argc; i++){
       char c = i==argc-1 ? '\n' : ' ';
-      printf("%s%c", sqlite3_value_text(argv[i]), c);
+      fossil_print("%s%c", sqlite3_value_text(argv[i]), c);
     }
   }
 }
@@ -1615,10 +1603,10 @@ static void print_setting(const char *zName){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    printf("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
+    fossil_print("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
-    printf("%-20s\n", zName);
+    fossil_print("%-20s\n", zName);
   }
   db_finalize(&q);
 }
@@ -1871,7 +1859,7 @@ void test_timespan_cmd(void){
   if( g.argc!=3 ) usage("TIMESTAMP");
   sqlite3_open(":memory:", &g.db);  
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
-  printf("Time differences: %s\n", db_timespan_name(rDiff));
+  fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
 }

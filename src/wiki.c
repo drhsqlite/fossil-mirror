@@ -927,7 +927,7 @@ void wiki_cmd(void){
       fprintf(zF,"%.*s\n", i, zBody);
       if( doClose ) fclose(zF);
     }else{
-      printf("%.*s\n", i, zBody);
+      fossil_print("%.*s\n", i, zBody);
     }
     manifest_destroy(pWiki);
     return;
@@ -947,10 +947,10 @@ void wiki_cmd(void){
     }
     if( g.argv[2][1]=='r' ){
       wiki_cmd_commit(zPageName, 1, &content);
-      printf("Created new wiki page %s.\n", zPageName);
+      fossil_print("Created new wiki page %s.\n", zPageName);
     }else{
       wiki_cmd_commit(zPageName, 0, &content);
-      printf("Updated wiki page %s.\n", zPageName);
+      fossil_print("Updated wiki page %s.\n", zPageName);
     }
     blob_reset(&content);
   }else
@@ -968,7 +968,7 @@ void wiki_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      printf( "%s\n",zName);
+      fossil_print( "%s\n",zName);
     }
     db_finalize(&q);
   }else

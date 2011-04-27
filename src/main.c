@@ -234,14 +234,22 @@ int main(int argc, char **argv){
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
+#if defined(_WIN32)
+  {
+    int i;
+    extern char *sqlite3_win32_mbcs_to_utf8(const char*);
+    for(i=0; i<argc; i++){
+      g.argv[i] = sqlite3_win32_mbcs_to_utf8(argv[i]);
+    }
+  }
+#endif
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
   }else if( argc<2 ){
-    fprintf(stderr, "Usage: %s COMMAND ...\n"
-                    "\"%s help\" for a list of available commands\n"
-                    "\"%s help COMMAND\" for specific details\n",
-                    argv[0], argv[0], argv[0]);
-    fossil_exit(1);
+    fossil_fatal("Usage: %s COMMAND ...\n"
+                 "\"%s help\" for a list of available commands\n"
+                 "\"%s help COMMAND\" for specific details\n",
+                 argv[0], argv[0], argv[0]);
   }else{
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -266,10 +274,9 @@ int main(int argc, char **argv){
   }
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fprintf(stderr,"%s: unknown command: %s\n"
-                   "%s: use \"help\" for more information\n",
+    fossil_fatal("%s: unknown command: %s\n"
+                 "%s: use \"help\" for more information\n",
                    argv[0], zCmdName, argv[0]);
-    fossil_exit(1);
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
@@ -280,11 +287,10 @@ int main(int argc, char **argv){
         blob_appendf(&couldbe, " %s", aCommand[i].zName);
       }
     }
-    fprintf(stderr,"%s: ambiguous command prefix: %s\n"
-                   "%s: could be any of:%s\n"
-                   "%s: use \"help\" for more information\n",
-                   argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
-    fossil_exit(1);
+    fossil_fatal("%s: ambiguous command prefix: %s\n"
+                 "%s: could be any of:%s\n"
+                 "%s: use \"help\" for more information\n",
+                 argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
   }
   aCommand[idx].xFunc();
   fossil_exit(0);
@@ -335,7 +341,8 @@ void fossil_panic(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n", fossil_nameofexe(), z);
+    char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
+    fossil_puts(zOut, 1);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -352,7 +359,8 @@ void fossil_fatal(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
+    char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+    fossil_puts(zOut, 1);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -380,7 +388,8 @@ void fossil_fatal_recursive(const char *zFormat, ...){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
-    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
+    char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+    fossil_puts(zOut, 1);
   }
   db_force_rollback();
   fossil_exit(1);
@@ -397,7 +406,9 @@ void fossil_warning(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
-    fprintf(stderr, "\r%s: %s\n", fossil_nameofexe(), z);
+    char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+    fossil_puts(zOut, 1);
+    free(zOut);
   }
 }
 
@@ -509,8 +520,7 @@ void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fprintf(stderr, "Usage: %s %s %s\n", fossil_nameofexe(), g.argv[1], zFormat);
-  fossil_exit(1);
+  fossil_fatal("Usage: %s %s %s\n", fossil_nameofexe(), g.argv[1], zFormat);
 }
 
 /*
@@ -603,10 +613,10 @@ static void multi_column_list(const char **azWord, int nWord){
   for(i=0; i<nRow; i++){
     const char *zSpacer = "";
     for(j=i; j<nWord; j+=nRow){
-      printf("%s%-*s", zSpacer, mxLen, azWord[j]);
+      fossil_print("%s%-*s", zSpacer, mxLen, azWord[j]);
       zSpacer = "  ";
     }
-    printf("\n");
+    fossil_print("\n");
   }
 }
 
@@ -652,7 +662,8 @@ void cmd_test_cmd_list(void){
 ** Print the source code version number for the fossil executable.
 */
 void version_cmd(void){
-  printf("This is fossil version " MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+  fossil_print("This is fossil version "
+                MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
 }
 
 
@@ -667,8 +678,8 @@ void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc<3 ){
-    printf("Usage: %s help COMMAND.\nAvailable COMMANDs:\n",
-           fossil_nameofexe());
+    fossil_print("Usage: %s help COMMAND.\nAvailable COMMANDs:\n",
+                 fossil_nameofexe());
     cmd_cmd_list(0);
     version_cmd();
     return;
@@ -691,7 +702,7 @@ void help_cmd(void){
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      printf("%s", fossil_nameofexe());
+      fossil_print("%s", fossil_nameofexe());
       z += 7;
     }else{
       putchar(*z);
@@ -1456,6 +1467,6 @@ void cmd_webserver(void){
 void test_echo_cmd(void){
   int i;
   for(i=0; i<g.argc; i++){
-    printf("argv[%d] = [%s]\n", i, g.argv[i]);
+    fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
   }
 }
