@@ -711,8 +711,9 @@ static void cr_warning(const Blob *p, const char *zFilename){
     char c;
     file_relative_name(zFilename, &fname);
     blob_zero(&ans);
-    zMsg = mprintf("%s contains CR/NL line endings; commit anyhow (y/N/a)?", 
-                   blob_str(&fname));
+    zMsg = mprintf(
+         "%s contains CR/NL line endings; commit anyhow (yes/no/all)?", 
+         blob_str(&fname));
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     c = blob_str(&ans)[0];
