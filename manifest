@@ -1,5 +1,5 @@
-C Merge\sin\sthe\sconfig-sync\schanges.\s\sThis\sis\sa\smajor\sschema\schange\sand\ndefinitely\srequires\sa\s"fossil\srebuild".\s\sNote\sthat\sthe\sschema\supgrade\nis\sirreversible\sand\sso\syou\sshould\sbe\scertain\syou\swant\sto\scontinue\swith\nthe\snew\sschema\sbefore\syou\supgrade.
-D 2011-04-27T02:10:05.870
+C Commands\sthat\srecursively\sdescend\sthrough\sdirectory\shierarchies\s(such\nas\s"fossil\sextra",\s"fossil\sclean",\sor\s"fossil\saddremove")\swill\snow\signore\nnested\scheckouts.\s\sTicket\s[b49849a350d040bc].
+D 2011-04-27T14:23:37.223
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -122,7 +122,7 @@ F src/update.c 31e32a9f41624067d1a1a2a2a20902b2a7adf47b
 F src/url.c 55c48215da33082bc7d9d9ad27433747715a2b95
 F src/user.c f1c939fa01225be1ae2d6bbaf4735d8a5c5e5d5a
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c ae05f3c9e4a47c5c297c34006163c56b63ae9dda
+F src/vfile.c 6dd77e7ca99b3a9784808124625a1cf9c15bbd89
 F src/wiki.c 6d33195f3ef069c5e2860377372071c64da13d60
 F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
 F src/winhttp.c 971f85a940736752149a06f777ee20eaf057d043
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e17fc71319e0534b3c5bf2df9754bc6933c909dd 940faaa37e0e8c1852f621aa1d9f9a57a689f1c7
-R 56020725fa41e2213962c7d3a9f4a45c
+P 1654456ef5aa8d38c809414a5345bd7f7e76d3c7
+R 3199f604a381e868b8c04dd5c0c52cd1
 U drh
-Z 415edbee0f343940d0c5b86eb34e9470
+Z 67c4002bb714bb2982865c31751ee846

@@ -295,6 +295,27 @@ void vfile_unlink(int vid){
 }
 
 /*
+** Check to see if the directory named in zPath is the top of a checkout.
+** In other words, check to see if directory pPath contains a file named
+** "_FOSSIL_" or ".fos".  Return true or false.
+*/
+int vfile_top_of_checkout(const char *zPath){
+  char *zFile;
+  int fileFound = 0;
+
+  zFile = mprintf("%s/_FOSSIL_");
+  fileFound = file_size(zFile)>=1024;
+  fossil_free(zFile);
+  if( !fileFound ){
+    zFile = mprintf("%s/.fos");
+    fileFound = file_size(zFile)>=1024;
+    fossil_free(zFile);
+  }
+  return fileFound;
+}
+
+
+/*
 ** Load into table SFILE the name of every ordinary file in
 ** the directory pPath.   Omit the first nPrefix characters of
 ** of pPath when inserting into the SFILE table.
@@ -348,7 +369,9 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
       }else if( file_isdir(zPath)==1 ){
-        vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+        if( !vfile_top_of_checkout(zPath) ){
+          vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+        }
       }else if( file_isfile(zPath) ){
         db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
         db_step(&ins);
