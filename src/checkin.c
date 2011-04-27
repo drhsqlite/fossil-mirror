@@ -278,11 +278,11 @@ void clean_cmd(void){
   Blob path, repo;
   Stmt q;
   int n;
+  Glob *pIgnore;
+
   allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
   zIgnoreFlag = find_option("ignore",0,1);
-  Glob *pIgnore;
-
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
