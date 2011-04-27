@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.6"
+#define SQLITE_VERSION        "3.7.6.1"
 #define SQLITE_VERSION_NUMBER 3007006
-#define SQLITE_SOURCE_ID      "2011-04-12 01:58:40 f9d43fa363d54beab6f45db005abac0a7c0c47a7"
+#define SQLITE_SOURCE_ID      "2011-04-27 16:05:42 7b479b9bee93df909edecd44c7d6584d943b39c9"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -452,6 +452,8 @@ SQLITE_API int sqlite3_exec(
 #define SQLITE_IOERR_SHMOPEN           (SQLITE_IOERR | (18<<8))
 #define SQLITE_IOERR_SHMSIZE           (SQLITE_IOERR | (19<<8))
 #define SQLITE_IOERR_SHMLOCK           (SQLITE_IOERR | (20<<8))
+#define SQLITE_IOERR_SHMMAP            (SQLITE_IOERR | (21<<8))
+#define SQLITE_IOERR_SEEK              (SQLITE_IOERR | (22<<8))
 #define SQLITE_LOCKED_SHAREDCACHE      (SQLITE_LOCKED |  (1<<8))
 #define SQLITE_BUSY_RECOVERY           (SQLITE_BUSY   |  (1<<8))
 #define SQLITE_CANTOPEN_NOTEMPDIR      (SQLITE_CANTOPEN | (1<<8))
