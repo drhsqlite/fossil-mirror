@@ -286,8 +286,10 @@ void configure_prepare_to_receive(int replaceFlag){
     @   info TEXT,                      -- contact information
     @   photo BLOB                      -- JPEG image of this user
     @ );
-    @ INSERT INTO _xfer_reportfmt SELECT * FROM reportfmt;
-    @ INSERT INTO _xfer_user SELECT * FROM user;
+    @ INSERT INTO _xfer_reportfmt
+    @    SELECT rn,owner,title,cols,sqlcode FROM reportfmt;
+    @ INSERT INTO _xfer_user
+    @    SELECT uid,login,pw,cap,cookie,ipaddr,cexpire,info,photo FROM user;
   ;
   db_multi_exec(zSQL1);
   
