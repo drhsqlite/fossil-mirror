@@ -87,7 +87,7 @@ void shun_page(void){
     login_verify_csrf_secret();
     db_multi_exec(
       "INSERT OR IGNORE INTO shun(uuid,mtime)"
-      " VALUES('%s', strftime('%%s','now'))", zUuid);
+      " VALUES('%s', now())", zUuid);
     @ <p class="shunned">Artifact
     @ <a href="%s(g.zTop)/artifact/%s(zUuid)">%s(zUuid)</a> has been
     @ shunned.  It will no longer be pushed.
