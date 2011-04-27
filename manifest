@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\ssnapshot\sthat\sexposes\sthe\sUTF8\sto\sMBCS\sconversion\nroutine\sin\sthe\swindows\sdriver\sto\sapplications.
-D 2011-04-27T16:07:15.227
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slastest\ssnapshot\sfrom\sthe\strunk.\s\sThis\nfixes\san\sover-aggressive\serror\sreport\son\swindows\swhich\sshould\sfix\nticket\s[4108dfd6b717f1]\shere\sin\sFossil.
+D 2011-04-27T19:58:07.117
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -101,8 +101,8 @@ F src/shell.c d275901b531cf10b09449606854884b467e37e79
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 405331b790f44c7a71058b0f613c7f6a3f2beedd
 F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
-F src/sqlite3.c d1778ff0923583b6e1522ede4d9fa703f63826f6
-F src/sqlite3.h 34ce1e863189a92da455b355ccceb163d80cf4b5
+F src/sqlite3.c f2f0ca067793e73f15cd09253f8d96fd6006d821
+F src/sqlite3.h cf64c8609e2b3ddc9e5648c75c38f414aa3a2487
 F src/stash.c f5765c7bb2981ac1a19224cc86c619001f807823
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 9201c34af54f9d7b6709c4cb59ec54695e795dc2
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e3efeb6f29c45c0ac26fa094fdde764494e5ca21
-R 29858e46b74ad65c17f711273abb3bb8
+P 989fc1f2b6c71b0e1511360467d1f2bd54381f49
+R aaeeace435bf9bbb524490b95f7314e2
 U drh
-Z fa1509d5d6b25b5d50000d507b077bd6
+Z 7a3869966b1b9b11342754e87cf4ccba
