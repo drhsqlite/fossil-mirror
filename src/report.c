@@ -362,15 +362,21 @@ void view_edit(void){
     }else{
       zErr = verify_sql_statement(zSQL);
     }
+    if( zErr==0
+     && db_exists("SELECT 1 FROM reportfmt WHERE title=%Q and rn<>%d",
+                  zTitle, rn)
+    ){
+      zErr = mprintf("There is already another report named \"%h\"", zTitle);
+    }
     if( zErr==0 ){
       login_verify_csrf_secret();
       if( rn>0 ){
         db_multi_exec("UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
-                      " owner=%Q, cols=%Q WHERE rn=%d",
+                      " owner=%Q, cols=%Q, mtime=now() WHERE rn=%d",
            zTitle, zSQL, zOwner, zClrKey, rn);
       }else{
-        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols) "
-           "VALUES(%Q,%Q,%Q,%Q)",
+        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime) "
+           "VALUES(%Q,%Q,%Q,%Q,now())",
            zTitle, zSQL, zOwner, zClrKey);
         rn = db_last_insert_rowid();
       }

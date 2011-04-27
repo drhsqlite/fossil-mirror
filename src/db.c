@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <time.h>
 #include "db.h"
 
 #if INTERFACE
@@ -610,6 +611,19 @@ void db_init_database(
 }
 
 /*
+** Function to return the number of seconds since 1970.  This is
+** the same as strftime('%s','now') but is more compact.
+*/
+static void db_now_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  sqlite3_result_int64(context, time(0));
+}
+
+
+/*
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
@@ -632,6 +646,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000); 
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
+  sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
 }
 
@@ -1107,10 +1122,10 @@ void db_initial_setup(
   db_set("aux-schema", AUX_SCHEMA, 0);
   if( makeServerCodes ){
     db_multi_exec(
-      "INSERT INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "INSERT INTO config(name,value)"
-      " VALUES('project-code', lower(hex(randomblob(20))));"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
@@ -1297,7 +1312,8 @@ char *db_conceal(const char *zContent, int n){
     sqlite3_snprintf(sizeof(zHash), zHash, "%s", blob_str(&out));
     blob_reset(&out);
     db_multi_exec(
-       "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",
+       "INSERT OR IGNORE INTO concealed(hash,content,mtime)"
+       " VALUES(%Q,%#Q,now())",
        zHash, n, zContent
     );
   }
@@ -1408,7 +1424,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
                    zName, zValue);
     db_swap_connections();
   }else{
-    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+    db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
                    zName, zValue);
   }
   if( globalFlag && g.repositoryOpen ){
@@ -1467,7 +1483,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
                   zName, value);
     db_swap_connections();
   }else{
-    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)",
+    db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%d,now())",
                   zName, value);
   }
   if( globalFlag && g.repositoryOpen ){

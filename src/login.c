@@ -1259,8 +1259,8 @@ void login_group_join(
   /* Propagate the changes to all other members of the login-group */
   zSql = mprintf(
     "BEGIN;"
-    "REPLACE INTO config(name, value) VALUES('peer-name-%q', %Q);"
-    "REPLACE INTO config(name, value) VALUES('peer-repo-%q', %Q);"
+    "REPLACE INTO config(name,value,mtime) VALUES('peer-name-%q',%Q,now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('peer-repo-%q',%Q,now());"
     "COMMIT;",
     zSelfProjCode, zSelfLabel, zSelfProjCode, zSelfRepo
   );

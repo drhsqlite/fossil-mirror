@@ -24,9 +24,11 @@
 #include <errno.h>
 
 /*
-** Schema changes
+** Make changes to the stable part of the schema (the part that is not
+** simply deleted and reconstructed on a rebuild) to bring the schema
+** up to the latest.
 */
-static const char zSchemaUpdates[] =
+static const char zSchemaUpdates1[] =
 @ -- Index on the delta table
 @ --
 @ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);
@@ -41,23 +43,16 @@ static const char zSchemaUpdates[] =
 @ -- have not artifact ID (rid) and we thus must store their full
 @ -- UUID.
 @ --
-@ CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);
+@ CREATE TABLE IF NOT EXISTS shun(
+@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   mtime INTEGER,        -- When added.  Seconds since 1970
+@   scom TEXT             -- Optional text explaining why the shun occurred
+@ );
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  
 @ --
 @ CREATE TABLE IF NOT EXISTS private(rid INTEGER PRIMARY KEY);
-@
-@ -- An entry in this table describes a database query that generates a
-@ -- table of tickets.
-@ --
-@ CREATE TABLE IF NOT EXISTS reportfmt(
-@    rn integer primary key,  -- Report number
-@    owner text,              -- Owner of this report format (not used)
-@    title text,              -- Title of this report
-@    cols text,               -- A color-key specification
-@    sqlcode text             -- An SQL SELECT statement for this report
-@ );
 @
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
@@ -68,10 +63,100 @@ static const char zSchemaUpdates[] =
 @ -- with unauthorized users.
 @ --
 @ CREATE TABLE IF NOT EXISTS concealed(
-@   hash TEXT PRIMARY KEY,
-@   content TEXT
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime INTEGER,            -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
 @ );
 ;
+static const char zSchemaUpdates2[] =
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE IF NOT EXISTS reportfmt(
+@    rn INTEGER PRIMARY KEY,  -- Report number
+@    owner TEXT,              -- Owner of this report format (not used)
+@    title TEXT UNIQUE,       -- Title of this report
+@    mtime INTEGER,           -- Time last modified.  Seconds since 1970
+@    cols TEXT,               -- A color-key specification
+@    sqlcode TEXT             -- An SQL SELECT statement for this report
+@ );
+;
+
+static void rebuild_update_schema(void){
+  int rc;
+  db_multi_exec(zSchemaUpdates1);
+  db_multi_exec(zSchemaUpdates2);
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='user' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
+      "DROP TABLE user;"
+      "CREATE TABLE user(\n"
+      "  uid INTEGER PRIMARY KEY,\n"
+      "  login TEXT UNIQUE,\n"
+      "  pw TEXT,\n"
+      "  cap TEXT,\n"
+      "  cookie TEXT,\n"
+      "  ipaddr TEXT,\n"
+      "  cexpire DATETIME,\n"
+      "  info TEXT,\n"
+      "  mtime DATE,\n"
+      "  photo BLOB\n"
+      ");"
+      "INSERT OR IGNORE INTO user"
+        " SELECT uid, login, pw, cap, cookie,"
+               " ipaddr, cexpire, info, now(), photo FROM temp_user;"
+      "DROP TABLE temp_user;"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='config' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE config ADD COLUMN mtime INTEGER;"
+      "UPDATE config SET mtime=now();"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='shun' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE shun ADD COLUMN mtime INTEGER;"
+      "ALTER TABLE shun ADD COLUMN scom TEXT;"
+      "UPDATE shun SET mtime=now();"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='reportfmt' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
+      "DROP TABLE reportfmt;"
+    );
+    db_multi_exec(zSchemaUpdates2);
+    db_multi_exec(
+      "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
+        " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
+      "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
+        " SELECT rn, owner, title || ' (' || rn || ')', cols, sqlcode, now()"
+        "   FROM old_fmt;"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='concealed' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE concealed ADD COLUMN mtime INTEGER;"
+      "UPDATE concealed SET mtime=now();"
+    );
+  }
+}  
 
 /*
 ** Variables used to store state information about an on-going "rebuild"
@@ -258,7 +343,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   if (!g.fQuiet) {
     percent_complete(0);
   }
-  db_multi_exec(zSchemaUpdates);
+  rebuild_update_schema();
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master /*scan*/"
@@ -461,8 +546,8 @@ void rebuild_database(void){
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
   db_multi_exec(
-    "REPLACE INTO config(name,value) VALUES('content-schema','%s');"
-    "REPLACE INTO config(name,value) VALUES('aux-schema','%s');",
+    "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
     CONTENT_SCHEMA, AUX_SCHEMA
   );
   if( errCnt && !forceFlag ){

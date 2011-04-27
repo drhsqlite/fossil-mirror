@@ -206,8 +206,8 @@ void user_cmd(void){
     }
     zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
     db_multi_exec(
-      "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%Q,%B,%B)",
+      "INSERT INTO user(login,pw,cap,info,mtime)"
+      "VALUES(%B,%Q,%B,%B,now())",
       &login, zPw, &caps, &contact
     );
     free(zPw);
@@ -251,7 +251,8 @@ void user_cmd(void){
       printf("password unchanged\n");
     }else{
       char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
-      db_multi_exec("UPDATE user SET pw=%Q WHERE uid=%d", zSecret, uid);
+      db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
+                    zSecret, uid);
       free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -265,8 +266,8 @@ void user_cmd(void){
     }
     if( g.argc==5 ){
       db_multi_exec(
-        "UPDATE user SET cap=%Q WHERE uid=%d", g.argv[4],
-        uid
+        "UPDATE user SET cap=%Q, mtime=now() WHERE uid=%d",
+        g.argv[4], uid
       );
     }
     printf("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
@@ -342,8 +343,8 @@ void user_select(void){
 
   if( g.userUid==0 ){
     db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '')"
+      "INSERT INTO user(login, pw, cap, info, mtime)"
+      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
     );
     g.userUid = db_last_insert_rowid();
     g.zLogin = "anonymous";
@@ -366,7 +367,7 @@ void user_hash_passwords_cmd(void){
   sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
                           sha1_shared_secret_sql_function, 0, 0);
   db_multi_exec(
-    "UPDATE user SET pw=shared_secret(pw,login)"
+    "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
 }
