@@ -229,20 +229,13 @@ int main(int argc, char **argv){
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+  int i;
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-#if defined(_WIN32)
-  {
-    int i;
-    extern char *sqlite3_win32_mbcs_to_utf8(const char*);
-    for(i=0; i<argc; i++){
-      g.argv[i] = sqlite3_win32_mbcs_to_utf8(argv[i]);
-    }
-  }
-#endif
+  for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
   }else if( argc<2 ){

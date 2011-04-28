@@ -94,7 +94,7 @@ void win32_process_one_http_request(void *pAppData){
     }
   }
   if( amt>=sizeof(zHdr) ) goto end_request;
-  out = fopen(zRequestFName, "wb");
+  out = fossil_fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
   fwrite(zHdr, 1, amt, out);
   while( wanted>0 ){
@@ -114,7 +114,7 @@ void win32_process_one_http_request(void *pAppData){
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
-  in = fopen(zReplyFName, "rb");
+  in = fossil_fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
       send(p->s, zHdr, got, 0);

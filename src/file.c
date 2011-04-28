@@ -168,9 +168,9 @@ void file_copy(const char *zFrom, const char *zTo){
   FILE *in, *out;
   int got;
   char zBuf[8192];
-  in = fopen(zFrom, "rb");
+  in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  out = fopen(zTo, "wb");
+  out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
     fwrite(zBuf, 1, got, out);
@@ -667,4 +667,57 @@ int file_is_the_same(Blob *pContent, const char *zName){
   rc = blob_compare(&onDisk, pContent);
   blob_reset(&onDisk);
   return rc==0;
+}
+
+
+/**************************************************************************
+** The following routines translate between MBCS and UTF8 on windows.
+** Since everything is always UTF8 on unix, these routines are no-ops
+** there.
+*/
+
+/*
+** Translate MBCS to UTF8.  Return a pointer.  Call fossil_mbcs_free()
+** to deallocate any memory used to store the returned pointer when done.
+*/
+char *fossil_mbcs_to_utf8(const char *zMbcs){
+#ifdef _WIN32
+  return sqlite3_win32_mbcs_to_utf8(zMbcs);
+#else
+  return (char*)zMbcs;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate UTF8 to MBCS.  Return a pointer.  Call fossil_mbcs_free()
+** to deallocate any memory used to store the returned pointer when done.
+*/
+char *fossil_utf8_to_mbcs(const char *zUtf8){
+#ifdef _WIN32
+  return sqlite3_win32_utf8_to_mbcs(zUtf8);
+#else
+  return (char*)zUtf8;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate MBCS to UTF8.  Return a pointer.  Call fossil_mbcs_free()
+** to deallocate any memory used to store the returned pointer when done.
+*/
+void fossil_mbcs_free(char *zOld){
+#ifdef _WIN32
+  free(zOld);
+#else
+  /* No-op on unix */
+#endif  
+}
+
+/*
+** Like fopen() but always takes a UTF8 argument.
+*/
+FILE *fossil_fopen(const char *zName, const char *zMode){
+  char *zMbcs = fossil_utf8_to_mbcs(zName);
+  FILE *f = fopen(zMbcs, zMode);
+  fossil_mbcs_free(zMbcs);
+  return f;
 }

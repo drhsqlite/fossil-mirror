@@ -692,7 +692,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
     return 0;
   }
   blob_resize(pBlob, size);
-  in = fopen(zFilename, "rb");
+  in = fossil_fopen(zFilename, "rb");
   if( in==0 ){
     fossil_panic("cannot open %s for reading", zFilename);
   }

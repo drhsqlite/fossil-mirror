@@ -918,7 +918,7 @@ void wiki_cmd(void){
       if( (1 == strlen(zFile)) && ('-'==zFile[0]) ){
         zF = stdout;
       }else{
-        zF = fopen( zFile, "w" );
+        zF = fossil_fopen( zFile, "w" );
         doClose = zF ? 1 : 0;
       }
       if( ! zF ){

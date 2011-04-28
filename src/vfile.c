@@ -430,7 +430,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      in = fopen(zFullpath,"rb");
+      in = fossil_fopen(zFullpath,"rb");
       if( in==0 ){
         md5sum_step_text(" 0\n", -1);
         continue;
