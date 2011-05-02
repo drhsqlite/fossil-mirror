@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slastest\ssnapshot\sfrom\sthe\strunk.\s\sThis\nfixes\san\sover-aggressive\serror\sreport\son\swindows\swhich\sshould\sfix\nticket\s[4108dfd6b717f1]\shere\sin\sFossil.
-D 2011-04-27T19:58:07.117
+C Avoid\susing\sthe\s%lld\sprintf\sconversion\ssince\swindows\sdoes\snot\ssupport\sit.
+D 2011-05-02T13:09:52.300
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -60,7 +60,7 @@ F src/diffcmd.c 1c57ba999321058cf53b12b6cda12e72041bf073
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c 0830c306b834b397f2af920f591cc6ca656beb85
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
-F src/export.c bfe3c7e7e7ebf9a39ddc028d26955e2279021e4f
+F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
 F src/file.c 4ad3d43232a7c56849a46d35a49fc8a589f95b3b
 F src/finfo.c 1a856cfcb3b75310fbf93566d6db383dce1ea73f
 F src/glob.c ade013c8f69e09dc97f4c1eb193540972969fa79
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 989fc1f2b6c71b0e1511360467d1f2bd54381f49
-R aaeeace435bf9bbb524490b95f7314e2
+P 2a8ff5bff4e66a0b2919c06c703b1aa22514b6a4
+R 920fc5326351545fb889967195342b09
 U drh
-Z 7a3869966b1b9b11342754e87cf4ccba
+Z 06c8253f3652d9680fc2ea35290612ef

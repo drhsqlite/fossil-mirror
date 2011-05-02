@@ -141,7 +141,7 @@ void export_cmd(void){
     TAG_BRANCH
   );
   while( db_step(&q)==SQLITE_ROW ){
-    sqlite3_int64 secondsSince1970 = db_column_int64(&q, 0);
+    const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
     const char *zComment = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -161,7 +161,7 @@ void export_cmd(void){
     free(zBr);
     printf("committer");
     print_person(zUser);
-    printf(" %lld +0000\n", secondsSince1970);
+    printf(" %s +0000\n", zSecondsSince1970);
     if( zComment==0 ) zComment = "null comment";
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     p = manifest_get(ckinId, CFTYPE_ANY);
@@ -199,12 +199,12 @@ void export_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    sqlite3_int64 secSince1970 = db_column_int64(&q, 2);
+    const char *zSecSince1970 = db_column_text(&q, 2);
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
     printf("tag %s\n", zTagname);
     printf("from :%d\n", rid+firstCkin);
-    printf("tagger <tagger> %lld +0000\n", secSince1970);
+    printf("tagger <tagger> %s +0000\n", zSecSince1970);
     printf("data 0\n");
   }
   db_finalize(&q);
