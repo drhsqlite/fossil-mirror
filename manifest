@@ -1,5 +1,5 @@
-C Avoid\susing\sthe\s%lld\sprintf\sconversion\ssince\swindows\sdoes\snot\ssupport\sit.
-D 2011-05-02T13:09:52.300
+C Automatically\sdelete\sthe\s_FOSSIL_\sfile\safter\sa\sfailed\sopen.\nTicket\s[d299fb9842d6bc]
+D 2011-05-02T14:29:44.870
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -51,7 +51,7 @@ F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 2ccb22ed46a87a5f32110b59b3e6836cf090bc98
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
-F src/db.c d5ab75231129737e7777331c1f2f7366ac9a834b
+F src/db.c 508de7eeabd00d0997c6b53ed8f0f7ec9986f907
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
 F src/descendants.c ef0949e8613a4cb8b1b68ef9f1bfc89e372d0ad7
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2a8ff5bff4e66a0b2919c06c703b1aa22514b6a4
-R 920fc5326351545fb889967195342b09
+P be467e93287897e23a2d00f004bbd7d2b7a2f1ac
+R 907e4cbc323096ad1751b66ae8c6bf82
 U drh
-Z 06c8253f3652d9680fc2ea35290612ef
+Z fb21b8a61a7c86d65ec93c69a07d37a4
