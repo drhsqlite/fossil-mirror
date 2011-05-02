@@ -288,7 +288,7 @@ void vfile_unlink(int vid){
     const char *zName;
 
     zName = db_column_text(&q, 0);
-    unlink(zName);
+    file_delete(zName);
   }
   db_finalize(&q);
   db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);

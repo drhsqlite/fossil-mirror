@@ -116,7 +116,7 @@ void diff_file(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    unlink(blob_str(&nameFile1));
+    file_delete(blob_str(&nameFile1));
     blob_reset(&nameFile1);
     blob_reset(&cmd);
   }
@@ -170,8 +170,8 @@ void diff_file_mem(
     fossil_system(blob_str(&cmd));
 
     /* Delete the temporary file and clean up memory used */
-    unlink(zTemp1);
-    unlink(zTemp2);
+    file_delete(zTemp1);
+    file_delete(zTemp2);
     blob_reset(&cmd);
   }
 }

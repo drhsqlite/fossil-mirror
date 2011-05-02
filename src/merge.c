@@ -417,7 +417,7 @@ void merge_cmd(void){
     );
     if( !nochangeFlag ){
       char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
-      unlink(zFullPath);
+      file_delete(zFullPath);
       free(zFullPath);
     }
   }
@@ -447,7 +447,7 @@ void merge_cmd(void){
       char *zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
       char *zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
       file_copy(zFullOldPath, zFullNewPath);
-      unlink(zFullOldPath);
+      file_delete(zFullOldPath);
       free(zFullNewPath);
       free(zFullOldPath);
     }

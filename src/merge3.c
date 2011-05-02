@@ -426,10 +426,10 @@ int merge_3way(
       fossil_system(zCmd);
       if( file_size(zOut)>=0 ){
         blob_read_from_file(pOut, zOut);
-        unlink(zPivot);
-        unlink(zOrig);
-        unlink(zOther);
-        unlink(zOut);
+        file_delete(zPivot);
+        file_delete(zOrig);
+        file_delete(zOther);
+        file_delete(zOut);
       }
       fossil_free(zCmd);
       fossil_free(zOut);

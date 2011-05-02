@@ -204,6 +204,15 @@ int file_setexe(const char *zFilename, int onoff){
 }
 
 /*
+** Delete a file.
+*/
+void file_delete(const char *zFilename){
+  char *z = fossil_utf8_to_mbcs(zFilename);
+  unlink(z);
+  fossil_mbcs_free(z);
+}
+
+/*
 ** Create the directory named in the argument, if it does not already
 ** exist.  If forceFlag is 1, delete any prior non-directory object 
 ** with the same name.
@@ -214,7 +223,7 @@ int file_mkdir(const char *zName, int forceFlag){
   int rc = file_isdir(zName);
   if( rc==2 ){
     if( !forceFlag ) return 1;
-    unlink(zName);
+    file_delete(zName);
   }
   if( rc!=1 ){
 #if defined(_WIN32)

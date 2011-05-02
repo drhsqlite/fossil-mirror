@@ -68,7 +68,7 @@ static void undo_one(const char *zPathname, int redoFlag){
       file_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
-      unlink(zFullname);
+      file_delete(zFullname);
     }
     blob_reset(&new);
     free(zFullname);

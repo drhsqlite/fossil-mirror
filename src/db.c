@@ -155,7 +155,7 @@ void db_force_rollback(void){
     nBegin = 0;
     if( isNewRepo ){
       db_close(0);
-      unlink(g.zRepositoryName);
+      file_delete(g.zRepositoryName);
     }
   }
   busy = 0;

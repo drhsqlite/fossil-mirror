@@ -365,7 +365,7 @@ void update_cmd(void){
       }else{
         fossil_print("REMOVE %s\n", zName);
         undo_save(zName);
-        if( !nochangeFlag ) unlink(zFullPath);
+        if( !nochangeFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
@@ -397,7 +397,7 @@ void update_cmd(void){
         fossil_print("***** Cannot merge binary file %s\n", zNewName);
         nConflict++;
       }
-      if( nameChng && !nochangeFlag ) unlink(zFullPath);
+      if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&t);
       blob_reset(&r);
@@ -576,7 +576,7 @@ void revert_cmd(void){
         fossil_print("UNMANAGE: %s\n", zFile);
       }else{
         undo_save(zFile);
-        unlink(zFull);
+        file_delete(zFull);
         fossil_print("DELETE: %s\n", zFile);
       }
       db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);

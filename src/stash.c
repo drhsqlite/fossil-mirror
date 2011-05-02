@@ -190,7 +190,7 @@ static void stash_apply(int stashid, int nConflict){
       fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
-      unlink(zOPath);
+      file_delete(zOPath);
     }else{
       Blob a, b, out, disk;
       db_ephemeral_blob(&q, 5, &delta);
@@ -220,7 +220,7 @@ static void stash_apply(int stashid, int nConflict){
     blob_reset(&delta);
     if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
-      unlink(zOPath);
+      file_delete(zOPath);
     }
   }
   db_finalize(&q);

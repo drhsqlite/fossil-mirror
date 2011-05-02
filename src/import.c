@@ -699,7 +699,7 @@ void git_import_cmd(void){
     fossil_binary_mode(pIn);
   }
   if( !incrFlag ){
-    if( forceFlag ) unlink(g.argv[2]);
+    if( forceFlag ) file_delete(g.argv[2]);
     db_create_repository(g.argv[2]);
   }
   db_open_repository(g.argv[2]);
