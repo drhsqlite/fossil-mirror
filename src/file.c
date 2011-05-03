@@ -49,13 +49,15 @@ static int getStat(const char *zFilename){
   if( zFilename==0 ){
     if( fileStatValid==0 ) rc = 1;
   }else{
-    if( stat(zFilename, &fileStat)!=0 ){
+    char *zMbcs = fossil_utf8_to_mbcs(zFilename);
+    if( stat(zMbcs, &fileStat)!=0 ){
       fileStatValid = 0;
       rc = 1;
     }else{
       fileStatValid = 1;
       rc = 0;
     }
+    fossil_mbcs_free(zMbcs);
   }
   return rc;
 }
@@ -227,7 +229,11 @@ int file_mkdir(const char *zName, int forceFlag){
   }
   if( rc!=1 ){
 #if defined(_WIN32)
-    return mkdir(zName);
+    int rc;
+    char *zMbcs = fossil_utf8_to_mbcs(zName);
+    rc = mkdir(zMbcs);
+    fossil_mbcs_free(zMbcs);
+    return rc;
 #else
     return mkdir(zName, 0755);
 #endif
@@ -629,13 +635,10 @@ void file_tempname(int nBuf, char *zBuf){
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789";
   unsigned int i, j;
-  struct stat buf;
   const char *zDir = ".";
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
-    if( stat(azDirs[i], &buf) ) continue;
-    if( !S_ISDIR(buf.st_mode) ) continue;
-    if( access(azDirs[i], 07) ) continue;
+    if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
     break;
   }
@@ -655,7 +658,7 @@ void file_tempname(int nBuf, char *zBuf){
       zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
     }
     zBuf[j] = 0;
-  }while( access(zBuf,0)==0 );
+  }while( file_size(zBuf)<0 );
 }
 
 
@@ -691,6 +694,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
 */
 char *fossil_mbcs_to_utf8(const char *zMbcs){
 #ifdef _WIN32
+  extern char *sqlite3_win32_mbcs_to_utf8(const char*);
   return sqlite3_win32_mbcs_to_utf8(zMbcs);
 #else
   return (char*)zMbcs;  /* No-op on unix */
@@ -703,6 +707,7 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 */
 char *fossil_utf8_to_mbcs(const char *zUtf8){
 #ifdef _WIN32
+  extern char *sqlite3_win32_utf8_to_mbcs(const char*);
   return sqlite3_win32_utf8_to_mbcs(zUtf8);
 #else
   return (char*)zUtf8;  /* No-op on unix */
