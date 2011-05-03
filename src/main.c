@@ -432,7 +432,9 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  rc = system(zNewCmd);
+  char *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
+  rc = system(zMbcs);
+  fossil_mbcs_free(zMbcs);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
