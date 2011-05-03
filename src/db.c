@@ -684,6 +684,7 @@ void db_open_config(int useAttach){
     fossil_fatal("cannot locate home directory - "
                 "please set the HOMEPATH environment variable");
   }
+  zHome = fossil_mbcs_to_utf8(zHome);
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){

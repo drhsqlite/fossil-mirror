@@ -1,5 +1,5 @@
-C Convert\sfilenames\sfrom\sUTF8\sto\sMBCS\son\swindows\swhen\schecking\sif\sa\sfile\nexists\sor\schecking\sits\ssize,\setc.\s\sTicket\s[336924579dd95e7cceaeeae5].
-D 2011-05-03T18:32:00.607
+C Convert\sthe\sresults\sof\sgetenv()\sfrom\sMBCS\sinto\sUTF8.
+D 2011-05-03T20:25:03.002
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -51,7 +51,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
 F src/configure.c 3a46aae55cdc6cc4e379bc034253d79be896aaba
 F src/content.c cac59cea375ce3add22aa644b1a7458c3e0f947c
-F src/db.c bfa49528f18e640a302e05411fd655b3fd01fd2e
+F src/db.c 8b567a3af149adac63f423f4e8195b0486fef88f
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c ef0949e8613a4cb8b1b68ef9f1bfc89e372d0ad7
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a65c97afd622bb1ac861eac745e02f8f990d37fe
-R d1658f4c4753899f86919d2489ac1d42
+P 48f5dadafd28a1ecaf0219fff0989ab87b912601
+R 7f4e26fb2e327cc94638e91639591fc6
 U drh
-Z f7594219865ddc8a9cb7c7e40d6d2620
+Z 6b62bc4d3c4334ef7791dec85a8ece23
