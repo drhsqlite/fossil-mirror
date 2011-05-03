@@ -554,6 +554,9 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   if( strcmp(zLogin, "nobody")==0 || strcmp(zLogin,"anonymous")==0 ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
+  if( fossil_strcmp(P("REMOTE_USER"), zLogin)==0 ){
+    return 0;   /* Accept Basic Authorization */
+  }
   db_prepare(&q,
      "SELECT pw, cap, uid FROM user"
      " WHERE login=%Q"
@@ -811,6 +814,7 @@ void page_xfer(void){
   }
   g.zLogin = "anonymous";
   login_set_anon_nobody_capabilities();
+  login_check_credentials();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
