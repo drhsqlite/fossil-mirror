@@ -83,7 +83,6 @@ static void db_err(const char *zFormat, ...){
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
-static int isNewRepo = 0;   /* True if the repository is newly created */
 static int doRollback = 0;  /* True to force a rollback */
 static int nCommitHook = 0; /* Number of commit hooks */
 static struct sCommitHook {
@@ -92,6 +91,17 @@ static struct sCommitHook {
 } aHook[5];
 static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 static int nPrepare = 0;    /* Number of calls to sqlite3_prepare() */
+static int nDeleteOnFail = 0;  /* Number of entries in azDeleteOnFail[] */
+static char *azDeleteOnFail[3]; /* Files to delete on a failure */
+
+
+/*
+** Arrange for the given file to be deleted on a failure.
+*/
+void db_delete_on_failure(const char *zFilename){
+  assert( nDeleteOnFail<count(azDeleteOnFail) );
+  azDeleteOnFail[nDeleteOnFail++] = fossil_strdup(zFilename);
+}
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
@@ -143,6 +153,7 @@ void db_end_transaction(int rollbackFlag){
 ** Force a rollback and shutdown the database
 */
 void db_force_rollback(void){
+  int i;
   static int busy = 0;
   if( busy || g.db==0 ) return;
   busy = 1;
@@ -153,13 +164,12 @@ void db_force_rollback(void){
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     nBegin = 0;
-    if( isNewRepo ){
-      db_close(0);
-      file_delete(g.zRepositoryName);
-    }
   }
   busy = 0;
   db_close(0);
+  for(i=0; i<nDeleteOnFail; i++){
+    file_delete(azDeleteOnFail[i]);
+  }
 }
 
 /*
@@ -1046,7 +1056,7 @@ void db_create_repository(const char *zFilename){
      zRepositorySchema2,
      (char*)0
   );
-  isNewRepo = 1;
+  db_delete_on_failure(zFilename);
 }
 
 /*
@@ -1557,6 +1567,7 @@ void cmd_open(void){
   file_canonical_name(g.argv[2], &path);
   db_open_repository(blob_str(&path));
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
+  db_delete_on_failure("./_FOSSIL_");
   db_open_local();
   db_lset("repository", blob_str(&path));
   db_record_repository_filename(blob_str(&path));
