@@ -126,6 +126,16 @@ int file_isdir(const char *zFilename){
 }
 
 /*
+** Wrapper around the access() system call.
+*/
+int file_access(const char *zFilename, int flags){
+  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
+  int rc = access(zMbcs, flags);
+  fossil_mbcs_free(zMbcs);
+  return rc;
+}
+
+/*
 ** Find an unused filename similar to zBase with zSuffix appended.
 **
 ** Make the name relative to the working directory if relFlag is true.

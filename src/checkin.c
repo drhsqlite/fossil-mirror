@@ -56,7 +56,7 @@ static void status_report(
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
-      if( access(zFullName, 0)==0 ){
+      if( file_access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zPathname);
@@ -184,7 +184,7 @@ void ls_cmd(void){
     }else if( isDeleted ){
       fossil_print("DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
-      if( access(zFullName, 0)==0 ){
+      if( file_access(zFullName, 0)==0 ){
         fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
         fossil_print("MISSING    %s\n", zPathname);

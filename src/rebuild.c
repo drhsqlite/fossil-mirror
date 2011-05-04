@@ -913,7 +913,7 @@ void deconstruct_cmd(void){
     }
   }
 #ifndef _WIN32
-  if( access(zDestDir, W_OK) ){
+  if( file_access(zDestDir, W_OK) ){
     fossil_fatal("DESTINATION(%s) is not writeable!",zDestDir);
   }
 #else

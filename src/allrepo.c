@@ -131,7 +131,7 @@ void all_cmd(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    if( access(zFilename, 0) ){
+    if( file_access(zFilename, 0) ){
       nMissing++;
       continue;
     }
@@ -161,7 +161,7 @@ void all_cmd(void){
     db_reset(&q);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFilename = db_column_text(&q, 0);
-      if( access(zFilename, 0) ){
+      if( file_access(zFilename, 0) ){
         char *zRepo = mprintf("repo:%s", zFilename);
         db_unset(zRepo, 1);
         free(zRepo);

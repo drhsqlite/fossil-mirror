@@ -1334,7 +1334,7 @@ static int binaryOnPath(const char *zBinary){
     while( zPath[0]==':' ) zPath++;
     for(i=0; zPath[i] && zPath[i]!=':'; i++){}
     zFull = mprintf("%.*s/%s", i, zPath, zBinary);
-    bExists = access(zFull, X_OK);
+    bExists = file_access(zFull, X_OK);
     free(zFull);
     if( bExists==0 ) return 1;
     zPath += i;
