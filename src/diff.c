@@ -635,6 +635,8 @@ struct Annotator {
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
+  int nVers;        /* Number of versions analyzed */
+  char **azVers;    /* Names of versions analyzed */
 };
 
 /*
@@ -741,7 +743,13 @@ void test_annotate_step_cmd(void){
 ** by its filename number (filename.fnid) and the baseline in which
 ** it was checked in (mlink.mid).
 */
-static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
+static void annotate_file(
+  Annotator *p,        /* The annotator */
+  int fnid,            /* The name of the file to be annotated */
+  int mid,             /* The specific version of the file for this step */
+  int webLabel,        /* Use web-style annotations if true */
+  int iLimit           /* Limit the number of levels if greater than zero */
+){
   Blob toAnnotate;     /* Text of the final version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
@@ -768,8 +776,10 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     "   AND mlink.mid IN ok"
     "   AND blob.rid=mlink.mid"
     "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC",
-    fnid
+    " ORDER BY event.mtime DESC"
+    " LIMIT %d",
+    fnid,
+    iLimit>0 ? iLimit : 10000000
   );
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
@@ -784,6 +794,9 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
+    p->nVers++;
+    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
+    p->azVers[p->nVers-1] = zLabel;
     content_get(pid, &step);
     annotation_step(p, &step, zLabel);
     blob_reset(&step);
@@ -803,6 +816,7 @@ void annotation_page(void){
   int mid;
   int fnid;
   int i;
+  int iLimit;
   Annotator ann;
 
   login_check_credentials();
@@ -810,11 +824,23 @@ void annotation_page(void){
   mid = name_to_rid(PD("checkin","0"));
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
+  iLimit = atoi(PD("limit","-1"));
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
   style_header("File Annotation");
-  annotate_file(&ann, fnid, mid, g.okHistory);
+  annotate_file(&ann, fnid, mid, g.okHistory, iLimit);
+  if( P("log") ){
+    int i;
+    @ <h2>Versions analyzed:</h2>
+    @ <ol>
+    for(i=0; i<ann.nVers; i++){
+      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    }
+    @ </ol>
+    @ <hr>
+    @ <h2>Annotation:</h2>
+  }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
@@ -831,6 +857,10 @@ void annotation_page(void){
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.
+**
+** Options:
+**   --limit N       Only look backwards in time by N versions
+**   --log           List all versions analyzed
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
@@ -840,7 +870,14 @@ void annotate_cmd(void){
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
+  const char *zLimit; /* The value to the --limit option */
+  int iLimit;       /* How far back in time to look */
+  int showLog;      /* True to show the log */
 
+  zLimit = find_option("limit",0,1);
+  if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
+  iLimit = atoi(zLimit);
+  showLog = find_option("log",0,0)!=0;
   db_must_be_within_tree();
   if (g.argc<3) {
     usage("FILENAME");
@@ -859,7 +896,13 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  annotate_file(&ann, fnid, mid, 0);
+  annotate_file(&ann, fnid, mid, 0, iLimit);
+  if( showLog ){
+    for(i=0; i<ann.nVers; i++){
+      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    }
+    printf("---------------------------------------------------\n");
+  }
   for(i=0; i<ann.nOrig; i++){
     printf("%s: %.*s\n", ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
