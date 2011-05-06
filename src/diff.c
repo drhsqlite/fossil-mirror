@@ -628,13 +628,15 @@ void test_udiff_cmd(void){
 typedef struct Annotator Annotator;
 struct Annotator {
   DContext c;       /* The diff-engine context */
-  struct {          /* Lines of the original files... */
+  struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    int n;               /* Number of bytes (omitting trailing space and \n) */
+    short int n;         /* Number of bytes (omitting trailing space and \n) */
+    short int iLevel;    /* Level at which tag was set */
     const char *zSrc;    /* Tag showing origin of this line */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
+  int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
   char **azVers;    /* Names of versions analyzed */
 };
@@ -672,6 +674,8 @@ static int annotation_start(Annotator *p, Blob *pInput){
 static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   int i, j;
   int lnTo;
+  int iPrevLevel;
+  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -687,9 +691,16 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   /* Where new lines are inserted on this difference, record the
   ** zPName as the source of the new line.
   */
+  iPrevLevel = p->iLevel;
+  p->iLevel++;
+  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++){
-      p->aOrig[lnTo].zSrc = zPName;
+    struct AnnLine *x = &p->aOrig[lnTo];
+    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
+      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
+         x->zSrc = zPName;
+         x->iLevel = iThisLevel;
+      }
     }
     lnTo += p->c.aEdit[i+2];
   }
