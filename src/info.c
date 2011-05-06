@@ -951,12 +951,16 @@ void diff_page(void){
   int v1, v2;
   int isPatch;
   Blob c1, c2, diff, *pOut;
+  char *zV1;
+  char *zV2;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
+  zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
+  zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
   if( isPatch ){
     pOut = cgi_output_blob();
@@ -974,11 +978,12 @@ void diff_page(void){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                           g.zTop, P("v1"), P("v2"));
-    @ <h2>Differences From:</h2>
+    @ <h2>Differences From
+    @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
     @ <blockquote><p>
     object_description(v1, 1, 0);
     @ </p></blockquote>
-    @ <h2>To:</h2>
+    @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
     @ <blockquote><p>
     object_description(v2, 1, 0);
     @ </p></blockquote>

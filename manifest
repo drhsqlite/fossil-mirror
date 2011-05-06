@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sannotation\salgorithm\sso\sthat\sif\sa\sline\schanges\sfrom\sX\sto\nY\sthen\sback\sto\sX,\sthe\sannotation\sshows\sthe\ssecond\sX\snot\sthe\sfirst.\nTicket\s[f0f9aff371f26]
-D 2011-05-06T16:32:05.872
+C Show\sthe\sartifact\snumbers\son\sthe\sFrom\sand\sTo\sof\sa\sfile\sdiff.
+D 2011-05-06T16:44:41.163
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -71,7 +71,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 31ed9be8b19a7c7ee3dd344c77f3f893dfa7a985
 F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
-F src/info.c acda9c4b5b73eecddd8b14607f9d0a58d3793c68
+F src/info.c ebd8a6dcd0a0fdaa5c3d1b2b5eaaac225ecd29af
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 053058997e74112c3bec434cf5dee010e167d03a
 F src/main.c 8722a350fc52637af7d41090cc91cf2f56fc66b0
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P bd36723c3d771114390e8791924825e4d57be6a8
-R ed5cbafe7abfb6682dda192d6b75b2ee
+P 73c38a3add8f0c3261f1ff5d1bc5d9b343329139
+R 4ccf0f7e2fd8a20ac4d8b4129327ea25
 U drh
-Z 8489722fb765b192727c1c3735925963
+Z 2df0a02ca0814b87508f06793b756f65
