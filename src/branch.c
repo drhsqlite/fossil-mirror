@@ -278,14 +278,28 @@ void brlist_page(void){
   style_sidebox_end();
 
   cnt = 0;
-  db_prepare(&q,
-    "SELECT DISTINCT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    "   AND rid IN leaf"
-    "   AND %s %z"
-    " ORDER BY value /*sort*/",
-    TAG_BRANCH, showClosed ? "" : "NOT", leaf_is_closed_sql("tagxref.rid")
-  );
+  if( showClosed ){
+    db_prepare(&q,
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL "
+      "EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }else{
+    db_prepare(&q,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){

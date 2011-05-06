@@ -303,11 +303,11 @@ int vfile_top_of_checkout(const char *zPath){
   char *zFile;
   int fileFound = 0;
 
-  zFile = mprintf("%s/_FOSSIL_");
+  zFile = mprintf("%s/_FOSSIL_", zPath);
   fileFound = file_size(zFile)>=1024;
   fossil_free(zFile);
   if( !fileFound ){
-    zFile = mprintf("%s/.fos");
+    zFile = mprintf("%s/.fos", zPath);
     fileFound = file_size(zFile)>=1024;
     fossil_free(zFile);
   }
