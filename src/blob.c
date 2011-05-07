@@ -752,7 +752,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         zName[i] = '/';
       }
     }
-    out = fopen(zName, "wb");
+    out = fossil_fopen(zName, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
       return 0;

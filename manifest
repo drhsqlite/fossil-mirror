@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\schanges\sinto\swindows-i18n\sbranch.
-D 2011-05-06T16:55:07.916
+C Convert\sthe\sfopen()\sin\sblob_write_to_file()\sinto\sfossil_fopen().
+D 2011-05-07T11:42:15.736
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -38,7 +38,7 @@ F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 67278b1e18934a365ee70a39d7578f55a1b20bf5
-F src/blob.c 5e94465b6414bc981efe6572cdbf88d2b14dee10
+F src/blob.c fb10a655b45d11103ed32e3de393c76282691d31
 F src/branch.c 94e523df0b8e3b5a5fd84eecfddf8d3cd237ac19
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 503a0ef555dd376998018d7620db63a5515bc2e1 9a63d1f048c53352c63a7a1359a60e8194c7d101
-R b6dda8bed26fdc3baa53b31a2b83e310
+P 59ddd3c8ae134f41fd775c7ba7946452bffd2e65
+R 748bbf9923448fb86c3f1842245cc310
 U drh
-Z c19ff96f44e67e18eb944898dbdbb389
+Z edddaf60e7553b445be319bb083015de
