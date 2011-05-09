@@ -808,7 +808,7 @@ void set_base_url(void){
   zCur = PD("SCRIPT_NAME","/");
   i = strlen(zCur);
   while( i>0 && zCur[i-1]=='/' ) i--;
-  if( strcmp(zMode,"on")==0 ){
+  if( fossil_stricmp(zMode,"on")==0 ){
     g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
     g.zTop = &g.zBaseURL[8+strlen(zHost)];
   }else{
