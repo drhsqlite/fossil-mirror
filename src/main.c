@@ -814,7 +814,7 @@ void set_base_url(void){
   zCur = PD("SCRIPT_NAME","/");
   i = strlen(zCur);
   while( i>0 && zCur[i-1]=='/' ) i--;
-  if( strcmp(zMode,"on")==0 ){
+  if( fossil_stricmp(zMode,"on")==0 ){
     g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
     g.zTop = &g.zBaseURL[8+strlen(zHost)];
   }else{
@@ -1009,6 +1009,7 @@ static void process_one_web_page(const char *zNotFound){
         }else{
           zUser = "nobody";
         }
+        if( g.zLogin==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1);
@@ -1309,7 +1310,7 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  login_set_capabilities("s");
+  login_set_capabilities("s", 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);

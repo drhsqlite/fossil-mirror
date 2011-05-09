@@ -802,6 +802,9 @@ void page_style_css(void){
 ** WEBPAGE: test_env
 */
 void page_test_env(void){
+  char c;
+  int i;
+  char zCap[30];
   login_check_credentials();
   style_header("Environment Test");
 #if !defined(_WIN32)
@@ -809,6 +812,14 @@ void page_test_env(void){
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
   @ g.zTop = %h(g.zTop)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  @ g.userUid = %d(g.userUid)<br />
+  @ g.zLogin = %h(g.zLogin)<br />
+  @ capabilities = %s(zCap)<br />
+  @ <hr>
   cgi_print_all();
   if( g.okSetup ){
     const char *zRedir = P("redirect");

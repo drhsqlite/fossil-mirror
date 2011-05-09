@@ -597,7 +597,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     if( rc==0 ){
       const char *zCap;
       zCap = db_column_text(&q, 1);
-      login_set_capabilities(zCap);
+      login_set_capabilities(zCap, 0);
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
