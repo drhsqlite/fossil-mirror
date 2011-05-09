@@ -682,7 +682,7 @@ void login_check_credentials(void){
   }
 
   /* Set the capabilities */
-  login_set_capabilities(zCap);
+  login_set_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
 }
 
@@ -700,22 +700,28 @@ void login_set_anon_nobody_capabilities(void){
     const char *zCap;
     /* All logged-in users inherit privileges from "nobody" */
     zCap = db_text("", "SELECT cap FROM user WHERE login = 'nobody'");
-    login_set_capabilities(zCap);
+    login_set_capabilities(zCap, 0);
     if( fossil_strcmp(g.zLogin, "nobody")!=0 ){
       /* All logged-in users inherit privileges from "anonymous" */
       zCap = db_text("", "SELECT cap FROM user WHERE login = 'anonymous'");
-      login_set_capabilities(zCap);
+      login_set_capabilities(zCap, 0);
     }
     login_anon_once = 0;
   }
 }
 
 /*
+** Flags passed into the 2nd argument of login_set_capabilities().
+*/
+#if INTERFACE
+#define LOGIN_IGNORE_U   0x01         /* Ignore "u" */
+#define LOGIN_IGNORE_V   0x01         /* Ignore "v" */
+#endif
+
+/*
 ** Set the global capability flags based on a capability string.
 */
-void login_set_capabilities(const char *zCap){
-  static char *zDev = 0;
-  static char *zUser = 0;
+void login_set_capabilities(const char *zCap, unsigned flags){
   int i;
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
@@ -753,9 +759,10 @@ void login_set_capabilities(const char *zCap){
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */
       case 'u': {
-        if( zUser==0 ){
+        if( (flags & LOGIN_IGNORE_U)==0 ){
+          const char *zUser;
           zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
-          login_set_capabilities(zUser);
+          login_set_capabilities(zUser, flags | LOGIN_IGNORE_U);
         }
         break;
       }
@@ -763,9 +770,10 @@ void login_set_capabilities(const char *zCap){
       /* The "v" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "developer" */
       case 'v': {
-        if( zDev==0 ){
+        if( (flags & LOGIN_IGNORE_V)==0 ){
+          const char *zDev;
           zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
-          login_set_capabilities(zDev);
+          login_set_capabilities(zDev, flags | LOGIN_IGNORE_V);
         }
         break;
       }
@@ -861,7 +869,7 @@ void login_as_user(const char *zUser){
   g.zLogin = fossil_strdup(zUser);
 
   /* Set the capabilities */
-  login_set_capabilities(zCap);
+  login_set_capabilities(zCap, 0);
   login_anon_once = 1;
   login_set_anon_nobody_capabilities();
 }

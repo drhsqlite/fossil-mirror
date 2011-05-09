@@ -1003,6 +1003,7 @@ static void process_one_web_page(const char *zNotFound){
         }else{
           zUser = "nobody";
         }
+        if( g.zLogin==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
           file_simplify_name(zAltRepo, -1);
@@ -1303,7 +1304,7 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  login_set_capabilities("s");
+  login_set_capabilities("s", 0);
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);
