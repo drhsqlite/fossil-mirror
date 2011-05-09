@@ -687,12 +687,15 @@ void db_open_config(int useAttach){
   if( zHome==0 ){
     zHome = getenv("APPDATA");
     if( zHome==0 ){
+      char *zDrive = getenv("HOMEDRIVE");
       zHome = getenv("HOMEPATH");
+      if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
-                "please set the HOMEPATH environment variable");
+                "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
+                "environment variables");
   }
 #else
   zHome = getenv("HOME");
