@@ -125,19 +125,4 @@ typedef signed char i8;
 # define FOSSIL_PTR_TO_INT(X)  ((int)(X))
 #endif
 
-
-/* Unset the following to disable internationalization code. */
-#ifndef FOSSIL_I18N
-# define FOSSIL_I18N 1
-#endif
-
-#if FOSSIL_I18N
-# include <locale.h>
-# include <langinfo.h>
-#endif
-#ifndef CODESET
-# undef FOSSIL_I18N
-# define FOSSIL_I18N 0
-#endif
-
 #endif /* _RC_COMPILE_ */
