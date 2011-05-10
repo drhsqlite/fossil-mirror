@@ -1,5 +1,5 @@
-C Always\swrite\sUTF8\sto\sthe\sconsole.\s\sChange\sthe\sconsole\soutput\smode\son\swindows\nto\sUTF8\sat\sstartup.
-D 2011-05-10T13:29:54.772
+C Translate\scheck-in\scomments\sreceived\sfrom\sconsole\sinput\sfrom\sMBCS\sinto\nUTF8.
+D 2011-05-10T13:38:14.132
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -43,7 +43,7 @@ F src/branch.c 94e523df0b8e3b5a5fd84eecfddf8d3cd237ac19
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c e48f64026734d229a5c2562352d2c267f6385a8f
-F src/checkin.c 98e6364ef2f805d782417fe1e2a0b6553d9c0ade
+F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
 F src/checkout.c 7533e7594e5803cac79d9c0cfc4fcc49e035de32
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P bbba16084079b0aec8fae638dd1b92de28f6677c
-R e0d9997df5ac9e326fe93407ba45f7ba
+P ab934c6b09fd1d5d4a32e502263130125664ed63
+R b305f6d529b6672c29cc1e44e970fb88
 U drh
-Z 3c3a4c5574af56165fa73267b6fe7fe8
+Z d5dd3bab9187aac7b13c71a520f5cae9
