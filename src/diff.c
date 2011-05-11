@@ -749,6 +749,9 @@ void test_annotate_step_cmd(void){
   }
 }
 
+/* Annotation flags */
+#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+
 /*
 ** Compute a complete annotation on a file.  The file is identified
 ** by its filename number (filename.fnid) and the baseline in which
@@ -759,7 +762,8 @@ static void annotate_file(
   int fnid,            /* The name of the file to be annotated */
   int mid,             /* The specific version of the file for this step */
   int webLabel,        /* Use web-style annotations if true */
-  int iLimit           /* Limit the number of levels if greater than zero */
+  int iLimit,          /* Limit the number of levels if greater than zero */
+  int annFlags         /* Flags to alter the annotation */
 ){
   Blob toAnnotate;     /* Text of the final version of the file */
   Blob step;           /* Text of previous revision */
@@ -780,15 +784,17 @@ static void annotate_file(
   annotation_start(p, &toAnnotate);
 
   db_prepare(&q, 
-    "SELECT mlink.fid, blob.uuid, date(event.mtime), "
+    "SELECT mlink.fid,"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
-    "  FROM mlink, blob, event"
+    "  FROM mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid IN ok"
-    "   AND blob.rid=mlink.mid"
     "   AND event.objid=mlink.mid"
     " ORDER BY event.mtime DESC"
     " LIMIT %d",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
     fnid,
     iLimit>0 ? iLimit : 10000000
   );
@@ -828,6 +834,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;
+  int annFlags = 0;
   Annotator ann;
 
   login_check_credentials();
@@ -840,7 +847,8 @@ void annotation_page(void){
     fossil_redirect_home();
   }
   style_header("File Annotation");
-  annotate_file(&ann, fnid, mid, g.okHistory, iLimit);
+  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
+  annotate_file(&ann, fnid, mid, g.okHistory, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>
@@ -872,6 +880,7 @@ void annotation_page(void){
 ** Options:
 **   --limit N       Only look backwards in time by N versions
 **   --log           List all versions analyzed
+**   --filevers      Show file version numbers rather than check-in versions
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
@@ -884,11 +893,14 @@ void annotate_cmd(void){
   const char *zLimit; /* The value to the --limit option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
+  int fileVers;     /* Show file version instead of check-in versions */
+  int annFlags = 0; /* Flags to control annotation properties */
 
   zLimit = find_option("limit",0,1);
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log",0,0)!=0;
+  fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if (g.argc<3) {
     usage("FILENAME");
@@ -907,7 +919,8 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  annotate_file(&ann, fnid, mid, 0, iLimit);
+  if( fileVers ) annFlags |= ANN_FILE_VERS;
+  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
       printf("version %3d: %s\n", i+1, ann.azVers[i]);
