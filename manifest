@@ -1,5 +1,5 @@
-C Back\sout\sthe\sprevious\schange,\swhich\swas\sbogus.\s\sRemove\straces\sof\sthe\nFOSSIL_I18N\scompile-time\soption\swhich\sis\snot\sactually\sused\sanywhere\sin\nthe\scode\sanymore.
-D 2011-05-12T14:17:45.738
+C Release\scandidate
+D 2011-05-12T14:56:52.489
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c9bb729d5df44cab1ec52314a51280a25f7cc2b7 6b382b0818157da6a4e35ca7790a079891004a0b
+P 0613db18bea4be28d40cd3e69d6f2bbc9e584921
 R b86fc636f1817b905a3567988d705f44
 U drh
-Z c729e38a1731d79e145110d4a44100e8
+Z c70a3b448942397dccf279a7be8e8d7a
