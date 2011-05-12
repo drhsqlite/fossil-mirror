@@ -188,13 +188,23 @@ void finfo_cmd(void){
 ** WEBPAGE: finfo
 ** URL: /finfo?name=FILENAME
 **
-** Show the complete change history for a single file. 
+** Show the change history for a single file. 
+**
+** Additional query parameters:
+**
+**    a=DATE     Only show changes after DATE
+**    b=DATE     Only show changes before DATE
+**    n=NUM      Show the first NUM changes only
 */
 void finfo_page(void){
   Stmt q;
   const char *zFilename;
   char zPrevDate[20];
+  const char *zA;
+  const char *zB;
+  int n;
   Blob title;
+  Blob sql;
   GraphContext *pGraph;
 
   login_check_credentials();
@@ -204,7 +214,8 @@ void finfo_page(void){
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  db_prepare(&q,
+  blob_zero(&sql);
+  blob_appendf(&sql, 
     "SELECT"
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
@@ -219,11 +230,22 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)" /* Tags */
     "  FROM mlink, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC /*sort*/",
+    "   AND event.objid=mlink.mid",
     TAG_BRANCH,
     zFilename
   );
+  if( (zA = P("a"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+  }
+  if( (zB = P("b"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+  }
+  blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
+  if( (n = atoi(PD("n","0")))>0 ){
+    blob_appendf(&sql, " LIMIT %d", n);
+  }
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   blob_zero(&title);
   blob_appendf(&title, "History of ");
   hyperlinked_path(zFilename, &title, 0);

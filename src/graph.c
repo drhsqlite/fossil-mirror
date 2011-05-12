@@ -71,6 +71,11 @@ struct GraphContext {
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
 };
 
+/* Options for graph_finish():
+*/
+#define GRAPH_DISJOINT         0x0001   /* All elements disjoint */
+#define GRAPH_ISOLATE_MERGEIN  0x0002   /* Merge-in nodes isolated */
+
 #endif
 
 /*
@@ -308,6 +313,21 @@ static void createMergeRiser(
   pChild->mergeIn[pParent->mergeOut/4] = (pParent->mergeOut&3)+1;
 }
 
+/*
+** Compute the maximum rail number.
+*/
+static void find_max_rail(GraphContext *p){
+  GraphRow *pRow;
+  p->mxRail = 0;
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
+    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
+    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
+      p->mxRail++;
+    }
+  }
+}
+
 
 /*
 ** Compute the complete graph
@@ -317,7 +337,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   int i;
   u32 mask;
   u32 inUse;
-  int hasDup = 0;    /* True if one or more isDup entries */
+  int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
@@ -437,10 +457,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       continue;
     }
     if( pRow->isDup ){
-      pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
-      if( p->mxRail>=GR_MAX_RAIL ) return;
-      pDesc = pRow;
-      pParent = 0;
+      continue;
     }else{
       assert( pRow->nParent>0 );
       parentRid = pRow->aParent[0];
@@ -517,8 +534,13 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Insert merge rails from primaries to duplicates. 
   */
   if( hasDup ){
+    int dupRail;
+    find_max_rail(p);
+    dupRail = ++p->mxRail;
+    if( p->mxRail>=GR_MAX_RAIL ) return;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
+      pRow->iRail = dupRail;
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
       createMergeRiser(p, pDesc, pRow);
@@ -529,13 +551,6 @@ void graph_finish(GraphContext *p, int omitDescenders){
   /*
   ** Find the maximum rail number.
   */
-  p->mxRail = 0;
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
-    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
-    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
-      p->mxRail++;
-    }
-  }
+  find_max_rail(p);
   p->nErr = 0;
 }
