@@ -1,5 +1,5 @@
-C Back\sout\sthe\s[ab934c6b09fd1d5]\schange.\s\sDo\snot\schange\sthe\sconsole\soutput\nmode\susing\sSetConsoleOutputCP().\s\sGo\sback\sto\sconverting\sUTF8\sinto\sMBCS\nupon\soutput.
-D 2011-05-12T12:13:25.803
+C Pull\sthe\slatest\schanges\sfrom\strunk\sinto\swindows-i18n.
+D 2011-05-12T12:14:07.197
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -54,17 +54,17 @@ F src/content.c cac59cea375ce3add22aa644b1a7458c3e0f947c
 F src/db.c d7924d7ce670b79e6412030504b8f1b211b08875
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c ef0949e8613a4cb8b1b68ef9f1bfc89e372d0ad7
-F src/diff.c f383885a48646e73a8ad9580c0f914929eee63fd
+F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
+F src/diff.c 82294996562a6430eba0f7197f2ff5a8349a9e8d
 F src/diffcmd.c 2e2140e0a885bc31cb876ce229303810bbacd6df
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
 F src/file.c b1fe4ab376c411b7e3c7e25816eb5881765053ee
-F src/finfo.c 9904aa5c1bd4b9d0533da1683d28e4d97362d58a
+F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
-F src/graph.c 7f10b018c6a31c6baccec36f3e034230af52f871
+F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 98952fddc5bd4dbda905da27faaf06458ff904fc
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
@@ -74,7 +74,7 @@ F src/import.c 38e5ccd5db35cd7638edfcabbfa59bb3f55b1178
 F src/info.c 698126d41ad259f8b4a8acec5515d668a2a8ab2e
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 81fbb3af41de9274b1cf1b6db83ec39097307c6d
-F src/main.c 41da7844eee038baba9ca069bc4470d1e0e02235
+F src/main.c f0e37be892d210ed23f88e56808ce8e6ec44ddcd
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2278ef0ffae6c9c39cccfa0638c5a128131c539e bbba16084079b0aec8fae638dd1b92de28f6677c
-R 50580b2589671e62a02691d161089c13
+P b33032ae401a8d6cfdc6d27f1699d28386710364 6b382b0818157da6a4e35ca7790a079891004a0b
+R 8a5a09c62f791ec9738a1fdec195fd46
 U drh
-Z c7136f4ac12c4c674cdc82933c002c28
+Z dda8a63d3d7d5374429e8839817df580
