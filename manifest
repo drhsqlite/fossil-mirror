@@ -1,5 +1,5 @@
-C Add\sthe\sa=,\sb=,\sand\sn=\squery\sparameters\sto\sthe\sfinfo\sweb\smethod.\nShow\sall\sduplicate\sentries\sin\sa\stimeline\sin\sthe\sright-most\srail.
-D 2011-05-12T00:02:43.521
+C Futher\simproments\sto\sthe\sdisplay\sof\sindividual\sfile\stimeline\sgraphs.
+D 2011-05-12T00:40:42.078
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -62,9 +62,9 @@ F src/encode.c 0830c306b834b397f2af920f591cc6ca656beb85
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
 F src/file.c 4ad3d43232a7c56849a46d35a49fc8a589f95b3b
-F src/finfo.c dbd643e9310658a7e9a10a684f1a8bf206b98a18
+F src/finfo.c 0d772d7faa10d4c7e9d24876e4d3f31bf0d49a44
 F src/glob.c ade013c8f69e09dc97f4c1eb193540972969fa79
-F src/graph.c 353b185eb1ce0c894d480551b52fe845d3b6fb99
+F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 98952fddc5bd4dbda905da27faaf06458ff904fc
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c8f10e551ec413b63bf44ae9a9b1b17315645988
-R 937fccd78f7475f90fb0a61b8d4613b3
+P cbc84ad65cfcb8b138e750c1114934efc8af24c4
+R cd34e32e1013d8f91a6d0e9482db28a7
 U drh
-Z 377fa0f117447f9c61594405871e29b6
+Z ebe104338342c1488942b30c960f7427

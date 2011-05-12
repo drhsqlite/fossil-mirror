@@ -71,11 +71,6 @@ struct GraphContext {
   GraphRow **apHash;         /* Hash table of GraphRow objects.  Key: rid */
 };
 
-/* Options for graph_finish():
-*/
-#define GRAPH_DISJOINT         0x0001   /* All elements disjoint */
-#define GRAPH_ISOLATE_MERGEIN  0x0002   /* Merge-in nodes isolated */
-
 #endif
 
 /*
@@ -412,6 +407,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   zTrunk = persistBranchName(p, "trunk");
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( pRow->isDup ) continue;
       if( i==0 ){
         if( pRow->zBranch!=zTrunk ) continue;
       }else {
@@ -535,8 +531,10 @@ void graph_finish(GraphContext *p, int omitDescenders){
   */
   if( hasDup ){
     int dupRail;
+    int mxRail;
     find_max_rail(p);
-    dupRail = ++p->mxRail;
+    mxRail = p->mxRail;
+    dupRail = mxRail+1;
     if( p->mxRail>=GR_MAX_RAIL ) return;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
@@ -544,8 +542,15 @@ void graph_finish(GraphContext *p, int omitDescenders){
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
       createMergeRiser(p, pDesc, pRow);
+      if( pDesc->mergeOut/4>mxRail ) mxRail = pDesc->mergeOut/4;
     }
-    if( p->mxRail>=GR_MAX_RAIL ) return;
+    if( dupRail<=mxRail ){
+      dupRail = mxRail+1;
+      for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+        if( pRow->isDup ) pRow->iRail = dupRail;
+      }
+    }
+    if( mxRail>=GR_MAX_RAIL ) return;
   }
 
   /*
