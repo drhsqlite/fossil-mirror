@@ -1,5 +1,5 @@
-C Performance\simprovement\sby\scaching\sprepared\sstatements\swhen\scomputing\nancestors\sand\sdescendents\sof\sa\scheck-in.
-D 2011-05-12T01:08:32.631
+C Change\sfossil_malloc()\sso\sthat\sit\sdoes\snot\sreport\s"out\sof\smemory"\swhen\nallocating\szero\sbytes.
+D 2011-05-12T12:02:02.599
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -74,7 +74,7 @@ F src/import.c 0ddd655aa2dd46cdce66a7d8878aaab16be73e08
 F src/info.c ebd8a6dcd0a0fdaa5c3d1b2b5eaaac225ecd29af
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 81fbb3af41de9274b1cf1b6db83ec39097307c6d
-F src/main.c baf52fde6987de76592d9b7406c8bdd35acd157c
+F src/main.c 8e19d2ee3962e24061a492e7287ac4a63194435f
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 64aa186ae4bc41c03e1a92c89fbe2ff5a93b2dec
-R 6d094a2957c07a964922e964eada6939
+P dcc68b46b29a096b6a01976bbdc902bbc345acf7
+R db5363f4ed9d9b3c08c379b6dd30ae8d
 U drh
-Z 1579e1758d5798bac3cc30cb04ac172f
+Z 5ffd127f50966bf132d819e0238bd37b

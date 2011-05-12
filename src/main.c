@@ -405,7 +405,7 @@ void fossil_warning(const char *zFormat, ...){
 ** Malloc and free routines that cannot fail
 */
 void *fossil_malloc(size_t n){
-  void *p = malloc(n);
+  void *p = malloc(n==0 ? 1 : n);
   if( p==0 ) fossil_panic("out of memory");
   return p;
 }
