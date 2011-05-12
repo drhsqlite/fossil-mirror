@@ -808,7 +808,23 @@ void fossil_error_reset(void){
 ** a file, no translation occurs.  No translation ever occurs on unix.
 */
 void fossil_puts(const char *z, int toStdErr){
+#if defined(_WIN32)
+  extern char *sqlite3_win32_utf8_to_mbcs(const char*);
+  static int once = 1;
+  static int istty[2];
+  char *zToFree = 0;
+  if( once ){
+    istty[0] = _isatty(fileno(stdout));
+    istty[1] = _isatty(fileno(stderr));
+    once = 0;
+  }
+  assert( toStdErr==0 || toStdErr==1 );
+  if( istty[toStdErr] ) z = zToFree = sqlite3_win32_utf8_to_mbcs(z);
   fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
+  free(zToFree);
+#else
+  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
+#endif
 }
 
 /*

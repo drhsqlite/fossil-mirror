@@ -25,9 +25,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
 
 
 #if INTERFACE
@@ -238,10 +235,7 @@ int main(int argc, char **argv){
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-#if defined(_WIN32)
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
-  SetConsoleOutputCP(65001);
-#endif
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
   }else if( argc<2 ){
