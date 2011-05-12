@@ -17,11 +17,9 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
 
-I18N   =  -DFOSSIL_I18N=0
-
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
-TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(I18N) $(SSL) $(INCL)
+TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
 
 SQLITE_OPTIONS = -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT2 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0

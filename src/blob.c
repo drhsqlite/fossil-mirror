@@ -785,7 +785,6 @@ void blob_compress(Blob *pIn, Blob *pOut){
   blob_zero(&temp);
   blob_resize(&temp, nOut+4);
   outBuf = (unsigned char*)blob_buffer(&temp);
-  memset(outBuf, 0, nOut+4);
   outBuf[0] = nIn>>24 & 0xff;
   outBuf[1] = nIn>>16 & 0xff;
   outBuf[2] = nIn>>8 & 0xff;
