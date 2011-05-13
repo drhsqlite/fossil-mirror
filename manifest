@@ -1,5 +1,5 @@
-C Ignore\sshort\swrites\swhen\swriting\sto\sthe\sconsole.
-D 2011-05-13T17:13:38.437
+C Fix\smemory\sleaks\sin\s"fossil\srebuild".
+D 2011-05-13T20:30:52.007
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -114,7 +114,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
 F src/timeline.c 7cd05fc0b3aeb5ebd6d9a01847fbfa4bdef64f08
-F src/tkt.c 30bd794ff0f0cd189cd64ee0088c3e7bb84932f7
+F src/tkt.c 11d9fef00047ba073926f3e50a10271d3afe2bd7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
@@ -124,7 +124,7 @@ F src/user.c 68567bd8dca442db174c811c8a98455c420d3de5
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 51e8227de770a982d670e4fd62a2439627cbd188
 F src/wiki.c a50d56e65d8bb2b83179e63d90128536d513072b
-F src/wikiformat.c 0b17eb294714f7a1d9a4159ba27600015f887250
+F src/wikiformat.c 777eb573226bf83e69623c846aa97eeba0218fab
 F src/winhttp.c 8386ea5c4cfea491186ec153a280e12f916908fb
 F src/xfer.c 61f6871eee7110b0706ac0313143902fa412fdd0
 F src/zip.c 17969eddf0a3a89e812f6a6f42d3cff7937df290
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 55b32701a573b63509701aab405c2d424ce0ac62
-R 4fcbc0f19ec90f19302160c07b613c28
+P e7babf52220b6f6442096fd1d0e4bbb81442c285
+R 200edf52c170535bf72207ebf59d5492
 U drh
-Z 86f6221afe35a9c942c0d28f908eca3a
+Z fb32aff40b1b1ca51b5edb8e3cbfe848

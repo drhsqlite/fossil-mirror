@@ -1736,4 +1736,5 @@ void wiki_extract_links(
     }
     z += n;
   }
+  free(renderer.aStack);
 }
