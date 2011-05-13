@@ -1698,7 +1698,7 @@ int manifest_crosslink(int rid, Blob *pContent){
   if( p->type==CFTYPE_EVENT ){
     char *zTag = mprintf("event-%s", p->zEventId);
     int tagid = tag_findid(zTag, 1);
-    int subsequent;
+    int prior, subsequent;
     int nWiki;
     char zLength[40];
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
@@ -1706,12 +1706,30 @@ int manifest_crosslink(int rid, Blob *pContent){
     sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     free(zTag);
+    prior = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
+      " ORDER BY mtime DESC",
+      tagid, p->rDate, rid
+    );
     subsequent = db_int(0,
       "SELECT rid FROM tagxref"
       " WHERE tagid=%d AND mtime>=%.17g AND rid!=%d"
       " ORDER BY mtime",
       tagid, p->rDate, rid
     );
+    if( prior ){
+      content_deltify(prior, rid, 0);
+      if( !subsequent ){
+        db_multi_exec(
+          "DELETE FROM event"
+          " WHERE type='e'"
+          "   AND tagid=%d"
+          "   AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)",
+          tagid, tagid
+        );
+      }
+    }
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
