@@ -1,5 +1,5 @@
-C A\sbetter\sway\sto\skeep\sthe\ssize\sof\sthe\scontent\scache\sunder\scontrol.
-D 2011-05-13T13:42:02.825
+C Use\s\\r\\n\safter\sProxy-Authorization\sin\sHTTP\sheaders.\nTicket\s[da3fef0b21c37d]
+D 2011-05-13T14:01:26.418
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -66,7 +66,7 @@ F src/finfo.c 0d772d7faa10d4c7e9d24876e4d3f31bf0d49a44
 F src/glob.c ade013c8f69e09dc97f4c1eb193540972969fa79
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
-F src/http.c 98952fddc5bd4dbda905da27faaf06458ff904fc
+F src/http.c 689473160573d256e1d8c6936ef4a77bdec318a6
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 31ed9be8b19a7c7ee3dd344c77f3f893dfa7a985
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P cf24da6941cdb5df80a6109097b5f009a2303aee
-R 2841e2155a8881ff51a306f22d74da12
+P 6a714fc03647163d88601c9c86ebccbde0a61285
+R b7355d5a51d914dfc8501d5c7fb71c54
 U drh
-Z 6ab1e60893af3619563096dc85979899
+Z 56d57e7fb8135c5658626626c1a21688

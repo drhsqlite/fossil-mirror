@@ -102,7 +102,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }
   blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
   }
   if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
     char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
