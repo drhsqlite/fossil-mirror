@@ -1708,11 +1708,10 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g"
+      " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
       " ORDER BY mtime DESC",
-      tagid, p->rDate
+      tagid, p->rDate, rid
     );
-    if( prior==rid ) prior = 0;
     if( prior ){
       content_deltify(prior, rid, 0);
       db_multi_exec(
@@ -1725,11 +1724,10 @@ int manifest_crosslink(int rid, Blob *pContent){
     }
     subsequent = db_int(0,
       "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime>%.17g"
+      " WHERE tagid=%d AND mtime>%.17g AND rid!=%d"
       " ORDER BY mtime",
-      tagid, p->rDate
+      tagid, p->rDate, rid
     );
-    if( subsequent==rid ) subsequent = 0;
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
