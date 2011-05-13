@@ -1,5 +1,5 @@
-C Pull\sthe\slatest\schanges\sin\strunk\sover\sinto\sthe\swindows-i18n\sbranch.
-D 2011-05-13T14:20:12.758
+C When\stranslating\sUTF8\stext\sfor\sdisplay\son\sthe\sconsole,\suse\sthe\scodepage\nobtained\sfrom\sGetConsoleCP(),\snot\sthe\sCP_ACP\scode\spage\sthat\sis\sused\sfor\nsystem\scalls.
+D 2011-05-13T15:46:10.422
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -61,7 +61,7 @@ F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
-F src/file.c b1fe4ab376c411b7e3c7e25816eb5881765053ee
+F src/file.c 8b337895c2d961c3ef3242bdf01a51615fa56655
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -89,7 +89,7 @@ F src/path.c acd6b62bd68b996e06c05632b6c9ef2a707fa043
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
-F src/printf.c e4b55f39419d2dcddedc318b655b95c6b4051fae
+F src/printf.c df08accb1e61e5a34f921f758b2a6ada601bf290
 F src/rebuild.c f69b230dc81b32c7e01f8c7751cd453a00640bfd
 F src/report.c d9739de8f1a08311233dca422489f42e1bad2a7d
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f25b6c00c8c77799a687a9953034f1ff51d593d1 1b823e12763ff22530dff0021653e37f27b93c1e
-R d54b0be1ded4f538fa0f9e4de484115e
+P 70743ebae5c3bb914295aeb2e5ccd2bda1b4b924
+R 5fc21a26fba5b51b31c95f6e861fd993
 U drh
-Z e6f039adc7ca4a2168064abe7753cf8b
+Z 1aed7f3c726d8fff8bd4c1d52a3374f4

@@ -697,10 +697,14 @@ int file_is_the_same(Blob *pContent, const char *zName){
 ** Since everything is always UTF8 on unix, these routines are no-ops
 ** there.
 */
+#ifdef _WIN32
+# include <windows.h>
+#endif
 
 /*
-** Translate MBCS to UTF8.  Return a pointer.  Call fossil_mbcs_free()
-** to deallocate any memory used to store the returned pointer when done.
+** Translate MBCS to UTF8.  Return a pointer to the translated text.  
+** Call fossil_mbcs_free() to deallocate any memory used to store the
+** returned pointer when done.
 */
 char *fossil_mbcs_to_utf8(const char *zMbcs){
 #ifdef _WIN32
@@ -712,13 +716,55 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 }
 
 /*
-** Translate UTF8 to MBCS.  Return a pointer.  Call fossil_mbcs_free()
-** to deallocate any memory used to store the returned pointer when done.
+** Translate UTF8 to MBCS for use in system calls.  Return a pointer to the
+** translated text..  Call fossil_mbcs_free() to deallocate any memory
+** used to store the returned pointer when done.
 */
 char *fossil_utf8_to_mbcs(const char *zUtf8){
 #ifdef _WIN32
   extern char *sqlite3_win32_utf8_to_mbcs(const char*);
   return sqlite3_win32_utf8_to_mbcs(zUtf8);
+#else
+  return (char*)zUtf8;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
+** translated text..  Call fossil_mbcs_free() to deallocate any memory
+** used to store the returned pointer when done.
+*/
+char *fossil_utf8_to_console(const char *zUtf8){
+#ifdef _WIN32
+  int nChar, nByte;
+  WCHAR *zUnicode;   /* Unicode version of zUtf8 */
+  char *zConsole;    /* Console version of zUtf8 */
+  int codepage;      /* Console code page */
+
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, NULL, 0);
+  zUnicode = malloc( nChar*sizeof(zUnicode[0]) );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
+  if( nChar==0 ){
+    free(zUnicode);
+    return 0;
+  }
+  codepage = GetConsoleCP();
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, 0, 0, 0, 0);
+  zConsole = malloc( nByte );
+  if( zConsole==0 ){
+    free(zUnicode);
+    return 0;
+  }
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, zConsole, nByte, 0, 0);
+  free(zUnicode);
+  if( nByte == 0 ){
+    free(zConsole);
+    zConsole = 0;
+  }
+  return zConsole;
 #else
   return (char*)zUtf8;  /* No-op on unix */
 #endif  
