@@ -1712,6 +1712,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       " ORDER BY mtime DESC",
       tagid, p->rDate
     );
+    if( prior==rid ) prior = 0;
     if( prior ){
       content_deltify(prior, rid, 0);
       db_multi_exec(
@@ -1728,6 +1729,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       " ORDER BY mtime",
       tagid, p->rDate
     );
+    if( subsequent==rid ) subsequent = 0;
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{
