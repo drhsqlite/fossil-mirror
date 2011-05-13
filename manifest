@@ -1,5 +1,5 @@
-C When\stranslating\sUTF8\stext\sfor\sdisplay\son\sthe\sconsole,\suse\sthe\scodepage\nobtained\sfrom\sGetConsoleCP(),\snot\sthe\sCP_ACP\scode\spage\sthat\sis\sused\sfor\nsystem\scalls.
-D 2011-05-13T15:46:10.422
+C Ignore\sshort\swrites\swhen\swriting\sto\sthe\sconsole.
+D 2011-05-13T17:13:38.437
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -38,7 +38,7 @@ F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 67278b1e18934a365ee70a39d7578f55a1b20bf5
-F src/blob.c fb10a655b45d11103ed32e3de393c76282691d31
+F src/blob.c b2ba38948b73066c6312394ea33557e6378f2bb0
 F src/branch.c 94e523df0b8e3b5a5fd84eecfddf8d3cd237ac19
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 70743ebae5c3bb914295aeb2e5ccd2bda1b4b924
-R 5fc21a26fba5b51b31c95f6e861fd993
+P 55b32701a573b63509701aab405c2d424ce0ac62
+R 4fcbc0f19ec90f19302160c07b613c28
 U drh
-Z 1aed7f3c726d8fff8bd4c1d52a3374f4
+Z 86f6221afe35a9c942c0d28f908eca3a

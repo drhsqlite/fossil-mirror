@@ -763,7 +763,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   blob_is_init(pBlob);
   wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
   if( needToClose ) fclose(out);
-  if( wrote!=blob_size(pBlob) ){
+  if( wrote!=blob_size(pBlob) && out!=stdout ){
     fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
        blob_size(pBlob), zFilename);
   }
