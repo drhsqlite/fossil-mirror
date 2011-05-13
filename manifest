@@ -1,5 +1,5 @@
-C Be\smore\saggressive\sabout\skeeping\sthe\ssize\sof\sthe\scontent\scache\sunder\scontrol.
-D 2011-05-13T09:57:03.575
+C A\sbetter\sway\sto\skeep\sthe\ssize\sof\sthe\scontent\scache\sunder\scontrol.
+D 2011-05-13T13:42:02.825
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -50,7 +50,7 @@ F src/clone.c 2ec60f44955792308c8539adbb94a80889534667
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 7e5756b2a0435575737758c3a43f50e666945e97
 F src/configure.c 2ccb22ed46a87a5f32110b59b3e6836cf090bc98
-F src/content.c ace50ece945902f6055e55da511fdd12ecd64a14
+F src/content.c 51b6d644568ff1fe638150e0d52d01ba810b812f
 F src/db.c 6e5f74633a20f8d7905d3acf773afa3eeb233e7a
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c b873b0bdd070a7fee96ca9efec034774446db5ec
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d8221b98636b76cfd99cb6ccce0e24f5baaafe51
-R 9a77f997e0cbd2d13c595ee0a961076b
+P cf24da6941cdb5df80a6109097b5f009a2303aee
+R 2841e2155a8881ff51a306f22d74da12
 U drh
-Z 6e5174cf201109b114493edfbcf229f7
+Z 6ab1e60893af3619563096dc85979899
