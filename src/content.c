@@ -81,7 +81,11 @@ static void content_cache_expire_oldest(void){
 void content_cache_insert(int rid, Blob *pBlob){
   struct cacheLine *p;
   if( contentCache.n>500 || contentCache.szTotal>50000000 ){
-    content_cache_expire_oldest();
+    i64 szBefore;
+    do{
+      szBefore = contentCache.szTotal;
+      content_cache_expire_oldest();
+    }while( contentCache.szTotal>50000000 && contentCache.szTotal<szBefore );
   }
   if( contentCache.n>=contentCache.nAlloc ){
     contentCache.nAlloc = contentCache.nAlloc*2 + 10;

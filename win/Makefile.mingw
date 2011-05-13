@@ -35,7 +35,7 @@ ZLIBDIR = /programs/gnuwin32
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
+TCC = gcc -Os -Wall -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL

@@ -1,5 +1,5 @@
-C Pull\sthe\slatest\schanges\sfrom\strunk\sinto\swindows-i18n.
-D 2011-05-12T12:14:07.197
+C Pull\sthe\slatest\schanges\sin\strunk\sover\sinto\sthe\swindows-i18n\sbranch.
+D 2011-05-13T14:20:12.758
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -50,7 +50,7 @@ F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 7e5756b2a0435575737758c3a43f50e666945e97
 F src/configure.c 3a46aae55cdc6cc4e379bc034253d79be896aaba
-F src/content.c cac59cea375ce3add22aa644b1a7458c3e0f947c
+F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
 F src/db.c d7924d7ce670b79e6412030504b8f1b211b08875
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -66,7 +66,7 @@ F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
-F src/http.c 98952fddc5bd4dbda905da27faaf06458ff904fc
+F src/http.c 689473160573d256e1d8c6936ef4a77bdec318a6
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
@@ -78,7 +78,7 @@ F src/main.c f0e37be892d210ed23f88e56808ce8e6ec44ddcd
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e289e5ff0bf08dca58e2b6acffe1636eff9a2588
+F src/makemake.tcl b99d70140b58684ed05f20821106e9a50d87ced1
 F src/manifest.c 724f4c3ac0b42176efba9a550a9990beadbaab1b
 F src/md5.c 96dfb77e4d77c9e67b9115379f586cce97e7853f
 F src/merge.c 8efd7a5dd8d6d088224d80e15b21122304445b31
@@ -193,11 +193,11 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
-F win/Makefile.PellesCGMake 361bcd10369ef39e4ccf639c40877c4e333a83df
-F win/Makefile.dmc 33d0fd07e12cc03f08d43816986ea7df99085fc7
-F win/Makefile.mingw 08363ec218666625cedec37741decc19a7cffc5a
+F win/Makefile.PellesCGMake 3e6e5c5a941dc49cec4d84a477cf9f5d44f3c397
+F win/Makefile.dmc af0b2bdb9ec6230214e19a6b88e94d3cdd0174d2
+F win/Makefile.mingw 63f1a1357af4e0cbb4d278ed012ac25a9cec6a0f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 0b716666499b6d3e0df1b24bbed91644f979d6e4
+F win/Makefile.msc ca499d57b825f40b7f72f37da236ec38dc2e76cc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b33032ae401a8d6cfdc6d27f1699d28386710364 6b382b0818157da6a4e35ca7790a079891004a0b
-R 8a5a09c62f791ec9738a1fdec195fd46
+P f25b6c00c8c77799a687a9953034f1ff51d593d1 1b823e12763ff22530dff0021653e37f27b93c1e
+R d54b0be1ded4f538fa0f9e4de484115e
 U drh
-Z dda8a63d3d7d5374429e8839817df580
+Z e6f039adc7ca4a2168064abe7753cf8b
