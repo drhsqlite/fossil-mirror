@@ -1,5 +1,5 @@
-C This\sis\sthe\scorrect\sfix\sfor\sthe\sblog-timeline\sproblem.
-D 2011-05-13T15:25:34.854
+C Tweaks\sto\sthe\s"divider"\sdisplay\sin\sthe\swww\stimeline.
+D 2011-05-15T11:19:27.138
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -113,7 +113,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c 45c4fd1b503207f7e2c6d84649cc7919ca5ca1ae
+F src/timeline.c 15b953e56d7b08c930ef751f0d9789b3c98a0a1a
 F src/tkt.c 30bd794ff0f0cd189cd64ee0088c3e7bb84932f7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P bc37d1c5a4e70bb5ca3283ae654af28f787931ea
-R df3359a4d6668c05bb510c497c2ea629
+P 9b26d1e9a2ada29fb98a0ea3623c883204b5bb3a
+R fcab43870b18be0a4394f7d8d5914b32
 U drh
-Z 5928e3bbd7099ed1aff9fbcab25bbd2d
+Z 338581247af6083a66282882fb81509e
