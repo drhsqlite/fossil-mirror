@@ -22,6 +22,7 @@
 */
 #include "config.h"
 #include "sqlcmd.h"
+#include <zlib.h>
 
 /*
 ** Implementation of the "content(X)" SQL function.  Return the complete
@@ -50,6 +51,60 @@ static void sqlcmd_content(
 }
 
 /*
+** Implementation of the "compress(X)" SQL function.  The input X is
+** compressed using zLib and the output is returned.
+*/
+static void sqlcmd_compress(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *pIn;
+  unsigned char *pOut;
+  unsigned int nIn;
+  unsigned long int nOut;
+
+  pIn = sqlite3_value_blob(argv[0]);
+  nIn = sqlite3_value_bytes(argv[0]);
+  nOut = 13 + nIn + (nIn+999)/1000;
+  pOut = sqlite3_malloc( nOut+4 );
+  pOut[0] = nIn>>24 & 0xff;
+  pOut[1] = nIn>>16 & 0xff;
+  pOut[2] = nIn>>8 & 0xff;
+  pOut[3] = nIn & 0xff;
+  compress(&pOut[4], &nOut, pIn, nIn);
+  sqlite3_result_blob(context, pOut, nOut+4, sqlite3_free);
+}
+
+/*
+** Implementation of the "uncontent(X)" SQL function.  The argument X
+** is a blob which was obtained from compress(Y).  The output will be
+** the value Y.
+*/
+static void sqlcmd_decompress(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  const unsigned char *pIn;
+  unsigned char *pOut;
+  unsigned int nIn;
+  unsigned long int nOut;
+  int rc;
+
+  pIn = sqlite3_value_blob(argv[0]);
+  nIn = sqlite3_value_bytes(argv[0]);
+  nOut = (pIn[0]<<24) + (pIn[1]<<16) + (pIn[2]<<8) + pIn[3];
+  pOut = sqlite3_malloc( nOut+1 );
+  rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
+  if( rc==Z_OK ){
+    sqlite3_result_blob(context, pOut, nOut, sqlite3_free);
+  }else{
+    sqlite3_result_error(context, "input is not zlib compressed", -1);
+  }
+}
+
+/*
 ** This is the "automatic extensionn" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
@@ -61,6 +116,10 @@ static int sqlcmd_autoinit(
 ){
   sqlite3_create_function(db, "content", 1, SQLITE_ANY, 0,
                           sqlcmd_content, 0, 0);
+  sqlite3_create_function(db, "compress", 1, SQLITE_ANY, 0,
+                          sqlcmd_compress, 0, 0);
+  sqlite3_create_function(db, "decompress", 1, SQLITE_ANY, 0,
+                          sqlcmd_decompress, 0, 0);
   return SQLITE_OK;
 }
 
