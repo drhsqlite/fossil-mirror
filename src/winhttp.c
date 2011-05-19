@@ -30,10 +30,10 @@
 */
 typedef struct HttpRequest HttpRequest;
 struct HttpRequest {
-  int id;             /* ID counter */
-  SOCKET s;           /* Socket on which to receive data */
-  SOCKADDR_IN addr;   /* Address from which data is coming */
-  const char *zNotFound;  /* --notfound option, or an empty string */
+  int id;                /* ID counter */
+  SOCKET s;              /* Socket on which to receive data */
+  SOCKADDR_IN addr;      /* Address from which data is coming */
+  const char *zOptions;  /* --notfound and/or --localauth options */
 };
 
 /*
@@ -50,7 +50,7 @@ static int find_content_length(const char *zHdr){
   while( *zHdr ){
     if( zHdr[0]=='\n' ){
       if( zHdr[1]=='\r' ) return 0;
-      if( strncasecmp(&zHdr[1], "content-length:", 15)==0 ){
+      if( fossil_strnicmp(&zHdr[1], "content-length:", 15)==0 ){
         return atoi(&zHdr[17]);
       }
     }
@@ -73,8 +73,10 @@ void win32_process_one_http_request(void *pAppData){
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
-  sprintf(zRequestFName, "%s_in%d.txt", zTempPrefix, p->id);
-  sprintf(zReplyFName, "%s_out%d.txt", zTempPrefix, p->id);
+  sqlite3_snprintf(sizeof(zRequestFName), zRequestFName,
+                   "%s_in%d.txt", zTempPrefix, p->id);
+  sqlite3_snprintf(sizeof(zReplyFName), zReplyFName,
+                   "%s_out%d.txt", zTempPrefix, p->id);
   amt = 0;
   while( amt<sizeof(zHdr) ){
     got = recv(p->s, &zHdr[amt], sizeof(zHdr)-1-amt, 0);
@@ -107,9 +109,9 @@ void win32_process_one_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sprintf(zCmd, "\"%s\" http \"%s\" %s %s %s%s",
-    _pgmptr, g.zRepositoryName, zRequestFName, zReplyFName, 
-    inet_ntoa(p->addr.sin_addr), p->zNotFound
+  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
+    fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName, 
+    inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
   in = fopen(zReplyFName, "rb");
@@ -144,13 +146,15 @@ void win32_http_server(
   SOCKADDR_IN addr;
   int idCnt = 0;
   int iPort = mnPort;
-  char *zNotFoundOption;
+  Blob options;
 
   if( zStopper ) unlink(zStopper);
+  blob_zero(&options);
   if( zNotFound ){
-    zNotFoundOption = mprintf(" --notfound %s", zNotFound);
-  }else{
-    zNotFoundOption = "";
+    blob_appendf(&options, " --notfound %s", zNotFound);
+  }
+  if( g.useLocalauth ){
+    blob_appendf(&options, " --localauth");
   }
   if( WSAStartup(MAKEWORD(1,1), &wd) ){
     fossil_fatal("unable to initialize winsock");
@@ -213,7 +217,7 @@ void win32_http_server(
     p->id = ++idCnt;
     p->s = client;
     p->addr = client_addr;
-    p->zNotFound = zNotFoundOption;
+    p->zOptions = blob_str(&options);
     _beginthread(win32_process_one_http_request, 0, (void*)p);
   }
   closesocket(s);

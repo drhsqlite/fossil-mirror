@@ -34,35 +34,39 @@
 ** If the respository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
 ** if the argument is false.
+**
+** Return the number of errors.
 */
-void autosync(int flags){
+int autosync(int flags){
   const char *zUrl;
   const char *zAutosync;
   const char *zPw;
+  int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
-    return;
+    return 0;
   }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
     if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
-      return;   /* Do not auto-push when autosync=pullonly */
+      return 0;   /* Do not auto-push when autosync=pullonly */
     }
     if( is_false(zAutosync) ){
-      return;   /* Autosync is completely off */
+      return 0;   /* Autosync is completely off */
     }
   }else{
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
-    return;  /* No default server */
+    return 0;  /* No default server */
   }
   zPw = unobscure(db_get("last-sync-pw", 0));
   url_parse(zUrl);
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     g.urlPasswd = mprintf("%s", zPw);
   }
+#if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
     /* When doing an automatic pull, also automatically pull shuns from
     ** the server if pull_shuns is enabled.
@@ -73,9 +77,12 @@ void autosync(int flags){
     */
     configSync = CONFIGSET_SHUN;
   }
+#endif
   printf("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
-  client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, configSync, 0);
+  rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, configSync, 0);
+  if( rc ) fossil_warning("Autosync failed");
+  return rc;
 }
 
 /*
@@ -84,19 +91,20 @@ void autosync(int flags){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-static int process_sync_args(void){
+static void process_sync_args(int *pConfigSync, int *pPrivate){
   const char *zUrl = 0;
   const char *zPw = 0;
   int configSync = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
+  *pPrivate = find_option("private",0,0)!=0;
   url_proxy_options();
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   db_open_config(0);
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
     zPw = unobscure(db_get("last-sync-pw", 0));
-    if( db_get_boolean("auto-sync",1) ) configSync = CONFIGSET_SHUN;
+    if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
@@ -105,10 +113,6 @@ static int process_sync_args(void){
     usage("URL");
   }
   url_parse(zUrl);
-  if( !g.dontKeepUrl ){
-    db_set("last-sync-url", g.urlCanonical, 0);
-    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
-  }
   if( g.urlUser!=0 && g.urlPasswd==0 ){
     if( zPw==0 ){
       url_prompt_for_password();
@@ -116,12 +120,16 @@ static int process_sync_args(void){
       g.urlPasswd = mprintf("%s", zPw);
     }
   }
+  if( !g.dontKeepUrl ){
+    db_set("last-sync-url", g.urlCanonical, 0);
+    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
+  }
   user_select();
   if( g.argc==2 ){
     printf("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
-  return configSync;
+  *pConfigSync = configSync;
 }
 
 /*
@@ -141,11 +149,16 @@ static int process_sync_args(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to pull private branches from the
+** remote repository.
+**
 ** See also: clone, push, sync, remote-url
 */
 void pull_cmd(void){
-  int syncFlags = process_sync_args();
-  client_sync(0,1,0,syncFlags,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(0,1,0,bPrivate,syncFlags,0);
 }
 
 /*
@@ -165,11 +178,16 @@ void pull_cmd(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to push private branches to the
+** remote repository.
+**
 ** See also: clone, pull, sync, remote-url
 */
 void push_cmd(void){
-  process_sync_args();
-  client_sync(1,0,0,0,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(1,0,0,bPrivate,0,0);
 }
 
 
@@ -195,11 +213,16 @@ void push_cmd(void){
 ** command-line option makes the URL a one-time-use URL that is not
 ** saved.
 **
+** Use the --private option to sync private branches with the
+** remote repository.
+**
 ** See also:  clone, push, pull, remote-url
 */
 void sync_cmd(void){
-  int syncFlags = process_sync_args();
-  client_sync(1,1,0,syncFlags,0);
+  int syncFlags;
+  int bPrivate;
+  process_sync_args(&syncFlags, &bPrivate);
+  client_sync(1,1,0,bPrivate,syncFlags,0);
 }
 
 /*
@@ -219,12 +242,12 @@ void sync_cmd(void){
 */
 void remote_url_cmd(void){
   char *zUrl;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("remote-url ?URL|off?");
   }
   if( g.argc==3 ){
-    if( strcmp(g.argv[2],"off")==0 ){
+    if( fossil_strcmp(g.argv[2],"off")==0 ){
       db_unset("last-sync-url", 0);
       db_unset("last-sync-pw", 0);
     }else{

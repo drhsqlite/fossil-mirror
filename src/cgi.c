@@ -57,8 +57,8 @@
 */
 #define P(x)        cgi_parameter((x),0)
 #define PD(x,y)     cgi_parameter((x),(y))
-#define QP(x)       quotable_string(cgi_parameter((x),0))
-#define QPD(x,y)    quotable_string(cgi_parameter((x),(y)))
+#define PT(x)       cgi_parameter_trimmed((x),0)
+#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 
 
 /*
@@ -223,7 +223,7 @@ static char *cgi_add_etag(char *zTxt, int nLen){
     bprintf(&zETag[j],sizeof(zETag)-j,"%02x",(int)digest[i]);
   }
   blob_appendf(&extraHeader, "ETag: %s\r\n", zETag);
-  return strdup(zETag);
+  return fossil_strdup(zETag);
 }
 
 /*
@@ -243,14 +243,14 @@ static int check_cache_control(void){
   char *zMatch = P("HTTP_IF_NONE_MATCH");
 
   if( zETag!=0 && zMatch!=0 ) {
-    char *zBuf = strdup(zMatch);
+    char *zBuf = fossil_strdup(zMatch);
     if( zBuf!=0 ){
       char *zTok = 0;
       char *zPos;
       for( zTok = strtok_r(zBuf, ",\"",&zPos);
-           zTok && strcasecmp(zTok,zETag);
+           zTok && fossil_stricmp(zTok,zETag);
            zTok =  strtok_r(0, ",\"",&zPos)){}
-      free(zBuf);
+      fossil_free(zBuf);
       if(zTok) return 1;
     }
   }
@@ -344,14 +344,17 @@ void cgi_reply(void){
 void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
-  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
+  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
+  }else if( *zURL=='/' ){
+    zLocation = mprintf("Location: %.*s%s\r\n",
+         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
   cgi_append_header(zLocation);
   cgi_reset_content();
-  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zURL);
+  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
   cgi_set_status(302, "Moved Temporarily");
   free(zLocation);
   cgi_reply();
@@ -695,6 +698,8 @@ void cgi_init(void){
       blob_uncompress(&g.cgiIn, &g.cgiIn);
     }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }else if( strcmp(zType, "application/x-fossil-uncompressed")==0 ){
+      blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
 
@@ -783,6 +788,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Return the value of a CGI parameter with leading and trailing
+** spaces removed.
+*/
+char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
+  const char *zIn;
+  char *zOut;
+  int i;
+  zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) zIn = zDefault;
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  zOut = fossil_strdup(zIn);
+  for(i=0; zOut[i]; i++){}
+  while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
+  return zOut;
 }
 
 /*
@@ -1143,6 +1165,8 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   /* NOT REACHED */  
   fossil_exit(1);
 #endif
+  /* NOT REACHED */
+  return 0;
 }
 
 
@@ -1196,7 +1220,7 @@ time_t cgi_rfc822_parsedate(const char *zDate){
 
     if( t.tm_year > 1900 ) t.tm_year -= 1900;
     for(t.tm_mon=0; azMonths[t.tm_mon]; t.tm_mon++){
-      if( !strncasecmp( azMonths[t.tm_mon], zMonth, 3 )){
+      if( !fossil_strnicmp( azMonths[t.tm_mon], zMonth, 3 )){
         return mkgmtime(&t);
       }
     }

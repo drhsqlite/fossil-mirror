@@ -237,7 +237,14 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
       na += R[r+i*3];
       nb += R[r+i*3];
     }
-    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n", a+skip+1, na, b+skip+1, nb);
+    /*
+     * If the patch changes an empty file or results in an empty file,
+     * the block header must use 0,0 as position indicator and not 1,0.
+     * Otherwise, patch would be confused and may reject the diff.
+     */
+    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
+      na ? a+skip+1 : 0, na,
+      nb ? b+skip+1 : 0, nb);
 
     /* Show the initial common area */
     a += skip;
@@ -621,13 +628,17 @@ void test_udiff_cmd(void){
 typedef struct Annotator Annotator;
 struct Annotator {
   DContext c;       /* The diff-engine context */
-  struct {          /* Lines of the original files... */
+  struct AnnLine {  /* Lines of the original files... */
     const char *z;       /* The text of the line */
-    int n;               /* Number of bytes (omitting trailing space and \n) */
+    short int n;         /* Number of bytes (omitting trailing space and \n) */
+    short int iLevel;    /* Level at which tag was set */
     const char *zSrc;    /* Tag showing origin of this line */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
+  int iLevel;       /* Current level */
+  int nVers;        /* Number of versions analyzed */
+  char **azVers;    /* Names of versions analyzed */
 };
 
 /*
@@ -663,6 +674,8 @@ static int annotation_start(Annotator *p, Blob *pInput){
 static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   int i, j;
   int lnTo;
+  int iPrevLevel;
+  int iThisLevel;
 
   /* Prepare the parent file to be diffed */
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
@@ -678,9 +691,16 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   /* Where new lines are inserted on this difference, record the
   ** zPName as the source of the new line.
   */
+  iPrevLevel = p->iLevel;
+  p->iLevel++;
+  iThisLevel = p->iLevel;
   for(i=lnTo=0; i<p->c.nEdit; i+=3){
-    for(j=0; j<p->c.aEdit[i]; j++, lnTo++){
-      p->aOrig[lnTo].zSrc = zPName;
+    struct AnnLine *x = &p->aOrig[lnTo];
+    for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
+      if( x->zSrc==0 || x->iLevel==iPrevLevel ){
+         x->zSrc = zPName;
+         x->iLevel = iThisLevel;
+      }
     }
     lnTo += p->c.aEdit[i+2];
   }
@@ -729,12 +749,22 @@ void test_annotate_step_cmd(void){
   }
 }
 
+/* Annotation flags */
+#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+
 /*
 ** Compute a complete annotation on a file.  The file is identified
 ** by its filename number (filename.fnid) and the baseline in which
 ** it was checked in (mlink.mid).
 */
-static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
+static void annotate_file(
+  Annotator *p,        /* The annotator */
+  int fnid,            /* The name of the file to be annotated */
+  int mid,             /* The specific version of the file for this step */
+  int webLabel,        /* Use web-style annotations if true */
+  int iLimit,          /* Limit the number of levels if greater than zero */
+  int annFlags         /* Flags to alter the annotation */
+){
   Blob toAnnotate;     /* Text of the final version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
@@ -754,15 +784,19 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
   annotation_start(p, &toAnnotate);
 
   db_prepare(&q, 
-    "SELECT mlink.fid, blob.uuid, date(event.mtime), "
+    "SELECT mlink.fid,"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
-    "  FROM mlink, blob, event"
+    "  FROM mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid IN ok"
-    "   AND blob.rid=mlink.mid"
     "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC",
-    fnid
+    " ORDER BY event.mtime DESC"
+    " LIMIT %d",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
+    fnid,
+    iLimit>0 ? iLimit : 10000000
   );
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
@@ -770,11 +804,16 @@ static void annotate_file(Annotator *p, int fnid, int mid, int webLabel){
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
-      zLabel = mprintf("<a href='%s/info/%s'>%.10s</a> %s %9.9s", 
-                       g.zBaseURL, zUuid, zUuid, zDate, zUser);
+      zLabel = mprintf(
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
+          g.zTop, zUuid, zUuid, zDate, zUser
+      );
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
+    p->nVers++;
+    p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
+    p->azVers[p->nVers-1] = zLabel;
     content_get(pid, &step);
     annotation_step(p, &step, zLabel);
     blob_reset(&step);
@@ -794,6 +833,8 @@ void annotation_page(void){
   int mid;
   int fnid;
   int i;
+  int iLimit;
+  int annFlags = 0;
   Annotator ann;
 
   login_check_credentials();
@@ -801,11 +842,24 @@ void annotation_page(void){
   mid = name_to_rid(PD("checkin","0"));
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
+  iLimit = atoi(PD("limit","-1"));
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
   style_header("File Annotation");
-  annotate_file(&ann, fnid, mid, g.okHistory);
+  if( P("filevers") ) annFlags |= ANN_FILE_VERS;
+  annotate_file(&ann, fnid, mid, g.okHistory, iLimit, annFlags);
+  if( P("log") ){
+    int i;
+    @ <h2>Versions analyzed:</h2>
+    @ <ol>
+    for(i=0; i<ann.nVers; i++){
+      @ <li><tt>%s(ann.azVers[i])</tt></li>
+    }
+    @ </ol>
+    @ <hr>
+    @ <h2>Annotation:</h2>
+  }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
@@ -822,6 +876,11 @@ void annotation_page(void){
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.
+**
+** Options:
+**   --limit N       Only look backwards in time by N versions
+**   --log           List all versions analyzed
+**   --filevers      Show file version numbers rather than check-in versions
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
@@ -831,7 +890,17 @@ void annotate_cmd(void){
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
+  const char *zLimit; /* The value to the --limit option */
+  int iLimit;       /* How far back in time to look */
+  int showLog;      /* True to show the log */
+  int fileVers;     /* Show file version instead of check-in versions */
+  int annFlags = 0; /* Flags to control annotation properties */
 
+  zLimit = find_option("limit",0,1);
+  if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
+  iLimit = atoi(zLimit);
+  showLog = find_option("log",0,0)!=0;
+  fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
   if (g.argc<3) {
     usage("FILENAME");
@@ -850,7 +919,14 @@ void annotate_cmd(void){
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
-  annotate_file(&ann, fnid, mid, 0);
+  if( fileVers ) annFlags |= ANN_FILE_VERS;
+  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  if( showLog ){
+    for(i=0; i<ann.nVers; i++){
+      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+    }
+    printf("---------------------------------------------------\n");
+  }
   for(i=0; i<ann.nOrig; i++){
     printf("%s: %.*s\n", ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }

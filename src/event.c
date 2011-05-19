@@ -171,7 +171,7 @@ void event_page(void){
     @ [<a href="%s(g.zTop)/timeline?c=%T(zATime)">%s(zATime)</a>]:</p>
     @ <blockquote>
     for(i=0; i<pEvent->nTag; i++){
-      if( strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
+      if( fossil_strcmp(pEvent->aTag[i].zName,"+bgcolor")==0 ){
         zClr = pEvent->aTag[i].zValue;
       }
     }
@@ -250,7 +250,7 @@ void eventedit_page(void){
     zClr = "";
   }
   zClr = PD("clr",zClr);
-  if( strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
+  if( fossil_strcmp(zClr,"##")==0 ) zClr = PD("cclr","");
 
 
   /* If editing an existing event, extract the key fields to use as
@@ -286,8 +286,7 @@ void eventedit_page(void){
     db_begin_transaction();
     login_verify_csrf_secret();
     blob_appendf(&event, "C %F\n", zComment);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&event, "D %s\n", zDate);
     free(zDate);
     zETime[10] = 'T';
@@ -346,10 +345,10 @@ void eventedit_page(void){
     md5sum_blob(&event, &cksum);
     blob_appendf(&event, "Z %b\n", &cksum);
     blob_reset(&cksum);
-    nrid = content_put(&event, 0, 0);
+    nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     manifest_crosslink(nrid, &event);
-    blob_reset(&event);
+    assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
     cgi_redirectf("event?name=%T", zEventId);
@@ -396,7 +395,7 @@ void eventedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zBaseURL)/eventedit"><div>
+  @ <form method="post" action="%s(g.zTop)/eventedit"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zEventId)" />
   @ <table border="0" cellspacing="10">

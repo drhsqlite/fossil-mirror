@@ -143,7 +143,7 @@ void url_parse(const char *zUrl){
         g.urlPath[i] = 0;
         i++;
       }
-      if( strcmp(zName,"fossil")==0 ){
+      if( fossil_strcmp(zName,"fossil")==0 ){
         g.urlFossil = zValue;
         dehttpize(g.urlFossil);
         zExe = mprintf("?fossil=%T", g.urlFossil);
@@ -300,8 +300,8 @@ struct HQuery {
   Blob url;                  /* The URL */
   const char *zBase;         /* The base URL */
   int nParam;                /* Number of parameters.  Max 10 */
-  const char *azName[10];    /* Parameter names */
-  const char *azValue[10];   /* Parameter values */
+  const char *azName[15];    /* Parameter names */
+  const char *azValue[15];   /* Parameter values */
 };
 #endif
 
@@ -339,7 +339,7 @@ char *url_render(
   int i;
   
   blob_reset(&p->url);
-  blob_appendf(&p->url, "%s/%s", g.zBaseURL, p->zBase);
+  blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
   for(i=0; i<p->nParam; i++){
     const char *z = p->azValue[i];
     if( zName1 && strcmp(zName1,p->azName[i])==0 ){
@@ -352,14 +352,17 @@ char *url_render(
       z = zValue2;
       if( z==0 ) continue;
     }
-    blob_appendf(&p->url, "%s%s=%T", zSep, p->azName[i], z);
+    blob_appendf(&p->url, "%s%s", zSep, p->azName[i]);
+    if( z && z[0] ) blob_appendf(&p->url, "=%T", z);
     zSep = "&amp;";
   }
   if( zName1 && zValue1 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName1, zValue1);
+    blob_appendf(&p->url, "%s%s", zSep, zName1);
+    if( zValue1[0] ) blob_appendf(&p->url, "=%T", zValue1);
   }
   if( zName2 && zValue2 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName2, zValue2);
+    blob_appendf(&p->url, "%s%s", zSep, zName2);
+    if( zValue2[0] ) blob_appendf(&p->url, "=%T", zValue2);
   }
   return blob_str(&p->url);
 }
@@ -370,7 +373,7 @@ char *url_render(
 */
 void url_prompt_for_password(void){
   if( isatty(fileno(stdin)) ){
-    char *zPrompt = mprintf("password for %s: ", g.urlUser);
+    char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
     prompt_for_password(zPrompt, &x, 0);
     free(zPrompt);
@@ -379,5 +382,17 @@ void url_prompt_for_password(void){
   }else{
     fossil_fatal("missing or incorrect password for user \"%s\"",
                  g.urlUser);
+  }
+}
+
+/* Preemptively prompt for a password if a username is given in the
+** URL but no password.
+*/
+void url_get_password_if_needed(void){
+  if( (g.urlUser && g.urlUser[0])
+   && (g.urlPasswd==0 || g.urlPasswd[0]==0)
+   && isatty(fileno(stdin)) 
+  ){
+    url_prompt_for_password();
   }
 }

@@ -41,16 +41,18 @@ void branch_new(void){
   Blob mcksum;           /* Self-checksum on the manifest */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
+  int isPrivate = 0;     /* True if the branch should be private */
  
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
   if( g.argc<5 ){
     usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
   }
-  db_find_and_open_repository(1);  
+  db_find_and_open_repository(0, 0);  
   noSign = db_get_int("omitsign", 0)|noSign;
   
   /* fossil branch new name */
@@ -86,7 +88,6 @@ void branch_new(void){
   zComment = mprintf("Create new branch named \"%h\"", zBranch);
   blob_appendf(&branch, "C %F\n", zComment);
   zDate = date_in_standard_format(zDateOvrd ? zDateOvrd : "now");
-  zDate[10] = 'T';
   blob_appendf(&branch, "D %s\n", zDate);
 
   /* Copy all of the content from the parent into the branch */
@@ -102,16 +103,24 @@ void branch_new(void){
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
   blob_appendf(&branch, "P %s\n", zUuid);
-  blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  if( pParent->zRepoCksum ){
+    blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  }
   manifest_destroy(pParent);
 
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
+  if( content_is_private(rootid) ) isPrivate = 1;
+  if( isPrivate && zColor==0 ) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
+  if( isPrivate ){
+    blob_appendf(&branch, "T +private *\n");
+    noSign = 1;
+  }
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -139,7 +148,7 @@ void branch_new(void){
     }
   }
 
-  brid = content_put(&branch, 0, 0);
+  brid = content_put(&branch);
   if( brid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
@@ -147,6 +156,7 @@ void branch_new(void){
   if( manifest_crosslink(brid, &branch)==0 ){
     fossil_panic("unable to install new manifest");
   }
+  assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
   printf("New branch: %s\n", zUuid);
@@ -157,7 +167,7 @@ void branch_new(void){
       "      branch.  To begin working on the new branch, do this:\n"
       "\n"
       "      %s update %s\n",
-      g.argv[0], zBranch
+      fossil_nameofexe(), zBranch
     );
   }
 
@@ -177,39 +187,56 @@ void branch_new(void){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME BASIS ?-bgcolor COLOR? 
+**    %fossil branch new BRANCH-NAME BASIS ?--bgcolor COLOR? ?--private?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        You can optionally give the branch a default color.
+**        You can optionally give the branch a default color.  The
+**        --private option makes the branch private.
 **
 **    %fossil branch list
+**    %fossil branch ls
 **
 **        List all branches
 **
 */
 void branch_cmd(void){
   int n;
-  db_find_and_open_repository(1);
-  if( g.argc<3 ){
-    usage("new|list ...");
+  const char *zCmd = "list";
+  db_find_and_open_repository(0, 0);
+  if( g.argc<2 ){
+    usage("new|list|ls ...");
   }
-  n = strlen(g.argv[2]);
-  if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
+  if( g.argc>=3 ) zCmd = g.argv[2];
+  n = strlen(zCmd);
+  if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
-  }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
+  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
     Stmt q;
+    int vid;
+    char *zCurrent = 0;
+
+    if( g.localOpen ){
+      vid = db_lget_int("checkout", 0);
+      zCurrent = db_text(0, "SELECT value FROM tagxref"
+                            " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
+    }
     db_prepare(&q,
-      "%s"
-      "   AND blob.rid IN (SELECT rid FROM tagxref"
-      "                     WHERE tagid=%d AND tagtype==2 AND srcid!=0)"
-      " ORDER BY event.mtime DESC",
-      timeline_query_for_tty(), TAG_BRANCH
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
     );
-    print_timeline(&q, 2000);
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zBr = db_column_text(&q, 0);
+      int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
+      printf("%s%s\n", (isCur ? "* " : "  "), zBr);
+    }
     db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
-                 "new list");
+                 "new list ls");
   }
 }
 
@@ -234,7 +261,6 @@ void brlist_page(void){
     style_submenu_element("Closed","Closed","brlist?closed");
   }
   login_anonymous_available();
-  compute_leaves(0, 1);
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> An <div class="sideboxDescribed"><a href="brlist">
@@ -252,24 +278,26 @@ void brlist_page(void){
   style_sidebox_end();
 
   cnt = 0;
-  if( !showClosed ){
+  if( showClosed ){
     db_prepare(&q,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaves"
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL "
+      "EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
       " ORDER BY value /*sort*/",
-      TAG_BRANCH
+      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
     );
   }else{
     db_prepare(&q,
-      "SELECT value FROM tagxref"
+      "SELECT DISTINCT value FROM tagxref"
       " WHERE tagid=%d AND value NOT NULL"
-      " EXCEPT "
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaves"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
       " ORDER BY value /*sort*/",
-      TAG_BRANCH, TAG_BRANCH
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
     );
   }
   while( db_step(&q)==SQLITE_ROW ){
@@ -284,7 +312,7 @@ void brlist_page(void){
       cnt++;
     }
     if( g.okHistory ){
-      @ <li><a href="%s(g.zBaseURL)/timeline?r=%T(zBr)">%h(zBr)</a></li>
+      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }
@@ -320,7 +348,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ <a href="%s(g.zBaseURL)/timeline?r=%T(zTagName)">[timeline]</a>
+    @ <a href="%s(g.zTop)/timeline?r=%T(zTagName)">[timeline]</a>
   }
   db_finalize(&q);
 }
@@ -346,7 +374,7 @@ void brtimeline_page(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_www(), TAG_BRANCH
   );
-  www_print_timeline(&q, 0, brtimeline_extra);
+  www_print_timeline(&q, 0, 0, 0, brtimeline_extra);
   db_finalize(&q);
   @ <script  type="text/JavaScript">
   @ function xin(id){

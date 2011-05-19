@@ -1,5 +1,5 @@
-<title>Fossil Documentation</title>
-<h1>Bug-Tracking In <a href="index.wiki">Fossil</a></h1>
+<title>Bug-Tracking In Fossil</title>
+<h2>Introduction</h2>
 
 A bug-report in fossil is called a "ticket".  Tickets are tracked
 separately from code check-ins.

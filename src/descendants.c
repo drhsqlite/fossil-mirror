@@ -27,10 +27,12 @@
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
 ** check-ins that are leaves which are decended from
-** check-in iBase.  If iBase==0, find all leaves within the
-** entire check-in hierarchy.
+** check-in iBase.
 **
 ** A "leaf" is a check-in that has no children in the same branch.
+** There is a separate permanent table LEAF that contains all leaves
+** in the tree.  This routine is used to compute a subset of that
+** table consisting of leaves that are descended from a single checkin.
 **
 ** The closeMode flag determines behavior associated with the "closed"
 ** tag:
@@ -57,22 +59,7 @@ void compute_leaves(int iBase, int closeMode){
     "DELETE FROM leaves;"
   );
 
-  /* We are checking all descendants of iBase.  If iBase==0, then
-  ** use a short-cut to find all leaves anywhere in the hierarchy.
-  */
-  if( iBase<=0 ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO leaves"
-      "  SELECT cid FROM plink"
-      "  EXCEPT"
-      "  SELECT pid FROM plink"
-      "   WHERE coalesce((SELECT value FROM tagxref"
-                         " WHERE tagid=%d AND rid=plink.pid),'trunk')"
-           " == coalesce((SELECT value FROM tagxref"
-                         " WHERE tagid=%d AND rid=plink.cid),'trunk');",
-      TAG_BRANCH, TAG_BRANCH
-    );
-  }else{
+  if( iBase>0 ){
     Bag seen;     /* Descendants seen */
     Bag pending;  /* Unpropagated descendants */
     Stmt q1;      /* Query to find children of a check-in */
@@ -174,28 +161,35 @@ void compute_leaves(int iBase, int closeMode){
 void compute_ancestors(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,
-       "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-       " WHERE a.cid=%d", rid
-    );
+  pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q,
+    "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
+    " WHERE a.cid=:rid"
+  );
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, -mtime);
+        pqueue_insert(&queue, pid, -mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*
@@ -205,25 +199,33 @@ void compute_ancestors(int rid, int N){
 void compute_descendants(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
+
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,"SELECT cid, mtime FROM plink WHERE pid=%d", rid);
+  pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, mtime);
+        pqueue_insert(&queue, pid, mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*
@@ -264,33 +266,31 @@ void descendants_cmd(void){
 ** Find leaves of all branches.  By default show only open leaves.
 ** The --all flag causes all leaves (closed and open) to be shown.
 ** The --closed flag shows only closed leaves.
+**
+** The --recompute flag causes the content of the "leaf" table in the
+** repository database to be recomputed.
 */
 void leaves_cmd(void){
   Stmt q;
+  Blob sql;
   int showAll = find_option("all", 0, 0)!=0;
   int showClosed = find_option("closed", 0, 0)!=0;
+  int recomputeFlag = find_option("recompute",0,0)!=0;
 
   db_must_be_within_tree();
-  compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
-  db_prepare(&q,
-    "%s"
-    "   AND blob.rid IN leaves"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_tty()
-  );
+  if( recomputeFlag ) leaf_rebuild();
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_tty(), -1);
+  blob_appendf(&sql, " AND blob.rid IN leaf");
+  if( showClosed ){
+    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+  }else if( !showAll ){
+    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  blob_reset(&sql);
   print_timeline(&q, 2000);
   db_finalize(&q);
-}
-
-/*
-** This routine is called while for each check-in that is rendered by
-** the "leaves" page.  Add some additional hyperlink to show the 
-** ancestors of the leaf.
-*/
-static void leaves_extra(int rid){
-  if( g.okHistory ){
-    @ <a href="%s(g.zBaseURL)/timeline?p=%d(rid)">[timeline]</a>
-  }
 }
 
 /*
@@ -299,6 +299,7 @@ static void leaves_extra(int rid){
 ** Find leaves of all branches.
 */
 void leaves_page(void){
+  Blob sql;
   Stmt q;
   int showAll = P("all")!=0;
   int showClosed = P("closed")!=0;
@@ -317,11 +318,10 @@ void leaves_page(void){
   }
   style_header("Leaves");
   login_anonymous_available();
-  compute_leaves(0, showAll ? 0 : showClosed ? 2 : 1);
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
   @ <li> A <div class="sideboxDescribed">leaf</div>
-  @ is a check-in with no descendants.</li>
+  @ is a check-in with no descendants in the same branch.</li>
   @ <li> An <div class="sideboxDescribed">open leaf</div>
   @ is a leaf that does not have a "closed" tag
   @ and is thus assumed to still be in use.</li>
@@ -338,13 +338,17 @@ void leaves_page(void){
   }else{
     @ <h1>Open leaves:</h1>
   }
-  db_prepare(&q,
-    "%s"
-    "   AND blob.rid IN leaves"
-    " ORDER BY event.mtime DESC",
-    timeline_query_for_www()
-  );
-  www_print_timeline(&q, TIMELINE_LEAFONLY, leaves_extra);
+  blob_zero(&sql);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_appendf(&sql, " AND blob.rid IN leaf");
+  if( showClosed ){
+    blob_appendf(&sql," AND %z", leaf_is_closed_sql("blob.rid"));
+  }else if( !showAll ){
+    blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
+  }
+  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  blob_reset(&sql);
+  www_print_timeline(&q, TIMELINE_LEAFONLY, 0, 0, 0);
   db_finalize(&q);
   @ <br />
   @ <script  type="text/JavaScript">

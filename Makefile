@@ -1,5 +1,9 @@
 #!/usr/bin/make
 #
+# This is the top-level makefile for Fossil when the build is occurring
+# on a unix platform.  This works out-of-the-box on most unix platforms.
+# But you are free to vary some of the definitions if desired.
+#
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
@@ -16,10 +20,10 @@ OBJDIR = ./bld
 #    to compile code-generator programs as part of the build process.
 #    See TCC below for the C compiler for building the finished binary.
 #
-BCC = gcc -g -O2
+BCC = gcc
 
-#### The suffix to add to executable files.  ".exe" for windows.
-#    Nothing for unix.
+#### The suffix to add to final executable file.  When cross-compiling
+#    to windows, make this ".exe".  Otherwise leave it blank.
 #
 E =
 
@@ -47,7 +51,8 @@ LIB = -lz $(LDFLAGS)
 # If using HTTPS:
 LIB += -lcrypto -lssl
 
-#### Tcl shell for use in running the fossil testsuite.
+#### Tcl shell for use in running the fossil testsuite.  If you do not
+#    care about testing the end result, this can be blank.
 #
 TCLSH = tclsh
 

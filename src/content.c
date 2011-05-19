@@ -73,12 +73,19 @@ static void content_cache_expire_oldest(void){
 }
 
 /*
-** Add an entry to the content cache
+** Add an entry to the content cache.
+**
+** This routines hands responsibility for the artifact over to the cache.
+** The cache will deallocate memory when it has finished with it.
 */
 void content_cache_insert(int rid, Blob *pBlob){
   struct cacheLine *p;
   if( contentCache.n>500 || contentCache.szTotal>50000000 ){
-    content_cache_expire_oldest();
+    i64 szBefore;
+    do{
+      szBefore = contentCache.szTotal;
+      content_cache_expire_oldest();
+    }while( contentCache.szTotal>50000000 && contentCache.szTotal<szBefore );
   }
   if( contentCache.n>=contentCache.nAlloc ){
     contentCache.nAlloc = contentCache.nAlloc*2 + 10;
@@ -128,6 +135,21 @@ static int findSrcid(int rid){
 }
 
 /*
+** Return the blob.size field given blob.rid
+*/
+int content_size(int rid, int dflt){
+  static Stmt q;
+  int sz = dflt;
+  db_static_prepare(&q, "SELECT size FROM blob WHERE rid=:r");
+  db_bind_int(&q, ":r", rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    sz = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return sz;
+}
+
+/*
 ** Check to see if content is available for artifact "rid".  Return
 ** true if it is.  Return false if rid is a phantom or depends on
 ** a phantom.
@@ -142,7 +164,7 @@ int content_is_available(int rid){
     if( bag_find(&contentCache.available, rid) ){
       return 1;
     }
-    if( db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    if( content_size(rid, -1)<0 ){
       bag_insert(&contentCache.missing, rid);
       return 0;
     }
@@ -299,7 +321,7 @@ void artifact_cmd(void){
   int rid;
   Blob content;
   const char *zFile;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);
@@ -363,7 +385,7 @@ void after_dephantomize(int rid, int linkFlag){
     if( linkFlag ){
       content_get(rid, &content);
       manifest_crosslink(rid, &content);
-      blob_reset(&content);
+      assert( blob_is_reset(&content) );
     }
 
     /* Parse all delta-manifests that depend on baseline-manifest rid */
@@ -380,16 +402,22 @@ void after_dephantomize(int rid, int linkFlag){
     for(i=0; i<nChildUsed; i++){
       content_get(aChild[i], &content);
       manifest_crosslink(aChild[i], &content);
-      blob_reset(&content);
+      assert( blob_is_reset(&content) );
     }
     if( nChildUsed ){
       db_multi_exec("DELETE FROM orphan WHERE baseline=%d", rid);
     }
 
     /* Recursively dephantomize all artifacts that are derived by
-    ** delta from artifact rid */
+    ** delta from artifact rid and which have not already been
+    ** cross-linked.  */
     nChildUsed = 0;
-    db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
+    db_prepare(&q, 
+       "SELECT rid FROM delta"
+       " WHERE srcid=%d"
+       "   AND NOT EXISTS(SELECT 1 FROM mlink WHERE mid=delta.rid)",
+       rid
+    );
     while( db_step(&q)==SQLITE_ROW ){
       int child = db_column_int(&q, 0);
       if( nChildUsed>=nChildAlloc ){
@@ -423,7 +451,11 @@ void content_enable_dephantomize(int onoff){
 ** content is already in the database, just return the record ID.
 **
 ** If srcId is specified, then pBlob is delta content from
-** the srcId record.  srcId might be a phantom.
+** the srcId record.  srcId might be a phantom.  
+**
+** pBlob is normally uncompressed text.  But if nBlob>0 then the
+** pBlob value has already been compressed and nBlob is its uncompressed
+** size.  If nBlob>0 then zUuid must be valid.
 **
 ** zUuid is the UUID of the artifact, if it is specified.  When srcId is
 ** specified then zUuid must always be specified.  If srcId is zero,
@@ -431,8 +463,18 @@ void content_enable_dephantomize(int onoff){
 **
 ** If the record already exists but is a phantom, the pBlob content
 ** is inserted and the phatom becomes a real record.
+**
+** The original content of pBlob is not disturbed.  The caller continues
+** to be responsible for pBlob.  This routine does *not* take over
+** responsiblity for freeing pBlob.
 */
-int content_put(Blob *pBlob, const char *zUuid, int srcId){
+int content_put_ex(
+  Blob *pBlob,              /* Content to add to the repository */
+  const char *zUuid,        /* SHA1 hash of reconstructed pBlob */
+  int srcId,                /* pBlob is a delta from this entry */
+  int nBlob,                /* pBlob is compressed. Original size is this */
+  int isPrivate             /* The content should be marked private */
+){
   int size;
   int rid;
   Stmt s1;
@@ -446,11 +488,19 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
   assert( srcId==0 || zUuid!=0 );
   if( zUuid==0 ){
     assert( pBlob!=0 );
+    assert( nBlob==0 );
     sha1sum_blob(pBlob, &hash);
   }else{
     blob_init(&hash, zUuid, -1);
   }
-  size = blob_size(pBlob);
+  if( nBlob ){
+    size = nBlob;
+  }else{
+    size = blob_size(pBlob);
+    if( srcId ){
+      size = delta_output_size(blob_buffer(pBlob), size);
+    }
+  }
   db_begin_transaction();
 
   /* Check to see if the entry already exists and if it does whether
@@ -483,7 +533,11 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     g.rcvid = db_last_insert_rowid();
   }
 
-  blob_compress(pBlob, &cmpr);
+  if( nBlob ){
+    cmpr = pBlob[0];
+  }else{
+    blob_compress(pBlob, &cmpr);
+  }
   if( rid>0 ){
     /* We are just adding data to a phantom */
     db_prepare(&s1,
@@ -510,12 +564,12 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
     if( !pBlob ){
       db_multi_exec("INSERT OR IGNORE INTO phantom VALUES(%d)", rid);
     }
-    if( g.markPrivate ){
+    if( g.markPrivate || isPrivate ){
       db_multi_exec("INSERT INTO private VALUES(%d)", rid);
       markAsUnclustered = 0;
     }
   }
-  blob_reset(&cmpr);
+  if( nBlob==0 ) blob_reset(&cmpr);
 
   /* If the srcId is specified, then the data we just added is
   ** really a delta.  Record this fact in the delta table.
@@ -550,9 +604,25 @@ int content_put(Blob *pBlob, const char *zUuid, int srcId){
 }
 
 /*
+** This is the simple common case for inserting content into the
+** repository.  pBlob is the content to be inserted.
+**
+** pBlob is uncompressed and is not deltaed.  It is exactly the content
+** to be inserted.
+**
+** The original content of pBlob is not disturbed.  The caller continues
+** to be responsible for pBlob.  This routine does *not* take over
+** responsiblity for freeing pBlob.
+*/
+int content_put(Blob *pBlob){
+  return content_put_ex(pBlob, 0, 0, 0, 0);
+}
+
+
+/*
 ** Create a new phantom with the given UUID and return its artifact ID.
 */
-int content_new(const char *zUuid){
+int content_new(const char *zUuid, int isPrivate){
   int rid;
   static Stmt s1, s2, s3;
   
@@ -574,7 +644,7 @@ int content_new(const char *zUuid){
   );
   db_bind_int(&s2, ":rid", rid);
   db_exec(&s2);
-  if( g.markPrivate ){
+  if( g.markPrivate || isPrivate ){
     db_multi_exec("INSERT INTO private VALUES(%d)", rid);
   }else{
     db_static_prepare(&s3,
@@ -592,7 +662,7 @@ int content_new(const char *zUuid){
 /*
 ** COMMAND:  test-content-put
 **
-** Extract a blob from the database and write it into a file.
+** Extract a blob from a file and write it into the database
 */
 void test_content_put_cmd(void){
   int rid;
@@ -601,7 +671,7 @@ void test_content_put_cmd(void){
   db_must_be_within_tree();
   user_select();
   blob_read_from_file(&content, g.argv[2]);
-  rid = content_put(&content, 0, 0);
+  rid = content_put(&content);
   printf("inserted as record %d\n", rid);
 }
 
@@ -682,17 +752,21 @@ void content_make_public(int rid){
 ** converted to undeltaed text.
 **
 ** If either rid or srcid contain less than 50 bytes, or if the
-** resulting delta does not achieve a compression of at least 25% on
-** its own the rid is left untouched.
+** resulting delta does not achieve a compression of at least 25% 
+** the rid is left untouched.
+**
+** Return 1 if a delta is made and 0 if no delta occurs.
 */
-void content_deltify(int rid, int srcid, int force){
+int content_deltify(int rid, int srcid, int force){
   int s;
   Blob data, src, delta;
   Stmt s1, s2;
-  if( srcid==rid ) return;
-  if( !force && findSrcid(rid)>0 ) return;
+  int rc = 0;
+
+  if( srcid==rid ) return 0;
+  if( !force && findSrcid(rid)>0 ) return 0;
   if( content_is_private(srcid) && !content_is_private(rid) ){
-    return;
+    return 0;
   }
   s = srcid;
   while( (s = findSrcid(s))>0 ){
@@ -704,16 +778,16 @@ void content_deltify(int rid, int srcid, int force){
   content_get(srcid, &src);
   if( blob_size(&src)<50 ){
     blob_reset(&src);
-    return;
+    return 0;
   }
   content_get(rid, &data);
   if( blob_size(&data)<50 ){
     blob_reset(&src);
     blob_reset(&data);
-    return;
+    return 0;
   }
   blob_delta_create(&src, &data, &delta);
-  if( blob_size(&delta) < blob_size(&data)*0.75 ){
+  if( blob_size(&delta) <= blob_size(&data)*0.75 ){
     blob_compress(&delta, &delta);
     db_prepare(&s1, "UPDATE blob SET content=:data WHERE rid=%d", rid);
     db_prepare(&s2, "REPLACE INTO delta(rid,srcid)VALUES(%d,%d)", rid, srcid);
@@ -725,10 +799,12 @@ void content_deltify(int rid, int srcid, int force){
     db_finalize(&s1);
     db_finalize(&s2);
     verify_before_commit(rid);
+    rc = 1;
   }
   blob_reset(&src);
   blob_reset(&data);
   blob_reset(&delta);
+  return rc;
 }
 
 /*
@@ -740,4 +816,50 @@ void test_content_deltify_cmd(void){
   if( g.argc!=5 ) usage("RID SRCID FORCE");
   db_must_be_within_tree();
   content_deltify(atoi(g.argv[2]), atoi(g.argv[3]), atoi(g.argv[4]));
+}
+
+/*
+** COMMAND: test-integrity
+**
+** Verify that all content can be extracted from the BLOB table correctly.
+** If the BLOB table is correct, then the repository can always be
+** successfully reconstructed using "fossil rebuild".
+*/
+void test_integrity(void){
+  Stmt q;
+  Blob content;
+  Blob cksum;
+  int n1 = 0;
+  int n2 = 0;
+  int total;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
+  total = db_int(0, "SELECT max(rid) FROM blob");
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    const char *zUuid = db_column_text(&q, 1);
+    int size = db_column_int(&q, 2);
+    n1++;
+    printf("  %d/%d\r", n1, total);
+    fflush(stdout);
+    if( size<0 ){
+      printf("skip phantom %d %s\n", rid, zUuid);
+      continue;  /* Ignore phantoms */
+    }
+    content_get(rid, &content);
+    if( blob_size(&content)!=size ){
+      fossil_warning("size mismatch on blob rid=%d:  %d vs %d",
+                     rid, blob_size(&content), size);
+    }
+    sha1sum_blob(&content, &cksum);
+    if( strcmp(blob_str(&cksum), zUuid)!=0 ){
+      fossil_fatal("checksum mismatch on blob rid=%d: %s vs %s",
+                   rid, blob_str(&cksum), zUuid);
+    }
+    blob_reset(&cksum);
+    blob_reset(&content);
+    n2++;
+  }
+  db_finalize(&q);
+  printf("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
 }

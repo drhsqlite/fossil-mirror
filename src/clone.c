@@ -37,13 +37,17 @@
 **
 ** Options:
 **
-**    --admin-user|-A USERNAME
+**    --admin-user|-A USERNAME    Make USERNAME the administrator
+**    --private                   Also clone private branches 
 **
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  int nErr = 0;
+  int bPrivate;               /* Also clone private branches */
 
+  bPrivate = find_option("private",0,0)!=0;
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -58,14 +62,14 @@ void clone_cmd(void){
   url_parse(g.argv[2]);
   if( g.urlIsFile ){
     file_copy(g.urlName, g.argv[3]);
-    db_close();
+    db_close(1);
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "REPLACE INTO config(name,value)"
-      " VALUES('last-sync-url', '%q');",
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
     db_multi_exec(
@@ -90,21 +94,26 @@ void clone_cmd(void){
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
+    url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    client_sync(0,0,1,CONFIGSET_ALL,0);
+    nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
-    db_close();
+    db_close(1);
+    if( nErr ){
+      unlink(g.argv[3]);
+      fossil_fatal("server returned an error - clone aborted");
+    }
     db_open_repository(g.argv[3]);
   }
   db_begin_transaction();
   printf("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1);
+  rebuild_db(0, 1, 0);
   printf("project-id: %s\n", db_get("project-code", 0));
   printf("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);

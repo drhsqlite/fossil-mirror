@@ -15,8 +15,10 @@ lost.  The integrity checks are doing their job well.</p>
 
 <h2>Atomic Check-ins With Rollback</h2>
 
-The fossil repository is an
-<a href="http://www.sqlite.org/">SQLite version 3</a> database file.  
+The fossil repository is stored in an
+<a href="http://www.sqlite.org/">SQLite</a> database file.  
+([./tech_overview.wiki | Addition information] about the repository
+file format.)
 SQLite is very mature and stable and has been in wide-spread use for many
 years, so we are confident it will not cause repository
 corruption.  SQLite
@@ -27,7 +29,8 @@ back the next time that the database is accessed.
 
 A check-in operation in fossil makes many changes to the repository
 database.  But all these changes happen within a single transaction.
-If something goes wrong in the middle of the commit, then the transaction
+If something goes wrong in the middle of the commit, even if that something
+is a power failure or OS crash, then the transaction
 is rolled back and the database is unchanged.
 
 <h2>Verification Of Delta Encodings Prior To Transaction Commit</h2>
@@ -68,8 +71,8 @@ files.
 Manifest artifacts that define a check-in have two fields (the
 R-card and Z-card) that record MD5 hashes of the manifest itself
 and of all other files in the manifest.  Prior to any check-in
-commit, these checksums are verified to ensure that the check-in
-checked in agrees exactly with what is on disk.  Similarly,
+commit, these checksums are verified to ensure that the checkin
+agrees exactly with what is on disk.  Similarly,
 the repository checksum is verified after a checkout to make
 sure that the entire repository was checked out correctly.
 Note that these added checks use a different hash (MD5 instead

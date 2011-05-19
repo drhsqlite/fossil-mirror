@@ -2,18 +2,12 @@
 # Copyright (c) 2006 D. Richard Hipp
 #
 # This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public
-# License version 2 as published by the Free Software Foundation.
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
 #
 # This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public
-# License along with this library; if not, write to the
-# Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-# Boston, MA  02111-1307, USA.
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
 #
 # Author contact information:
 #   drh@hwaci.com
@@ -79,22 +73,26 @@ write_file_indented t3 {
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t23 {
-  <<<<<<< BEGIN MERGE CONFLICT
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   111 - This is line ONE of the demo program - 1111
-  ============================
+  ======= COMMON ANCESTOR content follows ============================
+  111 - This is line one of the demo program - 1111
+  ======= MERGED IN content follows ==================================
   111 - This is line one OF the demo program - 1111
-  >>>>>>> END MERGE CONFLICT
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t32 {
-  <<<<<<< BEGIN MERGE CONFLICT
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   111 - This is line one OF the demo program - 1111
-  ============================
+  ======= COMMON ANCESTOR content follows ============================
+  111 - This is line one of the demo program - 1111
+  ======= MERGED IN content follows ==================================
   111 - This is line ONE of the demo program - 1111
-  >>>>>>> END MERGE CONFLICT
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
@@ -160,22 +158,26 @@ write_file_indented t3 {
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t32 {
-  <<<<<<< BEGIN MERGE CONFLICT
-  ============================
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
+  ======= COMMON ANCESTOR content follows ============================
+  111 - This is line one of the demo program - 1111
+  ======= MERGED IN content follows ==================================
   000 - Zero lines added to the beginning of - 0000
   111 - This is line one of the demo program - 1111
-  >>>>>>> END MERGE CONFLICT
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
   555 - we think it well and other stuff too - 5555
 }
 write_file_indented t23 {
-  <<<<<<< BEGIN MERGE CONFLICT
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   000 - Zero lines added to the beginning of - 0000
   111 - This is line one of the demo program - 1111
-  ============================
-  >>>>>>> END MERGE CONFLICT
+  ======= COMMON ANCESTOR content follows ============================
+  111 - This is line one of the demo program - 1111
+  ======= MERGED IN content follows ==================================
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   222 - The second line program line in code - 2222
   333 - This is a test of the merging algohm - 3333
   444 - If all goes well, we will be pleased - 4444
@@ -295,7 +297,7 @@ write_file_indented t3 {
 }
 write_file_indented t23 {
   abcd
-  <<<<<<< BEGIN MERGE CONFLICT
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   efgh 2
   ijkl 2
   mnop 2
@@ -304,7 +306,16 @@ write_file_indented t23 {
   yzAB 2
   CDEF 2
   GHIJ 2
-  ============================
+  ======= COMMON ANCESTOR content follows ============================
+  efgh
+  ijkl
+  mnop
+  qrst
+  uvwx
+  yzAB
+  CDEF
+  GHIJ
+  ======= MERGED IN content follows ==================================
   efgh
   ijkl
   mnop 3
@@ -313,7 +324,7 @@ write_file_indented t23 {
   yzAB 3
   CDEF
   GHIJ
-  >>>>>>> END MERGE CONFLICT
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   KLMN
   OPQR
   STUV
@@ -354,23 +365,34 @@ write_file_indented t3 {
 }
 write_file_indented t23 {
   abcd
+  <<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
   efgh 2
   ijkl 2
-  <<<<<<< BEGIN MERGE CONFLICT
-  mnop
+  mnop 
   qrst
   uvwx
   yzAB 2
   CDEF 2
   GHIJ 2
-  ============================
+  ======= COMMON ANCESTOR content follows ============================
+  efgh
+  ijkl
+  mnop
+  qrst
+  uvwx
+  yzAB
+  CDEF
+  GHIJ
+  ======= MERGED IN content follows ==================================
+  efgh
+  ijkl
   mnop 3
   qrst 3
   uvwx 3
   yzAB 3
   CDEF
   GHIJ
-  >>>>>>> END MERGE CONFLICT
+  >>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   KLMN
   OPQR
   STUV

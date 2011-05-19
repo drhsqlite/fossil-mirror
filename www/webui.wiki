@@ -1,6 +1,6 @@
-<h1 align="center">The Fossil Web Interface</h1>
+<title>The Fossil Web Interface</title>
 
-One of the innovative features of fossil is its built-in web interface.
+One of the innovative features of Fossil is its built-in web interface.
 This web interface provides everything you need to run a software
 development project:
 
@@ -9,31 +9,45 @@ development project:
   *  [./embeddeddoc.wiki | On-line documentation]
   *  Status information
   *  Timelines
+  *  Graphs of revision and branching history
+  *  [./event.wiki | Blogs, News, and Announcements]
   *  File and version lists and differences
+  *  Download historical versions as ZIP archives
   *  Historical change data
-  *  Links to download historical versions as ZIP archives
+  *  Add and remove tags on checkins
+  *  Move checkins between branches
+  *  Revise checkin comments
+  *  Manage user credentials and access permissions
+  *  And so forth...
 
-You get all of this, and more, for free when you use fossil. 
+You get all of this, and more, for free when you use Fossil. 
 There are no extra programs to install or setup.
 Everything you need is already pre-configured and built into the
-self-contained, stand-alone fossil executable.
+self-contained, stand-alone Fossil executable.
 
 As an example of how useful this web interface can be,
-the entire [./index.wiki | fossil website] (except for the
-[http://www.fossil-scm.org/download.html | precompiled binary download page]),
+the entire [./index.wiki | Fossil website] (except for the
+[http://www.fossil-scm.org/download.html | download page]),
 including the document you are now reading,
-is rendered using the stock fossil web interface, with no enhancements,
+is rendered using the Fossil web interface, with no enhancements,
 and little customization.
 
-Note also that because fossil is a distribute system, you can run
+<blockquote>
+<b>Key point:</b> <i>The Fossil website is just a running instance
+of Fossil!
+</blockquote>
+
+Note also that because Fossil is a distributed system, you can run
 the web interface on your local machine while off network (for example,
 while on an airplane) including
 making changes to wiki pages and/or trouble ticket, then synchronize with your
-co-workers after you reconnect.
+co-workers after you reconnect.  When you clone a Fossil repository, you
+don't just get the project source code, you get the entire project
+management website.
 
 <h2>Drop-Dead Simple Startup</h2>
 
-To start using the built-in fossil web interface on an existing fossil
+To start using the built-in Fossil web interface on an existing Fossil
 repository, simply type this:
 
    <b>fossil ui existing-repository.fossil</b>
@@ -47,14 +61,14 @@ from within an open check-out, you can omit the repository name:
   <b>fossil ui</b>
 
 The latter case is a very useful short-cut when you are working on a
-fossil project and you want to quickly do some work with the web interface.
-Notice that fossil automatically finds an unused TCP port to run the
+Fossil project and you want to quickly do some work with the web interface.
+Notice that Fossil automatically finds an unused TCP port to run the
 server own and automatically points your web browser to the correct
 URL.  So there is never any fumbling around trying to find an open
 port or to type arcane strings into your browser URL entry box.
 The interface just pops right up, ready to run.
 
-The fossil web interface is also very easy to setup and run on a
+The Fossil web interface is also very easy to setup and run on a
 network server, as either a CGI program or from inetd.  Details on how
 to do that are described further below.
 
@@ -62,11 +76,13 @@ to do that are described further below.
 
 You can view <b>timelines</b> of changes to the project.  The default
 "Timeline" link on the menu bar takes you to a page that shows the 20
-most recent check-ins, wiki page edits, and ticket/bug-report changes.
+most recent check-ins, wiki page edits, ticket/bug-report changes,
+and/or blog entries.
 This gives a very useful snapshot of what has been happening lately on the
 project.  You can click to go further back in time, if needed.  Or
 follow hyperlinks to see details, including diffs and annotated diffs,
-of individual check-ins, wiki page edits, or ticket changes.
+of individual check-ins, wiki page edits, ticket changes, and
+blog edits.
 
 You can view and edit <b>tickets and bug reports</b> by following the
 "Tickets" link on the menu bar.
@@ -88,8 +104,8 @@ of time learning a new markup language.  And, as with tickets, all of
 your edits will automatically merge with those of your co-workers when
 your repository synchronizes.
 
-You can view summary reports of <b>leaves and branches</b> in the
-check-in graph by visiting the "Leaves" or "Branches" links on the
+You can view summary reports of <b>branches</b> in the
+check-in graph by visiting the "Branche" links on the
 menu bar.  From those pages you can follow hyperlinks to get additional
 details.  These screens allow you to easily keep track of what is going
 on with separate subteams within your project team.
@@ -118,7 +134,7 @@ up as the "Home" page can be changed.  It is often useful to set the
 
 <h2>Installing On A Network Server</h2>
 
-When you create a new fossil project and after you have configured it
+When you create a new Fossil project and after you have configured it
 like you want it using the web interface, you can make the project
 available to a distributed team by simply copying the single
 repository file up to a web server that supports CGI.  Just put the
@@ -132,14 +148,14 @@ contains the file, then add a CGI script that looks something like this:
   </verbatim>
 
 Adjust the script above so that the paths are correct for your system,
-of course, and also make sure the fossil binary is installed on the server.
+of course, and also make sure the Fossil binary is installed on the server.
 But that is <u>all</u> you have to do.  You now have everything you need to host
 a distributed software development project in less than five minutes using a 
 two-line CGI script.
 
 You don't have a CGI-capable web server running on your server machine?
-Not a problem.  The fossil interface can also be launched via inetd or
-xinetd.  An inetd configuration line sufficient to launch the fossil
+Not a problem.  The Fossil interface can also be launched via inetd or
+xinetd.  An inetd configuration line sufficient to launch the Fossil
 web interface looks like this:
 
   <verbatim>

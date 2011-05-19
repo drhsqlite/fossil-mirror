@@ -32,23 +32,29 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, existsflag FROM undo WHERE pathname=%Q AND redoflag=%d",
+    "SELECT content, existsflag, isExe FROM undo"
+    " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
   if( db_step(&q)==SQLITE_ROW ){
     int old_exists;
     int new_exists;
+    int old_exe;
+    int new_exe;
     Blob current;
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     new_exists = file_size(zFullname)>=0;
     if( new_exists ){
       blob_read_from_file(&current, zFullname);
+      new_exe = file_isexe(zFullname);
     }else{
       blob_zero(&current);
+      new_exe = 0;
     }
     blob_zero(&new);
     old_exists = db_column_int(&q, 1);
+    old_exe = db_column_int(&q, 2);
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
@@ -59,6 +65,7 @@ static void undo_one(const char *zPathname, int redoFlag){
         printf("NEW %s\n", zPathname);
       }
       blob_write_to_file(&new, zFullname);
+      file_setexe(zFullname, old_exe);
     }else{
       printf("DELETE %s\n", zPathname);
       unlink(zFullname);
@@ -67,9 +74,10 @@ static void undo_one(const char *zPathname, int redoFlag){
     free(zFullname);
     db_finalize(&q);
     db_prepare(&q, 
-       "UPDATE undo SET content=:c, existsflag=%d, redoflag=NOT redoflag"
+       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d,"
+             " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
-       new_exists, zPathname
+       new_exists, new_exe, zPathname
     );
     if( new_exists ){
       db_bind_blob(&q, ":c", &current);
@@ -106,6 +114,7 @@ static void undo_all_filesystem(int redoFlag){
 static void undo_all(int redoFlag){
   int ucid;
   int ncid;
+  const char *zDb = db_name("localdb");
   undo_all_filesystem(redoFlag);
   db_multi_exec(
     "CREATE TEMP TABLE undo_vfile_2 AS SELECT * FROM vfile;"
@@ -121,6 +130,20 @@ static void undo_all(int redoFlag){
     "INSERT INTO undo_vmerge SELECT * FROM undo_vmerge_2;"
     "DROP TABLE undo_vmerge_2;"
   );
+  if(db_exists("SELECT 1 FROM %s.sqlite_master WHERE name='undo_stash'", zDb) ){
+    if( redoFlag ){
+      db_multi_exec(
+        "DELETE FROM stash WHERE stashid IN (SELECT stashid FROM undo_stash);"
+        "DELETE FROM stashfile"
+        " WHERE stashid NOT IN (SELECT stashid FROM stash);"
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO stash SELECT * FROM undo_stash;"
+        "INSERT OR IGNORE INTO stashfile SELECT * FROM undo_stashfile;"
+      );
+    }
+  }
   ncid = db_lget_int("undo_checkout", 0);
   ucid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", ucid);
@@ -135,7 +158,8 @@ void undo_reset(void){
     @ DROP TABLE IF EXISTS undo;
     @ DROP TABLE IF EXISTS undo_vfile;
     @ DROP TABLE IF EXISTS undo_vmerge;
-    @ DROP TABLE IF EXISTS undo_pending;
+    @ DROP TABLE IF EXISTS undo_stash;
+    @ DROP TABLE IF EXISTS undo_stashfile;
     ;
   db_multi_exec(zSql);
   db_lset_int("undo_available", 0);
@@ -143,33 +167,70 @@ void undo_reset(void){
 }
 
 /*
+** The following variable stores the original command-line of the
+** command that is a candidate to be undone.
+*/
+static char *undoCmd = 0;
+
+/*
 ** This flag is true if we are in the process of collecting file changes
 ** for undo.  When this flag is false, undo_save() is a no-op.
+**
+** The undoDisable flag, if set, prevents undo from being activated.
 */
 static int undoActive = 0;
+static int undoDisable = 0;
+
+
+/*
+** Capture the current command-line and store it as part of the undo
+** state.  This routine is called before options are extracted from the
+** command-line so that we can record the complete command-line.
+*/
+void undo_capture_command_line(void){
+  Blob cmdline;
+  int i;
+  if( undoCmd!=0 || undoDisable ) return;
+  blob_zero(&cmdline);
+  for(i=1; i<g.argc; i++){
+    if( i>1 ) blob_append(&cmdline, " ", 1);
+    blob_append(&cmdline, g.argv[i], -1);
+  }
+  undoCmd = blob_str(&cmdline);
+}
 
 /*
 ** Begin capturing a snapshot that can be undone.
 */
 void undo_begin(void){
   int cid;
+  const char *zDb = db_name("localdb");
   static const char zSql[] = 
-    @ CREATE TABLE undo(
+    @ CREATE TABLE %s.undo(
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
+    @   isExe BOOLEAN,                    -- True if the file is executable
     @   content BLOB                      -- Saved content
     @ );
-    @ CREATE TABLE undo_vfile AS SELECT * FROM vfile;
-    @ CREATE TABLE undo_vmerge AS SELECT * FROM vmerge;
-    @ CREATE TABLE undo_pending(undoId INTEGER PRIMARY KEY);
+    @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
+    @ CREATE TABLE %s.undo_vmerge AS SELECT * FROM vmerge;
   ;
+  if( undoDisable ) return;
   undo_reset();
-  db_multi_exec(zSql);
+  db_multi_exec(zSql, zDb, zDb, zDb);
   cid = db_lget_int("checkout", 0);
   db_lset_int("undo_checkout", cid);
   db_lset_int("undo_available", 1);
+  db_lset("undo_cmdline", undoCmd);
   undoActive = 1;
+}
+
+/*
+** Permanently disable undo 
+*/
+void undo_disable(void){
+  undoDisable = 1;
 }
 
 /*
@@ -193,12 +254,12 @@ void undo_save(const char *zPathname){
   Stmt q;
 
   if( !undoActive ) return;
-  zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+  zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
   db_prepare(&q,
-    "REPLACE INTO undo(pathname,redoflag,existsflag,content)"
-    " VALUES(%Q,0,%d,:c)",
-    zPathname, existsFlag
+    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,content)"
+    " VALUES(%Q,0,%d,%d,:c)",
+    zPathname, existsFlag, file_isexe(zFullname)
   );
   if( existsFlag ){
     blob_read_from_file(&content, zFullname);
@@ -214,10 +275,33 @@ void undo_save(const char *zPathname){
 }
 
 /*
+** Make the current state of stashid undoable.
+*/
+void undo_save_stash(int stashid){
+  const char *zDb = db_name("localdb");
+  db_multi_exec(
+    "DROP TABLE IF EXISTS undo_stash;"
+    "CREATE TABLE %s.undo_stash AS"
+    " SELECT * FROM stash WHERE stashid=%d;",
+    zDb, stashid
+  );
+  db_multi_exec(
+    "DROP TABLE IF EXISTS undo_stashfile;"
+    "CREATE TABLE %s.undo_stashfile AS"
+    " SELECT * FROM stashfile WHERE stashid=%d;",
+    zDb, stashid
+  );
+}
+
+/*
 ** Complete the undo process is one is currently in process.
 */
 void undo_finish(void){
   if( undoActive ){
+    if( undoNeedRollback ){
+      printf("\"fossil undo\" is available to undo changes"
+             " to the working checkout.\n");
+    }
     undoActive = 0;
     undoNeedRollback = 0;
   }
@@ -243,78 +327,93 @@ void undo_rollback(void){
 
 /*
 ** COMMAND: undo
+** COMMAND: redo
 **
-** Usage: %fossil undo ?FILENAME...?
+** Usage: %fossil undo ?--explain? ?FILENAME...?
+**    or: %fossil redo ?--explain? ?FILENAME...?
 **
-** Undo the most recent update or merge or revert operation.  If FILENAME is
-** specified then restore the content of the named file(s) but otherwise
-** leave the update or merge or revert in effect.
+** Undo the changes to the working checkout caused by the most recent
+** of the following operations:
+**
+**    (1) fossil update             (5) fossil stash apply
+**    (2) fossil merge              (6) fossil stash drop
+**    (3) fossil revert             (7) fossil stash goto
+**    (4) fossil stash pop
+**
+** If FILENAME is specified then restore the content of the named
+** file(s) but otherwise leave the update or merge or revert in effect. 
+** The redo command undoes the effect of the most recent undo.
+**
+** If the --explain option is present, no changes are made and instead
+** the undo or redo command explains what actions the undo or redo would
+** have done had the --explain been omitted.
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
 ** is cleared by the commit and checkout commands.
 */
 void undo_cmd(void){
+  int isRedo = g.argv[1][0]=='r';
   int undo_available;
+  int explainFlag = find_option("explain", 0, 0)!=0;
+  const char *zCmd = isRedo ? "redo" : "undo";
   db_must_be_within_tree();
+  verify_all_options();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
-  if( g.argc==2 ){
-    if( undo_available!=1 ){
-      fossil_fatal("no update or merge operation is available to undo");
-    }
-    undo_all(0);
-    db_lset_int("undo_available", 2);
-  }else if( g.argc>=3 ){
-    int i;
+  if( explainFlag ){
     if( undo_available==0 ){
-      fossil_fatal("no update or merge operation is available to undo");
+      printf("No undo or redo is available\n");
+    }else{
+      Stmt q;
+      int nChng = 0;
+      zCmd = undo_available==1 ? "undo" : "redo";
+      printf("A %s is available for the following command:\n\n   %s %s\n\n",
+              zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+      db_prepare(&q,
+        "SELECT existsflag, pathname FROM undo ORDER BY pathname"
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        if( nChng==0 ){
+          printf("The following file changes would occur if the "
+                 "command above is %sne:\n\n", zCmd);
+        }
+        nChng++;
+        printf("%s %s\n", 
+           db_column_int(&q,0) ? "UPDATE" : "DELETE",
+           db_column_text(&q, 1)
+        );
+      }
+      db_finalize(&q);
+      if( nChng==0 ){
+        printf("No file changes would occur with this undo/redo.\n");
+      }
     }
-    for(i=2; i<g.argc; i++){
-      const char *zFile = g.argv[i];
-      Blob path;
-      file_tree_name(zFile, &path, 1);
-      undo_one(blob_str(&path), 0);
-      blob_reset(&path);
+  }else{
+    int vid1 = db_lget_int("checkout", 0);
+    int vid2;
+    if( g.argc==2 ){
+      if( undo_available!=(1+isRedo) ){
+        fossil_fatal("nothing to %s", zCmd);
+      }
+      undo_all(isRedo);
+      db_lset_int("undo_available", 2-isRedo);
+    }else if( g.argc>=3 ){
+      int i;
+      if( undo_available==0 ){
+        fossil_fatal("nothing to %s", zCmd);
+      }
+      for(i=2; i<g.argc; i++){
+        const char *zFile = g.argv[i];
+        Blob path;
+        file_tree_name(zFile, &path, 1);
+        undo_one(blob_str(&path), isRedo);
+        blob_reset(&path);
+      }
     }
-  }
-  db_end_transaction(0);
-}
-
-/*
-** COMMAND: redo
-**
-** Usage: %fossil redo ?FILENAME...?
-**
-** Redo an update or merge or revert operation that has been undone
-** by the undo command.  If FILENAME is specified then restore the changes
-** associated with the named file(s) but otherwise leave the update
-** or merge undone.
-**
-** A single level of undo/redo is supported.  The undo/redo stack
-** is cleared by the commit and checkout commands.
-*/
-void redo_cmd(void){
-  int undo_available;
-  db_must_be_within_tree();
-  db_begin_transaction();
-  undo_available = db_lget_int("undo_available", 0);
-  if( g.argc==2 ){
-    if( undo_available!=2 ){
-      fossil_fatal("no undone update or merge operation is available to redo");
-    }
-    undo_all(1);
-    db_lset_int("undo_available", 1);
-  }else if( g.argc>=3 ){
-    int i;
-    if( undo_available==0 ){
-      fossil_fatal("no update or merge operation is available to redo");
-    }
-    for(i=2; i<g.argc; i++){
-      const char *zFile = g.argv[i];
-      Blob path;
-      file_tree_name(zFile, &path, 1);
-      undo_one(blob_str(&path), 0);
-      blob_reset(&path);
+    vid2 = db_lget_int("checkout", 0);
+    if( vid1!=vid2 ){
+      printf("--------------------\n");
+      show_common_info(vid2, "updated-to:", 1, 0);
     }
   }
   db_end_transaction(0);

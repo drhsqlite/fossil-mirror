@@ -1,9 +1,11 @@
 #!/usr/bin/tclsh
 #
-# Run this script to build the "download" page on standard output.
+# Run this script to build the "download.html" page.  Also generate
+# the fossil_download_checksums.html page.
 #
 #
-puts \
+set out [open download.html w]
+puts $out \
 {<html>
 <head>
 <title>Fossil: Downloads</title>
@@ -17,27 +19,21 @@ puts \
   </div>
   <div class="title">Fossil Downloads</div>
 </div>
-<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/leaves'>Leaves</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
+<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
 <div class="content">
 <p>
 
-<p>
-Click on links below to download prebuilt binaries and source tarballs for 
-recent versions of <a href="/fossil">Fossil</a>.
-The historical source code is also available in the
-<a href="/fossil/doc/tip/www/selfhost.wiki">self-hosting
-Fossil repositories</a>.
-</p>
-
-<p>
-<u>Important Note:</u>
-After upgrading to a newer version of fossil, it is always a good idea
-to run:
-<blockquote><pre>
-<b><big><tt>fossil all rebuild</tt></big></b>
-</pre></blockquote>
-Running "rebuild" this way is not always necessary, but it never hurts.
-</p>
+<center><font size=4>
+<b>To install Fossil &rarr;</b> download the stand-alone executable
+and put it on your $PATH.
+</font><p><small>
+RPMs available
+<a href="http://download.opensuse.org/repositories/home:/rmax:/fossil/">
+here.</a>
+Cryptographic checksums for download files are
+<a href="http://www.hwaci.com/fossil_download_checksums.html">here</a>.
+</small></p>
+</center>
 
 <table cellpadding="10">
 }
@@ -46,7 +42,7 @@ Running "rebuild" this way is not always necessary, but it never hurts.
 #
 foreach file [glob -nocomplain download/fossil-*.zip] {
   if {[regexp {(\d+).zip$} $file all datetime]
-       && [string length $datetime]==14} {
+       && [string length $datetime]>=14} {
     set adate($datetime) 1
   }
 }
@@ -60,14 +56,15 @@ foreach datetime [lsort -decr [array names adate]] {
   append dt "[string range $datetime 12 13]"
   set link [string map {{ } +} $dt]
   set hr http://www.fossil-scm.org/fossil/timeline?c=$link&y=ci
-  puts "<tr><td colspan=5 align=center><hr>"
-  puts "<b>Fossil snapshot as of <a href=\"$hr\">$dt</a><td width=30></b>"
-  puts "</td></tr>"
+  puts $out "<tr><td colspan=6 align=left><hr>"
+  puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
+  puts $out "</td></tr>"
   
   foreach {prefix suffix img desc} {
     fossil-linux-x86 zip linux.gif {Linux x86}
     fossil-linux-amd64 zip linux64.gif {Linux x86_64}
     fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
+    fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.7 x86}
     fossil-w32 zip win32.gif {Windows}
     fossil-src tar.gz src.gif {Source Tarball}
   } {
@@ -82,18 +79,46 @@ foreach datetime [lsort -decr [array names adate]] {
         set size [format %.2f [expr {$size/(1024.0)}]]
         set units KiB
       }
-      puts "<td align=center valign=bottom><a href=\"$filename\">"
-      puts "<img src=\"build-icons/$img\" border=0><br>$desc</a><br>"
-      puts "$size $units</td>"
+      puts $out "<td align=center valign=bottom><a href=\"$filename\">"
+      puts $out "<img src=\"build-icons/$img\" border=0><br>$desc</a><br>"
+      puts $out "$size $units</td>"
     } else {
-      puts "<td>&nbsp;</td>"
+      puts $out "<td>&nbsp;</td>"
     }
   }
-  puts "</tr>"
+  puts $out "</tr>"
+  if {[file exists download/releasenotes-$datetime.html]} {
+    puts $out "<tr><td colspan=6 align=left>"
+    set rn [open download/releasenotes-$datetime.html]
+    puts $out "[read $rn]"
+    close $rn
+    puts $out "</td></tr>"
+  }
 }
-puts "<tr><td colspan=5><hr></td></tr>"
+puts $out "<tr><td colspan=5><hr></td></tr>"
 
-puts {</table>
+puts $out {</table>
 </body>
 </html>
 }
+
+close $out
+
+# Generate the checksum page
+#
+set out [open fossil_download_checksums.html w]
+puts $out {<html>
+<title>Fossil Download Checksums</title>
+<body>
+<h1 align="center">Checksums For Fossil Downloads</h1>
+<p>The following table shows the SHA1 checksums for the precompiled
+binaries available on the 
+<a href="http://www.fossil-scm.org/download.html">Fossil website</a>.</p>
+<pre>}
+
+foreach file [lsort [glob -nocomplain download/fossil-*.zip]] {
+  set sha1sum [lindex [exec sha1sum $file] 0]
+  puts $out "$sha1sum   [file tail $file]"
+}
+puts $out {</pre></body></html}
+close $out

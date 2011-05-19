@@ -56,11 +56,12 @@
 #define ATTR_SIZE               19
 #define ATTR_SRC                20
 #define ATTR_START              21
-#define ATTR_TYPE               22
-#define ATTR_VALIGN             23
-#define ATTR_VALUE              24
-#define ATTR_VSPACE             25
-#define ATTR_WIDTH              26
+#define ATTR_TARGET             22
+#define ATTR_TYPE               23
+#define ATTR_VALIGN             24
+#define ATTR_VALUE              25
+#define ATTR_VSPACE             26
+#define ATTR_WIDTH              27
 #define AMSK_ALIGN              0x0000001
 #define AMSK_ALT                0x0000002
 #define AMSK_BGCOLOR            0x0000004
@@ -87,6 +88,7 @@
 #define AMSK_VSPACE             0x0800000
 #define AMSK_WIDTH              0x1000000
 #define AMSK_CLASS              0x2000000
+#define AMSK_TARGET             0x4000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -114,6 +116,7 @@ static const struct AllowedAttribute {
   { "size",          AMSK_SIZE,           },
   { "src",           AMSK_SRC,            },
   { "start",         AMSK_START,          },
+  { "target",        AMSK_TARGET,         },
   { "type",          AMSK_TYPE,           },
   { "valign",        AMSK_VALIGN,         },
   { "value",         AMSK_VALUE,          },
@@ -240,7 +243,7 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
@@ -303,7 +306,7 @@ static const struct AllowedMarkup {
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
  { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
-                    AMSK_ALIGN|AMSK_BGCOLOR||AMSK_VALIGN|AMSK_CLASS  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS  },
  { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
  { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
@@ -776,7 +779,7 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
         if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
-          blob_appendf(pOut, "=\"%s%s\"", g.zBaseURL, zVal);
+          blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
         }
@@ -940,6 +943,22 @@ static int is_valid_uuid(const char *z){
 }
 
 /*
+** Return TRUE if a UUID corresponds to an artifact in this
+** repository.
+*/
+static int in_this_repo(const char *zUuid){
+  static Stmt q;
+  int rc;
+  db_static_prepare(&q, 
+     "SELECT 1 FROM blob WHERE uuid>=:u AND +uuid GLOB (:u || '*')"
+  );
+  db_bind_text(&q, ":u", zUuid);
+  rc = db_step(&q);
+  db_reset(&q);
+  return rc==SQLITE_ROW;
+}
+
+/*
 ** zTarget is guaranteed to be a UUID.  It might be the UUID of a ticket.
 ** If it is, store in *pClosed a true or false depending on whether or not
 ** the ticket is closed and return true. If zTarget
@@ -1027,7 +1046,7 @@ static void openHyperlink(
     /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     if( 1 /* g.okHistory */ ){
-      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zBaseURL, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
     }else{
       zTerm = "";
     }
@@ -1046,41 +1065,47 @@ static void openHyperlink(
       if( isClosed ){
         if( g.okHistory ){
           blob_appendf(p->pOut,
-             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
-             g.zBaseURL, zTarget
+             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">[",
+             g.zTop, zTarget
           );
-          zTerm = "</span></a>";
+          zTerm = "]</span></a>";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">");
-          zTerm = "</span>";
+          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
+          zTerm = "]</span>";
         }
       }else{
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">",
-              g.zBaseURL, zTarget
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[",
+              g.zTop, zTarget
           );
+          zTerm = "]</a>";
         }else{
-          zTerm = "";
+          blob_appendf(p->pOut, "[");
+          zTerm = "]";
         }
       }
+    }else if( !in_this_repo(zTarget) ){
+      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+      zTerm = "]</span>";
     }else if( g.okHistory ){
-      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zBaseURL, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">[", g.zTop, zTarget);
+      zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zTop, zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zBaseURL, zTarget);
+    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else{
-    blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
+    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
   }
   assert( strlen(zTerm)<nClose );
-  strcpy(zClose, zTerm);
+  sqlite3_snprintf(nClose, zClose, "%s", zTerm);
 }
 
 /*

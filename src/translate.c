@@ -15,8 +15,9 @@
 **
 *******************************************************************************
 **
-** begin with the "@" character are translated into cgi_printf() statements
-** and the translated code is written on standard output.
+** Input lines that begin with the "@" character are translated into
+** either cgi_printf() statements or string literals and the
+** translated code is written on standard output.
 **
 ** The problem this program is attempt to solve is as follows:  When
 ** writing CGI programs in C, we typically want to output a lot of HTML

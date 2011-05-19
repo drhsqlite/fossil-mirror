@@ -28,9 +28,9 @@
 **
 ** Usage: %fossil merge [--cherrypick] [--backout] VERSION
 **
-** The argument is a version that should be merged into the current
-** checkout.  All changes from VERSION back to the nearest common
-** ancestor are merged.  Except, if either of the --cherrypick or
+** The argument VERSION is a version that should be merged into the
+** current checkout.  All changes from VERSION back to the nearest
+** common ancestor are merged.  Except, if either of the --cherrypick or
 ** --backout options are used only the changes associated with the
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
@@ -42,26 +42,53 @@
 **
 ** Other options:
 **
+**   --baseline BASELINE     Use BASELINE as the "pivot" of the merge instead
+**                           of the nearest common ancestor.  This allows
+**                           a sequence of changes in a branch to be merged
+**                           without having to merge the entire branch.
+**
 **   --detail                Show additional details of the merge
 **
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
+**
+**   --nochange | -n         Dryrun:  do not actually make any changes; just
+**                           show what would have happened.
 */
 void merge_cmd(void){
-  int vid;              /* Current version */
-  int mid;              /* Version we are merging against */
-  int pid;              /* The pivot version - most recent common ancestor */
+  int vid;              /* Current version "V" */
+  int mid;              /* Version we are merging from "M" */
+  int pid;              /* The pivot version - most recent common ancestor P */
   int detailFlag;       /* True if the --detail option is present */
   int pickFlag;         /* True if the --cherrypick option is present */
-  int backoutFlag;      /* True if the --backout optioni is present */
+  int backoutFlag;      /* True if the --backout option is present */
+  int nochangeFlag;     /* True if the --nochange or -n option is present */
   const char *zBinGlob; /* The value of --binary */
+  const char *zPivot;   /* The value of --baseline */
+  int debugFlag;        /* True if --debug is present */
+  int nChng;            /* Number of file name changes */
+  int *aChng;           /* An array of file name changes */
+  int i;                /* Loop counter */
+  int nConflict = 0;    /* Number of conflicts seen */
   Stmt q;
 
+
+  /* Notation:
+  **
+  **      V     The current checkout
+  **      M     The version being merged in
+  **      P     The "pivot" - the most recent common ancestor of V and M.
+  */
+
+  undo_capture_command_line();
   detailFlag = find_option("detail",0,0)!=0;
   pickFlag = find_option("cherrypick",0,0)!=0;
   backoutFlag = find_option("backout",0,0)!=0;
+  debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
+  nochangeFlag = find_option("nochange","n",0)!=0;
+  zPivot = find_option("baseline",0,1);
   if( g.argc!=3 ){
     usage("VERSION");
   }
@@ -72,21 +99,22 @@ void merge_cmd(void){
     fossil_fatal("nothing is checked out");
   }
   mid = name_to_rid(g.argv[2]);
-  if( mid==0 ){
+  if( mid==0 || !is_a_version(mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
-  if( !is_a_version(mid) ){
-    fossil_fatal("not a version: %s", g.argv[2]);
-  }
-  if( pickFlag || backoutFlag ){
+  if( zPivot ){
+    pid = name_to_rid(zPivot);
+    if( pid==0 || !is_a_version(pid) ){
+      fossil_fatal("not a version: %s", zPivot);
+    }
+    if( pickFlag ){
+      fossil_fatal("incompatible options: --cherrypick & --baseline");
+    }
+    /* pickFlag = 1;  // Using --baseline is really like doing a cherrypick */
+  }else if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
       fossil_fatal("cannot find an ancestor for %s", g.argv[2]);
-    }
-    if( backoutFlag ){
-      int t = pid;
-      pid = mid;
-      mid = t;
     }
   }else{
     pivot_set_primary(mid);
@@ -102,12 +130,17 @@ void merge_cmd(void){
                    "checkout and %s", g.argv[2]);
     }
   }
+  if( backoutFlag ){
+    int t = pid;
+    pid = mid;
+    mid = t;
+  }
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
   }
-  vfile_check_signature(vid, 1);
+  vfile_check_signature(vid, 1, 0);
   db_begin_transaction();
-  undo_begin();
+  if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);
   load_vfile_from_rid(pid);
 
@@ -126,58 +159,115 @@ void merge_cmd(void){
     "  chnged BOOLEAN,"           /* True if current version has been edited */
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridp INTEGER,"             /* Record ID for pivot */
-    "  ridm INTEGER"              /* Record ID for merge */
+    "  ridm INTEGER,"             /* Record ID for merge */
+    "  isexe BOOLEAN,"            /* Execute permission enabled */
+    "  fnp TEXT,"                 /* The filename in the pivot */
+    "  fnm TEXT"                  /* the filename in the merged version */
     ");"
-    "INSERT OR IGNORE INTO fv"
-    " SELECT pathname, 0, 0, 0, 0, 0, 0, 0 FROM vfile"
   );
-  db_prepare(&q,
-    "SELECT id, pathname, rid FROM vfile"
-    " WHERE vid=%d", pid
+
+  /* Add files found in V
+  */
+  db_multi_exec(
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, id, 0, 0, rid, 0, 0, isexe, chnged "
+    " FROM vfile WHERE vid=%d",
+    vid
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    db_multi_exec(
-      "UPDATE fv SET idp=%d, ridp=%d WHERE fn=%Q",
-      id, rid, fn
-    );
-  }
-  db_finalize(&q);
-  db_prepare(&q,
-    "SELECT id, pathname, rid FROM vfile"
-    " WHERE vid=%d", mid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    db_multi_exec(
-      "UPDATE fv SET idm=%d, ridm=%d WHERE fn=%Q",
-      id, rid, fn
-    );
-  }
-  db_finalize(&q);
-  db_prepare(&q,
-    "SELECT id, pathname, rid, chnged FROM vfile"
-    " WHERE vid=%d", vid
-  );
-  while( db_step(&q)==SQLITE_ROW ){
-    int id = db_column_int(&q, 0);
-    const char *fn = db_column_text(&q, 1);
-    int rid = db_column_int(&q, 2);
-    int chnged = db_column_int(&q, 3);
-    db_multi_exec(
-      "UPDATE fv SET idv=%d, ridv=%d, chnged=%d WHERE fn=%Q",
-      id, rid, chnged, fn
-    );
-  }
-  db_finalize(&q);
 
   /*
-  ** Find files in mid and vid but not in pid and report conflicts.
-  ** The file in mid will be ignored.  It will be treated as if it
+  ** Compute name changes from P->V
+  */
+  find_filename_changes(vid, pid, &nChng, &aChng);
+  if( nChng ){
+    for(i=0; i<nChng; i++){
+      char *z;
+      z = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
+      db_multi_exec(
+        "UPDATE fv SET fnp=%Q, fnm=%Q"
+        " WHERE fn=(SELECT name FROM filename WHERE fnid=%d)",
+        z, z, aChng[i*2]
+      );
+      free(z);
+    }
+    fossil_free(aChng);
+    db_multi_exec("UPDATE fv SET fnm=fnp WHERE fnp!=fn");
+  }
+
+  /* Add files found in P but not in V
+  */
+  db_multi_exec(
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
+    "   FROM vfile"
+    "  WHERE vid=%d AND pathname NOT IN (SELECT fnp FROM fv)",
+    pid
+  );
+
+  /*
+  ** Compute name changes from P->M
+  */
+  find_filename_changes(pid, mid, &nChng, &aChng);
+  if( nChng ){
+    if( nChng>4 ) db_multi_exec("CREATE INDEX fv_fnp ON fv(fnp)");
+    for(i=0; i<nChng; i++){
+      db_multi_exec(
+        "UPDATE fv SET fnm=(SELECT name FROM filename WHERE fnid=%d)"
+        " WHERE fnp=(SELECT name FROM filename WHERE fnid=%d)",
+        aChng[i*2+1], aChng[i*2]
+      );
+    }
+    fossil_free(aChng);
+  }
+
+  /* Add files found in M but not in P or V.
+  */
+  db_multi_exec(
+    "INSERT OR IGNORE"
+    " INTO fv(fn,fnp,fnm,idv,idp,idm,ridv,ridp,ridm,isexe,chnged)"
+    " SELECT pathname, pathname, pathname, 0, 0, 0, 0, 0, 0, isexe, 0 "
+    "   FROM vfile"
+    "  WHERE vid=%d"
+    "    AND pathname NOT IN (SELECT fnp FROM fv UNION SELECT fnm FROM fv)",
+    mid
+  );
+
+  /*
+  ** Compute the file version ids for P and M.
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnp),0),"
+    " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnp),0),"
+    " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0)",
+    pid, pid, mid, mid
+  );
+
+  if( debugFlag ){
+    db_prepare(&q,
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, isexe FROM fv"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+       printf("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d\n",
+          db_column_int(&q, 0),
+          db_column_int(&q, 5),
+          db_column_int(&q, 6),
+          db_column_int(&q, 7),
+          db_column_int(&q, 4),
+          db_column_int(&q, 8));
+       printf("     fn  = [%s]\n", db_column_text(&q, 1));
+       printf("     fnp = [%s]\n", db_column_text(&q, 2));
+       printf("     fnm = [%s]\n", db_column_text(&q, 3));
+    }
+    db_finalize(&q);
+  }
+
+  /*
+  ** Find files in M and V but not in P and report conflicts.
+  ** The file in M will be ignored.  It will be treated as if it
   ** does not exist.
   */
   db_prepare(&q,
@@ -186,17 +276,18 @@ void merge_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    printf("WARNING: conflict on %s\n", zName);
+    printf("WARNING - no common ancestor: %s\n", zName);
     free(zName);
     db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
   }
   db_finalize(&q);
 
   /*
-  ** Add to vid files that are not in pid but are in mid
+  ** Add to V files that are not in V or P but are in M
   */
-  db_prepare(&q, 
-    "SELECT idm, rowid, fn FROM fv WHERE idp=0 AND idv=0 AND idm>0"
+  db_prepare(&q,
+    "SELECT idm, rowid, fnm FROM fv AS x"
+    " WHERE idp=0 AND idv=0 AND idm>0"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
@@ -204,48 +295,51 @@ void merge_cmd(void){
     int idv;
     const char *zName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,pathname)"
-      "  SELECT %d,3,0,rid,mrid,pathname FROM vfile WHERE id=%d",
+      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,pathname)"
+      "  SELECT %d,3,0,rid,mrid,isexe,pathname FROM vfile WHERE id=%d",
       vid, idm
     );
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
     printf("ADDED %s\n", zName);
-    undo_save(zName);
-    vfile_to_disk(0, idm, 0, 0);
+    if( !nochangeFlag ){
+      undo_save(zName);
+      vfile_to_disk(0, idm, 0, 0);
+    }
   }
   db_finalize(&q);
-  
+
   /*
-  ** Find files that have changed from pid->mid but not pid->vid. 
-  ** Copy the mid content over into vid.
+  ** Find files that have changed from P->M but not P->V.
+  ** Copy the M content over into V.
   */
   db_prepare(&q,
-    "SELECT idv, ridm FROM fv"
+    "SELECT idv, ridm, fn FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND ridv=ridp AND NOT chnged"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idv = db_column_int(&q, 0);
     int ridm = db_column_int(&q, 1);
-    char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
+    const char *zName = db_column_text(&q, 2);
     /* Copy content from idm over into idv.  Overwrite idv. */
     printf("UPDATE %s\n", zName);
-    undo_save(zName);
-    db_multi_exec(
-      "UPDATE vfile SET mrid=%d, chnged=2 WHERE id=%d", ridm, idv
-    );
-    vfile_to_disk(0, idv, 0, 0);
-    free(zName);
+    if( !nochangeFlag ){
+      undo_save(zName);
+      db_multi_exec(
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2 WHERE id=%d", ridm, idv
+      );
+      vfile_to_disk(0, idv, 0, 0);
+    }
   }
   db_finalize(&q);
 
   /*
-  ** Do a three-way merge on files that have changes pid->mid and pid->vid
+  ** Do a three-way merge on files that have changes on both P->M and P->V.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s FROM fv"
+    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -256,10 +350,11 @@ void merge_cmd(void){
     int ridp = db_column_int(&q, 2);
     int ridv = db_column_int(&q, 3);
     int isBinary = db_column_int(&q, 4);
+    const char *zName = db_column_text(&q, 5);
+    int isExe = db_column_int(&q, 6);
     int rc;
-    char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
     char *zFullPath;
-    Blob m, p, v, r;
+    Blob m, p, r;
     /* Do a 3-way merge of idp->idm into idp->idv.  The results go into idv. */
     if( detailFlag ){
       printf("MERGE %s  (pivot=%d v1=%d v2=%d)\n", zName, ridp, ridm, ridv);
@@ -270,26 +365,28 @@ void merge_cmd(void){
     zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
     content_get(ridp, &p);
     content_get(ridm, &m);
-    blob_zero(&v);
-    blob_read_from_file(&v, zFullPath);
     if( isBinary ){
       rc = -1;
       blob_zero(&r);
     }else{
-      rc = blob_merge(&p, &m, &v, &r);
+      rc = merge_3way(&p, zFullPath, &m, &r);
     }
     if( rc>=0 ){
-      blob_write_to_file(&r, zFullPath);
+      if( !nochangeFlag ){
+        blob_write_to_file(&r, zFullPath);
+        file_setexe(zFullPath, isExe);
+      }
+      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
       if( rc>0 ){
         printf("***** %d merge conflicts in %s\n", rc, zName);
+        nConflict++;
       }
     }else{
       printf("***** Cannot merge binary file %s\n", zName);
+      nConflict++;
     }
-    free(zName);
     blob_reset(&p);
     blob_reset(&m);
-    blob_reset(&v);
     blob_reset(&r);
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
                   idv,ridm);
@@ -297,25 +394,72 @@ void merge_cmd(void){
   db_finalize(&q);
 
   /*
-  ** Drop files from vid that are in pid but not in mid
+  ** Drop files that are in P and V but not in M
   */
   db_prepare(&q,
-    "SELECT idv FROM fv"
+    "SELECT idv, fn, chnged FROM fv"
     " WHERE idp>0 AND idv>0 AND idm=0"
   );
   while( db_step(&q)==SQLITE_ROW ){
     int idv = db_column_int(&q, 0);
-    char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idv);
+    const char *zName = db_column_text(&q, 1);
+    int chnged = db_column_int(&q, 2);
     /* Delete the file idv */
     printf("DELETE %s\n", zName);
+    if( chnged ){
+      printf("WARNING: local edits lost for %s\n", zName);
+      nConflict++;
+    }
     undo_save(zName);
     db_multi_exec(
       "UPDATE vfile SET deleted=1 WHERE id=%d", idv
     );
-    free(zName);
+    if( !nochangeFlag ){
+      char *zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
+      unlink(zFullPath);
+      free(zFullPath);
+    }
   }
   db_finalize(&q);
-  
+
+  /*
+  ** Rename files that have taken a rename on P->M but which keep the same
+  ** name o P->V.   If a file is renamed on P->V only or on both P->V and
+  ** P->M then we retain the V name of the file.
+  */
+  db_prepare(&q,
+    "SELECT idv, fnp, fnm FROM fv"
+    " WHERE idv>0 AND idp>0 AND idm>0 AND fnp=fn AND fnm!=fnp"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int idv = db_column_int(&q, 0);
+    const char *zOldName = db_column_text(&q, 1);
+    const char *zNewName = db_column_text(&q, 2);
+    printf("RENAME %s -> %s\n", zOldName, zNewName);
+    undo_save(zOldName);
+    undo_save(zNewName);
+    db_multi_exec(
+      "UPDATE vfile SET pathname=%Q, origname=coalesce(origname,pathname)"
+      " WHERE id=%d AND vid=%d", zNewName, idv, vid
+    );
+    if( !nochangeFlag ){
+      char *zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
+      char *zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
+      file_copy(zFullOldPath, zFullNewPath);
+      unlink(zFullOldPath);
+      free(zFullNewPath);
+      free(zFullOldPath);
+    }
+  }
+  db_finalize(&q);
+
+
+  /* Report on conflicts
+  */
+  if( nConflict && !nochangeFlag ){
+    printf("WARNING: merge conflicts - see messages above for details.\n");
+  }
+
   /*
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
@@ -324,5 +468,5 @@ void merge_cmd(void){
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
   undo_finish();
-  db_end_transaction(0);
+  db_end_transaction(nochangeFlag);
 }

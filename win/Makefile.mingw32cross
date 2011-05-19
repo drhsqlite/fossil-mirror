@@ -1,4 +1,5 @@
 #!/usr/bin/make
+# This makefile is for use with the Mingw32 *cross compiler* on Linux
 #
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
@@ -12,7 +13,7 @@ OBJDIR = ./wobj
 #    to compile code-generator programs as part of the build process.
 #    See TCC below for the C compiler for building the finished binary.
 #
-BCC = gcc -g -O2
+BCC = gcc -s -O2
 
 #### The suffix to add to executable files.  ".exe" for windows.
 #    Nothing for unix.
@@ -21,7 +22,7 @@ E = .exe
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
-# FOSSIL_ENABLE_SSL=1
+FOSSIL_ENABLE_SSL=1
 
 #### C Compile and options for use in building executables that 
 #    will run on the target platform.  This is usually the same
@@ -33,7 +34,7 @@ E = .exe
 #TCC = gcc -g -O0 -Wall -fprofile-arcs -ftest-coverage
 #TCC = gcc -g -Os -Wall
 #TCC = gcc -g -Os -Wall -DFOSSIL_I18N=0 -L/usr/local/lib -I/usr/local/include
-TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L/mingw/lib -I/mingw/include
+TCC=i686-pc-mingw32-gcc -O3 -s -Wall -DFOSSIL_I18N=0
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -46,13 +47,9 @@ endif
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-#LIB = -lz
-#LIB = -lz -lws2_32
-LIB = -lmingwex -lz -lws2_32
-# OpenSSL:
-ifdef FOSSIL_ENABLE_SSL
-LIB += -lcrypto -lssl
-endif
+LIB=-lz -lssl -lcrypto -lwsock32 -lgdi32
+CFLAGS=-O3 -s
+LDFLAGS=-s
 
 #### Tcl shell for use in running the fossil testsuite.
 #

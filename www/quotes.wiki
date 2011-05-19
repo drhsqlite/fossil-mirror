@@ -1,0 +1,80 @@
+<title>What People Are Saying</title>
+
+The following are collected quotes from various forums and blogs about
+Fossil, Git, and DVCSes in general.  This collection is put together
+by the creator of Fossil, so of course there is selection bias...
+
+<h2>On The Usability Of Git:</h2>
+
+<ol>
+<li>Git approaches the useability of iptables, which is to say, utterly 
+unusable unless you have the manpage tattooed on you arm.
+
+<blockquote>
+<i>by mml at [http://news.ycombinator.com/item?id=1433387]</i>
+</blockquote>
+
+<li><nowiki>It's simplest to think of the state of your [git] repository
+as a point in a high-dimensional "code-space",  in which branches are 
+represented as n-dimensional membranes, mapping the spatial loci of
+successive commits onto the projected manifold of each cloned
+repository.</nowiki>
+
+<blockquote>
+<i>At [http://tartley.com/?p=1267]</i>
+</blockquote>
+
+<li>We've been using git and github for a few months now, and it's not 
+intuitive... I'm hoping someone will make a set of standard wrappers/GUI
+for making git bearable.
+
+<blockquote>
+<i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
+</blockquote>
+
+</ol>
+
+<h2>On The Usability Of Fossil:</h2>
+
+<ol>
+<li value=4>
+Fossil mesmerizes me with simplicity especially after I struggled to
+get a bug-tracking system to work with mercurial.
+
+<blockquote>
+<i>rawjeev at [http://stackoverflow.com/questions/156322/what-do-people-think-of-the-fossil-dvcs]</i>
+</blockquote>
+
+<li>Fossil is awesome!!! I have never seen an app like that before, 
+such simplicity and flexibility!!!
+
+<blockquote>
+<i>zengr at [http://stackoverflow.com/questions/138621/best-version-control-for-lone-developer]</i>
+</blockquote>
+
+
+</ol>
+
+
+<h2>On Git Versus Fossil</h2>
+
+<ol>
+<li value=6>
+Just want to say thanks for fossil making my life easier.... 
+Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
+
+<blockquote>
+<i>Joshua Paine at [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg02736.html]</i>
+</blockquote>
+
+<li>We use it at a large university to manage code that small teams write.
+The runs everywhere, ease of installation and portability is something that 
+seems to be a good fit with the environment we have (highly ditrobuted, 
+sometimes very restrictive firewalls, OSX/Win/Linux).  We are happy with it 
+and teaching a Msc/Phd student (read complete novice) fossil has just 
+been a smoother ride than Git was.
+
+<blockquote>
+<i>viablepanic at [http://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/]</i>
+</blockquote>
+</ol>

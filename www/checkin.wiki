@@ -1,0 +1,21 @@
+<title>Checkin Checklist</title>
+
+Before every checkins:
+
+  1.   <b>fossil diff</b> &rarr; no stray changes
+
+  2.   <b>fossil extra</b> &rarr; no unmanaged files need to be added.
+
+  3.   The checkin will go onto the desired branch.
+
+  4.   "Autosync" is enabled &rarr;
+       <ol>
+       <li> The checkin will not cause a unintentional fork.
+       <li> The local system clock is set correctly.
+       </ol>
+
+Before every checkin to <b>trunk</b>:
+
+  5.   No compiler warnings on the development machine.
+
+  6.   Changes will not cause problems on a future <b>bisect</b>.

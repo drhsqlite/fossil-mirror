@@ -91,9 +91,10 @@ typedef sqlite3_int64 i64;
 typedef sqlite3_uint64 u64;
 
 /*
-** Unsigned character type
+** 8-bit types
 */
 typedef unsigned char u8;
+typedef signed char i8;
 
 /* In the timeline, check-in messages are truncated at the first space
 ** that is more than MX_CKIN_MSG from the beginning, or at the first
@@ -122,21 +123,6 @@ typedef unsigned char u8;
 #else                          /* Generates a warning - but it always works */
 # define FOSSIL_INT_TO_PTR(X)  ((void*)(X))
 # define FOSSIL_PTR_TO_INT(X)  ((int)(X))
-#endif
-
-
-/* Unset the following to disable internationalization code. */
-#ifndef FOSSIL_I18N
-# define FOSSIL_I18N 1
-#endif
-
-#if FOSSIL_I18N
-# include <locale.h>
-# include <langinfo.h>
-#endif
-#ifndef CODESET
-# undef FOSSIL_I18N
-# define FOSSIL_I18N 0
 #endif
 
 #endif /* _RC_COMPILE_ */

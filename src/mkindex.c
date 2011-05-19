@@ -15,8 +15,11 @@
 **
 *******************************************************************************
 **
-** Build a static hash table that maps URLs into functions to generate
-** web pages.
+** This program scans Fossil source code files looking for special
+** comments that indicate a command-line command or a webpage.  This
+** routine collects information about these entry points and then
+** generates (on standard output) C code used by Fossil to dispatch
+** to those entry points.
 **
 ** The source code is scanned for comment lines of the form:
 **
@@ -36,6 +39,16 @@
 **
 ** These entries build a constant table used to map command names into
 ** functions.
+**
+** Comment text following COMMAND: through the end of the comment is
+** understood to be help text for the command specified.  This help
+** text is accumulated and a table containing the text for each command
+** is generated.  That table is used implement the "fossil help" command
+** and the "/help" HTTP method.
+**
+** Multiple occurrances of WEBPAGE: or COMMAND: (but not both) can appear
+** before each function name.  In this way, webpages and commands can
+** have aliases.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,7 +74,7 @@ typedef struct Entry {
 /*
 ** Maximum size of a help message
 */
-#define MX_HELP 10000
+#define MX_HELP 25000
 
 /*
 ** Table of entries
@@ -130,8 +143,12 @@ void scan_for_func(char *zLine){
   int i,j,k;
   char *z;
   if( nUsed<=nFixed ) return;
-  if( strncmp(zLine, "**", 2)==0 && isspace(zLine[2])
-       && strlen(zLine)<sizeof(zHelp)-nHelp-1 && nUsed>nFixed ){
+  if( strncmp(zLine, "**", 2)==0
+   && isspace(zLine[2])
+   && strlen(zLine)<sizeof(zHelp)-nHelp-1
+   && nUsed>nFixed
+   && memcmp(zLine,"** COMMAND:",11)!=0
+  ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
     }else{

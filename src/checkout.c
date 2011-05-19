@@ -35,7 +35,7 @@ int unsaved_changes(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
   if( vid==0 ) return 2;
-  vfile_check_signature(vid, 1);
+  vfile_check_signature(vid, 1, 0);
   return db_exists("SELECT 1 FROM vfile WHERE chnged"
                    " OR coalesce(origname!=pathname,0)");
 }
@@ -202,7 +202,7 @@ void checkout_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
-  promptFlag = find_option("prompt",0,0)!=0;  /* Prompt user before overwrite */
+  promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
@@ -247,7 +247,7 @@ void checkout_cmd(void){
   db_lset_int("checkout", vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
-  if( !keepFlag ){
+  if( !keepFlag && db_get_boolean("repo-cksum",1) ){
     vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
     vfile_aggregate_checksum_disk(vid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
@@ -263,22 +263,16 @@ void checkout_cmd(void){
 /*
 ** Unlink the local database file
 */
-void unlink_local_database(void){
-  static const char *azFile[] = {
-     "%s_FOSSIL_",
-     "%s_FOSSIL_-journal",
-     "%s_FOSSIL_-wal",
-     "%s_FOSSIL_-shm",
-     "%s.fos",
-     "%s.fos-journal",
-     "%s.fos-wal",
-     "%s.fos-shm",
-  };
+static void unlink_local_database(int manifestOnly){
+  const char *zReserved;
   int i;
-  for(i=0; i<sizeof(azFile)/sizeof(azFile[0]); i++){
-    char *z = mprintf(azFile[i], g.zLocalRoot);
-    unlink(z);
-    free(z);
+  for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
+    if( manifestOnly==0 || zReserved[0]=='m' ){
+      char *z;
+      z = mprintf("%s%s", g.zLocalRoot, zReserved);
+      unlink(z);
+      free(z);
+    }
   }
 }
 
@@ -297,6 +291,7 @@ void close_cmd(void){
   if( !forceFlag && unsaved_changes()==1 ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
-  db_close();
-  unlink_local_database();
+  unlink_local_database(1);
+  db_close(1);
+  unlink_local_database(0);
 }

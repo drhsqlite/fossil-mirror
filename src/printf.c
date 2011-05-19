@@ -811,6 +811,37 @@ void fossil_print(const char *zFormat, ...){
   if( g.cgiOutput ){
     cgi_vprintf(zFormat, ap);
   }else{
-    vprintf(zFormat, ap);
+    Blob b = empty_blob;
+    vxprintf(&b, zFormat, ap);
+    fwrite(blob_buffer(&b), 1, blob_size(&b), stdout);
+    blob_reset(&b);
   }
+}
+
+/*
+** Case insensitive string comparison.
+*/
+int fossil_strnicmp(const char *zA, const char *zB, int nByte){
+  if( zA==0 ){
+    if( zB==0 ) return 0;
+    return -1;
+  }else if( zB==0 ){
+    return +1;
+  }
+  if( nByte<0 ) nByte = strlen(zB);
+  return sqlite3_strnicmp(zA, zB, nByte);
+}
+int fossil_stricmp(const char *zA, const char *zB){
+  int nByte;
+  int rc;
+  if( zA==0 ){
+    if( zB==0 ) return 0;
+    return -1;
+  }else if( zB==0 ){
+    return +1;
+  }
+  nByte = strlen(zB);
+  rc = sqlite3_strnicmp(zA, zB, nByte);
+  if( rc==0 && zA[nByte] ) rc = 1;
+  return rc;
 }

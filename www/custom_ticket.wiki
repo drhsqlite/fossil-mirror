@@ -1,5 +1,6 @@
-﻿<nowiki>
-<h1 align="center">Customizing The Ticket System</h1>
+<title>Customizing The Ticket System</title>
+<nowiki>
+<h2>Introduction</h2>
 <p>
 This guide will explain how to add the "assigned_to" and "submitted_by" fields
 to the ticket system in Fossil, as well as making the system more useful.  You

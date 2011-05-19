@@ -84,29 +84,37 @@ static void print_person(const char *zUser){
 /*
 ** COMMAND: export
 **
-** Usage: %fossil export
+** Usage: %fossil export --git ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
-** written in the Git "fast-import" format.
+** written in the git-fast-export file format assuming the --git option is
+** provided.  The git-fast-export format is currently the only VCS 
+** interchange format supported, though other formats may be added in
+** the future.
 **
 ** Run this command within a checkout.  Or use the -R or --repository
 ** option to specify a Fossil repository to be exported.
 **
-** Only check-ins are exported.  Git does not support tickets or wiki
-** or events or attachments, so none of that is exported.
+** Only check-ins are exported using --git.  Git does not support tickets 
+** or wiki or events or attachments, so none of those are exported.
 */
 void export_cmd(void){
   Stmt q;
   int i;
+  int firstCkin;       /* Integer offset to check-in marks */
   Bag blobs, vers;
   bag_init(&blobs);
   bag_init(&vers);
 
-  db_find_and_open_repository(1);
+  find_option("git", 0, 0);   /* Ignore the --git option for now */
+  db_find_and_open_repository(0, 2);
+  verify_all_options();
+  if( g.argc!=2 && g.argc!=3 ){ usage("--git ?REPOSITORY?"); }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
   ** of a check-in 
   */
+  fossil_binary_mode(stdout);
   db_prepare(&q, "SELECT DISTINCT fid FROM mlink WHERE fid>0");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
@@ -122,6 +130,7 @@ void export_cmd(void){
 
   /* Output the commit records.
   */
+  firstCkin = db_int(0, "SELECT max(rid) FROM blob")+1;
   db_prepare(&q,
     "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
     "       coalesce(user,euser),"
@@ -132,7 +141,7 @@ void export_cmd(void){
     TAG_BRANCH
   );
   while( db_step(&q)==SQLITE_ROW ){
-    sqlite3_int64 secondsSince1970 = db_column_int64(&q, 0);
+    const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
     const char *zComment = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
@@ -148,19 +157,19 @@ void export_cmd(void){
     for(i=0; zBr[i]; i++){
       if( !fossil_isalnum(zBr[i]) ) zBr[i] = '_';
     }
-    printf("commit refs/heads/%s\nmark :%d\n", zBr, ckinId);
+    printf("commit refs/heads/%s\nmark :%d\n", zBr, ckinId+firstCkin);
     free(zBr);
     printf("committer");
     print_person(zUser);
-    printf(" %lld +0000\n", secondsSince1970);
+    printf(" %s +0000\n", zSecondsSince1970);
     if( zComment==0 ) zComment = "null comment";
-    printf("data %d\n%s\n", strlen(zComment), zComment);
+    printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     p = manifest_get(ckinId, CFTYPE_ANY);
     zFromType = "from";
     for(i=0; i<p->nParent; i++){
       int pid = fast_uuid_to_rid(p->azParent[i]);
       if( pid==0 || !bag_find(&vers, pid) ) continue;
-      printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i]));
+      printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
       zFromType = "merge";
     }
     printf("deleteall\n");
@@ -173,11 +182,12 @@ void export_cmd(void){
       if( !bag_find(&blobs, fid) ) continue;
       printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
     }
-    manifest_destroy(p);
+    manifest_cache_insert(p);
     printf("\n");
   }
   db_finalize(&q);
   bag_clear(&blobs);
+  manifest_cache_clear();
 
 
   /* Output tags */
@@ -189,12 +199,12 @@ void export_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    sqlite3_int64 secSince1970 = db_column_int64(&q, 2);
+    const char *zSecSince1970 = db_column_text(&q, 2);
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
     printf("tag %s\n", zTagname);
-    printf("from :%d\n", rid);
-    printf("tagger <tagger> %lld +0000\n", secSince1970);
+    printf("from :%d\n", rid+firstCkin);
+    printf("tagger <tagger> %s +0000\n", zSecSince1970);
     printf("data 0\n");
   }
   db_finalize(&q);

@@ -83,16 +83,17 @@ void home_page(void){
   char *zPageName = db_get("project-name",0);
   char *zIndexPage = db_get("index-page",0);
   login_check_credentials();
-  if( !g.okRdWiki ){
-    cgi_redirectf("%s/login?g=%s/home", g.zBaseURL, g.zBaseURL);
-  }
   if( zIndexPage ){
     const char *zPathInfo = P("PATH_INFO");
     while( zIndexPage[0]=='/' ) zIndexPage++;
+    while( zPathInfo[0]=='/' ) zPathInfo++;
     if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
-    cgi_redirectf("%s/%s", g.zBaseURL, zIndexPage);
+    cgi_redirectf("%s/%s", g.zTop, zIndexPage);
+  }
+  if( !g.okRdWiki ){
+    cgi_redirectf("%s/login?g=%s/home", g.zTop, g.zTop);
   }
   if( zPageName ){
     login_check_credentials();
@@ -105,7 +106,7 @@ void home_page(void){
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
-  @ <a href="%s(g.zBaseURL)/setup_config">setup/config</a>
+  @ <a href="%s(g.zTop)/setup_config">setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
@@ -116,8 +117,8 @@ void home_page(void){
 ** Return true if the given pagename is the name of the sandbox
 */
 static int is_sandbox(const char *zPagename){
-  return strcasecmp(zPagename,"sandbox")==0 ||
-         strcasecmp(zPagename,"sand box")==0;
+  return fossil_stricmp(zPagename,"sandbox")==0 ||
+         fossil_stricmp(zPagename,"sand box")==0;
 }
 
 /*
@@ -143,25 +144,25 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zBaseURL)/wiki?name=%t(zHomePageName)">
+        @ <li> <a href="%s(g.zTop)/wiki?name=%t(zHomePageName)">
         @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
-    @ <li> <a href="%s(g.zBaseURL)/timeline?y=w">Recent changes</a> to wiki
+    @ <li> <a href="%s(g.zTop)/timeline?y=w">Recent changes</a> to wiki
     @      pages. </li>
-    @ <li> <a href="%s(g.zBaseURL)/wiki_rules">Formatting rules</a> for 
+    @ <li> <a href="%s(g.zTop)/wiki_rules">Formatting rules</a> for 
     @      wiki.</li>
-    @ <li> Use the <a href="%s(g.zBaseURL)/wiki?name=Sandbox">Sandbox</a>
+    @ <li> Use the <a href="%s(g.zTop)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
     if( g.okNewWiki ){
-      @ <li>  Create a <a href="%s(g.zBaseURL)/wikinew">new wiki page</a>.</li>
+      @ <li>  Create a <a href="%s(g.zTop)/wikinew">new wiki page</a>.</li>
       if( g.okWrite ){
         @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
       }
     }
-    @ <li> <a href="%s(g.zBaseURL)/wcontent">List of All Wiki Pages</a>
+    @ <li> <a href="%s(g.zTop)/wcontent">List of All Wiki Pages</a>
     @      available on this server.</li>
-    @ <li> <form method="get" action="%s(g.zBaseURL)/wfind"><div>
+    @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
     @     Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
@@ -306,8 +307,7 @@ void wikiedit_page(void){
       db_set("sandbox",zBody,0);
     }else{
       login_verify_csrf_secret();
-      zDate = db_text(0, "SELECT datetime('now')");
-      zDate[10] = 'T';
+      zDate = date_in_standard_format("now");
       blob_appendf(&wiki, "D %s\n", zDate);
       free(zDate);
       blob_appendf(&wiki, "L %F\n", zPageName);
@@ -323,10 +323,10 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0);
+      nrid = content_put(&wiki);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
     }
     db_end_transaction(0);
@@ -354,7 +354,7 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zBaseURL)/wikiedit"><div>
+  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <textarea name="w" class="wikiedit" cols="80" 
@@ -389,7 +389,7 @@ void wikinew_page(void){
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ <form method="post" action="%s(g.zBaseURL)/wikinew">
+  @ <form method="post" action="%s(g.zTop)/wikinew">
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
   @ <input type="submit" value="Create" />
@@ -479,8 +479,7 @@ void wikiappend_page(void){
       }
       blob_zero(&wiki);
       db_begin_transaction();
-      zDate = db_text(0, "SELECT datetime('now')");
-      zDate[10] = 'T';
+      zDate = date_in_standard_format("now");
       blob_appendf(&wiki, "D %s\n", zDate);
       blob_appendf(&wiki, "L %F\n", zPageName);
       if( rid ){
@@ -496,10 +495,10 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0);
+      nrid = content_put(&wiki);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
       db_end_transaction(0);
     }
@@ -521,7 +520,7 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="post" action="%s(g.zBaseURL)/wikiappend">
+  @ <form method="post" action="%s(g.zTop)/wikiappend">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
@@ -580,7 +579,7 @@ void whistory_page(void){
   db_prepare(&q, zSQL);
   free(zSQL);
   zWikiPageName = zPageName;
-  www_print_timeline(&q, TIMELINE_ARTID, wiki_history_extra);
+  www_print_timeline(&q, TIMELINE_ARTID, 0, 0, wiki_history_extra);
   db_finalize(&q);
   style_footer();
 }
@@ -695,7 +694,7 @@ void wfind_page(void){
 	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zBaseURL)/wiki?name=%T(zName)">%h(zName)</a></li>
+    @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>
@@ -801,8 +800,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   }
 
   blob_zero(&wiki);
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
+  zDate = date_in_standard_format("now");
   blob_appendf(&wiki, "D %s\n", zDate);
   free(zDate);
   blob_appendf(&wiki, "L %F\n", zPageName );
@@ -821,13 +819,12 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki, 0, 0 );
+  nrid = content_put( &wiki);
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   manifest_crosslink(nrid,&wiki);
-  blob_reset(&wiki);
+  assert( blob_is_reset(&wiki) );
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);  
   return 1;
 }
 
@@ -881,7 +878,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 */
 void wiki_cmd(void){
   int n;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto wiki_cmd_usage;
   }

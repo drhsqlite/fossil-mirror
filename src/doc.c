@@ -51,7 +51,7 @@ const char *mimetype_from_content(Blob *pBlob){
   } aMime[] = {
     { "GIF87a",                  6, "image/gif"  },
     { "GIF89a",                  6, "image/gif"  },
-    { "\211PNG\r\n\032\r",       8, "image/png"  },
+    { "\211PNG\r\n\032\n",       8, "image/png"  },
     { "\377\332\377",            3, "image/jpeg" },
     { "\377\330\377",            3, "image/jpeg" },
   };
@@ -292,14 +292,14 @@ const char *mimetype_from_name(const char *zName){
   }
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
-    strcpy(zSuffix, z);
+    sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = sizeof(aMime)/sizeof(aMime[0]);
     while( first<=last ){
       int c;
       i = (first+last)/2;
-      c = strcmp(zSuffix, aMime[i].zSuffix);
+      c = fossil_strcmp(zSuffix, aMime[i].zSuffix);
       if( c==0 ) return aMime[i].zMimetype;
       if( c<0 ){
         last = i-1;
@@ -348,10 +348,10 @@ void doc_page(void){
   if( !file_is_simple_pathname(zName) ){
     goto doc_not_found;
   }
-  if( strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
-    strcpy(zBaseline,"tip");
+  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+    sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
   }
-  if( strcmp(zBaseline,"ckout")==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 ){
     /* Read from the local checkout */
     char *zFullpath;
     db_must_be_within_tree();
@@ -364,7 +364,7 @@ void doc_page(void){
     }
   }else{
     db_begin_transaction();
-    if( strcmp(zBaseline,"tip")==0 ){
+    if( fossil_strcmp(zBaseline,"tip")==0 ){
       vid = db_int(0, "SELECT objid FROM event WHERE type='ci'"
                       " ORDER BY mtime DESC LIMIT 1");
     }else{
@@ -440,7 +440,12 @@ void doc_page(void){
   if( zMime==0 ){
     zMime = mimetype_from_name(zName);
   }
-  if( strcmp(zMime, "application/x-fossil-wiki")==0 ){
+  Th_Store("doc_name", zName);
+  Th_Store("doc_version", db_text(0, "SELECT '[' || substr(uuid,1,10) || ']'"
+                                     "  FROM blob WHERE rid=%d", vid));
+  Th_Store("doc_date", db_text(0, "SELECT datetime(mtime) FROM event"
+                                  " WHERE objid=%d AND type='ci'", vid));
+  if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
@@ -450,7 +455,7 @@ void doc_page(void){
       wiki_convert(&filebody, 0, 0);
     }
     style_footer();
-  }else if( strcmp(zMime, "text/plain")==0 ){
+  }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>
     @ %h(blob_str(&filebody))

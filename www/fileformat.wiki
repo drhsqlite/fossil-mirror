@@ -102,6 +102,7 @@ Allowed cards in the manifest are as follows:
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
+<b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
 <b>R</b> <i>repository-checksum</i><br>
 <b>T</b> (<b>+</b>|<b>-</b>|<b>*</b>)<i>tag-name  <b>*</b> ?value?</i><br>
 <b>U</b> <i>user-login</i><br>
@@ -130,10 +131,11 @@ in the comment.
 A manifest must have exactly one D-card.  The sole argument to
 the D-card is a date-time stamp in the ISO8601 format.  The
 date and time should be in coordinated universal time (UTC).
-The format is:
+The format one of:
 
 <blockquote>
-<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i>
+<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><br>
+<i>YYYY</i><b>-</b><i>MM</i><b>-</b><i>DD</i><b>T</b><i>HH</i><b>:</b><i>MM</i><b>:</b><i>SS</i><b>.</b><i>SSS</i>
 </blockquote>
 
 A manifest has zero or more F-cards.  Each F-card identifies a file
@@ -171,6 +173,25 @@ merged to yield the current manifest.  Most manifests have
 a P-card with a single argument.  The first manifest in the
 project has no ancestors and thus has no P-card.
 
+A manifest has zero or more Q-cards.  A Q-card is similar to a P-card
+in that it defines a predecessor to the current check-in.  But
+whereas a P-card defines the immediate ancestor or a merge
+ancestor, the Q-card is used to identify a single check-in or a small
+range of check-ins which were cherry-picked for inclusion in or
+exclusion from the the current manifest.  The first argument of
+the Q-card is the artifact ID of another manifest (the "target")
+which has had its changes included or excluded in the current manifest.  
+The target is preceeded by "+" or "-" to show inclusion or
+exclusion, respectively.  The optional second argument to the
+Q-card is another manifest artifact ID which is the "baseline"
+for the cherry-pick.  If omitted, the baseline is the primary
+parent of the target.  The
+changes included or excluded consist of all changes moving from
+the baseline to the target.  
+
+The Q-card was added to the interface specification on 2011-02-26.  
+Older versions of Fossil will reject manifests that contain Q-cards.
+
 A manifest may optionally have a single R-card.  The R-card has
 a single argument which is the MD5 checksum of all files in 
 the check-in except the manifest itself.  The checksum is expressed
@@ -201,10 +222,10 @@ the login of the user who created the manifest.  The login name
 is encoded using the same character escapes as is used for the
 check-in comment argument to the C-card.
 
-A manifest has an optional Z-card as its last line.  The argument
+A manifest must have a single Z-card as its last line.  The argument
 to the Z-card is a 32-character lowercase hexadecimal MD5 hash
 of all prior lines of the manifest up to and including the newline 
-character that immediately precedes the "Z".  The Z-card is just
+character that immediately precedes the "Z".  The Z-card is 
 a sanity check to prove that the manifest is well-formed and
 consistent.
 
@@ -247,8 +268,7 @@ line.  Each M card has a single argument which is the artifact ID of
 another artifact in the repository.  The Z card work exactly like
 the Z card of a manifest.  The argument to the Z card is the
 lower-case hexadecimal representation of the MD5 checksum of all
-prior cards in the cluster.  Note that the Z card is required
-on a cluster.
+prior cards in the cluster.  The Z-card is required.
 
 An example cluster from Fossil can be seen
 [/artifact/d03dbdd73a2a8 | here].
@@ -287,12 +307,12 @@ some other artifact.  The T card has two or three values.  The
 second argument is the 40 character lowercase artifact ID of the artifact
 to which the tag is to be applied. The
 first value is the tag name.  The first character of the tag
-is either "+", "-", or "*".  A "+" means the tag should be added
+is either "+", "-", or "*".  The "+" means the tag should be added
 to the artifact.  The "-" means the tag should be removed.
 The "*" character means the tag should be added to the artifact
-and all direct descendants (but not branches) of the artifact down
+and all direct descendants (but not descendents through a merge) down
 to but not including the first descendant that contains a 
-more recent "-" tag with the same name.
+more recent "-" or "+" tag with the same name.
 The optional third argument is the value of the tag.  A tag
 without a value is a boolean.
 
@@ -308,7 +328,7 @@ The "branch" tag sets the name of the branch that at check-in
 belongs to.  Symbolic tags begin with the "sym-" prefix.
 
 The U card is the name of the user that created the control 
-artifact.  The Z card is the usual artifact checksum.
+artifact.  The Z card is the usual required artifact checksum.
 
 An example control artifacts can be seen [/info/9d302ccda8 | here].
 
@@ -335,7 +355,7 @@ The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
 gives the name of the wiki page.  The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
-the usual checksum over the either artifact.
+the usual checksum over the either artifact and is required.
 
 The W card is used to specify the text of the wiki page.  The
 argument to the W card is an integer which is the number of bytes
@@ -362,11 +382,12 @@ The following cards are allowed on a ticket change artifact:
 
 The D card is the usual date and time stamp and represents the point
 in time when the change was entered.  The U card is the login of the
-programmer who entered this change.  The Z card is the checksum over
+programmer who entered this change.  The Z card is the required checksum over
 the entire artifact.
 
-Every ticket has a unique ID.  The ticket to which this change is applied
-is specified by the K card.  A ticket exists if it contains one or
+Every ticket has a distinct ticket-id:
+40-character lower-case hexadecimal number.
+The ticket-id is given in the K-card.  A ticket exists if it contains one or
 more changes.  The first "change" to a ticket is what brings the
 ticket into existence.
 
@@ -424,6 +445,7 @@ A single U card gives the name of the user to added the attachment.
 If an attachment is added anonymously, then the U card may be omitted.
 
 The Z card is the usual checksum over the rest of the attachment artifact.
+The Z card is required.
 
 
 <a name="event"></a>
@@ -485,7 +507,7 @@ A single W card provides wiki text for the document associated with the
 event.  The format of the W card is exactly the same as for a 
 [#wikichng | wiki artifact].
 
-The Z card is the usual checksum over the rest of the attachment artifact.
+The Z card is the required checksum over the rest of the artifact.
 
 
 <a name="summary"></a>
@@ -614,6 +636,16 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+</tr>
+<tr>
+<td><b>Q</b> (<b>+</b>|<b>-</b>)<i>uuid uuid</i></td>
+<td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>

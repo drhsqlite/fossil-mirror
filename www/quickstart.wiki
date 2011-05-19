@@ -1,11 +1,10 @@
 <title>Fossil Quick Start Guide</title>
-<nowiki>
 <h1 align="center">Fossil Quick Start</h1>
 
 <p>This is a guide to get you started using fossil quickly
 and painlessly.</p>
 
-<h2>Installing</h2><blockquote>
+<h2>Installing</h2>
 
     <p>Fossil is a single self-contained C program.  You need to
     either download a 
@@ -14,44 +13,37 @@ and painlessly.</p>
     Install fossil by putting the fossil binary
     someplace on your PATH environment variable.</p>
     
-</blockquote>
 <a name="fslclone"></a>
+<h2>General Work Flow</h2>
 
-<h2>General Work Flow</h2><blockquote>
-
-    <p>Fossil works with repository files, a database with the project's
-    complete history, and with checked-out local trees, the working directory
-    you use to do your work.  In most operations that require you to work on a
-    specific repository you must have a checked out tree in place to work  from.
-    The resulting workflow looks like this:</p>
+    <p>Fossil works with repository files (a database with the project's
+    complete history) and with checked-out local trees (the working directory
+    you use to do your work).
+    The workflow looks like this:</p>
 
     <ul>
-        <li>Create or clone a repository file.  (<b>fossil new</b> or
-            <b>fossil clone</b>)
-        <li>Check out a local tree.  (<b>fossil open</b>)
+        <li>Create or clone a repository file.  ([/help/new|fossil new] or
+            [/help/clone | fossil clone])
+        <li>Check out a local tree.  ([/help/open | fossil open])
         <li>Perform operations on the repository (including repository
             configuration).
-        <li><em>Optionally</em> close the local tree.  (<b>fossil
-            close</b>, but this is rarely used.)
+        <li><em>Optionally</em> close the local tree.  
+            ([/help/close | fossil close], but this is rarely used.)
     </ul>
 
     <p>The following sections will give you a brief overview of these
     operations.</p>
 
-</blockquote>
-
-<h2>Starting A New Project</h2><blockquote>
+<h2>Starting A New Project</h2>
 
     <p>To start a new project with fossil, create a new empty repository
-    this way:</p>
+    this way: ([/help/new | more info]) </p>
     
     <blockquote>
     <b>fossil new </b><i> repository-filename</i>
     </blockquote>
 
-</blockquote>
-    
-<h2>Cloning An Existing Repository</h2><blockquote>
+<h2>Cloning An Existing Repository</h2>
 
     <p>Most fossil operations interact with a repository that is on the
     local disk drive, not on a remote system.  Hence, before accessing
@@ -59,7 +51,7 @@ and painlessly.</p>
     repository.  Making a local copy of a remote repository is called
     "cloning".</p>
     
-    <p>Clone a remote repository as follows:</p>
+    <p>Clone a remote repository as follows: ([/help/clone | more info])</p>
     
     <blockquote>
     <b>fossil clone</b> <i>URL  repository-filename</i>
@@ -84,12 +76,19 @@ and painlessly.</p>
     <p>Note: If you are behind a restrictive firewall, you might need
     to <a href="#proxy">specify an HTTP proxy</a> to use.</p>
     
-</blockquote><h2>Checking Out A Local Tree</h2><blockquote>
+<h2>Importing From Another Version Control System</h2>
+
+    <p>Rather than start a new project, or clone an existing Fossil project,
+    you might prefer to 
+    <a href="./inout.wiki">import an existing Git project</a>
+    into Fossil using the [/help/import | fossil import] command.
+
+<h2>Checking Out A Local Tree</h2>
 
     <p>To work on a project in fossil, you need to check out a local
     copy of the source tree.  Create the directory you want to be
     the root of your tree and cd into that directory.  Then
-    do this:</p>
+    do this: ([/help/open | more info])</p>
     
     <blockquote>
     <b>fossil open </b><i> repository-filename</i>
@@ -102,28 +101,29 @@ and painlessly.</p>
     your local tree:</p>
 
     <blockquote>
-    <b>fossil info</b><br>
-    <b>fossil status</b><br>
-    <b>fossil changes</b><br>
-    <b>fossil timeline</b><br>
-    <b>fossil leaves</b><br>
-    <b>fossil ls</b><br>
-    <b>fossil branch list</b><br>
+    <b>[/help/info | fossil info]</b><br>
+    <b>[/help/status | fossil status]</b><br>
+    <b>[/help/changes | fossil changes]</b><br>
+    <b>[/help/diff | fossil diff]</b><br>
+    <b>[/help/timeline | fossil timeline]</b><br>
+    <b>[/help/ls | fossil ls]</b><br>
+    <b>[/help/branch | fossil branch]</b><br>
     </blockquote>
 
-</blockquote><h2>Configuring Your Local Repository</h2><blockquote>
+<h2>Configuring Your Local Repository</h2>
     
     <p>When you create a new repository, either by cloning an existing
     project or create a new project of your own, you usually want to do some
-    local configuration.  This is easily accomplished using the webserver
-    that is built into fossil.  Start the fossil webserver like this:</p>
+    local configuration.  This is easily accomplished using the web-server
+    that is built into fossil.  Start the fossil webserver like this:
+    ([/help/ui | more info])</p>
     
     <blockquote>
     <b>fossil ui </b><i> repository-filename</i>
     </blockquote>
 
-    <p>(Note that this requires you to have checked out a local tree
-    beforehand.)</p>
+    <p>You can omit the <i>repository-filename</i> from the command above
+    if you are inside a checked-out local tree.</p>
 
     <p>This starts a web server then automatically launches your
     web browser and makes it point to this web server.  If your system
@@ -142,96 +142,118 @@ and painlessly.</p>
     <p>When you are finished configuring, just press Control-C or use
     the <b>kill</b> command to shut down the mini-server.</p>
 
-</blockquote><h2>Making Changes</h2><blockquote>
+<h2>Making Changes</h2>
 
     <p>To add new files to your project, or remove old files, use these
     commands:</p>
 
     <blockquote>
-    <b>fossil add</b> <i>file...</i><br>
-    <b>fossil rm</b> <i>file...</i>
+    <b>[/help/add | fossil add]</b> <i>file...</i><br>
+    <b>[/help/rm | fossil rm]</b> <i>file...</i>
     </blockquote>
 
     <p>You can also edit files freely.  Once you are ready to commit
     your changes, type:</p>
 
     <blockquote>
-    <b>fossil commit</b>
+    <b>[/help/commit | fossil commit]</b>
     </blockquote>
 
     <p>You will be prompted for check-in comments using whatever editor
-    is specified by your VISUAL or EDITOR environment variable.  If you
-    have GPG installed, you may be prompted for your GPG passphrase so
-    that the check-in can be signed with your GPG signature.  After
-    this your changes will be checked in.</p>
+    is specified by your VISUAL or EDITOR environment variable.</p>
 
-</blockquote><h2>Sharing Changes</h2><blockquote>
+<h2>Sharing Changes</h2>
 
-    <p>The changes you <b>commit</b> are only on your local repository.
+    <p>The changes you [/help/commit | commit] are only
+    on your local repository.
     To share those changes with other repositories, do:</p>
 
     <blockquote>
-    <b>fossil push</b> <i>URL</i>
+    <b>[/help/push | fossil push]</b> <i>URL</i>
     </blockquote>
 
     <p>Where <i>URL</i> is the http: URL of the server repository you
     want to share your changes with.  If you omit the <i>URL</i> argument,
     fossil will use whatever server you most recently synced with.</p>
 
-    <p>The <b>push</b> command only sends your changes to others.  To
-    Receive changes from others, use <b>pull</b>.  Or go both ways at
-    once using <b>sync</b>:</p>
+    <p>The [/help/push | push] command only sends your changes to others.  To
+    Receive changes from others, use [/help/pull | pull].  Or go both ways at
+    once using [/help/sync | sync]:</p>
 
     <blockquote>
-    <b>fossil pull</b> <i>URL</i><br>
-    <b>fossil sync</b> <i>URL</i>
+    <b>[/help/pull | fossil pull]</b> <i>URL</i><br>
+    <b>[/help/sync | fossil sync]</b> <i>URL</i>
     </blockquote>
 
     <p>When you pull in changes from others, they go into your repository,
     not into your checked-out local tree.  To get the changes into your
-    local tree, use <b>update</b>:</p>
+    local tree, use [/help/update | update]:</p>
 
     <blockquote>
-    <b>fossil update</b> <i>AID</i>
+    <b>[/help/update | fossil update]</b> <i>VERSION</i>
     </blockquote>
 
-    <p>The <i>AID</i> is some unique abbreviation to the 40-character
-    artifact identifier (AID) for a particular check-in.  If you omit
-    the <i>AID</i> fossil moves you to the
-    leaf version of the branch your are currently on.  If your branch
-    has multiple leaves, you get an error - you'll have to specify the
-    leaf you want using a <i>AID</i> argument.</p>
+    <p>The <i>VERSION</i> can be the name of a branch or tag or any
+    abbreviation to the 40-character
+    artifact identifier for a particular check-in, or it can be a
+    date/time stamp.  ([./checkin_names.wiki | more info])
+    If you omit
+    the <i>VERSION</i>, then fossil moves you to the
+    latest version of the branch your are currently on.</p>
 
-</blockquote><h2>Branching And Merging</h2><blockquote>
+<h2>Branching And Merging</h2>
 
     <p>You can create branches by doing multiple commits off of the
-    same base version.  To merge to branches back together, first
-    <b>update</b> to the leaf of one branch.  Then do a <b>merge</b>
-    of the leaf of the other branch:</p>
+    same base version.  To merge two branches back together, first
+    [/help/update | update] to the leaf of one branch.  Then do a
+    [/help/merge | merge] of the leaf of the other branch:</p>
 
     <blockquote>
-    <b>fossil merge</b> <i>AID</i>
+    <b>[/help/merge | fossil merge]</b> <i>VERSION</i>
     </blockquote>
 
-    <p>Test to make sure your merge didn't mess up the code, then
-    <b>commit</b> and possibly also <b>push</b> your changes.   Remember
-    that nobody else can see your changes until you <b>commit</b> and
-    if other are using a different repository you will also need to
-    <b>push</b>.</p>
+    <p>The <i>VERSION</i> can be any of the forms allowed for 
+    [/help/update | update].
+    After performing the merge, you will normally want to test it to
+    make sure it does not break anything, then
+    [/help/commit | commit] your changes.
+    In the default configuration, the [/help/commit|commit]
+    command will also automatically [/help/push|push] your changes, but that
+    feature can be disabled.  (More information about 
+    [./concepts.wiki#workflow|autosync] and how to disable it.)
+    Remember that your coworkers can not see your changes until you 
+    commit and push them.</p>
+
+    <p>The merge command has options to cherrypick individual
+    changes, or to back out individual changes.</p>
+
+    <p>If a merge or update doesn't work out (perhaps something breaks or
+    there are many merge conflicts) then you back up using:</p>
+
+    <blockquote>
+    <b>[/help/undo | fossil undo]</b>
+    </blockquote>
+
+    <p>This will back out the changes that the merge or update made to the
+    working checkout.  There is also a [/help/redo|redo] command if you undo by
+    mistake.  Undo and redo only work for changes that have
+    not yet been checked in using commit and there is only a single
+    level of undo/redo.</p>
+
 
 <a name="serversetup"></a>
-</blockquote><h2>Setting Up A Server</h2><blockquote>
+<h2>Setting Up A Server</h2>
 
     <p>The easiest way to set up a server is:</p>
 
     <blockquote>
-    <b>fossil server</b> <i>repository-filename</i>
+    <b>[/help/server | fossil server]</b> <i>repository-filename</i>
     </blockquote>
 
     <p>Or</b>
 
     <blockquote>
-    <b>fossil ui</b> <i>repository-filename</i>
+    <b>[/help/ui | fossil ui]</b> <i>repository-filename</i>
     </blockquote>
 
     <p>The <b>ui</b> command is intended for accessing the web interface
@@ -279,7 +301,8 @@ and painlessly.</p>
     chroot jail in the same directory as the repository, then drops
     root privileges prior to reading any information from the request.</p>
 
-</blockquote><a name="proxy"></a><h2>HTTP Proxies</h2><blockquote>
+<a name="proxy"></a>
+<h2>HTTP Proxies</h2>
 
     <p>If you are behind a restrictive firewall that requires you to use
     an HTTP proxy to reach the internet, then you can configure the proxy
@@ -293,7 +316,7 @@ and painlessly.</p>
 
     <p>It is annoying to have to type in the proxy URL every time you
     sync your project, though, so you can make the proxy configuration
-    persistent using the <b>setting</b> command:</p>
+    persistent using the [/help/setting | setting] command:</p>
 
     <blockquote>
     <b>fossil setting proxy </b><i>Proxy-URL</i>
@@ -322,17 +345,8 @@ and painlessly.</p>
     <b>fossil sync http://192.168.1.36:8080/ --proxy off</b>
     </blockquote>
 
-</blockquote><h2>More Hints</h2><blockquote>
+<h2>More Hints</h2>
 
-    <p>Try these commands:</p>
-
-    <blockquote><b>
-    fossil help<br>
-    fossil test-commands
-    </b></blockquote>
+    <p>A [/help | complete list of commands] is available.
 
     <p>Explore and have fun!</p>
-
-
-</blockquote>
-</nowiki>

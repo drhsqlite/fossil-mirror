@@ -51,8 +51,7 @@ int blob_delta_create(Blob *pOriginal, Blob *pTarget, Blob *pDelta){
 void delta_create_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
-    fprintf(stderr,"Usage: %s %s ORIGIN TARGET DELTA\n", g.argv[0], g.argv[1]);
-    fossil_exit(1);
+    usage("ORIGIN TARGET DELTA");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[2]);
@@ -114,8 +113,7 @@ int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
 void delta_apply_cmd(void){
   Blob orig, target, delta;
   if( g.argc!=5 ){
-    fprintf(stderr,"Usage: %s %s ORIGIN DELTA TARGET\n", g.argv[0], g.argv[1]);
-    fossil_exit(1);
+    usage("ORIGIN DELTA TARGET");
   }
   if( blob_read_from_file(&orig, g.argv[2])<0 ){
     fprintf(stderr,"cannot read %s\n", g.argv[2]);

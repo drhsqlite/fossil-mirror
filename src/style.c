@@ -72,7 +72,7 @@ void style_submenu_element(
 static int submenuCompare(const void *a, const void *b){
   const struct Submenu *A = (const struct Submenu*)a;
   const struct Submenu *B = (const struct Submenu*)b;
-  return strcmp(A->zLabel, B->zLabel);
+  return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
 /*
@@ -89,9 +89,7 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
-  cgi_printf("%s",
-     "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\""
-     " \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+  cgi_printf("%s","<!DOCTYPE html>");
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
@@ -99,6 +97,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("project_name", db_get("project-name","Unnamed Fossil Project"));
   Th_Store("title", zTitle);
   Th_Store("baseurl", g.zBaseURL);
+  Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", g.zPath);
   Th_Store("manifest_version", MANIFEST_VERSION);
@@ -194,14 +193,14 @@ const char zDefaultHeader[] =
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
-@       href="$baseurl/timeline.rss" />
-@ <link rel="stylesheet" href="$baseurl/style.css?default" type="text/css"
+@       href="$home/timeline.rss" />
+@ <link rel="stylesheet" href="$home/style.css?default" type="text/css"
 @       media="screen" />
 @ </head>
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$baseurl/logo" alt="logo" />
+@     <img src="$home/logo" alt="logo" />
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><th1>
@@ -213,33 +212,32 @@ const char zDefaultHeader[] =
 @   </th1></div>
 @ </div>
 @ <div class="mainmenu"><th1>
-@ html "<a href='$baseurl$index_page'>Home</a> "
+@ html "<a href='$home$index_page'>Home</a> "
 @ if {[anycap jor]} {
-@   html "<a href='$baseurl/timeline'>Timeline</a> "
+@   html "<a href='$home/timeline'>Timeline</a> "
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='$baseurl/dir?ci=tip'>Files</a> "
+@   html "<a href='$home/dir?ci=tip'>Files</a> "
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$baseurl/leaves'>Leaves</a> "
-@   html "<a href='$baseurl/brlist'>Branches</a> "
-@   html "<a href='$baseurl/taglist'>Tags</a> "
+@   html "<a href='$home/brlist'>Branches</a> "
+@   html "<a href='$home/taglist'>Tags</a> "
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$baseurl/reportlist'>Tickets</a> "
+@   html "<a href='$home/reportlist'>Tickets</a> "
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$baseurl/wiki'>Wiki</a> "
+@   html "<a href='$home/wiki'>Wiki</a> "
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$baseurl/setup'>Admin</a> "
+@   html "<a href='$home/setup'>Admin</a> "
 @ } elseif {[hascap a]} {
-@   html "<a href='$baseurl/setup_ulist'>Users</a> "
+@   html "<a href='$home/setup_ulist'>Users</a> "
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$baseurl/login'>Logout</a> "
+@   html "<a href='$home/login'>Logout</a> "
 @ } else {
-@   html "<a href='$baseurl/login'>Login</a> "
+@   html "<a href='$home/login'>Login</a> "
 @ }
 @ </th1></div>
 ;
@@ -628,7 +626,7 @@ const struct strctCssDefaults {
     @   color: blue;
   },
   { "span.capability",
-    "format for capabilites, mentioned on the user edit page",
+    "format for capabilities, mentioned on the user edit page",
     @   font-weight: bold;
   },
   { "span.usertype",
@@ -642,6 +640,13 @@ const struct strctCssDefaults {
   { "span.usertype:after",
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
+  },
+  { "div.selectedText",
+    "selected lines of text within a linenumbered artifact display",
+    @   font-weight: bold;
+    @   color: blue;
+    @   background-color: #d5d5ff;
+    @   border: 1px blue solid;
   },
   { "p.missingPriv",
     "format for missing priviliges note on user setup page",
@@ -732,6 +737,15 @@ const struct strctCssDefaults {
     "format for artifact lines beeing shunned",
     @   color: blue;
   },
+  { "span.brokenlink",
+    "a broken hyperlink",
+    @   color: red;
+  },
+  { "ul.filelist",
+    "List of files in a timeline",
+    @   margin-top: 3px;
+    @   line-height: 100%;
+  },
   { 0,
     0,
     0
@@ -788,12 +802,28 @@ void page_style_css(void){
 ** WEBPAGE: test_env
 */
 void page_test_env(void){
+  char c;
+  int i;
+  char zCap[30];
+  login_check_credentials();
   style_header("Environment Test");
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
   @ g.zTop = %h(g.zTop)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  @ g.userUid = %d(g.userUid)<br />
+  @ g.zLogin = %h(g.zLogin)<br />
+  @ capabilities = %s(zCap)<br />
+  @ <hr>
   cgi_print_all();
+  if( g.okSetup ){
+    const char *zRedir = P("redirect");
+    if( zRedir ) cgi_redirect(zRedir);
+  }
   style_footer();
 }

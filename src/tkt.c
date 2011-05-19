@@ -431,27 +431,28 @@ static int submitTicketCmd(
   login_verify_csrf_secret();
   zUuid = (const char *)pUuid;
   blob_zero(&tktchng);
-  zDate = db_text(0, "SELECT datetime('now')");
-  zDate[10] = 'T';
+  zDate = date_in_standard_format("now");
   blob_appendf(&tktchng, "D %s\n", zDate);
   free(zDate);
   for(i=0; i<nField; i++){
-    const char *zValue;
-    int nValue;
     if( azAppend[i] ){
       blob_appendf(&tktchng, "J +%s %z\n", azField[i],
                    fossilize(azAppend[i], -1));
-    }else{
-      zValue = Th_Fetch(azField[i], &nValue);
-      if( zValue ){
-        while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
-        if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
-          if( strncmp(azField[i], "private_", 8)==0 ){
-            zValue = db_conceal(zValue, nValue);
-            blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
-          }else{
-            blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
-          }
+    }
+  }
+  for(i=0; i<nField; i++){
+    const char *zValue;
+    int nValue;
+    if( azAppend[i] ) continue;
+    zValue = Th_Fetch(azField[i], &nValue);
+    if( zValue ){
+      while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
+      if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
+        if( strncmp(azField[i], "private_", 8)==0 ){
+          zValue = db_conceal(zValue, nValue);
+          blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
+        }else{
+          blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
         }
       }
     }
@@ -480,12 +481,13 @@ static int submitTicketCmd(
              "}<br />\n",
        blob_str(&tktchng));
   }else{
-    rid = content_put(&tktchng, 0, 0);
+    rid = content_put(&tktchng);
     if( rid==0 ){
       fossil_panic("trouble committing ticket: %s", g.zErrMsg);
     }
     manifest_crosslink_begin();
     manifest_crosslink(rid, &tktchng);
+    assert( blob_is_reset(&tktchng) );
     manifest_crosslink_end();
   }
   return TH_RETURN;
@@ -519,7 +521,7 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
   @ </p>
   zScript = ticket_newpage_code();
@@ -529,7 +531,7 @@ void tktnew_page(void){
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zNewUuid));
+    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
   @ </form>
@@ -585,7 +587,7 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="post" action="%s(g.zBaseURL)/%s(g.zPath)"><p>
+  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   @ </p>
@@ -596,7 +598,7 @@ void tktedit_page(void){
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
   if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
-    cgi_redirect(mprintf("%s/tktview/%s", g.zBaseURL, zName));
+    cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
   @ </form>
@@ -705,7 +707,8 @@ void tkttimeline_page(void){
   }
   db_prepare(&q, zSQL);
   free(zSQL);
-  www_print_timeline(&q, TIMELINE_ARTID, 0);
+  www_print_timeline(&q, TIMELINE_ARTID|TIMELINE_DISJOINT|TIMELINE_GRAPH,
+                     0, 0, 0);
   db_finalize(&q);
   style_footer();
 }
@@ -851,7 +854,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 **         Run the ticket report, identified by the report format title
 **         used in the gui. The data is written as flat file on stdout,
-**         using "," as separator. The seperator "," can be changed using
+**         using "," as separator. The separator "," can be changed using
 **         the -l or --limit option.
 **         If TICKETFILTER is given on the commandline, the query is
 **         limited with a new WHERE-condition.
@@ -903,7 +906,7 @@ void ticket_cmd(void){
   int n;
 
   /* do some ints, we want to be inside a checkout */
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   user_select();
   /*
   ** Check that the user exists.
@@ -1029,8 +1032,7 @@ void ticket_cmd(void){
         { /* add the time to the ticket manifest */
           char *zDate;
 
-          zDate = db_text(0, "SELECT datetime('now')");
-          zDate[10] = 'T';
+          zDate = date_in_standard_format("now");
           blob_appendf(&tktchng, "D %s\n", zDate);
           free(zDate);
         }
@@ -1056,13 +1058,14 @@ void ticket_cmd(void){
         blob_appendf(&tktchng, "U %F\n", g.zLogin);
         md5sum_blob(&tktchng, &cksum);
         blob_appendf(&tktchng, "Z %b\n", &cksum);
-        rid = content_put(&tktchng, 0, 0);
+        rid = content_put(&tktchng);
         if( rid==0 ){
           fossil_panic("trouble committing ticket: %s", g.zErrMsg);
         }
         manifest_crosslink_begin();
         manifest_crosslink(rid, &tktchng);
         manifest_crosslink_end();
+        assert( blob_is_reset(&tktchng) );
 	printf("ticket %s succeeded for UID %s\n",
 	       (eCmd==set?"set":"add"),zTktUuid);
       }

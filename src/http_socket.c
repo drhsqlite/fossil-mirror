@@ -154,7 +154,7 @@ int socket_open(void){
       }else
 #endif
       {
-        socket_set_errmsg("can't resolve host name: %s\n", g.urlName);
+        socket_set_errmsg("can't resolve host name: %s", g.urlName);
         return 1;
       }
     }

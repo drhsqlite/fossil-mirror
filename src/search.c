@@ -46,7 +46,7 @@ Search *search_init(const char *zPattern){
 
   p = fossil_malloc( nPattern + sizeof(*p) + 1);
   z = (char*)&p[1];
-  strcpy(z, zPattern);
+  memcpy(z, zPattern, nPattern+1);
   memset(p, 0, sizeof(*p));
   while( *z && p->nTerm<sizeof(p->a)/sizeof(p->a[0]) ){
     while( !fossil_isalnum(*z) && *z ){ z++; }

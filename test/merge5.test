@@ -1,0 +1,309 @@
+#
+# Copyright (c) 2010 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Tests of the "merge" command
+#
+
+# Verify the results of a check-out
+#
+proc checkout-test {testid expected_content} {
+  set flist {}
+  foreach {status filename} [exec $::fossilexe ls -l] {
+    if {$status!="DELETED"} {lappend flist $filename}
+  }
+  eval fossil sha1sum [lsort $flist]
+  global RESULT
+  regsub -all {\n *} [string trim $expected_content] "\n    " expected
+  regsub -all {\n *} [string trim $RESULT] "\n    " result
+  if {$result!=$expected} {
+    protOut "  Expected:\n    $expected"
+    protOut "  Got:\n    $result"
+    test merge5-$testid 0
+  } else {
+    test merge5-$testid 1
+  }    
+}
+
+catch {exec $::fossilexe info} res
+puts res=$res
+if {![regexp {not within an open checkout} $res]} {
+  puts stderr "Cannot run this test within an open checkout"
+  return
+}
+
+# Construct a test repository
+#
+exec sqlite3 m5.fossil <$testdir/${testfile}_repo.sql
+fossil rebuild m5.fossil
+fossil open m5.fossil
+fossil update baseline
+checkout-test 10 {
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+
+# Update to the tip of the trunk
+#
+fossil update trunk
+checkout-test 20 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Merge in the change that adds file four.txt
+#
+fossil merge br1
+checkout-test 30 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Undo the merge.  Verify restoration of former state.
+#
+fossil undo
+checkout-test 40 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Now switch to br1 then merge in the trunk.  Verify that the result
+# is the same as merging br1 into trunk.
+#
+fossil update br1
+fossil merge trunk
+checkout-test 50 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil undo
+fossil update trunk
+checkout-test 60 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Go back to the tip of the trunk and merge branch br1 again.  This
+# time do a check-in of the merge.  Verify that the same content appears
+# after the merge.
+#
+fossil update chng3
+fossil merge br1
+checkout-test 70 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil commit -tag m1 -m {merge with br1} -nosign -f
+checkout-test 71 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil update chng3
+checkout-test 72 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil update m1
+checkout-test 73 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Merge br2 into the trunk.  br2 contains some independent change to the
+# two.txt file.  Verify that these are merge in correctly.
+#
+fossil update m1
+fossil merge br2
+checkout-test 80 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  68eeee8b843eaea76e33d3911f416b745d0e5e5c  two.txt
+}
+fossil undo
+checkout-test 81 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Now merge trunk into br2.  Verify that the same set of changes result.
+#
+fossil update br2
+fossil merge trunk
+checkout-test 90 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  68eeee8b843eaea76e33d3911f416b745d0e5e5c  two.txt
+}
+fossil undo
+checkout-test 91 {
+  8f09bc55a60eb8ca06f10a3b577aafa869b31695  five.txt
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  85286cb3bc6d9e6f2f586eb5532f6065678f75b9  two.txt
+}
+
+# Starting from chng3, merge in br4.  The one file is deleted from br4, so
+# the merge should cause the one file to disappear from the checkout.
+#
+fossil update chng3
+checkout-test 100 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil merge br4
+checkout-test 101 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil undo
+checkout-test 102 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Do the same merge of br4 into chng3, but this time check it in as a new
+# branch.
+#
+fossil update chng3
+fossil merge br4
+fossil commit -nosign -branch br4-b -m {merge in br4} -tag m2
+checkout-test 110 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+
+# Branches br1 and br4 both add file four.txt.  So if we merge them together,
+# the version of file four.txt in the original should be preserved.
+#
+fossil update br1
+checkout-test 120 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  da5c8346496f3421cb58f84b6e59e9531d9d424d  one.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil merge br4
+checkout-test 121 {
+  35815cf5804e8933eab64ae34e00bbb381be72c5  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil undo
+fossil update br4
+checkout-test 122 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil merge br1
+checkout-test 123 {
+  6e167b139c294bed560e2e30b352361b101e1f39  four.txt
+  ed24d19d726d173f18dbf4a9a0f8514daa3e3ca4  three.txt
+  278a402316510f6ae4a77186796a6bde78c7dbc1  two.txt
+}
+fossil undo
+
+# Merge br5 (which includes a file rename) into chng3
+#
+fossil update chng3
+checkout-test 130 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil merge br5
+checkout-test 131 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}
+fossil undo
+checkout-test 132 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil merge br5
+checkout-test 133 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}
+fossil commit -nosign -m {merge with rename} -branch {trunk+br5}
+checkout-test 134 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}
+fossil update chng3
+checkout-test 135 {
+  6f525ab779ad66e24474d845c5fb7938be42d50d  one.txt
+  64a8a5c7320fccfa4b2e5dfc5fd20a5381a86c5b  three.txt
+  b262fee89ed8a27a23a5e09d3917e0bebe22cd24  two.txt
+}
+fossil update trunk+br5
+checkout-test 136 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}
+
+# Merge the chng3 check-in into br5, verifying that the change to two.txt
+# from chng3 are applies to two-rename.txt in br5.
+#
+fossil update br5
+checkout-test 140 {
+  e866bb885d5184cba497cfb6a4eb281688519521  one.txt
+  e09593950837f76e70ca2f8ff2272ae3df0ba017  three.txt
+  5ebb3c9ad50740a7382902657b84a6105c32fc7b  two-rename.txt
+}
+fossil merge chng3
+checkout-test 141 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}
+fossil commit -nosign -m {change to two} -branch br5-2
+checkout-test 142 {
+  7eaf64a2c9141277b4c24259c7766d6a77047af7  one.txt
+  98e47f99bb9fed4fdcd407f553615ca7f15a38a2  three.txt
+  e58c5da3e6007d0e30600ea31611813093ad180f  two-rename.txt
+}

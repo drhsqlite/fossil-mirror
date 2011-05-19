@@ -117,7 +117,7 @@ void prompt_for_password(
     prompt_for_passphrase(zPrompt, pPassphrase);
     if( verify==0 ) break;
     if( verify==1 && blob_size(pPassphrase)==0 ) break;
-    prompt_for_passphrase("Again: ", &secondTry);
+    prompt_for_passphrase("Retype new password: ", &secondTry);
     if( blob_compare(pPassphrase, &secondTry) ){
       printf("Passphrases do not match.  Try again...\n");
     }else{
@@ -176,14 +176,15 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 */
 void user_cmd(void){
   int n;
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     usage("capabilities|default|list|new|password ...");
   }
   n = strlen(g.argv[2]);
   if( n>=2 && strncmp(g.argv[2],"new",n)==0 ){
-    Blob passwd, login, contact;
+    Blob passwd, login, caps, contact;
     char *zPw;
+    blob_init(&caps, db_get("default-perms", "u"), -1);
 
     if( g.argc>=4 ){
       blob_init(&login, g.argv[3], -1);
@@ -203,11 +204,11 @@ void user_cmd(void){
     }else{
       prompt_for_password("password: ", &passwd, 1);
     }
-    zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
+    zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
     db_multi_exec(
-      "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%Q,'v',%B)",
-      &login, zPw, &contact
+      "INSERT INTO user(login,pw,cap,info,mtime)"
+      "VALUES(%B,%Q,%B,%B,now())",
+      &login, zPw, &caps, &contact
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
@@ -243,14 +244,15 @@ void user_cmd(void){
     if( g.argc==5 ){
       blob_init(&pw, g.argv[4], -1);
     }else{
-      zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
+      zPrompt = mprintf("New password for %s: ", g.argv[3]);
       prompt_for_password(zPrompt, &pw, 1);
     }
     if( blob_size(&pw)==0 ){
       printf("password unchanged\n");
     }else{
-      char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3]);
-      db_multi_exec("UPDATE user SET pw=%Q WHERE uid=%d", zSecret, uid);
+      char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
+      db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
+                    zSecret, uid);
       free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -264,8 +266,8 @@ void user_cmd(void){
     }
     if( g.argc==5 ){
       db_multi_exec(
-        "UPDATE user SET cap=%Q WHERE uid=%d", g.argv[4],
-        uid
+        "UPDATE user SET cap=%Q, mtime=now() WHERE uid=%d",
+        g.argv[4], uid
       );
     }
     printf("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
@@ -341,31 +343,14 @@ void user_select(void){
 
   if( g.userUid==0 ){
     db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '')"
+      "INSERT INTO user(login, pw, cap, info, mtime)"
+      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
     );
     g.userUid = db_last_insert_rowid();
     g.zLogin = "anonymous";
   }
 }
 
-/*
-** Compute the shared secret for a user.
-*/
-static void user_sha1_shared_secret_func(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  char *zPw;
-  char *zLogin;
-  assert( argc==2 );
-  zPw = (char*)sqlite3_value_text(argv[0]);
-  zLogin = (char*)sqlite3_value_text(argv[1]);
-  if( zPw && zLogin ){ 
-    sqlite3_result_text(context, sha1_shared_secret(zPw, zLogin), -1, free);
-  }
-}
 
 /*
 ** COMMAND: test-hash-passwords
@@ -379,10 +364,121 @@ static void user_sha1_shared_secret_func(
 void user_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
-  sqlite3_create_function(g.db, "sha1_shared_secret", 2, SQLITE_UTF8, 0,
-                          user_sha1_shared_secret_func, 0, 0);
+  sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+                          sha1_shared_secret_sql_function, 0, 0);
   db_multi_exec(
-    "UPDATE user SET pw=sha1_shared_secret(pw,login)"
+    "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
+}
+
+/*
+** WEBPAGE: access_log
+**
+**    y=N      1: success only.  2: failure only.  3: both
+**    n=N      Number of entries to show
+**    o=N      Skip this many entries
+*/
+void access_log_page(void){
+  int y = atoi(PD("y","3"));
+  int n = atoi(PD("n","50"));
+  int skip = atoi(PD("o","0"));
+  Blob sql;
+  Stmt q;
+  int cnt = 0;
+  int rc;
+
+  login_check_credentials();
+  if( !g.okAdmin ){ login_needed(); return; }
+  create_accesslog_table();
+
+  if( P("delall") && P("delallbtn") ){
+    db_multi_exec("DELETE FROM accesslog");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delanon") && P("delanonbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delfail") && P("delfailbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE NOT success");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delold") && P("deloldbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE rowid in"
+                  "(SELECT rowid FROM accesslog ORDER BY rowid DESC"
+                  " LIMIT -1 OFFSET 200)");
+    cgi_redirectf("%s/access_log?y=%d&n=%d", g.zTop, y, n);
+    return;
+  }
+  style_header("Access Log");
+  blob_zero(&sql);
+  blob_append(&sql, 
+    "SELECT uname, ipaddr, datetime(mtime, 'localtime'), success"
+    "  FROM accesslog", -1
+  );
+  if( y==1 ){
+    blob_append(&sql, "  WHERE success", -1);
+  }else if( y==2 ){
+    blob_append(&sql, "  WHERE NOT success", -1);
+  }
+  blob_appendf(&sql,"  ORDER BY rowid DESC LIMIT %d OFFSET %d", n+1, skip);
+  if( skip ){
+    style_submenu_element("Newer", "Newer entries",
+              "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip>=n ? skip-n : 0,
+              n, y);
+  }
+  rc = db_prepare_ignore_error(&q, blob_str(&sql));
+  @ <center><table border="1" cellpadding="5">
+  @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
+  @ <th width="33%%">IP Address</th></tr>
+  while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
+    const char *zName = db_column_text(&q, 0);
+    const char *zIP = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    int bSuccess = db_column_int(&q, 3);
+    cnt++;
+    if( cnt>n ){
+      style_submenu_element("Older", "Older entries",
+                  "%s/access_log?o=%d&n=%d&y=%d", g.zTop, skip+n, n, y);
+      break;
+    }
+    if( bSuccess ){
+      @ <tr>
+    }else{
+      @ <tr bgcolor="#ffacc0">
+    }
+    @ <td>%s(zDate)</td><td>%h(zName)</td><td>%h(zIP)</td></tr>
+  }
+  if( skip>0 || cnt>n ){
+    style_submenu_element("All", "All entries",
+          "%s/access_log?n=10000000", g.zTop);
+  }
+  @ </table></center>
+  db_finalize(&q);
+  @ <hr>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delold">
+  @ Delete all but the most recent 200 entries</input>
+  @ <input type="submit" name="deloldbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delanon">
+  @ Delete all entries for user "anonymous"</input>
+  @ <input type="submit" name="delanonbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delfail">
+  @ Delete all failed login attempts</input>
+  @ <input type="submit" name="delfailbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delall">
+  @ Delete all entries</input>
+  @ <input type="submit" name="delallbtn" value="Delete"></input>
+  @ </form>
+  style_footer();
 }

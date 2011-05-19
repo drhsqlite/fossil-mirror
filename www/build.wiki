@@ -1,5 +1,4 @@
 <title>Building and Installing Fossil</title>
-<nowiki>
 
 <p>This page describes how to build and install Fossil.  The
 whole process is designed to be very easy.</p>
@@ -43,7 +42,8 @@ complete source code and download it to your browser.
 
 <h2>2.0 Compiling</h2>
 
-<p>Follow these steps to compile:</p>
+<p>Follow these steps to compile on a unix platform
+(Linux, *BSD, MacOS, etc):</p>
 
 <ol>
 <li value="6">
@@ -60,11 +60,20 @@ is only a few dozen lines long and most of those lines are comments.</p>
 <li><p>Type "<b>make</b>"
 </ol>
 
+<p>To build on windows, use an alternative makefile suitable for your
+particular build environment.  The alternative windows makefiles are
+all found in the win/ subdirectory of the source tree.  So, for example,
+if you want build using the 
+[http://www.mingw.org/ | mingw/msys compiler package] for windows, then
+run "<b>make -f win/Makefile.mingw</b>" instead of just "<b>make</b>"
+in step 8 above.</p>
+
 <h2>3.0 Installing</h2>
 
 <ol>
 <li value="9">
-<p>The finished binary is named "fossil".  Put this binary in a 
+<p>The finished binary is named "fossil" (or "fossil.exe" on windows).  
+Put this binary in a 
 directory that is somewhere on your PATH environment variable.
 It does not matter where.</p>
 
@@ -72,3 +81,12 @@ It does not matter where.</p>
 <p><b>(Optional:)</b>
 To uninstall, just delete the binary.</p>
 </ol>
+
+<h2>4.0 Additional Considerations</h2>
+
+</nowiki>
+  *  If the makefiles that come with Fossil do not work for
+     you, or for some other reason you want to know how to build
+     Fossil manually, then refer to the
+     [./makefile.wiki | Fossil Build Process] document which describes
+     in detail what the makefiles do behind the scenes.

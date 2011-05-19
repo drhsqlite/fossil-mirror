@@ -41,20 +41,19 @@
 ** stdout.
 */
 void finfo_cmd(void){
-  int vid;
-
   db_must_be_within_tree();
-  vid = db_lget_int("checkout", 0);
-  if( vid==0 ){
-    fossil_panic("no checkout to finfo files in");
-  }
-  vfile_check_signature(vid, 1);
   if (find_option("status","s",0)) {
     Stmt q;
     Blob line;
     Blob fname;
+    int vid;
 
     if( g.argc!=3 ) usage("-s|--status FILENAME");
+    vid = db_lget_int("checkout", 0);
+    if( vid==0 ){
+      fossil_panic("no checkout to finfo files in");
+    }
+    vfile_check_signature(vid, 1, 0);
     file_tree_name(g.argv[2], &fname, 1);
     db_prepare(&q,
         "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
@@ -102,7 +101,7 @@ void finfo_cmd(void){
 
     file_tree_name(g.argv[2], &fname, 1);
     if( zRevision ){
-      historical_version_of_file(zRevision, blob_str(&fname), &record, 0);
+      historical_version_of_file(zRevision, blob_str(&fname), &record, 0, 0);
     }else{
       int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
       if( rid==0 ){
@@ -144,8 +143,9 @@ void finfo_cmd(void){
         "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user)"
-        "  FROM mlink, blob b, event, blob ci"
-        " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
+        "  FROM mlink, blob b, event, blob ci, filename"
+        " WHERE filename.name=%Q"
+        "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
@@ -188,13 +188,23 @@ void finfo_cmd(void){
 ** WEBPAGE: finfo
 ** URL: /finfo?name=FILENAME
 **
-** Show the complete change history for a single file. 
+** Show the change history for a single file. 
+**
+** Additional query parameters:
+**
+**    a=DATE     Only show changes after DATE
+**    b=DATE     Only show changes before DATE
+**    n=NUM      Show the first NUM changes only
 */
 void finfo_page(void){
   Stmt q;
   const char *zFilename;
   char zPrevDate[20];
+  const char *zA;
+  const char *zB;
+  int n;
   Blob title;
+  Blob sql;
   GraphContext *pGraph;
 
   login_check_credentials();
@@ -204,13 +214,14 @@ void finfo_page(void){
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  db_prepare(&q,
+  blob_zero(&sql);
+  blob_appendf(&sql, 
     "SELECT"
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
     " coalesce(event.euser, event.user),"            /* User who made chng */
-    " mlink.pid,"                                    /* File rid */
-    " mlink.fid,"                                    /* Parent file rid */
+    " mlink.pid,"                                    /* Parent rid */
+    " mlink.fid,"                                    /* File rid */
     " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
@@ -219,11 +230,22 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)" /* Tags */
     "  FROM mlink, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC /*sort*/",
+    "   AND event.objid=mlink.mid",
     TAG_BRANCH,
     zFilename
   );
+  if( (zA = P("a"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+  }
+  if( (zB = P("b"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+  }
+  blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
+  if( (n = atoi(PD("n","0")))>0 ){
+    blob_appendf(&sql, " LIMIT %d", n);
+  }
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   blob_zero(&title);
   blob_appendf(&title, "History of ");
   hyperlinked_path(zFilename, &title, 0);
@@ -231,7 +253,7 @@ void finfo_page(void){
   blob_reset(&title);
   pGraph = graph_init();
   @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
-  @ <table class="timelineTable">
+  @ <table id="timelineTable" class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zCom = db_column_text(&q, 1);
@@ -248,9 +270,9 @@ void finfo_page(void){
     char zShort[20];
     char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr);
+    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
-      sprintf(zPrevDate, "%.10s", zDate);
+      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
@@ -293,16 +315,17 @@ void finfo_page(void){
   }
   db_finalize(&q);
   if( pGraph ){
-    graph_finish(pGraph, 1);
+    graph_finish(pGraph, 0);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td></td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <tr><td></td><td>
+      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
       @     </td></tr>
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph);
+  timeline_output_graph_javascript(pGraph, 0);
   style_footer();
 }

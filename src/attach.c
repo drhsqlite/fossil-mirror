@@ -176,7 +176,7 @@ void attachview_page(void){
   }
   g.okRead = 1;
   cgi_replace_parameter("name",zUUID);
-  if( strcmp(g.zPath,"attachview")==0 ){
+  if( fossil_strcmp(g.zPath,"attachview")==0 ){
     artifact_page();
   }else{
     cgi_replace_parameter("m", mimetype_from_name(zFile));
@@ -243,7 +243,7 @@ void attachadd_page(void){
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    rid = content_put(&content, 0, 0);
+    rid = content_put(&content);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
@@ -259,20 +259,20 @@ void attachadd_page(void){
     if( n>0 ){
       blob_appendf(&manifest, "C %F\n", zComment);
     }
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest, 0, 0);
+    rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
+    assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zBaseURL)/attachadd" method="post"
+  @ <form action="%s(g.zTop)/attachadd" method="post"
   @  enctype="multipart/form-data"><div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
@@ -339,19 +339,18 @@ void attachdel_page(void){
     zFile += n;
     if( zFile[0]==0 ) zFile = "unknown";
     blob_appendf(&manifest, "A %F %F\n", zFile, zTarget);
-    zDate = db_text(0, "SELECT datetime('now')");
-    zDate[10] = 'T';
+    zDate = date_in_standard_format("now");
     blob_appendf(&manifest, "D %s\n", zDate);
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest, 0, 0);
+    rid = content_put(&manifest);
     manifest_crosslink(rid, &manifest);
     db_end_transaction(0);
     cgi_redirect(zFrom);
   }    
   style_header("Delete Attachment");
-  @ <form action="%s(g.zBaseURL)/attachdelete" method="post"><div>
+  @ <form action="%s(g.zTop)/attachdelete" method="post"><div>
   @ <p>Confirm that you want to delete the attachment named
   @ "%h(zFile)" on %s(zTkt?"ticket":"wiki page") %h(zTarget):<br /></p>
   if( zTkt ){

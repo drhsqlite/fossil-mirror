@@ -18,6 +18,7 @@
 ** Code to generate the ticket listings
 */
 #include "config.h"
+#include <time.h>
 #include "report.h"
 #include <assert.h>
 
@@ -66,7 +67,9 @@ void view_list(void){
     if( g.okTktFmt ){
       blob_appendf(&ril, "[<a href=\"rptedit?rn=%d&amp;copy=1\" rel=\"nofollow\">copy</a>] ", rn);
     }
-    if( g.okAdmin || (g.okWrTkt && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+    if( g.okAdmin 
+     || (g.okWrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
+    ){
       blob_appendf(&ril, "[<a href=\"rptedit?rn=%d\" rel=\"nofollow\">edit</a>] ", rn);
     }
     if( g.okTktFmt ){
@@ -178,7 +181,7 @@ int report_query_authorizer(
       };
       int i;
       for(i=0; i<sizeof(azAllowed)/sizeof(azAllowed[0]); i++){
-        if( strcasecmp(zArg1, azAllowed[i])==0 ) break;
+        if( fossil_stricmp(zArg1, azAllowed[i])==0 ) break;
       }
       if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
@@ -215,7 +218,7 @@ char *verify_sql_statement(char *zSql){
   ** the first token is "SELECT" and that there are no unquoted semicolons.
   */
   for(i=0; fossil_isspace(zSql[i]); i++){}
-  if( strncasecmp(&zSql[i],"select",6)!=0 ){
+  if( fossil_strnicmp(&zSql[i],"select",6)!=0 ){
     return mprintf("The SQL must be a SELECT statement");
   }
   for(i=0; zSql[i]; i++){
@@ -240,6 +243,9 @@ char *verify_sql_statement(char *zSql){
   rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
+  }
+  if( !sqlite3_stmt_readonly(pStmt) ){
+    zErr = mprintf("SQL must not modify the database");
   }
   if( pStmt ){
     sqlite3_finalize(pStmt);
@@ -356,15 +362,21 @@ void view_edit(void){
     }else{
       zErr = verify_sql_statement(zSQL);
     }
+    if( zErr==0
+     && db_exists("SELECT 1 FROM reportfmt WHERE title=%Q and rn<>%d",
+                  zTitle, rn)
+    ){
+      zErr = mprintf("There is already another report named \"%h\"", zTitle);
+    }
     if( zErr==0 ){
       login_verify_csrf_secret();
       if( rn>0 ){
         db_multi_exec("UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
-                      " owner=%Q, cols=%Q WHERE rn=%d",
+                      " owner=%Q, cols=%Q, mtime=now() WHERE rn=%d",
            zTitle, zSQL, zOwner, zClrKey, rn);
       }else{
-        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols) "
-           "VALUES(%Q,%Q,%Q,%Q)",
+        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime) "
+           "VALUES(%Q,%Q,%Q,%Q,now())",
            zTitle, zSQL, zOwner, zClrKey);
         rn = db_last_insert_rowid();
       }
@@ -422,7 +434,7 @@ void view_edit(void){
   @ color for that line.<br />
   @ <textarea name="k" rows="8" cols="50">%h(zClrKey)</textarea>
   @ </p>
-  if( !g.okAdmin && strcmp(zOwner,g.zLogin)!=0 ){
+  if( !g.okAdmin && fossil_strcmp(zOwner,g.zLogin)!=0 ){
     @ <p>This report format is owned by %h(zOwner).  You are not allowed
     @ to change it.</p>
     @ </form>
@@ -817,6 +829,61 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
   @ </table>
 }
 
+/*
+** Execute a single read-only SQL statement.  Invoke xCallback() on each
+** row.
+*/
+int sqlite3_exec_readonly(
+  sqlite3 *db,                /* The database on which the SQL executes */
+  const char *zSql,           /* The SQL to be executed */
+  sqlite3_callback xCallback, /* Invoke this callback routine */
+  void *pArg,                 /* First argument to xCallback() */
+  char **pzErrMsg             /* Write error messages here */
+){
+  int rc = SQLITE_OK;         /* Return code */
+  const char *zLeftover;      /* Tail of unprocessed SQL */
+  sqlite3_stmt *pStmt = 0;    /* The current SQL statement */
+  char **azCols = 0;          /* Names of result columns */
+  int nCol;                   /* Number of columns of output */
+  char **azVals = 0;          /* Text of all output columns */
+  int i;                      /* Loop counter */
+
+  pStmt = 0;
+  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
+  assert( rc==SQLITE_OK || pStmt==0 );
+  if( rc!=SQLITE_OK ){
+    return rc;
+  }
+  if( !pStmt ){
+    /* this happens for a comment or white-space */
+    return SQLITE_OK;
+  }
+  if( !sqlite3_stmt_readonly(pStmt) ){
+    sqlite3_finalize(pStmt);
+    return SQLITE_ERROR;
+  }
+
+  nCol = sqlite3_column_count(pStmt);
+  azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
+  while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
+    if( azCols==0 ){
+      azCols = &azVals[nCol];
+      for(i=0; i<nCol; i++){
+        azCols[i] = (char *)sqlite3_column_name(pStmt, i);
+      }
+    }
+    for(i=0; i<nCol; i++){
+      azVals[i] = (char *)sqlite3_column_text(pStmt, i);
+    }
+    if( xCallback(pArg, nCol, azVals, azCols) ){
+      break;
+    }
+  }
+  rc = sqlite3_finalize(pStmt);
+  fossil_free(azVals);
+  return rc;
+}
+
 
 /*
 ** WEBPAGE: /rptview
@@ -898,8 +965,9 @@ void rptview_page(void){
     @ <table border="1" cellpadding="2" cellspacing="0" class="report">
     sState.rn = rn;
     sState.nCount = 0;
+    (void)fossil_localtime(0);  /* initialize the g.fTimeFormat variable */
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-    sqlite3_exec(g.db, zSql, generate_html, &sState, &zErr2);
+    sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);
     @ </table>
     if( zErr1 ){
@@ -910,7 +978,7 @@ void rptview_page(void){
     style_footer();
   }else{
     sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-    sqlite3_exec(g.db, zSql, output_tab_separated, &count, &zErr2);
+    sqlite3_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
     sqlite3_set_authorizer(g.db, 0, 0);
     cgi_set_content_type("text/plain");
   }
@@ -1057,7 +1125,7 @@ void rptshow(
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);
       rpt_list_reports();
-      fossil_fatal("unkown report format(%s)!",zRep);
+      fossil_fatal("unknown report format(%s)!",zRep);
     }
     zTitle = db_column_malloc(&q, 0);
     zSql = db_column_malloc(&q, 1);
@@ -1072,7 +1140,7 @@ void rptshow(
   tktEncode = enc;
   zSep = zSepIn;
   sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
-  sqlite3_exec(g.db, zSql, output_separated_file, &count, &zErr2);
+  sqlite3_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
   sqlite3_set_authorizer(g.db, 0, 0);
   if( zFilter ){
     free(zSql);

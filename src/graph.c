@@ -23,16 +23,17 @@
 
 #if INTERFACE
 
-#define GR_MAX_PARENT 10      /* Most parents for any one node */
 #define GR_MAX_RAIL   32      /* Max number of "rails" to display */
 
 /* The graph appears vertically beside a timeline.  Each row in the
-** timeline corresponds to a row in the graph.
+** timeline corresponds to a row in the graph.  GraphRow.idx is 0 for
+** the top-most row and increases moving down.  Hence (in the absence of
+** time skew) parents have a larger index than their children.
 */
 struct GraphRow {
   int rid;                    /* The rid for the check-in */
-  int nParent;                /* Number of parents */
-  int aParent[GR_MAX_PARENT]; /* Array of parents.  0 element is primary .*/
+  i8 nParent;                 /* Number of parents */
+  int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
 
@@ -43,14 +44,17 @@ struct GraphRow {
   int idxTop;                 /* Direct descendent highest up on the graph */
   GraphRow *pChild;           /* Child immediately above this node */
   u8 isDup;                   /* True if this is duplicate of a prior entry */
-  int iRail;                  /* Which rail this check-in appears on. 0-based.*/
-  int aiRaiser[GR_MAX_RAIL];  /* Raisers from this node to a higher row. */
-  int bDescender;             /* Raiser from bottom of graph to here. */
-  u32 mergeIn;                /* Merge in from other rails */
-  int mergeOut;               /* Merge out to this rail */
-  int mergeUpto;              /* Draw the merge rail up to this level */
+  u8 isLeaf;                  /* True if this is a leaf node */
+  u8 timeWarp;                /* Child is earlier in time */
+  u8 bDescender;              /* True if riser from bottom of graph to here. */
+  i8 iRail;                   /* Which rail this check-in appears on. 0-based.*/
+  i8 mergeOut;                /* Merge out to this rail.  -1 if no merge-out */
+  u8 mergeIn[GR_MAX_RAIL];    /* Merge in from non-zero rails */
+  int aiRiser[GR_MAX_RAIL];   /* Risers from this node to a higher row. */
+  int mergeUpto;              /* Draw the mergeOut rail up to this level */
+  u32 mergeDown;              /* Draw merge lines up from bottom of graph */
 
-  u32 railInUse;              /* Mask of occupied rails */
+  u32 railInUse;              /* Mask of occupied rails at this row */
 };
 
 /* Context while building a graph
@@ -87,9 +91,9 @@ GraphContext *graph_init(void){
 }
 
 /*
-** Destroy a GraphContext;
+** Clear all content from a graph
 */
-void graph_free(GraphContext *p){
+static void graph_clear(GraphContext *p){
   int i;
   GraphRow *pRow;
   while( p->pFirst ){
@@ -100,6 +104,15 @@ void graph_free(GraphContext *p){
   for(i=0; i<p->nBranch; i++) free(p->azBranch[i]);
   free(p->azBranch);
   free(p->apHash);
+  memset(p, 0, sizeof(*p));
+  p->nErr = 1;
+}
+
+/*
+** Destroy a GraphContext;
+*/
+void graph_free(GraphContext *p){
+  graph_clear(p);
   free(p);
 }
 
@@ -146,7 +159,7 @@ static GraphRow *hashFind(GraphContext *p, int rid){
 static char *persistBranchName(GraphContext *p, const char *zBranch){
   int i;
   for(i=0; i<p->nBranch; i++){
-    if( strcmp(zBranch, p->azBranch[i])==0 ) return p->azBranch[i];
+    if( fossil_strcmp(zBranch, p->azBranch[i])==0 ) return p->azBranch[i];
   }
   p->nBranch++;
   p->azBranch = fossil_realloc(p->azBranch, sizeof(char*)*p->nBranch);
@@ -163,16 +176,22 @@ int graph_add_row(
   int nParent,         /* Number of parents */
   int *aParent,        /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
-  const char *zBgClr   /* Background color. NULL or "" for white. */
+  const char *zBgClr,  /* Background color. NULL or "" for white. */
+  int isLeaf           /* True if this row is a leaf */
 ){
   GraphRow *pRow;
+  int nByte;
 
   if( p->nErr ) return 0;
-  if( nParent>GR_MAX_PARENT ){ p->nErr++; return 0; }
-  pRow = (GraphRow*)safeMalloc( sizeof(GraphRow) );
+  nByte = sizeof(GraphRow);
+  nByte += sizeof(pRow->aParent[0])*nParent;
+  pRow = (GraphRow*)safeMalloc( nByte );
+  pRow->aParent = (int*)&pRow[1];
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
+  pRow->isLeaf = isLeaf;
+  memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
   if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
   pRow->zBgClr = persistBranchName(p, zBgClr);
   memcpy(pRow->aParent, aParent, sizeof(aParent[0])*nParent);
@@ -221,6 +240,7 @@ static int findFreeRail(
     }
   }
   if( iBestDist>1000 ) p->nErr++;
+  if( iBest>p->mxRail ) p->mxRail = iBest;
   return iBest;
 }
 
@@ -241,14 +261,64 @@ static void assignChildrenToRail(GraphRow *pBottom){
     assert( pCurrent->iRail<0 );
     pCurrent->iRail = iRail;
     pCurrent->railInUse |= mask;
-    pPrior->aiRaiser[iRail] = pCurrent->idx;
+    pPrior->aiRiser[iRail] = pCurrent->idx;
     while( pPrior->idx > pCurrent->idx ){
       pPrior->railInUse |= mask;
       pPrior = pPrior->pPrev;
       assert( pPrior!=0 );
     }
-    if( pCurrent->pPrev ){
-      pCurrent->pPrev->railInUse |= mask;
+  }
+}
+
+/*
+** Create a merge-arrow riser going from pParent up to pChild.
+*/
+static void createMergeRiser(
+  GraphContext *p,
+  GraphRow *pParent,
+  GraphRow *pChild
+){
+  int u;
+  u32 mask;
+  GraphRow *pLoop;
+
+  if( pParent->mergeOut<0 ){
+    u = pParent->aiRiser[pParent->iRail];
+    if( u>=0 && u<pChild->idx ){
+      /* The thick arrow up to the next primary child of pDesc goes
+      ** further up than the thin merge arrow riser, so draw them both
+      ** on the same rail. */
+      pParent->mergeOut = pParent->iRail*4;
+      if( pParent->iRail<pChild->iRail ) pParent->mergeOut += 2;
+      pParent->mergeUpto = pChild->idx;
+    }else{
+      /* The thin merge arrow riser is taller than the thick primary
+      ** child riser, so use separate rails. */
+      int iTarget = pParent->iRail;
+      pParent->mergeOut = findFreeRail(p, pChild->idx, pParent->idx-1,
+                                       0, iTarget)*4 + 1;
+      pParent->mergeUpto = pChild->idx;
+      mask = 1<<(pParent->mergeOut/4);
+      for(pLoop=pChild->pNext; pLoop && pLoop->rid!=pParent->rid;
+           pLoop=pLoop->pNext){
+        pLoop->railInUse |= mask;
+      }
+    }
+  }
+  pChild->mergeIn[pParent->mergeOut/4] = (pParent->mergeOut&3)+1;
+}
+
+/*
+** Compute the maximum rail number.
+*/
+static void find_max_rail(GraphContext *p){
+  GraphRow *pRow;
+  p->mxRail = 0;
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
+    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
+    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
+      p->mxRail++;
     }
   }
 }
@@ -262,10 +332,11 @@ void graph_finish(GraphContext *p, int omitDescenders){
   int i;
   u32 mask;
   u32 inUse;
-  int hasDup = 0;    /* True if one or more isDup entries */
+  int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
+  p->nErr = 1;   /* Assume an error until proven otherwise */
 
   /* Initialize all rows */
   p->nHash = p->nRow*2 + 1;
@@ -282,7 +353,8 @@ void graph_finish(GraphContext *p, int omitDescenders){
   }
   p->mxRail = -1;
 
-  /* Purge merge-parents that are out-of-graph.
+  /* Purge merge-parents that are out-of-graph if descenders are not
+  ** drawn.
   **
   ** Each node has one primary parent and zero or more "merge" parents.
   ** A merge parent is a prior checkin from which changes were merged into
@@ -290,18 +362,21 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** of this graph, then no arrows will be drawn for it, so remove it from
   ** the aParent[] array.
   */
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    for(i=1; i<pRow->nParent; i++){
-      if( hashFind(p, pRow->aParent[i])==0 ){
-        pRow->aParent[i] = pRow->aParent[--pRow->nParent];
-        i--;
+  if( omitDescenders ){
+    for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+      for(i=1; i<pRow->nParent; i++){
+        if( hashFind(p, pRow->aParent[i])==0 ){
+          pRow->aParent[i] = pRow->aParent[--pRow->nParent];
+          i--;
+        }
       }
     }
   }
 
+
   /* Find the pChild pointer for each node. 
   **
-  ** The pChild points to node directly above on the same rail.
+  ** The pChild points to the node directly above on the same rail.
   ** The pChild must be in the same branch.  Leaf nodes have a NULL
   ** pChild.
   **
@@ -310,11 +385,14 @@ void graph_finish(GraphContext *p, int omitDescenders){
   */
   for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
     if( pRow->isDup ) continue;
-    if( pRow->nParent==0 ) continue;
+    if( pRow->nParent==0 ) continue;                   /* Root node */
     pParent = hashFind(p, pRow->aParent[0]);
-    if( pParent==0 ) continue;
-    if( pParent->zBranch!=pRow->zBranch ) continue;
-    if( pParent->idx <= pRow->idx ) continue;
+    if( pParent==0 ) continue;                         /* Parent off-screen */
+    if( pParent->zBranch!=pRow->zBranch ) continue;    /* Different branch */
+    if( pParent->idx <= pRow->idx ){
+       pParent->timeWarp = 1;
+       continue;                                       /* Time-warp */
+    }
     if( pRow->idxTop < pParent->idxTop ){
       pParent->pChild = pRow;
       pParent->idxTop = pRow->idxTop;
@@ -329,6 +407,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   zTrunk = persistBranchName(p, "trunk");
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( pRow->isDup ) continue;
       if( i==0 ){
         if( pRow->zBranch!=zTrunk ) continue;
       }else {
@@ -340,10 +419,9 @@ void graph_finish(GraphContext *p, int omitDescenders){
         }else{
           pRow->iRail = ++p->mxRail;
         }
+        if( p->mxRail>=GR_MAX_RAIL ) return;
         mask = 1<<(pRow->iRail);
-        if( omitDescenders ){
-          if( pRow->pNext ) pRow->pNext->railInUse |= mask;
-        }else{
+        if( !omitDescenders ){
           pRow->bDescender = pRow->nParent>0;
           for(pLoop=pRow; pLoop; pLoop=pLoop->pNext){
             pLoop->railInUse |= mask;
@@ -361,29 +439,55 @@ void graph_finish(GraphContext *p, int omitDescenders){
     int parentRid;
 
     if( pRow->iRail>=0 ){
-      if( pRow->pChild==0 ) inUse &= ~(1<<pRow->iRail);
+      if( pRow->pChild==0 && !pRow->timeWarp ){
+        if( omitDescenders || count_nonbranch_children(pRow->rid)==0 ){
+          inUse &= ~(1<<pRow->iRail);
+        }else{
+          pRow->aiRiser[pRow->iRail] = 0;
+          mask = 1<<pRow->iRail;
+          for(pLoop=pRow; pLoop; pLoop=pLoop->pPrev){
+            pLoop->railInUse |= mask;
+          }
+        }
+      }
       continue;
     }
     if( pRow->isDup ){
-      pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
-      pDesc = pRow;
-      pParent = 0;
+      continue;
     }else{
       assert( pRow->nParent>0 );
       parentRid = pRow->aParent[0];
       pParent = hashFind(p, parentRid);
       if( pParent==0 ){
-        /* Time skew */
         pRow->iRail = ++p->mxRail;
+        if( p->mxRail>=GR_MAX_RAIL ) return;
         pRow->railInUse = 1<<pRow->iRail;
         continue;
       }
-      pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
-      pParent->aiRaiser[pRow->iRail] = pRow->idx;
+      if( pParent->idx>pRow->idx ){
+        /* Common case:  Child occurs after parent and is above the
+        ** parent in the timeline */
+        pRow->iRail = findFreeRail(p, 0, pParent->idx, inUse, pParent->iRail);
+        if( p->mxRail>=GR_MAX_RAIL ) return;
+        pParent->aiRiser[pRow->iRail] = pRow->idx;
+      }else{
+        /* Timewarp case:  Child occurs earlier in time than parent and
+        ** appears below the parent in the timeline. */
+        int iDownRail = ++p->mxRail;
+        if( iDownRail<1 ) iDownRail = ++p->mxRail;
+        pRow->iRail = ++p->mxRail;
+        if( p->mxRail>=GR_MAX_RAIL ) return;
+        pRow->railInUse = 1<<pRow->iRail;
+        pParent->aiRiser[iDownRail] = pRow->idx;
+        mask = 1<<iDownRail;
+        inUse |= mask;
+        for(pLoop=p->pFirst; pLoop; pLoop=pLoop->pNext){
+          pLoop->railInUse |= mask;
+        }
+      }
     }
     mask = 1<<pRow->iRail;
-    if( pRow->pPrev ) pRow->pPrev->railInUse |= mask;
-    if( pRow->pNext ) pRow->pNext->railInUse |= mask;
+    pRow->railInUse |= mask;
     if( pRow->pChild==0 ){
       inUse &= ~mask;
     }else{
@@ -391,7 +495,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       assignChildrenToRail(pRow);
     }
     if( pParent ){
-      for(pLoop=pParent; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
+      for(pLoop=pParent->pPrev; pLoop && pLoop!=pRow; pLoop=pLoop->pPrev){
         pLoop->railInUse |= mask;
       }
     }
@@ -404,19 +508,21 @@ void graph_finish(GraphContext *p, int omitDescenders){
     for(i=1; i<pRow->nParent; i++){
       int parentRid = pRow->aParent[i];
       pDesc = hashFind(p, parentRid);
-      if( pDesc==0 ) continue;
-      if( pDesc->mergeOut<0 ){
-        int iTarget = (pRow->iRail + pDesc->iRail)/2;
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
-        pDesc->mergeUpto = pRow->idx;
-        mask = 1<<pDesc->mergeOut;
-        pDesc->railInUse |= mask;
-        for(pLoop=pRow->pNext; pLoop && pLoop->rid!=parentRid;
-             pLoop=pLoop->pNext){
+      if( pDesc==0 ){
+        /* Merge from a node that is off-screen */
+        int iMrail = findFreeRail(p, pRow->idx, p->nRow, 0, 0);
+        if( p->mxRail>=GR_MAX_RAIL ) return;
+        mask = 1<<iMrail;
+        pRow->mergeIn[iMrail] = 2;
+        pRow->mergeDown |= mask;
+        for(pLoop=pRow->pNext; pLoop; pLoop=pLoop->pNext){
           pLoop->railInUse |= mask;
         }
+      }else{
+        /* Merge from an on-screen node */
+        createMergeRiser(p, pDesc, pRow);
+        if( p->mxRail>=GR_MAX_RAIL ) return;
       }
-      pRow->mergeIn |= 1<<pDesc->mergeOut;
     }
   }
 
@@ -424,30 +530,32 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Insert merge rails from primaries to duplicates. 
   */
   if( hasDup ){
+    int dupRail;
+    int mxRail;
+    find_max_rail(p);
+    mxRail = p->mxRail;
+    dupRail = mxRail+1;
+    if( p->mxRail>=GR_MAX_RAIL ) return;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
+      pRow->iRail = dupRail;
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
-      if( pDesc->mergeOut<0 ){
-        int iTarget = (pRow->iRail + pDesc->iRail)/2;
-        pDesc->mergeOut = findFreeRail(p, pRow->idx, pDesc->idx, 0, iTarget);
-        pDesc->mergeUpto = pRow->idx;
-        mask = 1<<pDesc->mergeOut;
-        pDesc->railInUse |= mask;
-        for(pLoop=pRow->pNext; pLoop && pLoop!=pDesc; pLoop=pLoop->pNext){
-          pLoop->railInUse |= mask;
-        }
-      }
-      pRow->mergeIn |= 1<<pDesc->mergeOut;
+      createMergeRiser(p, pDesc, pRow);
+      if( pDesc->mergeOut/4>mxRail ) mxRail = pDesc->mergeOut/4;
     }
+    if( dupRail<=mxRail ){
+      dupRail = mxRail+1;
+      for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+        if( pRow->isDup ) pRow->iRail = dupRail;
+      }
+    }
+    if( mxRail>=GR_MAX_RAIL ) return;
   }
 
   /*
   ** Find the maximum rail number.
   */
-  p->mxRail = 0;
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
-    if( pRow->mergeOut>p->mxRail ) p->mxRail = pRow->mergeOut;
-  }
+  find_max_rail(p);
+  p->nErr = 0;
 }

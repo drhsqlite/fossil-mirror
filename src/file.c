@@ -124,6 +124,31 @@ int file_isdir(const char *zFilename){
 }
 
 /*
+** Find an unused filename similar to zBase with zSuffix appended.
+**
+** Make the name relative to the working directory if relFlag is true.
+**
+** Space to hold the new filename is obtained form mprintf() and should
+** be freed by the caller.
+*/
+char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
+  char *z = 0;
+  int cnt = 0;
+  z = mprintf("%s-%s", zBase, zSuffix);
+  while( file_size(z)>=0 ){
+    fossil_free(z);
+    z = mprintf("%s-%s-%d", zBase, zSuffix, cnt++);
+  }
+  if( relFlag ){
+    Blob x;
+    file_relative_name(z, &x);
+    fossil_free(z);
+    z = blob_str(&x);
+  }
+  return z;
+}
+
+/*
 ** Return the tail of a file pathname.  The tail is the last component
 ** of the path.  For example, the tail of "/a/b/c.d" is "c.d".
 */
@@ -155,22 +180,27 @@ void file_copy(const char *zFrom, const char *zTo){
 }
 
 /*
-** Set or clear the execute bit on a file.
+** Set or clear the execute bit on a file.  Return true if a change
+** occurred and false if this routine is a no-op.
 */
-void file_setexe(const char *zFilename, int onoff){
+int file_setexe(const char *zFilename, int onoff){
+  int rc = 0;
 #if !defined(_WIN32)
   struct stat buf;
-  if( stat(zFilename, &buf)!=0 ) return;
+  if( stat(zFilename, &buf)!=0 ) return 0;
   if( onoff ){
     if( (buf.st_mode & 0111)!=0111 ){
       chmod(zFilename, buf.st_mode | 0111);
+      rc = 1;
     }
   }else{
     if( (buf.st_mode & 0111)!=0 ){
       chmod(zFilename, buf.st_mode & ~0111);
+      rc = 1;
     }
   }
 #endif /* _WIN32 */
+  return rc;
 }
 
 /*
@@ -233,8 +263,24 @@ int file_is_simple_pathname(const char *z){
 }
 
 /*
+** If the last component of the pathname in z[0]..z[j-1] is something
+** other than ".." then back it out and return true.  If the last
+** component is empty or if it is ".." then return false.
+*/
+static int backup_dir(const char *z, int *pJ){
+  int j = *pJ;
+  int i;
+  if( j<=0 ) return 0;
+  for(i=j-1; i>0 && z[i-1]!='/'; i--){}
+  if( z[i]=='.' && i==j-2 && z[i+1]=='.' ) return 0;
+  *pJ = i-1;
+  return 1;
+}
+
+/*
 ** Simplify a filename by
 **
+**  * Convert all \ into / on windows
 **  * removing any trailing and duplicate /
 **  * removing /./
 **  * removing /A/../
@@ -244,30 +290,73 @@ int file_is_simple_pathname(const char *z){
 int file_simplify_name(char *z, int n){
   int i, j;
   if( n<0 ) n = strlen(z);
+
+  /* On windows convert all \ characters to / */
 #if defined(_WIN32)
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';
   }
 #endif
+
+  /* Removing trailing "/" characters */
   while( n>1 && z[n-1]=='/' ){ n--; }
-  for(i=j=0; i<n; i++){
+
+  /* Remove duplicate '/' characters.  Except, two // at the beginning
+  ** of a pathname is allowed since this is important on windows. */
+  for(i=j=1; i<n; i++){
+    z[j++] = z[i];
+    while( z[i]=='/' && i<n-1 && z[i+1]=='/' ) i++;
+  }
+  n = j;
+
+  /* Skip over zero or more initial "./" sequences */
+  for(i=0; i<n-1 && z[i]=='.' && z[i+1]=='/'; i+=2){}
+
+  /* Begin copying from z[i] back to z[j]... */
+  for(j=0; i<n; i++){
     if( z[i]=='/' ){
-      if( z[i+1]=='/' ) continue;
+      /* Skip over internal "/." directory components */
       if( z[i+1]=='.' && (i+2==n || z[i+2]=='/') ){
         i += 1;
         continue;
       }
-      if( z[i+1]=='.' && i+2<n && z[i+2]=='.' && (i+3==n || z[i+3]=='/') ){
-        while( j>0 && z[j-1]!='/' ){ j--; }
-        if( j>0 ){ j--; }
+
+      /* If this is a "/.." directory component then back out the
+      ** previous term of the directory if it is something other than ".."
+      ** or "."
+      */
+      if( z[i+1]=='.' && i+2<n && z[i+2]=='.' && (i+3==n || z[i+3]=='/')
+       && backup_dir(z, &j)
+      ){
         i += 2;
         continue;
       }
     }
-    z[j++] = z[i];
+    if( j>=0 ) z[j] = z[i];
+    j++;
   }
+  if( j==0 ) z[j++] = '.';
   z[j] = 0;
   return j;
+}
+
+/*
+** COMMAND: test-simplify-name
+**
+** %fossil test-simplify-name FILENAME...
+**
+** Print the simplified versions of each FILENAME.
+*/
+void cmd_test_simplify_name(void){
+  int i;
+  char *z;
+  for(i=2; i<g.argc; i++){
+    z = mprintf("%s", g.argv[i]);
+    printf("[%s] -> ", z);
+    file_simplify_name(z, -1);
+    printf("[%s]\n", z);
+    fossil_free(z);
+  }
 }
 
 /*
@@ -314,7 +403,7 @@ void cmd_test_canonical_name(void){
     char zBuf[100];
     const char *zName = g.argv[i];
     file_canonical_name(zName, &x);
-    printf("%s\n", blob_buffer(&x));
+    printf("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName));
     printf("  file_size   = %s\n", zBuf);
@@ -560,4 +649,24 @@ void file_tempname(int nBuf, char *zBuf){
     }
     zBuf[j] = 0;
   }while( access(zBuf,0)==0 );
+}
+
+
+/*
+** Return true if a file named zName exists and has identical content
+** to the blob pContent.  If zName does not exist or if the content is
+** different in any way, then return false.
+*/
+int file_is_the_same(Blob *pContent, const char *zName){
+  i64 iSize;
+  int rc;
+  Blob onDisk;
+
+  iSize = file_size(zName);
+  if( iSize<0 ) return 0;
+  if( iSize!=blob_size(pContent) ) return 0;
+  blob_read_from_file(&onDisk, zName);
+  rc = blob_compare(&onDisk, pContent);
+  blob_reset(&onDisk);
+  return rc==0;
 }

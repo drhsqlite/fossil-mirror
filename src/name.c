@@ -144,11 +144,12 @@ static int is_date(const char *z){
 ** be freed by the caller.
 */
 char *tag_to_uuid(const char *zTag){
+  int vid;
   char *zUuid = 
     db_text(0,
        "SELECT blob.uuid"
        "  FROM tag, tagxref, event, blob"
-       " WHERE tag.tagname='sym-'||%Q "
+       " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
        "   AND blob.rid=event.objid "
@@ -172,7 +173,7 @@ char *tag_to_uuid(const char *zTag){
         zUuid = db_text(0,
           "SELECT blob.uuid"
           "  FROM tag, tagxref, event, blob"
-          " WHERE tag.tagname='sym-'||%Q "
+          " WHERE tag.tagname='sym-%q' "
           "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
           "   AND event.objid=tagxref.rid "
           "   AND blob.rid=event.objid "
@@ -183,7 +184,7 @@ char *tag_to_uuid(const char *zTag){
         break;
       }
     }
-    if( zUuid==0 && strcmp(zTag, "tip")==0 ){
+    if( zUuid==0 && fossil_strcmp(zTag, "tip")==0 ){
       zUuid = db_text(0,
         "SELECT blob.uuid"
         "  FROM event, blob"
@@ -191,6 +192,21 @@ char *tag_to_uuid(const char *zTag){
         "   AND blob.rid=event.objid"
         " ORDER BY event.mtime DESC"
       );
+    }
+    if( zUuid==0 && g.localOpen && (vid=db_lget_int("checkout",0))!=0 ){
+      if( fossil_strcmp(zTag, "current")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+      }else if( fossil_strcmp(zTag, "prev")==0 
+                || fossil_strcmp(zTag, "previous")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
+                           "(SELECT pid FROM plink WHERE cid=%d AND isprim)",
+                           vid);
+      }else if( fossil_strcmp(zTag, "next")==0 ){
+        zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid="
+                           "(SELECT cid FROM plink WHERE pid=%d"
+                           "  ORDER BY isprim DESC, mtime DESC)",
+                           vid);
+      }
     }
   }
   return zUuid;
@@ -324,7 +340,7 @@ void ambiguous_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
-    @ <li><p><a href="%s(g.zBaseURL)/%T(zSrc)/%S(zUuid)">
+    @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%S(zUuid)">
     @ %S(zUuid)</a> -
     object_description(rid, 0, 0);
     @ </p></li>

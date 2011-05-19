@@ -440,7 +440,7 @@ int delta_create(
       }
 
       /* If we reach this point, it means no match is found so far */
-      if( base+i+NHASH>lenOut ){
+      if( base+i+NHASH>=lenOut ){
         /* We have reached the end of the file and have not found any
         ** matches.  Do an "insert" for everything that does not match */
         putInt(lenOut-base, &zDelta);
@@ -538,7 +538,7 @@ int delta_apply(
       case '@': {
         zDelta++; lenDelta--;
         ofst = getInt(&zDelta, &lenDelta);
-        if( zDelta[0]!=',' ){
+        if( lenDelta>0 && zDelta[0]!=',' ){
           /* ERROR: copy command not terminated by ',' */
           return -1;
         }

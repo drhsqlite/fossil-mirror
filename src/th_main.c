@@ -170,7 +170,9 @@ static int htmlizeCmd(
 /*
 ** TH command:      date
 **
-** Return a string which is the current time and date.
+** Return a string which is the current time and date.  If the
+** -local option is used, the date appears using localtime instead
+** of UTC.
 */
 static int dateCmd(
   Th_Interp *interp, 
@@ -179,7 +181,12 @@ static int dateCmd(
   const char **argv, 
   int *argl
 ){
-  char *zOut = db_text("??", "SELECT datetime('now')");
+  char *zOut;
+  if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
+    zOut = db_text("??", "SELECT datetime('now','localtime')");
+  }else{
+    zOut = db_text("??", "SELECT datetime('now')");
+  }
   Th_SetResult(interp, zOut, -1);
   free(zOut);
   return TH_OK;

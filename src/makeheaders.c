@@ -1,9 +1,33 @@
-static const char ident[] = "@(#) $Header: /cvstrac/cvstrac/makeheaders.c,v 1.4 2005/03/16 22:17:51 drh Exp $";
 /*
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
+** Copyright 1993 D. Richard Hipp. All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or
+** without modification, are permitted provided that the following
+** conditions are met:
+**
+**   1. Redistributions of source code must retain the above copyright
+**      notice, this list of conditions and the following disclaimer.
+**
+**   2. Redistributions in binary form must reproduce the above copyright
+**      notice, this list of conditions and the following disclaimer in
+**      the documentation and/or other materials provided with the
+**      distribution.
+**
+** This software is provided "as is" and any express or implied warranties,
+** including, but not limited to, the implied warranties of merchantability
+** and fitness for a particular purpose are disclaimed.  In no event shall
+** the author or contributors be liable for any direct, indirect, incidental,
+** special, exemplary, or consequential damages (including, but not limited
+** to, procurement of substitute goods or services; loss of use, data or
+** profits; or business interruption) however caused and on any theory of
+** liability, whether in contract, strict liability, or tort (including
+** negligence or otherwise) arising in any way out of the use of this
+** software, even if advised of the possibility of such damage.
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -2322,7 +2346,9 @@ static int ParseFile(Token *pList, int initFlags){
          break;
 
        case 'i':
-         if( pList->nText==6 && strncmp(pList->zText,"inline",6)==0 ){
+         if( pList->nText==6 && strncmp(pList->zText,"inline",6)==0
+          && (flags & PS_Static)==0
+         ){
            nErr += ProcessInlineProc(pList,flags,&resetFlag);
          }
          break;
@@ -3012,10 +3038,16 @@ static InFile *CreateInFile(char *zArg, int *pnErr){
   int i;
 
   /* 
-  ** Get the name of the input file to be scanned
+  ** Get the name of the input file to be scanned.  The input file is
+  ** everything before the first ':' or the whole file if no ':' is seen.
+  **
+  ** Except, on windows, ignore any ':' that occurs as the second character
+  ** since it might be part of the drive specifier.  So really, the ":' has
+  ** to be the 3rd or later character in the name.  This precludes 1-character
+  ** file names, which really should not be a problem.
   */
   zSrc = zArg;
-  for(nSrc=0; zSrc[nSrc] && zArg[nSrc]!=':'; nSrc++){}
+  for(nSrc=2; zSrc[nSrc] && zArg[nSrc]!=':'; nSrc++){}
   pFile = SafeMalloc( sizeof(InFile) );
   memset(pFile,0,sizeof(InFile));
   pFile->zSrc = StrDup(zSrc,nSrc);

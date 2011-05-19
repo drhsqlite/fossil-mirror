@@ -24,9 +24,11 @@
 #include <errno.h>
 
 /*
-** Schema changes
+** Make changes to the stable part of the schema (the part that is not
+** simply deleted and reconstructed on a rebuild) to bring the schema
+** up to the latest.
 */
-static const char zSchemaUpdates[] =
+static const char zSchemaUpdates1[] =
 @ -- Index on the delta table
 @ --
 @ CREATE INDEX IF NOT EXISTS delta_i1 ON delta(srcid);
@@ -41,23 +43,16 @@ static const char zSchemaUpdates[] =
 @ -- have not artifact ID (rid) and we thus must store their full
 @ -- UUID.
 @ --
-@ CREATE TABLE IF NOT EXISTS shun(uuid UNIQUE);
+@ CREATE TABLE IF NOT EXISTS shun(
+@   uuid UNIQUE,          -- UUID of artifact to be shunned. Canonical form
+@   mtime INTEGER,        -- When added.  Seconds since 1970
+@   scom TEXT             -- Optional text explaining why the shun occurred
+@ );
 @
 @ -- Artifacts that should not be pushed are stored in the "private"
 @ -- table.  
 @ --
 @ CREATE TABLE IF NOT EXISTS private(rid INTEGER PRIMARY KEY);
-@
-@ -- An entry in this table describes a database query that generates a
-@ -- table of tickets.
-@ --
-@ CREATE TABLE IF NOT EXISTS reportfmt(
-@    rn integer primary key,  -- Report number
-@    owner text,              -- Owner of this report format (not used)
-@    title text,              -- Title of this report
-@    cols text,               -- A color-key specification
-@    sqlcode text             -- An SQL SELECT statement for this report
-@ );
 @
 @ -- Some ticket content (such as the originators email address or contact
 @ -- information) needs to be obscured to protect privacy.  This is achieved
@@ -68,10 +63,100 @@ static const char zSchemaUpdates[] =
 @ -- with unauthorized users.
 @ --
 @ CREATE TABLE IF NOT EXISTS concealed(
-@   hash TEXT PRIMARY KEY,
-@   content TEXT
+@   hash TEXT PRIMARY KEY,    -- The SHA1 hash of content
+@   mtime INTEGER,            -- Time created.  Seconds since 1970
+@   content TEXT              -- Content intended to be concealed
 @ );
 ;
+static const char zSchemaUpdates2[] =
+@ -- An entry in this table describes a database query that generates a
+@ -- table of tickets.
+@ --
+@ CREATE TABLE IF NOT EXISTS reportfmt(
+@    rn INTEGER PRIMARY KEY,  -- Report number
+@    owner TEXT,              -- Owner of this report format (not used)
+@    title TEXT UNIQUE,       -- Title of this report
+@    mtime INTEGER,           -- Time last modified.  Seconds since 1970
+@    cols TEXT,               -- A color-key specification
+@    sqlcode TEXT             -- An SQL SELECT statement for this report
+@ );
+;
+
+static void rebuild_update_schema(void){
+  int rc;
+  db_multi_exec(zSchemaUpdates1);
+  db_multi_exec(zSchemaUpdates2);
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='user' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "CREATE TEMP TABLE temp_user AS SELECT * FROM user;"
+      "DROP TABLE user;"
+      "CREATE TABLE user(\n"
+      "  uid INTEGER PRIMARY KEY,\n"
+      "  login TEXT UNIQUE,\n"
+      "  pw TEXT,\n"
+      "  cap TEXT,\n"
+      "  cookie TEXT,\n"
+      "  ipaddr TEXT,\n"
+      "  cexpire DATETIME,\n"
+      "  info TEXT,\n"
+      "  mtime DATE,\n"
+      "  photo BLOB\n"
+      ");"
+      "INSERT OR IGNORE INTO user"
+        " SELECT uid, login, pw, cap, cookie,"
+               " ipaddr, cexpire, info, now(), photo FROM temp_user;"
+      "DROP TABLE temp_user;"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='config' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE config ADD COLUMN mtime INTEGER;"
+      "UPDATE config SET mtime=now();"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='shun' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE shun ADD COLUMN mtime INTEGER;"
+      "ALTER TABLE shun ADD COLUMN scom TEXT;"
+      "UPDATE shun SET mtime=now();"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='reportfmt' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "CREATE TEMP TABLE old_fmt AS SELECT * FROM reportfmt;"
+      "DROP TABLE reportfmt;"
+    );
+    db_multi_exec(zSchemaUpdates2);
+    db_multi_exec(
+      "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
+        " SELECT rn, owner, title, cols, sqlcode, now() FROM old_fmt;"
+      "INSERT OR IGNORE INTO reportfmt(rn,owner,title,cols,sqlcode,mtime)"
+        " SELECT rn, owner, title || ' (' || rn || ')', cols, sqlcode, now()"
+        "   FROM old_fmt;"
+    );
+  }
+
+  rc = db_exists("SELECT 1 FROM sqlite_master"
+                 " WHERE name='concealed' AND sql GLOB '* mtime *'");
+  if( rc==0 ){
+    db_multi_exec(
+      "ALTER TABLE concealed ADD COLUMN mtime INTEGER;"
+      "UPDATE concealed SET mtime=now();"
+    );
+  }
+}  
 
 /*
 ** Variables used to store state information about an on-going "rebuild"
@@ -176,8 +261,9 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       blob_write_to_file(pUse,zFile);
       free(zFile);
       free(zUuid);
+      blob_reset(pUse);
     }
-    blob_reset(pUse);
+    assert( blob_is_reset(pUse) );
     rebuild_step_done(rid);
   
     /* Call all children recursively */
@@ -245,7 +331,7 @@ static void rebuild_tag_trunk(void){
 ** ability of fossil to accept records in any order and still
 ** construct a sane repository.
 */
-int rebuild_db(int randomize, int doOut){
+int rebuild_db(int randomize, int doOut, int doClustering){
   Stmt s;
   int errCnt = 0;
   char *zTable;
@@ -257,14 +343,14 @@ int rebuild_db(int randomize, int doOut){
   if (!g.fQuiet) {
     percent_complete(0);
   }
-  db_multi_exec(zSchemaUpdates);
+  rebuild_update_schema();
   for(;;){
     zTable = db_text(0,
        "SELECT name FROM sqlite_master /*scan*/"
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed')"
+                         "'concealed','accesslog')"
        " AND name NOT GLOB 'sqlite_*'"
     );
     if( zTable==0 ) break;
@@ -330,7 +416,7 @@ int rebuild_db(int randomize, int doOut){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
-  create_cluster();
+  if( doClustering ) create_cluster();
   if( !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
@@ -342,6 +428,63 @@ int rebuild_db(int randomize, int doOut){
 }
 
 /*
+** Attempt to convert more full-text blobs into delta-blobs for
+** storage efficiency.
+*/
+static void extra_deltification(void){
+  Stmt q;
+  int topid, previd, rid;
+  int prevfnid, fnid;
+  db_begin_transaction();
+  db_prepare(&q,
+     "SELECT rid FROM event, blob"
+     " WHERE blob.rid=event.objid"
+     "   AND event.type='ci'"
+     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+     " ORDER BY event.mtime DESC"
+  );
+  topid = previd = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+    if( topid==0 ){
+      topid = previd = rid;
+    }else{
+      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
+        content_deltify(rid, topid, 0);
+      }
+      previd = rid;
+    }
+  }
+  db_finalize(&q);
+
+  db_prepare(&q,
+     "SELECT blob.rid, mlink.fnid FROM blob, mlink, plink"
+     " WHERE NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+     "   AND mlink.fid=blob.rid"
+     "   AND mlink.mid=plink.cid"
+     "   AND plink.cid=mlink.mid"
+     " ORDER BY mlink.fnid, plink.mtime DESC"
+  );
+  prevfnid = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    rid = db_column_int(&q, 0);
+    fnid = db_column_int(&q, 1);
+    if( prevfnid!=fnid ){
+      prevfnid = fnid;
+      topid = previd = rid;
+    }else{
+      if( content_deltify(rid, previd, 0)==0 && previd!=topid ){
+        content_deltify(rid, topid, 0);
+      }
+      previd = rid;
+    }
+  }
+  db_finalize(&q);
+
+  db_end_transaction(0);
+}
+
+/*
 ** COMMAND:  rebuild
 **
 ** Usage: %fossil rebuild ?REPOSITORY?
@@ -349,41 +492,96 @@ int rebuild_db(int randomize, int doOut){
 ** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
 ** executable in a way that changes the database schema.
+**
+** Options:
+**
+**   --noverify    Skip the verification of changes to the BLOB table
+**   --force       Force the rebuild to complete even if errors are seen
+**   --randomize   Scan artifacts in a random order
+**   --cluster     Compute clusters for unclustered artifacts
+**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
+**   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --compress    Strive to make the database as small as possible
+**   --vacuum      Run VACUUM on the database after rebuilding
 */
 void rebuild_database(void){
   int forceFlag;
   int randomizeFlag;
   int errCnt;
   int omitVerify;
+  int doClustering;
+  const char *zPagesize;
+  int newPagesize = 0;
+  int activateWal;
+  int runVacuum;
+  int runCompress;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
   randomizeFlag = find_option("randomize", 0, 0)!=0;
+  doClustering = find_option("cluster", 0, 0)!=0;
+  runVacuum = find_option("vacuum",0,0)!=0;
+  runCompress = find_option("compress",0,0)!=0;
+  zPagesize = find_option("pagesize",0,1);
+  if( zPagesize ){
+    newPagesize = atoi(zPagesize);
+    if( newPagesize<512 || newPagesize>65536
+        || (newPagesize&(newPagesize-1))!=0
+    ){
+      fossil_fatal("page size must be a power of two between 512 and 65536");
+    }
+  }
+  activateWal = find_option("wal",0,0)!=0;
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
-    db_find_and_open_repository(1);
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
-    db_close();
+    db_close(1);
     db_open_repository(g.zRepositoryName);
   }
   db_begin_transaction();
   ttyOutput = 1;
-  errCnt = rebuild_db(randomizeFlag, 1);
+  errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+  db_multi_exec(
+    "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
+    "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
+    CONTENT_SCHEMA, AUX_SCHEMA
+  );
   if( errCnt && !forceFlag ){
     printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
             errCnt);
     db_end_transaction(1);
   }else{
+    if( runCompress ){
+      printf("Extra delta compression... "); fflush(stdout);
+      extra_deltification();
+      runVacuum = 1;
+    }
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
+    if( runCompress ) printf("done\n");
+    db_close(0);
+    db_open_repository(g.zRepositoryName);
+    if( newPagesize ){
+      db_multi_exec("PRAGMA page_size=%d", newPagesize);
+      runVacuum = 1;
+    }
+    if( runVacuum ){
+      printf("Vacuuming the database... "); fflush(stdout);
+      db_multi_exec("VACUUM");
+      printf("done\n");
+    }
+    if( activateWal ){
+      db_multi_exec("PRAGMA journal_mode=WAL;");
+    }
   }
 }
 
 /*
-** COMMAND:  test-detach
+** COMMAND:  test-detach  ?REPOSITORY?
 **
 ** Change the project-code and make other changes in order to prevent
 ** the repository from ever again pushing or pulling to other
@@ -391,7 +589,7 @@ void rebuild_database(void){
 ** testing by cloning a working project repository.
 */
 void test_detach_cmd(void){
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(0, 2);
   db_begin_transaction();
   db_multi_exec(
     "DELETE FROM config WHERE name='last-sync-url';"
@@ -413,11 +611,11 @@ void test_createcluster_cmd(void){
   if( g.argc==3 ){
     db_open_repository(g.argv[2]);
   }else{
-    db_find_and_open_repository(1);
+    db_find_and_open_repository(0, 0);
     if( g.argc!=2 ){
       usage("?REPOSITORY-FILENAME?");
     }
-    db_close();
+    db_close(1);
     db_open_repository(g.zRepositoryName);
   }
   db_begin_transaction();
@@ -426,8 +624,76 @@ void test_createcluster_cmd(void){
 }
 
 /*
+** COMMAND: test-clusters
+**
+** Verify that all non-private and non-shunned artifacts are accessible
+** through the cluster chain.
+*/
+void test_clusters_cmd(void){
+  Bag pending;
+  Stmt q;
+  int n;
+  
+  db_find_and_open_repository(0, 2);
+  bag_init(&pending);
+  db_multi_exec(
+    "CREATE TEMP TABLE xdone(x INTEGER PRIMARY KEY);"
+    "INSERT INTO xdone SELECT rid FROM unclustered;"
+    "INSERT OR IGNORE INTO xdone SELECT rid FROM private;"
+    "INSERT OR IGNORE INTO xdone"
+         " SELECT blob.rid FROM shun JOIN blob USING(uuid);"
+  );
+  db_prepare(&q,
+    "SELECT rid FROM unclustered WHERE rid IN"
+    " (SELECT rid FROM tagxref WHERE tagid=%d)", TAG_CLUSTER
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    bag_insert(&pending, db_column_int(&q, 0));
+  }
+  db_finalize(&q);
+  while( bag_count(&pending)>0 ){
+    Manifest *p;
+    int rid = bag_first(&pending);
+    int i;
+    
+    bag_remove(&pending, rid);
+    p = manifest_get(rid, CFTYPE_CLUSTER);
+    if( p==0 ){
+      fossil_fatal("bad cluster: rid=%d", rid);
+    }
+    for(i=0; i<p->nCChild; i++){
+      const char *zUuid = p->azCChild[i];
+      int crid = name_to_rid(zUuid);
+      if( crid==0 ){
+         fossil_warning("cluster (rid=%d) references unknown artifact %s",
+                        rid, zUuid);
+         continue;
+      }
+      db_multi_exec("INSERT OR IGNORE INTO xdone VALUES(%d)", crid);
+      if( db_exists("SELECT 1 FROM tagxref WHERE tagid=%d AND rid=%d",
+                    TAG_CLUSTER, crid) ){
+        bag_insert(&pending, crid);
+      }
+    }
+    manifest_destroy(p);
+  }
+  n = db_int(0, "SELECT count(*) FROM /*scan*/"
+                "  (SELECT rid FROM blob EXCEPT SELECT x FROM xdone)");
+  if( n==0 ){
+    printf("all artifacts reachable through clusters\n");
+  }else{
+    printf("%d unreachable artifacts:\n", n);
+    db_prepare(&q, "SELECT rid, uuid FROM blob WHERE rid NOT IN xdone");
+    while( db_step(&q)==SQLITE_ROW ){
+      printf("  %3d %s\n", db_column_int(&q,0), db_column_text(&q,1));
+    }
+    db_finalize(&q);
+  }
+}
+
+/*
 ** COMMAND: scrub
-** %fossil scrub [--verily] [--force] [REPOSITORY]
+** %fossil scrub [--verily] [--force] [--private] [REPOSITORY]
 **
 ** The command removes sensitive information (such as passwords) from a
 ** repository so that the respository can be sent to an untrusted reader.
@@ -435,7 +701,8 @@ void test_createcluster_cmd(void){
 ** By default, only passwords are removed.  However, if the --verily option
 ** is added, then private branches, concealed email addresses, IP
 ** addresses of correspondents, and similar privacy-sensitive fields
-** are also purged.
+** are also purged.  If the --private option is used, then only private
+** branches are removed and all other information is left intact.
 **
 ** This command permanently deletes the scrubbed information.  The effects
 ** of this command are irreversible.  Use with caution.
@@ -446,42 +713,55 @@ void test_createcluster_cmd(void){
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
   int bForce = find_option("force", "f", 0)!=0;
+  int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   if( g.argc==2 ){
-    db_must_be_within_tree();
+    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+    if( g.argc!=2 ){
+      usage("?REPOSITORY-FILENAME?");
+    }
+    db_close(1);
+    db_open_repository(g.zRepositoryName);
   }else{
     db_open_repository(g.argv[2]);
   }
   if( !bForce ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("Scrubbing the repository will permanently remove user\n"
-                "passwords and other information. Changes cannot be undone.\n"
-                "Continue (y/N)? ", &ans);
+    prompt_user("Scrubbing the repository will permanently information.\n"
+                "Changes cannot be undone.  Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       fossil_exit(1);
     }
   }
   db_begin_transaction();
-  db_multi_exec(
-    "UPDATE user SET pw='';"
-    "DELETE FROM config WHERE name GLOB 'last-sync-*';"
-  );
-  if( bVerily ){
+  if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
     db_multi_exec(
-      "DELETE FROM concealed;"
-      "UPDATE rcvfrom SET ipaddr='unknown';"
-      "UPDATE user SET photo=NULL, info='';"
-      "INSERT INTO shun SELECT uuid FROM blob WHERE rid IN private;"
+      "DELETE FROM blob WHERE rid IN private;"
+      "DELETE FROM delta WHERE rid IN private;"
+      "DELETE FROM private;"
     );
+  }
+  if( !privateOnly ){
+    db_multi_exec(
+      "UPDATE user SET pw='';"
+      "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+    );
+    if( bVerily ){
+      db_multi_exec(
+        "DELETE FROM concealed;"
+        "UPDATE rcvfrom SET ipaddr='unknown';"
+        "UPDATE user SET photo=NULL, info='';"
+      );
+    }
   }
   if( !bNeedRebuild ){
     db_end_transaction(0);
     db_multi_exec("VACUUM;");
   }else{
-    rebuild_db(0, 1);
+    rebuild_db(0, 1, 0);
     db_end_transaction(0);
   }
 }
@@ -515,13 +795,14 @@ void recon_read_dir(char *zPath){
         fossil_panic("some unknown error occurred while reading \"%s\"", 
                      blob_str(&path));
       }
-      content_put(&aContent, 0, 0);
+      content_put(&aContent);
       blob_reset(&path);
       blob_reset(&aContent);
       free(zSubpath);
       printf("\r%d", ++nFileRead);
       fflush(stdout);
     }
+    closedir(d);
   }else {
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
@@ -558,7 +839,22 @@ void reconstruct_cmd(void) {
   recon_read_dir(g.argv[3]);
   printf("\nBuilding the Fossil repository...\n");
 
-  rebuild_db(0, 1);
+  rebuild_db(0, 1, 1);
+
+  /* Reconstruct the private table.  The private table contains the rid
+  ** of every manifest that is tagged with "private" and every file that
+  ** is not used by a manifest that is not private.
+  */
+  db_multi_exec(
+    "CREATE TEMP TABLE private_ckin(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO private_ckin "
+        " SELECT rid FROM tagxref WHERE tagid=%d AND tagtype>0;"
+    "INSERT OR IGNORE INTO private"
+        " SELECT fid FROM mlink"
+        " EXCEPT SELECT fid FROM mlink WHERE mid NOT IN private_ckin;"
+    "INSERT OR IGNORE INTO private SELECT rid FROM private_ckin;"
+    "DROP TABLE private_ckin;"
+  );
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
@@ -576,9 +872,13 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct
 **
-** Usage %fossil deconstruct ?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION
+** Usage %fossil deconstruct ?OPTIONS? DESTIONATION
 **
-** This command exports all artifacts of o given repository and
+** Options:
+**   -R|--repository REPOSITORY
+**   -L|--prefixlength N
+**
+** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory
 ** will be populated with subdirectories AA and files AA/BBBBBBBBB.., where
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
@@ -625,7 +925,7 @@ void deconstruct_cmd(void){
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
   /* open repository and open query for all artifacts */
-  db_find_and_open_repository(1);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
   bag_init(&bagDone);
   ttyOutput = 1;
   processCnt = 0;

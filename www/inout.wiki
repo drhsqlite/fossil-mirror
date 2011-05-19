@@ -1,0 +1,52 @@
+<title>Import And Export</title>
+
+Fossil has the ability to import and export repositories from and to 
+[http://git-scm.com/ | Git].  And since most other version control
+systems will also import/export from Git, that means that you can 
+import/export a Fossil repository to most version control systems using
+Git as an intermediary.
+
+<h2>Git &rarr; Fossil</h2>
+
+To import a Git repository into Fossil, run commands like this:
+
+<blockquote><pre>
+cd git-repo
+git fast-export --all | fossil import --git new-repo.fossil
+</pre></blockquote>
+
+In other words, simply pipe the output of the "git fast-export" command
+into the "fossil import --git" command.  The 3rd argument to the "fossil import"
+command is the name of a new Fossil repository that is created to hold the Git
+content.
+
+The --git option is not actually required.  The git-fast-export file format
+is currently the only VCS interchange format that Fossil understands.  But
+future versions of Fossil might be enhanced to understand other VCS 
+interchange formats, and so for compatibility, use of the
+--git option is recommended.
+
+<h2>Fossil &rarr; Git</h2>
+
+To convert a Fossil repository into a Git repository, run commands like
+this:
+
+<blockquote><pre>
+git init new-repo
+cd new-repo
+fossil export --git ../repo.fossil | git fast-import
+</pre></blockquote>
+
+In other words, create a new Git repository, then pipe the output from the
+"fossil export --git" command into the "git fast-import" command.
+
+Note that the "fossil export --git" command only exports the versioned files.
+Tickets and wiki and events are not exported, since Git does not understand
+those concepts.
+
+As with the "import" command, the --git option is not required
+since the git-fast-export file format is currently the only VCS interchange 
+format that Fossil will generate.  However,
+future versions of Fossil might add the ability to generate other
+VCS interchange formats, and so for compatibility, the use of the --git 
+option recommented.

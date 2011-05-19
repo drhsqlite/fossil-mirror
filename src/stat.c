@@ -31,6 +31,7 @@ void stat_page(void){
   i64 t, fsize;
   int n, m;
   int szMax, szAvg;
+  const char *zDb;
   char zBuf[100];
 
   login_check_credentials();
@@ -110,14 +111,15 @@ void stat_page(void){
   @ <tr><th>SQLite&nbsp;Version:</th><td>
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",
                    SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
+  zDb = db_name("repository");
   @ %s(zBuf)
   @ </td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
-  @ %d(db_int(0, "PRAGMA %s.page_count", g.zRepoDb)) pages,
-  @ %d(db_int(0, "PRAGMA %s.page_size", g.zRepoDb)) bytes/page,
-  @ %d(db_int(0, "PRAGMA %s.freelist_count", g.zRepoDb)) free pages,
-  @ %s(db_text(0, "PRAGMA %s.encoding", g.zRepoDb)),
-  @ %s(db_text(0, "PRAGMA %s.journal_mode", g.zRepoDb)) mode
+  @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,
+  @ %d(db_int(0, "PRAGMA %s.page_size", zDb)) bytes/page,
+  @ %d(db_int(0, "PRAGMA %s.freelist_count", zDb)) free pages,
+  @ %s(db_text(0, "PRAGMA %s.encoding", zDb)),
+  @ %s(db_text(0, "PRAGMA %s.journal_mode", zDb)) mode
   @ </td></tr>
 
   @ </table>

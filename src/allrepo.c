@@ -88,6 +88,8 @@ void all_cmd(void){
   char *zFossil;
   char *zQFilename;
   int nMissing;
+  int stopOnError = find_option("dontstop",0,0)==0;
+  int rc;
   
   if( g.argc<3 ){
     usage("list|ls|pull|push|rebuild|sync");
@@ -105,6 +107,8 @@ void all_cmd(void){
     zCmd = "rebuild";
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+  }else if( strncmp(zCmd, "test-integrity", n)==0 ){
+    zCmd = "test-integrity";
   }else if( strncmp(zCmd, "ignore", n)==0 ){
     int j;
     db_begin_transaction();
@@ -118,7 +122,7 @@ void all_cmd(void){
     fossil_fatal("\"all\" subcommand should be one of: "
                  "ignore list ls push pull rebuild sync");
   }
-  zFossil = quoteFilename(g.argv[0]);
+  zFossil = quoteFilename(fossil_nameofexe());
   nMissing = 0;
   db_prepare(&q,
      "SELECT DISTINCT substr(name, 6) COLLATE nocase"
@@ -140,9 +144,13 @@ void all_cmd(void){
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
     printf("%s\n", zSyscmd);
     fflush(stdout);
-    fossil_system(zSyscmd);
+    rc = fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
+    if( stopOnError && rc ){
+      nMissing = 0;
+      break;
+    }
   }
   
   /* If any repositories whose names appear in the ~/.fossil file could not

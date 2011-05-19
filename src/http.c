@@ -65,21 +65,16 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
+  /* If the first character of the password is "#", then that character is
+  ** not really part of the password - it is an indicator that we should
+  ** use Basic Authentication.  So skip that character.
+  */
+  if( zPw && zPw[0]=='#' ) zPw++;
+
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
-  **
-  ** Except, if the password begins with "*" then use the characters
-  ** after the "*" as a cleartext password.  Put an "*" at the beginning
-  ** of the password to trick a newer client to use the cleartext password
-  ** protocol required by legacy servers.
   */
-  if( zPw && zPw[0] ){
-    if( zPw[0]=='*' ){
-      zPw++;
-    }else{
-      zPw = sha1_shared_secret(zPw, zLogin);
-    }
-  }
+  if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
@@ -107,7 +102,14 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }
   blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  }
+  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+    char *zEncoded = encode64(zCredentials, -1);
+    blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
+    fossil_free(zEncoded);
+    fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
@@ -129,7 +131,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
+int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -140,9 +142,11 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */
   int isError = 0;      /* True if the reply is an error message */
+  int isCompressed = 1; /* True if the reply is compressed */
 
   if( transport_open() ){
-    fossil_fatal(transport_errmsg());
+    fossil_warning(transport_errmsg());
+    return 1;
   }
 
   /* Construct the login card and prepare the complete payload */
@@ -163,22 +167,25 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   ** output and into a file.  The file can then be used to drive the
   ** server-side like this:
   **
-  **      ./fossil http <http-trace-1.txt
+  **      ./fossil test-http <http-request-1.txt
   */
   if( g.fHttpTrace ){
     static int traceCnt = 0;
     char *zOutFile;
     FILE *out;
     traceCnt++;
-    zOutFile = mprintf("http-trace-%d.txt", traceCnt);
-    printf("HTTP SEND: (%s)\n%s%s=======================\n", 
-        zOutFile, blob_str(&hdr), blob_str(&payload));
+    zOutFile = mprintf("http-request-%d.txt", traceCnt);
     out = fopen(zOutFile, "w");
     if( out ){
       fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), out);
       fwrite(blob_buffer(&payload), 1, blob_size(&payload), out);
       fclose(out);
     }
+    free(zOutFile);
+    zOutFile = mprintf("http-reply-%d.txt", traceCnt);
+    out = fopen(zOutFile, "w");
+    transport_log(out);
+    free(zOutFile);
   }
 
   /*
@@ -197,13 +204,13 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   iLength = -1;
   while( (zLine = transport_receive_line())!=0 && zLine[0]!=0 ){
     /* printf("[%s]\n", zLine); fflush(stdout); */
-    if( strncasecmp(zLine, "http/1.", 7)==0 ){
+    if( fossil_strnicmp(zLine, "http/1.", 7)==0 ){
       if( sscanf(zLine, "HTTP/1.%d %d", &iHttpVersion, &rc)!=2 ) goto write_err;
       if( rc!=200 && rc!=302 ){
         int ii;
         for(ii=7; zLine[ii] && zLine[ii]!=' '; ii++){}
         while( zLine[ii]==' ' ) ii++;
-        fossil_fatal("server says: %s\n", &zLine[ii]);
+        fossil_warning("server says: %s", &zLine[ii]);
         goto write_err;
       }
       if( iHttpVersion==0 ){
@@ -211,10 +218,10 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else{
         closeConnection = 0;
       }
-    }else if( strncasecmp(zLine, "content-length:", 15)==0 ){
+    }else if( fossil_strnicmp(zLine, "content-length:", 15)==0 ){
       for(i=15; fossil_isspace(zLine[i]); i++){}
       iLength = atoi(&zLine[i]);
-    }else if( strncasecmp(zLine, "connection:", 11)==0 ){
+    }else if( fossil_strnicmp(zLine, "connection:", 11)==0 ){
       char c;
       for(i=11; fossil_isspace(zLine[i]); i++){}
       c = zLine[i];
@@ -223,7 +230,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }else if( c=='k' || c=='K' ){
         closeConnection = 0;
       }
-    }else if( rc==302 && strncasecmp(zLine, "location:", 9)==0 ){
+    }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
@@ -235,14 +242,20 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
-      http_exchange(pSend, pReply, useLogin);
-      return;
-    }else if( strncasecmp(zLine, "content-type: text/html", 23)==0 ){
-      isError = 1;
+      return http_exchange(pSend, pReply, useLogin);
+    }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
+      if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
+        isCompressed = 0;
+      }else if( fossil_strnicmp(&zLine[14], 
+                          "application/x-fossil-uncompressed", -1)==0 ){
+        isCompressed = 0;
+      }else if( fossil_strnicmp(&zLine[14], "application/x-fossil", -1)!=0 ){
+        isError = 1;
+      }
     }
   }
   if( rc!=200 ){
-    fossil_fatal("\"location:\" missing from 302 redirect reply");
+    fossil_warning("\"location:\" missing from 302 redirect reply");
     goto write_err;
   }
 
@@ -271,11 +284,7 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     z[j] = 0;
     fossil_fatal("server sends error: %s", z);
   }
-  if( g.fHttpTrace ){
-    /*printf("HTTP RECEIVE:\n%s\n=======================\n",blob_str(pReply));*/
-  }else{
-    blob_uncompress(pReply, pReply);
-  }
+  if( isCompressed ) blob_uncompress(pReply, pReply);
 
   /*
   ** Close the connection to the server if appropriate.
@@ -290,12 +299,12 @@ void http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   }else{
     transport_rewind();
   }
-  return;
+  return 0;
 
   /* 
   ** Jump to here if an error is seen.
   */
 write_err:
   transport_close();
-  return;  
+  return 1;  
 }
