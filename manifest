@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.7\salpha\sversion.\s\sThis\sadds\nno\snew\scapabilities\s-\sit\sis\smerely\sa\sbeta-test\sof\sthe\sSQLite\sversion\s3.7.7.
-D 2011-05-18T15:01:26.407
+C Change\sthe\ssmall\slogo\sto\s72x72\spixels.
+D 2011-05-19T11:48:21.495
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -275,7 +275,7 @@ F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
 F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
-F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
+F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 1e324b967d5b4186b0d1d538521887c46289d636
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 91d648426ad81174ce31405c2b8acc96ca3090dd
-R 513176c3042b878058efe5827bd771be
+P dcfa88bd466bad8192eb53372914cfe51a16d1bc
+R 110bf4177f49092f285278e0b29f1de8
 U drh
-Z d9ab945b737718b3531903cf5b2aaf9a
+Z 70cb2a4efcffa87343265f5fb6def974
