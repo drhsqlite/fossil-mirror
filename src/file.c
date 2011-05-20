@@ -385,6 +385,37 @@ void cmd_test_simplify_name(void){
 }
 
 /*
+** Get the current working directory.
+**
+** On windows, the name is converted from MBCS to UTF8 and all '\\'
+** characters are converted to '/'.  No conversions are needed on
+** unix.
+*/
+void file_getcwd(char *zBuf, int nBuf){
+#ifdef _WIN32
+  char *zPwdUtf8;
+  int nPwd;
+  int i;
+  char zPwd[2000];
+  if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
+    fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-1);
+  }
+  zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
+  nPwd = strlen(zPwdUtf8);
+  if( nPwd > nBuf-1 ){
+    fossil_fatal("pwd too big: max %d\n", nBuf-1);
+  }
+  for(i=0; zPwdUtf8[i]; i++) if( zPwdUtf8[i]=='\\' ) zPwdUtf8[i] = '/';
+  memcpy(zBuf, zPwdUtf8, nPwd+1);
+  fossil_mbcs_free(zPwdUtf8);
+#else
+  if( getcwd(zBuf, nBuf-1)==0 ){
+    fossil_fatal("pwd too big: max %d\n", nBuf-1);
+  }
+#endif
+}
+
+/*
 ** Compute a canonical pathname for a file or directory.
 ** Make the name absolute if it is relative.
 ** Remove redundant / characters
@@ -403,14 +434,9 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
     blob_materialize(pOut);
   }else{
     char zPwd[2000];
-    char *zPwdUtf8;
-    if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-    }
+    file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
     blob_zero(pOut);
-    zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
-    blob_appendf(pOut, "%//%/", zPwdUtf8, zOrigName);
-    fossil_mbcs_free(zPwdUtf8);
+    blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
 }
@@ -481,9 +507,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
     int i, j;
     Blob tmp;
     char zPwd[2000];
-    if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-    }
+    file_getcwd(zPwd, sizeof(zPwd)-20);
     for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}
     if( zPath[i]==0 ){
       blob_reset(pOut);

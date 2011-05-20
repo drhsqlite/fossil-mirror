@@ -806,17 +806,11 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  char *zPwdConv;
   static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
   
   if( g.localOpen) return 1;
-  if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-    db_err("pwd too big: max %d", sizeof(zPwd)-20);
-  }
+  file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  zPwdConv = mprintf("%/", zPwd);
-  strncpy(zPwd, zPwdConv, 2000-20);
-  free(zPwdConv);
   while( n>0 ){
     if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
