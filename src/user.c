@@ -119,7 +119,7 @@ void prompt_for_password(
     if( verify==1 && blob_size(pPassphrase)==0 ) break;
     prompt_for_passphrase("Retype new password: ", &secondTry);
     if( blob_compare(pPassphrase, &secondTry) ){
-      printf("Passphrases do not match.  Try again...\n");
+      fossil_print("Passphrases do not match.  Try again...\n");
     }else{
       break;
     }
@@ -134,7 +134,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
-  printf("%s", zPrompt);
+  fossil_print("%s", zPrompt);
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
@@ -214,7 +214,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     user_select();
     if( g.argc==3 ){
-      printf("%s\n", g.zLogin);
+      fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
         fossil_fatal("no such user: %s", g.argv[3]);
@@ -229,7 +229,7 @@ void user_cmd(void){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
-      printf("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
+      fossil_print("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
     }
     db_finalize(&q);
   }else if( n>=2 && strncmp(g.argv[2],"password",2)==0 ){
@@ -248,7 +248,7 @@ void user_cmd(void){
       prompt_for_password(zPrompt, &pw, 1);
     }
     if( blob_size(&pw)==0 ){
-      printf("password unchanged\n");
+      fossil_print("password unchanged\n");
     }else{
       char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
       db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
@@ -270,7 +270,7 @@ void user_cmd(void){
         g.argv[4], uid
       );
     }
-    printf("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
+    fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
     fossil_panic("user subcommand should be one of: "
                  "capabilities default list new password");

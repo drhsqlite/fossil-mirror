@@ -43,7 +43,7 @@ int comment_print(const char *zText, int indent, int lineLength){
     while( fossil_isspace(zText[0]) ){ zText++; }
     if( zText[0]==0 ){
       if( doIndent==0 ){
-        printf("\n");
+        fossil_print("\n");
         lineCnt = 1;
       }
       return lineCnt;
@@ -66,19 +66,19 @@ int comment_print(const char *zText, int indent, int lineLength){
       }
     }
     if( doIndent ){
-      printf("%*s", indent, "");
+      fossil_print("%*s", indent, "");
     }
     doIndent = 1;
     if( sk>0 && zText[i] ){
       zText += si;
       zBuf[sk++] =  '\n';
       zBuf[sk] = 0;
-      printf("%s", zBuf);
+      fossil_print("%s", zBuf);
     }else{
       zText += i;
       zBuf[k++] =  '\n';
       zBuf[k] = 0;
-      printf("%s", zBuf);
+      fossil_print("%s", zBuf);
     }
     lineCnt++;
   }
@@ -95,6 +95,6 @@ void test_comment_format(void){
     usage("PREFIX TEXT");
   }
   indent = strlen(g.argv[2]) + 1;
-  printf("%s ", g.argv[2]);
-  printf("(%d lines output)\n", comment_print(g.argv[3], indent, 79));
+  fossil_print("%s ", g.argv[2]);
+  fossil_print("(%d lines output)\n", comment_print(g.argv[3], indent, 79));
 }

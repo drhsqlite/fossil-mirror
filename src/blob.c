@@ -113,7 +113,7 @@ void isspace_cmd(void){
       assert( !fossil_isspace((char)i) );
     }
   }
-  printf("All 256 characters OK\n");
+  fossil_print("All 256 characters OK\n");
 }
 
 /*
@@ -692,7 +692,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
     return 0;
   }
   blob_resize(pBlob, size);
-  in = fopen(zFilename, "rb");
+  in = fossil_fopen(zFilename, "rb");
   if( in==0 ){
     fossil_panic("cannot open %s for reading", zFilename);
   }
@@ -752,7 +752,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         zName[i] = '/';
       }
     }
-    out = fopen(zName, "wb");
+    out = fossil_fopen(zName, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
       return 0;
@@ -763,7 +763,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   blob_is_init(pBlob);
   wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
   if( needToClose ) fclose(out);
-  if( wrote!=blob_size(pBlob) ){
+  if( wrote!=blob_size(pBlob) && out!=stdout ){
     fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
        blob_size(pBlob), zFilename);
   }
@@ -927,7 +927,7 @@ void test_cycle_compress(void){
     blob_reset(&b2);
     blob_reset(&b3);
   }
-  printf("ok\n");
+  fossil_print("ok\n");
 }
 
 #if defined(_WIN32)

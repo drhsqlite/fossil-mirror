@@ -131,18 +131,18 @@ void all_cmd(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFilename = db_column_text(&q, 0);
-    if( access(zFilename, 0) ){
+    if( file_access(zFilename, 0) ){
       nMissing++;
       continue;
     }
     if( !file_is_canonical(zFilename) ) nMissing++;
     if( zCmd[0]=='l' ){
-      printf("%s\n", zFilename);
+      fossil_print("%s\n", zFilename);
       continue;
     }
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
-    printf("%s\n", zSyscmd);
+    fossil_print("%s\n", zSyscmd);
     fflush(stdout);
     rc = fossil_system(zSyscmd);
     free(zSyscmd);
@@ -161,7 +161,7 @@ void all_cmd(void){
     db_reset(&q);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFilename = db_column_text(&q, 0);
-      if( access(zFilename, 0) ){
+      if( file_access(zFilename, 0) ){
         char *zRepo = mprintf("repo:%s", zFilename);
         db_unset(zRepo, 1);
         free(zRepo);

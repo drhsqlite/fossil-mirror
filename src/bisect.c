@@ -186,7 +186,7 @@ void bisect_cmd(void){
       unsigned int i;
       for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
         char *z = mprintf("bisect-%s", aBisectOption[i].zName);
-        printf("  %-15s  %-6s  ", aBisectOption[i].zName,
+        fossil_print("  %-15s  %-6s  ", aBisectOption[i].zName,
                db_lget(z, (char*)aBisectOption[i].zDefault));
         fossil_free(z);
         comment_print(aBisectOption[i].zDesc, 27, 79);
@@ -200,7 +200,7 @@ void bisect_cmd(void){
           if( g.argc==5 ){
             db_lset(z, g.argv[4]);
           }
-          printf("%s\n", db_lget(z, (char*)aBisectOption[i].zDefault));
+          fossil_print("%s\n", db_lget(z, (char*)aBisectOption[i].zDefault));
           fossil_free(z);
           break;
         }
@@ -232,12 +232,12 @@ void bisect_cmd(void){
       db_bind_int(&s, ":rid", p->rid);
       if( db_step(&s)==SQLITE_ROW ){
         z = db_column_text(&s, 0);
-        printf("%s", z);
-        if( p->rid==bisect.good ) printf(" GOOD");
-        if( p->rid==bisect.bad ) printf(" BAD");
-        if( p->rid==vid ) printf(" CURRENT");
-        if( nStep>1 && n==nStep/2 ) printf(" NEXT");
-        printf("\n");
+        fossil_print("%s", z);
+        if( p->rid==bisect.good ) fossil_print(" GOOD");
+        if( p->rid==bisect.bad ) fossil_print(" BAD");
+        if( p->rid==vid ) fossil_print(" CURRENT");
+        if( nStep>1 && n==nStep/2 ) fossil_print(" NEXT");
+        fossil_print("\n");
       }
       db_reset(&s);
     }

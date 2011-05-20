@@ -266,7 +266,7 @@ void vfile_to_disk(
         continue;
       }
     }
-    if( verbose ) printf("%s\n", &zName[nRepos]);
+    if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
     file_setexe(zName, isExe);
     blob_reset(&content);
@@ -288,7 +288,7 @@ void vfile_unlink(int vid){
     const char *zName;
 
     zName = db_column_text(&q, 0);
-    unlink(zName);
+    file_delete(zName);
   }
   db_finalize(&q);
   db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
@@ -430,7 +430,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      in = fopen(zFullpath,"rb");
+      in = fossil_fopen(zFullpath,"rb");
       if( in==0 ){
         md5sum_step_text(" 0\n", -1);
         continue;
@@ -493,22 +493,23 @@ void vfile_compare_repository_to_disk(int vid){
     blob_zero(&disk);
     rc = blob_read_from_file(&disk, zFullpath);
     if( rc<0 ){
-      printf("ERROR: cannot read file [%s]\n", zFullpath);
+      fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
       blob_reset(&disk);
       continue;
     }
     blob_zero(&repo);
     content_get(rid, &repo);
     if( blob_size(&repo)!=blob_size(&disk) ){
-      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+      fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
     }
     if( blob_compare(&repo, &disk) ){
-      printf("ERROR: [%s] is different on disk compared to the repository\n",
-             zName);
+      fossil_print(
+          "ERROR: [%s] is different on disk compared to the repository\n",
+          zName);
     }
     blob_reset(&disk);
     blob_reset(&repo);

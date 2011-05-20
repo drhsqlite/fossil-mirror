@@ -342,7 +342,7 @@ void test_encode64_cmd(void){
   int i;
   for(i=2; i<g.argc; i++){
     z = encode64(g.argv[i], -1);
-    printf("%s\n", z);
+    fossil_print("%s\n", z);
     free(z);
   }
 }
@@ -407,7 +407,7 @@ void test_decode64_cmd(void){
   int i, n;
   for(i=2; i<g.argc; i++){
     z = decode64(g.argv[i], &n);
-    printf("%d: %s\n", n, z);
+    fossil_print("%d: %s\n", n, z);
     free(z);
   }
 }
@@ -581,11 +581,11 @@ void test_obscure_cmd(void){
   for(i=2; i<g.argc; i++){
     z = obscure(g.argv[i]);
     z2 = unobscure(z);
-    printf("OBSCURE:    %s -> %s (%s)\n", g.argv[i], z, z2);
+    fossil_print("OBSCURE:    %s -> %s (%s)\n", g.argv[i], z, z2);
     free(z);
     free(z2);
     z = unobscure(g.argv[i]);
-    printf("UNOBSCURE:  %s -> %s\n", g.argv[i], z);
+    fossil_print("UNOBSCURE:  %s -> %s\n", g.argv[i], z);
     free(z);
   }
 }

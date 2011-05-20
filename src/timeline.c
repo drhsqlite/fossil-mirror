@@ -1205,12 +1205,12 @@ void print_timeline(Stmt *q, int mxLine){
     
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
-      printf("=== %.10s ===\n", zDate);
+      fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++;
     }
     if( zCom==0 ) zCom = "";
-    printf("%.8s ", &zDate[11]);
+    fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
@@ -1455,9 +1455,9 @@ void test_timewarp_cmd(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     if( !showDetail ){
-      printf("%s\n", db_column_text(&q, 1));
+      fossil_print("%s\n", db_column_text(&q, 1));
     }else{
-      printf("%.14s -> %.14s   %s -> %s\n",
+      fossil_print("%.14s -> %.14s   %s -> %s\n",
          db_column_text(&q, 0),
          db_column_text(&q, 1),
          db_column_text(&q, 2),

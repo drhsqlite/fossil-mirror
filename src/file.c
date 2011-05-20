@@ -49,13 +49,15 @@ static int getStat(const char *zFilename){
   if( zFilename==0 ){
     if( fileStatValid==0 ) rc = 1;
   }else{
-    if( stat(zFilename, &fileStat)!=0 ){
+    char *zMbcs = fossil_utf8_to_mbcs(zFilename);
+    if( stat(zMbcs, &fileStat)!=0 ){
       fileStatValid = 0;
       rc = 1;
     }else{
       fileStatValid = 1;
       rc = 0;
     }
+    fossil_mbcs_free(zMbcs);
   }
   return rc;
 }
@@ -124,6 +126,16 @@ int file_isdir(const char *zFilename){
 }
 
 /*
+** Wrapper around the access() system call.
+*/
+int file_access(const char *zFilename, int flags){
+  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
+  int rc = access(zMbcs, flags);
+  fossil_mbcs_free(zMbcs);
+  return rc;
+}
+
+/*
 ** Find an unused filename similar to zBase with zSuffix appended.
 **
 ** Make the name relative to the working directory if relFlag is true.
@@ -168,9 +180,9 @@ void file_copy(const char *zFrom, const char *zTo){
   FILE *in, *out;
   int got;
   char zBuf[8192];
-  in = fopen(zFrom, "rb");
+  in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
-  out = fopen(zTo, "wb");
+  out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
     fwrite(zBuf, 1, got, out);
@@ -204,6 +216,15 @@ int file_setexe(const char *zFilename, int onoff){
 }
 
 /*
+** Delete a file.
+*/
+void file_delete(const char *zFilename){
+  char *z = fossil_utf8_to_mbcs(zFilename);
+  unlink(z);
+  fossil_mbcs_free(z);
+}
+
+/*
 ** Create the directory named in the argument, if it does not already
 ** exist.  If forceFlag is 1, delete any prior non-directory object 
 ** with the same name.
@@ -214,11 +235,15 @@ int file_mkdir(const char *zName, int forceFlag){
   int rc = file_isdir(zName);
   if( rc==2 ){
     if( !forceFlag ) return 1;
-    unlink(zName);
+    file_delete(zName);
   }
   if( rc!=1 ){
 #if defined(_WIN32)
-    return mkdir(zName);
+    int rc;
+    char *zMbcs = fossil_utf8_to_mbcs(zName);
+    rc = mkdir(zMbcs);
+    fossil_mbcs_free(zMbcs);
+    return rc;
 #else
     return mkdir(zName, 0755);
 #endif
@@ -352,9 +377,9 @@ void cmd_test_simplify_name(void){
   char *z;
   for(i=2; i<g.argc; i++){
     z = mprintf("%s", g.argv[i]);
-    printf("[%s] -> ", z);
+    fossil_print("[%s] -> ", z);
     file_simplify_name(z, -1);
-    printf("[%s]\n", z);
+    fossil_print("[%s]\n", z);
     fossil_free(z);
   }
 }
@@ -379,8 +404,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
   }else{
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-      fossil_exit(1);
+      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
     }
     blob_zero(pOut);
     blob_appendf(pOut, "%//%/", zPwd, zOrigName);
@@ -403,15 +427,15 @@ void cmd_test_canonical_name(void){
     char zBuf[100];
     const char *zName = g.argv[i];
     file_canonical_name(zName, &x);
-    printf("[%s] -> [%s]\n", zName, blob_buffer(&x));
+    fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_size(zName));
-    printf("  file_size   = %s\n", zBuf);
+    fossil_print("  file_size   = %s\n", zBuf);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_mtime(zName));
-    printf("  file_mtime  = %s\n", zBuf);
-    printf("  file_isfile = %d\n", file_isfile(zName));
-    printf("  file_isexe  = %d\n", file_isexe(zName));
-    printf("  file_isdir  = %d\n", file_isdir(zName));
+    fossil_print("  file_mtime  = %s\n", zBuf);
+    fossil_print("  file_isfile = %d\n", file_isfile(zName));
+    fossil_print("  file_isexe  = %d\n", file_isexe(zName));
+    fossil_print("  file_isdir  = %d\n", file_isdir(zName));
   }
 }
 
@@ -455,8 +479,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
     Blob tmp;
     char zPwd[2000];
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-      fprintf(stderr, "pwd too big: max %d\n", (int)sizeof(zPwd)-20);
-      fossil_exit(1);
+      fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
     }
     for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}
     if( zPath[i]==0 ){
@@ -504,7 +527,7 @@ void cmd_test_relative_name(void){
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     file_relative_name(g.argv[i], &x);
-    printf("%s\n", blob_buffer(&x));
+    fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
 }
@@ -559,7 +582,7 @@ void cmd_test_tree_name(void){
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
     if( file_tree_name(g.argv[i], &x, 1) ){
-      printf("%s\n", blob_buffer(&x));
+      fossil_print("%s\n", blob_buffer(&x));
       blob_reset(&x);
     }
   }
@@ -622,13 +645,10 @@ void file_tempname(int nBuf, char *zBuf){
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789";
   unsigned int i, j;
-  struct stat buf;
   const char *zDir = ".";
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
-    if( stat(azDirs[i], &buf) ) continue;
-    if( !S_ISDIR(buf.st_mode) ) continue;
-    if( access(azDirs[i], 07) ) continue;
+    if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
     break;
   }
@@ -648,7 +668,7 @@ void file_tempname(int nBuf, char *zBuf){
       zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
     }
     zBuf[j] = 0;
-  }while( access(zBuf,0)==0 );
+  }while( file_size(zBuf)<0 );
 }
 
 
@@ -669,4 +689,105 @@ int file_is_the_same(Blob *pContent, const char *zName){
   rc = blob_compare(&onDisk, pContent);
   blob_reset(&onDisk);
   return rc==0;
+}
+
+
+/**************************************************************************
+** The following routines translate between MBCS and UTF8 on windows.
+** Since everything is always UTF8 on unix, these routines are no-ops
+** there.
+*/
+#ifdef _WIN32
+# include <windows.h>
+#endif
+
+/*
+** Translate MBCS to UTF8.  Return a pointer to the translated text.  
+** Call fossil_mbcs_free() to deallocate any memory used to store the
+** returned pointer when done.
+*/
+char *fossil_mbcs_to_utf8(const char *zMbcs){
+#ifdef _WIN32
+  extern char *sqlite3_win32_mbcs_to_utf8(const char*);
+  return sqlite3_win32_mbcs_to_utf8(zMbcs);
+#else
+  return (char*)zMbcs;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate UTF8 to MBCS for use in system calls.  Return a pointer to the
+** translated text..  Call fossil_mbcs_free() to deallocate any memory
+** used to store the returned pointer when done.
+*/
+char *fossil_utf8_to_mbcs(const char *zUtf8){
+#ifdef _WIN32
+  extern char *sqlite3_win32_utf8_to_mbcs(const char*);
+  return sqlite3_win32_utf8_to_mbcs(zUtf8);
+#else
+  return (char*)zUtf8;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
+** translated text..  Call fossil_mbcs_free() to deallocate any memory
+** used to store the returned pointer when done.
+*/
+char *fossil_utf8_to_console(const char *zUtf8){
+#ifdef _WIN32
+  int nChar, nByte;
+  WCHAR *zUnicode;   /* Unicode version of zUtf8 */
+  char *zConsole;    /* Console version of zUtf8 */
+  int codepage;      /* Console code page */
+
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, NULL, 0);
+  zUnicode = malloc( nChar*sizeof(zUnicode[0]) );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
+  if( nChar==0 ){
+    free(zUnicode);
+    return 0;
+  }
+  codepage = GetConsoleCP();
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, 0, 0, 0, 0);
+  zConsole = malloc( nByte );
+  if( zConsole==0 ){
+    free(zUnicode);
+    return 0;
+  }
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, zConsole, nByte, 0, 0);
+  free(zUnicode);
+  if( nByte == 0 ){
+    free(zConsole);
+    zConsole = 0;
+  }
+  return zConsole;
+#else
+  return (char*)zUtf8;  /* No-op on unix */
+#endif  
+}
+
+/*
+** Translate MBCS to UTF8.  Return a pointer.  Call fossil_mbcs_free()
+** to deallocate any memory used to store the returned pointer when done.
+*/
+void fossil_mbcs_free(char *zOld){
+#ifdef _WIN32
+  free(zOld);
+#else
+  /* No-op on unix */
+#endif  
+}
+
+/*
+** Like fopen() but always takes a UTF8 argument.
+*/
+FILE *fossil_fopen(const char *zName, const char *zMode){
+  char *zMbcs = fossil_utf8_to_mbcs(zName);
+  FILE *f = fopen(zMbcs, zMode);
+  fossil_mbcs_free(zMbcs);
+  return f;
 }

@@ -378,7 +378,7 @@ int md5sum_file(const char *zFilename, Blob *pCksum){
   unsigned char zResult[16];
   char zBuf[10240];
 
-  in = fopen(zFilename,"rb");
+  in = fossil_fopen(zFilename,"rb");
   if( in==0 ){
     return 1;
   }
@@ -440,7 +440,7 @@ void md5sum_test(void){
     }else{
       md5sum_file(g.argv[i], &cksum);
     }
-    printf("%s  %s\n", blob_str(&cksum), g.argv[i]);
+    fossil_print("%s  %s\n", blob_str(&cksum), g.argv[i]);
     blob_reset(&cksum);
   }
 }

@@ -168,7 +168,7 @@ void db_force_rollback(void){
   busy = 0;
   db_close(0);
   for(i=0; i<nDeleteOnFail; i++){
-    unlink(azDeleteOnFail[i]);
+    file_delete(azDeleteOnFail[i]);
   }
 }
 
@@ -697,6 +697,7 @@ void db_open_config(int useAttach){
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
                 "environment variables");
   }
+  zHome = fossil_mbcs_to_utf8(zHome);
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){
@@ -742,7 +743,7 @@ static int isValidLocalDb(const char *zDbName){
   int rc;
   sqlite3_stmt *pStmt;
 
-  if( access(zDbName, F_OK) ) return 0;
+  if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
@@ -817,7 +818,7 @@ int db_open_local(void){
   strncpy(zPwd, zPwdConv, 2000-20);
   free(zPwdConv);
   while( n>0 ){
-    if( access(zPwd, W_OK) ) break;
+    if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
@@ -855,11 +856,11 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( access(zDbName, R_OK) || file_size(zDbName)<1024 ){
-    if( access(zDbName, 0) ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
+    if( file_access(zDbName, 0) ){
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
-    }else if( access(zDbName, R_OK) ){
+    }else if( file_access(zDbName, R_OK) ){
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
       fossil_panic("not a valid repository: %s", zDbName);
@@ -966,7 +967,7 @@ void move_repo_cmd(void){
   }
   file_canonical_name(g.argv[2], &repo);
   zRepo = blob_str(&repo);
-  if( access(zRepo, 0) ){
+  if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
   }
   db_open_or_attach(zRepo, "test_repo");

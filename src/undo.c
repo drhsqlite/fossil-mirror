@@ -60,15 +60,15 @@ static void undo_one(const char *zPathname, int redoFlag){
     }
     if( old_exists ){
       if( new_exists ){
-        printf("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
+        fossil_print("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
-        printf("NEW %s\n", zPathname);
+        fossil_print("NEW %s\n", zPathname);
       }
       blob_write_to_file(&new, zFullname);
       file_setexe(zFullname, old_exe);
     }else{
-      printf("DELETE %s\n", zPathname);
-      unlink(zFullname);
+      fossil_print("DELETE %s\n", zPathname);
+      file_delete(zFullname);
     }
     blob_reset(&new);
     free(zFullname);
@@ -299,7 +299,7 @@ void undo_save_stash(int stashid){
 void undo_finish(void){
   if( undoActive ){
     if( undoNeedRollback ){
-      printf("\"fossil undo\" is available to undo changes"
+      fossil_print("\"fossil undo\" is available to undo changes"
              " to the working checkout.\n");
     }
     undoActive = 0;
@@ -321,7 +321,7 @@ void undo_rollback(void){
   assert( undoActive );
   undoNeedRollback = 0;
   undoActive = 0;
-  printf("Rolling back prior filesystem changes...\n");
+  fossil_print("Rolling back prior filesystem changes...\n");
   undo_all_filesystem(0);
 }
 
@@ -362,30 +362,31 @@ void undo_cmd(void){
   undo_available = db_lget_int("undo_available", 0);
   if( explainFlag ){
     if( undo_available==0 ){
-      printf("No undo or redo is available\n");
+      fossil_print("No undo or redo is available\n");
     }else{
       Stmt q;
       int nChng = 0;
       zCmd = undo_available==1 ? "undo" : "redo";
-      printf("A %s is available for the following command:\n\n   %s %s\n\n",
-              zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+      fossil_print("A %s is available for the following command:\n\n"
+                   "   %s %s\n\n",
+                   zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
       db_prepare(&q,
         "SELECT existsflag, pathname FROM undo ORDER BY pathname"
       );
       while( db_step(&q)==SQLITE_ROW ){
         if( nChng==0 ){
-          printf("The following file changes would occur if the "
-                 "command above is %sne:\n\n", zCmd);
+          fossil_print("The following file changes would occur if the "
+                       "command above is %sne:\n\n", zCmd);
         }
         nChng++;
-        printf("%s %s\n", 
+        fossil_print("%s %s\n", 
            db_column_int(&q,0) ? "UPDATE" : "DELETE",
            db_column_text(&q, 1)
         );
       }
       db_finalize(&q);
       if( nChng==0 ){
-        printf("No file changes would occur with this undo/redo.\n");
+        fossil_print("No file changes would occur with this undo/redo.\n");
       }
     }
   }else{
@@ -412,7 +413,7 @@ void undo_cmd(void){
     }
     vid2 = db_lget_int("checkout", 0);
     if( vid1!=vid2 ){
-      printf("--------------------\n");
+      fossil_print("--------------------\n");
       show_common_info(vid2, "updated-to:", 1, 0);
     }
   }

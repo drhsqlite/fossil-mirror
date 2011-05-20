@@ -252,13 +252,13 @@ void glob_test_cmd(void){
   Glob *pGlob;
   int i;
   if( g.argc<4 ) usage("PATTERN STRING ...");
-  printf("SQL expression: %s\n", glob_expr("x", g.argv[2]));
+  fossil_print("SQL expression: %s\n", glob_expr("x", g.argv[2]));
   pGlob = glob_create(g.argv[2]);
   for(i=0; i<pGlob->nPattern; i++){
-    printf("pattern[%d] = [%s]\n", i, pGlob->azPattern[i]);
+    fossil_print("pattern[%d] = [%s]\n", i, pGlob->azPattern[i]);
   }
   for(i=3; i<g.argc; i++){
-    printf("%d %s\n", glob_match(pGlob, g.argv[i]), g.argv[i]);
+    fossil_print("%d %s\n", glob_match(pGlob, g.argv[i]), g.argv[i]);
   }
   glob_free(pGlob);
 }

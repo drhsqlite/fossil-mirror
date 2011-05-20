@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -1118,7 +1118,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   if( iPort>mnPort ){
-    printf("Listening for HTTP requests on TCP port %d\n", iPort);
+    fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
     fflush(stdout);
   }
   if( zBrowser ){

@@ -801,6 +801,32 @@ void fossil_error_reset(void){
 }
 
 /*
+** Write to standard output or standard error.
+**
+** On windows, transform the output into the current terminal encoding
+** if the output is going to the screen.  If output is redirected into
+** a file, no translation occurs.  No translation ever occurs on unix.
+*/
+void fossil_puts(const char *z, int toStdErr){
+#if defined(_WIN32)
+  static int once = 1;
+  static int istty[2];
+  char *zToFree = 0;
+  if( once ){
+    istty[0] = _isatty(fileno(stdout));
+    istty[1] = _isatty(fileno(stderr));
+    once = 0;
+  }
+  assert( toStdErr==0 || toStdErr==1 );
+  if( istty[toStdErr] ) z = zToFree = fossil_utf8_to_console(z);
+  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
+  free(zToFree);
+#else
+  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
+#endif
+}
+
+/*
 ** Write output for user consumption.  If g.cgiOutput is enabled, then
 ** send the output as part of the CGI reply.  If g.cgiOutput is false,
 ** then write on standard output.
@@ -813,7 +839,7 @@ void fossil_print(const char *zFormat, ...){
   }else{
     Blob b = empty_blob;
     vxprintf(&b, zFormat, ap);
-    fwrite(blob_buffer(&b), 1, blob_size(&b), stdout);
+    fossil_puts(blob_str(&b), 0);
     blob_reset(&b);
   }
 }

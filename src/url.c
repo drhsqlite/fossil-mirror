@@ -210,22 +210,22 @@ void cmd_test_urlparser(void){
   }
   url_parse(g.argv[2]);
   for(i=0; i<2; i++){
-    printf("g.urlIsFile    = %d\n", g.urlIsFile);
-    printf("g.urlIsHttps   = %d\n", g.urlIsHttps);
-    printf("g.urlIsSsh     = %d\n", g.urlIsSsh);
-    printf("g.urlProtocol  = %s\n", g.urlProtocol);
-    printf("g.urlName      = %s\n", g.urlName);
-    printf("g.urlPort      = %d\n", g.urlPort);
-    printf("g.urlDfltPort  = %d\n", g.urlDfltPort);
-    printf("g.urlHostname  = %s\n", g.urlHostname);
-    printf("g.urlPath      = %s\n", g.urlPath);
-    printf("g.urlUser      = %s\n", g.urlUser);
-    printf("g.urlPasswd    = %s\n", g.urlPasswd);
-    printf("g.urlCanonical = %s\n", g.urlCanonical);
-    printf("g.urlFossil    = %s\n", g.urlFossil);
+    fossil_print("g.urlIsFile    = %d\n", g.urlIsFile);
+    fossil_print("g.urlIsHttps   = %d\n", g.urlIsHttps);
+    fossil_print("g.urlIsSsh     = %d\n", g.urlIsSsh);
+    fossil_print("g.urlProtocol  = %s\n", g.urlProtocol);
+    fossil_print("g.urlName      = %s\n", g.urlName);
+    fossil_print("g.urlPort      = %d\n", g.urlPort);
+    fossil_print("g.urlDfltPort  = %d\n", g.urlDfltPort);
+    fossil_print("g.urlHostname  = %s\n", g.urlHostname);
+    fossil_print("g.urlPath      = %s\n", g.urlPath);
+    fossil_print("g.urlUser      = %s\n", g.urlUser);
+    fossil_print("g.urlPasswd    = %s\n", g.urlPasswd);
+    fossil_print("g.urlCanonical = %s\n", g.urlCanonical);
+    fossil_print("g.urlFossil    = %s\n", g.urlFossil);
     if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
-      printf("********\n");
+      fossil_print("********\n");
       url_enable_proxy("Using proxy: ");
     }
   }
@@ -278,7 +278,7 @@ void url_enable_proxy(const char *zMsg){
     g.urlUser = 0;
     g.urlPasswd = "";
     url_parse(zProxy);
-    if( zMsg ) printf("%s%s\n", zMsg, g.urlCanonical);
+    if( zMsg ) fossil_print("%s%s\n", zMsg, g.urlCanonical);
     g.urlPath = zOriginalUrl;
     g.urlHostname = zOriginalHost;
     if( g.urlUser ){
