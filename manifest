@@ -1,5 +1,5 @@
-C Convert\ssome\sfopen()\scalls\sto\sfossil_fopen().\s\sMissed\sthem\spreviously.
-D 2011-05-20T11:22:42.101
+C Merge\sall\sthe\slatest\strunk\schanges\sinto\sthe\swindows-i18n\sbranch.
+D 2011-05-20T11:24:14.939
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -79,7 +79,7 @@ F src/main.mk 250bbd15b118f998db2f20179d47cd8e8cf4ecd1
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 22fc2283ab3abe1237876ced93e402d5cb5d854f
-F src/manifest.c 724f4c3ac0b42176efba9a550a9990beadbaab1b
+F src/manifest.c 4abc80efd62c0f4bc1f4bfcf4fdca1e9ff5a3ca5
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 8efd7a5dd8d6d088224d80e15b21122304445b31
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
@@ -100,9 +100,9 @@ F src/sha1.c 2302f92df963dd21ccd703f5657e6a3a0e56107f
 F src/shell.c d275901b531cf10b09449606854884b467e37e79
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 405331b790f44c7a71058b0f613c7f6a3f2beedd
-F src/sqlcmd.c f553c2e220f50a928b9df6ab94539a0b2b92d5dd
-F src/sqlite3.c f2f0ca067793e73f15cd09253f8d96fd6006d821
-F src/sqlite3.h cf64c8609e2b3ddc9e5648c75c38f414aa3a2487
+F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
+F src/sqlite3.c 7043d765343c615f50ab28ba1c5625deb9041971
+F src/sqlite3.h 6bb01d064571784607da007b1273d849f97816e7
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
@@ -113,7 +113,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c 7cd05fc0b3aeb5ebd6d9a01847fbfa4bdef64f08
+F src/timeline.c 56d0626b06378e1dc23fd67c153fba2ca30d3c70
 F src/tkt.c 11d9fef00047ba073926f3e50a10271d3afe2bd7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -275,7 +275,7 @@ F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
 F www/fossil2.gif f64284050bf93f1b74fd05ed00de9984b79193b3
 F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
-F www/fossil_logo_small.gif b47a93e56ed5544b2942330bad7afff0b188a093
+F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 1e324b967d5b4186b0d1d538521887c46289d636
@@ -294,7 +294,7 @@ F www/quotes.wiki e18c691ce7d283772c8256e98ab41b05ced53188
 F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
 F www/reviews.wiki c6a9214755235014ed57de3b7689d0b33976573c
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
-F www/selfhost.wiki c45c0d784f65ac5bc7a457d492f2ebbb3bcdadb7
+F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki e04769dc27d1905d2a5cbbfabf40c316b5dbc293
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 625226d577c2b329cd109b52d5da118e4f50accf
-R be99b6e7b9c8f1a87d4d505059d5e51a
+P f626fcaab66a38c4628732db207c24efb15c8b68 5267731a858ec23d9472fd9a121bbfc777a95610
+R 7773e9871a335148ecdeaf1aaf5c2b50
 U drh
-Z 2236abf24b8045cc58e75d76acd7f0f6
+Z 9f4c5df764f374efe5a472d4e7ec2e26

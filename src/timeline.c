@@ -728,19 +728,19 @@ static void timeline_submenu(
 static void timeline_add_dividers(const char *zDate, int rid){
   char *zToDel = 0;
   if( zDate==0 ){
-    zToDel = db_text(0,"SELECT datetime(mtime,'localtime') FROM event"
+    zToDel = db_text(0,"SELECT julianday(mtime,'localtime') FROM event"
                        " WHERE objid=%d", rid);
     zDate = zToDel;
     if( zDate==0 ) zDate = "1";
   }
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-1,julianday(%Q,'utc')-5.0e-6,'div')",
+    "VALUES(-1,julianday(%Q,'utc')-1.0e-5,'div')",
     zDate
   );
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-2,julianday(%Q,'utc')+5.0e-6,'div')",
+    "VALUES(-2,julianday(%Q,'utc')+1.0e-5,'div')",
      zDate
   );
   fossil_free(zToDel);
