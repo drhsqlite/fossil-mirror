@@ -1,5 +1,5 @@
-C Do\snot\sshort-circuit\sthe\supdate\scommand\sif\sthe\s--verbose\soption\sis\sused.
-D 2011-05-20T12:29:36.901
+C Convert\sthe\sreturn\svalue\sof\sgetcwd()\sfrom\sMBCS\sinto\sUTF8\sbefore\susing\sit.
+D 2011-05-20T14:17:54.980
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -61,7 +61,7 @@ F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
-F src/file.c 8b337895c2d961c3ef3242bdf01a51615fa56655
+F src/file.c f21fe601bbee186615c09f846d04960de72e7ba6
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c60e143f287a43d0ec40da89130d50386a3dabc7
-R b150e6b4b2e23a5aa3f2acb241b8f000
+P 3b5db9a10ef653cc3115bc8caf050e63fe52c8d6
+R 298069502744e2c8ae5ab3a0244d9572
 U drh
-Z ba6a27d4f586b117242b56d58aec7681
+Z f18a6796ee3d561e8a9db062618ba000

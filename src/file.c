@@ -403,11 +403,14 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
     blob_materialize(pOut);
   }else{
     char zPwd[2000];
+    char *zPwdUtf8;
     if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
       fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-20);
     }
     blob_zero(pOut);
-    blob_appendf(pOut, "%//%/", zPwd, zOrigName);
+    zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
+    blob_appendf(pOut, "%//%/", zPwdUtf8, zOrigName);
+    fossil_mbcs_free(zPwdUtf8);
   }
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
 }
