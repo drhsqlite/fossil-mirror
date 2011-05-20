@@ -268,7 +268,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   unsigned char zResult[20];
   char zBuf[10240];
 
-  in = fopen(zFilename,"rb");
+  in = fossil_fopen(zFilename,"rb");
   if( in==0 ){
     return 1;
   }

@@ -1289,8 +1289,8 @@ void cmd_http(void){
   }
   g.fullHttpReply = 1;
   if( g.argc==6 ){
-    g.httpIn = fopen(g.argv[3], "rb");
-    g.httpOut = fopen(g.argv[4], "wb");
+    g.httpIn = fossil_fopen(g.argv[3], "rb");
+    g.httpOut = fossil_fopen(g.argv[4], "wb");
     zIpAddr = g.argv[5];
   }else{
     g.httpIn = stdin;
