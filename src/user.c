@@ -21,6 +21,10 @@
 #include "config.h"
 #include "user.h"
 
+#if defined(__sun__) || defined(sun)
+  /* On Solaris, getpass() will only return up to 8 characters. getpassphrase() returns up to 257. */
+  #define getpass getpassphrase
+#endif
 
 /*
 ** Strip leading and trailing space from a string and add the string

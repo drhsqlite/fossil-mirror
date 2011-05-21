@@ -61,9 +61,12 @@ TCLSH = tclsh
 #
 # Automatic platform-specific options.
 HOST_OS!= uname -s
+# Some makes use a different syntax
+HOST_OS_ALT :sh = uname -s
 
 LIB.SunOS= -lsocket -lnsl
 LIB += $(LIB.$(HOST_OS))
+LIB += $(LIB.$(HOST_OS_ALT))
 
 TCC.DragonFly += -DUSE_PREAD
 TCC.FreeBSD += -DUSE_PREAD
