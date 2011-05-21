@@ -177,6 +177,7 @@ void update_cmd(void){
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"
                     " ORDER BY event.mtime DESC"); 
+    if( tid==0 ) tid = vid;
   }
 
   if( tid==0 ){
