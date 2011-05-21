@@ -217,7 +217,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   if( pManifest ){
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
-    if( db_get_boolean("manifest", 0) ){
+    if( db_get_versionable_setting_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       tar_add_file(zName, &mfile, 0, mTime);

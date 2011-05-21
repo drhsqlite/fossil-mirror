@@ -226,12 +226,12 @@ void extra_cmd(void){
   Glob *pIgnore;
 
   db_must_be_within_tree();
-  outputManifest = db_get_boolean("manifest",0);
+  outputManifest = db_get_versionable_setting_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get("ignore-glob", 0);
+    zIgnoreFlag = db_get_versionable_setting("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
@@ -285,7 +285,7 @@ void clean_cmd(void){
   zIgnoreFlag = find_option("ignore",0,1);
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get("ignore-glob", 0);
+    zIgnoreFlag = db_get_versionable_setting("ignore-glob", 0);
   }
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
@@ -833,7 +833,7 @@ void commit_cmd(void){
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
   useCksum = db_get_boolean("repo-cksum", 1);
-  outputManifest = db_get_boolean("manifest", 0);
+  outputManifest = db_get_versionable_setting_boolean("manifest", 0);
   verify_all_options();
 
   /* So that older versions of Fossil (that do not understand delta-
@@ -974,7 +974,7 @@ void commit_cmd(void){
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
-    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
+    g.zLocalRoot, glob_expr("pathname", db_get_versionable_setting("crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;

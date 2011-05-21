@@ -1394,6 +1394,42 @@ void db_swap_connections(void){
 }
 
 /*
+** Get a potentially versioned setting - either from .fossil-settings/<name>
+*/
+char *db_get_versionable_setting(const char *zName, char *zDefault){
+  char *s = 0;
+  if( db_open_local() ){
+    /* See if there's a versioned setting */
+    Blob versionedPathname;
+    blob_zero(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, zName);
+    char *zVersionedPathname = blob_str(&versionedPathname);
+    if( file_size(zVersionedPathname) >= 0 ){
+      /* File exists, and contains the value for this setting. Load from the file. */
+      Blob setting;
+      blob_zero(&setting);
+      if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
+        s = strdup(blob_str(&setting));
+      }
+      blob_reset(&setting);
+    }
+    blob_reset(&versionedPathname);
+  }
+  if( s != 0 ){
+    return s;
+  }
+  /* Fall back to settings in the database */
+  return db_get(zName, zDefault);
+}
+int db_get_versionable_setting_boolean(const char *zName, int dflt){
+  char *zVal = db_get_versionable_setting(zName, dflt ? "on" : "off");
+  if( is_truth(zVal) ) return 1;
+  if( is_false(zVal) ) return 0;
+  return dflt;
+}
+
+
+/*
 ** Get and set values from the CONFIG, GLOBAL_CONFIG and VVAR table in the
 ** repository and local databases.
 */
