@@ -179,6 +179,10 @@ void update_cmd(void){
                     " ORDER BY event.mtime DESC"); 
   }
 
+  if( tid==0 ){
+    fossil_panic("Internal Error: unable to find a version to update to.");
+  }
+
   if( tid==vid && !verboseFlag ) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1, 0);
