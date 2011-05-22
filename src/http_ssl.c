@@ -184,11 +184,20 @@ char *connStr ;
     char *warning = "";
     Blob ans;
     BIO *mem;
+    unsigned char md[32];
+    unsigned int mdLength = 31;
     
     mem = BIO_new(BIO_s_mem());
     X509_NAME_print_ex(mem, X509_get_subject_name(cert), 2, XN_FLAG_MULTILINE);
     BIO_puts(mem, "\n\nIssued By:\n\n");
     X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 2, XN_FLAG_MULTILINE);
+    BIO_puts(mem, "\n\nSHA1 Fingerprint:\n\n ");
+    if(X509_digest(cert, EVP_sha1(), md, &mdLength)){
+      int j;
+      for( j = 0; j < mdLength; ++j ) {
+        BIO_printf(mem, " %02x", md[j]);
+      }
+    }
     BIO_write(mem, "", 1); // null-terminate mem buffer
     BIO_get_mem_data(mem, &desc);
     

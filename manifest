@@ -1,5 +1,5 @@
-C Create\snew\sbranch\snamed\s"ben-security"
-D 2011-05-22T14:23:41.407
+C When\sdisplaying\san\sunknown\scertificate,\salso\sdisplay\sthe\scertificate\sfingerprint\sso\sthe\suser\scan\sverify\sthey're\sseeing\sthe\scertificate\sthey\sexpect.\sJust\sdisplaying\sthe\stextual\snames\sin\sthe\scertificate\sdoes\snot\sgive\senough\sinformation\sto\sbe\scertain\ssomeone\sisn't\sdoing\sa\sman\sin\sthe\smiddle\sattack.
+D 2011-05-22T14:53:02.216
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -68,7 +68,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 689473160573d256e1d8c6936ef4a77bdec318a6
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
+F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 38e5ccd5db35cd7638edfcabbfa59bb3f55b1178
 F src/info.c 698126d41ad259f8b4a8acec5515d668a2a8ab2e
@@ -304,10 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1343cfad7bd4a27f76322ac7f466e43af2898f8d
-R 54edfb75883f68c66c09d47de6a09058
-T *branch * ben-security
-T *sym-ben-security *
-T -sym-trunk *
+P 2b4a6a66e1d6ae6598c7358cb9718138c2813f36
+R 3d535c9f1cec4ec258ca909cb4815dee
 U ben
-Z 29baa1431212c2f469084407fdc49e18
+Z 6b11d3739ec4437d9c727053fff95a38
