@@ -339,7 +339,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
   if( pManifest ){
     char *zName;
     zip_set_timedate(pManifest->rDate);
-    if( db_get_boolean("manifest", 0) ){
+    if( db_get_versionable_setting_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
       zip_add_folders(zName);
