@@ -1,5 +1,5 @@
-C When\sdisplaying\san\sunknown\scertificate,\salso\sdisplay\sthe\scertificate\sfingerprint\sso\sthe\suser\scan\sverify\sthey're\sseeing\sthe\scertificate\sthey\sexpect.\sJust\sdisplaying\sthe\stextual\snames\sin\sthe\scertificate\sdoes\snot\sgive\senough\sinformation\sto\sbe\scertain\ssomeone\sisn't\sdoing\sa\sman\sin\sthe\smiddle\sattack.
-D 2011-05-22T14:53:02.216
+C Follow\sweb\sapp\sbest\spractise\sby\smarking\scookies\sas\sHttpOnly\sand,\sif\sit's\sover\san\shttps\sconnection,\sas\s'secure'\sso\sthey\swill\sonly\sbe\stransmitted\sover\shttps.\sOptions\ssupported\sby\smajor\sbrowsers,\sand\sharmless\swhere\snot\ssupported.
+D 2011-05-22T15:08:15.642
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -42,7 +42,7 @@ F src/blob.c b2ba38948b73066c6312394ea33557e6378f2bb0
 F src/branch.c 94e523df0b8e3b5a5fd84eecfddf8d3cd237ac19
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c e48f64026734d229a5c2562352d2c267f6385a8f
+F src/cgi.c 8f75bbe4e4fa5f9253aec3cd35a2dfe1deab354a
 F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
 F src/checkout.c 7533e7594e5803cac79d9c0cfc4fcc49e035de32
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2b4a6a66e1d6ae6598c7358cb9718138c2813f36
-R 3d535c9f1cec4ec258ca909cb4815dee
+P fc93bfb0f720e5d1a2963a60b4c263f7f7b01e39
+R 1367bd0967b0be64e0586feb87c4596d
 U ben
-Z 6b11d3739ec4437d9c727053fff95a38
+Z 01c889e85a2c615ded8555560b28ea46
