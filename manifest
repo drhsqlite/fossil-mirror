@@ -1,5 +1,5 @@
-C Add\sdb_get_versionable_setting()\sfor\simplementing\s'versionable\ssettings',\swhich\sis\slike\sdb_get()\sexcept\swill\sprefer\sto\sread\sthe\svalue\sfrom\s.fossil-settings/NAME\sin\sthe\schecked\sout\ssource,\srather\sthan\sthe\sdatabase.
-D 2011-05-22T09:38:59.191
+C When\sparsing\sglob\ssettings,\sallow\ssplits\son\snewlines\sas\swell\sas\scommas.\sAllows\sversionable\sglob\ssettings\sto\sbe\swritten\sone\sglob\sper\sline\sfor\sreadability.
+D 2011-05-22T09:44:45.289
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -63,7 +63,7 @@ F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
 F src/file.c 05fff3af4af9cbb4e5e9488610a11ed35704c28d
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
-F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
+F src/glob.c d67880c1adc957e19584f2a54353b0c29d9bee22
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 689473160573d256e1d8c6936ef4a77bdec318a6
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3db75c4803c934f9c2b8de26a8ebd50dd45684b1
-R db4ef7718746cd2f76be369b1682b818
+P 09e52f0df7bab794159322def51e43c71debf9b7
+R 1e364847edfb00c5f08b6fd5b78b1d9e
 U ben
-Z 9c077745c4a477354b9ea78b15a9177f
+Z 344a56432fe0977930a30b297f913bb8
