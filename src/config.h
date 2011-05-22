@@ -85,6 +85,13 @@
 #include "sqlite3.h"
 
 /*
+** On Solaris, getpass() will only return up to 8 characters. getpassphrase() returns up to 257.
+*/
+#if defined(__sun__) || defined(sun)
+  #define getpass getpassphrase
+#endif
+
+/*
 ** Typedef for a 64-bit integer
 */
 typedef sqlite3_int64 i64;
