@@ -1,5 +1,5 @@
-C Turn\signore-glob,\scrnl-glob,\sbinary-glob\sand\smanifest\ssettings\sinto\sversionable\ssettings.
-D 2011-05-22T09:50:20.982
+C Add\sversionable\sempty-dirs\ssetting\swhich\sspecifies\sa\snewline\sseparated\slist\sof\sempty\sdirectories\sto\sbe\screated\safter\scheckout\sand\supdate\scommands.
+D 2011-05-22T09:52:07.949
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -44,14 +44,14 @@ F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c e48f64026734d229a5c2562352d2c267f6385a8f
 F src/checkin.c 28a59f570d52f1cdc7995dabb726a5ead01da4f2
-F src/checkout.c a5fa08d1b0602f1e47c12a1f34f7dfae5cc4790d
+F src/checkout.c befd8be9905dfd224163c2f7934555fb46b29fa3
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 7e5756b2a0435575737758c3a43f50e666945e97
-F src/configure.c 3a46aae55cdc6cc4e379bc034253d79be896aaba
+F src/configure.c 0f3469ea29efe10d543788791512f0a5e67f691f
 F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
-F src/db.c c1bc8a8d3818f894b10dce23209961ebc7d743cd
+F src/db.c 56dc6b37d2c11aaf62c433c834b36d69d76bad54
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
@@ -118,7 +118,7 @@ F src/tkt.c 11d9fef00047ba073926f3e50a10271d3afe2bd7
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
-F src/update.c b07510de511cf78d70bbb2bc3e7fea97dfdb948c
+F src/update.c d7f30f5a7981256c4dd974d17273db17b4895489
 F src/url.c b946650cb4e034b50b0f9939a1331c112d6d0cc3
 F src/user.c 68567bd8dca442db174c811c8a98455c420d3de5
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7d048033924f6171390e97b680f20b4972e367f5
-R 6138aa61cf77e5dbb1a3209ae2740846
+P 43b0d795e50bc0f53743bd80bbbbac054200c0ef
+R 8d0dea87da321d37fa3ba2fc8cc4cf6e
 U ben
-Z baf1875e7af237064511bc3ae85599f2
+Z 3f236f14de3b89da4abedb1e9a446e83

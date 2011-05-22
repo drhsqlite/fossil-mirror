@@ -117,6 +117,9 @@ void update_cmd(void){
     fossil_fatal("cannot update an uncommitted merge");
   }
   if( !nochangeFlag && !internalUpdate ) autosync(AUTOSYNC_PULL);
+  
+  /* Create any empty directories now, as well as after the update, so changes in settings are reflected now */
+  ensure_empty_dirs_created();
 
   if( internalUpdate ){
     tid = internalUpdate;
@@ -442,6 +445,7 @@ void update_cmd(void){
   if( nochangeFlag ){
     db_end_transaction(1);  /* With --nochange, rollback changes */
   }else{
+    ensure_empty_dirs_created();
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
@@ -455,6 +459,31 @@ void update_cmd(void){
     }
     if( !internalUpdate ) undo_finish();
     db_end_transaction(0);
+  }
+}
+
+/*
+** Make sure empty directories are created
+*/
+void ensure_empty_dirs_created()
+{
+  /* Make empty directories? */
+  char *zEmptyDirs = db_get_versionable_setting("empty-dirs", 0);
+  if( zEmptyDirs!=0 ){
+    Blob dirsList, line;
+    blob_zero(&dirsList);
+    blob_init(&dirsList, zEmptyDirs, strlen(zEmptyDirs));
+    while( blob_line(&dirsList, &line) ){
+      if( blob_buffer(&line)[0]=='#' ) continue;
+      Blob dirName;
+      int l = blob_token(&line, &dirName);
+      if(l > 0) {
+        /* Try and create the directory */
+        if( file_mkdir(blob_str(&dirName), 0)!=0 ) {
+          fossil_warning("couldn't create empty-dir %s", blob_str(&dirName));
+        }
+      }
+    }
   }
 }
 

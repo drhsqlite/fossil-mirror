@@ -1690,6 +1690,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "gmerge-command",0,               40, ""                    },
   { "https-login",   0,                0, "off"                 },
   { "ignore-glob",   0,               40, ""                    },
+  { "empty-dirs",    0,               40, ""                    },
   { "http-port",     0,               16, "8080"                },
   { "localauth",     0,                0, "off"                 },
   { "main-branch",   0,               40, "trunk"               },

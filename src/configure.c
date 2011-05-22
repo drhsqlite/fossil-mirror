@@ -83,6 +83,7 @@ static struct {
   { "manifest",               CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
+  { "empty-dirs",             CONFIGSET_PROJ },
   { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
