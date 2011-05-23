@@ -1,5 +1,5 @@
-C Merge\sthe\ssolaris10\sbranch\sinto\sthe\strunk.
-D 2011-05-23T15:06:39.477
+C Merge\sthe\sben-security\sbranch\sinto\sthe\strunk.
+D 2011-05-23T15:11:12.321
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -42,7 +42,7 @@ F src/blob.c b2ba38948b73066c6312394ea33557e6378f2bb0
 F src/branch.c 94e523df0b8e3b5a5fd84eecfddf8d3cd237ac19
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c e48f64026734d229a5c2562352d2c267f6385a8f
+F src/cgi.c 8f75bbe4e4fa5f9253aec3cd35a2dfe1deab354a
 F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
 F src/checkout.c 7533e7594e5803cac79d9c0cfc4fcc49e035de32
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -68,7 +68,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 689473160573d256e1d8c6936ef4a77bdec318a6
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 54bf448ea61e4b0ac8387ab5588c005d462c9960
+F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 38e5ccd5db35cd7638edfcabbfa59bb3f55b1178
 F src/info.c 698126d41ad259f8b4a8acec5515d668a2a8ab2e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1343cfad7bd4a27f76322ac7f466e43af2898f8d 3e61ada775441252e85d0cd2d5f8f84e7a520e3f
-R 9fa324a986bfa65b9b09b4476fccbf2c
+P 3e0efc38279da750feba830bc72ceea3a5d03789 e4b57a32303398ac4a0d239febecb622a8edd4c0
+R 7da6a0a3ab7aae5b3ea98fc94e0a023e
 U drh
-Z 1b488af54d3c85e2578d9c8d9833c236
+Z 70e6bd3a0fbe2d385b197f9bf71fd653
