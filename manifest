@@ -1,5 +1,5 @@
-C Online\shelp\sfor\sseveral\scommands\sedited\s-\sas\sfound\sin\sallrepo.c,\sbisect.c,\sbranch.c\sand\scheckin.c.\sNote:\s"commit"\sstill\sto\sbe\sedited
-D 2011-04-26T06:37:05.163
+C Extended\sthe\sonline\shelp\sfor\sthe\scommit,\sclose,\sconfigure,\sclone\sand\scheckout\scommands
+D 2011-05-24T07:27:46.896
 F BUILD.txt 5b3fceec028a664169978944cea56994add09270
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 3d9e553de869b8c0f8e674c7197fa8bbe8ac2386
@@ -43,13 +43,13 @@ F src/branch.c 775172787d66b009b9152d70ee554ee6c524530b
 F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 19b7e28e6c0a3faffcaf274c2f98bf8cf95c89d9
 F src/cgi.c db727b1ff1323c30610e4aaf8cbe14a95523567c
-F src/checkin.c 2511627f644bbc52a186dcc772a7c4248f4e6e61
-F src/checkout.c ed791540c1effdc7a6969a37d1c9a1fb1a707b11
+F src/checkin.c 44e9a9498023b136349b80cbfbe959ab85b6d577
+F src/checkout.c 5e2ae4910a54fcfc7397ed10367ffeec1c0af439
 F src/clearsign.c 1775e7a6d72ddd2cb47e2c83cbe254d6f3f33b60
-F src/clone.c 5c5d35551f921d95fe3bdef245c37d68cc900bc9
+F src/clone.c 7a363c4d7697eb1c3a0a9ebcf5a2e0faea8391ce
 F src/comformat.c 8591c01b2ba6043585b303c7a71083bc2cbe87b4
 F src/config.h 56f6a96486fb3f7d2e052279c24206037b583f1c
-F src/configure.c 0dfe397807377faf1d77d8f568299e8df524bf7a
+F src/configure.c 3d6597ce2f7b60bf6f525fdf2d7b8c73d98004f7
 F src/content.c c2d14b508dbce857c2b0a4652273cc73aba1dc32
 F src/db.c e6980419a7b93f46aa4d7acae117ea939c85a1c5
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -303,7 +303,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 963a38d5a70817d0271cfef7bd49b4e8368d2fb5
-R 4bc06c01ef8004bd7700ee5259c96741
+P e66fe70c7f7063af47f3a25aa502b7eaa13d4cf5
+R 4d85155f10dcba1abbf11560baebc0aa
 U Arjen\sMarkus
-Z eab33944e1bbd2e4263d806f644b56b8
+Z d7d89ac4481fb03ad129c313b9b7d6eb

@@ -59,7 +59,7 @@ static struct {
 
 /*
 ** The following is a list of settings that we are willing to
-** transfer.  
+** transfer.
 **
 ** Setting names that begin with an alphabetic characters refer to
 ** single entries in the CONFIG table.  Setting names that begin with
@@ -149,7 +149,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
   if( fossil_strcmp(zName, "@shun")==0 ){
     db_prepare(&q, "SELECT uuid FROM shun");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n", 
+      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n",
         db_column_text(&q, 0)
       );
     }
@@ -158,7 +158,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
-                         " VALUES(%Q,%Q,%Q);\n", 
+                         " VALUES(%Q,%Q,%Q);\n",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2)
@@ -166,7 +166,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     }
     db_finalize(&q);
   }else if( fossil_strcmp(zName, "@user")==0 ){
-    db_prepare(&q, 
+    db_prepare(&q,
         "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
         "       cap, info, quote(photo) FROM user");
     while( db_step(&q)==SQLITE_ROW ){
@@ -261,7 +261,7 @@ void configure_prepare_to_receive(int replaceFlag){
     @ INSERT INTO _xfer_user SELECT * FROM user;
   ;
   db_multi_exec(zSQL1);
-  
+
   /* When the replace flag is set, add triggers that run the first time
   ** that new data is seen.  The triggers run only once and delete all the
   ** existing data.
@@ -341,7 +341,7 @@ static void export_config(
   int i;
   Blob out;
   blob_zero(&out);
-  blob_appendf(&out, 
+  blob_appendf(&out,
     "-- The \"%s\" configuration exported from\n"
     "-- repository \"%s\"\n"
     "-- on %s\n",
@@ -352,10 +352,10 @@ static void export_config(
     if( (aConfig[i].groupMask & mask)!=0 ){
       const char *zName = aConfig[i].zName;
       if( zName[0]!='@' ){
-        char *zValue = db_text(0, 
+        char *zValue = db_text(0,
             "SELECT quote(value) FROM config WHERE name=%Q", zName);
         if( zValue ){
-          blob_appendf(&out,"REPLACE INTO config VALUES(%Q,%s);\n", 
+          blob_appendf(&out,"REPLACE INTO config VALUES(%Q,%s);\n",
                        zName, zValue);
         }
         free(zValue);
@@ -397,7 +397,7 @@ static void export_config(
 **
 **         Pull and install the configuration from a different server
 **         identified by URL.  If no URL is specified, then the default
-**         server is used. 
+**         server is used.
 **
 **    %fossil configuration push AREA ?URL?
 **
@@ -412,6 +412,22 @@ static void export_config(
 ** WARNING: Do not import, merge, or pull configurations from an untrusted
 ** source.  The inbound configuration is not checked for safety and can
 ** introduce security vulnerabilities.
+**
+**
+** SUMMARY: fossil configure METHOD ... ?-R|--repository REPOSITORY?
+** Where:   METHOD = export, import, merge, pull, push or reset
+**
+**          For methods export, pull, push and reset:
+**
+**              fossil configure METHOD AREA ?FILENAME|URL? ?-R|--repository REPOSITORY?
+**
+**          AREA = all email project shun skin ticket user
+**
+**          FILENAME used with methods export, URL used with the others
+**
+**          For methods import and merge
+**
+**              fossil configure METHOD FILENAME -R|--repository REPOSITORY?
 */
 void configuration_cmd(void){
   int n;
@@ -430,7 +446,7 @@ void configuration_cmd(void){
     mask = find_area(g.argv[3]);
     export_config(mask, g.argv[3], g.argv[4]);
   }else
-  if( strncmp(zMethod, "import", n)==0 
+  if( strncmp(zMethod, "import", n)==0
        || strncmp(zMethod, "merge", n)==0 ){
     Blob in;
     if( g.argc!=4 ) usage(mprintf("%s FILENAME",zMethod));
@@ -476,7 +492,7 @@ void configuration_cmd(void){
     char *zBackup;
     if( g.argc!=4 ) usage("reset AREA");
     mask = find_area(g.argv[3]);
-    zBackup = db_text(0, 
+    zBackup = db_text(0,
        "SELECT strftime('config-backup-%%Y%%m%%d%%H%%M%%f','now')");
     db_begin_transaction();
     export_config(mask, g.argv[3], zBackup);
@@ -498,7 +514,7 @@ void configuration_cmd(void){
     }
     db_end_transaction(0);
     printf("Configuration reset to factory defaults.\n");
-    printf("To recover, use:  %s %s import %s\n", 
+    printf("To recover, use:  %s %s import %s\n",
             fossil_nameofexe(), g.argv[1], zBackup);
   }else
   {

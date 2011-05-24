@@ -168,7 +168,7 @@ void manifest_to_disk(int vid){
       free(zManFile);
     }
   }
-    
+
 }
 
 /*
@@ -187,6 +187,9 @@ void manifest_to_disk(int vid){
 ** latest version in the repository.
 **
 ** See also the "update" command.
+**
+** SUMMARY: fossil checkout VERSION ?-f|--force? ?--keep?
+** Note: VERSION can also be --latest
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -196,7 +199,7 @@ void checkout_cmd(void){
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;
-  
+
   db_must_be_within_tree();
   db_begin_transaction();
   forceFlag = find_option("force","f",0)!=0;
@@ -282,8 +285,10 @@ static void unlink_local_database(int manifestOnly){
 ** Usage: %fossil close ?-f|--force?
 **
 ** The opposite of "open".  Close the current database connection.
-** Require a -f or --force flag if there are unsaved changed in the
+** Require a -f or --force flag if there are unsaved changes in the
 ** current check-out.
+**
+** SUMMARY: fossil close ?-f|--force?
 */
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;

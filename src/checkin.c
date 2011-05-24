@@ -843,8 +843,18 @@ static void cr_warning(const Blob *p, const char *zFilename){
 **
 ** the --tag option applies the symbolic tag name to the check-in.
 **
-** Options:
+** Notes:
+** - If you commit without the --branch option, the last branch (or the
+**   trunk) will be used.
+** - If you do not specify a commit message or an empty message, the commit
+**   will be aborted.
+** - fossil prefers text files in the UNIX format (line-endings only "LF").
+**   If it encounters text files in the Windows format (CRLF), it will
+**   warn about that.
+**   (File that are considered binary are stored as-is)
 **
+** SUMMARY: fossil commit ?OPTIONS? ?FILE...?
+** Options:
 **    --comment|-m COMMENT-TEXT
 **    --message-file|-M COMMENT-FILE
 **    --branch NEW-BRANCH-NAME

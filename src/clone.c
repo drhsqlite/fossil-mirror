@@ -29,16 +29,16 @@
 ** Usage: %fossil clone ?OPTIONS? URL FILENAME
 **
 ** Make a clone of a repository specified by URL in the local
-** file named FILENAME.  
+** file named FILENAME.
 **
 ** By default, your current login name is used to create the default
 ** admin user. This can be overridden using the -A|--admin-user
 ** parameter.
 **
+** SUMMARY: fossil clone ?OPTIONS? URL FILENAME
 ** Options:
-**
 **    --admin-user|-A USERNAME    Make USERNAME the administrator
-**    --private                   Also clone private branches 
+**    --private                   Also clone private branches
 **
 */
 void clone_cmd(void){
