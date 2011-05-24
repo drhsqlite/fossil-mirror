@@ -24,9 +24,11 @@ proc merge-test {testid basis v1 v2 result} {
   write_file t3 [join [string trim $v2] \n]\n
   fossil test-3-way-merge t1 t2 t3 t4
   set x [read_file t4]
-  regsub -all {<<<<<<< BEGIN MERGE CONFLICT:.*<} $x {>} x
-  regsub -all {======= original content.*======} $x {=} x
-  regsub -all {>>>>>>> END MERGE CONFLICT:.*>>>} $x {<} x
+  regsub -all {<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <+} $x \
+              {MINE:} x
+  regsub -all {======= COMMON ANCESTOR content follows =+} $x {COM:} x
+  regsub -all {======= MERGED IN content follows =+} $x {YOURS:} x
+  regsub -all {>>>>>>> END MERGE CONFLICT >+} $x {END} x
   set x [split [string trim $x] \n]
   set result [string trim $result]
   if {$x!=$result} {
@@ -64,7 +66,7 @@ merge-test 3 {
 } {
   1 2 3 4 5c 6 7 8 9
 } {
-  1 2 > 3b 4b 5b = 3 4 5c < 6 7 8 9
+  1 2 MINE: 3b 4b 5b COM: 3 4 5 YOURS: 3 4 5c END 6 7 8 9
 }
 merge-test 4 {
   1 2 3 4 5 6 7 8 9
@@ -73,7 +75,7 @@ merge-test 4 {
 } {
   1 2 3 4 5c 6 7 8 9
 } {
-  1 2 > 3b 4b 5b 6b = 3 4 5c 6 < 7 8 9
+  1 2 MINE: 3b 4b 5b 6b COM: 3 4 5 6 YOURS: 3 4 5c 6 END 7 8 9
 }
 merge-test 5 {
   1 2 3 4 5 6 7 8 9
@@ -82,7 +84,7 @@ merge-test 5 {
 } {
   1 2 3 4 5c 6c 7c 8 9
 } {
-  1 2 > 3b 4b 5b 6b 7 = 3 4 5c 6c 7c < 8 9
+  1 2 MINE: 3b 4b 5b 6b 7 COM: 3 4 5 6 7 YOURS: 3 4 5c 6c 7c END 8 9
 }
 merge-test 6 {
   1 2 3 4 5 6 7 8 9
@@ -91,7 +93,7 @@ merge-test 6 {
 } {
   1 2 3 4 5c 6c 7c 8 9
 } {
-  1 2 > 3b 4b 5b 6b 7 = 3 4 5c 6c 7c < 8b 9
+  1 2 MINE: 3b 4b 5b 6b 7 COM: 3 4 5 6 7 YOURS: 3 4 5c 6c 7c END 8b 9
 }
 merge-test 7 {
   1 2 3 4 5 6 7 8 9
@@ -100,7 +102,7 @@ merge-test 7 {
 } {
   1 2 3 4 5c 6c 7c 8c 9
 } {
-  1 2 > 3b 4b 5b 6b 7 8b = 3 4 5c 6c 7c 8c < 9
+  1 2 MINE: 3b 4b 5b 6b 7 8b COM: 3 4 5 6 7 8 YOURS: 3 4 5c 6c 7c 8c END 9
 }
 merge-test 8 {
   1 2 3 4 5 6 7 8 9
@@ -109,7 +111,7 @@ merge-test 8 {
 } {
   1 2 3 4 5c 6c 7c 8c 9
 } {
-  1 2 > 3b 4b 5b 6b 7 8b 9b = 3 4 5c 6c 7c 8c 9 <
+  1 2 MINE: 3b 4b 5b 6b 7 8b 9b COM: 3 4 5 6 7 8 9 YOURS: 3 4 5c 6c 7c 8c 9 END
 }
 merge-test 9 {
   1 2 3 4 5 6 7 8 9
@@ -137,7 +139,7 @@ merge-test 11 {
 } {
   1 2 3b 4c 5 6c 7c 8 9
 } {
-  1 2 > 3b 4b = 3b 4c < 5 6c 7c 8b 9b
+  1 2 MINE: 3b 4b COM: 3 4 YOURS: 3b 4c END 5 6c 7c 8b 9b
 }
 merge-test 12 {
   1 2 3 4 5 6 7 8 9
@@ -192,7 +194,7 @@ merge-test 24 {
 } {
   1 2 3 4 9
 } {
-  1 > 6 7 8 = 2 3 4 < 9
+  1 MINE: 6 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 4 END 9
 }
 merge-test 25 {
   1 2 3 4 5 6 7 8 9
@@ -201,7 +203,7 @@ merge-test 25 {
 } {
   1 2 3 9
 } {
-  1 > 7 8 = 2 3 < 9
+  1 MINE: 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 END 9
 }
 
 merge-test 30 {
@@ -247,7 +249,7 @@ merge-test 34 {
 } {
   1 6 7 8 9
 } {
-  1 > 2 3 4 = 6 7 8 < 9
+  1 MINE: 2 3 4 COM: 2 3 4 5 6 7 8 YOURS: 6 7 8 END 9
 }
 merge-test 35 {
   1 2 3 4 5 6 7 8 9
@@ -256,7 +258,7 @@ merge-test 35 {
 } {
   1 7 8 9
 } {
-  1 > 2 3 = 7 8 < 9
+  1 MINE: 2 3 COM: 2 3 4 5 6 7 8 YOURS: 7 8 END 9
 }
 
 merge-test 40 {
@@ -302,7 +304,7 @@ merge-test 44 {
 } {
   2 3 4
 } {
-  > 6 7 8 = 2 3 4 <
+  MINE: 6 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 4 END
 }
 merge-test 45 {
   2 3 4 5 6 7 8
@@ -311,7 +313,7 @@ merge-test 45 {
 } {
   2 3
 } {
-  > 7 8 = 2 3 <
+  MINE: 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 END
 }
 
 merge-test 50 {
@@ -356,7 +358,7 @@ merge-test 54 {
 } {
   6 7 8
 } {
-  > 2 3 4 = 6 7 8 <
+  MINE: 2 3 4 COM: 2 3 4 5 6 7 8 YOURS: 6 7 8 END
 }
 merge-test 55 {
   2 3 4 5 6 7 8
@@ -365,7 +367,7 @@ merge-test 55 {
 } {
   7 8
 } {
-  > 2 3 = 7 8 <
+  MINE: 2 3 COM: 2 3 4 5 6 7 8 YOURS: 7 8 END
 }
 
 merge-test 60 {
@@ -411,7 +413,7 @@ merge-test 64 {
 } {
   1 2 3 4 9
 } {
-  1 > 2b 3b 4b 5b 6 7 8 = 2 3 4 < 9
+  1 MINE: 2b 3b 4b 5b 6 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 4 END 9
 }
 merge-test 65 {
   1 2 3 4 5 6 7 8 9
@@ -420,7 +422,7 @@ merge-test 65 {
 } {
   1 2 3 9
 } {
-  1 > 2b 3b 4b 5b 6b 7 8 = 2 3 < 9
+  1 MINE: 2b 3b 4b 5b 6b 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 END 9
 }
 
 merge-test 70 {
@@ -466,7 +468,7 @@ merge-test 74 {
 } {
   1 2b 3b 4b 5b 6 7 8 9
 } {
-  1 > 2 3 4 = 2b 3b 4b 5b 6 7 8 < 9
+  1 MINE: 2 3 4 COM: 2 3 4 5 6 7 8 YOURS: 2b 3b 4b 5b 6 7 8 END 9
 }
 merge-test 75 {
   1 2 3 4 5 6 7 8 9
@@ -475,7 +477,7 @@ merge-test 75 {
 } {
   1 2b 3b 4b 5b 6b 7 8 9
 } {
-  1 > 2 3 = 2b 3b 4b 5b 6b 7 8 < 9
+  1 MINE: 2 3 COM: 2 3 4 5 6 7 8 YOURS: 2b 3b 4b 5b 6b 7 8 END 9
 }
 
 merge-test 80 {
@@ -521,7 +523,7 @@ merge-test 84 {
 } {
   2 3 4
 } {
-  > 2b 3b 4b 5b 6 7 8 = 2 3 4 <
+  MINE: 2b 3b 4b 5b 6 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 4 END
 }
 merge-test 85 {
   2 3 4 5 6 7 8
@@ -530,7 +532,7 @@ merge-test 85 {
 } {
   2 3
 } {
-  > 2b 3b 4b 5b 6b 7 8 = 2 3 <
+  MINE: 2b 3b 4b 5b 6b 7 8 COM: 2 3 4 5 6 7 8 YOURS: 2 3 END
 }
 
 merge-test 90 {
@@ -576,7 +578,7 @@ merge-test 94 {
 } {
   2b 3b 4b 5b 6 7 8
 } {
-  > 2 3 4 = 2b 3b 4b 5b 6 7 8 <
+  MINE: 2 3 4 COM: 2 3 4 5 6 7 8 YOURS: 2b 3b 4b 5b 6 7 8 END
 }
 merge-test 95 {
   2 3 4 5 6 7 8
@@ -585,7 +587,7 @@ merge-test 95 {
 } {
   2b 3b 4b 5b 6b 7 8
 } {
-  > 2 3 = 2b 3b 4b 5b 6b 7 8 <
+  MINE: 2 3 COM: 2 3 4 5 6 7 8 YOURS: 2b 3b 4b 5b 6b 7 8 END
 }
 
 merge-test 100 {
@@ -622,7 +624,7 @@ merge-test 103 {
 } {
   1 2 3 4 5 7 8 9b a b c d e
 } {
-  1 2 3 4 5 7 8 > 9b = 9b a b c d e <
+  1 2 3 4 5 7 8 MINE: 9b COM: 9 YOURS: 9b a b c d e END
 }
 merge-test 104 {
   1 2 3 4 5 6 7 8 9
@@ -631,5 +633,5 @@ merge-test 104 {
 } {
   1 2 3 4 5 7 8 9b
 } {
-  1 2 3 4 5 7 8 > 9b a b c d e = 9b <
+  1 2 3 4 5 7 8 MINE: 9b a b c d e COM: 9 YOURS: 9b END
 }

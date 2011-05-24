@@ -17,7 +17,9 @@ Both of these commands start a Fossil server on port 8080 on the local machine,
 which can be accessed with the URL: <tt>http://localhost:8080/</tt> using any
 handy web browser.  The difference between the two commands is that "ui", in
 addition to starting the Fossil server, also starts a web browser and points it
-to the URL mentioned above.
+to the URL mentioned above.  On the other hand, the "ui" command binds to
+the loopback IP address only (127.0.0.1) so that the "ui" command cannot be
+used to serve content to a different machine.
 </p>
 <p>
 NOTES:
@@ -72,7 +74,10 @@ Once the script is set up correctly, and assuming your server is also set correc
 
 <h3>Serving multiple repositories with one script</h3><blockquote>
 <p>
-This scenario is almost identical to the previous one.  However, here we will assume you have multiple repositories, in one directory (call it 'fossils').  So as before, create a script (again, 'repo'):
+This scenario is almost identical to the previous one.  However, here we will assume you have multiple repositories, in one directory.
+(Call the directory 'fossils').  All repositories served, in this case, must
+use the ".fossil" filename suffix.
+As before, create a script (again, 'repo'):
 <blockquote><tt>
 #!/path-to/fossil<br>
 directory: /path-to-repo/fossils<br>
@@ -80,7 +85,7 @@ notfound: http://url-to-go-to-if-repo-not-found/
 </tt></blockquote>
 </p>
 <p>
-Once deployed, a URL like: <tt>http://mydomain.org/cgi-bin/repo/XYZ</tt> will serve up the repository "fossils/XYX" (if it exists).  This makes serving multiple projects on one server pretty painless.
+Once deployed, a URL like: <tt>http://mydomain.org/cgi-bin/repo/XYZ</tt> will serve up the repository "fossils/XYX.fossil" (if it exists).  This makes serving multiple projects on one server pretty painless.
 </p>
 </blockquote>
 

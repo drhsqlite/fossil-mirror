@@ -65,21 +65,16 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
+  /* If the first character of the password is "#", then that character is
+  ** not really part of the password - it is an indicator that we should
+  ** use Basic Authentication.  So skip that character.
+  */
+  if( zPw && zPw[0]=='#' ) zPw++;
+
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
-  **
-  ** Except, if the password begins with "*" then use the characters
-  ** after the "*" as a cleartext password.  Put an "*" at the beginning
-  ** of the password to trick a newer client to use the cleartext password
-  ** protocol required by legacy servers.
   */
-  if( zPw && zPw[0] ){
-    if( zPw[0]=='*' ){
-      zPw++;
-    }else{
-      zPw = sha1_shared_secret(zPw, zLogin, 0);
-    }
-  }
+  if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
@@ -107,7 +102,14 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }
   blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  }
+  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+    char *zEncoded = encode64(zCredentials, -1);
+    blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
+    fossil_free(zEncoded);
+    fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
   blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");

@@ -36,6 +36,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <time.h>
 #include "db.h"
 
 #if INTERFACE
@@ -82,7 +83,6 @@ static void db_err(const char *zFormat, ...){
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
-static int isNewRepo = 0;   /* True if the repository is newly created */
 static int doRollback = 0;  /* True to force a rollback */
 static int nCommitHook = 0; /* Number of commit hooks */
 static struct sCommitHook {
@@ -91,6 +91,17 @@ static struct sCommitHook {
 } aHook[5];
 static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
 static int nPrepare = 0;    /* Number of calls to sqlite3_prepare() */
+static int nDeleteOnFail = 0;  /* Number of entries in azDeleteOnFail[] */
+static char *azDeleteOnFail[3]; /* Files to delete on a failure */
+
+
+/*
+** Arrange for the given file to be deleted on a failure.
+*/
+void db_delete_on_failure(const char *zFilename){
+  assert( nDeleteOnFail<count(azDeleteOnFail) );
+  azDeleteOnFail[nDeleteOnFail++] = fossil_strdup(zFilename);
+}
 
 /*
 ** This routine is called by the SQLite commit-hook mechanism
@@ -142,6 +153,7 @@ void db_end_transaction(int rollbackFlag){
 ** Force a rollback and shutdown the database
 */
 void db_force_rollback(void){
+  int i;
   static int busy = 0;
   if( busy || g.db==0 ) return;
   busy = 1;
@@ -152,13 +164,12 @@ void db_force_rollback(void){
   if( nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
     nBegin = 0;
-    if( isNewRepo ){
-      db_close(0);
-      unlink(g.zRepositoryName);
-    }
   }
   busy = 0;
   db_close(0);
+  for(i=0; i<nDeleteOnFail; i++){
+    file_delete(azDeleteOnFail[i]);
+  }
 }
 
 /*
@@ -566,10 +577,6 @@ char *db_text(char *zDefault, const char *zSql, ...){
   return z;
 }
 
-#if defined(_WIN32)
-extern char *sqlite3_win32_mbcs_to_utf8(const char*);
-#endif
-
 /*
 ** Initialize a new database file with the given schema.  If anything
 ** goes wrong, call db_err() to exit.
@@ -584,9 +591,6 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-#if defined(_WIN32)
-  zFileName = sqlite3_win32_mbcs_to_utf8(zFileName);
-#endif
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
@@ -610,6 +614,19 @@ void db_init_database(
 }
 
 /*
+** Function to return the number of seconds since 1970.  This is
+** the same as strftime('%s','now') but is more compact.
+*/
+static void db_now_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  sqlite3_result_int64(context, time(0));
+}
+
+
+/*
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
@@ -619,9 +636,6 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3 *db;
 
   zVfs = getenv("FOSSIL_VFS");
-#if defined(_WIN32)
-  zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
-#endif
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -632,6 +646,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   }
   sqlite3_busy_timeout(db, 5000); 
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
+  sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
 }
 
@@ -647,9 +662,6 @@ static void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zMainDbType = zLabel;
     db_connection_init();
   }else{
-#if defined(_WIN32)
-    zDbName = sqlite3_win32_mbcs_to_utf8(zDbName);
-#endif
     db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
   }
 }
@@ -675,13 +687,17 @@ void db_open_config(int useAttach){
   if( zHome==0 ){
     zHome = getenv("APPDATA");
     if( zHome==0 ){
+      char *zDrive = getenv("HOMEDRIVE");
       zHome = getenv("HOMEPATH");
+      if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
-                "please set the HOMEPATH environment variable");
+                "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
+                "environment variables");
   }
+  zHome = fossil_mbcs_to_utf8(zHome);
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){
@@ -727,7 +743,7 @@ static int isValidLocalDb(const char *zDbName){
   int rc;
   sqlite3_stmt *pStmt;
 
-  if( access(zDbName, F_OK) ) return 0;
+  if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
@@ -790,19 +806,13 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  char *zPwdConv;
   static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
   
   if( g.localOpen) return 1;
-  if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-    db_err("pwd too big: max %d", sizeof(zPwd)-20);
-  }
+  file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  zPwdConv = mprintf("%/", zPwd);
-  strncpy(zPwd, zPwdConv, 2000-20);
-  free(zPwdConv);
   while( n>0 ){
-    if( access(zPwd, W_OK) ) break;
+    if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
@@ -840,11 +850,11 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( access(zDbName, R_OK) || file_size(zDbName)<1024 ){
-    if( access(zDbName, 0) ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
+    if( file_access(zDbName, 0) ){
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
-    }else if( access(zDbName, R_OK) ){
+    }else if( file_access(zDbName, R_OK) ){
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
       fossil_panic("not a valid repository: %s", zDbName);
@@ -951,7 +961,7 @@ void move_repo_cmd(void){
   }
   file_canonical_name(g.argv[2], &repo);
   zRepo = blob_str(&repo);
-  if( access(zRepo, 0) ){
+  if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
   }
   db_open_or_attach(zRepo, "test_repo");
@@ -1043,7 +1053,7 @@ void db_create_repository(const char *zFilename){
      zRepositorySchema2,
      (char*)0
   );
-  isNewRepo = 1;
+  db_delete_on_failure(zFilename);
 }
 
 /*
@@ -1107,10 +1117,10 @@ void db_initial_setup(
   db_set("aux-schema", AUX_SCHEMA, 0);
   if( makeServerCodes ){
     db_multi_exec(
-      "INSERT INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "INSERT INTO config(name,value)"
-      " VALUES('project-code', lower(hex(randomblob(20))));"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "INSERT INTO config(name,value,mtime)"
+      " VALUES('project-code', lower(hex(randomblob(20))),now());"
     );
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
@@ -1176,10 +1186,11 @@ void create_repository_cmd(void){
   db_begin_transaction();
   db_initial_setup(zDate, zDefaultUser, 1);
   db_end_transaction(0);
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (initial password is \"%s\")\n", 
+               g.zLogin, zPassword);
 }
 
 /*
@@ -1197,7 +1208,7 @@ static void db_sql_print(
   if( g.fSqlPrint ){
     for(i=0; i<argc; i++){
       char c = i==argc-1 ? '\n' : ' ';
-      printf("%s%c", sqlite3_value_text(argv[i]), c);
+      fossil_print("%s%c", sqlite3_value_text(argv[i]), c);
     }
   }
 }
@@ -1297,7 +1308,8 @@ char *db_conceal(const char *zContent, int n){
     sqlite3_snprintf(sizeof(zHash), zHash, "%s", blob_str(&out));
     blob_reset(&out);
     db_multi_exec(
-       "INSERT OR IGNORE INTO concealed VALUES(%Q,%#Q)",
+       "INSERT OR IGNORE INTO concealed(hash,content,mtime)"
+       " VALUES(%Q,%#Q,now())",
        zHash, n, zContent
     );
   }
@@ -1408,7 +1420,7 @@ void db_set(const char *zName, const char *zValue, int globalFlag){
                    zName, zValue);
     db_swap_connections();
   }else{
-    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%Q)",
+    db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
                    zName, zValue);
   }
   if( globalFlag && g.repositoryOpen ){
@@ -1467,7 +1479,7 @@ void db_set_int(const char *zName, int value, int globalFlag){
                   zName, value);
     db_swap_connections();
   }else{
-    db_multi_exec("REPLACE INTO config(name,value) VALUES(%Q,%d)",
+    db_multi_exec("REPLACE INTO config(name,value,mtime) VALUES(%Q,%d,now())",
                   zName, value);
   }
   if( globalFlag && g.repositoryOpen ){
@@ -1552,6 +1564,7 @@ void cmd_open(void){
   file_canonical_name(g.argv[2], &path);
   db_open_repository(blob_str(&path));
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
+  db_delete_on_failure("./_FOSSIL_");
   db_open_local();
   db_lset("repository", blob_str(&path));
   db_record_repository_filename(blob_str(&path));
@@ -1599,10 +1612,10 @@ static void print_setting(const char *zName){
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    printf("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
+    fossil_print("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
-    printf("%-20s\n", zName);
+    fossil_print("%-20s\n", zName);
   }
   db_finalize(&q);
 }
@@ -1855,7 +1868,7 @@ void test_timespan_cmd(void){
   if( g.argc!=3 ) usage("TIMESTAMP");
   sqlite3_open(":memory:", &g.db);  
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
-  printf("Time differences: %s\n", db_timespan_name(rDiff));
+  fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
   g.db = 0;
 }

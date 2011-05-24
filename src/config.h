@@ -85,6 +85,13 @@
 #include "sqlite3.h"
 
 /*
+** On Solaris, getpass() will only return up to 8 characters. getpassphrase() returns up to 257.
+*/
+#if defined(__sun__) || defined(sun)
+  #define getpass getpassphrase
+#endif
+
+/*
 ** Typedef for a 64-bit integer
 */
 typedef sqlite3_int64 i64;
@@ -123,21 +130,6 @@ typedef signed char i8;
 #else                          /* Generates a warning - but it always works */
 # define FOSSIL_INT_TO_PTR(X)  ((void*)(X))
 # define FOSSIL_PTR_TO_INT(X)  ((int)(X))
-#endif
-
-
-/* Unset the following to disable internationalization code. */
-#ifndef FOSSIL_I18N
-# define FOSSIL_I18N 1
-#endif
-
-#if FOSSIL_I18N
-# include <locale.h>
-# include <langinfo.h>
-#endif
-#ifndef CODESET
-# undef FOSSIL_I18N
-# define FOSSIL_I18N 0
 #endif
 
 #endif /* _RC_COMPILE_ */

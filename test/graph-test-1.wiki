@@ -4,28 +4,69 @@ This page contains examples a list of URLs of timelines with
 interesting graphs.  Click on all URLs, one by one, to verify 
 the correct operation of the graph drawing logic.
 
-  *  [/timeline?n=20&y=ci&b=2010-11-08]
-  *  [/timeline?n=40&y=ci&b=2010-11-08]
-  *  [/timeline?n=1000&y=ci&b=2010-11-08]
-  *  [/timeline?f=3ea66260b5555d2e]
-  *  [/timeline?d=e5fe4164f74a7576&p=e5fe4164f74a7576&n=3] - 
-     multiple merge descenders from the penultimate node.
-  *  [/timeline?y=ci&a=2010-12-20] - multiple branch risers.
-  *  [/timeline?y=ci&a=2010-12-20&n=18]
-  *  [/timeline?y=ci&a=2010-12-20&n=9]
-  *  [/timeline?r=experimental]
-  *  [/timeline?r=experimental&n=1000]
-  *  [/timeline?r=creole]
-  *  [/timeline?t=creole]
-  *  [/timeline?t=release]
-  *  [/timeline?r=release]
-  *  [/finfo?name=Makefile]
-  *  [/timeline?a=1970-01-01]
-  *  [/timeline?y=ci&n=1000000] - All checkins - a huge graph
-  *  [/timeline?f=8dfed953f7530442] - This malformed commit has a 
-     merge parent which is not a valid checkin.
+  *  <a href="../../../timeline?n=20&y=ci&b=2010-11-08" target="testwindow">
+     20-element timeline, check-ins only, before 2010-11-08</a>
+  *  <a href="../../../timeline?n=20&y=ci&b=2010-11-08&ng" target="testwindow">
+     20-element timeline, check-ins only, no graph, before 2010-11-08</a>
+  *  <a href="../../../timeline?n=20&y=ci&b=2010-11-08&fc" target="testwindow">
+     20-element timeline, check-ins only, file changes, before 2010-11-08</a>
+  *  <a href="../../../timeline?n=40&y=ci&b=2010-11-08" target="testwindow">
+     40-element timeline, check-ins only, before 2010-11-08</a>
+  *  <a href="../../../timeline?n=1000&y=ci&b=2010-11-08" target="testwindow">
+     1000-element timeline, check-ins only, before 2010-11-08</a>
+  *  <a href="../../../timeline?n=10&c=2010-11-07+10:23:00" target="testwindow">
+     10-elements circa 2010-11-07 10:23:00, with dividers</a>
+  *  <a href="../../../timeline?n=10&c=2010-11-07+10:23:00&nd" 
+     target="testwindow">
+     10-elements circa 2010-11-07 10:23:00, without dividers</a>
+  *  <a href="../../../timeline?f=3ea66260b5555" target="testwindow">
+     Parents and children of check-in 3ea66260b5555</a>
+  *  <a href="../../../timeline?d=e5fe4164f74a7576&p=e5fe4164f74a7576&n=3"
+     target="testwindow">multiple merge descenders from the penultimate node.
+     </a>
+  *  <a href="../../../timeline?y=ci&a=2010-12-20" target="testwindow">
+     multiple branch risers.</a>
+  *  <a href="../../../timeline?y=ci&a=2010-12-20&n=18" target="testwindow">
+     multiple branch risers, n=18.</a>
+  *  <a href="../../../timeline?y=ci&a=2010-12-20&n=9" target="testwindow">
+     multiple branch risers, n=9.</a>
+  *  <a href="../../../timeline?r=experimental" target="testwindow">
+     Experimental branch using and related check-ins.</a>
+  *  <a href="../../../timeline?r=experimental&mionly" target="testwindow">
+     Experimental branch using and merge-ins only.</a>
+  *  <a href="../../../timeline?t=experimental" target="testwindow">
+     Experimental branch check-ins only.</a>
+  *  <a href="../../../timeline?r=experimental&n=1000" target="testwindow">
+     Experimental branch using and related check-ins - 1000 elements.</a>
+  *  <a href="../../../timeline?r=release" target="testwindow">
+     Check-ins tagged "release" and related check-ins</a>
+  *  <a href="../../../timeline?r=release&mionly" target="testwindow">
+     Check-ins tagged "release" and merge-ins</a>
+  *  <a href="../../../timeline?t=release" target="testwindow">
+     Only check-ins tagged "release"</a>
+  *  <a href="../../../finfo?name=Makefile" target="testwindow">
+     History of source file "Makefile".</a>
+  *  <a href="../../../timeline?a=1970-01-01" target="testwindow">
+     20 elements after 1970-01-01.</a>
+  *  <a href="../../../timeline?n=100000000&y=ci" target="testwindow">
+     All check-ins - a huge graph.</a>
+  *  <a href="../../../timeline?f=8dfed953f7530442" target="testwindow">
+     This malformed commit has a 
+     merge parent which is not a valid checkin.</a>
+  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9"
+     target="testwindow">
+     From e663bac6f7 to a298a0e2f9 by shortest path.</a>
+  *  <a href="../../../timeline?from=e663bac6f7&to=a298a0e2f9&nomerge"
+     target="testwindow">
+     From e663bac6f7 to a298a0e2f9 without merge links.</a>
+  *  <a href="../../../timeline?me=e663bac6f7&you=a298a0e2f9"
+     target="testwindow">
+     Common ancestor path of e663bac6f7 to a298a0e2f9.</a>
+  *  <a href="../../../timeline?f=65dd90fb95a2af55">
+     Merge on the same branch does not result in a leaf.
+     </a>
 
 External:
 
-  *  [http://www.sqlite.org/src/timeline?c=2010-09-29&nd] - timewarp due to
-     a mis-configured system clock.
+  *  <a href="http://www.sqlite.org/src/timeline?c=2010-09-29&nd"
+     target="testwindow">Timewarp due to a mis-configured system clock.</a>

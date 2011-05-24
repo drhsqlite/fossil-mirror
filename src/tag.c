@@ -440,7 +440,7 @@ void tag_cmd(void){
         g.argv[3]
       );
       while( db_step(&q)==SQLITE_ROW ){
-        printf("%s\n", db_column_text(&q, 0));
+        fossil_print("%s\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
     }else{
@@ -475,9 +475,9 @@ void tag_cmd(void){
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         if( fRaw ){
-          printf("%s\n", zName);
+          fossil_print("%s\n", zName);
         }else if( strncmp(zName, "sym-", 4)==0 ){
-          printf("%s\n", &zName[4]);
+          fossil_print("%s\n", &zName[4]);
         }
       }
       db_finalize(&q);
@@ -499,9 +499,9 @@ void tag_cmd(void){
           zName += 4;
         }
         if( zValue && zValue[0] ){
-          printf("%s=%s\n", zName, zValue);
+          fossil_print("%s=%s\n", zName, zValue);
         }else{
-          printf("%s\n", zName);
+          fossil_print("%s\n", zName);
         }
       }
       db_finalize(&q);

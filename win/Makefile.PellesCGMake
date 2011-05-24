@@ -63,7 +63,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 # the fossil binary. Some special definitions follow for
 # special files follow
 CC=$(PellesCDir)\bin\pocc.exe
-DEFINES=-DFOSSIL_I18N=0 -D_pgmptr=g.argv[0]
+DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 

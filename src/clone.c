@@ -66,10 +66,10 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "REPLACE INTO config(name,value)"
-      " VALUES('last-sync-url', '%q');",
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
     db_multi_exec(
@@ -82,7 +82,7 @@ void clone_cmd(void){
     if( g.zLogin==0 ){
       db_create_default_users(1,zDefaultUser);
     }
-    printf("Repository cloned into %s\n", g.argv[3]);
+    fossil_print("Repository cloned into %s\n", g.argv[3]);
   }else{
     db_create_repository(g.argv[3]);
     db_open_repository(g.argv[3]);
@@ -94,8 +94,8 @@ void clone_cmd(void){
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
     url_get_password_if_needed();
@@ -106,17 +106,17 @@ void clone_cmd(void){
     db_end_transaction(0);
     db_close(1);
     if( nErr ){
-      unlink(g.argv[3]);
+      file_delete(g.argv[3]);
       fossil_fatal("server returned an error - clone aborted");
     }
     db_open_repository(g.argv[3]);
   }
   db_begin_transaction();
-  printf("Rebuilding repository meta-data...\n");
+  fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   db_end_transaction(0);
 }

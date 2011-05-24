@@ -177,9 +177,14 @@ void update_cmd(void){
     tid = db_int(0, "SELECT rid FROM leaves, event"
                     " WHERE event.objid=leaves.rid"
                     " ORDER BY event.mtime DESC"); 
+    if( tid==0 ) tid = vid;
   }
 
-  if( !verboseFlag && (tid==vid)) return;  /* Nothing to update */
+  if( tid==0 ){
+    fossil_panic("Internal Error: unable to find a version to update to.");
+  }
+
+  if( tid==vid && !verboseFlag ) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1, 0);
   if( !nochangeFlag && !internalUpdate ) undo_begin();
@@ -255,14 +260,14 @@ void update_cmd(void){
        "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       printf("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d\n",
+       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
           db_column_int(&q, 3),
           db_column_int(&q, 6));
-       printf("     fnv = [%s]\n", db_column_text(&q, 1));
-       printf("     fnt = [%s]\n", db_column_text(&q, 2));
+       fossil_print("     fnv = [%s]\n", db_column_text(&q, 1));
+       fossil_print("     fnt = [%s]\n", db_column_text(&q, 2));
     }
     db_finalize(&q);
   }
@@ -333,22 +338,22 @@ void update_cmd(void){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
       */
-      printf("CONFLICT %s\n", zName);
+      fossil_print("CONFLICT %s\n", zName);
       nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
-      printf("ADD %s\n", zName);
+      fossil_print("ADD %s\n", zName);
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
-      printf("UPDATE %s\n", zName);
+      fossil_print("UPDATE %s\n", zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && file_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      printf("UPDATE %s\n", zName);
+      fossil_print("UPDATE %s\n", zName);
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){
@@ -359,21 +364,22 @@ void update_cmd(void){
       }else if( chnged ){
         /* Edited locally but deleted from the target.  Do not track the
         ** file but keep the edited version around. */
-        printf("CONFLICT %s - edited locally but deleted by update\n", zName);
+        fossil_print("CONFLICT %s - edited locally but deleted by update\n",
+                     zName);
         nConflict++;
       }else{
-        printf("REMOVE %s\n", zName);
+        fossil_print("REMOVE %s\n", zName);
         undo_save(zName);
-        if( !nochangeFlag ) unlink(zFullPath);
+        if( !nochangeFlag ) file_delete(zFullPath);
       }
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged ){
       /* Merge the changes in the current tree into the target version */
       Blob r, t, v;
       int rc;
       if( nameChng ){
-        printf("MERGE %s -> %s\n", zName, zNewName);
+        fossil_print("MERGE %s -> %s\n", zName, zNewName);
       }else{
-        printf("MERGE %s\n", zName);
+        fossil_print("MERGE %s\n", zName);
       }
       undo_save(zName);
       content_get(ridt, &t);
@@ -385,7 +391,7 @@ void update_cmd(void){
           file_setexe(zFullNewPath, isexe);
         }
         if( rc>0 ){
-          printf("***** %d merge conflicts in %s\n", rc, zNewName);
+          fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
           nConflict++;
         }
       }else{
@@ -393,22 +399,22 @@ void update_cmd(void){
           blob_write_to_file(&t, zFullNewPath);
           file_setexe(zFullNewPath, isexe);
         }
-        printf("***** Cannot merge binary file %s\n", zNewName);
+        fossil_print("***** Cannot merge binary file %s\n", zNewName);
         nConflict++;
       }
-      if( nameChng && !nochangeFlag ) unlink(zFullPath);
+      if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
       blob_reset(&t);
       blob_reset(&r);
     }else{
       if( chnged ){
-        if( verboseFlag ) printf("EDITED %s\n", zName);
+        if( verboseFlag ) fossil_print("EDITED %s\n", zName);
       }else{
         db_bind_int(&mtimeXfer, ":idv", idv);
         db_bind_int(&mtimeXfer, ":idt", idt);
         db_step(&mtimeXfer);
         db_reset(&mtimeXfer);
-        if( verboseFlag ) printf("UNCHANGED %s\n", zName);
+        if( verboseFlag ) fossil_print("UNCHANGED %s\n", zName);
       }
     }
     free(zFullPath);
@@ -416,7 +422,7 @@ void update_cmd(void){
   }
   db_finalize(&q);
   db_finalize(&mtimeXfer);
-  printf("--------------\n");
+  fossil_print("--------------\n");
   show_common_info(tid, "updated-to:", 1, 0);
 
   /* Report on conflicts
@@ -425,7 +431,7 @@ void update_cmd(void){
     if( internalUpdate ){
       internalConflictCnt = nConflict;
     }else{
-      printf("WARNING: %d merge conflicts - see messages above for details.\n",
+      fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
               nConflict);
     }
   }
@@ -572,11 +578,11 @@ void revert_cmd(void){
     errCode = historical_version_of_file(zRevision, zFile, &record, &isExe,2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
-        printf("UNMANAGE: %s\n", zFile);
+        fossil_print("UNMANAGE: %s\n", zFile);
       }else{
         undo_save(zFile);
-        unlink(zFull);
-        printf("DELETE: %s\n", zFile);
+        file_delete(zFull);
+        fossil_print("DELETE: %s\n", zFile);
       }
       db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
     }else{
@@ -584,7 +590,7 @@ void revert_cmd(void){
       undo_save(zFile);
       blob_write_to_file(&record, zFull);
       file_setexe(zFull, isExe);
-      printf("REVERTED: %s\n", zFile);
+      fossil_print("REVERTED: %s\n", zFile);
       mtime = file_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"

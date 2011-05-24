@@ -94,7 +94,7 @@ void win32_process_one_http_request(void *pAppData){
     }
   }
   if( amt>=sizeof(zHdr) ) goto end_request;
-  out = fopen(zRequestFName, "wb");
+  out = fossil_fopen(zRequestFName, "wb");
   if( out==0 ) goto end_request;
   fwrite(zHdr, 1, amt, out);
   while( wanted>0 ){
@@ -114,7 +114,7 @@ void win32_process_one_http_request(void *pAppData){
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
-  in = fopen(zReplyFName, "rb");
+  in = fossil_fopen(zReplyFName, "rb");
   if( in ){
     while( (got = fread(zHdr, 1, sizeof(zHdr), in))>0 ){
       send(p->s, zHdr, got, 0);
@@ -125,8 +125,8 @@ end_request:
   if( out ) fclose(out);
   if( in ) fclose(in);
   closesocket(p->s);
-  unlink(zRequestFName);
-  unlink(zReplyFName);
+  file_delete(zRequestFName);
+  file_delete(zReplyFName);
   free(p);
 }
 
@@ -148,7 +148,7 @@ void win32_http_server(
   int iPort = mnPort;
   Blob options;
 
-  if( zStopper ) unlink(zStopper);
+  if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
   if( zNotFound ){
     blob_appendf(&options, " --notfound %s", zNotFound);
@@ -192,13 +192,13 @@ void win32_http_server(
     }
   }
   zTempPrefix = mprintf("fossil_server_P%d_", iPort);
-  printf("Listening for HTTP requests on TCP port %d\n", iPort);
+  fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
-    printf("Launch webbrowser: %s\n", zBrowser);
+    fossil_print("Launch webbrowser: %s\n", zBrowser);
     fossil_system(zBrowser);
   }
-  printf("Type Ctrl-C to stop the HTTP server\n");
+  fossil_print("Type Ctrl-C to stop the HTTP server\n");
   for(;;){
     SOCKET client;
     SOCKADDR_IN client_addr;

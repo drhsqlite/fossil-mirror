@@ -266,7 +266,7 @@ void vfile_to_disk(
         continue;
       }
     }
-    if( verbose ) printf("%s\n", &zName[nRepos]);
+    if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
     file_setexe(zName, isExe);
     blob_reset(&content);
@@ -288,11 +288,32 @@ void vfile_unlink(int vid){
     const char *zName;
 
     zName = db_column_text(&q, 0);
-    unlink(zName);
+    file_delete(zName);
   }
   db_finalize(&q);
   db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
 }
+
+/*
+** Check to see if the directory named in zPath is the top of a checkout.
+** In other words, check to see if directory pPath contains a file named
+** "_FOSSIL_" or ".fos".  Return true or false.
+*/
+int vfile_top_of_checkout(const char *zPath){
+  char *zFile;
+  int fileFound = 0;
+
+  zFile = mprintf("%s/_FOSSIL_", zPath);
+  fileFound = file_size(zFile)>=1024;
+  fossil_free(zFile);
+  if( !fileFound ){
+    zFile = mprintf("%s/.fos", zPath);
+    fileFound = file_size(zFile)>=1024;
+    fossil_free(zFile);
+  }
+  return fileFound;
+}
+
 
 /*
 ** Load into table SFILE the name of every ordinary file in
@@ -300,17 +321,39 @@ void vfile_unlink(int vid){
 ** of pPath when inserting into the SFILE table.
 **
 ** Subdirectories are scanned recursively.
-** Omit files named in VFILE.vid
+** Omit files named in VFILE.
+**
+** Files whose names begin with "." are omitted unless allFlag is true.
+**
+** Any files or directories that match the glob pattern pIgnore are 
+** excluded from the scan.  Name matching occurs after the first
+** nPrefix characters are elided from the filename.
 */
-void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
+void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   DIR *d;
   int origSize;
   const char *zDir;
   struct dirent *pEntry;
-  static const char *zSql = "SELECT 1 FROM vfile "
-                            " WHERE pathname=%Q AND NOT deleted";
+  int skipAll = 0;
+  static Stmt ins;
+  static int depth = 0;
 
   origSize = blob_size(pPath);
+  if( pIgnore ){
+    blob_appendf(pPath, "/");
+    if( glob_match(pIgnore, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    blob_resize(pPath, origSize);
+  }
+  if( skipAll ) return;
+
+  if( depth==0 ){
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO sfile(x) SELECT :file"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+    );
+  }
+  depth++;
+
   zDir = blob_str(pPath);
   d = opendir(zDir);
   if( d ){
@@ -323,14 +366,25 @@ void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
       }
       blob_appendf(pPath, "/%s", pEntry->d_name);
       zPath = blob_str(pPath);
-      if( file_isdir(zPath)==1 ){
-        vfile_scan(vid, pPath, nPrefix, allFlag);
-      }else if( file_isfile(zPath) && !db_exists(zSql, &zPath[nPrefix+1]) ){
-        db_multi_exec("INSERT INTO sfile VALUES(%Q)", &zPath[nPrefix+1]);
+      if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
+        /* do nothing */
+      }else if( file_isdir(zPath)==1 ){
+        if( !vfile_top_of_checkout(zPath) ){
+          vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+        }
+      }else if( file_isfile(zPath) ){
+        db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+        db_step(&ins);
+        db_reset(&ins);
       }
       blob_resize(pPath, origSize);
     }
     closedir(d);
+  }
+
+  depth--;
+  if( depth==0 ){
+    db_finalize(&ins);
   }
 }
 
@@ -376,7 +430,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      in = fopen(zFullpath,"rb");
+      in = fossil_fopen(zFullpath,"rb");
       if( in==0 ){
         md5sum_step_text(" 0\n", -1);
         continue;
@@ -439,22 +493,23 @@ void vfile_compare_repository_to_disk(int vid){
     blob_zero(&disk);
     rc = blob_read_from_file(&disk, zFullpath);
     if( rc<0 ){
-      printf("ERROR: cannot read file [%s]\n", zFullpath);
+      fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
       blob_reset(&disk);
       continue;
     }
     blob_zero(&repo);
     content_get(rid, &repo);
     if( blob_size(&repo)!=blob_size(&disk) ){
-      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+      fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
     }
     if( blob_compare(&repo, &disk) ){
-      printf("ERROR: [%s] is different on disk compared to the repository\n",
-             zName);
+      fossil_print(
+          "ERROR: [%s] is different on disk compared to the repository\n",
+          zName);
     }
     blob_reset(&disk);
     blob_reset(&repo);

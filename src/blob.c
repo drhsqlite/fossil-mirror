@@ -113,7 +113,7 @@ void isspace_cmd(void){
       assert( !fossil_isspace((char)i) );
     }
   }
-  printf("All 256 characters OK\n");
+  fossil_print("All 256 characters OK\n");
 }
 
 /*
@@ -498,6 +498,44 @@ int blob_token(Blob *pFrom, Blob *pTo){
 }
 
 /*
+** Extract a single SQL token from pFrom and use it to initialize pTo.
+** Return the number of bytes in the token.  If no token is found,
+** return 0.
+**
+** An SQL token consists of one or more non-space characters.  If the
+** first character is ' then the token is terminated by a matching '
+** (ignoring double '') or by the end of the string
+**
+** The cursor of pFrom is left pointing at the first character past
+** the end of the token.
+**
+** pTo will be an ephermeral blob.  If pFrom changes, it might alter
+** pTo as well.
+*/
+int blob_sqltoken(Blob *pFrom, Blob *pTo){
+  char *aData = pFrom->aData;
+  int n = pFrom->nUsed;
+  int i = pFrom->iCursor;
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
+  pFrom->iCursor = i;
+  if( aData[i]=='\'' ){
+    i++;
+    while( i<n ){
+      if( aData[i]=='\'' ){
+        if( aData[++i]!='\'' ) break;
+      }
+      i++;
+    }
+  }else{
+    while( i<n && !fossil_isspace(aData[i]) ){ i++; }
+  }
+  blob_extract(pFrom, i-pFrom->iCursor, pTo);
+  while( i<n && fossil_isspace(aData[i]) ){ i++; }
+  pFrom->iCursor = i;
+  return pTo->nUsed;
+}
+
+/*
 ** Extract everything from the current cursor to the end of the blob
 ** into a new blob.  The new blob is an ephemerial reference to the
 ** original blob.  The cursor of the original blob is unchanged.
@@ -654,7 +692,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
     return 0;
   }
   blob_resize(pBlob, size);
-  in = fopen(zFilename, "rb");
+  in = fossil_fopen(zFilename, "rb");
   if( in==0 ){
     fossil_panic("cannot open %s for reading", zFilename);
   }
@@ -714,7 +752,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         zName[i] = '/';
       }
     }
-    out = fopen(zName, "wb");
+    out = fossil_fopen(zName, "wb");
     if( out==0 ){
       fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
       return 0;
@@ -725,7 +763,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   blob_is_init(pBlob);
   wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
   if( needToClose ) fclose(out);
-  if( wrote!=blob_size(pBlob) ){
+  if( wrote!=blob_size(pBlob) && out!=stdout ){
     fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
        blob_size(pBlob), zFilename);
   }
@@ -889,7 +927,7 @@ void test_cycle_compress(void){
     blob_reset(&b2);
     blob_reset(&b3);
   }
-  printf("ok\n");
+  fossil_print("ok\n");
 }
 
 #if defined(_WIN32)

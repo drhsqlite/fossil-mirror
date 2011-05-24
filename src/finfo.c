@@ -91,7 +91,7 @@ void finfo_cmd(void){
       blob_appendf(&line, "unknown 0000000000");
     }
     db_finalize(&q);
-    printf("%s\n", blob_str(&line));
+    fossil_print("%s\n", blob_str(&line));
     blob_reset(&fname);
     blob_reset(&line);
   }else if( find_option("print","p",0) ){
@@ -154,7 +154,7 @@ void finfo_cmd(void){
     );
     blob_zero(&line);
     if( iBrief ){
-      printf("History of %s\n", blob_str(&fname));
+      fossil_print("History of %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
@@ -164,7 +164,7 @@ void finfo_cmd(void){
       const char *zUser = db_column_text(&q, 4);
       char *zOut;
       if( iBrief ){
-        printf("%s ", zDate);
+        fossil_print("%s ", zDate);
         zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
                                zCiUuid, zCom, zUser, zFileUuid);
         comment_print(zOut, 11, 79);
@@ -188,13 +188,23 @@ void finfo_cmd(void){
 ** WEBPAGE: finfo
 ** URL: /finfo?name=FILENAME
 **
-** Show the complete change history for a single file. 
+** Show the change history for a single file. 
+**
+** Additional query parameters:
+**
+**    a=DATE     Only show changes after DATE
+**    b=DATE     Only show changes before DATE
+**    n=NUM      Show the first NUM changes only
 */
 void finfo_page(void){
   Stmt q;
   const char *zFilename;
   char zPrevDate[20];
+  const char *zA;
+  const char *zB;
+  int n;
   Blob title;
+  Blob sql;
   GraphContext *pGraph;
 
   login_check_credentials();
@@ -204,7 +214,8 @@ void finfo_page(void){
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
-  db_prepare(&q,
+  blob_zero(&sql);
+  blob_appendf(&sql, 
     "SELECT"
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
@@ -219,11 +230,22 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)" /* Tags */
     "  FROM mlink, event"
     " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
-    "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC /*sort*/",
+    "   AND event.objid=mlink.mid",
     TAG_BRANCH,
     zFilename
   );
+  if( (zA = P("a"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+  }
+  if( (zB = P("b"))!=0 ){
+    blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+  }
+  blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
+  if( (n = atoi(PD("n","0")))>0 ){
+    blob_appendf(&sql, " LIMIT %d", n);
+  }
+  db_prepare(&q, blob_str(&sql));
+  blob_reset(&sql);
   blob_zero(&title);
   blob_appendf(&title, "History of ");
   hyperlinked_path(zFilename, &title, 0);
@@ -248,7 +270,7 @@ void finfo_page(void){
     char zShort[20];
     char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 1);
+    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -293,16 +315,17 @@ void finfo_page(void){
   }
   db_finalize(&q);
   if( pGraph ){
-    graph_finish(pGraph, 1);
+    graph_finish(pGraph, 0);
     if( pGraph->nErr ){
       graph_free(pGraph);
       pGraph = 0;
     }else{
-      @ <tr><td></td><td><div style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <tr><td></td><td>
+      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
       @     </td></tr>
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 1);
+  timeline_output_graph_javascript(pGraph, 0);
   style_footer();
 }

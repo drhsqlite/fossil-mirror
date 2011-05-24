@@ -78,7 +78,7 @@ int autosync(int flags){
     configSync = CONFIGSET_SHUN;
   }
 #endif
-  printf("Autosync:  %s\n", g.urlCanonical);
+  fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, configSync, 0);
   if( rc ) fossil_warning("Autosync failed");
@@ -104,7 +104,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   if( g.argc==2 ){
     zUrl = db_get("last-sync-url", 0);
     zPw = unobscure(db_get("last-sync-pw", 0));
-    if( db_get_boolean("auto-sync",1) ) configSync = CONFIGSET_SHUN;
+    if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
@@ -126,7 +126,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   }
   user_select();
   if( g.argc==2 ){
-    printf("Server:    %s\n", g.urlCanonical);
+    fossil_print("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
   *pConfigSync = configSync;
@@ -265,10 +265,10 @@ void remote_url_cmd(void){
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
-    printf("off\n");
+    fossil_print("off\n");
     return;
   }else{
     url_parse(zUrl);
-    printf("%s\n", g.urlCanonical);
+    fossil_print("%s\n", g.urlCanonical);
   }
 }

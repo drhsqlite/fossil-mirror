@@ -308,6 +308,21 @@ static void createMergeRiser(
   pChild->mergeIn[pParent->mergeOut/4] = (pParent->mergeOut&3)+1;
 }
 
+/*
+** Compute the maximum rail number.
+*/
+static void find_max_rail(GraphContext *p){
+  GraphRow *pRow;
+  p->mxRail = 0;
+  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
+    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
+    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
+      p->mxRail++;
+    }
+  }
+}
+
 
 /*
 ** Compute the complete graph
@@ -317,7 +332,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   int i;
   u32 mask;
   u32 inUse;
-  int hasDup = 0;    /* True if one or more isDup entries */
+  int hasDup = 0;      /* True if one or more isDup entries */
   const char *zTrunk;
 
   if( p==0 || p->pFirst==0 || p->nErr ) return;
@@ -392,6 +407,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
   zTrunk = persistBranchName(p, "trunk");
   for(i=0; i<2; i++){
     for(pRow=p->pLast; pRow; pRow=pRow->pPrev){
+      if( pRow->isDup ) continue;
       if( i==0 ){
         if( pRow->zBranch!=zTrunk ) continue;
       }else {
@@ -424,7 +440,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
 
     if( pRow->iRail>=0 ){
       if( pRow->pChild==0 && !pRow->timeWarp ){
-        if( pRow->isLeaf || omitDescenders ){
+        if( omitDescenders || count_nonbranch_children(pRow->rid)==0 ){
           inUse &= ~(1<<pRow->iRail);
         }else{
           pRow->aiRiser[pRow->iRail] = 0;
@@ -437,10 +453,7 @@ void graph_finish(GraphContext *p, int omitDescenders){
       continue;
     }
     if( pRow->isDup ){
-      pRow->iRail = findFreeRail(p, pRow->idx, pRow->idx, inUse, 0);
-      if( p->mxRail>=GR_MAX_RAIL ) return;
-      pDesc = pRow;
-      pParent = 0;
+      continue;
     }else{
       assert( pRow->nParent>0 );
       parentRid = pRow->aParent[0];
@@ -517,25 +530,32 @@ void graph_finish(GraphContext *p, int omitDescenders){
   ** Insert merge rails from primaries to duplicates. 
   */
   if( hasDup ){
+    int dupRail;
+    int mxRail;
+    find_max_rail(p);
+    mxRail = p->mxRail;
+    dupRail = mxRail+1;
+    if( p->mxRail>=GR_MAX_RAIL ) return;
     for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
       if( !pRow->isDup ) continue;
+      pRow->iRail = dupRail;
       pDesc = hashFind(p, pRow->rid);
       assert( pDesc!=0 && pDesc!=pRow );
       createMergeRiser(p, pDesc, pRow);
+      if( pDesc->mergeOut/4>mxRail ) mxRail = pDesc->mergeOut/4;
     }
-    if( p->mxRail>=GR_MAX_RAIL ) return;
+    if( dupRail<=mxRail ){
+      dupRail = mxRail+1;
+      for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
+        if( pRow->isDup ) pRow->iRail = dupRail;
+      }
+    }
+    if( mxRail>=GR_MAX_RAIL ) return;
   }
 
   /*
   ** Find the maximum rail number.
   */
-  p->mxRail = 0;
-  for(pRow=p->pFirst; pRow; pRow=pRow->pNext){
-    if( pRow->iRail>p->mxRail ) p->mxRail = pRow->iRail;
-    if( pRow->mergeOut/4>p->mxRail ) p->mxRail = pRow->mergeOut/4;
-    while( p->mxRail<GR_MAX_RAIL && pRow->mergeDown>((1<<(p->mxRail+1))-1) ){
-      p->mxRail++;
-    }
-  }
+  find_max_rail(p);
   p->nErr = 0;
 }

@@ -71,15 +71,15 @@ extern int isatty();
 #define isatty(x) 1
 #endif
 
+/* True if the timer is enabled */
+static int enableTimer = 0;
+
 #if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
 #include <sys/time.h>
 #include <sys/resource.h>
 
 /* Saved resource information for the beginning of an operation */
 static struct rusage sBegin;
-
-/* True if the timer is enabled */
-static int enableTimer = 0;
 
 /*
 ** Begin timing an operation
@@ -123,9 +123,6 @@ static FILETIME ftKernelBegin;
 static FILETIME ftUserBegin;
 typedef BOOL (WINAPI *GETPROCTIMES)(HANDLE, LPFILETIME, LPFILETIME, LPFILETIME, LPFILETIME);
 static GETPROCTIMES getProcessTimesAddr = NULL;
-
-/* True if the timer is enabled */
-static int enableTimer = 0;
 
 /*
 ** Check to see if we have timer support.  Return 1 if necessary
@@ -2199,8 +2196,8 @@ static int do_meta_command(char *zLine, struct callback_data *p){
 
     /* convert testctrl text option to value. allow any unique prefix
     ** of the option name, or a numerical value. */
-    n = strlen(azArg[1]);
-    for(i=0; i<sizeof(aCtrl)/sizeof(aCtrl[0]); i++){
+    n = strlen30(azArg[1]);
+    for(i=0; i<(int)(sizeof(aCtrl)/sizeof(aCtrl[0])); i++){
       if( strncmp(azArg[1], aCtrl[i].zCtrlName, n)==0 ){
         if( testctrl<0 ){
           testctrl = aCtrl[i].ctrlCode;
@@ -2652,6 +2649,7 @@ static void main_init(struct callback_data *data) {
   data->mode = MODE_List;
   memcpy(data->separator,"|", 2);
   data->showHeader = 0;
+  sqlite3_config(SQLITE_CONFIG_URI, 1);
   sqlite3_config(SQLITE_CONFIG_LOG, shellLog, data);
   sqlite3_snprintf(sizeof(mainPrompt), mainPrompt,"sqlite> ");
   sqlite3_snprintf(sizeof(continuePrompt), continuePrompt,"   ...> ");
@@ -2666,6 +2664,11 @@ int main(int argc, char **argv){
   int i;
   int rc = 0;
 
+  if( strcmp(sqlite3_sourceid(),SQLITE_SOURCE_ID)!=0 ){
+    fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
+            sqlite3_sourceid(), SQLITE_SOURCE_ID);
+    exit(1);
+  }
   Argv0 = argv[0];
   main_init(&data);
   stdin_is_interactive = isatty(0);

@@ -159,9 +159,9 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  printf("New branch: %s\n", zUuid);
+  fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
-    printf(
+    fossil_print(
       "\n"
       "Note: the local check-out has not been updated to the new\n"
       "      branch.  To begin working on the new branch, do this:\n"
@@ -236,7 +236,7 @@ void branch_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      printf("%s%s\n", (isCur ? "* " : "  "), zBr);
+      fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
   }else{
@@ -283,14 +283,28 @@ void brlist_page(void){
   style_sidebox_end();
 
   cnt = 0;
-  db_prepare(&q,
-    "SELECT DISTINCT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    "   AND rid IN leaf"
-    "   AND %s %z"
-    " ORDER BY value /*sort*/",
-    TAG_BRANCH, showClosed ? "" : "NOT", leaf_is_closed_sql("tagxref.rid")
-  );
+  if( showClosed ){
+    db_prepare(&q,
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL "
+      "EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }else{
+    db_prepare(&q,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value /*sort*/",
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){

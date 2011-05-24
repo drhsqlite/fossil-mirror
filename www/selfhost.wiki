@@ -60,6 +60,6 @@ the following command via cron:
 </pre></blockquote>
 
 Server (2) is a
-<a href="http://www.linode.com/">Linode 512</a> located in Atlanta, GA
+<a href="http://www.linode.com/">Linode 512</a> located in Newark, NJ
 and set up just like the canonical server (1) with the addition of a
 cron job for synchronization as in server (3).

@@ -218,7 +218,8 @@ void ticket_rebuild_entry(const char *zTktUuid){
   Stmt q;
   Manifest *pTicket;
   int createFlag = 1;
-  
+
+  fossil_free(zTag);  
   db_multi_exec(
      "DELETE FROM ticket WHERE tkt_uuid=%Q", zTktUuid
   );

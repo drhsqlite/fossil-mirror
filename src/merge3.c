@@ -155,11 +155,13 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
   static const char zBegin[] =
-    "<<<<<<< BEGIN MERGE CONFLICT: original content first <<<<<<<\n";
-  static const char zMid[]   =
-    "======= original content above; conflict below =============\n";
+    "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n";
+  static const char zMid1[]   =
+    "======= COMMON ANCESTOR content follows ============================\n";
+  static const char zMid2[]   =
+    "======= MERGED IN content follows ==================================\n";
   static const char zEnd[]   =
-    ">>>>>>> END MERGE CONFLICT: conflict last >>>>>>>>>>>>>>>>>>\n";
+    ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
   blob_zero(pOut);         /* Merge results stored in pOut */
 
@@ -194,7 +196,7 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       printf("c1: %4d %4d %4d\n", aC1[i1], aC1[i1+1], aC1[i1+2]);
     }
     for(i2=0; i2<limit2; i2+=3){
-     printf("c2: %4d %4d %4d\n", aC2[i2], aC2[i2+1], aC2[i2+2]);
+      printf("c2: %4d %4d %4d\n", aC2[i2], aC2[i2+1], aC2[i2+2]);
     }
   )
 
@@ -266,11 +268,12 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       DEBUG( printf("CONFLICT %d\n", sz); )
       blob_appendf(pOut, zBegin);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_appendf(pOut, zMid);
+      blob_appendf(pOut, zMid1);
+      blob_copy_lines(pOut, pPivot, sz);
+      blob_appendf(pOut, zMid2);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
       blob_appendf(pOut, zEnd);
-      blob_copy_lines(0, pPivot, sz);
-    }
+   }
 
     /* If we are finished with an edit triple, advance to the next
     ** triple.
@@ -313,21 +316,17 @@ void delta_3waymerge_cmd(void){
     usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[2]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[2]);
   }
   if( blob_read_from_file(&v1, g.argv[3])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[3]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[3]);
   }
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[4]);
   }
   blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
-    fprintf(stderr,"cannot write %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot write %s\n", g.argv[4]);
   }
   blob_reset(&pivot);
   blob_reset(&v1);
@@ -427,10 +426,10 @@ int merge_3way(
       fossil_system(zCmd);
       if( file_size(zOut)>=0 ){
         blob_read_from_file(pOut, zOut);
-        unlink(zPivot);
-        unlink(zOrig);
-        unlink(zOther);
-        unlink(zOut);
+        file_delete(zPivot);
+        file_delete(zOrig);
+        file_delete(zOther);
+        file_delete(zOut);
       }
       fossil_free(zCmd);
       fossil_free(zOut);

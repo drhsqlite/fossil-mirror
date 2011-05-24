@@ -69,7 +69,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    printf("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zUuid);
     free(zDate);
   }
@@ -90,7 +90,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      printf("parent:       %s %s\n", zUuid, zDate);
+      fossil_print("parent:       %s %s\n", zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -102,18 +102,18 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      printf("child:        %s %s\n", zUuid, zDate);
+      fossil_print("child:        %s %s\n", zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
   }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
-    printf("tags:         %s\n", zTags);
+    fossil_print("tags:         %s\n", zTags);
   }
   free(zTags);
   if( zComment ){
-    printf("comment:      ");
+    fossil_print("comment:      ");
     comment_print(zComment, 14, 79);
     free(zComment);
   }
@@ -143,9 +143,9 @@ void info_cmd(void){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
     db_open_repository(g.argv[2]);
-    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
-    printf("project-code: %s\n", db_get("project-code", "<none>"));
-    printf("server-code:  %s\n", db_get("server-code", "<none>"));
+    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    fossil_print("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
   db_must_be_within_tree();
@@ -153,19 +153,19 @@ void info_cmd(void){
     int vid;
          /* 012345678901234 */
     db_record_repository_filename(0);
-    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
-    printf("repository:   %s\n", db_lget("repository", ""));
-    printf("local-root:   %s\n", g.zLocalRoot);
+    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    fossil_print("repository:   %s\n", db_lget("repository", ""));
+    fossil_print("local-root:   %s\n", g.zLocalRoot);
 #if defined(_WIN32)
     if( g.zHome ){
-      printf("user-home:    %s\n", g.zHome);
+      fossil_print("user-home:    %s\n", g.zHome);
     }
 #endif
-    printf("project-code: %s\n", db_get("project-code", ""));
-    printf("server-code:  %s\n", db_get("server-code", ""));
+    fossil_print("project-code: %s\n", db_get("project-code", ""));
+    fossil_print("server-code:  %s\n", db_get("server-code", ""));
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      printf("checkout:     nil\n");
+      fossil_print("checkout:     nil\n");
     }else{
       show_common_info(vid, "checkout:", 1, 1);
     }
@@ -370,7 +370,7 @@ void ci_page(void){
     " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
     rid
   );
-  isLeaf = !db_exists("SELECT 1 FROM plink WHERE pid=%d", rid);
+  isLeaf = is_a_leaf(rid);
   db_prepare(&q, 
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
      "       datetime(omtime, 'localtime')"
@@ -802,6 +802,10 @@ void object_description(
     @ - %w(zCom) by 
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
+    if( g.okHistory ){
+      @ <a href="%s(g.zTop)/annotate?checkin=%S(zVers)&filename=%T(zName)">
+      @ [annotate]</a>
+    }
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zName, -1);
@@ -947,12 +951,16 @@ void diff_page(void){
   int v1, v2;
   int isPatch;
   Blob c1, c2, diff, *pOut;
+  char *zV1;
+  char *zV2;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
+  zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
+  zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
   if( isPatch ){
     pOut = cgi_output_blob();
@@ -970,11 +978,12 @@ void diff_page(void){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                           g.zTop, P("v1"), P("v2"));
-    @ <h2>Differences From:</h2>
+    @ <h2>Differences From
+    @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
     @ <blockquote><p>
     object_description(v1, 1, 0);
     @ </p></blockquote>
-    @ <h2>To:</h2>
+    @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
     @ <blockquote><p>
     object_description(v2, 1, 0);
     @ </p></blockquote>
@@ -1581,25 +1590,25 @@ void ci_edit_page(void){
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
   if( zUser==0 ) fossil_redirect_home();
-  zNewUser = PD("u",zUser);
+  zNewUser = PDT("u",zUser);
   zDate = db_text(0, "SELECT datetime(mtime)"
                      "  FROM event WHERE objid=%d", rid);
   if( zDate==0 ) fossil_redirect_home();
-  zNewDate = PD("dt",zDate);
+  zNewDate = PDT("dt",zDate);
   zColor = db_text("", "SELECT bgcolor"
                         "  FROM event WHERE objid=%d", rid);
-  zNewColor = PD("clr",zColor);
+  zNewColor = PDT("clr",zColor);
   if( fossil_strcmp(zNewColor,"##")==0 ){
-    zNewColor = P("clrcust");
+    zNewColor = PT("clrcust");
   }
   fPropagateColor = db_int(0, "SELECT tagtype FROM tagxref"
                               " WHERE rid=%d AND tagid=%d",
                               rid, TAG_BGCOLOR)==2;
   fNewPropagateColor = P("clr")!=0 ? P("pclr")!=0 : fPropagateColor;
   zNewTagFlag = P("newtag") ? " checked" : "";
-  zNewTag = PD("tagname","");
+  zNewTag = PDT("tagname","");
   zNewBrFlag = P("newbr") ? " checked" : "";
-  zNewBranch = PD("brname","");
+  zNewBranch = PDT("brname","");
   zCloseFlag = P("close") ? " checked" : "";
   if( P("apply") ){
     Blob ctrl;
@@ -1653,10 +1662,10 @@ void ci_edit_page(void){
     if( zCloseFlag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('closed','+',NULL)");
     }
-    if( zNewTagFlag[0] ){
+    if( zNewTagFlag[0] && zNewTag[0] ){
       db_multi_exec("REPLACE INTO newtags VALUES('sym-%q','+',NULL)", zNewTag);
     }
-    if( zNewBrFlag[0] ){
+    if( zNewBrFlag[0] && zNewBranch[0] ){
       db_multi_exec(
         "REPLACE INTO newtags "
         " SELECT tagname, '-', NULL FROM tagxref, tag"

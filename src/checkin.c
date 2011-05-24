@@ -56,7 +56,7 @@ static void status_report(
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
-      if( access(zFullName, 0)==0 ){
+      if( file_access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
         if( missingIsFatal ){
           fossil_warning("not a file: %s", zPathname);
@@ -144,9 +144,9 @@ void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  printf("repository:   %s\n", db_lget("repository",""));
-  printf("local-root:   %s\n", g.zLocalRoot);
-  printf("server-code:  %s\n", db_get("server-code", ""));
+  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("local-root:   %s\n", g.zLocalRoot);
+  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -187,81 +187,27 @@ void ls_cmd(void){
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isBrief ){
-      printf("%s\n", zPathname);
+      fossil_print("%s\n", zPathname);
     }else if( isNew ){
-      printf("ADDED      %s\n", zPathname);
+      fossil_print("ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
+      fossil_print("DELETED    %s\n", zPathname);
     }else if( !file_isfile(zFullName) ){
-      if( access(zFullName, 0)==0 ){
-        printf("NOT_A_FILE %s\n", zPathname);
+      if( file_access(zFullName, 0)==0 ){
+        fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
-        printf("MISSING    %s\n", zPathname);
+        fossil_print("MISSING    %s\n", zPathname);
       }
     }else if( chnged ){
-      printf("EDITED     %s\n", zPathname);
+      fossil_print("EDITED     %s\n", zPathname);
     }else if( renamed ){
-      printf("RENAMED    %s\n", zPathname);
+      fossil_print("RENAMED    %s\n", zPathname);
     }else{
-      printf("UNCHANGED  %s\n", zPathname);
+      fossil_print("UNCHANGED  %s\n", zPathname);
     }
     free(zFullName);
   }
   db_finalize(&q);
-}
-
-/*
-** Construct and return a string which is an SQL expression that will
-** be TRUE if value zVal matches any of the GLOB expressions in the list
-** zGlobList.  For example:
-**
-**    zVal:       "x"
-**    zGlobList:  "*.o,*.obj"
-**
-**    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
-**
-** Each element of the GLOB list may optionally be enclosed in either '...'
-** or "...".  This allows commas in the expression.  Whitespace at the
-** beginning and end of each GLOB pattern is ignored, except when enclosed
-** within '...' or "...".
-**
-** This routine makes no effort to free the memory space it uses.
-*/
-char *glob_expr(const char *zVal, const char *zGlobList){
-  Blob expr;
-  char *zSep = "(";
-  int nTerm = 0;
-  int i;
-  int cTerm;
-
-  if( zGlobList==0 || zGlobList[0]==0 ) return "0";
-  blob_zero(&expr);
-  while( zGlobList[0] ){
-    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
-    if( zGlobList[0]==0 ) break;
-    if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
-      cTerm = zGlobList[0];
-      zGlobList++;
-    }else{
-      cTerm = ',';
-    }
-    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
-    if( cTerm==',' ){
-      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
-    }
-    blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
-    zSep = " OR ";
-    if( cTerm!=',' && zGlobList[i] ) i++;
-    zGlobList += i;
-    if( zGlobList[0] ) zGlobList++;
-    nTerm++;
-  }
-  if( nTerm ){
-    blob_appendf(&expr, ")");
-    return blob_str(&expr);
-  }else{
-    return "0";
-  }
 }
 
 /*
@@ -290,6 +236,7 @@ void extra_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int outputManifest;
+  Glob *pIgnore;
 
   db_must_be_within_tree();
   outputManifest = db_get_boolean("manifest",0);
@@ -299,20 +246,20 @@ void extra_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  vfile_scan(0, &path, blob_size(&path), allFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
-      "   AND NOT %s"
       " ORDER BY 1",
-      fossil_all_reserved_names(),
-      glob_expr("x", zIgnoreFlag)
+      fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   while( db_step(&q)==SQLITE_ROW ){
-    printf("%s\n", db_column_text(&q, 0));
+    fossil_print("%s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
 }
@@ -350,6 +297,8 @@ void clean_cmd(void){
   Blob path, repo;
   Stmt q;
   int n;
+  Glob *pIgnore;
+
   allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
   zIgnoreFlag = find_option("ignore",0,1);
@@ -360,19 +309,21 @@ void clean_cmd(void){
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), dotfilesFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s) AND NOT %s"
+      " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names(), glob_expr("x",zIgnoreFlag)
+      g.zLocalRoot, fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   while( db_step(&q)==SQLITE_ROW ){
     if( allFlag ){
-      unlink(db_column_text(&q, 0));
+      file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
       char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
@@ -380,7 +331,7 @@ void clean_cmd(void){
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       if( blob_str(&ans)[0]=='y' ){
-        unlink(db_column_text(&q, 0));
+        file_delete(db_column_text(&q, 0));
       }
     }
   }
@@ -465,7 +416,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
-    printf("%s\n", zCmd);
+    fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_panic("editor aborted");
     }
@@ -475,12 +426,17 @@ static void prepare_commit_comment(
     char zIn[300];
     blob_reset(&text);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ) break;
+      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
+      if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
+        fossil_mbcs_free(zUtf8);
+        break;
+      }
       blob_append(&text, zIn, -1);
+      fossil_mbcs_free(zUtf8);
     }
   }
   blob_remove_cr(&text);
-  unlink(zFile);
+  file_delete(zFile);
   free(zFile);
   blob_zero(pComment);
   while( blob_line(&text, &line) ){
@@ -534,24 +490,6 @@ void select_commit_files(void){
     }
     g.aCommitFile[ii-2] = 0;
   }
-}
-
-/*
-** Return true if the check-in with RID=rid is a leaf.
-** A leaf has no children in the same branch.
-*/
-int is_a_leaf(int rid){
-  int rc;
-  static const char zSql[] =
-    @ SELECT 1 FROM plink
-    @  WHERE pid=%d
-    @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
-  ;
-  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
-  return rc==0;
 }
 
 /*
@@ -797,8 +735,9 @@ static void cr_warning(const Blob *p, const char *zFilename){
     char c;
     file_relative_name(zFilename, &fname);
     blob_zero(&ans);
-    zMsg = mprintf("%s contains CR/NL line endings; commit anyhow (y/N/a)?",
-                   blob_str(&fname));
+    zMsg = mprintf(
+         "%s contains CR/NL line endings; commit anyhow (yes/no/all)?", 
+         blob_str(&fname));
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     c = blob_str(&ans)[0];
@@ -1181,7 +1120,7 @@ void commit_cmd(void){
   assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("New_Version: %s\n", zUuid);
+  fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
@@ -1250,6 +1189,6 @@ void commit_cmd(void){
     autosync(AUTOSYNC_PUSH);
   }
   if( count_nonbranch_children(vid)>1 ){
-    printf("**** warning: a fork has occurred *****\n");
+    fossil_print("**** warning: a fork has occurred *****\n");
   }
 }

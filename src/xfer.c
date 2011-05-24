@@ -456,7 +456,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     " FROM blob"
     " WHERE rid=:rid"
     "   AND size>=0"
-    "   AND uuid NOT IN shun"
+    "   AND NOT EXISTS(SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)"
   );
   db_bind_int(&q1, ":rid", rid);
   rc = db_step(&q1);
@@ -554,6 +554,9 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   if( strcmp(zLogin, "nobody")==0 || strcmp(zLogin,"anonymous")==0 ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
+  if( fossil_strcmp(P("REMOTE_USER"), zLogin)==0 ){
+    return 0;   /* Accept Basic Authorization */
+  }
   db_prepare(&q,
      "SELECT pw, cap, uid FROM user"
      " WHERE login=%Q"
@@ -594,7 +597,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     if( rc==0 ){
       const char *zCap;
       zCap = db_column_text(&q, 1);
-      login_set_capabilities(zCap);
+      login_set_capabilities(zCap, 0);
       g.userUid = db_column_int(&q, 2);
       g.zLogin = mprintf("%b", pLogin);
       g.zNonce = mprintf("%b", pNonce);
@@ -740,9 +743,12 @@ static void send_all(Xfer *pXfer){
 }
 
 /*
-** Send a single config card for configuration item zName
+** Send a single old-style config card for configuration item zName.
+**
+** This routine and the functionality it implements is scheduled for
+** removal on 2012-05-01.
 */
-static void send_config_card(Xfer *pXfer, const char *zName){
+static void send_legacy_config_card(Xfer *pXfer, const char *zName){
   if( zName[0]!='@' ){
     Blob val;
     blob_zero(&val);
@@ -762,7 +768,6 @@ static void send_config_card(Xfer *pXfer, const char *zName){
     blob_reset(&content);
   }
 }
-
 
 /*
 ** Called when there is an attempt to transfer private content to and
@@ -809,6 +814,7 @@ void page_xfer(void){
   }
   g.zLogin = "anonymous";
   login_set_anon_nobody_capabilities();
+  login_check_credentials();
   memset(&xfer, 0, sizeof(xfer));
   blobarray_zero(xfer.aToken, count(xfer.aToken));
   cgi_set_content_type(g.zContentType);
@@ -1009,7 +1015,7 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
       if( disableLogin ){
-        g.okRead = g.okWrite = g.okPrivate = 1;
+        g.okRead = g.okWrite = g.okPrivate = g.okAdmin = 1;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
@@ -1031,8 +1037,15 @@ void page_xfer(void){
     ){
       if( g.okRead ){
         char *zName = blob_str(&xfer.aToken[1]);
-        if( configure_is_exportable(zName) ){
-          send_config_card(&xfer, zName);
+        if( zName[0]=='/' ){
+          /* New style configuration transfer */
+          int groupMask = configure_name_to_mask(&zName[1], 0);
+          if( !g.okAdmin ) groupMask &= ~CONFIGSET_USER;
+          if( !g.okRdAddr ) groupMask &= ~CONFIGSET_ADDR;
+          configure_send_group(xfer.pOut, groupMask, 0);
+        }else if( configure_is_exportable(zName) ){
+          /* Old style configuration transfer */
+          send_legacy_config_card(&xfer, zName);
         }
       }
     }else
@@ -1054,34 +1067,11 @@ void page_xfer(void){
         nErr++;
         break;
       }
-      if( zName[0]!='@' ){
-        if( strcmp(zName, "logo-image")==0 ){
-          Stmt ins;
-          db_prepare(&ins,
-            "REPLACE INTO config(name, value) VALUES(:name, :value)"
-          );
-          db_bind_text(&ins, ":name", zName);
-          db_bind_blob(&ins, ":value", &content);
-          db_step(&ins);
-          db_finalize(&ins);
-        }else{
-          db_multi_exec(
-              "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-              zName, blob_str(&content)
-          );
-        }
-      }else{
-        /* Notice that we are evaluating arbitrary SQL received from the
-        ** client.  But this can only happen if the client has authenticated
-        ** as an administrator, so presumably we trust the client at this
-        ** point.
-        */
-        if( !recvConfig ){
-          configure_prepare_to_receive(0);
-          recvConfig = 1;
-        }
-        db_multi_exec("%s", blob_str(&content));
+      if( !recvConfig && zName[0]=='@' ){
+        configure_prepare_to_receive(0);
+        recvConfig = 1;
       }
+      configure_receive(zName, &content, CONFIGSET_ALL);
       blob_reset(&content);
       blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
     }else
@@ -1210,15 +1200,15 @@ void page_xfer(void){
 */
 void cmd_test_xfer(void){
   int notUsed;
+  db_find_and_open_repository(0,0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
   }
-  db_must_be_within_tree();
   blob_zero(&g.cgiIn);
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;
   page_xfer();
-  printf("%s\n", cgi_extract_content(&notUsed));
+  fossil_print("%s\n", cgi_extract_content(&notUsed));
 }
 
 /*
@@ -1356,8 +1346,11 @@ int client_sync(
         zName = configure_next_name(configRcvMask);
         nCardSent++;
       }
-      if( configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT) ){
-        configure_prepare_to_receive(0);
+      if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
+       && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
+      ){
+        int overwrite = (configRcvMask & CONFIGSET_OVERWRITE)!=0;
+        configure_prepare_to_receive(overwrite);
       }
       origConfigRcvMask = configRcvMask;
       configRcvMask = 0;
@@ -1365,12 +1358,16 @@ int client_sync(
 
     /* Send configuration parameters being pushed */
     if( configSendMask ){
-      const char *zName;
-      zName = configure_first_name(configSendMask);
-      while( zName ){
-        send_config_card(&xfer, zName);
-        zName = configure_next_name(configSendMask);
-        nCardSent++;
+      if( configSendMask & CONFIGSET_OLDFORMAT ){
+        const char *zName;
+        zName = configure_first_name(configSendMask);
+        while( zName ){
+          send_legacy_config_card(&xfer, zName);
+          zName = configure_next_name(configSendMask);
+          nCardSent++;
+        }
+      }else{
+        nCardSent += configure_send_group(xfer.pOut, configSendMask, 0);
       }
       configSendMask = 0;
     }
@@ -1395,7 +1392,7 @@ int client_sync(
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
     if( !g.cgiOutput && !g.fQuiet ){
-      printf("waiting for server...");
+      fossil_print("waiting for server...");
     }
     fflush(stdout);
     if( http_exchange(&send, &recv, cloneFlag==0 || nCycle>0) ){
@@ -1443,6 +1440,7 @@ int client_sync(
              g.clockSkewSeen = 1;
           }
         }
+        nCardRcvd++;
         continue;
       }
       xfer.nToken = blob_tokenize(&xfer.line, xfer.aToken, count(xfer.aToken));
@@ -1450,7 +1448,7 @@ int client_sync(
       if( !g.cgiOutput && !g.fQuiet && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
         if( pctDone!=lastPctDone ){
-          printf("\rprocessed: %d%%         ", pctDone);
+          fossil_print("\rprocessed: %d%%         ", pctDone);
           lastPctDone = pctDone;
           fflush(stdout);
         }
@@ -1546,6 +1544,9 @@ int client_sync(
       /*   config NAME SIZE \n CONTENT
       **
       ** Receive a configuration value from the server.
+      **
+      ** The received configuration setting is silently ignored if it was
+      ** not requested by a prior "reqconfig" sent from client to server.
       */
       if( blob_eq(&xfer.aToken[0],"config") && xfer.nToken==3
           && blob_is_int(&xfer.aToken[2], &size) ){
@@ -1554,32 +1555,7 @@ int client_sync(
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
         g.okAdmin = g.okRdAddr = 1;
-        if( configure_is_exportable(zName) & origConfigRcvMask ){
-          if( zName[0]!='@' ){
-            if( strcmp(zName, "logo-image")==0 ){
-              Stmt ins;
-              db_prepare(&ins,
-                "REPLACE INTO config(name, value) VALUES(:name, :value)"
-              );
-              db_bind_text(&ins, ":name", zName);
-              db_bind_blob(&ins, ":value", &content);
-              db_step(&ins);
-              db_finalize(&ins);
-            }else{
-              db_multi_exec(
-                  "REPLACE INTO config(name,value) VALUES(%Q,%Q)",
-                  zName, blob_str(&content)
-              );
-            }
-          }else{
-            /* Notice that we are evaluating arbitrary SQL received from the
-            ** server.  But this can only happen if we have specifically
-            ** requested configuration information from the server, so
-            ** presumably the operator trusts the server.
-            */
-            db_multi_exec("%s", blob_str(&content));
-          }
-        }
+        configure_receive(zName, &content, origConfigRcvMask);
         nCardSent++;
         blob_reset(&content);
         blob_seek(xfer.pIn, 1, BLOB_SEEK_CUR);
@@ -1693,7 +1669,9 @@ int client_sync(
       blobarray_reset(xfer.aToken, xfer.nToken);
       blob_reset(&xfer.line);
     }
-    if( origConfigRcvMask & (CONFIGSET_TKT|CONFIGSET_USER) ){
+    if( (configRcvMask & (CONFIGSET_USER|CONFIGSET_TKT))!=0
+     && (configRcvMask & CONFIGSET_OLDFORMAT)!=0
+    ){
       configure_finalize_receive();
     }
     origConfigRcvMask = 0;

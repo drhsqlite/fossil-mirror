@@ -47,6 +47,7 @@ set src {
   export
   file
   finfo
+  glob
   graph
   gzip
   http
@@ -251,6 +252,7 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c"
 set opt {-Dmain=sqlite3_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
+append opt " -Dfopen=fossil_fopen"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -308,7 +310,7 @@ ZLIBDIR = /programs/gnuwin32
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -DFOSSIL_I18N=0 -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
+TCC = gcc -Os -Wall -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -503,11 +505,9 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(DMDIR)\extra\include
 #SSL   =  -DFOSSIL_ENABLE_SSL=1
 SSL    =
 
-I18N   =  -DFOSSIL_I18N=0
-
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
-TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(I18N) $(SSL) $(INCL)
+TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
 }
 writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
@@ -646,11 +646,9 @@ ZLIB    = zlib.lib
 
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
-I18N   =  -DFOSSIL_I18N=0
-
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(I18N) $(SSL) $(INCL)
+TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
@@ -820,7 +818,7 @@ LINKFLAGS=-subsystem:console -machine:$(TARGETMACHINE_LN) /LIBPATH:$(PellesCDir)
 # the fossil binary. Some special definitions follow for
 # special files follow
 CC=$(PellesCDir)\bin\pocc.exe
-DEFINES=-DFOSSIL_I18N=0 -D_pgmptr=g.argv[0]
+DEFINES=-D_pgmptr=g.argv[0]
 CCFLAGS=-T$(TARGETMACHINE_CC)-coff -Ot -W2 -Gd -Go -Ze -MT $(DEFINES)
 INCLUDE=/I $(PellesCDir)\Include\Win /I $(PellesCDir)\Include /I $(ZLIBSRCDIR) /I $(SRCDIR)
 

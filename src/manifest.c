@@ -1708,26 +1708,28 @@ int manifest_crosslink(int rid, Blob *pContent){
     free(zTag);
     prior = db_int(0,
       "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime<%.17g"
+      " WHERE tagid=%d AND mtime<%.17g AND rid!=%d"
       " ORDER BY mtime DESC",
-      tagid, p->rDate
+      tagid, p->rDate, rid
+    );
+    subsequent = db_int(0,
+      "SELECT rid FROM tagxref"
+      " WHERE tagid=%d AND mtime>=%.17g AND rid!=%d"
+      " ORDER BY mtime",
+      tagid, p->rDate, rid
     );
     if( prior ){
       content_deltify(prior, rid, 0);
-      db_multi_exec(
-        "DELETE FROM event"
-        " WHERE type='e'"
-        "   AND tagid=%d"
-        "   AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)",
-        tagid, tagid
-      );
+      if( !subsequent ){
+        db_multi_exec(
+          "DELETE FROM event"
+          " WHERE type='e'"
+          "   AND tagid=%d"
+          "   AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)",
+          tagid, tagid
+        );
+      }
     }
-    subsequent = db_int(0,
-      "SELECT rid FROM tagxref"
-      " WHERE tagid=%d AND mtime>%.17g"
-      " ORDER BY mtime",
-      tagid, p->rDate
-    );
     if( subsequent ){
       content_deltify(rid, subsequent, 0);
     }else{

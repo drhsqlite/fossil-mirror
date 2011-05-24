@@ -356,8 +356,8 @@ void user_edit(void){
     }
     login_verify_csrf_secret();
     db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
+       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
       uid, P("login"), P("info"), zPw, zCap
     );
     if( atoi(PD("all","0"))>0 ){
@@ -377,7 +377,8 @@ void user_edit(void){
         "  pw=coalesce(shared_secret(%Q,%Q,"
                 "(SELECT value FROM config WHERE name='project-code')),pw),"
         "  info=%Q,"
-        "  cap=%Q"
+        "  cap=%Q,"
+        "  mtime=now()"
         " WHERE login=%Q;",
         zLogin, P("pw"), zLogin, P("info"), zCap,
         zOldLogin
@@ -1288,14 +1289,14 @@ void setup_logo(void){
     Stmt ins;
     blob_init(&img, aImg, szImg);
     db_prepare(&ins,
-        "REPLACE INTO config(name, value)"
-        " VALUES('logo-image',:bytes)"
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('logo-image',:bytes,now())"
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
-       "REPLACE INTO config(name, value) VALUES('logo-mimetype',%Q)",
+       "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zMime
     );
     db_end_transaction(0);

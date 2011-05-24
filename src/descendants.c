@@ -161,17 +161,22 @@ void compute_leaves(int iBase, int closeMode){
 void compute_ancestors(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
   pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q,
+    "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
+    " WHERE a.cid=:rid"
+  );
   while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,
-       "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-       " WHERE a.cid=%d", rid
-    );
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
@@ -179,10 +184,12 @@ void compute_ancestors(int rid, int N){
         pqueue_insert(&queue, pid, -mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*
@@ -192,14 +199,20 @@ void compute_ancestors(int rid, int N){
 void compute_descendants(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
+
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
   pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
   while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,"SELECT cid, mtime FROM plink WHERE pid=%d", rid);
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
@@ -207,10 +220,12 @@ void compute_descendants(int rid, int N){
         pqueue_insert(&queue, pid, mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*

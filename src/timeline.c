@@ -100,28 +100,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 }
 
 /*
-** Count the number of primary non-branch children for the given check-in.
-**
-** A primary child is one where the parent is the primary parent, not
-** a merge parent.
-**
-** A non-branch child is one which is on the same branch as the parent.
-*/
-int count_nonbranch_children(int pid){
-  int nNonBranch;
-  static const char zSql[] = 
-    @ SELECT count(*) FROM plink
-    @  WHERE pid=%d AND isprim
-    @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
-  ;
-  nNonBranch = db_int(0, zSql, pid, TAG_BRANCH, TAG_BRANCH);
-  return nNonBranch;
-}
-
-/*
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
@@ -346,13 +324,15 @@ void www_print_timeline(
     }
 
     /* Generate the file-change list if requested */
-    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' ){
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.okHistory ){
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
           "SELECT (pid==0) AS isnew,"
           "       (fid==0) AS isdel,"
-          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name"
+          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+          "       (SELECT uuid FROM blob WHERE rid=fid),"
+          "       (SELECT uuid FROM blob WHERE rid=pid)"
           "  FROM mlink"
           " WHERE mid=:mid AND pid!=fid"
           " ORDER BY 3"
@@ -364,16 +344,22 @@ void www_print_timeline(
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOld = db_column_text(&fchngQuery, 4);
+        const char *zNew = db_column_text(&fchngQuery, 3);
         if( !inUl ){
           @ <ul class="filelist">
           inUl = 1;
         }
         if( isNew ){
-          @ <li> %h(zFilename) (new file)</li>
+          @ <li> %h(zFilename) (new file) &nbsp;
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
+          @ </a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else{
-          @ <li> %h(zFilename) </li>
+          @ <li> %h(zFilename) &nbsp;
+          @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
+          @ target="diffwindow">[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
@@ -742,19 +728,19 @@ static void timeline_submenu(
 static void timeline_add_dividers(const char *zDate, int rid){
   char *zToDel = 0;
   if( zDate==0 ){
-    zToDel = db_text(0,"SELECT datetime(mtime,'localtime') FROM event"
+    zToDel = db_text(0,"SELECT julianday(mtime,'localtime') FROM event"
                        " WHERE objid=%d", rid);
     zDate = zToDel;
     if( zDate==0 ) zDate = "1";
   }
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-1,julianday(%Q,'utc')-5.0e-6,'div')",
+    "VALUES(-1,julianday(%Q,'utc')-1.0e-5,'div')",
     zDate
   );
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-2,julianday(%Q,'utc')+5.0e-6,'div')",
+    "VALUES(-2,julianday(%Q,'utc')+1.0e-5,'div')",
      zDate
   );
   fossil_free(zToDel);
@@ -1219,12 +1205,12 @@ void print_timeline(Stmt *q, int mxLine){
     
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
-      printf("=== %.10s ===\n", zDate);
+      fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++;
     }
     if( zCom==0 ) zCom = "";
-    printf("%.8s ", &zDate[11]);
+    fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
@@ -1469,9 +1455,9 @@ void test_timewarp_cmd(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     if( !showDetail ){
-      printf("%s\n", db_column_text(&q, 1));
+      fossil_print("%s\n", db_column_text(&q, 1));
     }else{
-      printf("%.14s -> %.14s   %s -> %s\n",
+      fossil_print("%.14s -> %.14s   %s -> %s\n",
          db_column_text(&q, 0),
          db_column_text(&q, 1),
          db_column_text(&q, 2),
