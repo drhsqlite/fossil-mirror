@@ -193,16 +193,20 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
+  char *zSecure = "";
   if( zPath==0 ) zPath = g.zTop;
+  if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
+    zSecure = " secure;";
+  }
   if( lifetime>0 ){
     lifetime += (int)time(0);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%z; Version=1\r\n",
-        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime));
+       "Set-Cookie: %s=%t; Path=%s; expires=%z; HttpOnly;%s Version=1\r\n",
+        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime), zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; Version=1\r\n",
-       zName, zValue, zPath);
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
+       zName, zValue, zPath, zSecure);
   }
 }
 
