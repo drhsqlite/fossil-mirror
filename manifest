@@ -1,5 +1,5 @@
-C Merge\sthe\sben-security\sbranch\sinto\sthe\strunk.
-D 2011-05-23T15:11:12.321
+C Update\sthe\sMac\sicon\sfor\sthe\sdownload\spage.
+D 2011-05-25T13:54:40.250
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -217,7 +217,7 @@ F www/branching.wiki 876dfdf511b2e859fb343caea56a40f5cbe0ac8d
 F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
-F www/build-icons/mac.gif e8de26198384613dbd2b9f3ad81f59946d55d119
+F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3e0efc38279da750feba830bc72ceea3a5d03789 e4b57a32303398ac4a0d239febecb622a8edd4c0
-R 7da6a0a3ab7aae5b3ea98fc94e0a023e
+P 474850cff598d76f4e23f7df1f2ea26e93478c45
+R ebc6889f3a2ae96442539e136bc93d49
 U drh
-Z 70e6bd3a0fbe2d385b197f9bf71fd653
+Z bfd3a09d0dd08621e088d1f3c0114384
