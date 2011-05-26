@@ -67,6 +67,7 @@ struct Global {
   int fSqlPrint;          /* True if -sqlprint flag is present */
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
+  int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
   int fNoSync;            /* Do not do an autosync even.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
@@ -247,6 +248,7 @@ int main(int argc, char **argv){
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
+    g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -433,12 +435,14 @@ int fossil_system(const char *zOrigCmd){
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
   char *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
+  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zMbcs);
   rc = system(zMbcs);
   fossil_mbcs_free(zMbcs);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
+  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
   rc = system(zOrigCmd);
 #endif 
   return rc; 

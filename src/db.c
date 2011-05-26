@@ -1214,7 +1214,9 @@ static void db_sql_print(
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
   int n = strlen(zSql);
-  fprintf(stderr, "%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  char *zMsg = mprintf("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  fossil_puts(zMsg, 1);
+  fossil_free(zMsg);
 }
 
 /*

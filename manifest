@@ -1,5 +1,5 @@
-C Make\sarrangements\sfor\sthe\soutput\sof\s"fossil\sstatus"\sto\sgo\sthrough\sthe\nUTF8\sto\sMBCS\stranslation.\s\sTicket\s[3f0216560679fd]
-D 2011-05-26T11:29:06.204
+C Add\sthe\s--systemtrace\soption\sfor\sdebugging\scalls\sto\sfossil_system.
+D 2011-05-26T11:57:14.247
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -51,7 +51,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c 3a46aae55cdc6cc4e379bc034253d79be896aaba
 F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
-F src/db.c 9c11cb94b3a6e83fe009a4ddf23f803afc2b1998
+F src/db.c b0034644714ef217d445567b25d7d7dd7f623212
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
@@ -74,7 +74,7 @@ F src/import.c 38e5ccd5db35cd7638edfcabbfa59bb3f55b1178
 F src/info.c 698126d41ad259f8b4a8acec5515d668a2a8ab2e
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 81fbb3af41de9274b1cf1b6db83ec39097307c6d
-F src/main.c f6ebb6641b0d399d07b789ea276c23f3e5583bb9
+F src/main.c de92a08ab88508cd5333a88e4ae9fc8c9217c12f
 F src/main.mk 250bbd15b118f998db2f20179d47cd8e8cf4ecd1
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a2e1c483734a293c8f9cb1ccb7dbf9a6ee357292
-R 8616cd195f255352a8f7e047b992a058
+P 02a6aa2d5e3ea14de47debbdb93ca8d2fb5c113e
+R 9bd03a6243a19d52c4f244d72fbddbef
 U drh
-Z 62b6f3266c82aec4a5299ca7c96da575
+Z cdd72e59378275b69daff382c58e5200
