@@ -713,12 +713,11 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
 */
 int blob_write_to_file(Blob *pBlob, const char *zFilename){
   FILE *out;
-  int needToClose;
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    out = stdout;
-    needToClose = 0;
+    fossil_puts(blob_str(pBlob), 0);
+    return blob_size(pBlob);
   }else{
     int i, nName;
     char *zName, zBuf[1000];
@@ -757,12 +756,11 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       fossil_fatal_recursive("unable to open file \"%s\" for writing", zName);
       return 0;
     }
-    needToClose = 1;
     if( zName!=zBuf ) free(zName);
   }
   blob_is_init(pBlob);
   wrote = fwrite(blob_buffer(pBlob), 1, blob_size(pBlob), out);
-  if( needToClose ) fclose(out);
+  fclose(out);
   if( wrote!=blob_size(pBlob) && out!=stdout ){
     fossil_fatal_recursive("short write: %d of %d bytes to %s", wrote,
        blob_size(pBlob), zFilename);
