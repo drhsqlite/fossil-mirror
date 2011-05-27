@@ -141,10 +141,10 @@ const char *mimetype_from_name(const char *zName){
     { "gl",         2, "video/gl"                          },
     { "gtar",       4, "application/x-gtar"                },
     { "gz",         2, "application/x-gzip"                },
+    { "h",          1, "text/plain"                        },
     { "hdf",        3, "application/x-hdf"                 },
     { "hh",         2, "text/plain"                        },
     { "hqx",        3, "application/mac-binhex40"          },
-    { "h",          1, "text/plain"                        },
     { "htm",        3, "text/html"                         },
     { "html",       4, "text/html"                         },
     { "ice",        3, "x-conference/x-cooltalk"           },
@@ -155,8 +155,8 @@ const char *mimetype_from_name(const char *zName){
     { "ipx",        3, "application/x-ipix"                },
     { "jad",        3, "text/vnd.sun.j2me.app-descriptor"  },
     { "jar",        3, "application/java-archive"          },
-    { "jpeg",       4, "image/jpeg"                        },
     { "jpe",        3, "image/jpeg"                        },
+    { "jpeg",       4, "image/jpeg"                        },
     { "jpg",        3, "image/jpeg"                        },
     { "js",         2, "application/x-javascript"          },
     { "kar",        3, "audio/midi"                        },
@@ -173,15 +173,14 @@ const char *mimetype_from_name(const char *zName){
     { "midi",       4, "audio/midi"                        },
     { "mif",        3, "application/x-mif"                 },
     { "mime",       4, "www/mime"                          },
-    { "movie",      5, "video/x-sgi-movie"                 },
     { "mov",        3, "video/quicktime"                   },
+    { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
-    { "mp2",        3, "video/mpeg"                        },
     { "mp3",        3, "audio/mpeg"                        },
-    { "mpeg",       4, "video/mpeg"                        },
     { "mpe",        3, "video/mpeg"                        },
-    { "mpga",       4, "audio/mpeg"                        },
+    { "mpeg",       4, "video/mpeg"                        },
     { "mpg",        3, "video/mpeg"                        },
+    { "mpga",       4, "audio/mpeg"                        },
     { "ms",         2, "application/x-troff-ms"            },
     { "msh",        3, "model/mesh"                        },
     { "nc",         2, "application/x-netcdf"              },
@@ -211,18 +210,16 @@ const char *mimetype_from_name(const char *zName){
     { "ram",        3, "audio/x-pn-realaudio"              },
     { "rar",        3, "application/x-rar-compressed"      },
     { "ras",        3, "image/cmu-raster"                  },
-    { "ras",        3, "image/x-cmu-raster"                },
     { "rgb",        3, "image/x-rgb"                       },
     { "rm",         2, "audio/x-pn-realaudio"              },
     { "roff",       4, "application/x-troff"               },
     { "rpm",        3, "audio/x-pn-realaudio-plugin"       },
-    { "rtf",        3, "application/rtf"                   },
     { "rtf",        3, "text/rtf"                          },
     { "rtx",        3, "text/richtext"                     },
     { "scm",        3, "application/x-lotusscreencam"      },
     { "set",        3, "application/set"                   },
-    { "sgml",       4, "text/sgml"                         },
     { "sgm",        3, "text/sgml"                         },
+    { "sgml",       4, "text/sgml"                         },
     { "sh",         2, "application/x-sh"                  },
     { "shar",       4, "application/x-shar"                },
     { "silo",       4, "model/mesh"                        },
@@ -251,8 +248,8 @@ const char *mimetype_from_name(const char *zName){
     { "texi",       4, "application/x-texinfo"             },
     { "texinfo",    7, "application/x-texinfo"             },
     { "tgz",        3, "application/x-tar-gz"              },
-    { "tiff",       4, "image/tiff"                        },
     { "tif",        3, "image/tiff"                        },
+    { "tiff",       4, "image/tiff"                        },
     { "tr",         2, "application/x-troff"               },
     { "tsi",        3, "audio/TSP-audio"                   },
     { "tsp",        3, "application/dsptype"               },
@@ -286,6 +283,21 @@ const char *mimetype_from_name(const char *zName){
     { "zip",        3, "application/zip"                   },
   };
 
+#ifdef FOSSIL_DEBUG
+  /* This is test code to make sure the table above is in the correct
+  ** order
+  */
+  if( fossil_strcmp(zName, "mimetype-test")==0 ){
+    for(i=1; i<sizeof(aMime)/sizeof(aMime[0]); i++){
+      if( fossil_strcmp(aMime[i-1].zSuffix,aMime[i].zSuffix)>=0 ){
+        fossil_fatal("mimetypes out of sequence: %s before %s",
+                     aMime[i-1].zSuffix, aMime[i].zSuffix);
+      }
+    }
+    return "ok";
+  }
+#endif
+
   z = zName;
   for(i=0; zName[i]; i++){
     if( zName[i]=='.' ) z = &zName[i+1];
@@ -309,6 +321,24 @@ const char *mimetype_from_name(const char *zName){
     }
   }
   return "application/x-fossil-artifact";
+}
+
+/*
+** COMMAND:  test-mimetype
+**
+** Usage: %fossil test-mimetype FILENAME...
+**
+** Return the deduced mimetype for each file listed.
+**
+** If Fossil is compiled with -DFOSSIL_DEBUG then the "mimetype-test"
+** filename is special and verifies the integrity of the mimetype table.
+** It should return "ok".
+*/
+void mimetype_test_cmd(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%-20s -> %s\n", g.argv[i], mimetype_from_name(g.argv[i]));
+  }
 }
 
 /*
