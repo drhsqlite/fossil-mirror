@@ -87,7 +87,7 @@ void home_page(void){
     const char *zPathInfo = P("PATH_INFO");
     while( zIndexPage[0]=='/' ) zIndexPage++;
     while( zPathInfo[0]=='/' ) zPathInfo++;
-    if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
+    if( fossil_strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
     cgi_redirectf("%s/%s", g.zTop, zIndexPage);
@@ -417,7 +417,7 @@ static void appendRemark(Blob *p){
     zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
-  if( zUser[0] && strcmp(zUser,g.zLogin) ){
+  if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
     blob_appendf(p, " (claiming to be %h)", zUser);
   }
   zRemark = PD("r","");

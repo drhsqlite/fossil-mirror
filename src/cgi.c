@@ -316,7 +316,7 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
-  if( strcmp(zContentType,"application/x-fossil")==0 ){
+  if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
     blob_compress(&cgiContent[0], &cgiContent[0]);
   }
@@ -425,7 +425,7 @@ void cgi_set_parameter(const char *zName, const char *zValue){
 void cgi_replace_parameter(const char *zName, const char *zValue){
   int i;
   for(i=0; i<nUsedQP; i++){
-    if( strcmp(aParamQP[i].zName,zName)==0 ){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
       aParamQP[i].zValue = zValue;
       return;
     }
@@ -687,7 +687,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   if( len>0 && zType ){
     blob_zero(&g.cgiIn);
-    if( strcmp(zType,"application/x-www-form-urlencoded")==0 
+    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
@@ -697,12 +697,12 @@ void cgi_init(void){
       }else{
         process_multipart_form_data(z, len);
       }
-    }else if( strcmp(zType, "application/x-fossil")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( strcmp(zType, "application/x-fossil-uncompressed")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
@@ -722,7 +722,7 @@ static int qparam_compare(const void *a, const void *b){
   struct QParam *pA = (struct QParam*)a;
   struct QParam *pB = (struct QParam*)b;
   int c;
-  c = strcmp(pA->zName, pB->zName);
+  c = fossil_strcmp(pA->zName, pB->zName);
   if( c==0 ){
     c = pA->seq - pB->seq;
   }
@@ -751,7 +751,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     ** with duplicate calls to cgi_set_parameter() the second and
     ** subsequent calls are effectively no-ops. */
     for(i=j=1; i<nUsedQP; i++){
-      if( strcmp(aParamQP[i].zName,aParamQP[i-1].zName)==0 ){
+      if( fossil_strcmp(aParamQP[i].zName,aParamQP[i-1].zName)==0 ){
         continue;
       }
       if( j<i ){
@@ -767,7 +767,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   hi = nUsedQP-1;
   while( lo<=hi ){
     mid = (lo+hi)/2;
-    c = strcmp(aParamQP[mid].zName, zName);
+    c = fossil_strcmp(aParamQP[mid].zName, zName);
     if( c==0 ){
       CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
       return aParamQP[mid].zValue;
@@ -978,8 +978,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request();
   }
-  if( strcmp(zToken,"GET")!=0 && strcmp(zToken,"POST")!=0
-      && strcmp(zToken,"HEAD")!=0 ){
+  if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
+      && fossil_strcmp(zToken,"HEAD")!=0 ){
     malformed_request();
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
@@ -1019,25 +1019,25 @@ void cgi_handle_http_request(const char *zIpAddr){
     for(i=0; zFieldName[i]; i++){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
-    if( strcmp(zFieldName,"content-length:")==0 ){
+    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
-    }else if( strcmp(zFieldName,"content-type:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);
-    }else if( strcmp(zFieldName,"cookie:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"cookie:")==0 ){
       cgi_setenv("HTTP_COOKIE", zVal);
-    }else if( strcmp(zFieldName,"https:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"https:")==0 ){
       cgi_setenv("HTTPS", zVal);
-    }else if( strcmp(zFieldName,"host:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       cgi_setenv("HTTP_HOST", zVal);
-    }else if( strcmp(zFieldName,"if-none-match:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
-    }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
     }
 #if 0
-    else if( strcmp(zFieldName,"referer:")==0 ){
+    else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
-    }else if( strcmp(zFieldName,"user-agent:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
 #endif

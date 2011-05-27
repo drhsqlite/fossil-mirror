@@ -74,7 +74,7 @@ int bisect_option(const char *zName){
   unsigned int i;
   int r = -1;
   for(i=0; i<sizeof(aBisectOption)/sizeof(aBisectOption[0]); i++){
-    if( strcmp(zName, aBisectOption[i].zName)==0 ){
+    if( fossil_strcmp(zName, aBisectOption[i].zName)==0 ){
       char *zLabel = mprintf("bisect-%s", zName);
       char *z = db_lget(zLabel, (char*)aBisectOption[i].zDefault);
       if( is_truth(z) ) r = 1;

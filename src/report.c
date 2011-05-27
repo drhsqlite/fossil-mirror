@@ -646,7 +646,7 @@ static int generate_html(
     pState->iNewRow = -1;
     pState->iBg = -1;
     for(i=0; i<nArg; i++){
-      if( azName[i][0]=='b' && strcmp(azName[i],"bgcolor")==0 ){
+      if( azName[i][0]=='b' && fossil_strcmp(azName[i],"bgcolor")==0 ){
         pState->iBg = i;
         continue;
       }
@@ -949,7 +949,7 @@ void rptview_page(void){
     style_submenu_element("Raw", "Raw", 
       "rptview?tablist=1&amp;%h", PD("QUERY_STRING",""));
     if( g.okAdmin 
-       || (g.okTktFmt && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+       || (g.okTktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
     if( g.okTktFmt ){

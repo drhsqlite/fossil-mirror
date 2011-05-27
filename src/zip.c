@@ -100,7 +100,7 @@ void zip_add_folders(char *zName){
       c = zName[i+1];
       zName[i+1] = 0;
       for(j=0; j<nDir; j++){
-        if( strcmp(zName, azDir[j])==0 ) break;
+        if( fossil_strcmp(zName, azDir[j])==0 ) break;
       }
       if( j>=nDir ){
         nDir++;

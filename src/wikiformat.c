@@ -133,7 +133,7 @@ static int findAttr(const char *z){
   last = sizeof(aAttribute)/sizeof(aAttribute[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
-    c = strcmp(aAttribute[i].zName, z);
+    c = fossil_strcmp(aAttribute[i].zName, z);
     if( c==0 ){
       return i;
     }else if( c<0 ){
@@ -332,7 +332,7 @@ static int findTag(const char *z){
   last = sizeof(aMarkup)/sizeof(aMarkup[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
-    c = strcmp(aMarkup[i].zName, z);
+    c = fossil_strcmp(aMarkup[i].zName, z);
     if( c==0 ){
       assert( aMarkup[i].iCode==i );
       return i;
@@ -882,7 +882,7 @@ static int findTagWithId(Renderer *p, int iTag, const char *zId){
   for(i=p->nStack-1; i>=0; i--){
     if( p->aStack[i].iCode!=iTag ) continue;
     if( p->aStack[i].zId==0 ) continue;
-    if( strcmp(zId, p->aStack[i].zId)!=0 ) continue;
+    if( fossil_strcmp(zId, p->aStack[i].zId)!=0 ) continue;
     break;
   }
   return i;
@@ -1120,7 +1120,7 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
   if( p->zVerbatimId==0 ) return 1;
   if( pMarkup->nAttr!=1 ) return 0;
   z = pMarkup->aAttr[0].zValue;
-  return strcmp(z, p->zVerbatimId)==0;
+  return fossil_strcmp(z, p->zVerbatimId)==0;
 }
 
 /*
@@ -1146,7 +1146,7 @@ static void wiki_render(Renderer *p, char *z){
 
   /* Make sure the attribute constants and names still align
   ** following changes in the attribute list. */
-  assert( strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
+  assert( fossil_strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
 
   while( z[0] ){
     if( wikiUseHtml ){

@@ -508,7 +508,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
   }else{
     /* Otherwise, the old format */
     if( (configure_is_exportable(zName) & groupMask)==0 ) return;
-    if( strcmp(zName, "logo-image")==0 ){
+    if( fossil_strcmp(zName, "logo-image")==0 ){
       Stmt ins;
       db_prepare(&ins,
         "REPLACE INTO config(name, value, mtime) VALUES(:name, :value, now())"

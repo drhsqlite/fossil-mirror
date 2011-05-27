@@ -1055,7 +1055,7 @@ void setup_skin(void){
 
   if( P("save")!=0 && (zName = skinVarName(P("save"),0))!=0 ){
     if( db_exists("SELECT 1 FROM config WHERE name=%Q", zName)
-          || strcmp(zName, "Default")==0 ){
+          || fossil_strcmp(zName, "Default")==0 ){
       zErr = mprintf("Skin name \"%h\" already exists. "
                      "Choose a different name.", P("sn"));
     }else{
@@ -1069,7 +1069,7 @@ void setup_skin(void){
   if( P("load") && (z = P("sn"))!=0 && z[0] ){
     int seen = 0;
     for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
-      if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
+      if( fossil_strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
         seen = 1;
         break;
       }
@@ -1087,7 +1087,7 @@ void setup_skin(void){
     }
     seen = 0;
     for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
-      if( strcmp(aBuiltinSkin[i].zName, z)==0 ){
+      if( fossil_strcmp(aBuiltinSkin[i].zName, z)==0 ){
         seen = 1;
         zCurrent = aBuiltinSkin[i].zValue;
         db_multi_exec("%s", zCurrent);
@@ -1113,7 +1113,7 @@ void setup_skin(void){
   @ <ol>
   for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
     z = aBuiltinSkin[i].zName;
-    if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
+    if( fossil_strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post"><div>
@@ -1131,7 +1131,7 @@ void setup_skin(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
-    if( strcmp(zV, zCurrent)==0 ){
+    if( fossil_strcmp(zV, zCurrent)==0 ){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post">

@@ -1352,7 +1352,7 @@ void timeline_cmd(void){
   k = strlen(zOrigin);
   blob_zero(&uuid);
   blob_append(&uuid, zOrigin, -1);
-  if( strcmp(zOrigin, "now")==0 ){
+  if( fossil_strcmp(zOrigin, "now")==0 ){
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }

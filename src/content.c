@@ -852,7 +852,7 @@ void test_integrity(void){
                      rid, blob_size(&content), size);
     }
     sha1sum_blob(&content, &cksum);
-    if( strcmp(blob_str(&cksum), zUuid)!=0 ){
+    if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
       fossil_fatal("checksum mismatch on blob rid=%d: %s vs %s",
                    rid, blob_str(&cksum), zUuid);
     }

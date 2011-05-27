@@ -121,10 +121,10 @@ void update_cmd(void){
   if( internalUpdate ){
     tid = internalUpdate;
   }else if( g.argc>=3 ){
-    if( strcmp(g.argv[2], "current")==0 ){
+    if( fossil_strcmp(g.argv[2], "current")==0 ){
       /* If VERSION is "current", then use the same algorithm to find the
       ** target as if VERSION were omitted. */
-    }else if( strcmp(g.argv[2], "latest")==0 ){
+    }else if( fossil_strcmp(g.argv[2], "latest")==0 ){
       /* If VERSION is "latest", then use the same algorithm to find the
       ** target as if VERSION were omitted and the --latest flag is present.
       */

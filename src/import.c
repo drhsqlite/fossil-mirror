@@ -207,7 +207,7 @@ static void finish_tag(void){
 static int mfile_cmp(const void *pLeft, const void *pRight){
   const ImportFile *pA = (const ImportFile*)pLeft;
   const ImportFile *pB = (const ImportFile*)pRight;
-  return strcmp(pA->zName, pB->zName);
+  return fossil_strcmp(pA->zName, pB->zName);
 }
 
 /* Forward reference */

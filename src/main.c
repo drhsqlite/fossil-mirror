@@ -198,7 +198,7 @@ static int name_search(
   while( lwr<=upr ){
     int mid, c;
     mid = (upr+lwr)/2;
-    c = strcmp(zName, aMap[mid].zName);
+    c = fossil_strcmp(zName, aMap[mid].zName);
     if( c==0 ){
       *pIndex = mid;
       return 0;
@@ -446,21 +446,6 @@ int fossil_system(const char *zOrigCmd){
   rc = system(zOrigCmd);
 #endif 
   return rc; 
-}
-
-/*
-** Like strcmp() except that it accepts NULL pointers.  NULL sorts before
-** all non-NULL string pointers.
-*/
-int fossil_strcmp(const char *zA, const char *zB){
-  if( zA==0 ){
-    if( zB==0 ) return 0;
-    return -1;
-  }else if( zB==0 ){
-    return +1;
-  }else{
-    return strcmp(zA,zB);
-  }
 }
 
 /*
@@ -930,7 +915,7 @@ static void process_one_web_page(const char *zNotFound){
 
       szFile = file_size(zRepo);
       if( zPathInfo[i]=='/' && szFile<0 ){
-        assert( strcmp(&zRepo[j], ".fossil")==0 );
+        assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
         if( file_isdir(zRepo)==1 ){
           fossil_free(zToFree);
@@ -1189,7 +1174,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   }
   if( zName && validate16(zName, strlen(zName)) ){
     for(i=0; i<nRedirect; i++){
-      if( strcmp(azRedirect[i*2],"*")==0 ){
+      if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
         zNotFound = azRedirect[i*2+1];
         continue;
       }

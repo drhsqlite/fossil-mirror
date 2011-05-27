@@ -222,7 +222,7 @@ static void showTags(int rid, const char *zNotGlob){
         @ propagates to descendants
       }
 #if 0
-      if( zValue && strcmp(zTagname,"branch")==0 ){
+      if( zValue && fossil_strcmp(zTagname,"branch")==0 ){
         @ &nbsp;&nbsp;
         @ <a href="%s(g.zTop)/timeline?r=%T(zValue)">branch timeline</a>
       }
@@ -1621,7 +1621,7 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor || strcmp(zColor,zNewColor)!=0)
+     && (fPropagateColor!=fNewPropagateColor || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
       if( fNewPropagateColor ){

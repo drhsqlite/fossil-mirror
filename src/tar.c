@@ -311,7 +311,7 @@ void tarball_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid",""));
   nRid = strlen(zRid);
-  if( nName>7 && strcmp(&zName[nName-7], ".tar.gz")==0 ){
+  if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
     zName[nName] = 0;

@@ -342,12 +342,12 @@ char *url_render(
   blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
   for(i=0; i<p->nParam; i++){
     const char *z = p->azValue[i];
-    if( zName1 && strcmp(zName1,p->azName[i])==0 ){
+    if( zName1 && fossil_strcmp(zName1,p->azName[i])==0 ){
       zName1 = 0;
       z = zValue1;
       if( z==0 ) continue;
     }
-    if( zName2 && strcmp(zName2,p->azName[i])==0 ){
+    if( zName2 && fossil_strcmp(zName2,p->azName[i])==0 ){
       zName2 = 0;
       z = zValue2;
       if( z==0 ) continue;

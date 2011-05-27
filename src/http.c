@@ -41,7 +41,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob sig;            /* The signature field */
 
   blob_zero(pLogin);
-  if( g.urlUser==0 || strcmp(g.urlUser, "anonymous")==0 ){
+  if( g.urlUser==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
      return;  /* If no login card for users "nobody" and "anonymous" */
   }
   if( g.urlIsSsh ){
@@ -235,7 +235,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
-      while( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ){
+      while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
          j -= 4;
          zLine[j] = 0;
       }

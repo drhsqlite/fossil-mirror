@@ -36,7 +36,7 @@ static char **azAppend = 0;   /* Value to be appended */
 ** Compare two entries in azField for sorting purposes
 */
 static int nameCmpr(const void *a, const void *b){
-  return strcmp(*(char**)a, *(char**)b);
+  return fossil_strcmp(*(char**)a, *(char**)b);
 }
 
 /*
@@ -77,7 +77,7 @@ static void getAllTicketFields(void){
 static int fieldId(const char *zField){
   int i;
   for(i=0; i<nField; i++){
-    if( strcmp(azField[i], zField)==0 ) return i;
+    if( fossil_strcmp(azField[i], zField)==0 ) return i;
   }
   return -1;
 }
@@ -117,7 +117,7 @@ static void initializeVariablesFromDb(void){
         zVal = zRevealed = db_reveal(zVal);
       }
       for(j=0; j<nField; j++){
-        if( strcmp(azField[j],zName)==0 ){
+        if( fossil_strcmp(azField[j],zName)==0 ){
           azValue[j] = mprintf("%s", zVal);
           break;
         }

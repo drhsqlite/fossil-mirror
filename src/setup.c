@@ -438,7 +438,7 @@ void user_edit(void){
 
   /* figure out inherited permissions */
   memset(inherit, 0, sizeof(inherit));
-  if( strcmp(zLogin, "developer") ){
+  if( fossil_strcmp(zLogin, "developer") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
@@ -447,7 +447,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "reader") ){
+  if( fossil_strcmp(zLogin, "reader") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
@@ -456,7 +456,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "anonymous") ){
+  if( fossil_strcmp(zLogin, "anonymous") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
@@ -465,7 +465,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "nobody") ){
+  if( fossil_strcmp(zLogin, "nobody") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
@@ -743,7 +743,7 @@ static void onoff_attribute(
     zQ = "off";
   }
   if( zQ ){
-    int iQ = strcmp(zQ,"on")==0 || atoi(zQ);
+    int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
@@ -770,7 +770,7 @@ void entry_attribute(
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
-  if( zQ && strcmp(zQ,zVal)!=0 ){
+  if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     zVal = zQ;
@@ -792,7 +792,7 @@ static void textarea_attribute(
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
-  if( zQ && strcmp(zQ,z)!=0 ){
+  if( zQ && fossil_strcmp(zQ,z)!=0 ){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     z = zQ;

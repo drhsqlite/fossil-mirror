@@ -845,6 +845,27 @@ void fossil_print(const char *zFormat, ...){
 }
 
 /*
+** Like strcmp() except that it accepts NULL pointers.  NULL sorts before
+** all non-NULL string pointers.  Also, this strcmp() is a binary comparison
+** that does not consider locale.
+*/
+int fossil_strcmp(const char *zA, const char *zB){
+  if( zA==0 ){
+    if( zB==0 ) return 0;
+    return -1;
+  }else if( zB==0 ){
+    return +1;
+  }else{
+    int a, b;
+    do{ 
+      a = *zA++;
+      b = *zB++;
+    }while( a==b && a!=0 );
+    return a - b;
+  }
+}
+
+/*
 ** Case insensitive string comparison.
 */
 int fossil_strnicmp(const char *zA, const char *zB, int nByte){
