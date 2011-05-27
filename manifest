@@ -1,5 +1,5 @@
-C Internationalize\sthe\sopendir()\sfunction\scalls.\sTicket\s[49db5c3993bef2].
-D 2011-05-27T12:56:37.171
+C Issue\sa\swarning\sif\sthe\s"push"\sor\s"sync"\scommand\sis\sissued\swhen\s"dont-push"\nis\senable.
+D 2011-05-27T14:37:20.588
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -106,7 +106,7 @@ F src/sqlite3.h 812e5c95b8c0ee21c5f91c958a7b319b9ee6a06f
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
-F src/sync.c 969525aadbdd3de0f81683e9670771205c1291ab
+F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 91ed0dd3045f6fe4e4aa9f1fe96636ee90bf4115
 F src/tar.c 7a18f7a8d9170ee0d0db0874ae24f7958299b5de
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ea2698e9c7de2222f285034e0c4ceb2f307568eb
-R e42eda7cb9222d79c64a0b6b31a33f45
+P e05fea385228ec82525134121a52c1732758bdda
+R 7b2d86413cce3231898d29394d98aaa4
 U drh
-Z 385e918458cf67f7894c89cee467feb6
+Z 1d6eb779486bd671db4731ca049b3f0e
