@@ -777,8 +777,11 @@ void recon_read_dir(char *zPath){
   struct dirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
+  char *zMbcsPath;
+  char *zUtf8Name;
 
-  d = opendir(zPath);
+  zMbcsPath = fossil_utf8_to_mbcs(zPath);
+  d = opendir(zMbcsPath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       Blob path;
@@ -787,7 +790,9 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zSubpath = mprintf("%s/%s",zPath,pEntry->d_name);
+      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
+      zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
+      fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
       }
@@ -809,6 +814,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
+  fossil_mbcs_free(zMbcsPath);
 }
 
 /*
