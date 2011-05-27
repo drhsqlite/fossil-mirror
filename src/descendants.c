@@ -73,7 +73,7 @@ void compute_leaves(int iBase, int closeMode){
 
     /* This query returns all non-branch-merge children of check-in :rid.
     **
-    ** If a a child is a merge of a fork within the same branch, it is 
+    ** If a a child is a merge of a fork within the same branch, it is
     ** returned.  Only merge children in different branches are excluded.
     */
     db_prepare(&q1,
@@ -86,21 +86,21 @@ void compute_leaves(int iBase, int closeMode){
                         "   WHERE tagid=%d AND rid=plink.cid), 'trunk'))",
       TAG_BRANCH, TAG_BRANCH
     );
-  
+
     /* This query returns a single row if check-in :rid is the first
     ** check-in of a new branch.
     */
-    db_prepare(&isBr, 
+    db_prepare(&isBr,
        "SELECT 1 FROM tagxref"
        " WHERE rid=:rid AND tagid=%d AND tagtype=2"
        "   AND srcid>0",
        TAG_BRANCH
     );
-  
+
     /* This statement inserts check-in :rid into the LEAVES table.
     */
     db_prepare(&ins, "INSERT OR IGNORE INTO leaves VALUES(:rid)");
-  
+
     while( bag_count(&pending) ){
       int rid = bag_first(&pending);
       int cnt = 0;
@@ -235,6 +235,9 @@ void compute_descendants(int rid, int N){
 **
 ** Find all leaf descendants of the baseline specified or if the argument
 ** is omitted, of the baseline currently checked out.
+**
+**
+** SUMMARY: fossil descendants ?BASELINE-ID?
 */
 void descendants_cmd(void){
   Stmt q;
@@ -261,7 +264,7 @@ void descendants_cmd(void){
 /*
 ** COMMAND:  leaves
 **
-** Usage: %fossil leaves ?--all? ?--closed?
+** Usage: %fossil leaves ?--all? ?--closed? ?--recompute?
 **
 ** Find leaves of all branches.  By default show only open leaves.
 ** The --all flag causes all leaves (closed and open) to be shown.
@@ -269,6 +272,10 @@ void descendants_cmd(void){
 **
 ** The --recompute flag causes the content of the "leaf" table in the
 ** repository database to be recomputed.
+**
+**
+** SUMMARY: fossil leaves ?OPTIONS?
+** Options: --all, --closed, --recompute
 */
 void leaves_cmd(void){
   Stmt q;

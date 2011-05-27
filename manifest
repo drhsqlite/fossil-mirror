@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\schanges\sinto\sthe\sarjen-doc-updates\sbranch.
-D 2011-05-24T12:00:35.819
+C Add\smakefile\sto\sensure\sno\sDLLs\sare\sused\sfor\sthe\sMinGW\sbuild\s(zlib\swas\sinstalled\sas\sboth\sa\sstatic\sand\sa\sdynamic\slibrary)\nExtensions\sand\sminor\stextual\srevisions\sto\sthe\sonline\shelp\sfor\sseveral\scommands
+D 2011-05-27T06:48:28.280
 F BUILD.txt 5b3fceec028a664169978944cea56994add09270
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -50,11 +50,11 @@ F src/clone.c 941c1894b2fc58ccf085c9049546d57cba8b0651
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c b84948e76d5e01d0fd91a02a141e61c26839249d
-F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
-F src/db.c 9c11cb94b3a6e83fe009a4ddf23f803afc2b1998
+F src/content.c 6ddeb91783165f153fc13e1faa2f8159d1380156
+F src/db.c 8a7ef2cbe4df7969daf68f0115cdbcfd7feefc4d
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
+F src/descendants.c 4410bdd3a927441f3cba9a61826df97e29fb3795
 F src/diff.c 82294996562a6430eba0f7197f2ff5a8349a9e8d
 F src/diffcmd.c 2e2140e0a885bc31cb876ce229303810bbacd6df
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
@@ -197,6 +197,7 @@ F win/Makefile.PellesCGMake 3e6e5c5a941dc49cec4d84a477cf9f5d44f3c397
 F win/Makefile.dmc af0b2bdb9ec6230214e19a6b88e94d3cdd0174d2
 F win/Makefile.mingw 63f1a1357af4e0cbb4d278ed012ac25a9cec6a0f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
+F win/Makefile.mingw_static 9d87cba5713a5c322b93cfc02ec40354e26604b0
 F win/Makefile.msc ca499d57b825f40b7f72f37da236ec38dc2e76cc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
@@ -304,7 +305,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7df226540de76325323251311d3730cf38eb28ee 474850cff598d76f4e23f7df1f2ea26e93478c45
-R d7a4178538e37365c7297926869dc296
-U drh
-Z 83d55ca4e1218b33b36be5b75efa0f93
+P 5d4ef37a9d222f11ee972ac7734e9c1154ade5cc
+R 1efd08acf974d73b96b495335182e393
+U Arjen\sMarkus
+Z 4cfa13d2801db301edf53ead47933d1e

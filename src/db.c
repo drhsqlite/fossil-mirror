@@ -39,6 +39,11 @@
 #include <time.h>
 #include "db.h"
 
+#if defined(_WIN32) || defined(WIN32)
+# include <io.h>
+#define access(f,m) _access((f),(m))
+#endif
+
 #if INTERFACE
 /*
 ** An single SQL statement is represented as an instance of the following
@@ -58,7 +63,7 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
-  static const char zRebuildMsg[] = 
+  static const char zRebuildMsg[] =
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
       "schemas up to date.\n";
@@ -644,7 +649,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000); 
+  sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
@@ -753,7 +758,7 @@ static int isValidLocalDb(const char *zDbName){
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  ** upgraded, this code can be safely deleted.
   */
   rc = sqlite3_prepare(g.db, "SELECT isexe FROM vfile", -1, &pStmt, 0);
   nPrepare++;
@@ -765,7 +770,7 @@ static int isValidLocalDb(const char *zDbName){
 #if 0
   /* If the "mtime" column is missing from the vfile table, then
   ** add it now.   This code added on 2008-12-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  ** upgraded, this code can be safely deleted.
   */
   rc = sqlite3_prepare(g.db, "SELECT mtime FROM vfile", -1, &pStmt, 0);
   sqlite3_finalize(pStmt);
@@ -777,7 +782,7 @@ static int isValidLocalDb(const char *zDbName){
 #if 0
   /* If the "origname" column is missing from the vfile table, then
   ** add it now.   This code added on 2008-11-09.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  ** upgraded, this code can be safely deleted.
   */
   rc = sqlite3_prepare(g.db, "SELECT origname FROM vfile", -1, &pStmt, 0);
   sqlite3_finalize(pStmt);
@@ -794,7 +799,7 @@ static int isValidLocalDb(const char *zDbName){
 ** directory is found by searching for a file named "_FOSSIL_" or ".fos"
 ** that contains a valid repository database.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
+** If no valid _FOSSIL_ or .fos file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
@@ -807,7 +812,7 @@ int db_open_local(void){
   int i, n;
   char zPwd[2000];
   static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
-  
+
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
@@ -1168,6 +1173,10 @@ void db_initial_setup(
 **    --admin-user|-A USERNAME
 **    --date-override DATETIME
 **
+**
+** SUMMARY: fossil new ?OPTIONS? FILENAME
+** Options: --admin-user|-A, --date-override
+**
 */
 void create_repository_cmd(void){
   char *zPassword;
@@ -1233,7 +1242,7 @@ static void db_sql_user(
 
 /*
 ** Implement the cgi() SQL function.  cgi() takes a an argument which is
-** a name of CGI query parameter. The value of that parameter is returned, 
+** a name of CGI query parameter. The value of that parameter is returned,
 ** if available. optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
@@ -1543,7 +1552,14 @@ void db_record_repository_filename(const char *zName){
 ** the latest version is checked out.  No files other than "manifest"
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
+** You can find the version IDs via the web interface
+** (see the server/ui commands).
+**
 ** See also the "close" command.
+**
+**
+** SUMMARY: fossil open FILENAME ?VERSION? ?OPTIONS?
+** Options: --keep, --nested
 */
 void cmd_open(void){
   Blob path;
@@ -1680,7 +1696,7 @@ struct stControlSettings const ctrlSettings[] = {
 ** values.  With just a property name it shows the value of that property.
 ** With a value argument it changes the property for the current repository.
 **
-** The "unset" command clears a property setting.
+** The "unset" command clears a property setting (restoring fossil's default).
 **
 **
 **    auto-captcha     If enabled, the Login page provides a button to
@@ -1719,6 +1735,7 @@ struct stControlSettings const ctrlSettings[] = {
 **                     server.  Useful when setting up a private branch.
 **
 **    editor           Text editor command used for check-in comments.
+**                     (The default depends on the platform)
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
@@ -1781,6 +1798,17 @@ struct stControlSettings const ctrlSettings[] = {
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
 **                     and "firefox" on Unix.
+**
+** SUMMARY: fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+**          fossil unset PROPERTY ?OPTIONS?
+** Options: -global
+** Where:   PROPERTY = auto-captcha, auto-shun, autosync, binary-glob,
+**                     clearsign, crnl-glob, default-perms, diff-command,
+**                     dont-push, editor, gdiff-command, gmerge-command,
+**                     http-port, https-login, ignore-glob, localauth,
+**                     main-branch, manifest, max-upload, mtime-changes,
+**                     pgp-command, proxy, repo-cksum, self-register,
+**                     ssh-command, web-browser
 */
 void setting_cmd(void){
   int i;
@@ -1866,7 +1894,7 @@ char *db_timespan_name(double rSpan){
 void test_timespan_cmd(void){
   double rDiff;
   if( g.argc!=3 ) usage("TIMESTAMP");
-  sqlite3_open(":memory:", &g.db);  
+  sqlite3_open(":memory:", &g.db);
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);
