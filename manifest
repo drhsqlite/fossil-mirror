@@ -1,5 +1,5 @@
-C Issue\sa\swarning\sif\sthe\s"push"\sor\s"sync"\scommand\sis\sissued\swhen\s"dont-push"\nis\senable.
-D 2011-05-27T14:37:20.588
+C Do\snot\sattempt\sto\suse\sfossil_fopen()\sin\splace\sof\sfopen()\sin\sthe\sSQLite\sshell\nas\sdoing\sso\scauses\sproblems\son\s(some)\sMacs\sand\sdoes\snot\sreally\shelp\sthe\nwindows\si18n\ssituation.\s\sTicket\s[034fa7bb2907e96]
+D 2011-05-28T17:52:39.842
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -75,10 +75,10 @@ F src/info.c 21fd71ff823622212195b872b64c7ed9371b4ab7
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 44271e3cceff694abb31c3d1f3693cf9320e5160
 F src/main.c 05527f62197673bd8a56c63f24ee745a4b9254de
-F src/main.mk 250bbd15b118f998db2f20179d47cd8e8cf4ecd1
+F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 22fc2283ab3abe1237876ced93e402d5cb5d854f
+F src/makemake.tcl b99d70140b58684ed05f20821106e9a50d87ced1
 F src/manifest.c 4abc80efd62c0f4bc1f4bfcf4fdca1e9ff5a3ca5
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 8efd7a5dd8d6d088224d80e15b21122304445b31
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e05fea385228ec82525134121a52c1732758bdda
-R 7b2d86413cce3231898d29394d98aaa4
+P 21ceccddd836d07094d88915bfe3bbb7e830cd25
+R f5d2888513eeca1bc5c83cffb993a1f1
 U drh
-Z 1d6eb779486bd671db4731ca049b3f0e
+Z 8fbc5b1677411f926d4b7e41bbde8fb9
