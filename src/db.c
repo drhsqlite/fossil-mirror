@@ -1643,26 +1643,35 @@ void cmd_open(void){
 /*
 ** Print the value of a setting named zName
 */
-static void print_setting(const char *zName){
+static void print_setting(const struct stControlSettings *ctrlSetting, int localOpen){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
        "SELECT '(local)', value FROM config WHERE name=%Q"
        " UNION ALL "
        "SELECT '(global)', value FROM global_config WHERE name=%Q",
-       zName, zName
+       ctrlSetting->name, ctrlSetting->name
     );
   }else{
     db_prepare(&q,
       "SELECT '(global)', value FROM global_config WHERE name=%Q",
-      zName
+      ctrlSetting->name
     );
   }
   if( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%-20s %-8s %s\n", zName, db_column_text(&q, 0),
+    fossil_print("%-20s %-8s %s\n", ctrlSetting->name, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
-    fossil_print("%-20s\n", zName);
+    fossil_print("%-20s\n", ctrlSetting->name);
+  }
+  if( ctrlSetting->versionable && localOpen ){
+    /* Check to see if this is overridden by a versionable settings file */
+    Blob versionedPathname;
+    blob_zero(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, ctrlSetting->name);
+    if( file_size(blob_str(&versionedPathname))>=0 ){
+      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n", ctrlSetting->name);
+    }
   }
   db_finalize(&q);
 }
@@ -1682,39 +1691,40 @@ struct stControlSettings {
   char const *name;     /* Name of the setting */
   char const *var;      /* Internal variable name used by db_set() */
   int width;            /* Width of display.  0 for boolean values */
+  int versionable;      /* Is this setting versionable? */
   char const *def;      /* Default value */
 };
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
-  { "access-log",    0,                0, "off"                 },
-  { "auto-captcha",  "autocaptcha",    0, "on"                  },
-  { "auto-shun",     0,                0, "on"                  },
-  { "autosync",      0,                0, "on"                  },
-  { "binary-glob",   0,               32, ""                    },
-  { "clearsign",     0,                0, "off"                 },
-  { "crnl-glob",     0,               16, ""                    },
-  { "default-perms", 0,               16, "u"                   },
-  { "diff-command",  0,               16, ""                    },
-  { "dont-push",     0,                0, "off"                 },
-  { "editor",        0,               16, ""                    },
-  { "gdiff-command", 0,               16, "gdiff"               },
-  { "gmerge-command",0,               40, ""                    },
-  { "https-login",   0,                0, "off"                 },
-  { "ignore-glob",   0,               40, ""                    },
-  { "empty-dirs",    0,               40, ""                    },
-  { "http-port",     0,               16, "8080"                },
-  { "localauth",     0,                0, "off"                 },
-  { "main-branch",   0,               40, "trunk"               },
-  { "manifest",      0,                0, "off"                 },
-  { "max-upload",    0,               25, "250000"              },
-  { "mtime-changes", 0,                0, "on"                  },
-  { "pgp-command",   0,               32, "gpg --clearsign -o " },
-  { "proxy",         0,               32, "off"                 },
-  { "repo-cksum",    0,                0, "on"                  },
-  { "self-register", 0,                0, "off"                 },
-  { "ssh-command",   0,               32, ""                    },
-  { "web-browser",   0,               32, ""                    },
-  { 0,0,0,0 }
+  { "access-log",    0,                0, 0, "off"                 },
+  { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
+  { "auto-shun",     0,                0, 0, "on"                  },
+  { "autosync",      0,                0, 0, "on"                  },
+  { "binary-glob",   0,               32, 1, ""                    },
+  { "clearsign",     0,                0, 0, "off"                 },
+  { "crnl-glob",     0,               16, 1, ""                    },
+  { "default-perms", 0,               16, 0, "u"                   },
+  { "diff-command",  0,               16, 0, ""                    },
+  { "dont-push",     0,                0, 0, "off"                 },
+  { "editor",        0,               16, 0, ""                    },
+  { "gdiff-command", 0,               16, 0, "gdiff"               },
+  { "gmerge-command",0,               40, 0, ""                    },
+  { "https-login",   0,                0, 0, "off"                 },
+  { "ignore-glob",   0,               40, 1, ""                    },
+  { "empty-dirs",    0,               40, 1, ""                    },
+  { "http-port",     0,               16, 0, "8080"                },
+  { "localauth",     0,                0, 0, "off"                 },
+  { "main-branch",   0,               40, 0, "trunk"               },
+  { "manifest",      0,                0, 1, "off"                 },
+  { "max-upload",    0,               25, 0, "250000"              },
+  { "mtime-changes", 0,                0, 0, "on"                  },
+  { "pgp-command",   0,               32, 0, "gpg --clearsign -o " },
+  { "proxy",         0,               32, 0, "off"                 },
+  { "repo-cksum",    0,                0, 0, "on"                  },
+  { "self-register", 0,                0, 0, "off"                 },
+  { "ssh-command",   0,               32, 0, ""                    },
+  { "web-browser",   0,               32, 0, ""                    },
+  { 0,0,0,0,0 }
 };
 
 /*
@@ -1727,6 +1737,10 @@ struct stControlSettings const ctrlSettings[] = {
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
 ** With a value argument it changes the property for the current repository.
+**
+** Settings marked as versionable are overridden by the contents of the
+** file named .fossil-settings/PROPERTY in the checked out files, if that
+** file exists.
 **
 ** The "unset" command clears a property setting.
 **
@@ -1744,16 +1758,16 @@ struct stControlSettings const ctrlSettings[] = {
 **                     then only pull operations occur automatically.
 **                     Default: on
 **
-**    binary-glob      The VALUE is a comma-separated list of GLOB patterns
-**                     that should be treated as binary files for merging
-**                     purposes.  Example:   *.xml
+**    binary-glob      The VALUE is a comma or newline-separated list of
+**     (versionable)   GLOB patterns that should be treated as binary files
+**                     for merging purposes.  Example:   *.xml
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
 **
-**    crnl-glob        A comma-separated list of GLOB patterns for text files
-**                     in which it is ok to have CR+NL line endings.
+**    crnl-glob        A comma or newline-separated list of GLOB patterns for
+**     (versionable)   text files in which it is ok to have CR+NL line endings.
 **                     Set to "*" to disable CR+NL checking.
 **
 **    default-perms    Permissions given automatically to new users.  For more
@@ -1783,9 +1797,9 @@ struct stControlSettings const ctrlSettings[] = {
 **    https-login      Send login creditials using HTTPS instead of HTTP
 **                     even if the login page request came via HTTP.
 **
-**    ignore-glob      The VALUE is a comma-separated list of GLOB patterns
-**                     specifying files that the "extra" command will ignore.
-**                     Example:  *.o,*.obj,*.exe
+**    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "extra" command will
+**                     ignore.  Example:  *.o,*.obj,*.exe
 **
 **    localauth        If enabled, require that HTTP connections from
 **                     127.0.0.1 be authenticated by password.  If
@@ -1795,7 +1809,7 @@ struct stControlSettings const ctrlSettings[] = {
 **    main-branch      The primary branch for the project.  Default: trunk
 **
 **    manifest         If enabled, automatically create files "manifest" and
-**                     "manifest.uuid" in every checkout.  The SQLite and
+**     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
 **
 **    max-upload       A limit on the size of uplink HTTP requests.  The
@@ -1845,8 +1859,9 @@ void setting_cmd(void){
     usage("PROPERTY ?-global?");
   }
   if( g.argc==2 ){
+    int openLocal = db_open_local();
     for(i=0; ctrlSettings[i].name; i++){
-      print_setting(ctrlSettings[i].name);
+      print_setting(&ctrlSettings[i], openLocal);
     }
   }else if( g.argc==3 || g.argc==4 ){
     const char *zName = g.argv[2];
@@ -1868,7 +1883,7 @@ void setting_cmd(void){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
       isManifest = 0;
-      print_setting(ctrlSettings[i].name);
+      print_setting(&ctrlSettings[i], db_open_local());
     }
     if( isManifest ){
       manifest_to_disk(db_lget_int("checkout", 0));
