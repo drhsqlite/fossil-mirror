@@ -1,5 +1,5 @@
-C Docs\sand\svisibility\sfor\sversionable\ssettings:\sAdd\sversionable\smarker\sin\sthe\sweb\sUI.\sOutput\sof\sthe\ssettings\scommand\snotes\sif\sthe\svalue\sis\soverridden.\sUpdate\shelp\stext\sfor\ssettings\scommand\snoting\sversionable\sstatus\sand\sthat\sglob\ssettings\scan\sbe\snewline\sseparated.
-D 2011-05-28T14:55:25.670
+C Add\sdocumentation\sfor\sempty-dirs\ssetting
+D 2011-05-28T15:39:04.023
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -51,7 +51,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c 0f3469ea29efe10d543788791512f0a5e67f691f
 F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
-F src/db.c 4077cda1558014971706b0960e42a48c6f519755
+F src/db.c c0f433158ecea5581f3c2ff20a8066883d5aa174
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 761a98a1ee390b928c7691793a7cac5b6f849ef9
-R a8f8432cb91131a4113ac8e72b2765a2
+P b5d45262111e7549cc089d32faa29b05378c2d17
+R e3cd0a67e9a489feb29abb97d60d129d
 U ben
-Z 9e7e1ffe98aa7a7410a141137567238f
+Z 9b31be2d317b56c13c6634a09d75fbfb

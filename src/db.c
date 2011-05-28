@@ -1780,6 +1780,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
 **
+**    empty-dirs       A comma or newline-separated list of pathnames. On
+**     (versionable)   update and checkout commands, if no file or directory
+**                     exists with that name, an empty directory will be
+**                     created.
+**
 **    editor           Text editor command used for check-in comments.
 **
 **    gdiff-command    External command to run when performing a graphical
