@@ -296,6 +296,24 @@ void cgi_reply(void){
     fprintf(g.httpOut, "%s", blob_buffer(&extraHeader));
   }
 
+  /* Add headers to turn on useful security options in browsers. */
+  fprintf(g.httpOut, "X-Frame-Options: DENY\r\n");
+  /* This stops fossil pages appearing in frames or iframes, preventing
+  ** click-jacking attacks on supporting browsers.
+  **
+  ** Other good headers would be
+  **   Strict-Transport-Security: max-age=62208000
+  ** if we're using https. However, this would break sites which serve different
+  ** content on http and https protocols. Also,
+  **   X-Content-Security-Policy: allow 'self'
+  ** would help mitigate some XSS and data injection attacks, but will break
+  ** deliberate inclusion of external resources, such as JavaScript syntax
+  ** highlighter scripts.
+  **
+  ** These headers are probably best added by the web server hosting fossil as
+  ** a CGI script.
+  */
+
   if( g.isConst ){
     /* constant means that the input URL will _never_ generate anything
     ** else. In the case of attachments, the contents won't change because
