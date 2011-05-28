@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\schanges\sinto\sthe\sversionable-settings\sbranch.
-D 2011-05-24T12:02:02.820
+C Warn\swhen\sthere's\sa\sversioned\sand\snon-versioned\svalue\sfor\sa\ssetting,\sand\sallow\sthis\swarning\sto\sbe\ssilenced.\sTrim\swhitespace\sfrom\ssettings\sloaded\sfrom\sfiles.
+D 2011-05-28T09:15:48.920
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -51,7 +51,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c 0f3469ea29efe10d543788791512f0a5e67f691f
 F src/content.c 3d3baeeb3c6849c2bcaa5d16f7a8b05b25e1951c
-F src/db.c 56dc6b37d2c11aaf62c433c834b36d69d76bad54
+F src/db.c 5b92c4711c04764c5ac0f6b5b5ac8ab91da87c49
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 325e4277b1fe4e7e041ee15555bfa2ddcf13978e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3fa5cfaec83f357a52e86b77439c27a0d88517b9 474850cff598d76f4e23f7df1f2ea26e93478c45
-R fea228060d855383f219dc2d2d2acf23
-U drh
-Z 2c5d0f3aa3bf57dd2c8442a2cb37ab44
+P 9c915adb0a3d84c5032867e69d650797c59741cc
+R 1a1f6125dc1fb804b18789c7ff8be794
+U ben
+Z d3ac0cc86fcbe44f43f4a90d059903d4

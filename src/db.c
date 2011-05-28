@@ -1397,29 +1397,40 @@ void db_swap_connections(void){
 ** Get a potentially versioned setting - either from .fossil-settings/<name>
 */
 char *db_get_versionable_setting(const char *zName, char *zDefault){
-  char *s = 0;
+  /* Attempt to load the versioned setting from a checked out file */
+  char *zVersionedSetting = 0;
+  int noWarn = 0;
   if( db_open_local() ){
-    /* See if there's a versioned setting */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
     blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, zName);
     char *zVersionedPathname = blob_str(&versionedPathname);
-    if( file_size(zVersionedPathname) >= 0 ){
+    if( file_size(zVersionedPathname)>=0 ){
       /* File exists, and contains the value for this setting. Load from the file. */
       Blob setting;
       blob_zero(&setting);
       if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        s = strdup(blob_str(&setting));
+        blob_trim(&setting); /* Avoid non-obvious problems with line endings on boolean properties */
+        zVersionedSetting = strdup(blob_str(&setting));
       }
       blob_reset(&setting);
+      /* See if there's a no-warn flag */
+      blob_append(&versionedPathname, ".no-warn", -1);
+      if( file_size(blob_str(&versionedPathname))>=0 ){
+        noWarn = 1;
+      }
     }
     blob_reset(&versionedPathname);
   }
-  if( s != 0 ){
-    return s;
+  /* Load the normal, non-versioned setting */
+  char *zSetting = db_get(zName, zDefault);
+  /* Display a warning? */
+  if( zVersionedSetting!=0 && zSetting!=0 && zSetting[0]!='\0' && zSetting!=zDefault && !noWarn ){
+    /* There's a versioned setting, and a non-versioned setting. Tell the user about the conflict */
+    fossil_warning("Setting %s has both versioned and non-versioned values: using versioned value from file .fossil-settings/%s (To silence this warning, either create an empty file named .fossil-settings/%s.no-warn or delete the non-versioned setting with \"fossil unset %s\")", zName, zName, zName, zName);
   }
-  /* Fall back to settings in the database */
-  return db_get(zName, zDefault);
+  /* Prefer the versioned setting */
+  return ( zVersionedSetting!=0 ) ? zVersionedSetting : zSetting;
 }
 int db_get_versionable_setting_boolean(const char *zName, int dflt){
   char *zVal = db_get_versionable_setting(zName, dflt ? "on" : "off");
