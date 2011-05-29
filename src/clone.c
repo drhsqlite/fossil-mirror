@@ -39,6 +39,7 @@
 **
 **    --admin-user|-A USERNAME    Make USERNAME the administrator
 **    --private                   Also clone private branches 
+**    --ssl-identity=filename     Use the SSL identity if requested by the server
 **
 */
 void clone_cmd(void){
@@ -48,6 +49,7 @@ void clone_cmd(void){
   int bPrivate;               /* Also clone private branches */
 
   bPrivate = find_option("private",0,0)!=0;
+  find_option("ssl-identity",0,1);
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -93,6 +95,14 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
+    if( g.zSSLIdentity!=0 ){
+      /* If the --ssl-identity option was specified, store it as a setting */
+      Blob fn;
+      blob_zero(&fn);
+      file_canonical_name(g.zSSLIdentity, &fn);
+      db_set("ssl-identity", blob_str(&fn), 0);
+      blob_reset(&fn);
+    }
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"

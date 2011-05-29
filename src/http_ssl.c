@@ -82,6 +82,15 @@ const char *ssl_errmsg(void){
 }
 
 /*
+** When a server requests a client certificate that hasn't been provided,
+** display a warning message explaining what to do next.
+*/
+static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
+  fossil_warning("The remote server requested a client certificate for authentication. Specify the pathname to a file containing the PEM encoded certificate and private key with the --ssl-identity option or the ssl-identity setting.");
+  return 0; /* no cert available */    
+}
+
+/*
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
@@ -93,6 +102,18 @@ void ssl_global_init(void){
     OpenSSL_add_all_algorithms();    
     sslCtx = SSL_CTX_new(SSLv23_client_method());
     X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    
+    /* Load client SSL identity, preferring the filename specified on the command line */
+    const char *identityFile = ( g.zSSLIdentity!= 0) ? g.zSSLIdentity : db_get("ssl-identity", 0);
+    if( identityFile!=0 && identityFile[0]!='\0' ){
+      if( SSL_CTX_use_certificate_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!= 1
+          || SSL_CTX_use_PrivateKey_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!=1 ){
+        fossil_fatal("Could not load SSL identity from %s", identityFile);
+      }
+    }
+    /* Register a callback to tell the user what to do when the server asks for a cert */
+    SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
+
     sslIsInit = 1;
   }
 }
