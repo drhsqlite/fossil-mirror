@@ -49,7 +49,6 @@ void clone_cmd(void){
   int bPrivate;               /* Also clone private branches */
 
   bPrivate = find_option("private",0,0)!=0;
-  find_option("ssl-identity",0,1);
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
