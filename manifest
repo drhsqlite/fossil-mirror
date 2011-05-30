@@ -1,5 +1,5 @@
-C Release\scandidate
-D 2011-05-28T18:51:22.155
+C Create\snew\sbranch\snamed\s"configure-make"
+D 2011-05-30T07:04:26.592
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -304,7 +304,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 6d35cde78d475f86f75746e65b6e37ca71f8406b
+P 0448438c56d836a8a8261a0dd97bd82f320d832a
 R 518a54d326f11ea7fc8ea1e0c6e0a08f
-U drh
-Z 2779f8c99e0d6c486e56f9ba55739b11
+T *branch * configure-make
+T *sym-configure-make *
+T -sym-trunk *
+U ben
+Z 7b9be580b3936ee445691976a23bd908
