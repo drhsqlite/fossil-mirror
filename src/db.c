@@ -1198,7 +1198,7 @@ void create_repository_cmd(void){
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n", 
+  fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
 }
 
@@ -1689,7 +1689,7 @@ struct stControlSettings const ctrlSettings[] = {
 ** COMMAND: settings
 ** COMMAND: unset
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?-global?
+** %fossil settings ?PROPERTY? ?VALUE? ?--global?
 ** %fossil unset PROPERTY ?-global?
 **
 ** The "settings" command with no arguments lists all properties and their
@@ -1703,6 +1703,7 @@ struct stControlSettings const ctrlSettings[] = {
 **                     fill in the captcha password.  Default: on
 **
 **    auto-shun        If enabled, automatically pull the shunning list
+**                     (for removing unwanted files and Wiki pages)
 **                     from a server to which the client autosyncs.
 **                     Default: on
 **
@@ -1801,7 +1802,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 ** SUMMARY: fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
 **          fossil unset PROPERTY ?OPTIONS?
-** Options: -global
+** Options: --global
 ** Where:   PROPERTY = auto-captcha, auto-shun, autosync, binary-glob,
 **                     clearsign, crnl-glob, default-perms, diff-command,
 **                     dont-push, editor, gdiff-command, gmerge-command,

@@ -88,15 +88,18 @@ static void print_person(const char *zUser){
 **
 ** Write an export of all check-ins to standard output.  The export is
 ** written in the git-fast-export file format assuming the --git option is
-** provided.  The git-fast-export format is currently the only VCS 
+** provided.  The git-fast-export format is currently the only VCS
 ** interchange format supported, though other formats may be added in
 ** the future.
 **
-** Run this command within a checkout.  Or use the -R or --repository
-** option to specify a Fossil repository to be exported.
+** Run this command within a checkout or specify the name of the
+** Fossil repository to be exported.
 **
-** Only check-ins are exported using --git.  Git does not support tickets 
+** Only check-ins are exported using --git.  Git does not support tickets
 ** or wiki or events or attachments, so none of those are exported.
+**
+**
+** SUMMARY: fossil export --git ?REPOSITORY?
 */
 void export_cmd(void){
   Stmt q;
@@ -112,7 +115,7 @@ void export_cmd(void){
   if( g.argc!=2 && g.argc!=3 ){ usage("--git ?REPOSITORY?"); }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
-  ** of a check-in 
+  ** of a check-in
   */
   fossil_binary_mode(stdout);
   db_prepare(&q, "SELECT DISTINCT fid FROM mlink WHERE fid>0");

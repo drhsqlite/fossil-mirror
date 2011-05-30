@@ -414,11 +414,11 @@ static void diff_all_two_versions(
 **
 ** Show the difference between the current version of FILE (as it
 ** exists on disk) and that same file as it was checked out.  Or
-** if the FILE argument is omitted, show the unsaved changed currently
+** if the FILE argument is omitted, show the unsaved changes currently
 ** in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
-** the source check-in for the diff operation.  If not specified, the 
+** the source check-in for the diff operation.  If not specified, the
 ** source check-in is the base check-in for the current check-out.
 **
 ** If the "--to VERSION" option appears, it specifies the check-in from
@@ -433,6 +433,12 @@ static void diff_all_two_versions(
 **
 ** The "-N" or "--new-file" option causes the complete text of added or
 ** deleted files to be displayed.
+**
+**
+** SUMMARY: fossil diff ?options? ?FILE?
+**          fossil gdiff ?options? ?FILE?
+** Options: -i, --from VERSION, --to VERSION, -N|--new-file
+**
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */

@@ -64,7 +64,7 @@ struct DContext {
 
 /*
 ** Return an array of DLine objects containing a pointer to the
-** start of each line and a hash of that line.  The lower 
+** start of each line and a hash of that line.  The lower
 ** bits of the hash store the length of each line.
 **
 ** Trailing whitespace is removed from each line.  2010-08-20:  Not any
@@ -173,7 +173,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
       p->aEdit[p->nEdit-1] += nIns;
       return;
     }
-  }  
+  }
   if( p->nEdit+3>p->nEditAlloc ){
     expandEdit(p, p->nEdit*2 + 15);
     if( p->aEdit==0 ) return;
@@ -190,7 +190,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 */
 static void contextDiff(DContext *p, Blob *pOut, int nContext){
   DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */  
+  DLine *B;     /* Right side of the diff */
   int a = 0;    /* Index of next line in A[] */
   int b = 0;    /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
@@ -343,7 +343,7 @@ static void optimalLCS(
 ** Ideally, the common sequence should be the longest possible common
 ** sequence.  However, an exact computation of LCS is O(N*N) which is
 ** way too slow for larger files.  So this routine uses an O(N)
-** heuristic approximation based on hashing that usually works about 
+** heuristic approximation based on hashing that usually works about
 ** as well.  But if the O(N) algorithm doesn't get a good solution
 ** and N is not too large, we fall back to an exact solution by
 ** calling optimalLCS().
@@ -374,7 +374,7 @@ static void longestCommonSequence(
   for(i=iS1; i<iE1; i++){
     int limit = 0;
     j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
-    while( j>0 
+    while( j>0
       && (j-1<iS2 || j>=iE2 || !same_dline(&p->aFrom[i], &p->aTo[j-1]))
     ){
       if( limit++ > 10 ){
@@ -427,7 +427,7 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
+  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n",
      iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
@@ -527,7 +527,7 @@ static void diff_all(DContext *p){
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.  
+** NULL, then a pointer to an array of integers is returned.
 ** The integers come in triples.  For each triple,
 ** the elements are the number of lines copied, the number of
 ** lines deleted, and the number of lines inserted.  The vector
@@ -545,7 +545,7 @@ int *text_diff(
   int ignoreEolWs  /* Ignore whitespace at the end of lines */
 ){
   DContext c;
- 
+
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
@@ -712,7 +712,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   p->c.nEditAlloc = 0;
 
   /* Clear out the from file */
-  free(p->c.aFrom);    
+  free(p->c.aFrom);
   blob_zero(pParent);
 
   /* Return no errors */
@@ -783,7 +783,7 @@ static void annotate_file(
   compute_ancestors(mid, 1000000000);
   annotation_start(p, &toAnnotate);
 
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT mlink.fid,"
     "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime), "
@@ -805,7 +805,7 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s",
           g.zTop, zUuid, zUuid, zDate, zUser
       );
     }else{
@@ -881,6 +881,10 @@ void annotation_page(void){
 **   --limit N       Only look backwards in time by N versions
 **   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
+**
+**
+** SUMMARY: fossil annotate FILENAME ?options?
+** Options: --limit N, --log, --filevers
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */
@@ -928,7 +932,7 @@ void annotate_cmd(void){
     printf("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n", 
+    fossil_print("%s: %.*s\n",
                  ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
 }

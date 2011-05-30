@@ -1,5 +1,5 @@
-C Add\smakefile\sto\sensure\sno\sDLLs\sare\sused\sfor\sthe\sMinGW\sbuild\s(zlib\swas\sinstalled\sas\sboth\sa\sstatic\sand\sa\sdynamic\slibrary)\nExtensions\sand\sminor\stextual\srevisions\sto\sthe\sonline\shelp\sfor\sseveral\scommands
-D 2011-05-27T06:48:28.280
+C Online\shelp\sfor\sseveral\smore\scommands\sadapted
+D 2011-05-30T06:55:35.739
 F BUILD.txt 5b3fceec028a664169978944cea56994add09270
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 852536189bfa35828e5f64238ce1275f3c60c807
@@ -51,16 +51,16 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c b84948e76d5e01d0fd91a02a141e61c26839249d
 F src/content.c 6ddeb91783165f153fc13e1faa2f8159d1380156
-F src/db.c 8a7ef2cbe4df7969daf68f0115cdbcfd7feefc4d
+F src/db.c ef17fb19e2072a0e9c5f44bfddbad70bf924ae42
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 4410bdd3a927441f3cba9a61826df97e29fb3795
-F src/diff.c 82294996562a6430eba0f7197f2ff5a8349a9e8d
-F src/diffcmd.c 2e2140e0a885bc31cb876ce229303810bbacd6df
+F src/diff.c c82fa72ce9238eae44ee4f22f689794fd1a472b2
+F src/diffcmd.c ba37ca8283052715b64021ce75b1b541d29faa9f
 F src/doc.c e2473582457abf5268f55894ca1fa5b35691aeff
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
-F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
+F src/export.c 914cb7495675393333d7d9941938ccdbdb690c31
 F src/file.c 05fff3af4af9cbb4e5e9488610a11ed35704c28d
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
@@ -305,7 +305,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 5d4ef37a9d222f11ee972ac7734e9c1154ade5cc
-R 1efd08acf974d73b96b495335182e393
+P 6469b814ab739c06f64331d8a3eae6faaa50d7cc
+R 2d67857359175fc39d6c37a22751908b
 U Arjen\sMarkus
-Z 4cfa13d2801db301edf53ead47933d1e
+Z c73ed66c59941462857c8373de1ad1c6
