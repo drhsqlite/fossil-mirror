@@ -1,8 +1,7 @@
-#!/usr/bin/make
 #
 # This is the top-level makefile for Fossil when the build is occurring
-# on a unix platform.  This works out-of-the-box on most unix platforms.
-# But you are free to vary some of the definitions if desired.
+# on a unix platform. You are free to vary some of the definitions if
+# desired.
 #
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
@@ -60,7 +59,6 @@ TCLSH = tclsh
 ###############################################################################
 #
 # Automatic platform-specific options.
-HOST_OS :sh = uname -s
 
 LIB.SunOS= -lsocket -lnsl
 LIB += $(LIB.$(HOST_OS))
