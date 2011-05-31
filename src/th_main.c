@@ -210,7 +210,7 @@ static int hascapCmd(
   }
   rc = login_has_capability((char*)argv[1],argl[1]);
   if( g.thTrace ){
-    Th_Trace("[hascap %.*h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;
@@ -237,7 +237,7 @@ static int anycapCmd(
     rc = login_has_capability((char*)&argv[1][i],1);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %.*h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
   Th_SetResultInt(interp, rc);
   return TH_OK;

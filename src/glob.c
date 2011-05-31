@@ -60,7 +60,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     if( cTerm==',' ){
       while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
     }
-    blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
+    blob_appendf(&expr, "%s%s GLOB '%#q'", zSep, zVal, i, zGlobList);
     zSep = " OR ";
     if( cTerm!=',' && zGlobList[i] ) i++;
     zGlobList += i;

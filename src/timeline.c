@@ -302,11 +302,11 @@ void www_print_timeline(
           for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
-                  "<a href=\"%s/timeline?r=%.*t&nd&c=%s\">%.*h</a>%.2s",
+                  "<a href=\"%s/timeline?r=%#t&nd&c=%s\">%#h</a>%.2s",
                   g.zTop, i, z, zDate, i, z, &z[i]
             );
           }else{
-            blob_appendf(&links, "%.*h", i+2, z);
+            blob_appendf(&links, "%#h", i+2, z);
           }
           if( z[i]==0 ) break;
           z += i+2;

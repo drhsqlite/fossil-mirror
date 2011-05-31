@@ -1,5 +1,5 @@
-C Makefile\swhich\sworks\sunder\sthe\sBSDs\sand\sSolaris\susing\stheir\snon-GNU\smake.\sResolves\s[5a96dd5f52].
-D 2011-05-30T16:46:50.386
+C Always\suse\sthe\salternate-form\sflag\s"#"\sto\scontrol\sthe\snumber\sof\sinput\nbytes\sto\sprintf\sconversions\slike\s%t,\s%h,\sand\s%q.\s\sDo\snot\suse\sprecision\sin\nthose\scases\ssince\sprecision\slimits\sthe\snumber\sof\soutput\scharacters,\snot\sthe\nnumber\sof\sinput\scharacters.\s\sTicket\s[8967ea1df4f51af].
+D 2011-05-31T12:52:59.570
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -63,7 +63,7 @@ F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
 F src/file.c 05fff3af4af9cbb4e5e9488610a11ed35704c28d
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
-F src/glob.c 955cb293f9208ff822387762a17b99dcaf001862
+F src/glob.c 096577b90ff66e5d0e13e07b07eb2c3ec4f34f6a
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c ebc84ad16a8bfa99068c57b6d76799839806e994
@@ -108,12 +108,12 @@ F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 91ed0dd3045f6fe4e4aa9f1fe96636ee90bf4115
-F src/tar.c 7a18f7a8d9170ee0d0db0874ae24f7958299b5de
+F src/tar.c 4bf7db1d3f3ea693724a6af32a2e2a58f1c72cc4
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c 602acd7e19a26fb022c95c975f258ae346c55832
-F src/timeline.c 61fe5e03df8e11b9b1c535a0e95fbca2967d5f7b
+F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
+F src/timeline.c ae9f1d7788bd0aa2969542067420d7d52cbb531e
 F src/tkt.c ca4f3f5b1b758a134ffc0dbff699feac5c4f8452
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0448438c56d836a8a8261a0dd97bd82f320d832a
-R 09f09cfa0438c3de59243db863c9b47d
-U ben
-Z 36bf101474d36d6103933c9cb211e812
+P 3abab7e177f063e158fea94cfd13ab5d184f6266
+R 8df8448d858b111db468507615b28f32
+U drh
+Z bdb9dd532a27c1b7bf362f2af611c5d2
