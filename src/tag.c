@@ -350,9 +350,10 @@ void tag_add_artifact(
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? TAGNAME
+**     %fossil tag find ?--raw? ?--type TYPE? TAGNAME
 **
-**         List all check-ins that use TAGNAME
+**         List all objects that use TAGNAME.  TYPE can be "ci" for
+**         checkins or "e" for events.
 **
 **     %fossil tag list ?--raw? ?CHECK-IN?
 **
@@ -428,6 +429,8 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    const char *zType = find_option("type","t",1);
+    if( zType==0 || zType[0]==0 ) zType = "*";
     if( g.argc!=4 ){
       usage("find ?--raw? TAGNAME");
     }
@@ -449,12 +452,13 @@ void tag_cmd(void){
       if( tagid>0 ){
         db_prepare(&q,
           "%s"
+          "  AND event.type GLOB '%q'"
           "  AND blob.rid IN ("
                     " SELECT rid FROM tagxref"
                     "  WHERE tagtype>0 AND tagid=%d"
                     ")"
           " ORDER BY event.mtime DESC",
-          timeline_query_for_tty(), tagid
+          timeline_query_for_tty(), zType, tagid
         );
         print_timeline(&q, 2000);
         db_finalize(&q);
