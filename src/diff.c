@@ -839,7 +839,7 @@ void annotation_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  mid = name_to_rid(PD("checkin","0"));
+  mid = name_to_typed_rid(PD("checkin","0"),"ci");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","-1"));

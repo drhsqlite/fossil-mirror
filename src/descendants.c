@@ -244,7 +244,7 @@ void descendants_cmd(void){
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
-    base = name_to_rid(g.argv[2]);
+    base = name_to_typed_rid(g.argv[2], "ci");
   }
   if( base==0 ) return;
   compute_leaves(base, 0);

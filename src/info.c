@@ -1388,7 +1388,7 @@ void info_page(void){
     }
   }
   blob_set(&uuid, zName);
-  rc = name_to_uuid(&uuid, -1);
+  rc = name_to_uuid(&uuid, -1, "*");
   if( rc==1 ){
     style_header("No Such Object");
     @ <p>No such object: %h(zName)</p>
@@ -1578,7 +1578,7 @@ void ci_edit_page(void){
   
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
-  rid = name_to_rid(P("r"));
+  rid = name_to_typed_rid(P("r"), "ci");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);

@@ -298,7 +298,7 @@ void tag_add_artifact(
   user_select();
   blob_zero(&uuid);
   blob_append(&uuid, zObjName, -1);
-  if( name_to_uuid(&uuid, 9) ){
+  if( name_to_uuid(&uuid, 9, "*") ){
     fossil_fatal("%s", g.zErrMsg);
     return;
   }

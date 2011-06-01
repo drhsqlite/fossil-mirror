@@ -217,7 +217,7 @@ static void diff_all_against_disk(
   blob_zero(&sql);
   db_begin_transaction();
   if( zFrom ){
-    int rid = name_to_rid(zFrom);
+    int rid = name_to_typed_rid(zFrom, "ci");
     if( !is_a_version(rid) ){
       fossil_fatal("no such check-in: %s", zFrom);
     }

@@ -398,7 +398,7 @@ void doc_page(void){
       vid = db_int(0, "SELECT objid FROM event WHERE type='ci'"
                       " ORDER BY mtime DESC LIMIT 1");
     }else{
-      vid = name_to_rid(zBaseline);
+      vid = name_to_typed_rid(zBaseline, "ci");
     }
 
     /* Create the baseline cache if it does not already exist */

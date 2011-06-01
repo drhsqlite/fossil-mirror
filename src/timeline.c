@@ -784,9 +784,9 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
-  int p_rid = name_to_rid(P("p"));   /* artifact p and its parents */
-  int d_rid = name_to_rid(P("d"));   /* artifact d and its descendants */
-  int f_rid = name_to_rid(P("f"));   /* artifact f and immediate family */
+  int p_rid = name_to_typed_rid(P("p"),"ci");  /* artifact p and its parents */
+  int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
+  int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
@@ -801,11 +801,11 @@ void page_timeline(void){
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
-  int from_rid = name_to_rid(P("from"));  /* from= for path timelines */
-  int to_rid = name_to_rid(P("to"));      /* to= for path timelines */
+  int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
+  int to_rid = name_to_typed_rid(P("to"),"ci");    /* to= for path timelines */
   int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
-  int me_rid = name_to_rid(P("me"));    /* me= for common ancestory path */
-  int you_rid = name_to_rid(P("you"));/* you= for common ancst path */
+  int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
+  int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1363,7 +1363,7 @@ void timeline_cmd(void){
     }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
-  }else if( name_to_uuid(&uuid, 0)==0 ){
+  }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{

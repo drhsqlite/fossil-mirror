@@ -42,7 +42,7 @@
 ** Return 0 on success.  Return 1 if the name cannot be resolved.
 ** Return 2 name is ambiguous.
 */
-int name_to_uuid(Blob *pName, int iErrPriority){
+int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
   int rc;
   int sz;
   sz = blob_size(pName);
@@ -51,11 +51,11 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     const char *zName = blob_str(pName);
     if( memcmp(zName, "tag:", 4)==0 ){
       zName += 4;
-      zUuid = tag_to_uuid(zName);
+      zUuid = tag_to_uuid(zName, zType);
     }else{
-      zUuid = tag_to_uuid(zName);
+      zUuid = tag_to_uuid(zName, zType);
       if( zUuid==0 ){
-        zUuid = date_to_uuid(zName);
+        zUuid = date_to_uuid(zName, zType);
       }
     }
     if( zUuid ){
@@ -81,7 +81,7 @@ int name_to_uuid(Blob *pName, int iErrPriority){
     if( db_step(&q)!=SQLITE_ROW ){
       char *zUuid;
       db_finalize(&q);
-      zUuid = tag_to_uuid(blob_str(pName));
+      zUuid = tag_to_uuid(blob_str(pName), "*");
       if( zUuid ){
         blob_reset(pName);
         blob_append(pName, zUuid, -1);
@@ -143,18 +143,21 @@ static int is_date(const char *z){
 ** Memory to hold the returned string comes from malloc() and needs to
 ** be freed by the caller.
 */
-char *tag_to_uuid(const char *zTag){
+char *tag_to_uuid(const char *zTag, const char *zType){
   int vid;
-  char *zUuid = 
-    db_text(0,
+  char *zUuid;
+
+  if( zType==0 || zType[0]==0 ) zType = "*";
+  zUuid = db_text(0,
        "SELECT blob.uuid"
        "  FROM tag, tagxref, event, blob"
        " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
        "   AND blob.rid=event.objid "
+       "   AND event.type GLOB '%q'"
        " ORDER BY event.mtime DESC ",
-       zTag
+       zTag, zType
     );
   if( zUuid==0 ){
     int nTag = strlen(zTag);
@@ -178,8 +181,9 @@ char *tag_to_uuid(const char *zTag){
           "   AND event.objid=tagxref.rid "
           "   AND blob.rid=event.objid "
           "   AND event.mtime<=julianday(%Q %s)"
+          "   AND event.type GLOB '%q'"
           " ORDER BY event.mtime DESC ",
-          zTagBase, zDate, (useUtc ? "" : ",'utc'")
+          zTagBase, zDate, (useUtc ? "" : ",'utc'"), zType
         );
         break;
       }
@@ -224,7 +228,7 @@ char *tag_to_uuid(const char *zTag){
 ** The DATE is interpreted as localtime unless the "utc:" prefix is used
 ** or a "utc" string appears at the end of the DATE string.
 */
-char *date_to_uuid(const char *zDate){
+char *date_to_uuid(const char *zDate, const char *zType){
   int useUtc = 0;
   int n;
   char *zCopy = 0;
@@ -247,12 +251,13 @@ char *date_to_uuid(const char *zDate){
     n -= 3;
     useUtc = 1;
   }
+  if( zType==0 || zType[0]==0 ) zType = "*";
   zUuid = db_text(0,
     "SELECT (SELECT uuid FROM blob WHERE rid=event.objid)"
     "  FROM event"
-    " WHERE mtime<=julianday(%Q %s) AND type='ci'"
+    " WHERE mtime<=julianday(%Q %s) AND type GLOB '%q'"
     " ORDER BY mtime DESC LIMIT 1",
-    zDate, useUtc ? "" : ",'utc'"
+    zDate, useUtc ? "" : ",'utc'", zType
   );
   free(zCopy);
   return zUuid;
@@ -270,7 +275,7 @@ void test_name_to_id(void){
   for(i=2; i<g.argc; i++){
     blob_init(&name, g.argv[i], -1);
     fossil_print("%s -> ", g.argv[i]);
-    if( name_to_uuid(&name, 1) ){
+    if( name_to_uuid(&name, 1, "*") ){
       fossil_print("ERROR: %s\n", g.zErrMsg);
       fossil_error_reset();
     }else{
@@ -289,14 +294,14 @@ void test_name_to_id(void){
 ** This routine is used by command-line routines to resolve command-line inputs
 ** into a rid.
 */
-int name_to_rid(const char *zName){
+int name_to_typed_rid(const char *zName, const char *zType){
   int i;
   int rid;
   Blob name;
 
   if( zName==0 || zName[0]==0 ) return 0;
   blob_init(&name, zName, -1);
-  if( name_to_uuid(&name, -1) ){
+  if( name_to_uuid(&name, -1, zType) ){
     blob_reset(&name);
     for(i=0; zName[i] && fossil_isdigit(zName[i]); i++){}
     if( zName[i]==0 ){
@@ -312,6 +317,9 @@ int name_to_rid(const char *zName){
     blob_reset(&name);
   }
   return rid;
+}
+int name_to_rid(const char *zName){
+  return name_to_typed_rid(zName, "*");
 }
 
 /*
@@ -363,7 +371,7 @@ int name_to_rid_www(const char *zParamName){
 
   if( zName==0 || zName[0]==0 ) return 0;
   blob_init(&name, zName, -1);
-  rc = name_to_uuid(&name, -1);
+  rc = name_to_uuid(&name, -1, "*");
   if( rc==1 ){
     blob_reset(&name);
     for(i=0; zName[i] && fossil_isdigit(zName[i]); i++){}

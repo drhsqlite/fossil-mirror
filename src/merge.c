@@ -98,12 +98,12 @@ void merge_cmd(void){
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
-  mid = name_to_rid(g.argv[2]);
+  mid = name_to_typed_rid(g.argv[2], "ci");
   if( mid==0 || !is_a_version(mid) ){
     fossil_fatal("not a version: %s", g.argv[2]);
   }
   if( zPivot ){
-    pid = name_to_rid(zPivot);
+    pid = name_to_typed_rid(zPivot, "ci");
     if( pid==0 || !is_a_version(pid) ){
       fossil_fatal("not a version: %s", zPivot);
     }
