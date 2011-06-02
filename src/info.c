@@ -282,6 +282,7 @@ static void append_file_change_line(
   const char *zName,    /* Name of the file that has changed */
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
+  const char *zOldName, /* Prior name.  NULL if no name change. */
   int showDiff,         /* Show edit diffs if true */
   int mperm             /* EXE permission for zNew */
 ){
@@ -290,6 +291,8 @@ static void append_file_change_line(
       @ <p>Deleted %h(zName)</p>
     }else if( zOld==0 ){
       @ <p>Added %h(zName)</p>
+    }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+      @ <p>Name change from %h(zOldName) to %h(zName)
     }else if( fossil_strcmp(zNew, zOld)==0 ){
       @ <p>Execute permission %s(mperm?"set":"cleared") for %h(zName)</p>
     }else{
@@ -306,6 +309,10 @@ static void append_file_change_line(
         @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
         @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
         @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
+      }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+        @ <p>Name change from
+        @ from <a href="%s(g.zTop)/finfo?name=%T(zOldName)">%h(zOldName)</a>
+        @ to <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>.
       }else{
         @ <p>Execute permission %s(mperm?"set":"cleared") for
         @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
@@ -321,7 +328,7 @@ static void append_file_change_line(
       @ <blockquote><pre>
       append_diff(zOld, zNew);
       @ </pre></blockquote>
-    }else if( zOld && zNew ){
+    }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
     }
@@ -513,9 +520,11 @@ void ci_page(void){
     @ &nbsp;&nbsp;
     @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
     db_prepare(&q,
-       "SELECT name, mperm,"
+       "SELECT name,"
+       "       mperm,"
        "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
+       "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+       "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
        " ORDER BY name",
@@ -526,7 +535,8 @@ void ci_page(void){
       int mperm = db_column_int(&q, 1);
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
-      append_file_change_line(zName, zOld, zNew, showDiff, mperm);
+      const char *zOldName = db_column_text(&q, 4);
+      append_file_change_line(zName, zOld, zNew, zOldName, showDiff, mperm);
     }
     db_finalize(&q);
   }
@@ -717,11 +727,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, 0, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0,
+                              0, pFileTo->zUuid, 0, 0,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -731,7 +741,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName, 
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, showDetail,
+                              pFileTo->zUuid, 0, showDetail,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);

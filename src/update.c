@@ -465,35 +465,39 @@ void update_cmd(void){
 /*
 ** Make sure empty directories are created
 */
-void ensure_empty_dirs_created()
-{
+void ensure_empty_dirs_created(void){
   /* Make empty directories? */
   char *zEmptyDirs = db_get_versionable_setting("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
+    char *bc;
+    Blob dirName;
     Blob dirsList;
+
     blob_zero(&dirsList);
     blob_init(&dirsList, zEmptyDirs, strlen(zEmptyDirs));
     /* Replace commas by spaces */
-    char *bc = blob_str(&dirsList);
+    bc = blob_str(&dirsList);
     while( (*bc)!='\0' ){
       if( (*bc)==',' ) { *bc = ' '; }
       ++bc;
     }
     /* Make directories */
-    Blob dirName;
     blob_zero(&dirName);
     while( blob_token(&dirsList, &dirName) ){
       const char *zDir = blob_str(&dirName);
       /* Make full pathname of the directory */
       Blob path;
+      const char *zPath;
+
       blob_zero(&path);
       blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
-      const char *zPath = blob_str(&path);      
+      zPath = blob_str(&path);      
       /* Handle various cases of existence of the directory */
       switch( file_isdir(zPath) ){
         case 0: { /* doesn't exist */
           if( file_mkdir(zPath, 0)!=0 ) {
-            fossil_warning("couldn't create directory %s as required by empty-dirs setting", zDir);
+            fossil_warning("couldn't create directory %s as "
+                           "required by empty-dirs setting", zDir);
           }          
           break;
         }
@@ -502,7 +506,8 @@ void ensure_empty_dirs_created()
           break;
         }
         case 2: { /* exists, but isn't a directory */
-          fossil_warning("file %s found, but a directory is required by empty-dirs setting", zDir);          
+          fossil_warning("file %s found, but a directory is required "
+                         "by empty-dirs setting", zDir);          
         }
       }
       blob_reset(&path);

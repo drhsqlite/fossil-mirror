@@ -1397,22 +1397,31 @@ void db_swap_connections(void){
 
 /*
 ** Get a potentially versioned setting - either from .fossil-settings/<name>
+** if we have a local checkout and that file exists, or from the
+** CONFIG or GLOBAL_CONFIG tables if we are running in server mode
+** (without a local checkout) or if the file does not exist.
 */
 char *db_get_versionable_setting(const char *zName, char *zDefault){
   /* Attempt to load the versioned setting from a checked out file */
   char *zVersionedSetting = 0;
   int noWarn = 0;
+  char *zSetting = 0;
+
   if( db_open_local() ){
     Blob versionedPathname;
+    char *zVersionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, zName);
-    char *zVersionedPathname = blob_str(&versionedPathname);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+                 g.zLocalRoot, zName);
+    zVersionedPathname = blob_str(&versionedPathname);
     if( file_size(zVersionedPathname)>=0 ){
-      /* File exists, and contains the value for this setting. Load from the file. */
+      /* File exists, and contains the value for this setting. Load from
+      ** the file. */
       Blob setting;
       blob_zero(&setting);
       if( blob_read_from_file(&setting, zVersionedPathname) >= 0 ){
-        blob_trim(&setting); /* Avoid non-obvious problems with line endings on boolean properties */
+        blob_trim(&setting); /* Avoid non-obvious problems with line endings
+                             ** on boolean properties */
         zVersionedSetting = strdup(blob_str(&setting));
       }
       blob_reset(&setting);
@@ -1425,11 +1434,20 @@ char *db_get_versionable_setting(const char *zName, char *zDefault){
     blob_reset(&versionedPathname);
   }
   /* Load the normal, non-versioned setting */
-  char *zSetting = db_get(zName, zDefault);
+  zSetting = db_get(zName, zDefault);
   /* Display a warning? */
-  if( zVersionedSetting!=0 && zSetting!=0 && zSetting[0]!='\0' && zSetting!=zDefault && !noWarn ){
-    /* There's a versioned setting, and a non-versioned setting. Tell the user about the conflict */
-    fossil_warning("Setting %s has both versioned and non-versioned values: using versioned value from file .fossil-settings/%s (To silence this warning, either create an empty file named .fossil-settings/%s.no-warn or delete the non-versioned setting with \"fossil unset %s\")", zName, zName, zName, zName);
+  if( zVersionedSetting!=0 && zSetting!=0 && zSetting[0]!='\0'
+   && zSetting!=zDefault && !noWarn
+  ){
+    /* There's a versioned setting, and a non-versioned setting. Tell
+    ** the user about the conflict */
+    fossil_warning(
+        "setting %s has both versioned and non-versioned values: using "
+        "versioned value from file .fossil-settings/%s (to silence this "
+        "warning, either create an empty file named "
+        ".fossil-settings/%s.no-warn or delete the non-versioned setting "
+        " with \"fossil unset %s\")", zName, zName, zName, zName
+    );
   }
   /* Prefer the versioned setting */
   return ( zVersionedSetting!=0 ) ? zVersionedSetting : zSetting;
