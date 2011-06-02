@@ -93,7 +93,7 @@ void merge_cmd(void){
     usage("VERSION");
   }
   db_must_be_within_tree();
-  if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
+  if( zBinGlob==0 ) zBinGlob = db_get_versionable_setting("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("nothing is checked out");

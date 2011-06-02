@@ -1064,7 +1064,11 @@ void setup_settings(void){
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def));
-      @ <br />
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td><td style="width: 30;"></td><td valign="top">
@@ -1073,12 +1077,17 @@ void setup_settings(void){
       entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def);
-      @ <br />
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
+  @ <p>Settings marked with (v) are 'versionable' and will be overridden by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
   @ <hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>

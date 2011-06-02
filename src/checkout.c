@@ -143,7 +143,7 @@ void manifest_to_disk(int vid){
   Blob manifest;
   Blob hash;
 
-  if( db_get_boolean("manifest",0) ){
+  if( db_get_versionable_setting_boolean("manifest",0) ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
     zManFile = mprintf("%smanifest", g.zLocalRoot);
@@ -244,6 +244,7 @@ void checkout_cmd(void){
   }
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
+  ensure_empty_dirs_created();
   db_lset_int("checkout", vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
