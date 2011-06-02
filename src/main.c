@@ -107,6 +107,7 @@ struct Global {
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
+  const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -253,6 +254,7 @@ int main(int argc, char **argv){
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
+    g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("help",0,0)!=0 ){
       /* --help anywhere on the command line is translated into
       ** "fossil help argv[1] argv[2]..." */

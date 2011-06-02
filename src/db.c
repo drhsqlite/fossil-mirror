@@ -1666,6 +1666,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "proxy",         0,               32, "off"                 },
   { "repo-cksum",    0,                0, "on"                  },
   { "self-register", 0,                0, "off"                 },
+  { "ssl-identity",  0,               40, ""                    },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
   { 0,0,0,0 }
@@ -1775,6 +1776,13 @@ struct stControlSettings const ctrlSettings[] = {
 **                     This is useful if you want to see other names than
 **                     "Anonymous" in e.g. ticketing system. On the other hand
 **                     users can not be deleted. Default: off.
+**
+**    ssl-identity     The full pathname to a file containing a certificate
+**                     and private key in PEM format. Create by concatenating
+**                     the certificate and private key files.
+**                     This identity will be presented to SSL servers to
+**                     authenticate this client, in addition to the normal
+**                     password authentication.
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
