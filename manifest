@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sbuilt-in\s"now()"\sfunction\sis\savailable\sto\speer-repository\nconnections\sfor\ssingle-signon\soperations.\nTicket\s[3233c3dad99d57ad].
-D 2011-06-02T14:56:29.624
+C Improved\shandling\sof\scheck-in\sdiff\sdisplay\swhen\sfiles\shave\schanged\snames\nbut\sare\sotherwise\sunmodified.\s\sRequires\sa\srebuild\sto\sget\sthe\sdisplay\nexactly\sright\ssince\sthe\sMLINK\stable\sneeds\sto\sbe\srecomputed.
+D 2011-06-02T20:49:30.679
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -71,7 +71,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 1454967a1c5c4351078f6e9fc1d726cccd3a1170
-F src/info.c ce2e2e595b0e5b88862eaa6bd41b16a52f42482d
+F src/info.c a0414c3e616225c5c45f747cc25823f6f3e1c191
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c 05527f62197673bd8a56c63f24ee745a4b9254de
@@ -79,7 +79,7 @@ F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl b99d70140b58684ed05f20821106e9a50d87ced1
-F src/manifest.c 6149fbbfba957effc2844c36257145d0ca7bfc65
+F src/manifest.c e4c102c238011896e4d06351ec8c4ad16767a5df
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d5b9674ec5232df7d8ec51de3c056f1f45897917
-R 27944824b9f5c5841523cf125ae047c2
+P 74ecc4d646ba781deb06abf0900878eee42675e9
+R 881f256a9302313feae3aa87b0b71c08
 U drh
-Z b54db7432fb1f984030110eea38a2f0c
+Z 2425f0d8936687280d3063657b2ad5ae
