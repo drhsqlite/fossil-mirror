@@ -617,7 +617,7 @@ void db_init_database(
 ** Function to return the number of seconds since 1970.  This is
 ** the same as strftime('%s','now') but is more compact.
 */
-static void db_now_function(
+void db_now_function(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv

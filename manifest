@@ -1,5 +1,5 @@
-C Add\sthe\s--type\soption\sto\sthe\s"fossil\stag\sfind"\scommand.\nTicket\s[9bed1f604e0773]
-D 2011-06-01T22:39:44.222
+C Make\ssure\sthe\sbuilt-in\s"now()"\sfunction\sis\savailable\sto\speer-repository\nconnections\sfor\ssingle-signon\soperations.\nTicket\s[3233c3dad99d57ad].
+D 2011-06-02T14:56:29.624
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -51,7 +51,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
 F src/configure.c d25fdad7f33b47b9997bb099a2237132cddc6b32
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
-F src/db.c 84e1490d9c34ca5925fa1156a659f2d3b71de65d
+F src/db.c 3b146d0082183b241cc5ac217499dc480cb797ee
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c db3876b79a45db59a6a2dd973f036e152a809b17
@@ -73,7 +73,7 @@ F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 1454967a1c5c4351078f6e9fc1d726cccd3a1170
 F src/info.c ce2e2e595b0e5b88862eaa6bd41b16a52f42482d
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 44271e3cceff694abb31c3d1f3693cf9320e5160
+F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c 05527f62197673bd8a56c63f24ee745a4b9254de
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2a013f02282f36c9f53343534634d30b9f281dc4
-R 20c3bdce12d0903b8a2ebc6f6121d4fa
+P d5b9674ec5232df7d8ec51de3c056f1f45897917
+R 27944824b9f5c5841523cf125ae047c2
 U drh
-Z 2cd85b81838a7cf7721f297b97b53b83
+Z b54db7432fb1f984030110eea38a2f0c

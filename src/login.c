@@ -482,6 +482,8 @@ static int login_transfer_credentials(
 
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
+    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
       " WHERE cookie=%Q"
@@ -1129,6 +1131,8 @@ int login_group_sql(
     }
     sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
+    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_busy_timeout(pPeer, 5000);
     zErr = 0;
     rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
     if( zErr ){
