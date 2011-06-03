@@ -1,5 +1,5 @@
-C Improved\shandling\sof\scheck-in\sdiff\sdisplay\swhen\sfiles\shave\schanged\snames\nbut\sare\sotherwise\sunmodified.\s\sRequires\sa\srebuild\sto\sget\sthe\sdisplay\nexactly\sright\ssince\sthe\sMLINK\stable\sneeds\sto\sbe\srecomputed.
-D 2011-06-02T20:49:30.679
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.7\salpha.
+D 2011-06-03T14:24:32.527
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,12 +97,12 @@ F src/schema.c cd67fe706044ad622c9ecc919d7afd17ea0b5a50
 F src/search.c 9d53c57393652eb2dcd63e1d1dd1d5de9335b7a0
 F src/setup.c 2f0b17a21205a8573a4327d971e81d0d361163c6
 F src/sha1.c 2302f92df963dd21ccd703f5657e6a3a0e56107f
-F src/shell.c eeffeb31f9029c47b57ab7baa07adf4ca99bb0d7
+F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c 9c3034f624015ffbaf450b0475af911e61e33bb4
-F src/sqlite3.h 812e5c95b8c0ee21c5f91c958a7b319b9ee6a06f
+F src/sqlite3.c ac2015ba7c5d46d5c2ef3b1e77b55790aca67c8b
+F src/sqlite3.h 7fd3a5460f61a93c54de9ef6f03fc89847f671f4
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 74ecc4d646ba781deb06abf0900878eee42675e9
-R 881f256a9302313feae3aa87b0b71c08
+P 067cda2645c038e5a4b3e6473f8ac558b6554ff3
+R b3a7f51c6f50b3146582cc54325a7d53
 U drh
-Z 2425f0d8936687280d3063657b2ad5ae
+Z ebb4efce0fc8c975f959bfbabb036a94
