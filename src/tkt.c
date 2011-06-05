@@ -891,7 +891,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         Field names given above are the ones, defined in a standard
 **         fossil environment. If you have added, deleted columns, you
 **         change the all your configured columns.
-**         If you use +FIELD, the VLUE Is appended to the field FIELD.
+**         If you use +FIELD, the VALUE Is appended to the field FIELD.
 **         You can use more than one field/value pair on the commandline.
 **         Using -q|--quote  enables the special character decoding as
 **         in "ticket show". So it's possible, to set multiline text or
