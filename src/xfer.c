@@ -551,7 +551,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
   char *zLogin = blob_terminate(pLogin);
   defossilize(zLogin);
 
-  if( strcmp(zLogin, "nobody")==0 || strcmp(zLogin,"anonymous")==0 ){
+  if( fossil_strcmp(zLogin, "nobody")==0 || fossil_strcmp(zLogin,"anonymous")==0 ){
     return 0;   /* Anybody is allowed to sync as "nobody" or "anonymous" */
   }
   if( fossil_strcmp(P("REMOTE_USER"), zLogin)==0 ){
@@ -809,7 +809,7 @@ void page_xfer(void){
   int recvConfig = 0;
   char *zNow;
 
-  if( strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
+  if( fossil_strcmp(PD("REQUEST_METHOD","POST"),"POST") ){
      fossil_redirect_home();
   }
   g.zLogin = "anonymous";
@@ -1208,7 +1208,7 @@ void cmd_test_xfer(void){
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;
   page_xfer();
-  printf("%s\n", cgi_extract_content(&notUsed));
+  fossil_print("%s\n", cgi_extract_content(&notUsed));
 }
 
 /*
@@ -1392,7 +1392,7 @@ int client_sync(
     xfer.nGimmeSent = 0;
     xfer.nIGotSent = 0;
     if( !g.cgiOutput && !g.fQuiet ){
-      printf("waiting for server...");
+      fossil_print("waiting for server...");
     }
     fflush(stdout);
     if( http_exchange(&send, &recv, cloneFlag==0 || nCycle>0) ){
@@ -1448,7 +1448,7 @@ int client_sync(
       if( !g.cgiOutput && !g.fQuiet && recv.nUsed>0 ){
         pctDone = (recv.iCursor*100)/recv.nUsed;
         if( pctDone!=lastPctDone ){
-          printf("\rprocessed: %d%%         ", pctDone);
+          fossil_print("\rprocessed: %d%%         ", pctDone);
           lastPctDone = pctDone;
           fflush(stdout);
         }
@@ -1634,7 +1634,7 @@ int client_sync(
         if( !cloneFlag || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
-          if( strcmp(zMsg, "login failed")==0 ){
+          if( fossil_strcmp(zMsg, "login failed")==0 ){
             if( nCycle<2 ){
               if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
               go = 1;

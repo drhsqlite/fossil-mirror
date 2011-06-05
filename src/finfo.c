@@ -91,7 +91,7 @@ void finfo_cmd(void){
       blob_appendf(&line, "unknown 0000000000");
     }
     db_finalize(&q);
-    printf("%s\n", blob_str(&line));
+    fossil_print("%s\n", blob_str(&line));
     blob_reset(&fname);
     blob_reset(&line);
   }else if( find_option("print","p",0) ){
@@ -154,7 +154,7 @@ void finfo_cmd(void){
     );
     blob_zero(&line);
     if( iBrief ){
-      printf("History of %s\n", blob_str(&fname));
+      fossil_print("History of %s\n", blob_str(&fname));
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
@@ -164,7 +164,7 @@ void finfo_cmd(void){
       const char *zUser = db_column_text(&q, 4);
       char *zOut;
       if( iBrief ){
-        printf("%s ", zDate);
+        fossil_print("%s ", zDate);
         zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
                                zCiUuid, zCom, zUser, zFileUuid);
         comment_print(zOut, 11, 79);

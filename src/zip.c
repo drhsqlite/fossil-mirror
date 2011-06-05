@@ -100,7 +100,7 @@ void zip_add_folders(char *zName){
       c = zName[i+1];
       zName[i+1] = 0;
       for(j=0; j<nDir; j++){
-        if( strcmp(zName, azDir[j])==0 ) break;
+        if( fossil_strcmp(zName, azDir[j])==0 ) break;
       }
       if( j>=nDir ){
         nDir++;
@@ -394,7 +394,7 @@ void baseline_zip_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_rid(g.argv[2]);
+  rid = name_to_typed_rid(g.argv[2],"ci");
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -435,7 +435,7 @@ void baseline_zip_page(void){
       break;
     }
   }
-  rid = name_to_rid(nRid?zRid:zName);
+  rid = name_to_typed_rid(nRid?zRid:zName,"ci");
   if( rid==0 ){
     @ Not found
     return;

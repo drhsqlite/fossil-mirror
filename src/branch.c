@@ -70,7 +70,7 @@ void branch_new(void){
 
   user_select();
   db_begin_transaction();
-  rootid = name_to_rid(g.argv[4]);
+  rootid = name_to_typed_rid(g.argv[4], "ci");
   if( rootid==0 ){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
@@ -159,9 +159,9 @@ void branch_new(void){
   assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  printf("New branch: %s\n", zUuid);
+  fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
-    printf(
+    fossil_print(
       "\n"
       "Note: the local check-out has not been updated to the new\n"
       "      branch.  To begin working on the new branch, do this:\n"
@@ -231,7 +231,7 @@ void branch_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      printf("%s%s\n", (isCur ? "* " : "  "), zBr);
+      fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
   }else{

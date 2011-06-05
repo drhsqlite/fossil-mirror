@@ -46,6 +46,9 @@ int autosync(int flags){
   if( g.fNoSync ){
     return 0;
   }
+  if( flags==AUTOSYNC_PUSH && db_get_boolean("dont-push",0) ){
+    return 0;
+  }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
     if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
@@ -78,7 +81,7 @@ int autosync(int flags){
     configSync = CONFIGSET_SHUN;
   }
 #endif
-  printf("Autosync:  %s\n", g.urlCanonical);
+  fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
   rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, configSync, 0);
   if( rc ) fossil_warning("Autosync failed");
@@ -126,7 +129,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   }
   user_select();
   if( g.argc==2 ){
-    printf("Server:    %s\n", g.urlCanonical);
+    fossil_print("Server:    %s\n", g.urlCanonical);
   }
   url_enable_proxy("via proxy: ");
   *pConfigSync = configSync;
@@ -187,6 +190,9 @@ void push_cmd(void){
   int syncFlags;
   int bPrivate;
   process_sync_args(&syncFlags, &bPrivate);
+  if( db_get_boolean("dont-push",0) ){
+    fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
+  }
   client_sync(1,0,0,bPrivate,0,0);
 }
 
@@ -221,8 +227,13 @@ void push_cmd(void){
 void sync_cmd(void){
   int syncFlags;
   int bPrivate;
+  int pushFlag = 1;
   process_sync_args(&syncFlags, &bPrivate);
-  client_sync(1,1,0,bPrivate,syncFlags,0);
+  if( db_get_boolean("dont-push",0) ) pushFlag = 0;
+  client_sync(pushFlag,1,0,bPrivate,syncFlags,0);
+  if( pushFlag==0 ){
+    fossil_warning("pull only: the 'dont-push' option is set");
+  }
 }
 
 /*
@@ -265,10 +276,10 @@ void remote_url_cmd(void){
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
-    printf("off\n");
+    fossil_print("off\n");
     return;
   }else{
     url_parse(zUrl);
-    printf("%s\n", g.urlCanonical);
+    fossil_print("%s\n", g.urlCanonical);
   }
 }

@@ -36,7 +36,7 @@ static char **azAppend = 0;   /* Value to be appended */
 ** Compare two entries in azField for sorting purposes
 */
 static int nameCmpr(const void *a, const void *b){
-  return strcmp(*(char**)a, *(char**)b);
+  return fossil_strcmp(*(char**)a, *(char**)b);
 }
 
 /*
@@ -77,7 +77,7 @@ static void getAllTicketFields(void){
 static int fieldId(const char *zField){
   int i;
   for(i=0; i<nField; i++){
-    if( strcmp(azField[i], zField)==0 ) return i;
+    if( fossil_strcmp(azField[i], zField)==0 ) return i;
   }
   return -1;
 }
@@ -117,7 +117,7 @@ static void initializeVariablesFromDb(void){
         zVal = zRevealed = db_reveal(zVal);
       }
       for(j=0; j<nField; j++){
-        if( strcmp(azField[j],zName)==0 ){
+        if( fossil_strcmp(azField[j],zName)==0 ){
           azValue[j] = mprintf("%s", zVal);
           break;
         }
@@ -218,7 +218,8 @@ void ticket_rebuild_entry(const char *zTktUuid){
   Stmt q;
   Manifest *pTicket;
   int createFlag = 1;
-  
+
+  fossil_free(zTag);  
   db_multi_exec(
      "DELETE FROM ticket WHERE tkt_uuid=%Q", zTktUuid
   );
@@ -890,6 +891,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         Field names given above are the ones, defined in a standard
 **         fossil environment. If you have added, deleted columns, you
 **         change the all your configured columns.
+**         If you use +FIELD, the VLUE Is appended to the field FIELD.
 **         You can use more than one field/value pair on the commandline.
 **         Using -q|--quote  enables the special character decoding as
 **         in "ticket show". So it's possible, to set multiline text or
@@ -1009,21 +1011,30 @@ void ticket_cmd(void){
           char *zFName;
           char *zFValue;
           int j;
+	  int append = 0;
 
           zFName = g.argv[i++];
           if( i==g.argc ){
             fossil_fatal("missing value for '%s'!",zFName);
           }
           zFValue = g.argv[i++];
-          j = fieldId(zFName);
           if( tktEncoding == tktFossilize ){
             zFValue=mprintf("%s",zFValue);
             defossilize(zFValue);
           }
+	  append = (zFName[0] == '+');
+	  if (append){
+	      zFName++;
+	  }
+          j = fieldId(zFName);
           if( j == -1 ){
             fossil_fatal("unknown field name '%s'!",zFName);
           }else{
-            azValue[j] = zFValue;
+	      if (append) {
+		  azAppend[j] = zFValue;
+	      } else {
+		  azValue[j] = zFValue;
+	      }
           }
         }
 
@@ -1038,20 +1049,27 @@ void ticket_cmd(void){
         }
         /* append defined elements */
         for(i=0; i<nField; i++){
-          char *zValue;
+          char *zValue = 0;
+	  char *zPfx;
 
-          zValue = azValue[i];
-          if( azValue[i] && azValue[i][0] ){
-            if( strncmp(azField[i], "private_", 8)==0 ){
-              zValue = db_conceal(zValue, strlen(zValue));
-              blob_appendf(&tktchng, "J %s %s\n", azField[i], zValue);
-            }else{
-              blob_appendf(&tktchng, "J %s %#F\n",
-                           azField[i], strlen(zValue), zValue);
-            }
-            if( tktEncoding == tktFossilize ){
-              free(azValue[i]);
-            }
+	  if (azAppend[i] && azAppend[i][0] ){
+	    zPfx = " +";
+	    zValue = azAppend[i];
+	  } else if( azValue[i] && azValue[i][0] ){
+	    zPfx = " ";
+	    zValue = azValue[i];
+	  } else {
+	    continue;
+	  }
+          if( strncmp(azField[i], "private_", 8)==0 ){
+            zValue = db_conceal(zValue, strlen(zValue));
+            blob_appendf(&tktchng, "J%s%s %s\n", zPfx, azField[i], zValue);
+          }else{
+	    blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
+                         azField[i], strlen(zValue), zValue);
+          }
+          if( tktEncoding == tktFossilize ){
+            free(azValue[i]);
           }
         }
         blob_appendf(&tktchng, "K %s\n", zTktUuid);

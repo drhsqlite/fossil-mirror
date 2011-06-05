@@ -98,7 +98,7 @@ static void tar_add_directory_of(
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
   if( tball.zPrevDir[i]==0 && memcmp(tball.zPrevDir, zName, i)==0 ) return;
-  db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%.*q')", i, zName);
+  db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
   tar_add_header(zName, i, 0755, mTime, 0, 5);
@@ -275,7 +275,7 @@ void tarball_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_rid(g.argv[2]);
+  rid = name_to_typed_rid(g.argv[2], "ci");
   if( zName==0 ){
     zName = db_text("default-name",
        "SELECT replace(%Q,' ','_') "
@@ -311,7 +311,7 @@ void tarball_page(void){
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid",""));
   nRid = strlen(zRid);
-  if( nName>7 && strcmp(&zName[nName-7], ".tar.gz")==0 ){
+  if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */
     nName -= 7;
     zName[nName] = 0;

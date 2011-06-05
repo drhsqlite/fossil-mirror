@@ -592,11 +592,11 @@ void test_rawdiff_cmd(void){
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
   blob_read_from_file(&a, g.argv[2]);
   for(i=3; i<g.argc; i++){
-    if( i>3 ) printf("-------------------------------\n");
+    if( i>3 ) fossil_print("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
     R = text_diff(&a, &b, 0, 0, 0);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-      printf(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
+      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
     /* free(R); */
     blob_reset(&b);
@@ -745,7 +745,7 @@ void test_annotate_step_cmd(void){
   for(i=0; i<x.nOrig; i++){
     const char *zSrc = x.aOrig[i].zSrc;
     if( zSrc==0 ) zSrc = g.argv[g.argc-1];
-    printf("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
+    fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
   }
 }
 
@@ -839,7 +839,7 @@ void annotation_page(void){
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
-  mid = name_to_rid(PD("checkin","0"));
+  mid = name_to_typed_rid(PD("checkin","0"),"ci");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
   iLimit = atoi(PD("limit","-1"));
@@ -928,6 +928,7 @@ void annotate_cmd(void){
     printf("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    printf("%s: %.*s\n", ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+    fossil_print("%s: %.*s\n", 
+                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
 }

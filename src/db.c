@@ -168,7 +168,7 @@ void db_force_rollback(void){
   busy = 0;
   db_close(0);
   for(i=0; i<nDeleteOnFail; i++){
-    unlink(azDeleteOnFail[i]);
+    file_delete(azDeleteOnFail[i]);
   }
 }
 
@@ -617,7 +617,7 @@ void db_init_database(
 ** Function to return the number of seconds since 1970.  This is
 ** the same as strftime('%s','now') but is more compact.
 */
-static void db_now_function(
+void db_now_function(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -697,6 +697,7 @@ void db_open_config(int useAttach){
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
                 "environment variables");
   }
+  zHome = fossil_mbcs_to_utf8(zHome);
 #else
   zHome = getenv("HOME");
   if( zHome==0 ){
@@ -742,7 +743,7 @@ static int isValidLocalDb(const char *zDbName){
   int rc;
   sqlite3_stmt *pStmt;
 
-  if( access(zDbName, F_OK) ) return 0;
+  if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
@@ -805,19 +806,13 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  char *zPwdConv;
   static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
   
   if( g.localOpen) return 1;
-  if( getcwd(zPwd, sizeof(zPwd)-20)==0 ){
-    db_err("pwd too big: max %d", sizeof(zPwd)-20);
-  }
+  file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  zPwdConv = mprintf("%/", zPwd);
-  strncpy(zPwd, zPwdConv, 2000-20);
-  free(zPwdConv);
   while( n>0 ){
-    if( access(zPwd, W_OK) ) break;
+    if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
       sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
@@ -855,11 +850,11 @@ void db_open_repository(const char *zDbName){
       db_err("unable to find the name of a repository database");
     }
   }
-  if( access(zDbName, R_OK) || file_size(zDbName)<1024 ){
-    if( access(zDbName, 0) ){
+  if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
+    if( file_access(zDbName, 0) ){
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
-    }else if( access(zDbName, R_OK) ){
+    }else if( file_access(zDbName, R_OK) ){
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
       fossil_panic("not a valid repository: %s", zDbName);
@@ -914,10 +909,10 @@ rep_not_found:
 ** Return the name of the database "localdb", "configdb", or "repository".
 */
 const char *db_name(const char *zDb){
-  assert( strcmp(zDb,"localdb")==0
-       || strcmp(zDb,"configdb")==0
-       || strcmp(zDb,"repository")==0 );
-  if( strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
+  assert( fossil_strcmp(zDb,"localdb")==0
+       || fossil_strcmp(zDb,"configdb")==0
+       || fossil_strcmp(zDb,"repository")==0 );
+  if( fossil_strcmp(zDb, g.zMainDbType)==0 ) zDb = "main";
   return zDb;
 }
 
@@ -966,7 +961,7 @@ void move_repo_cmd(void){
   }
   file_canonical_name(g.argv[2], &repo);
   zRepo = blob_str(&repo);
-  if( access(zRepo, 0) ){
+  if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
   }
   db_open_or_attach(zRepo, "test_repo");
@@ -1219,7 +1214,9 @@ static void db_sql_print(
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
   int n = strlen(zSql);
-  fprintf(stderr, "%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  char *zMsg = mprintf("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
+  fossil_puts(zMsg, 1);
+  fossil_free(zMsg);
 }
 
 /*

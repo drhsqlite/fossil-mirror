@@ -266,7 +266,7 @@ void vfile_to_disk(
         continue;
       }
     }
-    if( verbose ) printf("%s\n", &zName[nRepos]);
+    if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     blob_write_to_file(&content, zName);
     file_setexe(zName, isExe);
     blob_reset(&content);
@@ -288,7 +288,7 @@ void vfile_unlink(int vid){
     const char *zName;
 
     zName = db_column_text(&q, 0);
-    unlink(zName);
+    file_delete(zName);
   }
   db_finalize(&q);
   db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
@@ -337,6 +337,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
+  char *zMbcs;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -355,16 +356,20 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  d = opendir(zDir);
+  zMbcs = fossil_utf8_to_mbcs(zDir);
+  d = opendir(zMbcs);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
+      char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
         if( !allFlag ) continue;
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      blob_appendf(pPath, "/%s", pEntry->d_name);
+      zUtf8 = fossil_mbcs_to_utf8(pEntry->d_name);
+      blob_appendf(pPath, "/%s", zUtf8);
+      fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
@@ -381,6 +386,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
     }
     closedir(d);
   }
+  fossil_mbcs_free(zMbcs);
 
   depth--;
   if( depth==0 ){
@@ -430,7 +436,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      in = fopen(zFullpath,"rb");
+      in = fossil_fopen(zFullpath,"rb");
       if( in==0 ){
         md5sum_step_text(" 0\n", -1);
         continue;
@@ -493,22 +499,23 @@ void vfile_compare_repository_to_disk(int vid){
     blob_zero(&disk);
     rc = blob_read_from_file(&disk, zFullpath);
     if( rc<0 ){
-      printf("ERROR: cannot read file [%s]\n", zFullpath);
+      fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
       blob_reset(&disk);
       continue;
     }
     blob_zero(&repo);
     content_get(rid, &repo);
     if( blob_size(&repo)!=blob_size(&disk) ){
-      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+      fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
     }
     if( blob_compare(&repo, &disk) ){
-      printf("ERROR: [%s] is different on disk compared to the repository\n",
-             zName);
+      fossil_print(
+          "ERROR: [%s] is different on disk compared to the repository\n",
+          zName);
     }
     blob_reset(&disk);
     blob_reset(&repo);

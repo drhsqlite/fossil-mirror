@@ -69,7 +69,7 @@ void show_common_info(
       rid
     );
          /* 01234567890123 */
-    printf("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
+    fossil_print("%-13s %s %s\n", zUuidName, zUuid, zDate ? zDate : "");
     free(zUuid);
     free(zDate);
   }
@@ -90,7 +90,7 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      printf("parent:       %s %s\n", zUuid, zDate);
+      fossil_print("parent:       %s %s\n", zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
@@ -102,18 +102,18 @@ void show_common_info(
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      printf("child:        %s %s\n", zUuid, zDate);
+      fossil_print("child:        %s %s\n", zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
   }
   zTags = info_tags_of_checkin(rid, 0);
   if( zTags && zTags[0] ){
-    printf("tags:         %s\n", zTags);
+    fossil_print("tags:         %s\n", zTags);
   }
   free(zTags);
   if( zComment ){
-    printf("comment:      ");
+    fossil_print("comment:      ");
     comment_print(zComment, 14, 79);
     free(zComment);
   }
@@ -143,9 +143,9 @@ void info_cmd(void){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
     db_open_repository(g.argv[2]);
-    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
-    printf("project-code: %s\n", db_get("project-code", "<none>"));
-    printf("server-code:  %s\n", db_get("server-code", "<none>"));
+    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    fossil_print("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
   db_must_be_within_tree();
@@ -153,19 +153,19 @@ void info_cmd(void){
     int vid;
          /* 012345678901234 */
     db_record_repository_filename(0);
-    printf("project-name: %s\n", db_get("project-name", "<unnamed>"));
-    printf("repository:   %s\n", db_lget("repository", ""));
-    printf("local-root:   %s\n", g.zLocalRoot);
+    fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
+    fossil_print("repository:   %s\n", db_lget("repository", ""));
+    fossil_print("local-root:   %s\n", g.zLocalRoot);
 #if defined(_WIN32)
     if( g.zHome ){
-      printf("user-home:    %s\n", g.zHome);
+      fossil_print("user-home:    %s\n", g.zHome);
     }
 #endif
-    printf("project-code: %s\n", db_get("project-code", ""));
-    printf("server-code:  %s\n", db_get("server-code", ""));
+    fossil_print("project-code: %s\n", db_get("project-code", ""));
+    fossil_print("server-code:  %s\n", db_get("server-code", ""));
     vid = db_lget_int("checkout", 0);
     if( vid==0 ){
-      printf("checkout:     nil\n");
+      fossil_print("checkout:     nil\n");
     }else{
       show_common_info(vid, "checkout:", 1, 1);
     }
@@ -222,7 +222,7 @@ static void showTags(int rid, const char *zNotGlob){
         @ propagates to descendants
       }
 #if 0
-      if( zValue && strcmp(zTagname,"branch")==0 ){
+      if( zValue && fossil_strcmp(zTagname,"branch")==0 ){
         @ &nbsp;&nbsp;
         @ <a href="%s(g.zTop)/timeline?r=%T(zValue)">branch timeline</a>
       }
@@ -282,6 +282,7 @@ static void append_file_change_line(
   const char *zName,    /* Name of the file that has changed */
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
+  const char *zOldName, /* Prior name.  NULL if no name change. */
   int showDiff,         /* Show edit diffs if true */
   int mperm             /* EXE permission for zNew */
 ){
@@ -290,6 +291,8 @@ static void append_file_change_line(
       @ <p>Deleted %h(zName)</p>
     }else if( zOld==0 ){
       @ <p>Added %h(zName)</p>
+    }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+      @ <p>Name change from %h(zOldName) to %h(zName)
     }else if( fossil_strcmp(zNew, zOld)==0 ){
       @ <p>Execute permission %s(mperm?"set":"cleared") for %h(zName)</p>
     }else{
@@ -306,6 +309,10 @@ static void append_file_change_line(
         @ <p>Modified <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
         @ from <a href="%s(g.zTop)/artifact/%s(zOld)">[%S(zOld)]</a>
         @ to <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)].</a>
+      }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
+        @ <p>Name change from
+        @ from <a href="%s(g.zTop)/finfo?name=%T(zOldName)">%h(zOldName)</a>
+        @ to <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>.
       }else{
         @ <p>Execute permission %s(mperm?"set":"cleared") for
         @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
@@ -321,7 +328,7 @@ static void append_file_change_line(
       @ <blockquote><pre>
       append_diff(zOld, zNew);
       @ </pre></blockquote>
-    }else if( zOld && zNew ){
+    }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
     }
@@ -513,9 +520,11 @@ void ci_page(void){
     @ &nbsp;&nbsp;
     @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
     db_prepare(&q,
-       "SELECT name, mperm,"
+       "SELECT name,"
+       "       mperm,"
        "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-       "       (SELECT uuid FROM blob WHERE rid=mlink.fid)"
+       "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+       "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
        " ORDER BY name",
@@ -526,7 +535,8 @@ void ci_page(void){
       int mperm = db_column_int(&q, 1);
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
-      append_file_change_line(zName, zOld, zNew, showDiff, mperm);
+      const char *zOldName = db_column_text(&q, 4);
+      append_file_change_line(zName, zOld, zNew, zOldName, showDiff, mperm);
     }
     db_finalize(&q);
   }
@@ -717,11 +727,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, 0, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0,
+                              0, pFileTo->zUuid, 0, 0,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -731,7 +741,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName, 
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, showDetail,
+                              pFileTo->zUuid, 0, showDetail,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
@@ -1388,7 +1398,7 @@ void info_page(void){
     }
   }
   blob_set(&uuid, zName);
-  rc = name_to_uuid(&uuid, -1);
+  rc = name_to_uuid(&uuid, -1, "*");
   if( rc==1 ){
     style_header("No Such Object");
     @ <p>No such object: %h(zName)</p>
@@ -1578,7 +1588,7 @@ void ci_edit_page(void){
   
   login_check_credentials();
   if( !g.okWrite ){ login_needed(); return; }
-  rid = name_to_rid(P("r"));
+  rid = name_to_typed_rid(P("r"), "ci");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"
                         "  FROM event WHERE objid=%d", rid);
@@ -1621,7 +1631,7 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor || strcmp(zColor,zNewColor)!=0)
+     && (fPropagateColor!=fNewPropagateColor || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
       if( fNewPropagateColor ){

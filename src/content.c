@@ -672,7 +672,7 @@ void test_content_put_cmd(void){
   user_select();
   blob_read_from_file(&content, g.argv[2]);
   rid = content_put(&content);
-  printf("inserted as record %d\n", rid);
+  fossil_print("inserted as record %d\n", rid);
 }
 
 /*
@@ -840,10 +840,10 @@ void test_integrity(void){
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);
     n1++;
-    printf("  %d/%d\r", n1, total);
+    fossil_print("  %d/%d\r", n1, total);
     fflush(stdout);
     if( size<0 ){
-      printf("skip phantom %d %s\n", rid, zUuid);
+      fossil_print("skip phantom %d %s\n", rid, zUuid);
       continue;  /* Ignore phantoms */
     }
     content_get(rid, &content);
@@ -852,7 +852,7 @@ void test_integrity(void){
                      rid, blob_size(&content), size);
     }
     sha1sum_blob(&content, &cksum);
-    if( strcmp(blob_str(&cksum), zUuid)!=0 ){
+    if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
       fossil_fatal("checksum mismatch on blob rid=%d: %s vs %s",
                    rid, blob_str(&cksum), zUuid);
     }
@@ -861,5 +861,5 @@ void test_integrity(void){
     n2++;
   }
   db_finalize(&q);
-  printf("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
+  fossil_print("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
 }

@@ -154,7 +154,7 @@ static int isValidAnonymousLogin(
 
   if( zUsername==0 ) return 0;
   if( zPassword==0 ) return 0;
-  if( strcmp(zUsername,"anonymous")!=0 ) return 0;
+  if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
   zCS = P("cs");   /* The "cs" parameter is the "captcha seed" */
   if( zCS==0 ) return 0;
   zPw = captcha_decode((unsigned int)atoi(zCS));
@@ -482,6 +482,8 @@ static int login_transfer_credentials(
 
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
+    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
       " WHERE cookie=%Q"
@@ -563,7 +565,7 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( strcmp(zIpAddr, "127.0.0.1")==0
+  if( fossil_strcmp(zIpAddr, "127.0.0.1")==0
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -596,7 +598,7 @@ void login_check_credentials(void){
     }
     if( zUser==0 ){
       /* Invalid cookie */
-    }else if( strcmp(zUser, "anonymous")==0 ){
+    }else if( fossil_strcmp(zUser, "anonymous")==0 ){
       /* Cookies of the form "HASH/TIME/anonymous".  The TIME must not be
       ** too old and the sha1 hash of TIME/IPADDR/SECRET must match HASH.
       ** SECRET is the "captcha-secret" value in the repository.
@@ -965,7 +967,7 @@ void register_page(void){
       @ <p><span class="loginError">
       @ Password too weak.
       @ </span></p>
-    }else if( strcmp(zPasswd,zConfirm)!=0 ){
+    }else if( fossil_strcmp(zPasswd,zConfirm)!=0 ){
       @ <p><span class="loginError">
       @ The two copies of your new passwords do not match.
       @ </span></p>
@@ -1129,6 +1131,8 @@ int login_group_sql(
     }
     sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
+    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_busy_timeout(pPeer, 5000);
     zErr = 0;
     rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
     if( zErr ){
@@ -1194,7 +1198,7 @@ void login_group_join(
   }
 
   /* Make sure we are not trying to join ourselves */
-  if( strcmp(zRepo, zSelfRepo)==0 ){
+  if( fossil_strcmp(zRepo, zSelfRepo)==0 ){
     *pzErrMsg = mprintf("The \"other\" repository is the same as this one.");
     return;
   }

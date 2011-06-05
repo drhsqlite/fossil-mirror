@@ -178,7 +178,7 @@ static int prefixLength;    /* Length of directory prefix for deconstruct */
 static void percent_complete(int permill){
   static int lastOutput = -1;
   if( permill>lastOutput ){
-    printf("  %d.%d%% complete...\r", permill/10, permill%10);
+    fossil_print("  %d.%d%% complete...\r", permill/10, permill%10);
     fflush(stdout);
     lastOutput = permill;
   }
@@ -422,7 +422,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete((processCnt*1000)/totalSize);
   }
   if(!g.fQuiet && ttyOutput ){
-    printf("\n");
+    fossil_print("\n");
   }
   return errCnt;
 }
@@ -551,18 +551,20 @@ void rebuild_database(void){
     CONTENT_SCHEMA, AUX_SCHEMA
   );
   if( errCnt && !forceFlag ){
-    printf("%d errors. Rolling back changes. Use --force to force a commit.\n",
-            errCnt);
+    fossil_print(
+      "%d errors. Rolling back changes. Use --force to force a commit.\n",
+      errCnt
+    );
     db_end_transaction(1);
   }else{
     if( runCompress ){
-      printf("Extra delta compression... "); fflush(stdout);
+      fossil_print("Extra delta compression... "); fflush(stdout);
       extra_deltification();
       runVacuum = 1;
     }
     if( omitVerify ) verify_cancel();
     db_end_transaction(0);
-    if( runCompress ) printf("done\n");
+    if( runCompress ) fossil_print("done\n");
     db_close(0);
     db_open_repository(g.zRepositoryName);
     if( newPagesize ){
@@ -570,9 +572,9 @@ void rebuild_database(void){
       runVacuum = 1;
     }
     if( runVacuum ){
-      printf("Vacuuming the database... "); fflush(stdout);
+      fossil_print("Vacuuming the database... "); fflush(stdout);
       db_multi_exec("VACUUM");
-      printf("done\n");
+      fossil_print("done\n");
     }
     if( activateWal ){
       db_multi_exec("PRAGMA journal_mode=WAL;");
@@ -680,12 +682,12 @@ void test_clusters_cmd(void){
   n = db_int(0, "SELECT count(*) FROM /*scan*/"
                 "  (SELECT rid FROM blob EXCEPT SELECT x FROM xdone)");
   if( n==0 ){
-    printf("all artifacts reachable through clusters\n");
+    fossil_print("all artifacts reachable through clusters\n");
   }else{
-    printf("%d unreachable artifacts:\n", n);
+    fossil_print("%d unreachable artifacts:\n", n);
     db_prepare(&q, "SELECT rid, uuid FROM blob WHERE rid NOT IN xdone");
     while( db_step(&q)==SQLITE_ROW ){
-      printf("  %3d %s\n", db_column_int(&q,0), db_column_text(&q,1));
+      fossil_print("  %3d %s\n", db_column_int(&q,0), db_column_text(&q,1));
     }
     db_finalize(&q);
   }
@@ -775,8 +777,11 @@ void recon_read_dir(char *zPath){
   struct dirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
+  char *zMbcsPath;
+  char *zUtf8Name;
 
-  d = opendir(zPath);
+  zMbcsPath = fossil_utf8_to_mbcs(zPath);
+  d = opendir(zMbcsPath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       Blob path;
@@ -785,7 +790,9 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zSubpath = mprintf("%s/%s",zPath,pEntry->d_name);
+      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
+      zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
+      fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
       }
@@ -799,7 +806,7 @@ void recon_read_dir(char *zPath){
       blob_reset(&path);
       blob_reset(&aContent);
       free(zSubpath);
-      printf("\r%d", ++nFileRead);
+      fossil_print("\r%d", ++nFileRead);
       fflush(stdout);
     }
     closedir(d);
@@ -807,6 +814,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
+  fossil_mbcs_free(zMbcsPath);
 }
 
 /*
@@ -826,7 +834,7 @@ void reconstruct_cmd(void) {
     usage("FILENAME DIRECTORY");
   }
   if( file_isdir(g.argv[3])!=1 ){
-    printf("\"%s\" is not a directory\n\n", g.argv[3]);
+    fossil_print("\"%s\" is not a directory\n\n", g.argv[3]);
     usage("FILENAME DIRECTORY");
   }
   db_create_repository(g.argv[2]);
@@ -835,9 +843,9 @@ void reconstruct_cmd(void) {
   db_begin_transaction();
   db_initial_setup(0, 0, 1);
 
-  printf("Reading files from directory \"%s\"...\n", g.argv[3]);
+  fossil_print("Reading files from directory \"%s\"...\n", g.argv[3]);
   recon_read_dir(g.argv[3]);
-  printf("\nBuilding the Fossil repository...\n");
+  fossil_print("\nBuilding the Fossil repository...\n");
 
   rebuild_db(0, 1, 1);
 
@@ -863,10 +871,10 @@ void reconstruct_cmd(void) {
   verify_cancel();
   
   db_end_transaction(0);
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id: %s\n", db_get("server-code", 0));
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id: %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (initial password is \"%s\")\n", g.zLogin, zPassword);
 }
 
 /*
@@ -911,7 +919,7 @@ void deconstruct_cmd(void){
     }
   }
 #ifndef _WIN32
-  if( access(zDestDir, W_OK) ){
+  if( file_access(zDestDir, W_OK) ){
     fossil_fatal("DESTINATION(%s) is not writeable!",zDestDir);
   }
 #else
@@ -930,7 +938,7 @@ void deconstruct_cmd(void){
   ttyOutput = 1;
   processCnt = 0;
   if (!g.fQuiet) {
-    printf("0 (0%%)...\r");
+    fossil_print("0 (0%%)...\r");
     fflush(stdout);
   }
   totalSize = db_int(0, "SELECT count(*) FROM blob");
@@ -966,7 +974,7 @@ void deconstruct_cmd(void){
   }
   db_finalize(&s);
   if(!g.fQuiet && ttyOutput ){
-    printf("\n");
+    fossil_print("\n");
   }
 
   /* free filename format string */
