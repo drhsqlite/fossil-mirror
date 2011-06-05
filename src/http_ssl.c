@@ -95,13 +95,42 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 ** This routine does initial configuration of the SSL module.
 */
 void ssl_global_init(void){
+  const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
+  
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();    
     sslCtx = SSL_CTX_new(SSLv23_client_method());
-    X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    
+    /* Set up acceptable CA root certificates */
+    zCaSetting = db_get("ssl-ca-location", 0);
+    if( zCaSetting==0 || zCaSetting[0]=='\0' ){
+      /* CA location not specified, use platform's default certificate store */
+      X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    }else{
+      /* User has specified a CA location, make sure it exists and use it */
+      switch( file_isdir(zCaSetting) ){
+        case 0: { /* doesn't exist */
+          fossil_fatal("ssl-ca-location is set to '%s', "
+              "but is not a file or directory", zCaSetting);
+          break;
+        }
+        case 1: { /* directory */
+          zCaDirectory = zCaSetting;
+          break;
+        }
+        case 2: { /* file */
+          zCaFile = zCaSetting;
+          break;
+        }
+      }
+      if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
+        fossil_fatal("Failed to use CA root certificates from "
+          "ssl-ca-location '%s'", zCaSetting);
+      }
+    }
     
     /* Load client SSL identity, preferring the filename specified on the command line */
     const char *identityFile = ( g.zSSLIdentity!= 0) ? g.zSSLIdentity : db_get("ssl-identity", 0);
@@ -227,6 +256,13 @@ char *connStr ;
                 "saved certificate for this host!";
     }
     prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n"
+                     "Either:\n"
+                     " * verify the certificate is correct using the "
+                     "SHA1 fingerprint above\n"
+                     " * use the global ssl-ca-location setting to specify your CA root\n"
+                     "   certificates list\n\n"
+                     "If you are not expecting this message, answer no and "
+                     "contact your server\nadministrator.\n\n"
                      "Accept certificate [a=always/y/N]? ", desc, warning);
     BIO_free(mem);
 

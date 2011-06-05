@@ -1742,6 +1742,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "proxy",         0,               32, 0, "off"                 },
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
+  { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               32, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
@@ -1861,6 +1862,17 @@ struct stControlSettings const ctrlSettings[] = {
 **                     This is useful if you want to see other names than
 **                     "Anonymous" in e.g. ticketing system. On the other hand
 **                     users can not be deleted. Default: off.
+**
+**    ssl-ca-location  The full pathname to a file containing PEM encoded
+**                     CA root certificates, or a directory of certificates
+**                     with filenames formed from the certificate hashes as
+**                     required by OpenSSL.
+**                     If set, this will override the OS default list of
+**                     OpenSSL CAs. If unset, the default list will be used.
+**                     Some platforms may add additional certificates.
+**                     Check your platform behaviour is as required if the
+**                     exact contents of the CA root is critical for your
+**                     application.
 **
 **    ssl-identity     The full pathname to a file containing a certificate
 **                     and private key in PEM format. Create by concatenating
