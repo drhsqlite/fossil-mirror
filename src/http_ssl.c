@@ -86,7 +86,10 @@ const char *ssl_errmsg(void){
 ** display a warning message explaining what to do next.
 */
 static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
-  fossil_warning("The remote server requested a client certificate for authentication. Specify the pathname to a file containing the PEM encoded certificate and private key with the --ssl-identity option or the ssl-identity setting.");
+  fossil_warning("The remote server requested a client certificate for "
+    "authentication. Specify the pathname to a file containing the PEM "
+    "encoded certificate and private key with the --ssl-identity option "
+    "or the ssl-identity setting.");
   return 0; /* no cert available */    
 }
 
