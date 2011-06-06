@@ -73,14 +73,19 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   return rid;
 }
 
+
 /*
-** Build a catalog of all files in a checkin.
+** Load a vfile from a record ID.
 */
-void vfile_build(int vid){
+void load_vfile_from_rid(int vid){
   int rid, size;
   Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
+
+  if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
+    return;
+  }
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST);
