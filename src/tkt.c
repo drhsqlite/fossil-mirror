@@ -1011,7 +1011,7 @@ void ticket_cmd(void){
           char *zFName;
           char *zFValue;
           int j;
-	  int append = 0;
+          int append = 0;
 
           zFName = g.argv[i++];
           if( i==g.argc ){
@@ -1022,19 +1022,19 @@ void ticket_cmd(void){
             zFValue=mprintf("%s",zFValue);
             defossilize(zFValue);
           }
-	  append = (zFName[0] == '+');
-	  if (append){
-	      zFName++;
-	  }
+          append = (zFName[0] == '+');
+          if (append){
+            zFName++;
+          }
           j = fieldId(zFName);
           if( j == -1 ){
             fossil_fatal("unknown field name '%s'!",zFName);
           }else{
-	      if (append) {
-		  azAppend[j] = zFValue;
-	      } else {
-		  azValue[j] = zFValue;
-	      }
+            if (append) {
+              azAppend[j] = zFValue;
+            } else {
+              azValue[j] = zFValue;
+            }
           }
         }
 
@@ -1050,22 +1050,22 @@ void ticket_cmd(void){
         /* append defined elements */
         for(i=0; i<nField; i++){
           char *zValue = 0;
-	  char *zPfx;
+          char *zPfx;
 
-	  if (azAppend[i] && azAppend[i][0] ){
-	    zPfx = " +";
-	    zValue = azAppend[i];
-	  } else if( azValue[i] && azValue[i][0] ){
-	    zPfx = " ";
-	    zValue = azValue[i];
-	  } else {
-	    continue;
-	  }
+          if (azAppend[i] && azAppend[i][0] ){
+            zPfx = " +";
+            zValue = azAppend[i];
+          } else if( azValue[i] && azValue[i][0] ){
+            zPfx = " ";
+            zValue = azValue[i];
+          } else {
+            continue;
+          }
           if( strncmp(azField[i], "private_", 8)==0 ){
             zValue = db_conceal(zValue, strlen(zValue));
             blob_appendf(&tktchng, "J%s%s %s\n", zPfx, azField[i], zValue);
           }else{
-	    blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
+            blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
                          azField[i], strlen(zValue), zValue);
           }
           if( tktEncoding == tktFossilize ){
@@ -1084,8 +1084,8 @@ void ticket_cmd(void){
         manifest_crosslink(rid, &tktchng);
         manifest_crosslink_end();
         assert( blob_is_reset(&tktchng) );
-	printf("ticket %s succeeded for UID %s\n",
-	       (eCmd==set?"set":"add"),zTktUuid);
+        printf("ticket %s succeeded for UID %s\n",
+               (eCmd==set?"set":"add"),zTktUuid);
       }
     }
   }
