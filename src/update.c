@@ -431,8 +431,9 @@ void update_cmd(void){
     if( internalUpdate ){
       internalConflictCnt = nConflict;
     }else{
-      fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
-              nConflict);
+      fossil_print(
+         "WARNING: %d merge conflicts - see messages above for details.\n",
+         nConflict);
     }
   }
   
