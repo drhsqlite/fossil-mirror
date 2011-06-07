@@ -750,6 +750,10 @@ void scrub_cmd(void){
     db_multi_exec(
       "UPDATE user SET pw='';"
       "DELETE FROM config WHERE name GLOB 'last-sync-*';"
+      "DELETE FROM config WHERE name GLOB 'peer-*';"
+      "DELETE FROM config WHERE name GLOB 'login-group-*';"
+      "DELETE FROM config WHERE name GLOB 'skin:*';"
+      "DELETE FROM config WHERE name GLOB 'subrepo:*';"
     );
     if( bVerily ){
       db_multi_exec(

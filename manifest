@@ -1,5 +1,5 @@
-C Fix\sindentation\sand\stabs\sto\sstyle\sguide
-D 2011-06-06T17:59:05.986
+C Pull\sthe\slatest\strunk\schanges\sinto\sthe\svenks-emacs\sbranch.
+D 2011-06-07T00:48:02.294
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -44,7 +44,7 @@ F src/browse.c 6f915ec9d7891f71b49b20650166cd826887cb27
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c 193a80ed1543b91bed7375cf9dd59e705e837e3f
 F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
-F src/checkout.c e38510d58cb02c5aef45eedeb3a9bfb3d3479504
+F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
@@ -61,7 +61,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 576c11ee5415028bad7e7575c7455bc92b094862
-F src/file.c 05fff3af4af9cbb4e5e9488610a11ed35704c28d
+F src/file.c 5735e95799e8b5530fbd22ca0f9b69a3f017d4bb
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 096577b90ff66e5d0e13e07b07eb2c3ec4f34f6a
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -90,7 +90,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c 52559402bcd55707fcda79ba4a60da2a34bb25b5
-F src/rebuild.c 4b7c93c6d90743fd574d8feacbbbadffe5998f5c
+F src/rebuild.c a344edea0d1f24fe131efb1a12ba91031a2f922c
 F src/report.c 194e7f27658ed8aae267a63c85906b486ff6ea1c
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c cd67fe706044ad622c9ecc919d7afd17ea0b5a50
@@ -118,11 +118,11 @@ F src/tkt.c fb1bc562c01307402848c375b999475dc7408522
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
-F src/update.c 03160c1ac82001445e180086ea942c5f9aecb415
+F src/update.c 6eca7cb53713735d4ca4cf6011ff2c6863eceb6e
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 68567bd8dca442db174c811c8a98455c420d3de5
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 6e5419150bf4980f09b24d69477e489f1554aa7d
+F src/vfile.c e94eca23006619e2f856f92c72185c08f614af9b
 F src/wiki.c 701d68628ed6996863130c2a0a8dc90c8ee47c6c
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 8386ea5c4cfea491186ec153a280e12f916908fb
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ac7be7fd6c37a54df2491e83e6bdb173784ab8d8
-R 87aad08280c6c398df7aa067a3333996
-U venkat
-Z 681e714446e278f00a3012b3abe1ba96
+P 081a29c0b7689c4bfe33889389a95f3f0915ed81 fd6f1c5e619fc297da692db468c839c33efec983
+R 157de200ef91e51ec00b51fec4c9ab13
+U drh
+Z 21db7273140e4458e6754ef5e6622136

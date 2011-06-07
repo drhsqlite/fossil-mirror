@@ -201,8 +201,9 @@ int file_setexe(const char *zFilename, int onoff){
   struct stat buf;
   if( stat(zFilename, &buf)!=0 ) return 0;
   if( onoff ){
-    if( (buf.st_mode & 0111)!=0111 ){
-      chmod(zFilename, buf.st_mode | 0111);
+    int targetMode = (buf.st_mode & 0444)>>2;
+    if( (buf.st_mode & 0111)!=targetMode ){
+      chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{

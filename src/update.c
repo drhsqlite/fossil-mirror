@@ -326,7 +326,7 @@ void update_cmd(void){
     int ridt = db_column_int(&q, 4);            /* RecordID for target */
     int chnged = db_column_int(&q, 5);          /* Current is edited */
     const char *zNewName = db_column_text(&q,6);/* New filename */
-    int isexe = db_column_int(&q, 6);           /* EXE perm for new file */
+    int isexe = db_column_int(&q, 7);           /* EXE perm for new file */
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
@@ -431,8 +431,9 @@ void update_cmd(void){
     if( internalUpdate ){
       internalConflictCnt = nConflict;
     }else{
-      fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
-              nConflict);
+      fossil_print(
+         "WARNING: %d merge conflicts - see messages above for details.\n",
+         nConflict);
     }
   }
   
@@ -445,7 +446,7 @@ void update_cmd(void){
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
-      checkout_set_all_exe(vid);
+      checkout_set_all_exe(tid);
       manifest_to_disk(tid);
       db_lset_int("checkout", tid);
     }else{
