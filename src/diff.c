@@ -760,12 +760,12 @@ void test_annotate_step_cmd(void){
 static void annotate_file(
   Annotator *p,        /* The annotator */
   int fnid,            /* The name of the file to be annotated */
-  int mid,             /* The specific version of the file for this step */
+  int mid,             /* Use the version of the file in this check-in */
   int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final version of the file */
+  Blob toAnnotate;     /* Text of the final (mid) version of the file */
   Blob step;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
@@ -780,7 +780,8 @@ static void annotate_file(
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
   db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
-  compute_ancestors(mid, 1000000000);
+  if( iLimit<=0 ) iLimit = 1000000000;
+  compute_direct_ancestors(mid, iLimit);
   annotation_start(p, &toAnnotate);
 
   db_prepare(&q, 
@@ -788,11 +789,11 @@ static void annotate_file(
     "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
-    "  FROM mlink, event"
+    "  FROM ancestor, mlink, event"
     " WHERE mlink.fnid=%d"
-    "   AND mlink.mid IN ok"
-    "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime DESC"
+    "   AND mlink.mid=ancestor.rid"
+    "   AND event.objid=ancestor.rid"
+    " ORDER BY ancestor.generation ASC"
     " LIMIT %d",
     (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
     fnid,

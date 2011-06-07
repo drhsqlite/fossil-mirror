@@ -1,5 +1,5 @@
-C Merge\sthe\svenks-emacs\schanges\sinto\strunk.
-D 2011-06-07T02:09:13.905
+C Improvements\sto\sthe\s"annotate"\salgorithm:\s\sOnly\ssearch\sprimary\sancestors;\nignore\sbranchs.
+D 2011-06-07T15:51:01.833
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,8 +54,8 @@ F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c 3b146d0082183b241cc5ac217499dc480cb797ee
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c db3876b79a45db59a6a2dd973f036e152a809b17
-F src/diff.c 7cdb9de46d8d515bc7051b10f6ecd0a9e87823e3
+F src/descendants.c 7b5983f632113900bb1639f2e367c8e8e03dfaa7
+F src/diff.c 5dfb1d6ff82ee2b015ab3e5cd567572c208bab77
 F src/diffcmd.c f9bf7dd9728f62797981c5560a40459008049959
 F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fd6f1c5e619fc297da692db468c839c33efec983 690ba8cbdb20c57c35f41aca4210a3dbf95ba7dd
-R 157de200ef91e51ec00b51fec4c9ab13
+P fbf417b681c35b9c4ec415bb3bd906a796ab263d
+R 02f108ad1b62bbd963460ae5ebd67ca0
 U drh
-Z dbec2e008ca66dee682ba86dbd47805f
+Z 3ad1a6c7b00141a95289fe7985fb54a2
