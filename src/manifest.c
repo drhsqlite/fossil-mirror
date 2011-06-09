@@ -344,7 +344,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   /* Every control artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
   */
-  z = blob_buffer(pContent);
+  z = blob_materialize(pContent);
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
     blob_reset(pContent);
