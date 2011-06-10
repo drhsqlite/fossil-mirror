@@ -1,5 +1,5 @@
-C Make\ssure\sthe\scontent\sof\sa\smanifest\shas\sbeen\smaterialized\sand\sis\snot\sa\ncopy-or-write\ssegment\sof\sanother\sblob\sprior\sto\sparsing\sit.\nTicket\s[9c3e2a224b6b0055]
-D 2011-06-09T19:20:45.358
+C When\screating\smanifest\sfiles\sas\spart\sof\sa\s"fossil\simport"\scommand,\sensure\sthat\s"T"\scards\sare\sadded\sin\ssorted\sorder,\sand\sthat\sthere\sare\sno\sduplicates.
+D 2011-06-10T15:14:18.295
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -70,7 +70,7 @@ F src/http.c ebc84ad16a8bfa99068c57b6d76799839806e994
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
-F src/import.c 1454967a1c5c4351078f6e9fc1d726cccd3a1170
+F src/import.c fd731ed08e2c891da937132417ea620dffb91652
 F src/info.c a0414c3e616225c5c45f747cc25823f6f3e1c191
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 621be704940afeef6d02c3615c07a2ee4f54edfc
-R c9ce0e044d30d29aca99387e42eaa5ae
-U drh
-Z 36881da56219351ab64e62ec811ac115
+P 05389804886bba19776938c5350e0043a1f97239
+R 9e9ea31b0b2619a26c8b2842fd5bba79
+U dan
+Z 678f497825f70822d2b28812a6f43da3
