@@ -1,8 +1,9 @@
-C When\screating\smanifest\sfiles\sas\spart\sof\sa\s"fossil\simport"\scommand,\sensure\sthat\s"T"\scards\sare\sadded\sin\ssorted\sorder,\sand\sthat\sthere\sare\sno\sduplicates.
-D 2011-06-10T15:14:18.295
+C Add\svery\sbasic\sconfigure\sscript.\sIt\sis\sjust\schecking\sfor\szlib,\sOpenSSL\nand\sthe\sUSE_PREAD\ssupport\son\sthe\sBSDs.
+D 2011-06-14T17:09:01.701
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
+F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd w Makefile
+F acsite.m4 59cd6e30a7b4525151dd3f6a1576fab5fc98ed14
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -26,8 +27,14 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
+F autoconf/ax_check_openssl.m4 59cd6e30a7b4525151dd3f6a1576fab5fc98ed14
+F autoconf/config.guess 1e43fbb7c1ac273e7fe71e5c54d9f3ba72201247 x
+F autoconf/config.sub 62c90261de715cc1a03e6b4b322b3e98e1c22401 x
+F autoconf/install-sh d30e962a3de2da09ab0a9a7979bee787922464a1 x
+F autoconfig.h.in 0cc3a5c87737ffdac81b50f300a702f9f4df9884
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
+F configure.ac df9483629c078001c806e56c503da7cba92c1262
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
@@ -48,7 +55,7 @@ F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h c7e77ab48c7e036968cb160514dbb2dfb9b78285
+F src/config.h fe538681bc83eddcf0362fa4e8c784fa333279ac
 F src/configure.c d25fdad7f33b47b9997bb099a2237132cddc6b32
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c 3b146d0082183b241cc5ac217499dc480cb797ee
@@ -304,7 +311,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 05389804886bba19776938c5350e0043a1f97239
-R 9e9ea31b0b2619a26c8b2842fd5bba79
-U dan
-Z 678f497825f70822d2b28812a6f43da3
+P 6ed7ceb1dee5b273d02aca78a2b313e443e9f98f
+R 4ae3d23633188d75af70f193be5dde37
+T *branch * autoconf
+T *sym-autoconf *
+T -sym-trunk *
+U joerg
+Z ff53c26e211ffddb8f749f88887d52b2

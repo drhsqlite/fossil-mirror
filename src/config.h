@@ -27,6 +27,10 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+#ifdef HAVE_AUTOCONFIG_H
+#include "autoconfig.h"
+#endif
+
 #ifndef _RC_COMPILE_
 
 /*
