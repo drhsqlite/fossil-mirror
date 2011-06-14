@@ -192,7 +192,7 @@ static void showTags(int rid, const char *zNotGlob){
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
-    " ORDER BY tagname", rid, rid, rid, zNotGlob
+    " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -527,7 +527,7 @@ void ci_page(void){
        "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
-       " ORDER BY name",
+       " ORDER BY name /*sort*/",
        rid
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -1792,7 +1792,7 @@ void ci_edit_page(void){
      "SELECT tag.tagid, tagname FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
-     "               ELSE tagname END",
+     "               ELSE tagname END /*sort*/",
      rid
   );
   while( db_step(&q)==SQLITE_ROW ){

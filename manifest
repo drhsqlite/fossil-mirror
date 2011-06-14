@@ -1,5 +1,5 @@
-C A\svery\ssimple\scommit\sfix.
-D 2011-06-14T22:16:10.977
+C Disable\sseveral\swarnings\sabout\ssorting\sw/o\san\sindex.
+D 2011-06-14T22:31:14.920
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -71,7 +71,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c fd731ed08e2c891da937132417ea620dffb91652
-F src/info.c a0414c3e616225c5c45f747cc25823f6f3e1c191
+F src/info.c dd94c1894455512306a69e52299ab5d85dc6bb6c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c 1eca048ed8215aec25a7420cda56aae2b00281b6
@@ -113,7 +113,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 7cce3df7172b3151c2c42724636ef3ef1535261d
+F src/timeline.c 0d336601e0e9ee8518f8657a693095e73d4d5da3
 F src/tkt.c fb1bc562c01307402848c375b999475dc7408522
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 6ed7ceb1dee5b273d02aca78a2b313e443e9f98f
-R d439acb086c275b1e7a189c1ba5cd410
+P 3a610a3980eb098767790ac91a13968f5864ff5d
+R c29f57b46608b0e8ff2bafc760812a57
 U drh
-Z 4390f2b08df4abdcafc9914304de500b
+Z 61b321d288bfa002ad1313ae7d1a5ad1

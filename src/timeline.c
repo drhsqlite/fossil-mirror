@@ -335,7 +335,7 @@ void www_print_timeline(
           "       (SELECT uuid FROM blob WHERE rid=pid)"
           "  FROM mlink"
           " WHERE mid=:mid AND pid!=fid"
-          " ORDER BY 3"
+          " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
       }
