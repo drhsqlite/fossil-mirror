@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.67)
+AC_PREREQ(2.62)
 AC_INIT([fossil], [20110528], [joerg@NetBSD.org])
 AC_CONFIG_SRCDIR([src/schema.c])
 AC_CONFIG_AUX_DIR([autoconf])

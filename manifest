@@ -1,5 +1,5 @@
-C Add\sMakefile.in\sforgotten\sin\s[8559c781c2].
-D 2011-06-14T17:21:33.952
+C Change\sthe\sminimum\srequired\sautoconf\sfrom\s2.67\sto\s2.62.
+D 2011-06-14T17:24:36.155
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -35,7 +35,7 @@ F autoconf/install-sh d30e962a3de2da09ab0a9a7979bee787922464a1 x
 F autoconfig.h.in 0cc3a5c87737ffdac81b50f300a702f9f4df9884
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
-F configure.ac 6654d2e4f93f2f531e4001a70d73c77ed3e84fad
+F configure.ac f9091444bc50c7b2b00b7112a3955606e5b7f006
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
@@ -312,7 +312,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 8079974223c4a27e37bbd138a974804b891f61a2
-R 17b1417993dd7547f0f1f61c85232bc2
-U joerg
-Z e3959d23ac67d6dccaeb8d8200782ff9
+P dcda2dbcb0d85f9c063a07ed2c6a1628bedb4b0a
+R 47f44541ede8081abeecbc2c7dbdb670
+U drh
+Z 78447b3aebbe2496bf836ed5ed79fc8d
