@@ -368,7 +368,7 @@ void find_filename_changes(
   *aiChng = 0;
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 0);
+  p = path_shortest(iFrom, iTo, 1);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
