@@ -1,5 +1,5 @@
-C When\sdoing\sa\smerge,\sonly\sfollow\sdirect\sancestor\slinks\swhen\scomputing\sthe\nset\sof\sfilename\schanges.\s\sDo\snot\sfollow\smerge\slinks\sas\sthis\scan\sresult\nin\snon-intuitive\schanges.\s\sTicket\s[554f44ee74e3d3b].
-D 2011-06-14T23:59:04.457
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.7\sbeta.
+D 2011-06-15T15:22:45.778
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -101,8 +101,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c ac2015ba7c5d46d5c2ef3b1e77b55790aca67c8b
-F src/sqlite3.h 7fd3a5460f61a93c54de9ef6f03fc89847f671f4
+F src/sqlite3.c 5d42bc9f8841582b4ad4c2012cbd5cdf2a1d6ab6
+F src/sqlite3.h ce4de741a5bf3e2fdd70804e677406e1b4e1e148
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b893eb0dad8744c13b24de4e22736a5026b93075
-R 8540ddb677f82a0b87bcab020c95ecb1
+P 1c4d1272a621bbd58b39d034698b872109653ed8
+R 040881da93e93a45c39706dad6b6839b
 U drh
-Z a3a28f6f99a5ec475fbae8b921f0d4f5
+Z 1e40e501f801aaee6648898ffe4dc6f2
