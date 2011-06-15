@@ -1,5 +1,5 @@
-C Change\sthe\sminimum\srequired\sautoconf\sfrom\s2.67\sto\s2.62.
-D 2011-06-14T17:24:36.155
+C Add\sthe\sconfigure\sscript\sand\smerge\sin\sthe\slatest\strunk\schanges.
+D 2011-06-15T15:33:54.300
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -35,6 +35,7 @@ F autoconf/install-sh d30e962a3de2da09ab0a9a7979bee787922464a1 x
 F autoconfig.h.in 0cc3a5c87737ffdac81b50f300a702f9f4df9884
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
+F configure 558056760d2c53d1824419d09a4314493dbb64a5 x
 F configure.ac f9091444bc50c7b2b00b7112a3955606e5b7f006
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
@@ -79,10 +80,10 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c fd731ed08e2c891da937132417ea620dffb91652
-F src/info.c a0414c3e616225c5c45f747cc25823f6f3e1c191
+F src/info.c dd94c1894455512306a69e52299ab5d85dc6bb6c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
-F src/main.c 05527f62197673bd8a56c63f24ee745a4b9254de
+F src/main.c 1eca048ed8215aec25a7420cda56aae2b00281b6
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -93,7 +94,7 @@ F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
-F src/path.c acd6b62bd68b996e06c05632b6c9ef2a707fa043
+F src/path.c acae303e1948b06c17c24dc22e5eace7c593f4a7
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 3108112a75a769f3c70c08a2698552d6811938e4
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
@@ -109,8 +110,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c ac2015ba7c5d46d5c2ef3b1e77b55790aca67c8b
-F src/sqlite3.h 7fd3a5460f61a93c54de9ef6f03fc89847f671f4
+F src/sqlite3.c 5d42bc9f8841582b4ad4c2012cbd5cdf2a1d6ab6
+F src/sqlite3.h ce4de741a5bf3e2fdd70804e677406e1b4e1e148
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c d39d37df9b15689a7bce84dd43a7f8eff6948a23
 F src/style.c 903ed76753bc7d4a917886410a7b900c02462fd3
@@ -121,7 +122,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 7cce3df7172b3151c2c42724636ef3ef1535261d
+F src/timeline.c 0d336601e0e9ee8518f8657a693095e73d4d5da3
 F src/tkt.c fb1bc562c01307402848c375b999475dc7408522
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -312,7 +313,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P dcda2dbcb0d85f9c063a07ed2c6a1628bedb4b0a
-R 47f44541ede8081abeecbc2c7dbdb670
+P 0241d75a90665e58e3fdf18646d7dcc0cfac6202 dbe1e68e43487bff2250b9a48c07cdda9339f7b4
+R fa87e3183a96f7c2e9b82cba4c037fb0
 U drh
-Z 78447b3aebbe2496bf836ed5ed79fc8d
+Z c758087af86bd20c9c0ab5d728bb4b62
