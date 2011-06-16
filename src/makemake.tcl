@@ -671,14 +671,14 @@ all: $(OX) $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX) 
-	link -LINK -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
-writeln -nonewline "\techo "
-foreach s [lsort $src] {
-  writeln -nonewline "$s "
+set redir {>}
+foreach s [lsort [concat $src {shell sqlite3 th th_lang}]] {
+  writeln "\techo \$(OX)\\$s.obj $redir \$@"
+  set redir {>>}
 }
-writeln "sqlite3 th th_lang > \$@"
 writeln "\techo \$(LIBS) >> \$@\n\n"
 
 writeln {
@@ -699,7 +699,7 @@ version$E: $B\win\version.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c shell_.c
+	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**

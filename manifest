@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.7\sbeta.
-D 2011-06-15T15:22:45.778
+C Updates\sto\sthe\sVC++\smakefile.
+D 2011-06-16T19:51:43.701
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -78,7 +78,7 @@ F src/main.c 1eca048ed8215aec25a7420cda56aae2b00281b6
 F src/main.mk 6d12250ed10c0c7707ae5cc23432bcbb151fb6c0
 F src/makeheaders.c 00102ec956d080ce49a927ea55393c0e869367bb
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl b99d70140b58684ed05f20821106e9a50d87ced1
+F src/makemake.tcl 8d0437fb72dbad383b9f648d7a7fe0d9f737e8ca
 F src/manifest.c 8ebc92c0dec9f5270413de3f3445e3b03a411055
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
@@ -197,7 +197,7 @@ F win/Makefile.PellesCGMake 3e6e5c5a941dc49cec4d84a477cf9f5d44f3c397
 F win/Makefile.dmc af0b2bdb9ec6230214e19a6b88e94d3cdd0174d2
 F win/Makefile.mingw 63f1a1357af4e0cbb4d278ed012ac25a9cec6a0f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc ca499d57b825f40b7f72f37da236ec38dc2e76cc
+F win/Makefile.msc 2c2847271c765d8879c3fbb13fad7edc928bddd0
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -304,7 +304,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 1c4d1272a621bbd58b39d034698b872109653ed8
-R 040881da93e93a45c39706dad6b6839b
+P dbe1e68e43487bff2250b9a48c07cdda9339f7b4
+R a568c9525c99d86117b6af5263503d25
 U drh
-Z 1e40e501f801aaee6648898ffe4dc6f2
+Z c982216929d66a8cbdbac9a2df0fb217

@@ -49,10 +49,95 @@ all: $(OX) $(APPNAME)
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	cd $(OX) 
-	link -LINK -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
-	echo add allrepo attach bag bisect blob branch browse captcha cgi checkin checkout clearsign clone comformat configure content db delta deltacmd descendants diff diffcmd doc encode event export file finfo glob graph gzip http http_socket http_ssl http_transport import info leaf login main manifest md5 merge merge3 name path pivot popen pqueue printf rebuild report rss schema search setup sha1 shun skins sqlcmd stash stat style sync tag tar th_main timeline tkt tktsetup undo update url user verify vfile wiki wikiformat winhttp xfer zip sqlite3 th th_lang > $@
+	echo $(OX)\add.obj > $@
+	echo $(OX)\allrepo.obj >> $@
+	echo $(OX)\attach.obj >> $@
+	echo $(OX)\bag.obj >> $@
+	echo $(OX)\bisect.obj >> $@
+	echo $(OX)\blob.obj >> $@
+	echo $(OX)\branch.obj >> $@
+	echo $(OX)\browse.obj >> $@
+	echo $(OX)\captcha.obj >> $@
+	echo $(OX)\cgi.obj >> $@
+	echo $(OX)\checkin.obj >> $@
+	echo $(OX)\checkout.obj >> $@
+	echo $(OX)\clearsign.obj >> $@
+	echo $(OX)\clone.obj >> $@
+	echo $(OX)\comformat.obj >> $@
+	echo $(OX)\configure.obj >> $@
+	echo $(OX)\content.obj >> $@
+	echo $(OX)\db.obj >> $@
+	echo $(OX)\delta.obj >> $@
+	echo $(OX)\deltacmd.obj >> $@
+	echo $(OX)\descendants.obj >> $@
+	echo $(OX)\diff.obj >> $@
+	echo $(OX)\diffcmd.obj >> $@
+	echo $(OX)\doc.obj >> $@
+	echo $(OX)\encode.obj >> $@
+	echo $(OX)\event.obj >> $@
+	echo $(OX)\export.obj >> $@
+	echo $(OX)\file.obj >> $@
+	echo $(OX)\finfo.obj >> $@
+	echo $(OX)\glob.obj >> $@
+	echo $(OX)\graph.obj >> $@
+	echo $(OX)\gzip.obj >> $@
+	echo $(OX)\http.obj >> $@
+	echo $(OX)\http_socket.obj >> $@
+	echo $(OX)\http_ssl.obj >> $@
+	echo $(OX)\http_transport.obj >> $@
+	echo $(OX)\import.obj >> $@
+	echo $(OX)\info.obj >> $@
+	echo $(OX)\leaf.obj >> $@
+	echo $(OX)\login.obj >> $@
+	echo $(OX)\main.obj >> $@
+	echo $(OX)\manifest.obj >> $@
+	echo $(OX)\md5.obj >> $@
+	echo $(OX)\merge.obj >> $@
+	echo $(OX)\merge3.obj >> $@
+	echo $(OX)\name.obj >> $@
+	echo $(OX)\path.obj >> $@
+	echo $(OX)\pivot.obj >> $@
+	echo $(OX)\popen.obj >> $@
+	echo $(OX)\pqueue.obj >> $@
+	echo $(OX)\printf.obj >> $@
+	echo $(OX)\rebuild.obj >> $@
+	echo $(OX)\report.obj >> $@
+	echo $(OX)\rss.obj >> $@
+	echo $(OX)\schema.obj >> $@
+	echo $(OX)\search.obj >> $@
+	echo $(OX)\setup.obj >> $@
+	echo $(OX)\sha1.obj >> $@
+	echo $(OX)\shell.obj >> $@
+	echo $(OX)\shun.obj >> $@
+	echo $(OX)\skins.obj >> $@
+	echo $(OX)\sqlcmd.obj >> $@
+	echo $(OX)\sqlite3.obj >> $@
+	echo $(OX)\stash.obj >> $@
+	echo $(OX)\stat.obj >> $@
+	echo $(OX)\style.obj >> $@
+	echo $(OX)\sync.obj >> $@
+	echo $(OX)\tag.obj >> $@
+	echo $(OX)\tar.obj >> $@
+	echo $(OX)\th.obj >> $@
+	echo $(OX)\th_lang.obj >> $@
+	echo $(OX)\th_main.obj >> $@
+	echo $(OX)\timeline.obj >> $@
+	echo $(OX)\tkt.obj >> $@
+	echo $(OX)\tktsetup.obj >> $@
+	echo $(OX)\undo.obj >> $@
+	echo $(OX)\update.obj >> $@
+	echo $(OX)\url.obj >> $@
+	echo $(OX)\user.obj >> $@
+	echo $(OX)\verify.obj >> $@
+	echo $(OX)\vfile.obj >> $@
+	echo $(OX)\wiki.obj >> $@
+	echo $(OX)\wikiformat.obj >> $@
+	echo $(OX)\winhttp.obj >> $@
+	echo $(OX)\xfer.obj >> $@
+	echo $(OX)\zip.obj >> $@
 	echo $(LIBS) >> $@
 
 
@@ -74,7 +159,7 @@ version$E: $B\win\version.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c shell_.c
+	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
