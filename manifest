@@ -1,5 +1,5 @@
-C Add\sthe\sconfigure\sscript\sand\smerge\sin\sthe\slatest\strunk\schanges.
-D 2011-06-15T15:33:54.300
+C Fix\san\sissue\swith\sthe\sVC++\smakefile.
+D 2011-06-16T18:10:54.551
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -206,7 +206,7 @@ F win/Makefile.PellesCGMake 3e6e5c5a941dc49cec4d84a477cf9f5d44f3c397
 F win/Makefile.dmc af0b2bdb9ec6230214e19a6b88e94d3cdd0174d2
 F win/Makefile.mingw 63f1a1357af4e0cbb4d278ed012ac25a9cec6a0f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc ca499d57b825f40b7f72f37da236ec38dc2e76cc
+F win/Makefile.msc 9ce6ef367c92cd86058a0da0837c52015d2a9bde
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -313,7 +313,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0241d75a90665e58e3fdf18646d7dcc0cfac6202 dbe1e68e43487bff2250b9a48c07cdda9339f7b4
-R fa87e3183a96f7c2e9b82cba4c037fb0
+P 57ca24966f88c1f36fd433eb3ecef48e665786c7
+R 92fcf2c5c772e85f9e4e60c3f713f139
 U drh
-Z c758087af86bd20c9c0ab5d728bb4b62
+Z d475e8c54caa5cbc09bc1c95dd14d1f0
