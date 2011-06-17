@@ -674,6 +674,7 @@ void file_tempname(int nBuf, char *zBuf){
     "0123456789";
   unsigned int i, j;
   const char *zDir = ".";
+  int cnt = 0;
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
     if( !file_isdir(azDirs[i]) ) continue;
@@ -689,6 +690,7 @@ void file_tempname(int nBuf, char *zBuf){
   }
 
   do{
+    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
     sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
     j = (int)strlen(zBuf);
     sqlite3_randomness(15, &zBuf[j]);
@@ -696,7 +698,7 @@ void file_tempname(int nBuf, char *zBuf){
       zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
     }
     zBuf[j] = 0;
-  }while( file_size(zBuf)<0 );
+  }while( file_size(zBuf)>=0 );
 }
 
 
