@@ -10,9 +10,10 @@ if {![regexp {not within an open checkout} $res]} {
   return
 }
 
-#################
-#  Test 1       #
-#################
+######################################
+#  Test 1                            #
+#  Reported: Ticket [554f44ee74e3d]  #
+######################################
 
 fossil new rep.fossil
 fossil open rep.fossil
@@ -38,7 +39,6 @@ write_file f1 "line6"
 fossil commit -m "c4"
 
 fossil update pivot
-puts $RESULT
 fossil mv f1 f2
 exec mv f1 f2
 fossil commit -b rename -m "c5"
@@ -54,13 +54,72 @@ fossil commit -b branch2 -m "newbranch"
 fossil merge trunk
 puts $RESULT
 
-# Not a nice way to check, but I don't know more tcl now
+set deletes 0
 foreach {status filename} $RESULT {
-    if {$status=="DELETED"} {
-        protOut "Error, the merge should not delete any file"
-        test merge_renames-1 0
-    }
-    if {$status=="UPDATE"} {
-        test merge_renames-1 1
+    if {$status=="DELETE"} {
+        set deletes [expr $deletes + 1]
     }
 }
+
+if {$deletes!=0} {
+    # failed
+    protOut "Error, the merge should not delete any file"
+    test merge_renames-1 0
+} else {
+    test merge_renames-1 1
+}
+
+fossil close -f
+exec rm rep.fossil
+
+######################################
+#  Test 2                            #
+#  Reported: Ticket [74413366fe5067] #
+######################################
+
+fossil new rep.fossil
+fossil open rep.fossil
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "base file"
+fossil tag add pivot current
+
+write_file f2 "line2"
+fossil add f2
+fossil commit -m "newfile"
+
+fossil mv f2 f2new
+exec mv f2 f2new
+fossil commit -m "rename"
+
+fossil update pivot
+write_file f1 "line3"
+fossil commit -b branch -m "change"
+
+fossil merge trunk
+fossil commit -m "trunk merged"
+
+fossil update trunk
+
+fossil merge branch
+puts $RESULT
+
+# Not a nice way to check, but I don't know more tcl now
+set deletes 0
+foreach {status filename} $RESULT {
+    if {$status=="DELETE"} {
+        set deletes [expr $deletes + 1]
+    }
+}
+
+if {$deletes!=0} {
+    # failed
+    protOut "Error, the merge should not delete any file"
+    test merge_renames-2 0
+} else {
+    test merge_renames-2 1
+}
+
+fossil close -f
+exec rm rep.fossil
