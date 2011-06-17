@@ -1,0 +1,66 @@
+#
+# Tests for merging with renames
+# 
+#
+
+catch {exec $::fossilexe info} res
+puts res=$res
+if {![regexp {not within an open checkout} $res]} {
+  puts stderr "Cannot run this test within an open checkout"
+  return
+}
+
+#################
+#  Test 1       #
+#################
+
+fossil new rep.fossil
+fossil open rep.fossil
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "c1"
+fossil tag add pivot current
+
+write_file f1 "line2"
+fossil commit -m "c2"
+
+write_file f1 "line3"
+fossil commit -m "c3"
+
+write_file f1 "line4"
+fossil commit -m "c4"
+
+write_file f1 "line5"
+fossil commit -m "c4"
+
+write_file f1 "line6"
+fossil commit -m "c4"
+
+fossil update pivot
+puts $RESULT
+fossil mv f1 f2
+exec mv f1 f2
+fossil commit -b rename -m "c5"
+
+fossil merge trunk
+fossil commit -m "trunk merged"
+
+fossil update pivot
+write_file f3 "someline"
+fossil add f3
+fossil commit -b branch2 -m "newbranch"
+
+fossil merge trunk
+puts $RESULT
+
+# Not a nice way to check, but I don't know more tcl now
+foreach {status filename} $RESULT {
+    if {$status=="DELETED"} {
+        protOut "Error, the merge should not delete any file"
+        test merge_renames-1 0
+    }
+    if {$status=="UPDATE"} {
+        test merge_renames-1 1
+    }
+}
