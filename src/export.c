@@ -41,7 +41,7 @@ static void print_person(const char *zUser){
     db_reset(&q);
     for(i=0; zUser[i] && zUser[i]!='>' && zUser[i]!='<'; i++){}
     if( zUser[i]==0 ){
-      printf(" <%s>", zUser);
+      printf(" %s <%s>", zUser, zUser);
       return;
     }
     zName = mprintf("%s", zUser);
@@ -58,7 +58,7 @@ static void print_person(const char *zUser){
   zContact = db_column_text(&q, 0);
   for(i=0; zContact[i] && zContact[i]!='>' && zContact[i]!='<'; i++){}
   if( zContact[i]==0 ){
-    printf(" %s <%s>", zContact, zUser);
+    printf(" %s <%s>", zContact[0] ? zContact : zUser, zUser);
     db_reset(&q);
     return;
   }
@@ -198,14 +198,21 @@ void export_cmd(void){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 0);
+    char *zEncoded = 0;
     int rid = db_column_int(&q, 1);
     const char *zSecSince1970 = db_column_text(&q, 2);
+    int i;
     if( rid==0 || !bag_find(&vers, rid) ) continue;
     zTagname += 4;
-    printf("tag %s\n", zTagname);
+    zEncoded = mprintf("%s", zTagname);
+    for(i=0; zEncoded[i]; i++){
+      if( !fossil_isalnum(zEncoded[i]) ) zEncoded[i] = '_';
+    }
+    printf("tag %s\n", zEncoded);
     printf("from :%d\n", rid+firstCkin);
     printf("tagger <tagger> %s +0000\n", zSecSince1970);
     printf("data 0\n");
+    fossil_free(zEncoded);
   }
   db_finalize(&q);
   bag_clear(&vers);
