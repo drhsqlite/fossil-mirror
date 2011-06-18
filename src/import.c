@@ -210,6 +210,15 @@ static int mfile_cmp(const void *pLeft, const void *pRight){
   return fossil_strcmp(pA->zName, pB->zName);
 }
 
+/*
+** Compare two strings for sorting.
+*/
+static int string_cmp(const void *pLeft, const void *pRight){
+  const char *zLeft = *(char const **)pLeft;
+  const char *zRight = *(char const **)pRight;
+  return fossil_strcmp(zLeft, zRight);
+}
+
 /* Forward reference */
 static void import_prior_files(void);
 
@@ -220,7 +229,10 @@ static void import_prior_files(void);
 static void finish_commit(void){
   int i;
   char *zFromBranch;
+  char *aTCard[4];                /* Array of T cards for manifest */
+  int nTCard = 0;                 /* Entries used in aTCard[] */
   Blob record, cksum;
+
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
@@ -247,17 +259,29 @@ static void finish_commit(void){
   }else{
     zFromBranch = 0;
   }
+
+  /* Add the required "T" cards to the manifest. Make sure they are added
+  ** in sorted order and without any duplicates. Otherwise, fossil will not
+  ** recognize the document as a valid manifest. */
   if( !gg.tagCommit && fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
-    blob_appendf(&record, "T *branch * %F\n", gg.zBranch);
-    blob_appendf(&record, "T *sym-%F *\n", gg.zBranch);
+    aTCard[nTCard++] = mprintf("T *branch * %F\n", gg.zBranch);
+    aTCard[nTCard++] = mprintf("T *sym-%F *\n", gg.zBranch);
     if( zFromBranch ){
-      blob_appendf(&record, "T -sym-%F *\n", zFromBranch);
+      aTCard[nTCard++] = mprintf("T -sym-%F *\n", zFromBranch);
     }
   }
-  free(zFromBranch);
   if( gg.zFrom==0 ){
-    blob_appendf(&record, "T *sym-trunk *\n");
+    aTCard[nTCard++] = mprintf("T *sym-trunk *\n");
   }
+  qsort(aTCard, nTCard, sizeof(char *), string_cmp);
+  for(i=0; i<nTCard; i++){
+    if( i==0 || fossil_strcmp(aTCard[i-1], aTCard[i]) ){
+      blob_appendf(&record, "%s", aTCard[i]);
+    }
+  }
+  for(i=0; i<nTCard; i++) free(aTCard[i]);
+
+  free(zFromBranch);
   db_multi_exec("INSERT INTO xbranch(tname, brnm) VALUES(%Q,%Q)",
                 gg.zMark, gg.zBranch);
   blob_appendf(&record, "U %F\n", gg.zUser);

@@ -128,7 +128,7 @@ $(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # compile special windows utils
-version.obj:	$(WINDIR)version.c
+version.obj:	$(SRCDIR)mkversion.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # generate the translated c-source files

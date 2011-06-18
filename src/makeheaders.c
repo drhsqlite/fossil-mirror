@@ -3068,7 +3068,7 @@ static InFile *CreateInFile(char *zArg, int *pnErr){
     int nHdr;
     char *zHdr;
     zHdr = &zSrc[nSrc+1];
-    for(nHdr=0; zHdr[nHdr] && zHdr[nHdr]!=':'; nHdr++){}
+    for(nHdr=0; zHdr[nHdr]; nHdr++){}
     pFile->zHdr = StrDup(zHdr,nHdr);
   }
 

@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include "file.h"
 
 /*
@@ -201,8 +203,9 @@ int file_setexe(const char *zFilename, int onoff){
   struct stat buf;
   if( stat(zFilename, &buf)!=0 ) return 0;
   if( onoff ){
-    if( (buf.st_mode & 0111)!=0111 ){
-      chmod(zFilename, buf.st_mode | 0111);
+    int targetMode = (buf.st_mode & 0444)>>2;
+    if( (buf.st_mode & 0111)!=targetMode ){
+      chmod(zFilename, buf.st_mode | targetMode);
       rc = 1;
     }
   }else{
@@ -398,7 +401,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int i;
   char zPwd[2000];
   if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-1);
+    fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
@@ -410,7 +413,12 @@ void file_getcwd(char *zBuf, int nBuf){
   fossil_mbcs_free(zPwdUtf8);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    if( errno==ERANGE ){
+      fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    }else{
+      fossil_fatal("cannot find current working directory; %s",
+                   strerror(errno));
+    }
   }
 #endif
 }
@@ -673,6 +681,7 @@ void file_tempname(int nBuf, char *zBuf){
     "0123456789";
   unsigned int i, j;
   const char *zDir = ".";
+  int cnt = 0;
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
     if( !file_isdir(azDirs[i]) ) continue;
@@ -688,6 +697,7 @@ void file_tempname(int nBuf, char *zBuf){
   }
 
   do{
+    if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
     sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
     j = (int)strlen(zBuf);
     sqlite3_randomness(15, &zBuf[j]);
@@ -695,7 +705,7 @@ void file_tempname(int nBuf, char *zBuf){
       zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
     }
     zBuf[j] = 0;
-  }while( file_size(zBuf)<0 );
+  }while( file_size(zBuf)>=0 );
 }
 
 

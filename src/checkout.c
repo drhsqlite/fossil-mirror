@@ -77,16 +77,6 @@ int load_vfile(const char *zName){
 }
 
 /*
-** Load a vfile from a record ID.
-*/
-void load_vfile_from_rid(int vid){
-  if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
-  }
-  vfile_build(vid);
-}
-
-/*
 ** Set or clear the vfile.isexe flag for a file.
 */
 static void set_or_clear_isexe(const char *zFilename, int vid, int onoff){
