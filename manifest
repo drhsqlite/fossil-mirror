@@ -1,5 +1,5 @@
-C Update\sthe\srelease-test\sdocument.\s\sAdd\sa\sChange\sLog.
-D 2011-06-18T18:30:41.454
+C Updates\sto\sthe\s"Quick\sStart"\sdocumentation.
+D 2011-06-18T19:29:17.006
 F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -291,7 +291,7 @@ F www/permutedindex.wiki b6550b081be95c529112adbf525e412f57262c7b
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
-F www/quickstart.wiki b0dd01611beff928c62a1cf10bd3775013bef7cc
+F www/quickstart.wiki 3b877d274455a3e46816b8e1889adddcf271bd0d
 F www/quotes.wiki e18c691ce7d283772c8256e98ab41b05ced53188
 F www/reference.wiki 2a9b5ee73dea203720861c5a19358c1bcc580393
 F www/reviews.wiki c6a9214755235014ed57de3b7689d0b33976573c
@@ -306,7 +306,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2d50893dd8653fa68fe29e1f6c7c5b473549f21b
-R 3f44eb8e6c70f770a50dd55a135485fa
+P a992b276e19821028e7edb08012da6c18cd99377
+R 555dcd210d567fd28fe82bb917930f17
 U drh
-Z ab884db66bff1a2a6da35db79228a8fd
+Z c015a2515f972cae14c50fe880517fac
