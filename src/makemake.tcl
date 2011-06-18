@@ -178,20 +178,19 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
+$(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
+	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
 # the repository after running the tests.
 test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
-	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}' \
-		$(SRCDIR)/../manifest.uuid >$(OBJDIR)/VERSION.h
-	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}' \
-		$(SRCDIR)/../manifest.uuid >>$(OBJDIR)/VERSION.h
-	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n",\
-		substr($$2,1,10),substr($$2,12,8)}' \
-		$(SRCDIR)/../manifest >>$(OBJDIR)/VERSION.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid \
+		$(SRCDIR)/../manifest \
+		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 EXTRAOBJ = \
   $(OBJDIR)/sqlite3.o \
@@ -391,8 +390,8 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
-$(VERSION): $(SRCDIR)/../win/version.c
-	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/../win/version.c
+$(VERSION): $(SRCDIR)/mkversion.c
+	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/mkversion.c
 
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
@@ -558,7 +557,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\win\version.c
+version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
@@ -695,7 +694,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-version$E: $B\win\version.c
+version$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
@@ -882,7 +881,7 @@ $(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # compile special windows utils
-version.obj:	$(WINDIR)version.c
+version.obj:	$(SRCDIR)mkversion.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # generate the translated c-source files

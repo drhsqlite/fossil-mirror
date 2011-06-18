@@ -155,7 +155,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-version$E: $B\win\version.c
+version$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c

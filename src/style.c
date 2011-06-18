@@ -100,6 +100,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", g.zPath);
+  Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
@@ -247,7 +248,7 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] = 
 @ <div class="footer">
-@ Fossil version $manifest_version $manifest_date
+@ Fossil version $release_version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;

@@ -60,7 +60,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) -o$@ $**
 
-version$E: $B\win\version.c
+version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c

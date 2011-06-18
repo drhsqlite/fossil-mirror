@@ -353,8 +353,8 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
-$(VERSION): $(SRCDIR)/../win/version.c
-	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/../win/version.c
+$(VERSION): $(SRCDIR)/mkversion.c
+	$(BCC) -o $(OBJDIR)/version $(SRCDIR)/mkversion.c
 
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
