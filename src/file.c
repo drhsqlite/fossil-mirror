@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include "file.h"
 
 /*
@@ -399,7 +401,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int i;
   char zPwd[2000];
   if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-1);
+    fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
@@ -411,7 +413,12 @@ void file_getcwd(char *zBuf, int nBuf){
   fossil_mbcs_free(zPwdUtf8);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    if( errno==ERANGE ){
+      fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    }else{
+      fossil_fatal("cannot find current working directory; %s",
+                   strerror(errno));
+    }
   }
 #endif
 }
