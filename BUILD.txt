@@ -5,9 +5,14 @@ use the Makefile.  To do a complete build on unix, just type:
    make
 
 On a windows box, use one of the Makefiles in the win/ subdirectory,
-according to your compiler and environment.  For example:
+according to your compiler and environment.  If you have GCC and MSYS
+installed on your system, the consider:
 
-   make -f win/Makefile.w32
+   make -f win/Makefile.mingw
+
+If you have VC++ installed on your system, then consider:
+
+   cd win; nmake /f Makefile.msc
 
 If you have trouble, or you want to do something fancy, just look at
 top level makefile. There are 6 configuration options that are all well

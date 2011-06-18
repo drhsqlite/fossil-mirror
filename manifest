@@ -1,6 +1,6 @@
-C Fixes\sto\sthe\swindows\smakefiles\sto\ssupport\ssequential\sversion\snumbers.
-D 2011-06-18T17:02:50.346
-F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
+C Add\sa\s"Contributing"\slink\sto\sthe\shomepage.\s\sUpdate\sthe\sbuild\sdocumentation.
+D 2011-06-18T18:06:56.772
+F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F VERSION 675986782f23cff4d8faec3143ebeca6ed6e46e2
@@ -222,7 +222,7 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 19b8586f482baa8e4d7a5a32d5b1ce15fb6e5b99
+F www/build.wiki e131ba02925330aaba5af379e802a7da6621a557
 F www/checkin.wiki 4da78d129995e49acca38a9ff2744d08eb3aacc1
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -279,9 +279,9 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 1e324b967d5b4186b0d1d538521887c46289d636
+F www/index.wiki 2a621ae97082b6872b9ffa6db568d5667fbeeac8
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
-F www/makefile.wiki 80fbe3e7e68c60ac60189e28b42dfcb0a6170350
+F www/makefile.wiki 828f7eeb3ce559c7d1e1b0cc4dc26c55e66b43ff
 F www/mkdownload.tcl e0b19b52e2835e538dbd3f219bc483a201b39b92
 F www/mkindex.tcl da0d589ebda97b31a71147dd0c1e7e2dbb6fbb69
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
@@ -305,7 +305,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e0303181a568fe959aaa0fa69d6437ba9895fb3c
-R 8fabbb7dcc59ae33adfcc4d5f007d093
+P 30b0986d93c6d918acf3916fa3e52fe8b3457943
+R d18a0fc0776834c376ce7f622e212db0
 U drh
-Z f9444156c7aa4d32f6bcd310e3e172e6
+Z dbdd92ac2c1860c0b86250b13b2253d6
