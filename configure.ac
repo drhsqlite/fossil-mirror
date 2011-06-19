@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.62)
+AC_PREREQ(2.61)
 AC_INIT([fossil], [20110528], [joerg@NetBSD.org])
 AC_CONFIG_SRCDIR([src/schema.c])
 AC_CONFIG_AUX_DIR([autoconf])
@@ -47,6 +47,9 @@ AC_SEARCH_LIBS([socket],
                              [],
                              [-lnsl])])
 
+
+# Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
+AC_CHECK_FUNCS(getpassphrase)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -1,10 +1,10 @@
-C Fix\ssyntax\sin\sMakefile.in\sso\sit\sworks\swith\sSolaris\smake.
-D 2011-06-19T16:48:41.008
+C Require\sversion\s2.61\sof\sautoconf,\sthe\sversion\sinstalled\sby\sdefault\son\sMac\sOS\sX.\sChanges\sto\sget\sautoconf\sworking\sunder\sSolaris\s10:\sPrefer\ssystem\sversion\sof\sOpenSSL\sfound\sin\s/usr/sfw\sdirectory.\sCheck\sfor\sgetpassphrase\susing\sautoconf\srather\sthan\smaking\sassumptions\sin\sconfig.h.
+D 2011-06-19T16:52:26.650
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 865b34bb1ef2781341c6bae233e6b7d16853cafa
-F acsite.m4 59cd6e30a7b4525151dd3f6a1576fab5fc98ed14
+F acsite.m4 884a6c41201fcb3a0a876d11370e4eb24affb459
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -28,15 +28,15 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F autoconf/ax_check_openssl.m4 59cd6e30a7b4525151dd3f6a1576fab5fc98ed14
+F autoconf/ax_check_openssl.m4 884a6c41201fcb3a0a876d11370e4eb24affb459
 F autoconf/config.guess 1e43fbb7c1ac273e7fe71e5c54d9f3ba72201247 x
 F autoconf/config.sub 62c90261de715cc1a03e6b4b322b3e98e1c22401 x
 F autoconf/install-sh d30e962a3de2da09ab0a9a7979bee787922464a1 x
-F autoconfig.h.in 0cc3a5c87737ffdac81b50f300a702f9f4df9884
+F autoconfig.h.in ee651ca2afebe92f63d7faa0e3debbf4bb79b14d
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
-F configure 558056760d2c53d1824419d09a4314493dbb64a5 x
-F configure.ac f9091444bc50c7b2b00b7112a3955606e5b7f006
+F configure b791b58b4112985d69d97ec7fda04f7af32d9219 x
+F configure.ac cf3f287b684a8cef02294390c6916bd82809cb62
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
@@ -57,7 +57,7 @@ F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ae545cd563923496e196ea20fc792e5979d284e3
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h fe538681bc83eddcf0362fa4e8c784fa333279ac
+F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c d25fdad7f33b47b9997bb099a2237132cddc6b32
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c 3b146d0082183b241cc5ac217499dc480cb797ee
@@ -313,7 +313,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 57ca24966f88c1f36fd433eb3ecef48e665786c7
-R 180be1fbfb6d66404260149e7430f7c6
+P 4787336f2f70a40d464ce3bd6dce4679278cc84b
+R 5b7e398703b9584a8e8403038b7dea0c
 U ben
-Z f85401a5e9c86ff17948ee89354863b1
+Z f28ce16040ae1fec605a99ad76eee39a

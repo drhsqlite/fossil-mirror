@@ -62,8 +62,9 @@ AC_DEFUN([AX_CHECK_OPENSSL], [
             fi
 
             # no such luck; use some default ssldirs
+            # -- check /usr/sfw first to get the right OpenSSL on Solaris 10
             if ! $found; then
-                ssldirs="/usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
+                ssldirs="/usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
             fi
         ]
         )
