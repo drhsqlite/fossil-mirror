@@ -1,9 +1,9 @@
-C Add\sthe\sconfigure\sscript\sand\smerge\sin\sthe\slatest\strunk\schanges.
-D 2011-06-15T15:33:54.300
+C Fix\ssyntax\sin\sMakefile.in\sso\sit\sworks\swith\sSolaris\smake.
+D 2011-06-19T16:48:41.008
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 59e1e9382e98d8a226e8a354883855df00927f14
+F Makefile.in 865b34bb1ef2781341c6bae233e6b7d16853cafa
 F acsite.m4 59cd6e30a7b4525151dd3f6a1576fab5fc98ed14
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -313,7 +313,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0241d75a90665e58e3fdf18646d7dcc0cfac6202 dbe1e68e43487bff2250b9a48c07cdda9339f7b4
-R fa87e3183a96f7c2e9b82cba4c037fb0
-U drh
-Z c758087af86bd20c9c0ab5d728bb4b62
+P 57ca24966f88c1f36fd433eb3ecef48e665786c7
+R 180be1fbfb6d66404260149e7430f7c6
+U ben
+Z f85401a5e9c86ff17948ee89354863b1
