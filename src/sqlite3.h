@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.7"
 #define SQLITE_VERSION_NUMBER 3007007
-#define SQLITE_SOURCE_ID      "2011-06-15 13:11:06 f9750870ee04935f338e4d808900fee5a8b2b389"
+#define SQLITE_SOURCE_ID      "2011-06-20 23:51:33 e60eefc76fa5066720d76858f6cfca56365330ee"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -310,7 +310,7 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** argument.  ^If the callback function of the 3rd argument to
 ** sqlite3_exec() is not NULL, then it is invoked for each result row
 ** coming out of the evaluated SQL statements.  ^The 4th argument to
-** to sqlite3_exec() is relayed through to the 1st argument of each
+** sqlite3_exec() is relayed through to the 1st argument of each
 ** callback invocation.  ^If the callback pointer to sqlite3_exec()
 ** is NULL, then no callback is ever invoked and result rows are
 ** ignored.
@@ -902,7 +902,7 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** method returns a Julian Day Number for the current date and time as
 ** a floating point value.
 ** ^The xCurrentTimeInt64() method returns, as an integer, the Julian
-** Day Number multipled by 86400000 (the number of milliseconds in 
+** Day Number multiplied by 86400000 (the number of milliseconds in 
 ** a 24-hour day).  
 ** ^SQLite will use the xCurrentTimeInt64() method to get the current
 ** date and time if that method is available (if iVersion is 2 or 
@@ -1340,7 +1340,7 @@ struct sqlite3_mem_methods {
 **
 ** [[SQLITE_CONFIG_PAGECACHE]] <dt>SQLITE_CONFIG_PAGECACHE</dt>
 ** <dd> ^This option specifies a static memory buffer that SQLite can use for
-** the database page cache with the default page cache implemenation.  
+** the database page cache with the default page cache implementation.  
 ** This configuration should not be used if an application-define page
 ** cache implementation is loaded using the SQLITE_CONFIG_PCACHE option.
 ** There are three arguments to this option: A pointer to 8-byte aligned
@@ -2438,12 +2438,12 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** ^If [URI filename] interpretation is enabled, and the filename argument
 ** begins with "file:", then the filename is interpreted as a URI. ^URI
 ** filename interpretation is enabled if the [SQLITE_OPEN_URI] flag is
-** is set in the fourth argument to sqlite3_open_v2(), or if it has
+** set in the fourth argument to sqlite3_open_v2(), or if it has
 ** been enabled globally using the [SQLITE_CONFIG_URI] option with the
 ** [sqlite3_config()] method or by the [SQLITE_USE_URI] compile-time option.
 ** As of SQLite version 3.7.7, URI filename interpretation is turned off
 ** by default, but future releases of SQLite might enable URI filename
-** intepretation by default.  See "[URI filenames]" for additional
+** interpretation by default.  See "[URI filenames]" for additional
 ** information.
 **
 ** URI filenames are parsed according to RFC 3986. ^If the URI contains an
@@ -3262,7 +3262,7 @@ SQLITE_API const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
 ** ^[SQLITE_BUSY] means that the database engine was unable to acquire the
 ** database locks it needs to do its job.  ^If the statement is a [COMMIT]
 ** or occurs outside of an explicit transaction, then you can retry the
-** statement.  If the statement is not a [COMMIT] and occurs within a
+** statement.  If the statement is not a [COMMIT] and occurs within an
 ** explicit transaction then you should rollback the transaction before
 ** continuing.
 **
@@ -3541,7 +3541,7 @@ SQLITE_API sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);
 ** CAPI3REF: Destroy A Prepared Statement Object
 **
 ** ^The sqlite3_finalize() function is called to delete a [prepared statement].
-** ^If the most recent evaluation of the statement encountered no errors or
+** ^If the most recent evaluation of the statement encountered no errors
 ** or if the statement is never been evaluated, then sqlite3_finalize() returns
 ** SQLITE_OK.  ^If the most recent evaluation of statement S failed, then
 ** sqlite3_finalize(S) returns the appropriate [error code] or
@@ -5455,7 +5455,7 @@ struct sqlite3_mutex_methods {
 **
 ** ^If the argument to sqlite3_mutex_held() is a NULL pointer then
 ** the routine should return 1.   This seems counter-intuitive since
-** clearly the mutex cannot be held if it does not exist.  But the
+** clearly the mutex cannot be held if it does not exist.  But
 ** the reason the mutex does not exist is because the build is not
 ** using mutexes.  And we do not want the assert() containing the
 ** call to sqlite3_mutex_held() to fail, so a non-zero return is
@@ -5964,7 +5964,7 @@ typedef struct sqlite3_pcache sqlite3_pcache;
 ** the page, or a NULL pointer.
 ** A "page", in this context, means a buffer of szPage bytes aligned at an
 ** 8-byte boundary. The page to be fetched is determined by the key. ^The
-** mimimum key value is 1.  After it has been retrieved using xFetch, the page 
+** minimum key value is 1.  After it has been retrieved using xFetch, the page 
 ** is considered to be "pinned".
 **
 ** If the requested page is already in the page cache, then the page cache
