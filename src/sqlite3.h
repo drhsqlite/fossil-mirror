@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.7"
 #define SQLITE_VERSION_NUMBER 3007007
-#define SQLITE_SOURCE_ID      "2011-06-20 23:51:33 e60eefc76fa5066720d76858f6cfca56365330ee"
+#define SQLITE_SOURCE_ID      "2011-06-23 17:29:33 b61a76a53af04f731fe7617f7b6b4fb2aef6587b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -5578,7 +5578,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_ISKEYWORD               16
 #define SQLITE_TESTCTRL_PGHDRSZ                 17
 #define SQLITE_TESTCTRL_SCRATCHMALLOC           18
-#define SQLITE_TESTCTRL_LAST                    18
+#define SQLITE_TESTCTRL_LOCALTIME_FAULT         19
+#define SQLITE_TESTCTRL_LAST                    19
 
 /*
 ** CAPI3REF: SQLite Runtime Status
