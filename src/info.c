@@ -518,7 +518,13 @@ void ci_page(void){
       }
     }
     @ &nbsp;&nbsp;
-    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a>
+	@ <form method="get" action="%s(g.zTop)/vdiff">
+	@   See difference from another version: 
+	@   <input type="text" name="to"/>
+	@   <input type="hidden" name="from" value="%S(zParent)"/>
+	@   &nbsp; <input type="submit" />
+	@ </form><br/>
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
