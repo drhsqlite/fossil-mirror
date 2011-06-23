@@ -1,5 +1,5 @@
-C fix\s[ffa87168ce1]
-D 2011-06-21T11:38:50.635
+C -m\sadded\s"diff\sfrom\sother\sversion"\sto\sfdiff\spage\s--branch\srons\sdiff\smods
+D 2011-06-23T08:56:35.852
 F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,7 +72,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c ddbdabc2d5ac13165b6c7f5a129842afa68fb66a
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c fd731ed08e2c891da937132417ea620dffb91652
-F src/info.c dd94c1894455512306a69e52299ab5d85dc6bb6c
+F src/info.c 3472ff1cffdd5934f116a395abe776f0c6501220
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c bc78af85f5c73d6781aabb401cc16344d1c918e5
@@ -306,7 +306,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 74cbfc69adb528de5990c300ffbf12786d320973
-R a8c4f7aba43d56dd1df7093752c02b0c
+P b72eb4d4b2044800aafc668c926d6d5de8e6ca11
+R cbd86defae9555d80a03a88324a6ac42
 U ron
-Z 368e2520fe96f1fd1345e845988e0bb2
+Z 6c6dd494446d0bb1289f346657da3279

@@ -998,6 +998,13 @@ void diff_page(void){
     object_description(v2, 1, 0);
     @ </p></blockquote>
     @ <hr />
+	@ <form method="get" action="%s(g.zTop)/fdiff">
+	@   See difference from another version: 
+	@   <input type="text" name="v2"/>
+	@   <input type="hidden" name="v1" value="%s(zV1)"/>
+	@   &nbsp; <input type="submit" />
+	@ </form>
+    @ <hr />
     @ <blockquote><pre>
     @ %h(blob_str(&diff))
     @ </pre></blockquote>
