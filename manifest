@@ -1,5 +1,5 @@
-C Update\sthe\sbuild-in\sSQLite\sto\sthe\slastest\s3.7.7\srelease\scandidate.
-D 2011-06-23T17:48:37.195
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.7.7\sfinal\swith\spatches\sto\sfix\scompiler\nwarnings\sassociated\swith\sFossil's\suse\sof\sSQLITE_THREADSAFE=0.
+D 2011-06-24T11:31:45.370
 F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -103,8 +103,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c b90effebac8e36a960afb8b8eb5907d9b57c4c73
-F src/sqlite3.h d0c293cab58465e2225273266b5e13ca1d22b991
+F src/sqlite3.c a04bbfc63de6b207d5227132d2615ba508666e79
+F src/sqlite3.h d624a1483062a7238ce1a2e54f8d52a689b7e054
 F src/stash.c 4f9de15613091e57fc40fc9be4cb2c77dd0c5725
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
@@ -306,7 +306,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b72eb4d4b2044800aafc668c926d6d5de8e6ca11
-R 1474b7409074358ebeca9d12cc25abee
+P 4722e1ab770c0381e3dd429640886b608df2ea95
+R 072d93f9c7f2157be34e053b8f2feee3
 U drh
-Z e1d412c480989d6eb08b4388aa89a70f
+Z e2f34c6696a11dc10fec9ffbf0eba58d
