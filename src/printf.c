@@ -861,7 +861,7 @@ int fossil_strcmp(const char *zA, const char *zB){
       a = *zA++;
       b = *zB++;
     }while( a==b && a!=0 );
-    return a - b;
+    return ((unsigned char)a) - (unsigned char)b;
   }
 }
 
