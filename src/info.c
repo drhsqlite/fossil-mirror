@@ -1215,8 +1215,14 @@ static void output_text_with_line_numbers(
 
 /*
 ** WEBPAGE: artifact
-** URL: /artifact?name=ARTIFACTID
+** URL: /artifact/ARTIFACTID
 ** URL: /artifact?ci=CHECKIN&filename=PATH
+**
+** Additional query parameters:
+**
+**   ln              - show line numbers
+**   ln=N            - highlight line number N
+**   ln=M-N          - highlight lines M through N inclusive
 ** 
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
@@ -1262,20 +1268,20 @@ void artifact_page(void){
     if( fossil_strcmp(zMime, "text/html")==0 ){
       if( P("txt") ){
         style_submenu_element("Html", "Html",
-                              "%s/artifact?name=%s", g.zTop, zUuid);
+                              "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsHtml = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
+                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
       if( P("txt") ){
         style_submenu_element("Wiki", "Wiki",
-                              "%s/artifact?name=%s", g.zTop, zUuid);
+                              "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
+                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }
   }

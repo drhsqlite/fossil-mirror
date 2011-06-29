@@ -269,7 +269,7 @@ void page_dir(void){
       @ <li><a href="%s(zSubdirLink)%T(zFN)">%h(zFN)/</a></li>
     }else if( zCI ){
       const char *zUuid = db_column_text(&q, 1);
-      @ <li><a href="%s(g.zTop)/artifact?name=%s(zUuid)">%h(zFN)</a></li>
+      @ <li><a href="%s(g.zTop)/artifact/%s(zUuid)">%h(zFN)</a></li>
     }else{
       @ <li><a href="%s(g.zTop)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
       @     </a></li>
