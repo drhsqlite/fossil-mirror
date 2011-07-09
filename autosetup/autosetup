@@ -1643,7 +1643,7 @@ proc autosetup_help {what} {
 # If not already paged and stdout is a tty, pipe the output through the pager
 # This is done by reinvoking autosetup with --nopager added
 proc use_pager {} {
-    if {![opt-bool nopager] && [getenv PAGER ""] ne "" && ![string match "not a tty" [exec tty]]} {
+    if {0 && ![opt-bool nopager] && [getenv PAGER ""] ne "" && ![string match "not a tty" [exec tty]]} {
         catch {
             exec [info nameofexecutable] $::argv0 --nopager {*}$::argv | [getenv PAGER] >@stdout <@stdin 2>/dev/null
         }

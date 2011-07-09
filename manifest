@@ -1,6 +1,6 @@
-C Initial\scheck-in\sof\sSteve\sBennett's\sautosetup\sconfigurator.
-D 2011-07-09T20:19:20.542
-F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
+C Disable\sthe\spiping\sof\soutput\sthrough\s$env(PAGER).
+D 2011-07-09T21:06:58.540
+F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in c53cbdff2117abfdf912e234809143d2faafa270
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -31,7 +31,7 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def c706fe73ab1b39c6450bce9453d3541c7797218a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
-F autosetup/autosetup 79f16b4ee4a3d315517ebb82634ac8d03bac59a3 x
+F autosetup/autosetup 019bb00c85ef634ff65ed643636d6f47aa7b5881 x
 F autosetup/cc-lib.tcl 343ec52a479059628bed5f24181977df4cf8f648
 F autosetup/cc-shared.tcl 6ce92ba48532b99b3f63b2add1f40d6512a79c64
 F autosetup/cc.tcl 4dfe2a2d196319c45b34e2449c693df350096f0b
@@ -321,11 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fc15fe04180beab69e726e97a6b96628b0161111
-R 50d4b20e4984464d01188196cf4fa07a
-T *bgcolor * #b1d3a8
-T *branch * autosetup
-T *sym-autosetup *
-T -sym-trunk *
+P ded86a4e53ed76790c670fb61f4951a32e5d1ce8
+R 7302be1622cefb55ea49e5e7380954d8
 U drh
-Z 9ff47756d2d8b2a801e2f643ad189e56
+Z 396fe82d391332e46e17360f70dc187b
