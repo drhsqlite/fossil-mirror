@@ -1,0 +1,146 @@
+# System autoconfiguration. Try: ./configure --help
+
+use cc cc-lib
+
+options {
+    with-openssl:path|auto|none
+                         => {Look for openssl in the given path, or auto or none}
+    with-zlib:path       => {Look for zlib in the given path}
+    internal-sqlite=1    => {Don't use the internal sqlite, use the system one}
+    static=0             => {Link a static executable}
+    lineedit=1           => {Disable line editing}
+    fossil-debug=0       => {Build with fossil debugging enabled}
+}
+
+# sqlite wants these types if possible
+cc-with {-includes {stdint.h inttypes.h}} {
+    cc-check-types uint32_t uint16_t int16_t uint8_t
+}
+
+# Use pread/pwrite system calls in place of seek + read/write if possible
+define USE_PREAD [cc-check-functions pread]
+
+# Find tclsh for the test suite. Can't yet use jimsh for this.
+cc-check-progs tclsh
+
+define EXTRA_CFLAGS ""
+define EXTRA_LDFLAGS ""
+define USE_SYSTEM_SQLITE ""
+
+if {![opt-bool internal-sqlite]} {
+    if {![cc-check-function-in-lib sqlite3_open sqlite3]} {
+        user-error "system sqlite3 not found"
+    }
+    define USE_SYSTEM_SQLITE 1
+}
+
+if {[opt-bool fossil-debug]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
+}
+
+if {[opt-bool static]} {
+    # XXX: This will not work on all systems.
+    define-append EXTRA_LDFLAGS -static
+}
+
+
+# Check for zlib, using the given location if specified
+set zlibpath [opt-val with-zlib]
+if {$zlibpath ne ""} {
+    cc-with [list -cflags "-I$zlibpath -L$zlibpath"]
+    define-append EXTRA_CFLAGS -I$zlibpath
+    define-append EXTRA_LDFLAGS -L$zlibpath
+}
+if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
+    user-error "zlib not found please install it or specify the location with --with-zlib"
+}
+
+# Helper for openssl checking
+proc check-for-openssl {msg {cflags {}}} {
+    msg-checking "Checking for $msg..."
+    set rc 0
+    msg-quiet cc-with [list -cflags $cflags -libs {-lssl -lcrypto}] {
+        if {[cc-check-includes openssl/ssl.h] && [cc-check-functions SSL_new]} {
+            incr rc
+        }
+    }
+    if {$rc} {
+        msg-result "ok"
+        return 1
+    } else {
+        msg-result "no"
+        return 0
+    }
+}
+
+set ssldirs [opt-val with-openssl]
+if {$ssldirs ne "none"} {
+    set found 0
+    if {$ssldirs in {auto ""}} {
+        catch {
+            set cflags [exec pkg-config openssl --cflags-only-I]
+            set ldflags [exec pkg-config openssl --libs-only-L]
+
+            set found [check-for-openssl "ssl via pkg-config" "$cflags $ldflags"]
+        } msg
+        if {!$found} {
+            set ssldirs "{} /usr/sfw /usr/local/ssl /usr/lib/ssl /usr/ssl /usr/pkg /usr/local /usr"
+        }
+    }
+    if {!$found} {
+        foreach dir $ssldirs {
+            if {$dir eq ""} {
+                set msg "system ssl"
+                set cflags ""
+                set ldflags ""
+            } else {
+                set msg "ssl in $dir"
+                set cflags "-I$dir/include"
+                set ldflags "-L$dir/include"
+            }
+            if {[check-for-openssl $msg "$cflags $ldflags"} {
+                incr found
+                break
+            }
+        }
+    }
+    if {$found} {
+        define FOSSIL_ENABLE_SSL
+        define-append EXTRA_CFLAGS $cflags
+        define-append EXTRA_LDFLAGS $ldflags
+        define-append LIBS -lssl -lcrypto
+        msg-result "HTTP support enabled"
+    } else {
+        user-error "OpenSSL not found. Consider --with-openssl=none to disable HTTPS support"
+    }
+}
+
+if {[opt-bool lineedit]} {
+    # Need readline-compatible line editing
+    cc-with {-includes stdio.h} {
+        if {[cc-check-includes readline/readline.h] && [cc-check-function-in-lib readline readline]} {
+            msg-result "Using readline for line editing"
+        } elseif {[cc-check-includes editline/readline.h] && [cc-check-function-in-lib readline edit]} {
+            define-feature editline
+            msg-result "Using editline for line editing"
+        }
+    }
+}
+
+# Network functions require libraries on some systems
+cc-check-function-in-lib gethostbyname nsl
+if {![cc-check-function-in-lib socket {socket network}]} {
+    # Last resort, may be Windows
+    if {[string match *mingw* [get-define host]]} {
+        define-append LIBS -lwsock32
+    }
+}
+
+# Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
+if {![cc-check-functions getpassphrase]} {
+    # Haiku needs this
+    cc-check-function-in-lib getpass bsd
+}
+
+make-template GNUmakefile.in
+make-config-header autoconfig.h {USE_* FOSSIL_*} {PACKAGE_*}
