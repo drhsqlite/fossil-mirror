@@ -1104,7 +1104,8 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "repository:") && blob_token(&line, &value) ){
+    if( blob_eq(&key, "repository:") && blob_tail(&line, &value) ){
+      blob_trim(&value);
       db_open_repository(blob_str(&value));
       blob_reset(&value);
       continue;
