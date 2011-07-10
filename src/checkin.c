@@ -35,57 +35,34 @@ static void status_report(
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
   int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
-  int reportSubdirOnly   /* Only report for the current sub-dir */ 
+  int cwdRelative        /* Report relative to the current working dir */ 
 ){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
-  Blob currentDir, rootDir;
-  const char *zShowSubDir = 0;
-  int showSubDirLen = 0;
-  int otherChanges = 0;
+  Blob rewrittenPathname;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
-  /* If sub-directory only reports are acceptable, check to see if we're
-  ** in a sub-directory of the checkout. */
-  if( reportSubdirOnly ){
-    blob_zero(&currentDir);
-    file_canonical_name(".", &currentDir);
-    blob_zero(&rootDir);
-    file_canonical_name(g.zLocalRoot, &rootDir);
-    if( blob_compare(&currentDir, &rootDir)!=0
-        && blob_size(&currentDir)>blob_size(&rootDir) ){
-      /* Current directory is not the root of the repository */
-      blob_appendf(report, "%sIn sub-directory %s:\n", zPrefix,
-        blob_str(&currentDir) + blob_size(&rootDir) + 1);
-      blob_append(&currentDir,"/",1);
-      zShowSubDir = blob_str(&currentDir) + blob_size(&rootDir) + 1;
-      showSubDirLen = blob_size(&currentDir) - blob_size(&rootDir) - 1;
-    }
-  }
-  /* Show the changes */
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     const char *zDisplayName = zPathname;
-    if( zShowSubDir!=0 ){
-      if( strncmp(zPathname,zShowSubDir,showSubDirLen)!=0 ){
-        /* Not in sub-directory, don't display this file */
-        otherChanges++;
-        continue;
-      }else{
-        /* In sub directory, so hide the prefix */
-        zDisplayName += showSubDirLen;
-      }
-    }
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    if( cwdRelative ){
+      file_relative_name(zFullName, &rewrittenPathname);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
@@ -118,6 +95,7 @@ static void status_report(
     }
     free(zFullName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=0");
@@ -126,9 +104,6 @@ static void status_report(
     blob_appendf(report, "MERGED_WITH %s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
-  if( otherChanges!=0 ){
-    blob_appendf(report, "%d other changes. Use --show-all option to list all changes.\n");
-  }
   if( nErr ){
     fossil_fatal("aborting due to prior errors");
   }
@@ -147,19 +122,19 @@ static void status_report(
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-**    --show-all        When invoked from a sub-directory, show changes
-**                      even if they're outside the current directory.
+**    --non-relative    Don't display filenames relative to the current
+**                      working directory.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int showAllFlag = find_option("show-all","S",0)!=0;
+  int nonRelative = find_option("non-relative", 0, 0)!=0;
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
-  status_report(&report, "", 0, !showAllFlag);
+  status_report(&report, "", 0, !nonRelative);
   blob_write_to_file(&report, "-");
 }
 
