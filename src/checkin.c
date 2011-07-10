@@ -34,19 +34,53 @@
 static void status_report(
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
-  int missingIsFatal     /* MISSING and NOT_A_FILE are fatal errors */
+  int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
+  int reportSubdirOnly   /* Only report for the current sub-dir */ 
 ){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
+  Blob currentDir, rootDir;
+  const char *zShowSubDir = 0;
+  int showSubDirLen = 0;
+  int otherChanges = 0;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
+  /* If sub-directory only reports are acceptable, check to see if we're
+  ** in a sub-directory of the checkout. */
+  if( reportSubdirOnly ){
+    blob_zero(&currentDir);
+    file_canonical_name(".", &currentDir);
+    blob_zero(&rootDir);
+    file_canonical_name(g.zLocalRoot, &rootDir);
+    if( blob_compare(&currentDir, &rootDir)!=0
+        && blob_size(&currentDir)>blob_size(&rootDir) ){
+      /* Current directory is not the root of the repository */
+      blob_appendf(report, "%sIn sub-directory %s:\n", zPrefix,
+        blob_str(&currentDir) + blob_size(&rootDir) + 1);
+      blob_append(&currentDir,"/",1);
+      zShowSubDir = blob_str(&currentDir) + blob_size(&rootDir) + 1;
+      showSubDirLen = blob_size(&currentDir) - blob_size(&rootDir) - 1;
+    }
+  }
+  /* Show the changes */
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
+    const char *zDisplayName = zPathname;
+    if( zShowSubDir!=0 ){
+      if( strncmp(zPathname,zShowSubDir,showSubDirLen)!=0 ){
+        /* Not in sub-directory, don't display this file */
+        otherChanges++;
+        continue;
+      }else{
+        /* In sub directory, so hide the prefix */
+        zDisplayName += showSubDirLen;
+      }
+    }
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
@@ -54,33 +88,33 @@ static void status_report(
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_isfile(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
-        blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
+        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("not a file: %s", zPathname);
+          fossil_warning("not a file: %s", zDisplayName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING    %s\n", zPathname);
+        blob_appendf(report, "MISSING    %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("missing file: %s", zPathname);
+          fossil_warning("missing file: %s", zDisplayName);
           nErr++;
         }
       }
     }else if( isNew ){
-      blob_appendf(report, "ADDED      %s\n", zPathname);
+      blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED     %s\n", zPathname);
+      blob_appendf(report, "EDITED     %s\n", zDisplayName);
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED    %s\n", zPathname);
+      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
     }
     free(zFullName);
   }
@@ -92,6 +126,9 @@ static void status_report(
     blob_appendf(report, "MERGED_WITH %s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);
+  if( otherChanges!=0 ){
+    blob_appendf(report, "%d other changes. Use --show-all option to list all changes.\n");
+  }
   if( nErr ){
     fossil_fatal("aborting due to prior errors");
   }
@@ -109,16 +146,20 @@ static void status_report(
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --show-all        When invoked from a sub-directory, show changes
+**                      even if they're outside the current directory.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showAllFlag = find_option("show-all","S",0)!=0;
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
-  status_report(&report, "", 0);
+  status_report(&report, "", 0, !showAllFlag);
   blob_write_to_file(&report, "-");
 }
 
@@ -369,7 +410,7 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
-  status_report(&text, "# ", 1);
+  status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
