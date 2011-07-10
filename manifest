@@ -1,5 +1,5 @@
-C Added\sability\sto\saccess\srepositories\svia\sCGI\sthat\sare\slocated\sin\sa\spath\scontaining\swhitespaces.
-D 2011-07-09T16:12:16.581
+C Don't\sshow\sthe\scookie\svalues\son\sthe\stest_env\spage,\sunless\sthe\sfossil\sexecutable\swas\sbuilt\swith\sFOSSIL_DEBUG.
+D 2011-07-10T12:05:59.585
 F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -43,7 +43,7 @@ F src/blob.c 9828b1788a64a08709ce507140109060dee23d07
 F src/branch.c e1b5203400d0c1aa2ba9433849918013770ec40c
 F src/browse.c 923028657c4f70f54947163180023bba06add745
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 193a80ed1543b91bed7375cf9dd59e705e837e3f
+F src/cgi.c eb8f512350cc1f3feb706f19d1d1e1f03591f62f
 F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
 F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -306,7 +306,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e50813e19b5adaafc8c58716586ddcf5d9720272
-R 1e493b397e31126620b1cf7af68e5019
-U rimkojr
-Z a06bfca2722cc399e5aa00729138d44a
+P fc15fe04180beab69e726e97a6b96628b0161111
+R 624042d182ac9343cb71b9b3678dba30
+U ben
+Z fac739c75c7fc9b536692a9c68e97f8b
