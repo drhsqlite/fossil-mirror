@@ -230,6 +230,9 @@ void ls_cmd(void){
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
+**
+** Filenames are displayed relative to the current working directory
+** unless the --non-relative option is used.
 */
 void extra_cmd(void){
   Blob path;
@@ -238,8 +241,11 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+  int cwdRelative = !(find_option("non-relative", 0, 0)!=0);
   int outputManifest;
   Glob *pIgnore;
+  Blob rewrittenPathname;
+  const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
   outputManifest = db_get_boolean("manifest",0);
@@ -261,9 +267,21 @@ void extra_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%s\n", db_column_text(&q, 0));
+    zDisplayName = zPathname = db_column_text(&q, 0);
+    if( cwdRelative ) {
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      file_relative_name(zFullName, &rewrittenPathname);
+      free(zFullName);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
+    fossil_print("%s\n", zDisplayName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
 }
 

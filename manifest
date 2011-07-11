@@ -1,5 +1,5 @@
-C By\sdefault,\sthe\schanges\sand\sstatus\scommands\slist\sall\schanged\sfiles\srelative\sto\sthe\scurrent\sworking\sdirectory,\sunless\sthe\s--non-relative\soption\sis\sused.
-D 2011-07-10T15:01:34.606
+C By\sdefault,\sthe\sextras\scommand\slists\sall\sthe\suncontrolled\sfiles\srelative\sto\sthe\scurrent\sworking\sdirectory,\sunless\sthe\s--non-relative\soption\sis\sused.
+D 2011-07-11T10:00:09.543
 F BUILD.txt 484061ead24d046df6a915422b3927ef050cf6bb
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -44,7 +44,7 @@ F src/branch.c e1b5203400d0c1aa2ba9433849918013770ec40c
 F src/browse.c 923028657c4f70f54947163180023bba06add745
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c eb8f512350cc1f3feb706f19d1d1e1f03591f62f
-F src/checkin.c 5c4814fd3e5cadaeda1e6542f462ac5c35e3b989
+F src/checkin.c 376472afdb0cf683382dca13f966dd2a9ab5445a
 F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c ca7dfeea6b21642c326ee433e41cd76bbcaabba0
@@ -306,7 +306,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e0d2e1f9b85eab0b0eb788a2820161a27ba9a761
-R b85071abceb9ff6c76e6f36ee723ed06
+P a05bbff46acb84964af5aaae53b11f6939030a38
+R 1eba2408d2186d643738c24ed86bbfc6
 U ben
-Z f080c0dc6f0fb0d5bbecb15f022fe472
+Z 6de084debf4526aaa8e2c9a0faa1868a
