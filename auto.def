@@ -143,4 +143,4 @@ if {![cc-check-functions getpassphrase]} {
 }
 
 make-template GNUmakefile.in
-make-config-header autoconfig.h {USE_* FOSSIL_*} {PACKAGE_*}
+make-config-header autoconfig.h -auto {USE_* FOSSIL_*}

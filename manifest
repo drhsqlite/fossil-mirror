@@ -1,5 +1,5 @@
-C Disable\sthe\spiping\sof\soutput\sthrough\s$env(PAGER).
-D 2011-07-09T21:06:58.540
+C Apply\sa\sfix\sto\sauto.def\ssupplied\sby\sSteve\sBennett\svia\sthe\smailing\slist.
+D 2011-07-12T17:26:37.217
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in c53cbdff2117abfdf912e234809143d2faafa270
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def c706fe73ab1b39c6450bce9453d3541c7797218a
+F auto.def 369b3cc0f9fa86d057a470c7474898339c9dceb8
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup 019bb00c85ef634ff65ed643636d6f47aa7b5881 x
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ded86a4e53ed76790c670fb61f4951a32e5d1ce8
-R 7302be1622cefb55ea49e5e7380954d8
-U drh
-Z 396fe82d391332e46e17360f70dc187b
+P cd2cb3b347ee05b945161cc449d5810f87dde249
+R c8b2877a93b309f795d70c70118cf977
+U dan
+Z e640b9906b5467d10f284771ddb88f6a
