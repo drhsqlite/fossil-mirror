@@ -355,6 +355,7 @@ void cgi_reply(void){
       }
     }
   }
+  fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
 }
 
