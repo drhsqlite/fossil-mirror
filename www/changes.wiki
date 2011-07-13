@@ -1,9 +1,11 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.18 (pending)</h2>
+<h2>Changes For Version 1.18 (2011-07-14)</h2>
 
   *  Added this Change Log
   *  Added sequential version numbering
+  *  Added a optional configure script - the Makefile still works for most
+     systems.
   *  Improvements to the "annotate" algorithm: only search primary
      ancestors and ignore branches.
   *  Update the "scrub" command to remove traces of login-groups and
