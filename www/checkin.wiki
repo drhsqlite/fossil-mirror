@@ -1,22 +1,78 @@
-<title>Checkin Checklist</title>
+<title>Check-in Checklist</title>
 
-Before every checkins:
+<h2><u>Always</u> run the following checklist prior to <u>every</u>
+check-in or commit to the Fossil repository:</h2>
+
+Before every check-in:
 
   1.   <b>fossil diff</b> &rarr;
        <ol type="a">
-       <li>No stray changes
+       <li> No stray changes
+       <li> All changes comply with the license
        <li> All inputs are scrubbed before use
        <li> No injection attacks via %s formats
        </ol>
 
   2.   <b>fossil extra</b> &rarr; no unmanaged files need to be added.
 
-  3.   The checkin will go onto the desired branch.
+  3.   The check-in will go onto the desired branch.
+       &rarr;  Do <u>not</u> check into trunk without prior approval from
+       the lead programmer (drh)!
 
-  4.   The checkin will not cause a unintentional fork.
+  4.   auto-sync is on, or the system clock is verified
 
-Before every checkin to <b>trunk</b>:
+  5.   If sources files have been added or removed, ensure all makefiles
+       and configure scripts have been updated accordingly.
 
-  5.   No compiler warnings on the development machine.
+Before every check-in to <b>trunk</b>:
 
-  6.   The fossil executable that results from a build actually works.
+  6.   No compiler warnings on the development machine.
+
+  7.   The fossil executable that results from a build actually works.
+
+
+<hr>
+<h2>Commentary</h2>
+
+Item 1 is the most important step.  Consider using <b>gdiff</b>
+instead of <b>diff</b> if you have a graphical differ configured.  Or,
+pipe the output of "<b>fossil diff</b>" into "<b>open -f</b>" (on a mac) to
+get the diff output in a separate text window for easier viewing.
+Look carefully at every changed line in item 1.
+Make sure that you are not about to commit unrelated changes.
+If there are two or more unrelated changes present, consider
+breaking up the commit into two or more separate commits.
+Always make 100% sure that all changes are compatible with the
+BSD license, that you have the authority to commit the code in accordance
+with the [/doc/trunk/www/copyright-release.html | CLA] that you have
+signed and have on file, and that
+no NDAs, copyrights, patents, or trademarks are infringed by the check-in.
+Also check very carefully to make sure that
+you are not introducing security vulnerabilities.  Pay particular attention
+to the possibility of SQL or HTML injection attacks.
+
+Item 2 verifies that you have not added source files but failed to
+do the necessary "<b>fossil add</b>" to manage them.  If you commit
+without bringing the new file under source control, the check-in will
+be broken.  That, in turn, can cause complications far in the future
+when we are bisecting for a bug.
+
+For item 3, Run "<b>fossil status</b>" or the equivalent to
+make sure your changes are going into the branch you think they are.
+Also double-check the branch name when entering change comments.
+Never check into trunk unless you are expressly authorized to do so.
+
+For Item 4, if you are on-network, make sure auto-sync is enabled.  This
+will minimize the risk of an unintended fork.  It will also give you a
+warning if you system clock is set incorrectly.  If you are off-network,
+make sure that your system clock is correct or at least close to correct
+so that your check-in does not appear out-of-sequence on timelines.
+On-network commits are preferred, especially for trunk commits.
+
+Items 6 and 7 help to ensure that check-ins on the trunk always work.
+Knowing that the trunk always works makes bisecting much easier.  Items
+6 and 7 are recommended for all check-ins, even those that are on a branch.
+But they are especially important for trunk check-ins.  We desire that
+all trunk check-ins work at all times.  Any experimental, unstable, or
+questionable changes should go on a branch and be merged into trunk after
+further testing.
