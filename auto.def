@@ -28,17 +28,36 @@ define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE ""
 
 if {![opt-bool internal-sqlite]} {
-    if {![cc-check-function-in-lib sqlite3_open sqlite3]} {
-      if {![cc-check-function-in-lib sqlite3_open sqlite3 {-ldl}]} {
-        user-error "system sqlite3 not found"
-      } else {
-        # On some systems (slackware), the libsqlite3.so file cannot be
-        # linked without also specifying -ldl. This is a bug in the 
-        # distribution.
-        define-append EXTRA_LDFLAGS -ldl
+  proc find_internal_sqlite {} {
+
+    # On some systems (slackware), libsqlite3 requires -ldl to link. So
+    # search for the system SQLite once with -ldl, and once without. If
+    # the library can only be found with $extralibs set to -ldl, then 
+    # the code below will append -ldl to LIBS.
+    #
+    foreach extralibs {{} {-ldl}} {
+
+      # Locate the system SQLite by searching for sqlite3_open(). Then check
+      # if sqlite3_wal_checkpoint() can be found as well. If we can find
+      # open() but not wal_checkpoint(), then the system SQLite is too old
+      # to link against fossil.
+      #
+      if {[cc-check-function-in-lib sqlite3_open sqlite3 $extralibs]} {
+        if {![cc-check-function-in-lib sqlite3_wal_checkpoint sqlite3 $extralibs]} {
+          user-error "system sqlite3 too old (require >= 3.7.0)"
+        }
+
+        # Success. Update symbols and return.
+        #
+        define USE_SYSTEM_SQLITE 1
+        define-append LIBS $extralibs
+        return
       }
     }
-    define USE_SYSTEM_SQLITE 1
+    user-error "system sqlite3 not found"
+  }
+
+  find_internal_sqlite
 }
 
 if {[opt-bool fossil-debug]} {
