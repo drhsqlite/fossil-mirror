@@ -1,5 +1,5 @@
-C Added\sthe\sChecklist\sfor\sSuccessful\sOpen-Source\sProjects\sdocument.\n[/doc/trunk/www/foss-cklist.wiki]
-D 2011-07-14T13:02:31.069
+C Update\sthe\spre-commit\schecklist.
+D 2011-07-14T13:29:43.139
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -239,7 +239,7 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki e131ba02925330aaba5af379e802a7da6621a557
 F www/changes.wiki 216fd6b228c7bb5ea24d7f876e3aab1bf0efd243
-F www/checkin.wiki 4da78d129995e49acca38a9ff2744d08eb3aacc1
+F www/checkin.wiki 66dd43d52ccb53b7a2aac45debf4e495ab564a81
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -322,7 +322,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fd13b1a16f8b4f0aaf43d889f9019745125a8fed
-R c4f0784d694dccbda42a6994bfe87db6
+P 34177b0068e30b2fee9925b11e61e8e0f7f6b2eb
+R 10a0efe9772c919f61362cb71554f618
 U drh
-Z b1a85dcb29f297e3fcf8bbafc7a43274
+Z 51751a57a9a10e29a9ae59369cf5b1b9
