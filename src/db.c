@@ -1824,7 +1824,7 @@ void setting_cmd(void){
       isManifest = 0;
       print_setting(ctrlSettings[i].name);
     }
-    if( isManifest ){
+    if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{
