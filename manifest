@@ -1,8 +1,8 @@
-C Fix\sa\sbug\sin\sthe\sauto.def\sfile.
-D 2011-07-14T00:28:16.579
+C Small\schanges\sto\sautosetup\sbuild\ssystem\sso\sthat\sthe\s--disable-internal-sqlite\sswitch\sworks\sand\sis\scompatible\swith\sBSD\smake.
+D 2011-07-14T10:24:53.306
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F GNUmakefile.in c53cbdff2117abfdf912e234809143d2faafa270
+F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F VERSION 675986782f23cff4d8faec3143ebeca6ed6e46e2
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def bbf66d88e2fdef314ebfbd59519f43194ee5022e
+F auto.def 73c9d4623eaec4adffdceaf37b1afb55609b9625
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup 019bb00c85ef634ff65ed643636d6f47aa7b5881 x
@@ -91,10 +91,10 @@ F src/info.c 22d1aa9a3019ad531df16b8ee7b3127ed1fa3c12
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c 3df1e45af9b13f50ec4544ab0204c3c8afa612a8
-F src/main.mk 8d712d342da60a621d800f145d59b8305c2fca6f
+F src/main.mk 6b4865b5a7543e1c62bd085d8e28447d4e748212
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 454b2627493dc304f7ec05d2cc2ebfe2f9966136
+F src/makemake.tcl eda8908631cdde18a27b17fa4dd64f309bde3e8d
 F src/manifest.c 8ebc92c0dec9f5270413de3f3445e3b03a411055
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P df9da91ba8fe406f283761a44989e3c2066655bb
-R 0c6b7973e70829374e520681de3732b9
-U drh
-Z 6172971b7f44c115773ea365bdd5dd59
+P 35f80429f2653f704dec8e92842e366a1c8a9735
+R 69b8ce29d320f6cb3db60940244188d8
+U dan
+Z 83eb096f862aed7baf2637906b119a95

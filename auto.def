@@ -29,7 +29,14 @@ define USE_SYSTEM_SQLITE ""
 
 if {![opt-bool internal-sqlite]} {
     if {![cc-check-function-in-lib sqlite3_open sqlite3]} {
+      if {![cc-check-function-in-lib sqlite3_open sqlite3 {-ldl}]} {
         user-error "system sqlite3 not found"
+      } else {
+        # On some systems (slackware), the libsqlite3.so file cannot be
+        # linked without also specifying -ldl. This is a bug in the 
+        # distribution.
+        define-append EXTRA_LDFLAGS -ldl
+      }
     }
     define USE_SYSTEM_SQLITE 1
 }
