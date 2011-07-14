@@ -3,7 +3,7 @@
 # All rights reserved
 # vim:se syntax=tcl:
 # \
-exec $($(dirname "$0")/find-tclsh || echo false) "$0" "$@"
+dir=`dirname "$0"`; exec `"$dir/find-tclsh" || echo false` "$0" "$@"
 
 set autosetup(version) 0.6.2
 
@@ -112,6 +112,12 @@ proc main {argv} {
 	incr autosetup(force) [opt-bool force]
 	incr autosetup(msg-quiet) [opt-bool quiet]
 	incr autosetup(msg-timing) [opt-bool timing]
+
+	# If the local module exists, source it now to allow for
+	# project-local customisations
+	if {[file exists $autosetup(libdir)/local.tcl]} {
+		use local
+	}
 
 	if {[opt-val help] ne ""} {
 		incr autosetup(showhelp)
@@ -858,79 +864,6 @@ set autosetup(msg-quiet) 0
 
 # Embedded modules are inserted below here
 set autosetup(installed) 1
-# ----- module markdown-formatting -----
-
-set modsource(markdown-formatting) {
-# Copyright (c) 2010 WorkWare Systems http://www.workware.net.au/
-# All rights reserved
-
-# Module which provides text formatting
-# markdown format (kramdown syntax)
-
-use formatting
-
-proc para {text} {
-    regsub -all "\[ \t\n\]+" [string trim $text] " " text
-    regsub -all {([^a-zA-Z])'([^']*)'} $text {\1**`\2`**} text
-    regsub -all {^'([^']*)'} $text {**`\1`**} text
-    regsub -all {(http[^ \t\n]*)} $text {[\1](\1)} text
-    return $text
-}
-proc title {text} {
-    underline [para $text] =
-    nl
-}
-proc p {text} {
-    puts [para $text]
-    nl
-}
-proc codelines {lines} {
-    puts "~~~~~~~~~~~~"
-    foreach line $lines {
-        puts $line
-    }
-    puts "~~~~~~~~~~~~"
-    nl
-}
-proc code {text} {
-    puts "~~~~~~~~~~~~"
-    foreach line [parse_code_block $text] {
-        puts $line
-    }
-    puts "~~~~~~~~~~~~"
-    nl
-}
-proc nl {} {
-    puts ""
-}
-proc underline {text char} {
-    regexp "^(\[ \t\]*)(.*)" $text -> indent words
-    puts $text
-    puts $indent[string repeat $char [string length $words]]
-}
-proc section {text} {
-    underline "[para $text]" -
-    nl
-}
-proc subsection {text} {
-    puts "### `$text`"
-    nl
-}
-proc bullet {text} {
-    puts "* [para $text]"
-}
-proc defn {first args} {
-    puts "^"
-    set defn [string trim [join $args \n]]
-    if {$first ne ""} {
-        puts "**${first}**"
-        puts -nonewline ": "
-        regsub -all "\n\n" $defn "\n: " defn
-    }
-    puts "$defn"
-}
-}
-
 # ----- module asciidoc-formatting -----
 
 set modsource(asciidoc-formatting) {
@@ -1058,6 +991,308 @@ proc parse_code_block {text} {
 }
 }
 
+# ----- module getopt -----
+
+set modsource(getopt) {
+# Copyright (c) 2006 WorkWare Systems http://www.workware.net.au/
+# All rights reserved
+
+# Simple getopt module
+
+# Parse everything out of the argv list which looks like an option
+# Knows about --enable-thing and --disable-thing as alternatives for --thing=0 or --thing=1
+proc getopt {argvname} {
+	upvar $argvname argv
+
+	for {set i 0} {$i < [llength $argv]} {incr i} {
+		set arg [lindex $argv $i]
+
+		#dputs arg=$arg
+
+		if {$arg eq "--"} {
+			# End of options
+			incr i
+			break
+		}
+
+		if {[regexp {^--([^=][^=]+)=(.*)$} $arg -> name value]} {
+			lappend opts($name) $value
+		} elseif {[regexp {^--(enable-|disable-)?([^=]*)$} $arg -> prefix name]} {
+			if {$prefix eq "disable-"} {
+				set value 0
+			} else {
+				set value 1
+			}
+			lappend opts($name) $value
+		} else {
+			break
+		}
+	}
+
+	#puts "getopt: argv=[join $argv] => [join [lrange $argv $i end]]"
+	#parray opts
+
+	set argv [lrange $argv $i end]
+
+	return [array get opts]
+}
+
+proc opt_val {optarrayname options {default {}}} {
+	upvar $optarrayname opts
+
+	set result {}
+
+	foreach o $options {
+		if {[info exists opts($o)]} {
+			lappend result {*}$opts($o)
+		}
+	}
+	if {[llength $result] == 0} {
+		return $default
+	}
+	return $result
+}
+
+proc opt_bool {optarrayname args} {
+	upvar $optarrayname opts
+
+	# Support the args being passed as a list
+	if {[llength $args] == 1} {
+		set args [lindex $args 0]
+	}
+
+	foreach o $args {
+		if {[info exists opts($o)]} {
+			if {"1" in $opts($o) || "yes" in $opts($o)} {
+				return 1
+			}
+		}
+	}
+	return 0
+}
+}
+
+# ----- module help -----
+
+set modsource(help) {
+# Copyright (c) 2010 WorkWare Systems http://workware.net.au/
+# All rights reserved
+
+# Module which provides usage, help and the command reference
+
+proc autosetup_help {what} {
+    use_pager
+
+    puts "Usage: [file tail $::autosetup(exe)] \[options\] \[settings\]\n"
+    puts "This is [autosetup_version], a build environment \"autoconfigurator\""
+    puts "See the documentation online at http://msteveb.github.com/autosetup/\n"
+
+    if {$what eq "local"} {
+        if {[file exists $::autosetup(autodef)]} {
+            # This relies on auto.def having a call to 'options'
+            # which will display options and quit
+            source $::autosetup(autodef)
+        } else {
+            options-show
+        }
+    } else {
+        incr ::autosetup(showhelp)
+        if {[catch {use $what}]} {
+            user-error "Unknown module: $what"
+        } else {
+            options-show
+        }
+    }
+    exit 0
+}
+
+# If not already paged and stdout is a tty, pipe the output through the pager
+# This is done by reinvoking autosetup with --nopager added
+proc use_pager {} {
+    if {![opt-bool nopager] && [getenv PAGER ""] ne "" && ![string match "not a tty" [exec tty]]} {
+        catch {
+            exec [info nameofexecutable] $::argv0 --nopager {*}$::argv | [getenv PAGER] >@stdout <@stdin 2>/dev/null
+        }
+        exit 0
+    }
+}
+
+# Outputs the autosetup references in one of several formats
+proc autosetup_reference {{type text}} {
+
+    use_pager
+
+    switch -glob -- $type {
+        wiki {use wiki-formatting}
+        ascii* {use asciidoc-formatting}
+        md - markdown {use markdown-formatting}
+        default {use text-formatting}
+    }
+
+    title "[autosetup_version] -- Command Reference"
+
+    section {Introduction}
+
+    p {
+        See http://msteveb.github.com/autosetup/ for the online documentation for 'autosetup'
+    }
+
+    p {
+        'autosetup' provides a number of built-in commands which
+        are documented below. These may be used from 'auto.def' to test
+        for features, define variables, create files from templates and
+        other similar actions.
+    }
+
+    automf_command_reference
+
+    exit 0
+}
+
+proc autosetup_output_block {type lines} {
+    if {[llength $lines]} {
+        switch $type {
+            code {
+                codelines $lines
+            }
+            p {
+                p [join $lines]
+            }
+            list {
+                foreach line $lines {
+                    bullet $line
+                }
+                nl
+            }
+        }
+    }
+}
+
+# Generate a command reference from inline documentation
+proc automf_command_reference {} {
+    lappend files $::autosetup(prog)
+    lappend files {*}[lsort [glob -nocomplain $::autosetup(libdir)/*.tcl]]
+
+    section "Core Commands"
+    set type p
+    set lines {}
+    set cmd {}
+
+    foreach file $files {
+        set f [open $file]
+        while {![eof $f]} {
+            set line [gets $f]
+
+            # Find lines starting with "# @*" and continuing through the remaining comment lines
+            if {![regexp {^# @(.*)} $line -> cmd]} {
+                continue
+            }
+
+            # Synopsis or command?
+            if {$cmd eq "synopsis:"} {
+                section "Module: [file rootname [file tail $file]]"
+            } else {
+                subsection $cmd
+            }
+
+            set lines {}
+            set type p
+
+            # Now the description
+            while {![eof $f]} {
+                set line [gets $f]
+
+                if {![regexp {^#(#)? ?(.*)} $line -> hash cmd]} {
+                    break
+                }
+                if {$hash eq "#"} {
+                    set t code
+                } elseif {[regexp {^- (.*)} $cmd -> cmd]} {
+                    set t list
+                } else {
+                    set t p
+                }
+
+                #puts "hash=$hash, oldhash=$oldhash, lines=[llength $lines], cmd=$cmd"
+
+                if {$t ne $type || $cmd eq ""} {
+                    # Finish the current block
+                    autosetup_output_block $type $lines
+                    set lines {}
+                    set type $t
+                }
+                if {$cmd ne ""} {
+                    lappend lines $cmd
+                }
+            }
+
+            autosetup_output_block $type $lines
+        }
+        close $f
+    }
+}
+}
+
+# ----- module init -----
+
+set modsource(init) {
+# Copyright (c) 2010 WorkWare Systems http://www.workware.net.au/
+# All rights reserved
+
+# Module to help create auto.def and configure
+
+proc autosetup_init {} {
+	set create_configure 1
+	if {[file exists configure]} {
+		if {!$::autosetup(force)} {
+			# Could this be an autosetup configure?
+			if {![string match "*\nWRAPPER=*" [readfile configure]]} {
+				puts "I see configure, but not created by autosetup, so I won't overwrite it."
+				puts "Use autosetup --init --force to overwrite."
+				set create_configure 0
+			}
+		} else {
+			puts "I will overwrite the existing configure because you used --force."
+		}
+	} else {
+		puts "I don't see configure, so I will create it."
+	}
+	if {$create_configure} {
+		if {!$::autosetup(installed)} {
+			user-notice "Warning: Initialising from the development version of autosetup"
+
+			writefile configure "#!/bin/sh\nWRAPPER=\"\$0\" exec $::autosetup(dir)/autosetup \"\$@\"\n"
+		} else {
+			writefile configure \
+{#!/bin/sh
+dir="`dirname "$0"`/autosetup"
+WRAPPER="$0" exec `"$dir/find-tclsh" || echo false` "$dir/autosetup" "$@"
+}
+		}
+		catch {exec chmod 755 configure}
+	}
+	if {![file exists auto.def]} {
+		puts "I don't see auto.def, so I will create a default one."
+		writefile auto.def {# Initial auto.def created by 'autosetup --init'
+
+use cc
+
+# Add any user options here
+options {
+}
+
+make-autoconf-h config.h
+make-template Makefile.in
+}
+	}
+	if {![file exists Makefile.in]} {
+		puts "Note: I don't see Makefile.in. You will probably need to create one."
+	}
+
+	exit 0
+}
+}
+
 # ----- module install -----
 
 set modsource(install) {
@@ -1085,7 +1320,7 @@ proc autosetup_install {} {
 			# Insert the static modules here
 			# i.e. those which don't contain @synopsis:
 			puts $f "set autosetup(installed) 1"
-			foreach file [glob $::autosetup(libdir)/*.tcl] {
+			foreach file [lsort [glob $::autosetup(libdir)/*.tcl]] {
 				set buf [readfile $file]
 				if {[string match "*\n# @synopsis:*" $buf]} {
 					lappend publicmodules $file
@@ -1144,63 +1379,46 @@ if {$::autosetup(installed)} {
 }
 }
 
-# ----- module text-formatting -----
+# ----- module markdown-formatting -----
 
-set modsource(text-formatting) {
+set modsource(markdown-formatting) {
 # Copyright (c) 2010 WorkWare Systems http://www.workware.net.au/
 # All rights reserved
 
 # Module which provides text formatting
+# markdown format (kramdown syntax)
 
 use formatting
 
-proc wordwrap {text length {firstprefix ""} {nextprefix ""}} {
-    set len 0
-    set space $firstprefix
-    foreach word [split $text] {
-        set word [string trim $word]
-        if {$word == ""} {
-            continue
-        }
-        if {$len && [string length $space$word] + $len >= $length} {
-            puts ""
-            set len 0
-            set space $nextprefix
-        }
-        incr len [string length $space$word]
-
-        # Use man-page conventions for highlighting 'quoted' and *quoted*
-        # single words.
-        # Use x^Hx for *bold* and _^Hx for 'underline'.
-        #
-        # less and more will both understand this.
-        # Pipe through 'col -b' to remove them.
-        if {[regexp {^'(.*)'([^a-zA-Z0-9_]*)$} $word -> bareword dot]} {
-            regsub -all . $bareword "_\b&" word
-            append word $dot
-        } elseif {[regexp {^[*](.*)[*]([^a-zA-Z0-9_]*)$} $word -> bareword dot]} {
-            regsub -all . $bareword "&\b&" word
-            append word $dot
-        }
-        puts -nonewline $space$word
-        set space " "
-    }
-    if {$len} {
-        puts ""
-    }
+proc para {text} {
+    regsub -all "\[ \t\n\]+" [string trim $text] " " text
+    regsub -all {([^a-zA-Z])'([^']*)'} $text {\1**`\2`**} text
+    regsub -all {^'([^']*)'} $text {**`\1`**} text
+    regsub -all {(http[^ \t\n]*)} $text {[\1](\1)} text
+    return $text
 }
 proc title {text} {
-    underline [string trim $text] =
+    underline [para $text] =
     nl
 }
 proc p {text} {
-    wordwrap $text 80
+    puts [para $text]
     nl
 }
 proc codelines {lines} {
+    puts "~~~~~~~~~~~~"
     foreach line $lines {
-        puts "    $line"
+        puts $line
     }
+    puts "~~~~~~~~~~~~"
+    nl
+}
+proc code {text} {
+    puts "~~~~~~~~~~~~"
+    foreach line [parse_code_block $text] {
+        puts $line
+    }
+    puts "~~~~~~~~~~~~"
     nl
 }
 proc nl {} {
@@ -1212,28 +1430,25 @@ proc underline {text char} {
     puts $indent[string repeat $char [string length $words]]
 }
 proc section {text} {
-    underline "[string trim $text]" -
+    underline "[para $text]" -
     nl
 }
 proc subsection {text} {
-    underline "$text" ~
+    puts "### `$text`"
     nl
 }
 proc bullet {text} {
-    wordwrap $text 76 "  * " "    "
-}
-proc indent {text} {
-    wordwrap $text 76 "    " "    "
+    puts "* [para $text]"
 }
 proc defn {first args} {
+    puts "^"
+    set defn [string trim [join $args \n]]
     if {$first ne ""} {
-        underline "    $first" ~
+        puts "**${first}**"
+        puts -nonewline ": "
+        regsub -all "\n\n" $defn "\n: " defn
     }
-    foreach p $args {
-        if {$p ne ""} {
-            indent $p
-        }
-    }
+    puts "$defn"
 }
 }
 
@@ -1398,144 +1613,96 @@ proc error-stacktrace {msg} {
 }
 }
 
-# ----- module getopt -----
+# ----- module text-formatting -----
 
-set modsource(getopt) {
-# Copyright (c) 2006 WorkWare Systems http://www.workware.net.au/
-# All rights reserved
-
-# Simple getopt module
-
-# Parse everything out of the argv list which looks like an option
-# Knows about --enable-thing and --disable-thing as alternatives for --thing=0 or --thing=1
-proc getopt {argvname} {
-	upvar $argvname argv
-
-	for {set i 0} {$i < [llength $argv]} {incr i} {
-		set arg [lindex $argv $i]
-
-		#dputs arg=$arg
-
-		if {$arg eq "--"} {
-			# End of options
-			incr i
-			break
-		}
-
-		if {[regexp {^--([^=][^=]+)=(.*)$} $arg -> name value]} {
-			lappend opts($name) $value
-		} elseif {[regexp {^--(enable-|disable-)?([^=]*)$} $arg -> prefix name]} {
-			if {$prefix eq "disable-"} {
-				set value 0
-			} else {
-				set value 1
-			}
-			lappend opts($name) $value
-		} else {
-			break
-		}
-	}
-
-	#puts "getopt: argv=[join $argv] => [join [lrange $argv $i end]]"
-	#parray opts
-
-	set argv [lrange $argv $i end]
-
-	return [array get opts]
-}
-
-proc opt_val {optarrayname options {default {}}} {
-	upvar $optarrayname opts
-
-	set result {}
-
-	foreach o $options {
-		if {[info exists opts($o)]} {
-			lappend result {*}$opts($o)
-		}
-	}
-	if {[llength $result] == 0} {
-		return $default
-	}
-	return $result
-}
-
-proc opt_bool {optarrayname args} {
-	upvar $optarrayname opts
-
-	# Support the args being passed as a list
-	if {[llength $args] == 1} {
-		set args [lindex $args 0]
-	}
-
-	foreach o $args {
-		if {[info exists opts($o)]} {
-			if {"1" in $opts($o) || "yes" in $opts($o)} {
-				return 1
-			}
-		}
-	}
-	return 0
-}
-}
-
-# ----- module init -----
-
-set modsource(init) {
+set modsource(text-formatting) {
 # Copyright (c) 2010 WorkWare Systems http://www.workware.net.au/
 # All rights reserved
 
-# Module to help create auto.def and configure
+# Module which provides text formatting
 
-proc autosetup_init {} {
-	set create_configure 1
-	if {[file exists configure]} {
-		if {!$::autosetup(force)} {
-			# Could this be an autosetup configure?
-			if {![string match "*\nWRAPPER=*" [readfile configure]]} {
-				puts "I see configure, but not created by autosetup, so I won't overwrite it."
-				puts "Use autosetup --init --force to overwrite."
-				set create_configure 0
-			}
-		} else {
-			puts "I will overwrite the existing configure because you used --force."
-		}
-	} else {
-		puts "I don't see configure, so I will create it."
-	}
-	if {$create_configure} {
-		if {!$::autosetup(installed)} {
-			user-notice "Warning: Initialising from the development version of autosetup"
+use formatting
 
-			writefile configure "#!/bin/sh\nWRAPPER=\"\$0\" exec $::autosetup(dir)/autosetup \"\$@\"\n"
-		} else {
-			writefile configure \
-{#!/bin/sh
-dir="$(dirname "$0")/autosetup"
-WRAPPER="$0" exec $("$dir/find-tclsh" || echo false) "$dir/autosetup" "$@"
+proc wordwrap {text length {firstprefix ""} {nextprefix ""}} {
+    set len 0
+    set space $firstprefix
+    foreach word [split $text] {
+        set word [string trim $word]
+        if {$word == ""} {
+            continue
+        }
+        if {$len && [string length $space$word] + $len >= $length} {
+            puts ""
+            set len 0
+            set space $nextprefix
+        }
+        incr len [string length $space$word]
+
+        # Use man-page conventions for highlighting 'quoted' and *quoted*
+        # single words.
+        # Use x^Hx for *bold* and _^Hx for 'underline'.
+        #
+        # less and more will both understand this.
+        # Pipe through 'col -b' to remove them.
+        if {[regexp {^'(.*)'([^a-zA-Z0-9_]*)$} $word -> bareword dot]} {
+            regsub -all . $bareword "_\b&" word
+            append word $dot
+        } elseif {[regexp {^[*](.*)[*]([^a-zA-Z0-9_]*)$} $word -> bareword dot]} {
+            regsub -all . $bareword "&\b&" word
+            append word $dot
+        }
+        puts -nonewline $space$word
+        set space " "
+    }
+    if {$len} {
+        puts ""
+    }
 }
-		}
-		catch {exec chmod 755 configure}
-	}
-	if {![file exists auto.def]} {
-		puts "I don't see auto.def, so I will create a default one."
-		writefile auto.def {# Initial auto.def created by 'autosetup --init'
-
-use cc
-
-# Add any user options here
-options {
+proc title {text} {
+    underline [string trim $text] =
+    nl
 }
-
-make-autoconf-h config.h
-make-template Makefile.in
+proc p {text} {
+    wordwrap $text 80
+    nl
 }
-	}
-	if {![file exists Makefile.in]} {
-		puts "Note: I don't see Makefile.in. You will probably need to create one."
-	}
-
-	exit 0
+proc codelines {lines} {
+    foreach line $lines {
+        puts "    $line"
+    }
+    nl
+}
+proc nl {} {
+    puts ""
+}
+proc underline {text char} {
+    regexp "^(\[ \t\]*)(.*)" $text -> indent words
+    puts $text
+    puts $indent[string repeat $char [string length $words]]
+}
+proc section {text} {
+    underline "[string trim $text]" -
+    nl
+}
+proc subsection {text} {
+    underline "$text" ~
+    nl
+}
+proc bullet {text} {
+    wordwrap $text 76 "  * " "    "
+}
+proc indent {text} {
+    wordwrap $text 76 "    " "    "
+}
+proc defn {first args} {
+    if {$first ne ""} {
+        underline "    $first" ~
+    }
+    foreach p $args {
+        if {$p ne ""} {
+            indent $p
+        }
+    }
 }
 }
 
@@ -1602,167 +1769,6 @@ proc defn {first args} {
 
     foreach p $args {
         p $p
-    }
-}
-}
-
-# ----- module help -----
-
-set modsource(help) {
-# Copyright (c) 2010 WorkWare Systems http://workware.net.au/
-# All rights reserved
-
-# Module which provides usage, help and the command reference
-
-proc autosetup_help {what} {
-    use_pager
-
-    puts "Usage: [file tail $::autosetup(exe)] \[options\] \[settings\]\n"
-    puts "This is [autosetup_version], a build environment \"autoconfigurator\""
-    puts "See the documentation online at http://msteveb.github.com/autosetup/\n"
-
-    if {$what eq "local"} {
-        if {[file exists $::autosetup(autodef)]} {
-            # This relies on auto.def having a call to 'options'
-            # which will display options and quit
-            source $::autosetup(autodef)
-        } else {
-            options-show
-        }
-    } else {
-        incr ::autosetup(showhelp)
-        if {[catch {use $what}]} {
-            user-error "Unknown module: $what"
-        } else {
-            options-show
-        }
-    }
-    exit 0
-}
-
-# If not already paged and stdout is a tty, pipe the output through the pager
-# This is done by reinvoking autosetup with --nopager added
-proc use_pager {} {
-    if {0 && ![opt-bool nopager] && [getenv PAGER ""] ne "" && ![string match "not a tty" [exec tty]]} {
-        catch {
-            exec [info nameofexecutable] $::argv0 --nopager {*}$::argv | [getenv PAGER] >@stdout <@stdin 2>/dev/null
-        }
-        exit 0
-    }
-}
-
-# Outputs the autosetup references in one of several formats
-proc autosetup_reference {{type text}} {
-
-    use_pager
-
-    switch -glob -- $type {
-        wiki {use wiki-formatting}
-        ascii* {use asciidoc-formatting}
-        md - markdown {use markdown-formatting}
-        default {use text-formatting}
-    }
-
-    title "[autosetup_version] -- Command Reference"
-
-    section {Introduction}
-
-    p {
-        See http://msteveb.github.com/autosetup/ for the online documentation for 'autosetup'
-    }
-
-    p {
-        'autosetup' provides a number of built-in commands which
-        are documented below. These may be used from 'auto.def' to test
-        for features, define variables, create files from templates and
-        other similar actions.
-    }
-
-    automf_command_reference
-
-    exit 0
-}
-
-proc autosetup_output_block {type lines} {
-    if {[llength $lines]} {
-        switch $type {
-            code {
-                codelines $lines
-            }
-            p {
-                p [join $lines]
-            }
-            list {
-                foreach line $lines {
-                    bullet $line
-                }
-                nl
-            }
-        }
-    }
-}
-
-# Generate a command reference from inline documentation
-proc automf_command_reference {} {
-    lappend files $::autosetup(prog)
-    lappend files {*}[lsort [glob -nocomplain $::autosetup(libdir)/*.tcl]]
-
-    section "Core Commands"
-    set type p
-    set lines {}
-    set cmd {}
-
-    foreach file $files {
-        set f [open $file]
-        while {![eof $f]} {
-            set line [gets $f]
-
-            # Find lines starting with "# @*" and continuing through the remaining comment lines
-            if {![regexp {^# @(.*)} $line -> cmd]} {
-                continue
-            }
-
-            # Synopsis or command?
-            if {$cmd eq "synopsis:"} {
-                section "Module: [file rootname [file tail $file]]"
-            } else {
-                subsection $cmd
-            }
-
-            set lines {}
-            set type p
-
-            # Now the description
-            while {![eof $f]} {
-                set line [gets $f]
-
-                if {![regexp {^#(#)? ?(.*)} $line -> hash cmd]} {
-                    break
-                }
-                if {$hash eq "#"} {
-                    set t code
-                } elseif {[regexp {^- (.*)} $cmd -> cmd]} {
-                    set t list
-                } else {
-                    set t p
-                }
-
-                #puts "hash=$hash, oldhash=$oldhash, lines=[llength $lines], cmd=$cmd"
-
-                if {$t ne $type || $cmd eq ""} {
-                    # Finish the current block
-                    autosetup_output_block $type $lines
-                    set lines {}
-                    set type $t
-                }
-                if {$cmd ne ""} {
-                    lappend lines $cmd
-                }
-            }
-
-            autosetup_output_block $type $lines
-        }
-        close $f
     }
 }
 }
