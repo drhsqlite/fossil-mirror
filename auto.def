@@ -98,7 +98,7 @@ if {$ssldirs ne "none"} {
                 set cflags "-I$dir/include"
                 set ldflags "-L$dir/include"
             }
-            if {[check-for-openssl $msg "$cflags $ldflags"} {
+            if {[check-for-openssl $msg "$cflags $ldflags"]} {
                 incr found
                 break
             }
