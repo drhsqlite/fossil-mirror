@@ -1440,7 +1440,10 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close(1);
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
+  if( win32_http_service(iPort, zNotFound, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd,
+                      zStopperFile, zNotFound, flags);
+  }
 #endif
 }
 

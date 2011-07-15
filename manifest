@@ -1,5 +1,5 @@
-C Add\sfile\slocal.tcl\sto\sthe\sautosetup\sdirectory.\sContaining\sa\sconfiguration\soption\sto\sprevent\sautosetup\sfrom\susing\sa\spager.
-D 2011-07-15T04:50:11.393
+C Enable\sFossil\sto\srun\sas\sa\sWindows\sservice\sand\sadd\sa\s"fossil\sservice"\scommand.
+D 2011-07-15T18:06:05.793
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -91,7 +91,7 @@ F src/import.c fd731ed08e2c891da937132417ea620dffb91652
 F src/info.c 22d1aa9a3019ad531df16b8ee7b3127ed1fa3c12
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
-F src/main.c 3df1e45af9b13f50ec4544ab0204c3c8afa612a8
+F src/main.c c6ebf35db7cfd8ec29fa90cb3ddeaa07cc6d3c5a
 F src/main.mk 6b4865b5a7543e1c62bd085d8e28447d4e748212
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -143,7 +143,7 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c e94eca23006619e2f856f92c72185c08f614af9b
 F src/wiki.c 1c739d6c7ec4cc8b923d4d005236d39bf74c1e70
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
-F src/winhttp.c 8386ea5c4cfea491186ec153a280e12f916908fb
+F src/winhttp.c 44db2c4380cd92a2c78374799062c4ab62567182
 F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
 F src/zip.c 4ea71245f12fbd56cd700d799476a8c8199e6fff
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
@@ -323,7 +323,11 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 39624620accd28623656aab0ec38b17b2ff1c5e5
-R efbf9efae64d56835849a8fdec68579e
-U dan
-Z b8658c2a0d13c6cbc9b0e49cfaab43ad
+P e14f0fe2f3d8a76c0953b76e4f97f4f737b566dd
+R 41459d5364bc33bd3079feb8a3a2a2de
+T *bgcolor * #ffc0ff
+T *branch * tsbg-win-service
+T *sym-tsbg-win-service *
+T -sym-trunk *
+U tsbg
+Z 6ccc5d487ca86aa0b4a8569a2aafc4d5
