@@ -1,5 +1,5 @@
-C Add\sa\scommentary\ssection\sto\sthe\scheck-in\schecklist.\s\sAlso\sadd\sthe\n"verify\smakefiles"\sitem.\s\s[/doc/trunk/www/checkin.wiki]
-D 2011-07-14T15:28:21.562
+C Add\sfile\slocal.tcl\sto\sthe\sautosetup\sdirectory.\sContaining\sa\sconfiguration\soption\sto\sprevent\sautosetup\sfrom\susing\sa\spager.
+D 2011-07-15T04:50:11.393
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -39,6 +39,7 @@ F autosetup/config.guess e3eeba8dd66aa41d8a40fb1d60825d9a1a27776e x
 F autosetup/config.sub 32f90ac76aa68c2265471dd377c34f264acaf173 x
 F autosetup/find-tclsh 1dd9da6f97a1c53bd058e2f5a3f0a31e8baacac4 x
 F autosetup/jimsh0.c 14816929b8456e876119f0f86a37dd7cac4b94ae
+F autosetup/local.tcl 472f0cba85bd22276208c4eac87d39a6a6e9273a
 F autosetup/system.tcl a3f6e73177219850cf2f0ebe2ecd162f5e4f8f5d
 F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
@@ -322,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a4efad7e61f2b997c7498f8acfc3fda7f004d541
-R 4dfc90bd1c57df627bb70375933e089f
-U drh
-Z b96d7e7d3237ee0d084e3bf77c0ece0f
+P 39624620accd28623656aab0ec38b17b2ff1c5e5
+R efbf9efae64d56835849a8fdec68579e
+U dan
+Z b8658c2a0d13c6cbc9b0e49cfaab43ad
