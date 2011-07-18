@@ -1,5 +1,5 @@
-C Enable\sFossil\sto\srun\sas\sa\sWindows\sservice\sand\sadd\sa\s"fossil\sservice"\scommand.
-D 2011-07-15T18:06:05.793
+C Update\sthe\sMSVC\smakefile\sso\sthat\sit\sworks\swith\sthe\snew\s"service"\scommand.
+D 2011-07-18T20:00:52.357
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -95,7 +95,7 @@ F src/main.c c6ebf35db7cfd8ec29fa90cb3ddeaa07cc6d3c5a
 F src/main.mk 6b4865b5a7543e1c62bd085d8e28447d4e748212
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl eda8908631cdde18a27b17fa4dd64f309bde3e8d
+F src/makemake.tcl 33acd82960862e59a85f31ee1d3a2759da7676e1
 F src/manifest.c 8ebc92c0dec9f5270413de3f3445e3b03a411055
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
@@ -215,7 +215,7 @@ F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
 F win/Makefile.dmc aa1d40aa0651efd64e7c57693aa70b9e13b1b76e
 F win/Makefile.mingw ba3bde2afcfb7e9b62f868e107badc13a96897b2
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 4872909b4eea4319e7150eff8155083fed00bb43
+F win/Makefile.msc cc9f76a85e6b9ba56cdc4f056be4c5e983d00d47
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -323,11 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e14f0fe2f3d8a76c0953b76e4f97f4f737b566dd
-R 41459d5364bc33bd3079feb8a3a2a2de
-T *bgcolor * #ffc0ff
-T *branch * tsbg-win-service
-T *sym-tsbg-win-service *
-T -sym-trunk *
-U tsbg
-Z 6ccc5d487ca86aa0b4a8569a2aafc4d5
+P 91c2f65a6e705815627d088f7e2a6aa8aa0e5e8d
+R 393dea1aae6aa74b9228970db484a6ef
+U drh
+Z df049fc400b2c35028cafa197a088033
