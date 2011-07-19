@@ -811,6 +811,7 @@ int db_open_local(void){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
+  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
