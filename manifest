@@ -1,5 +1,5 @@
-C Enhance\sthe\sbranch\scommand\sand\sthe\sbranch\swww\spage\sso\sthat\sthey\scan\sshow\nall\sbranches.\s\sThe\sbranch\scommand\scan\snow\salso\sshow\sclosed\sbranches.\nTicket\s[2adfb697fda1b2].
-D 2011-07-19T23:10:41.026
+C Do\snot\sdelete\sinitial\swhitespace\sfrom\sa\swiki\spage\sprior\sto\sformatting\sas\s\nthis\scan\smess\sup\sthe\sbullet\sand\senumeration\smarkup.\nTicket\s[207829a5c5ab7af]
+D 2011-07-19T23:18:12.891
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -141,7 +141,7 @@ F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 68567bd8dca442db174c811c8a98455c420d3de5
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c e94eca23006619e2f856f92c72185c08f614af9b
-F src/wiki.c 1c739d6c7ec4cc8b923d4d005236d39bf74c1e70
+F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 8ef7fbd63e3d8d6e98df7fba5b6ab66e571a9017
 F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d86201dce9f036591b7716bea31c29bcc3188cbf
-R 92cf144aa620d8191bc26800d3202d30
+P ebeaf3ae26fdcd87f7dea99114e3da1b2ae144e1
+R 7073737bfa342c6be912f487ebb4df92
 U drh
-Z 7bdc955afe38764eb764ebbdc292eaf7
+Z 5b198e220de6b14ad9bc88740af92971

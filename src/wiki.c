@@ -184,8 +184,7 @@ void wiki_page(void){
     free(zTag);
     pWiki = manifest_get(rid, CFTYPE_WIKI);
     if( pWiki ){
-      while( fossil_isspace(pWiki->zWiki[0]) ) pWiki->zWiki++;
-      if( pWiki->zWiki[0] ) zBody = pWiki->zWiki;
+      zBody = pWiki->zWiki;
     }
   }
   if( !g.isHome ){
