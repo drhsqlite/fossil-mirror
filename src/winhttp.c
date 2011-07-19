@@ -434,26 +434,25 @@ int win32_http_service(
 }
 
 /*
-** COMMAND: service
-**
-** Usage: fossil service METHOD ?SERVICE-NAME? ?OPTIONS?
+** COMMAND: winsrv
+** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.
 **
-** The service command can be used to create and control instances of Fossil
-** which are are running as Windows services. No user needs to be logged on
-** when running Fossil as a service. In the following description of the
-** methods, "Fossil-DSCM" will be used as the default SERVICE-NAME, if no
-** SERVICE-NAME is specified.
+** The winsrv command manages Fossil as a Windows service.  This allows
+** (for example) Fossil to be running in the background when no user
+** is logged in.
+**
+** In the following description of the methods, "Fossil-DSCM" will be
+** used as the default SERVICE-NAME:
 ** 
 **    fossil service create ?SERVICE-NAME? ?OPTIONS?
 **
-**         Creates a service. The following service specific options are
-**         available:
+**         Creates a service. Available options include:
 **
 **         -D|--display DISPLAY-NAME
 **
-**              Sets the display name of the service. This name will be showed
+**              Sets the display name of the service. This name is shown
 **              by graphical interface programs. By default, the display name
 **              equals to the service name.
 **
