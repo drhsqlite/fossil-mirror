@@ -1,5 +1,5 @@
-C Allow\sthe\sroot\sof\sa\scheck-out\sto\sbe\sin\sthe\sroot\sof\sthe\sfilesystem.\nTicket\s[675f36eac4902cf]
-D 2011-07-19T23:29:05.079
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.8\salpha,\sfor\sthe\spurpose\sof\ntesting\sSQLite.
+D 2011-07-19T23:44:05.689
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -119,8 +119,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c a04bbfc63de6b207d5227132d2615ba508666e79
-F src/sqlite3.h d624a1483062a7238ce1a2e54f8d52a689b7e054
+F src/sqlite3.c cda8f505ae69863b2fb52e1f03da7b2d23d1bf96
+F src/sqlite3.h 43b91b015bd20f5877c5a2b1d1f06a96be6e5168
 F src/stash.c a5de7f84caa44b8dc6b48635cbcf3118f631b4fc
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4ac6328f760b35bb1300d22627cf63492c0618d4
-R 3412efa41039777cbd1f61277bb06fd0
+P b317471d8c8567ec317306709db9406bfd2b6e56
+R f5da31972fabba8da1e82687c5ad230b
 U drh
-Z 7ac67334c5f0d3e5b9f1ed70d8ce60ee
+Z 7c267a9a6ff8a9f94b28e12fc7264374
