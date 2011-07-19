@@ -1,5 +1,11 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.19 (pending)</h2>
+
+  *  Added a ./configure script based on autosetup.
+  *  Added the "[/help/winsrv | fossil winsrv]" command
+     for creating a Fossil service on windows systems.
+
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
 
   *  Added this Change Log
