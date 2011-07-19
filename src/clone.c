@@ -79,9 +79,11 @@ void clone_cmd(void){
        "DELETE FROM private;"
     );
     shun_artifacts();
-    g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
-    if( g.zLogin==0 ){
-      db_create_default_users(1,zDefaultUser);
+    db_create_default_users(1, zDefaultUser);
+    if( zDefaultUser ){
+      g.zLogin = zDefaultUser;
+    }else{
+      g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     }
     fossil_print("Repository cloned into %s\n", g.argv[3]);
   }else{

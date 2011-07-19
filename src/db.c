@@ -1060,10 +1060,9 @@ void db_create_repository(const char *zFilename){
 ** Create the default user accounts in the USER table.
 */
 void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
-  const char *zUser;
-  zUser = db_get("default-user", 0);
+  const char *zUser = zDefaultUser;
   if( zUser==0 ){
-    zUser = zDefaultUser;
+    zUser = db_get("default-user", 0);
   }
   if( zUser==0 ){
 #if defined(_WIN32)
@@ -1076,8 +1075,11 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = "root";
   }
   db_multi_exec(
-     "INSERT INTO user(login, pw, cap, info)"
-     "VALUES(%Q,lower(hex(randomblob(3))),'s','')", zUser
+     "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
+  );
+  db_multi_exec(
+     "UPDATE user SET cap='s', pw=lower(hex(randomblob(3)))"
+     " WHERE login=%Q", zUser
   );
   if( !setupUserOnly ){
     db_multi_exec(
