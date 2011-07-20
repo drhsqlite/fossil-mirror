@@ -149,6 +149,9 @@ void changes_cmd(void){
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --non-relative    Don't display filenames relative to the current
+**                      working directory.
 */
 void status_cmd(void){
   int vid;
