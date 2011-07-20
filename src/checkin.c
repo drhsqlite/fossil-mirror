@@ -34,56 +34,68 @@
 static void status_report(
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
-  int missingIsFatal     /* MISSING and NOT_A_FILE are fatal errors */
+  int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
+  int cwdRelative        /* Report relative to the current working dir */ 
 ){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
+  Blob rewrittenPathname;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
+    const char *zDisplayName = zPathname;
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    if( cwdRelative ){
+      file_relative_name(zFullName, &rewrittenPathname);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_isfile(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
-        blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
+        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("not a file: %s", zPathname);
+          fossil_warning("not a file: %s", zDisplayName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING    %s\n", zPathname);
+        blob_appendf(report, "MISSING    %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("missing file: %s", zPathname);
+          fossil_warning("missing file: %s", zDisplayName);
           nErr++;
         }
       }
     }else if( isNew ){
-      blob_appendf(report, "ADDED      %s\n", zPathname);
+      blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED     %s\n", zPathname);
+      blob_appendf(report, "EDITED     %s\n", zDisplayName);
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED    %s\n", zPathname);
+      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
     }
     free(zFullName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=0");
@@ -109,16 +121,20 @@ static void status_report(
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --non-relative    Don't display filenames relative to the current
+**                      working directory.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int nonRelative = find_option("non-relative", 0, 0)!=0;
   db_must_be_within_tree();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
-  status_report(&report, "", 0);
+  status_report(&report, "", 0, !nonRelative);
   blob_write_to_file(&report, "-");
 }
 
@@ -133,6 +149,9 @@ void changes_cmd(void){
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --non-relative    Don't display filenames relative to the current
+**                      working directory.
 */
 void status_cmd(void){
   int vid;
@@ -214,6 +233,9 @@ void ls_cmd(void){
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
+**
+** Filenames are displayed relative to the current working directory
+** unless the --non-relative option is used.
 */
 void extra_cmd(void){
   Blob path;
@@ -222,8 +244,11 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+  int cwdRelative = !(find_option("non-relative", 0, 0)!=0);
   int outputManifest;
   Glob *pIgnore;
+  Blob rewrittenPathname;
+  const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
   outputManifest = db_get_versionable_setting_boolean("manifest",0);
@@ -245,9 +270,21 @@ void extra_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
-    fossil_print("%s\n", db_column_text(&q, 0));
+    zDisplayName = zPathname = db_column_text(&q, 0);
+    if( cwdRelative ) {
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      file_relative_name(zFullName, &rewrittenPathname);
+      free(zFullName);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
+    fossil_print("%s\n", zDisplayName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
 }
 
@@ -369,7 +406,7 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
-  status_report(&text, "# ", 1);
+  status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
