@@ -39,6 +39,9 @@ TCC +=	@EXTRA_CFLAGS@ @CPPFLAGS@ @CFLAGS@ -DHAVE_AUTOCONFIG_H
 INSTALLDIR = $(DESTDIR)@prefix@/bin
 USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
 
+# Disable the platform check
+PLATFORM_CHECK_KIND = disable
+
 include $(SRCDIR)/main.mk
 
 distclean: clean

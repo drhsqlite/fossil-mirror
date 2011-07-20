@@ -1,9 +1,9 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.8\salpha,\sfor\sthe\spurpose\sof\ntesting\sSQLite.
-D 2011-07-19T23:44:05.689
-F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
+C Only\sallow\sthe\sdefault\sMakefile\sto\sbuild\sfossil\son\splatforms\swhere\sit's\sknown\sto\swork.\sUpdate\sthe\sbuild\sdocumentation\sto\stell\sthe\suser\sto\suse\sthe\sGNUmakefile\sexplicitly,\sto\savoid\saccidently\sbuilding\susing\sthe\sdefault\smakefile\son\snon-GNU\splatforms.
+D 2011-07-20T09:09:50.223
+F BUILD.txt c9c61a9f5ac51ada271943e6f7d3e8fc3115c813
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
-F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
+F GNUmakefile.in 52cc2d0c6b97a6204525f8c37f8f07eefbb25ef5
+F Makefile c6fbb105168d3b7af4541d89175fc76e14917697
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -60,6 +60,7 @@ F src/branch.c d8e0bad7da3bef4edde3a0542133ea7d9064bad1
 F src/browse.c 923028657c4f70f54947163180023bba06add745
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c 6c9195e4cf314f7775dc636a6596428f9f191ab8
+F src/check-platform.sh 849be8e20e1c23f5d44845ee493cb7fec9098c4d x
 F src/checkin.c f299869ace609bba08035fbae6d5d690730bff26
 F src/checkout.c 7158c8eaa2bb1106d7c5c3fd864f9a0f2d4fe629
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -92,10 +93,10 @@ F src/info.c 22d1aa9a3019ad531df16b8ee7b3127ed1fa3c12
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c c6ebf35db7cfd8ec29fa90cb3ddeaa07cc6d3c5a
-F src/main.mk 6b4865b5a7543e1c62bd085d8e28447d4e748212
+F src/main.mk ad233b8f28116bfbf71a438b73c97837cebf4c7e
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 33acd82960862e59a85f31ee1d3a2759da7676e1
+F src/makemake.tcl f95789a170bc972f4074526de0dcbbeee4763283
 F src/manifest.c 8ebc92c0dec9f5270413de3f3445e3b03a411055
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
@@ -323,7 +324,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b317471d8c8567ec317306709db9406bfd2b6e56
-R f5da31972fabba8da1e82687c5ad230b
-U drh
-Z 7c267a9a6ff8a9f94b28e12fc7264374
+P 4adc11edb756c53452e0527c6f8ded128c66beba
+R bb73f4f55fd1a91f9520c2ff5bbd07c9
+T *branch * ben-safe-make
+T *sym-ben-safe-make *
+T -sym-trunk *
+U ben
+Z 7c1a7932d55d027ade01ead035fb48a2

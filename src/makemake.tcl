@@ -206,7 +206,10 @@ EXTRAOBJ = \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
+$(OBJDIR)/checked-platform.$(PLATFORM_CHECK_KIND):	$(SRCDIR)/check-platform.sh
+	sh $(SRCDIR)/check-platform.sh $(PLATFORM_CHECK_KIND)
+
+$(APPNAME):	$(OBJDIR)/checked-platform.$(PLATFORM_CHECK_KIND) $(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
 
 # This rule prevents make from using its default rules to try build

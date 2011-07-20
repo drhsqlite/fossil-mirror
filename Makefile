@@ -72,4 +72,7 @@ TCC.NetBSD += -DUSE_PREAD
 TCC.OpenBSD += -DUSE_PREAD
 TCC += $(TCC.$(HOST_OS))
 
+# Platform check
+PLATFORM_CHECK_KIND = Makefile
+
 include $(SRCDIR)/main.mk
