@@ -27,6 +27,10 @@
 #endif
 #define _LARGEFILE_SOURCE 1
 
+#ifdef HAVE_AUTOCONFIG_H
+#include "autoconfig.h"
+#endif
+
 #ifndef _RC_COMPILE_
 
 /*
@@ -87,7 +91,7 @@
 /*
 ** On Solaris, getpass() will only return up to 8 characters. getpassphrase() returns up to 257.
 */
-#if defined(__sun__) || defined(sun)
+#if HAVE_GETPASSPHRASE
   #define getpass getpassphrase
 #endif
 

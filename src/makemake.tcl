@@ -192,8 +192,16 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 		$(SRCDIR)/../manifest \
 		$(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system sqlite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 = 
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+
 EXTRAOBJ = \
-  $(OBJDIR)/sqlite3.o \
+  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o
@@ -248,7 +256,7 @@ append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 set SQLITE_OPTIONS $opt
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
@@ -400,7 +408,7 @@ test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
-	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest >$(OBJDIR)/VERSION.h
+	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 EXTRAOBJ = \
   $(OBJDIR)/sqlite3.o \
@@ -460,7 +468,7 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c"
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
@@ -572,7 +580,7 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest
+VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
 page_index.h: mkindex$E $(SRC) 
@@ -647,7 +655,7 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib $(SSLLIB)
+LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
@@ -694,7 +702,7 @@ makeheaders$E: $(SRCDIR)\makeheaders.c
 mkindex$E: $(SRCDIR)\mkindex.c
 	$(BCC) $**
 
-version$E: $B\src\mkversion.c
+mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
@@ -709,7 +717,7 @@ $(OX)\th$O : $(SRCDIR)\th.c
 $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) /Fo$@ -c $**
 
-VERSION.h : version$E $B\manifest.uuid $B\manifest
+VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
 
 page_index.h: mkindex$E $(SRC) 
@@ -893,8 +901,8 @@ page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
 # extracting version info from manifest
-VERSION.h:	version.exe ..\manifest.uuid ..\manifest
-	version.exe ..\manifest.uuid ..\manifest  > $@
+VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
+	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
 headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h

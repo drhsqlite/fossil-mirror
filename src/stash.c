@@ -102,6 +102,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       blob_read_from_file(&content, zPath);
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
+      blob_zero(&content);
       db_bind_null(&ins, ":content");
     }else{
       /* A modified file */

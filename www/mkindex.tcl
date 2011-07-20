@@ -21,6 +21,7 @@ set doclist {
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
+  foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-v-git.wiki {Fossil Versus Git}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
@@ -49,7 +50,7 @@ set doclist {
 }
 
 set permindex {}
-set stopwords {fossil and a in of on the to are about used by}
+set stopwords {fossil and a in of on the to are about used by for or}
 foreach {file title} $doclist {
   set n [llength $title]
   lappend permindex [list $title $file]
@@ -63,11 +64,12 @@ foreach {file title} $doclist {
   }
 }
 set permindex [lsort -dict $permindex]
-puts "<title>Permuted Index Of Fossil Documentation</title>"
-puts "<nowiki>"
-puts "<ul>"
+set out [open permutedindex.wiki w]
+puts $out "<title>Permuted Index Of Fossil Documentation</title>"
+puts $out "<nowiki>"
+puts $out "<ul>"
 foreach entry $permindex {
   foreach {title file} $entry break
-  puts "<li><a href=\"$file\">$title</a></li>"
+  puts $out "<li><a href=\"$file\">$title</a></li>"
 }
-puts "</ul>"
+puts $out "</ul>"

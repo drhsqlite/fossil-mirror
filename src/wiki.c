@@ -184,8 +184,7 @@ void wiki_page(void){
     free(zTag);
     pWiki = manifest_get(rid, CFTYPE_WIKI);
     if( pWiki ){
-      while( fossil_isspace(pWiki->zWiki[0]) ) pWiki->zWiki++;
-      if( pWiki->zWiki[0] ) zBody = pWiki->zWiki;
+      zBody = pWiki->zWiki;
     }
   }
   if( !g.isHome ){
@@ -893,6 +892,7 @@ void wiki_cmd(void){
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
+    Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
 
     if( (g.argc!=4) && (g.argc!=5) ){
@@ -911,24 +911,12 @@ void wiki_cmd(void){
       fossil_fatal("wiki page [%s] not found",zPageName);
     }
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
-    zFile  = (g.argc==4) ? 0 : g.argv[4];
-    if( zFile ){
-      FILE * zF;
-      short doClose = 0;
-      if( (1 == strlen(zFile)) && ('-'==zFile[0]) ){
-        zF = stdout;
-      }else{
-        zF = fossil_fopen( zFile, "w" );
-        doClose = zF ? 1 : 0;
-      }
-      if( ! zF ){
-        fossil_fatal("wiki export could not open output file for writing.");
-      }
-      fprintf(zF,"%.*s\n", i, zBody);
-      if( doClose ) fclose(zF);
-    }else{
-      fossil_print("%.*s\n", i, zBody);
-    }
+    zBody[i] = 0;
+    zFile  = (g.argc==4) ? "-" : g.argv[4];
+    blob_init(&body, zBody, -1);
+    blob_append(&body, "\n", 1);
+    blob_write_to_file(&body, zFile);
+    blob_reset(&body);
     manifest_destroy(pWiki);
     return;
   }else

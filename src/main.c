@@ -1106,7 +1106,8 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "repository:") && blob_token(&line, &value) ){
+    if( blob_eq(&key, "repository:") && blob_tail(&line, &value) ){
+      blob_trim(&value);
       db_open_repository(blob_str(&value));
       blob_reset(&value);
       continue;
@@ -1441,7 +1442,10 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close(1);
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
+  if( win32_http_service(iPort, zNotFound, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd,
+                      zStopperFile, zNotFound, flags);
+  }
 #endif
 }
 

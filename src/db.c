@@ -811,6 +811,7 @@ int db_open_local(void){
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
+  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
@@ -1060,10 +1061,9 @@ void db_create_repository(const char *zFilename){
 ** Create the default user accounts in the USER table.
 */
 void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
-  const char *zUser;
-  zUser = db_get("default-user", 0);
+  const char *zUser = zDefaultUser;
   if( zUser==0 ){
-    zUser = zDefaultUser;
+    zUser = db_get("default-user", 0);
   }
   if( zUser==0 ){
 #if defined(_WIN32)
@@ -1076,8 +1076,11 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = "root";
   }
   db_multi_exec(
-     "INSERT INTO user(login, pw, cap, info)"
-     "VALUES(%Q,lower(hex(randomblob(3))),'s','')", zUser
+     "INSERT OR IGNORE INTO user(login, info) VALUES(%Q,'')", zUser
+  );
+  db_multi_exec(
+     "UPDATE user SET cap='s', pw=lower(hex(randomblob(3)))"
+     " WHERE login=%Q", zUser
   );
   if( !setupUserOnly ){
     db_multi_exec(
@@ -1930,7 +1933,7 @@ void setting_cmd(void){
       isManifest = 0;
       print_setting(&ctrlSettings[i], db_open_local());
     }
-    if( isManifest ){
+    if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));
     }
   }else{

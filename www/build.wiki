@@ -35,20 +35,18 @@ the top of the page.</p></li>
 link.  Note that you must successfully log in as "anonymous" in step 1
 above in order to see the link to the detailed version information.</p></li>
 
-<li><p>Finally, click on the
-"Zip Archive" link.  This link will build a ZIP archive of the 
+<li><p>Finally, click on one of the
+"Zip Archive" or "Tarball" links, according to your preference.
+These link will build a ZIP archive or a gzip-compressed tarball of the 
 complete source code and download it to your browser.
 </ol>
 
 <h2>2.0 Compiling</h2>
 
-<p>Follow these steps to compile on a unix platform
-(Linux, *BSD, MacOS, etc):</p>
-
 <ol>
 <li value="6">
-<p>Create a directory to hold the source code.  Then unzip the
-ZIP archive you downloaded into that directory.  You should be
+<p>Create a directory to hold the source code.  Then unarchive the
+ZIP or tarball you downloaded into that directory.  You should be
 in the top-level folder of that directory</p></li>
 
 <li><p><b>(Optional:)</b>
@@ -57,16 +55,27 @@ need to do anything.  Do not be intimidated:  There are less than 10
 variables in the makefile that can be changed.  The whole Makefile
 is only a few dozen lines long and most of those lines are comments.</p>
 
-<li><p>Type "<b>make</b>"
+<li><p>Run make to build the "fossil" or "fossil.exe" executable.  The
+details depend on your platform and compiler:
+
+<ol type="a">
+<li><p><i>Unix</i> &rarr; the default Makefile works on most unix and
+unix-like systems.  Simply type "<b>make</b>".
+
+<li><p><i>Msys/MinGW</i> &rarr; Use the
+mingw makefile: "<b>make -f win/Makefile.mingw</b>"
+
+<li><p><i>VC++</i> &rarr; Use the msc makefile.  First
+change to the "win/" subdirectory ("<b>cd win</b>") then run
+"<b>nmake /f Makefile.msc</b>".
+</ol>
 </ol>
 
-<p>To build on windows, use an alternative makefile suitable for your
-particular build environment.  The alternative windows makefiles are
-all found in the win/ subdirectory of the source tree.  So, for example,
-if you want build using the 
-[http://www.mingw.org/ | mingw/msys compiler package] for windows, then
-run "<b>make -f win/Makefile.mingw</b>" instead of just "<b>make</b>"
-in step 8 above.</p>
+<p>Note that Fossil requires the "zlib" compression library.  This library
+is available by default on most unix systems, but it will typically have to
+be installed separately on windows systems.  For windows builds, you may
+need to edit the makefile to tell it exactly where zlib is located on your
+system.</p>
 
 <h2>3.0 Installing</h2>
 

@@ -1,0 +1,24 @@
+<title>Change Log</title>
+
+<h2>Changes For Version 1.19 (pending)</h2>
+
+  *  Added a ./configure script based on autosetup.
+  *  Added the "[/help/winsrv | fossil winsrv]" command
+     for creating a Fossil service on windows systems.
+
+<h2>Changes For Version 1.18 (2011-07-14)</h2>
+
+  *  Added this Change Log
+  *  Added sequential version numbering
+  *  Added a optional configure script - the Makefile still works for most
+     systems.
+  *  Improvements to the "annotate" algorithm: only search primary
+     ancestors and ignore branches.
+  *  Update the "scrub" command to remove traces of login-groups and
+     subrepositories.
+  *  Added the --type option to the "fossil tag find" command.
+  *  In contexts where only a check-in makes sense, resolve branch and
+     tag names to checkins only, never events or other artifacts.
+  *  Improved display of file renames on a diff.  A rebuild is required
+     to take full advantage of this change.
+  *  Update the built-in SQLite to version 3.7.7.
