@@ -141,16 +141,13 @@ void export_cmd(void){
     TAG_BRANCH
   );
   while( db_step(&q)==SQLITE_ROW ){
+    Stmt q2;
     const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
     const char *zComment = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     const char *zBranch = db_column_text(&q, 4);
     char *zBr;
-    Manifest *p;
-    ManifestFile *pFile;
-    const char *zFromType;
-    int parent;
 
     bag_insert(&vers, ckinId);
     if( zBranch==0 ) zBranch = "trunk";
@@ -165,17 +162,20 @@ void export_cmd(void){
     printf(" %s +0000\n", zSecondsSince1970);
     if( zComment==0 ) zComment = "null comment";
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
-    p = manifest_get(ckinId, CFTYPE_ANY);
-    zFromType = "from";
-    parent = 0;
-    for(i=0; i<p->nParent; i++){
-      int pid = fast_uuid_to_rid(p->azParent[i]);
-      if( pid==0 || !bag_find(&vers, pid) ) continue;
-      if( i==0) parent = pid;
-      printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
-      zFromType = "merge";
-    }
-    if( parent==0 ) {
+    db_prepare(&q2, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
+    if( db_step(&q2) != SQLITE_ROW ){
+      const char *zFromType;
+      Manifest *p;
+      ManifestFile *pFile;
+
+      zFromType = "from";
+      p = manifest_get(ckinId, CFTYPE_ANY);
+      for(i=0; i<p->nParent; i++){
+        int pid = fast_uuid_to_rid(p->azParent[i]);
+        if( pid==0 || !bag_find(&vers, pid) ) continue;
+        printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
+        zFromType = "merge";
+      }
       printf("deleteall\n");
       manifest_file_rewind(p);
       while( (pFile=manifest_file_next(p, 0))!=0 ){
@@ -186,26 +186,41 @@ void export_cmd(void){
         if( !bag_find(&blobs, fid) ) continue;
         printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
       }
+      manifest_cache_insert(p);
     }else{
-      Stmt q2;
-      db_prepare(&q2,
+      Stmt q3;
+      int parent;
+
+      parent = db_column_int(&q2, 0);
+      printf("from :%d\n", parent+firstCkin);
+      db_prepare(&q3,
+        "SELECT pid FROM plink"
+        " WHERE cid=%d AND NOT isprim"
+        " ORDER BY pid",
+        ckinId);
+      while( db_step(&q3)==SQLITE_ROW ){
+        printf("merge :%d\n", db_column_int(&q3,0)+firstCkin);
+      }
+      db_finalize(&q3);
+
+      db_prepare(&q3,
         "SELECT filename.name, mlink.fid, mlink.mperm FROM mlink"
         " JOIN filename ON filename.fnid=mlink.fnid"
         " WHERE mlink.mid=%d",
         parent
       );
-      while( db_step(&q2)==SQLITE_ROW ){
-        const char *zName = db_column_text(&q2,0);
-        int zNew = db_column_int(&q2,1);
-        int mPerm = db_column_int(&q2,2);
+      while( db_step(&q3)==SQLITE_ROW ){
+        const char *zName = db_column_text(&q3,0);
+        int zNew = db_column_int(&q3,1);
+        int mPerm = db_column_int(&q3,2);
         if( zNew==0)
            printf("D %s\n", zName);
         else
            printf("M %s :%d %s\n", mPerm ? "100755" : "100644", zNew, zName);
       }
-      db_finalize(&q2);
+      db_finalize(&q3);
     }
-    manifest_cache_insert(p);
+    db_finalize(&q2);
     printf("\n");
   }
   db_finalize(&q);
