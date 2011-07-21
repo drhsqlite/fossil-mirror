@@ -196,6 +196,7 @@ void export_cmd(void){
       db_prepare(&q3,
         "SELECT pid FROM plink"
         " WHERE cid=%d AND NOT isprim"
+        "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
         " ORDER BY pid",
         ckinId);
       while( db_step(&q3)==SQLITE_ROW ){
