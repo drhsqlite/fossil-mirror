@@ -150,6 +150,7 @@ void export_cmd(void){
     Manifest *p;
     ManifestFile *pFile;
     const char *zFromType;
+    int parent;
 
     bag_insert(&vers, ckinId);
     if( zBranch==0 ) zBranch = "trunk";
@@ -166,21 +167,43 @@ void export_cmd(void){
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     p = manifest_get(ckinId, CFTYPE_ANY);
     zFromType = "from";
+    parent = 0;
     for(i=0; i<p->nParent; i++){
       int pid = fast_uuid_to_rid(p->azParent[i]);
       if( pid==0 || !bag_find(&vers, pid) ) continue;
+      if( i==0) parent = pid;
       printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
       zFromType = "merge";
     }
-    printf("deleteall\n");
-    manifest_file_rewind(p);
-    while( (pFile=manifest_file_next(p, 0))!=0 ){
-      int fid = fast_uuid_to_rid(pFile->zUuid);
-      const char *zPerm = "100644";
-      if( fid==0 ) continue;
-      if( pFile->zPerm && strstr(pFile->zPerm,"x") ) zPerm = "100755";
-      if( !bag_find(&blobs, fid) ) continue;
-      printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
+    if( parent==0 ) {
+      printf("deleteall\n");
+      manifest_file_rewind(p);
+      while( (pFile=manifest_file_next(p, 0))!=0 ){
+        int fid = fast_uuid_to_rid(pFile->zUuid);
+        const char *zPerm = "100644";
+        if( fid==0 ) continue;
+        if( pFile->zPerm && strstr(pFile->zPerm,"x") ) zPerm = "100755";
+        if( !bag_find(&blobs, fid) ) continue;
+        printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
+      }
+    }else{
+      Stmt q2;
+      db_prepare(&q2,
+        "SELECT filename.name, mlink.fid, mlink.mperm FROM mlink"
+        " JOIN filename ON filename.fnid=mlink.fnid"
+        " WHERE mlink.mid=%d",
+        parent
+      );
+      while( db_step(&q2)==SQLITE_ROW ){
+        const char *zName = db_column_text(&q2,0);
+        int zNew = db_column_int(&q2,1);
+        int mPerm = db_column_int(&q2,2);
+        if( zNew==0)
+           printf("D %s\n", zName);
+        else
+           printf("M %s :%d %s\n", mPerm ? "100755" : "100644", zNew, zName);
+      }
+      db_finalize(&q2);
     }
     manifest_cache_insert(p);
     printf("\n");
