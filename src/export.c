@@ -80,6 +80,8 @@ static void print_person(const char *zUser){
   db_reset(&q);
 }
 
+#define BLOBMARK(rid)   ((rid) * 2)
+#define COMMITMARK(rid) ((rid) * 2 + 1)
 
 /*
 ** COMMAND: export
@@ -101,7 +103,6 @@ static void print_person(const char *zUser){
 void export_cmd(void){
   Stmt q;
   int i;
-  int firstCkin;       /* Integer offset to check-in marks */
   Bag blobs, vers;
   bag_init(&blobs);
   bag_init(&vers);
@@ -120,7 +121,7 @@ void export_cmd(void){
     int rid = db_column_int(&q, 0);
     Blob content;
     content_get(rid, &content);
-    printf("blob\nmark :%d\ndata %d\n", rid, blob_size(&content));
+    printf("blob\nmark :%d\ndata %d\n", BLOBMARK(rid), blob_size(&content));
     bag_insert(&blobs, rid);
     fwrite(blob_buffer(&content), 1, blob_size(&content), stdout);
     printf("\n");
@@ -130,7 +131,6 @@ void export_cmd(void){
 
   /* Output the commit records.
   */
-  firstCkin = db_int(0, "SELECT max(rid) FROM blob")+1;
   db_prepare(&q,
     "SELECT strftime('%%s',mtime), objid, coalesce(comment,ecomment),"
     "       coalesce(user,euser),"
@@ -155,7 +155,7 @@ void export_cmd(void){
     for(i=0; zBr[i]; i++){
       if( !fossil_isalnum(zBr[i]) ) zBr[i] = '_';
     }
-    printf("commit refs/heads/%s\nmark :%d\n", zBr, ckinId+firstCkin);
+    printf("commit refs/heads/%s\nmark :%d\n", zBr, COMMITMARK(ckinId));
     free(zBr);
     printf("committer");
     print_person(zUser);
@@ -173,7 +173,7 @@ void export_cmd(void){
       for(i=0; i<p->nParent; i++){
         int pid = fast_uuid_to_rid(p->azParent[i]);
         if( pid==0 || !bag_find(&vers, pid) ) continue;
-        printf("%s :%d\n", zFromType, fast_uuid_to_rid(p->azParent[i])+firstCkin);
+        printf("%s :%d\n", zFromType, COMMITMARK(fast_uuid_to_rid(p->azParent[i])));
         zFromType = "merge";
       }
       printf("deleteall\n");
@@ -184,7 +184,7 @@ void export_cmd(void){
         if( fid==0 ) continue;
         if( pFile->zPerm && strstr(pFile->zPerm,"x") ) zPerm = "100755";
         if( !bag_find(&blobs, fid) ) continue;
-        printf("M %s :%d %s\n", zPerm, fid, pFile->zName);
+        printf("M %s :%d %s\n", zPerm, BLOBMARK(fid), pFile->zName);
       }
       manifest_cache_insert(p);
     }else{
@@ -192,7 +192,7 @@ void export_cmd(void){
       int parent;
 
       parent = db_column_int(&q2, 0);
-      printf("from :%d\n", parent+firstCkin);
+      printf("from :%d\n", COMMITMARK(parent));
       db_prepare(&q3,
         "SELECT pid FROM plink"
         " WHERE cid=%d AND NOT isprim"
@@ -200,7 +200,7 @@ void export_cmd(void){
         " ORDER BY pid",
         ckinId);
       while( db_step(&q3)==SQLITE_ROW ){
-        printf("merge :%d\n", db_column_int(&q3,0)+firstCkin);
+        printf("merge :%d\n", COMMITMARK(db_column_int(&q3,0)));
       }
       db_finalize(&q3);
 
@@ -216,8 +216,8 @@ void export_cmd(void){
         int mPerm = db_column_int(&q3,2);
         if( zNew==0)
            printf("D %s\n", zName);
-        else
-           printf("M %s :%d %s\n", mPerm ? "100755" : "100644", zNew, zName);
+        else if( bag_find(&blobs, zNew) )
+           printf("M %s :%d %s\n", mPerm ? "100755" : "100644", BLOBMARK(zNew), zName);
       }
       db_finalize(&q3);
     }
@@ -248,7 +248,7 @@ void export_cmd(void){
       if( !fossil_isalnum(zEncoded[i]) ) zEncoded[i] = '_';
     }
     printf("tag %s\n", zEncoded);
-    printf("from :%d\n", rid+firstCkin);
+    printf("from :%d\n", COMMITMARK(rid));
     printf("tagger <tagger> %s +0000\n", zSecSince1970);
     printf("data 0\n");
     fossil_free(zEncoded);
