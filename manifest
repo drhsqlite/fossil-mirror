@@ -1,5 +1,5 @@
-C Use\sstable\smarks\sderived\sfrom\sthe\srid\sin\spreparation\sfor\soptional\nincremental\sexports.
-D 2011-07-21T17:37:07.190
+C Add\ssupport\sfor\sincremental\sexports
+D 2011-07-21T19:20:35.050
 F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
@@ -77,7 +77,7 @@ F src/diffcmd.c f9bf7dd9728f62797981c5560a40459008049959
 F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
-F src/export.c 6dc187b14781affd8051cb6ecf5bc14e0bdb9766
+F src/export.c cdb1482c24bdca7476cd730a8a4d9cce24fbc165
 F src/file.c c342ae626de8caa93e1ba14a0e9766111886da64
 F src/finfo.c 2284ea12f5c238e7eb61278ee5916d598fce2014
 F src/glob.c 096577b90ff66e5d0e13e07b07eb2c3ec4f34f6a
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b71b32d131fe71f40dae41a65600312f61b513bb
-R e8f1eaa50384a142ed936d2981a3f39c
+P 22d414e517b5846de1a0849f69f385ea015d3c6f
+R 12fa83b9db6b0d6753bf3d4decbe464c
 U joerg
-Z 7547be2422582b47c00dd0f56925e17e
+Z f398b2f3179537f00391ac1b17b04ca8

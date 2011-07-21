@@ -86,7 +86,7 @@ static void print_person(const char *zUser){
 /*
 ** COMMAND: export
 **
-** Usage: %fossil export --git ?REPOSITORY?
+** Usage: %fossil export --git ?options? ?REPOSITORY?
 **
 ** Write an export of all check-ins to standard output.  The export is
 ** written in the git-fast-export file format assuming the --git option is
@@ -99,28 +99,79 @@ static void print_person(const char *zUser){
 **
 ** Only check-ins are exported using --git.  Git does not support tickets 
 ** or wiki or events or attachments, so none of those are exported.
+**
+** If the "--import-marks FILE" option is used, it contains a list of
+** rids to skip.
+**
+** If the "--export-marks FILE" option is used, the rid of all commits and
+** blobs written on exit for use with "--import-marks" on the next run.
 */
 void export_cmd(void){
-  Stmt q;
+  Stmt q, q2;
   int i;
   Bag blobs, vers;
+  const char *markfile_in;
+  const char *markfile_out;
+
   bag_init(&blobs);
   bag_init(&vers);
 
   find_option("git", 0, 0);   /* Ignore the --git option for now */
+  markfile_in = find_option("import-marks", 0, 1);
+  markfile_out = find_option("export-marks", 0, 1);
+
   db_find_and_open_repository(0, 2);
   verify_all_options();
   if( g.argc!=2 && g.argc!=3 ){ usage("--git ?REPOSITORY?"); }
+
+  db_multi_exec("CREATE TEMPORARY TABLE oldblob(rid INTEGER)");
+  db_multi_exec("CREATE TEMPORARY TABLE oldcommit(rid INTEGER)");
+  if( markfile_in!=0 ){
+    Stmt qb,qc;
+    char line[100];
+    FILE *f;
+
+    f = fopen(markfile_in, "r");
+    if( f==0 ){
+      fossil_panic("cannot open %s for reading", markfile_in);
+    }
+    db_prepare(&qb, "INSERT INTO oldblob VALUES (:rid)");
+    db_prepare(&qc, "INSERT INTO oldcommit VALUES (:rid)");
+    while( fgets(line, sizeof(line), f)!=0 ){
+      if( *line == 'b' ){
+        db_bind_text(&qb, ":rid", line + 1);
+        db_step(&qb);
+        db_reset(&qb);
+        bag_insert(&blobs, atoi(line + 1));
+      }else if( *line == 'c' ){
+        db_bind_text(&qc, ":rid", line + 1);
+        db_step(&qc);
+        db_reset(&qc);
+        bag_insert(&vers, atoi(line + 1));
+      }else{
+        fossil_panic("bad input from %s: %s", markfile_in, line);
+      }
+    }
+    db_finalize(&qb);
+    db_finalize(&qc);
+    fclose(f);
+  }
 
   /* Step 1:  Generate "blob" records for every artifact that is part
   ** of a check-in 
   */
   fossil_binary_mode(stdout);
-  db_prepare(&q, "SELECT DISTINCT fid FROM mlink WHERE fid>0");
+  db_prepare(&q,
+    "SELECT DISTINCT fid FROM mlink"
+    " WHERE fid>0 AND NOT EXISTS(SELECT 1 FROM oldblob WHERE rid=fid)");
+  db_prepare(&q2, "INSERT INTO oldblob VALUES (:rid)");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     Blob content;
     content_get(rid, &content);
+    db_bind_int(&q2, ":rid", rid);
+    db_step(&q2);
+    db_reset(&q2);
     printf("blob\nmark :%d\ndata %d\n", BLOBMARK(rid), blob_size(&content));
     bag_insert(&blobs, rid);
     fwrite(blob_buffer(&content), 1, blob_size(&content), stdout);
@@ -128,6 +179,7 @@ void export_cmd(void){
     blob_reset(&content);
   }
   db_finalize(&q);
+  db_finalize(&q2);
 
   /* Output the commit records.
   */
@@ -136,12 +188,13 @@ void export_cmd(void){
     "       coalesce(user,euser),"
     "       (SELECT value FROM tagxref WHERE rid=objid AND tagid=%d)"
     "  FROM event"
-    " WHERE type='ci'"
+    " WHERE type='ci' AND NOT EXISTS (SELECT 1 FROM oldcommit WHERE objid=rid)"
     " ORDER BY mtime ASC",
     TAG_BRANCH
   );
+  db_prepare(&q2, "INSERT INTO oldcommit VALUES (:rid)");
   while( db_step(&q)==SQLITE_ROW ){
-    Stmt q2;
+    Stmt q3;
     const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
     const char *zComment = db_column_text(&q, 2);
@@ -150,6 +203,9 @@ void export_cmd(void){
     char *zBr;
 
     bag_insert(&vers, ckinId);
+    db_bind_int(&q2, ":rid", ckinId);
+    db_step(&q2);
+    db_reset(&q2);
     if( zBranch==0 ) zBranch = "trunk";
     zBr = mprintf("%s", zBranch);
     for(i=0; zBr[i]; i++){
@@ -162,8 +218,8 @@ void export_cmd(void){
     printf(" %s +0000\n", zSecondsSince1970);
     if( zComment==0 ) zComment = "null comment";
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
-    db_prepare(&q2, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
-    if( db_step(&q2) != SQLITE_ROW ){
+    db_prepare(&q3, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
+    if( db_step(&q3) != SQLITE_ROW ){
       const char *zFromType;
       Manifest *p;
       ManifestFile *pFile;
@@ -188,42 +244,43 @@ void export_cmd(void){
       }
       manifest_cache_insert(p);
     }else{
-      Stmt q3;
+      Stmt q4;
       int parent;
 
-      parent = db_column_int(&q2, 0);
+      parent = db_column_int(&q3, 0);
       printf("from :%d\n", COMMITMARK(parent));
-      db_prepare(&q3,
+      db_prepare(&q4,
         "SELECT pid FROM plink"
         " WHERE cid=%d AND NOT isprim"
         "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
         " ORDER BY pid",
         ckinId);
-      while( db_step(&q3)==SQLITE_ROW ){
-        printf("merge :%d\n", COMMITMARK(db_column_int(&q3,0)));
+      while( db_step(&q4)==SQLITE_ROW ){
+        printf("merge :%d\n", COMMITMARK(db_column_int(&q4,0)));
       }
-      db_finalize(&q3);
+      db_finalize(&q4);
 
-      db_prepare(&q3,
+      db_prepare(&q4,
         "SELECT filename.name, mlink.fid, mlink.mperm FROM mlink"
         " JOIN filename ON filename.fnid=mlink.fnid"
         " WHERE mlink.mid=%d",
         parent
       );
-      while( db_step(&q3)==SQLITE_ROW ){
-        const char *zName = db_column_text(&q3,0);
-        int zNew = db_column_int(&q3,1);
-        int mPerm = db_column_int(&q3,2);
+      while( db_step(&q4)==SQLITE_ROW ){
+        const char *zName = db_column_text(&q4,0);
+        int zNew = db_column_int(&q4,1);
+        int mPerm = db_column_int(&q4,2);
         if( zNew==0)
            printf("D %s\n", zName);
         else if( bag_find(&blobs, zNew) )
            printf("M %s :%d %s\n", mPerm ? "100755" : "100644", BLOBMARK(zNew), zName);
       }
-      db_finalize(&q3);
+      db_finalize(&q4);
     }
-    db_finalize(&q2);
+    db_finalize(&q3);
     printf("\n");
   }
+  db_finalize(&q2);
   db_finalize(&q);
   bag_clear(&blobs);
   manifest_cache_clear();
@@ -255,4 +312,25 @@ void export_cmd(void){
   }
   db_finalize(&q);
   bag_clear(&vers);
+
+  if( markfile_out!=0 ){
+    FILE *f;
+    f = fopen(markfile_out, "w");
+    if( f == 0 ){
+      fossil_panic("cannot open %s for writing", markfile_out);
+    }
+    db_prepare(&q, "SELECT rid FROM oldblob");
+    while( db_step(&q)==SQLITE_ROW ){
+      fprintf(f, "b%d\n", db_column_int(&q, 0));
+    }
+    db_finalize(&q);
+    db_prepare(&q, "SELECT rid FROM oldcommit");
+    while( db_step(&q)==SQLITE_ROW ){
+      fprintf(f, "c%d\n", db_column_int(&q, 0));
+    }
+    db_finalize(&q);
+    if( ferror(f)!=0 || fclose(f)!=0 ) {
+      fossil_panic("error while writing %s", markfile_out);
+    }
+  }
 }
