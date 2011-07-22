@@ -1,20 +1,19 @@
-To do a complete build on most unix systems, just type:
-
-   make
-
-If you have an unusual unix system for which the standard Makefile
-will not work, or if you want to do some non-standard options, you can
-also run:
+To do a complete build, just type:
 
    ./configure; make
 
-The ./configure script builds GNUmakefile which will be used in place
-of Makefile.  Run "./configure --help" for a listing of the available
-options.
+The ./configure script builds Makefile from Makefile.in based on
+your system and any options you select (run "./configure --help"
+for a listing of the available options.)
+
+If you wish to use the original Makefile with no configuration, you can
+instead use:
+
+   make -f Makefile.classic
 
 On a windows box, use one of the Makefiles in the win/ subdirectory,
 according to your compiler and environment.  If you have GCC and MSYS
-installed on your system, the consider:
+installed on your system, then consider:
 
    make -f win/Makefile.mingw
 
@@ -23,23 +22,26 @@ If you have VC++ installed on your system, then consider:
    cd win; nmake /f Makefile.msc
 
 If you have trouble, or you want to do something fancy, just look at
-top level makefile. There are 6 configuration options that are all well
-commented. Instead of editing the Makefile, consider copying the Makefile
-to an alternative name such as "GNUMakefile", "BSDMakefile", or "makefile"
-and editing the copy.
+Makefile.classic. There are 6 configuration options that are all well
+commented. Instead of editing the Makefile.classic, consider copying 
+Makefile.classic to an alternative name such as "GNUMakefile",
+"BSDMakefile", or "makefile" and editing the copy.
 
 
 BUILDING OUTSIDE THE SOURCE TREE
 
 An out of source build is pretty easy:
 
-  1. Make a new directory to do the builds in.
-  2. Copy "Makefile" from the source into the build directory and
-  modify the SRCDIR macro along the lines of:
+  1. Make and change to a new directory to do the builds in.
+  2. Run the "configure" script from this directory.
+  3. Type: "make"
 
-    SRCDIR=../src
+For example:
 
-  3. type: "make"
+  mkdir build
+  cd build
+  ../configure
+  make
 
 This will now keep all generates files seperate from the maintained
 source code.
@@ -47,6 +49,10 @@ source code.
 --------------------------------------------------------------------------
 
 Here are some notes on what is happening behind the scenes:
+
+* The configure script (if used) examines the options given
+  and runs various tests with the C compiler to create Makefile
+  from the Makefile.in template as well as autoconfig.h
 
 * The Makefile just sets up a few macros and then invokes the
   real makefile in src/main.mk.  The src/main.mk makefile is
@@ -66,3 +72,6 @@ Here are some notes on what is happening behind the scenes:
 * The src/mkindex.c program generates some C code that implements
   static lookup tables.  See the header comment in the source code
   for details on what it does.
+
+Additional information on the build process is available from
+http://www.fossil-scm.org/fossil/doc/trunk/www/makefile.wiki

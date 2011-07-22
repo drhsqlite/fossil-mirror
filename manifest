@@ -1,9 +1,9 @@
-C Add\ssupport\sfor\sincremental\sexports
-D 2011-07-21T19:20:35.050
-F BUILD.txt 3311ec2f396c020da63e54afa219027942f82e5a
+C Merge\sthe\srecent\sautosetup\schanges\sinto\strunk.\s\sThe\sMakefile\shas\sbeen\srenamed\nto\sMakefile.classic.\s\sThe\sstandard\sprocedure\sto\sbuild\sis\snow\s./configure;\nmake.
+D 2011-07-22T03:12:33.159
+F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F GNUmakefile.in 02b025d9f3db531fc1a14b485214d7182e60c806
-F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
+F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd w Makefile
+F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a w GNUmakefile.in
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def acb758db2760a5e503d934727b403f31e900970c
+F auto.def a063dae108d9820dacd284987579fb6029e263eb
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup aeea96fb7ee15f6e7ab33e9a5af0b90ae80e5143 x
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 22d414e517b5846de1a0849f69f385ea015d3c6f
-R 12fa83b9db6b0d6753bf3d4decbe464c
-U joerg
-Z f398b2f3179537f00391ac1b17b04ca8
+P c2ccd825223022bcd21dcc3aa037e1e46281ec10 38d58597132763e38f74f090941ebef6c65606aa
+R 7913c59b02375669446be9c3af41138c
+U drh
+Z 6867258914d92d4ad70ff4c070822137
