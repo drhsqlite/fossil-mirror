@@ -22,10 +22,10 @@ If you have VC++ installed on your system, then consider:
    cd win; nmake /f Makefile.msc
 
 If you have trouble, or you want to do something fancy, just look at
-top level makefile. There are 6 configuration options that are all well
-commented. Instead of editing the Makefile, consider copying the Makefile
-to an alternative name such as "GNUMakefile", "BSDMakefile", or "makefile"
-and editing the copy.
+Makefile.classic. There are 6 configuration options that are all well
+commented. Instead of editing the Makefile.classic, consider copying 
+Makefile.classic to an alternative name such as "GNUMakefile",
+"BSDMakefile", or "makefile" and editing the copy.
 
 
 BUILDING OUTSIDE THE SOURCE TREE
@@ -72,3 +72,6 @@ Here are some notes on what is happening behind the scenes:
 * The src/mkindex.c program generates some C code that implements
   static lookup tables.  See the header comment in the source code
   for details on what it does.
+
+Additional information on the build process is available from
+http://www.fossil-scm.org/fossil/doc/trunk/www/makefile.wiki
