@@ -109,7 +109,39 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
 #define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
 #define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #endif
+
+/*
+** Hash a string and use the hash to determine a background color.
+*/
+const char *hashColor(const char *z){
+  int i;                       /* Loop counter */
+  unsigned int h = 0;          /* Hash on the branch name */
+  int r, g, b;                 /* Values for red, green, and blue */
+  int mx, mn, h1, h2;          /* Components of HSV */
+  static char zColor[10];      /* The resulting color */
+
+  for(i=0; z[i]; i++ ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[0];
+    z++;
+  }
+  mx = 0xd1;
+  mn = 0xa8;
+  h1 = h%6;
+  h2 = ((h/6)%(mx - mn)) + mn;
+  switch( h1 ){
+    case 0:  r = mx; g = h2, b = mn;  break;
+    case 1:  r = h2; g = mx, b = mn;  break;
+    case 2:  r = mn; g = mx, b = h2;  break;
+    case 3:  r = mn; g = h2, b = mx;  break;
+    case 4:  r = h2; g = mn, b = mx;  break;
+    default: r = mx; g = mn, b = h2;  break;
+  }
+  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
+  return zColor;
+}
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -210,6 +242,7 @@ void www_print_timeline(
     @ <tr>
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
+    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hashColor(zUser) : 0;
     if( pGraph && zType[0]=='c' ){
       int nParent = 0;
       int aParent[32];
@@ -236,6 +269,13 @@ void www_print_timeline(
         zBr = db_column_text(&qbranch, 0);
       }else{
         zBr = "trunk";
+      }
+      if( tmFlags & TIMELINE_BRCOLOR ){
+        if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+          zBgClr = 0;
+        }else{
+          zBgClr = hashColor(zBr);
+        }
       }
       gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
       db_reset(&qbranch);
@@ -770,6 +810,8 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    from=RID       Path from...
 **    to=RID           ... to this
 **    nomerge          ... avoid merge links on the path
+**    brbg           Background color from branch name
+**    ubg            Background color from user
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -828,6 +870,8 @@ void page_timeline(void){
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
   }
+  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
 
   style_header("Timeline");
   login_anonymous_available();
