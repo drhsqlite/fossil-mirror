@@ -168,5 +168,5 @@ if {![cc-check-functions getpassphrase]} {
     cc-check-function-in-lib getpass bsd
 }
 
-make-template GNUmakefile.in
+make-template Makefile.in
 make-config-header autoconfig.h -auto {USE_* FOSSIL_*}
