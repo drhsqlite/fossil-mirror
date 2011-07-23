@@ -2599,7 +2599,7 @@ static int aio_cmd_buffering(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
     AioFile *af = Jim_CmdPrivData(interp);
 
-    static const char *options[] = {
+    static const char * const options[] = {
         "none",
         "line",
         "full",
@@ -5158,12 +5158,12 @@ static int Jim_ExecCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 
 void Jim_ReapDetachedPids(struct WaitInfoTable *table)
 {
+    struct WaitInfo *waitPtr;
+    int count;
+
     if (!table) {
         return;
     }
-
-    struct WaitInfo *waitPtr;
-    int count;
 
     for (waitPtr = table->info, count = table->used; count > 0; waitPtr++, count--) {
         if (waitPtr->flags & WI_DETACHED) {
@@ -6367,26 +6367,26 @@ int Jim_arrayInit(Jim_Interp *interp)
 int Jim_InitStaticExtensions(Jim_Interp *interp)
 {
 extern int Jim_bootstrapInit(Jim_Interp *);
-Jim_bootstrapInit(interp);
 extern int Jim_aioInit(Jim_Interp *);
-Jim_aioInit(interp);
 extern int Jim_readdirInit(Jim_Interp *);
-Jim_readdirInit(interp);
 extern int Jim_globInit(Jim_Interp *);
-Jim_globInit(interp);
 extern int Jim_regexpInit(Jim_Interp *);
-Jim_regexpInit(interp);
 extern int Jim_fileInit(Jim_Interp *);
-Jim_fileInit(interp);
 extern int Jim_execInit(Jim_Interp *);
-Jim_execInit(interp);
 extern int Jim_clockInit(Jim_Interp *);
-Jim_clockInit(interp);
 extern int Jim_arrayInit(Jim_Interp *);
-Jim_arrayInit(interp);
 extern int Jim_stdlibInit(Jim_Interp *);
-Jim_stdlibInit(interp);
 extern int Jim_tclcompatInit(Jim_Interp *);
+Jim_bootstrapInit(interp);
+Jim_aioInit(interp);
+Jim_readdirInit(interp);
+Jim_globInit(interp);
+Jim_regexpInit(interp);
+Jim_fileInit(interp);
+Jim_execInit(interp);
+Jim_clockInit(interp);
+Jim_arrayInit(interp);
+Jim_stdlibInit(interp);
 Jim_tclcompatInit(interp);
 return JIM_OK;
 }
@@ -16671,11 +16671,12 @@ static int JimCallProcedure(Jim_Interp *interp, Jim_Cmd *cmd, const char *filena
         Jim_Obj *nameObjPtr = cmd->u.proc.arglist[d].nameObjPtr;
         if (d == cmd->u.proc.argsPos) {
             /* assign $args */
+            Jim_Obj *listObjPtr;
             int argsLen = 0;
             if (cmd->u.proc.reqArity + cmd->u.proc.optArity < argc - 1) {
                 argsLen = argc - 1 - (cmd->u.proc.reqArity + cmd->u.proc.optArity);
             }
-            Jim_Obj *listObjPtr = Jim_NewListObj(interp, &argv[i], argsLen);
+            listObjPtr = Jim_NewListObj(interp, &argv[i], argsLen);
 
             /* It is possible to rename args. */
             if (cmd->u.proc.arglist[d].defaultObjPtr) {
@@ -16815,7 +16816,6 @@ int Jim_EvalFile(Jim_Interp *interp, const char *filename)
     char *buf;
     Jim_Obj *scriptObjPtr;
     Jim_Obj *prevScriptObj;
-    Jim_Stack *prevLocalProcs;
     struct stat sb;
     int retcode;
     int readlen;
@@ -16874,15 +16874,7 @@ int Jim_EvalFile(Jim_Interp *interp, const char *filename)
     prevScriptObj = interp->currentScriptObj;
     interp->currentScriptObj = scriptObjPtr;
 
-    /* Install a new stack for local procs */
-    prevLocalProcs = interp->localProcs;
-    interp->localProcs = NULL;
-
     retcode = Jim_EvalObj(interp, scriptObjPtr);
-
-    /* Delete any local procs */
-    JimDeleteLocalProcs(interp);
-    interp->localProcs = prevLocalProcs;
 
     /* Handle the JIM_RETURN return code */
     if (retcode == JIM_RETURN) {
@@ -18368,7 +18360,7 @@ static int Jim_LsetCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *arg
 /* [lsort] */
 static int Jim_LsortCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const argv[])
 {
-    const char *options[] = {
+    static const char * const options[] = {
         "-ascii", "-nocase", "-increasing", "-decreasing", "-command", "-integer", "-index", NULL
     };
     enum
@@ -18490,7 +18482,7 @@ static int Jim_AppendCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *a
 static int Jim_DebugCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
 #ifdef JIM_DEBUG_COMMAND
-    const char *options[] = {
+    static const char * const options[] = {
         "refcount", "objcount", "objects", "invstr", "scriptlen", "exprlen",
         "exprbc", "show",
         NULL
@@ -18695,16 +18687,11 @@ static int Jim_DebugCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *ar
 static int Jim_EvalCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
     int rc;
-    Jim_Stack *prevLocalProcs;
 
     if (argc < 2) {
         Jim_WrongNumArgs(interp, 1, argv, "script ?...?");
         return JIM_ERR;
     }
-
-    /* Install a new stack for local procs */
-    prevLocalProcs = interp->localProcs;
-    interp->localProcs = NULL;
 
     if (argc == 2) {
         rc = Jim_EvalObj(interp, argv[1]);
@@ -18712,10 +18699,6 @@ static int Jim_EvalCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *arg
     else {
         rc = Jim_EvalObj(interp, Jim_ConcatObj(interp, argc - 1, argv + 1));
     }
-
-    /* Delete any local procs */
-    JimDeleteLocalProcs(interp);
-    interp->localProcs = prevLocalProcs;
 
     if (rc == JIM_ERR) {
         /* eval is "interesting", so add a stack frame here */
@@ -19506,8 +19489,8 @@ static int Jim_CatchCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *ar
     }
     interp->signal_level -= sig;
 
-    /* Catch or pass through? Only the first 64 codes can be passed through */
-    if (exitCode >= 0 && exitCode < (int)sizeof(mask) && ((1 << exitCode) & mask) == 0) {
+    /* Catch or pass through? Only the first 32/64 codes can be passed through */
+    if (exitCode >= 0 && exitCode < (int)sizeof(mask) * 8 && ((1 << exitCode) & mask) == 0) {
         /* Not caught, pass it up */
         return exitCode;
     }
@@ -19738,7 +19721,7 @@ static int Jim_DictCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *arg
 {
     Jim_Obj *objPtr;
     int option;
-    const char *options[] = {
+    static const char * const options[] = {
         "create", "get", "set", "unset", "exists", "keys", "merge", "size", "with", NULL
     };
     enum
@@ -19854,7 +19837,7 @@ static int Jim_DictCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *arg
 /* [subst] */
 static int Jim_SubstCoreCommand(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
 {
-    const char *options[] = {
+    static const char * const options[] = {
         "-nobackslashes", "-nocommands", "-novariables", NULL
     };
     enum
@@ -21401,6 +21384,7 @@ int utf8_lower(int uc)
 #include <string.h>
 
 #ifdef USE_LINENOISE
+#include <unistd.h>
 #include "linenoise.h"
 #else
 
@@ -21429,7 +21413,7 @@ int Jim_InteractivePrompt(Jim_Interp *interp)
     const char *home;
 
     home = getenv("HOME");
-    if (home) {
+    if (home && isatty(STDIN_FILENO)) {
         int history_len = strlen(home) + sizeof("/.jim_history");
         history_file = Jim_Alloc(history_len);
         snprintf(history_file, history_len, "%s/.jim_history", home);
@@ -21506,7 +21490,9 @@ int Jim_InteractivePrompt(Jim_Interp *interp)
         }
 
         linenoiseHistoryAdd(Jim_String(scriptObjPtr));
-        linenoiseHistorySave(history_file);
+        if (history_file) {
+            linenoiseHistorySave(history_file);
+        }
 #endif
         retcode = Jim_EvalObj(interp, scriptObjPtr);
         Jim_DecrRefCount(interp, scriptObjPtr);
