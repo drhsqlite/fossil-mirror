@@ -221,7 +221,7 @@ void www_print_timeline(
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
-    const char *zBr;          /* Branch */
+    const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     char zTime[8];
     if( tagid ){

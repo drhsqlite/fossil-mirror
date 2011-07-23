@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sautomatic\sbackground\scolor\schooser.\s\sProvide\sa\nsetting\swhich\salters\sthe\salgorithm\sto\swork\swith\sa\slight-color\sforeground.
-D 2011-07-23T22:05:04.501
+C Fix\sa\sharmless\scompiler\swarning.
+D 2011-07-23T22:13:12.942
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 0df004654515f4243b4c7d755b821cd6eae969e7
+F src/timeline.c 4ac6ee171c087ea9590e2cfc01e4be722dcb671d
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 3c512b37480e448ab96f261ab5540d8da2315def
-R 84eaf7e792335fe438984c79eb2e50d4
+P ce4a44d931dfb3c0194c6d3b704010205f78c4b5
+R 7fe9bf6e0209840e9c7c397f5afc5eb5
 U drh
-Z b8d6de9a3b52bf6c5ba8a27a894c2bfb
+Z 9a488d18727b9c56482c64915988cec0
