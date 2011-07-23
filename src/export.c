@@ -225,7 +225,6 @@ void export_cmd(void){
     const char *zUser = db_column_text(&q, 3);
     const char *zBranch = db_column_text(&q, 4);
     char *zBr;
-    int parent;
 
     bag_insert(&vers, ckinId);
     db_bind_int(&q2, ":rid", ckinId);
@@ -245,9 +244,7 @@ void export_cmd(void){
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     db_prepare(&q3, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
     if( db_step(&q3) == SQLITE_ROW ){
-      parent = db_column_int(&q3, 0);
-
-      printf("from :%d\n", COMMITMARK(parent));
+      printf("from :%d\n", COMMITMARK(db_column_int(&q3, 0)));
       db_prepare(&q4,
         "SELECT pid FROM plink"
         " WHERE cid=%d AND NOT isprim"
@@ -259,7 +256,6 @@ void export_cmd(void){
       }
       db_finalize(&q4);
     }else{
-      parent = 0;
       printf("deleteall\n");
     }
 
@@ -267,7 +263,7 @@ void export_cmd(void){
       "SELECT filename.name, mlink.fid, mlink.mperm FROM mlink"
       " JOIN filename ON filename.fnid=mlink.fnid"
       " WHERE mlink.mid=%d",
-      parent
+      ckinId
     );
     while( db_step(&q4)==SQLITE_ROW ){
       const char *zName = db_column_text(&q4,0);
