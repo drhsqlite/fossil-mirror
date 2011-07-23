@@ -1671,6 +1671,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "self-register", 0,                0, "off"                 },
   { "ssh-command",   0,               32, ""                    },
   { "web-browser",   0,               32, ""                    },
+  { "white-foreground", 0,             0, "off"                 },
   { 0,0,0,0 }
 };
 

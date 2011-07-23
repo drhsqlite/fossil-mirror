@@ -120,17 +120,29 @@ const char *hashColor(const char *z){
   int i;                       /* Loop counter */
   unsigned int h = 0;          /* Hash on the branch name */
   int r, g, b;                 /* Values for red, green, and blue */
-  int mx, mn, h1, h2;          /* Components of HSV */
+  int h1, h2, h3, h4;          /* Elements of the hash value */
+  int mx, mn;                  /* Components of HSV */
   static char zColor[10];      /* The resulting color */
+  static int ix[2] = {0,0};    /* Color chooser parameters */
 
-  for(i=0; z[i]; i++ ){
-    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[0];
-    z++;
+  if( ix[0]==0 ){
+    if( db_get_boolean("white-foreground", 0) ){
+      ix[0] = 140;
+      ix[1] = 40;
+    }else{
+      ix[0] = 216;
+      ix[1] = 16;
+    }
   }
-  mx = 0xd1;
-  mn = 0xa8;
-  h1 = h%6;
-  h2 = ((h/6)%(mx - mn)) + mn;
+  for(i=0; z[i]; i++ ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
+  }
+  h1 = h % 6;  h /= 6;
+  h3 = h % 30; h /= 30;
+  h4 = h % 40; h /= 40;
+  mx = ix[0] - h3;
+  mn = mx - h4 - ix[1];
+  h2 = (h%(mx - mn)) + mn;
   switch( h1 ){
     case 0:  r = mx; g = h2, b = mn;  break;
     case 1:  r = h2; g = mx, b = mn;  break;

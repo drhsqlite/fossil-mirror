@@ -1,5 +1,5 @@
-C Merge\sthe\sautosetup\supdate\sinto\strunk.
-D 2011-07-23T16:01:05.099
+C Improvements\sto\sthe\sautomatic\sbackground\scolor\schooser.\s\sProvide\sa\nsetting\swhich\salters\sthe\salgorithm\sto\swork\swith\sa\slight-color\sforeground.
+D 2011-07-23T22:05:04.501
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -68,7 +68,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c d25fdad7f33b47b9997bb099a2237132cddc6b32
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
-F src/db.c 04be4540a16f1f319f1b60d00d6486a706530f4c
+F src/db.c 82f1e400ba05e554fd890f93a3063c85f4f116a6
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7b5983f632113900bb1639f2e367c8e8e03dfaa7
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c e27ee8c581827e5ef91420eec29fc697e124d859
+F src/timeline.c 0df004654515f4243b4c7d755b821cd6eae969e7
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c946b573c7d03af9fcbf14cb72cb6b84267e1503 c32b23d6261f2ff21753133c56ae3edc9f614f40
-R bed87373298f72c87beeac80def3078d
+P 3c512b37480e448ab96f261ab5540d8da2315def
+R 84eaf7e792335fe438984c79eb2e50d4
 U drh
-Z 46e8d759c951068209bbb73a1ec16d36
+Z b8d6de9a3b52bf6c5ba8a27a894c2bfb
