@@ -107,7 +107,7 @@ static void print_person(const char *zUser){
 ** blobs written on exit for use with "--import-marks" on the next run.
 */
 void export_cmd(void){
-  Stmt q, q2;
+  Stmt q, q2, q3;
   int i;
   Bag blobs, vers;
   const char *markfile_in;
@@ -124,8 +124,8 @@ void export_cmd(void){
   verify_all_options();
   if( g.argc!=2 && g.argc!=3 ){ usage("--git ?REPOSITORY?"); }
 
-  db_multi_exec("CREATE TEMPORARY TABLE oldblob(rid INTEGER)");
-  db_multi_exec("CREATE TEMPORARY TABLE oldcommit(rid INTEGER)");
+  db_multi_exec("CREATE TEMPORARY TABLE oldblob(rid INTEGER KEY)");
+  db_multi_exec("CREATE TEMPORARY TABLE oldcommit(rid INTEGER KEY)");
   if( markfile_in!=0 ){
     Stmt qb,qc;
     char line[100];
@@ -135,8 +135,8 @@ void export_cmd(void){
     if( f==0 ){
       fossil_panic("cannot open %s for reading", markfile_in);
     }
-    db_prepare(&qb, "INSERT INTO oldblob VALUES (:rid)");
-    db_prepare(&qc, "INSERT INTO oldcommit VALUES (:rid)");
+    db_prepare(&qb, "INSERT OR IGNORE INTO oldblob VALUES (:rid)");
+    db_prepare(&qc, "INSERT OR IGNORE INTO oldcommit VALUES (:rid)");
     while( fgets(line, sizeof(line), f)!=0 ){
       if( *line == 'b' ){
         db_bind_text(&qb, ":rid", line + 1);
@@ -161,25 +161,49 @@ void export_cmd(void){
   ** of a check-in 
   */
   fossil_binary_mode(stdout);
+  db_multi_exec("CREATE TEMPORARY TABLE newblob(rid INTEGER KEY, srcid INTEGER)");
+  db_multi_exec("CREATE INDEX newblob_src ON newblob(srcid)");
+  db_multi_exec(
+    "INSERT INTO newblob"
+    " SELECT DISTINCT fid,"
+    "  CASE WHEN EXISTS(SELECT 1 FROM delta WHERE rid=fid AND NOT EXISTS(SELECT 1 FROM oldblob WHERE srcid=fid))"
+    "   THEN (SELECT srcid FROM delta WHERE rid=fid)"
+    "   ELSE 0"
+    "  END"
+    " FROM mlink"
+    " WHERE fid>0 AND NOT EXISTS(SELECT 1 FROM oldblob WHERE rid=fid)");
   db_prepare(&q,
     "SELECT DISTINCT fid FROM mlink"
     " WHERE fid>0 AND NOT EXISTS(SELECT 1 FROM oldblob WHERE rid=fid)");
   db_prepare(&q2, "INSERT INTO oldblob VALUES (:rid)");
+  db_prepare(&q3, "SELECT rid FROM newblob WHERE srcid= (:srcid)");
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     Blob content;
-    content_get(rid, &content);
-    db_bind_int(&q2, ":rid", rid);
-    db_step(&q2);
-    db_reset(&q2);
-    printf("blob\nmark :%d\ndata %d\n", BLOBMARK(rid), blob_size(&content));
-    bag_insert(&blobs, rid);
-    fwrite(blob_buffer(&content), 1, blob_size(&content), stdout);
-    printf("\n");
-    blob_reset(&content);
+
+    while( !bag_find(&blobs, rid) ){
+      content_get(rid, &content);
+      db_bind_int(&q2, ":rid", rid);
+      db_step(&q2);
+      db_reset(&q2);
+      printf("blob\nmark :%d\ndata %d\n", BLOBMARK(rid), blob_size(&content));
+      bag_insert(&blobs, rid);
+      fwrite(blob_buffer(&content), 1, blob_size(&content), stdout);
+      printf("\n");
+      blob_reset(&content);
+
+      db_bind_int(&q3, ":srcid", rid);
+      if( db_step(&q3) != SQLITE_ROW ){
+        db_reset(&q3);
+        break;
+      }
+      rid = db_column_int(&q3, 0);
+      db_reset(&q3);
+    }
   }
   db_finalize(&q);
   db_finalize(&q2);
+  db_finalize(&q3);
 
   /* Output the commit records.
   */
@@ -194,7 +218,7 @@ void export_cmd(void){
   );
   db_prepare(&q2, "INSERT INTO oldcommit VALUES (:rid)");
   while( db_step(&q)==SQLITE_ROW ){
-    Stmt q3, q4;
+    Stmt q4;
     const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
     const char *zComment = db_column_text(&q, 2);
