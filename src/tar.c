@@ -30,9 +30,7 @@ static struct tarball_t {
   char *zSpaces;            /* Spaces for padding */
   char *zPrevDir;           /* Name of directory for previous entry */
   int nPrevDirAlloc;        /* size of zPrevDir */
-  char *pScratch;           /* scratch buffer used to build PAX data */
-  int nScratchUsed;         /* part of buffer containing data */
-  int nScratchAlloc;        /* size of buffer */
+  Blob pax;                 /* PAX data */
 } tball;
 
 
@@ -57,9 +55,7 @@ static void tar_begin(void){
   tball.zPrevDir = NULL;
   tball.nPrevDirAlloc = 0;
   /* scratch buffer init */
-  tball.pScratch = NULL;
-  tball.nScratchUsed = 0;
-  tball.nScratchAlloc = 0;
+  blob_zero(&tball.pax);
 
   memcpy(&tball.aHdr[108], "0000000", 8);  /* Owner ID */
   memcpy(&tball.aHdr[116], "0000000", 8);  /* Group ID */
@@ -74,44 +70,6 @@ static void tar_begin(void){
 
 
 /*
-** print to the scratch buffer
-**
-** used to build the Pax Interchange Format data, and create
-** pseudo-file names for the header data.
-**
-** The buffer is grown automatically to accommodate the data.
-*/
-static int scratch_printf(
-  const char *fmt,
-  ...
-){
-  for(;;){
-    int newSize, minSpace, n;
-    /* calculate space in buffer */
-    int space = tball.nScratchAlloc - tball.nScratchUsed;
-    /* format the string */
-    va_list vl;
-    va_start(vl, fmt);
-    n = vsnprintf(&tball.pScratch[tball.nScratchUsed], space, fmt, vl);
-    assert(n >= 0);
-    va_end(vl);
-    /* if it fit we're done */
-    if(n < space)
-      return n;
-    /* buffer too short: calculate reasonable new size */
-    minSpace = tball.nScratchUsed+n+1;
-    newSize = 2 * tball.nScratchAlloc;
-    if(newSize < minSpace)
-      newSize = minSpace;
-    /* grow the buffer */
-    tball.pScratch = fossil_realloc(tball.pScratch, newSize);
-    tball.nScratchAlloc = newSize;
-    /* loop to try again */
-  }
-}
-
-
-/*
 ** verify that lla characters in 'zName' are in the
 ** ISO646 (=ASCII) character set.
 */
@@ -122,8 +80,7 @@ static int is_iso646_name(
   int i;
   for(i = 0; i < nName; i++){
     unsigned char c = (unsigned char)zName[i];
-    if(c > 0x7e)
-      return 0;
+    if( c>0x7e ) return 0;
   }
   return 1;
 }
@@ -196,8 +153,7 @@ static int find_split_pos(
         split = i+1;
         /* if the split position is within USTAR_NAME_LEN bytes from
          * the end we can quit */
-        if(nName - split <= USTAR_NAME_LEN)
-          break;
+        if(nName - split <= USTAR_NAME_LEN) break;
       }
   }
   return split;
@@ -216,8 +172,9 @@ static int tar_split_path(
 ){
   int split = find_split_pos(zName, nName);
   /* check whether both pieces fit */
-  if(nName - split > USTAR_NAME_LEN || split > USTAR_PREFIX_LEN+1)
+  if(nName - split > USTAR_NAME_LEN || split > USTAR_PREFIX_LEN+1){
     return 0; /* no */
+  }
 
   /* extract name */
   padded_copy(pName, USTAR_NAME_LEN, &zName[split], nName - split);
@@ -244,13 +201,13 @@ static void approximate_split_path(
   int split;
 
   /* if this is a Pax Interchange header prepend "PaxHeader/"
-   * so we can tell files apart from metadata */
-  if(bHeader){
-       int n;
-       tball.nScratchUsed = 0;
-       n = scratch_printf("PaxHeader/%*.*s", nName, nName, zName);
-       zName = tball.pScratch;
-       nName = n;
+  ** so we can tell files apart from metadata */
+  if( bHeader ){
+    int n;
+    blob_reset(&tball.pax);
+    blob_appendf(&tball.pax, "PaxHeader/%*.*s", nName, nName, zName);
+    zName = blob_buffer(&tball.pax);
+    nName = blob_size(&tball.pax);
   }
 
   /* find the split position */
@@ -286,15 +243,15 @@ static void add_pax_header(
     n /= 10;
   }
   /* adding the length extended the length field? */
-  if(blen > next10)
+  if(blen > next10){
     blen++;
+  }
   /* build the string */
-  n = scratch_printf("%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
+  blob_appendf(&tball.pax, "%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
   /* this _must_ be right */
-  if(n != blen)
+  if(blob_size(&tball.pax) != blen){
     fossil_fatal("internal error: PAX tar header has bad length");
-  /* add length to scratch buffer */
-  tball.nScratchUsed += blen;
+  }
 }
 
 
@@ -340,18 +297,20 @@ static void tar_add_header(
     approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 1);
 
     /* generate the Pax Interchange path header */
-    tball.nScratchUsed = 0;
+    blob_reset(&tball.pax);
     add_pax_header("path", zName, nName);
 
     /* set the header length, and write the header */
-    sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", tball.nScratchUsed);
+    sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o",
+                     blob_size(&tball.pax));
     cksum_and_write_header('x');
 
     /* write the Pax Interchange data */
-    gzip_step(tball.pScratch, tball.nScratchUsed);
-    lastPage = tball.nScratchUsed % 512;
-    if( lastPage!=0 )
+    gzip_step(blob_buffer(&tball.pax), blob_size(&tball.pax));
+    lastPage = blob_size(&tball.pax) % 512;
+    if( lastPage!=0 ){
       gzip_step(tball.zSpaces, 512 - lastPage);
+    }
 
     /* generate an approximate path for the regular header */
     approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 0);
@@ -433,10 +392,7 @@ static void tar_finish(Blob *pOut){
   fossil_free(tball.zPrevDir);
   tball.zPrevDir = NULL;
   tball.nPrevDirAlloc = 0;
-  fossil_free(tball.pScratch);
-  tball.pScratch = NULL;
-  tball.nScratchUsed = 0;
-  tball.nScratchAlloc = 0;
+  blob_reset(&tball.pax);
 }
 
 
