@@ -29,7 +29,19 @@ static struct tarball_t {
   unsigned char *aHdr;      /* Space for building headers */
   char *zSpaces;            /* Spaces for padding */
   char *zPrevDir;           /* Name of directory for previous entry */
+  int nPrevDirAlloc;        /* size of zPrevDir */
+  char *pScratch;           /* scratch buffer used to build PAX data */
+  int nScratchUsed;         /* part of buffer containing data */
+  int nScratchAlloc;        /* size of buffer */
 } tball;
+
+
+/*
+** field lengths of 'ustar' name and prefix fields.
+*/
+#define USTAR_NAME_LEN    100
+#define USTAR_PREFIX_LEN  155
+
 
 /*
 ** Begin the process of generating a tarball.
@@ -38,18 +50,271 @@ static struct tarball_t {
 */
 static void tar_begin(void){
   assert( tball.aHdr==0 );
-  tball.aHdr = fossil_malloc(512+512+256);
-  memset(tball.aHdr, 0, 512+512+256);
+  tball.aHdr = fossil_malloc(512+512);
+  memset(tball.aHdr, 0, 512+512);
   tball.zSpaces = (char*)&tball.aHdr[512];
-  tball.zPrevDir = (char*)&tball.zSpaces[512];
+  /* zPrevDir init */
+  tball.zPrevDir = NULL;
+  tball.nPrevDirAlloc = 0;
+  /* scratch buffer init */
+  tball.pScratch = NULL;
+  tball.nScratchUsed = 0;
+  tball.nScratchAlloc = 0;
+
   memcpy(&tball.aHdr[108], "0000000", 8);  /* Owner ID */
   memcpy(&tball.aHdr[116], "0000000", 8);  /* Group ID */
-  memcpy(&tball.aHdr[257], "ustar  ", 7);  /* Format */
+  memcpy(&tball.aHdr[257], "ustar\00000", 8);  /* POSIX.1 format */
+  memcpy(&tball.aHdr[265], "nobody", 7);   /* Owner name */
+  memcpy(&tball.aHdr[297], "nobody", 7);   /* Group name */
   gzip_begin();
   db_multi_exec(
     "CREATE TEMP TABLE dir(name UNIQUE);"
   );
 }
+
+
+/*
+** print to the scratch buffer
+**
+** used to build the Pax Interchange Format data, and create
+** pseudo-file names for the header data.
+**
+** The buffer is grown automatically to accommodate the data.
+*/
+static int scratch_printf(
+  const char *fmt,
+  ...
+){
+  for(;;){
+    int newSize, minSpace, n;
+    /* calculate space in buffer */
+    int space = tball.nScratchAlloc - tball.nScratchUsed;
+    /* format the string */
+    va_list vl;
+    va_start(vl, fmt);
+    n = vsnprintf(&tball.pScratch[tball.nScratchUsed], space, fmt, vl);
+    assert(n >= 0);
+    va_end(vl);
+    /* if it fit we're done */
+    if(n < space)
+      return n;
+    /* buffer too short: calculate reasonable new size */
+    minSpace = tball.nScratchUsed+n+1;
+    newSize = 2 * tball.nScratchAlloc;
+    if(newSize < minSpace)
+      newSize = minSpace;
+    /* grow the buffer */
+    tball.pScratch = fossil_realloc(tball.pScratch, newSize);
+    tball.nScratchAlloc = newSize;
+    /* loop to try again */
+  }
+}
+
+
+/*
+** verify that lla characters in 'zName' are in the
+** ISO646 (=ASCII) character set.
+*/
+static int is_iso646_name(
+  const char *zName,     /* file path */
+  int nName              /* path length */
+){
+  int i;
+  for(i = 0; i < nName; i++){
+    unsigned char c = (unsigned char)zName[i];
+    if(c > 0x7e)
+      return 0;
+  }
+  return 1;
+}
+
+
+/*
+**   copy string pSrc into pDst, truncating or padding with 0 if necessary
+*/
+static void padded_copy(
+  char *pDest,
+  int nDest,
+  const char *pSrc,
+  int nSrc
+){
+  if(nSrc >= nDest){
+    memcpy(pDest, pSrc, nDest);
+  }else{
+    memcpy(pDest, pSrc, nSrc);
+    memset(&pDest[nSrc], 0, nDest - nSrc);
+  }
+}
+
+
+
+/******************************************************************************
+**
+** The 'tar' format has evolved over time. Initially the name was stored
+** in a 100 byte null-terminated field 'name'. File path names were
+** limited to 99 bytes.
+**
+** The Posix.1 'ustar' format added a 155 byte field 'prefix', allowing
+** for up to 255 characters to be stored. The full file path is formed by
+** concatenating the field 'prefix', a slash, and the field 'name'. This
+** gives some measure of compatibility with programs that only understand
+** the oldest format.
+**
+** The latest Posix extension is called the 'pax Interchange Format'.
+** It removes all the limitations of the previous two formats by allowing
+** the storage of arbitrary-length attributes in a separate object that looks
+** like a file to programs that do not understand this extension. So the
+** contents of the 'name' and 'prefix' fields should contain values that allow
+** versions of tar that do not understand this extension to still do
+** something useful.
+**
+******************************************************************************/
+
+/*
+** The position we use to split a file path into the 'name' and 'prefix'
+** fields needs to meet the following criteria:
+**
+**   - not at the beginning or end of the string
+**   - the position must contain a slash
+**   - no more than 100 characters follow the slash
+**   - no more than 155 characters precede it
+**
+** The routine 'find_split_pos' finds a split position. It will meet the
+** criteria of listed above if such a position exists. If no such
+** position exists it generates one that useful for generating the
+** values used for backward compatibility.
+*/
+static int find_split_pos(
+  const char *zName,     /* file path */
+  int nName              /* path length */
+){
+  int i, split = 0;
+  /* only search if the string needs splitting */
+  if(nName > USTAR_NAME_LEN){
+    for(i = 1; i+1 < nName; i++)
+      if(zName[i] == '/'){
+        split = i+1;
+        /* if the split position is within USTAR_NAME_LEN bytes from
+         * the end we can quit */
+        if(nName - split <= USTAR_NAME_LEN)
+          break;
+      }
+  }
+  return split;
+}
+
+
+/*
+** attempt to split the file name path to meet 'ustar' header
+** criteria.
+*/
+static int tar_split_path(
+  const char *zName,     /* path */
+  int nName,             /* path length */
+  char *pName,           /* name field */
+  char *pPrefix          /* prefix field */
+){
+  int split = find_split_pos(zName, nName);
+  /* check whether both pieces fit */
+  if(nName - split > USTAR_NAME_LEN || split > USTAR_PREFIX_LEN+1)
+    return 0; /* no */
+
+  /* extract name */
+  padded_copy(pName, USTAR_NAME_LEN, &zName[split], nName - split);
+
+  /* extract prefix */
+  padded_copy(pPrefix, USTAR_PREFIX_LEN, zName, (split > 0 ? split - 1 : 0));
+
+  return 1; /* success */
+}
+
+
+/*
+** When using an extension header we still need to put something
+** reasonable in the name and prefix fields. This is probably as
+** good as it gets.
+*/
+static void approximate_split_path(
+  const char *zName,     /* path */
+  int nName,             /* path length */
+  char *pName,           /* name field */
+  char *pPrefix,         /* prefix field */
+  int bHeader            /* is this a 'x' type tar header? */
+){
+  int split;
+
+  /* if this is a Pax Interchange header prepend "PaxHeader/"
+   * so we can tell files apart from metadata */
+  if(bHeader){
+       int n;
+       tball.nScratchUsed = 0;
+       n = scratch_printf("PaxHeader/%*.*s", nName, nName, zName);
+       zName = tball.pScratch;
+       nName = n;
+  }
+
+  /* find the split position */
+  split = find_split_pos(zName, nName);
+
+  /* extract a name, truncate if needed */
+  padded_copy(pName, USTAR_NAME_LEN, &zName[split], nName - split);
+
+  /* extract a prefix field, truncate when needed */
+  padded_copy(pPrefix, USTAR_PREFIX_LEN, zName, (split > 0 ? split-1 : 0));
+}
+
+
+/*
+** add a Pax Interchange header to the scratch buffer
+**
+** format: <length> <key>=<value>\n
+** the tricky part is that each header contains its own
+** size in decimal, counting that length.
+*/
+static void add_pax_header(
+  const char *zField,
+  const char *zValue,
+  int nValue
+){
+  /* calculate length without length field */
+  int blen = strlen(zField) + nValue + 3;
+  /* calculate the length of the length field */
+  int next10 = 1;
+  int n;
+  for(n = blen; n > 0; ){
+    blen++; next10 *= 10;
+    n /= 10;
+  }
+  /* adding the length extended the length field? */
+  if(blen > next10)
+    blen++;
+  /* build the string */
+  n = scratch_printf("%d %s=%*.*s\n", blen, zField, nValue, nValue, zValue);
+  /* this _must_ be right */
+  if(n != blen)
+    fossil_fatal("internal error: PAX tar header has bad length");
+  /* add length to scratch buffer */
+  tball.nScratchUsed += blen;
+}
+
+
+/*
+** set the header type, calculate the checksum and output
+** the header
+*/
+static void cksum_and_write_header(
+  char cType
+){
+  unsigned int cksum = 0;
+  int i;
+  memset(&tball.aHdr[148], ' ', 8);
+  tball.aHdr[156] = cType;
+  for(i=0; i<512; i++) cksum += tball.aHdr[i];
+  sqlite3_snprintf(8, (char*)&tball.aHdr[148], "%07o", cksum);
+  tball.aHdr[155] = 0;
+  gzip_step((char*)tball.aHdr, 512);
+}
+
 
 /*
 ** Build a header for a file or directory and write that header
@@ -61,29 +326,43 @@ static void tar_add_header(
   int iMode,             /* Mode.  0644 or 0755 */
   unsigned int mTime,    /* File modification time */
   int iSize,             /* Size of the object in bytes */
-  int iType              /* Type of object.  0==file.  5==directory */
+  char cType             /* Type of object.  '0'==file.  '5'==directory */
 ){
-  unsigned int cksum = 0;
-  int i;
-  if( nName>100 ){
-    memcpy(&tball.aHdr[345], zName, nName-100);
-    memcpy(tball.aHdr, &zName[nName-100], 100);
-    memset(&tball.aHdr[245+nName], 0, 267-nName);
-  }else{
-    memcpy(tball.aHdr, zName, nName);
-    memset(&tball.aHdr[nName], 0, 100-nName);
-    memset(&tball.aHdr[345], 0, 167);
-  }
+  /* set mode and modification time */
   sqlite3_snprintf(8, (char*)&tball.aHdr[100], "%07o", iMode);
-  sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", iSize);
   sqlite3_snprintf(12, (char*)&tball.aHdr[136], "%011o", mTime);
-  memset(&tball.aHdr[148], ' ', 8);
-  tball.aHdr[156] = iType + '0';
-  for(i=0; i<512; i++) cksum += tball.aHdr[i];
-  sqlite3_snprintf(7, (char*)&tball.aHdr[148], "%06o", cksum);
-  tball.aHdr[154] = 0;
-  gzip_step((char*)tball.aHdr, 512);
+
+  /* see if we need to output a Pax Interchange Header */
+  if( !is_iso646_name(zName, nName) ||
+            !tar_split_path(zName, nName, tball.aHdr, &tball.aHdr[345]) ){
+    int lastPage;
+    /* add a file name for interoperability with older programs */
+    approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 1);
+
+    /* generate the Pax Interchange path header */
+    tball.nScratchUsed = 0;
+    add_pax_header("path", zName, nName);
+
+    /* set the header length, and write the header */
+    sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", tball.nScratchUsed);
+    cksum_and_write_header('x');
+
+    /* write the Pax Interchange data */
+    gzip_step(tball.pScratch, tball.nScratchUsed);
+    lastPage = tball.nScratchUsed % 512;
+    if( lastPage!=0 )
+      gzip_step(tball.zSpaces, 512 - lastPage);
+
+    /* generate an approximate path for the regular header */
+    approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 0);
+  }
+  /* set the size */
+  sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", iSize);
+
+  /* write the regular header */
+  cksum_and_write_header(cType);
 }
+
 
 /*
 ** Recursively add an directory entry for the given file if those
@@ -97,14 +376,23 @@ static void tar_add_directory_of(
   int i;
   for(i=nName-1; i>0 && zName[i]!='/'; i--){}
   if( i<=0 ) return;
-  if( tball.zPrevDir[i]==0 && memcmp(tball.zPrevDir, zName, i)==0 ) return;
+  if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
+        memcmp(tball.zPrevDir, zName, i)==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
   if( sqlite3_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
-  tar_add_header(zName, i, 0755, mTime, 0, 5);
+  tar_add_header(zName, i, 0755, mTime, 0, '5');
+  if( i >= tball.nPrevDirAlloc ){
+    int nsize = tball.nPrevDirAlloc * 2;
+    if(i+1 > nsize)
+      nsize = i+1;
+    tball.zPrevDir = fossil_realloc(tball.zPrevDir, nsize);
+    tball.nPrevDirAlloc = nsize;
+  }
   memcpy(tball.zPrevDir, zName, i);
   tball.zPrevDir[i] = 0;
 }
+
 
 /*
 ** Add a single file to the growing tarball.
@@ -119,11 +407,9 @@ static void tar_add_file(
   int n = blob_size(pContent);
   int lastPage;
 
-  if( nName>=250 ){
-    fossil_fatal("name too long for ustar format: \"%s\"", zName);
-  }
+  /* length check moved to tar_split_path */
   tar_add_directory_of(zName, nName, mTime);
-  tar_add_header(zName, nName, isExe ? 0755 : 0644, mTime, n, 0);
+  tar_add_header(zName, nName, isExe ? 0755 : 0644, mTime, n, '0');
   if( n ){
     gzip_step(blob_buffer(pContent), n);
     lastPage = n % 512;
@@ -144,6 +430,13 @@ static void tar_finish(Blob *pOut){
   gzip_finish(pOut);
   fossil_free(tball.aHdr);
   tball.aHdr = 0;
+  fossil_free(tball.zPrevDir);
+  tball.zPrevDir = NULL;
+  tball.nPrevDirAlloc = 0;
+  fossil_free(tball.pScratch);
+  tball.pScratch = NULL;
+  tball.nScratchUsed = 0;
+  tball.nScratchAlloc = 0;
 }
 
 
