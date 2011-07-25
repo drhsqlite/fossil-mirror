@@ -1,5 +1,5 @@
-C Merge\sthe\sge-tarfix\schanges\sinto\strunk.\s\sThis\sfixes\starball\sgeneration\sfor\nrepos\sthat\shave\svery\slong\sfilenames.
-D 2011-07-25T11:21:43.386
+C Make\ssure\sdeleted\sfiles\sare\srecorded\sin\sthe\sMLINK\stable.
+D 2011-07-25T12:24:24.638
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/main.mk 6b4865b5a7543e1c62bd085d8e28447d4e748212
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl d672fb51d2da0e0caec79167ed909f054b749885
-F src/manifest.c 8ebc92c0dec9f5270413de3f3445e3b03a411055
+F src/manifest.c 84abfbe3f5b3bbf03a8c8def234d8dfd9c979790
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c bc479ffc711649392971cc1d50c2f4c13bbba22e
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ba15af450d33b2fdba45fc3cc68ef96cb2b04f16 02ce8b4a46822a7af941515516299701044750ad
-R f9ee6f2ced991c476977764157fbc9cb
+P a26940c22ea353c4ea6b3e2577c1b491c27870a9
+R ab6fcc608a9e2145c3af9256e1a74166
 U drh
-Z f3d36cb865e93533a14f38b335c8d139
+Z e0582a5179a61b8d02030e840c453bc7
