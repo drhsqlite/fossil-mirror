@@ -1,5 +1,5 @@
-C Fix\sa\sharmless\scompiler\swarning.
-D 2011-07-23T22:13:12.942
+C Merge\sthe\sge-tarfix\schanges\sinto\strunk.\s\sThis\sfixes\starball\sgeneration\sfor\nrepos\sthat\shave\svery\slong\sfilenames.
+D 2011-07-25T11:21:43.386
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -126,7 +126,7 @@ F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c ada6166afd488ef27cb2fbc9da1a287735fd2512
-F src/tar.c c460954725a505c5114dd5e0b3cee6e6c50d24f1
+F src/tar.c de7c9f3c4bbe9949ef1d14874c2069d755e9fcee
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ce4a44d931dfb3c0194c6d3b704010205f78c4b5
-R 7fe9bf6e0209840e9c7c397f5afc5eb5
+P ba15af450d33b2fdba45fc3cc68ef96cb2b04f16 02ce8b4a46822a7af941515516299701044750ad
+R f9ee6f2ced991c476977764157fbc9cb
 U drh
-Z 9a488d18727b9c56482c64915988cec0
+Z f3d36cb865e93533a14f38b335c8d139
