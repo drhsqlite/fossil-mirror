@@ -446,7 +446,7 @@ int win32_http_service(
 ** In the following description of the methods, "Fossil-DSCM" will be
 ** used as the default SERVICE-NAME:
 ** 
-**    fossil service create ?SERVICE-NAME? ?OPTIONS?
+**    fossil winsrv create ?SERVICE-NAME? ?OPTIONS?
 **
 **         Creates a service. Available options include:
 **
@@ -460,7 +460,7 @@ int win32_http_service(
 **
 **              Sets the start type of the service. TYPE can be "manual",
 **              which means you need to start the service yourself with the
-**              'fossil service start' command or with the "net start" command
+**              'fossil winsrv start' command or with the "net start" command
 **              from the operating system. If TYPE is set to "auto", the service
 **              will be started automatically by the system during startup.
 **
@@ -511,23 +511,23 @@ int win32_http_service(
 **              localhost.
 **
 **
-**    fossil service delete ?SERVICE-NAME?
+**    fossil winsrv delete ?SERVICE-NAME?
 **
 **         Deletes a service. If the service is currently running, it will be
 **         stopped first and then deleted.
 **
 **
-**    fossil service show ?SERVICE-NAME?
+**    fossil winsrv show ?SERVICE-NAME?
 **
 **         Shows how the service is configured and its current state.
 **
 **
-**    fossil service start ?SERVICE-NAME?
+**    fossil winsrv start ?SERVICE-NAME?
 **
 **         Start the service.
 **
 **
-**    fossil service stop ?SERVICE-NAME?
+**    fossil winsrv stop ?SERVICE-NAME?
 **
 **         Stop the service.
 **
@@ -854,7 +854,7 @@ void cmd_win32_service(void){
 #include "winhttp.h"
 
 void cmd_win32_service(void){
-  fossil_fatal("The service command is platform specific "
+  fossil_fatal("The winsrv command is platform specific "
                "and not available on this platform."); 
   return;
 }
