@@ -116,7 +116,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 /*
 ** Hash a string and use the hash to determine a background color.
 */
-const char *hashColor(const char *z){
+char *hash_color(const char *z){
   int i;                       /* Loop counter */
   unsigned int h = 0;          /* Hash on the branch name */
   int r, g, b;                 /* Values for red, green, and blue */
@@ -260,7 +260,7 @@ void www_print_timeline(
     @ <tr>
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
-    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hashColor(zUser) : 0;
+    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
     ){
@@ -275,7 +275,7 @@ void www_print_timeline(
         if( zBr==0 || strcmp(zBr,"trunk")==0 ){
           zBgClr = 0;
         }else{
-          zBgClr = hashColor(zBr);
+          zBgClr = hash_color(zBr);
         }
       }
     }
