@@ -1368,7 +1368,7 @@ int is_truth(const char *zVal){
   static const char *azOn[] = { "on", "yes", "true", "1" };
   int i;
   for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
-    if( fossil_strcmp(zVal,azOn[i])==0 ) return 1;
+    if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
   return 0;
 }
@@ -1376,7 +1376,7 @@ int is_false(const char *zVal){
   static const char *azOff[] = { "off", "no", "false", "0" };
   int i;
   for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
-    if( fossil_strcmp(zVal,azOff[i])==0 ) return 1;
+    if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;
   }
   return 0;
 }
@@ -1649,6 +1649,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-shun",     0,                0, "on"                  },
   { "autosync",      0,                0, "on"                  },
   { "binary-glob",   0,               32, ""                    },
+  { "case-sensitive",0,                0, "on"                  },
   { "clearsign",     0,                0, "off"                 },
   { "crnl-glob",     0,               16, ""                    },
   { "default-perms", 0,               16, "u"                   },
@@ -1705,6 +1706,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    binary-glob      The VALUE is a comma-separated list of GLOB patterns
 **                     that should be treated as binary files for merging
 **                     purposes.  Example:   *.xml
+**
+**    case-sensitive   If TRUE, the files whose names differ only in case
+**                     care considered distinct.  If FALSE files whose names
+**                     differ only in case are the same file.  Defaults to
+**                     TRUE for unix and FALSE for windows and mac.
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
