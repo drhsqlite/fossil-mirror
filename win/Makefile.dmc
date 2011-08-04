@@ -86,7 +86,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
 
 $(OBJDIR)\add$O : add_.c add.h

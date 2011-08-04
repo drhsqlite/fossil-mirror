@@ -1325,10 +1325,9 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
                       isPublic, manifest_file_mperm(pChildFile));
       }
     }
-  }else if( pChild->zBaseline==0 && pParent->zBaseline!=0 ){
-    /* Parent is a delta but pChild is a baseline.  Look for files that are
-    ** present in pParent but which are missing from pChild and mark them
-    ** has having been deleted. */
+  }else if( pChild->zBaseline==0 ){
+    /* pChild is a baseline.  Look for files that are present in pParent
+    ** but are missing from pChild and mark them as having been deleted. */
     manifest_file_rewind(pParent);
     while( (pParentFile = manifest_file_next(pParent,0))!=0 ){
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);

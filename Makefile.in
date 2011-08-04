@@ -42,4 +42,4 @@ USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
 include $(SRCDIR)/main.mk
 
 distclean: clean
-	rm -f autoconfig.h config.log GNUmakefile
+	rm -f autoconfig.h config.log Makefile

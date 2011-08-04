@@ -12,3 +12,4 @@ for cc in ${CC_FOR_BUILD:-cc} gcc; do
 	"$d/jimsh0" "$d/test-tclsh" && exit 0
 done
 echo 1>&2 "No working C compiler found. Tried ${CC_FOR_BUILD:-cc} and gcc."
+echo false

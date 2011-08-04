@@ -591,7 +591,7 @@ clean:
 	-del *.obj *_.c *.h *.map
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
 }
 foreach s [lsort $src] {
@@ -729,7 +729,7 @@ clean:
 	-del headers linkopts
 
 realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E version$E
+	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
 }
 foreach s [lsort $src] {

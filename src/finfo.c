@@ -195,6 +195,8 @@ void finfo_cmd(void){
 **    a=DATE     Only show changes after DATE
 **    b=DATE     Only show changes before DATE
 **    n=NUM      Show the first NUM changes only
+**    brbg       Background color by branch name
+**    ubg        Background color by user name
 */
 void finfo_page(void){
   Stmt q;
@@ -206,6 +208,8 @@ void finfo_page(void){
   Blob title;
   Blob sql;
   GraphContext *pGraph;
+  int brBg = P("brbg")!=0;
+  int uBg = P("ubg")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
@@ -270,6 +274,11 @@ void finfo_page(void){
     char zShort[20];
     char zShortCkin[20];
     if( zBr==0 ) zBr = "trunk";
+    if( uBg ){
+      zBgClr = hash_color(zUser);
+    }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
+      zBgClr = strcmp(zBr,"trunk")==0 ? "white" : hash_color(zBr);
+    }
     gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
