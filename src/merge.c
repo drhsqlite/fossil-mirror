@@ -55,6 +55,10 @@
 **
 **   --nochange | -n         Dryrun:  do not actually make any changes; just
 **                           show what would have happened.
+**
+**   --case-sensitive BOOL   Overwrite the case-sensitive setting.  If false,
+**                           files whose names differ only in case are taken
+**                           to be the same file.
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */
@@ -71,6 +75,7 @@ void merge_cmd(void){
   int *aChng;           /* An array of file name changes */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of conflicts seen */
+  int caseSensitive;    /* True for case-sensitive filenames */
   Stmt q;
 
 
@@ -89,10 +94,12 @@ void merge_cmd(void){
   zBinGlob = find_option("binary",0,1);
   nochangeFlag = find_option("nochange","n",0)!=0;
   zPivot = find_option("baseline",0,1);
+  capture_case_sensitive_option();
   if( g.argc!=3 ){
     usage("VERSION");
   }
   db_must_be_within_tree();
+  caseSensitive = filenames_are_case_sensitive();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
@@ -152,7 +159,7 @@ void merge_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY,"      /* The filename */
+    "  fn TEXT PRIMARY KEY COLLATE %s,"  /* The filename */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idp INTEGER,"              /* VFILE entry for the pivot */
     "  idm INTEGER,"              /* VFILE entry for version merging in */
@@ -163,7 +170,8 @@ void merge_cmd(void){
     "  isexe BOOLEAN,"            /* Execute permission enabled */
     "  fnp TEXT,"                 /* The filename in the pivot */
     "  fnm TEXT"                  /* the filename in the merged version */
-    ");"
+    ");",
+    caseSensitive ? "binary" : "nocase"
   );
 
   /* Add files found in V
