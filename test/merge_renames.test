@@ -123,3 +123,10 @@ if {$deletes!=0} {
 
 fossil close -f
 exec rm rep.fossil
+
+######################################
+#  Test 3                            #
+#  Reported: Ticket [30b28cf351]     #
+######################################
+
+# TO BE WRITTEN.
