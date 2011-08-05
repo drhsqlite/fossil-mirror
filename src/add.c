@@ -151,7 +151,6 @@ static int add_files_in_sfile(int vid, int caseSensitive){
       "    ON vfile(pathname COLLATE nocase)"
     );
   }
-  xCmp = caseSensitive ? fossil_strcmp : fossil_stricmp;
   db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
