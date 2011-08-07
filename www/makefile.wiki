@@ -128,7 +128,7 @@ preprocessor must be run after translate.
 <h2>4.1 The mkindex preprocessor</h2>
 
 The mkindex program scans the "src.c" source files looking for special
-comments that identify routines that implement of various Fossil commands,
+comments that identify routines that implement various Fossil commands,
 web interface methods, and help text comments.  The mkindex program
 generates some C code that Fossil uses in order to dispatch commands and
 HTTP requests and to show on-line help.  Compile the mkindex program
