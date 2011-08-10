@@ -110,6 +110,22 @@ static void status_report(
 }
 
 /*
+** Use the "relative-paths" setting and the --abs-paths and
+** --rel-paths command line options to determine whether the
+** status report should be shown relative to the current
+** working directory.
+*/
+static int determine_cwd_relative_option()
+{
+  int relativePaths = db_get_boolean("relative-paths", 0);
+  int absPathOption = find_option("abs-paths", 0, 0)!=0;
+  int relPathOption = find_option("rel-paths", 0, 0)!=0;
+  if( absPathOption ){ relativePaths = 0; }
+  if( relPathOption ){ relativePaths = 1; }
+  return relativePaths;
+}
+
+/*
 ** COMMAND: changes
 **
 ** Usage: %fossil changes
@@ -117,24 +133,30 @@ static void status_report(
 ** Report on the edit status of all files in the current checkout.
 ** See also the "status" and "extra" commands.
 **
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
 ** Options:
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-**    --non-relative    Don't display filenames relative to the current
-**                      working directory.
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
-  int nonRelative = find_option("non-relative", 0, 0)!=0;
+  int cwdRelative = 0;
   db_must_be_within_tree();
+  cwdRelative = determine_cwd_relative_option();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
-  status_report(&report, "", 0, !nonRelative);
+  status_report(&report, "", 0, cwdRelative);
   blob_write_to_file(&report, "-");
 }
 
@@ -145,13 +167,18 @@ void changes_cmd(void){
 **
 ** Report on the status of the current checkout.
 **
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
 ** Options:
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-**    --non-relative    Don't display filenames relative to the current
-**                      working directory.
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void status_cmd(void){
   int vid;
@@ -234,8 +261,20 @@ void ls_cmd(void){
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
 **
-** Filenames are displayed relative to the current working directory
-** unless the --non-relative option is used.
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
+** Options:
+**
+**    --dotfiles        Include files with names beginning with "."
+**
+**    --ignore GLOBPATTERN 
+**                      Override the "ignore-glob" setting.
+**
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void extra_cmd(void){
   Blob path;
@@ -244,13 +283,14 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
-  int cwdRelative = !(find_option("non-relative", 0, 0)!=0);
+  int cwdRelative = 0;
   int outputManifest;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
+  cwdRelative = determine_cwd_relative_option();
   outputManifest = db_get_versionable_setting_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
