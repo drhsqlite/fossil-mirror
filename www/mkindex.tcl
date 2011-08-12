@@ -11,6 +11,7 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Building and Installing Fossil}
   checkin_names.wiki {Checkin And Version Names}
+  changes.wiki {Fossil Changelog}
   copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
   contribute.wiki {Contributing Code or Documentation To The Fossil Project}
@@ -37,9 +38,11 @@ set doclist {
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
+  settings.wiki {Fossil Settings}
   shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
   style.wiki {Source Code Style Guidelines}
+  ssl.wiki {Using SSL with Fossil}
   sync.wiki {The Fossil Sync Protocol}
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}

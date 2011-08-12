@@ -1,5 +1,5 @@
-C Add\sdocumentation\sfor\ssettings,\sSSL\susage,\sand\schange\slog.
-D 2011-08-12T09:21:28.192
+C Update\sdocumentation\sindex.
+D 2011-08-12T09:26:30.893
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -301,10 +301,10 @@ F www/index.wiki ada72d48110b4c70a2fffffa32b354034760d6b3
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/makefile.wiki 828f7eeb3ce559c7d1e1b0cc4dc26c55e66b43ff
 F www/mkdownload.tcl e0b19b52e2835e538dbd3f219bc483a201b39b92
-F www/mkindex.tcl 263e5ec041535e38db5b9f40c8e63c5e6307dc8d
+F www/mkindex.tcl 29cd5ce47956b9714d310c5e0af45484062afba8
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki ca09b877e5a19566bae91477999d4e317877c1a3
+F www/permutedindex.wiki 827a8f22f1d71ea20421480fd7fe6f2b293b1492
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P cdd298f526afae444b6bbc5210005ec1943cbc58
-R 044ffe46e6c2846a52d048858c2fda90
+P 0769acd2e0c5e04d171f14704eb0d597ac661f50
+R 077b86fd0c68368f6ac2649dba20640a
 U ben
-Z 5d909c69a58b9c7eaa6e28c99da9b693
+Z 40283e758678232a65f470745ab062e4
