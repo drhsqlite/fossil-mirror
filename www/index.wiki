@@ -129,6 +129,8 @@ internet these days. What makes Fossil worthy of attention?
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
   *  An [./event.wiki | Event] is a special kind of wiki page associated
      with a point in time rather than a name.
+  *  [./settings.wiki | Settings] control the behaviour of fossil.
+  *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]

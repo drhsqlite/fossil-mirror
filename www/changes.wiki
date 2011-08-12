@@ -5,6 +5,17 @@
   *  Added a ./configure script based on autosetup.
   *  Added the "[/help/winsrv | fossil winsrv]" command
      for creating a Fossil service on windows systems.
+  *  Added "versionable settings" where settings that affect
+     the local tree can be stored in versioned files in the
+     .fossil-settings directory.
+  *  Added "relative-paths" setting and options for status,
+     changes and extras commands to optionally show pathnames
+     relative to the current working directory.
+  *  Added "empty-dirs" versionable setting.
+  *  Added support for client-side SSL certificates with "ssl-identity"
+     setting and --ssl-identity option.
+  *  Added "ssl-ca-location" setting to specify trusted root
+     SSL certificates.
 
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
 
