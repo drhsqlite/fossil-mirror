@@ -155,9 +155,13 @@ void db_end_transaction(int rollbackFlag){
 void db_force_rollback(void){
   int i;
   static int busy = 0;
+  sqlite3_stmt *pStmt = 0;
   if( busy || g.db==0 ) return;
   busy = 1;
   undo_rollback();
+  while( (pStmt = sqlite3_next_stmt(g.db,pStmt))!=0 ){
+    sqlite3_reset(pStmt);
+  }
   while( pAllStmt ){
     db_finalize(pAllStmt);
   }

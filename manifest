@@ -1,5 +1,5 @@
-C Change\sX-Frame-Options\sto\sSAMEORIGIN\sto\sgive\sreasonable\sclick-jacking\sprotection\swithout\sblocking\ssome\sclient\sside\sscripting\scurrently\sin\suse\sby\ssome\sfossil\susers.
-D 2011-08-10T15:54:38.677
+C When\sforcing\sa\srollback\sfollowing\san\serror,\sreset\sall\sSQL\sstatement\sfirst\nso\sthat\sthe\srollback\scan\sbe\ssuccessful.
+D 2011-08-12T11:54:34.136
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -68,7 +68,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c d25fdad7f33b47b9997bb099a2237132cddc6b32
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
-F src/db.c 932ee5f3c85b67f723b856a554d03f8bbbade20a
+F src/db.c 7108d4748b111d2363aa408e2558bcdb77f4a7ef
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7b5983f632113900bb1639f2e367c8e8e03dfaa7
@@ -323,7 +323,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 303dd442feb8202318e6e7e09875f5c273a0ad8f
-R 5e6a89101f11cc8c4c0a41beae459834
-U ben
-Z 32dfe3c92d231b1f651ba83e1ad8255e
+P b968f023a88a6af5c7bcb6e499c42e3173a8e32e
+R 851dfd7d868ae82dfbaca82128d38816
+U drh
+Z 811d199c412ededccbc2ecd24a627fb5
