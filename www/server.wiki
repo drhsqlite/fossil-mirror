@@ -99,6 +99,9 @@ If you are using "inetd" to serve your repository, then you simply need to add "
 <p>
 At this stage, the standalone server (e.g. "fossil server") does not support SSL.
 </p>
+<p>
+For more information, see <a href="./ssl.wiki">Using SSL with Fossil</a>.
+</p>
 </blockquote>
 
 <h2>Various security concerns with hosted repositories</h2><blockquote>

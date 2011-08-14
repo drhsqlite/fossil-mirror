@@ -117,6 +117,9 @@ void update_cmd(void){
     fossil_fatal("cannot update an uncommitted merge");
   }
   if( !nochangeFlag && !internalUpdate ) autosync(AUTOSYNC_PULL);
+  
+  /* Create any empty directories now, as well as after the update, so changes in settings are reflected now */
+  ensure_empty_dirs_created();
 
   if( internalUpdate ){
     tid = internalUpdate;
@@ -443,6 +446,7 @@ void update_cmd(void){
   if( nochangeFlag ){
     db_end_transaction(1);  /* With --nochange, rollback changes */
   }else{
+    ensure_empty_dirs_created();
     if( g.argc<=3 ){
       /* All files updated.  Shift the current checkout to the target. */
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", tid);
@@ -456,6 +460,59 @@ void update_cmd(void){
     }
     if( !internalUpdate ) undo_finish();
     db_end_transaction(0);
+  }
+}
+
+/*
+** Make sure empty directories are created
+*/
+void ensure_empty_dirs_created(void){
+  /* Make empty directories? */
+  char *zEmptyDirs = db_get("empty-dirs", 0);
+  if( zEmptyDirs!=0 ){
+    char *bc;
+    Blob dirName;
+    Blob dirsList;
+
+    blob_zero(&dirsList);
+    blob_init(&dirsList, zEmptyDirs, strlen(zEmptyDirs));
+    /* Replace commas by spaces */
+    bc = blob_str(&dirsList);
+    while( (*bc)!='\0' ){
+      if( (*bc)==',' ) { *bc = ' '; }
+      ++bc;
+    }
+    /* Make directories */
+    blob_zero(&dirName);
+    while( blob_token(&dirsList, &dirName) ){
+      const char *zDir = blob_str(&dirName);
+      /* Make full pathname of the directory */
+      Blob path;
+      const char *zPath;
+
+      blob_zero(&path);
+      blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
+      zPath = blob_str(&path);      
+      /* Handle various cases of existence of the directory */
+      switch( file_isdir(zPath) ){
+        case 0: { /* doesn't exist */
+          if( file_mkdir(zPath, 0)!=0 ) {
+            fossil_warning("couldn't create directory %s as "
+                           "required by empty-dirs setting", zDir);
+          }          
+          break;
+        }
+        case 1: { /* exists, and is a directory */
+          /* do nothing - required directory exists already */
+          break;
+        }
+        case 2: { /* exists, but isn't a directory */
+          fossil_warning("file %s found, but a directory is required "
+                         "by empty-dirs setting", zDir);          
+        }
+      }
+      blob_reset(&path);
+    }
   }
 }
 
