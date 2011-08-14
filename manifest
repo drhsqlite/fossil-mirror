@@ -1,5 +1,5 @@
-C Remove\sthe\sseperate\sversionable\sversion\sof\sdb_get(),\swhich\snow\suses\sctrlSettings\sto\sdetermine\swhether\sa\ssetting\sis\sversionable\sor\snot.
-D 2011-08-14T17:54:22.621
+C Fix\sthe\sfile_relative_name()\sfunction\sso\sthat\sit\sworks\son\swindows.
+D 2011-08-14T23:12:03.828
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -78,7 +78,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 2e5077b437d6093b9ee7687c4b3a5fb58f834f25
-F src/file.c c342ae626de8caa93e1ba14a0e9766111886da64
+F src/file.c 6e89d00e364b6f56d04c515946ee2af79cec0efe
 F src/finfo.c 79a735a124c35f03962013339dd669126125e8a7
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 246ac307bb0438c23cfc66fc9cb15412992219a4
-R 198070c1d8e273af594f81600c9e0856
-U ben
-Z 866ec51879c60db82a0bf8078ca047a7
+P 3113f7b18f672ee31cdeef429809b9de375f1438
+R 0c1cfab51b4723e3066cb9669b1b086b
+U drh
+Z c58fadb46a39a5ce6c534bfac2bc8f07
