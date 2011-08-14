@@ -203,7 +203,6 @@ static void approximate_split_path(
   /* if this is a Pax Interchange header prepend "PaxHeader/"
   ** so we can tell files apart from metadata */
   if( bHeader ){
-    int n;
     blob_reset(&tball.pax);
     blob_appendf(&tball.pax, "PaxHeader/%*.*s", nName, nName, zName);
     zName = blob_buffer(&tball.pax);
@@ -290,11 +289,13 @@ static void tar_add_header(
   sqlite3_snprintf(12, (char*)&tball.aHdr[136], "%011o", mTime);
 
   /* see if we need to output a Pax Interchange Header */
-  if( !is_iso646_name(zName, nName) ||
-            !tar_split_path(zName, nName, tball.aHdr, &tball.aHdr[345]) ){
+  if( !is_iso646_name(zName, nName)
+   || !tar_split_path(zName, nName, (char*)tball.aHdr, (char*)&tball.aHdr[345])
+  ){
     int lastPage;
     /* add a file name for interoperability with older programs */
-    approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 1);
+    approximate_split_path(zName, nName, (char*)tball.aHdr,
+                           (char*)&tball.aHdr[345], 1);
 
     /* generate the Pax Interchange path header */
     blob_reset(&tball.pax);
@@ -313,7 +314,8 @@ static void tar_add_header(
     }
 
     /* generate an approximate path for the regular header */
-    approximate_split_path(zName, nName, tball.aHdr, &tball.aHdr[345], 0);
+    approximate_split_path(zName, nName, (char*)tball.aHdr,
+                           (char*)&tball.aHdr[345], 0);
   }
   /* set the size */
   sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", iSize);

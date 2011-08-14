@@ -456,7 +456,7 @@ void www_print_timeline(
 ** graph.
 */
 void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
-  if( pGraph && pGraph->nErr==0 ){
+  if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
     int i;
     char cSep;

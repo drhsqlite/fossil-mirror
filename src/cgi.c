@@ -297,7 +297,7 @@ void cgi_reply(void){
   }
 
   /* Add headers to turn on useful security options in browsers. */
-  fprintf(g.httpOut, "X-Frame-Options: DENY\r\n");
+  fprintf(g.httpOut, "X-Frame-Options: SAMEORIGIN\r\n");
   /* This stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
