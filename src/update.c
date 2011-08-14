@@ -468,7 +468,7 @@ void update_cmd(void){
 */
 void ensure_empty_dirs_created(void){
   /* Make empty directories? */
-  char *zEmptyDirs = db_get_versionable_setting("empty-dirs", 0);
+  char *zEmptyDirs = db_get("empty-dirs", 0);
   if( zEmptyDirs!=0 ){
     char *bc;
     Blob dirName;

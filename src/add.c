@@ -62,7 +62,7 @@ const char *fossil_reserved_name(int N){
 
   if( N>=0 && N<count(azName) ) return azName[N];
   if( N>=count(azName) && N<count(azName)+count(azManifest)
-      && db_get_versionable_setting_boolean("manifest",0) ){
+      && db_get_boolean("manifest",0) ){
     return azManifest[N-count(azName)];
   }
   return 0;
@@ -200,7 +200,7 @@ void add_cmd(void){
   db_must_be_within_tree();
   caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get_versionable_setting("ignore-glob", 0);
+    zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
   if( vid==0 ){
@@ -392,7 +392,7 @@ void addremove_cmd(void){
   db_must_be_within_tree();
   caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
-    zIgnoreFlag = db_get_versionable_setting("ignore-glob", 0);
+    zIgnoreFlag = db_get("ignore-glob", 0);
   }
   vid = db_lget_int("checkout",0);
   if( vid==0 ){

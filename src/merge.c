@@ -100,7 +100,7 @@ void merge_cmd(void){
   }
   db_must_be_within_tree();
   caseSensitive = filenames_are_case_sensitive();
-  if( zBinGlob==0 ) zBinGlob = db_get_versionable_setting("binary-glob",0);
+  if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
     fossil_fatal("nothing is checked out");

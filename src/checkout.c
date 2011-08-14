@@ -133,7 +133,7 @@ void manifest_to_disk(int vid){
   Blob manifest;
   Blob hash;
 
-  if( db_get_versionable_setting_boolean("manifest",0) ){
+  if( db_get_boolean("manifest",0) ){
     blob_zero(&manifest);
     content_get(vid, &manifest);
     zManFile = mprintf("%smanifest", g.zLocalRoot);

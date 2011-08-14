@@ -1403,16 +1403,15 @@ void db_swap_connections(void){
 }
 
 /*
-** Get a potentially versioned setting - either from .fossil-settings/<name>
-** if we have a local checkout and that file exists, or from the
-** CONFIG or GLOBAL_CONFIG tables if we are running in server mode
-** (without a local checkout) or if the file does not exist.
+** Logic for reading potentially versioned settings from
+** .fossil-settings/<name> , and emits warnings if necessary.
+** Returns the non-versioned value without modification if there is no
+** versioned value.
 */
-char *db_get_versionable_setting(const char *zName, char *zDefault){
+static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
   /* Attempt to load the versioned setting from a checked out file */
   char *zVersionedSetting = 0;
   int noWarn = 0;
-  char *zSetting = 0;
 
   if( db_open_local() ){
     Blob versionedPathname;
@@ -1440,11 +1439,9 @@ char *db_get_versionable_setting(const char *zName, char *zDefault){
     }
     blob_reset(&versionedPathname);
   }
-  /* Load the normal, non-versioned setting */
-  zSetting = db_get(zName, zDefault);
   /* Display a warning? */
-  if( zVersionedSetting!=0 && zSetting!=0 && zSetting[0]!='\0'
-   && zSetting!=zDefault && !noWarn
+  if( zVersionedSetting!=0 && zNonVersionedSetting!=0
+   && zNonVersionedSetting[0]!='\0' && !noWarn
   ){
     /* There's a versioned setting, and a non-versioned setting. Tell
     ** the user about the conflict */
@@ -1457,13 +1454,7 @@ char *db_get_versionable_setting(const char *zName, char *zDefault){
     );
   }
   /* Prefer the versioned setting */
-  return ( zVersionedSetting!=0 ) ? zVersionedSetting : zSetting;
-}
-int db_get_versionable_setting_boolean(const char *zName, int dflt){
-  char *zVal = db_get_versionable_setting(zName, dflt ? "on" : "off");
-  if( is_truth(zVal) ) return 1;
-  if( is_false(zVal) ) return 0;
-  return dflt;
+  return ( zVersionedSetting!=0 ) ? zVersionedSetting : zNonVersionedSetting;
 }
 
 
@@ -1473,6 +1464,15 @@ int db_get_versionable_setting_boolean(const char *zName, int dflt){
 */
 char *db_get(const char *zName, char *zDefault){
   char *z = 0;
+  int i;
+  const struct stControlSettings *ctrlSetting = 0;
+  /* Is this a setting? */
+  for(i=0; ctrlSettings[i].name; i++){
+    if( strcmp(ctrlSettings[i].name, zName)==0 ){
+      ctrlSetting = &(ctrlSettings[i]);
+      break;
+    }
+  }
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
@@ -1480,6 +1480,10 @@ char *db_get(const char *zName, char *zDefault){
     db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
+  }
+  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+    /* This is a versionable setting, try and get the info from a checked out file */
+    z = db_get_do_versionable(zName, z);
   }
   if( z==0 ){
     z = zDefault;
