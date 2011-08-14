@@ -8,9 +8,13 @@
   *  Added "versionable settings" where settings that affect
      the local tree can be stored in versioned files in the
      .fossil-settings directory.
-  *  Added "relative-paths" setting and options for status,
-     changes and extras commands to optionally show pathnames
-     relative to the current working directory.
+  *  The status, changes and extras commands now show
+     pathnames relative to the current working directory,
+     unless overridden by command line options or the
+     "relative-paths" setting.<br><b>WARNING:</b> This
+     change will break scripts which rely on the current
+     output when the current working directory is not the
+     repository root.
   *  Added "empty-dirs" versionable setting.
   *  Added support for client-side SSL certificates with "ssl-identity"
      setting and --ssl-identity option.

@@ -117,7 +117,7 @@ static void status_report(
 */
 static int determine_cwd_relative_option()
 {
-  int relativePaths = db_get_boolean("relative-paths", 0);
+  int relativePaths = db_get_boolean("relative-paths", 1);
   int absPathOption = find_option("abs-paths", 0, 0)!=0;
   int relPathOption = find_option("rel-paths", 0, 0)!=0;
   if( absPathOption ){ relativePaths = 0; }

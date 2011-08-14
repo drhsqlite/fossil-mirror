@@ -1743,7 +1743,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "mtime-changes", 0,                0, 0, "on"                  },
   { "pgp-command",   0,               32, 0, "gpg --clearsign -o " },
   { "proxy",         0,               32, 0, "off"                 },
-  { "relative-paths",0,                0, 0, "off"                 },
+  { "relative-paths",0,                0, 0, "on"                  },
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
   { "ssl-ca-location",0,              40, 0, ""                    },
@@ -1859,7 +1859,7 @@ struct stControlSettings const ctrlSettings[] = {
 **                     then a direct HTTP connection is used.
 **
 **    relative-paths   When showing changes and extras, report paths relative
-**                     to the current working directory.  Default: "off"
+**                     to the current working directory.  Default: "on"
 **
 **    repo-cksum       Compute checksums over all files in each checkout
 **                     as a double-check of correctness.  Defaults to "on".
