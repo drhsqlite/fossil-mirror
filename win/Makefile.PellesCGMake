@@ -128,7 +128,7 @@ $(UTILS_OBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # compile special windows utils
-version.obj:	$(WINDIR)version.c
+version.obj:	$(SRCDIR)mkversion.c
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 # generate the translated c-source files
@@ -140,8 +140,8 @@ page_index.h:	$(TRANSLATEDSRC) mkindex.exe
 	mkindex.exe $(TRANSLATEDSRC) >$@
 
 # extracting version info from manifest
-VERSION.h:	version.exe ..\manifest.uuid ..\manifest
-	version.exe ..\manifest.uuid ..\manifest  > $@
+VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
+	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
 headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h

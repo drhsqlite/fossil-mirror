@@ -1,14 +1,27 @@
 <title>Building and Installing Fossil</title>
 
-<p>This page describes how to build and install Fossil.  The
-whole process is designed to be very easy.</p>
-
 <h2>0.0 Using A Pre-compiled Binary</h2>
 
-<p>You can skip steps 1.0 and 2.0 below by downloading
+<p>You can skip all of the following by downloading
 a <a href="http://www.fossil-scm.org/download.html">pre-compiled binary</a>
-appropriate for your platform.  If you use a pre-compiled binary
-jump immediate to step 3.0.</p>
+appropriate for your platform and putting that self-contained binary
+someplace on your $PATH.
+To uninstall, simply delete the binary.
+To upgrade from an older release, just overwrite the older binary with
+the newer one.</p>
+
+<h2>0.1 Executive Summary</h2>
+
+<p>Building and installing is very simple.  Three steps:</p>
+
+<ol>
+<li> Download and unpack a source tarball or ZIP.
+<li> <b>./configure; make</b>
+<li> Move or copy the resulting "fossil" executable to someplace
+     on your $PATH.
+</ol>
+
+<p><hr>
 
 <h2>1.0 Obtaining The Source Code</h2>
 
@@ -35,38 +48,62 @@ the top of the page.</p></li>
 link.  Note that you must successfully log in as "anonymous" in step 1
 above in order to see the link to the detailed version information.</p></li>
 
-<li><p>Finally, click on the
-"Zip Archive" link.  This link will build a ZIP archive of the 
+<li><p>Finally, click on one of the
+"Zip Archive" or "Tarball" links, according to your preference.
+These link will build a ZIP archive or a gzip-compressed tarball of the 
 complete source code and download it to your browser.
 </ol>
 
 <h2>2.0 Compiling</h2>
 
-<p>Follow these steps to compile on a unix platform
-(Linux, *BSD, MacOS, etc):</p>
-
 <ol>
 <li value="6">
-<p>Create a directory to hold the source code.  Then unzip the
-ZIP archive you downloaded into that directory.  You should be
+<p>Create a directory to hold the source code.  Then unarchive the
+ZIP or tarball you downloaded into that directory.  You should be
 in the top-level folder of that directory</p></li>
 
-<li><p><b>(Optional:)</b>
-Edit the Makefile to set it up like you want.  You probably do not
-need to do anything.  Do not be intimidated:  There are less than 10
-variables in the makefile that can be changed.  The whole Makefile
-is only a few dozen lines long and most of those lines are comments.</p>
+<li><i>(Optional, unix only)</i>
+Run <b>./configure</b> to construct a makefile.
 
-<li><p>Type "<b>make</b>"
+<ol type="a">
+<li><p>
+If you do not have the OpenSSL library installed on your system, then
+add <b>--with-openssl=none</b> to omit the https functionality.
+
+<li><p>
+To build a statically linked binary (suitable for use inside a chroot
+jail) add the <b>--static</b> option.
+
+<li><p>
+Other configuration options can be seen by running
+<b>./configure --help</b>
 </ol>
 
-<p>To build on windows, use an alternative makefile suitable for your
-particular build environment.  The alternative windows makefiles are
-all found in the win/ subdirectory of the source tree.  So, for example,
-if you want build using the 
-[http://www.mingw.org/ | mingw/msys compiler package] for windows, then
-run "<b>make -f win/Makefile.mingw</b>" instead of just "<b>make</b>"
-in step 8 above.</p>
+<li><p>Run make to build the "fossil" or "fossil.exe" executable.  The
+details depend on your platform and compiler.
+
+<ol type="a">
+<li><p><i>Unix</i> &rarr; the configure-generated Makefile should work on
+all unix and unix-like systems.  Simply type "<b>make</b>".
+
+<li><p><i>Unix without running "configure"</i> &rarr; if you prefer to avoid running configure, you
+can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
+edits to Makefile.classic to configure the build for your system.
+
+<li><p><i>Msys/MinGW</i> &rarr; Use the
+mingw makefile: "<b>make -f win/Makefile.mingw</b>"
+
+<li><p><i>VC++</i> &rarr; Use the msc makefile.  First
+change to the "win/" subdirectory ("<b>cd win</b>") then run
+"<b>nmake /f Makefile.msc</b>".
+</ol>
+</ol>
+
+<p>Note that Fossil requires the "zlib" compression library.  This library
+is available by default on most unix systems, but it will typically have to
+be installed separately on windows systems.  For windows builds, you may
+need to edit the makefile to tell it exactly where zlib is located on your
+system.</p>
 
 <h2>3.0 Installing</h2>
 

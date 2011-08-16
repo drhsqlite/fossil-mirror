@@ -193,6 +193,41 @@ void compute_ancestors(int rid, int N){
 }
 
 /*
+** Compute up to N direct ancestors (merge ancestors do not count)
+** for the check-in rid and put them in a table named "ancestor".
+** Label each generation with consecutive integers going backwards
+** in time such that rid has the smallest generation number and the oldest
+** direct ancestor as the largest generation number.
+*/
+void compute_direct_ancestors(int rid, int N){
+  Stmt ins;
+  Stmt q;
+  int gen = 0;
+  db_multi_exec(
+    "CREATE TEMP TABLE ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "INSERT INTO ancestor VALUES(%d, 0);", rid
+  );
+  db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
+  db_prepare(&q, 
+    "SELECT pid FROM plink"
+    " WHERE cid=:rid AND isprim"
+  );
+  while( (N--)>0 ){
+    db_bind_int(&q, ":rid", rid);
+    if( db_step(&q)!=SQLITE_ROW ) break;
+    rid = db_column_int(&q, 0);
+    db_reset(&q);
+    gen++;
+    db_bind_int(&ins, ":rid", rid);
+    db_bind_int(&ins, ":gen", gen);
+    db_step(&ins);
+    db_reset(&ins);
+  }
+  db_finalize(&ins);
+  db_finalize(&q);
+}
+
+/*
 ** Load the record ID rid and up to N-1 closest descendants into
 ** the "ok" table.
 */

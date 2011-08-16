@@ -112,7 +112,7 @@ Glob *glob_create(const char *zPatternList){
   z = (char*)&p[1];
   memcpy(z, zPatternList, nList+1);
   while( z[0] ){
-    while( z[0]==',' || z[0]==' ' ) z++;  /* Skip leading spaces */
+    while( z[0]==',' || z[0]==' ' || z[0]=='\n' || z[0]=='\r' ) z++;  /* Skip leading spaces and newlines */
     if( z[0]=='\'' || z[0]=='"' ){
       delimiter = z[0];
       z++;
@@ -122,10 +122,10 @@ Glob *glob_create(const char *zPatternList){
     if( z[0]==0 ) break;
     p->azPattern = fossil_realloc(p->azPattern, (p->nPattern+1)*sizeof(char*) );
     p->azPattern[p->nPattern++] = z;
-    for(i=0; z[i] && z[i]!=delimiter; i++){}
+    for(i=0; z[i] && z[i]!=delimiter && z[i]!='\n' && z[i]!='\r'; i++){}
     if( delimiter==',' ){
-      /* Remove trailing spaces on a comma-delimited pattern */
-      for(j=i; j>1 && z[j-1]==' '; j--){}
+      /* Remove trailing spaces / newlines on a comma-delimited pattern */
+      for(j=i; j>1 && (z[j-1]==' ' || z[j-1]=='\n' || z[j-1]=='\r'); j--){}
       if( j<i ) z[j] = 0;
     }
     if( z[i]==0 ) break;

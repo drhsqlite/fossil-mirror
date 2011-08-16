@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -107,6 +107,7 @@ struct Global {
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
+  const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -253,6 +254,7 @@ int main(int argc, char **argv){
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
+    g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("help",0,0)!=0 ){
       /* --help anywhere on the command line is translated into
       ** "fossil help argv[1] argv[2]..." */
@@ -646,7 +648,7 @@ void cmd_test_cmd_list(void){
 ** Print the source code version number for the fossil executable.
 */
 void version_cmd(void){
-  fossil_print("This is fossil version "
+  fossil_print("This is fossil version " RELEASE_VERSION " "
                 MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
 }
 
@@ -1104,7 +1106,8 @@ void cmd_cgi(void){
       blob_reset(&value);
       continue;
     }
-    if( blob_eq(&key, "repository:") && blob_token(&line, &value) ){
+    if( blob_eq(&key, "repository:") && blob_tail(&line, &value) ){
+      blob_trim(&value);
       db_open_repository(blob_str(&value));
       blob_reset(&value);
       continue;
@@ -1439,7 +1442,10 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close(1);
-  win32_http_server(iPort, mxPort, zBrowserCmd, zStopperFile, zNotFound, flags);
+  if( win32_http_service(iPort, zNotFound, flags) ){
+    win32_http_server(iPort, mxPort, zBrowserCmd,
+                      zStopperFile, zNotFound, flags);
+  }
 #endif
 }
 

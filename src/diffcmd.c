@@ -177,19 +177,20 @@ void diff_file_mem(
 }
 
 /*
-** Do a diff against a single file named in g.argv[2] from version zFrom
+** Do a diff against a single file named in zFileTreeName from version zFrom
 ** against the same file on disk.
 */
 static void diff_one_against_disk(
   const char *zFrom,        /* Name of file */
   const char *zDiffCmd,     /* Use this "diff" command */
-  int ignoreEolWs           /* Ignore whitespace changes at end of lines */
+  int ignoreEolWs,          /* Ignore whitespace changes at end of lines */
+  const char *zFileTreeName
 ){
   Blob fname;
   Blob content;
-  file_tree_name(g.argv[2], &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, 0, 0);
-  diff_file(&content, g.argv[2], g.argv[2], zDiffCmd, ignoreEolWs);
+  diff_file(&content, zFileTreeName, zFileTreeName, zDiffCmd, ignoreEolWs);
   blob_reset(&content);
   blob_reset(&fname);
 }
@@ -297,18 +298,18 @@ static void diff_all_against_disk(
 /*
 ** Output the differences between two versions of a single file.
 ** zFrom and zTo are the check-ins containing the two file versions.
-** The filename is contained in g.argv[2].
 */
 static void diff_one_two_versions(
   const char *zFrom,
   const char *zTo,
   const char *zDiffCmd,
-  int ignoreEolWs
+  int ignoreEolWs,
+  const char *zFileTreeName
 ){
   char *zName;
   Blob fname;
   Blob v1, v2;
-  file_tree_name(g.argv[2], &fname, 1);
+  file_tree_name(zFileTreeName, &fname, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, 0, 0);
   historical_version_of_file(zTo, zName, &v2, 0, 0);
@@ -410,12 +411,12 @@ static void diff_all_two_versions(
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?options? ?FILE?
+** Usage: %fossil diff|gdiff ?options? ?FILE1? ?FILE2 ...?
 **
-** Show the difference between the current version of FILE (as it
-** exists on disk) and that same file as it was checked out.  Or
-** if the FILE argument is omitted, show the unsaved changed currently
-** in the working check-out.
+** Show the difference between the current version of each of the FILEs
+** specified (as they exist on disk) and that same file as it was checked
+** out.  Or if the FILE arguments are omitted, show the unsaved changed
+** currently in the working check-out.
 **
 ** If the "--from VERSION" or "-r VERSION" option is used it specifies
 ** the source check-in for the diff operation.  If not specified, the 
@@ -442,6 +443,7 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   int diffFlags = 0;         /* Flags to control the DIFF */
+  int f;
 
   isGDiff = g.argv[1][0]=='g';
   isInternDiff = find_option("internal","i",0)!=0;
@@ -457,8 +459,10 @@ void diff_cmd(void){
     if( !isInternDiff ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
-    if( g.argc==3 ){
-      diff_one_against_disk(zFrom, zDiffCmd, 0);
+    if( g.argc>=3 ){
+      for(f=2; f<g.argc; ++f){
+        diff_one_against_disk(zFrom, zDiffCmd, 0, g.argv[f]);
+      }
     }else{
       diff_all_against_disk(zFrom, zDiffCmd, diffFlags);
     }
@@ -470,8 +474,10 @@ void diff_cmd(void){
     if( !isInternDiff ){
       zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
     }
-    if( g.argc==3 ){
-      diff_one_two_versions(zFrom, zTo, zDiffCmd, 0);
+    if( g.argc>=3 ){
+      for(f=2; f<g.argc; ++f){
+        diff_one_two_versions(zFrom, zTo, zDiffCmd, 0, g.argv[f]);        
+      }
     }else{
       diff_all_two_versions(zFrom, zTo, zDiffCmd, diffFlags);
     }

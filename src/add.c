@@ -94,23 +94,18 @@ const char *fossil_all_reserved_names(void){
 */
 static int add_one_file(
   const char *zPath,   /* Tree-name of file to add. */
-  int vid              /* Add to this VFILE */
+  int vid,             /* Add to this VFILE */
+  int caseSensitive    /* True if filenames are case sensitive */
 ){
+  const char *zCollate = caseSensitive ? "binary" : "nocase";
   if( !file_is_simple_pathname(zPath) ){
     fossil_fatal("filename contains illegal characters: %s", zPath);
   }
-#if defined(_WIN32)
   if( db_exists("SELECT 1 FROM vfile"
-                " WHERE pathname=%Q COLLATE nocase", zPath) ){
+                " WHERE pathname=%Q COLLATE %s", zPath, zCollate) ){
     db_multi_exec("UPDATE vfile SET deleted=0"
-                  " WHERE pathname=%Q COLLATE nocase", zPath);
-  }
-#else
-  if( db_exists("SELECT 1 FROM vfile WHERE pathname=%Q", zPath) ){
-    db_multi_exec("UPDATE vfile SET deleted=0 WHERE pathname=%Q", zPath);
-  }
-#endif
-  else{
+                  " WHERE pathname=%Q COLLATE %s", zPath, zCollate);
+  }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     db_multi_exec(
       "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe)"
@@ -118,8 +113,13 @@ static int add_one_file(
       vid, zPath, file_isexe(zFullname));
     fossil_free(zFullname);
   }
-  fossil_print("ADDED  %s\n", zPath);
-  return 1;
+  if( db_changes() ){
+    fossil_print("ADDED  %s\n", zPath);
+    return 1;
+  }else{
+    fossil_print("SKIP   %s\n", zPath);
+    return 0;
+  }
 }
 
 /*
@@ -127,13 +127,14 @@ static int add_one_file(
 **
 ** Automatically exclude the repository file.
 */
-static int add_files_in_sfile(int vid){
+static int add_files_in_sfile(int vid, int caseSensitive){
   const char *zRepo;        /* Name of the repository database file */
   int nAdd = 0;             /* Number of files added */
   int i;                    /* Loop counter */
   const char *zReserved;    /* Name of a reserved file */
   Blob repoName;            /* Treename of the repository */
   Stmt loop;                /* SQL to loop over all files to add */
+  int (*xCmp)(const char*,const char*);
  
   if( !file_tree_name(g.zRepositoryName, &repoName, 0) ){
     blob_zero(&repoName);
@@ -141,15 +142,24 @@ static int add_files_in_sfile(int vid){
   }else{
     zRepo = blob_str(&repoName);
   }
+  if( caseSensitive ){
+    xCmp = fossil_strcmp;
+  }else{
+    xCmp = fossil_stricmp;
+    db_multi_exec(
+      "CREATE INDEX IF NOT EXISTS vfile_nocase"
+      "    ON vfile(pathname COLLATE nocase)"
+    );
+  }
   db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
     for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
-      if( fossil_strcmp(zToAdd, zReserved)==0 ) break;
+      if( xCmp(zToAdd, zReserved)==0 ) break;
     }
     if( zReserved ) continue;
-    nAdd += add_one_file(zToAdd, vid);
+    nAdd += add_one_file(zToAdd, vid, caseSensitive);
   }
   db_finalize(&loop);
   blob_reset(&repoName);
@@ -182,10 +192,13 @@ void add_cmd(void){
   int nRoot;                 /* Full path characters in g.zLocalRoot */
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore;             /* Ignore everything matching this glob pattern */
+  int caseSensitive;         /* True if filenames are case sensitive */
 
   zIgnoreFlag = find_option("ignore",0,1);
   includeDotFiles = find_option("dotfiles",0,0)!=0;
+  capture_case_sensitive_option();
   db_must_be_within_tree();
+  caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -231,7 +244,7 @@ void add_cmd(void){
   }
   glob_free(pIgnore);
 
-  add_files_in_sfile(vid);  
+  add_files_in_sfile(vid, caseSensitive);
   db_end_transaction(0);
 }
 
@@ -293,6 +306,44 @@ void delete_cmd(void){
 }
 
 /*
+** Capture the command-line --case-sensitive option.
+*/
+static const char *zCaseSensitive = 0;
+void capture_case_sensitive_option(void){
+  if( zCaseSensitive==0 ){
+    zCaseSensitive = find_option("case-sensitive",0,1);
+  }
+}
+
+/*
+** This routine determines if files should be case-sensitive or not.
+** In other words, this routine determines if two filenames that
+** differ only in case should be considered the same name or not.
+**
+** The case-sensitive setting determines the default value.  If
+** the case-sensitive setting is undefined, then case sensitivity
+** defaults on for Mac and Windows and off for all other unix.
+**
+** The --case-sensitive BOOLEAN command-line option overrides any
+** setting.
+*/
+int filenames_are_case_sensitive(void){
+  int caseSensitive;
+
+  if( zCaseSensitive ){
+    caseSensitive = is_truth(zCaseSensitive);
+  }else{
+#if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
+    caseSensitive = 1;
+#else
+    caseSensitive = 0;
+#endif
+    caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
+  }
+  return caseSensitive;
+}
+
+/*
 ** COMMAND: addremove
 **
 ** Usage: %fossil addremove ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
@@ -321,15 +372,15 @@ void delete_cmd(void){
 **
 ** This command can be used to track third party software.
 **
-**
 ** SUMMARY: fossil addremove
-** Options: ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
+** Options: ?--dotfiles? ?--ignore GLOB? ?--test? ?--case-sensitive BOOL?
 */
-void import_cmd(void){
+void addremove_cmd(void){
   Blob path;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int isTest = find_option("test",0,0)!=0;
+  int caseSensitive;
   int n;
   Stmt q;
   int vid;
@@ -337,7 +388,9 @@ void import_cmd(void){
   int nDelete = 0;
   Glob *pIgnore;
 
+  capture_case_sensitive_option();
   db_must_be_within_tree();
+  caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -360,7 +413,7 @@ void import_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
   glob_free(pIgnore);
-  nAdd = add_files_in_sfile(vid);
+  nAdd = add_files_in_sfile(vid, caseSensitive);
 
   /* step 2: search for missing files */
   db_prepare(&q,

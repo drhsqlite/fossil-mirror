@@ -109,7 +109,51 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
 #define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
 #define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #endif
+
+/*
+** Hash a string and use the hash to determine a background color.
+*/
+char *hash_color(const char *z){
+  int i;                       /* Loop counter */
+  unsigned int h = 0;          /* Hash on the branch name */
+  int r, g, b;                 /* Values for red, green, and blue */
+  int h1, h2, h3, h4;          /* Elements of the hash value */
+  int mx, mn;                  /* Components of HSV */
+  static char zColor[10];      /* The resulting color */
+  static int ix[2] = {0,0};    /* Color chooser parameters */
+
+  if( ix[0]==0 ){
+    if( db_get_boolean("white-foreground", 0) ){
+      ix[0] = 140;
+      ix[1] = 40;
+    }else{
+      ix[0] = 216;
+      ix[1] = 16;
+    }
+  }
+  for(i=0; z[i]; i++ ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
+  }
+  h1 = h % 6;  h /= 6;
+  h3 = h % 30; h /= 30;
+  h4 = h % 40; h /= 40;
+  mx = ix[0] - h3;
+  mn = mx - h4 - ix[1];
+  h2 = (h%(mx - mn)) + mn;
+  switch( h1 ){
+    case 0:  r = mx; g = h2, b = mn;  break;
+    case 1:  r = h2; g = mx, b = mn;  break;
+    case 2:  r = mn; g = mx, b = h2;  break;
+    case 3:  r = mn; g = h2, b = mx;  break;
+    case 4:  r = h2; g = mn, b = mx;  break;
+    default: r = mx; g = mn, b = h2;  break;
+  }
+  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
+  return zColor;
+}
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -144,6 +188,7 @@ void www_print_timeline(
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  static Stmt qbranch;
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -159,6 +204,10 @@ void www_print_timeline(
     */
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
+  db_static_prepare(&qbranch,
+    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
+    TAG_BRANCH
+  );
 
   @ <table id="timelineTable" class="timelineTable">
   blob_zero(&comment);
@@ -172,6 +221,7 @@ void www_print_timeline(
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
+    const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     char zTime[8];
     if( tagid ){
@@ -210,33 +260,40 @@ void www_print_timeline(
     @ <tr>
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
-    if( pGraph && zType[0]=='c' ){
-      int nParent = 0;
-      int aParent[32];
-      const char *zBr;
-      int gidx;
-      static Stmt qparent;
-      static Stmt qbranch;
-      db_static_prepare(&qparent,
-        "SELECT pid FROM plink"
-        " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
-      );
-      db_static_prepare(&qbranch,
-        "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-        TAG_BRANCH
-      );
-      db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
-        aParent[nParent++] = db_column_int(&qparent, 0);
-      }
-      db_reset(&qparent);
+    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
+    if( zType[0]=='c'
+    && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
+    ){
+      db_reset(&qbranch);   
       db_bind_int(&qbranch, ":rid", rid);
       if( db_step(&qbranch)==SQLITE_ROW ){
         zBr = db_column_text(&qbranch, 0);
       }else{
         zBr = "trunk";
       }
+      if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+          zBgClr = 0;
+        }else{
+          zBgClr = hash_color(zBr);
+        }
+      }
+    }
+    if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
+      int nParent = 0;
+      int aParent[32];
+      int gidx;
+      static Stmt qparent;
+      db_static_prepare(&qparent,
+        "SELECT pid FROM plink"
+        " WHERE cid=:rid AND pid NOT IN phantom"
+        " ORDER BY isprim DESC /*sort*/"
+      );
+      db_bind_int(&qparent, ":rid", rid);
+      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+        aParent[nParent++] = db_column_int(&qparent, 0);
+      }
+      db_reset(&qparent);
       gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
@@ -335,7 +392,7 @@ void www_print_timeline(
           "       (SELECT uuid FROM blob WHERE rid=pid)"
           "  FROM mlink"
           " WHERE mid=:mid AND pid!=fid"
-          " ORDER BY 3"
+          " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
       }
@@ -399,7 +456,7 @@ void www_print_timeline(
 ** graph.
 */
 void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
-  if( pGraph && pGraph->nErr==0 ){
+  if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
     int i;
     char cSep;
@@ -770,6 +827,8 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    from=RID       Path from...
 **    to=RID           ... to this
 **    nomerge          ... avoid merge links on the path
+**    brbg           Background color from branch name
+**    ubg            Background color from user
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -828,6 +887,8 @@ void page_timeline(void){
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
   }
+  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
 
   style_header("Timeline");
   login_anonymous_available();

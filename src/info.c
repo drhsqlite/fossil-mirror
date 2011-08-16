@@ -192,7 +192,7 @@ static void showTags(int rid, const char *zNotGlob){
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
-    " ORDER BY tagname", rid, rid, rid, zNotGlob
+    " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagname = db_column_text(&q, 1);
@@ -527,7 +527,7 @@ void ci_page(void){
        "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
-       " ORDER BY name",
+       " ORDER BY name /*sort*/",
        rid
     );
     while( db_step(&q)==SQLITE_ROW ){
@@ -1215,8 +1215,14 @@ static void output_text_with_line_numbers(
 
 /*
 ** WEBPAGE: artifact
-** URL: /artifact?name=ARTIFACTID
+** URL: /artifact/ARTIFACTID
 ** URL: /artifact?ci=CHECKIN&filename=PATH
+**
+** Additional query parameters:
+**
+**   ln              - show line numbers
+**   ln=N            - highlight line number N
+**   ln=M-N          - highlight lines M through N inclusive
 ** 
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
@@ -1262,20 +1268,20 @@ void artifact_page(void){
     if( fossil_strcmp(zMime, "text/html")==0 ){
       if( P("txt") ){
         style_submenu_element("Html", "Html",
-                              "%s/artifact?name=%s", g.zTop, zUuid);
+                              "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsHtml = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
+                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
       if( P("txt") ){
         style_submenu_element("Wiki", "Wiki",
-                              "%s/artifact?name=%s", g.zTop, zUuid);
+                              "%s/artifact/%s", g.zTop, zUuid);
       }else{
         renderAsWiki = 1;
         style_submenu_element("Text", "Text",
-                              "%s/artifact?name=%s&amp;txt=1", g.zTop, zUuid);
+                              "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }
   }
@@ -1792,7 +1798,7 @@ void ci_edit_page(void){
      "SELECT tag.tagid, tagname FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
      " ORDER BY CASE WHEN tagname GLOB 'sym-*' THEN substr(tagname,5)"
-     "               ELSE tagname END",
+     "               ELSE tagname END /*sort*/",
      rid
   );
   while( db_step(&q)==SQLITE_ROW ){
