@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.8"
 #define SQLITE_VERSION_NUMBER 3007008
-#define SQLITE_SOURCE_ID      "2011-07-19 18:29:00 ed5f0aad6b21066bacd01521e82c22e96991f400"
+#define SQLITE_SOURCE_ID      "2011-08-16 02:07:04 9650d7962804d61f56cac944ff9bb2c7bc111957"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -757,6 +757,20 @@ struct sqlite3_io_methods {
 ** is not changed but instead the prior value of that setting is written
 ** into the array entry, allowing the current retry settings to be
 ** interrogated.  The zDbName parameter is ignored.
+**
+** ^The [SQLITE_FCNTL_PERSIST_WAL] opcode is used to set or query the
+** persistent [WAL | Write AHead Log] setting.  By default, the auxiliary
+** write ahead log and shared memory files used for transaction control
+** are automatically deleted when the latest connection to the database
+** closes.  Setting persistent WAL mode causes those files to persist after
+** close.  Persisting the files is useful when other processes that do not
+** have write permission on the directory containing the database file want
+** to read the database file, as the WAL and shared memory files must exist
+** in order for the database to be readable.  The fourth parameter to
+** [sqlite3_file_control()] for this opcode should be a pointer to an integer.
+** That integer is 0 to disable persistent WAL mode or 1 to enable persistent
+** WAL mode.  If the integer is -1, then it is overwritten with the current
+** WAL persistence setting.
 ** 
 */
 #define SQLITE_FCNTL_LOCKSTATE        1
@@ -768,6 +782,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_FILE_POINTER     7
 #define SQLITE_FCNTL_SYNC_OMITTED     8
 #define SQLITE_FCNTL_WIN32_AV_RETRY   9
+#define SQLITE_FCNTL_PERSIST_WAL     10
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -2841,7 +2856,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** ^The specific value of WHERE-clause [parameter] might influence the 
 ** choice of query plan if the parameter is the left-hand side of a [LIKE]
 ** or [GLOB] operator or if the parameter is compared to an indexed column
-** and the [SQLITE_ENABLE_STAT2] compile-time option is enabled.
+** and the [SQLITE_ENABLE_STAT3] compile-time option is enabled.
 ** the 
 ** </li>
 ** </ol>

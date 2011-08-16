@@ -250,7 +250,7 @@ writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
-append opt " -DSQLITE_ENABLE_STAT2"
+append opt " -DSQLITE_ENABLE_STAT3"
 append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 set SQLITE_OPTIONS $opt
