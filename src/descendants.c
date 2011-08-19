@@ -289,7 +289,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 20);
+  print_timeline(&q, 20, 0);
   db_finalize(&q);
 }
 
@@ -324,7 +324,7 @@ void leaves_cmd(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, 2000);
+  print_timeline(&q, 2000, 0);
   db_finalize(&q);
 }
 
