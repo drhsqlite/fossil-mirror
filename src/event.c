@@ -345,10 +345,10 @@ void eventedit_page(void){
     md5sum_blob(&event, &cksum);
     blob_appendf(&event, "Z %b\n", &cksum);
     blob_reset(&cksum);
-    nrid = content_put(&event, 0, 0, 0);
+    nrid = content_put(&event);
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
     manifest_crosslink(nrid, &event);
-    blob_reset(&event);
+    assert( blob_is_reset(&event) );
     content_deltify(rid, nrid, 0);
     db_end_transaction(0);
     cgi_redirectf("event?name=%T", zEventId);

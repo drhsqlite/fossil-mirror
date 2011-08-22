@@ -1,0 +1,121 @@
+<title>Coding Style</title>
+
+Fossil source code should following the style guidelines below.
+
+<b>General points:</b>:
+
+  10.  No line of code exceeds 80 characters in length.  (Occasional
+       exceptions are made for HTML text on @-lines.)
+
+  11.  There are no tab characters.
+
+  12.  Line terminators are \n only.  Do not use a \r\n line terminator.
+
+  13.  2-space indentation is used.  Remember:  No tabs.
+
+  14.  Comments contain no spelling or grammatical errors.  (Abbreviations
+       and sentence fragments are acceptable when trying to fit a comment
+       on a single line as long as the meaning is clear.)
+
+  15.  The tone of comments is professional and courteous.  Comments
+       contain no profanity, obscenity, or innuendo.
+
+  16.  All C-code conforms to ANSI C-89.
+
+  17.  All comments and identifiers are in English.
+
+  18.  The program is single-threaded.  Do not use threads.
+       (One except to this is the HTTP server implementation for windows,
+       which we do not know how to implement without the use of threads.)
+
+
+<b>C preprocessor macros</b>:
+
+  20.  The purpose of every preprocessor macros is clearly explained in a
+       comment associated with its definition.
+
+  21.  Every preprocessor macro is used at least once.
+
+  22.  The names of preprocessor macros clearly reflect their use.
+
+  23.  Assumptions about the relative values of related macros are
+       verified by asserts.  Example: <tt>assert(READ_LOCK+1==WRITE_LOCK);</tt>
+
+
+<b>Function header comments</b>:
+
+  30.  Every function has a header comment describing the purpose and use
+       of the function.
+
+  31.  Function header comment defines the behavior of the function in
+       sufficient detail to allow the function to be reimplemented from
+       scratch without reference to the original code.
+
+  32.  Functions that perform dynamic memory allocation (either directly
+       or indirectly via subfunctions) say so in their header comments.
+
+
+<b>Function bodies</b>:
+
+<ol>
+  <li value=40>  The name of a function clearly reflects its purpose.
+
+  <li> Automatic variables are small, not large objects or arrays.  Avoid
+       excessive stack usage.
+
+  <li>  The check-list items for functions also apply to major subsections
+     within a function.
+
+  <li>  All code subblocks are enclosed in {...}.
+
+
+  <li> <b>assert() macros are used as follows </b>:
+    <ol type="a">
+
+  <li>  Function preconditions are clearly stated and verified by asserts.
+
+  <li>  Invariants are identified by asserts.
+    </ol>
+
+</ol>
+
+
+<b>Class (struct) declarations</b>:
+
+  50.  The purpose and use of every class (a.k.a. structure) is clearly defined
+     in the header comment of its declaration.
+
+  51.  The purpose and use of every class member is clearly defined either
+     in the header comment of the class declaration or when the member is
+     declared or both.
+
+  52.  The names of class members clearly reflect their use.
+
+  53.  Invariants for classes are clearly defined.
+
+<b>Variables and class instances</b>:
+
+  60.  The purpose and use of every variable is defined by a comment at the
+     variable definition.
+
+  61.  The names of variables clearly reflect their use.
+
+  62.  Related variables have related names. (ex: aSavepoint and nSavepoint.)
+
+  63.  Variables have minimum practical scope.
+
+  64.  Automatic variables are small, not large objects or arrays.
+
+  65.  Constants are "const".
+
+  66.  Invariants on variables or groups of variables are defined and
+     tested by asserts.
+
+  67.  When a variable that refers to the same value is used within
+     multiple scopes, the same name is used in all cases.
+
+  68.  When variables refer to different values, different names are used
+     even when the names are in different scopes.
+
+  69.  Variable names with wide scope are sufficiently distinctive to allow
+     searching for them using grep.

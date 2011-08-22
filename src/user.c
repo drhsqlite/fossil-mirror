@@ -117,9 +117,9 @@ void prompt_for_password(
     prompt_for_passphrase(zPrompt, pPassphrase);
     if( verify==0 ) break;
     if( verify==1 && blob_size(pPassphrase)==0 ) break;
-    prompt_for_passphrase("Again: ", &secondTry);
+    prompt_for_passphrase("Retype new password: ", &secondTry);
     if( blob_compare(pPassphrase, &secondTry) ){
-      printf("Passphrases do not match.  Try again...\n");
+      fossil_print("Passphrases do not match.  Try again...\n");
     }else{
       break;
     }
@@ -134,7 +134,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
-  printf("%s", zPrompt);
+  fossil_print("%s", zPrompt);
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
   if( z ){
@@ -204,17 +204,17 @@ void user_cmd(void){
     }else{
       prompt_for_password("password: ", &passwd, 1);
     }
-    zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login));
+    zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
     db_multi_exec(
-      "INSERT INTO user(login,pw,cap,info)"
-      "VALUES(%B,%Q,%B,%B)",
+      "INSERT INTO user(login,pw,cap,info,mtime)"
+      "VALUES(%B,%Q,%B,%B,now())",
       &login, zPw, &caps, &contact
     );
     free(zPw);
   }else if( n>=2 && strncmp(g.argv[2],"default",n)==0 ){
     user_select();
     if( g.argc==3 ){
-      printf("%s\n", g.zLogin);
+      fossil_print("%s\n", g.zLogin);
     }else{
       if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.argv[3]) ){
         fossil_fatal("no such user: %s", g.argv[3]);
@@ -229,7 +229,7 @@ void user_cmd(void){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
     while( db_step(&q)==SQLITE_ROW ){
-      printf("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
+      fossil_print("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
     }
     db_finalize(&q);
   }else if( n>=2 && strncmp(g.argv[2],"password",2)==0 ){
@@ -244,14 +244,15 @@ void user_cmd(void){
     if( g.argc==5 ){
       blob_init(&pw, g.argv[4], -1);
     }else{
-      zPrompt = mprintf("new passwd for %s: ", g.argv[3]);
+      zPrompt = mprintf("New password for %s: ", g.argv[3]);
       prompt_for_password(zPrompt, &pw, 1);
     }
     if( blob_size(&pw)==0 ){
-      printf("password unchanged\n");
+      fossil_print("password unchanged\n");
     }else{
-      char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3]);
-      db_multi_exec("UPDATE user SET pw=%Q WHERE uid=%d", zSecret, uid);
+      char *zSecret = sha1_shared_secret(blob_str(&pw), g.argv[3], 0);
+      db_multi_exec("UPDATE user SET pw=%Q, mtime=now() WHERE uid=%d",
+                    zSecret, uid);
       free(zSecret);
     }
   }else if( n>=2 && strncmp(g.argv[2],"capabilities",2)==0 ){
@@ -265,11 +266,11 @@ void user_cmd(void){
     }
     if( g.argc==5 ){
       db_multi_exec(
-        "UPDATE user SET cap=%Q WHERE uid=%d", g.argv[4],
-        uid
+        "UPDATE user SET cap=%Q, mtime=now() WHERE uid=%d",
+        g.argv[4], uid
       );
     }
-    printf("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
+    fossil_print("%s\n", db_text(0, "SELECT cap FROM user WHERE uid=%d", uid));
   }else{
     fossil_panic("user subcommand should be one of: "
                  "capabilities default list new password");
@@ -342,31 +343,14 @@ void user_select(void){
 
   if( g.userUid==0 ){
     db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '')"
+      "INSERT INTO user(login, pw, cap, info, mtime)"
+      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
     );
     g.userUid = db_last_insert_rowid();
     g.zLogin = "anonymous";
   }
 }
 
-/*
-** Compute the shared secret for a user.
-*/
-static void user_sha1_shared_secret_func(
-  sqlite3_context *context,
-  int argc,
-  sqlite3_value **argv
-){
-  char *zPw;
-  char *zLogin;
-  assert( argc==2 );
-  zPw = (char*)sqlite3_value_text(argv[0]);
-  zLogin = (char*)sqlite3_value_text(argv[1]);
-  if( zPw && zLogin ){ 
-    sqlite3_result_text(context, sha1_shared_secret(zPw, zLogin), -1, free);
-  }
-}
 
 /*
 ** COMMAND: test-hash-passwords
@@ -380,10 +364,10 @@ static void user_sha1_shared_secret_func(
 void user_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
-  sqlite3_create_function(g.db, "sha1_shared_secret", 2, SQLITE_UTF8, 0,
-                          user_sha1_shared_secret_func, 0, 0);
+  sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+                          sha1_shared_secret_sql_function, 0, 0);
   db_multi_exec(
-    "UPDATE user SET pw=sha1_shared_secret(pw,login)"
+    "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
     " WHERE length(pw)>0 AND length(pw)!=40"
   );
 }
@@ -406,6 +390,7 @@ void access_log_page(void){
 
   login_check_credentials();
   if( !g.okAdmin ){ login_needed(); return; }
+  create_accesslog_table();
 
   if( P("delall") && P("delallbtn") ){
     db_multi_exec("DELETE FROM accesslog");
@@ -414,6 +399,11 @@ void access_log_page(void){
   }
   if( P("delanon") && P("delanonbtn") ){
     db_multi_exec("DELETE FROM accesslog WHERE uname='anonymous'");
+    cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
+    return;
+  }
+  if( P("delfail") && P("delfailbtn") ){
+    db_multi_exec("DELETE FROM accesslog WHERE NOT success");
     cgi_redirectf("%s/access_log?y=%d&n=%d&o=%o", g.zTop, y, n, skip);
     return;
   }
@@ -479,6 +469,11 @@ void access_log_page(void){
   @ <input type="checkbox" name="delanon">
   @ Delete all entries for user "anonymous"</input>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
+  @ </form>
+  @ <form method="post" action="%s(g.zTop)/access_log">
+  @ <input type="checkbox" name="delfail">
+  @ Delete all failed login attempts</input>
+  @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
   @ <input type="checkbox" name="delall">

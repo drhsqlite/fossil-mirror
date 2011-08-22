@@ -41,14 +41,15 @@
 static int sameLines(Blob *pV1, Blob *pV2, int N){
   char *z1, *z2;
   int i;
+  char c;
 
   if( N==0 ) return 1;
   z1 = &blob_buffer(pV1)[blob_tell(pV1)];
   z2 = &blob_buffer(pV2)[blob_tell(pV2)];
-  for(i=0; z1[i]==z2[i]; i++){
-    if( z1[i]=='\n' ){
+  for(i=0; (c=z1[i])==z2[i]; i++){
+    if( c=='\n' || c==0 ){
       N--;
-      if( N==0 ) return 1;
+      if( N==0 || c==0 ) return 1;
     }
   }
   return 0;
@@ -146,7 +147,7 @@ static int output_one_side(
 ** conflicts, the merge proceeds as best as it can and the number 
 ** of conflicts is returns
 */
-int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
+static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int *aC1;              /* Changes from pPivot to pV1 */
   int *aC2;              /* Changes from pPivot to pV2 */
   int i1, i2;            /* Index into aC1[] and aC2[] */
@@ -154,11 +155,13 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
   static const char zBegin[] =
-    "<<<<<<< BEGIN MERGE CONFLICT: original content first <<<<<<<\n";
-  static const char zMid[]   =
-    "======= original content above; conflict below =============\n";
+    "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n";
+  static const char zMid1[]   =
+    "======= COMMON ANCESTOR content follows ============================\n";
+  static const char zMid2[]   =
+    "======= MERGED IN content follows ==================================\n";
   static const char zEnd[]   =
-    ">>>>>>> END MERGE CONFLICT: conflict last >>>>>>>>>>>>>>>>>>\n";
+    ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
   blob_zero(pOut);         /* Merge results stored in pOut */
 
@@ -170,8 +173,8 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** pivot, and the third integer is the number of lines of text that are
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
-  aC1 = text_diff(pPivot, pV1, 0, 0, 1);
-  aC2 = text_diff(pPivot, pV2, 0, 0, 1);
+  aC1 = text_diff(pPivot, pV1, 0, 0, 0);
+  aC2 = text_diff(pPivot, pV2, 0, 0, 0);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);
@@ -193,7 +196,7 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       printf("c1: %4d %4d %4d\n", aC1[i1], aC1[i1+1], aC1[i1+2]);
     }
     for(i2=0; i2<limit2; i2+=3){
-     printf("c2: %4d %4d %4d\n", aC2[i2], aC2[i2+1], aC2[i2+2]);
+      printf("c2: %4d %4d %4d\n", aC2[i2], aC2[i2+1], aC2[i2+2]);
     }
   )
 
@@ -265,11 +268,12 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
       DEBUG( printf("CONFLICT %d\n", sz); )
       blob_appendf(pOut, zBegin);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_appendf(pOut, zMid);
+      blob_appendf(pOut, zMid1);
+      blob_copy_lines(pOut, pPivot, sz);
+      blob_appendf(pOut, zMid2);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
       blob_appendf(pOut, zEnd);
-      blob_copy_lines(0, pPivot, sz);
-    }
+   }
 
     /* If we are finished with an edit triple, advance to the next
     ** triple.
@@ -301,6 +305,8 @@ int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
 /*
 ** COMMAND:  test-3-way-merge
 **
+** Usage: %fossil test-3-way-merge PIVOT V1 V2 MERGED
+**
 ** Combine change in going from PIVOT->VERSION1 with the change going
 ** from PIVOT->VERSION2 and write the combined changes into MERGED.
 */
@@ -310,24 +316,128 @@ void delta_3waymerge_cmd(void){
     usage("PIVOT V1 V2 MERGED");
   }
   if( blob_read_from_file(&pivot, g.argv[2])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[2]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[2]);
   }
   if( blob_read_from_file(&v1, g.argv[3])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[3]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[3]);
   }
   if( blob_read_from_file(&v2, g.argv[4])<0 ){
-    fprintf(stderr,"cannot read %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot read %s\n", g.argv[4]);
   }
   blob_merge(&pivot, &v1, &v2, &merged);
   if( blob_write_to_file(&merged, g.argv[5])<blob_size(&merged) ){
-    fprintf(stderr,"cannot write %s\n", g.argv[4]);
-    fossil_exit(1);
+    fossil_fatal("cannot write %s\n", g.argv[4]);
   }
   blob_reset(&pivot);
   blob_reset(&v1);
   blob_reset(&v2);
   blob_reset(&merged);
+}
+
+/*
+** aSubst is an array of string pairs.  The first element of each pair is
+** a string that begins with %.  The second element is a replacement for that
+** string.
+**
+** This routine makes a copy of zInput into memory obtained from malloc and
+** performance all applicable substitutions on that string.
+*/
+char *string_subst(const char *zInput, int nSubst, const char **azSubst){
+  Blob x;
+  int i, j;
+  blob_zero(&x);
+  while( zInput[0] ){
+    for(i=0; zInput[i] && zInput[i]!='%'; i++){}
+    if( i>0 ){
+      blob_append(&x, zInput, i);
+      zInput += i;
+    }
+    if( zInput[0]==0 ) break;
+    for(j=0; j<nSubst; j+=2){
+      int n = strlen(azSubst[j]);
+      if( strncmp(zInput, azSubst[j], n)==0 ){
+        blob_append(&x, azSubst[j+1], -1);
+        zInput += n;
+        break;
+      }
+    }
+    if( j>=nSubst ){
+      blob_append(&x, "%", 1);
+      zInput++;
+    }
+  }
+  return blob_str(&x);
+}
+
+
+/*
+** This routine is a wrapper around blob_merge() with the following
+** enhancements:
+**
+**    (1) If the merge-command is defined, then use the external merging
+**        program specified instead of the built-in blob-merge to do the
+**        merging.  Panic if the external merger fails.
+**        ** Not currently implemented **
+**
+**    (2) If gmerge-command is defined and there are merge conflicts in
+**        blob_merge() then invoke the external graphical merger to resolve
+**        the conflicts.
+**
+**    (3) If a merge conflict occurs and gmerge-command is not defined,
+**        then write the pivot, original, and merge-in files to the
+**        filesystem.
+*/
+int merge_3way(
+  Blob *pPivot,       /* Common ancestor (older) */
+  const char *zV1,    /* Name of file for version merging into (mine) */
+  Blob *pV2,          /* Version merging from (yours) */
+  Blob *pOut          /* Output written here */
+){
+  Blob v1;            /* Content of zV1 */
+  int rc;             /* Return code of subroutines and this routine */
+
+  blob_read_from_file(&v1, zV1);
+  rc = blob_merge(pPivot, &v1, pV2, pOut);
+  if( rc>0 ){
+    char *zPivot;   /* Name of the pivot file */
+    char *zOrig;    /* Name of the original content file */
+    char *zOther;   /* Name of the merge file */
+    const char *zGMerge;   /* Name of the gmerge command */
+
+    zPivot = file_newname(zV1, "baseline", 1);
+    blob_write_to_file(pPivot, zPivot);
+    zOrig = file_newname(zV1, "original", 1);
+    blob_write_to_file(&v1, zOrig);
+    zOther = file_newname(zV1, "merge", 1);
+    blob_write_to_file(pV2, zOther);
+    zGMerge = db_get("gmerge-command", 0);
+    if( zGMerge && zGMerge[0] ){
+      char *zOut;     /* Temporary output file */
+      char *zCmd;     /* Command to invoke */
+      const char *azSubst[8];  /* Strings to be substituted */
+
+      zOut = file_newname(zV1, "output", 1);
+      azSubst[0] = "%baseline";  azSubst[1] = zPivot;
+      azSubst[2] = "%original";  azSubst[3] = zOrig;
+      azSubst[4] = "%merge";     azSubst[5] = zOther;
+      azSubst[6] = "%output";    azSubst[7] = zOut;
+      zCmd = string_subst(zGMerge, 8, azSubst);
+      printf("%s\n", zCmd); fflush(stdout);
+      fossil_system(zCmd);
+      if( file_size(zOut)>=0 ){
+        blob_read_from_file(pOut, zOut);
+        file_delete(zPivot);
+        file_delete(zOrig);
+        file_delete(zOther);
+        file_delete(zOut);
+      }
+      fossil_free(zCmd);
+      fossil_free(zOut);
+    }
+    fossil_free(zPivot);
+    fossil_free(zOrig);
+    fossil_free(zOther);
+  }
+  blob_reset(&v1);
+  return rc;
 }

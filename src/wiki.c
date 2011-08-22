@@ -87,7 +87,7 @@ void home_page(void){
     const char *zPathInfo = P("PATH_INFO");
     while( zIndexPage[0]=='/' ) zIndexPage++;
     while( zPathInfo[0]=='/' ) zPathInfo++;
-    if( strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
+    if( fossil_strcmp(zIndexPage, zPathInfo)==0 ) zIndexPage = 0;
   }
   if( zIndexPage ){
     cgi_redirectf("%s/%s", g.zTop, zIndexPage);
@@ -184,8 +184,7 @@ void wiki_page(void){
     free(zTag);
     pWiki = manifest_get(rid, CFTYPE_WIKI);
     if( pWiki ){
-      while( fossil_isspace(pWiki->zWiki[0]) ) pWiki->zWiki++;
-      if( pWiki->zWiki[0] ) zBody = pWiki->zWiki;
+      zBody = pWiki->zWiki;
     }
   }
   if( !g.isHome ){
@@ -323,10 +322,10 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0, 0);
+      nrid = content_put(&wiki);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
     }
     db_end_transaction(0);
@@ -417,7 +416,7 @@ static void appendRemark(Blob *p){
     zId, zDate, g.zLogin);
   free(zDate);
   zUser = PD("u",g.zLogin);
-  if( zUser[0] && strcmp(zUser,g.zLogin) ){
+  if( zUser[0] && fossil_strcmp(zUser,g.zLogin) ){
     blob_appendf(p, " (claiming to be %h)", zUser);
   }
   zRemark = PD("r","");
@@ -495,10 +494,10 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki, 0, 0, 0);
+      nrid = content_put(&wiki);
       db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
       manifest_crosslink(nrid, &wiki);
-      blob_reset(&wiki);
+      assert( blob_is_reset(&wiki) );
       content_deltify(rid, nrid, 0);
       db_end_transaction(0);
     }
@@ -819,13 +818,12 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki, 0, 0, 0);
+  nrid = content_put( &wiki);
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   manifest_crosslink(nrid,&wiki);
-  blob_reset(&wiki);
+  assert( blob_is_reset(&wiki) );
   content_deltify(rid,nrid,0);
   db_end_transaction(0);
-  autosync(AUTOSYNC_PUSH);  
   return 1;
 }
 
@@ -894,6 +892,7 @@ void wiki_cmd(void){
     int rid;                      /* Artifact ID of the wiki page */
     int i;                        /* Loop counter */
     char *zBody = 0;              /* Wiki page content */
+    Blob body;                    /* Wiki page content */
     Manifest *pWiki = 0;          /* Parsed wiki page content */
 
     if( (g.argc!=4) && (g.argc!=5) ){
@@ -912,24 +911,12 @@ void wiki_cmd(void){
       fossil_fatal("wiki page [%s] not found",zPageName);
     }
     for(i=strlen(zBody); i>0 && fossil_isspace(zBody[i-1]); i--){}
-    zFile  = (g.argc==4) ? 0 : g.argv[4];
-    if( zFile ){
-      FILE * zF;
-      short doClose = 0;
-      if( (1 == strlen(zFile)) && ('-'==zFile[0]) ){
-        zF = stdout;
-      }else{
-        zF = fopen( zFile, "w" );
-        doClose = zF ? 1 : 0;
-      }
-      if( ! zF ){
-        fossil_fatal("wiki export could not open output file for writing.");
-      }
-      fprintf(zF,"%.*s\n", i, zBody);
-      if( doClose ) fclose(zF);
-    }else{
-      printf("%.*s\n", i, zBody);
-    }
+    zBody[i] = 0;
+    zFile  = (g.argc==4) ? "-" : g.argv[4];
+    blob_init(&body, zBody, -1);
+    blob_append(&body, "\n", 1);
+    blob_write_to_file(&body, zFile);
+    blob_reset(&body);
     manifest_destroy(pWiki);
     return;
   }else
@@ -948,10 +935,10 @@ void wiki_cmd(void){
     }
     if( g.argv[2][1]=='r' ){
       wiki_cmd_commit(zPageName, 1, &content);
-      printf("Created new wiki page %s.\n", zPageName);
+      fossil_print("Created new wiki page %s.\n", zPageName);
     }else{
       wiki_cmd_commit(zPageName, 0, &content);
-      printf("Updated wiki page %s.\n", zPageName);
+      fossil_print("Updated wiki page %s.\n", zPageName);
     }
     blob_reset(&content);
   }else
@@ -969,7 +956,7 @@ void wiki_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q, 0);
-      printf( "%s\n",zName);
+      fossil_print( "%s\n",zName);
     }
     db_finalize(&q);
   }else

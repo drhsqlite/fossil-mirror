@@ -6,7 +6,7 @@ official release.
 <ol>
 <li><p>
 From a private directory (not the source tree) run 
-"<b>tclsh $FOSSIL $SRC/test/tester.tcl</b>" where $FOSSIL is the
+"<b>tclsh $SRC/test/tester.tcl $FOSSIL</b>" where $FOSSIL is the
 name of the executable under test and $SRC is the source tree.
 Verify that there are no errors.
 
@@ -23,6 +23,7 @@ Compile for all of the following platforms:
 <li> Mac x86
 <li> Mac x86_64
 <li> Windows (mingw)
+<li> Windows (vc++)
 <li> OpenBSD
 </ol>
 
@@ -58,9 +59,14 @@ attention to the following details:
 Use the release candidate version of fossil in production on the
 [http://www.fossil-scm.org/] website for at least 48 hours (without
 incident) prior to making the release official.
+
+<li><p>
+Verify that the [../www/changes.wiki | Change Log] is correct and
+up-to-date.
 </ol>
 
 <hr>
 
 Upon successful completion of all tests above, tag the release candidate
-with the "release" tag and set its background color to "#d0c0ff".
+with the "release" tag and set its background color to "#d0c0ff".  Update
+the www/changes.wiki file to show the date of the release.

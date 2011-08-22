@@ -40,7 +40,9 @@ SRC = \
   $(SRCDIR)/export.c \
   $(SRCDIR)/file.c \
   $(SRCDIR)/finfo.c \
+  $(SRCDIR)/glob.c \
   $(SRCDIR)/graph.c \
+  $(SRCDIR)/gzip.c \
   $(SRCDIR)/http.c \
   $(SRCDIR)/http_socket.c \
   $(SRCDIR)/http_ssl.c \
@@ -55,6 +57,7 @@ SRC = \
   $(SRCDIR)/merge.c \
   $(SRCDIR)/merge3.c \
   $(SRCDIR)/name.c \
+  $(SRCDIR)/path.c \
   $(SRCDIR)/pivot.c \
   $(SRCDIR)/popen.c \
   $(SRCDIR)/pqueue.c \
@@ -74,6 +77,7 @@ SRC = \
   $(SRCDIR)/style.c \
   $(SRCDIR)/sync.c \
   $(SRCDIR)/tag.c \
+  $(SRCDIR)/tar.c \
   $(SRCDIR)/th_main.c \
   $(SRCDIR)/timeline.c \
   $(SRCDIR)/tkt.c \
@@ -120,7 +124,9 @@ TRANS_SRC = \
   $(OBJDIR)/export_.c \
   $(OBJDIR)/file_.c \
   $(OBJDIR)/finfo_.c \
+  $(OBJDIR)/glob_.c \
   $(OBJDIR)/graph_.c \
+  $(OBJDIR)/gzip_.c \
   $(OBJDIR)/http_.c \
   $(OBJDIR)/http_socket_.c \
   $(OBJDIR)/http_ssl_.c \
@@ -135,6 +141,7 @@ TRANS_SRC = \
   $(OBJDIR)/merge_.c \
   $(OBJDIR)/merge3_.c \
   $(OBJDIR)/name_.c \
+  $(OBJDIR)/path_.c \
   $(OBJDIR)/pivot_.c \
   $(OBJDIR)/popen_.c \
   $(OBJDIR)/pqueue_.c \
@@ -154,6 +161,7 @@ TRANS_SRC = \
   $(OBJDIR)/style_.c \
   $(OBJDIR)/sync_.c \
   $(OBJDIR)/tag_.c \
+  $(OBJDIR)/tar_.c \
   $(OBJDIR)/th_main_.c \
   $(OBJDIR)/timeline_.c \
   $(OBJDIR)/tkt_.c \
@@ -200,7 +208,9 @@ OBJ = \
  $(OBJDIR)/export.o \
  $(OBJDIR)/file.o \
  $(OBJDIR)/finfo.o \
+ $(OBJDIR)/glob.o \
  $(OBJDIR)/graph.o \
+ $(OBJDIR)/gzip.o \
  $(OBJDIR)/http.o \
  $(OBJDIR)/http_socket.o \
  $(OBJDIR)/http_ssl.o \
@@ -215,6 +225,7 @@ OBJ = \
  $(OBJDIR)/merge.o \
  $(OBJDIR)/merge3.o \
  $(OBJDIR)/name.o \
+ $(OBJDIR)/path.o \
  $(OBJDIR)/pivot.o \
  $(OBJDIR)/popen.o \
  $(OBJDIR)/pqueue.o \
@@ -234,6 +245,7 @@ OBJ = \
  $(OBJDIR)/style.o \
  $(OBJDIR)/sync.o \
  $(OBJDIR)/tag.o \
+ $(OBJDIR)/tar.o \
  $(OBJDIR)/th_main.o \
  $(OBJDIR)/timeline.o \
  $(OBJDIR)/tkt.o \
@@ -271,18 +283,27 @@ $(OBJDIR)/makeheaders:	$(SRCDIR)/makeheaders.c
 $(OBJDIR)/mkindex:	$(SRCDIR)/mkindex.c
 	$(BCC) -o $(OBJDIR)/mkindex $(SRCDIR)/mkindex.c
 
+$(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
+	$(BCC) -o $(OBJDIR)/mkversion $(SRCDIR)/mkversion.c
+
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
 # the repository after running the tests.
 test:	$(APPNAME)
 	$(TCLSH) test/tester.tcl $(APPNAME)
 
-$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest
-	awk '{ printf "#define MANIFEST_UUID \"%s\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >$(OBJDIR)/VERSION.h
-	awk '{ printf "#define MANIFEST_VERSION \"[%.10s]\"\n", $$1}'  $(SRCDIR)/../manifest.uuid >>$(OBJDIR)/VERSION.h
-	awk '$$1=="D"{printf "#define MANIFEST_DATE \"%s %s\"\n", substr($$2,1,10),substr($$2,12,8)}'  $(SRCDIR)/../manifest >>$(OBJDIR)/VERSION.h
+$(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
+	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-EXTRAOBJ =  $(OBJDIR)/sqlite3.o  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o
+# The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
+# to 1. If it is set to 1, then there is no need to build or link
+# the sqlite3.o object. Instead, the system sqlite will be linked
+# using -lsqlite3.
+SQLITE3_OBJ.1 = 
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
+
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -300,7 +321,7 @@ clean:
 $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(OBJDIR)/mkindex $(TRANS_SRC) >$@
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
-	$(OBJDIR)/makeheaders  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
+	$(OBJDIR)/makeheaders  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/glob_.c:$(OBJDIR)/glob.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/path_.c:$(OBJDIR)/path.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/tar_.c:$(OBJDIR)/tar.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
 	touch $(OBJDIR)/headers
 $(OBJDIR)/headers: Makefile
 Makefile:
@@ -507,6 +528,13 @@ $(OBJDIR)/finfo.o:	$(OBJDIR)/finfo_.c $(OBJDIR)/finfo.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/finfo.o -c $(OBJDIR)/finfo_.c
 
 $(OBJDIR)/finfo.h:	$(OBJDIR)/headers
+$(OBJDIR)/glob_.c:	$(SRCDIR)/glob.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/glob.c >$(OBJDIR)/glob_.c
+
+$(OBJDIR)/glob.o:	$(OBJDIR)/glob_.c $(OBJDIR)/glob.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/glob.o -c $(OBJDIR)/glob_.c
+
+$(OBJDIR)/glob.h:	$(OBJDIR)/headers
 $(OBJDIR)/graph_.c:	$(SRCDIR)/graph.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/graph.c >$(OBJDIR)/graph_.c
 
@@ -514,6 +542,13 @@ $(OBJDIR)/graph.o:	$(OBJDIR)/graph_.c $(OBJDIR)/graph.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/graph.o -c $(OBJDIR)/graph_.c
 
 $(OBJDIR)/graph.h:	$(OBJDIR)/headers
+$(OBJDIR)/gzip_.c:	$(SRCDIR)/gzip.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/gzip.c >$(OBJDIR)/gzip_.c
+
+$(OBJDIR)/gzip.o:	$(OBJDIR)/gzip_.c $(OBJDIR)/gzip.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/gzip.o -c $(OBJDIR)/gzip_.c
+
+$(OBJDIR)/gzip.h:	$(OBJDIR)/headers
 $(OBJDIR)/http_.c:	$(SRCDIR)/http.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/http.c >$(OBJDIR)/http_.c
 
@@ -612,6 +647,13 @@ $(OBJDIR)/name.o:	$(OBJDIR)/name_.c $(OBJDIR)/name.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/name.o -c $(OBJDIR)/name_.c
 
 $(OBJDIR)/name.h:	$(OBJDIR)/headers
+$(OBJDIR)/path_.c:	$(SRCDIR)/path.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/path.c >$(OBJDIR)/path_.c
+
+$(OBJDIR)/path.o:	$(OBJDIR)/path_.c $(OBJDIR)/path.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/path.o -c $(OBJDIR)/path_.c
+
+$(OBJDIR)/path.h:	$(OBJDIR)/headers
 $(OBJDIR)/pivot_.c:	$(SRCDIR)/pivot.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/pivot.c >$(OBJDIR)/pivot_.c
 
@@ -745,6 +787,13 @@ $(OBJDIR)/tag.o:	$(OBJDIR)/tag_.c $(OBJDIR)/tag.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/tag.o -c $(OBJDIR)/tag_.c
 
 $(OBJDIR)/tag.h:	$(OBJDIR)/headers
+$(OBJDIR)/tar_.c:	$(SRCDIR)/tar.c $(OBJDIR)/translate
+	$(OBJDIR)/translate $(SRCDIR)/tar.c >$(OBJDIR)/tar_.c
+
+$(OBJDIR)/tar.o:	$(OBJDIR)/tar_.c $(OBJDIR)/tar.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/tar.o -c $(OBJDIR)/tar_.c
+
+$(OBJDIR)/tar.h:	$(OBJDIR)/headers
 $(OBJDIR)/th_main_.c:	$(SRCDIR)/th_main.c $(OBJDIR)/translate
 	$(OBJDIR)/translate $(SRCDIR)/th_main.c >$(OBJDIR)/th_main_.c
 
@@ -851,9 +900,9 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
+	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite3.c -o $(OBJDIR)/sqlite3.o
 
-$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c
+$(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c

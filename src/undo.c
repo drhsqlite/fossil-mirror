@@ -32,57 +32,67 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, existsflag, islink FROM undo WHERE pathname=%Q AND redoflag=%d",
+    "SELECT content, existsflag, isExe, isLink FROM undo"
+    " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
   if( db_step(&q)==SQLITE_ROW ){
     int old_exists;
     int new_exists;
+    int old_exe;
+    int new_exe;
+    int new_link;
+    int old_link;
     Blob current;
     Blob new;
-    int isLink = db_column_int(&q, 2);
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    old_link = db_column_int(&q, 3);
+    new_link = file_islink(zFullname);
     new_exists = file_size(zFullname)>=0;
-    int isNewLink = file_islink(zFullname);
     if( new_exists ){
-      if( isNewLink ){
+      if( new_link ){
         blob_read_link(&current, zFullname);
       }else{
         blob_read_from_file(&current, zFullname);        
       }
+      new_exe = file_isexe(zFullname);
     }else{
       blob_zero(&current);
+      new_exe = 0;
     }
     blob_zero(&new);
     old_exists = db_column_int(&q, 1);
+    old_exe = db_column_int(&q, 2);
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
     if( old_exists ){
       if( new_exists ){
-        printf("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
+        fossil_print("%s %s\n", redoFlag ? "REDO" : "UNDO", zPathname);
       }else{
-        printf("NEW %s\n", zPathname);
+        fossil_print("NEW %s\n", zPathname);
       }
-      if( new_exists && (isNewLink || isLink) ){
+      if( new_exists && (new_link || old_link) ){
         unlink(zFullname);
       }
-      if( isLink ){
+      if( new_link ){
         create_symlink(blob_str(&new), zFullname);
       }else{
         blob_write_to_file(&new, zFullname);
       }
+      file_setexe(zFullname, old_exe);
     }else{
-      printf("DELETE %s\n", zPathname);
-      unlink(zFullname);
+      fossil_print("DELETE %s\n", zPathname);
+      file_delete(zFullname);
     }
     blob_reset(&new);
     free(zFullname);
     db_finalize(&q);
     db_prepare(&q, 
-       "UPDATE undo SET content=:c, existsflag=%d, redoflag=NOT redoflag, islink=%d"
+       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d"
+             " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
-       new_exists, isNewLink, zPathname
+       new_exists, new_exe, new_link, zPathname
     );
     if( new_exists ){
       db_bind_blob(&q, ":c", &current);
@@ -215,7 +225,8 @@ void undo_begin(void){
     @   pathname TEXT UNIQUE,             -- Name of the file
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
-    @   islink BOOLEAN,                   -- True if the file is symlink
+    @   isExe BOOLEAN,                    -- True if the file is executable
+    @   isLink BOOLEAN,                   -- True if the file is symlink
     @   content BLOB                      -- Saved content
     @ );
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
@@ -262,11 +273,10 @@ void undo_save(const char *zPathname){
   if( !undoActive ) return;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
-  isLink = file_islink(zFullname);
   db_prepare(&q,
-    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,islink,content)"
-    " VALUES(%Q,0,%d,%d,:c)",
-    zPathname, existsFlag, isLink
+    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+    " VALUES(%Q,0,%d,%d,%d,:c)",
+    zPathname, existsFlag, file_isexe(zFullname), file_islink(zFullname)
   );
   if( existsFlag ){
     if( isLink ){
@@ -310,7 +320,7 @@ void undo_save_stash(int stashid){
 void undo_finish(void){
   if( undoActive ){
     if( undoNeedRollback ){
-      printf("\"fossil undo\" is available to undo changes"
+      fossil_print("\"fossil undo\" is available to undo changes"
              " to the working checkout.\n");
     }
     undoActive = 0;
@@ -332,7 +342,7 @@ void undo_rollback(void){
   assert( undoActive );
   undoNeedRollback = 0;
   undoActive = 0;
-  printf("Rolling back prior filesystem changes...\n");
+  fossil_print("Rolling back prior filesystem changes...\n");
   undo_all_filesystem(0);
 }
 
@@ -373,30 +383,31 @@ void undo_cmd(void){
   undo_available = db_lget_int("undo_available", 0);
   if( explainFlag ){
     if( undo_available==0 ){
-      printf("No undo or redo is available\n");
+      fossil_print("No undo or redo is available\n");
     }else{
       Stmt q;
       int nChng = 0;
       zCmd = undo_available==1 ? "undo" : "redo";
-      printf("A %s is available for the following command:\n\n   %s %s\n\n",
-              zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
+      fossil_print("A %s is available for the following command:\n\n"
+                   "   %s %s\n\n",
+                   zCmd, g.argv[0], db_lget("undo_cmdline", "???"));
       db_prepare(&q,
         "SELECT existsflag, pathname FROM undo ORDER BY pathname"
       );
       while( db_step(&q)==SQLITE_ROW ){
         if( nChng==0 ){
-          printf("The following file changes would occur if the "
-                 "command above is %sne:\n\n", zCmd);
+          fossil_print("The following file changes would occur if the "
+                       "command above is %sne:\n\n", zCmd);
         }
         nChng++;
-        printf("%s %s\n", 
+        fossil_print("%s %s\n", 
            db_column_int(&q,0) ? "UPDATE" : "DELETE",
            db_column_text(&q, 1)
         );
       }
       db_finalize(&q);
       if( nChng==0 ){
-        printf("No file changes would occur with this undo/redo.\n");
+        fossil_print("No file changes would occur with this undo/redo.\n");
       }
     }
   }else{
@@ -423,7 +434,7 @@ void undo_cmd(void){
     }
     vid2 = db_lget_int("checkout", 0);
     if( vid1!=vid2 ){
-      printf("--------------------\n");
+      fossil_print("--------------------\n");
       show_common_info(vid2, "updated-to:", 1, 0);
     }
   }

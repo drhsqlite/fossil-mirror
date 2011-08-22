@@ -1,0 +1,82 @@
+<title>Contributing To Fossil</title>
+
+Users are encouraged to contributed enhancements back to the Fossil
+project.  This note outlines some of the procedures for making
+useful contributions.
+
+<h2>1.0 Contributor Agreement</h2>
+
+In order to accept your contributions, we <u>must</u> have a
+[./copyright-release.pdf | Contributor Agreement (PDF)]
+(or [./copyright-release.html | as HTML]) on file for you.  We require
+this in order to maintain clear title to the Fossil code and prevent
+the introduction of code with incompatible licenses or other entanglements
+that might cause legal problems for Fossil users.  Many larger companies
+and other lawyer-rich organizations require this as a precondition to using 
+Fossil.
+
+If you do not wish to submit a Contributor Agreement, we would still
+welcome your suggestions and example code, but we will not use your code
+directly - we will be forced to reimplement your changes from scratch which
+might take longer.
+
+<h2>2.0 Submitting Patches</h2>
+
+Suggested changes or bug fixes can be submitted by creating a patch
+against the current source tree.  Email patches to 
+<a href="mailto:drh@sqlite.org">drh@sqlite.org</a>.  Be sure to 
+describe in detail what the patch does and which version of Fossil
+it is written against.  
+
+A contributor agreement is not strictly necessary to submit a patch.
+However, without a contributor agreement on file, your patch will be
+used for reference only - it will not be applied to the code.  This
+may delay acceptance of your patch.
+
+Your patches or changes might not be accepted even if you do have
+a contributor agreement on file.  Please do not take this personally
+or as an affront to your coding ability.  Sometimes patches are rejected
+because they seem to be taking the project in a direction that the
+architect does not want to go.  Or, there might be an alternative
+implementation of the same feature being prepared separately.
+
+<h2>3.0 Check-in Privileges</h2>
+
+Check-in privileges are granted on a case-by-case basis.   Your chances
+of getting check-in privileges are much improved if you have a history
+of submitting quality patches and/or making thoughtful posts on the
+[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/ | mailing list].
+A contributor agreement is, of course, a prerequisite for check-in
+privileges.</p>
+
+Contributors are asked to make all non-trivial changes on a branch.  The
+Fossil Architect (Richard Hipp) will merge changes onto the trunk.</p>
+
+Contributors are required to following the
+[./checkin.wiki | pre-checkin checklist] prior to every checkin to
+the Fossil self-hosting repository.  This checklist is short and succinct
+and should only require a few seconds to follow.  Contributors 
+should print out a copy of the pre-checkin checklist and keep
+it on a notecard beside their workstations, for quick reference.
+
+Contributors should review the
+[./style.wiki | Coding Style Guidelines] and mimic the coding style
+used through the rest of the Fossil source code.  Your code should
+blend in.  A third-party reader should be unable to distinguish your
+code from any other code in the source corpus. 
+
+<h2>4.0 Testing</h2>
+
+Fossil has the beginnings of a 
+[../test/release-checklist.wiki | release checklist] but this is an
+area that needs further work.  (Your contributions here are welcomed!)
+Contributors with check-in privileges are expected to run the release
+checklist on any major changes they contribute, and if appropriate expand
+the checklist and/or the automated test scripts to cover their additions.
+
+
+<h2>5.0 See Also</h2>
+
+  *  [./build.wiki | How To Build And Install Fossil]
+  *  [./makefile.wiki | The Fossil Build Process]
+  *  [./tech_overview.wiki | A Technical Overview of Fossil]

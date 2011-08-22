@@ -11,7 +11,10 @@ set doclist {
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Building and Installing Fossil}
   checkin_names.wiki {Checkin And Version Names}
+  changes.wiki {Fossil Changelog}
+  copyright-release.html {Contributor License Agreement}
   concepts.wiki {Fossil Core Concepts}
+  contribute.wiki {Contributing Code or Documentation To The Fossil Project}
   custom_ticket.wiki {Customizing The Ticket System}
   delta_encoder_algorithm.wiki {Fossil Delta Encoding Algorithm}
   delta_format.wiki {Fossil Delta Format}
@@ -19,21 +22,27 @@ set doclist {
   event.wiki {Events}
   faq.wiki {Frequently Asked Questions}
   fileformat.wiki {Fossil File Format}
+  foss-cklist.wiki {Checklist For Successful Open-Source Projects}
   fossil-v-git.wiki {Fossil Versus Git}
   index.wiki {Home Page}
   inout.wiki {Import And Export To And From Git}
   makefile.wiki {The Fossil Build Process}
   password.wiki {Password Management And Authentication}
   pop.wiki {Principles Of Operations}
+  private.wiki {Creating, Syncing, and Deleting Private Branches}
   qandc.wiki {Questions And Criticisms}
   quickstart.wiki {Fossil Quick Start Guide}
   quotes.wiki
       {Quotes: What People Are Saying About Fossil, Git, and DVCSes in General}
+  ../test/release-checklist.wiki {Pre-Release Testing Checklist}
   selfcheck.wiki {Fossil Repository Integrity Self Checks}
   selfhost.wiki {Fossil Self Hosting Repositories}
   server.wiki {How To Configure A Fossil Server}
+  settings.wiki {Fossil Settings}
   shunning.wiki {Shunning: Deleting Content From Fossil}
   stats.wiki {Performance Statistics}
+  style.wiki {Source Code Style Guidelines}
+  ssl.wiki {Using SSL with Fossil}
   sync.wiki {The Fossil Sync Protocol}
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}
@@ -44,7 +53,7 @@ set doclist {
 }
 
 set permindex {}
-set stopwords {fossil and a in of on the to are about used by}
+set stopwords {fossil and a in of on the to are about used by for or}
 foreach {file title} $doclist {
   set n [llength $title]
   lappend permindex [list $title $file]
@@ -58,11 +67,12 @@ foreach {file title} $doclist {
   }
 }
 set permindex [lsort -dict $permindex]
-puts "<title>Permuted Index Of Fossil Documentation</title>"
-puts "<nowiki>"
-puts "<ul>"
+set out [open permutedindex.wiki w]
+puts $out "<title>Permuted Index Of Fossil Documentation</title>"
+puts $out "<nowiki>"
+puts $out "<ul>"
 foreach entry $permindex {
   foreach {title file} $entry break
-  puts "<li><a href=\"$file\">$title</a></li>"
+  puts $out "<li><a href=\"$file\">$title</a></li>"
 }
-puts "</ul>"
+puts $out "</ul>"

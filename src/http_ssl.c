@@ -82,17 +82,70 @@ const char *ssl_errmsg(void){
 }
 
 /*
+** When a server requests a client certificate that hasn't been provided,
+** display a warning message explaining what to do next.
+*/
+static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
+  fossil_warning("The remote server requested a client certificate for "
+    "authentication. Specify the pathname to a file containing the PEM "
+    "encoded certificate and private key with the --ssl-identity option "
+    "or the ssl-identity setting.");
+  return 0; /* no cert available */    
+}
+
+/*
 ** Call this routine once before any other use of the SSL interface.
 ** This routine does initial configuration of the SSL module.
 */
 void ssl_global_init(void){
+  const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
+  
   if( sslIsInit==0 ){
     SSL_library_init();
     SSL_load_error_strings();
     ERR_load_BIO_strings();
     OpenSSL_add_all_algorithms();    
     sslCtx = SSL_CTX_new(SSLv23_client_method());
-    X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    
+    /* Set up acceptable CA root certificates */
+    zCaSetting = db_get("ssl-ca-location", 0);
+    if( zCaSetting==0 || zCaSetting[0]=='\0' ){
+      /* CA location not specified, use platform's default certificate store */
+      X509_STORE_set_default_paths(SSL_CTX_get_cert_store(sslCtx));
+    }else{
+      /* User has specified a CA location, make sure it exists and use it */
+      switch( file_isdir(zCaSetting) ){
+        case 0: { /* doesn't exist */
+          fossil_fatal("ssl-ca-location is set to '%s', "
+              "but is not a file or directory", zCaSetting);
+          break;
+        }
+        case 1: { /* directory */
+          zCaDirectory = zCaSetting;
+          break;
+        }
+        case 2: { /* file */
+          zCaFile = zCaSetting;
+          break;
+        }
+      }
+      if( SSL_CTX_load_verify_locations(sslCtx, zCaFile, zCaDirectory)==0 ){
+        fossil_fatal("Failed to use CA root certificates from "
+          "ssl-ca-location '%s'", zCaSetting);
+      }
+    }
+    
+    /* Load client SSL identity, preferring the filename specified on the command line */
+    const char *identityFile = ( g.zSSLIdentity!= 0) ? g.zSSLIdentity : db_get("ssl-identity", 0);
+    if( identityFile!=0 && identityFile[0]!='\0' ){
+      if( SSL_CTX_use_certificate_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!= 1
+          || SSL_CTX_use_PrivateKey_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!=1 ){
+        fossil_fatal("Could not load SSL identity from %s", identityFile);
+      }
+    }
+    /* Register a callback to tell the user what to do when the server asks for a cert */
+    SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
+
     sslIsInit = 1;
   }
 }
@@ -184,11 +237,20 @@ char *connStr ;
     char *warning = "";
     Blob ans;
     BIO *mem;
+    unsigned char md[32];
+    unsigned int mdLength = 31;
     
     mem = BIO_new(BIO_s_mem());
     X509_NAME_print_ex(mem, X509_get_subject_name(cert), 2, XN_FLAG_MULTILINE);
     BIO_puts(mem, "\n\nIssued By:\n\n");
     X509_NAME_print_ex(mem, X509_get_issuer_name(cert), 2, XN_FLAG_MULTILINE);
+    BIO_puts(mem, "\n\nSHA1 Fingerprint:\n\n ");
+    if(X509_digest(cert, EVP_sha1(), md, &mdLength)){
+      int j;
+      for( j = 0; j < mdLength; ++j ) {
+        BIO_printf(mem, " %02x", md[j]);
+      }
+    }
     BIO_write(mem, "", 1); // null-terminate mem buffer
     BIO_get_mem_data(mem, &desc);
     
@@ -197,6 +259,13 @@ char *connStr ;
                 "saved certificate for this host!";
     }
     prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n"
+                     "Either:\n"
+                     " * verify the certificate is correct using the "
+                     "SHA1 fingerprint above\n"
+                     " * use the global ssl-ca-location setting to specify your CA root\n"
+                     "   certificates list\n\n"
+                     "If you are not expecting this message, answer no and "
+                     "contact your server\nadministrator.\n\n"
                      "Accept certificate [a=always/y/N]? ", desc, warning);
     BIO_free(mem);
 

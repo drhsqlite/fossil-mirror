@@ -56,11 +56,12 @@
 #define ATTR_SIZE               19
 #define ATTR_SRC                20
 #define ATTR_START              21
-#define ATTR_TYPE               22
-#define ATTR_VALIGN             23
-#define ATTR_VALUE              24
-#define ATTR_VSPACE             25
-#define ATTR_WIDTH              26
+#define ATTR_TARGET             22
+#define ATTR_TYPE               23
+#define ATTR_VALIGN             24
+#define ATTR_VALUE              25
+#define ATTR_VSPACE             26
+#define ATTR_WIDTH              27
 #define AMSK_ALIGN              0x0000001
 #define AMSK_ALT                0x0000002
 #define AMSK_BGCOLOR            0x0000004
@@ -87,6 +88,7 @@
 #define AMSK_VSPACE             0x0800000
 #define AMSK_WIDTH              0x1000000
 #define AMSK_CLASS              0x2000000
+#define AMSK_TARGET             0x4000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -114,6 +116,7 @@ static const struct AllowedAttribute {
   { "size",          AMSK_SIZE,           },
   { "src",           AMSK_SRC,            },
   { "start",         AMSK_START,          },
+  { "target",        AMSK_TARGET,         },
   { "type",          AMSK_TYPE,           },
   { "valign",        AMSK_VALIGN,         },
   { "value",         AMSK_VALUE,          },
@@ -130,7 +133,7 @@ static int findAttr(const char *z){
   last = sizeof(aAttribute)/sizeof(aAttribute[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
-    c = strcmp(aAttribute[i].zName, z);
+    c = fossil_strcmp(aAttribute[i].zName, z);
     if( c==0 ){
       return i;
     }else if( c<0 ){
@@ -240,7 +243,7 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET },
  { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
  { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
  { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
@@ -329,7 +332,7 @@ static int findTag(const char *z){
   last = sizeof(aMarkup)/sizeof(aMarkup[0]) - 1;
   while( first<=last ){
     i = (first+last)/2;
-    c = strcmp(aMarkup[i].zName, z);
+    c = fossil_strcmp(aMarkup[i].zName, z);
     if( c==0 ){
       assert( aMarkup[i].iCode==i );
       return i;
@@ -879,7 +882,7 @@ static int findTagWithId(Renderer *p, int iTag, const char *zId){
   for(i=p->nStack-1; i>=0; i--){
     if( p->aStack[i].iCode!=iTag ) continue;
     if( p->aStack[i].zId==0 ) continue;
-    if( strcmp(zId, p->aStack[i].zId)!=0 ) continue;
+    if( fossil_strcmp(zId, p->aStack[i].zId)!=0 ) continue;
     break;
   }
   return i;
@@ -937,6 +940,22 @@ static int is_valid_uuid(const char *z){
   if( n<4 || n>UUID_SIZE ) return 0;
   if( !validate16(z, n) ) return 0;
   return 1;
+}
+
+/*
+** Return TRUE if a UUID corresponds to an artifact in this
+** repository.
+*/
+static int in_this_repo(const char *zUuid){
+  static Stmt q;
+  int rc;
+  db_static_prepare(&q, 
+     "SELECT 1 FROM blob WHERE uuid>=:u AND +uuid GLOB (:u || '*')"
+  );
+  db_bind_text(&q, ":u", zUuid);
+  rc = db_step(&q);
+  db_reset(&q);
+  return rc==SQLITE_ROW;
 }
 
 /*
@@ -1046,25 +1065,31 @@ static void openHyperlink(
       if( isClosed ){
         if( g.okHistory ){
           blob_appendf(p->pOut,
-             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">",
+             "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">[",
              g.zTop, zTarget
           );
-          zTerm = "</span></a>";
+          zTerm = "]</span></a>";
         }else{
-          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">");
-          zTerm = "</span>";
+          blob_appendf(p->pOut,"<span class=\"wikiTagCancelled\">[");
+          zTerm = "]</span>";
         }
       }else{
         if( g.okHistory ){
-          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">",
+          blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[",
               g.zTop, zTarget
           );
+          zTerm = "]</a>";
         }else{
-          zTerm = "";
+          blob_appendf(p->pOut, "[");
+          zTerm = "]";
         }
       }
+    }else if( !in_this_repo(zTarget) ){
+      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+      zTerm = "]</span>";
     }else if( g.okHistory ){
-      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">", g.zTop, zTarget);
+      blob_appendf(p->pOut, "<a href=\"%s/info/%s\">[", g.zTop, zTarget);
+      zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
@@ -1076,7 +1101,7 @@ static void openHyperlink(
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
   }else{
-    blob_appendf(p->pOut, "[bad-link: %h]", zTarget);
+    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
   }
   assert( strlen(zTerm)<nClose );
@@ -1095,7 +1120,7 @@ static int endVerbatim(Renderer *p, ParsedMarkup *pMarkup){
   if( p->zVerbatimId==0 ) return 1;
   if( pMarkup->nAttr!=1 ) return 0;
   z = pMarkup->aAttr[0].zValue;
-  return strcmp(z, p->zVerbatimId)==0;
+  return fossil_strcmp(z, p->zVerbatimId)==0;
 }
 
 /*
@@ -1121,7 +1146,7 @@ static void wiki_render(Renderer *p, char *z){
 
   /* Make sure the attribute constants and names still align
   ** following changes in the attribute list. */
-  assert( strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
+  assert( fossil_strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
 
   while( z[0] ){
     if( wikiUseHtml ){
@@ -1711,4 +1736,5 @@ void wiki_extract_links(
     }
     z += n;
   }
+  free(renderer.aStack);
 }

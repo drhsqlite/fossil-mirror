@@ -37,14 +37,19 @@
 **
 ** Options:
 **
-**    --admin-user|-A USERNAME
+**    --admin-user|-A USERNAME    Make USERNAME the administrator
+**    --private                   Also clone private branches 
+**    --ssl-identity=filename     Use the SSL identity if requested by the server
 **
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  const char *zPw;     /* The user clone password */
   int nErr = 0;
+  int bPrivate;               /* Also clone private branches */
 
+  bPrivate = find_option("private",0,0)!=0;
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -63,10 +68,10 @@ void clone_cmd(void){
     db_open_repository(g.argv[3]);
     db_record_repository_filename(g.argv[3]);
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
-      "REPLACE INTO config(name,value)"
-      " VALUES('last-sync-url', '%q');",
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))),now());"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
     db_multi_exec(
@@ -75,11 +80,13 @@ void clone_cmd(void){
        "DELETE FROM private;"
     );
     shun_artifacts();
-    g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
-    if( g.zLogin==0 ){
-      db_create_default_users(1,zDefaultUser);
+    db_create_default_users(1, zDefaultUser);
+    if( zDefaultUser ){
+      g.zLogin = zDefaultUser;
+    }else{
+      g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     }
-    printf("Repository cloned into %s\n", g.argv[3]);
+    fossil_print("Repository cloned into %s\n", g.argv[3]);
   }else{
     db_create_repository(g.argv[3]);
     db_open_repository(g.argv[3]);
@@ -90,29 +97,40 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
+    if( g.zSSLIdentity!=0 ){
+      /* If the --ssl-identity option was specified, store it as a setting */
+      Blob fn;
+      blob_zero(&fn);
+      file_canonical_name(g.zSSLIdentity, &fn);
+      db_set("ssl-identity", blob_str(&fn), 0);
+      blob_reset(&fn);
+    }
     db_multi_exec(
-      "REPLACE INTO config(name,value)"
-      " VALUES('server-code', lower(hex(randomblob(20))));"
+      "REPLACE INTO config(name,value,mtime)"
+      " VALUES('server-code', lower(hex(randomblob(20))), now());"
     );
     url_enable_proxy(0);
+    url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(0,0,1,CONFIGSET_ALL,0);
+    nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);
     db_close(1);
     if( nErr ){
-      unlink(g.argv[3]);
+      file_delete(g.argv[3]);
       fossil_fatal("server returned an error - clone aborted");
     }
     db_open_repository(g.argv[3]);
   }
   db_begin_transaction();
-  printf("Rebuilding repository meta-data...\n");
+  fossil_print("Rebuilding repository meta-data...\n");
   rebuild_db(0, 1, 0);
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
+  fossil_print("project-id: %s\n", db_get("project-code", 0));
+  fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  zPw = g.urlPasswd;
+  if( !g.dontKeepUrl && zPw) db_set("last-sync-pw", obscure(zPw), 0);
   db_end_transaction(0);
 }

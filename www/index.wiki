@@ -1,9 +1,8 @@
-<title>Home Page</title>
+<title>Fossil</title>
 
 
 <p align="center">
-<font size="5">
-<b>Fossil:</b>
+<font size="3">
 <i>Simple, high-reliability, distributed software configuration management</i>
 </font>
 </p>
@@ -11,18 +10,20 @@
 
 <h3>Why Use Fossil?</h3>
 
-<table border="0" cellpadding="1" bgcolor="#558195" align="right" hspace="10">
-<tr><td>
+<table border="0" cellspacing="10" bgcolor="white" align="right"
+cellpadding="2">
+<tr><td bgcolor="#446979">
 <table border="0" cellpadding="10" bgcolor="white">
 <tr><td>
-<h3>Quick Links</h3>
 <ul>
-<li> [./quickstart.wiki | Quick Start]
 <li> [http://www.fossil-scm.org/download.html | Download]
+<li> [./quickstart.wiki | Quick Start]
 <li> [./build.wiki | Install]
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [/timeline | Recent changes]
 <li> [./faq.wiki | FAQ]
+<li> [./contribute.wiki | Contributing]
+<li> [./changes.wiki | Change Log]
 <li> [./permutedindex.wiki | Doc Index]
 <li> Mailing list
      <ul>
@@ -55,6 +56,15 @@ internet these days. What makes Fossil worthy of attention?
       automatically opens your web browser in a page that gives detailed
       [/timeline?n=100&y=ci | graphical history] and status information
       on that project.
+
+      This entire website (except the
+      [http://www.fossil-scm.org/download.html | download] page)
+      is just a running instance of Fossil.  The pages you see here
+      are all [./wikitheory.wiki | wiki] or
+      [./embeddeddoc.wiki | embedded documentation].
+      When you clone Fossil from one of its
+      [./selfhost.wiki | self-hosting repositories], 
+      you get more than just source code - you get this entire website.
 
   3.  <b>Autosync</b> -
       Fossil supports [./concepts.wiki#workflow | "autosync" mode]
@@ -119,6 +129,8 @@ internet these days. What makes Fossil worthy of attention?
   *  Fossil contains a [./wikitheory.wiki | built-in wiki].
   *  An [./event.wiki | Event] is a special kind of wiki page associated
      with a point in time rather than a name.
+  *  [./settings.wiki | Settings] control the behaviour of fossil.
+  *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
@@ -142,6 +154,8 @@ internet these days. What makes Fossil worthy of attention?
 
 <h3>Links For Fossil Developer:</h3>
 
+  *  [./contribute.wiki | Contributing] code or documentation to the
+     Fossil project.
   *  [./theory1.wiki | Thoughts On The Design Of Fossil].
   *  [./pop.wiki | Principles Of Operation]
   *  [./tech_overview.wiki | A Technical Overview Of Fossil].

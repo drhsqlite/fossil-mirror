@@ -34,56 +34,68 @@
 static void status_report(
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
-  int missingIsFatal     /* MISSING and NOT_A_FILE are fatal errors */
+  int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
+  int cwdRelative        /* Report relative to the current working dir */ 
 ){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
+  Blob rewrittenPathname;
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE file_is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
+    const char *zDisplayName = zPathname;
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
     int isRenamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+    if( cwdRelative ){
+      file_relative_name(zFullName, &rewrittenPathname);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( !file_isfile_or_link(zFullName) ){
-      if( access(zFullName, 0)==0 ){
-        blob_appendf(report, "NOT_A_FILE %s\n", zPathname);
+      if( file_access(zFullName, 0)==0 ){
+        blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("not a file: %s", zPathname);
+          fossil_warning("not a file: %s", zDisplayName);
           nErr++;
         }
       }else{
-        blob_appendf(report, "MISSING    %s\n", zPathname);
+        blob_appendf(report, "MISSING    %s\n", zDisplayName);
         if( missingIsFatal ){
-          fossil_warning("missing file: %s", zPathname);
+          fossil_warning("missing file: %s", zDisplayName);
           nErr++;
         }
       }
     }else if( isNew ){
-      blob_appendf(report, "ADDED      %s\n", zPathname);
+      blob_appendf(report, "ADDED      %s\n", zDisplayName);
     }else if( isDeleted ){
-      blob_appendf(report, "DELETED    %s\n", zPathname);
+      blob_appendf(report, "DELETED    %s\n", zDisplayName);
     }else if( isChnged==2 ){
-      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "UPDATED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==3 ){
-      blob_appendf(report, "ADDED_BY_MERGE %s\n", zPathname);
+      blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED     %s\n", zPathname);
+      blob_appendf(report, "EDITED     %s\n", zDisplayName);
     }else if( isRenamed ){
-      blob_appendf(report, "RENAMED    %s\n", zPathname);
+      blob_appendf(report, "RENAMED    %s\n", zDisplayName);
     }
     free(zFullName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id=0");
@@ -98,6 +110,22 @@ static void status_report(
 }
 
 /*
+** Use the "relative-paths" setting and the --abs-paths and
+** --rel-paths command line options to determine whether the
+** status report should be shown relative to the current
+** working directory.
+*/
+static int determine_cwd_relative_option()
+{
+  int relativePaths = db_get_boolean("relative-paths", 1);
+  int absPathOption = find_option("abs-paths", 0, 0)!=0;
+  int relPathOption = find_option("rel-paths", 0, 0)!=0;
+  if( absPathOption ){ relativePaths = 0; }
+  if( relPathOption ){ relativePaths = 1; }
+  return relativePaths;
+}
+
+/*
 ** COMMAND: changes
 **
 ** Usage: %fossil changes
@@ -105,20 +133,30 @@ static void status_report(
 ** Report on the edit status of all files in the current checkout.
 ** See also the "status" and "extra" commands.
 **
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
 ** Options:
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int cwdRelative = 0;
   db_must_be_within_tree();
+  cwdRelative = determine_cwd_relative_option();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
-  status_report(&report, "", 0);
+  status_report(&report, "", 0, cwdRelative);
   blob_write_to_file(&report, "-");
 }
 
@@ -129,18 +167,26 @@ void changes_cmd(void){
 **
 ** Report on the status of the current checkout.
 **
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
 ** Options:
 **
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  printf("repository:   %s\n", db_lget("repository",""));
-  printf("local-root:   %s\n", g.zLocalRoot);
-  printf("server-code:  %s\n", db_get("server-code", ""));
+  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("local-root:   %s\n", g.zLocalRoot);
+  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -178,81 +224,27 @@ void ls_cmd(void){
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( isBrief ){
-      printf("%s\n", zPathname);
+      fossil_print("%s\n", zPathname);
     }else if( isNew ){
-      printf("ADDED      %s\n", zPathname);
+      fossil_print("ADDED      %s\n", zPathname);
     }else if( isDeleted ){
-      printf("DELETED    %s\n", zPathname);
+      fossil_print("DELETED    %s\n", zPathname);
     }else if( !file_isfile_or_link(zFullName) ){
-      if( access(zFullName, 0)==0 ){
-        printf("NOT_A_FILE %s\n", zPathname);
+      if( file_access(zFullName, 0)==0 ){
+        fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
-        printf("MISSING    %s\n", zPathname);
+        fossil_print("MISSING    %s\n", zPathname);
       }
     }else if( chnged ){
-      printf("EDITED     %s\n", zPathname);
+      fossil_print("EDITED     %s\n", zPathname);
     }else if( renamed ){
-      printf("RENAMED    %s\n", zPathname);
+      fossil_print("RENAMED    %s\n", zPathname);
     }else{
-      printf("UNCHANGED  %s\n", zPathname);
+      fossil_print("UNCHANGED  %s\n", zPathname);
     }
     free(zFullName);
   }
   db_finalize(&q);
-}
-
-/*
-** Construct and return a string which is an SQL expression that will
-** be TRUE if value zVal matches any of the GLOB expressions in the list
-** zGlobList.  For example:
-**
-**    zVal:       "x"
-**    zGlobList:  "*.o,*.obj"
-**
-**    Result:     "(x GLOB '*.o' OR x GLOB '*.obj')"
-**
-** Each element of the GLOB list may optionally be enclosed in either '...'
-** or "...".  This allows commas in the expression.  Whitespace at the
-** beginning and end of each GLOB pattern is ignored, except when enclosed
-** within '...' or "...".
-**
-** This routine makes no effort to free the memory space it uses.
-*/
-char *glob_expr(const char *zVal, const char *zGlobList){
-  Blob expr;
-  char *zSep = "(";
-  int nTerm = 0;
-  int i;
-  int cTerm;
-
-  if( zGlobList==0 || zGlobList[0]==0 ) return "0";
-  blob_zero(&expr);
-  while( zGlobList[0] ){
-    while( fossil_isspace(zGlobList[0]) || zGlobList[0]==',' ) zGlobList++;
-    if( zGlobList[0]==0 ) break;
-    if( zGlobList[0]=='\'' || zGlobList[0]=='"' ){
-      cTerm = zGlobList[0];
-      zGlobList++;
-    }else{
-      cTerm = ',';
-    }
-    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
-    if( cTerm==',' ){
-      while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
-    }
-    blob_appendf(&expr, "%s%s GLOB '%.*q'", zSep, zVal, i, zGlobList);
-    zSep = " OR ";
-    if( cTerm!=',' && zGlobList[i] ) i++;
-    zGlobList += i;
-    if( zGlobList[0] ) zGlobList++;
-    nTerm++;
-  }
-  if( nTerm ){
-    blob_appendf(&expr, ")");
-    return blob_str(&expr);
-  }else{
-    return "0";
-  }
 }
 
 /*
@@ -268,6 +260,21 @@ char *glob_expr(const char *zVal, const char *zGlobList){
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
+**
+** Pathnames are displayed according to the "relative-paths" setting,
+** unless overridden by the --abs-paths or --rel-paths options.
+**
+** Options:
+**
+**    --dotfiles        Include files with names beginning with "."
+**
+**    --ignore GLOBPATTERN 
+**                      Override the "ignore-glob" setting.
+**
+**    --abs-paths       Display absolute pathnames.
+**
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 */
 void extra_cmd(void){
   Blob path;
@@ -276,9 +283,14 @@ void extra_cmd(void){
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
+  int cwdRelative = 0;
   int outputManifest;
+  Glob *pIgnore;
+  Blob rewrittenPathname;
+  const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
+  cwdRelative = determine_cwd_relative_option();
   outputManifest = db_get_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
@@ -286,21 +298,33 @@ void extra_cmd(void){
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  vfile_scan(0, &path, blob_size(&path), allFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
-      "   AND NOT %s"
       " ORDER BY 1",
-      fossil_all_reserved_names(),
-      glob_expr("x", zIgnoreFlag)
+      fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
-    printf("%s\n", db_column_text(&q, 0));
+    zDisplayName = zPathname = db_column_text(&q, 0);
+    if( cwdRelative ) {
+      char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
+      file_relative_name(zFullName, &rewrittenPathname);
+      free(zFullName);
+      zDisplayName = blob_str(&rewrittenPathname);
+      if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
+        zDisplayName += 2;  /* no unnecessary ./ prefix */
+      }
+    }
+    fossil_print("%s\n", zDisplayName);
   }
+  blob_reset(&rewrittenPathname);
   db_finalize(&q);
 }
 
@@ -331,6 +355,8 @@ void clean_cmd(void){
   Blob path, repo;
   Stmt q;
   int n;
+  Glob *pIgnore;
+
   allFlag = find_option("force","f",0)!=0;
   dotfilesFlag = find_option("dotfiles",0,0)!=0;
   zIgnoreFlag = find_option("ignore",0,1);
@@ -341,19 +367,21 @@ void clean_cmd(void){
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
-  vfile_scan(0, &path, blob_size(&path), dotfilesFlag);
+  pIgnore = glob_create(zIgnoreFlag);
+  vfile_scan(&path, blob_size(&path), dotfilesFlag, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
-      " WHERE x NOT IN (%s) AND NOT %s"
+      " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names(), glob_expr("x",zIgnoreFlag)
+      g.zLocalRoot, fossil_all_reserved_names()
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
   while( db_step(&q)==SQLITE_ROW ){
     if( allFlag ){
-      unlink(db_column_text(&q, 0));
+      file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
       char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
@@ -361,7 +389,7 @@ void clean_cmd(void){
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       if( blob_str(&ans)[0]=='y' ){
-        unlink(db_column_text(&q, 0));
+        file_delete(db_column_text(&q, 0));
       }
     }
   }
@@ -404,6 +432,7 @@ static void prepare_commit_comment(
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
+  blob_appendf(&text, "# user: %s\n", g.zLogin);
   if( zBranch && zBranch[0] ){
     blob_appendf(&text, "# tags: %s\n#\n", zBranch);
   }else{
@@ -417,7 +446,7 @@ static void prepare_commit_comment(
       "#\n", -1
     );
   }
-  status_report(&text, "# ", 1);
+  status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
     zEditor = getenv("VISUAL");
@@ -445,7 +474,7 @@ static void prepare_commit_comment(
   blob_write_to_file(&text, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
-    printf("%s\n", zCmd);
+    fossil_print("%s\n", zCmd);
     if( fossil_system(zCmd) ){
       fossil_panic("editor aborted");
     }
@@ -455,12 +484,17 @@ static void prepare_commit_comment(
     char zIn[300];
     blob_reset(&text);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ) break;
+      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
+      if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
+        fossil_mbcs_free(zUtf8);
+        break;
+      }
       blob_append(&text, zIn, -1);
+      fossil_mbcs_free(zUtf8);
     }
   }
   blob_remove_cr(&text);
-  unlink(zFile);
+  file_delete(zFile);
   free(zFile);
   blob_zero(pComment);
   while( blob_line(&text, &line) ){
@@ -514,24 +548,6 @@ void select_commit_files(void){
     }
     g.aCommitFile[ii-2] = 0;
   }
-}
-
-/*
-** Return true if the check-in with RID=rid is a leaf.
-** A leaf has no children in the same branch. 
-*/
-int is_a_leaf(int rid){
-  int rc;
-  static const char zSql[] = 
-    @ SELECT 1 FROM plink
-    @  WHERE pid=%d
-    @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
-  ;
-  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
-  return rc==0;
 }
 
 /*
@@ -749,6 +765,58 @@ static void create_manifest(
   if( pnFBcard ) *pnFBcard = nFBcard;
 }
 
+/*
+** Issue a warning and give the user an opportunity to abandon out
+** if a \r\n line ending is seen in a text file.
+*/
+static void cr_warning(const Blob *p, const char *zFilename){
+  int nCrNl = 0;          /* Number of \r\n line endings seen */
+  const unsigned char *z; /* File text */
+  int n;                  /* Size of the file in bytes */
+  int lastNl = 0;         /* Characters since last \n */
+  int i;                  /* Loop counter */
+  char *zMsg;             /* Warning message */
+  Blob fname;             /* Relative pathname of the file */
+  Blob ans;               /* Answer to continue prompt */
+  static int allOk = 0;   /* Set to true to disable this routine */
+
+  if( allOk ) return;
+  z = (unsigned char*)blob_buffer(p);
+  n = blob_size(p);
+  for(i=0; i<n-1; i++){
+    unsigned char c = z[i];
+    if( c==0 ) return;   /* It's binary */
+    if( c=='\n' ){
+      if( i>0 && z[i-1]=='\r' ){
+        nCrNl++;
+        if( i>10000 ) break;
+      }
+      lastNl = 0;
+    }else{
+      lastNl++;
+      if( lastNl>1000 ) return;   /* Binary if any line longer than 1000 */
+    }
+  }
+  if( nCrNl ){
+    char c;
+    file_relative_name(zFilename, &fname);
+    blob_zero(&ans);
+    zMsg = mprintf(
+         "%s contains CR/NL line endings; commit anyhow (yes/no/all)?", 
+         blob_str(&fname));
+    prompt_user(zMsg, &ans);
+    fossil_free(zMsg);
+    c = blob_str(&ans)[0];
+    if( c=='a' ){
+      allOk = 1;
+    }else if( c!='y' ){
+      fossil_fatal("Abandoning commit due to CR+NL line endings in %s",
+                   blob_str(&fname));
+    }
+    blob_reset(&ans);
+    blob_reset(&fname);
+  }
+}
 
 /*
 ** COMMAND: ci
@@ -938,7 +1006,7 @@ void commit_cmd(void){
       " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
     );
     if( strlen(blob_str(&unmodified)) ){
-      fossil_panic("file %s has not changed", blob_str(&unmodified));
+      fossil_fatal("file %s has not changed", blob_str(&unmodified));
     }
   }
 
@@ -989,18 +1057,20 @@ void commit_cmd(void){
   ** the identified fils are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)"
-    , g.zLocalRoot
+    "SELECT id, %Q || pathname, mrid, %s FROM vfile "
+    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
+    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
+    int crnlOk;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
+    crnlOk = db_column_int(&q, 3);
 
     blob_zero(&content);
     if( file_islink(zFullname) ){
@@ -1009,7 +1079,8 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);        
     }
-    nrid = content_put(&content, 0, 0, 0);
+    if( !crnlOk ) cr_warning(&content, zFullname);
+    nrid = content_put(&content);
     blob_reset(&content);
     if( rid>0 ){
       content_deltify(rid, nrid, 0);
@@ -1101,15 +1172,16 @@ void commit_cmd(void){
     blob_read_from_file(&manifest, zManifestFile);
     free(zManifestFile);
   }
-  nvid = content_put(&manifest, 0, 0, 0);
+  nvid = content_put(&manifest);
   if( nvid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nvid);
   manifest_crosslink(nvid, &manifest);
+  assert( blob_is_reset(&manifest) );
   content_deltify(vid, nvid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nvid);
-  printf("New_Version: %s\n", zUuid);
+  fossil_print("New_Version: %s\n", zUuid);
   if( outputManifest ){
     zManifestFile = mprintf("%smanifest.uuid", g.zLocalRoot);
     blob_zero(&muuid);
@@ -1178,6 +1250,6 @@ void commit_cmd(void){
     autosync(AUTOSYNC_PUSH);  
   }
   if( count_nonbranch_children(vid)>1 ){
-    printf("**** warning: a fork has occurred *****\n");
+    fossil_print("**** warning: a fork has occurred *****\n");
   }
 }

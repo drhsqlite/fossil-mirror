@@ -28,8 +28,8 @@
 ** propagated and that the tag is already present in pid.
 **
 ** If tagtype is 2 then the tag is being propagated from an
-** ancestor node.  If tagtype is 0 it means a branch tag is
-** being cancelled.
+** ancestor node.  If tagtype is 0 it means a propagating tag is
+** being blocked.
 */
 static void tag_propagate(
   int pid,             /* Propagate the tag to children of this node */
@@ -39,21 +39,30 @@ static void tag_propagate(
   const char *zValue,  /* Value of the tag.  Might be NULL */
   double mtime         /* Timestamp on the tag */
 ){
-  PQueue queue;
-  Stmt s, ins, eventupdate;
+  PQueue queue;        /* Queue of check-ins to be tagged */
+  Stmt s;              /* Query the children of :pid to which to propagate */
+  Stmt ins;            /* INSERT INTO tagxref */
+  Stmt eventupdate;    /* UPDATE event */
 
   assert( tagType==0 || tagType==2 );
   pqueue_init(&queue);
-  pqueue_insert(&queue, pid, 0.0);
+  pqueue_insert(&queue, pid, 0.0, 0);
+
+  /* Query for children of :pid to which to propagate the tag.
+  ** Three returns:  (1) rid of the child.  (2) timestamp of child.
+  ** (3) True to propagate or false to block.
+  */
   db_prepare(&s, 
      "SELECT cid, plink.mtime,"
      "       coalesce(srcid=0 AND tagxref.mtime<:mtime, %d) AS doit"
      "  FROM plink LEFT JOIN tagxref ON cid=rid AND tagid=%d"
      " WHERE pid=:pid AND isprim",
-     tagType!=0, tagid
+     tagType==2, tagid
   );
   db_bind_double(&s, ":mtime", mtime);
+
   if( tagType==2 ){
+    /* Set the propagated tag marker on checkin :rid */
     db_prepare(&ins,
        "REPLACE INTO tagxref(tagid, tagtype, srcid, origid, value, mtime, rid)"
        "VALUES(%d,2,0,%d,%Q,:mtime,:rid)",
@@ -61,6 +70,7 @@ static void tag_propagate(
     );
     db_bind_double(&ins, ":mtime", mtime);
   }else{
+    /* Remove all references to the tag from checkin :rid */
     zValue = 0;
     db_prepare(&ins,
        "DELETE FROM tagxref WHERE tagid=%d AND rid=:rid", tagid
@@ -71,14 +81,14 @@ static void tag_propagate(
       "UPDATE event SET bgcolor=%Q WHERE objid=:rid", zValue
     );
   }
-  while( (pid = pqueue_extract(&queue))!=0 ){
+  while( (pid = pqueue_extract(&queue, 0))!=0 ){
     db_bind_int(&s, ":pid", pid);
     while( db_step(&s)==SQLITE_ROW ){
       int doit = db_column_int(&s, 2);
       if( doit ){
         int cid = db_column_int(&s, 0);
         double mtime = db_column_double(&s, 1);
-        pqueue_insert(&queue, cid, mtime);
+        pqueue_insert(&queue, cid, mtime, 0);
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);
@@ -197,6 +207,12 @@ int tag_insert(
       zCol = "euser";
       break;
     }
+    case TAG_PRIVATE: {
+      db_multi_exec(
+        "INSERT OR IGNORE INTO private(rid) VALUES(%d);",
+        rid
+      );
+    }
   }
   if( zCol ){
     db_multi_exec("UPDATE event SET %s=%Q WHERE objid=%d", zCol, zValue, rid);
@@ -282,7 +298,7 @@ void tag_add_artifact(
   user_select();
   blob_zero(&uuid);
   blob_append(&uuid, zObjName, -1);
-  if( name_to_uuid(&uuid, 9) ){
+  if( name_to_uuid(&uuid, 9, "*") ){
     fossil_fatal("%s", g.zErrMsg);
     return;
   }
@@ -311,8 +327,9 @@ void tag_add_artifact(
   blob_appendf(&ctrl, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&ctrl, &cksum);
   blob_appendf(&ctrl, "Z %b\n", &cksum);
-  nrid = content_put(&ctrl, 0, 0, 0);
+  nrid = content_put(&ctrl);
   manifest_crosslink(nrid, &ctrl);
+  assert( blob_is_reset(&ctrl) );
 }
 
 /*
@@ -333,9 +350,10 @@ void tag_add_artifact(
 **         Remove the tag TAGNAME from CHECK-IN, and also remove
 **         the propagation of the tag to any descendants.
 **
-**     %fossil tag find ?--raw? TAGNAME
+**     %fossil tag find ?--raw? ?--type TYPE? TAGNAME
 **
-**         List all check-ins that use TAGNAME
+**         List all objects that use TAGNAME.  TYPE can be "ci" for
+**         checkins or "e" for events.
 **
 **     %fossil tag list ?--raw? ?CHECK-IN?
 **
@@ -411,6 +429,8 @@ void tag_cmd(void){
 
   if( strncmp(g.argv[2],"find",n)==0 ){
     Stmt q;
+    const char *zType = find_option("type","t",1);
+    if( zType==0 || zType[0]==0 ) zType = "*";
     if( g.argc!=4 ){
       usage("find ?--raw? TAGNAME");
     }
@@ -423,7 +443,7 @@ void tag_cmd(void){
         g.argv[3]
       );
       while( db_step(&q)==SQLITE_ROW ){
-        printf("%s\n", db_column_text(&q, 0));
+        fossil_print("%s\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
     }else{
@@ -432,14 +452,15 @@ void tag_cmd(void){
       if( tagid>0 ){
         db_prepare(&q,
           "%s"
+          "  AND event.type GLOB '%q'"
           "  AND blob.rid IN ("
                     " SELECT rid FROM tagxref"
                     "  WHERE tagtype>0 AND tagid=%d"
                     ")"
           " ORDER BY event.mtime DESC",
-          timeline_query_for_tty(), tagid
+          timeline_query_for_tty(), zType, tagid
         );
-        print_timeline(&q, 2000);
+        print_timeline(&q, 2000, 0);
         db_finalize(&q);
       }
     }
@@ -458,9 +479,9 @@ void tag_cmd(void){
       while( db_step(&q)==SQLITE_ROW ){
         const char *zName = db_column_text(&q, 0);
         if( fRaw ){
-          printf("%s\n", zName);
+          fossil_print("%s\n", zName);
         }else if( strncmp(zName, "sym-", 4)==0 ){
-          printf("%s\n", &zName[4]);
+          fossil_print("%s\n", &zName[4]);
         }
       }
       db_finalize(&q);
@@ -482,9 +503,9 @@ void tag_cmd(void){
           zName += 4;
         }
         if( zValue && zValue[0] ){
-          printf("%s=%s\n", zName, zValue);
+          fossil_print("%s=%s\n", zName, zValue);
         }else{
-          printf("%s\n", zName);
+          fossil_print("%s\n", zName);
         }
       }
       db_finalize(&q);

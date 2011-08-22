@@ -52,8 +52,9 @@ int fast_uuid_to_rid(const char *zUuid){
 ** For this routine, the UUID must be exact.  For a match against
 ** user input with mixed case, use resolve_uuid().
 **
-** If the UUID is not found and phantomize is 1, then attempt to 
-** create a phantom record.
+** If the UUID is not found and phantomize is 1 or 2, then attempt to 
+** create a phantom record.  A private phantom is created for 2 and
+** a public phantom is created for 1.
 */
 int uuid_to_rid(const char *zUuid, int phantomize){
   int rid, sz;
@@ -67,42 +68,59 @@ int uuid_to_rid(const char *zUuid, int phantomize){
   canonical16(z, sz);
   rid = fast_uuid_to_rid(z);
   if( rid==0 && phantomize ){
-    rid = content_new(zUuid);
+    rid = content_new(zUuid, phantomize-1);
   }
   return rid;
 }
 
+
 /*
-** Build a catalog of all files in a checkin.
+** Load a vfile from a record ID.
 */
-void vfile_build(int vid){
-  int rid;
-  Stmt ins;
+void load_vfile_from_rid(int vid){
+  int rid, size;
+  Stmt ins, ridq;
   Manifest *p;
   ManifestFile *pFile;
+
+  if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
+    return;
+  }
 
   db_begin_transaction();
   p = manifest_get(vid, CFTYPE_MANIFEST);
   if( p==0 ) return;
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
-    "INSERT INTO vfile(vid,rid,mrid,pathname,islink) "
-    " VALUES(:vid,:id,:id,:name,:islink)");
+    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
+    " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
+  db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
-    rid = uuid_to_rid(pFile->zUuid, 0);
-    if( rid==0 || db_int(-1, "SELECT size FROM blob WHERE rid=%d", rid)<0 ){
+    db_bind_text(&ridq, ":uuid", pFile->zUuid);
+    if( db_step(&ridq)==SQLITE_ROW ){
+      rid = db_column_int(&ridq, 0);
+      size = db_column_int(&ridq, 0);
+    }else{
+      rid = 0;
+      size = 0;
+    }
+    db_reset(&ridq);
+    if( rid==0 || size<0 ){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
+    db_bind_int(&ins, ":isexe", manifest_file_mperm(pFile));
     db_bind_int(&ins, ":id", rid);
     db_bind_text(&ins, ":name", pFile->zName);
+    //TODO(dchest) figure out how to fit manifest_file_mperm here:
     db_bind_int(&ins, ":islink", pFile->zPerm && strstr(pFile->zPerm, "l"));
     db_step(&ins);
     db_reset(&ins);
   }
+  db_finalize(&ridq);
   db_finalize(&ins);
   manifest_destroy(p);
   db_end_transaction(0);
@@ -209,28 +227,33 @@ void vfile_to_disk(
   int nRepos = strlen(g.zLocalRoot);
 
   if( vid>0 && id==0 ){
-    db_prepare(&q, "SELECT id, %Q || pathname, mrid, islink"
+    db_prepare(&q, "SELECT id, %Q || pathname, mrid, isexe, islink"
                    "  FROM vfile"
                    " WHERE vid=%d AND mrid>0",
                    g.zLocalRoot, vid);
   }else{
     assert( vid==0 && id>0 );
-    db_prepare(&q, "SELECT id, %Q || pathname, mrid, islink"
+    db_prepare(&q, "SELECT id, %Q || pathname, mrid, isexe, islink"
                    "  FROM vfile"
                    " WHERE id=%d AND mrid>0",
                    g.zLocalRoot, id);
   }
   while( db_step(&q)==SQLITE_ROW ){
-    int id, rid, isLink;
+    int id, rid, isExe, isLink;
     const char *zName;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
-    isLink = db_column_int(&q, 3);
+    isExe = db_column_int(&q, 3);
+    isLink = db_column_int(&q, 4);
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
+      if( file_setexe(zName, isExe) ){
+        db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
+                      file_mtime(zName), id);
+      }
       continue;
     }
     if( promptFlag && file_size(zName)>=0 ){
@@ -251,19 +274,20 @@ void vfile_to_disk(
         continue;
       }
     }
-    if( verbose ) printf("%s\n", &zName[nRepos]);
+    if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     if( file_isdir(zName) == 1 ){
       //TODO remove directories?
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }    
     if( file_size(zName)>=0 && (isLink || file_islink(zName)) ){
-      unlink(zName);
+      unlink(zName); //TODO(dchest) check this
     }
     if( isLink ){
       create_symlink(blob_str(&content), zName);
     }else{
       blob_write_to_file(&content, zName);
     }
+    file_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
                   file_mtime(zName), id);
@@ -283,11 +307,32 @@ void vfile_unlink(int vid){
     const char *zName;
 
     zName = db_column_text(&q, 0);
-    unlink(zName);
+    file_delete(zName);
   }
   db_finalize(&q);
   db_multi_exec("UPDATE vfile SET mtime=NULL WHERE vid=%d AND mrid>0", vid);
 }
+
+/*
+** Check to see if the directory named in zPath is the top of a checkout.
+** In other words, check to see if directory pPath contains a file named
+** "_FOSSIL_" or ".fos".  Return true or false.
+*/
+int vfile_top_of_checkout(const char *zPath){
+  char *zFile;
+  int fileFound = 0;
+
+  zFile = mprintf("%s/_FOSSIL_", zPath);
+  fileFound = file_size(zFile)>=1024;
+  fossil_free(zFile);
+  if( !fileFound ){
+    zFile = mprintf("%s/.fos", zPath);
+    fileFound = file_size(zFile)>=1024;
+    fossil_free(zFile);
+  }
+  return fileFound;
+}
+
 
 /*
 ** Load into table SFILE the name of every ordinary file in
@@ -295,38 +340,77 @@ void vfile_unlink(int vid){
 ** of pPath when inserting into the SFILE table.
 **
 ** Subdirectories are scanned recursively.
-** Omit files named in VFILE.vid
+** Omit files named in VFILE.
+**
+** Files whose names begin with "." are omitted unless allFlag is true.
+**
+** Any files or directories that match the glob pattern pIgnore are 
+** excluded from the scan.  Name matching occurs after the first
+** nPrefix characters are elided from the filename.
 */
-void vfile_scan(int vid, Blob *pPath, int nPrefix, int allFlag){
+void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   DIR *d;
   int origSize;
   const char *zDir;
   struct dirent *pEntry;
-  static const char *zSql = "SELECT 1 FROM vfile "
-                            " WHERE pathname=%Q AND NOT deleted";
+  int skipAll = 0;
+  static Stmt ins;
+  static int depth = 0;
+  char *zMbcs;
 
   origSize = blob_size(pPath);
+  if( pIgnore ){
+    blob_appendf(pPath, "/");
+    if( glob_match(pIgnore, &blob_str(pPath)[nPrefix+1]) ) skipAll = 1;
+    blob_resize(pPath, origSize);
+  }
+  if( skipAll ) return;
+
+  if( depth==0 ){
+    db_prepare(&ins,
+       "INSERT OR IGNORE INTO sfile(x) SELECT :file"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+    );
+  }
+  depth++;
+
   zDir = blob_str(pPath);
-  d = opendir(zDir);
+  zMbcs = fossil_utf8_to_mbcs(zDir);
+  d = opendir(zMbcs);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
+      char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
         if( !allFlag ) continue;
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      blob_appendf(pPath, "/%s", pEntry->d_name);
+      zUtf8 = fossil_mbcs_to_utf8(pEntry->d_name);
+      blob_appendf(pPath, "/%s", zUtf8);
+      fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
-      if( file_isdir(zPath)==1 ){
-        vfile_scan(vid, pPath, nPrefix, allFlag);
-      }else if( file_isfile_or_link(zPath) && !db_exists(zSql, &zPath[nPrefix+1]) ){
-        db_multi_exec("INSERT INTO sfile VALUES(%Q)", &zPath[nPrefix+1]);
+      if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
+        /* do nothing */
+      }else if( file_isdir(zPath)==1 ){
+        if( !vfile_top_of_checkout(zPath) ){
+          vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+        }
+      }else if( file_isfile_or_link(zPath) ){
+        db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+        db_step(&ins);
+        db_reset(&ins);
       }
       blob_resize(pPath, origSize);
     }
+    closedir(d);
   }
-  closedir(d);
+  fossil_mbcs_free(zMbcs);
+
+  depth--;
+  if( depth==0 ){
+    db_finalize(&ins);
+  }
 }
 
 /*
@@ -381,7 +465,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         md5sum_step_text(blob_str(&pathBuf), -1);
         blob_reset(&pathBuf);
       }else{
-        in = fopen(zFullpath,"rb");
+        in = fossil_fopen(zFullpath,"rb");
         if( in==0 ){
           md5sum_step_text(" 0\n", -1);
           continue;
@@ -444,27 +528,28 @@ void vfile_compare_repository_to_disk(int vid){
 
     blob_zero(&disk);
     if( file_islink(zFullpath) ){
-      blob_read_link(&disk, zFullpath);
+      rc = blob_read_link(&disk, zFullpath);
     }else{
       rc = blob_read_from_file(&disk, zFullpath);
-      if( rc<0 ){
-        printf("ERROR: cannot read file [%s]\n", zFullpath);
-        blob_reset(&disk);
-        continue;
-      }
+    }
+    if( rc<0 ){
+      fossil_print("ERROR: cannot read file [%s]\n", zFullpath);
+      blob_reset(&disk);
+      continue;
     }
     blob_zero(&repo);
     content_get(rid, &repo);
     if( blob_size(&repo)!=blob_size(&disk) ){
-      printf("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
+      fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
     }
     if( blob_compare(&repo, &disk) ){
-      printf("ERROR: [%s] is different on disk compared to the repository\n",
-             zName);
+      fossil_print(
+          "ERROR: [%s] is different on disk compared to the repository\n",
+          zName);
     }
     blob_reset(&disk);
     blob_reset(&repo);

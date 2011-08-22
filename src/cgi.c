@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -57,8 +57,8 @@
 */
 #define P(x)        cgi_parameter((x),0)
 #define PD(x,y)     cgi_parameter((x),(y))
-#define QP(x)       quotable_string(cgi_parameter((x),0))
-#define QPD(x,y)    quotable_string(cgi_parameter((x),(y)))
+#define PT(x)       cgi_parameter_trimmed((x),0)
+#define PDT(x,y)    cgi_parameter_trimmed((x),(y))
 
 
 /*
@@ -193,16 +193,20 @@ void cgi_set_cookie(
   const char *zPath,    /* Path cookie applies to.  NULL means "/" */
   int lifetime          /* Expiration of the cookie in seconds from now */
 ){
+  char *zSecure = "";
   if( zPath==0 ) zPath = g.zTop;
+  if( g.zBaseURL!=0 && strncmp(g.zBaseURL, "https:", 6)==0 ){
+    zSecure = " secure;";
+  }
   if( lifetime>0 ){
     lifetime += (int)time(0);
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; expires=%z; Version=1\r\n",
-        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime));
+       "Set-Cookie: %s=%t; Path=%s; expires=%z; HttpOnly;%s Version=1\r\n",
+        zName, zValue, zPath, cgi_rfc822_datestamp(lifetime), zSecure);
   }else{
     blob_appendf(&extraHeader,
-       "Set-Cookie: %s=%t; Path=%s; Version=1\r\n",
-       zName, zValue, zPath);
+       "Set-Cookie: %s=%t; Path=%s; HttpOnly;%s Version=1\r\n",
+       zName, zValue, zPath, zSecure);
   }
 }
 
@@ -292,6 +296,24 @@ void cgi_reply(void){
     fprintf(g.httpOut, "%s", blob_buffer(&extraHeader));
   }
 
+  /* Add headers to turn on useful security options in browsers. */
+  fprintf(g.httpOut, "X-Frame-Options: SAMEORIGIN\r\n");
+  /* This stops fossil pages appearing in frames or iframes, preventing
+  ** click-jacking attacks on supporting browsers.
+  **
+  ** Other good headers would be
+  **   Strict-Transport-Security: max-age=62208000
+  ** if we're using https. However, this would break sites which serve different
+  ** content on http and https protocols. Also,
+  **   X-Content-Security-Policy: allow 'self'
+  ** would help mitigate some XSS and data injection attacks, but will break
+  ** deliberate inclusion of external resources, such as JavaScript syntax
+  ** highlighter scripts.
+  **
+  ** These headers are probably best added by the web server hosting fossil as
+  ** a CGI script.
+  */
+
   if( g.isConst ){
     /* constant means that the input URL will _never_ generate anything
     ** else. In the case of attachments, the contents won't change because
@@ -312,7 +334,7 @@ void cgi_reply(void){
   ** the browser, not some shared location.
   */
   fprintf(g.httpOut, "Content-Type: %s; charset=utf-8\r\n", zContentType);
-  if( strcmp(zContentType,"application/x-fossil")==0 ){
+  if( fossil_strcmp(zContentType,"application/x-fossil")==0 ){
     cgi_combine_header_and_body();
     blob_compress(&cgiContent[0], &cgiContent[0]);
   }
@@ -333,6 +355,7 @@ void cgi_reply(void){
       }
     }
   }
+  fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
 }
 
@@ -344,14 +367,17 @@ void cgi_reply(void){
 void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
-  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 || *zURL=='/' ){
+  if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
+  }else if( *zURL=='/' ){
+    zLocation = mprintf("Location: %.*s%s\r\n",
+         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
   }else{
-    zLocation = mprintf("Location: %s/%s\r\n", g.zTop, zURL);
+    zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
   cgi_append_header(zLocation);
   cgi_reset_content();
-  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zURL);
+  cgi_printf("<html>\n<p>Redirect to %h</p>\n</html>\n", zLocation);
   cgi_set_status(302, "Moved Temporarily");
   free(zLocation);
   cgi_reply();
@@ -418,7 +444,7 @@ void cgi_set_parameter(const char *zName, const char *zValue){
 void cgi_replace_parameter(const char *zName, const char *zValue){
   int i;
   for(i=0; i<nUsedQP; i++){
-    if( strcmp(aParamQP[i].zName,zName)==0 ){
+    if( fossil_strcmp(aParamQP[i].zName,zName)==0 ){
       aParamQP[i].zValue = zValue;
       return;
     }
@@ -680,7 +706,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   if( len>0 && zType ){
     blob_zero(&g.cgiIn);
-    if( strcmp(zType,"application/x-www-form-urlencoded")==0 
+    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
@@ -690,12 +716,12 @@ void cgi_init(void){
       }else{
         process_multipart_form_data(z, len);
       }
-    }else if( strcmp(zType, "application/x-fossil")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
       blob_uncompress(&g.cgiIn, &g.cgiIn);
-    }else if( strcmp(zType, "application/x-fossil-debug")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil-debug")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( strcmp(zType, "application/x-fossil-uncompressed")==0 ){
+    }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
   }
@@ -715,7 +741,7 @@ static int qparam_compare(const void *a, const void *b){
   struct QParam *pA = (struct QParam*)a;
   struct QParam *pB = (struct QParam*)b;
   int c;
-  c = strcmp(pA->zName, pB->zName);
+  c = fossil_strcmp(pA->zName, pB->zName);
   if( c==0 ){
     c = pA->seq - pB->seq;
   }
@@ -744,7 +770,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
     ** with duplicate calls to cgi_set_parameter() the second and
     ** subsequent calls are effectively no-ops. */
     for(i=j=1; i<nUsedQP; i++){
-      if( strcmp(aParamQP[i].zName,aParamQP[i-1].zName)==0 ){
+      if( fossil_strcmp(aParamQP[i].zName,aParamQP[i-1].zName)==0 ){
         continue;
       }
       if( j<i ){
@@ -760,7 +786,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   hi = nUsedQP-1;
   while( lo<=hi ){
     mid = (lo+hi)/2;
-    c = strcmp(aParamQP[mid].zName, zName);
+    c = fossil_strcmp(aParamQP[mid].zName, zName);
     if( c==0 ){
       CGIDEBUG(("mem-match [%s] = [%s]\n", zName, aParamQP[mid].zValue));
       return aParamQP[mid].zValue;
@@ -785,6 +811,23 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   }
   CGIDEBUG(("no-match [%s]\n", zName));
   return zDefault;
+}
+
+/*
+** Return the value of a CGI parameter with leading and trailing
+** spaces removed.
+*/
+char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
+  const char *zIn;
+  char *zOut;
+  int i;
+  zIn = cgi_parameter(zName, 0);
+  if( zIn==0 ) zIn = zDefault;
+  while( fossil_isspace(zIn[0]) ) zIn++;
+  zOut = fossil_strdup(zIn);
+  for(i=0; zOut[i]; i++){}
+  while( i>0 && fossil_isspace(zOut[i-1]) ) zOut[--i] = 0;
+  return zOut;
 }
 
 /*
@@ -847,13 +890,22 @@ int cgi_all(const char *z, ...){
 /*
 ** Print all query parameters on standard output.  Format the
 ** parameters as HTML.  This is used for testing and debugging.
+** Release builds omit the values of the cookies to avoid defeating
+** the purpose of setting HttpOnly cookies.
 */
 void cgi_print_all(void){
   int i;
+  int showAll = 0;
+#ifdef FOSSIL_DEBUG
+  /* Show the values of cookies in debug mode. */
+  showAll = 1;
+#endif
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
-    cgi_printf("%s = %s  <br />\n",
-       htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    if( showAll || (fossil_stricmp("HTTP_COOKIE",aParamQP[i].zName)!=0 && fossil_strnicmp("fossil-",aParamQP[i].zName,7)!=0) ){
+      cgi_printf("%s = %s  <br />\n",
+         htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    }
   }
 }
 
@@ -954,8 +1006,8 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken==0 ){
     malformed_request();
   }
-  if( strcmp(zToken,"GET")!=0 && strcmp(zToken,"POST")!=0
-      && strcmp(zToken,"HEAD")!=0 ){
+  if( fossil_strcmp(zToken,"GET")!=0 && fossil_strcmp(zToken,"POST")!=0
+      && fossil_strcmp(zToken,"HEAD")!=0 ){
     malformed_request();
   }
   cgi_setenv("GATEWAY_INTERFACE","CGI/1.0");
@@ -995,25 +1047,25 @@ void cgi_handle_http_request(const char *zIpAddr){
     for(i=0; zFieldName[i]; i++){
       zFieldName[i] = fossil_tolower(zFieldName[i]);
     }
-    if( strcmp(zFieldName,"content-length:")==0 ){
+    if( fossil_strcmp(zFieldName,"content-length:")==0 ){
       cgi_setenv("CONTENT_LENGTH", zVal);
-    }else if( strcmp(zFieldName,"content-type:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"content-type:")==0 ){
       cgi_setenv("CONTENT_TYPE", zVal);
-    }else if( strcmp(zFieldName,"cookie:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"cookie:")==0 ){
       cgi_setenv("HTTP_COOKIE", zVal);
-    }else if( strcmp(zFieldName,"https:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"https:")==0 ){
       cgi_setenv("HTTPS", zVal);
-    }else if( strcmp(zFieldName,"host:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"host:")==0 ){
       cgi_setenv("HTTP_HOST", zVal);
-    }else if( strcmp(zFieldName,"if-none-match:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"if-none-match:")==0 ){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
-    }else if( strcmp(zFieldName,"if-modified-since:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
     }
 #if 0
-    else if( strcmp(zFieldName,"referer:")==0 ){
+    else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
-    }else if( strcmp(zFieldName,"user-agent:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
 #endif
@@ -1098,7 +1150,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   if( iPort>mxPort ) return 1;
   listen(listener,10);
   if( iPort>mnPort ){
-    printf("Listening for HTTP requests on TCP port %d\n", iPort);
+    fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
     fflush(stdout);
   }
   if( zBrowser ){

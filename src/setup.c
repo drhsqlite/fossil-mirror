@@ -46,7 +46,7 @@ void setup_menu_entry(
   }else{
     @ %h(zTitle)
   }
-  @ </td><td valign="top">%h(zDesc)</td></tr>
+  @ </td><td width="5"></td><td valign="top">%h(zDesc)</td></tr>
 }
 
 /*
@@ -59,7 +59,7 @@ void setup_page(void){
   }
 
   style_header("Server Administration");
-  @ <table border="0" cellspacing="20">
+  @ <table border="0" cellspacing="7">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
   setup_menu_entry("Access", "setup_access",
@@ -70,6 +70,9 @@ void setup_page(void){
     "Web interface to the \"fossil settings\" command");
   setup_menu_entry("Timeline", "setup_timeline",
     "Timeline display preferences");
+  setup_menu_entry("Login-Group", "setup_login_group",
+    "Manage single sign-on between this repository and others"
+    " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
   setup_menu_entry("Skins", "setup_skin",
@@ -124,7 +127,6 @@ void setup_ulist(void){
   db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
   while( db_step(&s)==SQLITE_ROW ){
     const char *zCap = db_column_text(&s, 2);
-    if( strstr(zCap, "s") ) zCap = "s";
     @ <tr>
     @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
@@ -190,6 +192,8 @@ void setup_ulist(void){
      @   user <tt>developer</tt></td></tr>
      @ <tr><td valign="top"><b>w</b></td>
      @   <td><i>Write-Tkt:</i> Edit tickets</td></tr>
+     @ <tr><td valign="top"><b>x</b></td>
+     @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
      @   <tt>/zip</tt> URL even without 
@@ -245,7 +249,9 @@ void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
   char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oau, *oav, *oab, *oaz;
+  char *oat, *oau, *oav, *oab, *oax, *oaz;
+  const char *zGroup;
+  const char *zOldLogin;
   const char *inherit[128];
   int doWrite;
   int uid;
@@ -302,6 +308,7 @@ void user_edit(void){
     int at = P("at")!=0;
     int au = P("au")!=0;
     int av = P("av")!=0;
+    int ax = P("ax")!=0;
     int az = P("az")!=0;
     if( aa ){ zCap[i++] = 'a'; }
     if( ab ){ zCap[i++] = 'b'; }
@@ -324,16 +331,18 @@ void user_edit(void){
     if( au ){ zCap[i++] = 'u'; }
     if( av ){ zCap[i++] = 'v'; }
     if( aw ){ zCap[i++] = 'w'; }
+    if( ax ){ zCap[i++] = 'x'; }
     if( az ){ zCap[i++] = 'z'; }
 
     zCap[i] = 0;
     zPw = P("pw");
     zLogin = P("login");
     if( isValidPwString(zPw) ){
-      zPw = sha1_shared_secret(zPw, zLogin);
+      zPw = sha1_shared_secret(zPw, zLogin, 0);
     }else{
       zPw = db_text(0, "SELECT pw FROM user WHERE uid=%d", uid);
     }
+    zOldLogin = db_text(0, "SELECT login FROM user WHERE uid=%d", uid);
     if( uid>0 &&
         db_exists("SELECT 1 FROM user WHERE login=%Q AND uid!=%d", zLogin, uid)
     ){
@@ -347,10 +356,44 @@ void user_edit(void){
     }
     login_verify_csrf_secret();
     db_multi_exec(
-       "REPLACE INTO user(uid,login,info,pw,cap) "
-       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s')",
+       "REPLACE INTO user(uid,login,info,pw,cap,mtime) "
+       "VALUES(nullif(%d,0),%Q,%Q,%Q,'%s',now())",
       uid, P("login"), P("info"), zPw, zCap
     );
+    if( atoi(PD("all","0"))>0 ){
+      Blob sql;
+      char *zErr = 0;
+      blob_zero(&sql);
+      if( zOldLogin==0 ){
+        blob_appendf(&sql,
+          "INSERT INTO user(login)"
+          "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
+          zLogin, zLogin
+        );
+        zOldLogin = zLogin;
+      }
+      blob_appendf(&sql, 
+        "UPDATE user SET login=%Q,"
+        "  pw=coalesce(shared_secret(%Q,%Q,"
+                "(SELECT value FROM config WHERE name='project-code')),pw),"
+        "  info=%Q,"
+        "  cap=%Q,"
+        "  mtime=now()"
+        " WHERE login=%Q;",
+        zLogin, P("pw"), zLogin, P("info"), zCap,
+        zOldLogin
+      );
+      login_group_sql(blob_str(&sql), "<li> ", " </li>\n", &zErr);
+      blob_reset(&sql);
+      if( zErr ){
+        style_header("User Change Error");
+        @ <span class="loginError">%s(zErr)</span>
+        @
+        @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+        style_footer();
+        return;
+      }
+    }
     cgi_redirect("setup_ulist");
     return;
   }
@@ -362,7 +405,7 @@ void user_edit(void){
   zCap = "";
   zPw = "";
   oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oaz = "";
+        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
@@ -389,12 +432,13 @@ void user_edit(void){
     if( strchr(zCap, 'u') ) oau = " checked=\"checked\"";
     if( strchr(zCap, 'v') ) oav = " checked=\"checked\"";
     if( strchr(zCap, 'w') ) oaw = " checked=\"checked\"";
+    if( strchr(zCap, 'x') ) oax = " checked=\"checked\"";
     if( strchr(zCap, 'z') ) oaz = " checked=\"checked\"";
   }
 
   /* figure out inherited permissions */
   memset(inherit, 0, sizeof(inherit));
-  if( strcmp(zLogin, "developer") ){
+  if( fossil_strcmp(zLogin, "developer") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
@@ -403,7 +447,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "reader") ){
+  if( fossil_strcmp(zLogin, "reader") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
@@ -412,7 +456,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "anonymous") ){
+  if( fossil_strcmp(zLogin, "anonymous") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
@@ -421,7 +465,7 @@ void user_edit(void){
     }
     free(z2);
   }
-  if( strcmp(zLogin, "nobody") ){
+  if( fossil_strcmp(zLogin, "nobody") ){
     char *z1, *z2;
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
@@ -486,6 +530,7 @@ void user_edit(void){
   @    <input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket<br />
   @    <input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket<br />
   @    <input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report<br />
+  @    <input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private<br />
   @    <input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
   @   </td>
   @ </tr>
@@ -499,6 +544,17 @@ void user_edit(void){
     @   <td><input type="password" name="pw" value="" /></td>
   }
   @ </tr>
+  zGroup = login_group_name();
+  if( zGroup ){
+    @ <tr>
+    @ <td valign="top" align="right">Scope:</td>
+    @ <td valign="top">
+    @ <input type="radio" name="all" checked value="0">
+    @ Apply changes to this repository only.<br />
+    @ <input type="radio" name="all" value="1">
+    @ Apply changes to all repositories in the "<b>%h(zGroup)</b>"
+    @ login group.</td></tr>
+  }
   if( !higherUser ){
     @ <tr>
     @   <td>&nbsp;</td>
@@ -612,7 +668,7 @@ void user_edit(void){
   @ The <span class="capability">EMail</span> privilege allows the display of
   @ sensitive information such as the email address of users and contact
   @ information on tickets. Recommended OFF for 
-  @ <span class="usertype">anonymousy</span> and for
+  @ <span class="usertype">anonymous</span> and for
   @ <span class="usertype">nobody</span> but ON for
   @ <span class="usertype">developer</span>.
   @ </p></li>
@@ -687,7 +743,7 @@ static void onoff_attribute(
     zQ = "off";
   }
   if( zQ ){
-    int iQ = strcmp(zQ,"on")==0 || atoi(zQ);
+    int iQ = fossil_strcmp(zQ,"on")==0 || atoi(zQ);
     if( iQ!=iVal ){
       login_verify_csrf_secret();
       db_set(zVar, iQ ? "1" : "0", 0);
@@ -714,7 +770,7 @@ void entry_attribute(
 ){
   const char *zVal = db_get(zVar, zDflt);
   const char *zQ = P(zQParm);
-  if( zQ && strcmp(zQ,zVal)!=0 ){
+  if( zQ && fossil_strcmp(zQ,zVal)!=0 ){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     zVal = zQ;
@@ -736,7 +792,7 @@ static void textarea_attribute(
 ){
   const char *z = db_get(zVar, (char*)zDflt);
   const char *zQ = P(zQP);
-  if( zQ && strcmp(zQ,z)!=0 ){
+  if( zQ && fossil_strcmp(zQ,z)!=0 ){
     login_verify_csrf_secret();
     db_set(zVar, zQ, 0);
     z = zQ;
@@ -765,13 +821,27 @@ void setup_access(void){
   @ <hr />
   onoff_attribute("Require password for local access",
      "localauth", "localauth", 0);
-  @ <p>When enabled, the password sign-in is required for
-  @ web access coming from 127.0.0.1.  When disabled, web access
-  @ from 127.0.0.1 is allows without any login - the user id is selected
-  @ from the ~/.fossil database. Password login is always required
-  @ for incoming web connections on internet addresses other than
-  @ 127.0.0.1.</p>
-
+  @ <p>When enabled, the password sign-in is always required for
+  @ web access.  When disabled, unrestricted web access from 127.0.0.1
+  @ is allowed for the <a href="%s(g.zTop)/help/ui">fossil ui</a> command or
+  @ from the <a href="%s(g.zTop)/help/server">fossil server</a>,
+  @ <a href="%s(g.zTop)/help/http">fossil http</a> commands when the
+  @ "--localauth" command line options is used, or from the
+  @ <a href="%s(g.zTop)/help/cgi">fossil cgi</a> if a line containing
+  @ the word "localauth" appears in the CGI script.
+  @
+  @ <p>A password is always required if any one or more
+  @ of the following are true:
+  @ <ol>
+  @ <li> This button is checked
+  @ <li> The inbound TCP/IP connection is not from 127.0.0.1
+  @ <li> The server is started using either of the
+  @ <a href="%s(g.zTop)/help/server">fossil server</a> or
+  @ <a href="%s(g.zTop)/help/server">fossil http</a> commands
+  @ without the "--localauth" option.
+  @ <li> The server is started from CGI without the "localauth" keyword
+  @ in the CGI script.
+  @ </ol>
   @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0);
@@ -806,7 +876,8 @@ void setup_access(void){
   @ "Anonymous".</p>
 
   @ <hr />
-  entry_attribute("Default privileges", 10, "default-perms", "defaultperms", "u");
+  entry_attribute("Default privileges", 10, "default-perms",
+                  "defaultperms", "u");
   @ <p>Permissions given to users that register themselves using the HTTP UI
   @ or are registered by the administrator using the command line interface.
   @ </p>
@@ -824,6 +895,101 @@ void setup_access(void){
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
   db_end_transaction(0);
+  style_footer();
+}
+
+/*
+** WEBPAGE: setup_login_group
+*/
+void setup_login_group(void){
+  const char *zGroup;
+  char *zErrMsg = 0;
+  Blob fullName;
+  char *zSelfRepo;
+  const char *zRepo = PD("repo", "");
+  const char *zLogin = PD("login", "");
+  const char *zPw = PD("pw", "");
+  const char *zNewName = PD("newname", "New Login Group");
+
+  login_check_credentials();
+  if( !g.okSetup ){
+    login_needed();
+  }
+  file_canonical_name(g.zRepositoryName, &fullName);
+  zSelfRepo = mprintf(blob_str(&fullName));
+  blob_reset(&fullName);
+  if( P("join")!=0 ){
+    login_group_join(zRepo, zLogin, zPw, zNewName, &zErrMsg);
+  }else if( P("leave") ){
+    login_group_leave(&zErrMsg);
+  }
+  style_header("Login Group Configuration");
+  if( zErrMsg ){
+    @ <p class="generalError">%s(zErrMsg)</p>
+  }
+  zGroup = login_group_name();
+  if( zGroup==0 ){
+    @ <p>This repository (in the file named "%h(zSelfRepo)")
+    @ is not currently part of any login-group.
+    @ To join a login group, fill out the form below.</p>
+    @
+    @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    login_insert_csrf_secret();
+    @ <blockquote><table broder="0">
+    @
+    @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
+    @
+    @ <td align="right"><b>Login on the above repo:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
+    @
+    @ <td align="right"><b>Password:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="password" size="20" name="pw"></td></tr>
+    @
+    @ <tr><td align="right"><b>Name of login-group:</b></td>
+    @ <td width="5"></td><td>
+    @ <input type="text" size="30" value="%h(zNewName)" name="newname">
+    @ (only used if creating a new login-group).</td></tr>
+    @
+    @ <tr><td colspan="3" align="center">
+    @ <input type="submit" value="Join" name="join"></td></tr>
+    @ </table>
+  }else{
+    Stmt q;
+    int n = 0;
+    @ <p>This repository (in the file "%h(zSelfRepo)")
+    @ is currently part of the "<b>%h(zGroup)</b>" login group.
+    @ Other repositories in that group are:</p>
+    @ <table border="0" cellspacing="4">
+    @ <tr><td colspan="2"><th align="left">Project Name<td>
+    @ <th align="left">Repository File</tr>
+    db_prepare(&q,
+       "SELECT value,"
+       "       (SELECT value FROM config"
+       "         WHERE name=('peer-name-' || substr(x.name,11)))"
+       "  FROM config AS x"
+       " WHERE name GLOB 'peer-repo-*'"
+       " ORDER BY value"
+    );
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zRepo = db_column_text(&q, 0);
+      const char *zTitle = db_column_text(&q, 1);
+      n++;
+      @ <tr><td align="right">%d(n).</td><td width="4">
+      @ <td>%h(zTitle)<td width="10"><td>%h(zRepo)</tr>
+    }
+    db_finalize(&q);
+    @ </table>
+    @
+    @ <p><form action="%s(g.zTop)/setup_login_group" method="post"><div>
+    login_insert_csrf_secret();
+    @ To leave this login group press
+    @ <input type="submit" value="Leave Login Group" name="leave">
+    @ </form></p>
+  }
   style_footer();
 }
 
@@ -898,7 +1064,11 @@ void setup_settings(void){
       onoff_attribute(pSet->name, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       is_truth(pSet->def));
-      @ <br />
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td><td style="width: 30;"></td><td valign="top">
@@ -907,12 +1077,17 @@ void setup_settings(void){
       entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def);
-      @ <br />
+      if( pSet->versionable ){
+        @  (v)<br />
+      } else {
+        @ <br />
+      }
     }
   }
   @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
+  @ <p>Settings marked with (v) are 'versionable' and will be overridden by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
   @ <hr /><p>
   @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>
@@ -1123,14 +1298,14 @@ void setup_logo(void){
     Stmt ins;
     blob_init(&img, aImg, szImg);
     db_prepare(&ins,
-        "REPLACE INTO config(name, value)"
-        " VALUES('logo-image',:bytes)"
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('logo-image',:bytes,now())"
     );
     db_bind_blob(&ins, ":bytes", &img);
     db_step(&ins);
     db_finalize(&ins);
     db_multi_exec(
-       "REPLACE INTO config(name, value) VALUES('logo-mimetype',%Q)",
+       "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
        zMime
     );
     db_end_transaction(0);

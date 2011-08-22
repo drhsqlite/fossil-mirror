@@ -1,0 +1,94 @@
+<title>Private Branches</title>
+
+By default, everything you check into a Fossil repository is shared
+to all clones of that repository.  In Fossil, you don't push and pull
+individual branches; you push and pull everything all at once.
+
+But sometimes users want to keep some private work that is not
+shared with others.  This might be a preliminary or experimental change
+that needs further refinement before it is shared and which might never
+be shared at all.  To do this in Fossil, simply commit the change with
+the --private command-line option:
+
+<blockquote><pre>
+fossil commit --private
+</pre></blockquote>
+
+The --private option causes Fossil to put the check-in in a new branch
+named "private".  That branch will not participate in subsequent clone,
+sync, push, or pull operations.  The branch will remain on the one local
+repository where it was created.  Note that you only use the --private
+option for the first checkin that creates the private branch.
+Additional checkins into the private branch remain private automatically.
+
+<h2>Publishing Private Changes</h2>
+
+After additional work, one might desire to publish the changes associated
+with a private branch.  The usual way to do this is to merge those
+changes into a public branch.  For example:
+
+<blockquote><pre>
+fossil update trunk
+fossil merge private
+fossil commit
+</pre></blockquote>
+
+The private branch remains private.  (There is no way to convert a private
+branch into a public branch.)  But all of the changes associated with
+the private branch are now folded into the public branch and are hence
+visible to other users of the project.
+
+<h2>Syncing Private Branches</h2>
+
+A private branch normally stays on the one repository where it was
+originally created.  But sometimes you want to share private branches
+with another repository.  For example, you might be building a cross-platform
+application and have separate repositories on your windows laptop, 
+your linux desktop, and your iMac.  You can transfer private branches
+between these machines by using the --private option on the "sync",
+"push", "pull", and "clone" commands.  For example, if you are running
+"fossil server" on your linux box and you want to clone that repository
+to your Mac, including all private branches, use:
+
+<blockquote><pre>
+fossil clone --private http://user@linux.localnetwork:8080/ mac-clone.fossil
+</pre></blockquote>
+
+You'll have to supply a username and password in order for this to work.
+Fossil will not clone (or sync) private branches anonymously.  Furthermore,
+you have to enable the "Private" capability (the "x" capability) in order
+to enable private branch syncing.  The Admin ("a") and Superuser ("s") do
+<u>not</u> imply Private ("x"); you'll have to set "x" in addition to
+"a" or "s".  This is a little extra work, but there is a purpose here:
+the interface is designed to make it very difficult to accidently
+sync a private branch to a public server.  It is highly recommended that
+you leave the "x" capability turned off on all repositories used for
+collaboration (repositories to which many people push and pull) and
+only enable "x" for local repositories when you need to share private
+branches.
+
+Private branch sync only works if you use the --private command-line option.
+Private branches are never synced via the auto-sync mechanism.  Once
+again, this restriction is designed to make it hard to accidently 
+push private branches beyond their intended audience.
+
+<h2>Purging Private Branches</h2>
+
+You can remove all private branches from a repository using this command:
+
+<blockquote><pre>
+fossil scrub --private
+</pre></blockquote>
+
+Note that the above is a permanent and irreversible change.  You will
+be asked to confirm before continuing.  Once the private branches are
+removed, they cannot be retrieved (unless you have synced them to another
+repository.)  So be careful with the command.
+
+<h2>Additional Notes</h2>
+
+All of the features above apply to <u>all</u> private branches in a 
+single repository at once.  There is no mechanism in Fossil (currently)
+that allows you to push, pull, clone, sync, or scrub and individual
+private branch within a repository that contains multiple private
+branches.

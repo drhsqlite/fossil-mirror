@@ -148,7 +148,7 @@ void page_dir(void){
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI);
-    zPrefix = mprintf("%h/", zD);
+    zPrefix = mprintf("%s/", zD);
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
@@ -212,7 +212,11 @@ void page_dir(void){
     );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
-      if( nD>0 && memcmp(pFile->zName, zD, nD-1)!=0 ) continue;
+      if( nD>0 
+       && (memcmp(pFile->zName, zD, nD-1)!=0 || pFile->zName[nD-1]!='/')
+      ){
+        continue;
+      }
       if( pPrev
        && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
        && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
@@ -265,7 +269,7 @@ void page_dir(void){
       @ <li><a href="%s(zSubdirLink)%T(zFN)">%h(zFN)/</a></li>
     }else if( zCI ){
       const char *zUuid = db_column_text(&q, 1);
-      @ <li><a href="%s(g.zTop)/artifact?name=%s(zUuid)">%h(zFN)</a></li>
+      @ <li><a href="%s(g.zTop)/artifact/%s(zUuid)">%h(zFN)</a></li>
     }else{
       @ <li><a href="%s(g.zTop)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
       @     </a></li>

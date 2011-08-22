@@ -41,9 +41,11 @@ void branch_new(void){
   Blob mcksum;           /* Self-checksum on the manifest */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
+  int isPrivate = 0;     /* True if the branch should be private */
  
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
+  isPrivate = find_option("private",0,0)!=0;
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
@@ -68,7 +70,7 @@ void branch_new(void){
 
   user_select();
   db_begin_transaction();
-  rootid = name_to_rid(g.argv[4]);
+  rootid = name_to_typed_rid(g.argv[4], "ci");
   if( rootid==0 ){
     fossil_fatal("unable to locate check-in off of which to branch");
   }
@@ -101,16 +103,24 @@ void branch_new(void){
   }
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
   blob_appendf(&branch, "P %s\n", zUuid);
-  blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  if( pParent->zRepoCksum ){
+    blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  }
   manifest_destroy(pParent);
 
   /* Add the symbolic branch name and the "branch" tag to identify
   ** this as a new branch */
+  if( content_is_private(rootid) ) isPrivate = 1;
+  if( isPrivate && zColor==0 ) zColor = "#fec084";
   if( zColor!=0 ){
     blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
   }
   blob_appendf(&branch, "T *branch * %F\n", zBranch);
   blob_appendf(&branch, "T *sym-%F *\n", zBranch);
+  if( isPrivate ){
+    blob_appendf(&branch, "T +private *\n");
+    noSign = 1;
+  }
 
   /* Cancel all other symbolic tags */
   db_prepare(&q,
@@ -138,7 +148,7 @@ void branch_new(void){
     }
   }
 
-  brid = content_put(&branch, 0, 0, 0);
+  brid = content_put(&branch);
   if( brid==0 ){
     fossil_panic("trouble committing manifest: %s", g.zErrMsg);
   }
@@ -146,11 +156,12 @@ void branch_new(void){
   if( manifest_crosslink(brid, &branch)==0 ){
     fossil_panic("unable to install new manifest");
   }
+  assert( blob_is_reset(&branch) );
   content_deltify(rootid, brid, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", brid);
-  printf("New branch: %s\n", zUuid);
+  fossil_print("New branch: %s\n", zUuid);
   if( g.argc==3 ){
-    printf(
+    fossil_print(
       "\n"
       "Note: the local check-out has not been updated to the new\n"
       "      branch.  To begin working on the new branch, do this:\n"
@@ -169,6 +180,43 @@ void branch_new(void){
 }
 
 /*
+** Prepare a query that will list all branches.
+*/
+static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
+  if( showClosed ){
+    db_prepare(pQuery,
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL "
+      "EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }else if( showAll ){
+    db_prepare(pQuery,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH
+    );
+  }else{
+    db_prepare(pQuery,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }
+}
+
+
+/*
 ** COMMAND: branch
 **
 ** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
@@ -176,14 +224,17 @@ void branch_new(void){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME BASIS ?-bgcolor COLOR? 
+**    %fossil branch new BRANCH-NAME BASIS ?--bgcolor COLOR? ?--private?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        You can optionally give the branch a default color.
+**        You can optionally give the branch a default color.  The
+**        --private option makes the branch private.
 **
 **    %fossil branch list
+**    %fossil branch ls
 **
-**        List all branches
+**        List all branches.  Use --all or --closed to list all branches
+**        or closed branches.  The default is to show only open branches.
 **
 */
 void branch_cmd(void){
@@ -191,39 +242,34 @@ void branch_cmd(void){
   const char *zCmd = "list";
   db_find_and_open_repository(0, 0);
   if( g.argc<2 ){
-    usage("new|list ...");
+    usage("new|list|ls ...");
   }
   if( g.argc>=3 ) zCmd = g.argv[2];
   n = strlen(zCmd);
   if( strncmp(zCmd,"new",n)==0 ){
     branch_new();
-  }else if( strncmp(zCmd,"list",n)==0 ){
+  }else if( (strncmp(zCmd,"list",n)==0)||(strncmp(zCmd, "ls", n)==0) ){
     Stmt q;
     int vid;
     char *zCurrent = 0;
+    int showAll = find_option("all",0,0)!=0;
+    int showClosed = find_option("closed",0,0)!=0;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    db_prepare(&q,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
+    prepareBranchQuery(&q, showAll, showClosed);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
-      printf("%s%s\n", (isCur ? "* " : "  "), zBr);
+      fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
     }
     db_finalize(&q);
   }else{
     fossil_panic("branch subcommand should be one of: "
-                 "new list");
+                 "new list ls");
   }
 }
 
@@ -236,15 +282,22 @@ void brlist_page(void){
   Stmt q;
   int cnt;
   int showClosed = P("closed")!=0;
+  int showAll = P("all")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
 
-  style_header(showClosed ? "Closed Branches" : "Open Branches");
+  style_header(showClosed ? "Closed Branches" :
+                  showAll ? "All Branches" : "Open Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   if( showClosed ){
+    style_submenu_element("All", "All", "brlist?all");
+    style_submenu_element("Open","Open","brlist");
+  }else if( showAll ){
+    style_submenu_element("Closed", "Closed", "brlist?closed");
     style_submenu_element("Open","Open","brlist");
   }else{
+    style_submenu_element("All", "All", "brlist?all");
     style_submenu_element("Closed","Closed","brlist?closed");
   }
   login_anonymous_available();
@@ -264,15 +317,8 @@ void brlist_page(void){
   @ </ol>
   style_sidebox_end();
 
+  prepareBranchQuery(&q, showAll, showClosed);
   cnt = 0;
-  db_prepare(&q,
-    "SELECT DISTINCT value FROM tagxref"
-    " WHERE tagid=%d AND value NOT NULL"
-    "   AND rid IN leaf"
-    "   AND %s %z"
-    " ORDER BY value /*sort*/",
-    TAG_BRANCH, showClosed ? "" : "NOT", leaf_is_closed_sql("tagxref.rid")
-  );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){

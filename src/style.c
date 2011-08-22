@@ -100,6 +100,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", g.zPath);
+  Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
   Th_Store("compiler_name", COMPILER_NAME);
@@ -247,7 +248,7 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] = 
 @ <div class="footer">
-@ Fossil version $manifest_version $manifest_date
+@ Fossil version $release_version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
@@ -626,7 +627,7 @@ const struct strctCssDefaults {
     @   color: blue;
   },
   { "span.capability",
-    "format for capabilites, mentioned on the user edit page",
+    "format for capabilities, mentioned on the user edit page",
     @   font-weight: bold;
   },
   { "span.usertype",
@@ -640,6 +641,13 @@ const struct strctCssDefaults {
   { "span.usertype:after",
     "trailing text for user types, mentioned on the user edit page",
     @   content:"'";
+  },
+  { "div.selectedText",
+    "selected lines of text within a linenumbered artifact display",
+    @   font-weight: bold;
+    @   color: blue;
+    @   background-color: #d5d5ff;
+    @   border: 1px blue solid;
   },
   { "p.missingPriv",
     "format for missing priviliges note on user setup page",
@@ -730,6 +738,15 @@ const struct strctCssDefaults {
     "format for artifact lines beeing shunned",
     @   color: blue;
   },
+  { "span.brokenlink",
+    "a broken hyperlink",
+    @   color: red;
+  },
+  { "ul.filelist",
+    "List of files in a timeline",
+    @   margin-top: 3px;
+    @   line-height: 100%;
+  },
   { 0,
     0,
     0
@@ -786,12 +803,28 @@ void page_style_css(void){
 ** WEBPAGE: test_env
 */
 void page_test_env(void){
+  char c;
+  int i;
+  char zCap[30];
+  login_check_credentials();
   style_header("Environment Test");
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
   @ g.zBaseURL = %h(g.zBaseURL)<br />
   @ g.zTop = %h(g.zTop)<br />
+  for(i=0, c='a'; c<='z'; c++){
+    if( login_has_capability(&c, 1) ) zCap[i++] = c;
+  }
+  zCap[i] = 0;
+  @ g.userUid = %d(g.userUid)<br />
+  @ g.zLogin = %h(g.zLogin)<br />
+  @ capabilities = %s(zCap)<br />
+  @ <hr>
   cgi_print_all();
+  if( g.okSetup ){
+    const char *zRedir = P("redirect");
+    if( zRedir ) cgi_redirect(zRedir);
+  }
   style_footer();
 }

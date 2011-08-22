@@ -62,7 +62,7 @@ int load_vfile(const char *zName){
   int vid;
 
   blob_init(&uuid, zName, -1);
-  if( name_to_uuid(&uuid, 1) ){
+  if( name_to_uuid(&uuid, 1, "ci") ){
     fossil_panic(g.zErrMsg);
   }
   vid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
@@ -74,16 +74,6 @@ int load_vfile(const char *zName){
   }
   load_vfile_from_rid(vid);
   return vid;
-}
-
-/*
-** Load a vfile from a record ID.
-*/
-void load_vfile_from_rid(int vid){
-  if( db_exists("SELECT 1 FROM vfile WHERE vid=%d", vid) ){
-    return;
-  }
-  vfile_build(vid);
 }
 
 /*
@@ -160,12 +150,12 @@ void manifest_to_disk(int vid){
   }else{
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest'") ){
       zManFile = mprintf("%smanifest", g.zLocalRoot);
-      unlink(zManFile);
+      file_delete(zManFile);
       free(zManFile);
     }
     if( !db_exists("SELECT 1 FROM vfile WHERE pathname='manifest.uuid'") ){
       zManFile = mprintf("%smanifest.uuid", g.zLocalRoot);
-      unlink(zManFile);
+      file_delete(zManFile);
       free(zManFile);
     }
   }
@@ -203,7 +193,7 @@ void checkout_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   keepFlag = find_option("keep",0,0)!=0;
   latestFlag = find_option("latest",0,0)!=0;
-  promptFlag = find_option("prompt",0,0)!=0;  /* Prompt user before overwrite */
+  promptFlag = find_option("prompt",0,0)!=0 || forceFlag==0;
   if( (latestFlag!=0 && g.argc!=2) || (latestFlag==0 && g.argc!=3) ){
      usage("VERSION|--latest ?--force? ?--keep?");
   }
@@ -245,17 +235,18 @@ void checkout_cmd(void){
   }
   checkout_set_all_exe(vid);
   manifest_to_disk(vid);
+  ensure_empty_dirs_created();
   db_lset_int("checkout", vid);
   undo_reset();
   db_multi_exec("DELETE FROM vmerge");
-  if( !keepFlag ){
+  if( !keepFlag && db_get_boolean("repo-cksum",1) ){
     vfile_aggregate_checksum_manifest(vid, &cksum1, &cksum1b);
     vfile_aggregate_checksum_disk(vid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
-      printf("WARNING: manifest checksum does not agree with disk\n");
+      fossil_print("WARNING: manifest checksum does not agree with disk\n");
     }
     if( blob_size(&cksum1b) && blob_compare(&cksum1, &cksum1b) ){
-      printf("WARNING: manifest checksum does not agree with manifest\n");
+      fossil_print("WARNING: manifest checksum does not agree with manifest\n");
     }
   }
   db_end_transaction(0);
@@ -271,7 +262,7 @@ static void unlink_local_database(int manifestOnly){
     if( manifestOnly==0 || zReserved[0]=='m' ){
       char *z;
       z = mprintf("%s%s", g.zLocalRoot, zReserved);
-      unlink(z);
+      file_delete(z);
       free(z);
     }
   }

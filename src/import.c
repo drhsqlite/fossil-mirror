@@ -62,6 +62,7 @@ static struct {
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
   int hasLinks;               /* True if git repository contains symlinks */
+  int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
 /*
@@ -152,12 +153,12 @@ static int fast_insert_content(Blob *pContent, const char *zMark, int saveUuid){
   }
   if( zMark ){
     db_multi_exec(
-        "INSERT INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
         "VALUES(%Q,%d,%B)", 
         zMark, rid, &hash
     );
     db_multi_exec(
-        "INSERT INTO xtag(tname, trid, tuuid)"
+        "INSERT OR IGNORE INTO xmark(tname, trid, tuuid)"
         "VALUES(%B,%d,%B)", 
         &hash, rid, &hash
     );
@@ -208,7 +209,16 @@ static void finish_tag(void){
 static int mfile_cmp(const void *pLeft, const void *pRight){
   const ImportFile *pA = (const ImportFile*)pLeft;
   const ImportFile *pB = (const ImportFile*)pRight;
-  return strcmp(pA->zName, pB->zName);
+  return fossil_strcmp(pA->zName, pB->zName);
+}
+
+/*
+** Compare two strings for sorting.
+*/
+static int string_cmp(const void *pLeft, const void *pRight){
+  const char *zLeft = *(char const **)pLeft;
+  const char *zRight = *(char const **)pRight;
+  return fossil_strcmp(zLeft, zRight);
 }
 
 /* Forward reference */
@@ -221,7 +231,10 @@ static void import_prior_files(void);
 static void finish_commit(void){
   int i;
   char *zFromBranch;
+  char *aTCard[4];                /* Array of T cards for manifest */
+  int nTCard = 0;                 /* Entries used in aTCard[] */
   Blob record, cksum;
+
   import_prior_files();
   qsort(gg.aFile, gg.nFile, sizeof(gg.aFile[0]), mfile_cmp);
   blob_zero(&record);
@@ -251,17 +264,29 @@ static void finish_commit(void){
   }else{
     zFromBranch = 0;
   }
-  if( fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
-    blob_appendf(&record, "T *branch * %F\n", gg.zBranch);
-    blob_appendf(&record, "T *sym-%F *\n", gg.zBranch);
+
+  /* Add the required "T" cards to the manifest. Make sure they are added
+  ** in sorted order and without any duplicates. Otherwise, fossil will not
+  ** recognize the document as a valid manifest. */
+  if( !gg.tagCommit && fossil_strcmp(zFromBranch, gg.zBranch)!=0 ){
+    aTCard[nTCard++] = mprintf("T *branch * %F\n", gg.zBranch);
+    aTCard[nTCard++] = mprintf("T *sym-%F *\n", gg.zBranch);
     if( zFromBranch ){
-      blob_appendf(&record, "T -sym-%F *\n", zFromBranch);
+      aTCard[nTCard++] = mprintf("T -sym-%F *\n", zFromBranch);
     }
   }
-  free(zFromBranch);
   if( gg.zFrom==0 ){
-    blob_appendf(&record, "T +sym-trunk *\n");
+    aTCard[nTCard++] = mprintf("T *sym-trunk *\n");
   }
+  qsort(aTCard, nTCard, sizeof(char *), string_cmp);
+  for(i=0; i<nTCard; i++){
+    if( i==0 || fossil_strcmp(aTCard[i-1], aTCard[i]) ){
+      blob_appendf(&record, "%s", aTCard[i]);
+    }
+  }
+  for(i=0; i<nTCard; i++) free(aTCard[i]);
+
+  free(zFromBranch);
   db_multi_exec("INSERT INTO xbranch(tname, brnm) VALUES(%Q,%Q)",
                 gg.zMark, gg.zBranch);
   blob_appendf(&record, "U %F\n", gg.zUser);
@@ -270,6 +295,31 @@ static void finish_commit(void){
   fast_insert_content(&record, gg.zMark, 1);
   blob_reset(&record);
   blob_reset(&cksum);
+
+  /* The "git fast-export" command might output multiple "commit" lines
+  ** that reference a tag using "refs/tags/TAGNAME".  The tag should only
+  ** be applied to the last commit that is output.  The problem is we do not
+  ** know at this time if the current commit is the last one to hold this
+  ** tag or not.  So make an entry in the XTAG table to record this tag
+  ** but overwrite that entry if a later instance of the same tag appears.
+  **
+  ** This behavior seems like a bug in git-fast-export, but it is easier
+  ** to work around the problem than to fix git-fast-export.
+  */
+  if( gg.tagCommit && gg.zDate && gg.zUser && gg.zFrom ){
+    blob_appendf(&record, "D %s\n", gg.zDate);
+    blob_appendf(&record, "T +sym-%F %s\n", gg.zBranch, gg.zPrevCheckin);
+    blob_appendf(&record, "U %F\n", gg.zUser);
+    md5sum_blob(&record, &cksum);
+    blob_appendf(&record, "Z %b\n", &cksum);
+    db_multi_exec(
+       "INSERT OR REPLACE INTO xtag(tname, tcontent)"
+       " VALUES(%Q,%Q)", gg.zBranch, blob_str(&record)
+    );
+    blob_reset(&record);
+    blob_reset(&cksum);
+  }
+
   fossil_free(gg.zPrevBranch);
   gg.zPrevBranch = gg.zBranch;
   gg.zBranch = 0;
@@ -333,7 +383,7 @@ static char *rest_of_line(char **pzIn){
 static char *resolve_committish(const char *zCommittish){
   char *zRes;
 
-  zRes = db_text(0, "SELECT tuuid FROM xtag WHERE tname=%Q", zCommittish);
+  zRes = db_text(0, "SELECT tuuid FROM xmark WHERE tname=%Q", zCommittish);
   return zRes;
 }
 
@@ -432,8 +482,29 @@ static void git_fast_import(FILE *pIn){
       gg.xFinish = finish_commit;
       trim_newline(&zLine[7]);
       z = &zLine[7];
+
+      /* The argument to the "commit" line might match either of these
+      ** patterns:
+      **
+      **   (A)  refs/heads/BRANCHNAME
+      **   (B)  refs/tags/TAGNAME
+      **
+      ** If pattern A is used, then the branchname used is as shown.
+      ** Except, the "master" branch which is the default branch name in
+      ** Git is changed to "trunk" which is the default name in Fossil.
+      ** If the pattern is B, then the new commit should be on the same
+      ** branch as its parent.  And, we might need to add the TAGNAME
+      ** tag to the new commit.  However, if there are multiple instances
+      ** of pattern B with the same TAGNAME, then only put the tag on the
+      ** last commit that holds that tag.
+      **
+      ** None of the above is explained in the git-fast-export
+      ** documentation.  We had to figure it out via trial and error.
+      */
       for(i=strlen(z)-1; i>=0 && z[i]!='/'; i--){}
+      gg.tagCommit = memcmp(&z[i-4], "tags", 4)==0;  /* True for pattern B */
       if( z[i+1]!=0 ) z += i+1;
+      if( fossil_strcmp(z, "master")==0 ) z = "trunk";
       gg.zBranch = fossil_strdup(z);
       gg.fromLoaded = 0;
     }else
@@ -458,7 +529,7 @@ static void git_fast_import(FILE *pIn){
     if( memcmp(zLine, "progress ", 9)==0 ){
       gg.xFinish();
       trim_newline(&zLine[9]);
-      printf("%s\n", &zLine[9]);
+      fossil_print("%s\n", &zLine[9]);
       fflush(stdout);
     }else
     if( memcmp(zLine, "data ", 5)==0 ){
@@ -641,11 +712,17 @@ malformed_line:
 ** The git-fast-export file format is currently the only VCS interchange
 ** format that is understood, though other interchange formats may be added
 ** in the future.
+**
+** The --incremental option allows an existing repository to be extended
+** with new content.
 */
 void git_import_cmd(void){
   char *zPassword;
   FILE *pIn;
+  Stmt q;
   int forceFlag = find_option("force", "f", 0)!=0;
+  int incrFlag = find_option("incremental", "i", 0)!=0;
+
   find_option("git",0,0);  /* Skip the --git option for now */
   verify_all_options();
   if( g.argc!=3  && g.argc!=4 ){
@@ -657,28 +734,63 @@ void git_import_cmd(void){
     pIn = stdin;
     fossil_binary_mode(pIn);
   }
-  if( forceFlag ) unlink(g.argv[2]);
-  db_create_repository(g.argv[2]);
+  if( !incrFlag ){
+    if( forceFlag ) file_delete(g.argv[2]);
+    db_create_repository(g.argv[2]);
+  }
   db_open_repository(g.argv[2]);
   db_open_config(0);
+
+  /* The following temp-tables are used to hold information needed for
+  ** the import.
+  **
+  ** The XMARK table provides a mapping from fast-import "marks" and symbols
+  ** into artifact ids (UUIDs - the 40-byte hex SHA1 hash of artifacts). 
+  ** Given any valid fast-import symbol, the corresponding fossil rid and
+  ** uuid can found by searching against the xmark.tname field.
+  **
+  ** The XBRANCH table maps commit marks and symbols into the branch those
+  ** commits belong to.  If xbranch.tname is a fast-import symbol for a
+  ** checkin then xbranch.brnm is the branch that checkin is part of.
+  **
+  ** The XTAG table records information about tags that need to be applied
+  ** to various branches after the import finishes.  The xtag.tcontent field
+  ** contains the text of an artifact that will add a tag to a check-in.
+  ** The git-fast-export file format might specify the same tag multiple
+  ** times but only the last tag should be used.  And we do not know which
+  ** occurrence of the tag is the last until the import finishes.
+  */
   db_multi_exec(
-     "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
+     "CREATE TEMP TABLE xmark(tname TEXT UNIQUE, trid INT, tuuid TEXT);"
      "CREATE TEMP TABLE xbranch(tname TEXT UNIQUE, brnm TEXT);"
+     "CREATE TEMP TABLE xtag(tname TEXT UNIQUE, tcontent TEXT);"
   );
+
+
   db_begin_transaction();
-  db_initial_setup(0, 0, 1);
+  if( !incrFlag ) db_initial_setup(0, 0, 1);
   git_fast_import(pIn);
+  db_prepare(&q, "SELECT tcontent FROM xtag");
+  while( db_step(&q)==SQLITE_ROW ){
+    Blob record;
+    db_ephemeral_blob(&q, 0, &record);
+    fast_insert_content(&record, 0, 0);
+    import_reset(0);
+  }
+  db_finalize(&q);
   db_end_transaction(0);
   db_begin_transaction();
-  printf("Rebuilding repository meta-data...\n");
-  rebuild_db(0, 1, 1);
+  fossil_print("Rebuilding repository meta-data...\n");
+  rebuild_db(0, 1, !incrFlag);
   verify_cancel();
   db_end_transaction(0);
-  printf("Vacuuming..."); fflush(stdout);
+  fossil_print("Vacuuming..."); fflush(stdout);
   db_multi_exec("VACUUM");
-  printf(" ok\n");
-  printf("project-id: %s\n", db_get("project-code", 0));
-  printf("server-id:  %s\n", db_get("server-code", 0));
-  zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  printf("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  fossil_print(" ok\n");
+  if( !incrFlag ){
+    fossil_print("project-id: %s\n", db_get("project-code", 0));
+    fossil_print("server-id:  %s\n", db_get("server-code", 0));
+    zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
+    fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  }
 }

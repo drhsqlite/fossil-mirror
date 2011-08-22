@@ -41,7 +41,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   Blob sig;            /* The signature field */
 
   blob_zero(pLogin);
-  if( g.urlUser==0 || strcmp(g.urlUser, "anonymous")==0 ){
+  if( g.urlUser==0 || fossil_strcmp(g.urlUser, "anonymous")==0 ){
      return;  /* If no login card for users "nobody" and "anonymous" */
   }
   if( g.urlIsSsh ){
@@ -65,21 +65,16 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
+  /* If the first character of the password is "#", then that character is
+  ** not really part of the password - it is an indicator that we should
+  ** use Basic Authentication.  So skip that character.
+  */
+  if( zPw && zPw[0]=='#' ) zPw++;
+
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
-  **
-  ** Except, if the password begins with "*" then use the characters
-  ** after the "*" as a cleartext password.  Put an "*" at the beginning
-  ** of the password to trick a newer client to use the cleartext password
-  ** protocol required by legacy servers.
   */
-  if( zPw && zPw[0] ){
-    if( zPw[0]=='*' ){
-      zPw++;
-    }else{
-      zPw = sha1_shared_secret(zPw, zLogin);
-    }
-  }
+  if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
 
   blob_append(&pw, zPw, -1);
   sha1sum_blob(&pw, &sig);
@@ -107,10 +102,18 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
   }
   blob_appendf(pHdr, "POST %s%sxfer/xfer HTTP/1.0\r\n", g.urlPath, zSep);
   if( g.urlProxyAuth ){
-    blob_appendf(pHdr, "Proxy-Authorization: %s\n", g.urlProxyAuth);
+    blob_appendf(pHdr, "Proxy-Authorization: %s\r\n", g.urlProxyAuth);
+  }
+  if( g.urlPasswd && g.urlUser && g.urlPasswd[0]=='#' ){
+    char *zCredentials = mprintf("%s:%s", g.urlUser, &g.urlPasswd[1]);
+    char *zEncoded = encode64(zCredentials, -1);
+    blob_appendf(pHdr, "Authorization: Basic %s\r\n", zEncoded);
+    fossil_free(zEncoded);
+    fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
+  blob_appendf(pHdr, "User-Agent: Fossil/" RELEASE_VERSION 
+                     "-" MANIFEST_VERSION "\r\n");
   if( g.fHttpTrace ){
     blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{
@@ -233,7 +236,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
-      while( j>4 && strcmp(&zLine[j-4],"/xfer")==0 ){
+      while( j>4 && fossil_strcmp(&zLine[j-4],"/xfer")==0 ){
          j -= 4;
          zLine[j] = 0;
       }

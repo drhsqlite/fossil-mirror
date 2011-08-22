@@ -210,22 +210,22 @@ void cmd_test_urlparser(void){
   }
   url_parse(g.argv[2]);
   for(i=0; i<2; i++){
-    printf("g.urlIsFile    = %d\n", g.urlIsFile);
-    printf("g.urlIsHttps   = %d\n", g.urlIsHttps);
-    printf("g.urlIsSsh     = %d\n", g.urlIsSsh);
-    printf("g.urlProtocol  = %s\n", g.urlProtocol);
-    printf("g.urlName      = %s\n", g.urlName);
-    printf("g.urlPort      = %d\n", g.urlPort);
-    printf("g.urlDfltPort  = %d\n", g.urlDfltPort);
-    printf("g.urlHostname  = %s\n", g.urlHostname);
-    printf("g.urlPath      = %s\n", g.urlPath);
-    printf("g.urlUser      = %s\n", g.urlUser);
-    printf("g.urlPasswd    = %s\n", g.urlPasswd);
-    printf("g.urlCanonical = %s\n", g.urlCanonical);
-    printf("g.urlFossil    = %s\n", g.urlFossil);
+    fossil_print("g.urlIsFile    = %d\n", g.urlIsFile);
+    fossil_print("g.urlIsHttps   = %d\n", g.urlIsHttps);
+    fossil_print("g.urlIsSsh     = %d\n", g.urlIsSsh);
+    fossil_print("g.urlProtocol  = %s\n", g.urlProtocol);
+    fossil_print("g.urlName      = %s\n", g.urlName);
+    fossil_print("g.urlPort      = %d\n", g.urlPort);
+    fossil_print("g.urlDfltPort  = %d\n", g.urlDfltPort);
+    fossil_print("g.urlHostname  = %s\n", g.urlHostname);
+    fossil_print("g.urlPath      = %s\n", g.urlPath);
+    fossil_print("g.urlUser      = %s\n", g.urlUser);
+    fossil_print("g.urlPasswd    = %s\n", g.urlPasswd);
+    fossil_print("g.urlCanonical = %s\n", g.urlCanonical);
+    fossil_print("g.urlFossil    = %s\n", g.urlFossil);
     if( g.urlIsFile || g.urlIsSsh ) break;
     if( i==0 ){
-      printf("********\n");
+      fossil_print("********\n");
       url_enable_proxy("Using proxy: ");
     }
   }
@@ -278,7 +278,7 @@ void url_enable_proxy(const char *zMsg){
     g.urlUser = 0;
     g.urlPasswd = "";
     url_parse(zProxy);
-    if( zMsg ) printf("%s%s\n", zMsg, g.urlCanonical);
+    if( zMsg ) fossil_print("%s%s\n", zMsg, g.urlCanonical);
     g.urlPath = zOriginalUrl;
     g.urlHostname = zOriginalHost;
     if( g.urlUser ){
@@ -342,12 +342,12 @@ char *url_render(
   blob_appendf(&p->url, "%s/%s", g.zTop, p->zBase);
   for(i=0; i<p->nParam; i++){
     const char *z = p->azValue[i];
-    if( zName1 && strcmp(zName1,p->azName[i])==0 ){
+    if( zName1 && fossil_strcmp(zName1,p->azName[i])==0 ){
       zName1 = 0;
       z = zValue1;
       if( z==0 ) continue;
     }
-    if( zName2 && strcmp(zName2,p->azName[i])==0 ){
+    if( zName2 && fossil_strcmp(zName2,p->azName[i])==0 ){
       zName2 = 0;
       z = zValue2;
       if( z==0 ) continue;
@@ -357,10 +357,12 @@ char *url_render(
     zSep = "&amp;";
   }
   if( zName1 && zValue1 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName1, zValue1);
+    blob_appendf(&p->url, "%s%s", zSep, zName1);
+    if( zValue1[0] ) blob_appendf(&p->url, "=%T", zValue1);
   }
   if( zName2 && zValue2 ){
-    blob_appendf(&p->url, "%s%s=%T", zSep, zName2, zValue2);
+    blob_appendf(&p->url, "%s%s", zSep, zName2);
+    if( zValue2[0] ) blob_appendf(&p->url, "=%T", zValue2);
   }
   return blob_str(&p->url);
 }
@@ -371,7 +373,7 @@ char *url_render(
 */
 void url_prompt_for_password(void){
   if( isatty(fileno(stdin)) ){
-    char *zPrompt = mprintf("password for %s: ", g.urlUser);
+    char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
     prompt_for_password(zPrompt, &x, 0);
     free(zPrompt);
@@ -380,5 +382,17 @@ void url_prompt_for_password(void){
   }else{
     fossil_fatal("missing or incorrect password for user \"%s\"",
                  g.urlUser);
+  }
+}
+
+/* Preemptively prompt for a password if a username is given in the
+** URL but no password.
+*/
+void url_get_password_if_needed(void){
+  if( (g.urlUser && g.urlUser[0])
+   && (g.urlPasswd==0 || g.urlPasswd[0]==0)
+   && isatty(fileno(stdin)) 
+  ){
+    url_prompt_for_password();
   }
 }

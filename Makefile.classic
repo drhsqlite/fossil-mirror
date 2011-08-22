@@ -60,7 +60,8 @@ TCLSH = tclsh
 ###############################################################################
 #
 # Automatic platform-specific options.
-HOST_OS!= uname -s
+HOST_OS_CMD = uname -s
+HOST_OS = $(HOST_OS_CMD:sh)
 
 LIB.SunOS= -lsocket -lnsl
 LIB += $(LIB.$(HOST_OS))

@@ -362,15 +362,21 @@ void view_edit(void){
     }else{
       zErr = verify_sql_statement(zSQL);
     }
+    if( zErr==0
+     && db_exists("SELECT 1 FROM reportfmt WHERE title=%Q and rn<>%d",
+                  zTitle, rn)
+    ){
+      zErr = mprintf("There is already another report named \"%h\"", zTitle);
+    }
     if( zErr==0 ){
       login_verify_csrf_secret();
       if( rn>0 ){
         db_multi_exec("UPDATE reportfmt SET title=%Q, sqlcode=%Q,"
-                      " owner=%Q, cols=%Q WHERE rn=%d",
+                      " owner=%Q, cols=%Q, mtime=now() WHERE rn=%d",
            zTitle, zSQL, zOwner, zClrKey, rn);
       }else{
-        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols) "
-           "VALUES(%Q,%Q,%Q,%Q)",
+        db_multi_exec("INSERT INTO reportfmt(title,sqlcode,owner,cols,mtime) "
+           "VALUES(%Q,%Q,%Q,%Q,now())",
            zTitle, zSQL, zOwner, zClrKey);
         rn = db_last_insert_rowid();
       }
@@ -640,7 +646,7 @@ static int generate_html(
     pState->iNewRow = -1;
     pState->iBg = -1;
     for(i=0; i<nArg; i++){
-      if( azName[i][0]=='b' && strcmp(azName[i],"bgcolor")==0 ){
+      if( azName[i][0]=='b' && fossil_strcmp(azName[i],"bgcolor")==0 ){
         pState->iBg = i;
         continue;
       }
@@ -943,7 +949,7 @@ void rptview_page(void){
     style_submenu_element("Raw", "Raw", 
       "rptview?tablist=1&amp;%h", PD("QUERY_STRING",""));
     if( g.okAdmin 
-       || (g.okTktFmt && g.zLogin && zOwner && strcmp(g.zLogin,zOwner)==0) ){
+       || (g.okTktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);
     }
     if( g.okTktFmt ){
@@ -996,15 +1002,15 @@ void rpt_list_reports(void){
   Stmt q;
   char const aRptOutFrmt[] = "%s\t%s\n";
 
-  printf("Available reports:\n");
-  printf(aRptOutFrmt,"report number","report title");
-  printf(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
+  fossil_print("Available reports:\n");
+  fossil_print(aRptOutFrmt,"report number","report title");
+  fossil_print(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
   db_prepare(&q,"SELECT rn,title FROM reportfmt ORDER BY rn");
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRn = db_column_text(&q, 0);
     const char *zTitle = db_column_text(&q, 1);
 
-    printf(aRptOutFrmt,zRn,zTitle);
+    fossil_print(aRptOutFrmt,zRn,zTitle);
   }
   db_finalize(&q);
 }
@@ -1033,7 +1039,7 @@ static void output_no_tabs_file(const char *z){
 
         if( z && *z ){
           zFosZ = fossilize(z,-1);
-          printf("%s",zFosZ);
+          fossil_print("%s",zFosZ);
           free(zFosZ);
         }
         break;
@@ -1043,11 +1049,11 @@ static void output_no_tabs_file(const char *z){
         int i, j;
         for(i=0; z[i] && (!fossil_isspace(z[i]) || z[i]==' '); i++){}
         if( i>0 ){
-          printf("%.*s", i, z);
+          fossil_print("%.*s", i, z);
         }
         for(j=i; fossil_isspace(z[j]); j++){}
         if( j>i ){
-          printf("%*s", j-i, "");
+          fossil_print("%*s", j-i, "");
         }
         z += j;
       }
@@ -1070,13 +1076,13 @@ int output_separated_file(
   if( *pCount==0 ){
     for(i=0; i<nArg; i++){
       output_no_tabs_file(azName[i]);
-      printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+      fossil_print("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
     }
   }
   ++*pCount;
   for(i=0; i<nArg; i++){
     output_no_tabs_file(azArg[i]);
-    printf("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
+    fossil_print("%s", i<nArg-1 ? (zSep?zSep:"\t") : "\n");
   }
   return 0;
 }
@@ -1119,7 +1125,7 @@ void rptshow(
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);
       rpt_list_reports();
-      fossil_fatal("unkown report format(%s)!",zRep);
+      fossil_fatal("unknown report format(%s)!",zRep);
     }
     zTitle = db_column_malloc(&q, 0);
     zSql = db_column_malloc(&q, 1);

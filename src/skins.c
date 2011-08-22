@@ -27,7 +27,8 @@
 ** and no logo image.
 */
 static const char zBuiltinSkin1[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
 @   padding: 0px;
@@ -154,7 +155,7 @@ static const char zBuiltinSkin1[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -206,7 +207,8 @@ static const char zBuiltinSkin1[] =
 @ }
 @ </th1></div>
 @ ');
-@ REPLACE INTO config VALUES('footer','<div class="footer">
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('footer',now(),'<div class="footer">
 @ Fossil version $manifest_version $manifest_date 
 @ </div>
 @ </body></html>
@@ -218,7 +220,8 @@ static const char zBuiltinSkin1[] =
 ** and no logo image.
 */
 static const char zBuiltinSkin2[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @   margin: 0ex 0ex;
 @   padding: 0px;
@@ -356,7 +359,7 @@ static const char zBuiltinSkin2[] =
 @   padding: 0.2ex 2ex;
 @ }
 @ ');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -407,7 +410,8 @@ static const char zBuiltinSkin2[] =
 @ }
 @ </th1></div>
 @ ');
-@ REPLACE INTO config VALUES('footer','<div class="footer">
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('footer',now(),'<div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
@@ -419,7 +423,8 @@ static const char zBuiltinSkin2[] =
 ** stuck on the left-hand side.
 */
 static const char zBuiltinSkin3[] = 
-@ REPLACE INTO config VALUES('css','/* General settings for the entire page */
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
 @     margin:0px 0px 0px 0px;
 @     padding:0px;
@@ -588,7 +593,7 @@ static const char zBuiltinSkin3[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }');
-@ REPLACE INTO config VALUES('header','<html>
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
@@ -599,7 +604,7 @@ static const char zBuiltinSkin3[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <!-- <img src="$home/logo" alt="logo"> -->
+@     <img src="$home/logo" alt="logo">
 @     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
@@ -611,7 +616,7 @@ static const char zBuiltinSkin3[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><ul><th1>
+@ <div class="mainmenu"><th1>
 @ html "<li><a href=''$home$index_page''>Home</a></li>"
 @ if {[anycap jor]} {
 @   html "<li><a href=''$home/timeline''>Timeline</a></li>"
@@ -642,13 +647,309 @@ static const char zBuiltinSkin3[] =
 @ </th1></ul></div>
 @ <div id="container">
 @ ');
-@ REPLACE INTO config VALUES('footer','</div>
+@ REPLACE INTO config(name,mtime,value) VALUES('footer',now(),'</div>
 @ <div class="footer">
 @ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 @ ');
 ;
+
+
+/*
+** Gradients and rounded corners.
+*/
+static const char zBuiltinSkin4[] = 
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
+@ html {
+@   min-height: 100%;
+@ }
+@ body {
+@   margin: 0ex 1ex;
+@   padding: 0px;
+@   background-color: white;
+@   color: #333;
+@   font-family: Verdana, sans-serif;
+@   font-size: 0.8em;
+@ }
+@ 
+@ /* The project logo in the upper left-hand corner of each page */
+@ div.logo {
+@   display: table-cell;
+@   text-align: right;
+@   vertical-align: bottom;
+@   font-weight: normal;
+@ }
+@ 
+@ /* Widths */
+@ div.header, div.mainmenu, div.submenu, div.content, div.footer {
+@   max-width: 900px;
+@   margin: auto;
+@   padding: 3px 20px 3px 20px;
+@   clear: both;
+@ }
+@ 
+@ /* The page title at the top of each page */
+@ div.title {
+@   display: table-cell;
+@   padding-left: 10px;
+@   font-size: 2em;
+@   margin: 10px 0 10px -20px;
+@   vertical-align: bottom;
+@   text-align: left;
+@   width: 80%;
+@   font-family: Verdana, sans-serif;
+@   font-weight: bold;
+@   color: #558195;
+@   text-shadow: 0px 2px 2px #999999;
+@ }
+@ 
+@ /* The login status message in the top right-hand corner */
+@ div.status {
+@   display: table-cell;
+@   text-align: right;
+@   vertical-align: bottom;
+@   color: #333;
+@   margin-right: -20px;
+@ }
+@ 
+@ /* The main menu bar that appears at the top of the page beneath
+@  ** the header */
+@ div.mainmenu {
+@   text-align: center;
+@   color: white;
+@   -moz-border-top-right-radius: 5px;
+@   -moz-border-top-left-radius: 5px;
+@   -webkit-border-top-right-radius: 5px;
+@   -webkit-border-top-left-radius: 5px;
+@   -border-top-right-radius: 5px;
+@   -border-top-left-radius: 5px;
+@   border-top-left-radius: 5px;
+@   border-top-right-radius: 5px;
+@   vertical-align: center;
+@   min-height: 2em;
+@   background-color: #446979;
+@   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
+@   background: -moz-linear-gradient(center bottom,rgb(51,81,94) 2%, rgb(85,129,149) 76%);
+@   -webkit-box-shadow: 0px 3px 4px #333333;
+@   -moz-box-shadow: 0px 3px 4px #333333;
+@   box-shadow: 0px 3px 4px #333333;
+@ }
+@ 
+@ /* The submenu bar that *sometimes* appears below the main menu */
+@ div.submenu {
+@   padding-top:10px;
+@   padding-bottom:0;
+@   text-align: right;
+@   color: #000;
+@   background-color: #fff;
+@   height: 1.5em;
+@   vertical-align:middle;
+@   -webkit-box-shadow: 0px 3px 4px #999;
+@   -moz-box-shadow: 0px 3px 4px #999;
+@   box-shadow: 0px 3px 4px #999;
+@ }
+@ div.mainmenu a, div.mainmenu a:visited {
+@   padding: 3px 10px 3px 10px;
+@   color: white;
+@   text-decoration: none;
+@ }
+@ div.submenu a, div.submenu a:visited {
+@   padding: 2px 8px;
+@   color: #000;
+@   font-family: Arial;
+@   text-decoration: none;
+@   margin:auto;
+@   -webkit-border-radius: 5px;
+@   -moz-border-radius: 5px;
+@   border-radius: 5px;
+@   background: -webkit-gradient(linear,left bottom, left top, color-stop(0, rgb(184,184,184)), color-stop(0.75, rgb(214,214,214)));
+@   background: -moz-linear-gradient(center bottom, rgb(184,184,184) 0%, rgb(214,214,214) 75%);
+@   background-color: #e0e0e0 ;
+@   text-shadow: 0px -1px 0px #eee;
+@   filter: dropshadow(color=#eeeeee, offx=0, offy=-1);
+@   border: 1px solid #000;
+@ }
+@ 
+@ div.mainmenu a:hover {
+@   color: #000;
+@   background-color: white;
+@ }
+@ 
+@ div.submenu a:hover {
+@   background: -webkit-gradient(linear,left bottom, left top, color-stop(0, rgb(214,214,214)), color-stop(0.75, rgb(184,184,184)));
+@   background: -moz-linear-gradient(center bottom, rgb(214,214,214) 0%, rgb(184,184,184) 75%);
+@   background-color: #c0c0c0 ;
+@ }
+@ 
+@ /* All page content from the bottom of the menu or submenu down to
+@  ** the footer */
+@ div.content {
+@   background-color: #fff;
+@   -webkit-box-shadow: 0px 3px 4px #999;
+@   -moz-box-shadow: 0px 3px 4px #999;
+@   box-shadow: 0px 3px 4px #999;
+@   -moz-border-bottom-right-radius: 5px;
+@   -moz-border-bottom-left-radius: 5px;
+@   -webkit-border-bottom-right-radius: 5px;
+@   -webkit-border-bottom-left-radius: 5px;
+@   border-bottom-right-radius: 5px;
+@   border-bottom-left-radius: 5px;
+@   padding-bottom: 1em;
+@   min-height:40%;
+@ }
+@ 
+@ 
+@ /* Some pages have section dividers */
+@ div.section {
+@   margin-bottom: 0.5em;
+@   margin-top: 1em;
+@   margin-right: auto;
+@ 
+@   padding: 1px 1px 1px 1px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@ 
+@   text-align: center;
+@   color: white;
+@ 
+@   -webkit-border-radius: 5px;
+@   -moz-border-radius: 5px;
+@   border-radius: 5px;
+@ 
+@   background-color: #446979;
+@   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
+@   background: -moz-linear-gradient(center bottom,rgb(51,81,94) 2%, rgb(85,129,149) 76%);
+@ 
+@   -webkit-box-shadow: 0px 3px 4px #333333;
+@   -moz-box-shadow: 0px 3px 4px #333333;
+@   box-shadow: 0px 3px 4px #333333;
+@ }
+@ 
+@ /* The "Date" that occurs on the left hand side of timelines */
+@ div.divider {
+@   font-size: 1.2em; 
+@   font-family: Georgia, serif;
+@   font-weight: bold;
+@   margin-top: 1em;
+@   white-space: nowrap;
+@ }
+@ 
+@ /* The footer at the very bottom of the page */
+@ div.footer {
+@   font-size: 0.9em;
+@   text-align: right;
+@   margin-bottom: 1em;
+@   color: #666;
+@ }
+@ 
+@ /* Hyperlink colors in the footer */
+@ div.footer a { color: white; }
+@ div.footer a:link { color: white; }
+@ div.footer a:visited { color: white; }
+@ div.footer a:hover { background-color: white; color: #558195; }
+@ 
+@ /* <verbatim> blocks */
+@ pre.verbatim, blockquote pre {
+@   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   background-color: #f3f3f3;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
+@ }
+@ 
+@ blockquote pre {
+@   border: 1px #000 dashed;
+@ }
+@ 
+@ /* The label/value pairs on (for example) the ci page */
+@ table.label-value th {
+@   vertical-align: top;
+@   text-align: right;
+@   padding: 0.2ex 2ex;
+@ }
+@ 
+@ 
+@ table.report {
+@   border-collapse:collapse;
+@   border: 1px solid #999;
+@   margin: 1em 0 1em 0;
+@ }
+@ 
+@ table.report tr th {
+@   padding: 3px 5px;
+@   text-transform : capitalize;
+@ }
+@ 
+@ table.report tr td {
+@   padding: 3px 5px;
+@ }
+@ 
+@ textarea {
+@   font-size: 1em;
+@ }');
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
+@ <head>
+@ <title>$<project_name>: $<title></title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="$home/timeline.rss">
+@ <link rel="stylesheet" href="$home/style.css?black2" type="text/css"
+@       media="screen">
+@ </head>
+@ <body>
+@ <div class="header">
+@   <div class="logo">
+@     <img src="$home/logo" alt="logo">
+@     <br /><nobr>$<project_name></nobr>
+@   </div>
+@   <div class="title">$<title></div>
+@   <div class="status"><nobr><th1>
+@      if {[info exists login]} {
+@        puts "Logged in as $login"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
+@ </div>
+@ <div class="mainmenu"><ul><th1>
+@ html "<a href=''$home$index_page''>Home</a>"
+@ if {[anycap jor]} {
+@   html "<a href=''$home/timeline''>Timeline</a>"
+@ }
+@ if {[hascap oh]} {
+@   html "<a href=''$home/dir?ci=tip''>Files</a>"
+@ }
+@ if {[hascap o]} {
+@   html "<a href=''$home/brlist''>Branches</a>"
+@   html "<a href=''$home/taglist''>Tags</a>"
+@ }
+@ if {[hascap r]} {
+@   html "<a href=''$home/reportlist''>Tickets</a>"
+@ }
+@ if {[hascap j]} {
+@   html "<a href=''$home/wiki''>Wiki</a>"
+@ }
+@ if {[hascap s]} {
+@   html "<a href=''$home/setup''>Admin</a>"
+@ } elseif {[hascap a]} {
+@   html "<a href=''$home/setup_ulist''>Users</a>"
+@ }
+@ if {[info exists login]} {
+@   html "<a href=''$home/login''>Logout</a>"
+@ } else {
+@   html "<a href=''$home/login''>Login</a>"
+@ }
+@ </th1></ul></div>
+@ <div id="container">
+@ ');
+@ REPLACE INTO config(name,mtime,value) VALUES('footer',now(),'</div>
+@ <div class="footer">
+@ Fossil version $manifest_version $manifest_date
+@ </div>
+@ </body></html>
+@ ');
+;
+
 /*
 ** An array of available built-in skins.
 */
@@ -660,6 +961,7 @@ static struct BuiltinSkin {
   { "Plain Gray, No Logo",         zBuiltinSkin1                },
   { "Khaki, No Logo",              zBuiltinSkin2                },
   { "Black & White, Menu on Left", zBuiltinSkin3                },
+  { "Gradient, Rounded Corners",   zBuiltinSkin4                },
 };
 
 /*
@@ -690,13 +992,16 @@ static char *skinVarName(const char *zSkinName, int ifExists){
 static char *getSkin(int useDefault){
   Blob val;
   blob_zero(&val);
-  blob_appendf(&val, "REPLACE INTO config VALUES('css',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('css',%Q,now());\n",
      useDefault ? zDefaultCSS : db_get("css", (char*)zDefaultCSS)
   );
-  blob_appendf(&val, "REPLACE INTO config VALUES('header',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('header',%Q,now());\n",
      useDefault ? zDefaultHeader : db_get("header", (char*)zDefaultHeader)
   );
-  blob_appendf(&val, "REPLACE INTO config VALUES('footer',%Q);\n",
+  blob_appendf(&val,
+     "REPLACE INTO config(name,value,mtime) VALUES('footer',%Q,now());\n",
      useDefault ? zDefaultFooter : db_get("footer", (char*)zDefaultFooter)
   );
   return blob_str(&val);
@@ -750,11 +1055,11 @@ void setup_skin(void){
 
   if( P("save")!=0 && (zName = skinVarName(P("save"),0))!=0 ){
     if( db_exists("SELECT 1 FROM config WHERE name=%Q", zName)
-          || strcmp(zName, "Default")==0 ){
+          || fossil_strcmp(zName, "Default")==0 ){
       zErr = mprintf("Skin name \"%h\" already exists. "
                      "Choose a different name.", P("sn"));
     }else{
-      db_multi_exec("INSERT INTO config VALUES(%Q,%Q)",
+      db_multi_exec("INSERT INTO config(name,value,mtime) VALUES(%Q,%Q,now())",
          zName, zCurrent
       );
     }
@@ -764,7 +1069,7 @@ void setup_skin(void){
   if( P("load") && (z = P("sn"))!=0 && z[0] ){
     int seen = 0;
     for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
-      if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
+      if( fossil_strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
         seen = 1;
         break;
       }
@@ -775,14 +1080,14 @@ void setup_skin(void){
     }
     if( !seen ){
       db_multi_exec(
-        "INSERT INTO config VALUES("
+        "INSERT INTO config(name,value,mtime) VALUES("
         "  strftime('skin:Backup On %%Y-%%m-%%d %%H:%%M:%%S'),"
-        "  %Q)", zCurrent
+        "  %Q,now())", zCurrent
       );
     }
     seen = 0;
     for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
-      if( strcmp(aBuiltinSkin[i].zName, z)==0 ){
+      if( fossil_strcmp(aBuiltinSkin[i].zName, z)==0 ){
         seen = 1;
         zCurrent = aBuiltinSkin[i].zValue;
         db_multi_exec("%s", zCurrent);
@@ -808,7 +1113,7 @@ void setup_skin(void){
   @ <ol>
   for(i=0; i<sizeof(aBuiltinSkin)/sizeof(aBuiltinSkin[0]); i++){
     z = aBuiltinSkin[i].zName;
-    if( strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
+    if( fossil_strcmp(aBuiltinSkin[i].zValue, zCurrent)==0 ){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post"><div>
@@ -826,7 +1131,7 @@ void setup_skin(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
-    if( strcmp(zV, zCurrent)==0 ){
+    if( fossil_strcmp(zV, zCurrent)==0 ){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post">

@@ -97,10 +97,8 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
     db_bind_int(&ins, ":isrm", deleted);
-#ifdef _WIN32
     db_bind_int(&ins, ":isexe", db_column_int(&q, 1));
-    //db_bind_int(&ins, ":islink", isLink);
-#endif
+    //db_bind_int(&ins, ":islink", isLink); //TODO(dchest) what's that?
     db_bind_text(&ins, ":orig", zOrig);
     db_bind_text(&ins, ":new", zName);
 
@@ -113,6 +111,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       }
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
+      blob_zero(&content);
       db_bind_null(&ins, ":content");
     }else{
       /* A modified file */
@@ -192,6 +191,7 @@ static void stash_apply(int stashid, int nConflict){
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
+    int isExec = db_column_int(&q, 2);
     int isLink = db_column_int(&q, 3);
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
@@ -203,10 +203,11 @@ static void stash_apply(int stashid, int nConflict){
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
       blob_write_to_file(&delta, zNPath);
-      printf("ADD %s\n", zNew);
+      file_setexe(zNPath, isExec);
+      fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
-      printf("DELETE %s\n", zOrig);
-      unlink(zOPath);
+      fossil_print("DELETE %s\n", zOrig);
+      file_delete(zOPath);
     }else{
       Blob a, b, out, disk;
       int isNewLink = file_islink(zOPath);
@@ -227,23 +228,25 @@ static void stash_apply(int stashid, int nConflict){
         }else{
           blob_write_to_file(&b, zNPath);          
         }
-        printf("UPDATE %s\n", zNew);
+        file_setexe(zNPath, isExec);
+        fossil_print("UPDATE %s\n", zNew);
       }else{
         int rc;
         if( isLink || isNewLink ){
           rc = -1;
           blob_zero(&b); /* because we reset it later */
-          //TODO write something to disk?
+          //TODO(dchest): write something to disk?
         }else{
-          rc = blob_merge(&a, &disk, &b, &out);
+          rc = merge_3way(&a, zOPath, &b, &out);
           blob_write_to_file(&out, zNPath);          
-          blob_reset(&out);
+          //blob_reset(&out); //XXX(dchest): Need this?
         }
+        file_setexe(zNPath, isExec);
         if( rc ){
-          printf("CONFLICT %s\n", zNew);
+          fossil_print("CONFLICT %s\n", zNew);
           nConflict++;
         }else{
-          printf("MERGE %s\n", zNew);
+          fossil_print("MERGE %s\n", zNew);
         }
       }
       blob_reset(&a);
@@ -253,12 +256,12 @@ static void stash_apply(int stashid, int nConflict){
     blob_reset(&delta);
     if( fossil_strcmp(zOrig,zNew)!=0 ){
       undo_save(zOrig);
-      unlink(zOPath);
+      file_delete(zOPath);
     }
   }
   db_finalize(&q);
   if( nConflict ){
-    printf("WARNING: %d merge conflicts - see messages above for details.\n",
+    fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
             nConflict);
   }
 }
@@ -285,11 +288,11 @@ static void stash_diff(int stashid, const char *zDiffCmd){
     Blob delta;
     if( rid==0 ){
       db_ephemeral_blob(&q, 5, &delta);
-      printf("ADDED %s\n", zNew);
+      fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew);
       diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
     }else if( isRemoved ){
-      printf("DELETE %s\n", zOrig);
+      fossil_print("DELETE %s\n", zOrig);
       if( file_islink(zOPath) ){
         blob_read_link(&delta, zOPath);
       }else{
@@ -306,7 +309,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       }else{
         blob_read_from_file(&disk, zOPath);        
       }
-      printf("CHANGED %s\n", zNew);
+      fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
         diff_print_index(zNew);
         printf("--- %s\n+++ %s\n", zOrig, zNew);
@@ -371,6 +374,7 @@ static int stash_get_id(const char *zStashId){
 **     arguments.
 **
 **  fossil stash list
+**  fossil stash ls
 **
 **     List all changes sets currently stashed.
 **
@@ -384,7 +388,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash apply ?STASHID?
 **
 **     Apply the identified stash to the current working check-out.
-**     If no STASHID is specifed, use the most recent stash.  Unlike
+**     If no STASHID is specified, use the most recent stash.  Unlike
 **     the "pop" command, the stash is retained so that it can be used
 **     again.  This command is undoable.
 **
@@ -430,7 +434,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "save", nCmd)==0 ){
     stashid = stash_create();
     undo_disable();
-    if( g.argc>=3 ){
+    if( g.argc>=2 ){
       int nFile = db_int(0, "SELECT count(*) FROM stashfile WHERE stashid=%d",
                          stashid);
       char **newArgv = fossil_malloc( sizeof(char*)*(nFile+2) );
@@ -452,7 +456,7 @@ void stash_cmd(void){
   if( memcmp(zCmd, "snapshot", nCmd)==0 ){
     stash_create();
   }else
-  if( memcmp(zCmd, "list", nCmd)==0 ){
+  if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
     Stmt q;
     int n = 0;
     verify_all_options();
@@ -464,19 +468,19 @@ void stash_cmd(void){
     while( db_step(&q)==SQLITE_ROW ){
       const char *zCom;
       n++;
-      printf("%5d: [%.14s] on %s\n",
+      fossil_print("%5d: [%.14s] on %s\n",
         db_column_int(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 3)
       );
       zCom = db_column_text(&q, 2);
       if( zCom && zCom[0] ){
-        printf("       ");
+        fossil_print("       ");
         comment_print(zCom, 7, 79);
       }
     }
     db_finalize(&q);
-    if( n==0 ) printf("empty stash\n");
+    if( n==0 ) fossil_print("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;

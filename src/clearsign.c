@@ -54,8 +54,8 @@ int clearsign(Blob *pIn, Blob *pOut){
       blob_copy(pOut, pIn);
     }
   }
-  unlink(zOut);
-  unlink(zIn);
+  file_delete(zOut);
+  file_delete(zIn);
   free(zOut);
   free(zIn);
   return rc;

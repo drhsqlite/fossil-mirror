@@ -100,28 +100,6 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 }
 
 /*
-** Count the number of primary non-branch children for the given check-in.
-**
-** A primary child is one where the parent is the primary parent, not
-** a merge parent.
-**
-** A non-branch child is one which is on the same branch as the parent.
-*/
-int count_nonbranch_children(int pid){
-  int nNonBranch;
-  static const char zSql[] = 
-    @ SELECT count(*) FROM plink
-    @  WHERE pid=%d AND isprim
-    @    AND coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
-    @       =coalesce((SELECT value FROM tagxref
-    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
-  ;
-  nNonBranch = db_int(0, zSql, pid, TAG_BRANCH, TAG_BRANCH);
-  return nNonBranch;
-}
-
-/*
 ** Allowed flags for the tmFlags argument to www_print_timeline
 */
 #if INTERFACE
@@ -130,7 +108,52 @@ int count_nonbranch_children(int pid){
 #define TIMELINE_BRIEF    0x0004  /* Combine adjacent elements of same object */
 #define TIMELINE_GRAPH    0x0008  /* Compute a graph */
 #define TIMELINE_DISJOINT 0x0010  /* Elements are not contiguous */
+#define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
+#define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
+#define TIMELINE_UCOLOR   0x0080  /* Background color by user */
 #endif
+
+/*
+** Hash a string and use the hash to determine a background color.
+*/
+char *hash_color(const char *z){
+  int i;                       /* Loop counter */
+  unsigned int h = 0;          /* Hash on the branch name */
+  int r, g, b;                 /* Values for red, green, and blue */
+  int h1, h2, h3, h4;          /* Elements of the hash value */
+  int mx, mn;                  /* Components of HSV */
+  static char zColor[10];      /* The resulting color */
+  static int ix[2] = {0,0};    /* Color chooser parameters */
+
+  if( ix[0]==0 ){
+    if( db_get_boolean("white-foreground", 0) ){
+      ix[0] = 140;
+      ix[1] = 40;
+    }else{
+      ix[0] = 216;
+      ix[1] = 16;
+    }
+  }
+  for(i=0; z[i]; i++ ){
+    h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
+  }
+  h1 = h % 6;  h /= 6;
+  h3 = h % 30; h /= 30;
+  h4 = h % 40; h /= 40;
+  mx = ix[0] - h3;
+  mn = mx - h4 - ix[1];
+  h2 = (h%(mx - mn)) + mn;
+  switch( h1 ){
+    case 0:  r = mx; g = h2, b = mn;  break;
+    case 1:  r = h2; g = mx, b = mn;  break;
+    case 2:  r = mn; g = mx, b = h2;  break;
+    case 3:  r = mn; g = h2, b = mx;  break;
+    case 4:  r = h2; g = mn, b = mx;  break;
+    default: r = mx; g = mn, b = h2;  break;
+  }
+  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
+  return zColor;
+}
 
 /*
 ** Output a timeline in the web format given a query.  The query
@@ -163,6 +186,9 @@ void www_print_timeline(
   char zPrevDate[20];
   GraphContext *pGraph = 0;
   int prevWasDivider = 0;     /* True if previous output row was <hr> */
+  int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
+  Stmt fchngQuery;            /* Query for file changes on check-ins */
+  static Stmt qbranch;
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -178,6 +204,10 @@ void www_print_timeline(
     */
     @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   }
+  db_static_prepare(&qbranch,
+    "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
+    TAG_BRANCH
+  );
 
   @ <table id="timelineTable" class="timelineTable">
   blob_zero(&comment);
@@ -191,6 +221,7 @@ void www_print_timeline(
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
+    const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     char zTime[8];
     if( tagid ){
@@ -229,34 +260,41 @@ void www_print_timeline(
     @ <tr>
     @ <td class="timelineTime">%s(zTime)</td>
     @ <td class="timelineGraph">
-    if( pGraph && zType[0]=='c' ){
-      int nParent = 0;
-      int aParent[32];
-      const char *zBr;
-      int gidx;
-      static Stmt qparent;
-      static Stmt qbranch;
-      db_static_prepare(&qparent,
-        "SELECT pid FROM plink"
-        " WHERE cid=:rid AND pid NOT IN phantom"
-        " ORDER BY isprim DESC /*sort*/"
-      );
-      db_static_prepare(&qbranch,
-        "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
-        TAG_BRANCH
-      );
-      db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
-        aParent[nParent++] = db_column_int(&qparent, 0);
-      }
-      db_reset(&qparent);
+    if( tmFlags & TIMELINE_UCOLOR )  zBgClr = zUser ? hash_color(zUser) : 0;
+    if( zType[0]=='c'
+    && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
+    ){
+      db_reset(&qbranch);   
       db_bind_int(&qbranch, ":rid", rid);
       if( db_step(&qbranch)==SQLITE_ROW ){
         zBr = db_column_text(&qbranch, 0);
       }else{
         zBr = "trunk";
       }
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr);
+      if( zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0 ){
+        if( zBr==0 || strcmp(zBr,"trunk")==0 ){
+          zBgClr = 0;
+        }else{
+          zBgClr = hash_color(zBr);
+        }
+      }
+    }
+    if( zType[0]=='c' && (pGraph || (tmFlags & TIMELINE_BRCOLOR)!=0) ){
+      int nParent = 0;
+      int aParent[32];
+      int gidx;
+      static Stmt qparent;
+      db_static_prepare(&qparent,
+        "SELECT pid FROM plink"
+        " WHERE cid=:rid AND pid NOT IN phantom"
+        " ORDER BY isprim DESC /*sort*/"
+      );
+      db_bind_int(&qparent, ":rid", rid);
+      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+        aParent[nParent++] = db_column_int(&qparent, 0);
+      }
+      db_reset(&qparent);
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
@@ -321,11 +359,11 @@ void www_print_timeline(
           for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
-                  "<a href=\"%s/timeline?r=%.*t&nd&c=%s\">%.*h</a>%.2s",
+                  "<a href=\"%s/timeline?r=%#t&nd&c=%s\">%#h</a>%.2s",
                   g.zTop, i, z, zDate, i, z, &z[i]
             );
           }else{
-            blob_appendf(&links, "%.*h", i+2, z);
+            blob_appendf(&links, "%#h", i+2, z);
           }
           if( z[i]==0 ) break;
           z += i+2;
@@ -340,6 +378,51 @@ void www_print_timeline(
     /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
       xExtra(rid);
+    }
+
+    /* Generate the file-change list if requested */
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.okHistory ){
+      int inUl = 0;
+      if( !fchngQueryInit ){
+        db_prepare(&fchngQuery, 
+          "SELECT (pid==0) AS isnew,"
+          "       (fid==0) AS isdel,"
+          "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+          "       (SELECT uuid FROM blob WHERE rid=fid),"
+          "       (SELECT uuid FROM blob WHERE rid=pid)"
+          "  FROM mlink"
+          " WHERE mid=:mid AND pid!=fid"
+          " ORDER BY 3 /*sort*/"
+        );
+        fchngQueryInit = 1;
+      }
+      db_bind_int(&fchngQuery, ":mid", rid);
+      while( db_step(&fchngQuery)==SQLITE_ROW ){
+        const char *zFilename = db_column_text(&fchngQuery, 2);
+        int isNew = db_column_int(&fchngQuery, 0);
+        int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOld = db_column_text(&fchngQuery, 4);
+        const char *zNew = db_column_text(&fchngQuery, 3);
+        if( !inUl ){
+          @ <ul class="filelist">
+          inUl = 1;
+        }
+        if( isNew ){
+          @ <li> %h(zFilename) (new file) &nbsp;
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
+          @ </a></li>
+        }else if( isDel ){
+          @ <li> %h(zFilename) (deleted)</li>
+        }else{
+          @ <li> %h(zFilename) &nbsp;
+          @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
+          @ target="diffwindow">[diff]</a></li>
+        }
+      }
+      db_reset(&fchngQuery);
+      if( inUl ){
+        @ </ul>
+      }
     }
     @ </td></tr>
   }
@@ -364,15 +447,16 @@ void www_print_timeline(
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph);
+  if( fchngQueryInit ) db_finalize(&fchngQuery);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
 }
 
 /*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
-void timeline_output_graph_javascript(GraphContext *pGraph){
-  if( pGraph && pGraph->nErr==0 ){
+void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
+  if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
     int i;
     char cSep;
@@ -390,38 +474,44 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     **        rail is 0 and the number increases to the right.
     **    d:  True if there is a "descender" - an arrow coming from the bottom
     **        of the page straight up to this node.
-    **   mo:  "merge-out".  If non-zero, this is one more than the rail on which
-    **        a merge arrow travels upward.  The merge arrow is drawn upwards
+    **   mo:  "merge-out".  If non-zero, this is one more than the x-coordinate
+    **        for the upward portion of a merge arrow.  The merge arrow goes up
     **        to the row identified by mu:.  If this value is zero then
     **        node has no merge children and no merge-out line is drawn.
     **   mu:  The id of the row which is the top of the merge-out arrow.
-    **   md:  A bitmask of rails on which merge-arrow descenders should be
-    **        drawn from this row to the bottom of the page.  The least
-    **        significant bit (1) corresponds to rail 0.  The 2-bit corresponds
-    **        to rail 1.  And so forth.  This value is 0 if there are no
-    **        merge-arrow descenders.
-    **    u:  Draw a think child-line out of the top of this node and up to
+    **    u:  Draw a thick child-line out of the top of this node and up to
     **        the node with an id equal to this value.  0 if there is no
     **        thick-line riser.
+    **    f:  0x01: a leaf node.
     **   au:  An array of integers that define thick-line risers for branches.
     **        The integers are in pairs.  For each pair, the first integer is
     **        is the rail on which the riser should run and the second integer
     **        is the id of the node upto which the riser should run.
-    **   mi:  "merge-in".  An array of integer rail numbers from which
-    **        merge arrows should be drawn into this node.
+    **   mi:  "merge-in".  An array of integer x-coordinates from which
+    **        merge arrows should be drawn into this node.  If the value is
+    **        negative, then the x-coordinate is the absolute value of mi[]
+    **        and a thin merge-arrow descender is drawn to the bottom of
+    **        the screen.
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
-      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,md:%u,u:%d,au:",
-        pRow->idx,
-        pRow->zBgClr,
-        pRow->iRail,
-        pRow->bDescender,
-        pRow->mergeOut+1,
-        pRow->mergeUpto,
-        pRow->mergeDown,
-        pRow->aiRiser[pRow->iRail]
+      int mo = pRow->mergeOut;
+      if( mo<0 ){
+        mo = 0;
+      }else{
+        mo = (mo/4)*20 - 3 + 4*(mo&3);
+      }
+      cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
+        pRow->idx,                      /* id */
+        pRow->zBgClr,                   /* bg */
+        pRow->iRail,                    /* r */
+        pRow->bDescender,               /* d */
+        mo,                             /* mo */
+        pRow->mergeUpto,                /* mu */
+        pRow->aiRiser[pRow->iRail],     /* u */
+        pRow->isLeaf ? 1 : 0            /* f */
       );
+      /* u */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( i==pRow->iRail ) continue;
@@ -432,10 +522,13 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
       }
       if( cSep=='[' ) cgi_printf("[");
       cgi_printf("],mi:");
+      /* mi */
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
-        if( pRow->mergeIn & (1<<i) ){
-          cgi_printf("%c%d", cSep, i);
+        if( pRow->mergeIn[i] ){
+          int mi = i*20 - 8 + 4*pRow->mergeIn[i];
+          if( pRow->mergeDown & (1<<i) ) mi = -mi;
+          cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
       }
@@ -510,21 +603,20 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @ function drawNode(p, left, btm){
     @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
-    @   if( p.u>0 ){
-    @     var u = rowinfo[p.u-1];
-    @     drawUpArrow(p.x, u.y+6, p.y-5);
-    @   }
-    @   if( p.d ){
-    @     drawUpArrow(p.x, p.y+6, btm);
-    @   } 
+    @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    if( !omitDescenders ){
+      @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
+      @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
+      @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
+    } 
     @   if( p.mo>0 ){
-    @     var x1 = (p.mo-1)*20 + left;
+    @     var x1 = p.mo + left - 1;
     @     var y1 = p.y-3;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.mu-1];
     @     var y0 = u.y+5;
-    @     if( x1==p.x ){
-    @       y1 -= 2;
+    @     if( x1>=p.x-5 && x1<=p.x+5 ){
+    @       y1 = p.y-5;
     @     }else{
     @       drawThinLine(x0,y1,x1,y1);
     @     }
@@ -534,20 +626,31 @@ void timeline_output_graph_javascript(GraphContext *pGraph){
     @   for(var i=0; i<n; i+=2){
     @     var x1 = p.au[i]*20 + left;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
-    @     drawBox("black",x0,p.y,x1,p.y+1);
     @     var u = rowinfo[p.au[i+1]-1];
-    @     drawUpArrow(x1, u.y+6, p.y);
+    @     if(u.id<p.id){
+    @       drawBox("black",x0,p.y,x1,p.y+1);
+    @       drawUpArrow(x1, u.y+6, p.y);
+    @     }else{
+    @       drawBox("#600000",x0,p.y,x1,p.y+1);
+    @       drawBox("#600000",x1-1,p.y,x1,u.y+1);
+    @       drawBox("#600000",x1,u.y,u.x-6,u.y+1);
+    @       drawBox("#600000",u.x-9,u.y-1,u.x-8,u.y+2);
+    @       drawBox("#600000",u.x-11,u.y-2,u.x-10,u.y+3);
+    @     }
     @   }
     @   for(var j in p.mi){
     @     var y0 = p.y+5;
-    @     var mx = p.mi[j]*20 + left;
+    @     var mx = p.mi[j];
+    @     if( mx<0 ){
+    @       mx = left-mx;
+    @       drawThinLine(mx,y0,mx,btm);
+    @     }else{
+    @       mx += left;
+    @     }
     @     if( mx>p.x ){
     @       drawThinArrow(y0,mx,p.x+6);
     @     }else{
     @       drawThinArrow(y0,mx,p.x-5);
-    @     }
-    @     if( (1<<p.mi[j])&p.md ){
-    @       drawThinLine(mx,y0,mx,btm);
     @     }
     @   }
     @ }
@@ -682,19 +785,19 @@ static void timeline_submenu(
 static void timeline_add_dividers(const char *zDate, int rid){
   char *zToDel = 0;
   if( zDate==0 ){
-    zToDel = db_text(0,"SELECT datetime(mtime,'localtime') FROM event"
+    zToDel = db_text(0,"SELECT julianday(mtime,'localtime') FROM event"
                        " WHERE objid=%d", rid);
     zDate = zToDel;
     if( zDate==0 ) zDate = "1";
   }
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-1,julianday(%Q,'utc')-5.0e-6,'div')",
+    "VALUES(-1,julianday(%Q,'utc')-1.0e-5,'div')",
     zDate
   );
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-2,julianday(%Q,'utc')+5.0e-6,'div')",
+    "VALUES(-2,julianday(%Q,'utc')+1.0e-5,'div')",
      zDate
   );
   fossil_free(zToDel);
@@ -719,7 +822,13 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    s=TEXT         string search (comment and brief)
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
+**    fc             Show details of files changed
 **    f=RID          Show family (immediate parents and children) of RID
+**    from=RID       Path from...
+**    to=RID           ... to this
+**    nomerge          ... avoid merge links on the path
+**    brbg           Background color from branch name
+**    ubg            Background color from user
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -734,9 +843,9 @@ void page_timeline(void){
   Blob sql;                          /* text of SQL used to generate timeline */
   Blob desc;                         /* Description of the timeline */
   int nEntry = atoi(PD("n","20"));   /* Max number of entries on timeline */
-  int p_rid = name_to_rid(P("p"));   /* artifact p and its parents */
-  int d_rid = name_to_rid(P("d"));   /* artifact d and its descendants */
-  int f_rid = name_to_rid(P("f"));   /* artifact f and immediate family */
+  int p_rid = name_to_typed_rid(P("p"),"ci");  /* artifact p and its parents */
+  int d_rid = name_to_typed_rid(P("d"),"ci");  /* artifact d and descendants */
+  int f_rid = name_to_typed_rid(P("f"),"ci");  /* artifact f and close family */
   const char *zUser = P("u");        /* All entries by this user if not NULL */
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
   const char *zAfter = P("a");       /* Events after this time */
@@ -751,6 +860,11 @@ void page_timeline(void){
   const char *zThisTag = 0;          /* Suppress links to this tag */
   const char *zThisUser = 0;         /* Suppress links to this user */
   HQuery url;                        /* URL for various branch links */
+  int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
+  int to_rid = name_to_typed_rid(P("to"),"ci");    /* to= for path timelines */
+  int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
+  int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
+  int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -773,6 +887,8 @@ void page_timeline(void){
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
   }
+  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
+  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
 
   style_header("Timeline");
   login_anonymous_available();
@@ -782,8 +898,51 @@ void page_timeline(void){
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
   url_initialize(&url, "timeline");
+  if( P("fc")!=0 || P("detail")!=0 ){
+    tmFlags |= TIMELINE_FCHANGES;
+    url_add_parameter(&url, "fc", 0);
+  }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
-  if( (p_rid || d_rid) && g.okRead ){
+  if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
+    /* If from= and to= are present, display all nodes on a path connecting
+    ** the two */
+    PathNode *p = 0;
+    const char *zFrom = 0;
+    const char *zTo = 0;
+
+    if( from_rid && to_rid ){
+      p = path_shortest(from_rid, to_rid, noMerge);
+      zFrom = P("from");
+      zTo = P("to");
+    }else{
+      if( path_common_ancestor(me_rid, you_rid) ){
+        p = path_first();
+      }
+      zFrom = P("me");
+      zTo = P("you");
+    }
+    blob_append(&sql, " AND event.objid IN (0", -1);
+    while( p ){
+      blob_appendf(&sql, ",%d", p->rid);
+      p = p->u.pTo;
+    }
+    blob_append(&sql, ")", -1);
+    path_reset();
+    blob_append(&desc, "All nodes on the path from ", -1);
+    if( g.okHistory ){
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop,zFrom,zFrom);
+    }else{
+      blob_appendf(&desc, "[%h]", zFrom);
+    }
+    blob_append(&desc, " and ", -1);
+    if( g.okHistory ){
+      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, zTo, zTo);
+    }else{
+      blob_appendf(&desc, "[%h].", zTo);
+    }
+    tmFlags |= TIMELINE_DISJOINT;
+    db_multi_exec("%s", blob_str(&sql));
+  }else if( (p_rid || d_rid) && g.okRead ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -847,6 +1006,7 @@ void page_timeline(void){
       blob_appendf(&desc, "[%.10s]", zUuid);
     }
   }else{
+    /* Otherwise, a timeline based on a span of time */
     int n;
     const char *zEType = "timeline item";
     char *zDate;
@@ -867,10 +1027,18 @@ void page_timeline(void){
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
-                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)", tagid);
-        blob_appendf(&sql,
-          " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
-                     " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)", tagid);
+                     " WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+           tagid
+        );
+        if( P("mionly")==0 ){
+          blob_appendf(&sql,
+            " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                       " WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+            tagid
+          );
+        }else{
+          url_add_parameter(&url, "mionly", "1");
+        }
       }else{
         url_add_parameter(&url, "t", zTagName);
       }
@@ -1037,6 +1205,13 @@ void page_timeline(void){
       if( nEntry<200 ){
         timeline_submenu(&url, "200 Entries", "n", "200", 0);
       }
+      if( zType[0]=='a' || zType[0]=='c' ){
+        if( tmFlags & TIMELINE_FCHANGES ){
+          timeline_submenu(&url, "Hide Files", "fc", 0, 0);
+        }else{
+          timeline_submenu(&url, "Show Files", "fc", "", 0);
+        }
+      }
     }
   }
   if( P("showsql") ){
@@ -1066,11 +1241,13 @@ void page_timeline(void){
 **    4.  Number of non-merge children
 **    5.  Number of parents
 */
-void print_timeline(Stmt *q, int mxLine){
+void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
   zPrevDate[0] = 0;
+  int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
+  Stmt fchngQuery;            /* Query for file changes on check-ins */
 
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);
@@ -1091,12 +1268,12 @@ void print_timeline(Stmt *q, int mxLine){
     
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
-      printf("=== %.10s ===\n", zDate);
+      fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
       nLine++;
     }
     if( zCom==0 ) zCom = "";
-    printf("%.8s ", &zDate[11]);
+    fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
       sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
@@ -1119,7 +1296,41 @@ void print_timeline(Stmt *q, int mxLine){
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
+
+    if(showfiles){
+      int inUl = 0;
+      if( !fchngQueryInit ){
+        db_prepare(&fchngQuery, 
+           "SELECT (pid==0) AS isnew,"
+           "       (fid==0) AS isdel,"
+           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+           "       (SELECT uuid FROM blob WHERE rid=fid),"
+           "       (SELECT uuid FROM blob WHERE rid=pid)"
+           "  FROM mlink"
+           " WHERE mid=:mid AND pid!=fid"
+           " ORDER BY 3 /*sort*/"
+        );
+        fchngQueryInit = 1;
+      }
+      db_bind_int(&fchngQuery, ":mid", rid);
+      while( db_step(&fchngQuery)==SQLITE_ROW ){
+        const char *zFilename = db_column_text(&fchngQuery, 2);
+        int isNew = db_column_int(&fchngQuery, 0);
+        int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOld = db_column_text(&fchngQuery, 4);
+        const char *zNew = db_column_text(&fchngQuery, 3);
+        if( isNew ){    
+          fossil_print("   ADDED %s\n",zFilename);
+        }else if( isDel ){
+          fossil_print("   DELETED %s\n",zFilename);
+        }else{
+          fossil_print("   EDITED %s\n", zFilename);
+        }
+      }
+      db_reset(&fchngQuery);
+    }
   }
+  if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
 
 /*
@@ -1164,7 +1375,7 @@ static int isIsoDate(const char *z){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE? ?-showfiles?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -1188,6 +1399,10 @@ static int isIsoDate(const char *z){
 **     w  = wiki commits only
 **     ci = file commits only
 **     t  = tickets only
+**
+** The optional showfiles argument if specified prints the list of
+** files changed in a checkin after the checkin comment
+**
 */
 void timeline_cmd(void){
   Stmt q;
@@ -1200,6 +1415,8 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
+  int showfilesFlag = 0 ;
+  showfilesFlag = find_option("showfiles","f", 0)!=0;
   db_find_and_open_repository(0, 0);
   zCount = find_option("count","n",1);
   zType = find_option("type","t",1);
@@ -1226,9 +1443,9 @@ void timeline_cmd(void){
       usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t TYPE?");
     }
     if( '-' != *g.argv[3] ){
-	zOrigin = g.argv[3];
+      zOrigin = g.argv[3];
     }else{
-	zOrigin = "now";
+      zOrigin = "now";
     }
   }else if( g.argc==3 ){
     zOrigin = g.argv[2];
@@ -1238,7 +1455,7 @@ void timeline_cmd(void){
   k = strlen(zOrigin);
   blob_zero(&uuid);
   blob_append(&uuid, zOrigin, -1);
-  if( strcmp(zOrigin, "now")==0 ){
+  if( fossil_strcmp(zOrigin, "now")==0 ){
     if( mode==3 || mode==4 ){
       fossil_fatal("cannot compute descendants or ancestors of a date");
     }
@@ -1249,7 +1466,7 @@ void timeline_cmd(void){
     }
     objid = db_lget_int("checkout",0);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
-  }else if( name_to_uuid(&uuid, 0)==0 ){
+  }else if( name_to_uuid(&uuid, 0, "*")==0 ){
     objid = db_int(0, "SELECT rid FROM blob WHERE uuid=%B", &uuid);
     zDate = mprintf("(SELECT mtime FROM plink WHERE cid=%d)", objid);
   }else{
@@ -1286,7 +1503,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n);
+  print_timeline(&q, n, showfilesFlag);
   db_finalize(&q);
 }
 
@@ -1314,4 +1531,66 @@ struct tm *fossil_localtime(const time_t *clock){
   }else{
     return localtime(clock);
   }
+}
+
+
+/*
+** COMMAND: test-timewarp-list
+**
+** Usage: %fossil test-timewarp-list ?--detail?
+**
+** Display all instances of child checkins that appear earlier in time
+** than their parent.  If the --detail option is provided, both the
+** parent and child checking and their times are shown.
+*/
+void test_timewarp_cmd(void){
+  Stmt q;
+  int showDetail;
+
+  db_find_and_open_repository(0, 0);
+  showDetail = find_option("detail", 0, 0)!=0;
+  db_prepare(&q,
+     "SELECT (SELECT uuid FROM blob WHERE rid=p.cid),"
+     "       (SELECT uuid FROM blob WHERE rid=c.cid),"
+     "       datetime(p.mtime), datetime(c.mtime)"
+     "  FROM plink p, plink c"
+     " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    if( !showDetail ){
+      fossil_print("%s\n", db_column_text(&q, 1));
+    }else{
+      fossil_print("%.14s -> %.14s   %s -> %s\n",
+         db_column_text(&q, 0),
+         db_column_text(&q, 1),
+         db_column_text(&q, 2),
+         db_column_text(&q, 3));
+    }
+  }
+  db_finalize(&q);
+}
+
+/*
+** WEBPAGE: test_timewarps
+*/
+void test_timewarp_page(void){
+  Stmt q;
+
+  login_check_credentials();
+  if( !g.okRead || !g.okHistory ){ login_needed(); return; }
+  style_header("Instances of timewarp");
+  @ <ul>
+  db_prepare(&q,
+     "SELECT blob.uuid "
+     "  FROM plink p, plink c, blob"
+     " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
+     "   AND blob.rid=c.cid"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    @ <li>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
+  }
+  db_finalize(&q);
+  style_footer();
 }

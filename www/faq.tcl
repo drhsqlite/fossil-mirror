@@ -115,6 +115,8 @@ faq {
   a single check-in.
   Of course, you can also keep your branch private forever simply
   by not merging the changes in the private branch back into the trunk.
+
+  [./private.wiki | Additional information]
 }
 
 faq {
@@ -128,9 +130,9 @@ faq {
 } {
   Any of the following commands should work:
   <blockquote><pre>
-  fossil [/help/clone|clone]  http://www.fossil-scm.org/  fossil.fossil<br>
-  fossil [/help/clone|clone]  http://www2.fossil-scm.org/  fossil.fossil<br>
-  fossil [/help/clone|clone]  http://www3.fossli-scm.org/site.cgi  fossil.fossil
+  fossil [/help/clone|clone]  http://www.fossil-scm.org/  fossil.fossil
+  fossil [/help/clone|clone]  http://www2.fossil-scm.org/  fossil.fossil
+  fossil [/help/clone|clone]  http://www3.fossil-scm.org/site.cgi  fossil.fossil
   </pre></blockquote>
   Once you have the repository cloned, you can open a local check-out
   as follows:

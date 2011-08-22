@@ -27,6 +27,55 @@
 
 
 /*
+** Return true if the check-in with RID=rid is a leaf.
+**
+** A leaf has no children in the same branch. 
+*/
+int is_a_leaf(int rid){
+  int rc;
+  static const char zSql[] = 
+    @ SELECT 1 FROM plink
+    @  WHERE pid=%d
+    @    AND coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @       =coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+  ;
+  rc = db_int(0, zSql, rid, TAG_BRANCH, TAG_BRANCH);
+  return rc==0;
+}
+
+/*
+** Count the number of primary non-branch children for the given check-in.
+**
+** A primary child is one where the parent is the primary parent, not
+** a merge parent.  A "leaf" is a node that has zero children of any
+** kind.  This routine counts only primary children.
+**
+** A non-branch child is one which is on the same branch as the parent.
+*/
+int count_nonbranch_children(int pid){
+  int nNonBranch = 0;
+  static Stmt q;
+  static const char zSql[] = 
+    @ SELECT count(*) FROM plink
+    @  WHERE pid=:pid AND isprim
+    @    AND coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.pid), 'trunk')
+    @       =coalesce((SELECT value FROM tagxref
+    @                   WHERE tagid=%d AND rid=plink.cid), 'trunk')
+  ;
+  db_static_prepare(&q, zSql, TAG_BRANCH, TAG_BRANCH);
+  db_bind_int(&q, ":pid", pid);
+  if( db_step(&q)==SQLITE_ROW ){
+    nNonBranch = db_column_int(&q, 0);
+  }
+  db_reset(&q);
+  return nNonBranch;
+}
+
+
+/*
 ** Recompute the entire LEAF table.  
 **
 ** This can be expensive (5 seconds or so) for a really large repository.
@@ -42,7 +91,7 @@ void leaf_rebuild(void){
     "   WHERE coalesce((SELECT value FROM tagxref"
                        " WHERE tagid=%d AND rid=plink.pid),'trunk')"
          " == coalesce((SELECT value FROM tagxref"
-                       " WHERE tagid=%d AND rid=plink.cid),'trunk');",
+                       " WHERE tagid=%d AND rid=plink.cid),'trunk')",
     TAG_BRANCH, TAG_BRANCH
   );
 }
@@ -111,7 +160,9 @@ char *leaf_is_closed_sql(const char *zVar){
 void leaf_eventually_check(int rid){
   static Stmt parentsOf;
 
-  db_static_prepare(&parentsOf, "SELECT pid FROM plink WHERE cid=:rid");
+  db_static_prepare(&parentsOf, 
+     "SELECT pid FROM plink WHERE cid=:rid AND pid>0"
+  );
   db_bind_int(&parentsOf, ":rid", rid);
   bag_insert(&needToCheck, rid);
   while( db_step(&parentsOf)==SQLITE_ROW ){

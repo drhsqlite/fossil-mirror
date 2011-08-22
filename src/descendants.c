@@ -161,28 +161,70 @@ void compute_leaves(int iBase, int closeMode){
 void compute_ancestors(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,
-       "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-       " WHERE a.cid=%d", rid
-    );
+  pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q,
+    "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
+    " WHERE a.cid=:rid"
+  );
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, -mtime);
+        pqueue_insert(&queue, pid, -mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
+}
+
+/*
+** Compute up to N direct ancestors (merge ancestors do not count)
+** for the check-in rid and put them in a table named "ancestor".
+** Label each generation with consecutive integers going backwards
+** in time such that rid has the smallest generation number and the oldest
+** direct ancestor as the largest generation number.
+*/
+void compute_direct_ancestors(int rid, int N){
+  Stmt ins;
+  Stmt q;
+  int gen = 0;
+  db_multi_exec(
+    "CREATE TEMP TABLE ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "INSERT INTO ancestor VALUES(%d, 0);", rid
+  );
+  db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
+  db_prepare(&q, 
+    "SELECT pid FROM plink"
+    " WHERE cid=:rid AND isprim"
+  );
+  while( (N--)>0 ){
+    db_bind_int(&q, ":rid", rid);
+    if( db_step(&q)!=SQLITE_ROW ) break;
+    rid = db_column_int(&q, 0);
+    db_reset(&q);
+    gen++;
+    db_bind_int(&ins, ":rid", rid);
+    db_bind_int(&ins, ":gen", gen);
+    db_step(&ins);
+    db_reset(&ins);
+  }
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*
@@ -192,25 +234,33 @@ void compute_ancestors(int rid, int N){
 void compute_descendants(int rid, int N){
   Bag seen;
   PQueue queue;
+  Stmt ins;
+  Stmt q;
+
   bag_init(&seen);
   pqueue_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0);
-  while( (N--)>0 && (rid = pqueue_extract(&queue))!=0 ){
-    Stmt q;
-    db_multi_exec("INSERT OR IGNORE INTO ok VALUES(%d)", rid);
-    db_prepare(&q,"SELECT cid, mtime FROM plink WHERE pid=%d", rid);
+  pqueue_insert(&queue, rid, 0.0, 0);
+  db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
+  db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
+  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
+    db_bind_int(&q, ":rid", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, mtime);
+        pqueue_insert(&queue, pid, mtime, 0);
       }
     }
-    db_finalize(&q);
+    db_reset(&q);
   }
   bag_clear(&seen);
   pqueue_clear(&queue);
+  db_finalize(&ins);
+  db_finalize(&q);
 }
 
 /*
@@ -229,7 +279,7 @@ void descendants_cmd(void){
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
-    base = name_to_rid(g.argv[2]);
+    base = name_to_typed_rid(g.argv[2], "ci");
   }
   if( base==0 ) return;
   compute_leaves(base, 0);
@@ -239,7 +289,7 @@ void descendants_cmd(void){
     " ORDER BY event.mtime DESC",
     timeline_query_for_tty()
   );
-  print_timeline(&q, 20);
+  print_timeline(&q, 20, 0);
   db_finalize(&q);
 }
 
@@ -274,7 +324,7 @@ void leaves_cmd(void){
   }
   db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, 2000);
+  print_timeline(&q, 2000, 0);
   db_finalize(&q);
 }
 
