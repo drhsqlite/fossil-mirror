@@ -187,7 +187,6 @@ void update_cmd(void){
     fossil_panic("Internal Error: unable to find a version to update to.");
   }
 
-  if( tid==vid && !verboseFlag ) return;  /* Nothing to update */
   db_begin_transaction();
   vfile_check_signature(vid, 1, 0);
   if( !nochangeFlag && !internalUpdate ) undo_begin();
