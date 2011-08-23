@@ -1083,7 +1083,8 @@ void page_timeline(void){
       }
     }
     if( zUser ){
-      blob_appendf(&sql, " AND event.user=%Q", zUser);
+      blob_appendf(&sql, " AND (event.user=%Q OR event.euser=%Q)",
+                   zUser, zUser);
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
