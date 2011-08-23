@@ -759,62 +759,23 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  rc = sqlite3_prepare(g.db, "SELECT isexe FROM vfile", -1, &pStmt, 0);
-  nPrepare++;
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN isexe BOOLEAN", 0, 0, 0);
+  rc = db_exists("SELECT 1 FROM %s.sqlite_master"
+                 " WHERE name=='vfile' AND sql GLOB '* isexe *'",
+                 db_name("localdb"));
+  if( rc==0 ){
+    db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
   /* If the "islink" column is missing from the vfile table, then
   ** add it now.   This code added on 2011-01-17.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  rc = sqlite3_prepare(g.db, "SELECT islink FROM vfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN islink BOOLEAN", 0, 0, 0);
+  rc = db_exists("SELECT 1 FROM %s.sqlite_master"
+                 " WHERE name=='vfile' AND sql GLOB '* islink *'",
+                 db_name("localdb"));
+  if( rc==0 ){
+    db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
   }
-
-#if 0  
-  /* If the "isLink" column is missing from the stashfile table, then
-  ** add it now.   This code added on 2011-01-18.  After all users have
-  ** upgraded, this code can be safely deleted. 
-  **
-  ** Table stashfile may not exist at all. We don't handle this case,
-  ** and leave it to sqlite.
-  */
-  rc = sqlite3_prepare(g.db, "SELECT isLink FROM stashfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  /* NOTE: this prints "SQLITE_ERROR: no such column: isLink" for some reason */
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN", 0, 0, 0);
-  }
-#endif
-
-#if 0
-  /* If the "mtime" column is missing from the vfile table, then
-  ** add it now.   This code added on 2008-12-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
-  */
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM vfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN mtime INTEGER", 0, 0, 0);
-  }
-#endif
-
-#if 0
-  /* If the "origname" column is missing from the vfile table, then
-  ** add it now.   This code added on 2008-11-09.  After all users have
-  ** upgraded, this code can be safely deleted. 
-  */
-  rc = sqlite3_prepare(g.db, "SELECT origname FROM vfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN origname TEXT", 0, 0, 0);
-  }
-#endif
 
   return 1;
 }
