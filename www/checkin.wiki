@@ -5,9 +5,9 @@ check-in or commit to the Fossil repository:</h2>
 
 Before every check-in:
 
-  0.   <b>fossil user default</b> &rarr; you are indeed using your
-       assigned username.
-  1.   <b>fossil diff</b> &rarr;
+  1.   <b>fossil user default</b> &rarr; your username is correct.
+
+  2.   <b>fossil diff</b> &rarr;
        <ol type="a">
        <li> No stray changes
        <li> All changes comply with the license
@@ -15,22 +15,22 @@ Before every check-in:
        <li> No injection attacks via %s formats
        </ol>
 
-  2.   <b>fossil extra</b> &rarr; no unmanaged files need to be added.
+  3.   <b>fossil extra</b> &rarr; no unmanaged files need to be added.
 
-  3.   The check-in will go onto the desired branch.
+  4.   The check-in will go onto the desired branch.
        &rarr;  Do <u>not</u> check into trunk without prior approval from
        the lead programmer (drh)!
 
-  4.   auto-sync is on, or the system clock is verified
+  5.   auto-sync is on, or the system clock is verified
 
-  5.   If sources files have been added or removed, ensure all makefiles
+  6.   If sources files have been added or removed, ensure all makefiles
        and configure scripts have been updated accordingly.
 
 Before every check-in to <b>trunk</b>:
 
-  6.   No compiler warnings on the development machine.
+  7.   No compiler warnings on the development machine.
 
-  7.   The fossil executable that results from a build actually works.
+  8.   The fossil executable that results from a build actually works.
 
 
 <hr>
@@ -41,11 +41,11 @@ that the username you are using by default matches your username
 within the project. Also remember to enable the localauth setting
 if you intend to make changes via a locally served web UI.
 
-Item 1 is the most important step.  Consider using <b>gdiff</b>
+Item 2 is the most important step.  Consider using <b>gdiff</b>
 instead of <b>diff</b> if you have a graphical differ configured.  Or,
 pipe the output of "<b>fossil diff</b>" into "<b>open -f</b>" (on a mac) to
 get the diff output in a separate text window for easier viewing.
-Look carefully at every changed line in item 1.
+Look carefully at every changed line in item 2.
 Make sure that you are not about to commit unrelated changes.
 If there are two or more unrelated changes present, consider
 breaking up the commit into two or more separate commits.
@@ -58,27 +58,27 @@ Also check very carefully to make sure that
 you are not introducing security vulnerabilities.  Pay particular attention
 to the possibility of SQL or HTML injection attacks.
 
-Item 2 verifies that you have not added source files but failed to
+Item 3 verifies that you have not added source files but failed to
 do the necessary "<b>fossil add</b>" to manage them.  If you commit
 without bringing the new file under source control, the check-in will
 be broken.  That, in turn, can cause complications far in the future
 when we are bisecting for a bug.
 
-For item 3, Run "<b>fossil status</b>" or the equivalent to
+For item 4, Run "<b>fossil status</b>" or the equivalent to
 make sure your changes are going into the branch you think they are.
 Also double-check the branch name when entering change comments.
 Never check into trunk unless you are expressly authorized to do so.
 
-For Item 4, if you are on-network, make sure auto-sync is enabled.  This
+For Item 5, if you are on-network, make sure auto-sync is enabled.  This
 will minimize the risk of an unintended fork.  It will also give you a
 warning if you system clock is set incorrectly.  If you are off-network,
 make sure that your system clock is correct or at least close to correct
 so that your check-in does not appear out-of-sequence on timelines.
 On-network commits are preferred, especially for trunk commits.
 
-Items 6 and 7 help to ensure that check-ins on the trunk always work.
+Items 7 and 8 help to ensure that check-ins on the trunk always work.
 Knowing that the trunk always works makes bisecting much easier.  Items
-6 and 7 are recommended for all check-ins, even those that are on a branch.
+7 and 8 are recommended for all check-ins, even those that are on a branch.
 But they are especially important for trunk check-ins.  We desire that
 all trunk check-ins work at all times.  Any experimental, unstable, or
 questionable changes should go on a branch and be merged into trunk after
