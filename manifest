@@ -1,8 +1,8 @@
-C Merge\strunk.
-D 2011-08-22T22:20:51.343
+C Fix\scomments.
+D 2011-08-23T13:54:44.465
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd w Makefile
+F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -78,7 +78,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 2e5077b437d6093b9ee7687c4b3a5fb58f834f25
-F src/file.c ead3a71e3f9840bf639ede4a763c5e86a017f8bc
+F src/file.c b43e89c4bf105f1c0247a2c9464dbea09b12e2f2
 F src/finfo.c b206c1435c16b608476f809923fbbc32a12ce561
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -101,7 +101,7 @@ F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 62772149ca869a24ca1cd4fe899a1511d17befe0
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
-F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809 w win/version.c
+F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
 F src/path.c acae303e1948b06c17c24dc22e5eace7c593f4a7
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 9fbc052c88fb4e9b8c3d4f888da2cb6600e005b4 1ec0739c4bb054aea369f5713dd9925b1906a816
-R 00244ba37d72a9342fa9ea4d88bd8bc9
-U dchest
-Z 728983358684cab9debcacd2c3ca3b53
+P c57830bec263996efdfc7eaa179d0cac7d65fd49
+R aed854e827fa2728f715f736209468ec
+U dmitry
+Z 9a7d4438a1a7dd24cee5dde84fc21a49

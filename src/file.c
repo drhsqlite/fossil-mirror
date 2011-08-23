@@ -97,7 +97,7 @@ i64 file_mtime(const char *zFilename){
 
 /*
 ** Return TRUE if the named file is an ordinary file or symlink 
-** (if symlinks are allowed).
+** and symlinks are allowed.
 ** Return false for directories, devices, fifos, etc.
 */
 int file_isfile_or_link(const char *zFilename){
@@ -114,16 +114,16 @@ int file_isfile_or_link(const char *zFilename){
 
 /*
 ** Return TRUE if the named file is an ordinary file.  Return false
-** for directories, devices, fifos, etc.
-**
+** for directories, devices, fifos, symlinks, etc.
 */
 int file_isfile(const char *zFilename){
   return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);
 }
 
 /*
-** Return TRUE if the named file is a symlink.  Return false
-** for all other cases.
+** Return TRUE if the named file is a symlink and symlinks are allowed.
+** Return false for all other cases.
+**
 ** On Windows, always return False.
 */
 int file_islink(const char *zFilename){
