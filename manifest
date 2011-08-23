@@ -1,5 +1,5 @@
-C Merge\sthe\smsw-hack\sbranch\sinto\strunk.
-D 2011-08-23T16:55:58.598
+C go\sback\sto\sthe\sold\snumbering\s(ok'd\sdrh).
+D 2011-08-23T18:00:02.692
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -240,7 +240,7 @@ F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f2f37401e34f449d1a504e3eb9cb9554983d2d0f
 F www/changes.wiki 36291c4d629fc7a792ed7912abf1b63b6739333e
-F www/checkin.wiki 5ed2a4acbd56978459b25018877ec4c5411e417f
+F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
 F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 553159aa0d9a8206be973cd2081c720a71b0c2d4 a1f3987760b9406b6ba40e3f0242f123eb69f09a
-R 900c012c881ec5151224d05597224a60
-U drh
-Z 006202dd9b605e277e162e5905d01c12
+P d41074f86294dc96eedc97b8df9b3b3c0eca3089 90e310ebbdef2c15719d8804fdc748514b3b49a2
+R 6ccd5cb043339e81f3b57c7da955340c
+U martin.weber
+Z fb9c7688723f52dc07090fe624336586
