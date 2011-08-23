@@ -108,9 +108,9 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe)"
-      "VALUES(%d,0,0,0,%Q,%d)",
-      vid, zPath, file_isexe(zFullname));
+      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
+      "VALUES(%d,0,0,0,%Q,%d,%d)",
+      vid, zPath, file_isexe(zFullname), file_islink(zFullname));
     fossil_free(zFullname);
   }
   if( db_changes() ){

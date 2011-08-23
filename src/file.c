@@ -201,6 +201,21 @@ int file_isexe(const char *zFilename){
 
 
 /*
+** Return file "permissions":
+** 0: normal
+** 1: exec
+** 2: symlink
+*/
+int file_perm(const char *zFilename){
+  //TODO(dchest): optimize by calling stat once.
+  if( file_isexe(zFilename) )
+    return 1;
+  if( file_islink(zFilename) )
+    return 2;
+  return 0;
+}
+
+/*
 ** Return 1 if zFilename is a directory.  Return 0 if zFilename
 ** does not exist.  Return 2 if zFilename exists but is something
 ** other than a directory.

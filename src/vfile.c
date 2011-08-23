@@ -112,11 +112,10 @@ void load_vfile_from_rid(int vid){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
-    db_bind_int(&ins, ":isexe", manifest_file_mperm(pFile));
+    db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==1 ));
     db_bind_int(&ins, ":id", rid);
     db_bind_text(&ins, ":name", pFile->zName);
-    //TODO(dchest) figure out how to fit manifest_file_mperm here:
-    db_bind_int(&ins, ":islink", pFile->zPerm && strstr(pFile->zPerm, "l"));
+    db_bind_int(&ins, ":islink", ( manifest_file_mperm(pFile)==2 ));
     db_step(&ins);
     db_reset(&ins);
   }

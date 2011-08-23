@@ -1088,8 +1088,11 @@ static int filename_to_fnid(const char *zFilename){
 */
 int manifest_file_mperm(ManifestFile *pFile){
   int mperm = 0;
-  if( pFile && pFile->zPerm && strstr(pFile->zPerm,"x")!=0 ){
-    mperm = 1;
+  if( pFile && pFile->zPerm){
+    if( strstr(pFile->zPerm,"x")!=0 )
+      mperm = 1;
+    else if( strstr(pFile->zPerm,"l")!=0 )
+      mperm = 2;
   }
   return mperm;
 }
@@ -1105,7 +1108,7 @@ static void add_one_mlink(
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
-  int mperm                 /* 1: exec */
+  int mperm                 /* 1: exec, 2: symlink */
 ){
   int fnid, pfnid, pid, fid;
   static Stmt s1;

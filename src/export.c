@@ -271,8 +271,16 @@ void export_cmd(void){
       int mPerm = db_column_int(&q4,2);
       if( zNew==0)
         printf("D %s\n", zName);
-      else if( bag_find(&blobs, zNew) )
-        printf("M %s :%d %s\n", mPerm ? "100755" : "100644", BLOBMARK(zNew), zName);
+      else if( bag_find(&blobs, zNew) ) {
+        const char *zPerm;
+        if( mPerm==1 )
+          zPerm = "100755";
+        else if( mPerm==2 )
+          zPerm = "120000";
+        else
+          zPerm = "100644";
+        printf("M %s :%d %s\n", zPerm, BLOBMARK(zNew), zName);
+      }
     }
     db_finalize(&q4);
     db_finalize(&q3);

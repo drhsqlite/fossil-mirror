@@ -284,7 +284,7 @@ static void append_file_change_line(
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
   int showDiff,         /* Show edit diffs if true */
-  int mperm             /* EXE permission for zNew */
+  int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.okHistory ){
     if( zNew==0 ){
@@ -294,7 +294,7 @@ static void append_file_change_line(
     }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
       @ <p>Name change from %h(zOldName) to %h(zName)
     }else if( fossil_strcmp(zNew, zOld)==0 ){
-      @ <p>Execute permission %s(mperm?"set":"cleared") for %h(zName)</p>
+      @ <p>Execute permission %s(( mperm==1 )?"set":"cleared") for %h(zName)</p>
     }else{
       @ <p>Changes to %h(zName)</p>
     }
@@ -314,7 +314,7 @@ static void append_file_change_line(
         @ from <a href="%s(g.zTop)/finfo?name=%T(zOldName)">%h(zOldName)</a>
         @ to <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>.
       }else{
-        @ <p>Execute permission %s(mperm?"set":"cleared") for
+        @ <p>Execute permission %s(( mperm==1 )?"set":"cleared") for
         @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
       }
     }else if( zOld ){
