@@ -5,6 +5,8 @@ check-in or commit to the Fossil repository:</h2>
 
 Before every check-in:
 
+  0.   <b>fossil user default</b> &rarr; you are indeed using your
+       assigned username.
   1.   <b>fossil diff</b> &rarr;
        <ol type="a">
        <li> No stray changes
@@ -33,6 +35,11 @@ Before every check-in to <b>trunk</b>:
 
 <hr>
 <h2>Commentary</h2>
+
+Before you go ahead and push content back to the servers, make sure
+that the username you are using by default matches your username
+within the project. Also remember to enable the localauth setting
+if you intend to make changes via a locally served web UI.
 
 Item 1 is the most important step.  Consider using <b>gdiff</b>
 instead of <b>diff</b> if you have a graphical differ configured.  Or,

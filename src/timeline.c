@@ -1241,11 +1241,13 @@ void page_timeline(void){
 **    4.  Number of non-merge children
 **    5.  Number of parents
 */
-void print_timeline(Stmt *q, int mxLine){
+void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
   zPrevDate[0] = 0;
+  int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
+  Stmt fchngQuery;            /* Query for file changes on check-ins */
 
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);
@@ -1294,7 +1296,41 @@ void print_timeline(Stmt *q, int mxLine){
     zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
     nLine += comment_print(zFree, 9, 79);
     sqlite3_free(zFree);
+
+    if(showfiles){
+      int inUl = 0;
+      if( !fchngQueryInit ){
+        db_prepare(&fchngQuery, 
+           "SELECT (pid==0) AS isnew,"
+           "       (fid==0) AS isdel,"
+           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+           "       (SELECT uuid FROM blob WHERE rid=fid),"
+           "       (SELECT uuid FROM blob WHERE rid=pid)"
+           "  FROM mlink"
+           " WHERE mid=:mid AND pid!=fid"
+           " ORDER BY 3 /*sort*/"
+        );
+        fchngQueryInit = 1;
+      }
+      db_bind_int(&fchngQuery, ":mid", rid);
+      while( db_step(&fchngQuery)==SQLITE_ROW ){
+        const char *zFilename = db_column_text(&fchngQuery, 2);
+        int isNew = db_column_int(&fchngQuery, 0);
+        int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOld = db_column_text(&fchngQuery, 4);
+        const char *zNew = db_column_text(&fchngQuery, 3);
+        if( isNew ){    
+          fossil_print("   ADDED %s\n",zFilename);
+        }else if( isDel ){
+          fossil_print("   DELETED %s\n",zFilename);
+        }else{
+          fossil_print("   EDITED %s\n", zFilename);
+        }
+      }
+      db_reset(&fchngQuery);
+    }
   }
+  if( fchngQueryInit ) db_finalize(&fchngQuery);
 }
 
 /*
@@ -1339,7 +1375,7 @@ static int isIsoDate(const char *z){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE? ?-showfiles?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -1363,6 +1399,10 @@ static int isIsoDate(const char *z){
 **     w  = wiki commits only
 **     ci = file commits only
 **     t  = tickets only
+**
+** The optional showfiles argument if specified prints the list of
+** files changed in a checkin after the checkin comment
+**
 */
 void timeline_cmd(void){
   Stmt q;
@@ -1375,6 +1415,8 @@ void timeline_cmd(void){
   int objid = 0;
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
+  int showfilesFlag = 0 ;
+  showfilesFlag = find_option("showfiles","f", 0)!=0;
   db_find_and_open_repository(0, 0);
   zCount = find_option("count","n",1);
   zType = find_option("type","t",1);
@@ -1401,9 +1443,9 @@ void timeline_cmd(void){
       usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t TYPE?");
     }
     if( '-' != *g.argv[3] ){
-	zOrigin = g.argv[3];
+      zOrigin = g.argv[3];
     }else{
-	zOrigin = "now";
+      zOrigin = "now";
     }
   }else if( g.argc==3 ){
     zOrigin = g.argv[2];
@@ -1461,7 +1503,7 @@ void timeline_cmd(void){
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
-  print_timeline(&q, n);
+  print_timeline(&q, n, showfilesFlag);
   db_finalize(&q);
 }
 

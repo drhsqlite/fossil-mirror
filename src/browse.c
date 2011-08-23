@@ -148,7 +148,7 @@ void page_dir(void){
   if( zD ){
     blob_append(&dirname, "in directory ", -1);
     hyperlinked_path(zD, &dirname, zCI);
-    zPrefix = mprintf("%h/", zD);
+    zPrefix = mprintf("%s/", zD);
   }else{
     blob_append(&dirname, "in the top-level directory", -1);
     zPrefix = "";
