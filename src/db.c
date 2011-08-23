@@ -1409,11 +1409,26 @@ void db_swap_connections(void){
 ** versioned value.
 */
 static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting){
-  /* Attempt to load the versioned setting from a checked out file */
   char *zVersionedSetting = 0;
   int noWarn = 0;
-
-  if( db_open_local() ){
+  struct _cacheEntry {
+    struct _cacheEntry *next;
+    const char *zName, *zValue;
+  } *cacheEntry = 0;
+  static struct _cacheEntry *cache = 0;
+  
+  /* Look up name in cache */
+  cacheEntry = cache;
+  while( cacheEntry!=0 ){
+    if( fossil_strcmp(cacheEntry->zName, zName)==0 ){
+      zVersionedSetting = fossil_strdup(cacheEntry->zValue);
+      break;
+    }
+    cacheEntry = cacheEntry->next;
+  }
+  /* Attempt to read value from file in checkout if there wasn't a cache hit
+  ** and a checkout is open. */
+  if( cacheEntry==0 && db_open_local() ){
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
@@ -1438,6 +1453,12 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
       }
     }
     blob_reset(&versionedPathname);
+    /* Store result in cache, which can be the value or 0 if not found */
+    cacheEntry = (struct _cacheEntry*)fossil_malloc(sizeof(struct _cacheEntry));
+    cacheEntry->next = cache;
+    cacheEntry->zName = zName;
+    cacheEntry->zValue = fossil_strdup(zVersionedSetting);
+    cache = cacheEntry;
   }
   /* Display a warning? */
   if( zVersionedSetting!=0 && zNonVersionedSetting!=0
