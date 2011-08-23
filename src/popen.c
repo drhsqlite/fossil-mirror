@@ -174,13 +174,17 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
     return 1;
   }
   if( *pChildPid==0 ){
+    int fd;
+    int nErr = 0;
     /* This is the child process */
     close(0);
-    dup(pout[0]);
+    fd = dup(pout[0]);
+    if( fd!=0 ) nErr++;
     close(pout[0]);
     close(pout[1]);
     close(1);
-    dup(pin[1]);
+    fd = dup(pin[1]);
+    if( fd!=1 ) nErr++;
     close(pin[0]);
     close(pin[1]);
     execl("/bin/sh", "/bin/sh", "-c", zCmd, (char*)0);
