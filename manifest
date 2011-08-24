@@ -1,5 +1,5 @@
-C Support\ssymlinks\sin\sZIP\sfiles.
-D 2011-08-24T19:12:01.320
+C Support\ssymlinks\sin\starballs.
+D 2011-08-24T20:01:39.606
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -126,7 +126,7 @@ F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c d234b3ab9f748e43ad88c3fbd4da8cc254cc9a6a
-F src/tar.c e68544809d1358e3970409e3e4e7a2be3227f2c5
+F src/tar.c 605876074391a97dffee8e9c6ffc7a8d116d17ce
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4619361d585c8c52a827eb8a470c8e0cbe28f3e2
-R ac00617e397176514a9548f2eb4316b3
+P 16da26c5858f1152eadf024e550c06bb2b4be490
+R 30651f1aa54e705871ca77ccafbb30f1
 U dmitry
-Z b929b10f38befb15e322cb699a95c350
+Z fcc5db6b57d81d233f061677f8528a68
