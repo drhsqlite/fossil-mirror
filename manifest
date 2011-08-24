@@ -1,5 +1,5 @@
-C Fill\sislink\sfield\sin\svfile\stable\swhen\sadding\sfiles.\nSupport\ssymlinks\sin\sexport.\nMake\smanifest_file_perm()\sreturn\s2\sfor\ssymlinks.\nAdd\sfile_perm()\sfunction,\sand\suse\sit\sinstead\sof\sfile_isexe()\swhen\swe\sneed\sboth\sisexe\sand\sislink\sproperties.
-D 2011-08-23T17:44:23.383
+C Support\ssymlinks\sin\sZIP\sfiles.
+D 2011-08-24T19:12:01.320
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -145,7 +145,7 @@ F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
 F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
-F src/zip.c 8457a7a653cbba4bb47df35c70fb4ca3c10fd65c
+F src/zip.c ee4abcd331ab25b6b5a20272aa798a3f71639ce1
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki 59c0afc22a0e3365672883bebe595854c5bd6a8e
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 2de9e87600d6a447ee44969410ff5eef0aabd76d
-R d89ff52fe4f657e37a882276a5865200
+P 4619361d585c8c52a827eb8a470c8e0cbe28f3e2
+R ac00617e397176514a9548f2eb4316b3
 U dmitry
-Z 08c622824d775481e4ab4ca1817e1f3e
+Z b929b10f38befb15e322cb699a95c350

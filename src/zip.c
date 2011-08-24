@@ -141,7 +141,12 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   nBlob = pFile ? blob_size(pFile) : 0;
   if( nBlob>0 ){
     iMethod = 8;
-    iMode = ( mPerm == 1 ) ? 0100755 : 0100644; //TODO(dchest): handle links
+    if( mPerm==1 )
+      iMode = 0100755;  /* executable */
+    else if( mPerm==2 )
+      iMode = 0120755;  /* symlink */
+    else
+      iMode = 0100644;  /* normal file */
   }else{
     iMethod = 0;
     iMode = 040755;
