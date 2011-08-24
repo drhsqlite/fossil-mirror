@@ -1,5 +1,5 @@
-C "rm"\ssubcmd\sto\sstash,\s"drop"-alike\sfunctionality
-D 2011-08-24T20:05:44.885
+C Fix\scode\sstylistic\sissues\swith\sthe\s"stash\srm"\spatch.\s\sAlso\sdocument\sthe\nnew\sstash\sverb.
+D 2011-08-24T21:45:19.264
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c b09e1018debfb9a2b8fd77c3f3f20812ef8aea05
 F src/sqlite3.h 092c902e18b32924ceade5749e6b9d104f7db9fa
-F src/stash.c b473f01d76c5e1b093838718d7869290e2e73d47
+F src/stash.c a2b7fa2b833ed9cc8ffe34c285c7d549de31c915
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
@@ -325,11 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a87717ad86e83ffbd75ca8ae7e0ee3adc2796b87
-R 351cc9649b6fda7472d2bc256402c249
-T *bgcolor * #ffaabb
-T *branch * stash_rm
-T *sym-stash_rm *
-T -sym-trunk *
-U bch
-Z ef2023133f2e7d16fec58d4717c60da9
+P 1f4e6cf1ae1ab742172d9981a8e8579e5711377a
+R 681fef7c65c492a28d5cbc771eed0997
+U drh
+Z 3ff775866655480a83f06130bc2c9590
