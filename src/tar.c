@@ -380,13 +380,14 @@ static void tar_add_file(
    * 100 bytes (-1 byte for terminating zero), if path is greater than that,
    * store symlink as a plain-text file. (Not sure how TAR handles long links.)
    */
-  if( mPerm == 2 && n <= 100 ){
+  if( mPerm == PERM_LNK && n <= 100 ){
     sqlite3_snprintf(100, (char*)&tball.aHdr[157], "%s", blob_str(pContent));
     cType = '2';
     n = 0;
   }
 
-  tar_add_header(zName, nName, (mPerm > 0) ? 0755 : 0644, mTime, n, cType);
+  tar_add_header(zName, nName, ( mPerm==PERM_EXE ) ? 0755 : 0644, 
+                 mTime, n, cType);
   if( n ){
     gzip_step(blob_buffer(pContent), n);
     lastPage = n % 512;

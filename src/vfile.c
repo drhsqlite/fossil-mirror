@@ -112,10 +112,10 @@ void load_vfile_from_rid(int vid){
       fossil_warning("content missing for %s", pFile->zName);
       continue;
     }
-    db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==1 ));
+    db_bind_int(&ins, ":isexe", ( manifest_file_mperm(pFile)==PERM_EXE ));
     db_bind_int(&ins, ":id", rid);
     db_bind_text(&ins, ":name", pFile->zName);
-    db_bind_int(&ins, ":islink", ( manifest_file_mperm(pFile)==2 ));
+    db_bind_int(&ins, ":islink", ( manifest_file_mperm(pFile)==PERM_LNK ));
     db_step(&ins);
     db_reset(&ins);
   }

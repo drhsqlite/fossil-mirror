@@ -38,6 +38,13 @@
 #define CFTYPE_EVENT      7
 
 /*
+** File permissions used by Fossil internally.
+*/
+#define PERM_REG          0     /*  regular file  */
+#define PERM_EXE          1     /*  executable    */
+#define PERM_LNK          2     /*  symlink       */
+
+/*
 ** A single F-card within a manifest
 */
 struct ManifestFile { 
@@ -1087,12 +1094,12 @@ static int filename_to_fnid(const char *zFilename){
 ** of a file.
 */
 int manifest_file_mperm(ManifestFile *pFile){
-  int mperm = 0;
+  int mperm = PERM_REG;
   if( pFile && pFile->zPerm){
     if( strstr(pFile->zPerm,"x")!=0 )
-      mperm = 1;
+      mperm = PERM_EXE;
     else if( strstr(pFile->zPerm,"l")!=0 )
-      mperm = 2;
+      mperm = PERM_LNK;
   }
   return mperm;
 }

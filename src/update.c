@@ -570,8 +570,8 @@ int historical_version_of_file(
     pFile = manifest_file_seek(pManifest, file);
     if( pFile ){
       rid = uuid_to_rid(pFile->zUuid, 0);
-      if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==1 );
-      if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==2 );
+      if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
+      if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
       manifest_destroy(pManifest);
       return content_get(rid, content);
     }

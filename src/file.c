@@ -201,18 +201,15 @@ int file_isexe(const char *zFilename){
 
 
 /*
-** Return file "permissions":
-** 0: normal
-** 1: exec
-** 2: symlink
+** Return file "permissions" (normal, executable, or symlink).
 */
 int file_perm(const char *zFilename){
-  //TODO(dchest): optimize by calling stat once.
+  /*TODO(dchest): optimize by calling stat once.*/
   if( file_isexe(zFilename) )
-    return 1;
+    return PERM_EXE;
   if( file_islink(zFilename) )
-    return 2;
-  return 0;
+    return PERM_LNK;
+  return PERM_REG;
 }
 
 /*

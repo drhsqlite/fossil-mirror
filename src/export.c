@@ -273,12 +273,11 @@ void export_cmd(void){
         printf("D %s\n", zName);
       else if( bag_find(&blobs, zNew) ) {
         const char *zPerm;
-        if( mPerm==1 )
-          zPerm = "100755";
-        else if( mPerm==2 )
-          zPerm = "120000";
-        else
-          zPerm = "100644";
+        switch( mPerm ){
+          case PERM_LNK:  zPerm = "120000";   break;
+          case PERM_EXE:  zPerm = "100755";   break;
+          default:        zPerm = "100644";   break;
+        }
         printf("M %s :%d %s\n", zPerm, BLOBMARK(zNew), zName);
       }
     }
