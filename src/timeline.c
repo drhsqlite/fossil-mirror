@@ -156,6 +156,21 @@ char *hash_color(const char *z){
 }
 
 /*
+** COMMAND:  test-hash-color
+**
+** Usage: %fossil test-hash-color TAG ...
+**
+** Print out the color names associated with each tag.  Used for
+** testing the hash_color() function.
+*/
+void test_hash_color(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
+  }
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
