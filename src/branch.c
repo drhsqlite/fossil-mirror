@@ -283,9 +283,14 @@ void brlist_page(void){
   int cnt;
   int showClosed = P("closed")!=0;
   int showAll = P("all")!=0;
+  int colorTest = P("colortest")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  if( colorTest ){
+    showClosed = 0;
+    showAll = 1;
+  }
 
   style_header(showClosed ? "Closed Branches" :
                   showAll ? "All Branches" : "Open Branches");
@@ -299,6 +304,11 @@ void brlist_page(void){
   }else{
     style_submenu_element("All", "All", "brlist?all");
     style_submenu_element("Closed","Closed","brlist?closed");
+  }
+  if( !colorTest ){
+    style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
+  }else{
+    style_submenu_element("All", "All", "brlist?all");
   }
   login_anonymous_available();
   style_sidebox_begin("Nomenclature:", "33%");
@@ -322,7 +332,11 @@ void brlist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){
-      if( showClosed ){
+      if( colorTest ){
+        @ <h2>Default background colors for all branches:</h2>
+      }else if( showAll ){
+        @ <h2>All Branches:</h2>
+      }else if( showClosed ){
         @ <h2>Closed Branches:</h2>
       }else{
         @ <h2>Open Branches:</h2>
@@ -330,8 +344,12 @@ void brlist_page(void){
       @ <ul>
       cnt++;
     }
-    if( g.okHistory ){
-      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a></li>
+    if( colorTest ){
+      const char *zColor = hash_color(zBr);
+      @ <li><span style="background-color: %s(zColor)">
+      @ %h(zBr) &rarr; %s(zColor)</span></li>
+    }else if( g.okHistory ){
+      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }
