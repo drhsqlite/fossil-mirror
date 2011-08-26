@@ -8,9 +8,7 @@
 #
 # It also support the 'feature' naming convention, where searching
 # for a feature such as sys/type.h defines HAVE_SYS_TYPES_H
-
-# Note that the hidden options are supported for autoconf compatibility
-
+#
 module-options {
 	host:host-alias =>		{a complete or partial cpu-vendor-opsys for the system where
 							the application will run (defaults to the same value as --build)}
@@ -19,13 +17,19 @@ module-options {
 							result of running config.guess)}
 	prefix:dir =>			{the target directory for the build (defaults to /usr/local)}
 
+	# These (hidden) options are supported for autoconf/automake compatibility
+	exec-prefix:
+	bindir:
+	sbindir:
 	includedir:
 	mandir:
 	infodir:
 	libexecdir:
+	datadir:
+	libdir:
 	sysconfdir:
+	sharedstatedir:
 	localstatedir:
-
 	maintainer-mode=0
 	dependency-tracking=0
 }
@@ -109,6 +113,24 @@ proc write-if-changed {file buf {script {}}} {
 # path to the source directory from the directory where the output
 # file is created. Use @top_srcdir@ for the absolute path.
 #
+# Conditional sections may be specified as follows:
+## @if name == value
+## lines
+## @else
+## lines
+## @endif
+#
+# Where 'name' is a defined variable name and @else is optional.
+# If the expression does not match, all lines through '@endif' are ignored.
+#
+# The alternative forms may also be used:
+## @if name
+## @if name != value
+#
+# Where the first form is true if the variable is defined, but not empty or 0
+#
+# Currently these expressions can't be nested.
+#
 proc make-template {template {out {}}} {
 	set infile [file join $::autosetup(srcdir) $template]
 
@@ -138,7 +160,39 @@ proc make-template {template {out {}}} {
 	foreach {n v} [array get ::define] {
 		lappend mapping @$n@ $v
 	}
-	writefile $out [string map $mapping [readfile $infile]]\n
+	set result {}
+	foreach line [split [readfile $infile] \n] {
+		if {[info exists cond]} {
+			set l [string trimright $line]
+			if {$l eq "@endif"} {
+				unset cond
+				continue
+			}
+			if {$l eq "@else"} {
+				set cond [expr {!$cond}]
+				continue
+			}
+			if {$cond} {
+				lappend result $line
+			}
+			continue
+		}
+		if {[regexp {^@if\s+(\w+)(.*)} $line -> name expression]} {
+			lassign $expression equal value
+			set varval [get-define $name ""]
+			if {$equal eq ""} {
+				set cond [expr {$varval ni {"" 0}}]
+			} else {
+				set cond [expr {$varval eq $value}]
+				if {$equal ne "=="} {
+					set cond [expr {!$cond}]
+				}
+			}
+			continue
+		}
+		lappend result $line
+	}
+	writefile $out [string map $mapping [join $result \n]]\n
 
 	msg-result "Created [relative-path $out] from [relative-path $template]"
 }
@@ -173,19 +227,23 @@ define srcdir $autosetup(srcdir)
 # Allow this to come from the environment
 define top_srcdir [get-env top_srcdir [get-define srcdir]]
 
-# And less common ones too
-define exec_prefix \${prefix}
-define bindir \${exec_prefix}/bin
-define sbindir \${exec_prefix}/sbin
-define libexecdir [get-env libexecdir \${exec_prefix}/libexec]
-define datadir \${prefix}/share
-define sysconfdir [get-env sysconfdir \${prefix}/etc]
-define sharedstatedir \${prefix}/com
-define localstatedir [get-env localstatedir \${prefix}/var]
-define libdir \${exec_prefix}/lib
-define infodir [get-env infodir \${prefix}/share/info]
-define mandir [get-env mandir \${prefix}/share/man]
-define includedir [get-env includdir \${prefix}/include]
+# autoconf supports all of these
+define exec_prefix [opt-val exec-prefix [get-env exec-prefix \${prefix}]]
+foreach {name defpath} {
+	bindir \${exec_prefix}/bin
+	sbindir \${exec_prefix}/sbin
+	libexecdir \${exec_prefix}/libexec
+	libdir \${exec_prefix}/lib
+	datadir \${prefix}/share
+	sysconfdir \${prefix}/etc
+	sharedstatedir \${prefix}/com
+	localstatedir \${prefix}/var
+	infodir \${prefix}/share/info
+	mandir \${prefix}/share/man
+	includedir \${prefix}/include
+} {
+	define $name [opt-val $name [get-env $name $defpath]]
+}
 
 define SHELL [get-env SHELL [find-an-executable sh bash ksh]]
 

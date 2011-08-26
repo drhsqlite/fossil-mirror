@@ -1,5 +1,5 @@
-C go\sback\sto\sthe\sold\snumbering\s(ok'd\sdrh).
-D 2011-08-23T18:00:02.692
+C Merge\sthe\sautosetup\supdates\sinto\strunk.
+D 2011-08-26T14:09:02.329
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -31,20 +31,20 @@ F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
 F auto.def a063dae108d9820dacd284987579fb6029e263eb
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
-F autosetup/autosetup 74d88da9da375e18e1d12bc4c746994930256335 x
-F autosetup/cc-lib.tcl 343ec52a479059628bed5f24181977df4cf8f648
-F autosetup/cc-shared.tcl 6ce92ba48532b99b3f63b2add1f40d6512a79c64
-F autosetup/cc.tcl 08471531d6f0ce3d17ed9eba3c2d57f6c81684b7
+F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
+F autosetup/cc-lib.tcl 04de0d845b99346df4f0fa64c986bf7ecd4098ce
+F autosetup/cc-shared.tcl d3070323f791189ca67a216ee1574df8862a3ef3
+F autosetup/cc.tcl ec9a2a0d86634df6c372e4b6e70250ff7def7b38
 F autosetup/config.guess e3eeba8dd66aa41d8a40fb1d60825d9a1a27776e x
 F autosetup/config.sub 32f90ac76aa68c2265471dd377c34f264acaf173 x
 F autosetup/find-tclsh ec171bb9e14adde368dc778ec2f236fd4787bd66 x
 F autosetup/jimsh0.c 34440742f5fbff173a4970e8306f9e04d2d4a110
 F autosetup/local.tcl 472f0cba85bd22276208c4eac87d39a6a6e9273a
-F autosetup/system.tcl a3f6e73177219850cf2f0ebe2ecd162f5e4f8f5d
+F autosetup/system.tcl ed6b97bc52afddd6082c82e576c8ead0fe30936e
 F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
 F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
-F configure 71fb9356da7b727f34fddf1af91e272e79c7e4bd x
+F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
 F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d41074f86294dc96eedc97b8df9b3b3c0eca3089 90e310ebbdef2c15719d8804fdc748514b3b49a2
-R 6ccd5cb043339e81f3b57c7da955340c
-U martin.weber
-Z fb9c7688723f52dc07090fe624336586
+P a87717ad86e83ffbd75ca8ae7e0ee3adc2796b87 4e5dd3536e091e56300e8990074d598f6874ee33
+R 037e56136910d06478e52f2cf5ace0d8
+U drh
+Z 58241f7b8171fe632c37f16d2f81559d
