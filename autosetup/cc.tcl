@@ -418,7 +418,7 @@ proc cc-with {settings args} {
 #
 proc cctest {args} {
 	set src conftest__.c
-	set tmp conftest__.o
+	set tmp conftest__
 
 	# Easiest way to merge in the settings
 	cc-with $args {
@@ -470,6 +470,7 @@ proc cctest {args} {
 	}
 
 	if {!$opts(-link)} {
+		set tmp conftest__.o
 		lappend cmdline -c
 	}
 	lappend cmdline {*}$opts(-cflags)

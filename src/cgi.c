@@ -1155,7 +1155,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   }
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
-    system(zBrowser);
+    if( system(zBrowser)<0 ){
+      fossil_warning("cannot start browser: %s\n", zBrowser);
+    }
   }
   while( 1 ){
     if( nchildren>MAX_PARALLEL ){
@@ -1176,16 +1178,20 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
           if( child>0 ) nchildren++;
           close(connection);
         }else{
+          int nErr = 0, fd;
           close(0);
-          dup(connection);
+          fd = dup(connection);
+          if( fd!=0 ) nErr++;
           close(1);
-          dup(connection);
+          fd = dup(connection);
+          if( fd!=1 ) nErr++;
           if( !g.fHttpTrace && !g.fSqlTrace ){
             close(2);
-            dup(connection);
+            fd = dup(connection);
+            if( fd!=2 ) nErr++;
           }
           close(connection);
-          return 0;
+          return nErr;
         }
       }
     }

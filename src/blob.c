@@ -122,7 +122,7 @@ void isspace_cmd(void){
 */
 static void blob_panic(void){
   static const char zErrMsg[] = "out of memory\n";
-  write(2, zErrMsg, sizeof(zErrMsg)-1);
+  fputs(zErrMsg, stderr);
   fossil_exit(1);
 }
 
