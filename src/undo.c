@@ -89,7 +89,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     free(zFullname);
     db_finalize(&q);
     db_prepare(&q, 
-       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d"
+       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d,"
              " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
        new_exists, new_exe, new_link, zPathname
