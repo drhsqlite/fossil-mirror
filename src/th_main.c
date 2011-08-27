@@ -364,6 +364,9 @@ void Th_FossilInit(void){
     int i;
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
+#ifdef FOSSIL_ENABLE_TCL
+    th_register_tcl(g.interp);            /* Tcl integration commands. */
+#endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);

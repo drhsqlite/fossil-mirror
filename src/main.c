@@ -26,6 +26,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef FOSSIL_ENABLE_TCL
+#include "tcl.h"
+#endif
 
 #if INTERFACE
 
@@ -232,6 +235,10 @@ int main(int argc, char **argv){
   int idx;
   int rc;
   int i;
+
+#ifdef FOSSIL_ENABLE_TCL
+  Tcl_FindExecutable(argv[0]);
+#endif
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   g.now = time(0);
