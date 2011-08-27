@@ -783,7 +783,7 @@ void object_description(
     "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
-    "       b.uuid"
+    "       b.uuid, mlink.mperm"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
@@ -798,6 +798,7 @@ void object_description(
     const char *zCom = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     const char *zVers = db_column_text(&q, 4);
+    int mPerm = db_column_int(&q, 5);
     if( cnt>0 ){
       @ Also file
     }else{
@@ -807,6 +808,11 @@ void object_description(
       @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
     }else{
       @ %h(zName)
+    }
+    if( mPerm==PERM_LNK ){
+      @ (symbolic link)
+    }else if( mPerm==PERM_EXE ){
+      @ (executable)
     }
     @ part of check-in
     hyperlink_to_uuid(zVers);

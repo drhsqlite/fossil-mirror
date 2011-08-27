@@ -1,5 +1,5 @@
-C Changes\sto\sfossil_stat()\sso\sthat\sthe\sbuild\sworks\sfor\smingw.
-D 2011-08-27T18:25:37.237
+C Indicate\swhether\sa\sfile\sartifact\sis\sa\ssymlink\sor\san\sexecutable\sin\sthe\sweb\sinterface.
+D 2011-08-27T20:37:19.435
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -88,7 +88,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 131941f506c089e499a52394aece0358fa1e2c5e
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 38c89838f21b09ca03c981ee23f34f828cbca9ef
-F src/info.c b9714d3051907695656721dbce6a4aa5bc38bccb
+F src/info.c d3eec8d3c23b56a22963537712bbf2e1d9abe0e6
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c db924043b4266db17626bda55c0fe5e85025a6d3
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 4778edd3f2c8e529f940b8bbcbc9431e339af8e6
-R 4d90058ad4a79a036c02f878efc034ae
-U drh
-Z c0220484bd3f1d4fffb139fcbcb98a4c
+P a7e747e58f7a02b2b4faefc2e6c7aee8b189946e
+R ea1af184afafe9a6d531a5469ef771f7
+U dmitry
+Z ef6d8beb52c55e3885cb4665ef0be0b3
