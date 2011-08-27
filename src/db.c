@@ -788,16 +788,16 @@ static int isValidLocalDb(const char *zDbName){
   if( !db_local_column_exists("vfile", "islink") )
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
   
-  if( db_local_table_exists("stashfile") && 
-      !db_local_column_exists("stashfile", "isLink") )
+  if( !db_local_column_exists("stashfile", "isLink") &&
+       db_local_table_exists("stashfile") )
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
 
-  if( db_local_table_exists("undo") &&
-      !db_local_column_exists("undo", "isLink") )
+  if( !db_local_column_exists("undo", "isLink") &&
+       db_local_table_exists("undo") )
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
   
-  if( db_local_table_exists("undo_vfile") && 
-      !db_local_column_exists("undo_vfile", "islink") )
+  if( !db_local_column_exists("undo_vfile", "islink") &&
+       db_local_table_exists("undo_vfile") )
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
 
   return 1;
