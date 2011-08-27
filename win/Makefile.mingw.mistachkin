@@ -398,7 +398,11 @@ test:	$(APPNAME)
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
-EXTRAOBJ =  $(OBJDIR)/sqlite3.o  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(OBJDIR)/th_tcl.o
+EXTRAOBJ =  $(OBJDIR)/sqlite3.o  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o
+
+ifdef FOSSIL_ENABLE_TCL
+EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
+endif
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
@@ -1014,6 +1018,8 @@ $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
 
+ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
+endif
 

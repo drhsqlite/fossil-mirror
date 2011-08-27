@@ -1779,7 +1779,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               32, 0, ""                    },
-  { "tcl",           0,                0, 1, "off"                 },
+  { "tcl",           0,                0, 0, "off"                 },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -1927,6 +1927,12 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
+**
+**    tcl              If enabled, Tcl integration commands will be added to
+**                     the TH1 interpreter, allowing Tcl expressions and
+**                     scripts to be evaluated from TH1.  Additionally, the
+**                     Tcl interpreter will be able to evaluate TH1 expressions
+**                     and scripts.  Default: off.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
