@@ -32,14 +32,12 @@
 ** larger than 2GB.
 */
 #if defined(_WIN32) && defined(__MSVCRT__)
-  static struct _stati64 fileStat;
 # define stat _stati64
-#else
-  static struct stat fileStat;
 #endif
 static int fileStatValid = 0;
+static struct stat fileStat;
 
-int fossil_stat(const char *zFilename, struct stat *buf){
+static int fossil_stat(const char *zFilename, struct stat *buf){
 #if !defined(_WIN32)
   if( g.allowSymlinks ){
     return lstat(zFilename, buf);
