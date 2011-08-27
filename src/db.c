@@ -1779,6 +1779,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               32, 0, ""                    },
+  { "tcl",           0,                0, 1, "off"                 },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
