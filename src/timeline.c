@@ -1261,9 +1261,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
-  zPrevDate[0] = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  zPrevDate[0] = 0;
 
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);

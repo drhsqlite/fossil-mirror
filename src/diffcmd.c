@@ -289,13 +289,13 @@ static void diff_all_against_disk(
       if( !asNewFile ){ showDiff = 0; }
     }
     if( showDiff ){
+      Blob content;
       if( !isLink != !file_islink(zFullName) ){
         diff_print_index(zPathname);
         diff_printf("--- %s\n+++ %s\n", zPathname, zPathname);
         diff_printf("cannot compute difference between symlink and regular file\n");
         continue;
       }
-      Blob content;
       if( srcid>0 ){
         content_get(srcid, &content);
       }else{
