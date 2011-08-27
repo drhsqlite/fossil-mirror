@@ -86,7 +86,6 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   );
   while( db_step(&q)==SQLITE_ROW ){
     int deleted = db_column_int(&q, 0);
-    //int isLink = db_column_int(&q, 2);
     int rid = db_column_int(&q, 3);
     const char *zName = db_column_text(&q, 4);
     const char *zOrig = db_column_text(&q, 5);
@@ -98,7 +97,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     db_bind_int(&ins, ":isadd", rid==0);
     db_bind_int(&ins, ":isrm", deleted);
     db_bind_int(&ins, ":isexe", db_column_int(&q, 1));
-    //db_bind_int(&ins, ":islink", isLink); //TODO(dchest) what's that?
+    db_bind_int(&ins, ":islink", db_column_int(&q, 2));
     db_bind_text(&ins, ":orig", zOrig);
     db_bind_text(&ins, ":new", zName);
 
@@ -201,7 +200,7 @@ static void stash_apply(int stashid, int nConflict){
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_setexe(zNPath, isExec);
       fossil_print("ADD %s\n", zNew);
@@ -211,7 +210,7 @@ static void stash_apply(int stashid, int nConflict){
     }else{
       Blob a, b, out, disk;
       int isNewLink = file_islink(zOPath);
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       if( isNewLink ){
         blob_read_link(&disk, zOPath);
       }else{
@@ -287,7 +286,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob delta;
     if( rid==0 ){
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew);
       diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
@@ -303,7 +302,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
     }else{
       Blob a, b, disk;
       int isOrigLink = file_islink(zOPath);
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       if( isOrigLink ){
         blob_read_link(&disk, zOPath);
       }else{

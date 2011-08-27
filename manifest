@@ -1,5 +1,5 @@
-C Reverse\sthe\sorder\sof\scolumn/table\sexistence\schecking\sto\smake\svalidation\sof\salready\supdated\slocal\sdatabase\sfaster.
-D 2011-08-27T01:21:42.913
+C Fix\sreading\sdelta\sfrom\swrong\scolumn\sin\sstash.
+D 2011-08-27T09:44:28.981
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c b09e1018debfb9a2b8fd77c3f3f20812ef8aea05
 F src/sqlite3.h 092c902e18b32924ceade5749e6b9d104f7db9fa
-F src/stash.c fa9bde94a18dcb6c76eb5f90b18fec1469f2e1b5
+F src/stash.c 169edd677fd5fb5291c9e8266784e64c7c77bbbe
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 44e673f5e992c6793b9816f11ed8bc1ca6296a63
-R 07a03bbe737f92e99527af95395bd184
+P 8c0f4bc718cb0c6cc4526958a201bbcbbc719e33
+R 1ca6594b4cd0066ec5037188fbf3eaf3
 U dmitry
-Z 50732fc1a4c111b212ee7ed9c0fb6c84
+Z 896fe6b7f3c7efccb5f4c64d639c44b9
