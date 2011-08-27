@@ -1,5 +1,5 @@
-C Initial\scode\sto\ssupport\sTH1/Tcl\sintegration.
-D 2011-08-27T14:42:53.939
+C Add\sability\sto\sevaluate\sTcl\sexpressions\sfrom\sTH1.\s\sAdd\sability\sto\sinvoke\sTcl\scommands\sfrom\sTH1.\s\sAdd\sthe\sability\sto\sevaluate\sTH1\sscripts\sand\sexpressions\sfrom\sTcl.
+D 2011-08-27T16:26:18.214
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h 56f0a129ad5979e34a4efbcbb45f21732cbb5cb2
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c bfde29fa0df77bf6f50baf845671b39f0ed458a0
-F src/th_tcl.c 22de1fd7e1410871d569d5afabc99fbe9d974c5e
+F src/th_tcl.c 0d4c0626063f1ef7d4b074c554884db642ce7037
 F src/timeline.c 3f877bd50063693e10ecb6939df367c5b2846850
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
@@ -327,10 +327,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d0daac20dae97980a27b80f6c79618ad5a5153e7 6652dd1c1753779b9ec447b7772154a3c3b93a71
-R 3220dd8afb305cf45dc3e9088d5d772a
-T *branch * tcl-integration
-T *sym-tcl-integration *
-T -sym-trunk *
+P f723647710ef07cc111570084a6a2f28422fa152
+R ccef415d0196c820905650a4a8a6be96
 U mistachkin
-Z df5b1ad136161d6d74630b837f0f37c1
+Z 15e834af74f575d5f5e5bcd56c073fe9
