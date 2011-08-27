@@ -1,5 +1,5 @@
-C Add\sthe\scolortest\squery\sparameter\sto\sthe\sbrlist\swebpage.
-D 2011-08-26T14:49:44.681
+C Fix\sthe\stimeline.c\smodule\sto\sbe\sC89-compliant.\s\sMSVC\sneeds\sthis.
+D 2011-08-27T17:53:16.945
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 3f877bd50063693e10ecb6939df367c5b2846850
+F src/timeline.c 97aba16606f4196d73bf2d32c0535ad5f1089f58
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 130b8f77ff5856259fc1caa926f1344dfb86e022
-R 7a58b3c647fb87f53f58c3be4c013679
+P d0daac20dae97980a27b80f6c79618ad5a5153e7
+R f6c3067a4650c251986fb6e52c8dfd4c
 U drh
-Z d71c6db82b9cae64f6c721dfae68d0fd
+Z c256bd8f986a4f849dc9992d62f55fc6
