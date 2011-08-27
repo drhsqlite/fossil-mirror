@@ -738,6 +738,25 @@ void db_open_config(int useAttach){
   free(zDbName);
 }
 
+
+/*
+ * * Returns TRUE if zTable exists in the local database.
+ */
+static int db_local_table_exists(const char *zTable){
+  return db_exists("SELECT 1 FROM %s.sqlite_master"
+                   " WHERE name=='%s'",
+                   db_name("localdb"), zTable);
+}
+
+/*
+** Returns TRUE if zColumn exists in zTable in the local database.
+*/
+static int db_local_column_exists(const char *zTable, const char *zColumn){
+  return db_exists("SELECT 1 FROM %s.sqlite_master"
+                   " WHERE name=='%s' AND sql GLOB '* %s *'",
+                   db_name("localdb"), zTable, zColumn);
+}
+
 /*
 ** If zDbName is a valid local database file, open it and return
 ** true.  If it is not a valid local database file, return 0.
@@ -759,23 +778,27 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  rc = db_exists("SELECT 1 FROM %s.sqlite_master"
-                 " WHERE name=='vfile' AND sql GLOB '* isexe *'",
-                 db_name("localdb"));
-  if( rc==0 ){
+  if( !db_local_column_exists("vfile", "isexe") )
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
-  }
 
-  /* If the "islink" column is missing from the vfile table, then
-  ** add it now.   This code added on 2011-01-17.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  /* If "islink"/"isLink" columns are missing from tables, then
+  ** add them now.   This code added on 2011-01-17 and 2011-08-27.
+  ** After all users have upgraded, this code can be safely deleted. 
   */
-  rc = db_exists("SELECT 1 FROM %s.sqlite_master"
-                 " WHERE name=='vfile' AND sql GLOB '* islink *'",
-                 db_name("localdb"));
-  if( rc==0 ){
+  if( !db_local_column_exists("vfile", "islink") )
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-  }
+  
+  if( db_local_table_exists("stashfile") && 
+      !db_local_column_exists("stashfile", "isLink") )
+    db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
+
+  if( db_local_table_exists("undo") &&
+      !db_local_column_exists("undo", "isLink") )
+    db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  
+  if( db_local_table_exists("undo_vfile") && 
+      !db_local_column_exists("undo_vfile", "islink") )
+    db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
 
   return 1;
 }
