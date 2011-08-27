@@ -1428,7 +1428,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   }
   /* Attempt to read value from file in checkout if there wasn't a cache hit
   ** and a checkout is open. */
-  if( cacheEntry==0 && db_open_local() ){
+  if( cacheEntry==0 ){
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
@@ -1502,7 +1502,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
     /* This is a versionable setting, try and get the info from a checked out file */
     z = db_get_do_versionable(zName, z);
   }
