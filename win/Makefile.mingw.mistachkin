@@ -63,7 +63,7 @@ endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
-TCC += -static -DFOSSIL_ENABLE_SSL=1
+TCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
 # With Tcl support
@@ -77,7 +77,8 @@ endif
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-#LIB = -lz -lws2_32
+LIB = -static
+
 # OpenSSL:
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32

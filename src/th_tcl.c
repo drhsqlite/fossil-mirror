@@ -110,8 +110,8 @@ static int tclExpr_command(
     ckfree((char *)objv);
   }
   zResult = Tcl_GetStringFromObj(resultObjPtr, &nResult);
-  Tcl_DecrRefCount(resultObjPtr);
   Th_SetResult(interp, zResult, nResult);
+  Tcl_DecrRefCount(resultObjPtr);
   return rc;
 }
 
@@ -163,8 +163,8 @@ static int tclInvoke_command(
   ckfree((char *)objv);
   objPtr = Tcl_GetObjResult(tclInterp);
   zResult = Tcl_GetStringFromObj(objPtr, &nResult);
-  Tcl_Release((ClientData)tclInterp);
   Th_SetResult(interp, zResult, nResult);
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
