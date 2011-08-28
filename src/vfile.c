@@ -275,11 +275,11 @@ void vfile_to_disk(
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
     if( file_isdir(zName) == 1 ){
-      //TODO remove directories?
+      /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }    
     if( file_size(zName)>=0 && (isLink || file_islink(zName)) ){
-      unlink(zName); //TODO(dchest) check this
+      file_delete(zName);
     }
     if( isLink ){
       create_symlink(blob_str(&content), zName);
