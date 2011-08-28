@@ -365,7 +365,7 @@ void Th_FossilInit(void){
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
-    if( db_get_boolean("tcl", 0) ){
+    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
       th_register_tcl(g.interp);          /* Tcl integration commands. */
     }
 #endif
@@ -536,6 +536,7 @@ void test_th_render(void){
   if( g.argc<3 ){
     usage("FILE");
   }
+  db_open_config(0); /* Needed for "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));

@@ -43,7 +43,7 @@ OPENSSLDIR = $(SRCDIR)/../openssl-1.0.0d
 #
 TCLDIR = $(SRCDIR)/../tcl-8.6
 
-#### C Compile and options for use in building executables that 
+#### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used
@@ -83,6 +83,7 @@ LIB = -static
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
+
 LIB += -lmingwex -lz -lws2_32
 
 ifdef FOSSIL_ENABLE_TCL
@@ -411,14 +412,14 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
 # Requires msys to be installed in addition to the mingw, for the "rm"
 # command.  "del" will not work here because it is not a separate command
 # but a MSDOS-shell builtin.
 #
-clean:	
+clean:
 	rm -rf $(OBJDIR) $(APPNAME)
 
 setup: $(OBJDIR) $(APPNAME)
