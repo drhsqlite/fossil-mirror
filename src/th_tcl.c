@@ -7,6 +7,48 @@
 #include "tcl.h"
 
 /*
+** These macros are designed to reduce the redundant code required to marshal
+** arguments from TH1 to Tcl.
+ */
+#define USE_ARGV_TO_OBJV() \
+  int objc;                \
+  Tcl_Obj **objv;          \
+  int i;
+
+#define COPY_ARGV_TO_OBJV()                                         \
+  objc = argc-1;                                                    \
+  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
+  for(i=1; i<argc; i++){                                            \
+    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);                 \
+    Tcl_IncrRefCount(objv[i-1]);                                    \
+  }
+
+#define FREE_ARGV_TO_OBJV()      \
+  for(i=1; i<argc; i++){         \
+    Tcl_DecrRefCount(objv[i-1]); \
+  }                              \
+  ckfree((char *)objv);
+
+/*
+** Returns the Tcl interpreter result as a string with the associated length.
+** If the Tcl interpreter or the Tcl result are NULL, the length will be 0.
+** If the length pointer is NULL, the length will not be stored.
+ */
+static char *getTclResult(Tcl_Interp *pInterp, int *pN){
+  Tcl_Obj *resultPtr;
+  if( !pInterp ){ /* This should not happen. */
+    if( pN ) *pN = 0;
+    return 0;
+  }
+  resultPtr = Tcl_GetObjResult(pInterp);
+  if( !resultPtr ){ /* This should not happen either? */
+    if( pN ) *pN = 0;
+    return 0;
+  }
+  return Tcl_GetStringFromObj(resultPtr, pN);
+}
+
+/*
 ** Syntax:
 **
 **   tclEval arg ?arg ...?
@@ -28,35 +70,28 @@ static int tclEval_command(
     return Th_WrongNumArgs(interp, "tclEval arg ?arg ...?");
   }
   tclInterp = (Tcl_Interp *)ctx;
-  if( !tclInterp ){
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
+  Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr);
   }else{
-    int objc = argc-1;
-    Tcl_Obj **objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));
-    int i;
-    for(i=1; i<argc; i++){
-      objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);
-      Tcl_IncrRefCount(objv[i-1]);
-    }
+    USE_ARGV_TO_OBJV();
+    COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr);
-    for(i=1; i<argc; i++){
-      Tcl_DecrRefCount(objv[i-1]);
-    }
-    ckfree((char *)objv);
+    FREE_ARGV_TO_OBJV();
   }
-  objPtr = Tcl_GetObjResult(tclInterp);
-  zResult = Tcl_GetStringFromObj(objPtr, &nResult);
+  zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
@@ -83,35 +118,33 @@ static int tclExpr_command(
     return Th_WrongNumArgs(interp, "tclExpr arg ?arg ...?");
   }
   tclInterp = (Tcl_Interp *)ctx;
-  if( !tclInterp ){
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
+  Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
     objPtr = Tcl_NewStringObj(argv[1], argl[1]);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr);
   }else{
-    int objc = argc-1;
-    Tcl_Obj **objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));
-    int i;
-    for(i=1; i<argc; i++){
-      objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);
-      Tcl_IncrRefCount(objv[i-1]);
-    }
+    USE_ARGV_TO_OBJV();
+    COPY_ARGV_TO_OBJV();
     objPtr = Tcl_ConcatObj(objc, objv);
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr);
-    for(i=1; i<argc; i++){
-      Tcl_DecrRefCount(objv[i-1]);
-    }
-    ckfree((char *)objv);
+    FREE_ARGV_TO_OBJV();
   }
-  zResult = Tcl_GetStringFromObj(resultObjPtr, &nResult);
+  if( rc==TCL_OK ){
+    zResult = Tcl_GetStringFromObj(resultObjPtr, &nResult);
+  }else{
+    zResult = getTclResult(tclInterp, &nResult);
+  }
   Th_SetResult(interp, zResult, nResult);
-  Tcl_DecrRefCount(resultObjPtr);
+  if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
+  Tcl_Release((ClientData)tclInterp);
   return rc;
 }
 
@@ -128,42 +161,38 @@ static int tclInvoke_command(
   int *argl
 ){
   Tcl_Interp *tclInterp;
+  Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
-  int objc;
-  Tcl_Obj **objv;
-  int i;
   int rc;
   int nResult;
   const char *zResult;
   Tcl_Obj *objPtr;
+  USE_ARGV_TO_OBJV();
 
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "tclInvoke command ?arg ...?");
   }
   tclInterp = (Tcl_Interp *)ctx;
-  if( !tclInterp ){
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
-  if (Tcl_GetCommandInfo(tclInterp, argv[1], &cmdInfo) == 0){
+  Tcl_Preserve((ClientData)tclInterp);
+  objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+  Tcl_IncrRefCount(objPtr);
+  command = Tcl_GetCommandFromObj(tclInterp, objPtr);
+  if( !command || Tcl_GetCommandInfoFromToken(command,&cmdInfo)==0 ){
     Th_ErrorMessage(interp, "Tcl command not found:", argv[1], argl[1]);
+    Tcl_DecrRefCount(objPtr);
+    Tcl_Release((ClientData)tclInterp);
     return TH_ERROR;
   }
-  objc = argc-1;
-  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));
-  for(i=1; i<argc; i++){
-    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);
-    Tcl_IncrRefCount(objv[i-1]);
-  }
-  Tcl_Preserve((ClientData)tclInterp);
+  Tcl_DecrRefCount(objPtr);
+  COPY_ARGV_TO_OBJV();
   Tcl_ResetResult(tclInterp);
   rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
-  for(i=1; i<argc; i++){
-    Tcl_DecrRefCount(objv[i-1]);
-  }
-  ckfree((char *)objv);
-  objPtr = Tcl_GetObjResult(tclInterp);
-  zResult = Tcl_GetStringFromObj(objPtr, &nResult);
+  FREE_ARGV_TO_OBJV();
+  zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
   return rc;
@@ -256,7 +285,7 @@ static void Th1DeleteProc(
 ){
   int i;
   Th_Interp *th1Interp = (Th_Interp *)clientData;
-  if ( !th1Interp ) return;
+  if( !th1Interp ) return;
   /* Remove the Tcl integration commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     Th_RenameCommand(th1Interp, aCommand[i].zName, -1, NULL, 0);
@@ -271,7 +300,7 @@ int th_register_tcl(Th_Interp *interp){
   int i;
   Tcl_Interp *tclInterp = Tcl_CreateInterp();
 
-  if( !tclInterp ){
+  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "Could not create Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
@@ -282,10 +311,11 @@ int th_register_tcl(Th_Interp *interp){
     Tcl_DeleteInterp(tclInterp);
     return TH_ERROR;
   }
+  /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
-  /* Add the Tcl integration commands. */
+  /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     void *ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */

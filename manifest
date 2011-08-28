@@ -1,5 +1,5 @@
-C Reset\sresult\sprior\sto\sdirect\sTcl\sinvocation.\s\sCast\sall\sckalloc\sreturn\svalues.\s\sMake\ssure\sthe\sglobal\sconfig\sdatabase\sis\sopen\sfor\sthe\s'test_th_render'\scommand.\s\sAllow\sthe\s'tcl'\ssetting\sto\sbe\senabled\svia\sthe\senvironment.
-D 2011-08-28T06:54:37.213
+C Use\smacros\sto\stidy\sup\sTH1\sto\sTcl\sargument\smarshalling.\s\sUse\sthe\sTcl\sinterp\sresult\swhen\sTcl_ExprObj\sdoes\snot\sreturn\sok.\s\sCheck\sfor\sTcl\sinterp\sdeletion.\s\sThe\sTH1\s'puts'\scommand\sshould\sflush\swhen\swriting\sto\sstdout.\s\sAdd\s'repository'\sTH1\scommand.\s\sUse\sobj\sAPI\sto\sget\sTcl\scmdInfo.\s\sAdd\stests\sfor\sTcl\sintegration.
+D 2011-08-28T23:45:18.927
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -130,8 +130,8 @@ F src/tar.c e68544809d1358e3970409e3e4e7a2be3227f2c5
 F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h 56f0a129ad5979e34a4efbcbb45f21732cbb5cb2
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c 46a4a2903e7575d6627f3a199b25dfa39a576cc0
-F src/th_tcl.c 366abc23d6dfa2472bff4e003c067607eb9a45e0
+F src/th_main.c 21d700da9bdb55cff784bf7b827dad5ad4133293
+F src/th_tcl.c 05ac892c3ec1860228c36c873e03c0b1942ba3e9
 F src/timeline.c 97aba16606f4196d73bf2d32c0535ad5f1089f58
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
@@ -158,6 +158,14 @@ F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
+F test/th1-tcl.test 79ff31b44e744ecfb8edda8fa1241ac1958a44b9
+F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
+F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
+F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
+F test/th1-tcl4.txt 655d0d0f27a32dc058b15f0e89b739aeb6f50a9f
+F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
+F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
+F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -327,7 +335,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0299d484fc77aafad74837a5f15a4ff43b848bef
-R 3dfd372c8955ed33991c4b0b76e355fa
+P 5cc15d08900cd34eba9dc5a9fad0891e692036aa
+R 69686b9921b766693c4b0920a5494f72
 U mistachkin
-Z e4ca9c999f8b6f1d8579a36c9d33b273
+Z 868c4a4a725bd893f1de86215111d09c

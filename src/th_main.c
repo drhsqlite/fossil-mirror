@@ -95,6 +95,7 @@ static void sendText(const char *z, int n, int encode){
       cgi_append_content(z, n);
     }else{
       fwrite(z, 1, n, stdout);
+      fflush(stdout);
     }
     if( encode ) free((char*)z);
   }
@@ -338,6 +339,35 @@ static int linecntCmd(
 }
 
 /*
+** TH1 command:     repository ?BOOLEAN?
+**
+** Return the fully qualified file name of the open repository or an empty
+** string if one is not currently open.  Optionally, it will attempt to open
+** the repository if the boolean argument is non-zero.
+*/
+static int repositoryCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int openRepository;
+
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
+      return TH_ERROR;
+    }
+    if( openRepository ) db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+  }
+  Th_SetResult(interp, g.zRepositoryName, -1);
+  return TH_OK;
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -359,6 +389,7 @@ void Th_FossilInit(void){
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
+    {"repository",    repositoryCmd,        0},
   };
   if( g.interp==0 ){
     int i;

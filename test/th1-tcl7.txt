@@ -1,0 +1,19 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  proc doOut {msg} {puts $msg; puts \n}
+
+  #
+  # BUGBUG: Attempting to divide by zero will crash TH1 with the error:
+  #         "child killed: floating-point exception"
+  #
+  # doOut [tclEval th1Expr 2/0]
+
+  #
+  # NOTE: For now, just cause an expression syntax error.
+  #
+  doOut [tclEval th1Expr 2**0]
+</th1>
