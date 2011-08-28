@@ -713,7 +713,6 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
 ** On windows, zeros blob and returns 0.
 */
 int blob_read_link(Blob *pBlob, const char *zFilename){
-  blob_zero(pBlob);
 #if !defined(_WIN32)
   char zBuf[1024];
   ssize_t len = readlink(zFilename, zBuf, 1023);
@@ -721,9 +720,11 @@ int blob_read_link(Blob *pBlob, const char *zFilename){
     fossil_panic("cannot read symbolic link %s", zFilename);
   }
   zBuf[len] = 0;   /* null-terminate */
+  blob_zero(pBlob);
   blob_appendf(pBlob, "%s", zBuf);
   return len;
 #else
+  blob_zero(pBlob);
   return 0;
 #endif
 }
