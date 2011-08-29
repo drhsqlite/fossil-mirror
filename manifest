@@ -1,5 +1,5 @@
-C Add\stest\sto\sverify\sbehavior\sfor\smissing\sobjProcs.\s\sAlso,\smake\ssure\sTcl\sintegration\sis\senabled\sfor\sthe\stests.
-D 2011-08-29T01:19:38.787
+C Add\sworkaround\sfor\sbug\sin\sTcl_EvalObjCmd\swhen\scompiled\sagainst\sTcl\s8.6.
+D 2011-08-29T09:27:06.612
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h 56f0a129ad5979e34a4efbcbb45f21732cbb5cb2
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 21d700da9bdb55cff784bf7b827dad5ad4133293
-F src/th_tcl.c b706105de76beeae3dbbfd708931af40f14496a5
+F src/th_tcl.c 3b29810eb8e94deeb405809bd0762bce07aeaf2e
 F src/timeline.c 97aba16606f4196d73bf2d32c0535ad5f1089f58
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
@@ -336,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 8f6a03f7d18783a83192fb4e7f5c217b58ed5655
-R c9899739f99533c9bf68a0dc789a6458
+P cba0f25bf2996f9ee6557dfc0ca7bafa9d0c2121
+R 322e9bc1aa9a5b09e7c6bfe3beee8cd3
 U mistachkin
-Z 1abe14391c52fb6f53dab77c576ffb61
+Z 0d1cf746f01b351945974766a11c4e26

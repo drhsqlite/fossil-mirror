@@ -7,6 +7,18 @@
 #include "tcl.h"
 
 /*
+** Are we being compiled against Tcl 8.6 or higher?
+ */
+#if (TCL_MAJOR_VERSION > 8) || \
+    ((TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 6))
+/*
+** Workaround NRE-specific issue in Tcl_EvalObjCmd (SF bug #3399564) by using
+** Tcl_EvalObjv instead of invoking the objProc directly.
+ */
+#define USE_TCL_EVALOBJV   1
+#endif
+
+/*
 ** These macros are designed to reduce the redundant code required to marshal
 ** arguments from TH1 to Tcl.
  */
@@ -161,12 +173,16 @@ static int tclInvoke_command(
   int *argl
 ){
   Tcl_Interp *tclInterp;
+#ifndef USE_TCL_EVALOBJV
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
+#endif
   int rc;
   int nResult;
   const char *zResult;
+#ifndef USE_TCL_EVALOBJV
   Tcl_Obj *objPtr;
+#endif
   USE_ARGV_TO_OBJV();
 
   if( argc<2 ){
@@ -178,6 +194,7 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_Preserve((ClientData)tclInterp);
+#ifndef USE_TCL_EVALOBJV
   objPtr = Tcl_NewStringObj(argv[1], argl[1]);
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
@@ -194,9 +211,14 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_DecrRefCount(objPtr);
+#endif
   COPY_ARGV_TO_OBJV();
+#ifdef USE_TCL_EVALOBJV
+  rc = Tcl_EvalObjv(tclInterp, objc, objv, 0);
+#else
   Tcl_ResetResult(tclInterp);
   rc = cmdInfo.objProc(cmdInfo.objClientData, tclInterp, objc, objv);
+#endif
   FREE_ARGV_TO_OBJV();
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
@@ -215,7 +237,7 @@ static int Th1EvalObjCmd(
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Th_Interp *th1Interp = (Th_Interp *)clientData;
+  Th_Interp *th1Interp;
   int nArg;
   const char *arg;
   int rc;
@@ -224,6 +246,7 @@ static int Th1EvalObjCmd(
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
+  th1Interp = (Th_Interp *)clientData;
   if( !th1Interp ){
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
@@ -246,7 +269,7 @@ static int Th1ExprObjCmd(
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Th_Interp *th1Interp = (Th_Interp *)clientData;
+  Th_Interp *th1Interp;
   int nArg;
   const char *arg;
   int rc;
@@ -255,6 +278,7 @@ static int Th1ExprObjCmd(
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
+  th1Interp = (Th_Interp *)clientData;
   if( !th1Interp ){
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
