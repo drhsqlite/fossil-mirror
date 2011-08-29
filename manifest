@@ -1,5 +1,5 @@
-C Versionable\ssettings\sare\sonly\sattempt\sis\sthe\slocal\s_FOSSIL_\sdatabase\sis\nalready\sopened.\s\sVersionable\ssettings\sno\slonger\sattempts\sto\sopen\sthat\ndatabase\sitself.\s\sThis\sfixes\san\sissue\swith\sthe\sAdmin/Settings\spage.
-D 2011-08-27T18:05:58.815
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.8\salpha\sversion.
+D 2011-08-29T13:24:14.727
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -119,8 +119,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c b09e1018debfb9a2b8fd77c3f3f20812ef8aea05
-F src/sqlite3.h 092c902e18b32924ceade5749e6b9d104f7db9fa
+F src/sqlite3.c d79f1dec6f14f59ba317928041a620e342baaf78
+F src/sqlite3.h eaa02deb90dae019d8c22a807704ae1e94e001bc
 F src/stash.c a2b7fa2b833ed9cc8ffe34c285c7d549de31c915
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 8a5f2a7a3a3fded92c151fcd3b1579fd91eb4e0d
-R 04606784a33b30091ca5acca8566770d
+P a2cc6bc6dc50a9d6aec8050d25d7ef0188a64f0f
+R 501d2736cfa404bd315e8da802da45b0
 U drh
-Z ec7f9d8481d396554c6a1660050eebc3
+Z 63aae7111ae8b8a6bdeacc546913af96
