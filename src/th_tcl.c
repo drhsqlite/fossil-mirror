@@ -46,7 +46,10 @@
 ** If the Tcl interpreter or the Tcl result are NULL, the length will be 0.
 ** If the length pointer is NULL, the length will not be stored.
  */
-static char *getTclResult(Tcl_Interp *pInterp, int *pN){
+static char *getTclResult(
+  Tcl_Interp *pInterp,
+  int *pN
+){
   Tcl_Obj *resultPtr;
   if( !pInterp ){ /* This should not happen. */
     if( pN ) *pN = 0;
