@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.8\salpha\sversion.
-D 2011-08-29T13:24:14.727
+C Remove\sunused\svariables\sfrom\stimeline.c.\s\sLike\s[b76ce3d5f1c329]\sbut\somits\nthe\schange\sto\sth_tcl.c.
+D 2011-08-29T13:35:41.219
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 97aba16606f4196d73bf2d32c0535ad5f1089f58
+F src/timeline.c c32660ab43f6abdb7bfa9f0153a0f76aec22e0e7
 F src/tkt.c af9d5ea62c5d46c4e31c26e32a9fd69d9630c67a
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a2cc6bc6dc50a9d6aec8050d25d7ef0188a64f0f
-R 501d2736cfa404bd315e8da802da45b0
+P 35474aff2f38ccd25242d1b875fdb50151d1c82e
+R d7cdc3c14fe779ef7ffe82235b0cf4ca
 U drh
-Z 63aae7111ae8b8a6bdeacc546913af96
+Z 04655ce8e9e09c097ec8b26b48f3ebb1
