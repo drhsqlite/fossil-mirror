@@ -187,6 +187,12 @@ static int tclInvoke_command(
     Tcl_Release((ClientData)tclInterp);
     return TH_ERROR;
   }
+  if( !cmdInfo.objProc ){
+    Th_ErrorMessage(interp, "Cannot invoke Tcl command:", argv[1], argl[1]);
+    Tcl_DecrRefCount(objPtr);
+    Tcl_Release((ClientData)tclInterp);
+    return TH_ERROR;
+  }
   Tcl_DecrRefCount(objPtr);
   COPY_ARGV_TO_OBJV();
   Tcl_ResetResult(tclInterp);
