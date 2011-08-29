@@ -22,6 +22,10 @@ set dir [file dirname [info script]]
 
 ###############################################################################
 
+set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
+
+###############################################################################
+
 fossil test-th-render [file nativename [file join $dir th1-tcl1.txt]]
 
 test th1-tcl-1 {[regexp -- {^\d+
@@ -85,3 +89,11 @@ fossil test-th-render [file nativename [file join $dir th1-tcl7.txt]]
 
 test th1-tcl-7 {$RESULT eq {<hr><p class="thmainError">ERROR:\
 syntax error in expression: &quot;2**0&quot;</p>}}
+
+###############################################################################
+
+fossil test-th-render [file nativename [file join $dir th1-tcl8.txt]]
+
+test th1-tcl-8 {$RESULT eq {<hr><p class="thmainError">ERROR:\
+Cannot invoke Tcl command: tailcall</p>}}
+

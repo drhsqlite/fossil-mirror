@@ -1,5 +1,5 @@
-C Protect\sagainst\sTcl\scommands\swith\sno\sobjProc.
-D 2011-08-29T00:54:58.409
+C Add\stest\sto\sverify\sbehavior\sfor\smissing\sobjProcs.\s\sAlso,\smake\ssure\sTcl\sintegration\sis\senabled\sfor\sthe\stests.
+D 2011-08-29T01:19:38.787
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -158,7 +158,7 @@ F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-tcl.test 79ff31b44e744ecfb8edda8fa1241ac1958a44b9
+F test/th1-tcl.test 09e3114afbdec583a211dc9a773651273cd84deb
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
 F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -166,6 +166,7 @@ F test/th1-tcl4.txt 655d0d0f27a32dc058b15f0e89b739aeb6f50a9f
 F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
 F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
+F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -335,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 10f13bc5abbc23d94893f5456c0c98ab896b42d8
-R aa6c81545269eaff56e2db0fab05f7df
+P 8f6a03f7d18783a83192fb4e7f5c217b58ed5655
+R c9899739f99533c9bf68a0dc789a6458
 U mistachkin
-Z 995669570d56106f47e1142c66d55d51
+Z 1abe14391c52fb6f53dab77c576ffb61
