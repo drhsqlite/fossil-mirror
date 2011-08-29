@@ -38,7 +38,8 @@ ZLIBDIR = $(SRCDIR)/../zlib-1.2.5
 #
 OPENSSLDIR = $(SRCDIR)/../openssl-1.0.0d
 
-#### The directory where the Tcl library source code is located.
+#### The directory where the Tcl library is installed.  This directory
+#    must have "include" and "lib" sub-directories.
 #
 #
 TCLDIR = $(SRCDIR)/../tcl-8.6
