@@ -103,7 +103,7 @@ static void initializeVariablesFromDb(void){
   int i, n, size, j;
 
   zName = PD("name","-none-");
-  db_prepare(&q, "SELECT datetime(tkt_mtime) AS tkt_datetime, *"
+  db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
   if( db_step(&q)==SQLITE_ROW ){
     n = db_column_count(&q);
