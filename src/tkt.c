@@ -901,6 +901,10 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 **         like set, but create a new ticket with the given values.
 **
+**     %fossil ticket history TICKETUUID
+**
+**         Show the complete change history for the ticket
+**
 ** The values in set|add are not validated against the definitions
 ** given in "Ticket Common Script".
 */
@@ -918,12 +922,12 @@ void ticket_cmd(void){
   }
 
   if( g.argc<3 ){
-    usage("add|fieldlist|set|show");
+    usage("add|fieldlist|set|show|history");
   }else{
     n = strlen(g.argv[2]);
     if( n==1 && g.argv[2][0]=='s' ){
       /* set/show cannot be distinguished, so show the usage */
-      usage("add|fieldlist|set|show");
+      usage("add|fieldlist|set|show|history");
     }else if( strncmp(g.argv[2],"list",n)==0 ){
       if( g.argc==3 ){
         usage("list fields|reports");
@@ -972,15 +976,20 @@ void ticket_cmd(void){
         }
       }else{
         /* add a new ticket or update an existing ticket */
-        enum { set,add,err } eCmd = err;
+        enum { set,add,history,err } eCmd = err;
         int i = 0;
         int rid;
         const char *zTktUuid = 0;
         Blob tktchng, cksum;
 
         /* get command type (set/add) and get uuid, if needed for set */
-        if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ){
-          eCmd = set;
+        if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ||
+           strncmp(g.argv[2],"history",n)==0 ){
+          if( strncmp(g.argv[2],"history",n)==0 ){
+            eCmd = history;
+          }else{
+            eCmd = set;
+          }
           if( g.argc==3 ){
             usage("set TICKETUUID");
           }
@@ -998,9 +1007,80 @@ void ticket_cmd(void){
         }
         /* none of set/add, so show the usage! */
         if( eCmd==err ){
-          usage("add|fieldlist|set|show");
+          usage("add|fieldlist|set|show|history");
         }
-        
+
+        /* we just handle history separately here, does not get out */
+        if( eCmd==history ){
+          Stmt q;
+          char *zTitle;
+          int tagid;
+
+          if ( i != g.argc ){
+            fossil_fatal("no other parameters expected to %s!",g.argv[2]);
+          }
+          tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zTktUuid);
+          if( tagid==0 ){
+            fossil_fatal("no such ticket %h", zTktUuid);
+          }  
+          db_prepare(&q,
+            "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+            "  FROM event, blob"
+            " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
+            "   AND blob.rid=event.objid"
+            " UNION "
+            "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+            "  FROM attachment, blob"
+            " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
+            "   AND blob.rid=attachid"
+            " ORDER BY 1 DESC",
+            tagid, tagid
+          );
+          while( db_step(&q)==SQLITE_ROW ){
+            Manifest *pTicket;
+            char zShort[12];
+            const char *zDate = db_column_text(&q, 0);
+            int rid = db_column_int(&q, 1);
+            const char *zChngUuid = db_column_text(&q, 2);
+            const char *zFile = db_column_text(&q, 4);
+            memcpy(zShort, zChngUuid, 10);
+            zShort[10] = 0;
+            if( zFile!=0 ){
+              const char *zSrc = db_column_text(&q, 3);
+              const char *zUser = db_column_text(&q, 5);
+              if( zSrc==0 || zSrc[0]==0 ){
+                fossil_print("Delete attachment %h\n", zFile);
+              }else{
+                fossil_print("Add attachment %h\n", zFile);
+              }
+              fossil_print(" by %h on %h\n", zUser, zDate);
+            }else{
+              pTicket = manifest_get(rid, CFTYPE_TICKET);
+              if( pTicket ){
+                int i;
+
+                fossil_print("Ticket Change by %h on %h:\n", pTicket->zUser, zDate);
+                for(i=0; i<pTicket->nField; i++){
+                  Blob val;
+                  const char *z;
+                  z = pTicket->aField[i].zName;
+                  blob_set(&val, pTicket->aField[i].zValue);
+                  if( z[0]=='+' ){
+                    fossil_print("    Appended to %h:\n       ",&z[1]);
+                    comment_print(blob_str(&val),7,79);
+                  }else{
+                    fossil_print("    Change %h to:\n       ",z);
+                    comment_print(blob_str(&val),7,79);
+                  }
+                  blob_reset(&val);
+                }
+              }
+              manifest_destroy(pTicket);
+            }
+          }
+          db_finalize(&q);
+          return;
+        }
         /* read all given ticket field/value pairs from command line */
         if( i==g.argc ){
           fossil_fatal("empty %s command aborted!",g.argv[2]);
