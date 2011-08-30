@@ -156,6 +156,21 @@ char *hash_color(const char *z){
 }
 
 /*
+** COMMAND:  test-hash-color
+**
+** Usage: %fossil test-hash-color TAG ...
+**
+** Print out the color names associated with each tag.  Used for
+** testing the hash_color() function.
+*/
+void test_hash_color(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
+  }
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -1083,7 +1098,8 @@ void page_timeline(void){
       }
     }
     if( zUser ){
-      blob_appendf(&sql, " AND event.user=%Q", zUser);
+      blob_appendf(&sql, " AND (event.user=%Q OR event.euser=%Q)",
+                   zUser, zUser);
       url_add_parameter(&url, "u", zUser);
       zThisUser = zUser;
     }
@@ -1245,9 +1261,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
-  zPrevDate[0] = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  zPrevDate[0] = 0;
 
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);
@@ -1298,7 +1314,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     sqlite3_free(zFree);
 
     if(showfiles){
-      int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
            "SELECT (pid==0) AS isnew,"
@@ -1317,8 +1332,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
-        const char *zOld = db_column_text(&fchngQuery, 4);
-        const char *zNew = db_column_text(&fchngQuery, 3);
         if( isNew ){    
           fossil_print("   ADDED %s\n",zFilename);
         }else if( isDel ){
