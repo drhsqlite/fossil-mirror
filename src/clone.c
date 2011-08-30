@@ -39,11 +39,13 @@
 **
 **    --admin-user|-A USERNAME    Make USERNAME the administrator
 **    --private                   Also clone private branches 
+**    --ssl-identity=filename     Use the SSL identity if requested by the server
 **
 */
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
+  const char *zPw;     /* The user clone password */
   int nErr = 0;
   int bPrivate;               /* Also clone private branches */
 
@@ -78,9 +80,11 @@ void clone_cmd(void){
        "DELETE FROM private;"
     );
     shun_artifacts();
-    g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
-    if( g.zLogin==0 ){
-      db_create_default_users(1,zDefaultUser);
+    db_create_default_users(1, zDefaultUser);
+    if( zDefaultUser ){
+      g.zLogin = zDefaultUser;
+    }else{
+      g.zLogin = db_text(0, "SELECT login FROM user WHERE cap LIKE '%%s%%'");
     }
     fossil_print("Repository cloned into %s\n", g.argv[3]);
   }else{
@@ -93,6 +97,14 @@ void clone_cmd(void){
     db_set("content-schema", CONTENT_SCHEMA, 0);
     db_set("aux-schema", AUX_SCHEMA, 0);
     db_set("last-sync-url", g.argv[2], 0);
+    if( g.zSSLIdentity!=0 ){
+      /* If the --ssl-identity option was specified, store it as a setting */
+      Blob fn;
+      blob_zero(&fn);
+      file_canonical_name(g.zSSLIdentity, &fn);
+      db_set("ssl-identity", blob_str(&fn), 0);
+      blob_reset(&fn);
+    }
     db_multi_exec(
       "REPLACE INTO config(name,value,mtime)"
       " VALUES('server-code', lower(hex(randomblob(20))), now());"
@@ -118,5 +130,7 @@ void clone_cmd(void){
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
   fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
+  zPw = g.urlPasswd;
+  if( !g.dontKeepUrl && zPw) db_set("last-sync-pw", obscure(zPw), 0);
   db_end_transaction(0);
 }

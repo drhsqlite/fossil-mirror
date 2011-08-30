@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.7"
-#define SQLITE_VERSION_NUMBER 3007007
-#define SQLITE_SOURCE_ID      "2011-06-15 13:11:06 f9750870ee04935f338e4d808900fee5a8b2b389"
+#define SQLITE_VERSION        "3.7.8"
+#define SQLITE_VERSION_NUMBER 3007008
+#define SQLITE_SOURCE_ID      "2011-08-29 11:56:14 639cc85a911454bffdcccb33f2976c683953ae64"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -310,7 +310,7 @@ typedef int (*sqlite3_callback)(void*,int,char**, char**);
 ** argument.  ^If the callback function of the 3rd argument to
 ** sqlite3_exec() is not NULL, then it is invoked for each result row
 ** coming out of the evaluated SQL statements.  ^The 4th argument to
-** to sqlite3_exec() is relayed through to the 1st argument of each
+** sqlite3_exec() is relayed through to the 1st argument of each
 ** callback invocation.  ^If the callback pointer to sqlite3_exec()
 ** is NULL, then no callback is ever invoked and result rows are
 ** ignored.
@@ -741,6 +741,37 @@ struct sqlite3_io_methods {
 ** Applications should not call [sqlite3_file_control()] with this
 ** opcode as doing so may disrupt the operation of the specialized VFSes
 ** that do require it.  
+**
+** ^The [SQLITE_FCNTL_WIN32_AV_RETRY] opcode is used to configure automatic
+** retry counts and intervals for certain disk I/O operations for the
+** windows [VFS] in order to work to provide robustness against
+** anti-virus programs.  By default, the windows VFS will retry file read,
+** file write, and file delete opertions up to 10 times, with a delay
+** of 25 milliseconds before the first retry and with the delay increasing
+** by an additional 25 milliseconds with each subsequent retry.  This
+** opcode allows those to values (10 retries and 25 milliseconds of delay)
+** to be adjusted.  The values are changed for all database connections
+** within the same process.  The argument is a pointer to an array of two
+** integers where the first integer i the new retry count and the second
+** integer is the delay.  If either integer is negative, then the setting
+** is not changed but instead the prior value of that setting is written
+** into the array entry, allowing the current retry settings to be
+** interrogated.  The zDbName parameter is ignored.
+**
+** ^The [SQLITE_FCNTL_PERSIST_WAL] opcode is used to set or query the
+** persistent [WAL | Write AHead Log] setting.  By default, the auxiliary
+** write ahead log and shared memory files used for transaction control
+** are automatically deleted when the latest connection to the database
+** closes.  Setting persistent WAL mode causes those files to persist after
+** close.  Persisting the files is useful when other processes that do not
+** have write permission on the directory containing the database file want
+** to read the database file, as the WAL and shared memory files must exist
+** in order for the database to be readable.  The fourth parameter to
+** [sqlite3_file_control()] for this opcode should be a pointer to an integer.
+** That integer is 0 to disable persistent WAL mode or 1 to enable persistent
+** WAL mode.  If the integer is -1, then it is overwritten with the current
+** WAL persistence setting.
+** 
 */
 #define SQLITE_FCNTL_LOCKSTATE        1
 #define SQLITE_GET_LOCKPROXYFILE      2
@@ -750,7 +781,8 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_CHUNK_SIZE       6
 #define SQLITE_FCNTL_FILE_POINTER     7
 #define SQLITE_FCNTL_SYNC_OMITTED     8
-
+#define SQLITE_FCNTL_WIN32_AV_RETRY   9
+#define SQLITE_FCNTL_PERSIST_WAL     10
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -902,7 +934,7 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** method returns a Julian Day Number for the current date and time as
 ** a floating point value.
 ** ^The xCurrentTimeInt64() method returns, as an integer, the Julian
-** Day Number multipled by 86400000 (the number of milliseconds in 
+** Day Number multiplied by 86400000 (the number of milliseconds in 
 ** a 24-hour day).  
 ** ^SQLite will use the xCurrentTimeInt64() method to get the current
 ** date and time if that method is available (if iVersion is 2 or 
@@ -1178,16 +1210,10 @@ SQLITE_API int sqlite3_db_config(sqlite3*, int op, ...);
 ** order to verify that SQLite recovers gracefully from such
 ** conditions.
 **
-** The xMalloc and xFree methods must work like the
-** malloc() and free() functions from the standard C library.
-** The xRealloc method must work like realloc() from the standard C library
-** with the exception that if the second argument to xRealloc is zero,
-** xRealloc must be a no-op - it must not perform any allocation or
-** deallocation.  ^SQLite guarantees that the second argument to
+** The xMalloc, xRealloc, and xFree methods must work like the
+** malloc(), realloc() and free() functions from the standard C library.
+** ^SQLite guarantees that the second argument to
 ** xRealloc is always a value returned by a prior call to xRoundup.
-** And so in cases where xRoundup always returns a positive number,
-** xRealloc can perform exactly as the standard library realloc() and
-** still be in compliance with this specification.
 **
 ** xSize should return the allocated size of a memory allocation
 ** previously obtained from xMalloc or xRealloc.  The allocated size
@@ -1340,7 +1366,7 @@ struct sqlite3_mem_methods {
 **
 ** [[SQLITE_CONFIG_PAGECACHE]] <dt>SQLITE_CONFIG_PAGECACHE</dt>
 ** <dd> ^This option specifies a static memory buffer that SQLite can use for
-** the database page cache with the default page cache implemenation.  
+** the database page cache with the default page cache implementation.  
 ** This configuration should not be used if an application-define page
 ** cache implementation is loaded using the SQLITE_CONFIG_PCACHE option.
 ** There are three arguments to this option: A pointer to 8-byte aligned
@@ -2438,12 +2464,12 @@ SQLITE_API void sqlite3_progress_handler(sqlite3*, int, int(*)(void*), void*);
 ** ^If [URI filename] interpretation is enabled, and the filename argument
 ** begins with "file:", then the filename is interpreted as a URI. ^URI
 ** filename interpretation is enabled if the [SQLITE_OPEN_URI] flag is
-** is set in the fourth argument to sqlite3_open_v2(), or if it has
+** set in the fourth argument to sqlite3_open_v2(), or if it has
 ** been enabled globally using the [SQLITE_CONFIG_URI] option with the
 ** [sqlite3_config()] method or by the [SQLITE_USE_URI] compile-time option.
 ** As of SQLite version 3.7.7, URI filename interpretation is turned off
 ** by default, but future releases of SQLite might enable URI filename
-** intepretation by default.  See "[URI filenames]" for additional
+** interpretation by default.  See "[URI filenames]" for additional
 ** information.
 **
 ** URI filenames are parsed according to RFC 3986. ^If the URI contains an
@@ -3262,7 +3288,7 @@ SQLITE_API const void *sqlite3_column_decltype16(sqlite3_stmt*,int);
 ** ^[SQLITE_BUSY] means that the database engine was unable to acquire the
 ** database locks it needs to do its job.  ^If the statement is a [COMMIT]
 ** or occurs outside of an explicit transaction, then you can retry the
-** statement.  If the statement is not a [COMMIT] and occurs within a
+** statement.  If the statement is not a [COMMIT] and occurs within an
 ** explicit transaction then you should rollback the transaction before
 ** continuing.
 **
@@ -3541,7 +3567,7 @@ SQLITE_API sqlite3_value *sqlite3_column_value(sqlite3_stmt*, int iCol);
 ** CAPI3REF: Destroy A Prepared Statement Object
 **
 ** ^The sqlite3_finalize() function is called to delete a [prepared statement].
-** ^If the most recent evaluation of the statement encountered no errors or
+** ^If the most recent evaluation of the statement encountered no errors
 ** or if the statement is never been evaluated, then sqlite3_finalize() returns
 ** SQLITE_OK.  ^If the most recent evaluation of statement S failed, then
 ** sqlite3_finalize(S) returns the appropriate [error code] or
@@ -5455,7 +5481,7 @@ struct sqlite3_mutex_methods {
 **
 ** ^If the argument to sqlite3_mutex_held() is a NULL pointer then
 ** the routine should return 1.   This seems counter-intuitive since
-** clearly the mutex cannot be held if it does not exist.  But the
+** clearly the mutex cannot be held if it does not exist.  But
 ** the reason the mutex does not exist is because the build is not
 ** using mutexes.  And we do not want the assert() containing the
 ** call to sqlite3_mutex_held() to fail, so a non-zero return is
@@ -5578,7 +5604,8 @@ SQLITE_API int sqlite3_test_control(int op, ...);
 #define SQLITE_TESTCTRL_ISKEYWORD               16
 #define SQLITE_TESTCTRL_PGHDRSZ                 17
 #define SQLITE_TESTCTRL_SCRATCHMALLOC           18
-#define SQLITE_TESTCTRL_LAST                    18
+#define SQLITE_TESTCTRL_LOCALTIME_FAULT         19
+#define SQLITE_TESTCTRL_LAST                    19
 
 /*
 ** CAPI3REF: SQLite Runtime Status
@@ -5964,7 +5991,7 @@ typedef struct sqlite3_pcache sqlite3_pcache;
 ** the page, or a NULL pointer.
 ** A "page", in this context, means a buffer of szPage bytes aligned at an
 ** 8-byte boundary. The page to be fetched is determined by the key. ^The
-** mimimum key value is 1.  After it has been retrieved using xFetch, the page 
+** minimum key value is 1.  After it has been retrieved using xFetch, the page 
 ** is considered to be "pinned".
 **
 ** If the requested page is already in the page cache, then the page cache

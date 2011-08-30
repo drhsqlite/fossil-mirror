@@ -1,0 +1,36 @@
+<title>SSL and Fossil</title>
+
+<h2>Using SSL with Fossil</h2>
+
+If you are storing sensitive information in your repository, you should use SSL to encrypt all communications. This will protect the credentials used to access the server, as well preventing eavesdropping of the contents of your repository.
+
+To host a repository with SSL, you need to use an web server which supports SSL in front of the Fossil server. You can host it using the CGI option or by proxying Fossil's built in HTTP server.
+
+Your fossil client must be built with SSL support. The <tt>configure</tt> script will attempt to find OpenSSL on your system, but if necessary, you can specify the location with the <tt>--with-openssl</tt> option. Type <tt>./configure --help</tt> for details.
+
+Make sure the URL you clone from uses the <tt>https:</tt> scheme to ensure you're using SSL. If your server is configured to serve the repository from http as well as https, it's easy to accidentally use unencrypted HTTP if you forget the all important 's'.
+
+
+<h2>Certificates</h2>
+
+To verify the identify of a server, SSL uses certificates. Fossil needs to know which certificates you trust.
+
+If you are using a self-signed certificate, you'll be asked if you want to accept the certificate the first time you communicate with the server. Verify the certificate fingerprint is correct, then answer "always" to remember your decision.
+
+If you are using a certificate signed by a certificate authority, you need to specify the certificates you trust with the <tt>ssl-ca-location</tt> setting. Set this globally with the <tt>-global</tt> option for convenience.
+
+This should be set to the location of a file containing all the PEM encoded certificates you trust. You can obtain a certificate using a web browser, for example, Firefox, or just refer to your system's trusted CA roots which are usually stored somewhere in <tt>/etc</tt>.
+
+
+<h2>Client side certificates</h2>
+
+You can also use client side certificates to add an extra layer of authentication, over and above Fossil's built in user management. If you are particularly paranoid, you'll want to use this to remove the ability of anyone on the internet from making any request to Fossil. Without presenting a valid client side certificate, the web server won't invoke the fossil CGI handler.
+
+Configure your server to request a client side certificate, and set up a certificate authority to sign your client certificates. For each person who needs to access the repository, create a private key and certificate signed with that CA.
+
+The PEM encoded private key and certificate should be stored in a single file, simply by concatenating the key and certificate files. Specify the location of this file with the <tt>ssl-identity</tt> setting, or the <tt>--ssl-identity</tt> option to the <tt>clone</tt> command.
+
+If you've password protected the private key, the password will be requested every time you connect to the server. This password is not stored by fossil, as doing so would defeat the purpose of having a password.
+
+If you attempt to connect to a server which requests a client certificate, but don't provide one, fossil will show an error message which explains what to do to authenticate with the server.
+

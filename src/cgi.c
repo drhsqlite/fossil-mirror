@@ -297,7 +297,7 @@ void cgi_reply(void){
   }
 
   /* Add headers to turn on useful security options in browsers. */
-  fprintf(g.httpOut, "X-Frame-Options: DENY\r\n");
+  fprintf(g.httpOut, "X-Frame-Options: SAMEORIGIN\r\n");
   /* This stops fossil pages appearing in frames or iframes, preventing
   ** click-jacking attacks on supporting browsers.
   **
@@ -355,6 +355,7 @@ void cgi_reply(void){
       }
     }
   }
+  fflush(g.httpOut);
   CGIDEBUG(("DONE\n"));
 }
 
@@ -889,13 +890,22 @@ int cgi_all(const char *z, ...){
 /*
 ** Print all query parameters on standard output.  Format the
 ** parameters as HTML.  This is used for testing and debugging.
+** Release builds omit the values of the cookies to avoid defeating
+** the purpose of setting HttpOnly cookies.
 */
 void cgi_print_all(void){
   int i;
+  int showAll = 0;
+#ifdef FOSSIL_DEBUG
+  /* Show the values of cookies in debug mode. */
+  showAll = 1;
+#endif
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
-    cgi_printf("%s = %s  <br />\n",
-       htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    if( showAll || (fossil_stricmp("HTTP_COOKIE",aParamQP[i].zName)!=0 && fossil_strnicmp("fossil-",aParamQP[i].zName,7)!=0) ){
+      cgi_printf("%s = %s  <br />\n",
+         htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    }
   }
 }
 
@@ -1145,7 +1155,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   }
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
-    system(zBrowser);
+    if( system(zBrowser)<0 ){
+      fossil_warning("cannot start browser: %s\n", zBrowser);
+    }
   }
   while( 1 ){
     if( nchildren>MAX_PARALLEL ){
@@ -1166,16 +1178,20 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
           if( child>0 ) nchildren++;
           close(connection);
         }else{
+          int nErr = 0, fd;
           close(0);
-          dup(connection);
+          fd = dup(connection);
+          if( fd!=0 ) nErr++;
           close(1);
-          dup(connection);
+          fd = dup(connection);
+          if( fd!=1 ) nErr++;
           if( !g.fHttpTrace && !g.fSqlTrace ){
             close(2);
-            dup(connection);
+            fd = dup(connection);
+            if( fd!=2 ) nErr++;
           }
           close(connection);
-          return 0;
+          return nErr;
         }
       }
     }

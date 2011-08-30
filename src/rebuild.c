@@ -884,7 +884,7 @@ void reconstruct_cmd(void) {
 /*
 ** COMMAND: deconstruct
 **
-** Usage %fossil deconstruct ?OPTIONS? DESTIONATION
+** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **
 ** Options:
 **   -R|--repository REPOSITORY

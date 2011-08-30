@@ -176,8 +176,45 @@ void branch_new(void){
   db_end_transaction(0);
   
   /* Do an autosync push, if requested */
-  autosync(AUTOSYNC_PUSH);
+  if( !isPrivate ) autosync(AUTOSYNC_PUSH);
 }
+
+/*
+** Prepare a query that will list all branches.
+*/
+static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
+  if( showClosed ){
+    db_prepare(pQuery,
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL "
+      "EXCEPT "
+      "SELECT value FROM tagxref"
+      " WHERE tagid=%d"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }else if( showAll ){
+    db_prepare(pQuery,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH
+    );
+  }else{
+    db_prepare(pQuery,
+      "SELECT DISTINCT value FROM tagxref"
+      " WHERE tagid=%d AND value NOT NULL"
+      "   AND rid IN leaf"
+      "   AND NOT %z"
+      " ORDER BY value COLLATE nocase /*sort*/",
+      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
+    );
+  }
+}
+
 
 /*
 ** COMMAND: branch
@@ -196,7 +233,8 @@ void branch_new(void){
 **    %fossil branch list
 **    %fossil branch ls
 **
-**        List all branches
+**        List all branches.  Use --all or --closed to list all branches
+**        or closed branches.  The default is to show only open branches.
 **
 */
 void branch_cmd(void){
@@ -214,20 +252,15 @@ void branch_cmd(void){
     Stmt q;
     int vid;
     char *zCurrent = 0;
+    int showAll = find_option("all",0,0)!=0;
+    int showClosed = find_option("closed",0,0)!=0;
 
     if( g.localOpen ){
       vid = db_lget_int("checkout", 0);
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    db_prepare(&q,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
+    prepareBranchQuery(&q, showAll, showClosed);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
@@ -249,16 +282,33 @@ void brlist_page(void){
   Stmt q;
   int cnt;
   int showClosed = P("closed")!=0;
+  int showAll = P("all")!=0;
+  int colorTest = P("colortest")!=0;
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  if( colorTest ){
+    showClosed = 0;
+    showAll = 1;
+  }
 
-  style_header(showClosed ? "Closed Branches" : "Open Branches");
+  style_header(showClosed ? "Closed Branches" :
+                  showAll ? "All Branches" : "Open Branches");
   style_submenu_element("Timeline", "Timeline", "brtimeline");
   if( showClosed ){
+    style_submenu_element("All", "All", "brlist?all");
+    style_submenu_element("Open","Open","brlist");
+  }else if( showAll ){
+    style_submenu_element("Closed", "Closed", "brlist?closed");
     style_submenu_element("Open","Open","brlist");
   }else{
+    style_submenu_element("All", "All", "brlist?all");
     style_submenu_element("Closed","Closed","brlist?closed");
+  }
+  if( !colorTest ){
+    style_submenu_element("Color-Test", "Color-Test", "brlist?colortest");
+  }else{
+    style_submenu_element("All", "All", "brlist?all");
   }
   login_anonymous_available();
   style_sidebox_begin("Nomenclature:", "33%");
@@ -277,33 +327,16 @@ void brlist_page(void){
   @ </ol>
   style_sidebox_end();
 
+  prepareBranchQuery(&q, showAll, showClosed);
   cnt = 0;
-  if( showClosed ){
-    db_prepare(&q,
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL "
-      "EXCEPT "
-      "SELECT value FROM tagxref"
-      " WHERE tagid=%d"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
-  }else{
-    db_prepare(&q,
-      "SELECT DISTINCT value FROM tagxref"
-      " WHERE tagid=%d AND value NOT NULL"
-      "   AND rid IN leaf"
-      "   AND NOT %z"
-      " ORDER BY value /*sort*/",
-      TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
-    );
-  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){
-      if( showClosed ){
+      if( colorTest ){
+        @ <h2>Default background colors for all branches:</h2>
+      }else if( showAll ){
+        @ <h2>All Branches:</h2>
+      }else if( showClosed ){
         @ <h2>Closed Branches:</h2>
       }else{
         @ <h2>Open Branches:</h2>
@@ -311,8 +344,12 @@ void brlist_page(void){
       @ <ul>
       cnt++;
     }
-    if( g.okHistory ){
-      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a></li>
+    if( colorTest ){
+      const char *zColor = hash_color(zBr);
+      @ <li><span style="background-color: %s(zColor)">
+      @ %h(zBr) &rarr; %s(zColor)</span></li>
+    }else if( g.okHistory ){
+      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
     }

@@ -733,7 +733,7 @@ void tkthistory_page(void){
   style_submenu_element("Status", "Status",
     "%s/info/%s", g.zTop, zUuid);
   style_submenu_element("Check-ins", "Check-ins",
-    "%s/tkttimeline?name=%s?y=ci", g.zTop, zUuid);
+    "%s/tkttimeline?name=%s&amp;y=ci", g.zTop, zUuid);
   style_submenu_element("Timeline", "Timeline",
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
   style_header(zTitle);

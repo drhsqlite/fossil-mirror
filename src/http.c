@@ -112,7 +112,8 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
     fossil_free(zCredentials);
   }
   blob_appendf(pHdr, "Host: %s\r\n", g.urlHostname);
-  blob_appendf(pHdr, "User-Agent: Fossil/" MANIFEST_VERSION "\r\n");
+  blob_appendf(pHdr, "User-Agent: Fossil/" RELEASE_VERSION 
+                     "-" MANIFEST_VERSION "\r\n");
   if( g.fHttpTrace ){
     blob_appendf(pHdr, "Content-Type: application/x-fossil-debug\r\n");
   }else{

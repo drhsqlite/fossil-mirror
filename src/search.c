@@ -205,6 +205,6 @@ void search_cmd(void){
     " WHERE x>%d ORDER BY x DESC, date DESC",
     iBest/3
   );
-  print_timeline(&q, 1000);
+  print_timeline(&q, 1000, 0);
   db_finalize(&q);
 }

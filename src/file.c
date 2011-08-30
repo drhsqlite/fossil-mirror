@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <string.h>
+#include <errno.h>
 #include "file.h"
 
 /*
@@ -399,7 +401,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int i;
   char zPwd[2000];
   if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", (int)sizeof(zPwd)-1);
+    fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
@@ -411,7 +413,12 @@ void file_getcwd(char *zBuf, int nBuf){
   fossil_mbcs_free(zPwdUtf8);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
-    fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    if( errno==ERANGE ){
+      fossil_fatal("pwd too big: max %d\n", nBuf-1);
+    }else{
+      fossil_fatal("cannot find current working directory; %s",
+                   strerror(errno));
+    }
   }
 #endif
 }
@@ -495,6 +502,17 @@ int file_is_canonical(const char *z){
   return 1;
 }
 
+/* 
+** Return a pointer to the first character in a pathname past the
+** drive letter.  This routine is a no-op on unix.
+*/
+char *file_without_drive_letter(char *zIn){
+#ifdef _WIN32
+  if( fossil_isalpha(zIn[0]) && zIn[1]==':' ) zIn += 2;
+#endif
+  return zIn;
+}
+
 /*
 ** Compute a pathname for a file or directory that is relative
 ** to the current directory.
@@ -503,13 +521,21 @@ void file_relative_name(const char *zOrigName, Blob *pOut){
   char *zPath;
   blob_set(pOut, zOrigName);
   blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut))); 
-  zPath = blob_buffer(pOut);
+  zPath = file_without_drive_letter(blob_buffer(pOut));
   if( zPath[0]=='/' ){
     int i, j;
     Blob tmp;
-    char zPwd[2000];
-    file_getcwd(zPwd, sizeof(zPwd)-20);
-    for(i=1; zPath[i] && zPwd[i]==zPath[i]; i++){}
+    char *zPwd;
+    char zBuf[2000];
+    zPwd = zBuf;
+    file_getcwd(zBuf, sizeof(zBuf)-20);
+    zPwd = file_without_drive_letter(zBuf);
+    i = 1;
+#ifdef _WIN32
+    while( zPath[i] && fossil_tolower(zPwd[i])==fossil_tolower(zPath[i]) ) i++;
+#else
+    while( zPath[i] && zPwd[i]==zPath[i] ) i++;
+#endif
     if( zPath[i]==0 ){
       blob_reset(pOut);
       if( zPwd[i]==0 ){

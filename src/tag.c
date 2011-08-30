@@ -460,7 +460,7 @@ void tag_cmd(void){
           " ORDER BY event.mtime DESC",
           timeline_query_for_tty(), zType, tagid
         );
-        print_timeline(&q, 2000);
+        print_timeline(&q, 2000, 0);
         db_finalize(&q);
       }
     }

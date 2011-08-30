@@ -102,6 +102,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       blob_read_from_file(&content, zPath);
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
+      blob_zero(&content);
       db_bind_null(&ins, ":content");
     }else{
       /* A modified file */
@@ -276,7 +277,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
 }
 
 /*
-** Drop the indicates stash
+** Drop the indicated stash
 */
 static void stash_drop(int stashid){
   db_multi_exec(
@@ -346,6 +347,7 @@ static int stash_get_id(const char *zStashId){
 **     This command is undoable.
 **
 **  fossil stash drop ?STASHID? ?--all?
+**  fossil stash rm   ?STASHID? ?--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     --all flag is used.  Individual drops are undoable but --all is not.
@@ -429,7 +431,7 @@ void stash_cmd(void){
     db_finalize(&q);
     if( n==0 ) fossil_print("empty stash\n");
   }else
-  if( memcmp(zCmd, "drop", nCmd)==0 ){
+  if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
     if( g.argc>4 ) usage("stash apply STASHID");
     if( allFlag ){

@@ -13,8 +13,10 @@
 <li><a href="bugtheory.wiki">Bug Tracking In Fossil</a></li>
 <li><a href="makefile.wiki">Build Process &#151; The Fossil</a></li>
 <li><a href="build.wiki">Building and Installing Fossil</a></li>
+<li><a href="changes.wiki">Changelog &#151; Fossil</a></li>
 <li><a href="checkin_names.wiki">Checkin And Version Names</a></li>
 <li><a href="../test/release-checklist.wiki">Checklist &#151; Pre-Release Testing</a></li>
+<li><a href="foss-cklist.wiki">Checklist For Successful Open-Source Projects</a></li>
 <li><a href="selfcheck.wiki">Checks &#151; Fossil Repository Integrity Self</a></li>
 <li><a href="contribute.wiki">Code or Documentation To The Fossil Project &#151; Contributing</a></li>
 <li><a href="style.wiki">Code Style Guidelines &#151; Source</a></li>
@@ -45,6 +47,7 @@
 <li><a href="branching.wiki">Forking, Merging, and Tagging &#151; Branching,</a></li>
 <li><a href="delta_format.wiki">Format &#151; Fossil Delta</a></li>
 <li><a href="fileformat.wiki">Format &#151; Fossil File</a></li>
+<li><a href="changes.wiki">Fossil Changelog</a></li>
 <li><a href="concepts.wiki">Fossil Core Concepts</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Fossil Delta Encoding Algorithm</a></li>
 <li><a href="delta_format.wiki">Fossil Delta Format</a></li>
@@ -52,6 +55,7 @@
 <li><a href="quickstart.wiki">Fossil Quick Start Guide</a></li>
 <li><a href="selfcheck.wiki">Fossil Repository Integrity Self Checks</a></li>
 <li><a href="selfhost.wiki">Fossil Self Hosting Repositories</a></li>
+<li><a href="settings.wiki">Fossil Settings</a></li>
 <li><a href="fossil-v-git.wiki">Fossil Versus Git</a></li>
 <li><a href="quotes.wiki">Fossil, Git, and DVCSes in General &#151; Quotes: What People Are Saying About</a></li>
 <li><a href="faq.wiki">Frequently Asked Questions</a></li>
@@ -75,8 +79,8 @@
 <li><a href="password.wiki">Management And Authentication &#151; Password</a></li>
 <li><a href="branching.wiki">Merging, and Tagging &#151; Branching, Forking,</a></li>
 <li><a href="checkin_names.wiki">Names &#151; Checkin And Version</a></li>
+<li><a href="foss-cklist.wiki">Open-Source Projects &#151; Checklist For Successful</a></li>
 <li><a href="pop.wiki">Operations &#151; Principles Of</a></li>
-<li><a href="contribute.wiki">or Documentation To The Fossil Project &#151; Contributing Code</a></li>
 <li><a href="tech_overview.wiki">Overview Of The Design And Implementation Of Fossil &#151; A Technical</a></li>
 <li><a href="index.wiki">Page &#151; Home</a></li>
 <li><a href="password.wiki">Password Management And Authentication</a></li>
@@ -88,6 +92,7 @@
 <li><a href="makefile.wiki">Process &#151; The Fossil Build</a></li>
 <li><a href="contribute.wiki">Project &#151; Contributing Code or Documentation To The Fossil</a></li>
 <li><a href="embeddeddoc.wiki">Project Documentation &#151; Embedded</a></li>
+<li><a href="foss-cklist.wiki">Projects &#151; Checklist For Successful Open-Source</a></li>
 <li><a href="sync.wiki">Protocol &#151; The Fossil Sync</a></li>
 <li><a href="faq.wiki">Questions &#151; Frequently Asked</a></li>
 <li><a href="qandc.wiki">Questions And Criticisms</a></li>
@@ -99,12 +104,15 @@
 <li><a href="selfcheck.wiki">Self Checks &#151; Fossil Repository Integrity</a></li>
 <li><a href="selfhost.wiki">Self Hosting Repositories &#151; Fossil</a></li>
 <li><a href="server.wiki">Server &#151; How To Configure A Fossil</a></li>
+<li><a href="settings.wiki">Settings &#151; Fossil</a></li>
 <li><a href="shunning.wiki">Shunning: Deleting Content From Fossil</a></li>
 <li><a href="style.wiki">Source Code Style Guidelines</a></li>
 <li><a href="tech_overview.wiki">SQLite Databases Used By Fossil</a></li>
+<li><a href="ssl.wiki">SSL with Fossil &#151; Using</a></li>
 <li><a href="quickstart.wiki">Start Guide &#151; Fossil Quick</a></li>
 <li><a href="stats.wiki">Statistics &#151; Performance</a></li>
 <li><a href="style.wiki">Style Guidelines &#151; Source Code</a></li>
+<li><a href="foss-cklist.wiki">Successful Open-Source Projects &#151; Checklist For</a></li>
 <li><a href="sync.wiki">Sync Protocol &#151; The Fossil</a></li>
 <li><a href="private.wiki">Syncing, and Deleting Private Branches &#151; Creating,</a></li>
 <li><a href="custom_ticket.wiki">System &#151; Customizing The Ticket</a></li>
@@ -117,9 +125,11 @@
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
 <li><a href="custom_ticket.wiki">Ticket System &#151; Customizing The</a></li>
 <li><a href="bugtheory.wiki">Tracking In Fossil &#151; Bug</a></li>
+<li><a href="ssl.wiki">Using SSL with Fossil</a></li>
 <li><a href="checkin_names.wiki">Version Names &#151; Checkin And</a></li>
 <li><a href="fossil-v-git.wiki">Versus Git &#151; Fossil</a></li>
 <li><a href="webui.wiki">Web Interface &#151; The Fossil</a></li>
 <li><a href="quotes.wiki">What People Are Saying About Fossil, Git, and DVCSes in General &#151; Quotes:</a></li>
 <li><a href="wikitheory.wiki">Wiki In Fossil</a></li>
+<li><a href="ssl.wiki">with Fossil &#151; Using SSL</a></li>
 </ul>
