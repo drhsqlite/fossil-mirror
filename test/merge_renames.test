@@ -130,3 +130,17 @@ exec rm rep.fossil
 ######################################
 
 # TO BE WRITTEN.
+
+######################################
+#  Test 4                            #
+#  Reported: Ticket [67176c3aa4]     #
+######################################
+
+# TO BE WRITTEN.
+
+
+# Tests for troubles not specifically linked with renames but that I'd like to
+# write:
+#  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
+#  [953031915f] - Lack of warning when overwriting extra files 
+#  [4df5f38f1e] - Troubles merging a file delete with a file change 

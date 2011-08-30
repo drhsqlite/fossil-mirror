@@ -1,5 +1,5 @@
-C Taking\sa\snote\sabout\sa\snew\stest\sI\sshould\swrite\sabout\smerges\swith\srenames..
-D 2011-08-05T12:43:30.839
+C More\scomments\sabout\stests\sI'd\slike\sto\swrite.
+D 2011-08-30T08:00:52.457
 F BUILD.txt 58b010d4c2642615308f0f04cfa32eb884fdc982
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -137,7 +137,7 @@ F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge_renames.test 9fa152474b388428ce16c195700573834a07338d
+F test/merge_renames.test f606abe98b60144d442e21c8813609f627572280
 F test/release-checklist.wiki b7fc8d1f7ed288bfebc04e0bdc1bbc173c94f1b3
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
@@ -305,7 +305,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P b2e7370e32d8acc735170c6b1b68ec8fa0cd370e
-R 35d515a21ae72dc66243074b9737f0b2
-U llbatlle
-Z 31092d8a76b5459f3ff9e71a2e8dcfb1
+P b78d999988489da0d8670076cda47b7a1bc496c4
+R 8873b9260f136fef4f6bf436d4911b3e
+U viriketo
+Z 736412f67c51dc471cffe6486f76eec4
