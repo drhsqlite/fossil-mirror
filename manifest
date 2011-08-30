@@ -1,5 +1,5 @@
-C Display\sthe\slast\smodification\stime\sof\stickets\susing\seither\slocaltime\sor\nUTC\saccording\sto\suser\spreferences.
-D 2011-08-30T17:39:00.162
+C Print\san\serror\smessage\sand\squite\sif\sthe\s--user\soption\sappears\son\sa\n"fossil\scommit"\scommand\sbut\sspecifies\sa\susername\snot\sfound\sin\sthe\sdatabase.\nTicket\s[3ed2e994e1750b]
+D 2011-08-30T18:04:36.703
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -138,7 +138,7 @@ F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
 F src/update.c ede0e874be4ad82ace7fabb08dd7e28f295e6edf
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
-F src/user.c 68567bd8dca442db174c811c8a98455c420d3de5
+F src/user.c b4f2467e92933669c85692aed9db5e9d2113e7dc
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c e94eca23006619e2f856f92c72185c08f614af9b
 F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 0b9371365dd44345b9214908f4c43619663fc28e
-R 0919f1eee0c9cfc88ede17aa4bcac587
+P 839f105098f1091d276b711a0368aa7710d907b7
+R ef7e72ede64f7bdeed4e4da8c8438aee
 U drh
-Z 7d74a89f313586d48ebc8dd43a99c308
+Z c7245c21eb6d7402ae0b32825f7bd5c1

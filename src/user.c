@@ -314,7 +314,13 @@ void user_select(void){
   Stmt s;
 
   if( g.userUid ) return;
-  if( attempt_user(g.zLogin) ) return;
+  if( g.zLogin ){
+    if( attempt_user(g.zLogin)==0 ){
+      fossil_fatal("no such user: %s", g.zLogin);
+    }else{
+      return;
+    }
+  }
 
   if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
 
