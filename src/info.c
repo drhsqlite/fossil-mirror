@@ -779,19 +779,25 @@ void object_description(
   int nWiki = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
 
+  char *prevName = 0;
+
   db_prepare(&q,
     "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
-    "       b.uuid, mlink.mperm"
+    "       b.uuid, mlink.mperm,"
+    "       coalesce((SELECT value FROM tagxref"
+                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
     "   AND a.rid=mlink.fid"
     "   AND b.rid=mlink.mid"
-    "   AND mlink.fid=%d",
-    rid
+    "   AND mlink.fid=%d"
+    "   ORDER BY filename.name, event.mtime",
+    TAG_BRANCH, rid
   );
+  @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
@@ -799,26 +805,40 @@ void object_description(
     const char *zUser = db_column_text(&q, 3);
     const char *zVers = db_column_text(&q, 4);
     int mPerm = db_column_int(&q, 5);
-    if( cnt>0 ){
-      @ Also file
-    }else{
-      @ File
+    const char *zBr = db_column_text(&q, 6);
+    if( !prevName || fossil_strcmp(zName, prevName) ) {
+      if( prevName ) {
+        @ </ul>
+      }
+      if( mPerm==PERM_LNK ){
+        @ <li>Symbolic link
+      }else if( mPerm==PERM_EXE ){
+        @ <li>Executable file
+      }else{
+        @ <li>File        
+      }
+      if( g.okHistory ){
+        @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
+      }else{
+        @ %h(zName)
+      }
+      @ <ul>
+      prevName = fossil_strdup(zName);
     }
-    if( g.okHistory ){
-      @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
-    }else{
-      @ %h(zName)
-    }
-    if( mPerm==PERM_LNK ){
-      @ (symbolic link)
-    }else if( mPerm==PERM_EXE ){
-      @ (executable)
-    }
-    @ part of check-in
+    @ <li>
+    hyperlink_to_date(zDate,"");
+    @ - part of checkin
     hyperlink_to_uuid(zVers);
-    @ - %w(zCom) by 
-    hyperlink_to_user(zUser,zDate," on");
-    hyperlink_to_date(zDate,".");
+    if( zBr && zBr[0] ){
+      if( g.okHistory ){
+        @ on branch <a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a>
+      }else{
+        @ on branch %h(zBr)
+      }
+    }
+    @ - %w(zCom) (user:
+    hyperlink_to_user(zUser,zDate,"");
+    @ )
     if( g.okHistory ){
       @ <a href="%s(g.zTop)/annotate?checkin=%S(zVers)&filename=%T(zName)">
       @ [annotate]</a>
@@ -828,6 +848,8 @@ void object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
+  @ </ul></ul>
+  free(prevName);
   db_finalize(&q);
   db_prepare(&q, 
     "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
@@ -997,13 +1019,9 @@ void diff_page(void){
                           g.zTop, P("v1"), P("v2"));
     @ <h2>Differences From
     @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
-    @ <blockquote><p>
-    object_description(v1, 1, 0);
-    @ </p></blockquote>
+    object_description(v1, 0, 0);
     @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
-    @ <blockquote><p>
-    object_description(v2, 1, 0);
-    @ </p></blockquote>
+    object_description(v2, 0, 0);
     @ <hr />
     @ <blockquote><pre>
     @ %h(blob_str(&diff))
@@ -1116,12 +1134,10 @@ void hexdump_page(void){
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact %s(zUuid):</h2>
-  @ <blockquote><p>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
-  @ </p></blockquote>
   @ <hr />
   content_get(rid, &content);
   @ <blockquote><pre>
@@ -1265,7 +1281,6 @@ void artifact_page(void){
   style_header("Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact %s(zUuid)</h2>
-  @ <blockquote><p>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download", 
@@ -1292,7 +1307,6 @@ void artifact_page(void){
       }
     }
   }
-  @ </p></blockquote>
   @ <hr />
   content_get(rid, &content);
   if( renderAsWiki ){

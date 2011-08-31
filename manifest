@@ -1,5 +1,5 @@
-C Merge\slatest\strunk.
-D 2011-08-31T09:55:41.850
+C Merge\simprovements\sto\sartifact\sdescriptions\sinto\ssymlinks\sbranch.\sAlso\smodify\sdisplaying\sof\spermissions:\snow\sweb\sUI\sshows\s"File",\s"Executable\sfile",\sor\s"Symbolic\slink"\sin\sfile\sartifact\sdescription.
+D 2011-08-31T16:28:23.139
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -88,7 +88,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 131941f506c089e499a52394aece0358fa1e2c5e
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 38c89838f21b09ca03c981ee23f34f828cbca9ef
-F src/info.c d3eec8d3c23b56a22963537712bbf2e1d9abe0e6
+F src/info.c 8c258582535f12ac5ecc6d70e2df997da32c7ac7
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c db924043b4266db17626bda55c0fe5e85025a6d3
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 034819087de9ca37a52d696ce865f60b2943398c b120bc8b262ac0056935c0c9365957fe331d29b4
-R 19516fdffb72e5c7520fd6262e81cfce
+P 40ed431ca59e0a154d78b876039f730d5889d473 49402fc72296cc555f0467a42808b327a83f0ce5
+R ee35505f59429bc7ea267a94d58ac847
 U dmitry
-Z 35f3c38629712c25601d278565dfd5f9
+Z 3d079470e6dd35d9c811a6a47ff0e8ca
