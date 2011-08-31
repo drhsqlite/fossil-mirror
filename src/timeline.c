@@ -1314,7 +1314,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     sqlite3_free(zFree);
 
     if(showfiles){
-      int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
            "SELECT (pid==0) AS isnew,"
@@ -1333,8 +1332,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
-        const char *zOld = db_column_text(&fchngQuery, 4);
-        const char *zNew = db_column_text(&fchngQuery, 3);
         if( isNew ){    
           fossil_print("   ADDED %s\n",zFilename);
         }else if( isDel ){
