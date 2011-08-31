@@ -1,8 +1,8 @@
-C Updating\sfrom\strunk\sto\skeep\sup\sworking\sin\sthe\sbranch\swith\sthe\smost\srecent\sfossil\scode.
-D 2011-08-30T08:01:31.753
+C Adding\sa\snew\stest\sI\swanted\sto\swrite.\sI\sjust\ssaw\sthis\sin\smy\slocal\scopy,\sbut\sI\nreally\sforgot\sif\sI\sfinished\sit\sor\snot.
+D 2011-08-31T20:34:37.177
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd w Makefile
+F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -101,7 +101,7 @@ F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c ae9bc9306a48a460734c17ec16da48f42cbc7219
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
-F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809 w win/version.c
+F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
 F src/path.c acae303e1948b06c17c24dc22e5eace7c593f4a7
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -155,7 +155,7 @@ F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge_renames.test f606abe98b60144d442e21c8813609f627572280
+F test/merge_renames.test 32f096e44629e8c5a8d10605b057eecb4744ac02
 F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 281e5121e7e91bf3e99427cf38d46272b31e5e01 0b9371365dd44345b9214908f4c43619663fc28e
-R bd5bf82e12183313204ad5f972dea009
+P 75aaf30aadc5cb32b00a5694e56a9216c07f09a5
+R 8152d8cd0cfe71d2a1e79f6f9ce85fa6
 U viriketo
-Z 2a03c3c2bd98bd9755a77dd06c111d7f
+Z ea36aff5072aff7520e01f4a62272c44
