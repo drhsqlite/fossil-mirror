@@ -802,11 +802,7 @@ void object_description(
     const char *zUser = db_column_text(&q, 3);
     const char *zVers = db_column_text(&q, 4);
     if( !prevName || fossil_strcmp(zName, prevName) ) {
-      if( !prevName ) {
-        @ <ul>
-        prevName = fossil_strdup(zName);
-      }
-      else {
+      if( prevName ) {
         @ </ul>
       }
       @ <li>File
@@ -1005,9 +1001,9 @@ void diff_page(void){
                           g.zTop, P("v1"), P("v2"));
     @ <h2>Differences From
     @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
-    object_description(v1, 1, 0);
+    object_description(v1, 0, 0);
     @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
-    object_description(v2, 1, 0);
+    object_description(v2, 0, 0);
     @ <hr />
     @ <blockquote><pre>
     @ %h(blob_str(&diff))
