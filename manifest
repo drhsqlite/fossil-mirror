@@ -1,5 +1,5 @@
-C Add\sability\sto\sshow\sticket\shistory\sfrom\scommand\sline.\s\sfossil\sticket\nnow\stakes\sa\snew\shistory\soption,\swhich\sprints\sthe\shistory\sof\sa\sticket\s-\nsomewhat\slike\swhat\sthe\shistory\sbutton\sdoes\son\sthe\sticket\sweb\sGUI.\n
-D 2011-08-30T21:50:18.683
+C Improve\sformatting\sfor\sfossil\sticket\shistory.\s\sMake\ssmall\sfields\sprint\non\ssame\sline,\sand\smake\slonger\sones\slook\sbetter.\n
+D 2011-08-31T07:50:56.549
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -132,7 +132,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
 F src/timeline.c c32660ab43f6abdb7bfa9f0153a0f76aec22e0e7
-F src/tkt.c 5fab5d1c8d5b827276cc247499c17e3aa72392de
+F src/tkt.c 476baf683e838138a89952d95c4aca2091ca5d76
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P ffa3b1eaf6c062792caa172cfbf3be940eb76476
-R 2cf7739b5c24c8a7183c9a975c021ec2
+P 73e363ea96424d3fd036e145bc6cce593621bba5
+R acf8b856c01b25cc9e9fbae127e0d099
 U venkat
-Z cc369142229982f85d55b223bdcc024e
+Z e9fda259603beef12a8dd74f0653c73c
