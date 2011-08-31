@@ -784,7 +784,9 @@ void object_description(
     "SELECT filename.name, datetime(event.mtime),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
-    "       b.uuid"
+    "       b.uuid,"
+    "       coalesce((SELECT value FROM tagxref"
+                    "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
     "  FROM mlink, filename, event, blob a, blob b"
     " WHERE filename.fnid=mlink.fnid"
     "   AND event.objid=mlink.mid"
@@ -792,7 +794,7 @@ void object_description(
     "   AND b.rid=mlink.mid"
     "   AND mlink.fid=%d"
     "   ORDER BY filename.name, event.mtime",
-    rid
+    TAG_BRANCH, rid
   );
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
@@ -801,6 +803,7 @@ void object_description(
     const char *zCom = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
     const char *zVers = db_column_text(&q, 4);
+    const char *zBr = db_column_text(&q, 5);
     if( !prevName || fossil_strcmp(zName, prevName) ) {
       if( prevName ) {
         @ </ul>
@@ -818,6 +821,13 @@ void object_description(
     hyperlink_to_date(zDate,"");
     @ - part of checkin
     hyperlink_to_uuid(zVers);
+    if( zBr && zBr[0] ){
+      if( g.okHistory ){
+        @ on branch <a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a>
+      }else{
+        @ on branch %h(zBr)
+      }
+    }
     @ - %w(zCom) (user:
     hyperlink_to_user(zUser,zDate,"");
     @ )
