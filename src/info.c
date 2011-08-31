@@ -791,7 +791,7 @@ void object_description(
     "   AND a.rid=mlink.fid"
     "   AND b.rid=mlink.mid"
     "   AND mlink.fid=%d"
-    "   ORDER BY event.mtime",
+    "   ORDER BY filename.name, event.mtime",
     rid
   );
   @ <ul>
@@ -805,6 +805,9 @@ void object_description(
       if( !prevName ) {
         @ <ul>
         prevName = fossil_strdup(zName);
+      }
+      else {
+        @ </ul>
       }
       @ <li>File
       if( g.okHistory ){
