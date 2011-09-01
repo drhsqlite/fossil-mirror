@@ -763,8 +763,6 @@ static int db_local_column_exists(const char *zTable, const char *zColumn){
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
-  int rc;
-  sqlite3_stmt *pStmt;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);

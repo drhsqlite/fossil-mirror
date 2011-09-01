@@ -1,0 +1,191 @@
+#
+# Tests for merging with renames
+# 
+#
+
+catch {exec $::fossilexe info} res
+puts res=$res
+if {![regexp {not within an open checkout} $res]} {
+  puts stderr "Cannot run this test within an open checkout"
+  return
+}
+
+######################################
+#  Test 1                            #
+#  Reported: Ticket [554f44ee74e3d]  #
+######################################
+
+fossil new rep.fossil
+fossil open rep.fossil
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "c1"
+fossil tag add pivot current
+
+write_file f1 "line2"
+fossil commit -m "c2"
+
+write_file f1 "line3"
+fossil commit -m "c3"
+
+write_file f1 "line4"
+fossil commit -m "c4"
+
+write_file f1 "line5"
+fossil commit -m "c4"
+
+write_file f1 "line6"
+fossil commit -m "c4"
+
+fossil update pivot
+fossil mv f1 f2
+exec mv f1 f2
+fossil commit -b rename -m "c5"
+
+fossil merge trunk
+fossil commit -m "trunk merged"
+
+fossil update pivot
+write_file f3 "someline"
+fossil add f3
+fossil commit -b branch2 -m "newbranch"
+
+fossil merge trunk
+puts $RESULT
+
+set deletes 0
+foreach {status filename} $RESULT {
+    if {$status=="DELETE"} {
+        set deletes [expr $deletes + 1]
+    }
+}
+
+if {$deletes!=0} {
+    # failed
+    protOut "Error, the merge should not delete any file"
+    test merge_renames-1 0
+} else {
+    test merge_renames-1 1
+}
+
+fossil close -f
+exec rm rep.fossil
+
+######################################
+#  Test 2                            #
+#  Reported: Ticket [74413366fe5067] #
+######################################
+
+fossil new rep.fossil
+fossil open rep.fossil
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "base file"
+fossil tag add pivot current
+
+write_file f2 "line2"
+fossil add f2
+fossil commit -m "newfile"
+
+fossil mv f2 f2new
+exec mv f2 f2new
+fossil commit -m "rename"
+
+fossil update pivot
+write_file f1 "line3"
+fossil commit -b branch -m "change"
+
+fossil merge trunk
+fossil commit -m "trunk merged"
+
+fossil update trunk
+
+fossil merge branch
+puts $RESULT
+
+# Not a nice way to check, but I don't know more tcl now
+set deletes 0
+foreach {status filename} $RESULT {
+    if {$status=="DELETE"} {
+        set deletes [expr $deletes + 1]
+    }
+}
+
+if {$deletes!=0} {
+    # failed
+    protOut "Error, the merge should not delete any file"
+    test merge_renames-2 0
+} else {
+    test merge_renames-2 1
+}
+
+fossil close -f
+exec rm rep.fossil
+
+######################################
+#  Test 3                            #
+#  Reported: Ticket [30b28cf351]     #
+######################################
+
+fossil new rep.fossil
+fossil open rep.fossil
+
+write_file f1 "line"
+fossil add f1
+fossil commit -m "base file"
+fossil tag add pivot current
+
+write_file f2 "line2"
+fossil add f2
+fossil commit -m "newfile"
+
+fossil mv f2 f2new
+exec mv f2 f2new
+fossil commit -m "rename"
+
+fossil update pivot
+write_file f1 "line3"
+fossil commit -b branch -m "change"
+
+fossil merge trunk
+fossil commit -m "trunk merged"
+
+fossil update trunk
+
+fossil merge branch
+puts $RESULT
+
+# Not a nice way to check, but I don't know more tcl now
+set deletes 0
+foreach {status filename} $RESULT {
+    if {$status=="DELETE"} {
+        set deletes [expr $deletes + 1]
+    }
+}
+
+if {$deletes!=0} {
+    # failed
+    protOut "Error, the merge should not delete any file"
+    test merge_renames-2 0
+} else {
+    test merge_renames-2 1
+}
+
+fossil close -f
+exec rm rep.fossil
+
+######################################
+#  Test 4                            #
+#  Reported: Ticket [67176c3aa4]     #
+######################################
+
+# TO BE WRITTEN.
+
+
+# Tests for troubles not specifically linked with renames but that I'd like to
+# write:
+#  [c26c63eb1b] - 'merge --backout' does not handle conflicts properly
+#  [953031915f] - Lack of warning when overwriting extra files 
+#  [4df5f38f1e] - Troubles merging a file delete with a file change 
