@@ -1,5 +1,5 @@
-C Make\ssure\sthe\sperferred\stimezone\sformat\shas\sbeen\squeried\sprior\sto\srunning\nuser\sSQL,\ssince\swhile\srunning\suser\sSQL\saccess\sto\sthe\sCONFIG\stable\sis\nrestricted.
-D 2011-09-01T11:33:14.700
+C Clean\sup\sa\sharmless\scompiler\swarning\sintroduced\sby\sthe\sprevious\scheck-in.
+D 2011-09-01T12:49:04.216
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -109,7 +109,7 @@ F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
 F src/rebuild.c 694ed85b9cacaa9497afb2675051f01d28130086
-F src/report.c 3cf1c30203723085728bcd602ae6493060ee1e20
+F src/report.c b8bf42a664aed64433cf54ee94d727b75021c46f
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c cd67fe706044ad622c9ecc919d7afd17ea0b5a50
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 49402fc72296cc555f0467a42808b327a83f0ce5
-R ffdc3593a42c07567c04fa5da7efcab4
+P 7922e56655ccdc37e62dff70eeb5df047f8a71d5
+R e185a33a5e7be0a352535455c54a3890
 U drh
-Z 50ac1056aaa64daed9c8baef69c9e44d
+Z fa411e3cb71cec75b65a3bbdabd2714b
