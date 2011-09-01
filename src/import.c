@@ -32,6 +32,7 @@ struct ImportFile {
   char *zPrior;          /* Prior name if the name was changed */
   char isFrom;           /* True if obtained from the parent */
   char isExe;            /* True if executable */
+  char isLink;           /* True if symlink */
 };
 #endif
 
@@ -60,6 +61,7 @@ static struct {
   int nFileAlloc;             /* Number of slots in aFile[] */
   ImportFile *aFile;          /* Information about files in a commit */
   int fromLoaded;             /* True zFrom content loaded into aFile[] */
+  int hasLinks;               /* True if git repository contains symlinks */
   int tagCommit;              /* True if the commit adds a tag */
 } gg;
 
@@ -244,6 +246,9 @@ static void finish_commit(void){
     blob_appendf(&record, "F %F %s", gg.aFile[i].zName, zUuid);
     if( gg.aFile[i].isExe ){
       blob_append(&record, " x\n", 3);
+    }else if( gg.aFile[i].isLink ){
+      blob_append(&record, " l\n", 3);
+      gg.hasLinks = 1;
     }else{
       blob_append(&record, "\n", 1);
     }
@@ -423,6 +428,7 @@ static void import_prior_files(void){
     pNew = import_add_file();
     pNew->zName = fossil_strdup(pOld->zName);
     pNew->isExe = pOld->zPerm && strstr(pOld->zPerm, "x")!=0;
+    pNew->isLink = pOld->zPerm && strstr(pOld->zPerm, "l")!=0;
     pNew->zUuid = fossil_strdup(pOld->zUuid);
     pNew->isFrom = 1;
   }
@@ -599,6 +605,7 @@ static void git_fast_import(FILE *pIn){
         pFile->zName = fossil_strdup(zName);
       }
       pFile->isExe = (fossil_strcmp(zPerm, "100755")==0);
+      pFile->isLink = (fossil_strcmp(zPerm, "120000")==0);      
       fossil_free(pFile->zUuid);
       pFile->zUuid = resolve_committish(zUuid);
       pFile->isFrom = 0;
@@ -636,6 +643,7 @@ static void git_fast_import(FILE *pIn){
           pNew->zName = fossil_strdup(pFile->zName);
         }
         pNew->isExe = pFile->isExe;
+        pNew->isLink = pFile->isLink;
         pNew->zUuid = fossil_strdup(pFile->zUuid);
         pNew->isFrom = 0;
       }
@@ -659,6 +667,7 @@ static void git_fast_import(FILE *pIn){
         }
         pNew->zPrior = pFile->zName;
         pNew->isExe = pFile->isExe;
+        pNew->isLink = pFile->isLink;
         pNew->zUuid = pFile->zUuid;
         pNew->isFrom = 0;
         gg.nFile--;
@@ -679,6 +688,9 @@ static void git_fast_import(FILE *pIn){
     }
   }
   gg.xFinish();
+  if( gg.hasLinks ){
+    db_set_int("allow-symlinks", 1, 0);
+  }
   import_reset(1);
   return;
 

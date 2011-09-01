@@ -66,7 +66,7 @@ static void status_report(
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( !file_isfile(zFullName) ){
+    }else if( !file_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
@@ -229,7 +229,7 @@ void ls_cmd(void){
       fossil_print("ADDED      %s\n", zPathname);
     }else if( isDeleted ){
       fossil_print("DELETED    %s\n", zPathname);
-    }else if( !file_isfile(zFullName) ){
+    }else if( !file_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
         fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
@@ -637,7 +637,7 @@ static void create_manifest(
   blob_appendf(pOut, "D %s\n", zDate);
   zDate[10] = ' ';
   db_prepare(&q,
-    "SELECT pathname, uuid, origname, blob.rid, isexe,"
+    "SELECT pathname, uuid, origname, blob.rid, isexe, islink,"
     "       file_is_selected(vfile.id)"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
     " WHERE (NOT deleted OR NOT file_is_selected(vfile.id))"
@@ -652,7 +652,8 @@ static void create_manifest(
     const char *zOrig = db_column_text(&q, 2);
     int frid = db_column_int(&q, 3);
     int isexe = db_column_int(&q, 4);
-    int isSelected = db_column_int(&q, 5);
+    int isLink = db_column_int(&q, 5);
+    int isSelected = db_column_int(&q, 6);
     const char *zPerm;
     int cmp;
 #if !defined(_WIN32)
@@ -663,9 +664,16 @@ static void create_manifest(
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
     isexe = file_isexe(blob_str(&filename));
+    
+    /* For unix, check if the file on the filesystem is symlink.
+    ** On windows, the bit is retained unchanged from original. 
+    */
+    isLink = file_islink(blob_str(&filename));
 #endif
     if( isexe ){
       zPerm = " x";
+    }else if( isLink ){
+      zPerm = " l"; /* note: symlinks don't have executable bit on unix */
     }else{
       zPerm = "";
     }
@@ -1065,7 +1073,12 @@ void commit_cmd(void){
     crnlOk = db_column_int(&q, 3);
 
     blob_zero(&content);
-    blob_read_from_file(&content, zFullname);
+    if( file_islink(zFullname) ){
+      /* Instead of file content, put link destination path */
+      blob_read_link(&content, zFullname);
+    }else{
+      blob_read_from_file(&content, zFullname);        
+    }
     if( !crnlOk ) cr_warning(&content, zFullname);
     nrid = content_put(&content);
     blob_reset(&content);

@@ -204,6 +204,8 @@ void update_cmd(void){
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idt INTEGER,"              /* VFILE entry for target version */
     "  chnged BOOLEAN,"           /* True if current version has been edited */
+    "  islinkv BOOLEAN,"          /* True if current file is a link */
+    "  islinkt BOOLEAN,"          /* True if target file is a link */
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
@@ -257,17 +259,30 @@ void update_cmd(void){
     tid, tid
   );
 
+  /*
+  ** Add islink information
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0),"
+    " islinkt=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    vid, tid
+  );
+
+
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe FROM fv"
+       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe, islinkv, islinkt FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d\n",
+       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
           db_column_int(&q, 3),
-          db_column_int(&q, 6));
+          db_column_int(&q, 6),
+          db_column_int(&q, 7),
+          db_column_int(&q, 8));
        fossil_print("     fnv = [%s]\n", db_column_text(&q, 1));
        fossil_print("     fnt = [%s]\n", db_column_text(&q, 2));
     }
@@ -311,7 +326,7 @@ void update_cmd(void){
   ** target
   */
   db_prepare(&q, 
-    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, isexe FROM fv ORDER BY 1"
+    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, isexe, islinkv, islinkt FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -329,6 +344,8 @@ void update_cmd(void){
     int chnged = db_column_int(&q, 5);          /* Current is edited */
     const char *zNewName = db_column_text(&q,6);/* New filename */
     int isexe = db_column_int(&q, 7);           /* EXE perm for new file */
+    int islinkv = db_column_int(&q, 8);         /* Is current file is a link */
+    int islinkt = db_column_int(&q, 9);         /* Is target file is a link */
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
@@ -383,26 +400,32 @@ void update_cmd(void){
       }else{
         fossil_print("MERGE %s\n", zName);
       }
-      undo_save(zName);
-      content_get(ridt, &t);
-      content_get(ridv, &v);
-      rc = merge_3way(&v, zFullPath, &t, &r);
-      if( rc>=0 ){
-        if( !nochangeFlag ){
-          blob_write_to_file(&r, zFullNewPath);
-          file_setexe(zFullNewPath, isexe);
-        }
-        if( rc>0 ){
-          fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
-          nConflict++;
-        }
+      if( islinkv || islinkt /* || file_islink(zFullPath) */ ){
+        //if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
+        fossil_print("***** Cannot merge symlink %s\n", zNewName);
+        nConflict++;        
       }else{
-        if( !nochangeFlag ){
-          blob_write_to_file(&t, zFullNewPath);
-          file_setexe(zFullNewPath, isexe);
-        }
-        fossil_print("***** Cannot merge binary file %s\n", zNewName);
-        nConflict++;
+	undo_save(zName);
+	content_get(ridt, &t);
+	content_get(ridv, &v);
+	rc = merge_3way(&v, zFullPath, &t, &r);
+	if( rc>=0 ){
+	  if( !nochangeFlag ){
+	    blob_write_to_file(&r, zFullNewPath);
+	    file_setexe(zFullNewPath, isexe);
+	  }
+	  if( rc>0 ){
+	    fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
+	    nConflict++;
+	  }
+	}else{
+	  if( !nochangeFlag ){
+	    blob_write_to_file(&t, zFullNewPath);
+	    file_setexe(zFullNewPath, isexe);
+	  }
+	  fossil_print("***** Cannot merge binary file %s\n", zNewName);
+	  nConflict++;
+	}
       }
       if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
@@ -524,6 +547,7 @@ int historical_version_of_file(
   const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
+  int *pIsLink,             /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
@@ -546,7 +570,8 @@ int historical_version_of_file(
     pFile = manifest_file_seek(pManifest, file);
     if( pFile ){
       rid = uuid_to_rid(pFile->zUuid, 0);
-      if( pIsExe ) *pIsExe = manifest_file_mperm(pFile);
+      if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
+      if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
       manifest_destroy(pManifest);
       return content_get(rid, content);
     }
@@ -629,10 +654,11 @@ void revert_cmd(void){
   }
   while( db_step(&q)==SQLITE_ROW ){
     int isExe = 0;
+    int isLink = 0;
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    errCode = historical_version_of_file(zRevision, zFile, &record, &isExe,2);
+    errCode = historical_version_of_file(zRevision, zFile, &record, &isLink, &isExe,2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);
@@ -645,16 +671,23 @@ void revert_cmd(void){
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
-      blob_write_to_file(&record, zFull);
+      if( file_size(zFull)>=0 && (isLink || file_islink(zFull)) ){
+        unlink(zFull);
+      }
+      if( isLink ){
+        create_symlink(blob_str(&record), zFull);
+      }else{
+        blob_write_to_file(&record, zFull);
+      }
       file_setexe(zFull, isExe);
       fossil_print("REVERTED: %s\n", zFile);
       mtime = file_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, mrid=rid,"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d, mrid=rid,"
          "       pathname=coalesce(origname,pathname), origname=NULL"     
          " WHERE pathname=%Q",
-         mtime, isExe, zFile
+         mtime, isExe, isLink, zFile
       );
     }
     blob_reset(&record);

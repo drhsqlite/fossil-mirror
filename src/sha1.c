@@ -283,6 +283,17 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   unsigned char zResult[20];
   char zBuf[10240];
 
+  if( file_islink(zFilename) ){
+    /* Instead of file content, return sha1 of link destination path */
+    Blob destinationPath;
+    int rc;
+    
+    blob_read_link(&destinationPath, zFilename);
+    rc = sha1sum_blob(&destinationPath, pCksum);
+    blob_reset(&destinationPath);
+    return rc;
+  }
+
   in = fossil_fopen(zFilename,"rb");
   if( in==0 ){
     return 1;

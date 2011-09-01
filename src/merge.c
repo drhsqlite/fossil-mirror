@@ -169,7 +169,9 @@ void merge_cmd(void){
     "  ridm INTEGER,"             /* Record ID for merge */
     "  isexe BOOLEAN,"            /* Execute permission enabled */
     "  fnp TEXT,"                 /* The filename in the pivot */
-    "  fnm TEXT"                  /* the filename in the merged version */
+    "  fnm TEXT,"                 /* the filename in the merged version */
+    "  islinkv BOOLEAN,"          /* True if current version is a symlink */
+    "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
     ");",
     caseSensitive ? "binary" : "nocase"
   );
@@ -319,7 +321,18 @@ void merge_cmd(void){
   db_finalize(&q);
 
   /*
-  ** Find files that have changed from P->M but not P->V.
+  **  Add islink information for files in V and M
+  **
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " islinkm=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0)",
+    vid, mid
+  );
+  
+  /*
+  ** Find files that have changed from P->M but not P->V. 
   ** Copy the M content over into V.
   */
   db_prepare(&q,
@@ -347,7 +360,7 @@ void merge_cmd(void){
   ** Do a three-way merge on files that have changes on both P->M and P->V.
   */
   db_prepare(&q,
-    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe FROM fv"
+    "SELECT ridm, idv, ridp, ridv, %s, fn, isexe, islinkv, islinkm FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
@@ -360,6 +373,8 @@ void merge_cmd(void){
     int isBinary = db_column_int(&q, 4);
     const char *zName = db_column_text(&q, 5);
     int isExe = db_column_int(&q, 6);
+    int islinkv = db_column_int(&q, 7);
+    int islinkm = db_column_int(&q, 8);
     int rc;
     char *zFullPath;
     Blob m, p, r;
@@ -370,33 +385,38 @@ void merge_cmd(void){
     }else{
       fossil_print("MERGE %s\n", zName);
     }
-    undo_save(zName);
-    zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
-    content_get(ridp, &p);
-    content_get(ridm, &m);
-    if( isBinary ){
-      rc = -1;
-      blob_zero(&r);
+    if( islinkv || islinkm /* || file_islink(zFullPath) */ ){
+      fossil_print("***** Cannot merge symlink %s\n", zName);
+      nConflict++;        
     }else{
-      rc = merge_3way(&p, zFullPath, &m, &r);
-    }
-    if( rc>=0 ){
-      if( !nochangeFlag ){
-        blob_write_to_file(&r, zFullPath);
-        file_setexe(zFullPath, isExe);
+      undo_save(zName);
+      zFullPath = mprintf("%s/%s", g.zLocalRoot, zName);
+      content_get(ridp, &p);
+      content_get(ridm, &m);
+      if( isBinary ){
+        rc = -1;
+        blob_zero(&r);
+      }else{
+        rc = merge_3way(&p, zFullPath, &m, &r);
       }
-      db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
-      if( rc>0 ){
-        fossil_print("***** %d merge conflicts in %s\n", rc, zName);
+      if( rc>=0 ){
+        if( !nochangeFlag ){
+          blob_write_to_file(&r, zFullPath);
+          file_setexe(zFullPath, isExe);
+        }
+        db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
+        if( rc>0 ){
+          fossil_print("***** %d merge conflicts in %s\n", rc, zName);
+          nConflict++;
+        }
+      }else{
+        fossil_print("***** Cannot merge binary file %s\n", zName);
         nConflict++;
       }
-    }else{
-      fossil_print("***** Cannot merge binary file %s\n", zName);
-      nConflict++;
+      blob_reset(&p);
+      blob_reset(&m);
+      blob_reset(&r);
     }
-    blob_reset(&p);
-    blob_reset(&m);
-    blob_reset(&r);
     db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
                   idv,ridm);
   }

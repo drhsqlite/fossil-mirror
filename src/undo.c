@@ -32,7 +32,7 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, existsflag, isExe FROM undo"
+    "SELECT content, existsflag, isExe, isLink FROM undo"
     " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
@@ -41,12 +41,20 @@ static void undo_one(const char *zPathname, int redoFlag){
     int new_exists;
     int old_exe;
     int new_exe;
+    int new_link;
+    int old_link;
     Blob current;
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
+    old_link = db_column_int(&q, 3);
+    new_link = file_islink(zFullname);
     new_exists = file_size(zFullname)>=0;
     if( new_exists ){
-      blob_read_from_file(&current, zFullname);
+      if( new_link ){
+        blob_read_link(&current, zFullname);
+      }else{
+        blob_read_from_file(&current, zFullname);        
+      }
       new_exe = file_isexe(zFullname);
     }else{
       blob_zero(&current);
@@ -64,7 +72,14 @@ static void undo_one(const char *zPathname, int redoFlag){
       }else{
         fossil_print("NEW %s\n", zPathname);
       }
-      blob_write_to_file(&new, zFullname);
+      if( new_exists && (new_link || old_link) ){
+        unlink(zFullname);
+      }
+      if( new_link ){
+        create_symlink(blob_str(&new), zFullname);
+      }else{
+        blob_write_to_file(&new, zFullname);
+      }
       file_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
@@ -74,10 +89,10 @@ static void undo_one(const char *zPathname, int redoFlag){
     free(zFullname);
     db_finalize(&q);
     db_prepare(&q, 
-       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d,"
+       "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d,"
              " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
-       new_exists, new_exe, zPathname
+       new_exists, new_exe, new_link, zPathname
     );
     if( new_exists ){
       db_bind_blob(&q, ":c", &current);
@@ -211,6 +226,7 @@ void undo_begin(void){
     @   redoflag BOOLEAN,                 -- 0 for undoable.  1 for redoable
     @   existsflag BOOLEAN,               -- True if the file exists
     @   isExe BOOLEAN,                    -- True if the file is executable
+    @   isLink BOOLEAN,                   -- True if the file is symlink
     @   content BLOB                      -- Saved content
     @ );
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
@@ -251,18 +267,23 @@ void undo_save(const char *zPathname){
   char *zFullname;
   Blob content;
   int existsFlag;
+  int isLink;
   Stmt q;
 
   if( !undoActive ) return;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
   existsFlag = file_size(zFullname)>=0;
   db_prepare(&q,
-    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,content)"
-    " VALUES(%Q,0,%d,%d,:c)",
-    zPathname, existsFlag, file_isexe(zFullname)
+    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+    " VALUES(%Q,0,%d,%d,%d,:c)",
+    zPathname, existsFlag, file_isexe(zFullname), file_islink(zFullname)
   );
   if( existsFlag ){
-    blob_read_from_file(&content, zFullname);
+    if( isLink ){
+      blob_read_link(&content, zFullname); 
+    }else{
+      blob_read_from_file(&content, zFullname);
+    }
     db_bind_blob(&q, ":c", &content);
   }
   free(zFullname);
