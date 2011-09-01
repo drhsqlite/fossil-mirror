@@ -305,7 +305,7 @@ void update_cmd(void){
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_isdir(g.argv[i])==1 ){
-	if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
+        if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
           blob_reset(&sql);
@@ -401,31 +401,30 @@ void update_cmd(void){
         fossil_print("MERGE %s\n", zName);
       }
       if( islinkv || islinkt /* || file_islink(zFullPath) */ ){
-        //if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
         nConflict++;        
       }else{
-	undo_save(zName);
-	content_get(ridt, &t);
-	content_get(ridv, &v);
-	rc = merge_3way(&v, zFullPath, &t, &r);
-	if( rc>=0 ){
-	  if( !nochangeFlag ){
-	    blob_write_to_file(&r, zFullNewPath);
-	    file_setexe(zFullNewPath, isexe);
-	  }
-	  if( rc>0 ){
-	    fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
-	    nConflict++;
-	  }
-	}else{
-	  if( !nochangeFlag ){
-	    blob_write_to_file(&t, zFullNewPath);
-	    file_setexe(zFullNewPath, isexe);
-	  }
-	  fossil_print("***** Cannot merge binary file %s\n", zNewName);
-	  nConflict++;
-	}
+        undo_save(zName);
+        content_get(ridt, &t);
+        content_get(ridv, &v);
+        rc = merge_3way(&v, zFullPath, &t, &r);
+        if( rc>=0 ){
+          if( !nochangeFlag ){
+            blob_write_to_file(&r, zFullNewPath);
+            file_setexe(zFullNewPath, isexe);
+          }
+          if( rc>0 ){
+            fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
+            nConflict++;
+          }
+        }else{
+          if( !nochangeFlag ){
+            blob_write_to_file(&t, zFullNewPath);
+            file_setexe(zFullNewPath, isexe);
+          }
+          fossil_print("***** Cannot merge binary file %s\n", zNewName);
+          nConflict++;
+        }
       }
       if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
