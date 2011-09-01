@@ -1,5 +1,5 @@
-C Fix\ssaving\sundo\sfor\ssymlinks.
-D 2011-09-01T22:15:00.260
+C Fix\sundo\swhen\shaving\sa\sregular\sfile\son\sdisk\sand\ssymlink\sin\sundo.
+D 2011-09-01T22:52:20.642
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -135,7 +135,7 @@ F src/timeline.c 808015b46915ca208b67c04e3d9862793ce82b30
 F src/tkt.c af72aa0605b5b3187c796e351dfb1d3fd8807eee
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
-F src/undo.c 363011ab3e7c32318917d1fb7e685a4f92fcf9b1
+F src/undo.c 7bb2961b61aae557db172f8b2fa714906e82ee44
 F src/update.c 4d81a5a41bb6f21518dc90f44d330e469e85e8ba
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c b4f2467e92933669c85692aed9db5e9d2113e7dc
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 02ee688a4d15bf2e5059e034229d007d901ab952
-R d3046ade106dcd4f20d36cad1286fce5
+P 0762b1d9c6cc13b1c64669798da7ef74685fa54d
+R 773f5eb74962a72f6b4bc9c797a7ab4e
 U dmitry
-Z 8d8c74e1512591cb4d61d2cf1666cd16
+Z 2e16b1877ec4d87078d44b0cea08a93d
