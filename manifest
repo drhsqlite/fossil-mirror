@@ -1,5 +1,5 @@
-C Disable\sthe\suse\sof\s&lt;canvas&gt;\sfor\srendering\sthe\sgraph.\s\sThe\scanvas\sis\nbusted\sin\srecent\sversions\sof\sFirefox.\s\sAnd\scanvas\sis\smostly\sbusted\sby\sdesign\nanyhow,\ssince\sapparently\sit\scan\snot\sbe\staller\sthan\s32768\spixels,\sand\s\nFossil\sgraphs\sfrequently\sneed\sto\sbe\staller\sthan\sthat.
-D 2011-09-01T17:04:34.939
+C Merging\sthe\sunwanted\stwo\strunk\sleaves.
+D 2011-09-01T17:45:43.914
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,7 +66,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c fbb2bbe9ede160ccb9dc024a20d069617e6b22fe
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
-F src/configure.c f22960f00de9b54e2f4528457c948cf54c46554b
+F src/configure.c 0b592a384968c82558dc7f28a95a2eb1953f6e37
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c 8ff47f4c10a8d86e97087857d2459e763011a541
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f2ede7da6d70851ab1e13f7d2238a94ef76f2370
-R 4b10b19e96d7cc814cc21a8fdad2ef12
-U drh
-Z 5935801772c298ce99f7ded929e6866c
+P 9eb45752950bce70c2475b67536fb3e427c0032d cd8041b159b1797dc79fff72f3fc2e02df69c41c
+R 9ef1ef9b7a4575a78c4cdbfb656f545b
+U viriketo
+Z c610979a2447bbd61db5d25934a92053
