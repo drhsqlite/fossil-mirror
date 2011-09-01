@@ -1,5 +1,5 @@
-C Version\s1.19\srelease\scandidate\s1.
-D 2011-09-01T18:25:19.856
+C Stop\spublishing\sx64\sbinaries\sfor\slinux.\s\sx86\sbinaries\sare\ssufficient.
+D 2011-09-01T20:23:38.345
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -300,7 +300,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki ada72d48110b4c70a2fffffa32b354034760d6b3
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
-F www/mkdownload.tcl e0b19b52e2835e538dbd3f219bc483a201b39b92
+F www/mkdownload.tcl 6a6f49e2a0277b60bf6a780058b06c7ff15bb59a
 F www/mkindex.tcl 29cd5ce47956b9714d310c5e0af45484062afba8
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a22c3817578eabb91fa4b0ac6e67cdaffc748f96
-R 23ee959e444c1e588405b54045ecffb6
+P 6517b5c857fe389e17f93efb8c3583af99ddd842
+R ef4e5380e886122e5dd8f02d38d2491f
 U drh
-Z ab792772d7c304daacdc7b33aa706751
+Z 4e5f34b78760df72183ad2721f563c72
