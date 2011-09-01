@@ -1,5 +1,5 @@
-C Merge\sin\ssupport\sfor\sthe\s"fossil\sticket\shistory"\scommand\sfrom\sthe\nvenks-emacs\sbranch.
-D 2011-09-01T22:00:01.839
+C Add\sin\sthe\smerge_renames\stest\sscript\sfrom\sthe\ssimilarly\snamed\sbranch.
+D 2011-09-01T22:05:15.813
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -154,6 +154,7 @@ F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
+F test/merge_renames.test 32f096e44629e8c5a8d10605b057eecb4744ac02
 F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
@@ -324,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e4f1c1fe950425bb56d8068a12be5a446df46554 374920b20944b8ab8e2285d68388acb3b3d3f443
-R 53ab961479a6e0faaf7142a1d2ea12a4
+P 98a855c50801150c8fec53b3056c9f11854b136d 62f4a8a61ce5ed83ca80e65fe55c606dca790a0d
+R f99721f73d324b7bfead8bd2f8994e0b
 U drh
-Z 964bff681a7d8a40265b7b4196779338
+Z 3984f7ce78b217da8191c26f44fb6970
