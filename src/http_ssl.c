@@ -282,6 +282,17 @@ char *connStr ;
     }
     blob_reset(&ans);
   }
+
+  /* Set the Global.zIpAddr variable to the server we are talking to.
+  ** This is used to populate the ipaddr column of the rcvfrom table,
+  ** if any files are received from the server.
+  */
+  {
+      /* IPv4 only code */
+      const char *ip = BIO_get_conn_ip(iBio);
+      g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  }
+
   X509_free(cert);
   return 0;
 }
