@@ -220,7 +220,7 @@ static void stash_apply(int stashid, int nConflict){
       blob_delta_apply(&a, &delta, &b);
       if( blob_compare(&disk, &a)==0 && isLink == isNewLink ){
         if( isLink || isNewLink ){
-          unlink(zNPath);
+          file_delete(zNPath);
         }
         if( isLink ){
           create_symlink(blob_str(&b), zNPath);

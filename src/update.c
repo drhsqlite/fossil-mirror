@@ -671,7 +671,7 @@ void revert_cmd(void){
       sqlite3_int64 mtime;
       undo_save(zFile);
       if( file_size(zFull)>=0 && (isLink || file_islink(zFull)) ){
-        unlink(zFull);
+        file_delete(zFull);
       }
       if( isLink ){
         create_symlink(blob_str(&record), zFull);
