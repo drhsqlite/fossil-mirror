@@ -289,7 +289,7 @@ char *connStr ;
   */
   {
       /* IPv4 only code */
-      const char *ip = BIO_get_conn_ip(iBio);
+      const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
       g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   }
 

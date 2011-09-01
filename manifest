@@ -1,5 +1,5 @@
-C Adding\ssome\sipv4-only\scode\sto\sget\sthe\sip\swhere\swe\stook\sthe\scontent\sfrom\sfor\sthe\shttps\sconnections.\nThe\s"rcvfrom"\sinformation\swas\slost\sin\sthe\scase\sof\shttps\sconnections.\n\nI\sdon't\sknow\show\sto\smake\sit\swork\swell\sfor\sipv6\stoo.
-D 2011-09-01T20:33:46.205
+C I\sthink\sI\sfix\sa\spossible\sbug\son\splatforms\swhere\s'char'\shas\ssigned\smeaning,\son\sthe\ncode\sabout\snoting\sthe\s'rcvfrom'\sipv4\saddress.
+D 2011-09-01T20:38:06.519
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -85,7 +85,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c abf9bec524a358996c615bda1aebefbe00ba6858
+F src/http_ssl.c 06f6d5f174011205a5bbe71123f47444aa606c7f
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c fd731ed08e2c891da937132417ea620dffb91652
 F src/info.c 8e82e9e0b13d67b40fbeeb8893a1fc878332bd0a
@@ -325,10 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P a22c3817578eabb91fa4b0ac6e67cdaffc748f96
-R 83cbe6691d0f12ee845ad5ab5d0b56e4
-T *branch * ssl_peer_ip
-T *sym-ssl_peer_ip *
-T -sym-trunk *
+P daa6a0eb9b03c4f091f541ee7162d46461e69157
+R b3191748501936e0acd9f29e287c755c
 U viriketo
-Z cd016bfb522013101ff1dd5d2eca76c4
+Z a6459a767aff8e239113bbce5e21e55f
