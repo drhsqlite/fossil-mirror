@@ -256,18 +256,33 @@ void merge_cmd(void){
     pid, pid, mid, mid
   );
 
+  /*
+  **  Add islink information for files in V and M
+  **
+  */
+  db_multi_exec(
+    "UPDATE fv SET"
+    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " islinkm=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0)",
+    vid, mid
+  );
+
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, isexe FROM fv"
+       "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
+       "       isexe, islinkv, islinkm FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d\n",
+       fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
+                    " islinkv=%d islinkm=%d",
           db_column_int(&q, 0),
           db_column_int(&q, 5),
           db_column_int(&q, 6),
           db_column_int(&q, 7),
           db_column_int(&q, 4),
-          db_column_int(&q, 8));
+          db_column_int(&q, 8),
+          db_column_int(&q, 9),
+          db_column_int(&q, 10));
        fossil_print("     fn  = [%s]\n", db_column_text(&q, 1));
        fossil_print("     fnp = [%s]\n", db_column_text(&q, 2));
        fossil_print("     fnm = [%s]\n", db_column_text(&q, 3));
@@ -305,8 +320,8 @@ void merge_cmd(void){
     int idv;
     const char *zName;
     db_multi_exec(
-      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,pathname)"
-      "  SELECT %d,3,0,rid,mrid,isexe,pathname FROM vfile WHERE id=%d",
+      "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
+      "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
       vid, idm
     );
     idv = db_last_insert_rowid();
@@ -319,24 +334,13 @@ void merge_cmd(void){
     }
   }
   db_finalize(&q);
-
-  /*
-  **  Add islink information for files in V and M
-  **
-  */
-  db_multi_exec(
-    "UPDATE fv SET"
-    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " islinkm=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0)",
-    vid, mid
-  );
   
   /*
   ** Find files that have changed from P->M but not P->V. 
   ** Copy the M content over into V.
   */
   db_prepare(&q,
-    "SELECT idv, ridm, fn FROM fv"
+    "SELECT idv, ridm, fn, islinkm FROM fv"
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND ridv=ridp AND NOT chnged"
   );
@@ -344,12 +348,14 @@ void merge_cmd(void){
     int idv = db_column_int(&q, 0);
     int ridm = db_column_int(&q, 1);
     const char *zName = db_column_text(&q, 2);
+    int islinkm = db_column_int(&q, 3);
     /* Copy content from idm over into idv.  Overwrite idv. */
     fossil_print("UPDATE %s\n", zName);
     if( !nochangeFlag ){
       undo_save(zName);
       db_multi_exec(
-        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2 WHERE id=%d", ridm, idv
+        "UPDATE vfile SET mtime=0, mrid=%d, chnged=2, islink=%d "
+        " WHERE id=%d", ridm, islinkm, idv
       );
       vfile_to_disk(0, idv, 0, 0);
     }
