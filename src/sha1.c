@@ -29,12 +29,30 @@ struct SHA1Context {
  *
  * blk0le() for little-endian and blk0be() for big-endian.
  */
-#define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
-#define blk0le(i) (block->l[i] = (rol(block->l[i],24)&0xFF00FF00) \
-    |(rol(block->l[i],8)&0x00FF00FF))
-#define blk0be(i) block->l[i]
-#define blk(i) (block->l[i&15] = rol(block->l[(i+13)&15]^block->l[(i+8)&15] \
-    ^block->l[(i+2)&15]^block->l[i&15],1))
+#if __GNUC__ && (defined(__i386__) || defined(__x86_64__))
+/*
+ * GCC by itself only generates left rotates.  Use right rotates if
+ * possible to be kinder to dinky implementations with iterative rotate
+ * instructions.
+ */
+#define SHA_ROT(op, x, k) \
+        ({ unsigned int y; asm(op " %1,%0" : "=r" (y) : "I" (k), "0" (x)); y; })
+#define rol(x,k) SHA_ROT("roll", x, k)
+#define ror(x,k) SHA_ROT("rorl", x, k)
+
+#else
+/* Generic C equivalent */
+#define SHA_ROT(x,l,r) ((x) << (l) | (x) >> (r))
+#define rol(x,k) SHA_ROT(x,k,32-(k))
+#define ror(x,k) SHA_ROT(x,32-(k),k)
+#endif
+
+
+#define blk0le(i) (block[i] = (ror(block[i],8)&0xFF00FF00) \
+    |(rol(block[i],8)&0x00FF00FF))
+#define blk0be(i) block[i]
+#define blk(i) (block[i&15] = rol(block[(i+13)&15]^block[(i+8)&15] \
+    ^block[(i+2)&15]^block[i&15],1))
 
 /*
  * (R0+R1), R2, R3, R4 are the different operations (rounds) used in SHA1
@@ -43,42 +61,43 @@ struct SHA1Context {
  * determined at run-time.
  */
 #define Rl0(v,w,x,y,z,i) \
-    z+=((w&(x^y))^y)+blk0le(i)+0x5A827999+rol(v,5);w=rol(w,30);
+    z+=((w&(x^y))^y)+blk0le(i)+0x5A827999+rol(v,5);w=ror(w,2);
 #define Rb0(v,w,x,y,z,i) \
-    z+=((w&(x^y))^y)+blk0be(i)+0x5A827999+rol(v,5);w=rol(w,30);
+    z+=((w&(x^y))^y)+blk0be(i)+0x5A827999+rol(v,5);w=ror(w,2);
 #define R1(v,w,x,y,z,i) \
-    z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol(v,5);w=rol(w,30);
+    z+=((w&(x^y))^y)+blk(i)+0x5A827999+rol(v,5);w=ror(w,2);
 #define R2(v,w,x,y,z,i) \
-    z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=rol(w,30);
+    z+=(w^x^y)+blk(i)+0x6ED9EBA1+rol(v,5);w=ror(w,2);
 #define R3(v,w,x,y,z,i) \
-    z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=rol(w,30);
+    z+=(((w|x)&y)|(w&x))+blk(i)+0x8F1BBCDC+rol(v,5);w=ror(w,2);
 #define R4(v,w,x,y,z,i) \
-    z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=rol(w,30);
-
-typedef union {
-    unsigned char c[64];
-    unsigned int l[16];
-} CHAR64LONG16;
+    z+=(w^x^y)+blk(i)+0xCA62C1D6+rol(v,5);w=ror(w,2);
 
 /*
  * Hash a single 512-bit block. This is the core of the algorithm.
  */
+#define a qq[0]
+#define b qq[1]
+#define c qq[2]
+#define d qq[3]
+#define e qq[4]
+
 void SHA1Transform(unsigned int state[5], const unsigned char buffer[64])
 {
-  unsigned int a, b, c, d, e;
-  CHAR64LONG16 *block;
+  unsigned int qq[5]; // a, b, c, d, e;
   static int one = 1;
-  CHAR64LONG16 workspace;
-
-  block = &workspace;
-  (void)memcpy(block, buffer, 64);
+  unsigned int block[16];
+  memcpy(block, buffer, 64);
+  memcpy(qq,state,5*sizeof(unsigned int));
 
   /* Copy context->state[] to working vars */
+  /*
   a = state[0];
   b = state[1];
   c = state[2];
   d = state[3];
   e = state[4];
+  */
 
   /* 4 rounds of 20 operations each. Loop unrolled. */
   if( 1 == *(unsigned char*)&one ){
@@ -115,9 +134,6 @@ void SHA1Transform(unsigned int state[5], const unsigned char buffer[64])
   state[2] += c;
   state[3] += d;
   state[4] += e;
-
-  /* Wipe variables */
-  a = b = c = d = e = 0;
 }
 
 
@@ -194,14 +210,13 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
 */
 static void DigestToBase16(unsigned char *digest, char *zBuf){
   static char const zEncode[] = "0123456789abcdef";
-  int i, j;
+  int ix;
 
-  for(j=i=0; i<20; i++){
-    int a = digest[i];
-    zBuf[j++] = zEncode[(a>>4)&0xf];
-    zBuf[j++] = zEncode[a & 0xf];
+  for(ix=0; ix<20; ix++){
+    *zBuf++ = zEncode[(*digest>>4)&0xf];
+    *zBuf++ = zEncode[*digest++ & 0xf];
   }
-  zBuf[j] = 0;
+  *zBuf = '\0';
 }
 
 /*

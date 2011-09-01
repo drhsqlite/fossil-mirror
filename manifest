@@ -1,5 +1,5 @@
-C Clean\sup\sa\sharmless\scompiler\swarning\sintroduced\sby\sthe\sprevious\scheck-in.
-D 2011-09-01T12:49:04.216
+C substantive\simprovement\sto\ssha1\sspeed\s(especially\son\sx86)
+D 2011-09-01T14:31:47.413
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c cd67fe706044ad622c9ecc919d7afd17ea0b5a50
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
 F src/setup.c d14162f2cf22807594376a599c27cdf184274bd9
-F src/sha1.c 2302f92df963dd21ccd703f5657e6a3a0e56107f
+F src/sha1.c eb55ba1fe2b84321327b195ab1d0be439f61f4cc
 F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7922e56655ccdc37e62dff70eeb5df047f8a71d5
-R e185a33a5e7be0a352535455c54a3890
-U drh
-Z fa411e3cb71cec75b65a3bbdabd2714b
+P f7f4a80ea0a421b69fb1d221046e8f97618078bb
+R 17e8855cd4731c4f697acb8c1c72c4f9
+U ron
+Z c1ff7c2a398569c625f846d5ecdffd83
