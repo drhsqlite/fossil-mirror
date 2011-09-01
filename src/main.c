@@ -161,6 +161,8 @@ struct Global {
   const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
   const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
+  
+  int allowSymlinks;             /* Cached "allow-symlinks" option */
 };
 
 /*

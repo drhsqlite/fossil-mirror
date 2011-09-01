@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.19 (pending)</h2>
+<h2>Changes For Version 1.19 (2011-09-02)</h2>
 
   *  Added a ./configure script based on autosetup.
   *  Added the "[/help/winsrv | fossil winsrv]" command
@@ -8,6 +8,8 @@
   *  Added "versionable settings" where settings that affect
      the local tree can be stored in versioned files in the
      .fossil-settings directory.
+  *  Background colors for branches are choosen automatically if no
+     color is specified by the user.
   *  The status, changes and extras commands now show
      pathnames relative to the current working directory,
      unless overridden by command line options or the
@@ -20,6 +22,13 @@
      setting and --ssl-identity option.
   *  Added "ssl-ca-location" setting to specify trusted root
      SSL certificates.
+  *  Added the --case-sensitive BOOLEAN command-line option to many commands.
+     Default to true for unix and false for windows.
+  *  Added the "Color-Test" submenu button on the branch list web page.
+  *  Compatibility improvements to the git-export feature.
+  *  Performance improvements on SHA1 checksums
+  *  Update to the latest SQLite version 3.7.8 alpha.
+  *  Fix the tarball generator to work with very log pathnames
 
 <h2>Changes For Version 1.18 (2011-07-14)</h2>
 

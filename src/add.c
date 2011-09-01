@@ -108,9 +108,9 @@ static int add_one_file(
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     db_multi_exec(
-      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe)"
-      "VALUES(%d,0,0,0,%Q,%d)",
-      vid, zPath, file_isexe(zFullname));
+      "INSERT INTO vfile(vid,deleted,rid,mrid,pathname,isexe,islink)"
+      "VALUES(%d,0,0,0,%Q,%d,%d)",
+      vid, zPath, file_isexe(zFullname), file_islink(zFullname));
     fossil_free(zFullname);
   }
   if( db_changes() ){
@@ -428,7 +428,7 @@ void addremove_cmd(void){
 
     zFile = db_column_text(&q, 0);
     zPath = db_column_text(&q, 1);
-    if( !file_isfile(zPath) ){
+    if( !file_isfile_or_link(zPath) ){
       if( !isTest ){
         db_multi_exec("UPDATE vfile SET deleted=1 WHERE pathname=%Q", zFile);
       }

@@ -119,7 +119,7 @@ void zip_add_folders(char *zName){
 ** pFile is the file to be appended.  zName is the name
 ** that the file should be saved as.
 */
-void zip_add_file(const char *zName, const Blob *pFile, int isExe){
+void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   z_stream stream;
   int nameLen;
   int toOut = 0;
@@ -141,7 +141,11 @@ void zip_add_file(const char *zName, const Blob *pFile, int isExe){
   nBlob = pFile ? blob_size(pFile) : 0;
   if( nBlob>0 ){
     iMethod = 8;
-    iMode =  isExe ? 0100755 : 0100644;
+    switch( mPerm ){
+      case PERM_LNK:   iMode = 0120755;   break;
+      case PERM_EXE:   iMode = 0100755;   break;
+      default:         iMode = 0100644;   break;
+    }
   }else{
     iMethod = 0;
     iMode = 040755;
@@ -289,7 +293,7 @@ void filezip_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
-    zip_add_file(g.argv[i], &file, file_isexe(g.argv[i]));
+    zip_add_file(g.argv[i], &file, file_perm(g.argv[i]));
     blob_reset(&file);
   }
   zip_close(&zip);
