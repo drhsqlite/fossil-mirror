@@ -1,5 +1,5 @@
-C Fix\smerge\swhen\smerging\sUPDATEs\sa\ssymlink\sto\sa\sregular\sfile\sand\svice\sversa.
-D 2011-09-01T22:55:28.910
+C Refactor\sfile_perm(),\sfile_islink(),\sand\sfile_isexe().\sNow\sfile_perm()\scalls\sstat\sonly\sonce.
+D 2011-09-01T22:56:34.666
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -78,7 +78,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 1118352e8b140f7508c4e8cfdc1bc97f5979606f
-F src/file.c 36455e07c6622c9ce99d9ca38df5cbc6d938d6be
+F src/file.c a3f3d80ed17fb574abb00076154cf983b3aa9732
 F src/finfo.c b206c1435c16b608476f809923fbbc32a12ce561
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 324763b932014891d345c31bf14d206f0e7e3d16
-R 1fcc105c9bb898f14712dd1a8e71a396
+P 82a95b4692e96b75864215e88eaa7f0a7ef61cec
+R d7ae3324ef6e6a3447ecf2032cc9cf10
 U dmitry
-Z 9821852473e48d7552040a34d9cf243c
+Z e1d471c491eca9e0c6b1965df37351b5
