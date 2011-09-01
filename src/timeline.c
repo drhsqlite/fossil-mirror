@@ -553,7 +553,9 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = document.getElementById("canvas");
+#if 0
     @ var realCanvas = null;
+#endif
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -682,6 +684,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
+#if 0
     @   if( btm<32768 ){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +
@@ -702,6 +705,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
     @     };
     @   }
+#endif
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
     @   }

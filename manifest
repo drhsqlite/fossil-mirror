@@ -1,5 +1,5 @@
-C Merge\simprovements\sto\sartifact\sdescriptions\sinto\ssymlinks\sbranch.\sAlso\smodify\sdisplaying\sof\spermissions:\snow\sweb\sUI\sshows\s"File",\s"Executable\sfile",\sor\s"Symbolic\slink"\sin\sfile\sartifact\sdescription.
-D 2011-08-31T16:28:23.139
+C Merge\slatest\strunk.
+D 2011-09-01T20:56:02.731
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,7 +66,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c fbb2bbe9ede160ccb9dc024a20d069617e6b22fe
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
-F src/configure.c f22960f00de9b54e2f4528457c948cf54c46554b
+F src/configure.c 0b592a384968c82558dc7f28a95a2eb1953f6e37
 F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c 2ddb311899ecc400cb791f29aa809c7ab6816068
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -109,12 +109,12 @@ F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
 F src/rebuild.c 694ed85b9cacaa9497afb2675051f01d28130086
-F src/report.c 194e7f27658ed8aae267a63c85906b486ff6ea1c
+F src/report.c b8bf42a664aed64433cf54ee94d727b75021c46f
 F src/rss.c db44782246b1cb1963103cd60b0ef46d4f91a8d6
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
 F src/setup.c d14162f2cf22807594376a599c27cdf184274bd9
-F src/sha1.c 40c07a366d3484f87c13907661ed44e3f4089377
+F src/sha1.c a088d4e44a389f9c03267ba6449b0ddd482dfe2c
 F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
 F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
@@ -131,7 +131,7 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c c32660ab43f6abdb7bfa9f0153a0f76aec22e0e7
+F src/timeline.c 808015b46915ca208b67c04e3d9862793ce82b30
 F src/tkt.c af72aa0605b5b3187c796e351dfb1d3fd8807eee
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -239,7 +239,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f2f37401e34f449d1a504e3eb9cb9554983d2d0f
-F www/changes.wiki 36291c4d629fc7a792ed7912abf1b63b6739333e
+F www/changes.wiki fa1d0fa1b305e5ce1d9ea56009f7430a38aad0c0
 F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -300,7 +300,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki ada72d48110b4c70a2fffffa32b354034760d6b3
 F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
-F www/mkdownload.tcl e0b19b52e2835e538dbd3f219bc483a201b39b92
+F www/mkdownload.tcl 6a6f49e2a0277b60bf6a780058b06c7ff15bb59a
 F www/mkindex.tcl 29cd5ce47956b9714d310c5e0af45484062afba8
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 40ed431ca59e0a154d78b876039f730d5889d473 49402fc72296cc555f0467a42808b327a83f0ce5
-R ee35505f59429bc7ea267a94d58ac847
+P 3115774ffe6e82d30f452eade3c6465c2e14b4ec bd04a489258ee6ee8cdf014587de8f6cbcbc6fcc
+R b3a54ee2dcfed3c90b3970f63a168c6d
 U dmitry
-Z 3d079470e6dd35d9c811a6a47ff0e8ca
+Z cd05ffc9aa495751030d1193f8da6f39

@@ -62,7 +62,6 @@ foreach datetime [lsort -decr [array names adate]] {
   
   foreach {prefix suffix img desc} {
     fossil-linux-x86 zip linux.gif {Linux x86}
-    fossil-linux-amd64 zip linux64.gif {Linux x86_64}
     fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
     fossil-openbsd-x86 zip openbsd.gif {OpenBSD 4.7 x86}
     fossil-w32 zip win32.gif {Windows}
