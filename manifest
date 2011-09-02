@@ -1,8 +1,9 @@
-C Fix\stypos\sand\sother\scleanup\son\sthe\s"build.wiki"\sdoc\spage.
-D 2011-09-01T22:22:27.729
+C Add\sMakefile.in\sback\sinto\sthe\scheckout.\s\sWas\sdeleted\saccidently\sby\nthe\smerge\sat\s[e4f1c1fe950425b].
+D 2011-09-02T10:10:26.721
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
+F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -325,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P fcd68266e0a6f3187d2b5497877c52ab6a4a9367
-R 68e80ec52adf0ae256a6be606d3125fc
+P 0f9fb203703ff21ab5aa09fe9e316aca0c13f29e
+R b525b58e60ff7721188574e478309f95
 U drh
-Z 64ad9e467213a91feb4dd69d394fcc58
+Z be17a7b113e3c8f7fe6341b57f1251ca
