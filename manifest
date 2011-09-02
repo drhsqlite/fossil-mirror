@@ -1,5 +1,5 @@
-C Add\sadditional\strace\soutput\swith\sthe\s--debug\soption\son\s"fossil\smerge"\sand\nespecially\son\sfilename\schange\stracking.
-D 2011-09-02T13:51:16.659
+C Fix\sa\smissing\s\\n\son\sthe\strace\soutput\sof\sthe\sprevious\scheck-in.\s\sAlso\nfix\sa\sredundancy\sin\sthe\scomputation\sof\ssymbolic\slinks.
+D 2011-09-02T13:54:05.347
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -98,7 +98,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
 F src/manifest.c abb78af13894eec124e28c71597b4c8229b1b0b7
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
-F src/merge.c 2fc3ee39b07c375b34b65d71a616ad9d68d07af3
+F src/merge.c 635635e24e675dee7206b7d35dc6f8208eec06c0
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c97535c5d815b1d0be8197b74dea448f035c346d
-R 52a5bb77383a09675a02da5487ec7ea1
+P 21acce3c350f582ff9bde95b0784d6be4c641780
+R befb57da17e2a2668aeb5f540ff251d8
 U drh
-Z d2845ea38dd4b690339814afcff3898b
+Z ffaa12adf80a12aab3df45fe639592e9

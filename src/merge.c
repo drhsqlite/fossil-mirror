@@ -269,17 +269,6 @@ void merge_cmd(void){
     pid, pid, mid, mid, vid, mid
   );
 
-  /*
-  **  Add islink information for files in V and M
-  **
-  */
-  db_multi_exec(
-    "UPDATE fv SET"
-    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " islinkm=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnm),0)",
-    vid, mid
-  );
-
   if( debugFlag ){
     db_prepare(&q,
        "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
@@ -287,7 +276,7 @@ void merge_cmd(void){
     );
     while( db_step(&q)==SQLITE_ROW ){
        fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
-                    " islinkv=%d islinkm=%d",
+                    " islinkv=%d islinkm=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 5),
           db_column_int(&q, 6),
