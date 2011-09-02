@@ -333,13 +333,7 @@ proc cc-get-settings {} {
 # Returns the previous settings
 proc cc-update-settings {args} {
 	set prev [cc-get-settings]
-	array set new $prev
-
-	foreach {name value} $args {
-		set new($name) $value
-	}
-	cc-store-settings $new
-
+	cc-store-settings [dict merge $prev $args]
 	return $prev
 }
 
