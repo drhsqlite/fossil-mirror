@@ -225,7 +225,7 @@ void update_cmd(void){
   /* Compute file name changes on V->T.  Record name changes in files that
   ** have changed locally.
   */
-  find_filename_changes(vid, tid, &nChng, &aChng);
+  find_filename_changes(vid, tid, &nChng, &aChng, debugFlag ? "V->T": 0);
   if( nChng ){
     for(i=0; i<nChng; i++){
       db_multi_exec(

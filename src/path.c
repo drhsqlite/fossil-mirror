@@ -91,10 +91,7 @@ void path_reset(void){
     fossil_free(p);
   }
   bag_clear(&path.seen);
-  path.pCurrent = 0;
-  path.pAll = 0;
-  path.pEnd = 0;
-  path.nStep = 0;
+  memset(&path, 0, sizeof(&path));
 }
 
 /*
@@ -215,7 +212,7 @@ void shortest_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    fossil_print("%4d: %s", n, z);
+    fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->u.pTo ){
       fossil_print(" is a %s of\n", 
@@ -315,7 +312,7 @@ void ancestor_path_test_cmd(void){
       "  FROM blob, event"
       " WHERE blob.rid=%d AND event.objid=%d AND event.type='ci'",
       p->rid, p->rid);
-    fossil_print("%4d: %s", n, z);
+    fossil_print("%4d: %5d %s", n, p->rid, z);
     fossil_free(z);
     if( p->rid==iFrom ) fossil_print(" VERSION1");
     if( p->rid==iTo ) fossil_print(" VERSION2");
@@ -342,21 +339,24 @@ struct NameChange {
 **
 ** The number of name changes is written into *pnChng.  For each name
 ** change, two integers are allocated for *piChng.  The first is the 
-** filename.fnid for the original name and the second is for new name.
+** filename.fnid for the original name as seen in check-in iFrom and
+** the second is for new name as it is used in check-in iTo.
+**
 ** Space to hold *piChng is obtained from fossil_malloc() and should
 ** be released by the caller.
 **
-** This routine really has nothing to do with pathion.  It is located
+** This routine really has nothing to do with path.  It is located
 ** in this path.c module in order to leverage some of the path
 ** infrastructure.
 */
 void find_filename_changes(
-  int iFrom,
-  int iTo,
-  int *pnChng,
-  int **aiChng
+  int iFrom,               /* Ancestor check-in */
+  int iTo,                 /* Recent check-in */
+  int *pnChng,             /* Number of name changes along the path */
+  int **aiChng,            /* Name changes */
+  const char *zDebug       /* Generate trace output if no NULL */
 ){
-  PathNode *p;           /* For looping over path from iFrom to iTo */
+  PathNode *p;             /* For looping over path from iFrom to iTo */
   NameChange *pAll = 0;    /* List of all name changes seen so far */
   NameChange *pChng;       /* For looping through the name change list */
   int nChng = 0;           /* Number of files whose names have changed */
@@ -389,6 +389,15 @@ void find_filename_changes(
         fnid = db_column_int(&q1, 0);
         pfnid = db_column_int(&q1, 1);
       }
+      if( zDebug ){
+        fossil_print("%s at %d %.10z: %d[%z] -> %d[%z]\n",
+           zDebug, p->rid, 
+           db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid),
+           pfnid,
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", pfnid),
+           fnid,
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", fnid));
+      }
       for(pChng=pAll; pChng; pChng=pChng->pNext){
         if( pChng->curName==pfnid ){
           pChng->newName = fnid;
@@ -415,6 +424,14 @@ void find_filename_changes(
     for(pChng=pAll, i=0; pChng; pChng=pChng->pNext, i+=2){
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
+      if( zDebug ){
+        fossil_print("%s summary %d[%z] -> %d[%z]\n",
+           zDebug,
+           aChng[i],
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i]),
+           aChng[i+1],
+           db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i+1]));
+      }
     }
     while( pAll ){
       pChng = pAll;
@@ -439,18 +456,24 @@ void test_name_change(void){
   int i;
 
   db_find_and_open_repository(0,0);
-  if( g.argc!=4 ) usage("VERSION1 VERSION2");
-  iFrom = name_to_rid(g.argv[2]);
-  iTo = name_to_rid(g.argv[3]);
-  find_filename_changes(iFrom, iTo, &nChng, &aChng);
-  for(i=0; i<nChng; i++){
-    char *zFrom, *zTo;
+  if( g.argc<4 ) usage("VERSION1 VERSION2");
+  while( g.argc>=4 ){
+    iFrom = name_to_rid(g.argv[2]);
+    iTo = name_to_rid(g.argv[3]);
+    find_filename_changes(iFrom, iTo, &nChng, &aChng, 0);
+    fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
+                 iFrom, g.argv[2], iTo, g.argv[3]);
+    for(i=0; i<nChng; i++){
+      char *zFrom, *zTo;
 
-    zFrom = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
-    zTo = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
-    fossil_print("[%s] -> [%s]\n", zFrom, zTo);
-    fossil_free(zFrom);
-    fossil_free(zTo);
+      zFrom = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
+      zTo = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
+      fossil_print("[%s] -> [%s]\n", zFrom, zTo);
+      fossil_free(zFrom);
+      fossil_free(zTo);
+    }
+    fossil_free(aChng);
+    g.argv += 2;
+    g.argc -= 2;
   }
-  fossil_free(aChng);
 }

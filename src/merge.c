@@ -150,6 +150,15 @@ void merge_cmd(void){
   if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);
   load_vfile_from_rid(pid);
+  if( debugFlag ){
+    char *z;
+    z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", pid);
+    fossil_print("P=%d %z\n", pid, z);
+    z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", mid);
+    fossil_print("M=%d %z\n", mid, z);
+    z = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
+    fossil_print("V=%d %z\n", vid, z);
+  }
 
   /*
   ** The vfile.pathname field is used to match files against each other.  The
@@ -189,7 +198,7 @@ void merge_cmd(void){
   /*
   ** Compute name changes from P->V
   */
-  find_filename_changes(vid, pid, &nChng, &aChng);
+  find_filename_changes(vid, pid, &nChng, &aChng, debugFlag ? "P->V" : 0);
   if( nChng ){
     for(i=0; i<nChng; i++){
       char *z;
@@ -219,7 +228,7 @@ void merge_cmd(void){
   /*
   ** Compute name changes from P->M
   */
-  find_filename_changes(pid, mid, &nChng, &aChng);
+  find_filename_changes(pid, mid, &nChng, &aChng, debugFlag ? "P->M" : 0);
   if( nChng ){
     if( nChng>4 ) db_multi_exec("CREATE INDEX fv_fnp ON fv(fnp)");
     for(i=0; i<nChng; i++){
@@ -252,8 +261,12 @@ void merge_cmd(void){
     " idp=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnp),0),"
     " ridp=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnp),0),"
     " idm=coalesce((SELECT id FROM vfile WHERE vid=%d AND pathname=fnm),0),"
-    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0)",
-    pid, pid, mid, mid
+    " ridm=coalesce((SELECT rid FROM vfile WHERE vid=%d AND pathname=fnm),0),"
+    " islinkv=coalesce((SELECT islink FROM vfile"
+                    " WHERE vid=%d AND pathname=fnm),0),"
+    " islinkm=coalesce((SELECT islink FROM vfile"
+                    " WHERE vid=%d AND pathname=fnm),0)",
+    pid, pid, mid, mid, vid, mid
   );
 
   /*
