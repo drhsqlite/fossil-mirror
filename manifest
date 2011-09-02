@@ -1,5 +1,5 @@
-C Uncomment\scontents\sof\sMakefile.in.\sSilence\sOpenSSL\sdeprecation\swarnings\son\sMac\sOS\sX\s10.7.
-D 2011-09-02T10:19:08.808
+C Print\sdescription\sof\sconflict\swhen\s'stash\sapply'\scannot\smerge\sa\ssymlink\sand\sa\sregular\sfile.
+D 2011-09-02T10:34:59.153
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/skins.c 681fdf82f962335d33fa00b014a6afa382754b94
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c d79f1dec6f14f59ba317928041a620e342baaf78
 F src/sqlite3.h eaa02deb90dae019d8c22a807704ae1e94e001bc
-F src/stash.c d291e082ef3a30ae6cad602ec73425af818b8bbd
+F src/stash.c 08614580aa1b579a05f29918b3955d1253f7dbcd
 F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 67295626750b20135328986287b4acda7e515a3b
-R 15e72ae428e4dd4d6ece38657eb88200
+P 73443aa7f8665b015feaa86be86e855a6cc59550
+R 70e3a7c86d96f744390a6aec739eadc7
 U dmitry
-Z 99cc6811e1c394577da2dac29025e571
+Z 6ebc95dfec349e1860664db139aabbdb
