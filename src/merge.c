@@ -198,15 +198,15 @@ void merge_cmd(void){
   /*
   ** Compute name changes from P->V
   */
-  find_filename_changes(vid, pid, &nChng, &aChng, debugFlag ? "P->V" : 0);
+  find_filename_changes(pid, vid, 0, &nChng, &aChng, debugFlag ? "P->V" : 0);
   if( nChng ){
     for(i=0; i<nChng; i++){
       char *z;
-      z = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2+1]);
+      z = db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i*2]);
       db_multi_exec(
         "UPDATE fv SET fnp=%Q, fnm=%Q"
         " WHERE fn=(SELECT name FROM filename WHERE fnid=%d)",
-        z, z, aChng[i*2]
+        z, z, aChng[i*2+1]
       );
       free(z);
     }
@@ -228,7 +228,7 @@ void merge_cmd(void){
   /*
   ** Compute name changes from P->M
   */
-  find_filename_changes(pid, mid, &nChng, &aChng, debugFlag ? "P->M" : 0);
+  find_filename_changes(pid, mid, 0, &nChng, &aChng, debugFlag ? "P->M" : 0);
   if( nChng ){
     if( nChng>4 ) db_multi_exec("CREATE INDEX fv_fnp ON fv(fnp)");
     for(i=0; i<nChng; i++){

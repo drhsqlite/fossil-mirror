@@ -118,7 +118,12 @@ void path_reverse_path(void){
 **
 ** Return NULL if no path is found.
 */
-PathNode *path_shortest(int iFrom, int iTo, int directOnly){
+PathNode *path_shortest(
+  int iFrom,          /* Path starts here */
+  int iTo,            /* Path ends here */
+  int directOnly,     /* No merge links if true */
+  int oneWayOnly      /* Parent->child only if true */
+){
   Stmt s;
   PathNode *pPrev;
   PathNode *p;
@@ -129,7 +134,11 @@ PathNode *path_shortest(int iFrom, int iTo, int directOnly){
     path.pEnd = path.pStart;
     return path.pStart;
   }
-  if( directOnly ){
+  if( oneWayOnly ){
+    db_prepare(&s, 
+        "SELECT cid, 1 FROM plink WHERE pid=:pid "
+    );
+  }else if( directOnly ){
     db_prepare(&s, 
         "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim "
         "UNION ALL "
@@ -195,13 +204,15 @@ void shortest_path_test_cmd(void){
   PathNode *p;
   int n;
   int directOnly;
+  int oneWay;
 
   db_find_and_open_repository(0,0);
   directOnly = find_option("no-merge",0,0)!=0;
+  oneWay = find_option("one-way",0,0)!=0;
   if( g.argc!=4 ) usage("VERSION1 VERSION2");
   iFrom = name_to_rid(g.argv[2]);
   iTo = name_to_rid(g.argv[3]);
-  p = path_shortest(iFrom, iTo, directOnly);
+  p = path_shortest(iFrom, iTo, directOnly, oneWay);
   if( p==0 ){
     fossil_fatal("no path from %s to %s", g.argv[1], g.argv[2]);
   }
@@ -352,6 +363,7 @@ struct NameChange {
 void find_filename_changes(
   int iFrom,               /* Ancestor check-in */
   int iTo,                 /* Recent check-in */
+  int revOk,               /* Ok to move backwards (child->parent) if true */
   int *pnChng,             /* Number of name changes along the path */
   int **aiChng,            /* Name changes */
   const char *zDebug       /* Generate trace output if no NULL */
@@ -368,11 +380,13 @@ void find_filename_changes(
   *aiChng = 0;
   if( iFrom==iTo ) return;
   path_reset();
-  p = path_shortest(iFrom, iTo, 1);
+  p = path_shortest(iFrom, iTo, 1, revOk==0);
   if( p==0 ) return;
   path_reverse_path();
   db_prepare(&q1,
-     "SELECT pfnid, fnid FROM mlink WHERE mid=:mid AND pfnid>0"
+     "SELECT pfnid, fnid FROM mlink"
+     " WHERE mid=:mid AND (pfnid>0 OR fid==0)"
+     " ORDER BY pfnid"
   );
   for(p=path.pStart; p; p=p->u.pTo){
     int fnid, pfnid;
@@ -382,16 +396,20 @@ void find_filename_changes(
     }
     db_bind_int(&q1, ":mid", p->rid);
     while( db_step(&q1)==SQLITE_ROW ){
-      if( p->fromIsParent ){
-        fnid = db_column_int(&q1, 1);
-        pfnid = db_column_int(&q1, 0);
-      }else{
-        fnid = db_column_int(&q1, 0);
-        pfnid = db_column_int(&q1, 1);
+      fnid = db_column_int(&q1, 1);
+      pfnid = db_column_int(&q1, 0);
+      if( pfnid==0 ){
+        pfnid = fnid;
+        fnid = 0;
+      }
+      if( !p->fromIsParent ){
+        int t = fnid;
+        fnid = pfnid;
+        pfnid = t;
       }
       if( zDebug ){
-        fossil_print("%s at %d %.10z: %d[%z] -> %d[%z]\n",
-           zDebug, p->rid, 
+        fossil_print("%s at %d%s %.10z: %d[%z] -> %d[%z]\n",
+           zDebug, p->rid, p->fromIsParent ? ">" : "<",
            db_text(0, "SELECT uuid FROM blob WHERE rid=%d", p->rid),
            pfnid,
            db_text(0, "SELECT name FROM filename WHERE fnid=%d", pfnid),
@@ -404,7 +422,7 @@ void find_filename_changes(
           break;
         }
       }
-      if( pChng==0 ){
+      if( pChng==0 && fnid>0 ){
         pChng = fossil_malloc( sizeof(*pChng) );
         pChng->pNext = pAll;
         pAll = pChng;
@@ -414,14 +432,18 @@ void find_filename_changes(
         nChng++;
       }
     }
-    for(pChng=pAll; pChng; pChng=pChng->pNext) pChng->curName = pChng->newName;
+    for(pChng=pAll; pChng; pChng=pChng->pNext){
+      pChng->curName = pChng->newName;
+    }
     db_reset(&q1);
   }
   db_finalize(&q1);
   if( nChng ){
-    *pnChng = nChng;
     aChng = *aiChng = fossil_malloc( nChng*2*sizeof(int) );
-    for(pChng=pAll, i=0; pChng; pChng=pChng->pNext, i+=2){
+    for(pChng=pAll, i=0; pChng; pChng=pChng->pNext){
+      if( pChng->newName==0 ) continue;
+      if( pChng->origName==0 ) continue;
+      if( pChng->newName==pChng->origName ) continue;
       aChng[i] = pChng->origName;
       aChng[i+1] = pChng->newName;
       if( zDebug ){
@@ -432,7 +454,9 @@ void find_filename_changes(
            aChng[i+1],
            db_text(0, "SELECT name FROM filename WHERE fnid=%d", aChng[i+1]));
       }
+      i += 2;
     }
+    *pnChng = i/2;
     while( pAll ){
       pChng = pAll;
       pAll = pAll->pNext;
@@ -444,7 +468,7 @@ void find_filename_changes(
 /*
 ** COMMAND: test-name-changes
 **
-** Usage: %fossil test-name-changes VERSION1 VERSION2
+** Usage: %fossil test-name-changes [--debug] VERSION1 VERSION2
 **
 ** Show all filename changes that occur going from VERSION1 to VERSION2
 */
@@ -454,13 +478,17 @@ void test_name_change(void){
   int *aChng;
   int nChng;
   int i;
+  const char *zDebug = 0;
+  int revOk = 0;
 
   db_find_and_open_repository(0,0);
+  zDebug = find_option("debug",0,0)!=0 ? "debug" : 0;
+  revOk = find_option("bidirectional",0,0)!=0;
   if( g.argc<4 ) usage("VERSION1 VERSION2");
   while( g.argc>=4 ){
     iFrom = name_to_rid(g.argv[2]);
     iTo = name_to_rid(g.argv[3]);
-    find_filename_changes(iFrom, iTo, &nChng, &aChng, 0);
+    find_filename_changes(iFrom, iTo, revOk, &nChng, &aChng, zDebug);
     fossil_print("------ Changes for (%d) %s -> (%d) %s\n",
                  iFrom, g.argv[2], iTo, g.argv[3]);
     for(i=0; i<nChng; i++){

@@ -404,9 +404,10 @@ void www_print_timeline(
           "       (fid==0) AS isdel,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
-          "       (SELECT uuid FROM blob WHERE rid=pid)"
+          "       (SELECT uuid FROM blob WHERE rid=pid),"
+          "       (SELECT name FROM filename WHERE fnid=mlink.pfnid) AS oldnm"
           "  FROM mlink"
-          " WHERE mid=:mid AND pid!=fid"
+          " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
@@ -416,6 +417,7 @@ void www_print_timeline(
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOldName = db_column_text(&fchngQuery, 5);
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
         if( !inUl ){
@@ -425,11 +427,17 @@ void www_print_timeline(
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
           @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
-          @ </a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
+        }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
+          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
         }else{
-          @ <li> %h(zFilename) &nbsp;
+          if( zOldName!=0 ){
+            @ <li> %h(zOldName) &rarr; %h(zFilename)
+          }else{
+            @ <li> %h(zFilename) &nbsp;
+          }
           @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
           @ target="diffwindow">[diff]</a></li>
         }
@@ -930,7 +938,7 @@ void page_timeline(void){
     const char *zTo = 0;
 
     if( from_rid && to_rid ){
-      p = path_shortest(from_rid, to_rid, noMerge);
+      p = path_shortest(from_rid, to_rid, noMerge, 0);
       zFrom = P("from");
       zTo = P("to");
     }else{

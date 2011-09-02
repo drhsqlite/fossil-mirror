@@ -1,5 +1,5 @@
-C Fix\sa\smissing\s\\n\son\sthe\strace\soutput\sof\sthe\sprevious\scheck-in.\s\sAlso\nfix\sa\sredundancy\sin\sthe\scomputation\sof\ssymbolic\slinks.
-D 2011-09-02T13:54:05.347
+C Do\sa\sbetter\sjob\sof\smerging\sbranches\sthat\scontain\slots\sof\sfile\srenames.
+D 2011-09-02T16:19:17.525
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,7 +54,7 @@ F src/add.c 865597ffaba0162fcce04b8bdfb9cf177520c138
 F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 775a4640b206656c31bef547698286caf2852192
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
-F src/bisect.c 28ed487b54f57e683e2b3109e7a2ac4372cd923f
+F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
 F src/blob.c dab8584f2a3b17036f7e114f8d359700a7442aee
 F src/branch.c cd6cea2fb878d683dac3c22cf9fde49c83549f5e
 F src/browse.c 7e3ed1e4ebf65a9e13f46843bc3c21b3d88b4086
@@ -98,12 +98,12 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
 F src/manifest.c abb78af13894eec124e28c71597b4c8229b1b0b7
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
-F src/merge.c 635635e24e675dee7206b7d35dc6f8208eec06c0
+F src/merge.c df1939382de9c70f121533c959bbcc5cbd264152
 F src/merge3.c 68dfedf02c61695dcf9656b76bf4f4c0292ba21a
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
-F src/path.c a596d39a2865cf6e1c0e5b1e63468125156b715f
+F src/path.c 0a62bed55739eea10a9859b5d5eeba1190147118
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
@@ -131,12 +131,12 @@ F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c 808015b46915ca208b67c04e3d9862793ce82b30
+F src/timeline.c caca2da7d541f4970096b9b20dcd430d69f29ac4
 F src/tkt.c 476baf683e838138a89952d95c4aca2091ca5d76
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 4f299acbcb19450f73a9de665e643f09bf7d614b
-F src/update.c 0400cd429bd5a6f59afd12192cd25a83a945d4ab
+F src/update.c 90bd6288b705c41174ef814585516be3ec03ef15
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c b4f2467e92933669c85692aed9db5e9d2113e7dc
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -156,7 +156,7 @@ F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 32f096e44629e8c5a8d10605b057eecb4744ac02
-F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
+F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 21acce3c350f582ff9bde95b0784d6be4c641780
-R befb57da17e2a2668aeb5f540ff251d8
+P 597176786b9a8aa9ab245a8732bb19e6ed22d009
+R 25464fdda97739ffac6fba4a0c29d8bd
 U drh
-Z ffaa12adf80a12aab3df45fe639592e9
+Z 6b68ad07525a40ec224930ca5751bebb
