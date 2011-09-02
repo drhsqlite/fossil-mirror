@@ -1,9 +1,9 @@
-C Bring\sMakefile.in\sback.
-D 2011-09-02T09:34:30.974
+C Uncomment\scontents\sof\sMakefile.in.\sSilence\sOpenSSL\sdeprecation\swarnings\son\sMac\sOS\sX\s10.7.
+D 2011-09-02T10:19:08.808
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 7e465c9786f680d03db10e8cd1639d83851763f0
+F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def a063dae108d9820dacd284987579fb6029e263eb
+F auto.def 8920d8e6fefa9ee3e48392c4fd1cffb3cf2f8aeb
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 61d49d92bb50fabf3acfa47115bf4ea573e37640
-R bb8128f41afea04f3cf31a60dc0fbfd8
+P 67295626750b20135328986287b4acda7e515a3b
+R 15e72ae428e4dd4d6ece38657eb88200
 U dmitry
-Z ebf99a7dd88d2aa8fb369a7fbdd6d0e5
+Z 99cc6811e1c394577da2dac29025e571
