@@ -73,9 +73,9 @@ static void undo_one(const char *zPathname, int redoFlag){
         fossil_print("NEW %s\n", zPathname);
       }
       if( new_exists && (new_link || old_link) ){
-        unlink(zFullname);
+        file_delete(zFullname);
       }
-      if( new_link ){
+      if( old_link ){
         create_symlink(blob_str(&new), zFullname);
       }else{
         blob_write_to_file(&new, zFullname);
@@ -278,7 +278,7 @@ void undo_save(const char *zPathname){
     "INSERT OR IGNORE INTO"
     "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
     " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_isexe(zFullname), file_islink(zFullname)
+    zPathname, existsFlag, file_isexe(zFullname), isLink
   );
   if( existsFlag ){
     if( isLink ){

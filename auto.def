@@ -137,7 +137,7 @@ if {$ssldirs ne "none"} {
         define-append LIBS -lssl -lcrypto
         msg-result "HTTP support enabled"
 
-        # Maybe needed to silence warnings on Mac OS X 10.7 with openssl
+        # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
         if {[string match *-darwin* [get-define host]]} {
             if {[cctest -cflags {-Wdeprecated-declarations}]} {
                 define-append EXTRA_CFLAGS -Wdeprecated-declarations
