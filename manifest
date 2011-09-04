@@ -1,5 +1,5 @@
-C Making\sannotate\snot\ssegfault\sfor\sthe\scomplex\stest\scase\sI\shave.\sThere\sis\sstill\sa\nlittle\sleak...\sbut\smuuuch\ssmaller\sthan\sit\swas.
-D 2011-09-04T21:02:13.214
+C Reducing\sthe\sleak\sof\sannotate\seven\smore.\n\nI\swrote\sa\sTODO\sin\sthe\sfile,\sfor\sa\sleak\sstill\spresent\sand\srelevant\sfor\sfiles\smodified\sby\nmany\sversions,\sbut\sthat\srequires\sharder\swork\sto\sget\sright.
+D 2011-09-04T21:39:49.384
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,7 +72,7 @@ F src/db.c 783b348d106f9d88d23db3f07d3a90c8c64efe79
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 264cce36becf4274e6e431830197f247caec7072
 F src/descendants.c d05ff92998e4a927e5824fb24701cb3507ed17b2
-F src/diff.c debf1bc949cea68140f476f1f121dd3d7bb3ba44
+F src/diff.c c75d75e6ccfe6111b8c1e3e5e41e2cd1cf151c73
 F src/diffcmd.c d02f0bfc1cc3cf51753a602e1d5ce19f666730ea
 F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 73b6ff49666b01622e2b8f59fc73975da6a118b2
-R 32fa779e66a12b523d82bb9095638bbd
+P fa760a24cd50191313bb8f7aebf6c4d86a85eeaa
+R 96870abf08dddc8e38143fc6588679ea
 U viriketo
-Z 861e220e6854676a73e609c22659696e
+Z df174152871c7d797b7b906c35f4a62e

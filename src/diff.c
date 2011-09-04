@@ -639,6 +639,7 @@ struct Annotator {
   int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
   char **azVers;    /* Names of versions analyzed */
+  Blob toAnnotate;
 };
 
 /*
@@ -646,11 +647,11 @@ struct Annotator {
 ** to be annotated.  The annotator takes control of the input Blob and
 ** will release it when it is finished with it.
 */
-static int annotation_start(Annotator *p, Blob *pInput){
+static int annotation_start(Annotator *p){
   int i;
 
-  memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
+  p->c.aTo = break_into_lines(blob_str(&p->toAnnotate),
+          blob_size(&p->toAnnotate),&p->c.nTo,1);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -681,6 +682,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
                                 &p->c.nFrom, 1);
   if( p->c.aFrom==0 ){
+    free(p->c.aFrom);
     return 1;
   }
 
@@ -698,6 +700,8 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
     struct AnnLine *x = &p->aOrig[lnTo];
     for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
       if( x->zSrc==0 || x->iLevel==iPrevLevel ){
+         /* TODO: handle zPName so we can free labels
+          * if they get totally unreferenced in the Annotator */
          x->zSrc = zPName;
          x->iLevel = iThisLevel;
       }
@@ -724,15 +728,16 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 ** COMMAND: test-annotate-step
 */
 void test_annotate_step_cmd(void){
-  Blob orig, b;
+  Blob b = empty_blob;
   Annotator x;
   int i;
 
   if( g.argc<4 ) usage("RID1 RID2 ...");
   db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
+  memset(&x, 0, sizeof(x));
+  x.toAnnotate = empty_blob;
+  content_get(name_to_rid(g.argv[2]), &x.toAnnotate);
+  if( annotation_start(&x) ){
     fossil_fatal("binary file");
   }
   for(i=3; i<g.argc; i++){
@@ -765,7 +770,6 @@ static void annotate_file(
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
-  Blob toAnnotate = empty_blob;     /* Text of the final (mid) version of the file */
   Blob step = empty_blob;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
@@ -776,13 +780,15 @@ static void annotate_file(
   if( rid==0 ){
     fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
   }
-  if( !content_get(rid, &toAnnotate) ){
+  memset(p, 0, sizeof(*p));
+  p->toAnnotate = empty_blob;
+  if( !content_get(rid, &p->toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
   db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
   if( iLimit<=0 ) iLimit = 1000000000;
   compute_direct_ancestors(mid, iLimit);
-  annotation_start(p, &toAnnotate);
+  annotation_start(p);
 
   db_prepare(&q, 
     "SELECT mlink.fid,"
@@ -820,6 +826,7 @@ static void annotate_file(
     blob_reset(&step);
   }
   db_finalize(&q);
+  free(p->c.aTo);
 }
 
 /*
@@ -916,6 +923,7 @@ void annotate_cmd(void){
   if( fid==0 ){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
+  blob_reset(&treename);
   mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
   if( mid==0 ){
     fossil_panic("unable to find manifest");
@@ -932,4 +940,7 @@ void annotate_cmd(void){
     fossil_print("%s: %.*s\n", 
                  ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
+  free(ann.azVers);
+  free(ann.aOrig);
+  blob_reset(&ann.toAnnotate);
 }
