@@ -213,7 +213,7 @@ void db_commit_hook(int (*x)(void), int sequence){
 int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
   int rc;
   char *zSql;
-  blob_zero(&pStmt->sql);
+  pStmt->sql = empty_blob;
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
   zSql = blob_str(&pStmt->sql);

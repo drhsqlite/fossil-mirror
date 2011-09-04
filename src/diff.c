@@ -713,7 +713,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 
   /* Clear out the from file */
   free(p->c.aFrom);    
-  blob_zero(pParent);
+  blob_reset(pParent);
 
   /* Return no errors */
   return 0;
@@ -765,8 +765,8 @@ static void annotate_file(
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final (mid) version of the file */
-  Blob step;           /* Text of previous revision */
+  Blob toAnnotate = empty_blob;     /* Text of the final (mid) version of the file */
+  Blob step = empty_blob;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
@@ -887,7 +887,7 @@ void annotate_cmd(void){
   int fnid;         /* Filename ID */
   int fid;          /* File instance ID */
   int mid;          /* Manifest where file was checked in */
-  Blob treename;    /* FILENAME translated to canonical form */
+  Blob treename = empty_blob;    /* FILENAME translated to canonical form */
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */

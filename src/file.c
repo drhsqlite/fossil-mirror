@@ -708,7 +708,7 @@ void cmd_test_relative_name(void){
 */
 int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
   int n;
-  Blob full;
+  Blob full = empty_blob;
   int nFull;
   char *zFull;
 

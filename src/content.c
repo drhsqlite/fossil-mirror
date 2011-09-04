@@ -97,7 +97,7 @@ void content_cache_insert(int rid, Blob *pBlob){
   p->age = contentCache.nextAge++;
   contentCache.szTotal += blob_size(pBlob);
   p->content = *pBlob;
-  blob_zero(pBlob);
+  blob_reset(pBlob);
   bag_insert(&contentCache.inCache, rid);
 }
 
@@ -261,7 +261,7 @@ int content_get(int rid, Blob *pBlob){
     int nAlloc = 10;
     int *a = 0;
     int mx;
-    Blob delta, next;
+    Blob delta = empty_blob, next = empty_blob;
 
     a = fossil_malloc( sizeof(a[0])*nAlloc );
     a[0] = rid;
