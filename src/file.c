@@ -102,12 +102,9 @@ int file_isfile_or_link(const char *zFilename){
 #if !defined(_WIN32)
   if ( g.allowSymlinks ){
     return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode) || S_ISLNK(fileStat.st_mode);
-  }else{
-    return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);    
   }
-#else
-  return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);
 #endif
+  return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);    
 }
 
 /*
@@ -116,24 +113,6 @@ int file_isfile_or_link(const char *zFilename){
 */
 int file_isfile(const char *zFilename){
   return getStat(zFilename) ? 0 : S_ISREG(fileStat.st_mode);
-}
-
-/*
-** Return TRUE if the named file is a symlink and symlinks are allowed.
-** Return false for all other cases.
-**
-** On Windows, always return False.
-*/
-int file_islink(const char *zFilename){
-#if !defined(_WIN32)
-  if( g.allowSymlinks ){
-    return getStat(zFilename) ? 0 : S_ISLNK(fileStat.st_mode);
-  }else{
-    return 0;
-  }
-#else
-  return 0;
-#endif
 }
 
 /*
@@ -182,32 +161,48 @@ void create_symlink(const char *zTargetFile, const char *zLinkFile){
 }
 
 /*
-** Return TRUE if the named file is an executable.  Return false
-** for directories, devices, fifos, symlinks, etc.
+** Return file permissions (normal, executable, or symlink):
+**   - PERM_EXE if file is executable;
+**   - PERM_LNK on Unix if file is symlink and allow-symlinks option is on;
+**   - PERM_REG for all other cases (regular file, directory, fifo, etc).
 */
-int file_isexe(const char *zFilename){
-  if( getStat(zFilename) || !S_ISREG(fileStat.st_mode) ) return 0;
+int file_perm(const char *zFilename){
+  if( getStat(zFilename) ) return PERM_REG;
 #if defined(_WIN32)
 #  if defined(__DMC__) || defined(_MSC_VER)
 #    define S_IXUSR  _S_IEXEC
 #  endif
-  return ((S_IXUSR)&fileStat.st_mode)!=0;
+  if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
+    return PERM_EXE;
+  else
+    return PERM_REG;
 #else
-  return ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0;
+  if( S_ISREG(fileStat.st_mode) && 
+      ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
+    return PERM_EXE;
+  else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
+    return PERM_LNK;
+  else
+    return PERM_REG;
 #endif
 }
 
+/*
+** Return TRUE if the named file is an executable.  Return false
+** for directories, devices, fifos, symlinks, etc.
+*/
+int file_isexe(const char *zFilename){
+  return file_perm(zFilename)==PERM_EXE;
+}
 
 /*
-** Return file "permissions" (normal, executable, or symlink).
+** Return TRUE if the named file is a symlink and symlinks are allowed.
+** Return false for all other cases.
+**
+** On Windows, always return False.
 */
-int file_perm(const char *zFilename){
-  /*TODO(dchest): optimize by calling stat once.*/
-  if( file_isexe(zFilename) )
-    return PERM_EXE;
-  if( file_islink(zFilename) )
-    return PERM_LNK;
-  return PERM_REG;
+int file_islink(const char *zFilename){
+  return file_perm(zFilename)==PERM_LNK;
 }
 
 /*

@@ -220,7 +220,7 @@ static void stash_apply(int stashid, int nConflict){
       blob_delta_apply(&a, &delta, &b);
       if( blob_compare(&disk, &a)==0 && isLink == isNewLink ){
         if( isLink || isNewLink ){
-          unlink(zNPath);
+          file_delete(zNPath);
         }
         if( isLink ){
           create_symlink(blob_str(&b), zNPath);
@@ -234,13 +234,13 @@ static void stash_apply(int stashid, int nConflict){
         if( isLink || isNewLink ){
           rc = -1;
           blob_zero(&b); /* because we reset it later */
-          //TODO(dchest): write something to disk?
+          fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
           rc = merge_3way(&a, zOPath, &b, &out);
           blob_write_to_file(&out, zNPath);          
-          //blob_reset(&out); //XXX(dchest): Need this?
+          blob_reset(&out);
+          file_setexe(zNPath, isExec);
         }
-        file_setexe(zNPath, isExec);
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
           nConflict++;

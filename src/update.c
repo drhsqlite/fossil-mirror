@@ -225,7 +225,7 @@ void update_cmd(void){
   /* Compute file name changes on V->T.  Record name changes in files that
   ** have changed locally.
   */
-  find_filename_changes(vid, tid, &nChng, &aChng);
+  find_filename_changes(vid, tid, 1, &nChng, &aChng, debugFlag ? "V->T": 0);
   if( nChng ){
     for(i=0; i<nChng; i++){
       db_multi_exec(
@@ -305,7 +305,7 @@ void update_cmd(void){
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
       if( file_isdir(g.argv[i])==1 ){
-	if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
+        if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
           blob_reset(&sql);
@@ -401,31 +401,30 @@ void update_cmd(void){
         fossil_print("MERGE %s\n", zName);
       }
       if( islinkv || islinkt /* || file_islink(zFullPath) */ ){
-        //if( !nochangeFlag ) blob_write_to_file(&t, zFullNewPath);
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
         nConflict++;        
       }else{
-	undo_save(zName);
-	content_get(ridt, &t);
-	content_get(ridv, &v);
-	rc = merge_3way(&v, zFullPath, &t, &r);
-	if( rc>=0 ){
-	  if( !nochangeFlag ){
-	    blob_write_to_file(&r, zFullNewPath);
-	    file_setexe(zFullNewPath, isexe);
-	  }
-	  if( rc>0 ){
-	    fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
-	    nConflict++;
-	  }
-	}else{
-	  if( !nochangeFlag ){
-	    blob_write_to_file(&t, zFullNewPath);
-	    file_setexe(zFullNewPath, isexe);
-	  }
-	  fossil_print("***** Cannot merge binary file %s\n", zNewName);
-	  nConflict++;
-	}
+        undo_save(zName);
+        content_get(ridt, &t);
+        content_get(ridv, &v);
+        rc = merge_3way(&v, zFullPath, &t, &r);
+        if( rc>=0 ){
+          if( !nochangeFlag ){
+            blob_write_to_file(&r, zFullNewPath);
+            file_setexe(zFullNewPath, isexe);
+          }
+          if( rc>0 ){
+            fossil_print("***** %d merge conflicts in %s\n", rc, zNewName);
+            nConflict++;
+          }
+        }else{
+          if( !nochangeFlag ){
+            blob_write_to_file(&t, zFullNewPath);
+            file_setexe(zFullNewPath, isexe);
+          }
+          fossil_print("***** Cannot merge binary file %s\n", zNewName);
+          nConflict++;
+        }
       }
       if( nameChng && !nochangeFlag ) file_delete(zFullPath);
       blob_reset(&v);
@@ -672,7 +671,7 @@ void revert_cmd(void){
       sqlite3_int64 mtime;
       undo_save(zFile);
       if( file_size(zFull)>=0 && (isLink || file_islink(zFull)) ){
-        unlink(zFull);
+        file_delete(zFull);
       }
       if( isLink ){
         create_symlink(blob_str(&record), zFull);
