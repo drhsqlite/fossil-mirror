@@ -97,7 +97,7 @@ void content_cache_insert(int rid, Blob *pBlob){
   p->age = contentCache.nextAge++;
   contentCache.szTotal += blob_size(pBlob);
   p->content = *pBlob;
-  blob_reset(pBlob);
+  *pBlob = empty_blob;
   bag_insert(&contentCache.inCache, rid);
 }
 

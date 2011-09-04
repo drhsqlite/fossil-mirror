@@ -1,5 +1,5 @@
-C Updating\sfrom\strunk\sto\sget\sthe\slatest\scode.
-D 2011-09-04T20:43:28.831
+C Making\sannotate\snot\ssegfault\sfor\sthe\scomplex\stest\scase\sI\shave.\sThere\sis\sstill\sa\nlittle\sleak...\sbut\smuuuch\ssmaller\sthan\sit\swas.
+D 2011-09-04T21:02:13.214
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/clone.c fbb2bbe9ede160ccb9dc024a20d069617e6b22fe
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c 0b592a384968c82558dc7f28a95a2eb1953f6e37
-F src/content.c 8a88d2e5834547b7289089ad382a2efe9278f32d
+F src/content.c 67d8b25e0721992f3aa0a70b60a4d7842349ce3a
 F src/db.c 783b348d106f9d88d23db3f07d3a90c8c64efe79
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 264cce36becf4274e6e431830197f247caec7072
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 7ad4dfbe8b6757e368ac4c488601649a07d8c16b 0cf5416002ca0112088b92d7f7d1d326cae89971
-R 44722d2b83e59f22871fc35c479e67c5
+P 73b6ff49666b01622e2b8f59fc73975da6a118b2
+R 32fa779e66a12b523d82bb9095638bbd
 U viriketo
-Z e5991dd0cd672fd936367db33061041a
+Z 861e220e6854676a73e609c22659696e
