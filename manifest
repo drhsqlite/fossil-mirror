@@ -1,5 +1,5 @@
-C Implementation\sof\sa\slinked\slist\sto\ssolve\sthe\smemory\sleak\sdescribed\sin\sa\sTODO\nin\s[e2ebb1f5cae8]
-D 2011-09-04T22:14:43.729
+C Documenting\sthe\sLabel\sstructure\sI\sintroduced.
+D 2011-09-06T20:30:26.808
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,7 +72,7 @@ F src/db.c 783b348d106f9d88d23db3f07d3a90c8c64efe79
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 264cce36becf4274e6e431830197f247caec7072
 F src/descendants.c d05ff92998e4a927e5824fb24701cb3507ed17b2
-F src/diff.c b26ec39d2fc93f3628058ab06b2d71334abfa360
+F src/diff.c 2aa5f51533fdbdf78c5830f9a1c610fcb4b52154
 F src/diffcmd.c d02f0bfc1cc3cf51753a602e1d5ce19f666730ea
 F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -326,10 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P e2ebb1f5cae83e85a03bf4a32a48bb1303e665e8
-R 886acd4409d30e4130529eeb12603c02
-T *branch * label_linkedlist
-T *sym-label_linkedlist *
-T -sym-annotate_noleak *
+P ef8266b710505ed189f1d016aff319fabcbd8acf
+R 86bde864d0b9cdcdf9abc0df1fc4febc
 U viriketo
-Z 78289d2c9f0f24cd687d06c35f9cc89f
+Z 1c8f7e1af15e7714acc60a8f81577c0b

@@ -622,17 +622,24 @@ void test_udiff_cmd(void){
 */
 
 /*
+** Linked list of strings, labels used in the annotator code.
+** The elements of the list and the pointed string (str)
+** will be freed once they become totally unreferenced
+** (nref == 0).
+*/
+struct Label
+{
+    struct Label *prev;   /* previous element */
+    struct Label *next;   /* next element */
+    char *str;            /* The label string */
+    int nref;             /* Number of references to the string */
+};
+
+/*
 ** The status of an annotation operation is recorded by an instance
 ** of the following structure.
 */
 typedef struct Annotator Annotator;
-struct Label
-{
-    struct Label *prev;
-    struct Label *next;
-    char *str;
-    int nref;
-};
 struct Annotator {
   DContext c;       /* The diff-engine context */
   struct AnnLine {  /* Lines of the original files... */
