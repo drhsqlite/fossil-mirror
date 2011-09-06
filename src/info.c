@@ -782,7 +782,7 @@ void object_description(
   char *prevName = 0;
 
   db_prepare(&q,
-    "SELECT filename.name, datetime(event.mtime),"
+    "SELECT filename.name, datetime(event.mtime, 'localtime'),"
     "       coalesce(event.ecomment,event.comment),"
     "       coalesce(event.euser,event.user),"
     "       b.uuid, mlink.mperm,"
@@ -852,7 +852,7 @@ void object_description(
   free(prevName);
   db_finalize(&q);
   db_prepare(&q, 
-    "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
+    "SELECT substr(tagname, 6, 10000), datetime(event.mtime, 'localtime'),"
     "       coalesce(event.euser, event.user)"
     "  FROM tagxref, tag, event"
     " WHERE tagxref.rid=%d"
@@ -928,7 +928,7 @@ void object_description(
     db_finalize(&q);
   }
   db_prepare(&q, 
-    "SELECT target, filename, datetime(mtime), user, src"
+    "SELECT target, filename, datetime(mtime,'localtime'), user, src"
     "  FROM attachment"
     " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
     " ORDER BY mtime DESC /*sort*/",
@@ -1800,7 +1800,7 @@ void ci_edit_page(void){
   @ <textarea name="c" rows="10" cols="80">%h(zNewComment)</textarea>
   @ </td></tr>
 
-  @ <tr><td align="right" valign="top"><b>Check-in Time:</b></td>
+  @ <tr><td align="right" valign="top"><b>Check-in UTC Time:</b></td>
   @ <td valign="top">
   @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
