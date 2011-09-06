@@ -426,12 +426,14 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
+          @ target="diffwindow">[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
+          @ target="diffwindow">[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
