@@ -156,6 +156,21 @@ char *hash_color(const char *z){
 }
 
 /*
+** COMMAND:  test-hash-color
+**
+** Usage: %fossil test-hash-color TAG ...
+**
+** Print out the color names associated with each tag.  Used for
+** testing the hash_color() function.
+*/
+void test_hash_color(void){
+  int i;
+  for(i=2; i<g.argc; i++){
+    fossil_print("%20s: %s\n", g.argv[i], hash_color(g.argv[i]));
+  }
+}
+
+/*
 ** Output a timeline in the web format given a query.  The query
 ** should return these columns:
 **
@@ -389,9 +404,10 @@ void www_print_timeline(
           "       (fid==0) AS isdel,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
           "       (SELECT uuid FROM blob WHERE rid=fid),"
-          "       (SELECT uuid FROM blob WHERE rid=pid)"
+          "       (SELECT uuid FROM blob WHERE rid=pid),"
+          "       (SELECT name FROM filename WHERE fnid=mlink.pfnid) AS oldnm"
           "  FROM mlink"
-          " WHERE mid=:mid AND pid!=fid"
+          " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
@@ -401,6 +417,7 @@ void www_print_timeline(
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
+        const char *zOldName = db_column_text(&fchngQuery, 5);
         const char *zOld = db_column_text(&fchngQuery, 4);
         const char *zNew = db_column_text(&fchngQuery, 3);
         if( !inUl ){
@@ -409,12 +426,20 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ <a href="%s(g.zTop)/artifact/%S(zNew)" target="diffwindow">[view]
-          @ </a></li>
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
+          @ target="diffwindow">[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
+        }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
+          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
+          @ target="diffwindow">[view]</a></li>
         }else{
-          @ <li> %h(zFilename) &nbsp;
+          if( zOldName!=0 ){
+            @ <li> %h(zOldName) &rarr; %h(zFilename)
+          }else{
+            @ <li> %h(zFilename) &nbsp;
+          }
           @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
           @ target="diffwindow">[diff]</a></li>
         }
@@ -538,7 +563,9 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = document.getElementById("canvas");
+#if 0
     @ var realCanvas = null;
+#endif
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -667,6 +694,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @     rowinfo[i].x = left + rowinfo[i].r*20;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
+#if 0
     @   if( btm<32768 ){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +
@@ -687,6 +715,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
     @     };
     @   }
+#endif
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
     @   }
@@ -911,7 +940,7 @@ void page_timeline(void){
     const char *zTo = 0;
 
     if( from_rid && to_rid ){
-      p = path_shortest(from_rid, to_rid, noMerge);
+      p = path_shortest(from_rid, to_rid, noMerge, 0);
       zFrom = P("from");
       zTo = P("to");
     }else{
@@ -1246,9 +1275,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
   char zPrevDate[20];
   const char *zCurrentUuid=0;
-  zPrevDate[0] = 0;
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
+  zPrevDate[0] = 0;
 
   if( g.localOpen ){
     int rid = db_lget_int("checkout", 0);
@@ -1299,7 +1328,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     sqlite3_free(zFree);
 
     if(showfiles){
-      int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
            "SELECT (pid==0) AS isnew,"
@@ -1318,8 +1346,6 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
-        const char *zOld = db_column_text(&fchngQuery, 4);
-        const char *zNew = db_column_text(&fchngQuery, 3);
         if( isNew ){    
           fossil_print("   ADDED %s\n",zFilename);
         }else if( isDel ){

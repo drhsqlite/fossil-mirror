@@ -251,7 +251,7 @@ char *connStr ;
         BIO_printf(mem, " %02x", md[j]);
       }
     }
-    BIO_write(mem, "", 1); // null-terminate mem buffer
+    BIO_write(mem, "", 1); /* null-terminate mem buffer */
     BIO_get_mem_data(mem, &desc);
     
     if( hasSavedCertificate ){
@@ -282,6 +282,17 @@ char *connStr ;
     }
     blob_reset(&ans);
   }
+
+  /* Set the Global.zIpAddr variable to the server we are talking to.
+  ** This is used to populate the ipaddr column of the rcvfrom table,
+  ** if any files are received from the server.
+  */
+  {
+      /* IPv4 only code */
+      const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
+      g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+  }
+
   X509_free(cert);
   return 0;
 }
@@ -295,7 +306,7 @@ void ssl_save_certificate(X509 *cert){
 
   mem = BIO_new(BIO_s_mem());
   PEM_write_bio_X509(mem, cert);
-  BIO_write(mem, "", 1); // null-terminate mem buffer
+  BIO_write(mem, "", 1); /* null-terminate mem buffer */
   BIO_get_mem_data(mem, &zCert);
   zHost = mprintf("cert:%s", g.urlName);
   db_set(zHost, zCert, 1);

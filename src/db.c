@@ -738,14 +738,31 @@ void db_open_config(int useAttach){
   free(zDbName);
 }
 
+
+/*
+ * * Returns TRUE if zTable exists in the local database.
+ */
+static int db_local_table_exists(const char *zTable){
+  return db_exists("SELECT 1 FROM %s.sqlite_master"
+                   " WHERE name=='%s'",
+                   db_name("localdb"), zTable);
+}
+
+/*
+** Returns TRUE if zColumn exists in zTable in the local database.
+*/
+static int db_local_column_exists(const char *zTable, const char *zColumn){
+  return db_exists("SELECT 1 FROM %s.sqlite_master"
+                   " WHERE name=='%s' AND sql GLOB '* %s *'",
+                   db_name("localdb"), zTable, zColumn);
+}
+
 /*
 ** If zDbName is a valid local database file, open it and return
 ** true.  If it is not a valid local database file, return 0.
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
-  int rc;
-  sqlite3_stmt *pStmt;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
@@ -759,36 +776,27 @@ static int isValidLocalDb(const char *zDbName){
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  rc = sqlite3_prepare(g.db, "SELECT isexe FROM vfile", -1, &pStmt, 0);
-  nPrepare++;
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN isexe BOOLEAN", 0, 0, 0);
-  }
+  if( !db_local_column_exists("vfile", "isexe") )
+    db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
 
-#if 0
-  /* If the "mtime" column is missing from the vfile table, then
-  ** add it now.   This code added on 2008-12-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  /* If "islink"/"isLink" columns are missing from tables, then
+  ** add them now.   This code added on 2011-01-17 and 2011-08-27.
+  ** After all users have upgraded, this code can be safely deleted. 
   */
-  rc = sqlite3_prepare(g.db, "SELECT mtime FROM vfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN mtime INTEGER", 0, 0, 0);
-  }
-#endif
+  if( !db_local_column_exists("vfile", "islink") )
+    db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
+  
+  if( !db_local_column_exists("stashfile", "isLink") &&
+       db_local_table_exists("stashfile") )
+    db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
 
-#if 0
-  /* If the "origname" column is missing from the vfile table, then
-  ** add it now.   This code added on 2008-11-09.  After all users have
-  ** upgraded, this code can be safely deleted. 
-  */
-  rc = sqlite3_prepare(g.db, "SELECT origname FROM vfile", -1, &pStmt, 0);
-  sqlite3_finalize(pStmt);
-  if( rc==SQLITE_ERROR ){
-    sqlite3_exec(g.db, "ALTER TABLE vfile ADD COLUMN origname TEXT", 0, 0, 0);
-  }
-#endif
+  if( !db_local_column_exists("undo", "isLink") &&
+       db_local_table_exists("undo") )
+    db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  
+  if( !db_local_column_exists("undo_vfile", "islink") &&
+       db_local_table_exists("undo_vfile") )
+    db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
 
   return 1;
 }
@@ -868,6 +876,8 @@ void db_open_repository(const char *zDbName){
   db_open_or_attach(zDbName, "repository");
   g.repositoryOpen = 1;
   g.zRepositoryName = mprintf("%s", zDbName);
+  /* Cache "allow-symlinks" option, because we'll need it on every stat call */
+  g.allowSymlinks = db_get_boolean("allow-symlinks", 0);
 }
 
 /*
@@ -1428,7 +1438,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
   }
   /* Attempt to read value from file in checkout if there wasn't a cache hit
   ** and a checkout is open. */
-  if( cacheEntry==0 && db_open_local() ){
+  if( cacheEntry==0 ){
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
@@ -1502,7 +1512,7 @@ char *db_get(const char *zName, char *zDefault){
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
-  if( ctrlSetting!=0 && ctrlSetting->versionable ){
+  if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
     /* This is a versionable setting, try and get the info from a checked out file */
     z = db_get_do_versionable(zName, z);
   }
@@ -1749,6 +1759,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
+  { "allow-symlinks",0,                0, 0, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
@@ -1801,6 +1812,12 @@ struct stControlSettings const ctrlSettings[] = {
 **
 ** The "unset" command clears a property setting.
 **
+**
+**    allow-symlinks   If enabled, don't follow symlinks, and instead treat
+**                     them as symlinks on Unix. Has no effect on Windows
+**                     (existing links in repository created on Unix become 
+**                     plain-text files with link destination path inside).
+**                     Default: off
 **
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on

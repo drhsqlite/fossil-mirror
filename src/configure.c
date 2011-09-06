@@ -728,7 +728,7 @@ static void export_config(
 /*
 ** COMMAND: configuration
 **
-** Usage: %fossil configure METHOD ... ?-R|--repository REPOSITORY?
+** Usage: %fossil configuration METHOD ... ?-R|--repository REPOSITORY?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
 ** accept the -R or --repository option to specific a repository.

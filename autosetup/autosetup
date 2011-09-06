@@ -3,7 +3,7 @@
 # All rights reserved
 # vim:se syntax=tcl:
 # \
-dir=`dirname "$0"`; exec `"$dir/find-tclsh" || echo false` "$0" "$@"
+dir=`dirname "$0"`; exec "`$dir/find-tclsh`" "$0" "$@"
 
 set autosetup(version) 0.6.2
 
@@ -184,7 +184,7 @@ proc main {argv} {
 #
 # Check each of the named, boolean options and return 1 if any of them have
 # been set by the user.
-# 
+#
 proc opt-bool {args} {
 	option-check-names {*}$args
 	opt_bool ::useropts {*}$args
@@ -200,7 +200,7 @@ proc opt-bool {args} {
 ## lindex [opt-val $names] end
 #
 # If no options were set, $default is returned (exactly, not as a list).
-# 
+#
 proc opt-val {names {default ""}} {
 	option-check-names {*}$names
 	join [opt_val ::useropts $names $default]
@@ -398,7 +398,7 @@ proc options-show {} {
 # For example, --disable-lfs is an alias for --disable=largefile:
 #
 ## lfs=1 largefile=1 => "Disable large file support"
-# 
+#
 proc options {optlist} {
 	# Allow options as a list or args
 	options-add $optlist "Local Options:"
@@ -436,7 +436,7 @@ proc config_sub {alias} {
 }
 
 # @define name ?value=1?
-# 
+#
 # Defines the named variable to the given value.
 # These (name, value) pairs represent the results of the configuration check
 # and are available to be checked, modified and substituted.
@@ -565,6 +565,36 @@ proc quote-argv {argv} {
 		lappend args [quote-if-needed $arg]
 	}
 	join $args
+}
+
+# @suffix suf list
+#
+# Takes a list and returns a new list with $suf appended
+# to each element
+#
+## suffix .c {a b c} => {a.c b.c c.c}
+#
+proc suffix {suf list} {
+	set result {}
+	foreach p $list {
+		lappend result $p$suf
+	}
+	return $result
+}
+
+# @prefix pre list
+#
+# Takes a list and returns a new list with $pre prepended
+# to each element
+#
+## prefix jim- {a.c b.c} => {jim-a.c jim-b.c}
+#
+proc prefix {pre list} {
+	set result {}
+	foreach p $list {
+		lappend result $pre$p
+	}
+	return $result
 }
 
 # @find-executable name
@@ -1001,8 +1031,10 @@ set modsource(getopt) {
 
 # Parse everything out of the argv list which looks like an option
 # Knows about --enable-thing and --disable-thing as alternatives for --thing=0 or --thing=1
+# Everything which doesn't look like an option, or is after --, is left unchanged
 proc getopt {argvname} {
 	upvar $argvname argv
+	set nargv {}
 
 	for {set i 0} {$i < [llength $argv]} {incr i} {
 		set arg [lindex $argv $i]
@@ -1012,6 +1044,7 @@ proc getopt {argvname} {
 		if {$arg eq "--"} {
 			# End of options
 			incr i
+			lappend nargv {*}[lrange $argv $i end]
 			break
 		}
 
@@ -1025,14 +1058,14 @@ proc getopt {argvname} {
 			}
 			lappend opts($name) $value
 		} else {
-			break
+			lappend nargv $arg
 		}
 	}
 
-	#puts "getopt: argv=[join $argv] => [join [lrange $argv $i end]]"
+	#puts "getopt: argv=[join $argv] => [join $nargv]"
 	#parray opts
 
-	set argv [lrange $argv $i end]
+	set argv $nargv
 
 	return [array get opts]
 }
@@ -1266,7 +1299,7 @@ proc autosetup_init {} {
 			writefile configure \
 {#!/bin/sh
 dir="`dirname "$0"`/autosetup"
-WRAPPER="$0" exec `"$dir/find-tclsh" || echo false` "$dir/autosetup" "$@"
+WRAPPER="$0" exec "`$dir/find-tclsh`" "$dir/autosetup" "$@"
 }
 		}
 		catch {exec chmod 755 configure}
@@ -1281,7 +1314,7 @@ use cc
 options {
 }
 
-make-autoconf-h config.h
+make-config-header config.h
 make-template Makefile.in
 }
 	}
@@ -1513,7 +1546,7 @@ if {$autosetup(istcl)} {
 	# Jim uses system() for exec under mingw, so
 	# we need to fetch the output ourselves
 	proc exec-with-stderr {args} {
-			set tmpfile /tmp/autosetup.[format %05x [rand 10000]].tmp
+			set tmpfile auto[format %04x [rand 10000]].tmp
 			set rc [catch [list exec {*}$args >$tmpfile 2>&1] result]
 			set result [readfile $tmpfile]
 			file delete $tmpfile

@@ -37,6 +37,7 @@ static const char zStashInit[] =
 @   isAdded BOOLEAN,                   -- True if this is an added file
 @   isRemoved BOOLEAN,                 -- True if this file is deleted
 @   isExec BOOLEAN,                    -- True if file is executable
+@   isLink BOOLEAN,                    -- True if file is a symlink
 @   origname TEXT,                     -- Original filename
 @   newname TEXT,                      -- New name for file at next check-in
 @   delta BLOB,                        -- Delta from baseline. Content if rid=0
@@ -63,7 +64,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   zTreename = blob_str(&fname);
   blob_zero(&sql);
   blob_appendf(&sql,
-    "SELECT deleted, isexe, mrid, pathname, coalesce(origname,pathname)"
+    "SELECT deleted, isexe, islink, mrid, pathname, coalesce(origname,pathname)"
     "  FROM vfile"
     " WHERE vid=%d AND (chnged OR deleted OR origname NOT NULL OR mrid==0)",
     vid
@@ -78,28 +79,35 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
   db_prepare(&ins,
-     "INSERT INTO stashfile(stashid, rid, isAdded, isRemoved, isExec,"
+     "INSERT INTO stashfile(stashid, rid, isAdded, isRemoved, isExec, isLink,"
                            "origname, newname, delta)"
-     "VALUES(%d,:rid,:isadd,:isrm,:isexe,:orig,:new,:content)",
+     "VALUES(%d,:rid,:isadd,:isrm,:isexe,:islink,:orig,:new,:content)",
      stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int deleted = db_column_int(&q, 0);
-    int rid = db_column_int(&q, 2);
-    const char *zName = db_column_text(&q, 3);
-    const char *zOrig = db_column_text(&q, 4);
+    int rid = db_column_int(&q, 3);
+    const char *zName = db_column_text(&q, 4);
+    const char *zOrig = db_column_text(&q, 5);
     char *zPath = mprintf("%s%s", g.zLocalRoot, zName);
     Blob content;
+    int isNewLink = file_islink(zPath);
 
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
     db_bind_int(&ins, ":isrm", deleted);
     db_bind_int(&ins, ":isexe", db_column_int(&q, 1));
+    db_bind_int(&ins, ":islink", db_column_int(&q, 2));
     db_bind_text(&ins, ":orig", zOrig);
     db_bind_text(&ins, ":new", zName);
+
     if( rid==0 ){
       /* A new file */
-      blob_read_from_file(&content, zPath);
+      if( isNewLink ){
+        blob_read_link(&content, zPath);
+      }else{
+        blob_read_from_file(&content, zPath);
+      }
       db_bind_blob(&ins, ":content", &content);
     }else if( deleted ){
       blob_zero(&content);
@@ -108,13 +116,19 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       /* A modified file */
       Blob orig;
       Blob disk;
-      blob_read_from_file(&disk, zPath);
+      
+      if( isNewLink ){
+        blob_read_link(&disk, zPath);
+      }else{
+        blob_read_from_file(&disk, zPath);
+      }
       content_get(rid, &orig);
       blob_delta_create(&orig, &disk, &content);
       blob_reset(&orig);
       blob_reset(&disk);
       db_bind_blob(&ins, ":content", &content);
     }
+    db_bind_int(&ins, ":islink", isNewLink);
     db_step(&ins);
     db_reset(&ins);
     fossil_free(zPath);
@@ -169,7 +183,7 @@ static int stash_create(void){
 static void stash_apply(int stashid, int nConflict){
   Stmt q;
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, origname, newname, delta"
+     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
@@ -177,15 +191,16 @@ static void stash_apply(int stashid, int nConflict){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isExec = db_column_int(&q, 2);
-    const char *zOrig = db_column_text(&q, 3);
-    const char *zNew = db_column_text(&q, 4);
+    int isLink = db_column_int(&q, 3);
+    const char *zOrig = db_column_text(&q, 4);
+    const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     char *zNPath = mprintf("%s%s", g.zLocalRoot, zNew);
     Blob delta;
     undo_save(zNew);
     blob_zero(&delta);
     if( rid==0 ){
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
       file_setexe(zNPath, isExec);
       fossil_print("ADD %s\n", zNew);
@@ -194,25 +209,44 @@ static void stash_apply(int stashid, int nConflict){
       file_delete(zOPath);
     }else{
       Blob a, b, out, disk;
-      db_ephemeral_blob(&q, 5, &delta);
-      blob_read_from_file(&disk, zOPath);     
+      int isNewLink = file_islink(zOPath);
+      db_ephemeral_blob(&q, 6, &delta);
+      if( isNewLink ){
+        blob_read_link(&disk, zOPath);
+      }else{
+        blob_read_from_file(&disk, zOPath);
+      }
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
-      if( blob_compare(&disk, &a)==0 ){
-        blob_write_to_file(&b, zNPath);
+      if( blob_compare(&disk, &a)==0 && isLink == isNewLink ){
+        if( isLink || isNewLink ){
+          file_delete(zNPath);
+        }
+        if( isLink ){
+          create_symlink(blob_str(&b), zNPath);
+        }else{
+          blob_write_to_file(&b, zNPath);          
+        }
         file_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
       }else{
-        int rc = merge_3way(&a, zOPath, &b, &out);
-        blob_write_to_file(&out, zNPath);
-        file_setexe(zNPath, isExec);
+        int rc;
+        if( isLink || isNewLink ){
+          rc = -1;
+          blob_zero(&b); /* because we reset it later */
+          fossil_print("***** Cannot merge symlink %s\n", zNew);
+        }else{
+          rc = merge_3way(&a, zOPath, &b, &out);
+          blob_write_to_file(&out, zNPath);          
+          blob_reset(&out);
+          file_setexe(zNPath, isExec);
+        }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
           nConflict++;
         }else{
           fossil_print("MERGE %s\n", zNew);
         }
-        blob_reset(&out);
       }
       blob_reset(&a);
       blob_reset(&b);
@@ -226,7 +260,8 @@ static void stash_apply(int stashid, int nConflict){
   }
   db_finalize(&q);
   if( nConflict ){
-    fossil_print("WARNING: merge conflicts - see messages above for details.\n");
+    fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
+            nConflict);
   }
 }
 
@@ -238,37 +273,53 @@ static void stash_diff(int stashid, const char *zDiffCmd){
   Blob empty;
   blob_zero(&empty);
   db_prepare(&q,
-     "SELECT rid, isRemoved, isExec, origname, newname, delta"
+     "SELECT rid, isRemoved, isExec, isLink, origname, newname, delta"
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
   while( db_step(&q)==SQLITE_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
-    const char *zOrig = db_column_text(&q, 3);
-    const char *zNew = db_column_text(&q, 4);
+    int isLink = db_column_int(&q, 3);
+    const char *zOrig = db_column_text(&q, 4);
+    const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
     Blob delta;
     if( rid==0 ){
-      db_ephemeral_blob(&q, 5, &delta);
+      db_ephemeral_blob(&q, 6, &delta);
       fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew);
       diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
-      blob_read_from_file(&delta, zOPath);
+      if( file_islink(zOPath) ){
+        blob_read_link(&delta, zOPath);
+      }else{
+        blob_read_from_file(&delta, zOPath);
+      }
       diff_print_index(zNew);
       diff_file_mem(&delta, &empty, zOrig, zDiffCmd, 0);
     }else{
       Blob a, b, disk;
-      db_ephemeral_blob(&q, 5, &delta);
-      blob_read_from_file(&disk, zOPath);     
-      content_get(rid, &a);
-      blob_delta_apply(&a, &delta, &b);
+      int isOrigLink = file_islink(zOPath);
+      db_ephemeral_blob(&q, 6, &delta);
+      if( isOrigLink ){
+        blob_read_link(&disk, zOPath);
+      }else{
+        blob_read_from_file(&disk, zOPath);        
+      }
       fossil_print("CHANGED %s\n", zNew);
-      diff_file_mem(&disk, &b, zNew, zDiffCmd, 0);
-      blob_reset(&a);
-      blob_reset(&b);
+      if( !isOrigLink != !isLink ){
+        diff_print_index(zNew);
+        printf("--- %s\n+++ %s\n", zOrig, zNew);
+        printf("cannot compute difference between symlink and regular file\n");
+      }else{
+        content_get(rid, &a);
+        blob_delta_apply(&a, &delta, &b);
+        diff_file_mem(&disk, &b, zNew, zDiffCmd, 0);
+        blob_reset(&a);
+        blob_reset(&b);
+      }
       blob_reset(&disk);
     }
     blob_reset(&delta);
@@ -277,7 +328,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
 }
 
 /*
-** Drop the indicates stash
+** Drop the indicated stash
 */
 static void stash_drop(int stashid){
   db_multi_exec(
@@ -347,13 +398,14 @@ static int stash_get_id(const char *zStashId){
 **     This command is undoable.
 **
 **  fossil stash drop ?STASHID? ?--all?
+**  fossil stash rm   ?STASHID? ?--all?
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     --all flag is used.  Individual drops are undoable but --all is not.
 **
 **  fossil stash snapshot ?-m COMMENT? ?FILES...?
 **
-**     Save the current changes in the working tress as a new stash
+**     Save the current changes in the working tree as a new stash
 **     but, unlike "save", do not revert those changes.
 **
 **  fossil stash diff ?STASHID?
@@ -430,7 +482,7 @@ void stash_cmd(void){
     db_finalize(&q);
     if( n==0 ) fossil_print("empty stash\n");
   }else
-  if( memcmp(zCmd, "drop", nCmd)==0 ){
+  if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
     if( g.argc>4 ) usage("stash apply STASHID");
     if( allFlag ){

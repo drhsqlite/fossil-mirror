@@ -200,6 +200,17 @@ int report_query_authorizer(
   return rc;
 }
 
+/*
+** Activate the query authorizer
+*/
+static void report_restrict_sql(char **pzErr){
+  (void)fossil_localtime(0);
+  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
+}
+static void report_unrestrict_sql(void){
+  sqlite3_set_authorizer(g.db, 0, 0);
+}
+
 
 /*
 ** Check the given SQL to see if is a valid query that does not
@@ -239,7 +250,7 @@ char *verify_sql_statement(char *zSql){
   }
   
   /* Compile the statement and check for illegal accesses or syntax errors. */
-  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
+  report_restrict_sql(&zErr);
   rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
     zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
@@ -250,7 +261,7 @@ char *verify_sql_statement(char *zSql){
   if( pStmt ){
     sqlite3_finalize(pStmt);
   }
-  sqlite3_set_authorizer(g.db, 0, 0);
+  report_unrestrict_sql();
   return zErr;
 }
 
@@ -965,10 +976,9 @@ void rptview_page(void){
     @ <table border="1" cellpadding="2" cellspacing="0" class="report">
     sState.rn = rn;
     sState.nCount = 0;
-    (void)fossil_localtime(0);  /* initialize the g.fTimeFormat variable */
-    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+    report_restrict_sql(&zErr1);
     sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
-    sqlite3_set_authorizer(g.db, 0, 0);
+    report_unrestrict_sql();
     @ </table>
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
@@ -977,9 +987,9 @@ void rptview_page(void){
     }
     style_footer();
   }else{
-    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+    report_restrict_sql(&zErr1);
     sqlite3_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
-    sqlite3_set_authorizer(g.db, 0, 0);
+    report_unrestrict_sql();
     cgi_set_content_type("text/plain");
   }
 }
@@ -1139,9 +1149,9 @@ void rptshow(
   count = 0;
   tktEncode = enc;
   zSep = zSepIn;
-  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr1);
+  report_restrict_sql(&zErr1);
   sqlite3_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
-  sqlite3_set_authorizer(g.db, 0, 0);
+  report_unrestrict_sql();
   if( zFilter ){
     free(zSql);
   }

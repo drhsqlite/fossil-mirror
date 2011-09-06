@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.8"
 #define SQLITE_VERSION_NUMBER 3007008
-#define SQLITE_SOURCE_ID      "2011-08-16 02:07:04 9650d7962804d61f56cac944ff9bb2c7bc111957"
+#define SQLITE_SOURCE_ID      "2011-09-04 01:27:00 6b657ae75035eb10b0ad640998d3c9eadfdffa6e"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1210,16 +1210,10 @@ SQLITE_API int sqlite3_db_config(sqlite3*, int op, ...);
 ** order to verify that SQLite recovers gracefully from such
 ** conditions.
 **
-** The xMalloc and xFree methods must work like the
-** malloc() and free() functions from the standard C library.
-** The xRealloc method must work like realloc() from the standard C library
-** with the exception that if the second argument to xRealloc is zero,
-** xRealloc must be a no-op - it must not perform any allocation or
-** deallocation.  ^SQLite guarantees that the second argument to
+** The xMalloc, xRealloc, and xFree methods must work like the
+** malloc(), realloc() and free() functions from the standard C library.
+** ^SQLite guarantees that the second argument to
 ** xRealloc is always a value returned by a prior call to xRoundup.
-** And so in cases where xRoundup always returns a positive number,
-** xRealloc can perform exactly as the standard library realloc() and
-** still be in compliance with this specification.
 **
 ** xSize should return the allocated size of a memory allocation
 ** previously obtained from xMalloc or xRealloc.  The allocated size
@@ -2856,7 +2850,7 @@ SQLITE_API int sqlite3_limit(sqlite3*, int id, int newVal);
 ** ^The specific value of WHERE-clause [parameter] might influence the 
 ** choice of query plan if the parameter is the left-hand side of a [LIKE]
 ** or [GLOB] operator or if the parameter is compared to an indexed column
-** and the [SQLITE_ENABLE_STAT3] compile-time option is enabled.
+** and the [SQLITE_ENABLE_STAT2] compile-time option is enabled.
 ** the 
 ** </li>
 ** </ol>

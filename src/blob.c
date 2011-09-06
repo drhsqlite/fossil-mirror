@@ -705,6 +705,32 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
 }
 
 /*
+** Reads symlink destination path and puts int into blob.
+** Any prior content of the blob is discarded, not freed.
+**
+** Returns length of destination path.
+**
+** On windows, zeros blob and returns 0.
+*/
+int blob_read_link(Blob *pBlob, const char *zFilename){
+#if !defined(_WIN32)
+  char zBuf[1024];
+  ssize_t len = readlink(zFilename, zBuf, 1023);
+  if( len < 0 ){
+    fossil_panic("cannot read symbolic link %s", zFilename);
+  }
+  zBuf[len] = 0;   /* null-terminate */
+  blob_zero(pBlob);
+  blob_appendf(pBlob, "%s", zBuf);
+  return len;
+#else
+  blob_zero(pBlob);
+  return 0;
+#endif
+}
+
+
+/*
 ** Write the content of a blob into a file.
 **
 ** If the filename is blank or "-" then write to standard output.
