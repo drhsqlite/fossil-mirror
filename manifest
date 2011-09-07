@@ -1,5 +1,5 @@
-C catch\sup\swith\strunk.\sRemove\sC++\sstyle\scomments\sfrom\shttp_ssl.c.
-D 2011-09-06T20:12:20.341
+C begin\swork\son\sticket\s[bc0d0f5642eaf]:\strack\ssuccess\sof\s(network)\swrite\noperations\sand\sstart\sbubbling\sthat\sstatus\sup.\sTo\smake\sit\sup\sto\sultimately\nexit(EXIT_FAILURE)\son\serrors,\smkindex\swill\sneed\sto\sbe\supdated,\stoo,\sas\nwell\sas\sthe\ssignature\sfrom\scommand\simplementing\sfunctions\sneed\sto\sreturn\nint\sinstead\sof\svoid\sat\ssome\spoint.\sMore\sto\scome.
+D 2011-09-07T03:51:02.689
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -83,10 +83,10 @@ F src/finfo.c b206c1435c16b608476f809923fbbc32a12ce561
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
-F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
+F src/http.c cd61de0c5a64f5637566392112108aa93797d138
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c f2268870a15aef166632de032752658f5f93191b
-F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
+F src/http_transport.c 0f61f5c4d21587b471489d8af837f3aeddebd69e
 F src/import.c 38c89838f21b09ca03c981ee23f34f828cbca9ef
 F src/info.c 8c258582535f12ac5ecc6d70e2df997da32c7ac7
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -144,7 +144,7 @@ F src/vfile.c fbc955c6bc847251980f70273910146cac1ad6f2
 F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
+F src/xfer.c 3c3a015305268708f86152cfe3cbdb92fa416a30
 F src/zip.c 2a0fed7af283e2d82218f2afc9ba1c6b2ae7d3a2
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 90e310ebbdef2c15719d8804fdc748514b3b49a2 8d703ff956578cbec534e9406c1791e5bf4bdb0e
-R 646b0936b0598321f18825ded3078fd5
+P 0f1c41bc20f8856376cdd65e3355fe399c0361bb
+R f99953fe370184c3714c19da6534dc54
 U martin.weber
-Z c62aa8be89f8bd25c5452ed2e56d46e4
+Z acf4087cbd823278b70b01ca1a96cfbf

@@ -192,8 +192,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   /*
   ** Send the request to the server.
   */
-  transport_send(&hdr);
-  transport_send(&payload);
+  if (transport_send(&hdr))
+	goto write_err;
+  if (transport_send(&payload))
+	goto write_err;
   blob_reset(&hdr);
   blob_reset(&payload);
   transport_flip();

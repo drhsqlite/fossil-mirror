@@ -1715,7 +1715,7 @@ int client_sync(
     ** information which is only sent on the second round.
     */
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
-  };
+  }
   transport_stats(&nSent, &nRcvd, 1);
   fossil_print("Total network traffic: %lld bytes sent, %lld bytes received\n",
                nSent, nRcvd);

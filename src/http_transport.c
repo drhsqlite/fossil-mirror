@@ -261,16 +261,18 @@ void transport_close(void){
 
 /*
 ** Send content over the wire.
+** Returns whether sending was errant, i.e.,
+** the count of bytes written onto the wire does
+** not equal the size of the blob being sent.
 */
-void transport_send(Blob *toSend){
+int transport_send(Blob *toSend){
   char *z = blob_buffer(toSend);
   int n = blob_size(toSend);
-  transport.nSent += n;
+  size_t written = 0;
   if( g.urlIsSsh ){
-    int sent;
-    sent = fwrite(z, 1, n, sshOut);
+    written = fwrite(z, 1, n, sshOut);
     fflush(sshOut);
-    /* printf("sent %d of %d bytes\n", sent, n); fflush(stdout); */
+    /* printf("sent %d of %d bytes\n", (unsigned long) written, n); fflush(stdout); */
   }else if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     int sent;
@@ -279,10 +281,12 @@ void transport_send(Blob *toSend){
       /* printf("Sent %d of %d bytes\n", sent, n); fflush(stdout); */
       if( sent<=0 ) break;
       n -= sent;
+      written += sent;
     }    
     #endif
   }else if( g.urlIsFile ){
-    fwrite(z, 1, n, transport.pFile);
+    written = fwrite(z, 1, n, transport.pFile);
+    /* printf("written %d of %d bytes\n", (unsigned long) written, n); fflush(stdout); */
   }else{
     int sent;
     while( n>0 ){
@@ -290,8 +294,11 @@ void transport_send(Blob *toSend){
       /* printf("Sent %d of %d bytes\n", sent, n); fflush(stdout); */
       if( sent<=0 ) break;
       n -= sent;
+      written += sent;
     }
   }
+  transport.nSent += written;
+  return (blob_size(toSend) != written);
 }
 
 /*
