@@ -66,8 +66,10 @@ void event_page(void){
   int specRid;             /* rid specified by aid= parameter */
   int prevRid, nextRid;    /* Previous or next edits of this event */
   Manifest *pEvent;        /* Parsed event artifact */
+  Blob comment;            /* Comment shown in timeline */
   Blob fullbody;           /* Complete content of the event body */
   Blob title;              /* Title extracted from the event body */
+  int haveTitle;           /* Whether a title was extracted */
   Blob tail;               /* Event body that comes after the title */
   Stmt q1;                 /* Query to search for the event */
   int showDetail;          /* True to show details */
@@ -118,8 +120,10 @@ void event_page(void){
   if( pEvent==0 ){
     fossil_panic("Object #%d is not an event", rid);
   }
+  blob_init(&comment, pEvent->zComment, -1);
   blob_init(&fullbody, pEvent->zWiki, -1);
-  if( wiki_find_title(&fullbody, &title, &tail) ){
+  haveTitle = wiki_find_title(&fullbody, &title, &tail);
+  if( haveTitle ){
     style_header(blob_str(&title));
   }else{
     style_header("Event %S", zEventId);
@@ -162,7 +166,6 @@ void event_page(void){
   if( showDetail && g.okHistory ){
     int i;
     const char *zClr = 0;
-    Blob comment;
 
     zATime = db_text(0, "SELECT datetime(%.17g)", pEvent->rDate);
     @ <p>Event [<a href="%s(g.zTop)/artifact/%s(zUuid)">%S(zUuid)</a>] at
@@ -181,12 +184,17 @@ void event_page(void){
     }else{
       @ <div>
     }
-    blob_init(&comment, pEvent->zComment, -1);
-    wiki_convert(&comment, 0, WIKI_INLINE);
-    blob_reset(&comment);
+    if( haveTitle ){
+      /* Don't display comment if it's used as the inline title below */
+      wiki_convert(&comment, 0, WIKI_INLINE);
+    }
     @ </div>
     @ </blockquote><hr />
   }  
+
+  @ <h2>
+  wiki_convert(haveTitle ? &title : &comment, 0, WIKI_INLINE);
+  @ </h2>
 
   wiki_convert(&tail, 0, 0);
   style_footer();
