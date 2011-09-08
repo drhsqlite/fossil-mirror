@@ -168,7 +168,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     oldMtime = db_column_int64(&q, 7);
     if( isDeleted ){
       chnged = 1;
-    }else if( !file_isfile_or_link(zName) && file_size(0)>=0 ){
+    }else if( !file_wd_isfile_or_link(zName) && file_wd_size(0)>=0 ){
       if( notFileIsFatal ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
@@ -181,8 +181,8 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     }
     if( chnged!=1 ){
       i64 origSize = db_column_int64(&q, 6);
-      currentMtime = file_mtime(0);
-      if( origSize!=file_size(0) ){
+      currentMtime = file_wd_mtime(0);
+      if( origSize!=file_wd_size(0) ){
         /* A file size change is definitive - the file has changed.  No
         ** need to check the sha1sum */
         chnged = 1;
@@ -249,13 +249,13 @@ void vfile_to_disk(
     content_get(rid, &content);
     if( file_is_the_same(&content, zName) ){
       blob_reset(&content);
-      if( file_setexe(zName, isExe) ){
+      if( file_wd_setexe(zName, isExe) ){
         db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                      file_mtime(zName), id);
+                      file_wd_mtime(zName), id);
       }
       continue;
     }
-    if( promptFlag && file_size(zName)>=0 ){
+    if( promptFlag && file_wd_size(zName)>=0 ){
       Blob ans;
       char *zMsg;
       char cReply;
@@ -278,18 +278,18 @@ void vfile_to_disk(
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }    
-    if( file_size(zName)>=0 && (isLink || file_islink(zName)) ){
+    if( file_wd_size(zName)>=0 && (isLink || file_wd_islink(zName)) ){
       file_delete(zName);
     }
     if( isLink ){
-      create_symlink(blob_str(&content), zName);
+      symlink_create(blob_str(&content), zName);
     }else{
       blob_write_to_file(&content, zName);
     }
-    file_setexe(zName, isExe);
+    file_wd_setexe(zName, isExe);
     blob_reset(&content);
     db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                  file_mtime(zName), id);
+                  file_wd_mtime(zName), id);
   }
   db_finalize(&q);
 }
@@ -395,7 +395,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, allFlag, pIgnore);
         }
-      }else if( file_isfile_or_link(zPath) ){
+      }else if( file_wd_isfile_or_link(zPath) ){
         db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
         db_step(&ins);
         db_reset(&ins);
@@ -454,7 +454,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
     if( isSelected ){
       md5sum_step_text(zName, -1);
-      if( file_islink(zFullpath) ){
+      if( file_wd_islink(zFullpath) ){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
@@ -526,7 +526,7 @@ void vfile_compare_repository_to_disk(int vid){
     int rid = db_column_int(&q, 2);
 
     blob_zero(&disk);
-    if( file_islink(zFullpath) ){
+    if( file_wd_islink(zFullpath) ){
       rc = blob_read_link(&disk, zFullpath);
     }else{
       rc = blob_read_from_file(&disk, zFullpath);

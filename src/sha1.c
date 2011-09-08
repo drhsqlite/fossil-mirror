@@ -283,7 +283,7 @@ int sha1sum_file(const char *zFilename, Blob *pCksum){
   unsigned char zResult[20];
   char zBuf[10240];
 
-  if( file_islink(zFilename) ){
+  if( file_wd_islink(zFilename) ){
     /* Instead of file content, return sha1 of link destination path */
     Blob destinationPath;
     int rc;

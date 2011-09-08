@@ -393,7 +393,7 @@ void merge_cmd(void){
     }else{
       fossil_print("MERGE %s\n", zName);
     }
-    if( islinkv || islinkm /* || file_islink(zFullPath) */ ){
+    if( islinkv || islinkm /* || file_wd_islink(zFullPath) */ ){
       fossil_print("***** Cannot merge symlink %s\n", zName);
       nConflict++;        
     }else{
@@ -410,7 +410,7 @@ void merge_cmd(void){
       if( rc>=0 ){
         if( !nochangeFlag ){
           blob_write_to_file(&r, zFullPath);
-          file_setexe(zFullPath, isExe);
+          file_wd_setexe(zFullPath, isExe);
         }
         db_multi_exec("UPDATE vfile SET mtime=0 WHERE id=%d", idv);
         if( rc>0 ){
@@ -482,7 +482,11 @@ void merge_cmd(void){
     if( !nochangeFlag ){
       char *zFullOldPath = mprintf("%s%s", g.zLocalRoot, zOldName);
       char *zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
-      file_copy(zFullOldPath, zFullNewPath);
+      if( file_wd_islink(zFullOldPath) ){
+        symlink_copy(zFullOldPath, zFullNewPath);
+      }else{
+        file_copy(zFullOldPath, zFullNewPath);
+      }
       file_delete(zFullOldPath);
       free(zFullNewPath);
       free(zFullOldPath);

@@ -47,15 +47,15 @@ static void undo_one(const char *zPathname, int redoFlag){
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
     old_link = db_column_int(&q, 3);
-    new_link = file_islink(zFullname);
-    new_exists = file_size(zFullname)>=0;
+    new_link = file_wd_islink(zFullname);
+    new_exists = file_wd_size(zFullname)>=0;
     if( new_exists ){
       if( new_link ){
         blob_read_link(&current, zFullname);
       }else{
         blob_read_from_file(&current, zFullname);        
       }
-      new_exe = file_isexe(zFullname);
+      new_exe = file_wd_isexe(zFullname);
     }else{
       blob_zero(&current);
       new_exe = 0;
@@ -76,11 +76,11 @@ static void undo_one(const char *zPathname, int redoFlag){
         file_delete(zFullname);
       }
       if( old_link ){
-        create_symlink(blob_str(&new), zFullname);
+        symlink_create(blob_str(&new), zFullname);
       }else{
         blob_write_to_file(&new, zFullname);
       }
-      file_setexe(zFullname, old_exe);
+      file_wd_setexe(zFullname, old_exe);
     }else{
       fossil_print("DELETE %s\n", zPathname);
       file_delete(zFullname);
@@ -272,13 +272,13 @@ void undo_save(const char *zPathname){
 
   if( !undoActive ) return;
   zFullname = mprintf("%s%s", g.zLocalRoot, zPathname);
-  existsFlag = file_size(zFullname)>=0;
-  isLink = file_islink(zFullname);
+  existsFlag = file_wd_size(zFullname)>=0;
+  isLink = file_wd_islink(zFullname);
   db_prepare(&q,
     "INSERT OR IGNORE INTO"
     "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
     " VALUES(%Q,0,%d,%d,%d,:c)",
-    zPathname, existsFlag, file_isexe(zFullname), isLink
+    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
   );
   if( existsFlag ){
     if( isLink ){

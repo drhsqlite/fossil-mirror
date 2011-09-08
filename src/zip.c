@@ -293,7 +293,7 @@ void filezip_cmd(void){
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
-    zip_add_file(g.argv[i], &file, file_perm(g.argv[i]));
+    zip_add_file(g.argv[i], &file, file_wd_perm(g.argv[i]));
     blob_reset(&file);
   }
   zip_close(&zip);

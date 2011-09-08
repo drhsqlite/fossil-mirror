@@ -66,7 +66,7 @@ static void status_report(
     blob_append(report, zPrefix, nPrefix);
     if( isDeleted ){
       blob_appendf(report, "DELETED    %s\n", zDisplayName);
-    }else if( !file_isfile_or_link(zFullName) ){
+    }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
         blob_appendf(report, "NOT_A_FILE %s\n", zDisplayName);
         if( missingIsFatal ){
@@ -229,7 +229,7 @@ void ls_cmd(void){
       fossil_print("ADDED      %s\n", zPathname);
     }else if( isDeleted ){
       fossil_print("DELETED    %s\n", zPathname);
-    }else if( !file_isfile_or_link(zFullName) ){
+    }else if( !file_wd_isfile_or_link(zFullName) ){
       if( file_access(zFullName, 0)==0 ){
         fossil_print("NOT_A_FILE %s\n", zPathname);
       }else{
@@ -663,12 +663,12 @@ static void create_manifest(
     */
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
-    isexe = file_isexe(blob_str(&filename));
+    isexe = file_wd_isexe(blob_str(&filename));
     
     /* For unix, check if the file on the filesystem is symlink.
     ** On windows, the bit is retained unchanged from original. 
     */
-    isLink = file_islink(blob_str(&filename));
+    isLink = file_wd_islink(blob_str(&filename));
 #endif
     if( isexe ){
       zPerm = " x";
@@ -1073,7 +1073,7 @@ void commit_cmd(void){
     crnlOk = db_column_int(&q, 3);
 
     blob_zero(&content);
-    if( file_islink(zFullname) ){
+    if( file_wd_islink(zFullname) ){
       /* Instead of file content, put link destination path */
       blob_read_link(&content, zFullname);
     }else{

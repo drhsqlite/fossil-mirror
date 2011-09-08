@@ -91,7 +91,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
     const char *zOrig = db_column_text(&q, 5);
     char *zPath = mprintf("%s%s", g.zLocalRoot, zName);
     Blob content;
-    int isNewLink = file_islink(zPath);
+    int isNewLink = file_wd_islink(zPath);
 
     db_bind_int(&ins, ":rid", rid);
     db_bind_int(&ins, ":isadd", rid==0);
@@ -202,14 +202,14 @@ static void stash_apply(int stashid, int nConflict){
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &delta);
       blob_write_to_file(&delta, zNPath);
-      file_setexe(zNPath, isExec);
+      file_wd_setexe(zNPath, isExec);
       fossil_print("ADD %s\n", zNew);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       file_delete(zOPath);
     }else{
       Blob a, b, out, disk;
-      int isNewLink = file_islink(zOPath);
+      int isNewLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( isNewLink ){
         blob_read_link(&disk, zOPath);
@@ -223,11 +223,11 @@ static void stash_apply(int stashid, int nConflict){
           file_delete(zNPath);
         }
         if( isLink ){
-          create_symlink(blob_str(&b), zNPath);
+          symlink_create(blob_str(&b), zNPath);
         }else{
           blob_write_to_file(&b, zNPath);          
         }
-        file_setexe(zNPath, isExec);
+        file_wd_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
       }else{
         int rc;
@@ -239,7 +239,7 @@ static void stash_apply(int stashid, int nConflict){
           rc = merge_3way(&a, zOPath, &b, &out);
           blob_write_to_file(&out, zNPath);          
           blob_reset(&out);
-          file_setexe(zNPath, isExec);
+          file_wd_setexe(zNPath, isExec);
         }
         if( rc ){
           fossil_print("CONFLICT %s\n", zNew);
@@ -292,7 +292,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
-      if( file_islink(zOPath) ){
+      if( file_wd_islink(zOPath) ){
         blob_read_link(&delta, zOPath);
       }else{
         blob_read_from_file(&delta, zOPath);
@@ -301,7 +301,7 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       diff_file_mem(&delta, &empty, zOrig, zDiffCmd, 0);
     }else{
       Blob a, b, disk;
-      int isOrigLink = file_islink(zOPath);
+      int isOrigLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
       if( isOrigLink ){
         blob_read_link(&disk, zOPath);
