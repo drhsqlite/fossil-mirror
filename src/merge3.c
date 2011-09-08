@@ -424,7 +424,7 @@ int merge_3way(
       zCmd = string_subst(zGMerge, 8, azSubst);
       printf("%s\n", zCmd); fflush(stdout);
       fossil_system(zCmd);
-      if( file_size(zOut)>=0 ){
+      if( file_wd_size(zOut)>=0 ){
         blob_read_from_file(pOut, zOut);
         file_delete(zPivot);
         file_delete(zOrig);
