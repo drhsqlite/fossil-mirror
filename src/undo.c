@@ -275,7 +275,8 @@ void undo_save(const char *zPathname){
   existsFlag = file_size(zFullname)>=0;
   isLink = file_islink(zFullname);
   db_prepare(&q,
-    "INSERT OR IGNORE INTO undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+    "INSERT OR IGNORE INTO"
+    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
     " VALUES(%Q,0,%d,%d,%d,:c)",
     zPathname, existsFlag, file_isexe(zFullname), isLink
   );
