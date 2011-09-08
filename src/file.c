@@ -65,6 +65,7 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   char *zMbcs = fossil_utf8_to_mbcs(zFilename);
   rc = stat(zMbcs, buf);
   fossil_mbcs_free(zMbcs);
+  return rc;
 #endif
 }
 
