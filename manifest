@@ -1,5 +1,5 @@
-C Remove\sunused\svariable\sfrom\sticket_cmd().
-D 2011-09-08T13:07:57.839
+C Add\scomment\sdescribing\sfile_wd_isfile()\sfunction.
+D 2011-09-08T14:30:40.277
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -78,7 +78,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 1118352e8b140f7508c4e8cfdc1bc97f5979606f
-F src/file.c 2bc870a9f5ce038caf90053c3b49ef3d0e9c2485
+F src/file.c d29ba5922c86f2829ed4958f2999941a9063970a
 F src/finfo.c b206c1435c16b608476f809923fbbc32a12ce561
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P c05f6afaf22849c99af333f88583435a473e8ba5
-R 01fd6583e51992783e209dc7591143d0
+P a0b3769b0122cb3ca4458dd1768922f25fbd179d
+R f53fe2950d8976818b2d7b9fd9bdbbd2
 U dmitry
-Z 2f577f72d54d5e94691b13d864cf05e2
+Z 6422e33ec77654819075825a3d7eb692

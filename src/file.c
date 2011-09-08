@@ -144,6 +144,9 @@ int file_isfile(const char *zFilename){
   return getStat(zFilename, 0) ? 0 : S_ISREG(fileStat.st_mode);
 }
 
+/*
+** Same as file_isfile(), but takes into account symlinks.
+*/
 int file_wd_isfile(const char *zFilename){
   return getStat(zFilename, 1) ? 0 : S_ISREG(fileStat.st_mode);
 }
