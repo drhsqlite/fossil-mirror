@@ -1013,7 +1013,6 @@ void ticket_cmd(void){
         /* we just handle history separately here, does not get out */
         if( eCmd==history ){
           Stmt q;
-          char *zTitle;
           int tagid;
 
           if ( i != g.argc ){
