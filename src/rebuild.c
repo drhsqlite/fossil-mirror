@@ -340,7 +340,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
-  if (!g.fQuiet) {
+  if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
   rebuild_update_schema();
@@ -412,12 +412,12 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
-  if( !g.fQuiet && totalSize>0 ){
+  if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
   if( doClustering ) create_cluster();
-  if( !g.fQuiet && totalSize>0 ){
+  if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
