@@ -96,7 +96,7 @@ Available COMMANDs:</pre><table width="80%"
     <td><a href="#descendants">descendants</a></td>
     <td><a href="#mv">mv</a>*</td>
     <td><a href="#rm">rm</a>*</td>
-    <td><a href="#setting">unset</a></td>
+    <td><a href="#settings">unset</a></td>
   </tr>
   <tr>
     <td><a href="#commit">ci</a></td>
@@ -116,7 +116,7 @@ Available COMMANDs:</pre><table width="80%"
     <td><a href="#clone">clone</a></td>
     <td><a href="#diff">gdiff</a></td>
     <td><a href="#pull">pull</a></td>
-    <td><a href="#setting">settings</a></td>
+    <td><a href="#settings">settings</a></td>
     <td><a href="#version">version</a>*</td>
   </tr>
   <tr>
