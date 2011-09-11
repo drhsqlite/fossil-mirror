@@ -337,6 +337,14 @@ void user_edit(void){
     zCap[i] = 0;
     zPw = P("pw");
     zLogin = P("login");
+    if( strlen(zLogin)==0 ){
+      style_header("User Creation Error");
+      @ <span class="loginError">Empty login not allowed.</span>
+      @
+      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      style_footer();
+      return;      
+    }
     if( isValidPwString(zPw) ){
       zPw = sha1_shared_secret(zPw, zLogin, 0);
     }else{

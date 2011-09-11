@@ -1,5 +1,5 @@
-C Fix\stypos\sin\sdocumentation.\sTickets\s[09310d1a]\sand\s[806c4358].
-D 2011-09-11T12:26:38.624
+C Disallow\screating\susers\swith\sempty\slogin.\sTicket\s[66ce1088].
+D 2011-09-11T12:27:38.969
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -113,7 +113,7 @@ F src/report.c b8bf42a664aed64433cf54ee94d727b75021c46f
 F src/rss.c 7f49df333ec9cf56f43b4840efebef8dc51f52ea
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
-F src/setup.c d14162f2cf22807594376a599c27cdf184274bd9
+F src/setup.c 3a4785afa64e112c56b3068334b5b89b7fe62f26
 F src/sha1.c e9122a5142e5f3f1596a0e4bdd42f0f5eea28814
 F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 2239175928cb6814ca8ec589eb4ceda0aa6252e6
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 71b862af7d6980692cbfed76f09cd6f0ba355203
-R e21d981d98ce3188056dc68336af0c8d
+P 9150a8a2349d8f17a279977d5698d24f945a9536
+R 3da42f973fe0f4db37a9526648950719
 U dmitry
-Z bbca1a624cbdedffb46400e89776953b
+Z ae91d75b529592961b371d3b69de992e
