@@ -1,5 +1,5 @@
-C Fix\stypo\sin\scomment
-D 2011-09-12T13:06:45.678
+C Reset\sthe\sreply\scontent\sat\sthe\sbeginning\sof\sthe\s/xfer\smethod\sin\scase\nany\ssqlite3_log()\swarning\smessages\shad\spreviously\sbeen\sinserted.
+D 2011-09-12T18:13:48.692
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -144,7 +144,7 @@ F src/vfile.c 1a9375a22479d7101f14b3ff352e0c5f9013cd39
 F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
+F src/xfer.c 4d3d76f746afb8d30e03cbfc050ad48a1bd76956
 F src/zip.c a6b415696ace32c498e20d1eb88fb09e70335275
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 136519f4be91e5e84d71017c45d77d81c6bbeb9e
-R bcf7a787e18a664e950d60ff75692f52
-U joerg
-Z 9e38b74ac708580f3103b2ef2b4981d1
+P b582ff9879198e1143b9e6582161289923e27777
+R b0c919996b508653aa0507f4901ee373
+U drh
+Z 7025da7e6cfd53728549e91567abb3c5
