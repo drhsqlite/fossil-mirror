@@ -1,5 +1,5 @@
-C Add\sa\snew\squote\sto\sthe\sdocumentation.
-D 2011-09-10T21:21:32.240
+C Fix\stypo\sin\scomment
+D 2011-09-12T13:06:45.678
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -74,7 +74,7 @@ F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d05ff92998e4a927e5824fb24701cb3507ed17b2
 F src/diff.c 5dfb1d6ff82ee2b015ab3e5cd567572c208bab77
 F src/diffcmd.c f3d982433d718676a001533d22d2c4d302b7c96e
-F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
+F src/doc.c ec2b77b28246fa5f9e087b62e47859b468d74388
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 1118352e8b140f7508c4e8cfdc1bc97f5979606f
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P f23334cbda2ee24202584a973e2ca823bbafc7e5
-R 266027fed6fff804f1b5cd213f9354bc
-U drh
-Z 0a7c0ab48389a21f893bcc469c86ebc6
+P 136519f4be91e5e84d71017c45d77d81c6bbeb9e
+R bcf7a787e18a664e950d60ff75692f52
+U joerg
+Z 9e38b74ac708580f3103b2ef2b4981d1

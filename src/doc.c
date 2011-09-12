@@ -347,7 +347,7 @@ void mimetype_test_cmd(void){
 ** URL: /doc/BASELINE/PATH
 **
 ** BASELINE can be either a baseline uuid prefix or magic words "tip"
-** to me the most recently checked in baseline or "ckout" to mean the
+** to mean the most recently checked in baseline or "ckout" to mean the
 ** content of the local checkout, if any.  PATH is the relative pathname
 ** of some file.  This method returns the file content.
 **
