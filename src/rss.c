@@ -96,7 +96,7 @@ void page_timeline_rss(void){
   zPubDate = cgi_rfc822_datestamp(time(NULL));
 
   @ <?xml version="1.0"?>
-  @ <rss version="2.0">
+  @ <rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
   @   <channel>
   @     <title>%h(zProjectName)</title>
   @     <link>%s(g.zBaseURL)</link>
@@ -132,7 +132,7 @@ void page_timeline_rss(void){
     @       <link>%s(g.zBaseURL)/info/%s(zId)</link>
     @       <description>%s(zPrefix)%h(zCom)</description>
     @       <pubDate>%s(zDate)</pubDate>
-    @       <author>%h(zAuthor)</author>
+    @       <dc:creator>%h(zAuthor)</dc:creator>
     @       <guid>%s(g.zBaseURL)/info/%s(zId)</guid>
     @     </item>
     free(zDate);

@@ -61,7 +61,7 @@ and displayed using special URLs to the fossil server.  This allows
 project documentation to be stored in the source tree and accessed 
 online.  (Details are described [./embeddeddoc.wiki | separately].)
 
-Some project prefer to store their documentation in wiki.  There is nothing
+Some projects prefer to store their documentation in wiki.  There is nothing
 wrong with that.  But other projects prefer to keep documentation as part
 of the source tree, so that it is versioned along with the source tree and
 so that only developers with check-in privileges can change it.  

@@ -417,7 +417,8 @@ static void prepare_commit_comment(
   Blob *pComment,
   char *zInit,
   const char *zBranch,
-  int parent_rid
+  int parent_rid,
+  const char *zUserOvrd
 ){
   const char *zEditor;
   char *zCmd;
@@ -432,7 +433,7 @@ static void prepare_commit_comment(
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
-  blob_appendf(&text, "# user: %s\n", g.zLogin);
+  blob_appendf(&text, "# user: %s\n", zUserOvrd ? zUserOvrd : g.zLogin);
   if( zBranch && zBranch[0] ){
     blob_appendf(&text, "# tags: %s\n#\n", zBranch);
   }else{
@@ -1036,7 +1037,7 @@ void commit_cmd(void){
     blob_read_from_file(&comment, zComFile);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
-    prepare_commit_comment(&comment, zInit, zBranch, vid);
+    prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
