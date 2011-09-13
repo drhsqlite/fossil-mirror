@@ -123,7 +123,7 @@ void show_common_info(
 /*
 ** COMMAND: info
 **
-** Usage: %fossil info ?VERSION | REPOSITORY_FILENAME?
+** Usage: %fossil info ?VERSION | REPOSITORY_FILENAME? ?OPTIONS?
 **
 ** With no arguments, provide information about the current tree.
 ** If an argument is specified, provide information about the object
@@ -133,6 +133,10 @@ void show_common_info(
 **
 ** Use the "finfo" command to get information about a specific
 ** file in a checkout.
+**
+** Options:
+**
+**    -R|--repository FILE       Extract info from repository FILE
 */
 void info_cmd(void){
   i64 fsize;

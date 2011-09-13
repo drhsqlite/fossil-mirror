@@ -266,10 +266,14 @@ void compute_descendants(int rid, int N){
 /*
 ** COMMAND:  descendants
 **
-** Usage: %fossil descendants ?BASELINE-ID?
+** Usage: %fossil descendants ?BASELINE-ID? ?OPTIONS?
 **
 ** Find all leaf descendants of the baseline specified or if the argument
 ** is omitted, of the baseline currently checked out.
+**
+** Options:
+**
+**    -R|--repository FILE       Extract info from repository FILE
 */
 void descendants_cmd(void){
   Stmt q;
