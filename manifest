@@ -1,5 +1,5 @@
-C Merge\sdocumentation\supdates\sinto\strunk.
-D 2011-09-13T18:36:56.270
+C Add\sthe\s"brief"\squery\sparameter\sto\sthe\s"stat"\spage.
+D 2011-09-13T18:45:18.668
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -122,7 +122,7 @@ F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 3502fd01f395b399f66c0b50bdcc40eb3ed6df74
 F src/sqlite3.h 86f259a1bfa857578d7ce83cab3ffa988aac2d62
 F src/stash.c bcfdf0313e0b1fa20249872a56ba7a88ea49e343
-F src/stat.c 59aea0e1c8cf0b40d4b5b2062bcf9614a9363a10
+F src/stat.c 84ef11b30546d9c05c2cdb9a55250c2a1c220832
 F src/style.c 21e3a0c7fbc15ea76ce52a1a8c59b7fca26ce81d
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c d234b3ab9f748e43ad88c3fbd4da8cc254cc9a6a
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4fe221411663c2f6d88340d17de2543ad70ec027 a336ff53d2d2abfa6d5b80c01b5fec4defb8d3a5
-R 0a69cb76861e2bfe466d3ddca3901f96
+P 6cf00533b2fafdd68907d2c22d49393e91782367
+R 5fc38eba318678a403e639881c960e11
 U drh
-Z e5b2d201e4599d6930c46ab5dc636ee8
+Z ae372f0d9b52abfa9f024a0a45b4703f
