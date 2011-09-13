@@ -719,10 +719,12 @@ static int annotation_step(Annotator *p, Blob *pParent, struct Label *zPName){
          {
            if(--x->zSrc->nref == 0)
            {
-               free(x->zSrc->str);
+             free(x->zSrc->str);
+             if (x->zSrc->prev)
                x->zSrc->prev->next = x->zSrc->next;
+             if (x->zSrc->next)
                x->zSrc->next->prev = x->zSrc->prev;
-               free(x->zSrc);
+             free(x->zSrc);
            }
          }
          x->zSrc = zPName;
@@ -852,6 +854,7 @@ static void annotate_file(
     struct Label *l = fossil_malloc(sizeof(*l));
     l->nref = 0;
     l->next = p->firstLabel;
+    l->prev = 0;
     if (p->firstLabel)
       p->firstLabel->prev = l;
     if( webLabel ){
@@ -869,7 +872,13 @@ static void annotate_file(
     content_get(pid, &step);
     annotation_step(p, &step, l);
     if (l->nref == 0)
+    {
       free(l->str);
+      p->firstLabel = l->next;
+      if (l->next)
+        l->next->prev = 0;
+      free(l);
+    }
     blob_reset(&step);
   }
   db_finalize(&q);
@@ -922,6 +931,18 @@ void annotation_page(void){
   }
   @ </pre>
   style_footer();
+
+  free(ann.azVers);
+  free(ann.aOrig);
+  blob_reset(&ann.toAnnotate);
+  while(ann.firstLabel) {
+    struct Label *l;
+    l = ann.firstLabel->next;
+    assert(ann.firstLabel->nref > 0);
+    free(ann.firstLabel->str);
+    free(ann.firstLabel);
+    ann.firstLabel = l;
+  }
 }
 
 /*
