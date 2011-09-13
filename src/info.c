@@ -136,9 +136,6 @@ void show_common_info(
 */
 void info_cmd(void){
   i64 fsize;
-  if( g.argc!=2 && g.argc!=3 ){
-    usage("?FILENAME|ARTIFACT-ID?");
-  }
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
@@ -148,14 +145,16 @@ void info_cmd(void){
     fossil_print("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
-  db_must_be_within_tree();
+  db_find_and_open_repository(0,0);
   if( g.argc==2 ){
     int vid;
          /* 012345678901234 */
     db_record_repository_filename(0);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
-    fossil_print("repository:   %s\n", db_lget("repository", ""));
-    fossil_print("local-root:   %s\n", g.zLocalRoot);
+    if( g.localOpen ){
+      fossil_print("repository:   %s\n", db_lget("repository", ""));
+      fossil_print("local-root:   %s\n", g.zLocalRoot);
+    }
 #if defined(_WIN32)
     if( g.zHome ){
       fossil_print("user-home:    %s\n", g.zHome);
@@ -163,10 +162,8 @@ void info_cmd(void){
 #endif
     fossil_print("project-code: %s\n", db_get("project-code", ""));
     fossil_print("server-code:  %s\n", db_get("server-code", ""));
-    vid = db_lget_int("checkout", 0);
-    if( vid==0 ){
-      fossil_print("checkout:     nil\n");
-    }else{
+    vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
+    if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
   }else{

@@ -275,7 +275,7 @@ void descendants_cmd(void){
   Stmt q;
   int base;
 
-  db_must_be_within_tree();
+  db_find_and_open_repository(0,0);
   if( g.argc==2 ){
     base = db_lget_int("checkout", 0);
   }else{
@@ -312,7 +312,7 @@ void leaves_cmd(void){
   int showClosed = find_option("closed", 0, 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
 
-  db_must_be_within_tree();
+  db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();
   blob_zero(&sql);
   blob_append(&sql, timeline_query_for_tty(), -1);

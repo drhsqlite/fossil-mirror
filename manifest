@@ -1,5 +1,5 @@
-C Merge\sthe\sminor\sfixes\son\sthe\sdmitry-fixes\sbranch\sinto\strunk.
-D 2011-09-12T18:19:36.441
+C Add\ssupport\sfor\sthe\s-R\soption\son\sseveral\scommand-line\ssubcommands.
+D 2011-09-13T00:40:32.706
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -71,7 +71,7 @@ F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
 F src/db.c cb2300de2f372fe25f2d86c48c332a501a7bead9
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c d05ff92998e4a927e5824fb24701cb3507ed17b2
+F src/descendants.c 3dfa98c1e535f2b17bd490611406fcd8c42597c5
 F src/diff.c 5dfb1d6ff82ee2b015ab3e5cd567572c208bab77
 F src/diffcmd.c f3d982433d718676a001533d22d2c4d302b7c96e
 F src/doc.c ec2b77b28246fa5f9e087b62e47859b468d74388
@@ -88,7 +88,7 @@ F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
 F src/http_ssl.c 06f6d5f174011205a5bbe71123f47444aa606c7f
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 38c89838f21b09ca03c981ee23f34f828cbca9ef
-F src/info.c 8c258582535f12ac5ecc6d70e2df997da32c7ac7
+F src/info.c b890ff22559e2c71b7898d44183dfe9840cd7b89
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 925509ebd7107a1302882293745fa63feed8882e
 F src/main.c db924043b4266db17626bda55c0fe5e85025a6d3
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d1620830e23f7c6c6bc1318503edef67e2084f7 2cd21f8dc2ec202e3ef4d771fd3d4ab426b98e7b
-R 955f29b12e1fe492455076aa06f31a53
+P ce354d0a9f62cde0122af374cd18c22009b735e6
+R cc4f968c73114ef22c70b94a9e6c914f
 U drh
-Z 23be4ed94b02783bd822ddbdd44a742a
+Z 1daa81cece5b1d106e4c5324584bddf2
