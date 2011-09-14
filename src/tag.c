@@ -531,7 +531,7 @@ void taglist_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okRead ){
+  if( !g.perm.Read ){
     login_needed();
   }
   login_anonymous_available();
@@ -550,7 +550,7 @@ void taglist_page(void){
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( g.okHistory ){
+    if( g.perm.History ){
       @ <li><a class="tagLink" href="%s(g.zTop)/timeline?t=%T(zName)">
       @ %h(zName)</a></li>
     }else{
@@ -569,7 +569,7 @@ void tagtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
 
   style_header("Tagged Check-ins");
   style_submenu_element("List", "List", "taglist");

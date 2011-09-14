@@ -1027,7 +1027,7 @@ void setup_skin(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();

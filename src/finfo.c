@@ -224,7 +224,7 @@ void finfo_page(void){
   int uBg = P("ubg")!=0;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   style_header("File History");
   login_anonymous_available();
 
@@ -311,7 +311,7 @@ void finfo_page(void){
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
-      if( g.okHistory ){
+      if( g.perm.History ){
         @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%S(zUuid)]</a>
       }else{
         @ [%S(zUuid)]
@@ -324,7 +324,7 @@ void finfo_page(void){
     @ %h(zCom) (user: 
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
-    if( g.okHistory && zUuid ){
+    if( g.perm.History && zUuid ){
       const char *z = zFilename;
       if( fpid ){
         @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>

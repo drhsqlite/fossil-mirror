@@ -822,7 +822,7 @@ void page_test_env(void){
   @ capabilities = %s(zCap)<br />
   @ <hr>
   cgi_print_all();
-  if( g.okSetup ){
+  if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);
   }

@@ -1346,7 +1346,7 @@ char *db_conceal(const char *zContent, int n){
 */
 char *db_reveal(const char *zKey){
   char *zOut;
-  if( g.okRdAddr ){
+  if( g.perm.RdAddr ){
     zOut = db_text(0, "SELECT content FROM concealed WHERE hash=%Q", zKey);
   }else{
     zOut = 0;

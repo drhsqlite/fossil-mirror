@@ -291,7 +291,7 @@ static void append_file_change_line(
   int showDiff,         /* Show edit diffs if true */
   int mperm             /* executable or symlink permission for zNew */
 ){
-  if( !g.okHistory ){
+  if( !g.perm.History ){
     if( zNew==0 ){
       @ <p>Deleted %h(zName)</p>
     }else if( zOld==0 ){
@@ -368,7 +368,7 @@ void ci_page(void){
   const char *zParent; /* UUID of the parent checkin (if any) */
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   zName = P("name");
   rid = name_to_rid_www("name");
   if( rid==0 ){
@@ -416,7 +416,7 @@ void ci_page(void){
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
-    if( g.okSetup ){
+    if( g.perm.Setup ){
       @ (Record ID: %d(rid))
     }
     @ </td></tr>
@@ -441,7 +441,7 @@ void ci_page(void){
     }else{
       @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
     }
-    if( g.okAdmin ){
+    if( g.perm.Admin ){
       db_prepare(&q, 
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
@@ -458,7 +458,7 @@ void ci_page(void){
       }
       db_finalize(&q);
     }
-    if( g.okHistory ){
+    if( g.perm.History ){
       const char *zProjName = db_get("project-name", "unnamed");
       @ <tr><th>Timelines:</th><td>
       @   <a href="%s(g.zTop)/timeline?f=%S(zUuid)">family</a>
@@ -484,7 +484,7 @@ void ci_page(void){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       @     <a href="%s(g.zTop)/dir?ci=%S(zUuid)">files</a>
-      if( g.okZip ){
+      if( g.perm.Zip ){
         char *zUrl = mprintf("%s/tarball/%s-%S.tar.gz?uuid=%s",
                              g.zTop, zProjName, zUuid, zUuid);
         @ | <a href="%s(zUrl)">Tarball</a>
@@ -493,7 +493,7 @@ void ci_page(void){
         fossil_free(zUrl);
       }
       @   | <a href="%s(g.zTop)/artifact/%S(zUuid)">manifest</a>
-      if( g.okWrite ){
+      if( g.perm.Write ){
         @   | <a href="%s(g.zTop)/ci_edit?r=%S(zUuid)">edit</a>
       }
       @   </td>
@@ -560,7 +560,7 @@ void winfo_page(void){
   int rid;
 
   login_check_credentials();
-  if( !g.okRdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){
     style_header("Wiki Page Information Error");
@@ -593,12 +593,12 @@ void winfo_page(void){
     @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
     @ <tr><th>Date:</th><td>
     hyperlink_to_date(zDate, "</td></tr>");
-    if( g.okSetup ){
+    if( g.perm.Setup ){
       @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
     }
     @ <tr><th>Original&nbsp;User:</th><td>
     hyperlink_to_user(zUser, zDate, "</td></tr>");
-    if( g.okHistory ){
+    if( g.perm.History ){
       @ <tr><th>Commands:</th>
       @   <td>
       @     <a href="%s(g.zTop)/whistory?name=%t(zName)">history</a>
@@ -703,7 +703,7 @@ void vdiff_page(void){
   ManifestFile *pFileFrom, *pFileTo;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
 
   pFrom = vdiff_parse_manifest("from", &ridFrom);
@@ -822,7 +822,7 @@ void object_description(
       }else{
         @ <li>File        
       }
-      if( g.okHistory ){
+      if( g.perm.History ){
         @ <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
       }else{
         @ %h(zName)
@@ -835,7 +835,7 @@ void object_description(
     @ - part of checkin
     hyperlink_to_uuid(zVers);
     if( zBr && zBr[0] ){
-      if( g.okHistory ){
+      if( g.perm.History ){
         @ on branch <a href="%s(g.zTop)/timeline?r=%T(zBr)">%h(zBr)</a>
       }else{
         @ on branch %h(zBr)
@@ -844,7 +844,7 @@ void object_description(
     @ - %w(zCom) (user:
     hyperlink_to_user(zUser,zDate,"");
     @ )
-    if( g.okHistory ){
+    if( g.perm.History ){
       @ <a href="%s(g.zTop)/annotate?checkin=%S(zVers)&filename=%T(zName)">
       @ [annotate]</a>
     }
@@ -875,7 +875,7 @@ void object_description(
     }else{
       @ Wiki page
     }
-    if( g.okHistory ){
+    if( g.perm.History ){
       @ [<a href="%s(g.zTop)/wiki?name=%t(zPagename)">%h(zPagename)</a>]
     }else{
       @ [%h(zPagename)]
@@ -951,13 +951,13 @@ void object_description(
       @ Attachment "%h(zFilename)" to
     }
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      if( g.okHistory && g.okRdTkt ){
+      if( g.perm.History && g.perm.RdTkt ){
         @ ticket [<a href="%s(g.zTop)/tktview?name=%S(zTarget)">%S(zTarget)</a>]
       }else{
         @ ticket [%S(zTarget)]
       }
     }else{
-      if( g.okHistory && g.okRdWiki ){
+      if( g.perm.History && g.perm.RdWiki ){
         @ wiki page [<a href="%s(g.zTop)/wiki?name=%t(zTarget)">%h(zTarget)</a>]
       }else{
         @ wiki page [%h(zTarget)]
@@ -977,7 +977,7 @@ void object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_appendf(pDownloadName, "%.10s.txt", zUuid);
     }
-  }else if( linkToView && g.okHistory ){
+  }else if( linkToView && g.perm.History ){
     @ <a href="%s(g.zTop)/artifact/%S(zUuid)">[view]</a>
   }
 }
@@ -999,7 +999,7 @@ void diff_page(void){
   char *zV2;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
@@ -1051,7 +1051,7 @@ void rawartifact_page(void){
   rid = name_to_rid_www("name");
   zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
   content_get(rid, &content);
   cgi_set_content_type(zMime);
@@ -1124,9 +1124,9 @@ void hexdump_page(void){
 
   rid = name_to_rid_www("name");
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
-  if( g.okAdmin ){
+  if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
@@ -1271,9 +1271,9 @@ void artifact_page(void){
   }
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
-  if( g.okAdmin ){
+  if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
@@ -1358,11 +1358,11 @@ void tinfo_page(void){
   Manifest *pTktChng;
 
   login_check_credentials();
-  if( !g.okRdTkt ){ login_needed(); return; }
+  if( !g.perm.RdTkt ){ login_needed(); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
-  if( g.okAdmin ){
+  if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
       style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
             g.zTop, zUuid);
@@ -1379,7 +1379,7 @@ void tinfo_page(void){
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
   memcpy(zTktName, pTktChng->zTicketUuid, 10);
   zTktName[10] = 0;
-  if( g.okHistory ){
+  if( g.perm.History ){
     @ <h2>Changes to ticket
     @ <a href="%s(pTktChng->zTicketUuid)">%s(zTktName)</a></h2>
     @
@@ -1619,7 +1619,7 @@ void ci_edit_page(void){
   Stmt q;
   
   login_check_credentials();
-  if( !g.okWrite ){ login_needed(); return; }
+  if( !g.perm.Write ){ login_needed(); return; }
   rid = name_to_typed_rid(P("r"), "ci");
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zComment = db_text(0, "SELECT coalesce(ecomment,comment)"

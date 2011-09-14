@@ -46,7 +46,7 @@ void page_timeline_rss(void){
   ;
 
   login_check_credentials();
-  if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ 
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){ 
     return;
   }
 
@@ -54,27 +54,27 @@ void page_timeline_rss(void){
   blob_append( &bSQL, zSQL1, -1 );
 
   if( zType[0]!='a' ){
-    if( zType[0]=='c' && !g.okRead ) zType = "x";
-    if( zType[0]=='w' && !g.okRdWiki ) zType = "x";
-    if( zType[0]=='t' && !g.okRdTkt ) zType = "x";
+    if( zType[0]=='c' && !g.perm.Read ) zType = "x";
+    if( zType[0]=='w' && !g.perm.RdWiki ) zType = "x";
+    if( zType[0]=='t' && !g.perm.RdTkt ) zType = "x";
     blob_appendf(&bSQL, " AND event.type=%Q", zType);
   }else{
-    if( !g.okRead ){
-      if( g.okRdTkt && g.okRdWiki ){
+    if( !g.perm.Read ){
+      if( g.perm.RdTkt && g.perm.RdWiki ){
         blob_append(&bSQL, " AND event.type!='ci'", -1);
-      }else if( g.okRdTkt ){
+      }else if( g.perm.RdTkt ){
         blob_append(&bSQL, " AND event.type=='t'", -1);
       }else{
         blob_append(&bSQL, " AND event.type=='w'", -1);
       }
-    }else if( !g.okRdWiki ){
-      if( g.okRdTkt ){
+    }else if( !g.perm.RdWiki ){
+      if( g.perm.RdTkt ){
         blob_append(&bSQL, " AND event.type!='w'", -1);
       }else{
         blob_append(&bSQL, " AND event.type=='ci'", -1);
       }
-    }else if( !g.okRdTkt ){
-      assert( !g.okRdTkt &&& g.okRead && g.okRdWiki );
+    }else if( !g.perm.RdTkt ){
+      assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
       blob_append(&bSQL, " AND event.type!='t'", -1);
     }
   }
