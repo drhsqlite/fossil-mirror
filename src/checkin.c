@@ -128,23 +128,21 @@ static int determine_cwd_relative_option()
 /*
 ** COMMAND: changes
 **
-** Usage: %fossil changes
+** Usage: %fossil changes ?OPTIONS?
 **
 ** Report on the edit status of all files in the current checkout.
-** See also the "status" and "extra" commands.
 **
 ** Pathnames are displayed according to the "relative-paths" setting,
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
-**
-**    --sha1sum         Verify file status using SHA1 hashing rather
-**                      than relying on file mtimes.
-**
 **    --abs-paths       Display absolute pathnames.
-**
 **    --rel-paths       Display pathnames relative to the current working
 **                      directory.
+**    --sha1sum         Verify file status using SHA1 hashing rather
+**                      than relying on file mtimes.
+** 
+** See also: extra, ls, status
 */
 void changes_cmd(void){
   Blob report;
@@ -163,7 +161,7 @@ void changes_cmd(void){
 /*
 ** COMMAND: status
 **
-** Usage: %fossil status
+** Usage: %fossil status ?OPTIONS?
 **
 ** Report on the status of the current checkout.
 **
@@ -172,13 +170,13 @@ void changes_cmd(void){
 **
 ** Options:
 **
+**    --abs-paths       Display absolute pathnames.
+**    --rel-paths       Display pathnames relative to the current working
+**                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
 **
-**    --abs-paths       Display absolute pathnames.
-**
-**    --rel-paths       Display pathnames relative to the current working
-**                      directory.
+** See also: changes, extra, ls
 */
 void status_cmd(void){
   int vid;
@@ -197,10 +195,15 @@ void status_cmd(void){
 /*
 ** COMMAND: ls
 **
-** Usage: %fossil ls [-l]
+** Usage: %fossil ls ?OPTIONS?
 **
 ** Show the names of all files in the current checkout.  The -l provides
 ** extra information about each file.
+**
+** Options:
+**   -l      Provide extra information about each file.
+**
+** See also: changes, extra, status
 */
 void ls_cmd(void){
   int vid;
@@ -249,7 +252,7 @@ void ls_cmd(void){
 
 /*
 ** COMMAND: extras
-** Usage: %fossil extras ?--dotfiles? ?--ignore GLOBPATTERN?
+** Usage: %fossil extras ?OPTIONS?
 **
 ** Print a list of all files in the source tree that are not part of
 ** the current checkout.  See also the "clean" command.
@@ -265,16 +268,13 @@ void ls_cmd(void){
 ** unless overridden by the --abs-paths or --rel-paths options.
 **
 ** Options:
+**    --abs-paths      Display absolute pathnames.
+**    --dotfiles       include files beginning with a dot (".")   
+**    --ignore <CSG>   ignore files matching patterns from the 
+**    --rel-paths      Display pathnames relative to the current working
+**                     directory.
 **
-**    --dotfiles        Include files with names beginning with "."
-**
-**    --ignore GLOBPATTERN 
-**                      Override the "ignore-glob" setting.
-**
-**    --abs-paths       Display absolute pathnames.
-**
-**    --rel-paths       Display pathnames relative to the current working
-**                      directory.
+** See also: changes, clean, status
 */
 void extra_cmd(void){
   Blob path;
@@ -330,11 +330,11 @@ void extra_cmd(void){
 
 /*
 ** COMMAND: clean
-** Usage: %fossil clean ?--force? ?--dotfiles? ?--ignore GLOBPATTERN?
+** Usage: %fossil clean ?OPTIONS?
 **
 ** Delete all "extra" files in the source tree.  "Extra" files are
-** files that are not officially part of the checkout.  See also
-** the "extra" command. This operation cannot be undone. 
+** files that are not officially part of the checkout. This operation
+** cannot be undone.
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
@@ -347,6 +347,14 @@ void extra_cmd(void){
 ** The GLOBPATTERN is a comma-separated list of GLOB expressions for
 ** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
 ** is used if the --ignore option is omitted.
+**
+** Options:
+**    --dotfiles       include files beginning with a dot (".")   
+**    --force          Remove files without prompting
+**    --ignore <CSG>   ignore files matching patterns from the 
+**                     comma separated list of glob patterns.
+**
+** See also: addremove, extra, status
 */
 void clean_cmd(void){
   int allFlag;
@@ -842,7 +850,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 ** entries in the new branch when shown in the web timeline interface.
 **
 ** A check-in is not permitted to fork unless the --force or -f
-** option appears.  A check-in is not allowed against a closed check-in.
+** option appears.  A check-in is not allowed against a closed leaf.
 **
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
@@ -850,18 +858,18 @@ static void cr_warning(const Blob *p, const char *zFilename){
 ** the --tag option applies the symbolic tag name to the check-in.
 **
 ** Options:
-**
-**    --comment|-m COMMENT-TEXT
-**    --message-file|-M COMMENT-FILE
-**    --branch NEW-BRANCH-NAME
-**    --bgcolor COLOR
-**    --nosign
-**    --force|-f
-**    --private
-**    --baseline
-**    --delta
-**    --tag TAG-NAME
+**    --baseline                 use a baseline manifest in the commit process
+**    --bgcolor COLOR            apply given COLOR to the branch
+**    --branch NEW-BRANCH-NAME   check in to this new branch
+**    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
+**    --delta                    use a delta manifest in the commit process
+**    --force|-f                 allow forking with this commit
+**    --message-file|-M FILE     read the commit comment from given file
+**    --nosign                   do not attempt to sign this commit with gpg
+**    --private                  do not sync changes and their descendants
+**    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **    
+** See also: branch, changes, checkout, extra, sync
 */
 void commit_cmd(void){
   int hasChanges;        /* True if unsaved changes exist */

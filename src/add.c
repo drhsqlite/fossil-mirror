@@ -183,8 +183,13 @@ static int add_files_in_sfile(int vid, int caseSensitive){
 ** does not appear on the command line then the "ignore-glob" setting is
 ** used.
 **
-** SUMMARY: fossil add ?OPTIONS? FILE1 ?FILE2 ...?
-** Options: --dotfiles, --ignore
+** Options:
+**
+**    --dotfiles       include files beginning with a dot (".")   
+**    --ignore <CSG>   ignore files matching patterns from the 
+**                     comma separated list of glob patterns.
+** 
+** See also: addremove, rm
 */
 void add_cmd(void){
   int i;                     /* Loop counter */
@@ -261,8 +266,7 @@ void add_cmd(void){
 ** files as no longer being part of the project.  In other words, future
 ** changes to the named files will not be versioned.
 **
-** SUMMARY: fossil rm FILE1 ?FILE2 ...?
-**      or: fossil delete FILE1 ?FILE2 ...?
+** See also: addremove, add
 */
 void delete_cmd(void){
   int i;
@@ -346,7 +350,7 @@ int filenames_are_case_sensitive(void){
 /*
 ** COMMAND: addremove
 **
-** Usage: %fossil addremove ?--dotfiles? ?--ignore GLOBPATTERN? ?--test?
+** Usage: %fossil addremove ?OPTIONS?
 **
 ** Do all necessary "add" and "rm" commands to synchronize the repository
 ** with the content of the working checkout:
@@ -371,9 +375,14 @@ int filenames_are_case_sensitive(void){
 ** The --test option shows what would happen without actually doing anything.
 **
 ** This command can be used to track third party software.
+** 
+** Options: 
+**   --dotfiles       include files beginning with a dot (".")   
+**   --ignore <CSG>   ignore files matching patterns from the 
+**                    comma separated list of glob patterns.
+**   --test           If given, show what would be done without doing so.
 **
-** SUMMARY: fossil addremove
-** Options: ?--dotfiles? ?--ignore GLOB? ?--test? ?--case-sensitive BOOL?
+** See also: add, rm
 */
 void addremove_cmd(void){
   Blob path;

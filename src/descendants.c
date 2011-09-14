@@ -272,8 +272,9 @@ void compute_descendants(int rid, int N){
 ** is omitted, of the baseline currently checked out.
 **
 ** Options:
-**
 **    -R|--repository FILE       Extract info from repository FILE
+**
+** See also: finfo, info, leaves
 */
 void descendants_cmd(void){
   Stmt q;
@@ -300,7 +301,7 @@ void descendants_cmd(void){
 /*
 ** COMMAND:  leaves
 **
-** Usage: %fossil leaves ?--all? ?--closed?
+** Usage: %fossil leaves ?OPTIONS?
 **
 ** Find leaves of all branches.  By default show only open leaves.
 ** The --all flag causes all leaves (closed and open) to be shown.
@@ -308,6 +309,13 @@ void descendants_cmd(void){
 **
 ** The --recompute flag causes the content of the "leaf" table in the
 ** repository database to be recomputed.
+**
+** Options:
+**   --all        show ALL leaves
+**   --closed     show only closed leaves
+**   --recompute  recompute the "leaf" table in the repository DB
+**
+** See also: descendants, finfo, info, branch
 */
 void leaves_cmd(void){
   Stmt q;

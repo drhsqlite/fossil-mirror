@@ -23,7 +23,7 @@
 /*
 ** COMMAND: finfo
 ** 
-** Usage: %fossil finfo {?-l|--log? / -s|--status / --p|--print} FILENAME
+** Usage: %fossil finfo ?OPTIONS? FILENAME
 **
 ** Print the complete change history for a single file going backwards
 ** in time.  The default is -l.
@@ -36,9 +36,21 @@
 ** In the -s form prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
-** The -p form, there's an optional flag "-r|--revision REVISION".  The
-** specified version (or the latest checked out version) is printed to
-** stdout.
+** In the -p form, there's an optional flag "-r|--revision REVISION".
+** The specified version (or the latest checked out version) is printed
+** to stdout.
+**
+** Options:
+**   --brief|-b          display a brief (one line / revision) summary
+**   --limit N           display the first N changes
+**   --log|-l            select log mode (the default)
+**   --offset P          skip P changes
+**   -p                  select print mode
+**   --revision|-r R     print the given revision (or ckout, if none is given)
+**                       to stdout (only in print mode)
+**   -s                  select status mode (print a status indicator for FILE)
+**
+** See also: descendants, info, leaves
 */
 void finfo_cmd(void){
   db_must_be_within_tree();
