@@ -1045,13 +1045,13 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
     /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
-    if( 1 /* g.okHistory */ ){
+    if( 1 /* g.perm.History */ ){
       blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
     }else{
       zTerm = "";
     }
   }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
-    if( 1 /* g.okHistory */ ){
+    if( 1 /* g.perm.History */ ){
       blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
     }else{
       zTerm = "";
@@ -1063,7 +1063,7 @@ static void openHyperlink(
       ** as crossed out if the ticket is closed.
       */
       if( isClosed ){
-        if( g.okHistory ){
+        if( g.perm.History ){
           blob_appendf(p->pOut,
              "<a href=\"%s/info/%s\"><span class=\"wikiTagCancelled\">[",
              g.zTop, zTarget
@@ -1074,7 +1074,7 @@ static void openHyperlink(
           zTerm = "]</span>";
         }
       }else{
-        if( g.okHistory ){
+        if( g.perm.History ){
           blob_appendf(p->pOut,"<a href=\"%s/info/%s\">[",
               g.zTop, zTarget
           );
@@ -1087,7 +1087,7 @@ static void openHyperlink(
     }else if( !in_this_repo(zTarget) ){
       blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
       zTerm = "]</span>";
-    }else if( g.okHistory ){
+    }else if( g.perm.History ){
       blob_appendf(p->pOut, "<a href=\"%s/info/%s\">[", g.zTop, zTarget);
       zTerm = "]</a>";
     }
