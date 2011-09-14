@@ -166,7 +166,8 @@ void manifest_to_disk(int vid){
 ** COMMAND: checkout
 ** COMMAND: co
 **
-** Usage: %fossil checkout VERSION ?-f|--force? ?--keep?
+** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
+**    or: %fossil co ?VERSION | --latest? ?OPTIONS?
 **
 ** Check out a version specified on the command-line.  This command
 ** will abort if there are edited files in the current checkout unless
@@ -176,8 +177,12 @@ void manifest_to_disk(int vid){
 **
 ** The --latest flag can be used in place of VERSION to checkout the
 ** latest version in the repository.
+** 
+** Options:
+**    --force   Ignore edited files in the current checkout
+**    --keep    Only update the manifest and manifest.uuid files
 **
-** See also the "update" command.
+** See also: update
 */
 void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
@@ -271,11 +276,16 @@ static void unlink_local_database(int manifestOnly){
 /*
 ** COMMAND: close
 **
-** Usage: %fossil close ?-f|--force?
+** Usage: %fossil close ?OPTIONS?
 **
 ** The opposite of "open".  Close the current database connection.
 ** Require a -f or --force flag if there are unsaved changed in the
 ** current check-out.
+**
+** Options:
+**   --force|-f  necessary to close a check out with uncommitted changes
+**
+** See also: open
 */
 void close_cmd(void){
   int forceFlag = find_option("force","f",0)!=0;

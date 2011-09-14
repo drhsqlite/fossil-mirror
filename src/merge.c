@@ -26,7 +26,7 @@
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge [--cherrypick] [--backout] VERSION
+** Usage: %fossil merge ?OPTIONS? VERSION
 **
 ** The argument VERSION is a version that should be merged into the
 ** current checkout.  All changes from VERSION back to the nearest

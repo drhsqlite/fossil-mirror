@@ -873,7 +873,7 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 **
-** %fossil annotate FILENAME
+** %fossil annotate ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.

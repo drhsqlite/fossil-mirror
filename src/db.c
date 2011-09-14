@@ -1181,10 +1181,10 @@ void db_initial_setup(
 ** parameter.
 **
 ** Options:
+**    --admin-user|-A USERNAME  select given USERNAME as admin user
+**    --date-override DATETIME  use DATETIME as time of the initial checkin
 **
-**    --admin-user|-A USERNAME
-**    --date-override DATETIME
-**
+** See also: clone
 */
 void create_repository_cmd(void){
   char *zPassword;

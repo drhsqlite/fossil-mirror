@@ -728,7 +728,7 @@ static void export_config(
 /*
 ** COMMAND: configuration
 **
-** Usage: %fossil configuration METHOD ... ?-R|--repository REPOSITORY?
+** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
 ** accept the -R or --repository option to specific a repository.
@@ -774,6 +774,11 @@ static void export_config(
 **
 **         Synchronize configuration changes in the local repository with
 **         the remote repository at URL.  
+**
+** Options:
+**    -R|--repository FILE       Extract info from repository FILE
+**
+** See also: set
 */
 void configuration_cmd(void){
   int n;

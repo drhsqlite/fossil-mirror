@@ -433,7 +433,7 @@ static void diff_all_two_versions(
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?options? ?FILE1? ?FILE2 ...?
+** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
@@ -456,6 +456,12 @@ static void diff_all_two_versions(
 **
 ** The "-N" or "--new-file" option causes the complete text of added or
 ** deleted files to be displayed.
+**
+** Options:
+**   --from|-r VERSION   select VERSION as source for the diff
+**   --new-file|-N       output complete text of added or deleted files
+**   -i                  use internal diff logic
+**   --to VERSION        select VERSION as target for the diff
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */

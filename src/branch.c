@@ -219,7 +219,7 @@ static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
 /*
 ** COMMAND: branch
 **
-** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
+** Usage: %fossil branch SUBCOMMAND ... ?OPTIONS?
 **
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
@@ -230,12 +230,14 @@ static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
 **        You can optionally give the branch a default color.  The
 **        --private option makes the branch private.
 **
-**    %fossil branch list
-**    %fossil branch ls
+**    %fossil branch list ?-all | --closed?
+**    %fossil branch ls ?-all | --closed?
 **
 **        List all branches.  Use --all or --closed to list all branches
 **        or closed branches.  The default is to show only open branches.
 **
+** Options:
+**    -R|--repository FILE       Run commands on repository FILE
 */
 void branch_cmd(void){
   int n;
