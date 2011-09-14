@@ -32,10 +32,12 @@ void stat_page(void){
   int n, m;
   int szMax, szAvg;
   const char *zDb;
+  int brief;
   char zBuf[100];
 
   login_check_credentials();
   if( !g.okRead ){ login_needed(); return; }
+  brief = P("brief")!=0;
   style_header("Repository Statistics");
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
@@ -43,54 +45,56 @@ void stat_page(void){
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", fsize);
   @ %s(zBuf) bytes
   @ </td></tr>
-  @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
-  n = db_int(0, "SELECT count(*) FROM blob");
-  m = db_int(0, "SELECT count(*) FROM delta");
-  @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
-  @ </td></tr>
-  if( n>0 ){
-    int a, b;
-    Stmt q;
-    @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
-    db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                   " FROM blob WHERE size>0");
-    db_step(&q);
-    t = db_column_int64(&q, 0);
-    szAvg = db_column_int(&q, 1);
-    szMax = db_column_int(&q, 2);
-    db_finalize(&q);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
-    @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) bytes total
+  if( !brief ){
+    @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
+    n = db_int(0, "SELECT count(*) FROM blob");
+    m = db_int(0, "SELECT count(*) FROM delta");
+    @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
     @ </td></tr>
-    @ <tr><th>Compression&nbsp;Ratio:</th><td>
-    if( t/fsize < 5 ){
-      b = 10;
-      fsize /= 10;
-    }else{
-      b = 1;
+    if( n>0 ){
+      int a, b;
+      Stmt q;
+      @ <tr><th>Uncompressed&nbsp;Artifact&nbsp;Size:</th><td>
+      db_prepare(&q, "SELECT total(size), avg(size), max(size)"
+                     " FROM blob WHERE size>0");
+      db_step(&q);
+      t = db_column_int64(&q, 0);
+      szAvg = db_column_int(&q, 1);
+      szMax = db_column_int(&q, 2);
+      db_finalize(&q);
+      sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
+      @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) bytes total
+      @ </td></tr>
+      @ <tr><th>Compression&nbsp;Ratio:</th><td>
+      if( t/fsize < 5 ){
+        b = 10;
+        fsize /= 10;
+      }else{
+        b = 1;
+      }
+      a = t/fsize;
+      @ %d(a):%d(b)
+      @ </td></tr>
     }
-    a = t/fsize;
-    @ %d(a):%d(b)
+    @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
+    n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+    @ %d(n)
+    @ </td></tr>
+    @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
+    n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
+    @ %d(n)
+    @ </td></tr>
+    @ <tr><th>Number&nbsp;Of&nbsp;Wiki&nbsp;Pages:</th><td>
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE +tagname GLOB 'wiki-*'");
+    @ %d(n)
+    @ </td></tr>
+    @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE +tagname GLOB 'tkt-*'");
+    @ %d(n)
     @ </td></tr>
   }
-  @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
-  n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
-  @ %d(n)
-  @ </td></tr>
-  @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
-  n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-  @ %d(n)
-  @ </td></tr>
-  @ <tr><th>Number&nbsp;Of&nbsp;Wiki&nbsp;Pages:</th><td>
-  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                " WHERE +tagname GLOB 'wiki-*'");
-  @ %d(n)
-  @ </td></tr>
-  @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
-  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                " WHERE +tagname GLOB 'tkt-*'");
-  @ %d(n)
-  @ </td></tr>
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
@@ -98,12 +102,8 @@ void stat_page(void){
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.2f", n/365.24);
   @ or approximately %s(zBuf) years
   @ </td></tr>
-  @ <tr><th>Project&nbsp;ID:</th><td>
-  @ %h(db_get("project-code",""))
-  @ </td></tr>
-  @ <tr><th>Server&nbsp;ID:</th><td>
-  @ %h(db_get("server-code",""))
-  @ </td></tr>
+  @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
+  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
 
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
