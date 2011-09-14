@@ -1,5 +1,5 @@
-C Of\scourse\sTHAT\swas\sthe\strunk\sversion\sI\swanted\sto\smerge\swith...
-D 2011-09-14T00:33:41.887
+C A\sbullet\spoint\sI\sforgot\stwo\scheckins\sago:\n\s\s*\s\sDocument\sALL\ssupported\soptions\sfor\sthe\sgiven\scommands.\nCheckin\s#2/n.
+D 2011-09-14T00:39:56.507
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -68,7 +68,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c 6dd0a3d144a1672de07195373453f07039a347fc
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/db.c dcca9db6e0208587bdf992a59d484f117eb4faa7
+F src/db.c 1c2e3c6333b9bd372f42d117de30e851964da9c2
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b4c22f5e1e5b32a69c0ee6de707a26b767730440
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3fbf8caa87f0fc1322fd36c352f9510bf536961a d01ca14d08cdce1a40db72710dc29ce69e5daa20
-R beafe0bbabe1c1fed7be093126c9c528
+P b42d1a9dcf41fb07a0016f19dc2289b767d805ed
+R 6eb3ce16a7cd730123870f14e29f61c0
 U martin.weber
-Z c3483c176eadec3db93bfaf301a23b2b
+Z 45441c46839f1147a03162b2f7fe3cf9

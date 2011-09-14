@@ -1644,7 +1644,7 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?--keep? ?--nested?
+** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
@@ -1652,7 +1652,11 @@ void db_record_repository_filename(const char *zName){
 ** the latest version is checked out.  No files other than "manifest"
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
-** See also the "close" command.
+** Options:
+**   --keep     Only modify the manifest and manifest.uuid files
+**   --nested   Allow opening a repository inside an opened checkout
+**
+** See also: close
 */
 void cmd_open(void){
   Blob path;
