@@ -1,5 +1,5 @@
-C Refactored\sg.okXXX\sperms\sflags\sto\sg.perm.XXX.
-D 2011-09-14T17:45:40.435
+C Removed\slocal-only\sfile\sfrom\smakemake.tcl.\sDoh.
+D 2011-09-14T17:49:05.945
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -95,7 +95,7 @@ F src/main.c ecba5b6bcf78417afa2c676fad0b7acca517f3a9
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 946db3d295e719c1af66a546daf6a8df5fb9478f
+F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
 F src/manifest.c abb78af13894eec124e28c71597b4c8229b1b0b7
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
@@ -326,10 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a0cf985a42a7552525c74a8e5d6c6427f9cc0146
-R 9d58d2adef446f7f663d16e70706548c
-T *branch * stephan-hack
-T *sym-stephan-hack *
-T -sym-trunk *
+P 34b4dec0bc502e9d23d2eefdf7604ef031e45c3d
+R 21a277ce283fe240ee57c50933b184be
 U stephan
-Z 18f4ae9f40ada7c1bca9ee5fccf1ddc1
+Z 1a3a493313dffbb0d877d9399615f9b7

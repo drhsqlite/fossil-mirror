@@ -42,7 +42,6 @@ set src {
   diff
   diffcmd
   doc
-  download
   encode
   event
   export
