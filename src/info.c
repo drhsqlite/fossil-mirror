@@ -82,27 +82,31 @@ void show_common_info(
     );
   }
   if( showFamily ){
-    db_prepare(&q, "SELECT uuid, pid FROM plink JOIN blob ON pid=rid "
-                   " WHERE cid=%d", rid);
+    db_prepare(&q, "SELECT uuid, pid, isprim FROM plink JOIN blob ON pid=rid "
+                   " WHERE cid=%d"
+                   " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
+      const char *zType = db_column_int(&q, 2) ? "parent:" : "merged-from:";
       zDate = db_text("", 
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("parent:       %s %s\n", zUuid, zDate);
+      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
-    db_prepare(&q, "SELECT uuid, cid FROM plink JOIN blob ON cid=rid "
-                   " WHERE pid=%d", rid);
+    db_prepare(&q, "SELECT uuid, cid, isprim FROM plink JOIN blob ON cid=rid "
+                   " WHERE pid=%d"
+                   " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
+      const char *zType = db_column_int(&q, 2) ? "child:" : "merged-into:";
       zDate = db_text("", 
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
-      fossil_print("child:        %s %s\n", zUuid, zDate);
+      fossil_print("%-13s %s %s\n", zType, zUuid, zDate);
       free(zDate);
     }
     db_finalize(&q);
