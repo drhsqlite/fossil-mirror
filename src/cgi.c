@@ -704,7 +704,7 @@ void cgi_init(void){
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
-  if( len>0 && zType ){
+  if( !g.json.isJsonMode && (len>0 && zType) ){/* in JSON mode this is delegated to the cson_cgi API.*/
     blob_zero(&g.cgiIn);
     if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
@@ -724,6 +724,9 @@ void cgi_init(void){
     }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
+    /* FIXME: treat application/json and text/plain as unencoded
+       JSON data.
+    */
   }
 
   z = (char*)P("HTTP_COOKIE");

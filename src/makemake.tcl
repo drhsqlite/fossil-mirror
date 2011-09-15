@@ -55,6 +55,7 @@ set src {
   http_transport
   import
   info
+  json
   leaf
   login
   main
@@ -204,7 +205,8 @@ EXTRAOBJ = \
   $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o
+  $(OBJDIR)/th_lang.o \
+  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -227,6 +229,7 @@ foreach s [lsort $src] {
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
+#append mhargs " \$(SRCDIR)/cson_amalgamation.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@"
@@ -266,6 +269,11 @@ writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
 writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+
+set opt {}
+writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
+writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+
 
 close $output_file
 #
@@ -414,7 +422,8 @@ EXTRAOBJ = \
   $(OBJDIR)/sqlite3.o \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o
+  $(OBJDIR)/th_lang.o \
+  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
@@ -467,6 +476,10 @@ foreach s [lsort $src] {
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+
+set opt {}
+writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -580,6 +593,9 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
+	cp $@ $@
+
 VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
@@ -605,7 +621,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makehead
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -719,6 +735,8 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
+	cp $(SRCDIR)\cson_amalgamation.h $@
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
@@ -743,7 +761,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheader
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 

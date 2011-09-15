@@ -22,6 +22,7 @@
 #include <time.h>
 #include "config.h"
 #include "timeline.h"
+#include "cson_amalgamation.h"
 
 /*
 ** Shorten a UUID so that is the minimum length needed to contain
@@ -1367,9 +1368,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
 const char *timeline_query_for_tty(void){
   static const char zBaseSql[] = 
     @ SELECT
-    @   blob.rid,
+    @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime'),
+    @   datetime(event.mtime,'localtime') AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1377,10 +1378,10 @@ const char *timeline_query_for_tty(void){
     @                   FROM tag, tagxref
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
-    @     || ')',
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   event.mtime
+    @     || ')' as comment,
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim) AS primPlinkCount,
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
+    @   event.mtime AS mtime
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
@@ -1427,8 +1428,8 @@ static int isIsoDate(const char *z){
 **     ci = file commits only
 **     t  = tickets only
 **
-** The optional showfiles argument if specified prints the list of
-** files changed in a checkin after the checkin comment
+** The optional showfiles argument, if specified, prints the list of
+** files changed in a checkin after the checkin comment.
 **
 */
 void timeline_cmd(void){
@@ -1443,6 +1444,8 @@ void timeline_cmd(void){
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   int showfilesFlag = 0 ;
+
+  db_find_and_open_repository(0, 0);
   showfilesFlag = find_option("showfiles","f", 0)!=0;
   db_find_and_open_repository(0, 0);
   zCount = find_option("count","n",1);
@@ -1526,7 +1529,6 @@ void timeline_cmd(void){
   if( zType && (zType[0]!='a') ){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
-
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

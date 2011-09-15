@@ -58,6 +58,7 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
+  int rc = 1;
   static const char zRebuildMsg[] = 
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
@@ -65,21 +66,29 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.xferPanic ){
-    cgi_reset_content();
-    @ error Database\serror:\s%F(z)
-    cgi_reply();
-  }
-  if( g.cgiOutput ){
-    g.cgiOutput = 0;
-    cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
-    cgi_reply();
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isCGI ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
+    if( g.xferPanic ){
+      cgi_reset_content();
+      @ error Database\serror:\s%F(z)
+      cgi_reply();
+    }
+    if( g.cgiOutput ){
+      g.cgiOutput = 0;
+      cgi_printf("<h1>Database Error</h1>\n"
+                 "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
+      cgi_reply();
+    }else{
+      fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
+    }
   }
+  free(z);
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */

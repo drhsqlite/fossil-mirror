@@ -25,9 +25,10 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include <stdlib.h> /* atexit() */
 
 #if INTERFACE
+#include "cson_amalgamation.h" /* JSON API */
 
 /*
 ** Number of elements in an array
@@ -117,6 +118,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
+  int isCGI;              /* True if running in HTTP/CGI mode, else assume CLI. */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -133,7 +135,7 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
-
+  
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -167,6 +169,22 @@ struct Global {
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
   
   int allowSymlinks;             /* Cached "allow-symlinks" option */
+
+  struct FossilJsonBits {
+    int isJsonMode;            /* True if running in JSON mode, else false. This changes
+                                  how errors are reported. In JSON mode we try to always
+                                  output JSON-form error responses.
+                               */
+    int resultCode;            /* used for passing back specific codes from /json callbacks. */
+    int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
+    cson_cgi_cx cgiCx;         /* cson_cgi context */
+    cson_output_opt outOpt;    /* formatting options for JSON mode. */
+    cson_value * authToken;    /* authentication token */
+    struct {
+      cson_value * v;
+      cson_object * o;
+    } reqPayload;              /* request payload object (if any) */
+  } json;
 };
 
 /*
@@ -232,6 +250,16 @@ static int name_search(
   return 1+(cnt>1);
 }
 
+/*
+** atexit() handler which frees up "some" of the resources
+** used by fossil.
+*/
+void fossil_atexit() {
+  cson_cgi_cx_clean(&g.json.cgiCx);
+  if(g.db){
+    db_close(0);
+  }
+}
 
 /*
 ** This procedure runs first.
@@ -243,18 +271,26 @@ int main(int argc, char **argv){
   int i;
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
+  memset(&g, 0, sizeof(g));
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
+  g.json.errorDetailParanoia = 0 /* FIXME: make configurable */;
+  g.json.cgiCx = cson_cgi_cx_empty;
+  g.json.outOpt = cson_output_opt_empty;
+  g.json.outOpt.addNewline = 1;
+  g.json.outOpt.indentation = 1 /* FIXME: make configurable */;
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
+    g.isCGI = 1;
   }else if( argc<2 ){
     fossil_fatal("Usage: %s COMMAND ...\n"
                  "\"%s help\" for a list of available commands\n"
                  "\"%s help COMMAND\" for specific details\n",
                  argv[0], argv[0], argv[0]);
   }else{
+    g.isCGI = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -298,6 +334,38 @@ int main(int argc, char **argv){
                  "%s: use \"help\" for more information\n",
                  argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
   }
+  rc = cson_cgi_init(&g.json.cgiCx, g.argc, (char const * const *)g.argv, NULL)
+    /* Reminder: cson_cgi_init() may process the POST data before
+       fossil gets to, but it is configured to only read
+       application/[json/javascript] and text/plain. form-urlencoded
+       and x-fossil-* data will be consumed by fossil's cgi_init().
+
+       Note that we set up the CGI bits even when not running in CGI
+       mode because some of cson_cgi's facilities are useful in
+       non-CGI contexts and we use those in the CLI variants of the
+       JSON commands.
+
+       FIXME: do some analysis of the request path (HTTP mode) or
+       CLI args (CLI mode) and only call this if the command is
+       a JSON-mode command. We can only do that easily from here
+       if we use e.g. /json/foo instead of /foo.json, since we
+       have a common prefix.
+     */
+    ;
+  if(rc){
+    fossil_fatal("%s: unrecoverable error while initializing JSON CGI bits: "
+                 "cson error code #%d (%s)\n",
+                 argv[0], rc, cson_rc_string(rc));
+  }else{
+    if( NULL != cson_cgi_env_get_obj( &g.json.cgiCx, 'p', 0 ) ){
+      /* if cson_cgi read the POST data then we're certainly in JSON
+         mode. If it didn't then we have to delay this decision until
+         the JSON family of callbacks is called.
+      */
+      g.json.isJsonMode = 1;
+    }
+    atexit( fossil_atexit );
+  }
   aCommand[idx].xFunc();
   fossil_exit(0);
   /*NOT_REACHED*/
@@ -337,12 +405,18 @@ void fossil_exit(int rc){
 void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
+  int rc = 1;
   static int once = 1;
   mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiOutput && once ){
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isCGI ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }else if( g.cgiOutput && once ){
     once = 0;
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
@@ -350,17 +424,26 @@ void fossil_panic(const char *zFormat, ...){
     char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
     fossil_puts(zOut, 1);
   }
+  free(z);
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
+
 void fossil_fatal(const char *zFormat, ...){
   char *z;
+  int rc = 1;
   va_list ap;
   mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiOutput ){
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isCGI ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }
+  else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
@@ -369,7 +452,7 @@ void fossil_fatal(const char *zFormat, ...){
     fossil_puts(zOut, 1);
   }
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
 /* This routine works like fossil_fatal() except that if called

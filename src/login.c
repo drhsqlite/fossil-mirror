@@ -86,7 +86,7 @@ static const char *login_cookie_path(void){
 ** where the Xs are the first 16 characters of the login-group-code or
 ** of the project-code if we are not a member of any login-group.
 */
-static char *login_cookie_name(void){
+char *login_cookie_name(void){
   static char *zCookieName = 0;
   if( zCookieName==0 ){
     zCookieName = db_text(0,
@@ -143,20 +143,22 @@ static char *abbreviated_project_code(const char *zFullCode){
 /*
 ** Check to see if the anonymous login is valid.  If it is valid, return
 ** the userid of the anonymous user.
+**
+** The zCS parameter is the "captcha seed" used for a specific
+** anonymous login request.
 */
 static int isValidAnonymousLogin(
   const char *zUsername,  /* The username.  Must be "anonymous" */
-  const char *zPassword   /* The supplied password */
+  const char *zPassword,  /* The supplied password */
+  const char *zCS         /* The captcha seed value */
 ){
-  const char *zCS;        /* The captcha seed value */
   const char *zPw;        /* The correct password shown in the captcha */
   int uid;                /* The user ID of anonymous */
 
   if( zUsername==0 ) return 0;
-  if( zPassword==0 ) return 0;
-  if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
-  zCS = P("cs");   /* The "cs" parameter is the "captcha seed" */
-  if( zCS==0 ) return 0;
+  else if( zPassword==0 ) return 0;
+  else if( zCS==0 ) return 0;
+  else if( fossil_strcmp(zUsername,"anonymous")!=0 ) return 0;
   zPw = captcha_decode((unsigned int)atoi(zCS));
   if( fossil_stricmp(zPw, zPassword)!=0 ) return 0;
   uid = db_int(0, "SELECT uid FROM user WHERE login='anonymous'"
@@ -196,6 +198,108 @@ static void record_login_attempt(
 }
 
 /*
+** Searches for the user ID matching the given name and password.
+** On success it returns a positive value. On error it returns 0.
+** On serious (DB-level) error it will probably exit.
+**
+** zPassword may be either the plain-text form or the encrypted
+** form of the user's password.
+*/
+int login_search_uid(char const *zUsername, char const *zPasswd){
+  char * zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
+  int const uid =
+      db_int(0,
+             "SELECT uid FROM user"
+             " WHERE login=%Q"
+             "   AND length(cap)>0 AND length(pw)>0"
+             "   AND login NOT IN ('anonymous','nobody','developer','reader')"
+             "   AND (pw=%Q OR pw=%Q)",
+             zUsername, zPasswd, zSha1Pw
+             );
+  free(zSha1Pw);
+  return uid;
+}
+
+/*
+** Generates a login cookie value for a non-anonymous user.
+**
+** The zHash parameter must be a random value which must be
+** subsequently stored in user.cookie for later validation.
+**
+** The returned memory should be free()d after use.
+*/
+char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
+  char *zCode = abbreviated_project_code(db_get("project-code",""));
+  assert((zUsername && *zUsername) && "Invalid user data.");
+  return mprintf("%s/%z/%s", zHash, zCode, zUsername);
+}
+
+/*
+** Generates a login cookie for NON-ANONYMOUS users.  Note that this
+** function "could" figure out the uid by itself but it currently
+** doesn't because the code which calls this already has the uid.
+**
+** This function also updates the user.cookie, user.ipaddr,
+** and user.cexpire fields for the given user.
+**
+** If zDest is not NULL then the generated cookie is copied to
+** *zDdest and ownership is transfered to the caller (who should
+** eventually pass it to free()).
+*/
+void login_set_user_cookie(
+  char const * zUsername, /* User's name */
+  int uid,                /* User's ID */
+  char ** zDest           /* Optional: store generated cookie value. */
+){
+  const char *zCookieName = login_cookie_name();
+  const char *zExpire = db_get("cookie-expire","8766");
+  int expires = atoi(zExpire)*3600;
+  char *zHash;
+  char *zCookie;
+  char const * zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
+  char * zRemoteAddr = ipPrefix(zIpAddr);     /* Abbreviated IP address */
+  assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
+  zHash = db_text(0, "SELECT hex(randomblob(25))");
+  zCookie = login_gen_user_cookie_value(zUsername, zHash);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
+  record_login_attempt(zUsername, zIpAddr, 1);
+  db_multi_exec(
+                "UPDATE user SET cookie=%Q, ipaddr=%Q, "
+                "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
+                zHash, zRemoteAddr, expires, uid
+                );
+  free(zRemoteAddr);
+  free(zHash);
+  if( zDest ){
+    *zDest = zCookie;
+  }else{
+    free(zCookie);
+  }
+}
+
+/*
+** "Unsets" the login cookie (insofar as cookies can be unset) and
+** clears the current user's (g.userUid) login information from the
+** user table. Sets: user.cookie, user.ipaddr, user.cexpire.
+**
+** We could/should arguably clear out g.userUid and g.perm here, but
+** we don't currently do not.
+**
+** This is a no-op if g.userUid is 0.
+*/
+void login_clear_login_data(){
+  if(!g.userUid){
+    return;
+  }else{
+    /* To logout, change the cookie value to an empty string */
+    cgi_set_cookie(login_cookie_name(), "",
+                   login_cookie_path(), -86400);
+    db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
+                  "  cexpire=0 WHERE uid=%d", g.userUid);
+  }
+}
+
+/*
 ** WEBPAGE: login
 ** WEBPAGE: logout
 ** WEBPAGE: my
@@ -223,9 +327,7 @@ void login_page(void){
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
   if( P("out")!=0 ){
-    /* To logout, change the cookie value to an empty string */
-    const char *zCookieName = login_cookie_name();
-    cgi_set_cookie(zCookieName, "", login_cookie_path(), -86400);
+    login_clear_login_data();
     redirect_to_g();
   }
   if( g.perm.Password && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
@@ -274,7 +376,7 @@ void login_page(void){
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
   zRemoteAddr = ipPrefix(zIpAddr);     /* Abbreviated IP address */
-  uid = isValidAnonymousLogin(zUsername, zPasswd);
+  uid = isValidAnonymousLogin(zUsername, zPasswd, P("cs"));
   if( uid>0 ){
     /* Successful login as anonymous.  Set a cookie that looks like
     ** this:
@@ -304,15 +406,7 @@ void login_page(void){
   if( zUsername!=0 && zPasswd!=0 && zPasswd[0]!=0 ){
     /* Attempting to log in as a user other than anonymous.
     */
-    zSha1Pw = sha1_shared_secret(zPasswd, zUsername, 0);
-    uid = db_int(0,
-        "SELECT uid FROM user"
-        " WHERE login=%Q"
-        "   AND length(cap)>0 AND length(pw)>0"
-        "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-        "   AND (pw=%Q OR pw=%Q)",
-        zUsername, zPasswd, zSha1Pw
-    );
+    uid = login_search_uid(zUsername, zPasswd);
     if( uid<=0 ){
       sleep(1);
       zErrMsg = 
@@ -329,22 +423,7 @@ void login_page(void){
       ** where HASH is a random hex number, PROJECT is either project
       ** code prefix, and LOGIN is the user name.
       */
-      char *zCookie;
-      const char *zCookieName = login_cookie_name();
-      const char *zExpire = db_get("cookie-expire","8766");
-      int expires = atoi(zExpire)*3600;
-      char *zCode = abbreviated_project_code(db_get("project-code",""));
-      char *zHash;
-  
-      zHash = db_text(0, "SELECT hex(randomblob(25))");
-      zCookie = mprintf("%s/%s/%s", zHash, zCode, zUsername);
-      cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
-      record_login_attempt(zUsername, zIpAddr, 1);
-      db_multi_exec(
-        "UPDATE user SET cookie=%Q, ipaddr=%Q, "
-        "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-        zHash, zRemoteAddr, expires, uid
-      );
+      login_set_user_cookie(zUsername, uid, NULL);
       redirect_to_g();
     }
   }
@@ -515,6 +594,10 @@ static int login_transfer_credentials(
 /*
 ** Lookup the uid for a user with zLogin and zCookie and zRemoteAddr.
 ** Return 0 if not found.
+**
+** Note that this only searches for logged-in entries with
+** matching zCookie (user.cookie) and zRemoteAddr (user.ipaddr)
+** entries.
 */
 static int login_find_user(
   const char *zLogin,            /* User name */
