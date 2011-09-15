@@ -1,5 +1,8 @@
-C Update\sthe\sbuilt-in\sSQLite\samalgamation\sto\sthe\slatest\s3.7.8\sbeta.
-D 2011-09-14T13:45:53.603
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Create\snew\sbranch\snamed\s"json"
+D 2011-09-15T11:54:13.781
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -326,7 +329,17 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2210be19cc6c9b5d82e02d1a6f55c56bc21bed68
+P a0cf985a42a7552525c74a8e5d6c6427f9cc0146
 R 59f839be78ef63e144619bc5f56c303b
-U drh
-Z 277fd1fa7909d7a75e650f508a72c60d
+T *branch * json
+T *sym-json *
+T -sym-trunk *
+U stephan
+Z 0cae4fe4a3f3a9693ee7a1a9d42dc877
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk5x52UACgkQZWKvbTL0CBj2ngCgybe48nVu20IzCUwdd699ob1E
+NBIAn2tBF2WGu1x0PjeMnO7N6+c68HH7
+=7K7v
+-----END PGP SIGNATURE-----
