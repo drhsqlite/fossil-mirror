@@ -62,7 +62,7 @@ int update_to(int vid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION? ?FILES...?
+** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
 **
 ** Change the version of the current checkout to VERSION.  Any uncommitted
 ** changes are retained and applied to the new checkout.
@@ -85,6 +85,14 @@ int update_to(int vid){
 **
 ** The -v or --verbose option prints status information about unchanged
 ** files in addition to those file that actually do change.
+**
+** Options:
+**   --debug          print debug information on stdout
+**   --latest         acceptable in place of VERSION, update to latest version
+**   -n|--nochange    do not perform changes but show what would be done
+**   -v|--verbose     print status information about all files
+**
+** See also: revert
 */
 void update_cmd(void){
   int vid;              /* Current version */
@@ -601,6 +609,11 @@ int historical_version_of_file(
 **
 ** If a file is reverted accidently, it can be restored using
 ** the "fossil undo" command.
+**
+** Options:
+**   -r REVISION    revert given FILE(s) back to given REVISION
+**
+** See also: redo, undo, update
 */
 void revert_cmd(void){
   const char *zFile;

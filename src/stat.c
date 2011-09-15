@@ -36,7 +36,7 @@ void stat_page(void){
   char zBuf[100];
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
   @ <table class="label-value">

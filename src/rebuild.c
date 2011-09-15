@@ -707,8 +707,8 @@ void test_clusters_cmd(void){
 ** are also purged.  If the --private option is used, then only private
 ** branches are removed and all other information is left intact.
 **
-** This command permanently deletes the scrubbed information.  The effects
-** of this command are irreversible.  Use with caution.
+** This command permanently deletes the scrubbed information. THE EFFECTS
+** OF THIS COMMAND ARE IRREVERSIBLE. USE WITH CAUTION!
 **
 ** The user is prompted to confirm the scrub unless the --force option
 ** is used.

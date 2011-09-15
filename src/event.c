@@ -38,7 +38,7 @@ void hyperlink_to_event_tagid(int tagid){
   zEventId = db_text(0, "SELECT substr(tagname, 7) FROM tag WHERE tagid=%d",
                      tagid);
   sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zEventId);
-  if( g.okHistory ){
+  if( g.perm.History ){
     @ [<a href="%s(g.zTop)/event?name=%s(zEventId)">%s(zShort)</a>]
   }else{
     @ [%s(zShort)]
@@ -76,7 +76,7 @@ void event_page(void){
   /* wiki-read privilege is needed in order to read events.
   */
   login_check_credentials();
-  if( !g.okRdWiki ){
+  if( !g.perm.RdWiki ){
     login_needed();
     return;
   }
@@ -125,14 +125,14 @@ void event_page(void){
     style_header("Event %S", zEventId);
     tail = fullbody;
   }
-  if( g.okWrWiki && g.okWrite && nextRid==0 ){
+  if( g.perm.WrWiki && g.perm.Write && nextRid==0 ){
     style_submenu_element("Edit", "Edit", "%s/eventedit?name=%s",
                           g.zTop, zEventId);
   }
   zETime = db_text(0, "SELECT datetime(%.17g)", pEvent->rEventDate);
   style_submenu_element("Context", "Context", "%s/timeline?c=%T",
                         g.zTop, zETime);
-  if( g.okHistory ){
+  if( g.perm.History ){
     if( showDetail ){
       style_submenu_element("Plain", "Plain", "%s/event?name=%s&amp;aid=%s",
                             g.zTop, zEventId, zUuid);
@@ -159,7 +159,7 @@ void event_page(void){
     }
   }
 
-  if( showDetail && g.okHistory ){
+  if( showDetail && g.perm.History ){
     int i;
     const char *zClr = 0;
     Blob comment;
@@ -238,7 +238,7 @@ void eventedit_page(void){
   /* Need both check-in and wiki-write or wiki-create privileges in order
   ** to edit/create an event.
   */
-  if( !g.okWrite || (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
+  if( !g.perm.Write || (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
     login_needed();
     return;
   }

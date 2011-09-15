@@ -36,9 +36,9 @@
 ** parameter.
 **
 ** Options:
-**    --admin-user|-A USERNAME    Make USERNAME the administrator
-**    --private                   Also clone private branches 
-**    --ssl-identity=filename     Use the SSL identity if requested by the server
+**    --admin-user|-A USERNAME   Make USERNAME the administrator
+**    --private                  Also clone private branches 
+**    --ssl-identity=filename    Use the SSL identity if requested by the server
 **
 ** See also: init
 */

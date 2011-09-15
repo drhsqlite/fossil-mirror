@@ -49,7 +49,7 @@ static void shorten_uuid(char *zDest, const char *zSrc){
 void hyperlink_to_uuid(const char *zUuid){
   char z[UUID_SIZE+1];
   shorten_uuid(z, zUuid);
-  if( g.okHistory ){
+  if( g.perm.History ){
     @ <a class="timelineHistLink" href="%s(g.zTop)/info/%s(z)">[%s(z)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(z)]</span>
@@ -60,7 +60,7 @@ void hyperlink_to_uuid(const char *zUuid){
 ** Generate a hyperlink to a diff between two versions.
 */
 void hyperlink_to_diff(const char *zV1, const char *zV2){
-  if( g.okHistory ){
+  if( g.perm.History ){
     if( zV2==0 ){
       @ <a href="%s(g.zTop)/diff?v2=%s(zV1)">[diff]</a>
     }else{
@@ -74,7 +74,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 */
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
-  if( g.okHistory ){
+  if( g.perm.History ){
     @ <a href="%s(g.zTop)/timeline?c=%T(zDate)">%s(zDate)</a>%s(zSuffix)
   }else{
     @ %s(zDate)%s(zSuffix)
@@ -88,7 +88,7 @@ void hyperlink_to_date(const char *zDate, const char *zSuffix){
 */
 void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
-  if( g.okHistory ){
+  if( g.perm.History ){
     if( zD && zD[0] ){
       @ <a href="%s(g.zTop)/timeline?c=%T(zD)&amp;u=%T(zU)">%h(zU)</a>%s(zSuf)
     }else{
@@ -352,7 +352,7 @@ void www_print_timeline(
     ** with a hyperlink to another timeline for that user.
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.okHistory && fossil_strcmp(zUser, zThisUser)!=0 ){
+    if( g.perm.History && fossil_strcmp(zUser, zThisUser)!=0 ){
       char *zLink = mprintf("%s/timeline?u=%h&c=%t&nd",
                             g.zTop, zUser, zDate);
       @ (user: <a href="%s(zLink)">%h(zUser)</a>%s(zTagList?",":"\051")
@@ -365,7 +365,7 @@ void www_print_timeline(
     ** with hyperlinks to the tag list.
     */
     if( zTagList ){
-      if( g.okHistory ){
+      if( g.perm.History ){
         int i;
         const char *z = zTagList;
         Blob links;
@@ -396,7 +396,7 @@ void www_print_timeline(
     }
 
     /* Generate the file-change list if requested */
-    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.okHistory ){
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.perm.History ){
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
@@ -898,11 +898,11 @@ void page_timeline(void){
   /* To view the timeline, must have permission to read project data.
   */
   login_check_credentials();
-  if( !g.okRead && !g.okRdTkt && !g.okRdWiki ){ login_needed(); return; }
-  if( zTagName && g.okRead ){
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
-  }else if( zBrName && g.okRead ){
+  }else if( zBrName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",zBrName);
     zThisTag = zBrName;
   }else{
@@ -932,7 +932,7 @@ void page_timeline(void){
     url_add_parameter(&url, "fc", 0);
   }
   if( !useDividers ) url_add_parameter(&url, "nd", 0);
-  if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.okRead ){
+  if( ((from_rid && to_rid) || (me_rid && you_rid)) && g.perm.Read ){
     /* If from= and to= are present, display all nodes on a path connecting
     ** the two */
     PathNode *p = 0;
@@ -958,20 +958,20 @@ void page_timeline(void){
     blob_append(&sql, ")", -1);
     path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
-    if( g.okHistory ){
+    if( g.perm.History ){
       blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop,zFrom,zFrom);
     }else{
       blob_appendf(&desc, "[%h]", zFrom);
     }
     blob_append(&desc, " and ", -1);
-    if( g.okHistory ){
+    if( g.perm.History ){
       blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, zTo, zTo);
     }else{
       blob_appendf(&desc, "[%h].", zTo);
     }
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_str(&sql));
-  }else if( (p_rid || d_rid) && g.okRead ){
+  }else if( (p_rid || d_rid) && g.perm.Read ){
     /* If p= or d= is present, ignore all other parameters other than n= */
     char *zUuid;
     int np, nd;
@@ -1007,13 +1007,13 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    if( g.okHistory ){
+    if( g.perm.History ){
       blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
                    g.zTop, zUuid, zUuid);
     }else{
       blob_appendf(&desc, " of check-in [%.10s]", zUuid);
     }
-  }else if( f_rid && g.okRead ){
+  }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
     db_multi_exec(
@@ -1028,7 +1028,7 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    if( g.okHistory ){
+    if( g.perm.History ){
       blob_appendf(&desc, "<a href='%s/info/%s'>[%.10s]</a>",
                    g.zTop, zUuid, zUuid);
     }else{
@@ -1073,26 +1073,26 @@ void page_timeline(void){
       }
       blob_appendf(&sql, ")");
     }
-    if( (zType[0]=='w' && !g.okRdWiki)
-     || (zType[0]=='t' && !g.okRdTkt)
-     || (zType[0]=='e' && !g.okRdWiki)
-     || (zType[0]=='c' && !g.okRead)
+    if( (zType[0]=='w' && !g.perm.RdWiki)
+     || (zType[0]=='t' && !g.perm.RdTkt)
+     || (zType[0]=='e' && !g.perm.RdWiki)
+     || (zType[0]=='c' && !g.perm.Read)
     ){
       zType = "all";
     }
     if( zType[0]=='a' ){
-      if( !g.okRead || !g.okRdWiki || !g.okRdTkt ){
+      if( !g.perm.Read || !g.perm.RdWiki || !g.perm.RdTkt ){
         char cSep = '(';
         blob_appendf(&sql, " AND event.type IN ");
-        if( g.okRead ){
+        if( g.perm.Read ){
           blob_appendf(&sql, "%c'ci'", cSep);
           cSep = ',';
         }
-        if( g.okRdWiki ){
+        if( g.perm.RdWiki ){
           blob_appendf(&sql, "%c'w','e'", cSep);
           cSep = ',';
         }
-        if( g.okRdTkt ){
+        if( g.perm.RdTkt ){
           blob_appendf(&sql, "%c't'", cSep);
           cSep = ',';
         }
@@ -1202,7 +1202,7 @@ void page_timeline(void){
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
-    if( g.okHistory ){
+    if( g.perm.History ){
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1216,16 +1216,16 @@ void page_timeline(void){
         if( zType[0]!='a' ){
           timeline_submenu(&url, "All Types", "y", "all", 0);
         }
-        if( zType[0]!='w' && g.okRdWiki ){
+        if( zType[0]!='w' && g.perm.RdWiki ){
           timeline_submenu(&url, "Wiki Only", "y", "w", 0);
         }
-        if( zType[0]!='c' && g.okRead ){
+        if( zType[0]!='c' && g.perm.Read ){
           timeline_submenu(&url, "Checkins Only", "y", "ci", 0);
         }
-        if( zType[0]!='t' && g.okRdTkt ){
+        if( zType[0]!='t' && g.perm.RdTkt ){
           timeline_submenu(&url, "Tickets Only", "y", "t", 0);
         }
-        if( zType[0]!='e' && g.okRdWiki ){
+        if( zType[0]!='e' && g.perm.RdWiki ){
           timeline_submenu(&url, "Events Only", "y", "e", 0);
         }
       }
@@ -1604,7 +1604,7 @@ void test_timewarp_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okRead || !g.okHistory ){ login_needed(); return; }
+  if( !g.perm.Read || !g.perm.History ){ login_needed(); return; }
   style_header("Instances of timewarp");
   @ <ul>
   db_prepare(&q,

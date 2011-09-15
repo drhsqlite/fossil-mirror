@@ -48,15 +48,15 @@ void attachlist_page(void){
      -1
   );
   if( zPage ){
-    if( g.okRdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ) login_needed();
     style_header("Attachments To %h", zPage);
     blob_appendf(&sql, " WHERE target=%Q", zPage);
   }else if( zTkt ){
-    if( g.okRdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ) login_needed();
     style_header("Attachments To Ticket %.10s", zTkt);
     blob_appendf(&sql, " WHERE target GLOB '%q*'", zTkt);
   }else{
-    if( g.okRdTkt==0 && g.okRdWiki==0 ) login_needed();
+    if( g.perm.RdTkt==0 && g.perm.RdWiki==0 ) login_needed();
     style_header("All Attachments");
   }
   blob_appendf(&sql, " ORDER BY mtime DESC");
@@ -141,10 +141,10 @@ void attachview_page(void){
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.okRdWiki==0 ) login_needed();
+    if( g.perm.RdWiki==0 ) login_needed();
     zTarget = zPage;
   }else if( zTkt ){
-    if( g.okRdTkt==0 ) login_needed();
+    if( g.perm.RdTkt==0 ) login_needed();
     zTarget = zTkt;
   }else{
     fossil_redirect_home();
@@ -174,7 +174,7 @@ void attachview_page(void){
     style_footer();
     return;
   }
-  g.okRead = 1;
+  g.perm.Read = 1;
   cgi_replace_parameter("name",zUUID);
   if( fossil_strcmp(g.zPath,"attachview")==0 ){
     artifact_page();
@@ -209,7 +209,7 @@ void attachadd_page(void){
   if( zPage==0 && zTkt==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.okApndWiki==0 || g.okAttach==0 ) login_needed();
+    if( g.perm.ApndWiki==0 || g.perm.Attach==0 ) login_needed();
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'", zPage) ){
       fossil_redirect_home();
     }
@@ -217,7 +217,7 @@ void attachadd_page(void){
     zTargetType = mprintf("Wiki Page <a href=\"%s/wiki?name=%h\">%h</a>",
                            g.zTop, zPage, zPage);
   }else{
-    if( g.okApndTkt==0 || g.okAttach==0 ) login_needed();
+    if( g.perm.ApndTkt==0 || g.perm.Attach==0 ) login_needed();
     if( !db_exists("SELECT 1 FROM tag WHERE tagname='tkt-%q'", zTkt) ){
       zTkt = db_text(0, "SELECT substr(tagname,5) FROM tag" 
                         " WHERE tagname GLOB 'tkt-%q*'", zTkt);
@@ -315,10 +315,10 @@ void attachdel_page(void){
   if( zFile==0 ) fossil_redirect_home();
   login_check_credentials();
   if( zPage ){
-    if( g.okWrWiki==0 || g.okAttach==0 ) login_needed();
+    if( g.perm.WrWiki==0 || g.perm.Attach==0 ) login_needed();
     zTarget = zPage;
   }else{
-    if( g.okWrTkt==0 || g.okAttach==0 ) login_needed();
+    if( g.perm.WrTkt==0 || g.perm.Attach==0 ) login_needed();
     zTarget = zTkt;
   }
   if( zFrom==0 ) zFrom = mprintf("%s/home", g.zTop);
