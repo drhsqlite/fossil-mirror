@@ -131,7 +131,7 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
     /* Ignore files that have been shunned */
     return;
   }
-  if( isPriv && !g.okPrivate ){
+  if( isPriv && !g.perm.Private ){
     /* Do not accept private files if not authorized */
     return;
   }
@@ -229,7 +229,7 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
     blob_appendf(&pXfer->err, "malformed cfile line");
     return;
   }
-  if( isPriv && !g.okPrivate ){
+  if( isPriv && !g.perm.Private ){
     /* Do not accept private files if not authorized */
     return;
   }
@@ -910,7 +910,7 @@ void page_xfer(void){
       if( isPush ){
         if( xfer.nToken==2 || blob_eq(&xfer.aToken[2],"1")==0 ){
           rid_from_uuid(&xfer.aToken[1], 1, 0);
-        }else if( g.okPrivate ){
+        }else if( g.perm.Private ){
           rid_from_uuid(&xfer.aToken[1], 1, 1);
         }else{
           server_private_xfer_not_authorized();
@@ -943,7 +943,7 @@ void page_xfer(void){
       }
       login_check_credentials();
       if( blob_eq(&xfer.aToken[0], "pull") ){
-        if( !g.okRead ){
+        if( !g.perm.Read ){
           cgi_reset_content();
           @ error not\sauthorized\sto\sread
           nErr++;
@@ -951,7 +951,7 @@ void page_xfer(void){
         }
         isPull = 1;
       }else{
-        if( !g.okWrite ){
+        if( !g.perm.Write ){
           if( !isPull ){
             cgi_reset_content();
             @ error not\sauthorized\sto\swrite
@@ -972,7 +972,7 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "clone") ){
       int iVers;
       login_check_credentials();
-      if( !g.okClone ){
+      if( !g.perm.Clone ){
         cgi_reset_content();
         @ push %s(db_get("server-code", "x")) %s(db_get("project-code", "x"))
         @ error not\sauthorized\sto\sclone
@@ -1016,7 +1016,7 @@ void page_xfer(void){
      && xfer.nToken==4
     ){
       if( disableLogin ){
-        g.okRead = g.okWrite = g.okPrivate = g.okAdmin = 1;
+        g.perm.Read = g.perm.Write = g.perm.Private = g.perm.Admin = 1;
       }else{
         if( check_tail_hash(&xfer.aToken[2], xfer.pIn)
          || check_login(&xfer.aToken[1], &xfer.aToken[2], &xfer.aToken[3])
@@ -1036,13 +1036,13 @@ void page_xfer(void){
     if( blob_eq(&xfer.aToken[0], "reqconfig")
      && xfer.nToken==2
     ){
-      if( g.okRead ){
+      if( g.perm.Read ){
         char *zName = blob_str(&xfer.aToken[1]);
         if( zName[0]=='/' ){
           /* New style configuration transfer */
           int groupMask = configure_name_to_mask(&zName[1], 0);
-          if( !g.okAdmin ) groupMask &= ~CONFIGSET_USER;
-          if( !g.okRdAddr ) groupMask &= ~CONFIGSET_ADDR;
+          if( !g.perm.Admin ) groupMask &= ~CONFIGSET_USER;
+          if( !g.perm.RdAddr ) groupMask &= ~CONFIGSET_ADDR;
           configure_send_group(xfer.pOut, groupMask, 0);
         }else if( configure_is_exportable(zName) ){
           /* Old style configuration transfer */
@@ -1062,7 +1062,7 @@ void page_xfer(void){
       Blob content;
       blob_zero(&content);
       blob_extract(xfer.pIn, size, &content);
-      if( !g.okAdmin ){
+      if( !g.perm.Admin ){
         cgi_reset_content();
         @ error not\sauthorized\sto\spush\sconfiguration
         nErr++;
@@ -1107,7 +1107,7 @@ void page_xfer(void){
     ** private content.
     */
     if( blob_eq(&xfer.aToken[0], "private") ){
-      if( !g.okPrivate ){
+      if( !g.perm.Private ){
         server_private_xfer_not_authorized();
       }else{
         xfer.nextIsPrivate = 1;
@@ -1130,7 +1130,7 @@ void page_xfer(void){
       */
       if( blob_eq(&xfer.aToken[1], "send-private") ){
         login_check_credentials();
-        if( !g.okPrivate ){
+        if( !g.perm.Private ){
           server_private_xfer_not_authorized();
         }else{
           xfer.syncPrivate = 1;
@@ -1268,7 +1268,7 @@ int client_sync(
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
   if( privateFlag ){
-    g.okPrivate = 1;
+    g.perm.Private = 1;
     xfer.syncPrivate = 1;
   }
 
@@ -1510,7 +1510,7 @@ int client_sync(
         rid = rid_from_uuid(&xfer.aToken[1], 0, 0);
         if( rid>0 ){
           if( !isPriv ) content_make_public(rid);
-        }else if( isPriv && !g.okPrivate ){
+        }else if( isPriv && !g.perm.Private ){
           /* ignore private files */
         }else if( pullFlag || cloneFlag ){
           rid = content_new(blob_str(&xfer.aToken[1]), isPriv);
@@ -1555,7 +1555,7 @@ int client_sync(
         Blob content;
         blob_zero(&content);
         blob_extract(xfer.pIn, size, &content);
-        g.okAdmin = g.okRdAddr = 1;
+        g.perm.Admin = g.perm.RdAddr = 1;
         configure_receive(zName, &content, origConfigRcvMask);
         nCardSent++;
         blob_reset(&content);

@@ -28,7 +28,7 @@
 */
 void tktsetup_page(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -104,7 +104,7 @@ static void tktsetup_generic(
   int isSubmit;
   
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   if( P("setup") ){
@@ -692,7 +692,7 @@ void tktsetup_keytplt_page(void){
 */
 void tktsetup_timeline_page(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 

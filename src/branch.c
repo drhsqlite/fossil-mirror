@@ -288,7 +288,7 @@ void brlist_page(void){
   int colorTest = P("colortest")!=0;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -350,7 +350,7 @@ void brlist_page(void){
       const char *zColor = hash_color(zBr);
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
-    }else if( g.okHistory ){
+    }else if( g.perm.History ){
       @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
@@ -376,7 +376,7 @@ void brlist_page(void){
 */
 static void brtimeline_extra(int rid){
   Stmt q;
-  if( !g.okHistory ) return;
+  if( !g.perm.History ) return;
   db_prepare(&q, 
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
@@ -401,7 +401,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");

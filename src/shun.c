@@ -46,7 +46,7 @@ void shun_page(void){
   char zCanonical[UUID_SIZE+1];
 
   login_check_credentials();
-  if( !g.okAdmin ){
+  if( !g.perm.Admin ){
     login_needed();
   }
   if( P("rebuild") ){
@@ -221,7 +221,7 @@ void rcvfromlist_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okAdmin ){
+  if( !g.perm.Admin ){
     login_needed();
   }
   style_header("Content Sources");
@@ -284,7 +284,7 @@ void rcvfrom_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okAdmin ){
+  if( !g.perm.Admin ){
     login_needed();
   }
   style_header("Content Source %d", rcvid);

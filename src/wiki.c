@@ -92,7 +92,7 @@ void home_page(void){
   if( zIndexPage ){
     cgi_redirectf("%s/%s", g.zTop, zIndexPage);
   }
-  if( !g.okRdWiki ){
+  if( !g.perm.RdWiki ){
     cgi_redirectf("%s/login?g=%s/home", g.zTop, g.zTop);
   }
   if( zPageName ){
@@ -137,7 +137,7 @@ void wiki_page(void){
   int cnt = 0;
 
   login_check_credentials();
-  if( !g.okRdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(); return; }
   zPageName = P("name");
   if( zPageName==0 ){
     style_header("Wiki");
@@ -154,9 +154,9 @@ void wiki_page(void){
     @      wiki.</li>
     @ <li> Use the <a href="%s(g.zTop)/wiki?name=Sandbox">Sandbox</a>
     @      to experiment.</li>
-    if( g.okNewWiki ){
+    if( g.perm.NewWiki ){
       @ <li>  Create a <a href="%s(g.zTop)/wikinew">new wiki page</a>.</li>
-      if( g.okWrite ){
+      if( g.perm.Write ){
         @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
       }
     }
@@ -188,20 +188,20 @@ void wiki_page(void){
     }
   }
   if( !g.isHome ){
-    if( (rid && g.okWrWiki) || (!rid && g.okNewWiki) ){
+    if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
            g.zTop, zPageName);
     }
-    if( rid && g.okApndWiki && g.okAttach ){
+    if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
            "%s/attachadd?page=%T&amp;from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
-    if( rid && g.okApndWiki ){
+    if( rid && g.perm.ApndWiki ){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
     }
-    if( g.okHistory ){
+    if( g.perm.History ){
       style_submenu_element("History", "History", "%s/whistory?name=%T",
            g.zTop, zPageName);
     }
@@ -227,7 +227,7 @@ void wiki_page(void){
     }
     cnt++;
     @ <li>
-    if( g.okHistory && g.okRead ){
+    if( g.perm.History && g.perm.Read ){
       @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
@@ -235,7 +235,7 @@ void wiki_page(void){
     }
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
-    if( g.okWrWiki && g.okAttach ){
+    if( g.perm.WrWiki && g.perm.Attach ){
       @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
     }
     @ </li>
@@ -273,7 +273,7 @@ void wikiedit_page(void){
   if( check_name(zPageName) ) return;
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
-    if( !g.okWrWiki ){
+    if( !g.perm.WrWiki ){
       login_needed();
       return;
     }
@@ -288,7 +288,7 @@ void wikiedit_page(void){
       " ORDER BY mtime DESC", zTag
     );
     free(zTag);
-    if( (rid && !g.okWrWiki) || (!rid && !g.okNewWiki) ){
+    if( (rid && !g.perm.WrWiki) || (!rid && !g.perm.NewWiki) ){
       login_needed();
       return;
     }
@@ -377,7 +377,7 @@ void wikiedit_page(void){
 void wikinew_page(void){
   const char *zName;
   login_check_credentials();
-  if( !g.okNewWiki ){
+  if( !g.perm.NewWiki ){
     login_needed();
     return;
   }  
@@ -452,7 +452,7 @@ void wikiappend_page(void){
       return;
     }
   }
-  if( !g.okApndWiki ){
+  if( !g.perm.ApndWiki ){
     login_needed();
     return;
   }
@@ -562,7 +562,7 @@ void whistory_page(void){
   char *zSQL;
   const char *zPageName;
   login_check_credentials();
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.perm.History ){ login_needed(); return; }
   zPageName = PD("name","");
   zTitle = mprintf("History Of %s", zPageName);
   style_header(zTitle);
@@ -598,7 +598,7 @@ void wdiff_page(void){
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
-  if( !g.okHistory ){ login_needed(); return; }
+  if( !g.perm.History ){ login_needed(); return; }
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
@@ -644,7 +644,7 @@ void wcontent_page(void){
   int showAll = P("all")!=0;
 
   login_check_credentials();
-  if( !g.okRdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(); return; }
   style_header("Available Wiki Pages");
   if( showAll ){
     style_submenu_element("Active", "Only Active Pages", "%s/wcontent", g.zTop);
@@ -683,7 +683,7 @@ void wfind_page(void){
   Stmt q;
   const char * zTitle;
   login_check_credentials();
-  if( !g.okRdWiki ){ login_needed(); return; }
+  if( !g.perm.RdWiki ){ login_needed(); return; }
   zTitle = PD("title","*");
   style_header("Wiki Pages Found");
   @ <ul>
