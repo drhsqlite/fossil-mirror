@@ -221,8 +221,9 @@ static cson_value * json_auth_token(){
        JSON, or fossil cookie (in that order). */
     g.json.authToken = cson_cgi_getenv(&g.json.cgiCx, "gp", FossilJsonKeys.authToken)
       /* reminder to self: cson_cgi does not have access to the cookies
-         because fossil's core consumes them. Thus we cannot use "gpc"
-         here.
+         because fossil's core consumes them. Thus we cannot use "agpc"
+         here. We use "a" (App-specific) as a place to store fossil's
+         cookie value.
       */;
     if( g.json.authToken){
       /* tell fossil to use this login info.
@@ -252,22 +253,30 @@ static cson_value * json_auth_token(){
 
 /*
 ** Performs some common initialization of JSON-related state.
-** Implicitly sets up the login information state in CGI mode,
-** but does not perform any authentication here. It _might_
-** (haven't tested this) die with an error if an auth cookie
-** is malformed.
+** Implicitly sets up the login information state in CGI mode, but
+** does not perform any authentication here. It _might_ (haven't
+** tested this) die with an error if an auth cookie is malformed.
+**
+** This must be called by the top-level JSON command dispatching code
+** before they do any work.
+**
+** This must only be called once, or an assertion may be triggered.
 */
 static void json_mode_bootstrap(){
+  static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
   cson_value * pathSplit =
     cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO_SPLIT");
+  assert( (0==once) && "json_mode_bootstrap() called too many times!");
+  if( once ) return;
+  else once = 1;
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmdOffset = -1;
   if( !g.isCGI && g.fullHttpReply ){
+    /* workaround for server mode, so we see it as CGI mode. */
     g.isCGI = 1;
   }
-  /*json_err( 1000, zPath, 1 ); exit(0);*/
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
@@ -282,36 +291,54 @@ static void json_mode_bootstrap(){
     /* cson_cgi already did this, so let's just re-use it. This does
        not happen in "plain server" mode, but does in CGI mode.
     */
+    assert( g.isCGI && "g.isCGI should have been set by now." );
     cson_cgi_setenv( &g.json.cgiCx,
                      FossilJsonKeys.commandPath,
                      pathSplit );
-  }else if( zPath ){
-    /* Translate fossil's PATH_INFO into cson_cgi for later
-       convenience, to help consolidate how we handle CGI/server
-       modes. This block is hit when running in plain server mode.
-    */
-    char const * p = zPath; /* current byte */
-    char const * head = p;  /* current start-of-token */
-    unsigned int len = 0;   /* current token's lengh */
-    cson_value * arV = cson_value_new_array(); /* value to store path in */
-    cson_array * ar = cson_value_get_array(arV); /* the real array object */
+  }else{ /* either CLI or server mode... */
+    cson_value * arV       /* value to store path in */;
+    cson_array * ar        /* the "real" array object */;
+    arV = cson_value_new_array();
+    ar = cson_value_get_array(arV);
     cson_cgi_setenv( &g.json.cgiCx,
                      FossilJsonKeys.commandPath,
                      arV );
-    for( ;*p!='?'; ++p){
-      if( !*p || ('/' == *p) ){
-        if( len ) {
-          cson_value * part;
-          assert( head != p );
-          part = cson_value_new_string(head, len);
-          cson_array_append( ar, part );
-          len = 0;
+    if( zPath ){
+      /* Translate fossil's PATH_INFO into cson_cgi for later
+         convenience, to help consolidate how we handle CGI/server
+         modes. This block is hit when running in plain server mode.
+      */
+      char const * p = zPath /* current byte */;
+      char const * head = p  /* current start-of-token */;
+      unsigned int len = 0   /* current token's lengh */;
+      assert( g.isCGI && "g.isCGI should have been set by now." );
+      for( ;*p!='?'; ++p){
+        if( !*p || ('/' == *p) ){
+          if( len ) {
+            cson_value * part;
+            assert( head != p );
+            part = cson_value_new_string(head, len);
+            cson_array_append( ar, part );
+            len = 0;
+          }
+          if( !*p ) break;
+          head = p+1;
+          continue;
         }
-        if( !*p ) break;
-        head = p+1;
-        continue;
+        ++len;
       }
-      ++len;
+    }else{
+      /* assume CLI mode */
+      int i;
+      char const * arg;
+      cson_value * part;
+      assert( (!g.isCGI) && "g.isCGI set and we do not expect that to be the case here." );
+      for(i = 1; i < g.argc; ++i ){
+        arg = g.argv[i];
+        if( !arg || !*arg ) continue;
+        part = cson_value_new_string(arg,strlen(arg));
+        cson_array_append(ar, part);
+      }
     }
   }
   /* g.json.reqPayload exists only to simplify some of our access to
@@ -326,12 +353,11 @@ static void json_mode_bootstrap(){
   }
   json_auth_token()/* will copy our auth token, if any, to fossil's core. */;
   if( g.isCGI ){
-    login_check_credentials();
+    login_check_credentials()/* populates g.perm */;
   }
   else{
     db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   }
-
 }
 
 /*
@@ -340,7 +366,7 @@ static void json_mode_bootstrap(){
 ** of bounds or there is no "json" path element.
 **
 ** In CLI mode the "path" is the list of arguments (skipping argv[0]).
-** In server/CGI modes the path is the PATH_INFO.
+** In server/CGI modes the path is taken from PATH_INFO.
 */
 static char const * json_path_part(unsigned char ndx){
   cson_array * ar = g.isCGI
@@ -353,7 +379,7 @@ static char const * json_path_part(unsigned char ndx){
   }
   if( g.json.cmdOffset < 0 ){
     /* first-time setup. */
-    short i = g.isCGI ? 0 : 1;
+    short i = g.isCGI ? 0 : 1/*skip argv[0] in CLI mode*/;
 #define PARTAT cson_string_cstr( \
                  cson_value_get_string(                     \
                    cson_array_get(ar,i)  \
@@ -369,10 +395,10 @@ static char const * json_path_part(unsigned char ndx){
       }
       ++i;
       tok = NEXT;
-#undef NEXT
-#undef PARTAT
     }
   }
+#undef NEXT
+#undef PARTAT
   if( g.json.cmdOffset < 0 ){
     return NULL;
   }else{
