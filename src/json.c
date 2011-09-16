@@ -233,8 +233,7 @@ static cson_value * json_auth_token(){
          JSON auth token to be in the form: login_cookie_name()=...
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
-    }
-    else if( g.isCGI ){
+    }else if( g.isCGI ){
       /* try fossil's conventional cookie. */
       /* Reminder: chicken/egg scenario regarding db access in CLI
          mode because login_cookie_name() needs the db. */
@@ -268,8 +267,11 @@ static void json_mode_bootstrap(){
   cson_value * pathSplit =
     cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO_SPLIT");
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
-  if( once ) return;
-  else once = 1;
+  if( once ){
+    return;
+  }else{
+    once = 1;
+  }
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmdOffset = -1;
@@ -318,14 +320,16 @@ static void json_mode_bootstrap(){
       assert( g.isCGI && "g.isCGI should have been set by now." );
       for( ;*p!='?'; ++p){
         if( !*p || ('/' == *p) ){
-          if( len ) {
+          if( len ){
             cson_value * part;
             assert( head != p );
             part = cson_value_new_string(head, len);
             cson_array_append( ar, part );
             len = 0;
           }
-          if( !*p ) break;
+          if( !*p ){
+            break;
+          }
           head = p+1;
           continue;
         }
@@ -339,7 +343,9 @@ static void json_mode_bootstrap(){
       assert( (!g.isCGI) && "g.isCGI set and we do not expect that to be the case here." );
       for(i = 1/*skip argv[0]*/; i < g.argc; ++i ){
         arg = g.argv[i];
-        if( !arg || !*arg ) continue;
+        if( !arg || !*arg ){
+          continue;
+        }
         part = cson_value_new_string(arg,strlen(arg));
         cson_array_append(ar, part);
       }
@@ -421,7 +427,7 @@ static cson_value * json_payload_property( char const * key ){
 /* Returns the C-string form of json_auth_token(), or NULL
 ** if json_auth_token() returns NULL.
 */
-char const * json_auth_token_cstr() {
+char const * json_auth_token_cstr(){
   return cson_value_get_cstr( json_auth_token() );
 }
 
@@ -904,7 +910,7 @@ void json_page_top(void){
   if( ! pageDef ){
     json_err( FSL_JSON_E_UNKNOWN_COMMAND, cmd, 0 );
     return;
-  }else if( pageDef->runMode < 0 /*CLI only*/) {
+  }else if( pageDef->runMode < 0 /*CLI only*/){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
@@ -961,7 +967,7 @@ void json_cmd_top(void){
   if( ! pageDef ){
     json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 1 );
     return;
-  }else if( pageDef->runMode > 0 /*HTTP only*/) {
+  }else if( pageDef->runMode > 0 /*HTTP only*/){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
