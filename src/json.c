@@ -684,7 +684,26 @@ static char const * json_getenv_cstr( char const *zWhichEnv, char const * zKey )
 */
 cson_value * json_page_cap(void){
   cson_value * payload = cson_value_new_object();
+  cson_value * sub = cson_value_new_object();
+  char * zCap;
+  Stmt q;
   cson_object * obj = cson_value_get_object(payload);
+  if( g.zLogin ){
+    cson_object_set( obj, "userName",
+                     cson_value_new_string(g.zLogin,strlen(g.zLogin)) );
+  }
+  db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
+  if( db_step(&q)==SQLITE_ROW ){
+    char const * zCap = (char const *)sqlite3_column_text(q.pStmt,0);
+    if( zCap ){
+      cson_object_set( obj, "capabilities",
+                       cson_value_new_string(zCap,strlen(zCap)) );
+    }
+  }
+  db_finalize(&q);
+  cson_object_set( obj, "permissionFlags", sub );
+  obj = cson_value_get_object(sub);
+
 #define ADD(X) cson_object_set(obj, #X, cson_value_new_bool(g.perm.X))
   ADD(Setup);
   ADD(Admin);
