@@ -82,7 +82,7 @@ for a large INT_MAX value?
 
 See also: http://poshlib.hookatooka.com/poshlib/trac.cgi/browser/posh.h
 */
-#  if defined(_WIN64) || defined(__LP64__/*gcc*/) \
+#  if defined(_WIN64) || defined(__LP64__)/*gcc*/ \
     || defined(_M_X64) || defined(__amd64__) || defined(__amd64) \
     ||  defined(__x86_64__) || defined(__x86_64) \
     || defined(__ia64__) || defined(__ia64) || defined(_IA64) || defined(__IA64__) \
