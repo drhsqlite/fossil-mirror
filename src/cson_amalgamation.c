@@ -6429,7 +6429,11 @@ int whuuid_dump_distribution( whuuid_rng const * st, short full, FILE * dest )
 #include <time.h>
 #include <locale.h> /* setlocale(), needed for JSON parser. */
 
-#define CSON_CGI_USE_SIGNALS 1
+#if CSON_ENABLE_UNIX
+#  define CSON_CGI_USE_SIGNALS 1
+#else
+#  define CSON_CGI_USE_SIGNALS 0
+#endif
 
 /* If RNG_FILENAME evaluates to true then we use that file for getting
    random bytes for session IDs. FIXME: we effectively leak a file

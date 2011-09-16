@@ -37,7 +37,7 @@ and in the wiki on the project's home page.
 extern "C" {
 #endif
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
 #  define CSON_ENABLE_UNIX 0
 #else
 #  define CSON_ENABLE_UNIX 1
