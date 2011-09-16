@@ -545,9 +545,20 @@ cson_value * json_response_skeleton( int resultCode,
   SET("fossil");
  
   {/* "timestamp" */
+    cson_int_t jsTime;
+#if 1
     time_t const t = (time_t)time(0);
     struct tm gt = *gmtime(&t);
-    cson_int_t jsTime = (cson_int_t)mktime(&gt);
+    gt.tm_isdst = -1;
+    jsTime = (cson_int_t)mktime(&gt);
+#else
+    /* i'm not 100% sure that the above actually does what i expect,
+       but we can't use the following because this function can be
+       called in response to error handling if the db cannot be opened
+       (or before that).
+    */
+    jsTime = (cson_int_t)db_int64(0, "SELECT strftime('%%s','now')");
+#endif
     tmp = cson_value_new_integer(jsTime);
     SET("timestamp");
   }
@@ -758,6 +769,18 @@ cson_value * json_page_login(void){
 }
 
 /*
+** Impl of /json/logout.
+**
+** Shortcomings: this never reports failure, as we don't go through
+** the trouble of actually checking whether the user is logged in or
+** not.
+*/
+cson_value * json_page_logout(void){
+  login_clear_login_data();
+  return NULL;
+}
+
+/*
 ** Implementation of the /json/stat page/command.
 **
 */
@@ -883,6 +906,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"cap", json_page_cap, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,1/*should be >0. Only 0 for dev/testing purposes.*/},
+{"logout",json_page_logout,1/*should be >0. Only 0 for dev/testing purposes.*/},
 {"stat",json_page_stat,0},
 {"version",json_page_version,0},
 {"wiki",json_page_wiki,0},
