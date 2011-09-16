@@ -283,9 +283,13 @@ static void json_mode_bootstrap(){
 #endif
 
   /*
-    The following if/else block translates the PATH_INFO path into an
-    internal list so that we can simplify command dispatching later
-    on.
+    The following if/else block translates the PATH_INFO path (in
+    CLI/server modes) or g.argv (CLI mode) into an internal list so
+    that we can simplify command dispatching later on.
+
+    Note that translating g.argv this way is overkill but allows us to
+    avoid CLI-only special-case handling in other code, e.g.
+    json_command_arg().
   */
   if( pathSplit ){
     /* cson_cgi already did this, so let's just re-use it. This does
@@ -333,7 +337,7 @@ static void json_mode_bootstrap(){
       char const * arg;
       cson_value * part;
       assert( (!g.isCGI) && "g.isCGI set and we do not expect that to be the case here." );
-      for(i = 1; i < g.argc; ++i ){
+      for(i = 1/*skip argv[0]*/; i < g.argc; ++i ){
         arg = g.argv[i];
         if( !arg || !*arg ) continue;
         part = cson_value_new_string(arg,strlen(arg));
@@ -368,25 +372,19 @@ static void json_mode_bootstrap(){
 ** In CLI mode the "path" is the list of arguments (skipping argv[0]).
 ** In server/CGI modes the path is taken from PATH_INFO.
 */
-static char const * json_path_part(unsigned char ndx){
-  cson_array * ar = g.isCGI
-    ? cson_value_get_array(cson_cgi_getenv(&g.json.cgiCx,
-                                           "a",
-                                           FossilJsonKeys.commandPath))
-    : NULL;
-  if( g.isCGI ){
-    assert((NULL!=ar) && "Internal error.");
-  }
+static char const * json_command_arg(unsigned char ndx){
+  cson_array * ar = cson_value_get_array(
+                      cson_cgi_getenv(&g.json.cgiCx,
+                                      "a",
+                                      FossilJsonKeys.commandPath));
+  assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
   if( g.json.cmdOffset < 0 ){
     /* first-time setup. */
-    short i = g.isCGI ? 0 : 1/*skip argv[0] in CLI mode*/;
-#define PARTAT cson_string_cstr( \
+    short i = 0;
+#define NEXT cson_string_cstr( \
                  cson_value_get_string(                     \
                    cson_array_get(ar,i)  \
                    ))
-#define NEXT (g.isCGI                               \
-              ? PARTAT    \
-              : ((g.argc > i) ? g.argv[i] : NULL))
     char const * tok = NEXT;
     while( tok ){
       if( 0==strncmp("json",tok,4) ){
@@ -398,15 +396,11 @@ static char const * json_path_part(unsigned char ndx){
     }
   }
 #undef NEXT
-#undef PARTAT
   if( g.json.cmdOffset < 0 ){
     return NULL;
   }else{
     ndx = g.json.cmdOffset + ndx;
-    return g.isCGI
-      ? cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmdOffset + ndx )))
-      : ((ndx < g.argc) ? g.argv[ndx] : NULL)
-      ;
+    return cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmdOffset + ndx )));
   }
 }
 
@@ -545,7 +539,7 @@ cson_value * json_response_skeleton( int resultCode,
   SET("fossil");
  
   {/* "timestamp" */
-    time_t const t = (time_t)g.now;
+    time_t const t = (time_t)time(0);
     struct tm gt = *gmtime(&t);
     cson_int_t jsTime = (cson_int_t)mktime(&gt);
     tmp = cson_value_new_integer(jsTime);
@@ -572,7 +566,8 @@ cson_value * json_response_skeleton( int resultCode,
     }
   }
 #undef SET
-  if(0){/*only for my own debuggering*/
+
+  if(0){/*Only for debuggering, add some info to the response.*/
     tmp = cson_cgi_env_get_val(&g.json.cgiCx,'a', 0);
     if(tmp){
       cson_object_set( o, "$APP", tmp );
@@ -903,7 +898,7 @@ void json_page_top(void){
   JsonPageDef const * pageDef = NULL;
   cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
   json_mode_bootstrap();
-  cmd = json_path_part(1);
+  cmd = json_command_arg(1);
   /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
@@ -956,7 +951,7 @@ void json_cmd_top(void){
     goto usage;
   }
   db_find_and_open_repository(0, 0);
-  cmd = json_path_part(1);
+  cmd = json_command_arg(1);
   n = cmd ? strlen(cmd) : 0;
   if( n==0 ){
     goto usage;
