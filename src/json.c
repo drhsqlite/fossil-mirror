@@ -256,13 +256,51 @@ static cson_value * json_auth_token(){
 ** is malformed.
 */
 static void json_mode_bootstrap(){
+  char const * zPath = P("PATH_INFO");
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmdOffset = -1;
+  if( !g.isCGI && g.fullHttpReply ){
+    g.isCGI = 1;
+  }
+  /*json_err( 1000, zPath, 1 ); exit(0);*/
+  if( !zPath || !*zPath ){
+    zPath = cson_string_cstr(cson_value_get_string(cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO")));
+  }
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
 #endif
+  if( zPath ){
+    /* Translate fossil's PATH_INFO into cson_cgi for later
+       convenience, to help consolidate how we handle CGI/server
+       modes.
+    */
+    char const * p = zPath;
+    char const * head = p;
+    unsigned int len = 0;
+    cson_value * piece = NULL;
+    cson_value * arV = cson_value_new_array();
+    cson_array * ar = cson_value_get_array(arV);
+#if 0
+    cson_cgi_setenv( &g.json.cgiCx, "FOSSIL_PATH_INFO", cson_value_new_string(zPath,strlen(zPath)) );
+#endif
+    cson_cgi_setenv( &g.json.cgiCx, "COMMAND_PATH", arV );
+    for( ;*p!='?'; ++p){
+      if( !*p || ('/' == *p) ){
+        if( len ) {
+          assert( head != p );
+          piece = cson_value_new_string(head, len);
+          cson_array_append( ar, piece );
+          len = 0;
+        }
+        if( !*p ) break;
+        head = p+1;
+        continue;
+      }
+      ++len;
+    }
+  }
   /* g.json.reqPayload exists only to simplify some of our access to
      the request payload. We only use this in the context of Object
      payloads, not Arrays, strings, etc. */
@@ -289,11 +327,21 @@ static void json_mode_bootstrap(){
 ** is out of bounds or there is no "json" path element.
 */
 static char const * json_path_part(unsigned char ndx){
+  cson_array * ar = g.isCGI
+    ? cson_value_get_array(cson_cgi_getenv(&g.json.cgiCx,"a","COMMAND_PATH"))
+    : NULL;
+  if( g.isCGI ){
+    assert((NULL!=ar) && "Internal error.");
+  }
   if( g.json.cmdOffset < 0 ){
     /* first-time setup. */
     short i = g.isCGI ? 0 : 1;
+#define PARTAT cson_string_cstr( \
+                 cson_value_get_string(                     \
+                   cson_array_get(ar,i)  \
+                   ))
 #define NEXT (g.isCGI                               \
-              ? cson_cgi_path_part_cstr( &g.json.cgiCx, i )     \
+              ? PARTAT    \
               : ((g.argc > i) ? g.argv[i] : NULL))
     char const * tok = NEXT;
     while( tok ){
@@ -304,6 +352,7 @@ static char const * json_path_part(unsigned char ndx){
       ++i;
       tok = NEXT;
 #undef NEXT
+#undef PARTAT
     }
   }
   if( g.json.cmdOffset < 0 ){
@@ -311,7 +360,7 @@ static char const * json_path_part(unsigned char ndx){
   }else{
     ndx = g.json.cmdOffset + ndx;
     return g.isCGI
-      ? cson_cgi_path_part_cstr( &g.json.cgiCx, g.json.cmdOffset + ndx )
+      ? cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmdOffset + ndx )))
       : ((ndx < g.argc) ? g.argv[ndx] : NULL)
       ;
   }
@@ -480,12 +529,13 @@ cson_value * json_response_skeleton( int resultCode,
   }
 #undef SET
   if(0){/*only for my own debuggering*/
-    tmp = cson_cgi_env_get_val(&g.json.cgiCx,'e', 0);
+    tmp = cson_cgi_env_get_val(&g.json.cgiCx,'a', 0);
     if(tmp){
-      cson_object_set( o, "$ENV", tmp );
+      cson_object_set( o, "$APP", tmp );
     }
     tmp = cson_value_new_integer( g.json.cmdOffset );
     cson_object_set( o, "cmdOffset", tmp );
+    cson_object_set( o, "isCGI", cson_value_new_bool( g.isCGI ) );
   }
 
   goto ok;
@@ -810,6 +860,7 @@ void json_page_top(void){
   cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
   json_mode_bootstrap();
   cmd = json_path_part(1);
+  /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
     json_err( FSL_JSON_E_UNKNOWN_COMMAND, cmd, 0 );

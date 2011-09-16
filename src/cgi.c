@@ -1000,7 +1000,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   struct sockaddr_in remoteName;
   socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
-
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
