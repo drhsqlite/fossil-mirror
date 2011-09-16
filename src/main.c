@@ -281,7 +281,14 @@ int main(int argc, char **argv){
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-  g.json.errorDetailParanoia = 0 /* FIXME: make configurable */;
+#if defined(NDEBUG)
+  g.json.errorDetailParanoia = 2 /* FIXME: make configurable
+                                    One problem we have here is that this
+                                    code is needed before the db is opened,
+                                    so we can't sql for it.*/;
+#else
+  g.json.errorDetailParanoia = 0;
+#endif
   g.json.cgiCx = cson_cgi_cx_empty;
   g.json.outOpt = cson_output_opt_empty;
   g.json.outOpt.addNewline = 1;

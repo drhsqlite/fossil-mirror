@@ -45,14 +45,15 @@
 enum FossilJsonCodes {
 
 FSL_JSON_E_GENERIC = 1000,
-FSL_JSON_E_INVALID_REQUEST = FSL_JSON_E_GENERIC + 1,
-FSL_JSON_E_UNKNOWN_COMMAND = FSL_JSON_E_GENERIC + 2,
-FSL_JSON_E_UNKNOWN = FSL_JSON_E_GENERIC + 3,
-FSL_JSON_E_RESOURCE_NOT_FOUND = FSL_JSON_E_GENERIC + 4,
-FSL_JSON_E_TIMEOUT = FSL_JSON_E_GENERIC + 5,
-FSL_JSON_E_ASSERT = FSL_JSON_E_GENERIC + 6,
-FSL_JSON_E_ALLOC = FSL_JSON_E_GENERIC + 7,
-FSL_JSON_E_NYI = FSL_JSON_E_GENERIC + 8,
+FSL_JSON_E_GENERIC_SUB1 = FSL_JSON_E_GENERIC + 100,
+FSL_JSON_E_INVALID_REQUEST = FSL_JSON_E_GENERIC_SUB1 + 1,
+FSL_JSON_E_UNKNOWN_COMMAND = FSL_JSON_E_GENERIC_SUB1 + 2,
+FSL_JSON_E_UNKNOWN = FSL_JSON_E_GENERIC_SUB1 + 3,
+FSL_JSON_E_RESOURCE_NOT_FOUND = FSL_JSON_E_GENERIC_SUB1 + 4,
+FSL_JSON_E_TIMEOUT = FSL_JSON_E_GENERIC_SUB1 + 5,
+FSL_JSON_E_ASSERT = FSL_JSON_E_GENERIC_SUB1 + 6,
+FSL_JSON_E_ALLOC = FSL_JSON_E_GENERIC_SUB1 + 7,
+FSL_JSON_E_NYI = FSL_JSON_E_GENERIC_SUB1 + 8,
 
 FSL_JSON_E_AUTH = 2000,
 FSL_JSON_E_MISSING_AUTH = FSL_JSON_E_AUTH + 2,
@@ -559,6 +560,9 @@ cson_value * json_response_skeleton( int resultCode,
   {/* "timestamp" */
     cson_int_t jsTime;
 #if 1
+    /* Ge Weijers has pointed out that time(0) commonly returns
+       GMT, but is not required to by the standard.
+    */
     time_t const t = (time_t)time(0);
     struct tm gt = *gmtime(&t);
     gt.tm_isdst = -1;
@@ -767,6 +771,13 @@ cson_value * json_page_cap(void){
 **
 */
 cson_value * json_page_login(void){
+  static char preciseErrors =
+#if 0
+    g.json.errorDetailParanoia ? 0 : 1
+#else
+    0
+#endif
+    ;
   /*
     FIXME: we want to check the GET/POST args in this order:
 
@@ -789,7 +800,9 @@ cson_value * json_page_login(void){
     if( !name ){
       name = PD("name",NULL);
       if( !name ){
-        g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NONAME;
+        g.json.resultCode = preciseErrors
+          ? FSL_JSON_E_LOGIN_FAILED_NONAME
+          : FSL_JSON_E_LOGIN_FAILED;
         return NULL;
       }
     }
@@ -803,7 +816,9 @@ cson_value * json_page_login(void){
     }
   }
   if(!pw){
-    g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NOPW;
+    g.json.resultCode = preciseErrors
+      ? FSL_JSON_E_LOGIN_FAILED_NOPW
+      : FSL_JSON_E_LOGIN_FAILED;
     return NULL;
   }else{
     cson_value * payload = NULL;
@@ -820,7 +835,9 @@ cson_value * json_page_login(void){
 #else
     uid = login_search_uid( name, pw );
     if( !uid ){
-      g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NOTFOUND;
+      g.json.resultCode = preciseErrors
+        ? FSL_JSON_E_LOGIN_FAILED_NOTFOUND
+        : FSL_JSON_E_LOGIN_FAILED;
     }else{
       char * cookie = NULL;
       login_set_user_cookie(name, uid, &cookie);
