@@ -55,11 +55,14 @@ FSL_JSON_E_ALLOC = FSL_JSON_E_GENERIC + 7,
 FSL_JSON_E_NYI = FSL_JSON_E_GENERIC + 8,
 
 FSL_JSON_E_AUTH = 2000,
-FSL_JSON_E_LOGIN_FAILED = FSL_JSON_E_AUTH + 1,
 FSL_JSON_E_MISSING_AUTH = FSL_JSON_E_AUTH + 2,
 FSL_JSON_E_DENIED = FSL_JSON_E_AUTH + 3,
 FSL_JSON_E_WRONG_MODE = FSL_JSON_E_AUTH + 4,
 
+FSL_JSON_E_LOGIN_FAILED = FSL_JSON_E_AUTH + 100,
+FSL_JSON_E_LOGIN_FAILED_NONAME = FSL_JSON_E_LOGIN_FAILED + 1,
+FSL_JSON_E_LOGIN_FAILED_NOPW = FSL_JSON_E_LOGIN_FAILED + 2,
+FSL_JSON_E_LOGIN_FAILED_NOTFOUND = FSL_JSON_E_LOGIN_FAILED + 3,
 
 FSL_JSON_E_USAGE = 3000,
 FSL_JSON_E_INVALID_ARGS = FSL_JSON_E_USAGE + 1,
@@ -105,6 +108,9 @@ char const * json_err_str( int errCode ){
     C(NYI,"Not yet implemented.");
     C(AUTH,"Authentication error");
     C(LOGIN_FAILED,"Login failed");
+    C(LOGIN_FAILED_NONAME,"Login failed - name not supplied");
+    C(LOGIN_FAILED_NOPW,"Login failed - password not supplied");
+    C(LOGIN_FAILED_NOTFOUND,"Login failed - no match found");
     C(MISSING_AUTH,"Authentication info missing from request");
     C(DENIED,"Access denied");
     C(WRONG_MODE,"Request not allowed (wrong operation mode)");
@@ -501,6 +507,12 @@ static int json_dumbdown_rc( int code ){
   }
 }
 
+#if 0
+static unsigned int json_timestamp(){
+
+}
+#endif
+
 /*
 ** Creates a new Fossil/REST response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
@@ -666,12 +678,21 @@ cson_value * json_page_version(void){
   return jval;
 }
 
+#if 0
+/* we have a disconnect here between fossil's server-mode QUERY_STRING
+   handling and cson_cgi's.
+*/
 static cson_value * json_getenv( char const *zWhichEnv, char const * zKey ){
   return cson_cgi_getenv(&g.json.cgiCx, zWhichEnv, zKey);
 }
 static char const * json_getenv_cstr( char const *zWhichEnv, char const * zKey ){
-  return cson_value_get_cstr( json_getenv(zWhichEnv, zKey) );
+  char const * rc = cson_value_get_cstr( json_getenv(zWhichEnv, zKey) );
+  if( !rc && zWhichEnv && (NULL!=strstr(zWhichEnv,"g")) ){
+    rc = PD(zKey,NULL);
+  }
+  return rc;
 }
+#endif
 
 /*
 ** Implementation for /json/cap
@@ -740,51 +761,75 @@ cson_value * json_page_cap(void){
 ** - anonymous user login (requires separate handling
 ** due to random password).
 **
-** - more testing
+** - more testing with ONLY the JSON-specified authToken
+** (no cookie). In theory that works but we don't yet have
+** a non-browser client to play with.
+**
 */
 cson_value * json_page_login(void){
+  /*
+    FIXME: we want to check the GET/POST args in this order:
+
+    - GET: name, n, password, p
+    - POST: name, password
+
+    but a bug in cgi_parameter() is breaking that, causing PD() to
+    return the last element of the PATH_INFO instead.
+
+    Summary: If we check for P("name") first, then P("n"),
+    then ONLY a GET param of "name" will match ("n"
+    is not recognized). If we reverse the order of the
+    checks then both forms work. Strangely enough, the
+    "p"/"password" check is not affected by this.
+   */
   char const * name = cson_value_get_cstr(json_payload_property("name"));
-  char const * pw;
-  cson_value * payload = NULL;
-  /*cson_object * pObj;*/
-  int uid = 0;
-  /*return cson_cgi_env_get_val(&g.json.cgiCx,'g',0);*/
-  
+  char const * pw = NULL;
   if( !name ){
-    name = json_getenv_cstr( "g", "name" )
-      /* When i use P("n") i'm not getting the result i expect! */
-      ;
+    name = PD("n",NULL);
     if( !name ){
-      name = json_getenv_cstr( "g", "n" );
+      name = PD("name",NULL);
+      if( !name ){
+        g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NONAME;
+        return NULL;
+      }
     }
-  }
-  if( !name ){
-    g.json.resultCode = FSL_JSON_E_LOGIN_FAILED;
-    return NULL;
   }
 
   pw = cson_value_get_cstr(json_payload_property("password"));
   if( !pw ){
-    pw = json_getenv_cstr( "g", "password" );
+    pw = PD("p",NULL);
     if( !pw ){
-      pw = json_getenv_cstr( "g", "p" );
+      pw = PD("password",NULL);
     }
   }
-
   if(!pw){
-    g.json.resultCode = FSL_JSON_E_LOGIN_FAILED;
+    g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NOPW;
+    return NULL;
   }else{
+    cson_value * payload = NULL;
+    int uid = 0;
+#if 0
+    /* only for debugging the PD()-incorrect-result problem */
+    cson_object * o = NULL;
     uid = login_search_uid( name, pw );
+    payload = cson_value_new_object();
+    o = cson_value_get_object(payload);
+    cson_object_set( o, "n", cson_value_new_string(name,strlen(name)));
+    cson_object_set( o, "p", cson_value_new_string(pw,strlen(pw)));
+    return payload;
+#else
+    uid = login_search_uid( name, pw );
+    if( !uid ){
+      g.json.resultCode = FSL_JSON_E_LOGIN_FAILED_NOTFOUND;
+    }else{
+      char * cookie = NULL;
+      login_set_user_cookie(name, uid, &cookie);
+      payload = cson_value_new_string( cookie, strlen(cookie) );
+      free(cookie);
+    }
+    return payload;
+#endif
   }
-  if( !uid ){
-    g.json.resultCode = FSL_JSON_E_LOGIN_FAILED;
-  }else{
-    char * cookie = NULL;
-    login_set_user_cookie(name, uid, &cookie);
-    payload = cson_value_new_string( cookie, strlen(cookie) );
-    free(cookie);
-  }
-  return payload;
 }
 
 /*
