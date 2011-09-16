@@ -5267,7 +5267,7 @@ char const * const * cson_sessmgr_names()
 }
 /* end file ./cson_session.c */
 /* begin file ./cson_session_file.c */
-#if !defined(_WIN32)
+#if !defined(_WIN32) && !defined(_WIN64)
 #  if !defined(_POSIX_VERSION)
 #    define _POSIX_VERSION 200112L /* chmod(), unlink() */
 #  endif
@@ -5280,8 +5280,16 @@ char const * const * cson_sessmgr_names()
 #include <string.h>
 #include <assert.h>
 #if ENABLE_POSIX_FILE_OPS
+#  define UNLINK_FILE unlink
 #  include <unistd.h> /* unlink() */
 #  include <sys/stat.h> /* chmod() */
+#else
+/* http://msdn.microsoft.com/en-us/library/1c3tczd6(v=vs.80).aspx
+  #  define UNLINK_FILE _unlink
+  #  include <io.h>
+*/
+#  define UNLINK_FILE remove
+#  include <stdio.h> /* remove(), _unlink() */
 #endif
 
 static int cson_session_file_load( cson_sessmgr * self, cson_value ** tgt, char const * id );
@@ -5406,12 +5414,10 @@ static int cson_session_file_save( cson_sessmgr * self, cson_value const * root,
 #endif
     rc = cson_output_FILE( root, fh, NULL );
     fclose( fh );
-#if ENABLE_POSIX_FILE_OPS
     if( rc )
     {
-        unlink( fname );
+        UNLINK_FILE( fname );
     }
-#endif
     return rc;
 }
 
@@ -5439,11 +5445,7 @@ static int cson_session_file_remove( cson_sessmgr * self, char const * id )
     memset( fname, 0, BufSize );
     rc = cson_session_file_name( impl, id, fname, BufSize );
     if( 0 != rc ) return rc;
-#if ENABLE_POSIX_FILE_OPS
-    rc = unlink( fname );
-#else
-#  error "unlink not implemented for this platform."
-#endif
+    rc = UNLINK_FILE( fname );
     return (0==rc) ? 0 : cson_rc.IOError;
 }
 
@@ -5505,6 +5507,7 @@ int cson_sessmgr_file( cson_sessmgr ** tgt, cson_object const * opt )
 
 #undef IMPL_DECL
 #undef ENABLE_POSIX_FILE_OPS
+#undef UNLINK_FILE
 /* end file ./cson_session_file.c */
 /* begin file ./cson_sqlite3.c */
 /** @file cson_sqlite3.c
