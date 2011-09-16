@@ -1,5 +1,5 @@
-C style\sconformance\stouch-ups.
-D 2011-09-16T18:55:42.840
+C Merged\strunk\s[693ab93b7d]\sto\squiet\sdown\s-Wall.\sRemoved\sa\strailing\scomma\sfrom\san\senum\s(-Wall\smode).
+D 2011-09-16T18:57:52.940
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -87,11 +87,11 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 06f6d5f174011205a5bbe71123f47444aa606c7f
+F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 8e12157d054d991706ad3bcbe0a02d14fe1fb3b4
+F src/json.c b3945c26b69cd6ab014e9d9f9029457eac81405b
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 950704eb87e211509395f495d74639ce8541fe67
 F src/main.c f1a7d8bf05f0ca6d6bf8559f93bbc53ca6d87b11
@@ -126,7 +126,7 @@ F src/sqlite3.c 47782d2ec49a4adac754cfa90e1504cd1b693d42
 F src/sqlite3.h ed07b9e5de78ebd27809cf1586a951ac1cfc0d34
 F src/stash.c bcfdf0313e0b1fa20249872a56ba7a88ea49e343
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c 0244f5ed5bb72d02fc57cc5024611f70fce5dba1
+F src/style.c c4079841c98936994d9ea88a1834cbfdc424dc8a
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c a673fd8b354960921d11cb46062aafc1694832bb
@@ -315,7 +315,7 @@ F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 3b877d274455a3e46816b8e1889adddcf271bd0d
 F www/quotes.wiki b0e9b45baed6f8858dfb7c9de0da189ef62dbb43
 F www/reference.wiki f9dcb97a7748bf6be04ddcb3e3955dbbf0cfa731
-F www/reviews.wiki c6a9214755235014ed57de3b7689d0b33976573c
+F www/reviews.wiki 73094a4819d6d2956c8ad8e948290afbcecca08a
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
@@ -329,7 +329,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0bb823032fd4c1934f37d9f433b155c75a78ee34
-R 2aeff578753f1b19062974b91f1ff63e
+P 45cd04f8c1bf78ceee2235c9f76644d8a87cb1eb 693ab93b7de85e9d6ff68f01da10914f982ce3c0
+R 0c6200e1308c453c26b6ad21e43612ad
 U stephan
-Z 9665ca2835b781ba3da9c35ef48b6ba9
+Z e3d07c78aa1b7d2178c93a013059acbd
