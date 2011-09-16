@@ -118,7 +118,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int isCGI;              /* True if running in HTTP/CGI mode, else assume CLI. */
+  int isCGI;              /* True if running in server/CGI modes, else assume CLI. */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */

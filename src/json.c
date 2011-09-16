@@ -78,8 +78,10 @@ FSL_JSON_E_DB_LOCKED = FSL_JSON_E_DB + 4,
 */
 static const struct FossilJsonKeys_{
   char const * authToken;
+  char const * commandPath;
 } FossilJsonKeys = {
-  "authToken"  /*authToken*/
+  "authToken"  /*authToken*/,
+  "COMMAND_PATH" /*commandPath*/
 };
 
 /*
@@ -257,6 +259,8 @@ static cson_value * json_auth_token(){
 */
 static void json_mode_bootstrap(){
   char const * zPath = P("PATH_INFO");
+  cson_value * pathSplit =
+    cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO_SPLIT");
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmdOffset = -1;
@@ -264,34 +268,43 @@ static void json_mode_bootstrap(){
     g.isCGI = 1;
   }
   /*json_err( 1000, zPath, 1 ); exit(0);*/
-  if( !zPath || !*zPath ){
-    zPath = cson_string_cstr(cson_value_get_string(cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO")));
-  }
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
 #endif
-  if( zPath ){
+
+  /*
+    The following if/else block translates the PATH_INFO path into an
+    internal list so that we can simplify command dispatching later
+    on.
+  */
+  if( pathSplit ){
+    /* cson_cgi already did this, so let's just re-use it. This does
+       not happen in "plain server" mode, but does in CGI mode.
+    */
+    cson_cgi_setenv( &g.json.cgiCx,
+                     FossilJsonKeys.commandPath,
+                     pathSplit );
+  }else if( zPath ){
     /* Translate fossil's PATH_INFO into cson_cgi for later
        convenience, to help consolidate how we handle CGI/server
-       modes.
+       modes. This block is hit when running in plain server mode.
     */
-    char const * p = zPath;
-    char const * head = p;
-    unsigned int len = 0;
-    cson_value * piece = NULL;
-    cson_value * arV = cson_value_new_array();
-    cson_array * ar = cson_value_get_array(arV);
-#if 0
-    cson_cgi_setenv( &g.json.cgiCx, "FOSSIL_PATH_INFO", cson_value_new_string(zPath,strlen(zPath)) );
-#endif
-    cson_cgi_setenv( &g.json.cgiCx, "COMMAND_PATH", arV );
+    char const * p = zPath; /* current byte */
+    char const * head = p;  /* current start-of-token */
+    unsigned int len = 0;   /* current token's lengh */
+    cson_value * arV = cson_value_new_array(); /* value to store path in */
+    cson_array * ar = cson_value_get_array(arV); /* the real array object */
+    cson_cgi_setenv( &g.json.cgiCx,
+                     FossilJsonKeys.commandPath,
+                     arV );
     for( ;*p!='?'; ++p){
       if( !*p || ('/' == *p) ){
         if( len ) {
+          cson_value * part;
           assert( head != p );
-          piece = cson_value_new_string(head, len);
-          cson_array_append( ar, piece );
+          part = cson_value_new_string(head, len);
+          cson_array_append( ar, part );
           len = 0;
         }
         if( !*p ) break;
@@ -302,8 +315,8 @@ static void json_mode_bootstrap(){
     }
   }
   /* g.json.reqPayload exists only to simplify some of our access to
-     the request payload. We only use this in the context of Object
-     payloads, not Arrays, strings, etc. */
+     the request payload. We currently only use this in the context of
+     Object payloads, not Arrays, strings, etc. */
   g.json.reqPayload.v = cson_cgi_getenv( &g.json.cgiCx, "p", "payload" );
   if( g.json.reqPayload.v ){
     g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
@@ -322,13 +335,18 @@ static void json_mode_bootstrap(){
 }
 
 /*
-** Returns the ndx'th item in the PATH_INFO path, where index 0 is
-** the position of the "json" part of the path. Returns NULL if ndx
-** is out of bounds or there is no "json" path element.
+** Returns the ndx'th item in the "command path", where index 0 is the
+** position of the "json" part of the path. Returns NULL if ndx is out
+** of bounds or there is no "json" path element.
+**
+** In CLI mode the "path" is the list of arguments (skipping argv[0]).
+** In server/CGI modes the path is the PATH_INFO.
 */
 static char const * json_path_part(unsigned char ndx){
   cson_array * ar = g.isCGI
-    ? cson_value_get_array(cson_cgi_getenv(&g.json.cgiCx,"a","COMMAND_PATH"))
+    ? cson_value_get_array(cson_cgi_getenv(&g.json.cgiCx,
+                                           "a",
+                                           FossilJsonKeys.commandPath))
     : NULL;
   if( g.isCGI ){
     assert((NULL!=ar) && "Internal error.");
@@ -908,10 +926,10 @@ void json_cmd_top(void){
   cson_value * payload = NULL;
   JsonPageDef const * pageDef;
   json_mode_bootstrap();
-  db_find_and_open_repository(0, 0);
   if( g.argc<3 ){
     goto usage;
   }
+  db_find_and_open_repository(0, 0);
   cmd = json_path_part(1);
   n = cmd ? strlen(cmd) : 0;
   if( n==0 ){
