@@ -258,17 +258,20 @@ static cson_value * json_auth_token(){
 static void json_mode_bootstrap(){
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
+  g.json.cmdOffset = -1;
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
 #endif
+  /* g.json.reqPayload exists only to simplify some of our access to
+     the request payload. We only use this in the context of Object
+     payloads, not Arrays, strings, etc. */
   g.json.reqPayload.v = cson_cgi_getenv( &g.json.cgiCx, "p", "payload" );
   if( g.json.reqPayload.v ){
-    g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v );
-    if( ! g.json.reqPayload.o ){/* POST data is an array, which we can't use. */
-      assert( cson_value_is_array( g.json.reqPayload.v ) );
-      g.json.reqPayload.v = NULL;
-    }
+    g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
+        /* g.json.reqPayload.o may legally be NULL, which means only that
+           g.json.reqPayload.v is-not-a Object.
+        */;
   }
   json_auth_token()/* will copy our auth token, if any, to fossil's core. */;
   if( g.isCGI ){
@@ -276,6 +279,41 @@ static void json_mode_bootstrap(){
   }
   else{
     db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+  }
+
+}
+
+/*
+** Returns the ndx'th item in the PATH_INFO path, where index 0 is
+** the position of the "json" part of the path. Returns NULL if ndx
+** is out of bounds or there is no "json" path element.
+*/
+static char const * json_path_part(unsigned char ndx){
+  if( g.json.cmdOffset < 0 ){
+    /* first-time setup. */
+    short i = g.isCGI ? 0 : 1;
+#define NEXT (g.isCGI                               \
+              ? cson_cgi_path_part_cstr( &g.json.cgiCx, i )     \
+              : ((g.argc > i) ? g.argv[i] : NULL))
+    char const * tok = NEXT;
+    while( tok ){
+      if( 0==strncmp("json",tok,4) ){
+        g.json.cmdOffset = i;
+        break;
+      }
+      ++i;
+      tok = NEXT;
+#undef NEXT
+    }
+  }
+  if( g.json.cmdOffset < 0 ){
+    return NULL;
+  }else{
+    ndx = g.json.cmdOffset + ndx;
+    return g.isCGI
+      ? cson_cgi_path_part_cstr( &g.json.cgiCx, g.json.cmdOffset + ndx )
+      : ((ndx < g.argc) ? g.argv[ndx] : NULL)
+      ;
   }
 }
 
@@ -441,6 +479,15 @@ cson_value * json_response_skeleton( int resultCode,
     }
   }
 #undef SET
+  if(0){/*only for my own debuggering*/
+    tmp = cson_cgi_env_get_val(&g.json.cgiCx,'e', 0);
+    if(tmp){
+      cson_object_set( o, "$ENV", tmp );
+    }
+    tmp = cson_value_new_integer( g.json.cmdOffset );
+    cson_object_set( o, "cmdOffset", tmp );
+  }
+
   goto ok;
   cleanup:
   cson_value_free(v);
@@ -749,7 +796,7 @@ static const JsonPageDef JsonPageDefs[] = {
 };
 
 /*
-** WEBPAGE: /json
+** WEBPAGE: json
 **
 ** Pages under /json/... must be entered into JsonPageDefs.
 */
@@ -760,12 +807,12 @@ void json_page_top(void){
   cson_value * payload = NULL;
   cson_value * root = NULL;
   JsonPageDef const * pageDef = NULL;
-  json_mode_bootstrap();
-  cmd = cson_cgi_path_part_cstr(&g.json.cgiCx,1);
-  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
+  json_mode_bootstrap();
+  cmd = json_path_part(1);
+  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
+    json_err( FSL_JSON_E_UNKNOWN_COMMAND, cmd, 0 );
     return;
   }else if( pageDef->runMode < 0 /*CLI only*/) {
     rc = FSL_JSON_E_WRONG_MODE;
@@ -773,7 +820,6 @@ void json_page_top(void){
     rc = 0;
     payload = (*pageDef->func)();
   }
-  /* FIXME: we need a way of channeling resultCode values back here. */
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 0);
   }else{
@@ -815,7 +861,7 @@ void json_cmd_top(void){
   if( g.argc<3 ){
     goto usage;
   }
-  cmd = g.argv[2];
+  cmd = json_path_part(1);
   n = cmd ? strlen(cmd) : 0;
   if( n==0 ){
     goto usage;
@@ -823,7 +869,7 @@ void json_cmd_top(void){
   cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
+    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 1 );
     return;
   }else if( pageDef->runMode > 0 /*HTTP only*/) {
     rc = FSL_JSON_E_WRONG_MODE;

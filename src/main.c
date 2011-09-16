@@ -175,6 +175,12 @@ struct Global {
                                   how errors are reported. In JSON mode we try to always
                                   output JSON-form error responses.
                                */
+    int cmdOffset;             /* Tells us which PATH_INFO/CLI args
+                                  part holds the "json" command, so
+                                  that we can account for sub-repos
+                                  and path prefixes.  This is handled
+                                  differently for CLI and CGI modes.
+                               */
     int resultCode;            /* used for passing back specific codes from /json callbacks. */
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
     cson_cgi_cx cgiCx;         /* cson_cgi context */

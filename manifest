@@ -1,5 +1,5 @@
-C more\scson\sportability\sfixes,\sthanks\sto\sRobert\sEngelhardt\sand\sMistachkin.
-D 2011-09-16T13:39:30.210
+C fixed\san\sinconsistency\sin\sthe\sCLI/CGI\sargs/path\shandling.\sNon-CGI\sserver\smode\sis\sstill\sbroken\sb/c\swe\sdo\snot\syet\shave\sthe\sPATH_INFO\s(or\sequivalent)\sdata.
+D 2011-09-16T16:38:48.689
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,10 +91,10 @@ F src/http_ssl.c 06f6d5f174011205a5bbe71123f47444aa606c7f
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 7962436a477ca0f7d0f24fc78994d2a85e44031d
+F src/json.c 3dffb58619296d4012c9b4c12a5427735477bda2
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 950704eb87e211509395f495d74639ce8541fe67
-F src/main.c e432f98599c1c23aaa43c3aa9b73057da772af88
+F src/main.c b26233a82cdb4fc76fea4dcc80e1ebef5c5f9b29
 F src/main.mk 815a3a160bc963c106eb755ff3253755c9df5b88
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -329,7 +329,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ea8d28acf3b33fb8cfa09170e54bcc1f36e6c403
-R 756dfab104901f6fc6cee4d275101e7b
+P afd36e987ca1f2841bd2d819e64804c1f1a9f971
+R faca9d9cdeea62d9ab84e05a4540cae7
 U stephan
-Z 96bf51549c5768c6e055bd08483770e1
+Z f856f5df16d9dc21136f788b39caece7
