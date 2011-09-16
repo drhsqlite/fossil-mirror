@@ -251,7 +251,7 @@ char *connStr ;
         BIO_printf(mem, " %02x", md[j]);
       }
     }
-    BIO_write(mem, "", 1); // null-terminate mem buffer
+    BIO_write(mem, "", 1); /* nul-terminate mem buffer */
     BIO_get_mem_data(mem, &desc);
     
     if( hasSavedCertificate ){
@@ -306,7 +306,7 @@ void ssl_save_certificate(X509 *cert){
 
   mem = BIO_new(BIO_s_mem());
   PEM_write_bio_X509(mem, cert);
-  BIO_write(mem, "", 1); // null-terminate mem buffer
+  BIO_write(mem, "", 1); /* nul-terminate mem buffer */
   BIO_get_mem_data(mem, &zCert);
   zHost = mprintf("cert:%s", g.urlName);
   db_set(zHost, zCert, 1);
