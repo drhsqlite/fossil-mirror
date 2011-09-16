@@ -1,5 +1,5 @@
-C test_env\scommand\snow\srequires\sg.perm.Admin\sor\sg.perm.Setup.\sResolves\sticket\s[2316d926e376aa].
-D 2011-09-15T21:39:00.331
+C minor\stypo\sand\swiki\sformatting\sfix.\sAdded\sanother\sexternal\slink.
+D 2011-09-16T11:19:08.885
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -312,7 +312,7 @@ F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 3b877d274455a3e46816b8e1889adddcf271bd0d
 F www/quotes.wiki b0e9b45baed6f8858dfb7c9de0da189ef62dbb43
 F www/reference.wiki f9dcb97a7748bf6be04ddcb3e3955dbbf0cfa731
-F www/reviews.wiki c6a9214755235014ed57de3b7689d0b33976573c
+F www/reviews.wiki 73094a4819d6d2956c8ad8e948290afbcecca08a
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b344d3c0cdf0bd179b70a3660b1d4f397e94cb57
-R 170df32c52dae800ab5406dbdf745d4c
+P 2d71977e984b5e260b0ca6c77155640deeaf9099
+R 1438e4a0cb581b990b2d6d39c4c729e6
 U stephan
-Z 78be9581ca796ec010177f483b228a9c
+Z 3fc0d533b3950e1e8b79b374b8decfbf
