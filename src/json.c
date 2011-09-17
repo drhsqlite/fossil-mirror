@@ -560,8 +560,15 @@ cson_value * json_response_skeleton( int resultCode,
   {/* "timestamp" */
     cson_int_t jsTime;
 #if 1
+    jsTime = (cson_int_t)time(0);
+#elif 1
     /* Ge Weijers has pointed out that time(0) commonly returns
-       GMT, but is not required to by the standard.
+       UTC, but is not required to by The Standard.
+
+       There is a mkfmtime() function in cgi.c but it requires
+       a (tm *), and i don't have that without calling gmtime()
+       or populating the tm myself (which is what i'm trying to
+       have done for me!).
     */
     time_t const t = (time_t)time(0);
     struct tm gt = *gmtime(&t);
