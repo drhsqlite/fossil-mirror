@@ -1,5 +1,5 @@
-C More\scleaning\sup\sof\serror\slower-level\shandling\sto\soutput\sJSON\sinstead\sof\sHTML\sin\sa\sfew\smore\scases.
-D 2011-09-17T16:01:13.683
+C added\sa\smissing\sassert()\s(Thanks,\sJoe\sM.)
+D 2011-09-17T20:25:49.982
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,7 +91,7 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 9008eb28ea349a83d69a04ac0cc16845131971e3
+F src/json.c 770fcbaffc32efdc1b2f878c0da71e9c1c3b154e
 F src/json_detail.h ce44c06ef333f552a6b59f38021c4c746faef804
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c ee7228d5c0b48c87b8b0d80dd49ba534f4402862
@@ -330,7 +330,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P affdf56c3fef4e57c6a72b55e6e592d929b04eaa
-R e3f584fcdc496c3180156756f675989e
+P 9b842564f746286f4255d79a1ee1d9b6c4b153fd
+R 3a6f53ea92fa0573c66806400a9b8f79
 U stephan
-Z 4d1a3612164a6bfcc473ad8b0c3dd81a
+Z c43bf5af49c418dea1d05e9d8043b0ee

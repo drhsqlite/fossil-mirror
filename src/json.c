@@ -147,6 +147,7 @@ cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
 char const * json_rc_cstr( int code ){
   enum { BufSize = 12 };
   static char buf[BufSize] = {'F','O','S','S','I','L','-',0};
+  assert((code >= 1000) && (code <= 9999) && "Invalid Fossil/JSON code.");
   sprintf(buf+7,"%04d", code);
   return buf;
 }
