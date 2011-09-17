@@ -15,12 +15,19 @@
 **
 *******************************************************************************
 **  
-** Code for the JSON/REST API.
+** Code for the JSON API.
 **
 ** For notes regarding the public JSON interface, please see:
 **
 ** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit
 **
+**
+** Notable FIXMEs:
+**
+** - The overlap between cson_cgi and fossil needs to be gotten rid
+** of because cson_cgi cannot get all the environment info it needs
+** when fossil is running in server mode. The goal is to remove all
+** of the cson_cgi bits.
 */
 #include "config.h"
 #include "VERSION.h"
@@ -346,6 +353,12 @@ static void json_mode_bootstrap(){
 **
 ** In CLI mode the "path" is the list of arguments (skipping argv[0]).
 ** In server/CGI modes the path is taken from PATH_INFO.
+**
+**
+** Reminder to self: this breaks in CLI mode when called with an
+** abbreviated name because we rely on the full name "json" here. The
+** g object probably has the short form which we can use for our
+** purposes, but i haven't yet looked for it.
 */
 static char const * json_command_arg(unsigned char ndx){
   cson_array * ar = cson_value_get_array(
@@ -477,14 +490,15 @@ static unsigned int json_timestamp(){
 #endif
 
 /*
-** Creates a new Fossil/REST response envelope skeleton.  It is owned
+** Creates a new Fossil/JSON response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
 ** or add it to a cson container to transfer ownership. Returns NULL
 ** on error.
 **
 ** If payload is not NULL and resultCode is 0 then it is set as the
 ** "payload" property of the returned object. If resultCode is non-0
-** then this function will destroy payload if it is not NULL.
+** then this function will destroy payload if it is not NULL. i.e.
+** onwership of payload is transfered to this function.
 **
 ** pMsg is an optional message string (resultText) property of the
 ** response. If resultCode is non-0 and pMsg is NULL then
