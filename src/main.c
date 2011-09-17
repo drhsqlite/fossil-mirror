@@ -28,7 +28,7 @@
 #include <stdlib.h> /* atexit() */
 
 #if INTERFACE
-#include "cson_amalgamation.h" /* JSON API */
+#include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
 
 /*
 ** Number of elements in an array
@@ -1036,9 +1036,13 @@ static void process_one_web_page(const char *zNotFound){
         if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
-          @ <h1>Not Found</h1>
-          cgi_set_status(404, "not found");
-          cgi_reply();
+          if(g.json.isJsonMode){
+            json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
+          }else{
+            @ <h1>Not Found</h1>
+            cgi_set_status(404, "not found");
+            cgi_reply();
+          }
         }
         return;
       }
@@ -1067,7 +1071,12 @@ static void process_one_web_page(const char *zNotFound){
   set_base_url();
   if( zPathInfo==0 || zPathInfo[0]==0 
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
-    fossil_redirect_home();
+    if(g.json.isJsonMode){
+      json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,1);
+      fossil_exit(0);
+    }else{
+      fossil_redirect_home() /*does not return*/;
+    }
   }else{
     zPath = mprintf("%s", zPathInfo);
   }
@@ -1128,6 +1137,8 @@ static void process_one_web_page(const char *zNotFound){
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.
+    ** Reminder: the login mechanism uses 'name' differently, and may
+    ** eventually have a problem/collision with this.
     */
     dehttpize(g.zExtra);
     cgi_set_parameter_nocopy("name", g.zExtra);
@@ -1138,13 +1149,21 @@ static void process_one_web_page(const char *zNotFound){
   */
   if( name_search(g.zPath, aWebpage, count(aWebpage), &idx) &&
       name_search("not_found", aWebpage, count(aWebpage), &idx) ){
-    cgi_set_status(404,"Not Found");
-    @ <h1>Not Found</h1>
-    @ <p>Page not found: %h(g.zPath)</p>
+    if(g.json.isJsonMode){
+      json_err(FSL_JSON_E_RESOURCE_NOT_FOUND,NULL,0);
+    }else{
+      cgi_set_status(404,"Not Found");
+      @ <h1>Not Found</h1>
+      @ <p>Page not found: %h(g.zPath)</p>
+    }
   }else if( aWebpage[idx].xFunc!=page_xfer && db_schema_is_outofdate() ){
-    @ <h1>Server Configuration Error</h1>
-    @ <p>The database schema on the server is out-of-date.  Please ask
-    @ the administrator to run <b>fossil rebuild</b>.</p>
+    if(g.json.isJsonMode){
+      json_err(FSL_JSON_E_DB_NEEDS_REBUILD,NULL,0);
+    }else{
+      @ <h1>Server Configuration Error</h1>
+      @ <p>The database schema on the server is out-of-date.  Please ask
+      @ the administrator to run <b>fossil rebuild</b>.</p>
+    }
   }else{
     aWebpage[idx].xFunc();
   }

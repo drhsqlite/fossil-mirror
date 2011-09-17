@@ -950,16 +950,26 @@ static void malformed_request(void){
 void cgi_panic(const char *zFormat, ...){
   va_list ap;
   cgi_reset_content();
-  cgi_set_status(500, "Internal Server Error");
-  cgi_printf(
-    "<html><body><h1>Internal Server Error</h1>\n"
-    "<plaintext>"
-  );
-  va_start(ap, zFormat);
-  vxprintf(pContent,zFormat,ap);
-  va_end(ap);
-  cgi_reply();
-  fossil_exit(1);
+  if( g.json.isJsonMode ){
+    char * zMsg;
+    va_start(ap, zFormat);
+    zMsg = vmprintf(zFormat,ap);
+    va_end(ap);
+    json_err( FSL_JSON_E_PANIC, zMsg, 1 );
+    free(zMsg);
+    fossil_exit( g.isCGI ? 0 : 1 );
+  }else{
+    cgi_set_status(500, "Internal Server Error");
+    cgi_printf(
+      "<html><body><h1>Internal Server Error</h1>\n"
+      "<plaintext>"
+    );
+    va_start(ap, zFormat);
+    vxprintf(pContent,zFormat,ap);
+    va_end(ap);
+    cgi_reply();
+    fossil_exit(1);
+  }
 }
 
 /*
