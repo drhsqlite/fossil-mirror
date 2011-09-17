@@ -56,6 +56,7 @@ FSL_JSON_E_ALLOC = FSL_JSON_E_GENERIC_SUB1 + 7,
 FSL_JSON_E_NYI = FSL_JSON_E_GENERIC_SUB1 + 8,
 
 FSL_JSON_E_AUTH = 2000,
+/* #2001: re-use */
 FSL_JSON_E_MISSING_AUTH = FSL_JSON_E_AUTH + 2,
 FSL_JSON_E_DENIED = FSL_JSON_E_AUTH + 3,
 FSL_JSON_E_WRONG_MODE = FSL_JSON_E_AUTH + 4,
@@ -205,8 +206,6 @@ cson_value * json_rc_string( int code ){
 }
 
 /*
-** UNTESTED!!!
-**
 ** Returns the current request's JSON authentication token, or NULL if
 ** none is found. The token's memory is owned by (or shared with)
 ** g.json.cgiCx.
@@ -230,14 +229,21 @@ static cson_value * json_auth_token(){
       /* reminder to self: cson_cgi does not have access to the cookies
          because fossil's core consumes them. Thus we cannot use "agpc"
          here. We use "a" (App-specific) as a place to store fossil's
-         cookie value.
+         cookie value. Reminder #2: in server mode cson_cgi also doesn't
+         have access to the GET parameters because of how the QUERY_STRING
+         is set. That's on my to-fix list for cson_cgi (feeding it our own
+         query string).
       */;
-    if( g.json.authToken){
+    if(g.json.authToken && cson_value_is_string(g.json.authToken)){
       /* tell fossil to use this login info.
          
-         FIXME: because the JSON bits don't carry around login_cookie_name(),
-         there is a login hijacking window here. We need to change the
-         JSON auth token to be in the form: login_cookie_name()=...
+         FIXME: because the JSON bits don't carry around
+         login_cookie_name(), there is a potential login hijacking
+         window here. We may need to change the JSON auth token to be
+         in the form: login_cookie_name()=...
+
+         Then again, the hardened cookie value helps ensure that
+         only a proper key/value match is valid.
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
     }else if( g.isCGI ){
@@ -859,12 +865,28 @@ cson_value * json_page_login(void){
 /*
 ** Impl of /json/logout.
 **
-** Shortcomings: this never reports failure, as we don't go through
-** the trouble of actually checking whether the user is logged in or
-** not.
 */
 cson_value * json_page_logout(void){
-  login_clear_login_data();
+  cson_value const *token = g.json.authToken;
+    /* Remember that json_bootstrap() replaces the login cookie with
+       the JSON auth token if the request contains it. If the reqest
+       is missing the auth token then this will fetch fossil's
+       original cookie. Either way, it's what we want :).
+
+       We require the auth token to avoid someone maliciously
+       trying to log someone else out (not 100% sure if that
+       would be possible, given fossil's hardened cookie, but
+       i'll assume it would be for the time being).
+    */
+    ;
+  if(!token){
+    g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
+  }else{
+    login_clear_login_data();
+    g.json.authToken = NULL /* memory is owned by g.json.cgiCx, but
+                               now lives only in the cson_cgi garbage
+                               collector.*/;
+  }
   return NULL;
 }
 

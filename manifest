@@ -1,5 +1,5 @@
-C dropped\sback\sto\sa\ssimpler\stimestamp\sgeneration\smechanism.\sThanks\sto\sGe\sWeijers\sfor\sthe\sinput.
-D 2011-09-17T01:25:47.274
+C logout\snow\sfails\sif\sthe\sauth\stoken\sis\snot\savailable\sto\sit\s(as\sa\ssanity\scheck\sand\spotentially\sstop\ssomeone\sfrom\slogging\sout\ssomeone\selse).
+D 2011-09-17T14:24:24.326
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,9 +91,9 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 69a355ed78471ed13661121448df027922204048
+F src/json.c 83cd08872e4132293538d19a6d5a8c2289616b92
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 950704eb87e211509395f495d74639ce8541fe67
+F src/login.c ee7228d5c0b48c87b8b0d80dd49ba534f4402862
 F src/main.c c3f2d11f7ac307622c57e4a613856bf387c2e4cb
 F src/main.mk 815a3a160bc963c106eb755ff3253755c9df5b88
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -329,7 +329,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 388c9888afe93db29790f65580d6b1e0a2e6835a
-R f4221b337c0f4c93d76a39972fcc089c
+P 147f4bfb62bfb948b6a63fb60ec7a9327690cc54
+R c30c2346257e4e6a622489ff664d7797
 U stephan
-Z 44452f14bc4ae84cbef312cd98a7f09b
+Z ed8071271da1469bab9424a7068ed59a

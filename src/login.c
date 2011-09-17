@@ -291,11 +291,21 @@ void login_clear_login_data(){
   if(!g.userUid){
     return;
   }else{
+    char const * cookie = login_cookie_name(); 
     /* To logout, change the cookie value to an empty string */
-    cgi_set_cookie(login_cookie_name(), "",
+    cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
     db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
                   "  cexpire=0 WHERE uid=%d", g.userUid);
+    cgi_replace_parameter(cookie, NULL)
+      /* At the time of this writing, cgi_replace_parameter() was
+      ** "NULL-value-safe", and i'm hoping the NULL doesn't cause any
+      ** downstream problems here. We could alternately use "" here.
+      */
+      ;
+    /* Potential improvement: do we want/need to skip this step for
+    ** the guest user?
+    */
   }
 }
 
