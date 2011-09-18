@@ -847,16 +847,20 @@ cson_value * json_page_cap(void){
   char * zCap;
   Stmt q;
   cson_object * obj = cson_value_get_object(payload);
-  if( g.zLogin ){
-    cson_object_set( obj, "userName",
-                     cson_value_new_string(g.zLogin,strlen(g.zLogin)) );
-  }
-  db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
+  db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
   if( db_step(&q)==SQLITE_ROW ){
-    char const * zCap = (char const *)sqlite3_column_text(q.pStmt,0);
-    if( zCap ){
+    /* reminder: we don't use g.zLogin because it's 0 for the guest
+       user and the HTML UI appears to currently allow the name to be
+       changed (but doing so would break other code). */
+    char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
+    if( str ){
+      cson_object_set( obj, "userName",
+                       cson_value_new_string(str,strlen(str)) );
+    }
+    str = (char const *)sqlite3_column_text(q.pStmt,1);
+    if( str ){
       cson_object_set( obj, "capabilities",
-                       cson_value_new_string(zCap,strlen(zCap)) );
+                       cson_value_new_string(str,strlen(str)) );
     }
   }
   db_finalize(&q);
@@ -1064,7 +1068,7 @@ cson_value * json_page_anon_password(void){
   cson_object_set(o, "seed",
                   cson_value_new_integer( (cson_int_t)seed )
                   );
-  cson_object_set(o, "captcha",
+  cson_object_set(o, "password",
                   cson_value_new_string( zCaptcha, strlen(zCaptcha) )
                   );
   return v;
@@ -1189,21 +1193,35 @@ cson_value * json_page_wiki(void){
 }
 
 /*
+** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
+** (but planned) pages/commands.
+*/
+static cson_value * json_page_nyi(void){
+  g.json.resultCode = FSL_JSON_E_NYI;
+  return NULL;
+}
+
+
+/*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
 */
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
-{"anonymousPassword", json_page_anon_password, 1},
+{"anonymousPassword",json_page_anon_password, 1},
+{"branch", json_page_nyi,0},
 {"cap", json_page_cap, 0},
 {"HAI",json_page_version,0},
-{"login",json_page_login,1/*should be >0. Only 0 for dev/testing purposes.*/},
-{"logout",json_page_logout,1/*should be >0. Only 0 for dev/testing purposes.*/},
+{"login",json_page_login,1},
+{"logout",json_page_logout,1},
 {"stat",json_page_stat,0},
+{"tag", json_page_nyi,0},
+{"ticket", json_page_nyi,0},
+{"user", json_page_nyi,0},
 {"version",json_page_version,0},
 {"wiki",json_page_wiki,0},
 /* Last entry MUST have a NULL name. */
-{NULL,NULL}
+{NULL,NULL,0}
 };
 
 /*
@@ -1223,7 +1241,7 @@ void json_page_top(void){
   /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, cmd, 0 );
+    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
     return;
   }else if( pageDef->runMode < 0 /*CLI only*/){
     rc = FSL_JSON_E_WRONG_MODE;
@@ -1245,19 +1263,22 @@ void json_page_top(void){
 /*
 ** COMMAND: json
 **
-** Usage: %fossil json subcommand
+** Usage: %fossil json SUBCOMMAND
 **
 ** The commands include:
 **
+**   cap
 **   stat
 **   version (alias: HAI)
 **
 **
 ** TODOs:
 **
-**   wiki
+**   branch
+**   tag
+**   ticket
 **   timeline
-**   tickets
+**   wiki
 **   ...
 **
 */
