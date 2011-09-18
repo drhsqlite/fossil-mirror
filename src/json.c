@@ -897,23 +897,13 @@ cson_value * json_page_cap(void){
 /*
 ** Implementation of the /json/login page.
 **
-** NOT YET FINSIHED!
-** TODOs:
-**
-** - anonymous user login (requires separate handling
-** due to random password).
-**
-** - more testing with ONLY the JSON-specified authToken
-** (no cookie). In theory that works but we don't yet have
-** a non-browser client to play with.
-**
 */
 cson_value * json_page_login(void){
   static char preciseErrors =
 #if 0
     g.json.errorDetailParanoia ? 0 : 1
 #else
-    1
+    0
 #endif
     ;
   /*
