@@ -725,34 +725,35 @@ static int cson_data_source_FILE_n( void * state,
 }
 
 /*
-** Reads a JSON object from the first contentLen bytes of zIn.
-** On success 0 is returned and g.json.post is updated to hold
-** the content. On error non-0 is returned.
+** Reads a JSON object from the first contentLen bytes of zIn.  On
+** g.json.post is updated to hold the content. On error a
+** FSL_JSON_E_INVALID_REQUEST response is output and fossil_exit(0) is
+** called.
 */
-static int cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
+static void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   cson_value * jv = NULL;
   int rc;
   CgiPostReadState state;
-  cson_parse_info pinfo = cson_parse_info_empty;
   assert( 0 != contentLen );
   state.fh = zIn;
   state.len = contentLen;
   state.pos = 0;
-  rc = cson_parse( &jv, cson_data_source_FILE_n, &state, NULL, &pinfo );
-  if( rc ){
-#if 0
-    fprintf(stderr, "%s: Parsing POST as JSON failed: code=%d (%s) line=%u, col=%u\n",
-            __FILE__, rc, cson_rc_string(rc), pinfo.line, pinfo.col );
-#endif
-    return rc;
-  }
-  rc = json_gc_add( "$POST", jv, 1 );
-  if( 0 == rc ){
+  rc = cson_parse( &jv, cson_data_source_FILE_n, &state, NULL, NULL );
+  if(rc){
+    goto invalidRequest;
+  }else{
+    json_gc_add( "POST.JSON", jv, 1 );
     g.json.post.v = jv;
     g.json.post.o = cson_value_get_object( jv );
-    assert( g.json.post.o && "FIXME: also support an Array as POST data node." ); 
+    if( !g.json.post.o ){ /* we don't support non-Object (Array) requests */
+      goto invalidRequest;
+    }
   }
-  return rc;
+  return;
+  invalidRequest:
+  cgi_set_content_type(json_guess_content_type());
+  json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  fossil_exit(0);
 }
 
 
@@ -766,6 +767,7 @@ void cgi_init(void){
   const char *zType;
   int len;
   json_main_bootstrap();
+  g.isCGI = 1;
   cgi_destination(CGI_BODY);
 
   z = (char*)P("HTTP_COOKIE");
@@ -811,11 +813,22 @@ void cgi_init(void){
               || fossil_strcmp(zType,"application/javascript")){
       g.json.isJsonMode = 1;
       cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
-      cgi_set_content_type("application/json")
-        /* FIXME: guess a proper content type value based on the
-           Accept header.  We have code for this in cson_cgi.
-        */
-        ;
+      /* FIXMEs:
+
+      - See if fossil really needs g.cgiIn to be set for this purpose
+      (i don't think it does). If it does then fill g.cgiIn and
+      refactor to parse the JSON from there.
+      
+      - After parsing POST JSON, copy the "first layer" of keys/values
+      to cgi_setenv(), honoring the upper-case distinction used
+      in add_param_list(). However...
+
+      - If we do that then we might get a disconnect in precedence of
+      GET/POST arguments. i prefer for GET entries to take precedence
+      over like-named POST entries, but in order for that to happen we
+      need to process QUERY_STRING _after_ reading the POST data.
+      */
+      cgi_set_content_type(json_guess_content_type());
     }
   }
 

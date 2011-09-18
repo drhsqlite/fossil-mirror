@@ -1,5 +1,5 @@
-C Factored\sout\scson_cgi\sbits\s-\snow\susing\sfossil's\sCGI\sbits.\sRemoved\scson_cgi\sfrom\scson_amalgamation\s(cuts\sits\ssize\sconsiderably).\sSeems\sto\sstill\swork,\sand\sthis\sremoves\ssome\sdiscrepancies\sin\show\sCGI/server\smodes\sare\shandled.
-D 2011-09-18T04:31:49.037
+C More\scleanups\sto\sthe\scson_cgi\sremoval\srefactoring.\sAdded\scommon\s"indent"\sparameter\sto\scontrol\sindentation\sof\sJSON\s(uses\scson_output_opt.indentation\ssemantics).
+D 2011-09-18T05:45:43.989
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -59,7 +59,7 @@ F src/blob.c efc709083a0943d87e6fba9f947f846117d6075d
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c f82059d7389d1084705d91ce2467aba2a7b5ddd7
+F src/cgi.c bddbe9ea132cc35f7c2b221b0aaefb7af58374bd
 F src/checkin.c 70f872d9aa1d807ae969531ebdf3f06492cfe85f
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -91,11 +91,11 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 1809644eda8196b87471608b96483851c6e0c3d3
+F src/json.c 2645a736c96890dad41644003ece403eeda238af
 F src/json_detail.h ce44c06ef333f552a6b59f38021c4c746faef804
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c ee7228d5c0b48c87b8b0d80dd49ba534f4402862
-F src/main.c ca3e4958a3408148d34f872bca8f172c1e4f68f5
+F src/login.c 24ed636f58906d346c21b0f92d4c330f6cfa9b63
+F src/main.c 67c8e830666c86ba37ed989f655268068c48b818
 F src/main.mk 815a3a160bc963c106eb755ff3253755c9df5b88
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -330,7 +330,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5a9e567966c25502bbc77573263d4933a237ed8b
-R d91e18cdc160eb12c43ad1d9108769ff
+P 4cf968144093bb856a42e49911f0d04a277abc9c
+R 34c316f231c77dbf05f4af1adc6fcec5
 U stephan
-Z da22df0dbb495498878ab641921f0c1e
+Z 01a5a6ce1f82287371b26955c7f5fcb8

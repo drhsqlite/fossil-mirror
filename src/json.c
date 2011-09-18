@@ -228,6 +228,52 @@ int json_setenv( char const * zKey, cson_value * v ){
   return cson_object_set( g.json.param.o, zKey, v );
 }
 
+/*
+** Guesses a RESPONSE Content-Type value based (primarily) on the
+** HTTP_ACCEPT header.
+**
+** It will try to figure out if the client can support
+** application/json or application/javascript, and will fall back to
+** text/plain if it cannot figure out anything more specific.
+**
+** Returned memory is static and immutable.
+**
+*/
+char const * json_guess_content_type(){
+  char const * cset;
+  char doUtf8;
+  cset = PD("HTTP_ACCEPT_CHARSET",NULL);
+  doUtf8 = ((NULL == cset) || (NULL!=strstr("utf-8",cset)))
+    ? 1 : 0;
+  if( g.json.jsonp ){
+    return doUtf8
+      ? "application/javascript; charset=utf-8"
+      : "application/javascript";
+  }else{
+    /*
+      Content-type
+      
+      If the browser does not sent an ACCEPT for application/json
+      then we fall back to text/plain.
+    */
+    char const * cstr;
+    cstr = PD("HTTP_ACCEPT",NULL);
+    if( NULL == cstr ){
+      return doUtf8
+        ? "application/json; charset=utf-8"
+        : "application/json";
+    }else{
+      if( strstr( cstr, "application/json" )
+          || strstr( cstr, "*/*" ) ){
+        return doUtf8
+          ? "application/json; charset=utf-8"
+          : "application/json";
+      }else{
+        return "text/plain";
+      }
+    }
+  }
+}
 
 /*
 ** Returns the current request's JSON authentication token, or NULL if
@@ -322,7 +368,6 @@ static void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
   cson_value * pathSplit = NULL;
-  cson_array * ar = NULL;
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
   if( once ){
     return;
@@ -336,13 +381,20 @@ static void json_mode_bootstrap(){
     /* workaround for server mode, so we see it as CGI mode. */
     g.isCGI = 1;
   }
+  if(! g.json.post.v ){
+    /* If cgi_init() reads POSTed JSON then it sets the content type.
+       If it did not then we need to set it.
+    */
+    cgi_set_content_type(json_guess_content_type());
+  }
+
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
 #endif
 
   g.json.cmd.v = cson_value_new_array();
-  ar = g.json.cmd.a = cson_value_get_array(g.json.cmd.v);
+  g.json.cmd.a = cson_value_get_array(g.json.cmd.v);
   json_gc_add( FossilJsonKeys.commandPath, g.json.cmd.v, 1 );
   /*
     The following if/else block translates the PATH_INFO path (in
@@ -353,16 +405,13 @@ static void json_mode_bootstrap(){
     avoid CLI-only special-case handling in other code, e.g.
     json_command_arg().
   */
-  if( zPath ){/* either CLI or server mode... */
-    /* Translate fossil's PATH_INFO into cson_cgi for later
-       convenience, to help consolidate how we handle CGI/server
-       modes. This block is hit when running in plain server mode.
-    */
+  if( zPath ){/* Either CGI or server mode... */
+    /* Translate PATH_INFO into JSON for later convenience. */
     char const * p = zPath /* current byte */;
     char const * head = p  /* current start-of-token */;
     unsigned int len = 0   /* current token's lengh */;
     assert( g.isCGI && "g.isCGI should have been set by now." );
-    for( ;*p!='?'; ++p){
+    for( ; ; ++p){
       if( !*p || ('/' == *p) ){
         if( len ){
           cson_value * part;
@@ -375,7 +424,7 @@ static void json_mode_bootstrap(){
           dehttpize(zPart);
           part = cson_value_new_string(zPart, strlen(zPart));
           free(zPart);
-          cson_array_append( ar, part );
+          cson_array_append( g.json.cmd.a, part );
           len = 0;
         }
         if( !*p ){
@@ -396,7 +445,7 @@ static void json_mode_bootstrap(){
         continue;
       }
       part = cson_value_new_string(arg,strlen(arg));
-      cson_array_append(ar, part);
+      cson_array_append(g.json.cmd.a, part);
     }
   }
   
@@ -410,6 +459,27 @@ static void json_mode_bootstrap(){
            g.json.reqPayload.v is-not-a Object.
         */;
   }
+
+  do{/* set up JSON out formatting options. */
+    unsigned char indent = g.isCGI ? 0 : 1;
+    cson_value const * indentV = json_getenv("indent");
+    if(indentV){
+      if(cson_value_is_string(indentV)){
+        int n = atoi(cson_string_cstr(cson_value_get_string(indentV)));
+        indent = (n>0)
+          ? (unsigned char)n
+          : 0;
+      }else if(cson_value_is_number(indentV)){
+        double n = cson_value_get_integer(indentV);
+        indent = (n>0)
+          ? (unsigned char)n
+          : 0;
+      }
+    }
+    g.json.outOpt.indentation = indent;
+    g.json.outOpt.addNewline = g.isCGI ? 0 : 1;
+  }while(0);
+
   json_auth_token()/* will copy our auth token, if any, to fossil's core. */;
   if( g.isCGI ){
     login_check_credentials()/* populates g.perm */;
@@ -932,16 +1002,17 @@ cson_value * json_page_stat(void){
   i64 t, fsize;
   int n, m;
   const char *zDb;
-  enum { BufLen = 200 };
+  enum { BufLen = 1000 };
   char zBuf[BufLen];
   cson_value * jv = NULL;
   cson_object * jo = NULL;
   cson_value * jv2 = NULL;
   cson_object * jo2 = NULL;
-#if 0 /* FIXME: credentials */
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return NULL; }
-#endif
+  if( !g.perm.Read ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();
@@ -1118,6 +1189,15 @@ void json_cmd_top(void){
   int rc = 1002;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef;
+  memset( &g.perm, 0xff, sizeof(g.perm) )
+    /* In CLI mode fossil does not use permissions
+       and they all default to false. We enable them
+       here because (A) fossil doesn't use them in local
+       mode but (B) having them set gives us one less
+       difference in the CLI/CGI/Server-mode JSON
+       handling.
+    */
+    ;
   json_main_bootstrap();
   json_mode_bootstrap();
   if( g.argc<3 ){

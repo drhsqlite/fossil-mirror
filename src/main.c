@@ -182,6 +182,7 @@ struct Global {
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
     cson_output_opt outOpt;    /* formatting options for JSON mode. */
     cson_value * authToken;    /* authentication token */
+    char const * jsonp;        /* Name of JSONP function wrapper. */
     struct {                   /* "garbage collector" */
       cson_value * v;
       cson_object * o;
@@ -311,7 +312,7 @@ int main(int argc, char **argv){
 #endif
   g.json.outOpt = cson_output_opt_empty;
   g.json.outOpt.addNewline = 1;
-  g.json.outOpt.indentation = 1 /* FIXME: make configurable */;
+  g.json.outOpt.indentation = 1 /* in CGI/server mode this can be configured */;
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";

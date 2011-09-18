@@ -953,10 +953,15 @@ void login_as_user(const char *zUser){
 ** a redirect to the "login" page.
 */
 void login_needed(void){
-  const char *zUrl = PD("REQUEST_URI", "index");
-  cgi_redirect(mprintf("login?g=%T", zUrl));
-  /* NOTREACHED */
-  assert(0);
+  if(g.json.isJsonMode){
+    json_err( FSL_JSON_E_DENIED, NULL, 1 );
+    fossil_exit(0);
+  }else{
+    const char *zUrl = PD("REQUEST_URI", "index");
+    cgi_redirect(mprintf("login?g=%T", zUrl));
+    /* NOTREACHED */
+    assert(0);
+  }
 }
 
 /*
