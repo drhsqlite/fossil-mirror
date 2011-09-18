@@ -171,21 +171,39 @@ struct Global {
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
   struct FossilJsonBits {
-    int isJsonMode;            /* True if running in JSON mode, else false. This changes
-                                  how errors are reported. In JSON mode we try to always
-                                  output JSON-form error responses.
+    int isJsonMode;            /* True if running in JSON mode, else
+                                  false. This changes how errors are
+                                  reported. In JSON mode we try to
+                                  always output JSON-form error
+                                  responses and always exit() with
+                                  code 0 to avoid an HTTP 500 error.
                                */
-    int cmdOffset;             /* Tells us which PATH_INFO/CLI args
+    int resultCode;            /* used for passing back specific codes from /json callbacks. */
+    int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
+    cson_output_opt outOpt;    /* formatting options for JSON mode. */
+    cson_value * authToken;    /* authentication token */
+    struct {                   /* "garbage collector" */
+      cson_value * v;
+      cson_object * o;
+    } gc;
+    struct {                   /* JSON POST data. */
+      cson_value * v;
+      cson_array * a;
+      int offset;              /* Tells us which PATH_INFO/CLI args
                                   part holds the "json" command, so
                                   that we can account for sub-repos
                                   and path prefixes.  This is handled
                                   differently for CLI and CGI modes.
                                */
-    int resultCode;            /* used for passing back specific codes from /json callbacks. */
-    int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
-    cson_cgi_cx cgiCx;         /* cson_cgi context */
-    cson_output_opt outOpt;    /* formatting options for JSON mode. */
-    cson_value * authToken;    /* authentication token */
+    } cmd;
+    struct {                   /* JSON POST data. */
+      cson_value * v;
+      cson_object * o;
+    } post;
+    struct {                   /* GET/COOKIE params in JSON form. */
+      cson_value * v;
+      cson_object * o;
+    } param;
     struct {
       cson_value * v;
       cson_object * o;
@@ -261,7 +279,9 @@ static int name_search(
 ** used by fossil.
 */
 void fossil_atexit() {
-  cson_cgi_cx_clean(&g.json.cgiCx);
+
+  cson_value_free(g.json.gc.v);
+  memset(&g.json, 0, sizeof(g.json));
   if(g.db){
     db_close(0);
   }
@@ -289,7 +309,6 @@ int main(int argc, char **argv){
 #else
   g.json.errorDetailParanoia = 0;
 #endif
-  g.json.cgiCx = cson_cgi_cx_empty;
   g.json.outOpt = cson_output_opt_empty;
   g.json.outOpt.addNewline = 1;
   g.json.outOpt.indentation = 1 /* FIXME: make configurable */;
@@ -347,38 +366,12 @@ int main(int argc, char **argv){
                  "%s: use \"help\" for more information\n",
                  argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
   }
-  rc = cson_cgi_init(&g.json.cgiCx, g.argc, (char const * const *)g.argv, NULL)
-    /* Reminder: cson_cgi_init() may process the POST data before
-       fossil gets to, but it is configured to only read
-       application/[json/javascript] and text/plain. form-urlencoded
-       and x-fossil-* data will be consumed by fossil's cgi_init().
-
-       Note that we set up the CGI bits even when not running in CGI
-       mode because some of cson_cgi's facilities are useful in
-       non-CGI contexts and we use those in the CLI variants of the
-       JSON commands.
-
-       FIXME: do some analysis of the request path (HTTP mode) or
-       CLI args (CLI mode) and only call this if the command is
-       a JSON-mode command. We can only do that easily from here
-       if we use e.g. /json/foo instead of /foo.json, since we
-       have a common prefix.
-     */
-    ;
   if(rc){
     fossil_fatal("%s: unrecoverable error while initializing JSON CGI bits: "
                  "cson error code #%d (%s)\n",
                  argv[0], rc, cson_rc_string(rc));
-  }else{
-    if( NULL != cson_cgi_env_get_obj( &g.json.cgiCx, 'p', 0 ) ){
-      /* if cson_cgi read the POST data then we're certainly in JSON
-         mode. If it didn't then we have to delay this decision until
-         the JSON family of callbacks is called.
-      */
-      g.json.isJsonMode = 1;
-    }
-    atexit( fossil_atexit );
   }
+  atexit( fossil_atexit );
   aCommand[idx].xFunc();
   fossil_exit(0);
   /*NOT_REACHED*/

@@ -510,6 +510,7 @@ static void add_param_list(char *z, int terminator){
     if( fossil_islower(zName[0]) ){
       cgi_set_parameter_nocopy(zName, zValue);
     }
+    json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
   }
 }
 
@@ -683,6 +684,78 @@ static void process_multipart_form_data(char *z, int len){
   }        
 }
 
+
+/*
+** Internal helper for cson_data_source_FILE_n().
+*/
+typedef struct CgiPostReadState_ {
+    FILE * fh;
+    unsigned int len;
+    unsigned int pos;
+} CgiPostReadState;
+
+/*
+** cson_data_source_f() impl which reads only up to
+** a specified amount of data from its input FILE.
+** state MUST be a full populated (CgiPostReadState*).
+*/
+static int cson_data_source_FILE_n( void * state,
+                                    void * dest,
+                                    unsigned int * n ){
+    if( ! state || !dest || !n ) return cson_rc.ArgError;
+    else {
+      CgiPostReadState * st = (CgiPostReadState *)state;
+      if( st->pos >= st->len ){
+        *n = 0;
+        return 0;
+      } else if( !*n || ((st->pos + *n) > st->len) ){
+        return cson_rc.RangeError;
+      }else{
+        unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
+        if( ! rsz ){
+          *n = rsz;
+          return feof(st->fh) ? 0 : cson_rc.IOError;
+        }else{
+          *n = rsz;
+          st->pos += *n;
+          return 0;
+        }
+      }
+    }
+}
+
+/*
+** Reads a JSON object from the first contentLen bytes of zIn.
+** On success 0 is returned and g.json.post is updated to hold
+** the content. On error non-0 is returned.
+*/
+static int cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
+  cson_value * jv = NULL;
+  int rc;
+  CgiPostReadState state;
+  cson_parse_info pinfo = cson_parse_info_empty;
+  assert( 0 != contentLen );
+  state.fh = zIn;
+  state.len = contentLen;
+  state.pos = 0;
+  rc = cson_parse( &jv, cson_data_source_FILE_n, &state, NULL, &pinfo );
+  if( rc ){
+#if 0
+    fprintf(stderr, "%s: Parsing POST as JSON failed: code=%d (%s) line=%u, col=%u\n",
+            __FILE__, rc, cson_rc_string(rc), pinfo.line, pinfo.col );
+#endif
+    return rc;
+  }
+  rc = json_gc_add( "$POST", jv, 1 );
+  if( 0 == rc ){
+    g.json.post.v = jv;
+    g.json.post.o = cson_value_get_object( jv );
+    assert( g.json.post.o && "FIXME: also support an Array as POST data node." ); 
+  }
+  return rc;
+}
+
+
 /*
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
@@ -692,7 +765,15 @@ void cgi_init(void){
   char *z;
   const char *zType;
   int len;
+  json_main_bootstrap();
   cgi_destination(CGI_BODY);
+
+  z = (char*)P("HTTP_COOKIE");
+  if( z ){
+    z = mprintf("%s",z);
+    add_param_list(z, ';');
+  }
+  
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = mprintf("%s",z);
@@ -700,11 +781,13 @@ void cgi_init(void){
   }
 
   z = (char*)P("REMOTE_ADDR");
-  if( z ) g.zIpAddr = mprintf("%s", z);
+  if( z ){
+    g.zIpAddr = mprintf("%s", z);
+  }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
-  if( !g.json.isJsonMode && (len>0 && zType) ){/* in JSON mode this is delegated to the cson_cgi API.*/
+  if( len>0 && zType ){
     blob_zero(&g.cgiIn);
     if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
@@ -723,17 +806,19 @@ void cgi_init(void){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
+    }else if( fossil_strcmp(zType, "application/json")
+              || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
+              || fossil_strcmp(zType,"application/javascript")){
+      g.json.isJsonMode = 1;
+      cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
+      cgi_set_content_type("application/json")
+        /* FIXME: guess a proper content type value based on the
+           Accept header.  We have code for this in cson_cgi.
+        */
+        ;
     }
-    /* FIXME: treat application/json and text/plain as unencoded
-       JSON data.
-    */
   }
 
-  z = (char*)P("HTTP_COOKIE");
-  if( z ){
-    z = mprintf("%s",z);
-    add_param_list(z, ';');
-  }
 }
 
 /*

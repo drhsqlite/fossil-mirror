@@ -22,12 +22,6 @@
 ** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit
 **
 **
-** Notable FIXMEs:
-**
-** - The overlap between cson_cgi and fossil needs to be gotten rid
-** of because cson_cgi cannot get all the environment info it needs
-** when fossil is running in server mode. The goal is to remove all
-** of the cson_cgi bits.
 */
 #include "config.h"
 #include "VERSION.h"
@@ -160,6 +154,29 @@ char const * json_rc_cstr( int code ){
 }
 
 /*
+** Adds v to the API-internal cleanup mechanism. key must be a unique
+** key for the given element. Adding another item with that key may
+** free the previous one. If freeOnError is true then v is passed to
+** cson_value_free() if the key cannot be inserted, otherweise
+** ownership of v is not changed on error.
+**
+** Returns 0 on success.
+**
+*** On success, ownership of v is transfered to (or shared with)
+*** g.json.gc, and v will be valid until that object is cleaned up or
+*** its key is replaced via another call to this function.
+*/
+int json_gc_add( char const * key, cson_value * v, char freeOnError ){
+  int const rc = cson_object_set( g.json.gc.o, key, v );
+  assert( NULL != g.json.gc.o );
+  if( (0 != rc) && freeOnError ){
+    cson_value_free( v );
+  }
+  return rc;
+}
+
+
+/*
 ** Returns the value of json_rc_cstr(code) as a new JSON
 ** string, which is owned by the caller and must eventually
 ** be cson_value_free()d or transfered to a JSON container.
@@ -168,10 +185,54 @@ cson_value * json_rc_string( int code ){
   return cson_value_new_string( json_rc_cstr(code), 11 );
 }
 
+
+/*
+** Gets a POST/GET/COOKIE value. The returned memory is owned by the
+** g.json object (one of its sub-objects). Returns NULL if no match is
+** found.
+**
+** Precedence: GET, COOKIE, POST. COOKIE _should_ be last
+** but currently is not for internal order-of-init reasons.
+** Since fossil only uses one cookie, this is not a high-prio
+** problem.
+*/
+cson_value * json_getenv( char const * zKey ){
+  cson_value * rc;
+  rc = cson_object_get( g.json.param.o, zKey );
+  if( rc ){
+    return rc;
+  }else{
+    rc = cson_object_get( g.json.post.o, zKey );
+    if(rc){
+      return rc;
+    }else{
+      char const * cv = PD(zKey,NULL);
+      if(cv){/*transform it to JSON for later use.*/
+        rc = cson_value_new_string(cv,strlen(cv));
+        cson_object_set( g.json.param.o, zKey, rc );
+        return rc;
+      }
+    }
+  }
+  return NULL;
+}
+
+/*
+** Adds v to g.json.param.o using the given key. May cause
+** any prior item with that key to be destroyed (depends on
+** current reference count for that value).
+** On succes, transfers ownership of v to g.json.param.o.
+** On error ownership of v is not modified.
+*/
+int json_setenv( char const * zKey, cson_value * v ){
+  return cson_object_set( g.json.param.o, zKey, v );
+}
+
+
 /*
 ** Returns the current request's JSON authentication token, or NULL if
 ** none is found. The token's memory is owned by (or shared with)
-** g.json.cgiCx.
+** g.json.
 **
 ** If an auth token is found in the GET/POST JSON request data then
 ** fossil is given that data for use in authentication for this
@@ -188,38 +249,34 @@ static cson_value * json_auth_token(){
   if( !g.json.authToken ){
     /* Try to get an authorization token from GET parameter, POSTed
        JSON, or fossil cookie (in that order). */
-    g.json.authToken = cson_cgi_getenv(&g.json.cgiCx, "gp", FossilJsonKeys.authToken)
-      /* reminder to self: cson_cgi does not have access to the cookies
-         because fossil's core consumes them. Thus we cannot use "agpc"
-         here. We use "a" (App-specific) as a place to store fossil's
-         cookie value. Reminder #2: in server mode cson_cgi also doesn't
-         have access to the GET parameters because of how the QUERY_STRING
-         is set. That's on my to-fix list for cson_cgi (feeding it our own
-         query string).
-      */;
-    if(g.json.authToken && cson_value_is_string(g.json.authToken)){
+    g.json.authToken = json_getenv(FossilJsonKeys.authToken);
+    if(g.json.authToken
+       && cson_value_is_string(g.json.authToken)
+       && !PD(login_cookie_name(),NULL)){
       /* tell fossil to use this login info.
-         
-         FIXME: because the JSON bits don't carry around
-         login_cookie_name(), there is a potential login hijacking
-         window here. We may need to change the JSON auth token to be
-         in the form: login_cookie_name()=...
 
-         Then again, the hardened cookie value helps ensure that
-         only a proper key/value match is valid.
+      FIXME?: because the JSON bits don't carry around
+      login_cookie_name(), there is a potential login hijacking
+      window here. We may need to change the JSON auth token to be
+      in the form: login_cookie_name()=...
+
+      Then again, the hardened cookie value helps ensure that
+      only a proper key/value match is valid.
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
     }else if( g.isCGI ){
       /* try fossil's conventional cookie. */
       /* Reminder: chicken/egg scenario regarding db access in CLI
-         mode because login_cookie_name() needs the db. */
+         mode because login_cookie_name() needs the db. CLI
+         mode does not use any authentication, so we don't need
+         to support it here.
+      */
       char const * zCookie = P(login_cookie_name());
       if( zCookie && *zCookie ){
         /* Transfer fossil's cookie to JSON for downstream convenience... */
         cson_value * v = cson_value_new_string(zCookie, strlen(zCookie));
-        if( 0 == cson_cgi_gc_add( &g.json.cgiCx, FossilJsonKeys.authToken, v, 1 ) ){
-          g.json.authToken = v;
-        }
+        json_setenv( FossilJsonKeys.authToken, v );
+        g.json.authToken = v;
       }
     }
   }
@@ -227,9 +284,33 @@ static cson_value * json_auth_token(){
 }
 
 /*
-** Performs some common initialization of JSON-related state.
+** Initializes some JSON bits which need to be initialized relatively
+** early on. It should only be called from cgi_init() or
+** json_cmd_top() (early on in those functions).
+**
+** Initializes g.json.gc and g.json.param.
+*/
+void json_main_bootstrap(){
+  cson_value * v;
+  assert( (NULL == g.json.gc.v) && "cgi_json_bootstrap() was called twice!" );
+  v = cson_value_new_object();
+  g.json.gc.v = v;
+  g.json.gc.o = cson_value_get_object(v);
+
+  v = cson_value_new_object();
+  g.json.param.v = v;
+  g.json.param.o = cson_value_get_object(v);
+  json_gc_add("$PARAMS", v, 1);
+}
+
+
+/*
+** Performs some common initialization of JSON-related state.  Must be
+** called by the json_page_top() and json_cmd_top() dispatching
+** functions to set up the JSON stat used by the dispatched functions.
+**
 ** Implicitly sets up the login information state in CGI mode, but
-** does not perform any authentication here. It _might_ (haven't
+** does not perform any permissions checking. It _might_ (haven't
 ** tested this) die with an error if an auth cookie is malformed.
 **
 ** This must be called by the top-level JSON command dispatching code
@@ -240,8 +321,8 @@ static cson_value * json_auth_token(){
 static void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
-  cson_value * pathSplit =
-    cson_cgi_getenv(&g.json.cgiCx,"e","PATH_INFO_SPLIT");
+  cson_value * pathSplit = NULL;
+  cson_array * ar = NULL;
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
   if( once ){
     return;
@@ -250,7 +331,7 @@ static void json_mode_bootstrap(){
   }
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
-  g.json.cmdOffset = -1;
+  g.json.cmd.offset = -1;
   if( !g.isCGI && g.fullHttpReply ){
     /* workaround for server mode, so we see it as CGI mode. */
     g.isCGI = 1;
@@ -260,6 +341,9 @@ static void json_mode_bootstrap(){
   sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
 #endif
 
+  g.json.cmd.v = cson_value_new_array();
+  ar = g.json.cmd.a = cson_value_get_array(g.json.cmd.v);
+  json_gc_add( FossilJsonKeys.commandPath, g.json.cmd.v, 1 );
   /*
     The following if/else block translates the PATH_INFO path (in
     CLI/server modes) or g.argv (CLI mode) into an internal list so
@@ -269,68 +353,57 @@ static void json_mode_bootstrap(){
     avoid CLI-only special-case handling in other code, e.g.
     json_command_arg().
   */
-  if( pathSplit ){
-    /* cson_cgi already did this, so let's just re-use it. This does
-       not happen in "plain server" mode, but does in CGI mode.
+  if( zPath ){/* either CLI or server mode... */
+    /* Translate fossil's PATH_INFO into cson_cgi for later
+       convenience, to help consolidate how we handle CGI/server
+       modes. This block is hit when running in plain server mode.
     */
+    char const * p = zPath /* current byte */;
+    char const * head = p  /* current start-of-token */;
+    unsigned int len = 0   /* current token's lengh */;
     assert( g.isCGI && "g.isCGI should have been set by now." );
-    cson_cgi_setenv( &g.json.cgiCx,
-                     FossilJsonKeys.commandPath,
-                     pathSplit );
-  }else{ /* either CLI or server mode... */
-    cson_value * arV       /* value to store path in */;
-    cson_array * ar        /* the "real" array object */;
-    arV = cson_value_new_array();
-    ar = cson_value_get_array(arV);
-    cson_cgi_setenv( &g.json.cgiCx,
-                     FossilJsonKeys.commandPath,
-                     arV );
-    if( zPath ){
-      /* Translate fossil's PATH_INFO into cson_cgi for later
-         convenience, to help consolidate how we handle CGI/server
-         modes. This block is hit when running in plain server mode.
-      */
-      char const * p = zPath /* current byte */;
-      char const * head = p  /* current start-of-token */;
-      unsigned int len = 0   /* current token's lengh */;
-      assert( g.isCGI && "g.isCGI should have been set by now." );
-      for( ;*p!='?'; ++p){
-        if( !*p || ('/' == *p) ){
-          if( len ){
-            cson_value * part;
-            assert( head != p );
-            part = cson_value_new_string(head, len);
-            cson_array_append( ar, part );
-            len = 0;
-          }
-          if( !*p ){
-            break;
-          }
-          head = p+1;
-          continue;
+    for( ;*p!='?'; ++p){
+      if( !*p || ('/' == *p) ){
+        if( len ){
+          cson_value * part;
+          char * zPart;
+          assert( head != p );
+          zPart = (char*)malloc(len+1);
+          assert( zPart != NULL );
+          memcpy(zPart, head, len);
+          zPart[len] = 0;
+          dehttpize(zPart);
+          part = cson_value_new_string(zPart, strlen(zPart));
+          free(zPart);
+          cson_array_append( ar, part );
+          len = 0;
         }
-        ++len;
-      }
-    }else{
-      /* assume CLI mode */
-      int i;
-      char const * arg;
-      cson_value * part;
-      assert( (!g.isCGI) && "g.isCGI set and we do not expect that to be the case here." );
-      for(i = 1/*skip argv[0]*/; i < g.argc; ++i ){
-        arg = g.argv[i];
-        if( !arg || !*arg ){
-          continue;
+        if( !*p ){
+          break;
         }
-        part = cson_value_new_string(arg,strlen(arg));
-        cson_array_append(ar, part);
+        head = p+1;
+        continue;
       }
+      ++len;
+    }
+  }else{/* assume CLI mode */
+    int i;
+    char const * arg;
+    cson_value * part;
+    for(i = 1/*skip argv[0]*/; i < g.argc; ++i ){
+      arg = g.argv[i];
+      if( !arg || !*arg ){
+        continue;
+      }
+      part = cson_value_new_string(arg,strlen(arg));
+      cson_array_append(ar, part);
     }
   }
+  
   /* g.json.reqPayload exists only to simplify some of our access to
      the request payload. We currently only use this in the context of
      Object payloads, not Arrays, strings, etc. */
-  g.json.reqPayload.v = cson_cgi_getenv( &g.json.cgiCx, "p", "payload" );
+  g.json.reqPayload.v = cson_object_get( g.json.post.o, "payload" );
   if( g.json.reqPayload.v ){
     g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
         /* g.json.reqPayload.o may legally be NULL, which means only that
@@ -361,22 +434,19 @@ static void json_mode_bootstrap(){
 ** purposes, but i haven't yet looked for it.
 */
 static char const * json_command_arg(unsigned char ndx){
-  cson_array * ar = cson_value_get_array(
-                      cson_cgi_getenv(&g.json.cgiCx,
-                                      "a",
-                                      FossilJsonKeys.commandPath));
+  cson_array * ar = g.json.cmd.a;
   assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
-  if( g.json.cmdOffset < 0 ){
+  if( g.json.cmd.offset < 0 ){
     /* first-time setup. */
     short i = 0;
-#define NEXT cson_string_cstr( \
-                 cson_value_get_string(                     \
-                   cson_array_get(ar,i)  \
+#define NEXT cson_string_cstr(          \
+                 cson_value_get_string( \
+                   cson_array_get(ar,i) \
                    ))
     char const * tok = NEXT;
     while( tok ){
       if( 0==strncmp("json",tok,4) ){
-        g.json.cmdOffset = i;
+        g.json.cmd.offset = i;
         break;
       }
       ++i;
@@ -384,11 +454,11 @@ static char const * json_command_arg(unsigned char ndx){
     }
   }
 #undef NEXT
-  if( g.json.cmdOffset < 0 ){
+  if(g.json.cmd.offset < 0){
     return NULL;
   }else{
-    ndx = g.json.cmdOffset + ndx;
-    return cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmdOffset + ndx )));
+    ndx = g.json.cmd.offset + ndx;
+    return cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmd.offset + ndx )));
   }
 }
 
@@ -396,7 +466,7 @@ static char const * json_command_arg(unsigned char ndx){
 ** If g.json.reqPayload.o is NULL then NULL is returned, else the
 ** given property is searched for in the request payload.  If found it
 ** is returned. The returned value is owned by (or shares ownership
-** with) g.json.cgiCx, and must NOT be cson_value_free()'d by the
+** with) g.json, and must NOT be cson_value_free()'d by the
 ** caller.
 */
 static cson_value * json_payload_property( char const * key ){
@@ -428,8 +498,10 @@ typedef struct JsonPageDef{
   */
   char const * name;
   /*
-  ** Returns a payload object for the response.
-  ** If it returns a non-NULL value, the caller owns it.
+  ** Returns a payload object for the response.  If it returns a
+  ** non-NULL value, the caller owns it.  To trigger an error this
+  ** function should set g.json.resultCode to a value from the
+  ** FossilJsonCodes enum.
   */
   cson_value * (*func)();
   /*
@@ -488,6 +560,7 @@ static unsigned int json_timestamp(){
 
 }
 #endif
+
 
 /*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
@@ -570,7 +643,7 @@ cson_value * json_response_skeleton( int resultCode,
     tmp = cson_value_new_string(pMsg,strlen(pMsg));
     SET("resultText");
   }
-  tmp = cson_cgi_getenv(&g.json.cgiCx, "gp", "requestId");
+  tmp = json_getenv("requestId");
   if( tmp ) cson_object_set( o, "requestId", tmp );
   if( NULL != payload ){
     if( resultCode ){
@@ -584,12 +657,8 @@ cson_value * json_response_skeleton( int resultCode,
 #undef SET
 
   if(0){/*Only for debuggering, add some info to the response.*/
-    tmp = cson_cgi_env_get_val(&g.json.cgiCx,'a', 0);
-    if(tmp){
-      cson_object_set( o, "$APP", tmp );
-    }
-    tmp = cson_value_new_integer( g.json.cmdOffset );
-    cson_object_set( o, "cmdOffset", tmp );
+    tmp = cson_value_new_integer( g.json.cmd.offset );
+    cson_object_set( o, "cmd.offset", tmp );
     cson_object_set( o, "isCGI", cson_value_new_bool( g.isCGI ) );
   }
 
@@ -667,21 +736,16 @@ cson_value * json_page_version(void){
   return jval;
 }
 
-#if 0
-/* we have a disconnect here between fossil's server-mode QUERY_STRING
-   handling and cson_cgi's.
+/*
+** Returns the string form of a json_getenv() value, but ONLY
+** If that value is-a String. Non-strings are not converted
+** to strings for this purpose. Returned memory is owned by
+** g.json or fossil..
 */
-static cson_value * json_getenv( char const *zWhichEnv, char const * zKey ){
-  return cson_cgi_getenv(&g.json.cgiCx, zWhichEnv, zKey);
+static char const * json_getenv_cstr( char const * zKey ){
+  return cson_value_get_cstr( json_getenv(zKey) );
 }
-static char const * json_getenv_cstr( char const *zWhichEnv, char const * zKey ){
-  char const * rc = cson_value_get_cstr( json_getenv(zWhichEnv, zKey) );
-  if( !rc && zWhichEnv && (NULL!=strstr(zWhichEnv,"g")) ){
-    rc = PD(zKey,NULL);
-  }
-  return rc;
-}
-#endif
+
 
 /*
 ** Implementation for /json/cap
@@ -855,9 +919,7 @@ cson_value * json_page_logout(void){
     g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
   }else{
     login_clear_login_data();
-    g.json.authToken = NULL /* memory is owned by g.json.cgiCx, but
-                               now lives only in the cson_cgi garbage
-                               collector.*/;
+    g.json.authToken = NULL /* memory is owned elsewhere.*/;
   }
   return NULL;
 }
@@ -1008,7 +1070,6 @@ void json_page_top(void){
   cson_value * payload = NULL;
   cson_value * root = NULL;
   JsonPageDef const * pageDef = NULL;
-  cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
   json_mode_bootstrap();
   cmd = json_command_arg(1);
   /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
@@ -1057,6 +1118,7 @@ void json_cmd_top(void){
   int rc = 1002;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef;
+  json_main_bootstrap();
   json_mode_bootstrap();
   if( g.argc<3 ){
     goto usage;
@@ -1066,7 +1128,6 @@ void json_cmd_top(void){
   if( !cmd || !*cmd ){
     goto usage;
   }
-  cgi_set_content_type( cson_cgi_guess_content_type(&g.json.cgiCx) );
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
     json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 1 );
