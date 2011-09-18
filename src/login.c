@@ -147,7 +147,7 @@ static char *abbreviated_project_code(const char *zFullCode){
 ** The zCS parameter is the "captcha seed" used for a specific
 ** anonymous login request.
 */
-static int isValidAnonymousLogin(
+int login_is_valid_anonymous(
   const char *zUsername,  /* The username.  Must be "anonymous" */
   const char *zPassword,  /* The supplied password */
   const char *zCS         /* The captcha seed value */
@@ -277,6 +277,46 @@ void login_set_user_cookie(
   }
 }
 
+/* Sets a cookie for an anonymous user login, which looks like this:
+**
+**    HASH/TIME/anonymous
+**
+** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which IPADDR
+** is the abbreviated IP address and SECRET is captcha-secret.
+**
+** If either zIpAddr or zRemoteAddr are NULL then REMOTE_ADDR
+** is used.
+**
+** If zCookieDest is not NULL then the generated cookie is assigned to
+** *zCookieDest and the caller must eventually free() it.
+*/
+void login_set_anon_cookie(char const * zIpAddr, char ** zCookieDest ){
+  char const *zNow;            /* Current time (julian day number) */
+  char *zCookie;               /* The login cookie */
+  char const *zCookieName;     /* Name of the login cookie */
+  Blob b;                      /* Blob used during cookie construction */
+  char * zRemoteAddr;     /* Abbreviated IP address */
+  if(!zIpAddr){
+    zIpAddr = PD("REMOTE_ADDR","nil");
+  }
+  zRemoteAddr = ipPrefix(zIpAddr);
+  zCookieName = login_cookie_name();
+  zNow = db_text("0", "SELECT julianday('now')");
+  assert( zCookieName && zRemoteAddr && zIpAddr && zNow );
+  blob_init(&b, zNow, -1);
+  blob_appendf(&b, "/%s/%s", zRemoteAddr, db_get("captcha-secret",""));
+  sha1sum_blob(&b, &b);
+  zCookie = mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
+  blob_reset(&b);
+  cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
+  if( zCookieDest ){
+    *zCookieDest = zCookie;
+  }else{
+    free(zCookie);
+  }
+
+}
+
 /*
 ** "Unsets" the login cookie (insofar as cookies can be unset) and
 ** clears the current user's (g.userUid) login information from the
@@ -296,16 +336,15 @@ void login_clear_login_data(){
     cgi_set_cookie(cookie, "",
                    login_cookie_path(), -86400);
     db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
-                  "  cexpire=0 WHERE uid=%d", g.userUid);
+                  "  cexpire=0 WHERE uid=%d"
+                  "  AND login NOT IN ('anonymous','guest',"
+                  "  'developer','reader')", g.userUid);
     cgi_replace_parameter(cookie, NULL)
       /* At the time of this writing, cgi_replace_parameter() was
       ** "NULL-value-safe", and i'm hoping the NULL doesn't cause any
       ** downstream problems here. We could alternately use "" here.
       */
       ;
-    /* Potential improvement: do we want/need to skip this step for
-    ** the guest user?
-    */
   }
 }
 
@@ -330,7 +369,6 @@ void login_page(void){
   int uid;                     /* User id loged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
-  char *zRemoteAddr;           /* Abbreviated IP address of requestor */
 
   login_check_credentials();
   zUsername = P("u");
@@ -385,31 +423,9 @@ void login_page(void){
     }
   }
   zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
-  zRemoteAddr = ipPrefix(zIpAddr);     /* Abbreviated IP address */
-  uid = isValidAnonymousLogin(zUsername, zPasswd, P("cs"));
+  uid = login_is_valid_anonymous(zUsername, zPasswd, P("cs"));
   if( uid>0 ){
-    /* Successful login as anonymous.  Set a cookie that looks like
-    ** this:
-    **
-    **    HASH/TIME/anonymous
-    **
-    ** Where HASH is the sha1sum of TIME/IPADDR/SECRET, in which IPADDR
-    ** is the abbreviated IP address and SECRET is captcha-secret.
-    */
-    char *zNow;                  /* Current time (julian day number) */
-    char *zCookie;               /* The login cookie */
-    const char *zCookieName;     /* Name of the login cookie */
-    Blob b;                      /* Blob used during cookie construction */
-
-    zCookieName = login_cookie_name();
-    zNow = db_text("0", "SELECT julianday('now')");
-    blob_init(&b, zNow, -1);
-    blob_appendf(&b, "/%s/%s", zRemoteAddr, db_get("captcha-secret",""));
-    sha1sum_blob(&b, &b);
-    zCookie = sqlite3_mprintf("%s/%s/anonymous", blob_buffer(&b), zNow);
-    blob_reset(&b);
-    free(zNow);
-    cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), 6*3600);
+    login_set_anon_cookie(zIpAddr, NULL);
     record_login_attempt("anonymous", zIpAddr, 1);
     redirect_to_g();
   }
@@ -602,11 +618,11 @@ static int login_transfer_credentials(
 }
 
 /*
-** Lookup the uid for a user with zLogin and zCookie and zRemoteAddr.
-** Return 0 if not found.
+** Lookup the uid for a non-built-in user with zLogin and zCookie and
+** zRemoteAddr.  Return 0 if not found.
 **
-** Note that this only searches for logged-in entries with
-** matching zCookie (user.cookie) and zRemoteAddr (user.ipaddr)
+** Note that this only searches for logged-in entries with matching
+** zCookie (db: user.cookie) and zRemoteAddr (db: user.ipaddr)
 ** entries.
 */
 static int login_find_user(
@@ -633,12 +649,10 @@ static int login_find_user(
 }
 
 /*
-** This routine examines the login cookie to see if it exists and
-** and is valid.  If the login cookie checks out, it then sets 
-** global variables appropriately.  Global variables set include
-** g.userUid and g.zLogin and of the g.perm.Read family of permission
-** booleans.
-**
+** This routine examines the login cookie to see if it exists and and
+** is valid.  If the login cookie checks out, it then sets global
+** variables appropriately.  Global variables set include g.userUid
+** and g.zLogin and the g.perm family of permission booleans.
 */
 void login_check_credentials(void){
   int uid = 0;                  /* User id */
@@ -727,7 +741,7 @@ void login_check_credentials(void){
   }
 
   /* If no user found and the REMOTE_USER environment variable is set,
-  ** the accept the value of REMOTE_USER as the user.
+  ** then accept the value of REMOTE_USER as the user.
   */
   if( uid==0 ){
     const char *zRemoteUser = P("REMOTE_USER");
@@ -777,7 +791,7 @@ void login_check_credentials(void){
   }
 
   /* Set the capabilities */
-  login_set_capabilities(zCap, 0);
+  login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
 }
 
@@ -806,7 +820,7 @@ void login_set_anon_nobody_capabilities(void){
 }
 
 /*
-** Flags passed into the 2nd argument of login_set_capabilities().
+** Flags passed into the 2nd argument of login_set/replace_capabilities().
 */
 #if INTERFACE
 #define LOGIN_IGNORE_U   0x01         /* Ignore "u" */
@@ -814,10 +828,13 @@ void login_set_anon_nobody_capabilities(void){
 #endif
 
 /*
-** Set the global capability flags based on a capability string.
+** Adds all capability flags in zCap to g.perm.
 */
 void login_set_capabilities(const char *zCap, unsigned flags){
   int i;
+  if(NULL==zCap){
+    return;
+  }
   for(i=0; zCap[i]; i++){
     switch( zCap[i] ){
       case 's':   g.perm.Setup = 1;  /* Fall thru into Admin */
@@ -874,6 +891,14 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       }
     }
   }
+}
+
+/*
+** Zeroes out g.perm and calls login_set_capabilities(zCap,flags).
+*/
+void login_replace_capabilities(const char *zCap, unsigned flags){
+  memset(&g.perm, 0, sizeof(g.perm));
+  return login_set_capabilities(zCap, flags);
 }
 
 /*

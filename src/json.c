@@ -66,6 +66,7 @@ char const * json_err_str( int errCode ){
     C(NYI,"Not yet implemented.");
     C(AUTH,"Authentication error");
     C(LOGIN_FAILED,"Login failed");
+    C(LOGIN_FAILED_NOSEED,"Anonymous login attempt was missing password seed.");
     C(LOGIN_FAILED_NONAME,"Login failed - name not supplied");
     C(LOGIN_FAILED_NOPW,"Login failed - password not supplied");
     C(LOGIN_FAILED_NOTFOUND,"Login failed - no match found");
@@ -654,7 +655,7 @@ static unsigned int json_timestamp(){
 ** payload into the response.
 **
 */
-cson_value * json_response_skeleton( int resultCode,
+cson_value * json_create_response( int resultCode,
                                      cson_value * payload,
                                      char const * pMsg ){
   cson_value * v = NULL;
@@ -715,6 +716,19 @@ cson_value * json_response_skeleton( int resultCode,
   }
   tmp = json_getenv("requestId");
   if( tmp ) cson_object_set( o, "requestId", tmp );
+
+  if(0){
+    if(g.json.cmd.v){/* this is only intended for my own testing...*/
+      tmp = g.json.cmd.v;
+      SET("$commandPath");
+    }
+    if(g.json.param.v){/* this is only intended for my own testing...*/
+      tmp = g.json.param.v;
+      SET("$params");
+    }
+  }
+
+  /* Only add the payload to SUCCESS responses. Else delete it. */
   if( NULL != payload ){
     if( resultCode ){
       cson_value_free(payload);
@@ -724,6 +738,7 @@ cson_value * json_response_skeleton( int resultCode,
       SET("payload");
     }
   }
+
 #undef SET
 
   if(0){/*Only for debuggering, add some info to the response.*/
@@ -767,7 +782,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
   if( rc && !msg ){
     msg = json_err_str(rc);
   }
-  resp = json_response_skeleton(rc, NULL, msg);
+  resp = json_create_response(rc, NULL, msg);
   if( g.isCGI ){
     Blob buf = empty_blob;
     cgi_reset_content();
@@ -894,7 +909,7 @@ cson_value * json_page_login(void){
 #if 0
     g.json.errorDetailParanoia ? 0 : 1
 #else
-    0
+    1
 #endif
     ;
   /*
@@ -914,6 +929,9 @@ cson_value * json_page_login(void){
    */
   char const * name = cson_value_get_cstr(json_payload_property("name"));
   char const * pw = NULL;
+  char const * anonSeed = NULL;
+  cson_value * payload = NULL;
+  int uid = 0;
   if( !name ){
     name = PD("n",NULL);
     if( !name ){
@@ -926,7 +944,7 @@ cson_value * json_page_login(void){
       }
     }
   }
-
+  
   pw = cson_value_get_cstr(json_payload_property("password"));
   if( !pw ){
     pw = PD("p",NULL);
@@ -939,10 +957,41 @@ cson_value * json_page_login(void){
       ? FSL_JSON_E_LOGIN_FAILED_NOPW
       : FSL_JSON_E_LOGIN_FAILED;
     return NULL;
-  }else{
-    cson_value * payload = NULL;
-    int uid = 0;
+  }
+
+  if(0 == strcmp("anonymous",name)){
+    /* check captcha/seed values... */
+    enum { SeedBufLen = 100 /* in some JSON tests i once actually got an
+                           80-digit number.
+                        */
+    };
+    static char seedBuffer[SeedBufLen];
+    seedBuffer[0] = 0;
+    cson_value const * jseed = json_getenv("anonymousSeed");
+    if( !jseed ){
+      jseed = json_payload_property("anonymousSeed");
+      if( !jseed ){
+        jseed = json_getenv("cs") /* name used by HTML interface */;
+      }
+    }
+    if(jseed){
+      if( cson_value_is_number(jseed) ){
+        sprintf(seedBuffer, "%"CSON_INT_T_PFMT, cson_value_get_integer(jseed));
+        anonSeed = seedBuffer;
+      }else if( cson_value_is_string(jseed) ){
+        anonSeed = cson_string_cstr(cson_value_get_string(jseed));
+      }
+    }
+    if(!anonSeed){
+      g.json.resultCode = preciseErrors
+        ? FSL_JSON_E_LOGIN_FAILED_NOSEED
+        : FSL_JSON_E_LOGIN_FAILED;
+      return NULL;
+    }
+  }
+
 #if 0
+  {
     /* only for debugging the PD()-incorrect-result problem */
     cson_object * o = NULL;
     uid = login_search_uid( name, pw );
@@ -951,21 +1000,31 @@ cson_value * json_page_login(void){
     cson_object_set( o, "n", cson_value_new_string(name,strlen(name)));
     cson_object_set( o, "p", cson_value_new_string(pw,strlen(pw)));
     return payload;
-#else
-    uid = login_search_uid( name, pw );
-    if( !uid ){
-      g.json.resultCode = preciseErrors
-        ? FSL_JSON_E_LOGIN_FAILED_NOTFOUND
-        : FSL_JSON_E_LOGIN_FAILED;
-    }else{
-      char * cookie = NULL;
-      login_set_user_cookie(name, uid, &cookie);
-      payload = cson_value_new_string( cookie, strlen(cookie) );
-      free(cookie);
-    }
-    return payload;
-#endif
   }
+#else
+  uid = anonSeed
+    ? login_is_valid_anonymous(name, pw, anonSeed)
+    : login_search_uid(name, pw)
+    ;
+  if( !uid ){
+    g.json.resultCode = preciseErrors
+      ? FSL_JSON_E_LOGIN_FAILED_NOTFOUND
+      : FSL_JSON_E_LOGIN_FAILED;
+    return NULL;
+  }else{
+    char * cookie = NULL;
+    if(anonSeed){
+      login_set_anon_cookie(NULL, &cookie);
+    }else{
+      login_set_user_cookie(name, uid, &cookie);
+    }
+    payload = cookie
+      ? cson_value_new_string( cookie, strlen(cookie) )
+      : cson_value_null();
+    free(cookie);
+    return payload;
+  }
+#endif
 }
 
 /*
@@ -995,6 +1054,24 @@ cson_value * json_page_logout(void){
 }
 
 /*
+** Implementation of the /json/anonymousPassword page.
+*/
+cson_value * json_page_anon_password(void){
+  cson_value * v = cson_value_new_object();
+  cson_object * o = cson_value_get_object(v);
+  unsigned const int seed = captcha_seed();
+  char const * zCaptcha = captcha_decode(seed);
+  cson_object_set(o, "seed",
+                  cson_value_new_integer( (cson_int_t)seed )
+                  );
+  cson_object_set(o, "captcha",
+                  cson_value_new_string( zCaptcha, strlen(zCaptcha) )
+                  );
+  return v;
+}
+
+
+/*
 ** Implementation of the /json/stat page/command.
 **
 */
@@ -1008,7 +1085,6 @@ cson_value * json_page_stat(void){
   cson_object * jo = NULL;
   cson_value * jv2 = NULL;
   cson_object * jo2 = NULL;
-  login_check_credentials();
   if( !g.perm.Read ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
@@ -1118,6 +1194,7 @@ cson_value * json_page_wiki(void){
 */
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
+{"anonymousPassword", json_page_anon_password, 1},
 {"cap", json_page_cap, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,1/*should be >0. Only 0 for dev/testing purposes.*/},
@@ -1158,7 +1235,7 @@ void json_page_top(void){
     json_err(g.json.resultCode, NULL, 0);
   }else{
     blob_zero(&buf);
-    root = json_response_skeleton(rc, payload, NULL);
+    root = json_create_response(rc, payload, NULL);
     cson_output_Blob( root, &buf, NULL );
     cson_value_free(root);
     cgi_set_content(&buf)/*takes ownership of the buf memory*/;
@@ -1221,7 +1298,7 @@ void json_cmd_top(void){
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 1);
   }else{
-    payload = json_response_skeleton(rc, payload, NULL);
+    payload = json_create_response(rc, payload, NULL);
     cson_output_FILE( payload, stdout, &g.json.outOpt );
     cson_value_free( payload );
     if((0 != rc) && !g.isCGI){
