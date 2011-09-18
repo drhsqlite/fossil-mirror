@@ -960,8 +960,8 @@ cson_value * json_page_login(void){
                         */
     };
     static char seedBuffer[SeedBufLen];
-    seedBuffer[0] = 0;
     cson_value const * jseed = json_getenv("anonymousSeed");
+    seedBuffer[0] = 0;
     if( !jseed ){
       jseed = json_payload_property("anonymousSeed");
       if( !jseed ){
