@@ -40,9 +40,11 @@
 static const struct FossilJsonKeys_{
   char const * authToken;
   char const * commandPath;
+  char const * anonymousSeed;
 } FossilJsonKeys = {
   "authToken"  /*authToken*/,
-  "COMMAND_PATH" /*commandPath*/
+  "COMMAND_PATH" /*commandPath*/,
+  "anonymousSeed" /*anonymousSeed*/
 };
 
 /*
@@ -960,10 +962,10 @@ cson_value * json_page_login(void){
                         */
     };
     static char seedBuffer[SeedBufLen];
-    cson_value const * jseed = json_getenv("anonymousSeed");
+    cson_value const * jseed = json_getenv(FossilJsonKeys.anonymousSeed);
     seedBuffer[0] = 0;
     if( !jseed ){
-      jseed = json_payload_property("anonymousSeed");
+      jseed = json_payload_property(FossilJsonKeys.anonymousSeed);
       if( !jseed ){
         jseed = json_getenv("cs") /* name used by HTML interface */;
       }
@@ -1014,7 +1016,7 @@ cson_value * json_page_login(void){
     }
     payload = cookie
       ? cson_value_new_string( cookie, strlen(cookie) )
-      : cson_value_null();
+      : cson_value_null()/*why null instead of NULL?*/;
     free(cookie);
     return payload;
   }
