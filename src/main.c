@@ -445,7 +445,7 @@ void fossil_fatal(const char *zFormat, ...){
   z = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.json.isJsonMode ){
-    json_err( 0, z, 1 );
+    json_err( g.json.resultCode, z, 1 );
     if( g.isCGI ){
       rc = 0 /* avoid HTTP 500 */;
     }

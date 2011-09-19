@@ -22,6 +22,14 @@
 ** https://docs.google.com/document/d/1fXViveNhDbiXgCuE7QDXQOKeFzf2qNUkBEgiUvoqFN4/edit
 **
 **
+** Notes for hackers...
+**
+** Here's how command/page dispatching works: json_page_top() (in HTTP mode) or
+** json_cmd_top() (in CLI mode) catch the "json" path/command. Those functions then
+** dispatch to a JSON-mode-specific command/page handler with the type fossil_json_f().
+** See the API docs for that typedef (below) for the semantics of the callbacks.
+**
+**
 */
 #include "config.h"
 #include "VERSION.h"
@@ -33,6 +41,30 @@
 #include "cson_amalgamation.h"
 #include "json_detail.h" /* workaround for apparent enum limitation in makeheaders */
 #endif
+
+/*
+** Signature for JSON page/command callbacks. By the time the callback
+** is called, json_page_top() or json_cmd_top() will have set up the
+** JSON-related environment. Implementations may generate a "result
+** payload" of any JSON type by returning its value from this function
+** (ownership is tranferred to the caller). On error they should set
+** g.json.resultCode to one of the FossilJsonCodes values and return
+** either their payload object or NULL. Note that NULL is a legal
+** success value - it simply means the response will contain no
+** payload. If g.json.resultCode is non-zero when this function
+** returns then the top-level dispatcher will destroy any payload
+** returned by this function and will output a JSON error response
+** instead.
+**
+** All of the setup/response code is handled by the top dispatcher
+** functions and the callbacks concern themselves only with generating
+** the payload.
+**
+** It is imperitive that NO callback functions EVER output ANYTHING to
+** stdout, as that will effectively corrupt any HTTP output.
+*/
+typedef cson_value * (*fossil_json_f)();
+
 
 /*
 ** Holds keys used for various JSON API properties.
@@ -220,12 +252,24 @@ cson_value * json_getenv( char const * zKey ){
   return NULL;
 }
 
+
 /*
-** Adds v to g.json.param.o using the given key. May cause
-** any prior item with that key to be destroyed (depends on
-** current reference count for that value).
-** On succes, transfers ownership of v to g.json.param.o.
-** On error ownership of v is not modified.
+** Returns the string form of a json_getenv() value, but ONLY
+** If that value is-a String. Non-strings are not converted
+** to strings for this purpose. Returned memory is owned by
+** g.json or fossil..
+*/
+static char const * json_getenv_cstr( char const * zKey ){
+  return cson_value_get_cstr( json_getenv(zKey) );
+}
+
+
+/*
+** Adds v to g.json.param.o using the given key. May cause any prior
+** item with that key to be destroyed (depends on current reference
+** count for that value). On success, transfers (or shares) ownership
+** of v to (or with) g.json.param.o. On error ownership of v is not
+** modified.
 */
 int json_setenv( char const * zKey, cson_value * v ){
   return cson_object_set( g.json.param.o, zKey, v );
@@ -324,8 +368,9 @@ static cson_value * json_auth_token(){
       if( zCookie && *zCookie ){
         /* Transfer fossil's cookie to JSON for downstream convenience... */
         cson_value * v = cson_value_new_string(zCookie, strlen(zCookie));
-        json_setenv( FossilJsonKeys.authToken, v );
-        g.json.authToken = v;
+        if(0 == json_gc_add( FossilJsonKeys.authToken, v, 1 )){
+          g.json.authToken = v;
+        }
       }
     }
   }
@@ -468,15 +513,13 @@ static void json_mode_bootstrap(){
     cson_value const * indentV = json_getenv("indent");
     if(indentV){
       if(cson_value_is_string(indentV)){
-        int n = atoi(cson_string_cstr(cson_value_get_string(indentV)));
+        int const n = atoi(cson_string_cstr(cson_value_get_string(indentV)));
         indent = (n>0)
           ? (unsigned char)n
           : 0;
       }else if(cson_value_is_number(indentV)){
-        double n = cson_value_get_integer(indentV);
-        indent = (n>0)
-          ? (unsigned char)n
-          : 0;
+        cson_int_t const n = cson_value_get_integer(indentV);
+        indent = (n>0) ? (unsigned char)n : 0;
       }
     }
     g.json.outOpt.indentation = indent;
@@ -556,6 +599,7 @@ char const * json_auth_token_cstr(){
   return cson_value_get_cstr( json_auth_token() );
 }
 
+
 /*
 ** Holds name-to-function mappings for JSON page/command dispatching.
 **
@@ -574,9 +618,11 @@ typedef struct JsonPageDef{
   ** Returns a payload object for the response.  If it returns a
   ** non-NULL value, the caller owns it.  To trigger an error this
   ** function should set g.json.resultCode to a value from the
-  ** FossilJsonCodes enum.
+  ** FossilJsonCodes enum. If it sets an error value and returns
+  ** a payload, the payload will be destroyed (not sent with the
+  ** response).
   */
-  cson_value * (*func)();
+  fossil_json_f func;
   /*
   ** Which mode(s) of execution does func() support:
   **
@@ -628,13 +674,6 @@ static int json_dumbdown_rc( int code ){
   }
 }
 
-#if 0
-static unsigned int json_timestamp(){
-
-}
-#endif
-
-
 /*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
@@ -642,19 +681,17 @@ static unsigned int json_timestamp(){
 ** on error.
 **
 ** If payload is not NULL and resultCode is 0 then it is set as the
-** "payload" property of the returned object. If resultCode is non-0
-** then this function will destroy payload if it is not NULL. i.e.
-** onwership of payload is transfered to this function.
+** "payload" property of the returned object.  If resultCode is
+** non-zero and payload is not NULL then this function calls
+** cson_value_free(payload) and does not insert the payload into the
+** response. In either case, onwership of payload is transfered to
+** this function.
 **
-** pMsg is an optional message string (resultText) property of the
+** pMsg is an optional message string property (resultText) of the
 ** response. If resultCode is non-0 and pMsg is NULL then
 ** json_err_str() is used to get the error string. The caller may
 ** provide his own or may use an empty string to suppress the
 ** resultText property.
-**
-** If resultCode is non-zero and payload is not NULL then this
-** function calls cson_value_free(payload) and does not insert the
-** payload into the response.
 **
 */
 cson_value * json_create_response( int resultCode,
@@ -719,14 +756,19 @@ cson_value * json_create_response( int resultCode,
   tmp = json_getenv("requestId");
   if( tmp ) cson_object_set( o, "requestId", tmp );
 
-  if(0){
-    if(g.json.cmd.v){/* this is only intended for my own testing...*/
+  if(0){/* these are only intended for my own testing...*/
+    if(g.json.cmd.v){
       tmp = g.json.cmd.v;
       SET("$commandPath");
     }
-    if(g.json.param.v){/* this is only intended for my own testing...*/
+    if(g.json.param.v){
       tmp = g.json.param.v;
       SET("$params");
+    }
+    if(0){/*Only for debuggering, add some info to the response.*/
+      tmp = cson_value_new_integer( g.json.cmd.offset );
+      cson_object_set( o, "cmd.offset", tmp );
+      cson_object_set( o, "isCGI", cson_value_new_bool( g.isCGI ) );
     }
   }
 
@@ -742,13 +784,6 @@ cson_value * json_create_response( int resultCode,
   }
 
 #undef SET
-
-  if(0){/*Only for debuggering, add some info to the response.*/
-    tmp = cson_value_new_integer( g.json.cmd.offset );
-    cson_object_set( o, "cmd.offset", tmp );
-    cson_object_set( o, "isCGI", cson_value_new_bool( g.isCGI ) );
-  }
-
   goto ok;
   cleanup:
   cson_value_free(v);
@@ -758,22 +793,23 @@ cson_value * json_create_response( int resultCode,
 }
 
 /*
-** Outputs a JSON error response to g.httpOut.  If rc is 0 then
-** g.json.resultCode is used. If that is also 0 then the "Unknown
+** Outputs a JSON error response to either the cgi_xxx() family of
+** buffers (in CGI/server mode) or stdout (in CLI mode). If rc is 0
+** then g.json.resultCode is used. If that is also 0 then the "Unknown
 ** Error" code is used.
 **
-** If g.isCGI then the generated error object replaces any currently
-** buffered page output.
+** If g.isCGI then the generated JSON error response object replaces
+** any currently buffered page output. Because the output goes via
+** the cgi_xxx() family of functions, this function inherits any
+** compression which fossil does for its output.
 **
-** If alsoOutput is true AND g.isCGI then the cgi_reply() is called to
+** If alsoOutput is true AND g.isCGI then cgi_reply() is called to
 ** flush the output (and headers). Generally only do this if you are
 ** about to call exit().
 **
 ** !g.isCGI then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
-** This clears any previously buffered CGI content, replacing it with
-** JSON.
 */
 void json_err( int code, char const * msg, char alsoOutput ){
   int rc = code ? code : (g.json.resultCode
@@ -785,6 +821,14 @@ void json_err( int code, char const * msg, char alsoOutput ){
     msg = json_err_str(rc);
   }
   resp = json_create_response(rc, NULL, msg);
+  if(!resp){
+    /* about the only error case here is out-of-memory. DO NOT
+       call fossil_panic() here because that calls this function.
+    */
+    fprintf(stderr, "%s: Fatal error: could not allocate "
+            "response object.\n", fossil_nameofexe());
+    fossil_exit(1);
+  }
   if( g.isCGI ){
     Blob buf = empty_blob;
     cgi_reset_content();
@@ -821,16 +865,6 @@ cson_value * json_page_version(void){
   cson_object_set( jobj, "resultCodeParanoiaLevel",
                    cson_value_new_integer(g.json.errorDetailParanoia) );
   return jval;
-}
-
-/*
-** Returns the string form of a json_getenv() value, but ONLY
-** If that value is-a String. Non-strings are not converted
-** to strings for this purpose. Returned memory is owned by
-** g.json or fossil..
-*/
-static char const * json_getenv_cstr( char const * zKey ){
-  return cson_value_get_cstr( json_getenv(zKey) );
 }
 
 
@@ -1209,6 +1243,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"stat",json_page_stat,0},
 {"tag", json_page_nyi,0},
 {"ticket", json_page_nyi,0},
+{"timeline", json_page_nyi,0},
 {"user", json_page_nyi,0},
 {"version",json_page_version,0},
 {"wiki",json_page_wiki,0},
@@ -1217,9 +1252,65 @@ static const JsonPageDef JsonPageDefs[] = {
 };
 
 /*
+** Mapping of /json/wiki/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Wiki[] = {
+{"get", json_page_nyi, 0},
+{"list", json_page_nyi, 0},
+{"save", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Mapping of /json/ticket/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Ticket[] = {
+{"get", json_page_nyi, 0},
+{"list", json_page_nyi, 0},
+{"save", json_page_nyi, 1},
+{"create", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Mapping of /json/artifact/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Artifact[] = {
+{"vinfo", json_page_nyi, 0},
+{"finfo", json_page_nyi, 0},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Mapping of /json/branch/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Branch[] = {
+{"list", json_page_nyi, 0},
+{"create", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Mapping of /json/tag/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Tag[] = {
+{"list", json_page_nyi, 0},
+{"create", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+
+/*
 ** WEBPAGE: json
 **
 ** Pages under /json/... must be entered into JsonPageDefs.
+** This function dispatches them, and is the HTTP equivalent of
+** json_cmd_top().
 */
 void json_page_top(void){
   int rc = FSL_JSON_E_UNKNOWN_COMMAND;
@@ -1253,6 +1344,9 @@ void json_page_top(void){
 }
 
 /*
+** This function dispatches json commands and is the CLI equivalent of
+** json_page_top().
+**
 ** COMMAND: json
 **
 ** Usage: %fossil json SUBCOMMAND
@@ -1276,7 +1370,7 @@ void json_page_top(void){
 */
 void json_cmd_top(void){
   char const * cmd = NULL;
-  int rc = 1002;
+  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef;
   memset( &g.perm, 0xff, sizeof(g.perm) )
