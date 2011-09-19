@@ -1288,10 +1288,8 @@ static cson_value * json_wiki_list(void){
   while( SQLITE_ROW == db_step(&q) ){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
     if(!v){
-      cson_value_free(listV);
       goto error;
-    }
-    if( 0 != cson_array_append( list, v ) ){
+    }else if( 0 != cson_array_append( list, v ) ){
       cson_value_free(v);
       goto error;
     }
