@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\samalgamation\sto\sthe\slatest\s3.7.8\sbeta.
-D 2011-09-17T17:35:11.662
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.7.8\srelease.
+D 2011-09-19T19:13:06.075
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -119,8 +119,8 @@ F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c 88a33ed00b1d63bc3b08966ac1b6c5c470a3f6b7
-F src/sqlite3.h 7c9e4707e67ff127b8e009706ebc1315a0615fab
+F src/sqlite3.c bfcd74a655636b592c5dba6d0d5729c0f8e3b4de
+F src/sqlite3.h e5a972e50b340ca69159be449085642d4986e98e
 F src/stash.c bcfdf0313e0b1fa20249872a56ba7a88ea49e343
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c c4079841c98936994d9ea88a1834cbfdc424dc8a
@@ -326,7 +326,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4db5bd1111f21a2208b1a22f6dad88ea8d5f72b1
-R 41a5a1671da1fe007b2b3f388d8da7ae
+P b54b8e751a1d1dfb1cc5f17732d74f162a6e89f4
+R 20385bdcc2a0ac4532038a3e5bff6380
 U drh
-Z 36a767df94be0502beeae3da4b47c430
+Z d33b32453894448bc63f48408656aed2
