@@ -67,6 +67,15 @@ typedef cson_value * (*fossil_json_f)();
 
 
 /*
+** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
+** (but planned) pages/commands.
+*/
+static cson_value * json_page_nyi(void){
+  g.json.resultCode = FSL_JSON_E_NYI;
+  return NULL;
+}
+
+/*
 ** Holds keys used for various JSON API properties.
 */
 static const struct FossilJsonKeys_{
@@ -97,10 +106,10 @@ char const * json_err_str( int errCode ){
     C(TIMEOUT,"Timeout reached");
     C(ASSERT,"Assertion failed");
     C(ALLOC,"Resource allocation failed");
-    C(NYI,"Not yet implemented.");
+    C(NYI,"Not yet implemented");
     C(AUTH,"Authentication error");
     C(LOGIN_FAILED,"Login failed");
-    C(LOGIN_FAILED_NOSEED,"Anonymous login attempt was missing password seed.");
+    C(LOGIN_FAILED_NOSEED,"Anonymous login attempt was missing password seed");
     C(LOGIN_FAILED_NONAME,"Login failed - name not supplied");
     C(LOGIN_FAILED_NOPW,"Login failed - password not supplied");
     C(LOGIN_FAILED_NOTFOUND,"Login failed - no match found");
@@ -117,6 +126,7 @@ char const * json_err_str( int errCode ){
     C(STMT_BIND,"Statement parameter binding failed");
     C(STMT_EXEC,"Statement execution/stepping failed");
     C(DB_LOCKED,"Database is locked");
+    C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
 #undef C
     default:
       return "Unknown Error";
@@ -191,15 +201,21 @@ char const * json_rc_cstr( int code ){
 /*
 ** Adds v to the API-internal cleanup mechanism. key must be a unique
 ** key for the given element. Adding another item with that key may
-** free the previous one. If freeOnError is true then v is passed to
-** cson_value_free() if the key cannot be inserted, otherweise
-** ownership of v is not changed on error.
+** free the previous one (depending on its reference count). If
+** freeOnError is true then v is passed to cson_value_free() if the
+** key cannot be inserted, otherweise ownership of v is not changed on
+** error. Failure to insert a key may be caused by any of the
+** following:
+**
+** - Allocation error.
+** - g.json.gc.o is NULL
+** - key is NULL or empty.
 **
 ** Returns 0 on success.
 **
-*** On success, ownership of v is transfered to (or shared with)
-*** g.json.gc, and v will be valid until that object is cleaned up or
-*** its key is replaced via another call to this function.
+** On success, ownership of v is transfered to (or shared with)
+** g.json.gc, and v will be valid until that object is cleaned up or
+** its key is replaced via another call to this function.
 */
 int json_gc_add( char const * key, cson_value * v, char freeOnError ){
   int const rc = cson_object_set( g.json.gc.o, key, v );
@@ -254,10 +270,11 @@ cson_value * json_getenv( char const * zKey ){
 
 
 /*
-** Returns the string form of a json_getenv() value, but ONLY
-** If that value is-a String. Non-strings are not converted
-** to strings for this purpose. Returned memory is owned by
-** g.json or fossil..
+** Returns the string form of a json_getenv() value, but ONLY If that
+** value is-a String. Non-strings are not converted to strings for
+** this purpose. Returned memory is owned by g.json or fossil and is
+** valid until end-of-app or the given key is replaced in fossil's
+** internals via cgi_replace_parameter() and friends or json_setenv().
 */
 static char const * json_getenv_cstr( char const * zKey ){
   return cson_value_get_cstr( json_getenv(zKey) );
@@ -327,9 +344,11 @@ char const * json_guess_content_type(){
 ** none is found. The token's memory is owned by (or shared with)
 ** g.json.
 **
-** If an auth token is found in the GET/POST JSON request data then
-** fossil is given that data for use in authentication for this
-** session.
+** If an auth token is found in the GET/POST request data then fossil
+** is given that data for use in authentication for this
+** session. i.e. the GET/POST data overrides fossil's authentication
+** cookie value (if any) and also works with clients which do not
+** support cookies.
 **
 ** Must be called once before login_check_credentials() is called or
 ** we will not be able to replace fossil's internal idea of the auth
@@ -387,10 +406,22 @@ static cson_value * json_auth_token(){
 void json_main_bootstrap(){
   cson_value * v;
   assert( (NULL == g.json.gc.v) && "cgi_json_bootstrap() was called twice!" );
+
+  /* g.json.gc is our "garbage collector" - where we put JSON values
+     which need a long lifetime but don't have a logical parent to put
+     them in.
+  */
   v = cson_value_new_object();
   g.json.gc.v = v;
   g.json.gc.o = cson_value_get_object(v);
 
+  /*
+    g.json.param holds the JSONized counterpart of fossil's
+    cgi_parameter_xxx() family of data. We store them as JSON, as
+    opposed to using fossil's data directly, because we can retain
+    full type information for data this way (as opposed to it always
+    being of type string).
+  */
   v = cson_value_new_object();
   g.json.param.v = v;
   g.json.param.o = cson_value_get_object(v);
@@ -499,7 +530,8 @@ static void json_mode_bootstrap(){
   
   /* g.json.reqPayload exists only to simplify some of our access to
      the request payload. We currently only use this in the context of
-     Object payloads, not Arrays, strings, etc. */
+     Object payloads, not Arrays, strings, etc.
+  */
   g.json.reqPayload.v = cson_object_get( g.json.post.o, "payload" );
   if( g.json.reqPayload.v ){
     g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
@@ -508,7 +540,7 @@ static void json_mode_bootstrap(){
         */;
   }
 
-  do{/* set up JSON out formatting options. */
+  do{/* set up JSON output formatting options. */
     unsigned char indent = g.isCGI ? 0 : 1;
     cson_value const * indentV = json_getenv("indent");
     if(indentV){
@@ -526,8 +558,10 @@ static void json_mode_bootstrap(){
     g.json.outOpt.addNewline = g.isCGI ? 0 : 1;
   }while(0);
 
-  json_auth_token()/* will copy our auth token, if any, to fossil's core. */;
   if( g.isCGI ){
+    json_auth_token()/* will copy our auth token, if any, to fossil's
+                        core, which we need before we call
+                        login_check_credentials(). */;
     login_check_credentials()/* populates g.perm */;
   }
   else{
@@ -935,7 +969,10 @@ cson_value * json_page_cap(void){
 **
 */
 cson_value * json_page_login(void){
-  static char preciseErrors =
+  static char preciseErrors = /* if true, "complete" JSON error codes are used,
+                                 else they are "dumbed down" to a generic login
+                                 error code.
+                              */
 #if 0
     g.json.errorDetailParanoia ? 0 : 1
 #else
@@ -1199,34 +1236,75 @@ cson_value * json_page_stat(void){
 #undef SETBUF
 }
 
+
+static cson_value * json_wiki_list(void);
+
+/*
+** Mapping of /json/wiki/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Wiki[] = {
+{"get", json_page_nyi, 0},
+{"list", json_wiki_list, 0},
+{"save", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
 /*
 ** Implements the /json/wiki family of pages/commands. Far from
 ** complete.
 **
 */
-cson_value * json_page_wiki(void){
-  cson_value * jlist = NULL;
-  cson_value * rows = NULL;
-  Stmt q;
-  wiki_prepare_page_list(&q);
-  cson_sqlite3_stmt_to_json( q.pStmt, &jlist, 1 );
-  db_finalize(&q);
-  assert( NULL != jlist );
-  rows = cson_object_take( cson_value_get_object(jlist), "rows" );
-  assert( NULL != rows );
-  cson_value_free( jlist );
-  return rows;
+static cson_value * json_page_wiki(void){
+  JsonPageDef const * def;
+  char const * cmd = json_command_arg(2);
+  if( ! cmd ){
+    g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
+    return NULL;
+  }
+  def = json_handler_for_name( cmd, &JsonPageDefs_Wiki[0] );
+  if(!def){
+    g.json.resultCode = FSL_JSON_E_UNKNOWN_COMMAND;
+    return NULL;
+  }
+  else{
+    return (*def->func)();
+  }
 }
 
 /*
-** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
-** (but planned) pages/commands.
+** INTERIM implementation of /json/wiki/list
 */
-static cson_value * json_page_nyi(void){
-  g.json.resultCode = FSL_JSON_E_NYI;
-  return NULL;
+static cson_value * json_wiki_list(void){
+  cson_value * listV = NULL;
+  cson_array * list = NULL;
+  Stmt q;
+  db_prepare(&q,"SELECT"
+             " substr(tagname,6) as name"
+             " FROM tag WHERE tagname GLOB 'wiki-*'"
+             " ORDER BY lower(name)");
+  listV = cson_value_new_array();
+  list = cson_value_get_array(listV);
+  while( SQLITE_ROW == db_step(&q) ){
+    cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
+    if(!v){
+      cson_value_free(listV);
+      goto error;
+    }
+    if( 0 != cson_array_append( list, v ) ){
+      cson_value_free(v);
+      goto error;
+    }
+  }
+  db_finalize(&q);
+  goto end;
+  error:
+  g.json.resultCode = FSL_JSON_E_UNKNOWN;
+  cson_value_free(listV);
+  listV = NULL;
+  end:
+  return listV;
 }
-
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -1237,6 +1315,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"anonymousPassword",json_page_anon_password, 1},
 {"branch", json_page_nyi,0},
 {"cap", json_page_cap, 0},
+{"dir", json_page_nyi, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,1},
 {"logout",json_page_logout,1},
@@ -1251,16 +1330,6 @@ static const JsonPageDef JsonPageDefs[] = {
 {NULL,NULL,0}
 };
 
-/*
-** Mapping of /json/wiki/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Wiki[] = {
-{"get", json_page_nyi, 0},
-{"list", json_page_nyi, 0},
-{"save", json_page_nyi, 1},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
 
 /*
 ** Mapping of /json/ticket/XXX commands/paths to callbacks.
@@ -1400,7 +1469,7 @@ void json_cmd_top(void){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
-    payload = (pageDef->func)();
+    payload = (*pageDef->func)();
   }
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 1);
