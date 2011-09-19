@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.7.8\srelease.
-D 2011-09-19T19:13:06.075
+C Remove\sobsolete\sfiles
+D 2011-09-19T20:16:39.687
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -42,14 +42,9 @@ F autosetup/jimsh0.c 34440742f5fbff173a4970e8306f9e04d2d4a110
 F autosetup/local.tcl 472f0cba85bd22276208c4eac87d39a6a6e9273a
 F autosetup/system.tcl ed6b97bc52afddd6082c82e576c8ead0fe30936e
 F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
-F ci_cvs.txt 837df67f243330f601ed14e51761bc1528536dc1
-F ci_fossil.txt cf2b7a00fb594aa486f2bf953409d0d0429fd515
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
-F cvs2fossil.txt 3bce849e6e4a81eefd08fc28b6bbe806d2494b1a
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
-F kktodo.wiki 9fccabf05735653d8937ba9c635e1341b3a2a311
-F rse-notes.txt 743e75d49ad2679e6546579c0c63bf71db40f5e7
 F src/add.c be93e4716bbc54f3c4e6d91cd516992ccb4088fa
 F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
@@ -326,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b54b8e751a1d1dfb1cc5f17732d74f162a6e89f4
-R 20385bdcc2a0ac4532038a3e5bff6380
+P 8d4c5642777c3515038ab28d2a42cd94489f7052
+R 14f2e158ee45482b9c01a0f14b23b6e7
 U drh
-Z d33b32453894448bc63f48408656aed2
+Z 4ffce167329a27901e18d67dcc6a838a
