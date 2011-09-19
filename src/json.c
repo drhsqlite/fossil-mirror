@@ -1294,13 +1294,13 @@ static cson_value * json_wiki_list(void){
       goto error;
     }
   }
-  db_finalize(&q);
   goto end;
   error:
   g.json.resultCode = FSL_JSON_E_UNKNOWN;
   cson_value_free(listV);
   listV = NULL;
   end:
+  db_finalize(&q);
   return listV;
 }
 
