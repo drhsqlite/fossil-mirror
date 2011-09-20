@@ -496,6 +496,12 @@ void fossil_fatal_recursive(const char *zFormat, ...){
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
+  if( g.json.isJsonMode ){
+      /* The JSON API has no way of dealing with warnings and
+         outputing them here will corrupt the output.
+      */
+      return;
+  }
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
