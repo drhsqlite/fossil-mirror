@@ -43,11 +43,15 @@
 #endif
 
 /*
-** Signature for JSON page/command callbacks. By the time the callback
-** is called, json_page_top() or json_cmd_top() will have set up the
-** JSON-related environment. Implementations may generate a "result
-** payload" of any JSON type by returning its value from this function
-** (ownership is tranferred to the caller). On error they should set
+** Signature for JSON page/command callbacks. Each callback is
+** responsible for handling one JSON request/command and/or
+** dispatching to sub-commands.
+**
+** By the time the callback is called, json_page_top() (HTTP mode) or
+** json_cmd_top() (CLI mode) will have set up the JSON-related
+** environment. Implementations may generate a "result payload" of any
+** JSON type by returning its value from this function (ownership is
+** tranferred to the caller). On error they should set
 ** g.json.resultCode to one of the FossilJsonCodes values and return
 ** either their payload object or NULL. Note that NULL is a legal
 ** success value - it simply means the response will contain no
@@ -72,10 +76,13 @@
 ** the payload.
 **
 ** It is imperitive that NO callback functions EVER output ANYTHING to
-** stdout, as that will effectively corrupt any HTTP output.
+** stdout, as that will effectively corrupt any JSON output, and
+** almost certainly will corrupt any HTTP response headers. Output
+** sent to stderr ends up in my apache log, so that might be useful
+** for debuggering in some cases, but so such code should be left
+** enabled for non-debuggering builds.
 */
 typedef cson_value * (*fossil_json_f)(unsigned int depth);
-
 
 /*
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
@@ -90,13 +97,24 @@ static cson_value * json_page_nyi(unsigned int depth){
 ** Holds keys used for various JSON API properties.
 */
 static const struct FossilJsonKeys_{
-  char const * authToken;
+  /** maintainers: please keep alpha sorted (case-insensitive) */
   char const * commandPath;
   char const * anonymousSeed;
+  char const * authToken;
+  char const * payload;
+  char const * requestId;
+  char const * resultCode;
+  char const * resultText;
+  char const * timestamp;
 } FossilJsonKeys = {
-  "authToken"  /*authToken*/,
   "COMMAND_PATH" /*commandPath*/,
-  "anonymousSeed" /*anonymousSeed*/
+  "anonymousSeed" /*anonymousSeed*/,
+  "authToken"  /*authToken*/,
+  "payload" /* payload */,
+  "requestId" /*requestId*/,
+  "resultCode" /*resultCode*/,
+  "resultText" /*resultText*/,
+  "timestamp" /*timestamp*/
 };
 
 /*
@@ -550,7 +568,7 @@ static void json_mode_bootstrap(){
      the request payload. We currently only use this in the context of
      Object payloads, not Arrays, strings, etc.
   */
-  g.json.reqPayload.v = cson_object_get( g.json.post.o, "payload" );
+  g.json.reqPayload.v = cson_object_get( g.json.post.o, FossilJsonKeys.payload );
   if( g.json.reqPayload.v ){
     g.json.reqPayload.o = cson_value_get_object( g.json.reqPayload.v )
         /* g.json.reqPayload.o may legally be NULL, which means only that
@@ -767,7 +785,7 @@ cson_value * json_create_response( int resultCode,
   tmp = cson_value_new_string(MANIFEST_UUID,strlen(MANIFEST_UUID));
   SET("fossil");
  
-  {/* "timestamp" */
+  {/* timestamp */
     cson_int_t jsTime;
 #if 1
     jsTime = (cson_int_t)time(0);
@@ -793,19 +811,19 @@ cson_value * json_create_response( int resultCode,
     jsTime = (cson_int_t)db_int64(0, "SELECT strftime('%%s','now')");
 #endif
     tmp = cson_value_new_integer(jsTime);
-    SET("timestamp");
+    SET(FossilJsonKeys.timestamp);
   }
   if( 0 != resultCode ){
     if( ! pMsg ) pMsg = json_err_str(resultCode);
     tmp = json_rc_string(resultCode);
-    SET("resultCode");
+    SET(FossilJsonKeys.resultCode);
   }
   if( pMsg && *pMsg ){
     tmp = cson_value_new_string(pMsg,strlen(pMsg));
-    SET("resultText");
+    SET(FossilJsonKeys.resultText);
   }
-  tmp = json_getenv("requestId");
-  if( tmp ) cson_object_set( o, "requestId", tmp );
+  tmp = json_getenv(FossilJsonKeys.requestId);
+  if( tmp ) cson_object_set( o, FossilJsonKeys.requestId, tmp );
 
   if(0){/* these are only intended for my own testing...*/
     if(g.json.cmd.v){
@@ -830,7 +848,7 @@ cson_value * json_create_response( int resultCode,
       payload = NULL;
     }else{
       tmp = payload;
-      SET("payload");
+      SET(FossilJsonKeys.payload);
     }
   }
 
