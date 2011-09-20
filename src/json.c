@@ -595,15 +595,11 @@ static void json_mode_bootstrap(){
 ** In CLI mode the "path" is the list of arguments (skipping argv[0]).
 ** In server/CGI modes the path is taken from PATH_INFO.
 **
-**
-** Reminder to self: this breaks in CLI mode when called with an
-** abbreviated name because we rely on the full name "json" here. The
-** g object probably has the short form which we can use for our
-** purposes, but i haven't yet looked for it.
 */
 static char const * json_command_arg(unsigned char ndx){
   cson_array * ar = g.json.cmd.a;
   assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
+  assert((g.argc>1) && "Internal error - we never should have gotten this far.");
   if( g.json.cmd.offset < 0 ){
     /* first-time setup. */
     short i = 0;
@@ -613,7 +609,10 @@ static char const * json_command_arg(unsigned char ndx){
                    ))
     char const * tok = NEXT;
     while( tok ){
-      if( 0==strncmp("json",tok,4) ){
+      if( !g.isCGI/*workaround for "abbreviated name" in CLI mode*/
+          ? (0==strcmp(g.argv[1],tok))
+          : (0==strncmp("json",tok,4))
+          ){
         g.json.cmd.offset = i;
         break;
       }
@@ -1277,7 +1276,7 @@ static cson_value * json_page_wiki(unsigned int depth){
   JsonPageDef const * def;
   char const * cmd = json_command_arg(1+depth);
   if( ! cmd ){
-    g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
+    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
     return NULL;
   }
   def = json_handler_for_name( cmd, &JsonPageDefs_Wiki[0] );
