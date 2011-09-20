@@ -740,7 +740,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
 /*
 ** Create a temporary table suitable for storing timeline data.
 */
-static void timeline_temp_table(void){
+void timeline_temp_table(void){
   static const char zSql[] = 
     @ CREATE TEMP TABLE IF NOT EXISTS timeline(
     @   rid INTEGER PRIMARY KEY,
@@ -768,20 +768,20 @@ const char *timeline_query_for_www(void){
   static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
-    @   blob.rid,
-    @   uuid,
+    @   blob.rid AS blobRid,
+    @   uuid AS uuid,
     @   datetime(event.mtime,'localtime') AS timestamp,
-    @   coalesce(ecomment, comment),
-    @   coalesce(euser, user),
-    @   blob.rid IN leaf,
-    @   bgcolor,
-    @   event.type,
+    @   coalesce(ecomment, comment) AS comment,
+    @   coalesce(euser, user) AS user,
+    @   blob.rid IN leaf AS leaf,
+    @   bgcolor AS bgColor,
+    @   event.type AS eventType,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
-    @   tagid,
-    @   brief,
-    @   event.mtime
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags,
+    @   tagid AS tagid,
+    @   brief AS brief,
+    @   event.mtime AS mtime
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;

@@ -1291,18 +1291,29 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 };
 
 /*
-** Implements the /json/wiki family of pages/commands. Far from
-** complete.
+** A page/command dispatch helper for fossil_json_f() implementations.
+** depth should be the depth parameter passed to the fossil_json_f().
+** pages must be an array of JsonPageDef commands which we can
+** dispatch.  The final item in the array MUST have a NULL name
+** element.
 **
+** This function takes json_comand_arg(1+depth) and searches pages
+** for a matching name. If found then that page's func() is called
+** to fetch the payload, which is returned to the caller.
+**
+** On error, g.json.resultCode is set to one of the FossilJsonCodes
+** values.
 */
-static cson_value * json_page_wiki(unsigned int depth){
+static cson_value * json_page_dispatch_helper(unsigned int depth,
+                                              JsonPageDef const * pages){
   JsonPageDef const * def;
   char const * cmd = json_command_arg(1+depth);
+  assert( NULL != pages );
   if( ! cmd ){
     g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
     return NULL;
   }
-  def = json_handler_for_name( cmd, &JsonPageDefs_Wiki[0] );
+  def = json_handler_for_name( cmd, pages );
   if(!def){
     g.json.resultCode = FSL_JSON_E_UNKNOWN_COMMAND;
     return NULL;
@@ -1310,6 +1321,15 @@ static cson_value * json_page_wiki(unsigned int depth){
   else{
     return (*def->func)(1+depth);
   }
+}
+
+/*
+** Implements the /json/wiki family of pages/commands. Far from
+** complete.
+**
+*/
+static cson_value * json_page_wiki(unsigned int depth){
+  return json_page_dispatch_helper(depth,&JsonPageDefs_Wiki[0]);
 }
 
 /*
@@ -1344,6 +1364,117 @@ static cson_value * json_wiki_list(unsigned int depth){
   return listV;
 }
 
+
+static cson_value * json_timeline_ci(unsigned int depth);
+/*
+** Mapping of /json/timeline/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Timeline[] = {
+{"ci", json_timeline_ci, 0},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Implements the /json/timeline family of pages/commands. Far from
+** complete.
+**
+*/
+static cson_value * json_page_timeline(unsigned int depth){
+  return json_page_dispatch_helper(depth,&JsonPageDefs_Timeline[0]);
+}
+
+static int json_getenv_int(char const * pKey, int dflt ){
+  cson_value const * v = json_getenv(pKey);
+  if(!v){
+    return dflt;
+  }else if( cson_value_is_number(v) ){
+    return (int)cson_value_get_integer(v);
+  }else if( cson_value_is_string(v) ){
+    char const * sv = cson_string_cstr(cson_value_get_string(v));
+    assert( (NULL!=sv) && "This is quite unexpected." );
+    return sv ? atoi(sv) : dflt;
+  }else if( cson_value_is_bool(v) ){
+    return cson_value_get_bool(v) ? 1 : 0;
+  }else{
+    /* we should arguably treat JSON null as 0. */
+    return dflt;
+  }
+}
+
+/*
+** /json/timeline/ci
+**
+** Far from complete.
+*/
+static cson_value * json_timeline_ci(unsigned int depth){
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  cson_value * tmp = NULL;
+  int limit = json_getenv_int("n",10);
+  Stmt q;
+  Blob sql = empty_blob;
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  if( limit < 0 ) limit = 10;
+  timeline_temp_table();
+
+  blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
+  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append(&sql, "AND event.type IN('ci') ", -1);
+  blob_append(&sql, "ORDER BY mtime DESC ", -1);
+  if(limit){
+    blob_appendf(&sql,"LIMIT %d ",limit);
+  }
+  db_multi_exec(blob_buffer(&sql));
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+#define SET(K) cson_object_set(pay,K,tmp)
+
+#if 1
+  /* only for testing! */
+  tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
+  SET("timelineSql");
+#endif
+
+  blob_reset(&sql);
+  blob_append(&sql, "SELECT rid AS rid,"
+              " uuid AS uuid,"
+              " timestamp AS timestamp,"
+              " comment AS comment, "
+              " user AS user,"
+              " isleaf AS isLeaf,"
+              " bgcolor AS bgColor,"
+              " etype AS eventType,"
+              " taglist AS tagList," /*FIXME: split this into
+                                       a JSON array*/
+              " tagid AS tagId,"
+              " short AS shortText"
+              /* ignoring sortby field */
+              " FROM timeline",-1);
+  db_prepare(&q,blob_buffer(&sql));
+  tmp = NULL;
+  cson_sqlite3_stmt_to_json(q.pStmt, &tmp, 1);
+  db_finalize(&q);
+  if(tmp){
+    cson_value * rows = cson_object_take(cson_value_get_object(tmp),"rows");
+    assert(NULL != rows);
+    cson_value_free(tmp);
+    tmp = rows;
+  }
+  SET("timeline");
+#undef SET
+  goto ok;
+  error:
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
+  return payV;
+}
+
+
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -1360,7 +1491,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"stat",json_page_stat,0},
 {"tag", json_page_nyi,0},
 {"ticket", json_page_nyi,0},
-{"timeline", json_page_nyi,0},
+{"timeline", json_page_timeline,0},
 {"user", json_page_nyi,0},
 {"version",json_page_version,0},
 {"wiki",json_page_wiki,0},
