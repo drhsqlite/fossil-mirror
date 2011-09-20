@@ -56,6 +56,17 @@
 ** returned by this function and will output a JSON error response
 ** instead.
 **
+** The depth parameter comes from the dispatcher and tells the
+** callback what index in json_command_arg() its command/path starts.
+** e.g. when dispatching /json/foo/bar, the foo callback will get a
+** depth of 1 and the bar callback will get a depth of 2. This is only
+** useful for callbacks which use json_command_arg(), and the only
+** callbacks which do that are ones which dispatch to sub-pages
+** (e.g. /json/wiki/...).  This is a parameter, as opposed to simply
+** hard-coding the offset in each callback impl, so that refactoring
+** will (or should) be easier if we later reimplement the path/command
+** handling and arguments/path parts get moved around.
+**
 ** All of the setup/response code is handled by the top dispatcher
 ** functions and the callbacks concern themselves only with generating
 ** the payload.
@@ -63,14 +74,14 @@
 ** It is imperitive that NO callback functions EVER output ANYTHING to
 ** stdout, as that will effectively corrupt any HTTP output.
 */
-typedef cson_value * (*fossil_json_f)();
+typedef cson_value * (*fossil_json_f)(unsigned int depth);
 
 
 /*
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
 */
-static cson_value * json_page_nyi(void){
+static cson_value * json_page_nyi(unsigned int depth){
   g.json.resultCode = FSL_JSON_E_NYI;
   return NULL;
 }
@@ -238,13 +249,15 @@ cson_value * json_rc_string( int code ){
 
 
 /*
-** Gets a POST/GET/COOKIE value. The returned memory is owned by the
+** Gets a POST/GET/COOKIE/ENV value. The returned memory is owned by the
 ** g.json object (one of its sub-objects). Returns NULL if no match is
 ** found.
 **
-** Precedence: GET, COOKIE, POST. COOKIE _should_ be last
-** but currently is not for internal order-of-init reasons.
-** Since fossil only uses one cookie, this is not a high-prio
+** ENV means the system environment (getenv()).
+**
+** Precedence: GET, COOKIE, POST, ENV. COOKIE _should_ be after POST
+** but currently is not for internal order-of-init reasons. Since
+** fossil only uses one cookie, this is not a real/high-priority
 ** problem.
 */
 cson_value * json_getenv( char const * zKey ){
@@ -258,6 +271,9 @@ cson_value * json_getenv( char const * zKey ){
       return rc;
     }else{
       char const * cv = PD(zKey,NULL);
+      if(!cv){
+        cv = getenv(zKey);
+      }
       if(cv){/*transform it to JSON for later use.*/
         rc = cson_value_new_string(cv,strlen(cv));
         cson_object_set( g.json.param.o, zKey, rc );
@@ -301,7 +317,6 @@ int json_setenv( char const * zKey, cson_value * v ){
 ** text/plain if it cannot figure out anything more specific.
 **
 ** Returned memory is static and immutable.
-**
 */
 char const * json_guess_content_type(){
   char const * cset;
@@ -401,7 +416,10 @@ static cson_value * json_auth_token(){
 ** early on. It should only be called from cgi_init() or
 ** json_cmd_top() (early on in those functions).
 **
-** Initializes g.json.gc and g.json.param.
+** Initializes g.json.gc and g.json.param. This code does not (and
+** must not) rely on any of the fossil environment having been set
+** up. e.g. it must not use cgi_parameter() and friends because this
+** must be called before those data are initialized.
 */
 void json_main_bootstrap(){
   cson_value * v;
@@ -540,7 +558,7 @@ static void json_mode_bootstrap(){
         */;
   }
 
-  do{/* set up JSON output formatting options. */
+  {/* set up JSON output formatting options. */
     unsigned char indent = g.isCGI ? 0 : 1;
     cson_value const * indentV = json_getenv("indent");
     if(indentV){
@@ -556,7 +574,7 @@ static void json_mode_bootstrap(){
     }
     g.json.outOpt.indentation = indent;
     g.json.outOpt.addNewline = g.isCGI ? 0 : 1;
-  }while(0);
+  }
 
   if( g.isCGI ){
     json_auth_token()/* will copy our auth token, if any, to fossil's
@@ -729,8 +747,8 @@ static int json_dumbdown_rc( int code ){
 **
 */
 cson_value * json_create_response( int resultCode,
-                                     cson_value * payload,
-                                     char const * pMsg ){
+                                   cson_value * payload,
+                                   char const * pMsg ){
   cson_value * v = NULL;
   cson_value * tmp = NULL;
   cson_object * o = NULL;
@@ -882,7 +900,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
 **
 ** Returns the payload object (owned by the caller).
 */
-cson_value * json_page_version(void){
+cson_value * json_page_version(unsigned int depth){
   cson_value * jval = NULL;
   cson_object * jobj = NULL;
   jval = cson_value_new_object();
@@ -911,7 +929,7 @@ cson_value * json_page_version(void){
 ** This is primarily intended for debuggering, but may have
 ** a use in client code. (?)
 */
-cson_value * json_page_cap(void){
+cson_value * json_page_cap(unsigned int depth){
   cson_value * payload = cson_value_new_object();
   cson_value * sub = cson_value_new_object();
   char * zCap;
@@ -968,7 +986,7 @@ cson_value * json_page_cap(void){
 ** Implementation of the /json/login page.
 **
 */
-cson_value * json_page_login(void){
+cson_value * json_page_login(unsigned int depth){
   static char preciseErrors = /* if true, "complete" JSON error codes are used,
                                  else they are "dumbed down" to a generic login
                                  error code.
@@ -1098,7 +1116,7 @@ cson_value * json_page_login(void){
 ** Impl of /json/logout.
 **
 */
-cson_value * json_page_logout(void){
+cson_value * json_page_logout(unsigned int depth){
   cson_value const *token = g.json.authToken;
     /* Remember that json_bootstrap() replaces the login cookie with
        the JSON auth token if the request contains it. If the reqest
@@ -1123,7 +1141,7 @@ cson_value * json_page_logout(void){
 /*
 ** Implementation of the /json/anonymousPassword page.
 */
-cson_value * json_page_anon_password(void){
+cson_value * json_page_anon_password(unsigned int depth){
   cson_value * v = cson_value_new_object();
   cson_object * o = cson_value_get_object(v);
   unsigned const int seed = captcha_seed();
@@ -1142,7 +1160,7 @@ cson_value * json_page_anon_password(void){
 ** Implementation of the /json/stat page/command.
 **
 */
-cson_value * json_page_stat(void){
+cson_value * json_page_stat(unsigned int depth){
   i64 t, fsize;
   int n, m;
   const char *zDb;
@@ -1237,7 +1255,7 @@ cson_value * json_page_stat(void){
 }
 
 
-static cson_value * json_wiki_list(void);
+static cson_value * json_wiki_list(unsigned int depth);
 
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
@@ -1255,9 +1273,9 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 ** complete.
 **
 */
-static cson_value * json_page_wiki(void){
+static cson_value * json_page_wiki(unsigned int depth){
   JsonPageDef const * def;
-  char const * cmd = json_command_arg(2);
+  char const * cmd = json_command_arg(1+depth);
   if( ! cmd ){
     g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
     return NULL;
@@ -1268,14 +1286,14 @@ static cson_value * json_page_wiki(void){
     return NULL;
   }
   else{
-    return (*def->func)();
+    return (*def->func)(1+depth);
   }
 }
 
 /*
 ** INTERIM implementation of /json/wiki/list
 */
-static cson_value * json_wiki_list(void){
+static cson_value * json_wiki_list(unsigned int depth){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   Stmt q;
@@ -1397,7 +1415,7 @@ void json_page_top(void){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
-    payload = (*pageDef->func)();
+    payload = (*pageDef->func)(1);
   }
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 0);
@@ -1467,7 +1485,7 @@ void json_cmd_top(void){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
-    payload = (*pageDef->func)();
+    payload = (*pageDef->func)(1);
   }
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 1);

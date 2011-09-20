@@ -1,5 +1,5 @@
-C Moved\sa\sdb_finalize()\swhich\swould\snot\shave\sbeen\scalled\sin\sa\scouple\sof\serror\scases.
-D 2011-09-19T19:03:25.215
+C Refactored\spage/command\scallback\sto\stake\son\sargument\sto\ssimplify\scertain\sdispatching\sops.\sjson_getenv()\snow\sfalls\sback\sto\sgetenv()\sif\sneither\sthe\sPOST\sdata\snor\scgi_parameter()\scontains\sthe\srequested\svalue,\sbut\sthis\sis\sbasically\sa\sworkaround\sfor\smy\scurrent\sinability\sto\sadd\s--opt\ssupport\sin\sCLI\smode\s(due\sto\show\sHTTP/CLI\scommand\shandling\sis\sconsolidated).
+D 2011-09-20T15:48:45.327
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,7 +91,7 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 70458fcb588215840c617649d5a77576df7e1156
+F src/json.c 1402d30e4df27145ffda0a1494d6b3bc58a78136
 F src/json_detail.h a9e3e426108a2649832f4033dc3bda9e351b87f8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
@@ -330,7 +330,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65e946c7141c21e218a3da2c407233f297e05f06
-R 776f3520a150685137398f167c03e50a
+P afc1cec6a308d040b5a81f0241e5806352b1c332
+R 8b382c901e378c57050e3196b4e251aa
 U stephan
-Z 25c98c1e3db25fdeeaf82f521f85fff2
+Z 76edb4991b6b68486f5ff5740cbc288c
