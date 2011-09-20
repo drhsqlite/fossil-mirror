@@ -1414,12 +1414,17 @@ static cson_value * json_timeline_ci(unsigned int depth){
   int limit = json_getenv_int("n",10);
   Stmt q;
   Blob sql = empty_blob;
-  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
+  if( !g.perm.Read/* && !g.perm.RdTkt && !g.perm.RdWiki*/ ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
   if( limit < 0 ) limit = 10;
-  timeline_temp_table();
+  timeline_temp_table() /* FIXME: we need a JSON-specific one or some
+                           workarounds for timestamp and int-vs-bool
+                           values in the HTML version. i'd prefer the
+                           former, to avoid risking breaking HTML
+                           mode.
+                        */;
 
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
@@ -1442,7 +1447,7 @@ static cson_value * json_timeline_ci(unsigned int depth){
   blob_reset(&sql);
   blob_append(&sql, "SELECT rid AS rid,"
               " uuid AS uuid,"
-              " timestamp AS timestamp,"
+              " timestamp AS timestamp," /*FIXME: as epoch time*/
               " comment AS comment, "
               " user AS user,"
               " isleaf AS isLeaf,"
