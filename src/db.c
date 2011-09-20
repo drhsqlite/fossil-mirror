@@ -68,7 +68,7 @@ static void db_err(const char *zFormat, ...){
   va_end(ap);
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
-    if( g.isCGI ){
+    if( g.isHTTP ){
       rc = 0 /* avoid HTTP 500 */;
     }
   }else{

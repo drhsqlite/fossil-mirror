@@ -409,7 +409,7 @@ static cson_value * json_auth_token(){
       only a proper key/value match is valid.
       */
       cgi_replace_parameter( login_cookie_name(), cson_value_get_cstr(g.json.authToken) );
-    }else if( g.isCGI ){
+    }else if( g.isHTTP ){
       /* try fossil's conventional cookie. */
       /* Reminder: chicken/egg scenario regarding db access in CLI
          mode because login_cookie_name() needs the db. CLI
@@ -492,9 +492,9 @@ static void json_mode_bootstrap(){
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmd.offset = -1;
-  if( !g.isCGI && g.fullHttpReply ){
+  if( !g.isHTTP && g.fullHttpReply ){
     /* workaround for server mode, so we see it as CGI mode. */
-    g.isCGI = 1;
+    g.isHTTP = 1;
   }
   if(! g.json.post.v ){
     /* If cgi_init() reads POSTed JSON then it sets the content type.
@@ -524,22 +524,27 @@ static void json_mode_bootstrap(){
     /* Translate PATH_INFO into JSON for later convenience. */
     char const * p = zPath /* current byte */;
     char const * head = p  /* current start-of-token */;
-    unsigned int len = 0   /* current token's lengh */;
-    assert( g.isCGI && "g.isCGI should have been set by now." );
+    unsigned int len = 0   /* current token's length */;
+    assert( g.isHTTP && "g.isHTTP should have been set by now." );
     for( ; ; ++p){
       if( !*p || ('/' == *p) ){
-        if( len ){
-          cson_value * part;
-          char * zPart;
+        if( len ){/* append head..(head+len) as next array
+                     element. */
+          cson_value * part = NULL;
+          char * zPart = NULL;
           assert( head != p );
           zPart = (char*)malloc(len+1);
-          assert( zPart != NULL );
+          assert( (zPart != NULL) && "malloc failure" );
           memcpy(zPart, head, len);
           zPart[len] = 0;
           dehttpize(zPart);
-          part = cson_value_new_string(zPart, strlen(zPart));
+          if( *zPart ){ /* should only fail if someone manages to url-encoded a NUL byte */
+            part = cson_value_new_string(zPart, strlen(zPart));
+            cson_array_append( g.json.cmd.a, part );
+          }else{
+            assert(0 && "i didn't think this was possible!");
+          }
           free(zPart);
-          cson_array_append( g.json.cmd.a, part );
           len = 0;
         }
         if( !*p ){
@@ -577,7 +582,7 @@ static void json_mode_bootstrap(){
   }
 
   {/* set up JSON output formatting options. */
-    unsigned char indent = g.isCGI ? 0 : 1;
+    unsigned char indent = g.isHTTP ? 0 : 1;
     cson_value const * indentV = json_getenv("indent");
     if(indentV){
       if(cson_value_is_string(indentV)){
@@ -591,10 +596,10 @@ static void json_mode_bootstrap(){
       }
     }
     g.json.outOpt.indentation = indent;
-    g.json.outOpt.addNewline = g.isCGI ? 0 : 1;
+    g.json.outOpt.addNewline = g.isHTTP ? 0 : 1;
   }
 
-  if( g.isCGI ){
+  if( g.isHTTP ){
     json_auth_token()/* will copy our auth token, if any, to fossil's
                         core, which we need before we call
                         login_check_credentials(). */;
@@ -627,7 +632,7 @@ static char const * json_command_arg(unsigned char ndx){
                    ))
     char const * tok = NEXT;
     while( tok ){
-      if( !g.isCGI/*workaround for "abbreviated name" in CLI mode*/
+      if( !g.isHTTP/*workaround for "abbreviated name" in CLI mode*/
           ? (0==strcmp(g.argv[1],tok))
           : (0==strncmp("json",tok,4))
           ){
@@ -837,7 +842,7 @@ cson_value * json_create_response( int resultCode,
     if(0){/*Only for debuggering, add some info to the response.*/
       tmp = cson_value_new_integer( g.json.cmd.offset );
       cson_object_set( o, "cmd.offset", tmp );
-      cson_object_set( o, "isCGI", cson_value_new_bool( g.isCGI ) );
+      cson_object_set( o, "isCGI", cson_value_new_bool( g.isHTTP ) );
     }
   }
 
@@ -867,16 +872,16 @@ cson_value * json_create_response( int resultCode,
 ** then g.json.resultCode is used. If that is also 0 then the "Unknown
 ** Error" code is used.
 **
-** If g.isCGI then the generated JSON error response object replaces
+** If g.isHTTP then the generated JSON error response object replaces
 ** any currently buffered page output. Because the output goes via
 ** the cgi_xxx() family of functions, this function inherits any
 ** compression which fossil does for its output.
 **
-** If alsoOutput is true AND g.isCGI then cgi_reply() is called to
+** If alsoOutput is true AND g.isHTTP then cgi_reply() is called to
 ** flush the output (and headers). Generally only do this if you are
 ** about to call exit().
 **
-** !g.isCGI then alsoOutput is ignored and all output is sent to
+** !g.isHTTP then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
 */
@@ -898,7 +903,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
             "response object.\n", fossil_nameofexe());
     fossil_exit(1);
   }
-  if( g.isCGI ){
+  if( g.isHTTP ){
     Blob buf = empty_blob;
     cgi_reset_content();
     cson_output_Blob( resp, &buf, &g.json.outOpt );
@@ -1135,9 +1140,9 @@ cson_value * json_page_login(unsigned int depth){
 */
 cson_value * json_page_logout(unsigned int depth){
   cson_value const *token = g.json.authToken;
-    /* Remember that json_bootstrap() replaces the login cookie with
-       the JSON auth token if the request contains it. If the reqest
-       is missing the auth token then this will fetch fossil's
+    /* Remember that json_mode_bootstrap() replaces the login cookie
+       with the JSON auth token if the request contains it. If the
+       reqest is missing the auth token then this will fetch fossil's
        original cookie. Either way, it's what we want :).
 
        We require the auth token to avoid someone maliciously
@@ -1510,7 +1515,7 @@ void json_cmd_top(void){
     payload = json_create_response(rc, payload, NULL);
     cson_output_FILE( payload, stdout, &g.json.outOpt );
     cson_value_free( payload );
-    if((0 != rc) && !g.isCGI){
+    if((0 != rc) && !g.isHTTP){
       /* FIXME: we need a way of passing this error back
          up to the routine which called this callback.
          e.g. add g.errCode.

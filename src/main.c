@@ -118,7 +118,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int isCGI;              /* True if running in server/CGI modes, else assume CLI. */
+  int isHTTP;             /* True if running in server/CGI modes, else assume CLI. */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -316,14 +316,14 @@ int main(int argc, char **argv){
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
-    g.isCGI = 1;
+    g.isHTTP = 1;
   }else if( argc<2 ){
     fossil_fatal("Usage: %s COMMAND ...\n"
                  "\"%s help\" for a list of available commands\n"
                  "\"%s help COMMAND\" for specific details\n",
                  argv[0], argv[0], argv[0]);
   }else{
-    g.isCGI = 0;
+    g.isHTTP = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
@@ -420,7 +420,7 @@ void fossil_panic(const char *zFormat, ...){
   va_end(ap);
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
-    if( g.isCGI ){
+    if( g.isHTTP ){
       rc = 0 /* avoid HTTP 500 */;
     }
   }else if( g.cgiOutput && once ){
@@ -446,7 +446,7 @@ void fossil_fatal(const char *zFormat, ...){
   va_end(ap);
   if( g.json.isJsonMode ){
     json_err( g.json.resultCode, z, 1 );
-    if( g.isCGI ){
+    if( g.isHTTP ){
       rc = 0 /* avoid HTTP 500 */;
     }
   }

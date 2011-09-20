@@ -767,7 +767,7 @@ void cgi_init(void){
   const char *zType;
   int len;
   json_main_bootstrap();
-  g.isCGI = 1;
+  g.isHTTP = 1;
   cgi_destination(CGI_BODY);
 
   z = (char*)P("HTTP_COOKIE");
@@ -1055,7 +1055,7 @@ void cgi_panic(const char *zFormat, ...){
     va_end(ap);
     json_err( FSL_JSON_E_PANIC, zMsg, 1 );
     free(zMsg);
-    fossil_exit( g.isCGI ? 0 : 1 );
+    fossil_exit( g.isHTTP ? 0 : 1 );
   }else{
     cgi_set_status(500, "Internal Server Error");
     cgi_printf(
