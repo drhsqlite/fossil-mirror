@@ -180,10 +180,14 @@ void branch_new(void){
 }
 
 /*
-** Prepare a query that will list all branches.
+** Prepare a query that will list branches.
+**
+** If (which<0) then the query pulls only closed branches. If
+** (which>0) then the query pulls all (closed and opened)
+** branches. Else the query pulls currently-opened branches.
 */
-void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
-  if( showClosed ){
+void branch_prepare_query(Stmt *pQuery, int which ){
+  if( which < 0 ){
     db_prepare(pQuery,
       "SELECT value FROM tagxref"
       " WHERE tagid=%d AND value NOT NULL "
@@ -195,7 +199,7 @@ void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
       " ORDER BY value COLLATE nocase /*sort*/",
       TAG_BRANCH, TAG_BRANCH, leaf_is_closed_sql("tagxref.rid")
     );
-  }else if( showAll ){
+  }else if( which>0 ){
     db_prepare(pQuery,
       "SELECT DISTINCT value FROM tagxref"
       " WHERE tagid=%d AND value NOT NULL"
@@ -262,7 +266,7 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    prepareBranchQuery(&q, showAll, showClosed);
+    branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
@@ -329,7 +333,7 @@ void brlist_page(void){
   @ </ol>
   style_sidebox_end();
 
-  prepareBranchQuery(&q, showAll, showClosed);
+  branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);

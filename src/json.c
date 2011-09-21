@@ -1561,20 +1561,24 @@ static cson_value * json_page_branch(unsigned int depth){
 
 /*
 ** Impl for /json/branch/list
+**
+** TODO: change how the "range" of branches is specified.
+** Take a string arg in the form ("open","all","closed")
+** and decide based off of that.
 */
 static cson_value * json_branch_list(unsigned int depth){
   cson_value * payV = cson_value_new_object();
   cson_object * pay = cson_value_get_object(payV);
   cson_value * listV = cson_value_new_array();
   cson_array * list = cson_value_get_array(listV);
-  int showAll = json_getenv_int("showAll",0);
-  int showClosed = showAll ? 0 : json_getenv_int("showClosed",0);
+  int showAll = json_getenv_int("all",0);
+  int showClosed = showAll ? 0 : json_getenv_int("closed",0);
   Stmt q;
   char const * range = showAll
     ? "all"
     : (showClosed?"closed":"open");
   cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
-  prepareBranchQuery(&q, showAll, showClosed);
+  branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
