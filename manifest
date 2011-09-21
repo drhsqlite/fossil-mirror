@@ -1,5 +1,5 @@
-C added\scurrent\sbranch\sname\sto\s/json/branch/list\spayload\swhen\sin\san\sopened\scheckout.
-D 2011-09-21T20:03:26.416
+C /json/branch/list\snow\srequires\sg.perm.Read,\slike\s/brlist\sdoes.\sTime\sfor\sbed...
+D 2011-09-21T20:43:39.917
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c c64ee781b551d10c21f21c5bc98c2cc8458ad0d4
+F src/json.c 9670495f78e6d58d382c59bdde6ca9eeb1963b19
 F src/json_detail.h 39445a831c8ff6ec807c775ec13bc22043e26ffa
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4a9b51649d6499d33a5fa26fef31d068025d399d
-R 50063cd414510cee29e9d77c879e40f1
+P 7592fe934be48540dd6e7d6ea35d0a0c5c21eda1
+R f178d4891d82143a9724baadfd1a9b9d
 U stephan
-Z a3880679d3637cf6196e903cd9212a1f
+Z 348268e86656cbb459d9af208f56622f

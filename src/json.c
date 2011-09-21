@@ -1598,13 +1598,21 @@ static cson_value * json_page_branch(unsigned int depth){
 ** POST, but really want to restrict this to POST.payload.
 */
 static cson_value * json_branch_list(unsigned int depth){
-  cson_value * payV = cson_value_new_object();
-  cson_object * pay = cson_value_get_object(payV);
-  cson_value * listV = cson_value_new_array();
-  cson_array * list = cson_value_get_array(listV);
+  cson_value * payV;
+  cson_object * pay;
+  cson_value * listV;
+  cson_array * list;
   char const * range = NULL;
   int which = 0;
   Stmt q;
+  if( !g.perm.Read ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  listV = cson_value_new_array();
+  list = cson_value_get_array(listV);
   if(!g.isHTTP){
     range = find_option("range","r",1);
     if(!range||!*range){
@@ -1641,7 +1649,7 @@ static cson_value * json_branch_list(unsigned int depth){
   };
   cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
 
-  if( g.localOpen ){
+  if( g.localOpen ){ /* add "current" property (branch name). */
     int vid = db_lget_int("checkout", 0);
     char const * zCurrent = vid
       ? db_text(0, "SELECT value FROM tagxref"
