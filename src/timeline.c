@@ -740,7 +740,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
 /*
 ** Create a temporary table suitable for storing timeline data.
 */
-void timeline_temp_table(void){
+static void timeline_temp_table(void){
   static const char zSql[] = 
     @ CREATE TEMP TABLE IF NOT EXISTS timeline(
     @   rid INTEGER PRIMARY KEY,

@@ -1403,6 +1403,58 @@ static int json_getenv_int(char const * pKey, int dflt ){
 }
 
 /*
+** Create a temporary table suitable for storing timeline data.
+*/
+static void json_timeline_temp_table(void){
+  static const char zSql[] = 
+    @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
+    @   rid INTEGER PRIMARY KEY,
+    @   uuid TEXT,
+    @   mtime INTEGER,
+    @   timestampString TEXT,
+    @   comment TEXT,
+    @   user TEXT,
+    @   isLeaf BOOLEAN,
+    @   bgColor TEXT,
+    @   eventType TEXT,
+    @   tags TEXT,
+    @   tagId INTEGER,
+    @   brief TEXT
+    @ )
+  ;
+  db_multi_exec(zSql);
+}
+
+/*
+** Return a pointer to a constant string that forms the basis
+** for a timeline query for the JSON "checkin" interface.
+*/
+const char const * json_timeline_query_ci(void){
+  /* Field order MUST match that from json_timeline_temp_table()!!! */
+  static const char zBaseSql[] =
+    @ SELECT
+    @   blob.rid,
+    @   uuid,
+    @   strftime('%%s',event.mtime),
+    @   datetime(event.mtime,'utc'),
+    @   coalesce(ecomment, comment),
+    @   coalesce(euser, user),
+    @   blob.rid IN leaf,
+    @   bgcolor,
+    @   event.type,
+    @   (SELECT group_concat(substr(tagname,5), ' ') FROM tag, tagxref
+    @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
+    @   tagid,
+    @   brief
+    @  FROM event JOIN blob 
+    @ WHERE blob.rid=event.objid
+  ;
+  return zBaseSql;
+}
+
+
+/*
 ** /json/timeline/ci
 **
 ** Far from complete.
@@ -1419,15 +1471,10 @@ static cson_value * json_timeline_ci(unsigned int depth){
     return NULL;
   }
   if( limit < 0 ) limit = 10;
-  timeline_temp_table() /* FIXME: we need a JSON-specific one or some
-                           workarounds for timestamp and int-vs-bool
-                           values in the HTML version. i'd prefer the
-                           former, to avoid risking breaking HTML
-                           mode.
-                        */;
+  json_timeline_temp_table();
 
-  blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
-  blob_append(&sql, timeline_query_for_www(), -1);
+  blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
+  blob_append(&sql, json_timeline_query_ci(), -1 );
   blob_append(&sql, "AND event.type IN('ci') ", -1);
   blob_append(&sql, "ORDER BY mtime DESC ", -1);
   if(limit){
@@ -1447,18 +1494,18 @@ static cson_value * json_timeline_ci(unsigned int depth){
   blob_reset(&sql);
   blob_append(&sql, "SELECT rid AS rid,"
               " uuid AS uuid,"
-              " timestamp AS timestamp," /*FIXME: as epoch time*/
+              " mtime AS timestamp,"
+              " timestampString AS timestampString,"
               " comment AS comment, "
               " user AS user,"
-              " isleaf AS isLeaf,"
-              " bgcolor AS bgColor,"
-              " etype AS eventType,"
-              " taglist AS tagList," /*FIXME: split this into
-                                       a JSON array*/
-              " tagid AS tagId,"
-              " short AS shortText"
-              /* ignoring sortby field */
-              " FROM timeline",-1);
+              " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
+              " bgColor AS bgColor,"
+              " eventType AS eventType,"
+              " tags AS tags," /*FIXME: split this into
+                                 a JSON array*/
+              " tagId AS tagId,"
+              " brief AS briefText"
+              " FROM json_timeline",-1);
   db_prepare(&q,blob_buffer(&sql));
   tmp = NULL;
   cson_sqlite3_stmt_to_json(q.pStmt, &tmp, 1);
