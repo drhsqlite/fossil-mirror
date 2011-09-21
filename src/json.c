@@ -314,6 +314,31 @@ cson_value * json_getenv( char const * zKey ){
   return NULL;
 }
 
+/*
+** Wrapper around json_getenv() which...
+**
+** If it finds a value and that value is-a JSON number or is a string
+** which looks like an integer or is-a JSON bool then it is converted
+** to an int. If none of those apply then dflt is returned.
+*/
+static int json_getenv_int(char const * pKey, int dflt ){
+  cson_value const * v = json_getenv(pKey);
+  if(!v){
+    return dflt;
+  }else if( cson_value_is_number(v) ){
+    return (int)cson_value_get_integer(v);
+  }else if( cson_value_is_string(v) ){
+    char const * sv = cson_string_cstr(cson_value_get_string(v));
+    assert( (NULL!=sv) && "This is quite unexpected." );
+    return sv ? atoi(sv) : dflt;
+  }else if( cson_value_is_bool(v) ){
+    return cson_value_get_bool(v) ? 1 : 0;
+  }else{
+    /* we should arguably treat JSON null as 0. */
+    return dflt;
+  }
+}
+
 
 /*
 ** Returns the string form of a json_getenv() value, but ONLY If that
@@ -1513,6 +1538,55 @@ static cson_value * json_wiki_list(unsigned int depth){
 }
 
 
+
+static cson_value * json_branch_list(unsigned int depth);
+/*
+** Mapping of /json/branch/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Branch[] = {
+{"list", json_branch_list, 0},
+{"create", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Implements the /json/branch family of pages/commands. Far from
+** complete.
+**
+*/
+static cson_value * json_page_branch(unsigned int depth){
+  return json_page_dispatch_helper(depth,&JsonPageDefs_Branch[0]);
+}
+
+/*
+** Impl for /json/branch/list
+*/
+static cson_value * json_branch_list(unsigned int depth){
+  cson_value * payV = cson_value_new_object();
+  cson_object * pay = cson_value_get_object(payV);
+  cson_value * listV = cson_value_new_array();
+  cson_array * list = cson_value_get_array(listV);
+  int showAll = json_getenv_int("showAll",0);
+  int showClosed = showAll ? 0 : json_getenv_int("showClosed",0);
+  Stmt q;
+  char const * range = showAll
+    ? "all"
+    : (showClosed?"closed":"open");
+  cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
+  prepareBranchQuery(&q, showAll, showClosed);
+  cson_object_set(pay,"branches",listV);
+  while((SQLITE_ROW==db_step(&q))){
+    cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
+    if(v){
+      cson_array_append(list,v);
+    }else{
+      json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,NULL);
+    }
+  }
+  return payV;
+}
+
 static cson_value * json_timeline_ci(unsigned int depth);
 /*
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
@@ -1530,24 +1604,6 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 */
 static cson_value * json_page_timeline(unsigned int depth){
   return json_page_dispatch_helper(depth,&JsonPageDefs_Timeline[0]);
-}
-
-static int json_getenv_int(char const * pKey, int dflt ){
-  cson_value const * v = json_getenv(pKey);
-  if(!v){
-    return dflt;
-  }else if( cson_value_is_number(v) ){
-    return (int)cson_value_get_integer(v);
-  }else if( cson_value_is_string(v) ){
-    char const * sv = cson_string_cstr(cson_value_get_string(v));
-    assert( (NULL!=sv) && "This is quite unexpected." );
-    return sv ? atoi(sv) : dflt;
-  }else if( cson_value_is_bool(v) ){
-    return cson_value_get_bool(v) ? 1 : 0;
-  }else{
-    /* we should arguably treat JSON null as 0. */
-    return dflt;
-  }
 }
 
 /*
@@ -1728,7 +1784,7 @@ static cson_value * json_timeline_ci(unsigned int depth){
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
 {"anonymousPassword",json_page_anon_password, 1},
-{"branch", json_page_nyi,0},
+{"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
 {"dir", json_page_nyi, 0},
 {"HAI",json_page_version,0},
@@ -1764,16 +1820,6 @@ static const JsonPageDef JsonPageDefs_Ticket[] = {
 static const JsonPageDef JsonPageDefs_Artifact[] = {
 {"vinfo", json_page_nyi, 0},
 {"finfo", json_page_nyi, 0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Mapping of /json/branch/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Branch[] = {
-{"list", json_page_nyi, 0},
-{"create", json_page_nyi, 1},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };

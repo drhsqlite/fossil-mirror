@@ -182,7 +182,7 @@ void branch_new(void){
 /*
 ** Prepare a query that will list all branches.
 */
-static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
+void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
   if( showClosed ){
     db_prepare(pQuery,
       "SELECT value FROM tagxref"
