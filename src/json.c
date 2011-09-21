@@ -1571,14 +1571,34 @@ static cson_value * json_branch_list(unsigned int depth){
   cson_object * pay = cson_value_get_object(payV);
   cson_value * listV = cson_value_new_array();
   cson_array * list = cson_value_get_array(listV);
+  char const * range = NULL;
   int showAll = json_getenv_int("all",0);
   int showClosed = showAll ? 0 : json_getenv_int("closed",0);
+  int which = 0;
   Stmt q;
-  char const * range = showAll
-    ? "all"
-    : (showClosed?"closed":"open");
+  range = json_getenv_cstr("range");
+  if(!range || !*range){
+    range = showAll
+      ? "all"
+      : (showClosed?"closed":"open");
+  }
+  assert( (NULL != range) && *range );
+  switch(*range){
+    case 'c':
+      range = "closed";
+      which = -1;
+      break;
+    case 'a':
+      range = "all";
+      which = 1;
+      break;
+    default:
+      range = "open";
+      which = 0;
+      break;
+  };
   cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
-  branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
+  branch_prepare_query(&q, which);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
