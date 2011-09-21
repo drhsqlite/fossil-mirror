@@ -85,6 +85,18 @@
 typedef cson_value * (*fossil_json_f)(unsigned int depth);
 
 /*
+** Internal helpers to manipulate a byte array as a bitset. The B
+** argument must be-a array at least (BIT/8+1) bytes long.
+** The BIT argument is the bit number to query/set/clear/toggle.
+*/
+#define BITSET_BYTEFOR(B,BIT) ((B)[ BIT / 8 ])
+#define BITSET_SET(B,BIT) ((BITSET_BYTEFOR(B,BIT) |= (0x01 << (BIT%8))),0x01)
+#define BITSET_UNSET(B,BIT) ((BITSET_BYTEFOR(B,BIT) &= ~(0x01 << (BIT%8))),0x00)
+#define BITSET_GET(B,BIT) ((BITSET_BYTEFOR(B,BIT) & (0x01 << (BIT%8))) ? 0x01 : 0x00)
+#define BITSET_TOGGLE(B,BIT) (BITSET_GET(B,BIT) ? (BITSET_UNSET(B,BIT)) : (BITSET_SET(B,BIT)))
+
+
+/*
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
 */
@@ -465,9 +477,9 @@ void json_main_bootstrap(){
 }
 
 /*
-** Appends a warning object to the response.
+** Appends a warning object to the (pending) JSON response.
 **
-** TODO: specify what the code must be.
+** Code must be a FSL_JSON_W_xxx value from the FossilJsonCodes enum.
 **
 ** A Warning object has this JSON structure:
 **
@@ -475,12 +487,32 @@ void json_main_bootstrap(){
 **
 ** But the text part is optional.
 **
-** If msg is non-NULL and not empty then it is used
-** as the "text" property's value.
+** FIXME FIXME FIXME: i am EXPERIMENTALLY using integer codes instead
+** of FOSSIL-XXXX codes here. i may end up switching FOSSIL-XXXX
+** string-form codes to integers. Let's ask the mailing list for
+** opinions...
+**
+** If msg is non-NULL and not empty then it is used as the "text"
+** property's value. It is copied, and need not refer to static
+** memory.
+**
+** CURRENTLY this code only allows a given warning code to be
+** added one time, and elides subsequent warnings. The intention
+** is to remove that burden from loops which produce warnings.
+**
+** FIXME: if msg is NULL then use a standard string for
+** the given code. If !*msg then elide the "text" property,
+** for consistency with how json_err() works.
 */
-void json_add_warning( int code, char const * msg ){
+void json_warn( int code, char const * msg ){
   cson_value * objV = NULL;
   cson_object * obj = NULL;
+  assert( (code>FSL_JSON_W_START)
+          && (code<FSL_JSON_W_END)
+          && "Invalid warning code.");
+  if( BITSET_GET(g.json.warnings.bitset,code) ){
+    return;
+  }
   if(!g.json.warnings.v){
     g.json.warnings.v = cson_value_new_array();
     assert((NULL != g.json.warnings.v) && "Alloc error.");
@@ -498,6 +530,7 @@ void json_add_warning( int code, char const * msg ){
     */
     cson_object_set(obj,"text",cson_value_new_string(msg,strlen(msg)));
   }
+  BITSET_SET(g.json.warnings.bitset,code);
 }
 
 /*
@@ -555,6 +588,14 @@ int json_string_split( char const * zStr,
           }
         }else{
           assert(0 && "i didn't think this was possible!");
+          fprintf(stderr,"%s:%d: My God! It's full of stars!\n",
+                  __FILE__, __LINE__);
+          fossil_exit(1)
+            /* Not fossil_panic() b/c this code needs to be able to
+              run before some of the fossil/json bits are initialized,
+              and fossil_panic() calls into the JSON API.
+            */
+            ;
         }
         free(zPart);
         len = 0;
@@ -568,6 +609,32 @@ int json_string_split( char const * zStr,
     ++len;
   }
   return rc;
+}
+
+/*
+** Wrapper around json_string_split(), taking the same first 3
+** parameters as this function, but returns the results as
+** a JSON Array (if splitting produced tokens)
+** OR a JSON null value (if splitting produced no tokens)
+** OR NULL (if splitting failed in any way).
+**
+** The returned value is owned by the caller. If not NULL then it
+** _will_ have a JSON type of Array or Null.
+*/
+cson_value * json_string_split2( char const * zStr,
+                                 char separator,
+                                 char doDeHttp ){
+  cson_value * v = cson_value_new_array();
+  cson_array * a = cson_value_get_array(v);
+  int rc = json_string_split( zStr, separator, doDeHttp, a );
+  if( 0 == rc ){
+    cson_value_free(v);
+    v = cson_value_null();
+  }else if(rc<0){
+    cson_value_free(v);
+    v = NULL;
+  }
+  return v;
 }
 
 /*
@@ -801,12 +868,15 @@ static JsonPageDef const * json_handler_for_name( char const * name, JsonPageDef
 ** according to the current value of g.json.errorDetailParanoia. The
 ** dumbed-down value is returned.
 **
-** This function assert()s that code is either 0
-** or between the range of 1000 and 9999.
+** This function assert()s that code is in the inclusive range 0 to
+** 9999.
+**
+** Note that WARNING codes (1..999) are never dumbed down.
+**
 */
 static int json_dumbdown_rc( int code ){
-  if( !code ){
-    return 0;
+  if(!code || ((code>FSL_JSON_W_START) && (code>FSL_JSON_W_END))){
+    return code;
   }else{
     int modulo = 0;
     assert((code >= 1000) && (code <= 9999) && "Invalid Fossil/JSON code.");
@@ -1597,7 +1667,6 @@ static cson_value * json_timeline_ci(unsigned int depth){
               " ORDER BY mtime DESC",
               -1);
   db_prepare(&q,blob_buffer(&sql));
-  tmp = NULL;
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -1608,22 +1677,37 @@ static cson_value * json_timeline_ci(unsigned int depth){
     cson_object * row = cson_value_get_object(rowV);
     cson_string const * tagsStr = NULL;
     if(!row){
-      /* need a way of warning about this */
+      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                 "Could not convert at least one timeline result row to JSON." );
       continue;
     }
-
     /* Split tags string field into JSON Array... */
     cson_array_append(list, rowV);
     tagsStr = cson_value_get_string(cson_object_get(row,"tags"));
     if(tagsStr){
-      cson_value * tagsV = cson_value_new_array();
-      cson_array * tags = cson_value_get_array(tagsV);
-      if( 0 < json_string_split( cson_string_cstr(tagsStr), ',', 0, tags)){
-        cson_object_set(row,"tags",tagsV)
-          /*replaces/deletes old tags value, invalidating tagsStr!*/;
+      cson_value * tags = json_string_split2( cson_string_cstr(tagsStr),
+                                              ',', 0);
+      if( tags ){
+        if(0 != cson_object_set(row,"tags",tags)){
+          cson_value_free(tags);
+        }else{
+          /*replaced/deleted old tags value, invalidating tagsStr*/;
+          tagsStr = NULL;
+        }
       }else{
-        cson_value_free(tagsV);
+        json_warn(FSL_JSON_W_STRING_TO_ARRAY_FAILED,
+                  "Could not convert tags string to array.");
       }
+    }
+
+    /* replace isLeaf int w/ JSON bool */
+    tmp = cson_object_get(row,"isLeaf");
+    if(tmp && cson_value_is_integer(tmp)){
+      cson_object_set(row,"isLeaf",
+                      cson_value_get_integer(tmp)
+                      ? cson_value_true()
+                      : cson_value_false());
+      tmp = NULL;
     }
   }
   db_finalize(&q);
@@ -1789,7 +1873,8 @@ void json_cmd_top(void){
   }
   db_find_and_open_repository(0, 0);
 #if 0
-  json_add_warning(-1, "Just testing.");
+  json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing.");
+  json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing again.");
 #endif
   cmd = json_command_arg(1);
   if( !cmd || !*cmd ){
@@ -1823,3 +1908,9 @@ void json_cmd_top(void){
   usage:
   usage("subcommand");
 }
+
+#undef BITSET_BYTEFOR
+#undef BITSET_SET
+#undef BITSET_UNSET
+#undef BITSET_GET
+#undef BITSET_TOGGLE

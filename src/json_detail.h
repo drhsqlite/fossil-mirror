@@ -4,19 +4,24 @@
 */
 
 /*
-** The "official" list of Fossil/JSON error codes.
-** Their values might very well change during initial
-** development but after their first public release
-** they must stay stable.
-** Values must be in the range 1..9999
+** The "official" list of Fossil/JSON error codes.  Their values might
+** very well change during initial development but after their first
+** public release they must stay stable.
 **
-** Numbers evenly dividable by 100 are "categories",
-** and error codes for a given category have their
-** high bits set to the category value.
+** Values must be in the range 1000..9999 for error codes and 1..999
+** for warning codes.
+**
+** Numbers evenly dividable by 100 are "categories", and error codes
+** for a given category have their high bits set to the category
+** value.
 **
 */
 enum FossilJsonCodes {
+FSL_JSON_W_START = 0,
+FSL_JSON_W_ROW_TO_JSON_FAILED = FSL_JSON_W_START + 1,
+FSL_JSON_W_STRING_TO_ARRAY_FAILED = FSL_JSON_W_START + 2,
 
+FSL_JSON_W_END = 1000,
 FSL_JSON_E_GENERIC = 1000,
 FSL_JSON_E_GENERIC_SUB1 = FSL_JSON_E_GENERIC + 100,
 FSL_JSON_E_INVALID_REQUEST = FSL_JSON_E_GENERIC_SUB1 + 1,
@@ -51,5 +56,6 @@ FSL_JSON_E_STMT_EXEC = FSL_JSON_E_DB + 3,
 FSL_JSON_E_DB_LOCKED = FSL_JSON_E_DB + 4,
 
 FSL_JSON_E_DB_NEEDS_REBUILD = FSL_JSON_E_DB + 101
+
 };
 

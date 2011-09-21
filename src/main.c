@@ -29,6 +29,7 @@
 
 #if INTERFACE
 #include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
+#include "json_detail.h"
 
 /*
 ** Number of elements in an array
@@ -212,6 +213,12 @@ struct Global {
     struct {                   /* response warnings */
       cson_value * v;
       cson_array * a;
+      int bitset[FSL_JSON_W_END/8/sizeof(int)+1]
+      /* allows json_add_warning() to know if a given warning
+         has been set or not (we don't produce dupes, to simplify
+         downstream loop logic).
+      */
+      ;
     } warnings;
   } json;
 };
@@ -478,21 +485,28 @@ void fossil_fatal(const char *zFormat, ...){
 void fossil_fatal_recursive(const char *zFormat, ...){
   char *z;
   va_list ap;
+  int rc = 1;
   if( mainInFatalError ) return;
   mainInFatalError = 1;
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiOutput ){
+  if( g.json.isJsonMode ){
+    json_err( g.json.resultCode, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<p class=\"generalError\">%h</p>", z);
     cgi_reply();
   }else{
     char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
     fossil_puts(zOut, 1);
+    free(zOut);
   }
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
 
