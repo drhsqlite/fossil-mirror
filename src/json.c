@@ -279,36 +279,46 @@ cson_value * json_rc_string( int code ){
 
 
 /*
-** Gets a POST/GET/COOKIE/ENV value. The returned memory is owned by the
-** g.json object (one of its sub-objects). Returns NULL if no match is
-** found.
+** Gets a POST/POST.payload/GET/COOKIE/ENV value. The returned memory
+** is owned by the g.json object (one of its sub-objects). Returns
+** NULL if no match is found.
 **
 ** ENV means the system environment (getenv()).
 **
-** Precedence: GET, COOKIE, POST, ENV. COOKIE _should_ be after POST
-** but currently is not for internal order-of-init reasons. Since
-** fossil only uses one cookie, this is not a real/high-priority
-** problem.
+** Precedence: POST.payload, GET, COOKIE, POST, ENV.
+**
+** The precedence SHOULD be: GET, POST.payload, POST, COOKIE, ENV, but
+** the amalgamation of the GET/POST vars makes it difficult for me to
+** do that. Since fossil only uses one cookie, cookie precedence isn't
+** a real/high-priority problem.
 */
 cson_value * json_getenv( char const * zKey ){
   cson_value * rc;
+  rc = g.json.reqPayload.o
+    ? cson_object_get( g.json.reqPayload.o, zKey )
+    : NULL;
+  if(rc){
+    return rc;
+  }
   rc = cson_object_get( g.json.param.o, zKey );
   if( rc ){
     return rc;
+  }
+  rc = cson_object_get( g.json.post.o, zKey );
+  if(rc){
+    return rc;
   }else{
-    rc = cson_object_get( g.json.post.o, zKey );
-    if(rc){
+    char const * cv = PD(zKey,NULL);
+    if(!cv){
+      cv = getenv(zKey);
+    }
+    if(cv){/*transform it to JSON for later use.*/
+      /* TODO: use sscanf() to figure out if it's an int,
+         and transform it to JSON int if it is.
+      */
+      rc = cson_value_new_string(cv,strlen(cv));
+      json_setenv( zKey, rc );
       return rc;
-    }else{
-      char const * cv = PD(zKey,NULL);
-      if(!cv){
-        cv = getenv(zKey);
-      }
-      if(cv){/*transform it to JSON for later use.*/
-        rc = cson_value_new_string(cv,strlen(cv));
-        cson_object_set( g.json.param.o, zKey, rc );
-        return rc;
-      }
     }
   }
   return NULL;
@@ -1565,6 +1575,19 @@ static cson_value * json_page_branch(unsigned int depth){
 ** TODO: change how the "range" of branches is specified.
 ** Take a string arg in the form ("open","all","closed")
 ** and decide based off of that.
+**
+**
+** CLI mode options:
+**
+**  --range X | -r X, where X is one of (open,closed,all)
+**    (only the first letter is significant, default=open).
+**  -a (same as --range a)
+**  -c (same as --range c)
+**
+** HTTP mode options:
+**
+** "range" GET/POST.payload parameter. FIXME: currently we also use
+** POST, but really want to restrict this to POST.payload.
 */
 static cson_value * json_branch_list(unsigned int depth){
   cson_value * payV = cson_value_new_object();
@@ -1572,15 +1595,26 @@ static cson_value * json_branch_list(unsigned int depth){
   cson_value * listV = cson_value_new_array();
   cson_array * list = cson_value_get_array(listV);
   char const * range = NULL;
-  int showAll = json_getenv_int("all",0);
-  int showClosed = showAll ? 0 : json_getenv_int("closed",0);
   int which = 0;
   Stmt q;
-  range = json_getenv_cstr("range");
+  if(!g.isHTTP){
+    range = find_option("range","r",1);
+    if(!range||!*range){
+      range = find_option("all","a",0);
+      if(range && *range){
+        range = "a";
+      }else{
+        range = find_option("closed","c",0);
+        if(range&&*range){
+          range = "c";
+        }
+      }
+    }
+  }else{
+    range = json_getenv_cstr("range");
+  }
   if(!range || !*range){
-    range = showAll
-      ? "all"
-      : (showClosed?"closed":"open");
+    range = "o";
   }
   assert( (NULL != range) && *range );
   switch(*range){
@@ -1605,7 +1639,10 @@ static cson_value * json_branch_list(unsigned int depth){
     if(v){
       cson_array_append(list,v);
     }else{
-      json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,NULL);
+      char * msg = mprintf("Column-to-json failed @ %s:%d",
+                           __FILE__,__LINE__);
+      json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,msg);
+      free(msg);
     }
   }
   return payV;
@@ -1689,7 +1726,7 @@ const char const * json_timeline_query_ci(void){
 ** Far from complete.
 */
 static cson_value * json_timeline_ci(unsigned int depth){
-  static const int defaultLimit = 10;
+  static const int defaultLimit = 20;
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;

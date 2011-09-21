@@ -1,5 +1,5 @@
-C s/branch_prepare_query/branch_prepare_list_query/g
-D 2011-09-21T18:55:15.696
+C added\sPOST.payload\sto\sjson_getenv()\slist.\sRe-organized\s/json/branch/list\sCLI/HTTP\sarg\shandling\sto\sbehave\ssanely\sin\sCLI\smode.\sMinor\stypo\sfix\sin\smain.c.
+D 2011-09-21T19:31:58.285
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,11 +86,11 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 7abe19541d97800358f7ad563263507c029621ad
+F src/json.c 2e2c1555a4f0d5edc655458c705c934e4b852c83
 F src/json_detail.h 39445a831c8ff6ec807c775ec13bc22043e26ffa
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
-F src/main.c 9a7f275cf702572fa7e92f95d9b9280d257338a4
+F src/main.c 6375efcf601818b744b620648b0002c6f2999173
 F src/main.mk 815a3a160bc963c106eb755ff3253755c9df5b88
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -325,7 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 14423f32841334bca0fbed61a152d77771b66e60
-R e5fc02b3111c9b748392394426ae2cdd
+P 267739dd20e2ea4f65f4146d531bbf4716e45def
+R 2828bb1a64c1c367a8e5af577537eb98
 U stephan
-Z 03418b8ff103232f973f6cc2a242d7ca
+Z 40138b99d16c3667bb41a2beb87780f2
