@@ -466,6 +466,76 @@ void json_main_bootstrap(){
 
 
 /*
+** Splits zStr (which must not be NULL) into tokens separated by the
+** given separator character. If doDeHttp is true then each element
+** will be passed through dehttpize(), otherwise they are used
+** as-is. Each new element is appended to the given target array
+** object, which must not be NULL and ownership of it is not changed
+** by this call.
+**
+** On success, returns the number of items appended to target. On
+** error a NEGATIVE number is returned - its absolute value is the
+** number of items inserted before the error occurred. There is a
+** corner case here if we fail on the 1st element, which will cause 0
+** to be returned, which the client cannot immediately distinguish as
+** success or error.
+**
+** Achtung: leading whitespace of elements is NOT elided. We should
+** add an option to do that, but don't have one yet.
+**
+** Achtung: empty elements will be skipped, meaning consecutive
+** empty elements are collapsed.
+*/
+int json_string_split( char const * zStr,
+                       char separator,
+                       char doDeHttp,
+                       cson_array * target ){
+  char const * p = zStr /* current byte */;
+  char const * head = p  /* current start-of-token */;
+  unsigned int len = 0   /* current token's length */;
+  int rc = 0   /* return code (number of added elements)*/;
+  assert( zStr && target );
+  for( ; ; ++p){
+    if( !*p || (separator == *p) ){
+      if( len ){/* append head..(head+len) as next array
+                   element. */
+        cson_value * part = NULL;
+        char * zPart = NULL;
+        assert( head != p );
+        zPart = (char*)malloc(len+1);
+        assert( (zPart != NULL) && "malloc failure" );
+        memcpy(zPart, head, len);
+        zPart[len] = 0;
+        if(doDeHttp){
+          dehttpize(zPart);
+        }
+        if( *zPart ){ /* should only fail if someone manages to url-encoded a NUL byte */
+          part = cson_value_new_string(zPart, strlen(zPart));
+          if( 0 == cson_array_append( target, part ) ){
+            ++rc;
+          }else{
+            cson_value_free(part);
+            rc = rc ? -rc : 0;
+            break;
+          }
+        }else{
+          assert(0 && "i didn't think this was possible!");
+        }
+        free(zPart);
+        len = 0;
+      }
+      if( !*p ){
+        break;
+      }
+      head = p+1;
+      continue;
+    }
+    ++len;
+  }
+  return rc;
+}
+
+/*
 ** Performs some common initialization of JSON-related state.  Must be
 ** called by the json_page_top() and json_cmd_top() dispatching
 ** functions to set up the JSON stat used by the dispatched functions.
@@ -521,40 +591,8 @@ static void json_mode_bootstrap(){
     json_command_arg().
   */
   if( zPath ){/* Either CGI or server mode... */
-    /* Translate PATH_INFO into JSON for later convenience. */
-    char const * p = zPath /* current byte */;
-    char const * head = p  /* current start-of-token */;
-    unsigned int len = 0   /* current token's length */;
-    assert( g.isHTTP && "g.isHTTP should have been set by now." );
-    for( ; ; ++p){
-      if( !*p || ('/' == *p) ){
-        if( len ){/* append head..(head+len) as next array
-                     element. */
-          cson_value * part = NULL;
-          char * zPart = NULL;
-          assert( head != p );
-          zPart = (char*)malloc(len+1);
-          assert( (zPart != NULL) && "malloc failure" );
-          memcpy(zPart, head, len);
-          zPart[len] = 0;
-          dehttpize(zPart);
-          if( *zPart ){ /* should only fail if someone manages to url-encoded a NUL byte */
-            part = cson_value_new_string(zPart, strlen(zPart));
-            cson_array_append( g.json.cmd.a, part );
-          }else{
-            assert(0 && "i didn't think this was possible!");
-          }
-          free(zPart);
-          len = 0;
-        }
-        if( !*p ){
-          break;
-        }
-        head = p+1;
-        continue;
-      }
-      ++len;
-    }
+    /* Translate PATH_INFO into JSON array for later convenience. */
+    json_string_split(zPath, '/', 1, g.json.cmd.a);
   }else{/* assume CLI mode */
     int i;
     char const * arg;
@@ -1406,6 +1444,7 @@ static int json_getenv_int(char const * pKey, int dflt ){
 ** Create a temporary table suitable for storing timeline data.
 */
 static void json_timeline_temp_table(void){
+  /* Field order MUST match that from json_timeline_query_XXX()!!! */
   static const char zSql[] = 
     @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
     @   rid INTEGER PRIMARY KEY,
@@ -1442,7 +1481,7 @@ const char const * json_timeline_query_ci(void){
     @   blob.rid IN leaf,
     @   bgcolor,
     @   event.type,
-    @   (SELECT group_concat(substr(tagname,5), ' ') FROM tag, tagxref
+    @   (SELECT group_concat(substr(tagname,5), ',') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
     @   tagid,
@@ -1460,32 +1499,41 @@ const char const * json_timeline_query_ci(void){
 ** Far from complete.
 */
 static cson_value * json_timeline_ci(unsigned int depth){
+  static const int defaultLimit = 10;
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;
-  int limit = json_getenv_int("n",10);
+  cson_value * listV = NULL;
+  cson_array * list = NULL;
+  int limit = json_getenv_int("n",defaultLimit);
+  int check = 0;
   Stmt q;
   Blob sql = empty_blob;
   if( !g.perm.Read/* && !g.perm.RdTkt && !g.perm.RdWiki*/ ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
-  if( limit < 0 ) limit = 10;
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  if( limit < 0 ) limit = defaultLimit;
   json_timeline_temp_table();
-
   blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
   blob_append(&sql, json_timeline_query_ci(), -1 );
   blob_append(&sql, "AND event.type IN('ci') ", -1);
   blob_append(&sql, "ORDER BY mtime DESC ", -1);
+#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
+    g.json.resultCode = (cson_rc.AllocError==check) \
+      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    goto error;\
+  }
   if(limit){
     blob_appendf(&sql,"LIMIT %d ",limit);
+    tmp = cson_value_new_integer(limit);
+    SET("limit");
   }
   db_multi_exec(blob_buffer(&sql));
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
-#define SET(K) cson_object_set(pay,K,tmp)
 
-#if 1
+#if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
@@ -1505,18 +1553,40 @@ static cson_value * json_timeline_ci(unsigned int depth){
                                  a JSON array*/
               " tagId AS tagId,"
               " brief AS briefText"
-              " FROM json_timeline",-1);
+              " FROM json_timeline"
+              " ORDER BY mtime DESC",
+              -1);
   db_prepare(&q,blob_buffer(&sql));
   tmp = NULL;
-  cson_sqlite3_stmt_to_json(q.pStmt, &tmp, 1);
-  db_finalize(&q);
-  if(tmp){
-    cson_value * rows = cson_object_take(cson_value_get_object(tmp),"rows");
-    assert(NULL != rows);
-    cson_value_free(tmp);
-    tmp = rows;
-  }
+  listV = cson_value_new_array();
+  list = cson_value_get_array(listV);
+  tmp = listV;
   SET("timeline");
+  while( (SQLITE_ROW == db_step(&q) )){
+    /* convert each row into a JSON object...*/
+    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
+    cson_object * row = cson_value_get_object(rowV);
+    cson_string const * tagsStr = NULL;
+    if(!row){
+      /* need a way of warning about this */
+      continue;
+    }
+
+    /* Split tags string field into JSON Array... */
+    cson_array_append(list, rowV);
+    tagsStr = cson_value_get_string(cson_object_get(row,"tags"));
+    if(tagsStr){
+      cson_value * tagsV = cson_value_new_array();
+      cson_array * tags = cson_value_get_array(tagsV);
+      if( 0 < json_string_split( cson_string_cstr(tagsStr), ',', 0, tags)){
+        cson_object_set(row,"tags",tagsV)
+          /*replaces/deletes old tags value, invalidating tagsStr!*/;
+      }else{
+        cson_value_free(tagsV);
+      }
+    }
+  }
+  db_finalize(&q);
 #undef SET
   goto ok;
   error:
