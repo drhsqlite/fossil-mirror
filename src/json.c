@@ -277,6 +277,14 @@ cson_value * json_rc_string( int code ){
   return cson_value_new_string( json_rc_cstr(code), 11 );
 }
 
+/*
+** Convenience wrapper around cson_value_new_string().
+*/
+cson_value * json_new_string( char const * str ){
+  return str
+    ? cson_value_new_string(str,strlen(str))
+    : NULL;
+}
 
 /*
 ** Gets a POST/POST.payload/GET/COOKIE/ENV value. The returned memory
@@ -1632,6 +1640,20 @@ static cson_value * json_branch_list(unsigned int depth){
       break;
   };
   cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
+
+  if( g.localOpen ){
+    int vid = db_lget_int("checkout", 0);
+    char const * zCurrent = vid
+      ? db_text(0, "SELECT value FROM tagxref"
+                " WHERE rid=%d AND tagid=%d",
+                vid, TAG_BRANCH)
+      : 0;
+    if(zCurrent){
+      cson_object_set(pay,"current",json_new_string(zCurrent));
+    }
+  }
+
+  
   branch_prepare_list_query(&q, which);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
