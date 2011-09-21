@@ -293,12 +293,12 @@ cson_value * json_new_string( char const * str ){
 **
 ** ENV means the system environment (getenv()).
 **
-** Precedence: POST.payload, GET, COOKIE, POST, ENV.
+** Precedence: POST.payload, GET/COOKIE/non-JSON POST, JSON POST, ENV.
 **
-** The precedence SHOULD be: GET, POST.payload, POST, COOKIE, ENV, but
-** the amalgamation of the GET/POST vars makes it difficult for me to
-** do that. Since fossil only uses one cookie, cookie precedence isn't
-** a real/high-priority problem.
+** FIXME: the precedence SHOULD be: GET, POST.payload, POST, COOKIE,
+** ENV, but the amalgamation of the GET/POST vars makes it difficult
+** for me to do that. Since fossil only uses one cookie, cookie
+** precedence isn't a real/high-priority problem.
 */
 cson_value * json_getenv( char const * zKey ){
   cson_value * rc;
@@ -1579,10 +1579,6 @@ static cson_value * json_page_branch(unsigned int depth){
 
 /*
 ** Impl for /json/branch/list
-**
-** TODO: change how the "range" of branches is specified.
-** Take a string arg in the form ("open","all","closed")
-** and decide based off of that.
 **
 **
 ** CLI mode options:
