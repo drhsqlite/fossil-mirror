@@ -186,7 +186,7 @@ void branch_new(void){
 ** (which>0) then the query pulls all (closed and opened)
 ** branches. Else the query pulls currently-opened branches.
 */
-void branch_prepare_query(Stmt *pQuery, int which ){
+void branch_prepare_list_query(Stmt *pQuery, int which ){
   if( which < 0 ){
     db_prepare(pQuery,
       "SELECT value FROM tagxref"
@@ -266,7 +266,7 @@ void branch_cmd(void){
       zCurrent = db_text(0, "SELECT value FROM tagxref"
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
-    branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
+    branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
     while( db_step(&q)==SQLITE_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
@@ -333,7 +333,7 @@ void brlist_page(void){
   @ </ol>
   style_sidebox_end();
 
-  branch_prepare_query(&q, showAll?1:(showClosed?-1:0));
+  branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
   cnt = 0;
   while( db_step(&q)==SQLITE_ROW ){
     const char *zBr = db_column_text(&q, 0);
