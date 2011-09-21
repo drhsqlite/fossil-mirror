@@ -464,6 +464,41 @@ void json_main_bootstrap(){
   json_gc_add("$PARAMS", v, 1);
 }
 
+/*
+** Appends a warning object to the response.
+**
+** TODO: specify what the code must be.
+**
+** A Warning object has this JSON structure:
+**
+** { "code":integer, "text":"string" }
+**
+** But the text part is optional.
+**
+** If msg is non-NULL and not empty then it is used
+** as the "text" property's value.
+*/
+void json_add_warning( int code, char const * msg ){
+  cson_value * objV = NULL;
+  cson_object * obj = NULL;
+  if(!g.json.warnings.v){
+    g.json.warnings.v = cson_value_new_array();
+    assert((NULL != g.json.warnings.v) && "Alloc error.");
+    g.json.warnings.a = cson_value_get_array(g.json.warnings.v);
+    json_gc_add("$WARNINGS",g.json.warnings.v,0);
+  }
+  objV = cson_value_new_object();
+  assert((NULL != objV) && "Alloc error.");
+  cson_array_append(g.json.warnings.a, objV);
+  obj = cson_value_get_object(objV);
+  cson_object_set(obj,"code",cson_value_new_integer(code));
+  if(msg && *msg){
+    /* FIXME: treat NULL msg as standard warning message for
+       the code, but we don't have those yet.
+    */
+    cson_object_set(obj,"text",cson_value_new_string(msg,strlen(msg)));
+  }
+}
 
 /*
 ** Splits zStr (which must not be NULL) into tokens separated by the
@@ -884,6 +919,11 @@ cson_value * json_create_response( int resultCode,
     }
   }
 
+  if(g.json.warnings.v){
+    tmp = g.json.warnings.v;
+    SET("warnings");
+  }
+  
   /* Only add the payload to SUCCESS responses. Else delete it. */
   if( NULL != payload ){
     if( resultCode ){
@@ -1748,6 +1788,9 @@ void json_cmd_top(void){
     goto usage;
   }
   db_find_and_open_repository(0, 0);
+#if 0
+  json_add_warning(-1, "Just testing.");
+#endif
   cmd = json_command_arg(1);
   if( !cmd || !*cmd ){
     goto usage;
