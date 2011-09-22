@@ -1,5 +1,5 @@
-C minor\scleanups\sin\sthe\s/json/wiki/get\sand\sAJAJ\scode.
-D 2011-09-22T16:27:08.692
+C Added\sinitial\sprototype\sof\sJSON\swiki\seditor\s(cannot\ssave\syet).\sMinor\scleanup\sin\sajax/index.html.
+D 2011-09-22T17:02:57.798
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,9 +7,10 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/index.html 607d721d144b86b4fd2b6a7c780fe45173a65af7
+F ajax/index.html 3c44988da4b3e01748114b9f4450926d9b38203a
 F ajax/js/fossil-ajaj.js a1e2db28f1ce8f20908f48cdb6dbdf2ab46122ea
 F ajax/js/whajaj.js ac58e138356d5b6d361a59a5e2cf28ce92d48821
+F ajax/wiki-editor.html bf5a906d292427114d0ee7691336ee4bac07f858
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -330,7 +331,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 07a2c43c8cc44b6312948dd021067a86a7987815
-R 2992457d84c1f6c7a8caf052b5fc2a7b
+P a9c8a31df50ab273647c8d5f11e5f1837d9247d7
+R 8bd4b37fe9ab5f30dd6cc2a247f97416
 U stephan
-Z 7b73245b2da977ea4369f0d3f1f24f1d
+Z 1acbc23b1cc6269ac4e208412bbd8893
