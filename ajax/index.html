@@ -127,13 +127,14 @@ jQuery(document).ready(function(){
         });
 
     TheApp.cgi = new FossilAjaj();
-    TheApp.timer = {_tstart:0,_tend:0,duration:0,
+    TheApp.timer = {
+        _tstart:0,_tend:0,duration:0,
         start:function(){
             this._tstart = (new Date()).getTime();
         },
         end:function(){
             this._tend = (new Date()).getTime();
-            this.duration = this._tend - this._tstart;
+            return this.duration = this._tend - this._tstart;
         }
     };
     var opt = TheApp.cgi.ajaj.options;

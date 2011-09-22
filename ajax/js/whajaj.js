@@ -996,11 +996,11 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     */
     var norm = this.normalizeAjaxParameters( WhAjaj.isObject(opt) ? opt : {} );
     norm.url = WhAjaj.Connector.sendHelper.normalizeURL(norm);
+    if( ! request ) norm.method = 'GET';
     if( WhAjaj.isFunction(norm.beforeSend) )
     {
         norm.beforeSend( request, norm );
     }
-    if( ! request ) norm.method = 'GET';
     //alert( WhAjaj.stringify(request)+'\n'+WhAjaj.stringify(norm));
     try { this.sendImpl( request, norm ); }
     catch(e) { ex = e; }

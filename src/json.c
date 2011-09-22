@@ -935,6 +935,17 @@ static int json_dumbdown_rc( int code ){
 }
 
 /*
+** Convenience routine which converts a Julian time value into a Unix
+** Epoch timestamp. Requires the db, so this cannot be used before the
+** repo is opened (will trigger a fatal error in db_xxx()).
+*/
+static cson_value * json_julian_to_timestamp(double j){
+  return cson_value_new_integer((cson_int_t)
+           db_int64(0,"SELECT strftime('%%s',%lf)",j)
+                                );
+}
+
+/*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
 ** or add it to a cson container to transfer ownership. Returns NULL
@@ -1569,14 +1580,7 @@ static cson_value * json_wiki_get(unsigned int depth){
       ;
     cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
-    cson_object_set(pay,"timestamp",
-                      cson_value_new_integer((cson_int_t)
-                        db_int64(0,
-                          "SELECT strftime('%%s',%lf)",
-                          pWiki->rDate
-                        )
-                      )
-                    );
+    cson_object_set(pay,"timestamp", json_julian_to_timestamp(pWiki->rDate));
     cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
     cson_object_set(pay,"contentFormat",json_new_string(doParse?"html":"raw"));
     cson_object_set(pay,"content",cson_value_new_string(zBody,len));
