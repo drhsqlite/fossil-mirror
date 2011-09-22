@@ -723,6 +723,10 @@ static void json_mode_bootstrap(){
     /* workaround for server mode, so we see it as CGI mode. */
     g.isHTTP = 1;
   }
+  if( !g.isHTTP ){
+    g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
+  }
+
   if(! g.json.post.v ){
     /* If cgi_init() reads POSTed JSON then it sets the content type.
        If it did not then we need to set it.
@@ -1867,11 +1871,13 @@ static cson_value * json_branch_list(unsigned int depth){
 }
 
 static cson_value * json_timeline_ci(unsigned int depth);
+static cson_value * json_timeline_wiki(unsigned int depth);
 /*
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Timeline[] = {
 {"ci", json_timeline_ci, 0},
+{"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -1911,9 +1917,9 @@ static void json_timeline_temp_table(void){
 
 /*
 ** Return a pointer to a constant string that forms the basis
-** for a timeline query for the JSON "checkin" interface.
+** for a timeline query for the JSON interface.
 */
-const char const * json_timeline_query_ci(void){
+const char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
   static const char zBaseSql[] =
     @ SELECT
@@ -1937,20 +1943,42 @@ const char const * json_timeline_query_ci(void){
   return zBaseSql;
 }
 
-
 /*
-** /json/timeline/ci
+** Tries to figure out a timeline query length limit base on
+** environment parameters. If it can it returns that value,
+** else it returns some statically defined default value.
 **
-** Far from complete.
+** Never returns a negative value. 0 means no limit.
+*/
+static int json_timeline_limit(){
+  static const int defaultLimit = 20;
+  int limit = -1;
+  if( g.isHTTP ){
+    limit = json_getenv_int("limit",-1);
+    if(limit<0){
+      limit = json_getenv_int("n",-1);
+    }
+  }else{/* CLI mode */
+    char const * arg = find_option("limit","n",1);
+    if(arg && *arg){
+      limit = atoi(arg);
+    }
+  }
+  return (limit<0) ? defaultLimit : limit;
+}
+/*
+** Implementation of /json/timeline/ci.
+**
+** Still a few TODOs (like figuring out how to structure
+** inheritance info).
 */
 static cson_value * json_timeline_ci(unsigned int depth){
-  static const int defaultLimit = 20;
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;
   cson_value * listV = NULL;
   cson_array * list = NULL;
-  int limit = json_getenv_int("n",defaultLimit);
+  int limit;
   int check = 0;
   Stmt q;
   Blob sql = empty_blob;
@@ -1958,12 +1986,12 @@ static cson_value * json_timeline_ci(unsigned int depth){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
+  limit = json_timeline_limit();
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  if( limit < 0 ) limit = defaultLimit;
   json_timeline_temp_table();
   blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
-  blob_append(&sql, json_timeline_query_ci(), -1 );
+  blob_append(&sql, json_timeline_query(), -1 );
   blob_append(&sql, "AND event.type IN('ci') ", -1);
   blob_append(&sql, "ORDER BY mtime DESC ", -1);
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
@@ -2054,6 +2082,115 @@ static cson_value * json_timeline_ci(unsigned int depth){
   ok:
   return payV;
 }
+
+/*
+** Implementation of /json/timeline/wiki.
+**
+*/
+static cson_value * json_timeline_wiki(unsigned int depth){
+  /* This code is 95% the same as json_timeline_ci(), by the way. */
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  cson_value * tmp = NULL;
+  cson_value * listV = NULL;
+  cson_array * list = NULL;
+  int limit;
+  int check = 0;
+  Stmt q;
+  Blob sql = empty_blob;
+  if( !g.perm.Read || !g.perm.RdWiki ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  limit = json_timeline_limit();
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  json_timeline_temp_table();
+  blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
+  blob_append(&sql, json_timeline_query(), -1 );
+  blob_append(&sql, "AND event.type IN('w') ", -1);
+  blob_append(&sql, "ORDER BY mtime DESC ", -1);
+#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
+    g.json.resultCode = (cson_rc.AllocError==check) \
+      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    goto error;\
+  }
+  if(limit){
+    blob_appendf(&sql,"LIMIT %d ",limit);
+    tmp = cson_value_new_integer(limit);
+    SET("limit");
+  }
+  db_multi_exec(blob_buffer(&sql));
+
+#if 0
+  /* only for testing! */
+  tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
+  SET("timelineSql");
+#endif
+
+  blob_reset(&sql);
+  blob_append(&sql, "SELECT rid AS rid,"
+              " uuid AS uuid,"
+              " mtime AS timestamp,"
+              " timestampString AS timestampString,"
+              " comment AS comment, "
+              " user AS user,"
+              " eventType AS eventType"
+#if 0
+              /* can wiki pages have tags? */
+              " tags AS tags," /*FIXME: split this into
+                                 a JSON array*/
+              " tagId AS tagId,"
+#endif
+              " FROM json_timeline"
+              " ORDER BY mtime DESC",
+              -1);
+  db_prepare(&q,blob_buffer(&sql));
+  listV = cson_value_new_array();
+  list = cson_value_get_array(listV);
+  tmp = listV;
+  SET("timeline");
+  while( (SQLITE_ROW == db_step(&q) )){
+    /* convert each row into a JSON object...*/
+    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
+    cson_object * row = cson_value_get_object(rowV);
+    cson_string const * tagsStr = NULL;
+    if(!row){
+      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                 "Could not convert at least one timeline result row to JSON." );
+      continue;
+    }
+    /* Split tags string field into JSON Array... */
+    cson_array_append(list, rowV);
+#if 0
+    tagsStr = cson_value_get_string(cson_object_get(row,"tags"));
+    if(tagsStr){
+      cson_value * tags = json_string_split2( cson_string_cstr(tagsStr),
+                                              ',', 0);
+      if( tags ){
+        if(0 != cson_object_set(row,"tags",tags)){
+          cson_value_free(tags);
+        }else{
+          /*replaced/deleted old tags value, invalidating tagsStr*/;
+          tagsStr = NULL;
+        }
+      }else{
+        json_warn(FSL_JSON_W_STRING_TO_ARRAY_FAILED,
+                  "Could not convert tags string to array.");
+      }
+    }
+#endif
+  }
+  db_finalize(&q);
+#undef SET
+  goto ok;
+  error:
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
+  return payV;
+}
+
 
 /*
 ** Implements the /json/whoami page/command.
