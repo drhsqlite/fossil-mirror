@@ -1,5 +1,5 @@
-C Added\s/json/wiki/get?page=...
-D 2011-09-22T15:59:11.426
+C Added\srudimentary\stimer\sto\sAJAX\stest\spage.
+D 2011-09-22T16:21:06.474
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,7 +7,7 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/index.html 12c4980a737964053385f64c297b269f6de464dc
+F ajax/index.html ecf893e58aa1c94efb246b1833e003c399381b6e
 F ajax/js/fossil-ajaj.js a1e2db28f1ce8f20908f48cdb6dbdf2ab46122ea
 F ajax/js/whajaj.js 2e5186633cfd47d15eb77d7c63f21edc1c11347c
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -330,7 +330,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7a65dd0e00a2fab49bb47fd34a3a2fbc680fb675
-R d16bac0454d9963143746bb78f8d3290
+P 7dc8e9ac94fd752de8d080953b518e04dd30965a
+R 87a47901ffe454fbffbb6fcc37b87fc7
 U stephan
-Z 9b20dd7e8a320a86fd687595df6a1af9
+Z aca68764f02652bb85368a90bf907773

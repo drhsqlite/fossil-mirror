@@ -103,14 +103,17 @@ jQuery.fn.flash = function( color, duration )
 };
 
 jQuery(document).ready(function(){
-    var ids = ['textPath', // list of HTML element IDs we use often.
-            'taResponse',
-            'taRequest',
-            'taRequestOpt',
-            'ajaxNotification',
-            'responseContainer',
-            'btnSend',
-            'currentAuthToken'];
+    var ids = [
+        'btnSend',
+        'ajaxNotification',
+        'currentAuthToken',
+        'responseContainer',
+        'taRequest',
+        'taRequestOpt',
+        'taResponse',
+        'textPath', // list of HTML element IDs we use often.
+        'timer'
+    ];
     var i, k;
     for( i = 0; i < ids.length; ++i ) {
         k = ids[i];
@@ -124,8 +127,18 @@ jQuery(document).ready(function(){
         });
 
     TheApp.cgi = new FossilAjaj();
+    TheApp.timer = {_tstart:0,_tend:0,duration:0,
+        start:function(){
+            this._tstart = (new Date()).getTime();
+        },
+        end:function(){
+            this._tend = (new Date()).getTime();
+            this.duration = this._tend - this._tstart;
+        }
+    };
     var opt = TheApp.cgi.ajaj.options;
     opt.beforeSend = function(req,opt) {
+        TheApp.timer.start();
         var val =
             req ?
             (('string'===typeof req) ? req : WhAjaj.stringify(req))
@@ -136,7 +149,9 @@ jQuery(document).ready(function(){
         TheApp.startAjaxNotif();
     };
     opt.afterSend = function(req,opt) {
+        TheApp.timer.end();
         TheApp.endAjaxNotif();
+        TheApp.jqe.timer.text( "(Round-trip time: "+TheApp.timer.duration+'ms)' );
     };
     opt.onResponse = function(resp,req) {
         var val;
@@ -182,6 +197,8 @@ need help text, hoverhelp, and a snazzy interface.
 
 Path: <input type='text' size='40' id='textPath' value='/json/HAI'/>
 <input type='button' value='Send...' id='btnSend' onclick='TheApp.sendRequest()' /><br/>
+If the POST textarea is not empty then it will be posted with the request.
+<hr/>
 <strong>Quick-posts:</strong><br/>
 <input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
 <input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
@@ -231,7 +248,7 @@ pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
         </td>
     </tr>
     <tr>
-        <th colspan='2'>Response</th>
+        <th colspan='2'>Response <span id='timer'></span></th>
     </tr>
     <tr>
         <td colspan='2' id='responseContainer'>
