@@ -1468,12 +1468,12 @@ cson_value * json_page_stat(unsigned int depth){
 
 
 static cson_value * json_wiki_list(unsigned int depth);
-
+static cson_value * json_wiki_get(unsigned int depth);
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Wiki[] = {
-{"get", json_page_nyi, 0},
+{"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
 {"save", json_page_nyi, 1},
 /* Last entry MUST have a NULL name. */
@@ -1522,13 +1522,82 @@ static cson_value * json_page_wiki(unsigned int depth){
   return json_page_dispatch_helper(depth,&JsonPageDefs_Wiki[0]);
 }
 
+
 /*
-** INTERIM implementation of /json/wiki/list
+** Implementation of /json/wiki/get.
+**
+** TODO: add option to parse wiki output. It is currently
+** unparsed.
+*/
+static cson_value * json_wiki_get(unsigned int depth){
+  int rid;
+  Manifest *pWiki = 0;
+  char const * zBody = NULL;
+  char const * zPageName;
+  char doParse = 0/*not yet implemented*/;
+
+  if( !g.perm.RdWiki ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  zPageName = g.isHTTP
+    ? json_getenv_cstr("page")
+    : find_option("page","p",1);
+  if(!zPageName||!*zPageName){
+    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    return NULL;
+  }
+  rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
+               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
+               " ORDER BY x.mtime DESC LIMIT 1",
+               zPageName 
+               );
+  if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+    zBody = pWiki->zWiki;
+  }
+  if( zBody==0 ){
+    manifest_destroy(pWiki);
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+    return NULL;
+  }else{
+    unsigned int const len = strlen(zBody);
+    cson_value * payV = cson_value_new_object();
+    cson_object * pay = cson_value_get_object(payV);
+    cson_object_set(pay,"name",json_new_string(zPageName));
+    cson_object_set(pay,"version",json_new_string(pWiki->zBaseline))
+      /*FIXME: pWiki->zBaseline is NULL. How to get the version number?*/
+      ;
+    cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
+    cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
+    cson_object_set(pay,"timestamp",
+                      cson_value_new_integer((cson_int_t)
+                        db_int64(0,
+                          "SELECT strftime('%%s',%lf)",
+                          pWiki->rDate
+                        )
+                      )
+                    );
+    cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+    cson_object_set(pay,"contentFormat",json_new_string(doParse?"html":"raw"));
+    cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+    /*TODO: add 'T' (tag) fields*/
+    /*TODO: add the 'A' card (file attachment) entries?*/
+    manifest_destroy(pWiki);
+    return payV;
+  }
+}
+
+/*
+** Implementation of /json/wiki/list.
 */
 static cson_value * json_wiki_list(unsigned int depth){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   Stmt q;
+  if( !g.perm.RdWiki ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
   db_prepare(&q,"SELECT"
              " substr(tagname,6) as name"
              " FROM tag WHERE tagname GLOB 'wiki-*'"
@@ -1553,7 +1622,6 @@ static cson_value * json_wiki_list(unsigned int depth){
   db_finalize(&q);
   return listV;
 }
-
 
 
 static cson_value * json_branch_list(unsigned int depth);
