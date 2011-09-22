@@ -1895,10 +1895,11 @@ static cson_value * json_page_timeline(unsigned int depth){
 ** Create a temporary table suitable for storing timeline data.
 */
 static void json_timeline_temp_table(void){
-  /* Field order MUST match that from json_timeline_query_XXX()!!! */
+  /* Field order MUST match that from json_timeline_query()!!! */
   static const char zSql[] = 
     @ CREATE TEMP TABLE IF NOT EXISTS json_timeline(
-    @   rid INTEGER PRIMARY KEY,
+    @   sortId INTEGER PRIMARY KEY,
+    @   rid INTEGER,
     @   uuid TEXT,
     @   mtime INTEGER,
     @   timestampString TEXT,
@@ -1923,6 +1924,7 @@ const char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
   static const char zBaseSql[] =
     @ SELECT
+    @   NULL,
     @   blob.rid,
     @   uuid,
     @   strftime('%%s',event.mtime),
@@ -1941,6 +1943,57 @@ const char const * json_timeline_query(void){
     @ WHERE blob.rid=event.objid
   ;
   return zBaseSql;
+}
+
+/*
+** Helper for the timeline family of functions.  Possibly appends 1
+** AND clause and an ORDER BY clause to pSql, depending on the state
+** of the "after" ("a") or "before" ("b") environment parameters.
+** This function gives "after" precedence over "before", and only
+** applies one of them.
+**
+** Returns -1 if it adds a "before" clause, 1 if it adds
+** an "after" clause, and 0 if it does not change pSql.
+*/
+static char json_timeline_add_time_clause(Blob *pSql){
+  char const * zAfter = NULL;
+  char const * zBefore = NULL;
+  if( g.isHTTP ){
+    /**
+       FIXME: we are only honoring STRING values here, not int (for
+       passing Unix Epoch times).
+    */
+    zAfter = json_getenv_cstr("after");
+    if(!zAfter || !*zAfter){
+      zAfter = json_getenv_cstr("a");
+    }
+    if(!zAfter){
+      zBefore = json_getenv_cstr("before");
+      if(!zBefore||!*zBefore){
+        zBefore = json_getenv_cstr("b");
+      }
+    }
+  }else{
+    zAfter = find_option("after","a",1);
+    zBefore = zAfter ? NULL : find_option("before","b",1);
+  }
+  if(zAfter&&*zAfter){
+    while( fossil_isspace(*zAfter) ) ++zAfter;
+    blob_appendf(pSql,
+                 " AND event.mtime>=(SELECT julianday(%Q,'utc')) "
+                 " ORDER BY event.mtime ASC ",
+                 zAfter);
+    return 1;
+  }else if(zBefore && *zBefore){
+    while( fossil_isspace(*zBefore) ) ++zBefore;
+    blob_appendf(pSql,
+                 " AND event.mtime<=(SELECT julianday(%Q,'utc')) "
+                 " ORDER BY event.mtime DESC ",
+                 zBefore);
+    return -1;
+  }else{
+    return 0;
+  }
 }
 
 /*
@@ -1992,8 +2045,8 @@ static cson_value * json_timeline_ci(unsigned int depth){
   json_timeline_temp_table();
   blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
   blob_append(&sql, json_timeline_query(), -1 );
-  blob_append(&sql, "AND event.type IN('ci') ", -1);
-  blob_append(&sql, "ORDER BY mtime DESC ", -1);
+  blob_append(&sql, " AND event.type IN('ci') ", -1);
+  json_timeline_add_time_clause(&sql);
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
@@ -2013,7 +2066,8 @@ static cson_value * json_timeline_ci(unsigned int depth){
 #endif
 
   blob_reset(&sql);
-  blob_append(&sql, "SELECT rid AS rid,"
+  blob_append(&sql, "SELECT "
+              " rid AS rid,"
               " uuid AS uuid,"
               " mtime AS timestamp,"
               " timestampString AS timestampString,"
@@ -2027,7 +2081,7 @@ static cson_value * json_timeline_ci(unsigned int depth){
               " tagId AS tagId,"
               " brief AS briefText"
               " FROM json_timeline"
-              " ORDER BY mtime DESC",
+              " ORDER BY sortId",
               -1);
   db_prepare(&q,blob_buffer(&sql));
   listV = cson_value_new_array();
@@ -2109,7 +2163,7 @@ static cson_value * json_timeline_wiki(unsigned int depth){
   blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
   blob_append(&sql, json_timeline_query(), -1 );
   blob_append(&sql, "AND event.type IN('w') ", -1);
-  blob_append(&sql, "ORDER BY mtime DESC ", -1);
+  json_timeline_add_time_clause(&sql);
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
@@ -2143,7 +2197,7 @@ static cson_value * json_timeline_wiki(unsigned int depth){
               " tagId AS tagId,"
 #endif
               " FROM json_timeline"
-              " ORDER BY mtime DESC",
+              " ORDER BY sortId",
               -1);
   db_prepare(&q,blob_buffer(&sql));
   listV = cson_value_new_array();
