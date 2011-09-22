@@ -485,6 +485,18 @@ static cson_value * json_auth_token(){
 }
 
 /*
+** IFF json.reqPayload.o is not NULL then this returns
+** cson_object_get(json.reqPayload.o,pKey), else it returns NULL.
+**
+** The returned value is owned by (or shared with) json.reqPayload.v.
+*/
+cson_value * json_req_payload_get(char const *pKey){
+  return g.json.reqPayload.o
+    ? cson_object_get(g.json.reqPayload.o,pKey)
+    : NULL;
+}
+
+/*
 ** Initializes some JSON bits which need to be initialized relatively
 ** early on. It should only be called from cgi_init() or
 ** json_cmd_top() (early on in those functions).
@@ -944,6 +956,20 @@ static cson_value * json_julian_to_timestamp(double j){
            db_int64(0,"SELECT strftime('%%s',%lf)",j)
                                 );
 }
+/*
+** Returns a timestamp value.
+*/
+static cson_int_t json_timestamp(){
+  return (cson_int_t)time(0);
+}
+/*
+** Returns a new JSON value (owned by the caller) representing
+** a timestamp. If timeVal is < 0 then time(0) is used to fetch
+** the time, else timeVal is used as-is
+*/
+static cson_value * json_new_timestamp(cson_int_t timeVal){
+  return cson_value_new_integer((timeVal<0) ? (cson_int_t)time(0) : timeVal);
+}
 
 /*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
@@ -988,31 +1014,7 @@ cson_value * json_create_response( int resultCode,
   SET("fossil");
  
   {/* timestamp */
-    cson_int_t jsTime;
-#if 1
-    jsTime = (cson_int_t)time(0);
-#elif 1
-    /* Ge Weijers has pointed out that time(0) commonly returns
-       UTC, but is not required to by The Standard.
-
-       There is a mkfmtime() function in cgi.c but it requires
-       a (tm *), and i don't have that without calling gmtime()
-       or populating the tm myself (which is what i'm trying to
-       have done for me!).
-    */
-    time_t const t = (time_t)time(0);
-    struct tm gt = *gmtime(&t);
-    gt.tm_isdst = -1;
-    jsTime = (cson_int_t)mktime(&gt);
-#else
-    /* i'm not 100% sure that the above actually does what i expect,
-       but we can't use the following because this function can be
-       called in response to error handling if the db cannot be opened
-       (or before that).
-    */
-    jsTime = (cson_int_t)db_int64(0, "SELECT strftime('%%s','now')");
-#endif
-    tmp = cson_value_new_integer(jsTime);
+    tmp = json_new_timestamp(-1);
     SET(FossilJsonKeys.timestamp);
   }
   if( 0 != resultCode ){
@@ -1480,13 +1482,14 @@ cson_value * json_page_stat(unsigned int depth){
 
 static cson_value * json_wiki_list(unsigned int depth);
 static cson_value * json_wiki_get(unsigned int depth);
+static cson_value * json_wiki_save(unsigned int depth);
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Wiki[] = {
 {"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
-{"save", json_page_nyi, 1},
+{"save", json_wiki_save, 1},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -1580,7 +1583,7 @@ static cson_value * json_wiki_get(unsigned int depth){
       ;
     cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
-    cson_object_set(pay,"timestamp", json_julian_to_timestamp(pWiki->rDate));
+    cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
     cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
     cson_object_set(pay,"contentFormat",json_new_string(doParse?"html":"raw"));
     cson_object_set(pay,"content",cson_value_new_string(zBody,len));
@@ -1589,6 +1592,48 @@ static cson_value * json_wiki_get(unsigned int depth){
     manifest_destroy(pWiki);
     return payV;
   }
+}
+
+/*
+** Implementation of /json/wiki/save.
+*/
+static cson_value * json_wiki_save(unsigned int depth){
+  Blob content = empty_blob;
+  cson_value * nameV;
+  cson_value * contentV;
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  cson_string const * jstr = NULL;
+  char const * zContent;
+  char const * zBody = NULL;
+  char const * zPageName;
+  if( !g.perm.WrWiki ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  nameV = json_req_payload_get("name");
+  contentV = nameV ? json_req_payload_get("content") : NULL;
+  if(!nameV || !contentV){
+    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    return NULL;
+  }
+  if( !cson_value_is_string(nameV)
+      || !cson_value_is_string(contentV)){
+    g.json.resultCode = FSL_JSON_E_INVALID_ARGS;
+    return NULL;
+  }
+  zPageName = cson_string_cstr(cson_value_get_string(nameV));
+  jstr = cson_value_get_string(contentV);
+  blob_append(&content, cson_string_cstr(jstr),(int)cson_string_length_bytes(jstr));
+  wiki_cmd_commit(zPageName, 0, &content);
+  blob_reset(&content);
+
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  cson_object_set( pay, "name", nameV );
+  cson_object_set( pay, FossilJsonKeys.timestamp,
+                   json_new_timestamp(-1) );
+  return payV;
 }
 
 /*
@@ -1989,7 +2034,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"timeline", json_page_timeline,0},
 {"user", json_page_nyi,0},
 {"version",json_page_version,0},
-{"whoami",json_page_whoami,1},
+{"whoami",json_page_whoami,1/*FIXME: work in CLI mode*/},
 {"wiki",json_page_wiki,0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}

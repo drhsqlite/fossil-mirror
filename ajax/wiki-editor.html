@@ -188,6 +188,7 @@ jQuery(document).ready(function(){
 
     TheApp.showPage = function(name){
         function doShow(page){
+            TheApp.currentPage = page;
             TheApp.jqe.spanPageName.text('('+page.name+')');
             TheApp.jqe.taPageContent.val(page.content);
         }
@@ -237,6 +238,24 @@ jQuery(document).ready(function(){
         return false /*for click handlers*/;
     }
 
+    TheApp.savePage = function(p){
+        p = p || TheApp.currentPage || TheApp.pages[TheApp.currentPage];
+        if( 'object' !== typeof p ){
+            p = TheApp.pages[p];
+        }
+        if('object' !== typeof p){
+            alert("savePage() argument is not a page object or known page name.");
+        }
+        TheApp.pages[p.name] = p;
+        p.content = TheApp.jqe.taPageContent.val();
+        var req = {
+            name:p.name,
+            content:p.content
+        };
+        if(! confirm("Really save wiki page ["+p.name+"]?") ) return;
+        TheApp.cgi.sendCommand('/json/wiki/save',req);
+    };
+
 });
 
 </script>
@@ -267,6 +286,9 @@ pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
 <input type='button' value='whoami' onclick='TheApp.cgi.sendCommand("/json/whoami")' />
 <input type='button' value='cap' onclick='TheApp.cgi.sendCommand("/json/cap")' />
 <input type='button' value='wiki/list' onclick='TheApp.loadPageList()' />
+<!--
+<input type='button' value='timeline/ci' onclick='TheApp.cgi.sendCommand("/json/timeline/ci")' />
+-->
 
 <!--
 <input type='button' value='get whiki' onclick='TheApp.cgi.getPages("whiki")' />
@@ -286,6 +308,7 @@ pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
             <div id='pageListArea'></div>
         </td>
         <td width='75%' valign='top'>
+            <input type='button' value='Save' onclick='TheApp.savePage()' /><br/>
             <textarea id='taPageContent' rows='20' cols='60'></textarea>
         </td>
     </tr>

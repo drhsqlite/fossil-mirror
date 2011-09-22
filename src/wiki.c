@@ -803,9 +803,11 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
      zPageName
   );
   if( rid==0 && !isNew ){
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     fossil_fatal("no such wiki page: %s", zPageName);
   }
   if( rid!=0 && isNew ){
+    g.json.resultCode = FSL_JSON_E_DENIED/*need a better code for this*/;
     fossil_fatal("wiki page %s already exists", zPageName);
   }
 
