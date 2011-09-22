@@ -177,6 +177,12 @@ jQuery(document).ready(function(){
         TheApp.jqe.taResponse.val( "ERROR SENDING REQUEST:\n"+WhAjaj.stringify(opt) );
     };
 
+    TheApp.jqe.taPageContent.blur(function(){
+        var p = TheApp.currentPage;
+        if(! p ) return;
+        p.content = TheApp.jqe.taPageContent.val();
+    });
+
     TheApp.cgi.onLogin = function(){
       TheApp.jqe.taResponse.val( "Logged in. Auth token =\n"+this.authToken );
       TheApp.jqe.currentAuthToken.text("Auth token: "+(this.authToken || "not logged in"));
@@ -193,7 +199,7 @@ jQuery(document).ready(function(){
             TheApp.jqe.taPageContent.val(page.content);
         }
         var p = ('object' === typeof name) ? name : TheApp.pages[name];
-        if('object' === typeof p) {
+        if(('object' === typeof p) && p.content) {
             doShow(p);
             return;
         }
@@ -208,22 +214,32 @@ jQuery(document).ready(function(){
             }
         });
     };
-    TheApp.updatePageList = function(list){
-        var tgt = TheApp.jqe.pageListArea;
-        tgt.empty();
-        var i, p, a;
+    TheApp.refreshPageListView = function(){
+        var list = (function(){
+            var k, v, li = [];
+            for( k in TheApp.pages ){
+                if(!TheApp.pages.hasOwnProperty(k)) continue;
+                li.push(k);
+            }
+            return li;                
+        })();
+        var i, p, a, tgt = TheApp.jqe.pageListArea;
+        tgt.text('');
         function makeLink(name){
-            var a = jQuery('<span class="wikiPageLink"></span>');
-            a.text(name).
-            click(function(e){
+            var link = jQuery('<span></span>');
+            link.text(name);
+            link.addClass('wikiPageLink');
+            link.click(function(e){
                 TheApp.showPage(name);
                 e.preventDefault();
                 return false;
             });
-            return a;
+            return link;
         }
+        list.sort();
         for( i = 0; i < list.length; ++i ){
-            tgt.append(makeLink(list[i])).append('<br/>');
+            tgt.append(makeLink(list[i]));
+            tgt.append('<br/>');
         }
     };
 
@@ -232,14 +248,20 @@ jQuery(document).ready(function(){
             onResponse:function(resp,req){
                 TheApp.onResponse(resp,req);
                 if(resp.resultCode) return;
-                else TheApp.updatePageList(resp.payload);
+                var i, v, p, ar = resp.payload;
+                for( i = 0; i < ar.length; ++i ){
+                    v = ar[i];
+                    p = TheApp.pages[v];
+                    if( !p ) TheApp.pages[v] = {name:v};
+                }
+                TheApp.refreshPageListView();
             }
         });
         return false /*for click handlers*/;
     }
 
     TheApp.savePage = function(p){
-        p = p || TheApp.currentPage || TheApp.pages[TheApp.currentPage];
+        p = p || TheApp.currentPage;
         if( 'object' !== typeof p ){
             p = TheApp.pages[p];
         }
@@ -253,7 +275,39 @@ jQuery(document).ready(function(){
             content:p.content
         };
         if(! confirm("Really save wiki page ["+p.name+"]?") ) return;
-        TheApp.cgi.sendCommand('/json/wiki/save',req);
+        TheApp.cgi.sendCommand('/json/wiki/'+(p.isNew?'create':'save'),req,{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                delete p.isNew;
+                p.timestamp = resp.payload.timestamp;
+            }
+        });
+        
+    };
+
+    TheApp.createNewPage = function(){
+        var name = prompt("New page name?");
+        if(!name) return;
+        var p = {
+            name:name,
+            content:"New, empty page.",
+            isNew:true
+        };
+        TheApp.pages[name] = p;
+        TheApp.refreshPageListView();
+        TheApp.showPage(p);
+/*
+        if(! confirm("Really create new wiki page ["+name+"]?") ) return;
+        TheApp.cgi.sendCommand('/json/wiki/create',req,{
+            onResponse:function(resp,req){
+                TheApp.onResponse(resp,req);
+                if(resp.resultCode) return;
+                TheApp.pages[p.name] = p;
+                TheApp.refreshPageListView();
+            }
+        });
+*/
     };
 
 });
@@ -305,6 +359,7 @@ pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
     </tr>
     <tr>
         <td width='25%' valign='top'>
+            <input type='button' value='Create new...' onclick='TheApp.createNewPage()' /><br/>
             <div id='pageListArea'></div>
         </td>
         <td width='75%' valign='top'>
