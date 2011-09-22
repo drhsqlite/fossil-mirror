@@ -1145,7 +1145,6 @@ cson_value * json_page_version(unsigned int depth){
 cson_value * json_page_cap(unsigned int depth){
   cson_value * payload = cson_value_new_object();
   cson_value * sub = cson_value_new_object();
-  char * zCap;
   Stmt q;
   cson_object * obj = cson_value_get_object(payload);
   db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
@@ -1863,6 +1862,41 @@ static cson_value * json_timeline_ci(unsigned int depth){
   return payV;
 }
 
+/*
+** Implements the /json/whoami page/command.
+*/
+static cson_value * json_page_whoami(unsigned int depth){
+  cson_value * payload = NULL;
+  cson_object * obj = NULL;
+  Stmt q;
+  db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
+  if( db_step(&q)==SQLITE_ROW ){
+
+    /* reminder: we don't use g.zLogin because it's 0 for the guest
+       user and the HTML UI appears to currently allow the name to be
+       changed (but doing so would break other code). */
+    char const * str;
+    payload = cson_value_new_object();
+    obj = cson_value_get_object(payload);
+    str = (char const *)sqlite3_column_text(q.pStmt,0);
+    if( str ){
+      cson_object_set( obj, "name",
+                       cson_value_new_string(str,strlen(str)) );
+    }
+    str = (char const *)sqlite3_column_text(q.pStmt,1);
+    if( str ){
+      cson_object_set( obj, "capabilities",
+                       cson_value_new_string(str,strlen(str)) );
+    }
+    if( g.json.authToken ){
+      cson_object_set( obj, "authToken", g.json.authToken );
+    }
+  }else{
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+  }
+  db_finalize(&q);
+  return payload;
+}
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -1883,6 +1917,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"timeline", json_page_timeline,0},
 {"user", json_page_nyi,0},
 {"version",json_page_version,0},
+{"whoami",json_page_whoami,1},
 {"wiki",json_page_wiki,0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
