@@ -1689,7 +1689,8 @@ static cson_value * json_wiki_create_or_save(char createMode){
   char const * zPageName;
   unsigned int contentLen = 0;
   int rid;
-  if( !g.perm.WrWiki ){
+  if( (createMode && !g.perm.NewWiki)
+      || (!createMode && !g.perm.WrWiki)){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }

@@ -1,5 +1,5 @@
-C Added\sinitial\sJSONP\ssupport,\sbut\slacks\ssignificant\stesting.
-D 2011-09-23T00:39:41.248
+C Corrected\s/json/wiki/save|create\sto\shonor\sthe\sproper\sg.perm.WrWiki/NewWiki\sperm,\sinstead\sof\sjust\sWrWiki.
+D 2011-09-23T01:00:49.883
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -93,7 +93,7 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 042aeaa543616ec8ed704bdf97f255cb963623e5
+F src/json.c bc2a96ff3f8c982f71fa83de2c70b71dc140ef12
 F src/json_detail.h 1502b03ae70cf0168d8431bc9771d497bf66fd88
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e01d49b252d9d2a1cbd36df7380e4a9cb41f24e9
-R ddf451f6916739b29ee0d116c33991aa
+P e72ae99dc2aa29b57f2c29014225c2c73178eee7
+R 9d67e32358d81925428df94ff505fbec
 U stephan
-Z 0b8ae97f65d8982220433fabf287afde
+Z ccb5f7b4aaded70e7cd1d24b3388684d
