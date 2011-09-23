@@ -1,5 +1,5 @@
-C Added\scomment\sto\stimeline/ticket.\sMinor\sadditions\sto\sAJAX\stest\spages.
-D 2011-09-23T12:46:46.543
+C s/briefText/briefComment/.\sFixed\sa\scouple\smemleaks\sof\sblob\ssql.
+D 2011-09-23T13:10:44.963
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -93,7 +93,7 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 96771116a28ad2c2307762a72726de958c9b9af9
+F src/json.c 58cb56614231b7e472c5313f4d4283fef003c38d
 F src/json_detail.h 1502b03ae70cf0168d8431bc9771d497bf66fd88
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 42900f3029d129d97f9e8c73f68a37ea9792b394
-R 292a0ecbea2ff3c825ab0787992e8780
+P de0b860f770141f5fe99eda8f03f6c51f3871e5b
+R 7c00e3cc1674ba6e49953e0a2c6e5d92
 U stephan
-Z 2d94491e68db904c531b0c5bff773812
+Z 6f8c64a4f38c7c522f6fa393338aa178

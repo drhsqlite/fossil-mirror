@@ -2163,6 +2163,7 @@ static cson_value * json_timeline_ci(){
               " ORDER BY sortId",
               -1);
   db_prepare(&q,blob_buffer(&sql));
+  blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -2268,7 +2269,8 @@ static cson_value * json_timeline_wiki(){
               " FROM json_timeline"
               " ORDER BY sortId",
               -1);
-  db_prepare(&q,blob_buffer(&sql));
+  db_prepare(&q, blob_buffer(&sql));
+  blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -2345,11 +2347,12 @@ static cson_value * json_timeline_ticket(){
               " user AS user,"
               " eventType AS eventType,"
               " comment AS comment,"
-              " brief AS briefText"
+              " brief AS briefComment"
               " FROM json_timeline"
               " ORDER BY sortId",
               -1);
   db_prepare(&q,blob_buffer(&sql));
+  blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
