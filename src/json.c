@@ -1924,11 +1924,20 @@ static cson_value * json_branch_list(){
 
 static cson_value * json_timeline_ci();
 static cson_value * json_timeline_wiki();
+static cson_value * json_timeline_ticket();
 /*
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Timeline[] = {
+{"c", json_timeline_ci, 0},
 {"ci", json_timeline_ci, 0},
+{"com", json_timeline_ci, 0},
+{"commit", json_timeline_ci, 0},
+{"t", json_timeline_ticket, 0},
+{"ticket", json_timeline_ticket, 0},
+{"w", json_timeline_wiki, 0},
+{"wi", json_timeline_wiki, 0},
+{"wik", json_timeline_wiki, 0},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
@@ -2072,6 +2081,35 @@ static int json_timeline_limit(){
   }
   return (limit<0) ? defaultLimit : limit;
 }
+
+/*
+** Internal helper for the json_timeline_EVENTTYPE() family of
+** functions. zEventType must be one of (ci, w, t). pSql must be a
+** cleanly-initialized, empty Blob to store the sql in. If pPayload is
+** not NULL it is assumed to be the pending response payload. If
+** json_timeline_limit() returns non-0, this function adds a LIMIT
+** clause to the generated SQL and (if pPayload is not NULL) adds the
+** limit value as the "limit" property of pPayload.
+*/
+static void json_timeline_setup_sql( char const * zEventType,
+                                     Blob * pSql,
+                                     cson_object * pPayload ){
+  int limit;
+  assert( zEventType && *zEventType && pSql );
+  json_timeline_temp_table();
+  blob_append(pSql, "INSERT OR IGNORE INTO json_timeline ", -1);
+  blob_append(pSql, json_timeline_query(), -1 );
+  blob_appendf(pSql, " AND event.type IN(%Q) ", zEventType);
+  json_timeline_add_time_clause(pSql);
+  limit = json_timeline_limit();
+  if(limit){
+    blob_appendf(pSql,"LIMIT %d ",limit);
+  }
+  if(pPayload){
+    cson_object_set(pPayload, "limit",cson_value_new_integer(limit));
+  }
+
+}
 /*
 ** Implementation of /json/timeline/ci.
 **
@@ -2084,7 +2122,6 @@ static cson_value * json_timeline_ci(){
   cson_value * tmp = NULL;
   cson_value * listV = NULL;
   cson_array * list = NULL;
-  int limit;
   int check = 0;
   Stmt q;
   Blob sql = empty_blob;
@@ -2092,23 +2129,13 @@ static cson_value * json_timeline_ci(){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
-  limit = json_timeline_limit();
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  json_timeline_temp_table();
-  blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
-  blob_append(&sql, json_timeline_query(), -1 );
-  blob_append(&sql, " AND event.type IN('ci') ", -1);
-  json_timeline_add_time_clause(&sql);
+  json_timeline_setup_sql( "ci", &sql, pay );
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
     goto error;\
-  }
-  if(limit){
-    blob_appendf(&sql,"LIMIT %d ",limit);
-    tmp = cson_value_new_integer(limit);
-    SET("limit");
   }
   db_multi_exec(blob_buffer(&sql));
 
@@ -2127,12 +2154,11 @@ static cson_value * json_timeline_ci(){
               " comment AS comment, "
               " user AS user,"
               " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
-              " bgColor AS bgColor,"
+              " bgColor AS bgColor," /* why always null? */
               " eventType AS eventType,"
               " tags AS tags," /*FIXME: split this into
                                  a JSON array*/
-              " tagId AS tagId,"
-              " brief AS briefText"
+              " tagId AS tagId"
               " FROM json_timeline"
               " ORDER BY sortId",
               -1);
@@ -2184,6 +2210,7 @@ static cson_value * json_timeline_ci(){
 #undef SET
   goto ok;
   error:
+  assert( 0 != g.json.resultCode );
   cson_value_free(payV);
   payV = NULL;
   ok:
@@ -2201,7 +2228,6 @@ static cson_value * json_timeline_wiki(){
   cson_value * tmp = NULL;
   cson_value * listV = NULL;
   cson_array * list = NULL;
-  int limit;
   int check = 0;
   Stmt q;
   Blob sql = empty_blob;
@@ -2209,23 +2235,13 @@ static cson_value * json_timeline_wiki(){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
-  limit = json_timeline_limit();
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  json_timeline_temp_table();
-  blob_append(&sql, "INSERT OR IGNORE INTO json_timeline ", -1);
-  blob_append(&sql, json_timeline_query(), -1 );
-  blob_append(&sql, "AND event.type IN('w') ", -1);
-  json_timeline_add_time_clause(&sql);
+  json_timeline_setup_sql( "w", &sql, pay );
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
     goto error;\
-  }
-  if(limit){
-    blob_appendf(&sql,"LIMIT %d ",limit);
-    tmp = cson_value_new_integer(limit);
-    SET("limit");
   }
   db_multi_exec(blob_buffer(&sql));
 
@@ -2261,37 +2277,106 @@ static cson_value * json_timeline_wiki(){
     /* convert each row into a JSON object...*/
     cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
     cson_object * row = cson_value_get_object(rowV);
-    cson_string const * tagsStr = NULL;
+    int rc;
     if(!row){
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
                  "Could not convert at least one timeline result row to JSON." );
       continue;
     }
-    /* Split tags string field into JSON Array... */
-    cson_array_append(list, rowV);
-#if 0
-    tagsStr = cson_value_get_string(cson_object_get(row,"tags"));
-    if(tagsStr){
-      cson_value * tags = json_string_split2( cson_string_cstr(tagsStr),
-                                              ',', 0);
-      if( tags ){
-        if(0 != cson_object_set(row,"tags",tags)){
-          cson_value_free(tags);
-        }else{
-          /*replaced/deleted old tags value, invalidating tagsStr*/;
-          tagsStr = NULL;
-        }
-      }else{
-        json_warn(FSL_JSON_W_STRING_TO_ARRAY_FAILED,
-                  "Could not convert tags string to array.");
-      }
+    rc = cson_array_append( list, rowV );
+    if( 0 != rc ){
+      cson_value_free(rowV);
+      g.json.resultCode = (cson_rc.AllocError==rc)
+        ? FSL_JSON_E_ALLOC
+        : FSL_JSON_E_UNKNOWN;
+      goto error;
     }
-#endif
   }
   db_finalize(&q);
 #undef SET
   goto ok;
   error:
+  assert( 0 != g.json.resultCode );
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
+  return payV;
+}
+
+/*
+** Implementation of /json/timeline/ticket.
+**
+*/
+static cson_value * json_timeline_ticket(){
+  /* This code is 95% the same as json_timeline_ci(), by the way. */
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  cson_value * tmp = NULL;
+  cson_value * listV = NULL;
+  cson_array * list = NULL;
+  int check = 0;
+  Stmt q;
+  Blob sql = empty_blob;
+  if( !g.perm.Read || !g.perm.RdTkt ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  json_timeline_setup_sql( "t", &sql, pay );
+  db_multi_exec(blob_buffer(&sql));
+#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
+    g.json.resultCode = (cson_rc.AllocError==check) \
+      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    goto error;\
+  }
+
+#if 0
+  /* only for testing! */
+  tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
+  SET("timelineSql");
+#endif
+
+  blob_reset(&sql);
+  blob_append(&sql, "SELECT rid AS rid,"
+              " uuid AS uuid,"
+              " mtime AS timestamp,"
+              " timestampString AS timestampString,"
+              " user AS user,"
+              " eventType AS eventType,"
+              " brief AS briefText"
+              " FROM json_timeline"
+              " ORDER BY sortId",
+              -1);
+  db_prepare(&q,blob_buffer(&sql));
+  listV = cson_value_new_array();
+  list = cson_value_get_array(listV);
+  tmp = listV;
+  SET("timeline");
+  while( (SQLITE_ROW == db_step(&q) )){
+    /* convert each row into a JSON object...*/
+    int rc;
+    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
+    cson_object * row = cson_value_get_object(rowV);
+    if(!row){
+      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                 "Could not convert at least one timeline result row to JSON." );
+      continue;
+    }
+    rc = cson_array_append( list, rowV );
+    if( 0 != rc ){
+      cson_value_free(rowV);
+      g.json.resultCode = (cson_rc.AllocError==rc)
+        ? FSL_JSON_E_ALLOC
+        : FSL_JSON_E_UNKNOWN;
+      goto error;
+    }
+  }
+  db_finalize(&q);
+#undef SET
+  goto ok;
+  error:
+  assert( 0 != g.json.resultCode );
   cson_value_free(payV);
   payV = NULL;
   ok:
