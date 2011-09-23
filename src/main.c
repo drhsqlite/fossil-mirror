@@ -184,6 +184,11 @@ struct Global {
     cson_output_opt outOpt;    /* formatting options for JSON mode. */
     cson_value * authToken;    /* authentication token */
     char const * jsonp;        /* Name of JSONP function wrapper. */
+    unsigned char dispatchDepth /* Tells JSON command dispatching
+                                   which argument we are currently
+                                   working on. For this purpose, arg#0
+                                   is the "json" path/CLI arg.
+                                */;
     struct {                   /* "garbage collector" */
       cson_value * v;
       cson_object * o;

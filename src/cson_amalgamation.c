@@ -2437,9 +2437,9 @@ static int cson_value_set_integer( cson_value * val, cson_int_t v )
         val->value = (void *)v;
 #else
         cson_int_t * iv = NULL;
-        cson_value_clean( val );
         iv = (cson_int_t*)cson_malloc(sizeof(cson_int_t), "cson_int_t");
         if( ! iv ) return cson_rc.AllocError;
+        cson_value_clean( val );
         *iv = v;
         val->value = iv;
 #endif

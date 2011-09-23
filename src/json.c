@@ -60,17 +60,6 @@
 ** returned by this function and will output a JSON error response
 ** instead.
 **
-** The depth parameter comes from the dispatcher and tells the
-** callback what index in json_command_arg() its command/path starts.
-** e.g. when dispatching /json/foo/bar, the foo callback will get a
-** depth of 1 and the bar callback will get a depth of 2. This is only
-** useful for callbacks which use json_command_arg(), and the only
-** callbacks which do that are ones which dispatch to sub-pages
-** (e.g. /json/wiki/...).  This is a parameter, as opposed to simply
-** hard-coding the offset in each callback impl, so that refactoring
-** will (or should) be easier if we later reimplement the path/command
-** handling and arguments/path parts get moved around.
-**
 ** All of the setup/response code is handled by the top dispatcher
 ** functions and the callbacks concern themselves only with generating
 ** the payload.
@@ -82,7 +71,7 @@
 ** for debuggering in some cases, but so such code should be left
 ** enabled for non-debuggering builds.
 */
-typedef cson_value * (*fossil_json_f)(unsigned int depth);
+typedef cson_value * (*fossil_json_f)();
 
 /*
 ** Internal helpers to manipulate a byte array as a bitset. The B
@@ -100,7 +89,7 @@ typedef cson_value * (*fossil_json_f)(unsigned int depth);
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
 */
-static cson_value * json_page_nyi(unsigned int depth){
+static cson_value * json_page_nyi(){
   g.json.resultCode = FSL_JSON_E_NYI;
   return NULL;
 }
@@ -1191,7 +1180,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
 **
 ** Returns the payload object (owned by the caller).
 */
-cson_value * json_page_version(unsigned int depth){
+cson_value * json_page_version(){
   cson_value * jval = NULL;
   cson_object * jobj = NULL;
   jval = cson_value_new_object();
@@ -1220,7 +1209,7 @@ cson_value * json_page_version(unsigned int depth){
 ** This is primarily intended for debuggering, but may have
 ** a use in client code. (?)
 */
-cson_value * json_page_cap(unsigned int depth){
+cson_value * json_page_cap(){
   cson_value * payload = cson_value_new_object();
   cson_value * sub = cson_value_new_object();
   Stmt q;
@@ -1276,7 +1265,7 @@ cson_value * json_page_cap(unsigned int depth){
 ** Implementation of the /json/login page.
 **
 */
-cson_value * json_page_login(unsigned int depth){
+cson_value * json_page_login(){
   static char preciseErrors = /* if true, "complete" JSON error codes are used,
                                  else they are "dumbed down" to a generic login
                                  error code.
@@ -1406,7 +1395,7 @@ cson_value * json_page_login(unsigned int depth){
 ** Impl of /json/logout.
 **
 */
-cson_value * json_page_logout(unsigned int depth){
+cson_value * json_page_logout(){
   cson_value const *token = g.json.authToken;
     /* Remember that json_mode_bootstrap() replaces the login cookie
        with the JSON auth token if the request contains it. If the
@@ -1431,7 +1420,7 @@ cson_value * json_page_logout(unsigned int depth){
 /*
 ** Implementation of the /json/anonymousPassword page.
 */
-cson_value * json_page_anon_password(unsigned int depth){
+cson_value * json_page_anon_password(){
   cson_value * v = cson_value_new_object();
   cson_object * o = cson_value_get_object(v);
   unsigned const int seed = captcha_seed();
@@ -1450,7 +1439,7 @@ cson_value * json_page_anon_password(unsigned int depth){
 ** Implementation of the /json/stat page/command.
 **
 */
-cson_value * json_page_stat(unsigned int depth){
+cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
   const char *zDb;
@@ -1545,10 +1534,10 @@ cson_value * json_page_stat(unsigned int depth){
 }
 
 
-static cson_value * json_wiki_list(unsigned int depth);
-static cson_value * json_wiki_get(unsigned int depth);
-static cson_value * json_wiki_save(unsigned int depth);
-static cson_value * json_wiki_create(unsigned int depth);
+static cson_value * json_wiki_list();
+static cson_value * json_wiki_get();
+static cson_value * json_wiki_save();
+static cson_value * json_wiki_create();
 
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
@@ -1569,17 +1558,17 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 ** dispatch.  The final item in the array MUST have a NULL name
 ** element.
 **
-** This function takes json_comand_arg(1+depth) and searches pages
-** for a matching name. If found then that page's func() is called
-** to fetch the payload, which is returned to the caller.
+** This function takes json_comand_arg(1+g.json.dispatchDepth) and
+** searches pages for a matching name. If found then that page's
+** func() is called to fetch the payload, which is returned to the
+** caller.
 **
 ** On error, g.json.resultCode is set to one of the FossilJsonCodes
 ** values.
 */
-static cson_value * json_page_dispatch_helper(unsigned int depth,
-                                              JsonPageDef const * pages){
+static cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   JsonPageDef const * def;
-  char const * cmd = json_command_arg(1+depth);
+  char const * cmd = json_command_arg(1+g.json.dispatchDepth);
   assert( NULL != pages );
   if( ! cmd ){
     g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
@@ -1591,7 +1580,8 @@ static cson_value * json_page_dispatch_helper(unsigned int depth,
     return NULL;
   }
   else{
-    return (*def->func)(1+depth);
+    ++g.json.dispatchDepth;
+    return (*def->func)();
   }
 }
 
@@ -1600,8 +1590,8 @@ static cson_value * json_page_dispatch_helper(unsigned int depth,
 ** complete.
 **
 */
-static cson_value * json_page_wiki(unsigned int depth){
-  return json_page_dispatch_helper(depth,&JsonPageDefs_Wiki[0]);
+static cson_value * json_page_wiki(){
+  return json_page_dispatch_helper(&JsonPageDefs_Wiki[0]);
 }
 
 
@@ -1611,7 +1601,7 @@ static cson_value * json_page_wiki(unsigned int depth){
 ** TODO: add option to parse wiki output. It is currently
 ** unparsed.
 */
-static cson_value * json_wiki_get(unsigned int depth){
+static cson_value * json_wiki_get(){
   int rid;
   Manifest *pWiki = 0;
   char const * zBody = NULL;
@@ -1766,14 +1756,14 @@ static cson_value * json_wiki_create_or_save(char createMode){
 /*
 ** Implementation of /json/wiki/create.
 */
-static cson_value * json_wiki_create(unsigned int depth){
+static cson_value * json_wiki_create(){
   return json_wiki_create_or_save(1);
 }
 
 /*
 ** Implementation of /json/wiki/save.
 */
-static cson_value * json_wiki_save(unsigned int depth){
+static cson_value * json_wiki_save(){
   /* FIXME: add GET/POST.payload bool option createIfNotExists. */
   return json_wiki_create_or_save(0);
 }
@@ -1781,7 +1771,7 @@ static cson_value * json_wiki_save(unsigned int depth){
 /*
 ** Implementation of /json/wiki/list.
 */
-static cson_value * json_wiki_list(unsigned int depth){
+static cson_value * json_wiki_list(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   Stmt q;
@@ -1815,7 +1805,7 @@ static cson_value * json_wiki_list(unsigned int depth){
 }
 
 
-static cson_value * json_branch_list(unsigned int depth);
+static cson_value * json_branch_list();
 /*
 ** Mapping of /json/branch/XXX commands/paths to callbacks.
 */
@@ -1831,8 +1821,8 @@ static const JsonPageDef JsonPageDefs_Branch[] = {
 ** complete.
 **
 */
-static cson_value * json_page_branch(unsigned int depth){
-  return json_page_dispatch_helper(depth,&JsonPageDefs_Branch[0]);
+static cson_value * json_page_branch(){
+  return json_page_dispatch_helper(&JsonPageDefs_Branch[0]);
 }
 
 /*
@@ -1851,7 +1841,7 @@ static cson_value * json_page_branch(unsigned int depth){
 ** "range" GET/POST.payload parameter. FIXME: currently we also use
 ** POST, but really want to restrict this to POST.payload.
 */
-static cson_value * json_branch_list(unsigned int depth){
+static cson_value * json_branch_list(){
   cson_value * payV;
   cson_object * pay;
   cson_value * listV;
@@ -1932,8 +1922,8 @@ static cson_value * json_branch_list(unsigned int depth){
   return payV;
 }
 
-static cson_value * json_timeline_ci(unsigned int depth);
-static cson_value * json_timeline_wiki(unsigned int depth);
+static cson_value * json_timeline_ci();
+static cson_value * json_timeline_wiki();
 /*
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
 */
@@ -1949,8 +1939,8 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 ** complete.
 **
 */
-static cson_value * json_page_timeline(unsigned int depth){
-  return json_page_dispatch_helper(depth,&JsonPageDefs_Timeline[0]);
+static cson_value * json_page_timeline(){
+  return json_page_dispatch_helper(&JsonPageDefs_Timeline[0]);
 }
 
 /*
@@ -2015,7 +2005,7 @@ const char const * json_timeline_query(void){
 ** applies one of them.
 **
 ** Returns -1 if it adds a "before" clause, 1 if it adds
-** an "after" clause, and 0 if it does not change pSql.
+** an "after" clause, and 0 if adds only an order-by clause.
 */
 static char json_timeline_add_time_clause(Blob *pSql){
   char const * zAfter = NULL;
@@ -2054,6 +2044,7 @@ static char json_timeline_add_time_clause(Blob *pSql){
                  zBefore);
     return -1;
   }else{
+    blob_append(pSql," ORDER BY event.mtime DESC ", -1);
     return 0;
   }
 }
@@ -2087,7 +2078,7 @@ static int json_timeline_limit(){
 ** Still a few TODOs (like figuring out how to structure
 ** inheritance info).
 */
-static cson_value * json_timeline_ci(unsigned int depth){
+static cson_value * json_timeline_ci(){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;
@@ -2203,7 +2194,7 @@ static cson_value * json_timeline_ci(unsigned int depth){
 ** Implementation of /json/timeline/wiki.
 **
 */
-static cson_value * json_timeline_wiki(unsigned int depth){
+static cson_value * json_timeline_wiki(){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
@@ -2311,7 +2302,7 @@ static cson_value * json_timeline_wiki(unsigned int depth){
 /*
 ** Implements the /json/whoami page/command.
 */
-static cson_value * json_page_whoami(unsigned int depth){
+static cson_value * json_page_whoami(){
   cson_value * payload = NULL;
   cson_object * obj = NULL;
   Stmt q;
@@ -2414,7 +2405,6 @@ void json_page_top(void){
   int rc = FSL_JSON_E_UNKNOWN_COMMAND;
   char const * cmd;
   cson_value * payload = NULL;
-  cson_value * root = NULL;
   JsonPageDef const * pageDef = NULL;
   json_mode_bootstrap();
   cmd = json_command_arg(1);
@@ -2427,13 +2417,14 @@ void json_page_top(void){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
-    payload = (*pageDef->func)(1);
+    g.json.dispatchDepth = 1;
+    payload = (*pageDef->func)();
   }
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 0);
   }else{
-    root = json_create_response(rc, NULL, payload);
-    json_send_response(payload);
+    cson_value * root = json_create_response(rc, NULL, payload);
+    json_send_response(root);
     cson_value_free(root);
   }
 }
@@ -2499,7 +2490,8 @@ void json_cmd_top(void){
     rc = FSL_JSON_E_WRONG_MODE;
   }else{
     rc = 0;
-    payload = (*pageDef->func)(1);
+    g.json.dispatchDepth = 1;
+    payload = (*pageDef->func)();
   }
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 1);

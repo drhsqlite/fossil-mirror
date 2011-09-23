@@ -1,5 +1,5 @@
-C Corrected\s/json/wiki/save|create\sto\shonor\sthe\sproper\sg.perm.WrWiki/NewWiki\sperm,\sinstead\sof\sjust\sWrWiki.
-D 2011-09-23T01:00:49.883
+C Changed\sfossil_json_f()\scallback\sinterface.\sRefactored\sjson\scommand\sdispatching\sa\sbit.\sFixed\san\sordering\sproblem\sin\sthe\sjson\stimelines.\sPulled\sin\slatest\scson_amalgamation.
+D 2011-09-23T10:52:41.812
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -70,7 +70,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c 32a093c8d3d27256fe9aa8570f28f5e208233efe
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/cson_amalgamation.c eeba3386030bcdc452eff6bf8829c39a03c46aad
+F src/cson_amalgamation.c 25c88ce93bb8e222b3d838dd821b52fe2844ceea
 F src/cson_amalgamation.h ae543c53ef33c277787914c5ed8f5e4a0eeafa1b
 F src/db.c 3b769527d2a95f0f70813dc2b0dc030324643812
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -93,11 +93,11 @@ F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c bc2a96ff3f8c982f71fa83de2c70b71dc140ef12
+F src/json.c 1a082562484892b42c752f564083908813744a39
 F src/json_detail.h 1502b03ae70cf0168d8431bc9771d497bf66fd88
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
-F src/main.c 6375efcf601818b744b620648b0002c6f2999173
+F src/main.c 3ede04ec82b859fde74ae1881f0bc8f637303f97
 F src/main.mk 815a3a160bc963c106eb755ff3253755c9df5b88
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e72ae99dc2aa29b57f2c29014225c2c73178eee7
-R 9d67e32358d81925428df94ff505fbec
+P d3759cd40f617c26f8c57e2321c355fe529edec4
+R c998649cfbb50e18af26e43d36dcecf8
 U stephan
-Z ccb5f7b4aaded70e7cd1d24b3388684d
+Z 794e1d096fe50242fd1489d5900f22cf
