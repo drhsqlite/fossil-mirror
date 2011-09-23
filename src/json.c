@@ -219,6 +219,14 @@ cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_parse( &root, cson_data_src_Blob, pSrc, NULL, pInfo );
   return root;
 }
+/*
+** Implements the cson_data_dest_f() interface and outputs the data to
+** cgi_append_content(). pState is ignored.
+**/
+int cson_data_dest_cgi(void * pState, void const * src, unsigned int n){
+  cgi_append_content( (char const *)src, (int)n );
+  return 0;
+}
 
 /*
 ** Returns a string in the form FOSSIL-XXXX, where XXXX is a
@@ -423,6 +431,42 @@ char const * json_guess_content_type(){
       }else{
         return "text/plain";
       }
+    }
+  }
+}
+
+/*
+** Sends pResponse to the output stream as the response object.  This
+** function does no validation of pResponse except to assert() that it
+** is not NULL. The caller is responsible for ensuring that it meets
+** API response envelope conventions.
+**
+** In CLI mode pResponse is sent to stdout immediately. In HTTP
+** mode pResponse replaces any current CGI content but cgi_reply()
+** is not called to flush the output.
+**
+** If g.json.jsonp is not NULL then the content type is set to
+** application/javascript and the output is wrapped in a jsonp
+** wrapper.
+*/
+void json_send_response( cson_value const * pResponse ){
+  assert( NULL != pResponse );
+  if( g.isHTTP ){
+    cgi_reset_content();
+    if( g.json.jsonp ){
+      cgi_printf("%s(",g.json.jsonp);
+    }
+    cson_output( pResponse, cson_data_dest_cgi, NULL, &g.json.outOpt );
+    if( g.json.jsonp ){
+      cgi_append_content(")",1);
+    }
+  }else{/*CLI mode*/
+    if( g.json.jsonp ){
+      fprintf(stdout,"%s(",g.json.jsonp);
+    }
+    cson_output_FILE( pResponse, stdout, &g.json.outOpt );
+    if( g.json.jsonp ){
+      fwrite(")\n", 2, 1, stdout);
     }
   }
 }
@@ -716,6 +760,7 @@ static void json_mode_bootstrap(){
   }else{
     once = 1;
   }
+  g.json.jsonp = PD("jsonp",NULL);
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmd.offset = -1;
@@ -723,16 +768,23 @@ static void json_mode_bootstrap(){
     /* workaround for server mode, so we see it as CGI mode. */
     g.isHTTP = 1;
   }
+
+  if(!g.json.jsonp && g.json.post.o){
+    g.json.jsonp = cson_string_cstr(cson_value_get_string(cson_object_get(g.json.post.o,"jsonp")));
+  }
   if( !g.isHTTP ){
     g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
+    if(!g.json.jsonp){
+      g.json.jsonp = find_option("jsonp",NULL,1);
+    }
   }
 
-  if(! g.json.post.v ){
-    /* If cgi_init() reads POSTed JSON then it sets the content type.
-       If it did not then we need to set it.
-    */
-    cgi_set_content_type(json_guess_content_type());
-  }
+  /* FIXME: do some sanity checking on g.json.jsonp and ignore it
+     if it is not halfway reasonable.
+  */
+  cgi_set_content_type(json_guess_content_type())
+    /* reminder: must be done after g.json.jsonp is initialized */
+    ;
 
 #if defined(NDEBUG)
   /* avoids debug messages on stderr in JSON mode */
@@ -795,7 +847,9 @@ static void json_mode_bootstrap(){
       }
     }
     g.json.outOpt.indentation = indent;
-    g.json.outOpt.addNewline = g.isHTTP ? 0 : 1;
+    g.json.outOpt.addNewline = g.isHTTP
+      ? 0
+      : (g.json.jsonp ? 0 : 1);
   }
 
   if( g.isHTTP ){
@@ -996,8 +1050,8 @@ static cson_value * json_new_timestamp(cson_int_t timeVal){
 **
 */
 cson_value * json_create_response( int resultCode,
-                                   cson_value * payload,
-                                   char const * pMsg ){
+                                   char const * pMsg,
+                                   cson_value * payload){
   cson_value * v = NULL;
   cson_value * tmp = NULL;
   cson_object * o = NULL;
@@ -1102,7 +1156,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
   if( rc && !msg ){
     msg = json_err_str(rc);
   }
-  resp = json_create_response(rc, NULL, msg);
+  resp = json_create_response(rc, msg, NULL);
   if(!resp){
     /* about the only error case here is out-of-memory. DO NOT
        call fossil_panic() here because that calls this function.
@@ -1112,15 +1166,22 @@ void json_err( int code, char const * msg, char alsoOutput ){
     fossil_exit(1);
   }
   if( g.isHTTP ){
-    Blob buf = empty_blob;
-    cgi_reset_content();
-    cson_output_Blob( resp, &buf, &g.json.outOpt );
-    cgi_set_content(&buf);
-    if( alsoOutput ){
-      cgi_reply();
+    if(alsoOutput){
+      json_send_response(resp);
+    }else{
+      /* almost a duplicate of json_send_response() :( */
+      cgi_set_content_type("application/javascript");
+      cgi_reset_content();
+      if( g.json.jsonp ){
+        cgi_printf("%s(",g.json.jsonp);
+      }
+      cson_output( resp, cson_data_dest_cgi, NULL, &g.json.outOpt );
+      if( g.json.jsonp ){
+        cgi_append_content(")",1);
+      }
     }
   }else{
-    cson_output_FILE( resp, stdout, &g.json.outOpt );
+    json_send_response(resp);
   }
   cson_value_free(resp);
 }
@@ -2350,7 +2411,6 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 */
 void json_page_top(void){
   int rc = FSL_JSON_E_UNKNOWN_COMMAND;
-  Blob buf = empty_blob;
   char const * cmd;
   cson_value * payload = NULL;
   cson_value * root = NULL;
@@ -2371,11 +2431,9 @@ void json_page_top(void){
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 0);
   }else{
-    blob_zero(&buf);
-    root = json_create_response(rc, payload, NULL);
-    cson_output_Blob( root, &buf, NULL );
+    root = json_create_response(rc, NULL, payload);
+    json_send_response(payload);
     cson_value_free(root);
-    cgi_set_content(&buf)/*takes ownership of the buf memory*/;
   }
 }
 
@@ -2445,8 +2503,8 @@ void json_cmd_top(void){
   if( g.json.resultCode ){
     json_err(g.json.resultCode, NULL, 1);
   }else{
-    payload = json_create_response(rc, payload, NULL);
-    cson_output_FILE( payload, stdout, &g.json.outOpt );
+    payload = json_create_response(rc, NULL, payload);
+    json_send_response(payload);
     cson_value_free( payload );
     if((0 != rc) && !g.isHTTP){
       /* FIXME: we need a way of passing this error back
