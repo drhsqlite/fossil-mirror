@@ -2344,6 +2344,7 @@ static cson_value * json_timeline_ticket(){
               " timestampString AS timestampString,"
               " user AS user,"
               " eventType AS eventType,"
+              " comment AS comment,"
               " brief AS briefText"
               " FROM json_timeline"
               " ORDER BY sortId",
