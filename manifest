@@ -1,5 +1,5 @@
-C Remove\sobsolete\sfiles
-D 2011-09-19T20:16:39.687
+C Disable\sSSLv2\sin\sHTTPS\sclient.\sThis\sversion\sof\sthe\sprotocol\sis\sconsidered\sinsecure\sand\shas\sbeen\sdeprecated;\sall\smodern\sbrowsers\sdisable\sit.
+D 2011-09-24T01:39:02.713
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
+F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8d4c5642777c3515038ab28d2a42cd94489f7052
-R 14f2e158ee45482b9c01a0f14b23b6e7
-U drh
-Z 4ffce167329a27901e18d67dcc6a838a
+P 1f498a6ef26bb8145039656b287487e4f2823096
+R 53940d6b3fbd895d6642179ad9d36b56
+U dmitry
+Z 13ad75d1fa7a5440e40f1820b09471b0
