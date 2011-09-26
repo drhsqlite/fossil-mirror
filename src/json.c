@@ -1534,10 +1534,13 @@ cson_value * json_page_stat(){
 }
 
 
-static cson_value * json_wiki_list();
-static cson_value * json_wiki_get();
-static cson_value * json_wiki_save();
 static cson_value * json_wiki_create();
+static cson_value * json_wiki_get();
+static cson_value * json_wiki_list();
+static cson_value * json_wiki_save();
+static cson_value * json_timeline_ci();
+static cson_value * json_timeline_ticket();
+static cson_value * json_timeline_wiki();
 
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
@@ -1547,6 +1550,25 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 {"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
 {"save", json_wiki_save, 1},
+{"timeline", json_timeline_wiki,0},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+/*
+** Mapping of /json/timeline/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_Timeline[] = {
+{"c", json_timeline_ci, 0},
+{"ci", json_timeline_ci, 0},
+{"com", json_timeline_ci, 0},
+{"commit", json_timeline_ci, 0},
+{"t", json_timeline_ticket, 0},
+{"ticket", json_timeline_ticket, 0},
+{"w", json_timeline_wiki, 0},
+{"wi", json_timeline_wiki, 0},
+{"wik", json_timeline_wiki, 0},
+{"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -1921,27 +1943,6 @@ static cson_value * json_branch_list(){
   }
   return payV;
 }
-
-static cson_value * json_timeline_ci();
-static cson_value * json_timeline_wiki();
-static cson_value * json_timeline_ticket();
-/*
-** Mapping of /json/timeline/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Timeline[] = {
-{"c", json_timeline_ci, 0},
-{"ci", json_timeline_ci, 0},
-{"com", json_timeline_ci, 0},
-{"commit", json_timeline_ci, 0},
-{"t", json_timeline_ticket, 0},
-{"ticket", json_timeline_ticket, 0},
-{"w", json_timeline_wiki, 0},
-{"wi", json_timeline_wiki, 0},
-{"wik", json_timeline_wiki, 0},
-{"wiki", json_timeline_wiki, 0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
 
 /*
 ** Implements the /json/timeline family of pages/commands. Far from
