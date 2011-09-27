@@ -1,5 +1,5 @@
-C Add\sthe\stest-list-webpage\scommand.
-D 2011-09-26T14:43:53.695
+C Add\sthe\s--stats\soption\sto\sthe\srebuild\scommand.
+D 2011-09-27T16:34:35.977
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,12 +86,12 @@ F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 3c123c226c646e1754a65c79d6b0f0ff330db5f1
-F src/main.c 162798a04ebef7f7b843f40124ad3c02295a8327
+F src/main.c 4624a1efdae6fa4b013140167e48478510ed566c
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
-F src/manifest.c abb78af13894eec124e28c71597b4c8229b1b0b7
+F src/manifest.c 0c2fbde0455f5bdf35295dafbbbf90d974ab843c
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
 F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
@@ -103,7 +103,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
-F src/rebuild.c eab5f7e81e334d6b3b508b8035e153bee429b56c
+F src/rebuild.c 4ecbb5c536cb4c5fedeb649a7a79abe8e0701ee8
 F src/report.c 271567983f175747b1e276acb1dfeb5e367786b4
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 12272b7ff015a45a83cc925db2aa3e44227df3ad
-R 5f9a1909494f7b64104299028c27d370
+P 6a97d77501d92409c470f34a2955add9dd2382f0
+R 431b120680f252d2be59b9a49a1d8703
 U drh
-Z c150075e8f2866890d5bb49c20d2ae30
+Z c7b7bf23bc5864acb601cd94f0f22394
