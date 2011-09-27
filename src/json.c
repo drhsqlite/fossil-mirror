@@ -64,6 +64,127 @@ const FossilJsonKeys_ FossilJsonKeys = {
 #define BITSET_TOGGLE(B,BIT) (BITSET_GET(B,BIT) ? (BITSET_UNSET(B,BIT)) : (BITSET_SET(B,BIT)))
 
 
+/* Timer code taken from sqlite3's shell.c, modified slightly.
+   FIXME: move the timer into the fossil core API so that we can
+   start the timer early on in the app init phase. Right now we're
+   just timing the json ops themselves.
+*/
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
+#include <sys/time.h>
+#include <sys/resource.h>
+
+/* Saved resource information for the beginning of an operation */
+static struct rusage sBegin;
+
+/*
+** Begin timing an operation
+*/
+static void beginTimer(void){
+  getrusage(RUSAGE_SELF, &sBegin);
+}
+
+/* Return the difference of two time_structs in milliseconds */
+static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
+  return ((pEnd->tv_usec - pStart->tv_usec)*0.001 + 
+          (double)((pEnd->tv_sec - pStart->tv_sec)*1000.0));
+}
+
+/*
+** Print the timing results.
+*/
+static double endTimer(void){
+  struct rusage sEnd;
+  getrusage(RUSAGE_SELF, &sEnd);
+  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
+    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
+#if 0
+  printf("CPU Time: user %f sys %f\n",
+         timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
+         timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
+#endif
+}
+
+#define BEGIN_TIMER beginTimer()
+#define END_TIMER endTimer()
+#define HAS_TIMER 1
+
+#elif (defined(_WIN32) || defined(WIN32))
+
+#include <windows.h>
+
+/* Saved resource information for the beginning of an operation */
+static HANDLE hProcess;
+static FILETIME ftKernelBegin;
+static FILETIME ftUserBegin;
+typedef BOOL (WINAPI *GETPROCTIMES)(HANDLE, LPFILETIME, LPFILETIME, LPFILETIME, LPFILETIME);
+static GETPROCTIMES getProcessTimesAddr = NULL;
+
+/*
+** Check to see if we have timer support.  Return 1 if necessary
+** support found (or found previously).
+*/
+static int hasTimer(void){
+  if( getProcessTimesAddr ){
+    return 1;
+  } else {
+    /* GetProcessTimes() isn't supported in WIN95 and some other Windows versions.
+    ** See if the version we are running on has it, and if it does, save off
+    ** a pointer to it and the current process handle.
+    */
+    hProcess = GetCurrentProcess();
+    if( hProcess ){
+      HINSTANCE hinstLib = LoadLibrary(TEXT("Kernel32.dll"));
+      if( NULL != hinstLib ){
+        getProcessTimesAddr = (GETPROCTIMES) GetProcAddress(hinstLib, "GetProcessTimes");
+        if( NULL != getProcessTimesAddr ){
+          return 1;
+        }
+        FreeLibrary(hinstLib); 
+      }
+    }
+  }
+  return 0;
+}
+
+/*
+** Begin timing an operation
+*/
+static void beginTimer(void){
+  if( getProcessTimesAddr ){
+    FILETIME ftCreation, ftExit;
+    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelBegin, &ftUserBegin);
+  }
+}
+
+/* Return the difference of two FILETIME structs in milliseconds */
+static double timeDiff(FILETIME *pStart, FILETIME *pEnd){
+  sqlite_int64 i64Start = *((sqlite_int64 *) pStart);
+  sqlite_int64 i64End = *((sqlite_int64 *) pEnd);
+  return (double) ((i64End - i64Start) / 10000.0);
+}
+
+/*
+** Print the timing results.
+*/
+static double endTimer(void){
+  if(getProcessTimesAddr){
+    FILETIME ftCreation, ftExit, ftKernelEnd, ftUserEnd;
+    getProcessTimesAddr(hProcess, &ftCreation, &ftExit, &ftKernelEnd, &ftUserEnd);
+    return timeDiff(&ftUserBegin, &ftUserEnd) +
+      timeDiff(&ftKernelBegin, &ftKernelEnd);
+  }
+}
+
+#define BEGIN_TIMER beginTimer()
+#define END_TIMER endTimer()
+#define HAS_TIMER hasTimer()
+
+#else
+#define BEGIN_TIMER 
+#define END_TIMER 0.0
+#define HAS_TIMER 0
+#endif
+
 /*
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
@@ -1057,6 +1178,19 @@ cson_value * json_create_response( int resultCode,
     }
   }
 
+  if(HAS_TIMER){
+    /* This is, philosophically speaking, not quite the right place
+       for ending the timer, but this is the one function which all of
+       the JSON exit paths use (and they call it after processing,
+       just before they end).
+    */
+    double span;
+    span = END_TIMER;
+    /* i'm actually seeing sub-ms runtimes in some tests, but a time of
+       0 is "just wrong", so we'll bump that up to 1ms.
+    */
+    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>0.0)?span:1)));
+  }
   if(g.json.warnings.v){
     tmp = g.json.warnings.v;
     SET("warnings");
@@ -1670,6 +1804,7 @@ void json_page_top(void){
   char const * cmd;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef = NULL;
+  BEGIN_TIMER;
   json_mode_bootstrap();
   cmd = json_command_arg(1);
   /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
@@ -1723,6 +1858,7 @@ void json_cmd_top(void){
   int rc = FSL_JSON_E_UNKNOWN_COMMAND;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef;
+  BEGIN_TIMER;
   memset( &g.perm, 0xff, sizeof(g.perm) )
     /* In CLI mode fossil does not use permissions
        and they all default to false. We enable them

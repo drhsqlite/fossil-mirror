@@ -1,5 +1,5 @@
-C /json/timeline/ticket\sprevUuid\sis\snow\sonly\sexplicitly\sset\sfor\snon-new\sfiles.\sPreviously\sit\swas\sset\sto\sNULL,\swhich\swas\sa\swaste-of-time\sno-op.
-D 2011-09-27T04:12:34.118
+C Added\sbasic\stiming\sinfo\sto\sjson\sops,\sbut\s"should\sprobably"\smove\sthe\stimer\sstart\sto\sthe\sapp/server\sinit.
+D 2011-09-27T13:22:01.536
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -93,7 +93,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 1d6e584510c8af0336ab824e07361134895f3c76
+F src/json.c 4786be5dcc3cd01fa7590c865bbffd0976c7aae8
 F src/json_detail.h d54bac1471bcfd0635319f40ef4dfda5c2163ec0
 F src/json_login.c 44e82a1b21d182c7a162552dd922cf66a37b1dc1
 F src/json_timeline.c 508a5f45012fcb187ab1739ea3259f1c26d7ebaf
@@ -335,7 +335,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f94ad194723086c5add6d01f4a2406ff0899ad5f
-R fae7b1a719a4fff58b5e872639c47c2e
+P 0ddf92042d474d9efc88c764b3366e385116088e
+R e00a0c3646d78818c193758145dd47b4
 U stephan
-Z b7ab52489500a5c32159813eba7948b5
+Z c20db610cdfd9fcd92f7c0b49714d28b
