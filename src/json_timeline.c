@@ -277,38 +277,33 @@ static cson_value * json_timeline_ci(){
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
     goto error;\
   }
-  db_multi_exec(blob_buffer(&sql));
-
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
 #endif
-
+  db_multi_exec(blob_buffer(&sql));
   blob_reset(&sql);
-  blob_append(&sql, "SELECT "
-              " rid AS rid,"
-              " uuid AS uuid,"
-              " mtime AS timestamp,"
+  db_prepare(&q, "SELECT "
+             " rid AS rid,"
+             " uuid AS uuid,"
+             " mtime AS timestamp,"
 #if 0
-              " timestampString AS timestampString,"
+             " timestampString AS timestampString,"
 #endif
-              " comment AS comment, "
-              " user AS user,"
-              " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
-              " bgColor AS bgColor," /* why always null? */
-              " eventType AS eventType,"
-              " tags AS tags" /*FIXME: split this into
-                                 a JSON array*/
+             " comment AS comment, "
+             " user AS user,"
+             " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
+             " bgColor AS bgColor," /* why always null? */
+             " eventType AS eventType,"
+             " tags AS tags" /*FIXME: split this into
+                               a JSON array*/
 #if 0
-              /*tagId is always null?*/
-              " tagId AS tagId"
+             /*tagId is always null?*/
+             " tagId AS tagId"
 #endif
-              " FROM json_timeline"
-              " ORDER BY sortId",
-              -1);
-  db_prepare(&q,blob_buffer(&sql));
-  blob_reset(&sql);
+             " FROM json_timeline"
+             " ORDER BY sortId");
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -396,35 +391,31 @@ cson_value * json_timeline_wiki(){
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
     goto error;\
   }
-  db_multi_exec(blob_buffer(&sql));
-
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
   SET("timelineSql");
 #endif
-
+  db_multi_exec(blob_buffer(&sql));
   blob_reset(&sql);
-  blob_append(&sql, "SELECT rid AS rid,"
-              " uuid AS uuid,"
-              " mtime AS timestamp,"
+  db_prepare(&q, "SELECT rid AS rid,"
+             " uuid AS uuid,"
+             " mtime AS timestamp,"
 #if 0
-              " timestampString AS timestampString,"
+             " timestampString AS timestampString,"
 #endif
-              " comment AS comment, "
-              " user AS user,"
-              " eventType AS eventType"
+             " comment AS comment, "
+             " user AS user,"
+             " eventType AS eventType"
 #if 0
-              /* can wiki pages have tags? */
-              " tags AS tags," /*FIXME: split this into
-                                 a JSON array*/
-              " tagId AS tagId,"
+             /* can wiki pages have tags? */
+             " tags AS tags," /*FIXME: split this into
+                                a JSON array*/
+             " tagId AS tagId,"
 #endif
-              " FROM json_timeline"
-              " ORDER BY sortId",
-              -1);
-  db_prepare(&q, blob_buffer(&sql));
-  blob_reset(&sql);
+             " FROM json_timeline"
+             " ORDER BY sortId",
+             -1);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -494,21 +485,19 @@ static cson_value * json_timeline_ticket(){
 #endif
 
   blob_reset(&sql);
-  blob_append(&sql, "SELECT rid AS rid,"
-              " uuid AS uuid,"
-              " mtime AS timestamp,"
+  db_prepare(&q, "SELECT rid AS rid,"
+             " uuid AS uuid,"
+             " mtime AS timestamp,"
 #if 0
-              " timestampString AS timestampString,"
+             " timestampString AS timestampString,"
 #endif
-              " user AS user,"
-              " eventType AS eventType,"
-              " comment AS comment,"
-              " brief AS briefComment"
-              " FROM json_timeline"
-              " ORDER BY sortId",
-              -1);
-  db_prepare(&q,blob_buffer(&sql));
-  blob_reset(&sql);
+             " user AS user,"
+             " eventType AS eventType,"
+             " comment AS comment,"
+             " brief AS briefComment"
+             " FROM json_timeline"
+             " ORDER BY sortId",
+             -1);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -516,12 +505,23 @@ static cson_value * json_timeline_ticket(){
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int rc;
+    int const rid = db_column_int(&q,0);
+    Manifest * pMan = NULL;
     cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
     cson_object * row = cson_value_get_object(rowV);
     if(!row){
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
                  "Could not convert at least one timeline result row to JSON." );
       continue;
+    }
+    pMan = manifest_get(rid, CFTYPE_TICKET);
+    assert( pMan && "Manifest is NULL!?!" );
+    if( pMan ){
+      /* FIXME: certainly there's a more efficient way for use to get
+         the ticket UUIDs?
+      */
+      cson_object_set(row,"ticketUuid",json_new_string(pMan->zTicketUuid));
+      manifest_destroy(pMan);
     }
     rc = cson_array_append( list, rowV );
     if( 0 != rc ){
