@@ -1224,6 +1224,7 @@ cson_value * json_page_cap(){
 cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
+  int brief;
   const char *zDb;
   enum { BufLen = 1000 };
   char zBuf[BufLen];
@@ -1234,6 +1235,11 @@ cson_value * json_page_stat(){
   if( !g.perm.Read ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
+  }
+  if( g.isHTTP ){
+    brief = json_getenv_int("brief",0);
+  }else{
+    brief = (0!=find_option("brief","b",0));
   }
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
@@ -1249,44 +1255,46 @@ cson_value * json_page_stat(){
   fsize = file_size(g.zRepositoryName);
   cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
 
-  n = db_int(0, "SELECT count(*) FROM blob");
-  m = db_int(0, "SELECT count(*) FROM delta");
-  cson_object_set(jo, "blobCount", cson_value_new_integer((cson_int_t)n));
-  cson_object_set(jo, "deltaCount", cson_value_new_integer((cson_int_t)m));
-  if( n>0 ){
-    int a, b;
-    Stmt q;
-    db_prepare(&q, "SELECT total(size), avg(size), max(size)"
-                   " FROM blob WHERE size>0");
-    db_step(&q);
-    t = db_column_int64(&q, 0);
-    cson_object_set(jo, "uncompressedArtifactSize",
-                    cson_value_new_integer((cson_int_t)t));
-    cson_object_set(jo, "averageArtifactSize",
-                    cson_value_new_integer((cson_int_t)db_column_int(&q, 1)));
-    cson_object_set(jo, "maxArtifactSize",
-                    cson_value_new_integer((cson_int_t)db_column_int(&q, 2)));
-    db_finalize(&q);
-    if( t/fsize < 5 ){
-      b = 10;
-      fsize /= 10;
-    }else{
-      b = 1;
+  if(!brief){
+    n = db_int(0, "SELECT count(*) FROM blob");
+    m = db_int(0, "SELECT count(*) FROM delta");
+    cson_object_set(jo, "blobCount", cson_value_new_integer((cson_int_t)n));
+    cson_object_set(jo, "deltaCount", cson_value_new_integer((cson_int_t)m));
+    if( n>0 ){
+      int a, b;
+      Stmt q;
+      db_prepare(&q, "SELECT total(size), avg(size), max(size)"
+                 " FROM blob WHERE size>0");
+      db_step(&q);
+      t = db_column_int64(&q, 0);
+      cson_object_set(jo, "uncompressedArtifactSize",
+                      cson_value_new_integer((cson_int_t)t));
+      cson_object_set(jo, "averageArtifactSize",
+                      cson_value_new_integer((cson_int_t)db_column_int(&q, 1)));
+      cson_object_set(jo, "maxArtifactSize",
+                      cson_value_new_integer((cson_int_t)db_column_int(&q, 2)));
+      db_finalize(&q);
+      if( t/fsize < 5 ){
+        b = 10;
+        fsize /= 10;
+      }else{
+        b = 1;
+      }
+      a = t/fsize;
+      sqlite3_snprintf(BufLen,zBuf, "%d:%d", a, b);
+      SETBUF(jo, "compressionRatio");
     }
-    a = t/fsize;
-    sqlite3_snprintf(BufLen,zBuf, "%d:%d", a, b);
-    SETBUF(jo, "compressionRatio");
-  }
-  n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
-  cson_object_set(jo, "checkinCount", cson_value_new_integer((cson_int_t)n));
-  n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-  cson_object_set(jo, "fileCount", cson_value_new_integer((cson_int_t)n));
-  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                " WHERE +tagname GLOB 'wiki-*'");
-  cson_object_set(jo, "wikiPageCount", cson_value_new_integer((cson_int_t)n));
-  n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
-                " WHERE +tagname GLOB 'tkt-*'");
-  cson_object_set(jo, "ticketCount", cson_value_new_integer((cson_int_t)n));
+    n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+    cson_object_set(jo, "checkinCount", cson_value_new_integer((cson_int_t)n));
+    n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
+    cson_object_set(jo, "fileCount", cson_value_new_integer((cson_int_t)n));
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+               " WHERE +tagname GLOB 'wiki-*'");
+    cson_object_set(jo, "wikiPageCount", cson_value_new_integer((cson_int_t)n));
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+               " WHERE +tagname GLOB 'tkt-*'");
+    cson_object_set(jo, "ticketCount", cson_value_new_integer((cson_int_t)n));
+  }/*!brief*/
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
