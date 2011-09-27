@@ -1573,20 +1573,40 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 {NULL,NULL,0}
 };
 
+static cson_value * json_user_list();
+#if 0
+static cson_value * json_user_detail();
+static cson_value * json_user_create();
+static cson_value * json_user_edit();
+#endif
+
+/*
+** Mapping of /json/user/XXX commands/paths to callbacks.
+*/
+static const JsonPageDef JsonPageDefs_User[] = {
+{"list", json_user_list, 0},
+{"detail", json_page_nyi, 0},
+{"create", json_page_nyi, 1},
+{"edit", json_page_nyi, 1},
+/* Last entry MUST have a NULL name. */
+{NULL,NULL,0}
+};
+
+
 /*
 ** A page/command dispatch helper for fossil_json_f() implementations.
-** depth should be the depth parameter passed to the fossil_json_f().
 ** pages must be an array of JsonPageDef commands which we can
-** dispatch.  The final item in the array MUST have a NULL name
+** dispatch. The final item in the array MUST have a NULL name
 ** element.
 **
-** This function takes json_comand_arg(1+g.json.dispatchDepth) and
-** searches pages for a matching name. If found then that page's
-** func() is called to fetch the payload, which is returned to the
-** caller.
+** This function takes the command specified in
+** json_comand_arg(1+g.json.dispatchDepth) and searches pages for a
+** matching name. If found then that page's func() is called to fetch
+** the payload, which is returned to the caller.
 **
 ** On error, g.json.resultCode is set to one of the FossilJsonCodes
-** values.
+** values and NULL is returned. If non-NULL is returned, ownership is
+** transfered to the caller.
 */
 static cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   JsonPageDef const * def;
@@ -1608,8 +1628,15 @@ static cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
 }
 
 /*
-** Implements the /json/wiki family of pages/commands. Far from
-** complete.
+** Implements the /json/user family of pages/commands.
+**
+*/
+static cson_value * json_page_user(){
+  return json_page_dispatch_helper(&JsonPageDefs_User[0]);
+}
+
+/*
+** Implements the /json/wiki family of pages/commands.
 **
 */
 static cson_value * json_page_wiki(){
@@ -2425,6 +2452,37 @@ static cson_value * json_page_whoami(){
   return payload;
 }
 
+static cson_value * json_user_list(){
+  cson_value * payV = NULL;
+  cson_array * pay = NULL;
+  Stmt q;
+  if(! g.perm.Admin ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  payV = cson_value_new_array();
+  pay = cson_value_get_array(payV);
+  db_prepare(&q,"SELECT uid AS uid,"
+             " login AS name,"
+             " cap AS capabilities,"
+             " info AS info,"
+             " mtime AS mtime"
+             " FROM user ORDER BY login");
+
+  while( (SQLITE_ROW==db_step(&q)) ){
+    cson_value * row = cson_sqlite3_row_to_object(q.pStmt);
+    if(!row){
+      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                 "Could not convert at least one user result row to JSON." );
+      continue;
+    }
+    cson_array_append(pay, row);
+  }
+  db_finalize(&q);
+  return payV;  
+}
+
+
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -2442,7 +2500,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"tag", json_page_nyi,0},
 {"ticket", json_page_nyi,0},
 {"timeline", json_page_timeline,0},
-{"user", json_page_nyi,0},
+{"user",json_page_user,0},
 {"version",json_page_version,0},
 {"whoami",json_page_whoami,1/*FIXME: work in CLI mode*/},
 {"wiki",json_page_wiki,0},
