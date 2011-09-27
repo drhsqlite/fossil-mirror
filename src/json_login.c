@@ -1,5 +1,4 @@
 #include "config.h"
-#include "VERSION.h"
 #include "json_login.h"
 
 #if INTERFACE
@@ -180,3 +179,40 @@ cson_value * json_page_anon_password(){
   return v;
 }
 
+
+
+/*
+** Implements the /json/whoami page/command.
+*/
+cson_value * json_page_whoami(){
+  cson_value * payload = NULL;
+  cson_object * obj = NULL;
+  Stmt q;
+  db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
+  if( db_step(&q)==SQLITE_ROW ){
+
+    /* reminder: we don't use g.zLogin because it's 0 for the guest
+       user and the HTML UI appears to currently allow the name to be
+       changed (but doing so would break other code). */
+    char const * str;
+    payload = cson_value_new_object();
+    obj = cson_value_get_object(payload);
+    str = (char const *)sqlite3_column_text(q.pStmt,0);
+    if( str ){
+      cson_object_set( obj, "name",
+                       cson_value_new_string(str,strlen(str)) );
+    }
+    str = (char const *)sqlite3_column_text(q.pStmt,1);
+    if( str ){
+      cson_object_set( obj, "capabilities",
+                       cson_value_new_string(str,strlen(str)) );
+    }
+    if( g.json.authToken ){
+      cson_object_set( obj, "authToken", g.json.authToken );
+    }
+  }else{
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+  }
+  db_finalize(&q);
+  return payload;
+}

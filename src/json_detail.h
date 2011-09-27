@@ -131,7 +131,7 @@ typedef struct JsonPageDef{
 /*
 ** Holds common keys used for various JSON API properties.
 */
-static const struct FossilJsonKeys_{
+typedef struct FossilJsonKeys_{
   /** maintainers: please keep alpha sorted (case-insensitive) */
   char const * anonymousSeed;
   char const * authToken;
@@ -141,15 +141,40 @@ static const struct FossilJsonKeys_{
   char const * resultCode;
   char const * resultText;
   char const * timestamp;
-} FossilJsonKeys = {
-  "anonymousSeed" /*anonymousSeed*/,
-  "authToken"  /*authToken*/,
-  "COMMAND_PATH" /*commandPath*/,
-  "payload" /* payload */,
-  "requestId" /*requestId*/,
-  "resultCode" /*resultCode*/,
-  "resultText" /*resultText*/,
-  "timestamp" /*timestamp*/
-};
+} FossilJsonKeys_;
+const FossilJsonKeys_ FossilJsonKeys;
+
+/*
+** A page/command dispatch helper for fossil_json_f() implementations.
+** pages must be an array of JsonPageDef commands which we can
+** dispatch. The final item in the array MUST have a NULL name
+** element.
+**
+** This function takes the command specified in
+** json_comand_arg(1+g.json.dispatchDepth) and searches pages for a
+** matching name. If found then that page's func() is called to fetch
+** the payload, which is returned to the caller.
+**
+** On error, g.json.resultCode is set to one of the FossilJsonCodes
+** values and NULL is returned. If non-NULL is returned, ownership is
+** transfered to the caller.
+*/
+cson_value * json_page_dispatch_helper(JsonPageDef const * pages);
+
+/*
+** Implements the /json/wiki family of pages/commands.
+**
+*/
+cson_value * json_page_wiki();
+
+/*
+** Implements /json/timeline/wiki and /json/wiki/timeline.
+*/
+cson_value * json_timeline_wiki();
+
+/*
+** Implements /json/timeline family of functions.
+*/
+cson_value * json_page_timeline();
 
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
