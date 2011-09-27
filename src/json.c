@@ -290,8 +290,8 @@ cson_value * json_getenv( char const * zKey ){
 ** Wrapper around json_getenv() which...
 **
 ** If it finds a value and that value is-a JSON number or is a string
-** which looks like an integer or is-a JSON bool then it is converted
-** to an int. If none of those apply then dflt is returned.
+** which looks like an integer or is-a JSON bool/null then it is
+** converted to an int. If none of those apply then dflt is returned.
 */
 int json_getenv_int(char const * pKey, int dflt ){
   cson_value const * v = json_getenv(pKey);
@@ -305,12 +305,47 @@ int json_getenv_int(char const * pKey, int dflt ){
     return sv ? atoi(sv) : dflt;
   }else if( cson_value_is_bool(v) ){
     return cson_value_get_bool(v) ? 1 : 0;
+  }else if( cson_value_is_null(v) ){
+    return 0;
   }else{
     /* we should arguably treat JSON null as 0. */
     return dflt;
   }
 }
 
+
+/*
+** Wrapper around json_getenv() which tries to evaluate a payload/env
+** value as a boolean. Uses mostly the same logic as
+** json_getenv_int(), with the addition that string values which
+** either start with a digit 1..9 or the letters [tT] are considered
+** to be true. If this function cannot find a matching key/value then
+** dflt is returned. e.g. if it finds the key but the value is-a
+** Object then dftl is returned.
+*/
+char json_getenv_bool(char const * pKey, char dflt ){
+  cson_value const * v = json_getenv(pKey);
+  if(!v){
+    return dflt;
+  }else if( cson_value_is_number(v) ){
+    return cson_value_get_integer(v) ? 1 : 0;
+  }else if( cson_value_is_string(v) ){
+    char const * sv = cson_string_cstr(cson_value_get_string(v));
+    if(!*sv || ('0'==*sv)){
+      return 0;
+    }else{
+      return (('t'==*sv) || ('T'==*sv)
+              || (('1'<=*sv) && ('9'>=*sv)))
+        ? 1 : 0;
+    }
+  }else if( cson_value_is_bool(v) ){
+    return cson_value_get_bool(v) ? 1 : 0;
+  }else if( cson_value_is_null(v) ){
+    return 0;
+  }else{
+    return dflt;
+  }
+}
 
 /*
 ** Returns the string form of a json_getenv() value, but ONLY If that
@@ -1224,7 +1259,7 @@ cson_value * json_page_cap(){
 cson_value * json_page_stat(){
   i64 t, fsize;
   int n, m;
-  int brief;
+  int full;
   const char *zDb;
   enum { BufLen = 1000 };
   char zBuf[BufLen];
@@ -1237,9 +1272,9 @@ cson_value * json_page_stat(){
     return NULL;
   }
   if( g.isHTTP ){
-    brief = json_getenv_int("brief",0);
+    full = json_getenv_bool("full",0);
   }else{
-    brief = (0!=find_option("brief","b",0));
+    full = (0!=find_option("full","f",0));
   }
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
@@ -1255,7 +1290,7 @@ cson_value * json_page_stat(){
   fsize = file_size(g.zRepositoryName);
   cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
 
-  if(!brief){
+  if(full){
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
     cson_object_set(jo, "blobCount", cson_value_new_integer((cson_int_t)n));
@@ -1294,7 +1329,7 @@ cson_value * json_page_stat(){
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                " WHERE +tagname GLOB 'tkt-*'");
     cson_object_set(jo, "ticketCount", cson_value_new_integer((cson_int_t)n));
-  }/*!brief*/
+  }/*full*/
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
