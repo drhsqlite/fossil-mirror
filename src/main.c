@@ -769,6 +769,21 @@ void cmd_test_cmd_list(void){
 
 
 /*
+** COMMAND: test-list-webpage
+**
+** List all web pages
+*/
+void cmd_test_webpage_list(void){
+  int i, nCmd;
+  const char *aCmd[count(aWebpage)];
+  for(i=nCmd=0; i<count(aWebpage); i++){
+    aCmd[nCmd++] = aWebpage[i].zName;
+  }
+  multi_column_list(aCmd, nCmd);
+}
+
+
+/*
 ** COMMAND: version
 **
 ** Usage: %fossil version

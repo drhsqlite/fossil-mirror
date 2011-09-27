@@ -38,40 +38,8 @@
 #include <time.h>
 
 #if INTERFACE
-#include "cson_amalgamation.h"
 #include "json_detail.h" /* workaround for apparent enum limitation in makeheaders */
 #endif
-
-/*
-** Signature for JSON page/command callbacks. Each callback is
-** responsible for handling one JSON request/command and/or
-** dispatching to sub-commands.
-**
-** By the time the callback is called, json_page_top() (HTTP mode) or
-** json_cmd_top() (CLI mode) will have set up the JSON-related
-** environment. Implementations may generate a "result payload" of any
-** JSON type by returning its value from this function (ownership is
-** tranferred to the caller). On error they should set
-** g.json.resultCode to one of the FossilJsonCodes values and return
-** either their payload object or NULL. Note that NULL is a legal
-** success value - it simply means the response will contain no
-** payload. If g.json.resultCode is non-zero when this function
-** returns then the top-level dispatcher will destroy any payload
-** returned by this function and will output a JSON error response
-** instead.
-**
-** All of the setup/response code is handled by the top dispatcher
-** functions and the callbacks concern themselves only with generating
-** the payload.
-**
-** It is imperitive that NO callback functions EVER output ANYTHING to
-** stdout, as that will effectively corrupt any JSON output, and
-** almost certainly will corrupt any HTTP response headers. Output
-** sent to stderr ends up in my apache log, so that might be useful
-** for debuggering in some cases, but so such code should be left
-** enabled for non-debuggering builds.
-*/
-typedef cson_value * (*fossil_json_f)();
 
 /*
 ** Internal helpers to manipulate a byte array as a bitset. The B
@@ -93,30 +61,6 @@ static cson_value * json_page_nyi(){
   g.json.resultCode = FSL_JSON_E_NYI;
   return NULL;
 }
-
-/*
-** Holds keys used for various JSON API properties.
-*/
-static const struct FossilJsonKeys_{
-  /** maintainers: please keep alpha sorted (case-insensitive) */
-  char const * commandPath;
-  char const * anonymousSeed;
-  char const * authToken;
-  char const * payload;
-  char const * requestId;
-  char const * resultCode;
-  char const * resultText;
-  char const * timestamp;
-} FossilJsonKeys = {
-  "COMMAND_PATH" /*commandPath*/,
-  "anonymousSeed" /*anonymousSeed*/,
-  "authToken"  /*authToken*/,
-  "payload" /* payload */,
-  "requestId" /*requestId*/,
-  "resultCode" /*resultCode*/,
-  "resultText" /*resultText*/,
-  "timestamp" /*timestamp*/
-};
 
 /*
 ** Given a FossilJsonCodes value, it returns a string suitable for use
@@ -162,6 +106,7 @@ char const * json_err_str( int errCode ){
       return "Unknown Error";
   }
 }
+
 /*
 ** Implements the cson_data_dest_f() interface and outputs the data to
 ** a fossil Blob object.  pState must be-a initialized (Blob*), to
@@ -208,6 +153,7 @@ cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_parse( &root, cson_data_src_Blob, pSrc, NULL, pInfo );
   return root;
 }
+
 /*
 ** Implements the cson_data_dest_f() interface and outputs the data to
 ** cgi_append_content(). pState is ignored.
@@ -478,7 +424,7 @@ void json_send_response( cson_value const * pResponse ){
 **
 ** The result of this call are cached for future calls.
 */
-static cson_value * json_auth_token(){
+cson_value * json_auth_token(){
   if( !g.json.authToken ){
     /* Try to get an authorization token from GET parameter, POSTed
        JSON, or fossil cookie (in that order). */
@@ -861,7 +807,7 @@ static void json_mode_bootstrap(){
 ** In server/CGI modes the path is taken from PATH_INFO.
 **
 */
-static char const * json_command_arg(unsigned char ndx){
+char const * json_command_arg(unsigned char ndx){
   cson_array * ar = g.json.cmd.a;
   assert((NULL!=ar) && "Internal error. Was json_mode_bootstrap() called?");
   assert((g.argc>1) && "Internal error - we never should have gotten this far.");
@@ -901,7 +847,7 @@ static char const * json_command_arg(unsigned char ndx){
 ** with) g.json, and must NOT be cson_value_free()'d by the
 ** caller.
 */
-static cson_value * json_payload_property( char const * key ){
+cson_value * json_payload_property( char const * key ){
   return g.json.reqPayload.o ?
     cson_object_get( g.json.reqPayload.o, key )
     : NULL;
@@ -917,44 +863,13 @@ char const * json_auth_token_cstr(){
 
 
 /*
-** Holds name-to-function mappings for JSON page/command dispatching.
-**
-*/
-typedef struct JsonPageDef{
-  /*
-  ** The commmand/page's name (path, not including leading /json/).
-  **
-  ** Reminder to self: we cannot use sub-paths with commands this way
-  ** without additional string-splitting downstream. e.g. foo/bar.
-  ** Alternately, we can create different JsonPageDef arrays for each
-  ** subset.
-  */
-  char const * name;
-  /*
-  ** Returns a payload object for the response.  If it returns a
-  ** non-NULL value, the caller owns it.  To trigger an error this
-  ** function should set g.json.resultCode to a value from the
-  ** FossilJsonCodes enum. If it sets an error value and returns
-  ** a payload, the payload will be destroyed (not sent with the
-  ** response).
-  */
-  fossil_json_f func;
-  /*
-  ** Which mode(s) of execution does func() support:
-  **
-  ** <0 = CLI only, >0 = HTTP only, 0==both
-  */
-  char runMode;
-} JsonPageDef;
-
-/*
 ** Returns the JsonPageDef with the given name, or NULL if no match is
 ** found.
 **
 ** head must be a pointer to an array of JsonPageDefs in which the
 ** last entry has a NULL name.
 */
-static JsonPageDef const * json_handler_for_name( char const * name, JsonPageDef const * head ){
+JsonPageDef const * json_handler_for_name( char const * name, JsonPageDef const * head ){
   JsonPageDef const * pageDef = head;
   assert( head != NULL );
   if(name && *name) for( ; pageDef->name; ++pageDef ){
@@ -1003,10 +918,11 @@ static cson_value * json_julian_to_timestamp(double j){
            db_int64(0,"SELECT strftime('%%s',%lf)",j)
                                 );
 }
+
 /*
 ** Returns a timestamp value.
 */
-static cson_int_t json_timestamp(){
+cson_int_t json_timestamp(){
   return (cson_int_t)time(0);
 }
 /*
@@ -1014,7 +930,7 @@ static cson_int_t json_timestamp(){
 ** a timestamp. If timeVal is < 0 then time(0) is used to fetch
 ** the time, else timeVal is used as-is
 */
-static cson_value * json_new_timestamp(cson_int_t timeVal){
+cson_value * json_new_timestamp(cson_int_t timeVal){
   return cson_value_new_integer((timeVal<0) ? (cson_int_t)time(0) : timeVal);
 }
 
@@ -1286,180 +1202,6 @@ cson_value * json_page_cap(){
 #undef ADD
   return payload;
 }
-
-/*
-** Implementation of the /json/login page.
-**
-*/
-cson_value * json_page_login(){
-  static char preciseErrors = /* if true, "complete" JSON error codes are used,
-                                 else they are "dumbed down" to a generic login
-                                 error code.
-                              */
-#if 0
-    g.json.errorDetailParanoia ? 0 : 1
-#else
-    0
-#endif
-    ;
-  /*
-    FIXME: we want to check the GET/POST args in this order:
-
-    - GET: name, n, password, p
-    - POST: name, password
-
-    but a bug in cgi_parameter() is breaking that, causing PD() to
-    return the last element of the PATH_INFO instead.
-
-    Summary: If we check for P("name") first, then P("n"),
-    then ONLY a GET param of "name" will match ("n"
-    is not recognized). If we reverse the order of the
-    checks then both forms work. Strangely enough, the
-    "p"/"password" check is not affected by this.
-   */
-  char const * name = cson_value_get_cstr(json_payload_property("name"));
-  char const * pw = NULL;
-  char const * anonSeed = NULL;
-  cson_value * payload = NULL;
-  int uid = 0;
-  if( !name ){
-    name = PD("n",NULL);
-    if( !name ){
-      name = PD("name",NULL);
-      if( !name ){
-        g.json.resultCode = preciseErrors
-          ? FSL_JSON_E_LOGIN_FAILED_NONAME
-          : FSL_JSON_E_LOGIN_FAILED;
-        return NULL;
-      }
-    }
-  }
-  
-  pw = cson_value_get_cstr(json_payload_property("password"));
-  if( !pw ){
-    pw = PD("p",NULL);
-    if( !pw ){
-      pw = PD("password",NULL);
-    }
-  }
-  if(!pw){
-    g.json.resultCode = preciseErrors
-      ? FSL_JSON_E_LOGIN_FAILED_NOPW
-      : FSL_JSON_E_LOGIN_FAILED;
-    return NULL;
-  }
-
-  if(0 == strcmp("anonymous",name)){
-    /* check captcha/seed values... */
-    enum { SeedBufLen = 100 /* in some JSON tests i once actually got an
-                           80-digit number.
-                        */
-    };
-    static char seedBuffer[SeedBufLen];
-    cson_value const * jseed = json_getenv(FossilJsonKeys.anonymousSeed);
-    seedBuffer[0] = 0;
-    if( !jseed ){
-      jseed = json_payload_property(FossilJsonKeys.anonymousSeed);
-      if( !jseed ){
-        jseed = json_getenv("cs") /* name used by HTML interface */;
-      }
-    }
-    if(jseed){
-      if( cson_value_is_number(jseed) ){
-        sprintf(seedBuffer, "%"CSON_INT_T_PFMT, cson_value_get_integer(jseed));
-        anonSeed = seedBuffer;
-      }else if( cson_value_is_string(jseed) ){
-        anonSeed = cson_string_cstr(cson_value_get_string(jseed));
-      }
-    }
-    if(!anonSeed){
-      g.json.resultCode = preciseErrors
-        ? FSL_JSON_E_LOGIN_FAILED_NOSEED
-        : FSL_JSON_E_LOGIN_FAILED;
-      return NULL;
-    }
-  }
-
-#if 0
-  {
-    /* only for debugging the PD()-incorrect-result problem */
-    cson_object * o = NULL;
-    uid = login_search_uid( name, pw );
-    payload = cson_value_new_object();
-    o = cson_value_get_object(payload);
-    cson_object_set( o, "n", cson_value_new_string(name,strlen(name)));
-    cson_object_set( o, "p", cson_value_new_string(pw,strlen(pw)));
-    return payload;
-  }
-#else
-  uid = anonSeed
-    ? login_is_valid_anonymous(name, pw, anonSeed)
-    : login_search_uid(name, pw)
-    ;
-  if( !uid ){
-    g.json.resultCode = preciseErrors
-      ? FSL_JSON_E_LOGIN_FAILED_NOTFOUND
-      : FSL_JSON_E_LOGIN_FAILED;
-    return NULL;
-  }else{
-    char * cookie = NULL;
-    if(anonSeed){
-      login_set_anon_cookie(NULL, &cookie);
-    }else{
-      login_set_user_cookie(name, uid, &cookie);
-    }
-    payload = cookie
-      ? cson_value_new_string( cookie, strlen(cookie) )
-      : cson_value_null()/*why null instead of NULL?*/;
-    free(cookie);
-    return payload;
-  }
-#endif
-}
-
-/*
-** Impl of /json/logout.
-**
-*/
-cson_value * json_page_logout(){
-  cson_value const *token = g.json.authToken;
-    /* Remember that json_mode_bootstrap() replaces the login cookie
-       with the JSON auth token if the request contains it. If the
-       reqest is missing the auth token then this will fetch fossil's
-       original cookie. Either way, it's what we want :).
-
-       We require the auth token to avoid someone maliciously
-       trying to log someone else out (not 100% sure if that
-       would be possible, given fossil's hardened cookie, but
-       i'll assume it would be for the time being).
-    */
-    ;
-  if(!token){
-    g.json.resultCode = FSL_JSON_E_MISSING_AUTH;
-  }else{
-    login_clear_login_data();
-    g.json.authToken = NULL /* memory is owned elsewhere.*/;
-  }
-  return NULL;
-}
-
-/*
-** Implementation of the /json/anonymousPassword page.
-*/
-cson_value * json_page_anon_password(){
-  cson_value * v = cson_value_new_object();
-  cson_object * o = cson_value_get_object(v);
-  unsigned const int seed = captcha_seed();
-  char const * zCaptcha = captcha_decode(seed);
-  cson_object_set(o, "seed",
-                  cson_value_new_integer( (cson_int_t)seed )
-                  );
-  cson_object_set(o, "password",
-                  cson_value_new_string( zCaptcha, strlen(zCaptcha) )
-                  );
-  return v;
-}
-
 
 /*
 ** Implementation of the /json/stat page/command.
@@ -2542,6 +2284,12 @@ static cson_value * json_user_get(){
   return payV;  
 }
 
+/* Impl in json_login.c. */
+cson_value * json_page_anon_password();
+/* Impl in json_login.c. */
+cson_value * json_page_login();
+/* Impl in json_login.c. */
+cson_value * json_page_logout();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of

@@ -1,3 +1,7 @@
+#if !defined(FOSSIL_JSON_DETAIL_H_INCLUDED)
+#define FOSSIL_JSON_DETAIL_H_INCLUDED
+
+#include "cson_amalgamation.h"
 /*
 ** Impl details for the JSON API which need to be shared
 ** across multiple C files.
@@ -61,3 +65,91 @@ FSL_JSON_E_DB_NEEDS_REBUILD = FSL_JSON_E_DB + 101
 
 };
 
+
+/*
+** Signature for JSON page/command callbacks. Each callback is
+** responsible for handling one JSON request/command and/or
+** dispatching to sub-commands.
+**
+** By the time the callback is called, json_page_top() (HTTP mode) or
+** json_cmd_top() (CLI mode) will have set up the JSON-related
+** environment. Implementations may generate a "result payload" of any
+** JSON type by returning its value from this function (ownership is
+** tranferred to the caller). On error they should set
+** g.json.resultCode to one of the FossilJsonCodes values and return
+** either their payload object or NULL. Note that NULL is a legal
+** success value - it simply means the response will contain no
+** payload. If g.json.resultCode is non-zero when this function
+** returns then the top-level dispatcher will destroy any payload
+** returned by this function and will output a JSON error response
+** instead.
+**
+** All of the setup/response code is handled by the top dispatcher
+** functions and the callbacks concern themselves only with generating
+** the payload.
+**
+** It is imperitive that NO callback functions EVER output ANYTHING to
+** stdout, as that will effectively corrupt any JSON output, and
+** almost certainly will corrupt any HTTP response headers. Output
+** sent to stderr ends up in my apache log, so that might be useful
+** for debuggering in some cases, but so such code should be left
+** enabled for non-debuggering builds.
+*/
+typedef cson_value * (*fossil_json_f)();
+
+/*
+** Holds name-to-function mappings for JSON page/command dispatching.
+**
+*/
+typedef struct JsonPageDef{
+  /*
+  ** The commmand/page's name (path, not including leading /json/).
+  **
+  ** Reminder to self: we cannot use sub-paths with commands this way
+  ** without additional string-splitting downstream. e.g. foo/bar.
+  ** Alternately, we can create different JsonPageDef arrays for each
+  ** subset.
+  */
+  char const * name;
+  /*
+  ** Returns a payload object for the response.  If it returns a
+  ** non-NULL value, the caller owns it.  To trigger an error this
+  ** function should set g.json.resultCode to a value from the
+  ** FossilJsonCodes enum. If it sets an error value and returns
+  ** a payload, the payload will be destroyed (not sent with the
+  ** response).
+  */
+  fossil_json_f func;
+  /*
+  ** Which mode(s) of execution does func() support:
+  **
+  ** <0 = CLI only, >0 = HTTP only, 0==both
+  */
+  char runMode;
+} JsonPageDef;
+
+/*
+** Holds common keys used for various JSON API properties.
+*/
+static const struct FossilJsonKeys_{
+  /** maintainers: please keep alpha sorted (case-insensitive) */
+  char const * anonymousSeed;
+  char const * authToken;
+  char const * commandPath;
+  char const * payload;
+  char const * requestId;
+  char const * resultCode;
+  char const * resultText;
+  char const * timestamp;
+} FossilJsonKeys = {
+  "anonymousSeed" /*anonymousSeed*/,
+  "authToken"  /*authToken*/,
+  "COMMAND_PATH" /*commandPath*/,
+  "payload" /* payload */,
+  "requestId" /*requestId*/,
+  "resultCode" /*resultCode*/,
+  "resultText" /*resultText*/,
+  "timestamp" /*timestamp*/
+};
+
+#endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
