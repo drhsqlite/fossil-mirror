@@ -1,5 +1,5 @@
-C added\s/json/user/get.
-D 2011-09-27T00:34:02.498
+C merged\sin\strunk\s[12272b7ff0].
+D 2011-09-27T00:34:45.764
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -89,7 +89,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c b3a2acaa67066caf422ac83063675edc4267620f
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
-F src/http_ssl.c 4894315fa591d157741f8a878000a66ac6ad853b
+F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
@@ -147,7 +147,7 @@ F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 1a9375a22479d7101f14b3ff352e0c5f9013cd39
-F src/wiki.c b1c9c1c63d7d237da84b5a5f1c797d36f64e8b03
+F src/wiki.c 9820800ac35609f4c015c08c4169ec0e26eb1bd6
 F src/wikiformat.c 87178f57f11c76b278f6d8468fece80204ca13d1
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
 F src/xfer.c 8e07ca02a081e93db8455b123e9a8064097bf6cc
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 59ef1667acec8536f54277a89e8ec5a939f0221f
-R 75511acef8d4186b85b1865271048ab4
+P 0c7be1fe6c708431d5fb02e2df3b7287b045a56e 12272b7ff015a45a83cc925db2aa3e44227df3ad
+R 18c4f728734697c7d580cdb661195b06
 U stephan
-Z 0fad3b1b7422d06e3ab04dfbf2892435
+Z 67677e26f746c881b6d3e63951c22a6a
