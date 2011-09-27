@@ -69,7 +69,7 @@ endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1
+TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs
@@ -85,11 +85,11 @@ ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-LIB += -lmingwex -lz -lws2_32
-
 ifdef FOSSIL_ENABLE_TCL
-LIB += -ltcl86t
+LIB += -ltcl86s
 endif
+
+LIB += -lmingwex -lz -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
