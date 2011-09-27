@@ -232,7 +232,9 @@ static cson_value * json_timeline_get_changed_files(int rid){
     }
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
-    cson_object_set(row, "prevUuid", json_new_string(db_column_text(&q,4)));
+    if(!isNew){
+      cson_object_set(row, "prevUuid", json_new_string(db_column_text(&q,4)));
+    }
     cson_object_set(row, "state",
                     json_new_string(isNew
                                     ? "added"
