@@ -73,10 +73,10 @@ void diff_file(
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
-    if( file_size(zFile2)<0 ){
+    if( file_wd_size(zFile2)<0 ){
       zName2 = "/dev/null";
     }else{
-      if( file_islink(zFile2) ){
+      if( file_wd_islink(zFile2) ){
         blob_read_link(&file2, zFile2);
       }else{
         blob_read_from_file(&file2, zFile2);
@@ -195,7 +195,7 @@ static void diff_one_against_disk(
   int isLink;
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0, 0);
-  if( !isLink != !file_islink(zFrom) ){
+  if( !isLink != !file_wd_islink(zFrom) ){
     diff_printf("cannot compute difference between symlink and regular file\n");
   }else{
     diff_file(&content, zFileTreeName, zFileTreeName, zDiffCmd, ignoreEolWs);
@@ -290,7 +290,7 @@ static void diff_all_against_disk(
     }
     if( showDiff ){
       Blob content;
-      if( !isLink != !file_islink(zFullName) ){
+      if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname);
         diff_printf("--- %s\n+++ %s\n", zPathname, zPathname);
         diff_printf("cannot compute difference between symlink and regular file\n");
@@ -433,7 +433,7 @@ static void diff_all_two_versions(
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
-** Usage: %fossil diff|gdiff ?options? ?FILE1? ?FILE2 ...?
+** Usage: %fossil diff|gdiff ?OPTIONS? ?FILE1? ?FILE2 ...?
 **
 ** Show the difference between the current version of each of the FILEs
 ** specified (as they exist on disk) and that same file as it was checked
@@ -456,6 +456,12 @@ static void diff_all_two_versions(
 **
 ** The "-N" or "--new-file" option causes the complete text of added or
 ** deleted files to be displayed.
+**
+** Options:
+**   --from|-r VERSION   select VERSION as source for the diff
+**   --new-file|-N       output complete text of added or deleted files
+**   -i                  use internal diff logic
+**   --to VERSION        select VERSION as target for the diff
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -514,7 +520,7 @@ void vpatch_page(void){
   const char *zFrom = P("from");
   const char *zTo = P("to");
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( zFrom==0 || zTo==0 ) fossil_redirect_home();
 
   cgi_set_content_type("text/plain");

@@ -48,6 +48,34 @@
 #define MX_AUX  5
 
 /*
+** Holds flags for fossil user permissions.
+*/
+struct FossilUserPerms {
+  char Setup;            /* s: use Setup screens on web interface */
+  char Admin;            /* a: administrative permission */
+  char Delete;           /* d: delete wiki or tickets */
+  char Password;         /* p: change password */
+  char Query;            /* q: create new reports */
+  char Write;            /* i: xfer inbound. checkin */
+  char Read;             /* o: xfer outbound. checkout */
+  char History;          /* h: access historical information. */
+  char Clone;            /* g: clone */
+  char RdWiki;           /* j: view wiki via web */
+  char NewWiki;          /* f: create new wiki via web */
+  char ApndWiki;         /* m: append to wiki via web */
+  char WrWiki;           /* k: edit wiki via web */
+  char RdTkt;            /* r: view tickets via web */
+  char NewTkt;           /* n: create new tickets */
+  char ApndTkt;          /* c: append to tickets via the web */
+  char WrTkt;            /* w: make changes to tickets via web */
+  char Attach;           /* b: add attachments */
+  char TktFmt;           /* t: create new ticket report formats */
+  char RdAddr;           /* e: read email addresses or other private data */
+  char Zip;              /* z: download zipped artifact via /zip URL */
+  char Private;          /* x: can send and receive private content */
+};
+
+/*
 ** All global variables are in this structure.
 */
 struct Global {
@@ -121,28 +149,7 @@ struct Global {
   char *zNonce;           /* The nonce used for login */
   
   /* permissions used by the server */
-  int okSetup;            /* s: use Setup screens on web interface */
-  int okAdmin;            /* a: administrative permission */
-  int okDelete;           /* d: delete wiki or tickets */
-  int okPassword;         /* p: change password */
-  int okQuery;            /* q: create new reports */
-  int okWrite;            /* i: xfer inbound. checkin */
-  int okRead;             /* o: xfer outbound. checkout */
-  int okHistory;          /* h: access historical information. */
-  int okClone;            /* g: clone */
-  int okRdWiki;           /* j: view wiki via web */
-  int okNewWiki;          /* f: create new wiki via web */
-  int okApndWiki;         /* m: append to wiki via web */
-  int okWrWiki;           /* k: edit wiki via web */
-  int okRdTkt;            /* r: view tickets via web */
-  int okNewTkt;           /* n: create new tickets */
-  int okApndTkt;          /* c: append to tickets via the web */
-  int okWrTkt;            /* w: make changes to tickets via web */
-  int okAttach;           /* b: add attachments */
-  int okTktFmt;           /* t: create new ticket report formats */
-  int okRdAddr;           /* e: read email addresses or other private data */
-  int okZip;              /* z: download zipped artifact via /zip URL */
-  int okPrivate;          /* x: can send and receive private content */
+  struct FossilUserPerms perm;
 
   /* For defense against Cross-site Request Forgery attacks */
   char zCsrfToken[12];    /* Value of the anti-CSRF token */
@@ -650,6 +657,21 @@ void cmd_test_cmd_list(void){
 
 
 /*
+** COMMAND: test-list-webpage
+**
+** List all web pages
+*/
+void cmd_test_webpage_list(void){
+  int i, nCmd;
+  const char *aCmd[count(aWebpage)];
+  for(i=nCmd=0; i<count(aWebpage); i++){
+    aCmd[nCmd++] = aWebpage[i].zName;
+  }
+  multi_column_list(aCmd, nCmd);
+}
+
+
+/*
 ** COMMAND: version
 **
 ** Usage: %fossil version
@@ -1017,7 +1039,7 @@ static void process_one_web_page(const char *zNotFound){
         db_close(1);
         db_open_repository(zAltRepo);
         login_as_user(zUser);
-        g.okPassword = 0;
+        g.perm.Password = 0;
         zPath += i;
         nHost = g.zTop - g.zBaseURL;
         g.zBaseURL = mprintf("%z/%s", g.zBaseURL, g.zPath);

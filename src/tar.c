@@ -418,7 +418,7 @@ static void tar_finish(Blob *pOut){
 /*
 ** COMMAND: test-tarball
 **
-** Generate a GZIP-compresssed tarball in the file given by the first argument
+** Generate a GZIP-compressed tarball in the file given by the first argument
 ** that contains files given in the second and subsequent arguments.
 */
 void test_tarball_cmd(void){
@@ -434,7 +434,7 @@ void test_tarball_cmd(void){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
     tar_add_file(g.argv[i], &file,
-                 file_perm(g.argv[i]), file_mtime(g.argv[i]));
+                 file_wd_perm(g.argv[i]), file_wd_mtime(g.argv[i]));
     blob_reset(&file);
   }
   tar_finish(&zip);
@@ -574,7 +574,7 @@ void tarball_page(void){
   Blob tarball;
 
   login_check_credentials();
-  if( !g.okZip ){ login_needed(); return; }
+  if( !g.perm.Zip ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
   zRid = mprintf("%s", PD("uuid",""));

@@ -1181,10 +1181,10 @@ void db_initial_setup(
 ** parameter.
 **
 ** Options:
+**    --admin-user|-A USERNAME  select given USERNAME as admin user
+**    --date-override DATETIME  use DATETIME as time of the initial checkin
 **
-**    --admin-user|-A USERNAME
-**    --date-override DATETIME
-**
+** See also: clone
 */
 void create_repository_cmd(void){
   char *zPassword;
@@ -1346,7 +1346,7 @@ char *db_conceal(const char *zContent, int n){
 */
 char *db_reveal(const char *zKey){
   char *zOut;
-  if( g.okRdAddr ){
+  if( g.perm.RdAddr ){
     zOut = db_text(0, "SELECT content FROM concealed WHERE hash=%Q", zKey);
   }else{
     zOut = 0;
@@ -1644,7 +1644,7 @@ void db_record_repository_filename(const char *zName){
 /*
 ** COMMAND: open
 **
-** Usage: %fossil open FILENAME ?VERSION? ?--keep? ?--nested?
+** Usage: %fossil open FILENAME ?VERSION? ?OPTIONS?
 **
 ** Open a connection to the local repository in FILENAME.  A checkout
 ** for the repository is created with its root at the working directory.
@@ -1652,7 +1652,11 @@ void db_record_repository_filename(const char *zName){
 ** the latest version is checked out.  No files other than "manifest"
 ** and "manifest.uuid" are modified if the --keep option is present.
 **
-** See also the "close" command.
+** Options:
+**   --keep     Only modify the manifest and manifest.uuid files
+**   --nested   Allow opening a repository inside an opened checkout
+**
+** See also: close
 */
 void cmd_open(void){
   Blob path;

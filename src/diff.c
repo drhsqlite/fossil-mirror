@@ -839,7 +839,7 @@ void annotation_page(void){
   Annotator ann;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
@@ -849,7 +849,7 @@ void annotation_page(void){
   }
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.okHistory, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, g.perm.History, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>
@@ -873,7 +873,7 @@ void annotation_page(void){
 /*
 ** COMMAND: annotate
 **
-** %fossil annotate FILENAME
+** %fossil annotate ?OPTIONS? FILENAME
 **
 ** Output the text of a file with markings to show when each line of
 ** the file was last modified.

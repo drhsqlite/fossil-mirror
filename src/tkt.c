@@ -91,7 +91,7 @@ static int fieldId(const char *zField){
 ** variables.
 **
 ** Fields of the TICKET table that begin with "private_" are
-** expanded using the db_reveal() function.  If g.okRdAddr is
+** expanded using the db_reveal() function.  If g.perm.RdAddr is
 ** true, then the db_reveal() function will decode the content
 ** using the CONCEALED table so that the content legable.
 ** Otherwise, db_reveal() is a no-op and the content remains
@@ -294,12 +294,12 @@ void tktview_page(void){
   const char *zUuid = PD("name","");
 
   login_check_credentials();
-  if( !g.okRdTkt ){ login_needed(); return; }
-  if( g.okWrTkt || g.okApndTkt ){
+  if( !g.perm.RdTkt ){ login_needed(); return; }
+  if( g.perm.WrTkt || g.perm.ApndTkt ){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
-  if( g.okHistory ){
+  if( g.perm.History ){
     style_submenu_element("History", "History Of This Ticket", 
         "%s/tkthistory/%T", g.zTop, zUuid);
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
@@ -307,11 +307,11 @@ void tktview_page(void){
     style_submenu_element("Check-ins", "Check-ins Of This Ticket", 
         "%s/tkttimeline/%T?y=ci", g.zTop, zUuid);
   }
-  if( g.okNewTkt ){
+  if( g.perm.NewTkt ){
     style_submenu_element("New Ticket", "Create a new ticket",
         "%s/tktnew", g.zTop);
   }
-  if( g.okApndTkt && g.okAttach ){
+  if( g.perm.ApndTkt && g.perm.Attach ){
     style_submenu_element("Attach", "Add An Attachment",
         "%s/attachadd?tkt=%T&amp;from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
@@ -347,7 +347,7 @@ void tktview_page(void){
       }
       cnt++;
       @ <li>
-      if( g.okRead && g.okHistory ){
+      if( g.perm.Read && g.perm.History ){
         @ <a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
         @ %h(zFile)</a>
       }else{
@@ -355,7 +355,7 @@ void tktview_page(void){
       }
       @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
-      if( g.okWrTkt && g.okAttach ){
+      if( g.perm.WrTkt && g.perm.Attach ){
         @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
       }
       @ </li>
@@ -512,7 +512,7 @@ void tktnew_page(void){
   char *zNewUuid = 0;
 
   login_check_credentials();
-  if( !g.okNewTkt ){ login_needed(); return; }
+  if( !g.perm.NewTkt ){ login_needed(); return; }
   if( P("cancel") ){
     cgi_redirect("home");
   }
@@ -558,7 +558,7 @@ void tktedit_page(void){
   int nRec;
 
   login_check_credentials();
-  if( !g.okApndTkt && !g.okWrTkt ){ login_needed(); return; }
+  if( !g.perm.ApndTkt && !g.perm.WrTkt ){ login_needed(); return; }
   zName = P("name");
   if( P("cancel") ){
     cgi_redirectf("tktview?name=%T", zName);
@@ -653,7 +653,7 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
+  if( !g.perm.History || !g.perm.RdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -727,7 +727,7 @@ void tkthistory_page(void){
   int tagid;
 
   login_check_credentials();
-  if( !g.okHistory || !g.okRdTkt ){ login_needed(); return; }
+  if( !g.perm.History || !g.perm.RdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
@@ -1013,7 +1013,6 @@ void ticket_cmd(void){
         /* we just handle history separately here, does not get out */
         if( eCmd==history ){
           Stmt q;
-          char *zTitle;
           int tagid;
 
           if ( i != g.argc ){

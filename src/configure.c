@@ -155,10 +155,10 @@ int configure_is_exportable(const char *zName){
   for(i=0; i<count(aConfig); i++){
     if( memcmp(zName, aConfig[i].zName, n)==0 && aConfig[i].zName[n]==0 ){
       int m = aConfig[i].groupMask;
-      if( !g.okAdmin ){
+      if( !g.perm.Admin ){
         m &= ~CONFIGSET_USER;
       }
-      if( !g.okRdAddr ){
+      if( !g.perm.RdAddr ){
         m &= ~CONFIGSET_ADDR;
       }
       return m;
@@ -555,7 +555,7 @@ void configure_receive_all(Blob *pIn, int groupMask){
       Blob content;
       blob_zero(&content);
       blob_extract(pIn, size, &content);
-      g.okAdmin = g.okRdAddr = 1;
+      g.perm.Admin = g.perm.RdAddr = 1;
       configure_receive(zName, &content, groupMask);
       blob_reset(&content);
       blob_seek(pIn, 1, BLOB_SEEK_CUR);
@@ -728,7 +728,7 @@ static void export_config(
 /*
 ** COMMAND: configuration
 **
-** Usage: %fossil configuration METHOD ... ?-R|--repository REPOSITORY?
+** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **
 ** Where METHOD is one of: export import merge pull push reset.  All methods
 ** accept the -R or --repository option to specific a repository.
@@ -774,6 +774,11 @@ static void export_config(
 **
 **         Synchronize configuration changes in the local repository with
 **         the remote repository at URL.  
+**
+** Options:
+**    -R|--repository FILE       Extract info from repository FILE
+**
+** See also: set
 */
 void configuration_cmd(void){
   int n;

@@ -340,7 +340,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   bag_init(&bagDone);
   ttyOutput = doOut;
   processCnt = 0;
-  if (!g.fQuiet) {
+  if (ttyOutput && !g.fQuiet) {
     percent_complete(0);
   }
   rebuild_update_schema();
@@ -412,12 +412,12 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_finalize(&s);
   manifest_crosslink_end();
   rebuild_tag_trunk();
-  if( !g.fQuiet && totalSize>0 ){
+  if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
   if( doClustering ) create_cluster();
-  if( !g.fQuiet && totalSize>0 ){
+  if( ttyOutput && !g.fQuiet && totalSize>0 ){
     processCnt += incrSize;
     percent_complete((processCnt*1000)/totalSize);
   }
@@ -487,22 +487,23 @@ static void extra_deltification(void){
 /*
 ** COMMAND:  rebuild
 **
-** Usage: %fossil rebuild ?REPOSITORY?
+** Usage: %fossil rebuild ?REPOSITORY? ?OPTIONS?
 **
 ** Reconstruct the named repository database from the core
 ** records.  Run this command after updating the fossil
 ** executable in a way that changes the database schema.
 **
 ** Options:
-**
-**   --noverify    Skip the verification of changes to the BLOB table
-**   --force       Force the rebuild to complete even if errors are seen
-**   --randomize   Scan artifacts in a random order
 **   --cluster     Compute clusters for unclustered artifacts
-**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
-**   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --compress    Strive to make the database as small as possible
+**   --force       Force the rebuild to complete even if errors are seen
+**   --noverify    Skip the verification of changes to the BLOB table
+**   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
+**   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
+**   --wal         Set Write-Ahead-Log journalling mode on the database
+**
+** See also: deconstruct, reconstruct
 */
 void rebuild_database(void){
   int forceFlag;
@@ -695,7 +696,7 @@ void test_clusters_cmd(void){
 
 /*
 ** COMMAND: scrub
-** %fossil scrub [--verily] [--force] [--private] [REPOSITORY]
+** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
 ** repository so that the respository can be sent to an untrusted reader.
@@ -711,6 +712,11 @@ void test_clusters_cmd(void){
 **
 ** The user is prompted to confirm the scrub unless the --force option
 ** is used.
+**
+** Options:
+**   --force     do not prompt for confirmation
+**   --private   only private branches are removed from the repository
+**   --verily    scrub real thoroughly (see above)
 */
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
@@ -831,6 +837,7 @@ void recon_read_dir(char *zPath){
 ** fossil repository in FILENAME. Subdirectories are read, files
 ** with leading '.' in the filename are ignored.
 **
+** See also: deconstruct, rebuild
 */
 void reconstruct_cmd(void) {
   char *zPassword;
@@ -886,9 +893,6 @@ void reconstruct_cmd(void) {
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **
-** Options:
-**   -R|--repository REPOSITORY
-**   -L|--prefixlength N
 **
 ** This command exports all artifacts of a given repository and
 ** writes all artifacts to the file system. The DESTINATION directory
@@ -896,6 +900,13 @@ void reconstruct_cmd(void) {
 ** AABBBBBBBBB.. is the 40 character artifact ID, AA the first 2 characters.
 ** If -L|--prefixlength is given, the length (default 2) of the directory
 ** prefix can be set to 0,1,..,9 characters.
+** 
+** Options:
+**   -R|--repository REPOSITORY  deconstruct given REPOSITORY
+**   -L|--prefixlength N         set the length of the names of the DESTINATION
+**                               subdirectories to N
+**
+** See also: rebuild, reconstruct
 */
 void deconstruct_cmd(void){
   const char *zDestDir;

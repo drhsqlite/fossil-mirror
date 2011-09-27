@@ -23,7 +23,7 @@
 /*
 ** COMMAND: finfo
 ** 
-** Usage: %fossil finfo {?-l|--log? / -s|--status / --p|--print} FILENAME
+** Usage: %fossil finfo ?OPTIONS? FILENAME
 **
 ** Print the complete change history for a single file going backwards
 ** in time.  The default is -l.
@@ -36,9 +36,21 @@
 ** In the -s form prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
-** The -p form, there's an optional flag "-r|--revision REVISION".  The
-** specified version (or the latest checked out version) is printed to
-** stdout.
+** In the -p form, there's an optional flag "-r|--revision REVISION".
+** The specified version (or the latest checked out version) is printed
+** to stdout.
+**
+** Options:
+**   --brief|-b          display a brief (one line / revision) summary
+**   --limit N           display the first N changes
+**   --log|-l            select log mode (the default)
+**   --offset P          skip P changes
+**   -p                  select print mode
+**   --revision|-r R     print the given revision (or ckout, if none is given)
+**                       to stdout (only in print mode)
+**   -s                  select status mode (print a status indicator for FILE)
+**
+** See also: descendants, info, leaves
 */
 void finfo_cmd(void){
   db_must_be_within_tree();
@@ -212,7 +224,7 @@ void finfo_page(void){
   int uBg = P("ubg")!=0;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   style_header("File History");
   login_anonymous_available();
 
@@ -299,7 +311,7 @@ void finfo_page(void){
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
-      if( g.okHistory ){
+      if( g.perm.History ){
         @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%S(zUuid)]</a>
       }else{
         @ [%S(zUuid)]
@@ -312,7 +324,7 @@ void finfo_page(void){
     @ %h(zCom) (user: 
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
-    if( g.okHistory && zUuid ){
+    if( g.perm.History && zUuid ){
       const char *z = zFilename;
       if( fpid ){
         @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>

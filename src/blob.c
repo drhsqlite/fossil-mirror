@@ -683,7 +683,7 @@ int blob_read_from_file(Blob *pBlob, const char *zFilename){
         || (zFilename[0]=='-' && zFilename[1]==0) ){
     return blob_read_from_channel(pBlob, stdin, -1);
   }
-  size = file_size(zFilename);
+  size = file_wd_size(zFilename);
   blob_zero(pBlob);
   if( size<0 ){
     fossil_fatal("no such file: %s", zFilename);

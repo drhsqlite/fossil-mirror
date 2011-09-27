@@ -347,7 +347,7 @@ void mimetype_test_cmd(void){
 ** URL: /doc/BASELINE/PATH
 **
 ** BASELINE can be either a baseline uuid prefix or magic words "tip"
-** to me the most recently checked in baseline or "ckout" to mean the
+** to mean the most recently checked in baseline or "ckout" to mean the
 ** content of the local checkout, if any.  PATH is the relative pathname
 ** of some file.  This method returns the file content.
 **
@@ -365,7 +365,7 @@ void doc_page(void){
   char zBaseline[UUID_SIZE+1];      /* Baseline UUID */
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   zName = PD("name", "tip/index.wiki");
   for(i=0; zName[i] && zName[i]!='/'; i++){}
   if( zName[i]==0 || i>UUID_SIZE ){

@@ -44,7 +44,7 @@ void bisect_path(void){
   if( bisect.good==0 ){
     fossil_fatal("no \"good\" version has been identified");
   }
-  p = path_shortest(bisect.good, bisect.bad, bisect_option("direct-only"));
+  p = path_shortest(bisect.good, bisect.bad, bisect_option("direct-only"), 0);
   if( p==0 ){
     char *zBad = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", bisect.bad);
     char *zGood = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", bisect.good);

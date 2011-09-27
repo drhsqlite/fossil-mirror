@@ -10,6 +10,7 @@
      Exploring the Fossil DVCS] by Jan-Piet Mens.
   *  [http://blog.mired.org/2011/02/fossil-sweet-spot-in-vcs-space.html |
      Fossil - a sweet spot in the VCS space] by Mike Meyer.
+  *  [http://blog.s11n.net/?p=72|Four reasons to take a closer look at the Fossil SCM] by Stephan Beal
 
 <b>See Also:</b>
 
@@ -41,7 +42,7 @@ another branch after the fact and shared-by-default branches are good
 features. Also not having a misanthropic command line interface.
 </blockquote>
 
-<b>Stephen Beal writes on 2009-01-11:</b>
+<b>Stephan Beal writes on 2009-01-11:</b>
 
 <blockquote>
 Sometime in late 2007 I came across a link to fossil on 
@@ -138,9 +139,9 @@ anywhere near that size or complexity.
 In summary:
 
 I remember my first reaction to fossil being, "this will be an
-excellent solution for small projects [like the dozens we've all got
+excellent solution for small projects (like the dozens we've all got
 sitting on our hard drives but which don't justify the hassle of
-version control]." A year of daily use in over 15 source trees has
+version control)." A year of daily use in over 15 source trees has
 confirmed that, and I continue to heartily recommend fossil to other
 developers I know who also have their own collection of "unhosted" pet
 projects.

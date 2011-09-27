@@ -314,7 +314,6 @@ int content_get(int rid, Blob *pBlob){
 ** the named output file.
 **
 ** Options:
-**
 **    -R|--repository FILE       Extract artifacts from repository FILE
 */
 void artifact_cmd(void){

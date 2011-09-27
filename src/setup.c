@@ -54,7 +54,7 @@ void setup_menu_entry(
 */
 void setup_page(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -108,7 +108,7 @@ void setup_ulist(void){
   Stmt s;
 
   login_check_credentials();
-  if( !g.okAdmin ){
+  if( !g.perm.Admin ){
     login_needed();
     return;
   }
@@ -129,11 +129,11 @@ void setup_ulist(void){
     const char *zCap = db_column_text(&s, 2);
     @ <tr>
     @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
-    if( g.okAdmin && (zCap[0]!='s' || g.okSetup) ){
+    if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
       @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
     }
     @ %h(db_column_text(&s,1))
-    if( g.okAdmin ){
+    if( g.perm.Admin ){
       @ </a>
     }
     @ </td>
@@ -261,14 +261,14 @@ void user_edit(void){
   /* Must have ADMIN privleges to access this page
   */
   login_check_credentials();
-  if( !g.okAdmin ){ login_needed(); return; }
+  if( !g.perm.Admin ){ login_needed(); return; }
 
   /* Check to see if an ADMIN user is trying to edit a SETUP account.
   ** Don't allow that.
   */
   zId = PD("id", "0");
   uid = atoi(zId);
-  if( zId && !g.okSetup && uid>0 ){
+  if( zId && !g.perm.Setup && uid>0 ){
     char *zOldCaps;
     zOldCaps = db_text(0, "SELECT cap FROM user WHERE uid=%d",uid);
     higherUser = zOldCaps && strchr(zOldCaps,'s');
@@ -298,7 +298,7 @@ void user_edit(void){
     int ao = P("ao")!=0;
     int ap = P("ap")!=0;
     int ar = P("ar")!=0;
-    int as = g.okSetup && P("as")!=0;
+    int as = g.perm.Setup && P("as")!=0;
     int aw = P("aw")!=0;
     int ac = P("ac")!=0;
     int af = P("af")!=0;
@@ -337,6 +337,14 @@ void user_edit(void){
     zCap[i] = 0;
     zPw = P("pw");
     zLogin = P("login");
+    if( strlen(zLogin)==0 ){
+      style_header("User Creation Error");
+      @ <span class="loginError">Empty login not allowed.</span>
+      @
+      @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
+      style_footer();
+      return;      
+    }
     if( isValidPwString(zPw) ){
       zPw = sha1_shared_secret(zPw, zLogin, 0);
     }else{
@@ -507,7 +515,7 @@ void user_edit(void){
   @   <td class="usetupEditLabel">Capabilities:</td>
   @   <td>
 #define B(x) inherit[x]
-  if( g.okSetup ){
+  if( g.perm.Setup ){
     @    <input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup<br />
   }
   @    <input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin<br />
@@ -810,7 +818,7 @@ static void textarea_attribute(
 */
 void setup_access(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -912,7 +920,7 @@ void setup_login_group(void){
   const char *zNewName = PD("newname", "New Login Group");
 
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   file_canonical_name(g.zRepositoryName, &fullName);
@@ -998,7 +1006,7 @@ void setup_login_group(void){
 */
 void setup_timeline(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -1047,7 +1055,7 @@ void setup_settings(void){
   struct stControlSettings const *pSet;
 
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -1101,7 +1109,7 @@ void setup_settings(void){
 */
 void setup_config(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
 
@@ -1165,7 +1173,7 @@ void setup_config(void){
 */
 void setup_editcss(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();
@@ -1209,7 +1217,7 @@ void setup_editcss(void){
 */
 void setup_header(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();
@@ -1247,7 +1255,7 @@ void setup_header(void){
 */
 void setup_footer(void){
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();
@@ -1290,7 +1298,7 @@ void setup_logo(void){
     zMime = PD("im:mimetype","image/gif");
   }
   login_check_credentials();
-  if( !g.okSetup ){
+  if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();

@@ -219,7 +219,7 @@ static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
 /*
 ** COMMAND: branch
 **
-** Usage: %fossil branch SUBCOMMAND ... ?-R|--repository FILE?
+** Usage: %fossil branch SUBCOMMAND ... ?OPTIONS?
 **
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
@@ -230,12 +230,14 @@ static void prepareBranchQuery(Stmt *pQuery, int showAll, int showClosed){
 **        You can optionally give the branch a default color.  The
 **        --private option makes the branch private.
 **
-**    %fossil branch list
-**    %fossil branch ls
+**    %fossil branch list ?-all | --closed?
+**    %fossil branch ls ?-all | --closed?
 **
 **        List all branches.  Use --all or --closed to list all branches
 **        or closed branches.  The default is to show only open branches.
 **
+** Options:
+**    -R|--repository FILE       Run commands on repository FILE
 */
 void branch_cmd(void){
   int n;
@@ -286,7 +288,7 @@ void brlist_page(void){
   int colorTest = P("colortest")!=0;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   if( colorTest ){
     showClosed = 0;
     showAll = 1;
@@ -348,7 +350,7 @@ void brlist_page(void){
       const char *zColor = hash_color(zBr);
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
-    }else if( g.okHistory ){
+    }else if( g.perm.History ){
       @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
       @ <li><b>%h(zBr)</b></li>
@@ -374,7 +376,7 @@ void brlist_page(void){
 */
 static void brtimeline_extra(int rid){
   Stmt q;
-  if( !g.okHistory ) return;
+  if( !g.perm.History ) return;
   db_prepare(&q, 
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
@@ -399,7 +401,7 @@ void brtimeline_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.okRead ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
 
   style_header("Branches");
   style_submenu_element("List", "List", "brlist");
