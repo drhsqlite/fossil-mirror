@@ -194,6 +194,56 @@ static void json_timeline_setup_sql( char const * zEventType,
   }
 
 }
+
+static cson_value * json_timeline_get_changed_files(int rid){
+  cson_value * rowsV = NULL;
+  cson_array * rows = NULL;
+  Stmt q;
+  db_prepare(&q, 
+#if 0
+             "SELECT (mlink.pid==0) AS isNew,"
+             "       (mlink.fid==0) AS isDel,"
+             "       filename.name AS name"
+             " FROM mlink, filename"
+             " WHERE mid=%d"
+             " AND pid!=fid"
+             " AND filename.fnid=mlink.fnid"
+             " ORDER BY 3 /*sort*/",
+#else
+           "SELECT (pid==0) AS isnew,"
+           "       (fid==0) AS isdel,"
+           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
+           "       (SELECT uuid FROM blob WHERE rid=fid),"
+           "       (SELECT uuid FROM blob WHERE rid=pid)"
+           "  FROM mlink"
+           " WHERE mid=%d AND pid!=fid"
+           " ORDER BY 3 /*sort*/",
+#endif
+             rid
+             );
+  while( (SQLITE_ROW == db_step(&q)) ){
+    cson_value * rowV = cson_value_new_object();
+    cson_object * row = cson_value_get_object(rowV);
+    int const isNew = db_column_int(&q,0);
+    int const isDel = db_column_int(&q,1);
+    if(!rowsV){
+      rowsV = cson_value_new_array();
+      rows = cson_value_get_array(rowsV);
+    }
+    cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
+    cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
+    cson_object_set(row, "prevUuid", json_new_string(db_column_text(&q,4)));
+    cson_object_set(row, "state",
+                    json_new_string(isNew
+                                    ? "added"
+                                    : (isDel
+                                       ? "removed"
+                                       : "modified")));
+    cson_array_append( rows, rowV );
+  }
+  db_finalize(&q);
+  return rowsV;
+}
 /*
 ** Implementation of /json/timeline/ci.
 **
@@ -207,11 +257,17 @@ static cson_value * json_timeline_ci(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
+  int showFiles = 0;
   Stmt q;
   Blob sql = empty_blob;
   if( !g.perm.Read/* && !g.perm.RdTkt && !g.perm.RdWiki*/ ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
+  }
+  if( g.isHTTP ){
+    showFiles = json_getenv_bool("showFiles",0);
+  }else{
+    showFiles = 0!=find_option("show-files", "f",0);
   }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
@@ -234,15 +290,20 @@ static cson_value * json_timeline_ci(){
               " rid AS rid,"
               " uuid AS uuid,"
               " mtime AS timestamp,"
+#if 0
               " timestampString AS timestampString,"
+#endif
               " comment AS comment, "
               " user AS user,"
               " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
               " bgColor AS bgColor," /* why always null? */
               " eventType AS eventType,"
-              " tags AS tags," /*FIXME: split this into
+              " tags AS tags" /*FIXME: split this into
                                  a JSON array*/
+#if 0
+              /*tagId is always null?*/
               " tagId AS tagId"
+#endif
               " FROM json_timeline"
               " ORDER BY sortId",
               -1);
@@ -254,6 +315,7 @@ static cson_value * json_timeline_ci(){
   SET("timeline");
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
+    int const rid = db_column_int(&q,0);
     cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
     cson_object * row = cson_value_get_object(rowV);
     cson_string const * tagsStr = NULL;
@@ -289,6 +351,12 @@ static cson_value * json_timeline_ci(){
                       ? cson_value_true()
                       : cson_value_false());
       tmp = NULL;
+    }
+    if( showFiles ){
+      cson_value * flist = json_timeline_get_changed_files(rid);
+      if(flist){
+        cson_object_set(row,"files",flist);
+      }
     }
   }
   db_finalize(&q);
@@ -340,7 +408,9 @@ cson_value * json_timeline_wiki(){
   blob_append(&sql, "SELECT rid AS rid,"
               " uuid AS uuid,"
               " mtime AS timestamp,"
+#if 0
               " timestampString AS timestampString,"
+#endif
               " comment AS comment, "
               " user AS user,"
               " eventType AS eventType"
@@ -427,7 +497,9 @@ static cson_value * json_timeline_ticket(){
   blob_append(&sql, "SELECT rid AS rid,"
               " uuid AS uuid,"
               " mtime AS timestamp,"
+#if 0
               " timestampString AS timestampString,"
+#endif
               " user AS user,"
               " eventType AS eventType,"
               " comment AS comment,"
