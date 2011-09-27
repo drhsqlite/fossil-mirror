@@ -1175,6 +1175,32 @@ void json_err( int code, char const * msg, char alsoOutput ){
   cson_value_free(resp);
 }
 
+
+/*
+** Iterates through a prepared SELECT statement and converts each row
+** to a JSON object. If pTgt is not NULL then it must be-a Array
+** object and this function will return pTgt. If pTgt is NULL then a
+** new Array object is created and returned (owned by the
+** caller). Each row of pStmt is converted to an Object and appended
+** to the array.
+*/
+static cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
+                                              cson_value * pTgt){
+  cson_value * v = pTgt ? pTgt : cson_value_new_array();
+  cson_array * a = cson_value_get_array(pTgt ? pTgt : v);
+  assert( NULL != a );
+  while( (SQLITE_ROW==db_step(pStmt)) ){
+    cson_value * row = cson_sqlite3_row_to_object(pStmt->pStmt);
+    if(!row){
+      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                 "Could not convert at least one result row to JSON." );
+      continue;
+    }
+    cson_array_append(a, row);
+  }
+  return v;  
+}
+
 /*
 ** /json/version implementation.
 **
@@ -1574,8 +1600,8 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 };
 
 static cson_value * json_user_list();
+static cson_value * json_user_get();
 #if 0
-static cson_value * json_user_detail();
 static cson_value * json_user_create();
 static cson_value * json_user_edit();
 #endif
@@ -1584,10 +1610,10 @@ static cson_value * json_user_edit();
 ** Mapping of /json/user/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_User[] = {
-{"list", json_user_list, 0},
-{"detail", json_page_nyi, 0},
 {"create", json_page_nyi, 1},
 {"edit", json_page_nyi, 1},
+{"get", json_user_get, 0},
+{"list", json_user_list, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -2452,31 +2478,65 @@ static cson_value * json_page_whoami(){
   return payload;
 }
 
+/*
+** Impl of /json/user/list. Requires admin rights.
+*/
 static cson_value * json_user_list(){
   cson_value * payV = NULL;
-  cson_array * pay = NULL;
   Stmt q;
-  if(! g.perm.Admin ){
+  if(!g.perm.Admin){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
-  payV = cson_value_new_array();
-  pay = cson_value_get_array(payV);
   db_prepare(&q,"SELECT uid AS uid,"
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
              " mtime AS mtime"
              " FROM user ORDER BY login");
+  payV = json_stmt_to_array_of_obj(&q, NULL);
+  db_finalize(&q);
+  if(NULL == payV){
+    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+  }
+  return payV;  
+}
 
-  while( (SQLITE_ROW==db_step(&q)) ){
-    cson_value * row = cson_sqlite3_row_to_object(q.pStmt);
-    if(!row){
-      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                 "Could not convert at least one user result row to JSON." );
-      continue;
+/*
+** Impl of /json/user/get. Requires admin rights.
+*/
+static cson_value * json_user_get(){
+  cson_value * payV = NULL;
+  char const * pUser = NULL;
+  Stmt q;
+  if(!g.perm.Admin){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  if( g.isHTTP ){
+    pUser = json_getenv_cstr("name");
+  }else{
+    pUser = json_command_arg(g.json.dispatchDepth+1);
+  }
+  if(!pUser || !*pUser){
+    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    return NULL;
+  }
+  db_prepare(&q,"SELECT uid AS uid,"
+             " login AS name,"
+             " cap AS capabilities,"
+             " info AS info,"
+             " mtime AS mtime"
+             " FROM user"
+             " WHERE login=%Q",
+             pUser);
+  if( (SQLITE_ROW == db_step(&q)) ){
+    payV = cson_sqlite3_row_to_object(q.pStmt);
+    if(!payV){
+      g.json.resultCode = FSL_JSON_E_UNKNOWN;
     }
-    cson_array_append(pay, row);
+  }else{
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
   }
   db_finalize(&q);
   return payV;  
