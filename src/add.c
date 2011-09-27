@@ -230,7 +230,7 @@ void add_cmd(void){
 
     file_canonical_name(g.argv[i], &fullName);
     zName = blob_str(&fullName);
-    isDir = file_isdir(zName);
+    isDir = file_wd_isdir(zName);
     if( isDir==1 ){
       vfile_scan(&fullName, nRoot-1, includeDotFiles, pIgnore);
     }else if( isDir==0 ){
@@ -508,7 +508,7 @@ void mv_cmd(void){
   db_multi_exec(
     "CREATE TEMP TABLE mv(f TEXT UNIQUE ON CONFLICT IGNORE, t TEXT);"
   );
-  if( file_isdir(zDest)!=1 ){
+  if( file_wd_isdir(zDest)!=1 ){
     Blob orig;
     if( g.argc!=4 ){
       usage("OLDNAME NEWNAME");

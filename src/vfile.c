@@ -274,7 +274,7 @@ void vfile_to_disk(
       }
     }
     if( verbose ) fossil_print("%s\n", &zName[nRepos]);
-    if( file_isdir(zName) == 1 ){
+    if( file_wd_isdir(zName) == 1 ){
       /*TODO(dchest): remove directories? */
       fossil_fatal("%s is directory, cannot overwrite\n", zName);
     }    
@@ -391,7 +391,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
-      }else if( file_isdir(zPath)==1 ){
+      }else if( file_wd_isdir(zPath)==1 ){
         if( !vfile_top_of_checkout(zPath) ){
           vfile_scan(pPath, nPrefix, allFlag, pIgnore);
         }

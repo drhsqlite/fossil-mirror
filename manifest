@@ -1,5 +1,5 @@
-C Add\sthe\s--stats\soption\sto\sthe\srebuild\scommand.
-D 2011-09-27T16:34:35.977
+C Change\sa\sfew\sinstances\sof\sfile_isdir()\sto\sfile_wd_isdir().
+D 2011-09-27T19:15:13.318
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -45,7 +45,7 @@ F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
-F src/add.c be93e4716bbc54f3c4e6d91cd516992ccb4088fa
+F src/add.c 623b2b214716e5461b6c9496c024bef0092c2b64
 F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -131,11 +131,11 @@ F src/tkt.c 54c426b8c38b943fbb243d47dcff8d9d4852e40c
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 9912a0e3e56948e4ea1bcad72fe57282d7a0be70
-F src/update.c fc6895cfa6362f097c8b8f06fcf663eb8ba9c476
+F src/update.c c01f21670888079c16acc1d0b99a31d5632be5bf
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 1a9375a22479d7101f14b3ff352e0c5f9013cd39
+F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
 F src/wiki.c 1ce70fef281c8d1c18f6688514efee943745cd0e
 F src/wikiformat.c 87178f57f11c76b278f6d8468fece80204ca13d1
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6a97d77501d92409c470f34a2955add9dd2382f0
-R 431b120680f252d2be59b9a49a1d8703
-U drh
-Z c7b7bf23bc5864acb601cd94f0f22394
+P f25e5e53c473a87598d1290bb8ceada0bc85b9c0
+R 43fabfd5c8393756d538ae104aa16ef9
+U dmitry
+Z 71f4f464dd8abda5c9dc98e8e372083d
