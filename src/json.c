@@ -817,6 +817,10 @@ static void json_mode_bootstrap(){
 ** In CLI mode the "path" is the list of arguments (skipping argv[0]).
 ** In server/CGI modes the path is taken from PATH_INFO.
 **
+** The returned bytes are owned by g.json.cmd.v and _may_ be
+** invalidated if that object is modified (depending on how it is
+** modified).
+**
 */
 char const * json_command_arg(unsigned char ndx){
   cson_array * ar = g.json.cmd.a;
@@ -1513,10 +1517,13 @@ static cson_value * json_user_get(){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }
-  if( g.isHTTP ){
-    pUser = json_getenv_cstr("name");
-  }else{
-    pUser = json_command_arg(g.json.dispatchDepth+1);
+  pUser = json_command_arg(g.json.dispatchDepth+1);
+  if( g.isHTTP && (!pUser || !*pUser) ){
+    pUser = json_getenv_cstr("name")
+      /* ACHTUNG: fossil apparently internally sets name=user/get/XYZ
+         if we pass the name as part of the path, so we check the path
+         _before_ checking for name=XYZ.
+      */;
   }
   if(!pUser || !*pUser){
     g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
