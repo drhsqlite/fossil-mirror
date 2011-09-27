@@ -10,7 +10,6 @@ SRCDIR = src
 
 #### The directory into which object code files should be written.
 #
-#
 OBJDIR = wbld
 
 #### C Compiler and options for use in building executables that
@@ -28,19 +27,35 @@ FOSSIL_ENABLE_SSL=1
 #
 FOSSIL_ENABLE_TCL=1
 
-#### The directory where the zlib library source code is located.
+#### Use the Tcl source directory instead of the install directory?
+#    This is useful when Tcl has been compiled statically with MinGW.
 #
+FOSSIL_TCL_SOURCE=1
+
+#### The directory where the zlib library source code is located.
+#    The recommended usage here is to use the Sysinternals junction tool
+#    to create a hard link between an "zlib-1.x.y" sub-directory of the
+#    Fossil source code directory and the target zlib source directory.
 #
 ZLIBDIR = $(SRCDIR)/../zlib-1.2.5
 
 #### The directory where the OpenSSL library source code is located.
-#
+#    The recommended usage here is to use the Sysinternals junction tool
+#    to create a hard link between an "openssl-1.x" sub-directory of the
+#    Fossil source code directory and the target OpenSSL source directory.
 #
 OPENSSLDIR = $(SRCDIR)/../openssl-1.0.0d
 
-#### The directory where the Tcl library is installed.  This directory
-#    must have "include" and "lib" sub-directories.
-#
+#### Either the directory where the Tcl library is installed or the Tcl
+#    source code directory resides (depending on the value of the macro
+#    FOSSIL_TCL_SOURCE).  If this points to the Tcl install directory,
+#    this directory must have "include" and "lib" sub-directories.  If
+#    this points to the Tcl source code directory, this directory must
+#    have "generic" and "win" sub-directories.  The recommended usage
+#    here is to use the Sysinternals junction tool to create a hard
+#    link between a "tcl-8.x" sub-directory of the Fossil source code
+#    directory and the target Tcl directory.  This removes the need to
+#    hard-code the necessary paths in this Makefile.
 #
 TCLDIR = $(SRCDIR)/../tcl-8.6
 
@@ -59,7 +74,11 @@ endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
+ifdef FOSSIL_TCL_SOURCE
+TCC += -L$(TCLDIR)/win -I$(TCLDIR)/generic -I$(TCLDIR)/win
+else
 TCC += -L$(TCLDIR)/lib -I$(TCLDIR)/include
+endif
 endif
 
 # With HTTPS support
@@ -67,29 +86,34 @@ ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
-# With Tcl support
+# With Tcl support (statically linked)
 ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
-#    other dependencies.  We sometimes add the -static option here
+#    other mandatory dependencies.  We add the -static option here
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
 LIB = -static
+LIB += -lmingwex -lz
 
-# OpenSSL:
+# OpenSSL: Add the necessary libaries required.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
+# Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 ifdef FOSSIL_ENABLE_TCL
-LIB += -ltcl86s
+LIB += -ltcl86
 endif
 
-LIB += -lmingwex -lz -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+#### These libraries MUST appear in the same order as they do for Tcl
+#    or linking with it will not work (exact reason unknown).
+#
+LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
