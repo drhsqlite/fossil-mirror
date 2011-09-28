@@ -1,5 +1,5 @@
-C merged\sin\strunk\s[3e141b792c].
-D 2011-09-28T12:09:25.306
+C JSON\sCLI\smode\snow\saccepts\s--indent|-I\sN\sto\sset\sJSON\sindention\slevel\s(uses\scson_output_opt::indentation\ssemantics).\sDefault\sfor\sCLI\smode\sis\s1\s(0\sfor\sHTTP\smode).
+D 2011-09-28T21:36:15.726
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,7 +7,7 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/index.html 9f00773a94cea6191dc3289aa24c0811b6d0d8fe
+F ajax/index.html 920cc737a7f570735fa2c0893bd8ba726e457e54
 F ajax/js/fossil-ajaj.js a1e2db28f1ce8f20908f48cdb6dbdf2ab46122ea
 F ajax/js/whajaj.js ac58e138356d5b6d361a59a5e2cf28ce92d48821
 F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
@@ -93,7 +93,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 4786be5dcc3cd01fa7590c865bbffd0976c7aae8
+F src/json.c 8d981b3b24ddcc114bd77d0e863252cff2293128
 F src/json_detail.h d54bac1471bcfd0635319f40ef4dfda5c2163ec0
 F src/json_login.c 44e82a1b21d182c7a162552dd922cf66a37b1dc1
 F src/json_timeline.c 508a5f45012fcb187ab1739ea3259f1c26d7ebaf
@@ -335,7 +335,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b9ef0fe59b1262b072621046fdeaf116f275f4a0 3e141b792c689c08baffdaac4f62a6faa08b84c5
-R feb16cfef4289b771308aa1a13f28b3a
+P 033e2eb1dfabdf20d0eff6a84c011eb6a65ba2e4
+R 53607af46f1209619a742c8723ccab4b
 U stephan
-Z a68b450f890303c1de297f444aedc608
+Z c7334651dd550705a5674da1930dce1c

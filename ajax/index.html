@@ -150,7 +150,7 @@ jQuery(document).ready(function(){
     opt.afterSend = function(req,opt) {
         TheApp.timer.end();
         TheApp.endAjaxNotif();
-        TheApp.jqe.timer.text( "(Round-trip time: "+TheApp.timer.duration+'ms)' );
+        TheApp.jqe.timer.text( "(Round-trip time (incl. JS overhead): "+TheApp.timer.duration+'ms)' );
     };
     opt.onResponse = function(resp,req) {
         var val;

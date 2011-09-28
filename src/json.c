@@ -393,14 +393,31 @@ cson_value * json_getenv( char const * zKey ){
   }else{
     char const * cv = PD(zKey,NULL);
     if(!cv){
+      /* reminder to self: in CLI mode i'd like to try
+         find_option(zKey,NULL,XYZ) here, but we don't have a sane
+         default for the XYZ param here.
+      */
       cv = getenv(zKey);
     }
     if(cv){/*transform it to JSON for later use.*/
-      /* TODO: use sscanf() to figure out if it's an int,
+      /* use sscanf() to figure out if it's an int,
          and transform it to JSON int if it is.
       */
-      rc = cson_value_new_string(cv,strlen(cv));
-      json_setenv( zKey, rc );
+      int intVal = -1;
+      char endOfIntCheck;
+      int const scanRc = sscanf(cv,"%d%c",&intVal, &endOfIntCheck)
+        /* The %c bit there is to make sure that we don't accept 123x
+          as a number. sscanf() returns the number of tokens
+          successfully parsed, so an RC of 1 will be correct for "123"
+          but "123x" will have RC==2.
+        */
+        ;
+      if(1==scanRc){
+        json_setenv( zKey, cson_value_new_integer(intVal) );
+      }else{
+        rc = cson_value_new_string(cv,strlen(cv));
+        json_setenv( zKey, rc );
+      }
       return rc;
     }
   }
@@ -936,16 +953,16 @@ static void json_mode_bootstrap(){
 
   {/* set up JSON output formatting options. */
     unsigned char indent = g.isHTTP ? 0 : 1;
-    cson_value const * indentV = json_getenv("indent");
-    if(indentV){
-      if(cson_value_is_string(indentV)){
-        int const n = atoi(cson_string_cstr(cson_value_get_string(indentV)));
+    char const * indentStr = NULL;
+    if( g.isHTTP ){
+      indent = (unsigned char)json_getenv_int("indent",(int)indent);
+    }else{/*CLI mode*/
+      indentStr = find_option("indent","I",1);
+      if(indentStr){
+        int const n = atoi(indentStr);
         indent = (n>0)
           ? (unsigned char)n
           : 0;
-      }else if(cson_value_is_number(indentV)){
-        cson_int_t const n = cson_value_get_integer(indentV);
-        indent = (n>0) ? (unsigned char)n : 0;
       }
     }
     g.json.outOpt.indentation = indent;
@@ -1359,29 +1376,29 @@ cson_value * json_page_cap(){
   cson_object_set( obj, "permissionFlags", sub );
   obj = cson_value_get_object(sub);
 
-#define ADD(X) cson_object_set(obj, #X, cson_value_new_bool(g.perm.X))
-  ADD(Setup);
-  ADD(Admin);
-  ADD(Delete);
-  ADD(Password);
-  ADD(Query);
-  ADD(Write);
-  ADD(Read);
-  ADD(History);
-  ADD(Clone);
-  ADD(RdWiki);
-  ADD(NewWiki);
-  ADD(ApndWiki);
-  ADD(WrWiki);
-  ADD(RdTkt);
-  ADD(NewTkt);
-  ADD(ApndTkt);
-  ADD(WrTkt);
-  ADD(Attach);
-  ADD(TktFmt);
-  ADD(RdAddr);
-  ADD(Zip);
-  ADD(Private);
+#define ADD(X,K) cson_object_set(obj, K, cson_value_new_bool(g.perm.X))
+  ADD(Setup,"setup");
+  ADD(Admin,"admin");
+  ADD(Delete,"delete");
+  ADD(Password,"password");
+  ADD(Query,"query"); /* don't think this one is actually used */
+  ADD(Write,"checkin");
+  ADD(Read,"checkout");
+  ADD(History,"history");
+  ADD(Clone,"clone");
+  ADD(RdWiki,"readWiki");
+  ADD(NewWiki,"createWiki");
+  ADD(ApndWiki,"appendWiki");
+  ADD(WrWiki,"editWiki");
+  ADD(RdTkt,"readTicket");
+  ADD(NewTkt,"createTicket");
+  ADD(ApndTkt,"appendTicket");
+  ADD(WrTkt,"editTicket");
+  ADD(Attach,"attachFile");
+  ADD(TktFmt,"createTicketReport");
+  ADD(RdAddr,"readPrivate");
+  ADD(Zip,"zip");
+  ADD(Private,"xferPrivate");
 #undef ADD
   return payload;
 }
