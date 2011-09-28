@@ -304,7 +304,7 @@ void update_cmd(void){
     zSep = "";
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
-      if( file_isdir(g.argv[i])==1 ){
+      if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
@@ -515,7 +515,7 @@ void ensure_empty_dirs_created(void){
       blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
       zPath = blob_str(&path);      
       /* Handle various cases of existence of the directory */
-      switch( file_isdir(zPath) ){
+      switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
           if( file_mkdir(zPath, 0)!=0 ) {
             fossil_warning("couldn't create directory %s as "

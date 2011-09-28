@@ -502,6 +502,7 @@ static void extra_deltification(void){
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
 **   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --stats       Show artifact statistics after rebuilding
 **
 ** See also: deconstruct, reconstruct
 */
@@ -516,6 +517,7 @@ void rebuild_database(void){
   int activateWal;
   int runVacuum;
   int runCompress;
+  int showStats;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -524,6 +526,7 @@ void rebuild_database(void){
   runVacuum = find_option("vacuum",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
+  showStats = find_option("stats",0,0)!=0;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -580,6 +583,26 @@ void rebuild_database(void){
     if( activateWal ){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
+  }
+  if( showStats ){
+    static struct { int idx; const char *zLabel; } aStat[] = {
+       { CFTYPE_ANY,       "Artifacts:" },
+       { CFTYPE_MANIFEST,  "Manifests:" },
+       { CFTYPE_CLUSTER,   "Clusters:" },
+       { CFTYPE_CONTROL,   "Tags:" },
+       { CFTYPE_WIKI,      "Wikis:" },
+       { CFTYPE_TICKET,    "Tickets:" },
+       { CFTYPE_ATTACHMENT,"Attachments:" },
+       { CFTYPE_EVENT,     "Events:" },
+    };
+    int i;
+    int subtotal = 0;
+    for(i=0; i<count(aStat); i++){
+      int k = aStat[i].idx;
+      fossil_print("%-15s %6d\n", aStat[i].zLabel, g.parseCnt[k]);
+      if( k>0 ) subtotal += g.parseCnt[k];
+    }
+    fossil_print("%-15s %6d\n", "Other:", g.parseCnt[CFTYPE_ANY] - subtotal);
   }
 }
 

@@ -155,6 +155,7 @@ struct Global {
   char zCsrfToken[12];    /* Value of the anti-CSRF token */
   int okCsrf;             /* Anti-CSRF token is present and valid */
 
+  int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
