@@ -104,8 +104,12 @@ static cson_value * json_wiki_get(){
 ** become one operation. That said, i expect there are people who
 ** would categorize such behaviour as "being too clever" or "doing too
 ** much automatically" (and i would likely agree with them).
+**
+** If allowCreateIfExists is true then this function will allow a new
+** page to be created even if createMode is false.
 */
-static cson_value * json_wiki_create_or_save(char createMode){
+static cson_value * json_wiki_create_or_save(char createMode,
+                                             char allowCreateIfExists){
   Blob content = empty_blob;
   cson_value * nameV;
   cson_value * contentV;
@@ -141,16 +145,14 @@ static cson_value * json_wiki_create_or_save(char createMode){
       g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
       goto error;
     }
-  }else{
-    if(!createMode){
-      g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
-      goto error;
-    }
+  }else if(!allowCreateIfExists){
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+    goto error;
   }
 
   contentV = json_req_payload_get("content");
   if( !contentV ){
-    if( createMode ){
+    if( createMode || (!rid && allowCreateIfExists) ){
       contentV = emptyContent = cson_value_new_string("",0);
     }else{
       g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
@@ -185,6 +187,11 @@ static cson_value * json_wiki_create_or_save(char createMode){
   if( emptyContent ){
     /* We have some potentially tricky memory ownership
        here, which is why we handle emptyContent separately.
+
+       This is, in fact, overkill because cson_value_new_string("",0)
+       actually returns a shared singleton instance (i.e. doesn't
+       allocate), but that is a cson implementation detail which i
+       don't want leaking into this code...
     */
     cson_value_free(emptyContent);
   }
@@ -196,15 +203,21 @@ static cson_value * json_wiki_create_or_save(char createMode){
 ** Implementation of /json/wiki/create.
 */
 static cson_value * json_wiki_create(){
-  return json_wiki_create_or_save(1);
+  return json_wiki_create_or_save(1,0);
 }
 
 /*
 ** Implementation of /json/wiki/save.
 */
 static cson_value * json_wiki_save(){
-  /* FIXME: add GET/POST.payload bool option createIfNotExists. */
-  return json_wiki_create_or_save(0);
+  char const createIfNotExists = json_getenv_bool("createIfNotExists",0);
+#if 0
+  return json_wiki_create_or_save(0,createIfNotExists);
+#else
+  cson_value * v = json_wiki_create_or_save(0,createIfNotExists);
+  cson_object * o = cson_value_get_object(v);
+  cson_object_set(o,"createIfNotExists", cson_value_new_bool(createIfNotExists));
+#endif
 }
 
 /*
