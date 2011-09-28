@@ -356,7 +356,6 @@ static cson_value * json_timeline_ci(){
       }
     }
   }
-  db_finalize(&q);
 #undef SET
   goto ok;
   error:
@@ -364,6 +363,7 @@ static cson_value * json_timeline_ci(){
   cson_value_free(payV);
   payV = NULL;
   ok:
+  db_finalize(&q);
   return payV;
 }
 
@@ -441,7 +441,6 @@ cson_value * json_timeline_wiki(){
       goto error;
     }
   }
-  db_finalize(&q);
 #undef SET
   goto ok;
   error:
@@ -449,6 +448,7 @@ cson_value * json_timeline_wiki(){
   cson_value_free(payV);
   payV = NULL;
   ok:
+  db_finalize(&q);
   return payV;
 }
 
@@ -534,7 +534,6 @@ static cson_value * json_timeline_ticket(){
       goto error;
     }
   }
-  db_finalize(&q);
 #undef SET
   goto ok;
   error:
@@ -542,6 +541,7 @@ static cson_value * json_timeline_ticket(){
   cson_value_free(payV);
   payV = NULL;
   ok:
+  db_finalize(&q);
   return payV;
 }
 
