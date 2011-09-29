@@ -54,7 +54,7 @@ TheApp.endAjaxNotif = function()
 };
 
 TheApp.responseContainsError = function(resp) {
-    if( !resp || resp.resultCode ) {
+    if( resp && resp.resultCode ) {
         //alert("Error response:\n"+JSON.stringify(resp,0,4));
         TheApp.jqe.taResponse.val( "RESPONSE CONTAINS ERROR INFO:\n"+WhAjaj.stringify(resp) );
         //TheApp.jqe.responseContainer.css({backgroundColor:'yellow'});
@@ -102,8 +102,12 @@ jQuery.fn.flash = function( color, duration )
     this.animate( { color: current }, duration / 2 );
 };
 
+function myJsonPCallback(obj){
+    alert("JSONP callback got:\n"+WhAjaj.stringify(obj));
+}
+
 jQuery(document).ready(function(){
-    var ids = [
+    var ids = [// list of HTML element IDs we use often.
         'btnSend',
         'ajaxNotification',
         'currentAuthToken',
@@ -111,7 +115,7 @@ jQuery(document).ready(function(){
         'taRequest',
         'taRequestOpt',
         'taResponse',
-        'textPath', // list of HTML element IDs we use often.
+        'textPath',
         'timer'
     ];
     var i, k;
@@ -154,6 +158,7 @@ jQuery(document).ready(function(){
     };
     opt.onResponse = function(resp,req) {
         var val;
+        if(this.jsonp) return /*was already handled*/;
         try {
             val = WhAjaj.stringify(resp);
         }
@@ -203,6 +208,8 @@ If the POST textarea is not empty then it will be posted with the request.
 <hr/>
 <strong>Quick-posts:</strong><br/>
 <input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
+<input type='button' value='HAI JSONP' onclick='TheApp.cgi.sendCommand("/json/HAI",undefined,{jsonp:"myJsonPCallback"});' />
+
 <input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
 <input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat")' />
 <input type='button' value='whoami' onclick='TheApp.cgi.sendCommand("/json/whoami")' />

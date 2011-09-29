@@ -7,15 +7,16 @@
 */
 
 /**
-    Constructor for a new AJAJ client. ajajOpt may be an optional object
-    suitable for passing to the WhAjaj.Connector() constructor.
+    Constructor for a new Fossil AJAJ client. ajajOpt may be an optional
+    object suitable for passing to the WhAjaj.Connector() constructor.
     
     On returning, this.ajaj is-a WhAjaj.Connector instance which can 
     be used to send requests to the back-end (though the convenience 
     functions of this class are the preferred way to do it). Clients 
-    are encouraged to use FossilAjaj.sendRequest() (and friends) instead 
+    are encouraged to use FossilAjaj.sendCommand() (and friends) instead 
     of the underlying WhAjaj.Connector API, since this class' API 
-    contains SP-specific request-calling functions.
+    contains Fossil-specific request-calling handling (e.g. of authentication
+    info) whereas WhAjaj is more generic.
 */
 function FossilAjaj(ajajOpt)
 {
@@ -46,15 +47,16 @@ FossilAjaj.prototype.sendRequest = function(req,opt) {
 */
 FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     var req;
-    
-    if(payload || this.authToken) {
+    ajajOpt = ajajOpt || {};
+    if(payload || this.authToken || ajajOpt.jsonp) {
         req = {
-            payload:payload || undefined,
-            requestId:this.generateRequestId(),
-            authToken:this.authToken || undefined
+            payload:payload,
+            requestId:('function' === typeof this.generateRequestId) ? this.generateRequestId() : undefined,
+            authToken:this.authToken || undefined,
+            jsonp:('string' === typeof ajajOpt.jsonp) ? ajajOpt.jsonp : undefined
         };
     }
-    ajajOpt = ajajOpt || {};
+    
     if(command) ajajOpt.url = this.ajaj.derivedOption('url',ajajOpt) + command;
     if( 0 && this.authToken ) {
         if( req ) req.authToken = this.authToken;

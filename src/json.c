@@ -888,16 +888,6 @@ static void json_mode_bootstrap(){
     g.isHTTP = 1;
   }
 
-  if(!g.json.jsonp && g.json.post.o){
-    g.json.jsonp = cson_string_cstr(cson_value_get_string(cson_object_get(g.json.post.o,"jsonp")));
-  }
-  if( !g.isHTTP ){
-    g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
-    if(!g.json.jsonp){
-      g.json.jsonp = find_option("jsonp",NULL,1);
-    }
-  }
-
   /* FIXME: do some sanity checking on g.json.jsonp and ignore it
      if it is not halfway reasonable.
   */
@@ -949,6 +939,23 @@ static void json_mode_bootstrap(){
         /* g.json.reqPayload.o may legally be NULL, which means only that
            g.json.reqPayload.v is-not-a Object.
         */;
+  }
+
+  /* Anything which needs json_getenv() and friends should go after
+     this point.
+  */
+
+  if(!g.json.jsonp && g.json.post.o){
+    g.json.jsonp =
+      json_getenv_cstr("jsonp")
+      /*cson_string_cstr(cson_value_get_string(cson_object_get(g.json.post.o,"jsonp")))*/
+      ;
+  }
+  if( !g.isHTTP ){
+    g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
+    if(!g.json.jsonp){
+      g.json.jsonp = find_option("jsonp",NULL,1);
+    }
   }
 
   {/* set up JSON output formatting options. */
@@ -1679,7 +1686,7 @@ static cson_value * json_branch_list(){
 ** Impl of /json/rebuild. Requires admin previleges.
 */
 static cson_value * json_page_rebuild(){
-if( !g.perm.Admin ){
+  if( !g.perm.Admin ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
   }else{

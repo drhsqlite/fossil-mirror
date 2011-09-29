@@ -1,9 +1,13 @@
 /**
     This file provides a JS interface into the core functionality of
-    a whiki CGI back-end.
+    JSON-centric back-ends. It sends GET or JSON POST requests to
+    a back-end and expects JSON responses. The exact semantics of
+    the underlying back-end and overlying front-end are not its concern,
+    and it leaves the interpretation of the data up to the client/server
+    insofar as possible.
 
     All functionality is part of a class named WhAjaj, and that class
-    acts as namespace for the framework.
+    acts as namespace for this framework.
 
     Author: Stephan Beal (http://wanderinghorse.net/home/stephan/)
 
@@ -96,9 +100,7 @@ WhAjaj.isFunction = function(obj)
     
     FIXME: for keys in the form "name[]", build an array of results,
     like PHP does.
-    
-    FIXME: keys w/o '=', or with no value, "should probably" be 
-    treated as boolean flags with a value of true.
+ 
 */
 WhAjaj.processUrlArgs = function(str) {
     if( 0 === arguments.length ) {
@@ -271,8 +273,11 @@ WhAjaj.Connector.options = {
             Must be one of 'GET' or 'POST'. For custom connection 
             implementation, it may optionally be some 
             implementation-specified value.
+
+            Normally the API can derive this value automatically - if the
+            request uses JSON data it is POSTed, else it is GETted.
         */
-        method:'POST',
+        method:'GET',
 
         /**
             A hint whether to run the operation asynchronously or 
@@ -293,7 +298,7 @@ WhAjaj.Connector.options = {
         loginName:undefined,
 
         /**
-            An HTTP authentication login password for the AJAX 
+            An HTTP authentication login password for the AJAJ 
             connection. Not all concrete WhAjaj.Connector.sendImpl() 
             implementations can support this.
         */
@@ -301,28 +306,26 @@ WhAjaj.Connector.options = {
 
         /**
             A connection timeout, in milliseconds, for establishing 
-            an AJAX connection. Not all concrete 
+            an AJAJ connection. Not all concrete 
             WhAjaj.Connector.sendImpl() implementations can support this.
         */
-        timeout:6000,
+        timeout:10000,
 
         /**
-            If an AJAX request receives JSON data from the back-end, 
-            that data is passed as a plain Object as the response 
-            parameter. The initiating request object is passed as 
-            the second parameter, but clients can normally ignore it 
-            (only those which need a way to map specific requests to 
-            responses will need it).
+            If an AJAJ request receives JSON data from the back-end, that
+            data is passed as a plain Object as the response parameter
+            (exception: in jsonp mode it is passed a string). The initiating
+            request object is passed as the second parameter, but clients
+            can normally ignore it (only those which need a way to map
+            specific requests to responses will need it).
             
-            Note that the response might contain error information 
-            which comes from the back-end. The difference between 
-            this error info and the info passed to the onError() 
-            callback is that this data indicates an application-level
-            error, whereas onError() is used to report 
-            connection-level problems or when the backend produces 
-            non-JSON data (which is unexpected and is as fatal to the
-            request as a connection error).
-            
+            Note that the response might contain error information which
+            comes from the back-end. The difference between this error info
+            and the info passed to the onError() callback is that this data
+            indicates an application-level error, whereas onError() is used
+            to report connection-level problems or when the backend produces
+            non-JSON data (which, when not in jsonp mode, is unexpected and
+            is as fatal to the request as a connection error).
         */
         onResponse: function(response, request){},
 
@@ -342,7 +345,7 @@ WhAjaj.Connector.options = {
         */
         onError: function(request, connectOpt)
         {
-            alert('AJAX request failed:\n'
+            alert('AJAJ request failed:\n'
                 +'Connection information:\n'
                 +JSON.stringify(connectOpt,0,4)
             );
@@ -362,7 +365,7 @@ WhAjaj.Connector.options = {
         beforeSend: function(request,opt){},
 
         /**
-            Called after an AJAX connection attempt completes, 
+            Called after an AJAJ connection attempt completes, 
             regardless of success or failure. Passed the same 
             parameters as beforeSend() (see that function for 
             details).
@@ -391,7 +394,16 @@ WhAjaj.Connector.options = {
             Set the beforeSend/afterSend properties to those 
             functions to enable the notifications by default.            
         */
-        afterSend: function(request,opt){}
+        afterSend: function(request,opt){},
+
+        /**
+            If jsonp is a string then the WhAjaj-internal response
+            handling code ASSUMES that the response contains a JSONP-style
+            construct and eval()s it after afterSend() but before onResponse().
+            In this case, onResponse() will get a string value for the response
+            instead of a response object parsed from JSON. 
+        */
+        jsonp:undefined
     }
 };
 
@@ -532,6 +544,11 @@ WhAjaj.Connector.sendHelper = {
         - Calling opt.onError() in several common (potential) error 
         cases.
 
+        - If resp is-a String and opt.jsonp then resp is assumed to be
+        a JSONP-form construct and is eval()d BEFORE opt.onResponse()
+        is called. It is arguable to eval() it first, but the logic
+        integrates better with the non-jsonp handler.
+
         The sendImpl() should return immediately after calling this.
         
         The sendImpl() must call only one of onSendSuccess() or 
@@ -555,13 +572,13 @@ WhAjaj.Connector.sendHelper = {
 
         if( 'string' === typeof resp ) {
             try {
-                resp = JSON.parse(resp);
+                resp = opt.jsonp ? eval(resp) : JSON.parse(resp);
             } catch(e) {
+                opt.errorMessage = e.toString();
                 onError.apply( opt, [request, opt] );
                 return;
             }
         }
-            
         try {
             if( WhAjaj.isFunction( opt.onResponse  ) ) {
                 opt.onResponse( resp, request );
@@ -1011,7 +1028,7 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     sendImpl() holds a concrete back-end connection implementation. It
     can be replaced with a custom implementation if one follows the rules
     described throughout this API. See WhAjaj.Connector.sendImpls for
-    the concrete implementatios included with this API.
+    the concrete implementations included with this API.
 */
 WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.XMLHttpRequest;
 //WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.jQuery;
