@@ -728,9 +728,6 @@ void json_warn( int code, char const * msg ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
-  if( BITSET_GET(g.json.warnings.bitset,code) ){
-    return;
-  }
   if(!g.json.warnings.v){
     g.json.warnings.v = cson_value_new_array();
     assert((NULL != g.json.warnings.v) && "Alloc error.");
@@ -748,7 +745,6 @@ void json_warn( int code, char const * msg ){
     */
     cson_object_set(obj,"text",cson_value_new_string(msg,strlen(msg)));
   }
-  BITSET_SET(g.json.warnings.bitset,code);
 }
 
 /*
@@ -1307,19 +1303,22 @@ void json_err( int code, char const * msg, char alsoOutput ){
 ** caller). Each row of pStmt is converted to an Object and appended
 ** to the array.
 */
-static cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
-                                              cson_value * pTgt){
+cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
+                                       cson_value * pTgt){
   cson_value * v = pTgt ? pTgt : cson_value_new_array();
   cson_array * a = cson_value_get_array(pTgt ? pTgt : v);
+  char const * warnMsg = NULL;
   assert( NULL != a );
   while( (SQLITE_ROW==db_step(pStmt)) ){
     cson_value * row = cson_sqlite3_row_to_object(pStmt->pStmt);
-    if(!row){
-      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                 "Could not convert at least one result row to JSON." );
+    if(!row && !warnMsg){
+      warnMsg = "Could not convert at least one result row to JSON.";
       continue;
     }
     cson_array_append(a, row);
+  }
+  if(warnMsg){
+    json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
   return v;  
 }
@@ -1608,6 +1607,7 @@ static cson_value * json_branch_list(){
   cson_array * list;
   char const * range = NULL;
   int which = 0;
+  char * sawConversionError = NULL;
   Stmt q;
   if( !g.perm.Read ){
     g.json.resultCode = FSL_JSON_E_DENIED;
@@ -1672,13 +1672,15 @@ static cson_value * json_branch_list(){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
     if(v){
       cson_array_append(list,v);
-    }else{
-      char * msg = mprintf("Column-to-json failed @ %s:%d",
-                           __FILE__,__LINE__);
-      json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,msg);
-      free(msg);
+    }else if(!sawConversionError){
+      sawConversionError = mprintf("Column-to-json failed @ %s:%d",
+                                   __FILE__,__LINE__);
     }
   }
+  if( sawConversionError ){
+    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
+    free(sawConversionError);
+}
   return payV;
 }
 

@@ -1,5 +1,5 @@
-C Corrected\sa\sJSON-mode\sresult\scode\swhen\sdb\srebuild\sis\srequired.
-D 2011-09-29T21:55:56.021
+C Removed\sthe\sjson\swarnings\sbitset\scrap.\sStill\snot\ssure\si\slike\sthe\swarnings\smechanism\sat\sall.
+D 2011-09-29T21:57:00.848
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -93,14 +93,14 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 42a4ccbd7e1194d3cedf0a305dd9c4af2a7088b4
-F src/json_detail.h d54bac1471bcfd0635319f40ef4dfda5c2163ec0
+F src/json.c 322481d1e2bcb71af2afe9fe71abe9350e93b75b
+F src/json_detail.h 88f94a0a5fa25f6139ab6ea64e26f4aeaff63674
 F src/json_login.c 44e82a1b21d182c7a162552dd922cf66a37b1dc1
-F src/json_timeline.c bc8acc85b1d0ba9ebeb9d754a1ecfaa57b62f2dc
+F src/json_timeline.c e70c22088cea6db8d3ff1fa6111ef618f2961fa3
 F src/json_wiki.c ce9af639deb3b547e61e5bfab4e2d7a80901d583
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
-F src/main.c d39fcda97e0f6faf03c2c60e04d81af7127c2538
+F src/main.c f9d6cd2a3be590055ce377e67c1ba22908e05433
 F src/main.mk 8d08ac6c957ada4d381a388931b9735a65b5a5cf
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -335,7 +335,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f48b687a9a1ac0218d604c5a68cac99ea5011a02
-R ddc3601abc21b4a69de4c0957466d6d1
+P 44644d43dc946ef139b691408686753f49df7a36
+R 34fda6c8a4d79ff1aac0895b88f56c5b
 U stephan
-Z 872b82a489f890811dde276555f91818
+Z fadfdd9d4eed5b0e9a56658c33c77019

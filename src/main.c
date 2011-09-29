@@ -219,12 +219,6 @@ struct Global {
     struct {                   /* response warnings */
       cson_value * v;
       cson_array * a;
-      int bitset[FSL_JSON_W_END/8/sizeof(int)+1]
-      /* allows json_add_warning() to know if a given warning
-         has been set or not (we don't produce dupes, to simplify
-         downstream loop logic).
-      */
-      ;
     } warnings;
   } json;
 };
@@ -520,22 +514,19 @@ void fossil_fatal_recursive(const char *zFormat, ...){
 void fossil_warning(const char *zFormat, ...){
   char *z;
   va_list ap;
-  if( g.json.isJsonMode ){
-      /* The JSON API has no way of dealing with warnings and
-         outputing them here will corrupt the output.
-      */
-      return;
-  }
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.cgiOutput ){
+  if(g.json.isJsonMode){
+    json_warn( FSL_JSON_W_UNKNOWN, z );
+  }else if( g.cgiOutput ){
     cgi_printf("<p class=\"generalError\">%h</p>", z);
   }else{
     char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
     fossil_puts(zOut, 1);
     free(zOut);
   }
+  free(z);
 }
 
 /*

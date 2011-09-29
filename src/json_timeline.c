@@ -261,6 +261,8 @@ static cson_value * json_timeline_ci(){
   int check = 0;
   int showFiles = 0;
   Stmt q;
+  char warnRowToJsonFailed = 0;
+  char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
   if( !g.perm.Read/* && !g.perm.RdTkt && !g.perm.RdWiki*/ ){
     g.json.resultCode = FSL_JSON_E_DENIED;
@@ -316,7 +318,8 @@ static cson_value * json_timeline_ci(){
     cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
     cson_object * row = cson_value_get_object(rowV);
     cson_string const * tagsStr = NULL;
-    if(!row){
+    if(!row && !warnRowToJsonFailed){
+      warnRowToJsonFailed = 1;
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
                  "Could not convert at least one timeline result row to JSON." );
       continue;
@@ -334,7 +337,8 @@ static cson_value * json_timeline_ci(){
           /*replaced/deleted old tags value, invalidating tagsStr*/;
           tagsStr = NULL;
         }
-      }else{
+      }else if(!warnStringToArrayFailed){
+        warnStringToArrayFailed = 1;
         json_warn(FSL_JSON_W_STRING_TO_ARRAY_FAILED,
                   "Could not convert tags string to array.");
       }
@@ -422,25 +426,7 @@ cson_value * json_timeline_wiki(){
   list = cson_value_get_array(listV);
   tmp = listV;
   SET("timeline");
-  while( (SQLITE_ROW == db_step(&q) )){
-    /* convert each row into a JSON object...*/
-    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
-    cson_object * row = cson_value_get_object(rowV);
-    int rc;
-    if(!row){
-      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                 "Could not convert at least one timeline result row to JSON." );
-      continue;
-    }
-    rc = cson_array_append( list, rowV );
-    if( 0 != rc ){
-      cson_value_free(rowV);
-      g.json.resultCode = (cson_rc.AllocError==rc)
-        ? FSL_JSON_E_ALLOC
-        : FSL_JSON_E_UNKNOWN;
-      goto error;
-    }
-  }
+  json_stmt_to_array_of_obj(&q, listV);
 #undef SET
   goto ok;
   error:
