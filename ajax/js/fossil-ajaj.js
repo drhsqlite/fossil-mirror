@@ -56,7 +56,7 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
             jsonp:('string' === typeof ajajOpt.jsonp) ? ajajOpt.jsonp : undefined
         };
     }
-    
+    ajajOpt.method = req ? 'POST' : 'GET';
     if(command) ajajOpt.url = this.ajaj.derivedOption('url',ajajOpt) + command;
     if( 0 && this.authToken ) {
         if( req ) req.authToken = this.authToken;
