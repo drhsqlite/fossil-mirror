@@ -211,13 +211,7 @@ static cson_value * json_wiki_create(){
 */
 static cson_value * json_wiki_save(){
   char const createIfNotExists = json_getenv_bool("createIfNotExists",0);
-#if 0
   return json_wiki_create_or_save(0,createIfNotExists);
-#else
-  cson_value * v = json_wiki_create_or_save(0,createIfNotExists);
-  cson_object * o = cson_value_get_object(v);
-  cson_object_set(o,"createIfNotExists", cson_value_new_bool(createIfNotExists));
-#endif
 }
 
 /*
