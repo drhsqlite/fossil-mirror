@@ -457,6 +457,33 @@ void login_page(void){
 }
 
 /*
+** SQL function for constant time comparison of two values.
+** Sets result to 0 if two values are equal.
+*/
+static void constant_time_eq_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  const unsigned char *buf1, *buf2;
+  int len, i;
+  unsigned char rc = 0;
+
+  assert( argc==2 );
+  len = sqlite3_value_bytes(argv[0]);
+  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
+    rc = 1;
+  }else{
+    buf1 = sqlite3_value_text(argv[0]);
+    buf2 = sqlite3_value_text(argv[1]);
+    for( i=0; i<len; i++ ){
+      rc = rc | (buf1[i] ^ buf2[i]);
+    }
+  }
+  sqlite3_result_int(context, rc);
+}
+
+/*
 ** Attempt to find login credentials for user zLogin on a peer repository
 ** with project code zCode.  Transfer those credentials to the local 
 ** repository.
@@ -485,6 +512,8 @@ static int login_transfer_credentials(
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(g.db, "constant_time_eq", 2, SQLITE_UTF8, 0,
+		  constant_time_eq_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
@@ -539,33 +568,6 @@ static int login_find_user(
     zLogin, zRemoteAddr, zCookie
   );
   return uid;
-}
-
-/*
-** SQL function for constant time comparison of two values.
-** Sets result to 0 if two values are equal.
-*/
-static void constant_time_eq_function(
- sqlite3_context *context,
- int argc,
- sqlite3_value **argv
-){
-  const unsigned char *buf1, *buf2;
-  int len, i;
-  unsigned char rc = 0;
-
-  assert( argc==2 );
-  len = sqlite3_value_bytes(argv[0]);
-  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
-    rc = 1;
-  }else{
-    buf1 = sqlite3_value_text(argv[0]);
-    buf2 = sqlite3_value_text(argv[1]);
-    for( i=0; i<len; i++ ){
-      rc = rc | (buf1[i] ^ buf2[i]);
-    }
-  }
-  sqlite3_result_int(context, rc);
 }
 
 /*
