@@ -512,7 +512,7 @@ static int login_transfer_credentials(
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
-    sqlite3_create_function(g.db, "constant_time_eq", 2, SQLITE_UTF8, 0,
+    sqlite3_create_function(pOther, "constant_time_eq", 2, SQLITE_UTF8, 0,
 		  constant_time_eq_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
