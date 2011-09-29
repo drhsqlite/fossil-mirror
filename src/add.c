@@ -60,9 +60,16 @@ const char *fossil_reserved_name(int N){
      "manifest.uuid",
   };
 
+  /* Cached setting "manifest" */
+  static int cachedManifest = -1;
+
+  if( cachedManifest == -1 ){
+    cachedManifest = db_get_boolean("manifest",0);
+  }
+
   if( N>=0 && N<count(azName) ) return azName[N];
   if( N>=count(azName) && N<count(azName)+count(azManifest)
-      && db_get_boolean("manifest",0) ){
+      && cachedManifest ){
     return azManifest[N-count(azName)];
   }
   return 0;

@@ -1,5 +1,5 @@
-C Use\sthe\scheck-in\stime\sas\sthe\stimestamp\sfor\szlib\scompression\son\starballs,\nos\sthat\severy\starball\sfor\sthe\ssame\scheck-in\sis\sidentical.
-D 2011-09-28T11:35:17.233
+C Change\sfile_size()\sto\sfile_wd_size()\sin\sfile_is_the_same().
+D 2011-09-29T11:05:33.186
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -45,7 +45,7 @@ F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
-F src/add.c 623b2b214716e5461b6c9496c024bef0092c2b64
+F src/add.c bbb10b49bfbb079114ee304f03c7dcb6ba6b2a35
 F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13120e9620d71fd42fe325c50497405cc177e59f
-R f662322e801610950b3bfe4a4ce68005
-U drh
-Z ac8d6342861bc60f5f0a3e27a6e19f81
+P 3e141b792c689c08baffdaac4f62a6faa08b84c5
+R abd7c88973f332c45d653031bbdc71df
+U dmitry
+Z 67c856f06425bacf65a9581a63edc4e7
