@@ -1,5 +1,5 @@
-C When\screating\sa\smanifest,\sget\sisExe\sand\sisLink\sbits\sfrom\sfilesystem\sat\sonce\sinstead\sof\sdoing\stwo\sstat(2)\scalls.
-D 2011-09-29T14:07:11.516
+C Protect\sagainst\stiming\sattacks\sby\susing\sconstant-time\scomparison\sfunction\sto\scompare\spasswords\sand\scookies.
+D 2011-09-29T17:21:33.030
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -50,7 +50,7 @@ F src/allrepo.c 39d854b290b3ff2816fa8010fd6fcec4c75d9996
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c 17c90216018191bc098cdb7a6b8d41608c2a61e9
+F src/blob.c 22d53d8b221e954ccea927faddb16191c9999897
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
@@ -85,7 +85,7 @@ F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 3c123c226c646e1754a65c79d6b0f0ff330db5f1
+F src/login.c f193057294ce4f52f72eba38977b60b8a896cdf4
 F src/main.c 4624a1efdae6fa4b013140167e48478510ed566c
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -139,7 +139,7 @@ F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
 F src/wiki.c 1ce70fef281c8d1c18f6688514efee943745cd0e
 F src/wikiformat.c 87178f57f11c76b278f6d8468fece80204ca13d1
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c 8e07ca02a081e93db8455b123e9a8064097bf6cc
+F src/xfer.c d7aae609b273c629a1a83fd7985b820f25dba92d
 F src/zip.c 302348837b6367444e33b44ef2a9b6a043b9480d
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13a771ce18b3ff2be561f12ecbe357083ff2bde2
-R 247eb812c7538802275c8a896f07bcc8
+P 9bfa186be09f3f95c15f256f4ab9bc9088378f94
+R f5801474205bb84efd5a9473870bf65a
+T *branch * dmitry-security
+T *sym-dmitry-security *
+T -sym-trunk *
 U dmitry
-Z bcc6eb40f48dfae58d030c5294e97d41
+Z fd19fe42c816222cb157dc09c9cf0fa7
