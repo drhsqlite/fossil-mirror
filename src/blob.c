@@ -319,7 +319,7 @@ int blob_compare(Blob *pA, Blob *pB){
 /*
 ** Compare two blobs in constant time and return zero if they are equal.
 ** Constant time comparison only applies for blobs of the same length.
-** If lengths are different, immediately returns false.
+** If lengths are different, immediately returns 1.
 */
 int blob_constant_time_eq(Blob *pA, Blob *pB){
   int szA, szB, i;
