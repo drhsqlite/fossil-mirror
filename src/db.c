@@ -955,6 +955,7 @@ int db_schema_is_outofdate(void){
 */
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
+    g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
     fossil_warning("incorrect repository schema version");
     fossil_warning("your repository has schema version \"%s\" "
           "but this binary expects version \"%s\"",
