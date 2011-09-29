@@ -1675,6 +1675,28 @@ static cson_value * json_branch_list(){
   return payV;
 }
 
+/*
+** Impl of /json/rebuild. Requires admin previleges.
+*/
+static cson_value * json_page_rebuild(){
+if( !g.perm.Admin ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }else{
+  /* Reminder: the db_xxx() ops "should" fail via
+     the fossil core error handlers, which will cause
+     a JSON error and exit(). i.e. we don't handle
+     the errors here. TODO: confirm that all these
+     db routine fail gracefully in JSON mode.
+  */
+    db_close(1);
+    db_open_repository(g.zRepositoryName);
+    db_begin_transaction();
+    rebuild_db(0, 0, 0);
+    db_end_transaction(0);
+    return NULL;
+  }
+}
 
 /*
 ** Impl of /json/user/list. Requires admin rights.
@@ -1763,6 +1785,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"HAI",json_page_version,0},
 {"login",json_page_login,1},
 {"logout",json_page_logout,1},
+{"rebuild",json_page_rebuild,0},
 {"stat",json_page_stat,0},
 {"tag", json_page_nyi,0},
 {"ticket", json_page_nyi,0},
