@@ -901,7 +901,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
   int rc;
   Blob onDisk;
 
-  iSize = file_size(zName);
+  iSize = file_wd_size(zName);
   if( iSize<0 ) return 0;
   if( iSize!=blob_size(pContent) ) return 0;
   if( file_wd_islink(zName) ){
