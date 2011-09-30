@@ -18,7 +18,7 @@ var TestApp = {
     }
     WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.rhino;
     TestApp.fossil = new FossilAjaj({
-        asynchronous:false, /* rhino-based impl doesn't support asynch. */
+        asynchronous:false, /* rhino-based impl doesn't support async or timeout. */
         url:TestApp.serverUrl,
         beforeSend:function(req,opt){
             if(!TestApp.verbose) return;
@@ -45,7 +45,7 @@ var TestApp = {
     Throws an exception of cond is a falsy value.
 */
 function assert(cond, descr){
-    descr = descr || "Undescribed condition failed.";
+    descr = descr || "Undescribed condition.";
     if(!cond){
         throw new Error("Assertion failed: "+descr);
     }else{
@@ -88,6 +88,11 @@ function assertResponseOK(resp){
     assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
     assert( !resp.resultCode, 'resp.resultCode='+resp.resultCode);
 }
+/**
+    Asserts that resp is-a Object, resp.fossil is-a string, and
+    resp.resultCode is a truthy value. If expectCode is set then
+    it also asserts that (resp.resultCode=='FOSSIL-'+expectCode).
+*/
 function assertResponseError(resp,expectCode){
     assert('object' === typeof resp,'Response is-a object.');
     assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
@@ -96,6 +101,7 @@ function assertResponseError(resp,expectCode){
         assert( 'FOSSIL-'+expectCode == resp.resultCode, 'Expecting result code '+expectCode );
     }
 }
+
 function testHAI(){
     TestApp.fossil.HAI({
         onResponse:function(resp,req){
@@ -127,7 +133,7 @@ function testAnonWikiList(){
     TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
         beforeSend:function(req,opt){
             TestApp.fossil.ajaj.options.beforeSend(req,opt);
-            assert( req && (req.authToken==TestApp.fossil.authToken) );
+            assert( req && (req.authToken==TestApp.fossil.authToken), 'Request envelope contains expected authToken.'  );
         },
         onResponse:function(resp,req){
             assertResponseOK(resp);
@@ -137,7 +143,7 @@ function testAnonWikiList(){
         }
     });
 }
-testAnonWikiList.description = 'Fetch wiki list as anonymous uses.';
+testAnonWikiList.description = 'Fetch wiki list as anonymous user.';
 
 function testAnonLogout(){
     TestApp.fossil.logout({
@@ -151,7 +157,7 @@ function testAnonLogout(){
         }
     });
 }
-testAnonLogout.description = 'Fetch wiki list as anonymous uses.';
+testAnonLogout.description = 'Log out anonymous user.';
 
 (function runAllTests(){
     var testList = [
@@ -165,7 +171,7 @@ testAnonLogout.description = 'Fetch wiki list as anonymous uses.';
     for( i = 0; i < testList.length; ++i ){
         f = testList[i];
         try{
-            print("Running #"+(i+1)+": "+(f.description || "no description."));
+            print("Running test #"+(i+1)+": "+(f.description || "no description."));
             f();
         }catch(e){
             print("Test failed: "+e);

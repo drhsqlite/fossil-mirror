@@ -1,5 +1,5 @@
-C Added\smore\sintegration\stests.
-D 2011-09-30T16:36:34.548
+C minor\sajax\stest\scode\scleanups.
+D 2011-09-30T17:00:07.139
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,9 +7,9 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/i-test/rhino-test.js 23ef7920a3e24a7a687c245884763d23c2d4eafb
+F ajax/i-test/rhino-test.js de975d11d37d46e8ee411ee0c7fd92f5e386b794
 F ajax/index.html 83d9a49416008f873bd75bd7c41f814906727e65
-F ajax/js/fossil-ajaj.js 8cba8a9284b640d0d02043ac4100f6284537c037
+F ajax/js/fossil-ajaj.js 5ff8ffb5293d5d495035563d20448c04b55a914a
 F ajax/js/whajaj.js 71958d617457e5e65fed61218a8f17a2b58c5592
 F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -336,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ef9d8393117532707b2e93b04c5cf7cb6f30ec60
-R 2dce0039f1c2f82f83f3a6b4be2a992a
+P 10e677c968f668feedfd491fc1efd44815955c83
+R 7b026b5c23314ce8b241f3ff9b94d87c
 U stephan
-Z da222ebf45d240216bf51cf2a6d52261
+Z cf782783788dc214c9c989cc2291c2ee

@@ -153,7 +153,7 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
             catch(e) {}
         }
     };
-    this.sendCommand('/json/logout', false, ajajOpt );
+    this.sendCommand('/json/logout', undefined, ajajOpt );
 };
 
 /**
@@ -163,7 +163,7 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
     to sendCommand().
 */
 FossilAjaj.prototype.HAI = function(ajajOpt) {
-    this.sendCommand('/json/HAI', null, ajajOpt);
+    this.sendCommand('/json/HAI', undefined, ajajOpt);
 };
 
 
