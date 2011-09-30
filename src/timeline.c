@@ -1444,8 +1444,6 @@ void timeline_cmd(void){
   Blob uuid;
   int mode = 0 ;       /* 0:none  1: before  2:after  3:children  4:parents */
   int showfilesFlag = 0 ;
-
-  db_find_and_open_repository(0, 0);
   showfilesFlag = find_option("showfiles","f", 0)!=0;
   db_find_and_open_repository(0, 0);
   zCount = find_option("count","n",1);
