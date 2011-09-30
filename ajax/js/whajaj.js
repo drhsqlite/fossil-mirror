@@ -790,7 +790,7 @@ WhAjaj.Connector.sendImpls = {
             WhAjaj.Connector.sendHelper.onSendError( request, args );
             return undefined;
         }
-    }/*XMLHttpRequest*/,
+    }/*XMLHttpRequest()*/,
     /**
         This is a concrete implementation of 
         WhAjaj.Connector.prototype.sendImpl() which uses the jQuery 
@@ -873,7 +873,7 @@ WhAjaj.Connector.sendImpls = {
             WhAjaj.Connector.sendHelper.onSendError( request, args );
             return undefined;
         }
-    }/*jQuery*/,
+    }/*jQuery()*/,
     /**
         This is a concrete implementation of 
         WhAjaj.Connector.prototype.sendImpl() which uses the rhino 
@@ -901,19 +901,34 @@ WhAjaj.Connector.sendImpls = {
                 }
             }
         }
-        var url = new java.net.URL( args.url );
+        var url;
         var con;
         var IO = new JavaImporter(java.io);
         var wr;
         var rd, ln, json = [];
         try{
-            con = url.openConnection();
-            con.setDoOutput( true );
-            wr = new IO.OutputStreamWriter(con.getOutputStream())
-            wr.write(data);
-            wr.flush();
+            url = new java.net.URL( args.url )
+            con = url.openConnection(/*FIXME: add proxy support!*/);
+            con.setRequestProperty("Accept-Charset","utf-8");
+            if(data){
+                con.setRequestProperty("Content-Type","application/json; charset=utf-8");
+                con.setDoOutput( true );
+                wr = new IO.OutputStreamWriter(con.getOutputStream())
+                wr.write(data);
+                wr.flush();
+                wr.close();
+                wr = null;
+                //print("POSTED: "+data);
+            }
             rd = new IO.BufferedReader(new IO.InputStreamReader(con.getInputStream()));
-            while ((line = rd.readLine()) != null) {
+            //var skippedHeaders = false;
+            while ((line = rd.readLine()) !== null) {
+                //print("LINE: "+line);
+                //if(!line.length && !skippedHeaders){
+                //    skippedHeaders = true;
+                // json = [];
+                //    continue;
+                //}
                 json.push(line);
             }
 
@@ -922,10 +937,12 @@ WhAjaj.Connector.sendImpls = {
             WhAjaj.Connector.sendHelper.onSendError( request, args );
             return undefined;
         }
-        try { wr.close(); } catch(e) { /*ignore*/}
-        try { rd.close(); } catch(e) { /*ignore*/}
-        WhAjaj.Connector.sendHelper.onSendSuccess( request, json.join(''), args );
-    }
+        try { if(wr) wr.close(); } catch(e) { /*ignore*/}
+        try { if(rd) rd.close(); } catch(e) { /*ignore*/}
+        json = json.join('');
+        //print("READ IN JSON: "+json);
+        WhAjaj.Connector.sendHelper.onSendSuccess( request, json, args );
+    }/*rhino()*/
 };
 
 /**

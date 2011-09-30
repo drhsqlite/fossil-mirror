@@ -1,5 +1,10 @@
 var TestApp = {
-    serverUrl:'http://localhost:8080'
+    serverUrl:
+        'http://localhost:8080'
+        //'http://fjson/cgi-bin/fossil-json.cgi'
+        //'http://192.168.1.62:8080'
+        ,
+    verbose:true
 };
 (function bootstrap() {
     var srcdir = '../js/';
@@ -15,15 +20,21 @@ var TestApp = {
         asynchronous:false, /* rhino-based impl doesn't support asynch. */
         url:TestApp.serverUrl,
         beforeSend:function(req,opt){
-            print("SENDING REQUEST: "+WhAjaj.stringify(opt));
+            if(!TestApp.verbose) return;
+            print("SENDING REQUEST: opt="+JSON.stringify(opt));
+            if(req) print("Request="+WhAjaj.stringify(req));
         },
         afterSend:function(req,opt){
-            print("SENT REQUEST: "+WhAjaj.stringify(opt));
+            if(!TestApp.verbose) return;
+            print("SENT REQUEST: opt="+JSON.stringify(opt));
+            if(req) print("Request="+WhAjaj.stringify(req));
         },
         onError:function(req,opt){
+            if(!TestApp.verbose) return;
             print("ERROR: "+WhAjaj.stringify(opt));
         },
         onResponse:function(resp,req){
+            if(!TestApp.verbose) return;
             print("GOT RESPONSE: "+(('string'===typeof resp) ? resp : WhAjaj.stringify(resp)));
         }
     });
@@ -35,8 +46,7 @@ var TestApp = {
 function assert(cond, descr){
     descr = descr || "Undescribed condition failed.";
     if(!cond){
-        print("Assertion failed: "+descr);
-        throw new Error(descr);
+        throw new Error("Assertion failed: "+descr);
     }else{
         print("Assertion OK: "+descr);
     }
@@ -75,9 +85,16 @@ function send(command,payload, ajajOpt){
 function assertResponseOK(resp){
     assert('object' === typeof resp,'Response is-a object.');
     assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
-    assert( !resp.resultCode, 'Response contains no error state.');
+    assert( !resp.resultCode, 'resp.resultCode='+resp.resultCode);
 }
-
+function assertResponseError(resp,expectCode){
+    assert('object' === typeof resp,'Response is-a object.');
+    assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
+    assert( resp.resultCode, 'resp.resultCode='+resp.resultCode);
+    if(expectCode){
+        assert( 'FOSSIL-'+expectCode == resp.resultCode, 'Expecting result code '+expectCode );
+    }
+}
 function testHAI(){
     TestApp.fossil.HAI({
         onResponse:function(resp,req){
@@ -89,20 +106,29 @@ function testHAI(){
 }
 testHAI.description = 'Get server version info.';
 
-function testWhoAmI_1(){
+function testIAmNobody(){
     TestApp.fossil.whoami('/json/whoami');
     assert('nobody' === TestApp.fossil.userName, 'User == nobody.' );
-    assert('anonymous' !== TestApp.fossil.userName, 'User != anonymous.' );
-    
+    assert(!TestApp.fossil.authToken, 'authToken is not set.' );
+   
 }
-testWhoAmI_1.description = 'First ever fossil-over-rhino test.';
+testIAmNobody.description = 'Ensure that current user is "nobody".';
+
+
+function testAnonymousLogin(){
+    TestApp.fossil.login();
+    assert('string' === typeof TestApp.fossil.authToken, 'authToken = '+TestApp.fossil.authToken);
+    assert( 'string' === typeof TestApp.fossil.userName, 'User name = '+TestApp.fossil.userName);
+}
+testAnonymousLogin.description = 'Perform anonymous login.';
 
 
 
 (function runAllTests(){
     var testList = [
         testHAI,
-        testWhoAmI_1
+        testIAmNobody,
+        testAnonymousLogin
     ];
     var i, f;
     for( i = 0; i < testList.length; ++i ){

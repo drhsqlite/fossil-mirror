@@ -1,5 +1,5 @@
-C minor\sfix\sfor\sfossil's\sinternal\shandling\sof\sname=xyz\sparameter.
-D 2011-09-30T15:48:22.969
+C Fixed\sPOST\ssending\sfor\srhino-based\sajax\simpl\s(was\ssending\sContent-Type\sform-urlencoded).\sLogin\sover\srhino\sworks\s:).
+D 2011-09-30T15:50:35.782
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,10 +7,10 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/i-test/rhino-test.js ec56a0d30d1a443b13aa68871516638aa84139ac
+F ajax/i-test/rhino-test.js 85dab5b2b5c43337e182033e4712a6a93906ab10
 F ajax/index.html 83d9a49416008f873bd75bd7c41f814906727e65
-F ajax/js/fossil-ajaj.js 174d9d6e715194193b3e48edbf76a6f961ef7109
-F ajax/js/whajaj.js 2199cfbe55958df80a2bdead6847330fdc157fe3
+F ajax/js/fossil-ajaj.js 8cba8a9284b640d0d02043ac4100f6284537c037
+F ajax/js/whajaj.js d9d0c0925108f66db14182c35cace918ed896f03
 F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -336,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 42a07be4c5460a1f461e42522aa07be217218be3
-R c26b6892ad318117e1639bd3e76a2901
+P 9f2535f1e072df4bab691d097afc809e58e4df68
+R ec63841b7aba208ad10c2c49cb62de05
 U stephan
-Z e4f370cfcfddb1a61f22eaad22ea1b29
+Z d4fa4ae897f4ad52d396198dd70cd28f

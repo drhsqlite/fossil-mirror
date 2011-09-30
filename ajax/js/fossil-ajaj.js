@@ -57,22 +57,8 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
         };
     }
     ajajOpt.method = req ? 'POST' : 'GET';
+    // just for debuggering: ajajOpt.method = 'POST'; if(!req) req={};
     if(command) ajajOpt.url = this.ajaj.derivedOption('url',ajajOpt) + command;
-    if( 0 && this.authToken ) {
-        if( req ) req.authToken = this.authToken;
-        else { // GET request: extend ajajOpt.urlParam
-            var urlArgs = ajajOpt.urlParam;
-            if( 'string' === typeof urlArgs ) {
-                ajajOpt.urlParam += '&authToken='+encodeUriComponent(this.authToken);
-            }
-            else if( 'object' === typeof urlArgs ) {
-                ajajOpt.urlParam.authToken = this.authToken;
-            }
-            else {
-                ajajOpt.urlParam = {authToken: this.authToken};
-            }
-        }
-    }
     this.ajaj.sendRequest(req,ajajOpt);
 };
 
@@ -106,7 +92,10 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
         //alert('login response:\n'+WhAjaj.stringify(resp));
-        if( resp && resp.payload ) self.authToken = resp.payload;
+        if( resp && resp.payload ) {
+            self.authToken = resp.payload;
+            self.userName = name;
+        }
         if( WhAjaj.isFunction( self.onLogin ) ){
             try{ self.onLogin(); }
             catch(e){}
@@ -121,15 +110,12 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
         self.sendCommand('/json/login', loginReq, ajajOpt);
     }
     if( 'anonymous' === name ){
-      this.sendCommand('/json/anonymousPassword',null,{
+      this.sendCommand('/json/anonymousPassword',undefined,{
           onResponse:function(resp,req){
-            if(!resp || resp.resultCode){
-                //alert("Error getting PW. "+WhAjaj.stringify(resp));
-                try{ ajajOpt.onResponse(resp,req); }
-                catch(e){}
-                return;
-            }
-            else{
+            if( WhAjaj.isFunction(oldOnResponse) ){
+                oldOnResponse.apply(this, [resp,req]);
+            };
+            if(resp && !resp.resultCode){
                 //alert("Got PW. Trying to log in..."+WhAjaj.stringify(resp));
                 loginReq.anonymousSeed = resp.payload.seed;
                 loginReq.password = resp.payload.password;
