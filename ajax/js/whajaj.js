@@ -889,6 +889,7 @@ WhAjaj.Connector.sendImpls = {
     */
     rhino:function(request,args)
     {
+        var self = this;
         var data = request || undefined;
         if( data ) {
             if('string'!==typeof data) {
@@ -906,10 +907,38 @@ WhAjaj.Connector.sendImpls = {
         var IO = new JavaImporter(java.io);
         var wr;
         var rd, ln, json = [];
+        function setIncomingCookies(list){
+            if(!list || !list.length) return;
+            if( !self.cookies ) self.cookies = {};
+            var k, v, i;
+            for( i = 0; i < list.length; ++i ){
+                v = list[i].split('=',2);
+                k = decodeURIComponent(v[0])
+                v = v[0] ? decodeURIComponent(v[0].split(';',2)[0]) : null;
+                //print("RECEIVED COOKIE: "+k+"="+v);
+                if(!v) {
+                    delete self.cookies[k];
+                    continue;
+                }else{
+                    self.cookies[k] = v;
+                }
+            }
+        };
+        function setOutboundCookies(conn){
+            if(!self.cookies) return;
+            var k, v;
+            for( k in self.cookies ){
+                if(!self.cookies.hasOwnProperty(k)) continue /*kludge for broken JS libs*/;
+                v = self.cookies[k];
+                conn.addRequestProperty("Cookie", encodeURIComponent(k)+'='+encodeURIComponent(v));
+                //print("SENDING COOKIE: "+k+"="+v);
+            }
+        };
         try{
             url = new java.net.URL( args.url )
             con = url.openConnection(/*FIXME: add proxy support!*/);
             con.setRequestProperty("Accept-Charset","utf-8");
+            setOutboundCookies(con);
             if(data){
                 con.setRequestProperty("Content-Type","application/json; charset=utf-8");
                 con.setDoOutput( true );
@@ -931,7 +960,7 @@ WhAjaj.Connector.sendImpls = {
                 //}
                 json.push(line);
             }
-
+            setIncomingCookies(con.getHeaderFields().get("Set-Cookie"));
         }catch(e){
             args.errorMessage = e.toString();
             WhAjaj.Connector.sendHelper.onSendError( request, args );
