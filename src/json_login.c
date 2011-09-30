@@ -11,11 +11,11 @@
 **
 */
 cson_value * json_page_login(){
-  static char preciseErrors = /* if true, "complete" JSON error codes are used,
-                                 else they are "dumbed down" to a generic login
-                                 error code.
-                              */
-#if 0
+  char preciseErrors = /* if true, "complete" JSON error codes are used,
+                          else they are "dumbed down" to a generic login
+                          error code.
+                       */
+#if 1
     g.json.errorDetailParanoia ? 0 : 1
 #else
     0
@@ -41,19 +41,13 @@ cson_value * json_page_login(){
   char const * anonSeed = NULL;
   cson_value * payload = NULL;
   int uid = 0;
-  if( !name ){
-    name = PD("n",NULL);
-    if( !name ){
-      name = PD("name",NULL);
-      if( !name ){
-        g.json.resultCode = preciseErrors
-          ? FSL_JSON_E_LOGIN_FAILED_NONAME
-          : FSL_JSON_E_LOGIN_FAILED;
-        return NULL;
-      }
-    }
-  }
-  
+  /* reminder to self:
+     Fossil internally (for the sake of /wiki) interprets
+     paths in the form /foo/bar/baz such that
+     P("name") == "bar/baz". This collides with our
+     name/password checking, and thus we check for the
+     password first.
+  */
   pw = cson_value_get_cstr(json_payload_property("password"));
   if( !pw ){
     pw = PD("p",NULL);
@@ -66,6 +60,19 @@ cson_value * json_page_login(){
       ? FSL_JSON_E_LOGIN_FAILED_NOPW
       : FSL_JSON_E_LOGIN_FAILED;
     return NULL;
+  }
+
+  if( !name ){
+    name = PD("n",NULL);
+    if( !name ){
+      name = PD("name",NULL);
+      if( !name ){
+        g.json.resultCode = preciseErrors
+          ? FSL_JSON_E_LOGIN_FAILED_NONAME
+          : FSL_JSON_E_LOGIN_FAILED;
+        return NULL;
+      }
+    }
   }
 
   if(0 == strcmp("anonymous",name)){
