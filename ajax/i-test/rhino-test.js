@@ -4,7 +4,8 @@ var TestApp = {
         //'http://fjson/cgi-bin/fossil-json.cgi'
         //'http://192.168.1.62:8080'
         ,
-    verbose:true
+    verbose:true,
+    wiki:{}
 };
 (function bootstrap() {
     var srcdir = '../js/';
@@ -21,13 +22,13 @@ var TestApp = {
         url:TestApp.serverUrl,
         beforeSend:function(req,opt){
             if(!TestApp.verbose) return;
-            print("SENDING REQUEST: opt="+JSON.stringify(opt));
-            if(req) print("Request="+WhAjaj.stringify(req));
+            print("SENDING REQUEST: AJAJ options="+JSON.stringify(opt));
+            if(req) print("Request envelope="+WhAjaj.stringify(req));
         },
         afterSend:function(req,opt){
-            if(!TestApp.verbose) return;
-            print("SENT REQUEST: opt="+JSON.stringify(opt));
-            if(req) print("Request="+WhAjaj.stringify(req));
+            //if(!TestApp.verbose) return;
+            //print("REQUEST RETURNED: opt="+JSON.stringify(opt));
+            //if(req) print("Request="+WhAjaj.stringify(req));
         },
         onError:function(req,opt){
             if(!TestApp.verbose) return;
@@ -122,13 +123,43 @@ function testAnonymousLogin(){
 }
 testAnonymousLogin.description = 'Perform anonymous login.';
 
+function testAnonWikiList(){
+    TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
+        beforeSend:function(req,opt){
+            TestApp.fossil.ajaj.options.beforeSend(req,opt);
+            assert( req && (req.authToken==TestApp.fossil.authToken) );
+        },
+        onResponse:function(resp,req){
+            assertResponseOK(resp);
+            assert( (typeof [] === typeof resp.payload) && resp.payload.length,
+                "Wiki list seems to be okay.");
+            TestApp.wiki.list = resp.payload;
+        }
+    });
+}
+testAnonWikiList.description = 'Fetch wiki list as anonymous uses.';
 
+function testAnonLogout(){
+    TestApp.fossil.logout({
+        onResponse:function(resp,req){
+            assertResponseOK(resp);
+        }
+    });
+    TestApp.fossil.logout({
+        onResponse:function(resp,req){
+            assertResponseError(resp);
+        }
+    });
+}
+testAnonLogout.description = 'Fetch wiki list as anonymous uses.';
 
 (function runAllTests(){
     var testList = [
         testHAI,
         testIAmNobody,
-        testAnonymousLogin
+        testAnonymousLogin,
+        testAnonWikiList,
+        testAnonLogout
     ];
     var i, f;
     for( i = 0; i < testList.length; ++i ){
