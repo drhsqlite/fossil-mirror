@@ -330,7 +330,7 @@ int blob_constant_time_eq(Blob *pA, Blob *pB){
   blob_is_init(pB);
   szA = blob_size(pA);
   szB = blob_size(pB);
-  if( szA!=szB ) return 1;
+  if( szA!=szB || szA==0 ) return 1;
 
   buf1 = blob_buffer(pA);
   buf2 = blob_buffer(pB);
