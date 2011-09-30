@@ -873,7 +873,59 @@ WhAjaj.Connector.sendImpls = {
             WhAjaj.Connector.sendHelper.onSendError( request, args );
             return undefined;
         }
-    }/*jQuery*/
+    }/*jQuery*/,
+    /**
+        This is a concrete implementation of 
+        WhAjaj.Connector.prototype.sendImpl() which uses the rhino 
+        Java API to send requests and fetch the responses.
+
+        Limitations vis-a-vis the interface:
+
+        - timeouts are not supported.
+
+        - asynchronous mode is not supported because implementing it
+        requires the ability to kill a running thread (which is deprecated
+        in the Java API).
+    */
+    rhino:function(request,args)
+    {
+        var data = request || undefined;
+        if( data ) {
+            if('string'!==typeof data) {
+                try {
+                    data = JSON.stringify(data);
+                }
+                catch(e) {
+                    WhAjaj.Connector.sendHelper.onSendError( request, args );
+                    return;
+                }
+            }
+        }
+        var url = new java.net.URL( args.url );
+        var con;
+        var IO = new JavaImporter(java.io);
+        var wr;
+        var rd, ln, json = [];
+        try{
+            con = url.openConnection();
+            con.setDoOutput( true );
+            wr = new IO.OutputStreamWriter(con.getOutputStream())
+            wr.write(data);
+            wr.flush();
+            rd = new IO.BufferedReader(new IO.InputStreamReader(con.getInputStream()));
+            while ((line = rd.readLine()) != null) {
+                json.push(line);
+            }
+
+        }catch(e){
+            args.errorMessage = e.toString();
+            WhAjaj.Connector.sendHelper.onSendError( request, args );
+            return undefined;
+        }
+        try { wr.close(); } catch(e) { /*ignore*/}
+        try { rd.close(); } catch(e) { /*ignore*/}
+        WhAjaj.Connector.sendHelper.onSendSuccess( request, json.join(''), args );
+    }
 };
 
 /**
@@ -1031,4 +1083,5 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     the concrete implementations included with this API.
 */
 WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.XMLHttpRequest;
+//WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.rhino;
 //WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.jQuery;

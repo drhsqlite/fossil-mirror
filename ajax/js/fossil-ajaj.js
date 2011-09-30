@@ -181,4 +181,30 @@ FossilAjaj.prototype.HAI = function(ajajOpt) {
 };
 
 
-
+/**
+    Sends a /json/whoami request. Updates this.userName and this.authToken
+    based on the response, removing them if the response does not contain
+    that data.
+*/
+FossilAjaj.prototype.whoami = function(ajajOpt) {
+    var self = this;
+    ajajOpt = this.ajaj.normalizeAjaxParameters( ajajOpt || {} );
+    var oldOnResponse = ajajOpt.onResponse;
+    ajajOpt.onResponse = function(resp,req) {
+        var thisOpt = this;
+        //alert('login response:\n'+WhAjaj.stringify(resp));
+        if( resp && resp.payload ){
+            if( resp.payload.authToken ) self.authToken = resp.payload.authToken;
+            if( resp.payload.name ) self.userName = resp.payload.name;
+        }
+        else {
+            delete self.userName;
+            delete self.authToken
+        }
+        if( WhAjaj.isFunction(oldOnResponse) ) {
+            try { oldOnResponse.apply(thisOpt,[resp,req]); }
+            catch(e) {}
+        }
+    };
+    self.sendCommand('/json/whoami', undefined, ajajOpt);
+};
