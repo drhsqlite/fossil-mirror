@@ -1,5 +1,5 @@
-C minor\scleanups\sin\sthe\s/json/login\spayload\scode.
-D 2011-10-01T02:19:51.982
+C Added\sformat=raw|html\sto\s/json/wiki/get.
+D 2011-10-01T03:37:43.601
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -98,7 +98,7 @@ F src/json.c e6b88b8e21872f52a1ce242b0b77fb68819d36c8
 F src/json_detail.h 886c40d1fc0ffcd0001ede6b6a3e10edbbb97313
 F src/json_login.c 79d48d76f189a74524bcfa1832ffea1fbcdf002c
 F src/json_timeline.c e70c22088cea6db8d3ff1fa6111ef618f2961fa3
-F src/json_wiki.c ce9af639deb3b547e61e5bfab4e2d7a80901d583
+F src/json_wiki.c 1e7379942fdaad62412f1dc49401495ff33144cc
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
 F src/main.c f9d6cd2a3be590055ce377e67c1ba22908e05433
@@ -336,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 88ddf2cbce256e3fabf109684d4aee929a6dfc30
-R 62c79fccfc97c147d7003fd5cfd55884
+P 3bdae54cae52a4df47137fbb0548b72ee2bbf130
+R 4330f823f3e11bfa20a39c1a89dbba93
 U stephan
-Z bf21a74e19dcb3988e5bfaf4c31906bf
+Z c0b6af6d839179f1b02008490bebf0aa

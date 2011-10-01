@@ -46,7 +46,7 @@ static cson_value * json_wiki_get(){
   char const * zBody = NULL;
   char const * zPageName;
   char doParse = 0/*not yet implemented*/;
-
+  char const * zFormat = NULL;
   if( !g.perm.RdWiki ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
@@ -58,6 +58,14 @@ static cson_value * json_wiki_get(){
     g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
     return NULL;
   }
+
+  zFormat = g.isHTTP
+    ? json_getenv_cstr("format")
+    : find_option("format","f",1);
+  if(!zFormat || !*zFormat){
+    zFormat = "raw";
+  }
+  
   rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
                " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
                " ORDER BY x.mtime DESC LIMIT 1",
@@ -71,7 +79,7 @@ static cson_value * json_wiki_get(){
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     return NULL;
   }else{
-    unsigned int const len = strlen(zBody);
+    unsigned int len;
     cson_value * payV = cson_value_new_object();
     cson_object * pay = cson_value_get_object(payV);
     cson_object_set(pay,"name",json_new_string(zPageName));
@@ -81,9 +89,26 @@ static cson_value * json_wiki_get(){
     cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
-    cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+    cson_object_set(pay,"format",json_new_string(zFormat));
     cson_object_set(pay,"contentFormat",json_new_string(doParse?"html":"raw"));
-    cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+    doParse = ('h'==*zFormat) ? 1 : 0;
+    if( doParse ){
+      Blob content = empty_blob;
+      Blob raw = empty_blob;
+      blob_append(&raw,zBody,-1);
+      wiki_convert(&raw,&content,0);
+      len = strlen(zBody);
+      len = (unsigned int)blob_size(&content);
+      cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+      cson_object_set(pay,"content",
+                      cson_value_new_string(blob_buffer(&content),len));
+      blob_reset(&content);
+      blob_reset(&raw);
+    }else{
+      len = strlen(zBody);
+      cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+      cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+    }
     /*TODO: add 'T' (tag) fields*/
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
