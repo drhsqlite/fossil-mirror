@@ -129,33 +129,23 @@ cson_value * json_page_login(){
     return NULL;
   }else{
     char * cookie = NULL;
+    cson_object * po;
+    char * cap = NULL;
     if(anonSeed){
       login_set_anon_cookie(NULL, &cookie);
     }else{
       login_set_user_cookie(name, uid, &cookie);
     }
-    /* FIXME: expand the payload to:
-
-    { authToken:...,
-      name:...,
-      capabilities:...
-    }
-    */
-    {
-        cson_object * po;
-        char * cap = NULL;
-        payload = cson_value_new_object();
-        po = cson_value_get_object(payload);
-        cson_object_set(po, "authToken", json_new_string(cookie));
-        cson_object_set(po, "name", json_new_string(name));
-        cap = db_text(NULL,"SELECT cap FROM user WHERE login=%Q",name);
-        cson_object_set(po, "capabilities", json_new_string(cap));
-        free(cap);        
-    }
+    payload = cson_value_new_object();
+    po = cson_value_get_object(payload);
+    cson_object_set(po, "authToken", json_new_string(cookie));
     free(cookie);
+    cson_object_set(po, "name", json_new_string(name));
+    cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q",name);
+    cson_object_set(po, "capabilities", json_new_string(cap));
+    free(cap);        
     return payload;
   }
-
 }
 
 /*
