@@ -1,5 +1,5 @@
-C Started\srefactoring\ssome\sof\sthe\stimeline/artifact\scomponents\sinto\sreusable\sparts.
-D 2011-10-01T06:45:18.633
+C more\stimeline/artifact\srefactoring.
+D 2011-10-01T07:04:31.320
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -95,10 +95,10 @@ F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/json.c b471f66c7a818ac69c93dacc1bbf226dbe7dbcc6
-F src/json_artifact.c 59606a8986e68cac5bf0fe13971004759c535345
+F src/json_artifact.c 9a3cded924b5fb1aaffb6f09f220cdef4369107f
 F src/json_detail.h 0cc6cb8746bdb8f1db409ad5125fa852cff92788
 F src/json_login.c 79d48d76f189a74524bcfa1832ffea1fbcdf002c
-F src/json_timeline.c 8552eb9bdb9f64d9bc01fbd5b92f9f251110fb18
+F src/json_timeline.c 9b9bf636eb7b5bfd77d4e538fb7ee5c06b306e44
 F src/json_wiki.c 45f345e441d8f183febab2b4ee3ef5605aeb164d
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
@@ -337,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a893fff3ca2fb9f0cbc3bd80674939d3e41ad5a1
-R e36dadd3b6a24e055d33c613965d0cde
+P b1f9257213c4447b0a072e73f7845b43e85074cd
+R 78f3635b69b770f4cd980bce4cfc6ae7
 U stephan
-Z 13b2b374da1a7318c8a667827791c837
+Z 4d5597c234f3ba2c2b376a5ca7438b42

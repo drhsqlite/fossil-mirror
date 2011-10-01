@@ -101,17 +101,18 @@ cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles )
       SET("parentUuid", json_new_string(zParent));
     }
 
+    tmpV = json_tags_for_rid(rid);
+    if(tmpV){
+      SET("tags",tmpV);
+    }
+
     if( showFiles ){
-      cson_value * fileList = json_timeline_get_changed_files(rid);
+      cson_value * fileList = json_get_changed_files(rid);
       if(fileList){
         SET("files",fileList);
       }
     }
 
-    tmpV = json_tags_for_rid(rid);
-    if(tmpV){
-      SET("tags",tmpV);
-    }
 
 #undef SET
   }
@@ -180,8 +181,8 @@ cson_value * json_page_artifact(){
     g.json.resultCode = FSL_JSON_E_AMBIGUOUS_UUID;
     goto error;
   }
-  zUuid = zName = blob_str(&uuid);
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zName);
+  zUuid = blob_str(&uuid);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zUuid);
   if(0==rid){
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     goto error;
@@ -213,7 +214,8 @@ cson_value * json_page_artifact(){
   pay = cson_value_get_object(payV);
   assert( NULL != zType );
   cson_object_set( pay, "type", json_new_string(zType) );
-  cson_object_set( pay, "id", json_new_string(zName) );
+  /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
+  cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
   cson_object_set( pay, "rid", cson_value_new_integer(rid) );
   ArtifactDispatchEntry const * disp = &ArtifactDispatchList[0];
   for( ; disp->name; ++disp ){
@@ -230,6 +232,10 @@ cson_value * json_page_artifact(){
       }
       break;
     }
+  }
+  if( !disp->name ){
+    cson_object_set(pay,"artifact",
+                    json_new_string("TODO: handle this artifact type!"));
   }
   veryend:
   blob_reset(&uuid);

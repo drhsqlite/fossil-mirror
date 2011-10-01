@@ -200,7 +200,7 @@ static void json_timeline_setup_sql( char const * zEventType,
 ** containing information about them is returned (and is owned by the
 ** caller). If no files are associated with it then NULL is returned.
 */
-cson_value * json_timeline_get_changed_files(int rid){
+cson_value * json_get_changed_files(int rid){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q;
@@ -218,8 +218,8 @@ cson_value * json_timeline_get_changed_files(int rid){
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
-           "       (SELECT uuid FROM blob WHERE rid=fid),"
-           "       (SELECT uuid FROM blob WHERE rid=pid)"
+           "       (SELECT uuid FROM blob WHERE rid=fid) as uuid,"
+           "       (SELECT uuid FROM blob WHERE rid=pid) as prevUuid"
            "  FROM mlink"
            " WHERE mid=%d AND pid!=fid"
            " ORDER BY 3 /*sort*/",
@@ -304,10 +304,9 @@ static cson_value * json_timeline_ci(){
              " user AS user,"
              " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
              " bgColor AS bgColor," /* why always null? */
-             " eventType AS eventType,"
-             " tags AS tags" /*FIXME: split this into
-                               a JSON array*/
+             " eventType AS eventType"
 #if 0
+             " tags AS tags"
              /*tagId is always null?*/
              " tagId AS tagId"
 #endif
@@ -346,7 +345,7 @@ static cson_value * json_timeline_ci(){
       tmp = NULL;
     }
     if( showFiles ){
-      cson_value * flist = json_timeline_get_changed_files(rid);
+      cson_value * flist = json_get_changed_files(rid);
       if(flist){
         cson_object_set(row,"files",flist);
       }
