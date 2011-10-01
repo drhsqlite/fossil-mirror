@@ -322,7 +322,7 @@ static cson_value * json_timeline_ci(){
     int const rid = db_column_int(&q,0);
     cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
     cson_object * row = cson_value_get_object(rowV);
-    cson_string const * tagsStr = NULL;
+    cson_value * tagList = NULL;
     if(!row && !warnRowToJsonFailed){
       warnRowToJsonFailed = 1;
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
@@ -331,22 +331,9 @@ static cson_value * json_timeline_ci(){
     }
     /* Split tags string field into JSON Array... */
     cson_array_append(list, rowV);
-    tagsStr = cson_value_get_string(cson_object_get(row,"tags"));
-    if(tagsStr){
-      cson_value * tags = json_string_split2( cson_string_cstr(tagsStr),
-                                              ',', 0);
-      if( tags ){
-        if(0 != cson_object_set(row,"tags",tags)){
-          cson_value_free(tags);
-        }else{
-          /*replaced/deleted old tags value, invalidating tagsStr*/;
-          tagsStr = NULL;
-        }
-      }else if(!warnStringToArrayFailed){
-        warnStringToArrayFailed = 1;
-        json_warn(FSL_JSON_W_STRING_TO_ARRAY_FAILED,
-                  "Could not convert tags string to array.");
-      }
+    tmp = json_tags_for_rid(rid);
+    if(tmp){
+        cson_object_set(row,"tags",tmp);
     }
 
     /* replace isLeaf int w/ JSON bool */

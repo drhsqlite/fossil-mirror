@@ -829,10 +829,9 @@ int json_string_split( char const * zStr,
 
 /*
 ** Wrapper around json_string_split(), taking the same first 3
-** parameters as this function, but returns the results as
-** a JSON Array (if splitting produced tokens)
-** OR a JSON null value (if splitting produced no tokens)
-** OR NULL (if splitting failed in any way).
+** parameters as this function, but returns the results as a JSON
+** Array (if splitting produced tokens) or NULL (if splitting failed
+** in any way or produced no tokens).
 **
 ** The returned value is owned by the caller. If not NULL then it
 ** _will_ have a JSON type of Array or Null.
@@ -845,13 +844,14 @@ cson_value * json_string_split2( char const * zStr,
   int rc = json_string_split( zStr, separator, doDeHttp, a );
   if( 0 == rc ){
     cson_value_free(v);
-    v = cson_value_null();
+    v = NULL;
   }else if(rc<0){
     cson_value_free(v);
     v = NULL;
   }
   return v;
 }
+
 
 /*
 ** Performs some common initialization of JSON-related state.  Must be
@@ -1324,6 +1324,34 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   }
   return v;  
 }
+
+
+/*
+** If the given rid has any tags associated with it, this function
+** returns a JSON Array containing the tag names, else it returns
+** NULL.
+*/
+cson_value * json_tags_for_rid(int rid){
+  cson_value * v = NULL;
+  Stmt q;
+  assert((rid>0) && "rid is invalid");
+  db_prepare(&q,"SELECT group_concat(substr(tagname,5), ',')"
+             " FROM tag t, tagxref x "
+             " WHERE x.rid=%d "
+             " AND tagname GLOB 'sym-*' "
+             " AND t.tagid=x.tagid AND x.tagtype>0",
+             rid);
+  if( (SQLITE_ROW==db_step(&q)) ){
+    char const * tags;
+    tags = db_column_text(&q,0);
+    if(tags && *tags){
+      v = json_string_split2(tags,',',0);
+    }
+  }
+  db_finalize(&q);
+  return v;  
+}
+
 
 /*
 ** /json/version implementation.

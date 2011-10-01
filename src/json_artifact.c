@@ -35,17 +35,13 @@ typedef struct ArtifactDispatchEntry {
 ** Generates an artifact Object for the given rid/zUuid. rid
 ** must refer to a Checkin.
 **
-**
-** TODO: consolidate the result structure (and its generation) with
-** /json/timeline/ci.
+** Returned value is NULL or an Object owned by the caller.
 */
-static cson_value * json_artifact_ci( int rid, char const * zUuid ){
-  cson_value * v = cson_value_new_object();
-  cson_object * o = cson_value_get_object(v);
+cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles ){
   char const * zParent = NULL;
+  cson_value * v = NULL;
   Stmt q;
   assert( NULL != zUuid );
-  cson_object_set(o,"isLeaf", cson_value_new_bool(is_a_leaf(rid)));
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
     " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
@@ -61,14 +57,18 @@ static cson_value * json_artifact_ci( int rid, char const * zUuid ){
              rid, rid
              );
   if( db_step(&q)==SQLITE_ROW ){
+    cson_object * o;
+    cson_value * tmpV = NULL;
+    v = cson_value_new_object();
+    o = cson_value_get_object(v);
     /*const char *zUuid = db_column_text(&q, 0);*/
     char * zTmp;
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
     int mtime, omtime;
-    cson_value * fileList = NULL;
 #define SET(K,V) cson_object_set(o,(K), (V))
+    SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
     SET("uuid",json_new_string(zUuid));
     zUser = db_column_text(&q,2);
     SET("user",json_new_string(zUser));
@@ -101,18 +101,29 @@ static cson_value * json_artifact_ci( int rid, char const * zUuid ){
       SET("parentUuid", json_new_string(zParent));
     }
 
-    fileList = json_timeline_get_changed_files(rid);
-    if(fileList){
-      SET("files",fileList);
+    if( showFiles ){
+      cson_value * fileList = json_timeline_get_changed_files(rid);
+      if(fileList){
+        SET("files",fileList);
+      }
+    }
+
+    tmpV = json_tags_for_rid(rid);
+    if(tmpV){
+      SET("tags",tmpV);
     }
 
 #undef SET
-  }else{
-    cson_value_free(v);
-    v = NULL;
   }
   db_finalize(&q);
   return v;
+}
+
+/*
+** Sub-impl of /json/artifact for checkins.
+*/
+static cson_value * json_artifact_ci( int rid, char const * zUuid ){
+  return json_artifact_for_ci(rid, zUuid, 1);
 }
 
 static char perms_can_read(){
