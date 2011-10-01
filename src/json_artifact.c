@@ -43,7 +43,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
   Stmt q;
   static cson_value * eventTypeLabel = NULL;
   if(!eventTypeLabel){
-    eventTypeLabel = json_new_string("commit");
+    eventTypeLabel = json_new_string("checkin");
     json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel, 1);
   }
   zParent = db_text(0,
@@ -75,7 +75,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     char * zEUser, * zEComment;
     int mtime, omtime;
 #define SET(K,V) cson_object_set(o,(K), (V))
-    SET("artifactType", eventTypeLabel );
+    SET("type", eventTypeLabel );
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
     zUser = db_column_text(&q,2);
