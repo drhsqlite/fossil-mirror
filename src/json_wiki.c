@@ -82,7 +82,7 @@ static cson_value * json_wiki_get(){
     return NULL;
   }
   rid = db_column_int(&q,0);
-  zUuid = mprintf("%s",(char const *)db_column_text(&q,1));
+  zUuid = db_column_malloc(&q,1);
   db_finalize(&q);
   
   if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
