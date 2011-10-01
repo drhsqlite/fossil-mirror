@@ -102,8 +102,7 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
             catch(e){}
         }
         if( WhAjaj.isFunction(oldOnResponse) ) {
-            try { oldOnResponse.apply(thisOpt,[resp,req]); }
-            catch(e) {}
+            oldOnResponse.apply(thisOpt,[resp,req]);
         }
     };
     function doLogin(){
@@ -150,8 +149,7 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
             catch(e){}
         }
         if( WhAjaj.isFunction(oldOnResponse) ) {
-            try { oldOnResponse.apply(thisOpt,[resp,req]); }
-            catch(e) {}
+            oldOnResponse.apply(thisOpt,[resp,req]);
         }
     };
     this.sendCommand('/json/logout', undefined, ajajOpt );
@@ -179,18 +177,16 @@ FossilAjaj.prototype.whoami = function(ajajOpt) {
     var oldOnResponse = ajajOpt.onResponse;
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
-        //alert('login response:\n'+WhAjaj.stringify(resp));
         if( resp && resp.payload ){
-            if( resp.payload.authToken ) self.authToken = resp.payload.authToken;
-            if( resp.payload.name ) self.userName = resp.payload.name;
+            self.authToken = resp.payload.authToken;
+            self.userName = resp.payload.name;
         }
         else {
             delete self.userName;
             delete self.authToken
         }
         if( WhAjaj.isFunction(oldOnResponse) ) {
-            try { oldOnResponse.apply(thisOpt,[resp,req]); }
-            catch(e) {}
+            oldOnResponse.apply(thisOpt,[resp,req]);
         }
     };
     self.sendCommand('/json/whoami', undefined, ajajOpt);
