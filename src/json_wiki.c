@@ -45,8 +45,9 @@ static cson_value * json_wiki_get(){
   Manifest *pWiki = 0;
   char const * zBody = NULL;
   char const * zPageName;
-  char doParse = 0/*not yet implemented*/;
   char const * zFormat = NULL;
+  char * zUuid = NULL;
+  Stmt q;
   if( !g.perm.RdWiki ){
     g.json.resultCode = FSL_JSON_E_DENIED;
     return NULL;
@@ -65,34 +66,48 @@ static cson_value * json_wiki_get(){
   if(!zFormat || !*zFormat){
     zFormat = "raw";
   }
+  if( 'r' != *zFormat ){
+    zFormat = "html";
+  }
+  db_prepare(&q,
+             "SELECT x.rid, b.uuid FROM tag t, tagxref x, blob b"
+             " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
+             " AND b.rid=x.rid"
+             " ORDER BY x.mtime DESC LIMIT 1",
+             zPageName 
+             );
+  if( (SQLITE_ROW != db_step(&q)) ){
+    manifest_destroy(pWiki);
+    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+    return NULL;
+  }
+  rid = db_column_int(&q,0);
+  zUuid = mprintf("%s",(char const *)db_column_text(&q,1));
+  db_finalize(&q);
   
-  rid = db_int(0, "SELECT x.rid FROM tag t, tagxref x"
-               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
-               " ORDER BY x.mtime DESC LIMIT 1",
-               zPageName 
-               );
   if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
     zBody = pWiki->zWiki;
   }
   if( zBody==0 ){
     manifest_destroy(pWiki);
+    free(zUuid);
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     return NULL;
-  }else{
+  }
+
+  {
     unsigned int len;
     cson_value * payV = cson_value_new_object();
     cson_object * pay = cson_value_get_object(payV);
     cson_object_set(pay,"name",json_new_string(zPageName));
-    cson_object_set(pay,"version",json_new_string(pWiki->zBaseline))
-      /*FIXME: pWiki->zBaseline is NULL. How to get the version number?*/
-      ;
+    cson_object_set(pay,"uuid",json_new_string(zUuid));
+    free(zUuid);
+    zUuid = NULL;
     cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
-    cson_object_set(pay,"format",json_new_string(zFormat));
-    cson_object_set(pay,"contentFormat",json_new_string(doParse?"html":"raw"));
-    doParse = ('h'==*zFormat) ? 1 : 0;
-    if( doParse ){
+    cson_object_set(pay,"contentFormat",json_new_string(zFormat));
+    if( ('h'==*zFormat) ){
       Blob content = empty_blob;
       Blob raw = empty_blob;
       blob_append(&raw,zBody,-1);
