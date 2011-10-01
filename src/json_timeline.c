@@ -319,37 +319,17 @@ static cson_value * json_timeline_ci(){
   while( (SQLITE_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int const rid = db_column_int(&q,0);
-    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
+    cson_value * rowV = json_artifact_for_ci(rid, showFiles);
     cson_object * row = cson_value_get_object(rowV);
-    cson_value * tagList = NULL;
-    if(!row && !warnRowToJsonFailed){
-      warnRowToJsonFailed = 1;
-      json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
-                 "Could not convert at least one timeline result row to JSON." );
+    if(!row){
+      if( !warnRowToJsonFailed ){
+        warnRowToJsonFailed = 1;
+        json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
+                   "Could not convert at least one timeline result row to JSON." );
+      }
       continue;
     }
-    /* Split tags string field into JSON Array... */
     cson_array_append(list, rowV);
-    tmp = json_tags_for_rid(rid);
-    if(tmp){
-        cson_object_set(row,"tags",tmp);
-    }
-
-    /* replace isLeaf int w/ JSON bool */
-    tmp = cson_object_get(row,"isLeaf");
-    if(tmp && cson_value_is_integer(tmp)){
-      cson_object_set(row,"isLeaf",
-                      cson_value_get_integer(tmp)
-                      ? cson_value_true()
-                      : cson_value_false());
-      tmp = NULL;
-    }
-    if( showFiles ){
-      cson_value * flist = json_get_changed_files(rid);
-      if(flist){
-        cson_object_set(row,"files",flist);
-      }
-    }
   }
 #undef SET
   goto ok;

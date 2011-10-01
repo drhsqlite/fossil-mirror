@@ -7,11 +7,11 @@
 #endif
 
 /*
-** Internal callback for /json/artifact handlers. rid and uid refer to
-** the rid/uid of a given type of artifact, and each callback is
+** Internal callback for /json/artifact handlers. rid refers to
+** the rid of a given type of artifact, and each callback is
 ** specialized to return a JSON form of one type of artifact.
 */
-typedef cson_value * (*artifact_f)( int rid, char const * uid );
+typedef cson_value * (*artifact_f)( int rid );
 
 typedef struct ArtifactDispatchEntry {
   /**
@@ -37,11 +37,15 @@ typedef struct ArtifactDispatchEntry {
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
-cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles ){
+cson_value * json_artifact_for_ci( int rid, char showFiles ){
   char const * zParent = NULL;
   cson_value * v = NULL;
   Stmt q;
-  assert( NULL != zUuid );
+  static cson_value * eventTypeLabel = NULL;
+  if(!eventTypeLabel){
+    eventTypeLabel = json_new_string("commit");
+    json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel, 1);
+  }
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
     " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
@@ -49,9 +53,12 @@ cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles )
   );
 
   db_prepare(&q, 
-             "SELECT uuid, mtime, user, comment,"
-             "       omtime"
-             "  FROM blob, event"
+             "SELECT uuid, "
+             " strftime('%%s',mtime), "
+             " user, "
+             " comment,"
+             " strftime('%%s',omtime)"
+             " FROM blob, event"
              " WHERE blob.rid=%d"
              "   AND event.objid=%d",
              rid, rid
@@ -61,40 +68,49 @@ cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles )
     cson_value * tmpV = NULL;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
-    /*const char *zUuid = db_column_text(&q, 0);*/
+    const char *zUuid = db_column_text(&q, 0);
     char * zTmp;
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
     int mtime, omtime;
 #define SET(K,V) cson_object_set(o,(K), (V))
-    SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
+    SET("artifactType", eventTypeLabel );
     SET("uuid",json_new_string(zUuid));
+    SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
     zUser = db_column_text(&q,2);
-    SET("user",json_new_string(zUser));
     zEUser = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_USER, rid);
     if(zEUser){
-      SET("editedBy", json_new_string(zEUser));
+      SET("user", json_new_string(zEUser));
+      if(0!=strcmp(zEUser,zUser)){
+        SET("originUser",json_new_string(zUser));
+      }
       free(zEUser);
+    }else{
+      SET("user",json_new_string(zUser));
     }
 
     zComment = db_column_text(&q,3);
-    SET("comment",json_new_string(zComment));
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
     if(zEComment){
-      SET("editedComment", json_new_string(zEComment));
+      SET("comment",json_new_string(zEComment));
+      if(0 != strcmp(zEComment,zComment)){
+        SET("originComment", json_new_string(zComment));
+      }
       free(zEComment);
+    }else{
+      SET("comment",json_new_string(zComment));
     }
 
     mtime = db_column_int(&q,1);
     SET("mtime",json_new_int(mtime));
     omtime = db_column_int(&q,4);
     if(omtime && (omtime!=mtime)){
-      SET("omtime",json_new_int(omtime));
+      SET("originTime",json_new_int(omtime));
     }
 
     if(zParent){
@@ -123,8 +139,8 @@ cson_value * json_artifact_for_ci( int rid, char const * zUuid, char showFiles )
 /*
 ** Sub-impl of /json/artifact for checkins.
 */
-static cson_value * json_artifact_ci( int rid, char const * zUuid ){
-  return json_artifact_for_ci(rid, zUuid, 1);
+static cson_value * json_artifact_ci( int rid ){
+  return json_artifact_for_ci(rid, 1);
 }
 
 static char perms_can_read(){
@@ -226,7 +242,7 @@ cson_value * json_page_artifact(){
       if( ! (*disp->permCheck)() ){
         break;
       }
-      entry = (*disp->func)(rid, zUuid);
+      entry = (*disp->func)(rid);
       if(entry){
         cson_object_set(pay, "artifact", entry);
       }
