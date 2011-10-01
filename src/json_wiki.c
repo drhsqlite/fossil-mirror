@@ -103,7 +103,7 @@ static cson_value * json_wiki_get(){
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
     zUuid = NULL;
-    cson_object_set(pay,"rid",cson_value_new_integer((cson_int_t)rid));
+    cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
     cson_object_set(pay,"contentFormat",json_new_string(zFormat));
@@ -114,14 +114,14 @@ static cson_value * json_wiki_get(){
       wiki_convert(&raw,&content,0);
       len = strlen(zBody);
       len = (unsigned int)blob_size(&content);
-      cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
       cson_object_set(pay,"content",
                       cson_value_new_string(blob_buffer(&content),len));
       blob_reset(&content);
       blob_reset(&raw);
     }else{
       len = strlen(zBody);
-      cson_object_set(pay,"contentLength",cson_value_new_integer((cson_int_t)len));
+      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
       cson_object_set(pay,"content",cson_value_new_string(zBody,len));
     }
     /*TODO: add 'T' (tag) fields*/

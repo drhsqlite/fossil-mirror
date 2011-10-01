@@ -190,12 +190,17 @@ static void json_timeline_setup_sql( char const * zEventType,
     blob_appendf(pSql,"LIMIT %d ",limit);
   }
   if(pPayload){
-    cson_object_set(pPayload, "limit",cson_value_new_integer(limit));
+    cson_object_set(pPayload, "limit",json_new_int(limit));
   }
 
 }
 
-static cson_value * json_timeline_get_changed_files(int rid){
+/*
+** If any files are associated with the given rid, a JSON array
+** containing information about them is returned (and is owned by the
+** caller). If no files are associated with it then NULL is returned.
+*/
+cson_value * json_timeline_get_changed_files(int rid){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q;

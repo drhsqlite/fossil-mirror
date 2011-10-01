@@ -1,5 +1,5 @@
-C Added\sjson_new_int()\sconvenience\sfunction.
-D 2011-10-01T05:57:50.530
+C minor\scleanups.
+D 2011-10-01T05:58:17.706
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -98,8 +98,8 @@ F src/json.c 55729d1d6f5c3c4b4356b91df206dc371941598d
 F src/json_artifact.c d5cd3898b733f357813482465ed7340519f32094
 F src/json_detail.h 0cc6cb8746bdb8f1db409ad5125fa852cff92788
 F src/json_login.c 79d48d76f189a74524bcfa1832ffea1fbcdf002c
-F src/json_timeline.c e70c22088cea6db8d3ff1fa6111ef618f2961fa3
-F src/json_wiki.c 5b5fbef8e34b6eb22e24cc87665f7f519a549e42
+F src/json_timeline.c ccaddcd18436d9017f8d2d5bb6362470afce80be
+F src/json_wiki.c 45f345e441d8f183febab2b4ee3ef5605aeb164d
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
 F src/main.c f9d6cd2a3be590055ce377e67c1ba22908e05433
@@ -337,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6372d9516554a5edcf3358756a0fa3ac724ebae8
-R 2e57f7df0f47009b8afb523dd4b632a0
+P ccd66b9b3ca479707288cd04962917cf71845582
+R 743b7502a84bda3799abda798a1fb093
 U stephan
-Z e1e1ae6d38f3940595b619e2e9ee3247
+Z 754c6be3d346a86ce6a43745388bd68c
