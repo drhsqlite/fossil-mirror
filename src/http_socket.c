@@ -202,13 +202,13 @@ size_t socket_send(void *NotUsed, void *pContent, size_t N){
 ** Receive content back from the open socket connection.
 */
 size_t socket_receive(void *NotUsed, void *pContent, size_t N){
-  size_t got;
+  ssize_t got;
   size_t total = 0;
   while( N>0 ){
     got = recv(iSocket, pContent, N, 0);
     if( got<=0 ) break;
-    total += got;
-    N -= got;
+    total += (size_t)got;
+    N -= (size_t)got;
     pContent = (void*)&((char*)pContent)[got];
   }
   return total;
