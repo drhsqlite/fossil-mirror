@@ -1,8 +1,9 @@
 var TestApp = {
     serverUrl:
-        'http://localhost:8080'
+        //'http://localhost:8080'
         //'http://fjson/cgi-bin/fossil-json.cgi'
         //'http://192.168.1.62:8080'
+        'http://fossil.wanderinghorse.net/repos/fossil-json-java/index.cgi'
         ,
     verbose:true,
     wiki:{}
@@ -19,6 +20,7 @@ var TestApp = {
     WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.rhino;
     TestApp.fossil = new FossilAjaj({
         asynchronous:false, /* rhino-based impl doesn't support async or timeout. */
+        timeout:0,
         url:TestApp.serverUrl,
         beforeSend:function(req,opt){
             if(!TestApp.verbose) return;
@@ -126,10 +128,13 @@ function testAnonymousLogin(){
     TestApp.fossil.login();
     assert('string' === typeof TestApp.fossil.authToken, 'authToken = '+TestApp.fossil.authToken);
     assert( 'string' === typeof TestApp.fossil.userName, 'User name = '+TestApp.fossil.userName);
+    TestApp.fossil.userName = null;
+    TestApp.fossil.whoami('/json/whoami');
+    assert( 'string' === typeof TestApp.fossil.userName, 'User name = '+TestApp.fossil.userName);
 }
 testAnonymousLogin.description = 'Perform anonymous login.';
 
-function testAnonWikiList(){
+function testAnonWiki(){
     TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
         beforeSend:function(req,opt){
             TestApp.fossil.ajaj.options.beforeSend(req,opt);
@@ -142,8 +147,17 @@ function testAnonWikiList(){
             TestApp.wiki.list = resp.payload;
         }
     });
+    TestApp.fossil.sendCommand('/json/wiki/get',{
+        page:TestApp.wiki.list[0]
+    },{
+        onResponse:function(resp,req){
+            assertResponseOK(resp);
+            assert(resp.payload.name == TestApp.wiki.list[0], "Fetched page name matches expectations.");
+            print("Got first wiki page: "+WhAjaj.stringify(resp.payload));
+        }
+    });
 }
-testAnonWikiList.description = 'Fetch wiki list as anonymous user.';
+testAnonWiki.description = 'Fetch wiki list as anonymous user.';
 
 function testAnonLogout(){
     TestApp.fossil.logout({
@@ -164,7 +178,7 @@ testAnonLogout.description = 'Log out anonymous user.';
         testHAI,
         testIAmNobody,
         testAnonymousLogin,
-        testAnonWikiList,
+        testAnonWiki,
         testAnonLogout
     ];
     var i, f;
