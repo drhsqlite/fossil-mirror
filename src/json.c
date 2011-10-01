@@ -226,6 +226,7 @@ char const * json_err_str( int errCode ){
     C(USAGE,"Usage error");
     C(INVALID_ARGS,"Invalid arguments");
     C(MISSING_ARGS,"Missing arguments");
+    C(AMBIGUOUS_UUID,"Argument is ambiguous");
 
     C(DB,"Database error");
     C(STMT_PREP,"Statement preparation failed");
@@ -1777,7 +1778,8 @@ cson_value * json_page_anon_password();
 cson_value * json_page_login();
 /* Impl in json_login.c. */
 cson_value * json_page_logout();
-
+/* Impl in json_artifact.c. */
+cson_value * json_page_artifact();
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -1785,6 +1787,7 @@ cson_value * json_page_logout();
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
 {"anonymousPassword",json_page_anon_password, 1},
+{"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
 {"dir", json_page_nyi, 0},

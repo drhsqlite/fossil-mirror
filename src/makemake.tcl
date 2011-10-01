@@ -56,6 +56,7 @@ set src {
   import
   info
   json
+  json_artifact
   json_login
   json_timeline
   json_wiki
@@ -240,7 +241,7 @@ writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_wiki.o \$(OBJDIR)/json_timeline.o : \$(SRCDIR)/json_detail.h"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_wiki.o \$(OBJDIR)/json_timeline.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
@@ -484,7 +485,7 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
-writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_wiki.o \$(OBJDIR)/json_timeline.o : \$(SRCDIR)/json_detail.h"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_wiki.o \$(OBJDIR)/json_timeline.o : \$(SRCDIR)/json_detail.h"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -615,6 +616,7 @@ realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
@@ -761,6 +763,7 @@ realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h

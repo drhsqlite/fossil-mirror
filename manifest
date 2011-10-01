@@ -1,5 +1,5 @@
-C minor\sdb_column\susage\scleanup.
-D 2011-10-01T05:05:43.869
+C Added\sinitial\s/json/artifact\scode,\sbut\sit\scurrently\scan\sonly\sreport\sthe\stype\sof\sa\sgiven\sartifact.
+D 2011-10-01T05:09:06.315
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -8,7 +8,7 @@ F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-test.js 454163a92c8c8f4ee8c361c704c5698a9fe8b7b0
-F ajax/index.html 83d9a49416008f873bd75bd7c41f814906727e65
+F ajax/index.html 1722e12cd91d9b2288f8d6cd82376ea9064bf70e
 F ajax/js/fossil-ajaj.js eaf257fa73933e29a528e8fc667ff12a10011e0f
 F ajax/js/whajaj.js 71958d617457e5e65fed61218a8f17a2b58c5592
 F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
@@ -94,18 +94,19 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c e6b88b8e21872f52a1ce242b0b77fb68819d36c8
-F src/json_detail.h 886c40d1fc0ffcd0001ede6b6a3e10edbbb97313
+F src/json.c efda1d49268cefc7f634fa6f007a7ce88fe34741
+F src/json_artifact.c d5cd3898b733f357813482465ed7340519f32094
+F src/json_detail.h 0cc6cb8746bdb8f1db409ad5125fa852cff92788
 F src/json_login.c 79d48d76f189a74524bcfa1832ffea1fbcdf002c
 F src/json_timeline.c e70c22088cea6db8d3ff1fa6111ef618f2961fa3
 F src/json_wiki.c 5b5fbef8e34b6eb22e24cc87665f7f519a549e42
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
 F src/main.c f9d6cd2a3be590055ce377e67c1ba22908e05433
-F src/main.mk 8d08ac6c957ada4d381a388931b9735a65b5a5cf
+F src/main.mk c4c7b693e8d0a519614280f89c9d2356860303a1
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 6c7e76635879540245e89e5bbcf92ef8b66a9a4c
+F src/makemake.tcl dbf07f18b7bbc8dfcc28289dd6f6d574609f1591
 F src/manifest.c 0c2fbde0455f5bdf35295dafbbbf90d974ab843c
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
@@ -223,10 +224,10 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
-F win/Makefile.dmc c67141848aef8b62fef1d0d39c57394c964b4f1e
-F win/Makefile.mingw cfdb767c23cd627cb94c8de39b9b6d059e0899b8
+F win/Makefile.dmc 2f08d2947be6bf6c7f5a18d847a82e84631bcdc5
+F win/Makefile.mingw 261186e5a02b650eb1e33e9badccd5af045766cb
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc d04956fa5bab33f544fb4fa40b21ee39682e2955
+F win/Makefile.msc cb2ace23d0b5223878a21a9f0eb952899f98adaf
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -336,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2b7edce38d7b11e55b9418117a648179e0958bd4
-R a6bb8e7e50f9d9448fe9b40228e95c5f
+P cf8b20ea1ff60f3191f12e85653f0b050b024474
+R a3ad7dc04bc69c2135eae70346da4184
 U stephan
-Z 7e911accd2f91724c724e12408c29964
+Z db4b3ff9c7186f9067024a57b636f28e
