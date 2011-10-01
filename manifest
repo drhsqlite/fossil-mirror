@@ -1,5 +1,5 @@
-C Added\sinitial\s/json/artifact\scode,\sbut\sit\scurrently\scan\sonly\sreport\sthe\stype\sof\sa\sgiven\sartifact.
-D 2011-10-01T05:09:06.315
+C Added\sjson_new_int()\sconvenience\sfunction.
+D 2011-10-01T05:57:50.530
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,7 +94,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c efda1d49268cefc7f634fa6f007a7ce88fe34741
+F src/json.c 55729d1d6f5c3c4b4356b91df206dc371941598d
 F src/json_artifact.c d5cd3898b733f357813482465ed7340519f32094
 F src/json_detail.h 0cc6cb8746bdb8f1db409ad5125fa852cff92788
 F src/json_login.c 79d48d76f189a74524bcfa1832ffea1fbcdf002c
@@ -337,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cf8b20ea1ff60f3191f12e85653f0b050b024474
-R a3ad7dc04bc69c2135eae70346da4184
+P 6372d9516554a5edcf3358756a0fa3ac724ebae8
+R 2e57f7df0f47009b8afb523dd4b632a0
 U stephan
-Z db4b3ff9c7186f9067024a57b636f28e
+Z e1e1ae6d38f3940595b619e2e9ee3247

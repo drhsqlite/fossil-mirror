@@ -359,6 +359,10 @@ cson_value * json_new_string( char const * str ){
     : NULL;
 }
 
+cson_value * json_new_int( int v ){
+  return cson_value_new_integer((cson_int_t)v);
+}
+
 /*
 ** Gets a POST/POST.payload/GET/COOKIE/ENV value. The returned memory
 ** is owned by the g.json object (one of its sub-objects). Returns
