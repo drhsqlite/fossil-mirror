@@ -117,7 +117,7 @@ cson_value * json_page_login(){
     cson_object_set( o, "p", cson_value_new_string(pw,strlen(pw)));
     return payload;
   }
-#else
+#endif
   uid = anonSeed
     ? login_is_valid_anonymous(name, pw, anonSeed)
     : login_search_uid(name, pw)
@@ -134,13 +134,28 @@ cson_value * json_page_login(){
     }else{
       login_set_user_cookie(name, uid, &cookie);
     }
-    payload = cookie
-      ? cson_value_new_string( cookie, strlen(cookie) )
-      : cson_value_null()/*why null instead of NULL?*/;
+    /* FIXME: expand the payload to:
+
+    { authToken:...,
+      name:...,
+      capabilities:...
+    }
+    */
+    {
+        cson_object * po;
+        char * cap = NULL;
+        payload = cson_value_new_object();
+        po = cson_value_get_object(payload);
+        cson_object_set(po, "authToken", json_new_string(cookie));
+        cson_object_set(po, "name", json_new_string(name));
+        cap = db_text(NULL,"SELECT cap FROM user WHERE login=%Q",name);
+        cson_object_set(po, "capabilities", json_new_string(cap));
+        free(cap);        
+    }
     free(cookie);
     return payload;
   }
-#endif
+
 }
 
 /*

@@ -1,5 +1,5 @@
-C minor\sajax\stest\scode\scleanups.
-D 2011-09-30T17:00:07.139
+C Changed\s/json/login\soutput\spayload\sstructure.
+D 2011-10-01T02:12:09.056
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -9,7 +9,7 @@ F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-test.js de975d11d37d46e8ee411ee0c7fd92f5e386b794
 F ajax/index.html 83d9a49416008f873bd75bd7c41f814906727e65
-F ajax/js/fossil-ajaj.js 5ff8ffb5293d5d495035563d20448c04b55a914a
+F ajax/js/fossil-ajaj.js 21aff37bca2d7294ba170c1acac84a383fcc3d27
 F ajax/js/whajaj.js 71958d617457e5e65fed61218a8f17a2b58c5592
 F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
@@ -94,9 +94,9 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 322481d1e2bcb71af2afe9fe71abe9350e93b75b
-F src/json_detail.h 88f94a0a5fa25f6139ab6ea64e26f4aeaff63674
-F src/json_login.c 02b45cf828baef335957b05ee48ab166c9065208
+F src/json.c e6b88b8e21872f52a1ce242b0b77fb68819d36c8
+F src/json_detail.h 886c40d1fc0ffcd0001ede6b6a3e10edbbb97313
+F src/json_login.c 5e4b4abbfaf74a63744f0d5dcb484a754ef6a798
 F src/json_timeline.c e70c22088cea6db8d3ff1fa6111ef618f2961fa3
 F src/json_wiki.c ce9af639deb3b547e61e5bfab4e2d7a80901d583
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -336,7 +336,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 10e677c968f668feedfd491fc1efd44815955c83
-R 7b026b5c23314ce8b241f3ff9b94d87c
+P 7eb52b23ae3505f8e7fca0be9d08f341465584e9
+R 311f59de878d9c956d9a379a428236da
 U stephan
-Z cf782783788dc214c9c989cc2291c2ee
+Z 27b8637c85c5767d535f40346a276d45

@@ -178,4 +178,10 @@ cson_value * json_timeline_wiki();
 */
 cson_value * json_page_timeline();
 
+/*
+** Convenience wrapper around cson_value_new_string().
+** Returns NULL if str is NULL or on allocation error.
+*/
+cson_value * json_new_string( char const * str );
+
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/

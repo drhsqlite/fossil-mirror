@@ -93,8 +93,9 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
         var thisOpt = this;
         //alert('login response:\n'+WhAjaj.stringify(resp));
         if( resp && resp.payload ) {
-            self.authToken = resp.payload;
-            self.userName = name;
+            self.authToken = resp.payload.authToken;
+            self.userName = resp.payload.name;
+            self.capabilities = resp.payload.capabilities;
         }
         if( WhAjaj.isFunction( self.onLogin ) ){
             try{ self.onLogin(); }

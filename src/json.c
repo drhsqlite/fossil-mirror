@@ -352,9 +352,6 @@ cson_value * json_rc_string( int code ){
   return cson_value_new_string( json_rc_cstr(code), 11 );
 }
 
-/*
-** Convenience wrapper around cson_value_new_string().
-*/
 cson_value * json_new_string( char const * str ){
   return str
     ? cson_value_new_string(str,strlen(str))
