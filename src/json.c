@@ -983,6 +983,19 @@ static void json_mode_bootstrap(){
      this point.
   */
 
+  if(1 == cson_array_length_get(g.json.cmd.a)){
+    /* special case: if we're at the top path, look for
+       a "command" request arg which specifies which command
+       to run.
+    */
+    char const * cmd = json_getenv_cstr("command");
+    if(cmd){
+      json_string_split(cmd, '/', 0, g.json.cmd.a);
+    }
+  }
+
+
+  
   if(!g.json.jsonp && g.json.post.o){
     g.json.jsonp =
       json_getenv_cstr("jsonp")
@@ -1991,7 +2004,7 @@ void json_cmd_top(void){
     ;
   json_main_bootstrap();
   json_mode_bootstrap();
-  if( g.argc<3 ){
+  if( 2 > cson_array_length_get(g.json.cmd.a) ){
     goto usage;
   }
   db_find_and_open_repository(0, 0);
