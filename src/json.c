@@ -947,7 +947,12 @@ static void json_mode_bootstrap(){
     }
   }
 
-  while(!g.isHTTP){ /* simulate JSON POST data via input file. */
+  while(!g.isHTTP){
+    /* Simulate JSON POST data via input file.  Pedantic reminder:
+       error handling does not honor user-supplied g.json.outOpt
+       because outOpt cannot (generically) be configured until after
+       POST-reading is finished.
+    */
     FILE * inFile = NULL;
     char const * jfile = find_option("json-input",NULL,1);
     if(!jfile || !*jfile){
@@ -957,8 +962,10 @@ static void json_mode_bootstrap(){
       ? stdin
       : fopen(jfile,"rb");
     if(!inFile){
-      json_err(FSL_JSON_E_UNKNOWN,"Could not open JSON file.",1);
-      fossil_exit(1);
+      g.json.resultCode = FSL_JSON_E_UNKNOWN;
+      fossil_fatal("Could not open JSON file [%s].",jfile)
+        /* Does not return. */
+        ;
     }
     cgi_parse_POST_JSON(inFile, 0);
     if( stdin != inFile ){
@@ -1057,6 +1064,9 @@ static void json_mode_bootstrap(){
 ** The returned bytes are owned by g.json.cmd.v and _may_ be
 ** invalidated if that object is modified (depending on how it is
 ** modified).
+**
+** Note that CLI options are not included in the command path. Use
+** find_option() to get those.
 **
 */
 char const * json_command_arg(unsigned char ndx){
@@ -1452,7 +1462,7 @@ cson_value * json_page_cap(){
        changed (but doing so would break other code). */
     char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
     if( str ){
-      cson_object_set( obj, "userName",
+      cson_object_set( obj, "name",
                        cson_value_new_string(str,strlen(str)) );
     }
     str = (char const *)sqlite3_column_text(q.pStmt,1);
