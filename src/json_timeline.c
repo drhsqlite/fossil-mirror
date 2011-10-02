@@ -29,16 +29,20 @@ static cson_value * json_timeline_ticket();
 ** Mapping of /json/timeline/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Timeline[] = {
-{"c", json_timeline_ci, 0},
+/* the short forms are only enabled in CLI mode, to avoid
+   that we end up with HTTP clients using 3 different names
+   for the same requests.
+*/
+{"c", json_timeline_ci, -1},
 {"checkin", json_timeline_ci, 0},
-{"ci", json_timeline_ci, 0},
-{"com", json_timeline_ci, 0},
+{"ci", json_timeline_ci, -1},
+{"com", json_timeline_ci, -1},
 {"commit", json_timeline_ci, 0},
-{"t", json_timeline_ticket, 0},
+{"t", json_timeline_ticket, -1},
+{"tkt", json_timeline_ticket, -1},
 {"ticket", json_timeline_ticket, 0},
-{"w", json_timeline_wiki, 0},
-{"wi", json_timeline_wiki, 0},
-{"wik", json_timeline_wiki, 0},
+{"w", json_timeline_wiki, -1},
+{"wi", json_timeline_wiki, -1},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
@@ -108,6 +112,84 @@ const char const * json_timeline_query(void){
   return zBaseSql;
 }
 
+/*
+** Internal helper to append query information if the
+** "tag" or "branch" request properties (CLI: --tag/--branch)
+** are set. Limits the query to a particular branch/tag.
+**
+** tag works like HTML mode's "t" option and branch works like HTML
+** mode's "r" option. They are very similar, but subtly different -
+** tag mode shows only entries with a given tag but branch mode can
+** also reveal some with "related" tags (meaning they were merged into
+** the requested branch).
+**
+** pSql is the target blob to append the query [subset]
+** to.
+**
+** Returns a positive value if it modifies pSql, 0 if it
+** does not. It returns a negative value if the tag
+** provided to the request was not found (pSql is not modified
+** in that case.
+**
+** If payload is not NULL then on success its "tag" or "branch"
+** property is set to the tag/branch name found in the request.
+**
+** Only one of "tag" or "branch" modes will work at a time, and if
+** both are specified, which one takes precedence is unspecified.
+*/
+static char json_timeline_add_tag_branch_clause(Blob *pSql,
+                                                cson_object * pPayload){
+  char const * zTag = NULL;
+  char const * zBranch = NULL;
+  int tagid = 0;
+  if(! g.perm.Read ){
+    return 0;
+  }
+  else if(g.isHTTP){
+    zTag = json_getenv_cstr("tag");
+  }else{
+    zTag = find_option("tag",NULL,1);
+  }
+  if(!zTag || !*zTag){
+    if(g.isHTTP){
+      zBranch = json_getenv_cstr("branch");
+    }else{
+      zBranch = find_option("branch",NULL,1);
+    }
+    if(!zBranch || !*zBranch){
+      return 0;
+    }
+    zTag = zBranch;
+  }
+  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
+                 zTag);
+  if(tagid<=0){
+    return -1;
+  }
+  if(pPayload){
+    cson_object_set( pPayload, zBranch ? "branch" : "tag", json_new_string(zTag) );
+  }
+  blob_appendf(pSql,
+               " AND ("
+               " EXISTS(SELECT 1 FROM tagxref"
+               "        WHERE tagid=%d AND tagtype>0 AND rid=blob.rid)",
+               tagid);
+  if(zBranch){
+    /* from "r" flag code in page_timeline().*/
+    blob_appendf(pSql,
+                 " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"
+                 "    WHERE tagid=%d AND tagtype>0 AND pid=blob.rid)",
+                 tagid);
+#if 0 /* from the undocumented "mionly" flag in page_timeline() */
+    blob_appendf(pSql,
+                 " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=pid"
+                 "    WHERE tagid=%d AND tagtype>0 AND cid=blob.rid)",
+                 tagid);
+#endif
+  }
+  blob_append(pSql," ) ",3);
+  return 1;
+}
 /*
 ** Helper for the timeline family of functions.  Possibly appends 1
 ** AND clause and an ORDER BY clause to pSql, depending on the state
@@ -190,27 +272,35 @@ static int json_timeline_limit(){
 ** cleanly-initialized, empty Blob to store the sql in. If pPayload is
 ** not NULL it is assumed to be the pending response payload. If
 ** json_timeline_limit() returns non-0, this function adds a LIMIT
-** clause to the generated SQL and (if pPayload is not NULL) adds the
-** limit value as the "limit" property of pPayload.
+** clause to the generated SQL.
+**
+** If pPayload is not NULL then this might add properties to pPayload,
+** reflecting options set in the request environment.
+**
+** Returns 0 on success. On error processing should not continue and
+** the returned value should be used as g.json.resultCode.
 */
-static void json_timeline_setup_sql( char const * zEventType,
-                                     Blob * pSql,
-                                     cson_object * pPayload ){
+static int json_timeline_setup_sql( char const * zEventType,
+                                    Blob * pSql,
+                                    cson_object * pPayload ){
   int limit;
   assert( zEventType && *zEventType && pSql );
   json_timeline_temp_table();
   blob_append(pSql, "INSERT OR IGNORE INTO json_timeline ", -1);
   blob_append(pSql, json_timeline_query(), -1 );
   blob_appendf(pSql, " AND event.type IN(%Q) ", zEventType);
+  if( json_timeline_add_tag_branch_clause(pSql, pPayload) < 0 ){
+    return FSL_JSON_E_INVALID_ARGS;
+  }
   json_timeline_add_time_clause(pSql);
   limit = json_timeline_limit();
-  if(limit){
+  if(limit>=0){
     blob_appendf(pSql,"LIMIT %d ",limit);
   }
   if(pPayload){
-    cson_object_set(pPayload, "limit",json_new_int(limit));
+    cson_object_set(pPayload, "limit", json_new_int(limit));
   }
-
+  return 0;
 }
 
 /*
@@ -221,7 +311,7 @@ static void json_timeline_setup_sql( char const * zEventType,
 cson_value * json_get_changed_files(int rid){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
-  Stmt q;
+  Stmt q = empty_Stmt;
   db_prepare(&q, 
 #if 0
              "SELECT (mlink.pid==0) AS isNew,"
@@ -240,7 +330,7 @@ cson_value * json_get_changed_files(int rid){
            "       (SELECT uuid FROM blob WHERE rid=pid) as prevUuid"
            "  FROM mlink"
            " WHERE mid=%d AND pid!=fid"
-           " ORDER BY 3 /*sort*/",
+           " ORDER BY name /*sort*/",
 #endif
              rid
              );
@@ -283,7 +373,7 @@ static cson_value * json_timeline_ci(){
   cson_array * list = NULL;
   int check = 0;
   int showFiles = 0;
-  Stmt q;
+  Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
@@ -298,7 +388,11 @@ static cson_value * json_timeline_ci(){
   }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  json_timeline_setup_sql( "ci", &sql, pay );
+  check = json_timeline_setup_sql( "ci", &sql, pay );
+  if(check){
+    g.json.resultCode = check;
+    goto error;
+  }
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
@@ -312,21 +406,23 @@ static cson_value * json_timeline_ci(){
   db_multi_exec(blob_buffer(&sql));
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
-             " rid AS rid,"
+             " rid AS rid"
+#if 0
              " uuid AS uuid,"
              " mtime AS timestamp,"
-#if 0
+#  if 0
              " timestampString AS timestampString,"
-#endif
+#  endif
              " comment AS comment, "
              " user AS user,"
              " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
              " bgColor AS bgColor," /* why always null? */
              " eventType AS eventType"
-#if 0
+#  if 0
              " tags AS tags"
              /*tagId is always null?*/
              " tagId AS tagId"
+#  endif
 #endif
              " FROM json_timeline"
              " ORDER BY sortId");
@@ -372,7 +468,7 @@ cson_value * json_timeline_wiki(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  Stmt q;
+  Stmt q = empty_Stmt;
   Blob sql = empty_blob;
   if( !g.perm.Read || !g.perm.RdWiki ){
     g.json.resultCode = FSL_JSON_E_DENIED;
@@ -380,7 +476,12 @@ cson_value * json_timeline_wiki(){
   }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  json_timeline_setup_sql( "w", &sql, pay );
+  check = json_timeline_setup_sql( "w", &sql, pay );
+  if(check){
+    g.json.resultCode = check;
+    goto error;
+  }
+
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
       ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
@@ -424,6 +525,7 @@ cson_value * json_timeline_wiki(){
   payV = NULL;
   ok:
   db_finalize(&q);
+  blob_reset(&sql);
   return payV;
 }
 
@@ -439,7 +541,7 @@ static cson_value * json_timeline_ticket(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  Stmt q;
+  Stmt q = empty_Stmt;
   Blob sql = empty_blob;
   if( !g.perm.Read || !g.perm.RdTkt ){
     g.json.resultCode = FSL_JSON_E_DENIED;
@@ -447,7 +549,12 @@ static cson_value * json_timeline_ticket(){
   }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
-  json_timeline_setup_sql( "t", &sql, pay );
+  check = json_timeline_setup_sql( "t", &sql, pay );
+  if(check){
+    g.json.resultCode = check;
+    goto error;
+  }
+
   db_multi_exec(blob_buffer(&sql));
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
     g.json.resultCode = (cson_rc.AllocError==check) \
@@ -516,6 +623,7 @@ static cson_value * json_timeline_ticket(){
   cson_value_free(payV);
   payV = NULL;
   ok:
+  blob_reset(&sql);
   db_finalize(&q);
   return payV;
 }
