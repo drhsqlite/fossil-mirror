@@ -172,7 +172,8 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 };
 
 /*
-** Impl of /json/artifact
+** Impl of /json/artifact. This basically just determines the type of
+** an artifact and forwards the real work to another function.
 */
 cson_value * json_page_artifact(){
   cson_value * payV = NULL;
@@ -183,6 +184,7 @@ cson_value * json_page_artifact(){
   Blob uuid = empty_blob;
   int rc;
   int rid;
+  ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
   zName = g.isHTTP
     ? json_getenv_cstr("uuid")
     : find_option("uuid","u",1);
@@ -197,11 +199,11 @@ cson_value * json_page_artifact(){
   if( validate16(zName, strlen(zName)) ){
     if( db_exists("SELECT 1 FROM ticket WHERE tkt_uuid GLOB '%q*'", zName) ){
       zType = "ticket";
-      goto end_ok;
+      goto handle_entry;
     }
     if( db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'event-%q*'", zName) ){
       zType = "tag";
-      goto end_ok;
+      goto handle_entry;
     }
   }
   blob_set(&uuid,zName);
@@ -223,15 +225,15 @@ cson_value * json_page_artifact(){
       || db_exists("SELECT 1 FROM plink WHERE cid=%d", rid)
       || db_exists("SELECT 1 FROM plink WHERE pid=%d", rid)){
     zType = "checkin";
-    goto end_ok;
+    goto handle_entry;
   }else if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                       " WHERE rid=%d AND tagname LIKE 'wiki-%%'", rid) ){
     zType = "wiki";
-    goto end_ok;
+    goto handle_entry;
   }else if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                       " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
     zType = "ticket";
-    goto end_ok;
+    goto handle_entry;
   }else{
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     goto error;
@@ -241,33 +243,35 @@ cson_value * json_page_artifact(){
   assert( 0 != g.json.resultCode );
   goto veryend;
 
-  end_ok:
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
-  assert( NULL != zType );
-  cson_object_set( pay, "type", json_new_string(zType) );
-  /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
-  cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
-  cson_object_set( pay, "rid", cson_value_new_integer(rid) );
-  ArtifactDispatchEntry const * disp = &ArtifactDispatchList[0];
-  for( ; disp->name; ++disp ){
-    if(0!=strcmp(disp->name, zType)){
+  handle_entry:
+  assert( (NULL != zType) && "Internal dispatching error." );
+  for( ; dispatcher->name; ++dispatcher ){
+    if(0!=strcmp(dispatcher->name, zType)){
       continue;
     }else{
-      cson_value * entry;
-      if( ! (*disp->permCheck)() ){
-        break;
-      }
-      entry = (*disp->func)(rid);
-      if(entry){
-        cson_object_set(pay, "artifact", entry);
+      if( ! (*dispatcher->permCheck)() ){
+        g.json.resultCode = FSL_JSON_E_DENIED;
       }
       break;
     }
   }
-  if( !disp->name ){
-    cson_object_set(pay,"artifact",
-                    json_new_string("TODO: handle this artifact type!"));
+  if(!g.json.resultCode){
+    payV = cson_value_new_object();
+    pay = cson_value_get_object(payV);
+    assert( NULL != zType );
+    cson_object_set( pay, "type", json_new_string(zType) );
+    /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
+    cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
+    cson_object_set( pay, "rid", cson_value_new_integer(rid) );
+    if( !dispatcher->name ){
+      cson_object_set(pay,"artifact",
+                      json_new_string("TODO: handle this artifact type!"));
+    }else {
+      cson_value * entry = (*dispatcher->func)(rid);
+      if(entry){
+        cson_object_set(pay, "artifact", entry);
+      }
+    }
   }
   veryend:
   blob_reset(&uuid);
