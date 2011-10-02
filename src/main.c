@@ -203,6 +203,7 @@ struct Global {
                                   and path prefixes.  This is handled
                                   differently for CLI and CGI modes.
                                */
+      char const * commandStr  /*"command" request param.*/;
     } cmd;
     struct {                   /* JSON POST data. */
       cson_value * v;

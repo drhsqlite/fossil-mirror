@@ -189,7 +189,7 @@ static double endTimer(void){
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
 */
-static cson_value * json_page_nyi(){
+cson_value * json_page_nyi(){
   g.json.resultCode = FSL_JSON_E_NYI;
   return NULL;
 }
@@ -998,6 +998,7 @@ static void json_mode_bootstrap(){
     char const * cmd = json_getenv_cstr("command");
     if(cmd){
       json_string_split(cmd, '/', 0, g.json.cmd.a);
+      g.json.cmd.commandStr = cmd;
     }
   }
 
@@ -1236,20 +1237,28 @@ cson_value * json_create_response( int resultCode,
 
   tmp = cson_value_new_string(MANIFEST_UUID,strlen(MANIFEST_UUID));
   SET("fossil");
- 
-  {/* timestamp */
+
+  {
     tmp = json_new_timestamp(-1);
     SET(FossilJsonKeys.timestamp);
   }
+
   if( 0 != resultCode ){
     if( ! pMsg ) pMsg = json_err_str(resultCode);
     tmp = json_rc_string(resultCode);
     SET(FossilJsonKeys.resultCode);
   }
+
   if( pMsg && *pMsg ){
     tmp = cson_value_new_string(pMsg,strlen(pMsg));
     SET(FossilJsonKeys.resultText);
   }
+
+  if(g.json.cmd.commandStr){
+    tmp = json_new_string(g.json.cmd.commandStr);
+    SET("command");
+  }
+  
   tmp = json_getenv(FossilJsonKeys.requestId);
   if( tmp ) cson_object_set( o, FossilJsonKeys.requestId, tmp );
 
@@ -1657,125 +1666,6 @@ static cson_value * json_page_user(){
   return json_page_dispatch_helper(&JsonPageDefs_User[0]);
 }
 
-static cson_value * json_branch_list();
-/*
-** Mapping of /json/branch/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Branch[] = {
-{"list", json_branch_list, 0},
-{"create", json_page_nyi, 1},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Implements the /json/branch family of pages/commands. Far from
-** complete.
-**
-*/
-static cson_value * json_page_branch(){
-  return json_page_dispatch_helper(&JsonPageDefs_Branch[0]);
-}
-
-/*
-** Impl for /json/branch/list
-**
-**
-** CLI mode options:
-**
-**  --range X | -r X, where X is one of (open,closed,all)
-**    (only the first letter is significant, default=open).
-**  -a (same as --range a)
-**  -c (same as --range c)
-**
-** HTTP mode options:
-**
-** "range" GET/POST.payload parameter. FIXME: currently we also use
-** POST, but really want to restrict this to POST.payload.
-*/
-static cson_value * json_branch_list(){
-  cson_value * payV;
-  cson_object * pay;
-  cson_value * listV;
-  cson_array * list;
-  char const * range = NULL;
-  int which = 0;
-  char * sawConversionError = NULL;
-  Stmt q;
-  if( !g.perm.Read ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
-    return NULL;
-  }
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
-  listV = cson_value_new_array();
-  list = cson_value_get_array(listV);
-  if(!g.isHTTP){
-    range = find_option("range","r",1);
-    if(!range||!*range){
-      range = find_option("all","a",0);
-      if(range && *range){
-        range = "a";
-      }else{
-        range = find_option("closed","c",0);
-        if(range&&*range){
-          range = "c";
-        }
-      }
-    }
-  }else{
-    range = json_getenv_cstr("range");
-  }
-  if(!range || !*range){
-    range = "o";
-  }
-  assert( (NULL != range) && *range );
-  switch(*range){
-    case 'c':
-      range = "closed";
-      which = -1;
-      break;
-    case 'a':
-      range = "all";
-      which = 1;
-      break;
-    default:
-      range = "open";
-      which = 0;
-      break;
-  };
-  cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
-
-  if( g.localOpen ){ /* add "current" property (branch name). */
-    int vid = db_lget_int("checkout", 0);
-    char const * zCurrent = vid
-      ? db_text(0, "SELECT value FROM tagxref"
-                " WHERE rid=%d AND tagid=%d",
-                vid, TAG_BRANCH)
-      : 0;
-    if(zCurrent){
-      cson_object_set(pay,"current",json_new_string(zCurrent));
-    }
-  }
-
-  
-  branch_prepare_list_query(&q, which);
-  cson_object_set(pay,"branches",listV);
-  while((SQLITE_ROW==db_step(&q))){
-    cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
-    if(v){
-      cson_array_append(list,v);
-    }else if(!sawConversionError){
-      sawConversionError = mprintf("Column-to-json failed @ %s:%d",
-                                   __FILE__,__LINE__);
-    }
-  }
-  if( sawConversionError ){
-    json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
-    free(sawConversionError);
-}
-  return payV;
-}
 
 /*
 ** Impl of /json/rebuild. Requires admin previleges.
@@ -1875,6 +1765,9 @@ cson_value * json_page_login();
 cson_value * json_page_logout();
 /* Impl in json_artifact.c. */
 cson_value * json_page_artifact();
+/* Impl in json_branch.c. */
+cson_value * json_page_branch();
+
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -1982,18 +1875,18 @@ void json_page_top(void){
 **
 ** The commands include:
 **
+**   branch
 **   cap
 **   stat
+**   timeline
 **   version (alias: HAI)
+**   wiki
 **
 **
 ** TODOs:
 **
-**   branch
 **   tag
 **   ticket
-**   timeline
-**   wiki
 **   ...
 **
 */
