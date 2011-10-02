@@ -50,7 +50,15 @@ struct Stmt {
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
+
+/*
+** Copy this to initialize a Stmt object to a clean/empty state. This
+** is useful to help avoid assertions when performing cleanup in some
+** error handling cases.
+*/
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
 #endif /* INTERFACE */
+const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
