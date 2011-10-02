@@ -71,7 +71,8 @@ static cson_value * json_branch_list(){
   char * sawConversionError = NULL;
   Stmt q;
   if( !g.perm.Read ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' permissions.");
     return NULL;
   }
   payV = cson_value_new_object();
@@ -310,6 +311,9 @@ static int json_branch_new(BranchCreateOptions * zOpt,
 }
 
 
+/*
+** Impl of /json/branch/create.
+*/
 static cson_value * json_branch_create(){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
@@ -318,7 +322,8 @@ static cson_value * json_branch_create(){
   char * zUuid = NULL;
   int rid = 0;
   if( !g.perm.Write ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'i' permissions.");
     return NULL;
   }
   if(0){

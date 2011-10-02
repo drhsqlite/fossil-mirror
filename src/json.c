@@ -901,8 +901,14 @@ static void json_mode_bootstrap(){
     cgi_set_content_type(json_guess_content_type())
       /* reminder: must be done after g.json.jsonp is initialized */
       ;
-    /* avoids debug messages on stderr in JSON mode */
-    sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
+#if 0
+    /* Calling this seems to trigger an SQLITE_MISUSE warning???
+       Maybe it's not legal to set the logger more than once?
+    */
+    sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0)
+        /* avoids debug messages on stderr in JSON mode */
+        ;
+#endif
   }
 
   g.json.cmd.v = cson_value_new_array();

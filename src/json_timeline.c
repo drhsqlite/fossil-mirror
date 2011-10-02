@@ -55,6 +55,16 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 **
 */
 cson_value * json_page_timeline(){
+#if 0
+  /* The original timeline code does not require 'h' access,
+     but it arguably should. For JSON mode i think one could argue
+     that History permissions are required.
+  */
+  if(! g.perm.History && !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED, "Timeline requires 'h' or 'o' access.");
+    return NULL;
+  }
+#endif
   return json_page_dispatch_helper(&JsonPageDefs_Timeline[0]);
 }
 
@@ -377,8 +387,11 @@ static cson_value * json_timeline_ci(){
   char warnRowToJsonFailed = 0;
   char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.Read/* && !g.perm.RdTkt && !g.perm.RdWiki*/ ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if( !g.perm.Read ){
+    /* IMO this falls more under the category of g.perm.History, but
+       i'm following the original timeline impl here.
+    */
+    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'o' access." );
     return NULL;
   }
   if( g.isHTTP ){
@@ -470,8 +483,8 @@ cson_value * json_timeline_wiki(){
   int check = 0;
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
-  if( !g.perm.Read || !g.perm.RdWiki ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if( !g.perm.RdWiki && !g.perm.Read ){
+    json_set_err( FSL_JSON_E_DENIED, "Wiki timeline requires 'o' or 'j' access.");
     return NULL;
   }
   payV = cson_value_new_object();
@@ -543,8 +556,8 @@ static cson_value * json_timeline_ticket(){
   int check = 0;
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
-  if( !g.perm.Read || !g.perm.RdTkt ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if( !g.perm.RdTkt && !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED, "Ticket timeline requires 'o' or 'r' access.");
     return NULL;
   }
   payV = cson_value_new_object();

@@ -62,15 +62,17 @@ static cson_value * json_wiki_get(){
   char const * zFormat = NULL;
   char * zUuid = NULL;
   Stmt q;
-  if( !g.perm.RdWiki ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if( !g.perm.RdWiki && !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' or 'j' access.");
     return NULL;
   }
   zPageName = g.isHTTP
     ? json_getenv_cstr("page")
     : find_option("page","p",1);
   if(!zPageName||!*zPageName){
-    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "'page' argument is missing.");
     return NULL;
   }
 
@@ -92,7 +94,8 @@ static cson_value * json_wiki_get(){
              );
   if( (SQLITE_ROW != db_step(&q)) ){
     manifest_destroy(pWiki);
-    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+    json_set_err(FSL_JSON_E_UNKNOWN,
+                 "Error reading wiki page manifest.");
     return NULL;
   }
   rid = db_column_int(&q,0);
@@ -105,7 +108,8 @@ static cson_value * json_wiki_get(){
   if( zBody==0 ){
     manifest_destroy(pWiki);
     free(zUuid);
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                 "Wiki body is empty (is that possible?)");
     return NULL;
   }
 
@@ -178,13 +182,16 @@ static cson_value * json_wiki_create_or_save(char createMode,
   int rid;
   if( (createMode && !g.perm.NewWiki)
       || (!createMode && !g.perm.WrWiki)){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires '%c' permissions.",
+                 (createMode ? 'f' : 'k'));
     return NULL;
   }
   nameV = json_req_payload_get("name");
   if(!nameV){
-    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
-    goto error;
+    json_set_err( FSL_JSON_E_MISSING_ARGS,
+                  "'name' parameter is missing.");
+    return NULL;
   }
   zPageName = cson_string_cstr(cson_value_get_string(nameV));
   rid = db_int(0,
@@ -196,11 +203,15 @@ static cson_value * json_wiki_create_or_save(char createMode,
 
   if(rid){
     if(createMode){
-      g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
+      json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
+                   "Wiki page '%s' already exists.",
+                   zPageName);
       goto error;
     }
   }else if(!allowCreateIfExists){
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                 "Wiki page '%s' not found.",
+                 zPageName);
     goto error;
   }
 
@@ -209,13 +220,15 @@ static cson_value * json_wiki_create_or_save(char createMode,
     if( createMode || (!rid && allowCreateIfExists) ){
       contentV = emptyContent = cson_value_new_string("",0);
     }else{
-      g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'content' parameter is missing.");
       goto error;
     }
   }
   if( !cson_value_is_string(nameV)
       || !cson_value_is_string(contentV)){
-    g.json.resultCode = FSL_JSON_E_INVALID_ARGS;
+    json_set_err(FSL_JSON_E_INVALID_ARGS,
+                 "'name' and 'content' parameters must be strings.");
     goto error;
   }
   jstr = cson_value_get_string(contentV);
@@ -275,8 +288,9 @@ static cson_value * json_wiki_list(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   Stmt q;
-  if( !g.perm.RdWiki ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if( !g.perm.RdWiki && !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'j' or 'o' permissions.");
     return NULL;
   }
   db_prepare(&q,"SELECT"
@@ -296,9 +310,10 @@ static cson_value * json_wiki_list(){
   }
   goto end;
   error:
-  g.json.resultCode = FSL_JSON_E_UNKNOWN;
   cson_value_free(listV);
   listV = NULL;
+  json_set_err(FSL_JSON_E_UNKNOWN,
+               "Error creating wiki page list.");
   end:
   db_finalize(&q);
   return listV;
