@@ -219,7 +219,7 @@ static int name_search(
       lwr = mid + 1;
     }
   }
-  for(m=cnt=0, i=upr-2; i<=upr+3 && i<nMap; i++){
+  for(m=cnt=0, i=upr-2; cnt<2 && i<=upr+3 && i<nMap; i++){
     if( i<0 ) continue;
     if( strncmp(zName, aMap[i].zName, n)==0 ){
       m = i;

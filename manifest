@@ -1,5 +1,5 @@
-C Variable\sused\sfor\sreturn\svalue\sof\ssend(2)\smust\sbe\ssigned,\sotherwise\nerror\sconditions\sjust\sresult\sin\sinfinite\sloops.
-D 2011-10-01T20:50:32.289
+C minor\shack\sto\sname_search()\sto\smake\sit\sstop\ssearching\safter\sit\sdetermines\sthere\sis\san\sambiguity.
+D 2011-10-02T13:30:38.869
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 3c123c226c646e1754a65c79d6b0f0ff330db5f1
-F src/main.c 4624a1efdae6fa4b013140167e48478510ed566c
+F src/main.c 1f05721e517d299526c904c6e8ac83e7a1e266e2
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9bfa186be09f3f95c15f256f4ab9bc9088378f94
-R d7aa03ed8cd814a957850a270e366d91
-U joerg
-Z 2a555f2eb1eda34c777412531ea9170a
+P 5e3519873fd4676cbda6b64d954cbc9f2fc7c0fe
+R 2ac06225881cee3fa2b1b53ccf916f1b
+U stephan
+Z cf45599fbdc8b2b322cf66c5a1e8c711
