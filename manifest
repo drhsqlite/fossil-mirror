@@ -1,5 +1,5 @@
-C Added\smissing\slicense\sheader\sto\snew\sfiles.\sUpdated\s(c)\sdate\sto\s2011.
-D 2011-10-02T10:51:22.538
+C removed\san\simplemented\sTODO\sreminder.
+D 2011-10-02T11:15:33.237
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -99,7 +99,7 @@ F src/json_artifact.c 681502aa490fe96aa3e2c32ee0cbfff01ed8e31a
 F src/json_detail.h 77702c419ca27585a00252d42e57a1ad16505616
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_timeline.c 1b5a8d5777a62f83debd824b87040c989abf1b44
-F src/json_wiki.c ead49f5a217ea226b0ec6e8fe553240d5c26d58d
+F src/json_wiki.c 062021c97847d2f73fa6b7969fa22866ce6dba01
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
 F src/main.c f9d6cd2a3be590055ce377e67c1ba22908e05433
@@ -337,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 44e032aa8a0da9f5c1f83866f8a3ef636c9c1bd4
-R 157f4c5170ba1a839150457b58cd7acb
+P 8a665715c247434fc20474cd556987210e36dbd9
+R bc7d448d9e4abd053d1c91ad92e60e3a
 U stephan
-Z 86320d1bdad9f6873bc6bb24282f85e8
+Z de6a86945a69545ad1cc42b21e42037e

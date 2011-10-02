@@ -53,8 +53,6 @@ cson_value * json_page_wiki(){
 /*
 ** Implementation of /json/wiki/get.
 **
-** TODO: add option to parse wiki output. It is currently
-** unparsed.
 */
 static cson_value * json_wiki_get(){
   int rid;
