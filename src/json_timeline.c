@@ -169,12 +169,12 @@ static char json_timeline_add_time_clause(Blob *pSql){
 static int json_timeline_limit(){
   static const int defaultLimit = 20;
   int limit = -1;
-  if( g.isHTTP ){
+  if( g.json.post.v ){
     limit = json_getenv_int("limit",-1);
     if(limit<0){
       limit = json_getenv_int("n",-1);
     }
-  }else{/* CLI mode */
+  }else if(!g.isHTTP){/* CLI mode */
     char const * arg = find_option("limit","n",1);
     if(arg && *arg){
       limit = atoi(arg);

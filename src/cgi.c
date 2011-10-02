@@ -727,18 +727,21 @@ static int cson_data_source_FILE_n( void * state,
 /*
 ** Reads a JSON object from the first contentLen bytes of zIn.  On
 ** g.json.post is updated to hold the content. On error a
-** FSL_JSON_E_INVALID_REQUEST response is output and fossil_exit(0) is
-** called.
+** FSL_JSON_E_INVALID_REQUEST response is output and fossil_exit() is
+** called (in HTTP mode exit code 0 is used).
+**
+** If contentLen is 0 then the whole file is read.
 */
-static void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
+void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   cson_value * jv = NULL;
   int rc;
   CgiPostReadState state;
-  assert( 0 != contentLen );
   state.fh = zIn;
   state.len = contentLen;
   state.pos = 0;
-  rc = cson_parse( &jv, cson_data_source_FILE_n, &state, NULL, NULL );
+  rc = cson_parse( &jv,
+                   contentLen ? cson_data_source_FILE_n : cson_data_source_FILE,
+                   contentLen ? (void *)&state : (void *)zIn, NULL, NULL );
   if(rc){
     goto invalidRequest;
   }else{
@@ -753,7 +756,7 @@ static void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   invalidRequest:
   cgi_set_content_type(json_guess_content_type());
   json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
-  fossil_exit(0);
+  fossil_exit( g.isHTTP ? 0 : 1);
 }
 
 

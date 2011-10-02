@@ -889,7 +889,11 @@ static void json_mode_bootstrap(){
   }else{
     once = 1;
   }
-  g.json.jsonp = PD("jsonp",NULL);
+  g.json.jsonp = PD("jsonp",NULL)
+    /* FIXME: do some sanity checking on g.json.jsonp and ignore it
+       if it is not halfway reasonable.
+    */
+    ;
   g.json.isJsonMode = 1;
   g.json.resultCode = 0;
   g.json.cmd.offset = -1;
@@ -898,17 +902,13 @@ static void json_mode_bootstrap(){
     g.isHTTP = 1;
   }
 
-  /* FIXME: do some sanity checking on g.json.jsonp and ignore it
-     if it is not halfway reasonable.
-  */
-  cgi_set_content_type(json_guess_content_type())
-    /* reminder: must be done after g.json.jsonp is initialized */
-    ;
-
-#if defined(NDEBUG)
-  /* avoids debug messages on stderr in JSON mode */
-  sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
-#endif
+  if(g.isHTTP){
+    cgi_set_content_type(json_guess_content_type())
+      /* reminder: must be done after g.json.jsonp is initialized */
+      ;
+    /* avoids debug messages on stderr in JSON mode */
+    sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0);
+  }
 
   g.json.cmd.v = cson_value_new_array();
   g.json.cmd.a = cson_value_get_array(g.json.cmd.v);
@@ -934,9 +934,37 @@ static void json_mode_bootstrap(){
       if( !arg || !*arg ){
         continue;
       }
+      if('-' == *arg){
+        /* workaround to skip CLI args so that
+           json_command_arg() does not see them.
+           This assumes that all arguments come LAST
+           on the command line.
+        */
+        break;
+      }
       part = cson_value_new_string(arg,strlen(arg));
       cson_array_append(g.json.cmd.a, part);
     }
+  }
+
+  while(!g.isHTTP){ /* simulate JSON POST data via input file. */
+    FILE * inFile = NULL;
+    char const * jfile = find_option("json-input",NULL,1);
+    if(!jfile || !*jfile){
+      break;
+    }
+    inFile = (0==strcmp("-",jfile))
+      ? stdin
+      : fopen(jfile,"rb");
+    if(!inFile){
+      json_err(FSL_JSON_E_UNKNOWN,"Could not open JSON file.",1);
+      fossil_exit(1);
+    }
+    cgi_parse_POST_JSON(inFile, 0);
+    if( stdin != inFile ){
+      fclose(inFile);
+    }
+    break;
   }
   
   /* g.json.reqPayload exists only to simplify some of our access to
@@ -971,9 +999,15 @@ static void json_mode_bootstrap(){
   {/* set up JSON output formatting options. */
     unsigned char indent = g.isHTTP ? 0 : 1;
     char const * indentStr = NULL;
-    if( g.isHTTP ){
-      indent = (unsigned char)json_getenv_int("indent",(int)indent);
-    }else{/*CLI mode*/
+    char checkAgain = 1;
+    if( g.json.post.v ){
+      cson_value const * check = json_getenv("indent");
+      if(check){
+        checkAgain = 0;
+        indent = (unsigned char)json_getenv_int("indent",(int)indent);
+      }
+    }
+    if(!g.isHTTP && checkAgain){/*CLI mode*/
       indentStr = find_option("indent","I",1);
       if(indentStr){
         int const n = atoi(indentStr);
