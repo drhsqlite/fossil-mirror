@@ -707,11 +707,6 @@ void json_main_bootstrap(){
 **
 ** But the text part is optional.
 **
-** FIXME FIXME FIXME: i am EXPERIMENTALLY using integer codes instead
-** of FOSSIL-XXXX codes here. i may end up switching FOSSIL-XXXX
-** string-form codes to integers. Let's ask the mailing list for
-** opinions...
-**
 ** If msg is non-NULL and not empty then it is used as the "text"
 ** property's value. It is copied, and need not refer to static
 ** memory.
@@ -1337,6 +1332,9 @@ cson_value * json_create_response( int resultCode,
 ** !g.isHTTP then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
+** For generating the resultCode property: if msg is not NULL then it
+** is used as-is. If it is NULL then g.zErrMsg is checked, and if that
+** is NULL then json_err_str(code) is used.
 */
 void json_err( int code, char const * msg, char alsoOutput ){
   int rc = code ? code : (g.json.resultCode
@@ -1364,7 +1362,6 @@ void json_err( int code, char const * msg, char alsoOutput ){
       json_send_response(resp);
     }else{
       /* almost a duplicate of json_send_response() :( */
-      cgi_set_content_type("application/javascript");
       cgi_reset_content();
       if( g.json.jsonp ){
         cgi_printf("%s(",g.json.jsonp);
