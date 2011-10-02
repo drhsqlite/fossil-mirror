@@ -382,9 +382,9 @@ static cson_value * json_timeline_ci(){
     return NULL;
   }
   if( g.isHTTP ){
-    showFiles = json_getenv_bool("showFiles",0);
+    showFiles = json_getenv_bool("files",0);
   }else{
-    showFiles = 0!=find_option("show-files", "f",0);
+    showFiles = 0!=find_option("files", "f",0);
   }
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
