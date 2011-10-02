@@ -272,7 +272,7 @@ static int name_search(
       lwr = mid + 1;
     }
   }
-  for(m=cnt=0, i=upr-2; i<=upr+3 && i<nMap; i++){
+  for(m=cnt=0, i=upr-2; cnt<2 && i<=upr+3 && i<nMap; i++){
     if( i<0 ) continue;
     if( strncmp(zName, aMap[i].zName, n)==0 ){
       m = i;
@@ -469,6 +469,7 @@ void fossil_fatal(const char *zFormat, ...){
     char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
     fossil_puts(zOut, 1);
   }
+  free(z);
   db_force_rollback();
   fossil_exit(rc);
 }

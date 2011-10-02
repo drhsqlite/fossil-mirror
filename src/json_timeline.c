@@ -30,6 +30,7 @@ static cson_value * json_timeline_ticket();
 */
 static const JsonPageDef JsonPageDefs_Timeline[] = {
 {"c", json_timeline_ci, 0},
+{"checkin", json_timeline_ci, 0},
 {"ci", json_timeline_ci, 0},
 {"com", json_timeline_ci, 0},
 {"commit", json_timeline_ci, 0},
