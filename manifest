@@ -1,5 +1,5 @@
-C moved\s/json/branch\scode\sinto\sits\sown\sfile.
-D 2011-10-02T21:01:20.394
+C Added\s/json/branch/create.\sFinally\sfound\sg.zErrMsg,\sand\sstarted\susing\sit\sin\sconjunction\swith\sjson\serror\sreporting.
+D 2011-10-02T22:58:19.013
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,16 +94,16 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 11387240c3d44f536875068c2a5974d1462b307d
+F src/json.c 04c3d285b9f0c043fc6359304c41d6f4e1f43c1a
 F src/json_artifact.c b32e54f46fbd7d61ae1b364a212f63be299f2732
-F src/json_branch.c 3d4a5520c23b89280376b60b1ed5571e4a8d0957
+F src/json_branch.c 0f5b5d2281fa7ae1075956c0375c4a7953df5617
 F src/json_detail.h 77702c419ca27585a00252d42e57a1ad16505616
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_timeline.c 4dd2a4b3b96363daf263e96dea81a0534b9c9774
 F src/json_wiki.c 062021c97847d2f73fa6b7969fa22866ce6dba01
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c f1e1e3179395dbcb975019e949aa05c2b611aec2
-F src/main.c a464d4b1e6ed956bd3312bdbb1eb29df71b6d953
+F src/main.c 6e229f382a8ab07ec2cc76d3c21aa933f19278a6
 F src/main.mk 8e8724ff4e13dda85451f1ec30bce2e62d0d95fa
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -338,7 +338,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bc7af5192a40230c43f1ad7be967ead92c608113
-R ffcaee9a7116988b554680d2ff69fd09
+P 1a4c874e43bcdf7e3a5bf0d8ee817df63cf4e15b
+R 9a7a5dd48ad8eabd47f8952c6684a024
 U stephan
-Z 6ea94c5ceaba78dff45fd0df14f28200
+Z 7fccef34d070a628f796b68ce172842b

@@ -294,6 +294,7 @@ static int name_search(
 void fossil_atexit() {
 
   cson_value_free(g.json.gc.v);
+  free(g.zErrMsg);
   memset(&g.json, 0, sizeof(g.json));
   if(g.db){
     db_close(0);

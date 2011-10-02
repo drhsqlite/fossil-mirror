@@ -1001,8 +1001,6 @@ static void json_mode_bootstrap(){
       g.json.cmd.commandStr = cmd;
     }
   }
-
-
   
   if(!g.json.jsonp && g.json.post.o){
     g.json.jsonp =
@@ -1244,13 +1242,18 @@ cson_value * json_create_response( int resultCode,
   }
 
   if( 0 != resultCode ){
-    if( ! pMsg ) pMsg = json_err_str(resultCode);
-    tmp = json_rc_string(resultCode);
+    if( ! pMsg ){
+      pMsg = g.zErrMsg;
+      if(!pMsg){
+        pMsg = json_err_str(resultCode);
+      }
+    }
+    tmp = cson_value_new_integer(resultCode);
     SET(FossilJsonKeys.resultCode);
   }
 
   if( pMsg && *pMsg ){
-    tmp = cson_value_new_string(pMsg,strlen(pMsg));
+    tmp = cson_value_new_string(pMsg, strlen(pMsg));
     SET(FossilJsonKeys.resultText);
   }
 
@@ -1342,7 +1345,10 @@ void json_err( int code, char const * msg, char alsoOutput ){
   cson_value * resp = NULL;
   rc = json_dumbdown_rc(rc);
   if( rc && !msg ){
-    msg = json_err_str(rc);
+    msg = g.zErrMsg;
+    if(!msg){
+      msg = json_err_str(rc);
+    }
   }
   resp = json_create_response(rc, msg, NULL);
   if(!resp){
@@ -1374,6 +1380,27 @@ void json_err( int code, char const * msg, char alsoOutput ){
   cson_value_free(resp);
 }
 
+/*
+** Sets g.json.resultCode and g.zErrMsg, but does not report the error
+** via json_err(). Returns the code passed to it.
+**
+** code must be in the inclusive range 1000..9999.
+*/
+int json_set_err( int code, char const * fmt, ... ){
+  assert( (code>=1000) && (code<=9999) );
+  free(g.zErrMsg);
+  g.json.resultCode = code;
+  if(!fmt || !*fmt){
+    g.zErrMsg = mprintf("%s", json_err_str(code));
+  }else{
+    va_list vargs;
+    va_start(vargs,fmt);
+    char * msg = vmprintf(fmt, vargs);
+    va_end(vargs);
+    g.zErrMsg = msg;
+  }
+  return code;
+}
 
 /*
 ** Iterates through a prepared SELECT statement and converts each row
@@ -1789,7 +1816,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"timeline", json_page_timeline,0},
 {"user",json_page_user,0},
 {"version",json_page_version,0},
-{"whoami",json_page_whoami,1/*FIXME: work in CLI mode*/},
+{"whoami",json_page_whoami,0/*FIXME: work in CLI mode*/},
 {"wiki",json_page_wiki,0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}

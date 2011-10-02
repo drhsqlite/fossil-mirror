@@ -24,12 +24,14 @@
 
 
 static cson_value * json_branch_list();
+static cson_value * json_branch_create();
 /*
 ** Mapping of /json/branch/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Branch[] = {
+{"create", json_branch_create, 0},
 {"list", json_branch_list, 0},
-{"create", json_page_nyi, 1},
+{"new", json_branch_create, -1/* for compat with non-JSON branch command.*/},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -139,6 +141,242 @@ static cson_value * json_branch_list(){
   if( sawConversionError ){
     json_warn(FSL_JSON_W_COL_TO_JSON_FAILED,sawConversionError);
     free(sawConversionError);
-}
+  }
   return payV;
 }
+
+/*
+** Parameters for the create-branch operation.
+*/
+typedef struct BranchCreateOptions{
+  char const * zName;
+  char const * zBasis;
+  char const * zColor;
+  char isPrivate;
+  /**
+     Might be set to an error string by
+     json_branch_new().
+   */
+  char const * rcErrMsg;
+} BranchCreateOptions;
+
+/*
+** Tries to create a new branch based on the options set in zOpt. If
+** an error is encountered, zOpt->rcErrMsg _might_ be set to a
+** descriptive string and one of the FossilJsonCodes values will be
+** returned. Or fossil_fatal() (or similar) might be called, exiting
+** the app.
+**
+** On success 0 is returned and if zNewRid is not NULL then the rid of
+** the new branch is assigned to it.
+**
+** If zOpt->isPrivate is 0 but the parent branch is private,
+** zOpt->isPrivate will be set to a non-zero value and the new branch
+** will be private.
+*/
+static int json_branch_new(BranchCreateOptions * zOpt,
+                           int *zNewRid){
+  /* Mostly copied from branch.c:branch_new(), but refactored a small
+     bit to not produce output or interact with the user. The
+     down-side to that is that we dropped the gpg-signing. It was
+     either that or abort the creation if we couldn't sign. We can't
+     sign over HTTP mode, anyway.
+  */
+  char const * zBranch = zOpt->zName;
+  char const * zBasis = zOpt->zBasis;
+  char const * zColor = zOpt->zColor;
+  int rootid;            /* RID of the root check-in - what we branch off of */
+  int brid;              /* RID of the branch check-in */
+  int i;                 /* Loop counter */
+  char *zUuid;           /* Artifact ID of origin */
+  Stmt q;                /* Generic query */
+  char *zDate;           /* Date that branch was created */
+  char *zComment;        /* Check-in comment for the new branch */
+  Blob branch;           /* manifest for the new branch */
+  Manifest *pParent;     /* Parsed parent manifest */
+  Blob mcksum;           /* Self-checksum on the manifest */
+
+  /* fossil branch new name */
+  if( zBranch==0 || zBranch[0]==0 ){
+    zOpt->rcErrMsg = "Branch name may not be null/empty.";
+    return FSL_JSON_E_INVALID_ARGS;
+  }
+  if( db_exists(
+        "SELECT 1 FROM tagxref"
+        " WHERE tagtype>0"
+        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%s')",
+        zBranch)!=0 ){
+    zOpt->rcErrMsg = "Branch already exists.";
+    return FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
+  }
+
+  db_begin_transaction();
+  rootid = name_to_typed_rid(zBasis, "ci");
+  if( rootid==0 ){
+    zOpt->rcErrMsg = "Basis branch not found.";
+    return FSL_JSON_E_RESOURCE_NOT_FOUND;
+  }
+
+  pParent = manifest_get(rootid, CFTYPE_MANIFEST);
+  if( pParent==0 ){
+    zOpt->rcErrMsg = "Could not read parent manifest.";
+    return FSL_JSON_E_UNKNOWN;
+  }
+
+  /* Create a manifest for the new branch */
+  blob_zero(&branch);
+  if( pParent->zBaseline ){
+    blob_appendf(&branch, "B %s\n", pParent->zBaseline);
+  }
+  zComment = mprintf("Create new branch named \"%s\" "
+                     "from \"%s\".", zBranch, zBasis);
+  blob_appendf(&branch, "C %F\n", zComment);
+  free(zComment);
+  zDate = date_in_standard_format("now");
+  blob_appendf(&branch, "D %s\n", zDate);
+  free(zDate);
+
+  /* Copy all of the content from the parent into the branch */
+  for(i=0; i<pParent->nFile; ++i){
+    blob_appendf(&branch, "F %F", pParent->aFile[i].zName);
+    if( pParent->aFile[i].zUuid ){
+      blob_appendf(&branch, " %s", pParent->aFile[i].zUuid);
+      if( pParent->aFile[i].zPerm && pParent->aFile[i].zPerm[0] ){
+        blob_appendf(&branch, " %s", pParent->aFile[i].zPerm);
+      }
+    }
+    blob_append(&branch, "\n", 1);
+  }
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rootid);
+  blob_appendf(&branch, "P %s\n", zUuid);
+  free(zUuid);
+  if( pParent->zRepoCksum ){
+    blob_appendf(&branch, "R %s\n", pParent->zRepoCksum);
+  }
+  manifest_destroy(pParent);
+
+  /* Add the symbolic branch name and the "branch" tag to identify
+  ** this as a new branch */
+  if( content_is_private(rootid) ) zOpt->isPrivate = 1;
+  if( zOpt->isPrivate && zColor==0 ) zColor = "#fec084";
+  if( zColor!=0 ){
+    blob_appendf(&branch, "T *bgcolor * %F\n", zColor);
+  }
+  blob_appendf(&branch, "T *branch * %F\n", zBranch);
+  blob_appendf(&branch, "T *sym-%F *\n", zBranch);
+  if( zOpt->isPrivate ){
+    blob_appendf(&branch, "T +private *\n");
+  }
+
+  /* Cancel all other symbolic tags */
+  db_prepare(&q,
+      "SELECT tagname FROM tagxref, tag"
+      " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"
+      "   AND tagtype>0 AND tagname GLOB 'sym-*'"
+      " ORDER BY tagname",
+      rootid);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zTag = db_column_text(&q, 0);
+    blob_appendf(&branch, "T -%F *\n", zTag);
+  }
+  db_finalize(&q);
+  
+  blob_appendf(&branch, "U %F\n", g.zLogin);
+  md5sum_blob(&branch, &mcksum);
+  blob_appendf(&branch, "Z %b\n", &mcksum);
+
+  brid = content_put(&branch);
+  if( brid==0 ){
+    fossil_panic("Problem committing manifest: %s", g.zErrMsg);
+  }
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", brid);
+  if( manifest_crosslink(brid, &branch)==0 ){
+    fossil_panic("unable to install new manifest");
+  }
+  assert( blob_is_reset(&branch) );
+  content_deltify(rootid, brid, 0);
+  if( zNewRid ){
+    *zNewRid = brid;
+  }
+
+  /* Commit */
+  db_end_transaction(0);
+  
+#if 0 /* Do an autosync push, if requested */
+  /* arugable for JSON mode? */
+  if( !g.isHTTP && !isPrivate ) autosync(AUTOSYNC_PUSH);
+#endif
+  return 0;
+}
+
+
+static cson_value * json_branch_create(){
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  int rc = 0;
+  BranchCreateOptions opt;
+  char * zUuid = NULL;
+  int rid = 0;
+  if( !g.perm.Write ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  if(0){
+    char const * x = json_command_arg(g.json.dispatchDepth+1);
+    fprintf(stderr,"command arg=%s\n",x);
+    assert(0);
+  }
+  memset(&opt,0,sizeof(BranchCreateOptions));
+  opt.zName = g.json.post.v
+    ? json_getenv_cstr("name")
+    : json_command_arg(g.json.dispatchDepth+1);
+
+  if(!opt.zName){
+    json_set_err(FSL_JSON_E_MISSING_ARGS, "'name' parameter was not specified." );
+    return NULL;
+  }
+
+  opt.zBasis = g.json.post.v
+    ? json_getenv_cstr("basis")
+    : json_command_arg(g.json.dispatchDepth+2);
+  if(!opt.zBasis || ('-'==*opt.zBasis/*assume CLI flag*/)){
+    opt.zBasis = "trunk";
+  }
+
+  opt.zColor = g.json.post.v
+    ? json_getenv_cstr("bgColor")
+    : find_option("bgcolor","",1);
+
+  opt.isPrivate = g.json.post.v
+    ? json_getenv_bool("private",0)
+    : (NULL != find_option("private","",0))
+    ;
+  
+  rc = json_branch_new( &opt, &rid );
+  if(rc){
+    json_set_err(rc, opt.rcErrMsg );
+    goto error;
+  }
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+
+  cson_object_set(pay,"name",json_new_string(opt.zName));
+  cson_object_set(pay,"basis",json_new_string(opt.zBasis));
+  cson_object_set(pay,"rid",json_new_int(rid));
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  cson_object_set(pay,"uuid", json_new_string(zUuid));
+  cson_object_set(pay, "isPrivate", cson_value_new_bool(opt.isPrivate));
+  free(zUuid);
+  if(opt.zColor){
+    cson_object_set(pay,"bgColor",json_new_string(opt.zColor));
+  }
+
+  goto ok;
+  error:
+  assert( 0 != g.json.resultCode );
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
+  return payV;
+}
+
