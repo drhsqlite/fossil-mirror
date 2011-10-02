@@ -26,23 +26,34 @@
 ** Internal callback for /json/artifact handlers. rid refers to
 ** the rid of a given type of artifact, and each callback is
 ** specialized to return a JSON form of one type of artifact.
+**
+** Implementations may assert() that rid refers to requested artifact
+** type, since mismatches in the artifact types come from
+** json_page_artifact() as opposed to client data.
 */
 typedef cson_value * (*artifact_f)( int rid );
 
+/*
+** Internal per-artifact-type dispatching helper.
+*/
 typedef struct ArtifactDispatchEntry {
   /**
-     Artifact type name, e.g. "checkin".
+     Artifact type name, e.g. "checkin", "ticket", "wiki".
    */
   char const * name;
+
   /**
-     JSON construction callback.
-   */
+     JSON construction callback. Creates the contents for the
+     payload.artifact property of /json/artifact responses.
+  */
   artifact_f func;
+
   /**
      Must return true if g.perm has the proper permissions to fetch
      this info, else false. If it returns false, func() is skipped
-     (producing no extra payload output).
-   */
+     (producing no extra payload output) and an access error is
+     generated.
+  */
   char (*permCheck)();
 } ArtifactDispatchEntry;
 
@@ -133,7 +144,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("parentUuid", json_new_string(zParent));
     }
 
-    tmpV = json_tags_for_rid(rid);
+    tmpV = json_tags_for_rid(rid,0);
     if(tmpV){
       SET("tags",tmpV);
     }
@@ -159,6 +170,9 @@ static cson_value * json_artifact_ci( int rid ){
   return json_artifact_for_ci(rid, 1);
 }
 
+/*
+** Permissions callback func for ArtifactDispatchEntry.
+*/
 static char perms_can_read(){
   return g.perm.Read ? 1 : 0;
 }

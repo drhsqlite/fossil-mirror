@@ -1,5 +1,5 @@
-C Reorganized\sjson_page_artifact(),\sfixed\sa\sC99ism,\sfixed\spermissions\scheck.
-D 2011-10-02T11:16:27.847
+C minor\scleanups\sand\sdoc\sadditions\sto\sthe\sjson/artifact\shandling.
+D 2011-10-02T11:43:08.504
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,8 +94,8 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c ca906dc4ee54d223388beec67426290ab8509bb1
-F src/json_artifact.c 240c5a082e9c3cf29c1debe01d161f4c9df2393c
+F src/json.c 5e766853474b0b4b82ef96928fc5e175e49ca264
+F src/json_artifact.c b32e54f46fbd7d61ae1b364a212f63be299f2732
 F src/json_detail.h 77702c419ca27585a00252d42e57a1ad16505616
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_timeline.c 1b5a8d5777a62f83debd824b87040c989abf1b44
@@ -337,7 +337,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f270f0b5c1f253b6a0441d69cc9dcff8edb3d07d
-R c134a44ee71f648ad99398734c2e96c8
+P c9261700345bb9fcf68198b08520da70c6aceeeb
+R 973954d597f5703327eff0d5b8f50503
 U stephan
-Z d38cca676294868a3ef16e565ac0897a
+Z 109684c76001a3d717008ea1f2080378

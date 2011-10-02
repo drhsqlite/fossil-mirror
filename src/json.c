@@ -753,38 +753,45 @@ void json_warn( int code, char const * msg ){
 ** Splits zStr (which must not be NULL) into tokens separated by the
 ** given separator character. If doDeHttp is true then each element
 ** will be passed through dehttpize(), otherwise they are used
-** as-is. Each new element is appended to the given target array
-** object, which must not be NULL and ownership of it is not changed
-** by this call.
+** as-is. Note that tokenization happens before dehttpize(),
+** which is significant if the ENcoded tokens might contain the
+** separator character.
 **
-** On success, returns the number of items appended to target. On
-** error a NEGATIVE number is returned - its absolute value is the
-** number of items inserted before the error occurred. There is a
-** corner case here if we fail on the 1st element, which will cause 0
-** to be returned, which the client cannot immediately distinguish as
-** success or error.
+** Each new element is appended to the given target array object,
+** which must not be NULL and ownership of it is not changed by this
+** call.
 **
-** Achtung: leading whitespace of elements is NOT elided. We should
-** add an option to do that, but don't have one yet.
+** On success, returns the number of tokens _encountered_. On error a
+** NEGATIVE number is returned - its absolute value is the number of
+** tokens encountered (i.e. it reveals which token in zStr was
+** problematic).
 **
-** Achtung: empty elements will be skipped, meaning consecutive
-** empty elements are collapsed.
+** Achtung: leading and trailing whitespace of elements are elided.
+**
+** Achtung: empty elements will be skipped, meaning consecutive empty
+** elements are collapsed.
 */
 int json_string_split( char const * zStr,
                        char separator,
                        char doDeHttp,
                        cson_array * target ){
   char const * p = zStr /* current byte */;
-  char const * head = p  /* current start-of-token */;
+  char const * head  /* current start-of-token */;
   unsigned int len = 0   /* current token's length */;
   int rc = 0   /* return code (number of added elements)*/;
+  char skipWs = fossil_isspace(separator) ? 0 : 1;
   assert( zStr && target );
+  while( fossil_isspace(*p) ){
+    ++p;
+  }
+  head = p;
   for( ; ; ++p){
     if( !*p || (separator == *p) ){
       if( len ){/* append head..(head+len) as next array
                    element. */
         cson_value * part = NULL;
         char * zPart = NULL;
+        ++rc;
         assert( head != p );
         zPart = (char*)malloc(len+1);
         assert( (zPart != NULL) && "malloc failure" );
@@ -795,11 +802,9 @@ int json_string_split( char const * zStr,
         }
         if( *zPart ){ /* should only fail if someone manages to url-encoded a NUL byte */
           part = cson_value_new_string(zPart, strlen(zPart));
-          if( 0 == cson_array_append( target, part ) ){
-            ++rc;
-          }else{
+          if( 0 != cson_array_append( target, part ) ){
             cson_value_free(part);
-            rc = rc ? -rc : 0;
+            rc = -rc;
             break;
           }
         }else{
@@ -820,6 +825,13 @@ int json_string_split( char const * zStr,
         break;
       }
       head = p+1;
+      while( *head && fossil_isspace(*head) ){
+        ++head;
+        ++p;
+      }
+      if(!*head){
+        break;
+      }
       continue;
     }
     ++len;
@@ -1330,25 +1342,19 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 ** If the given rid has any tags associated with it, this function
 ** returns a JSON Array containing the tag names, else it returns
 ** NULL.
+**
+** See info_tags_of_checkin() for more details (this is simply a JSON
+** wrapper for that function).
 */
-cson_value * json_tags_for_rid(int rid){
+cson_value * json_tags_for_rid(int rid, char propagatingOnly){
   cson_value * v = NULL;
-  Stmt q;
-  assert((rid>0) && "rid is invalid");
-  db_prepare(&q,"SELECT group_concat(substr(tagname,5), ',')"
-             " FROM tag t, tagxref x "
-             " WHERE x.rid=%d "
-             " AND tagname GLOB 'sym-*' "
-             " AND t.tagid=x.tagid AND x.tagtype>0",
-             rid);
-  if( (SQLITE_ROW==db_step(&q)) ){
-    char const * tags;
-    tags = db_column_text(&q,0);
-    if(tags && *tags){
+  char * tags = info_tags_of_checkin(rid, propagatingOnly);
+  if(tags){
+    if(*tags){
       v = json_string_split2(tags,',',0);
     }
+    free(tags);
   }
-  db_finalize(&q);
   return v;  
 }
 
