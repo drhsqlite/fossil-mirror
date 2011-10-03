@@ -1,5 +1,5 @@
-C minor\shack\sto\sname_search()\sto\smake\sit\sstop\ssearching\safter\sit\sdetermines\sthere\sis\san\sambiguity.
-D 2011-10-02T13:30:38.869
+C Disabling\sCache-control:\sno-store,\sas\sit\smade\sfirefox\sforget\sabout\sform\sfield\ncontents\son\sback/forward\sin\shistory.\n\nResolution\sachieved\sby\sa\sminimal\sconsensus\sat\n[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg06314.html|this\sthread\son\nthe\smailing\slist].
+D 2011-10-03T16:34:06.833
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,7 +54,7 @@ F src/blob.c 17c90216018191bc098cdb7a6b8d41608c2a61e9
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 9c277b99f31df6dcd86d8302977347b853b15bad
+F src/cgi.c 77ff25246daad4f2a47d98926e23a4f1cf534c10
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5e3519873fd4676cbda6b64d954cbc9f2fc7c0fe
-R 2ac06225881cee3fa2b1b53ccf916f1b
-U stephan
-Z cf45599fbdc8b2b322cf66c5a1e8c711
+P ae64088627dfdb16ebfcca5dfa9aaa78de91bf51
+R e5e1e9551bbbfb898ba4738403aa114c
+U viriketo
+Z 23ca30a99d7b1d9b9b83afdf1c6f138c

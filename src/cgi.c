@@ -327,7 +327,7 @@ void cgi_reply(void){
     time_t expires = time(0) + 604800;
     fprintf(g.httpOut, "Expires: %s\r\n", cgi_rfc822_datestamp(expires));
   }else{
-    fprintf(g.httpOut, "Cache-control: no-cache, no-store\r\n");
+    fprintf(g.httpOut, "Cache-control: no-cache\r\n");
   }
 
   /* Content intended for logged in users should only be cached in
