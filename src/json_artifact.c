@@ -47,14 +47,6 @@ typedef struct ArtifactDispatchEntry {
      payload.artifact property of /json/artifact responses.
   */
   artifact_f func;
-
-  /**
-     Must return true if g.perm has the proper permissions to fetch
-     this info, else false. If it returns false, func() is skipped
-     (producing no extra payload output) and an access error is
-     generated.
-  */
-  char (*permCheck)();
 } ArtifactDispatchEntry;
 
 
@@ -163,11 +155,45 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
   return v;
 }
 
+cson_value * json_artifact_ticket( int rid ){
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  Manifest *pTktChng = NULL;
+  static cson_value * eventTypeLabel = NULL;
+  if(! g.perm.RdTkt ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }
+  if(!eventTypeLabel){
+    eventTypeLabel = json_new_string("ticket");
+    json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel, 1);
+  }
+
+  pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  if( pTktChng==0 ){
+    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+    return NULL;
+  }
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  cson_object_set(pay, "eventType", eventTypeLabel );
+  cson_object_set(pay, "uuid", json_new_string(pTktChng->zTicketUuid));
+  cson_object_set(pay, "user", json_new_string(pTktChng->zUser));
+  cson_object_set(pay, "timestamp", json_julian_to_timestamp(pTktChng->rDate));
+  manifest_destroy(pTktChng);
+  return payV;
+}
+
 /*
 ** Sub-impl of /json/artifact for checkins.
 */
 static cson_value * json_artifact_ci( int rid ){
-  return json_artifact_for_ci(rid, 1);
+  if(! g.perm.Read ){
+    g.json.resultCode = FSL_JSON_E_DENIED;
+    return NULL;
+  }else{
+    return json_artifact_for_ci(rid, 1);
+  }
 }
 
 /*
@@ -178,11 +204,12 @@ static char perms_can_read(){
 }
 
 static ArtifactDispatchEntry ArtifactDispatchList[] = {
-{"checkin", json_artifact_ci, perms_can_read},
-{"tag", NULL, perms_can_read},
-{"ticket", NULL, perms_can_read},
-{"wiki", NULL, perms_can_read},
-{NULL,NULL,NULL}
+{"checkin", json_artifact_ci},
+{"tag", NULL},
+{"ticket", json_artifact_ticket},
+{"wiki", NULL},
+/* Final entry MUST have a NULL name. */
+{NULL,NULL}
 };
 
 /*
@@ -195,9 +222,10 @@ cson_value * json_page_artifact(){
   char const * zName = NULL;
   char const * zType = NULL;
   char const * zUuid = NULL;
+  cson_value * entry = NULL;
   Blob uuid = empty_blob;
   int rc;
-  int rid;
+  int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
   zName = g.isHTTP
     ? json_getenv_cstr("uuid")
@@ -263,29 +291,24 @@ cson_value * json_page_artifact(){
     if(0!=strcmp(dispatcher->name, zType)){
       continue;
     }else{
-      if( ! (*dispatcher->permCheck)() ){
-        g.json.resultCode = FSL_JSON_E_DENIED;
-      }
+      entry = (*dispatcher->func)(rid);
       break;
     }
   }
   if(!g.json.resultCode){
+    assert( NULL != entry );
+    assert( NULL != zType );
     payV = cson_value_new_object();
     pay = cson_value_get_object(payV);
-    assert( NULL != zType );
     cson_object_set( pay, "type", json_new_string(zType) );
     /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
     cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
     cson_object_set( pay, "rid", cson_value_new_integer(rid) );
-    if( !dispatcher->name ){
-      cson_object_set(pay,"artifact",
-                      json_new_string("TODO: handle this artifact type!"));
-    }else {
-      cson_value * entry = (*dispatcher->func)(rid);
-      if(entry){
-        cson_object_set(pay, "artifact", entry);
-      }
+    if(entry){
+      cson_object_set(pay, "artifact", entry);
     }
+  }else{
+    assert((NULL == entry) && "Internal misuse - callback must return NULL on error.");
   }
   veryend:
   blob_reset(&uuid);
