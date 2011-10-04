@@ -382,8 +382,10 @@ void login_page(void){
     /* The user requests a password change */
     zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
-                  " WHERE uid=%d AND (pw=%Q OR pw=%Q)", 
-                  g.userUid, zPasswd, zSha1Pw) ){
+                  " WHERE uid=%d"
+                  " AND (constant_time_cmp(pw,%Q)=0"
+                  "      OR constant_time_cmp(pw,%Q)=0)", 
+                  g.userUid, zSha1Pw, zPasswd) ){
       sleep(1);
       zErrMsg = 
          @ <p><span class="loginError">
@@ -560,6 +562,33 @@ void login_page(void){
 }
 
 /*
+** SQL function for constant time comparison of two values.
+** Sets result to 0 if two values are equal.
+*/
+static void constant_time_cmp_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  const unsigned char *buf1, *buf2;
+  int len, i;
+  unsigned char rc = 0;
+
+  assert( argc==2 );
+  len = sqlite3_value_bytes(argv[0]);
+  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
+    rc = 1;
+  }else{
+    buf1 = sqlite3_value_text(argv[0]);
+    buf2 = sqlite3_value_text(argv[1]);
+    for( i=0; i<len; i++ ){
+      rc = rc | (buf1[i] ^ buf2[i]);
+    }
+  }
+  sqlite3_result_int(context, rc);
+}
+
+/*
 ** Attempt to find login credentials for user zLogin on a peer repository
 ** with project code zCode.  Transfer those credentials to the local 
 ** repository.
@@ -588,16 +617,18 @@ static int login_transfer_credentials(
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
-      " WHERE cookie=%Q"
+      " WHERE login=%Q"
       "   AND ipaddr=%Q"
-      "   AND login=%Q"
       "   AND length(cap)>0"
       "   AND length(pw)>0"
-      "   AND cexpire>julianday('now')",
-      zHash, zRemoteAddr, zLogin
+      "   AND cexpire>julianday('now')"
+      "   AND constant_time_cmp(cookie,%Q)=0",
+      zLogin, zRemoteAddr, zHash
     );
     pStmt = 0;
     rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
@@ -638,12 +669,12 @@ static int login_find_user(
   uid = db_int(0, 
     "SELECT uid FROM user"
     " WHERE login=%Q"
-    "   AND cookie=%Q"
     "   AND ipaddr=%Q"
     "   AND cexpire>julianday('now')"
     "   AND length(cap)>0"
-    "   AND length(pw)>0",
-    zLogin, zCookie, zRemoteAddr
+    "   AND length(pw)>0"
+    "   AND constant_time_cmp(cookie,%Q)=0",
+    zLogin, zRemoteAddr, zCookie
   );
   return uid;
 }
@@ -663,6 +694,9 @@ void login_check_credentials(void){
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
+
+  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
   ** local login is disabled and if we are using HTTP and not HTTPS, 
