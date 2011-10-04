@@ -1,5 +1,5 @@
-C Merge\sprotection\sagainst\stiming\sattacks\sinto\strunk.
-D 2011-10-04T15:15:30.759
+C Add\sHMAC-SHA1\simplementation.
+D 2011-10-04T15:20:31.699
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -109,7 +109,7 @@ F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
 F src/setup.c c47cc4c323c49ebc2c2e398ec36b6265d5df256b
-F src/sha1.c e9122a5142e5f3f1596a0e4bdd42f0f5eea28814
+F src/sha1.c 8df42fd558d96ae73cd221f771dfd5dc8b24eda9
 F src/shell.c e09ba953604a23f1b459f0cb2dd0d960c0f0df5e
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3fac77d7b069402bd51f82bb1783f136e67ad308 f4eb0f5afcb335986220891e3d571712ad204337
-R e7e49707ec588ab9c52868f27eb21656
+P d4a341b49dd1b7017b8433224efdcb4ebe3a3369
+R 49e6c592da304ed524a37ed6dffa8c24
+T *branch * multisession
+T *sym-multisession *
+T -sym-trunk *
 U dmitry
-Z 67aeb925f49b21de6b84050fa4afc814
+Z ffb019f8ad53a5fa1edae944d70de302

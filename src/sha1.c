@@ -201,6 +201,67 @@ static void SHA1Final(SHA1Context *context, unsigned char digest[20]){
     }
 }
 
+typedef struct HMAC_SHA1Context HMAC_SHA1Context;
+struct HMAC_SHA1Context {
+  SHA1Context inner;
+  SHA1Context outer;
+};
+
+static void HMAC_SHA1Init(
+  HMAC_SHA1Context *context,
+  const unsigned char *key,
+  unsigned int keylen
+){
+  unsigned char pad[64]; /* 64 is SHA-1 block length */
+  unsigned char keyhash[20];
+  unsigned int i;
+  const unsigned char *k = key;
+
+  if( keylen > sizeof(pad) ){
+    /* Key is too big, hash it, and use this hash as a key */
+    SHA1Init(&context->inner);
+    SHA1Update(&context->inner, k, keylen);
+    SHA1Final(&context->inner, keyhash);
+    k = keyhash;
+    keylen = sizeof(keyhash);
+  }
+
+  /* Initialize inner hash */
+  SHA1Init(&context->inner);
+  memset(pad, 0x36, sizeof(pad));
+  for( i=0; i<keylen; i++ ){ pad[i] ^= k[i]; }
+  SHA1Update(&context->inner, pad, sizeof(pad));
+
+  /* Initialize outer hash */
+  SHA1Init(&context->outer);
+  memset(pad, 0x5C, sizeof(pad));
+  for( i=0; i<keylen; i++ ){ pad[i] ^= k[i]; }
+  SHA1Update(&context->outer, pad, sizeof(pad));
+
+  /* Cleanup */
+  memset(keyhash, 0, sizeof(keyhash));
+}
+
+static void HMAC_SHA1Update(
+  HMAC_SHA1Context *context,
+  const unsigned char *data,
+  unsigned int len
+){
+  SHA1Update(&context->inner, data, len);
+}
+
+static void HMAC_SHA1Final(
+  HMAC_SHA1Context *context,
+  unsigned char digest[20]
+){
+  unsigned char innerDigest[20];
+  SHA1Final(&context->inner, innerDigest);
+  /* Mix inner into outer */
+  SHA1Update(&context->outer, innerDigest, sizeof(innerDigest));
+  SHA1Final(&context->outer, digest);
+  /* Cleanup */
+  memset(innerDigest, 0, sizeof(innerDigest));
+}
 
 /*
 ** Convert a digest into base-16.  digest should be declared as
@@ -354,6 +415,99 @@ char *sha1sum(const char *zIn){
 }
 
 /*
+** Compute HMAC-SHA1 of a zero-terminated string.  The
+** result (hex string) is held in memory obtained from mprintf().
+*/
+char *hmac_sign(const char *zKey, const char *zData){
+  HMAC_SHA1Context ctx;
+  unsigned char zResult[20];
+  char zDigest[41];
+
+  HMAC_SHA1Init(&ctx, (unsigned const char *)zKey, strlen(zKey));
+  HMAC_SHA1Update(&ctx, (unsigned const char*)zData, strlen(zData));
+  HMAC_SHA1Final(&ctx, zResult);
+  DigestToBase16(zResult, zDigest);
+  return mprintf("%s", zDigest);
+}
+
+/*
+** Like hmac_sign(), but uses double-HMAC construction:
+** HMAC(HMAC(zKey, zData), zData)
+*/
+char *hmac_double_sign(const char *zKey, const char *zData){
+  HMAC_SHA1Context ctx;
+  unsigned char zInterKey[20], zResult[20];
+  char zDigest[41];
+
+  /* First derive intermediate key */
+  HMAC_SHA1Init(&ctx, (unsigned const char *)zKey, strlen(zKey));
+  HMAC_SHA1Update(&ctx, (unsigned const char*)zData, strlen(zData));
+  HMAC_SHA1Final(&ctx, zInterKey);
+  /* Use intermediate key to sign data */
+  HMAC_SHA1Init(&ctx, zInterKey, sizeof(zInterKey));
+  HMAC_SHA1Update(&ctx, (unsigned const char *)zData, strlen(zData));
+  HMAC_SHA1Final(&ctx, zResult);
+
+  DigestToBase16(zResult, zDigest);
+  return mprintf("%s", zDigest);
+}
+
+/*
+** Constant-time comparison of buffers b1 and b2, which both have length len
+** Returns 0 on successful verification, any other number on failure.
+*/
+static int verify_bytes(
+  const unsigned char *b1,
+  const unsigned char *b2,
+  unsigned int len
+){
+  unsigned int i;
+  unsigned char rc = 0;
+  if( len==0 ) return 1;
+  for( i=0; i<len; i++){
+    rc |= b1[i] ^ b2[i];
+  }
+  return rc;
+}
+
+/*
+** Verify that hex string zDigest (result of hmac_sign) is the one
+** that was used to sign zData with secret key zKey.
+** All strings are zero-terminated.
+** Returns 0 on successful verification, any other number on failure.
+*/
+int hmac_verify(const char *zDigest, const char *zKey, const char *zData)
+{
+  char *zCalcDigest;
+  unsigned int len, i, rc = 0;
+
+  zCalcDigest = hmac_sign(zKey, zData);
+  len = strlen(zCalcDigest);
+  if( len==0 || len != strlen(zDigest) ) return 1;
+  rc = verify_bytes((const unsigned char*)zDigest,
+                    (const unsigned char*)zCalcDigest, len);
+  fossil_free(zCalcDigest);
+  return rc;
+}
+
+/*
+** Like hmac_verify(), but uses double-HMAC.
+*/
+int hmac_double_verify(const char *zDigest, const char *zKey, const char *zData)
+{
+  char *zCalcDigest;
+  unsigned int len, i, rc = 0;
+
+  zCalcDigest = hmac_double_sign(zKey, zData);
+  len = strlen(zCalcDigest);
+  if( len==0 || len != strlen(zDigest) ) return 1;
+  rc = verify_bytes((const unsigned char*)zDigest,
+                    (const unsigned char*)zCalcDigest, len);
+  fossil_free(zCalcDigest);
+  return rc;
+}
+
+/*
 ** Convert a cleartext password for a specific user into a SHA1 hash.
 ** 
 ** The algorithm here is:
@@ -462,3 +616,27 @@ void sha1sum_test(void){
     blob_reset(&cksum);
   }
 }
+
+/*
+** COMMAND: test-hmac
+** %fossil test-hmac secret data
+*/
+void hmac_test(void){
+  assert( g.argc==4 );
+  fossil_print("HMAC(%s, %s) = ", g.argv[2], g.argv[3]);
+  fossil_print("%s\n", hmac_sign(g.argv[2], g.argv[3]));
+}
+
+/*
+** COMMAND: test-hmac-verify
+** %fossil test-hmac-verify digest secret data
+*/
+void hmac_verify_test(void){
+  assert( g.argc==5 );
+  if( hmac_verify(g.argv[2], g.argv[3], g.argv[4])==0 ){
+    fossil_print("successfuly verified\n");
+  }else{
+    fossil_print("not verified\n");
+  }
+}
+
