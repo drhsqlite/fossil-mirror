@@ -234,138 +234,60 @@ static int name_search(
 }
 
 /*
-** Reads all non-empty lines of the given file and replaces g.argv
-** with their contents. argsPos is the position of the --args
-** parameter, and zFile is assumed to be the argument immediately
-** following g.argv[argsPos].
-**
-** FIXME: this impl is certainly way too complicated.
+** Search g.argv for arguments "--args FILENAME".  If found, then
+** (1) remove the two arguments from g.argv
+** (2) Read the file FILENAME
+** (3) Use the contents of FILE to replace the two removed arguments:
+**     (a) Ignore blank lines in the file
+**     (b) Each non-empty line of the file is an argument, except
+**     (c) If the line begins with "-" and contains a space, it is broken
+**         into two arguments at the space.
 */
-static void read_args_lines(unsigned int argsPos, char const * zFile){
-  Blob buffer = empty_blob;
-  Blob line = empty_blob;
-  typedef struct StringList {
-    char * str;
-    struct StringList * next;
-  } StringList;
-  StringList * head = NULL;
-  StringList * current = NULL;
-  FILE * infile;
-  int blobSize = 0;
-  unsigned int lineCount = 0;
-  unsigned int i = 0;
-  assert(argsPos>=1);
-  assert(g.argc>=(argsPos+1));
-  assert(0==strcmp(zFile,g.argv[argsPos+1]));
-  infile = fopen(zFile,"rb");
-  if(!infile){
-    fossil_panic("Could not open file [%s].",zFile);
-  }
-  blob_read_from_channel(&buffer,infile,-1);
-  fclose(infile);
-  blobSize = blob_size(&buffer);
-  if(blobSize<=0){
-    /* FIXME? error here? */
-    blob_reset(&buffer);
-    return;
-  }
-  blob_rewind(&buffer);
-  while(1){
-    int lineLen = blob_line(&buffer,&line);
-    StringList * next = NULL;
-    if(0==lineLen){
-      break;
-    }
-    else if(lineLen<2){
-      continue; /* ignore empty lines */
-    }
-    next = (StringList*)calloc(1,sizeof(StringList));
-    ++lineCount;
-    if( !head ) {
-      head = next;
-    }
-    if( current ){
-      current->next = next;
-      current = next;
-    }else{
-      assert(head==next);
-      current = head;
-    }
-    current->str = strdup(blob_buffer(&line));
-    current->str[lineLen-1] = 0/*replace \n with NULL. FIXME: strip \r as well.*/;
-    blob_reset(&line);
-  }
-  blob_reset(&buffer);
-  if(lineCount){
-    int const newArgc = g.argc + lineCount - 2;
-    unsigned int i;
-    unsigned int argOffset = 0;
-    char ** newArgv = calloc(newArgc,sizeof(char*));
-    assert(NULL != newArgv);
-    for(i = 0; i < argsPos; ++i){
-      newArgv[i] = g.argv[i];
-    }
-    argOffset = i;
-    current = head;
-    for( i = 0; i < lineCount; ++i, ++argOffset ){
-      StringList * toFree = current;
-      assert(NULL != current);
-      assert(NULL != current->str);
-      newArgv[argOffset] = current->str;
-      current = current->next;
-      free(toFree);
-    }
-    /* FIXME: to simplify the code we move the --args args AFTER all
-       others. This is, however, arguablly very wrong. We should
-       instead insert them in place of --args XYZ.
-    */
-    for(i = argsPos+2; i < g.argc; ++i, ++argOffset){
-      newArgv[argOffset] = g.argv[i];
-    }
-    assert(NULL==current);
-    g.argc = newArgc;
-    g.argv = newArgv;
-  }
-#if 0
-  {
-    int i;
-    printf("g.argc=%d\n",g.argc);
-    for( i = 0; i < g.argc; ++i ){
-      printf("g.argv[%d] = %s\n",i, g.argv[i]);
-    }
-  }
-#endif
-}
+static void expand_args_option(void){
+  Blob file = empty_blob;   /* Content of the file */
+  Blob line = empty_blob;   /* One line of the file */
+  unsigned int nLine;       /* Number of lines in the file*/
+  unsigned int i, j, k;     /* Loop counters */
+  int n;                    /* Number of bytes in one line */
+  char *z;            /* General use string pointer */
+  char **newArgv;     /* New expanded g.argv under construction */
 
+  for(i=1; i<g.argc-1; i++){
+    z = g.argv[i];
+    if( z[0]!='-' ) continue;
+    z++;
+    if( z[0]=='-' ) z++;
+    if( z[0]==0 ) return;   /* Stop searching at "--" */
+    if( fossil_strcmp(z, "args")==0 ) break;
+  }
+  if( i>=g.argc-1 ) return;
 
-/*
-** Reads the --args FILENAME CLI option and massages g.argc/g.argv
-*/
-static void expand_args_arg(){
-  assert((g.argc>0) && g.argv[g.argc-1]);
-  if(g.argc<3){
-    return;
-  }else{
-    unsigned int i = 1;
-    char got = 0;
-    for( ; i < (unsigned int)g.argc; ++i ){
-      if(0==strcmp("--args",g.argv[i])){
-        got = 1;
-        break;
+  blob_read_from_file(&file, g.argv[i+1]);
+  z = blob_str(&file);
+  for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
+  newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
+  for(j=0; j<i; j++) newArgv[j] = g.argv[j];
+  
+  blob_rewind(&file);
+  while( (n = blob_line(&file, &line))>0 ){
+    if( n<=1 ) continue;
+    z = blob_buffer(&line);
+    z[n-1] = 0;
+    newArgv[j++] = z;
+    if( z[0]=='-' ){
+      for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
+      if( z[k] ){
+        z[k] = 0;
+        k++;
+        if( z[k] ) newArgv[j++] = &z[k];
       }
     }
-    if(!got){
-      return;
-    }else{
-      char const * zFile;
-      if(i==(g.argc-1)){
-        /* FIXME: error out/exit here. Missing filename. */
-        return;
-      }
-      zFile = g.argv[i+1];
-      read_args_lines(i,zFile);
-    }
   }
+  i += 2;
+  while( i<g.argc ) newArgv[j++] = g.argv[i++];
+  newArgv[j] = 0;
+  g.argc = j;
+  g.argv = newArgv;
 }
 
 /*
@@ -381,7 +303,7 @@ int main(int argc, char **argv){
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
-  expand_args_arg();
+  expand_args_option();
   argc = g.argc;
   argv = g.argv;
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
