@@ -233,8 +233,8 @@ void login_page(void){
     zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
                   " WHERE uid=%d"
-                  " AND (constant_time_eq(pw,%Q)=0"
-                  "      OR constant_time_eq(pw,%Q)=0)", 
+                  " AND (constant_time_cmp(pw,%Q)=0"
+                  "      OR constant_time_cmp(pw,%Q)=0)", 
                   g.userUid, zSha1Pw, zPasswd) ){
       sleep(1);
       zErrMsg = 
@@ -312,7 +312,7 @@ void login_page(void){
         " WHERE login=%Q"
         "   AND length(cap)>0 AND length(pw)>0"
         "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-        "   AND (constant_time_eq(pw,%Q)=0 OR constant_time_eq(pw,%Q)=0)",
+        "   AND (constant_time_cmp(pw,%Q)=0 OR constant_time_cmp(pw,%Q)=0)",
         zUsername, zSha1Pw, zPasswd
     );
     if( uid<=0 ){
@@ -460,7 +460,7 @@ void login_page(void){
 ** SQL function for constant time comparison of two values.
 ** Sets result to 0 if two values are equal.
 */
-static void constant_time_eq_function(
+static void constant_time_cmp_function(
  sqlite3_context *context,
  int argc,
  sqlite3_value **argv
@@ -512,8 +512,8 @@ static int login_transfer_credentials(
   rc = sqlite3_open(zOtherRepo, &pOther);
   if( rc==SQLITE_OK ){
     sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
-    sqlite3_create_function(pOther, "constant_time_eq", 2, SQLITE_UTF8, 0,
-		  constant_time_eq_function, 0, 0);
+    sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
     sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
@@ -522,7 +522,7 @@ static int login_transfer_credentials(
       "   AND length(cap)>0"
       "   AND length(pw)>0"
       "   AND cexpire>julianday('now')"
-      "   AND constant_time_eq(cookie,%Q)=0",
+      "   AND constant_time_cmp(cookie,%Q)=0",
       zLogin, zRemoteAddr, zHash
     );
     pStmt = 0;
@@ -564,7 +564,7 @@ static int login_find_user(
     "   AND cexpire>julianday('now')"
     "   AND length(cap)>0"
     "   AND length(pw)>0"
-    "   AND constant_time_eq(cookie,%Q)=0",
+    "   AND constant_time_cmp(cookie,%Q)=0",
     zLogin, zRemoteAddr, zCookie
   );
   return uid;
@@ -588,8 +588,8 @@ void login_check_credentials(void){
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
 
-  sqlite3_create_function(g.db, "constant_time_eq", 2, SQLITE_UTF8, 0,
-		  constant_time_eq_function, 0, 0);
+  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
   ** local login is disabled and if we are using HTTP and not HTTPS, 
