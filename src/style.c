@@ -807,6 +807,7 @@ void page_test_env(void){
   int i;
   char zCap[30];
   login_check_credentials();
+  if( !g.perm.Admin && !g.perm.Setup ){ login_needed(); return; }
   style_header("Environment Test");
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />

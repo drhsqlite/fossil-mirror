@@ -60,9 +60,16 @@ const char *fossil_reserved_name(int N){
      "manifest.uuid",
   };
 
+  /* Cached setting "manifest" */
+  static int cachedManifest = -1;
+
+  if( cachedManifest == -1 ){
+    cachedManifest = db_get_boolean("manifest",0);
+  }
+
   if( N>=0 && N<count(azName) ) return azName[N];
   if( N>=count(azName) && N<count(azName)+count(azManifest)
-      && db_get_boolean("manifest",0) ){
+      && cachedManifest ){
     return azManifest[N-count(azName)];
   }
   return 0;
@@ -230,7 +237,7 @@ void add_cmd(void){
 
     file_canonical_name(g.argv[i], &fullName);
     zName = blob_str(&fullName);
-    isDir = file_isdir(zName);
+    isDir = file_wd_isdir(zName);
     if( isDir==1 ){
       vfile_scan(&fullName, nRoot-1, includeDotFiles, pIgnore);
     }else if( isDir==0 ){
@@ -508,7 +515,7 @@ void mv_cmd(void){
   db_multi_exec(
     "CREATE TEMP TABLE mv(f TEXT UNIQUE ON CONFLICT IGNORE, t TEXT);"
   );
-  if( file_isdir(zDest)!=1 ){
+  if( file_wd_isdir(zDest)!=1 ){
     Blob orig;
     if( g.argc!=4 ){
       usage("OLDNAME NEWNAME");

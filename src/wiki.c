@@ -231,7 +231,7 @@ void wiki_page(void){
       @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
       @ %h(zFile)</a>
     }else{
-      @ <li>%h(zFile)
+      @ %h(zFile)
     }
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");

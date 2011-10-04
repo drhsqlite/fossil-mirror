@@ -396,7 +396,7 @@ void file_delete(const char *zFilename){
 ** Return the number of errors.
 */
 int file_mkdir(const char *zName, int forceFlag){
-  int rc = file_isdir(zName);
+  int rc = file_wd_isdir(zName);
   if( rc==2 ){
     if( !forceFlag ) return 1;
     file_delete(zName);
@@ -901,7 +901,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
   int rc;
   Blob onDisk;
 
-  iSize = file_size(zName);
+  iSize = file_wd_size(zName);
   if( iSize<0 ) return 0;
   if( iSize!=blob_size(pContent) ) return 0;
   if( file_wd_islink(zName) ){

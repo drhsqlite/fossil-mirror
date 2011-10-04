@@ -347,10 +347,20 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   int n;
   char *zUuid;
   int sz = 0;
+  int isRepeat;
+  static Bag seen;
+
+  if( bag_find(&seen, rid) ){
+    isRepeat = 1;
+  }else{
+    isRepeat = 0;
+    bag_insert(&seen, rid);
+  }
 
   /* Every control artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
   */
+  if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
@@ -887,6 +897,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
     p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
+  if( !isRepeat ) g.parseCnt[p->type]++;
   return p;
 
 manifest_syntax_error:
