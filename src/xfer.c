@@ -575,7 +575,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     blob_append(&combined, blob_buffer(&pw), szPw);
     sha1sum_blob(&combined, &hash);
     assert( blob_size(&hash)==40 );
-    rc = blob_compare(&hash, pSig);
+    rc = blob_constant_time_eq(&hash, pSig);
     blob_reset(&hash);
     blob_reset(&combined);
     if( rc!=0 && szPw!=40 ){
@@ -590,7 +590,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       blob_append(&combined, zSecret, -1);
       free(zSecret);
       sha1sum_blob(&combined, &hash);
-      rc = blob_compare(&hash, pSig);
+      rc = blob_constant_time_eq(&hash, pSig);
       blob_reset(&hash);
       blob_reset(&combined);
     }
