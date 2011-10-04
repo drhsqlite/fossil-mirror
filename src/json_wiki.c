@@ -67,9 +67,15 @@ static cson_value * json_wiki_get(){
                  "Requires 'o' or 'j' access.");
     return NULL;
   }
-  zPageName = g.isHTTP
+  zPageName = (g.isHTTP || g.json.post.o)
     ? json_getenv_cstr("page")
     : find_option("page","p",1);
+  if( !zPageName && cson_value_is_string(g.json.reqPayload.v) ){
+      zPageName = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
+  }
+  if(!zPageName){
+    zPageName = json_command_arg(g.json.dispatchDepth+1);
+  }
   if(!zPageName||!*zPageName){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "'page' argument is missing.");
