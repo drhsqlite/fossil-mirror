@@ -1,5 +1,5 @@
-C Rename\sconstant_time_eq\sto\sconstant_time_cmp\sto\sbetter\sindicate\sthat\sthese\sfunctions\sreturn\s0\swhen\svalues\sare\sequal,\slike\smemcmp,\sstrcmp,\setc.,\snot\struth,\sto\savoid\spossible\smistakes.
-D 2011-10-04T14:34:12.781
+C Merge\strunk\sinto\sdmitry-security\sbranch.
+D 2011-10-04T14:38:39.385
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,7 +54,7 @@ F src/blob.c b3b9e9b4d91199939b920186c6dd309d282ed1e5
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 9c277b99f31df6dcd86d8302977347b853b15bad
+F src/cgi.c 77ff25246daad4f2a47d98926e23a4f1cf534c10
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -79,14 +79,14 @@ F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
-F src/http_socket.c b8dcbe3275c0c49df18b4917857aa91b70f89e8e
+F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c b03985a5e87c959f75e7e5f4dc4daeaaa5a469e2
-F src/main.c 4624a1efdae6fa4b013140167e48478510ed566c
+F src/main.c 1f05721e517d299526c904c6e8ac83e7a1e266e2
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 13a9a1244c8c2b420320a569a9e6363dddf2a8f8
-R 87c081829bf53a3a32808771c197ba72
+P d244c484e73e5eb18eef0cc1f8e5fb04632fc2a8 3fac77d7b069402bd51f82bb1783f136e67ad308
+R e7e49707ec588ab9c52868f27eb21656
 U dmitry
-Z a742e65683d63d8104d0f7723d95a137
+Z 849662ab0605585d3cf361f1daf3782c
