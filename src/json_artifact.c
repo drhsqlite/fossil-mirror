@@ -93,14 +93,14 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
   if( db_step(&q)==SQLITE_ROW ){
     cson_object * o;
     cson_value * tmpV = NULL;
-    v = cson_value_new_object();
-    o = cson_value_get_object(v);
     const char *zUuid = db_column_text(&q, 0);
     char * zTmp;
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
     int mtime, omtime;
+    v = cson_value_new_object();
+    o = cson_value_get_object(v);
 #define SET(K,V) cson_object_set(o,(K), (V))
     SET("type", eventTypeLabel );
     SET("uuid",json_new_string(zUuid));
