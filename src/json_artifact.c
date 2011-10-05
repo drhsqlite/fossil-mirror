@@ -171,7 +171,7 @@ cson_value * json_artifact_ticket( int rid ){
 
   pTktChng = manifest_get(rid, CFTYPE_TICKET);
   if( pTktChng==0 ){
-    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+    g.json.resultCode = FSL_JSON_E_MANIFEST_READ_FAILED;
     return NULL;
   }
   payV = cson_value_new_object();

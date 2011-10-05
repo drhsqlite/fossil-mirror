@@ -403,14 +403,16 @@ static cson_value * json_timeline_ci(){
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "ci", &sql, pay );
   if(check){
-    g.json.resultCode = check;
+    json_set_err(check, "Query initialization failed.");
     goto error;
   }
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    g.json.resultCode = (cson_rc.AllocError==check) \
-      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    json_set_err((cson_rc.AllocError==check)        \
+                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,\
+                 "Object property insertion failed");     \
     goto error;\
-  }
+  } (void)0
+
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
@@ -491,15 +493,16 @@ cson_value * json_timeline_wiki(){
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "w", &sql, pay );
   if(check){
-    g.json.resultCode = check;
+    json_set_err(check, "Query initialization failed.");
     goto error;
   }
 
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    g.json.resultCode = (cson_rc.AllocError==check) \
-      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    json_set_err((cson_rc.AllocError==check)        \
+                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,       \
+                 "Object property insertion failed."); \
     goto error;\
-  }
+  } (void)0
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
@@ -564,16 +567,17 @@ static cson_value * json_timeline_ticket(){
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "t", &sql, pay );
   if(check){
-    g.json.resultCode = check;
+    json_set_err(check, "Query initialization failed.");
     goto error;
   }
 
   db_multi_exec(blob_buffer(&sql));
 #define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    g.json.resultCode = (cson_rc.AllocError==check) \
-      ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN; \
+    json_set_err((cson_rc.AllocError==check)        \
+                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,      \
+                 "Object property insertion failed."); \
     goto error;\
-  }
+  } (void)0
 
 #if 0
   /* only for testing! */
@@ -582,6 +586,11 @@ static cson_value * json_timeline_ticket(){
 #endif
 
   blob_reset(&sql);
+  /*
+    REMINDER/FIXME(?): we have both uuid (the change uuid?)  and
+    ticketUuid (the actual ticket). This is different from the wiki
+    timeline, where we only have the wiki page uuid.
+   */
   db_prepare(&q, "SELECT rid AS rid,"
              " uuid AS uuid,"
              " mtime AS timestamp,"

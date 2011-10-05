@@ -51,6 +51,75 @@ cson_value * json_page_wiki(){
 
 
 /*
+** Loads the given wiki page and creates a JSON object representation
+** of it. If the page is not found then NULL is returned. If doParse
+** is true then the page content is HTML-ized using fossil's
+** conventional wiki format, else it is not parsed.
+**
+** The returned value, if not NULL, is-a JSON Object owned by the
+** caller.
+*/
+cson_value * json_get_wiki_page(char const * zPageName, char doParse){
+  int rid;
+  Manifest *pWiki = 0;
+  char const * zBody = NULL;
+  char const * zFormat = NULL;
+  char * zUuid = NULL;
+  Stmt q;
+  db_prepare(&q,
+             "SELECT x.rid, b.uuid FROM tag t, tagxref x, blob b"
+             " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
+             " AND b.rid=x.rid"
+             " ORDER BY x.mtime DESC LIMIT 1",
+             zPageName 
+             );
+  if( (SQLITE_ROW != db_step(&q)) ){
+    return NULL;
+  }
+  rid = db_column_int(&q,0);
+  zUuid = db_column_malloc(&q,1);
+  db_finalize(&q);
+  if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
+    zBody = pWiki->zWiki;
+  }
+
+  {
+    unsigned int len;
+    cson_value * payV = cson_value_new_object();
+    cson_object * pay = cson_value_get_object(payV);
+    cson_object_set(pay,"name",json_new_string(zPageName));
+    cson_object_set(pay,"uuid",json_new_string(zUuid));
+    free(zUuid);
+    zUuid = NULL;
+    cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));
+    cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
+    cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
+    cson_object_set(pay,"contentFormat",json_new_string(zFormat));
+    if( doParse ){
+      Blob content = empty_blob;
+      Blob raw = empty_blob;
+      blob_append(&raw,zBody,-1);
+      wiki_convert(&raw,&content,0);
+      len = strlen(zBody);
+      len = (unsigned int)blob_size(&content);
+      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+      cson_object_set(pay,"content",
+                      cson_value_new_string(blob_buffer(&content),len));
+      blob_reset(&content);
+      blob_reset(&raw);
+    }else{
+      len = zBody ? strlen(zBody) : 0;
+      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+      cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+    }
+    /*TODO: add 'T' (tag) fields*/
+    /*TODO: add the 'A' card (file attachment) entries?*/
+    manifest_destroy(pWiki);
+    return payV;
+  }
+}
+
+/*
 ** Implementation of /json/wiki/get.
 **
 */
@@ -91,68 +160,7 @@ static cson_value * json_wiki_get(){
   if( 'r' != *zFormat ){
     zFormat = "html";
   }
-  db_prepare(&q,
-             "SELECT x.rid, b.uuid FROM tag t, tagxref x, blob b"
-             " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
-             " AND b.rid=x.rid"
-             " ORDER BY x.mtime DESC LIMIT 1",
-             zPageName 
-             );
-  if( (SQLITE_ROW != db_step(&q)) ){
-    manifest_destroy(pWiki);
-    json_set_err(FSL_JSON_E_UNKNOWN,
-                 "Error reading wiki page manifest.");
-    return NULL;
-  }
-  rid = db_column_int(&q,0);
-  zUuid = db_column_malloc(&q,1);
-  db_finalize(&q);
-  
-  if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
-    zBody = pWiki->zWiki;
-  }
-  if( zBody==0 ){
-    manifest_destroy(pWiki);
-    free(zUuid);
-    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                 "Wiki body is empty (is that possible?)");
-    return NULL;
-  }
-
-  {
-    unsigned int len;
-    cson_value * payV = cson_value_new_object();
-    cson_object * pay = cson_value_get_object(payV);
-    cson_object_set(pay,"name",json_new_string(zPageName));
-    cson_object_set(pay,"uuid",json_new_string(zUuid));
-    free(zUuid);
-    zUuid = NULL;
-    cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));
-    cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
-    cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
-    cson_object_set(pay,"contentFormat",json_new_string(zFormat));
-    if( ('h'==*zFormat) ){
-      Blob content = empty_blob;
-      Blob raw = empty_blob;
-      blob_append(&raw,zBody,-1);
-      wiki_convert(&raw,&content,0);
-      len = strlen(zBody);
-      len = (unsigned int)blob_size(&content);
-      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
-      cson_object_set(pay,"content",
-                      cson_value_new_string(blob_buffer(&content),len));
-      blob_reset(&content);
-      blob_reset(&raw);
-    }else{
-      len = strlen(zBody);
-      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
-      cson_object_set(pay,"content",cson_value_new_string(zBody,len));
-    }
-    /*TODO: add 'T' (tag) fields*/
-    /*TODO: add the 'A' card (file attachment) entries?*/
-    manifest_destroy(pWiki);
-    return payV;
-  }
+  return json_get_wiki_page(zPageName, 'h'==*zFormat);
 }
 
 /*
@@ -308,14 +316,20 @@ static cson_value * json_wiki_list(){
   while( SQLITE_ROW == db_step(&q) ){
     cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
     if(!v){
+      json_set_err(FSL_JSON_E_UNKNOWN,
+                   "Could not convert wiki name column to JSON.");
       goto error;
     }else if( 0 != cson_array_append( list, v ) ){
       cson_value_free(v);
+      json_set_err(FSL_JSON_E_ALLOC,"Could not append wiki page name to array.")
+        /* OOM (or maybe numeric overflow) are the only realistic
+           error codes for that particular failure.*/;
       goto error;
     }
   }
   goto end;
   error:
+  assert(0 != g.json.resultCode);
   cson_value_free(listV);
   listV = NULL;
   json_set_err(FSL_JSON_E_UNKNOWN,

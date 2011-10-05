@@ -208,25 +208,31 @@ char const * json_err_str( int errCode ){
     C(INVALID_REQUEST,"Invalid request");
     C(UNKNOWN_COMMAND,"Unknown Command");
     C(UNKNOWN,"Unknown error");
-    C(RESOURCE_NOT_FOUND,"Resource not found");
     C(TIMEOUT,"Timeout reached");
     C(ASSERT,"Assertion failed");
     C(ALLOC,"Resource allocation failed");
     C(NYI,"Not yet implemented");
+    C(PANIC,"x");
+    C(MANIFEST_READ_FAILED,"Reading artifact manifest failed.");
+    C(FILE_OPEN_FAILED,"Opening file failed.");
+    
     C(AUTH,"Authentication error");
+    C(MISSING_AUTH,"Authentication info missing from request");
+    C(DENIED,"Access denied");
+    C(WRONG_MODE,"Request not allowed (wrong operation mode)");
     C(LOGIN_FAILED,"Login failed");
     C(LOGIN_FAILED_NOSEED,"Anonymous login attempt was missing password seed");
     C(LOGIN_FAILED_NONAME,"Login failed - name not supplied");
     C(LOGIN_FAILED_NOPW,"Login failed - password not supplied");
     C(LOGIN_FAILED_NOTFOUND,"Login failed - no match found");
-    C(MISSING_AUTH,"Authentication info missing from request");
-    C(DENIED,"Access denied");
-    C(WRONG_MODE,"Request not allowed (wrong operation mode)");
 
     C(USAGE,"Usage error");
-    C(INVALID_ARGS,"Invalid arguments");
-    C(MISSING_ARGS,"Missing arguments");
-    C(AMBIGUOUS_UUID,"Argument is ambiguous");
+    C(INVALID_ARGS,"Invalid argument(s)");
+    C(MISSING_ARGS,"Missing argument(s)");
+    C(AMBIGUOUS_UUID,"Resource identifier is ambiguous");
+    C(UNRESOLVED_UUID,"Provided uuid/tag/branch could not be resolved");
+    C(RESOURCE_ALREADY_EXISTS,"Resource already exists");
+    C(RESOURCE_NOT_FOUND,"Resource not found");
 
     C(DB,"Database error");
     C(STMT_PREP,"Statement preparation failed");
@@ -884,14 +890,14 @@ static void json_mode_bootstrap(){
   }else{
     once = 1;
   }
+  g.json.isJsonMode = 1;
+  g.json.resultCode = 0;
+  g.json.cmd.offset = -1;
   g.json.jsonp = PD("jsonp",NULL)
     /* FIXME: do some sanity checking on g.json.jsonp and ignore it
        if it is not halfway reasonable.
     */
     ;
-  g.json.isJsonMode = 1;
-  g.json.resultCode = 0;
-  g.json.cmd.offset = -1;
   if( !g.isHTTP && g.fullHttpReply ){
     /* workaround for server mode, so we see it as CGI mode. */
     g.isHTTP = 1;
@@ -963,7 +969,7 @@ static void json_mode_bootstrap(){
       ? stdin
       : fopen(jfile,"rb");
     if(!inFile){
-      g.json.resultCode = FSL_JSON_E_UNKNOWN;
+      g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
       fossil_fatal("Could not open JSON file [%s].",jfile)
         /* Does not return. */
         ;
@@ -1557,7 +1563,8 @@ cson_value * json_page_stat(){
   cson_value * jv2 = NULL;
   cson_object * jo2 = NULL;
   if( !g.perm.Read ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' permissions.");
     return NULL;
   }
   if( g.isHTTP ){
@@ -1674,7 +1681,7 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   char const * cmd = json_command_arg(1+g.json.dispatchDepth);
   assert( NULL != pages );
   if( ! cmd ){
-    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    json_set_err(FSL_JSON_E_MISSING_ARGS, "No subcommand specified.");
     return NULL;
   }
   def = json_handler_for_name( cmd, pages );
@@ -1702,14 +1709,17 @@ static cson_value * json_page_user(){
 */
 static cson_value * json_page_rebuild(){
   if( !g.perm.Admin ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,"Requires 'a' privileges.");
     return NULL;
   }else{
-  /* Reminder: the db_xxx() ops "should" fail via
-     the fossil core error handlers, which will cause
-     a JSON error and exit(). i.e. we don't handle
-     the errors here. TODO: confirm that all these
-     db routine fail gracefully in JSON mode.
+  /* Reminder: the db_xxx() ops "should" fail via the fossil core
+     error handlers, which will cause a JSON error and exit(). i.e. we
+     don't handle the errors here. TODO: confirm that all these db
+     routine fail gracefully in JSON mode.
+
+     On large repos (e.g. fossil's) this operation is likely to take
+     longer than the client timeout, which will cause it to fail (but
+     it's sqlite3, so it'll fail gracefully).
   */
     db_close(1);
     db_open_repository(g.zRepositoryName);
@@ -1739,7 +1749,8 @@ static cson_value * json_user_list(){
   payV = json_stmt_to_array_of_obj(&q, NULL);
   db_finalize(&q);
   if(NULL == payV){
-    g.json.resultCode = FSL_JSON_E_UNKNOWN;
+    json_set_err(FSL_JSON_E_UNKNOWN,
+                 "Could not convert user list to JSON.");
   }
   return payV;  
 }
@@ -1764,7 +1775,7 @@ static cson_value * json_user_get(){
       */;
   }
   if(!pUser || !*pUser){
-    g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+    json_set_err(FSL_JSON_E_MISSING_ARGS,"Missing 'name' property.");
     return NULL;
   }
   db_prepare(&q,"SELECT uid AS uid,"
@@ -1778,10 +1789,10 @@ static cson_value * json_user_get(){
   if( (SQLITE_ROW == db_step(&q)) ){
     payV = cson_sqlite3_row_to_object(q.pStmt);
     if(!payV){
-      g.json.resultCode = FSL_JSON_E_UNKNOWN;
+      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert user row to JSON.");
     }
   }else{
-    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,"User not found.");
   }
   db_finalize(&q);
   return payV;  
