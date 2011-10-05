@@ -580,7 +580,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char *zDefault, const char *zSql, ...){
+char *db_text(char const *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;

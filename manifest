@@ -1,5 +1,5 @@
-C Doh...\saccidentally\schanged\sresultCodes\sfrom\sstrings\sto\sints\sduring\srefactoring.
-D 2011-10-05T02:41:25.622
+C const-correctness\stweak\sin\sdb_text().
+D 2011-10-05T03:32:18.400
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -73,7 +73,7 @@ F src/configure.c 32a093c8d3d27256fe9aa8570f28f5e208233efe
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
 F src/cson_amalgamation.c 25c88ce93bb8e222b3d838dd821b52fe2844ceea
 F src/cson_amalgamation.h ae543c53ef33c277787914c5ed8f5e4a0eeafa1b
-F src/db.c 099b1647e2271321519a287329f1764d1bdd7121
+F src/db.c c2652e950ed0d923e1801ebf7d9b38bbd9ee5021
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
@@ -338,7 +338,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 824ed5fb65423e5936e2ae520d9dc74f25d3f866
-R ce5cf7395774a4cf4212c1e9bd5d6da1
+P 36384da86173c72cbd52d6918c380b65befdf804
+R 7d0723d6f6b5b92f5a58c4ae68abf377
 U stephan
-Z f1fb0b31d7d1a24864428a1848170f45
+Z c6d6e243550fa1fb39cb7d43431aef96
