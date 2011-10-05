@@ -223,6 +223,9 @@ static char json_timeline_add_time_clause(Blob *pSql){
                  " ORDER BY event.mtime DESC ",
                  zBefore);
     rc = -1;
+  }else{
+    blob_append(pSql, " ORDER BY event.mtime DESC ", -1);
+    rc = 0;
   }
   return rc;
 }
