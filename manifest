@@ -1,5 +1,5 @@
-C Merge\sthe\s--args\sFILENAME\spatch\sinto\strunk.
-D 2011-10-04T23:07:52.305
+C Change\sa\s#ifdef\sso\sthat\sbuilds\son\sMSVC\swill\swork\son\srepos\slarger\sthan\s2GB.
+D 2011-10-05T02:03:04.276
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -73,7 +73,7 @@ F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 5c47646bb269f17c2aa17f8d71a78ed0d271b885
+F src/file.c 79bed8df57b1f955aec16d07b4c887e9e4a4cf6f
 F src/finfo.c 317022424e1132135f2561ed3b2d8772c3d18e07
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d4a341b49dd1b7017b8433224efdcb4ebe3a3369 eb8d989daebfce1fd22513bb3718b25bd572e86a
-R 6f242ba28e04f1c4c11756b9ece192e8
+P c0274f996266aefd4e7566245ecf4d4433e22cf3
+R 3280be6421167446bb65278ac06da08f
 U drh
-Z b40e4a5834dd876cb7c09179ac1b000b
+Z e169f45c1e3d366b3e2744a17cd46889

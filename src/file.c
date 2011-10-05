@@ -36,7 +36,7 @@
 ** Use _stati64 rather than stat on windows, in order to handle files
 ** larger than 2GB.
 */
-#if defined(_WIN32) && defined(__MSVCRT__)
+#if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
 # define stat _stati64
 #endif
 /*
