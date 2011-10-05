@@ -1281,6 +1281,33 @@ cson_value * json_new_timestamp(cson_int_t timeVal){
 }
 
 /*
+** Internal helper for json_create_response(). Appends all elements of
+** g.json.cmd.a, except the first one, to a string and returns that
+** string value (which is owned by the caller).
+*/
+static cson_value * json_response_command_path(){
+  if(!g.json.cmd.a){
+    return NULL;
+  }else{
+    cson_value * rc = NULL;
+    Blob path = empty_blob;
+    char const * part;
+    unsigned int aLen = cson_array_length_get(g.json.cmd.a);
+    unsigned int i = 1;
+    for( ; i < aLen; ++i ){
+      char const * part = cson_string_cstr(cson_value_get_string(cson_array_get(g.json.cmd.a, i)));
+      blob_append(&path,part,-1);
+      if(i < (aLen-1)){
+        blob_append(&path,"/",1);
+      }
+    }
+    rc = json_new_string(blob_buffer(&path));
+    blob_reset(&path);
+    return rc;
+  }
+}
+
+/*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
 ** or add it to a cson container to transfer ownership. Returns NULL
@@ -1345,8 +1372,10 @@ cson_value * json_create_response( int resultCode,
 
   if(g.json.cmd.commandStr){
     tmp = json_new_string(g.json.cmd.commandStr);
-    SET("command");
+  }else{
+    tmp = json_response_command_path();
   }
+  SET("command");
   
   tmp = json_getenv(FossilJsonKeys.requestId);
   if( tmp ) cson_object_set( o, FossilJsonKeys.requestId, tmp );
