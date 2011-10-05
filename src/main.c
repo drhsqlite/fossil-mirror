@@ -209,7 +209,10 @@ struct Global {
       cson_value * v;
       cson_object * o;
     } post;
-    struct {                   /* GET/COOKIE params in JSON mode. */
+    struct {                   /* GET/COOKIE params in JSON mode.
+                                  FIXME (stephan): verify that this is
+                                  still used and remove if it is not.
+                               */
       cson_value * v;
       cson_object * o;
     } param;

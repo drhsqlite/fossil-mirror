@@ -136,9 +136,10 @@ static cson_value * json_wiki_get(){
                  "Requires 'o' or 'j' access.");
     return NULL;
   }
-  zPageName = (g.isHTTP || g.json.post.o)
-    ? json_getenv_cstr("page")
-    : find_option("page","p",1);
+  if(fossil_is_json()){
+    zPageName = json_getenv_cstr("page");
+  }
+  zPageName = json_find_option_cstr("page",NULL,"p");
   if( !zPageName && cson_value_is_string(g.json.reqPayload.v) ){
       zPageName = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
   }
@@ -151,9 +152,7 @@ static cson_value * json_wiki_get(){
     return NULL;
   }
 
-  zFormat = g.isHTTP
-    ? json_getenv_cstr("format")
-    : find_option("format","f",1);
+  zFormat = json_find_option_cstr("format",NULL,"f");
   if(!zFormat || !*zFormat){
     zFormat = "raw";
   }

@@ -185,6 +185,26 @@ static double endTimer(void){
 #define HAS_TIMER 0
 #endif
 
+
+/*
+** Returns true if fossil is running in JSON mode and we are either
+** running in HTTP mode OR g.json.post.o is not NULL (meaning POST
+** data was fed in from CLI mode).
+**
+** Specifically, it will return false when any of these apply:
+**
+** a) Not running in JSON mode (via json command or /json path).
+**
+** b) We are running in JSON CLI mode, but no POST data has been fed
+** in.
+**
+** Whether or not we need to take args from CLI or POST data makes a
+** difference in argument/parameter handling in many JSON rountines.
+*/
+char fossil_is_json(){
+  return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
+}
+
 /*
 ** Placeholder /json/XXX page impl for NYI (Not Yet Implemented)
 ** (but planned) pages/commands.
@@ -468,6 +488,12 @@ int json_getenv_int(char const * pKey, int dflt ){
 ** to be true. If this function cannot find a matching key/value then
 ** dflt is returned. e.g. if it finds the key but the value is-a
 ** Object then dftl is returned.
+**
+** If an entry is found, this function guarantees that it will return
+** either 0 or 1, as opposed to "0 or non-zero", so that clients can
+** pass a different value as dflt. Thus they can use, e.g. -1 to know
+** whether or not this function found a match (it will return -1 in
+** that case).
 */
 char json_getenv_bool(char const * pKey, char dflt ){
   cson_value const * v = json_getenv(pKey);
@@ -502,6 +528,78 @@ char json_getenv_bool(char const * pKey, char dflt ){
 */
 char const * json_getenv_cstr( char const * zKey ){
   return cson_value_get_cstr( json_getenv(zKey) );
+}
+
+/*
+** An extended form of find_option() which tries to look up a combo
+** GET/POST/CLI argument.
+**
+** zKey must be the GET/POST parameter key. zCLILong must be the "long
+** form" CLI flag (NULL means to use zKey). zCLIShort may be NUL or
+** the "short form" CLI flag.
+**
+** On error (no match found) NULL is returned.
+**
+** This ONLY works for String JSON/GET/CLI values, not JSON
+** booleans and whatnot.
+*/
+char const * json_find_option_cstr(char const * zKey,
+                                   char const * zCLILong,
+                                   char const * zCLIShort){
+  char const * rc = NULL;
+  assert(NULL != zKey);
+  if(!g.isHTTP){
+    rc = find_option(zCLILong ? zCLILong : zKey,
+                     zCLIShort, 1);
+  }
+  if(!rc && fossil_is_json()){
+    rc = json_getenv_cstr(zKey);
+  }
+  return rc;
+}
+
+/*
+** The boolean equivalent of json_find_option_cstr().
+** If the option is not found, dftl is returned.
+*/
+char json_find_option_bool(char const * zKey,
+                           char const * zCLILong,
+                           char const * zCLIShort,
+                           char dflt ){
+  char rc = -1;
+  if(!g.isHTTP){
+    if(NULL != find_option(zCLILong ? zCLILong : zKey,
+                           zCLIShort, 0)){
+      rc = 1;
+    }
+  }
+  if((-1==rc) && fossil_is_json()){
+    rc = json_getenv_bool(zKey,-1);
+  }
+  return (-1==rc) ? dflt : rc;
+}
+
+/*
+** The integer equivalent of json_find_option_cstr().
+** If the option is not found, dftl is returned.
+*/
+int json_find_option_int(char const * zKey,
+                         char const * zCLILong,
+                         char const * zCLIShort,
+                         int dflt ){
+  enum { Magic = -947 };
+  int rc = Magic;
+  if(!g.isHTTP){
+    char const * opt = find_option(zCLILong ? zCLILong : zKey,
+                                   zCLIShort, 1);
+    if(NULL!=opt){
+      rc = atoi(opt);
+    }
+  }
+  if(Magic==rc){
+    rc = json_getenv_int(zKey,Magic);
+  }
+  return (Magic==rc) ? dflt : rc;
 }
 
 
@@ -1008,41 +1106,22 @@ static void json_mode_bootstrap(){
       g.json.cmd.commandStr = cmd;
     }
   }
+
   
-  if(!g.json.jsonp && g.json.post.o){
-    g.json.jsonp =
-      json_getenv_cstr("jsonp")
-      /*cson_string_cstr(cson_value_get_string(cson_object_get(g.json.post.o,"jsonp")))*/
-      ;
+  if(!g.json.jsonp){
+    g.json.jsonp = json_find_option_cstr("jsonp",NULL,NULL);
   }
-  if( !g.isHTTP ){
+  if(!g.isHTTP){
     g.json.errorDetailParanoia = 0 /*disable error code dumb-down for CLI mode*/;
-    if(!g.json.jsonp){
-      g.json.jsonp = find_option("jsonp",NULL,1);
-    }
   }
 
   {/* set up JSON output formatting options. */
-    unsigned char indent = g.isHTTP ? 0 : 1;
+    int indent = -1;
     char const * indentStr = NULL;
-    char checkAgain = 1;
-    if( g.json.post.v ){
-      cson_value const * check = json_getenv("indent");
-      if(check){
-        checkAgain = 0;
-        indent = (unsigned char)json_getenv_int("indent",(int)indent);
-      }
-    }
-    if(!g.isHTTP && checkAgain){/*CLI mode*/
-      indentStr = find_option("indent","I",1);
-      if(indentStr){
-        int const n = atoi(indentStr);
-        indent = (n>0)
-          ? (unsigned char)n
-          : 0;
-      }
-    }
-    g.json.outOpt.indentation = indent;
+    indent = json_find_option_int("indent",NULL,"I",-1);
+    g.json.outOpt.indentation = (0>indent)
+      ? (g.isHTTP ? 0 : 1)
+      : (unsigned char)indent;
     g.json.outOpt.addNewline = g.isHTTP
       ? 0
       : (g.json.jsonp ? 0 : 1);
@@ -1567,11 +1646,7 @@ cson_value * json_page_stat(){
                  "Requires 'o' permissions.");
     return NULL;
   }
-  if( g.isHTTP ){
-    full = json_getenv_bool("full",0);
-  }else{
-    full = (0!=find_option("full","f",0));
-  }
+  full = json_find_option_bool("full",NULL,"f",0);
 #define SETBUF(O,K) cson_object_set(O, K, cson_value_new_string(zBuf, strlen(zBuf)));
 
   jv = cson_value_new_object();

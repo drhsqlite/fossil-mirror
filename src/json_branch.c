@@ -79,26 +79,27 @@ static cson_value * json_branch_list(){
   pay = cson_value_get_object(payV);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
-  if(!g.isHTTP){
-    range = find_option("range","r",1);
-    if(!range||!*range){
-      range = find_option("all","a",0);
-      if(range && *range){
-        range = "a";
-      }else{
-        range = find_option("closed","c",0);
-        if(range&&*range){
-          range = "c";
-        }
+  if(fossil_is_json()){
+      range = json_getenv_cstr("range");
+  }
+
+  range = json_find_option_cstr("range",NULL,"r");
+  if((!range||!*range) && !g.isHTTP){
+    range = find_option("all","a",0);
+    if(range && *range){
+      range = "a";
+    }else{
+      range = find_option("closed","c",0);
+      if(range&&*range){
+        range = "c";
       }
     }
-  }else{
-    range = json_getenv_cstr("range");
   }
+
   if(!range || !*range){
     range = "o";
   }
-  assert( (NULL != range) && *range );
+  /* Normalize range values... */
   switch(*range){
     case 'c':
       range = "closed";
@@ -113,7 +114,7 @@ static cson_value * json_branch_list(){
       which = 0;
       break;
   };
-  cson_object_set(pay,"range",cson_value_new_string(range,strlen(range)));
+  cson_object_set(pay,"range",json_new_string(range));
 
   if( g.localOpen ){ /* add "current" property (branch name). */
     int vid = db_lget_int("checkout", 0);
@@ -326,42 +327,43 @@ static cson_value * json_branch_create(){
                  "Requires 'i' permissions.");
     return NULL;
   }
-  if(0){
-    char const * x = json_command_arg(g.json.dispatchDepth+1);
-    fprintf(stderr,"command arg=%s\n",x);
-    assert(0);
-  }
   memset(&opt,0,sizeof(BranchCreateOptions));
-  opt.zName = g.json.post.v
-    ? json_getenv_cstr("name")
-    : json_command_arg(g.json.dispatchDepth+1);
+  if(fossil_is_json()){
+    opt.zName = json_getenv_cstr("name");
+  }
+
+  if(!opt.zName){
+    opt.zName = json_command_arg(g.json.dispatchDepth+1);
+  }
 
   if(!opt.zName){
     json_set_err(FSL_JSON_E_MISSING_ARGS, "'name' parameter was not specified." );
     return NULL;
   }
 
-  opt.zBasis = g.json.post.v
-    ? json_getenv_cstr("basis")
-    : json_command_arg(g.json.dispatchDepth+2);
-  if(!opt.zBasis || ('-'==*opt.zBasis/*assume CLI flag*/)){
+  opt.zColor = json_find_option_cstr("bgColor","bgcolor",NULL);
+  opt.zBasis = json_find_option_cstr("basis",NULL,NULL);
+  if(!opt.zBasis && !g.isHTTP){
+    opt.zBasis = json_command_arg(g.json.dispatchDepth+2);
+  }
+  if(!opt.zBasis){
     opt.zBasis = "trunk";
   }
-
-  opt.zColor = g.json.post.v
-    ? json_getenv_cstr("bgColor")
-    : find_option("bgcolor","",1);
-
-  opt.isPrivate = g.json.post.v
-    ? json_getenv_bool("private",0)
-    : (NULL != find_option("private","",0))
-    ;
+  opt.isPrivate = json_find_option_bool("private",NULL,NULL,-1);
+  if(-1==opt.isPrivate){
+    if(!g.isHTTP){
+      opt.isPrivate = (NULL != find_option("private","",0));
+    }else{
+      opt.isPrivate = 0;
+    }
+  }
   
   rc = json_branch_new( &opt, &rid );
   if(rc){
-    json_set_err(rc, opt.rcErrMsg );
+    json_set_err(rc, opt.rcErrMsg);
     goto error;
   }
+  assert(0 != rid);
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
 

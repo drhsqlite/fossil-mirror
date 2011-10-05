@@ -227,13 +227,12 @@ cson_value * json_page_artifact(){
   int rc;
   int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
-  zName = g.isHTTP
-    ? json_getenv_cstr("uuid")
-    : find_option("uuid","u",1);
+  zName = json_find_option_cstr("uuid",NULL,"u");
   if(!zName||!*zName){
     zName = json_command_arg(g.json.dispatchDepth+1);
     if(!zName || !*zName) {
-      g.json.resultCode = FSL_JSON_E_MISSING_ARGS;
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "Missing 'uuid' argument.");
       return NULL;
     }
   }

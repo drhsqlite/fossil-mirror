@@ -155,17 +155,9 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
   if(! g.perm.Read ){
     return 0;
   }
-  else if(g.isHTTP){
-    zTag = json_getenv_cstr("tag");
-  }else{
-    zTag = find_option("tag",NULL,1);
-  }
+  zTag = json_find_option_cstr("tag",NULL,NULL);
   if(!zTag || !*zTag){
-    if(g.isHTTP){
-      zBranch = json_getenv_cstr("branch");
-    }else{
-      zBranch = find_option("branch",NULL,1);
-    }
+    zBranch = json_find_option_cstr("branch",NULL,NULL);
     if(!zBranch || !*zBranch){
       return 0;
     }
@@ -213,43 +205,26 @@ static char json_timeline_add_tag_branch_clause(Blob *pSql,
 static char json_timeline_add_time_clause(Blob *pSql){
   char const * zAfter = NULL;
   char const * zBefore = NULL;
-  if( g.isHTTP ){
-    /**
-       FIXME: we are only honoring STRING values here, not int (for
-       passing Unix Epoch times).
-    */
-    zAfter = json_getenv_cstr("after");
-    if(!zAfter || !*zAfter){
-      zAfter = json_getenv_cstr("a");
-    }
-    if(!zAfter){
-      zBefore = json_getenv_cstr("before");
-      if(!zBefore||!*zBefore){
-        zBefore = json_getenv_cstr("b");
-      }
-    }
-  }else{
-    zAfter = find_option("after","a",1);
-    zBefore = zAfter ? NULL : find_option("before","b",1);
-  }
+  int rc = 0;
+  zAfter = json_find_option_cstr("after",NULL,"a");
+  zBefore = zAfter ? NULL : json_find_option_cstr("before",NULL,"b");
+
   if(zAfter&&*zAfter){
     while( fossil_isspace(*zAfter) ) ++zAfter;
     blob_appendf(pSql,
                  " AND event.mtime>=(SELECT julianday(%Q,'utc')) "
                  " ORDER BY event.mtime ASC ",
                  zAfter);
-    return 1;
+    rc = 1;
   }else if(zBefore && *zBefore){
     while( fossil_isspace(*zBefore) ) ++zBefore;
     blob_appendf(pSql,
                  " AND event.mtime<=(SELECT julianday(%Q,'utc')) "
                  " ORDER BY event.mtime DESC ",
                  zBefore);
-    return -1;
-  }else{
-    blob_append(pSql," ORDER BY event.mtime DESC ", -1);
-    return 0;
+    rc = -1;
   }
+  return rc;
 }
 
 /*
@@ -262,16 +237,14 @@ static char json_timeline_add_time_clause(Blob *pSql){
 static int json_timeline_limit(){
   static const int defaultLimit = 20;
   int limit = -1;
-  if( g.json.post.v ){
-    limit = json_getenv_int("limit",-1);
-    if(limit<0){
-      limit = json_getenv_int("n",-1);
-    }
-  }else if(!g.isHTTP){/* CLI mode */
+  if(!g.isHTTP){/* CLI mode */
     char const * arg = find_option("limit","n",1);
     if(arg && *arg){
       limit = atoi(arg);
     }
+  }
+  if( (limit<0) && fossil_is_json() ){
+    limit = json_getenv_int("limit",-1);
   }
   return (limit<0) ? defaultLimit : limit;
 }
@@ -382,7 +355,7 @@ static cson_value * json_timeline_ci(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
-  int showFiles = 0;
+  char showFiles = -1/*magic number*/;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   char warnStringToArrayFailed = 0;
@@ -394,11 +367,7 @@ static cson_value * json_timeline_ci(){
     json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'o' access." );
     return NULL;
   }
-  if( g.isHTTP ){
-    showFiles = json_getenv_bool("files",0);
-  }else{
-    showFiles = 0!=find_option("files", "f",0);
-  }
+  showFiles = json_find_option_bool("files",NULL,"f",0);
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   check = json_timeline_setup_sql( "ci", &sql, pay );
