@@ -1334,7 +1334,7 @@ cson_value * json_create_response( int resultCode,
         pMsg = json_err_str(resultCode);
       }
     }
-    tmp = cson_value_new_integer(resultCode);
+    tmp = json_new_string(json_rc_cstr(resultCode));
     SET(FossilJsonKeys.resultCode);
   }
 
