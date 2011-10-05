@@ -59,7 +59,7 @@ cson_value * json_page_wiki(){
 ** The returned value, if not NULL, is-a JSON Object owned by the
 ** caller.
 */
-cson_value * json_get_wiki_page(char const * zPageName, char doParse){
+cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
   int rid;
   Manifest *pWiki = 0;
   char const * zBody = NULL;
@@ -119,6 +119,31 @@ cson_value * json_get_wiki_page(char const * zPageName, char doParse){
   }
 }
 
+
+/*
+** UNTESTED!
+**
+** Searches for a wiki page with the given rid. If found it behaves
+** like json_get_wiki_page_by_name(pageName, doParse), else it returns
+** NULL.
+*/
+cson_value * json_get_wiki_page_by_rid(int rid, char doParse){
+  char * zPageName = NULL;
+  cson_value * rc = NULL;
+  zPageName = db_text(NULL,
+                      "SELECT substr(t.tagname,6) AS name "
+                      " FROM tag t, tagxref x, blob b "
+                      " WHERE b.rid=%d "
+                      " AND t.tagname GLOB 'wiki-*'"
+                      " AND x.tagid=t.tagid AND b.rid=x.rid ",
+                      rid);
+  if( zPageName ){
+    rc = json_get_wiki_page_by_name(zPageName, doParse);
+    free(zPageName);
+  }
+  return rc;
+}
+
 /*
 ** Implementation of /json/wiki/get.
 **
@@ -159,7 +184,7 @@ static cson_value * json_wiki_get(){
   if( 'r' != *zFormat ){
     zFormat = "html";
   }
-  return json_get_wiki_page(zPageName, 'h'==*zFormat);
+  return json_get_wiki_page_by_name(zPageName, 'h'==*zFormat);
 }
 
 /*

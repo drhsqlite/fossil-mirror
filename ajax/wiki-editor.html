@@ -141,8 +141,8 @@ jQuery(document).ready(function(){
             return this.duration = this._tend - this._tstart;
         }
     };
-    var opt = TheApp.cgi.ajaj.options;
-    opt.beforeSend = TheApp.beforeSend = function(req,opt) {
+    var ajcb = TheApp.cgi.ajaj.callbacks;
+    ajcb.beforeSend = TheApp.beforeSend = function(req,opt) {
         TheApp.timer.start();
         var val =
             req ?
@@ -151,12 +151,12 @@ jQuery(document).ready(function(){
         TheApp.jqe.taResponse.val('');
         TheApp.startAjaxNotif();
     };
-    opt.afterSend = TheApp.afterSend = function(req,opt) {
+    ajcb.afterSend = TheApp.afterSend = function(req,opt) {
         TheApp.timer.end();
         TheApp.endAjaxNotif();
         TheApp.jqe.timer.text( "(Round-trip time: "+TheApp.timer.duration+'ms)' );
     };
-    opt.onResponse = TheApp.onResponse = function(resp,req) {
+    ajcb.onResponse = TheApp.onResponse = function(resp,req) {
         var val;
         try {
             val = WhAjaj.stringify(resp);
@@ -167,13 +167,9 @@ jQuery(document).ready(function(){
         if(resp.resultCode){
             alert("Response contains error info:\n"+val);
         }
-        //alert("onResponse this:"+WhAjaj.stringify(this));
-        //alert("val="+val);
-        // FIXME: this.url is hosed for login because of how i overload onResponse()
-        if( this.url ) TheApp.jqe.textPath.val(this.url.replace(WhAjaj.Connector.options.ajax.url,''));
         TheApp.jqe.taResponse.val( val );
     };
-    opt.onError = function(req,opt) {
+    ajcb.onError = function(req,opt) {
         TheApp.jqe.taResponse.val( "ERROR SENDING REQUEST:\n"+WhAjaj.stringify(opt) );
     };
 
@@ -184,8 +180,8 @@ jQuery(document).ready(function(){
     });
 
     TheApp.cgi.onLogin = function(){
-      TheApp.jqe.taResponse.val( "Logged in. Auth token =\n"+this.authToken );
-      TheApp.jqe.currentAuthToken.text("Auth token: "+(this.authToken || "not logged in"));
+      TheApp.jqe.taResponse.val( "Logged in: "+WhAjaj.stringify(this.auth));
+      TheApp.jqe.currentAuthToken.text("Logged in: "+WhAjaj.stringify(this.auth));
     };
     TheApp.cgi.onLogout = function(){
       TheApp.jqe.taResponse.val( "Logged out!" );
@@ -310,6 +306,8 @@ jQuery(document).ready(function(){
 */
     };
 
+    TheApp.cgi.whoami();
+
 });
 
 </script>
@@ -338,10 +336,8 @@ pw:<input type='password' id='textPassword' value='json-demo' size='12'/>
 <hr/>
 <strong>Quick-posts:</strong><br/>
 <input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
-<input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
 <input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat")' />
 <input type='button' value='whoami' onclick='TheApp.cgi.sendCommand("/json/whoami")' />
-<input type='button' value='cap' onclick='TheApp.cgi.sendCommand("/json/cap")' />
 <input type='button' value='wiki/list' onclick='TheApp.loadPageList()' />
 <!--
 <input type='button' value='timeline/ci' onclick='TheApp.cgi.sendCommand("/json/timeline/ci")' />

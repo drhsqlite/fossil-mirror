@@ -155,6 +155,9 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
   return v;
 }
 
+/*
+** Very incomplete/incorrect impl of /json/artifact/TICKET_ID.
+*/
 cson_value * json_artifact_ticket( int rid ){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
@@ -197,12 +200,8 @@ static cson_value * json_artifact_ci( int rid ){
 }
 
 /*
-** Permissions callback func for ArtifactDispatchEntry.
+** Internal mapping of /json/artifact/FOO commands/callbacks.
 */
-static char perms_can_read(){
-  return g.perm.Read ? 1 : 0;
-}
-
 static ArtifactDispatchEntry ArtifactDispatchList[] = {
 {"checkin", json_artifact_ci},
 {"tag", NULL},

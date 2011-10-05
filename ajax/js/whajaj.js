@@ -209,8 +209,6 @@ WhAjaj.Connector = function(opt)
     if(WhAjaj.isObject(opt)) this.options = opt;
     //TODO?: this.$cache = {};
 };
-WhAjaj.Connector.prototype.callbacks = {};
-WhAjaj.Connector.prototype.options = {};
 
 /**
     The core options used by WhAjaj.Connector instances for performing
@@ -264,7 +262,7 @@ WhAjaj.Connector.options = {
     */
     ajax: {
         /**
-            URL of the whiki back-end CGI binary.
+            URL of the back-end server/CGI.
         */
         url: '/some/path',
 
@@ -409,6 +407,35 @@ WhAjaj.Connector.options = {
     }
 };
 
+
+/**
+    WhAjaj.Connector.prototype.callbacks defines callbacks analog
+    to the onXXX callbacks defined in WhAjaj.Connector.options.ajax,
+    with two notable differences:
+
+    1) these callbacks, if set, are called in addition to any
+    request-specific callback. The intention is to allow a framework to set
+    "framework-level" callbacks which should be called independently of the
+    request-specific callbacks (without interfering with them, e.g.
+    requiring special re-forwarding features).
+
+    2) The 'this' object in these callbacks is the Connector instance
+    associated with the callback, whereas the "other" onXXX form has its
+    "ajax options" object as its this.
+
+    When this API says that an onXXX callback will be called for a request,
+    both the request's onXXX (if set) and this one (if set) will be called.
+*/
+WhAjaj.Connector.prototype.callbacks = {};
+/**
+    Instance-specific values for AJAJ-level properties (as opposed to
+    application-level request properties). Options set here "override" those
+    specified in WhAjaj.Connector.options.ajax and are "overridden" by
+    options passed to sendRequest().
+*/
+WhAjaj.Connector.prototype.options = {};
+
+
 /**
     Tries to find the given key in any of the following, returning
     the first match found: opt, this.options, WhAjaj.Connector.options.ajax.
@@ -423,6 +450,7 @@ WhAjaj.Connector.prototype.derivedOption = function(key,opt) {
     else v = WhAjaj.Connector.options.ajax[key];
     return v;
 };
+
 /**
     Returns a unique string on each call containing a generic 
     reandom request identifier string. This is not used by the core 
@@ -534,6 +562,9 @@ WhAjaj.Connector.sendHelper = {
         
         The resp argument may be either a plain Object or a string 
         (in which case it is assumed to be JSON).
+
+        The 'this' object for this call MUST be a WhAjaj.Connector
+        instance in order for callback processing to work properly.
         
         This function takes care of the following:
         
@@ -623,6 +654,9 @@ WhAjaj.Connector.sendHelper = {
         The request argument must be the original request passed to 
         the sendImpl() function. It may legally be null for GET 
         requests.
+
+        The 'this' object for this call MUST be a WhAjaj.Connector
+        instance in order for callback processing to work properly.
         
         The opt object should be the normalized AJAX options used 
         for the connection. By convention, the caller of this 

@@ -1,5 +1,5 @@
-C Tweaks\sto\sthe\sJS\sAPI,\smainly\sto\ssimplify\sa\scommon\s2-callbacks-per-event\suse\scase.\sAdded\smissing\sjson2.js.
-D 2011-10-05T05:41:03.494
+C A\sfew\sinternal\scosmetic\scleanups,\sadded\sjson_get_wiki_page_by_rid().
+D 2011-10-05T06:42:17.636
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -8,11 +8,11 @@ F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-test.js 5000b787cb9cd456f2d525c846b6f5334ccc39aa
-F ajax/index.html a5d1a5a6c8ecf1fb4c2bc1f3c585956a1d4ca04f
+F ajax/index.html 8764517827998693488d4e5a819ee80edb7ea1f4
 F ajax/js/fossil-ajaj.js dd928224aa7ab1bc5d0884104242516a21bfdb3a
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js 03f866077d24d945ddff59bfa2c9daf2b906dba0
-F ajax/wiki-editor.html 6ed1763d07c7930c076399cb208dcc3622772c20
+F ajax/js/whajaj.js c063c2e47f1d7348ff059099b0369d02c7dd8c7d
+F ajax/wiki-editor.html d03025d971318c11eb3eb547152d32c7d1d17c19
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -95,13 +95,13 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 3437365701100c4c6fcffc0cd3004fd111c841d4
-F src/json_artifact.c 2107e03c1cee37f0eedc58d4faaf0da2c5aa53be
+F src/json.c 3b20b14c25d7eb7b874d37cdfb96c68e09314232
+F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 1ca58c2ad76c33a732e672a650353fdde6abc661
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
-F src/json_wiki.c 813eb223f591b327a1046cf2b0cc21df3b2171cb
+F src/json_wiki.c 52f13c144b1a34c61e61ffbe12c8c79463e9bc98
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 6a1de45d53e59bed35a04e4d541464dc2c8d70ed
 F src/main.c d395eedb525e368acc9f56e6b6151eb5cf3c57bf
@@ -339,7 +339,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 30431ff9035a78713f1171ce9329e824aa4ebfff
-R 46ac5fb7277e89a7025b0a40e7a94871
+P cf10d9d9b9368623660c15828d739034d9fb2b5b
+R 0889785adcd54ec5b5e2f11baf77a92f
 U stephan
-Z 5146609c1b5048fb9cbfbef3383aa90c
+Z cd41f83d417ad0068e53a4e4dfcf1148

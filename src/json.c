@@ -1339,7 +1339,7 @@ cson_value * json_create_response( int resultCode,
   }
 
   if( pMsg && *pMsg ){
-    tmp = cson_value_new_string(pMsg, strlen(pMsg));
+    tmp = json_new_string(pMsg);
     SET(FossilJsonKeys.resultText);
   }
 
