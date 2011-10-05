@@ -206,9 +206,11 @@ WhAjaj.stringify = function(val) {
 */
 WhAjaj.Connector = function(opt)
 {
-    this.options = WhAjaj.isObject(opt) ? opt : {};
+    if(WhAjaj.isObject(opt)) this.options = opt;
     //TODO?: this.$cache = {};
 };
+WhAjaj.Connector.prototype.callbacks = {};
+WhAjaj.Connector.prototype.options = {};
 
 /**
     The core options used by WhAjaj.Connector instances for performing
@@ -558,15 +560,28 @@ WhAjaj.Connector.sendHelper = {
         onError/onResponse/afterSend handling correct can be tedious.
     */
     onSendSuccess:function(request,resp,opt) {
-        if( WhAjaj.isFunction(opt.afterSend) ) {
-            try {
-                opt.afterSend( request, opt );
-            } catch(e){}
+        var cb = this.callbacks || {};
+        if( WhAjaj.isFunction(cb.afterSend) ) {
+            try {cb.afterSend( request, opt );}
+            catch(e){}
         }
-        var onError = WhAjaj.isFunction(opt.onError) ? opt.onError : function(){};
+        if( WhAjaj.isFunction(opt.afterSend) ) {
+            try {opt.afterSend( request, opt );}
+            catch(e){}
+        }
+        function doErr(){
+            if( WhAjaj.isFunction(cb.onError) ) {
+                try {cb.onError( request, opt );}
+                catch(e){}
+            }
+            if( WhAjaj.isFunction(opt.onError) ) {
+                try {opt.onError( request, opt );}
+                catch(e){}
+            }
+        }
         if( ! resp ) {
             opt.errorMessage = "Sending of request succeeded but returned no data!";
-            onError.apply( opt, [request, opt] );
+            doErr();
             return false;
         }
 
@@ -575,11 +590,14 @@ WhAjaj.Connector.sendHelper = {
                 resp = opt.jsonp ? eval(resp) : JSON.parse(resp);
             } catch(e) {
                 opt.errorMessage = e.toString();
-                onError.apply( opt, [request, opt] );
+                doErr();
                 return;
             }
         }
         try {
+            if( WhAjaj.isFunction( cb.onResponse  ) ) {
+                cb.onResponse( resp, request );
+            }
             if( WhAjaj.isFunction( opt.onResponse  ) ) {
                 opt.onResponse( resp, request );
             }
@@ -588,10 +606,10 @@ WhAjaj.Connector.sendHelper = {
         catch(e) {
             opt.errorMessage = "Exception while handling inbound JSON response:\n"
                 + e
-                +"\nOriginal response data:\n"+JSON.stringify(resp)
+                +"\nOriginal response data:\n"+JSON.stringify(resp,0,2)
                 ;
             ;
-            onError.apply( opt, [request, opt] );
+            doErr();
             return false;
         }
     },
@@ -615,16 +633,21 @@ WhAjaj.Connector.sendHelper = {
         return value from this function is unspecified.
     */
     onSendError: function(request,opt) {
-        if( WhAjaj.isFunction(opt.afterSend) ) {
-            try {
-                opt.afterSend( request, opt );
-            }
+        var cb = this.callbacks || {};
+        if( WhAjaj.isFunction(cb.afterSend) ) {
+            try {cb.afterSend( request, opt );}
             catch(e){}
         }
+        if( WhAjaj.isFunction(opt.afterSend) ) {
+            try {opt.afterSend( request, opt );}
+            catch(e){}
+        }
+        if( WhAjaj.isFunction( cb.onError ) ) {
+            try {cb.onError( request, opt );}
+            catch(e) {/*ignore*/}
+        }
         if( WhAjaj.isFunction( opt.onError ) ) {
-            try {
-                opt.onError( request, opt );
-            }
+            try {opt.onError( request, opt );}
             catch(e) {/*ignore*/}
         }
     }
@@ -696,6 +719,7 @@ WhAjaj.Connector.sendImpls = {
         var hitTimeout = false;
         var done = false;
         var tmid /* setTimeout() ID */;
+        var whself = this;
         //if( json ) json = json.replace(/ö/g,"\\u00f6") /* ONLY FOR A SPECIFIC TEST */;
         //alert( 'json=\n'+json );
         function handleTimeout()
@@ -707,7 +731,7 @@ WhAjaj.Connector.sendImpls = {
                 try { xhr.abort(); } catch(e) {/*ignore*/}
                 // see: http://www.w3.org/TR/XMLHttpRequest/#the-abort-method
                 args.errorMessage = "Timeout of "+timeout+"ms reached after "+(now-startTime)+"ms during AJAX request.";
-                WhAjaj.Connector.sendHelper.onSendError( request, args );
+                WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
             }
             return;
         }
@@ -728,7 +752,7 @@ WhAjaj.Connector.sendImpls = {
                 }
                 if( (xhr.status >= 200) && (xhr.status < 300) )
                 {
-                    WhAjaj.Connector.sendHelper.onSendSuccess( request, xhr.responseText, args );
+                    WhAjaj.Connector.sendHelper.onSendSuccess.apply( whself, [request, xhr.responseText, args] );
                     return;
                 }
                 else
@@ -739,7 +763,7 @@ WhAjaj.Connector.sendImpls = {
                                 +"["+args.url+"]: "
                                 +"Status text=["+xhr.statusText+"]"
                             ;
-                        WhAjaj.Connector.sendHelper.onSendError( request, args );
+                        WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
                     }
                     else { /*maybe it was was set by the timeout handler. */ }
                     return;
@@ -787,7 +811,7 @@ WhAjaj.Connector.sendImpls = {
         catch(e)
         {
             args.errorMessage = e.toString();
-            WhAjaj.Connector.sendHelper.onSendError( request, args );
+            WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
             return undefined;
         }
     }/*XMLHttpRequest()*/,
@@ -817,13 +841,14 @@ WhAjaj.Connector.sendImpls = {
     jQuery:function(request,args)
     {
         var data = request || undefined;
+        var whself = this;
         if( data ) {
             if('string'!==typeof data) {
                 try {
                     data = JSON.stringify(data);
                 }
                 catch(e) {
-                    WhAjaj.Connector.sendHelper.onSendError( request, args );
+                    WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
                     return;
                 }
             }
@@ -843,11 +868,11 @@ WhAjaj.Connector.sendImpls = {
                         +"Status text=["+textStatus+"]"
                         +(errorThrown ? ("Error=["+errorThrown+"]") : "")
                     ;
-                WhAjaj.Connector.sendHelper.onSendError( request, args );
+                WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
             },
             success: function(data)
             {
-                WhAjaj.Connector.sendHelper.onSendSuccess( request, data, args );
+                WhAjaj.Connector.sendHelper.onSendSuccess.apply( whself, [request, data, args] );
             },
             /* Set dataType=text instead of json for deeply archaic reasons which
                 might no longer apply.
@@ -870,7 +895,7 @@ WhAjaj.Connector.sendImpls = {
         catch(e)
         {
             args.errorMessage = e.toString();
-            WhAjaj.Connector.sendHelper.onSendError( request, args );
+            WhAjaj.Connector.sendHelper.onSendError.apply( whself, [request, args] );
             return undefined;
         }
     }/*jQuery()*/,
@@ -897,7 +922,7 @@ WhAjaj.Connector.sendImpls = {
                     data = JSON.stringify(data);
                 }
                 catch(e) {
-                    WhAjaj.Connector.sendHelper.onSendError( request, args );
+                    WhAjaj.Connector.sendHelper.onSendError.apply( self, [request, args] );
                     return;
                 }
             }
@@ -963,14 +988,14 @@ WhAjaj.Connector.sendImpls = {
             setIncomingCookies(con.getHeaderFields().get("Set-Cookie"));
         }catch(e){
             args.errorMessage = e.toString();
-            WhAjaj.Connector.sendHelper.onSendError( request, args );
+            WhAjaj.Connector.sendHelper.onSendError.apply( self, [request, args] );
             return undefined;
         }
         try { if(wr) wr.close(); } catch(e) { /*ignore*/}
         try { if(rd) rd.close(); } catch(e) { /*ignore*/}
         json = json.join('');
         //print("READ IN JSON: "+json);
-        WhAjaj.Connector.sendHelper.onSendSuccess( request, json, args );
+        WhAjaj.Connector.sendHelper.onSendSuccess.apply( self, [request, json, args] );
     }/*rhino()*/
 };
 
@@ -1112,8 +1137,11 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     var norm = this.normalizeAjaxParameters( WhAjaj.isObject(opt) ? opt : {} );
     norm.url = WhAjaj.Connector.sendHelper.normalizeURL(norm);
     if( ! request ) norm.method = 'GET';
-    if( WhAjaj.isFunction(norm.beforeSend) )
-    {
+    var cb = this.callbacks || {};
+    if( this.callbacks && WhAjaj.isFunction(this.callbacks.beforeSend) ) {
+        this.callbacks.beforeSend( request, norm );
+    }
+    if( WhAjaj.isFunction(norm.beforeSend) ){
         norm.beforeSend( request, norm );
     }
     //alert( WhAjaj.stringify(request)+'\n'+WhAjaj.stringify(norm));

@@ -71,9 +71,13 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     After the response returns, this.authToken will be
     set to the response payload.
     
-    If name === 'anonymous' (the default if none is passed in) then
-    this function must make two requests - the first one gets the
-    captcha code and the second one submits it.
+    If name === 'anonymous' (the default if none is passed in) then this
+    function ignores the pw argument and must make two requests - the first
+    one gets the captcha code and the second one submits it.
+    ajajOpt.onResponse() (if set) is only called for the actual login
+    response (the 2nd one), as opposed to being called for both requests.
+    However, this.ajaj.callbacks.onResponse() _is_ called for both (because
+    it happens at a lower level).
     
     If this object has an onLogin() function it is called (with
     no arguments) before the onResponse() handler of the login is called
@@ -93,9 +97,10 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
         var thisOpt = this;
         //alert('login response:\n'+WhAjaj.stringify(resp));
         if( resp && resp.payload ) {
-            self.authToken = resp.payload.authToken;
-            self.userName = resp.payload.name;
-            self.capabilities = resp.payload.capabilities;
+            /*deprecated*/self.authToken = resp.payload.authToken;
+            //self.userName = resp.payload.name;
+            //self.capabilities = resp.payload.capabilities;
+            self.auth = resp.payload;
         }
         if( WhAjaj.isFunction( self.onLogin ) ){
             try{ self.onLogin(); }
@@ -112,9 +117,11 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
     if( 'anonymous' === name ){
       this.sendCommand('/json/anonymousPassword',undefined,{
           onResponse:function(resp,req){
+/*
             if( WhAjaj.isFunction(oldOnResponse) ){
                 oldOnResponse.apply(this, [resp,req]);
             };
+*/
             if(resp && !resp.resultCode){
                 //alert("Got PW. Trying to log in..."+WhAjaj.stringify(resp));
                 loginReq.anonymousSeed = resp.payload.seed;
@@ -143,7 +150,10 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
     var oldOnResponse = ajajOpt.onResponse;
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
-        if( resp && !resp.payload ) delete self.authToken;
+        if( resp && !resp.payload ){
+            delete self.authToken;
+            delete self.auth;
+        }
         if( WhAjaj.isFunction( self.onLogout ) ){
             try{ self.onLogout(); }
             catch(e){}
@@ -167,8 +177,8 @@ FossilAjaj.prototype.HAI = function(ajajOpt) {
 
 
 /**
-    Sends a /json/whoami request. Updates this.userName and this.authToken
-    based on the response, removing them if the response does not contain
+    Sends a /json/whoami request. Updates this.auth to contain
+    the login info, removing them if the response does not contain
     that data.
 */
 FossilAjaj.prototype.whoami = function(ajajOpt) {
@@ -178,13 +188,14 @@ FossilAjaj.prototype.whoami = function(ajajOpt) {
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
         if( resp && resp.payload ){
-            self.authToken = resp.payload.authToken;
-            self.userName = resp.payload.name;
+            if(!self.auth || (self.auth.authToken!=resp.payload.authToken)){
+                self.auth = resp.payload;
+                if( WhAjaj.isFunction(self.onLogin) ){
+                    self.onLogin();
+                }
+            }
         }
-        else {
-            delete self.userName;
-            delete self.authToken
-        }
+        else { delete self.auth; }
         if( WhAjaj.isFunction(oldOnResponse) ) {
             oldOnResponse.apply(thisOpt,[resp,req]);
         }

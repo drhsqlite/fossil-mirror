@@ -1,9 +1,9 @@
 var TestApp = {
     serverUrl:
-        //'http://localhost:8080'
+        'http://localhost:8080'
         //'http://fjson/cgi-bin/fossil-json.cgi'
         //'http://192.168.1.62:8080'
-        'http://fossil.wanderinghorse.net/repos/fossil-json-java/index.cgi'
+        //'http://fossil.wanderinghorse.net/repos/fossil-json-java/index.cgi'
         ,
     verbose:true,
     wiki:{}
@@ -21,26 +21,28 @@ var TestApp = {
     TestApp.fossil = new FossilAjaj({
         asynchronous:false, /* rhino-based impl doesn't support async or timeout. */
         timeout:0,
-        url:TestApp.serverUrl,
-        beforeSend:function(req,opt){
-            if(!TestApp.verbose) return;
-            print("SENDING REQUEST: AJAJ options="+JSON.stringify(opt));
-            if(req) print("Request envelope="+WhAjaj.stringify(req));
-        },
-        afterSend:function(req,opt){
-            //if(!TestApp.verbose) return;
-            //print("REQUEST RETURNED: opt="+JSON.stringify(opt));
-            //if(req) print("Request="+WhAjaj.stringify(req));
-        },
-        onError:function(req,opt){
-            if(!TestApp.verbose) return;
-            print("ERROR: "+WhAjaj.stringify(opt));
-        },
-        onResponse:function(resp,req){
-            if(!TestApp.verbose) return;
-            print("GOT RESPONSE: "+(('string'===typeof resp) ? resp : WhAjaj.stringify(resp)));
-        }
+        url:TestApp.serverUrl
     });
+    var cb = TestApp.fossil.ajaj.callbacks;
+    cb.beforeSend = function(req,opt){
+        if(!TestApp.verbose) return;
+        print("SENDING REQUEST: AJAJ options="+JSON.stringify(opt));
+        if(req) print("Request envelope="+WhAjaj.stringify(req));
+    };
+    cb.afterSend = function(req,opt){
+        //if(!TestApp.verbose) return;
+        //print("REQUEST RETURNED: opt="+JSON.stringify(opt));
+        //if(req) print("Request="+WhAjaj.stringify(req));
+    };
+    cb.onError = function(req,opt){
+        if(!TestApp.verbose) return;
+        print("ERROR: "+WhAjaj.stringify(opt));
+    };
+    cb.onResponse = function(resp,req){
+        if(!TestApp.verbose) return;
+        print("GOT RESPONSE: "+(('string'===typeof resp) ? resp : WhAjaj.stringify(resp)));
+    };
+    
 })();
 
 /**
@@ -117,8 +119,8 @@ testHAI.description = 'Get server version info.';
 
 function testIAmNobody(){
     TestApp.fossil.whoami('/json/whoami');
-    assert('nobody' === TestApp.fossil.userName, 'User == nobody.' );
-    assert(!TestApp.fossil.authToken, 'authToken is not set.' );
+    assert('nobody' === TestApp.fossil.auth.name, 'User == nobody.' );
+    assert(!TestApp.fossil.auth.authToken, 'authToken is not set.' );
    
 }
 testIAmNobody.description = 'Ensure that current user is "nobody".';
@@ -126,18 +128,17 @@ testIAmNobody.description = 'Ensure that current user is "nobody".';
 
 function testAnonymousLogin(){
     TestApp.fossil.login();
-    assert('string' === typeof TestApp.fossil.authToken, 'authToken = '+TestApp.fossil.authToken);
-    assert( 'string' === typeof TestApp.fossil.userName, 'User name = '+TestApp.fossil.userName);
+    assert('string' === typeof TestApp.fossil.auth.authToken, 'authToken = '+TestApp.fossil.auth.authToken);
+    assert( 'string' === typeof TestApp.fossil.auth.name, 'User name = '+TestApp.fossil.auth.name);
     TestApp.fossil.userName = null;
     TestApp.fossil.whoami('/json/whoami');
-    assert( 'string' === typeof TestApp.fossil.userName, 'User name = '+TestApp.fossil.userName);
+    assert( 'string' === typeof TestApp.fossil.auth.name, 'User name = '+TestApp.fossil.auth.name);
 }
 testAnonymousLogin.description = 'Perform anonymous login.';
 
 function testAnonWiki(){
     TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
         beforeSend:function(req,opt){
-            TestApp.fossil.ajaj.options.beforeSend(req,opt);
             assert( req && (req.authToken==TestApp.fossil.authToken), 'Request envelope contains expected authToken.'  );
         },
         onResponse:function(resp,req){
