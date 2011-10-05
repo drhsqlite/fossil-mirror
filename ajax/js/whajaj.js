@@ -317,7 +317,11 @@ WhAjaj.Connector.options = {
             (exception: in jsonp mode it is passed a string). The initiating
             request object is passed as the second parameter, but clients
             can normally ignore it (only those which need a way to map
-            specific requests to responses will need it).
+            specific requests to responses will need it). The 3rd parameter
+            is the same as the 'this' object for the context of the callback,
+            but is provided because the instance-level callbacks (set in
+            (WhAjaj.Connector instance).callbacks, require it in some
+            cases (because their 'this' is different!).
             
             Note that the response might contain error information which
             comes from the back-end. The difference between this error info
@@ -327,7 +331,7 @@ WhAjaj.Connector.options = {
             non-JSON data (which, when not in jsonp mode, is unexpected and
             is as fatal to the request as a connection error).
         */
-        onResponse: function(response, request){},
+        onResponse: function(response, request, opt){},
 
         /**
             If an AJAX request fails to establish a connection or it 
@@ -572,7 +576,7 @@ WhAjaj.Connector.sendHelper = {
         
         - If resp is a string, de-JSON-izing it to an object.
         
-        - Calling opt.onSuccess()
+        - Calling opt.onResponse()
         
         - Calling opt.onError() in several common (potential) error 
         cases.
@@ -627,10 +631,10 @@ WhAjaj.Connector.sendHelper = {
         }
         try {
             if( WhAjaj.isFunction( cb.onResponse  ) ) {
-                cb.onResponse( resp, request );
+                cb.onResponse( resp, request, opt );
             }
             if( WhAjaj.isFunction( opt.onResponse  ) ) {
-                opt.onResponse( resp, request );
+                opt.onResponse( resp, request, opt );
             }
             return true;
         }

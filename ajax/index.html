@@ -157,7 +157,7 @@ jQuery(document).ready(function(){
         TheApp.endAjaxNotif();
         TheApp.jqe.timer.text( "(Round-trip time (incl. JS overhead): "+TheApp.timer.duration+'ms)' );
     };
-    ajcb.onResponse = function(resp,req) {
+    ajcb.onResponse = function(resp,req, opt) {
         var val;
         if(this.jsonp) return /*was already handled*/;
         try {
@@ -169,7 +169,7 @@ jQuery(document).ready(function(){
         //alert("onResponse this:"+WhAjaj.stringify(this));
         //alert("val="+val);
         // FIXME: this.url is hosed for login because of how i overload onResponse()
-        if( this.url ) TheApp.jqe.textPath.val(this.url.replace(WhAjaj.Connector.options.ajax.url,''));
+        if( opt.url ) TheApp.jqe.textPath.val(opt.url.replace(WhAjaj.Connector.options.ajax.url,''));
         TheApp.jqe.taResponse.val( val );
     };
     ajcb.onError = function(req,opt) {
@@ -219,7 +219,7 @@ If the POST textarea is not empty then it will be posted with the request.
 <input type='button' value='HAI JSONP' onclick='TheApp.cgi.sendCommand("/json/HAI",undefined,{jsonp:"myJsonPCallback"});' />
 
 <input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
-<input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat")' />
+<input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat?full=0")' />
 <input type='button' value='whoami' onclick='TheApp.cgi.sendCommand("/json/whoami")' />
 <input type='button' value='cap' onclick='TheApp.cgi.sendCommand("/json/cap")' />
 <input type='button' value='branch/list' onclick='TheApp.cgi.sendCommand("/json/branch/list")' />
