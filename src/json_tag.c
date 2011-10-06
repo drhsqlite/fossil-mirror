@@ -56,10 +56,81 @@ static cson_value * json_tag_add(){
   cson_object * pay = NULL;
   char const * zName = NULL;
   char const * zCheckin = NULL;
-  char propagate = 0;
-  char raw = 0;
-  char const * zPrefix = NULL; /* raw ? "" : "sym-" */
-  g.json.resultCode = FSL_JSON_E_NYI;
+  char fRaw = 0;
+  char fPropagate = 0;
+  char const * zValue = NULL;
+  const char *zPrefix = NULL;
+
+  if( !g.perm.Write ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'i' permissions.");
+    return NULL;
+  }
+  fRaw = json_find_option_bool("raw",NULL,NULL,0);
+  fPropagate = json_find_option_bool("propagate",NULL,NULL,0);
+  zName = json_find_option_cstr("name",NULL,NULL);
+  zPrefix = fRaw ? "" : "sym-";
+  if(!zName || !*zName){
+    if(!fossil_is_json()){
+      zName = json_command_arg(3);
+    }
+    if(!zName || !*zName){
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'name' parameter is missing.");
+      return NULL;
+    }
+  }
+  
+  zCheckin = json_find_option_cstr("checkin",NULL,NULL);
+  if( !zCheckin ){
+    if(!fossil_is_json()){
+      zCheckin = json_command_arg(4);
+    }
+    if(!zCheckin || !*zCheckin){
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'checkin' parameter is missing.");
+      return NULL;
+    }
+  }
+
+
+  zValue = json_find_option_cstr("value",NULL,NULL);
+  if(!zValue && !fossil_is_json()){
+    zValue = json_command_arg(5);
+  }
+
+  db_begin_transaction();
+  tag_add_artifact(zPrefix, zName, zCheckin, zValue,
+                   1+fPropagate,NULL/*DateOvrd*/,NULL/*UserOvrd*/);
+  db_end_transaction(0);
+
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  cson_object_set(pay, "name", json_new_string(zName) );
+  cson_object_set(pay, "value", (zValue&&*zValue)
+                  ? json_new_string(zValue)
+                  : cson_value_null());
+  cson_object_set(pay, "propagate", cson_value_new_bool(fPropagate));
+  cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
+  {
+    Blob uu = empty_blob;
+    blob_append(&uu, zName, -1);
+    int const rc = name_to_uuid(&uu, 9, "*");
+    if(0!=rc){
+      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert name back to UUID!");
+      blob_reset(&uu);
+      goto error;
+    }
+    cson_object_set(pay, "appliedTo", json_new_string(blob_buffer(&uu)));
+    blob_reset(&uu);
+  }
+
+  goto ok;
+  error:
+  assert( 0 != g.json.resultCode );
+  cson_value_free(payV);
+  payV = NULL;
+  ok:
   return payV;
 }
 
@@ -178,12 +249,19 @@ static cson_value * json_tag_list(){
 
     RAW mode:
     
-    ["sym-tagname", "sym-tagname2",...]
+    ["tagname", "sym-tagname2",...]
 
     Non-raw:
 
     ["tagname", "tagname2",...]
 
+    i don't really like the discrepancy in the format but this list
+    can get really long and (A) most tags don't have values, (B) i
+    don't want to bloat it more, and (C) cson_object_set() is O(N)
+    (N=current number of properties) because it uses an unsorted list
+    internally (for memory reasons), so this can slow down appreciably
+    on a long list. The culprit is really tkt- tags, as there is one
+    for each ticket (941 in the main fossil repo as of this writing).
     */
     Blob sql = empty_blob;
     cson_value * arV = NULL;
@@ -208,8 +286,8 @@ static cson_value * json_tag_list(){
       if(NULL==arV){
         arV = cson_value_new_array();
         ar = cson_value_get_array(arV);
-        tagsVal = arV;
         cson_object_set(pay, "tags", arV);
+        tagsVal = arV;
       }
       if(!fTicket && (0==strncmp(zName, "tkt-", 4))) continue;
       else if( !fRaw && (0==strncmp(zName, "sym-", 4))){
@@ -219,9 +297,6 @@ static cson_value * json_tag_list(){
       cson_array_append(ar, json_new_string(zName));
     }
     db_finalize(&q);
-    if( ! arV ){
-      arV = cson_value_null();
-    }
   }
 
   goto end;

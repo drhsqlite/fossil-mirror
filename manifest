@@ -1,5 +1,5 @@
-C Added\s/json/tag/list\sand\sinfrastructure\sfor\spending\s(add,\scancel,\sfind)\sops.
-D 2011-10-06T20:10:05.506
+C Added\s/json/tag/add.
+D 2011-10-06T21:14:24.512
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -8,7 +8,7 @@ F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-test.js 5000b787cb9cd456f2d525c846b6f5334ccc39aa
-F ajax/index.html 6017f932cc6b7e13250169de260b77dd629cc8ed
+F ajax/index.html c3ad72490ae9d8c5897b8a95ce15b2d9e4061ef0
 F ajax/js/fossil-ajaj.js dd928224aa7ab1bc5d0884104242516a21bfdb3a
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
 F ajax/js/whajaj.js e1b3447be40a89a807576467d021306e74a61c62
@@ -100,7 +100,7 @@ F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 1ca58c2ad76c33a732e672a650353fdde6abc661
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
-F src/json_tag.c 56f1c36ca2cdeeb40770ba576a821842ad12b255
+F src/json_tag.c 2430dd394bd8d0d3cdaf2bcf6811ef4f127a4f78
 F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
 F src/json_wiki.c 52f13c144b1a34c61e61ffbe12c8c79463e9bc98
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 71a1d4483f71aeb4e7943f6a65a567a45db0a6e6
-R 3944d82d98a32216cc69ef715b0a432b
+P 1088cf2107afaac387f80807381c34a79cfb7243
+R 0db866d096e184dfe345da062bebc50b
 U stephan
-Z aacc690df889a2f3f4cb997f68ca1f86
+Z e46290996525ea99fee4bcbf2ec4f9ab
