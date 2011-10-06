@@ -1975,6 +1975,8 @@ cson_value * json_page_logout();
 cson_value * json_page_artifact();
 /* Impl in json_branch.c. */
 cson_value * json_page_branch();
+/* Impl in json_tag.c. */
+cson_value * json_page_tag();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -1993,7 +1995,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"rebuild",json_page_rebuild,0},
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
-{"tag", json_page_nyi,0},
+{"tag", json_page_tag,0},
 {"ticket", json_page_nyi,0},
 {"timeline", json_page_timeline,0},
 {"user",json_page_user,0},
