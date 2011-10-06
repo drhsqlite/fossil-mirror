@@ -188,7 +188,126 @@ static cson_value * json_tag_cancel(){
 static cson_value * json_tag_find(){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
-  g.json.resultCode = FSL_JSON_E_NYI;
+  cson_value * listV = NULL;
+  cson_array * list = NULL;
+  char const * zName = NULL;
+  char const * zType = NULL;
+  char fRaw = 0;
+  Stmt q = empty_Stmt;
+  int limit = 0;
+  int tagid = 0;
+
+  if( !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' permissions.");
+    return NULL;
+  }
+  zName = json_find_option_cstr("name",NULL,NULL);
+  if(!zName || !*zName){
+    if(!fossil_is_json()){
+      zName = json_command_arg(3);
+    }
+    if(!zName || !*zName){
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'name' parameter is missing.");
+      return NULL;
+    }
+  }
+  zType = json_find_option_cstr("type",NULL,"t");
+  if(!zType || !*zType){
+    zType = "*";
+  }
+
+  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
+                 zName);
+#if 0
+  /* It is arguable to return an error in this case. We could
+     alternatively simply return an empty set.
+  */
+  if( tagid<=0 ){
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                 "Could not find tag ID for tag '%s'.", zName);
+    return NULL;
+  }
+#endif
+  
+  limit = json_find_option_int("limit",NULL,"n",0);
+  fRaw = json_find_option_bool("raw",NULL,NULL,0);
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+  cson_object_set(pay, "name", json_new_string(zName));
+  cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
+  cson_object_set(pay, "type", json_new_string(zType));
+  cson_object_set(pay, "limit", json_new_int(limit));
+
+#if 1
+  if( tagid<=0 ){
+    cson_object_set(pay,"artifacts", cson_value_null());
+    return payV;
+  }
+#endif
+
+  if( fRaw ){
+    db_prepare(&q,
+               "SELECT blob.uuid FROM tagxref, blob"
+               " WHERE tagid=(SELECT tagid FROM tag WHERE tagname=%Q)"
+               "   AND tagxref.tagtype>0"
+               "   AND blob.rid=tagxref.rid"
+               "%s LIMIT %d",
+               zName,
+               (limit>0)?"":"--", limit
+               );
+    printf("SQL=%s\n", blob_buffer(&q.sql));
+    while( db_step(&q)==SQLITE_ROW ){
+      if(!listV){
+        listV = cson_value_new_array();
+        list = cson_value_get_array(listV);
+      }
+      cson_array_append(list, cson_sqlite3_column_to_value(q.pStmt,0));
+    }
+    db_finalize(&q);
+  }else{
+    char const * zSqlBase = /*modified from timeline_query_for_tty()*/
+      " SELECT"
+#if 0
+      "   blob.rid AS rid,"
+#endif
+      "   uuid AS uuid,"
+      "   cast(strftime('%s',event.mtime) as int) AS mtime,"
+      "   coalesce(ecomment,comment) AS comment,"
+      "   coalesce(euser,user) AS user,"
+      "   CASE event.type"
+      "     WHEN 'ci' THEN 'checkin'"
+      "     WHEN 'w' THEN 'wiki'"
+      "     WHEN 'e' THEN 'event'"
+      "     WHEN 't' THEN 'ticket'"
+      "     ELSE 'WTF?'"
+      "   END"
+      "   AS eventType"
+      " FROM event, blob"
+      " WHERE blob.rid=event.objid"
+      ;
+    /* FIXME: re-add tags. */
+    db_prepare(&q,
+               "%s"
+               "  AND event.type GLOB '%q'"
+               "  AND blob.rid IN ("
+               "    SELECT rid FROM tagxref"
+               "      WHERE tagtype>0 AND tagid=%d"
+               "  )"
+               " ORDER BY event.mtime DESC"
+               "%s LIMIT %d",
+               zSqlBase, zType, tagid,
+               (limit>0)?"":"--", limit
+               );
+    listV = json_stmt_to_array_of_obj(&q, NULL);
+    db_finalize(&q);
+  }
+
+  if(!listV) {
+    listV = cson_value_null();
+  }
+  cson_object_set(pay, "artifacts", listV);
   return payV;
 }
 

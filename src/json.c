@@ -823,7 +823,7 @@ void json_main_bootstrap(){
 ** the given code. If !*msg then elide the "text" property,
 ** for consistency with how json_err() works.
 */
-void json_warn( int code, char const * msg ){
+void json_warn( int code, char const * fmt, ... ){
   cson_value * objV = NULL;
   cson_object * obj = NULL;
   assert( (code>FSL_JSON_W_START)
@@ -840,11 +840,16 @@ void json_warn( int code, char const * msg ){
   cson_array_append(g.json.warnings.a, objV);
   obj = cson_value_get_object(objV);
   cson_object_set(obj,"code",cson_value_new_integer(code));
-  if(msg && *msg){
-    /* FIXME: treat NULL msg as standard warning message for
+  if(fmt && *fmt){
+    /* FIXME: treat NULL fmt as standard warning message for
        the code, but we don't have those yet.
     */
-    cson_object_set(obj,"text",cson_value_new_string(msg,strlen(msg)));
+    va_list vargs;
+    va_start(vargs,fmt);
+    char * msg = vmprintf(fmt,vargs);
+    va_end(vargs);
+    cson_object_set(obj,"text", cson_value_new_string(msg,strlen(msg)));
+    free(msg);
   }
 }
 
@@ -1263,7 +1268,7 @@ static int json_dumbdown_rc( int code ){
 */
 cson_value * json_julian_to_timestamp(double j){
   return cson_value_new_integer((cson_int_t)
-           db_int64(0,"SELECT strftime('%%s',%lf)",j)
+           db_int64(0,"SELECT cast(strftime('%%s',%lf) as int)",j)
                                 );
 }
 
@@ -1527,21 +1532,39 @@ int json_set_err( int code, char const * fmt, ... ){
 ** object and this function will return pTgt. If pTgt is NULL then a
 ** new Array object is created and returned (owned by the
 ** caller). Each row of pStmt is converted to an Object and appended
-** to the array.
+** to the array. If the result set has no rows AND pTgt is NULL then
+** NULL is returned.
 */
 cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
                                        cson_value * pTgt){
-  cson_value * v = pTgt ? pTgt : cson_value_new_array();
-  cson_array * a = cson_value_get_array(pTgt ? pTgt : v);
+  cson_value * v = pTgt;
+  cson_array * a = NULL;
   char const * warnMsg = NULL;
-  assert( NULL != a );
+  if(v && !cson_value_is_array(v)){
+    return NULL;
+  }
   while( (SQLITE_ROW==db_step(pStmt)) ){
-    cson_value * row = cson_sqlite3_row_to_object(pStmt->pStmt);
+    cson_value * row = NULL;
+    if(!a){
+      if(!v){
+        v = cson_value_new_array();
+      }
+      a = cson_value_get_array(v);
+      assert(NULL!=a);
+    }
+    row = cson_sqlite3_row_to_object(pStmt->pStmt);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
       continue;
     }
-    cson_array_append(a, row);
+    if( 0 != cson_array_append(a, row) ){
+      cson_value_free(row);
+      assert( 0 && "Alloc error.");
+      if(pTgt != v) {
+        cson_value_free(v);
+      }
+      return NULL;
+    }
   }
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
