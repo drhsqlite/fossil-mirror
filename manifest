@@ -1,5 +1,5 @@
-C fixed\scomparison\slogic\swhich\sbroken\sdumbing-down\sof\serror\scodes\s(caused\sthem\sto\snever\sbe\sdumbed-down).
-D 2011-10-06T15:47:51.634
+C minor\sdoc\sfix\sbefore\sswitching\sPCs\sfor\sthe\sweekend.
+D 2011-10-06T15:51:52.090
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -95,7 +95,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c e3e15e1e21df85144803c02d09fe886897b03844
+F src/json.c c0c746b29dc2042efc3c1fd74db2b4d5886b56e4
 F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 1ca58c2ad76c33a732e672a650353fdde6abc661
@@ -339,7 +339,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8f12ac9896a9cad6e163632d69a83b99c079abbf
-R cdf3ba039193f81e75d479b0a1fe54b4
+P f93e059f6c408c4ca818b991b228b50504719383
+R 79c7d10be284275b3f65a92fe12409f7
 U stephan
-Z 4e21910d20c02fcca159590b43050db2
+Z 070c6d4ee23268b41c38ad450d039842

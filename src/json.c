@@ -1454,7 +1454,7 @@ cson_value * json_create_response( int resultCode,
 ** !g.isHTTP then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
-** For generating the resultCode property: if msg is not NULL then it
+** For generating the resultText property: if msg is not NULL then it
 ** is used as-is. If it is NULL then g.zErrMsg is checked, and if that
 ** is NULL then json_err_str(code) is used.
 */
