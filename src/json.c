@@ -216,10 +216,10 @@ cson_value * json_page_nyi(){
 
 /*
 ** Given a FossilJsonCodes value, it returns a string suitable for use
-** as a resultText string. Returns some unspecified string if errCode
-** is not one of the FossilJsonCodes values.
+** as a resultCode string. Returns some unspecified non-empty string
+** if errCode is not one of the FossilJsonCodes values.
 */
-char const * json_err_str( int errCode ){
+static char const * json_err_cstr( int errCode ){
   switch( errCode ){
     case 0: return "Success";
 #define C(X,V) case FSL_JSON_E_ ## X: return V
@@ -233,8 +233,8 @@ char const * json_err_str( int errCode ){
     C(ALLOC,"Resource allocation failed");
     C(NYI,"Not yet implemented");
     C(PANIC,"x");
-    C(MANIFEST_READ_FAILED,"Reading artifact manifest failed.");
-    C(FILE_OPEN_FAILED,"Opening file failed.");
+    C(MANIFEST_READ_FAILED,"Reading artifact manifest failed");
+    C(FILE_OPEN_FAILED,"Opening file failed");
     
     C(AUTH,"Authentication error");
     C(MISSING_AUTH,"Authentication info missing from request");
@@ -1324,7 +1324,7 @@ static cson_value * json_response_command_path(){
 **
 ** pMsg is an optional message string property (resultText) of the
 ** response. If resultCode is non-0 and pMsg is NULL then
-** json_err_str() is used to get the error string. The caller may
+** json_err_cstr() is used to get the error string. The caller may
 ** provide his own or may use an empty string to suppress the
 ** resultText property.
 **
@@ -1360,7 +1360,7 @@ cson_value * json_create_response( int resultCode,
     if( ! pMsg ){
       pMsg = g.zErrMsg;
       if(!pMsg){
-        pMsg = json_err_str(resultCode);
+        pMsg = json_err_cstr(resultCode);
       }
     }
     tmp = json_new_string(json_rc_cstr(resultCode));
@@ -1456,7 +1456,7 @@ cson_value * json_create_response( int resultCode,
 **
 ** For generating the resultText property: if msg is not NULL then it
 ** is used as-is. If it is NULL then g.zErrMsg is checked, and if that
-** is NULL then json_err_str(code) is used.
+** is NULL then json_err_cstr(code) is used.
 */
 void json_err( int code, char const * msg, char alsoOutput ){
   int rc = code ? code : (g.json.resultCode
@@ -1467,7 +1467,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
   if( rc && !msg ){
     msg = g.zErrMsg;
     if(!msg){
-      msg = json_err_str(rc);
+      msg = json_err_cstr(rc);
     }
   }
   resp = json_create_response(rc, msg, NULL);
@@ -1510,7 +1510,7 @@ int json_set_err( int code, char const * fmt, ... ){
   free(g.zErrMsg);
   g.json.resultCode = code;
   if(!fmt || !*fmt){
-    g.zErrMsg = mprintf("%s", json_err_str(code));
+    g.zErrMsg = mprintf("%s", json_err_cstr(code));
   }else{
     va_list vargs;
     va_start(vargs,fmt);
@@ -1568,6 +1568,67 @@ cson_value * json_tags_for_rid(int rid, char propagatingOnly){
     free(tags);
   }
   return v;  
+}
+
+/*
+** Impl of /json/resultCodes
+**
+*/
+cson_value * json_page_resultCodes(){
+    cson_value * listV = cson_value_new_array();
+    cson_array * list = cson_value_get_array(listV);
+    cson_value * objV = NULL;
+    cson_object * obj = NULL;
+    int rc = cson_array_reserve( list, 35 );
+    if(rc){
+        assert( 0 && "Allocation error.");
+        exit(1);
+    }
+#define C(K) objV = cson_value_new_object(); obj = cson_value_get_object(objV); \
+    cson_object_set(obj, "resultCode", json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
+    cson_object_set(obj, "cSymbol", json_new_string("FSL_JSON_E_"#K) );             \
+    cson_object_set(obj, "number", cson_value_new_integer(FSL_JSON_E_##K) );        \
+    cson_object_set(obj, "description", json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
+    cson_array_append( list, objV ); obj = NULL; objV = NULL
+
+    C(GENERIC);
+    C(INVALID_REQUEST);
+    C(UNKNOWN_COMMAND);
+    C(UNKNOWN);
+    C(TIMEOUT);
+    C(ASSERT);
+    C(ALLOC);
+    C(NYI);
+    C(PANIC);
+    C(MANIFEST_READ_FAILED);
+    C(FILE_OPEN_FAILED);
+    
+    C(AUTH);
+    C(MISSING_AUTH);
+    C(DENIED);
+    C(WRONG_MODE);
+    C(LOGIN_FAILED);
+    C(LOGIN_FAILED_NOSEED);
+    C(LOGIN_FAILED_NONAME);
+    C(LOGIN_FAILED_NOPW);
+    C(LOGIN_FAILED_NOTFOUND);
+
+    C(USAGE);
+    C(INVALID_ARGS);
+    C(MISSING_ARGS);
+    C(AMBIGUOUS_UUID);
+    C(UNRESOLVED_UUID);
+    C(RESOURCE_ALREADY_EXISTS);
+    C(RESOURCE_NOT_FOUND);
+
+    C(DB);
+    C(STMT_PREP);
+    C(STMT_BIND);
+    C(STMT_EXEC);
+    C(DB_LOCKED);
+    C(DB_NEEDS_REBUILD);
+#undef C
+    return listV;
 }
 
 
@@ -1930,6 +1991,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"login",json_page_login,1},
 {"logout",json_page_logout,1},
 {"rebuild",json_page_rebuild,0},
+{"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
 {"tag", json_page_nyi,0},
 {"ticket", json_page_nyi,0},
