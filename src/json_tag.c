@@ -218,21 +218,13 @@ static cson_value * json_tag_find(){
     zType = "*";
   }
 
-  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'",
-                 zName);
-#if 0
-  /* It is arguable to return an error in this case. We could
-     alternatively simply return an empty set.
-  */
-  if( tagid<=0 ){
-    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                 "Could not find tag ID for tag '%s'.", zName);
-    return NULL;
-  }
-#endif
-  
   limit = json_find_option_int("limit",NULL,"n",0);
   fRaw = json_find_option_bool("raw",NULL,NULL,0);
+  
+  tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='%s' || %Q",
+                 fRaw ? "" : "sym-",
+                 zName);
+  
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
   cson_object_set(pay, "name", json_new_string(zName));
@@ -243,6 +235,7 @@ static cson_value * json_tag_find(){
 #if 1
   if( tagid<=0 ){
     cson_object_set(pay,"artifacts", cson_value_null());
+    json_warn(FSL_JSON_W_TAG_NOT_FOUND, "Tag not found.");
     return payV;
   }
 #endif
