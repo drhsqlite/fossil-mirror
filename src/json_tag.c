@@ -139,10 +139,46 @@ static cson_value * json_tag_add(){
 ** Impl of /json/tag/cancel.
 */
 static cson_value * json_tag_cancel(){
-  cson_value * payV = NULL;
-  cson_object * pay = NULL;
-  g.json.resultCode = FSL_JSON_E_NYI;
-  return payV;
+  char const * zName = NULL;
+  char const * zCheckin = NULL;
+  char fRaw = 0;
+  const char *zPrefix = NULL;
+
+  if( !g.perm.Write ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'i' permissions.");
+    return NULL;
+  }
+
+  fRaw = json_find_option_bool("raw",NULL,NULL,0);
+  zPrefix = fRaw ? "" : "sym-";
+  zName = json_find_option_cstr("name",NULL,NULL);
+  if(!zName || !*zName){
+    if(!fossil_is_json()){
+      zName = json_command_arg(3);
+    }
+    if(!zName || !*zName){
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'name' parameter is missing.");
+      return NULL;
+    }
+  }
+  
+  zCheckin = json_find_option_cstr("checkin",NULL,NULL);
+  if( !zCheckin ){
+    if(!fossil_is_json()){
+      zCheckin = json_command_arg(4);
+    }
+    if(!zCheckin || !*zCheckin){
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "'checkin' parameter is missing.");
+      return NULL;
+    }
+  }
+  db_begin_transaction();
+  tag_add_artifact(zPrefix, zName, zCheckin, NULL, 0, 0, 0);
+  db_end_transaction(0);
+  return NULL;
 }
 
 

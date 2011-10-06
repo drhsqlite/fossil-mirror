@@ -1,5 +1,5 @@
-C Added\s/json/tag/add.
-D 2011-10-06T21:14:24.512
+C Added\s/json/tag/cancel.
+D 2011-10-06T21:25:32.964
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -100,7 +100,7 @@ F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 1ca58c2ad76c33a732e672a650353fdde6abc661
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
-F src/json_tag.c 2430dd394bd8d0d3cdaf2bcf6811ef4f127a4f78
+F src/json_tag.c b5153b7217fea96df37d699a377157c51df52c5d
 F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
 F src/json_wiki.c 52f13c144b1a34c61e61ffbe12c8c79463e9bc98
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1088cf2107afaac387f80807381c34a79cfb7243
-R 0db866d096e184dfe345da062bebc50b
+P bd9d7ce2f6873871c06f75a074d466600830d19c
+R 4abfecf521e2f8938cac7e2ea63795c8
 U stephan
-Z e46290996525ea99fee4bcbf2ec4f9ab
+Z e40f206c16895965d860a7589635f0b8
