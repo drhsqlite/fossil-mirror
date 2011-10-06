@@ -1238,7 +1238,9 @@ JsonPageDef const * json_handler_for_name( char const * name, JsonPageDef const 
 **
 */
 static int json_dumbdown_rc( int code ){
-  if(!code || ((code>FSL_JSON_W_START) && (code>FSL_JSON_W_END))){
+  if(!g.json.errorDetailParanoia
+     || !code
+     || ((code>=FSL_JSON_W_START) && (code<FSL_JSON_W_END))){
     return code;
   }else{
     int modulo = 0;
