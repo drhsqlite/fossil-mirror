@@ -161,10 +161,15 @@ static cson_value * json_wiki_get(){
                  "Requires 'o' or 'j' access.");
     return NULL;
   }
-  if(fossil_is_json()){
-    zPageName = json_getenv_cstr("page");
+  zPageName = json_find_option_cstr("name",NULL,"n")
+      /* Damn... fossil automatically sets name to the PATH
+         part after /json, so we need a workaround down here....
+      */
+      ;
+  if( zPageName && (NULL != strstr(zPageName, "/"))){
+      /* Assume that we picked up a path remnant. */
+      zPageName = NULL;
   }
-  zPageName = json_find_option_cstr("page",NULL,"p");
   if( !zPageName && cson_value_is_string(g.json.reqPayload.v) ){
       zPageName = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
   }
@@ -173,7 +178,7 @@ static cson_value * json_wiki_get(){
   }
   if(!zPageName||!*zPageName){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "'page' argument is missing.");
+                 "'name' argument is missing.");
     return NULL;
   }
 

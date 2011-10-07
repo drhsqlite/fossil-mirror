@@ -318,6 +318,10 @@ static cson_value * json_tag_find(){
 
 /*
 ** Impl for /json/tag/list
+**
+** TODOs:
+**
+** Add -type TYPE (ci, w, e, t)
 */
 static cson_value * json_tag_list(){
   cson_value * payV = NULL;

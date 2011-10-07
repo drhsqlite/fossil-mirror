@@ -200,7 +200,7 @@ jQuery(document).ready(function(){
             return;
         }
         TheApp.cgi.sendCommand('/json/wiki/get',{
-            page:name
+            name:name
         },{
             onResponse:function(resp,req){
                 TheApp.onResponse(resp,req);
