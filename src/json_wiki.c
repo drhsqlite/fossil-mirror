@@ -74,6 +74,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
              zPageName 
              );
   if( (SQLITE_ROW != db_step(&q)) ){
+    db_finalize(&q);
     return NULL;
   }
   rid = db_column_int(&q,0);
@@ -85,8 +86,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
 
   {
     unsigned int len;
-    cson_value * payV = cson_value_new_object();
-    cson_object * pay = cson_value_get_object(payV);
+    cson_object * pay = cson_new_object();
     cson_object_set(pay,"name",json_new_string(zPageName));
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
@@ -115,7 +115,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
     /*TODO: add 'T' (tag) fields*/
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
-    return payV;
+    return cson_object_value(pay);
   }
 }
 
