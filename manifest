@@ -1,5 +1,5 @@
-C pulled\sin\stonight's\slibcson\schanges,\swhich\shalve\sthe\snumber\sof\sallocations\sneeded\sfor\screating\snew\sJSON\svalues.
-D 2011-10-07T02:14:42.268
+C merged\sin\strunk\s[4b0f813b8c].
+D 2011-10-07T02:16:58.833
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -70,7 +70,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
-F src/configure.c 32a093c8d3d27256fe9aa8570f28f5e208233efe
+F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
 F src/cson_amalgamation.c bb61c3db02a9f9e7695fd637f6ed9a13e679115b
 F src/cson_amalgamation.h c206700dde2bfb6e46decb1c9356638f274493e5
@@ -84,7 +84,7 @@ F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 5c47646bb269f17c2aa17f8d71a78ed0d271b885
+F src/file.c 79bed8df57b1f955aec16d07b4c887e9e4a4cf6f
 F src/finfo.c 317022424e1132135f2561ed3b2d8772c3d18e07
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -105,7 +105,7 @@ F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
 F src/json_wiki.c 52f13c144b1a34c61e61ffbe12c8c79463e9bc98
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 6a1de45d53e59bed35a04e4d541464dc2c8d70ed
-F src/main.c d395eedb525e368acc9f56e6b6151eb5cf3c57bf
+F src/main.c 6c2afb65b06845b7b877e17651ab4a63413d3339
 F src/main.mk cc5b06de76c216912752492ed5e227b02749bbeb
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P be41009046fb078d5cd8e6da2e4b6784d35b2ddd
-R 884e6d97db35f7b789d7307a53ff2e60
+P 130cc65cb575071eb815a57691d15ece631aa245 4b0f813b8c59ac8f7fbbe33c0a369acc65407841
+R d277a965ba8de4732696c2424b84ca50
 U stephan
-Z e5319d526184532833c6ad346c90370c
+Z eb84e5f9e9e7bd45807e4a993ac047c3
