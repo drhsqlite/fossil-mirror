@@ -1875,37 +1875,6 @@ static cson_counter_t cson_refcount_decr( cson_value * cv )
     else return cv->refcount;
 }
 
-/**
-   Allocates a new cson_string object with enough space for
-   the given number of bytes. A byte for a NUL terminator
-   is added automatically. Use cson_string_str() to get
-   access to the string bytes, which will be len bytes long.
-
-   len may be 0, in which case the internal string is "", as opposed
-   to null. This is because the string bytes and the cson_string are
-   allocated in a single chunk of memory, and the cson_string object
-   does not directly provide (or have) a pointer to the string bytes.
-*/
-static cson_string * cson_string_alloc(unsigned int len)
-{
-    if( ! len ) return CSON_STR(&CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY]);
-    else
-    {
-        cson_string * s = NULL;
-        const size_t msz = sizeof(cson_string) + len + 1 /*NUL*/;
-        unsigned char * mem = NULL;
-        if( msz < (sizeof(cson_string)+len) ) /*overflow*/ return NULL;
-        mem = (unsigned char *)cson_malloc( msz, "cson_string_alloc" );
-        if( mem )
-        {
-            memset( mem, 0, msz );
-            s = (cson_string *)mem;
-            s->length = len;
-        }
-        return s;
-    }
-}
-
 unsigned int cson_string_length_bytes( cson_string const * str )
 {
     return str ? str->length : 0;
@@ -1977,29 +1946,6 @@ static char * cson_strdup( char const * src, size_t n )
 }
 #endif
 
-/**
-   Allocates a new cson_string() from the the first n bytes of src.
-   Returns NULL on allocation error, else the caller owns the returned
-   object and must eventually free() it.
-*/
-static cson_string * cson_string_strdup( char const * src, size_t n )
-{
-    cson_string * cs = cson_string_alloc(n);
-    if( ! cs ) return NULL;
-    else if( &CSON_EMPTY_HOLDER.stringValue == cs ) return cs;
-    else
-    {
-        char * cstr = cson_string_str(cs);
-        assert( cs->length == n );
-        if( cstr && n )
-        {
-            strncpy( cstr, src, n );
-        }
-        return cs;
-    }
-}
-
-
 int cson_string_cmp_cstr_n( cson_string const * str, char const * other, unsigned int otherLen )
 {
     if( ! other && !str ) return 0;
@@ -2047,10 +1993,7 @@ void cson_value_destroy_zero_it( cson_value * self )
 */
 struct cson_kvp
 {
-    /* FIXME: switch to cson_value keys. Calling cson_string_value()
-       on one of these guys will read invalid memory.
-     */
-    cson_string * key;
+    cson_value * key;
     cson_value * value;
 };
 #define cson_kvp_empty_m {NULL,NULL}
@@ -2089,30 +2032,6 @@ static const cson_kvp cson_kvp_empty = cson_kvp_empty_m;
 
 #if CSON_OBJECT_PROPS_SORT
 
-#if 0
-/* i would prefer case-insensitive sorting but keys need
-   to be case-sensitive for search purposes.
-
-   TODO? write a comparitor which reverses the default
-   sort order of upper/lower-case. The current behaviour
-   is a bit non-intuitive, where 'Z' < 'a'.
-*/
-static int cson_kvp_strcmp( char const * l, char const * r )
-{
-    char cl;
-    char cr;
-    for( ; *l && *r; ++l, ++r )
-    {
-        cl = tolower(*l);
-        cr = tolower(*r);
-        if( cl < cr ) return -1;
-        else if( cl > cr ) return 1;
-    }
-    if( !*l && !*r ) return 0;
-    else return (*l) ? 1 : -1;
-}
-#endif
-
 /**
    cson_kvp comparator for use with qsort(). ALMOST compares with
    strcmp() semantics, but it uses the strings' lengths as a quicker
@@ -2122,8 +2041,8 @@ static int cson_kvp_cmp( void const * lhs, void const * rhs )
 {
     cson_kvp const * lk = *((cson_kvp const * const*)lhs);
     cson_kvp const * rk = *((cson_kvp const * const*)rhs);
-    cson_string const * l = lk->key;
-    cson_string const * r = rk->key;
+    cson_string const * l = cson_string_value(lk->key);
+    cson_string const * r = cson_string_value(rk->key);
 #if CSON_OBJECT_PROPS_SORT_USE_LENGTH
     if( l->length < r->length ) return -1;
     else if( l->length > r->length ) return 1;
@@ -2137,6 +2056,7 @@ static int cson_kvp_cmp( void const * lhs, void const * rhs )
 
 
 #if CSON_OBJECT_PROPS_SORT
+#error "Need to rework this for cson_string-to-cson_value refactoring"
 /**
    A bsearch() comparison function which requires that lhs be a (char
    const *) and rhs be-a (cson_kvp const * const *). It compares lhs
@@ -2452,7 +2372,7 @@ static void cson_kvp_clean( cson_kvp * kvp )
     {
         if(kvp->key)
         {
-            cson_free(kvp->key,"cson_kvp::key");
+            cson_value_free(kvp->key);
             kvp->key = NULL;
         }
         if(kvp->value)
@@ -2465,7 +2385,7 @@ static void cson_kvp_clean( cson_kvp * kvp )
 
 cson_string const * cson_kvp_key( cson_kvp const * kvp )
 {
-    return kvp ? kvp->key : NULL;
+    return kvp ? cson_value_get_string(kvp->key) : NULL;
 }
 cson_value * cson_kvp_value( cson_kvp const * kvp )
 {
@@ -2555,29 +2475,6 @@ static void cson_value_destroy_array( cson_value * self )
         *self = cson_value_undef;
     }
 }
-
-
-#if 0
-static void cson_kvp_list_item_clean( void * kvp );
-static void cson_value_list_item_clean( void * val );
-void cson_value_list_item_clean( void * val_ )
-{
-    cson_value * val = (cson_value*)val_;
-    if( val )
-    {
-        cson_value_clean(val);
-    }
-}
-void cson_kvp_list_item_clean( void * val )
-{
-    cson_kvp * kvp = (cson_kvp *)val;
-    if( kvp )
-    {
-        cson_free(kvp->key,"cson_kvp::key");
-        cson_value_clean( &kvp->value );
-    }
-}
-#endif
 
 int cson_buffer_fill_from( cson_buffer * dest, cson_data_source_f src, void * state )
 {
@@ -2929,6 +2826,11 @@ cson_value * cson_value_null()
     return &CSON_SPECIAL_VALUES[CSON_VAL_NULL];
 }
 
+cson_value * cson_new_int( cson_int_t v )
+{
+    return cson_value_new_integer(v);
+}
+
 cson_value * cson_value_new_integer( cson_int_t v )
 {
     if( 0 == v ) return &CSON_SPECIAL_VALUES[CSON_VAL_INT_0];
@@ -2942,6 +2844,11 @@ cson_value * cson_value_new_integer( cson_int_t v )
         }
         return c;
     }
+}
+
+cson_value * cson_new_double( cson_double_t v )
+{
+    return cson_value_new_double(v);
 }
 
 cson_value * cson_value_new_double( cson_double_t v )
@@ -2958,7 +2865,7 @@ cson_value * cson_value_new_double( cson_double_t v )
     }
 }
 
-cson_string const * cson_new_string(char const * str, unsigned int len)
+cson_string * cson_new_string(char const * str, unsigned int len)
 {
     if( !str || !*str || !len ) return &CSON_EMPTY_HOLDER.stringValue;
     else
@@ -3102,10 +3009,13 @@ static cson_kvp * cson_object_search_impl( cson_object const * obj, char const *
         const unsigned int klen = strlen(key);
         for( ; i < li->count; ++i )
         {
+            cson_string const * sKey;
             kvp = li->list[i];
             assert( kvp && kvp->key );
-            if( kvp->key->length != klen ) continue;
-            else if(0==strcmp(key,cson_string_cstr(kvp->key)))
+            sKey = cson_value_get_string(kvp->key);
+            assert(sKey);
+            if( sKey->length != klen ) continue;
+            else if(0==strcmp(key,cson_string_cstr(sKey)))
             {
                 if(ndx) *ndx = i;
                 return kvp;
@@ -3168,6 +3078,71 @@ int cson_object_unset( cson_object * obj, char const * key )
     }
 }
 
+int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
+{
+    if( !obj || !key ) return cson_rc.ArgError;
+    else if( NULL == v ) return cson_object_unset( obj, cson_string_cstr(key) );
+    else
+    {
+        char const * cKey;
+        cson_value * vKey;
+        cson_kvp * kvp;
+        vKey = cson_string_value(key);
+        assert(vKey && (key==CSON_STR(vKey)));
+        if( vKey == CSON_VCAST(obj) ){
+            return cson_rc.ArgError;
+        }
+        cKey =  cson_string_cstr(key);
+        kvp = cson_object_search_impl( obj, cKey, NULL );
+        if( kvp )
+        { /* "I told 'em we've already got one!" */
+            if( kvp->key != vKey ){
+                cson_value_free( kvp->key );
+                cson_refcount_incr(vKey);
+                kvp->key = vKey;
+            }
+            if(kvp->value != v){
+                cson_value_free( kvp->value );
+                cson_refcount_incr( v );
+                kvp->value = v;
+            }
+            return 0;
+        }
+        if( !obj->kvp.alloced || (obj->kvp.count == obj->kvp.alloced-1))
+        {
+            unsigned int const n = obj->kvp.count ? (obj->kvp.count*2) : 6;
+            if( n > cson_kvp_list_reserve( &obj->kvp, n ) )
+            {
+                return cson_rc.AllocError;
+            }
+        }
+        { /* insert new item... */
+            int rc = 0;
+            kvp = cson_kvp_alloc();
+            if( ! kvp )
+            {
+                return cson_rc.AllocError;
+            }
+            rc = cson_kvp_list_append( &obj->kvp, kvp );
+            if( 0 != rc )
+            {
+                cson_kvp_free(kvp);
+            }
+            else
+            {
+                cson_refcount_incr(vKey);
+                cson_refcount_incr(v);
+                kvp->key = vKey;
+                kvp->value = v;
+#if CSON_OBJECT_PROPS_SORT
+                cson_object_sort_props( obj );
+#endif
+            }
+            return rc;
+        }
+    }
+
+}
 int cson_object_set( cson_object * obj, char const * key, cson_value * v )
 {
     if( ! obj || !key || !*key ) return cson_rc.ArgError;
@@ -3177,54 +3152,13 @@ int cson_object_set( cson_object * obj, char const * key, cson_value * v )
     }
     else
     {
-        cson_kvp * kvp = cson_object_search_impl( obj, key, NULL );
-        if( kvp )
-        { /* "I told 'em we've already got one!" */
-            if( v == kvp->value ) return 0 /* actually a usage error */;
-            else
-            {
-                cson_value_free( kvp->value );
-                cson_refcount_incr( v );
-                kvp->value = v;
-                return 0;
-            }
-        }
-        if( !obj->kvp.alloced || (obj->kvp.count == obj->kvp.alloced-1))
+        cson_string * cs = cson_new_string(key,strlen(key));
+        if(!cs) return cson_rc.AllocError;
+        else
         {
-            unsigned int const n = obj->kvp.count ? (obj->kvp.count*2) : 7;
-            if( n > cson_kvp_list_reserve( &obj->kvp, n ) )
-            {
-                return cson_rc.AllocError;
-            }
-        }
-        { /* insert new item... */
-            int rc = 0;
-            cson_string * keycp = cson_string_strdup(key, strlen(key));
-            if( ! keycp )
-            {
-                return cson_rc.AllocError;
-            }
-            kvp = cson_kvp_alloc();
-            if( ! kvp )
-            {
-                cson_free(keycp,"cson_parser::key");
-                return cson_rc.AllocError;
-            }
-            kvp->key = keycp /* transfer ownership */;
-            rc = cson_kvp_list_append( &obj->kvp, kvp );
-            if( 0 != rc )
-            {
-                cson_kvp_free(kvp);
-            }
-            else
-            {
-                cson_refcount_incr( v );
-                kvp->value = v /* transfer ownership */;
-#if CSON_OBJECT_PROPS_SORT
-                cson_object_sort_props( obj );
-#endif
-            }
-            return 0;
+            int const rc = cson_object_set_s(obj, cs, v);
+            if(rc) cson_value_free(cson_string_value(cs));
+            return rc;
         }
     }
 }
@@ -3313,7 +3247,7 @@ static int cson_parser_set_key( cson_parser * p, cson_value * val )
             cson_value_free(val);
             return cson_rc.AllocError;
         }
-        kvp->key = p->ckey/*transfer ownership*/;
+        kvp->key = cson_string_value(p->ckey)/*transfer ownership*/;
         p->ckey = NULL;
         kvp->value = val;
         cson_refcount_incr( val );
@@ -3509,7 +3443,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
       }
       case JSON_T_KEY: {
           assert(!p->ckey);
-          p->ckey = cson_string_strdup( value->vu.str.value, value->vu.str.length );
+          p->ckey = cson_new_string( value->vu.str.value, value->vu.str.length );
           if( ! p->ckey )
           {
               rc = cson_rc.AllocError;
@@ -3582,7 +3516,9 @@ static int cson_parser_clean( cson_parser * p )
             delete_JSON_parser(p->p);
             p->p = NULL;
         }
-        cson_free( p->ckey, "cson_parser::key" );
+        if( p->ckey ){
+            cson_value_free(cson_string_value(p->ckey));
+        }
         cson_array_clean( &p->stack, 1 );
         if( p->root )
         {
@@ -4194,7 +4130,9 @@ static int cson_output_object( cson_value const * src, cson_data_dest_f f, void 
             kvp = obj->kvp.list[i];
             if( kvp && kvp->key )
             {
-                rc = cson_str_to_json(cson_string_cstr(kvp->key), kvp->key->length,
+                cson_string const * sKey = cson_value_get_string(kvp->key);
+                char const * cKey = cson_string_cstr(sKey);
+                rc = cson_str_to_json(cKey, sKey->length,
                                       fmt->escapeForwardSlashes, f, state);
                 if( 0 == rc )
                 {
@@ -4640,22 +4578,38 @@ static cson_value * cson_value_clone_object( cson_value const * orig )
     assert( orig && src );
     if( 0 != cson_object_iter_init( src, &iter ) )
     {
-        cson_value_free( destV );
         return NULL;
     }
     destV = cson_value_new_object();
     if( NULL == destV ) return NULL;
     dest = cson_value_get_object( destV );
     assert( dest );
+    if( src->kvp.count > cson_kvp_list_reserve( &dest->kvp, src->kvp.count ) ){
+        cson_value_free( destV );
+        return NULL;
+    }
     while( (kvp = cson_object_iter_next( &iter )) )
     {
-        cson_string const * key = cson_kvp_key( kvp );
-        cson_value const * val = cson_kvp_value( kvp );
-        if( 0 != cson_object_set( dest,
-                                  cson_string_cstr( key ),
-                                  cson_value_clone( val ) ) )
+        /*
+          FIXME: refcount the keys! We first need a setter which takes
+          a cson_string or cson_value key type.
+         */
+        cson_value * key = NULL;
+        cson_value * val = NULL;
+        key = cson_value_clone(kvp->key);
+        val = key ? cson_value_clone( kvp->value ) : NULL;
+        if( ! key || !val ){
+            cson_value_free(key);
+            cson_value_free(val);
+            cson_value_free(destV);
+            return NULL;
+        }
+        assert( CSON_STR(key) );
+        if( 0 != cson_object_set_s( dest, CSON_STR(key), val ) )
         {
-            cson_value_free( destV );
+            cson_value_free(key);
+            cson_value_free(val);
+            cson_value_free(destV);
             return NULL;
         }
     }
@@ -4721,6 +4675,23 @@ cson_value * cson_array_value(cson_array const * s)
         : NULL;
 }
 
+void cson_free_object(cson_object *x)
+{
+    if(x) cson_value_free(cson_object_value(x));
+}
+void cson_free_array(cson_array *x)
+{
+    if(x) cson_value_free(cson_array_value(x));
+}
+
+void cson_free_string(cson_string const *x)
+{
+    if(x) cson_value_free(cson_string_value(x));
+}
+void cson_free_value(cson_value *x)
+{
+    cson_value_free(x);
+}
 
 
 #if 0
@@ -4828,6 +4799,70 @@ char * cson_pod_to_string( cson_value const * orig )
     }
 }
 #endif
+
+unsigned int cson_value_msize(cson_value const * v)
+{
+    if(!v) return 0;
+    else if( cson_value_is_builtin(v) ) return 0;
+    else {
+        unsigned int rc = sizeof(cson_value);
+        assert(NULL != v->api);
+        switch(v->api->typeID){
+          case CSON_TYPE_INTEGER:
+              assert( v != &CSON_SPECIAL_VALUES[CSON_VAL_INT_0]);
+              rc += sizeof(cson_int_t);
+              break;
+          case CSON_TYPE_DOUBLE:
+              assert( v != &CSON_SPECIAL_VALUES[CSON_VAL_DBL_0]);
+              rc += sizeof(cson_double_t);
+              break;
+          case CSON_TYPE_STRING:
+              rc += sizeof(cson_string)
+                  + CSON_STR(v)->length + 1/*NUL*/;
+              break;
+          case CSON_TYPE_ARRAY:{
+              cson_array const * ar = CSON_ARRAY(v);
+              cson_value_list const * li;
+              unsigned int i = 0;
+              assert( NULL != ar );
+              li = &ar->list;
+              rc += sizeof(cson_array)
+                  + (li->alloced * sizeof(cson_value *));
+              for( ; i < li->count; ++i ){
+                  cson_value const * e = ar->list.list[i];
+                  if( e ) rc += cson_value_msize( e );
+              }
+              break;
+          }
+          case CSON_TYPE_OBJECT:{
+              cson_object const * obj = CSON_OBJ(v);
+              unsigned int i = 0;
+              cson_kvp_list const * kl;
+              assert(NULL != obj);
+              kl = &obj->kvp;
+              rc += sizeof(cson_object)
+                  + (kl->alloced * sizeof(cson_kvp*));
+              for( ; i < kl->count; ++i ){
+                  cson_kvp const * kvp = kl->list[i];
+                  assert(NULL != kvp);
+                  rc += cson_value_msize(kvp->key);
+                  rc += cson_value_msize(kvp->value);
+              }
+              break;
+          }
+          case CSON_TYPE_UNDEF:
+          case CSON_TYPE_NULL:
+          case CSON_TYPE_BOOL:
+              assert( 0 && "Should have been caught by is-builtin check!" );
+              break;
+          default:
+              assert(0 && "Invalid typeID!");
+              return 0;
+
+        }
+        return rc;
+    }
+}
 
 #if defined(__cplusplus)
 } /*extern "C"*/

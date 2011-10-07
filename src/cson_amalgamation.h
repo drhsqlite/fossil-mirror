@@ -1150,6 +1150,11 @@ cson_value * cson_value_new_bool( char v );
 
 
 /**
+   Alias for cson_value_new_bool(v).
+*/
+cson_value * cson_new_bool(char v);
+
+/**
    Returns the special JSON "null" value. When outputing JSON,
    its string representation is "null" (without the quotes).
    
@@ -1174,9 +1179,19 @@ cson_value * cson_value_false();
 cson_value * cson_value_new_integer( cson_int_t v );
 
 /**
+   Alias for cson_value_new_integer(v).
+*/
+cson_value * cson_new_int(cson_int_t v);
+
+/**
    Semantically the same as cson_value_new_bool(), but for doubles.
 */
 cson_value * cson_value_new_double( cson_double_t v );
+
+/**
+   Alias for cson_value_new_double(v).
+*/
+cson_value * cson_new_double(cson_double_t v);
 
 /**
    Semantically the same as cson_value_new_bool(), but for strings.
@@ -1231,13 +1246,24 @@ cson_array * cson_new_array();
 /**
    Identical to cson_new_object() except that it creates
    a String.
-
-   ACHTUNG: this function returns a const pointer but the ownership of
-   the memory belongs to the caller! Use cson_string_value() to fetch
-   the Value handle, and then cson_value_free() that handle or insert
-   it into a container to transfer ownership.
 */
-cson_string const * cson_new_string(char const * val, unsigned int len);
+cson_string * cson_new_string(char const * val, unsigned int len);
+
+/**
+   Equivalent to cson_value_free(cson_object_value(x)).
+*/
+void cson_free_object(cson_object *x);
+
+/**
+   Equivalent to cson_value_free(cson_array_value(x)).
+*/
+void cson_free_array(cson_array *x);
+
+/**
+   Equivalent to cson_value_free(cson_string_value(x)).
+*/
+void cson_free_string(cson_string const *x);
+
 
 /**
    Allocates a new "array" value and transfers ownership of it to the
@@ -1273,6 +1299,12 @@ cson_value * cson_value_new_array();
    @see cson_value_add_reference()
 */
 void cson_value_free(cson_value * v);
+
+/**
+   Alias for cson_value_free().
+*/
+void cson_free_value(cson_value * v);
+
 
 /**
    Functionally similar to cson_array_set(), but uses a string key
@@ -1323,6 +1355,20 @@ void cson_value_free(cson_value * v);
    as keys.
 */
 int cson_object_set( cson_object * obj, char const * key, cson_value * v );
+
+/**
+   Functionaly equivalent to cson_object_set(), but takes a
+   cson_string() as its KEY type. The string will be reference-counted
+   like any other values, and the key may legally be used within this
+   same container (as a value) or others (as a key or value) at the
+   same time.
+
+   Returns 0 on success. On error, ownership (i.e. refcounts) of key
+   and value are not modified. On success key and value will get
+   increased refcounts unless they are replacing themselves (which is
+   a harmless no-op).
+*/
+int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v );
 
 /**
    Removes a property from an object.
@@ -1966,6 +2012,37 @@ cson_value * cson_object_value(cson_object const * s);
 */
 cson_value * cson_array_value(cson_array const * s);
 
+
+/**
+   Calculates the in-memory-allocated size of v, recursively if it is
+   a container type, with the following caveats and limitations:
+
+   If a given value is reference counted and multiple times within a
+   traversed container, each reference is counted at full cost. We
+   have no what of knowing if a given reference has been visited
+   already and whether it should or should not be counted, so we
+   pessimistically count them even though the _might_ not really count
+   for the given object tree (it depends on where the other open
+   references live).
+
+   This function returns 0 if any of the following are true:
+
+   - v is NULL
+
+   - v is one of the special singleton values (null, bools, empty
+   string, int 0, double 0.0)
+
+   All other values require an allocation, and this will return their
+   total memory cost, including the cson-specific internals and the
+   native value(s).
+
+   Note that because arrays and objects might have more internal slots
+   allocated than used, the alloced size of a container does not
+   necessarily increase when a new item is inserted into it. An interesting
+   side-effect of this is that when cson_clone()ing an array or object, the
+   size of the clone can actually be less than the original.
+*/
+unsigned int cson_value_msize(cson_value const * v);
 
 /* LICENSE
 
