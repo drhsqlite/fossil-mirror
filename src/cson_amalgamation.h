@@ -59,42 +59,6 @@ typedef long cson_int_t;
 #define CSON_INT_T_PFMT "ld"
 #endif
 
-/** @def CSON_VOID_PTR_IS_BIG
-
-ONLY define this to a true value if you know that
-
-(sizeof(cson_int_t) <= sizeof(void*))
-
-If that is the case, cson does not need to dynamically
-allocate integers. However, enabling this may cause
-compilation warnings in 32-bit builds even though the code
-being warned about cannot ever be called. To get around such
-warnings, when building on a 64-bit environment you can define
-this to 1 to get "big" integer support. HOWEVER, all clients must
-also use the same value for this macro. If i knew a halfway reliable
-way to determine this automatically at preprocessor-time, i would
-automate this. We might be able to do halfway reliably by looking
-for a large INT_MAX value?
-*/
-#if !defined(CSON_VOID_PTR_IS_BIG)
-
-/* Largely taken from http://predef.sourceforge.net/prearch.html
-
-See also: http://poshlib.hookatooka.com/poshlib/trac.cgi/browser/posh.h
-*/
-#  if defined(_WIN64) || defined(__LP64__)/*gcc*/ \
-    || defined(_M_X64) || defined(__amd64__) || defined(__amd64) \
-    ||  defined(__x86_64__) || defined(__x86_64) \
-    || defined(__ia64__) || defined(__ia64) || defined(_IA64) || defined(__IA64__) \
-    || defined(_M_IA64) \
-    || defined(__sparc_v9__) || defined(__sparcv9) || defined(_ADDR64) \
-    || defined(__64BIT__)
-#    define CSON_VOID_PTR_IS_BIG 1
-#  else
-#    define CSON_VOID_PTR_IS_BIG 0
-#  endif
-#endif
-
 /** @typedef double_or_long_double cson_double_t
 
 This is the type of double value used by the library.
@@ -846,10 +810,13 @@ typedef struct cson_string cson_string;
    
    object, array: true
 
+   string: length-0 string is false, else true.
+
    Returns 0 on success and assigns *v (if v is not NULL) to either 0 or 1.
    On error (val is NULL) then v is not modified.
 */
 int cson_value_fetch_bool( cson_value const * val, char * v );
+
 /**
    Similar to cson_value_fetch_bool(), but fetches an integer value.
 
@@ -867,6 +834,7 @@ int cson_value_fetch_bool( cson_value const * val, char * v );
    double: *v is set to the value truncated to int and 0 is returned.
 */
 int cson_value_fetch_integer( cson_value const * val, cson_int_t * v );
+
 /**
    The same conversions and return values as
    cson_value_fetch_integer(), except that the roles of int/double are
@@ -1942,6 +1910,30 @@ int cson_value_refcount_set( cson_value * v, unsigned short rc );
    either orig is in an invalid state or there is a bug.
 */
 cson_value * cson_value_clone( cson_value const * orig );
+
+/**
+   Returns the value handle associated with s. The handle itself owns
+   s, and ownership of the handle is not changed by calling this
+   function. If the returned handle is part of a container, calling
+   cson_value_free() on the returned handle invoked undefined
+   behaviour (quite possibly downstream when the container tries to
+   use it).
+
+   This function only returns NULL if s. is NULL.
+*/
+cson_value * cson_string_value(cson_string const * s);
+/**
+   The Object form of cson_string_value(). See that function
+   for full details.
+*/
+cson_value * cson_object_value(cson_object const * s);
+
+/**
+   The Array form of cson_string_value(). See that function
+   for full details.
+*/
+cson_value * cson_array_value(cson_array const * s);
+
 
 /* LICENSE
 

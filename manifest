@@ -1,5 +1,5 @@
-C fixed\sa\sbug\sin\sthe\shandling\sof\s/json/tag/find\s--raw\sformat\s(caused\sby\smoving\scode\sw/o\spaying\sattention).\sAdded\sa\swarning\swhen\sthe\sgiven\stag\sis\snot\sfound.
-D 2011-10-06T23:29:10.312
+C pulled\sin\stonight's\slibcson\schanges,\swhich\shalve\sthe\snumber\sof\sallocations\sneeded\sfor\screating\snew\sJSON\svalues.
+D 2011-10-07T02:14:42.268
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,8 +72,8 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c 32a093c8d3d27256fe9aa8570f28f5e208233efe
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/cson_amalgamation.c 25c88ce93bb8e222b3d838dd821b52fe2844ceea
-F src/cson_amalgamation.h ae543c53ef33c277787914c5ed8f5e4a0eeafa1b
+F src/cson_amalgamation.c bb61c3db02a9f9e7695fd637f6ed9a13e679115b
+F src/cson_amalgamation.h c206700dde2bfb6e46decb1c9356638f274493e5
 F src/db.c c2652e950ed0d923e1801ebf7d9b38bbd9ee5021
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9d27ade314cabed175c5af1c799751290f7c6fbf
-R ad4043b7f2ba1ee88ad5870059ff7564
+P be41009046fb078d5cd8e6da2e4b6784d35b2ddd
+R 884e6d97db35f7b789d7307a53ff2e60
 U stephan
-Z 7f41fa6bef8bacb82305297293242b3b
+Z e5319d526184532833c6ad346c90370c

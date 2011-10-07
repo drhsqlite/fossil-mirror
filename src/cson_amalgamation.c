@@ -1572,31 +1572,24 @@ const cson_buffer cson_buffer_empty = cson_buffer_empty_m;
 const cson_parse_info cson_parse_info_empty = cson_parse_info_empty_m;
 
 static void cson_value_destroy_zero_it( cson_value * self );
-static void cson_value_destroy_free( cson_value * self );
 static void cson_value_destroy_object( cson_value * self );
-static void cson_value_destroy_integer( cson_value * self );
 /**
    If self is-a array then this function destroys its contents,
    else this function does nothing.
 */
 static void cson_value_destroy_array( cson_value * self );
 
-/**
-   If self is-a string then this function destroys its contents,
-   else this function does nothing.
-*/
-static void cson_value_destroy_string( cson_value * self );
-
 static const cson_value_api cson_value_api_null = { CSON_TYPE_NULL, cson_value_destroy_zero_it };
 static const cson_value_api cson_value_api_undef = { CSON_TYPE_UNDEF, cson_value_destroy_zero_it };
 static const cson_value_api cson_value_api_bool = { CSON_TYPE_BOOL, cson_value_destroy_zero_it };
-static const cson_value_api cson_value_api_integer = { CSON_TYPE_INTEGER, cson_value_destroy_integer };
-static const cson_value_api cson_value_api_double = { CSON_TYPE_DOUBLE, cson_value_destroy_free };
-static const cson_value_api cson_value_api_string = { CSON_TYPE_STRING, cson_value_destroy_string };
+static const cson_value_api cson_value_api_integer = { CSON_TYPE_INTEGER, cson_value_destroy_zero_it };
+static const cson_value_api cson_value_api_double = { CSON_TYPE_DOUBLE, cson_value_destroy_zero_it };
+static const cson_value_api cson_value_api_string = { CSON_TYPE_STRING, cson_value_destroy_zero_it };
 static const cson_value_api cson_value_api_array = { CSON_TYPE_ARRAY, cson_value_destroy_array };
 static const cson_value_api cson_value_api_object = { CSON_TYPE_OBJECT, cson_value_destroy_object };
 
 static const cson_value cson_value_undef = { &cson_value_api_undef, NULL, 0 };
+static const cson_value cson_value_null_empty = { &cson_value_api_null, NULL, 0 };
 static const cson_value cson_value_bool_empty = { &cson_value_api_bool, NULL, 0 };
 static const cson_value cson_value_integer_empty = { &cson_value_api_integer, NULL, 0 };
 static const cson_value cson_value_double_empty = { &cson_value_api_double, NULL, 0 };
@@ -1610,7 +1603,7 @@ struct cson_string
     unsigned int length;
 };
 #define cson_string_empty_m {0/*length*/}
-
+static const cson_string cson_string_empty = cson_string_empty_m;
 /**
  
  Holds special shared "constant" (though they are non-const)
@@ -2037,24 +2030,6 @@ void cson_value_destroy_zero_it( cson_value * self )
 }
 
 /**
-   If self is not null, free(self->value) is called.  *self is then
-   overwritten to have the undefined type. self is not freed.
-
-*/
-void cson_value_destroy_free( cson_value * self )
-{
-    if(self) {
-        if( self->value )
-        {
-            cson_free(self->value,"cson_value_destroy_free()");
-        }
-        *self = cson_value_undef;
-    }
-}
-
-
-
-/**
    A key/value pair collection.
 
    Each of these objects owns its key/value pointers, and they
@@ -2062,6 +2037,9 @@ void cson_value_destroy_free( cson_value * self )
 */
 struct cson_kvp
 {
+    /* FIXME: switch to cson_value keys. Calling cson_string_value()
+       on one of these guys will read invalid memory.
+     */
     cson_string * key;
     cson_value * value;
 };
@@ -2263,28 +2241,19 @@ static int cson_value_list_visit( cson_value_list * self,
 #else
 #endif
 
-/*
-  Reminders to self:
-
-  - 20110126: moved cson_value_new() and cson_value_set_xxx() out of the
-  public API because:
-
-  a) They can be easily mis-used to cause memory leaks, even when used in
-  a manner which seems relatively intuitive.
-
-  b) Having them in the API prohibits us from eventually doing certain
-  allocation optimizations like not allocating Booleans,
-  Integer/Doubles with the value 0, or empty Strings. The main problem
-  is that cson_value_set_xxx() cannot be implemented properly if we
-  add that type of optimization.
-*/
-
 /**
-   Allocates a new value with the "undefined" value and transfers
-   ownership of it to the caller. Use The cson_value_set_xxx() family
-   of functions to assign a typed value to it. It must eventually be
-   destroyed, by the caller or its owning container, by passing it to
-   cson_value_free().
+   Allocates a new value of the specified type ownership of it to the
+   caller. It must eventually be destroyed, by the caller or its
+   owning container, by passing it to cson_value_free() or transfering
+   ownership to a container.
+
+   extra is only valid for type CSON_TYPE_STRING, and must be the length
+   of the string to allocate + 1 byte (for the NUL).
+
+   The returned value->api member will be set appropriately and
+   val->value will be set to point to the memory allocated to hold the
+   native value type. Use the internal CSON_CAST() family of macros to
+   convert them.
 
    Returns NULL on allocation error.
 
@@ -2296,61 +2265,69 @@ static int cson_value_list_visit( cson_value_list * self,
    @see cson_value_new_bool()
    @see cson_value_free()
 */
-static cson_value * cson_value_new();
-/**
-   Cleans any existing contents of val and sets its new value
-   to the special NULL value.
+static cson_value * cson_value_new(cson_type_id t, size_t extra);
 
-   Returns 0 on success.
+#define CSON_CAST(T,V) ((T*)((V)->value))
+#define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
+#define CSON_INT(V) ((cson_int_t*)(V)->value)
+#define CSON_DBL(V) CSON_CAST(cson_double_t,(V))
+#define CSON_STR(V) CSON_CAST(cson_string,(V))
+#define CSON_OBJ(V) CSON_CAST(cson_object,(V))
+#define CSON_ARRAY(V) CSON_CAST(cson_array,(V))
 
-*/
-#if 0
-static int cson_value_set_null( cson_value * val );
-#endif
-/**
-   Cleans any existing contents of val and sets its new value
-   to v.
-
-   Returns 0 on success.
-
-*/
-#if 0
-static int cson_value_set_bool( cson_value * val, char v );
-#endif
-/**
-   Cleans any existing contents of val and sets its new value
-   to v.
-
-   Returns 0 on success.
-
-*/
-static int cson_value_set_integer( cson_value * val, cson_int_t v );
-/**
-   Cleans any existing contents of val and sets its new value
-   to v.
-
-   Returns 0 on success.
-*/
-static int cson_value_set_double( cson_value * val, cson_double_t v );
-
-/**
-   Cleans any existing contents of val and sets its new value to
-   str. On success, ownership of str is passed on to val. On error
-   ownership is not changed.
-
-   Returns 0 on success.
-
-   If str is NULL, (!*str), or (!len) then this function does not
-   allocate any memory for a new string, and cson_value_fetch_string()
-   will return an empty string as opposed to a NULL string.
-*/
-static int cson_value_set_string( cson_value * val, char const * str, unsigned int len );
-
-
-cson_value * cson_value_new()
+cson_value * cson_value_new(cson_type_id t, size_t extra)
 {
-    cson_value * v = (cson_value *)cson_malloc(sizeof(cson_value),"cson_value_new");
-    if( v ) *v = cson_value_undef;
+    static const size_t vsz = sizeof(cson_value);
+    const size_t sz = vsz + extra;
+    size_t tx = 0;
+    cson_value def = cson_value_undef;
+    cson_value * v = NULL;
+    char const * reason = "cson_value_new";
+    switch(t)
+    {
+      case CSON_TYPE_ARRAY:
+          assert( 0 == extra );
+          def = cson_value_array_empty;
+          tx = sizeof(cson_array);
+          reason = "cson_value:array";
+          break;
+      case CSON_TYPE_DOUBLE:
+          assert( 0 == extra );
+          def = cson_value_double_empty;
+          tx = sizeof(cson_double_t);
+          reason = "cson_value:double";
+          break;
+      case CSON_TYPE_INTEGER:
+          assert( 0 == extra );
+          def = cson_value_integer_empty;
+          tx = sizeof(cson_int_t);
+          reason = "cson_value:int";
+          break;
+      case CSON_TYPE_STRING:
+          assert( 0 != extra );
+          def = cson_value_string_empty;
+          tx = sizeof(cson_string);
+          reason = "cson_value:string";
+          break;
+      case CSON_TYPE_OBJECT:
+          assert( 0 == extra );
+          def = cson_value_object_empty;
+          tx = sizeof(cson_object);
+          reason = "cson_value:object";
+          break;
+      default:
+          assert(0 && "Unhandled type in cson_value_new()!");
+          return NULL;
+    }
+    assert( def.api->typeID != CSON_TYPE_UNDEF );
+    v = (cson_value *)cson_malloc(sz+tx, reason);
+    if( v ) {
+        *v = def;
+        if(tx || extra){
+            memset(v+1, 0, tx + extra);
+            v->value = (void *)(v+1);
+        }
+    }
     return v;
 }
 
@@ -2417,146 +2394,26 @@ void cson_value_clean( cson_value * val )
     }
 }
 
-static void cson_value_destroy_integer( cson_value * self )
-{
-    if( self )
-    {
-#if !CSON_VOID_PTR_IS_BIG
-        cson_free(self->value,"cson_int_t");
-#endif
-        *self = cson_value_empty;
-    }    
-}
-static int cson_value_set_integer( cson_value * val, cson_int_t v )
-{
-    if( ! val ) return cson_rc.ArgError;
-    else
-    {
-#if CSON_VOID_PTR_IS_BIG
-        cson_value_clean( val );
-        val->value = (void *)v;
-#else
-        cson_int_t * iv = NULL;
-        iv = (cson_int_t*)cson_malloc(sizeof(cson_int_t), "cson_int_t");
-        if( ! iv ) return cson_rc.AllocError;
-        cson_value_clean( val );
-        *iv = v;
-        val->value = iv;
-#endif
-        val->api = &cson_value_api_integer;
-        return 0;
-    }
-}
-
-static int cson_value_set_double( cson_value * val, cson_double_t v )
-{
-    if( ! val ) return cson_rc.ArgError;
-    else
-    {
-        cson_double_t * rv = NULL;
-        cson_value_clean( val );
-        val->api = &cson_value_api_double;
-        if( 0.0 != v )
-        {
-            /*
-              Reminder: we can't re-use val if it alreay is-a double
-              because we have no reference counting.
-            */
-            rv = (cson_double_t*)cson_malloc(sizeof(cson_double_t),"double");
-            if( ! rv ) return cson_rc.AllocError;
-        }
-        if(NULL != rv) *rv = v;
-        val->value = rv;
-        return 0;
-    }
-}
-
-static cson_string * cson_string_shared_empty()
-{
-    /**
-       We have code in place elsewhere to avoid that
-       cson_string_cstr(&bob) and cson_string_str(&bob) will misbehave
-       by accessing the bytes directly after bob (which are undefined
-       in this case).
-    */
-#if 0
-    static cson_string bob[2] = {cson_string_empty_m,
-                                 cson_string_empty_m/*trick to 0-init bob[0]'s tail*/};
-    return &bob[0];
-#else
-    static cson_string bob = cson_string_empty_m;
-    return &bob;
-#endif
-}
-
-static int cson_value_set_string( cson_value * val, char const * str, unsigned int len )
-{
-    cson_string * jstr = NULL;
-    if( ! val ) return cson_rc.ArgError;
-    cson_value_clean( val );
-    val->api = &cson_value_api_string;
-    if( !str || !*str || !len )
-    {
-        val->value = cson_string_shared_empty();
-        return 0;
-    }
-    else
-    {
-        jstr = cson_string_alloc( len );
-        if( NULL == jstr ) return cson_rc.AllocError;
-        else
-        {
-            if( len )
-            {
-                char * dest = cson_string_str( jstr );
-                val->value = jstr;
-                strncpy( dest, str, len );
-            }
-            /* else it's the empty string special value */
-            return 0;
-        }
-    }
-}
-
-
 static cson_value * cson_value_array_alloc()
 {
-    cson_value * v = (cson_value*)cson_malloc(sizeof(cson_value),"cson_value_array");
+    cson_value * v = cson_value_new(CSON_TYPE_ARRAY,0);
     if( NULL != v )
     {
-        cson_array * ar = (cson_array *)cson_malloc(sizeof(cson_array),"cson_array");
-        if( ! ar )
-        {
-            cson_free(v,"cson_array");
-            v = NULL;
-        }
-        else
-        {
-            *ar = cson_array_empty;
-            *v = cson_value_array_empty;
-            v->value = ar;
-        }
+        cson_array * ar = CSON_ARRAY(v);
+        assert(NULL != ar);
+        *ar = cson_array_empty;
     }
     return v;
 }
 
 static cson_value * cson_value_object_alloc()
 {
-    cson_value * v = (cson_value*)cson_malloc(sizeof(cson_value),"cson_value_object");
+    cson_value * v = cson_value_new(CSON_TYPE_OBJECT,0);
     if( NULL != v )
     {
-        cson_object * obj = (cson_object*)cson_malloc(sizeof(cson_object),"cson_value");
-        if( ! obj )
-        {
-            cson_free(v,"cson_value_object");
-            v = NULL;
-        }
-        else
-        {
-            *obj = cson_object_empty;
-            *v = cson_value_object_empty;
-            v->value = obj;
-        }
+        cson_object * obj = CSON_OBJ(v);
+        assert(NULL != obj);
+        *obj = cson_object_empty;
     }
     return v;
 }
@@ -2614,27 +2471,6 @@ static void cson_kvp_free( cson_kvp * kvp )
     }
 }
 
-/**
-   cson_value_api::destroy_value() impl for Object
-   values. Cleans up self-owned memory and overwrites
-   self to have the undefined value, but does not
-   free self.
-
-   If self->value == cson_string_shared_empty()
-   then this function does not actually free it.
-*/
-static void cson_value_destroy_string( cson_value * self )
-{
-    if(self && self->value) {
-        cson_string * obj = (cson_string *)self->value;
-        if( obj != cson_string_shared_empty() )
-        {
-            cson_free(self->value,"cson_string");
-        }
-        *self = cson_value_undef;
-    }
-}
-
 
 /**
    cson_value_api::destroy_value() impl for Object
@@ -2648,7 +2484,6 @@ static void cson_value_destroy_object( cson_value * self )
         cson_object * obj = (cson_object *)self->value;
         assert( self->value == obj );
         cson_kvp_list_clean( &obj->kvp, cson_kvp_free );
-        cson_free(self->value,"cson_object");
         *self = cson_value_undef;
     }
 }
@@ -2703,7 +2538,6 @@ static void cson_value_destroy_array( cson_value * self )
     if(ar) {
         assert( self->value == ar );
         cson_array_clean( ar, 1 );
-        cson_free(ar,"cson_array");
         *self = cson_value_undef;
     }
 }
@@ -2859,12 +2693,12 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
               break;
             }
             case CSON_TYPE_INTEGER: {
-#if CSON_VOID_PTR_IS_BIG
-                i = (cson_int_t)val->value;
-#else
-                cson_int_t const * x = (cson_int_t const *)val->value;
+                cson_int_t const * x = CSON_INT(val);
+                if(!x)
+                {
+                    assert( val == &CSON_SPECIAL_VALUES[CSON_VAL_INT_0] );
+                }
                 i = x ? *x : 0;
-#endif
                 break;
             }
             case CSON_TYPE_DOUBLE: {
@@ -2917,7 +2751,7 @@ int cson_value_fetch_double( cson_value const * val, cson_double_t * v )
               break;
           }
           case CSON_TYPE_DOUBLE: {
-              cson_double_t const* dv = (cson_double_t const *)val->value;
+              cson_double_t const* dv = CSON_DBL(val);
               d = dv ? *dv : 0.0;
               break;
           }
@@ -2966,7 +2800,7 @@ int cson_value_fetch_object( cson_value const * val, cson_object ** obj )
     else if( ! cson_value_is_object(val) ) return cson_rc.TypeError;
     else
     {
-        if(obj) *obj = (cson_object*)val->value;
+        if(obj) *obj = CSON_OBJ(val);
         return 0;
     }
 }
@@ -2980,10 +2814,10 @@ cson_object * cson_value_get_object( cson_value const * v )
 int cson_value_fetch_array( cson_value const * val, cson_array ** ar)
 {
     if( ! val ) return cson_rc.ArgError;
-    else if( ! cson_value_is_array(val) ) return cson_rc.TypeError;
+    else if( !cson_value_is_array(val) ) return cson_rc.TypeError;
     else
     {
-        if(ar) *ar = (cson_array*)val->value;
+        if(ar) *ar = CSON_ARRAY(val);
         return 0;
     }
 }
@@ -3086,14 +2920,11 @@ cson_value * cson_value_new_integer( cson_int_t v )
     if( 0 == v ) return &CSON_SPECIAL_VALUES[CSON_VAL_INT_0];
     else
     {
-        cson_value * c = cson_value_new();
+        cson_value * c = cson_value_new(CSON_TYPE_INTEGER,0);
+
         if( c )
         {
-            if( 0 != cson_value_set_integer( c, v ) )
-            {
-                cson_value_free(c);
-                c = NULL;
-            }
+            *CSON_INT(c) = v;
         }
         return c;
     }
@@ -3104,31 +2935,31 @@ cson_value * cson_value_new_double( cson_double_t v )
     if( 0.0 == v ) return &CSON_SPECIAL_VALUES[CSON_VAL_DBL_0];
     else
     {
-        cson_value * c = cson_value_new();
+        cson_value * c = cson_value_new(CSON_TYPE_DOUBLE,0);
         if( c )
         {
-            if( 0 != cson_value_set_double( c, v ) )
-            {
-                cson_value_free(c);
-                c = NULL;
-            }
+            *CSON_DBL(c) = v;
         }
         return c;
     }
 }
 cson_value * cson_value_new_string( char const * str, unsigned int len )
 {
-    if( !str || !len ) return &CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY];
+    if( !str || !*str || !len ) return &CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY];
     else
     {
-        cson_value * c = cson_value_new();
+        cson_value * c = cson_value_new(CSON_TYPE_STRING, len + 1/*NUL byte*/);
         if( c )
         {
-            if( 0 != cson_value_set_string( c, str, len ) )
-            {
-                cson_value_free(c);
-                c = NULL;
-            }
+            char * dest = NULL;
+            cson_string * s = CSON_STR(c);
+            *s = cson_string_empty;
+            assert( NULL != s );
+            s->length = len;
+            dest = cson_string_str(s);
+            assert( NULL != dest );
+            memcpy( dest, str, len );
+            dest[len] = 0;
         }
         return c;
     }
@@ -4818,7 +4649,8 @@ cson_value * cson_value_clone( cson_value const * orig )
         switch( orig->api->typeID )
         {
           case CSON_TYPE_UNDEF:
-              return cson_value_new();
+              assert(0 && "This should never happen.");
+              return NULL;
           case CSON_TYPE_NULL:
               return cson_value_null();
           case CSON_TYPE_BOOL:
@@ -4843,6 +4675,30 @@ cson_value * cson_value_clone( cson_value const * orig )
         return NULL;
     }
 }
+
+cson_value * cson_string_value(cson_string const * s)
+{
+    return s
+        ? CSON_VCAST(s)
+        : NULL;
+}
+
+cson_value * cson_object_value(cson_object const * s)
+{
+    return s
+        ? CSON_VCAST(s)
+        : NULL;
+}
+
+
+cson_value * cson_array_value(cson_array const * s)
+{
+    return s
+        ? CSON_VCAST(s)
+        : NULL;
+}
+
+
 
 #if 0
 /* i'm not happy with this... */
@@ -4957,6 +4813,13 @@ char * cson_pod_to_string( cson_value const * orig )
 #undef MARKER
 #undef CSON_OBJECT_PROPS_SORT
 #undef CSON_OBJECT_PROPS_SORT_USE_LENGTH
+#undef CSON_CAST
+#undef CSON_INT
+#undef CSON_DBL
+#undef CSON_STR
+#undef CSON_OBJ
+#undef CSON_ARRAY
+#undef CSON_VCAST
 /* end file ./cson.c */
 /* begin file ./cson_lists.h */
 /* Auto-generated from cson_list.h. Edit at your own risk! */
