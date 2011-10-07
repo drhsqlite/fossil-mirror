@@ -262,7 +262,6 @@ static cson_value * json_tag_find(){
                zName,
                (limit>0)?"":"--", limit
                );
-    printf("SQL=%s\n", blob_buffer(&q.sql));
     while( db_step(&q)==SQLITE_ROW ){
       if(!listV){
         listV = cson_value_new_array();
@@ -450,7 +449,6 @@ static cson_value * json_tag_list(){
         cson_object_set(pay, "tags", arV);
         tagsVal = arV;
       }
-      if(!fTicket && (0==strncmp(zName, "tkt-", 4))) continue;
       else if( !fRaw && (0==strncmp(zName, "sym-", 4))){
         zName += 4;
         assert( *zName );

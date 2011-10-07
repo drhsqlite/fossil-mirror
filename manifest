@@ -1,5 +1,5 @@
-C fixed\swhoami\srequests\sin\sdemo\sapps\sto\snotice\swhen\sthe\suser\shas\sbeen\slogged\sout\s(and\slogs\shim\sin\swith\sthe\snew\sauth\stoken).
-D 2011-10-07T03:09:12.406
+C Removed\san\sunnecessary\sstrcmp().\sRemoved\ssome\sdebuggering\scode\swhich\scorrupted\sthe\soutput\sof\s/json/tag/find\sin\sraw\smode.
+D 2011-10-07T03:24:33.182
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -100,7 +100,7 @@ F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 96f6e52574bebaf648df51a5bcd509efe4b24688
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
-F src/json_tag.c 1a88609c5d53a26672d5d0c6b947c081af9dea47
+F src/json_tag.c bb2c7eb1607decfc7227db3d69a7f3d90391494d
 F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
 F src/json_wiki.c 52f13c144b1a34c61e61ffbe12c8c79463e9bc98
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 19276984bde340079137e0ddb8498c449b41de6a
-R 0fe84855d881e02d79f7687fb2a5ee42
+P ccc90734e097925e49b4474c3e1a564b9621ff9d
+R 4b510820e1536753811460d6997968aa
 U stephan
-Z 8f87f22376d41ef519e7d2a40c898322
+Z a613a307b02d9dba906894f05a4f2261
