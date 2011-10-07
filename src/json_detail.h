@@ -159,6 +159,7 @@ typedef struct FossilJsonKeys_{
   char const * anonymousSeed;
   char const * authToken;
   char const * commandPath;
+  char const * mtime;
   char const * payload;
   char const * requestId;
   char const * resultCode;

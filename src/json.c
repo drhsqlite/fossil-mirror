@@ -45,6 +45,7 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "anonymousSeed" /*anonymousSeed*/,
   "authToken"  /*authToken*/,
   "COMMAND_PATH" /*commandPath*/,
+  "mtime" /*mtime*/,
   "payload" /* payload */,
   "requestId" /*requestId*/,
   "resultCode" /*resultCode*/,
@@ -1343,8 +1344,8 @@ cson_value * json_create_response( int resultCode,
   cson_object * o = NULL;
   int rc;
   resultCode = json_dumbdown_rc(resultCode);
-  v = cson_value_new_object();
-  o = cson_value_get_object(v);
+  o = cson_new_object();
+  v = cson_object_value(o);
   if( ! o ) return NULL;
 #define SET(K) if(!tmp) goto cleanup; \
   rc = cson_object_set( o, K, tmp ); \

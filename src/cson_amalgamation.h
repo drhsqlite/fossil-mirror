@@ -1208,6 +1208,38 @@ cson_value * cson_value_new_string( char const * str, unsigned int n );
 cson_value * cson_value_new_object();
 
 /**
+   This works like cson_value_new_object() but returns an Object
+   handle directly.
+
+   The value handle for the returned object can be fetched with
+   cson_object_value(theObject).
+   
+   Ownership is transfered to the caller, who must eventually free it
+   by passing the Value handle (NOT the Object handle) to
+   cson_value_free() or passing ownership to a parent container.
+
+   Returns NULL on error (out of memory).
+*/
+cson_object * cson_new_object();
+
+/**
+   Identical to cson_new_object() except that it creates
+   an Array.
+*/
+cson_array * cson_new_array();
+
+/**
+   Identical to cson_new_object() except that it creates
+   a String.
+
+   ACHTUNG: this function returns a const pointer but the ownership of
+   the memory belongs to the caller! Use cson_string_value() to fetch
+   the Value handle, and then cson_value_free() that handle or insert
+   it into a container to transfer ownership.
+*/
+cson_string const * cson_new_string(char const * val, unsigned int len);
+
+/**
    Allocates a new "array" value and transfers ownership of it to the
    caller. It must eventually be destroyed, by the caller or its
    owning container, by passing it to cson_value_free().

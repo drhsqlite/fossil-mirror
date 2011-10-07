@@ -1597,13 +1597,23 @@ static const cson_value cson_value_string_empty = { &cson_value_api_string, NULL
 static const cson_value cson_value_array_empty = { &cson_value_api_array, NULL, 0 };
 static const cson_value cson_value_object_empty = { &cson_value_api_object, NULL, 0 };
 
-
 struct cson_string
 {
     unsigned int length;
 };
 #define cson_string_empty_m {0/*length*/}
 static const cson_string cson_string_empty = cson_string_empty_m;
+
+
+
+#define CSON_CAST(T,V) ((T*)((V)->value))
+#define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
+#define CSON_INT(V) ((cson_int_t*)(V)->value)
+#define CSON_DBL(V) CSON_CAST(cson_double_t,(V))
+#define CSON_STR(V) CSON_CAST(cson_string,(V))
+#define CSON_OBJ(V) CSON_CAST(cson_object,(V))
+#define CSON_ARRAY(V) CSON_CAST(cson_array,(V))
+
 /**
  
  Holds special shared "constant" (though they are non-const)
@@ -1878,7 +1888,7 @@ static cson_counter_t cson_refcount_decr( cson_value * cv )
 */
 static cson_string * cson_string_alloc(unsigned int len)
 {
-    if( ! len ) return &CSON_EMPTY_HOLDER.stringValue;
+    if( ! len ) return CSON_STR(&CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY]);
     else
     {
         cson_string * s = NULL;
@@ -2267,14 +2277,6 @@ static int cson_value_list_visit( cson_value_list * self,
 */
 static cson_value * cson_value_new(cson_type_id t, size_t extra);
 
-#define CSON_CAST(T,V) ((T*)((V)->value))
-#define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
-#define CSON_INT(V) ((cson_int_t*)(V)->value)
-#define CSON_DBL(V) CSON_CAST(cson_double_t,(V))
-#define CSON_STR(V) CSON_CAST(cson_string,(V))
-#define CSON_OBJ(V) CSON_CAST(cson_object,(V))
-#define CSON_ARRAY(V) CSON_CAST(cson_array,(V))
-
 cson_value * cson_value_new(cson_type_id t, size_t extra)
 {
     static const size_t vsz = sizeof(cson_value);
@@ -2423,9 +2425,21 @@ cson_value * cson_value_new_object()
     return cson_value_object_alloc();
 }
 
+cson_object * cson_new_object()
+{
+    
+    return cson_value_get_object( cson_value_new_object() );
+}
+
 cson_value * cson_value_new_array()
 {
     return cson_value_array_alloc();
+}
+
+
+cson_array * cson_new_array()
+{
+    return cson_value_get_array( cson_value_new_array() );
 }
 
 /**
@@ -2943,16 +2957,18 @@ cson_value * cson_value_new_double( cson_double_t v )
         return c;
     }
 }
-cson_value * cson_value_new_string( char const * str, unsigned int len )
+
+cson_string const * cson_new_string(char const * str, unsigned int len)
 {
-    if( !str || !*str || !len ) return &CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY];
+    if( !str || !*str || !len ) return &CSON_EMPTY_HOLDER.stringValue;
     else
     {
         cson_value * c = cson_value_new(CSON_TYPE_STRING, len + 1/*NUL byte*/);
+        cson_string * s = NULL;
         if( c )
         {
             char * dest = NULL;
-            cson_string * s = CSON_STR(c);
+            s = CSON_STR(c);
             *s = cson_string_empty;
             assert( NULL != s );
             s->length = len;
@@ -2961,8 +2977,13 @@ cson_value * cson_value_new_string( char const * str, unsigned int len )
             memcpy( dest, str, len );
             dest[len] = 0;
         }
-        return c;
+        return s;
     }
+}
+
+cson_value * cson_value_new_string( char const * str, unsigned int len )
+{
+    return cson_string_value( cson_new_string(str, len) );
 }
 
 int cson_array_value_fetch( cson_array const * ar, unsigned int pos, cson_value ** v )
@@ -4678,9 +4699,11 @@ cson_value * cson_value_clone( cson_value const * orig )
 
 cson_value * cson_string_value(cson_string const * s)
 {
+#define MT CSON_SPECIAL_VALUES[CSON_VAL_STR_EMPTY]
     return s
-        ? CSON_VCAST(s)
+        ? ((s==MT.value) ? &MT : CSON_VCAST(s))
         : NULL;
+#undef MT
 }
 
 cson_value * cson_object_value(cson_object const * s)

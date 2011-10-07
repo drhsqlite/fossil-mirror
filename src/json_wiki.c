@@ -91,7 +91,7 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
     zUuid = NULL;
-    cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));
+    /*cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));*/
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
     cson_object_set(pay,"contentFormat",json_new_string(zFormat));
