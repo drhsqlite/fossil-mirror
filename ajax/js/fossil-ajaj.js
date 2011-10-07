@@ -188,7 +188,7 @@ FossilAjaj.prototype.whoami = function(ajajOpt) {
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
         if( resp && resp.payload ){
-            if(!self.auth || (self.auth.authToken!=resp.payload.authToken)){
+            if(!self.auth || (self.auth.authToken!==resp.payload.authToken)){
                 self.auth = resp.payload;
                 if( WhAjaj.isFunction(self.onLogin) ){
                     self.onLogin();
