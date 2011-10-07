@@ -192,7 +192,7 @@ struct Global {
                                 */;
     struct {                   /* "garbage collector" */
       cson_value * v;
-      cson_object * o;
+      cson_array * a;
     } gc;
     struct {                   /* JSON POST data. */
       cson_value * v;

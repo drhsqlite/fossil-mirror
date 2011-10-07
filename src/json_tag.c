@@ -175,6 +175,9 @@ static cson_value * json_tag_cancel(){
       return NULL;
     }
   }
+  /* FIXME?: verify that the tag is currently active. We have no real
+     error case unless we do that.
+  */
   db_begin_transaction();
   tag_add_artifact(zPrefix, zName, zCheckin, NULL, 0, 0, 0);
   db_end_transaction(0);
@@ -192,6 +195,7 @@ static cson_value * json_tag_find(){
   cson_array * list = NULL;
   char const * zName = NULL;
   char const * zType = NULL;
+  char const * zType2 = NULL;
   char fRaw = 0;
   Stmt q = empty_Stmt;
   int limit = 0;
@@ -216,6 +220,14 @@ static cson_value * json_tag_find(){
   zType = json_find_option_cstr("type",NULL,"t");
   if(!zType || !*zType){
     zType = "*";
+    zType2 = zType;
+  }else{
+    switch(*zType){
+      case 'c': zType = "ci"; zType2 = "checkin"; break;
+      case 'e': zType = "e"; zType2 = "event"; break;
+      case 'w': zType = "w"; zType2 = "wiki"; break;
+      case 't': zType = "t"; zType2 = "ticket"; break;
+    }
   }
 
   limit = json_find_option_int("limit",NULL,"n",0);
@@ -229,7 +241,7 @@ static cson_value * json_tag_find(){
   pay = cson_value_get_object(payV);
   cson_object_set(pay, "name", json_new_string(zName));
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
-  cson_object_set(pay, "type", json_new_string(zType));
+  cson_object_set(pay, "type", json_new_string(zType2));
   cson_object_set(pay, "limit", json_new_int(limit));
 
 #if 1
@@ -363,6 +375,7 @@ static cson_value * json_tag_list(){
                    zCheckin);
       goto error;
     }
+    cson_object_set(pay, "checkin", json_new_string(zCheckin));
     db_prepare(&q,
                "SELECT tagname, value FROM tagxref, tag"
                " WHERE tagxref.rid=%d AND tagxref.tagid=tag.tagid"

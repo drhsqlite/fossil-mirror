@@ -342,30 +342,30 @@ char const * json_rc_cstr( int code ){
 }
 
 /*
-** Adds v to the API-internal cleanup mechanism. key must be a unique
-** key for the given element. Adding another item with that key may
-** free the previous one (depending on its reference count). If
-** freeOnError is true then v is passed to cson_value_free() if the
-** key cannot be inserted, otherweise ownership of v is not changed on
-** error. Failure to insert a key may be caused by any of the
-** following:
+** Adds v to the API-internal cleanup mechanism. key is ingored
+** (legacy).  If freeOnError is true then v is passed to
+** cson_value_free() if the key cannot be inserted, otherweise
+** ownership of v is not changed on error. Failure to insert an item
+** may be caused by any of the following:
 **
 ** - Allocation error.
-** - g.json.gc.o is NULL
+** - g.json.gc.a is NULL
 ** - key is NULL or empty.
 **
 ** Returns 0 on success.
 **
 ** On success, ownership of v is transfered to (or shared with)
 ** g.json.gc, and v will be valid until that object is cleaned up or
-** its key is replaced via another call to this function.
+** some internal code incorrectly removes it from the gc (which we
+** never do).
 */
 int json_gc_add( char const * key, cson_value * v, char freeOnError ){
-  int const rc = cson_object_set( g.json.gc.o, key, v );
-  assert( NULL != g.json.gc.o );
+  int const rc = cson_array_append( g.json.gc.a, v );
+  assert( NULL != g.json.gc.a );
   if( (0 != rc) && freeOnError ){
     cson_value_free( v );
   }
+  assert( (0==rc) && "Adding item to GC failed." );
   return rc;
 }
 
@@ -783,9 +783,9 @@ void json_main_bootstrap(){
      which need a long lifetime but don't have a logical parent to put
      them in.
   */
-  v = cson_value_new_object();
+  v = cson_value_new_array();
   g.json.gc.v = v;
-  g.json.gc.o = cson_value_get_object(v);
+  g.json.gc.a = cson_value_get_array(v);
 
   /*
     g.json.param holds the JSONized counterpart of fossil's
@@ -1414,7 +1414,7 @@ cson_value * json_create_response( int resultCode,
     /* i'm actually seeing sub-ms runtimes in some tests, but a time of
        0 is "just wrong", so we'll bump that up to 1ms.
     */
-    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>0.0)?span:1)));
+    cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
   }
   if(g.json.warnings.v){
     tmp = g.json.warnings.v;
