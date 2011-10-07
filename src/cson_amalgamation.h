@@ -865,7 +865,7 @@ int cson_value_fetch_double( cson_value const * val, cson_double_t * v );
    string representations. (Adding that ability would add more
    overhead to every cson_value instance.)
 */
-int cson_value_fetch_string( cson_value const * val, cson_string const ** str );
+int cson_value_fetch_string( cson_value const * val, cson_string ** str );
 
 /**
    If cson_value_is_object(val) then this function assigns *obj to the underlying
@@ -922,7 +922,7 @@ cson_double_t cson_value_get_double( cson_value const * val );
    Simplified form of cson_value_fetch_string(). Returns NULL if val
    is-not-a string value.
 */
-cson_string const * cson_value_get_string( cson_value const * val );
+cson_string * cson_value_get_string( cson_value const * val );
 
 /**
    Returns a pointer to the NULL-terminated string bytes of str.
@@ -2189,6 +2189,26 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st );
    sqlite3_column_name().
 */
 cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st );
+/**
+   Functionally almost identical to cson_sqlite3_row_to_object(), the
+   only difference being how the result objects gets its column names.
+   st must be a freshly-step()'d handle holding a result row.
+   colNames must be an Array with at least the same number of columns
+   as st. If it has fewer, NULL is returned and this function has
+   no side-effects.
+
+   For each column in the result set, the colNames entry at the same
+   index is used for the column key. If a given entry is-not-a String
+   then conversion will fail and NULL will be returned.
+
+   The one reason to prefer this over cson_sqlite3_row_to_object() is
+   that this one can share the keys across multiple rows (or even
+   other JSON containers), whereas the former makes fresh copies of
+   the column names for each row.
+
+*/
+cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
+                                          cson_array * colNames );
 
 /**
    Similar to cson_sqlite3_row_to_object(), but creates an Array

@@ -261,6 +261,8 @@ static char const * json_err_cstr( int errCode ){
     C(STMT_EXEC,"Statement execution/stepping failed");
     C(DB_LOCKED,"Database is locked");
     C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
+    C(DB_NOT_FOUND,"Fossil repository db file could not be found.");
+    C(DB_NOT_VALID, "Fossil repository db file is not valid.");
 #undef C
     default:
       return "Unknown Error";
@@ -1604,16 +1606,24 @@ cson_value * json_page_resultCodes(){
     cson_array * list = cson_value_get_array(listV);
     cson_value * objV = NULL;
     cson_object * obj = NULL;
+    cson_string * kRC;
+    cson_string * kSymbol;
+    cson_string * kNumber;
+    cson_string * kDesc;
     int rc = cson_array_reserve( list, 35 );
     if(rc){
         assert( 0 && "Allocation error.");
         exit(1);
     }
+    kRC = cson_new_string("resultCode",10);
+    kSymbol = cson_new_string("cSymbol",7);
+    kNumber = cson_new_string("number",6);
+    kDesc = cson_new_string("description",11);
 #define C(K) objV = cson_value_new_object(); obj = cson_value_get_object(objV); \
-    cson_object_set(obj, "resultCode", json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
-    cson_object_set(obj, "cSymbol", json_new_string("FSL_JSON_E_"#K) );             \
-    cson_object_set(obj, "number", cson_value_new_integer(FSL_JSON_E_##K) );        \
-    cson_object_set(obj, "description", json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
+    cson_object_set_s(obj, kRC, json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
+    cson_object_set_s(obj, kSymbol, json_new_string("FSL_JSON_E_"#K) );             \
+    cson_object_set_s(obj, kNumber, cson_value_new_integer(FSL_JSON_E_##K) );        \
+    cson_object_set_s(obj, kDesc, json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
     cson_array_append( list, objV ); obj = NULL; objV = NULL
 
     C(GENERIC);
@@ -1652,6 +1662,8 @@ cson_value * json_page_resultCodes(){
     C(STMT_EXEC);
     C(DB_LOCKED);
     C(DB_NEEDS_REBUILD);
+    C(DB_NOT_FOUND);
+    C(DB_NOT_VALID);
 #undef C
     return listV;
 }

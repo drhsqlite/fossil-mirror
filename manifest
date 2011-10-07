@@ -1,5 +1,5 @@
-C Another\sround\sof\scson\smemory\soptimizations.\sObject\skeys\scan\snow\sbe\scson_strings,\swhich\scan\sbe\srefcounted/shared.
-D 2011-10-07T10:20:46.640
+C Pulled\sin\sanother\sround\sof\smemory\soptimizations\sin\scson/sqlite3.\sAdded\sa\sfew\sminor\serror\sreporting\scleanups\sin\sJSON\smode.
+D 2011-10-07T10:59:45.960
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,9 +72,9 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/cson_amalgamation.c 9a1fa595615b60044c412ba0691503f931261e65
-F src/cson_amalgamation.h e6e2162866f45a90c8fdb958bf80fe2b114d389d
-F src/db.c c2652e950ed0d923e1801ebf7d9b38bbd9ee5021
+F src/cson_amalgamation.c 9413b24e4b9c839cb10ffc7c0f48dd13077bc48a
+F src/cson_amalgamation.h 79cc8944ecf8458a1835135d80492ab421d5d21c
+F src/db.c 2b4ab1412d6cf2c7225b1bbaed9fa317a72309b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
@@ -95,10 +95,10 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 5705e42f2d7b319d5038ccb41aebd60851f785f2
+F src/json.c 1aee2abe942409080fe18b463866785891ef105d
 F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
-F src/json_detail.h 1a24125a6dfffb5df61220554aa4c54c2a62b583
+F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_tag.c cb008d4b3568e45c0f8eb24eec371ae6a574e81e
 F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
@@ -340,7 +340,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c75759d8d0cf9a38cea0158e565e9c4c1de010f7
-R 9bb6f20136d6a4ce310f17dbc54e12d5
+P 3d252e87548f99713d93203d3ae00412497596a5
+R 9a6e02e469fe839c0211d108ba1ef828
 U stephan
-Z bd5eea29eb3d1c5157da3cf86740af13
+Z b60dbef4cbf1147a7548ddf4e38bc349

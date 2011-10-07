@@ -882,11 +882,14 @@ void db_open_repository(const char *zDbName){
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( file_access(zDbName, 0) ){
+      g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
+      g.json.resultCode = FSL_JSON_E_DENIED;
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
+      g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
@@ -921,7 +924,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     if( db_open_local()==0 ){
       goto rep_not_found;
     }
-    zRep = db_lget("repository", 0);
+    zRep = db_lget("repository", 0)/*leak here*/;
     if( zRep==0 ){
       goto rep_not_found;
     }
@@ -933,6 +936,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
   }
 rep_not_found:
   if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+    g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
     fossil_fatal("use --repository or -R to specify the repository database");
   }
 }

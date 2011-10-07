@@ -2682,20 +2682,20 @@ cson_double_t cson_value_get_double( cson_value const * val )
     return i;
 }
 
-int cson_value_fetch_string( cson_value const * val, cson_string const ** dest )
+int cson_value_fetch_string( cson_value const * val, cson_string ** dest )
 {
     if( ! val || ! dest ) return cson_rc.ArgError;
     else if( ! cson_value_is_string(val) ) return cson_rc.TypeError;
     else
     {
-        if( dest ) *dest = (cson_string const *)val->value;
+        if( dest ) *dest = CSON_STR(val);
         return 0;
     }
 }
 
-cson_string const * cson_value_get_string( cson_value const * val )
+cson_string * cson_value_get_string( cson_value const * val )
 {
-    cson_string const * rc = NULL;
+    cson_string * rc = NULL;
     cson_value_fetch_string( val, &rc );
     return rc;
 }
@@ -5148,8 +5148,57 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
 }
 
 
+cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
+                                          cson_array * colNames )
+{
+    cson_value * rootV = NULL;
+    cson_object * root = NULL;
+    cson_string * colName = NULL;
+    int i = 0;
+    int rc = 0;
+    cson_value * currentValue = NULL;
+    int const colCount = sqlite3_column_count(st);
+    if( !colCount || (colCount>cson_array_length_get(colNames)) ) {
+        return NULL;
+    }
+    rootV = cson_value_new_object();
+    if(!rootV) return NULL;
+    root = cson_value_get_object(rootV);
+    for( i = 0; i < colCount; ++i )
+    {
+        colName = cson_value_get_string( cson_array_get( colNames, i ) );
+        if( ! colName ) goto error;
+        currentValue = cson_sqlite3_column_to_value(st,i);
+        if( ! currentValue ) currentValue = cson_value_null();
+        rc = cson_object_set_s( root, colName, currentValue );
+        if( 0 != rc )
+        {
+            cson_value_free( currentValue );
+            goto error;
+        }
+    }
+    goto end;
+    error:
+    cson_value_free( rootV );
+    rootV = NULL;
+    end:
+    return rootV;
+}
+
+
 cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st )
 {
+#if 0
+    cson_value * arV = cson_sqlite3_column_names(st);
+    cson_array * ar = NULL;
+    cson_value * rc = NULL;
+    if(!arV) return NULL;
+    ar = cson_value_get_array(arV);
+    assert( NULL != ar );
+    rc = cson_sqlite3_row_to_object2(st, ar);
+    cson_value_free(arV);
+    return rc;
+#else
     cson_value * rootV = NULL;
     cson_object * root = NULL;
     char const * colName = NULL;
@@ -5180,6 +5229,7 @@ cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st )
     rootV = NULL;
     end:
     return rootV;
+#endif
 }
 
 cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
@@ -5228,6 +5278,7 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
         cson_value * rootV = NULL;
         cson_object * root = NULL;
         cson_value * colsV = NULL;
+        cson_array * cols = NULL;
         cson_value * rowsV = NULL;
         cson_array * rows = NULL;
         cson_value * objV = NULL;
@@ -5242,6 +5293,8 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
             cson_value_free( rootV );
             RETURN(cson_rc.AllocError);
         }
+        cols = cson_value_get_array(colsV);
+        assert(NULL != cols);
         root = cson_value_get_object(rootV);
         rc = cson_object_set( root, "columns", colsV );
         if( rc )
@@ -5249,7 +5302,6 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
             cson_value_free( colsV );
             RETURN(rc);
         }
-        colsV = NULL;
         rowsV = cson_value_new_array();
         if( ! rowsV ) RETURN(cson_rc.AllocError);
         rc = cson_object_set( root, "rows", rowsV );
@@ -5262,7 +5314,7 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
         assert(rows);
         while( SQLITE_ROW == sqlite3_step(st) )
         {
-            objV = cson_sqlite3_row_to_object(st);
+            objV = cson_sqlite3_row_to_object2(st, cols);
             if( ! objV ) RETURN(cson_rc.UnknownError);
             rc = cson_array_append( rows, objV );
             if( rc )
