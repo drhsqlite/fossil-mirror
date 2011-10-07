@@ -1288,9 +1288,10 @@ cson_value * json_new_timestamp(cson_int_t timeVal){
 }
 
 /*
-** Internal helper for json_create_response(). Appends all elements of
-** g.json.cmd.a, except the first one, to a string and returns that
-** string value (which is owned by the caller).
+** Internal helper for json_create_response(). Appends the first
+** g.json.dispatchDepth elements of g.json.cmd.a, skipping the first
+** one (the "json" part), to a string and returns that string value
+** (which is owned by the caller).
 */
 static cson_value * json_response_command_path(){
   if(!g.json.cmd.a){
@@ -1299,7 +1300,7 @@ static cson_value * json_response_command_path(){
     cson_value * rc = NULL;
     Blob path = empty_blob;
     char const * part;
-    unsigned int aLen = cson_array_length_get(g.json.cmd.a);
+    unsigned int aLen = g.json.dispatchDepth+1; /*cson_array_length_get(g.json.cmd.a);*/
     unsigned int i = 1;
     for( ; i < aLen; ++i ){
       char const * part = cson_string_cstr(cson_value_get_string(cson_array_get(g.json.cmd.a, i)));
