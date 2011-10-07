@@ -368,7 +368,9 @@ int name_to_rid_www(const char *zParamName){
   int rid;
   const char *zName = P(zParamName);
   Blob name;
-
+  if(!zName && fossil_is_json()){
+    zName = json_find_option_cstr(zParamName,NULL,NULL);
+  }
   if( zName==0 || zName[0]==0 ) return 0;
   blob_init(&name, zName, -1);
   rc = name_to_uuid(&name, -1, "*");

@@ -2014,6 +2014,8 @@ cson_value * json_page_artifact();
 cson_value * json_page_branch();
 /* Impl in json_tag.c. */
 cson_value * json_page_tag();
+/* Impl in json_diff.c. */
+cson_value * json_page_diff();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2025,6 +2027,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
+{"diff", json_page_diff, 0},
 {"dir", json_page_nyi, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,1},
