@@ -1,5 +1,5 @@
-C Added\sa\svery,\svery\sprototypic/pre-alphalpha\sdemo\sfossil\sshell.\sRequires\srhino\sJS.
-D 2011-10-07T12:02:36.618
+C minor\stweaks\sto\sthe\sprototype\sshell.
+D 2011-10-07T13:32:38.633
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -7,7 +7,7 @@ F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
 F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
-F ajax/i-test/rhino-shell.js 67e3d6ce5449d48dc98ae0e85790a591d894bfb0
+F ajax/i-test/rhino-shell.js 23b188f63e0c45e6f2fe91d85b36b073892abcce
 F ajax/i-test/rhino-test.js 5000b787cb9cd456f2d525c846b6f5334ccc39aa
 F ajax/index.html 83a5c82e1b6a9dd8e0d73c793b90dcbd5ce7b823
 F ajax/js/fossil-ajaj.js 46c7194530a887a180ba885f2bfcd1bf968d47ed
@@ -341,7 +341,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 09e5fcd795ce5fe6e7157e5982283ee7bd2ef9c5
-R dd8c2321b540ee013f2d53754fd3b3eb
+P 7ab5d85487f230075bbb240f9c00f3833f276dc9
+R d95b0e1aa131e14a49db724da99a6629
 U stephan
-Z 4d44a70fcf767c1c22be50a89c110756
+Z d540042d8794c7c3e3178defb4dab725

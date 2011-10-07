@@ -53,7 +53,7 @@ var FShell = {
         }
         print("GOT RESPONSE: "+(('string'===typeof resp) ? resp : WhAjaj.stringify(resp)));
     };
-    FShell.fossil.whoami({
+    FShell.fossil.HAI({
         onResponse:function(resp,opt){
             assertResponseOK(resp);
         }
@@ -116,22 +116,30 @@ FShell.readline = (typeof readline === 'function') ? (readline) : (function() {
 FShell.dispatchLine = function(line){
     var av = line.split(' '); // FIXME: to shell-like tokenization. Too tired!
     var cmd = av[0];
-    var h = this.commandHandlers[('/' == cmd[0]) ? '/' : cmd];
+    var key, h;
+    if('/' == cmd[0]) key = '/';
+    else key = this.commandAliases[cmd];
+    if(!key) key = cmd;
+    h = this.commandHandlers[key];
     if(!h){
-        print("Command not known: "+cmd);
+        print("Command not known: "+cmd +" ("+key+")");
+    }else if(!WhAjaj.isFunction(h)){
+        print("Not a function: "+key);
     }
     else{
-        print("Sending ["+cmd+"] command... ");
+        print("Sending ["+key+"] command... ");
         try{h(av);}
         catch(e){ print("EXCEPTION: "+e); }
     }
 };
 
-FShell.onResponseDefault = function(){
-    var self = this;
-    return function(resp){
+FShell.onResponseDefault = function(callback){
+    return function(resp,req){
         assertResponseOK(resp);
-        print(WhAjaj.stringify(resp.payload));
+        print("Payload: "+(resp.payload ? WhAjaj.stringify(resp.payload) : "none"));
+        if(WhAjaj.isFunction(callback)){
+            callback(resp,req);
+        }
     };
 };
 FShell.commandHandlers = {
@@ -155,14 +163,26 @@ FShell.commandHandlers = {
         FShell.fossil.whoami({
             onResponse:FShell.onResponseDefault()
         });
+    },
+    "HAI":function(args){
+        FShell.fossil.HAI({
+            onResponse:FShell.onResponseDefault()
+        });
     }
 };
-
+FShell.commandAliases = {
+    "li":"login",
+    "lo":"logout",
+    "who":"whoami",
+    "hi":"HAI",
+    "tci":"/timeline/ci?limit=3"
+};
 FShell.mainLoop = function(){
     var line;
     while( null != (line = this.readline(this.prompt)) ){
         //print("Got line: "+line);
         this.dispatchLine(line);
+        print("");
     }
 };
 
