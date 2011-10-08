@@ -1,5 +1,5 @@
-C "Dispatching"\sjson\ssubcommands\snow\sproduce\smore\suseful\serror\smessages\swhen\sno\ssubcommand\sis\sspecified.
-D 2011-10-08T12:57:32.147
+C getenv()\sas\sthe\sfallback\sstrategy\sfor\sjson_getenv()\snow\sonly\senabled\sin\sCLI\smode.
+D 2011-10-08T14:15:46.031
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 319c1e16a2de61429b675bb92e99cb5a9ed2e2cb
+F src/json.c 67e07773ebe62df5b5cdc0032743106dc9436829
 F src/json_artifact.c b954bfb2041d7c2e22438033358b4bfa509e8fbf
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6841b11647954d83ebe5835e9252fc1d9ea7444e
-R 4e7c29870d548726712ad72fffe740f7
+P a8af09fc166f8a34ff2d327512d84b1b7eaad191
+R 64767a050f27d9b8363c4caf20654067
 U stephan
-Z 0291e28e008ab952c59a4082f9c935e6
+Z 734f3f9ee2d3f172b82a648c5eb5301d

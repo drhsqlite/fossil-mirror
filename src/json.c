@@ -423,7 +423,7 @@ cson_value * json_getenv( char const * zKey ){
     return rc;
   }else{
     char const * cv = PD(zKey,NULL);
-    if(!cv){
+    if(!cv && !g.isHTTP){
       /* reminder to self: in CLI mode i'd like to try
          find_option(zKey,NULL,XYZ) here, but we don't have a sane
          default for the XYZ param here.
@@ -441,6 +441,8 @@ cson_value * json_getenv( char const * zKey ){
           as a number. sscanf() returns the number of tokens
           successfully parsed, so an RC of 1 will be correct for "123"
           but "123x" will have RC==2.
+
+          But it appears to not be working that way :/
         */
         ;
       if(1==scanRc){
@@ -450,9 +452,10 @@ cson_value * json_getenv( char const * zKey ){
         json_setenv( zKey, rc );
       }
       return rc;
+    }else{
+      return NULL;
     }
   }
-  return NULL;
 }
 
 /*
