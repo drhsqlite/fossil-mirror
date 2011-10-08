@@ -221,18 +221,24 @@ If the POST textarea is not empty then it will be posted with the request.
 <strong>Quick-posts:</strong><br/>
 <input type='button' value='HAI' onclick='TheApp.cgi.HAI()' />
 <input type='button' value='HAI JSONP' onclick='TheApp.cgi.sendCommand("/json/HAI",undefined,{jsonp:"myJsonPCallback"});' />
-
 <input type='button' value='version' onclick='TheApp.cgi.sendCommand("/json/version")' />
 <input type='button' value='stat' onclick='TheApp.cgi.sendCommand("/json/stat?full=0")' />
 <input type='button' value='whoami' onclick='TheApp.cgi.whoami()' />
 <input type='button' value='cap' onclick='TheApp.cgi.sendCommand("/json/cap")' />
+
+<br/>
+
 <input type='button' value='branch/list' onclick='TheApp.cgi.sendCommand("/json/branch/list")' />
 <input type='button' value='timeline/ci' onclick='TheApp.cgi.sendCommand("/json/timeline/ci?files=true")' />
 <input type='button' value='timeline/wiki' onclick='TheApp.cgi.sendCommand("/json/timeline/wiki")' />
 <input type='button' value='timeline/ticket' onclick='TheApp.cgi.sendCommand("/json/timeline/ticket")' />
+<input type='button' value='timeline/branch' onclick='TheApp.cgi.sendCommand("/json/timeline/branch")' />
 <input type='button' value='wiki/list' onclick='TheApp.cgi.sendCommand("/json/wiki/list")' />
 <input type='button' value='wiki/get Fossil' onclick='TheApp.cgi.sendCommand("/json/wiki/get",{name:"Fossil"})' />
 <input type='button' value='wiki/get/Fossil' onclick='TheApp.cgi.sendCommand("/json/wiki/get/Fossil")' />
+
+<br/>
+
 <input type='button' value='user/list' onclick='TheApp.cgi.sendCommand("/json/user/list")' />
 <input type='button' value='user/get' onclick='TheApp.cgi.sendCommand("/json/user/get?name=anonymous")' />
 <input type='button' value='resultCodes' onclick='TheApp.cgi.sendCommand("/json/resultCodes")' />
@@ -244,6 +250,9 @@ If the POST textarea is not empty then it will be posted with the request.
     onclick='TheApp.cgi.sendCommand("/json/tag/cancel",{name:"json-add-tag-test",checkin:"json",raw:false})' />
 <input type='button' value='tag/find'
     onclick='TheApp.cgi.sendCommand("/json/tag/find",{name:"json",type:"*",raw:false,limit:5})' />
+
+<br/>
+
 <input type='button' value='diff'
     onclick='TheApp.cgi.sendCommand("/json/diff",{v1:"b0e9b45baed6f885",v2:"5f225e261d836287",context:2})' />
 <input type='button' value='diff/A/B'

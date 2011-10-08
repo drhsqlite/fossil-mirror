@@ -55,6 +55,25 @@ cson_value * json_page_report(){
   return json_page_dispatch_helper(&JsonPageDefs_Report[0]);
 }
 
+/*
+** Searches the environment for a "report" parameter
+** (CLI: -report/-r #).
+**
+** If one is not found and argPos is >0 then json_command_arg()
+** is checked.
+** 
+** Returns >0 (the report number) on success .
+*/
+static int json_report_get_number(int argPos){
+  int nReport = json_find_option_int("report",NULL,"r",-1);
+  if( (nReport <= 0) && (argPos>0) ){
+    char const * arg = json_command_arg(argPos);
+    if(arg && fossil_isdigit(*arg)) {
+      nReport = atoi(arg);
+    }
+  }
+  return nReport;
+}
 
 static cson_value * json_report_create(){
   return NULL;
@@ -64,25 +83,25 @@ static cson_value * json_report_get(){
   return NULL;
 }
 
+/*
+** Impl of /json/report/list.
+*/
 static cson_value * json_report_list(){
   Blob sql = empty_blob;
   cson_value * pay = NULL;
+  if(!g.perm.RdTkt){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'r' privileges.");
+    return NULL;
+  }
   blob_append(&sql, "SELECT"
               " rn AS report,"
               " title as title,"
               " owner as owner"
               " FROM reportfmt"
-              " WHERE 1", -1);
-  /* This logic was adapted from the HTML mode report list
-     page. However, for reasons i cannot explain, enbling this block
-     causes a crash in CGI mode when request is made via a user
-     without TktFmt.
-  */
-  if(!g.perm.TktFmt){
-    blob_append(&sql,
-                " AND title NOT LIKE '_%'", -1);
-  }
-  blob_append(&sql," ORDER BY title",-1);
+              " WHERE 1"
+              " ORDER BY title",
+              -1);
   pay = json_sql_to_array_of_obj(&sql, NULL, 1);
   if(!pay){
     json_set_err(FSL_JSON_E_UNKNOWN,
@@ -115,13 +134,12 @@ static cson_value * json_report_run(){
   cson_value * colNames = NULL;
   int i;
 
-  nReport = json_find_option_int("report",NULL,"r",-1);
-  if( nReport <= 0 ){
-    char const * arg = json_command_arg(3);
-    if(arg && fossil_isdigit(*arg)) {
-      nReport = atoi(arg);
-    }
+  if(!g.perm.RdTkt){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'r' privileges.");
+    return NULL;
   }
+  nReport = json_report_get_number(3);
   if(nReport <=0){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "Missing or invalid 'number' (-n) parameter.");
@@ -163,7 +181,7 @@ static cson_value * json_report_run(){
   free(zTitle);
   zTitle = NULL;
 
-  if(g.perm.WrTkt){
+  if(g.perm.TktFmt){
     cson_object_set(pay, "sqlcode",
                     cson_value_new_string(blob_str(&sql),
                                           (unsigned int)blob_size(&sql)));

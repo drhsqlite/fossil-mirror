@@ -23,6 +23,7 @@
 #include "json_detail.h"
 #endif
 
+static cson_value * json_timeline_branch();
 static cson_value * json_timeline_ci();
 static cson_value * json_timeline_ticket();
 /*
@@ -33,6 +34,7 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
    that we end up with HTTP clients using 3 different names
    for the same requests.
 */
+{"branch", json_timeline_branch, 0},
 {"c", json_timeline_ci, -1},
 {"checkin", json_timeline_ci, 0},
 {"ci", json_timeline_ci, -1},
@@ -113,9 +115,9 @@ const char const * json_timeline_query(void){
     @   event.type,
     @   (SELECT group_concat(substr(tagname,5), ',') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
-    @   tagid,
-    @   brief
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) as tags,
+    @   tagid as tagId,
+    @   brief as brief
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -345,6 +347,71 @@ cson_value * json_get_changed_files(int rid){
   db_finalize(&q);
   return rowsV;
 }
+
+static cson_value * json_timeline_branch(){
+  cson_value * pay = NULL;
+  Blob sql = empty_blob;
+  Stmt q = empty_Stmt;
+  if(!g.perm.Read){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' permissions.");
+    return NULL;
+  }
+  json_timeline_temp_table();
+  blob_append(&sql,
+              "SELECT"
+              "  blob.rid AS rid,"
+              "  uuid AS uuid,"
+              "  datetime(event.mtime,'utc') as mtime,"
+              "  coalesce(ecomment, comment) as comment,"
+              "  coalesce(euser, user) as user,"
+              "  blob.rid IN leaf as isLeaf,"
+              "  bgcolor as bgColor"
+              " FROM event JOIN blob"
+              " WHERE blob.rid=event.objid",
+              -1);
+
+  blob_appendf(&sql,
+               " AND event.type='ci'"
+               " AND blob.rid IN (SELECT rid FROM tagxref"
+               "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
+               " ORDER BY event.mtime DESC",
+               TAG_BRANCH);
+  db_prepare(&q,"%s", blob_str(&sql));
+  blob_reset(&sql);
+  pay = json_stmt_to_array_of_obj(&q, NULL);
+  db_finalize(&q);
+  assert(NULL != pay);
+  if(pay){
+    /* get the array-form tags of each record. */
+    cson_string * tags = cson_new_string("tags",4);
+    cson_string * isLeaf = cson_new_string("isLeaf",6);
+    cson_value_add_reference( cson_string_value(tags) );
+    cson_value_add_reference( cson_string_value(isLeaf) );
+    cson_array * ar = cson_value_get_array(pay);
+    unsigned int i = 0;
+    unsigned int len = cson_array_length_get(ar);
+    for( ; i < len; ++i ){
+      cson_object * row = cson_value_get_object(cson_array_get(ar,i));
+      int rid = cson_value_get_integer(cson_object_get(row,"rid"));
+      if(row>0) {
+        cson_object_set_s(row, tags, json_tags_for_rid(rid,0));
+        cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
+      }
+    }
+    cson_value_free( cson_string_value(tags) );
+    cson_value_free( cson_string_value(isLeaf) );
+  }
+   
+  goto end;
+  error:
+  assert( 0 != g.json.resultCode );
+  cson_value_free(pay);
+
+  end:
+  return pay;
+}
+
 /*
 ** Implementation of /json/timeline/ci.
 **
@@ -412,7 +479,7 @@ static cson_value * json_timeline_ci(){
 #  endif
 #endif
              " FROM json_timeline"
-             " ORDER BY sortId");
+             " ORDER BY rowid");
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   tmp = listV;
@@ -498,7 +565,7 @@ cson_value * json_timeline_wiki(){
              " tagId AS tagId,"
 #endif
              " FROM json_timeline"
-             " ORDER BY sortId",
+             " ORDER BY rowid",
              -1);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
@@ -574,7 +641,7 @@ static cson_value * json_timeline_ticket(){
              " comment AS comment,"
              " brief AS briefComment"
              " FROM json_timeline"
-             " ORDER BY sortId",
+             " ORDER BY rowid",
              -1);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);

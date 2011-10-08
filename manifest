@@ -1,5 +1,5 @@
-C fixed\sa\scson\smis-use\swhich\scould\scause\sa\scrash\sin\ssome\scases\sdue\sto\sclient-side\smisachtung\sof\sthe\sreference\scount.
-D 2011-10-08T11:55:40.918
+C Permissions\sfixes\sin\sjson/report.\sAdded\sjson/timeline/branch,\sanalog\sto\s/brtimeline.
+D 2011-10-08T12:13:03.858
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -9,7 +9,7 @@ F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 23b188f63e0c45e6f2fe91d85b36b073892abcce
 F ajax/i-test/rhino-test.js 5000b787cb9cd456f2d525c846b6f5334ccc39aa
-F ajax/index.html 0c131904d9030324ab979945eac0c7ecc8409cae
+F ajax/index.html e7c3fb25e2d8c3457198bd72ae52ee8687ec5c72
 F ajax/js/fossil-ajaj.js 46c7194530a887a180ba885f2bfcd1bf968d47ed
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
 F ajax/js/whajaj.js e1b3447be40a89a807576467d021306e74a61c62
@@ -103,9 +103,9 @@ F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
 F src/json_login.c 331b1c5b3c35f8487cbb7eef93d4ea0d8b5821b0
 F src/json_query.c 3cee3e36d2296237e9080f8a6af2782fbd8200cf
-F src/json_report.c 146dcc80adccf83c510edbda6b292ced5b91bc1a
+F src/json_report.c d5d715867637841abd1fe629c1b22f104419977f
 F src/json_tag.c cb008d4b3568e45c0f8eb24eec371ae6a574e81e
-F src/json_timeline.c 6c66fbf0268f50b6cfd28e1cb9e57be03f46efa7
+F src/json_timeline.c 3f646a04a80027b54a904c3ba47369c6e3cd9c10
 F src/json_wiki.c 2c9c2ee2cbacd84887dba38e9312977337a0a01c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 6a1de45d53e59bed35a04e4d541464dc2c8d70ed
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8907163ea4c66147b79f82436160f78d341f6bb6
-R b01bd267d31c9abbb0d51ccc4bb73146
+P d8fd611fab83ceaae77993e6074e2c24a23786e3
+R 3ce6cc144c59feba0dd14b7d2c6af37c
 U stephan
-Z b1f39891a7e895fbb12ec4920a3431a0
+Z e390d7a78d3a9ed4e2e100b4bc1f64d4
