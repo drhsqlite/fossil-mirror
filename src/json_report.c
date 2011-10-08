@@ -99,7 +99,7 @@ static cson_value * json_report_get(){
     return NULL;
   }
 
-  db_prepare(&q,"SELECT rn AS rn,"
+  db_prepare(&q,"SELECT rn AS report,"
              " owner AS owner,"
              " title AS title,"
              " strftime('%%s',mtime) as mtime,"
