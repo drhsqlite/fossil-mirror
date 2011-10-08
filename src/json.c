@@ -1569,14 +1569,17 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!a){
       if(!v){
         v = cson_value_new_array();
-        colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
-        assert(NULL != colNamesV);
-        colNames = cson_value_get_array(colNamesV);
-        assert(NULL != colNames);
       }
       a = cson_value_get_array(v);
       assert(NULL!=a);
     }
+    if(!colNames){
+      colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
+      assert(NULL != colNamesV);
+      cson_value_add_reference(colNamesV);
+      colNames = cson_value_get_array(colNamesV);
+      assert(NULL != colNames);
+    }      
     row = cson_sqlite3_row_to_object2(pStmt->pStmt, colNames);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
@@ -1591,9 +1594,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
       return NULL;
     }
   }
-  if( colNamesV ){
-    cson_value_free(colNamesV);
-  }
+  cson_value_free(colNamesV);
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
@@ -1670,6 +1671,19 @@ cson_value * json_tags_for_rid(int rid, char propagatingOnly){
     free(tags);
   }
   return v;  
+}
+
+/*
+ ** Returns a "new" value representing the boolean value of zVal
+ ** (false if zVal is NULL). Note that cson does not really allocate
+ ** any memory for boolean values, but they "should" (for reasons of
+ ** style and philosophy) be cleaned up like any other values (but
+ ** it's a no-op for bools).
+ */
+cson_value * json_value_to_bool(cson_value const * zVal){
+  return cson_value_get_bool(zVal)
+    ? cson_value_true()
+    : cson_value_false();
 }
 
 /*
