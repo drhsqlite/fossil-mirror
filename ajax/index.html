@@ -248,6 +248,10 @@ onclick='TheApp.cgi.sendCommand("/json/tag/find",{name:"json",type:"*",raw:false
 onclick='TheApp.cgi.sendCommand("/json/diff",{v1:"b0e9b45baed6f885",v2:"5f225e261d836287",context:2})' />
 <input type='button' value='diff/A/B'
 onclick='TheApp.cgi.sendCommand("/json/diff/b0e9b45baed6f885/5f225e261d836287?context=2")' />
+<input type='button' value='report/list'
+onclick='TheApp.cgi.sendCommand("/json/report/list")' />
+<input type='button' value='query'
+onclick='TheApp.cgi.sendCommand("/json/query?format=o","SELECT * from user")' />
 
 <!-- not yet ready...
 <input type='button' value='artifact/XYZ' onclick='TheApp.cgi.sendCommand("/json/artifact?uuid=json")' />

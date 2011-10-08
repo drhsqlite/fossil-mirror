@@ -541,14 +541,18 @@ char const * json_getenv_cstr( char const * zKey ){
 ** form" CLI flag (NULL means to use zKey). zCLIShort may be NUL or
 ** the "short form" CLI flag.
 **
+** If argPos is >=0 and no other match is found,
+** json_command_arg(argPos) is also checked.
+**
 ** On error (no match found) NULL is returned.
 **
 ** This ONLY works for String JSON/GET/CLI values, not JSON
 ** booleans and whatnot.
 */
-char const * json_find_option_cstr(char const * zKey,
-                                   char const * zCLILong,
-                                   char const * zCLIShort){
+char const * json_find_option_cstr2(char const * zKey,
+                                    char const * zCLILong,
+                                    char const * zCLIShort,
+                                    int argPos){
   char const * rc = NULL;
   assert(NULL != zKey);
   if(!g.isHTTP){
@@ -558,7 +562,16 @@ char const * json_find_option_cstr(char const * zKey,
   if(!rc && fossil_is_json()){
     rc = json_getenv_cstr(zKey);
   }
+  if(!rc && (argPos>=0)){
+    rc = json_command_arg((unsigned char)argPos);
+  }
   return rc;
+}
+
+char const * json_find_option_cstr(char const * zKey,
+                                   char const * zCLILong,
+                                   char const * zCLIShort){
+  return json_find_option_cstr2(zKey, zCLIShort, zCLIShort, -1);
 }
 
 /*
@@ -827,7 +840,6 @@ void json_main_bootstrap(){
 ** for consistency with how json_err() works.
 */
 void json_warn( int code, char const * fmt, ... ){
-  cson_value * objV = NULL;
   cson_object * obj = NULL;
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
@@ -838,10 +850,8 @@ void json_warn( int code, char const * fmt, ... ){
     g.json.warnings.a = cson_value_get_array(g.json.warnings.v);
     json_gc_add("$WARNINGS",g.json.warnings.v,0);
   }
-  objV = cson_value_new_object();
-  assert((NULL != objV) && "Alloc error.");
-  cson_array_append(g.json.warnings.a, objV);
-  obj = cson_value_get_object(objV);
+  obj = cson_new_object();
+  cson_array_append(g.json.warnings.a, cson_object_value(obj));
   cson_object_set(obj,"code",cson_value_new_integer(code));
   if(fmt && *fmt){
     /* FIXME: treat NULL fmt as standard warning message for
@@ -1544,6 +1554,8 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   cson_value * v = pTgt;
   cson_array * a = NULL;
   char const * warnMsg = NULL;
+  cson_value * colNamesV = NULL;
+  cson_array * colNames = NULL;
   if(v && !cson_value_is_array(v)){
     return NULL;
   }
@@ -1552,11 +1564,15 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!a){
       if(!v){
         v = cson_value_new_array();
+        colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
+        assert(NULL != colNamesV);
+        colNames = cson_value_get_array(colNamesV);
+        assert(NULL != colNames);
       }
       a = cson_value_get_array(v);
       assert(NULL!=a);
     }
-    row = cson_sqlite3_row_to_object(pStmt->pStmt);
+    row = cson_sqlite3_row_to_object2(pStmt->pStmt, colNames);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
       continue;
@@ -1570,12 +1586,34 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
       return NULL;
     }
   }
+  if( colNamesV ){
+    cson_value_free(colNamesV);
+  }
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
   return v;  
 }
 
+/*
+** Executes the given SQL and runs it through
+** json_stmt_to_array_of_obj(), returning the result of that
+** function. If resetBlob is true then blob_reset(pSql) is called
+** after preparing the query.
+*/
+cson_value * json_sql_to_array_of_obj(Blob * pSql, char resetBlob){
+  Stmt q = empty_Stmt;
+  cson_value * pay = NULL;
+  assert( blob_size(pSql) > 0 );
+  db_prepare(&q, "%s", blob_str(pSql));
+  if(resetBlob){
+    blob_reset(pSql);
+  }
+  pay = json_stmt_to_array_of_obj(&q, NULL);
+  db_finalize(&q);
+  return pay;
+
+}
 
 /*
 ** If the given rid has any tags associated with it, this function
@@ -2004,18 +2042,22 @@ static cson_value * json_user_get(){
 
 /* Impl in json_login.c. */
 cson_value * json_page_anon_password();
-/* Impl in json_login.c. */
-cson_value * json_page_login();
-/* Impl in json_login.c. */
-cson_value * json_page_logout();
 /* Impl in json_artifact.c. */
 cson_value * json_page_artifact();
 /* Impl in json_branch.c. */
 cson_value * json_page_branch();
-/* Impl in json_tag.c. */
-cson_value * json_page_tag();
 /* Impl in json_diff.c. */
 cson_value * json_page_diff();
+/* Impl in json_login.c. */
+cson_value * json_page_login();
+/* Impl in json_login.c. */
+cson_value * json_page_logout();
+/* Impl in json_query.c. */
+cson_value * json_page_query();
+/* Impl in json_report.c. */
+cson_value * json_page_report();
+/* Impl in json_tag.c. */
+cson_value * json_page_tag();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2023,7 +2065,7 @@ cson_value * json_page_diff();
 */
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
-{"anonymousPassword",json_page_anon_password, 1},
+{"anonymousPassword", json_page_anon_password, 1},
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
@@ -2032,7 +2074,9 @@ static const JsonPageDef JsonPageDefs[] = {
 {"HAI",json_page_version,0},
 {"login",json_page_login,1},
 {"logout",json_page_logout,1},
+{"query",json_page_query,0},
 {"rebuild",json_page_rebuild,0},
+{"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
 {"tag", json_page_tag,0},
