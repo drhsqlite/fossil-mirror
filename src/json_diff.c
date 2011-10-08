@@ -25,7 +25,9 @@
 
 
 /*
-** Append the difference between two RIDs to the output
+** Generates a diff between two versions (zFrom and zTo), using nContext
+** content lines in the output. On success, returns a new JSON String
+** object. On error it sets g.json's error state and returns NULL.
 */
 cson_value * json_generate_diff(const char *zFrom, const char *zTo,
                                 int nContext){
@@ -44,7 +46,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
   toid = name_to_typed_rid(zTo, "*");
   if(toid<=0){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
-                   "Could not resolve 'from' ID.");
+                   "Could not resolve 'to' ID.");
       return NULL;
   }
   content_get(fromid, &from);
@@ -63,6 +65,14 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
 
 /*
 ** Implementation of the /json/diff page.
+**
+** Arguments:
+**
+** v1=1st version to diff
+** v2=2nd version to diff
+**
+** Can come from GET, POST.payload, CLI -v1/-v2 or as positional
+** parameters following the command name (in HTTP and CLI modes).
 **
 */
 cson_value * json_page_diff(){
