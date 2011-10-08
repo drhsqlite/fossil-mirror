@@ -109,7 +109,8 @@ FShell.readline = (typeof readline === 'function') ? (readline) : (function() {
      var self = this;
      return function(prompt) {
         if(prompt) print(prompt);
-        return String(stdin.readLine()); 
+        var x = stdin.readLine();
+        return null===x ? x : String(x) /*convert to JS string!*/;
      };
 }());
 
@@ -143,6 +144,15 @@ FShell.onResponseDefault = function(callback){
     };
 };
 FShell.commandHandlers = {
+    "?":function(args){
+        var k;
+        print("Available commands...\n");
+        var o = FShell.commandHandlers;
+        for(k in o){
+            if(! o.hasOwnProperty(k)) continue;
+            print("\t"+k);
+        }
+    },
     "/":function(args){
         FShell.fossil.sendCommand('/json'+args[0],undefined,{
             beforeSend:function(req,opt){
@@ -151,7 +161,7 @@ FShell.commandHandlers = {
             onResponse:FShell.onResponseDefault()
         });
     },
-    "e":function(args){
+    "eval":function(args){
         eval(args.join(' '));
     },
     "login":function(args){
@@ -169,6 +179,7 @@ FShell.commandHandlers = {
             onResponse:FShell.onResponseDefault()
         });
     }
+
 };
 FShell.commandAliases = {
     "li":"login",
@@ -179,11 +190,19 @@ FShell.commandAliases = {
 };
 FShell.mainLoop = function(){
     var line;
-    while( null != (line = this.readline(this.prompt)) ){
+    var check = /\S/;
+    //var isJavaNull = /java\.lang\.null/;
+    //print(typeof java.lang['null']);
+    while( null != (line=this.readline(this.prompt)) ){
+        if(null===line) break /*EOF*/;
+        else if( "" === line ) continue;
         //print("Got line: "+line);
+        else if(!check.test(line)) continue;
+        print('typeof line = '+typeof line);
         this.dispatchLine(line);
         print("");
     }
+    print("Bye!");
 };
 
 FShell.mainLoop();
