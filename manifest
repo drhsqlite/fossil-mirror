@@ -1,5 +1,5 @@
-C doc\sadditions\sfor\s/json/diff.
-D 2011-10-08T05:16:12.358
+C minor\shack\sto\sallow\slibcson\sto\suse\sfossil_malloc/free/realloc()\sso\sthat\swe\swill\shook\sinto\sits\sdie-on-OOM\sbehaviour\s(=reduced\serror\schecking).
+D 2011-10-08T05:16:44.490
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -73,7 +73,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/cson_amalgamation.c 9413b24e4b9c839cb10ffc7c0f48dd13077bc48a
+F src/cson_amalgamation.c 8ed3e05f5fc5323a27429e60d70fcce679d8012f
 F src/cson_amalgamation.h 79cc8944ecf8458a1835135d80492ab421d5d21c
 F src/db.c 2b4ab1412d6cf2c7225b1bbaed9fa317a72309b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -108,10 +108,10 @@ F src/json_wiki.c 2c9c2ee2cbacd84887dba38e9312977337a0a01c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 6a1de45d53e59bed35a04e4d541464dc2c8d70ed
 F src/main.c 798fba9dd7fd82f1770f056cebed92e60eeb8d6b
-F src/main.mk 8213f983947667ba24ec032324bf67f6e8d800b7
+F src/main.mk 9ec771a3103f9926bed57c3cf50254fe6305431e
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 9ad2de7a42c90e87e41529ed5a853a0473908937
+F src/makemake.tcl 31aef5f4bc58c07062dff406dbcc21b041e99b04
 F src/manifest.c 0c2fbde0455f5bdf35295dafbbbf90d974ab843c
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
@@ -230,7 +230,7 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
 F win/Makefile.dmc ed502a90c9667b7a37ec8675f81c1b4a7cae788b
-F win/Makefile.mingw b1f390742cbe3d3a19a45d69f751d97771785b9d
+F win/Makefile.mingw 05d30acd6aba1ad9058d4de8fdd6306c103eb036
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc b8b60beca478b2669fca9ef1de70ceef60cbae83
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -342,7 +342,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7906bab836801ed1f55f98769ed03e292346c254
-R d2ee543c899baaefc2dde64a80f54f00
+P a37df1d939fc1555b170bdc1afec31cf80b986c2
+R 4137b243aec86dff8b454a83efb4fe5e
 U stephan
-Z 3d88aa910abe5572763f077cc9f65304
+Z 03aef9ca06a80ae791738b63d20b10d6

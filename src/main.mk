@@ -338,6 +338,8 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 $(SRCDIR)/../manifest:	
 	# noop
 
+$(OBJDIR)/cson_amalgamation.o: CPPFLAGS+="-DCSON_FOSSIL_MODE"
+
 clean:	
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
@@ -992,6 +994,7 @@ $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
 
-$(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
+
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
 

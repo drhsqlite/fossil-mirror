@@ -224,6 +224,8 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 $(SRCDIR)/../manifest:	
 	# noop
 
+$(OBJDIR)/cson_amalgamation.o: CPPFLAGS+="-DCSON_FOSSIL_MODE"
+
 clean:	
 	rm -rf $(OBJDIR)/* $(APPNAME)
 
@@ -279,8 +281,10 @@ writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
 writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
 set opt {}
-writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln {
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+}
 
 
 close $output_file
@@ -487,7 +491,7 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"

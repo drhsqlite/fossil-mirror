@@ -1725,6 +1725,34 @@ char const * cson_rc_string(int rc)
 */
 #define CSON_LOG_ALLOC 0
 
+
+/**
+   CSON_FOSSIL_MODE is only for use in the Fossil
+   source tree, so that we can plug in to its allocators.
+   We can't do this by, e.g., defining macros for the
+   malloc/free funcs because fossil's lack of header files
+   means we would have to #include "main.c" here to
+   get the declarations.
+ */
+#if defined(CSON_FOSSIL_MODE)
+void *fossil_malloc(size_t n);
+void fossil_free(void *p);
+void *fossil_realloc(void *p, size_t n);
+#  define CSON_MALLOC_IMPL fossil_malloc
+#  define CSON_FREE_IMPL fossil_free
+#  define CSON_REALLOC_IMPL fossil_realloc
+#endif
+
+#if !defined CSON_MALLOC_IMPL
+#  define CSON_MALLOC_IMPL malloc
+#endif
+#if !defined CSON_FREE_IMPL
+#  define CSON_FREE_IMPL free
+#endif
+#if !defined CSON_REALLOC_IMPL
+#  define CSON_REALLOC_IMPL realloc
+#endif
+
 /**
    A test/debug macro for simulating an OOM after the given number of
    bytes have been allocated.
@@ -1747,7 +1775,7 @@ static void * cson_malloc( size_t n, char const * descr )
         return NULL;
     }
 #endif
-    return malloc(n);
+    return CSON_MALLOC_IMPL(n);
 }
 
 /** Simple proxy for free(). descr is a description of the memory being freed. */
@@ -1758,7 +1786,7 @@ static void cson_free( void * p, char const * descr )
 #endif
     if( !cson_value_is_builtin(p) )
     {
-        free( p );
+        CSON_FREE_IMPL( p );
     }
 }
 /** Simple proxy for realloc(). descr is a description of the (re)allocation. */
@@ -1783,7 +1811,7 @@ static void * cson_realloc( void * hint, size_t n, char const * descr )
     }
     else
     {
-        return realloc( hint, n );
+        return CSON_REALLOC_IMPL( hint, n );
     }
 }
 
@@ -4878,6 +4906,9 @@ unsigned int cson_value_msize(cson_value const * v)
 #undef CSON_OBJ
 #undef CSON_ARRAY
 #undef CSON_VCAST
+#undef CSON_MALLOC_IMPL
+#undef CSON_FREE_IMPL
+#undef CSON_REALLOC_IMPL
 /* end file ./cson.c */
 /* begin file ./cson_lists.h */
 /* Auto-generated from cson_list.h. Edit at your own risk! */
