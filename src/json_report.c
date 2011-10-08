@@ -66,6 +66,9 @@ cson_value * json_page_report(){
 */
 static int json_report_get_number(int argPos){
   int nReport = json_find_option_int("report",NULL,"r",-1);
+  if( (nReport<=0) && cson_value_is_integer(g.json.reqPayload.v)){
+    nReport = cson_value_get_integer(g.json.reqPayload.v);
+  }
   if( (nReport <= 0) && (argPos>0) ){
     char const * arg = json_command_arg(argPos);
     if(arg && fossil_isdigit(*arg)) {
@@ -80,7 +83,40 @@ static cson_value * json_report_create(){
 }
 
 static cson_value * json_report_get(){
-  return NULL;
+  int nReport;
+  Stmt q = empty_Stmt;
+  cson_value * pay = NULL;
+
+  if(!g.perm.TktFmt){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 't' privileges.");
+    return NULL;
+  }
+  nReport = json_report_get_number(3);
+  if(nReport <=0){
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "Missing or invalid 'number' (-n) parameter.");
+    return NULL;
+  }
+
+  db_prepare(&q,"SELECT rn AS rn,"
+             " owner AS owner,"
+             " title AS title,"
+             " strftime('%%s',mtime) as mtime,"
+             " cols as columns,"
+             " sqlcode as sqlCode"
+             " FROM reportfmt"
+             " WHERE rn=%d",
+             nReport);
+  if( SQLITE_ROW != db_step(&q) ){
+    db_finalize(&q);
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                 "Report #%d not found.", nReport);
+    return NULL;
+  }
+  pay = cson_sqlite3_row_to_object(q.pStmt);
+  db_finalize(&q);
+  return pay;
 }
 
 /*
