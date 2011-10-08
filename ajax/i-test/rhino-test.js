@@ -149,7 +149,7 @@ function testAnonWiki(){
         }
     });
     TestApp.fossil.sendCommand('/json/wiki/get',{
-        page:TestApp.wiki.list[0]
+        name:TestApp.wiki.list[0]
     },{
         onResponse:function(resp,req){
             assertResponseOK(resp);
