@@ -1322,12 +1322,17 @@ static cson_value * json_response_command_path(){
                        __FILE__);
         break;
       }
-      blob_append(&path,part,-1);
-      if(i < (aLen-1)){
-        blob_append(&path,"/",1);
-      }
+      blob_appendf(&path,"%s%s", (i>1 ? "/": ""), part);
     }
-    rc = json_new_string(blob_buffer(&path));
+    rc = json_new_string((blob_size(&path)>0)
+                         ? blob_buffer(&path)
+                         : "")
+      /* reminder; we need an empty string instead of NULL
+         in this case, to avoid what outwardly looks like
+         (but is not) an allocation error in
+         json_create_response().
+      */
+      ;
     blob_reset(&path);
     return rc;
   }
@@ -1957,6 +1962,29 @@ static cson_value * json_user_edit();
 #endif
 
 /*
+** Creates a comma-separated list of command names
+** taken from zPages. zPages must be an array of objects
+** whose final entry MUST have a NULL name value or results
+** are undefined.
+**
+** The list is appended to pOut. The number of items (not bytes)
+** appended are returned.
+*/
+static int json_pagedefs_to_string(JsonPageDef const * zPages,
+                                   Blob * pOut){
+  int i = 0;
+  for( ; zPages->name; ++zPages, ++i ){
+    if(g.isHTTP && zPages->runMode < 0) continue;
+    else if(zPages->runMode > 0) continue;
+    blob_appendf(pOut, zPages->name, -1);
+    if((zPages+1)->name){
+      blob_append(pOut, ", ",2);
+    }
+  }
+  return i;
+}
+
+/*
 ** Mapping of /json/user/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_User[] = {
@@ -1974,7 +2002,12 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   char const * cmd = json_command_arg(1+g.json.dispatchDepth);
   assert( NULL != pages );
   if( ! cmd ){
-    json_set_err(FSL_JSON_E_MISSING_ARGS, "No subcommand specified.");
+    Blob cmdNames = empty_blob;
+    json_pagedefs_to_string(pages, &cmdNames);
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "No subcommand specified. Try one of (%s).",
+                 blob_str(&cmdNames));
+    blob_reset(&cmdNames);
     return NULL;
   }
   def = json_handler_for_name( cmd, pages );
@@ -2190,6 +2223,9 @@ void json_page_top(void){
   BEGIN_TIMER;
   json_mode_bootstrap();
   cmd = json_command_arg(1);
+  if(!cmd || !*cmd){
+    goto usage;
+  }
   /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
   pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
   if( ! pageDef ){
@@ -2209,6 +2245,20 @@ void json_page_top(void){
     json_send_response(root);
     cson_value_free(root);
   }
+
+  return;
+  usage:
+  {
+    Blob cmdNames = empty_blob;
+    blob_init(&cmdNames,
+              "No command (sub-path) specified. Try one of: ",
+              -1);
+    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
+    json_err(FSL_JSON_E_MISSING_ARGS,
+             blob_str(&cmdNames), 0);
+    blob_reset(&cmdNames);
+  }
+
 }
 
 /*
@@ -2292,7 +2342,16 @@ void json_cmd_top(void){
   }
   return;
   usage:
-  usage("subcommand");
+  {
+    Blob cmdNames = empty_blob;
+    blob_init(&cmdNames,
+              "No subcommand specified. Try one of: ", -1);
+    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
+    json_err(FSL_JSON_E_MISSING_ARGS,
+             blob_str(&cmdNames), 1);
+    blob_reset(&cmdNames);
+    fossil_exit(1);
+  }
 }
 
 #undef BITSET_BYTEFOR
