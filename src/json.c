@@ -1317,6 +1317,11 @@ static cson_value * json_response_command_path(){
     unsigned int i = 1;
     for( ; i < aLen; ++i ){
       char const * part = cson_string_cstr(cson_value_get_string(cson_array_get(g.json.cmd.a, i)));
+      if(!part){
+        fossil_warning("Iterating further than expected in %s.",
+                       __FILE__);
+        break;
+      }
       blob_append(&path,part,-1);
       if(i < (aLen-1)){
         blob_append(&path,"/",1);
@@ -1596,12 +1601,44 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 }
 
 /*
+** Works just like json_stmt_to_array_of_obj(), but
+** each row in the result set is represented as an
+** Array instead of an Object.
+*/
+cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
+                                         cson_value * pTgt){
+  cson_value * v = pTgt;
+  cson_array * a = NULL;
+  if(v && !cson_value_is_array(v)){
+    return NULL;
+  }
+  while( (SQLITE_ROW==db_step(pStmt)) ){
+    cson_value * row = NULL;
+    if(!a){
+      if(!v){
+        v = cson_value_new_array();
+      }
+      a = cson_value_get_array(v);
+      assert(NULL!=a);
+    }
+    row = cson_sqlite3_row_to_array(pStmt->pStmt);
+    cson_array_append(a, row);
+  }
+  return v;  
+}
+
+
+/*
 ** Executes the given SQL and runs it through
 ** json_stmt_to_array_of_obj(), returning the result of that
 ** function. If resetBlob is true then blob_reset(pSql) is called
 ** after preparing the query.
+**
+** pTgt has the same semantics as described for
+** json_stmt_to_array_of_obj().
 */
-cson_value * json_sql_to_array_of_obj(Blob * pSql, char resetBlob){
+cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_value * pTgt,
+                                      char resetBlob){
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;
   assert( blob_size(pSql) > 0 );
@@ -1609,7 +1646,7 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, char resetBlob){
   if(resetBlob){
     blob_reset(pSql);
   }
-  pay = json_stmt_to_array_of_obj(&q, NULL);
+  pay = json_stmt_to_array_of_obj(&q, pTgt);
   db_finalize(&q);
   return pay;
 
