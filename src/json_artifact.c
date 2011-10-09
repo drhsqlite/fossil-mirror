@@ -51,8 +51,8 @@ typedef struct ArtifactDispatchEntry {
 
 
 /*
-** Generates an artifact Object for the given rid/zUuid. rid
-** must refer to a Checkin.
+** Generates an artifact Object for the given rid,
+** which must refer to a Checkin.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
@@ -73,7 +73,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
 
   db_prepare(&q, 
              "SELECT uuid, "
-             " strftime('%%s',mtime), "
+             " cast(strftime('%%s',mtime) as int), "
              " user, "
              " comment,"
              " strftime('%%s',omtime)"

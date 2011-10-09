@@ -102,7 +102,7 @@ static cson_value * json_report_get(){
   db_prepare(&q,"SELECT rn AS report,"
              " owner AS owner,"
              " title AS title,"
-             " strftime('%%s',mtime) as mtime,"
+             " cast(strftime('%%s',mtime) as int) as mtime,"
              " cols as columns,"
              " sqlcode as sqlCode"
              " FROM reportfmt"
