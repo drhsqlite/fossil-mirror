@@ -1910,17 +1910,21 @@ cson_value * json_page_version(){
 ** in CLI mode (where there is no logged-in user).
 */
 cson_value * json_cap_value(){
-  Stmt q;
-  cson_value * val = NULL;
-  db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
-  if( db_step(&q)==SQLITE_ROW ){
-    char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
-    if( str ){
-      val = json_new_string(str);
+  if(g.userUid<=0){
+    return NULL;
+  }else{
+    Stmt q = empty_Stmt;
+    cson_value * val = NULL;
+    db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
+    if( db_step(&q)==SQLITE_ROW ){
+      char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
+      if( str ){
+        val = json_new_string(str);
+      }
     }
+    db_finalize(&q);
+    return val;
   }
-  db_finalize(&q);
-  return val;
 }
 
 /*
