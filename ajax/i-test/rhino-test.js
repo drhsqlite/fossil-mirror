@@ -139,7 +139,7 @@ testAnonymousLogin.description = 'Perform anonymous login.';
 function testAnonWiki(){
     TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
         beforeSend:function(req,opt){
-            assert( req && (req.authToken==TestApp.fossil.authToken), 'Request envelope contains expected authToken.'  );
+            assert( req && (req.authToken==TestApp.fossil.auth.authToken), 'Request envelope contains expected authToken.'  );
         },
         onResponse:function(resp,req){
             assertResponseOK(resp);

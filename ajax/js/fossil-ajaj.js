@@ -42,17 +42,17 @@ FossilAjaj.prototype.sendRequest = function(req,opt) {
     holding WhAjaj.sendRequest()-compatible options.
     
     This function constructs a Fossil/JSON request envelope based
-    on the given arguments and adds this.authToken and a requestId
+    on the given arguments and adds this.auth.authToken and a requestId
     to it.
 */
 FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     var req;
     ajajOpt = ajajOpt || {};
-    if(payload || this.authToken || ajajOpt.jsonp) {
+    if(payload || (this.auth && this.auth.authToken) || ajajOpt.jsonp) {
         req = {
             payload:payload,
             requestId:('function' === typeof this.generateRequestId) ? this.generateRequestId() : undefined,
-            authToken:this.authToken || undefined,
+            authToken:(this.auth ? this.auth.authToken : undefined),
             jsonp:('string' === typeof ajajOpt.jsonp) ? ajajOpt.jsonp : undefined
         };
     }
@@ -68,7 +68,7 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     ajajOpt is an optional configuration object suitable for passing 
     to sendCommand().
 
-    After the response returns, this.authToken will be
+    After the response returns, this.auth will be
     set to the response payload.
     
     If name === 'anonymous' (the default if none is passed in) then this
@@ -97,7 +97,6 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
         var thisOpt = this;
         //alert('login response:\n'+WhAjaj.stringify(resp));
         if( resp && resp.payload ) {
-            /*deprecated*/self.authToken = resp.payload.authToken;
             //self.userName = resp.payload.name;
             //self.capabilities = resp.payload.capabilities;
             self.auth = resp.payload;
@@ -142,7 +141,7 @@ FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
     
     If this object has an onLogout() function it is called (with
     no arguments) before the onResponse() handler is called.
-    IFF the response succeeds then this.authToken is unset.
+    IFF the response succeeds then this.auth is unset.
 */
 FossilAjaj.prototype.logout = function(ajajOpt) {
     var self = this;
@@ -151,7 +150,6 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
         if( resp && !resp.payload ){
-            delete self.authToken;
             delete self.auth;
         }
         if( WhAjaj.isFunction( self.onLogout ) ){
