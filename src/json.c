@@ -1350,6 +1350,106 @@ static cson_value * json_response_command_path(){
 }
 
 /*
+** Returns a JSON Object representation of the global g object.
+** Returned value is owned by the caller.
+*/
+cson_value * json_g_to_json(){
+  cson_object * o = NULL;
+  cson_object * pay = NULL;
+  pay = o = cson_new_object();
+
+#define INT(OBJ,K) cson_object_set(o, #K, json_new_int(OBJ.K))
+#define CSTR(OBJ,K) cson_object_set(o, #K, OBJ.K ? json_new_string(OBJ.K) : cson_value_null())
+#define VAL(K,V) cson_object_set(o, #K, (V) ? (V) : cson_value_null())
+  VAL(capabilities, json_cap_value());
+  INT(g, argc);
+  INT(g, isConst);
+  INT(g, useAttach);
+  INT(g, configOpen);
+  INT(g, repositoryOpen);
+  INT(g, localOpen);
+  INT(g, minPrefix);
+  INT(g, fSqlTrace);
+  INT(g, fSqlStats);
+  INT(g, fSqlPrint);
+  INT(g, fQuiet);
+  INT(g, fHttpTrace);
+  INT(g, fSystemTrace);
+  INT(g, fNoSync);
+  INT(g, iErrPriority);
+  INT(g, sslNotAvailable);
+  INT(g, cgiOutput);
+  INT(g, xferPanic);
+  INT(g, fullHttpReply);
+  INT(g, xlinkClusterOnly);
+  INT(g, fTimeFormat);
+  INT(g, markPrivate);
+  INT(g, clockSkewSeen);
+  INT(g, isHTTP);
+  INT(g, urlIsFile);
+  INT(g, urlIsHttps);
+  INT(g, urlIsSsh);
+  INT(g, urlPort);
+  INT(g, urlDfltPort);
+  INT(g, dontKeepUrl);
+  INT(g, useLocalauth);
+  INT(g, noPswd);
+  INT(g, userUid);
+  INT(g, rcvid);
+  INT(g, okCsrf);
+  INT(g, thTrace);
+  INT(g, isHome);
+  INT(g, nAux);
+  INT(g, allowSymlinks);
+
+  CSTR(g, zMainDbType);
+  CSTR(g, zHome);
+  CSTR(g, zLocalRoot);
+  CSTR(g, zPath);
+  CSTR(g, zExtra);
+  CSTR(g, zBaseURL);
+  CSTR(g, zTop);
+  CSTR(g, zContentType);
+  CSTR(g, zErrMsg);
+  CSTR(g, urlName);
+  CSTR(g, urlHostname);
+  CSTR(g, urlProtocol);
+  CSTR(g, urlPath);
+  CSTR(g, urlUser);
+  CSTR(g, urlPasswd);
+  CSTR(g, urlCanonical);
+  CSTR(g, urlProxyAuth);
+  CSTR(g, urlFossil);
+  CSTR(g, zLogin);
+  CSTR(g, zSSLIdentity);
+  CSTR(g, zIpAddr);
+  CSTR(g, zNonce);
+  CSTR(g, zCsrfToken);
+
+  o = cson_new_object();
+  cson_object_set(pay, "json", cson_object_value(o) );
+  INT(g.json, isJsonMode);
+  INT(g.json, resultCode);
+  INT(g.json, errorDetailParanoia);
+  INT(g.json, dispatchDepth);
+  VAL(authToken, g.json.authToken);
+  CSTR(g.json, jsonp);
+  VAL(gc, g.json.gc.v);
+  VAL(cmd, g.json.cmd.v);
+  VAL(param, g.json.param.v);
+  VAL(POST, g.json.post.v);
+  VAL(warnings, g.json.warnings.v);
+  /*cson_output_opt outOpt;*/
+
+  
+#undef INT
+#undef CSTR
+#undef VAL
+  return cson_object_value(pay);
+}
+
+
+/*
 ** Creates a new Fossil/JSON response envelope skeleton.  It is owned
 ** by the caller, who must eventually free it using cson_value_free(),
 ** or add it to a cson container to transfer ownership. Returns NULL
@@ -1391,10 +1491,8 @@ cson_value * json_create_response( int resultCode,
   tmp = cson_value_new_string(MANIFEST_UUID,strlen(MANIFEST_UUID));
   SET("fossil");
 
-  {
-    tmp = json_new_timestamp(-1);
-    SET(FossilJsonKeys.timestamp);
-  }
+  tmp = json_new_timestamp(-1);
+  SET(FossilJsonKeys.timestamp);
 
   if( 0 != resultCode ){
     if( ! pMsg ){
@@ -1467,6 +1565,12 @@ cson_value * json_create_response( int resultCode,
     }
   }
 
+  if(json_find_option_bool("debugFossilG","json-debug-g",NULL,0)
+     &&(g.perm.Admin||g.perm.Setup)){
+    tmp = json_g_to_json();
+    SET("g");
+  }
+  
 #undef SET
   goto ok;
   cleanup:
@@ -2160,104 +2264,12 @@ static cson_value * json_user_get(){
 ** Impl of /json/g. Requires admin/setup rights.
 */
 static cson_value * json_page_g(){
-  cson_object * o = NULL;
-  cson_object * pay = NULL;
   if(!g.perm.Admin || !g.perm.Setup){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'a' or 's' privileges.");
     return NULL;
   }
-  pay = o = cson_new_object();
-
-#define INT(F,K) cson_object_set(o, #K, json_new_int(F.K))
-#define CSTR(F,K) cson_object_set(o, #K, F.K ? json_new_string(F.K) : cson_value_null())
-#define VAL(K,V) cson_object_set(o, #K, (V) ? (V) : cson_value_null())
-  VAL(capabilities, json_cap_value());
-  INT(g, argc);
-  INT(g, isConst);
-  INT(g, useAttach);
-  INT(g, configOpen);
-  INT(g, repositoryOpen);
-  INT(g, localOpen);
-  INT(g, minPrefix);
-  INT(g, fSqlTrace);
-  INT(g, fSqlStats);
-  INT(g, fSqlPrint);
-  INT(g, fQuiet);
-  INT(g, fHttpTrace);
-  INT(g, fSystemTrace);
-  INT(g, fNoSync);
-  INT(g, iErrPriority);
-  INT(g, sslNotAvailable);
-  INT(g, cgiOutput);
-  INT(g, xferPanic);
-  INT(g, fullHttpReply);
-  INT(g, xlinkClusterOnly);
-  INT(g, fTimeFormat);
-  INT(g, markPrivate);
-  INT(g, clockSkewSeen);
-  INT(g, isHTTP);
-
-  INT(g, urlIsFile);
-  INT(g, urlIsHttps);
-  INT(g, urlIsSsh);
-  INT(g, urlPort);
-  INT(g, urlDfltPort);
-  INT(g, dontKeepUrl);
-  INT(g, useLocalauth);
-  INT(g, noPswd);
-  INT(g, userUid);
-  INT(g, rcvid);
-  INT(g, okCsrf);
-  INT(g, thTrace);
-  INT(g, isHome);
-  INT(g, nAux);
-  INT(g, allowSymlinks);
-
-  CSTR(g, zMainDbType);
-  CSTR(g, zHome);
-  CSTR(g, zLocalRoot);
-  CSTR(g, zPath);
-  CSTR(g, zExtra);
-  CSTR(g, zBaseURL);
-  CSTR(g, zTop);
-  CSTR(g, zContentType);
-  CSTR(g, zErrMsg);
-  CSTR(g, urlName);
-  CSTR(g, urlHostname);
-  CSTR(g, urlProtocol);
-  CSTR(g, urlPath);
-  CSTR(g, urlUser);
-  CSTR(g, urlPasswd);
-  CSTR(g, urlCanonical);
-  CSTR(g, urlProxyAuth);
-  CSTR(g, urlFossil);
-  CSTR(g, zLogin);
-  CSTR(g, zSSLIdentity);
-  CSTR(g, zIpAddr);
-  CSTR(g, zNonce);
-  CSTR(g, zCsrfToken);
-
-  o = cson_new_object();
-  cson_object_set(pay, "json", cson_object_value(o) );
-  INT(g.json, isJsonMode);
-  INT(g.json, resultCode);
-  INT(g.json, errorDetailParanoia);
-  INT(g.json, dispatchDepth);
-  VAL(authToken, g.json.authToken);
-  CSTR(g.json, jsonp);
-  VAL(gc, g.json.gc.v);
-  VAL(cmd, g.json.cmd.v);
-  VAL(param, g.json.param.v);
-  VAL(requestPayload, g.json.reqPayload.v);
-  VAL(warnings, g.json.warnings.v);
-  /*cson_output_opt outOpt;*/
-
-  
-#undef INT
-#undef CSTR
-#undef VAL
-  return cson_object_value(pay);
+  return json_g_to_json();
 }
 
 /* Impl in json_login.c. */
