@@ -805,6 +805,14 @@ void json_main_bootstrap(){
   v = cson_value_new_array();
   g.json.gc.v = v;
   g.json.gc.a = cson_value_get_array(v);
+  cson_value_add_reference(v)
+    /* Needed to allow us to include this value in other JSON
+       containers without transfering ownership to those containers.
+       All other persistent g.json.XXX.v values get appended to
+       g.json.gc.a, and therefore already have a live reference
+       for this purpose.
+    */
+    ;
 
   /*
     g.json.param holds the JSONized counterpart of fossil's
@@ -1792,6 +1800,26 @@ cson_value * json_page_version(){
 
 
 /*
+** Returns the current user's capabilities string as a String value.
+** Returned value is owned by the caller, and will only be NULL if
+** g.userUid is invalid or an out of memory error. Or, it turns out,
+** in CLI mode (where there is no logged-in user).
+*/
+cson_value * json_cap_value(){
+  Stmt q;
+  cson_value * val = NULL;
+  db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
+  if( db_step(&q)==SQLITE_ROW ){
+    char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
+    if( str ){
+      val = json_new_string(str);
+    }
+  }
+  db_finalize(&q);
+  return val;
+}
+
+/*
 ** Implementation for /json/cap
 **
 ** Returned object contains details about the "capabilities" of the
@@ -2127,6 +2155,111 @@ static cson_value * json_user_get(){
   return payV;  
 }
 
+
+/*
+** Impl of /json/g. Requires admin/setup rights.
+*/
+static cson_value * json_page_g(){
+  cson_object * o = NULL;
+  cson_object * pay = NULL;
+  if(!g.perm.Admin || !g.perm.Setup){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'a' or 's' privileges.");
+    return NULL;
+  }
+  pay = o = cson_new_object();
+
+#define INT(F,K) cson_object_set(o, #K, json_new_int(F.K))
+#define CSTR(F,K) cson_object_set(o, #K, F.K ? json_new_string(F.K) : cson_value_null())
+#define VAL(K,V) cson_object_set(o, #K, (V) ? (V) : cson_value_null())
+  VAL(capabilities, json_cap_value());
+  INT(g, argc);
+  INT(g, isConst);
+  INT(g, useAttach);
+  INT(g, configOpen);
+  INT(g, repositoryOpen);
+  INT(g, localOpen);
+  INT(g, minPrefix);
+  INT(g, fSqlTrace);
+  INT(g, fSqlStats);
+  INT(g, fSqlPrint);
+  INT(g, fQuiet);
+  INT(g, fHttpTrace);
+  INT(g, fSystemTrace);
+  INT(g, fNoSync);
+  INT(g, iErrPriority);
+  INT(g, sslNotAvailable);
+  INT(g, cgiOutput);
+  INT(g, xferPanic);
+  INT(g, fullHttpReply);
+  INT(g, xlinkClusterOnly);
+  INT(g, fTimeFormat);
+  INT(g, markPrivate);
+  INT(g, clockSkewSeen);
+  INT(g, isHTTP);
+
+  INT(g, urlIsFile);
+  INT(g, urlIsHttps);
+  INT(g, urlIsSsh);
+  INT(g, urlPort);
+  INT(g, urlDfltPort);
+  INT(g, dontKeepUrl);
+  INT(g, useLocalauth);
+  INT(g, noPswd);
+  INT(g, userUid);
+  INT(g, rcvid);
+  INT(g, okCsrf);
+  INT(g, thTrace);
+  INT(g, isHome);
+  INT(g, nAux);
+  INT(g, allowSymlinks);
+
+  CSTR(g, zMainDbType);
+  CSTR(g, zHome);
+  CSTR(g, zLocalRoot);
+  CSTR(g, zPath);
+  CSTR(g, zExtra);
+  CSTR(g, zBaseURL);
+  CSTR(g, zTop);
+  CSTR(g, zContentType);
+  CSTR(g, zErrMsg);
+  CSTR(g, urlName);
+  CSTR(g, urlHostname);
+  CSTR(g, urlProtocol);
+  CSTR(g, urlPath);
+  CSTR(g, urlUser);
+  CSTR(g, urlPasswd);
+  CSTR(g, urlCanonical);
+  CSTR(g, urlProxyAuth);
+  CSTR(g, urlFossil);
+  CSTR(g, zLogin);
+  CSTR(g, zSSLIdentity);
+  CSTR(g, zIpAddr);
+  CSTR(g, zNonce);
+  CSTR(g, zCsrfToken);
+
+  o = cson_new_object();
+  cson_object_set(pay, "json", cson_object_value(o) );
+  INT(g.json, isJsonMode);
+  INT(g.json, resultCode);
+  INT(g.json, errorDetailParanoia);
+  INT(g.json, dispatchDepth);
+  VAL(authToken, g.json.authToken);
+  CSTR(g.json, jsonp);
+  VAL(gc, g.json.gc.v);
+  VAL(cmd, g.json.cmd.v);
+  VAL(param, g.json.param.v);
+  VAL(requestPayload, g.json.reqPayload.v);
+  VAL(warnings, g.json.warnings.v);
+  /*cson_output_opt outOpt;*/
+
+  
+#undef INT
+#undef CSTR
+#undef VAL
+  return cson_object_value(pay);
+}
+
 /* Impl in json_login.c. */
 cson_value * json_page_anon_password();
 /* Impl in json_artifact.c. */
@@ -2158,6 +2291,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"cap", json_page_cap, 0},
 {"diff", json_page_diff, 0},
 {"dir", json_page_nyi, 0},
+{"g", json_page_g, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,1},
 {"logout",json_page_logout,1},

@@ -1,5 +1,5 @@
-C minor\scleanups\sto\show\sFossilAjaj\sstores\sits\sauth\sinfo.
-D 2011-10-09T11:09:31.610
+C Added\s/json/g,\swhich\sdumps\sthe\s"g"\sobject\sto\sJSON\s(debuggering\stool).
+D 2011-10-09T11:23:24.923
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 67e07773ebe62df5b5cdc0032743106dc9436829
+F src/json.c 5413c0cd5a9ec90d86d28278fe3ed7dd4cff0b9c
 F src/json_artifact.c 6ad040b9dd9f58142a548e3f85c385b71126169a
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 770f9da54a217d3cf7b78de086a926cf1e38bf17
-R 63d27a3a94f0464630cd6c8945765066
+P fb55f2534d097615afc13bea97fb8377ad18102a
+R f9d6d4e94d66e7a008066722a1cc17a9
 U stephan
-Z ba716d14580dd7682c4f004e1c9fd531
+Z bc586decdf4f0f2c8636d5bb2faf4028
