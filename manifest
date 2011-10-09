@@ -1,5 +1,5 @@
-C fixed:\sjson_cap_value()\snow\sreturns\sNULL\s(instead\sof\sprematurely/fataly\squerying\sthe\sdb)\sif\sg.userUid\shas\snot\sbeen\sset\s(i.e.\sCLI\smode).
-D 2011-10-09T11:57:33.365
+C factored\sout\san\sextraneous\sparameter\sto\sjson_gc_add().
+D 2011-10-09T12:58:19.566
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -64,7 +64,7 @@ F src/blob.c f34102c1c7741e951ae7f73cd0a4c8d2bf13e7e9
 F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c 6287cd05c9293f14ce952389048f6981fd38bedd
+F src/cgi.c 5e5beae516417839c6cdbf934245545a6ab9adf4
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -96,8 +96,8 @@ F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
-F src/json.c 6c498765915919c2080c99fb294ff9bed8cf5da4
-F src/json_artifact.c 6ad040b9dd9f58142a548e3f85c385b71126169a
+F src/json.c 49ba8592caa947d05510c5e3bfb38651631d1acc
+F src/json_artifact.c f2ce6932fa5640c590d746e979b5f1dc1c320d53
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f047bbddb484880b19cb9618c585fb9ecfc25d91
-R 0574ceae9823affcc0e82de9c68d0939
+P 96920e7c04746c55ceed6e24fc82879886cb8197
+R 4972062367a417c3d6959710b417999a
 U stephan
-Z ba427feabf30aedaab2750f6cddc71fc
+Z 4f3f2c92353280d99ca9c3c9ccafcf0f

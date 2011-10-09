@@ -63,7 +63,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
   static cson_value * eventTypeLabel = NULL;
   if(!eventTypeLabel){
     eventTypeLabel = json_new_string("checkin");
-    json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel, 1);
+    json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel);
   }
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
@@ -169,7 +169,7 @@ cson_value * json_artifact_ticket( int rid ){
   }
   if(!eventTypeLabel){
     eventTypeLabel = json_new_string("ticket");
-    json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel, 1);
+    json_gc_add("$EVENT_TYPE_LABEL(ticket)", eventTypeLabel);
   }
 
   pTktChng = manifest_get(rid, CFTYPE_TICKET);

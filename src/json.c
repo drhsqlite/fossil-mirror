@@ -346,10 +346,9 @@ char const * json_rc_cstr( int code ){
 
 /*
 ** Adds v to the API-internal cleanup mechanism. key is ingored
-** (legacy).  If freeOnError is true then v is passed to
-** cson_value_free() if the key cannot be inserted, otherweise
-** ownership of v is not changed on error. Failure to insert an item
-** may be caused by any of the following:
+** (legacy) but might be re-introduced and "should" be a unique
+** (app-wide) value.  Failure to insert an item may be caused by any
+** of the following:
 **
 ** - Allocation error.
 ** - g.json.gc.a is NULL
@@ -357,19 +356,26 @@ char const * json_rc_cstr( int code ){
 **
 ** Returns 0 on success.
 **
-** On success, ownership of v is transfered to (or shared with)
-** g.json.gc, and v will be valid until that object is cleaned up or
-** some internal code incorrectly removes it from the gc (which we
-** never do).
+** Ownership of v is transfered to (or shared with) g.json.gc, and v
+** will be valid until that object is cleaned up or some internal code
+** incorrectly removes it from the gc (which we never do). If this
+** function fails, it is fatal to the app (as it indicates an
+** allocation error (more likely than not) or a serious internal error
+** such as numeric overflow).
 */
-int json_gc_add( char const * key, cson_value * v, char freeOnError ){
+void json_gc_add( char const * key, cson_value * v ){
   int const rc = cson_array_append( g.json.gc.a, v );
   assert( NULL != g.json.gc.a );
-  if( (0 != rc) && freeOnError ){
+  if( 0 != rc ){
     cson_value_free( v );
   }
   assert( (0==rc) && "Adding item to GC failed." );
-  return rc;
+  if(0!=rc){
+    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe());
+    fossil_exit(1)/*not fossil_panic() b/c it might land us somewhere
+                    where this function is called again.
+                  */;
+  }
 }
 
 
@@ -763,9 +769,8 @@ cson_value * json_auth_token(){
       if( zCookie && *zCookie ){
         /* Transfer fossil's cookie to JSON for downstream convenience... */
         cson_value * v = cson_value_new_string(zCookie, strlen(zCookie));
-        if(0 == json_gc_add( FossilJsonKeys.authToken, v, 1 )){
-          g.json.authToken = v;
-        }
+        json_gc_add( FossilJsonKeys.authToken, v );
+        g.json.authToken = v;
       }
     }
   }
@@ -824,7 +829,7 @@ void json_main_bootstrap(){
   v = cson_value_new_object();
   g.json.param.v = v;
   g.json.param.o = cson_value_get_object(v);
-  json_gc_add("$PARAMS", v, 1);
+  json_gc_add("$PARAMS", v);
 }
 
 /*
@@ -859,7 +864,7 @@ void json_warn( int code, char const * fmt, ... ){
     g.json.warnings.v = cson_value_new_array();
     assert((NULL != g.json.warnings.v) && "Alloc error.");
     g.json.warnings.a = cson_value_get_array(g.json.warnings.v);
-    json_gc_add("$WARNINGS",g.json.warnings.v,0);
+    json_gc_add("$WARNINGS",g.json.warnings.v);
   }
   obj = cson_new_object();
   cson_array_append(g.json.warnings.a, cson_object_value(obj));
@@ -1046,7 +1051,7 @@ static void json_mode_bootstrap(){
 
   g.json.cmd.v = cson_value_new_array();
   g.json.cmd.a = cson_value_get_array(g.json.cmd.v);
-  json_gc_add( FossilJsonKeys.commandPath, g.json.cmd.v, 1 );
+  json_gc_add( FossilJsonKeys.commandPath, g.json.cmd.v );
   /*
     The following if/else block translates the PATH_INFO path (in
     CLI/server modes) or g.argv (CLI mode) into an internal list so

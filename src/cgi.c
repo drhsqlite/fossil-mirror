@@ -745,7 +745,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   if(rc){
     goto invalidRequest;
   }else{
-    json_gc_add( "POST.JSON", jv, 1 );
+    json_gc_add( "POST.JSON", jv );
     g.json.post.v = jv;
     g.json.post.o = cson_value_get_object( jv );
     if( !g.json.post.o ){ /* we don't support non-Object (Array) requests */
