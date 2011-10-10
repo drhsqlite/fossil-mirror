@@ -99,6 +99,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 */
 void ssl_global_init(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
+  const char *identityFile;
   
   if( sslIsInit==0 ){
     SSL_library_init();
@@ -137,15 +138,22 @@ void ssl_global_init(void){
       }
     }
     
-    /* Load client SSL identity, preferring the filename specified on the command line */
-    const char *identityFile = ( g.zSSLIdentity!= 0) ? g.zSSLIdentity : db_get("ssl-identity", 0);
+    /* Load client SSL identity, preferring the filename specified on the
+    ** command line */
+    if( g.zSSLIdentity!=0 ){
+      identityFile = g.zSSLIdentity;
+    }else{
+      identityFile = db_get("ssl-identity", 0);
+    }
     if( identityFile!=0 && identityFile[0]!='\0' ){
-      if( SSL_CTX_use_certificate_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!= 1
-          || SSL_CTX_use_PrivateKey_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!=1 ){
+      if( SSL_CTX_use_certificate_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
+       || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
+      ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
       }
     }
-    /* Register a callback to tell the user what to do when the server asks for a cert */
+    /* Register a callback to tell the user what to do when the server asks
+    ** for a cert */
     SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
 
     sslIsInit = 1;
@@ -187,7 +195,7 @@ int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
   int trusted = 0;
-char *connStr ;
+  char *connStr ;
   ssl_global_init();
 
   /* Get certificate for current server from global config and
