@@ -186,13 +186,14 @@ void ssl_close(void){
 int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
+  int trusted = 0;
 char *connStr ;
   ssl_global_init();
 
   /* Get certificate for current server from global config and
    * (if we have it in config) add it to certificate store.
    */
-  cert = ssl_get_certificate();
+  cert = ssl_get_certificate(&trusted);
   if ( cert!=NULL ){
     X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
     X509_free(cert);
@@ -234,7 +235,7 @@ char *connStr ;
     return 1;
   }
 
-  if( SSL_get_verify_result(ssl) != X509_V_OK ){
+  if( trusted<=0 && SSL_get_verify_result(ssl) != X509_V_OK ){
     char *desc, *prompt;
     char *warning = "";
     Blob ans;
@@ -280,7 +281,12 @@ char *connStr ;
       return 1;
     }
     if( blob_str(&ans)[0]=='a' ) {
-      ssl_save_certificate(cert);
+      Blob ans2;
+      prompt_user("\nSave this certificate as fully trusted [a=always/N]? ",
+                  &ans2);
+      trusted = (blob_str(&ans2)[0]=='a');
+      ssl_save_certificate(cert, trusted);
+      blob_reset(&ans2);
     }
     blob_reset(&ans);
   }
@@ -302,7 +308,7 @@ char *connStr ;
 /*
 ** Save certificate to global config.
 */
-void ssl_save_certificate(X509 *cert){
+void ssl_save_certificate(X509 *cert, int trusted){
   BIO *mem;
   char *zCert, *zHost;
 
@@ -313,6 +319,9 @@ void ssl_save_certificate(X509 *cert){
   zHost = mprintf("cert:%s", g.urlName);
   db_set(zHost, zCert, 1);
   free(zHost);
+  zHost = mprintf("trusted:%s", g.urlName);
+  db_set_int(zHost, trusted, 1);
+  free(zHost);
   BIO_free(mem);  
 }
 
@@ -320,7 +329,7 @@ void ssl_save_certificate(X509 *cert){
 ** Get certificate for g.urlName from global config.
 ** Return NULL if no certificate found.
 */
-X509 *ssl_get_certificate(void){
+X509 *ssl_get_certificate(int *pTrusted){
   char *zHost, *zCert;
   BIO *mem;
   X509 *cert;
@@ -330,6 +339,13 @@ X509 *ssl_get_certificate(void){
   free(zHost);
   if ( zCert==NULL )
     return NULL;
+
+  if ( pTrusted!=0 ){
+    zHost = mprintf("trusted:%s", g.urlName);
+    *pTrusted = db_get_int(zHost, 0);
+    free(zHost);
+  }
+
   mem = BIO_new(BIO_s_mem());
   BIO_puts(mem, zCert);
   cert = PEM_read_bio_X509(mem, NULL, 0, NULL);

@@ -1,5 +1,5 @@
-C Documentation\supdate.
-D 2011-10-07T19:55:17.096
+C Fix\sconstant\sprompting\son\salready\ssaved\sSSL\scertificates\sthat\sare\snot\strusted\sfor\ssome\sreason\s(e.g.\shost\smismatch,\setc).
+D 2011-10-10T08:56:34.305
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
-F src/http_ssl.c e37af8e62a4ce084d381eea6dab91033f8f81cf3
+F src/http_ssl.c 9f5e72f781aac195dc4687a41bcb2e9df97d76e5
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f678a7b9487476fccad560ee91b667ef87230ca1
-R 56fa9f6bfc37591a2fa44cae0adff23c
-U drh
-Z fc17d683744d8728f3616fbb807cee63
+P c0b6c28d29b2181d5978efe75330696c3abb4f90
+R 409c63d5ac6df948451b36ed16646eca
+T *branch * ssl-trust-fix
+T *sym-ssl-trust-fix *
+T -sym-trunk *
+U mistachkin
+Z 1c19f74fb420f0958dc13005735845bf
