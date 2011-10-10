@@ -289,12 +289,14 @@ int ssl_open(void){
       return 1;
     }
     if( blob_str(&ans)[0]=='a' ) {
-      Blob ans2;
-      prompt_user("\nSave this certificate as fully trusted [a=always/N]? ",
-                  &ans2);
-      trusted = (blob_str(&ans2)[0]=='a');
+      if ( trusted==0 ){
+        Blob ans2;
+        prompt_user("\nSave this certificate as fully trusted [a=always/N]? ",
+                    &ans2);
+        trusted = (blob_str(&ans2)[0]=='a');
+        blob_reset(&ans2);
+      }
       ssl_save_certificate(cert, trusted);
-      blob_reset(&ans2);
     }
     blob_reset(&ans);
   }
