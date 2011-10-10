@@ -1,5 +1,5 @@
-C Additional\sformatting\sfixes:\sshorten\slines\sto\s80\scharacters\sor\sless.
-D 2011-10-10T13:05:21.380
+C Update\sthe\s"scrub"\scommand\sto\sdrop\sthe\saccesslog\stable\swhen\sthe\s--verily\noption\sis\sused.
+D 2011-10-10T13:19:53.013
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -103,7 +103,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
-F src/rebuild.c 4ecbb5c536cb4c5fedeb649a7a79abe8e0701ee8
+F src/rebuild.c d31ea942eb7bb7ab78e8d1a635fa6a68ae97e065
 F src/report.c 271567983f175747b1e276acb1dfeb5e367786b4
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 636804745b08edeca6196106729ce66fee1368e8
-R 719f05887c8885e660b3ef4279a7417b
+P c1d78e0556d702c93b68f46eb12081e8720ca759
+R cc08360fae57e0cd02bee6371fc8ed44
 U drh
-Z 4c727af202ed1f8d2ec32dfea0c54f17
+Z 3832e8329f676c039b34b8d741603b32
