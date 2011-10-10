@@ -1,5 +1,5 @@
-C Adjust\sSSL\strust\sfix\sto\sskip\sprompting\sfor\scertificates\sthat\salready\shave\san\sexplicitly\snegative\strust\ssetting.
-D 2011-10-10T12:59:23.702
+C Additional\sformatting\sfixes:\sshorten\slines\sto\s80\scharacters\sor\sless.
+D 2011-10-10T13:05:21.380
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
 F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
-F src/http_ssl.c a3958e41ac853b2e44afb0c1fb66c255753fff02
+F src/http_ssl.c 8c2ac3bbd318242fc2df4342f3714ecb889717bf
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5eb8f0157a1bbee630f713d1b8894d26435ee9a5
-R 4308cb5d3de908c3c32cc085be98cd88
-U mistachkin
-Z b2eec74a744aa7580dd8dcbeb2df3d46
+P 636804745b08edeca6196106729ce66fee1368e8
+R 719f05887c8885e660b3ef4279a7417b
+U drh
+Z 4c727af202ed1f8d2ec32dfea0c54f17

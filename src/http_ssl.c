@@ -269,15 +269,15 @@ int ssl_open(void){
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
     }
-    prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n"
-                     "Either:\n"
-                     " * verify the certificate is correct using the "
-                     "SHA1 fingerprint above\n"
-                     " * use the global ssl-ca-location setting to specify your CA root\n"
-                     "   certificates list\n\n"
-                     "If you are not expecting this message, answer no and "
-                     "contact your server\nadministrator.\n\n"
-                     "Accept certificate [a=always/y/N]? ", desc, warning);
+    prompt = mprintf(
+      "\nUnknown SSL certificate:\n\n%s\n\n%s\n"
+      "Either:\n"
+      " * verify the certificate is correct using the SHA1 fingerprint above\n"
+      " * use the global ssl-ca-location setting to specify your CA root\n"
+      "   certificates list\n\n"
+      "If you are not expecting this message, answer no and "
+      "contact your server\nadministrator.\n\n"
+      "Accept certificate [a=always/y/N]? ", desc, warning);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
@@ -306,9 +306,9 @@ int ssl_open(void){
   ** if any files are received from the server.
   */
   {
-      /* IPv4 only code */
-      const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
-      g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    /* IPv4 only code */
+    const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
+    g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   }
 
   X509_free(cert);
