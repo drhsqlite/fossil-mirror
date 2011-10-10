@@ -1,5 +1,5 @@
-C Fix\sa\sC++\scomment\sin\ssha1.c.\s\sFix\sa\shelp\stext\stypo.
-D 2011-10-10T19:33:21.515
+C Fix\ssome\scompiler\swarnings.
+D 2011-10-10T20:02:54.452
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -50,7 +50,7 @@ F src/allrepo.c b149430f5d57d7972c0469ffed866a9583f4a669
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c b3b9e9b4d91199939b920186c6dd309d282ed1e5
+F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
@@ -122,7 +122,7 @@ F src/style.c c4079841c98936994d9ea88a1834cbfdc424dc8a
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 3e0bdccc2132180aa0fa9bfaee80f20c2f561e64
-F src/th.c 7485390e0a65ed13466f233c9d83643240d4f5d3
+F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 16a6dfefd1f4515002b659cb38455a5ba30ea3b6
-R 86b2f0a1407f3d6a0fa72c6aae51951b
+P a6f3dd1ce7c155b20ef5b43f11da1eca4f05d8ec
+R 0e0394e849925599ef7687a274de23b0
 U drh
-Z 51b5567c0f897b9d1fcf6cdcbb437b3c
+Z 4198e7070310c18d0123832dedcfede1
