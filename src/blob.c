@@ -332,8 +332,8 @@ int blob_constant_time_cmp(Blob *pA, Blob *pB){
   szB = blob_size(pB);
   if( szA!=szB || szA==0 ) return 1;
 
-  buf1 = blob_buffer(pA);
-  buf2 = blob_buffer(pB);
+  buf1 = (unsigned char*)blob_buffer(pA);
+  buf2 = (unsigned char*)blob_buffer(pB);
 
   for( i=0; i<szA; i++ ){
     rc = rc | (buf1[i] ^ buf2[i]);
