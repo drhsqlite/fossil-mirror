@@ -5,7 +5,7 @@ var TestApp = {
         //'http://192.168.1.62:8080'
         //'http://fossil.wanderinghorse.net/repos/fossil-json-java/index.cgi'
         ,
-    verbose:true,
+    verbose:false,
     wiki:{}
 };
 (function bootstrap() {
@@ -51,7 +51,11 @@ var TestApp = {
 function assert(cond, descr){
     descr = descr || "Undescribed condition.";
     if(!cond){
+        print("Assertion FAILED: "+descr);
         throw new Error("Assertion failed: "+descr);
+        // aarrgghh. Exceptions are of course swallowed by
+        // the AJAX layer, to keep from killing a browser's
+        // script environment.
     }else{
         print("Assertion OK: "+descr);
     }
@@ -90,7 +94,7 @@ function send(command,payload, ajajOpt){
 function assertResponseOK(resp){
     assert('object' === typeof resp,'Response is-a object.');
     assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
-    assert( !resp.resultCode, 'resp.resultCode='+resp.resultCode);
+    assert( undefined === resp.resultCode, 'resp.resultCode is not set');
 }
 /**
     Asserts that resp is-a Object, resp.fossil is-a string, and
@@ -100,19 +104,21 @@ function assertResponseOK(resp){
 function assertResponseError(resp,expectCode){
     assert('object' === typeof resp,'Response is-a object.');
     assert( 'string' === typeof resp.fossil, 'Response contains fossil property.');
-    assert( resp.resultCode, 'resp.resultCode='+resp.resultCode);
+    assert( !!resp.resultCode, 'resp.resultCode='+resp.resultCode);
     if(expectCode){
         assert( 'FOSSIL-'+expectCode == resp.resultCode, 'Expecting result code '+expectCode );
     }
 }
 
 function testHAI(){
+    var rs;
     TestApp.fossil.HAI({
         onResponse:function(resp,req){
-            assertResponseOK(resp);
-            TestApp.serverVersion = resp.fossil;
+            rs = resp;
         }
     });
+    assertResponseOK(rs);
+    TestApp.serverVersion = rs.fossil;
     assert( 'string' === typeof TestApp.serverVersion, 'server version = '+TestApp.serverVersion);
 }
 testHAI.description = 'Get server version info.';
@@ -137,40 +143,49 @@ function testAnonymousLogin(){
 testAnonymousLogin.description = 'Perform anonymous login.';
 
 function testAnonWiki(){
+    var rs;
     TestApp.fossil.sendCommand('/json/wiki/list',undefined,{
         beforeSend:function(req,opt){
             assert( req && (req.authToken==TestApp.fossil.auth.authToken), 'Request envelope contains expected authToken.'  );
         },
         onResponse:function(resp,req){
-            assertResponseOK(resp);
-            assert( (typeof [] === typeof resp.payload) && resp.payload.length,
-                "Wiki list seems to be okay.");
-            TestApp.wiki.list = resp.payload;
+            rs = resp;
         }
     });
+    assertResponseOK(rs);
+    assert( (typeof [] === typeof rs.payload) && rs.payload.length,
+        "Wiki list seems to be okay.");
+    TestApp.wiki.list = rs.payload;
+
     TestApp.fossil.sendCommand('/json/wiki/get',{
         name:TestApp.wiki.list[0]
     },{
         onResponse:function(resp,req){
-            assertResponseOK(resp);
-            assert(resp.payload.name == TestApp.wiki.list[0], "Fetched page name matches expectations.");
-            print("Got first wiki page: "+WhAjaj.stringify(resp.payload));
+            rs = resp;
         }
     });
+    assertResponseOK(rs);
+    assert(rs.payload.name == TestApp.wiki.list[0], "Fetched page name matches expectations.");
+    print("Got first wiki page: "+WhAjaj.stringify(rs.payload));
+
 }
 testAnonWiki.description = 'Fetch wiki list as anonymous user.';
 
 function testAnonLogout(){
+    var rs;
     TestApp.fossil.logout({
         onResponse:function(resp,req){
-            assertResponseOK(resp);
+            rs = resp;
         }
     });
+    assertResponseOK(rs);
+    print("Ensure that second logout attempt fails...");
     TestApp.fossil.logout({
         onResponse:function(resp,req){
-            assertResponseError(resp);
+            rs = resp;
         }
     });
+    assertResponseError(rs);
 }
 testAnonLogout.description = 'Log out anonymous user.';
 

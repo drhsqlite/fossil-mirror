@@ -407,7 +407,11 @@ WhAjaj.Connector.options = {
             In this case, onResponse() will get a string value for the response
             instead of a response object parsed from JSON. 
         */
-        jsonp:undefined
+        jsonp:undefined,
+        /**
+            Don't use yet. Planned future option.
+        */
+        propagateExceptions:false
     }
 };
 
@@ -949,6 +953,14 @@ WhAjaj.Connector.sendImpls = {
         - asynchronous mode is not supported because implementing it
         requires the ability to kill a running thread (which is deprecated
         in the Java API).
+
+        TODOs:
+
+        - add socket timeouts.
+
+        - support HTTP proxy.
+
+        The Java APIs support this, it just hasn't been added here yet.
     */
     rhino:function(request,args)
     {
