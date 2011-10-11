@@ -1046,7 +1046,7 @@ WhAjaj.Connector.sendImpls = {
         json = json.join('');
         //print("READ IN JSON: "+json);
         WhAjaj.Connector.sendHelper.onSendSuccess.apply( self, [request, json, args] );
-    }/*rhino()*/
+    }/*rhino*/
 };
 
 /**

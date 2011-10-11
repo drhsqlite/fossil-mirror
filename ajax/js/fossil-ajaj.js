@@ -200,3 +200,76 @@ FossilAjaj.prototype.whoami = function(ajajOpt) {
     };
     self.sendCommand('/json/whoami', undefined, ajajOpt);
 };
+
+/**
+    EXPERIMENTAL concrete WhAjaj.Connector.sendImpl() implementation which
+    uses Rhino to connect to a local fossil binary for input and output. Its
+    signature and semantics are as described for
+    WhAjaj.Connector.prototype.sendImpl(), with a few exceptions and
+    additions:
+
+    - It does not support timeouts or asynchronous mode.
+
+    - The args.fossilBinary property must point to the local fossil binary
+    (it need not be a complete path if fossil is in the $PATH). This
+    function throws (without calling any request callbacks) if
+    args.fossilBinary is not set. fossilBinary may be set on
+    WhAjaj.Connector.options.ajax, in the FossilAjaj constructor call, as
+    the ajax options parameter to any of the FossilAjaj.sendCommand() family
+    of functions, or by setting
+    aFossilAjajInstance.ajaj.options.fossilBinary on a specific
+    FossilAjaj instance.
+
+    - It uses the args.url field to create the "command" property of the
+    request, constructs a request envelope, spawns a fossil process in JSON
+    mode, feeds it the request envelope, and returns the response envelope
+    via the same mechanisms defined for the HTTP-based implementations.
+
+    The interface is otherwise compatible with the "normal"
+    FossilAjaj.sendCommand() front-end (it is, however, fossil-specific, and
+    not back-end agnostic like the WhAjaj.sendImpl() interface intends).
+
+    
+*/
+FossilAjaj.rhinoLocalBinarySendImpl = function(request,args){
+    var self = this;
+    request = request || {};
+    if(!args.fossilBinary){
+        throw new Error("fossilBinary is not set on AJAX options!");
+    }
+    var url = args.url.split('?')[0].split(/\/+/);
+    if(url.length>1){
+        // 3x shift(): protocol, host, 'json' part of path
+        request.command = (url.shift(),url.shift(),url.shift(), url.join('/'));
+    }
+    delete args.url;
+    //print("rhinoLocalBinarySendImpl SENDING: "+WhAjaj.stringify(request));    
+    var json;
+    try{
+        var pargs = [args.fossilBinary, 'json', '--json-input', '-'];
+        var p = java.lang.Runtime.getRuntime().exec(pargs);
+        var outs = p.getOutputStream();
+        var osr = new java.io.OutputStreamWriter(outs);
+        var osb = new java.io.BufferedWriter(osr);
+        
+        json = JSON.stringify(request);
+        osb.write(json,0, json.length);
+        osb.close();
+        var ins = p.getInputStream();
+        var isr = new java.io.InputStreamReader(ins);
+        var br = new java.io.BufferedReader(isr);
+        var line;
+        json = [];
+        while( null !== (line=br.readLine())){
+            json.push(line);
+        }
+        ins.close();
+    }catch(e){
+        args.errorMessage = e.toString();
+        WhAjaj.Connector.sendHelper.onSendError.apply( self, [request, args] );
+        return undefined;
+    }
+    json = json.join('');
+    //print("READ IN JSON: "+json);
+    WhAjaj.Connector.sendHelper.onSendSuccess.apply( self, [request, json, args] );
+}/*rhinoLocalBinary*/

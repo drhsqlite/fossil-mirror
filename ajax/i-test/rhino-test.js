@@ -6,6 +6,7 @@ var TestApp = {
         //'http://fossil.wanderinghorse.net/repos/fossil-json-java/index.cgi'
         ,
     verbose:false,
+    fossilBinary:'fossil',
     wiki:{}
 };
 (function bootstrap() {
@@ -21,7 +22,8 @@ var TestApp = {
     TestApp.fossil = new FossilAjaj({
         asynchronous:false, /* rhino-based impl doesn't support async or timeout. */
         timeout:0,
-        url:TestApp.serverUrl
+        url:TestApp.serverUrl,
+        fossilBinary:TestApp.fossilBinary
     });
     var cb = TestApp.fossil.ajaj.callbacks;
     cb.beforeSend = function(req,opt){
@@ -57,7 +59,7 @@ function assert(cond, descr){
         // the AJAX layer, to keep from killing a browser's
         // script environment.
     }else{
-        print("Assertion OK: "+descr);
+        if(TestApp.verbose) print("Assertion OK: "+descr);
     }
 }
 
@@ -76,7 +78,7 @@ function assertThrows(func, descr){
     if(!ex){
         throw new Error("Function did not throw (as expected): "+descr);
     }else{
-        print("Function threw (as expected): "+descr+": "+ex);
+        if(TestApp.verbose) print("Function threw (as expected): "+descr+": "+ex);
     }
 }
 
@@ -189,13 +191,57 @@ function testAnonLogout(){
 }
 testAnonLogout.description = 'Log out anonymous user.';
 
+function testExternalProcess(){
+
+    var req = { command:"HAI", requestId:'testExternalProcess()' };
+    var args = [TestApp.fossilBinary, 'json', '--json-input', '-'];
+    var p = java.lang.Runtime.getRuntime().exec(args);
+    var outs = p.getOutputStream();
+    var osr = new java.io.OutputStreamWriter(outs);
+    var osb = new java.io.BufferedWriter(osr);
+    var json = JSON.stringify(req);
+    osb.write(json,0, json.length);
+    //osb.flush();
+    osb.close();
+    var ins = p.getInputStream();
+    var isr = new java.io.InputStreamReader(ins);
+    var br = new java.io.BufferedReader(isr);
+    var line;
+    
+    while( null !== (line=br.readLine())){
+        print(line);
+    }
+    //outs.close();
+    ins.close();
+}
+testExternalProcess.description = 'Run fossil as external process.';
+
+function testExternalProcessHandler(){
+    var aj = TestApp.fossil.ajaj;
+    var oldImpl = aj.sendImpl;
+    aj.sendImpl = FossilAjaj.rhinoLocalBinarySendImpl;
+    var rs;
+    TestApp.fossil.sendCommand('/json/HAI',undefined,{
+        onResponse:function(resp,opt){
+            rs = resp;
+        }
+    });
+    aj.sendImpl = oldImpl;
+    assertResponseOK(rs);
+    print("Using local fossil binary via AJAX interface, we fetched: "+
+        WhAjaj.stringify(rs));
+}
+testExternalProcessHandler.description = 'Try local fossil binary via AJAX interface.';
+
 (function runAllTests(){
     var testList = [
         testHAI,
         testIAmNobody,
         testAnonymousLogin,
         testAnonWiki,
-        testAnonLogout
+        testAnonLogout,
+        //testExternalProcess,
+        testExternalProcessHandler
     ];
     var i, f;
     for( i = 0; i < testList.length; ++i ){
@@ -204,11 +250,11 @@ testAnonLogout.description = 'Log out anonymous user.';
             print("Running test #"+(i+1)+": "+(f.description || "no description."));
             f();
         }catch(e){
-            print("Test failed: "+e);
+            print("Test #"+(i+1)+" failed: "+e);
             throw e;
         }
     }
 
 })();
 
-print("Done!");
+print("Done! If you don't see an exception message in the last few lines, you win!");
