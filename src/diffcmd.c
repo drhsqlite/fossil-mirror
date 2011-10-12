@@ -185,10 +185,10 @@ void diff_file_mem(
 ** against the same file on disk.
 */
 static void diff_one_against_disk(
-  const char *zFrom,        /* Name of file */
+  const char *zFrom,        /* Version to difference from */
   const char *zDiffCmd,     /* Use this "diff" command */
   int ignoreEolWs,          /* Ignore whitespace changes at end of lines */
-  const char *zFileTreeName
+  const char *zFileTreeName /* Name of file */
 ){
   Blob fname;
   Blob content;
@@ -227,7 +227,7 @@ static void diff_all_against_disk(
   blob_zero(&sql);
   db_begin_transaction();
   if( zFrom ){
-    int rid = name_to_typed_rid(zFrom, "ci");
+    int rid = extended_ci_name_to_rid(zFrom);
     if( !is_a_version(rid) ){
       fossil_fatal("no such check-in: %s", zFrom);
     }

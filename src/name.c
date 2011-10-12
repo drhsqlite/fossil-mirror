@@ -391,3 +391,66 @@ int name_to_rid_www(const char *zParamName){
   }
   return rid;
 }
+
+
+/*
+** Similar to name_to_typed_rid(zName, "ci"), 
+** but it accepts more variants for the name. The additional variants are:
+**
+**   checkout        The current checkout
+**   parent          The parent of the current checkout
+**   pivot:id1:id2   The pivot between id1 and id2
+**
+** It should allow easier naming of checkins, both in 'diff' and 'update'
+** commands for example.
+*/
+int extended_ci_name_to_rid(const char *zName){
+  int rid;
+
+  rid = db_lget_int("checkout", 0);
+
+  if( fossil_strcmp(zName, "checkout")==0 ){
+    rid = db_lget_int("checkout", 0);
+  }
+  else if( fossil_strcmp(zName, "parent")==0 ){
+    int cid;
+    cid = db_lget_int("checkout", 0);
+    if (cid == 0)
+      fossil_fatal("cannot find current checkout version");
+    rid = db_int(0, "SELECT pid FROM plink WHERE cid=%d", cid);
+    if (rid == 0)
+      fossil_fatal("cannot find the parent of the current checkout version");
+  }
+  else if( strlen(zName) > 6 && memcmp(zName, "pivot:", 6)==0 ){
+    /* This conflicts with 'tag:', but I don't know a better char than : */
+    const char *zPair = zName + 6;
+    char *zIdName;
+    int rid1, rid2;
+    char *zPair2 = strdup(zPair); /* Just for constness and strtok */
+
+    zIdName = strtok(zPair2,":");
+
+    if (!zIdName)
+      fossil_fatal("Cannot parse pivot#checkin1#checkin2");
+    rid1 = name_to_typed_rid(zIdName, "ci");
+    if (rid1 == 0)
+      fossil_fatal("Cannot find the check-in %s", zIdName);
+
+    zIdName = strtok(NULL,":");
+    rid2 = name_to_typed_rid(zIdName, "ci");
+
+    pivot_set_primary(rid1);
+    pivot_set_secondary(rid2);
+    rid = pivot_find();
+
+    if (rid == 0)
+      fossil_fatal("Cannot find the pivot of %s", zName);
+
+    free(zPair2);
+  }
+  else{
+    rid = name_to_typed_rid(zName, "ci");
+  }
+
+  return rid;
+}

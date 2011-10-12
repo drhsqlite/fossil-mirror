@@ -1,5 +1,5 @@
-C Fixing\sthe\smerge_renames\stest,\sso\sit\saccepts\sbeing\scalled\sout\sof\sa\srepository.\nThe\smessage\sgiven\sby\sfossil\swhen\strying\s'info'\sout\sof\sa\srepository\shad\schanged.
-D 2011-10-12T16:20:25.096
+C Adding\sa\smore\soptions\sat\snaming\scommits\sfor\sdiff\sand\supdate\scommands.\n\nI\swrote\sa\snew\sfunction\sthat\sallows\smore\skind\sof\sspecifications\sfor\sa\scheckin\suuid:\scheckout,\nparent\sand\spivot:id1:id2.\n\nIf\sthere\swas\sa\sway\sto\sdiscover\sthe\s'parent\sbranch'\sof\sthe\scurrent\scheckout,\sthere\scould\sbe\sa\n'parentbranch'\snaming\stoo.\n\nI\sthink\sthis\smakes\sthe\slife\seasier,\sspecially\sfor\sthe\spivot:id1:id2\scase,\sabout\sseeing\nthe\sdifference\sbetween\sa\sbranch\sand\sits\sparent\sbranch.\sI\sfind\smyself\susing\soften\sthe\ntest-find-pivot\scommand\sjust\sto\sget\sthat\sdiff\sor\supdate\sto\sthe\spivot,\sto\scheck\schanges\nbetween\sthe\scurrent\sbranch\sand\sthe\sparent\sbranch.
+D 2011-10-12T17:41:52.927
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -68,7 +68,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
 F src/diff.c c57cf060da61879abff7f0a7b5ca4b5d38735fdc
-F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
+F src/diffcmd.c 3111a4c6e1b962e9c73816fcedee7b3f7d8536dc
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
@@ -91,13 +91,13 @@ F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
-F src/manifest.c 0c2fbde0455f5bdf35295dafbbbf90d974ab843c
+F src/manifest.c c65de5448522f6650cbaea55a54e7cebd4a88a45
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
 F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
-F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
+F src/name.c 2d6c7197200c6f807faa50dccbfd40e05a661ffd
 F src/path.c 0a62bed55739eea10a9859b5d5eeba1190147118
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
@@ -131,7 +131,7 @@ F src/tkt.c 54c426b8c38b943fbb243d47dcff8d9d4852e40c
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 9912a0e3e56948e4ea1bcad72fe57282d7a0be70
-F src/update.c c01f21670888079c16acc1d0b99a31d5632be5bf
+F src/update.c 228b51f083fa7d5b6b2161e95b340feaed72234e
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 79c31f9b73aeb19a755e6e678b5175f7c767d0e6
-R 9a5cd74a3c46e1a05f40a0fc2a05ede2
+P 0a7ab3ccb09e2fd4882afa3764080111c5b3075a
+R 3370dd4e986f4b84a52a2dab5668f567
+T *branch * extended_ci_names
+T *sym-extended_ci_names *
+T -sym-trunk *
 U viriketo
-Z cb789c3f0f7fe4edf1226379aa7dfd36
+Z 24d3eec9005848dc952c5d4703772430
