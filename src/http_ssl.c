@@ -196,6 +196,8 @@ int ssl_open(void){
   int hasSavedCertificate = 0;
   int trusted = 0;
   char *connStr ;
+  unsigned long e;
+
   ssl_global_init();
 
   /* Get certificate for current server from global config and
@@ -243,7 +245,7 @@ int ssl_open(void){
     return 1;
   }
 
-  if( trusted<=0 && SSL_get_verify_result(ssl) != X509_V_OK ){
+  if( trusted<=0 && (e = SSL_get_verify_result(ssl)) != X509_V_OK ){
     char *desc, *prompt;
     char *warning = "";
     Blob ans;
@@ -269,15 +271,18 @@ int ssl_open(void){
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
     }
-    prompt = mprintf(
-      "\nUnknown SSL certificate:\n\n%s\n\n%s\n"
-      "Either:\n"
-      " * verify the certificate is correct using the SHA1 fingerprint above\n"
-      " * use the global ssl-ca-location setting to specify your CA root\n"
-      "   certificates list\n\n"
-      "If you are not expecting this message, answer no and "
-      "contact your server\nadministrator.\n\n"
-      "Accept certificate [a=always/y/N]? ", desc, warning);
+    prompt = mprintf("\nSSL verification failed: %s\n"
+        "Certificate received: \n\n%s\n\n%s\n"
+        "Either:\n"
+        " * verify the certificate is correct using the "
+        "SHA1 fingerprint above\n"
+        " * use the global ssl-ca-location setting to specify your CA root\n"
+        "   certificates list\n\n"
+        "If you are not expecting this message, answer no and "
+        "contact your server\nadministrator.\n\n"
+        "Accept certificate for host %s [a=always/y/N]? ",
+        X509_verify_cert_error_string(e), desc, warning,
+        g.urlName);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
