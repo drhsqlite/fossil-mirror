@@ -279,6 +279,32 @@ static void append_diff(const char *zFrom, const char *zTo){
   blob_reset(&out);  
 }
 
+
+/*
+** Write the difference between two RIDs to the output
+*/
+static void generate_sbsdiff(const char *zFrom, const char *zTo){
+  int fromid;
+  int toid;
+  Blob from, to;
+  if( zFrom ){
+    fromid = uuid_to_rid(zFrom, 0);
+    content_get(fromid, &from);
+  }else{
+    blob_zero(&from);
+  }
+  if( zTo ){
+    toid = uuid_to_rid(zTo, 0);
+    content_get(toid, &to);
+  }else{
+    blob_zero(&to);
+  }
+  html_sbsdiff(&from, &to, 5, 1);
+  blob_reset(&from);
+  blob_reset(&to);
+}
+
+
 /*
 ** Write a line of web-page output that shows changes that have occurred 
 ** to a file between two check-ins.
@@ -289,6 +315,7 @@ static void append_file_change_line(
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
   int showDiff,         /* Show edit diffs if true */
+  int sideBySide,       /* Show diffs side-by-side */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.History ){
@@ -331,9 +358,17 @@ static void append_file_change_line(
       @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a>
     }
     if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(zOld, zNew);
-      @ </pre></blockquote>
+      if( sideBySide ){
+         @ <table class="sbsdiff">
+         @ <tr><th colspan="2" class="diffhdr"">Old (%s(zOld))</th><th/>
+         @ <th colspan="2" class="diffhdr">New (%s(zNew))</th></tr>
+         generate_sbsdiff(zOld, zNew);
+         @ </table>
+      }else{
+        @ <blockquote><pre>
+        append_diff(zOld, zNew);
+        @ </pre></blockquote>
+      }
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
@@ -363,6 +398,7 @@ void ci_page(void){
   int rid;
   int isLeaf;
   int showDiff;
+  int sideBySide=0;    /* Temporary default */
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -542,7 +578,8 @@ void ci_page(void){
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
       const char *zOldName = db_column_text(&q, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, showDiff, mperm);
+      append_file_change_line(zName, zOld, zNew, zOldName, showDiff,
+            sideBySide, mperm);
     }
     db_finalize(&q);
   }
@@ -692,13 +729,14 @@ void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff?from=UUID&amp;to=UUID&amp;detail=BOOLEAN
+** URL: /vdiff?from=UUID&amp;to=UUID&amp;detail=BOOLEAN;sbs=BOOLEAN
 **
 ** Show all differences between two checkins.  
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
+  int sideBySide = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
 
@@ -711,6 +749,7 @@ void vdiff_page(void){
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
   showDetail = atoi(PD("detail","0"));
+  sideBySide = atoi(PD("sbs","1"));
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -733,11 +772,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, 0, 0, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0, 0,
+                              0, pFileTo->zUuid, 0, 0, 0,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -747,7 +786,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName, 
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, showDetail,
+                              pFileTo->zUuid, 0, showDetail, sideBySide,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);

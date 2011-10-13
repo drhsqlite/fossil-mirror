@@ -1,5 +1,5 @@
-C Fixing\sthe\smerge_renames\stest,\sso\sit\saccepts\sbeing\scalled\sout\sof\sa\srepository.\nThe\smessage\sgiven\sby\sfossil\swhen\strying\s'info'\sout\sof\sa\srepository\shad\schanged.
-D 2011-10-12T16:20:25.096
+C Started\sadding\ssupport\sfor\sshowing\sside-by-side\sdiffs\sin\sthe\sweb\sui.
+D 2011-10-13T23:48:35.167
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c cef15f7b382e52fa6d9450b96b50846a641b6e8d
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c c57cf060da61879abff7f0a7b5ca4b5d38735fdc
+F src/diff.c 19cf0dd42cfd69ebe08a416ee790c26e309c38d7
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
+F src/info.c 387ee11bd6c4af1b1c074f7c97068f5acb3b9e5e
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c b03985a5e87c959f75e7e5f4dc4daeaaa5a469e2
 F src/main.c 08d5ebebb28b68933a5a8671cbb3d19ff40e6f10
@@ -112,7 +112,7 @@ F src/setup.c c47cc4c323c49ebc2c2e398ec36b6265d5df256b
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c cc87604d9c0e997a5ee59c3e56a56c5a1a021dee
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
+F src/skins.c 6fff762f854c7559c439b224c65a834336b3c896
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 608446ef2391d9e4937e4d270e3576efc23e9615
 F src/sqlite3.h dbf2819263519cbfde83e7767442eca79f13a197
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 79c31f9b73aeb19a755e6e678b5175f7c767d0e6
-R 9a5cd74a3c46e1a05f40a0fc2a05ede2
-U viriketo
-Z cb789c3f0f7fe4edf1226379aa7dfd36
+P 0a7ab3ccb09e2fd4882afa3764080111c5b3075a
+R ae2dab766021c5b1382d6c781c1db5cc
+T *branch * jan-sbsdiff
+T *sym-jan-sbsdiff *
+T -sym-trunk *
+U jan
+Z f83e8ecff197c9259d1d07a0bb13bb01

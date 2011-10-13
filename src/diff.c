@@ -581,6 +581,174 @@ int *text_diff(
   }
 }
 
+
+/*
+ * References in the fossil repository:
+ * /vdiff?from=080d27a&to=4b0f813&detail=1
+ * /vdiff?from=636804745b&to=c1d78e0556&detail=1
+ * /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
+ * /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
+ */
+int *html_sbsdiff(
+  Blob *pA_Blob,   /* FROM file */
+  Blob *pB_Blob,   /* TO file */
+  int nContext,    /* Amount of context to unified diff */
+  int ignoreEolWs  /* Ignore whitespace at the end of lines */
+){
+  DContext c;
+  int i;
+  int iFrom, iTo;
+  char *linebuf;
+
+  /* Prepare the input files */
+  memset(&c, 0, sizeof(c));
+  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                             &c.nFrom, ignoreEolWs);
+  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                           &c.nTo, ignoreEolWs);
+  if( c.aFrom==0 || c.aTo==0 ){
+    free(c.aFrom);
+    free(c.aTo);
+    /* TODO Error handling */
+    return 0;
+  }
+
+  /* Compute the difference */
+  diff_all(&c);
+
+  linebuf = fossil_malloc(LENGTH_MASK+1);
+  if( !linebuf ){
+    /* TODO Handle error */
+  }
+
+  iFrom=iTo=0;
+  i=0;
+  while( i<c.nEdit ){
+    int j;
+    /* Copied lines */
+    for( j=0; j<c.aEdit[i]; j++){
+      int len;
+      int dist;
+
+      /* Hide lines which are copied and are further away from block boundaries
+      ** then nConext lines. For each block with hidden lines, show a row
+      ** notifying the user about the hidden rows.
+      */
+      if( j<nContext || j>c.aEdit[i]-nContext-1 ){
+        @ <tr>
+      }else if( j==nContext && j<c.aEdit[i]-nContext-1 ){
+        @ <tr>
+        @ <td class="meta" colspan="5" style="white-space: nowrap;">
+        @ %d(c.aEdit[i]-2*nContext) hidden line(s).</td>
+        @ </tr>
+        continue;
+      }else{
+        @ <tr style="display:none;">
+      }
+
+      len = c.aFrom[iFrom+j].h & LENGTH_MASK;
+      memcpy(linebuf, c.aFrom[iFrom+j].z, len);
+      linebuf[len] = '\0';
+      @ <td class="lineno">%d(iFrom+j+1)</td><td>%s(linebuf)</td>
+
+      @ <td> </td>
+
+      len = c.aTo[iTo+j].h & LENGTH_MASK;
+      memcpy(linebuf, c.aTo[iTo+j].z, len);
+      linebuf[len] = '\0';
+      @ <td class="lineno">%d(iTo+j+1)</td><td>%s(linebuf)</td>
+
+      @ </tr>
+    }
+    iFrom+=c.aEdit[i];
+    iTo+=c.aEdit[i];
+
+    if( c.aEdit[i+1]!=0 && c.aEdit[i+2]!=0 ){
+      int lim;
+      lim = c.aEdit[i+1] > c.aEdit[i+2] ? c.aEdit[i+1] : c.aEdit[i+2];
+
+      /* Assume changed lines */
+      for( j=0; j<lim; j++ ){
+        int len;
+        @ <tr>
+
+        if( j<c.aEdit[i+1] ){
+          len = c.aFrom[iFrom+j].h & LENGTH_MASK;
+          memcpy(linebuf, c.aFrom[iFrom+j].z, len);
+          linebuf[len] = '\0';
+          @ <td class="changed lineno">%d(iFrom+j+1)</td>
+          @ <td class="changed">%s(linebuf)</td>
+        }else{
+           @ <td colspan="2"/>
+        }
+
+        @ <td class="changed">|</td>
+
+        if( j<c.aEdit[i+2] ){
+          len = c.aTo[iTo+j].h & LENGTH_MASK;
+          memcpy(linebuf, c.aTo[iTo+j].z, len);
+          linebuf[len] = '\0';
+          @ <td class="changed lineno">%d(iTo+j+1)</td>
+          @ <td class="changed">%s(linebuf)</td>
+        }else{
+          @ <td colspan="2"/>
+        }
+
+        @ </tr>
+      }
+      iFrom+=c.aEdit[i+1];
+      iTo+=c.aEdit[i+2];
+    }else{
+
+      /* Process deleted lines */
+      for( j=0; j<c.aEdit[i+1]; j++ ){
+        int len;
+        @ <tr>
+
+        len = c.aFrom[iFrom+j].h & LENGTH_MASK;
+        memcpy(linebuf, c.aFrom[iFrom+j].z, len);
+        linebuf[len] = '\0';
+        @ <td class="removed lineno">%d(iFrom+j+1)</td>
+        @ <td class="removed">%s(linebuf)</td>
+
+        @ <td>&lt;</td>
+
+        @ <td colspan="2"/>
+
+        @ </tr>
+      }
+      iFrom+=c.aEdit[i+1];
+
+      /* Process inserted lines */
+      for( j=0; j<c.aEdit[i+2]; j++ ){
+        int len;
+        @ <tr>
+        @ <td colspan="2"/>
+
+        @ <td>&gt;</td>
+
+        len = c.aTo[iTo+j].h & LENGTH_MASK;
+        memcpy(linebuf, c.aTo[iTo+j].z, len);
+        linebuf[len] = '\0';
+        @ <td class="added lineno">%d(iTo+j+1)</td>
+        @ <td class="added">%s(linebuf)</td>
+
+        @ </tr>
+      }
+      iTo+=c.aEdit[i+2];
+    }
+
+    i+=3;
+  }
+
+  free(linebuf);
+  free(c.aFrom);
+  free(c.aTo);
+  free(c.aEdit);
+  return 0;
+}
+
+
 /*
 ** COMMAND: test-rawdiff
 */

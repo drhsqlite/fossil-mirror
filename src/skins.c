@@ -887,6 +887,49 @@ static const char zBuiltinSkin4[] =
 @ 
 @ textarea {
 @   font-size: 1em;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 7pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 100%;
+@   border: 1px #000 dashed;
+@ }
+@ 
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@ 
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@ 
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@ 
+@ table.sbsdiff tr td.meta {
+@   background-color: rgb(170, 160, 255);
+@   text-align: center;
+@ }
+@ 
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(180, 250, 180);
+@ }
+@ 
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(250, 130, 130);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(210, 210, 200);
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
