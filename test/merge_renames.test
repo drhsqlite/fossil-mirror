@@ -5,7 +5,7 @@
 
 catch {exec $::fossilexe info} res
 puts res=$res
-if {![regexp {not within an open checkout} $res]} {
+if {![regexp {use --repository} $res]} {
   puts stderr "Cannot run this test within an open checkout"
   return
 }
