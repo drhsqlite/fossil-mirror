@@ -1,5 +1,8 @@
-C Fixing\sthe\smerge_renames\stest,\sso\sit\saccepts\sbeing\scalled\sout\sof\sa\srepository.\nThe\smessage\sgiven\sby\sfossil\swhen\strying\s'info'\sout\sof\sa\srepository\shad\schanged.
-D 2011-10-12T16:20:25.096
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+C Create\snew\sbranch\snamed\s"ashish-ipv6"
+D 2011-10-13T02:47:27.776
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -321,7 +324,27 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 79c31f9b73aeb19a755e6e678b5175f7c767d0e6
+P 0a7ab3ccb09e2fd4882afa3764080111c5b3075a
 R 9a5cd74a3c46e1a05f40a0fc2a05ede2
-U viriketo
-Z cb789c3f0f7fe4edf1226379aa7dfd36
+T *branch * ashish-ipv6
+T *sym-ashish-ipv6 *
+T -sym-trunk *
+U abbe
+Z 028d9336e75e8deb37d846dcd7cdb478
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.17 (FreeBSD)
+
+iQIcBAEBCgAGBQJOllFHAAoJEMdGz6nnT6Swj50P/iwRbwYlS8Uo0AqIRQPJZVSr
+3BtlecoEJoytXhan+iYX9BKpfObBNtjhoEsv87NPuodyrtww+fyX+sywD+lKlkxk
+6SvnDW2B1P0bZzpQagrO7LFD0f9brWeJN4jOrHDD3n5bmYbkhlBJvMaj/9tnHITU
+Zpc99Dg0mj1v0Pmfv5ZsN2FrbuwCaNzaOBe9t6b4ksUt8xtM3/sQFZRuQrukeQ7t
+CH5PI1LlKd0onB74fPxVxdvQ9N2lhylOIYahFi0NWikNGhnMUNP1RhGk919Fh/4s
+THaeOcePHMYC7GV88n6egaekCqRR0zc31hXaQb4G6vtGzD163XTOv1gB9nbgovpP
+EOVcM/qBkBmXDa65qehCLd1L/uapjxl0vQGbp1ltv9PEaTJTlOR4+iV3U4Ejhwhw
+fk2zCo1PdJFuy1LOPCyYsGFj+ZPmiPT1By0FgSkJL4uN9NxEHqadNR0QVGqE6iPg
+TFHnKrOV4UAENUxNWEHROWldUBH1Hcgwe/UZo40RsEMqEjowSF4Eodp6BIIIAEhU
+k+LnA85cMvfGwqlBddSHShK7wtL7kwS39+gFEPQ9uvARcRKUSzO3HKhjT0H+1MH3
+53aoW0R2AvNWDeS+OXzk0oiHQor0gNkrxlXVynHPkHr/u3j28kxwZhAYk2o+8xMH
+FXJWy7pEtHPO/io0/3/Q
+=DQyh
+-----END PGP SIGNATURE-----
