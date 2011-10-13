@@ -890,22 +890,19 @@ int cgi_all(const char *z, ...){
 /*
 ** Print all query parameters on standard output.  Format the
 ** parameters as HTML.  This is used for testing and debugging.
-** Release builds omit the values of the cookies to avoid defeating
-** the purpose of setting HttpOnly cookies.
+**
+** Omit the values of the cookies unless showAll is true.
 */
-void cgi_print_all(void){
+void cgi_print_all(int showAll){
   int i;
-  int showAll = 0;
-#ifdef FOSSIL_DEBUG
-  /* Show the values of cookies in debug mode. */
-  showAll = 1;
-#endif
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
-    if( showAll || (fossil_stricmp("HTTP_COOKIE",aParamQP[i].zName)!=0 && fossil_strnicmp("fossil-",aParamQP[i].zName,7)!=0) ){
-      cgi_printf("%s = %s  <br />\n",
-         htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    const char *zName = aParamQP[i].zName;
+    if( !showAll ){
+      if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
+      if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
+    cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
   }
 }
 

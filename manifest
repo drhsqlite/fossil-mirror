@@ -1,5 +1,5 @@
-C Update\sthe\sSQLite\scommand-line\sshell\sto\sthe\slatest\sfrom\sthe\sSQLite\ssource\stree.
-D 2011-10-13T16:39:40.111
+C Provide\san\soption\sto\senable\sthe\s/test_env\sURL\sfor\sall\susers.\s\sOptionally\ndisplay\scookie\svalues\sin\sthe\s/test_env\sURL.
+D 2011-10-13T23:47:39.254
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,7 +54,7 @@ F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 77ff25246daad4f2a47d98926e23a4f1cf534c10
+F src/cgi.c ddc04ceef81e1d0ebbeae7aa027fa56a810d3316
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -108,7 +108,7 @@ F src/report.c 271567983f175747b1e276acb1dfeb5e367786b4
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
-F src/setup.c c47cc4c323c49ebc2c2e398ec36b6265d5df256b
+F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c d9f687130e5a2166a70f35d1a64ce0506618fd58
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -118,7 +118,7 @@ F src/sqlite3.c 608446ef2391d9e4937e4d270e3576efc23e9615
 F src/sqlite3.h dbf2819263519cbfde83e7767442eca79f13a197
 F src/stash.c 7b6b458d5d5c0fa8688a5d2851b04f5cab3b0180
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c c4079841c98936994d9ea88a1834cbfdc424dc8a
+F src/style.c 9ead87b25b1e2df0b40c57801bafedc320dc70cf
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 3e0bdccc2132180aa0fa9bfaee80f20c2f561e64
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 399c0ddae480e57726affd978818eb33a190fb2e
-R 2e6548361dfad1dac6cc5b0d16788385
+P 862d7dbf59f55e2db4747942292b52c51c2338d8
+R ac5dbd0e8b07fd9e429d1946ede993a6
 U drh
-Z 1fc532a500a3581fbbe8f5c973e6189a
+Z 1919a3ac2b91a4bbc76cc4ef1ac90de5
