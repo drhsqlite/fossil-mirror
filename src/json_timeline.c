@@ -322,10 +322,12 @@ cson_value * json_get_changed_files(int rid){
     cson_object * row = cson_value_get_object(rowV);
     int const isNew = db_column_int(&q,0);
     int const isDel = db_column_int(&q,1);
+    char * zDownload = NULL;
     if(!rowsV){
       rowsV = cson_value_new_array();
       rows = cson_value_get_array(rowsV);
     }
+    cson_array_append( rows, rowV );
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
     if(!isNew){
@@ -337,7 +339,12 @@ cson_value * json_get_changed_files(int rid){
                                     : (isDel
                                        ? "removed"
                                        : "modified")));
-    cson_array_append( rows, rowV );
+    zDownload = mprintf("/raw/%s?name=%s",
+                        /* reminder: g.zBaseURL is of course not set for CLI mode. */
+                        db_column_text(&q,2),
+                        db_column_text(&q,3));
+    cson_object_set(row, "downloadPath", json_new_string(zDownload));
+    free(zDownload);
   }
   db_finalize(&q);
   return rowsV;
