@@ -1,5 +1,5 @@
-C Fixing\sthe\susage()\scalls\sin\sstash.c,\sas\sit\sduplicated\sthe\sword\sstash;\nit\swas\sgiving\smessags\slike\s"Usage:\sfossil\sstash\sstash\spop".
-D 2011-10-13T12:56:19.498
+C Update\sthe\sSQLite\scommand-line\sshell\sto\sthe\slatest\sfrom\sthe\sSQLite\ssource\stree.
+D 2011-10-13T16:39:40.111
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -110,7 +110,7 @@ F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
 F src/setup.c c47cc4c323c49ebc2c2e398ec36b6265d5df256b
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
-F src/shell.c cc87604d9c0e997a5ee59c3e56a56c5a1a021dee
+F src/shell.c d9f687130e5a2166a70f35d1a64ce0506618fd58
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a7ab3ccb09e2fd4882afa3764080111c5b3075a
-R 50b6b6d8491780ae2aaf0ab2668c7723
-U viriketo
-Z b79ddfc42823236500e4c87c8596644c
+P 399c0ddae480e57726affd978818eb33a190fb2e
+R 2e6548361dfad1dac6cc5b0d16788385
+U drh
+Z 1fc532a500a3581fbbe8f5c973e6189a
