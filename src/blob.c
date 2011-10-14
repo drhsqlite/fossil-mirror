@@ -922,7 +922,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   unsigned int nOut;
   unsigned char *inBuf;
   unsigned int nIn = blob_size(pIn);
-  Blob temp;
+  Blob temp = empty_blob;
   int rc;
   unsigned long int nOut2;
   if( nIn<=4 ){

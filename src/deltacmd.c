@@ -79,7 +79,7 @@ void delta_create_cmd(void){
 */
 int blob_delta_apply(Blob *pOriginal, Blob *pDelta, Blob *pTarget){
   int len, n;
-  Blob out;
+  Blob out = empty_blob;
 
   n = delta_output_size(blob_buffer(pDelta), blob_size(pDelta));
   blob_zero(&out);

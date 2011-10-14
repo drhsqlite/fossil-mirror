@@ -622,6 +622,20 @@ void test_udiff_cmd(void){
 */
 
 /*
+** Linked list of strings, labels used in the annotator code.
+** The elements of the list and the pointed string (str)
+** will be freed once they become totally unreferenced
+** (nref == 0).
+*/
+struct Label
+{
+    struct Label *prev;   /* previous element */
+    struct Label *next;   /* next element */
+    char *str;            /* The label string */
+    int nref;             /* Number of references to the string */
+};
+
+/*
 ** The status of an annotation operation is recorded by an instance
 ** of the following structure.
 */
@@ -632,13 +646,15 @@ struct Annotator {
     const char *z;       /* The text of the line */
     short int n;         /* Number of bytes (omitting trailing space and \n) */
     short int iLevel;    /* Level at which tag was set */
-    const char *zSrc;    /* Tag showing origin of this line */
+    struct Label *zSrc;    /* Tag showing origin of this line */
   } *aOrig;
   int nOrig;        /* Number of elements in aOrig[] */
   int nNoSrc;       /* Number of entries where aOrig[].zSrc==NULL */
   int iLevel;       /* Current level */
   int nVers;        /* Number of versions analyzed */
-  char **azVers;    /* Names of versions analyzed */
+  struct Label **azVers;    /* Names of versions analyzed */
+  Blob toAnnotate;
+  struct Label *firstLabel;
 };
 
 /*
@@ -646,11 +662,11 @@ struct Annotator {
 ** to be annotated.  The annotator takes control of the input Blob and
 ** will release it when it is finished with it.
 */
-static int annotation_start(Annotator *p, Blob *pInput){
+static int annotation_start(Annotator *p){
   int i;
 
-  memset(p, 0, sizeof(*p));
-  p->c.aTo = break_into_lines(blob_str(pInput), blob_size(pInput),&p->c.nTo,1);
+  p->c.aTo = break_into_lines(blob_str(&p->toAnnotate),
+          blob_size(&p->toAnnotate),&p->c.nTo,1);
   if( p->c.aTo==0 ){
     return 1;
   }
@@ -671,7 +687,7 @@ static int annotation_start(Annotator *p, Blob *pInput){
 ** on each line of the file being annotated that was contributed by
 ** pParent.  Memory to hold zPName is leaked.
 */
-static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
+static int annotation_step(Annotator *p, Blob *pParent, struct Label *zPName){
   int i, j;
   int lnTo;
   int iPrevLevel;
@@ -681,6 +697,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   p->c.aFrom = break_into_lines(blob_str(pParent), blob_size(pParent),
                                 &p->c.nFrom, 1);
   if( p->c.aFrom==0 ){
+    free(p->c.aFrom);
     return 1;
   }
 
@@ -698,7 +715,20 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
     struct AnnLine *x = &p->aOrig[lnTo];
     for(j=0; j<p->c.aEdit[i]; j++, lnTo++, x++){
       if( x->zSrc==0 || x->iLevel==iPrevLevel ){
+         if (x->zSrc!=0)
+         {
+           if(--x->zSrc->nref == 0)
+           {
+             free(x->zSrc->str);
+             if (x->zSrc->prev)
+               x->zSrc->prev->next = x->zSrc->next;
+             if (x->zSrc->next)
+               x->zSrc->next->prev = x->zSrc->prev;
+             free(x->zSrc);
+           }
+         }
          x->zSrc = zPName;
+         ++zPName->nref;
          x->iLevel = iThisLevel;
       }
     }
@@ -713,7 +743,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 
   /* Clear out the from file */
   free(p->c.aFrom);    
-  blob_zero(pParent);
+  blob_reset(pParent);
 
   /* Return no errors */
   return 0;
@@ -724,28 +754,45 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 ** COMMAND: test-annotate-step
 */
 void test_annotate_step_cmd(void){
-  Blob orig, b;
+  Blob b = empty_blob;
   Annotator x;
   int i;
 
   if( g.argc<4 ) usage("RID1 RID2 ...");
   db_must_be_within_tree();
-  blob_zero(&b);
-  content_get(name_to_rid(g.argv[2]), &orig);
-  if( annotation_start(&x, &orig) ){
+  memset(&x, 0, sizeof(x));
+  x.toAnnotate = empty_blob;
+  content_get(name_to_rid(g.argv[2]), &x.toAnnotate);
+  if( annotation_start(&x) ){
     fossil_fatal("binary file");
   }
   for(i=3; i<g.argc; i++){
+    struct Label *l;
     blob_zero(&b);
     content_get(name_to_rid(g.argv[i]), &b);
-    if( annotation_step(&x, &b, g.argv[i-1]) ){
+    l = fossil_malloc(sizeof(*l));
+    l->str = g.argv[i-1];
+    l->nref = 0;
+    l->next = x.firstLabel;
+    if (x.firstLabel)
+      x.firstLabel->prev = l;
+    x.firstLabel = l;
+    if( annotation_step(&x, &b, l) ){
       fossil_fatal("binary file");
     }
   }
   for(i=0; i<x.nOrig; i++){
-    const char *zSrc = x.aOrig[i].zSrc;
+    const char *zSrc = x.aOrig[i].zSrc->str;
     if( zSrc==0 ) zSrc = g.argv[g.argc-1];
     fossil_print("%10s: %.*s\n", zSrc, x.aOrig[i].n, x.aOrig[i].z);
+  }
+  while(x.firstLabel) {
+    struct Label *l;
+    l = x.firstLabel->next;
+    assert(x.firstLabel->nref > 0);
+    free(x.firstLabel->str);
+    free(x.firstLabel);
+    x.firstLabel = l;
   }
 }
 
@@ -765,10 +812,8 @@ static void annotate_file(
   int iLimit,          /* Limit the number of levels if greater than zero */
   int annFlags         /* Flags to alter the annotation */
 ){
-  Blob toAnnotate;     /* Text of the final (mid) version of the file */
-  Blob step;           /* Text of previous revision */
+  Blob step = empty_blob;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
-  char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
 
   /* Initialize the annotation */
@@ -776,13 +821,15 @@ static void annotate_file(
   if( rid==0 ){
     fossil_panic("file #%d is unchanged in manifest #%d", fnid, mid);
   }
-  if( !content_get(rid, &toAnnotate) ){
+  memset(p, 0, sizeof(*p));
+  p->toAnnotate = empty_blob;
+  if( !content_get(rid, &p->toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
   db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
   if( iLimit<=0 ) iLimit = 1000000000;
   compute_direct_ancestors(mid, iLimit);
-  annotation_start(p, &toAnnotate);
+  annotation_start(p);
 
   db_prepare(&q, 
     "SELECT mlink.fid,"
@@ -804,22 +851,38 @@ static void annotate_file(
     const char *zUuid = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
     const char *zUser = db_column_text(&q, 3);
+    struct Label *l = fossil_malloc(sizeof(*l));
+    l->nref = 0;
+    l->next = p->firstLabel;
+    l->prev = 0;
+    if (p->firstLabel)
+      p->firstLabel->prev = l;
     if( webLabel ){
-      zLabel = mprintf(
+      l->str = mprintf(
           "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
           g.zTop, zUuid, zUuid, zDate, zUser
       );
     }else{
-      zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
+      l->str = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
+    p->firstLabel = l;
     p->nVers++;
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
-    p->azVers[p->nVers-1] = zLabel;
+    p->azVers[p->nVers-1] = l;
     content_get(pid, &step);
-    annotation_step(p, &step, zLabel);
+    annotation_step(p, &step, l);
+    if (l->nref == 0)
+    {
+      free(l->str);
+      p->firstLabel = l->next;
+      if (l->next)
+        l->next->prev = 0;
+      free(l);
+    }
     blob_reset(&step);
   }
   db_finalize(&q);
+  free(p->c.aTo);
 }
 
 /*
@@ -855,7 +918,7 @@ void annotation_page(void){
     @ <h2>Versions analyzed:</h2>
     @ <ol>
     for(i=0; i<ann.nVers; i++){
-      @ <li><tt>%s(ann.azVers[i])</tt></li>
+      @ <li><tt>%s(ann.azVers[i]->str)</tt></li>
     }
     @ </ol>
     @ <hr>
@@ -864,10 +927,22 @@ void annotation_page(void){
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
+    @ %s(ann.aOrig[i].zSrc->str): %h(ann.aOrig[i].z)
   }
   @ </pre>
   style_footer();
+
+  free(ann.azVers);
+  free(ann.aOrig);
+  blob_reset(&ann.toAnnotate);
+  while(ann.firstLabel) {
+    struct Label *l;
+    l = ann.firstLabel->next;
+    assert(ann.firstLabel->nref > 0);
+    free(ann.firstLabel->str);
+    free(ann.firstLabel);
+    ann.firstLabel = l;
+  }
 }
 
 /*
@@ -887,7 +962,7 @@ void annotate_cmd(void){
   int fnid;         /* Filename ID */
   int fid;          /* File instance ID */
   int mid;          /* Manifest where file was checked in */
-  Blob treename;    /* FILENAME translated to canonical form */
+  Blob treename = empty_blob;    /* FILENAME translated to canonical form */
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
@@ -916,6 +991,7 @@ void annotate_cmd(void){
   if( fid==0 ){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
+  blob_reset(&treename);
   mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
   if( mid==0 ){
     fossil_panic("unable to find manifest");
@@ -924,12 +1000,23 @@ void annotate_cmd(void){
   annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
-      printf("version %3d: %s\n", i+1, ann.azVers[i]);
+      printf("version %3d: %s\n", i+1, ann.azVers[i]->str);
     }
     printf("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
     fossil_print("%s: %.*s\n", 
-                 ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
+                 ann.aOrig[i].zSrc->str, ann.aOrig[i].n, ann.aOrig[i].z);
+  }
+  free(ann.azVers);
+  free(ann.aOrig);
+  blob_reset(&ann.toAnnotate);
+  while(ann.firstLabel) {
+    struct Label *l;
+    l = ann.firstLabel->next;
+    assert(ann.firstLabel->nref > 0);
+    free(ann.firstLabel->str);
+    free(ann.firstLabel);
+    ann.firstLabel = l;
   }
 }
