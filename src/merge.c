@@ -499,7 +499,8 @@ void merge_cmd(void){
   */
   if( nConflict && !nochangeFlag ){
     fossil_warning(
-       "WARNING: merge conflicts - see messages above for details.\n");
+       "WARNING: %d merge conflicts - see messages above for details.\n",
+       nConflict);
   }
 
   /*
