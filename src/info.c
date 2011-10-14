@@ -360,8 +360,8 @@ static void append_file_change_line(
     if( showDiff ){
       if( sideBySide ){
          @ <table class="sbsdiff">
-         @ <tr><th colspan="2" class="diffhdr"">Old (%s(zOld))</th><th/>
-         @ <th colspan="2" class="diffhdr">New (%s(zNew))</th></tr>
+         @ <tr><th colspan="2" class="diffhdr">Old (%S(zOld))</th><th/>
+         @ <th colspan="2" class="diffhdr">New (%S(zNew))</th></tr>
          generate_sbsdiff(zOld, zNew);
          @ </table>
       }else{

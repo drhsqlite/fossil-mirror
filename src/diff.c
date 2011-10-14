@@ -581,6 +581,22 @@ int *text_diff(
   }
 }
 
+/*
+** Copy a line with a limit. Used for side-by-side diffs to enforce a maximum
+** line length limit.
+*/
+static char *copylimline(char *out, DLine *dl, int lim){
+  int len;
+  len = dl->h & LENGTH_MASK;
+  if( lim && len > lim ){
+    memcpy(out, dl->z, lim-3);
+    strcpy(&out[lim-3], "...");
+  }else{
+    memcpy(out, dl->z, len);
+    out[len] = '\0';
+  }
+  return out;
+}
 
 /*
  * References in the fossil repository:
@@ -589,7 +605,7 @@ int *text_diff(
  * /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
  * /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
  */
-int *html_sbsdiff(
+int html_sbsdiff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   int nContext,    /* Amount of context to unified diff */
@@ -599,6 +615,8 @@ int *html_sbsdiff(
   int i;
   int iFrom, iTo;
   char *linebuf;
+  int collim=0; /* Currently not settable; allows a column limit for diffs */
+  int allowExp=0; /* Currently not settable; (dis)allow expansion of rows */
 
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
@@ -609,16 +627,21 @@ int *html_sbsdiff(
   if( c.aFrom==0 || c.aTo==0 ){
     free(c.aFrom);
     free(c.aTo);
-    /* TODO Error handling */
+    @ <p class="generalError" style="white-space: nowrap">cannot compute
+    @ difference between binary files</p>
     return 0;
   }
+
+  collim = collim < 4 ? 0 : collim;
 
   /* Compute the difference */
   diff_all(&c);
 
   linebuf = fossil_malloc(LENGTH_MASK+1);
   if( !linebuf ){
-    /* TODO Handle error */
+    free(c.aFrom);
+    free(c.aTo);
+    return 0;
   }
 
   iFrom=iTo=0;
@@ -631,7 +654,7 @@ int *html_sbsdiff(
       int dist;
 
       /* Hide lines which are copied and are further away from block boundaries
-      ** then nConext lines. For each block with hidden lines, show a row
+      ** than nConext lines. For each block with hidden lines, show a row
       ** notifying the user about the hidden rows.
       */
       if( j<nContext || j>c.aEdit[i]-nContext-1 ){
@@ -639,23 +662,23 @@ int *html_sbsdiff(
       }else if( j==nContext && j<c.aEdit[i]-nContext-1 ){
         @ <tr>
         @ <td class="meta" colspan="5" style="white-space: nowrap;">
-        @ %d(c.aEdit[i]-2*nContext) hidden line(s).</td>
+        @ %d(c.aEdit[i]-2*nContext) hidden lines</td>
         @ </tr>
-        continue;
+        if( !allowExp )
+           continue;
+        @ <tr style="display:none;">
       }else{
+        if( !allowExp )
+           continue;
         @ <tr style="display:none;">
       }
 
-      len = c.aFrom[iFrom+j].h & LENGTH_MASK;
-      memcpy(linebuf, c.aFrom[iFrom+j].z, len);
-      linebuf[len] = '\0';
+      copylimline(linebuf, &c.aFrom[iFrom+j], collim);
       @ <td class="lineno">%d(iFrom+j+1)</td><td>%s(linebuf)</td>
 
       @ <td> </td>
 
-      len = c.aTo[iTo+j].h & LENGTH_MASK;
-      memcpy(linebuf, c.aTo[iTo+j].z, len);
-      linebuf[len] = '\0';
+      copylimline(linebuf, &c.aTo[iTo+j], collim);
       @ <td class="lineno">%d(iTo+j+1)</td><td>%s(linebuf)</td>
 
       @ </tr>
@@ -673,9 +696,7 @@ int *html_sbsdiff(
         @ <tr>
 
         if( j<c.aEdit[i+1] ){
-          len = c.aFrom[iFrom+j].h & LENGTH_MASK;
-          memcpy(linebuf, c.aFrom[iFrom+j].z, len);
-          linebuf[len] = '\0';
+          copylimline(linebuf, &c.aFrom[iFrom+j], collim);
           @ <td class="changed lineno">%d(iFrom+j+1)</td>
           @ <td class="changed">%s(linebuf)</td>
         }else{
@@ -685,9 +706,7 @@ int *html_sbsdiff(
         @ <td class="changed">|</td>
 
         if( j<c.aEdit[i+2] ){
-          len = c.aTo[iTo+j].h & LENGTH_MASK;
-          memcpy(linebuf, c.aTo[iTo+j].z, len);
-          linebuf[len] = '\0';
+          copylimline(linebuf, &c.aTo[iTo+j], collim);
           @ <td class="changed lineno">%d(iTo+j+1)</td>
           @ <td class="changed">%s(linebuf)</td>
         }else{
@@ -705,9 +724,7 @@ int *html_sbsdiff(
         int len;
         @ <tr>
 
-        len = c.aFrom[iFrom+j].h & LENGTH_MASK;
-        memcpy(linebuf, c.aFrom[iFrom+j].z, len);
-        linebuf[len] = '\0';
+        copylimline(linebuf, &c.aFrom[iFrom+j], collim);
         @ <td class="removed lineno">%d(iFrom+j+1)</td>
         @ <td class="removed">%s(linebuf)</td>
 
@@ -727,9 +744,7 @@ int *html_sbsdiff(
 
         @ <td>&gt;</td>
 
-        len = c.aTo[iTo+j].h & LENGTH_MASK;
-        memcpy(linebuf, c.aTo[iTo+j].z, len);
-        linebuf[len] = '\0';
+        copylimline(linebuf, &c.aTo[iTo+j], collim);
         @ <td class="added lineno">%d(iTo+j+1)</td>
         @ <td class="added">%s(linebuf)</td>
 
@@ -745,7 +760,7 @@ int *html_sbsdiff(
   free(c.aFrom);
   free(c.aTo);
   free(c.aEdit);
-  return 0;
+  return 1;
 }
 
 
