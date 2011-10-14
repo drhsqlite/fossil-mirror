@@ -806,7 +806,8 @@ void test_annotate_step_cmd(void){
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
+  const char *zFilename,/* The name of the file to be annotated */
+  int fnid,            /* The file name id of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
   int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
@@ -815,6 +816,7 @@ static void annotate_file(
   Blob step = empty_blob;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
   Stmt q;              /* Query returning all ancestor versions */
+  char *zPrevUuid = 0; /* Previous Uuid */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -834,11 +836,14 @@ static void annotate_file(
   db_prepare(&q, 
     "SELECT mlink.fid,"
     "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
     "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
+    "  FROM ancestor, mlink, event, plink"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid=ancestor.rid"
+    "   AND plink.cid=ancestor.rid"
     "   AND event.objid=ancestor.rid"
     " ORDER BY ancestor.generation ASC"
     " LIMIT %d",
@@ -849,8 +854,10 @@ static void annotate_file(
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
+    const char *zUuidFile = db_column_text(&q, 2);
+    const char *zUuidParentFile = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 4);
+    const char *zUser = db_column_text(&q, 5);
     struct Label *l = fossil_malloc(sizeof(*l));
     l->nref = 0;
     l->next = p->firstLabel;
@@ -858,10 +865,27 @@ static void annotate_file(
     if (p->firstLabel)
       p->firstLabel->prev = l;
     if( webLabel ){
+      char *htmlPrev = " ";
+      if( zPrevUuid ){
+        htmlPrev = mprintf(
+          "<a href='%s/annotate?checkin=%.15s&filename=%T'>p</a>",
+          g.zTop, zPrevUuid, zFilename);
+      }
       l->str = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
-          g.zTop, zUuid, zUuid, zDate, zUser
-      );
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> "
+          "%s "
+          "<a href='%s/fdiff?v1=%s&v2=%s' target='diffwindow'>d</a> "
+          "%s %9.9s", 
+          g.zTop, zUuid, zUuid,
+          htmlPrev,
+          g.zTop, zUuidParentFile, zUuidFile,
+          zDate, zUser);
+      if( zPrevUuid )
+      {
+        free(htmlPrev);
+        free(zPrevUuid);
+      }
+      zPrevUuid = fossil_strdup(zUuid);
     }else{
       l->str = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
@@ -912,7 +936,7 @@ void annotation_page(void){
   }
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.History, iLimit, annFlags);
+  annotate_file(&ann, P("filename"), fnid, mid, g.perm.History, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>
@@ -991,13 +1015,13 @@ void annotate_cmd(void){
   if( fid==0 ){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
-  blob_reset(&treename);
   mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }
   if( fileVers ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annotate_file(&ann, zFilename, fnid, mid, 0, iLimit, annFlags);
+  blob_reset(&treename);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
       printf("version %3d: %s\n", i+1, ann.azVers[i]->str);
