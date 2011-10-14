@@ -940,7 +940,7 @@ Manifest *manifest_get_by_name(const char *zName, int *pRid){
   int rid;
   Manifest *p;
 
-  rid = name_to_typed_rid(zName, "ci");
+  rid = extended_ci_name_to_rid(zName);
   if( !is_a_version(rid) ){
     fossil_fatal("no such checkin: %s", zName);
   }

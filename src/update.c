@@ -133,7 +133,7 @@ void update_cmd(void){
       */
       latestFlag = 1;
     }else{
-      tid = name_to_typed_rid(g.argv[2],"ci");
+      tid = extended_ci_name_to_rid(g.argv[2]);
       if( tid==0 ){
         fossil_fatal("no such version: %s", g.argv[2]);
       }else if( !is_a_version(tid) ){
@@ -555,7 +555,7 @@ int historical_version_of_file(
   int rid=0;
   
   if( revision ){
-    rid = name_to_typed_rid(revision,"ci");
+    rid = extended_ci_name_to_rid(revision);
   }else{
     rid = db_lget_int("checkout", 0);
   }
