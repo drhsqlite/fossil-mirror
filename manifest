@@ -1,5 +1,5 @@
-C Merging\sthe\sextended_ci_names\sbranch,\sthat\sintroduces\smore\sways\sof\snaming\ncheckins\sin\sdiff\sand\supdate\soperations.
-D 2011-10-14T16:12:12.853
+C Fixing\sthe\smerge_renames\stest;\sfossil\swas\susing\s$HOME\ssomehow.\sI\snoticed\sit\srunning\sthe\stest\nin\san\senvironment\swithout\sa\svalid\s$HOME\spath\s(the\snix\spackage\sbuilding).\nfossil\srefused\sto\srun\sthe\s'fossil\snew'\sinside\sthe\smerge_renames\stest.
+D 2011-10-14T19:01:52.378
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,7 +150,7 @@ F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
 F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
-F test/merge_renames.test bcb8c119a59ef974c1b61e0187ad443c846c2d75
+F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 409f370a6db42088e046ae32cd9728900e1f7da6 9fe787ec03bd0101be77032f6b1a89bb42a9d922
-R c38387ec71bfe4b7858a3add1fb35e27
+P 107e605f416b45593a8304ae847806dfa79bbda7
+R b97025ddd39b5cfd5dd18d933af24d1b
 U viriketo
-Z 4234c1b8c43bc9a45e5ea57de0fb4b63
+Z 369d58d4b96663c40de5665bb4fd28f7
