@@ -1,5 +1,5 @@
-C Reporting\sthe\snumber\sof\smerge\sconflicts\sat\sthe\send\sof\smerge,\sas\swith\supdate.\sI\sthink\nthe\sinformation\sis\sof\svalue\sto\sthe\suser.\n\nI\sthink\sthat\shad\sto\sbe\sintroduced\sin\s[070ce24d838a6],\sfrom\sits\scomment,\sbut\sthat\nchange\smade\sthe\sopposite\sof\scommented.
-D 2011-10-14T22:16:16.163
+C Making\s'fossil\smerge'\salso\sreport\sa\sconflict\sfor\sextra\sfiles\soverwritten.\sLike\n[60c6197c8a],\sbut\sfor\sthe\smerge\soperation.\sRelated\sto\sticket\s[953031915f].
+D 2011-10-14T22:20:45.094
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -93,7 +93,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
 F src/manifest.c c65de5448522f6650cbaea55a54e7cebd4a88a45
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
-F src/merge.c 35de9e0a68c8c58bdb245bea1a076ed120e2ceac
+F src/merge.c 3477294eedccb3151244d8b93798c9dd460445e2
 F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 60c6197c8a5fede3abdd03ae97a311da7db154a6
-R 513bb8b5037aaa545d68f24e42e63f39
+P e1a7a1d9e267213e2adeaa06a68b00151334b282
+R d07323db45f2140bb3bdb38ec0cd6f6d
 U viriketo
-Z dac553ea856b437bc57ed139cbb35607
+Z 18210bde7928f0d737be60137b671179

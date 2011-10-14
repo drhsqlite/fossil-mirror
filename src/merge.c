@@ -330,6 +330,10 @@ void merge_cmd(void){
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
     fossil_print("ADDED %s\n", zName);
+    if ( file_wd_isfile_or_link(zName) ) {
+      fossil_print("***** The extra file %s has been overwritten\n", zName);
+      nConflict++;
+    }
     if( !nochangeFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
