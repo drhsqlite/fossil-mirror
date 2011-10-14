@@ -1,5 +1,5 @@
-C Same\strouble\sas\s[bf480a29a6]\sbut\sfor\sthe\smerge5\stest.
-D 2011-10-14T19:53:41.655
+C Making\sfossil\swarn\sabout\sa\sconflict,\sif\san\supdate\soperation\soverwrites\san\sextra\nfile.\sThis\sshould\sclose\sticket\s[953031915f].
+D 2011-10-14T20:25:25.447
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/tkt.c 54c426b8c38b943fbb243d47dcff8d9d4852e40c
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 9912a0e3e56948e4ea1bcad72fe57282d7a0be70
-F src/update.c 228b51f083fa7d5b6b2161e95b340feaed72234e
+F src/update.c 95511562fe24f2b825acf05f928e9e422ef26f51
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e46be99ff4fdd58089d8652e81e32bb9a3c733f0
-R d21fc38c8975dab486bc66ec47a31fcc
+P 129605856afc71e71e9460759179b0f7ae685b4e
+R ba8b66bd2524eb04f984df81a37e9f53
 U viriketo
-Z df37e3100bbbb95cdc6aceeec2847977
+Z a6f1c34beb3e7c692acc9189334eb1a2

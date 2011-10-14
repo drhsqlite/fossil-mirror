@@ -362,6 +362,10 @@ void update_cmd(void){
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       fossil_print("ADD %s\n", zName);
+      if ( file_wd_isfile_or_link(zName) ) {
+        fossil_print("***** The extra file %s has been overwritten\n", zName);
+        nConflict++;
+      }
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
