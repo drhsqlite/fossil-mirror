@@ -1,5 +1,5 @@
-C Provide\san\soption\sto\senable\sthe\s/test_env\sURL\sfor\sall\susers.\s\sOptionally\ndisplay\scookie\svalues\sin\sthe\s/test_env\sURL.
-D 2011-10-13T23:47:39.254
+C Add\s/*sort*/\smarks\sto\ssome\sSQL\squeries\sto\sdisable\swarnings\sabout\ssorting\nwithout\san\sindex.
+D 2011-10-14T00:06:45.022
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -63,7 +63,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/db.c cef15f7b382e52fa6d9450b96b50846a641b6e8d
+F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
@@ -83,9 +83,9 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
+F src/info.c 45986faf2c37ad3ccf58bfc13fef2059139209a9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c b03985a5e87c959f75e7e5f4dc4daeaaa5a469e2
+F src/login.c 0849ed1d4f92ea5eb032399091d426b798ea3b9a
 F src/main.c 08d5ebebb28b68933a5a8671cbb3d19ff40e6f10
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -97,7 +97,7 @@ F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
 F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
-F src/name.c 04392f102f791c62d47ff84ca65d7a1433d9fe39
+F src/name.c e4bc545f1cd41e3472f43b0d1e93759bb8a6060e
 F src/path.c 0a62bed55739eea10a9859b5d5eeba1190147118
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 862d7dbf59f55e2db4747942292b52c51c2338d8
-R ac5dbd0e8b07fd9e429d1946ede993a6
+P 4d32db8ef8110b56f0203dc44f1e2d359f672808
+R 19d364d77d5cab2815457a9e1b940a24
 U drh
-Z 1919a3ac2b91a4bbc76cc4ef1ac90de5
+Z 7e502a8554a8ea2606fa12096f962430
