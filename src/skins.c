@@ -154,6 +154,50 @@ static const char zBuiltinSkin1[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 10pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   color: white;
+@   background-color: rgb(20, 20, 20);
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(230, 230, 230);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(200, 200, 200);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(220, 220, 220);
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
@@ -358,7 +402,49 @@ static const char zBuiltinSkin2[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
-@ ');
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 10pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   background-color: #a09048;
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(210, 210, 100);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(190, 200, 110);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(200, 210, 120);
+@ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
@@ -592,6 +678,50 @@ static const char zBuiltinSkin3[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 10pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   color: white;
+@   background-color: black;
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: white;
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: white;
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: white;
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
@@ -891,11 +1021,12 @@ static const char zBuiltinSkin4[] =
 @
 @ /* Side-by-side diff */
 @ table.sbsdiff {
-@   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 7pt;
+@   background-color: white;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 9pt;
 @   border-collapse:collapse;
 @   white-space: pre;
-@   width: 100%;
+@   width: 98%;
 @   border: 1px #000 dashed;
 @ }
 @ 
