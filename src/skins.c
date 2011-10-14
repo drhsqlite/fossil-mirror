@@ -718,6 +718,7 @@ static const char zBuiltinSkin3[] =
 @
 @ table.sbsdiff tr td.removed {
 @   background-color: white;
+@   text-decoration: line-through;
 @ }
 @
 @ table.sbsdiff tr td.changed {
