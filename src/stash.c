@@ -484,7 +484,7 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
-    if( g.argc>4 ) usage("stash apply STASHID");
+    if( g.argc>4 ) usage("apply STASHID");
     if( allFlag ){
       db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
     }else{
@@ -496,7 +496,7 @@ void stash_cmd(void){
     }
   }else
   if( memcmp(zCmd, "pop", nCmd)==0 ){
-    if( g.argc>3 ) usage("stash pop");
+    if( g.argc>3 ) usage("pop");
     stashid = stash_get_id(0);
     undo_begin();
     stash_apply(stashid, 0);
@@ -505,7 +505,7 @@ void stash_cmd(void){
     stash_drop(stashid);
   }else
   if( memcmp(zCmd, "apply", nCmd)==0 ){
-    if( g.argc>4 ) usage("stash apply STASHID");
+    if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
     stash_apply(stashid, 0);
@@ -515,7 +515,7 @@ void stash_cmd(void){
     int nConflict;
     int vid;
 
-    if( g.argc>4 ) usage("stash apply STASHID");
+    if( g.argc>4 ) usage("apply STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     undo_begin();
     vid = db_int(0, "SELECT vid FROM stash WHERE stashid=%d", stashid);
@@ -528,13 +528,13 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "diff", nCmd)==0 ){
     const char *zDiffCmd = db_get("diff-command", 0);
-    if( g.argc>4 ) usage("stash diff STASHID");
+    if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd);
   }else
   if( memcmp(zCmd, "gdiff", nCmd)==0 ){
     const char *zDiffCmd = db_get("gdiff-command", 0);
-    if( g.argc>4 ) usage("stash diff STASHID");
+    if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd);
   }else

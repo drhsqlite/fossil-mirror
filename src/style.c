@@ -847,10 +847,22 @@ void page_style_css(void){
 void page_test_env(void){
   char c;
   int i;
+  int showAll;
   char zCap[30];
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
+    login_needed();
+    return;
+  }
   style_header("Environment Test");
+  showAll = atoi(PD("showall","0"));
+  if( !showAll ){
+    style_submenu_element("Show Cookies", "Show Cookies",
+                          "%s/test_env?showall=1", g.zTop);
+  }else{
+    style_submenu_element("Hide Cookies", "Hide Cookies",
+                          "%s/test_env", g.zTop);
+  }
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
@@ -864,7 +876,7 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
-  cgi_print_all();
+  cgi_print_all(atoi(PD("showall","0")));
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);

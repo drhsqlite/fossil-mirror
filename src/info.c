@@ -838,7 +838,7 @@ void object_description(
     "   AND a.rid=mlink.fid"
     "   AND b.rid=mlink.mid"
     "   AND mlink.fid=%d"
-    "   ORDER BY filename.name, event.mtime",
+    "   ORDER BY filename.name, event.mtime /*sort*/",
     TAG_BRANCH, rid
   );
   @ <ul>

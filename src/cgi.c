@@ -364,7 +364,7 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-void cgi_redirect(const char *zURL){
+NORETURN void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
@@ -383,7 +383,7 @@ void cgi_redirect(const char *zURL){
   cgi_reply();
   fossil_exit(0);
 }
-void cgi_redirectf(const char *zFormat, ...){
+NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
   cgi_redirect(vmprintf(zFormat, ap));
@@ -890,22 +890,19 @@ int cgi_all(const char *z, ...){
 /*
 ** Print all query parameters on standard output.  Format the
 ** parameters as HTML.  This is used for testing and debugging.
-** Release builds omit the values of the cookies to avoid defeating
-** the purpose of setting HttpOnly cookies.
+**
+** Omit the values of the cookies unless showAll is true.
 */
-void cgi_print_all(void){
+void cgi_print_all(int showAll){
   int i;
-  int showAll = 0;
-#ifdef FOSSIL_DEBUG
-  /* Show the values of cookies in debug mode. */
-  showAll = 1;
-#endif
   cgi_parameter("","");  /* Force the parameters into sorted order */
   for(i=0; i<nUsedQP; i++){
-    if( showAll || (fossil_stricmp("HTTP_COOKIE",aParamQP[i].zName)!=0 && fossil_strnicmp("fossil-",aParamQP[i].zName,7)!=0) ){
-      cgi_printf("%s = %s  <br />\n",
-         htmlize(aParamQP[i].zName, -1), htmlize(aParamQP[i].zValue, -1));
+    const char *zName = aParamQP[i].zName;
+    if( !showAll ){
+      if( fossil_stricmp("HTTP_COOKIE",zName)==0 ) continue;
+      if( fossil_strnicmp("fossil-",zName,7)==0 ) continue;
     }
+    cgi_printf("%h = %h  <br />\n", zName, aParamQP[i].zValue);
   }
 }
 
@@ -932,7 +929,7 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static void malformed_request(void){
+static NORETURN void malformed_request(void){
   cgi_set_status(501, "Not Implemented");
   cgi_printf(
     "<html><body>Unrecognized HTTP Request</body></html>\n"
@@ -944,7 +941,7 @@ static void malformed_request(void){
 /*
 ** Panic and die while processing a webpage.
 */
-void cgi_panic(const char *zFormat, ...){
+NORETURN void cgi_panic(const char *zFormat, ...){
   va_list ap;
   cgi_reset_content();
   cgi_set_status(500, "Internal Server Error");
@@ -1167,6 +1164,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     delay.tv_sec = 60;
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
+    assert( listener>=0 );
     FD_SET( listener, &readfds);
     select( listener+1, &readfds, 0, 0, &delay);
     if( FD_ISSET(listener, &readfds) ){
