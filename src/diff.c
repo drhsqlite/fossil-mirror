@@ -684,12 +684,12 @@ int html_sbsdiff(
       }
 
       copylimline(linebuf, &c.aFrom[iFrom+j], collim);
-      @ <td class="lineno">%d(iFrom+j+1)</td><td>%s(linebuf)</td>
+      @ <td class="lineno">%d(iFrom+j+1)</td><td>%h(linebuf)</td>
 
       @ <td> </td>
 
       copylimline(linebuf, &c.aTo[iTo+j], collim);
-      @ <td class="lineno">%d(iTo+j+1)</td><td>%s(linebuf)</td>
+      @ <td class="lineno">%d(iTo+j+1)</td><td>%h(linebuf)</td>
 
       @ </tr>
     }
@@ -708,9 +708,9 @@ int html_sbsdiff(
         if( j<c.aEdit[i+1] ){
           copylimline(linebuf, &c.aFrom[iFrom+j], collim);
           @ <td class="changed lineno">%d(iFrom+j+1)</td>
-          @ <td class="changed">%s(linebuf)</td>
+          @ <td class="changed">%h(linebuf)</td>
         }else{
-           @ <td colspan="2"/>
+          @ <td colspan="2"/>
         }
 
         @ <td class="changed">|</td>
@@ -718,7 +718,7 @@ int html_sbsdiff(
         if( j<c.aEdit[i+2] ){
           copylimline(linebuf, &c.aTo[iTo+j], collim);
           @ <td class="changed lineno">%d(iTo+j+1)</td>
-          @ <td class="changed">%s(linebuf)</td>
+          @ <td class="changed">%h(linebuf)</td>
         }else{
           @ <td colspan="2"/>
         }
@@ -736,7 +736,7 @@ int html_sbsdiff(
 
         copylimline(linebuf, &c.aFrom[iFrom+j], collim);
         @ <td class="removed lineno">%d(iFrom+j+1)</td>
-        @ <td class="removed">%s(linebuf)</td>
+        @ <td class="removed">%h(linebuf)</td>
 
         @ <td>&lt;</td>
 
@@ -756,7 +756,7 @@ int html_sbsdiff(
 
         copylimline(linebuf, &c.aTo[iTo+j], collim);
         @ <td class="added lineno">%d(iTo+j+1)</td>
-        @ <td class="added">%s(linebuf)</td>
+        @ <td class="added">%h(linebuf)</td>
 
         @ </tr>
       }

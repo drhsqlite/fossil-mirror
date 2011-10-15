@@ -1033,6 +1033,7 @@ void object_description(
 void diff_page(void){
   int v1, v2;
   int isPatch;
+  int sideBySide;
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
@@ -1042,6 +1043,7 @@ void diff_page(void){
   v1 = name_to_rid_www("v1");
   v2 = name_to_rid_www("v2");
   if( v1==0 || v2==0 ) fossil_redirect_home();
+  sideBySide = atoi(PD("sbs","1"));
   zV1 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v1);
   zV2 = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", v2);
   isPatch = P("patch")!=0;
@@ -1052,11 +1054,13 @@ void diff_page(void){
     blob_zero(&diff);
     pOut = &diff;
   }
-  content_get(v1, &c1);
-  content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, 4, 1);
-  blob_reset(&c1);
-  blob_reset(&c2);
+  if( !sideBySide ){
+    content_get(v1, &c1);
+    content_get(v2, &c2);
+    text_diff(&c1, &c2, pOut, 4, 1);
+    blob_reset(&c1);
+    blob_reset(&c2);
+  }
   if( !isPatch ){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
@@ -1067,9 +1071,17 @@ void diff_page(void){
     @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
     object_description(v2, 0, 0);
     @ <hr />
-    @ <blockquote><pre>
-    @ %h(blob_str(&diff))
-    @ </pre></blockquote>
+    if( sideBySide ){
+      @ <table class="sbsdiff">
+      @ <tr><th colspan="2" class="diffhdr">Old (%S(zV1))</th><th/>
+      @ <th colspan="2" class="diffhdr">New (%S(zV2))</th></tr>
+      generate_sbsdiff(zV1, zV2);
+      @ </table>
+    }else{
+      @ <blockquote><pre>
+      @ %h(blob_str(&diff))
+      @ </pre></blockquote>
+    }
     blob_reset(&diff);
     style_footer();
   }
