@@ -364,7 +364,7 @@ void cgi_reply(void){
 **
 ** The URL must be relative to the base of the fossil server.
 */
-void cgi_redirect(const char *zURL){
+NORETURN void cgi_redirect(const char *zURL){
   char *zLocation;
   CGIDEBUG(("redirect to %s\n", zURL));
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
@@ -383,7 +383,7 @@ void cgi_redirect(const char *zURL){
   cgi_reply();
   fossil_exit(0);
 }
-void cgi_redirectf(const char *zFormat, ...){
+NORETURN void cgi_redirectf(const char *zFormat, ...){
   va_list ap;
   va_start(ap, zFormat);
   cgi_redirect(vmprintf(zFormat, ap));
@@ -929,7 +929,7 @@ void cgi_vprintf(const char *zFormat, va_list ap){
 /*
 ** Send a reply indicating that the HTTP request was malformed
 */
-static void malformed_request(void){
+static NORETURN void malformed_request(void){
   cgi_set_status(501, "Not Implemented");
   cgi_printf(
     "<html><body>Unrecognized HTTP Request</body></html>\n"
@@ -941,7 +941,7 @@ static void malformed_request(void){
 /*
 ** Panic and die while processing a webpage.
 */
-void cgi_panic(const char *zFormat, ...){
+NORETURN void cgi_panic(const char *zFormat, ...){
   va_list ap;
   cgi_reset_content();
   cgi_set_status(500, "Internal Server Error");

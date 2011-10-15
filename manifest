@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sand\sthe\sSQL\scommand-line\sshell\sto\sthe\slatest\ncode\sfrom\sthe\sSQLite\strunk:\sversion\s3.7.9\salpha.\s\sThis\sfixes\ssome\swarnings\nthat\sstarted\sappearing\safter\supgrading\sto\sgcc\s4.6.1.
-D 2011-10-15T10:40:43.221
+C Mark\sfunctions\sthat\snever\sreturn\s(ex:\sfossil_panic())\sas\ssuch\sso\sthat\nstatic\sanalyzers\scan\sdo\sa\sbetter\sjob\sof\spruning\spaths.
+D 2011-10-15T12:16:04.014
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,13 +54,13 @@ F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c ddc04ceef81e1d0ebbeae7aa027fa56a810d3316
+F src/cgi.c c3205384cf2361d3b5e167ef28332cacc3243178
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
-F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
+F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
 F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
@@ -86,7 +86,7 @@ F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 45986faf2c37ad3ccf58bfc13fef2059139209a9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0849ed1d4f92ea5eb032399091d426b798ea3b9a
-F src/main.c 08d5ebebb28b68933a5a8671cbb3d19ff40e6f10
+F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9929bab702f99839ee3578fe24b6f57ddb01b2a6
-R 16271e3674ec0f1a5d448b6ce97e23f4
+P 3dd0c1558303f2ba711c90637f1efdae478f51e9
+R 42ffa569ae5ed9b635c1d388fe12c79e
 U drh
-Z 2ce5e5505aea7d4170ef0ddca4a59948
+Z 5a6375b14192f1de7e6f61e84b4ec53d
