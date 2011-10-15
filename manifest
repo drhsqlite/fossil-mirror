@@ -1,5 +1,5 @@
-C Fix\sclang\sstatic\sanalyzer\swarnings\sabout\sderef\snull\spointers\sand\sundefined\nvalues.\s\sThere\sare\sstill\slots\sof\sdead\scode\swarnings,\sbut\sthose\sare\sharmless.
-D 2011-10-15T12:30:11.407
+C Update\sto\sthe\sFossil-v-Git\smatrix.
+D 2011-10-15T17:18:42.950
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -284,7 +284,7 @@ F www/faq.tcl d8f6f65fdd348b664496f5edd956545b71ff0e6a
 F www/faq.wiki f4c4247ef0889e554685f27177e6123fcc7aaeb4
 F www/fileformat.wiki dc9aca3a4a3b5b6e11f9e3125992075ff015decf
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
-F www/fossil-v-git.wiki 0948dc9d9832dd49404fc697e611f2e48e47db86
+F www/fossil-v-git.wiki 8caffe08ca790491bac1a88e10e7fbcb386174be
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 86d2b4efc8367e5300baa613ef13d092cc48927b
-R 6926719eb141bdd89a1318af5b2c6175
+P 630691456be672299dc569de4a898d6dc17da39a
+R f8a65b33c68365fd80ebd1ad01324159
 U drh
-Z 4f106b37edc5ea7c85847530009e2b99
+Z 386c2fa31905e7191e1360595db82dbf
