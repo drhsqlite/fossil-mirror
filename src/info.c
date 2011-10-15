@@ -299,7 +299,11 @@ static void generate_sbsdiff(const char *zFrom, const char *zTo){
   }else{
     blob_zero(&to);
   }
+  @ <table class="sbsdiff">
+  @ <tr><th colspan="2" class="diffhdr">Old (%S(zFrom))</th><th/>
+  @ <th colspan="2" class="diffhdr">New (%S(zTo))</th></tr>
   html_sbsdiff(&from, &to, 5, 1);
+  @ </table>
   blob_reset(&from);
   blob_reset(&to);
 }
@@ -359,11 +363,7 @@ static void append_file_change_line(
     }
     if( showDiff ){
       if( sideBySide ){
-         @ <table class="sbsdiff">
-         @ <tr><th colspan="2" class="diffhdr">Old (%S(zOld))</th><th/>
-         @ <th colspan="2" class="diffhdr">New (%S(zNew))</th></tr>
          generate_sbsdiff(zOld, zNew);
-         @ </table>
       }else{
         @ <blockquote><pre>
         append_diff(zOld, zNew);
@@ -1024,11 +1024,11 @@ void object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID&patch
+** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN
 **
-** Two arguments, v1 and v2, identify the files to be diffed.  Show the 
-** difference between the two artifacts.  Generate plaintext if "patch"
-** is present.
+** Two arguments, v1 and v2, identify the files to be diffed.  Show the
+** difference between the two artifacts.  Show diff side by side unless sbs
+** is 0.  Generate plaintext if "patch" is present.
 */
 void diff_page(void){
   int v1, v2;
@@ -1072,11 +1072,7 @@ void diff_page(void){
     object_description(v2, 0, 0);
     @ <hr />
     if( sideBySide ){
-      @ <table class="sbsdiff">
-      @ <tr><th colspan="2" class="diffhdr">Old (%S(zV1))</th><th/>
-      @ <th colspan="2" class="diffhdr">New (%S(zV2))</th></tr>
       generate_sbsdiff(zV1, zV2);
-      @ </table>
     }else{
       @ <blockquote><pre>
       @ %h(blob_str(&diff))

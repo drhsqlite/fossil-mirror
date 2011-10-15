@@ -651,6 +651,7 @@ int html_sbsdiff(
   if( !linebuf ){
     free(c.aFrom);
     free(c.aTo);
+    free(c.aEdit);
     return 0;
   }
 
