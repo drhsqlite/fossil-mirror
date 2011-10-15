@@ -750,6 +750,15 @@ void vdiff_page(void){
   if( pTo==0 ) return;
   showDetail = atoi(PD("detail","0"));
   sideBySide = atoi(PD("sbs","1"));
+  if( !sideBySide ){
+    style_submenu_element("2-Pane Diff", "TPD",
+                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
+                          g.zTop, P("from"), P("to"), showDetail);
+  }else{
+    style_submenu_element("1-Pane Diff", "OPD",
+                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=0",
+                          g.zTop, P("from"), P("to"), showDetail);
+  }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -1066,13 +1075,11 @@ void diff_page(void){
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                           g.zTop, P("v1"), P("v2"));
     if( !sideBySide ){
-      style_submenu_element("2 Pane Diff", "TPD",
-                            "%s/fdiff?v1=%T&v2=%T&sbs=1", g.zTop,
-                            P("v1"), P("v2"));
+      style_submenu_element("2-Pane Diff", "TPD", "%s/fdiff?v1=%T&v2=%T&sbs=1",
+                            g.zTop, P("v1"), P("v2"));
     }else{
-      style_submenu_element("1 Pane Diff", "OPD",
-                            "%s/fdiff?v1=%T&v2=%T&sbs=0", g.zTop,
-                            P("v1"), P("v2"));
+      style_submenu_element("1-Pane Diff", "OPD", "%s/fdiff?v1=%T&v2=%T&sbs=0",
+                            g.zTop, P("v1"), P("v2"));
     }
 
     @ <h2>Differences From

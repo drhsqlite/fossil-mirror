@@ -1,5 +1,5 @@
-C Add\sbutton\sto\stoggle\ssbsdiff\sfor\s/fdiff\sviews.
-D 2011-10-15T18:05:35.381
+C Add\sbutton\sto\stoggle\ssbsdiff\sfor\s/vdiff\sviews.\sRenamed\sthe\sbutton\sin\s/fdiff.
+D 2011-10-15T18:45:22.809
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c f501a2d65e500bea948a8198b45b876947bfa079
+F src/info.c 32240cad7f3ad9ac6bc0cf6be1631ce8cfa07e3d
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0849ed1d4f92ea5eb032399091d426b798ea3b9a
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 15de70c21ffdf8e3e1becf86ed43aa3a7efadfee
-R 7bc1718ca582f4ac07a7f58d78fa848c
+P d0988fb5bb0cfbee48f5ac4e95b68049b3a240c8
+R 02a7f8b9a4747dc6c4c757230a5f03a7
 U jan
-Z e43246f484b236ad0952c5dab1ba4216
+Z f57fa0a13a91948b4636d958b9ac0f76
