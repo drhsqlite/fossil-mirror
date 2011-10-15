@@ -1065,6 +1065,16 @@ void diff_page(void){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                           g.zTop, P("v1"), P("v2"));
+    if( !sideBySide ){
+      style_submenu_element("2 Pane Diff", "TPD",
+                            "%s/fdiff?v1=%T&v2=%T&sbs=1", g.zTop,
+                            P("v1"), P("v2"));
+    }else{
+      style_submenu_element("1 Pane Diff", "OPD",
+                            "%s/fdiff?v1=%T&v2=%T&sbs=0", g.zTop,
+                            P("v1"), P("v2"));
+    }
+
     @ <h2>Differences From
     @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
     object_description(v1, 0, 0);
