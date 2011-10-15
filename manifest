@@ -1,5 +1,5 @@
-C Make\ssure\ssbsdiff\slines\sare\sescaped\sproperly.
-D 2011-10-15T12:22:31.802
+C Fix\sbug\swhich\sdisabled\spatch\sfile\sgeneration.
+D 2011-10-15T12:49:55.423
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c b5db1f250a91a2bff5c07b2ee74190960a09a052
+F src/info.c 3c43f6251f8563667cd30f7973628d7c8bdd5954
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c b03985a5e87c959f75e7e5f4dc4daeaaa5a469e2
 F src/main.c 08d5ebebb28b68933a5a8671cbb3d19ff40e6f10
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9b7955b5a43492c1b3479e6d4245e7fe09426819
-R d7119b1358555039fff3cfc84d589756
+P ff41d4be8a2a3c3b35e897029269cceb83346c50
+R 5e92c843c68e89cd8740794ce1fc1b31
 U jan
-Z ccb8452a4cd583384d983b86f9501e30
+Z 81f53f85fdb32013c7e6d8bec8f368e1

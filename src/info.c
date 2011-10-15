@@ -1054,7 +1054,7 @@ void diff_page(void){
     blob_zero(&diff);
     pOut = &diff;
   }
-  if( !sideBySide ){
+  if( !sideBySide || isPatch ){
     content_get(v1, &c1);
     content_get(v2, &c2);
     text_diff(&c1, &c2, pOut, 4, 1);
