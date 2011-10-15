@@ -599,12 +599,21 @@ static char *copylimline(char *out, DLine *dl, int lim){
 }
 
 /*
- * References in the fossil repository:
- * /vdiff?from=080d27a&to=4b0f813&detail=1
- * /vdiff?from=636804745b&to=c1d78e0556&detail=1
- * /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
- * /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
- */
+** Output table body of a side-by-side diff. Prior to the call, the caller
+** should have output:
+**   <table class="sbsdiff">
+**   <tr><th colspan="2" class="diffhdr">Old title</th><th/>
+**   <th colspan="2" class="diffhdr">New title</th></tr>
+**
+** And after the call, it should output:
+**   </table>
+**
+** Some good reference diffs in the fossil repository for testing:
+** /vdiff?from=080d27a&to=4b0f813&detail=1
+** /vdiff?from=636804745b&to=c1d78e0556&detail=1
+** /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
+** /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
+*/
 int html_sbsdiff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
@@ -627,6 +636,7 @@ int html_sbsdiff(
   if( c.aFrom==0 || c.aTo==0 ){
     free(c.aFrom);
     free(c.aTo);
+    /* Note: This would be generated within a table. */
     @ <p class="generalError" style="white-space: nowrap">cannot compute
     @ difference between binary files</p>
     return 0;
