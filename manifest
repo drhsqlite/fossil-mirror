@@ -1,5 +1,5 @@
-C A\svery\ssimple\sfix\sto\sthe\sannotate\smemory\sleak\sproblem.
-D 2011-10-15T10:17:03.340
+C Update\sthe\sbuilt-in\sSQLite\sand\sthe\sSQL\scommand-line\sshell\sto\sthe\slatest\ncode\sfrom\sthe\sSQLite\strunk:\sversion\s3.7.9\salpha.\s\sThis\sfixes\ssome\swarnings\nthat\sstarted\sappearing\safter\supgrading\sto\sgcc\s4.6.1.
+D 2011-10-15T10:40:43.221
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -110,12 +110,12 @@ F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
 F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
-F src/shell.c d9f687130e5a2166a70f35d1a64ce0506618fd58
+F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c 608446ef2391d9e4937e4d270e3576efc23e9615
-F src/sqlite3.h dbf2819263519cbfde83e7767442eca79f13a197
+F src/sqlite3.c 859bc9d7f6dcb4506a45253f8aaba87ff284c8ba
+F src/sqlite3.h 25001615af72a35a3096621859c42e01aa254362
 F src/stash.c 7b6b458d5d5c0fa8688a5d2851b04f5cab3b0180
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c 9ead87b25b1e2df0b40c57801bafedc320dc70cf
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fff43ebb5bc8baa7d8de7938a1c14cf2e7f97438
-R 83caa997a0ac6b497a9bf245293a8669
+P 9929bab702f99839ee3578fe24b6f57ddb01b2a6
+R 16271e3674ec0f1a5d448b6ce97e23f4
 U drh
-Z 3a37fae7497eff39c1892152e61a63d5
+Z 2ce5e5505aea7d4170ef0ddca4a59948
