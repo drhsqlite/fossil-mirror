@@ -840,10 +840,9 @@ static void annotate_file(
     "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
     "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event, plink"
+    "  FROM ancestor, mlink, event"
     " WHERE mlink.fnid=%d"
     "   AND mlink.mid=ancestor.rid"
-    "   AND plink.cid=ancestor.rid"
     "   AND event.objid=ancestor.rid"
     " ORDER BY ancestor.generation ASC"
     " LIMIT %d",
