@@ -816,7 +816,6 @@ static void annotate_file(
   Blob step = empty_blob;           /* Text of previous revision */
   int rid;             /* Artifact ID of the file being annotated */
   Stmt q;              /* Query returning all ancestor versions */
-  char *zPrevUuid = 0; /* Previous Uuid */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -864,27 +863,13 @@ static void annotate_file(
     if (p->firstLabel)
       p->firstLabel->prev = l;
     if( webLabel ){
-      char *htmlPrev = " ";
-      if( zPrevUuid ){
-        htmlPrev = mprintf(
-          "<a href='%s/annotate?checkin=%.15s&filename=%T'>p</a>",
-          g.zTop, zPrevUuid, zFilename);
-      }
       l->str = mprintf(
           "<a href='%s/info/%s' target='infowindow'>%.10s</a> "
-          "%s "
           "<a href='%s/fdiff?v1=%s&v2=%s' target='diffwindow'>d</a> "
           "%s %9.9s", 
           g.zTop, zUuid, zUuid,
-          htmlPrev,
           g.zTop, zUuidParentFile, zUuidFile,
           zDate, zUser);
-      if( zPrevUuid )
-      {
-        free(htmlPrev);
-        free(zPrevUuid);
-      }
-      zPrevUuid = fossil_strdup(zUuid);
     }else{
       l->str = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }

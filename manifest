@@ -1,5 +1,5 @@
-C The\splink\sis\snot\sneeded\sat\sall\sin\sthe\sannotate\squery
-D 2011-10-15T00:06:47.532
+C The\slink\s<strong>p</strong>\sin\sthe\sannotate\spage\swas\stotally\sbad\simplemented.\sAs\sI\sdon't\nsee\san\seasy\sway\sto\simplement\sit,\sI\stake\sit\sout.\sThere\sis\sonly\s<strong>d</strong>\sleft.
+D 2011-10-15T00:10:22.268
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c b2d12f4425834069b1c4134d551396669ec9d76c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 264cce36becf4274e6e431830197f247caec7072
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c 31291c8cb70d61a7c48246843a78c311a5466687
+F src/diff.c 8a1684fe4e5bf69231ca50813fafcc4f9577b5e9
 F src/diffcmd.c 3111a4c6e1b962e9c73816fcedee7b3f7d8536dc
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9e3b6ad052374381da5b656710701b824db0e861
-R 7e9925d2435ccf4607be73c6b56ebb81
+P 40cbb69c4f1f9de21056b82c91226d4e11f62d72
+R 42d1ef7c49f4f4aa99061a8614d1ab19
 U viriketo
-Z 44bde4b22a3106e8cc7ac05a1ae1dfd1
+Z 2bc1ea288f580ccaed53c1ece78e13ee
