@@ -1164,6 +1164,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     delay.tv_sec = 60;
     delay.tv_usec = 0;
     FD_ZERO(&readfds);
+    assert( listener>=0 );
     FD_SET( listener, &readfds);
     select( listener+1, &readfds, 0, 0, &delay);
     if( FD_ISSET(listener, &readfds) ){
