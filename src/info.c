@@ -398,7 +398,7 @@ void ci_page(void){
   int rid;
   int isLeaf;
   int showDiff;
-  int sideBySide=0;    /* Temporary default */
+  int sideBySide;
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -428,6 +428,7 @@ void ci_page(void){
      "   AND event.objid=%d",
      rid, rid
   );
+  sideBySide = atoi(PD("sbs","1"));
   if( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
@@ -549,8 +550,20 @@ void ci_page(void){
       showDiff = !showDiff;
       if( showDiff ){
         @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
+        @ &nbsp;&nbsp;
+        if( sideBySide ){
+          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+          @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        }else{
+          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+          @ [show&nbsp;2-pane&nbsp;diffs]</a>
+        }
       }else{
-        @ <a href="%s(g.zTop)/ci/%T(zName)">[show&nbsp;diffs]</a>
+        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+        @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        @ &nbsp;&nbsp;
+        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+        @ [show&nbsp;2-pane&nbsp;diffs]</a>
       }
     }else{
       if( showDiff ){
