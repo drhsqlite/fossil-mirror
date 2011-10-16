@@ -151,6 +151,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
 
 #undef SET
   }
+  free(zParent);
   db_finalize(&q);
   return v;
 }

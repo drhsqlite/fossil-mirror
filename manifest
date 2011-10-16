@@ -1,5 +1,5 @@
-C merged/resolved\strunk\s[ee723ed98ddb0a].
-D 2011-10-16T10:04:41.821
+C fixed\sa\smemleak\sof\sparent\sartifact\suuid.\slong\slive\svalgrind.
+D 2011-10-16T13:29:28.784
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 45986faf2c37ad3ccf58bfc13fef2059139209a9
 F src/json.c 434b327aac37fd5cc65597197928b6f241b71baa
-F src/json_artifact.c f2ce6932fa5640c590d746e979b5f1dc1c320d53
+F src/json_artifact.c 069efd41c8e8fe0cc0ea015c240631de73d3bdfb
 F src/json_branch.c 8a7648ba23ac32c54a9896415192f931f28f11a5
 F src/json_detail.h 53800e879fb2fc645a4354cd5fb03be25a3eabd8
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 398b53e0599281866b3ac8baf7be6b0ec70d3988 ee723ed98ddb0a712da0521b0a0df1b64ddbd741
-R d72c999c47f0c1460b97ce79c56a8cea
+P a40ac8fdc42a597dbf8a1d676836dacdaa0b51e9
+R 9a075db1bf748baed555b524ea1a437f
 U stephan
-Z e8ae6534bb6b9ad1682e399abad6f944
+Z a256bcc35f9ff9d63e638526d7ad0964
