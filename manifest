@@ -1,8 +1,5 @@
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-C Create\snew\sbranch\snamed\s"ashish-ipv6"
-D 2011-10-13T02:47:27.776
+C Add\sinitial\sIPv6\ssupport\scode
+D 2011-10-16T12:53:52.789
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -31,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 8920d8e6fefa9ee3e48392c4fd1cffb3cf2f8aeb
+F auto.def 37bfdfedd640b32d318ac32b012c6891da21c68c
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -57,7 +54,7 @@ F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c c1f0e1c1d34b88a86b102ae76faf3519d3c4d25b
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 77ff25246daad4f2a47d98926e23a4f1cf534c10
+F src/cgi.c 23fa22eea923050efc140e47de3c47c6475d8c2a
 F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -82,14 +79,14 @@ F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 95d6f825b8f3eea35b50d53fe7580fcc787d159a
-F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
+F src/http_socket.c a2c45f337046e928031d705ec4abf0f2bfdcd40f
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c c20f0b7dd464d6d7398d2bab7eafb4c42971b31a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c b03985a5e87c959f75e7e5f4dc4daeaaa5a469e2
-F src/main.c 08d5ebebb28b68933a5a8671cbb3d19ff40e6f10
+F src/login.c bfcc1fd1ac80ba69e3bf90b7726084d4d93d20d5
+F src/main.c 77c375634d4f0c29f654cf634d28fad55542e666
 F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -324,27 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a7ab3ccb09e2fd4882afa3764080111c5b3075a
-R 9a5cd74a3c46e1a05f40a0fc2a05ede2
-T *branch * ashish-ipv6
-T *sym-ashish-ipv6 *
-T -sym-trunk *
-U abbe
-Z 028d9336e75e8deb37d846dcd7cdb478
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.17 (FreeBSD)
-
-iQIcBAEBCgAGBQJOllFHAAoJEMdGz6nnT6Swj50P/iwRbwYlS8Uo0AqIRQPJZVSr
-3BtlecoEJoytXhan+iYX9BKpfObBNtjhoEsv87NPuodyrtww+fyX+sywD+lKlkxk
-6SvnDW2B1P0bZzpQagrO7LFD0f9brWeJN4jOrHDD3n5bmYbkhlBJvMaj/9tnHITU
-Zpc99Dg0mj1v0Pmfv5ZsN2FrbuwCaNzaOBe9t6b4ksUt8xtM3/sQFZRuQrukeQ7t
-CH5PI1LlKd0onB74fPxVxdvQ9N2lhylOIYahFi0NWikNGhnMUNP1RhGk919Fh/4s
-THaeOcePHMYC7GV88n6egaekCqRR0zc31hXaQb4G6vtGzD163XTOv1gB9nbgovpP
-EOVcM/qBkBmXDa65qehCLd1L/uapjxl0vQGbp1ltv9PEaTJTlOR4+iV3U4Ejhwhw
-fk2zCo1PdJFuy1LOPCyYsGFj+ZPmiPT1By0FgSkJL4uN9NxEHqadNR0QVGqE6iPg
-TFHnKrOV4UAENUxNWEHROWldUBH1Hcgwe/UZo40RsEMqEjowSF4Eodp6BIIIAEhU
-k+LnA85cMvfGwqlBddSHShK7wtL7kwS39+gFEPQ9uvARcRKUSzO3HKhjT0H+1MH3
-53aoW0R2AvNWDeS+OXzk0oiHQor0gNkrxlXVynHPkHr/u3j28kxwZhAYk2o+8xMH
-FXJWy7pEtHPO/io0/3/Q
-=DQyh
------END PGP SIGNATURE-----
+P 10e1071461651fe1dc5d25553f56440888ca8e55
+R ed3cd2319cee6733388e14b4c1e7dd8c
+U ashish
+Z cea8f1e1a18658df737f571ccd9e487e

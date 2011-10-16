@@ -100,6 +100,8 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  char *zRedirectBaseURL; /* Full text of the URL being served to be used in redirect */
+  char *zRoot;            /* Repository web root */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -901,16 +903,17 @@ void set_base_url(void){
   const char *zCur;
 
   if( g.zBaseURL!=0 ) return;
+  if( g.zRoot==0 ) g.zRoot="";
   zHost = PD("HTTP_HOST","");
   zMode = PD("HTTPS","off");
   zCur = PD("SCRIPT_NAME","/");
   i = strlen(zCur);
   while( i>0 && zCur[i-1]=='/' ) i--;
   if( fossil_stricmp(zMode,"on")==0 ){
-    g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
+    g.zBaseURL = mprintf("https://%s%s%.*s", zHost, g.zRoot, i, zCur);
     g.zTop = &g.zBaseURL[8+strlen(zHost)];
   }else{
-    g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
+    g.zBaseURL = mprintf("http://%s%s%.*s", zHost, g.zRoot, i, zCur);
     g.zTop = &g.zBaseURL[7+strlen(zHost)];
   }
 }
@@ -1442,14 +1445,18 @@ static int binaryOnPath(const char *zBinary){
 ** COMMAND: server
 ** COMMAND: ui
 **
-** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?
-**    Or: %fossil ui ?-P|--port TCPPORT? ?REPOSITORY?
+** Usage: %fossil server ?-P|--port TCPPORT? -?-R|--root ROOT? ?REPOSITORY?
+**    Or: %fossil ui ?-P|--port TCPPORT? -?-R|--root ROOT? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
 ** --port option.  The optional argument is the name of the repository.
 ** The repository argument may be omitted if the working directory is
 ** within an open checkout.
+**
+** If HTTP requests are being reverse proxied to the fossil server,
+** and in proxy server fossil is mapped at a virtual directory, then
+** virtual directory can be specified using optional -R or --root option.
 **
 ** The "ui" command automatically starts a web browser after initializing
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
@@ -1482,6 +1489,7 @@ void cmd_webserver(void){
 
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
+  g.zRoot = find_option("root", "R", 1);
   if( g.thTrace ){
     blob_zero(&g.thLog);
   }
@@ -1519,7 +1527,7 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+    zBrowserCmd = mprintf("%s http://localhost:%%d/%s &", zBrowser, (g.zRoot==0?"":g.zRoot));
   }
   db_close(1);
   if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){

@@ -599,7 +599,8 @@ void login_check_credentials(void){
   ** full access rights without having to log in.
   */
   zRemoteAddr = ipPrefix(zIpAddr = PD("REMOTE_ADDR","nil"));
-  if( fossil_strcmp(zIpAddr, "127.0.0.1")==0
+  if( ( fossil_strcmp(zIpAddr, "127.0.0.1")==0 ||
+        fossil_strcmp(zIpAddr, "::1")==0 )
    && g.useLocalauth
    && db_get_int("localauth",0)==0
    && P("HTTPS")==0
@@ -913,7 +914,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(g.zRoot)%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }

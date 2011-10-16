@@ -137,6 +137,52 @@ void socket_close(void){
 ** Return the number of errors.
 */
 int socket_open(void){
+  int error = 0;
+#ifdef HAVE_GETADDRINFO
+  struct addrinfo hints;
+  struct addrinfo* res;
+  struct addrinfo* i;
+  char ip[INET6_ADDRSTRLEN];
+  void* addr;
+
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_flags = AI_ADDRCONFIG;
+#ifdef WITH_IPV6
+  hints.ai_family = PF_UNSPEC;
+#else
+  hints.ai_family = PF_INET;
+#endif
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_protocol = IPPROTO_TCP;
+  if(getaddrinfo(g.urlName, NULL, &hints, &res)) {
+    socket_set_errmsg("can't resolve host name: %s", g.urlName);
+    return 1;
+  }
+  for(i = res; i; i = i->ai_next) {
+    iSocket = socket(i->ai_family, i->ai_socktype, i->ai_protocol);
+    if(iSocket < 0) {
+      continue;
+    }
+    if(i->ai_family == AF_INET) {
+      ((struct sockaddr_in*)i->ai_addr)->sin_port = htons(g.urlPort);
+    } else if(i->ai_family == AF_INET6) {
+      ((struct sockaddr_in6*)i->ai_addr)->sin6_port = htons(g.urlPort);
+    }
+    if(connect(iSocket, i->ai_addr, i->ai_addrlen) < 0) {
+      close(iSocket);
+      iSocket = -1;
+      continue;
+    }
+	if(!getnameinfo(i->ai_addr, i->ai_addrlen, ip, sizeof(ip),
+					NULL, 0, NI_NUMERICHOST))
+		g.zIpAddr = mprintf("%s", ip);
+  }
+  if(iSocket == -1) {
+    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
+    error = 1;
+  }
+  freeaddrinfo(res);
+#else
   static struct sockaddr_in addr;  /* The server address */
   static int addrIsInit = 0;       /* True once addr is initialized */
 
@@ -174,12 +220,14 @@ int socket_open(void){
   if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
     socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
     socket_close();
-    return 1;
+    error = 1;
   }
-#if !defined(_WIN32)
-  signal(SIGPIPE, SIG_IGN);
 #endif
-  return 0;
+#if !defined(_WIN32)
+  if(!error)
+    signal(SIGPIPE, SIG_IGN);
+#endif
+  return error;
 }
 
 /*

@@ -36,6 +36,7 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <netdb.h>             /* for NI_NUMERICHOST */
 #endif
 #ifdef __EMX__
   typedef int socklen_t;
@@ -994,8 +995,8 @@ static char *extract_token(char *zInput, char **zLeftOver){
 void cgi_handle_http_request(const char *zIpAddr){
   char *z, *zToken;
   int i;
-  struct sockaddr_in remoteName;
-  socklen_t size = sizeof(struct sockaddr_in);
+  struct sockaddr_storage remoteName;
+  socklen_t size = sizeof(remoteName);
   char zLine[2000];     /* A single line of input. */
 
   g.fullHttpReply = 1;
@@ -1021,16 +1022,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
-                                &size)>=0
-  ){
-    zIpAddr = inet_ntoa(remoteName.sin_addr);
-  }
-  if( zIpAddr ){   
-    cgi_setenv("REMOTE_ADDR", zIpAddr);
-    g.zIpAddr = mprintf("%s", zIpAddr);
-  }
  
   /* Get all the optional fields that follow the first line.
   */
@@ -1061,6 +1052,15 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
+    }else if( fossil_strcmp(zFieldName,"x-forwarded-for:")==0 ){
+      char* p = zVal;
+      /*
+      ** x-forwarded-for header is a list of comma-separated addresses, 
+      ** with leftmost address corresponding to the client
+      */
+      while(*p && *p != ',') p++;
+      *p = '\0';
+      zIpAddr = mprintf( "%s", zVal );
     }
 #if 0
     else if( fossil_strcmp(zFieldName,"referer:")==0 ){
@@ -1069,6 +1069,32 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
 #endif
+  }
+
+  if( zIpAddr==0 &&
+      getsockname(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
+                                &size)>=0
+  ){
+    sa_family_t family;
+    int v4mapped=0;
+    if( remoteName.ss_family == AF_INET6 && 
+        IN6_IS_ADDR_V4MAPPED(&(((struct sockaddr_in6*)&remoteName)->sin6_addr)) ){
+        v4mapped = 1;
+    }
+    if(!getnameinfo((struct sockaddr*)&remoteName, remoteName.ss_len, zLine, sizeof(zLine),
+                    NULL, 0, NI_NUMERICHOST)){
+      zIpAddr = zLine;
+    } else {
+      zIpAddr = NULL;
+    }
+    if(zIpAddr && v4mapped) {
+      /* ::ffff:172.16.0.2 */
+      zIpAddr += 7; 
+    }
+  }
+  if( zIpAddr ){
+    cgi_setenv("REMOTE_ADDR", zIpAddr);
+    g.zIpAddr = mprintf("%s", zIpAddr);
   }
 
   cgi_init();
@@ -1110,20 +1136,41 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
+#ifdef WITH_IPV6
+  struct sockaddr_in6 inaddr;   /* The socket address */
+#else
   struct sockaddr_in inaddr;   /* The socket address */
+#endif
   int opt = 1;                 /* setsockopt flag */
   int iPort = mnPort;
 
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
+#ifdef WITH_IPV6
+    inaddr.sin6_family = AF_INET6;
+#else
     inaddr.sin_family = AF_INET;
+#endif
     if( flags & HTTP_SERVER_LOCALHOST ){
+#ifdef WITH_IPV6
+      memcpy(&inaddr.sin6_addr, &in6addr_loopback, sizeof(inaddr.sin6_addr));
+#else
       inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+#endif
     }else{
+#ifdef WITH_IPV6
+      memcpy(&inaddr.sin6_addr, &in6addr_any, sizeof(inaddr.sin6_addr));
+#else
       inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+#endif
     }
+#ifdef WITH_IPV6
+    inaddr.sin6_port = htons(iPort);
+    listener = socket(AF_INET6, SOCK_STREAM, 0);
+#else
     inaddr.sin_port = htons(iPort);
     listener = socket(AF_INET, SOCK_STREAM, 0);
+#endif
     if( listener<0 ){
       iPort++;
       continue;
@@ -1131,6 +1178,11 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
     setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+
+#ifdef WITH_IPV6
+    opt=0;
+    setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
+#endif
 
     if( bind(listener, (struct sockaddr*)&inaddr, sizeof(inaddr))<0 ){
       close(listener);
