@@ -568,8 +568,20 @@ void ci_page(void){
     }else{
       if( showDiff ){
         @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
+        @ &nbsp;&nbsp;
+        if( sideBySide ){
+          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
+          @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        }else{
+          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
+          @ [show&nbsp;2-pane&nbsp;diffs]</a>
+        }
       }else{
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[show&nbsp;diffs]</a>
+        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
+        @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        @ &nbsp;&nbsp;
+        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
+        @ [show&nbsp;2-pane&nbsp;diffs]</a>
       }
     }
     @ &nbsp;&nbsp;
