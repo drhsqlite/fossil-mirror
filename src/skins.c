@@ -1059,7 +1059,17 @@ static const char zBuiltinSkin4[] =
 @
 @ table.sbsdiff tr td.meta {
 @   background-color: rgb(170, 160, 255);
+@   padding-top: 0.25em;
+@   padding-bottom: 0.25em;
 @   text-align: center;
+@   -moz-border-radius: 5px;
+@   -moz-border-radius: 5px;
+@   -webkit-border-radius: 5px;
+@   -webkit-border-radius: 5px;
+@   -border-radius: 5px;
+@   -border-radius: 5px;
+@   border-radius: 5px;
+@   border-radius: 5px;
 @ }
 @
 @ table.sbsdiff tr td.added {
