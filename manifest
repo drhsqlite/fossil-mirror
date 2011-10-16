@@ -1,5 +1,5 @@
-C Show\stag\schanges\son\sthe\stimeline.\s\sA\s"fossil\srebuild"\sis\srequired\sto\stake\nadvantage\sof\sthis\snew\sfeature.\s\sAlso\sput\sa\s&amp;bull;\scharacter\nin\sfront\sof\snon-checkin\stimeline\sentries\sto\smake\sthem\sstand\sout\smore.
-D 2011-10-16T23:00:29.127
+C Fix\sa\stypo\sin\sthe\stimeline\sEVENT\stable\sentries\sgenerated\sby\s"fossil\srebuild"\nin\sthe\sprevious\scheck-in.
+D 2011-10-16T23:10:14.565
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,7 +91,7 @@ F src/main.mk 5b8a5a6da4b805333c7dc74e2ba0af0538156da4
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 76cca78a37c4b528861e1d32f7c31ef6067ea2b1
-F src/manifest.c ce363f6eb4ebe220eb22c01962c9d44dedbe4f3a
+F src/manifest.c e85a900e34bd526c9c96885665e5974e334b350a
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
 F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d8bbe4add6af4799aca98d0be1bf118ac8bf2f64
-R d25bf22bc3bee353c511bce3139d14b8
+P 87540ed6e60b7bcadd459e32643656c8d8bdecc9
+R 1f0321719b201a5665a190c0f5d09426
 U drh
-Z 0847f77b888f938dc0df8e3dc76caaf2
+Z db9cfa61d23ec7cabcdb3364ff16b96d

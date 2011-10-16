@@ -1833,9 +1833,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       zUuid = p->aTag[i].zUuid;
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
         if( i>0 ) blob_append(&comment, " ", 1);
-        blob_appendf(&comment, "Tag chagnes on "
-           "<a href=\"%s/timeline?dp=%S&n=4\">&#91;%S&#93;</a>:",
-           g.zTop, zUuid, zUuid);
+        blob_appendf(&comment, "Tag changes on [/timeline?dp=%S&n=4 | %S]:",
+           zUuid, zUuid);
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
