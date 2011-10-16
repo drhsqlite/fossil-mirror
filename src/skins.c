@@ -158,6 +158,7 @@ static const char zBuiltinSkin1[] =
 @
 @ /* Side-by-side diff */
 @ table.sbsdiff {
+@   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
 @   font-size: 10pt;
 @   border-collapse:collapse;
@@ -405,6 +406,7 @@ static const char zBuiltinSkin2[] =
 @
 @ /* Side-by-side diff */
 @ table.sbsdiff {
+@   background-color: #ffffc5;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
 @   font-size: 10pt;
 @   border-collapse:collapse;
@@ -682,6 +684,7 @@ static const char zBuiltinSkin3[] =
 @
 @ /* Side-by-side diff */
 @ table.sbsdiff {
+@   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
 @   font-size: 10pt;
 @   border-collapse:collapse;

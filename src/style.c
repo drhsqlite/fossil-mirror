@@ -401,6 +401,7 @@ const char zDefaultCSS[] =
 @
 @ /* Side-by-side diff */
 @ table.sbsdiff {
+@   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
 @   font-size: 10pt;
 @   border-collapse:collapse;
