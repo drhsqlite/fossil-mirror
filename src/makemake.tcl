@@ -226,8 +226,6 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 $(SRCDIR)/../manifest:	
 	# noop
 
-$(OBJDIR)/cson_amalgamation.o: CPPFLAGS+="-DCSON_FOSSIL_MODE"
-
 clean:	
 	rm -rf $(OBJDIR)/* $(APPNAME)
 

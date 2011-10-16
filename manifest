@@ -1,5 +1,5 @@
-C pulled\sin\slatest\scson\sfor\scson_object_merge().
-D 2011-10-16T13:29:46.711
+C Removed\sa\sGNU-make-only\sconstruct\swhich\sbroke\sJan's\sbuild.
+D 2011-10-16T14:33:11.621
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -110,10 +110,10 @@ F src/json_wiki.c 2c9c2ee2cbacd84887dba38e9312977337a0a01c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fff4232a14bf5be8d3d527ebf3f7bfccc8608498
 F src/main.c 055be59021793456ae123658ef4bc4f4c0367045
-F src/main.mk 3847867688a3c17adeeccea11103c298aefe47ce
+F src/main.mk 34365b26212765f56467d0376371762d20e13916
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 6c449f88be7388c8ca3e09f372aeaa5f64531df9
+F src/makemake.tcl a1503cd253c94abd0eae1984e89eec8257b4a8d0
 F src/manifest.c 0c2fbde0455f5bdf35295dafbbbf90d974ab843c
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 93c87b235ca65ee302d3add92ab37c0983dc592e
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3db8bfc5bfa8cf9e9cf66c0ccbc7541a365b2da0
-R 68e8088c93f79e716d375bd1fba356cd
+P d3ad893c5b8134ee503611dbdd7e35a9d845d22d
+R d3961febf4c5c7c9367079d9da05bac0
 U stephan
-Z 5b5474e2d2d3a52ba1f61fdd097a7116
+Z 6016e6a13a8f285882488cc2523a1b48
