@@ -1,5 +1,5 @@
-C Vary\sthe\snumber\sof\scolumns\sof\sdisplayed\sfiles\sin\sthe\sFile\sList\sdepending\non\sthe\slength\sof\sthe\slongest\sfilename\sin\sthe\slist.
-D 2011-10-15T17:36:04.496
+C Fix\snew\sand\sharmless\scompiler\swarnings\sthat\sappeared\swith\sthe\supgrade\nto\sGCC\s4.6.1.
+D 2011-10-16T17:32:27.277
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,8 +54,8 @@ F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c dacdc3e129b4b1a96d808f37afc95141bd126195
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c 8d47b4ec4f9946882a9ad046fea3ffed21b5b3a7
-F src/checkin.c 70107274aea6f04d6c4717c051f133e18860004e
+F src/cgi.c fd196be246b62d756c1f381b42529b5a41c3fb05
+F src/checkin.c 61235ea46fa491e7e6f86f3b2ae9b9665563b3f0
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
@@ -81,7 +81,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 5d9dca28f0f520165723423ce34794fc3c4f43b6
 F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
-F src/http_transport.c 7dbd82a0defe5342db1b703e75b3f657342c26c8
+F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 45986faf2c37ad3ccf58bfc13fef2059139209a9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -104,7 +104,7 @@ F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
 F src/rebuild.c d31ea942eb7bb7ab78e8d1a635fa6a68ae97e065
-F src/report.c 271567983f175747b1e276acb1dfeb5e367786b4
+F src/report.c 7f83411a4834895a14dfc9253442f7133f5af084
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c d72b7cf5aa0630c481b376f895b4965911a96287
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
@@ -112,7 +112,7 @@ F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c 0acb48ea3e0f17c80dc1e723c3ac688f86f18bc4
+F src/skins.c db9d8ab96a874c18a1f1959e654b7e25dd56abac
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 859bc9d7f6dcb4506a45253f8aaba87ff284c8ba
 F src/sqlite3.h 25001615af72a35a3096621859c42e01aa254362
@@ -127,7 +127,7 @@ F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
 F src/timeline.c b4e3bb97e661b25219d1196439558913e8e48d12
-F src/tkt.c 54c426b8c38b943fbb243d47dcff8d9d4852e40c
+F src/tkt.c 191624cc3930500fd2f81194e641b5f4ec5327b6
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c 9912a0e3e56948e4ea1bcad72fe57282d7a0be70
@@ -137,9 +137,9 @@ F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
 F src/wiki.c 1ce70fef281c8d1c18f6688514efee943745cd0e
-F src/wikiformat.c 87178f57f11c76b278f6d8468fece80204ca13d1
+F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c 38545f825e7a5c07e09123f9aa2d09cf0caa91f6
+F src/xfer.c 4631dc5d0c01f67b512675d4137bbd8e0af30401
 F src/zip.c 302348837b6367444e33b44ef2a9b6a043b9480d
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a52287876c414dedf9e35e8af47b77dd6d461a89
-R 4ec6dbb635020e06498feca639d7c147
+P ee723ed98ddb0a712da0521b0a0df1b64ddbd741
+R 8555ed8d7dcb798ee9986990a06579ce
 U drh
-Z 7476771e5304b8c90a161e3f69de103d
+Z c1874b0a458de34fdd02b8b7ece30f91

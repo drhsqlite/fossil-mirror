@@ -267,10 +267,8 @@ void transport_send(Blob *toSend){
   int n = blob_size(toSend);
   transport.nSent += n;
   if( g.urlIsSsh ){
-    int sent;
-    sent = fwrite(z, 1, n, sshOut);
+    fwrite(z, 1, n, sshOut);
     fflush(sshOut);
-    /* printf("sent %d of %d bytes\n", sent, n); fflush(stdout); */
   }else if( g.urlIsHttps ){
     #ifdef FOSSIL_ENABLE_SSL
     int sent;

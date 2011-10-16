@@ -172,7 +172,6 @@ int ticket_insert(const Manifest *p, int createFlag, int rid){
   Blob sql;
   Stmt q;
   int i;
-  const char *zSep;
   int rc = 0;
 
   getAllTicketFields();
@@ -183,7 +182,6 @@ int ticket_insert(const Manifest *p, int createFlag, int rid){
   }
   blob_zero(&sql);
   blob_appendf(&sql, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
-  zSep = "SET";
   for(i=0; i<p->nField; i++){
     const char *zName = p->aField[i].zName;
     if( zName[0]=='+' ){

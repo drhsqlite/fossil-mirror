@@ -284,14 +284,12 @@ void extra_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int cwdRelative = 0;
-  int outputManifest;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  outputManifest = db_get_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
