@@ -2240,8 +2240,8 @@ static cson_value * json_user_get(){
   if( g.isHTTP && (!pUser || !*pUser) ){
     pUser = json_getenv_cstr("name")
       /* ACHTUNG: fossil apparently internally sets name=user/get/XYZ
-         if we pass the name as part of the path, so we check the path
-         _before_ checking for name=XYZ.
+         if we pass the name as part of the path, which is why we check
+         with json_command_path() before trying to get("name").
       */;
   }
   if(!pUser || !*pUser){
