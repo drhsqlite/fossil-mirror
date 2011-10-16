@@ -21,7 +21,7 @@ used both Fossil and Git for other opinions.
 <tr><td>File versioning only</td>
     <td>Versioning, Tickets, Wiki, and Blog/News</td></tr>
 <tr><td>Sharding</td><td>Replicating</td></tr>
-<tr><td>Huge community</td><td>Road less traveled</td></tr>
+<tr><td>Developer branches</td><td>Feature branches</td></tr>
 <tr><td>Complex</td><td>Intuitive</td></tr>
 <tr><td>Separate web tools</td><td>Integrated Web interface</td></tr>
 <tr><td>Lots of little tools</td><td>Single executable</td></tr>
@@ -81,34 +81,45 @@ for multiple developers to work on a single branch and maintain
 linear development on that branch and avoid needless forking
 and merging.
 
-<h3>3.3 Community</h3>
+<h3>3.3 Branches</h3>
 
-Git has a huge user community.  If following the herd and being
-like everybody else is important to you, then you should choose Git.
+Git (and especially GitHub) encourages a workflow where each developer 
+has his or her own branch or branches.  Developers then send "pull requests"
+to have their changes be merged into "official" branches by integrators.
+For example, the Linux kernel team has a hierarchy of integrators with
+Linus Torvalds at the root.  Individual developers each have their own
+private branches of the source tree into which they make their own changes.
+They then encourage first-tier integrators to pull those changes.  The
+first-tier integrators merge together changes from multiple contributors
+then try to get second-tier integrators to pull their branches.  The
+changes merge up the the hierarchy until (hopefully) they are pulled into 
+"Linus's branch", at which time they become part of the "official" Linux.
 
-Fossil is clearly the "road less traveled":
+In Git, each branch is "owned" by the person who creates it and works
+on it.  The owner might pull changes from others, but the owner is always
+in control of the branch.  Branches are developer-centric.
 
-<blockquote>
-Two roads diverged in a wood, and I &#151;<br>
-I took the one less traveled by,<br>
-And that has made all the difference.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<small>- Robert Frost, <i>The Road Not Taken</i>, 1916</small>
-</blockquote>
-</i></blockquote>
+Fossil, on the other hand, encourages a workflow where branches are 
+associated with features or releases, not individual developers.
+All developers share all branches in common, and two
+or more developers can and often do intersperse commits onto the same branch.
+Branches do not belong to individuals.  All branches are read/write
+accessible to all developers at all times.  There is no need
+for integrators to merge together changes from various independent
+developers.  Instead, all of the developers work together cooperatively
+and the changes stay integrated naturally.
 
-Among the advantages of Git's huge user community are that new team
-members may already be familiar with Git's operation and hence can
-bypass the VCS learning curve.  Also, if you need an add-on tool or
-script of some kind, a Google search will likely turn up a suitable
-tool that you can just download and use.  A huge community also means
-that somebody else has likely already encountered and fixed the bugs
-so that Git will work for you and your project as advertised.
+So to a first approximation, branches in Git are developer-centric whereas
+branches in Fossil are feature-centric.
 
-Among the advantages of the "road less traveled" is that your particular
-project will be bigger percentage of the total user base, and is thus
-more likely to receive personal attention from the Fossil maintainers 
-if you do encounter problems.
+The Git approach scales much better for large projects like the Linux
+kernel with thousands of contributors who in many cases don't even know
+each others names.  The integrators serve a gatekeeper role to help keep
+undesirable code out of the official Linux source tree.  On the other hand, 
+not many projects are as big or as loosely organized as the Linux kernel.
+Most project, have a small team of developers who all know each other
+well and trust each other, and who enjoy working together collaboratively
+without the overhead and hierarchy of integrators.
 
 <h3>3.4 Complexity</h3>
 

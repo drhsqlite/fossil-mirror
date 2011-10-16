@@ -744,7 +744,7 @@ void db_open_config(int useAttach){
  */
 static int db_local_table_exists(const char *zTable){
   return db_exists("SELECT 1 FROM %s.sqlite_master"
-                   " WHERE name=='%s'",
+                   " WHERE name=='%s' /*scan*/",
                    db_name("localdb"), zTable);
 }
 
@@ -753,7 +753,7 @@ static int db_local_table_exists(const char *zTable){
 */
 static int db_local_column_exists(const char *zTable, const char *zColumn){
   return db_exists("SELECT 1 FROM %s.sqlite_master"
-                   " WHERE name=='%s' AND sql GLOB '* %s *'",
+                   " WHERE name=='%s' AND sql GLOB '* %s *' /*scan*/",
                    db_name("localdb"), zTable, zColumn);
 }
 

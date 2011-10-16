@@ -713,7 +713,6 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
 
   /* Clear out the from file */
   free(p->c.aFrom);    
-  blob_zero(pParent);
 
   /* Return no errors */
   return 0;
