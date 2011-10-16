@@ -553,17 +553,17 @@ void ci_page(void){
         @ &nbsp;&nbsp;
         if( sideBySide ){
           @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-          @ [show&nbsp;1-pane&nbsp;diffs]</a>
+          @ [unified&nbsp;diffs]</a>
         }else{
           @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-          @ [show&nbsp;2-pane&nbsp;diffs]</a>
+          @ [side-by-side&nbsp;diffs]</a>
         }
       }else{
         @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-        @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        @ [show&nbsp;unified&nbsp;diffs]</a>
         @ &nbsp;&nbsp;
         @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-        @ [show&nbsp;2-pane&nbsp;diffs]</a>
+        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
       }
     }else{
       if( showDiff ){
@@ -571,17 +571,17 @@ void ci_page(void){
         @ &nbsp;&nbsp;
         if( sideBySide ){
           @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
-          @ [show&nbsp;1-pane&nbsp;diffs]</a>
+          @ [unified&nbsp;diffs]</a>
         }else{
           @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
-          @ [show&nbsp;2-pane&nbsp;diffs]</a>
+          @ [side-by-side&nbsp;diffs]</a>
         }
       }else{
         @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
-        @ [show&nbsp;1-pane&nbsp;diffs]</a>
+        @ [show&nbsp;unified&nbsp;diffs]</a>
         @ &nbsp;&nbsp;
         @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
-        @ [show&nbsp;2-pane&nbsp;diffs]</a>
+        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
       }
     }
     @ &nbsp;&nbsp;
@@ -776,11 +776,11 @@ void vdiff_page(void){
   showDetail = atoi(PD("detail","0"));
   sideBySide = atoi(PD("sbs","1"));
   if( !sideBySide ){
-    style_submenu_element("2-Pane Diff", "TPD",
+    style_submenu_element("Side-by-side Diff", "sbsdiff",
                           "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
                           g.zTop, P("from"), P("to"), showDetail);
   }else{
-    style_submenu_element("1-Pane Diff", "OPD",
+    style_submenu_element("Unified Diff", "udiff",
                           "%s/vdiff?from=%T&to=%T&detail=%d&sbs=0",
                           g.zTop, P("from"), P("to"), showDetail);
   }
@@ -1100,10 +1100,12 @@ void diff_page(void){
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
                           g.zTop, P("v1"), P("v2"));
     if( !sideBySide ){
-      style_submenu_element("2-Pane Diff", "TPD", "%s/fdiff?v1=%T&v2=%T&sbs=1",
+      style_submenu_element("Side-by-side Diff", "sbsdiff",
+                            "%s/fdiff?v1=%T&v2=%T&sbs=1",
                             g.zTop, P("v1"), P("v2"));
     }else{
-      style_submenu_element("1-Pane Diff", "OPD", "%s/fdiff?v1=%T&v2=%T&sbs=0",
+      style_submenu_element("Unified Diff", "udiff",
+                            "%s/fdiff?v1=%T&v2=%T&sbs=0",
                             g.zTop, P("v1"), P("v2"));
     }
 
