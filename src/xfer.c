@@ -1200,7 +1200,6 @@ void page_xfer(void){
 **     r test-xfer out.txt
 */
 void cmd_test_xfer(void){
-  int notUsed;
   db_find_and_open_repository(0,0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
@@ -1209,7 +1208,7 @@ void cmd_test_xfer(void){
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;
   page_xfer();
-  fossil_print("%s\n", cgi_extract_content(&notUsed));
+  fossil_print("%s\n", cgi_extract_content());
 }
 
 /*
@@ -1240,7 +1239,6 @@ int client_sync(
   int nCardRcvd = 0;      /* Number of cards received */
   int nCycle = 0;         /* Number of round trips to the server */
   int size;               /* Size of a config value */
-  int nFileSend = 0;
   int origConfigRcvMask;  /* Original value of configRcvMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
@@ -1382,7 +1380,6 @@ int client_sync(
     free(zRandomness);
 
     /* Exchange messages with the server */
-    nFileSend = xfer.nFileSent + xfer.nDeltaSent;
     fossil_print(zValueFormat, "Sent:",
                  blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                  xfer.nFileSent, xfer.nDeltaSent);

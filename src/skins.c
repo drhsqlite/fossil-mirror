@@ -1303,6 +1303,9 @@ void setup_skin(void){
   }
 
   style_header("Skins");
+  if( zErr ){
+    @ <p><font color="red">%h(zErr)</font></p>
+  }
   @ <p>A "skin" is a combination of
   @ <a href="setup_editcss">CSS</a>, 
   @ <a href="setup_header">Header</a>,
