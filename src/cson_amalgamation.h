@@ -1403,6 +1403,12 @@ int cson_object_unset( cson_object * obj, char const * key );
 cson_value * cson_object_get( cson_object const * obj, char const * key );
 
 /**
+   Equivalent to cson_object_get() but takes a cson_string argument
+   instead of a C-style string.
+*/
+cson_value * cson_object_get_s( cson_object const * obj, cson_string const *key );
+
+/**
    Similar to cson_object_get(), but removes the value from the parent
    object's ownership. If no item is found then NULL is returned, else
    the object (now owned by the caller or possibly shared with other
@@ -1487,14 +1493,74 @@ cson_value * cson_object_take( cson_object * obj, char const * key );
     (separator='.') is equivalent to "a.b.c".
 
     @see cson_object_get_sub()
+    @see cson_object_get_sub2()
 */
 int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char const * path, char separator );
+
+/**
+   Similar to cson_object_fetch_sub(), but derives the path separator
+   character from the first byte of the path argument. e.g. the
+   following arg equivalent:
+
+   @code
+   cson_object_fetch_sub( obj, &tgt, "foo.bar.baz", '.' );
+   cson_object_fetch_sub2( obj, &tgt, ".foo.bar.baz" );
+   @endcode
+*/
+int cson_object_fetch_sub2( cson_object const * obj, cson_value ** tgt, char const * path );
 
 /**
    Convenience form of cson_object_fetch_sub() which returns NULL if the given
    item is not found.
 */
 cson_value * cson_object_get_sub( cson_object const * obj, char const * path, char sep );
+
+/**
+   Convenience form of cson_object_fetch_sub2() which returns NULL if the given
+   item is not found.
+*/
+cson_value * cson_object_get_sub2( cson_object const * obj, char const * path );
+
+/** @enum CSON_MERGE_FLAGS
+
+    Flags for cson_object_merge().
+*/
+enum CSON_MERGE_FLAGS {
+    CSON_MERGE_DEFAULT = 0,
+    CSON_MERGE_REPLACE = 0x01,
+    CSON_MERGE_NO_RECURSE = 0x02
+};
+
+/**
+   "Merges" the src object's properties into dest. Each property in
+   src is copied (using reference counting, not cloning) into dest. If
+   dest already has the given property then behaviour depends on the
+   flags argument:
+
+   If flag has the CSON_MERGE_REPLACE bit set then this function will
+   by default replace non-object properties with the src property. If
+   src and dest both have the property AND it is an Object then this
+   function operates recursively on those objects. If
+   CSON_MERGE_NO_RECURSE is set then objects are not recursed in this
+   manner, and will be completely replaced if CSON_MERGE_REPLACE is
+   set.
+
+   Array properties in dest are NOT recursed for merging - they are
+   either replaced or left as-is, depending on whether flags contains
+   he CSON_MERGE_REPLACE bit.
+
+   Returns 0 on success. The error conditions are:
+
+   - dest or src are NULL or (dest==src) returns cson_rc.ArgError.
+
+   - dest or src contain cyclic references - this will likely cause a
+   crash due to endless recursion.
+
+   Potential TODOs:
+
+   - Add a flag to copy clones, not the original values.
+*/
+int cson_object_merge( cson_object * dest, cson_object const * src, int flags );
 
 
 /**
@@ -1592,7 +1658,7 @@ cson_kvp * cson_object_iter_next( cson_object_iterator * iter );
    the key/value pair, and may be invalidated by any modifications
    to that object.
 */
-cson_string const * cson_kvp_key( cson_kvp const * kvp );
+cson_string * cson_kvp_key( cson_kvp const * kvp );
 
 /**
    Returns the value associated with the given key/value pair,

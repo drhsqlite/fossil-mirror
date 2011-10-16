@@ -1,5 +1,5 @@
-C fixed\sa\smemleak\sof\sparent\sartifact\suuid.\slong\slive\svalgrind.
-D 2011-10-16T13:29:28.784
+C pulled\sin\slatest\scson\sfor\scson_object_merge().
+D 2011-10-16T13:29:46.711
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -73,8 +73,8 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/cson_amalgamation.c 8ed3e05f5fc5323a27429e60d70fcce679d8012f
-F src/cson_amalgamation.h 79cc8944ecf8458a1835135d80492ab421d5d21c
+F src/cson_amalgamation.c 383215b4eccccdb4e2493c3e1b8be275c3033aaa
+F src/cson_amalgamation.h 582d6b9acc0f6f81538b48bb61e14c8d72078163
 F src/db.c e782a14dff289f4f327a0bbdb1c81237d414be29
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a40ac8fdc42a597dbf8a1d676836dacdaa0b51e9
-R 9a075db1bf748baed555b524ea1a437f
+P 3db8bfc5bfa8cf9e9cf66c0ccbc7541a365b2da0
+R 68e8088c93f79e716d375bd1fba356cd
 U stephan
-Z a256bcc35f9ff9d63e638526d7ad0964
+Z 5b5474e2d2d3a52ba1f61fdd097a7116

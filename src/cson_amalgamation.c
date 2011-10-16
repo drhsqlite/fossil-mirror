@@ -2411,7 +2411,7 @@ static void cson_kvp_clean( cson_kvp * kvp )
     }
 }
 
-cson_string const * cson_kvp_key( cson_kvp const * kvp )
+cson_string * cson_kvp_key( cson_kvp const * kvp )
 {
     return kvp ? cson_value_get_string(kvp->key) : NULL;
 }
@@ -3059,6 +3059,13 @@ cson_value * cson_object_get( cson_object const * obj, char const * key )
     cson_kvp * kvp = cson_object_search_impl( obj, key, NULL );
     return kvp ? kvp->value : NULL;
 }
+
+cson_value * cson_object_get_s( cson_object const * obj, cson_string const *key )
+{
+    cson_kvp * kvp = cson_object_search_impl( obj, cson_string_cstr(key), NULL );
+    return kvp ? kvp->value : NULL;
+}
+
 
 #if CSON_OBJECT_PROPS_SORT
 static void cson_object_sort_props( cson_object * obj )
@@ -4485,6 +4492,13 @@ static char cson_next_token( char const ** inp, char separator, char const ** en
     return (pos > *inp) ? 1 : 0;
 }
 
+int cson_object_fetch_sub2( cson_object const * obj, cson_value ** tgt, char const * path )
+{
+    if( ! obj || !path ) return cson_rc.ArgError;
+    else if( !*path || !*(1+path) ) return cson_rc.RangeError;
+    else return cson_object_fetch_sub(obj, tgt, path+1, *path);
+}
+
 int cson_object_fetch_sub( cson_object const * obj, cson_value ** tgt, char const * path, char sep )
 {
     if( ! obj || !path ) return cson_rc.ArgError;
@@ -4554,6 +4568,13 @@ cson_value * cson_object_get_sub( cson_object const * obj, char const * path, ch
 {
     cson_value * v = NULL;
     cson_object_fetch_sub( obj, &v, path, sep );
+    return v;
+}
+
+cson_value * cson_object_get_sub2( cson_object const * obj, char const * path )
+{
+    cson_value * v = NULL;
+    cson_object_fetch_sub2( obj, &v, path );
     return v;
 }
 
@@ -4890,6 +4911,45 @@ unsigned int cson_value_msize(cson_value const * v)
         }
         return rc;
     }
+}
+
+int cson_object_merge( cson_object * dest, cson_object const * src, int flags ){
+    cson_object_iterator iter = cson_object_iterator_empty;
+    int rc;
+    char const replace = (flags & CSON_MERGE_REPLACE);
+    char const recurse = !(flags & CSON_MERGE_NO_RECURSE);
+    cson_kvp const * kvp;
+    if((!dest || !src) || (dest==src)) return cson_rc.ArgError;
+    rc = cson_object_iter_init( src, &iter );
+    if(rc) return rc;
+    while( (kvp = cson_object_iter_next(&iter) ) )
+    {
+        cson_string * key = cson_kvp_key(kvp);
+        cson_value * val = cson_kvp_value(kvp);
+        cson_value * check = cson_object_get_s( dest, key );
+        if(!check){
+            cson_object_set_s( dest, key, val );
+            continue;
+        }
+        else if(!replace && !recurse) continue;
+        else if(replace && !recurse){
+            cson_object_set_s( dest, key, val );
+            continue;
+        }
+        else if( recurse ){
+            if( cson_value_is_object(check) &&
+                cson_value_is_object(val) ){
+                rc = cson_object_merge( cson_value_get_object(check),
+                                        cson_value_get_object(val),
+                                        flags );
+                if(rc) return rc;
+                else continue;
+            }
+            else continue;
+        }
+        else continue;
+    }
+    return 0;
 }
 
 #if defined(__cplusplus)
