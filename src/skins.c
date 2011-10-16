@@ -1023,45 +1023,58 @@ static const char zBuiltinSkin4[] =
 @ /* Side-by-side diff */
 @ table.sbsdiff {
 @   background-color: white;
-@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 9pt;
+@   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 8pt;
 @   border-collapse:collapse;
-@   white-space: pre;
 @   width: 98%;
 @   border: 1px #000 dashed;
+@   margin-left: auto;
+@   margin-right: auto;
 @ }
-@ 
+@
 @ table.sbsdiff th.diffhdr {
 @   border-bottom: dotted;
 @   border-width: 1px;
 @ }
-@ 
+@
 @ table.sbsdiff tr td {
-@   white-space: pre;
 @   padding-left: 3px;
 @   padding-right: 3px;
 @   margin: 0px;
+@   vertical-align: top;
+@   white-space: pre-wrap;
 @ }
-@ 
+@
 @ table.sbsdiff tr td.lineno {
 @   text-align: right;
+@   /* border-bottom: 1px solid rgb(220, 220, 220); */
 @ }
-@ 
+@
+@ table.sbsdiff tr td.srcline {
+@   max-width: 400px;
+@   /* Nota bene: May partially hide long lines witout whitespaces */
+@   overflow: hidden;
+@   /* border-bottom: 1px solid rgb(220, 220, 220); */
+@ }
+@
 @ table.sbsdiff tr td.meta {
 @   background-color: rgb(170, 160, 255);
 @   text-align: center;
 @ }
-@ 
+@
 @ table.sbsdiff tr td.added {
 @   background-color: rgb(180, 250, 180);
+@   /* border-bottom: 1px solid rgb(160, 230, 160); */
 @ }
-@ 
+@
 @ table.sbsdiff tr td.removed {
 @   background-color: rgb(250, 130, 130);
+@   /* border-bottom: 1px solid rgb(230, 110, 110); */
 @ }
 @
 @ table.sbsdiff tr td.changed {
 @   background-color: rgb(210, 210, 200);
+@   /* border-bottom: 1px solid rgb(190, 190, 180); */
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>

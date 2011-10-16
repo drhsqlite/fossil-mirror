@@ -1,5 +1,5 @@
-C Add\ssbsdiff\slink\sto\sthe\s/info\spage.
-D 2011-10-15T21:25:34.647
+C Updated\sstyles/skins.\sBuilt-in\sskin\s4\scan\snow\swrap\slines.
+D 2011-10-16T00:14:28.112
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c 6c6b5fa8704e8b9f31c62432ca71737d8585ba27
+F src/diff.c d070ddd384a327d763b99de4b5770373ac2484c3
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -112,13 +112,13 @@ F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c b1e5e0262f2ebcffbafe2afcdd09e358d2e8ea87
+F src/skins.c 1bd02a96fa59b7ac8264f5e02d01afa4949ac3c5
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 859bc9d7f6dcb4506a45253f8aaba87ff284c8ba
 F src/sqlite3.h 25001615af72a35a3096621859c42e01aa254362
 F src/stash.c 7b6b458d5d5c0fa8688a5d2851b04f5cab3b0180
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c 5398e9fa8ba711df7e82658b49cef24ebdc9631b
+F src/style.c 5accaa9107b4a945b3a265490188341095cfe973
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 3e0bdccc2132180aa0fa9bfaee80f20c2f561e64
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d1f63cd8233e23482b5352af149e6c80567bee09
-R 6e9247133dc6abc225e136e7316583a9
+P 286f09508ca49982691f4642e599b3f9e2f1a856
+R 2c6ca461a5476d8a1652ff1b466992c5
 U jan
-Z 1c04887ce664a1b63fc9bf4538dc31b5
+Z 978fde20f1b63a7b8f40d93f9a49ec44

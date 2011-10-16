@@ -685,12 +685,14 @@ int html_sbsdiff(
       }
 
       copylimline(linebuf, &c.aFrom[iFrom+j], collim);
-      @ <td class="lineno">%d(iFrom+j+1)</td><td>%h(linebuf)</td>
+      @ <td class="lineno">%d(iFrom+j+1)</td>
+      @ <td class="srcline">%h(linebuf)</td>
 
       @ <td> </td>
 
       copylimline(linebuf, &c.aTo[iTo+j], collim);
-      @ <td class="lineno">%d(iTo+j+1)</td><td>%h(linebuf)</td>
+      @ <td class="lineno">%d(iTo+j+1)</td>
+      @ <td class="srcline">%h(linebuf)</td>
 
       @ </tr>
     }
@@ -709,9 +711,9 @@ int html_sbsdiff(
         if( j<c.aEdit[i+1] ){
           copylimline(linebuf, &c.aFrom[iFrom+j], collim);
           @ <td class="changed lineno">%d(iFrom+j+1)</td>
-          @ <td class="changed">%h(linebuf)</td>
+          @ <td class="changed srcline">%h(linebuf)</td>
         }else{
-          @ <td colspan="2"/>
+          @ <td colspan="2" class="changedvoid"/>
         }
 
         @ <td class="changed">|</td>
@@ -719,9 +721,9 @@ int html_sbsdiff(
         if( j<c.aEdit[i+2] ){
           copylimline(linebuf, &c.aTo[iTo+j], collim);
           @ <td class="changed lineno">%d(iTo+j+1)</td>
-          @ <td class="changed">%h(linebuf)</td>
+          @ <td class="changed srcline">%h(linebuf)</td>
         }else{
-          @ <td colspan="2"/>
+          @ <td colspan="2" class="changedvoid"/>
         }
 
         @ </tr>
@@ -737,11 +739,11 @@ int html_sbsdiff(
 
         copylimline(linebuf, &c.aFrom[iFrom+j], collim);
         @ <td class="removed lineno">%d(iFrom+j+1)</td>
-        @ <td class="removed">%h(linebuf)</td>
+        @ <td class="removed srcline">%h(linebuf)</td>
 
         @ <td>&lt;</td>
 
-        @ <td colspan="2"/>
+        @ <td colspan="2" class="removedvoid"/>
 
         @ </tr>
       }
@@ -751,13 +753,13 @@ int html_sbsdiff(
       for( j=0; j<c.aEdit[i+2]; j++ ){
         int len;
         @ <tr>
-        @ <td colspan="2"/>
+        @ <td colspan="2" class="addedvoid"/>
 
         @ <td>&gt;</td>
 
         copylimline(linebuf, &c.aTo[iTo+j], collim);
         @ <td class="added lineno">%d(iTo+j+1)</td>
-        @ <td class="added">%h(linebuf)</td>
+        @ <td class="added srcline">%h(linebuf)</td>
 
         @ </tr>
       }
