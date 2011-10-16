@@ -2233,7 +2233,8 @@ static cson_value * json_user_get(){
   char const * pUser = NULL;
   Stmt q;
   if(!g.perm.Admin){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'a' privileges.");
     return NULL;
   }
   pUser = json_command_arg(g.json.dispatchDepth+1);

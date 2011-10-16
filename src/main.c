@@ -493,7 +493,7 @@ const char *fossil_nameofexe(void){
 /*
 ** Exit.  Take care to close the database first.
 */
-void fossil_exit(int rc){
+NORETURN void fossil_exit(int rc){
   db_close(1);
   exit(rc);
 }
@@ -502,7 +502,7 @@ void fossil_exit(int rc){
 ** Print an error message, rollback all databases, and quit.  These
 ** routines never return.
 */
-void fossil_panic(const char *zFormat, ...){
+NORETURN void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   int rc = 1;
@@ -529,7 +529,7 @@ void fossil_panic(const char *zFormat, ...){
   fossil_exit(rc);
 }
 
-void fossil_fatal(const char *zFormat, ...){
+NORETURN void fossil_fatal(const char *zFormat, ...){
   char *z;
   int rc = 1;
   va_list ap;
@@ -1035,7 +1035,7 @@ void set_base_url(void){
 /*
 ** Send an HTTP redirect back to the designated Index Page.
 */
-void fossil_redirect_home(void){
+NORETURN void fossil_redirect_home(void){
   cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
 }
 

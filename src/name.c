@@ -156,7 +156,7 @@ char *tag_to_uuid(const char *zTag, const char *zType){
        "   AND event.objid=tagxref.rid "
        "   AND blob.rid=event.objid "
        "   AND event.type GLOB '%q'"
-       " ORDER BY event.mtime DESC ",
+       " ORDER BY event.mtime DESC /*sort*/",
        zTag, zType
     );
   if( zUuid==0 ){
@@ -182,7 +182,7 @@ char *tag_to_uuid(const char *zTag, const char *zType){
           "   AND blob.rid=event.objid "
           "   AND event.mtime<=julianday(%Q %s)"
           "   AND event.type GLOB '%q'"
-          " ORDER BY event.mtime DESC ",
+          " ORDER BY event.mtime DESC /*sort*/ ",
           zTagBase, zDate, (useUtc ? "" : ",'utc'"), zType
         );
         break;

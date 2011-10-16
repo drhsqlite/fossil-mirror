@@ -93,7 +93,7 @@ char *login_cookie_name(void){
        "SELECT 'fossil-' || substr(value,1,16)"
        "  FROM config"
        " WHERE name IN ('project-code','login-group-code')"
-       " ORDER BY name;"
+       " ORDER BY name /*sort*/"
     );
   }
   return zCookieName;

@@ -136,4 +136,13 @@ typedef signed char i8;
 # define FOSSIL_PTR_TO_INT(X)  ((int)(X))
 #endif
 
+/*
+** A marker for functions that never return.
+*/
+#if defined(__GNUC__) || defined(__clang__)
+# define NORETURN __attribute__((__noreturn__))
+#else
+# define NORETURN
+#endif
+
 #endif /* _RC_COMPILE_ */
