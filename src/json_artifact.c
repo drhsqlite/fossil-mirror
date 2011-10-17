@@ -57,7 +57,7 @@ typedef struct ArtifactDispatchEntry {
 ** Returned value is NULL or an Object owned by the caller.
 */
 cson_value * json_artifact_for_ci( int rid, char showFiles ){
-  char const * zParent = NULL;
+  char * zParent = NULL;
   cson_value * v = NULL;
   Stmt q;
   static cson_value * eventTypeLabel = NULL;

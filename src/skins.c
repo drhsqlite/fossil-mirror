@@ -154,6 +154,51 @@ static const char zBuiltinSkin1[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: white;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 8pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   color: white;
+@   background-color: rgb(20, 20, 20);
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(230, 230, 230);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(200, 200, 200);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(220, 220, 220);
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
@@ -358,7 +403,50 @@ static const char zBuiltinSkin2[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
-@ ');
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: #ffffc5;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 8pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   background-color: #a09048;
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(210, 210, 100);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(190, 200, 110);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(200, 210, 120);
+@ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
@@ -592,6 +680,52 @@ static const char zBuiltinSkin3[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: white;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 6pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   color: white;
+@   background-color: black;
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: white;
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: white;
+@   text-decoration: line-through;
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: white;
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
@@ -887,6 +1021,73 @@ static const char zBuiltinSkin4[] =
 @ 
 @ textarea {
 @   font-size: 1em;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: white;
+@   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 6pt;
+@   border-collapse:collapse;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@   margin-left: auto;
+@   margin-right: auto;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@   vertical-align: top;
+@   white-space: pre-wrap;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@   /* border-bottom: 1px solid rgb(220, 220, 220); */
+@ }
+@
+@ table.sbsdiff tr td.srcline {
+@   /* max-width: 400px; */
+@   /* Note: May partially hide long lines without whitespaces */
+@   /* overflow: hidden; */
+@   /* border-bottom: 1px solid rgb(220, 220, 220); */
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   background-color: rgb(170, 160, 255);
+@   padding-top: 0.25em;
+@   padding-bottom: 0.25em;
+@   text-align: center;
+@   -moz-border-radius: 5px;
+@   -moz-border-radius: 5px;
+@   -webkit-border-radius: 5px;
+@   -webkit-border-radius: 5px;
+@   -border-radius: 5px;
+@   -border-radius: 5px;
+@   border-radius: 5px;
+@   border-radius: 5px;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(180, 250, 180);
+@   /* border-bottom: 1px solid rgb(160, 230, 160); */
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(250, 130, 130);
+@   /* border-bottom: 1px solid rgb(230, 110, 110); */
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(210, 210, 200);
+@   /* border-bottom: 1px solid rgb(190, 190, 180); */
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
@@ -1102,6 +1303,9 @@ void setup_skin(void){
   }
 
   style_header("Skins");
+  if( zErr ){
+    @ <p><font color="red">%h(zErr)</font></p>
+  }
   @ <p>A "skin" is a combination of
   @ <a href="setup_editcss">CSS</a>, 
   @ <a href="setup_header">Header</a>,

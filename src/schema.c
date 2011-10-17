@@ -253,7 +253,7 @@ const char zRepositorySchema2[] =
 @ -- Events used to generate a timeline
 @ --
 @ CREATE TABLE event(
-@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't'
+@   type TEXT,                      -- Type of event: 'ci', 'w', 'e', 't', 'g'
 @   mtime DATETIME,                 -- Time of occurrence. Julian day.
 @   objid INTEGER PRIMARY KEY,      -- Associated record ID
 @   tagid INTEGER,                  -- Associated ticket or wiki name tag

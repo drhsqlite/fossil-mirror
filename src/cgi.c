@@ -137,7 +137,7 @@ static void cgi_combine_header_and_body(void){
 /*
 ** Return a pointer to the HTTP reply text.
 */
-char *cgi_extract_content(int *pnAmt){
+char *cgi_extract_content(void){
   cgi_combine_header_and_body();
   return blob_buffer(&cgiContent[0]);
 }

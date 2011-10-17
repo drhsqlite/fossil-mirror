@@ -633,13 +633,7 @@ static int generate_html(
   struct GenerateHTML *pState = (struct GenerateHTML*)pUser;
   int i;
   const char *zTid;  /* Ticket UUID.  (value of column named '#') */
-  int rn;            /* Report number */
   char *zBg = 0;     /* Use this background color */
-  char zPage[30];    /* Text version of the ticket number */
-
-  /* Get the report number
-  */
-  rn = pState->rn;
 
   /* Do initialization
   */
@@ -722,7 +716,6 @@ static int generate_html(
   if( zBg==0 ) zBg = "white";
   @ <tr style="background-color:%h(zBg)">
   zTid = 0;
-  zPage[0] = 0;
   for(i=0; i<nArg; i++){
     char *zData;
     if( i==pState->iBg ) continue;
@@ -1111,37 +1104,28 @@ void rptshow(
 ){
   Stmt q;
   char *zSql;
-  const char *zTitle;
-  const char *zOwner;
-  const char *zClrKey;
   char *zErr1 = 0;
   char *zErr2 = 0;
   int count = 0;
   int rn;
 
   if (!zRep || !strcmp(zRep,zFullTicketRptRn) || !strcmp(zRep,zFullTicketRptTitle) ){
-    zTitle = zFullTicketRptTitle;
     zSql = "SELECT * FROM ticket";
-    zOwner = g.zLogin;
-    zClrKey = "";
   }else{
     rn = atoi(zRep);
     if( rn ){
       db_prepare(&q,
-       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
+       "SELECT sqlcode FROM reportfmt WHERE rn=%d", rn);
     }else{
       db_prepare(&q,
-       "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE title='%s'", zRep);
+       "SELECT sqlcode FROM reportfmt WHERE title='%s'", zRep);
     }
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);
       rpt_list_reports();
       fossil_fatal("unknown report format(%s)!",zRep);
     }
-    zTitle = db_column_malloc(&q, 0);
-    zSql = db_column_malloc(&q, 1);
-    zOwner = db_column_malloc(&q, 2);
-    zClrKey = db_column_malloc(&q, 3);
+    zSql = db_column_malloc(&q, 0);
     db_finalize(&q);
   }
   if( zFilter ){
