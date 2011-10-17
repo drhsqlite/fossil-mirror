@@ -845,8 +845,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    b=TIMESTAMP    before this date.
 **    c=TIMESTAMP    "circa" this date.
 **    n=COUNT        number of events in output
-**    p=RID          artifact RID and up to COUNT parents and ancestors
-**    d=RID          artifact RID and up to COUNT descendants
+**    p=UUID         artifact and up to COUNT parents and ancestors
+**    d=UUID         artifact and up to COUNT descendants
+**    dp=UUUID       The same as d=UUID&p=UUID
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
@@ -855,9 +856,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
 **    fc             Show details of files changed
-**    f=RID          Show family (immediate parents and children) of RID
-**    from=RID       Path from...
-**    to=RID           ... to this
+**    f=UUID         Show family (immediate parents and children) of UUID
+**    from=UUID      Path from...
+**    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -1001,10 +1002,8 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ){
-        db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
-      }
+      if( nd>=0 ) db_multi_exec("%s", blob_str(&sql));
+      if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       if( useDividers ) timeline_add_dividers(0, d_rid);
       db_multi_exec("DELETE FROM ok");
     }
