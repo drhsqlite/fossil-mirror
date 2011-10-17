@@ -916,8 +916,8 @@ WhAjaj.Connector.sendImpls = {
             {
                 WhAjaj.Connector.sendHelper.onSendSuccess.apply( whself, [request, data, args] );
             },
-            /* Set dataType=text instead of json for deeply archaic reasons which
-                might no longer apply.
+            /* Set dataType=text instead of json to keep jQuery from doing our carefully
+                written response handling for us.
             */
             dataType: 'text'
         };
@@ -927,12 +927,7 @@ WhAjaj.Connector.sendImpls = {
         }
         try
         {
-            var xhr = jQuery.ajax(ajopt);
-            if( xhr && ('undefined'!==(typeof window)) && ('firebug' in window) && ('watchXHR' in window.firebug) )
-            { /* plug in to firebug lite's XHR monitor... */
-                window.firebug.watchXHR( xhr );
-            }
-            return xhr;
+            return jQuery.ajax(ajopt);
         }
         catch(e)
         {
@@ -1206,6 +1201,13 @@ WhAjaj.Connector.prototype.sendRequest = function(request,opt)
     described throughout this API. See WhAjaj.Connector.sendImpls for
     the concrete implementations included with this API.
 */
-WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.XMLHttpRequest;
+//WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.XMLHttpRequest;
 //WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.rhino;
 //WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.jQuery;
+
+if( 'undefined' !== typeof jQuery ){
+    WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.jQuery;
+}
+else {
+    WhAjaj.Connector.prototype.sendImpl = WhAjaj.Connector.sendImpls.XMLHttpRequest;
+}

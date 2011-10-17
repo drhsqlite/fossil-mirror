@@ -1,5 +1,5 @@
-C merged\sin\strunk\s[fda7c2c63d]\sfor\sside-by-side\sdiffs.
-D 2011-10-17T16:08:08.833
+C Removed\ssome\sdead\scode.\sExperimentally\senabled\sjQuery\sajax\sback-end\sto\stest\sa\sproblem\son\smy\s3DS.
+D 2011-10-17T18:03:13.647
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -12,7 +12,7 @@ F ajax/i-test/rhino-test.js 5e4dc7f334e589c63be61cae3d1e38435ca59bad
 F ajax/index.html 7a29d344743aa2d5c3fb2d1090b7609fc77d473a
 F ajax/js/fossil-ajaj.js 5853916d0ebcbe9079cf1f4fa923a02f3155828b
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js 2d4c71382fa96b7b5da0b8baed2781b464d00031
+F ajax/js/whajaj.js a77f7ce1fcc0fe4ccb49c78d1584ff49de62c541
 F ajax/wiki-editor.html 51f2d323985a3692772d2599c81222a58f1c444e
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8da8432630de96410e9afbe1867c8cbd181efd18 fda7c2c63dde08c6ad3487291271a27915080468
-R fcfa5fa6edc3ecb70f1feca818fa722c
+P 571f3aca5bdb5275805c7dc1b1d544fc46de0648
+R 9ffe77567104ef438a2f2c6ad9da7cef
 U stephan
-Z 164f1d04d4c72b235a4fe56b6f185aa3
+Z b5a3abacd1f65d9904f9ecff3fed440b
