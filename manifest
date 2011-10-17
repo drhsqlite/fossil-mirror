@@ -1,5 +1,5 @@
-C Merge\sthe\slatest\strunk\schanges\sinto\sthe\sside-by-side\sdiff\sbranch.
-D 2011-10-16T23:24:50.134
+C Rephrasing\sand\sfixed\sa\stypo.
+D 2011-10-17T00:26:23.165
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -112,7 +112,7 @@ F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c 0b8e78e2745c50d8693774b7a6dc4bd65dd73d03
+F src/skins.c 7778d53ef5f89ec782c4a538852b4d2f1a3cd523
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 859bc9d7f6dcb4506a45253f8aaba87ff284c8ba
 F src/sqlite3.h 25001615af72a35a3096621859c42e01aa254362
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ff9de303e3bfb7d3788c3589a0ed03b17ac850ca fd486df4926a46ecad5f88bc3b48f07a95debc06
-R 53ac1302b53992da0da0e4c40da7686f
-U drh
-Z 3c710ca8aca444c39e465fdc10912758
+P 23c3affad4c0a620e2f8e0b6d2f9183f65cdb84a
+R 15d3567190f77f47cdce76bd785a37b4
+U jan
+Z 511ca84ae43438fb4b7b74b216d4ccf0

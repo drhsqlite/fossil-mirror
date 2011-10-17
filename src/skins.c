@@ -1055,7 +1055,7 @@ static const char zBuiltinSkin4[] =
 @
 @ table.sbsdiff tr td.srcline {
 @   max-width: 400px;
-@   /* Nota bene: May partially hide long lines witout whitespaces */
+@   /* Note: May partially hide long lines without whitespaces */
 @   overflow: hidden;
 @   /* border-bottom: 1px solid rgb(220, 220, 220); */
 @ }
