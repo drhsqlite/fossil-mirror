@@ -661,9 +661,6 @@ int html_sbsdiff(
     int j;
     /* Copied lines */
     for( j=0; j<c.aEdit[i]; j++){
-      int len;
-      int dist;
-
       /* Hide lines which are copied and are further away from block boundaries
       ** than nConext lines. For each block with hidden lines, show a row
       ** notifying the user about the hidden rows.
@@ -705,7 +702,6 @@ int html_sbsdiff(
 
       /* Assume changed lines */
       for( j=0; j<lim; j++ ){
-        int len;
         @ <tr>
 
         if( j<c.aEdit[i+1] ){
@@ -734,33 +730,25 @@ int html_sbsdiff(
 
       /* Process deleted lines */
       for( j=0; j<c.aEdit[i+1]; j++ ){
-        int len;
         @ <tr>
 
         copylimline(linebuf, &c.aFrom[iFrom+j], collim);
         @ <td class="removed lineno">%d(iFrom+j+1)</td>
         @ <td class="removed srcline">%h(linebuf)</td>
-
         @ <td>&lt;</td>
-
         @ <td colspan="2" class="removedvoid"/>
-
         @ </tr>
       }
       iFrom+=c.aEdit[i+1];
 
       /* Process inserted lines */
       for( j=0; j<c.aEdit[i+2]; j++ ){
-        int len;
         @ <tr>
         @ <td colspan="2" class="addedvoid"/>
-
         @ <td>&gt;</td>
-
         copylimline(linebuf, &c.aTo[iTo+j], collim);
         @ <td class="added lineno">%d(iTo+j+1)</td>
         @ <td class="added srcline">%h(linebuf)</td>
-
         @ </tr>
       }
       iTo+=c.aEdit[i+2];
