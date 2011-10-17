@@ -75,6 +75,7 @@ void merge_cmd(void){
   int *aChng;           /* An array of file name changes */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of conflicts seen */
+  int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int caseSensitive;    /* True for case-sensitive filenames */
   Stmt q;
 
@@ -321,6 +322,7 @@ void merge_cmd(void){
     int rowid = db_column_int(&q, 1);
     int idv;
     const char *zName;
+    const char *zFullName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
@@ -329,7 +331,14 @@ void merge_cmd(void){
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
-    fossil_print("ADDED %s\n", zName);
+    zFullName = mprintf("%s%s", g.zLocalRoot, zName);
+    if( file_wd_isfile_or_link(zFullName) ){
+      fossil_print("ADDED %s (overwrites an unmanaged file)\n", zName);
+      nOverwrite++;
+    }else{
+      fossil_print("ADDED %s\n", zName);
+    }
+    fossil_free(zFullName);
     if( !nochangeFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
@@ -497,9 +506,14 @@ void merge_cmd(void){
 
   /* Report on conflicts
   */
-  if( nConflict && !nochangeFlag ){
-    fossil_warning(
-       "WARNING: merge conflicts - see messages above for details.\n");
+  if( !nochangeFlag ){
+    if( nConflict ){
+      fossil_print("WARNING: %d merge conflicts", nConflict);
+    }
+    if( nOverwrite ){
+      fossil_warning("WARNING: %d unmanaged files where overwritten",
+                     nOverwrite);
+    }
   }
 
   /*
