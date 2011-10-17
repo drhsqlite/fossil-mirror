@@ -160,7 +160,7 @@ static const char zBuiltinSkin1[] =
 @ table.sbsdiff {
 @   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 10pt;
+@   font-size: 8pt;
 @   border-collapse:collapse;
 @   white-space: pre;
 @   width: 98%;
@@ -408,7 +408,7 @@ static const char zBuiltinSkin2[] =
 @ table.sbsdiff {
 @   background-color: #ffffc5;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 10pt;
+@   font-size: 8pt;
 @   border-collapse:collapse;
 @   white-space: pre;
 @   width: 98%;
@@ -686,7 +686,7 @@ static const char zBuiltinSkin3[] =
 @ table.sbsdiff {
 @   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 10pt;
+@   font-size: 6pt;
 @   border-collapse:collapse;
 @   white-space: pre;
 @   width: 98%;
@@ -1027,7 +1027,7 @@ static const char zBuiltinSkin4[] =
 @ table.sbsdiff {
 @   background-color: white;
 @   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 8pt;
+@   font-size: 6pt;
 @   border-collapse:collapse;
 @   width: 98%;
 @   border: 1px #000 dashed;
@@ -1054,9 +1054,9 @@ static const char zBuiltinSkin4[] =
 @ }
 @
 @ table.sbsdiff tr td.srcline {
-@   max-width: 400px;
+@   /* max-width: 400px; */
 @   /* Note: May partially hide long lines without whitespaces */
-@   overflow: hidden;
+@   /* overflow: hidden; */
 @   /* border-bottom: 1px solid rgb(220, 220, 220); */
 @ }
 @

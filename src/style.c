@@ -403,7 +403,7 @@ const char zDefaultCSS[] =
 @ table.sbsdiff {
 @   background-color: white;
 @   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 10pt;
+@   font-size: 8pt;
 @   border-collapse:collapse;
 @   white-space: pre;
 @   width: 98%;

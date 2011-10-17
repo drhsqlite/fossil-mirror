@@ -506,7 +506,7 @@ void ci_page(void){
         @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)">descendants</a>
       }
       if( zParent && !isLeaf ){
-        @ | <a href="%s(g.zTop)/timeline?d=%S(zUuid)&amp;p=%S(zUuid)">both</a>
+        @ | <a href="%s(g.zTop)/timeline?dp=%S(zUuid)">both</a>
       }
       db_prepare(&q, "SELECT substr(tag.tagname,5) FROM tagxref, tag "
                      " WHERE rid=%d AND tagtype>0 "
