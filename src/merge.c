@@ -322,7 +322,7 @@ void merge_cmd(void){
     int rowid = db_column_int(&q, 1);
     int idv;
     const char *zName;
-    const char *zFullName;
+    char *zFullName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
