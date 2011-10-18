@@ -205,12 +205,105 @@ static cson_value * json_artifact_ci( int rid ){
 */
 static ArtifactDispatchEntry ArtifactDispatchList[] = {
 {"checkin", json_artifact_ci},
+{"file", json_artifact_file},
 {"tag", NULL},
 {"ticket", json_artifact_ticket},
-{"wiki", NULL},
+{"wiki", json_artifact_wiki},
 /* Final entry MUST have a NULL name. */
 {NULL,NULL}
 };
+
+cson_value * json_artifact_wiki(int rid){
+  Manifest *pWiki = 0;
+  char *zBody = NULL;
+  char const *zPageName = NULL;
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+
+  zPageName = db_text(0, "SELECT tagname FROM tag"
+                         " WHERE tagid=(SELECT tagid FROM tagxref WHERE rid=%d)", rid);
+
+  pWiki = manifest_get(rid, CFTYPE_WIKI);
+  if( pWiki ){
+    zBody = pWiki->zWiki;
+  }
+
+  cson_object_set(pay, "name", json_new_string(zPageName));
+  cson_object_set(pay, "body", json_new_string(zBody));
+  return payV;
+}
+
+cson_value * json_artifact_file(int rid){
+  cson_value * payV = NULL;
+  cson_object * pay = NULL;
+  const char *zMime;
+  const char *zRaw;
+  Blob content;
+  Stmt q;
+
+  payV = cson_value_new_object();
+  pay = cson_value_get_object(payV);
+
+  content_get(rid, &content);
+  zMime = mimetype_from_content(&content);
+
+  if (!zMime){
+    cson_array * checkin_arr = NULL;
+    cson_value * checkin_list = NULL;
+
+    cson_value * checkinV = NULL;
+    cson_object * checkin = NULL;
+
+    zRaw = blob_str(&content);
+    checkin_list = cson_value_new_array(); 
+
+    cson_object_set(pay, "content", json_new_string(zRaw));
+    cson_object_set(pay, "checkins", checkin_list);
+
+    checkin_arr = cson_value_get_array(checkin_list);
+
+    db_prepare(&q,
+      "SELECT filename.name, datetime(event.mtime),"
+      "       coalesce(event.ecomment,event.comment),"
+      "       coalesce(event.euser,event.user),"
+      "       b.uuid, mlink.mperm,"
+      "       coalesce((SELECT value FROM tagxref"
+                      "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
+      "  FROM mlink, filename, event, blob a, blob b"
+      " WHERE filename.fnid=mlink.fnid"
+      "   AND event.objid=mlink.mid"
+      "   AND a.rid=mlink.fid"
+      "   AND b.rid=mlink.mid"
+      "   AND mlink.fid=%d"
+      "   ORDER BY filename.name, event.mtime",
+      TAG_BRANCH, rid
+    );
+
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zName = db_column_text(&q, 0);
+      const char *zDate = db_column_text(&q, 1);
+      const char *zCom = db_column_text(&q, 2);
+      const char *zUser = db_column_text(&q, 3);
+      const char *zVers = db_column_text(&q, 4);
+
+      checkinV = cson_value_new_object();
+      checkin = cson_value_get_object(checkinV);
+
+      cson_object_set(checkin, "name", json_new_string(zName));
+      cson_object_set(checkin, "date", json_new_string(zDate));
+      cson_object_set(checkin, "comment", json_new_string(zCom));
+      cson_object_set(checkin, "user", json_new_string(zUser));
+      cson_object_set(checkin, "version", json_new_string(zVers));
+
+      cson_array_append(checkin_arr, checkinV);
+    }
+    db_finalize(&q);
+  }
+  return payV;
+}
 
 /*
 ** Impl of /json/artifact. This basically just determines the type of
@@ -262,6 +355,7 @@ cson_value * json_page_artifact(){
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     goto error;
   }
+
   if( db_exists("SELECT 1 FROM mlink WHERE mid=%d", rid)
       || db_exists("SELECT 1 FROM plink WHERE cid=%d", rid)
       || db_exists("SELECT 1 FROM plink WHERE pid=%d", rid)){
@@ -274,6 +368,9 @@ cson_value * json_page_artifact(){
   }else if( db_exists("SELECT 1 FROM tagxref JOIN tag USING(tagid)"
                       " WHERE rid=%d AND tagname LIKE 'tkt-%%'", rid) ){
     zType = "ticket";
+    goto handle_entry;
+  }else if ( db_exists("SELECT 1 FROM mlink WHERE fid = %d", rid) ){
+    zType = "file";
     goto handle_entry;
   }else{
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
