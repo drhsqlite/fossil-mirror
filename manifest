@@ -1,5 +1,5 @@
-C Adding\sa\sboolean\ssetting\sto\schoose\sthe\suse\sof\s'targets'\sin\sthe\sanchors\shref.\sDefault\senabled.\n\nRelated\sto\sthe\sthread\sstarting\sat\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg06588.html]
-D 2011-10-18T20:55:02.600
+C Adding\sa\sspace\sI\sforgot\sin\sin\sthe\shtml\soutput.
+D 2011-10-18T21:20:10.509
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 2f817e72a9822998fcb6b8213071dc72238c2754
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c feca6c40ff7dfdaa8eb9bae286dfcb917a219939
+F src/diff.c e974796e7dc35597e27d6514e1dce49e5f59e6e9
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,10 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c80ee413ab77fb46b01c68ea82e2ad9a9446cc76
-R 6d4516e4a682682663800af6ae661a00
-T *branch * targets_setting
-T *sym-targets_setting *
-T -sym-trunk *
+P d29df2f0a21b292c5ea43ff43850dd4c13bf5b59
+R accfb7662a7f23bd386c620b84334403
 U viriketo
-Z ce1d93391a229a8576536ef04cc07a8c
+Z c7cbc0caa6326df8a873adbc985e8512

@@ -992,7 +992,7 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s'%s>%.10s</a> %s %9.9s", 
+          "<a href='%s/info/%s' %s>%.10s</a> %s %9.9s", 
           g.zTop, zUuid,
           zInfoTarget,
           zUuid, zDate, zUser
