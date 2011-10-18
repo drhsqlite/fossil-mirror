@@ -942,7 +942,8 @@ void test_annotate_step_cmd(void){
 */
 static void annotate_file(
   Annotator *p,        /* The annotator */
-  int fnid,            /* The name of the file to be annotated */
+  const char *zFilename,/* The name of the file to be annotated */
+  int fnid,            /* The file name id of the file to be annotated */
   int mid,             /* Use the version of the file in this check-in */
   int webLabel,        /* Use web-style annotations if true */
   int iLimit,          /* Limit the number of levels if greater than zero */
@@ -970,6 +971,8 @@ static void annotate_file(
   db_prepare(&q, 
     "SELECT mlink.fid,"
     "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
     "       date(event.mtime), "
     "       coalesce(event.euser,event.user) "
     "  FROM ancestor, mlink, event"
@@ -985,13 +988,18 @@ static void annotate_file(
   while( db_step(&q)==SQLITE_ROW ){
     int pid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
+    const char *zUuidFile = db_column_text(&q, 2);
+    const char *zUuidParentFile = db_column_text(&q, 3);
+    const char *zDate = db_column_text(&q, 4);
+    const char *zUser = db_column_text(&q, 5);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
-          g.zTop, zUuid, zUuid, zDate, zUser
-      );
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> "
+          "<a href='%s/fdiff?v1=%s&v2=%s' target='diffwindow'>d</a> "
+          "%s %9.9s", 
+          g.zTop, zUuid, zUuid,
+          g.zTop, zUuidParentFile, zUuidFile,
+          zDate, zUser);
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
@@ -1032,7 +1040,7 @@ void annotation_page(void){
   }
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.History, iLimit, annFlags);
+  annotate_file(&ann, P("filename"), fnid, mid, g.perm.History, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>
@@ -1104,7 +1112,7 @@ void annotate_cmd(void){
     fossil_panic("unable to find manifest");
   }
   if( fileVers ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
+  annotate_file(&ann, zFilename, fnid, mid, 0, iLimit, annFlags);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
       printf("version %3d: %s\n", i+1, ann.azVers[i]);
