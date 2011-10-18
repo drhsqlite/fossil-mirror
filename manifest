@@ -1,5 +1,5 @@
-C Fix\stypo\sin\swarning\smessage.
-D 2011-10-17T23:12:59.461
+C Until\snow,\sthe\sannotate_cmd\swas\staking\sthe\slast\s(or\sany?)\scheckin\sthat\shad\sthe\nartifact\sto\sbe\sannotated,\stotally\sunrelated\sto\swhat\sversion\sis\schecked\sout.\n\nI\smade\sannotate_cmd\srespect\sthe\scheckout,\sand\sannotate\sonly\sfrom\sthe\spast\suntil\nthe\schecked\sout\sversion.\sThis\smakes\sthe\scommand\sslower,\sbut\sat\sleast\sdoes\swhat\nI'd\slike\sit\sto\sdo.\sMaybe\ssomeone\selse\scan\scome\sup\swith\sa\sfaster\sor\ssimpler\nimplementation.\n\nI\schanged\sthe\scompute_direct_ancestors\scode\sso\sI\scould\scall\sit\stwice\sin\sa\ssingle\nrun.
+D 2011-10-18T19:45:23.870
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,8 +66,8 @@ F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
 F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c 34c60666c82d0826eae96f46fcd6fdf77bb99c72
+F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
+F src/diff.c 6a9672991ae1515d08111fb3cc3109450a2ccf83
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fda7c2c63dde08c6ad3487291271a27915080468
-R a29677c7b80510fb700a10699cd04c89
-U drh
-Z 093ac11afd978ba0cf1f6380026d20d8
+P c80ee413ab77fb46b01c68ea82e2ad9a9446cc76
+R 240aeb539608751406d97bca264e90bd
+T *branch * annotatecmd_fix
+T *sym-annotatecmd_fix *
+T -sym-trunk *
+U viriketo
+Z c9e6bdfeb9c3ab48545b9f64968b80dd
