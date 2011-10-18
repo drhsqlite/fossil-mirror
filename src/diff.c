@@ -953,6 +953,9 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  const char *zInfoTarget;     /* String for target info window */
+
+  zInfoTarget = db_get_boolean("href-targets", 1) ? "target='infowindow'" : "";
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -989,8 +992,10 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
-          g.zTop, zUuid, zUuid, zDate, zUser
+          "<a href='%s/info/%s'%s>%.10s</a> %s %9.9s", 
+          g.zTop, zUuid,
+          zInfoTarget,
+          zUuid, zDate, zUser
       );
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);

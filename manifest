@@ -1,5 +1,5 @@
-C Fix\stypo\sin\swarning\smessage.
-D 2011-10-17T23:12:59.461
+C Adding\sa\sboolean\ssetting\sto\schoose\sthe\suse\sof\s'targets'\sin\sthe\sanchors\shref.\sDefault\senabled.\n\nRelated\sto\sthe\sthread\sstarting\sat\s[http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg06588.html]
+D 2011-10-18T20:55:02.600
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -63,11 +63,11 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
 F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
+F src/db.c 2f817e72a9822998fcb6b8213071dc72238c2754
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c b15c5ee45a5bc55a0d9a6326241dd26a49603746
-F src/diff.c 34c60666c82d0826eae96f46fcd6fdf77bb99c72
+F src/diff.c feca6c40ff7dfdaa8eb9bae286dfcb917a219939
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -126,7 +126,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
+F src/timeline.c 8343177bf1694a089291cc2a194057e12474be24
 F src/tkt.c 191624cc3930500fd2f81194e641b5f4ec5327b6
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fda7c2c63dde08c6ad3487291271a27915080468
-R a29677c7b80510fb700a10699cd04c89
-U drh
-Z 093ac11afd978ba0cf1f6380026d20d8
+P c80ee413ab77fb46b01c68ea82e2ad9a9446cc76
+R 6d4516e4a682682663800af6ae661a00
+T *branch * targets_setting
+T *sym-targets_setting *
+T -sym-trunk *
+U viriketo
+Z ce1d93391a229a8576536ef04cc07a8c
