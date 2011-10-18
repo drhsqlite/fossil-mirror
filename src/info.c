@@ -1679,6 +1679,38 @@ void render_color_chooser(
 }
 
 /*
+** Do a comment comparison.
+**
+** +  Leading and trailing whitespace are ignored.
+** +  \r\n characters compare equal to \n
+**
+** Return true if equal and false if not equal.
+*/
+static int comment_compare(const char *zA, const char *zB){
+  if( zA==0 ) zA = "";
+  if( zB==0 ) zB = "";
+  while( fossil_isspace(zA[0]) ) zA++;
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( zA[0] && zB[0] ){
+    if( zA[0]==zB[0] ){ zA++; zB++; continue; }
+    if( zA[0]=='\r' && zA[1]=='\n' && zB[0]=='\n' ){
+      zA += 2;
+      zB++;
+      continue;
+    }
+    if( zB[0]=='\r' && zB[1]=='\n' && zA[0]=='\n' ){
+      zB += 2;
+      zA++;
+      continue;
+    }
+    return 0;
+  }
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( fossil_isspace(zA[0]) ) zA++;
+  return zA[0]==0 && zB[0]==0;
+}
+
+/*
 ** WEBPAGE: ci_edit
 ** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
@@ -1754,7 +1786,8 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor || fossil_strcmp(zColor,zNewColor)!=0)
+     && (fPropagateColor!=fNewPropagateColor 
+             || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
       if( fNewPropagateColor ){
@@ -1766,7 +1799,7 @@ void ci_edit_page(void){
     if( zNewColor[0]==0 && zColor[0]!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
     }
-    if( fossil_strcmp(zComment,zNewComment)!=0 ){
+    if( comment_compare(zComment,zNewComment)==0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
                     zNewComment);
     }
