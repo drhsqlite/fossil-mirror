@@ -550,8 +550,8 @@ void ci_page(void){
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)">
+        @ hide&nbsp;diffs</a>
         if( sideBySide ){
           @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
           @ unified&nbsp;diffs</a>
