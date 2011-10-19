@@ -243,7 +243,7 @@ static int json_timeline_limit(){
       limit = atoi(arg);
     }
   }
-  if( (limit<0) && fossil_is_json() ){
+  if( (limit<0) && fossil_has_json() ){
     limit = json_getenv_int("limit",-1);
   }
   return (limit<0) ? defaultLimit : limit;

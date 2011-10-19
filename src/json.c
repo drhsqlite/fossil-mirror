@@ -187,22 +187,7 @@ static double endTimer(void){
 #endif
 
 
-/*
-** Returns true if fossil is running in JSON mode and we are either
-** running in HTTP mode OR g.json.post.o is not NULL (meaning POST
-** data was fed in from CLI mode).
-**
-** Specifically, it will return false when any of these apply:
-**
-** a) Not running in JSON mode (via json command or /json path).
-**
-** b) We are running in JSON CLI mode, but no POST data has been fed
-** in.
-**
-** Whether or not we need to take args from CLI or POST data makes a
-** difference in argument/parameter handling in many JSON rountines.
-*/
-char fossil_is_json(){
+char fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
 }
 
@@ -588,7 +573,7 @@ char const * json_find_option_cstr2(char const * zKey,
     rc = find_option(zCLILong ? zCLILong : zKey,
                      zCLIShort, 1);
   }
-  if(!rc && fossil_is_json()){
+  if(!rc && fossil_has_json()){
     rc = json_getenv_cstr(zKey);
   }
   if(!rc && (argPos>=0)){
@@ -618,7 +603,7 @@ char json_find_option_bool(char const * zKey,
       rc = 1;
     }
   }
-  if((-1==rc) && fossil_is_json()){
+  if((-1==rc) && fossil_has_json()){
     rc = json_getenv_bool(zKey,-1);
   }
   return (-1==rc) ? dflt : rc;

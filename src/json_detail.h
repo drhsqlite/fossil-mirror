@@ -230,4 +230,23 @@ cson_value * json_new_string( char const * str );
 */
 cson_value * json_new_string_f( char const * fmt, ... );
 
+/*
+** Returns true if fossil is running in JSON mode and we are either
+** running in HTTP mode OR g.json.post.o is not NULL (meaning POST
+** data was fed in from CLI mode).
+**
+** Specifically, it will return false when any of these apply:
+**
+** a) Not running in JSON mode (via json command or /json path).
+**
+** b) We are running in JSON CLI mode, but no POST data has been fed
+** in.
+**
+** Whether or not we need to take args from CLI or POST data makes a
+** difference in argument/parameter handling in many JSON rountines,
+** and thus this distinction.
+*/
+char fossil_has_json();
+
+
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/

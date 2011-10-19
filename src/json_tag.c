@@ -71,7 +71,7 @@ static cson_value * json_tag_add(){
   zName = json_find_option_cstr("name",NULL,NULL);
   zPrefix = fRaw ? "" : "sym-";
   if(!zName || !*zName){
-    if(!fossil_is_json()){
+    if(!fossil_has_json()){
       zName = json_command_arg(3);
     }
     if(!zName || !*zName){
@@ -83,7 +83,7 @@ static cson_value * json_tag_add(){
   
   zCheckin = json_find_option_cstr("checkin",NULL,NULL);
   if( !zCheckin ){
-    if(!fossil_is_json()){
+    if(!fossil_has_json()){
       zCheckin = json_command_arg(4);
     }
     if(!zCheckin || !*zCheckin){
@@ -95,7 +95,7 @@ static cson_value * json_tag_add(){
 
 
   zValue = json_find_option_cstr("value",NULL,NULL);
-  if(!zValue && !fossil_is_json()){
+  if(!zValue && !fossil_has_json()){
     zValue = json_command_arg(5);
   }
 
@@ -154,7 +154,7 @@ static cson_value * json_tag_cancel(){
   zPrefix = fRaw ? "" : "sym-";
   zName = json_find_option_cstr("name",NULL,NULL);
   if(!zName || !*zName){
-    if(!fossil_is_json()){
+    if(!fossil_has_json()){
       zName = json_command_arg(3);
     }
     if(!zName || !*zName){
@@ -166,7 +166,7 @@ static cson_value * json_tag_cancel(){
   
   zCheckin = json_find_option_cstr("checkin",NULL,NULL);
   if( !zCheckin ){
-    if(!fossil_is_json()){
+    if(!fossil_has_json()){
       zCheckin = json_command_arg(4);
     }
     if(!zCheckin || !*zCheckin){
@@ -208,7 +208,7 @@ static cson_value * json_tag_find(){
   }
   zName = json_find_option_cstr("name",NULL,NULL);
   if(!zName || !*zName){
-    if(!fossil_is_json()){
+    if(!fossil_has_json()){
       zName = json_command_arg(3);
     }
     if(!zName || !*zName){

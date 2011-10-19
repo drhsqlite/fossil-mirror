@@ -79,7 +79,7 @@ static cson_value * json_branch_list(){
   pay = cson_value_get_object(payV);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
-  if(fossil_is_json()){
+  if(fossil_has_json()){
       range = json_getenv_cstr("range");
   }
 
@@ -328,7 +328,7 @@ static cson_value * json_branch_create(){
     return NULL;
   }
   memset(&opt,0,sizeof(BranchCreateOptions));
-  if(fossil_is_json()){
+  if(fossil_has_json()){
     opt.zName = json_getenv_cstr("name");
   }
 
