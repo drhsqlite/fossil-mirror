@@ -336,9 +336,13 @@ static void append_file_change_line(
       @ <p>Changes to %h(zName)</p>
     }
     if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(zOld, zNew);
-      @ </pre></blockquote>
+      if( sideBySide ){
+        generate_sbsdiff(zOld, zNew);
+      }else{
+        @ <blockquote><pre>
+        append_diff(zOld, zNew);
+        @ </pre></blockquote>
+      }
     }
   }else{
     if( zOld && zNew ){
@@ -363,7 +367,7 @@ static void append_file_change_line(
     }
     if( showDiff ){
       if( sideBySide ){
-         generate_sbsdiff(zOld, zNew);
+        generate_sbsdiff(zOld, zNew);
       }else{
         @ <blockquote><pre>
         append_diff(zOld, zNew);
