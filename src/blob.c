@@ -317,6 +317,32 @@ int blob_compare(Blob *pA, Blob *pB){
 }
 
 /*
+** Compare two blobs in constant time and return zero if they are equal.
+** Constant time comparison only applies for blobs of the same length.
+** If lengths are different, immediately returns 1.
+*/
+int blob_constant_time_cmp(Blob *pA, Blob *pB){
+  int szA, szB, i;
+  unsigned char *buf1, *buf2;
+  unsigned char rc = 0;
+
+  blob_is_init(pA);
+  blob_is_init(pB);
+  szA = blob_size(pA);
+  szB = blob_size(pB);
+  if( szA!=szB || szA==0 ) return 1;
+
+  buf1 = (unsigned char*)blob_buffer(pA);
+  buf2 = (unsigned char*)blob_buffer(pB);
+
+  for( i=0; i<szA; i++ ){
+    rc = rc | (buf1[i] ^ buf2[i]);
+  }
+
+  return rc;
+}
+
+/*
 ** Compare a blob to a string.  Return TRUE if they are equal.
 */
 int blob_eq_str(Blob *pBlob, const char *z, int n){

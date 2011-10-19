@@ -181,7 +181,7 @@ void test_hash_color(void){
 **    4.  User
 **    5.  True if is a leaf
 **    6.  background color
-**    7.  type ("ci", "w", "t", "e", "div")
+**    7.  type ("ci", "w", "t", "e", "g", "div")
 **    8.  list of symbolic tags.
 **    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
@@ -318,6 +318,9 @@ void www_print_timeline(
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timelineTableCell">
+    }
+    if( pGraph && zType[0]!='c' ){
+      @ &bull;
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -842,8 +845,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    b=TIMESTAMP    before this date.
 **    c=TIMESTAMP    "circa" this date.
 **    n=COUNT        number of events in output
-**    p=RID          artifact RID and up to COUNT parents and ancestors
-**    d=RID          artifact RID and up to COUNT descendants
+**    p=UUID         artifact and up to COUNT parents and ancestors
+**    d=UUID         artifact and up to COUNT descendants
+**    dp=UUUID       The same as d=UUID&p=UUID
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
@@ -852,9 +856,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
 **    fc             Show details of files changed
-**    f=RID          Show family (immediate parents and children) of RID
-**    from=RID       Path from...
-**    to=RID           ... to this
+**    f=UUID         Show family (immediate parents and children) of UUID
+**    from=UUID      Path from...
+**    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -894,11 +898,19 @@ void page_timeline(void){
   int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
+  int pd_rid;
 
   /* To view the timeline, must have permission to read project data.
   */
+  pd_rid = name_to_typed_rid(P("dp"),"ci");
+  if( pd_rid ){
+    p_rid = d_rid = pd_rid;
+  }
   login_check_credentials();
-  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
+    login_needed();
+    return;
+  }
   if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
@@ -990,10 +1002,8 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ){
-        db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
-      }
+      if( nd>=0 ) db_multi_exec("%s", blob_str(&sql));
+      if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       if( useDividers ) timeline_add_dividers(0, d_rid);
       db_multi_exec("DELETE FROM ok");
     }
@@ -1077,6 +1087,7 @@ void page_timeline(void){
      || (zType[0]=='t' && !g.perm.RdTkt)
      || (zType[0]=='e' && !g.perm.RdWiki)
      || (zType[0]=='c' && !g.perm.Read)
+     || (zType[0]=='g' && !g.perm.Read)
     ){
       zType = "all";
     }
@@ -1085,7 +1096,7 @@ void page_timeline(void){
         char cSep = '(';
         blob_appendf(&sql, " AND event.type IN ");
         if( g.perm.Read ){
-          blob_appendf(&sql, "%c'ci'", cSep);
+          blob_appendf(&sql, "%c'ci','g'", cSep);
           cSep = ',';
         }
         if( g.perm.RdWiki ){
@@ -1109,6 +1120,8 @@ void page_timeline(void){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
         zEType = "event";
+      }else if( zType[0]=='g' ){
+        zEType = "tag";
       }
     }
     if( zUser ){
@@ -1227,6 +1240,9 @@ void page_timeline(void){
         }
         if( zType[0]!='e' && g.perm.RdWiki ){
           timeline_submenu(&url, "Events Only", "y", "e", 0);
+        }
+        if( zType[0]!='g' && g.perm.Read ){
+          timeline_submenu(&url, "Tags Only", "y", "g", 0);
         }
       }
       if( nEntry>20 ){

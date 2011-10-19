@@ -347,10 +347,20 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
   int n;
   char *zUuid;
   int sz = 0;
+  int isRepeat;
+  static Bag seen;
+
+  if( bag_find(&seen, rid) ){
+    isRepeat = 1;
+  }else{
+    isRepeat = 0;
+    bag_insert(&seen, rid);
+  }
 
   /* Every control artifact ends with a '\n' character.  Exit early
   ** if that is not the case for this artifact.
   */
+  if( !isRepeat ) g.parseCnt[0]++;
   z = blob_materialize(pContent);
   n = blob_size(pContent);
   if( n<=0 || z[n-1]!='\n' ){
@@ -887,6 +897,7 @@ static Manifest *manifest_parse(Blob *pContent, int rid){
     p->type = CFTYPE_MANIFEST;
   }
   md5sum_init();
+  if( !isRepeat ) g.parseCnt[p->type]++;
   return p;
 
 manifest_syntax_error:
@@ -1810,6 +1821,44 @@ int manifest_crosslink(int rid, Blob *pContent){
       );
       free(zComment);
     }
+  }
+  if( p->type==CFTYPE_CONTROL ){
+    Blob comment;
+    int i;
+    const char *zName;
+    const char *zValue;
+    const char *zUuid;
+    blob_zero(&comment);
+    for(i=0; i<p->nTag; i++){
+      zUuid = p->aTag[i].zUuid;
+      if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
+        if( i>0 ) blob_append(&comment, " ", 1);
+        blob_appendf(&comment, "Tag changes on [/timeline?dp=%S&n=4 | %S]:",
+           zUuid, zUuid);
+      }
+      zName = p->aTag[i].zName;
+      zValue = p->aTag[i].zValue;
+      if( zName[0]=='-' ){
+        blob_appendf(&comment, " Cancel");
+      }else if( zName[0]=='+' ){
+        blob_appendf(&comment, " Add");
+      }else{
+        blob_appendf(&comment, " Add propagating");
+      }
+      if( memcmp(&zName[1], "sym-",4)==0 ){
+        blob_appendf(&comment, " symbolic tag \"%h\".", &zName[5]);
+      }else if( fossil_strcmp(&zName[1], "comment")!=0 && zValue && zValue[0] ){
+        blob_appendf(&comment, " %h=%h.", &zName[1], zValue);
+      }else{
+        blob_appendf(&comment, " %h.", &zName[1]);
+      }
+    }
+    db_multi_exec(
+      "REPLACE INTO event(type,mtime,objid,user,comment)"
+      "VALUES('g',%.17g,%d,%Q,%Q)",
+      p->rDate, rid, p->zUser, blob_str(&comment)
+    );
+    blob_reset(&comment);
   }
   db_end_transaction(0);
   if( p->type==CFTYPE_MANIFEST ){

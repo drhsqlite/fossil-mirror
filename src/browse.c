@@ -251,7 +251,9 @@ void page_dir(void){
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
-  nCol = 4;
+  nCol = 100/mxLen;
+  if( nCol<1 ) nCol = 1;
+  if( nCol>5 ) nCol = 5;
   nRow = (cnt+nCol-1)/nCol;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
   @ <table class="browser"><tr><td class="browser"><ul class="browser">

@@ -284,14 +284,12 @@ void extra_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int cwdRelative = 0;
-  int outputManifest;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  outputManifest = db_get_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
@@ -660,26 +658,27 @@ static void create_manifest(
     const char *zUuid = db_column_text(&q, 1);
     const char *zOrig = db_column_text(&q, 2);
     int frid = db_column_int(&q, 3);
-    int isexe = db_column_int(&q, 4);
+    int isExe = db_column_int(&q, 4);
     int isLink = db_column_int(&q, 5);
     int isSelected = db_column_int(&q, 6);
     const char *zPerm;
     int cmp;
 #if !defined(_WIN32)
-    /* For unix, extract the "executable" permission bit directly from
-    ** the filesystem.  On windows, the "executable" bit is retained
+    int mPerm;
+
+    /* For unix, extract the "executable" and "symlink" permissions
+    ** directly from the filesystem.  On windows, permissions are
     ** unchanged from the original. 
     */
+
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
-    isexe = file_wd_isexe(blob_str(&filename));
-    
-    /* For unix, check if the file on the filesystem is symlink.
-    ** On windows, the bit is retained unchanged from original. 
-    */
-    isLink = file_wd_islink(blob_str(&filename));
+
+    mPerm = file_wd_perm(blob_str(&filename));
+    isExe = ( mPerm==PERM_EXE );
+    isLink = ( mPerm==PERM_LNK );
 #endif
-    if( isexe ){
+    if( isExe ){
       zPerm = " x";
     }else if( isLink ){
       zPerm = " l"; /* note: symlinks don't have executable bit on unix */

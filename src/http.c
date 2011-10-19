@@ -138,7 +138,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   Blob hdr;             /* The HTTP request header */
   int closeConnection;  /* True to close the connection when done */
   int iLength;          /* Length of the reply payload */
-  int rc;               /* Result code */
+  int rc = 0;           /* Result code */
   int iHttpVersion;     /* Which version of HTTP protocol server uses */
   char *zLine;          /* A single line of the reply header */
   int i;                /* Loop counter */

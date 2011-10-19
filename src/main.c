@@ -155,6 +155,7 @@ struct Global {
   char zCsrfToken[12];    /* Value of the anti-CSRF token */
   int okCsrf;             /* Anti-CSRF token is present and valid */
 
+  int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
@@ -221,7 +222,7 @@ static int name_search(
       lwr = mid + 1;
     }
   }
-  for(m=cnt=0, i=upr-2; i<=upr+3 && i<nMap; i++){
+  for(m=cnt=0, i=upr-2; cnt<2 && i<=upr+3 && i<nMap; i++){
     if( i<0 ) continue;
     if( strncmp(zName, aMap[i].zName, n)==0 ){
       m = i;
@@ -235,6 +236,79 @@ static int name_search(
   return 1+(cnt>1);
 }
 
+/*
+** Search g.argv for arguments "--args FILENAME".  If found, then
+** (1) remove the two arguments from g.argv
+** (2) Read the file FILENAME
+** (3) Use the contents of FILE to replace the two removed arguments:
+**     (a) Ignore blank lines in the file
+**     (b) Each non-empty line of the file is an argument, except
+**     (c) If the line begins with "-" and contains a space, it is broken
+**         into two arguments at the space.
+*/
+static void expand_args_option(void){
+  Blob file = empty_blob;   /* Content of the file */
+  Blob line = empty_blob;   /* One line of the file */
+  unsigned int nLine;       /* Number of lines in the file*/
+  unsigned int i, j, k;     /* Loop counters */
+  int n;                    /* Number of bytes in one line */
+  char *z;            /* General use string pointer */
+  char **newArgv;     /* New expanded g.argv under construction */
+  char const * zFileName;   /* input file name */
+  FILE * zInFile;           /* input FILE */
+  for(i=1; i<g.argc-1; i++){
+    z = g.argv[i];
+    if( z[0]!='-' ) continue;
+    z++;
+    if( z[0]=='-' ) z++;
+    if( z[0]==0 ) return;   /* Stop searching at "--" */
+    if( fossil_strcmp(z, "args")==0 ) break;
+  }
+  if( i>=g.argc-1 ) return;
+
+  zFileName = g.argv[i+1];
+  zInFile = (0==strcmp("-",zFileName))
+    ? stdin
+    : fopen(zFileName,"rb");
+  if(!zInFile){
+    fossil_panic("Cannot open -args file [%s]", zFileName);
+  }else{
+    blob_read_from_channel(&file, zInFile, -1);
+    if(stdin != zInFile){
+      fclose(zInFile);
+    }
+    zInFile = NULL;
+  }
+  z = blob_str(&file);
+  for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
+  newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
+  for(j=0; j<i; j++) newArgv[j] = g.argv[j];
+  
+  blob_rewind(&file);
+  while( (n = blob_line(&file, &line))>0 ){
+    if( n<=1 ) continue;
+    z = blob_buffer(&line);
+    z[n-1] = 0;
+    if((n>1) && ('\r'==z[n-2])){
+      if(n==2) continue /*empty line*/;
+      z[n-2] = 0;
+    }
+    newArgv[j++] = z;
+    if( z[0]=='-' ){
+      for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
+      if( z[k] ){
+        z[k] = 0;
+        k++;
+        if( z[k] ) newArgv[j++] = &z[k];
+      }
+    }
+  }
+  i += 2;
+  while( i<g.argc ) newArgv[j++] = g.argv[i++];
+  newArgv[j] = 0;
+  g.argc = j;
+  g.argv = newArgv;
+}
 
 /*
 ** This procedure runs first.
@@ -253,6 +327,9 @@ int main(int argc, char **argv){
   g.now = time(0);
   g.argc = argc;
   g.argv = argv;
+  expand_args_option();
+  argc = g.argc;
+  argv = g.argv;
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
   if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
@@ -332,7 +409,7 @@ const char *fossil_nameofexe(void){
 /*
 ** Exit.  Take care to close the database first.
 */
-void fossil_exit(int rc){
+NORETURN void fossil_exit(int rc){
   db_close(1);
   exit(rc);
 }
@@ -341,7 +418,7 @@ void fossil_exit(int rc){
 ** Print an error message, rollback all databases, and quit.  These
 ** routines never return.
 */
-void fossil_panic(const char *zFormat, ...){
+NORETURN void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   static int once = 1;
@@ -360,7 +437,7 @@ void fossil_panic(const char *zFormat, ...){
   db_force_rollback();
   fossil_exit(1);
 }
-void fossil_fatal(const char *zFormat, ...){
+NORETURN void fossil_fatal(const char *zFormat, ...){
   char *z;
   va_list ap;
   mainInFatalError = 1;
@@ -848,7 +925,7 @@ void set_base_url(void){
 /*
 ** Send an HTTP redirect back to the designated Index Page.
 */
-void fossil_redirect_home(void){
+NORETURN void fossil_redirect_home(void){
   cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
 }
 

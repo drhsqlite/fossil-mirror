@@ -1819,8 +1819,8 @@ static int exprEval(Th_Interp *interp, Expr *pExpr){
     int eArgType = 0;           /* Actual type of arguments */
 
     /* Argument values */
-    int iLeft;
-    int iRight;
+    int iLeft = 0;
+    int iRight = 0;
     double fLeft;
     double fRight;
 

@@ -98,6 +98,7 @@ void update_cmd(void){
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
+  int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   Stmt mtimeXfer;       /* Statment to transfer mtimes */
 
   if( !internalUpdate ){
@@ -304,7 +305,7 @@ void update_cmd(void){
     zSep = "";
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
-      if( file_isdir(g.argv[i])==1 ){
+      if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
@@ -361,7 +362,12 @@ void update_cmd(void){
       nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
-      fossil_print("ADD %s\n", zName);
+      if( file_wd_isfile_or_link(zFullPath) ){
+        fossil_print("ADD %s (overwrites an unmanaged file)\n", zName);
+        nOverwrite++;
+      }else{
+        fossil_print("ADD %s\n", zName);
+      }
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
@@ -451,13 +457,18 @@ void update_cmd(void){
 
   /* Report on conflicts
   */
-  if( nConflict && !nochangeFlag ){
-    if( internalUpdate ){
-      internalConflictCnt = nConflict;
-    }else{
-      fossil_print(
-         "WARNING: %d merge conflicts - see messages above for details.\n",
-         nConflict);
+  if( !nochangeFlag ){
+    if( nConflict ){
+      if( internalUpdate ){
+        internalConflictCnt = nConflict;
+        nConflict = 0;
+      }else{
+        fossil_print("WARNING: %d merge conflicts", nConflict);
+      }
+    }
+    if( nOverwrite ){
+      fossil_warning("WARNING: %d unmanaged files were overwritten",
+                     nOverwrite);
     }
   }
   
@@ -515,7 +526,7 @@ void ensure_empty_dirs_created(void){
       blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
       zPath = blob_str(&path);      
       /* Handle various cases of existence of the directory */
-      switch( file_isdir(zPath) ){
+      switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
           if( file_mkdir(zPath, 0)!=0 ) {
             fossil_warning("couldn't create directory %s as "

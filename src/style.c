@@ -399,6 +399,65 @@ const char zDefaultCSS[] =
 @   padding: 0.2ex 2ex;
 @ }
 @
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: white;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 8pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@   margin-left: auto;
+@   margin-right: auto;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@   vertical-align: top;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.srcline {
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   background-color: rgb(170, 160, 255);
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(180, 250, 180);
+@ }
+@ table.sbsdiff tr td.addedvoid {
+@   background-color: rgb(190, 190, 180);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(250, 130, 130);
+@ }
+@ table.sbsdiff tr td.removedvoid {
+@   background-color: rgb(190, 190, 180);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(210, 210, 200);
+@ }
+@ table.sbsdiff tr td.changedvoid {
+@   background-color: rgb(190, 190, 180);
+@ }
+@
 ;
 
 
@@ -805,10 +864,22 @@ void page_style_css(void){
 void page_test_env(void){
   char c;
   int i;
+  int showAll;
   char zCap[30];
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
+    login_needed();
+    return;
+  }
   style_header("Environment Test");
+  showAll = atoi(PD("showall","0"));
+  if( !showAll ){
+    style_submenu_element("Show Cookies", "Show Cookies",
+                          "%s/test_env?showall=1", g.zTop);
+  }else{
+    style_submenu_element("Hide Cookies", "Hide Cookies",
+                          "%s/test_env", g.zTop);
+  }
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
@@ -822,7 +893,7 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
-  cgi_print_all();
+  cgi_print_all(atoi(PD("showall","0")));
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);
