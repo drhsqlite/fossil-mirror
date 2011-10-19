@@ -1,10 +1,10 @@
-C When\sediting\sthe\sproperties\sof\sa\scheck-in\sand\scomparing\sthe\sold\sand\snew\ncomment\stext,\signore\sleading\sand\strailing\swhitespace\sand\sthe\sdifferences\nbetween\s\\r\\n\sand\s\\n.\s\sHopefully\sthis\swill\sreduce\sthe\snumber\sof\sunwanted\ncomment\sedits.
-D 2011-10-18T23:37:15.810
+C Increase\sthe\sversion\snumber\sto\s1.20.\s\sImprovements\sto\sstyle\ssheets.
+D 2011-10-19T01:44:16.848
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
-F VERSION 0692e0195f1ca1b23325eca386d57950145a63d5
+F VERSION e48515c7f854defb8d5e18a901857cf9848c0b5b
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
 F art/CollRev3.dia d14a7b35e0af533998e705e771b504f8aaaead96
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c c663eee84cdae8aedc81b7735c9b29651c476e71
+F src/info.c 18839cb520ee7b2fa954b328d8d891b440c44ab8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0849ed1d4f92ea5eb032399091d426b798ea3b9a
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
@@ -112,13 +112,13 @@ F src/setup.c 5383a3172eea25ed04c77b564ff79acc49ded0e1
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c d36ab3a0aa5384f621b6a92caac5c987ba19147b
+F src/skins.c ea1ae181b5879dedda748a44645fd2009bc27e4c
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 859bc9d7f6dcb4506a45253f8aaba87ff284c8ba
 F src/sqlite3.h 25001615af72a35a3096621859c42e01aa254362
 F src/stash.c 7b6b458d5d5c0fa8688a5d2851b04f5cab3b0180
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c e9b05531cdee81b5c2f657627a3a3866093b4e95
+F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 3e0bdccc2132180aa0fa9bfaee80f20c2f561e64
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c80ee413ab77fb46b01c68ea82e2ad9a9446cc76
-R f913a8d31831733e7fd05a7f78f04b75
+P 48928829e23d602162c71a469f2fef9f30ae058f
+R 03321d6e669d466b7bed7b687504066f
 U drh
-Z a79edfb2b853ce6fcfe92ca0f9933c68
+Z 06ec36d566ca8408a842799f92eea809

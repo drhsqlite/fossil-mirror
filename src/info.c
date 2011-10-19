@@ -545,6 +545,7 @@ void ci_page(void){
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
+    @ <div class="sectionmenu">
     showDiff = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
@@ -552,40 +553,37 @@ void ci_page(void){
         @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
         @ &nbsp;&nbsp;
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
       if( showDiff ){
-        @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)">hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ &nbsp;&nbsp;
-    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    @ <a class="button" href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">
+    @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
