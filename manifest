@@ -1,5 +1,5 @@
-C merged\sin\strunk\s[e161670939b93ec].
-D 2011-10-19T22:31:31.302
+C Enhanced\s/json/artifact/FILE_UUID\sa\sbit.\sNow\sonly\sincludes\sfull\scontent\sif\sexplicitly\stold\sto,\sbut\sreturns\smore\smetadata\seven\sfor\sbinary\sfiles.
+D 2011-10-19T23:56:16.816
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,8 +96,8 @@ F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ca6028ddb75fac101c52540a5c99cdc52a04d7e7
-F src/json.c 4287f326393075f2efae35ec29da8a15b80bb38b
-F src/json_artifact.c 6a3fe1f2fbaf384ae61f0610de41174cba64b446
+F src/json.c 7ff56b189dd7354b936eeab3e4f2a61ccae1c39a
+F src/json_artifact.c dd3a3deace0b7639135537aaea4a598f36971896
 F src/json_branch.c e4a54de48b1b72d632e4047baa862564fc915c94
 F src/json_detail.h e7bd728d52fac03929480791d20475b7307eabc1
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 83ba8852a7996043dac7e1b1eec0a1d68e72d51e e161670939b93ec9610b00404b9b44569a2f1711
-R 0264adb88624fc5e46a1c21446de98c5
+P 1d0a7103a35a77a671694984e43f40044cb5d788
+R e32008099f3da4ead69f57d3d1b9cbf8
 U stephan
-Z 4e00a38a8c5918d0394ed0ef3ee4f2bd
+Z 76d0760ca4a5310e34209d51b0a9165e

@@ -213,6 +213,14 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 {NULL,NULL}
 };
 
+/*
+** Internal helper which returns true (non-0) if the includeContent
+** (HTTP) or -content|-c flags (CLI) are set. 
+*/ 
+static char json_artifact_include_content_flag(){
+  return json_find_option_bool("includeContent","content","c",0);
+}
+
 cson_value * json_artifact_wiki(int rid){
   if( ! g.perm.RdWiki ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -227,9 +235,9 @@ cson_value * json_artifact_file(int rid){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   const char *zMime;
-  const char *zRaw;
-  Blob content;
-  Stmt q;
+  Blob content = empty_blob;
+  Stmt q = empty_Stmt;
+  cson_array * checkin_arr = NULL;
 
   if( ! g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -241,29 +249,27 @@ cson_value * json_artifact_file(int rid){
   pay = cson_value_get_object(payV);
 
   content_get(rid, &content);
+  cson_object_set(pay, "contentLength",
+                  json_new_int( blob_size(&content) )
+                  /* achtung: overflow potential on 32-bit builds! */);
   zMime = mimetype_from_content(&content);
 
-  if (!zMime){
-    cson_array * checkin_arr = NULL;
-    cson_value * checkin_list = NULL;
-    /*cson_string * tagKey = NULL;*/
-    cson_value * checkinV = NULL;
-    cson_object * checkin = NULL;
+  cson_object_set(pay, "contentType",
+                  json_new_string(zMime ? zMime : "text/plain"));
+  if( json_artifact_include_content_flag() && !zMime ){
+#if 0
+    /*see next #if block below*/
+      cson_string * tagKey = NULL;
+      cson_value * checkinV = NULL;
+      cson_object * checkin = NULL;
+#endif
+      cson_object_set(pay, "content",
+                      cson_value_new_string(blob_str(&content),
+                                            (unsigned int)blob_size(&content)));
+  }
+  blob_reset(&content);
 
-    cson_int_t const rawLen = blob_size(&content);
-    zRaw = blob_str(&content);
-    checkin_list = cson_value_new_array(); 
-
-    cson_object_set(pay, "contentLength",
-                    json_new_int( rawLen
-                    /* achtung: overflow potential on 32-bit builds! */));
-    cson_object_set(pay, "content",
-                    cson_value_new_string(zRaw,(unsigned int)rawLen));
-    cson_object_set(pay, "checkins", checkin_list);
-
-    checkin_arr = cson_value_get_array(checkin_list);
-
-    db_prepare(&q,
+  db_prepare(&q,
       "SELECT filename.name AS name, "
       "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
       "       coalesce(event.ecomment,event.comment) as comment,"
@@ -280,32 +286,33 @@ cson_value * json_artifact_file(int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
+  checkin_arr = cson_new_array(); 
+  cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
 #if 0
-    /* Damn: json_tags_for_rid() only works for commits.
+  /* Damn: json_tags_for_rid() only works for commits.
 
-       FIXME: extend json_tags_for_rid() to accept file rids and then
-       implement this loop to add the tags to each object.
-    */
+  FIXME: extend json_tags_for_rid() to accept file rids and then
+  implement this loop to add the tags to each object.
+  */
 
-    while( SQLITE_ROW == db_step(&q) ){
-        checkinV = cson_sqlite3_row_to_object( q.pStmt );
-        if(!checkinV){
-            continue;
-        }
-        if(!tagKey) {
-            tagKey = cson_new_string("tags",4);
-            json_gc_add("artifact/file/tags", cson_string_value(tagKey))
-                /*avoids a potential lifetime issue*/;
-        }
-        checkin = cson_value_get_object(checkinV);
-        cson_object_set_s(checkin, tagKey, json_tags_for_rid(rid,0));
-        cson_array_append( checkin_arr, checkinV );
-    }   
+  while( SQLITE_ROW == db_step(&q) ){
+    checkinV = cson_sqlite3_row_to_object( q.pStmt );
+    if(!checkinV){
+      continue;
+    }
+    if(!tagKey) {
+      tagKey = cson_new_string("tags",4);
+      json_gc_add("artifact/file/tags", cson_string_value(tagKey))
+        /*avoids a potential lifetime issue*/;
+    }
+    checkin = cson_value_get_object(checkinV);
+    cson_object_set_s(checkin, tagKey, json_tags_for_rid(rid,0));
+    cson_array_append( checkin_arr, checkinV );
+  }   
 #else
-    json_stmt_to_array_of_obj( &q, checkin_list );
+  json_stmt_to_array_of_obj( &q, cson_array_value(checkin_arr) );
 #endif
-    db_finalize(&q);
-  }
+  db_finalize(&q);
   return payV;
 }
 

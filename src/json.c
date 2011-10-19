@@ -1738,7 +1738,8 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 /*
 ** Works just like json_stmt_to_array_of_obj(), but each row in the
 ** result set is represented as an Array of values instead of an
-** Object (key/value pairs).
+** Object (key/value pairs). If pTgt is NULL and the statement
+** has no results then NULL is returned, not an empty array.
 */
 cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
                                          cson_value * pTgt){
