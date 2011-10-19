@@ -234,25 +234,31 @@ cson_value * json_artifact_file(int rid){
   if (!zMime){
     cson_array * checkin_arr = NULL;
     cson_value * checkin_list = NULL;
-
+    /*cson_string * tagKey = NULL;*/
     cson_value * checkinV = NULL;
     cson_object * checkin = NULL;
 
+    cson_int_t const rawLen = blob_size(&content);
     zRaw = blob_str(&content);
     checkin_list = cson_value_new_array(); 
 
-    cson_object_set(pay, "content", json_new_string(zRaw));
+    cson_object_set(pay, "contentLength",
+                    json_new_int( rawLen
+                    /* achtung: overflow potential on 32-bit builds! */));
+    cson_object_set(pay, "content",
+                    cson_value_new_string(zRaw,(unsigned int)rawLen));
     cson_object_set(pay, "checkins", checkin_list);
 
     checkin_arr = cson_value_get_array(checkin_list);
 
     db_prepare(&q,
-      "SELECT filename.name, datetime(event.mtime),"
-      "       coalesce(event.ecomment,event.comment),"
-      "       coalesce(event.euser,event.user),"
-      "       b.uuid, mlink.mperm,"
+      "SELECT filename.name AS name, "
+      "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
+      "       coalesce(event.ecomment,event.comment) as comment,"
+      "       coalesce(event.euser,event.user) as user,"
+      "       b.uuid as uuid, mlink.mperm as wtf1,"
       "       coalesce((SELECT value FROM tagxref"
-                      "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk')"
+                      "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk') as branch"
       "  FROM mlink, filename, event, blob a, blob b"
       " WHERE filename.fnid=mlink.fnid"
       "   AND event.objid=mlink.mid"
@@ -262,25 +268,30 @@ cson_value * json_artifact_file(int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
+#if 0
+    /* Damn: json_tags_for_rid() only works for commits.
 
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zName = db_column_text(&q, 0);
-      const char *zDate = db_column_text(&q, 1);
-      const char *zCom = db_column_text(&q, 2);
-      const char *zUser = db_column_text(&q, 3);
-      const char *zVers = db_column_text(&q, 4);
+       FIXME: extend json_tags_for_rid() to accept file rids and then
+       implement this loop to add the tags to each object.
+    */
 
-      checkinV = cson_value_new_object();
-      checkin = cson_value_get_object(checkinV);
-
-      cson_object_set(checkin, "name", json_new_string(zName));
-      cson_object_set(checkin, "date", json_new_string(zDate));
-      cson_object_set(checkin, "comment", json_new_string(zCom));
-      cson_object_set(checkin, "user", json_new_string(zUser));
-      cson_object_set(checkin, "version", json_new_string(zVers));
-
-      cson_array_append(checkin_arr, checkinV);
-    }
+    while( SQLITE_ROW == db_step(&q) ){
+        checkinV = cson_sqlite3_row_to_object( q.pStmt );
+        if(!checkinV){
+            continue;
+        }
+        if(!tagKey) {
+            tagKey = cson_new_string("tags",4);
+            json_gc_add("artifact/file/tags", cson_string_value(tagKey))
+                /*avoids a potential lifetime issue*/;
+        }
+        checkin = cson_value_get_object(checkinV);
+        cson_object_set_s(checkin, tagKey, json_tags_for_rid(rid,0));
+        cson_array_append( checkin_arr, checkinV );
+    }   
+#else
+    json_stmt_to_array_of_obj( &q, checkin_list );
+#endif
     db_finalize(&q);
   }
   return payV;
