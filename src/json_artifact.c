@@ -214,26 +214,7 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 };
 
 cson_value * json_artifact_wiki(int rid){
-  Manifest *pWiki = 0;
-  char *zBody = NULL;
-  char const *zPageName = NULL;
-  cson_value * payV = NULL;
-  cson_object * pay = NULL;
-
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
-
-  zPageName = db_text(0, "SELECT tagname FROM tag"
-                         " WHERE tagid=(SELECT tagid FROM tagxref WHERE rid=%d)", rid);
-
-  pWiki = manifest_get(rid, CFTYPE_WIKI);
-  if( pWiki ){
-    zBody = pWiki->zWiki;
-  }
-
-  cson_object_set(pay, "name", json_new_string(zPageName));
-  cson_object_set(pay, "body", json_new_string(zBody));
-  return payV;
+    return json_get_wiki_page_by_rid(rid, 0);
 }
 
 cson_value * json_artifact_file(int rid){
