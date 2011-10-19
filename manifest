@@ -1,5 +1,5 @@
-C refactored\sjson_artifact_file()\sa\sbit\sto\sre-use\sother\scode.
-D 2011-10-19T21:53:50.052
+C Added\spermissions\schecks\sto\sartifact/file\sand\sartifact/wiki.\sRenamed\sa\smysterious\smlink\sproperty.
+D 2011-10-19T22:12:35.102
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 55cfb52fbe7279c2d38f63dc955b33889e77107d
 F src/json.c 4287f326393075f2efae35ec29da8a15b80bb38b
-F src/json_artifact.c 31fd656d834a024a4b8aa8ab33708ddbe0fe1113
+F src/json_artifact.c 6a3fe1f2fbaf384ae61f0610de41174cba64b446
 F src/json_branch.c e4a54de48b1b72d632e4047baa862564fc915c94
 F src/json_detail.h e7bd728d52fac03929480791d20475b7307eabc1
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f196f15fb842f97625a36fc5dbb6a6b2f9a4dba
-R 88b8851e624eaf5460a21da49a060015
+P a4f4c62a1a7334a98a03de1b4a008462ff4100ff
+R 54767e308631cc56c9dab842a513a2b8
 U stephan
-Z ca475a8a501f92b7cf6d42b72ad1714e
+Z 8fc464473f7dd19d16c36fd5d8d86f0c

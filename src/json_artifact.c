@@ -214,7 +214,13 @@ static ArtifactDispatchEntry ArtifactDispatchList[] = {
 };
 
 cson_value * json_artifact_wiki(int rid){
+  if( ! g.perm.RdWiki ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'j' privileges.");
+    return NULL;
+  }else{
     return json_get_wiki_page_by_rid(rid, 0);
+  }
 }
 
 cson_value * json_artifact_file(int rid){
@@ -225,6 +231,12 @@ cson_value * json_artifact_file(int rid){
   Blob content;
   Stmt q;
 
+  if( ! g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'o' privileges.");
+    return NULL;
+  }
+  
   payV = cson_value_new_object();
   pay = cson_value_get_object(payV);
 
@@ -256,7 +268,7 @@ cson_value * json_artifact_file(int rid){
       "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
       "       coalesce(event.ecomment,event.comment) as comment,"
       "       coalesce(event.euser,event.user) as user,"
-      "       b.uuid as uuid, mlink.mperm as wtf1,"
+      "       b.uuid as uuid, mlink.mperm as mperm,"/* WTF is mperm?*/
       "       coalesce((SELECT value FROM tagxref"
                       "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk') as branch"
       "  FROM mlink, filename, event, blob a, blob b"
