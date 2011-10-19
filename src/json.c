@@ -399,6 +399,18 @@ cson_value * json_new_string( char const * str ){
     : NULL;
 }
 
+cson_value * json_new_string_f( char const * fmt, ... ){
+  cson_value * v;
+  char * zStr;
+  va_list vargs;
+  va_start(vargs,fmt);
+  zStr = vmprintf(fmt,vargs);
+  va_end(vargs);
+  v = cson_value_new_string(zStr, strlen(zStr));
+  free(zStr);
+  return v;  
+}
+
 cson_value * json_new_int( int v ){
   return cson_value_new_integer((cson_int_t)v);
 }
@@ -885,8 +897,9 @@ void json_warn( int code, char const * fmt, ... ){
        the code, but we don't have those yet.
     */
     va_list vargs;
+    char * msg;
     va_start(vargs,fmt);
-    char * msg = vmprintf(fmt,vargs);
+    msg = vmprintf(fmt,vargs);
     va_end(vargs);
     cson_object_set(obj,"text", cson_value_new_string(msg,strlen(msg)));
     free(msg);

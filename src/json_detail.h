@@ -218,4 +218,16 @@ cson_value * json_page_timeline();
 */
 cson_value * json_new_string( char const * str );
 
+/*
+** Similar to json_new_string(), but takes a printf()-style format
+** specifiers. Supports the printf extensions supported by fossil's
+** mprintf().  Returns NULL if str is NULL or on allocation error.
+**
+** Maintenance note: json_new_string() is NOT variadic because by the
+** time the variadic form was introduced we already had use cases
+** which segfaulted via json_new_string() because they contain printf
+** markup (e.g. wiki content). Been there, debugged that.
+*/
+cson_value * json_new_string_f( char const * fmt, ... );
+
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
