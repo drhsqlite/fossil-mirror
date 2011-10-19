@@ -281,8 +281,9 @@ int cson_data_dest_Blob(void * pState, void const * src, unsigned int n){
 }
 
 /*
-** Implements the cson_data_source_f() interface and reads
-** input from a fossil Blob object. pState must be-a (Blob*).
+** Implements the cson_data_source_f() interface and reads input from
+** a fossil Blob object. pState must be-a (Blob*) populated with JSON
+** data.
 */
 int cson_data_src_Blob(void * pState, void * dest, unsigned int * n){
   Blob * b = (Blob*)pState;
@@ -306,8 +307,8 @@ int cson_output_Blob( cson_value const * pVal, Blob * pDest, cson_output_opt con
 ** pInfo may be NULL. If it is not NULL then it will contain details
 ** about the parse state when this function returns.
 **
-** On success a new JSON Object or Array is returned. On error NULL is
-** returned.
+** On success a new JSON Object or Array is returned (owned by the
+** caller). On error NULL is returned.
 */
 cson_value * cson_parse_Blob( Blob * pSrc, cson_parse_info * pInfo ){
   cson_value * root = NULL;
@@ -371,7 +372,11 @@ void json_gc_add( char const * key, cson_value * v ){
   }
   assert( (0==rc) && "Adding item to GC failed." );
   if(0!=rc){
-    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe());
+    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe())
+        /* reminder: allocation error is the only reasonable cause of
+           error here, provided g.json.gc.a and v are not NULL.
+        */
+        ;
     fossil_exit(1)/*not fossil_panic() b/c it might land us somewhere
                     where this function is called again.
                   */;
@@ -439,6 +444,9 @@ cson_value * json_getenv( char const * zKey ){
     if(cv){/*transform it to JSON for later use.*/
       /* use sscanf() to figure out if it's an int,
          and transform it to JSON int if it is.
+
+         FIXME: use strtol(), since it has more accurate
+         error handling.
       */
       int intVal = -1;
       char endOfIntCheck;
@@ -547,8 +555,8 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-** form" CLI flag (NULL means to use zKey). zCLIShort may be NUL or
-** the "short form" CLI flag.
+** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
 ** json_command_arg(argPos) is also checked.
@@ -615,6 +623,7 @@ int json_find_option_int(char const * zKey,
   enum { Magic = -947 };
   int rc = Magic;
   if(!g.isHTTP){
+    /* FIXME: use strtol() for better error/dflt handling. */
     char const * opt = find_option(zCLILong ? zCLILong : zKey,
                                    zCLIShort, 1);
     if(NULL!=opt){
@@ -647,7 +656,9 @@ int json_setenv( char const * zKey, cson_value * v ){
 ** application/json or application/javascript, and will fall back to
 ** text/plain if it cannot figure out anything more specific.
 **
-** Returned memory is static and immutable.
+** Returned memory is static and immutable, but if the environment
+** changes after calling this then subsequent calls to this function
+** might return different (also static/immutable) values.
 */
 char const * json_guess_content_type(){
   char const * cset;
@@ -1727,9 +1738,9 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 }
 
 /*
-** Works just like json_stmt_to_array_of_obj(), but
-** each row in the result set is represented as an
-** Array instead of an Object.
+** Works just like json_stmt_to_array_of_obj(), but each row in the
+** result set is represented as an Array of values instead of an
+** Object (key/value pairs).
 */
 cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
                                          cson_value * pTgt){

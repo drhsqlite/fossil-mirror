@@ -110,20 +110,27 @@ FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
 ** instead.
 **
 ** All of the setup/response code is handled by the top dispatcher
-** functions and the callbacks concern themselves only with generating
-** the payload.
+** functions and the callbacks concern themselves only with:
+**
+** a) Permissions checking (inspecting g.perm).
+** b) generating a response payload (if applicable)
+** c) Setting g.json's error state (if applicable). See json_set_err().
 **
 ** It is imperitive that NO callback functions EVER output ANYTHING to
 ** stdout, as that will effectively corrupt any JSON output, and
 ** almost certainly will corrupt any HTTP response headers. Output
 ** sent to stderr ends up in my apache log, so that might be useful
-** for debuggering in some cases, but so such code should be left
+** for debuggering in some cases, but no such code should be left
 ** enabled for non-debuggering builds.
 */
 typedef cson_value * (*fossil_json_f)();
 
 /*
 ** Holds name-to-function mappings for JSON page/command dispatching.
+**
+** Internally we model page dispatching lists as arrays of these
+** objects, where the final entry in the array has a NULL name value
+** to act as the end-of-list sentinel.
 **
 */
 typedef struct JsonPageDef{
@@ -183,7 +190,9 @@ const FossilJsonKeys_ FossilJsonKeys;
 **
 ** On error, g.json.resultCode is set to one of the FossilJsonCodes
 ** values and NULL is returned. If non-NULL is returned, ownership is
-** transfered to the caller.
+** transfered to the caller (but the g.json error state might still be
+** set in that case, so the caller must check that or pass it on up
+** the dispatch chain).
 */
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages);
 
