@@ -1464,8 +1464,8 @@ cson_value * json_g_to_json(){
 ** "payload" property of the returned object.  If resultCode is
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
-** response. In either case, onwership of payload is transfered to
-** this function.
+** response. In either case, onwership of payload is transfered to (or
+** shared with, if the caller holds a reference) this function.
 **
 ** pMsg is an optional message string property (resultText) of the
 ** response. If resultCode is non-0 and pMsg is NULL then
@@ -2398,6 +2398,7 @@ void json_page_top(void){
     payload = (*pageDef->func)();
   }
   if( g.json.resultCode ){
+    cson_value_free(payload);
     json_err(g.json.resultCode, NULL, 0);
   }else{
     cson_value * root = json_create_response(rc, NULL, payload);
@@ -2486,6 +2487,7 @@ void json_cmd_top(void){
     payload = (*pageDef->func)();
   }
   if( g.json.resultCode ){
+    cson_value_free(payload);
     json_err(g.json.resultCode, NULL, 1);
   }else{
     payload = json_create_response(rc, NULL, payload);
