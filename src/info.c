@@ -336,9 +336,13 @@ static void append_file_change_line(
       @ <p>Changes to %h(zName)</p>
     }
     if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(zOld, zNew);
-      @ </pre></blockquote>
+      if( sideBySide ){
+        generate_sbsdiff(zOld, zNew);
+      }else{
+        @ <blockquote><pre>
+        append_diff(zOld, zNew);
+        @ </pre></blockquote>
+      }
     }
   }else{
     if( zOld && zNew ){
@@ -363,7 +367,7 @@ static void append_file_change_line(
     }
     if( showDiff ){
       if( sideBySide ){
-         generate_sbsdiff(zOld, zNew);
+        generate_sbsdiff(zOld, zNew);
       }else{
         @ <blockquote><pre>
         append_diff(zOld, zNew);
@@ -545,47 +549,45 @@ void ci_page(void){
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
+    @ <div class="sectionmenu">
     showDiff = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)">
+        @ hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
       if( showDiff ){
-        @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)">hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ &nbsp;&nbsp;
-    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    @ <a class="button" href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">
+    @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
@@ -1679,6 +1681,38 @@ void render_color_chooser(
 }
 
 /*
+** Do a comment comparison.
+**
+** +  Leading and trailing whitespace are ignored.
+** +  \r\n characters compare equal to \n
+**
+** Return true if equal and false if not equal.
+*/
+static int comment_compare(const char *zA, const char *zB){
+  if( zA==0 ) zA = "";
+  if( zB==0 ) zB = "";
+  while( fossil_isspace(zA[0]) ) zA++;
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( zA[0] && zB[0] ){
+    if( zA[0]==zB[0] ){ zA++; zB++; continue; }
+    if( zA[0]=='\r' && zA[1]=='\n' && zB[0]=='\n' ){
+      zA += 2;
+      zB++;
+      continue;
+    }
+    if( zB[0]=='\r' && zB[1]=='\n' && zA[0]=='\n' ){
+      zB += 2;
+      zA++;
+      continue;
+    }
+    return 0;
+  }
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( fossil_isspace(zA[0]) ) zA++;
+  return zA[0]==0 && zB[0]==0;
+}
+
+/*
 ** WEBPAGE: ci_edit
 ** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
@@ -1754,7 +1788,8 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor || fossil_strcmp(zColor,zNewColor)!=0)
+     && (fPropagateColor!=fNewPropagateColor 
+             || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
       if( fNewPropagateColor ){
@@ -1766,7 +1801,7 @@ void ci_edit_page(void){
     if( zNewColor[0]==0 && zColor[0]!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
     }
-    if( fossil_strcmp(zComment,zNewComment)!=0 ){
+    if( comment_compare(zComment,zNewComment)==0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
                     zNewComment);
     }

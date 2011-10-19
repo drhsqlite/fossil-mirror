@@ -1070,6 +1070,7 @@ void annotate_cmd(void){
   int fnid;         /* Filename ID */
   int fid;          /* File instance ID */
   int mid;          /* Manifest where file was checked in */
+  int cid;          /* Checkout ID */
   Blob treename;    /* FILENAME translated to canonical form */
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
@@ -1099,7 +1100,16 @@ void annotate_cmd(void){
   if( fid==0 ){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
-  mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
+  cid = db_lget_int("checkout", 0);
+  if (cid == 0){
+    fossil_fatal("Not in a checkout");
+  }
+  if( iLimit<=0 ) iLimit = 1000000000;
+  compute_direct_ancestors(cid, iLimit);
+  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
+          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
+          " ORDER BY ancestor.generation ASC LIMIT 1",
+          fid, fnid);
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }

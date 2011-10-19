@@ -204,7 +204,8 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");

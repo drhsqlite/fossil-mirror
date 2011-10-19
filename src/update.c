@@ -467,7 +467,7 @@ void update_cmd(void){
       }
     }
     if( nOverwrite ){
-      fossil_warning("WARNING: %d unmanaged files where overwritten",
+      fossil_warning("WARNING: %d unmanaged files were overwritten",
                      nOverwrite);
     }
   }

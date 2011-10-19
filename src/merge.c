@@ -511,7 +511,7 @@ void merge_cmd(void){
       fossil_print("WARNING: %d merge conflicts", nConflict);
     }
     if( nOverwrite ){
-      fossil_warning("WARNING: %d unmanaged files where overwritten",
+      fossil_warning("WARNING: %d unmanaged files were overwritten",
                      nOverwrite);
     }
   }
