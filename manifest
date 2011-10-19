@@ -1,5 +1,5 @@
-C Re-implemented\sjson_artifact_wiki()\sto\suse\spre-existing\sfunctionality.
-D 2011-10-19T21:26:29.870
+C removed\sa\sno-longer-true\s"untested"\smarker.
+D 2011-10-19T21:53:18.145
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,7 +106,7 @@ F src/json_query.c 3cee3e36d2296237e9080f8a6af2782fbd8200cf
 F src/json_report.c cc3dffcc35f94b3e85894c827003c30aae323693
 F src/json_tag.c 17495d274fb2116cb2fdfec7cd5c92f85ee6fa87
 F src/json_timeline.c 7edafd66909756b32e017586b0db445dee4bf12d
-F src/json_wiki.c d43e6f1b7f1e33e4ef0c57d03207324876e3a9c4
+F src/json_wiki.c 390290409a4f12f65d88e2dc338920cb24f7e6b9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fff4232a14bf5be8d3d527ebf3f7bfccc8608498
 F src/main.c 055be59021793456ae123658ef4bc4f4c0367045
@@ -344,7 +344,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d2c1ae23a90b24f6ca1d7637193a59d5ecf3e680
-R a27d6f40c87f09f62c401a0c92472fcd
+P f996e6636c11a9036e3acfbd6f5c0a0211baf083
+R 895211669ef5656821598f15c2651c59
 U stephan
-Z 1dc27573807d6e679484764859bd544f
+Z d2f25f5e8a9ca71e10dd9257aaaa5193

@@ -121,8 +121,6 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
 
 
 /*
-** UNTESTED!
-**
 ** Searches for a wiki page with the given rid. If found it behaves
 ** like json_get_wiki_page_by_name(pageName, doParse), else it returns
 ** NULL.
