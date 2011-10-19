@@ -361,8 +361,6 @@ static cson_value * json_wiki_list(){
   assert(0 != g.json.resultCode);
   cson_value_free(listV);
   listV = NULL;
-  json_set_err(FSL_JSON_E_UNKNOWN,
-               "Error creating wiki page list.");
   end:
   db_finalize(&q);
   return listV;
