@@ -35,6 +35,9 @@
 **
 ** format=string 'a' means each row is an Array of values, 'o'
 ** (default) creates each row as an Object.
+**
+** TODO: in CLI mode (only) use -S FILENAME to read the sql
+** from a file.
 */
 cson_value * json_page_query(){
   char const * zSql = NULL;
