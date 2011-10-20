@@ -2094,12 +2094,6 @@ cson_value * json_page_stat(){
 
 
 
-static cson_value * json_user_list();
-static cson_value * json_user_get();
-#if 0
-static cson_value * json_user_create();
-static cson_value * json_user_edit();
-#endif
 
 /*
 ** Creates a comma-separated list of command names
@@ -2124,18 +2118,6 @@ static int json_pagedefs_to_string(JsonPageDef const * zPages,
   return i;
 }
 
-/*
-** Mapping of /json/user/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_User[] = {
-{"create", json_page_nyi, 1},
-{"edit", json_page_nyi, 1},
-{"get", json_user_get, 0},
-{"list", json_user_list, 0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
 
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   JsonPageDef const * def;
@@ -2159,14 +2141,6 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
     ++g.json.dispatchDepth;
     return (*def->func)();
   }
-}
-
-/*
-** Implements the /json/user family of pages/commands.
-**
-*/
-static cson_value * json_page_user(){
-  return json_page_dispatch_helper(&JsonPageDefs_User[0]);
 }
 
 
@@ -2195,76 +2169,6 @@ static cson_value * json_page_rebuild(){
     return NULL;
   }
 }
-
-/*
-** Impl of /json/user/list. Requires admin rights.
-*/
-static cson_value * json_user_list(){
-  cson_value * payV = NULL;
-  Stmt q;
-  if(!g.perm.Admin){
-    g.json.resultCode = FSL_JSON_E_DENIED;
-    return NULL;
-  }
-  db_prepare(&q,"SELECT uid AS uid,"
-             " login AS name,"
-             " cap AS capabilities,"
-             " info AS info,"
-             " mtime AS mtime"
-             " FROM user ORDER BY login");
-  payV = json_stmt_to_array_of_obj(&q, NULL);
-  db_finalize(&q);
-  if(NULL == payV){
-    json_set_err(FSL_JSON_E_UNKNOWN,
-                 "Could not convert user list to JSON.");
-  }
-  return payV;  
-}
-
-/*
-** Impl of /json/user/get. Requires admin rights.
-*/
-static cson_value * json_user_get(){
-  cson_value * payV = NULL;
-  char const * pUser = NULL;
-  Stmt q;
-  if(!g.perm.Admin){
-    json_set_err(FSL_JSON_E_DENIED,
-                 "Requires 'a' privileges.");
-    return NULL;
-  }
-  pUser = json_command_arg(g.json.dispatchDepth+1);
-  if( g.isHTTP && (!pUser || !*pUser) ){
-    pUser = json_getenv_cstr("name")
-      /* ACHTUNG: fossil apparently internally sets name=user/get/XYZ
-         if we pass the name as part of the path, which is why we check
-         with json_command_path() before trying to get("name").
-      */;
-  }
-  if(!pUser || !*pUser){
-    json_set_err(FSL_JSON_E_MISSING_ARGS,"Missing 'name' property.");
-    return NULL;
-  }
-  db_prepare(&q,"SELECT uid AS uid,"
-             " login AS name,"
-             " cap AS capabilities,"
-             " info AS info,"
-             " mtime AS mtime"
-             " FROM user"
-             " WHERE login=%Q",
-             pUser);
-  if( (SQLITE_ROW == db_step(&q)) ){
-    payV = cson_sqlite3_row_to_object(q.pStmt);
-    if(!payV){
-      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert user row to JSON.");
-    }
-  }else{
-    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,"User not found.");
-  }
-  db_finalize(&q);
-  return payV;  
-}
-
 
 /*
 ** Impl of /json/g. Requires admin/setup rights.
@@ -2296,6 +2200,8 @@ cson_value * json_page_query();
 cson_value * json_page_report();
 /* Impl in json_tag.c. */
 cson_value * json_page_tag();
+/* Impl in json_user.c. */
+cson_value * json_page_user();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
