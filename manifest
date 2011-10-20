@@ -1,5 +1,5 @@
-C Fix\sthe\smakefile\sso\sthat\s"make\stest"\sworks\sfrom\sa\ssibling\sbuild\sdirectory.
-D 2011-10-20T01:04:02.855
+C Additional\smakefile\schanges\sso\sthe\s"../$CHECKOUT/configure;\smake\stest"\sworks.
+D 2011-10-20T01:12:44.065
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -87,10 +87,10 @@ F src/info.c ca6028ddb75fac101c52540a5c99cdc52a04d7e7
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0849ed1d4f92ea5eb032399091d426b798ea3b9a
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
-F src/main.mk 3f278d0ad73b7527e8530a9ee352363969efc82b
+F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 47baf449c3e0a94278c304519418ad415a4582ce
+F src/makemake.tcl dc49c79c21b51dd49400ad434028a7df2a2274e2
 F src/manifest.c e85a900e34bd526c9c96885665e5974e334b350a
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5692702d5069a63f3dce2914d95af0f88a263d9f
-R 5991fb69cadee959e6cbe34884c7def1
+P 16d7e4a5c06678cc6b080df61b2bb7976bf23166
+R 62dad777bace25f2530746e9c7283540
 U drh
-Z 9466e166190b51abb1709a63c19373ce
+Z 9a57b278c6241162b78581865f511306
