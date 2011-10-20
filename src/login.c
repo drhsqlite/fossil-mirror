@@ -93,7 +93,7 @@ static char *login_cookie_name(void){
        "SELECT 'fossil-' || substr(value,1,16)"
        "  FROM config"
        " WHERE name IN ('project-code','login-group-code')"
-       " ORDER BY name;"
+       " ORDER BY name /*sort*/"
     );
   }
   return zCookieName;
@@ -196,6 +196,33 @@ static void record_login_attempt(
 }
 
 /*
+** SQL function for constant time comparison of two values.
+** Sets result to 0 if two values are equal.
+*/
+static void constant_time_cmp_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  const unsigned char *buf1, *buf2;
+  int len, i;
+  unsigned char rc = 0;
+
+  assert( argc==2 );
+  len = sqlite3_value_bytes(argv[0]);
+  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
+    rc = 1;
+  }else{
+    buf1 = sqlite3_value_text(argv[0]);
+    buf2 = sqlite3_value_text(argv[1]);
+    for( i=0; i<len; i++ ){
+      rc = rc | (buf1[i] ^ buf2[i]);
+    }
+  }
+  sqlite3_result_int(context, rc);
+}
+
+/*
 ** WEBPAGE: login
 ** WEBPAGE: logout
 ** WEBPAGE: my
@@ -219,6 +246,8 @@ void login_page(void){
   char *zRemoteAddr;           /* Abbreviated IP address of requestor */
 
   login_check_credentials();
+  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
@@ -228,7 +257,9 @@ void login_page(void){
     cgi_set_cookie(zCookieName, "", login_cookie_path(), -86400);
     redirect_to_g();
   }
-  if( g.perm.Password && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+  if( g.perm.Password && zPasswd
+   && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
+  ){
     /* The user requests a password change */
     zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
@@ -454,33 +485,6 @@ void login_page(void){
     @ </form>
   }
   style_footer();
-}
-
-/*
-** SQL function for constant time comparison of two values.
-** Sets result to 0 if two values are equal.
-*/
-static void constant_time_cmp_function(
- sqlite3_context *context,
- int argc,
- sqlite3_value **argv
-){
-  const unsigned char *buf1, *buf2;
-  int len, i;
-  unsigned char rc = 0;
-
-  assert( argc==2 );
-  len = sqlite3_value_bytes(argv[0]);
-  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
-    rc = 1;
-  }else{
-    buf1 = sqlite3_value_text(argv[0]);
-    buf2 = sqlite3_value_text(argv[1]);
-    for( i=0; i<len; i++ ){
-      rc = rc | (buf1[i] ^ buf2[i]);
-    }
-  }
-  sqlite3_result_int(context, rc);
 }
 
 /*

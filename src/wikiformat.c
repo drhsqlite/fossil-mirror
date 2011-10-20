@@ -1710,7 +1710,7 @@ void wiki_extract_links(
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int vAttrIdx, vAttrDidAppend=0;
+          int vAttrIdx;
           renderer.zVerbatimId = 0;
           renderer.inVerbatim = 1;
           renderer.preVerbState = renderer.state;
@@ -1718,8 +1718,6 @@ void wiki_extract_links(
           for (vAttrIdx = 0; vAttrIdx < markup.nAttr; vAttrIdx++){
             if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
               renderer.zVerbatimId = markup.aAttr[0].zValue;
-            }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
-              vAttrDidAppend=1;
             }
           }
           renderer.wantAutoParagraph = 0;

@@ -251,7 +251,8 @@ static void expand_args_option(void){
   int n;                    /* Number of bytes in one line */
   char *z;            /* General use string pointer */
   char **newArgv;     /* New expanded g.argv under construction */
-
+  char const * zFileName;   /* input file name */
+  FILE * zInFile;           /* input FILE */
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -262,7 +263,19 @@ static void expand_args_option(void){
   }
   if( i>=g.argc-1 ) return;
 
-  blob_read_from_file(&file, g.argv[i+1]);
+  zFileName = g.argv[i+1];
+  zInFile = (0==strcmp("-",zFileName))
+    ? stdin
+    : fopen(zFileName,"rb");
+  if(!zInFile){
+    fossil_panic("Cannot open -args file [%s]", zFileName);
+  }else{
+    blob_read_from_channel(&file, zInFile, -1);
+    if(stdin != zInFile){
+      fclose(zInFile);
+    }
+    zInFile = NULL;
+  }
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
@@ -273,6 +286,10 @@ static void expand_args_option(void){
     if( n<=1 ) continue;
     z = blob_buffer(&line);
     z[n-1] = 0;
+    if((n>1) && ('\r'==z[n-2])){
+      if(n==2) continue /*empty line*/;
+      z[n-2] = 0;
+    }
     newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
@@ -385,7 +402,7 @@ const char *fossil_nameofexe(void){
 /*
 ** Exit.  Take care to close the database first.
 */
-void fossil_exit(int rc){
+NORETURN void fossil_exit(int rc){
   db_close(1);
   exit(rc);
 }
@@ -394,7 +411,7 @@ void fossil_exit(int rc){
 ** Print an error message, rollback all databases, and quit.  These
 ** routines never return.
 */
-void fossil_panic(const char *zFormat, ...){
+NORETURN void fossil_panic(const char *zFormat, ...){
   char *z;
   va_list ap;
   static int once = 1;
@@ -413,7 +430,7 @@ void fossil_panic(const char *zFormat, ...){
   db_force_rollback();
   fossil_exit(1);
 }
-void fossil_fatal(const char *zFormat, ...){
+NORETURN void fossil_fatal(const char *zFormat, ...){
   char *z;
   va_list ap;
   mainInFatalError = 1;
@@ -901,7 +918,7 @@ void set_base_url(void){
 /*
 ** Send an HTTP redirect back to the designated Index Page.
 */
-void fossil_redirect_home(void){
+NORETURN void fossil_redirect_home(void){
   cgi_redirectf("%s%s", g.zTop, db_get("index-page", "/index"));
 }
 

@@ -788,6 +788,7 @@ void scrub_cmd(void){
       db_multi_exec(
         "DELETE FROM concealed;"
         "UPDATE rcvfrom SET ipaddr='unknown';"
+        "DROP TABLE IF EXISTS accesslog;"
         "UPDATE user SET photo=NULL, info='';"
       );
     }

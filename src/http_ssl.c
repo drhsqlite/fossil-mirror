@@ -99,6 +99,7 @@ static int ssl_client_cert_callback(SSL *ssl, X509 **x509, EVP_PKEY **pkey){
 */
 void ssl_global_init(void){
   const char *zCaSetting = 0, *zCaFile = 0, *zCaDirectory = 0;
+  const char *identityFile;
   
   if( sslIsInit==0 ){
     SSL_library_init();
@@ -137,15 +138,22 @@ void ssl_global_init(void){
       }
     }
     
-    /* Load client SSL identity, preferring the filename specified on the command line */
-    const char *identityFile = ( g.zSSLIdentity!= 0) ? g.zSSLIdentity : db_get("ssl-identity", 0);
+    /* Load client SSL identity, preferring the filename specified on the
+    ** command line */
+    if( g.zSSLIdentity!=0 ){
+      identityFile = g.zSSLIdentity;
+    }else{
+      identityFile = db_get("ssl-identity", 0);
+    }
     if( identityFile!=0 && identityFile[0]!='\0' ){
-      if( SSL_CTX_use_certificate_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!= 1
-          || SSL_CTX_use_PrivateKey_file(sslCtx, identityFile, SSL_FILETYPE_PEM)!=1 ){
+      if( SSL_CTX_use_certificate_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
+       || SSL_CTX_use_PrivateKey_file(sslCtx,identityFile,SSL_FILETYPE_PEM)!=1
+      ){
         fossil_fatal("Could not load SSL identity from %s", identityFile);
       }
     }
-    /* Register a callback to tell the user what to do when the server asks for a cert */
+    /* Register a callback to tell the user what to do when the server asks
+    ** for a cert */
     SSL_CTX_set_client_cert_cb(sslCtx, ssl_client_cert_callback);
 
     sslIsInit = 1;
@@ -186,13 +194,16 @@ void ssl_close(void){
 int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
-char *connStr ;
+  int trusted = 0;
+  char *connStr ;
+  unsigned long e;
+
   ssl_global_init();
 
   /* Get certificate for current server from global config and
    * (if we have it in config) add it to certificate store.
    */
-  cert = ssl_get_certificate();
+  cert = ssl_get_certificate(&trusted);
   if ( cert!=NULL ){
     X509_STORE_add_cert(SSL_CTX_get_cert_store(sslCtx), cert);
     X509_free(cert);
@@ -234,7 +245,7 @@ char *connStr ;
     return 1;
   }
 
-  if( SSL_get_verify_result(ssl) != X509_V_OK ){
+  if( trusted<=0 && (e = SSL_get_verify_result(ssl)) != X509_V_OK ){
     char *desc, *prompt;
     char *warning = "";
     Blob ans;
@@ -260,15 +271,18 @@ char *connStr ;
       warning = "WARNING: Certificate doesn't match the "
                 "saved certificate for this host!";
     }
-    prompt = mprintf("\nUnknown SSL certificate:\n\n%s\n\n%s\n"
-                     "Either:\n"
-                     " * verify the certificate is correct using the "
-                     "SHA1 fingerprint above\n"
-                     " * use the global ssl-ca-location setting to specify your CA root\n"
-                     "   certificates list\n\n"
-                     "If you are not expecting this message, answer no and "
-                     "contact your server\nadministrator.\n\n"
-                     "Accept certificate [a=always/y/N]? ", desc, warning);
+    prompt = mprintf("\nSSL verification failed: %s\n"
+        "Certificate received: \n\n%s\n\n%s\n"
+        "Either:\n"
+        " * verify the certificate is correct using the "
+        "SHA1 fingerprint above\n"
+        " * use the global ssl-ca-location setting to specify your CA root\n"
+        "   certificates list\n\n"
+        "If you are not expecting this message, answer no and "
+        "contact your server\nadministrator.\n\n"
+        "Accept certificate for host %s [a=always/y/N]? ",
+        X509_verify_cert_error_string(e), desc, warning,
+        g.urlName);
     BIO_free(mem);
 
     prompt_user(prompt, &ans);
@@ -280,7 +294,14 @@ char *connStr ;
       return 1;
     }
     if( blob_str(&ans)[0]=='a' ) {
-      ssl_save_certificate(cert);
+      if ( trusted==0 ){
+        Blob ans2;
+        prompt_user("\nSave this certificate as fully trusted [a=always/N]? ",
+                    &ans2);
+        trusted = (blob_str(&ans2)[0]=='a');
+        blob_reset(&ans2);
+      }
+      ssl_save_certificate(cert, trusted);
     }
     blob_reset(&ans);
   }
@@ -290,9 +311,9 @@ char *connStr ;
   ** if any files are received from the server.
   */
   {
-      /* IPv4 only code */
-      const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
-      g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+    /* IPv4 only code */
+    const unsigned char *ip = (const unsigned char *) BIO_get_conn_ip(iBio);
+    g.zIpAddr = mprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
   }
 
   X509_free(cert);
@@ -302,7 +323,7 @@ char *connStr ;
 /*
 ** Save certificate to global config.
 */
-void ssl_save_certificate(X509 *cert){
+void ssl_save_certificate(X509 *cert, int trusted){
   BIO *mem;
   char *zCert, *zHost;
 
@@ -313,6 +334,9 @@ void ssl_save_certificate(X509 *cert){
   zHost = mprintf("cert:%s", g.urlName);
   db_set(zHost, zCert, 1);
   free(zHost);
+  zHost = mprintf("trusted:%s", g.urlName);
+  db_set_int(zHost, trusted, 1);
+  free(zHost);
   BIO_free(mem);  
 }
 
@@ -320,7 +344,7 @@ void ssl_save_certificate(X509 *cert){
 ** Get certificate for g.urlName from global config.
 ** Return NULL if no certificate found.
 */
-X509 *ssl_get_certificate(void){
+X509 *ssl_get_certificate(int *pTrusted){
   char *zHost, *zCert;
   BIO *mem;
   X509 *cert;
@@ -330,6 +354,13 @@ X509 *ssl_get_certificate(void){
   free(zHost);
   if ( zCert==NULL )
     return NULL;
+
+  if ( pTrusted!=0 ){
+    zHost = mprintf("trusted:%s", g.urlName);
+    *pTrusted = db_get_int(zHost, 0);
+    free(zHost);
+  }
+
   mem = BIO_new(BIO_s_mem());
   BIO_puts(mem, zCert);
   cert = PEM_read_bio_X509(mem, NULL, 0, NULL);

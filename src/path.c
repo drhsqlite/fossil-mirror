@@ -97,8 +97,9 @@ void path_reset(void){
 /*
 ** Construct the path from path.pStart to path.pEnd in the u.pTo fields.
 */
-void path_reverse_path(void){
+static void path_reverse_path(void){
   PathNode *p;
+  assert( path.pEnd!=0 );
   for(p=path.pEnd; p && p->pFrom; p = p->pFrom){
     p->pFrom->u.pTo = p;
   }

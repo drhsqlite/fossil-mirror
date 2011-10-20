@@ -787,6 +787,7 @@ void configuration_cmd(void){
     usage("export|import|merge|pull|reset ...");
   }
   db_find_and_open_repository(0, 0);
+  db_open_config(0);
   zMethod = g.argv[2];
   n = strlen(zMethod);
   if( strncmp(zMethod, "export", n)==0 ){

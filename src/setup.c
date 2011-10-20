@@ -850,6 +850,15 @@ void setup_access(void){
   @ <li> The server is started from CGI without the "localauth" keyword
   @ in the CGI script.
   @ </ol>
+  @
+  @ <hr />
+  onoff_attribute("Enable /test_env",
+     "test_env_enable", "test_env_enable", 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
+  @ users.  When disabled (the default) only users Admin and Setup can visit
+  @ the /test_env page.
+  @ </p>
+  @
   @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0);
@@ -857,7 +866,7 @@ void setup_access(void){
   @ login name of a valid user and no other login credentials are available,
   @ then the REMOTE_USER is accepted as an authenticated user.
   @ </p>
-
+  @
   @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a

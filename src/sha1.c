@@ -84,7 +84,7 @@ struct SHA1Context {
 
 void SHA1Transform(unsigned int state[5], const unsigned char buffer[64])
 {
-  unsigned int qq[5]; // a, b, c, d, e;
+  unsigned int qq[5]; /* a, b, c, d, e; */
   static int one = 1;
   unsigned int block[16];
   memcpy(block, buffer, 64);

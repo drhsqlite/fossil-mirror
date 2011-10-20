@@ -212,33 +212,34 @@ const char zDefaultHeader[] =
 @      }
 @   </th1></div>
 @ </div>
-@ <div class="mainmenu"><th1>
-@ html "<a href='$home$index_page'>Home</a> "
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href='$home$index_page'>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href='$home/timeline'>Timeline</a> "
+@   html "<a href='$home/timeline'>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='$home/dir?ci=tip'>Files</a> "
+@   html "<a href='$home/dir?ci=tip'>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$home/brlist'>Branches</a> "
-@   html "<a href='$home/taglist'>Tags</a> "
+@   html "<a href='$home/brlist'>Branches</a>\n"
+@   html "<a href='$home/taglist'>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$home/reportlist'>Tickets</a> "
+@   html "<a href='$home/reportlist'>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$home/wiki'>Wiki</a> "
+@   html "<a href='$home/wiki'>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$home/setup'>Admin</a> "
+@   html "<a href='$home/setup'>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href='$home/setup_ulist'>Users</a> "
+@   html "<a href='$home/setup_ulist'>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$home/login'>Logout</a> "
+@   html "<a href='$home/login'>Logout</a>\n"
 @ } else {
-@   html "<a href='$home/login'>Login</a> "
+@   html "<a href='$home/login'>Login</a>\n"
 @ }
 @ </th1></div>
 ;
@@ -322,19 +323,20 @@ const char zDefaultCSS[] =
 @ }
 @
 @ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu {
+@ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 0px;
 @   font-size: 0.9em;
 @   text-align: center;
 @   background-color: #456878;
 @   color: white;
 @ }
-@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited {
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
+@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
 @   padding: 3px 10px 3px 10px;
 @   color: white;
 @   text-decoration: none;
 @ }
-@ div.mainmenu a:hover, div.submenu a:hover {
+@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
 @   color: #558195;
 @   background-color: white;
 @ }
@@ -397,6 +399,65 @@ const char zDefaultCSS[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
+@ }
+@
+@ /* Side-by-side diff */
+@ table.sbsdiff {
+@   background-color: white;
+@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
+@   font-size: 8pt;
+@   border-collapse:collapse;
+@   white-space: pre;
+@   width: 98%;
+@   border: 1px #000 dashed;
+@   margin-left: auto;
+@   margin-right: auto;
+@ }
+@
+@ table.sbsdiff th.diffhdr {
+@   border-bottom: dotted;
+@   border-width: 1px;
+@ }
+@
+@ table.sbsdiff tr td {
+@   white-space: pre;
+@   padding-left: 3px;
+@   padding-right: 3px;
+@   margin: 0px;
+@   vertical-align: top;
+@ }
+@
+@ table.sbsdiff tr td.lineno {
+@   text-align: right;
+@ }
+@
+@ table.sbsdiff tr td.srcline {
+@ }
+@
+@ table.sbsdiff tr td.meta {
+@   background-color: rgb(170, 160, 255);
+@   text-align: center;
+@ }
+@
+@ table.sbsdiff tr td.added {
+@   background-color: rgb(180, 250, 180);
+@ }
+@ table.sbsdiff tr td.addedvoid {
+@   background-color: rgb(190, 190, 180);
+@ }
+@
+@ table.sbsdiff tr td.removed {
+@   background-color: rgb(250, 130, 130);
+@ }
+@ table.sbsdiff tr td.removedvoid {
+@   background-color: rgb(190, 190, 180);
+@ }
+@
+@ table.sbsdiff tr td.changed {
+@   background-color: rgb(210, 210, 200);
+@ }
+@ table.sbsdiff tr td.changedvoid {
+@   background-color: rgb(190, 190, 180);
 @ }
 @
 ;
@@ -472,7 +533,7 @@ const struct strctCssDefaults {
   },
   { "td.timelineGraph",
     "the format for the grap placeholder cells in timelines",
-    @ width: 20;
+    @ width: 20px;
     @ text-align: left;
     @ vertical-align: top;
   },
@@ -566,7 +627,7 @@ const struct strctCssDefaults {
   { "table.usetupUserList",
     "format for the user list table on the user setup page",
     @   outline-style: double;
-    @   outline-width: 1;
+    @   outline-width: 1px;
     @   padding: 10px;
   },
   { "th.usetupListUser",
@@ -690,13 +751,13 @@ const struct strctCssDefaults {
   },
   { "input.checkinUserColor",
     "format for user color input on checkin edit page",
-    @ # no special definitions, class defined, to enable color pickers, f.e.:
-    @ #  add the color picker found at http:jscolor.com  as java script include
-    @ #  to the header and configure the java script file with
-    @ #   1. use as bindClass :checkinUserColor
-    @ #   2. change the default hash adding behaviour to ON
-    @ #  or change the class defition of element identified by id="clrcust"
-    @ #  to a standard jscolor definition with java script in the footer.
+    @ /* no special definitions, class defined, to enable color pickers, f.e.:
+    @ **  add the color picker found at http:jscolor.com  as java script include
+    @ **  to the header and configure the java script file with
+    @ **   1. use as bindClass :checkinUserColor
+    @ **   2. change the default hash adding behaviour to ON
+    @ ** or change the class defition of element identified by id="clrcust"
+    @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
     "format for end of content area, to be used to clear page flow(sidebox on branch,..",
@@ -720,7 +781,7 @@ const struct strctCssDefaults {
     "format for th script trace messages",
     @   color: red;
   },
-  { "p:reportError",
+  { "p.reportError",
     "format for report configuration errors",
     @   color: red;
     @   font-weight: bold;
@@ -805,10 +866,22 @@ void page_style_css(void){
 void page_test_env(void){
   char c;
   int i;
+  int showAll;
   char zCap[30];
   login_check_credentials();
-  if( !g.perm.Admin && !g.perm.Setup ){ login_needed(); return; }
+  if( !g.perm.Admin && !g.perm.Setup && !db_get_boolean("test_env_enable",0) ){
+    login_needed();
+    return;
+  }
   style_header("Environment Test");
+  showAll = atoi(PD("showall","0"));
+  if( !showAll ){
+    style_submenu_element("Show Cookies", "Show Cookies",
+                          "%s/test_env?showall=1", g.zTop);
+  }else{
+    style_submenu_element("Hide Cookies", "Hide Cookies",
+                          "%s/test_env", g.zTop);
+  }
 #if !defined(_WIN32)
   @ uid=%d(getuid()), gid=%d(getgid())<br />
 #endif
@@ -822,7 +895,7 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
-  cgi_print_all();
+  cgi_print_all(atoi(PD("showall","0")));
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
     if( zRedir ) cgi_redirect(zRedir);
