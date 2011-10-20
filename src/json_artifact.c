@@ -310,7 +310,7 @@ cson_value * json_artifact_file(int rid){
     cson_array_append( checkin_arr, checkinV );
   }   
 #else
-  json_stmt_to_array_of_obj( &q, cson_array_value(checkin_arr) );
+  json_stmt_to_array_of_obj( &q, checkin_arr );
 #endif
   db_finalize(&q);
   return payV;
