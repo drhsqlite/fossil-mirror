@@ -1,5 +1,5 @@
-C Making\s'fossil\smerge'\salso\sreport\sa\sconflict\sfor\sextra\sfiles\soverwritten.\sLike\n[60c6197c8a],\sbut\sfor\sthe\smerge\soperation.\sRelated\sto\sticket\s[953031915f].
-D 2011-10-14T22:20:45.094
+C started\schangelog\sfor\s1.20\srelease.
+D 2011-10-20T02:03:59.546
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -235,7 +235,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 19000184960afd7fc593e06472c2b19fd16cecf3
-F www/changes.wiki fa1d0fa1b305e5ce1d9ea56009f7430a38aad0c0
+F www/changes.wiki 6e7715180a0ec8bc9fbf206c949ea954ea1418a9
 F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e1a7a1d9e267213e2adeaa06a68b00151334b282
-R d07323db45f2140bb3bdb38ec0cd6f6d
-U viriketo
-Z 18210bde7928f0d737be60137b671179
+P bb49278a8ad04bdbf9ae9039bf191579483fe0ee
+R 44ee412744a91d3f8ce118affdcf1fcb
+U stephan
+Z 6f48bc89b7b9a71ccd402c2914fa67e6
