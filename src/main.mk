@@ -290,7 +290,7 @@ $(OBJDIR)/mkversion:	$(SRCDIR)/mkversion.c
 # build is done from, i.e. the checkout belongs to. Do not sync/push
 # the repository after running the tests.
 test:	$(APPNAME)
-	$(TCLSH) test/tester.tcl $(APPNAME)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION $(OBJDIR)/mkversion
 	$(OBJDIR)/mkversion $(SRCDIR)/../manifest.uuid  $(SRCDIR)/../manifest  $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
