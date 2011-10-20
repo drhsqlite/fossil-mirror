@@ -2,7 +2,7 @@
 
 <h2>Changes For Version 1.20 (upcoming)</h2>
   *  Added side-by-side diffs in HTML interface. [0bde74ea1e]
-  *  Fixed annotate to show "more relevant" versions of lines in some cases. [e161670939]
+  *  Fixed CLI annotate to annotates the proper file version in case there are multiple equal versions in history. [e161670939]
   *  Timeline now shows tag changes (requires rebuild).[87540ed6e6]  
   *  Added support for symlinks. (Controlled by "allow-symlinks" setting, off by default). [e4f1c1fe95]
   *  New command: ticket history. [98a855c508]
