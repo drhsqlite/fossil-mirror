@@ -1,5 +1,5 @@
-C fixed\sa\stype\sconversion\serror\scaused\sby\slast\sround\sof\srefactoring.
-D 2011-10-20T18:28:31.188
+C minor\scode\ssimplifications.
+D 2011-10-20T18:48:17.362
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ca6028ddb75fac101c52540a5c99cdc52a04d7e7
 F src/json.c 4baaf6ae785a3cfadbf478cb4f87f5e51d687254
-F src/json_artifact.c 4f1d62a6df2f583c60d72e020d2e4717caf8da17
+F src/json_artifact.c a30a936e98cc2928347f5d26c60dd31ede7f7b67
 F src/json_branch.c e4a54de48b1b72d632e4047baa862564fc915c94
 F src/json_detail.h e7bd728d52fac03929480791d20475b7307eabc1
 F src/json_diff.c 3cd92b82420ed94c5418ee19159155b2e8e561ea
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6e18fc2ecc05830fbe079fb7d3003a358698d46c
-R 04f2a422044cfb0a411e7d441cec969b
+P f56681147746312932237944d2f8a64440584a5d
+R b0e028d2f88561bb7677c694716bb815
 U stephan
-Z 1591a012789e60ee751e725e7038c68b
+Z 54e2166c7235595636633c59b4e1a0ab

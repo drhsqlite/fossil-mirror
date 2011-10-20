@@ -160,7 +160,6 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
 ** Very incomplete/incorrect impl of /json/artifact/TICKET_ID.
 */
 cson_value * json_artifact_ticket( int rid ){
-  cson_value * payV = NULL;
   cson_object * pay = NULL;
   Manifest *pTktChng = NULL;
   static cson_value * eventTypeLabel = NULL;
@@ -178,14 +177,13 @@ cson_value * json_artifact_ticket( int rid ){
     g.json.resultCode = FSL_JSON_E_MANIFEST_READ_FAILED;
     return NULL;
   }
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
+  pay = cson_new_object();
   cson_object_set(pay, "eventType", eventTypeLabel );
   cson_object_set(pay, "uuid", json_new_string(pTktChng->zTicketUuid));
   cson_object_set(pay, "user", json_new_string(pTktChng->zUser));
   cson_object_set(pay, "timestamp", json_julian_to_timestamp(pTktChng->rDate));
   manifest_destroy(pTktChng);
-  return payV;
+  return cson_object_value(pay);
 }
 
 /*
@@ -232,7 +230,6 @@ cson_value * json_artifact_wiki(int rid){
 }
 
 cson_value * json_artifact_file(int rid){
-  cson_value * payV = NULL;
   cson_object * pay = NULL;
   const char *zMime;
   Blob content = empty_blob;
@@ -251,8 +248,7 @@ cson_value * json_artifact_file(int rid){
     return NULL;
   }
   
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
+  pay = cson_new_object();
 
   content_get(rid, &content);
   cson_object_set(pay, "contentLength",
@@ -313,7 +309,7 @@ cson_value * json_artifact_file(int rid){
   json_stmt_to_array_of_obj( &q, checkin_arr );
 #endif
   db_finalize(&q);
-  return payV;
+  return cson_object_value(pay);
 }
 
 /*
@@ -321,7 +317,6 @@ cson_value * json_artifact_file(int rid){
 ** an artifact and forwards the real work to another function.
 */
 cson_value * json_page_artifact(){
-  cson_value * payV = NULL;
   cson_object * pay = NULL;
   char const * zName = NULL;
   char const * zType = NULL;
@@ -331,14 +326,11 @@ cson_value * json_page_artifact(){
   int rc;
   int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
-  zName = json_find_option_cstr("uuid",NULL,"u");
-  if(!zName||!*zName){
-    zName = json_command_arg(g.json.dispatchDepth+1);
-    if(!zName || !*zName) {
-      json_set_err(FSL_JSON_E_MISSING_ARGS,
-                   "Missing 'uuid' argument.");
-      return NULL;
-    }
+  zName = json_find_option_cstr2("uuid", NULL, NULL, 2);
+  if(!zName || !*zName) {
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "Missing 'uuid' argument.");
+    return NULL;
   }
 
   if( validate16(zName, strlen(zName)) ){
@@ -405,8 +397,7 @@ cson_value * json_page_artifact(){
   if(!g.json.resultCode){
     assert( NULL != entry );
     assert( NULL != zType );
-    payV = cson_value_new_object();
-    pay = cson_value_get_object(payV);
+    pay = cson_new_object();
     cson_object_set( pay, "type", json_new_string(zType) );
     /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
     cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
@@ -414,11 +405,9 @@ cson_value * json_page_artifact(){
     if(entry){
       cson_object_set(pay, "artifact", entry);
     }
-  }else{
-    assert((NULL == entry) && "Internal misuse - callback must return NULL on error.");
   }
   veryend:
   blob_reset(&uuid);
-  return payV;
+  return cson_object_value(pay);
 }
 
