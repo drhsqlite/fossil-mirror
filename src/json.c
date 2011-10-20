@@ -1681,30 +1681,23 @@ int json_set_err( int code, char const * fmt, ... ){
 
 /*
 ** Iterates through a prepared SELECT statement and converts each row
-** to a JSON object. If pTgt is not NULL then it must be-a Array
-** object and this function will return pTgt. If pTgt is NULL then a
-** new Array object is created and returned (owned by the
-** caller). Each row of pStmt is converted to an Object and appended
-** to the array. If the result set has no rows AND pTgt is NULL then
-** NULL is returned.
+** to a JSON object. If pTgt is not NULL then this function will
+** append the results to pTgt and return cson_array_value(pTgt). If
+** pTgt is NULL then a new Array object is created and returned (owned
+** by the caller). Each row of pStmt is converted to an Object and
+** appended to the array. If the result set has no rows AND pTgt is
+** NULL then NULL (not an empty array) is returned.
 */
 cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
-                                       cson_value * pTgt){
-  cson_value * v = pTgt;
-  cson_array * a = NULL;
+                                       cson_array * pTgt){
+  cson_array * a = pTgt;
   char const * warnMsg = NULL;
   cson_value * colNamesV = NULL;
   cson_array * colNames = NULL;
-  if(v && !cson_value_is_array(v)){
-    return NULL;
-  }
   while( (SQLITE_ROW==db_step(pStmt)) ){
     cson_value * row = NULL;
     if(!a){
-      if(!v){
-        v = cson_value_new_array();
-      }
-      a = cson_value_get_array(v);
+      a = cson_new_array();
       assert(NULL!=a);
     }
     if(!colNames){
@@ -1722,8 +1715,8 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if( 0 != cson_array_append(a, row) ){
       cson_value_free(row);
       assert( 0 && "Alloc error.");
-      if(pTgt != v) {
-        cson_value_free(v);
+      if(pTgt != a) {
+        cson_free_array(a);
       }
       return NULL;
     }
@@ -1732,7 +1725,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
-  return v;  
+  return cson_array_value(a);  
 }
 
 /*
@@ -1742,25 +1735,18 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 ** has no results then NULL is returned, not an empty array.
 */
 cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
-                                         cson_value * pTgt){
-  cson_value * v = pTgt;
-  cson_array * a = NULL;
-  if(v && !cson_value_is_array(v)){
-    return NULL;
-  }
+                                         cson_array * pTgt){
+  cson_array * a = pTgt;
   while( (SQLITE_ROW==db_step(pStmt)) ){
     cson_value * row = NULL;
     if(!a){
-      if(!v){
-        v = cson_value_new_array();
-      }
-      a = cson_value_get_array(v);
+      a = cson_new_array();
       assert(NULL!=a);
     }
     row = cson_sqlite3_row_to_array(pStmt->pStmt);
     cson_array_append(a, row);
   }
-  return v;  
+  return cson_array_value(a);
 }
 
 
@@ -1773,7 +1759,7 @@ cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
 ** pTgt has the same semantics as described for
 ** json_stmt_to_array_of_obj().
 */
-cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_value * pTgt,
+cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
                                       char resetBlob){
   Stmt q = empty_Stmt;
   cson_value * pay = NULL;

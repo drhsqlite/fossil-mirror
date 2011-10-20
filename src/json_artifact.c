@@ -238,6 +238,12 @@ cson_value * json_artifact_file(int rid){
   Blob content = empty_blob;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
+#if 0
+    /*see next #if block below*/
+      cson_string * tagKey = NULL;
+      cson_value * checkinV = NULL;
+      cson_object * checkin = NULL;
+#endif
 
   if( ! g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -257,12 +263,6 @@ cson_value * json_artifact_file(int rid){
   cson_object_set(pay, "contentType",
                   json_new_string(zMime ? zMime : "text/plain"));
   if( json_artifact_include_content_flag() && !zMime ){
-#if 0
-    /*see next #if block below*/
-      cson_string * tagKey = NULL;
-      cson_value * checkinV = NULL;
-      cson_object * checkin = NULL;
-#endif
       cson_object_set(pay, "content",
                       cson_value_new_string(blob_str(&content),
                                             (unsigned int)blob_size(&content)));

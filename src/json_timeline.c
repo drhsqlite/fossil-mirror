@@ -521,7 +521,6 @@ cson_value * json_timeline_wiki(){
   cson_value * payV = NULL;
   cson_object * pay = NULL;
   cson_value * tmp = NULL;
-  cson_value * listV = NULL;
   cson_array * list = NULL;
   int check = 0;
   Stmt q = empty_Stmt;
@@ -569,11 +568,10 @@ cson_value * json_timeline_wiki(){
              " FROM json_timeline"
              " ORDER BY rowid",
              -1);
-  listV = cson_value_new_array();
-  list = cson_value_get_array(listV);
-  tmp = listV;
+  list = cson_new_array();
+  tmp = cson_array_value(list);
   SET("timeline");
-  json_stmt_to_array_of_obj(&q, listV);
+  json_stmt_to_array_of_obj(&q, list);
 #undef SET
   goto ok;
   error:
