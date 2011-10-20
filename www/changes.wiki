@@ -1,5 +1,28 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.20 (upcoming)</h2>
+  *  Added side-by-side diffs in HTML interface.
+  *  Fixed annotate to show "more relevant" versions of lines in some cases.
+  *  Timeline now shows tag changes (requires rebuild)
+  *  Added support for symlinks. (Controlled by "allow-symlinks" setting, off by default).
+  *  New command: ticket history.
+  *  Several SSL improvements. Disabled SSLv2 in HTTPS client.
+  *  Fixed constant prompting on already saved SSL certificates.
+  *  Added -R REPOFILE support to several more CLI commands.
+  *  Updated sqlite3 to 3.7.9 beta.
+  *  Generated tarballs now have constant timestamps, so they are always identical for any given checkin.
+  *  A number of minor HTML-related tweaks and fixes.
+  *  Added --args FILENAME global CLI argument to import arbitrary CLI arguments from a file (e.g. long file lists).
+  *  Fixed significant memory leak in annotation of files with long histories.
+  *  Added warnings when a merge operation overwrites local copies (UNDO is available, but previously this condition normally went silently unnoticed).
+  *  Improved performance when adding many files. [a369dc7721]
+  *  Added protection against timing attacks. [d4a341b49d]
+  *  Firefox now remembers filled fields when returning to forms. [3fac77d7b0]
+  *  Added the --stats option to the rebuild command. [f25e5e53c4]
+  *  RSS feed now passes validation. [ce354d0a9f]
+  *  Show overridden user when entering commit comment. [ce354d0a9f]
+  *  Made rebuilding from web interface silent. [ce354d0a9f]
+
 <h2>Changes For Version 1.19 (2011-09-02)</h2>
 
   *  Added a ./configure script based on autosetup.
