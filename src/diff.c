@@ -590,7 +590,7 @@ static char *copylimline(char *out, DLine *dl, int lim){
   len = dl->h & LENGTH_MASK;
   if( lim && len > lim ){
     memcpy(out, dl->z, lim-3);
-    strcpy(&out[lim-3], "...");
+    memcpy(&out[lim-3], "...", 4);
   }else{
     memcpy(out, dl->z, len);
     out[len] = '\0';

@@ -1,5 +1,5 @@
-C initial\s1.20\schangelog.
-D 2011-10-20T14:40:45.544
+C merged\sin\strunk\sfor\sclean\sbase\sin\scode\sreview\stweaks.
+D 2011-10-20T16:28:57.749
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c 6a9672991ae1515d08111fb3cc3109450a2ccf83
+F src/diff.c 52714538a21e418365b344604b5accfd5d500ced
 F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -235,7 +235,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 19000184960afd7fc593e06472c2b19fd16cecf3
-F www/changes.wiki bafa05eabf959670f4096cda7bac7dbbbbf1756f
+F www/changes.wiki 843d8b51bcee38c8aa3b9ae92d4c72985d0af49f
 F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki 928cce3c19006901bc978da7dbdf2b69fb724cf7
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a37d80e8afa5cb2a10d3a2ac5abcf67776fcd9a4
-R 0ff1ce47f5824c236fcb16a8d636197c
+P e0805603789a274e2bab1143663238e989c4de05 f93a082391cef7b4e2d6812b3d0c2db051b440dc
+R b37b09c281a04c286582176b6153ef7e
 U stephan
-Z 7e7b8fbedb75fa4d71f3e679b96586f8
+Z 1be854e363b977036ff8de97f59964ac

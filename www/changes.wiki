@@ -1,27 +1,31 @@
 <title>Change Log</title>
 
 <h2>Changes For Version 1.20 (upcoming)</h2>
-  *  Added side-by-side diffs in HTML interface.
-  *  Fixed annotate to show "more relevant" versions of lines in some cases.
-  *  Timeline now shows tag changes (requires rebuild)
-  *  Added support for symlinks. (Controlled by "allow-symlinks" setting, off by default).
-  *  New command: ticket history.
-  *  Several SSL improvements. Disabled SSLv2 in HTTPS client.
-  *  Fixed constant prompting on already saved SSL certificates.
-  *  Added -R REPOFILE support to several more CLI commands.
+  *  Added side-by-side diffs in HTML interface. [0bde74ea1e]
+  *  Fixed annotate to show "more relevant" versions of lines in some cases. [e161670939]
+  *  Timeline now shows tag changes (requires rebuild).[87540ed6e6]  
+  *  Added support for symlinks. (Controlled by "allow-symlinks" setting, off by default). [e4f1c1fe95]
+  *  New command: ticket history. [98a855c508]
+  *  Several SSL improvements.
+  *  Disabled SSLv2 in HTTPS client.[ea1d369d23]
+  *  Fixed constant prompting regarding previously-saved SSL certificates. [636804745b]
+  *  Added -R REPOFILE support to several more CLI commands. [e080560378]
   *  Updated sqlite3 to 3.7.9 beta.
-  *  Generated tarballs now have constant timestamps, so they are always identical for any given checkin.
+  *  Generated tarballs now have constant timestamps, so they are always identical for any given checkin. [e080560378]
   *  A number of minor HTML-related tweaks and fixes.
-  *  Added --args FILENAME global CLI argument to import arbitrary CLI arguments from a file (e.g. long file lists).
-  *  Fixed significant memory leak in annotation of files with long histories.
-  *  Added warnings when a merge operation overwrites local copies (UNDO is available, but previously this condition normally went silently unnoticed).
+  *  Added --args FILENAME global CLI argument to import arbitrary CLI arguments from a file (e.g. long file lists). [e080560378]
+  *  Fixed significant memory leak in annotation of files with long histories.[9929bab702] 
+  *  Added warnings when a merge operation overwrites local copies (UNDO is available, but previously this condition normally went silently unnoticed). [39f979b08c]
   *  Improved performance when adding many files. [a369dc7721]
+  *  Improve merges which contain many file renames. [0b93b0f958]
   *  Added protection against timing attacks. [d4a341b49d]
   *  Firefox now remembers filled fields when returning to forms. [3fac77d7b0]
   *  Added the --stats option to the rebuild command. [f25e5e53c4]
   *  RSS feed now passes validation. [ce354d0a9f]
   *  Show overridden user when entering commit comment. [ce354d0a9f]
   *  Made rebuilding from web interface silent. [ce354d0a9f]
+  *  Now works on MSVC with repos >2GB. [6092935ff2]
+  *  A number of code cleanups to resolve warnings from various compilers.
 
 <h2>Changes For Version 1.19 (2011-09-02)</h2>
 
