@@ -449,12 +449,13 @@ static void diff_all_two_versions(
 ** deleted files to be displayed.
 **
 ** Options:
+**   --context|-c N      Use N lines of context 
 **   --from|-r VERSION   select VERSION as source for the diff
 **   --new-file|-N       output complete text of added or deleted files
 **   -i                  use internal diff logic
 **   --to VERSION        select VERSION as target for the diff
-**   --sbs               side-by-side diff
-**   --context|-c N      Use N lines of context 
+**   --side-by-side|-y   side-by-side diff
+**   --width|-W N        Width of lines in side-by-side diff 
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -472,9 +473,14 @@ void diff_cmd(void){
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
   hasNFlag = find_option("new-file","N",0)!=0;
-  if( find_option("sbs",0,0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
+    diffFlags |= f;
+  }
+  if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
+    f *= DIFF_CONTEXT_MASK+1;
+    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
   }
 
