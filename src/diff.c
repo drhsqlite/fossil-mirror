@@ -23,6 +23,17 @@
 #include <assert.h>
 
 
+#if INTERFACE
+/*
+** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
+*/
+#define DIFF_CONTEXT_MASK  0x00fff  /* Lines of context.  Default if 0 */
+#define DIFF_IGNORE_EOLWS  0x01000  /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE    0x02000  /* Generate a side-by-side diff */
+#define DIFF_NEWFILE       0x04000  /* Non-existing files are as empty files */
+
+#endif /* INTERFACE */
+
 /*
 ** Maximum length of a line in a text file.  (8192)
 */
@@ -540,12 +551,17 @@ static void diff_all(DContext *p){
 int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
-  Blob *pOut,      /* Write unified diff here if not NULL */
-  int nContext,    /* Amount of context to unified diff */
-  int ignoreEolWs  /* Ignore whitespace at the end of lines */
+  Blob *pOut,      /* Write diff here if not NULL */
+  int diffFlags    /* DIFF_* flags defined above */
 ){
+  int ignoreEolWs; /* Ignore whitespace at the end of lines */
+  int nContext;    /* Amount of context to display */	
   DContext c;
- 
+
+  nContext = diffFlags & DIFF_CONTEXT_MASK;
+  if( nContext==0 ) nContext = 5;
+  ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
@@ -662,7 +678,7 @@ int html_sbsdiff(
     /* Copied lines */
     for( j=0; j<c.aEdit[i]; j++){
       /* Hide lines which are copied and are further away from block boundaries
-      ** than nConext lines. For each block with hidden lines, show a row
+      ** than nContext lines. For each block with hidden lines, show a row
       ** notifying the user about the hidden rows.
       */
       if( j<nContext || j>c.aEdit[i]-nContext-1 ){
@@ -778,7 +794,7 @@ void test_rawdiff_cmd(void){
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0, 0);
+    R = text_diff(&a, &b, 0, 0);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -792,11 +808,19 @@ void test_rawdiff_cmd(void){
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
-  if( g.argc!=4 ) usage("FILE1 FILE2");
+  int diffFlag = find_option("sbs",0,0)!=0 ? DIFF_SIDEBYSIDE : 0;
+  int nContext = 5;
+  const char *z;
+  if( (z = find_option("context","c",1))!=0 && atoi(z)>0 ){
+    nContext = atoi(z);
+  }
+  if( nContext<=0 ) nContext = 5;
+  if( (nContext&DIFF_CONTEXT_MASK)!=nContext ) nContext = DIFF_CONTEXT_MASK;
+  if( g.argc!=4 ) usage("[--sbs] [--context N] FILE1 FILE2");
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, 3, 0);
+  text_diff(&a, &b, &out, nContext | diffFlag);
   blob_write_to_file(&out, "-");
 }
 

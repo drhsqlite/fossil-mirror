@@ -272,7 +272,7 @@ static void append_diff(const char *zFrom, const char *zTo){
     blob_zero(&to);
   }
   blob_zero(&out);
-  text_diff(&from, &to, &out, 5, 1);
+  text_diff(&from, &to, &out, DIFF_IGNORE_EOLWS | 5);
   @ %h(blob_str(&out))
   blob_reset(&from);
   blob_reset(&to);
@@ -1093,7 +1093,7 @@ void diff_page(void){
   if( !sideBySide || isPatch ){
     content_get(v1, &c1);
     content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, 4, 1);
+    text_diff(&c1, &c2, pOut, 4 | 0);
     blob_reset(&c1);
     blob_reset(&c2);
   }

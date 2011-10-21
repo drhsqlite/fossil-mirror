@@ -1,5 +1,5 @@
-C Version\s1.20\srelease\scandidate\s1.
-D 2011-10-21T12:52:53.930
+C Begin\simprovement\sefforts\son\sthe\s"diff"\sfunctions\sby\sadding\sthe\s--context\noption\sto\sthe\s"diff"\scommand.
+D 2011-10-21T20:24:19.041
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,8 +67,8 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c 52714538a21e418365b344604b5accfd5d500ced
-F src/diffcmd.c 57e9384f541dd377e9b0d80ac2e7d9bab965937a
+F src/diff.c b3ff26c590aec102cc36c6766154d8d83e0d6abc
+F src/diffcmd.c 84e3e30c70805bb64ab88c9e05d184f4c914606d
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c ca6028ddb75fac101c52540a5c99cdc52a04d7e7
+F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c ae341785424bf4bad75cc9ee9077af16e2aeec5f
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
@@ -94,7 +94,7 @@ F src/makemake.tcl dc49c79c21b51dd49400ad434028a7df2a2274e2
 F src/manifest.c e85a900e34bd526c9c96885665e5974e334b350a
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
-F src/merge3.c e17682def9d8825ffbc35f6d4441e5b6176b7f27
+F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
 F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c e4bc545f1cd41e3472f43b0d1e93759bb8a6060e
@@ -136,7 +136,7 @@ F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
-F src/wiki.c 1ce70fef281c8d1c18f6688514efee943745cd0e
+F src/wiki.c 41c5bad954abf479931b6982b4980ca96492fca3
 F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
 F src/xfer.c 4631dc5d0c01f67b512675d4137bbd8e0af30401
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1d12fcc4164ac54f987d6cc39f66f6ab0426a501
-R 201b842eebc9d35ff6fed67cc50e3ebd
+P a75e2d2504922fafef859f602da31deff12725a0
+R ea465fda36d48799292cbe7bc03992a2
+T *branch * diff-enhancements
+T *sym-diff-enhancements *
+T -sym-trunk *
 U drh
-Z 09b010a6bddb7a67218e1cda9cfb26eb
+Z 6c4ca3e24688f6c9780bb39bc8b89dac

@@ -173,8 +173,8 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** pivot, and the third integer is the number of lines of text that are
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
-  aC1 = text_diff(pPivot, pV1, 0, 0, 0);
-  aC2 = text_diff(pPivot, pV2, 0, 0, 0);
+  aC1 = text_diff(pPivot, pV1, 0, 0);
+  aC2 = text_diff(pPivot, pV2, 0, 0);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);
