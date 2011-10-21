@@ -391,9 +391,7 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
-    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
-      na ? a+skip+1 : 0, na,
-      nb ? b+skip+1 : 0, nb);
+    if( r>0 ) blob_appendf(pOut,"%.*c\n", width*2+16, '.');
 
     /* Show the initial common area */
     a += skip;
@@ -702,6 +700,26 @@ static void diff_all(DContext *p){
 }
 
 /*
+** Extract the number of lines of context from diffFlags.  Supply an
+** appropriate default if no context width is specified.
+*/
+int diff_context_lines(int diffFlags){
+  int n = diffFlags & DIFF_CONTEXT_MASK;
+  if( n==0 ) n = 5;
+  return n;
+}
+
+/*
+** Extract the width of columns for side-by-side diff.  Supply an
+** appropriate default if no width is given.
+*/
+int diff_width(int diffFlags){
+  int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
+  if( w==0 ) w = 80;
+  return w;
+}
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -725,8 +743,7 @@ int *text_diff(
   int nContext;    /* Amount of context to display */	
   DContext c;
 
-  nContext = diffFlags & DIFF_CONTEXT_MASK;
-  if( nContext==0 ) nContext = 5;
+  nContext = diff_context_lines(diffFlags);
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
   /* Prepare the input files */
@@ -750,8 +767,7 @@ int *text_diff(
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      int width = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
-      if( width==0 ) width = 80;
+      int width = diff_width(diffFlags);
       sbsDiff(&c, pOut, nContext, width);
     }else{
       contextDiff(&c, pOut, nContext);
@@ -977,23 +993,44 @@ void test_rawdiff_cmd(void){
 }
 
 /*
+** Process diff-related command-line options and return an appropriate
+** "diffFlags" integer.  
+**
+**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
+**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+*/
+int diff_options(void){
+  int diffFlags = 0;
+  const char *z;
+  int f;
+  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
+    if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
+    diffFlags |= f;
+  }
+  if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
+    f *= DIFF_CONTEXT_MASK+1;
+    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
+    diffFlags |= f;
+  }
+  return diffFlags;
+}
+
+/*
 ** COMMAND: test-udiff
+**
+** Print the difference between two files.  The usual diff options apply.
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
-  int diffFlag = find_option("sbs",0,0)!=0 ? DIFF_SIDEBYSIDE : 0;
-  int nContext = 5;
-  const char *z;
-  if( (z = find_option("context","c",1))!=0 && atoi(z)>0 ){
-    nContext = atoi(z);
-  }
-  if( nContext<=0 ) nContext = 5;
-  if( (nContext&DIFF_CONTEXT_MASK)!=nContext ) nContext = DIFF_CONTEXT_MASK;
-  if( g.argc!=4 ) usage("[--sbs] [--context N] FILE1 FILE2");
+  int diffFlag = diff_options();
+
+  if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, nContext | diffFlag);
+  text_diff(&a, &b, &out, diffFlag);
   blob_write_to_file(&out, "-");
 }
 

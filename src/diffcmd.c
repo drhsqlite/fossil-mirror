@@ -37,11 +37,34 @@ static void diff_printf(const char *zFormat, ...){
 }
 
 /*
-** Print the "Index:" message that patch wants to see at the top of a diff.
+** Print the "Index:" message that patches wants to see at the top of a diff.
 */
-void diff_print_index(const char *zFile){
-  diff_printf("Index: %s\n======================================="
-              "============================\n", zFile);
+void diff_print_index(const char *zFile, int diffFlags){
+  if( (diffFlags & DIFF_SIDEBYSIDE)==0 ){
+    char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
+    diff_printf("%s", z);
+    fossil_free(z);
+  }
+}
+
+/*
+** Print the +++/--- filename lines for a diff operation.
+*/
+void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
+  char *z = 0;
+  if( diffFlags & DIFF_SIDEBYSIDE ){
+    int w = diff_width(diffFlags);
+    int n1 = strlen(zLeft);
+    int x;
+    if( n1>w*2 ) n1 = w*2;
+    x = w*2+17 - (n1+2);
+    z = mprintf("%.*c %.*s %.*c\n",
+                x/2, '=', n1, zLeft, (x+1)/2, '=');
+  }else{
+    z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
+  }
+  diff_printf("%s", z);
+  fossil_free(z);
 }
 
 /*
@@ -82,7 +105,7 @@ void diff_file(
     blob_zero(&out);
     text_diff(pFile1, &file2, &out, diffFlags);
     if( blob_size(&out) ){
-      diff_printf("--- %s\n+++ %s\n", zName, zName2);
+      diff_print_filenames(zName, zName2, diffFlags);
       diff_printf("%s\n", blob_str(&out));
     }
 
@@ -141,7 +164,7 @@ void diff_file_mem(
 
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, diffFlags);
-    diff_printf("--- %s\n+++ %s\n", zName, zName);
+    diff_print_filenames(zName, zName, diffFlags);
     diff_printf("%s\n", blob_str(&out));
 
     /* Release memory resources */
@@ -283,8 +306,8 @@ static void diff_all_against_disk(
     if( showDiff ){
       Blob content;
       if( !isLink != !file_wd_islink(zFullName) ){
-        diff_print_index(zPathname);
-        diff_printf("--- %s\n+++ %s\n", zPathname, zPathname);
+        diff_print_index(zPathname, diffFlags);
+        diff_print_filenames(zPathname, zPathname, diffFlags);
         diff_printf("cannot compute difference between symlink and regular file\n");
         continue;
       }
@@ -293,7 +316,7 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      diff_print_index(zPathname);
+      diff_print_index(zPathname, diffFlags);
       diff_file(&content, zFullName, zPathname, zDiffCmd, diffFlags);
       blob_reset(&content);
     }
@@ -323,7 +346,7 @@ static void diff_one_two_versions(
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0, 0);
   historical_version_of_file(zTo, zName, &v2, &isLink2, 0, 0);
   if( isLink1 != isLink2 ){
-    diff_printf("--- %s\n+++ %s\n", zName, zName);
+    diff_print_filenames(zName, zName, diffFlags);
     diff_printf("cannot compute difference between symlink and regular file\n");
   }else{
     diff_file_mem(&v1, &v2, zName, zDiffCmd, diffFlags);
@@ -346,7 +369,7 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int rid;
   const char *zName =  pFrom ? pFrom->zName : pTo->zName;
-  diff_print_index(zName);
+  diff_print_index(zName, diffFlags);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
     content_get(rid, &f1);
@@ -465,27 +488,16 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   int diffFlags = 0;         /* Flags to control the DIFF */
-  const char *z;
   int f;
 
   isGDiff = g.argv[1][0]=='g';
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  diffFlags = diff_options();
   hasNFlag = find_option("new-file","N",0)!=0;
-  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
-    if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
-  }
-  if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
-    f *= DIFF_CONTEXT_MASK+1;
-    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
-  }
-
-
   if( hasNFlag ) diffFlags |= DIFF_NEWFILE;
+
   if( zTo==0 ){
     db_must_be_within_tree();
     verify_all_options();
@@ -494,7 +506,7 @@ void diff_cmd(void){
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
-        diff_one_against_disk(zFrom, zDiffCmd, 0, g.argv[f]);
+        diff_one_against_disk(zFrom, zDiffCmd, diffFlags, g.argv[f]);
       }
     }else{
       diff_all_against_disk(zFrom, zDiffCmd, diffFlags);
@@ -509,7 +521,7 @@ void diff_cmd(void){
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
-        diff_one_two_versions(zFrom, zTo, zDiffCmd, 0, g.argv[f]);        
+        diff_one_two_versions(zFrom, zTo, zDiffCmd, diffFlags, g.argv[f]);        
       }
     }else{
       diff_all_two_versions(zFrom, zTo, zDiffCmd, diffFlags);

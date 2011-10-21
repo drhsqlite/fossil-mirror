@@ -1,5 +1,5 @@
-C Merge\sthe\sside-by-side\sdiff\sspacing\sbug\sfix\sinto\strunk.
-D 2011-10-21T21:55:13.571
+C Improved\sformatting\sfor\scommand-line\sside-by-side\sdiff.\s\sExtend\scommand-line\nside-by-side\sdiff\sto\sall\sdiff\soperations,\sincluding\sstash\sdiffs.
+D 2011-10-21T23:44:14.026
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,8 +67,8 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c 8c837f17013a02d4c5a45e2e9b433a08213e91fc
-F src/diffcmd.c ad9668750db9ef74fb660a59b99513bcd1a30dc3
+F src/diff.c 0f3e5f6bb91b796b24232e2cf016b93be65d355d
+F src/diffcmd.c 2fd32d95b61ee90d0808c933da16cb6cf9519b05
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
@@ -102,7 +102,7 @@ F src/path.c 5349202b32d109cab301d9079052368f7964de84
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
-F src/printf.c f36e734f45de0921a18349b3067a59f27a5ccd4e
+F src/printf.c ab6d4166375708fd0f5f8d81c77af8b02e636eda
 F src/rebuild.c d31ea942eb7bb7ab78e8d1a635fa6a68ae97e065
 F src/report.c 72ec6d1e3df2e7f70a4c9432a66a9092a1f2d538
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
@@ -116,7 +116,7 @@ F src/skins.c ea1ae181b5879dedda748a44645fd2009bc27e4c
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 89ce734289c196daf5bba27080c1404442504b17
 F src/sqlite3.h 484749e010baa935ac5dc0133e7a7b57b62705a5
-F src/stash.c 7b6b458d5d5c0fa8688a5d2851b04f5cab3b0180
+F src/stash.c 3891017d657bbb5adbfb14eda25886816625d491
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c24460586287cba2e65c51101be73eb5cac4488d a505abccc6992ec00d17ba7615639a3e342ab587
-R 5215a69888c37914102275eb8f01adac
+P 54e730c339278e15a3ae8eb55797af9b7a8b63c8
+R 03857dd6ad4d90d428000d8ff9a724c6
 U drh
-Z cd2d1ec12379033b92b8ab399bfd953a
+Z 21f5d0c7b01f02a9f6470e74920acc8c
