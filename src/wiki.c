@@ -623,7 +623,7 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  text_diff(&w2, &w1, &d, 5, 1);
+  text_diff(&w2, &w1, &d, 5 | DIFF_IGNORE_EOLWS);
   @ <pre>
   @ %h(blob_str(&d))
   @ </pre>
