@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sside-by-side\sdiff\sfrom\sthe\scommand-line\s"diff"\scommand.
-D 2011-10-21T21:31:55.241
+C Fix\sa\sspacing\sbug\sin\sthe\sdisplay\sof\sside-by-side\sdiffs.
+D 2011-10-21T21:50:31.315
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c 7e89d5aed438a05caf80c660ebc9765ee16ebc64
+F src/diff.c 8c837f17013a02d4c5a45e2e9b433a08213e91fc
 F src/diffcmd.c ad9668750db9ef74fb660a59b99513bcd1a30dc3
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3bbbbdfd7d032f0655b6c56a28ee3c9a0c55178d
-R bd7fb59db20ed047f9e2bafe3b5af02a
+P ac81759f65abdc4bf28062380bbb4b41a0282eea
+R 5215a69888c37914102275eb8f01adac
 U drh
-Z 50b698adfc6f954157be6a26522918ab
+Z 26d42846626a6176e7800fcee18182ce

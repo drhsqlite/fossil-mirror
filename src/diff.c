@@ -433,7 +433,7 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
       a += ma;
       for(j=0; j<mb; j++){
         appendSpace(pOut, width+7);
-        blob_appendf(pOut, " > %6d", b+j);
+        blob_appendf(pOut, " > %6d ", b+j);
         appendSbsLine(pOut, &B[b+j], width, 0);
         blob_append(pOut, "\n", 1);
       }
