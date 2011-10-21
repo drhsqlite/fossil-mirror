@@ -1,5 +1,5 @@
-C minor\scode\ssimplifications.
-D 2011-10-20T18:48:17.362
+C Fixed\sa\sminor\smem\sleak.\sGot\s/json/user/save\smostly\sworking.
+D 2011-10-21T15:25:46.132
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,10 +106,10 @@ F src/json_query.c 7b37378a0198ada3db075211e7a5694af26b53bd
 F src/json_report.c cc3dffcc35f94b3e85894c827003c30aae323693
 F src/json_tag.c 17495d274fb2116cb2fdfec7cd5c92f85ee6fa87
 F src/json_timeline.c 13c5c5741290b2ed79d0440ee7c13b705958d224
-F src/json_user.c 7ac3507a6825c6e003a8bf99386ec4edcb96e520
+F src/json_user.c 1ae93cfd92932dfb60e3f664b97080efe51a4a09
 F src/json_wiki.c 390290409a4f12f65d88e2dc338920cb24f7e6b9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c fff4232a14bf5be8d3d527ebf3f7bfccc8608498
+F src/login.c f9de606e9459cb49e3923e3b0d7470e2e550c846
 F src/main.c 055be59021793456ae123658ef4bc4f4c0367045
 F src/main.mk 8e891222868c37c68100843aa9876ff9a52f4891
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f56681147746312932237944d2f8a64440584a5d
-R b0e028d2f88561bb7677c694716bb815
+P 400fe340c25f191b8f24c54ec9d92ec8f9a4b149
+R 0c35a698caa586e678c781e5c421c33f
 U stephan
-Z 54e2166c7235595636633c59b4e1a0ab
+Z 54cf845a7f97910475fcb8601d573e56

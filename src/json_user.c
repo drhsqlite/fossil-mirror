@@ -122,20 +122,49 @@ static cson_value * json_user_get(){
 }
 
 /*
-** Don't use - not yet finished.
+** Expects pUser to contain fossil user fields in JSON form: name,
+** uid, info, capabilities, password.
+**
+** At least one of (name, uid) must be included. All others are
+** optional and their db fields will not be updated if those fields
+** are not included in pUser.
+**
+** If uid is specified then name may refer to a _new_ name
+** for a user, otherwise the name must refer to an existing user.
+**
+** On error g.json's error state is set one of the FSL_JSON_E_xxx
+** values from FossilJsonCodes is returned.
+**
+** On success the db record for the given user is updated.
+**
+** Requires either Admin, Setup, or Password access. Non-admin/setup
+** users can only change their own information.
+**
+** TODOs:
+**
+** - Admin non-Setup users cannot change the information for Setup
+** users.
+**
 */
 int json_user_update_from_json( cson_object const * pUser ){
 #define CSTR(X) cson_string_cstr(cson_value_get_string( cson_object_get(pUser, X ) ))
   char const * zName = CSTR("name");
+  char const * zNameOrig = zName;
   char * zNameFree = NULL;
   char const * zInfo = CSTR("info");
   char const * zCap = CSTR("capabilities");
   char const * zPW = CSTR("password");
   int gotFields = 0;
 #undef CSTR
-  cson_int_t const uid = cson_value_get_integer( cson_object_get(pUser, "uid") );
+  cson_int_t uid = cson_value_get_integer( cson_object_get(pUser, "uid") );
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
+
+  if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
+    return json_set_err( FSL_JSON_E_DENIED,
+                         "Password change requires 'a', 's', "
+                         "or 'p' permissions.");
+  }
   
   if(uid<=0 && (!zName||!*zName)){
     return json_set_err(FSL_JSON_E_MISSING_ARGS,
@@ -147,48 +176,87 @@ int json_user_update_from_json( cson_object const * pUser ){
                           "No login found for uid %d.", uid);
     }
     zName = zNameFree;
+  }else{
+    uid = db_int(0,"SELECT uid FROM user WHERE login=%Q",
+                 zName);
+    if(uid<=0){
+      return json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                          "No login found for user [%s].", zName);
+    }
   }
-  
-  /*
-    TODO: do not allow an admin user to modify a setup user
-    unless the admin is also a setup user. setup.c uses
-    that logic.
+  /* Maintenance note: all error-returns from here on out should go
+     via goto error in order to clean up.
   */
   
-  blob_append(&sql, "UPDATE USER SET ",-1 );
-  if( zInfo ){
-    blob_appendf(&sql, " info=%Q", zInfo);
+  if(uid != g.userUid){
+    /*
+      TODO: do not allow an admin user to modify a setup user
+      unless the admin is also a setup user. setup.c uses
+      that logic.
+    */
+    if(!g.perm.Admin && !g.perm.Setup){
+      json_set_err(FSL_JSON_E_DENIED,
+                   "Changing another user's data requires "
+                   "'a' or 's' privileges.");
+    }
+  }
+  
+  blob_append(&sql, "UPDATE USER SET",-1 );
+  blob_append(&sql, " mtime=cast(strftime('%s') AS INTEGER)", -1);
+
+  if((uid>0) && zName
+     && zNameOrig && (zName != zNameOrig)
+     && (0!=strcmp(zNameOrig,zName))){
+    /* Only change the name if the uid is explicitly set and name
+       would actually change. */
+    if(!g.perm.Admin && !g.perm.Setup) {
+      json_set_err( FSL_JSON_E_DENIED,
+                    "Modifying user names requires 'a' or 's' privileges.");
+      goto error;
+    }
+    blob_appendf(&sql, ", login=%Q", zNameOrig);
     ++gotFields;
   }
+
   if( zCap ){
-    blob_appendf(&sql, "%c cap=%Q", (gotFields ? ',' : ' '), zCap);
+    blob_appendf(&sql, ", cap=%Q", zCap);
     ++gotFields;
   }
+
   if( zPW ){
-    assert( zName != NULL);
-    blob_appendf(&sql, "%c password=coalesce(shared_secret(%Q,%Q,"
-                 "(SELECT value FROM config WHERE name='project-code')),pw),",
-                 (gotFields ? ',' : ' '), zPW, zName);
+    char * zPWHash = NULL;
+    ++gotFields;
+    zPWHash = sha1_shared_secret(zPW, zName, NULL);
+    blob_appendf(&sql, ", pw=%Q", zPWHash);
+    free(zPWHash);
+  }
+
+  if( zInfo ){
+    blob_appendf(&sql, ", info=%Q", zInfo);
     ++gotFields;
   }
 
   if(!gotFields){
-    free( zNameFree );
-    blob_reset(&sql);
-    return FSL_JSON_E_MISSING_ARGS;
+    json_set_err( FSL_JSON_E_MISSING_ARGS,
+                  "Required user data are missing.");
+    goto error;
   }
   blob_append(&sql, " WHERE", -1);
-  if(uid>0){
-    blob_appendf(&sql, " uid=%d", uid);
-  }else{
-    blob_appendf(&sql, " login=%Q", zName);
-  }
+  assert(uid>0);
+  blob_appendf(&sql, " uid=%d", uid);
   free( zNameFree );
-
-  puts(blob_str(&sql));
+  /*puts(blob_str(&sql));*/
+  db_prepare(&q, "%s", blob_str(&sql));
   blob_reset(&sql);
-  assert(0 && "This is going to require extra work for login groups.");
+  db_exec(&q);
+  db_finalize(&q);
   return 0;
+
+  error:
+  assert(0 != g.json.resultCode);
+  free(zNameFree);
+  blob_reset(&sql);
+  return g.json.resultCode;
 }
 
 

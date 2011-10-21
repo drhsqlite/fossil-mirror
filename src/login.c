@@ -229,7 +229,9 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
 ** The returned memory should be free()d after use.
 */
 char * login_gen_user_cookie_value(char const *zUsername, char const * zHash){
-  char *zCode = abbreviated_project_code(db_get("project-code",""));
+  char * zProjCode = db_get("project-code",NULL);
+  char *zCode = abbreviated_project_code(zProjCode);
+  free(zProjCode);
   assert((zUsername && *zUsername) && "Invalid user data.");
   return mprintf("%s/%z/%s", zHash, zCode, zUsername);
 }
