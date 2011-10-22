@@ -154,6 +154,7 @@ int json_user_update_from_json( cson_object const * pUser ){
   char const * zInfo = CSTR("info");
   char const * zCap = CSTR("capabilities");
   char const * zPW = CSTR("password");
+  cson_value const * forceLogout = cson_object_get(pUser, "forceLogout");
   int gotFields = 0;
 #undef CSTR
   cson_int_t uid = cson_value_get_integer( cson_object_get(pUser, "uid") );
@@ -236,14 +237,19 @@ int json_user_update_from_json( cson_object const * pUser ){
     ++gotFields;
   }
 
+  if((g.perm.Admin || g.perm.Setup)
+     && forceLogout && cson_value_get_bool(forceLogout)){
+    blob_append(&sql, ", cookie=NULL, cexpire=NULL", -1);
+    ++gotFields;
+  }
+  
   if(!gotFields){
     json_set_err( FSL_JSON_E_MISSING_ARGS,
                   "Required user data are missing.");
     goto error;
   }
-  blob_append(&sql, " WHERE", -1);
   assert(uid>0);
-  blob_appendf(&sql, " uid=%d", uid);
+  blob_appendf(&sql, " WHERE uid=%d", uid);
   free( zNameFree );
   /*puts(blob_str(&sql));*/
   db_prepare(&q, "%s", blob_str(&sql));
