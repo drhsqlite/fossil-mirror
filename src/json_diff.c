@@ -28,15 +28,19 @@
 ** Generates a diff between two versions (zFrom and zTo), using nContext
 ** content lines in the output. On success, returns a new JSON String
 ** object. On error it sets g.json's error state and returns NULL.
+**
+** If fSbs is true (non-0) them side-by-side diffs are used.
 */
 cson_value * json_generate_diff(const char *zFrom, const char *zTo,
-                                int nContext){
+                                int nContext, char fSbs){
   int fromid;
   int toid;
   int outLen;
   Blob from = empty_blob, to = empty_blob, out = empty_blob;
   cson_value * rc = NULL;
   char const * zType = "ci";
+  int flags = (DIFF_CONTEXT_MASK & nContext)
+      | (fSbs ? DIFF_SIDEBYSIDE : 0);
   fromid = name_to_typed_rid(zFrom, "*");
   if(fromid<=0){
       json_set_err(FSL_JSON_E_UNRESOLVED_UUID,
@@ -52,7 +56,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
   content_get(fromid, &from);
   content_get(toid, &to);
   blob_zero(&out);
-  text_diff(&from, &to, &out, nContext, 1);
+  text_diff(&from, &to, &out, flags);
   blob_reset(&from);
   blob_reset(&to);
   outLen = blob_size(&out);
@@ -81,6 +85,7 @@ cson_value * json_page_diff(){
   char const * zFrom;
   char const * zTo;
   int nContext = 0;
+  char doSBS;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -105,7 +110,8 @@ cson_value * json_page_diff(){
     return NULL;
   }
   nContext = json_find_option_int("context",NULL,"c",5);
-  v = json_generate_diff(zFrom, zTo, nContext);
+  doSBS = json_find_option_bool("sbs",NULL,"y",0);
+  v = json_generate_diff(zFrom, zTo, nContext, doSBS);
   if(!v){
     if(!g.json.resultCode){
       json_set_err(FSL_JSON_E_UNKNOWN,
