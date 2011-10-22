@@ -319,11 +319,14 @@ static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
   int i, j;
   const char *zIn = pLine->z;
   for(i=j=0; i<n && j<width; i++){
-    if( zIn[i]=='\t' ){
+    char c = zIn[i];
+    if( c=='\t' ){
       z[j++] = ' ';
       while( (j&7)!=0 && j<width ) z[j++] = ' ';
+    }else if( c=='\r' || c=='\f' ){
+      z[j++] = ' ';
     }else{
-      z[j++] = zIn[i];
+      z[j++] = c;
     }
   }
   if( trunc ){

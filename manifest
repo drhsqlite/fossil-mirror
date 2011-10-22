@@ -1,5 +1,5 @@
-C Do\snot\sassume\sthe\sCSS\sbackground\scolor\sis\s"white".
-D 2011-10-22T11:55:53.118
+C Tweak\sthe\scommand-line\sside-by-side\sdiff\soutput\sso\sthat\sit\sdeals\ssanely\nwith\s\\r\sand\s\\f\scharacters.
+D 2011-10-22T13:29:28.518
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c c352a38e9b5c4bc579f20ee27042936808030fb2
+F src/diff.c db8561a4f8cc1c01a8a079222a58ccd0ce67871e
 F src/diffcmd.c 2fd32d95b61ee90d0808c933da16cb6cf9519b05
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8670373321604573901fad634ef7fb2cef2ca46d
-R 875d48ca9a9f1aaf938077d11b65e507
+P a9fd1c79518511c6480e5c4039f5b50a39338cd0
+R 09e16855e246adcc5824d4a4786a6e02
 U drh
-Z bba5c9fadf5f4b701bb21e9bc41ae2be
+Z 292d27d12a49e6564ac4fb8d534b3316
