@@ -301,31 +301,36 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
 }
 
 /*
-** Append spaces to a blob
+** Write a 6-digit line number into the buffer z[].  z[] is guaranteed to
+** have space for at least 7 characters.
 */
-static void appendSpace(Blob *pOut, int n){
-  const char z100[101] = 
-     "                                                  "
-     "                                                  ";
-  while( n>100 ){
-    blob_append(pOut, z100, 100); n -= 100;
-  }
-  if( n>0 ){
-    blob_append(pOut, z100, n);
-  }
+static void sbsWriteLineno(char *z, int ln){
+  sqlite3_snprintf(7, z, "%6d", ln+1);
+  z[6] = ' ';
 }
 
 /*
-** Append text to a sbs diff output
+** Write up to width characters of pLine into z[].  Translate tabs into
+** spaces.  If trunc is true, then append \n\000 after the last character
+** written.
 */
-static void appendSbsLine(Blob *pOut, DLine *pLine, int width, int pad){
-  int sz = pLine->h & LENGTH_MASK;
-  if( sz<width ){
-    blob_append(pOut, pLine->z, sz);
-    if( pad ) appendSpace(pOut, width-sz);
-  }else{
-    blob_append(pOut, pLine->z, width);
+static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
+  int n = pLine->h & LENGTH_MASK;
+  int i, j;
+  const char *zIn = pLine->z;
+  for(i=j=0; i<n && j<width; i++){
+    if( zIn[i]=='\t' ){
+      z[j++] = ' ';
+      while( (j&7)!=0 && j<width ) z[j++] = ' ';
+    }else{
+      z[j++] = zIn[i];
+    }
   }
+  if( trunc ){
+    z[j++] = '\n';
+    z[j] = 0;
+  }
+  return j;
 }
 
 
@@ -346,11 +351,14 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  char zFormat[50];  /* Output format */
+  int mxLine;   /* Length of a line of text */
+  char *zLine;  /* A line of text being formatted */
+  int len;      /* Length of an output line */
 
-  sqlite3_snprintf(sizeof(zFormat), zFormat,
-                   "%%4d %%%d.%ds %%c %%4d %%.%ds\n",
-                   width, width, width);
+  mxLine = width*2 + 2*7 + 3 + 1;
+  zLine = fossil_malloc( mxLine + 1 );
+  if( zLine==0 ) return;
+  zLine[mxLine] = 0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -398,11 +406,12 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      blob_appendf(pOut, "%6d ", a+j);
-      appendSbsLine(pOut, &A[a+j], width, 1);
-      blob_appendf(pOut, "   %6d ", b+j);
-      appendSbsLine(pOut, &B[b+j], width, 0);
-      blob_append(pOut, "\n", 1);
+      memset(zLine, ' ', mxLine);
+      sbsWriteLineno(zLine, a+j);
+      sbsWriteText(&zLine[7], &A[a+j], width, 0);
+      sbsWriteLineno(&zLine[width+10], b+j);
+      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+      blob_append(pOut, zLine, len+width+17);
     }
     a += m;
     b += m;
@@ -413,37 +422,45 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
       mb = R[r+i*3+2];
       m = ma<mb ? ma : mb;
       for(j=0; j<m; j++){
-        blob_appendf(pOut, "%6d ", a+j);
-        appendSbsLine(pOut, &A[a+j], width, 1);
-        blob_appendf(pOut, " | %6d ", b+j);
-        appendSbsLine(pOut, &B[b+j], width, 0);
-        blob_append(pOut, "\n", 1);
+        memset(zLine, ' ', mxLine);
+        sbsWriteLineno(zLine, a+j);
+        sbsWriteText(&zLine[7], &A[a+j], width, 0);
+        zLine[width+8] = '|';
+        sbsWriteLineno(&zLine[width+10], b+j);
+        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+        blob_append(pOut, zLine, len+width+17);
       }
       a += m;
       b += m;
       ma -= m;
       mb -= m;
       for(j=0; j<ma; j++){
-        blob_appendf(pOut, "%6d ", a+j);
-        appendSbsLine(pOut, &A[a+j], width, 1);
-        blob_append(pOut, " <\n", 3);
+        memset(zLine, ' ', width+7);
+        sbsWriteLineno(zLine, a+j);
+        sbsWriteText(&zLine[7], &A[a+j], width, 0);
+        zLine[width+8] = '<';
+        zLine[width+9] = '\n';
+        zLine[width+10] = 0;
+        blob_append(pOut, zLine, width+10);
       }
       a += ma;
       for(j=0; j<mb; j++){
-        appendSpace(pOut, width+7);
-        blob_appendf(pOut, " > %6d ", b+j);
-        appendSbsLine(pOut, &B[b+j], width, 0);
-        blob_append(pOut, "\n", 1);
+        memset(zLine, ' ', mxLine);
+        zLine[width+8] = '>';
+        sbsWriteLineno(&zLine[width+10], b+j);
+        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+        blob_append(pOut, zLine, len+width+17);
       }
       b += mb;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          blob_appendf(pOut, "%6d ", a+j);
-          appendSbsLine(pOut, &A[a+j], width, 1);
-          blob_appendf(pOut, "   %6d ", b+j);
-          appendSbsLine(pOut, &B[b+j], width, 0);
-          blob_append(pOut, "\n", 1);
+          memset(zLine, ' ', mxLine);
+          sbsWriteLineno(zLine, a+j);
+          sbsWriteText(&zLine[7], &A[a+j], width, 0);
+          sbsWriteLineno(&zLine[width+10], b+j);
+          len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+          blob_append(pOut, zLine, len+width+17);
         }
         b += m;
         a += m;
@@ -455,13 +472,15 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      blob_appendf(pOut, "%6d ", a+j);
-      appendSbsLine(pOut, &A[a+j], width, 1);
-      blob_appendf(pOut, "   %6d ", b+j);
-      appendSbsLine(pOut, &B[b+j], width, 0);
-      blob_append(pOut, "\n", 1);
+      memset(zLine, ' ', mxLine);
+      sbsWriteLineno(zLine, a+j);
+      sbsWriteText(&zLine[7], &A[a+j], width, 0);
+      sbsWriteLineno(&zLine[width+10], b+j);
+      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+      blob_append(pOut, zLine, len+width+17);
     }
   }
+  free(zLine);
 }
 
 /*

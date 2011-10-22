@@ -1,5 +1,5 @@
-C Improved\sformatting\sfor\scommand-line\sside-by-side\sdiff.\s\sExtend\scommand-line\nside-by-side\sdiff\sto\sall\sdiff\soperations,\sincluding\sstash\sdiffs.
-D 2011-10-21T23:44:14.026
+C Rework\sthe\sside-by-side\sdiff\sso\sthat\sit\shandles\stab\scharacters.\s\sFix\san\noff-by-one\serror\sin\sthe\sline\snumbers\sof\sside-by-side\sdiffs.
+D 2011-10-22T03:37:43.910
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
-F src/diff.c 0f3e5f6bb91b796b24232e2cf016b93be65d355d
+F src/diff.c c352a38e9b5c4bc579f20ee27042936808030fb2
 F src/diffcmd.c 2fd32d95b61ee90d0808c933da16cb6cf9519b05
 F src/doc.c 0fdde3734aebca41b0f2ab8db368ed968151d818
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 54e730c339278e15a3ae8eb55797af9b7a8b63c8
-R 03857dd6ad4d90d428000d8ff9a724c6
+P ab47cc73d7d95c78cf2e796654e536fbf4790530
+R 40cbb590d5a9bb5a1262a83a6057fc83
 U drh
-Z 21f5d0c7b01f02a9f6470e74920acc8c
+Z 3f72016e1005453a1a1623a99b946b4d
