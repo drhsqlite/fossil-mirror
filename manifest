@@ -1,5 +1,5 @@
-C undid\sa\sstash\ssnafu\sand\sadded\ssbs\soption\sto\sjson/diff.
-D 2011-10-22T16:05:32.421
+C Removed\san\sold\swarning\scomment.\sRemoved\san\sincorrect\sperms\scheck\sin\s/json/user/save.\sAdded\sa\sTODO.
+D 2011-10-22T16:36:13.196
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,7 +106,7 @@ F src/json_query.c 7b37378a0198ada3db075211e7a5694af26b53bd
 F src/json_report.c cc3dffcc35f94b3e85894c827003c30aae323693
 F src/json_tag.c 17495d274fb2116cb2fdfec7cd5c92f85ee6fa87
 F src/json_timeline.c 13c5c5741290b2ed79d0440ee7c13b705958d224
-F src/json_user.c 624633959a342390e6f64b35e02bdaf4f84d68db
+F src/json_user.c 4e460052eba7fa1ff42871ba1d3b4b81031600ab
 F src/json_wiki.c 390290409a4f12f65d88e2dc338920cb24f7e6b9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c de069082f0d2a45659e3908a7150c4bdd1cdda15
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P acc253f44cfb783ad6dcf311da78fb51716f59b4
-R fb51a9a388d65d674dfe8615ff710c91
+P adfd3db7657fe8fdf76caf4bdc4f59e0788a6b6f
+R 8f9d2ecebdf874a93e62ab3de56c54b4
 U stephan
-Z 2ab6aa809b66aa1e257662d681330fca
+Z bd1f5a5a85295951d765b673dc624682

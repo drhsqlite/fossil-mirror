@@ -185,6 +185,11 @@ int json_user_update_from_json( cson_object const * pUser ){
                           "No login found for user [%s].", zName);
     }
   }
+  /*
+    Todo: reserve the uid=-1 to mean that the user should be created
+    by this request.
+  */
+
   /* Maintenance note: all error-returns from here on out should go
      via goto error in order to clean up.
   */
@@ -267,13 +272,14 @@ int json_user_update_from_json( cson_object const * pUser ){
 
 
 /*
-** Don't use - not yet finished.
+** Impl of /json/user/save.
+**
+** TODOs:
+**
+** - Return something useful in the payload (at least the id of the
+** modified/created user).
 */
 static cson_value * json_user_save(){
-  if( !g.perm.Admin || !g.perm.Setup ){
-    json_set_err(FSL_JSON_E_DENIED,
-                 "Requires 'a' or 's' privileges.");
-  }
   if(! g.json.reqPayload.o ){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "User data must be contained in the request payload.");
