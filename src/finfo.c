@@ -289,7 +289,7 @@ void finfo_page(void){
     if( uBg ){
       zBgClr = hash_color(zUser);
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
-      zBgClr = strcmp(zBr,"trunk")==0 ? "white" : hash_color(zBr);
+      zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
     gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
