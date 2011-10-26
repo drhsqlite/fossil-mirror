@@ -397,7 +397,7 @@ void Th_FossilInit(void){
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
-      th_register_tcl(g.interp);          /* Tcl integration commands. */
+      th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){

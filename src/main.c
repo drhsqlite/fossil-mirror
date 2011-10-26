@@ -26,11 +26,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+
+#if INTERFACE
+
 #ifdef FOSSIL_ENABLE_TCL
 #include "tcl.h"
 #endif
-
-#if INTERFACE
 
 /*
 ** Number of elements in an array
@@ -74,6 +75,19 @@ struct FossilUserPerms {
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
 };
+
+#ifdef FOSSIL_ENABLE_TCL
+/*
+** All Tcl related context information is in this structure.  This structure
+** definition has been copied from and should be kept in sync with the one in
+** "th_tcl.c".
+*/
+struct TclContext {
+  int argc;
+  char **argv;
+  Tcl_Interp *interp;
+};
+#endif
 
 /*
 ** All global variables are in this structure.
@@ -150,6 +164,11 @@ struct Global {
   
   /* permissions used by the server */
   struct FossilUserPerms perm;
+
+#ifdef FOSSIL_ENABLE_TCL
+  /* all Tcl related context necessary for integration */
+  struct TclContext tcl;
+#endif
 
   /* For defense against Cross-site Request Forgery attacks */
   char zCsrfToken[12];    /* Value of the anti-CSRF token */
@@ -320,7 +339,9 @@ int main(int argc, char **argv){
   int i;
 
 #ifdef FOSSIL_ENABLE_TCL
-  Tcl_FindExecutable(argv[0]);
+  g.tcl.argc = argc;
+  g.tcl.argv = argv;
+  g.tcl.interp = 0;
 #endif
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);

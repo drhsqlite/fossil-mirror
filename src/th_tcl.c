@@ -42,6 +42,21 @@
   ckfree((char *)objv);
 
 /*
+** Fetch the Tcl interpreter from the specified void pointer, cast to a Tcl
+** context.
+ */
+#define GET_CTX_TCL_INTERP(ctx) \
+  ((struct TclContext *)(ctx))->interp
+
+/*
+** Creates and initializes a Tcl interpreter for use with the specified TH1
+** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
+** by the caller.  This must be declared here because quite a few functions in
+** this file need to use it before it can be defined.
+ */
+static int createTclInterp(Th_Interp *interp, void *pContext);
+
+/*
 ** Returns the Tcl interpreter result as a string with the associated length.
 ** If the Tcl interpreter or the Tcl result are NULL, the length will be 0.
 ** If the length pointer is NULL, the length will not be stored.
@@ -64,6 +79,16 @@ static char *getTclResult(
 }
 
 /*
+** Tcl context information used by TH1.  This structure definition has been
+** copied from and should be kept in sync with the one in "main.c".
+*/
+struct TclContext {
+  int argc;
+  char **argv;
+  Tcl_Interp *interp;
+};
+
+/*
 ** Syntax:
 **
 **   tclEval arg ?arg ...?
@@ -81,10 +106,13 @@ static int tclEval_command(
   int nResult;
   const char *zResult;
 
+  if ( createTclInterp(interp, ctx)!=TH_OK ){
+    return TH_ERROR;
+  }
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "tclEval arg ?arg ...?");
   }
-  tclInterp = (Tcl_Interp *)ctx;
+  tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
@@ -129,10 +157,13 @@ static int tclExpr_command(
   int nResult;
   const char *zResult;
 
+  if ( createTclInterp(interp, ctx)!=TH_OK ){
+    return TH_ERROR;
+  }
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "tclExpr arg ?arg ...?");
   }
-  tclInterp = (Tcl_Interp *)ctx;
+  tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
@@ -188,10 +219,13 @@ static int tclInvoke_command(
 #endif
   USE_ARGV_TO_OBJV();
 
+  if ( createTclInterp(interp, ctx)!=TH_OK ){
+    return TH_ERROR;
+  }
   if( argc<2 ){
     return Th_WrongNumArgs(interp, "tclInvoke command ?arg ...?");
   }
-  tclInterp = (Tcl_Interp *)ctx;
+  tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
@@ -326,13 +360,29 @@ static void Th1DeleteProc(
 }
 
 /*
-** Register the Tcl language commands with interpreter interp.
-** Usually this is called soon after interpreter creation.
-*/
-int th_register_tcl(Th_Interp *interp){
-  int i;
-  Tcl_Interp *tclInterp = Tcl_CreateInterp();
+** Creates and initializes a Tcl interpreter for use with the specified TH1
+** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
+** by the caller.
+ */
+static int createTclInterp(
+  Th_Interp *interp,
+  void *pContext
+){
+  struct TclContext *tclContext = (struct TclContext *)pContext;
+  Tcl_Interp *tclInterp;
 
+  if ( !tclContext ){
+    Th_ErrorMessage(interp,
+        "Invalid Tcl context", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  if ( tclContext->interp ){
+    return TH_OK;
+  }
+  if ( tclContext->argc>0 && tclContext->argv ) {
+    Tcl_FindExecutable(tclContext->argv[0]);
+  }
+  tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "Could not create Tcl interpreter", (const char *)"", 0);
@@ -342,17 +392,30 @@ int th_register_tcl(Th_Interp *interp){
     Th_ErrorMessage(interp,
         "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
     Tcl_DeleteInterp(tclInterp);
+    tclContext->interp = tclInterp = 0;
     return TH_ERROR;
   }
   /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
+  return TH_OK;
+}
+
+/*
+** Register the Tcl language commands with interpreter interp.
+** Usually this is called soon after interpreter creation.
+*/
+int th_register_tcl(
+  Th_Interp *interp,
+  void *pContext
+){
+  int i;
   /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
     void *ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */
-    if( !ctx ) ctx = tclInterp;
+    if( !ctx ) ctx = pContext;
     Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, ctx, 0);
   }
   return TH_OK;
