@@ -1,5 +1,5 @@
-C Perform\slazy\ssetup\sof\sthe\sTcl\sintegration\ssubsystem\swhen\sit\sis\sactually\senabled.
-D 2011-10-26T14:57:30.250
+C Update\stest\scases\sto\swork\swith\sor\swithout\sthe\sUSE_TCL_EVALOBJV\scompile-time\soption\senabled.
+D 2011-10-26T15:07:18.203
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -154,7 +154,7 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test bcb8c119a59ef974c1b61e0187ad443c846c2d75
 F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-tcl.test 09e3114afbdec583a211dc9a773651273cd84deb
+F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
 F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 62d928cb41a13700a1dcc2d51069b4b771ea566d
-R 735e680ad452086ccc3bd5ec709d54e8
+P e49581506a2b6b674910c23eefa55506aa417751
+R 71516a9b707ee57f912bcdf4d0dff085
 U mistachkin
-Z 1dc2ed50378870799d39727b38d0d306
+Z acd622b5100634e5a247ca69af5c85f2
