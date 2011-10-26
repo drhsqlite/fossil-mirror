@@ -201,6 +201,25 @@ static void record_login_attempt(
 }
 
 /*
+** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
+** is a manually operated browser or a bot.  When in doubt, assume a bot.  Return
+** true if we believe the agent is a real person.
+*/
+static int isHuman(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  int i;
+  if( zAgent==0 ) return 0;
+  for(i=0; zAgent[i]; i++){
+    if( zAgent[i]=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
+    if( zAgent[i]=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
+  }
+  if( memcmp(zAgent, "Mozilla/", 8)==0 ) return 1;
+  if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
+  if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
+  return 0;
+}
+
+/*
 ** SQL function for constant time comparison of two values.
 ** Sets result to 0 if two values are equal.
 */
@@ -729,6 +748,9 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_set_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
+  if( zCap[0] && !g.perm.History && isHuman() ){
+    g.perm.History = 1;
+  }
 }
 
 /*

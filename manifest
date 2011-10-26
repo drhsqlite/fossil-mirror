@@ -1,5 +1,5 @@
-C Add\san\sAdmin/Access\ssetting\sto\sgovern\sthe\snumber\sof\soctets\sof\sthe\sIP\saddress\sto\ninclude\sin\sthe\slogin\scookie.
-D 2011-10-26T03:29:51.340
+C Automatically\senable\shyperlinks\sfor\suser\sagents\sthat\sappear\sto\sbe\shuman.
+D 2011-10-26T14:00:40.972
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -85,7 +85,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 1208246329484cecd7b412d67586f1cb58758170
+F src/login.c f72fc70ca815268ab28c404943f61fa20728afdc
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
 F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4092208afca3ffe24a1077800df01ff897945c96
-R 4989c95bc9337afda88e200844f742e7
+P 313ba5c64f2102f7f7310a5860aaa87c4c4cc9a8
+R 18f90cddca2f78ec161a2d1608f8be68
 U drh
-Z ee73a28b38ade0ad11464898aea0432a
+Z 2212d24ec59e68cfd6d067f32786aa9f
