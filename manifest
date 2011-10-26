@@ -1,5 +1,5 @@
-C Add\sconfiguration\soptions\sunder\s/Admin/Access\sto\senable\sthe\sautomatic\shyperlink\nenabling\sfor\snobody\sbased\son\sUser-Agent.
-D 2011-10-26T14:58:59.228
+C Improvements\sto\sthe\sUser-Agent\sbot\srecognizer.\s\sAdd\sthe\stest-ishuman\scommand\sfor\ntesting\sthe\sbot\srecognizer.
+D 2011-10-26T15:41:09.303
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -85,7 +85,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 0c5fa2241bfa8bfb124f0c346f6a272babe53f58
+F src/login.c 0918f8e9b3d2a6c6448a50b7695b214e078cada0
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
 F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e059e5a24de1a0070f8ea746a25bf306e0e3c80f
-R c814c8911919ec856d2851f8b2b6d0e2
+P 98cc52065294a49e1b25652136622567051aeb51
+R 2d59f8fe09a991b43196ac5614fce9c6
 U drh
-Z c2de199e7d7c48a87998c3a70c5698c0
+Z a020a05fcd260094d897fc5530a5648f

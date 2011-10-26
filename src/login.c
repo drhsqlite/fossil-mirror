@@ -205,18 +205,34 @@ static void record_login_attempt(
 ** is a manually operated browser or a bot.  When in doubt, assume a bot.  Return
 ** true if we believe the agent is a real person.
 */
-static int isHuman(void){
-  const char *zAgent = P("HTTP_USER_AGENT");
+static int isHuman(const char *zAgent){
   int i;
   if( zAgent==0 ) return 0;
   for(i=0; zAgent[i]; i++){
     if( zAgent[i]=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
     if( zAgent[i]=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
   }
-  if( memcmp(zAgent, "Mozilla/", 8)==0 ) return 1;
+  if( memcmp(zAgent, "Mozilla/", 8)==0 ){
+    return atoi(&zAgent[8])>=4;
+  }
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
+  if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
   return 0;
+}
+
+/*
+** COMMAND: test-ishuman
+**
+** Read lines of text from standard input.  Interpret each line of text
+** as a User-Agent string from an HTTP header.  Label each line as HUMAN
+** or ROBOT.
+*/
+void test_ishuman(void){
+  char zLine[3000];
+  while( fgets(zLine, sizeof(zLine), stdin) ){
+    fossil_print("%s %s", isHuman(zLine) ? "HUMAN" : "ROBOT", zLine);
+  }
 }
 
 /*
@@ -749,7 +765,7 @@ void login_check_credentials(void){
   login_set_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
   if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
-      && isHuman() ){
+      && isHuman(P("HTTP_USER_AGENT")) ){
     g.perm.History = 1;
   }
 }
