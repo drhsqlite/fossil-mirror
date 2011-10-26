@@ -1,5 +1,5 @@
-C Automatically\senable\shyperlinks\sfor\suser\sagents\sthat\sappear\sto\sbe\shuman.
-D 2011-10-26T14:00:40.972
+C Add\sconfiguration\soptions\sunder\s/Admin/Access\sto\senable\sthe\sautomatic\shyperlink\nenabling\sfor\snobody\sbased\son\sUser-Agent.
+D 2011-10-26T14:58:59.228
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -54,7 +54,7 @@ F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c dacdc3e129b4b1a96d808f37afc95141bd126195
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
-F src/cgi.c fd196be246b62d756c1f381b42529b5a41c3fb05
+F src/cgi.c 39d40f6c75b1c3ded6144155f1a052a5a0850ca2
 F src/checkin.c 61235ea46fa491e7e6f86f3b2ae9b9665563b3f0
 F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -85,7 +85,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c f72fc70ca815268ab28c404943f61fa20728afdc
+F src/login.c 0c5fa2241bfa8bfb124f0c346f6a272babe53f58
 F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
 F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -108,7 +108,7 @@ F src/report.c 72ec6d1e3df2e7f70a4c9432a66a9092a1f2d538
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
-F src/setup.c 9414973dd292401a589600e7662281d507d2b725
+F src/setup.c 5ea0d8859163deae2c3cd2d313f3103462bd7852
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 313ba5c64f2102f7f7310a5860aaa87c4c4cc9a8
-R 18f90cddca2f78ec161a2d1608f8be68
+P e059e5a24de1a0070f8ea746a25bf306e0e3c80f
+R c814c8911919ec856d2851f8b2b6d0e2
 U drh
-Z 2212d24ec59e68cfd6d067f32786aa9f
+Z c2de199e7d7c48a87998c3a70c5698c0

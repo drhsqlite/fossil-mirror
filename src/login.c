@@ -748,7 +748,8 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_set_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
-  if( zCap[0] && !g.perm.History && isHuman() ){
+  if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
+      && isHuman() ){
     g.perm.History = 1;
   }
 }

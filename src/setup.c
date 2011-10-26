@@ -890,6 +890,17 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
+  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
+                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
+  @ including user "nobody", as long as the User-Agent string in the HTTP header
+  @ indicates that the request is coming from an actual human being and not a
+  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
+  @ that want.  So a bot that wants to impersonate a human can easily do so.
+  @ Hence, this technique does not necessarily exclude malicious bots.
+  @ </p>
+
+  @ <hr />
   onoff_attribute("Allow users to register themselves",
                   "self-register", "selfregister", 0);
   @ <p>Allow users to register themselves through the HTTP UI. 
