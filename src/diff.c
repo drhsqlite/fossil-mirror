@@ -23,6 +23,18 @@
 #include <assert.h>
 
 
+#if INTERFACE
+/*
+** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
+*/
+#define DIFF_CONTEXT_MASK  0x0000fff  /* Lines of context.  Default if 0 */
+#define DIFF_WIDTH_MASK    0x00ff000  /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS  0x0100000  /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE    0x0200000  /* Generate a side-by-side diff */
+#define DIFF_NEWFILE       0x0400000  /* Missing files are as empty files */
+
+#endif /* INTERFACE */
+
 /*
 ** Maximum length of a line in a text file.  (8192)
 */
@@ -289,6 +301,192 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
 }
 
 /*
+** Write a 6-digit line number into the buffer z[].  z[] is guaranteed to
+** have space for at least 7 characters.
+*/
+static void sbsWriteLineno(char *z, int ln){
+  sqlite3_snprintf(7, z, "%6d", ln+1);
+  z[6] = ' ';
+}
+
+/*
+** Write up to width characters of pLine into z[].  Translate tabs into
+** spaces.  If trunc is true, then append \n\000 after the last character
+** written.
+*/
+static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
+  int n = pLine->h & LENGTH_MASK;
+  int i, j;
+  const char *zIn = pLine->z;
+  for(i=j=0; i<n && j<width; i++){
+    char c = zIn[i];
+    if( c=='\t' ){
+      z[j++] = ' ';
+      while( (j&7)!=0 && j<width ) z[j++] = ' ';
+    }else if( c=='\r' || c=='\f' ){
+      z[j++] = ' ';
+    }else{
+      z[j++] = c;
+    }
+  }
+  if( trunc ){
+    z[j++] = '\n';
+    z[j] = 0;
+  }
+  return j;
+}
+
+
+/*
+** Given a diff context in which the aEdit[] array has been filled
+** in, compute a side-by-side diff into pOut.
+*/
+static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
+  DLine *A;     /* Left side of the diff */
+  DLine *B;     /* Right side of the diff */  
+  int a = 0;    /* Index of next line in A[] */
+  int b = 0;    /* Index of next line in B[] */
+  int *R;       /* Array of COPY/DELETE/INSERT triples */
+  int r;        /* Index into R[] */
+  int nr;       /* Number of COPY/DELETE/INSERT triples to process */
+  int mxr;      /* Maximum value for r */
+  int na, nb;   /* Number of lines shown from A and B */
+  int i, j;     /* Loop counters */
+  int m, ma, mb;/* Number of lines to output */
+  int skip;     /* Number of lines to skip */
+  int mxLine;   /* Length of a line of text */
+  char *zLine;  /* A line of text being formatted */
+  int len;      /* Length of an output line */
+
+  mxLine = width*2 + 2*7 + 3 + 1;
+  zLine = fossil_malloc( mxLine + 1 );
+  if( zLine==0 ) return;
+  zLine[mxLine] = 0;
+  A = p->aFrom;
+  B = p->aTo;
+  R = p->aEdit;
+  mxr = p->nEdit;
+  while( mxr>2 && R[mxr-1]==0 && R[mxr-2]==0 ){ mxr -= 3; }
+  for(r=0; r<mxr; r += 3*nr){
+    /* Figure out how many triples to show in a single block */
+    for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
+    /* printf("r=%d nr=%d\n", r, nr); */
+
+    /* For the current block comprising nr triples, figure out
+    ** how many lines of A and B are to be displayed
+    */
+    if( R[r]>nContext ){
+      na = nb = nContext;
+      skip = R[r] - nContext;
+    }else{
+      na = nb = R[r];
+      skip = 0;
+    }
+    for(i=0; i<nr; i++){
+      na += R[r+i*3+1];
+      nb += R[r+i*3+2];
+    }
+    if( R[r+nr*3]>nContext ){
+      na += nContext;
+      nb += nContext;
+    }else{
+      na += R[r+nr*3];
+      nb += R[r+nr*3];
+    }
+    for(i=1; i<nr; i++){
+      na += R[r+i*3];
+      nb += R[r+i*3];
+    }
+    /*
+     * If the patch changes an empty file or results in an empty file,
+     * the block header must use 0,0 as position indicator and not 1,0.
+     * Otherwise, patch would be confused and may reject the diff.
+     */
+    if( r>0 ) blob_appendf(pOut,"%.*c\n", width*2+16, '.');
+
+    /* Show the initial common area */
+    a += skip;
+    b += skip;
+    m = R[r] - skip;
+    for(j=0; j<m; j++){
+      memset(zLine, ' ', mxLine);
+      sbsWriteLineno(zLine, a+j);
+      sbsWriteText(&zLine[7], &A[a+j], width, 0);
+      sbsWriteLineno(&zLine[width+10], b+j);
+      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+      blob_append(pOut, zLine, len+width+17);
+    }
+    a += m;
+    b += m;
+
+    /* Show the differences */
+    for(i=0; i<nr; i++){
+      ma = R[r+i*3+1];
+      mb = R[r+i*3+2];
+      m = ma<mb ? ma : mb;
+      for(j=0; j<m; j++){
+        memset(zLine, ' ', mxLine);
+        sbsWriteLineno(zLine, a+j);
+        sbsWriteText(&zLine[7], &A[a+j], width, 0);
+        zLine[width+8] = '|';
+        sbsWriteLineno(&zLine[width+10], b+j);
+        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+        blob_append(pOut, zLine, len+width+17);
+      }
+      a += m;
+      b += m;
+      ma -= m;
+      mb -= m;
+      for(j=0; j<ma; j++){
+        memset(zLine, ' ', width+7);
+        sbsWriteLineno(zLine, a+j);
+        sbsWriteText(&zLine[7], &A[a+j], width, 0);
+        zLine[width+8] = '<';
+        zLine[width+9] = '\n';
+        zLine[width+10] = 0;
+        blob_append(pOut, zLine, width+10);
+      }
+      a += ma;
+      for(j=0; j<mb; j++){
+        memset(zLine, ' ', mxLine);
+        zLine[width+8] = '>';
+        sbsWriteLineno(&zLine[width+10], b+j);
+        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+        blob_append(pOut, zLine, len+width+17);
+      }
+      b += mb;
+      if( i<nr-1 ){
+        m = R[r+i*3+3];
+        for(j=0; j<m; j++){
+          memset(zLine, ' ', mxLine);
+          sbsWriteLineno(zLine, a+j);
+          sbsWriteText(&zLine[7], &A[a+j], width, 0);
+          sbsWriteLineno(&zLine[width+10], b+j);
+          len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+          blob_append(pOut, zLine, len+width+17);
+        }
+        b += m;
+        a += m;
+      }
+    }
+
+    /* Show the final common area */
+    assert( nr==i );
+    m = R[r+nr*3];
+    if( m>nContext ) m = nContext;
+    for(j=0; j<m; j++){
+      memset(zLine, ' ', mxLine);
+      sbsWriteLineno(zLine, a+j);
+      sbsWriteText(&zLine[7], &A[a+j], width, 0);
+      sbsWriteLineno(&zLine[width+10], b+j);
+      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
+      blob_append(pOut, zLine, len+width+17);
+    }
+  }
+  free(zLine);
+}
+
+/*
 ** Compute the optimal longest common subsequence (LCS) using an
 ** exhaustive search.  This version of the LCS is only used for
 ** shorter input strings since runtime is O(N*N) where N is the
@@ -524,6 +722,26 @@ static void diff_all(DContext *p){
 }
 
 /*
+** Extract the number of lines of context from diffFlags.  Supply an
+** appropriate default if no context width is specified.
+*/
+int diff_context_lines(int diffFlags){
+  int n = diffFlags & DIFF_CONTEXT_MASK;
+  if( n==0 ) n = 5;
+  return n;
+}
+
+/*
+** Extract the width of columns for side-by-side diff.  Supply an
+** appropriate default if no width is given.
+*/
+int diff_width(int diffFlags){
+  int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
+  if( w==0 ) w = 80;
+  return w;
+}
+
+/*
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
@@ -540,12 +758,16 @@ static void diff_all(DContext *p){
 int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
-  Blob *pOut,      /* Write unified diff here if not NULL */
-  int nContext,    /* Amount of context to unified diff */
-  int ignoreEolWs  /* Ignore whitespace at the end of lines */
+  Blob *pOut,      /* Write diff here if not NULL */
+  int diffFlags    /* DIFF_* flags defined above */
 ){
+  int ignoreEolWs; /* Ignore whitespace at the end of lines */
+  int nContext;    /* Amount of context to display */	
   DContext c;
- 
+
+  nContext = diff_context_lines(diffFlags);
+  ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
+
   /* Prepare the input files */
   memset(&c, 0, sizeof(c));
   c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
@@ -565,8 +787,13 @@ int *text_diff(
   diff_all(&c);
 
   if( pOut ){
-    /* Compute a context diff if requested */
-    contextDiff(&c, pOut, nContext);
+    /* Compute a context or side-by-side diff into pOut */
+    if( diffFlags & DIFF_SIDEBYSIDE ){
+      int width = diff_width(diffFlags);
+      sbsDiff(&c, pOut, nContext, width);
+    }else{
+      contextDiff(&c, pOut, nContext);
+    }
     free(c.aFrom);
     free(c.aTo);
     free(c.aEdit);
@@ -590,7 +817,7 @@ static char *copylimline(char *out, DLine *dl, int lim){
   len = dl->h & LENGTH_MASK;
   if( lim && len > lim ){
     memcpy(out, dl->z, lim-3);
-    strcpy(&out[lim-3], "...");
+    memcpy(&out[lim-3], "...", 4);
   }else{
     memcpy(out, dl->z, len);
     out[len] = '\0';
@@ -662,7 +889,7 @@ int html_sbsdiff(
     /* Copied lines */
     for( j=0; j<c.aEdit[i]; j++){
       /* Hide lines which are copied and are further away from block boundaries
-      ** than nConext lines. For each block with hidden lines, show a row
+      ** than nContext lines. For each block with hidden lines, show a row
       ** notifying the user about the hidden rows.
       */
       if( j<nContext || j>c.aEdit[i]-nContext-1 ){
@@ -778,7 +1005,7 @@ void test_rawdiff_cmd(void){
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0, 0);
+    R = text_diff(&a, &b, 0, 0);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -788,15 +1015,44 @@ void test_rawdiff_cmd(void){
 }
 
 /*
+** Process diff-related command-line options and return an appropriate
+** "diffFlags" integer.  
+**
+**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
+**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+*/
+int diff_options(void){
+  int diffFlags = 0;
+  const char *z;
+  int f;
+  if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
+    if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
+    diffFlags |= f;
+  }
+  if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
+    f *= DIFF_CONTEXT_MASK+1;
+    if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
+    diffFlags |= f;
+  }
+  return diffFlags;
+}
+
+/*
 ** COMMAND: test-udiff
+**
+** Print the difference between two files.  The usual diff options apply.
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
+  int diffFlag = diff_options();
+
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, 3, 0);
+  text_diff(&a, &b, &out, diffFlag);
   blob_write_to_file(&out, "-");
 }
 
@@ -1070,6 +1326,7 @@ void annotate_cmd(void){
   int fnid;         /* Filename ID */
   int fid;          /* File instance ID */
   int mid;          /* Manifest where file was checked in */
+  int cid;          /* Checkout ID */
   Blob treename;    /* FILENAME translated to canonical form */
   char *zFilename;  /* Cannonical filename */
   Annotator ann;    /* The annotation of the file */
@@ -1099,7 +1356,16 @@ void annotate_cmd(void){
   if( fid==0 ){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
-  mid = db_int(0, "SELECT mid FROM mlink WHERE fid=%d AND fnid=%d", fid, fnid);
+  cid = db_lget_int("checkout", 0);
+  if (cid == 0){
+    fossil_fatal("Not in a checkout");
+  }
+  if( iLimit<=0 ) iLimit = 1000000000;
+  compute_direct_ancestors(cid, iLimit);
+  mid = db_int(0, "SELECT mlink.mid FROM mlink, ancestor "
+          " WHERE mlink.fid=%d AND mlink.fnid=%d AND mlink.mid=ancestor.rid"
+          " ORDER BY ancestor.generation ASC LIMIT 1",
+          fid, fnid);
   if( mid==0 ){
     fossil_panic("unable to find manifest");
   }

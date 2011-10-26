@@ -119,11 +119,16 @@ static void redirect_to_g(void){
 ** extract just a prefix of the IP address.  
 */
 static char *ipPrefix(const char *zIP){
-  int i, j; 
+  int i, j;
+  static int ip_prefix_terms = -1;
+  if( ip_prefix_terms<0 ){
+    ip_prefix_terms = db_get_int("ip-prefix-terms",2);
+  }
+  if( ip_prefix_terms==0 ) return mprintf("0");
   for(i=j=0; zIP[i]; i++){
     if( zIP[i]=='.' ){
       j++;
-      if( j==2 ) break;
+      if( j==ip_prefix_terms ) break;
     }
   }
   return mprintf("%.*s", i, zIP);
@@ -196,6 +201,52 @@ static void record_login_attempt(
 }
 
 /*
+** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
+** is a manually operated browser or a bot.  When in doubt, assume a bot.  Return
+** true if we believe the agent is a real person.
+*/
+static int isHuman(void){
+  const char *zAgent = P("HTTP_USER_AGENT");
+  int i;
+  if( zAgent==0 ) return 0;
+  for(i=0; zAgent[i]; i++){
+    if( zAgent[i]=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
+    if( zAgent[i]=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
+  }
+  if( memcmp(zAgent, "Mozilla/", 8)==0 ) return 1;
+  if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
+  if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
+  return 0;
+}
+
+/*
+** SQL function for constant time comparison of two values.
+** Sets result to 0 if two values are equal.
+*/
+static void constant_time_cmp_function(
+ sqlite3_context *context,
+ int argc,
+ sqlite3_value **argv
+){
+  const unsigned char *buf1, *buf2;
+  int len, i;
+  unsigned char rc = 0;
+
+  assert( argc==2 );
+  len = sqlite3_value_bytes(argv[0]);
+  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
+    rc = 1;
+  }else{
+    buf1 = sqlite3_value_text(argv[0]);
+    buf2 = sqlite3_value_text(argv[1]);
+    for( i=0; i<len; i++ ){
+      rc = rc | (buf1[i] ^ buf2[i]);
+    }
+  }
+  sqlite3_result_int(context, rc);
+}
+
+/*
 ** WEBPAGE: login
 ** WEBPAGE: logout
 ** WEBPAGE: my
@@ -219,6 +270,8 @@ void login_page(void){
   char *zRemoteAddr;           /* Abbreviated IP address of requestor */
 
   login_check_credentials();
+  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+		  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
   anonFlag = P("anon")!=0;
@@ -228,7 +281,9 @@ void login_page(void){
     cgi_set_cookie(zCookieName, "", login_cookie_path(), -86400);
     redirect_to_g();
   }
-  if( g.perm.Password && zPasswd && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0 ){
+  if( g.perm.Password && zPasswd
+   && (zNew1 = P("n1"))!=0 && (zNew2 = P("n2"))!=0
+  ){
     /* The user requests a password change */
     zSha1Pw = sha1_shared_secret(zPasswd, g.zLogin, 0);
     if( db_int(1, "SELECT 0 FROM user"
@@ -454,33 +509,6 @@ void login_page(void){
     @ </form>
   }
   style_footer();
-}
-
-/*
-** SQL function for constant time comparison of two values.
-** Sets result to 0 if two values are equal.
-*/
-static void constant_time_cmp_function(
- sqlite3_context *context,
- int argc,
- sqlite3_value **argv
-){
-  const unsigned char *buf1, *buf2;
-  int len, i;
-  unsigned char rc = 0;
-
-  assert( argc==2 );
-  len = sqlite3_value_bytes(argv[0]);
-  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
-    rc = 1;
-  }else{
-    buf1 = sqlite3_value_text(argv[0]);
-    buf2 = sqlite3_value_text(argv[1]);
-    for( i=0; i<len; i++ ){
-      rc = rc | (buf1[i] ^ buf2[i]);
-    }
-  }
-  sqlite3_result_int(context, rc);
 }
 
 /*
@@ -720,6 +748,10 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_set_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
+  if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
+      && isHuman() ){
+    g.perm.History = 1;
+  }
 }
 
 /*

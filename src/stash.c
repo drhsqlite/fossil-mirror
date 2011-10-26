@@ -268,7 +268,7 @@ static void stash_apply(int stashid, int nConflict){
 /*
 ** Show the diffs associate with a single stash.
 */
-static void stash_diff(int stashid, const char *zDiffCmd){
+static void stash_diff(int stashid, const char *zDiffCmd, int diffFlags){
   Stmt q;
   Blob empty;
   blob_zero(&empty);
@@ -288,8 +288,8 @@ static void stash_diff(int stashid, const char *zDiffCmd){
     if( rid==0 ){
       db_ephemeral_blob(&q, 6, &delta);
       fossil_print("ADDED %s\n", zNew);
-      diff_print_index(zNew);
-      diff_file_mem(&empty, &delta, zNew, zDiffCmd, 0);
+      diff_print_index(zNew, diffFlags);
+      diff_file_mem(&empty, &delta, zNew, zDiffCmd, diffFlags);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
       if( file_wd_islink(zOPath) ){
@@ -297,8 +297,8 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       }else{
         blob_read_from_file(&delta, zOPath);
       }
-      diff_print_index(zNew);
-      diff_file_mem(&delta, &empty, zOrig, zDiffCmd, 0);
+      diff_print_index(zNew, diffFlags);
+      diff_file_mem(&delta, &empty, zOrig, zDiffCmd, diffFlags);
     }else{
       Blob a, b, disk;
       int isOrigLink = file_wd_islink(zOPath);
@@ -310,13 +310,13 @@ static void stash_diff(int stashid, const char *zDiffCmd){
       }
       fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
-        diff_print_index(zNew);
-        printf("--- %s\n+++ %s\n", zOrig, zNew);
+        diff_print_index(zNew, diffFlags);
+        diff_print_filenames(zOrig, zNew, diffFlags);
         printf("cannot compute difference between symlink and regular file\n");
       }else{
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
-        diff_file_mem(&disk, &b, zNew, zDiffCmd, 0);
+        diff_file_mem(&disk, &b, zNew, zDiffCmd, diffFlags);
         blob_reset(&a);
         blob_reset(&b);
       }
@@ -528,15 +528,17 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "diff", nCmd)==0 ){
     const char *zDiffCmd = db_get("diff-command", 0);
+    int diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd);
+    stash_diff(stashid, zDiffCmd, diffFlags);
   }else
   if( memcmp(zCmd, "gdiff", nCmd)==0 ){
     const char *zDiffCmd = db_get("gdiff-command", 0);
+    int diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd);
+    stash_diff(stashid, zDiffCmd, diffFlags);
   }else
   {
     usage("SUBCOMMAND ARGS...");

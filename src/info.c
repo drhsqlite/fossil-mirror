@@ -272,7 +272,7 @@ static void append_diff(const char *zFrom, const char *zTo){
     blob_zero(&to);
   }
   blob_zero(&out);
-  text_diff(&from, &to, &out, 5, 1);
+  text_diff(&from, &to, &out, DIFF_IGNORE_EOLWS | 5);
   @ %h(blob_str(&out))
   blob_reset(&from);
   blob_reset(&to);
@@ -336,9 +336,13 @@ static void append_file_change_line(
       @ <p>Changes to %h(zName)</p>
     }
     if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(zOld, zNew);
-      @ </pre></blockquote>
+      if( sideBySide ){
+        generate_sbsdiff(zOld, zNew);
+      }else{
+        @ <blockquote><pre>
+        append_diff(zOld, zNew);
+        @ </pre></blockquote>
+      }
     }
   }else{
     if( zOld && zNew ){
@@ -363,7 +367,7 @@ static void append_file_change_line(
     }
     if( showDiff ){
       if( sideBySide ){
-         generate_sbsdiff(zOld, zNew);
+        generate_sbsdiff(zOld, zNew);
       }else{
         @ <blockquote><pre>
         append_diff(zOld, zNew);
@@ -545,47 +549,45 @@ void ci_page(void){
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
+    @ <div class="sectionmenu">
     showDiff = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)">
+        @ hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
       if( showDiff ){
-        @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)">hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ &nbsp;&nbsp;
-    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    @ <a class="button" href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">
+    @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
@@ -1091,7 +1093,7 @@ void diff_page(void){
   if( !sideBySide || isPatch ){
     content_get(v1, &c1);
     content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, 4, 1);
+    text_diff(&c1, &c2, pOut, 4 | 0);
     blob_reset(&c1);
     blob_reset(&c2);
   }
