@@ -119,11 +119,16 @@ static void redirect_to_g(void){
 ** extract just a prefix of the IP address.  
 */
 static char *ipPrefix(const char *zIP){
-  int i, j; 
+  int i, j;
+  static int ip_prefix_terms = -1;
+  if( ip_prefix_terms<0 ){
+    ip_prefix_terms = db_get_int("ip-prefix-terms",2);
+  }
+  if( ip_prefix_terms==0 ) return mprintf("0");
   for(i=j=0; zIP[i]; i++){
     if( zIP[i]=='.' ){
       j++;
-      if( j==2 ) break;
+      if( j==ip_prefix_terms ) break;
     }
   }
   return mprintf("%.*s", i, zIP);
