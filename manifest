@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2011-10-26T15:17:52.640
+C Enable\sbuilding\swith\sTcl\sintegration\senabled\susing\sautosetup\sand/or\smakemake.tcl.\s\sPatch\sprovided\sby\sSteve\sBennett.
+D 2011-10-27T13:45:24.296
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 8920d8e6fefa9ee3e48392c4fd1cffb3cf2f8aeb
+F auto.def 245801d54b6609a1aa402f57c7c87b61e035e2b0
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -87,10 +87,10 @@ F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0c5fa2241bfa8bfb124f0c346f6a272babe53f58
 F src/main.c 10c1e54703c1bc96802df30d721d3106db7c3da4
-F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
+F src/main.mk ba0f0532a06dc54dcda06bf369b44d3448fc2bbb
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl dc49c79c21b51dd49400ad434028a7df2a2274e2
+F src/makemake.tcl e79c0084872fb4a1061a2cbc7f06a9fb6f155b37
 F src/manifest.c e85a900e34bd526c9c96885665e5974e334b350a
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -126,7 +126,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c 3e337df697458e715a9da75b78f52af15bf40ffd
-F src/th_tcl.c a5ae2dd4194f346cd574ee7c7e59662730052db2
+F src/th_tcl.c c2aa6f248719a09a6727ae34a3eb79b8fdb8299f
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 191624cc3930500fd2f81194e641b5f4ec5327b6
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d43a362d036fccc22789db3585829178ad5e30a 98cc52065294a49e1b25652136622567051aeb51
-R ef478d80be636c7bf36c2c488249393f
+P 7017c87b40c921916bf947c43b0196dca1489121
+R 993c60484313f7f49cf04e38ae35eef6
 U mistachkin
-Z 3f2a68a87f8bb3f880472a7477d081d3
+Z 0b13469230e91386cf564ab4e0a6a812

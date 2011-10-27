@@ -303,7 +303,11 @@ SQLITE3_OBJ.1 =
 SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
-EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o
+TCL_OBJ.1 =
+TCL_OBJ.0 = $(OBJDIR)/th_tcl.o
+TCL_OBJ. = $(TCL_OBJ.0)
+
+EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -910,4 +914,7 @@ $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
+
+$(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
 

@@ -3,6 +3,9 @@
 */
 
 #include "config.h"
+
+#ifdef FOSSIL_ENABLE_TCL
+
 #include "th.h"
 #include "tcl.h"
 
@@ -420,3 +423,5 @@ int th_register_tcl(
   }
   return TH_OK;
 }
+
+#endif /* FOSSIL_ENABLE_TCL */
