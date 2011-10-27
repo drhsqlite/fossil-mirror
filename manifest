@@ -1,9 +1,9 @@
-C Enable\sbuilding\swith\sTcl\sintegration\senabled\susing\sautosetup\sand/or\smakemake.tcl.\s\sPatch\sprovided\sby\sSteve\sBennett.
-D 2011-10-27T13:45:24.296
+C Prevent\sshell\sargument\smanipulation\sperformed\sautomatically\sby\sthe\sMinGW\sshell\sfrom\sinterfering\swith\sthe\smakeheaders\stool\sused\sby\sthe\sMakefile.
+D 2011-10-27T15:00:16.609
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
+F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
 F VERSION e48515c7f854defb8d5e18a901857cf9848c0b5b
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7017c87b40c921916bf947c43b0196dca1489121
-R 993c60484313f7f49cf04e38ae35eef6
+P 5ffb7d71d373d98499b4aa00e3eb51ec0d469e95
+R 19ce41127a7d7be5094e7017d1c9cf93
 U mistachkin
-Z 0b13469230e91386cf564ab4e0a6a812
+Z a6bc125a1b1998dcd10b0510d93dfe89
