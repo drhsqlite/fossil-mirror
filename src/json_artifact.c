@@ -353,7 +353,7 @@ cson_value * json_page_artifact(){
     goto error;
   }
   zUuid = blob_str(&uuid);
-  rid = db_int(0, "SELECT rid FROM blob WHERE uuid='%s'", zUuid);
+  rid = db_int(0, "SELECT rid FROM blob WHERE uuid=%Q", zUuid);
   if(0==rid){
     g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
     goto error;

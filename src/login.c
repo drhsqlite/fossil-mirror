@@ -119,11 +119,16 @@ static void redirect_to_g(void){
 ** extract just a prefix of the IP address.  
 */
 static char *ipPrefix(const char *zIP){
-  int i, j; 
+  int i, j;
+  static int ip_prefix_terms = -1;
+  if( ip_prefix_terms<0 ){
+    ip_prefix_terms = db_get_int("ip-prefix-terms",2);
+  }
+  if( ip_prefix_terms==0 ) return mprintf("0");
   for(i=j=0; zIP[i]; i++){
     if( zIP[i]=='.' ){
       j++;
-      if( j==2 ) break;
+      if( j==ip_prefix_terms ) break;
     }
   }
   return mprintf("%.*s", i, zIP);
@@ -347,6 +352,41 @@ void login_clear_login_data(){
       ** downstream problems here. We could alternately use "" here.
       */
       ;
+  }
+}
+
+/*
+** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
+** is a manually operated browser or a bot.  When in doubt, assume a bot.  Return
+** true if we believe the agent is a real person.
+*/
+static int isHuman(const char *zAgent){
+  int i;
+  if( zAgent==0 ) return 0;
+  for(i=0; zAgent[i]; i++){
+    if( zAgent[i]=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
+    if( zAgent[i]=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
+  }
+  if( memcmp(zAgent, "Mozilla/", 8)==0 ){
+    return atoi(&zAgent[8])>=4;
+  }
+  if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
+  if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
+  if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  return 0;
+}
+
+/*
+** COMMAND: test-ishuman
+**
+** Read lines of text from standard input.  Interpret each line of text
+** as a User-Agent string from an HTTP header.  Label each line as HUMAN
+** or ROBOT.
+*/
+void test_ishuman(void){
+  char zLine[3000];
+  while( fgets(zLine, sizeof(zLine), stdin) ){
+    fossil_print("%s %s", isHuman(zLine) ? "HUMAN" : "ROBOT", zLine);
   }
 }
 
@@ -833,6 +873,10 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
+  if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
+      && isHuman(P("HTTP_USER_AGENT")) ){
+    g.perm.History = 1;
+  }
 }
 
 /*

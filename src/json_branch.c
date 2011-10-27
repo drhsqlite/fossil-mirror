@@ -206,7 +206,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   if( db_exists(
         "SELECT 1 FROM tagxref"
         " WHERE tagtype>0"
-        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%s')",
+        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%q')",
         zBranch)!=0 ){
     zOpt->rcErrMsg = "Branch already exists.";
     return FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
