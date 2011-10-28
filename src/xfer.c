@@ -639,11 +639,13 @@ void create_cluster(void){
   int nRow = 0;
   int rid;
 
+#if 0
   /* We should not ever get any private artifacts in the unclustered table.
   ** But if we do (because of a bug) now is a good time to delete them. */
   db_multi_exec(
     "DELETE FROM unclustered WHERE rid IN (SELECT rid FROM private)"
   );
+#endif
 
   nUncl = db_int(0, "SELECT count(*) FROM unclustered /*scan*/"
                     " WHERE NOT EXISTS(SELECT 1 FROM phantom"
