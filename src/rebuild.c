@@ -372,7 +372,11 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
-  totalSize = db_int(0, "SELECT count(*) FROM blob");
+
+  /* The following should be count(*) instead of max(rid). max(rid) is
+  ** an adequate approximation, however, and is much faster for large
+  ** repositories. */
+  totalSize = db_int(0, "SELECT max(rid) FROM blob");
   incrSize = totalSize/100;
   totalSize += incrSize*2;
   db_prepare(&s,

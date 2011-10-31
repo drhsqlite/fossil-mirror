@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\s3.7.9\srelease\scandidate.
-D 2011-10-29T19:29:40.187
+C Improve\sthe\sperformance\sof\srebuild\sby\susing\smax(rid)\sinstead\sof\scount(*)\nas\sa\sgood\sapproximation\sfor\sthe\samount\sof\swork\sto\sbe\sdone.
+D 2011-10-31T11:46:15.653
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -103,7 +103,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c ab6d4166375708fd0f5f8d81c77af8b02e636eda
-F src/rebuild.c d31ea942eb7bb7ab78e8d1a635fa6a68ae97e065
+F src/rebuild.c 4a4cc85179837ccf0ae01351e8201d28edb82c41
 F src/report.c 72ec6d1e3df2e7f70a4c9432a66a9092a1f2d538
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 49a015ef79c62105d84dd540090b19053a960b4c
-R 5a9eb3ceb8d69b88e811641cc9eff6c7
+P 326979358d6db31cc1f9f92329b25b1da19f6582
+R f901daf352722b9af8ced89b0789e88e
 U drh
-Z 484db9a53c793c9840ee7e77d941f477
+Z 0239a2f2d5bcf94e18cd48ba8102ba36
