@@ -149,9 +149,7 @@ FossilAjaj.prototype.logout = function(ajajOpt) {
     var oldOnResponse = ajajOpt.onResponse;
     ajajOpt.onResponse = function(resp,req) {
         var thisOpt = this;
-        if( resp && !resp.payload ){
-            delete self.auth;
-        }
+        self.auth = undefined;
         if( WhAjaj.isFunction( self.onLogout ) ){
             try{ self.onLogout(); }
             catch(e){}
