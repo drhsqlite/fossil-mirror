@@ -187,8 +187,9 @@ cson_value * json_page_logout(){
   }else{
     login_clear_login_data();
     g.json.authToken = NULL /* memory is owned elsewhere.*/;
+    json_setenv(FossilJsonKeys.authToken, NULL);
   }
-  return NULL;
+  return json_page_whoami();
 }
 
 /*
@@ -217,7 +218,14 @@ cson_value * json_page_whoami(){
   cson_value * payload = NULL;
   cson_object * obj = NULL;
   Stmt q;
-  db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
+  if(!g.json.authToken){
+      /* assume we just logged out. */
+      db_prepare(&q, "SELECT login, cap FROM user WHERE login='nobody'");
+  }
+  else{
+      db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d",
+                 g.userUid);
+  }
   if( db_step(&q)==SQLITE_ROW ){
 
     /* reminder: we don't use g.zLogin because it's 0 for the guest
