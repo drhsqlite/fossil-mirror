@@ -1,5 +1,5 @@
-C fixed\sa\sbug\sin\sthe\sAJAX\scode\swhich\scaused\san\sinvalidated\sauth\stoken\sto\sstick\saround\sfor\stoo\slong.
-D 2011-11-01T02:39:54.415
+C s/guest/nobody/g\sin\slogin_clear_login_data()\squery.
+D 2011-11-01T02:41:04.758
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -109,7 +109,7 @@ F src/json_timeline.c 13c5c5741290b2ed79d0440ee7c13b705958d224
 F src/json_user.c 3ab328317c9bd2456172b445bf6d1ad60754f818
 F src/json_wiki.c 390290409a4f12f65d88e2dc338920cb24f7e6b9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 75a6ae37ec56124149ecc4a633f98e7f386f703d
+F src/login.c 9188d9a15030f4ab914138a8af5d536709e97762
 F src/main.c 055be59021793456ae123658ef4bc4f4c0367045
 F src/main.mk ad69254ab2f836e4f03ed2889edac37a4b0a3a44
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 953e309dce22c924a359515e6a85e11d8ccc7b85
-R acb7dcca4694405ccf23880faead18b3
+P f6debb5c95353423d0c626601e877c0883b7101b
+R c2fc8dbefea493adb281a21a81e4ab41
 U stephan
-Z e4912afdcad670a6e783e8d8364014aa
+Z aeba225f10b6e1a79a15767327258047

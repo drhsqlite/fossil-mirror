@@ -344,7 +344,7 @@ void login_clear_login_data(){
                    login_cookie_path(), -86400);
     db_multi_exec("UPDATE user SET cookie=NULL, ipaddr=NULL, "
                   "  cexpire=0 WHERE uid=%d"
-                  "  AND login NOT IN ('anonymous','guest',"
+                  "  AND login NOT IN ('anonymous','nobody',"
                   "  'developer','reader')", g.userUid);
     cgi_replace_parameter(cookie, NULL)
       /* At the time of this writing, cgi_replace_parameter() was
