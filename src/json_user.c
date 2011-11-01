@@ -34,8 +34,8 @@ static cson_value * json_user_create();
 ** Mapping of /json/user/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_User[] = {
-{"create", json_page_nyi, 1},
-{"save", json_user_save, 1},
+{"create", json_page_nyi, 0},
+{"save", json_user_save, 0},
 {"get", json_user_get, 0},
 {"list", json_user_list, 0},
 /* Last entry MUST have a NULL name. */
