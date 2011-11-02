@@ -1,5 +1,5 @@
-C Fix\sa\spotential\sdivision-by-zero\sin\sthe\sfile\sbrowser.
-D 2011-10-31T17:54:35.535
+C Update\sthe\sblob_write_to_file()\sroutine\sso\sthat\sit\scorrectly\shandles\sbinary\nfiles\sbeing\ssend\sto\sstandard\soutput.
+D 2011-11-02T15:23:07.599
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -50,7 +50,7 @@ F src/allrepo.c b149430f5d57d7972c0469ffed866a9583f4a669
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c fc0553c09d46a625d9149b4dd5fcd4954c3d25a2
+F src/blob.c 295da8c0d2f460ab1ca0465960cc00ba2cb2575d
 F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c a1d6071725b33d63bed0d8f6d798780286d65322
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 78e10da0e6513b25daab7c578762e7832fa2e01f
-R 4843b33a25f4e9e15502c5ed2605bf0d
+P 4d408219bdd62db86fd03cc5aeeb1786a9ac77d4
+R 5cfd80ad66312a058acd19efa51de009
 U drh
-Z 9097bddb48bfeb50f22dfb29bb7d6cbd
+Z e57afc2113e97f1f4050b40c191befab

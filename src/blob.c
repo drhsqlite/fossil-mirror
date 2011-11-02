@@ -768,8 +768,20 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    fossil_puts(blob_str(pBlob), 0);
-    return blob_size(pBlob);
+    int n;
+#if defined(_WIN32)
+    if( _isatty(fileno(stdout)) ){
+      char *z;
+      z = fossil_utf8_to_console(blob_str(pBlob));
+      n = strlen(z);
+      fwrite(z, 1, n, stdout);
+      free(z);
+      return n;
+    }
+#endif
+    n = blob_size(pBlob);
+    fwrite(blob_buffer(pBlob), 1, n, stdout);
+    return n;
   }else{
     int i, nName;
     char *zName, zBuf[1000];
