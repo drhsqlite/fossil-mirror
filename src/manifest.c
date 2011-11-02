@@ -1337,13 +1337,23 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   if( pParent->zBaseline && pChild->zBaseline ){
     /* Both parent and child are delta manifests.  Look for files that
     ** are marked as deleted in the parent but which reappear in the child
-    ** and show such files as being added in the child. */
+    ** and show such files as being added in the child.
+    ** Also look for different uuids in the parent, to show that
+    ** the file contents were back those of the baseline */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
-      if( pParentFile->zUuid ) continue;
       pChildFile = manifest_file_seek(pChild, pParentFile->zName);
       if( pChildFile ){
-        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                      isPublic, manifest_file_mperm(pChildFile));
+        int mperm = manifest_file_mperm(pChildFile);
+        if( !pParentFile->zUuid ){
+          /* File added to the child */
+          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+              isPublic, manifest_file_mperm(pChildFile));
+        }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid) !=0
+            || manifest_file_mperm(pChildFile)!=mperm ){
+          /* File changed in the child back to the baseline uuid or perms */
+          add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+              pChildFile->zName, 0, isPublic, mperm);
+        }
       }
     }
   }else if( pChild->zBaseline==0 ){

@@ -1,5 +1,5 @@
-C Update\sthe\sblob_write_to_file()\sroutine\sso\sthat\sit\scorrectly\shandles\sbinary\nfiles\sbeing\ssend\sto\sstandard\soutput.
-D 2011-11-02T15:23:07.599
+C Trying\sto\sfix\ssome\scases\swhere\sthe\smlink\stable\sis\sbad\sbuild\sdue\sto\sdelta\smanifests.\n\nIn\sthis\scheckin,\sI\sfix\sthe\scase\swhen\sthe\schild\sdelta\smanifest\schanged\sback\sthe\nfile\sfrom\ssome\scontents\sto\sthose\sof\sits\sbaseline\smanifest.\sThe\s'info'\spage\swas\snot\sshowing\nthese\skind\sof\schanges.
+D 2011-11-02T21:53:49.249
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,7 +91,7 @@ F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl dc49c79c21b51dd49400ad434028a7df2a2274e2
-F src/manifest.c e85a900e34bd526c9c96885665e5974e334b350a
+F src/manifest.c 33d697fa7e1838e0f04de006a220a7423c784348
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
 F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4d408219bdd62db86fd03cc5aeeb1786a9ac77d4
-R 5cfd80ad66312a058acd19efa51de009
-U drh
-Z e57afc2113e97f1f4050b40c191befab
+P 83a574b019b02b2f25b5007f4f7e56c534b481fa
+R e73190eba9b09a607127c17850ceaaa2
+T *branch * fix_mlink
+T *sym-fix_mlink *
+T -sym-trunk *
+U viriketo
+Z a05ad955a1187baca639258a3292e00a
