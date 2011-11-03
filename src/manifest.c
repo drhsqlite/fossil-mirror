@@ -1336,14 +1336,29 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   }
   if( pParent->zBaseline && pChild->zBaseline ){
     /* Both parent and child are delta manifests.  Look for files that
-    ** are marked as deleted in the parent but which reappear in the child
-    ** and show such files as being added in the child. */
+    ** are deleted or modified in the parent but which reappear or revert
+    ** to baseline in the child and show such files as being added or changed
+    ** in the child. */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
-      if( pParentFile->zUuid ) continue;
-      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
-      if( pChildFile ){
-        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                      isPublic, manifest_file_mperm(pChildFile));
+      if( pParentFile->zUuid ){
+        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName);
+        if( pChildFile==0 ){
+          /* The child file reverts to baseline.  Show this as a change */
+          pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+          if( pChildFile ){
+            add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+                          pChildFile->zName, 0, isPublic,
+                          manifest_file_mperm(pChildFile));
+          }
+        }
+      }else{
+        pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+        if( pChildFile ){
+          /* File resurrected in the child after having been deleted in
+          ** the parent.  Show this as an added file. */
+          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+                        isPublic, manifest_file_mperm(pChildFile));
+        }
       }
     }
   }else if( pChild->zBaseline==0 ){
