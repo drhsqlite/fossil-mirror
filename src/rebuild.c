@@ -489,7 +489,7 @@ static void extra_deltification(void){
 }
 
 /*
-** COMMAND:  rebuild
+** COMMAND: rebuild
 **
 ** Usage: %fossil rebuild ?REPOSITORY? ?OPTIONS?
 **
@@ -722,7 +722,7 @@ void test_clusters_cmd(void){
 }
 
 /*
-** COMMAND: scrub
+** COMMAND: scrub*
 ** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
@@ -856,7 +856,7 @@ void recon_read_dir(char *zPath){
 }
 
 /*
-** COMMAND: reconstruct
+** COMMAND: reconstruct*
 **
 ** Usage: %fossil reconstruct FILENAME DIRECTORY
 **
@@ -917,7 +917,7 @@ void reconstruct_cmd(void) {
 }
 
 /*
-** COMMAND: deconstruct
+** COMMAND: deconstruct*
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **

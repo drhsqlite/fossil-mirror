@@ -827,7 +827,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 }
 
 /*
-** COMMAND: ci
+** COMMAND: ci*
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

@@ -38,7 +38,9 @@
 **       COMMAND:  cmdname
 **
 ** These entries build a constant table used to map command names into
-** functions.
+** functions.  If cmdname ends with "*" then the command is a second-tier
+** command that is not displayed by the "fossil help" command.  The
+** final "*" is not considered to be part of the command name.
 **
 ** Comment text following COMMAND: through the end of the comment is
 ** understood to be help text for the command specified.  This help
@@ -226,13 +228,21 @@ void build_table(void){
     "struct NameMap {\n"
     "  const char *zName;\n"
     "  void (*xFunc)(void);\n"
+    "  char cmdFlags;\n"
     "};\n"
+    "#define CMDFLAG_1ST_TIER  0x01\n"
+    "#define CMDFLAG_2ND_TIER  0x02\n"
+    "#define CMDFLAG_TEST      0x04\n"
     "static const NameMap aWebpage[] = {\n"
   );
   for(i=0; i<nFixed && aEntry[i].eType==0; i++){
-    printf("  { \"%s\",%*s %s },\n",
-      aEntry[i].zPath, (int)(25-strlen(aEntry[i].zPath)), "",
-      aEntry[i].zFunc
+    const char *z = aEntry[i].zPath;
+    int n = strlen(z);
+    printf("  { \"%s\",%*s %s,%*s 1 },\n",
+      z,
+      25-n, "",
+      aEntry[i].zFunc,
+      (int)(35-strlen(aEntry[i].zFunc)), ""
     );
   }
   printf("};\n");
@@ -241,9 +251,21 @@ void build_table(void){
     "static const NameMap aCommand[] = {\n"
   );
   for(i=nType0; i<nFixed && aEntry[i].eType==1; i++){
-    printf("  { \"%s\",%*s %s },\n",
-      aEntry[i].zPath, (int)(25-strlen(aEntry[i].zPath)), "",
-      aEntry[i].zFunc
+    const char *z = aEntry[i].zPath;
+    int n = strlen(z);
+    int cmdFlags = 0x01;
+    if( z[n-1]=='*' ){
+      n--;
+      cmdFlags = 0x02;
+    }else if( memcmp(z, "test-", 5)==0 ){
+      cmdFlags = 0x04;
+    }
+    printf("  { \"%.*s\",%*s %s,%*s %d },\n",
+      n, z,
+      25-n, "",
+      aEntry[i].zFunc,
+      (int)(35-strlen(aEntry[i].zFunc)), "",
+      cmdFlags
     );
   }
   printf("};\n");

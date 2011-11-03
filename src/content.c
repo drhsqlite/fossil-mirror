@@ -305,7 +305,7 @@ int content_get(int rid, Blob *pBlob){
 }
 
 /*
-** COMMAND: artifact
+** COMMAND: artifact*
 **
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **

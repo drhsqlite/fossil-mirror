@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\smlink\stable\sbuilding\sduring\s"rebuild".\s\sIf\sa\scheck-in\sand\sits\nparent\sare\sboth\sdeltas\sof\sthe\ssame\sbaseline\sand\sthe\schild\sreverts\sto\s\nbaseline\safter\sa\schange\sin\sthe\sparent,\sbe\ssure\sto\scapture\sthis\schange\sin\nthe\smlink\stable.\s\sThis\sis\sthe\scorrect\sfix\sfor\sthe\serrant\sfix_mlink\sbranch.
-D 2011-11-03T14:22:30.886
+C Break\sup\sthe\scommand-line\scommands\sinto\scommonly-use\sand\sauxiliary\scommands\nand\sonly\sshow\sthe\scommonly-used\sones\swith\s"fossil\shelp".\s\sAdd\sa\snew\ncommand\s"fossil\scommands"\sto\sshow\sauxiliary\sand\stest\scommands.
+D 2011-11-03T17:31:10.232
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -45,7 +45,7 @@ F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
-F src/add.c bbb10b49bfbb079114ee304f03c7dcb6ba6b2a35
+F src/add.c bef92e564dbd8eab311d07b498280f1f0750a4a6
 F src/allrepo.c b149430f5d57d7972c0469ffed866a9583f4a669
 F src/attach.c 990a6f353a9cc6399c9a724ddc104c649e62342c
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -55,18 +55,18 @@ F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c a1d6071725b33d63bed0d8f6d798780286d65322
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c 39d40f6c75b1c3ded6144155f1a052a5a0850ca2
-F src/checkin.c 61235ea46fa491e7e6f86f3b2ae9b9665563b3f0
-F src/checkout.c 5e8933c3497747d598cc064d953e3425f26f2cb4
+F src/checkin.c db76eb69fc6ade09c0faac351143977acaa56e79
+F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c bb6e1fc810fef5d2ddf18bec684a2bc7a67db256
-F src/content.c 4df211474945ef271e7a3d69d6b5bf7852c1370b
-F src/db.c 101997e86add5aa8348a3f0717c8b18b3d7df5b7
+F src/configure.c c2180824503e41b13072943e6b3d40bc30fe8a6b
+F src/content.c b7ee1208efac61a8e48e66ea0977bd7071092d0c
+F src/db.c eb92390777a0d2be1a9df2ec19838fb211c680a9
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c 7ca05fd71ea3ed7afd923f5b4d40c51baf44dede
+F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
 F src/diff.c db8561a4f8cc1c01a8a079222a58ccd0ce67871e
 F src/diffcmd.c 2fd32d95b61ee90d0808c933da16cb6cf9519b05
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
@@ -86,7 +86,7 @@ F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0918f8e9b3d2a6c6448a50b7695b214e078cada0
-F src/main.c 9376d0f13ecedd63846ffa5cf85f592884d64ccd
+F src/main.c 49543fdf9f6422349e9774a71a274a960803d9bd
 F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -95,7 +95,7 @@ F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
 F src/md5.c 0fca446a55f2caafe282b0e1fb8ea7ad8cb9a810
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
 F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
-F src/mkindex.c 065c4163bd31fceca75f9e974f78ccfd53e5b77f
+F src/mkindex.c 4797c5a3cbb9cb92fd5d53824474ca4a91808498
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c 831f83c88bbae486b98955198d029962b4afdd62
 F src/path.c 5349202b32d109cab301d9079052368f7964de84
@@ -103,11 +103,11 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c ab6d4166375708fd0f5f8d81c77af8b02e636eda
-F src/rebuild.c 4a4cc85179837ccf0ae01351e8201d28edb82c41
+F src/rebuild.c 71116d658f4498e528d83327c5078bcbf7097ef7
 F src/report.c 72ec6d1e3df2e7f70a4c9432a66a9092a1f2d538
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
-F src/search.c f1190efdee2a704205e7c7253af5ca7ed62a1047
+F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
 F src/setup.c 5ea0d8859163deae2c3cd2d313f3103462bd7852
 F src/sha1.c 48a5e76ed80912d6819b31bc0068fa55807863ab
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
@@ -121,26 +121,26 @@ F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
-F src/tar.c 3e0bdccc2132180aa0fa9bfaee80f20c2f561e64
+F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
-F src/tkt.c 191624cc3930500fd2f81194e641b5f4ec5327b6
+F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
-F src/undo.c 9912a0e3e56948e4ea1bcad72fe57282d7a0be70
+F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
 F src/update.c cd95327645b9c150549383dd0b9b01e7f09dabf7
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
-F src/user.c 2bba0b82c83a1ea9349545ea7e6447571ea0bb93
+F src/user.c 3eaff102120c0b10c32792dc31432539bbf3716d
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
-F src/wiki.c 41c5bad954abf479931b6982b4980ca96492fca3
+F src/wiki.c 7bf03d0cf4aeb877c7d6da34f68296ef6716bcf6
 F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
-F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
+F src/winhttp.c 0f7437b1b31745719210fdfcca91b1238690e136
 F src/xfer.c 54e21056c3bf99c87b585536991e12216d45382c
-F src/zip.c 302348837b6367444e33b44ef2a9b6a043b9480d
+F src/zip.c d88fe881bda492ff2041bc11c847d04b1ca30496
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki 59c0afc22a0e3365672883bebe595854c5bd6a8e
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 966ae9a942d3c840f2a3aad6b80f592991864394
-R 81c4eaf58957aedef4b13a98d8f0bac4
+P d084043f798277760682287020c4455b73629b0d
+R 330c3b2a769da42c0cdb35bda289bd13
 U drh
-Z 0aefa40f749f60b4d9f27afbed929cfb
+Z 3c011415bc14e75b63234f169fc4d1e5

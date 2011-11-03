@@ -1166,7 +1166,7 @@ void db_initial_setup(
 }
 
 /*
-** COMMAND: new
+** COMMAND: new*
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
@@ -1801,7 +1801,7 @@ struct stControlSettings const ctrlSettings[] = {
 
 /*
 ** COMMAND: settings
-** COMMAND: unset
+** COMMAND: unset*
 **
 ** %fossil settings ?PROPERTY? ?VALUE? ?-global?
 ** %fossil unset PROPERTY ?-global?

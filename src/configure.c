@@ -726,7 +726,7 @@ static void export_config(
 
 
 /*
-** COMMAND: configuration
+** COMMAND: configuration*
 **
 ** Usage: %fossil configuration METHOD ... ?OPTIONS?
 **

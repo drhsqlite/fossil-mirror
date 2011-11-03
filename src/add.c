@@ -262,7 +262,7 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete
+** COMMAND: delete*
 **
 ** Usage: %fossil rm FILE1 ?FILE2 ...?
 **    or: %fossil delete FILE1 ?FILE2 ...?
@@ -475,7 +475,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 
 /*
 ** COMMAND: mv
-** COMMAND: rename
+** COMMAND: rename*
 **
 ** Usage: %fossil mv|rename OLDNAME NEWNAME
 **    or: %fossil mv|rename OLDNAME... DIR

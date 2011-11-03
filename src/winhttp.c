@@ -434,7 +434,7 @@ int win32_http_service(
 }
 
 /*
-** COMMAND: winsrv
+** COMMAND: winsrv*
 ** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.
