@@ -377,3 +377,86 @@ int name_to_rid_www(const char *zParamName){
   }
   return rid;
 }
+
+/*
+** COMMAND: whatis*
+** Usage: %fossil whatis NAME
+**
+** Resolve the symbol NAME into its canonical 40-character SHA1-hash
+** artifact name and provide a description of what role that artifact
+** plays.
+*/
+void whatis_cmd(void){
+  int rid;
+  const char *zName;
+  int fExtra;
+  db_find_and_open_repository(0,0);
+  fExtra = find_option("verbose","v",0)!=0;
+  if( g.argc!=3 ) usage("whatis NAME");
+  zName = g.argv[2];
+  rid = symbolic_name_to_rid(zName, 0);
+  if( rid<0 ){
+    fossil_print("Ambiguous artifact name prefix: %s\n", zName);
+  }else if( rid==0 ){
+    fossil_print("Unknown artifact: %s\n", zName);
+  }else{
+    Stmt q;
+    db_prepare(&q, "SELECT uuid, size, datetime(mtime, 'localtime'), ipaddr"
+                   "  FROM blob, rcvfrom"
+                   " WHERE rid=%d"
+                   "   AND rcvfrom.rcvid=blob.rcvid",
+                   rid);
+    if( db_step(&q)==SQLITE_ROW ){
+      if( fExtra ){
+        fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
+        fossil_print("size:     %d bytes\n", db_column_int(&q,1));
+        fossil_print("received: %s from %s\n",
+           db_column_text(&q, 2),
+           db_column_text(&q, 3));
+      }else{
+        fossil_print("artifact: %s\n", db_column_text(&q,0));
+        fossil_print("size:     %d bytes\n", db_column_int(&q,1));
+      }
+    }
+    db_finalize(&q);
+    db_prepare(&q,
+       "SELECT type, datetime(mtime,'localtime'),"
+       "       coalesce(euser,user), coalesce(ecomment,comment)"
+       "  FROM event WHERE objid=%d", rid);
+    if( db_step(&q)==SQLITE_ROW ){
+      const char *zType;
+      switch( db_column_text(&q,0)[0] ){
+        case 'c':  zType = "Check-in";       break;
+        case 'w':  zType = "Wiki-edit";      break;
+        case 'e':  zType = "Event";          break;
+        case 't':  zType = "Ticket-change";  break;
+        case 'g':  zType = "Tag-change";     break;
+      }
+      fossil_print("type:     %s by %s on %s\n", zType, db_column_text(&q,2),
+                   db_column_text(&q, 1));
+      fossil_print("comment:  ");
+      comment_print(db_column_text(&q,3), 10, 78);
+    }
+    db_finalize(&q);
+    db_prepare(&q,
+      "SELECT filename.name, blob.uuid, datetime(event.mtime,'localtime'),"
+      "       coalesce(euser,user), coalesce(ecomment,comment)"
+      "  FROM mlink, filename, blob, event"
+      " WHERE mlink.fid=%d"
+      "   AND filename.fnid=mlink.fnid"
+      "   AND event.objid=mlink.mid"
+      "   AND blob.rid=mlink.mid"
+      " ORDER BY event.mtime DESC /*sort*/",
+      rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      fossil_print("file:     %s\n", db_column_text(&q,0));
+      fossil_print("          part of [%.10s] by %s on %s\n",
+        db_column_text(&q, 1),
+        db_column_text(&q, 3),
+        db_column_text(&q, 2));
+      fossil_print("          ");
+      comment_print(db_column_text(&q,4), 10, 78);
+    }
+    db_finalize(&q);
+  }
+}

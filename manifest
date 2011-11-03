@@ -1,5 +1,5 @@
-C Move\s"sha1sum"\sto\san\sauxiliary\scommand.\s\sPromote\s"test-md5sum"\sto\san\s\nauxiliary\scommand.
-D 2011-11-03T18:04:49.642
+C Add\sthe\s"whatis"\scommand.
+D 2011-11-03T18:59:57.743
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
 F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
 F src/mkindex.c 4797c5a3cbb9cb92fd5d53824474ca4a91808498
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
-F src/name.c 831f83c88bbae486b98955198d029962b4afdd62
+F src/name.c 2bf9c949e7fc5cef9da5b70d9dd9eda68b770a9c
 F src/path.c 5349202b32d109cab301d9079052368f7964de84
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 841772c858ac63a8a284f24111239ba485a2f3b5
-R 3a6b47acf23a2b6c2d96ad9edbedf466
+P dde919a4639e1bc48f1450172a31f1dd3465f5df
+R 99997794203cbcdb34b51cf7e151cd75
 U drh
-Z faee775a9f867990fb6f70fe58cc9aa3
+Z 14956f22b740c2e2b92ce7c47d724096
