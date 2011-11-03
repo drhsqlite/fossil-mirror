@@ -1347,9 +1347,9 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
         if( !pParentFile->zUuid ){
           /* File added to the child */
           add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-              isPublic, manifest_file_mperm(pChildFile));
+              isPublic, mperm);
         }else if( fossil_strcmp(pChildFile->zUuid, pParentFile->zUuid) !=0
-            || manifest_file_mperm(pChildFile)!=mperm ){
+            || manifest_file_mperm(pParentFile)!=mperm ){
           /* File changed in the child back to the baseline uuid or perms */
           add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
               pChildFile->zName, 0, isPublic, mperm);
