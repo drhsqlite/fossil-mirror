@@ -172,7 +172,7 @@ static int stash_create(void){
       stash_add_file_or_dir(stashid, vid, g.argv[i]);
     }
   }else{
-    stash_add_file_or_dir(stashid, vid, ".");
+    stash_add_file_or_dir(stashid, vid, g.zLocalRoot);
   }
   return stashid;
 }
@@ -260,8 +260,9 @@ static void stash_apply(int stashid, int nConflict){
   }
   db_finalize(&q);
   if( nConflict ){
-    fossil_print("WARNING: %d merge conflicts - see messages above for details.\n",
-            nConflict);
+    fossil_print(
+      "WARNING: %d merge conflicts - see messages above for details.\n",
+      nConflict);
   }
 }
 
@@ -365,31 +366,28 @@ static int stash_get_id(const char *zStashId){
 **
 **  fossil stash
 **  fossil stash save ?-m COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m COMMENT? ?FILES...?
 **
 **     Save the current changes in the working tree as a new stash.
 **     Then revert the changes back to the last check-in.  If FILES
 **     are listed, then only stash and revert the named files.  The
 **     "save" verb can be omitted if and only if there are no other
-**     arguments.
+**     arguments.  The "snapshot" verb works the same as "save" but
+**     omits the revert, keeping the check-out unchanged.
 **
-**  fossil stash list
-**  fossil stash ls
+**  fossil stash list ?--detail?
+**  fossil stash ls ?-l?
 **
-**     List all changes sets currently stashed.
+**     List all changes sets currently stashed.  Show information about
+**     individual files in each changeset if --detail or -l is used.
 **
 **  fossil stash pop
-**
-**     Apply the most recently create stash to the current working
-**     check-out.  Then delete that stash.  This is equivalent to
-**     doing an "apply" and a "drop" against the most recent stash.
-**     This command is undoable.
-**
 **  fossil stash apply ?STASHID?
 **
-**     Apply the identified stash to the current working check-out.
-**     If no STASHID is specified, use the most recent stash.  Unlike
-**     the "pop" command, the stash is retained so that it can be used
-**     again.  This command is undoable.
+**     Apply STASHID or the most recently create stash to the current
+**     working check-out.  The "pop" command deletes that changeset from
+**     the stash after applying it but the "apply" command retains the
+**     changeset.
 **
 **  fossil stash goto ?STASHID?
 **
@@ -402,11 +400,6 @@ static int stash_get_id(const char *zStashId){
 **
 **     Forget everything about STASHID.  Forget the whole stash if the
 **     --all flag is used.  Individual drops are undoable but --all is not.
-**
-**  fossil stash snapshot ?-m COMMENT? ?FILES...?
-**
-**     Save the current changes in the working tree as a new stash
-**     but, unlike "save", do not revert those changes.
 **
 **  fossil stash diff ?STASHID?
 **  fossil stash gdiff ?STASHID?
@@ -457,19 +450,25 @@ void stash_cmd(void){
     stash_create();
   }else
   if( memcmp(zCmd, "list", nCmd)==0 || memcmp(zCmd, "ls", nCmd)==0 ){
-    Stmt q;
+    Stmt q, q2;
     int n = 0;
+    int fDetail = find_option("detail","l",0)!=0;
     verify_all_options();
     db_prepare(&q,
        "SELECT stashid, (SELECT uuid FROM blob WHERE rid=vid),"
        "       comment, datetime(ctime) FROM stash"
        " ORDER BY ctime DESC"
     );
+    if( fDetail ){
+      db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"
+                      "  FROM stashfile WHERE stashid=$id");
+    }
     while( db_step(&q)==SQLITE_ROW ){
+      int stashid = db_column_int(&q, 0);
       const char *zCom;
       n++;
       fossil_print("%5d: [%.14s] on %s\n",
-        db_column_int(&q, 0),
+        stashid,
         db_column_text(&q, 1),
         db_column_text(&q, 3)
       );
@@ -478,15 +477,40 @@ void stash_cmd(void){
         fossil_print("       ");
         comment_print(zCom, 7, 79);
       }
+      if( fDetail ){
+        db_bind_int(&q2, "$id", stashid);
+        while( db_step(&q2)==SQLITE_ROW ){
+          int isAdded = db_column_int(&q2, 0);
+          int isRemoved = db_column_int(&q2, 1);
+          const char *zOrig = db_column_text(&q2, 2);
+          const char *zNew = db_column_text(&q2, 3);
+          if( isAdded ){
+             fossil_print("          ADD %s\n", zNew);
+          }else if( isRemoved ){
+             fossil_print("          REMOVE %s\n", zOrig);
+          }else if( fossil_strcmp(zOrig,zNew)!=0 ){
+             fossil_print("          RENAME %s -> %s\n", zOrig, zNew);
+          }else{
+             fossil_print("          EDIT %s\n", zOrig);
+          }
+        }
+        db_reset(&q2);
+      }
     }
     db_finalize(&q);
+    if( fDetail ) db_finalize(&q2);
     if( n==0 ) fossil_print("empty stash\n");
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
-    if( g.argc>4 ) usage("apply STASHID");
+    if( g.argc>4 ) usage("drop STASHID");
     if( allFlag ){
-      db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
+      Blob ans;
+      blob_zero(&ans);
+      prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
+      if( blob_str(&ans)[0]=='y' ){
+        db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
+      }
     }else{
       stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
       undo_begin();
@@ -539,6 +563,12 @@ void stash_cmd(void){
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd, diffFlags);
+  }else
+  if( memcmp(zCmd, "help", nCmd)==0 ){
+    g.argv[1] = "help";
+    g.argv[2] = "stash";
+    g.argc = 3;
+    help_cmd();
   }else
   {
     usage("SUBCOMMAND ARGS...");

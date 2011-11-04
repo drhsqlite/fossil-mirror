@@ -839,7 +839,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 }
 
 /*
-** COMMAND: ticket
+** COMMAND: ticket*
 ** Usage: %fossil ticket SUBCOMMAND ...
 **
 ** Run various subcommands to control tickets

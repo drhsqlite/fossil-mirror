@@ -411,10 +411,13 @@ int main(int argc, char **argv){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( argc<2 ){
-    fossil_fatal("Usage: %s COMMAND ...\n"
-                 "\"%s help\" for a list of available commands\n"
-                 "\"%s help COMMAND\" for specific details\n",
-                 argv[0], argv[0], argv[0]);
+    fossil_print(
+       "Usage: %s COMMAND ...\n"
+       "   or: %s help           -- for a list of common commands\n"
+       "   or: %s help COMMMAND  -- for help with the named command\n"
+       "   or: %s commands       -- for a list of all commands\n",
+       argv[0], argv[0], argv[0], argv[0]);
+    fossil_exit(1);
   }else{
     g.isHTTP = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
@@ -455,10 +458,11 @@ int main(int argc, char **argv){
         blob_appendf(&couldbe, " %s", aCommand[i].zName);
       }
     }
-    fossil_fatal("%s: ambiguous command prefix: %s\n"
+    fossil_print("%s: ambiguous command prefix: %s\n"
                  "%s: could be any of:%s\n"
                  "%s: use \"help\" for more information\n",
                  argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
+    fossil_exit(1);
   }
   if(rc){
     fossil_fatal("%s: unrecoverable error while initializing JSON CGI bits: "
@@ -812,13 +816,13 @@ static void multi_column_list(const char **azWord, int nWord){
 /*
 ** List of commands starting with zPrefix, or all commands if zPrefix is NULL.
 */
-static void cmd_cmd_list(const char *zPrefix){
+static void command_list(const char *zPrefix, int cmdMask){
   int i, nCmd;
   int nPrefix = zPrefix ? strlen(zPrefix) : 0;
   const char *aCmd[count(aCommand)];
   for(i=nCmd=0; i<count(aCommand); i++){
     const char *z = aCommand[i].zName;
-    if( memcmp(z,"test",4)==0 ) continue;
+    if( (aCommand[i].cmdFlags & cmdMask)==0 ) continue;
     if( zPrefix && memcmp(zPrefix, z, nPrefix)!=0 ) continue;
     aCmd[nCmd++] = aCommand[i].zName;
   }
@@ -826,20 +830,27 @@ static void cmd_cmd_list(const char *zPrefix){
 }
 
 /*
-** COMMAND: test-commands
+** COMMAND: commands
 **
-** Usage: %fossil test-commands
+** Usage: %fossil commands ?--test? ?--all? ?--aux?
 **
-** List all commands used for testing and debugging.
+** List available commands.  If the --test option is used list only unsupported
+** commands intended for testing and debugging.  With --all, show all commands
+** including test debugging commands.  With --aux, show only the auxiliary
+** and less often used commands, and/or command aliases.
 */
-void cmd_test_cmd_list(void){
-  int i, nCmd;
-  const char *aCmd[count(aCommand)];
-  for(i=nCmd=0; i<count(aCommand); i++){
-    if( strncmp(aCommand[i].zName,"test",4)!=0 ) continue;
-    aCmd[nCmd++] = aCommand[i].zName;
+void cmd_command_list(void){
+  int cmdFlags = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
+  if( find_option("all",0,0)!=0 ){
+    cmdFlags |= CMDFLAG_TEST;
+  }else if( find_option("test",0,0)!=0 ){
+    cmdFlags = CMDFLAG_TEST;
+  }else if( find_option("aux",0,0)!=0 ){
+    cmdFlags = CMDFLAG_2ND_TIER;
+  }else{
+    fossil_print("Use --test or --all to see test and debug commands.\n");
   }
-  multi_column_list(aCmd, nCmd);
+  command_list(0, cmdFlags);
 }
 
 
@@ -875,28 +886,35 @@ void version_cmd(void){
 ** COMMAND: help
 **
 ** Usage: %fossil help COMMAND
+**    or: %fossil COMMAND -help
 **
-** Display information on how to use COMMAND
+** Display information on how to use COMMAND.  To display a list of
+** available commands use:
+**
+**    %fossil commands
 */
 void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc<3 ){
-    fossil_print("Usage: %s help COMMAND.\nAvailable COMMANDs:\n",
-                 fossil_nameofexe());
-    cmd_cmd_list(0);
+    z = fossil_nameofexe();
+    fossil_print(
+      "Usage: %s help COMMAND\n"
+      "Common COMMANDs:  (use \"%s commands\" for a complete list)\n",
+      z, z);
+    command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_print("unknown command: %s\nAvailable commands:\n", g.argv[2]);
-    cmd_cmd_list(0);
+    command_list(0, 0xff);
     fossil_exit(1);
   }else if( rc==2 ){
     fossil_print("ambiguous command prefix: %s\nMatching commands:\n",
                  g.argv[2]);
-    cmd_cmd_list(g.argv[2]);
+    command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
   z = aCmdHelp[idx];
@@ -1287,7 +1305,7 @@ static void process_one_web_page(const char *zNotFound){
 }
 
 /*
-** COMMAND: cgi
+** COMMAND: cgi*
 **
 ** Usage: %fossil ?cgi? SCRIPT
 **
@@ -1474,7 +1492,7 @@ static void find_server_repository(int disallowDir){
 **
 ** The argv==6 form is used by the win32 server only.
 **
-** COMMAND: http
+** COMMAND: http*
 **
 ** Usage: %fossil http REPOSITORY [--notfound URL] [--host HOSTNAME] [--https]
 **
@@ -1575,7 +1593,7 @@ static int binaryOnPath(const char *zBinary){
 #endif
 
 /*
-** COMMAND: server
+** COMMAND: server*
 ** COMMAND: ui
 **
 ** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?

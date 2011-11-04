@@ -525,7 +525,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 }
 
 /*
-** COMMAND: tarball
+** COMMAND: tarball*
 **
 ** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME]
 **

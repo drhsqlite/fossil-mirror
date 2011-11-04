@@ -265,7 +265,7 @@ void compute_descendants(int rid, int N){
 }
 
 /*
-** COMMAND:  descendants
+** COMMAND: descendants*
 **
 ** Usage: %fossil descendants ?BASELINE-ID? ?OPTIONS?
 **
@@ -300,7 +300,7 @@ void descendants_cmd(void){
 }
 
 /*
-** COMMAND:  leaves
+** COMMAND: leaves*
 **
 ** Usage: %fossil leaves ?OPTIONS?
 **

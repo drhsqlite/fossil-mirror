@@ -841,7 +841,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 }
 
 /*
-** COMMAND: wiki
+** COMMAND: wiki*
 **
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **
