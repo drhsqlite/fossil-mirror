@@ -368,7 +368,11 @@ void ambiguous_page(void){
 int name_to_rid_www(const char *zParamName){
   int rid;
   const char *zName = P(zParamName);
-
+#ifdef FOSSIL_ENABLE_JSON
+  if(!zName && fossil_has_json()){
+    zName = json_find_option_cstr(zParamName,NULL,NULL);
+  }
+#endif
   if( zName==0 || zName[0]==0 ) return 0;
   rid = symbolic_name_to_rid(zName, "*");
   if( rid<0 ){

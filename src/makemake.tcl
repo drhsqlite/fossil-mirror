@@ -55,6 +55,17 @@ set src {
   http_transport
   import
   info
+  json
+  json_artifact
+  json_branch
+  json_diff
+  json_login
+  json_query
+  json_report
+  json_tag
+  json_timeline
+  json_user
+  json_wiki
   leaf
   login
   main
@@ -209,7 +220,8 @@ EXTRAOBJ = \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
-  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))
+  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL)) \
+  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB)
@@ -232,6 +244,7 @@ foreach s [lsort $src] {
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
+#append mhargs " \$(SRCDIR)/cson_amalgamation.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(OBJDIR)/mkindex \$(TRANS_SRC) >$@"
@@ -239,6 +252,7 @@ writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(
 writeln "\t\$(OBJDIR)/makeheaders $mhargs"
 writeln "\ttouch \$(OBJDIR)/headers"
 writeln "\$(OBJDIR)/headers: Makefile"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 writeln "Makefile:"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
@@ -274,6 +288,12 @@ writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
+
+set opt {}
+writeln {
+$(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
+	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+}
 
 close $output_file
 #
@@ -422,7 +442,8 @@ EXTRAOBJ = \
   $(OBJDIR)/sqlite3.o \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o
+  $(OBJDIR)/th_lang.o \
+  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
@@ -475,6 +496,11 @@ foreach s [lsort $src] {
 writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
 set opt $SQLITE_OPTIONS
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+
+set opt {}
+writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE\n"
+writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
 set opt {-Dmain=sqlite3_shell}
@@ -588,6 +614,9 @@ $(OBJDIR)\th$O : $(SRCDIR)\th.c
 $(OBJDIR)\th_lang$O : $(SRCDIR)\th_lang.c
 	$(TCC) -o$@ -c $**
 
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
+	cp $@ $@
+
 VERSION.h : version$E $B\manifest.uuid $B\manifest $B\VERSION
 	+$** > $@
 
@@ -601,6 +630,19 @@ clean:
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
 
+$(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_branch$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_diff$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
+
+
 }
 foreach s [lsort $src] {
   writeln "\$(OBJDIR)\\$s\$O : ${s}_.c ${s}.h"
@@ -613,7 +655,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makehead
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -727,6 +769,8 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
+$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
+	cp $(SRCDIR)\cson_amalgamation.h $@
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
@@ -738,6 +782,18 @@ clean:
 
 realclean:
 	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+
+$(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_branch$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_diff$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
 
 }
 foreach s [lsort $src] {
@@ -751,7 +807,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheader
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 

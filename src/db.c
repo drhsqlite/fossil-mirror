@@ -50,7 +50,15 @@ struct Stmt {
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
+
+/*
+** Copy this to initialize a Stmt object to a clean/empty state. This
+** is useful to help avoid assertions when performing cleanup in some
+** error handling cases.
+*/
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
 #endif /* INTERFACE */
+const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
@@ -58,6 +66,7 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
+  int rc = 1;
   static const char zRebuildMsg[] = 
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
@@ -65,12 +74,21 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }
+  else
+#endif /* FOSSIL_ENABLE_JSON */
   if( g.xferPanic ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-    cgi_reply();
+      cgi_reply();
   }
-  if( g.cgiOutput ){
+  else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
@@ -78,8 +96,9 @@ static void db_err(const char *zFormat, ...){
   }else{
     fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
   }
+  free(z);
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
@@ -563,7 +582,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char *zDefault, const char *zSql, ...){
+char *db_text(char const *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -865,11 +884,20 @@ void db_open_repository(const char *zDbName){
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( file_access(zDbName, 0) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DENIED;
+#endif
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
+#endif
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
@@ -904,7 +932,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     if( db_open_local()==0 ){
       goto rep_not_found;
     }
-    zRep = db_lget("repository", 0);
+    zRep = db_lget("repository", 0)/*leak here*/;
     if( zRep==0 ){
       goto rep_not_found;
     }
@@ -916,6 +944,9 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
   }
 rep_not_found:
   if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
     fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
@@ -946,6 +977,9 @@ int db_schema_is_outofdate(void){
 */
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
+#endif
     fossil_warning("incorrect repository schema version");
     fossil_warning("your repository has schema version \"%s\" "
           "but this binary expects version \"%s\"",
