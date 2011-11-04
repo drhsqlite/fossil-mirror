@@ -150,7 +150,6 @@ void info_cmd(void){
     db_open_repository(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
-    fossil_print("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
   db_find_and_open_repository(0,0);
@@ -169,7 +168,6 @@ void info_cmd(void){
     }
 #endif
     fossil_print("project-code: %s\n", db_get("project-code", ""));
-    fossil_print("server-code:  %s\n", db_get("server-code", ""));
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);

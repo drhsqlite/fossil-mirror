@@ -184,11 +184,11 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_lget("repository",""));
   fossil_print("local-root:   %s\n", g.zLocalRoot);
-  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
+  db_record_repository_filename(0);
   changes_cmd();
 }
 

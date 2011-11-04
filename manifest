@@ -1,5 +1,5 @@
-C Add\sthe\s"whatis"\scommand.
-D 2011-11-03T18:59:57.743
+C No\slonger\sdisplay\sthe\sserver-code\sin\sinfo\soutputs\sas\sthe\sserver-code\sis\sno\nlonger\sused\sfor\sanything.\s\sBegin\srecording\sthe\slocation\sof\slocal\scheckouts\nin\sthe\s~/.fossil\sdatabase.
+D 2011-11-04T15:40:43.540
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -55,7 +55,7 @@ F src/branch.c 21dafe02b16a7db3e3287de75b4e3c84e0a1229b
 F src/browse.c a1d6071725b33d63bed0d8f6d798780286d65322
 F src/captcha.c 67afb8d40611078a6d336c27c86a3a51260c330f
 F src/cgi.c 39d40f6c75b1c3ded6144155f1a052a5a0850ca2
-F src/checkin.c db76eb69fc6ade09c0faac351143977acaa56e79
+F src/checkin.c 24ffbc9686c20b8a0dcb721962636a78b940b403
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
@@ -63,7 +63,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c c2180824503e41b13072943e6b3d40bc30fe8a6b
 F src/content.c b7ee1208efac61a8e48e66ea0977bd7071092d0c
-F src/db.c eb92390777a0d2be1a9df2ec19838fb211c680a9
+F src/db.c fb2d7393e732c23560fda489239ebb50ae6f3d2e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -83,7 +83,7 @@ F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c ed41ae421606cf0efae14de9f463fe08fefc02cb
+F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0918f8e9b3d2a6c6448a50b7695b214e078cada0
 F src/main.c 49543fdf9f6422349e9774a71a274a960803d9bd
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dde919a4639e1bc48f1450172a31f1dd3465f5df
-R 99997794203cbcdb34b51cf7e151cd75
+P 9c3ce9f6e28755955b596c982001d7f1e5744757
+R 112ed90f4393ed51ca8b980dd20588f5
 U drh
-Z 14956f22b740c2e2b92ce7c47d724096
+Z 2997377b8eb36ef60839daa4b71a515e

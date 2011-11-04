@@ -1623,6 +1623,13 @@ void db_lset_int(const char *zName, int value){
 **       repo:%s
 **
 ** The value field is set to 1.
+**
+** If running from a local checkout, also record the root of the checkout
+** as follows:
+**
+**       ckout:%s
+**
+** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
   Blob full;
@@ -1637,6 +1644,13 @@ void db_record_repository_filename(const char *zName){
      "VALUES('repo:%q',1)",
      blob_str(&full)
   );
+  if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
+    db_multi_exec(
+      "REPLACE INTO global_config(name, value)"
+      "VALUES('ckout:%q','%q');",
+      g.zLocalRoot, blob_str(&full)
+    );
+  }
   db_swap_connections();
   blob_reset(&full);
 }
