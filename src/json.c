@@ -2269,6 +2269,7 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 };
 
 
+#if !defined(FOSSIL_DISABLE_JSON)
 /*
 ** WEBPAGE: json
 **
@@ -2322,7 +2323,9 @@ void json_page_top(void){
   }
 
 }
+#endif /* FOSSIL_DISABLE_JSON */
 
+#if !defined(FOSSIL_DISABLE_JSON)
 /*
 ** This function dispatches json commands and is the CLI equivalent of
 ** json_page_top().
@@ -2416,6 +2419,7 @@ void json_cmd_top(void){
     fossil_exit(1);
   }
 }
+#endif /* FOSSIL_DISABLE_JSON */
 
 #undef BITSET_BYTEFOR
 #undef BITSET_SET

@@ -1,5 +1,5 @@
-C /json/user/save\snow\sallows\smixing\sGET/CLI\sand\sPOST.payload\sdata\ssources.
-D 2011-11-04T18:48:19.540
+C merged\sin\strunk\s[1e3cae806885d]\sand\sset\sup\sthe\sjson\scommand/page\sto\sbe\selided\swhen\sFOSSIL_DISABLE_JSON\sis\sdefined\sat\sbuild\stime.
+D 2011-11-04T19:39:33.045
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
-F src/json.c 4baaf6ae785a3cfadbf478cb4f87f5e51d687254
+F src/json.c 227d9fdc6753d6d81d028cd0c327d2baa90fa95e
 F src/json_artifact.c 577e2030049eef255471377685a68a71b7cbf324
 F src/json_branch.c fc4510abb11070299f6876976b1dcae5c1704432
 F src/json_detail.h e7bd728d52fac03929480791d20475b7307eabc1
@@ -110,7 +110,7 @@ F src/json_user.c d860ffd974654d397cf3be9a39ec1eb99ea472b2
 F src/json_wiki.c 390290409a4f12f65d88e2dc338920cb24f7e6b9
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 9188d9a15030f4ab914138a8af5d536709e97762
-F src/main.c 87dee36cf9171772383fe0341553ce9798756f47
+F src/main.c ec717ba2f851a5724c816be4fb2ec0c5ce0d83f7
 F src/main.mk ad69254ab2f836e4f03ed2889edac37a4b0a3a44
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -119,7 +119,7 @@ F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
 F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
-F src/mkindex.c 4797c5a3cbb9cb92fd5d53824474ca4a91808498
+F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c 8818b191a6303ecaf78289d25d83b7082fcfb6f0
 F src/path.c 5349202b32d109cab301d9079052368f7964de84
@@ -162,7 +162,7 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 6a68128c79b31875a690157d6dc375d0bcf072dd
 F src/wiki.c 8e41ec7f61f1dea4bdce9042881b22f88d4007bf
 F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
-F src/winhttp.c 0f7437b1b31745719210fdfcca91b1238690e136
+F src/winhttp.c 6d4b4567c9d14be26b8d56eee2258aba01af26b9
 F src/xfer.c 54e21056c3bf99c87b585536991e12216d45382c
 F src/zip.c d88fe881bda492ff2041bc11c847d04b1ca30496
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 34359c3ad1324acc56df349be331e221640d1da3
-R acdc1c01896cdb904b851c2ee3d47ddd
+P 92b163a0692523ae7e7c96462535675d7ce7e235 1e3cae806885d1ed0d02e1da421e37d28c7bf195
+R 6d65687c3d156e30320213ebf957d3d5
 U json-demo
-Z 70a1f1f0da8591d34b04fe5c9e173181
+Z ce8b1e9b7fc1ec4de61634836586b20a
