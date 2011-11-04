@@ -188,6 +188,10 @@ int json_user_update_from_json( cson_object const * pUser ){
   /*
     Todo: reserve the uid=-1 to mean that the user should be created
     by this request.
+
+    Todo: when changing an existing user's name we need to invalidate
+    or recalculate the login hash because the user's name is part of
+    the hash.
   */
 
   /* Maintenance note: all error-returns from here on out should go
@@ -297,14 +301,14 @@ static cson_value * json_user_save(){
     PROP("capabilities");
 #undef PROP
 
-#define PROP(LK) b = json_find_option_bool(LK,NULL,NULL,-1);    \
-  if(b>=0){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
-    PROP("forceLogout");
+#define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);           \
+  if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
+    PROP("forceLogout",-1);
 #undef PROP
 
-#define PROP(LK) i = json_find_option_int(LK,NULL,NULL,-1);             \
-  if(i>=0){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
-    PROP("uid");
+#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);            \
+  if(DFLT != i){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
+    PROP("uid",-99);
 #undef PROP
     json_user_update_from_json( u );
     cson_free_object(u);
