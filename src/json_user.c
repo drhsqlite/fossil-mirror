@@ -280,12 +280,34 @@ int json_user_update_from_json( cson_object const * pUser ){
 ** modified/created user).
 */
 static cson_value * json_user_save(){
-  if(! g.json.reqPayload.o ){
-    json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "User data must be contained in the request payload.");
-    return NULL;
+  if( g.json.reqPayload.o ){
+    json_user_update_from_json( g.json.reqPayload.o );
+  }else{
+    /* try to get user info from GET/CLI args and construct
+       a JSON form of it... */
+    cson_object * u = cson_new_object();
+    char const * str = NULL;
+    char b = -1;
+    int i = -1;
+#define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL); \
+    if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
+    PROP("name");
+    PROP("password");
+    PROP("info");
+    PROP("capabilities");
+#undef PROP
 
+#define PROP(LK) b = json_find_option_bool(LK,NULL,NULL,-1);    \
+  if(b>=0){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
+    PROP("forceLogout");
+#undef PROP
+
+#define PROP(LK) i = json_find_option_int(LK,NULL,NULL,-1);             \
+  if(i>=0){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
+    PROP("uid");
+#undef PROP
+    json_user_update_from_json( u );
+    cson_free_object(u);
   }
-  json_user_update_from_json( g.json.reqPayload.o );
   return NULL;
 }
