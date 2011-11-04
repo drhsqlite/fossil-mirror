@@ -713,31 +713,6 @@ static void command_list(const char *zPrefix, int cmdMask){
 }
 
 /*
-** COMMAND: commands
-**
-** Usage: %fossil commands ?--test? ?--all? ?--aux?
-**
-** List available commands.  If the --test option is used list only unsupported
-** commands intended for testing and debugging.  With --all, show all commands
-** including test debugging commands.  With --aux, show only the auxiliary
-** and less often used commands, and/or command aliases.
-*/
-void cmd_command_list(void){
-  int cmdFlags = CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER;
-  if( find_option("all",0,0)!=0 ){
-    cmdFlags |= CMDFLAG_TEST;
-  }else if( find_option("test",0,0)!=0 ){
-    cmdFlags = CMDFLAG_TEST;
-  }else if( find_option("aux",0,0)!=0 ){
-    cmdFlags = CMDFLAG_2ND_TIER;
-  }else{
-    fossil_print("Use --test or --all to see test and debug commands.\n");
-  }
-  command_list(0, cmdFlags);
-}
-
-
-/*
 ** COMMAND: test-list-webpage
 **
 ** List all web pages
@@ -750,7 +725,6 @@ void cmd_test_webpage_list(void){
   }
   multi_column_list(aCmd, nCmd);
 }
-
 
 /*
 ** COMMAND: version
@@ -772,9 +746,12 @@ void version_cmd(void){
 **    or: %fossil COMMAND -help
 **
 ** Display information on how to use COMMAND.  To display a list of
-** available commands use:
+** available commands one of:
 **
-**    %fossil commands
+**    %fossil help              Show common commands
+**    %fossil help --all        Show both command and auxiliary commands
+**    %fossil help --test       Show test commands only
+**    %fossil help --aux        Show auxiliary commands only
 */
 void help_cmd(void){
   int rc, idx;
@@ -783,10 +760,22 @@ void help_cmd(void){
     z = fossil_nameofexe();
     fossil_print(
       "Usage: %s help COMMAND\n"
-      "Common COMMANDs:  (use \"%s commands\" for a complete list)\n",
+      "Common COMMANDs:  (use \"%s help --all\" for a complete list)\n",
       z, z);
     command_list(0, CMDFLAG_1ST_TIER);
     version_cmd();
+    return;
+  }
+  if( find_option("all",0,0) ){
+    command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
+    return;
+  }
+  if( find_option("aux",0,0) ){
+    command_list(0, CMDFLAG_2ND_TIER);
+    return;
+  }
+  if( find_option("test",0,0) ){
+    command_list(0, CMDFLAG_TEST);
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
