@@ -357,12 +357,13 @@ void Th_FossilInit(void){
     Jim_InitStaticExtensions(g.interp);
 
 #ifdef FOSSIL_ENABLE_TCL
-    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
-      th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
+    if( getenv("FOSSIL_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+      register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
-      Jim_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc, NULL, NULL);
+      Jim_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc, NULL,
+          NULL);
     }
   }
 }
@@ -541,9 +542,9 @@ int Th_Render(const char *z){
 }
 
 /*
-** COMMAND: test-th-render
+** COMMAND: test-script-render
 */
-void test_th_render(void){
+void test_script_render(void){
   Blob in;
   if( g.argc<3 ){
     usage("FILE");

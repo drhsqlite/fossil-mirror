@@ -131,7 +131,7 @@ struct Global {
   int cgiOutput;          /* Write error and status messages to CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
-  Jim_Interp *interp;      /* The TH1 interpreter */
+  Jim_Interp *interp;     /* The script interpreter */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
@@ -182,8 +182,8 @@ struct Global {
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
-  int thTrace;            /* True to enable TH1 debugging output */
-  Blob thLog;             /* Text of the TH1 debugging output */
+  int thTrace;            /* True to enable script debugging output */
+  Blob thLog;             /* Text of the script debugging output */
 
   int isHome;             /* True if rendering the "home" page */
 

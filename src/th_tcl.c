@@ -8,7 +8,7 @@
 ** merchantability or fitness for a particular purpose.
 **
 *******************************************************************************
-** This file contains code used to bridge the TH1 and Tcl scripting languages.
+** This file contains code used to bridge the Jim and Tcl scripting languages.
 */
 
 #include "config.h"
@@ -32,19 +32,19 @@
 
 /*
 ** These macros are designed to reduce the redundant code required to marshal
-** arguments from TH1 to Tcl.
+** arguments from Jim to Tcl.
  */
 #define USE_ARGV_TO_OBJV() \
   int objc;                \
   Tcl_Obj **objv;          \
   int i;
 
-#define COPY_ARGV_TO_OBJV()                                         \
-  objc = argc-1;                                                    \
-  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
-  for(i=1; i<argc; i++){                                            \
-    objv[i-1] = Tcl_NewStringObj(Jim_String(argv[i]), Jim_Length(argv[i]));                 \
-    Tcl_IncrRefCount(objv[i-1]);                                    \
+#define COPY_ARGV_TO_OBJV()                                                 \
+  objc = argc-1;                                                            \
+  objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *)));         \
+  for(i=1; i<argc; i++){                                                    \
+    objv[i-1] = Tcl_NewStringObj(Jim_String(argv[i]), Jim_Length(argv[i])); \
+    Tcl_IncrRefCount(objv[i-1]);                                            \
   }
 
 #define FREE_ARGV_TO_OBJV()      \
@@ -61,7 +61,7 @@
   ((struct TclContext *)(ctx))->interp
 
 /*
-** Creates and initializes a Tcl interpreter for use with the specified TH1
+** Creates and initializes a Tcl interpreter for use with the specified Jim
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.  This must be declared here because quite a few functions in
 ** this file need to use it before it can be defined.
@@ -91,7 +91,7 @@ static char *getTclResult(
 }
 
 /*
-** Tcl context information used by TH1.  This structure definition has been
+** Tcl context information used by Jim.  This structure definition has been
 ** copied from and should be kept in sync with the one in "main.c".
 */
 struct TclContext {
@@ -105,7 +105,10 @@ struct TclContext {
 **
 **   tclEval arg ?arg ...?
 */
-static int tclEval_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
+static int tclEval_command(
+  Jim_Interp *interp,
+  int argc,
+  Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
@@ -152,7 +155,10 @@ static int tclEval_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 **
 **   tclExpr arg ?arg ...?
 */
-static int tclExpr_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
+static int tclExpr_command(
+  Jim_Interp *interp,
+  int argc,
+  Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
@@ -205,7 +211,10 @@ static int tclExpr_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 **
 **   tclInvoke command ?arg ...?
 */
-static int tclInvoke_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
+static int tclInvoke_command(
+  Jim_Interp *interp,
+  int argc,
+  Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
 #ifndef USE_TCL_EVALOBJV
@@ -245,7 +254,8 @@ static int tclInvoke_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
     return JIM_ERR;
   }
   if( !cmdInfo.objProc ){
-    Jim_SetResultFormatted(interp, "Cannot invoke command not found: %#s", argv[1]);
+    Jim_SetResultFormatted(interp, "Cannot invoke command not found: %#s",
+        argv[1]);
     Tcl_DecrRefCount(objPtr);
     Tcl_Release((ClientData)tclInterp);
     return JIM_ERR;
@@ -269,104 +279,114 @@ static int tclInvoke_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 /*
 ** Syntax:
 **
-**   th1Eval arg
+**   bridgeEval arg
 */
-static int Th1EvalObjCmd(
+static int BridgeEvalObjCmd(
   ClientData clientData,
   Tcl_Interp *interp,
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Jim_Interp *th1Interp;
+  Jim_Interp *jimInterp;
   int nArg;
   const char *arg;
   int rc;
+  Jim_Obj *argObj;
+  Jim_Obj *resultObj;
 
   if( objc!=2 ){
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
-  th1Interp = (Jim_Interp *)clientData;
-  if( !th1Interp ){
-    Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
+  jimInterp = (Jim_Interp *)clientData;
+  if( !jimInterp ){
+    Tcl_AppendResult(interp, "invalid bridge interpreter", NULL);
     return TCL_ERROR;
   }
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Jim_Eval(th1Interp, arg);
-  arg = Jim_String(Jim_GetResult(th1Interp));
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, -1));
+  argObj = Jim_NewStringObj(jimInterp, arg, nArg);
+  Jim_IncrRefCount(argObj);
+  rc = Jim_EvalObj(jimInterp, argObj);
+  Jim_DecrRefCount(jimInterp, argObj);
+  resultObj = Jim_GetResult(jimInterp);
+  arg = Jim_GetString(resultObj, &nArg);
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
   return rc;
 }
 
 /*
 ** Syntax:
 **
-**   th1Expr arg
+**   bridgeExpr arg
 */
-static int Th1ExprObjCmd(
+static int BridgeExprObjCmd(
   ClientData clientData,
   Tcl_Interp *interp,
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Jim_Interp *th1Interp;
+  Jim_Interp *jimInterp;
   int nArg;
   const char *arg;
   int rc;
-  Jim_Obj *exprResultObj;
+  Jim_Obj *argObj;
+  Jim_Obj *resultObj;
 
   if( objc!=2 ){
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
-  th1Interp = (Jim_Interp *)clientData;
-  if( !th1Interp ){
-    Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
+  jimInterp = (Jim_Interp *)clientData;
+  if( !jimInterp ){
+    Tcl_AppendResult(interp, "invalid bridge interpreter", NULL);
     return TCL_ERROR;
   }
-
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Jim_EvalExpression(th1Interp, Jim_NewStringObj(th1Interp, arg, -1), &exprResultObj);
+  argObj = Jim_NewStringObj(jimInterp, arg, nArg);
+  Jim_IncrRefCount(argObj);
+  rc = Jim_EvalExpression(jimInterp, argObj, &resultObj);
+  Jim_DecrRefCount(jimInterp, argObj);
   if (rc == JIM_OK) {
-    arg = Jim_String(exprResultObj);
-    Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, -1));
+    arg = Jim_GetString(resultObj, &nArg);
+    Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
   }
-
   return rc;
 }
 
 /*
 ** Array of Tcl integration commands.  Used when adding or removing the Tcl
-** integration commands from TH1.
+** integration commands from Jim.
 */
 static struct _Command {
   const char *zName;
   Jim_CmdProc xProc;
+  void *pContext;
 } aCommand[] = {
-  {"tclEval",   tclEval_command  },
-  {"tclExpr",   tclExpr_command  },
-  {"tclInvoke", tclInvoke_command},
+  {"tclEval",   tclEval_command,   0},
+  {"tclExpr",   tclExpr_command,   0},
+  {"tclInvoke", tclInvoke_command, 0},
+  {0, 0, 0}
 };
 
 /*
 ** Called if the Tcl interpreter is deleted.  Removes the Tcl integration
-** commands from the TH1 interpreter.
+** commands from the Jim interpreter.
  */
-static void Th1DeleteProc(
+static void BridgeDeleteProc(
   ClientData clientData,
   Tcl_Interp *interp
 ){
   int i;
-  Jim_Interp *th1Interp = (Jim_Interp *)clientData;
-  if( !th1Interp ) return;
+  Jim_Interp *jimInterp = (Jim_Interp *)clientData;
+  if( !jimInterp ) return;
   /* Remove the Tcl integration commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
-    Jim_DeleteCommand(th1Interp, aCommand[i].zName);
+    Jim_DeleteCommand(jimInterp, aCommand[i].zName);
   }
 }
 
 /*
-** Creates and initializes a Tcl interpreter for use with the specified TH1
+** Creates and initializes a Tcl interpreter for use with the specified Jim
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.
  */
@@ -393,15 +413,16 @@ static int createTclInterp(
     return JIM_ERR;
   }
   if( Tcl_Init(tclInterp)!=TCL_OK ){
-    Jim_SetResultFormatted(interp, "Tcl initialization error: %s", Tcl_GetStringResult(tclInterp));
+    Jim_SetResultFormatted(interp, "Tcl initialization error: %s",
+        Tcl_GetStringResult(tclInterp));
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return JIM_ERR;
   }
-  /* Add the TH1 integration commands to Tcl. */
-  Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
-  Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
-  Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
+  /* Add the Jim integration commands to Tcl. */
+  Tcl_CallWhenDeleted(tclInterp, BridgeDeleteProc, interp);
+  Tcl_CreateObjCommand(tclInterp, "bridgeEval", BridgeEvalObjCmd, interp, NULL);
+  Tcl_CreateObjCommand(tclInterp, "bridgeExpr", BridgeExprObjCmd, interp, NULL);
   return JIM_OK;
 }
 
@@ -409,15 +430,17 @@ static int createTclInterp(
 ** Register the Tcl language commands with interpreter interp.
 ** Usually this is called soon after interpreter creation.
 */
-int th_register_tcl(
+int register_tcl(
   Jim_Interp *interp,
   void *pContext
 ){
   int i;
-  /* Add the Tcl integration commands to TH1. */
+  /* Add the Tcl integration commands to Jim. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
+    void *ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */
-    Jim_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, pContext, NULL);
+    if( !ctx ) ctx = pContext;
+    Jim_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, ctx, NULL);
   }
   return JIM_OK;
 }

@@ -1,8 +1,8 @@
 <th1>
   #
-  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
-  # The corresponding test file executes this file using the test-th-render
-  # Fossil command.
+  # This is a "script fragment" used to test the Tcl integration features of
+  # Fossil.  The corresponding test file executes this file using the
+  # test-script-render Fossil command.
   #
   set channel stdout; tclInvoke set channel $channel
   proc doOut {msg} {puts $msg; puts \n}
@@ -16,8 +16,8 @@
   doOut [tclInvoke eval set y one_word]
   doOut [tclInvoke eval {set z "three words now"}]
   doOut [set x [tclEval {set x [clock seconds]}]]
-  doOut [tclInvoke th1Eval {set y "two words"}]
-  doOut [set z [tclInvoke th1Expr {2+2}]]
+  doOut [tclInvoke bridgeEval {set y "two words"}]
+  doOut [set z [tclInvoke bridgeExpr {2+2}]]
   doOut $x
   doOut $y
   doOut $z

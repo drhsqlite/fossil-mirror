@@ -1,5 +1,5 @@
-C Replace\sthe\sTH1\sinterpreter\swith\sJim\sTcl.
-D 2011-11-04T21:57:05.183
+C Cleanup\sstyle\sand\suse\sJim_Obj\sAPIs\swhen\sbridging\scommands\sfrom\sTcl\sto\sJim.
+D 2011-11-04T23:34:11.656
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -111,7 +111,7 @@ F src/json_user.c 7a7ca13dc9067652c3d426c92bd093c3a16546bd
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 2810db50722cc2f3015bf29d626ca20c23257fcf
-F src/main.c eb42baa469095e275670b3dc2eec17acf8124012
+F src/main.c 7e940b0f62e6ff4ea2a744f3e1af3f387823a711
 F src/main.mk e9facdf7d12adf56686dabcb27e99f1090fc495a
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -147,8 +147,8 @@ F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
-F src/th_main.c ef7b4d0ec55a2d7ee68b8cbd71f16e33ee2189fc
-F src/th_tcl.c 17767551042c35d427cbd25fcaacfde802ac709f
+F src/th_main.c f2f7c1f5f390aa15e569d157b5b4e28497cc53be
+F src/th_tcl.c 36afe3a52755e4fee9c517433d23d06858dc0afc
 F src/timeline.c 49f700e5863017e7d85337126abfeb9043520462
 F src/tkt.c c91838c960f1426118412d3da3b405db90c80bcc
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
@@ -176,15 +176,15 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
-F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
-F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
-F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
-F test/th1-tcl4.txt 655d0d0f27a32dc058b15f0e89b739aeb6f50a9f
-F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
-F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
-F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
-F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
+F test/th1-tcl.test bd1c06e6a789020362cb2ad0dac69246900b0d79
+F test/th1-tcl1.txt ca5378fd0ff27427a12c5832fa5e218c22bae397
+F test/th1-tcl2.txt 661301573c0b3be66eab07ef3c468a7ffc235929
+F test/th1-tcl3.txt 7143df8c80e3f53aa7d6c1416ed6037b6e553490
+F test/th1-tcl4.txt 53285ce0b4cd930d6f85e59d88638b415a458cc5
+F test/th1-tcl5.txt 80bcdb0b87700040f72647ea98fbddaf596104cf
+F test/th1-tcl6.txt cbe22bbece04b9f7aee346ac0f0e6fdff7f7443b
+F test/th1-tcl7.txt da2b703218ef01f4d7589df6696963dcbb2f5585
+F test/th1-tcl8.txt ae6638fed86e893af4d2f4d64dd12efab0f59005
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -242,7 +242,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 6afe53e063295e35e314256a9893c6e26b4e76da
 F win/Makefile.dmc 1ccbea34675442ab71a1f04b212ce7db11c852c7
 F win/Makefile.mingw 58756e4af4afc7ecc6aaf80d77cf80ea301e1299
-F win/Makefile.mingw.mistachkin 1d2c713740b85b88e9b8bac6a88af4806f4aa95c
+F win/Makefile.mingw.mistachkin f225fd54447f54b39b7e20d565d31eabc542aca6
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 7f3bdc71e2f8db7acd135f74712f6a2feae12cbe
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -354,10 +354,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 796dcfe0728bb2bc865db84e50432f0205d1d2fd
-R 0c99d42203a6015cb32efeb664a5a039
-T *branch * jimtcl
-T *sym-jimtcl *
-T -sym-trunk *
-U steveb
-Z b5a085291cdbf544812412bf993c3f3c
+P 863e789e83b45edd95cb7049db2f81d82254879b
+R 3e5b93e14ceb731b1bcc6b7213ddf4d6
+U mistachkin
+Z 83e82b4d2158f4ea246d6441f6febb08
