@@ -214,15 +214,16 @@ int json_user_update_from_json( cson_object const * pUser ){
   blob_append(&sql, "UPDATE USER SET",-1 );
   blob_append(&sql, " mtime=cast(strftime('%s') AS INTEGER)", -1);
 
-  if((uid>0) && zName
-     && zNameOrig && (zName != zNameOrig)
-     && (0!=strcmp(zNameOrig,zName))){
+  if((uid>0) && zName){
     /* Only change the name if the uid is explicitly set and name
        would actually change. */
-    if(!g.perm.Admin && !g.perm.Setup) {
-      json_set_err( FSL_JSON_E_DENIED,
-                    "Modifying user names requires 'a' or 's' privileges.");
-      goto error;
+    if( zNameOrig && (zName != zNameOrig)
+        && (0!=strcmp(zNameOrig,zName))){
+      if(!g.perm.Admin && !g.perm.Setup) {
+        json_set_err( FSL_JSON_E_DENIED,
+                      "Modifying user names requires 'a' or 's' privileges.");
+        goto error;
+      }
     }
     blob_appendf(&sql, ", login=%Q", zNameOrig);
     ++gotFields;
@@ -284,34 +285,33 @@ int json_user_update_from_json( cson_object const * pUser ){
 ** modified/created user).
 */
 static cson_value * json_user_save(){
-  if( g.json.reqPayload.o ){
-    json_user_update_from_json( g.json.reqPayload.o );
-  }else{
-    /* try to get user info from GET/CLI args and construct
-       a JSON form of it... */
-    cson_object * u = cson_new_object();
-    char const * str = NULL;
-    char b = -1;
-    int i = -1;
-#define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL); \
-    if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
-    PROP("name");
-    PROP("password");
-    PROP("info");
-    PROP("capabilities");
+  /* try to get user info from GET/CLI args and construct
+     a JSON form of it... */
+  cson_object * u = cson_new_object();
+  char const * str = NULL;
+  char b = -1;
+  int i = -1;
+#define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL);             \
+  if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
+  PROP("name");
+  PROP("password");
+  PROP("info");
+  PROP("capabilities");
 #undef PROP
-
-#define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);           \
+  
+#define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
   if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
-    PROP("forceLogout",-1);
+  PROP("forceLogout",-1);
 #undef PROP
 
-#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);            \
+#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);      \
   if(DFLT != i){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
-    PROP("uid",-99);
+  PROP("uid",-99);
 #undef PROP
-    json_user_update_from_json( u );
-    cson_free_object(u);
+  if( g.json.reqPayload.o ){
+    cson_object_merge( u, g.json.reqPayload.o, CSON_MERGE_NO_RECURSE );
   }
+  json_user_update_from_json( u );
+  cson_free_object(u);
   return NULL;
 }
