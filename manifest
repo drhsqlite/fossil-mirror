@@ -1,9 +1,9 @@
-C Merge\sthe\ssteveb-fixes\sbranch\sinto\strunk.
-D 2011-11-04T19:10:58.742
+C Merge\sthe\stcl-integration\sbranch\sinto\strunk.\s\sTo\smake\suse\sof\sbig-tcl,\s\nrecompile\susing\sthe\s--with-tcl\soption\sto\s./configure\sand\seither\sset\sthe\nglobal\s"tcl"\ssetting\sor\sset\sthe\sTH1_ENABLE_TCL\senvironment\svariable.\nBig-tcl\sis\sturned\soff\sby\sdefault.
+D 2011-11-04T19:46:49.729
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 9a2731764494d7b0982bac6f237261d1677bf28a
+F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
 F VERSION e48515c7f854defb8d5e18a901857cf9848c0b5b
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -28,7 +28,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 8920d8e6fefa9ee3e48392c4fd1cffb3cf2f8aeb
+F auto.def 833c705af80ef9618eeaf9a0fc3b8a3185ea2477
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -63,7 +63,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c c2180824503e41b13072943e6b3d40bc30fe8a6b
 F src/content.c b7ee1208efac61a8e48e66ea0977bd7071092d0c
-F src/db.c fb2d7393e732c23560fda489239ebb50ae6f3d2e
+F src/db.c a93b595b4f18411bfaa2f1e72be104e7e8bd7ebc
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -86,11 +86,11 @@ F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0918f8e9b3d2a6c6448a50b7695b214e078cada0
-F src/main.c 363136d75eb948927f57ea985fabcac7bda04e8d
-F src/main.mk 0c40ae251a1f9d422b753fb394483a12879dde14
+F src/main.c b70475b9017a331599b79741acfd264e050c1695
+F src/main.mk ba0f0532a06dc54dcda06bf369b44d3448fc2bbb
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl dc49c79c21b51dd49400ad434028a7df2a2274e2
+F src/makemake.tcl e79c0084872fb4a1061a2cbc7f06a9fb6f155b37
 F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -123,9 +123,10 @@ F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
-F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
+F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c 7785a3def238793337dc4387dfae2e5a9055fab9
+F src/th_main.c b31b8cbc20633d920acfff6756fc8694a305306b
+F src/th_tcl.c c2aa6f248719a09a6727ae34a3eb79b8fdb8299f
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
@@ -153,6 +154,15 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
+F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
+F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
+F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
+F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
+F test/th1-tcl4.txt 655d0d0f27a32dc058b15f0e89b739aeb6f50a9f
+F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
+F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
+F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
+F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -210,6 +220,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
 F win/Makefile.dmc 259b8f4171a271cc09fa230dfd97f54c54fee670
 F win/Makefile.mingw 628d41b597d6e3708026fba257c5e45239218546
+F win/Makefile.mingw.mistachkin 1d2c713740b85b88e9b8bac6a88af4806f4aa95c
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 8ff97dae0af20bb75698996a3a53c2f26e6fd395
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -321,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1e3cae806885d1ed0d02e1da421e37d28c7bf195 d81e217651dc68a8f034f396cb6ddb78dfa35ba5
-R b55bb2dc25cd50411d1beffabb70def5
+P aeec10b900ef540ad9d18091af01ee21a620735f dd275844a5879a3eaa319ab890f3470d5a42489e
+R 1c8ba16c9feea0e72712a6755787560f
 U drh
-Z 2acfdff4e194d1a2799962deb383005c
+Z ee9a302941b84946aa58e82135f53ad9
