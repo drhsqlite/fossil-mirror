@@ -167,6 +167,7 @@ int main(int argc, char **argv){
       fprintf(stderr,"can not open %s\n", argv[1]);
       exit(1);
     }
+    printf("#line 1 \"%s\"\n", argv[1]);
     trans(in, stdout);
     fclose(in);
   }else{

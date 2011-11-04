@@ -1,5 +1,5 @@
-C Enhance\sthe\smkindex.c\sutility\sso\sthat\sit\shonors\s#if\sstatements\sin\sthe\nsource\scode.
-D 2011-11-04T18:55:21.537
+C Merge\sthe\ssteveb-fixes\sbranch\sinto\strunk.
+D 2011-11-04T19:10:58.742
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -125,11 +125,11 @@ F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
+F src/th_main.c 7785a3def238793337dc4387dfae2e5a9055fab9
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
-F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
+F src/translate.c 107ac675c7b9649cdb07607755d9708a295d6ecb
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
 F src/update.c cd95327645b9c150549383dd0b9b01e7f09dabf7
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
@@ -321,7 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d6a93abf2c967ab57a7ec8e3432ff78724208f0f
-R 7144398a4724826cfa5213b3fa5cc2ac
+P 1e3cae806885d1ed0d02e1da421e37d28c7bf195 d81e217651dc68a8f034f396cb6ddb78dfa35ba5
+R b55bb2dc25cd50411d1beffabb70def5
 U drh
-Z 6ac5326741b109c5278a93e7b4e0e2ac
+Z 2acfdff4e194d1a2799962deb383005c
