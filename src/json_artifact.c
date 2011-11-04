@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -411,3 +412,4 @@ cson_value * json_page_artifact(){
   return cson_object_value(pay);
 }
 
+#endif /* FOSSIL_ENABLE_JSON */

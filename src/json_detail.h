@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 #if !defined(FOSSIL_JSON_DETAIL_H_INCLUDED)
 #define FOSSIL_JSON_DETAIL_H_INCLUDED
 /*
@@ -250,3 +251,4 @@ char fossil_has_json();
 
 
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
+#endif /* FOSSIL_ENABLE_JSON */

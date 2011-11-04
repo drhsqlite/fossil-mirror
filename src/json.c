@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -2269,7 +2270,7 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 };
 
 
-#if !defined(FOSSIL_DISABLE_JSON)
+#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
 ** WEBPAGE: json
 **
@@ -2323,9 +2324,9 @@ void json_page_top(void){
   }
 
 }
-#endif /* FOSSIL_DISABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON */
 
-#if !defined(FOSSIL_DISABLE_JSON)
+#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
 ** This function dispatches json commands and is the CLI equivalent of
 ** json_page_top().
@@ -2419,10 +2420,11 @@ void json_cmd_top(void){
     fossil_exit(1);
   }
 }
-#endif /* FOSSIL_DISABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON */
 
 #undef BITSET_BYTEFOR
 #undef BITSET_SET
 #undef BITSET_UNSET
 #undef BITSET_GET
 #undef BITSET_TOGGLE
+#endif /* FOSSIL_ENABLE_JSON */

@@ -1062,10 +1062,15 @@ void login_as_user(const char *zUser){
 ** a redirect to the "login" page.
 */
 void login_needed(void){
+#ifdef FOSSIL_ENABLE_JSON
   if(g.json.isJsonMode){
     json_err( FSL_JSON_E_DENIED, NULL, 1 );
     fossil_exit(0);
-  }else{
+    /* NOTREACHED */
+    assert(0);
+  }else
+#endif /* FOSSIL_ENABLE_JSON */
+  {
     const char *zUrl = PD("REQUEST_URI", "index");
     cgi_redirect(mprintf("login?g=%T", zUrl));
     /* NOTREACHED */

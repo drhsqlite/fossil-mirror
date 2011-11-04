@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -315,3 +316,4 @@ static cson_value * json_user_save(){
   cson_free_object(u);
   return NULL;
 }
+#endif /* FOSSIL_ENABLE_JSON */

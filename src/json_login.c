@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -253,3 +254,4 @@ cson_value * json_page_whoami(){
   db_finalize(&q);
   return payload;
 }
+#endif /* FOSSIL_ENABLE_JSON */

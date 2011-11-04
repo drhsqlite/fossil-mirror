@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -387,3 +388,4 @@ static cson_value * json_branch_create(){
   return payV;
 }
 
+#endif /* FOSSIL_ENABLE_JSON */

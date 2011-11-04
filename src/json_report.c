@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -258,3 +259,4 @@ static cson_value * json_report_run(){
 static cson_value * json_report_save(){
   return NULL;
 }
+#endif /* FOSSIL_ENABLE_JSON */

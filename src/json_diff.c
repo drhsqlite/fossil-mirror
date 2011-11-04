@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -128,3 +129,4 @@ cson_value * json_page_diff(){
   return pay ? cson_object_value(pay) : NULL;
 }
 
+#endif /* FOSSIL_ENABLE_JSON */

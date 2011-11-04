@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -85,3 +86,4 @@ cson_value * json_page_query(){
 
 }
 
+#endif /* FOSSIL_ENABLE_JSON */

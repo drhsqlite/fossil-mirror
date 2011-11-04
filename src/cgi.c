@@ -510,7 +510,9 @@ static void add_param_list(char *z, int terminator){
     if( fossil_islower(zName[0]) ){
       cgi_set_parameter_nocopy(zName, zValue);
     }
+#ifdef FOSSIL_ENABLE_JSON
     json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
+#endif /* FOSSIL_ENABLE_JSON */
   }
 }
 
@@ -685,6 +687,7 @@ static void process_multipart_form_data(char *z, int len){
 }
 
 
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Internal helper for cson_data_source_FILE_n().
 */
@@ -758,6 +761,7 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
   fossil_exit( g.isHTTP ? 0 : 1);
 }
+#endif /* FOSSIL_ENABLE_JSON */
 
 
 /*
@@ -769,7 +773,9 @@ void cgi_init(void){
   char *z;
   const char *zType;
   int len;
+#ifdef FOSSIL_ENABLE_JSON
   json_main_bootstrap();
+#endif
   g.isHTTP = 1;
   cgi_destination(CGI_BODY);
 
@@ -811,7 +817,9 @@ void cgi_init(void){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
-    }else if( fossil_strcmp(zType, "application/json")
+    }
+#ifdef FOSSIL_ENABLE_JSON
+    else if( fossil_strcmp(zType, "application/json")
               || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
               || fossil_strcmp(zType,"application/javascript")){
       g.json.isJsonMode = 1;
@@ -833,6 +841,7 @@ void cgi_init(void){
       */
       cgi_set_content_type(json_guess_content_type());
     }
+#endif /* FOSSIL_ENABLE_JSON */
   }
 
 }
@@ -1048,6 +1057,7 @@ static NORETURN void malformed_request(void){
 NORETURN void cgi_panic(const char *zFormat, ...){
   va_list ap;
   cgi_reset_content();
+#ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     char * zMsg;
     va_start(ap, zFormat);
@@ -1056,12 +1066,14 @@ NORETURN void cgi_panic(const char *zFormat, ...){
     json_err( FSL_JSON_E_PANIC, zMsg, 1 );
     free(zMsg);
     fossil_exit( g.isHTTP ? 0 : 1 );
-  }else{
+  }else
+#endif /* FOSSIL_ENABLE_JSON */
+  {
     cgi_set_status(500, "Internal Server Error");
     cgi_printf(
-      "<html><body><h1>Internal Server Error</h1>\n"
-      "<plaintext>"
-    );
+               "<html><body><h1>Internal Server Error</h1>\n"
+               "<plaintext>"
+               );
     va_start(ap, zFormat);
     vxprintf(pContent,zFormat,ap);
     va_end(ap);

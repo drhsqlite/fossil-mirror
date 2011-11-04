@@ -74,25 +74,27 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
   if( g.json.isJsonMode ){
     json_err( 0, z, 1 );
     if( g.isHTTP ){
       rc = 0 /* avoid HTTP 500 */;
     }
+  }
+  else
+#endif /* FOSSIL_ENABLE_JSON */
+  if( g.xferPanic ){
+    cgi_reset_content();
+    @ error Database\serror:\s%F(z)
+      cgi_reply();
+  }
+  else if( g.cgiOutput ){
+    g.cgiOutput = 0;
+    cgi_printf("<h1>Database Error</h1>\n"
+               "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
+    cgi_reply();
   }else{
-    if( g.xferPanic ){
-      cgi_reset_content();
-      @ error Database\serror:\s%F(z)
-      cgi_reply();
-    }
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<h1>Database Error</h1>\n"
-                 "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
-      cgi_reply();
-    }else{
-      fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
-    }
+    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
   }
   free(z);
   db_force_rollback();
@@ -882,14 +884,20 @@ void db_open_repository(const char *zDbName){
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( file_access(zDbName, 0) ){
+#ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
+#ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DENIED;
+#endif
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
+#ifdef FOSSIL_ENABLE_JSON
       g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
+#endif
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
@@ -936,7 +944,9 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
   }
 rep_not_found:
   if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+#ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
     fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
@@ -967,7 +977,9 @@ int db_schema_is_outofdate(void){
 */
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
+#ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
+#endif
     fossil_warning("incorrect repository schema version");
     fossil_warning("your repository has schema version \"%s\" "
           "but this binary expects version \"%s\"",

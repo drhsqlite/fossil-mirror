@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /*
 ** Copyright (c) 2011 D. Richard Hipp
 **
@@ -363,3 +364,4 @@ static cson_value * json_wiki_list(){
   db_finalize(&q);
   return listV;
 }
+#endif /* FOSSIL_ENABLE_JSON */
