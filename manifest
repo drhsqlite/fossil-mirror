@@ -1,5 +1,5 @@
-C removed\sold\srptshowJson().
-D 2011-11-04T20:44:06.510
+C Added\smissing\s#ifdefs\sfor\sjson\smode.
+D 2011-11-04T20:46:04.329
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -128,7 +128,7 @@ F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c ab6d4166375708fd0f5f8d81c77af8b02e636eda
 F src/rebuild.c 71116d658f4498e528d83327c5078bcbf7097ef7
-F src/report.c c536a8b88a827e87e8b3c39e81a29845c2441d78
+F src/report.c cd634e40217f1d4a1e0c6867f56e5aea9484c584
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
@@ -150,7 +150,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
-F src/timeline.c cad9294ca95e53dea71a45c1395c84596d5cf1ba
+F src/timeline.c 49f700e5863017e7d85337126abfeb9043520462
 F src/tkt.c a0a271b51dabaa8e7dcd468a047abc0facfa69ec
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 525816e6d731d4bcf017a6f592643dae71e57176
-R ce7204504383c7a7e455e80789ea426c
+P 5b131851006f6d9e28a3642b9bf1b76345b030db
+R fa59be6592744997d7661b7bd49b1121
 U json-demo
-Z f019012b9355046c26419199169e06f8
+Z 28354004b87660e1501c138973883d8c

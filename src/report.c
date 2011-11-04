@@ -21,7 +21,9 @@
 #include <time.h>
 #include "report.h"
 #include <assert.h>
-#include "cson_amalgamation.h"
+#ifdef FOSSIL_ENABLE_JSON
+#  include "cson_amalgamation.h"
+#endif
 
 /* Forward references to static routines */
 static void report_format_hints(void);

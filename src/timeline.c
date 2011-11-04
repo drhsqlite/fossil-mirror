@@ -22,7 +22,9 @@
 #include <time.h>
 #include "config.h"
 #include "timeline.h"
-#include "cson_amalgamation.h"
+#ifdef FOSSIL_ENABLE_JSON
+#  include "cson_amalgamation.h"
+#endif
 
 /*
 ** Shorten a UUID so that is the minimum length needed to contain
