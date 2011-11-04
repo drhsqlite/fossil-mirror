@@ -1,5 +1,5 @@
-C Ensure\scorrect\sfile\sname\son\scompile\serrors\sin\stranslated\ssources.\sThis\shelps\savoid\sediting\nthe\sgenerated\sfile\swith\svim\s"quickfix".
-D 2011-11-04T18:49:41.821
+C Fix\shtml\sescaping\sof\sTH1\svariables.\sEscaping\sshould\sbe\sdetermined\sby\s$<a>\sor\s$a\sform,\nbut\sinstead\sit\swas\sbased\son\sthe\srelationship\sbetween\sthe\slength\sof\sthe\svariable\sname\nand\sthe\slength\sof\sthe\svalue.
+D 2011-11-04T18:57:30.321
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -125,7 +125,7 @@ F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h ab705d6d8d7add0c74599e236b33fc72c06c7e55
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
+F src/th_main.c 7785a3def238793337dc4387dfae2e5a9055fab9
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
@@ -321,10 +321,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d6a93abf2c967ab57a7ec8e3432ff78724208f0f
-R 6dd164c111c45e57c9414be4a6e4577e
-T *branch * steveb-fixes
-T *sym-steveb-fixes *
-T -sym-trunk *
+P ae965ddf5dd8142f296f250f8dfe4a8a1624ddb2
+R 4d3dac79a887215e4e22e9ad99c14900
 U steveb
-Z a8b80da718582afd7839166c66b52aa8
+Z 10bfa4ebead33e45ac3535d6d9e7d27a

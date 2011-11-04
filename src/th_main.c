@@ -484,21 +484,23 @@ int Th_Render(const char *z){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;
+      int encode = 1;
       sendText(z, i, 0);
       if( z[i+1]=='<' ){
-        /* Variables of the form $<aaa> */
+        /* Variables of the form $<aaa> are html escaped */
         zVar = &z[i+2];
         nVar = n-2;
       }else{
-        /* Variables of the form $aaa */
+        /* Variables of the form $aaa are output raw */
         zVar = &z[i+1];
         nVar = n;
+        encode = 0;
       }
       rc = Th_GetVar(g.interp, (char*)zVar, nVar);
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, n>nVar);
+      sendText((char*)zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(z, i, 0);
       z += i+5;
