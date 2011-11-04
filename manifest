@@ -1,5 +1,5 @@
-C Remove\sthe\s"commands"\scommand\sand\sreplace\sit\swith\s--all,\s--aux,\sand\s--test\noptions\sto\sthe\s"help"\scommand.
-D 2011-11-04T17:59:33.221
+C Ensure\scorrect\sfile\sname\son\scompile\serrors\sin\stranslated\ssources.\sThis\shelps\savoid\sediting\nthe\sgenerated\sfile\swith\svim\s"quickfix".
+D 2011-11-04T18:49:41.821
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -129,7 +129,7 @@ F src/th_main.c ae2f4383f0fa4c5c5eaa92f24d73472140dbe191
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
-F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
+F src/translate.c 107ac675c7b9649cdb07607755d9708a295d6ecb
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
 F src/update.c cd95327645b9c150549383dd0b9b01e7f09dabf7
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
@@ -321,7 +321,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 272e304d3fdbfa35f8122ad53ecb6e1ad556ef4b
-R 0ccf47676ff4d673d5a808d0e7417e8a
-U drh
-Z c2d8a300c2e77f40cee6453f8f96483f
+P d6a93abf2c967ab57a7ec8e3432ff78724208f0f
+R 6dd164c111c45e57c9414be4a6e4577e
+T *branch * steveb-fixes
+T *sym-steveb-fixes *
+T -sym-trunk *
+U steveb
+Z a8b80da718582afd7839166c66b52aa8
