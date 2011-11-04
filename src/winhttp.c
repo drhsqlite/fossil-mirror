@@ -850,13 +850,4 @@ void cmd_win32_service(void){
   return;
 }
 
-#else /* _WIN32  -- This code is for win32 only */
-#include "winhttp.h"
-
-void cmd_win32_service(void){
-  fossil_fatal("The winsrv command is platform specific "
-               "and not available on this platform."); 
-  return;
-}
-
 #endif /* _WIN32  -- This code is for win32 only */
