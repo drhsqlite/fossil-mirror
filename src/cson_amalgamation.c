@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /* auto-generated! Do not edit! */
 #include "cson_amalgamation.h"
 /* begin file parser/JSON_parser.h */
@@ -5511,3 +5512,4 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
 #undef MARKER
 #endif /* CSON_ENABLE_SQLITE3 */
 /* end file ./cson_sqlite3.c */
+#endif /* FOSSIL_ENABLE_JSON */

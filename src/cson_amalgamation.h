@@ -1,3 +1,4 @@
+#ifdef FOSSIL_ENABLE_JSON
 /* auto-generated! Do not edit! */
 /* begin file include/wh/cson/cson.h */
 #if !defined(WANDERINGHORSE_NET_CSON_H_INCLUDED)
@@ -2383,3 +2384,5 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
 #endif /* CSON_ENABLE_SQLITE3 */
 #endif /* WANDERINGHORSE_NET_CSON_SQLITE3_H_INCLUDED */
 /* end file include/wh/cson/cson_sqlite3.h */
+
+#endif /* FOSSIL_ENABLE_JSON */

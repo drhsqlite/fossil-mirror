@@ -1,5 +1,5 @@
 C Added\smissing\s#ifdefs\sfor\sjson\smode.
-D 2011-11-04T20:46:04.329
+D 2011-11-04T20:48:20.549
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -73,8 +73,8 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c c2180824503e41b13072943e6b3d40bc30fe8a6b
 F src/content.c b7ee1208efac61a8e48e66ea0977bd7071092d0c
-F src/cson_amalgamation.c 383215b4eccccdb4e2493c3e1b8be275c3033aaa
-F src/cson_amalgamation.h 582d6b9acc0f6f81538b48bb61e14c8d72078163
+F src/cson_amalgamation.c 6698f74704a565dcf8bb9c3fdd26139e0b2505f0
+F src/cson_amalgamation.h 2a5b3420ae5538994d0d845f599d514b7cf1cf5c
 F src/db.c 6cc70a36525dad339d3461a1682254f20ef6cc9e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -345,7 +345,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5b131851006f6d9e28a3642b9bf1b76345b030db
-R fa59be6592744997d7661b7bd49b1121
+P d92aad29191c291f68f705be2be31c80885d9cd5
+R ed924a2545c5a2df1fa5462f255fe32e
 U json-demo
-Z 28354004b87660e1501c138973883d8c
+Z 6116889a0b8f975335bb8ab1cb7f0c7f
