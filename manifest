@@ -1,5 +1,5 @@
-C Merge\sthe\sjson\sbranch\sinto\strunk.\s\sJson\sis\sdisabled\sby\sdefault\sfor\snow.\nUse\sthe\s--json\soption\sto\sconfigure,\sor\sset\sFOSSIL_ENABLE_JSON\sin\sthe\nmakefile\sto\sturn\sjson\sprocessing\son.
-D 2011-11-04T20:57:52.158
+C Replace\sthe\sTH1\sinterpreter\swith\sJim\sTcl.
+D 2011-11-04T21:57:05.183
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -37,20 +37,20 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 054fa8df6e44c02b5893d24d28d8af5157ce1acd
+F auto.def 53280db78b21e683fc1b3efe9323c63326336075
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
-F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
-F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
+F autosetup/README.autosetup 682ee3019e840634997ff486d30beb9afd43122a
+F autosetup/autosetup ff4bf72296029eb51ff4d84d73e2df5df14ce8dc x
 F autosetup/cc-lib.tcl 04de0d845b99346df4f0fa64c986bf7ecd4098ce
-F autosetup/cc-shared.tcl d3070323f791189ca67a216ee1574df8862a3ef3
-F autosetup/cc.tcl 044e938843c49a2f2ace6c892a744c5cf20f404a
+F autosetup/cc-shared.tcl 14ee19ef5c77226952785634d8abc45cd95c5114
+F autosetup/cc.tcl ff61bf3a5d66505ca005de36fd4e48d23f631dd5
 F autosetup/config.guess e3eeba8dd66aa41d8a40fb1d60825d9a1a27776e x
 F autosetup/config.sub 32f90ac76aa68c2265471dd377c34f264acaf173 x
-F autosetup/find-tclsh ec171bb9e14adde368dc778ec2f236fd4787bd66 x
-F autosetup/jimsh0.c 34440742f5fbff173a4970e8306f9e04d2d4a110
+F autosetup/find-tclsh 9d1066df117ad246462f850fe51d354841c8fa75 x
+F autosetup/jimsh0.c 8c063a1975ccb781dce0044688d1a99a8d827578
 F autosetup/local.tcl 472f0cba85bd22276208c4eac87d39a6a6e9273a
-F autosetup/system.tcl ed6b97bc52afddd6082c82e576c8ead0fe30936e
-F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
+F autosetup/system.tcl 180ac175844a263c5767cc0a4e1e574c5919c31c
+F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
 F debian/makedeb.sh 24a2f28c3bac4af8171d9fe20c337494f121455c
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
@@ -96,6 +96,7 @@ F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
+F src/jim.h 4cff5508d19252b69d43f20573ab1c727a94ccea
 F src/json.c 2ef342f4f6bef61ac0bfaa0a44c4405246a1f73a
 F src/json_artifact.c d6639a9c75e003506319e78db3d472bb7e17f60e
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -110,11 +111,11 @@ F src/json_user.c 7a7ca13dc9067652c3d426c92bd093c3a16546bd
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 2810db50722cc2f3015bf29d626ca20c23257fcf
-F src/main.c 0e39c7ba014c9a5076713fc611cd4d51172ab11a
-F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
+F src/main.c eb42baa469095e275670b3dc2eec17acf8124012
+F src/main.mk e9facdf7d12adf56686dabcb27e99f1090fc495a
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 4f28df2c3515d0e1e778bec84c70b281ded400f7
+F src/makemake.tcl d0063335af2493f6b64f696269dd39fd998a5ad5
 F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -146,13 +147,10 @@ F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
-F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
-F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
-F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
-F src/th_main.c b31b8cbc20633d920acfff6756fc8694a305306b
-F src/th_tcl.c c3469c18b24530c5229ede7882a4fa74f752c1f3
+F src/th_main.c ef7b4d0ec55a2d7ee68b8cbd71f16e33ee2189fc
+F src/th_tcl.c 17767551042c35d427cbd25fcaacfde802ac709f
 F src/timeline.c 49f700e5863017e7d85337126abfeb9043520462
-F src/tkt.c a0a271b51dabaa8e7dcd468a047abc0facfa69ec
+F src/tkt.c c91838c960f1426118412d3da3b405db90c80bcc
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c 107ac675c7b9649cdb07607755d9708a295d6ecb
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
@@ -241,12 +239,12 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
-F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
-F win/Makefile.dmc 7e1ffc2ed709a4c8ab77a077b6659880241fd20b
-F win/Makefile.mingw 595d0b413dcc0920d0ef0325d597e425b39fbcd3
+F win/Makefile.PellesCGMake 6afe53e063295e35e314256a9893c6e26b4e76da
+F win/Makefile.dmc 1ccbea34675442ab71a1f04b212ce7db11c852c7
+F win/Makefile.mingw 58756e4af4afc7ecc6aaf80d77cf80ea301e1299
 F win/Makefile.mingw.mistachkin 1d2c713740b85b88e9b8bac6a88af4806f4aa95c
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 2a440347608e67be604d423838510da8f25cfc3f
+F win/Makefile.msc 7f3bdc71e2f8db7acd135f74712f6a2feae12cbe
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -356,7 +354,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bf1ebbe1f647710aea7d6f4c9420219622763ab0 8a4e81cf93c534b4751f789d601dd431fed4b8f7
-R 230f753b18e2ada9f44b50829fff628e
-U drh
-Z 48844a1ddf0a48da41c89e9f677738cd
+P 796dcfe0728bb2bc865db84e50432f0205d1d2fd
+R 0c99d42203a6015cb32efeb664a5a039
+T *branch * jimtcl
+T *sym-jimtcl *
+T -sym-trunk *
+U steveb
+Z b5a085291cdbf544812412bf993c3f3c

@@ -218,8 +218,7 @@ TCL_OBJ. = $(TCL_OBJ.0)
 EXTRAOBJ = \
   $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
-  $(OBJDIR)/th.o \
-  $(OBJDIR)/th_lang.o \
+  $(OBJDIR)/jimtcl.o \
   $(TCL_OBJ.$(FOSSIL_ENABLE_TCL)) \
   $(OBJDIR)/cson_amalgamation.o
 
@@ -243,7 +242,7 @@ foreach s [lsort $src] {
   set extra_h($s) {}
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
+append mhargs " \$(SRCDIR)/jim.h"
 #append mhargs " \$(SRCDIR)/cson_amalgamation.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
@@ -285,6 +284,9 @@ writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
 writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+
+writeln "\$(OBJDIR)/jimtcl.o:\t\$(SRCDIR)/../autosetup/jimsh0.c"
+writeln "\t\$(XTCC) -I\$(SRCDIR) -DJIM_BOOTSTRAP_LIB_ONLY -c \$(SRCDIR)/../autosetup/jimsh0.c -o \$(OBJDIR)/jimtcl.o\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
 writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
@@ -472,7 +474,7 @@ foreach s [lsort $src] {
   set extra_h($s) {}
 }
 append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
+append mhargs " \$(SRCDIR)/jim.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
@@ -655,7 +657,8 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makehead
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\jim.h VERSION.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\jim.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -807,7 +810,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheader
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\jim.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 
@@ -969,8 +972,8 @@ VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
-	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/jim.h VERSION.h
+	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/jim.h VERSION.h
 	echo Done >$@
 
 # compile C sources with relevant options
@@ -984,7 +987,7 @@ $(SQLITEOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)%.h
 $(SQLITESHELLOBJ):	%.obj:	$(SRCDIR)%.c
 	$(CC) $(CCFLAGS) $(SQLITESHELLDEFINES) $(INCLUDE) "$<" -Fo"$@"
 
-$(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)th.h
+$(THOBJ):	%.obj:	$(SRCDIR)%.c $(SRCDIR)jim.h
 	$(CC) $(CCFLAGS) $(INCLUDE) "$<" -Fo"$@"
 
 $(ZLIBOBJ):	%.obj:	$(ZLIBSRCDIR)%.c

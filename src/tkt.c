@@ -122,7 +122,7 @@ static void initializeVariablesFromDb(void){
           break;
         }
       }
-      if( Th_Fetch(zName, &size)==0 ){
+      if( Th_Fetch(zName)==0 ){
         Th_Store(zName, zVal);
       }
       free(zRevealed);
@@ -130,16 +130,16 @@ static void initializeVariablesFromDb(void){
   }else{
     db_finalize(&q);
     db_prepare(&q, "PRAGMA table_info(ticket)");
-    if( Th_Fetch("tkt_uuid",&size)==0 ){
+    if( Th_Fetch("tkt_uuid")==0 ){
       Th_Store("tkt_uuid",zName);
     }
     while( db_step(&q)==SQLITE_ROW ){
       const char *zField = db_column_text(&q, 1);
-      if( Th_Fetch(zField, &size)==0 ){
+      if( Th_Fetch(zField)==0 ){
         Th_Store(zField, "");
       }
     }
-    if( Th_Fetch("tkt_datetime",&size)==0 ){
+    if( Th_Fetch("tkt_datetime")==0 ){
       Th_Store("tkt_datetime","");
     }
   }
@@ -242,7 +242,7 @@ void ticket_init(void){
   const char *zConfig;
   Th_FossilInit();
   zConfig = ticket_common_code();
-  Th_Eval(g.interp, 0, zConfig, -1);
+  Jim_Eval(g.interp, zConfig);
 }
 
 /*
@@ -375,34 +375,33 @@ void tktview_page(void){
 ** column.  The append does not actually occur until the
 ** submit_ticket command is run.
 */
-static int appendRemarkCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int appendRemarkCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   int idx;
+  const char *str;
+  int len;
 
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "append_field FIELD STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "FIELD STRING");
+    return JIM_ERR;
   }
+  str = Jim_GetString(argv[1], &len);
   if( g.thTrace ){
     Th_Trace("append_field %#h {%#h}<br />\n",
-              argl[1], argv[1], argl[2], argv[2]);
+              len, str, Jim_Length(argv[2]), Jim_String(argv[2]));
   }
   for(idx=0; idx<nField; idx++){
-    if( strncmp(azField[idx], argv[1], argl[1])==0
-        && azField[idx][argl[1]]==0 ){
+    if( strncmp(azField[idx], str, len)==0
+        && azField[idx][len]==0 ){
       break;
     }
   }
   if( idx>=nField ){
-    Th_ErrorMessage(g.interp, "no such TICKET column: ", argv[1], argl[1]);
-    return TH_ERROR;
+    Jim_SetResultFormatted(g.interp, "no such TICKET column: %#s", argv[1]);
+    return JIM_ERR;
   }
-  azAppend[idx] = mprintf("%.*s", argl[2], argv[2]);
-  return TH_OK;
+  azAppend[idx] = mprintf("%.*s", Jim_Length(argv[2]), Jim_String(argv[2]));
+  return JIM_OK;
 }
 
 /*
@@ -414,14 +413,10 @@ static int appendRemarkCmd(
 ** omitted from the artifact.  Fields whose names begin with "private_"
 ** are concealed using the db_conceal() function.
 */
-static int submitTicketCmd(
-  Th_Interp *interp, 
-  void *pUuid, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int submitTicketCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   char *zDate;
+  void *pUuid = Jim_CmdPrivData(interp);
   const char *zUuid;
   int i;
   int rid;
@@ -443,8 +438,9 @@ static int submitTicketCmd(
     const char *zValue;
     int nValue;
     if( azAppend[i] ) continue;
-    zValue = Th_Fetch(azField[i], &nValue);
+    zValue = Th_Fetch(azField[i]);
     if( zValue ){
+      nValue = strlen(zValue);
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
       if( strncmp(zValue, azValue[i], nValue) || strlen(azValue[i])!=nValue ){
         if( strncmp(azField[i], "private_", 8)==0 ){
@@ -474,7 +470,7 @@ static int submitTicketCmd(
     @ <p>Ticket artifact that would have been submitted:</p>
     @ <blockquote><pre>%h(blob_str(&tktchng))</pre></blockquote>
     @ <hr /></font>
-    return TH_OK;
+    return JIM_OK;
   }else if( g.thTrace ){
     Th_Trace("submit_ticket {\n<blockquote><pre>\n%h\n</pre></blockquote>\n"
              "}<br />\n",
@@ -489,7 +485,7 @@ static int submitTicketCmd(
     assert( blob_is_reset(&tktchng) );
     manifest_crosslink_end();
   }
-  return TH_RETURN;
+  return JIM_RETURN;
 }
 
 
@@ -526,10 +522,9 @@ void tktnew_page(void){
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
-  Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
-                   (void*)&zNewUuid, 0);
+  Jim_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void *)&zNewUuid, NULL);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
-  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
+  if( Th_Render(zScript)==JIM_RETURN && !g.thTrace && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
@@ -593,10 +588,10 @@ void tktedit_page(void){
   zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin);
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
-  Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
-  Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
+  Jim_CreateCommand(g.interp, "append_field", appendRemarkCmd, NULL, NULL);
+  Jim_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName, NULL);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
-  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
+  if( Th_Render(zScript)==JIM_RETURN && !g.thTrace && zName ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }

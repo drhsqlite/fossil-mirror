@@ -15,7 +15,7 @@
 
 #ifdef FOSSIL_ENABLE_TCL
 
-#include "th.h"
+#include "jim.h"
 #include "tcl.h"
 
 /*
@@ -43,7 +43,7 @@
   objc = argc-1;                                                    \
   objv = (Tcl_Obj **)ckalloc((unsigned)(objc * sizeof(Tcl_Obj *))); \
   for(i=1; i<argc; i++){                                            \
-    objv[i-1] = Tcl_NewStringObj(argv[i], argl[i]);                 \
+    objv[i-1] = Tcl_NewStringObj(Jim_String(argv[i]), Jim_Length(argv[i]));                 \
     Tcl_IncrRefCount(objv[i-1]);                                    \
   }
 
@@ -66,7 +66,7 @@
 ** by the caller.  This must be declared here because quite a few functions in
 ** this file need to use it before it can be defined.
  */
-static int createTclInterp(Th_Interp *interp, void *pContext);
+static int createTclInterp(Jim_Interp *interp, void *pContext);
 
 /*
 ** Returns the Tcl interpreter result as a string with the associated length.
@@ -105,33 +105,30 @@ struct TclContext {
 **
 **   tclEval arg ?arg ...?
 */
-static int tclEval_command(
-  Th_Interp *interp,
-  void *ctx,
-  int argc,
-  const char **argv,
-  int *argl
+static int tclEval_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
   int rc;
   int nResult;
   const char *zResult;
+  void *ctx = Jim_CmdPrivData(interp);
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
-    return TH_ERROR;
+  if ( createTclInterp(interp, ctx)!=JIM_OK ){
+    return JIM_ERR;
   }
   if( argc<2 ){
-    return Th_WrongNumArgs(interp, "tclEval arg ?arg ...?");
+    Jim_WrongNumArgs(interp, 1, argv, "arg ?arg ...?");
+    return JIM_ERR;
   }
   tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
-    Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
-    return TH_ERROR;
+    Jim_SetResultString(interp, "invalid Tcl interpreter", -1);
+    return JIM_ERR;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(Jim_String(argv[1]), Jim_Length(argv[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_EvalObjEx(tclInterp, objPtr, 0);
     Tcl_DecrRefCount(objPtr);
@@ -145,7 +142,7 @@ static int tclEval_command(
     FREE_ARGV_TO_OBJV();
   }
   zResult = getTclResult(tclInterp, &nResult);
-  Th_SetResult(interp, zResult, nResult);
+  Jim_SetResultString(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
   return rc;
 }
@@ -155,12 +152,7 @@ static int tclEval_command(
 **
 **   tclExpr arg ?arg ...?
 */
-static int tclExpr_command(
-  Th_Interp *interp,
-  void *ctx,
-  int argc,
-  const char **argv,
-  int *argl
+static int tclExpr_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
@@ -168,21 +160,23 @@ static int tclExpr_command(
   int rc;
   int nResult;
   const char *zResult;
+  void *ctx = Jim_CmdPrivData(interp);
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
-    return TH_ERROR;
+  if ( createTclInterp(interp, ctx)!=JIM_OK ){
+    return JIM_ERR;
   }
   if( argc<2 ){
-    return Th_WrongNumArgs(interp, "tclExpr arg ?arg ...?");
+    Jim_WrongNumArgs(interp, 1, argv, "arg ?arg ...?");
+    return JIM_ERR;
   }
   tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
-    Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
-    return TH_ERROR;
+    Jim_SetResultString(interp, "invalid Tcl interpreter", -1);
+    return JIM_ERR;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
-    objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+    objPtr = Tcl_NewStringObj(Jim_String(argv[1]), Jim_Length(argv[1]));
     Tcl_IncrRefCount(objPtr);
     rc = Tcl_ExprObj(tclInterp, objPtr, &resultObjPtr);
     Tcl_DecrRefCount(objPtr);
@@ -200,7 +194,7 @@ static int tclExpr_command(
   }else{
     zResult = getTclResult(tclInterp, &nResult);
   }
-  Th_SetResult(interp, zResult, nResult);
+  Jim_SetResultString(interp, zResult, nResult);
   if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
   Tcl_Release((ClientData)tclInterp);
   return rc;
@@ -211,12 +205,7 @@ static int tclExpr_command(
 **
 **   tclInvoke command ?arg ...?
 */
-static int tclInvoke_command(
-  Th_Interp *interp,
-  void *ctx,
-  int argc,
-  const char **argv,
-  int *argl
+static int tclInvoke_command(Jim_Interp *interp, int argc, Jim_Obj *const *argv
 ){
   Tcl_Interp *tclInterp;
 #ifndef USE_TCL_EVALOBJV
@@ -226,38 +215,40 @@ static int tclInvoke_command(
   int rc;
   int nResult;
   const char *zResult;
+  void *ctx = Jim_CmdPrivData(interp);
 #ifndef USE_TCL_EVALOBJV
   Tcl_Obj *objPtr;
 #endif
   USE_ARGV_TO_OBJV();
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
-    return TH_ERROR;
+  if ( createTclInterp(interp, ctx)!=JIM_OK ){
+    return JIM_ERR;
   }
   if( argc<2 ){
-    return Th_WrongNumArgs(interp, "tclInvoke command ?arg ...?");
+    Jim_WrongNumArgs(interp, 1, argv, "command ?arg ...?");
+    return JIM_ERR;
   }
   tclInterp = GET_CTX_TCL_INTERP(ctx);
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
-    Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
-    return TH_ERROR;
+    Jim_SetResultString(interp, "invalid Tcl interpreter", -1);
+    return JIM_ERR;
   }
   Tcl_Preserve((ClientData)tclInterp);
 #ifndef USE_TCL_EVALOBJV
-  objPtr = Tcl_NewStringObj(argv[1], argl[1]);
+  objPtr = Tcl_NewStringObj(Jim_String(argv[1]), Jim_Length(argv[1]));
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
   if( !command || Tcl_GetCommandInfoFromToken(command,&cmdInfo)==0 ){
-    Th_ErrorMessage(interp, "Tcl command not found:", argv[1], argl[1]);
+    Jim_SetResultFormatted(interp, "Tcl command not found: %#s", argv[1]);
     Tcl_DecrRefCount(objPtr);
     Tcl_Release((ClientData)tclInterp);
-    return TH_ERROR;
+    return JIM_ERR;
   }
   if( !cmdInfo.objProc ){
-    Th_ErrorMessage(interp, "Cannot invoke Tcl command:", argv[1], argl[1]);
+    Jim_SetResultFormatted(interp, "Cannot invoke command not found: %#s", argv[1]);
     Tcl_DecrRefCount(objPtr);
     Tcl_Release((ClientData)tclInterp);
-    return TH_ERROR;
+    return JIM_ERR;
   }
   Tcl_DecrRefCount(objPtr);
 #endif
@@ -270,7 +261,7 @@ static int tclInvoke_command(
 #endif
   FREE_ARGV_TO_OBJV();
   zResult = getTclResult(tclInterp, &nResult);
-  Th_SetResult(interp, zResult, nResult);
+  Jim_SetResultString(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
   return rc;
 }
@@ -286,7 +277,7 @@ static int Th1EvalObjCmd(
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Th_Interp *th1Interp;
+  Jim_Interp *th1Interp;
   int nArg;
   const char *arg;
   int rc;
@@ -295,15 +286,15 @@ static int Th1EvalObjCmd(
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
-  th1Interp = (Th_Interp *)clientData;
+  th1Interp = (Jim_Interp *)clientData;
   if( !th1Interp ){
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Th_Eval(th1Interp, 0, arg, nArg);
-  arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  rc = Jim_Eval(th1Interp, arg);
+  arg = Jim_String(Jim_GetResult(th1Interp));
+  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, -1));
   return rc;
 }
 
@@ -318,24 +309,29 @@ static int Th1ExprObjCmd(
   int objc,
   Tcl_Obj *CONST objv[]
 ){
-  Th_Interp *th1Interp;
+  Jim_Interp *th1Interp;
   int nArg;
   const char *arg;
   int rc;
+  Jim_Obj *exprResultObj;
 
   if( objc!=2 ){
     Tcl_WrongNumArgs(interp, 1, objv, "arg");
     return TCL_ERROR;
   }
-  th1Interp = (Th_Interp *)clientData;
+  th1Interp = (Jim_Interp *)clientData;
   if( !th1Interp ){
     Tcl_AppendResult(interp, "invalid TH1 interpreter", NULL);
     return TCL_ERROR;
   }
+
   arg = Tcl_GetStringFromObj(objv[1], &nArg);
-  rc = Th_Expr(th1Interp, arg, nArg);
-  arg = Th_GetResult(th1Interp, &nArg);
-  Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, nArg));
+  rc = Jim_EvalExpression(th1Interp, Jim_NewStringObj(th1Interp, arg, -1), &exprResultObj);
+  if (rc == JIM_OK) {
+    arg = Jim_String(exprResultObj);
+    Tcl_SetObjResult(interp, Tcl_NewStringObj(arg, -1));
+  }
+
   return rc;
 }
 
@@ -345,13 +341,11 @@ static int Th1ExprObjCmd(
 */
 static struct _Command {
   const char *zName;
-  Th_CommandProc xProc;
-  void *pContext;
+  Jim_CmdProc xProc;
 } aCommand[] = {
-  {"tclEval",   tclEval_command,   0},
-  {"tclExpr",   tclExpr_command,   0},
-  {"tclInvoke", tclInvoke_command, 0},
-  {0, 0, 0}
+  {"tclEval",   tclEval_command  },
+  {"tclExpr",   tclExpr_command  },
+  {"tclInvoke", tclInvoke_command},
 };
 
 /*
@@ -363,11 +357,11 @@ static void Th1DeleteProc(
   Tcl_Interp *interp
 ){
   int i;
-  Th_Interp *th1Interp = (Th_Interp *)clientData;
+  Jim_Interp *th1Interp = (Jim_Interp *)clientData;
   if( !th1Interp ) return;
   /* Remove the Tcl integration commands. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
-    Th_RenameCommand(th1Interp, aCommand[i].zName, -1, NULL, 0);
+    Jim_DeleteCommand(th1Interp, aCommand[i].zName);
   }
 }
 
@@ -377,41 +371,38 @@ static void Th1DeleteProc(
 ** by the caller.
  */
 static int createTclInterp(
-  Th_Interp *interp,
+  Jim_Interp *interp,
   void *pContext
 ){
   struct TclContext *tclContext = (struct TclContext *)pContext;
   Tcl_Interp *tclInterp;
 
   if ( !tclContext ){
-    Th_ErrorMessage(interp,
-        "Invalid Tcl context", (const char *)"", 0);
-    return TH_ERROR;
+    Jim_SetResultString(interp, "Invalid Tcl context", -1);
+    return JIM_ERR;
   }
   if ( tclContext->interp ){
-    return TH_OK;
+    return JIM_OK;
   }
   if ( tclContext->argc>0 && tclContext->argv ) {
     Tcl_FindExecutable(tclContext->argv[0]);
   }
   tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
-    Th_ErrorMessage(interp,
-        "Could not create Tcl interpreter", (const char *)"", 0);
-    return TH_ERROR;
+    Jim_SetResultString(interp, "Could not create Tcl interpreter", -1);
+    return JIM_ERR;
   }
   if( Tcl_Init(tclInterp)!=TCL_OK ){
-    Th_ErrorMessage(interp,
-        "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
+    Jim_SetResultFormatted(interp, "Tcl initialization error: %s", Tcl_GetStringResult(tclInterp));
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
-    return TH_ERROR;
+    return JIM_ERR;
   }
   /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
-  return TH_OK;
+  return JIM_OK;
 }
 
 /*
@@ -419,18 +410,16 @@ static int createTclInterp(
 ** Usually this is called soon after interpreter creation.
 */
 int th_register_tcl(
-  Th_Interp *interp,
+  Jim_Interp *interp,
   void *pContext
 ){
   int i;
   /* Add the Tcl integration commands to TH1. */
   for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
-    void *ctx = aCommand[i].pContext;
     /* Use Tcl interpreter for context? */
-    if( !ctx ) ctx = pContext;
-    Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, ctx, 0);
+    Jim_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, pContext, NULL);
   }
-  return TH_OK;
+  return JIM_OK;
 }
 
 #endif /* FOSSIL_ENABLE_TCL */

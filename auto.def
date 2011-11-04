@@ -95,15 +95,11 @@ if {$tclpath ne ""} {
     if {![cc-check-includes tcl.h]} {
         user-error "Cannot find tcl.h"
     }
-    foreach tlib {tcl8.6 tcl8.5 tcl notfound} {
-        if {$tlib=="notfound"} {
-            user-error "Cannot find a usable libtcl"
-        }
-        if {[cc-check-function-in-lib Tcl_CreateInterp $tlib]} {
-            define-append LIBS -l$tlib
-            break
-        }
-    }
+	if {[cc-check-function-in-lib Tcl_CreateInterp {tcl8.6 tcl8.5 tcl}]} {
+		define-append LIBS [get-define lib_Tcl_CreateInterp]
+	} else {
+		user-error "Cannot find a usable libtcl"
+	}
     define FOSSIL_ENABLE_TCL
     if {$tclpath ne "1"} {
         define-append EXTRA_CFLAGS -I$tclpath/include

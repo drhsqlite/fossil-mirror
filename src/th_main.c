@@ -22,31 +22,6 @@
 #include "th_main.h"
 
 /*
-** Global variable counting the number of outstanding calls to malloc()
-** made by the th1 implementation. This is used to catch memory leaks
-** in the interpreter. Obviously, it also means th1 is not threadsafe.
-*/
-static int nOutstandingMalloc = 0;
-
-/*
-** Implementations of malloc() and free() to pass to the interpreter.
-*/
-static void *xMalloc(unsigned int n){
-  void *p = fossil_malloc(n);
-  if( p ){
-    nOutstandingMalloc++;
-  }
-  return p;
-}
-static void xFree(void *p){
-  if( p ){
-    nOutstandingMalloc--;
-  }
-  free(p);
-}
-static Th_Vtab vtab = { xMalloc, xFree };
-
-/*
 ** Generate a TH1 trace message if debugging is enabled.
 */
 void Th_Trace(const char *zFormat, ...){
@@ -60,24 +35,20 @@ void Th_Trace(const char *zFormat, ...){
 /*
 ** True if output is enabled.  False if disabled.
 */
-static int enableOutput = 1;
+static long enableOutput = 1;
 
 /*
 ** TH command:     enable_output BOOLEAN
 **
 ** Enable or disable the puts and hputs commands.
 */
-static int enableOutputCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int enableOutputCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+    Jim_WrongNumArgs(interp, 1, argv, "BOOLEAN");
+    return JIM_ERR;
   }
-  return Th_ToInt(interp, argv[1], argl[1], &enableOutput);
+  return Jim_GetLong(interp, argv[1], &enableOutput);
 }
 
 /*
@@ -101,24 +72,39 @@ static void sendText(const char *z, int n, int encode){
   }
 }
 
+static void sendTextObj(Jim_Obj *objPtr, int encode)
+{
+  sendText(Jim_String(objPtr), Jim_Length(objPtr), encode);
+}
+
 /*
 ** TH command:     puts STRING
+**
+** Output STRING as HTML
+*/
+static int putsCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
+  if( argc!=2 ){
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
+  }
+  sendText(Jim_String(argv[1]), -1, 1);
+  return JIM_OK;
+}
+
+/*
 ** TH command:     html STRING
 **
-** Output STRING as HTML (html) or unchanged (puts).  
+** Output STRING unchanged
 */
-static int putsCmd(
-  Th_Interp *interp, 
-  void *pConvert, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int htmlCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "puts STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
   }
-  sendText((char*)argv[1], argl[1], pConvert!=0);
-  return TH_OK;
+  sendText(Jim_String(argv[1]), -1, 0);
+  return JIM_OK;
 }
 
 /*
@@ -126,23 +112,19 @@ static int putsCmd(
 **
 ** Render the input string as wiki.
 */
-static int wikiCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int wikiCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "wiki STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
   }
   if( enableOutput ){
     Blob src;
-    blob_init(&src, (char*)argv[1], argl[1]);
+    blob_init(&src, Jim_String(argv[1]), Jim_Length(argv[1]));
     wiki_convert(&src, 0, WIKI_INLINE);
     blob_reset(&src);
   }
-  return TH_OK;
+  return JIM_OK;
 }
 
 /*
@@ -151,21 +133,17 @@ static int wikiCmd(
 ** Escape all characters of STRING which have special meaning in HTML.
 ** Return a new string result.
 */
-static int htmlizeCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int htmlizeCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   char *zOut;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "htmlize STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
   }
-  zOut = htmlize((char*)argv[1], argl[1]);
-  Th_SetResult(interp, zOut, -1);
+  zOut = htmlize(Jim_String(argv[1]), Jim_Length(argv[1]));
+  Jim_SetResultString(interp, zOut, -1);
   free(zOut);
-  return TH_OK;
+  return JIM_OK;
 }
 
 /*
@@ -175,22 +153,17 @@ static int htmlizeCmd(
 ** -local option is used, the date appears using localtime instead
 ** of UTC.
 */
-static int dateCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int dateCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   char *zOut;
-  if( argc>=2 && argl[1]==6 && memcmp(argv[1],"-local",6)==0 ){
+  if( argc>=2 && Jim_CompareStringImmediate(interp, argv[1], "-local")) {
     zOut = db_text("??", "SELECT datetime('now','localtime')");
   }else{
     zOut = db_text("??", "SELECT datetime('now')");
   }
-  Th_SetResult(interp, zOut, -1);
+  Jim_SetResultString(interp, zOut, -1);
   free(zOut);
-  return TH_OK;
+  return JIM_OK;
 }
 
 /*
@@ -198,23 +171,22 @@ static int dateCmd(
 **
 ** Return true if the user has all of the capabilities listed in STRING.
 */
-static int hascapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int hascapCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   int rc;
+  const char *str;
+  int len;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "hascap STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
   }
-  rc = login_has_capability((char*)argv[1],argl[1]);
+  str = Jim_GetString(argv[1], &len);
+  rc = login_has_capability(str, len);
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[hascap %#h] => %d<br />\n", len, str, rc);
   }
-  Th_SetResultInt(interp, rc);
-  return TH_OK;
+  Jim_SetResultInt(interp, rc);
+  return JIM_OK;
 }
 
 /*
@@ -222,26 +194,25 @@ static int hascapCmd(
 **
 ** Return true if the user has any one of the capabilities listed in STRING.
 */
-static int anycapCmd(
-  Th_Interp *interp, 
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int anycapCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   int rc = 0;
   int i;
+  const char *str;
+  int len;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "anycap STRING");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING");
+    return JIM_ERR;
   }
-  for(i=0; rc==0 && i<argl[1]; i++){
-    rc = login_has_capability((char*)&argv[1][i],1);
+  str = Jim_GetString(argv[1], &len);
+  for(i=0; rc==0 && i<len; i++){
+    rc = login_has_capability(&str[i],1);
   }
   if( g.thTrace ){
-    Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
+    Th_Trace("[hascap %#h] => %d<br />\n", len, str, rc);
   }
-  Th_SetResultInt(interp, rc);
-  return TH_OK;
+  Jim_SetResultInt(interp, rc);
+  return JIM_OK;
 }
 
 /*
@@ -254,19 +225,14 @@ static int anycapCmd(
 ** If NUMLINES is greater than one then the display is a listbox
 ** with the number of lines given.
 */
-static int comboboxCmd(
-  Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int comboboxCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "combobox NAME TEXT-LIST NUMLINES");
+    Jim_WrongNumArgs(interp, 1, argv, "NAME TEXT-LIST NUMLINES");
+    return JIM_ERR;
   }
   if( enableOutput ){
-    int height;
-    Blob name;
+    long height;
     int nValue;
     const char *zValue;
     char *z, *zH;
@@ -274,20 +240,21 @@ static int comboboxCmd(
     int *aszElem;
     char **azElem;
     int i;
+    Jim_Obj *objPtr;
+    Jim_Obj *varObjPtr;
 
-    if( Th_ToInt(interp, argv[3], argl[3], &height) ) return TH_ERROR;
-    Th_SplitList(interp, argv[2], argl[2], &azElem, &aszElem, &nElem);
-    blob_init(&name, (char*)argv[1], argl[1]);
-    zValue = Th_Fetch(blob_str(&name), &nValue);
+    if( Jim_GetLong(interp, argv[3], &height) ) return JIM_ERR;
+    nElem = Jim_ListLength(interp, argv[2]);
+
+    varObjPtr = Jim_GetVariable(g.interp, argv[1], JIM_NONE);
     z = mprintf("<select name=\"%z\" size=\"%d\">", 
-                 htmlize(blob_buffer(&name), blob_size(&name)), height);
+                 htmlize(Jim_String(varObjPtr), Jim_Length(varObjPtr)), height);
     sendText(z, -1, 0);
     free(z);
-    blob_reset(&name);
     for(i=0; i<nElem; i++){
-      zH = htmlize((char*)azElem[i], aszElem[i]);
-      if( zValue && aszElem[i]==nValue 
-             && memcmp(zValue, azElem[i], nValue)==0 ){
+      Jim_ListIndex(interp, argv[2], i, &objPtr, JIM_NONE);
+      zH = htmlize(Jim_String(objPtr), Jim_Length(objPtr));
+      if( varObjPtr && Jim_StringEqObj(varObjPtr, objPtr)) {
         z = mprintf("<option value=\"%s\" selected=\"selected\">%s</option>",
                      zH, zH);
       }else{
@@ -298,9 +265,8 @@ static int comboboxCmd(
       free(z);
     }
     sendText("</select>", -1, 0);
-    Th_Free(interp, azElem);
   }
-  return TH_OK;
+  return JIM_OK;
 }
 
 /*
@@ -309,23 +275,18 @@ static int comboboxCmd(
 ** Return one more than the number of \n characters in STRING.  But
 ** never return less than MIN or more than MAX.
 */
-static int linecntCmd(
-  Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
+static int linecntCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
   const char *z;
   int size, n, i;
-  int iMin, iMax;
+  jim_wide iMin, iMax;
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "linecount STRING MAX MIN");
+    Jim_WrongNumArgs(interp, 1, argv, "STRING MAX MIN");
+    return JIM_ERR;
   }
-  if( Th_ToInt(interp, argv[2], argl[2], &iMax) ) return TH_ERROR;
-  if( Th_ToInt(interp, argv[3], argl[3], &iMin) ) return TH_ERROR;
-  z = argv[1];
-  size = argl[1];
+  if( Jim_GetWide(interp, argv[2], &iMax) ) return JIM_ERR;
+  if( Jim_GetWide(interp, argv[3], &iMin) ) return JIM_ERR;
+  z = Jim_GetString(argv[1], &size);
   for(n=1, i=0; i<size; i++){
     if( z[i]=='\n' ){
       n++;
@@ -334,8 +295,8 @@ static int linecntCmd(
   }
   if( n<iMin ) n = iMin;
   if( n>iMax ) n = iMax;
-  Th_SetResultInt(interp, n);
-  return TH_OK;
+  Jim_SetResultInt(interp, n);
+  return JIM_OK;
 }
 
 /*
@@ -345,26 +306,22 @@ static int linecntCmd(
 ** string if one is not currently open.  Optionally, it will attempt to open
 ** the repository if the boolean argument is non-zero.
 */
-static int repositoryCmd(
-  Th_Interp *interp,
-  void *p, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
-  int openRepository;
+static int repositoryCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
+{
+  long openRepository;
 
   if( argc!=1 && argc!=2 ){
-    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+    Jim_WrongNumArgs(interp, 1, argv, "BOOLEAN");
+    return JIM_ERR;
   }
   if( argc==2 ){
-    if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
-      return TH_ERROR;
+    if( Jim_GetLong(interp, argv[1], &openRepository) != JIM_OK){
+      return JIM_ERR;
     }
     if( openRepository ) db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
   }
-  Th_SetResult(interp, g.zRepositoryName, -1);
-  return TH_OK;
+  Jim_SetResultString(interp, g.zRepositoryName, -1);
+  return JIM_OK;
 }
 
 /*
@@ -376,33 +333,36 @@ static int repositoryCmd(
 void Th_FossilInit(void){
   static struct _Command {
     const char *zName;
-    Th_CommandProc xProc;
-    void *pContext;
+    Jim_CmdProc xProc;
   } aCommand[] = {
-    {"anycap",        anycapCmd,            0},
-    {"combobox",      comboboxCmd,          0},
-    {"enable_output", enableOutputCmd,      0},
-    {"linecount",     linecntCmd,           0},
-    {"hascap",        hascapCmd,            0},
-    {"htmlize",       htmlizeCmd,           0},
-    {"date",          dateCmd,              0},
-    {"html",          putsCmd,              0},
-    {"puts",          putsCmd,       (void*)1},
-    {"wiki",          wikiCmd,              0},
-    {"repository",    repositoryCmd,        0},
+    {"anycap",        anycapCmd,            },
+    {"combobox",      comboboxCmd,          },
+    {"enable_output", enableOutputCmd,      },
+    {"linecount",     linecntCmd,           },
+    {"hascap",        hascapCmd,            },
+    {"htmlize",       htmlizeCmd,           },
+    {"date",          dateCmd,              },
+    {"html",          htmlCmd,              },
+    {"puts",          putsCmd,              },
+    {"wiki",          wikiCmd,              },
+    {"repository",    repositoryCmd,        },
   };
   if( g.interp==0 ){
     int i;
-    g.interp = Th_CreateInterp(&vtab);
-    th_register_language(g.interp);       /* Basic scripting commands. */
+    /* Create and initialize the interpreter */
+    g.interp = Jim_CreateInterp();
+    Jim_RegisterCoreCommands(g.interp);
+
+    /* Register static extensions */
+    Jim_InitStaticExtensions(g.interp);
+
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
-      Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
-                       aCommand[i].pContext, 0);
+      Jim_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc, NULL, NULL);
     }
   }
 }
@@ -416,7 +376,7 @@ void Th_Store(const char *zName, const char *zValue){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
     }
-    Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+    Jim_SetVariableStrWithStr(g.interp, zName, zValue);
   }
 }
 
@@ -425,23 +385,37 @@ void Th_Store(const char *zName, const char *zValue){
 */
 void Th_Unstore(const char *zName){
   if( g.interp ){
-    Th_UnsetVar(g.interp, (char*)zName, -1);
+    Jim_Obj *nameObjPtr = Jim_NewStringObj(g.interp, zName, -1);
+    Jim_UnsetVariable(g.interp, nameObjPtr, JIM_NONE);
+    Jim_FreeNewObj(g.interp, nameObjPtr);
   }
 }
 
 /*
-** Retrieve a string value from the interpreter.  If no such
+** Retrieve a string value (variable) from the interpreter.  If no such
 ** variable exists, return NULL.
 */
-char *Th_Fetch(const char *zName, int *pSize){
-  int rc;
+const char *Th_Fetch(const char *zName){
   Th_FossilInit();
-  rc = Th_GetVar(g.interp, (char*)zName, -1);
-  if( rc==TH_OK ){
-    return (char*)Th_GetResult(g.interp, pSize);
-  }else{
-    return 0;
-  }
+
+  Jim_Obj *objPtr = Jim_GetVariableStr(g.interp, zName, JIM_NONE);
+
+  return objPtr ? Jim_String(objPtr) : NULL;
+}
+
+/**
+ * Like Th_Fetch() except the variable name may not be null terminated.
+ * Instead, the length of the name is supplied as 'namelen'.
+ */
+const char *Th_GetVar(Jim_Interp *interp, const char *name, int namelen){
+    Jim_Obj *nameObjPtr, *varObjPtr;
+
+    nameObjPtr = Jim_NewStringObj(interp, name, namelen);
+    Jim_IncrRefCount(nameObjPtr);
+    varObjPtr = Jim_GetVariable(interp, nameObjPtr, 0);
+    Jim_DecrRefCount(interp, nameObjPtr);
+
+    return varObjPtr ? Jim_String(varObjPtr) : NULL;
 }
 
 /*
@@ -449,6 +423,7 @@ char *Th_Fetch(const char *zName, int *pSize){
 ** tag:  <th1>.
 */
 static int isBeginScriptTag(const char *z){
+  /* XXX: Should we also allow <tcl>? */
   return z[0]=='<'
       && (z[1]=='t' || z[1]=='T')
       && (z[2]=='h' || z[2]=='H')
@@ -461,6 +436,7 @@ static int isBeginScriptTag(const char *z){
 ** tag:  </th1>.
 */
 static int isEndScriptTag(const char *z){
+  /* XXX: Should we also allow </tcl>? */
   return z[0]=='<'
       && z[1]=='/'
       && (z[2]=='t' || z[2]=='T')
@@ -513,8 +489,8 @@ static int validVarName(const char *z){
 int Th_Render(const char *z){
   int i = 0;
   int n;
-  int rc = TH_OK;
-  char *zResult;
+  int rc = JIM_OK;
+  const char *zResult;
   Th_FossilInit();
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
@@ -532,17 +508,21 @@ int Th_Render(const char *z){
         nVar = n;
         encode = 0;
       }
-      rc = Th_GetVar(g.interp, (char*)zVar, nVar);
+      zResult = Th_GetVar(g.interp, zVar, nVar);
       z += i+1+n;
       i = 0;
-      zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, encode);
+      if (zResult) {
+        sendText(zResult, -1, encode);
+      }
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
+      Jim_Obj *objPtr;
       sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
-      rc = Th_Eval(g.interp, 0, (const char*)z, i);
-      if( rc!=TH_OK ) break;
+      /* XXX: Would be nice to record the source location in case of error */
+      objPtr = Jim_NewStringObj(g.interp, z, i);
+      rc = Jim_EvalObj(g.interp, objPtr);
+      if( rc!=JIM_OK ) break;
       z += i;
       if( z[0] ){ z += 6; }
       i = 0;
@@ -550,10 +530,9 @@ int Th_Render(const char *z){
       i++;
     }
   }
-  if( rc==TH_ERROR ){
+  if( rc==JIM_ERR ){
     sendText("<hr><p class=\"thmainError\">ERROR: ", -1, 0);
-    zResult = (char*)Th_GetResult(g.interp, &n);
-    sendText((char*)zResult, n, 1);
+    sendTextObj(Jim_GetResult(g.interp), 1);
     sendText("</p>", -1, 0);
   }else{
     sendText(z, i, 0);

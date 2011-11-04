@@ -374,7 +374,7 @@ proc cc-with {settings args} {
 		set rc [catch {uplevel 1 [lindex $args 0]} result info]
 		cc-store-settings $save
 		if {$rc != 0} {
-			return $result -code [dict get $info -code]
+			return -code [dict get $info -code] $result
 		}
 		return $result
 	}

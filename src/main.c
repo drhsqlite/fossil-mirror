@@ -28,6 +28,8 @@
 #include <stdlib.h> /* atexit() */
 
 #if INTERFACE
+#include <jim.h>
+
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
 #  include "json_detail.h"
@@ -129,7 +131,7 @@ struct Global {
   int cgiOutput;          /* Write error and status messages to CGI */
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
-  Th_Interp *interp;      /* The TH1 interpreter */
+  Jim_Interp *interp;      /* The TH1 interpreter */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
