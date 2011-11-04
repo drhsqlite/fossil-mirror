@@ -1,5 +1,5 @@
-C Merge\sthe\stcl-integration\sbranch\sinto\strunk.\s\sTo\smake\suse\sof\sbig-tcl,\s\nrecompile\susing\sthe\s--with-tcl\soption\sto\s./configure\sand\seither\sset\sthe\nglobal\s"tcl"\ssetting\sor\sset\sthe\sTH1_ENABLE_TCL\senvironment\svariable.\nBig-tcl\sis\sturned\soff\sby\sdefault.
-D 2011-11-04T19:46:49.729
+C Add\sthe\sBSD\scopyright\snotice\sto\sthe\stop\sof\sthe\sth_tcl.c\ssource\sfile.
+D 2011-11-04T20:05:32.749
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -126,7 +126,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c f05d1b1ab5b82cf614e83c85f2c84d85eba1a78b
 F src/th_main.c b31b8cbc20633d920acfff6756fc8694a305306b
-F src/th_tcl.c c2aa6f248719a09a6727ae34a3eb79b8fdb8299f
+F src/th_tcl.c c3469c18b24530c5229ede7882a4fa74f752c1f3
 F src/timeline.c d0e98437912b89ed2ff74eb3ccb848bc9ec77543
 F src/tkt.c 8326dd8dbcc8407d32018776c4ad3df75caf8e3e
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
@@ -332,7 +332,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P aeec10b900ef540ad9d18091af01ee21a620735f dd275844a5879a3eaa319ab890f3470d5a42489e
-R 1c8ba16c9feea0e72712a6755787560f
+P d8ed5a0d05b3f0c22ac053905b540e7f675c6f30
+R 8029a6b6e21e1dcbfc2d928a14d87c66
 U drh
-Z ee9a302941b84946aa58e82135f53ad9
+Z d5fc3a919c6ecaf3f87287305776e4b3
