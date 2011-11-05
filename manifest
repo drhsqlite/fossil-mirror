@@ -1,5 +1,5 @@
-C updated\sfrom\sjquery\s1.4.x\sto\s1.6.x.
-D 2011-11-05T00:10:42.380
+C s/json_tags_for_rid()/json_tags_for_checkin_rid()/g,\ssince\sthat's\sreally\swhat\sit\sdoes.
+D 2011-11-05T00:13:28.186
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,8 +96,8 @@ F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
-F src/json.c 2ef342f4f6bef61ac0bfaa0a44c4405246a1f73a
-F src/json_artifact.c d6639a9c75e003506319e78db3d472bb7e17f60e
+F src/json.c 7ac2aa11846b7cff63c3852145243b0f95cd5b16
+F src/json_artifact.c 24b489cf8d3c09f19a5cd45673588275eb56548a
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_detail.h 4b2f7f75f143a64a8d21030fe0dad9226f6f93bb
 F src/json_diff.c 62bd36a899dd403e233d3d1c0d6865080f353b72
@@ -105,7 +105,7 @@ F src/json_login.c 7e2a94c348f3b62712e203f6fa76ccb00a214ea4
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c dad72e8b498a5aa0bddef2cabc84d9123ffbf851
 F src/json_tag.c e02eb4a78098b1e30db27f556daca9216a4e69ab
-F src/json_timeline.c aaa00288cf536ef946f3fb4d3fdd8b47aa003c05
+F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
 F src/json_user.c 7a7ca13dc9067652c3d426c92bd093c3a16546bd
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 796dcfe0728bb2bc865db84e50432f0205d1d2fd
-R bf4986e73d388592141915e641dff313
+P 2128ecdd3c37d790c27d78bc598d1e8ca2edc4c2
+R d75f60ea8272e20ff38348b2aaa0eb35
 U stephan
-Z 581ae8be5ad58337a8c94786213912a1
+Z 2bc7050c82eb1381359c0effe3a5aa35

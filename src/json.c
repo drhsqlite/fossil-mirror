@@ -1776,14 +1776,14 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
 }
 
 /*
-** If the given rid has any tags associated with it, this function
-** returns a JSON Array containing the tag names, else it returns
-** NULL.
+** If the given COMMIT rid has any tags associated with it, this
+** function returns a JSON Array containing the tag names, else it
+** returns NULL.
 **
 ** See info_tags_of_checkin() for more details (this is simply a JSON
 ** wrapper for that function).
 */
-cson_value * json_tags_for_rid(int rid, char propagatingOnly){
+cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
   cson_value * v = NULL;
   char * tags = info_tags_of_checkin(rid, propagatingOnly);
   if(tags){

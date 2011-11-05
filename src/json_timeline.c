@@ -398,7 +398,7 @@ static cson_value * json_timeline_branch(){
       cson_object * row = cson_value_get_object(cson_array_get(ar,i));
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
       if(row>0) {
-        cson_object_set_s(row, tags, json_tags_for_rid(rid,0));
+        cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
         cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
       }
     }

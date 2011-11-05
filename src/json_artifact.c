@@ -137,7 +137,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("parentUuid", json_new_string(zParent));
     }
 
-    tmpV = json_tags_for_rid(rid,0);
+    tmpV = json_tags_for_checkin_rid(rid,0);
     if(tmpV){
       SET("tags",tmpV);
     }
@@ -286,10 +286,11 @@ cson_value * json_artifact_file(int rid){
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
 #if 0
-  /* Damn: json_tags_for_rid() only works for commits.
+  /* Damn: json_tags_for_checkin_rid() only works for commits.
 
-  FIXME: extend json_tags_for_rid() to accept file rids and then
-  implement this loop to add the tags to each object.
+  FIXME: add json_tags_for_file_rid(), analog to
+  json_tags_for_checkin_rid(), and then implement this loop to add the
+  tags to each object.
   */
 
   while( SQLITE_ROW == db_step(&q) ){
@@ -303,7 +304,7 @@ cson_value * json_artifact_file(int rid){
         /*avoids a potential lifetime issue*/;
     }
     checkin = cson_value_get_object(checkinV);
-    cson_object_set_s(checkin, tagKey, json_tags_for_rid(rid,0));
+    cson_object_set_s(checkin, tagKey, json_tags_for_checkin_rid(rid,0));
     cson_array_append( checkin_arr, checkinV );
   }   
 #else
