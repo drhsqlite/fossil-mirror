@@ -2210,7 +2210,7 @@ cson_value * json_page_user();
 */
 static const JsonPageDef JsonPageDefs[] = {
 /* please keep alphabetically sorted (case-insensitive) for maintenance reasons. */
-{"anonymousPassword", json_page_anon_password, 1},
+{"anonymousPassword", json_page_anon_password, 0},
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
@@ -2218,8 +2218,8 @@ static const JsonPageDef JsonPageDefs[] = {
 {"dir", json_page_nyi, 0},
 {"g", json_page_g, 0},
 {"HAI",json_page_version,0},
-{"login",json_page_login,1},
-{"logout",json_page_logout,1},
+{"login",json_page_login,0},
+{"logout",json_page_logout,0},
 {"query",json_page_query,0},
 {"rebuild",json_page_rebuild,0},
 {"report", json_page_report, 0},
@@ -2230,7 +2230,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"timeline", json_page_timeline,0},
 {"user",json_page_user,0},
 {"version",json_page_version,0},
-{"whoami",json_page_whoami,0/*FIXME: work in CLI mode*/},
+{"whoami",json_page_whoami,0},
 {"wiki",json_page_wiki,0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}

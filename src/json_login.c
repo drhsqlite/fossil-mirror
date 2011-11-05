@@ -59,12 +59,10 @@ cson_value * json_page_login(){
   char const * anonSeed = NULL;
   cson_value * payload = NULL;
   int uid = 0;
-  /* reminder to self:
-     Fossil internally (for the sake of /wiki) interprets
-     paths in the form /foo/bar/baz such that
-     P("name") == "bar/baz". This collides with our
-     name/password checking, and thus we check for the
-     password first.
+  /* reminder to self: Fossil internally (for the sake of /wiki)
+     interprets paths in the form /foo/bar/baz such that P("name") ==
+     "bar/baz". This collides with our name/password checking, and
+     thus we do some rather elaborate name=... checking.
   */
   pw = cson_value_get_cstr(json_payload_property("password"));
   if( !pw ){

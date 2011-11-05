@@ -236,12 +236,6 @@ cson_value * json_artifact_file(int rid){
   Blob content = empty_blob;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
-#if 0
-    /*see next #if block below*/
-      cson_string * tagKey = NULL;
-      cson_value * checkinV = NULL;
-      cson_object * checkin = NULL;
-#endif
 
   if( ! g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -271,9 +265,10 @@ cson_value * json_artifact_file(int rid){
       "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
       "       coalesce(event.ecomment,event.comment) as comment,"
       "       coalesce(event.euser,event.user) as user,"
-      "       b.uuid as uuid, mlink.mperm as mperm,"/* WTF is mperm?*/
+      "       b.uuid as uuid, mlink.mperm as mperm,"
       "       coalesce((SELECT value FROM tagxref"
-                      "  WHERE tagid=%d AND tagtype>0 AND rid=mlink.mid),'trunk') as branch"
+                      "  WHERE tagid=%d AND tagtype>0 AND "
+                      " rid=mlink.mid),'trunk') as branch"
       "  FROM mlink, filename, event, blob a, blob b"
       " WHERE filename.fnid=mlink.fnid"
       "   AND event.objid=mlink.mid"
@@ -285,31 +280,7 @@ cson_value * json_artifact_file(int rid){
     );
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
-#if 0
-  /* Damn: json_tags_for_checkin_rid() only works for commits.
-
-  FIXME: add json_tags_for_file_rid(), analog to
-  json_tags_for_checkin_rid(), and then implement this loop to add the
-  tags to each object.
-  */
-
-  while( SQLITE_ROW == db_step(&q) ){
-    checkinV = cson_sqlite3_row_to_object( q.pStmt );
-    if(!checkinV){
-      continue;
-    }
-    if(!tagKey) {
-      tagKey = cson_new_string("tags",4);
-      json_gc_add("artifact/file/tags", cson_string_value(tagKey))
-        /*avoids a potential lifetime issue*/;
-    }
-    checkin = cson_value_get_object(checkinV);
-    cson_object_set_s(checkin, tagKey, json_tags_for_checkin_rid(rid,0));
-    cson_array_append( checkin_arr, checkinV );
-  }   
-#else
   json_stmt_to_array_of_obj( &q, checkin_arr );
-#endif
   db_finalize(&q);
   return cson_object_value(pay);
 }

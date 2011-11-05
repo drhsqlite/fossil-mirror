@@ -81,7 +81,8 @@ FossilAjaj.prototype.sendCommand = function(command, payload, ajajOpt) {
     
     If this object has an onLogin() function it is called (with
     no arguments) before the onResponse() handler of the login is called
-    (that is the 2nd request for anonymous logins).
+    (that is the 2nd request for anonymous logins) and any exceptions
+    it throws are ignored.
 
 */
 FossilAjaj.prototype.login = function(name,pw,ajajOpt) {
