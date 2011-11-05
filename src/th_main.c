@@ -390,6 +390,7 @@ void Th_FossilInit(void){
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},
+    {0, 0, 0}
   };
   if( g.interp==0 ){
     int i;
@@ -401,6 +402,7 @@ void Th_FossilInit(void){
     }
 #endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+      if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
