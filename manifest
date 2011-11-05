@@ -1,5 +1,5 @@
-C Attempt\sto\sbuild\swith\sMSVC.
-D 2011-11-05T01:30:43.117
+C Fix\smore\scompilation\sissues\swith\sMSVC.
+D 2011-11-05T01:59:10.172
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
 F src/jim-config.h 836043f154f36144bb6008e8213458c2d0d2ca20
-F src/jim-win32compat.h cb160e22f9bbbbcc6a5f7fe7ae4f5e273ace2d24
+F src/jim-win32compat.h 68232047053e530569f3ee682921fb764f596ad8
 F src/jim.h 4cff5508d19252b69d43f20573ab1c727a94ccea
 F src/json.c 2ef342f4f6bef61ac0bfaa0a44c4405246a1f73a
 F src/json_artifact.c d6639a9c75e003506319e78db3d472bb7e17f60e
@@ -246,7 +246,7 @@ F win/Makefile.dmc 1ccbea34675442ab71a1f04b212ce7db11c852c7
 F win/Makefile.mingw 58756e4af4afc7ecc6aaf80d77cf80ea301e1299
 F win/Makefile.mingw.mistachkin f225fd54447f54b39b7e20d565d31eabc542aca6
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc e41576886ac2db4adb9b6823081fb0bb550e769b
+F win/Makefile.msc 57b2329b14be56b8825137cc8682c89b7ae4b3a1
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 536fb1d6e0d4f022b55437700805b9946f652bee
-R 366ef8e6b1de797b5be68b27a18a9d90
+P e36ad719cf308a10ff757000c9276240bf15e94e
+R 12ed6d2b11dbb0a20c9845dbca05db95
 U mistachkin
-Z 2b900208dca54023c625613c47637d29
+Z edcae79d487599f6813984ecaa334e6b

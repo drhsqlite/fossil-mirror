@@ -38,17 +38,17 @@ char *dlerror(void);
 #include <io.h>
 
 #define HAVE_GETTIMEOFDAY
-#ifndef TIMEVAL_H
+#ifndef NO_TIMEVAL
 struct timeval {
 	long tv_sec;
 	long tv_usec;
 };
-#endif /* TIMEVAL_H */
+#endif /* NO_TIMEVAL */
 
 int gettimeofday(struct timeval *tv, void *unused);
 
 #define HAVE_OPENDIR
-#ifndef DIRENT_H
+#ifndef NO_DIRENT
 struct dirent {
 	char *d_name;
 };
@@ -63,7 +63,7 @@ typedef struct DIR {
 DIR *opendir(const char *name);
 int closedir(DIR *dir);
 struct dirent *readdir(DIR *dir);
-#endif /* DIRENT_H */
+#endif /* NO_DIRENT */
 #endif /* _MSC_VER */
 
 #endif /* WIN32 */
