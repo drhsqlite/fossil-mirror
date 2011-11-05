@@ -10,9 +10,6 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
-
 # Uncomment below for SSL support
 SSL =
 SSLLIB =
@@ -24,23 +21,23 @@ SSLLIB =
 #ZINCDIR = C:\zlib125-dll\include
 #ZLIBDIR = C:\zlib125-dll\lib
 #ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(SRCDIR)\..\zlib-1.2.5
+ZLIBDIR = $(SRCDIR)\..\zlib-1.2.5
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
-CFLAGS = -nologo -MT -O2
+CFLAGS = -nologo -MT -O2 -DTIMEVAL_H -DDIRENT_H
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+LIBDIR = -LIBPATH:$(ZLIBDIR)
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 /DSQLITE_THREADSAFE=0 /DSQLITE_DEFAULT_FILE_FORMAT=4 /DSQLITE_ENABLE_STAT3 /Dlocaltime=fossil_localtime /DSQLITE_ENABLE_LOCKING_STYLE=0
 
 SRC   = add_.c allrepo_.c attach_.c bag_.c bisect_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c event_.c export_.c file_.c finfo_.c glob_.c graph_.c gzip_.c http_.c http_socket_.c http_ssl_.c http_transport_.c import_.c info_.c json_.c json_artifact_.c json_branch_.c json_diff_.c json_login_.c json_query_.c json_report_.c json_tag_.c json_timeline_.c json_user_.c json_wiki_.c leaf_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c name_.c path_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c sqlcmd_.c stash_.c stat_.c style_.c sync_.c tag_.c tar_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c xfer_.c zip_.c 
 
-OBJ   = $(OX)\add$O $(OX)\allrepo$O $(OX)\attach$O $(OX)\bag$O $(OX)\bisect$O $(OX)\blob$O $(OX)\branch$O $(OX)\browse$O $(OX)\captcha$O $(OX)\cgi$O $(OX)\checkin$O $(OX)\checkout$O $(OX)\clearsign$O $(OX)\clone$O $(OX)\comformat$O $(OX)\configure$O $(OX)\content$O $(OX)\db$O $(OX)\delta$O $(OX)\deltacmd$O $(OX)\descendants$O $(OX)\diff$O $(OX)\diffcmd$O $(OX)\doc$O $(OX)\encode$O $(OX)\event$O $(OX)\export$O $(OX)\file$O $(OX)\finfo$O $(OX)\glob$O $(OX)\graph$O $(OX)\gzip$O $(OX)\http$O $(OX)\http_socket$O $(OX)\http_ssl$O $(OX)\http_transport$O $(OX)\import$O $(OX)\info$O $(OX)\json$O $(OX)\json_artifact$O $(OX)\json_branch$O $(OX)\json_diff$O $(OX)\json_login$O $(OX)\json_query$O $(OX)\json_report$O $(OX)\json_tag$O $(OX)\json_timeline$O $(OX)\json_user$O $(OX)\json_wiki$O $(OX)\leaf$O $(OX)\login$O $(OX)\main$O $(OX)\manifest$O $(OX)\md5$O $(OX)\merge$O $(OX)\merge3$O $(OX)\name$O $(OX)\path$O $(OX)\pivot$O $(OX)\popen$O $(OX)\pqueue$O $(OX)\printf$O $(OX)\rebuild$O $(OX)\report$O $(OX)\rss$O $(OX)\schema$O $(OX)\search$O $(OX)\setup$O $(OX)\sha1$O $(OX)\shun$O $(OX)\skins$O $(OX)\sqlcmd$O $(OX)\stash$O $(OX)\stat$O $(OX)\style$O $(OX)\sync$O $(OX)\tag$O $(OX)\tar$O $(OX)\th_main$O $(OX)\timeline$O $(OX)\tkt$O $(OX)\tktsetup$O $(OX)\undo$O $(OX)\update$O $(OX)\url$O $(OX)\user$O $(OX)\verify$O $(OX)\vfile$O $(OX)\wiki$O $(OX)\wikiformat$O $(OX)\winhttp$O $(OX)\xfer$O $(OX)\zip$O $(OX)\shell$O $(OX)\sqlite3$O $(OX)\th$O $(OX)\th_lang$O 
+OBJ   = $(OX)\add$O $(OX)\allrepo$O $(OX)\attach$O $(OX)\bag$O $(OX)\bisect$O $(OX)\blob$O $(OX)\branch$O $(OX)\browse$O $(OX)\captcha$O $(OX)\cgi$O $(OX)\checkin$O $(OX)\checkout$O $(OX)\clearsign$O $(OX)\clone$O $(OX)\comformat$O $(OX)\configure$O $(OX)\content$O $(OX)\db$O $(OX)\delta$O $(OX)\deltacmd$O $(OX)\descendants$O $(OX)\diff$O $(OX)\diffcmd$O $(OX)\doc$O $(OX)\encode$O $(OX)\event$O $(OX)\export$O $(OX)\file$O $(OX)\finfo$O $(OX)\glob$O $(OX)\graph$O $(OX)\gzip$O $(OX)\http$O $(OX)\http_socket$O $(OX)\http_ssl$O $(OX)\http_transport$O $(OX)\import$O $(OX)\info$O $(OX)\jimtcl$O $(OX)\json$O $(OX)\json_artifact$O $(OX)\json_branch$O $(OX)\json_diff$O $(OX)\json_login$O $(OX)\json_query$O $(OX)\json_report$O $(OX)\json_tag$O $(OX)\json_timeline$O $(OX)\json_user$O $(OX)\json_wiki$O $(OX)\leaf$O $(OX)\login$O $(OX)\main$O $(OX)\manifest$O $(OX)\md5$O $(OX)\merge$O $(OX)\merge3$O $(OX)\name$O $(OX)\path$O $(OX)\pivot$O $(OX)\popen$O $(OX)\pqueue$O $(OX)\printf$O $(OX)\rebuild$O $(OX)\report$O $(OX)\rss$O $(OX)\schema$O $(OX)\search$O $(OX)\setup$O $(OX)\sha1$O $(OX)\shun$O $(OX)\skins$O $(OX)\sqlcmd$O $(OX)\stash$O $(OX)\stat$O $(OX)\style$O $(OX)\sync$O $(OX)\tag$O $(OX)\tar$O $(OX)\th_main$O $(OX)\timeline$O $(OX)\tkt$O $(OX)\tktsetup$O $(OX)\undo$O $(OX)\update$O $(OX)\url$O $(OX)\user$O $(OX)\verify$O $(OX)\vfile$O $(OX)\wiki$O $(OX)\wikiformat$O $(OX)\winhttp$O $(OX)\xfer$O $(OX)\zip$O $(OX)\shell$O $(OX)\sqlite3$O 
 
 
 APPNAME = $(OX)\fossil$(E)
@@ -52,103 +49,102 @@ $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
-	echo $(OX)\add.obj > $@
-	echo $(OX)\allrepo.obj >> $@
-	echo $(OX)\attach.obj >> $@
-	echo $(OX)\bag.obj >> $@
-	echo $(OX)\bisect.obj >> $@
-	echo $(OX)\blob.obj >> $@
-	echo $(OX)\branch.obj >> $@
-	echo $(OX)\browse.obj >> $@
-	echo $(OX)\captcha.obj >> $@
-	echo $(OX)\cgi.obj >> $@
-	echo $(OX)\checkin.obj >> $@
-	echo $(OX)\checkout.obj >> $@
-	echo $(OX)\clearsign.obj >> $@
-	echo $(OX)\clone.obj >> $@
-	echo $(OX)\comformat.obj >> $@
-	echo $(OX)\configure.obj >> $@
-	echo $(OX)\content.obj >> $@
-	echo $(OX)\db.obj >> $@
-	echo $(OX)\delta.obj >> $@
-	echo $(OX)\deltacmd.obj >> $@
-	echo $(OX)\descendants.obj >> $@
-	echo $(OX)\diff.obj >> $@
-	echo $(OX)\diffcmd.obj >> $@
-	echo $(OX)\doc.obj >> $@
-	echo $(OX)\encode.obj >> $@
-	echo $(OX)\event.obj >> $@
-	echo $(OX)\export.obj >> $@
-	echo $(OX)\file.obj >> $@
-	echo $(OX)\finfo.obj >> $@
-	echo $(OX)\glob.obj >> $@
-	echo $(OX)\graph.obj >> $@
-	echo $(OX)\gzip.obj >> $@
-	echo $(OX)\http.obj >> $@
-	echo $(OX)\http_socket.obj >> $@
-	echo $(OX)\http_ssl.obj >> $@
-	echo $(OX)\http_transport.obj >> $@
-	echo $(OX)\import.obj >> $@
-	echo $(OX)\info.obj >> $@
-	echo $(OX)\json.obj >> $@
-	echo $(OX)\json_artifact.obj >> $@
-	echo $(OX)\json_branch.obj >> $@
-	echo $(OX)\json_diff.obj >> $@
-	echo $(OX)\json_login.obj >> $@
-	echo $(OX)\json_query.obj >> $@
-	echo $(OX)\json_report.obj >> $@
-	echo $(OX)\json_tag.obj >> $@
-	echo $(OX)\json_timeline.obj >> $@
-	echo $(OX)\json_user.obj >> $@
-	echo $(OX)\json_wiki.obj >> $@
-	echo $(OX)\leaf.obj >> $@
-	echo $(OX)\login.obj >> $@
-	echo $(OX)\main.obj >> $@
-	echo $(OX)\manifest.obj >> $@
-	echo $(OX)\md5.obj >> $@
-	echo $(OX)\merge.obj >> $@
-	echo $(OX)\merge3.obj >> $@
-	echo $(OX)\name.obj >> $@
-	echo $(OX)\path.obj >> $@
-	echo $(OX)\pivot.obj >> $@
-	echo $(OX)\popen.obj >> $@
-	echo $(OX)\pqueue.obj >> $@
-	echo $(OX)\printf.obj >> $@
-	echo $(OX)\rebuild.obj >> $@
-	echo $(OX)\report.obj >> $@
-	echo $(OX)\rss.obj >> $@
-	echo $(OX)\schema.obj >> $@
-	echo $(OX)\search.obj >> $@
-	echo $(OX)\setup.obj >> $@
-	echo $(OX)\sha1.obj >> $@
-	echo $(OX)\shell.obj >> $@
-	echo $(OX)\shun.obj >> $@
-	echo $(OX)\skins.obj >> $@
-	echo $(OX)\sqlcmd.obj >> $@
-	echo $(OX)\sqlite3.obj >> $@
-	echo $(OX)\stash.obj >> $@
-	echo $(OX)\stat.obj >> $@
-	echo $(OX)\style.obj >> $@
-	echo $(OX)\sync.obj >> $@
-	echo $(OX)\tag.obj >> $@
-	echo $(OX)\tar.obj >> $@
-	echo $(OX)\th.obj >> $@
-	echo $(OX)\th_lang.obj >> $@
-	echo $(OX)\th_main.obj >> $@
-	echo $(OX)\timeline.obj >> $@
-	echo $(OX)\tkt.obj >> $@
-	echo $(OX)\tktsetup.obj >> $@
-	echo $(OX)\undo.obj >> $@
-	echo $(OX)\update.obj >> $@
-	echo $(OX)\url.obj >> $@
-	echo $(OX)\user.obj >> $@
-	echo $(OX)\verify.obj >> $@
-	echo $(OX)\vfile.obj >> $@
-	echo $(OX)\wiki.obj >> $@
-	echo $(OX)\wikiformat.obj >> $@
-	echo $(OX)\winhttp.obj >> $@
-	echo $(OX)\xfer.obj >> $@
-	echo $(OX)\zip.obj >> $@
+	echo $(OX)\add$O >$@
+	echo $(OX)\allrepo$O >> $@
+	echo $(OX)\attach$O >> $@
+	echo $(OX)\bag$O >> $@
+	echo $(OX)\bisect$O >> $@
+	echo $(OX)\blob$O >> $@
+	echo $(OX)\branch$O >> $@
+	echo $(OX)\browse$O >> $@
+	echo $(OX)\captcha$O >> $@
+	echo $(OX)\cgi$O >> $@
+	echo $(OX)\checkin$O >> $@
+	echo $(OX)\checkout$O >> $@
+	echo $(OX)\clearsign$O >> $@
+	echo $(OX)\clone$O >> $@
+	echo $(OX)\comformat$O >> $@
+	echo $(OX)\configure$O >> $@
+	echo $(OX)\content$O >> $@
+	echo $(OX)\db$O >> $@
+	echo $(OX)\delta$O >> $@
+	echo $(OX)\deltacmd$O >> $@
+	echo $(OX)\descendants$O >> $@
+	echo $(OX)\diff$O >> $@
+	echo $(OX)\diffcmd$O >> $@
+	echo $(OX)\doc$O >> $@
+	echo $(OX)\encode$O >> $@
+	echo $(OX)\event$O >> $@
+	echo $(OX)\export$O >> $@
+	echo $(OX)\file$O >> $@
+	echo $(OX)\finfo$O >> $@
+	echo $(OX)\glob$O >> $@
+	echo $(OX)\graph$O >> $@
+	echo $(OX)\gzip$O >> $@
+	echo $(OX)\http$O >> $@
+	echo $(OX)\http_socket$O >> $@
+	echo $(OX)\http_ssl$O >> $@
+	echo $(OX)\http_transport$O >> $@
+	echo $(OX)\import$O >> $@
+	echo $(OX)\info$O >> $@
+	echo $(OX)\jimtcl$O >> $@
+	echo $(OX)\json$O >> $@
+	echo $(OX)\json_artifact$O >> $@
+	echo $(OX)\json_branch$O >> $@
+	echo $(OX)\json_diff$O >> $@
+	echo $(OX)\json_login$O >> $@
+	echo $(OX)\json_query$O >> $@
+	echo $(OX)\json_report$O >> $@
+	echo $(OX)\json_tag$O >> $@
+	echo $(OX)\json_timeline$O >> $@
+	echo $(OX)\json_user$O >> $@
+	echo $(OX)\json_wiki$O >> $@
+	echo $(OX)\leaf$O >> $@
+	echo $(OX)\login$O >> $@
+	echo $(OX)\main$O >> $@
+	echo $(OX)\manifest$O >> $@
+	echo $(OX)\md5$O >> $@
+	echo $(OX)\merge$O >> $@
+	echo $(OX)\merge3$O >> $@
+	echo $(OX)\name$O >> $@
+	echo $(OX)\path$O >> $@
+	echo $(OX)\pivot$O >> $@
+	echo $(OX)\popen$O >> $@
+	echo $(OX)\pqueue$O >> $@
+	echo $(OX)\printf$O >> $@
+	echo $(OX)\rebuild$O >> $@
+	echo $(OX)\report$O >> $@
+	echo $(OX)\rss$O >> $@
+	echo $(OX)\schema$O >> $@
+	echo $(OX)\search$O >> $@
+	echo $(OX)\setup$O >> $@
+	echo $(OX)\sha1$O >> $@
+	echo $(OX)\shell$O >> $@
+	echo $(OX)\shun$O >> $@
+	echo $(OX)\skins$O >> $@
+	echo $(OX)\sqlcmd$O >> $@
+	echo $(OX)\sqlite3$O >> $@
+	echo $(OX)\stash$O >> $@
+	echo $(OX)\stat$O >> $@
+	echo $(OX)\style$O >> $@
+	echo $(OX)\sync$O >> $@
+	echo $(OX)\tag$O >> $@
+	echo $(OX)\tar$O >> $@
+	echo $(OX)\th_main$O >> $@
+	echo $(OX)\timeline$O >> $@
+	echo $(OX)\tkt$O >> $@
+	echo $(OX)\tktsetup$O >> $@
+	echo $(OX)\undo$O >> $@
+	echo $(OX)\update$O >> $@
+	echo $(OX)\url$O >> $@
+	echo $(OX)\user$O >> $@
+	echo $(OX)\verify$O >> $@
+	echo $(OX)\vfile$O >> $@
+	echo $(OX)\wiki$O >> $@
+	echo $(OX)\wikiformat$O >> $@
+	echo $(OX)\winhttp$O >> $@
+	echo $(OX)\xfer$O >> $@
+	echo $(OX)\zip$O >> $@
 	echo $(LIBS) >> $@
 
 
@@ -174,12 +170,6 @@ $(OX)\shell$O : $(SRCDIR)\shell.c
 
 $(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
-
-$(OX)\th$O : $(SRCDIR)\th.c
-	$(TCC) /Fo$@ -c $**
-
-$(OX)\th_lang$O : $(SRCDIR)\th_lang.c
-	$(TCC) /Fo$@ -c $**
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
@@ -437,6 +427,9 @@ $(OX)\info$O : info_.c info.h
 
 info_.c : $(SRCDIR)\info.c
 	translate$E $** > $@
+
+$(OX)\jimtcl$O : $(SRCDIR)\..\autosetup\jimsh0.c
+	$(TCC) /Fo$@ /DJIM_BOOTSTRAP_LIB_ONLY -c $(SRCDIR)\..\autosetup\jimsh0.c
 
 $(OX)\json$O : json_.c json.h
 	$(TCC) /Fo$@ -c json_.c

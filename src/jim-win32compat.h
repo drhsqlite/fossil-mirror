@@ -6,10 +6,8 @@
 /* Note that at this point we don't yet have access to jimautoconf.h */
 #if defined(_WIN32) || defined(WIN32)
 #ifndef STRICT
-	#define STRICT
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#define STRICT
+#endif /* STRICT */
 
 #define HAVE_DLOPEN
 void *dlopen(const char *path, int mode);
@@ -40,14 +38,17 @@ char *dlerror(void);
 #include <io.h>
 
 #define HAVE_GETTIMEOFDAY
+#ifndef TIMEVAL_H
 struct timeval {
 	long tv_sec;
 	long tv_usec;
 };
+#endif /* TIMEVAL_H */
 
 int gettimeofday(struct timeval *tv, void *unused);
 
 #define HAVE_OPENDIR
+#ifndef DIRENT_H
 struct dirent {
 	char *d_name;
 };
@@ -62,6 +63,7 @@ typedef struct DIR {
 DIR *opendir(const char *name);
 int closedir(DIR *dir);
 struct dirent *readdir(DIR *dir);
+#endif /* DIRENT_H */
 #endif /* _MSC_VER */
 
 #endif /* WIN32 */
