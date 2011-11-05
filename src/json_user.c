@@ -150,7 +150,7 @@ static cson_value * json_user_get(){
 int json_user_update_from_json( cson_object const * pUser ){
 #define CSTR(X) cson_string_cstr(cson_value_get_string( cson_object_get(pUser, X ) ))
   char const * zName = CSTR("name");
-  char const * zNameOrig = zName;
+  char const * zNameNew = zName;
   char * zNameFree = NULL;
   char const * zInfo = CSTR("info");
   char const * zCap = CSTR("capabilities");
@@ -218,15 +218,21 @@ int json_user_update_from_json( cson_object const * pUser ){
   if((uid>0) && zName){
     /* Only change the name if the uid is explicitly set and name
        would actually change. */
-    if( zNameOrig && (zName != zNameOrig)
-        && (0!=strcmp(zNameOrig,zName))){
+    if( zNameNew && (zName != zNameNew)
+        && (0!=strcmp(zNameNew,zName))){
       if(!g.perm.Admin && !g.perm.Setup) {
         json_set_err( FSL_JSON_E_DENIED,
                       "Modifying user names requires 'a' or 's' privileges.");
         goto error;
       }
     }
-    blob_appendf(&sql, ", login=%Q", zNameOrig);
+    forceLogout = cson_value_true()
+        /* reminders: 1) does not allocate.
+         2) we do this because changing a name
+         invalidates any login token because the old name
+         is part of the token hash.
+        */;
+    blob_appendf(&sql, ", login=%Q", zNameNew);
     ++gotFields;
   }
 

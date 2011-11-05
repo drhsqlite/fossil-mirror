@@ -1,5 +1,5 @@
-C json\sdoc\supdates\sand\sremoval\sof\ssome\sdead\scode.
-D 2011-11-05T01:28:51.211
+C /json/user/save\snow\simplies/forces\sforceLogout=true\swhen\srenaming,\ssince\srenaming\sinvalidates\sany\sactive\sauth\stoken.\sRenamed\sa\sconfusing\svariable.
+D 2011-11-05T01:42:09.693
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,7 +106,7 @@ F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c dad72e8b498a5aa0bddef2cabc84d9123ffbf851
 F src/json_tag.c e02eb4a78098b1e30db27f556daca9216a4e69ab
 F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
-F src/json_user.c 7a7ca13dc9067652c3d426c92bd093c3a16546bd
+F src/json_user.c 77985906e4531bdba7aa7ad95d3ffd18a5e8347d
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 2810db50722cc2f3015bf29d626ca20c23257fcf
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4d36938359f42a82bc50d555747bc6eeac1f08ad
-R 9d8f460ee1d08ac3694612b1b7a7e619
+P 0c234bdd0a64c1317143ce0469008fc9f79fbd03
+R 1b45079b03a310b3f96af0913863bb99
 U stephan
-Z 445737a01b0a05494ec1a64d180a208e
+Z 12eea577fe894db20ef6b2768f18d1d9
