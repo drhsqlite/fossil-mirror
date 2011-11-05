@@ -29,7 +29,9 @@
 #endif
 
 /* The minimum of two integers */
-#define min(A,B)  (A<B?A:B)
+#ifndef min
+#  define min(A,B)  (A<B?A:B)
+#endif
 
 /*
 ** Compare N lines of text from pV1 and pV2.  If the lines
