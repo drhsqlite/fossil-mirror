@@ -1,5 +1,5 @@
-C /json/user/save\snow\simplies/forces\sforceLogout=true\swhen\srenaming,\ssince\srenaming\sinvalidates\sany\sactive\sauth\stoken.\sRenamed\sa\sconfusing\svariable.
-D 2011-11-05T01:42:09.693
+C Change\sto\smakeheaders\sto\swork\saround\sa\sname\scollision\swith\sMSVC\s2008.\nYou\swill\slikely\sneed\sto\srun\s"make\sclean"\safter\supdating\sto\sthis\scheck-in.
+D 2011-11-05T02:06:56.243
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -64,7 +64,7 @@ F src/blob.c 055253a9443c63fd3f3f429bd03f71596eb0646a
 F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c a1d6071725b33d63bed0d8f6d798780286d65322
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c fbc54649e39d66380d679f8e1e699854628cca86
+F src/cgi.c af0df2660aa5f63e76554a6b6101b1470e646026
 F src/checkin.c 24ffbc9686c20b8a0dcb721962636a78b940b403
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -112,7 +112,7 @@ F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 2810db50722cc2f3015bf29d626ca20c23257fcf
 F src/main.c 0e39c7ba014c9a5076713fc611cd4d51172ab11a
 F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
-F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
+F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 4f28df2c3515d0e1e778bec84c70b281ded400f7
 F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c234bdd0a64c1317143ce0469008fc9f79fbd03
-R 1b45079b03a310b3f96af0913863bb99
-U stephan
-Z 12eea577fe894db20ef6b2768f18d1d9
+P 42c2a327e235da6ddb0ca3a9836d5e9e1f45da28
+R 1adda755054998ed9a2fa0d4a13dd3eb
+U drh
+Z 5099ff1df8391a3ce57d38de1916a9a3
