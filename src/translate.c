@@ -162,12 +162,21 @@ static void trans(FILE *in, FILE *out){
 
 int main(int argc, char **argv){
   if( argc==2 ){
+    char *arg;
     FILE *in = fopen(argv[1], "r");
     if( in==0 ){
       fprintf(stderr,"can not open %s\n", argv[1]);
       exit(1);
     }
-    printf("#line 1 \"%s\"\n", argv[1]);
+    printf("#line 1 \"");
+    for(arg=argv[1]; *arg; arg++){
+      if( *arg!='\\' ){
+        printf("%c", *arg);
+      }else{
+        printf("\\\\");
+      }
+    }
+    printf("\"\n");
     trans(in, stdout);
     fclose(in);
   }else{
