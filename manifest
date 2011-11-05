@@ -1,5 +1,5 @@
-C Skip\sover\sJim\scommands\sto\screate\sif\sthey\shave\sa\sNULL\sname\sor\sfunction\spointer.
-D 2011-11-05T00:01:42.804
+C Add\smissing\sJim\sTcl\sheaders
+D 2011-11-05T00:03:09.749
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,6 +96,8 @@ F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
+F src/jim-config.h 836043f154f36144bb6008e8213458c2d0d2ca20
+F src/jim-win32compat.h 56078d8d75b7465ac90fccaf7032216aa5dfb677
 F src/jim.h 4cff5508d19252b69d43f20573ab1c727a94ccea
 F src/json.c 2ef342f4f6bef61ac0bfaa0a44c4405246a1f73a
 F src/json_artifact.c d6639a9c75e003506319e78db3d472bb7e17f60e
@@ -354,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d87454917c587741e7e3eba070ba65e7819bf316
-R c321f44ac6263d732994ddc84f9ba69c
-U mistachkin
-Z d0393d41b0df17457d492269f969168e
+P 389f9fca5d2ffb9a102857522aeaf554c69b134b
+R 931534dcce1c216cc69f2d18c2fae2c4
+U steveb
+Z dcac82e98726c5f5745b4beccb8a6d9f
