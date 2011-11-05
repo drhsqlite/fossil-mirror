@@ -1,8 +1,8 @@
-C Add\scomments\sabout\sleading\s'./'\sin\sfront\sof\ssource\sand\sbuild\sdirectory\snames.
-D 2011-11-05T23:04:39.556
+C Slight\ssyntax\stweak\sfor\s'ifeq'\sstatement,\sthis\smay\swork\son\smore\smake\svariants.
+D 2011-11-05T23:12:49.126
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
-F Makefile.classic af04f4f84cbeb059975886d29bd2917e6cff9469
+F Makefile.classic 3742da00384ffbc394f69aa5c54d942224e7f2e6
 F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
 F VERSION e48515c7f854defb8d5e18a901857cf9848c0b5b
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 590cee0ec92d5392d36c5e01caf0b2992b8effd7
-R bf888ac15fcbae2485aa5061ffe7a8e0
+P f3096fe00ef8806ecaa5f58fa62f0fc58ad4ec71
+R edb74ead23c6a33697c93da4a067df2c
 U mistachkin
-Z bcc62f100719ddfaff855d05a60ca372
+Z 43aa281292b24a4d26421ac1358982a6

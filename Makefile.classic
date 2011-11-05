@@ -107,7 +107,7 @@ HOST_OS_CMD = uname -s
 HOST_OS = $(HOST_OS_CMD:sh)
 
 # On MinGW, slightly different detection magic is required.
-ifeq '$(HOST_OS)' ''
+ifeq ($(HOST_OS),)
 HOST_OS = $(shell $(HOST_OS_CMD))
 endif
 
