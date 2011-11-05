@@ -428,7 +428,7 @@ void whatis_cmd(void){
        "       coalesce(euser,user), coalesce(ecomment,comment)"
        "  FROM event WHERE objid=%d", rid);
     if( db_step(&q)==SQLITE_ROW ){
-      const char *zType;
+      const char *zType = 0;
       switch( db_column_text(&q,0)[0] ){
         case 'c':  zType = "Check-in";       break;
         case 'w':  zType = "Wiki-edit";      break;

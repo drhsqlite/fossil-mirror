@@ -22,6 +22,11 @@
 #include "th_main.h"
 
 /*
+** Interfaces to register the scripting language extensions.
+*/
+int register_tcl(Jim_Interp *interp, void *pContext); /* th_tcl.c */
+
+/*
 ** Generate a TH1 trace message if debugging is enabled.
 */
 void Th_Trace(const char *zFormat, ...){
@@ -233,12 +238,8 @@ static int comboboxCmd(Jim_Interp *interp, int argc, Jim_Obj *const *argv)
   }
   if( enableOutput ){
     long height;
-    int nValue;
-    const char *zValue;
     char *z, *zH;
     int nElem;
-    int *aszElem;
-    char **azElem;
     int i;
     Jim_Obj *objPtr;
     Jim_Obj *varObjPtr;

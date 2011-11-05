@@ -100,7 +100,7 @@ static int fieldId(const char *zField){
 static void initializeVariablesFromDb(void){
   const char *zName;
   Stmt q;
-  int i, n, size, j;
+  int i, n, j;
 
   zName = PD("name","-none-");
   db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"

@@ -1,5 +1,5 @@
-C Fix\snon-C89\scompliant\svariable\sdeclaration.
-D 2011-11-05T00:05:04.654
+C Police\svarious\scompiler\swarnings.
+D 2011-11-05T00:23:20.960
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,10 +121,10 @@ F src/makemake.tcl d0063335af2493f6b64f696269dd39fd998a5ad5
 F src/manifest.c ef2e305fee60c3c3a8e7069a1889eddb4305a9f6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
-F src/merge3.c 81d2f27fd3ad2e72a426f3b33c7a39dd8c129ac0
+F src/merge3.c d3273f6f9eedfc7a4adaa0309d031a3572372c5e
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
-F src/name.c 012a976974c69c90cac782858b90b74bfc87cbc6
+F src/name.c ff6aa285aab344ace29a535cde600685dd249823
 F src/path.c 5349202b32d109cab301d9079052368f7964de84
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
@@ -149,10 +149,10 @@ F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
-F src/th_main.c f2f7c1f5f390aa15e569d157b5b4e28497cc53be
+F src/th_main.c e018a28e3ceace9fda0d5867fb2668338084c42e
 F src/th_tcl.c 8d2efa7eb8d5cf697f8f03202bbf1228d12b522e
 F src/timeline.c 49f700e5863017e7d85337126abfeb9043520462
-F src/tkt.c c91838c960f1426118412d3da3b405db90c80bcc
+F src/tkt.c 65a77cfd34cdbb3ce758e7ffba9a5696d851def0
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c 107ac675c7b9649cdb07607755d9708a295d6ecb
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dc45d71bfe77d4d0f66196f13b42d2dc6816c28d
-R 180771c0ed4425f84481aabc0c88a3f4
+P d0233e1792297d961e54efdb55b31df3a8afb443
+R 4dc1ae9fe23177f7e929c7483936ae0b
 U mistachkin
-Z d55978169c17743da71d72fcd97e7506
+Z 4f682ad1fc05b88599fbb05982d48175
