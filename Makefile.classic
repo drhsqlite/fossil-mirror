@@ -8,12 +8,12 @@
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
 #
-SRCDIR = ./src
+SRCDIR = src
 
 #### The directory into which object code files should be written.
 #
 #
-OBJDIR = ./bld
+OBJDIR = bld
 
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
@@ -38,7 +38,7 @@ E =
 TCC = gcc -g -Os -Wall
 
 # To add support for HTTPS
-TCC += -DFOSSIL_ENABLE_SSL
+TCC += -DFOSSIL_ENABLE_SSL=1
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
@@ -49,7 +49,42 @@ TCC += -DFOSSIL_ENABLE_SSL
 LIB = -lz $(LDFLAGS)
 
 # If using HTTPS:
-LIB += -lcrypto -lssl
+#
+# NOTE: These must appear in exactly this order or MinGW will complain about
+#       missing symbols.
+#
+LIB += -lssl -lcrypto
+
+#------------------------------------------------------------------------------
+# Begin MinGW Section (the following lines may all be commented out unless
+# building on Windows via MinGW).
+#------------------------------------------------------------------------------
+
+# Where is zlib (needed for MinGW builds only)?
+ZLIBDIR = $(SRCDIR)/../zlib-1.2.5
+
+# Where is OpenSSL (needed for MinGW builds only)?
+OPENSSLDIR = $(SRCDIR)/../openssl-1.0.0e
+
+# Include directory for zlib (needed for MinGW builds only)
+TCC.MINGW32_NT-6.1 = -I$(ZLIBDIR)
+
+# Include directory for OpenSSL (needed for MinGW builds only)
+TCC.MINGW32_NT-6.1 += -I$(OPENSSLDIR)/include
+
+# Library directory for zlib (needed for MinGW builds only).
+LIB.MINGW32_NT-6.1 = -L$(ZLIBDIR)
+
+# Library directory for OpenSSL (needed for MinGW builds only).
+LIB.MINGW32_NT-6.1 += -L$(OPENSSLDIR)
+
+# Add the necessary Windows libraries (needed for Windows builds only).
+LIB.MINGW32_NT-6.1 += -lgdi32 -lws2_32
+
+#------------------------------------------------------------------------------
+# End MinGW Section (the preceeding lines may all be commented out unless
+# building on Windows via MinGW)
+#------------------------------------------------------------------------------
 
 #### Tcl shell for use in running the fossil testsuite.  If you do not
 #    care about testing the end result, this can be blank.
@@ -62,6 +97,11 @@ TCLSH = tclsh
 # Automatic platform-specific options.
 HOST_OS_CMD = uname -s
 HOST_OS = $(HOST_OS_CMD:sh)
+
+# On MinGW, slightly different detection magic is required.
+ifeq '$(HOST_OS)' ''
+HOST_OS = $(shell $(HOST_OS_CMD))
+endif
 
 LIB.SunOS= -lsocket -lnsl
 LIB += $(LIB.$(HOST_OS))
