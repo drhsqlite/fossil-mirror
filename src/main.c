@@ -319,7 +319,7 @@ static int name_search(
 ** atexit() handler which frees up "some" of the resources
 ** used by fossil.
 */
-void fossil_atexit() {
+void fossil_atexit(void) {
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));

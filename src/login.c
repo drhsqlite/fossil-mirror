@@ -982,7 +982,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
 */
 void login_replace_capabilities(const char *zCap, unsigned flags){
   memset(&g.perm, 0, sizeof(g.perm));
-  return login_set_capabilities(zCap, flags);
+  login_set_capabilities(zCap, flags);
 }
 
 /*
