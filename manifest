@@ -1,5 +1,5 @@
-C Fix\ssome\smore\scompiler\swarnings\sseen\swith\sMSVC.\s\sCherrypick\sfrom\s[24e298edd0].
-D 2011-11-07T00:34:00.199
+C Remove\sHAVE_MKDIR_ONE_ARG\sdefine\swhen\scompiling\sJim\sas\sit\swill\snow\sbe\sdefined\sin\sthe\sC\sfile\sitself.
+D 2011-11-07T03:39:21.279
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -246,7 +246,7 @@ F win/Makefile.dmc 1ccbea34675442ab71a1f04b212ce7db11c852c7
 F win/Makefile.mingw 58756e4af4afc7ecc6aaf80d77cf80ea301e1299
 F win/Makefile.mingw.mistachkin f225fd54447f54b39b7e20d565d31eabc542aca6
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc baeadf0eb04caa7b39085407a2d9e4418530d5b3
+F win/Makefile.msc 57b2329b14be56b8825137cc8682c89b7ae4b3a1
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 38d1b52283e4fa99ee731c041bdb1b0c6cc69ac9
-R fe54ff4e750166390955ae88dea7900e
+P dfdda77dfcc320af0a8f9f3109dd20480c62db69
+R 9c55c153522041c359bf757420dbe209
 U mistachkin
-Z 4e42b018d763d1e1264c4a15058c1d91
+Z ec6c96f3cabc4f57144a65437dce45fd
