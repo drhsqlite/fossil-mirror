@@ -5,9 +5,6 @@
 
 /* Note that at this point we don't yet have access to jimautoconf.h */
 #if defined(_WIN32) || defined(WIN32)
-#ifndef STRICT
-#define STRICT
-#endif /* STRICT */
 
 #define HAVE_DLOPEN
 void *dlopen(const char *path, int mode);
@@ -22,8 +19,7 @@ char *dlerror(void);
 	#pragma warning(disable:4146)
 #endif
 
-#define strcasecmp _stricmp
-
+#include <limits.h>
 #define jim_wide _int64
 #ifndef LLONG_MAX
 	#define LLONG_MAX    9223372036854775807I64
@@ -34,21 +30,20 @@ char *dlerror(void);
 #define JIM_WIDE_MIN LLONG_MIN
 #define JIM_WIDE_MAX LLONG_MAX
 #define JIM_WIDE_MODIFIER "I64d"
+#define strcasecmp _stricmp
+#define strtoull _strtoui64
+#define snprintf _snprintf
 
 #include <io.h>
 
-#define HAVE_GETTIMEOFDAY
-#ifndef NO_TIMEVAL
 struct timeval {
 	long tv_sec;
 	long tv_usec;
 };
-#endif /* NO_TIMEVAL */
 
 int gettimeofday(struct timeval *tv, void *unused);
 
 #define HAVE_OPENDIR
-#ifndef NO_DIRENT
 struct dirent {
 	char *d_name;
 };
@@ -63,7 +58,6 @@ typedef struct DIR {
 DIR *opendir(const char *name);
 int closedir(DIR *dir);
 struct dirent *readdir(DIR *dir);
-#endif /* NO_DIRENT */
 #endif /* _MSC_VER */
 
 #endif /* WIN32 */
