@@ -398,9 +398,11 @@ void Th_Unstore(const char *zName){
 ** variable exists, return NULL.
 */
 const char *Th_Fetch(const char *zName){
+  Jim_Obj *objPtr;
+
   Th_FossilInit();
 
-  Jim_Obj *objPtr = Jim_GetVariableStr(g.interp, zName, JIM_NONE);
+  objPtr = Jim_GetVariableStr(g.interp, zName, JIM_NONE);
 
   return objPtr ? Jim_String(objPtr) : NULL;
 }

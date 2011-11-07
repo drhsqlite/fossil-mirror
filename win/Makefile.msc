@@ -429,7 +429,7 @@ info_.c : $(SRCDIR)\info.c
 	translate$E $** > $@
 
 $(OX)\jimtcl$O : $(SRCDIR)\..\autosetup\jimsh0.c
-	$(TCC) /Fo$@ /DJIM_BOOTSTRAP_LIB_ONLY -c $(SRCDIR)\..\autosetup\jimsh0.c
+	$(TCC) /Fo$@ /DHAVE_MKDIR_ONE_ARG /DJIM_BOOTSTRAP_LIB_ONLY -c $(SRCDIR)\..\autosetup\jimsh0.c
 
 $(OX)\json$O : json_.c json.h
 	$(TCC) /Fo$@ -c json_.c
