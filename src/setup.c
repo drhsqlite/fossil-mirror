@@ -252,7 +252,7 @@ void user_edit(void){
   char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
-  const char *inherit[128];
+  char *inherit[128];
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */

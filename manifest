@@ -1,5 +1,5 @@
-C More\scompilation\sfixes\sfor\sJim\swhen\scompiling\swith\sMSVC.
-D 2011-11-07T00:29:00.020
+C Fix\ssome\smore\scompiler\swarnings\sseen\swith\sMSVC.\s\sCherrypick\sfrom\s[24e298edd0].
+D 2011-11-07T00:34:00.199
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -112,8 +112,8 @@ F src/json_timeline.c aaa00288cf536ef946f3fb4d3fdd8b47aa003c05
 F src/json_user.c 7a7ca13dc9067652c3d426c92bd093c3a16546bd
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 2810db50722cc2f3015bf29d626ca20c23257fcf
-F src/main.c 7e940b0f62e6ff4ea2a744f3e1af3f387823a711
+F src/login.c d7d97020b42aee175b9f33186bf716d6bc11e4dd
+F src/main.c b36c1f59897f329e2358b5d92c958a8bbdf8387f
 F src/main.mk e9facdf7d12adf56686dabcb27e99f1090fc495a
 F src/makeheaders.c 3766cf4cd0ca63ebca38f9e99ef5dac505a35060
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -135,7 +135,7 @@ F src/report.c cd634e40217f1d4a1e0c6867f56e5aea9484c584
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 5ea0d8859163deae2c3cd2d313f3103462bd7852
+F src/setup.c a3ba604063d3c52fb24843068796a2c3ae874ef0
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0039d32b88de5a68b5071404790852ca3ca03a77
-R 5f295ca2966853c2fd8256fd4ace8aa2
+P 38d1b52283e4fa99ee731c041bdb1b0c6cc69ac9
+R fe54ff4e750166390955ae88dea7900e
 U mistachkin
-Z 130067a92a93669d1c62a4b697347029
+Z 4e42b018d763d1e1264c4a15058c1d91
