@@ -1,5 +1,5 @@
-C Update\sJim\sTcl\sto\sbuild\swith\sMSVC
-D 2011-11-07T05:51:20.860
+C fossil\salready\sprovides\scompatibility\swrappers\sfor\sdirent\sand\sstruct\stimeval
+D 2011-11-07T07:07:33.098
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
 F src/jim-config.h 836043f154f36144bb6008e8213458c2d0d2ca20
-F src/jim-win32compat.h 86bdcc4a82399198c6bf052752c22a9d8d514942
+F src/jim-win32compat.h e57c32ac602828eb26be0b60fbd47b3da3cde7c2
 F src/jim.h 5640a8acb3d4c31e4048e6605f041a5688448833
 F src/json.c 2ef342f4f6bef61ac0bfaa0a44c4405246a1f73a
 F src/json_artifact.c d6639a9c75e003506319e78db3d472bb7e17f60e
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7ee228fe6a8104411a76d3b4d908b808ce5af14d
-R 88d3c070d9bde03cd03331c76e7ab07f
+P b6270d665be938f8b9643b68b883a6387194a700
+R 251f32692358755799909170e7ba78e2
 U steveb
-Z 72ed03e6985ffffa5ad2f6015b65e230
+Z a0ce2f5a34282f2434d61e38d11da583
