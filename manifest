@@ -1,5 +1,5 @@
-C Fix\ssome\smore\scompiler\swarnings\sseen\swith\sMSVC.
-D 2011-11-05T03:45:26.236
+C Start\sa\sbranch\swith\sfix\sto\smake\swork\sconsistently\sa\slocal\scheckout\sdirectly\son\nroot\s("/").
+D 2011-11-11T12:13:47.896
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -75,7 +75,7 @@ F src/configure.c c2180824503e41b13072943e6b3d40bc30fe8a6b
 F src/content.c b7ee1208efac61a8e48e66ea0977bd7071092d0c
 F src/cson_amalgamation.c 6698f74704a565dcf8bb9c3fdd26139e0b2505f0
 F src/cson_amalgamation.h 2a5b3420ae5538994d0d845f599d514b7cf1cf5c
-F src/db.c 4db1419d0627e01afe279d327b643e86a10fcfa6
+F src/db.c cfa0a53c87b3c37e7145e27bcdd189eec7aa03e7
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -356,7 +356,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c2bed5b3db2ee48bd2be9b0ae1a045606bf255d8
-R 82ab991164259d005065f8e418f87426
-U mistachkin
-Z 3219a0459fc7acff7bdd32d5d5e2dfe3
+P 24e298edd02f9b851df1b4de74233a30ed4d2f7b
+R ea0191025381b0f7806fbf9f5ca948b2
+T *branch * mgagnon_fix
+T *sym-mgagnon_fix *
+T -sym-trunk *
+U meeks
+Z bea5190b45408f785c5af8e46e1b6e76

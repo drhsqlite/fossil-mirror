@@ -837,16 +837,19 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  static const char *aDbName[] = { "_FOSSIL_", ".fos" };
   
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
-  if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
     if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+      if( zPwd[n-1] == '/'){
+        sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+      }else{
+        sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
+      }
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -854,13 +857,20 @@ int db_open_local(void){
           n--;
           zPwd[n] = 0;
         }
+      if( zPwd[n-1] == '/'){
+        g.zLocalRoot = mprintf("%s", zPwd);
+      }else{
         g.zLocalRoot = mprintf("%s/", zPwd);
+      }
         return 1;
       }
     }
     n--;
     while( n>0 && zPwd[n]!='/' ){ n--; }
     while( n>0 && zPwd[n-1]=='/' ){ n--; }
+    if(n==0 && zPwd[0]=='/'){
+      n=1;
+    }
     zPwd[n] = 0;
   }
 
