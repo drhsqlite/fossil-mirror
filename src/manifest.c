@@ -1336,14 +1336,29 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   }
   if( pParent->zBaseline && pChild->zBaseline ){
     /* Both parent and child are delta manifests.  Look for files that
-    ** are marked as deleted in the parent but which reappear in the child
-    ** and show such files as being added in the child. */
+    ** are deleted or modified in the parent but which reappear or revert
+    ** to baseline in the child and show such files as being added or changed
+    ** in the child. */
     for(i=0, pParentFile=pParent->aFile; i<pParent->nFile; i++, pParentFile++){
-      if( pParentFile->zUuid ) continue;
-      pChildFile = manifest_file_seek(pChild, pParentFile->zName);
-      if( pChildFile ){
-        add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
-                      isPublic, manifest_file_mperm(pChildFile));
+      if( pParentFile->zUuid ){
+        pChildFile = manifest_file_seek_base(pChild, pParentFile->zName);
+        if( pChildFile==0 ){
+          /* The child file reverts to baseline.  Show this as a change */
+          pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+          if( pChildFile ){
+            add_one_mlink(cid, pParentFile->zUuid, pChildFile->zUuid,
+                          pChildFile->zName, 0, isPublic,
+                          manifest_file_mperm(pChildFile));
+          }
+        }
+      }else{
+        pChildFile = manifest_file_seek(pChild, pParentFile->zName);
+        if( pChildFile ){
+          /* File resurrected in the child after having been deleted in
+          ** the parent.  Show this as an added file. */
+          add_one_mlink(cid, 0, pChildFile->zUuid, pChildFile->zName, 0,
+                        isPublic, manifest_file_mperm(pChildFile));
+        }
       }
     }
   }else if( pChild->zBaseline==0 ){
@@ -1821,6 +1836,44 @@ int manifest_crosslink(int rid, Blob *pContent){
       );
       free(zComment);
     }
+  }
+  if( p->type==CFTYPE_CONTROL ){
+    Blob comment;
+    int i;
+    const char *zName;
+    const char *zValue;
+    const char *zUuid;
+    blob_zero(&comment);
+    for(i=0; i<p->nTag; i++){
+      zUuid = p->aTag[i].zUuid;
+      if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
+        if( i>0 ) blob_append(&comment, " ", 1);
+        blob_appendf(&comment, "Tag changes on [/timeline?dp=%S&n=4 | %S]:",
+           zUuid, zUuid);
+      }
+      zName = p->aTag[i].zName;
+      zValue = p->aTag[i].zValue;
+      if( zName[0]=='-' ){
+        blob_appendf(&comment, " Cancel");
+      }else if( zName[0]=='+' ){
+        blob_appendf(&comment, " Add");
+      }else{
+        blob_appendf(&comment, " Add propagating");
+      }
+      if( memcmp(&zName[1], "sym-",4)==0 ){
+        blob_appendf(&comment, " symbolic tag \"%h\".", &zName[5]);
+      }else if( fossil_strcmp(&zName[1], "comment")!=0 && zValue && zValue[0] ){
+        blob_appendf(&comment, " %h=%h.", &zName[1], zValue);
+      }else{
+        blob_appendf(&comment, " %h.", &zName[1]);
+      }
+    }
+    db_multi_exec(
+      "REPLACE INTO event(type,mtime,objid,user,comment)"
+      "VALUES('g',%.17g,%d,%Q,%Q)",
+      p->rDate, rid, p->zUser, blob_str(&comment)
+    );
+    blob_reset(&comment);
   }
   db_end_transaction(0);
   if( p->type==CFTYPE_MANIFEST ){

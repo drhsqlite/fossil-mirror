@@ -163,8 +163,8 @@ void manifest_to_disk(int vid){
 }
 
 /*
-** COMMAND: checkout
-** COMMAND: co
+** COMMAND: checkout*
+** COMMAND: co*
 **
 ** Usage: %fossil checkout ?VERSION | --latest? ?OPTIONS?
 **    or: %fossil co ?VERSION | --latest? ?OPTIONS?
@@ -274,7 +274,7 @@ static void unlink_local_database(int manifestOnly){
 }
 
 /*
-** COMMAND: close
+** COMMAND: close*
 **
 ** Usage: %fossil close ?OPTIONS?
 **

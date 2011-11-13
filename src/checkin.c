@@ -184,11 +184,11 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_lget("repository",""));
   fossil_print("local-root:   %s\n", g.zLocalRoot);
-  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
+  db_record_repository_filename(0);
   changes_cmd();
 }
 
@@ -284,14 +284,12 @@ void extra_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   int allFlag = find_option("dotfiles",0,0)!=0;
   int cwdRelative = 0;
-  int outputManifest;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  outputManifest = db_get_boolean("manifest",0);
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
@@ -829,7 +827,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 }
 
 /*
-** COMMAND: ci
+** COMMAND: ci*
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

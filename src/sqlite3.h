@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.9"
 #define SQLITE_VERSION_NUMBER 3007009
-#define SQLITE_SOURCE_ID      "2011-10-15 00:16:30 39408702a989f907261c298bf0947f3e68bd10fe"
+#define SQLITE_SOURCE_ID      "2011-10-29 19:25:08 5b82ec6fbbd2f4195ad06dd911de3817373ad5bf"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1404,8 +1404,8 @@ struct sqlite3_mem_methods {
 ** allocator is engaged to handle all of SQLites memory allocation needs.
 ** The first pointer (the memory pointer) must be aligned to an 8-byte
 ** boundary or subsequent behavior of SQLite will be undefined.
-** The minimum allocation size is capped at 2^12. Reasonable values
-** for the minimum allocation size are 2^5 through 2^8.</dd>
+** The minimum allocation size is capped at 2**12. Reasonable values
+** for the minimum allocation size are 2**5 through 2**8.</dd>
 **
 ** [[SQLITE_CONFIG_MUTEX]] <dt>SQLITE_CONFIG_MUTEX</dt>
 ** <dd> ^(This option takes a single argument which is a pointer to an

@@ -379,7 +379,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 }
 
 /*
-** COMMAND: zip
+** COMMAND: zip*
 **
 ** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME]
 **

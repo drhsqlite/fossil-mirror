@@ -439,7 +439,7 @@ void sha1_shared_secret_sql_function(
 }
 
 /*
-** COMMAND: sha1sum
+** COMMAND: sha1sum*
 ** %fossil sha1sum FILE...
 **
 ** Compute an SHA1 checksum of all files named on the command-line.

@@ -6,11 +6,13 @@ options {
     with-openssl:path|auto|none
                          => {Look for openssl in the given path, or auto or none}
     with-zlib:path       => {Look for zlib in the given path}
+    with-tcl:path        => {Enable Tcl integration, with Tcl in the specified path}
     internal-sqlite=1    => {Don't use the internal sqlite, use the system one}
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
     ipv6=1		 => {Disable IPv6 support}
+    json=0        => {Build with fossil JSON API enabled}
 }
 
 # sqlite wants these types if possible
@@ -65,6 +67,10 @@ if {[opt-bool fossil-debug]} {
     define-append EXTRA_CFLAGS -DFOSSIL_DEBUG
 }
 
+if {[opt-bool json]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
+}
+
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
@@ -89,6 +95,30 @@ if {$zlibpath ne ""} {
 }
 if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
     user-error "zlib not found please install it or specify the location with --with-zlib"
+}
+
+set tclpath [opt-val with-tcl]
+if {$tclpath ne ""} {
+    if {$tclpath ne "1"} {
+        cc-with [list -cflags [list -I$tclpath/include -L$tclpath/lib]]
+    }
+    if {![cc-check-includes tcl.h]} {
+        user-error "Cannot find tcl.h"
+    }
+    foreach tlib {tcl8.6 tcl8.5 tcl notfound} {
+        if {$tlib=="notfound"} {
+            user-error "Cannot find a usable libtcl"
+        }
+        if {[cc-check-function-in-lib Tcl_CreateInterp $tlib]} {
+            define-append LIBS -l$tlib
+            break
+        }
+    }
+    define FOSSIL_ENABLE_TCL
+    if {$tclpath ne "1"} {
+        define-append EXTRA_CFLAGS -I$tclpath/include
+        define-append EXTRA_LDFLAGS -L$tclpath/lib
+    }
 }
 
 # Helper for openssl checking

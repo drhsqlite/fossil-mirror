@@ -95,6 +95,7 @@ static void sendText(const char *z, int n, int encode){
       cgi_append_content(z, n);
     }else{
       fwrite(z, 1, n, stdout);
+      fflush(stdout);
     }
     if( encode ) free((char*)z);
   }
@@ -338,6 +339,35 @@ static int linecntCmd(
 }
 
 /*
+** TH1 command:     repository ?BOOLEAN?
+**
+** Return the fully qualified file name of the open repository or an empty
+** string if one is not currently open.  Optionally, it will attempt to open
+** the repository if the boolean argument is non-zero.
+*/
+static int repositoryCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int openRepository;
+
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
+      return TH_ERROR;
+    }
+    if( openRepository ) db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+  }
+  Th_SetResult(interp, g.zRepositoryName, -1);
+  return TH_OK;
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -359,12 +389,20 @@ void Th_FossilInit(void){
     {"html",          putsCmd,              0},
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
+    {"repository",    repositoryCmd,        0},
+    {0, 0, 0}
   };
   if( g.interp==0 ){
     int i;
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
+#ifdef FOSSIL_ENABLE_TCL
+    if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+      th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
+    }
+#endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+      if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
@@ -484,21 +522,23 @@ int Th_Render(const char *z){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;
+      int encode = 1;
       sendText(z, i, 0);
       if( z[i+1]=='<' ){
-        /* Variables of the form $<aaa> */
+        /* Variables of the form $<aaa> are html escaped */
         zVar = &z[i+2];
         nVar = n-2;
       }else{
-        /* Variables of the form $aaa */
+        /* Variables of the form $aaa are output raw */
         zVar = &z[i+1];
         nVar = n;
+        encode = 0;
       }
       rc = Th_GetVar(g.interp, (char*)zVar, nVar);
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, n>nVar);
+      sendText((char*)zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(z, i, 0);
       z += i+5;
@@ -531,6 +571,7 @@ void test_th_render(void){
   if( g.argc<3 ){
     usage("FILE");
   }
+  db_open_config(0); /* Needed for "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));

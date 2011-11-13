@@ -623,7 +623,7 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  text_diff(&w2, &w1, &d, 5, 1);
+  text_diff(&w2, &w1, &d, 5 | DIFF_IGNORE_EOLWS);
   @ <pre>
   @ %h(blob_str(&d))
   @ </pre>
@@ -632,6 +632,23 @@ void wdiff_page(void){
   style_footer();
 }
 
+/*
+** prepare()s pStmt with a query requesting:
+**
+** - wiki page name
+** - tagxref (whatever that really is!)
+**
+** Used by wcontent_page() and the JSON wiki code.
+*/
+void wiki_prepare_page_list( Stmt * pStmt ){
+  db_prepare(pStmt, 
+    "SELECT"
+    "  substr(tagname, 6) as name,"
+    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC) as tagXref"
+    "  FROM tag WHERE tagname GLOB 'wiki-*'"
+    " ORDER BY lower(tagname) /*sort*/"
+  );
+}
 /*
 ** WEBPAGE: wcontent
 **
@@ -652,13 +669,7 @@ void wcontent_page(void){
     style_submenu_element("All", "All", "%s/wcontent?all=1", g.zTop);
   }
   @ <ul>
-  db_prepare(&q, 
-    "SELECT"
-    "  substr(tagname, 6),"
-    "  (SELECT value FROM tagxref WHERE tagid=tag.tagid ORDER BY mtime DESC)"
-    "  FROM tag WHERE tagname GLOB 'wiki-*'"
-    " ORDER BY lower(tagname) /*sort*/"
-  );
+  wiki_prepare_page_list(&q);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     int size = db_column_int(&q, 1);
@@ -792,9 +803,15 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
      zPageName
   );
   if( rid==0 && !isNew ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_RESOURCE_NOT_FOUND;
+#endif
     fossil_fatal("no such wiki page: %s", zPageName);
   }
   if( rid!=0 && isNew ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_RESOURCE_ALREADY_EXISTS;
+#endif
     fossil_fatal("wiki page %s already exists", zPageName);
   }
 
@@ -828,7 +845,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 }
 
 /*
-** COMMAND: wiki
+** COMMAND: wiki*
 **
 ** Usage: %fossil wiki (export|create|commit|list) WikiName
 **

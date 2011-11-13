@@ -251,6 +251,7 @@ void page_dir(void){
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
+  if( mxLen<12 ) mxLen = 12;
   nCol = 100/mxLen;
   if( nCol<1 ) nCol = 1;
   if( nCol>5 ) nCol = 5;

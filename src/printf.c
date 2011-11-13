@@ -547,7 +547,7 @@ int vxprintf(
         length = 1;
         break;
       case etCHARX:
-        c = buf[0] = (xtype==etCHARX ? va_arg(ap,int) : *++fmt);
+        c = buf[0] = va_arg(ap,int);
         if( precision>=0 ){
           for(idx=1; idx<precision; idx++) buf[idx] = c;
           length = precision;

@@ -252,7 +252,7 @@ void user_edit(void){
   char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
-  const char *inherit[128];
+  char *inherit[128];
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -868,6 +868,13 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
+  entry_attribute("IP address turns used in login cookie", 3, "ip-prefix-terms", "ipt",
+                  "2");
+  @ <p>The number of octets of of the IP address used in the login cookie.  Set to
+  @ zero to omit the IP address from the login cookie.  A value of 2 is recommended.
+  @ </p>
+  @
+  @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
   @ positive number.  The default is 8760 hours which is approximately equal
@@ -881,6 +888,17 @@ void setup_access(void){
   @ than this, then the client will issue multiple HTTP requests.
   @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
+
+  @ <hr />
+  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
+                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
+  @ including user "nobody", as long as the User-Agent string in the HTTP header
+  @ indicates that the request is coming from an actual human being and not a
+  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
+  @ that want.  So a bot that wants to impersonate a human can easily do so.
+  @ Hence, this technique does not necessarily exclude malicious bots.
+  @ </p>
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",

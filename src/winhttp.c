@@ -434,7 +434,7 @@ int win32_http_service(
 }
 
 /*
-** COMMAND: winsrv
+** COMMAND: winsrv*
 ** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
 ** Where METHOD is one of: create delete show start stop.
@@ -847,15 +847,6 @@ void cmd_win32_service(void){
     fossil_fatal("METHOD should be one of:"
                  " create delete show start stop");
   }
-  return;
-}
-
-#else /* _WIN32  -- This code is for win32 only */
-#include "winhttp.h"
-
-void cmd_win32_service(void){
-  fossil_fatal("The winsrv command is platform specific "
-               "and not available on this platform."); 
   return;
 }
 
