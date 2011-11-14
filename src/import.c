@@ -253,6 +253,14 @@ static void finish_commit(void){
       blob_append(&record, "\n", 1);
     }
   }
+  if( !gg.zFrom && gg.zBranch){
+    Blob name;
+    blob_init(&name, gg.zBranch, -1);
+    if( name_to_uuid(&name, 1, "*") == 0){
+      gg.zFrom = strdup(blob_buffer(&name));
+    }
+    blob_reset(&name);
+  }
   if( gg.zFrom ){
     blob_appendf(&record, "P %s", gg.zFrom);
     for(i=0; i<gg.nMerge; i++){

@@ -1,5 +1,5 @@
-C Fix\ssome\smore\scompiler\swarnings\sseen\swith\sMSVC.
-D 2011-11-05T03:45:26.236
+C fossil\simport\s--incremental\sshould\sset\sthe\sappropriate\sancestor\sfor\sthe\sfirst\ncommit\sin\seach\sbranch\sbeing\sadded
+D 2011-11-14T00:13:20.446
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,7 +94,7 @@ F src/http.c 5d9dca28f0f520165723423ce34794fc3c4f43b6
 F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
-F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
+F src/import.c 5f96ac7d75619a5e578b564a20cf90703212683c
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
 F src/json.c 870377c491d101c293843c6352c01c6992118e2f
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
@@ -356,7 +356,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c2bed5b3db2ee48bd2be9b0ae1a045606bf255d8
-R 82ab991164259d005065f8e418f87426
-U mistachkin
-Z 3219a0459fc7acff7bdd32d5d5e2dfe3
+P 24e298edd02f9b851df1b4de74233a30ed4d2f7b
+R 4715f0491f79783036016c9da38ad7a6
+T *branch * steveb-fixes
+T *sym-steveb-fixes *
+T -sym-trunk *
+U steveb
+Z 96bee8fd47ff8170088e1e432d06f97a
