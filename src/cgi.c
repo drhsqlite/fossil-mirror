@@ -1200,7 +1200,7 @@ void cgi_handle_http_request(const char *zIpAddr){
         IN6_IS_ADDR_V4MAPPED(&(((struct sockaddr_in6*)&remoteName)->sin6_addr)) ){
         v4mapped = 1;
     }
-    if(!getnameinfo((struct sockaddr*)&remoteName, remoteName.ss_len, zLine, sizeof(zLine),
+    if(!getnameinfo((struct sockaddr*)&remoteName, size, zLine, sizeof(zLine),
                     NULL, 0, NI_NUMERICHOST)){
       zIpAddr = zLine;
     } else {
@@ -1255,16 +1255,69 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   int child;                   /* PID of the child process */
   int nchildren = 0;           /* Number of child processes */
   struct timeval delay;        /* How long to wait inside select() */
+#ifdef HAVE_GETADDRINFO
+  struct addrinfo hints;
+  struct addrinfo* res;
+  struct addrinfo* i;
+  struct sockaddr_storage inaddr;   /* The socket address */
+  char* sPort;
+  int iRet;
+#else
 #ifdef WITH_IPV6
   struct sockaddr_in6 inaddr;   /* The socket address */
 #else
   struct sockaddr_in inaddr;   /* The socket address */
 #endif
+#endif
   int opt = 1;                 /* setsockopt flag */
   int iPort = mnPort;
 
   while( iPort<=mxPort ){
+#ifdef HAVE_GETADDRINFO
+    memset(&hints, 0, sizeof(struct addrinfo));
+#ifdef WITH_IPV6
+    hints.ai_family = PF_UNSPEC;
+#else
+    hints.ai_family = PF_INET;
+#endif
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    if(!(flags & HTTP_SERVER_LOCALHOST)) hints.ai_flags |= AI_PASSIVE;
+
+    sPort = mprintf("%d", iPort);
+
+    if(iRet = getaddrinfo(NULL, sPort, &hints, &res)) {
+      fossil_fatal("Unable to obtain address: %s", gai_strerror(iRet));
+    }
+
+    for(i = res; i; i = i->ai_next) {
+      listener = socket(i->ai_family, i->ai_socktype, i->ai_protocol);
+      if(listener < 0) {
+        fossil_fatal("Unable to create socket");
+      }
+	  opt=1;
+      setsockopt(listener,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+      if(i->ai_family == AF_INET6) {
+        opt=0;
+        setsockopt(listener, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
+      }
+      if( bind(listener, i->ai_addr, i->ai_addrlen)<0 ){
+        close(listener);
+        listener = -1;
+      }
+	  break;
+    }
+
+    free(sPort);
+    freeaddrinfo(res);
+
+    if(listener == -1) {
+      iPort++;
+      continue;
+    }
+#else
     memset(&inaddr, 0, sizeof(inaddr));
+
 #ifdef WITH_IPV6
     inaddr.sin6_family = AF_INET6;
 #else
@@ -1291,8 +1344,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
     listener = socket(AF_INET, SOCK_STREAM, 0);
 #endif
     if( listener<0 ){
-      iPort++;
-      continue;
+      fossil_fatal("Unable to create socket");
     }
 
     /* if we can't terminate nicely, at least allow the socket to be reused */
@@ -1308,6 +1360,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
       iPort++;
       continue;
     }
+#endif
     break;
   }
   if( iPort>mxPort ){

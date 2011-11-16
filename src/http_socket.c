@@ -144,6 +144,7 @@ int socket_open(void){
   struct addrinfo* i;
   char ip[INET6_ADDRSTRLEN];
   void* addr;
+  char* sPort;
 
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_flags = AI_ADDRCONFIG;
@@ -154,8 +155,12 @@ int socket_open(void){
 #endif
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;
-  if(getaddrinfo(g.urlName, NULL, &hints, &res)) {
+
+  sPort = mprintf("%d", g.urlPort);
+
+  if(getaddrinfo(g.urlName, sPort, &hints, &res)) {
     socket_set_errmsg("can't resolve host name: %s", g.urlName);
+    free(sPort);
     return 1;
   }
   for(i = res; i; i = i->ai_next) {
@@ -163,24 +168,21 @@ int socket_open(void){
     if(iSocket < 0) {
       continue;
     }
-    if(i->ai_family == AF_INET) {
-      ((struct sockaddr_in*)i->ai_addr)->sin_port = htons(g.urlPort);
-    } else if(i->ai_family == AF_INET6) {
-      ((struct sockaddr_in6*)i->ai_addr)->sin6_port = htons(g.urlPort);
-    }
     if(connect(iSocket, i->ai_addr, i->ai_addrlen) < 0) {
       close(iSocket);
       iSocket = -1;
       continue;
     }
-	if(!getnameinfo(i->ai_addr, i->ai_addrlen, ip, sizeof(ip),
-					NULL, 0, NI_NUMERICHOST))
-		g.zIpAddr = mprintf("%s", ip);
+    if(!getnameinfo(i->ai_addr, i->ai_addrlen, ip, sizeof(ip),
+                    NULL, 0, NI_NUMERICHOST))
+        g.zIpAddr = mprintf("%s", ip);
+    break;
   }
   if(iSocket == -1) {
-    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
+    socket_set_errmsg("cannot connect to host %s:%s", g.urlName, sPort);
     error = 1;
   }
+  free(sPort);
   freeaddrinfo(res);
 #else
   static struct sockaddr_in addr;  /* The server address */

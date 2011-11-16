@@ -1,5 +1,5 @@
-C Merge\swith\strunk
-D 2011-11-13T09:11:18.369
+C Clean\sgetaddrinfo()\scode\sin\shttp_socket.c\sincorporating\ssuggestions\sfrom\sGé\sWeijers
+D 2011-11-16T10:48:47.040
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -64,7 +64,7 @@ F src/blob.c 055253a9443c63fd3f3f429bd03f71596eb0646a
 F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c a1d6071725b33d63bed0d8f6d798780286d65322
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c 5af7d9b340215ee9b9c607491cada37a268ea982
+F src/cgi.c added99d036f16ac9975ed37efb51f445a369806
 F src/checkin.c 24ffbc9686c20b8a0dcb721962636a78b940b403
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -91,7 +91,7 @@ F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c 5d9dca28f0f520165723423ce34794fc3c4f43b6
-F src/http_socket.c a2c45f337046e928031d705ec4abf0f2bfdcd40f
+F src/http_socket.c 58d56cb2ef9bc69ad1b9c97fdfdd6ea1c139cb04
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1349e5ed20bd6ea5cbd84fb31be7db22a1463c3f 24e298edd02f9b851df1b4de74233a30ed4d2f7b
-R 5dc2381696168c336f5186ac60f77544
+P c30eaa88625c9585f6ab53ba928c2c3039918d98
+R 6d23220407bcf541146e3d14c585a3f1
 U ashish
-Z 19ac16f7e4fb4840da748cc73d7239d5
+Z 79ea2c4b25ad5e74997c09fc62ba048b
