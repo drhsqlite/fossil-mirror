@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sversion\s3.7.9\splus\sthe\s8-byte\salignment\sfix\nin\sbranch-3.7.9.
-D 2011-11-14T03:02:14.145
+C corrected\sinvalid\scomparison\sof\s"typeof"\sresult.
+D 2011-11-22T11:44:01.466
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -12,7 +12,7 @@ F ajax/i-test/rhino-test.js 5e4dc7f334e589c63be61cae3d1e38435ca59bad
 F ajax/index.html 634ef2391ccf7ead5210dcc95822601dcc177cd1
 F ajax/js/fossil-ajaj.js 7f57fa883df4e0bc9b0ee25fb7d3ead6e4808ae0
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js 5f9eb551c89c2ec9adaa0934a8b8da990c40f782
+F ajax/js/whajaj.js 227d53e9a3f8eb79c1c45dbd2c49fcda75ee7b07
 F ajax/wiki-editor.html 51f2d323985a3692772d2599c81222a58f1c444e
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 24e298edd02f9b851df1b4de74233a30ed4d2f7b
-R 0419afd76179f7aecbb199c05ada79fa
-U drh
-Z 983bfe098d23e1a136e4606f51a7430d
+P 0c8d1ca9cd383a48378bf577272366236bf623e2
+R 21d6cee9cead945d132750e335621851
+U stephan
+Z 177ddd02aa95552c270b3105ff3b9afe

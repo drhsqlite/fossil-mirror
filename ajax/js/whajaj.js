@@ -105,7 +105,7 @@ WhAjaj.isFunction = function(obj)
 */
 WhAjaj.processUrlArgs = function(str) {
     if( 0 === arguments.length ) {
-        if( (undefined === typeof window) ||
+        if( ('undefined' === typeof window) ||
             !window.location ||
             !window.location.search )  return false;
         else str = (''+window.location.search).substring(1);
