@@ -157,9 +157,10 @@ cson_value * json_page_login(){
     cson_object_set(po, "authToken", json_new_string(cookie));
     free(cookie);
     cson_object_set(po, "name", json_new_string(name));
-    cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q",name);
-    cson_object_set(po, "capabilities", json_new_string(cap));
+    cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q", name);
+    cson_object_set(po, "capabilities", cap ? json_new_string(cap) : cson_value_null() );
     free(cap);        
+    cson_object_set(po, "loginCookieName", json_new_string( login_cookie_name() ) );
     return payload;
   }
 }

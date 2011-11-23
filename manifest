@@ -1,5 +1,5 @@
-C corrected\sinvalid\scomparison\sof\s"typeof"\sresult.
-D 2011-11-22T11:44:01.466
+C Added\sloginCookieName\sto\s/json/login\sresponse\spayload,\smainly\sas\sa\scrutch\sfor\scertain\sscripting\scases\s(e.g.\sRSS\sfeeds).\sStill\sTODO:\sadd\sfuture\sexpiry\stime\sof\scookie/token\sto\sresponse.
+D 2011-11-23T00:14:41.227
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -101,7 +101,7 @@ F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_detail.h 11be7e0f76631e707aed8c64eef63be8df5d25b5
 F src/json_diff.c 62bd36a899dd403e233d3d1c0d6865080f353b72
-F src/json_login.c 7deb7aae89ae323b75a3cd597d2a32b3b6afa656
+F src/json_login.c 9d31c3634a31ee8b0175ccf2a676044ccee3e634
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c dad72e8b498a5aa0bddef2cabc84d9123ffbf851
 F src/json_tag.c e02eb4a78098b1e30db27f556daca9216a4e69ab
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c8d1ca9cd383a48378bf577272366236bf623e2
-R 21d6cee9cead945d132750e335621851
+P 036923b66d37e48dbb4d24e8f66aed00c7ce5a32
+R 8dfcddbb9fa23ab99e917d60956130e1
 U stephan
-Z 177ddd02aa95552c270b3105ff3b9afe
+Z 91a37d024f4fa5551de39ac53dd74483
