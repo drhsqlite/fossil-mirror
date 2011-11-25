@@ -363,24 +363,28 @@ void login_clear_login_data(){
 static int isHuman(const char *zAgent){
   int i;
   int seenCompatible = 0;
-  int seenIE = 0;
   if( zAgent==0 ) return 0;  /* If not UserAgent, the probably a bot */
   for(i=0; zAgent[i]; i++){
     char c = zAgent[i];
     if( c=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
-    if( c=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
-    if( c=='r' && memcmp(&zAgent[i],"rawl",4)==0 ) return 0; /* "crawler" */
+    if( c=='p' && memcmp(&zAgent[i],"pider",5)==0 ) return 0;  /* "spider" */
+    if( c=='r' && memcmp(&zAgent[i],"rawl",4)==0 ) return 0;   /* "crawler" */
     /* Anything that puts a URL in the UserAgent string is probably a bot */
     if( c=='h' && memcmp(&zAgent[i],"http",4)==0 ) return 0;
-    if( c=='c' && memcmp(&zAgent[i],"compatible",11)==0 ){
-      seenCompatible = 1;
+    if( c=='c' && seenCompatible==0 && memcmp(&zAgent[i],"compatible",11)==0 ){
+      seenCompatible = i;
       i+=10;
     }
-    if( c=='I' && zAgent[i+1]=='E' ) seenIE = 1;
   }
   if( memcmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
-    if( seenCompatible && !seenIE ) return 0;
+    if( seenCompatible 
+     && memcmp(&zAgent[seenCompatible],"compatible;_MSIE_", 18)!=0
+    ){
+      /* If it claims to be Mozilla compatible and it isn't MSIE, then it
+      ** is probably a bot */
+      return 0;
+    }
     return 1;
   }
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
