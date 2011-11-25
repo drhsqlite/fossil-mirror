@@ -1,5 +1,5 @@
-C Added\stodo\snotes\sfor\sadding\sloginExpiryTime\sin\s/json/login.
-D 2011-11-23T00:36:58.184
+C Disallow\sthe\sword\s"rawl"\s(as\sin\scrawler)\sin\sthe\suser\sagent.
+D 2011-11-25T09:36:46.246
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -109,7 +109,7 @@ F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
 F src/json_user.c 5200ec22cc855e6316ee7c0a4dd257ecc62aad7e
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c d7d97020b42aee175b9f33186bf716d6bc11e4dd
+F src/login.c 1653fb00106da86d79e9408d3f030faef5feabec
 F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
 F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P daa564c4df7894f2925179aa2521d21d5163258d
-R c044c19a54a12c83814a841824f13f03
-U stephan
-Z 6243e1ac30e38fa77da0d7724917a27b
+P 5fdf14ba1cfe8de695b29a2f2a757894d66bfb2a
+R 2cf28712e07219742c7148c95a7cb19f
+U drh
+Z f2f2672170cd5f621b1327d7bcde5ef2

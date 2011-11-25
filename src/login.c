@@ -366,6 +366,7 @@ static int isHuman(const char *zAgent){
   for(i=0; zAgent[i]; i++){
     if( zAgent[i]=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
     if( zAgent[i]=='s' && memcmp(&zAgent[i],"spider",6)==0 ) return 0;
+    if( zAgent[i]=='r' && memcmp(&zAgent[i],"rawl",4)==0 ) return 0;
   }
   if( memcmp(zAgent, "Mozilla/", 8)==0 ){
     return atoi(&zAgent[8])>=4;
