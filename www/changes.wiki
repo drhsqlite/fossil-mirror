@@ -1,5 +1,30 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.21 (2011-12-02)</h2>
+  *  Added side-by-side diffs in the command-line interface
+  *  Automatically enable hyperlinks if the UserAgent string in the 
+     HTTP header suggests that the requestor is a human and not a bot.
+  *  Show only commonly used commands with "fossil help".  Use
+     "fossil help --all" to see the complete list now.
+  *  Improvements to the "stash" command:  (1) Stash all files, not just 
+     those below the working directory. (2) Add the --detail option to 
+     "list". (3) Confirm before "drop --all". (4) Add the "help" 
+     subcommand.
+  *  Add an Admin/Access setting to change the number of octets of the
+     IP address that are saved in login cookies - allowing this setting
+     to be changed to zero
+  *  Promote the "test-md5sum" command to "md5sum".
+  *  Added the "whatis" command.
+  *  Stop showing the server-code in status outputs - it is no longer used
+     for anything.
+  *  Added a compile-time option (--with-tcl) to build in the full
+     TCL interpreter to augment TH1.
+  *  Merged the JSON branch into trunk.  Disabled by default.  Enabled
+     by a compile-time option.  Probably it will be enabled by default
+     in some future release.
+  *  Update to use SQLite version 3.7.9 plus the alignment fix for Sparc.
+     align
+
 <h2>Changes For Version 1.20 (2011-10-21)</h2>
   *  Added side-by-side diffs in HTML interface. [0bde74ea1e]
   *  Added support for symlinks. (Controlled by "allow-symlinks" setting,

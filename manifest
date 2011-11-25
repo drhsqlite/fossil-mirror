@@ -1,10 +1,10 @@
-C Enhancements\sto\sthe\sUserAgent\sbot\srecognizer.\s\sWe\sdiscovered\searlier\stoday\son\nthe\sFossil\sserver\sitself\sthat\sit\sis\svery\simportant\snot\sto\smisclassify\sbots\sas\nhuman\ssince\sa\sspider\sthat\sdownloads\severy\spossible\shistorical\sannotation\sand\s\ntarball\sand\szip\sarchive\sand\sdiff\scan\sreally\sload\sup\sa\sserver\sand\ssoak\sup\sa\slot\s\nof\sbandwidth.
-D 2011-11-25T16:11:17.566
+C Change\sthe\sversion\snumber\sto\s1.21\sin\spreparation\sfor\sthe\snext\srelease.\nBegin\sconstructing\sa\schange\slog.
+D 2011-11-25T18:54:54.975
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
-F VERSION e48515c7f854defb8d5e18a901857cf9848c0b5b
+F VERSION 80923d810957279766832cc7c7eaf2f7d19508bf
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -270,7 +270,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 19000184960afd7fc593e06472c2b19fd16cecf3
-F www/changes.wiki 0c71e033d1071073fd4f635bced6c990e6ad0475
+F www/changes.wiki 8ef600b0308eed84e217b66ffe225b4bf7c7609e
 F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki e0131236d0af2bd20c6fa96e1a7b84f1f555ea8b
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fe075f5d89f611b3749c5d304b51508f89259fa8
-R 84f6abb7d7c862aaad4c0c2c5b44923b
+P 83284480a39ba70863834c7bbf1407968ad2cf5e
+R 8f85d2f8ea854c150e1f2e7faec0673b
 U drh
-Z 7ee103d7042c37416fda367ef9b2553a
+Z e035c927ae0af09081e80acfc8c29de6
