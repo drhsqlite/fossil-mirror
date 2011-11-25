@@ -1,5 +1,5 @@
-C Disallow\sthe\sword\s"rawl"\s(as\sin\scrawler)\sin\sthe\suser\sagent.
-D 2011-11-25T09:36:46.246
+C Enhancements\sto\sthe\sUserAgent\sbot\srecognizer.\s\sWe\sdiscovered\searlier\stoday\son\nthe\sFossil\sserver\sitself\sthat\sit\sis\svery\simportant\snot\sto\smisclassify\sbots\sas\nhuman\ssince\sa\sspider\sthat\sdownloads\severy\spossible\shistorical\sannotation\sand\s\ntarball\sand\szip\sarchive\sand\sdiff\scan\sreally\sload\sup\sa\sserver\sand\ssoak\sup\sa\slot\s\nof\sbandwidth.
+D 2011-11-25T16:11:17.566
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -109,7 +109,7 @@ F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
 F src/json_user.c 5200ec22cc855e6316ee7c0a4dd257ecc62aad7e
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 1653fb00106da86d79e9408d3f030faef5feabec
+F src/login.c 34c99cf5a3ca8577a8dc111825258f736a6c7f94
 F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
 F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -142,7 +142,7 @@ F src/sqlite3.c c09dc2ab0cbaa7cc03e1855ffa79811890ebe0b1
 F src/sqlite3.h d227728db3f0cbcdc24986cdae7eb295b8a9dd1f
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c 1e7dad6d889ca0edfe3372469c318bf1cdd9ac66
+F src/style.c ec5dac2e2ccae7614306b13590d1131d90c71c26
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5fdf14ba1cfe8de695b29a2f2a757894d66bfb2a
-R 2cf28712e07219742c7148c95a7cb19f
+P fe075f5d89f611b3749c5d304b51508f89259fa8
+R 84f6abb7d7c862aaad4c0c2c5b44923b
 U drh
-Z f2f2672170cd5f621b1327d7bcde5ef2
+Z 7ee103d7042c37416fda367ef9b2553a
