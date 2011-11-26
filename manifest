@@ -1,5 +1,5 @@
-C Include\sallow-symlinks\sin\sthe\slist\sof\ssettings\sthat\sare\stransferred\swith\na\sclone.
-D 2011-11-26T13:35:46.080
+C Further\srefinement\sof\sthe\srobot/human\sdiscriminator.
+D 2011-11-26T15:09:43.804
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -90,7 +90,7 @@ F src/finfo.c 28baba94972c720370a65ef56e27f3ca9c8ae3e4
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c 5d9dca28f0f520165723423ce34794fc3c4f43b6
+F src/http.c d3f1c17168ba78cb5632a8c679b487bf20c4f02d
 F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
@@ -109,7 +109,7 @@ F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
 F src/json_user.c 5200ec22cc855e6316ee7c0a4dd257ecc62aad7e
 F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 4c3759c5b4a4ea209ceb86422efaa1e1a359b6cf
+F src/login.c 0b3234924398838f3e6363bb194a9888acaca680
 F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
 F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9e680d6375de0905274fd358f6aa9c088279e412
-R 684a38b9f530d3157552848b55451279
+P 82979bc210731979e202fddb04b1b7aa78860e31
+R 46858b41f7cebd390ac0ff23829e8775
 U drh
-Z b97c72222738dcaf616e1e9e1f6f94ba
+Z c0bfd95d00b888009807ebe4e25d2058

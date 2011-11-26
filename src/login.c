@@ -356,36 +356,44 @@ void login_clear_login_data(){
 }
 
 /*
+** Return true if the prefix of zStr matches zPattern.  Return false if
+** they are different.
+**
+** A lowercase character in zPattern will match either upper or lower
+** case in zStr.  But an uppercase in zPattern will only match an
+** uppercase in zStr.
+*/
+static int prefix_match(const char *zPattern, const char *zStr){
+  int i;
+  char c;
+  for(i=0; (c = zPattern[i])!=0; i++){
+    if( zStr[i]!=c && fossil_tolower(zStr[i])!=c ) return 0;
+  }
+  return 1;
+}
+
+/*
 ** Look at the HTTP_USER_AGENT parameter and try to determine if the user agent
 ** is a manually operated browser or a bot.  When in doubt, assume a bot.
 ** Return true if we believe the agent is a real person.
 */
 static int isHuman(const char *zAgent){
   int i;
-  int seenCompatible = 0;
   if( zAgent==0 ) return 0;  /* If not UserAgent, the probably a bot */
   for(i=0; zAgent[i]; i++){
-    char c = zAgent[i];
-    if( c=='b' && memcmp(&zAgent[i],"bot",3)==0 ) return 0;
-    if( c=='p' && memcmp(&zAgent[i],"pider",5)==0 ) return 0;  /* "spider" */
-    if( c=='r' && memcmp(&zAgent[i],"rawl",4)==0 ) return 0;   /* "crawler" */
-    /* Anything that puts a URL in the UserAgent string is probably a bot */
-    if( c=='h' && memcmp(&zAgent[i],"http",4)==0 ) return 0;
-    if( c=='c' && seenCompatible==0 && memcmp(&zAgent[i],"compatible",11)==0 ){
-      seenCompatible = i;
-      i+=10;
-    }
+    if( prefix_match("bot", zAgent+i) ) return 0;
+    if( prefix_match("spider", zAgent+i) ) return 0;
+    if( prefix_match("crawl", zAgent+i) ) return 0;
+    /* If a URI appears in the User-Agent, it is probably a bot */
+    if( memcmp("http", zAgent+i,4)==0 ) return 0;
   }
   if( memcmp(zAgent, "Mozilla/", 8)==0 ){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
-    if( seenCompatible 
-     && memcmp(&zAgent[seenCompatible],"compatible;_MSIE_", 18)!=0
-    ){
-      /* If it claims to be Mozilla compatible and it isn't MSIE, then it
-      ** is probably a bot */
-      return 0;
-    }
-    return 1;
+    if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
+    if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
+    if( strglob("*(compatible;?MSIE?[1-9]*", zAgent) ) return 1;
+    if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
+    return 0;
   }
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
