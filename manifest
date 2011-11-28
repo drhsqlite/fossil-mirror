@@ -1,5 +1,5 @@
-C Further\srefinement\sof\sthe\srobot/human\sdiscriminator.
-D 2011-11-26T15:09:43.804
+C Allow\sthe\s--with-tcl\soption\sto\sthe\sconfigure\sscript\sto\swork\son\smore\ssystems.\s\sBased\son\spatch\sby\sSteve\sBennett.
+D 2011-11-28T05:31:32.891
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -37,7 +37,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 054fa8df6e44c02b5893d24d28d8af5157ce1acd
+F auto.def e32d5ecb6ebda2a2c2e533c88b20bd4f277c1a28
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -48,7 +48,7 @@ F autosetup/config.guess e3eeba8dd66aa41d8a40fb1d60825d9a1a27776e x
 F autosetup/config.sub 32f90ac76aa68c2265471dd377c34f264acaf173 x
 F autosetup/find-tclsh ec171bb9e14adde368dc778ec2f236fd4787bd66 x
 F autosetup/jimsh0.c 34440742f5fbff173a4970e8306f9e04d2d4a110
-F autosetup/local.tcl 472f0cba85bd22276208c4eac87d39a6a6e9273a
+F autosetup/local.tcl 148de330d2f7dee3e910c605ce2ba0021b554072
 F autosetup/system.tcl ed6b97bc52afddd6082c82e576c8ead0fe30936e
 F autosetup/test-tclsh fe63ccef063e2a194e4c043db1940c75565ce26e
 F configure 3ac9a4cfadbb51568d8ace4ae3e1d3c914137b1c x
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 82979bc210731979e202fddb04b1b7aa78860e31
-R 46858b41f7cebd390ac0ff23829e8775
-U drh
-Z c0bfd95d00b888009807ebe4e25d2058
+P 4fdb63d690183255bc3101cbea413289dc8416a0
+R b4900944ccda5eaa82b760ec4d9e257d
+U mistachkin
+Z a3fdc3926364eb4b492978e3153e56a9
