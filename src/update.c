@@ -577,7 +577,7 @@ int historical_version_of_file(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   
   if( pManifest ){
-    pFile = manifest_file_seek(pManifest, file);
+    pFile = manifest_file_find(pManifest, file);
     if( pFile ){
       rid = uuid_to_rid(pFile->zUuid, 0);
       if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
