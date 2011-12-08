@@ -1398,6 +1398,7 @@ void init_JSON_config(JSON_config* config)
 #include <assert.h>
 #include <stdlib.h> /* malloc()/free() */
 #include <string.h>
+#include <errno.h>
 
 #ifdef _MSC_VER
 #   if _MSC_VER >= 1400 /* Visual Studio 2005 and up */
@@ -4951,6 +4952,77 @@ int cson_object_merge( cson_object * dest, cson_object const * src, int flags ){
         else continue;
     }
     return 0;
+}
+
+static cson_value * cson_guess_arg_type(char const *arg){
+    char * end = NULL;
+    if(('0'<=*arg) && ('9'>=*arg)){
+        goto do_string;
+    }
+    {
+        long const val = strtol(arg, &end, 10);
+        if(!*end){
+            return cson_value_new_integer( (cson_int_t)val);
+        }
+    }
+    {
+        double const val = strtod(arg, &end);
+        if(!*end){
+            return cson_value_new_double(val);
+        }
+    }
+
+    
+    do_string:
+    return cson_value_new_string(arg, strlen(arg));
+}
+
+
+int cson_parse_argv_flags( int argc, char const * const * argv,
+                           cson_object ** tgt, unsigned int * count ){
+    cson_object * o = NULL;
+    int rc = 0;
+    int i = 0;
+    if(argc<1 || !argc || !tgt) return cson_rc.ArgError;
+    o = *tgt ? *tgt : cson_new_object();
+    if(count) *count = 0;
+    for( i = 0; i < argc; ++i ){
+        char const * arg = argv[i];
+        char const * key = arg;
+        char const * pos;
+        cson_string * k = NULL;
+        cson_value * v = NULL;
+        if('-' != *arg) continue;
+        while('-'==*key) ++key;
+        if(!*key) continue;
+        pos = key;
+        while( *pos && ('=' != *pos)) ++pos;
+        k = cson_new_string(key, pos-key);
+        if(!k){
+            rc = cson_rc.AllocError;
+            break;
+        }
+        if(!*pos){ /** --key */
+            v = cson_value_true();
+        }else{ /** --key=...*/
+            assert('=' == *pos);
+            ++pos /*skip '='*/;
+            v = *pos
+                ? cson_guess_arg_type(pos)
+                : cson_value_null();
+        }
+        if(0 != (rc=cson_object_set_s(o, k, v))){
+            cson_free_string(k);
+            cson_value_free(v);
+            break;
+        }
+        else if(count) ++*count;
+    }
+    if(o != *tgt){
+        if(rc) cson_free_object(o);
+        else *tgt = o;
+    }
+    return rc;
 }
 
 #if defined(__cplusplus)

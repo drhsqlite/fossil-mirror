@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.9"
 #define SQLITE_VERSION_NUMBER 3007009
-#define SQLITE_SOURCE_ID      "2011-10-29 19:25:08 5b82ec6fbbd2f4195ad06dd911de3817373ad5bf"
+#define SQLITE_SOURCE_ID      "2011-11-14 02:53:54 54cc11981127b52145e39f551d958580b1d45169"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -746,7 +746,7 @@ struct sqlite3_io_methods {
 ** retry counts and intervals for certain disk I/O operations for the
 ** windows [VFS] in order to work to provide robustness against
 ** anti-virus programs.  By default, the windows VFS will retry file read,
-** file write, and file delete opertions up to 10 times, with a delay
+** file write, and file delete operations up to 10 times, with a delay
 ** of 25 milliseconds before the first retry and with the delay increasing
 ** by an additional 25 milliseconds with each subsequent retry.  This
 ** opcode allows those to values (10 retries and 25 milliseconds of delay)
