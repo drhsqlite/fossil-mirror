@@ -1,6 +1,6 @@
 <title>Change Log</title>
 
-<h2>Changes For Version 1.21 (2011-12-02)</h2>
+<h2>Changes For Version 1.21 (2011-12-13)</h2>
   *  Added side-by-side diffs in the command-line interface
   *  Automatically enable hyperlinks if the UserAgent string in the 
      HTTP header suggests that the requestor is a human and not a bot.
