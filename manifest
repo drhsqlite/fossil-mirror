@@ -1,5 +1,5 @@
-C Update\sthe\srelease\sdate\son\sthe\schange\slog.
-D 2011-12-13T14:05:36.076
+C Reorder\ssome\s#includes\sfor\sOpenBSD.
+D 2011-12-16T15:10:56.810
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -91,7 +91,7 @@ F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c d3f1c17168ba78cb5632a8c679b487bf20c4f02d
-F src/http_socket.c b954ec7a36c6fc06637516dee9193adee88ca6e6
+F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 002580c50d94790a41b29d6c81ba1885997d3706
-R c68c2dee663bd9973aad4aa4777a35fa
+P 489c67ae46d4349b9d31c3933e464102c243648b
+R be53ba07e7b8b756fbe124737529a24e
 U drh
-Z 56dd41d6f86bc0a7a159993ed2d4723b
+Z b7de5aa8aa75740e02659bdb13f38da0
