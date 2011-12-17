@@ -1,5 +1,5 @@
-C Reorder\ssome\s#includes\sfor\sOpenBSD.
-D 2011-12-16T15:10:56.810
+C Add\sthe\s"test-date-format"\scommand\sand\sthe\sdate_override\soption\sto\stickets.
+D 2011-12-17T13:19:57.570
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -65,7 +65,7 @@ F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c 812364a30b5b7cbbad2e51fb3896b670554de6d5
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c af0df2660aa5f63e76554a6b6101b1470e646026
-F src/checkin.c 24ffbc9686c20b8a0dcb721962636a78b940b403
+F src/checkin.c 73a8ec212e455fa1b8fd4e50bf5f584737091997
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
@@ -152,7 +152,7 @@ F src/th_lang.c f60e4d5f59b226173fc6cc84d6069dff7a7fe95c
 F src/th_main.c 91134a48c7d16411d42fada8a40ec19a841e0571
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c 49f700e5863017e7d85337126abfeb9043520462
-F src/tkt.c a0a271b51dabaa8e7dcd468a047abc0facfa69ec
+F src/tkt.c 0ce41ae4428d47dfb1708547e5a18c5d27cdf9f2
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c 3a88f86520a299025cf5a8279dbf6c1acbf1daab
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 489c67ae46d4349b9d31c3933e464102c243648b
-R be53ba07e7b8b756fbe124737529a24e
+P 339a0f49d21e02a0c101a5b6d94a65a9da259358
+R ee38483f29ecea5597093f82de8a9cd6
 U drh
-Z b7de5aa8aa75740e02659bdb13f38da0
+Z 0077c1e5fecaef951572ffd7f91b0a47
