@@ -1,5 +1,5 @@
-C Add\sthe\s"test-date-format"\scommand\sand\sthe\sdate_override\soption\sto\stickets.
-D 2011-12-17T13:19:57.570
+C Merge\sthe\sSSL\sSNI\sfix\sfrom\sthe\sdmitry-fixes\sbranch.
+D 2011-12-17T15:18:48.772
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -92,7 +92,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c d3f1c17168ba78cb5632a8c679b487bf20c4f02d
 F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
-F src/http_ssl.c 3cd92249f993ad3aa829bd383364130c0675f9ed
+F src/http_ssl.c 01cd2d2dc82231f1d849e259f815f7c07dd5f357
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 339a0f49d21e02a0c101a5b6d94a65a9da259358
-R ee38483f29ecea5597093f82de8a9cd6
+P 44f028c9f83bb190370d983307c764c38bccc5ab 132dbcedbc50f03d4d3c795083fab9323aea94be
+R c880a00d87910386d95f42628e36b399
 U drh
-Z 0077c1e5fecaef951572ffd7f91b0a47
+Z f4c5a871049191fc8be45d4227f8f74e

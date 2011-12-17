@@ -195,7 +195,6 @@ int ssl_open(void){
   X509 *cert;
   int hasSavedCertificate = 0;
   int trusted = 0;
-  char *connStr ;
   unsigned long e;
 
   ssl_global_init();
@@ -212,16 +211,21 @@ int ssl_open(void){
 
   iBio = BIO_new_ssl_connect(sslCtx);
   BIO_get_ssl(iBio, &ssl);
+
+  if( !SSL_set_tlsext_host_name(ssl, g.urlName) ){
+    fossil_warning("WARNING: failed to set server name indication (SNI), "
+                  "continuing without it.\n");
+  }
+
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
   if( iBio==NULL ) {
     ssl_set_errmsg("SSL: cannot open SSL (%s)", 
                     ERR_reason_error_string(ERR_get_error()));
-    return 1;    
+    return 1;
   }
-  
-  connStr = mprintf("%s:%d", g.urlName, g.urlPort);
-  BIO_set_conn_hostname(iBio, connStr);
-  free(connStr);
+
+  BIO_set_conn_hostname(iBio, g.urlName);
+  BIO_set_conn_int_port(iBio, &g.urlPort);
   
   if( BIO_do_connect(iBio)<=0 ){
     ssl_set_errmsg("SSL: cannot connect to host %s:%d (%s)", 
