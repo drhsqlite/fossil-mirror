@@ -212,10 +212,12 @@ int ssl_open(void){
   iBio = BIO_new_ssl_connect(sslCtx);
   BIO_get_ssl(iBio, &ssl);
 
+#if (SSLEAY_VERSION_NUMBER >= 0x00908070) && !defined(OPENSSL_NO_TLSEXT)
   if( !SSL_set_tlsext_host_name(ssl, g.urlName) ){
     fossil_warning("WARNING: failed to set server name indication (SNI), "
                   "continuing without it.\n");
   }
+#endif
 
   SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
   if( iBio==NULL ) {
