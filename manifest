@@ -1,5 +1,5 @@
-C Fix\sthe\s"add"\scommand\sso\sthat\sit\swill\sundo\sa\sprior\s"rm".\nTicket\s[34707fabfd8a5d]
-D 2011-12-22T13:57:32.160
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\sfrom\strunk\sas\sa\sbeta\stest\nof\sthe\snext\sSQLite\srelease.
+D 2011-12-23T13:51:30.841
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -134,12 +134,12 @@ F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
 F src/setup.c a3ba604063d3c52fb24843068796a2c3ae874ef0
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
-F src/shell.c 72bc59fecdb227ab992ba15ce128412321fbf853
+F src/shell.c 378a6cdf13e31944a6e441b75dffdd76831a3b88
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c ea1ae181b5879dedda748a44645fd2009bc27e4c
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c c09dc2ab0cbaa7cc03e1855ffa79811890ebe0b1
-F src/sqlite3.h d227728db3f0cbcdc24986cdae7eb295b8a9dd1f
+F src/sqlite3.c 5ab439ebba1577f0fd9f59331e0ade93ae4b5103
+F src/sqlite3.h 0704f1e10f5a397b38178afe1f3bb0234cba2458
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c ec5dac2e2ccae7614306b13590d1131d90c71c26
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c4ade4365157e9cad0d04ec82e8c34e7505241ae
-R 02cc1aae2cd4c4c5848ea8a04b2769de
+P feed6232af207151a9a5dc54619d3a98646d4a8b
+R 6cc798baddbb03983645227f8256d8ee
 U drh
-Z de90edf15a1508f16ba508ae0fb04e9c
+Z 95884a26e3496023bd2542d2f0e079ed
