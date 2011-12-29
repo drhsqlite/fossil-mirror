@@ -1,5 +1,5 @@
-C Improvements\sto\s"fossil\sstatus"\sprocessing.\s\sAutomatically\sdetect\swhen\sa\nfile\shas\sundergone\sa\snull-edit\s-\swhen\sthe\smtime\shas\schanged\sbut\sthe\scontent\nof\sthe\sfile\sis\sunchanged\s-\sand\smark\ssuch\sfiles\sas\sunchanged.
-D 2011-12-28T13:40:06.536
+C Make\sthe\s"fossil\sextra"\scommand\sinsensitive\sto\scase\son\scase-insensitive\nfilesystems.\s\sTicket\s[101ab6946f1c7]
+D 2011-12-29T19:42:40.983
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -65,7 +65,7 @@ F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c 812364a30b5b7cbbad2e51fb3896b670554de6d5
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c af0df2660aa5f63e76554a6b6101b1470e646026
-F src/checkin.c 73a8ec212e455fa1b8fd4e50bf5f584737091997
+F src/checkin.c 2f1c677ca1a6159bcb8979cd4a0fc8820acef447
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P aa55cf3aa6d4c74c781c1c8d2f9b0807c3a2740c
-R 5c4b127df923d0d267f9d41e7757a219
+P b9227b85cbd78f333e183f370acead94a47a6669
+R e84a97e0fbd22779522ed00f05bb0124
 U drh
-Z 6c9688cbd8f6e981ed37f7dc39bb5f79
+Z abd8e14b28224e1c8000fae628e32a8e
