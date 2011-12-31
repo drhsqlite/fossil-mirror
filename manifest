@@ -1,5 +1,5 @@
-C Make\sthe\s"fossil\sextra"\scommand\sinsensitive\sto\scase\son\scase-insensitive\nfilesystems.\s\sTicket\s[101ab6946f1c7]
-D 2011-12-29T19:42:40.983
+C Escape\sthe\scontact\sinformation\sfor\susers\swhen\sdisplaying.
+D 2011-12-31T12:51:46.687
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -132,7 +132,7 @@ F src/report.c cd634e40217f1d4a1e0c6867f56e5aea9484c584
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c a3ba604063d3c52fb24843068796a2c3ae874ef0
+F src/setup.c a3887cd66102f79e8e0574d5e4b102978e0e939d
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 378a6cdf13e31944a6e441b75dffdd76831a3b88
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b9227b85cbd78f333e183f370acead94a47a6669
-R e84a97e0fbd22779522ed00f05bb0124
+P 42de7459321baeeaa075d83698b794fbdce96421
+R 4bb898e1c6c67d92d73be00aeb1a281b
 U drh
-Z abd8e14b28224e1c8000fae628e32a8e
+Z 2c7de0dd29a04b1db44689ceb4512f7a
