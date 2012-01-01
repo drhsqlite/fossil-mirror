@@ -253,7 +253,7 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(const char *zFrom, const char *zTo){
+static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -270,40 +270,11 @@ static void append_diff(const char *zFrom, const char *zTo){
     blob_zero(&to);
   }
   blob_zero(&out);
-  text_diff(&from, &to, &out, DIFF_IGNORE_EOLWS | 5);
+  text_diff(&from, &to, &out, diffFlags);
   @ %h(blob_str(&out))
   blob_reset(&from);
   blob_reset(&to);
   blob_reset(&out);  
-}
-
-
-/*
-** Write the difference between two RIDs to the output
-*/
-static void generate_sbsdiff(const char *zFrom, const char *zTo){
-  int fromid;
-  int toid;
-  Blob from, to;
-  if( zFrom ){
-    fromid = uuid_to_rid(zFrom, 0);
-    content_get(fromid, &from);
-  }else{
-    blob_zero(&from);
-  }
-  if( zTo ){
-    toid = uuid_to_rid(zTo, 0);
-    content_get(toid, &to);
-  }else{
-    blob_zero(&to);
-  }
-  @ <table class="sbsdiff">
-  @ <tr><th colspan="2" class="diffhdr">Old (%S(zFrom))</th><th/>
-  @ <th colspan="2" class="diffhdr">New (%S(zTo))</th></tr>
-  html_sbsdiff(&from, &to, 5, 1);
-  @ </table>
-  blob_reset(&from);
-  blob_reset(&to);
 }
 
 
@@ -320,6 +291,10 @@ static void append_file_change_line(
   int sideBySide,       /* Show diffs side-by-side */
   int mperm             /* executable or symlink permission for zNew */
 ){
+  int diffFlags = DIFF_IGNORE_EOLWS | 7;
+  if( sideBySide ){
+    diffFlags |= DIFF_SIDEBYSIDE;
+  }
   if( !g.perm.History ){
     if( zNew==0 ){
       @ <p>Deleted %h(zName)</p>
@@ -334,13 +309,9 @@ static void append_file_change_line(
       @ <p>Changes to %h(zName)</p>
     }
     if( showDiff ){
-      if( sideBySide ){
-        generate_sbsdiff(zOld, zNew);
-      }else{
-        @ <blockquote><pre>
-        append_diff(zOld, zNew);
-        @ </pre></blockquote>
-      }
+      @ <pre style="white-space:pre;">
+      append_diff(zOld, zNew, diffFlags);
+      @ </pre>
     }
   }else{
     if( zOld && zNew ){
@@ -364,13 +335,9 @@ static void append_file_change_line(
       @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a>
     }
     if( showDiff ){
-      if( sideBySide ){
-        generate_sbsdiff(zOld, zNew);
-      }else{
-        @ <blockquote><pre>
-        append_diff(zOld, zNew);
-        @ </pre></blockquote>
-      }
+      @ <pre style="white-space:pre;">
+      append_diff(zOld, zNew, diffFlags);
+      @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
@@ -1071,6 +1038,7 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
+  int diffFlags;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1084,17 +1052,21 @@ void diff_page(void){
   if( isPatch ){
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
+    diffFlags = 4;
   }else{
     blob_zero(&diff);
     pOut = &diff;
+    if( sideBySide ){
+      diffFlags = DIFF_IGNORE_EOLWS | DIFF_SIDEBYSIDE | 7;
+    }else{
+      diffFlags = DIFF_IGNORE_EOLWS | 7;
+    }
   }
-  if( !sideBySide || isPatch ){
-    content_get(v1, &c1);
-    content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, 4 | 0);
-    blob_reset(&c1);
-    blob_reset(&c2);
-  }
+  content_get(v1, &c1);
+  content_get(v2, &c2);
+  text_diff(&c1, &c2, pOut, diffFlags);
+  blob_reset(&c1);
+  blob_reset(&c2);
   if( !isPatch ){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
@@ -1115,13 +1087,9 @@ void diff_page(void){
     @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
     object_description(v2, 0, 0);
     @ <hr />
-    if( sideBySide ){
-      generate_sbsdiff(zV1, zV2);
-    }else{
-      @ <blockquote><pre>
-      @ %h(blob_str(&diff))
-      @ </pre></blockquote>
-    }
+    @ <pre style="while-space:pre;">
+    @ %h(blob_str(&diff))
+    @ </pre>
     blob_reset(&diff);
     style_footer();
   }

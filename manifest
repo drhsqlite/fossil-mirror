@@ -1,5 +1,5 @@
-C Escape\sthe\scontact\sinformation\sfor\susers\swhen\sdisplaying.
-D 2011-12-31T12:51:46.687
+C Simplified\sdisplay\sof\sside-by-side\sdiff\sin\sthe\sweb\sbrowser.
+D 2012-01-01T15:57:23.619
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -79,7 +79,7 @@ F src/db.c 9fcdaea15be8ddb921a5f56aef8c8cceab757994
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
-F src/diff.c db8561a4f8cc1c01a8a079222a58ccd0ce67871e
+F src/diff.c c84e7457628287db4b54f8a0363c1b019c2fff20
 F src/diffcmd.c 2fd32d95b61ee90d0808c933da16cb6cf9519b05
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -95,7 +95,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 9e723f44bbfd1cb053e8486e5b33cc4d063375a1
+F src/info.c bb0385647214c99e36df563d2c200fbcd2d63766
 F src/json.c 870377c491d101c293843c6352c01c6992118e2f
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -136,13 +136,13 @@ F src/setup.c a3887cd66102f79e8e0574d5e4b102978e0e939d
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 378a6cdf13e31944a6e441b75dffdd76831a3b88
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c ea1ae181b5879dedda748a44645fd2009bc27e4c
+F src/skins.c 8e7bdd8597030553e5fbc3fa9c625605dfd9078a
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
 F src/sqlite3.c 5ab439ebba1577f0fd9f59331e0ade93ae4b5103
 F src/sqlite3.h 0704f1e10f5a397b38178afe1f3bb0234cba2458
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c ec5dac2e2ccae7614306b13590d1131d90c71c26
+F src/style.c b55901730c625608b542f8ac2c4d74e6a5b1398b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
@@ -356,7 +356,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 42de7459321baeeaa075d83698b794fbdce96421
-R 4bb898e1c6c67d92d73be00aeb1a281b
+P a3e625e954d0c78bf706359644b7161abc1c1766
+R 687b247bb6c3023b27b7e7c28fb5ed7b
+T *branch * retro-sbsdiff
+T *sym-retro-sbsdiff *
+T -sym-trunk *
 U drh
-Z 2c7de0dd29a04b1db44689ceb4512f7a
+Z 99202efa28dbd329677c0abace0bb2ec
