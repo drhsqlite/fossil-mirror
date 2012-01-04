@@ -29,7 +29,7 @@
 static void report_format_hints(void);
 
 /*
-** WEBPAGE: /reportlist
+** WEBPAGE: reportlist
 */
 void view_list(void){
   const char *zScript;
@@ -269,7 +269,7 @@ char *verify_sql_statement(char *zSql){
 }
 
 /*
-** WEBPAGE: /rptsql
+** WEBPAGE: rptsql
 */
 void view_see_sql(void){
   int rn;
@@ -315,8 +315,8 @@ void view_see_sql(void){
 }
 
 /*
-** WEBPAGE: /rptnew
-** WEBPAGE: /rptedit
+** WEBPAGE: rptnew
+** WEBPAGE: rptedit
 */
 void view_edit(void){
   int rn;
@@ -893,7 +893,7 @@ int sqlite3_exec_readonly(
 
 
 /*
-** WEBPAGE: /rptview
+** WEBPAGE: rptview
 **
 ** Generate a report.  The rn query parameter is the report number
 ** corresponding to REPORTFMT.RN.  If the tablist query parameter exists,
@@ -1143,4 +1143,3 @@ void rptshow(
     free(zSql);
   }
 }
-

@@ -525,7 +525,7 @@ tag_cmd_usage:
 }
 
 /*
-** WEBPAGE: /taglist
+** WEBPAGE: taglist
 */
 void taglist_page(void){
   Stmt q;
@@ -563,7 +563,7 @@ void taglist_page(void){
 }
 
 /*
-** WEBPAGE: /tagtimeline
+** WEBPAGE: tagtimeline
 */
 void tagtimeline_page(void){
   Stmt q;

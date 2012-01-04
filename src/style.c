@@ -87,7 +87,7 @@ void style_header(const char *zTitleFormat, ...){
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
   cgi_printf("%s","<!DOCTYPE html>");
   
@@ -100,6 +100,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
   Th_Store("current_page", g.zPath);
+  Th_Store("stylesheet", db_get("style-stylesheet", "style.css"));
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
@@ -195,7 +196,7 @@ const char zDefaultHeader[] =
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
-@ <link rel="stylesheet" href="$home/style.css?default" type="text/css"
+@ <link rel="stylesheet" href="$home/$stylesheet" type="text/css"
 @       media="screen" />
 @ </head>
 @ <body>
@@ -700,7 +701,8 @@ const struct strctCssDefaults {
     @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
-    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    "format for end of content area, to be used to clear "
+    "page flow(sidebox on branch,..",
     @   clear: both;
   },
   { "p.generalError",
@@ -777,27 +779,49 @@ void cgi_append_default_css(void) {
 
 /*
 ** WEBPAGE: style.css
+** WEBPAGE: style
+**
+** The first form (style.css) is the default.  The second form (style) is
+** intended to be used with a query path (ex: style/76a6de45.css) where the
+** extra suffix (the "76a6de45.css") is a randomly-generated name that 
+** changes every time the style sheet changes.  Changing the name causes
+** the style-sheet to be reloaded by the web browser.
 */
 void page_style_css(void){
-  const char *zCSS    = 0;
+  const char *zCSS;
   int i;
+  Blob css;
+  Stmt q;
 
+  /* The mime-type for CSS */
   cgi_set_content_type("text/css");
-  zCSS = db_get("css",(char*)zDefaultCSS);
-  /* append user defined css */
-  cgi_append_content(zCSS, -1);
-  /* add special missing definitions */
+
+  /* Content is cacheable */
+  g.isConst = 1;
+
+  /* Initialize TH1 variables that can appear in the stylesheet
+  ** template.
+  */
+  db_prepare(&q, "SELECT substr(name,7), value FROM config"
+                 " WHERE name GLOB 'style-*');
+  while( db_step(&q)==SQLITE_ROW ){
+    Th_Store(db_column_text(&q,0), db_column_text(&q,1));
+  }
+  db_finalize(&q);
+
+  /* Construct the CSS text */
+  blob_init(&css, db_get("css", (char*)zDefaultCSS), -1);
   for (i=1;cssDefaultList[i].elementClass;i++)
     if (!strstr(zCSS,cssDefaultList[i].elementClass)) {
-      cgi_append_content("/* ", -1);
-      cgi_append_content(cssDefaultList[i].comment, -1);
-      cgi_append_content(" */\n", -1);
-      cgi_append_content(cssDefaultList[i].elementClass, -1);
-      cgi_append_content(" {\n", -1);
-      cgi_append_content(cssDefaultList[i].value, -1);
-      cgi_append_content("}\n\n", -1);
+      blob_appendf(&css, "/* %s */\n%s {\n%s}\n\n",
+           cssDefaultList[i].comment,
+           cssDefaultList[i].elementClass,
+           cssDefaultList[i].value);
     }
-  g.isConst = 1;
+  }
+
+  /* Render the CSS */
+  Th_Render(blob_str(&css));
 }
 
 /*

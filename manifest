@@ -1,5 +1,5 @@
-C Simplified\sdisplay\sof\sside-by-side\sdiff\sin\sthe\sweb\sbrowser.
-D 2012-01-01T15:57:23.619
+C Process\sthe\sstyle\ssheet\susing\sTH1\sprior\sto\sreturning\sit.\s\sThis\sbranch\sis\nexperimental.
+D 2012-01-04T18:29:39.854
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -128,11 +128,11 @@ F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
 F src/printf.c ab6d4166375708fd0f5f8d81c77af8b02e636eda
 F src/rebuild.c 71116d658f4498e528d83327c5078bcbf7097ef7
-F src/report.c cd634e40217f1d4a1e0c6867f56e5aea9484c584
+F src/report.c da102e7f120f0d5f0f3ef0bdfb69a9691543441b
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c f89760eef90fcec1e077c0337b43991ac365b34f
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c a3887cd66102f79e8e0574d5e4b102978e0e939d
+F src/setup.c 8063d73a4030ccda9afabcc208138886e9f9cf93
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 378a6cdf13e31944a6e441b75dffdd76831a3b88
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -142,9 +142,9 @@ F src/sqlite3.c 5ab439ebba1577f0fd9f59331e0ade93ae4b5103
 F src/sqlite3.h 0704f1e10f5a397b38178afe1f3bb0234cba2458
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
-F src/style.c b55901730c625608b542f8ac2c4d74e6a5b1398b
+F src/style.c df6ceef9ea13931ff6aab648a56a204326e3f48a
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
-F src/tag.c 0f6218ee9b4a6d0bdf57f7639d7de2cdb40cea99
+F src/tag.c ba427ec8e2049551b929f4e976bda86c0e0d063a
 F src/tar.c 8c729ae1b6ba2f3c6b5f9cd51311faa685e42b6d
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
@@ -356,10 +356,10 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a3e625e954d0c78bf706359644b7161abc1c1766
-R 687b247bb6c3023b27b7e7c28fb5ed7b
-T *branch * retro-sbsdiff
-T *sym-retro-sbsdiff *
-T -sym-trunk *
+P a1e667e6b5a2101bebc8fb5e5aaaadb8cf7bfa61
+R 3dccb9d49ba5334233f5a8fc5bbe9dbb
+T *branch * th1-css
+T *sym-th1-css *
+T -sym-retro-sbsdiff *
 U drh
-Z 99202efa28dbd329677c0abace0bb2ec
+Z e8182618e56627b868463e9b6859ee21

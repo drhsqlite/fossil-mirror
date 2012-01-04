@@ -50,7 +50,7 @@ void setup_menu_entry(
 }
 
 /*
-** WEBPAGE: /setup
+** WEBPAGE: setup
 */
 void setup_page(void){
   login_check_credentials();
@@ -243,7 +243,7 @@ static int isValidPwString(const char *zPw){
 }
 
 /*
-** WEBPAGE: /setup_uedit
+** WEBPAGE: setup_uedit
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
