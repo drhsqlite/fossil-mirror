@@ -1,5 +1,5 @@
-C Simplified\sdisplay\sof\sside-by-side\sdiff\sin\sthe\sweb\sbrowser.
-D 2012-01-01T15:57:23.619
+C Merge\sthe\strunk\schanges\sinto\sthe\sretro-sbsdiff\sbranch.
+D 2012-01-05T13:09:23.314
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -85,7 +85,7 @@ F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 79bed8df57b1f955aec16d07b4c887e9e4a4cf6f
+F src/file.c 416098d705d8ab081d532f02b974523008662cf8
 F src/finfo.c b6b35d8f6a8f3e78184b5bf7e167d483fa11e55d
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -138,8 +138,8 @@ F src/shell.c 378a6cdf13e31944a6e441b75dffdd76831a3b88
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 8e7bdd8597030553e5fbc3fa9c625605dfd9078a
 F src/sqlcmd.c 41357470cd8b147dcea8c684ed131ebf29643650
-F src/sqlite3.c 5ab439ebba1577f0fd9f59331e0ade93ae4b5103
-F src/sqlite3.h 0704f1e10f5a397b38178afe1f3bb0234cba2458
+F src/sqlite3.c c94b00d65d70b1a98723b345eaa3003ccedbba5d
+F src/sqlite3.h 443d59409edd01a22fbc862032551b3b2161d264
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c b55901730c625608b542f8ac2c4d74e6a5b1398b
@@ -356,10 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a3e625e954d0c78bf706359644b7161abc1c1766
-R 687b247bb6c3023b27b7e7c28fb5ed7b
-T *branch * retro-sbsdiff
-T *sym-retro-sbsdiff *
-T -sym-trunk *
+P a1e667e6b5a2101bebc8fb5e5aaaadb8cf7bfa61 8a8685d1035b4cc8d50b5a564dc44774b0932831
+R 32369abc958b8f1c97148e5c8362e66a
 U drh
-Z 99202efa28dbd329677c0abace0bb2ec
+Z ad794337fa4c533ab812d2f120c80786
