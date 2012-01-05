@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.10"
 #define SQLITE_VERSION_NUMBER 3007010
-#define SQLITE_SOURCE_ID      "2011-12-23 13:32:07 1f24ae716df6232de768e245ea990049deee3c22"
+#define SQLITE_SOURCE_ID      "2012-01-05 12:38:02 1378f905d37544701776d38987fe7a312b255983"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -177,7 +177,7 @@ SQLITE_API const char *sqlite3_compileoption_get(int N);
 ** CAPI3REF: Test To See If The Library Is Threadsafe
 **
 ** ^The sqlite3_threadsafe() function returns zero if and only if
-** SQLite was compiled mutexing code omitted due to the
+** SQLite was compiled with mutexing code omitted due to the
 ** [SQLITE_THREADSAFE] compile-time option being set to 0.
 **
 ** SQLite can be compiled with or without mutexes.  When
@@ -371,7 +371,7 @@ SQLITE_API int sqlite3_exec(
 ** KEYWORDS: {result code} {result codes}
 **
 ** Many SQLite functions return an integer result code from the set shown
-** here in order to indicates success or failure.
+** here in order to indicate success or failure.
 **
 ** New error codes may be added in future versions of SQLite.
 **
@@ -510,13 +510,10 @@ SQLITE_API int sqlite3_exec(
 ** way around.  The SQLITE_IOCAP_SEQUENTIAL property means that
 ** information is written to disk in the same order as calls
 ** to xWrite().  The SQLITE_IOCAP_POWERSAFE_OVERWRITE property means that
-** after reboot following a crash or power loss, the value of
-** each byte in a file is a value that was actually written
-** into that byte at some point.  In other words, a crash will
-** not cause unwritten bytes of the file to change nor introduce 
-** randomness into a file nor zero out parts of the file, and any byte of
-** a file that are never written will not change values due to
-** writes to nearby bytes.
+** after reboot following a crash or power loss, the only bytes in a
+** file that were written at the application level might have changed
+** and that adjacent bytes, even bytes within the same sector are
+** guaranteed to be unchanged.
 */
 #define SQLITE_IOCAP_ATOMIC                 0x00000001
 #define SQLITE_IOCAP_ATOMIC512              0x00000002
@@ -752,12 +749,12 @@ struct sqlite3_io_methods {
 **
 ** ^The [SQLITE_FCNTL_WIN32_AV_RETRY] opcode is used to configure automatic
 ** retry counts and intervals for certain disk I/O operations for the
-** windows [VFS] in order to work to provide robustness against
+** windows [VFS] in order to provide robustness in the presence of
 ** anti-virus programs.  By default, the windows VFS will retry file read,
 ** file write, and file delete operations up to 10 times, with a delay
 ** of 25 milliseconds before the first retry and with the delay increasing
 ** by an additional 25 milliseconds with each subsequent retry.  This
-** opcode allows those to values (10 retries and 25 milliseconds of delay)
+** opcode allows these two values (10 retries and 25 milliseconds of delay)
 ** to be adjusted.  The values are changed for all database connections
 ** within the same process.  The argument is a pointer to an array of two
 ** integers where the first integer i the new retry count and the second
@@ -872,7 +869,7 @@ typedef struct sqlite3_mutex sqlite3_mutex;
 ** from xFullPathname() with an optional suffix added.
 ** ^If a suffix is added to the zFilename parameter, it will
 ** consist of a single "-" character followed by no more than
-** 10 alphanumeric and/or "-" characters.
+** 11 alphanumeric and/or "-" characters.
 ** ^SQLite further guarantees that
 ** the string will be valid and unchanged until xClose() is
 ** called. Because of the previous sentence,
@@ -2023,7 +2020,7 @@ SQLITE_API void sqlite3_free_table(char **result);
 ** All of the usual printf() formatting options apply.  In addition, there
 ** is are "%q", "%Q", and "%z" options.
 **
-** ^(The %q option works like %s in that it substitutes a null-terminated
+** ^(The %q option works like %s in that it substitutes a nul-terminated
 ** string from the argument list.  But %q also doubles every '\'' character.
 ** %q is designed for use inside a string literal.)^  By doubling each '\''
 ** character it escapes that character and allows it to be inserted into
@@ -3543,7 +3540,7 @@ SQLITE_API int sqlite3_data_count(sqlite3_stmt *pStmt);
 ** bytes in the string, not the number of characters.
 **
 ** ^Strings returned by sqlite3_column_text() and sqlite3_column_text16(),
-** even empty strings, are always zero terminated.  ^The return
+** even empty strings, are always zero-terminated.  ^The return
 ** value from sqlite3_column_blob() for a zero-length BLOB is a NULL pointer.
 **
 ** ^The object returned by [sqlite3_column_value()] is an
@@ -4623,7 +4620,7 @@ SQLITE_API int sqlite3_release_memory(int);
 /*
 ** CAPI3REF: Free Memory Used By A Database Connection
 **
-** ^The sqlite3_db_shrink(D) interface attempts to free as much heap
+** ^The sqlite3_db_release_memory(D) interface attempts to free as much heap
 ** memory as possible from database connection D. Unlike the
 ** [sqlite3_release_memory()] interface, this interface is effect even
 ** when then [SQLITE_ENABLE_MEMORY_MANAGEMENT] compile-time option is
@@ -5406,7 +5403,7 @@ SQLITE_API int sqlite3_vfs_unregister(sqlite3_vfs*);
 **
 ** <ul>
 ** <li>   SQLITE_MUTEX_OS2
-** <li>   SQLITE_MUTEX_PTHREAD
+** <li>   SQLITE_MUTEX_PTHREADS
 ** <li>   SQLITE_MUTEX_W32
 ** <li>   SQLITE_MUTEX_NOOP
 ** </ul>)^
@@ -5414,7 +5411,7 @@ SQLITE_API int sqlite3_vfs_unregister(sqlite3_vfs*);
 ** ^The SQLITE_MUTEX_NOOP implementation is a set of routines
 ** that does no real locking and is appropriate for use in
 ** a single-threaded application.  ^The SQLITE_MUTEX_OS2,
-** SQLITE_MUTEX_PTHREAD, and SQLITE_MUTEX_W32 implementations
+** SQLITE_MUTEX_PTHREADS, and SQLITE_MUTEX_W32 implementations
 ** are appropriate for use on OS/2, Unix, and Windows.
 **
 ** ^(If SQLite is compiled with the SQLITE_MUTEX_APPDEF preprocessor
@@ -5604,7 +5601,7 @@ struct sqlite3_mutex_methods {
 ** ^These routines should return true if the mutex in their argument
 ** is held or not held, respectively, by the calling thread.
 **
-** ^The implementation is not required to provided versions of these
+** ^The implementation is not required to provide versions of these
 ** routines that actually work. If the implementation does not provide working
 ** versions of these routines, it should at least provide stubs that always
 ** return true so that one does not get spurious assertion failures.
@@ -6086,7 +6083,7 @@ struct sqlite3_pcache_page {
 ** ^(The xInit() method is called once for each effective 
 ** call to [sqlite3_initialize()])^
 ** (usually only once during the lifetime of the process). ^(The xInit()
-** method is passed a copy of the sqlite3_pcache_methods.pArg value.)^
+** method is passed a copy of the sqlite3_pcache_methods2.pArg value.)^
 ** The intent of the xInit() method is to set up global data structures 
 ** required by the custom page cache implementation. 
 ** ^(If the xInit() method is NULL, then the 
@@ -6112,7 +6109,7 @@ struct sqlite3_pcache_page {
 ** ^SQLite invokes the xCreate() method to construct a new cache instance.
 ** SQLite will typically create one cache instance for each open database file,
 ** though this is not guaranteed. ^The
-** parameter parameter, szPage, is the size in bytes of the pages that must
+** first parameter, szPage, is the size in bytes of the pages that must
 ** be allocated by the cache.  ^szPage will always a power of two.  ^The
 ** second parameter szExtra is a number of bytes of extra storage 
 ** associated with each page cache entry.  ^The szExtra parameter will
@@ -6207,7 +6204,7 @@ struct sqlite3_pcache_page {
 ** ^The xDestroy() method is used to delete a cache allocated by xCreate().
 ** All resources associated with the specified cache should be freed. ^After
 ** calling the xDestroy() method, SQLite considers the [sqlite3_pcache*]
-** handle invalid, and will not use it with any other sqlite3_pcache_methods
+** handle invalid, and will not use it with any other sqlite3_pcache_methods2
 ** functions.
 **
 ** [[the xShrink() page cache method]]
