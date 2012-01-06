@@ -809,6 +809,190 @@ int *text_diff(
 }
 
 /*
+** Copy a line with a limit. Used for side-by-side diffs to enforce a maximum
+** line length limit.
+*/
+static char *copylimline(char *out, DLine *dl, int lim){
+  int len;
+  len = dl->h & LENGTH_MASK;
+  if( lim && len > lim ){
+    memcpy(out, dl->z, lim-3);
+    memcpy(&out[lim-3], "...", 4);
+  }else{
+    memcpy(out, dl->z, len);
+    out[len] = '\0';
+  }
+  return out;
+}
+
+/*
+** Output table body of a side-by-side diff. Prior to the call, the caller
+** should have output:
+**   <table class="sbsdiff">
+**   <tr><th colspan="2" class="diffhdr">Old title</th><th/>
+**   <th colspan="2" class="diffhdr">New title</th></tr>
+**
+** And after the call, it should output:
+**   </table>
+**
+** Some good reference diffs in the fossil repository for testing:
+** /vdiff?from=080d27a&to=4b0f813&detail=1
+** /vdiff?from=636804745b&to=c1d78e0556&detail=1
+** /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
+** /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
+*/
+int html_sbsdiff(
+  Blob *pA_Blob,   /* FROM file */
+  Blob *pB_Blob,   /* TO file */
+  int nContext,    /* Amount of context to unified diff */
+  int ignoreEolWs  /* Ignore whitespace at the end of lines */
+){
+  DContext c;
+  int i;
+  int iFrom, iTo;
+  char *linebuf;
+  int collim=0; /* Currently not settable; allows a column limit for diffs */
+  int allowExp=0; /* Currently not settable; (dis)allow expansion of rows */
+
+  /* Prepare the input files */
+  memset(&c, 0, sizeof(c));
+  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
+                             &c.nFrom, ignoreEolWs);
+  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
+                           &c.nTo, ignoreEolWs);
+  if( c.aFrom==0 || c.aTo==0 ){
+    free(c.aFrom);
+    free(c.aTo);
+    /* Note: This would be generated within a table. */
+    @ <p class="generalError" style="white-space: nowrap">cannot compute
+    @ difference between binary files</p>
+    return 0;
+  }
+
+  collim = collim < 4 ? 0 : collim;
+
+  /* Compute the difference */
+  diff_all(&c);
+
+  linebuf = fossil_malloc(LENGTH_MASK+1);
+  if( !linebuf ){
+    free(c.aFrom);
+    free(c.aTo);
+    free(c.aEdit);
+    return 0;
+  }
+
+  iFrom=iTo=0;
+  i=0;
+  while( i<c.nEdit ){
+    int j;
+    /* Copied lines */
+    for( j=0; j<c.aEdit[i]; j++){
+      /* Hide lines which are copied and are further away from block boundaries
+      ** than nContext lines. For each block with hidden lines, show a row
+      ** notifying the user about the hidden rows.
+      */
+      if( j<nContext || j>c.aEdit[i]-nContext-1 ){
+        @ <tr>
+      }else if( j==nContext && j<c.aEdit[i]-nContext-1 ){
+        @ <tr>
+        @ <td class="meta" colspan="5" style="white-space: nowrap;">
+        @ %d(c.aEdit[i]-2*nContext) hidden lines</td>
+        @ </tr>
+        if( !allowExp )
+           continue;
+        @ <tr style="display:none;">
+      }else{
+        if( !allowExp )
+           continue;
+        @ <tr style="display:none;">
+      }
+
+      copylimline(linebuf, &c.aFrom[iFrom+j], collim);
+      @ <td class="lineno">%d(iFrom+j+1)</td>
+      @ <td class="srcline">%h(linebuf)</td>
+
+      @ <td> </td>
+
+      copylimline(linebuf, &c.aTo[iTo+j], collim);
+      @ <td class="lineno">%d(iTo+j+1)</td>
+      @ <td class="srcline">%h(linebuf)</td>
+
+      @ </tr>
+    }
+    iFrom+=c.aEdit[i];
+    iTo+=c.aEdit[i];
+
+    if( c.aEdit[i+1]!=0 && c.aEdit[i+2]!=0 ){
+      int lim;
+      lim = c.aEdit[i+1] > c.aEdit[i+2] ? c.aEdit[i+1] : c.aEdit[i+2];
+
+      /* Assume changed lines */
+      for( j=0; j<lim; j++ ){
+        @ <tr>
+
+        if( j<c.aEdit[i+1] ){
+          copylimline(linebuf, &c.aFrom[iFrom+j], collim);
+          @ <td class="changed lineno">%d(iFrom+j+1)</td>
+          @ <td class="changed srcline">%h(linebuf)</td>
+        }else{
+          @ <td colspan="2" class="changedvoid"/>
+        }
+
+        @ <td class="changed">|</td>
+
+        if( j<c.aEdit[i+2] ){
+          copylimline(linebuf, &c.aTo[iTo+j], collim);
+          @ <td class="changed lineno">%d(iTo+j+1)</td>
+          @ <td class="changed srcline">%h(linebuf)</td>
+        }else{
+          @ <td colspan="2" class="changedvoid"/>
+        }
+
+        @ </tr>
+      }
+      iFrom+=c.aEdit[i+1];
+      iTo+=c.aEdit[i+2];
+    }else{
+
+      /* Process deleted lines */
+      for( j=0; j<c.aEdit[i+1]; j++ ){
+        @ <tr>
+
+        copylimline(linebuf, &c.aFrom[iFrom+j], collim);
+        @ <td class="removed lineno">%d(iFrom+j+1)</td>
+        @ <td class="removed srcline">%h(linebuf)</td>
+        @ <td>&lt;</td>
+        @ <td colspan="2" class="removedvoid"/>
+        @ </tr>
+      }
+      iFrom+=c.aEdit[i+1];
+
+      /* Process inserted lines */
+      for( j=0; j<c.aEdit[i+2]; j++ ){
+        @ <tr>
+        @ <td colspan="2" class="addedvoid"/>
+        @ <td>&gt;</td>
+        copylimline(linebuf, &c.aTo[iTo+j], collim);
+        @ <td class="added lineno">%d(iTo+j+1)</td>
+        @ <td class="added srcline">%h(linebuf)</td>
+        @ </tr>
+      }
+      iTo+=c.aEdit[i+2];
+    }
+
+    i+=3;
+  }
+
+  free(linebuf);
+  free(c.aFrom);
+  free(c.aTo);
+  free(c.aEdit);
+  return 1;
+}
+
+
+/*
 ** COMMAND: test-rawdiff
 */
 void test_rawdiff_cmd(void){
