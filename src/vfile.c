@@ -197,7 +197,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
         ** need to check the mtime or sha1sum */
         chnged = 1;
       }
-    }else if( (chnged==1 || chnged==2) && rid!=0 && !isDeleted ){
+    }else if( chnged==1 && rid!=0 && !isDeleted ){
       /* File is believed to have changed but it is the same size.
       ** Double check that it really has changed by looking at content. */
       assert( origSize==currentSize );
