@@ -1,5 +1,5 @@
-C Fix\sthe\sfile\schange\sdetection\slogic\sso\sthat\sit\sdoes\snot\sdestroy\smerge\shistory.\nTicket\s[5a855f1bc6351f5].
-D 2012-01-11T17:48:55.336
+C Limit\sthe\snumber\sof\squery\sparameters\sthat\sthe\sCGI\sprocessor\swill\shandle\sbefore\ngiving\sup,\sto\smake\sDOS\sattacks\sharder.
+D 2012-01-12T00:44:19.742
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -64,7 +64,7 @@ F src/blob.c 055253a9443c63fd3f3f429bd03f71596eb0646a
 F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c 812364a30b5b7cbbad2e51fb3896b670554de6d5
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c af0df2660aa5f63e76554a6b6101b1470e646026
+F src/cgi.c ef217e63c1476a60c665479134647269a358cc6d
 F src/checkin.c 2f1c677ca1a6159bcb8979cd4a0fc8820acef447
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ecbc3701327b431d05667d44946585ba35ccc5b7
-R f10fc275a2749e0027522a221f6ef187
+P bcd718e924ad5c550d6c6e9240ce6ab08f9b6708
+R e8cf589035310a93ae561a74b7b8ca19
 U drh
-Z ab2d9671cd535c451e69c723b0d74475
+Z c105b48b66beb0aec634b9f33b965aae
