@@ -1247,7 +1247,7 @@ ManifestFile *manifest_file_find(Manifest *p, const char *zName){
   pBase = p->pBaseline;
   if( pBase==0 ) return 0;
   for(i=0; i<pBase->nFile; i++){
-    if( fossil_stricmp(zName, p->aFile[i].zName)==0 ){
+    if( fossil_stricmp(zName, pBase->aFile[i].zName)==0 ){
       return &p->aFile[i];
     }
   }
