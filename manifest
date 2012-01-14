@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\smanifest_file_find().
-D 2012-01-13T22:22:29.244
+C Yet\sanother\sfix\sto\sthe\smanifest_file_find()\sfunction.
+D 2012-01-14T02:48:51.761
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -115,7 +115,7 @@ F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 4f28df2c3515d0e1e778bec84c70b281ded400f7
-F src/manifest.c c0abfdd72313f4eb4da75d0c1758bd764fc68544
+F src/manifest.c 5b591fe3c558198b5ad76641f88a9b6527812aa6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
 F src/merge3.c d3273f6f9eedfc7a4adaa0309d031a3572372c5e
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f07f7753eef00f9d3528fdcfa9679b75b5cb8478
-R a2a98705d290ab611edf03255e5434cd
+P 34dc2a4956e4572e99cccedd0539785987d0463b
+R 3939190e2ded5cdfe96cc5f8f197c9c0
 U drh
-Z 799442ca4dc4229d5717c03523d9fbc4
+Z b4376e758d2d9c3efe81ab29ffb8dac8
