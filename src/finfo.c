@@ -41,18 +41,21 @@
 ** to stdout.
 **
 ** Options:
-**   --brief|-b          display a brief (one line / revision) summary
-**   --limit N           display the first N changes
-**   --log|-l            select log mode (the default)
-**   --offset P          skip P changes
-**   -p                  select print mode
-**   --revision|-r R     print the given revision (or ckout, if none is given)
-**                       to stdout (only in print mode)
-**   -s                  select status mode (print a status indicator for FILE)
+**   --brief|-b           display a brief (one line / revision) summary
+**   --limit N            display the first N changes
+**   --log|-l             select log mode (the default)
+**   --offset P           skip P changes
+**   -p                   select print mode
+**   --revision|-r R      print the given revision (or ckout, if none is given)
+**                        to stdout (only in print mode)
+**   -s                   select status mode (print a status indicator for FILE)
+**   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
+**                        boolean: "yes", "no", "true", "false", etc.
 **
 ** See also: descendants, info, leaves
 */
 void finfo_cmd(void){
+  capture_case_sensitive_option();
   db_must_be_within_tree();
   if (find_option("status","s",0)) {
     Stmt q;
@@ -69,7 +72,8 @@ void finfo_cmd(void){
     file_tree_name(g.argv[2], &fname, 1);
     db_prepare(&q,
         "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-        "  FROM vfile WHERE vfile.pathname=%B", &fname);
+        "  FROM vfile WHERE vfile.pathname=%B %s",
+        &fname, filename_collation());
     blob_zero(&line);
     if ( db_step(&q)==SQLITE_ROW ) {
       Blob uuid;
@@ -82,8 +86,8 @@ void finfo_cmd(void){
       db_blob(&uuid,
            "SELECT uuid FROM blob, mlink, vfile WHERE "
            "blob.rid = mlink.mid AND mlink.fid = vfile.rid AND "
-           "vfile.pathname=%B",
-           &fname
+           "vfile.pathname=%B %s",
+           &fname, filename_collation()
       );
       if( isNew ){
         blob_appendf(&line, "new");
@@ -115,7 +119,8 @@ void finfo_cmd(void){
     if( zRevision ){
       historical_version_of_file(zRevision, blob_str(&fname), &record, 0, 0, 0);
     }else{
-      int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+      int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
+                       &fname, filename_collation());
       if( rid==0 ){
         fossil_fatal("no history for file: %b", &fname);
       }
@@ -146,7 +151,8 @@ void finfo_cmd(void){
       usage("?-l|--log? ?-b|--brief? FILENAME");
     }
     file_tree_name(g.argv[2], &fname, 1);
-    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B", &fname);
+    rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
+                 &fname, filename_collation());
     if( rid==0 ){
       fossil_fatal("no history for file: %b", &fname);
     }
@@ -156,13 +162,13 @@ void finfo_cmd(void){
         "       coalesce(event.ecomment, event.comment),"
         "       coalesce(event.euser, event.user)"
         "  FROM mlink, blob b, event, blob ci, filename"
-        " WHERE filename.name=%Q"
+        " WHERE filename.name=%Q %s"
         "   AND mlink.fnid=filename.fnid"
         "   AND b.rid=mlink.fid"
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        zFilename, iLimit, iOffset
+        zFilename, filename_collation(), iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -245,10 +251,10 @@ void finfo_page(void){
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
                                 " AND tagxref.rid=mlink.mid)" /* Tags */
     "  FROM mlink, event"
-    " WHERE mlink.fnid=(SELECT fnid FROM filename WHERE name=%Q)"
+    " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q %s)"
     "   AND event.objid=mlink.mid",
     TAG_BRANCH,
-    zFilename
+    zFilename, filename_collation()
   );
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);

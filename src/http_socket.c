@@ -35,10 +35,10 @@
 #    include <ws2tcpip.h>          
 #  endif
 #else
+#  include <netinet/in.h>
 #  include <arpa/inet.h>
 #  include <sys/socket.h>
 #  include <netdb.h>
-#  include <netinet/in.h>
 #endif
 #include <assert.h>
 #include <sys/types.h>

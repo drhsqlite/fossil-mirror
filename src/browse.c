@@ -198,7 +198,8 @@ void page_dir(void){
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL %s, u);",
+     filename_collation()
   );
   if( zCI ){
     Stmt ins;
@@ -233,12 +234,21 @@ void page_dir(void){
     }
     db_finalize(&ins);
   }else if( zD ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,%d), NULL FROM filename"
-      "  WHERE name GLOB '%q/*'",
-      nD, zD
-    );
+    if( filenames_are_case_sensitive() ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name GLOB '%q/*'",
+        nD, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name LIKE '%q/%%'",
+        nD, zD
+      );
+    }
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"

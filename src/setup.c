@@ -138,7 +138,7 @@ void setup_ulist(void){
     }
     @ </td>
     @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
-    @ <td  class="usetupListCon"  style="text-align: left;">%s(db_column_text(&s,3))</td>
+    @ <td  class="usetupListCon"  style="text-align: left;">%h(db_column_text(&s,3))</td>
     @ </tr>
   }
   @ </table>

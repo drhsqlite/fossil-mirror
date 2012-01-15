@@ -445,17 +445,18 @@ static void send_compressed_file(Xfer *pXfer, int rid){
   int szC;
   int rc;
   int isPrivate;
+  int srcIsPrivate;
   static Stmt q1;
+  Blob fullContent;
 
   isPrivate = content_is_private(rid);
   if( isPrivate && pXfer->syncPrivate==0 ) return;
   db_static_prepare(&q1,
-    "SELECT uuid, size, content,"
-         "  (SELECT uuid FROM delta, blob"
-         "    WHERE delta.rid=:rid AND delta.srcid=blob.rid)"
-    " FROM blob"
-    " WHERE rid=:rid"
-    "   AND size>=0"
+    "SELECT uuid, size, content, delta.srcid IN private,"
+         "  (SELECT uuid FROM blob WHERE rid=delta.srcid)"
+    " FROM blob LEFT JOIN delta ON (blob.rid=delta.rid)"
+    " WHERE blob.rid=:rid"
+    "   AND blob.size>=0"
     "   AND NOT EXISTS(SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)"
   );
   db_bind_int(&q1, ":rid", rid);
@@ -465,10 +466,19 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     szU = db_column_int(&q1, 1);
     szC = db_column_bytes(&q1, 2);
     zContent = db_column_raw(&q1, 2);
-    zDelta = db_column_text(&q1, 3);
+    srcIsPrivate = db_column_int(&q1, 3);
+    zDelta = db_column_text(&q1, 4);
     if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
     blob_appendf(pXfer->pOut, "cfile %s ", zUuid);
-     if( zDelta ){
+    if( !isPrivate && srcIsPrivate ){
+      content_get(rid, &fullContent);
+      szU = blob_size(&fullContent);
+      blob_compress(&fullContent, &fullContent);
+      szC = blob_size(&fullContent);
+      zContent = blob_buffer(&fullContent);
+      zDelta = 0;
+    }
+    if( zDelta ){
       blob_appendf(pXfer->pOut, "%s ", zDelta);
       pXfer->nDeltaSent++;
     }else{
@@ -478,6 +488,9 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     blob_append(pXfer->pOut, zContent, szC);
     if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
       blob_appendf(pXfer->pOut, "\n", 1);
+    }
+    if( !isPrivate && srcIsPrivate ){
+      blob_reset(&fullContent);
     }
   }
   db_reset(&q1);

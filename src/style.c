@@ -895,6 +895,7 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
+  P("HTTP_USER_AGENT");
   cgi_print_all(atoi(PD("showall","0")));
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");

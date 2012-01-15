@@ -2111,6 +2111,60 @@ cson_value * cson_array_value(cson_array const * s);
 */
 unsigned int cson_value_msize(cson_value const * v);
 
+/**
+   Parses command-line-style arguments into a JSON object.
+
+   It expects arguments to be in any of these forms, and any number
+   of leading dashes are treated identically:
+
+   --key : Treats key as a boolean with a true value.
+
+   --key=VAL : Treats VAL as either a double, integer, or string.
+
+   --key= : Treats key as a JSON null (not literal NULL) value.
+
+   Arguments not starting with a dash are skipped.
+   
+   Each key/value pair is inserted into an object.  If a given key
+   appears more than once then only the final entry is actually
+   stored.
+
+   argc and argv are expected to be values from main() (or similar,
+   possibly adjusted to remove argv[0]).
+
+   tgt must be either a pointer to NULL or a pointer to a
+   client-provided Object. If (NULL==*tgt) then this function
+   allocates a new object and on success it stores the new object in
+   *tgt (it is owned by the caller). If (NULL!=*tgt) then it is
+   assumed to be a properly allocated object. DO NOT pass a pointer to
+   an unitialized pointer, as that will fool this function into
+   thinking it is a valid object and Undefined Behaviour will ensue.
+
+   If count is not NULL then the number of arugments parsed by this
+   function are assigned to it. On error, count will be the number of
+   options successfully parsed before the error was encountered.
+
+   On success:
+
+   - 0 is returned.
+
+   - If (*tgt==NULL) then *tgt is assigned to a newly-allocated
+   object, owned by the caller. Note that even if no arguments are
+   parsed, the object is still created.
+
+   On error:
+
+   - non-0 is returned
+
+   - If (*tgt==NULL) then it is not modified.
+
+   - If (*tgt!=NULL) (i.e., the caller provides his own object) then
+   it might contain partial results.
+*/
+int cson_parse_argv_flags( int argc, char const * const * argv,
+                           cson_object ** tgt, unsigned int * count );
+
+
 /* LICENSE
 
 This software's source code, including accompanying documentation and
@@ -2384,5 +2438,4 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
 #endif /* CSON_ENABLE_SQLITE3 */
 #endif /* WANDERINGHORSE_NET_CSON_SQLITE3_H_INCLUDED */
 /* end file include/wh/cson/cson_sqlite3.h */
-
 #endif /* FOSSIL_ENABLE_JSON */

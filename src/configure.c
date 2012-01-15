@@ -84,7 +84,11 @@ static struct {
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
+  { "allow-symlinks",         CONFIGSET_PROJ },
   { "index-page",             CONFIGSET_SKIN },
+#ifdef FOSSIL_ENABLE_TCL
+  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT },
+#endif
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "ticket-table",           CONFIGSET_TKT  },

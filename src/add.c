@@ -247,9 +247,8 @@ void add_cmd(void){
     }else{
       char *zTreeName = &zName[nRoot];
       db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(x)"
-         "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=%Q)",
-         zTreeName, zTreeName
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+         zTreeName
       );
     }
     blob_reset(&fullName);
@@ -339,19 +338,34 @@ void capture_case_sensitive_option(void){
 ** setting.
 */
 int filenames_are_case_sensitive(void){
-  int caseSensitive;
+  static int caseSensitive;
+  static int once = 1;
 
-  if( zCaseSensitive ){
-    caseSensitive = is_truth(zCaseSensitive);
-  }else{
+  if( once ){
+    once = 0;
+    if( zCaseSensitive ){
+      caseSensitive = is_truth(zCaseSensitive);
+    }else{
 #if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
-    caseSensitive = 1;
+      caseSensitive = 1;  /* Unix */
 #else
-    caseSensitive = 0;
+      caseSensitive = 0;  /* Windows and Mac */
 #endif
-    caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
+      caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
+    }
   }
   return caseSensitive;
+}
+
+/*
+** Return one of two things:
+**
+**   ""                 (empty string) if filenames are case sensitive
+**
+**   "COLLATE nocase"   if filenames are not case sensitive.
+*/
+const char *filename_collation(void){
+  return filenames_are_case_sensitive() ? "" : "COLLATE nocase";
 }
 
 /*

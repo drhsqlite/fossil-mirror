@@ -413,6 +413,10 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
+    if( nAllocQP>1000 ){
+      /* Prevent a DOS service attack against the framework */
+      fossil_fatal("Too many query parameters");
+    }
     aParamQP = fossil_realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
   }
   aParamQP[nUsedQP].zName = zName;
@@ -1180,7 +1184,6 @@ void cgi_handle_http_request(const char *zIpAddr){
       while(*p && *p != ',') p++;
       *p = '\0';
       zIpAddr = mprintf( "%s", zVal );
-    }
 #if 0
     }else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
