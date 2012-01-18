@@ -10,7 +10,6 @@ SRCDIR = src
 
 #### The directory into which object code files should be written.
 #
-#
 OBJDIR = wbld
 
 #### C Compiler and options for use in building executables that
@@ -29,7 +28,7 @@ BCC = gcc
 #
 ZLIBDIR = /programs/gnuwin32
 
-#### C Compile and options for use in building executables that 
+#### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
 #    as BCC, unless you are cross-compiling.  This C compiler builds
 #    the finished binary for fossil.  The BCC compiler above is used
@@ -39,21 +38,27 @@ TCC = gcc -Os -Wall -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
-TCC += -static -DFOSSIL_ENABLE_SSL=1
+TCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
-#    other dependencies.  We sometimes add the -static option here
+#    other mandatory dependencies.  We add the -static option here
 #    so that we can build a static executable that will run in a
 #    chroot jail.
 #
-#LIB = -lz -lws2_32
-# OpenSSL:
+LIB = -static
+LIB += -lmingwex -lz
+
+# OpenSSL: Add the necessary libaries required.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
-LIB += -lmingwex -lz -lws2_32
+
+#### These libraries MUST appear in the same order as they do for Tcl
+#    or linking with it will not work (exact reason unknown).
+#
+LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
@@ -392,8 +397,8 @@ $(VERSION): $(SRCDIR)/mkversion.c
 # WARNING. DANGER. Running the testsuite modifies the repository the
 # build is done from, i.e. the checkout belongs to. Do not sync/push
 # the repository after running the tests.
-test:	$(APPNAME)
-	$(TCLSH) test/tester.tcl $(APPNAME)
+test:	$(OBJDIR) $(APPNAME)
+	$(TCLSH) $(SRCDIR)/../test/tester.tcl $(APPNAME)
 
 $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
@@ -406,14 +411,14 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
 #
-$(SRCDIR)/../manifest:	
+$(SRCDIR)/../manifest:
 	# noop
 
 # Requires msys to be installed in addition to the mingw, for the "rm"
 # command.  "del" will not work here because it is not a separate command
 # but a MSDOS-shell builtin.
 #
-clean:	
+clean:
 	rm -rf $(OBJDIR) $(APPNAME)
 
 setup: $(OBJDIR) $(APPNAME)
@@ -1085,7 +1090,8 @@ $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
 $(OBJDIR)/cson_amalgamation.o:	$(SRCDIR)/cson_amalgamation.c
 	$(XTCC)  -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
 
-$(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o : $(SRCDIR)/json_detail.h
+$(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/json_diff.o $(OBJDIR)/json_login.o $(OBJDIR)/json_query.o $(OBJDIR)/json_report.o $(OBJDIR)/json_tag.o $(OBJDIR)/json_timeline.o $(OBJDIR)/json_user.o $(OBJDIR)/json_wiki.o: $(SRCDIR)/json_detail.h
+
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 

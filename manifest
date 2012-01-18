@@ -1,5 +1,5 @@
-C Limit\sthe\snumber\sof\squery\sparameters\sthat\sthe\sCGI\sprocessor\swill\shandle\sbefore\ngiving\sup,\sto\smake\sDOS\sattacks\sharder.
-D 2012-01-12T00:44:19.742
+C Cleanup\sand\sunify\sthe\sMinGW\smakefiles.
+D 2012-01-18T07:10:32.105
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -243,8 +243,8 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
 F win/Makefile.dmc 7e1ffc2ed709a4c8ab77a077b6659880241fd20b
-F win/Makefile.mingw 595d0b413dcc0920d0ef0325d597e425b39fbcd3
-F win/Makefile.mingw.mistachkin 1d2c713740b85b88e9b8bac6a88af4806f4aa95c
+F win/Makefile.mingw a1b3beb2d1f28d08533e7a8bed48599f8ff74922
+F win/Makefile.mingw.mistachkin adfe9f4e70a9a15da4912eab0f8a5f2eb632073d
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 2a440347608e67be604d423838510da8f25cfc3f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bcd718e924ad5c550d6c6e9240ce6ab08f9b6708
-R e8cf589035310a93ae561a74b7b8ca19
-U drh
-Z c105b48b66beb0aec634b9f33b965aae
+P 2827d449a994c928f9bf347ed9c2c4cee400a59c
+R e0a8bfb89ae6bedafc251c0c7cfc0b9e
+U mistachkin
+Z 2feb8b09be3b3ac49ca7864581f0b951
