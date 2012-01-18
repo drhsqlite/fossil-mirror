@@ -1,5 +1,5 @@
-C More\scleanup\sof\sMinGW\smakefiles.
-D 2012-01-18T11:09:25.728
+C Modify\sthe\smakemake.tcl\sscript\sto\sgenerate\scleaned\sup\smakefiles\sand\sthen\sregenerate\sthem.
+D 2012-01-18T12:41:25.762
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -111,10 +111,10 @@ F src/json_wiki.c 430c36a35fd2e76a3a0889218802449c8e35bf32
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0b3234924398838f3e6363bb194a9888acaca680
 F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
-F src/main.mk 7ffeda08ae285bbe5d155b29d690b1b4faf14398
+F src/main.mk f14dba89048d036133b5d99cc00a354871e7a0cc
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 4f28df2c3515d0e1e778bec84c70b281ded400f7
+F src/makemake.tcl 84874ba52c7c80d0ae22f5c3c6b3b0fc5f1f3482
 F src/manifest.c f7a6ded295dab11d85e9372aa5c9d9eb24be1b4b
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -241,12 +241,12 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
-F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
-F win/Makefile.dmc 7e1ffc2ed709a4c8ab77a077b6659880241fd20b
-F win/Makefile.mingw 69721b2538a917732c062b7144c5bad14f199ac0
-F win/Makefile.mingw.mistachkin 912cf9b568f15453ea1bda37411f619c2b0d66a6
+F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
+F win/Makefile.dmc deef734133aca32c0dd864fb53f40676c8132622
+F win/Makefile.mingw 290ace5578318b7d5d4f9411baa43a7ccbc99280
+F win/Makefile.mingw.mistachkin 24cdac91871f795d1eaced9a0f0f022d2c4162e4
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 2a440347608e67be604d423838510da8f25cfc3f
+F win/Makefile.msc 5c2455616818d89a4722a28d14bea2a3e9defdd8
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a88a241d727b1090aea140c7e318aedf339ce42f
-R 9a5f3698a62b1bb4aedf335df340061b
+P 533caec0a6711c8d246476c2aec3e889d5aa6e3d
+R 90d898afe324142279ca0726b1d23645
 U mistachkin
-Z 43b6c93cda983b1935cf251110805e92
+Z c5a1feaad1a7bd772f1d668eaacc8be4
