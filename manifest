@@ -1,5 +1,5 @@
-C Modify\sthe\smakemake.tcl\sscript\sto\sgenerate\scleaned\sup\smakefiles\sand\sthen\sregenerate\sthem.
-D 2012-01-18T12:41:25.762
+C Correct\scasing\stypos.
+D 2012-01-18T12:47:35.791
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
 F src/main.mk f14dba89048d036133b5d99cc00a354871e7a0cc
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 84874ba52c7c80d0ae22f5c3c6b3b0fc5f1f3482
+F src/makemake.tcl 05156526553471243f951d30ad79df4363cc5a53
 F src/manifest.c f7a6ded295dab11d85e9372aa5c9d9eb24be1b4b
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -243,8 +243,8 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc deef734133aca32c0dd864fb53f40676c8132622
-F win/Makefile.mingw 290ace5578318b7d5d4f9411baa43a7ccbc99280
-F win/Makefile.mingw.mistachkin 24cdac91871f795d1eaced9a0f0f022d2c4162e4
+F win/Makefile.mingw 15985d2e7d88ba9df5461378734a0bd91cc43771
+F win/Makefile.mingw.mistachkin 2338f46a36ea845a2cb60b752f4d7b494802e538
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 5c2455616818d89a4722a28d14bea2a3e9defdd8
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -356,7 +356,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 533caec0a6711c8d246476c2aec3e889d5aa6e3d
-R 90d898afe324142279ca0726b1d23645
+P 3d258e515298fc516baf50bd9cb51d3443b32e57
+R 3cde3e3400dafa6ac782c33b1a6bd396
 U mistachkin
-Z c5a1feaad1a7bd772f1d668eaacc8be4
+Z ebc34b1d6b511abb75e2f64079949a18

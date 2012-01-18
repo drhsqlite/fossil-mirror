@@ -150,9 +150,9 @@ endif
 #
 TCLSH = tclsh
 
-#### Nullsoft installer makensis location
+#### Nullsoft installer MakeNSIS location
 #
-MAKENSIS = "$(ProgramFiles)\NSIS\makensis.exe"
+MAKENSIS = "$(ProgramFiles)\NSIS\MakeNSIS.exe"
 
 #### Include a configuration file that can override any one of these settings.
 #
@@ -503,7 +503,7 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 $(SRCDIR)/../manifest:
 	# noop
 
-# Requires msys to be installed in addition to the MinGW, for the "rm"
+# Requires MSYS to be installed in addition to the MinGW, for the "rm"
 # command.  "del" will not work here because it is not a separate command
 # but a MSDOS-shell builtin.
 #
