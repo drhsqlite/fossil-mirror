@@ -35,7 +35,7 @@ void xfersetup_page(void){
   style_header("Transfer Setup");
   @ <table border="0" cellspacing="20">
   setup_menu_entry("Common", "xfersetup_com",
-    "Common TH1 code run before all transfer processing.");
+    "Common TH1 code run before all transfer request processing.");
   setup_menu_entry("Push", "xfersetup_push",
     "Specific TH1 code to run after \"push\" transfer requests.");
   @ </table>
