@@ -35,6 +35,7 @@
 #define CONFIGSET_SHUN      0x000008     /* Shun settings */
 #define CONFIGSET_USER      0x000010     /* The USER table */
 #define CONFIGSET_ADDR      0x000020     /* The CONCEALED table */
+#define CONFIGSET_XFER      0x000040     /* Transfer configuration */
 
 #define CONFIGSET_ALL       0x0000ff     /* Everything */
 
@@ -57,6 +58,7 @@ static struct {
   { "/shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
   { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
+  { "/xfer",         CONFIGSET_XFER,  "Transfer setup",                      },
   { "/all",          CONFIGSET_ALL,   "All of the above"                     },
 };
 
@@ -87,7 +89,7 @@ static struct {
   { "allow-symlinks",         CONFIGSET_PROJ },
   { "index-page",             CONFIGSET_SKIN },
 #ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT },
+  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
 #endif
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
@@ -105,6 +107,8 @@ static struct {
   { "@user",                  CONFIGSET_USER },
   { "@concealed",             CONFIGSET_ADDR },
   { "@shun",                  CONFIGSET_SHUN },
+  { "xfer-common-script",     CONFIGSET_XFER },
+  { "xfer-push-script",       CONFIGSET_XFER },
 };
 static int iConfig = 0;
 

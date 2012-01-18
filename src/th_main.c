@@ -571,7 +571,7 @@ void test_th_render(void){
   if( g.argc<3 ){
     usage("FILE");
   }
-  db_open_config(0); /* Needed for "tcl" setting. */
+  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
