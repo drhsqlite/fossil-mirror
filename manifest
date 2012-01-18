@@ -1,5 +1,5 @@
-C Start\sof\sexperimental\ssupport\sfor\spost-push\sTH1\sscripting.
-D 2012-01-18T06:06:57.282
+C Update\sthe\sother\sWin32\sspecific\smakefiles.
+D 2012-01-18T06:22:01.670
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -243,11 +243,11 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake d8c694fa059368cfd02d1718b7220841022ee358
-F win/Makefile.dmc 7e1ffc2ed709a4c8ab77a077b6659880241fd20b
+F win/Makefile.dmc 429d6cb19ed629889c24acee8b8a0f8c718f000c
 F win/Makefile.mingw 23c7b363c11a86db823bb8333d3972537f8b8df9
 F win/Makefile.mingw.mistachkin fc3f8f381bcbea38cd8c146834296a7375d4898f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 2a440347608e67be604d423838510da8f25cfc3f
+F win/Makefile.msc 8487d225dbf7e7ecaa5b35a57beb49701b7ad59c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -357,10 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2827d449a994c928f9bf347ed9c2c4cee400a59c
-R 99781f23c1c256dd048080adcf7a30ed
-T *branch * pushScript
-T *sym-pushScript *
-T -sym-trunk *
+P a11b7f1535be0be763a3c8bc9c9568ea20694990
+R 0b27776a7a566d5596be6ced4fd5745e
 U mistachkin
-Z d6e75356dd810d0b595e7405a84176c8
+Z a335b7cc9236b4f535be1d6361ccc146
