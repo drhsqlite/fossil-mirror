@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk\sand\sregenerate\smakefiles.
-D 2012-01-18T12:55:50.931
+C Add\sxfersetup\sto\sthe\smakemake.tcl\sscript.
+D 2012-01-18T12:56:59.850
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/main.c ceff08e6f54750278f95231b2b161580e1a88309
 F src/main.mk ed1f677a710730a5471848cef636bf79a5cac09f
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 05156526553471243f951d30ad79df4363cc5a53
+F src/makemake.tcl a4bf3124b73025972f2e446edc47390e2f7109be
 F src/manifest.c f7a6ded295dab11d85e9372aa5c9d9eb24be1b4b
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 6ad7b5363f30689fb04177588461c4d1aca00322
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a49e7cb6367e2a7ef887bd90c0091344b55d5f98 0c042ce7d1d5c57ee54ed720af525a85f46b86b1
-R 6b586c909866a90f5b8821dacd3aaa17
+P 04ab3f0c76c5d96851c138a31b748a372f648151
+R 77e11c3d9d3895cb446e65613ef05d17
 U mistachkin
-Z 028be5fc034156b1f055c526dec779b7
+Z 970a81afbb99f71e67141e9336805913
