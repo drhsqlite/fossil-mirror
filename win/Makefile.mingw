@@ -21,12 +21,12 @@ BCC = gcc
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
-# FOSSIL_ENABLE_SSL=1
+# FOSSIL_ENABLE_SSL = 1
 
-#### The directory in which the zlib compression library is installed.
+#### The directories where the zlib include and library files are located.
 #
-#
-ZLIBDIR = /programs/gnuwin32
+ZINCDIR = /programs/gnuwin32/include
+ZLIBDIR = /programs/gnuwin32/lib
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -34,7 +34,7 @@ ZLIBDIR = /programs/gnuwin32
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -L$(ZLIBDIR)/lib -I$(ZLIBDIR)/include
+TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -58,7 +58,7 @@ endif
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
 #
-LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+LIB += -lws2_32
 
 #### Tcl shell for use in running the fossil testsuite.  This is only
 #    used for testing.  If you do not run
