@@ -109,6 +109,7 @@ set src {
   wikiformat
   winhttp
   xfer
+  xfersetup
   zip
   http_ssl
 }
