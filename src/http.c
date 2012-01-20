@@ -176,7 +176,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     FILE *out;
     traceCnt++;
     zOutFile = mprintf("http-request-%d.txt", traceCnt);
-    out = fopen(zOutFile, "w");
+    out = fopen(zOutFile, "wb");
     if( out ){
       fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), out);
       fwrite(blob_buffer(&payload), 1, blob_size(&payload), out);
@@ -184,7 +184,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     }
     free(zOutFile);
     zOutFile = mprintf("http-reply-%d.txt", traceCnt);
-    out = fopen(zOutFile, "w");
+    out = fopen(zOutFile, "wb");
     transport_log(out);
     free(zOutFile);
   }
