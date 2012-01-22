@@ -772,6 +772,11 @@ const struct strctCssDefaults {
     @   color: red;
     @   font-weight: bold;
   },
+  { "p.xfersetupError",
+    "format for xfersetup errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
   { "p.thmainError",
     "format for th script errors",
     @   color: red;

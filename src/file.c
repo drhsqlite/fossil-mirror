@@ -999,7 +999,8 @@ char *fossil_utf8_to_console(const char *zUtf8){
 */
 void fossil_mbcs_free(char *zOld){
 #ifdef _WIN32
-  free(zOld);
+  extern void sqlite3_free(void*);
+  sqlite3_free(zOld);
 #else
   /* No-op on unix */
 #endif  

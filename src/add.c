@@ -247,9 +247,8 @@ void add_cmd(void){
     }else{
       char *zTreeName = &zName[nRoot];
       db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(x)"
-         "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=%Q)",
-         zTreeName, zTreeName
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+         zTreeName
       );
     }
     blob_reset(&fullName);

@@ -1821,7 +1821,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
-  { "allow-symlinks",0,                0, 0, "off"                 },
+  { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
@@ -1879,7 +1879,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
-**                     them as symlinks on Unix. Has no effect on Windows
+**     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become 
 **                     plain-text files with link destination path inside).
 **                     Default: off

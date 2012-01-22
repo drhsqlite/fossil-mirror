@@ -1232,7 +1232,7 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
 ** will match.
 */
 ManifestFile *manifest_file_find(Manifest *p, const char *zName){
-  int i, n;
+  int i;
   Manifest *pBase;
   if( filenames_are_case_sensitive() ){
     return manifest_file_seek(p, zName);
