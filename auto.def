@@ -28,7 +28,6 @@ cc-check-progs tclsh
 define EXTRA_CFLAGS ""
 define EXTRA_LDFLAGS ""
 define USE_SYSTEM_SQLITE ""
-define FOSSIL_ENABLE_TCL ""
 
 if {![opt-bool internal-sqlite]} {
   proc find_internal_sqlite {} {

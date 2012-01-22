@@ -1,5 +1,5 @@
-C Make\ssure\sthat\sautosetup\sends\sup\sdefining\sFOSSIL_ENABLE_TCL\sin\sthe\sMakefile\swhen\snecessary.
-D 2012-01-22T06:52:20.531
+C Revise\sprevious\scommit:\ssince\sthe\sFOSSIL_ENABLE_TCL\smacro\sis\sused\sin\ssource\sfiles\sas\swell\sas\sthe\sMakefile\sitself,\sit\scannot\sbe\sinitially\sset\sto\san\sempty\sstring\sin\sauto.def.
+D 2012-01-22T06:59:18.396
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -37,7 +37,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def ff0e00f9f9b4fff53b2dbbbb2be62aecfab88d74
+F auto.def e32d5ecb6ebda2a2c2e533c88b20bd4f277c1a28
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 444848bc61133f5d293a7670d8293566382c0e77
 F autosetup/autosetup b6b5947d95a0c9e8a774e6e76ea63b863e93b677 x
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0b61e3c019dc4e0937fc147eb114f332b18b4cf6
-R b64d1f5d33617441c42fedc682ee44e8
+P 21555be397304a5853c92c51d27664a914ba3746
+R fcf0973affc7e9b4934fcb2cc0398301
 U mistachkin
-Z 0a8669e402f7022909c0475586fc62a9
+Z 8a1f13ebb98af6fb28f5be201ffe4df7
