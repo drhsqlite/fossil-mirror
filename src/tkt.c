@@ -518,6 +518,9 @@ void tktnew_page(void){
   initializeVariablesFromCGI();
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
+  if( P("date_override") && g.perm.Setup ){
+    @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
+  }
   @ </p>
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);

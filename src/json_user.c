@@ -79,12 +79,58 @@ static cson_value * json_user_list(){
 }
 
 /*
+** Creates a new JSON Object based on the db state of
+** the given user name. On error (no record found)
+** it returns NULL, else the caller owns the returned
+** object.
+*/
+static cson_value * json_load_user_by_name(char const * zName){
+  cson_value * u = NULL;
+  Stmt q;
+  db_prepare(&q,"SELECT uid AS uid,"
+             " login AS name,"
+             " cap AS capabilities,"
+             " info AS info,"
+             " mtime AS mtime"
+             " FROM user"
+             " WHERE login=%Q",
+             zName);
+  if( (SQLITE_ROW == db_step(&q)) ){
+    u = cson_sqlite3_row_to_object(q.pStmt);
+  }
+  db_finalize(&q);
+  return u;  
+}
+
+/*
+** Identical to _load_user_by_name(), but expects a user ID.  Returns
+** NULL if no user found with that ID.
+*/
+static cson_value * json_load_user_by_id(int uid){
+  cson_value * u = NULL;
+  Stmt q;
+  db_prepare(&q,"SELECT uid AS uid,"
+             " login AS name,"
+             " cap AS capabilities,"
+             " info AS info,"
+             " mtime AS mtime"
+             " FROM user"
+             " WHERE uid=%d",
+             uid);
+  if( (SQLITE_ROW == db_step(&q)) ){
+    u = cson_sqlite3_row_to_object(q.pStmt);
+  }
+  db_finalize(&q);
+  return u;  
+}
+
+
+/*
 ** Impl of /json/user/get. Requires admin rights.
 */
 static cson_value * json_user_get(){
   cson_value * payV = NULL;
   char const * pUser = NULL;
-  Stmt q;
   if(!g.perm.Admin){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'a' privileges.");
@@ -102,23 +148,10 @@ static cson_value * json_user_get(){
     json_set_err(FSL_JSON_E_MISSING_ARGS,"Missing 'name' property.");
     return NULL;
   }
-  db_prepare(&q,"SELECT uid AS uid,"
-             " login AS name,"
-             " cap AS capabilities,"
-             " info AS info,"
-             " mtime AS mtime"
-             " FROM user"
-             " WHERE login=%Q",
-             pUser);
-  if( (SQLITE_ROW == db_step(&q)) ){
-    payV = cson_sqlite3_row_to_object(q.pStmt);
-    if(!payV){
-      json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert user row to JSON.");
-    }
-  }else{
+  payV = json_load_user_by_name(pUser);
+  if(!payV){
     json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,"User not found.");
   }
-  db_finalize(&q);
   return payV;  
 }
 
@@ -132,6 +165,11 @@ static cson_value * json_user_get(){
 **
 ** If uid is specified then name may refer to a _new_ name
 ** for a user, otherwise the name must refer to an existing user.
+** If uid=-1 then the name must be specified and a new user is
+** created (failes if one already exists).
+**
+** If uid is not set, this function might modify pUser to contain the
+** db-found (or inserted) user ID.
 **
 ** On error g.json's error state is set one of the FSL_JSON_E_xxx
 ** values from FossilJsonCodes is returned.
@@ -147,10 +185,10 @@ static cson_value * json_user_get(){
 ** users.
 **
 */
-int json_user_update_from_json( cson_object const * pUser ){
+int json_user_update_from_json( cson_object * pUser ){
 #define CSTR(X) cson_string_cstr(cson_value_get_string( cson_object_get(pUser, X ) ))
   char const * zName = CSTR("name");
-  char const * zNameOrig = zName;
+  char const * zNameNew = zName;
   char * zNameFree = NULL;
   char const * zInfo = CSTR("info");
   char const * zCap = CSTR("capabilities");
@@ -178,32 +216,46 @@ int json_user_update_from_json( cson_object const * pUser ){
                           "No login found for uid %d.", uid);
     }
     zName = zNameFree;
+  }else if(-1==uid){
+    /* try to create a new user */
+    if(!g.perm.Admin && !g.perm.Setup){
+      return json_set_err(FSL_JSON_E_DENIED,
+                          "Requires 'a' or 's' privileges.");
+    } else if(!zName || !*zName){
+      return json_set_err(FSL_JSON_E_MISSING_ARGS,
+                          "No name specified for new user.");
+    }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zName) ){
+      return json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
+                          "User %s already exists.", zName);
+    }else{
+      Stmt ins = empty_Stmt;
+      db_prepare(&ins, "INSERT INTO user (login) VALUES(%Q)",zName);
+      db_step( &ins );
+      db_finalize(&ins);
+      uid = db_int(0,"SELECT uid FROM user WHERE login=%Q", zName);
+      assert(uid>0);
+      zNameNew = zName;
+      cson_object_set( pUser, "uid", cson_value_new_integer(uid) );
+    }
   }else{
-    uid = db_int(0,"SELECT uid FROM user WHERE login=%Q",
-                 zName);
+    uid = db_int(0,"SELECT uid FROM user WHERE login=%Q", zName);
     if(uid<=0){
       return json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
                           "No login found for user [%s].", zName);
     }
+    cson_object_set( pUser, "uid", cson_value_new_integer(uid) );
   }
-  /*
-    Todo: reserve the uid=-1 to mean that the user should be created
-    by this request.
-
-    Todo: when changing an existing user's name we need to invalidate
-    or recalculate the login hash because the user's name is part of
-    the hash.
-  */
 
   /* Maintenance note: all error-returns from here on out should go
-     via goto error in order to clean up.
+     via 'goto error' in order to clean up.
   */
   
   if(uid != g.userUid){
     /*
       TODO: do not allow an admin user to modify a setup user
       unless the admin is also a setup user. setup.c uses
-      that logic.
+      that logic. There is a corner case for a NEW Setup user
+      which the admin is just installing. Hmm.      
     */
     if(!g.perm.Admin && !g.perm.Setup){
       json_set_err(FSL_JSON_E_DENIED,
@@ -215,18 +267,22 @@ int json_user_update_from_json( cson_object const * pUser ){
   blob_append(&sql, "UPDATE USER SET",-1 );
   blob_append(&sql, " mtime=cast(strftime('%s') AS INTEGER)", -1);
 
-  if((uid>0) && zName){
-    /* Only change the name if the uid is explicitly set and name
-       would actually change. */
-    if( zNameOrig && (zName != zNameOrig)
-        && (0!=strcmp(zNameOrig,zName))){
-      if(!g.perm.Admin && !g.perm.Setup) {
-        json_set_err( FSL_JSON_E_DENIED,
-                      "Modifying user names requires 'a' or 's' privileges.");
-        goto error;
-      }
+  if((uid>0) && zNameNew){
+    /* Check for name change... */
+    if( (!g.perm.Admin && !g.perm.Setup)
+        && zNameNew && (zName != zNameNew)
+        && (0!=strcmp(zNameNew,zName))){
+      json_set_err( FSL_JSON_E_DENIED,
+                    "Modifying user names requires 'a' or 's' privileges.");
+      goto error;
     }
-    blob_appendf(&sql, ", login=%Q", zNameOrig);
+    forceLogout = cson_value_true()
+        /* reminders: 1) does not allocate.
+         2) we do this because changing a name
+         invalidates any login token because the old name
+         is part of the token hash.
+        */;
+    blob_appendf(&sql, ", login=%Q", zNameNew);
     ++gotFields;
   }
 
@@ -238,7 +294,7 @@ int json_user_update_from_json( cson_object const * pUser ){
   if( zPW ){
     char * zPWHash = NULL;
     ++gotFields;
-    zPWHash = sha1_shared_secret(zPW, zName, NULL);
+    zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
     blob_appendf(&sql, ", pw=%Q", zPWHash);
     free(zPWHash);
   }
@@ -262,7 +318,10 @@ int json_user_update_from_json( cson_object const * pUser ){
   assert(uid>0);
   blob_appendf(&sql, " WHERE uid=%d", uid);
   free( zNameFree );
-  /*puts(blob_str(&sql));*/
+#if 0
+  puts(blob_str(&sql));
+  cson_output_FILE( cson_object_value(pUser), stdout, NULL );
+#endif
   db_prepare(&q, "%s", blob_str(&sql));
   blob_reset(&sql);
   db_exec(&q);
@@ -292,6 +351,8 @@ static cson_value * json_user_save(){
   char const * str = NULL;
   char b = -1;
   int i = -1;
+  int uid = -1;
+  cson_value * payload = NULL;
 #define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL);             \
   if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
   PROP("name");
@@ -313,7 +374,12 @@ static cson_value * json_user_save(){
     cson_object_merge( u, g.json.reqPayload.o, CSON_MERGE_NO_RECURSE );
   }
   json_user_update_from_json( u );
+  if(!g.json.resultCode){
+    uid = cson_value_get_integer( cson_object_get(u, "uid") );
+    assert((uid>0) && "Something went wrong in json_user_update_from_json()");
+    payload = json_load_user_by_id(uid);
+  }
   cson_free_object(u);
-  return NULL;
+  return payload;
 }
 #endif /* FOSSIL_ENABLE_JSON */

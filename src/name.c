@@ -435,6 +435,7 @@ void whatis_cmd(void){
         case 'e':  zType = "Event";          break;
         case 't':  zType = "Ticket-change";  break;
         case 'g':  zType = "Tag-change";     break;
+        default:   zType = "Unknown";        break;
       }
       fossil_print("type:     %s by %s on %s\n", zType, db_column_text(&q,2),
                    db_column_text(&q, 1));

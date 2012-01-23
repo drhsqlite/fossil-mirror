@@ -347,6 +347,7 @@ void Th_FossilInit(void){
     {"puts",          putsCmd,              },
     {"wiki",          wikiCmd,              },
     {"repository",    repositoryCmd,        },
+    {0, 0}
   };
   if( g.interp==0 ){
     int i;
@@ -363,6 +364,7 @@ void Th_FossilInit(void){
     }
 #endif
     for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
+      if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
       Jim_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc, NULL,
           NULL);
     }
@@ -552,7 +554,7 @@ void test_script_render(void){
   if( g.argc<3 ){
     usage("FILE");
   }
-  db_open_config(0); /* Needed for "tcl" setting. */
+  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));

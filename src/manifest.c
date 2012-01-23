@@ -1227,6 +1227,34 @@ ManifestFile *manifest_file_seek(Manifest *p, const char *zName){
 }
 
 /*
+** Look for a file in a manifest, taking the case-sensitive option
+** into account.  If case-sensitive is off, then files in any case
+** will match.
+*/
+ManifestFile *manifest_file_find(Manifest *p, const char *zName){
+  int i;
+  Manifest *pBase;
+  if( filenames_are_case_sensitive() ){
+    return manifest_file_seek(p, zName);
+  }
+  for(i=0; i<p->nFile; i++){
+    if( fossil_stricmp(zName, p->aFile[i].zName)==0 ){
+      return &p->aFile[i];
+    }
+  }
+  if( p->zBaseline==0 ) return 0;
+  fetch_baseline(p, 1);
+  pBase = p->pBaseline;
+  if( pBase==0 ) return 0;
+  for(i=0; i<pBase->nFile; i++){
+    if( fossil_stricmp(zName, p->aFile[i].zName)==0 ){
+      return &p->aFile[i];
+    }
+  }
+  return 0;
+}
+
+/*
 ** Add mlink table entries associated with manifest cid, pChild.  The
 ** parent manifest is pid, pParent.  One of either pChild or pParent
 ** will be NULL and it will be computed based on cid/pid.

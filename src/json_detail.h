@@ -157,6 +157,10 @@ typedef struct JsonPageDef{
   ** Which mode(s) of execution does func() support:
   **
   ** <0 = CLI only, >0 = HTTP only, 0==both
+  **
+  ** Now that we can simulate POST in CLI mode, the distinction
+  ** between them has disappeared in most (or all) cases, so 0 is the
+  ** the standard value.
   */
   char runMode;
 } JsonPageDef;

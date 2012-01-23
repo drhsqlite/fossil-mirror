@@ -96,7 +96,8 @@ WhAjaj.isFunction = function(obj)
     neither str is passed in nor window exists then false is returned.
 
     On success it returns an Object containing the key/value pairs
-    parsed from the string.
+    parsed from the string. Keys which have no value are treated
+    has having the boolean true value.
     
     FIXME: for keys in the form "name[]", build an array of results,
     like PHP does.
@@ -104,7 +105,7 @@ WhAjaj.isFunction = function(obj)
 */
 WhAjaj.processUrlArgs = function(str) {
     if( 0 === arguments.length ) {
-        if( (undefined === typeof window) ||
+        if( ('undefined' === typeof window) ||
             !window.location ||
             !window.location.search )  return false;
         else str = (''+window.location.search).substring(1);
@@ -188,7 +189,11 @@ WhAjaj.stringify = function(val) {
     
     @code
     cgi.login = function(name,pw,ajajOpt) {
-        this.sendRequest( {name:name, password:pw}, ajajOpt );
+        this.sendRequest(
+            {command:"json/login",
+              name:name,
+              password:pw
+            }, ajajOpt );
     };
     @endcode
     
@@ -196,13 +201,13 @@ WhAjaj.stringify = function(val) {
     
     - Caching of page-load requests, with a configurable lifetime.
     
-    - Use-cases like the above login() function are a tiny bit 
-    problematic to implement when each request has a different URL 
-    path (i know this from the whiki implementation). This is partly 
-    a side-effect of design descisions made back in the very first 
-    days of this code's life. i need to go through and see where i 
-    can bend those conventions a bit (where it won't break my other 
-    apps unduly).
+    - Use-cases like the above login() function are a tiny bit
+    problematic to implement when each request has a different URL
+    path (i know this from the whiki and fossil implementations).
+    This is partly a side-effect of design descisions made back in
+    the very first days of this code's life. i need to go through
+    and see where i can bend those conventions a bit (where it won't
+    break my other apps unduly).
 */
 WhAjaj.Connector = function(opt)
 {
@@ -286,7 +291,7 @@ WhAjaj.Connector.options = {
             least one popular AJAX toolkit does not document 
             supporting _synchronous_ AJAX operations. All common 
             browser-side implementations support async operation, but 
-            non-browser implementations migth not.
+            non-browser implementations might not.
         */
         asynchronous:true,
 
@@ -312,24 +317,28 @@ WhAjaj.Connector.options = {
         timeout:10000,
 
         /**
-            If an AJAJ request receives JSON data from the back-end, that
-            data is passed as a plain Object as the response parameter
-            (exception: in jsonp mode it is passed a string). The initiating
-            request object is passed as the second parameter, but clients
-            can normally ignore it (only those which need a way to map
-            specific requests to responses will need it). The 3rd parameter
-            is the same as the 'this' object for the context of the callback,
-            but is provided because the instance-level callbacks (set in
-            (WhAjaj.Connector instance).callbacks, require it in some
-            cases (because their 'this' is different!).
+            If an AJAJ request receives JSON data from the back-end,
+            that data is passed as a plain Object as the response
+            parameter (exception: in jsonp mode it is passed a
+            string (why???)). The initiating request object is
+            passed as the second parameter, but clients can normally
+            ignore it (only those which need a way to map specific
+            requests to responses will need it). The 3rd parameter
+            is the same as the 'this' object for the context of the
+            callback, but is provided because the instance-level
+            callbacks (set in (WhAjaj.Connector instance).callbacks,
+            require it in some cases (because their 'this' is
+            different!).
             
-            Note that the response might contain error information which
-            comes from the back-end. The difference between this error info
-            and the info passed to the onError() callback is that this data
-            indicates an application-level error, whereas onError() is used
-            to report connection-level problems or when the backend produces
-            non-JSON data (which, when not in jsonp mode, is unexpected and
-            is as fatal to the request as a connection error).
+            Note that the response might contain error information
+            which comes from the back-end. The difference between
+            this error info and the info passed to the onError()
+            callback is that this data indicates an
+            application-level error, whereas onError() is used to
+            report connection-level problems or when the backend
+            produces non-JSON data (which, when not in jsonp mode,
+            is unexpected and is as fatal to the request as a
+            connection error).
         */
         onResponse: function(response, request, opt){},
 
@@ -762,8 +771,6 @@ WhAjaj.Connector.sendImpls = {
         var done = false;
         var tmid /* setTimeout() ID */;
         var whself = this;
-        //if( json ) json = json.replace(/ö/g,"\\u00f6") /* ONLY FOR A SPECIFIC TEST */;
-        //alert( 'json=\n'+json );
         function handleTimeout()
         {
             hitTimeout = true;

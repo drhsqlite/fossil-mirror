@@ -59,12 +59,10 @@ cson_value * json_page_login(){
   char const * anonSeed = NULL;
   cson_value * payload = NULL;
   int uid = 0;
-  /* reminder to self:
-     Fossil internally (for the sake of /wiki) interprets
-     paths in the form /foo/bar/baz such that
-     P("name") == "bar/baz". This collides with our
-     name/password checking, and thus we check for the
-     password first.
+  /* reminder to self: Fossil internally (for the sake of /wiki)
+     interprets paths in the form /foo/bar/baz such that P("name") ==
+     "bar/baz". This collides with our name/password checking, and
+     thus we do some rather elaborate name=... checking.
   */
   pw = cson_value_get_cstr(json_payload_property("password"));
   if( !pw ){
@@ -159,9 +157,25 @@ cson_value * json_page_login(){
     cson_object_set(po, "authToken", json_new_string(cookie));
     free(cookie);
     cson_object_set(po, "name", json_new_string(name));
-    cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q",name);
-    cson_object_set(po, "capabilities", json_new_string(cap));
+    cap = db_text(NULL, "SELECT cap FROM user WHERE login=%Q", name);
+    cson_object_set(po, "capabilities", cap ? json_new_string(cap) : cson_value_null() );
     free(cap);        
+    cson_object_set(po, "loginCookieName", json_new_string( login_cookie_name() ) );
+    /* TODO: add loginExpiryTime to the payload. To do this properly
+       we "should" add an ([unsigned] int *) to
+       login_set_user_cookie() and login_set_anon_cookie(), to which
+       the expiry time is assigned. (Remember that JSON doesn't do
+       unsigned int.)
+
+       For non-anonymous users we could also simply query the
+       user.cexpire db field after calling login_set_user_cookie(),
+       but for anonymous we need to get the time when the cookie is
+       set because anon does not get a db entry like normal users
+       do. Anonyous cookies currently have a hard-coded lifetime in
+       login_set_anon_cookie() (currently 6 hours), which we "should
+       arguably" change to use the time configured for non-anonymous
+       users (see login_set_user_cookie() for details).
+    */
     return payload;
   }
 }

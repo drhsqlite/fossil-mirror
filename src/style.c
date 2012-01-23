@@ -772,6 +772,11 @@ const struct strctCssDefaults {
     @   color: red;
     @   font-weight: bold;
   },
+  { "p.xfersetupError",
+    "format for xfersetup errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
   { "p.thmainError",
     "format for th script errors",
     @   color: red;
@@ -895,6 +900,7 @@ void page_test_env(void){
   @ g.zLogin = %h(g.zLogin)<br />
   @ capabilities = %s(zCap)<br />
   @ <hr>
+  P("HTTP_USER_AGENT");
   cgi_print_all(atoi(PD("showall","0")));
   if( g.perm.Setup ){
     const char *zRedir = P("redirect");
