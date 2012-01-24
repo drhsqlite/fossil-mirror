@@ -129,10 +129,12 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   blob_extract(pXfer->pIn, n, &content);
   if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( isPriv && !g.perm.Private ){
     /* Do not accept private files if not authorized */
+    blob_reset(&content);
     return;
   }
   if( cloneFlag ){
@@ -158,6 +160,8 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
+      blob_reset(&src);
+      blob_reset(&content);
       return;
     }
     pXfer->nDeltaRcvd++;
@@ -237,6 +241,7 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   blob_extract(pXfer->pIn, szC, &content);
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( pXfer->nToken==5 ){
@@ -422,6 +427,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }else{
       pXfer->nDeltaSent++;
     }
+    blob_reset(&content);
   }
   remote_has(rid);
   blob_reset(&uuid);
