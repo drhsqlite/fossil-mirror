@@ -1,9 +1,9 @@
-C Merge\strunk\schanges\sinto\sthe\sretro-sbsdiff\sbranch.
-D 2012-01-18T13:22:18.501
+C Merge\sthe\slatest\strunk\schanges\sinto\sthe\sretro-sbsdiff\sbranch.
+D 2012-01-28T22:04:07.381
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in ebe28abdc231e41a40b725c4b238cb47f1ae4a46
+F Makefile.in c663b6547744cc8061ad3e95930b1cabda25333f
 F VERSION 80923d810957279766832cc7c7eaf2f7d19508bf
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -65,7 +65,7 @@ F src/branch.c 60b8906d05fc820620c49e3d18b071c5745a7058
 F src/browse.c 812364a30b5b7cbbad2e51fb3896b670554de6d5
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c ef217e63c1476a60c665479134647269a358cc6d
-F src/checkin.c 2f1c677ca1a6159bcb8979cd4a0fc8820acef447
+F src/checkin.c 1b8de7fc71ac53102705d3ac44747bad30428e8a
 F src/checkout.c 44342541ce79ee1e06483f3e74d54732cc903650
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c d60859de8b75b5acc66392c8ce77dd8bdc19558a
@@ -75,7 +75,7 @@ F src/configure.c d30e8b98b353a50d8e1f51cd6075614d12b1c087
 F src/content.c 36f6acb63db99f1923dd470072b7b5b89d78fc55
 F src/cson_amalgamation.c d7d2ccdd8b462db7f723e85a5679bb971f2ba48e
 F src/cson_amalgamation.h 791b543366864a33c1be4982f3d683273235aa19
-F src/db.c 9fcdaea15be8ddb921a5f56aef8c8cceab757994
+F src/db.c 818f20c52219f148266c57be273a62063b7c9936
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -85,17 +85,17 @@ F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 416098d705d8ab081d532f02b974523008662cf8
+F src/file.c 0b766e8fbf6fe236cc01a769f98cb810442fe681
 F src/finfo.c b6b35d8f6a8f3e78184b5bf7e167d483fa11e55d
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c d3f1c17168ba78cb5632a8c679b487bf20c4f02d
+F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c bb0385647214c99e36df563d2c200fbcd2d63766
+F src/info.c 6c9f6c5c7cae499d6385e975bee166daf817aead
 F src/json.c 870377c491d101c293843c6352c01c6992118e2f
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -164,7 +164,7 @@ F src/vfile.c 3c7829d30d2acdcf62c5249db678d72af48015a3
 F src/wiki.c 6da016415dc52d6142c760104407bf45853932d9
 F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
 F src/winhttp.c 6d4b4567c9d14be26b8d56eee2258aba01af26b9
-F src/xfer.c efd96fb2d8d1ca8a8b7d998267df6892de667ce6
+F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c d88fe881bda492ff2041bc11c847d04b1ca30496
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5b38dbb20ef4ed433987ff2854f1b75c9f442866 0b61e3c019dc4e0937fc147eb114f332b18b4cf6
-R bed79962d024baf4ae6690155032abd3
+P 6daee94fac51d294944fa3095bde87be9715d099 a7248d8fb9f013795c3276837fda9f2170f4b5ca
+R 8fcd098d1aa47bee18d4797c6872a268
 U drh
-Z 880cc7e4af2cc1a47d4d6e4af308828c
+Z 293b41adf3bf8075520609ba4949d3d3

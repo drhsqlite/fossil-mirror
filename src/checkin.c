@@ -182,7 +182,7 @@ void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
   vid = db_lget_int("checkout", 0);
   if( vid ){

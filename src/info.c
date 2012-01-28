@@ -159,7 +159,7 @@ void info_cmd(void){
     db_record_repository_filename(0);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     if( g.localOpen ){
-      fossil_print("repository:   %s\n", db_lget("repository", ""));
+      fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
 #if defined(_WIN32)
