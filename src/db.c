@@ -787,36 +787,37 @@ static int isValidLocalDb(const char *zDbName){
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  g.localOpen = 1;
-  db_open_config(0);
-  db_open_repository(0);
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "isexe") )
+  if( !db_local_column_exists("vfile", "isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
+  }
 
   /* If "islink"/"isLink" columns are missing from tables, then
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "islink") )
+  if( !db_local_column_exists("vfile", "islink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("stashfile", "isLink") &&
-       db_local_table_exists("stashfile") )
+       db_local_table_exists("stashfile") ){
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
 
   if( !db_local_column_exists("undo", "isLink") &&
-       db_local_table_exists("undo") )
+       db_local_table_exists("undo") ){
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("undo_vfile", "islink") &&
-       db_local_table_exists("undo_vfile") )
+       db_local_table_exists("undo_vfile") ){
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-
+  }
   return 1;
 }
 
@@ -855,6 +856,9 @@ int db_open_local(void){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
+        g.localOpen = 1;
+        db_open_config(0);
+        db_open_repository(0);
         return 1;
       }
     }
@@ -869,6 +873,24 @@ int db_open_local(void){
 }
 
 /*
+** Get the full pathname to the repository database file.  The
+** local database (the _FOSSIL_ or .fos database) must have already
+** been opened before this routine is called.
+*/
+const char *db_repository_filename(void){
+  static char *zRepo = 0;
+  assert( g.localOpen );
+  assert( g.zLocalRoot );
+  if( zRepo==0 ){
+    zRepo = db_lget("repository", 0);
+    if( zRepo && !file_is_absolute_path(zRepo) ){
+      zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+    }
+  }
+  return zRepo;
+}
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
@@ -876,7 +898,7 @@ void db_open_repository(const char *zDbName){
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
-      zDbName = db_lget("repository", 0);
+      zDbName = db_repository_filename();
     }
     if( zDbName==0 ){
       db_err("unable to find the name of a repository database");
@@ -932,7 +954,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     if( db_open_local()==0 ){
       goto rep_not_found;
     }
-    zRep = db_lget("repository", 0)/*leak here*/;
+    zRep = db_repository_filename();
     if( zRep==0 ){
       goto rep_not_found;
     }
@@ -1669,7 +1691,7 @@ void db_record_repository_filename(const char *zName){
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
-    zName = db_lget("repository", 0);
+    zName = db_repository_filename();
   }
   file_canonical_name(zName, &full);
   db_swap_connections();
@@ -1727,7 +1749,7 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_delete_on_failure("./_FOSSIL_");
   db_open_local();
-  db_lset("repository", blob_str(&path));
+  db_lset("repository", g.argv[2]);
   db_record_repository_filename(blob_str(&path));
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
