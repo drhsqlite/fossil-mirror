@@ -381,7 +381,7 @@ void zip_of_baseline(int rid, Blob *pZip, const char *zDir){
 /*
 ** COMMAND: zip*
 **
-** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME]
+** Usage: %fossil zip VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
 **
 ** Generate a ZIP archive for a specified version.  If the --name option is
 ** used, it argument becomes the name of the top-level directory in the
