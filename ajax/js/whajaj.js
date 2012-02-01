@@ -111,6 +111,7 @@ WhAjaj.processUrlArgs = function(str) {
         else str = (''+window.location.search).substring(1);
     }
     if( ! str ) return false;
+    str = (''+str).split(/#/,2)[0]; // remove #... to avoid it being added as part of the last value.
     var args = {};
     var sp = str.split(/&+/);
     var rx = /^([^=]+)(=(.+))?/;

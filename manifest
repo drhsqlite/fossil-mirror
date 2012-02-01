@@ -1,5 +1,5 @@
-C Doc\schange\sonly:\sdocumented\s-R/--repository\sfor\szip/tar\scommands.
-D 2012-02-01T12:09:57.224
+C Added\sa\skludge\sto\sajax\sURL\sparam\shandling\sto\signore\sanything\safter\s"#".\sThought\si\schecked\sthis\sin\sin\sNovember.
+D 2012-02-01T12:33:33.222
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -12,7 +12,7 @@ F ajax/i-test/rhino-test.js 5e4dc7f334e589c63be61cae3d1e38435ca59bad
 F ajax/index.html 634ef2391ccf7ead5210dcc95822601dcc177cd1
 F ajax/js/fossil-ajaj.js 7f57fa883df4e0bc9b0ee25fb7d3ead6e4808ae0
 F ajax/js/json2.js 2e347546543bf026d364e9d308007b18225c0cba
-F ajax/js/whajaj.js 227d53e9a3f8eb79c1c45dbd2c49fcda75ee7b07
+F ajax/js/whajaj.js aaf43d1459ee6ea218da70ac02863b33f3740767
 F ajax/wiki-editor.html 51f2d323985a3692772d2599c81222a58f1c444e
 F art/CollRev1.dia 186c7bb7a88c533ab226431bbd7c4835bb6ac2a0
 F art/CollRev2.dia 59b1c331a52e19f44f2dcf7c744dd5aaabd2b5cf
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a7248d8fb9f013795c3276837fda9f2170f4b5ca
-R 2eee4346f85d7239f20980208af72ff2
+P a84aadad5a76cfdf6d9586e62aba322a8e92255c
+R a0b664fab61f3d76f08da0c9929e9aa5
 U stephan
-Z 0338575af87bec0193ef8544538cd5ae
+Z e427c54ea7113dd049817fbbbf4ffbe2
