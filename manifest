@@ -1,5 +1,5 @@
-C Add\sURI\squery\sparameters\s"dw="\sand\s"dc="\sto\scontrol\sthe\swidth\sof\scolumns\sand\nthe\slines\sof\scontext\son\sside-by-side\sdiffs\sin\sthe\sweb\sinterface.
-D 2012-02-03T16:15:21.619
+C Avoid\soverflow\sproblems\sif\susers\senter\snegative\snumbers\sfor\sthe\s"dw"\nand\s"dc"\sURI\squery\sparameters.
+D 2012-02-03T16:42:01.405
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -95,7 +95,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 27bbf8181eb52b42f15d1c6b07f85fb0e25411c4
+F src/info.c afc08e6eefa5c524f2f43e890623439b5cbe1e29
 F src/json.c 870377c491d101c293843c6352c01c6992118e2f
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c7cf0cbee612d4cbca5d8e641911de4df819f39f
-R 7b1bf1467c78ecf86afffd82cc5fa7cf
+P 6474a92a87d06f6801d0906eed5e9e148b61b2cf
+R 87249d4e2c421475bea308768fc4f406
 U drh
-Z d5a2065de1bdf7cbaa4a0492988fc9b2
+Z 02edbc4ce1e322cd01fccd38c431866c

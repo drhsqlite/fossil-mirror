@@ -355,12 +355,12 @@ static int construct_diff_flags(int showDiff, int sideBySide){
 
     /* "dw" query parameter determines width of each column */
     x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
-    if( x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
+    if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
     diffFlags += x;
 
     /* "dc" query parameter determines lines of context */
     x = atoi(PD("dc","7"));
-    if( x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
+    if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
     diffFlags += x;
   }else{
     /* In-line (non-side-by-side) diff */
