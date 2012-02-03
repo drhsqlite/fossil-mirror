@@ -1,5 +1,5 @@
-C Enhance\sthe\s--detail\soption\son\sthe\s"merge"\scommand\sto\sshow\sthe\sspecific\ncheck-in\sthat\sis\sbeing\smerged\sin\sand\sthe\sbaseline\sof\sthe\smerge.
-D 2012-02-03T15:05:25.927
+C Fix\soversize\slines\sin\sthe\supdate.c\ssource\sfile.
+D 2012-02-03T17:00:27.105
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -156,7 +156,7 @@ F src/tkt.c 0ce41ae4428d47dfb1708547e5a18c5d27cdf9f2
 F src/tktsetup.c fcc92cae6ab8c2ad925b67efbb07b0fa32984fa2
 F src/translate.c 3a88f86520a299025cf5a8279dbf6c1acbf1daab
 F src/undo.c df969a5c6fa55f51583866caa60eafc3266785fe
-F src/update.c e9bc01475a961dd0ed6746f74ea07a15f2cd4686
+F src/update.c bf4a87ca6c8618cd4855303d67f7350d462731ae
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 3eaff102120c0b10c32792dc31432539bbf3716d
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b4a1c60ef648865a500ea8679b1568138c8f23e1
-R 7808a91acd7210c7a6edd318f37899df
+P 68d84047c0a4dcce7264d12bd324d334ea5371f7
+R 9692df8ffbbf8a998d6ca543c160157c
 U drh
-Z 17d6fe4d256b1a7f5cc6cf24768cef5e
+Z 3b9d3e449a7c8e86cf9ff96a53b8f199

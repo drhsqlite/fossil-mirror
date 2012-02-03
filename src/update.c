@@ -265,18 +265,22 @@ void update_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0),"
-    " islinkt=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    " islinkv=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0),"
+    " islinkt=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0)",
     vid, tid
   );
 
 
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe, islinkv, islinkt FROM fv"
+       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe,"
+       "       islinkv, islinkt FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d islinkv=%d  islinkt=%d\n",
+       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d"
+                    " islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
@@ -327,7 +331,8 @@ void update_cmd(void){
   ** target
   */
   db_prepare(&q, 
-    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, isexe, islinkv, islinkt FROM fv ORDER BY 1"
+    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt,"
+    "       isexe, islinkv, islinkt FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -668,7 +673,8 @@ void revert_cmd(void){
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    errCode = historical_version_of_file(zRevision, zFile, &record, &isLink, &isExe,2);
+    errCode = historical_version_of_file(zRevision, zFile, &record,
+                                         &isLink, &isExe,2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);
@@ -694,7 +700,7 @@ void revert_cmd(void){
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d, mrid=rid,"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid,"
          "       pathname=coalesce(origname,pathname), origname=NULL"     
          " WHERE pathname=%Q",
          mtime, isExe, isLink, zFile
