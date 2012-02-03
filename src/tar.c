@@ -527,7 +527,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 /*
 ** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME]
+** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory
