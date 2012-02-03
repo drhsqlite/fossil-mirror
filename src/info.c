@@ -287,14 +287,9 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  int showDiff,         /* Show edit diffs if true */
-  int sideBySide,       /* Show diffs side-by-side */
+  int diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
   int mperm             /* executable or symlink permission for zNew */
 ){
-  int diffFlags = DIFF_IGNORE_EOLWS | 7;
-  if( sideBySide ){
-    diffFlags |= DIFF_SIDEBYSIDE;
-  }
   if( !g.perm.History ){
     if( zNew==0 ){
       @ <p>Deleted %h(zName)</p>
@@ -308,7 +303,7 @@ static void append_file_change_line(
     }else{
       @ <p>Changes to %h(zName)</p>
     }
-    if( showDiff ){
+    if( diffFlags ){
       @ <pre style="white-space:pre;">
       append_diff(zOld, zNew, diffFlags);
       @ </pre>
@@ -334,7 +329,7 @@ static void append_file_change_line(
       @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a>
     }
-    if( showDiff ){
+    if( diffFlags ){
       @ <pre style="white-space:pre;">
       append_diff(zOld, zNew, diffFlags);
       @ </pre>
@@ -344,6 +339,34 @@ static void append_file_change_line(
     }
     @ </p>
   }
+}
+
+/*
+** Construct an appropriate diffFlag for text_diff() based on query
+** parameters and the to boolean arguments.
+*/
+static int construct_diff_flags(int showDiff, int sideBySide){
+  int diffFlags;
+  if( showDiff==0 ){
+    diffFlags = 0;  /* Zero means do not show any diff */
+  }else if( sideBySide ){
+    int x;
+    diffFlags = DIFF_SIDEBYSIDE | DIFF_IGNORE_EOLWS;
+
+    /* "dw" query parameter determines width of each column */
+    x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
+    if( x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
+    diffFlags += x;
+
+    /* "dc" query parameter determines lines of context */
+    x = atoi(PD("dc","7"));
+    if( x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
+    diffFlags += x;
+  }else{
+    /* In-line (non-side-by-side) diff */
+    diffFlags = DIFF_INLINE | DIFF_IGNORE_EOLWS;
+  }
+  return diffFlags;
 }
 
 
@@ -366,8 +389,9 @@ void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
-  int showDiff;
-  int sideBySide;
+  int showDiff;        /* True to show diffs */
+  int sideBySide;      /* True for side-by-side diffs */
+  int diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -564,14 +588,14 @@ void ci_page(void){
        " ORDER BY name /*sort*/",
        rid
     );
+    diffFlags = construct_diff_flags(showDiff, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q,0);
       int mperm = db_column_int(&q, 1);
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
       const char *zOldName = db_column_text(&q, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, showDiff,
-            sideBySide, mperm);
+      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags, mperm);
     }
     db_finalize(&q);
   }
@@ -729,6 +753,7 @@ void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
   int sideBySide = 0;
+  int diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
 
@@ -740,8 +765,9 @@ void vdiff_page(void){
   if( pFrom==0 ) return;
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
-  showDetail = atoi(PD("detail","0"));
   sideBySide = atoi(PD("sbs","1"));
+  showDetail = atoi(PD("detail","0"));
+  if( !showDetail && sideBySide ) showDetail = 1;
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
                           "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
@@ -762,6 +788,7 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
+  diffFlags = construct_diff_flags(showDetail, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
@@ -773,11 +800,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, 0, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0, 0, 0,
+                              0, pFileTo->zUuid, 0, 0,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -787,7 +814,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName, 
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, showDetail, sideBySide,
+                              pFileTo->zUuid, 0, diffFlags,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);

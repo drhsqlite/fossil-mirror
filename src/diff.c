@@ -32,6 +32,7 @@
 #define DIFF_IGNORE_EOLWS  0x0100000  /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE    0x0200000  /* Generate a side-by-side diff */
 #define DIFF_NEWFILE       0x0400000  /* Missing files are as empty files */
+#define DIFF_INLINE        0x0800000  /* Inline (not side-by-side) diff */
 
 #endif /* INTERFACE */
 
