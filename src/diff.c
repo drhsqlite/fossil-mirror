@@ -154,12 +154,15 @@ static int same_dline(DLine *pA, DLine *pB){
 static void appendDiffLine(Blob *pOut, char cPrefix, DLine *pLine, int html){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
+    char *zHtml;
     if( cPrefix=='+' ){
       blob_append(pOut, "<span class=\"diffadd\">", -1);
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
-    blob_appendf(pOut, "%.*h", (pLine->h & LENGTH_MASK), pLine->z);
+    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
+    blob_append(pOut, zHtml, -1);
+    fossil_free(zHtml);
     if( cPrefix!=' ' ){
       blob_append(pOut, "</span>", -1);
     }
