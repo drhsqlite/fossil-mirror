@@ -1076,7 +1076,7 @@ void diff_page(void){
   char *zV1;
   char *zV2;
   int diffFlags;
-  const char *zStyle;
+  const char *zStyle = "sbsdiff";
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
