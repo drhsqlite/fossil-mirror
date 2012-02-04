@@ -289,9 +289,9 @@ Unlike several other popular DVCSes, Fossil allows a single repository
 to have multiple working checkouts.  Each working checkout has a single
 database in its root directory that records the state of that checkout.
 The checkout database is named "_FOSSIL_" by default, but can be renamed
-to ".fos" if desired.  (Future versions of Fossil might make ".fos" the
-default name.)  The checkout database records information such as the
-following:
+to ".fslckout" if desired.  (Future versions of Fossil might make
+".fslckout" the default name.)  The checkout database records information
+such as the following:
 
   *  The full pathname of the repository database file.
   *  The version that is currently checked out.

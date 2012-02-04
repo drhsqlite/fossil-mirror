@@ -46,6 +46,14 @@ const char *fossil_reserved_name(int N){
      "_FOSSIL_-journal",
      "_FOSSIL_-wal",
      "_FOSSIL_-shm",
+     ".fslckout",
+     ".fslckout-journal",
+     ".fslckout-wal",
+     ".fslckout-shm",
+
+     /* The use of ".fos" as the name of the checkout database is 
+     ** deprecated.  Use ".fslckout" instead.  At some point, the following
+     ** entries should be removed.  2012-02-04 */
      ".fos",
      ".fos-journal",
      ".fos-wal",
