@@ -773,11 +773,7 @@ void scrub_cmd(void){
   db_begin_transaction();
   if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
-    db_multi_exec(
-      "DELETE FROM blob WHERE rid IN private;"
-      "DELETE FROM delta WHERE rid IN private;"
-      "DELETE FROM private;"
-    );
+    delete_private_content();
   }
   if( !privateOnly ){
     db_multi_exec(
