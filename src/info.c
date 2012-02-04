@@ -270,8 +270,15 @@ static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
     blob_zero(&to);
   }
   blob_zero(&out);
-  text_diff(&from, &to, &out, diffFlags);
-  @ %h(blob_str(&out))
+  if( diffFlags & DIFF_SIDEBYSIDE ){
+    text_diff(&from, &to, &out, diffFlags | DIFF_HTML);
+    @ <div class="sbsdiff">
+    @ %s(blob_str(&out))
+    @ </div>
+  }else{
+    text_diff(&from, &to, &out, diffFlags);
+    @ %h(blob_str(&out))
+  }
   blob_reset(&from);
   blob_reset(&to);
   blob_reset(&out);  

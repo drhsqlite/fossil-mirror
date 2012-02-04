@@ -27,12 +27,13 @@
 /*
 ** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
 */
-#define DIFF_CONTEXT_MASK  0x0000fff  /* Lines of context.  Default if 0 */
-#define DIFF_WIDTH_MASK    0x00ff000  /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS  0x0100000  /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE    0x0200000  /* Generate a side-by-side diff */
-#define DIFF_NEWFILE       0x0400000  /* Missing files are as empty files */
-#define DIFF_INLINE        0x0800000  /* Inline (not side-by-side) diff */
+#define DIFF_CONTEXT_MASK  0x0000ffff  /* Lines of context.  Default if 0 */
+#define DIFF_WIDTH_MASK    0x00ff0000  /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
+#define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
+#define DIFF_INLINE        0x08000000  /* Inline (not side-by-side) diff */
+#define DIFF_HTML          0x10000000  /* Render for HTML */
 
 #endif /* INTERFACE */
 
@@ -302,39 +303,97 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
 }
 
 /*
-** Write a 6-digit line number into the buffer z[].  z[] is guaranteed to
-** have space for at least 7 characters.
+** Status of a single output line
 */
-static void sbsWriteLineno(char *z, int ln){
-  sqlite3_snprintf(7, z, "%6d", ln+1);
-  z[6] = ' ';
+typedef struct SbsLine SbsLine;
+struct SbsLine {
+  char *zLine;             /* The output line under construction */
+  int n;                   /* Index of next unused slot in the zLine[] */
+  int width;               /* Maximum width of a column in the output */
+  unsigned char escHtml;  /* True to escape html characters */
+};
+
+/*
+** Write a 6-digit line number followed by a single space onto the line.
+*/
+static void sbsWriteLineno(SbsLine *p, int ln){
+  sqlite3_snprintf(7, &p->zLine[p->n], "%6d", ln+1);
+  p->zLine[p->n+6] = ' ';
+  p->n += 7;
 }
 
 /*
-** Write up to width characters of pLine into z[].  Translate tabs into
-** spaces.  If trunc is true, then append \n\000 after the last character
-** written.
+** Flags for sbsWriteText()
 */
-static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
+#define SBS_NEWLINE  0x0001   /* End with \n\000 */
+#define SBS_PAD      0x0002   /* Pad output to width spaces */
+#define SBS_ENDSPAN  0x0004   /* Write a </span> after text */
+
+/*
+** Write up to width characters of pLine into z[].  Translate tabs into
+** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
+** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
+*/
+static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
-  int i, j;
+  int i, j, k;
   const char *zIn = pLine->z;
-  for(i=j=0; i<n && j<width; i++){
+  char *z = &p->zLine[p->n];
+  int w = p->width;
+  if( n>w ) n = w;
+  for(i=j=0; i<n; i++){
     char c = zIn[i];
     if( c=='\t' ){
       z[j++] = ' ';
-      while( (j&7)!=0 && j<width ) z[j++] = ' ';
+      while( (j&7)!=0 && j<n ) z[j++] = ' ';
     }else if( c=='\r' || c=='\f' ){
       z[j++] = ' ';
+    }else if( c=='<' && p->escHtml ){
+      memcpy(&z[j], "&lt;", 4);
+      j += 4;
+    }else if( c=='&' && p->escHtml ){
+      memcpy(&z[j], "&amp;", 5);
+      j += 5;
+    }else if( c=='>' && p->escHtml ){
+      memcpy(&z[j], "&gt;", 4);
+      j += 4;
     }else{
       z[j++] = c;
     }
   }
-  if( trunc ){
-    z[j++] = '\n';
-    z[j] = 0;
+  if( (flags & SBS_ENDSPAN) && p->escHtml ){
+    memcpy(&z[j], "</span>", 7);
+    j += 7;
   }
-  return j;
+  if( (flags & SBS_PAD)!=0 ){
+    while( i<w ){ i++;  z[j++] = ' '; }
+  }
+  if( flags & SBS_NEWLINE ){
+    z[j++] = '\n';
+  }
+  p->n += j;
+}
+
+/*
+** Append a string to an SbSLine with coding, interpretation, or padding.
+*/
+static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
+  memcpy(p->zLine+p->n, zIn, nIn);
+  p->n += nIn;
+}
+
+/*
+** Append n spaces to the string.
+*/
+static void sbsWriteSpace(SbsLine *p, int n){
+  while( n-- ) p->zLine[p->n++] = ' ';
+}
+
+/*
+** Append a string to the output only if we are rendering HTML.
+*/
+static void sbsWriteHtml(SbsLine *p, const char *zIn){
+  if( p->escHtml ) sbsWrite(p, zIn, strlen(zIn));
 }
 
 
@@ -342,7 +401,13 @@ static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
 ** Given a diff context in which the aEdit[] array has been filled
 ** in, compute a side-by-side diff into pOut.
 */
-static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
+static void sbsDiff(
+  DContext *p,       /* The computed diff */
+  Blob *pOut,        /* Write the results here */
+  int nContext,      /* Number of lines of context around each change */
+  int width,         /* Width of each column of output */
+  int escHtml        /* True to generate HTML output */
+){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */  
   int a = 0;    /* Index of next line in A[] */
@@ -355,14 +420,12 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int mxLine;   /* Length of a line of text */
-  char *zLine;  /* A line of text being formatted */
-  int len;      /* Length of an output line */
+  SbsLine s;    /* Output line buffer */
 
-  mxLine = width*2 + 2*7 + 3 + 1;
-  zLine = fossil_malloc( mxLine + 1 );
-  if( zLine==0 ) return;
-  zLine[mxLine] = 0;
+  s.zLine = fossil_malloc( 10*width + 100 );
+  if( s.zLine==0 ) return;
+  s.width = width;
+  s.escHtml = escHtml;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -403,19 +466,27 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
-    if( r>0 ) blob_appendf(pOut,"%.*c\n", width*2+16, '.');
+    if( r>0 ){
+      if( escHtml ){
+        blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
+                           width*2+16, '.');
+      }else{
+        blob_appendf(pOut, "%.*c\n", width*2+16, '.');
+      }
+    }
 
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      memset(zLine, ' ', mxLine);
-      sbsWriteLineno(zLine, a+j);
-      sbsWriteText(&zLine[7], &A[a+j], width, 0);
-      sbsWriteLineno(&zLine[width+10], b+j);
-      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-      blob_append(pOut, zLine, len+width+17);
+      s.n = 0;
+      sbsWriteLineno(&s, a+j);
+      sbsWriteText(&s, &A[a+j], SBS_PAD);
+      sbsWrite(&s, "   ", 3);
+      sbsWriteLineno(&s, b+j);
+      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+      blob_append(pOut, s.zLine, s.n);
     }
     a += m;
     b += m;
@@ -426,45 +497,49 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
       mb = R[r+i*3+2];
       m = ma<mb ? ma : mb;
       for(j=0; j<m; j++){
-        memset(zLine, ' ', mxLine);
-        sbsWriteLineno(zLine, a+j);
-        sbsWriteText(&zLine[7], &A[a+j], width, 0);
-        zLine[width+8] = '|';
-        sbsWriteLineno(&zLine[width+10], b+j);
-        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-        blob_append(pOut, zLine, len+width+17);
+        s.n = 0;
+        sbsWriteLineno(&s, a+j);
+        sbsWriteHtml(&s, "<span class=\"diffchng\">");
+        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
+        sbsWrite(&s, " | ", 3);
+        sbsWriteLineno(&s, b+j);
+        sbsWriteHtml(&s, "<span class=\"diffchng\">");
+        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
+        blob_append(pOut, s.zLine, s.n);
       }
       a += m;
       b += m;
       ma -= m;
       mb -= m;
       for(j=0; j<ma; j++){
-        memset(zLine, ' ', width+7);
-        sbsWriteLineno(zLine, a+j);
-        sbsWriteText(&zLine[7], &A[a+j], width, 0);
-        zLine[width+8] = '<';
-        zLine[width+9] = '\n';
-        zLine[width+10] = 0;
-        blob_append(pOut, zLine, width+10);
+        s.n = 0;
+        sbsWriteLineno(&s, a+j);
+        sbsWriteHtml(&s, "<span class=\"diffrm\">");
+        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
+        sbsWrite(&s, " <\n", 3);
+        blob_append(pOut, s.zLine, s.n);
       }
       a += ma;
       for(j=0; j<mb; j++){
-        memset(zLine, ' ', mxLine);
-        zLine[width+8] = '>';
-        sbsWriteLineno(&zLine[width+10], b+j);
-        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-        blob_append(pOut, zLine, len+width+17);
+        s.n = 0;
+        sbsWriteSpace(&s, width + 7);
+        sbsWrite(&s, " > ", 3);
+        sbsWriteLineno(&s, b+j);
+        sbsWriteHtml(&s, "<span class=\"diffadd\">");
+        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
+        blob_append(pOut, s.zLine, s.n);
       }
       b += mb;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          memset(zLine, ' ', mxLine);
-          sbsWriteLineno(zLine, a+j);
-          sbsWriteText(&zLine[7], &A[a+j], width, 0);
-          sbsWriteLineno(&zLine[width+10], b+j);
-          len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-          blob_append(pOut, zLine, len+width+17);
+          s.n = 0;
+          sbsWriteLineno(&s, a+j);
+          sbsWriteText(&s, &A[a+j], SBS_PAD);
+          sbsWrite(&s, "   ", 3);
+          sbsWriteLineno(&s, b+j);
+          sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+          blob_append(pOut, s.zLine, s.n);
         }
         b += m;
         a += m;
@@ -476,15 +551,16 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      memset(zLine, ' ', mxLine);
-      sbsWriteLineno(zLine, a+j);
-      sbsWriteText(&zLine[7], &A[a+j], width, 0);
-      sbsWriteLineno(&zLine[width+10], b+j);
-      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-      blob_append(pOut, zLine, len+width+17);
+      s.n = 0;
+      sbsWriteLineno(&s, a+j);
+      sbsWriteText(&s, &A[a+j], SBS_PAD);
+      sbsWrite(&s, "   ", 3);
+      sbsWriteLineno(&s, b+j);
+      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+      blob_append(pOut, s.zLine, s.n);
     }
   }
-  free(zLine);
+  free(s.zLine);
 }
 
 /*
@@ -791,7 +867,8 @@ int *text_diff(
     /* Compute a context or side-by-side diff into pOut */
     if( diffFlags & DIFF_SIDEBYSIDE ){
       int width = diff_width(diffFlags);
-      sbsDiff(&c, pOut, nContext, width);
+      int escHtml = (diffFlags & DIFF_HTML)!=0;
+      sbsDiff(&c, pOut, nContext, width, escHtml);
     }else{
       contextDiff(&c, pOut, nContext);
     }
@@ -853,6 +930,7 @@ int diff_options(void){
     if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
   }
+  if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   return diffFlags;
 }
 
