@@ -3,17 +3,15 @@
 # from Martin Krafft's "The Debian System" book.
 
 DEB_REV=${1-1} # .deb package build/revision number.
-PACKAGE_DEBNAME=fossil-scm
+PACKAGE_DEBNAME=fossil
 THISDIR=${PWD}
 
 if uname -a | grep -i nexenta &>/dev/null; then
 # Assume NexentaOS/GnuSolaris:
-    DEB_PLATFORM=nexenta
     DEB_ARCH_NAME=solaris-i386
     DEB_ARCH_PKGDEPENDS="sunwcsl" # for -lsocket
 else
-    DEB_PLATFORM=${DEB_PLATFORM-ubuntu-gutsy}
-    DEB_ARCH_NAME=i386
+    DEB_ARCH_NAME=$(dpkg --print-architecture)
 fi
 
 SRCDIR=$(cd ..; pwd)
@@ -43,7 +41,7 @@ mkdir DEBIAN
 
 PACKAGE_VERSION=$(date +%Y.%m.%d)
 PACKAGE_DEB_VERSION=${PACKAGE_VERSION}-${DEB_REV}
-DEBFILE=${THISDIR}/${PACKAGE_DEBNAME}-${PACKAGE_DEB_VERSION}-dev-${DEB_ARCH_NAME}-${DEB_PLATFORM}.deb
+DEBFILE=${THISDIR}/${PACKAGE_DEBNAME}-${PACKAGE_DEB_VERSION}-dev-${DEB_ARCH_NAME}.deb
 PACKAGE_TIME=$(/bin/date)
 
 rm -f ${DEBFILE}
@@ -89,11 +87,11 @@ true && {
     echo "Generating ${CONTROL}..."
     cat <<EOF > ${CONTROL}
 Package: ${PACKAGE_DEBNAME}
-Section: devel
+Section: vcs
 Priority: optional
 Maintainer: stephan beal <stephan@s11n.net>
 Architecture: ${DEB_ARCH_NAME}
-Depends: libc6-dev ${DEB_ARCH_PKGDEPENDS+, }${DEB_ARCH_PKGDEPENDS}
+Depends: libc6 ${DEB_ARCH_PKGDEPENDS+, }${DEB_ARCH_PKGDEPENDS}
 Version: ${PACKAGE_DEB_VERSION}
 Description: Fossil is a unique SCM (Software Configuration Management) system.
  This package contains the Fossil binary for *buntu/Debian systems.

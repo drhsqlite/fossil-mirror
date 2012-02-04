@@ -22,27 +22,12 @@
 #include <assert.h>
 
 /*
-** Output the results of a diff.  Output goes to stdout for command-line
-** or to the CGI/HTTP result buffer for web pages.
-*/
-static void diff_printf(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  if( g.cgiOutput ){
-    cgi_vprintf(zFormat, ap);
-  }else{
-    vprintf(zFormat, ap);
-  }
-  va_end(ap);
-}
-
-/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, int diffFlags){
   if( (diffFlags & DIFF_SIDEBYSIDE)==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
-    diff_printf("%s", z);
+    fossil_print("%s", z);
     fossil_free(z);
   }
 }
@@ -63,7 +48,7 @@ void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
   }else{
     z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
   }
-  diff_printf("%s", z);
+  fossil_print("%s", z);
   fossil_free(z);
 }
 
@@ -106,7 +91,7 @@ void diff_file(
     text_diff(pFile1, &file2, &out, diffFlags);
     if( blob_size(&out) ){
       diff_print_filenames(zName, zName2, diffFlags);
-      diff_printf("%s\n", blob_str(&out));
+      fossil_print("%s\n", blob_str(&out));
     }
 
     /* Release memory resources */
@@ -165,7 +150,7 @@ void diff_file_mem(
     blob_zero(&out);
     text_diff(pFile1, pFile2, &out, diffFlags);
     diff_print_filenames(zName, zName, diffFlags);
-    diff_printf("%s\n", blob_str(&out));
+    fossil_print("%s\n", blob_str(&out));
 
     /* Release memory resources */
     blob_reset(&out);
@@ -213,7 +198,8 @@ static void diff_one_against_disk(
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
-    diff_printf("cannot compute difference between symlink and regular file\n");
+    fossil_print("cannot compute difference between "
+                 "symlink and regular file\n");
   }else{
     diff_file(&content, zFileTreeName, zFileTreeName, zDiffCmd, diffFlags);
   }
@@ -289,17 +275,17 @@ static void diff_all_against_disk(
     char *zToFree = zFullName;
     int showDiff = 1;
     if( isDeleted ){
-      diff_printf("DELETED  %s\n", zPathname);
+      fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = "/dev/null"; }
     }else if( file_access(zFullName, 0) ){
-      diff_printf("MISSING  %s\n", zPathname);
+      fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
-      diff_printf("ADDED    %s\n", zPathname);
+      fossil_print("ADDED    %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
-      diff_printf("ADDED_BY_MERGE %s\n", zPathname);
+      fossil_print("ADDED_BY_MERGE %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
@@ -308,7 +294,8 @@ static void diff_all_against_disk(
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
         diff_print_filenames(zPathname, zPathname, diffFlags);
-        diff_printf("cannot compute difference between symlink and regular file\n");
+        fossil_print("cannot compute difference between "
+                     "symlink and regular file\n");
         continue;
       }
       if( srcid>0 ){
@@ -347,7 +334,8 @@ static void diff_one_two_versions(
   historical_version_of_file(zTo, zName, &v2, &isLink2, 0, 0);
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
-    diff_printf("cannot compute difference between symlink and regular file\n");
+    fossil_print("cannot compute difference "
+                 " between symlink and regular file\n");
   }else{
     diff_file_mem(&v1, &v2, zName, zDiffCmd, diffFlags);
   }
@@ -417,13 +405,13 @@ static void diff_all_two_versions(
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
     if( cmp<0 ){
-      diff_printf("DELETED %s\n", pFromFile->zName);
+      fossil_print("DELETED %s\n", pFromFile->zName);
       if( asNewFlag ){
         diff_manifest_entry(pFromFile, 0, zDiffCmd, diffFlags);
       }
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
-      diff_printf("ADDED   %s\n", pToFile->zName);
+      fossil_print("ADDED   %s\n", pToFile->zName);
       if( asNewFlag ){
         diff_manifest_entry(0, pToFile, zDiffCmd, diffFlags);
       }
@@ -433,7 +421,7 @@ static void diff_all_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }else{
-      /* diff_printf("CHANGED %s\n", pFromFile->zName); */
+      /* fossil_print("CHANGED %s\n", pFromFile->zName); */
       diff_manifest_entry(pFromFile, pToFile, zDiffCmd, diffFlags);
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);

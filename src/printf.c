@@ -824,6 +824,7 @@ void fossil_puts(const char *z, int toStdErr){
 #else
   fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
 #endif
+  fflush(toStdErr ? stderr : stdout);
 }
 
 /*

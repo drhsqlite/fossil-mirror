@@ -823,8 +823,11 @@ static int isValidLocalDb(const char *zDbName){
 
 /*
 ** Locate the root directory of the local repository tree.  The root
-** directory is found by searching for a file named "_FOSSIL_" or ".fos"
+** directory is found by searching for a file named "_FOSSIL_" or ".fslckout"
 ** that contains a valid repository database.
+**
+** For legacy, also look for ".fos".  The use of ".fos" is deprecated
+** since "fos" has negative connotations in Hungarian, we are told.
 **
 ** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
 ** try again. Once the file is found, the g.zLocalRoot variable is set
@@ -838,7 +841,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  static const char *aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
   
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -874,7 +877,7 @@ int db_open_local(void){
 
 /*
 ** Get the full pathname to the repository database file.  The
-** local database (the _FOSSIL_ or .fos database) must have already
+** local database (the _FOSSIL_ or .fslckout database) must have already
 ** been opened before this routine is called.
 */
 const char *db_repository_filename(void){
