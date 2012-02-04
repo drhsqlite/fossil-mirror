@@ -298,7 +298,9 @@ static void contextDiff(
      * Otherwise, patch would be confused and may reject the diff.
      */
     if( showLn ){
-      if( html ){
+      if( r==0 ){
+        /* Do not show a top divider */
+      }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
