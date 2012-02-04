@@ -7,15 +7,14 @@ A Technical Overview<br>Of The Design And Implementation<br>Of Fossil
 
 At its lowest level, a Fossil repository consists of an unordered set
 of immutable "artifacts".  You might think of these artifacts as "files",
-since in many cases the artifacts exactly correspond to source code files
-that are stored in the Fossil repository.  But other "control artifacts" 
+since in many cases the artifacts exactly that.  But other "control artifacts" 
 are also included in the mix.  These control artifacts define the relationships
 between artifacts - which files go together to form a particular
 version of the project, who checked in that version and when, what was
 the check-in comment, what wiki pages are included with the project, what
 are the edit histories of each wiki page, what bug reports or tickets are
-included, who contributed to the evolution of each ticket, and so forth,
-and so on.  This low-level file format is called the "global state" of
+included, who contributed to the evolution of each ticket, and so forth.
+This low-level file format is called the "global state" of
 the repository, since this is the information that is synced to peer
 repositories using push and pull operations.   The low-level file format
 is also called "enduring" since it is intended to last for many years.
@@ -24,7 +23,7 @@ are [./fileformat.wiki | described separately].
 
 This article is about how Fossil is currently implemented.  Instead of
 dealing with vague abstractions of "enduring file formats" as the
-[./fileformat.wiki | that other document] does, this article provides
+[./fileformat.wiki | other document] does, this article provides
 some detail on how Fossil actually stores information on disk.  
 
 <h2>2.0 Three Databases</h2>
@@ -34,10 +33,8 @@ Fossil stores state information in
 SQLite keeps an entire relational database, including multiple tables and
 indices, in a single disk file.  The SQLite library allows the database
 files to be efficiently queried and updated using the industry-standard
-SQL language.  And SQLite makes updates to these database files atomic,
-even if a system crashes or power failure occurs in the middle of the
-update, meaning that repository content is protected even during severe
-malfunctions.
+SQL language.  SQLite updates are atomic, so even in the event of
+a system crashes or power failure the repository content is protected.
 
 Fossil uses three separate classes of SQLite databases:
 
@@ -154,10 +151,11 @@ The artifacts are stored as BLOBs, compressed using
 using [./delta_encoder_algorithm.wiki | delta compression].
 The combination of zlib and delta compression results in a considerable
 space savings.  For the SQLite project, at the time of this writing,
-the total size of all artifacts is over 1.7 GB but thanks to the
+the total size of all artifacts is over 2.0 GB but thanks to the
 combined zlib and delta compression, that content only takes up
-51.4 MB of space in the repository database, for a compression ratio
-of about 33:1.
+32 MB of space in the repository database, for a compression ratio
+of about 64:1.  The average size of a content BLOB in the database
+is around 500 bytes.
 
 Note that the zlib and delta compression is not an inherent part of the
 Fossil file format; it is just an optimization.  
@@ -187,7 +185,7 @@ corresponding artifacts which are then written into the repository database.
 
 The global project state information in the repository database is
 supplemented by computed metadata that makes querying the project state
-more efficient.  Metadata includes but information such as the following:
+more efficient.  Metadata includes information such as the following:
 
   *  The names for all files found in any checkin.
   *  All check-ins that modify a given file
@@ -202,9 +200,9 @@ more efficient.  Metadata includes but information such as the following:
 
 The metadata is held in various SQL tables in the repository database.
 The metadata is designed to facilitate queries for the various timelines and
-reports that Fossil generates.  
+reports that Fossil generates.
 As the functionality of Fossil evolves,
-the schema for the metadata can and does change from time to time.
+the schema for the metadata can and does change.
 But schema changes do no invalidate the repository.  Remember that the
 metadata contains no new information - only information that has been
 extracted from the canonical artifacts and saved in a more useful form.
@@ -275,9 +273,9 @@ privileges on the remote repository.
 The set of canonical artifacts for a project - the global state for the
 project - is intended to be an append-only database.  In other words,
 new artifacts can be added but artifacts can never be removed.  But
-it sometimes happens that inappropriate content can be mistakenly or
-maliciously added to a repository.  When that happens, the only way
-to get rid of the content is to [./shunning.wiki | "shun"] it.
+it sometimes happens that inappropriate content is mistakenly or
+maliciously added to a repository.  The only way to get rid of
+the undesired content is to [./shunning.wiki | "shun"] it.
 The "shun" table in the repository database records the SHA1 hash of 
 all shunned artifacts.
 

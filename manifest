@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s"branch\snew\s--private"\scommand\sdoes\snot\screate\sa\spublic\sBLOB\nthat\sis\sa\sdelta\sof\sa\sprivate\sBLOB.\s\sAlso,\swhen\sdoing\sa\sfile\sclone\sor\swhen\ndoing\s"scrub\s--private",\sdouble-check\sthat\sno\spublic\sBLOBs\sare\sdeltas\sof\nprivate\sBLOBs\sbefore\sdeleting\sthe\sprivate\sBLOBs.
-D 2012-02-04T00:30:57.557
+C Updates\sto\sthe\stechnical\soverview\sdocument.
+D 2012-02-04T13:55:34.698
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -353,11 +353,11 @@ F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki f1a2de8646f0885d29534168d30d72096cdaba7e
 F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
-F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
+F www/tech_overview.wiki f0a0844c5fdf4635a7fc85079d4dd48cdd6ebef6
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b18a178d8eb8f305d79f816a2379ab46d08293e7
-R 0619fa9f297c5c671e53abcaf5dd64bf
+P 034e887c356c38e73f7b0ff2b047d25abe944227
+R c875afb7be4f27ec029a6faf6b8b7f64
 U drh
-Z 0e976c3b39412aeb3df21cbc5090b619
+Z cf1b4f5b87ee70e7f2670de431982014
