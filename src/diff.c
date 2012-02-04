@@ -34,6 +34,7 @@
 #define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
 #define DIFF_INLINE        0x08000000  /* Inline (not side-by-side) diff */
 #define DIFF_HTML          0x10000000  /* Render for HTML */
+#define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
 
 #endif /* INTERFACE */
 
@@ -157,6 +158,23 @@ static void appendDiffLine(Blob *pOut, char *zPrefix, DLine *pLine){
 }
 
 /*
+** Append line numbers to the context diff output.  Zero or negative numbers
+** are blanks.
+*/
+static void appendDiffLineno(Blob *pOut, int lnA, int lnB){
+  if( lnA>0 ){
+    blob_appendf(pOut, "%6d ", lnA);
+  }else{
+    blob_append(pOut, "       ", 7);
+  }
+  if( lnB>0 ){
+    blob_appendf(pOut, "%6d  ", lnB);
+  }else{
+    blob_append(pOut, "        ", 8);
+  }
+}
+
+/*
 ** Expand the size of aEdit[] array to hold nEdit elements.
 */
 static void expandEdit(DContext *p, int nEdit){
@@ -202,7 +220,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 ** Given a diff context in which the aEdit[] array has been filled
 ** in, compute a context diff into pOut.
 */
-static void contextDiff(DContext *p, Blob *pOut, int nContext){
+static void contextDiff(DContext *p, Blob *pOut, int nContext, int showLn){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */  
   int a = 0;    /* Index of next line in A[] */
@@ -256,6 +274,7 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
+    if( showLn ) blob_appendf(pOut, "%*s", 15, "");
     blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
       na ? a+skip+1 : 0, na,
       nb ? b+skip+1 : 0, nb);
@@ -265,6 +284,7 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
+      if( showLn ) appendDiffLineno(pOut, a+j, b+j);
       appendDiffLine(pOut, " ", &A[a+j]);
     }
     a += m;
@@ -274,17 +294,20 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
+        if( showLn ) appendDiffLineno(pOut, a+j, 0);
         appendDiffLine(pOut, "-", &A[a+j]);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
+        if( showLn ) appendDiffLineno(pOut, 0, b+j);
         appendDiffLine(pOut, "+", &B[b+j]);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
+          if( showLn ) appendDiffLineno(pOut, a+j, b+j);
           appendDiffLine(pOut, " ", &B[b+j]);
         }
         b += m;
@@ -297,6 +320,7 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
+      if( showLn ) appendDiffLineno(pOut, a+j, b+j);
       appendDiffLine(pOut, " ", &B[b+j]);
     }
   }
@@ -336,7 +360,7 @@ static void sbsWriteLineno(SbsLine *p, int ln){
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
-  int i, j, k;
+  int i, j;
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
@@ -870,7 +894,8 @@ int *text_diff(
       int escHtml = (diffFlags & DIFF_HTML)!=0;
       sbsDiff(&c, pOut, nContext, width, escHtml);
     }else{
-      contextDiff(&c, pOut, nContext);
+      int showLn = (diffFlags & DIFF_LINENO)!=0;
+      contextDiff(&c, pOut, nContext, showLn);
     }
     free(c.aFrom);
     free(c.aTo);
@@ -915,6 +940,8 @@ void test_rawdiff_cmd(void){
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+**   --html                 Format for HTML        DIFF_HTML
+**   --linenum|-n           Show line numbers      DIFF_LINENO
 */
 int diff_options(void){
   int diffFlags = 0;
@@ -931,6 +958,7 @@ int diff_options(void){
     diffFlags |= f;
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+  if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   return diffFlags;
 }
 

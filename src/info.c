@@ -276,7 +276,7 @@ static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
     @ %s(blob_str(&out))
     @ </div>
   }else{
-    text_diff(&from, &to, &out, diffFlags);
+    text_diff(&from, &to, &out, diffFlags | DIFF_LINENO);
     @ %h(blob_str(&out))
   }
   blob_reset(&from);

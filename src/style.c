@@ -759,21 +759,21 @@ const struct strctCssDefaults {
     @   white-space: pre;
   },
   { "div.udiff",
-    "unified diff display",
+    "context diff display",
     @   font-family: monospace;
     @   white-space: pre;
   },
   { "span.diffchng",
     "changes in a diff",
-    @   background-color: #d8d8d8;
+    @   background-color: #ffffc8;
   },
   { "span.diffadd",
     "added code in a diff",
-    @   background-color: #d8ffd8;
+    @   background-color: #e0ffe0;
   },
   { "span.diffrm",
     "deleted in a diff",
-    @   background-color: #ffd8d8;
+    @   background-color: #ffe0e0;
   },
   { "span.diffhr",
     "suppressed lines in a diff",
