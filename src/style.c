@@ -779,6 +779,10 @@ const struct strctCssDefaults {
     "suppressed lines in a diff",
     @   color: #0000ff;
   },
+  { "span.diffln",
+    "line nubmers in a diff",
+    @   color: #a0a0a0;
+  },
   { 0,
     0,
     0
