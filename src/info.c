@@ -354,7 +354,7 @@ static void append_file_change_line(
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-static int construct_diff_flags(int showDiff, int sideBySide){
+int construct_diff_flags(int showDiff, int sideBySide){
   int diffFlags;
   if( showDiff==0 ){
     diffFlags = 0;  /* Zero means do not show any diff */
@@ -1076,6 +1076,7 @@ void diff_page(void){
   char *zV1;
   char *zV2;
   int diffFlags;
+  const char *zStyle;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1093,15 +1094,17 @@ void diff_page(void){
   }else{
     blob_zero(&diff);
     pOut = &diff;
+    diffFlags = construct_diff_flags(1, sideBySide);
     if( sideBySide ){
-      diffFlags = DIFF_IGNORE_EOLWS | DIFF_SIDEBYSIDE | 7;
+      zStyle = "sbsdiff";
     }else{
-      diffFlags = DIFF_IGNORE_EOLWS | 7;
+      diffFlags |= DIFF_LINENO;
+      zStyle = "udiff";
     }
   }
   content_get(v1, &c1);
   content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, diffFlags);
+  text_diff(&c1, &c2, pOut, diffFlags | DIFF_HTML );
   blob_reset(&c1);
   blob_reset(&c2);
   if( !isPatch ){
@@ -1124,9 +1127,9 @@ void diff_page(void){
     @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
     object_description(v2, 0, 0);
     @ <hr />
-    @ <pre style="while-space:pre;">
-    @ %h(blob_str(&diff))
-    @ </pre>
+    @ <div class="%s(zStyle)">
+    @ %s(blob_str(&diff))
+    @ </div>
     blob_reset(&diff);
     style_footer();
   }

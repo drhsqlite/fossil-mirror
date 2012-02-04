@@ -595,6 +595,7 @@ void wdiff_page(void){
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
   Blob w1, w2, d;
+  int diffFlags;
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
@@ -623,10 +624,11 @@ void wdiff_page(void){
     blob_init(&w2, pW2->zWiki, -1);
   }
   blob_zero(&d);
-  text_diff(&w2, &w1, &d, 5 | DIFF_IGNORE_EOLWS);
-  @ <pre>
-  @ %h(blob_str(&d))
-  @ </pre>
+  diffFlags = construct_diff_flags(1,0);
+  text_diff(&w2, &w1, &d, diffFlags | DIFF_HTML | DIFF_LINENO);
+  @ <div class="udiff">
+  @ %s(blob_str(&d))
+  @ </div>
   manifest_destroy(pW1);
   manifest_destroy(pW2);
   style_footer();
