@@ -297,17 +297,27 @@ static void contextDiff(
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
-    if( showLn ) blob_appendf(pOut, "%*s", 15, "");
-    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
-      na ? a+skip+1 : 0, na,
-      nb ? b+skip+1 : 0, nb);
+    if( showLn ){
+      if( html ){
+        blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
+      }else{
+        blob_appendf(pOut, "%.80c\n", '.');
+      }
+    }else{
+      if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
+      blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
+        na ? a+skip+1 : 0, na,
+        nb ? b+skip+1 : 0, nb);
+      if( html ) blob_appendf(pOut, "</span>");
+      blob_append(pOut, "\n", 1);
+    }
 
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j, b+j, html);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
       appendDiffLine(pOut, ' ', &A[a+j], html);
     }
     a += m;
@@ -317,20 +327,20 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, a+j, 0, html);
+        if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
         appendDiffLine(pOut, '-', &A[a+j], html);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
-        if( showLn ) appendDiffLineno(pOut, 0, b+j, html);
+        if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
         appendDiffLine(pOut, '+', &B[b+j], html);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          if( showLn ) appendDiffLineno(pOut, a+j, b+j, html);
+          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
           appendDiffLine(pOut, ' ', &B[b+j], html);
         }
         b += m;
@@ -343,7 +353,7 @@ static void contextDiff(
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      if( showLn ) appendDiffLineno(pOut, a+j, b+j, html);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
       appendDiffLine(pOut, ' ', &B[b+j], html);
     }
   }
