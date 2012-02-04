@@ -27,11 +27,14 @@
 /*
 ** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
 */
-#define DIFF_CONTEXT_MASK  0x0000fff  /* Lines of context.  Default if 0 */
-#define DIFF_WIDTH_MASK    0x00ff000  /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS  0x0100000  /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE    0x0200000  /* Generate a side-by-side diff */
-#define DIFF_NEWFILE       0x0400000  /* Missing files are as empty files */
+#define DIFF_CONTEXT_MASK  0x0000ffff  /* Lines of context.  Default if 0 */
+#define DIFF_WIDTH_MASK    0x00ff0000  /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
+#define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
+#define DIFF_INLINE        0x08000000  /* Inline (not side-by-side) diff */
+#define DIFF_HTML          0x10000000  /* Render for HTML */
+#define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
 
 #endif /* INTERFACE */
 
@@ -148,10 +151,44 @@ static int same_dline(DLine *pA, DLine *pB){
 /*
 ** Append a single line of "diff" output to pOut.
 */
-static void appendDiffLine(Blob *pOut, char *zPrefix, DLine *pLine){
-  blob_append(pOut, zPrefix, 1);
-  blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
+static void appendDiffLine(Blob *pOut, char cPrefix, DLine *pLine, int html){
+  blob_append(pOut, &cPrefix, 1);
+  if( html ){
+    char *zHtml;
+    if( cPrefix=='+' ){
+      blob_append(pOut, "<span class=\"diffadd\">", -1);
+    }else if( cPrefix=='-' ){
+      blob_append(pOut, "<span class=\"diffrm\">", -1);
+    }
+    zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
+    blob_append(pOut, zHtml, -1);
+    fossil_free(zHtml);
+    if( cPrefix!=' ' ){
+      blob_append(pOut, "</span>", -1);
+    }
+  }else{
+    blob_append(pOut, pLine->z, pLine->h & LENGTH_MASK);
+  }
   blob_append(pOut, "\n", 1);
+}
+
+/*
+** Append line numbers to the context diff output.  Zero or negative numbers
+** are blanks.
+*/
+static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
+  if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
+  if( lnA>0 ){
+    blob_appendf(pOut, "%6d ", lnA);
+  }else{
+    blob_append(pOut, "       ", 7);
+  }
+  if( lnB>0 ){
+    blob_appendf(pOut, "%6d  ", lnB);
+  }else{
+    blob_append(pOut, "        ", 8);
+  }
+  if( html ) blob_append(pOut, "</span>", -1);
 }
 
 /*
@@ -200,7 +237,13 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
 ** Given a diff context in which the aEdit[] array has been filled
 ** in, compute a context diff into pOut.
 */
-static void contextDiff(DContext *p, Blob *pOut, int nContext){
+static void contextDiff(
+  DContext *p,      /* The difference */
+  Blob *pOut,       /* Output a context diff to here */
+  int nContext,     /* Number of lines of context */
+  int showLn,       /* Show line numbers */
+  int html          /* Render as HTML */
+){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */  
   int a = 0;    /* Index of next line in A[] */
@@ -254,16 +297,30 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
-    blob_appendf(pOut,"@@ -%d,%d +%d,%d @@\n",
-      na ? a+skip+1 : 0, na,
-      nb ? b+skip+1 : 0, nb);
+    if( showLn ){
+      if( r==0 ){
+        /* Do not show a top divider */
+      }else if( html ){
+        blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
+      }else{
+        blob_appendf(pOut, "%.80c\n", '.');
+      }
+    }else{
+      if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
+      blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
+        na ? a+skip+1 : 0, na,
+        nb ? b+skip+1 : 0, nb);
+      if( html ) blob_appendf(pOut, "</span>");
+      blob_append(pOut, "\n", 1);
+    }
 
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      appendDiffLine(pOut, " ", &A[a+j]);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
+      appendDiffLine(pOut, ' ', &A[a+j], html);
     }
     a += m;
     b += m;
@@ -272,18 +329,21 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        appendDiffLine(pOut, "-", &A[a+j]);
+        if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
+        appendDiffLine(pOut, '-', &A[a+j], html);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
-        appendDiffLine(pOut, "+", &B[b+j]);
+        if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
+        appendDiffLine(pOut, '+', &B[b+j], html);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          appendDiffLine(pOut, " ", &B[b+j]);
+          if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
+          appendDiffLine(pOut, ' ', &B[b+j], html);
         }
         b += m;
         a += m;
@@ -295,45 +355,106 @@ static void contextDiff(DContext *p, Blob *pOut, int nContext){
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      appendDiffLine(pOut, " ", &B[b+j]);
+      if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
+      appendDiffLine(pOut, ' ', &B[b+j], html);
     }
   }
 }
 
 /*
-** Write a 6-digit line number into the buffer z[].  z[] is guaranteed to
-** have space for at least 7 characters.
+** Status of a single output line
 */
-static void sbsWriteLineno(char *z, int ln){
-  sqlite3_snprintf(7, z, "%6d", ln+1);
-  z[6] = ' ';
-}
+typedef struct SbsLine SbsLine;
+struct SbsLine {
+  char *zLine;             /* The output line under construction */
+  int n;                   /* Index of next unused slot in the zLine[] */
+  int width;               /* Maximum width of a column in the output */
+  unsigned char escHtml;  /* True to escape html characters */
+};
+
+/*
+** Flags for sbsWriteText()
+*/
+#define SBS_NEWLINE  0x0001   /* End with \n\000 */
+#define SBS_PAD      0x0002   /* Pad output to width spaces */
+#define SBS_ENDSPAN  0x0004   /* Write a </span> after text */
 
 /*
 ** Write up to width characters of pLine into z[].  Translate tabs into
-** spaces.  If trunc is true, then append \n\000 after the last character
-** written.
+** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
+** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
 */
-static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
+static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
   int i, j;
   const char *zIn = pLine->z;
-  for(i=j=0; i<n && j<width; i++){
+  char *z = &p->zLine[p->n];
+  int w = p->width;
+  if( n>w ) n = w;
+  for(i=j=0; i<n; i++){
     char c = zIn[i];
     if( c=='\t' ){
       z[j++] = ' ';
-      while( (j&7)!=0 && j<width ) z[j++] = ' ';
+      while( (j&7)!=0 && j<n ) z[j++] = ' ';
     }else if( c=='\r' || c=='\f' ){
       z[j++] = ' ';
+    }else if( c=='<' && p->escHtml ){
+      memcpy(&z[j], "&lt;", 4);
+      j += 4;
+    }else if( c=='&' && p->escHtml ){
+      memcpy(&z[j], "&amp;", 5);
+      j += 5;
+    }else if( c=='>' && p->escHtml ){
+      memcpy(&z[j], "&gt;", 4);
+      j += 4;
     }else{
       z[j++] = c;
     }
   }
-  if( trunc ){
-    z[j++] = '\n';
-    z[j] = 0;
+  if( (flags & SBS_ENDSPAN) && p->escHtml ){
+    memcpy(&z[j], "</span>", 7);
+    j += 7;
   }
-  return j;
+  if( (flags & SBS_PAD)!=0 ){
+    while( i<w ){ i++;  z[j++] = ' '; }
+  }
+  if( flags & SBS_NEWLINE ){
+    z[j++] = '\n';
+  }
+  p->n += j;
+}
+
+/*
+** Append a string to an SbSLine with coding, interpretation, or padding.
+*/
+static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
+  memcpy(p->zLine+p->n, zIn, nIn);
+  p->n += nIn;
+}
+
+/*
+** Append n spaces to the string.
+*/
+static void sbsWriteSpace(SbsLine *p, int n){
+  while( n-- ) p->zLine[p->n++] = ' ';
+}
+
+/*
+** Append a string to the output only if we are rendering HTML.
+*/
+static void sbsWriteHtml(SbsLine *p, const char *zIn){
+  if( p->escHtml ) sbsWrite(p, zIn, strlen(zIn));
+}
+
+/*
+** Write a 6-digit line number followed by a single space onto the line.
+*/
+static void sbsWriteLineno(SbsLine *p, int ln){
+  sbsWriteHtml(p, "<span class=\"diffln\">");
+  sqlite3_snprintf(7, &p->zLine[p->n], "%5d ", ln+1);
+  p->n += 6;
+  sbsWriteHtml(p, "</span>");
+  p->zLine[p->n++] = ' ';
 }
 
 
@@ -341,7 +462,13 @@ static int sbsWriteText(char *z, DLine *pLine, int width, int trunc){
 ** Given a diff context in which the aEdit[] array has been filled
 ** in, compute a side-by-side diff into pOut.
 */
-static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
+static void sbsDiff(
+  DContext *p,       /* The computed diff */
+  Blob *pOut,        /* Write the results here */
+  int nContext,      /* Number of lines of context around each change */
+  int width,         /* Width of each column of output */
+  int escHtml        /* True to generate HTML output */
+){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */  
   int a = 0;    /* Index of next line in A[] */
@@ -354,14 +481,12 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
-  int mxLine;   /* Length of a line of text */
-  char *zLine;  /* A line of text being formatted */
-  int len;      /* Length of an output line */
+  SbsLine s;    /* Output line buffer */
 
-  mxLine = width*2 + 2*7 + 3 + 1;
-  zLine = fossil_malloc( mxLine + 1 );
-  if( zLine==0 ) return;
-  zLine[mxLine] = 0;
+  s.zLine = fossil_malloc( 10*width + 100 );
+  if( s.zLine==0 ) return;
+  s.width = width;
+  s.escHtml = escHtml;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -402,19 +527,27 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
      * the block header must use 0,0 as position indicator and not 1,0.
      * Otherwise, patch would be confused and may reject the diff.
      */
-    if( r>0 ) blob_appendf(pOut,"%.*c\n", width*2+16, '.');
+    if( r>0 ){
+      if( escHtml ){
+        blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
+                           width*2+16, '.');
+      }else{
+        blob_appendf(pOut, "%.*c\n", width*2+16, '.');
+      }
+    }
 
     /* Show the initial common area */
     a += skip;
     b += skip;
     m = R[r] - skip;
     for(j=0; j<m; j++){
-      memset(zLine, ' ', mxLine);
-      sbsWriteLineno(zLine, a+j);
-      sbsWriteText(&zLine[7], &A[a+j], width, 0);
-      sbsWriteLineno(&zLine[width+10], b+j);
-      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-      blob_append(pOut, zLine, len+width+17);
+      s.n = 0;
+      sbsWriteLineno(&s, a+j);
+      sbsWriteText(&s, &A[a+j], SBS_PAD);
+      sbsWrite(&s, "   ", 3);
+      sbsWriteLineno(&s, b+j);
+      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+      blob_append(pOut, s.zLine, s.n);
     }
     a += m;
     b += m;
@@ -425,45 +558,49 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
       mb = R[r+i*3+2];
       m = ma<mb ? ma : mb;
       for(j=0; j<m; j++){
-        memset(zLine, ' ', mxLine);
-        sbsWriteLineno(zLine, a+j);
-        sbsWriteText(&zLine[7], &A[a+j], width, 0);
-        zLine[width+8] = '|';
-        sbsWriteLineno(&zLine[width+10], b+j);
-        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-        blob_append(pOut, zLine, len+width+17);
+        s.n = 0;
+        sbsWriteLineno(&s, a+j);
+        sbsWriteHtml(&s, "<span class=\"diffchng\">");
+        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
+        sbsWrite(&s, " | ", 3);
+        sbsWriteLineno(&s, b+j);
+        sbsWriteHtml(&s, "<span class=\"diffchng\">");
+        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
+        blob_append(pOut, s.zLine, s.n);
       }
       a += m;
       b += m;
       ma -= m;
       mb -= m;
       for(j=0; j<ma; j++){
-        memset(zLine, ' ', width+7);
-        sbsWriteLineno(zLine, a+j);
-        sbsWriteText(&zLine[7], &A[a+j], width, 0);
-        zLine[width+8] = '<';
-        zLine[width+9] = '\n';
-        zLine[width+10] = 0;
-        blob_append(pOut, zLine, width+10);
+        s.n = 0;
+        sbsWriteLineno(&s, a+j);
+        sbsWriteHtml(&s, "<span class=\"diffrm\">");
+        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
+        sbsWrite(&s, " <\n", 3);
+        blob_append(pOut, s.zLine, s.n);
       }
       a += ma;
       for(j=0; j<mb; j++){
-        memset(zLine, ' ', mxLine);
-        zLine[width+8] = '>';
-        sbsWriteLineno(&zLine[width+10], b+j);
-        len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-        blob_append(pOut, zLine, len+width+17);
+        s.n = 0;
+        sbsWriteSpace(&s, width + 7);
+        sbsWrite(&s, " > ", 3);
+        sbsWriteLineno(&s, b+j);
+        sbsWriteHtml(&s, "<span class=\"diffadd\">");
+        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
+        blob_append(pOut, s.zLine, s.n);
       }
       b += mb;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
-          memset(zLine, ' ', mxLine);
-          sbsWriteLineno(zLine, a+j);
-          sbsWriteText(&zLine[7], &A[a+j], width, 0);
-          sbsWriteLineno(&zLine[width+10], b+j);
-          len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-          blob_append(pOut, zLine, len+width+17);
+          s.n = 0;
+          sbsWriteLineno(&s, a+j);
+          sbsWriteText(&s, &A[a+j], SBS_PAD);
+          sbsWrite(&s, "   ", 3);
+          sbsWriteLineno(&s, b+j);
+          sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+          blob_append(pOut, s.zLine, s.n);
         }
         b += m;
         a += m;
@@ -475,15 +612,16 @@ static void sbsDiff(DContext *p, Blob *pOut, int nContext, int width){
     m = R[r+nr*3];
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
-      memset(zLine, ' ', mxLine);
-      sbsWriteLineno(zLine, a+j);
-      sbsWriteText(&zLine[7], &A[a+j], width, 0);
-      sbsWriteLineno(&zLine[width+10], b+j);
-      len = sbsWriteText(&zLine[width+17], &B[b+j], width, 1);
-      blob_append(pOut, zLine, len+width+17);
+      s.n = 0;
+      sbsWriteLineno(&s, a+j);
+      sbsWriteText(&s, &A[a+j], SBS_PAD);
+      sbsWrite(&s, "   ", 3);
+      sbsWriteLineno(&s, b+j);
+      sbsWriteText(&s, &B[b+j], SBS_NEWLINE);
+      blob_append(pOut, s.zLine, s.n);
     }
   }
-  free(zLine);
+  free(s.zLine);
 }
 
 /*
@@ -788,11 +926,13 @@ int *text_diff(
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
+    int escHtml = (diffFlags & DIFF_HTML)!=0;
     if( diffFlags & DIFF_SIDEBYSIDE ){
       int width = diff_width(diffFlags);
-      sbsDiff(&c, pOut, nContext, width);
+      sbsDiff(&c, pOut, nContext, width, escHtml);
     }else{
-      contextDiff(&c, pOut, nContext);
+      int showLn = (diffFlags & DIFF_LINENO)!=0;
+      contextDiff(&c, pOut, nContext, showLn, escHtml);
     }
     free(c.aFrom);
     free(c.aTo);
@@ -807,190 +947,6 @@ int *text_diff(
     return c.aEdit;
   }
 }
-
-/*
-** Copy a line with a limit. Used for side-by-side diffs to enforce a maximum
-** line length limit.
-*/
-static char *copylimline(char *out, DLine *dl, int lim){
-  int len;
-  len = dl->h & LENGTH_MASK;
-  if( lim && len > lim ){
-    memcpy(out, dl->z, lim-3);
-    memcpy(&out[lim-3], "...", 4);
-  }else{
-    memcpy(out, dl->z, len);
-    out[len] = '\0';
-  }
-  return out;
-}
-
-/*
-** Output table body of a side-by-side diff. Prior to the call, the caller
-** should have output:
-**   <table class="sbsdiff">
-**   <tr><th colspan="2" class="diffhdr">Old title</th><th/>
-**   <th colspan="2" class="diffhdr">New title</th></tr>
-**
-** And after the call, it should output:
-**   </table>
-**
-** Some good reference diffs in the fossil repository for testing:
-** /vdiff?from=080d27a&to=4b0f813&detail=1
-** /vdiff?from=636804745b&to=c1d78e0556&detail=1
-** /vdiff?from=c0b6c28d29&to=25169506b7&detail=1
-** /vdiff?from=e3d022dffa&to=48bcfbd47b&detail=1
-*/
-int html_sbsdiff(
-  Blob *pA_Blob,   /* FROM file */
-  Blob *pB_Blob,   /* TO file */
-  int nContext,    /* Amount of context to unified diff */
-  int ignoreEolWs  /* Ignore whitespace at the end of lines */
-){
-  DContext c;
-  int i;
-  int iFrom, iTo;
-  char *linebuf;
-  int collim=0; /* Currently not settable; allows a column limit for diffs */
-  int allowExp=0; /* Currently not settable; (dis)allow expansion of rows */
-
-  /* Prepare the input files */
-  memset(&c, 0, sizeof(c));
-  c.aFrom = break_into_lines(blob_str(pA_Blob), blob_size(pA_Blob),
-                             &c.nFrom, ignoreEolWs);
-  c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
-                           &c.nTo, ignoreEolWs);
-  if( c.aFrom==0 || c.aTo==0 ){
-    free(c.aFrom);
-    free(c.aTo);
-    /* Note: This would be generated within a table. */
-    @ <p class="generalError" style="white-space: nowrap">cannot compute
-    @ difference between binary files</p>
-    return 0;
-  }
-
-  collim = collim < 4 ? 0 : collim;
-
-  /* Compute the difference */
-  diff_all(&c);
-
-  linebuf = fossil_malloc(LENGTH_MASK+1);
-  if( !linebuf ){
-    free(c.aFrom);
-    free(c.aTo);
-    free(c.aEdit);
-    return 0;
-  }
-
-  iFrom=iTo=0;
-  i=0;
-  while( i<c.nEdit ){
-    int j;
-    /* Copied lines */
-    for( j=0; j<c.aEdit[i]; j++){
-      /* Hide lines which are copied and are further away from block boundaries
-      ** than nContext lines. For each block with hidden lines, show a row
-      ** notifying the user about the hidden rows.
-      */
-      if( j<nContext || j>c.aEdit[i]-nContext-1 ){
-        @ <tr>
-      }else if( j==nContext && j<c.aEdit[i]-nContext-1 ){
-        @ <tr>
-        @ <td class="meta" colspan="5" style="white-space: nowrap;">
-        @ %d(c.aEdit[i]-2*nContext) hidden lines</td>
-        @ </tr>
-        if( !allowExp )
-           continue;
-        @ <tr style="display:none;">
-      }else{
-        if( !allowExp )
-           continue;
-        @ <tr style="display:none;">
-      }
-
-      copylimline(linebuf, &c.aFrom[iFrom+j], collim);
-      @ <td class="lineno">%d(iFrom+j+1)</td>
-      @ <td class="srcline">%h(linebuf)</td>
-
-      @ <td> </td>
-
-      copylimline(linebuf, &c.aTo[iTo+j], collim);
-      @ <td class="lineno">%d(iTo+j+1)</td>
-      @ <td class="srcline">%h(linebuf)</td>
-
-      @ </tr>
-    }
-    iFrom+=c.aEdit[i];
-    iTo+=c.aEdit[i];
-
-    if( c.aEdit[i+1]!=0 && c.aEdit[i+2]!=0 ){
-      int lim;
-      lim = c.aEdit[i+1] > c.aEdit[i+2] ? c.aEdit[i+1] : c.aEdit[i+2];
-
-      /* Assume changed lines */
-      for( j=0; j<lim; j++ ){
-        @ <tr>
-
-        if( j<c.aEdit[i+1] ){
-          copylimline(linebuf, &c.aFrom[iFrom+j], collim);
-          @ <td class="changed lineno">%d(iFrom+j+1)</td>
-          @ <td class="changed srcline">%h(linebuf)</td>
-        }else{
-          @ <td colspan="2" class="changedvoid"/>
-        }
-
-        @ <td class="changed">|</td>
-
-        if( j<c.aEdit[i+2] ){
-          copylimline(linebuf, &c.aTo[iTo+j], collim);
-          @ <td class="changed lineno">%d(iTo+j+1)</td>
-          @ <td class="changed srcline">%h(linebuf)</td>
-        }else{
-          @ <td colspan="2" class="changedvoid"/>
-        }
-
-        @ </tr>
-      }
-      iFrom+=c.aEdit[i+1];
-      iTo+=c.aEdit[i+2];
-    }else{
-
-      /* Process deleted lines */
-      for( j=0; j<c.aEdit[i+1]; j++ ){
-        @ <tr>
-
-        copylimline(linebuf, &c.aFrom[iFrom+j], collim);
-        @ <td class="removed lineno">%d(iFrom+j+1)</td>
-        @ <td class="removed srcline">%h(linebuf)</td>
-        @ <td>&lt;</td>
-        @ <td colspan="2" class="removedvoid"/>
-        @ </tr>
-      }
-      iFrom+=c.aEdit[i+1];
-
-      /* Process inserted lines */
-      for( j=0; j<c.aEdit[i+2]; j++ ){
-        @ <tr>
-        @ <td colspan="2" class="addedvoid"/>
-        @ <td>&gt;</td>
-        copylimline(linebuf, &c.aTo[iTo+j], collim);
-        @ <td class="added lineno">%d(iTo+j+1)</td>
-        @ <td class="added srcline">%h(linebuf)</td>
-        @ </tr>
-      }
-      iTo+=c.aEdit[i+2];
-    }
-
-    i+=3;
-  }
-
-  free(linebuf);
-  free(c.aFrom);
-  free(c.aTo);
-  free(c.aEdit);
-  return 1;
-}
-
 
 /*
 ** COMMAND: test-rawdiff
@@ -1021,6 +977,8 @@ void test_rawdiff_cmd(void){
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
+**   --html                 Format for HTML        DIFF_HTML
+**   --linenum|-n           Show line numbers      DIFF_LINENO
 */
 int diff_options(void){
   int diffFlags = 0;
@@ -1036,6 +994,8 @@ int diff_options(void){
     if( f > DIFF_WIDTH_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
   }
+  if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
+  if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   return diffFlags;
 }
 
