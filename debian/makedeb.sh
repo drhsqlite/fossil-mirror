@@ -54,7 +54,7 @@ true && {
     echo "Generating Debian-specific files..."
     COPYRIGHT=${DEBLOCALPREFIX}/share/doc/${PACKAGE_DEBNAME}/copyright
     cat <<EOF > ${COPYRIGHT}
-This package was created by stephan beal <stephan@s11n.net>
+This package was created by fossil-scm <fossil-dev@lists.fossil-scm.org>
 on ${PACKAGE_TIME}.
 
 The original sources for fossil can be downloaded for free from:
@@ -74,7 +74,7 @@ ${PACKAGE_DEBNAME} ${PACKAGE_DEB_VERSION}; urgency=low
 This release has no changes over the core source distribution. It has
 simply been Debianized.
 
-Packaged by stephan beal <stephan@s11n.net> on
+Packaged by fossil-dev <fossil-dev@lists.fossil-scm.org> on
 ${PACKAGE_TIME}.
 
 EOF
@@ -89,7 +89,7 @@ true && {
 Package: ${PACKAGE_DEBNAME}
 Section: vcs
 Priority: optional
-Maintainer: stephan beal <stephan@s11n.net>
+Maintainer: fossil-dev <fossil-dev@lists.fossil-scm.org>
 Architecture: ${DEB_ARCH_NAME}
 Depends: libc6 ${DEB_ARCH_PKGDEPENDS+, }${DEB_ARCH_PKGDEPENDS}
 Version: ${PACKAGE_DEB_VERSION}
