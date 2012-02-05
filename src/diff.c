@@ -35,6 +35,8 @@
 #define DIFF_INLINE        0x08000000  /* Inline (not side-by-side) diff */
 #define DIFF_HTML          0x10000000  /* Render for HTML */
 #define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
+#define DIFF_NOOPT         0x40000000  /* Suppress optimizations for debug */
+#define DIFF_INVERT        0x80000000  /* Invert the diff for debug */
 
 #endif /* INTERFACE */
 
@@ -62,6 +64,11 @@ struct DLine {
   ** a bucket in a hash table, as follows: */
   unsigned int iHash;   /* 1+(first entry in the hash chain) */
 };
+
+/*
+** Length of a dline
+*/
+#define LENGTH(X)   ((X)->h & LENGTH_MASK)
 
 /*
 ** A context for running a raw diff.
@@ -880,6 +887,108 @@ static void diff_all(DContext *p){
 }
 
 /*
+** Attempt to shift insertion or deletion blocks so that they begin and
+** end on lines that are pure whitespace.  In other words, try to transform
+** this:
+**
+**      int func1(int x){
+**         return x*10;
+**     +}
+**     +
+**     +int func2(int x){
+**     +   return x*20;
+**      }
+**
+**      int func3(int x){
+**         return x/5;
+**      }
+**
+** Into one of these:
+**
+**      int func1(int x){              int func1(int x){
+**         return x*10;                   return x*10;
+**      }                              }
+**     +
+**     +int func2(int x){             +int func2(int x){
+**     +   return x*20;               +   return x*20;
+**     +}                             +}
+**                                    +
+**      int func3(int x){              int func3(int x){
+**         return x/5;                    return x/5;
+**      }                              }
+*/
+static void diff_optimize(DContext *p){
+  int r;       /* Index of current triple */
+  int lnFrom;  /* Line number in p->aFrom */
+  int lnTo;    /* Line number in p->aTo */
+  int cpy, del, ins;
+
+  lnFrom = lnTo = 0;
+  for(r=0; r<p->nEdit; r += 3){
+    cpy = p->aEdit[r];
+    del = p->aEdit[r+1];
+    ins = p->aEdit[r+2];
+    lnFrom += cpy;
+    lnTo += cpy;
+
+    /* Shift insertions toward the beginning of the file */
+    while( cpy>0 && del==0 && ins>0 ){
+      DLine *pTop = &p->aFrom[lnFrom-1];  /* Line before start of insert */
+      DLine *pBtm = &p->aTo[lnTo+ins-1];  /* Last line inserted */
+      if( same_dline(pTop, pBtm)==0 ) break;
+      if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
+      lnFrom--;
+      lnTo--;
+      p->aEdit[r]--;
+      p->aEdit[r+3]++;
+      cpy--;
+    }
+
+    /* Shift insertions toward the end of the file */
+    while( p->aEdit[r+3]>0 && del==0 && ins>0 ){
+      DLine *pTop = &p->aTo[lnTo];       /* First line inserted */
+      DLine *pBtm = &p->aTo[lnTo+ins];   /* First line past end of insert */
+      if( same_dline(pTop, pBtm)==0 ) break;
+      if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop+1)+LENGTH(pBtm) ) break;
+      lnFrom++;
+      lnTo++;
+      p->aEdit[r]++;
+      p->aEdit[r+3]--;
+      cpy++;
+    }
+
+    /* Shift deletions toward the beginning of the file */
+    while( cpy>0 && del>0 && ins==0 ){
+      DLine *pTop = &p->aFrom[lnFrom-1];     /* Line before start of delete */
+      DLine *pBtm = &p->aFrom[lnFrom+del-1]; /* Last line deleted */
+      if( same_dline(pTop, pBtm)==0 ) break;
+      if( LENGTH(pTop+1)+LENGTH(pBtm)<=LENGTH(pTop)+LENGTH(pBtm-1) ) break;
+      lnFrom--;
+      lnTo--;
+      p->aEdit[r]--;
+      p->aEdit[r+3]++;
+      cpy--;
+    }
+
+    /* Shift deletions toward the end of the file */
+    while( p->aEdit[r+3]>0 && del>0 && ins==0 ){
+      DLine *pTop = &p->aFrom[lnFrom];     /* First line deleted */
+      DLine *pBtm = &p->aFrom[lnFrom+del]; /* First line past end of delete */
+      if( same_dline(pTop, pBtm)==0 ) break;
+      if( LENGTH(pTop)+LENGTH(pBtm-1)<=LENGTH(pTop)+LENGTH(pBtm) ) break;
+      lnFrom++;
+      lnTo++;
+      p->aEdit[r]++;
+      p->aEdit[r+3]--;
+      cpy++;
+    }
+
+    lnFrom += del;
+    lnTo += ins;
+  }
+}
+
+/*
 ** Extract the number of lines of context from diffFlags.  Supply an
 ** appropriate default if no context width is specified.
 */
@@ -923,6 +1032,11 @@ int *text_diff(
   int nContext;    /* Amount of context to display */	
   DContext c;
 
+  if( diffFlags & DIFF_INVERT ){
+    Blob *pTemp = pA_Blob;
+    pA_Blob = pB_Blob;
+    pB_Blob = pTemp;
+  }
   nContext = diff_context_lines(diffFlags);
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
@@ -943,6 +1057,7 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
+  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
@@ -965,28 +1080,6 @@ int *text_diff(
     free(c.aFrom);
     free(c.aTo);
     return c.aEdit;
-  }
-}
-
-/*
-** COMMAND: test-rawdiff
-*/
-void test_rawdiff_cmd(void){
-  Blob a, b;
-  int r;
-  int i;
-  int *R;
-  if( g.argc<4 ) usage("FILE1 FILE2 ...");
-  blob_read_from_file(&a, g.argv[2]);
-  for(i=3; i<g.argc; i++){
-    if( i>3 ) fossil_print("-------------------------------\n");
-    blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, 0);
-    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
-      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
-    }
-    /* free(R); */
-    blob_reset(&b);
   }
 }
 
@@ -1016,7 +1109,32 @@ int diff_options(void){
   }
   if( find_option("html",0,0)!=0 ) diffFlags |= DIFF_HTML;
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
+  if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
+  if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
   return diffFlags;
+}
+
+/*
+** COMMAND: test-rawdiff
+*/
+void test_rawdiff_cmd(void){
+  Blob a, b;
+  int r;
+  int i;
+  int *R;
+  int diffFlags = diff_options();
+  if( g.argc<4 ) usage("FILE1 FILE2 ...");
+  blob_read_from_file(&a, g.argv[2]);
+  for(i=3; i<g.argc; i++){
+    if( i>3 ) fossil_print("-------------------------------\n");
+    blob_read_from_file(&b, g.argv[i]);
+    R = text_diff(&a, &b, 0, diffFlags);
+    for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
+      fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
+    }
+    /* free(R); */
+    blob_reset(&b);
+  }
 }
 
 /*

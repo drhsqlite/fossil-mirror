@@ -375,6 +375,9 @@ int construct_diff_flags(int showDiff, int sideBySide){
     x = atoi(PD("dc","7"));
     if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
     diffFlags += x;
+
+    /* The "noopt" parameter disables diff optimization */
+    if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
   }
   return diffFlags;
 }
