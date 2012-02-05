@@ -64,7 +64,17 @@ struct DLine {
 };
 
 /*
-** A context for running a diff.
+** A context for running a raw diff.
+**
+** The aEdit[] array describes the raw diff.  Each triple of integers in
+** aEdit[] means:
+**
+**   (1) COPY:   Number of lines aFrom and aTo have in common
+**   (2) DELETE: Number of lines found only in aFrom
+**   (3) INSERT: Number of lines found only in aTo
+**
+** The triples repeat until all lines of both aFrom and aTo are accounted
+** for.
 */
 typedef struct DContext DContext;
 struct DContext {
@@ -149,9 +159,14 @@ static int same_dline(DLine *pA, DLine *pB){
 }
 
 /*
-** Append a single line of "diff" output to pOut.
+** Append a single line of context-diff output to pOut.
 */
-static void appendDiffLine(Blob *pOut, char cPrefix, DLine *pLine, int html){
+static void appendDiffLine(
+  Blob *pOut,         /* Where to write the line of output */
+  char cPrefix,       /* One of " ", "+",  or "-" */
+  DLine *pLine,       /* The line to be output */
+  int html            /* True if generating HTML.  False for plain text */
+){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
@@ -173,8 +188,10 @@ static void appendDiffLine(Blob *pOut, char cPrefix, DLine *pLine, int html){
 }
 
 /*
-** Append line numbers to the context diff output.  Zero or negative numbers
-** are blanks.
+** Add two line numbers to the beginning of an output line for a context
+** diff.  One or of the other of the two numbers might be zero, which means
+** to leave that number field blank.  The "html" parameter means to format
+** the output for HTML.  
 */
 static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
@@ -189,47 +206,6 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
     blob_append(pOut, "        ", 8);
   }
   if( html ) blob_append(pOut, "</span>", -1);
-}
-
-/*
-** Expand the size of aEdit[] array to hold nEdit elements.
-*/
-static void expandEdit(DContext *p, int nEdit){
-  p->aEdit = fossil_realloc(p->aEdit, nEdit*sizeof(int));
-  p->nEditAlloc = nEdit;
-}
-
-/*
-** Append a new COPY/DELETE/INSERT triple.
-*/
-static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
-  /* printf("APPEND %d/%d/%d\n", nCopy, nDel, nIns); */
-  if( p->nEdit>=3 ){
-    if( p->aEdit[p->nEdit-1]==0 ){
-      if( p->aEdit[p->nEdit-2]==0 ){
-        p->aEdit[p->nEdit-3] += nCopy;
-        p->aEdit[p->nEdit-2] += nDel;
-        p->aEdit[p->nEdit-1] += nIns;
-        return;
-      }
-      if( nCopy==0 ){
-        p->aEdit[p->nEdit-2] += nDel;
-        p->aEdit[p->nEdit-1] += nIns;
-        return;
-      }
-    }
-    if( nCopy==0 && nDel==0 ){
-      p->aEdit[p->nEdit-1] += nIns;
-      return;
-    }
-  }  
-  if( p->nEdit+3>p->nEditAlloc ){
-    expandEdit(p, p->nEdit*2 + 15);
-    if( p->aEdit==0 ) return;
-  }
-  p->aEdit[p->nEdit++] = nCopy;
-  p->aEdit[p->nEdit++] = nDel;
-  p->aEdit[p->nEdit++] = nIns;
 }
 
 
@@ -292,11 +268,11 @@ static void contextDiff(
       na += R[r+i*3];
       nb += R[r+i*3];
     }
-    /*
-     * If the patch changes an empty file or results in an empty file,
-     * the block header must use 0,0 as position indicator and not 1,0.
-     * Otherwise, patch would be confused and may reject the diff.
-     */
+
+    /* Show the header for this block, or if we are doing a modified
+    ** context diff that contains line numbers, show the separate from
+    ** the previous block.
+    */
     if( showLn ){
       if( r==0 ){
         /* Do not show a top divider */
@@ -307,6 +283,11 @@ static void contextDiff(
       }
     }else{
       if( html ) blob_appendf(pOut, "<span class=\"diffln\">");
+      /*
+       * If the patch changes an empty file or results in an empty file,
+       * the block header must use 0,0 as position indicator and not 1,0.
+       * Otherwise, patch would be confused and may reject the diff.
+       */
       blob_appendf(pOut,"@@ -%d,%d +%d,%d @@",
         na ? a+skip+1 : 0, na,
         nb ? b+skip+1 : 0, nb);
@@ -523,11 +504,8 @@ static void sbsDiff(
       na += R[r+i*3];
       nb += R[r+i*3];
     }
-    /*
-     * If the patch changes an empty file or results in an empty file,
-     * the block header must use 0,0 as position indicator and not 1,0.
-     * Otherwise, patch would be confused and may reject the diff.
-     */
+
+    /* Draw the separator between blocks */
     if( r>0 ){
       if( escHtml ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
@@ -769,6 +747,47 @@ static void longestCommonSequence(
 }
 
 /*
+** Expand the size of aEdit[] array to hold at least nEdit elements.
+*/
+static void expandEdit(DContext *p, int nEdit){
+  p->aEdit = fossil_realloc(p->aEdit, nEdit*sizeof(int));
+  p->nEditAlloc = nEdit;
+}
+
+/*
+** Append a new COPY/DELETE/INSERT triple.
+*/
+static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
+  /* printf("APPEND %d/%d/%d\n", nCopy, nDel, nIns); */
+  if( p->nEdit>=3 ){
+    if( p->aEdit[p->nEdit-1]==0 ){
+      if( p->aEdit[p->nEdit-2]==0 ){
+        p->aEdit[p->nEdit-3] += nCopy;
+        p->aEdit[p->nEdit-2] += nDel;
+        p->aEdit[p->nEdit-1] += nIns;
+        return;
+      }
+      if( nCopy==0 ){
+        p->aEdit[p->nEdit-2] += nDel;
+        p->aEdit[p->nEdit-1] += nIns;
+        return;
+      }
+    }
+    if( nCopy==0 && nDel==0 ){
+      p->aEdit[p->nEdit-1] += nIns;
+      return;
+    }
+  }  
+  if( p->nEdit+3>p->nEditAlloc ){
+    expandEdit(p, p->nEdit*2 + 15);
+    if( p->aEdit==0 ) return;
+  }
+  p->aEdit[p->nEdit++] = nCopy;
+  p->aEdit[p->nEdit++] = nDel;
+  p->aEdit[p->nEdit++] = nIns;
+}
+
+/*
 ** Do a single step in the difference.  Compute a sequence of
 ** copy/delete/insert steps that will convert lines iS1 through iE1-1 of
 ** the input into lines iS2 through iE2-1 of the output and write
@@ -800,7 +819,7 @@ static void diff_step(DContext *p, int iS1, int iE1, int iS2, int iE2){
   longestCommonSequence(p, iS1, iE1, iS2, iE2, &iSX, &iEX, &iSY, &iEY);
 
   if( iEX>iSX ){
-    /* A common segement has been found.
+    /* A common segment has been found.
     ** Recursively diff either side of the matching segment */
     diff_step(p, iS1, iSX, iS2, iSY);
     if( iEX>iSX ){
