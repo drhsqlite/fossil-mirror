@@ -1,5 +1,5 @@
-C Bug\sfix\sin\sthe\shandling\sof\stabs\son\sa\sside-by-side\sdiff.
-D 2012-02-05T00:22:04.706
+C Fix\sanother\sbug\sin\stable\shandling\sfor\sside-by-side\sdiffs.
+D 2012-02-05T02:43:04.109
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -79,7 +79,7 @@ F src/db.c e2a3892378e081581d53853028a06fbc410cbe77
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
-F src/diff.c 63328e72775b49da8f0ffe5a6e5f4469ede4ac73
+F src/diff.c c143bfc7507a5949ed6c443cbd643a2b51f2547e
 F src/diffcmd.c 6d4a016d37305c8fdc3db2fcc0281ce4e105ff14
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5bbe190a8c211869e075395616b26244975a863f
-R f46ec6e0dba779b5a8bab7f6f67c43dd
+P 07a0ade926f3bd8af3d1a2cd55b095d6967d8c18
+R 047a95a42de698f93f735410352010e7
 U drh
-Z 05e02f2ad774e94ad138f388882001a4
+Z 8765158cf63debf51eb9154d943561c3

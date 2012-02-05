@@ -386,16 +386,17 @@ struct SbsLine {
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
-  int i, j, k;
+  int i;   /* Number of input characters consumed */
+  int j;   /* Number of output characters generated */
+  int k;   /* Cursor position */
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
-  if( n>w ) n = w;
-  for(i=j=k=0; k<n; i++, k++){
+  for(i=j=k=0; k<w && i<n; i++, k++){
     char c = zIn[i];
     if( c=='\t' ){
       z[j++] = ' ';
-      while( (k&7)!=0 && k<n ){ z[j++] = ' '; k++; }
+      while( (k&7)!=0 && k<w ){ z[j++] = ' '; k++; }
     }else if( c=='\r' || c=='\f' ){
       z[j++] = ' ';
     }else if( c=='<' && p->escHtml ){
