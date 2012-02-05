@@ -396,7 +396,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     char c = zIn[i];
     if( c=='\t' ){
       z[j++] = ' ';
-      while( (k&7)!=0 && k<w ){ z[j++] = ' '; k++; }
+      while( (k&7)!=7 && k<w ){ z[j++] = ' '; k++; }
     }else if( c=='\r' || c=='\f' ){
       z[j++] = ' ';
     }else if( c=='<' && p->escHtml ){
