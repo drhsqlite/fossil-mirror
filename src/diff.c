@@ -386,16 +386,16 @@ struct SbsLine {
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
-  int i, j;
+  int i, j, k;
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
   if( n>w ) n = w;
-  for(i=j=0; i<n; i++){
+  for(i=j=k=0; k<n; i++, k++){
     char c = zIn[i];
     if( c=='\t' ){
       z[j++] = ' ';
-      while( (j&7)!=0 && j<n ) z[j++] = ' ';
+      while( (k&7)!=0 && k<n ){ z[j++] = ' '; k++; }
     }else if( c=='\r' || c=='\f' ){
       z[j++] = ' ';
     }else if( c=='<' && p->escHtml ){
@@ -416,7 +416,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     j += 7;
   }
   if( (flags & SBS_PAD)!=0 ){
-    while( i<w ){ i++;  z[j++] = ' '; }
+    while( k<w ){ k++;  z[j++] = ' '; }
   }
   if( flags & SBS_NEWLINE ){
     z[j++] = '\n';
