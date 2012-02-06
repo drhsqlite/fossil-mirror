@@ -1605,7 +1605,9 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
-  login_set_capabilities("s", 0);
+  login_set_capabilities("sx", 0);
+  g.useLocalauth = 1;
+  cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
   g.httpIn = stdin;
   g.httpOut = stdout;
   find_server_repository(0);
