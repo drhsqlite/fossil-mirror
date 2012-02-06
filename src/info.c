@@ -1124,11 +1124,18 @@ void diff_page(void){
                             g.zTop, P("v1"), P("v2"));
     }
 
-    @ <h2>Differences From
-    @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
-    object_description(v1, 0, 0);
-    @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
-    object_description(v2, 0, 0);
+    if( P("smhdr")!=0 ){
+      @ <h2>Differences From Artifact
+      @ <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a> To
+      @ <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>.</h2>
+    }else{
+      @ <h2>Differences From
+      @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
+      object_description(v1, 0, 0);
+      @ <h2>To Artifact
+      @ <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
+      object_description(v2, 0, 0);
+    }
     @ <hr />
     @ <div class="%s(zStyle)">
     @ %s(blob_str(&diff))

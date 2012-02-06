@@ -1,5 +1,5 @@
-C Make\sthe\sdiff\scolors\sdarker\sby\sdefault.
-D 2012-02-06T16:03:40.568
+C The\s"smhdr"\squery\sparameter\son\sthe\sfinfo\spages\sgives\sa\smore\scompact\sheader\nwithout\sthe\sdetailed\sobject\sdescriptions.
+D 2012-02-06T17:47:19.313
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -95,7 +95,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 8115480da322bca9fc9ae2bbe2d335e43548f1e3
+F src/info.c cb84ac306d52ede4e35b95097b26161277c89d22
 F src/json.c 870377c491d101c293843c6352c01c6992118e2f
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bba7aea8ca8ddc57dcc11d4a5b5ffa41ff3ba193
-R 113bf69e5344f358a7f82031b52bef67
+P ea4b7cd68c73147bd85ec5b73f7b3a5ce009fba7
+R e989a64685c612053ef8098a044ac25c
 U drh
-Z ef12d9fb0989671c4b450044ebc9e15e
+Z 877ab983f57fbe7afad28b8452a2a762
