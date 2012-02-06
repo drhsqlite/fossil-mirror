@@ -166,6 +166,78 @@ static int same_dline(DLine *pA, DLine *pB){
 }
 
 /*
+** Return the number which is larger the closer pA and pB match.
+**
+** The number returned of characters that match in pA and pB.  The
+** number if artifically reduced if neither pA nor pB match very well.
+*/
+static int match_dline(DLine *pA, DLine *pB){
+  int *pToFree;
+  int *a;
+  const char *zA;
+  const char *zB;
+  int nA;
+  int nB;
+  int minDist;
+  int i, j, dist;
+  int aStatic[200];
+
+  zA = pA->z;
+  zB = pB->z;
+  nA = pA->h & LENGTH_MASK;
+  nB = pB->h & LENGTH_MASK;
+  minDist = nA;
+  if( minDist>nB ) minDist = nB;
+  minDist = (minDist)/2;
+  dist = 0;
+
+  /* Remove any common prefix and suffix */
+  while( nA && nB && zA[0]==zB[0] ){
+    nA--;
+    nB--;
+    zA++;
+    zB++;
+    dist++;
+  }
+  while( nA && nB && zA[nA-1]==zB[nB-1] ){
+    nA--;
+    nB--;
+    dist++;
+  }
+
+  /* Early out if one or the other string is empty */
+  if( nA==0 ) return dist;
+  if( nB==0 ) return dist;
+
+  /* Allocate space of the dynamic programming array */  
+  if( nB<sizeof(aStatic)/sizeof(aStatic[0]) ){
+    pToFree = 0;
+    a = aStatic;
+  }else{
+    pToFree = a = fossil_malloc( (nB+1)*sizeof(a[0]) );
+  }
+
+  /* Compute the length best sequence of matching characters */
+  for(i=0; i<=nB; i++) a[i] = 0;
+  for(j=0; j<nA; j++){
+    int p = 0;
+    for(i=0; i<nB; i++){
+      int m = a[i];
+      if( m<a[i+1] ) m = a[i+1];
+      if( m<p+1 && zA[j]==zB[i] ) m = p+1;
+      p = a[i+1];
+      a[i+1] = m;
+    }
+  }
+  dist += a[nB];
+
+  /* Return the result */
+  fossil_free(pToFree);
+  return dist>minDist ? dist : 0;
+}
+
+
+/*
 ** Append a single line of context-diff output to pOut.
 */
 static void appendDiffLine(
@@ -540,43 +612,46 @@ static void sbsDiff(
 
     /* Show the differences */
     for(i=0; i<nr; i++){
-      ma = R[r+i*3+1];
-      mb = R[r+i*3+2];
-      m = ma<mb ? ma : mb;
-      for(j=0; j<m; j++){
-        s.n = 0;
-        sbsWriteLineno(&s, a+j);
-        sbsWriteHtml(&s, "<span class=\"diffchng\">");
-        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
-        sbsWrite(&s, " | ", 3);
-        sbsWriteLineno(&s, b+j);
-        sbsWriteHtml(&s, "<span class=\"diffchng\">");
-        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
-        blob_append(pOut, s.zLine, s.n);
+      ma = R[r+i*3+1];   /* Lines on left but not on right */
+      mb = R[r+i*3+2];   /* Lines on right but not on left */
+      while( ma+mb>0 ){
+        if( ma<mb && (ma==0 ||
+                match_dline(&A[a],&B[b]) < match_dline(&A[a],&B[b+1]) ) ){
+          s.n = 0;
+          sbsWriteSpace(&s, width + 7);
+          sbsWrite(&s, " > ", 3);
+          sbsWriteLineno(&s, b);
+          sbsWriteHtml(&s, "<span class=\"diffadd\">");
+          sbsWriteText(&s, &B[b], SBS_NEWLINE | SBS_ENDSPAN);
+          blob_append(pOut, s.zLine, s.n);
+          mb--;
+          b++;
+        }else if( ma>mb && (mb==0 ||
+                  match_dline(&A[a],&B[b]) < match_dline(&A[a+1],&B[b])) ){
+          s.n = 0;
+          sbsWriteLineno(&s, a);
+          sbsWriteHtml(&s, "<span class=\"diffrm\">");
+          sbsWriteText(&s, &A[a], SBS_PAD | SBS_ENDSPAN);
+          sbsWrite(&s, " <\n", 3);
+          blob_append(pOut, s.zLine, s.n);
+          ma--;
+          a++;
+        }else{
+          s.n = 0;
+          sbsWriteLineno(&s, a);
+          sbsWriteHtml(&s, "<span class=\"diffchng\">");
+          sbsWriteText(&s, &A[a], SBS_PAD | SBS_ENDSPAN);
+          sbsWrite(&s, " | ", 3);
+          sbsWriteLineno(&s, b);
+          sbsWriteHtml(&s, "<span class=\"diffchng\">");
+          sbsWriteText(&s, &B[b], SBS_NEWLINE | SBS_ENDSPAN);
+          blob_append(pOut, s.zLine, s.n);
+          ma--;
+          mb--;
+          a++;
+          b++;
+        }
       }
-      a += m;
-      b += m;
-      ma -= m;
-      mb -= m;
-      for(j=0; j<ma; j++){
-        s.n = 0;
-        sbsWriteLineno(&s, a+j);
-        sbsWriteHtml(&s, "<span class=\"diffrm\">");
-        sbsWriteText(&s, &A[a+j], SBS_PAD | SBS_ENDSPAN);
-        sbsWrite(&s, " <\n", 3);
-        blob_append(pOut, s.zLine, s.n);
-      }
-      a += ma;
-      for(j=0; j<mb; j++){
-        s.n = 0;
-        sbsWriteSpace(&s, width + 7);
-        sbsWrite(&s, " > ", 3);
-        sbsWriteLineno(&s, b+j);
-        sbsWriteHtml(&s, "<span class=\"diffadd\">");
-        sbsWriteText(&s, &B[b+j], SBS_NEWLINE | SBS_ENDSPAN);
-        blob_append(pOut, s.zLine, s.n);
-      }
-      b += mb;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
