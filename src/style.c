@@ -766,15 +766,15 @@ const struct strctCssDefaults {
   },
   { "span.diffchng",
     "changes in a diff",
-    @   background-color: #e0e0ff;
+    @   background-color: #c0c0ff;
   },
   { "span.diffadd",
     "added code in a diff",
-    @   background-color: #e0ffe0;
+    @   background-color: #c0ffc0;
   },
   { "span.diffrm",
     "deleted in a diff",
-    @   background-color: #ffe0e0;
+    @   background-color: #ffc8c8;
   },
   { "span.diffhr",
     "suppressed lines in a diff",
