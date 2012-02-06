@@ -429,15 +429,17 @@ struct SbsLine {
   char *zLine;             /* The output line under construction */
   int n;                   /* Index of next unused slot in the zLine[] */
   int width;               /* Maximum width of a column in the output */
-  unsigned char escHtml;  /* True to escape html characters */
+  unsigned char escHtml;   /* True to escape html characters */
+  int iStart;              /* Write zStart prior to character iStart */
+  const char *zStart;      /* A <span> tag */
+  int iEnd;                /* Write </span> prior to character iEnd */
 };
 
 /*
 ** Flags for sbsWriteText()
 */
-#define SBS_NEWLINE  0x0001   /* End with \n\000 */
-#define SBS_PAD      0x0002   /* Pad output to width spaces */
-#define SBS_ENDSPAN  0x0004   /* Write a </span> after text */
+#define SBS_NEWLINE      0x0001   /* End with \n\000 */
+#define SBS_PAD          0x0002   /* Pad output to width spaces */
 
 /*
 ** Write up to width characters of pLine into z[].  Translate tabs into
@@ -454,6 +456,16 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int w = p->width;
   for(i=j=k=0; k<w && i<n; i++, k++){
     char c = zIn[i];
+    if( p->escHtml ){
+      if( i==p->iStart ){
+        int x = strlen(p->zStart);
+        memcpy(z+j, p->zStart, x);
+        j += x;
+      }else if( i==p->iEnd ){
+        memcpy(z+j, "</span>", 7);
+        j += 7;
+      }
+    }
     if( c=='\t' ){
       z[j++] = ' ';
       while( (k&7)!=7 && k<w ){ z[j++] = ' '; k++; }
@@ -472,7 +484,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       z[j++] = c;
     }
   }
-  if( (flags & SBS_ENDSPAN) && p->escHtml ){
+  if( p->escHtml && i<=p->iEnd ){
     memcpy(&z[j], "</span>", 7);
     j += 7;
   }
@@ -518,6 +530,80 @@ static void sbsWriteLineno(SbsLine *p, int ln){
   p->zLine[p->n++] = ' ';
 }
 
+/*
+** Write out lines that have been edited.  Adjust the highlight to cover
+** only those parts of the line that actually changed.
+*/
+static void sbsWriteLineChange(
+  SbsLine *p,          /* The SBS output line */
+  DLine *pLeft,        /* Left line of the change */
+  int lnLeft,          /* Line number for the left line */
+  DLine *pRight,       /* Right line of the change */
+  int lnRight          /* Line number of the right line */
+){
+  int nLeft;           /* Length of left line in bytes */
+  int nRight;          /* Length of right line in bytes */
+  int nPrefix;         /* Length of common prefix */
+  int nSuffix;         /* Length of common suffix */
+  int width;           /* Total column width */
+  const char *zLeft;   /* Text of the left line */
+  const char *zRight;  /* Text of the right line */
+
+  nLeft = pLeft->h & LENGTH_MASK;
+  zLeft = pLeft->z;
+  nRight = pRight->h & LENGTH_MASK;
+  zRight = pRight->z;
+
+  nPrefix = 0;
+  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+    nPrefix++;
+  }
+  nSuffix = 0;
+  if( nPrefix<nLeft && nPrefix<nRight ){
+    while( nSuffix<nLeft && nSuffix<nRight
+           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+      nSuffix++;
+    }
+    if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
+  }
+  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
+  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix==nLeft ){
+    /* Text inserted on the right */
+    sbsWriteLineno(p, lnLeft);
+    p->iStart = p->iEnd = -1;
+    sbsWriteText(p, pLeft, SBS_PAD);
+    sbsWrite(p, " | ", 3);
+    sbsWriteLineno(p, lnRight);
+    p->iStart = nPrefix;
+    p->iEnd = nRight - nSuffix;
+    p->zStart = "<span class=\"diffadd\">";
+    sbsWriteText(p, pRight, SBS_NEWLINE);
+  }else if( nPrefix+nSuffix==nRight ){
+    /* Text deleted from the left */
+    sbsWriteLineno(p, lnLeft);
+    p->iStart = nPrefix;
+    p->iEnd = nLeft - nSuffix;
+    p->zStart = "<span class=\"diffrm\">";
+    sbsWriteText(p, pLeft, SBS_PAD);
+    sbsWrite(p, " | ", 3);
+    sbsWriteLineno(p, lnRight);
+    p->iStart = p->iEnd = -1;
+    sbsWriteText(p, pRight, SBS_NEWLINE);
+  }else{
+    /* Text modified between left and right */
+    sbsWriteLineno(p, lnLeft);
+    p->iStart = nPrefix;
+    p->iEnd = nLeft - nSuffix;
+    p->zStart = "<span class=\"diffchng\">";
+    sbsWriteText(p, pLeft, SBS_PAD);
+    sbsWrite(p, " | ", 3);
+    sbsWriteLineno(p, lnRight);
+    p->iEnd = nRight - nSuffix;
+    sbsWriteText(p, pRight, SBS_NEWLINE);
+  }
+}
+
 
 /*
 ** Given a diff context in which the aEdit[] array has been filled
@@ -548,6 +634,8 @@ static void sbsDiff(
   if( s.zLine==0 ) return;
   s.width = width;
   s.escHtml = escHtml;
+  s.iStart = -1;
+  s.iEnd = -1;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -601,6 +689,7 @@ static void sbsDiff(
     for(j=0; j<m; j++){
       s.n = 0;
       sbsWriteLineno(&s, a+j);
+      s.iStart = s.iEnd = -1;
       sbsWriteText(&s, &A[a+j], SBS_PAD);
       sbsWrite(&s, "   ", 3);
       sbsWriteLineno(&s, b+j);
@@ -621,8 +710,10 @@ static void sbsDiff(
           sbsWriteSpace(&s, width + 7);
           sbsWrite(&s, " > ", 3);
           sbsWriteLineno(&s, b);
-          sbsWriteHtml(&s, "<span class=\"diffadd\">");
-          sbsWriteText(&s, &B[b], SBS_NEWLINE | SBS_ENDSPAN);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffadd\">";
+          s.iEnd = s.width;
+          sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           mb--;
           b++;
@@ -630,21 +721,17 @@ static void sbsDiff(
                   match_dline(&A[a],&B[b]) < match_dline(&A[a+1],&B[b])) ){
           s.n = 0;
           sbsWriteLineno(&s, a);
-          sbsWriteHtml(&s, "<span class=\"diffrm\">");
-          sbsWriteText(&s, &A[a], SBS_PAD | SBS_ENDSPAN);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffrm\">";
+          s.iEnd = s.width;
+          sbsWriteText(&s, &A[a], SBS_PAD);
           sbsWrite(&s, " <\n", 3);
           blob_append(pOut, s.zLine, s.n);
           ma--;
           a++;
         }else{
           s.n = 0;
-          sbsWriteLineno(&s, a);
-          sbsWriteHtml(&s, "<span class=\"diffchng\">");
-          sbsWriteText(&s, &A[a], SBS_PAD | SBS_ENDSPAN);
-          sbsWrite(&s, " | ", 3);
-          sbsWriteLineno(&s, b);
-          sbsWriteHtml(&s, "<span class=\"diffchng\">");
-          sbsWriteText(&s, &B[b], SBS_NEWLINE | SBS_ENDSPAN);
+          sbsWriteLineChange(&s, &A[a], a, &B[b], b);
           blob_append(pOut, s.zLine, s.n);
           ma--;
           mb--;
@@ -657,6 +744,7 @@ static void sbsDiff(
         for(j=0; j<m; j++){
           s.n = 0;
           sbsWriteLineno(&s, a+j);
+          s.iStart = s.iEnd = -1;
           sbsWriteText(&s, &A[a+j], SBS_PAD);
           sbsWrite(&s, "   ", 3);
           sbsWriteLineno(&s, b+j);
@@ -675,6 +763,7 @@ static void sbsDiff(
     for(j=0; j<m; j++){
       s.n = 0;
       sbsWriteLineno(&s, a+j);
+      s.iStart = s.iEnd = -1;
       sbsWriteText(&s, &A[a+j], SBS_PAD);
       sbsWrite(&s, "   ", 3);
       sbsWriteLineno(&s, b+j);
