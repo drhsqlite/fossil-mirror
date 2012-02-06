@@ -636,7 +636,7 @@ static unsigned char *sbsAlignment(
       }
       if( m>p ){
         int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( score<50 && m>p+score ){
+        if( score<66 && m>p+score ){
           m = p+score;
           d = 2;
         }
