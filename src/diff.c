@@ -166,78 +166,6 @@ static int same_dline(DLine *pA, DLine *pB){
 }
 
 /*
-** Return the number which is larger the closer pA and pB match.
-**
-** The number returned of characters that match in pA and pB.  The
-** number if artifically reduced if neither pA nor pB match very well.
-*/
-static int match_dline(DLine *pA, DLine *pB){
-  int *pToFree;
-  int *a;
-  const char *zA;
-  const char *zB;
-  int nA;
-  int nB;
-  int minDist;
-  int i, j, dist;
-  int aStatic[200];
-
-  zA = pA->z;
-  zB = pB->z;
-  nA = pA->h & LENGTH_MASK;
-  nB = pB->h & LENGTH_MASK;
-  minDist = nA;
-  if( minDist>nB ) minDist = nB;
-  minDist = (minDist)/2;
-  dist = 0;
-
-  /* Remove any common prefix and suffix */
-  while( nA && nB && zA[0]==zB[0] ){
-    nA--;
-    nB--;
-    zA++;
-    zB++;
-    dist++;
-  }
-  while( nA && nB && zA[nA-1]==zB[nB-1] ){
-    nA--;
-    nB--;
-    dist++;
-  }
-
-  /* Early out if one or the other string is empty */
-  if( nA==0 ) return dist;
-  if( nB==0 ) return dist;
-
-  /* Allocate space of the dynamic programming array */  
-  if( nB<sizeof(aStatic)/sizeof(aStatic[0]) ){
-    pToFree = 0;
-    a = aStatic;
-  }else{
-    pToFree = a = fossil_malloc( (nB+1)*sizeof(a[0]) );
-  }
-
-  /* Compute the length best sequence of matching characters */
-  for(i=0; i<=nB; i++) a[i] = 0;
-  for(j=0; j<nA; j++){
-    int p = 0;
-    for(i=0; i<nB; i++){
-      int m = a[i];
-      if( m<a[i+1] ) m = a[i+1];
-      if( m<p+1 && zA[j]==zB[i] ) m = p+1;
-      p = a[i+1];
-      a[i+1] = m;
-    }
-  }
-  dist += a[nB];
-
-  /* Return the result */
-  fossil_free(pToFree);
-  return dist>minDist ? dist : 0;
-}
-
-
-/*
 ** Append a single line of context-diff output to pOut.
 */
 static void appendDiffLine(
@@ -604,6 +532,148 @@ static void sbsWriteLineChange(
   }
 }
 
+/*
+** Return the number between 0 and 100 that is smaller the closer pA and
+** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
+** completely different.
+*/
+static int match_dline(DLine *pA, DLine *pB){
+  const char *zA;
+  const char *zB;
+  int nA;
+  int nB;
+  int minDist;
+  int i;
+  int nMatch;
+  int score;
+
+  zA = pA->z;
+  zB = pB->z;
+  nA = pA->h & LENGTH_MASK;
+  nB = pB->h & LENGTH_MASK;
+  while( nA>0 && fossil_isspace(zA[0]) ){ nA--; zA++; }
+  while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
+  while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
+  while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
+  minDist = nA;
+  if( minDist>nB ) minDist = nB;
+  if( minDist==0 ){
+    score = 100;
+  }else{
+    for(i=0; i<nA && i<nB && zA[i]==zB[i]; i++){}
+    nMatch = i;
+    for(i=1; i<=nA && i<=nB && zA[nA-i]==zB[nB-i]; i++){}
+    nMatch += i-1;
+    score = (nMatch >= minDist) ? 0 : ((minDist - nMatch)*100)/minDist;
+  }
+  return score;
+}
+
+/*
+** There is a change block in which nLeft lines of text on the left are
+** converted into nRight lines of text on the right.  This routine computes
+** how the lines on the left line up with the lines on the right.
+**
+** The return value is a buffer of unsigned characters, obtained from
+** fossil_malloc().  (The caller needs to free the return value using
+** fossil_free().)  Entries in the returned array have values as follows:
+**
+**    1.   Delete the next line of pLeft.
+**    2.   The next line of pLeft changes into the next line of pRight.
+**    3.   Insert the next line of pRight.
+**
+** The length of the returned array will be just large enough to cause
+** all elements of pLeft and pRight to be consumed.
+**
+** Algorithm:  Wagner's minimum edit-distance algorithm, modified by
+** adding a cost to each match based on how well the two rows match
+** each other.  Insertion and deletion costs are 50.  Match costs
+** are between 0 and 100 where 0 is a perfect match 100 is a complete
+** mismatch.
+*/
+static unsigned char *sbsAlignment(
+   DLine *aLeft, int nLeft,       /* Text on the left */
+   DLine *aRight, int nRight      /* Text on the right */
+){
+  int i, j, k;                 /* Loop counters */
+  int *a;                      /* One row of the Wagner matrix */
+  int *pToFree;                /* Space that needs to be freed */
+  unsigned char *aM;           /* Wagner result matrix */
+  int aBuf[100];               /* Stack space for a[] if nRight not to big */
+
+  aM = fossil_malloc( (nLeft+1)*(nRight+1) );
+  if( nLeft==0 ){
+    memset(aM, 3, nRight);
+    return aM;
+  }
+  if( nRight==0 ){
+    memset(aM, 1, nLeft);
+    return aM;
+  }
+  if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
+    pToFree = 0;
+    a = aBuf;
+  }else{
+    a = pToFree = fossil_malloc( sizeof(a[0])*(nRight+1) );
+  }
+
+  /* Compute the best alignment */
+  for(i=0; i<=nRight; i++){
+    aM[i] = 3;
+    a[i] = i*50;
+  }
+  aM[0] = 0;
+  for(j=1; j<=nLeft; j++){
+    int p = a[0];
+    a[0] = p+50;
+    aM[j*(nRight+1)] = 1;
+    for(i=1; i<=nRight; i++){
+      int m = a[i-1]+50;
+      int d = 3;
+      if( m>a[i]+50 ){
+        m = a[i]+50;
+        d = 1;
+      }
+      if( m>p ){
+        int score = match_dline(&aLeft[j-1], &aRight[i-1]);
+        if( score<50 && m>p+score ){
+          m = p+score;
+          d = 2;
+        }
+      }
+      p = a[i];
+      a[i] = m;
+      aM[j*(nRight+1)+i] = d;
+    }
+  }
+
+  /* Compute the lowest-cost path back through the matrix */
+  i = nRight;
+  j = nLeft;
+  k = (nRight+1)*(nLeft+1)-1;
+  while( i+j>0 ){
+    unsigned char c = aM[k--];
+    if( c==2 ){
+      assert( i>0 && j>0 );
+      i--;
+      j--;
+    }else if( c==3 ){
+      assert( i>0 );
+      i--;
+    }else{
+      assert( j>0 );
+      j--;
+    }
+    aM[k] = aM[j*(nRight+1)+i];
+  }
+  k++;
+  i = (nRight+1)*(nLeft+1) - k;
+  memmove(aM, &aM[k], i);
+
+  /* Return the result */
+  fossil_free(pToFree);
+  return aM;
+}
 
 /*
 ** Given a diff context in which the aEdit[] array has been filled
@@ -701,11 +771,33 @@ static void sbsDiff(
 
     /* Show the differences */
     for(i=0; i<nr; i++){
+      unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
-      while( ma+mb>0 ){
-        if( ma<mb && (ma==0 ||
-                match_dline(&A[a],&B[b]) < match_dline(&A[a],&B[b+1]) ) ){
+      alignment = sbsAlignment(&A[a], ma, &B[b], mb);
+      for(j=0; ma+mb>0; j++){
+        if( alignment[j]==1 ){
+          s.n = 0;
+          sbsWriteLineno(&s, a);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffrm\">";
+          s.iEnd = s.width;
+          sbsWriteText(&s, &A[a], SBS_PAD);
+          sbsWrite(&s, " <\n", 3);
+          blob_append(pOut, s.zLine, s.n);
+          assert( ma>0 );
+          ma--;
+          a++;
+        }else if( alignment[j]==2 ){
+          s.n = 0;
+          sbsWriteLineChange(&s, &A[a], a, &B[b], b);
+          blob_append(pOut, s.zLine, s.n);
+          assert( ma>0 && mb>0 );
+          ma--;
+          mb--;
+          a++;
+          b++;
+        }else{
           s.n = 0;
           sbsWriteSpace(&s, width + 7);
           sbsWrite(&s, " > ", 3);
@@ -715,30 +807,12 @@ static void sbsDiff(
           s.iEnd = s.width;
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
+          assert( mb>0 );
           mb--;
-          b++;
-        }else if( ma>mb && (mb==0 ||
-                  match_dline(&A[a],&B[b]) < match_dline(&A[a+1],&B[b])) ){
-          s.n = 0;
-          sbsWriteLineno(&s, a);
-          s.iStart = 0;
-          s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
-          sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " <\n", 3);
-          blob_append(pOut, s.zLine, s.n);
-          ma--;
-          a++;
-        }else{
-          s.n = 0;
-          sbsWriteLineChange(&s, &A[a], a, &B[b], b);
-          blob_append(pOut, s.zLine, s.n);
-          ma--;
-          mb--;
-          a++;
           b++;
         }
       }
+      fossil_free(alignment);
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
@@ -1109,7 +1183,7 @@ static void diff_optimize(DContext *p){
     }
 
     /* Shift insertions toward the end of the file */
-    while( p->aEdit[r+3]>0 && del==0 && ins>0 ){
+    while( r+3<p->nEdit && p->aEdit[r+3]>0 && del==0 && ins>0 ){
       DLine *pTop = &p->aTo[lnTo];       /* First line inserted */
       DLine *pBtm = &p->aTo[lnTo+ins];   /* First line past end of insert */
       if( same_dline(pTop, pBtm)==0 ) break;
@@ -1135,7 +1209,7 @@ static void diff_optimize(DContext *p){
     }
 
     /* Shift deletions toward the end of the file */
-    while( p->aEdit[r+3]>0 && del>0 && ins==0 ){
+    while( r+3<p->nEdit && p->aEdit[r+3]>0 && del>0 && ins==0 ){
       DLine *pTop = &p->aFrom[lnFrom];     /* First line deleted */
       DLine *pBtm = &p->aFrom[lnFrom+del]; /* First line past end of delete */
       if( same_dline(pTop, pBtm)==0 ) break;
