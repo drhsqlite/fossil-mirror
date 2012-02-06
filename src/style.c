@@ -766,7 +766,7 @@ const struct strctCssDefaults {
   },
   { "span.diffchng",
     "changes in a diff",
-    @   background-color: #ffffc8;
+    @   background-color: #e0e0ff;
   },
   { "span.diffadd",
     "added code in a diff",
