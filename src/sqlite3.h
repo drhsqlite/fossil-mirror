@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.10"
-#define SQLITE_VERSION_NUMBER 3007010
-#define SQLITE_SOURCE_ID      "2012-01-11 16:16:08 9e31a275ef494ea8713a1d60a15b84157e57c3ff"
+#define SQLITE_VERSION        "3.7.11"
+#define SQLITE_VERSION_NUMBER 3007011
+#define SQLITE_SOURCE_ID      "2012-02-07 14:13:50 9497893b1b9219eac4ec2183bd90b4e4b860d9fe"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -2632,8 +2632,10 @@ SQLITE_API int sqlite3_open_v2(
 ** to see if a database file was a URI that contained a specific query 
 ** parameter, and if so obtains the value of that query parameter.
 **
-** If F is the filename pointer passed into the xOpen() method of a VFS
-** implementation and P is the name of the query parameter, then
+** If F is the database filename pointer passed into the xOpen() method of 
+** a VFS implementation when the flags parameter to xOpen() has one or 
+** more of the [SQLITE_OPEN_URI] or [SQLITE_OPEN_MAIN_DB] bits set and
+** P is the name of the query parameter, then
 ** sqlite3_uri_parameter(F,P) returns the value of the P
 ** parameter if it exists or a NULL pointer if P does not appear as a 
 ** query parameter on F.  If P is a query parameter of F
@@ -2642,9 +2644,14 @@ SQLITE_API int sqlite3_open_v2(
 **
 ** The sqlite3_uri_boolean(F,P,B) routine assumes that P is a boolean
 ** parameter and returns true (1) or false (0) according to the value
-** of P.  The value of P is true if it is "yes" or "true" or "on" or 
-** a non-zero number and is false otherwise.  If P is not a query parameter
-** on F then sqlite3_uri_boolean(F,P,B) returns (B!=0).
+** of P.  The sqlite3_uri_boolean(F,P,B) routine returns true (1) if the
+** value of query parameter P is one of "yes", "true", or "on" in any
+** case or if the value begins with a non-zero number.  The 
+** sqlite3_uri_boolean(F,P,B) routines returns false (0) if the value of
+** query parameter P is one of "no", "false", or "off" in any case or
+** if the value begins with a numeric zero.  If P is not a query
+** parameter on F or if the value of P is does not match any of the
+** above, then sqlite3_uri_boolean(F,P,B) returns (B!=0).
 **
 ** The sqlite3_uri_int64(F,P,D) routine converts the value of P into a
 ** 64-bit signed integer and returns that integer, or D if P does not
@@ -2653,8 +2660,9 @@ SQLITE_API int sqlite3_open_v2(
 ** 
 ** If F is a NULL pointer, then sqlite3_uri_parameter(F,P) returns NULL and
 ** sqlite3_uri_boolean(F,P,B) returns B.  If F is not a NULL pointer and
-** is not a pathname pointer that SQLite passed into the xOpen VFS method,
-** then the behavior of this routine is undefined and probably undesirable.
+** is not a database file pathname pointer that SQLite passed into the xOpen
+** VFS method, then the behavior of this routine is undefined and probably
+** undesirable.
 */
 SQLITE_API const char *sqlite3_uri_parameter(const char *zFilename, const char *zParam);
 SQLITE_API int sqlite3_uri_boolean(const char *zFile, const char *zParam, int bDefault);
@@ -6210,7 +6218,7 @@ struct sqlite3_pcache_page {
 ** [[the xShrink() page cache method]]
 ** ^SQLite invokes the xShrink() method when it wants the page cache to
 ** free up as much of heap memory as possible.  The page cache implementation
-** is not obligated to free any memory, but well-behaved implementions should
+** is not obligated to free any memory, but well-behaved implementations should
 ** do their best.
 */
 typedef struct sqlite3_pcache_methods2 sqlite3_pcache_methods2;
