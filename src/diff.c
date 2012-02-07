@@ -557,7 +557,7 @@ static int match_dline(DLine *pA, DLine *pB){
   while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
   while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
   avg = (nA+nB)/2;
-  if( avg==0 ) return 100;
+  if( avg==0 ) return 0;
   best = 0;
   for(i=0; i<nA-best; i++){
     char c = zA[i];
