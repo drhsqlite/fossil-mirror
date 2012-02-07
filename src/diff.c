@@ -578,7 +578,6 @@ static int match_dline(DLine *pA, DLine *pB){
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
   memset(aFirst, 0, sizeof(aFirst));
-  memset(aNext, 0, nB);
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
     c = (unsigned char)zB[i];
@@ -586,11 +585,11 @@ static int match_dline(DLine *pA, DLine *pB){
     aFirst[c] = i;
   }
   best = 0;
-  for(i=1; i<=nA; i++){
+  for(i=1; i<=nA-best; i++){
     c = (unsigned char)zA[i];
-    for(j=aFirst[c]; j>0; j = aNext[j]){
-      int limit = minInt(nA-i, nB-j)+1;
-      for(k=1; k<limit && zA[k+i]==zB[k+j]; k++){}
+    for(j=aFirst[c]; j>0 && j<nB-best; j = aNext[j]){
+      int limit = minInt(nA-i, nB-j);
+      for(k=1; k<=limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }
