@@ -900,6 +900,11 @@ static void optimalLCS(
 }
 
 /*
+** Minimum of two values
+*/
+static int minInt(int a, int b){ return a<b ? a : b; }
+
+/*
 ** Compare two blocks of text on lines iS1 through iE1-1 of the aFrom[]
 ** file and lines iS2 through iE2-1 of the aTo[] file.  Locate a sequence
 ** of lines in these two blocks that are exactly the same.  Return
@@ -925,7 +930,9 @@ static void longestCommonSequence(
   int *piSY, int *piEY       /* Write p->aTo[] common segment here */
 ){
   double bestScore = -1e30;  /* Best score seen so far */
-  int i, j;                  /* Loop counters */
+  int i, j, k;               /* Loop counters */
+  int n;                     /* Loop limit */
+  DLine *pA, *pB;            /* Pointers to lines */
   int iSX, iSY, iEX, iEY;    /* Current match */
   double score;              /* Current score */
   int skew;                  /* How lopsided is the match */
@@ -958,16 +965,20 @@ static void longestCommonSequence(
     if( i<iEXp && j>=iSYp && j<iEYp ) continue;
     iSX = i;
     iSY = j-1;
-    while( iSX>iS1 && iSY>iS2 && same_dline(&p->aFrom[iSX-1],&p->aTo[iSY-1]) ){
-      iSX--;
-      iSY--;
-    }
+    pA = &p->aFrom[iSX-1];
+    pB = &p->aTo[iSY-1];
+    n = minInt(iSX-iS1, iSY-iS2);
+    for(k=0; k<n && same_dline(pA,pB); k++, pA--, pB--){}
+    iSX -= k;
+    iSY -= k;
     iEX = i+1;
     iEY = j;
-    while( iEX<iE1 && iEY<iE2 && same_dline(&p->aFrom[iEX],&p->aTo[iEY]) ){
-      iEX++;
-      iEY++;
-    }
+    pA = &p->aFrom[iEX];
+    pB = &p->aTo[iEY];
+    n = minInt(iE1-iEX, iE2-iEY);
+    for(k=0; k<n && same_dline(pA,pB); k++, pA++, pB++){}
+    iEX += k;
+    iEY += k;
     skew = (iSX-iS1) - (iSY-iS2);
     if( skew<0 ) skew = -skew;
     dist = (iSX+iEX)/2 - mid;
