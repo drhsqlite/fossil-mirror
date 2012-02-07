@@ -239,6 +239,7 @@ static void contextDiff(
   int i, j;     /* Loop counters */
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
+  int nChunk = 0;  /* Number of diff chunks seen so far */
 
   A = p->aFrom;
   B = p->aTo;
@@ -280,11 +281,13 @@ static void contextDiff(
     ** context diff that contains line numbers, show the separate from
     ** the previous block.
     */
+    nChunk++;
     if( showLn ){
       if( r==0 ){
         /* Do not show a top divider */
       }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
+        blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
       }else{
         blob_appendf(pOut, "%.80c\n", '.');
       }
@@ -473,7 +476,6 @@ static void sbsWriteLineChange(
   int nRight;          /* Length of right line in bytes */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
-  int width;           /* Total column width */
   const char *zLeft;   /* Text of the left line */
   const char *zRight;  /* Text of the right line */
 
@@ -699,6 +701,7 @@ static void sbsDiff(
   int i, j;     /* Loop counters */
   int m, ma, mb;/* Number of lines to output */
   int skip;     /* Number of lines to skip */
+  int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
 
   s.zLine = fossil_malloc( 10*width + 100 );
@@ -751,6 +754,10 @@ static void sbsDiff(
       }else{
         blob_appendf(pOut, "%.*c\n", width*2+16, '.');
       }
+    }
+    nChunk++;
+    if( escHtml ){
+      blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
     }
 
     /* Show the initial common area */
