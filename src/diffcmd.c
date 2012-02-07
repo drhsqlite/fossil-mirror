@@ -25,7 +25,7 @@
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, int diffFlags){
-  if( (diffFlags & DIFF_SIDEBYSIDE)==0 ){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     fossil_print("%s", z);
     fossil_free(z);
@@ -37,7 +37,9 @@ void diff_print_index(const char *zFile, int diffFlags){
 */
 void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
   char *z = 0;
-  if( diffFlags & DIFF_SIDEBYSIDE ){
+  if( diffFlags & DIFF_BRIEF ){
+    /* no-op */
+  }else if( diffFlags & DIFF_SIDEBYSIDE ){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
     int x;
@@ -68,6 +70,7 @@ void diff_file(
   const char *zDiffCmd,     /* Command for comparison */
   int diffFlags             /* Flags to control the diff */
 ){
+  if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
@@ -144,6 +147,7 @@ void diff_file_mem(
   const char *zDiffCmd,     /* Command for comparison */
   int diffFlags             /* Diff flags */
 ){
+  if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
@@ -195,6 +199,7 @@ static void diff_one_against_disk(
   Blob fname;
   Blob content;
   int isLink;
+  if( diffFlags & DIFF_BRIEF ) return;
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
@@ -289,7 +294,9 @@ static void diff_all_against_disk(
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
-    if( showDiff ){
+    if( diffFlags & DIFF_BRIEF ){
+      if( showDiff ) fossil_print("CHANGED  %s\n", zPathname);
+    }else if( showDiff ){
       Blob content;
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
@@ -328,6 +335,7 @@ static void diff_one_two_versions(
   Blob fname;
   Blob v1, v2;
   int isLink1, isLink2;
+  if( diffFlags & DIFF_BRIEF ) return;
   file_tree_name(zFileTreeName, &fname, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0, 0);
@@ -357,6 +365,7 @@ static void diff_manifest_entry(
   Blob f1, f2;
   int rid;
   const char *zName =  pFrom ? pFrom->zName : pTo->zName;
+  if( diffFlags & DIFF_BRIEF ) return;
   diff_print_index(zName, diffFlags);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
@@ -421,8 +430,11 @@ static void diff_all_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }else{
-      /* fossil_print("CHANGED %s\n", pFromFile->zName); */
-      diff_manifest_entry(pFromFile, pToFile, zDiffCmd, diffFlags);
+      if( diffFlags & DIFF_BRIEF ){
+        fossil_print("CHANGED %s\n", pFromFile->zName);
+      }else{
+        diff_manifest_entry(pFromFile, pToFile, zDiffCmd, diffFlags);
+      }
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }
@@ -460,10 +472,11 @@ static void diff_all_two_versions(
 ** deleted files to be displayed.
 **
 ** Options:
+**   --brief             Show filenames only
 **   --context|-c N      Use N lines of context 
 **   --from|-r VERSION   select VERSION as source for the diff
-**   --new-file|-N       output complete text of added or deleted files
 **   -i                  use internal diff logic
+**   --new-file|-N       output complete text of added or deleted files
 **   --to VERSION        select VERSION as target for the diff
 **   --side-by-side|-y   side-by-side diff
 **   --width|-W N        Width of lines in side-by-side diff 

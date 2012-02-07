@@ -32,7 +32,8 @@
 #define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
 #define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
 #define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
-#define DIFF_INLINE        0x08000000  /* Inline (not side-by-side) diff */
+#define DIFF_BRIEF         0x08000000  /* Show filenames only */
+#define DIFF_INLINE        0x00000000  /* Inline (not side-by-side) diff */
 #define DIFF_HTML          0x10000000  /* Render for HTML */
 #define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
 #define DIFF_NOOPT         0x40000000  /* Suppress optimizations for debug */
@@ -1333,11 +1334,14 @@ int *text_diff(
 ** Process diff-related command-line options and return an appropriate
 ** "diffFlags" integer.  
 **
-**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --brief                Show filenames only    DIFF_BRIEF
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
-**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 **   --html                 Format for HTML        DIFF_HTML
+**   --invert               Invert the diff        DIFF_INVERT
 **   --linenum|-n           Show line numbers      DIFF_LINENO
+**   --noopt                Disable optimization   DIFF_NOOPT
+**   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 int diff_options(void){
   int diffFlags = 0;
@@ -1357,6 +1361,7 @@ int diff_options(void){
   if( find_option("linenum","n",0)!=0 ) diffFlags |= DIFF_LINENO;
   if( find_option("noopt",0,0)!=0 ) diffFlags |= DIFF_NOOPT;
   if( find_option("invert",0,0)!=0 ) diffFlags |= DIFF_INVERT;
+  if( find_option("brief",0,0)!=0 ) diffFlags |= DIFF_BRIEF;
   return diffFlags;
 }
 
