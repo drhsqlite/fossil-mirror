@@ -536,17 +536,34 @@ static void sbsWriteLineChange(
 }
 
 /*
+** Minimum of two values
+*/
+static int minInt(int a, int b){ return a<b ? a : b; }
+
+/*
 ** Return the number between 0 and 100 that is smaller the closer pA and
 ** pB match.  Return 0 for a perfect match.  Return 100 if pA and pB are
 ** completely different.
+**
+** The current algorithm is as follows:
+**
+** (1) Remove leading and trailing whitespace.
+** (2) Truncate both strings to at most 250 characters
+** (3) Find the length of the longest common subsequence
+** (4) Longer common subsequences yield lower scores.
 */
 static int match_dline(DLine *pA, DLine *pB){
-  const char *zA;
-  const char *zB;
-  int nA;
-  int nB;
-  int avg;
-  int i, j, k, best, score;
+  const char *zA;            /* Left string */
+  const char *zB;            /* right string */
+  int nA;                    /* Bytes in zA[] */
+  int nB;                    /* Bytes in zB[] */
+  int avg;                   /* Average length of A and B */
+  int i, j, k;               /* Loop counters */
+  int best = 0;              /* Longest match found so far */
+  int score;                 /* Final score.  0..100 */
+  unsigned char c;           /* Character being examined */
+  unsigned char aFirst[256]; /* aFirst[X] = index in zB[] of first char X */
+  unsigned char aNext[252];  /* aNext[i] = index in zB[] of next zB[i] char */
 
   zA = pA->z;
   zB = pB->z;
@@ -556,18 +573,33 @@ static int match_dline(DLine *pA, DLine *pB){
   while( nA>0 && fossil_isspace(zA[nA-1]) ){ nA--; }
   while( nB>0 && fossil_isspace(zB[0]) ){ nB--; zB++; }
   while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
+  if( nA>250 ) nA = 250;
+  if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
+  memset(aFirst, 0, sizeof(aFirst));
+  memset(aNext, 0, nB);
+  zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
+  for(i=nB; i>0; i--){
+    c = (unsigned char)zB[i];
+    aNext[i] = aFirst[c];
+    aFirst[c] = i;
+  }
   best = 0;
-  for(i=0; i<nA-best; i++){
-    char c = zA[i];
-    for(j=0; j<nB-best; j++){
-      if( c!=zB[j] ) continue;
-      for(k=1; k+i<nA && k+j<nB && zA[k+i]==zB[k+j]; k++){}
+  for(i=1; i<=nA; i++){
+    c = (unsigned char)zA[i];
+    for(j=aFirst[c]; j>0; j = aNext[j]){
+      int limit = minInt(nA-i, nB-j)+1;
+      for(k=1; k<limit && zA[k+i]==zB[k+j]; k++){}
       if( k>best ) best = k;
     }
   }
   score = (best>avg) ? 0 : (avg - best)*100/avg;
+
+#if 0
+  fprintf(stderr, "A: [%.*s]\nB: [%.*s]\nbest=%d avg=%d score=%d\n",
+  nA, zA+1, nB, zB+1, best, avg, score);
+#endif
 
   /* Return the result */
   return score;
@@ -898,11 +930,6 @@ static void optimalLCS(
   *piSY = iSYb;
   *piEY = iSYb + mxLength;
 }
-
-/*
-** Minimum of two values
-*/
-static int minInt(int a, int b){ return a<b ? a : b; }
 
 /*
 ** Compare two blocks of text on lines iS1 through iE1-1 of the aFrom[]
