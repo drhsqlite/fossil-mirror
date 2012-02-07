@@ -538,15 +538,12 @@ static void sbsWriteLineChange(
 ** completely different.
 */
 static int match_dline(DLine *pA, DLine *pB){
-  int *pToFree;
-  int *a;
   const char *zA;
   const char *zB;
   int nA;
   int nB;
   int avg;
-  int i, j, dist, score;
-  int aStatic[200];
+  int i, j, k, best, score;
 
   zA = pA->z;
   zB = pB->z;
@@ -558,53 +555,20 @@ static int match_dline(DLine *pA, DLine *pB){
   while( nB>0 && fossil_isspace(zB[nB-1]) ){ nB--; }
   avg = (nA+nB)/2;
   if( avg==0 ) return 100;
-  dist = 0;
-
-  /* Remove any common prefix and suffix */
-  while( nA && nB && zA[0]==zB[0] ){
-    nA--;
-    nB--;
-    zA++;
-    zB++;
-    dist++;
-  }
-  while( nA && nB && zA[nA-1]==zB[nB-1] ){
-    nA--;
-    nB--;
-    dist++;
-  }
-
-  if( nA>0 && nB>0 ){
-    /* Allocate space of the dynamic programming array */  
-    if( nB<sizeof(aStatic)/sizeof(aStatic[0]) ){
-      pToFree = 0;
-      a = aStatic;
-    }else{
-      pToFree = a = fossil_malloc( (nB+1)*sizeof(a[0]) );
+  best = 0;
+  for(i=0; i<nA-best; i++){
+    char c = zA[i];
+    for(j=0; j<nB-best; j++){
+      if( c!=zB[j] ) continue;
+      for(k=1; k+i<nA && k+j<nB && zA[k+i]==zB[k+j]; k++){}
+      if( k>best ) best = k;
     }
-
-    /* Compute the length of the best sequence of matching characters */
-    for(i=0; i<=nB; i++) a[i] = 0;
-    for(j=0; j<nA; j++){
-      int p = 0;
-      for(i=0; i<nB; i++){
-        int m = a[i];
-        if( m<a[i+1] ) m = a[i+1];
-        if( m<p+1 && zA[j]==zB[i] ) m = p+1;
-        p = a[i+1];
-        a[i+1] = m;
-      }
-    }
-    dist += a[nB];
-    fossil_free(pToFree);
   }
-  score = dist>avg ? 0 : (avg - dist)*100/avg;
+  score = (best>avg) ? 0 : (avg - best)*100/avg;
 
   /* Return the result */
   return score;
 }
-
-
 
 /*
 ** There is a change block in which nLeft lines of text on the left are
