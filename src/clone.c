@@ -121,7 +121,7 @@ void clone_cmd(void){
       " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
-    delete_private_content();
+    if( !bPrivate ) delete_private_content();
     shun_artifacts();
     db_create_default_users(1, zDefaultUser);
     if( zDefaultUser ){
