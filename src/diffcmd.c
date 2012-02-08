@@ -70,7 +70,6 @@ void diff_file(
   const char *zDiffCmd,     /* Command for comparison */
   int diffFlags             /* Flags to control the diff */
 ){
-  if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
@@ -90,16 +89,22 @@ void diff_file(
     }
 
     /* Compute and output the differences */
-    blob_zero(&out);
-    text_diff(pFile1, &file2, &out, diffFlags);
-    if( blob_size(&out) ){
-      diff_print_filenames(zName, zName2, diffFlags);
-      fossil_print("%s\n", blob_str(&out));
+    if( diffFlags & DIFF_BRIEF ){
+      if( blob_compare(pFile1, &file2) ){
+        fossil_print("CHANGED  %s\n", zName);
+      }
+    }else{
+      blob_zero(&out);
+      text_diff(pFile1, &file2, &out, diffFlags);
+      if( blob_size(&out) ){
+        diff_print_filenames(zName, zName2, diffFlags);
+        fossil_print("%s\n", blob_str(&out));
+      }
+      blob_reset(&out);
     }
 
     /* Release memory resources */
     blob_reset(&file2);
-    blob_reset(&out);
   }else{
     int cnt = 0;
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
@@ -199,7 +204,6 @@ static void diff_one_against_disk(
   Blob fname;
   Blob content;
   int isLink;
-  if( diffFlags & DIFF_BRIEF ) return;
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
@@ -294,9 +298,7 @@ static void diff_all_against_disk(
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
-    if( diffFlags & DIFF_BRIEF ){
-      if( showDiff ) fossil_print("CHANGED  %s\n", zPathname);
-    }else if( showDiff ){
+    if( showDiff ){
       Blob content;
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
