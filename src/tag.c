@@ -46,7 +46,7 @@ static void tag_propagate(
 
   assert( tagType==0 || tagType==2 );
   pqueue_init(&queue);
-  pqueue_insert2(&queue, pid, 0.0, 0);
+  pqueue_insert(&queue, pid, 0.0, 0);
 
   /* Query for children of :pid to which to propagate the tag.
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
@@ -88,7 +88,7 @@ static void tag_propagate(
       if( doit ){
         int cid = db_column_int(&s, 0);
         double mtime = db_column_double(&s, 1);
-        pqueue_insert2(&queue, cid, mtime, 0);
+        pqueue_insert(&queue, cid, mtime, 0);
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);

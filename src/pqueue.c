@@ -71,10 +71,8 @@ static void pqueue_resize(PQueue *p, int N){
 
 /*
 ** Insert element e into the queue.
-** This is now named pqueue_insert2 to avoid a symbol naming
-** conflict with OpenSSL.
 */
-void pqueue_insert2(PQueue *p, int e, double v, void *pData){
+void pqueue_insert(PQueue *p, int e, double v, void *pData){
   int i, j;
   if( p->cnt+1>p->sz ){
     pqueue_resize(p, p->cnt+5);

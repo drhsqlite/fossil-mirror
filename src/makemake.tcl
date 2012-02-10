@@ -411,6 +411,7 @@ TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
+TCC += -Dpqueue_insert=pqueue_insert_fossil
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
 endif
 
