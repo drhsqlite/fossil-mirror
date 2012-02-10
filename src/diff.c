@@ -1707,6 +1707,8 @@ void annotation_page(void){
 **   --limit N       Only look backwards in time by N versions
 **   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
+**
+** See also: info, finfo, timeline
 */
 void annotate_cmd(void){
   int fnid;         /* Filename ID */

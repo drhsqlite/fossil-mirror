@@ -2,10 +2,12 @@
 
 <h2>0.0 Using A Pre-compiled Binary</h2>
 
-<p>You can skip all of the following by downloading
-a <a href="http://www.fossil-scm.org/download.html">pre-compiled binary</a>
-appropriate for your platform and putting that self-contained binary
-someplace on your $PATH.
+<p>Released versions of fossil come with
+<a href="http://www.fossil-scm.org/download.html">pre-compiled binaries and
+a source archive</a> for that release. You can thus skip the following if you
+want to run or build a release version of fossil. Just download
+the appropriate package from the <a href="http://www.fossil-scm.org/download.html">downloads page</a>
+and put it on your $PATH.
 To uninstall, simply delete the binary.
 To upgrade from an older release, just overwrite the older binary with
 the newer one.</p>
@@ -26,8 +28,10 @@ the newer one.</p>
 <h2>1.0 Obtaining The Source Code</h2>
 
 <p>Fossil is self-hosting, so you can obtain a ZIP archive containing
-a snapshot of the latest version directly from fossil's own fossil
-repository.  Follow these steps:</p>
+a snapshot of the <em>latest</em> version directly from fossil's own fossil
+repository. Additionally, source archives of <em>released</em> versions of
+fossil are available from the <a href="http://www.fossil-scm.org/download.html">downloads page</a>.
+To obtain a development version of fossil, follow these steps:</p>
 
 <ol>
 <li><p>Point your web browser at

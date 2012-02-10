@@ -509,9 +509,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
-**
-** SUMMARY: fossil mv|rename OLDNAME NEWNAME
-**      or: fossil mv|rename OLDNAME... DIR
+** See also: changes, status
 */
 void mv_cmd(void){
   int i;

@@ -1369,6 +1369,8 @@ static void process_one_web_page(const char *zNotFound){
 ** The second line defines the name of the repository.  After locating
 ** the repository, fossil will generate a webpage on stdout based on
 ** the values of standard CGI environment variables.
+**
+** See also: http, server, winsrv
 */
 void cmd_cgi(void){
   const char *zFile;
@@ -1542,7 +1544,7 @@ static void find_server_repository(int disallowDir){
 **
 ** COMMAND: http*
 **
-** Usage: %fossil http REPOSITORY [--notfound URL] [--host HOSTNAME] [--https]
+** Usage: %fossil http REPOSITORY ?OPTIONS?
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
@@ -1557,16 +1559,21 @@ static void find_server_repository(int disallowDir){
 **
 ** The --host option can be used to specify the hostname for the server.
 ** The --https option indicates that the request came from HTTPS rather
-** than HTTP.
+** than HTTP. If --nossl is given, then SSL connections will not be available,
+** thus also no redirecting from http: to https: will take place.
 **
-** Other options:
+** If the --localauth option is given, then automatic login is performed
+** for requests coming from localhost, if the "localauth" setting is not
+** enabled.
 **
-**    --localauth      Password signin is not required if this is true and
-**                     the input comes from 127.0.0.1 and the "localauth"
-**                     setting is not disabled.
+** Options:
+**   --localauth    enable automatic login for local connections
+**   --host NAME    specify hostname of the server
+**   --https        signal a request coming in via https
+**   --nossl        signal that no SSL connections are available
+**   --notfound URL use URL as "HTTP 404, object not found" page.
 **
-**    --nossl          SSL connections are not available so do not
-**                     redirect from http: to https:.
+** See also: cgi, server, winsrv
 */
 void cmd_http(void){
   const char *zIpAddr;
@@ -1646,8 +1653,8 @@ static int binaryOnPath(const char *zBinary){
 ** COMMAND: server*
 ** COMMAND: ui
 **
-** Usage: %fossil server ?-P|--port TCPPORT? ?REPOSITORY?
-**    Or: %fossil ui ?-P|--port TCPPORT? ?REPOSITORY?
+** Usage: %fossil server ?OPTIONS? ?REPOSITORY?
+**    Or: %fossil ui ?OPTIONS? ?REPOSITORY?
 **
 ** Open a socket and begin listening and responding to HTTP requests on
 ** TCP port 8080, or on any other TCP port defined by the -P or
@@ -1669,6 +1676,13 @@ static int binaryOnPath(const char *zBinary){
 ** "localauth" setting.  Automatic login for the "server" command is available
 ** if the --localauth option is present and the "localauth" setting is off
 ** and the connection is from localhost.
+**
+** Options:
+**   --localauth         enable automatic login for requests from localhost
+**   -P|--port TCPPORT   listen to request on port TCPPORT
+**   --th-trace          trace TH1 execution (for debugging purposes)
+**
+** See also: cgi, http, winsrv
 */
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */

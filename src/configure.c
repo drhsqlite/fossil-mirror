@@ -786,7 +786,7 @@ static void export_config(
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
 **
-** See also: set
+** See also: settings, unset
 */
 void configuration_cmd(void){
   int n;

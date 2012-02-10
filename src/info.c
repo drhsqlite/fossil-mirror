@@ -141,6 +141,8 @@ void show_common_info(
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
+**
+** See also: annotate, artifact, finfo, timeline
 */
 void info_cmd(void){
   i64 fsize;

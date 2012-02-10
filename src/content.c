@@ -315,6 +315,8 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
+**
+** See also: finfo
 */
 void artifact_cmd(void){
   int rid;

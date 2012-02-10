@@ -1879,8 +1879,8 @@ struct stControlSettings const ctrlSettings[] = {
 ** COMMAND: settings
 ** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?-global?
-** %fossil unset PROPERTY ?-global?
+** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+** %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
@@ -2034,6 +2034,12 @@ struct stControlSettings const ctrlSettings[] = {
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
 **                     and "firefox" on Unix.
+**
+** Options:
+**   --global   set or unset the given property globally instead of
+**              setting or unsetting it for the open repository only.
+** 
+** See also: configuration
 */
 void setting_cmd(void){
   int i;
