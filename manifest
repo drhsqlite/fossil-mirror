@@ -1,5 +1,5 @@
-C Minor\sfix\sto\sautosetup\sso\sthat\sit\sworks\son\sSolaris\swhen\susing\sjimsh0.
-D 2012-02-10T02:08:02.535
+C Report\san\serror\sif\sthe\s"artifact"\scommand\sdoes\snot\sfind\san\sartifact.
+D 2012-02-10T13:13:41.962
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,7 +72,7 @@ F src/clone.c 7d7dff3196337495ff9035000040aa90470f1d43
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c d30e8b98b353a50d8e1f51cd6075614d12b1c087
-F src/content.c 36f6acb63db99f1923dd470072b7b5b89d78fc55
+F src/content.c 00a2a8422c2c1df13fe00b7d3b80f6a3bdded43b
 F src/cson_amalgamation.c d7d2ccdd8b462db7f723e85a5679bb971f2ba48e
 F src/cson_amalgamation.h 791b543366864a33c1be4982f3d683273235aa19
 F src/db.c e2a3892378e081581d53853028a06fbc410cbe77
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9b1d394a719f00f5a293612fe824e1a1fb1ed2e4
-R 4faa761a916a759747e718e4958d7d98
+P ced22eb209f462a9a7d17a66a9be867c5d297ead
+R 0354668c702bac7eab5296703730262e
 U drh
-Z 4fb7348fb20515206da30322c1306ed7
+Z dd8d33b059890aaf77ee77230815a1d5

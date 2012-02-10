@@ -324,8 +324,11 @@ void artifact_cmd(void){
   if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);
-  content_get(rid, &content);
-  blob_write_to_file(&content, zFile);
+  if( content_get(rid, &content) ){
+    blob_write_to_file(&content, zFile);
+  }else{
+    fossil_fatal("no such artifact: %s", g.argv[2]);
+  }
 }
 
 /*
