@@ -317,6 +317,32 @@ int blob_compare(Blob *pA, Blob *pB){
 }
 
 /*
+** Compare two blobs in constant time and return zero if they are equal.
+** Constant time comparison only applies for blobs of the same length.
+** If lengths are different, immediately returns 1.
+*/
+int blob_constant_time_cmp(Blob *pA, Blob *pB){
+  int szA, szB, i;
+  unsigned char *buf1, *buf2;
+  unsigned char rc = 0;
+
+  blob_is_init(pA);
+  blob_is_init(pB);
+  szA = blob_size(pA);
+  szB = blob_size(pB);
+  if( szA!=szB || szA==0 ) return 1;
+
+  buf1 = (unsigned char*)blob_buffer(pA);
+  buf2 = (unsigned char*)blob_buffer(pB);
+
+  for( i=0; i<szA; i++ ){
+    rc = rc | (buf1[i] ^ buf2[i]);
+  }
+
+  return rc;
+}
+
+/*
 ** Compare a blob to a string.  Return TRUE if they are equal.
 */
 int blob_eq_str(Blob *pBlob, const char *z, int n){
@@ -742,8 +768,20 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    fossil_puts(blob_str(pBlob), 0);
-    return blob_size(pBlob);
+    int n;
+#if defined(_WIN32)
+    if( _isatty(fileno(stdout)) ){
+      char *z;
+      z = fossil_utf8_to_console(blob_str(pBlob));
+      n = strlen(z);
+      fwrite(z, 1, n, stdout);
+      free(z);
+      return n;
+    }
+#endif
+    n = blob_size(pBlob);
+    fwrite(blob_buffer(pBlob), 1, n, stdout);
+    return n;
   }else{
     int i, nName;
     char *zName, zBuf[1000];
@@ -1014,4 +1052,31 @@ void shell_escape(Blob *pBlob, const char *zIn){
     }
   }
   blob_append(pBlob, zIn, -1);
+}
+
+/*
+** A read(2)-like impl for the Blob class. Reads (copies) up to nLen
+** bytes from pIn, starting at position pIn->iCursor, and copies them
+** to pDest (which must be valid memory at least nLen bytes long).
+**
+** Returns the number of bytes read/copied, which may be less than
+** nLen (if end-of-blob is encountered).
+**
+** Updates pIn's cursor.
+** 
+** Returns 0 if pIn contains no data.
+*/
+unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
+  if( !pIn->aData || (pIn->iCursor >= pIn->nUsed) ){
+    return 0;
+  } else if( (pIn->iCursor + nLen) > (unsigned int)pIn->nUsed ){
+    nLen = (unsigned int) (pIn->nUsed - pIn->iCursor);
+  }
+  assert( pIn->nUsed > pIn->iCursor );
+  assert( (pIn->iCursor+nLen)  <= pIn->nUsed );
+  if( nLen ){
+    memcpy( pDest, pIn->aData, nLen );
+    pIn->iCursor += nLen;
+  }
+  return nLen;
 }

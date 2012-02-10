@@ -22,32 +22,36 @@
 #include <assert.h>
 
 /*
-** Diff option flags
+** Print the "Index:" message that patches wants to see at the top of a diff.
 */
-#define DIFF_NEWFILE  0x01    /* Treat non-existing fails as empty files */
-#define DIFF_NOEOLWS  0x02    /* Ignore whitespace at the end of lines */
-
-/*
-** Output the results of a diff.  Output goes to stdout for command-line
-** or to the CGI/HTTP result buffer for web pages.
-*/
-static void diff_printf(const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  if( g.cgiOutput ){
-    cgi_vprintf(zFormat, ap);
-  }else{
-    vprintf(zFormat, ap);
+void diff_print_index(const char *zFile, int diffFlags){
+  if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF))==0 ){
+    char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
+    fossil_print("%s", z);
+    fossil_free(z);
   }
-  va_end(ap);
 }
 
 /*
-** Print the "Index:" message that patch wants to see at the top of a diff.
+** Print the +++/--- filename lines for a diff operation.
 */
-void diff_print_index(const char *zFile){
-  diff_printf("Index: %s\n======================================="
-              "============================\n", zFile);
+void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
+  char *z = 0;
+  if( diffFlags & DIFF_BRIEF ){
+    /* no-op */
+  }else if( diffFlags & DIFF_SIDEBYSIDE ){
+    int w = diff_width(diffFlags);
+    int n1 = strlen(zLeft);
+    int x;
+    if( n1>w*2 ) n1 = w*2;
+    x = w*2+17 - (n1+2);
+    z = mprintf("%.*c %.*s %.*c\n",
+                x/2, '=', n1, zLeft, (x+1)/2, '=');
+  }else{
+    z = mprintf("--- %s\n+++ %s\n", zLeft, zRight);
+  }
+  fossil_print("%s", z);
+  fossil_free(z);
 }
 
 /*
@@ -64,7 +68,7 @@ void diff_file(
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
-  int ignoreEolWs           /* Ignore whitespace at end of line */
+  int diffFlags             /* Flags to control the diff */
 ){
   if( zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
@@ -85,16 +89,22 @@ void diff_file(
     }
 
     /* Compute and output the differences */
-    blob_zero(&out);
-    text_diff(pFile1, &file2, &out, 5, ignoreEolWs);
-    if( blob_size(&out) ){
-      diff_printf("--- %s\n+++ %s\n", zName, zName2);
-      diff_printf("%s\n", blob_str(&out));
+    if( diffFlags & DIFF_BRIEF ){
+      if( blob_compare(pFile1, &file2) ){
+        fossil_print("CHANGED  %s\n", zName);
+      }
+    }else{
+      blob_zero(&out);
+      text_diff(pFile1, &file2, &out, diffFlags);
+      if( blob_size(&out) ){
+        diff_print_filenames(zName, zName2, diffFlags);
+        fossil_print("%s\n", blob_str(&out));
+      }
+      blob_reset(&out);
     }
 
     /* Release memory resources */
     blob_reset(&file2);
-    blob_reset(&out);
   }else{
     int cnt = 0;
     Blob nameFile1;    /* Name of temporary file to old pFile1 content */
@@ -140,15 +150,16 @@ void diff_file_mem(
   Blob *pFile2,             /* In memory content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
-  int ignoreEolWs           /* Ignore whitespace at end of lines */
+  int diffFlags             /* Diff flags */
 ){
+  if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    text_diff(pFile1, pFile2, &out, 5, ignoreEolWs);
-    diff_printf("--- %s\n+++ %s\n", zName, zName);
-    diff_printf("%s\n", blob_str(&out));
+    text_diff(pFile1, pFile2, &out, diffFlags);
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print("%s\n", blob_str(&out));
 
     /* Release memory resources */
     blob_reset(&out);
@@ -187,7 +198,7 @@ void diff_file_mem(
 static void diff_one_against_disk(
   const char *zFrom,        /* Name of file */
   const char *zDiffCmd,     /* Use this "diff" command */
-  int ignoreEolWs,          /* Ignore whitespace changes at end of lines */
+  int diffFlags,            /* Diff control flags */
   const char *zFileTreeName
 ){
   Blob fname;
@@ -196,9 +207,10 @@ static void diff_one_against_disk(
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
-    diff_printf("cannot compute difference between symlink and regular file\n");
+    fossil_print("cannot compute difference between "
+                 "symlink and regular file\n");
   }else{
-    diff_file(&content, zFileTreeName, zFileTreeName, zDiffCmd, ignoreEolWs);
+    diff_file(&content, zFileTreeName, zFileTreeName, zDiffCmd, diffFlags);
   }
   blob_reset(&content);
   blob_reset(&fname);
@@ -217,10 +229,8 @@ static void diff_all_against_disk(
   int vid;
   Blob sql;
   Stmt q;
-  int ignoreEolWs;          /* Ignore end-of-line whitespace */
   int asNewFile;            /* Treat non-existant files as empty files */
 
-  ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0;
   asNewFile = (diffFlags & DIFF_NEWFILE)!=0;
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 1, 0);
@@ -274,26 +284,27 @@ static void diff_all_against_disk(
     char *zToFree = zFullName;
     int showDiff = 1;
     if( isDeleted ){
-      diff_printf("DELETED  %s\n", zPathname);
+      fossil_print("DELETED  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; zFullName = "/dev/null"; }
     }else if( file_access(zFullName, 0) ){
-      diff_printf("MISSING  %s\n", zPathname);
+      fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }
     }else if( isNew ){
-      diff_printf("ADDED    %s\n", zPathname);
+      fossil_print("ADDED    %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }else if( isChnged==3 ){
-      diff_printf("ADDED_BY_MERGE %s\n", zPathname);
+      fossil_print("ADDED_BY_MERGE %s\n", zPathname);
       srcid = 0;
       if( !asNewFile ){ showDiff = 0; }
     }
     if( showDiff ){
       Blob content;
       if( !isLink != !file_wd_islink(zFullName) ){
-        diff_print_index(zPathname);
-        diff_printf("--- %s\n+++ %s\n", zPathname, zPathname);
-        diff_printf("cannot compute difference between symlink and regular file\n");
+        diff_print_index(zPathname, diffFlags);
+        diff_print_filenames(zPathname, zPathname, diffFlags);
+        fossil_print("cannot compute difference between "
+                     "symlink and regular file\n");
         continue;
       }
       if( srcid>0 ){
@@ -301,8 +312,8 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      diff_print_index(zPathname);
-      diff_file(&content, zFullName, zPathname, zDiffCmd, ignoreEolWs);
+      diff_print_index(zPathname, diffFlags);
+      diff_file(&content, zFullName, zPathname, zDiffCmd, diffFlags);
       blob_reset(&content);
     }
     free(zToFree);
@@ -319,22 +330,24 @@ static void diff_one_two_versions(
   const char *zFrom,
   const char *zTo,
   const char *zDiffCmd,
-  int ignoreEolWs,
+  int diffFlags,
   const char *zFileTreeName
 ){
   char *zName;
   Blob fname;
   Blob v1, v2;
   int isLink1, isLink2;
+  if( diffFlags & DIFF_BRIEF ) return;
   file_tree_name(zFileTreeName, &fname, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0, 0);
   historical_version_of_file(zTo, zName, &v2, &isLink2, 0, 0);
   if( isLink1 != isLink2 ){
-    diff_printf("--- %s\n+++ %s\n", zName, zName);
-    diff_printf("cannot compute difference between symlink and regular file\n");
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print("cannot compute difference "
+                 " between symlink and regular file\n");
   }else{
-    diff_file_mem(&v1, &v2, zName, zDiffCmd, ignoreEolWs);
+    diff_file_mem(&v1, &v2, zName, zDiffCmd, diffFlags);
   }
   blob_reset(&v1);
   blob_reset(&v2);
@@ -349,12 +362,13 @@ static void diff_manifest_entry(
   struct ManifestFile *pFrom,
   struct ManifestFile *pTo,
   const char *zDiffCmd,
-  int ignoreEolWs
+  int diffFlags
 ){
   Blob f1, f2;
   int rid;
   const char *zName =  pFrom ? pFrom->zName : pTo->zName;
-  diff_print_index(zName);
+  if( diffFlags & DIFF_BRIEF ) return;
+  diff_print_index(zName, diffFlags);
   if( pFrom ){
     rid = uuid_to_rid(pFrom->zUuid, 0);
     content_get(rid, &f1);
@@ -367,7 +381,7 @@ static void diff_manifest_entry(
   }else{
     blob_zero(&f2);
   }
-  diff_file_mem(&f1, &f2, zName, zDiffCmd, ignoreEolWs);
+  diff_file_mem(&f1, &f2, zName, zDiffCmd, diffFlags);
   blob_reset(&f1);
   blob_reset(&f2);
 }
@@ -383,7 +397,6 @@ static void diff_all_two_versions(
 ){
   Manifest *pFrom, *pTo;
   ManifestFile *pFromFile, *pToFile;
-  int ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0 ? 1 : 0;
   int asNewFlag = (diffFlags & DIFF_NEWFILE)!=0 ? 1 : 0;
 
   pFrom = manifest_get_by_name(zFrom, 0);
@@ -403,15 +416,15 @@ static void diff_all_two_versions(
       cmp = fossil_strcmp(pFromFile->zName, pToFile->zName);
     }
     if( cmp<0 ){
-      diff_printf("DELETED %s\n", pFromFile->zName);
+      fossil_print("DELETED %s\n", pFromFile->zName);
       if( asNewFlag ){
-        diff_manifest_entry(pFromFile, 0, zDiffCmd, ignoreEolWs);
+        diff_manifest_entry(pFromFile, 0, zDiffCmd, diffFlags);
       }
       pFromFile = manifest_file_next(pFrom,0);
     }else if( cmp>0 ){
-      diff_printf("ADDED   %s\n", pToFile->zName);
+      fossil_print("ADDED   %s\n", pToFile->zName);
       if( asNewFlag ){
-        diff_manifest_entry(0, pToFile, zDiffCmd, ignoreEolWs);
+        diff_manifest_entry(0, pToFile, zDiffCmd, diffFlags);
       }
       pToFile = manifest_file_next(pTo,0);
     }else if( fossil_strcmp(pFromFile->zUuid, pToFile->zUuid)==0 ){
@@ -419,8 +432,11 @@ static void diff_all_two_versions(
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }else{
-      /* diff_printf("CHANGED %s\n", pFromFile->zName); */
-      diff_manifest_entry(pFromFile, pToFile, zDiffCmd, ignoreEolWs);
+      if( diffFlags & DIFF_BRIEF ){
+        fossil_print("CHANGED %s\n", pFromFile->zName);
+      }else{
+        diff_manifest_entry(pFromFile, pToFile, zDiffCmd, diffFlags);
+      }
       pFromFile = manifest_file_next(pFrom,0);
       pToFile = manifest_file_next(pTo,0);
     }
@@ -458,10 +474,14 @@ static void diff_all_two_versions(
 ** deleted files to be displayed.
 **
 ** Options:
+**   --brief             Show filenames only
+**   --context|-c N      Use N lines of context 
 **   --from|-r VERSION   select VERSION as source for the diff
-**   --new-file|-N       output complete text of added or deleted files
 **   -i                  use internal diff logic
+**   --new-file|-N       output complete text of added or deleted files
 **   --to VERSION        select VERSION as target for the diff
+**   --side-by-side|-y   side-by-side diff
+**   --width|-W N        Width of lines in side-by-side diff 
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */
@@ -477,10 +497,10 @@ void diff_cmd(void){
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  diffFlags = diff_options();
   hasNFlag = find_option("new-file","N",0)!=0;
-
-
   if( hasNFlag ) diffFlags |= DIFF_NEWFILE;
+
   if( zTo==0 ){
     db_must_be_within_tree();
     verify_all_options();
@@ -489,7 +509,7 @@ void diff_cmd(void){
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
-        diff_one_against_disk(zFrom, zDiffCmd, 0, g.argv[f]);
+        diff_one_against_disk(zFrom, zDiffCmd, diffFlags, g.argv[f]);
       }
     }else{
       diff_all_against_disk(zFrom, zDiffCmd, diffFlags);
@@ -504,7 +524,7 @@ void diff_cmd(void){
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
-        diff_one_two_versions(zFrom, zTo, zDiffCmd, 0, g.argv[f]);        
+        diff_one_two_versions(zFrom, zTo, zDiffCmd, diffFlags, g.argv[f]);        
       }
     }else{
       diff_all_two_versions(zFrom, zTo, zDiffCmd, diffFlags);

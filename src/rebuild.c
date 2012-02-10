@@ -372,7 +372,11 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
-  totalSize = db_int(0, "SELECT count(*) FROM blob");
+
+  /* The following should be count(*) instead of max(rid). max(rid) is
+  ** an adequate approximation, however, and is much faster for large
+  ** repositories. */
+  totalSize = db_int(0, "SELECT max(rid) FROM blob");
   incrSize = totalSize/100;
   totalSize += incrSize*2;
   db_prepare(&s,
@@ -485,7 +489,7 @@ static void extra_deltification(void){
 }
 
 /*
-** COMMAND:  rebuild
+** COMMAND: rebuild
 **
 ** Usage: %fossil rebuild ?REPOSITORY? ?OPTIONS?
 **
@@ -502,6 +506,7 @@ static void extra_deltification(void){
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
 **   --wal         Set Write-Ahead-Log journalling mode on the database
+**   --stats       Show artifact statistics after rebuilding
 **
 ** See also: deconstruct, reconstruct
 */
@@ -516,6 +521,7 @@ void rebuild_database(void){
   int activateWal;
   int runVacuum;
   int runCompress;
+  int showStats;
 
   omitVerify = find_option("noverify",0,0)!=0;
   forceFlag = find_option("force","f",0)!=0;
@@ -524,6 +530,7 @@ void rebuild_database(void){
   runVacuum = find_option("vacuum",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
+  showStats = find_option("stats",0,0)!=0;
   if( zPagesize ){
     newPagesize = atoi(zPagesize);
     if( newPagesize<512 || newPagesize>65536
@@ -580,6 +587,26 @@ void rebuild_database(void){
     if( activateWal ){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
+  }
+  if( showStats ){
+    static struct { int idx; const char *zLabel; } aStat[] = {
+       { CFTYPE_ANY,       "Artifacts:" },
+       { CFTYPE_MANIFEST,  "Manifests:" },
+       { CFTYPE_CLUSTER,   "Clusters:" },
+       { CFTYPE_CONTROL,   "Tags:" },
+       { CFTYPE_WIKI,      "Wikis:" },
+       { CFTYPE_TICKET,    "Tickets:" },
+       { CFTYPE_ATTACHMENT,"Attachments:" },
+       { CFTYPE_EVENT,     "Events:" },
+    };
+    int i;
+    int subtotal = 0;
+    for(i=0; i<count(aStat); i++){
+      int k = aStat[i].idx;
+      fossil_print("%-15s %6d\n", aStat[i].zLabel, g.parseCnt[k]);
+      if( k>0 ) subtotal += g.parseCnt[k];
+    }
+    fossil_print("%-15s %6d\n", "Other:", g.parseCnt[CFTYPE_ANY] - subtotal);
   }
 }
 
@@ -695,7 +722,7 @@ void test_clusters_cmd(void){
 }
 
 /*
-** COMMAND: scrub
+** COMMAND: scrub*
 ** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
@@ -746,11 +773,7 @@ void scrub_cmd(void){
   db_begin_transaction();
   if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
-    db_multi_exec(
-      "DELETE FROM blob WHERE rid IN private;"
-      "DELETE FROM delta WHERE rid IN private;"
-      "DELETE FROM private;"
-    );
+    delete_private_content();
   }
   if( !privateOnly ){
     db_multi_exec(
@@ -765,6 +788,7 @@ void scrub_cmd(void){
       db_multi_exec(
         "DELETE FROM concealed;"
         "UPDATE rcvfrom SET ipaddr='unknown';"
+        "DROP TABLE IF EXISTS accesslog;"
         "UPDATE user SET photo=NULL, info='';"
       );
     }
@@ -828,7 +852,7 @@ void recon_read_dir(char *zPath){
 }
 
 /*
-** COMMAND: reconstruct
+** COMMAND: reconstruct*
 **
 ** Usage: %fossil reconstruct FILENAME DIRECTORY
 **
@@ -889,7 +913,7 @@ void reconstruct_cmd(void) {
 }
 
 /*
-** COMMAND: deconstruct
+** COMMAND: deconstruct*
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **

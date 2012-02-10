@@ -88,25 +88,26 @@ static const char zBuiltinSkin1[] =
 @   background-color: #404040;
 @   color: white;
 @ }
-@ 
+@
 @ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu {
+@ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 0px;
 @   font-size: 0.9em;
 @   text-align: center;
 @   background-color: #606060;
 @   color: white;
 @ }
-@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited {
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
+@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
 @   padding: 3px 10px 3px 10px;
 @   color: white;
 @   text-decoration: none;
 @ }
-@ div.mainmenu a:hover, div.submenu a:hover {
+@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
 @   color: #404040;
 @   background-color: white;
 @ }
-@ 
+@
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
@@ -165,9 +166,6 @@ static const char zBuiltinSkin1[] =
 @ </head>
 @ <body>
 @ <div class="header">
-@   <div class="logo">
-@     <img src="$home/logo" alt="logo">
-@   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
@@ -177,33 +175,34 @@ static const char zBuiltinSkin1[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><th1>
-@ html "<a href=''$home$index_page''>Home</a> "
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href=''$home$index_page''>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href=''$home/timeline''>Timeline</a> "
+@   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a> "
+@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$home/brlist''>Branches</a> "
-@   html "<a href=''$home/taglist''>Tags</a> "
+@   html "<a href=''$home/brlist''>Branches</a>\n"
+@   html "<a href=''$home/taglist''>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''$home/reportlist''>Tickets</a> "
+@   html "<a href=''$home/reportlist''>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''$home/wiki''>Wiki</a> "
+@   html "<a href=''$home/wiki''>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''$home/setup''>Admin</a> "
+@   html "<a href=''$home/setup''>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href=''$home/setup_ulist''>Users</a> "
+@   html "<a href=''$home/setup_ulist''>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''$home/login''>Logout</a> "
+@   html "<a href=''$home/login''>Logout</a>\n"
 @ } else {
-@   html "<a href=''$home/login''>Login</a> "
+@   html "<a href=''$home/login''>Login</a>\n"
 @ }
 @ </th1></div>
 @ ');
@@ -281,19 +280,20 @@ static const char zBuiltinSkin2[] =
 @ }
 @ 
 @ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu {
+@ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 0px;
 @   font-size: 0.9em;
 @   text-align: center;
 @   background-color: #c0af58;
 @   color: white;
 @ }
-@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited {
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
+@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
 @   padding: 3px 10px 3px 10px;
 @   color: white;
 @   text-decoration: none;
 @ }
-@ div.mainmenu a:hover, div.submenu a:hover {
+@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
 @   color: #a09048;
 @   background-color: white;
 @ }
@@ -357,8 +357,7 @@ static const char zBuiltinSkin2[] =
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
-@ }
-@ ');
+@ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
 @ <title>$<project_name>: $<title></title>
@@ -380,33 +379,34 @@ static const char zBuiltinSkin2[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><th1>
-@ html "<a href=''$home$index_page''>Home</a> "
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href=''$home$index_page''>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href=''$home/timeline''>Timeline</a> "
+@   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a> "
+@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$home/brlist''>Branches</a> "
-@   html "<a href=''$home/taglist''>Tags</a> "
+@   html "<a href=''$home/brlist''>Branches</a>\n"
+@   html "<a href=''$home/taglist''>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''$home/reportlist''>Tickets</a> "
+@   html "<a href=''$home/reportlist''>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''$home/wiki''>Wiki</a> "
+@   html "<a href=''$home/wiki''>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''$home/setup''>Admin</a> "
+@   html "<a href=''$home/setup''>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href=''$home/setup_ulist''>Users</a> "
+@   html "<a href=''$home/setup_ulist''>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''$home/login''>Logout</a> "
+@   html "<a href=''$home/login''>Logout</a>\n"
 @ } else {
-@   html "<a href=''$home/login''>Login</a> "
+@   html "<a href=''$home/login''>Login</a>\n"
 @ }
 @ </th1></div>
 @ ');
@@ -519,7 +519,7 @@ static const char zBuiltinSkin3[] =
 @ }
 @ 
 @ /* The submenu bar that *sometimes* appears below the main menu */
-@ div.submenu {
+@ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 10px;
 @   font-size: 0.9em;
 @   text-align: center;
@@ -528,12 +528,13 @@ static const char zBuiltinSkin3[] =
 @   background-color: #eee;
 @   color: #333;
 @ }
-@ div.submenu a, div.submenu a:visited {
+@ div.submenu a, div.submenu a:visited, div.sectionmenu>a.button:link,
+@ div.sectionmenu>a.button:visited {
 @   padding: 3px 10px 3px 10px;
 @   color: #333;
 @   text-decoration: none;
 @ }
-@ div.submenu a:hover {
+@ div.submenu a:hover, div.sectionmenu>a.button:hover {
 @   color: #eee;
 @   background-color: #333;
 @ }
@@ -616,33 +617,34 @@ static const char zBuiltinSkin3[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><th1>
-@ html "<li><a href=''$home$index_page''>Home</a></li>"
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href=''$home$index_page''>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<li><a href=''$home/timeline''>Timeline</a></li>"
+@   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<li><a href=''$home/dir?ci=tip''>Files</a></li>"
+@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<li><a href=''$home/brlist''>Branches</a></li>"
-@   html "<li><a href=''$home/taglist''>Tags</a></li>"
+@   html "<a href=''$home/brlist''>Branches</a>\n"
+@   html "<a href=''$home/taglist''>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<li><a href=''$home/reportlist''>Tickets</a></li>"
+@   html "<a href=''$home/reportlist''>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<li><a href=''$home/wiki''>Wiki</a></li>"
+@   html "<a href=''$home/wiki''>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<li><a href=''$home/setup''>Admin</a></li>"
+@   html "<a href=''$home/setup''>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<li><a href=''$home/setup_ulist''>Users</a></li>"
+@   html "<a href=''$home/setup_ulist''>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<li><a href=''$home/login''>Logout</a></li>"
+@   html "<a href=''$home/login''>Logout</a>\n"
 @ } else {
-@   html "<li><a href=''$home/login''>Login</a></li>"
+@   html "<a href=''$home/login''>Login</a>\n"
 @ }
 @ </th1></ul></div>
 @ <div id="container">
@@ -727,8 +729,9 @@ static const char zBuiltinSkin4[] =
 @   -border-top-left-radius: 5px;
 @   border-top-left-radius: 5px;
 @   border-top-right-radius: 5px;
-@   vertical-align: center;
-@   min-height: 2em;
+@   vertical-align: middle;
+@   padding-top: 8px;
+@   padding-bottom: 8px;
 @   background-color: #446979;
 @   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
 @   background: -moz-linear-gradient(center bottom,rgb(51,81,94) 2%, rgb(85,129,149) 76%);
@@ -755,7 +758,8 @@ static const char zBuiltinSkin4[] =
 @   color: white;
 @   text-decoration: none;
 @ }
-@ div.submenu a, div.submenu a:visited {
+@ div.submenu a, div.submenu a:visited, a.button,
+@ div.sectionmenu>a.button:link, div.sectinmenu>a.button:visited {
 @   padding: 2px 8px;
 @   color: #000;
 @   font-family: Arial;
@@ -777,7 +781,7 @@ static const char zBuiltinSkin4[] =
 @   background-color: white;
 @ }
 @ 
-@ div.submenu a:hover {
+@ div.submenu a:hover, div.sectionmenu>a.button:hover {
 @   background: -webkit-gradient(linear,left bottom, left top, color-stop(0, rgb(214,214,214)), color-stop(0.75, rgb(184,184,184)));
 @   background: -moz-linear-gradient(center bottom, rgb(214,214,214) 0%, rgb(184,184,184) 75%);
 @   background-color: #c0c0c0 ;
@@ -911,35 +915,36 @@ static const char zBuiltinSkin4[] =
 @      }
 @   </th1></nobr></div>
 @ </div>
-@ <div class="mainmenu"><ul><th1>
-@ html "<a href=''$home$index_page''>Home</a>"
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href=''$home$index_page''>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href=''$home/timeline''>Timeline</a>"
+@   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''$home/dir?ci=tip''>Files</a>"
+@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''$home/brlist''>Branches</a>"
-@   html "<a href=''$home/taglist''>Tags</a>"
+@   html "<a href=''$home/brlist''>Branches</a>\n"
+@   html "<a href=''$home/taglist''>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''$home/reportlist''>Tickets</a>"
+@   html "<a href=''$home/reportlist''>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''$home/wiki''>Wiki</a>"
+@   html "<a href=''$home/wiki''>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''$home/setup''>Admin</a>"
+@   html "<a href=''$home/setup''>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href=''$home/setup_ulist''>Users</a>"
+@   html "<a href=''$home/setup_ulist''>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''$home/login''>Logout</a>"
+@   html "<a href=''$home/login''>Logout</a>\n"
 @ } else {
-@   html "<a href=''$home/login''>Login</a>"
+@   html "<a href=''$home/login''>Login</a>\n"
 @ }
-@ </th1></ul></div>
+@ </th1></div>
 @ <div id="container">
 @ ');
 @ REPLACE INTO config(name,mtime,value) VALUES('footer',now(),'</div>
@@ -1102,6 +1107,9 @@ void setup_skin(void){
   }
 
   style_header("Skins");
+  if( zErr ){
+    @ <p><font color="red">%h(zErr)</font></p>
+  }
   @ <p>A "skin" is a combination of
   @ <a href="setup_editcss">CSS</a>, 
   @ <a href="setup_header">Header</a>,

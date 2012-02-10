@@ -414,8 +414,10 @@ unsigned int captcha_seed(void){
 
 /*
 ** Translate a captcha seed value into the captcha password string.
+** The returned string is static and overwritten on each call to
+** this function.
 */
-char *captcha_decode(unsigned int seed){
+char const *captcha_decode(unsigned int seed){
   const char *zSecret;
   const char *z;
   Blob b;

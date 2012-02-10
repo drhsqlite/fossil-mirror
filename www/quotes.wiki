@@ -87,4 +87,17 @@ been a smoother ride than Git was.
 <blockquote>
 <i>viablepanic at [http://www.reddit.com/r/programming/comments/bxcto/why_not_fossil_scm/]</i>
 </blockquote>
+
+<li>In the fossil community - and hence in fossil itself - development history 
+is pretty much sacrosanct. The very name "fossil" was to chosen to 
+reflect the unchanging nature of things in that history.
+
+<p>In git (or rather, the git community), the development history is part of
+the published aspect of the project, so it provides tools for rearranging
+that history so you can present what you "should" have done rather
+than what you actually did.
+
+<blockquote>
+<i>Mike Meyer on the Fossil mailing list, 2011-10-04</i>
+</blockquote>
 </ol>

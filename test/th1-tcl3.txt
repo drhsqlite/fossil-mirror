@@ -1,0 +1,9 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  proc doOut {msg} {puts $msg; puts \n}
+  doOut [tclEval bad_command]
+</th1>

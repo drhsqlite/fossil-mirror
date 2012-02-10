@@ -106,6 +106,7 @@ void update_cmd(void){
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
+  int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   Stmt mtimeXfer;       /* Statment to transfer mtimes */
 
   if( !internalUpdate ){
@@ -272,18 +273,22 @@ void update_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0),"
-    " islinkt=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    " islinkv=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0),"
+    " islinkt=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0)",
     vid, tid
   );
 
 
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe, islinkv, islinkt FROM fv"
+       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe,"
+       "       islinkv, islinkt FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d islinkv=%d  islinkt=%d\n",
+       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d"
+                    " islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
@@ -312,7 +317,7 @@ void update_cmd(void){
     zSep = "";
     for(i=3; i<g.argc; i++){
       file_tree_name(g.argv[i], &treename, 1);
-      if( file_isdir(g.argv[i])==1 ){
+      if( file_wd_isdir(g.argv[i])==1 ){
         if( blob_size(&treename) != 1 || blob_str(&treename)[0] != '.' ){
           blob_appendf(&sql, "%sfn NOT GLOB '%b/*' ", zSep, &treename);
         }else{
@@ -334,7 +339,8 @@ void update_cmd(void){
   ** target
   */
   db_prepare(&q, 
-    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, isexe, islinkv, islinkt FROM fv ORDER BY 1"
+    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt,"
+    "       isexe, islinkv, islinkt FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -369,7 +375,12 @@ void update_cmd(void){
       nConflict++;
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
-      fossil_print("ADD %s\n", zName);
+      if( file_wd_isfile_or_link(zFullPath) ){
+        fossil_print("ADD %s (overwrites an unmanaged file)\n", zName);
+        nOverwrite++;
+      }else{
+        fossil_print("ADD %s\n", zName);
+      }
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
@@ -459,13 +470,18 @@ void update_cmd(void){
 
   /* Report on conflicts
   */
-  if( nConflict && !nochangeFlag ){
-    if( internalUpdate ){
-      internalConflictCnt = nConflict;
-    }else{
-      fossil_print(
-         "WARNING: %d merge conflicts - see messages above for details.\n",
-         nConflict);
+  if( !nochangeFlag ){
+    if( nConflict ){
+      if( internalUpdate ){
+        internalConflictCnt = nConflict;
+        nConflict = 0;
+      }else{
+        fossil_print("WARNING: %d merge conflicts", nConflict);
+      }
+    }
+    if( nOverwrite ){
+      fossil_warning("WARNING: %d unmanaged files were overwritten",
+                     nOverwrite);
     }
   }
   
@@ -523,7 +539,7 @@ void ensure_empty_dirs_created(void){
       blob_appendf(&path, "%s/%s", g.zLocalRoot, zDir);
       zPath = blob_str(&path);      
       /* Handle various cases of existence of the directory */
-      switch( file_isdir(zPath) ){
+      switch( file_wd_isdir(zPath) ){
         case 0: { /* doesn't exist */
           if( file_mkdir(zPath, 0)!=0 ) {
             fossil_warning("couldn't create directory %s as "
@@ -574,7 +590,7 @@ int historical_version_of_file(
   pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   
   if( pManifest ){
-    pFile = manifest_file_seek(pManifest, file);
+    pFile = manifest_file_find(pManifest, file);
     if( pFile ){
       rid = uuid_to_rid(pFile->zUuid, 0);
       if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
@@ -670,7 +686,8 @@ void revert_cmd(void){
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    errCode = historical_version_of_file(zRevision, zFile, &record, &isLink, &isExe,2);
+    errCode = historical_version_of_file(zRevision, zFile, &record,
+                                         &isLink, &isExe,2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);
@@ -696,7 +713,7 @@ void revert_cmd(void){
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d, mrid=rid,"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid,"
          "       pathname=coalesce(origname,pathname), origname=NULL"     
          " WHERE pathname=%Q",
          mtime, isExe, isLink, zFile

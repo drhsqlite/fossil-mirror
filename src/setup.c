@@ -75,6 +75,8 @@ void setup_page(void){
     " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Transfers", "xfersetup",
+    "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
     "Select from a menu of prepackaged \"skins\" for the web interface");
   setup_menu_entry("CSS", "setup_editcss",
@@ -138,7 +140,7 @@ void setup_ulist(void){
     }
     @ </td>
     @ <td class="usetupListCap" style="text-align: center;padding-right: 15px;">%s(zCap)</td>
-    @ <td  class="usetupListCon"  style="text-align: left;">%s(db_column_text(&s,3))</td>
+    @ <td  class="usetupListCon"  style="text-align: left;">%h(db_column_text(&s,3))</td>
     @ </tr>
   }
   @ </table>
@@ -252,7 +254,7 @@ void user_edit(void){
   char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
-  const char *inherit[128];
+  char *inherit[128];
   int doWrite;
   int uid;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
@@ -850,6 +852,15 @@ void setup_access(void){
   @ <li> The server is started from CGI without the "localauth" keyword
   @ in the CGI script.
   @ </ol>
+  @
+  @ <hr />
+  onoff_attribute("Enable /test_env",
+     "test_env_enable", "test_env_enable", 0);
+  @ <p>When enabled, the %h(g.zBaseURL)/test_env URL is available to all
+  @ users.  When disabled (the default) only users Admin and Setup can visit
+  @ the /test_env page.
+  @ </p>
+  @
   @ <hr />
   onoff_attribute("Allow REMOTE_USER authentication",
      "remote_user_ok", "remote_user_ok", 0);
@@ -857,7 +868,14 @@ void setup_access(void){
   @ login name of a valid user and no other login credentials are available,
   @ then the REMOTE_USER is accepted as an authenticated user.
   @ </p>
-
+  @
+  @ <hr />
+  entry_attribute("IP address turns used in login cookie", 3, "ip-prefix-terms", "ipt",
+                  "2");
+  @ <p>The number of octets of of the IP address used in the login cookie.  Set to
+  @ zero to omit the IP address from the login cookie.  A value of 2 is recommended.
+  @ </p>
+  @
   @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
@@ -872,6 +890,17 @@ void setup_access(void){
   @ than this, then the client will issue multiple HTTP requests.
   @ Values below 1 million are not recommended.  5 million is a
   @ reasonable number.</p>
+
+  @ <hr />
+  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
+                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
+  @ including user "nobody", as long as the User-Agent string in the HTTP header
+  @ indicates that the request is coming from an actual human being and not a
+  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
+  @ that want.  So a bot that wants to impersonate a human can easily do so.
+  @ Hence, this technique does not necessarily exclude malicious bots.
+  @ </p>
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",

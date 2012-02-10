@@ -84,7 +84,7 @@ struct SHA1Context {
 
 void SHA1Transform(unsigned int state[5], const unsigned char buffer[64])
 {
-  unsigned int qq[5]; // a, b, c, d, e;
+  unsigned int qq[5]; /* a, b, c, d, e; */
   static int one = 1;
   unsigned int block[16];
   memcpy(block, buffer, 64);
@@ -439,7 +439,7 @@ void sha1_shared_secret_sql_function(
 }
 
 /*
-** COMMAND: sha1sum
+** COMMAND: sha1sum*
 ** %fossil sha1sum FILE...
 **
 ** Compute an SHA1 checksum of all files named on the command-line.

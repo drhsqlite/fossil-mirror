@@ -369,6 +369,7 @@ void doc_page(void){
   zName = PD("name", "tip/index.wiki");
   for(i=0; zName[i] && zName[i]!='/'; i++){}
   if( zName[i]==0 || i>UUID_SIZE ){
+    zName = "index.html";
     goto doc_not_found;
   }
   memcpy(zBaseline, zName, i);
@@ -376,7 +377,15 @@ void doc_page(void){
   zName += i;
   while( zName[0]=='/' ){ zName++; }
   if( !file_is_simple_pathname(zName) ){
-    goto doc_not_found;
+    int n = strlen(zName);
+    if( n>0 && zName[n-1]=='/' ){
+      zName = mprintf("%sindex.html", zName);
+      if( !file_is_simple_pathname(zName) ){
+        goto doc_not_found;
+      }
+    }else{
+      goto doc_not_found;
+    }
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
     sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
@@ -410,6 +419,8 @@ void doc_page(void){
       "  UNIQUE(vid,fname,rid)\n"
       ")"
     );
+
+
 
     /* Check to see if the documentation file artifact ID is contained
     ** in the baseline cache */
@@ -501,7 +512,7 @@ doc_not_found:
   /* Jump here when unable to locate the document */
   db_end_transaction(0);
   style_header("Document Not Found");
-  @ <p>No such document: %h(PD("name","tip/index.wiki"))</p>
+  @ <p>No such document: %h(zName)</p>
   style_footer();
   return;  
 }

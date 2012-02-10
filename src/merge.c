@@ -22,6 +22,39 @@
 #include "merge.h"
 #include <assert.h>
 
+/*
+** Print information about a particular check-in.
+*/
+void print_checkin_description(int rid, int indent, const char *zLabel){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT datetime(mtime,'localtime'),"
+     "       coalesce(euser,user), coalesce(ecomment,comment),"
+     "       (SELECT uuid FROM blob WHERE rid=%d),"
+     "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+     "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+     "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
+     "  FROM event WHERE objid=%d", rid, rid, rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zTagList = db_column_text(&q, 4);
+    char *zCom;
+    if( zTagList && zTagList[0] ){
+      zCom = mprintf("%s (%s)", db_column_text(&q, 2), zTagList);
+    }else{
+      zCom = mprintf("%s", db_column_text(&q,2));
+    }
+    fossil_print("%-*s [%S] by %s on %s\n%*s", 
+       indent-1, zLabel,
+       db_column_text(&q, 3),
+       db_column_text(&q, 1),
+       db_column_text(&q, 0),
+       indent, "");
+    comment_print(zCom, indent, 78);
+    fossil_free(zCom);
+  }
+  db_finalize(&q);
+}
+
 
 /*
 ** COMMAND: merge
@@ -75,6 +108,7 @@ void merge_cmd(void){
   int *aChng;           /* An array of file name changes */
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of conflicts seen */
+  int nOverwrite = 0;   /* Number of unmanaged files overwritten */
   int caseSensitive;    /* True for case-sensitive filenames */
   Stmt q;
 
@@ -117,7 +151,6 @@ void merge_cmd(void){
     if( pickFlag ){
       fossil_fatal("incompatible options: --cherrypick & --baseline");
     }
-    /* pickFlag = 1;  // Using --baseline is really like doing a cherrypick */
   }else if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
@@ -144,6 +177,10 @@ void merge_cmd(void){
   }
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
+  }
+  if( detailFlag ){
+    print_checkin_description(mid, 12, "merge-from:");
+    print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, 1, 0);
   db_begin_transaction();
@@ -321,6 +358,7 @@ void merge_cmd(void){
     int rowid = db_column_int(&q, 1);
     int idv;
     const char *zName;
+    char *zFullName;
     db_multi_exec(
       "INSERT INTO vfile(vid,chnged,deleted,rid,mrid,isexe,islink,pathname)"
       "  SELECT %d,3,0,rid,mrid,isexe,islink,pathname FROM vfile WHERE id=%d",
@@ -329,7 +367,14 @@ void merge_cmd(void){
     idv = db_last_insert_rowid();
     db_multi_exec("UPDATE fv SET idv=%d WHERE rowid=%d", idv, rowid);
     zName = db_column_text(&q, 2);
-    fossil_print("ADDED %s\n", zName);
+    zFullName = mprintf("%s%s", g.zLocalRoot, zName);
+    if( file_wd_isfile_or_link(zFullName) ){
+      fossil_print("ADDED %s (overwrites an unmanaged file)\n", zName);
+      nOverwrite++;
+    }else{
+      fossil_print("ADDED %s\n", zName);
+    }
+    fossil_free(zFullName);
     if( !nochangeFlag ){
       undo_save(zName);
       vfile_to_disk(0, idm, 0, 0);
@@ -497,9 +542,14 @@ void merge_cmd(void){
 
   /* Report on conflicts
   */
-  if( nConflict && !nochangeFlag ){
-    fossil_warning(
-       "WARNING: merge conflicts - see messages above for details.\n");
+  if( !nochangeFlag ){
+    if( nConflict ){
+      fossil_print("WARNING: %d merge conflicts", nConflict);
+    }
+    if( nOverwrite ){
+      fossil_warning("WARNING: %d unmanaged files were overwritten",
+                     nOverwrite);
+    }
   }
 
   /*

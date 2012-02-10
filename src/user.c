@@ -144,7 +144,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
 
 
 /*
-** COMMAND:  user
+** COMMAND: user*
 **
 ** Usage: %fossil user SUBCOMMAND ...  ?-R|--repository FILE?
 **

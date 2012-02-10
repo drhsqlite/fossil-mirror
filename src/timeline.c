@@ -22,6 +22,9 @@
 #include <time.h>
 #include "config.h"
 #include "timeline.h"
+#ifdef FOSSIL_ENABLE_JSON
+#  include "cson_amalgamation.h"
+#endif
 
 /*
 ** Shorten a UUID so that is the minimum length needed to contain
@@ -181,7 +184,7 @@ void test_hash_color(void){
 **    4.  User
 **    5.  True if is a leaf
 **    6.  background color
-**    7.  type ("ci", "w", "t", "e", "div")
+**    7.  type ("ci", "w", "t", "e", "g", "div")
 **    8.  list of symbolic tags.
 **    9.  tagid for ticket or wiki or event
 **   10.  Short comment to user for repeated tickets and wiki
@@ -318,6 +321,9 @@ void www_print_timeline(
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
     }else{
       @ <td class="timelineTableCell">
+    }
+    if( pGraph && zType[0]!='c' ){
+      @ &bull;
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -767,20 +773,20 @@ const char *timeline_query_for_www(void){
   static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
-    @   blob.rid,
-    @   uuid,
+    @   blob.rid AS blobRid,
+    @   uuid AS uuid,
     @   datetime(event.mtime,'localtime') AS timestamp,
-    @   coalesce(ecomment, comment),
-    @   coalesce(euser, user),
-    @   blob.rid IN leaf,
-    @   bgcolor,
-    @   event.type,
+    @   coalesce(ecomment, comment) AS comment,
+    @   coalesce(euser, user) AS user,
+    @   blob.rid IN leaf AS leaf,
+    @   bgcolor AS bgColor,
+    @   event.type AS eventType,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
-    @   tagid,
-    @   brief,
-    @   event.mtime
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags,
+    @   tagid AS tagid,
+    @   brief AS brief,
+    @   event.mtime AS mtime
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -842,8 +848,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    b=TIMESTAMP    before this date.
 **    c=TIMESTAMP    "circa" this date.
 **    n=COUNT        number of events in output
-**    p=RID          artifact RID and up to COUNT parents and ancestors
-**    d=RID          artifact RID and up to COUNT descendants
+**    p=UUID         artifact and up to COUNT parents and ancestors
+**    d=UUID         artifact and up to COUNT descendants
+**    dp=UUUID       The same as d=UUID&p=UUID
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
@@ -852,9 +859,9 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **    ng             Suppress the graph if present
 **    nd             Suppress "divider" lines
 **    fc             Show details of files changed
-**    f=RID          Show family (immediate parents and children) of RID
-**    from=RID       Path from...
-**    to=RID           ... to this
+**    f=UUID         Show family (immediate parents and children) of UUID
+**    from=UUID      Path from...
+**    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
 **    brbg           Background color from branch name
 **    ubg            Background color from user
@@ -894,11 +901,19 @@ void page_timeline(void){
   int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
+  int pd_rid;
 
   /* To view the timeline, must have permission to read project data.
   */
+  pd_rid = name_to_typed_rid(P("dp"),"ci");
+  if( pd_rid ){
+    p_rid = d_rid = pd_rid;
+  }
   login_check_credentials();
-  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
+  if( !g.perm.Read && !g.perm.RdTkt && !g.perm.RdWiki ){
+    login_needed();
+    return;
+  }
   if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
@@ -990,10 +1005,8 @@ void page_timeline(void){
     if( d_rid ){
       compute_descendants(d_rid, nEntry+1);
       nd = db_int(0, "SELECT count(*)-1 FROM ok");
-      if( nd>=0 ){
-        db_multi_exec("%s", blob_str(&sql));
-        blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
-      }
+      if( nd>=0 ) db_multi_exec("%s", blob_str(&sql));
+      if( nd>0 ) blob_appendf(&desc, "%d descendant%s", nd,(1==nd)?"":"s");
       if( useDividers ) timeline_add_dividers(0, d_rid);
       db_multi_exec("DELETE FROM ok");
     }
@@ -1077,6 +1090,7 @@ void page_timeline(void){
      || (zType[0]=='t' && !g.perm.RdTkt)
      || (zType[0]=='e' && !g.perm.RdWiki)
      || (zType[0]=='c' && !g.perm.Read)
+     || (zType[0]=='g' && !g.perm.Read)
     ){
       zType = "all";
     }
@@ -1085,7 +1099,7 @@ void page_timeline(void){
         char cSep = '(';
         blob_appendf(&sql, " AND event.type IN ");
         if( g.perm.Read ){
-          blob_appendf(&sql, "%c'ci'", cSep);
+          blob_appendf(&sql, "%c'ci','g'", cSep);
           cSep = ',';
         }
         if( g.perm.RdWiki ){
@@ -1109,6 +1123,8 @@ void page_timeline(void){
         zEType = "ticket change";
       }else if( zType[0]=='e' ){
         zEType = "event";
+      }else if( zType[0]=='g' ){
+        zEType = "tag";
       }
     }
     if( zUser ){
@@ -1227,6 +1243,9 @@ void page_timeline(void){
         }
         if( zType[0]!='e' && g.perm.RdWiki ){
           timeline_submenu(&url, "Events Only", "y", "e", 0);
+        }
+        if( zType[0]!='g' && g.perm.Read ){
+          timeline_submenu(&url, "Tags Only", "y", "g", 0);
         }
       }
       if( nEntry>20 ){
@@ -1367,9 +1386,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
 const char *timeline_query_for_tty(void){
   static const char zBaseSql[] = 
     @ SELECT
-    @   blob.rid,
+    @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime'),
+    @   datetime(event.mtime,'localtime') AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1377,10 +1396,10 @@ const char *timeline_query_for_tty(void){
     @                   FROM tag, tagxref
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
-    @     || ')',
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   event.mtime
+    @     || ')' as comment,
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim) AS primPlinkCount,
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
+    @   event.mtime AS mtime
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
@@ -1427,8 +1446,8 @@ static int isIsoDate(const char *z){
 **     ci = file commits only
 **     t  = tickets only
 **
-** The optional showfiles argument if specified prints the list of
-** files changed in a checkin after the checkin comment
+** The optional showfiles argument, if specified, prints the list of
+** files changed in a checkin after the checkin comment.
 **
 */
 void timeline_cmd(void){
@@ -1526,7 +1545,6 @@ void timeline_cmd(void){
   if( zType && (zType[0]!='a') ){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
-
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

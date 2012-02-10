@@ -350,7 +350,7 @@ void undo_rollback(void){
 
 /*
 ** COMMAND: undo
-** COMMAND: redo
+** COMMAND: redo*
 **
 ** Usage: %fossil undo ?OPTIONS? ?FILENAME...?
 **    or: %fossil redo ?OPTIONS? ?FILENAME...?

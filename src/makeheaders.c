@@ -329,9 +329,13 @@ struct GenState {
 ** The following text line appears at the top of every file generated
 ** by this program.  By recognizing this line, the program can be sure
 ** never to read a file that it generated itself.
+**
+** The "#undef INTERFACE" part is a hack to work around a name collision
+** in MSVC 2008.
 */
 const char zTopLine[] = 
-  "/* \aThis file was automatically generated.  Do not edit! */\n";
+  "/* \aThis file was automatically generated.  Do not edit! */\n"
+  "#undef INTERFACE\n";
 #define nTopLine (sizeof(zTopLine)-1)
 
 /*

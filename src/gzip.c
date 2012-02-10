@@ -49,16 +49,17 @@ static void put32(char *z, int v){
 /*
 ** Begin constructing a gzip file.
 */
-void gzip_begin(void){
+void gzip_begin(sqlite3_int64 now){
   char aHdr[10];
-  sqlite3_int64 now;
   assert( gzip.eState==0 );
   blob_zero(&gzip.out);
   aHdr[0] = 0x1f;
   aHdr[1] = 0x8b;
   aHdr[2] = 8;
   aHdr[3] = 0;
-  now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
+  if( now==0 ){
+    now = db_int64(0, "SELECT (julianday('now') - 2440587.5)*86400.0");
+  }
   put32(&aHdr[4], now&0xffffffff);
   aHdr[8] = 2;
   aHdr[9] = 255;
@@ -127,7 +128,7 @@ void test_gzip_cmd(void){
   char *zOut;
   if( g.argc!=3 ) usage("FILENAME");
   sqlite3_open(":memory:", &g.db);
-  gzip_begin();
+  gzip_begin(0);
   blob_read_from_file(&b, g.argv[2]);
   zOut = mprintf("%s.gz", g.argv[2]);
   gzip_step(blob_buffer(&b), blob_size(&b));

@@ -97,8 +97,9 @@ void path_reset(void){
 /*
 ** Construct the path from path.pStart to path.pEnd in the u.pTo fields.
 */
-void path_reverse_path(void){
+static void path_reverse_path(void){
   PathNode *p;
+  assert( path.pEnd!=0 );
   for(p=path.pEnd; p && p->pFrom; p = p->pFrom){
     p->pFrom->u.pTo = p;
   }
@@ -134,7 +135,11 @@ PathNode *path_shortest(
     path.pEnd = path.pStart;
     return path.pStart;
   }
-  if( oneWayOnly ){
+  if( oneWayOnly && directOnly ){
+    db_prepare(&s, 
+        "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
+    );
+  }else if( oneWayOnly ){
     db_prepare(&s, 
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
     );

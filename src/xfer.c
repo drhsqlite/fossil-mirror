@@ -129,10 +129,12 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   blob_extract(pXfer->pIn, n, &content);
   if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( isPriv && !g.perm.Private ){
     /* Do not accept private files if not authorized */
+    blob_reset(&content);
     return;
   }
   if( cloneFlag ){
@@ -158,6 +160,8 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
+      blob_reset(&src);
+      blob_reset(&content);
       return;
     }
     pXfer->nDeltaRcvd++;
@@ -237,6 +241,7 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   blob_extract(pXfer->pIn, szC, &content);
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( pXfer->nToken==5 ){
@@ -422,6 +427,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }else{
       pXfer->nDeltaSent++;
     }
+    blob_reset(&content);
   }
   remote_has(rid);
   blob_reset(&uuid);
@@ -445,17 +451,18 @@ static void send_compressed_file(Xfer *pXfer, int rid){
   int szC;
   int rc;
   int isPrivate;
+  int srcIsPrivate;
   static Stmt q1;
+  Blob fullContent;
 
   isPrivate = content_is_private(rid);
   if( isPrivate && pXfer->syncPrivate==0 ) return;
   db_static_prepare(&q1,
-    "SELECT uuid, size, content,"
-         "  (SELECT uuid FROM delta, blob"
-         "    WHERE delta.rid=:rid AND delta.srcid=blob.rid)"
-    " FROM blob"
-    " WHERE rid=:rid"
-    "   AND size>=0"
+    "SELECT uuid, size, content, delta.srcid IN private,"
+         "  (SELECT uuid FROM blob WHERE rid=delta.srcid)"
+    " FROM blob LEFT JOIN delta ON (blob.rid=delta.rid)"
+    " WHERE blob.rid=:rid"
+    "   AND blob.size>=0"
     "   AND NOT EXISTS(SELECT 1 FROM shun WHERE shun.uuid=blob.uuid)"
   );
   db_bind_int(&q1, ":rid", rid);
@@ -465,10 +472,19 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     szU = db_column_int(&q1, 1);
     szC = db_column_bytes(&q1, 2);
     zContent = db_column_raw(&q1, 2);
-    zDelta = db_column_text(&q1, 3);
+    srcIsPrivate = db_column_int(&q1, 3);
+    zDelta = db_column_text(&q1, 4);
     if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
     blob_appendf(pXfer->pOut, "cfile %s ", zUuid);
-     if( zDelta ){
+    if( !isPrivate && srcIsPrivate ){
+      content_get(rid, &fullContent);
+      szU = blob_size(&fullContent);
+      blob_compress(&fullContent, &fullContent);
+      szC = blob_size(&fullContent);
+      zContent = blob_buffer(&fullContent);
+      zDelta = 0;
+    }
+    if( zDelta ){
       blob_appendf(pXfer->pOut, "%s ", zDelta);
       pXfer->nDeltaSent++;
     }else{
@@ -478,6 +494,9 @@ static void send_compressed_file(Xfer *pXfer, int rid){
     blob_append(pXfer->pOut, zContent, szC);
     if( blob_buffer(pXfer->pOut)[blob_size(pXfer->pOut)-1]!='\n' ){
       blob_appendf(pXfer->pOut, "\n", 1);
+    }
+    if( !isPrivate && srcIsPrivate ){
+      blob_reset(&fullContent);
     }
   }
   db_reset(&q1);
@@ -575,7 +594,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
     blob_append(&combined, blob_buffer(&pw), szPw);
     sha1sum_blob(&combined, &hash);
     assert( blob_size(&hash)==40 );
-    rc = blob_compare(&hash, pSig);
+    rc = blob_constant_time_cmp(&hash, pSig);
     blob_reset(&hash);
     blob_reset(&combined);
     if( rc!=0 && szPw!=40 ){
@@ -590,7 +609,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
       blob_append(&combined, zSecret, -1);
       free(zSecret);
       sha1sum_blob(&combined, &hash);
-      rc = blob_compare(&hash, pSig);
+      rc = blob_constant_time_cmp(&hash, pSig);
       blob_reset(&hash);
       blob_reset(&combined);
     }
@@ -639,11 +658,13 @@ void create_cluster(void){
   int nRow = 0;
   int rid;
 
+#if 0
   /* We should not ever get any private artifacts in the unclustered table.
   ** But if we do (because of a bug) now is a good time to delete them. */
   db_multi_exec(
     "DELETE FROM unclustered WHERE rid IN (SELECT rid FROM private)"
   );
+#endif
 
   nUncl = db_int(0, "SELECT count(*) FROM unclustered /*scan*/"
                     " WHERE NOT EXISTS(SELECT 1 FROM phantom"
@@ -777,6 +798,31 @@ static void server_private_xfer_not_authorized(void){
   @ error not\sauthorized\sto\ssync\sprivate\scontent
 }
 
+/*
+** Run the specified TH1 script, if any, and returns the return code or TH_OK
+** when there is no script.
+*/
+static int run_script(const char *zScript){
+  if( !zScript ){
+    return TH_OK; /* No script, return success. */
+  }
+  Th_FossilInit(); /* Make sure TH1 is ready. */
+  return Th_Eval(g.interp, 0, zScript, -1);
+}
+
+/*
+** Run the pre-transfer TH1 script, if any, and returns the return code.
+*/
+static int run_common_script(void){
+  return run_script(db_get("xfer-common-script", 0));
+}
+
+/*
+** Run the post-push TH1 script, if any, and returns the return code.
+*/
+static int run_push_script(void){
+  return run_script(db_get("xfer-push-script", 0));
+}
 
 /*
 ** If this variable is set, disable login checks.  Used for debugging
@@ -834,6 +880,11 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
+  if( run_common_script()==TH_ERROR ){
+    cgi_reset_content();
+    @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+    nErr++;
+  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
@@ -1147,6 +1198,11 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
+    if( run_push_script()==TH_ERROR ){
+      cgi_reset_content();
+      @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+      nErr++;
+    }
     request_phantoms(&xfer, 500);
   }
   if( isClone && nGimme==0 ){
@@ -1200,7 +1256,6 @@ void page_xfer(void){
 **     r test-xfer out.txt
 */
 void cmd_test_xfer(void){
-  int notUsed;
   db_find_and_open_repository(0,0);
   if( g.argc!=2 && g.argc!=3 ){
     usage("?MESSAGEFILE?");
@@ -1209,7 +1264,7 @@ void cmd_test_xfer(void){
   blob_read_from_file(&g.cgiIn, g.argc==2 ? "-" : g.argv[2]);
   disableLogin = 1;
   page_xfer();
-  fossil_print("%s\n", cgi_extract_content(&notUsed));
+  fossil_print("%s\n", cgi_extract_content());
 }
 
 /*
@@ -1240,7 +1295,6 @@ int client_sync(
   int nCardRcvd = 0;      /* Number of cards received */
   int nCycle = 0;         /* Number of round trips to the server */
   int size;               /* Size of a config value */
-  int nFileSend = 0;
   int origConfigRcvMask;  /* Original value of configRcvMask */
   int nFileRecv;          /* Number of files received */
   int mxPhantomReq = 200; /* Max number of phantoms to request per comm */
@@ -1382,7 +1436,6 @@ int client_sync(
     free(zRandomness);
 
     /* Exchange messages with the server */
-    nFileSend = xfer.nFileSent + xfer.nDeltaSent;
     fossil_print(zValueFormat, "Sent:",
                  blob_size(&send), nCardSent+xfer.nGimmeSent+xfer.nIGotSent,
                  xfer.nFileSent, xfer.nDeltaSent);

@@ -50,7 +50,15 @@ struct Stmt {
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
+
+/*
+** Copy this to initialize a Stmt object to a clean/empty state. This
+** is useful to help avoid assertions when performing cleanup in some
+** error handling cases.
+*/
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
 #endif /* INTERFACE */
+const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
@@ -58,6 +66,7 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
+  int rc = 1;
   static const char zRebuildMsg[] = 
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
@@ -65,12 +74,21 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }
+  else
+#endif /* FOSSIL_ENABLE_JSON */
   if( g.xferPanic ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-    cgi_reply();
+      cgi_reply();
   }
-  if( g.cgiOutput ){
+  else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
@@ -78,8 +96,9 @@ static void db_err(const char *zFormat, ...){
   }else{
     fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
   }
+  free(z);
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
 static int nBegin = 0;      /* Nesting depth of BEGIN */
@@ -563,7 +582,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char *zDefault, const char *zSql, ...){
+char *db_text(char const *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -744,7 +763,7 @@ void db_open_config(int useAttach){
  */
 static int db_local_table_exists(const char *zTable){
   return db_exists("SELECT 1 FROM %s.sqlite_master"
-                   " WHERE name=='%s'",
+                   " WHERE name=='%s' /*scan*/",
                    db_name("localdb"), zTable);
 }
 
@@ -753,7 +772,7 @@ static int db_local_table_exists(const char *zTable){
 */
 static int db_local_column_exists(const char *zTable, const char *zColumn){
   return db_exists("SELECT 1 FROM %s.sqlite_master"
-                   " WHERE name=='%s' AND sql GLOB '* %s *'",
+                   " WHERE name=='%s' AND sql GLOB '* %s *' /*scan*/",
                    db_name("localdb"), zTable, zColumn);
 }
 
@@ -768,43 +787,47 @@ static int isValidLocalDb(const char *zDbName){
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  g.localOpen = 1;
-  db_open_config(0);
-  db_open_repository(0);
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "isexe") )
+  if( !db_local_column_exists("vfile", "isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
+  }
 
   /* If "islink"/"isLink" columns are missing from tables, then
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "islink") )
+  if( !db_local_column_exists("vfile", "islink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("stashfile", "isLink") &&
-       db_local_table_exists("stashfile") )
+       db_local_table_exists("stashfile") ){
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
 
   if( !db_local_column_exists("undo", "isLink") &&
-       db_local_table_exists("undo") )
+       db_local_table_exists("undo") ){
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("undo_vfile", "islink") &&
-       db_local_table_exists("undo_vfile") )
+       db_local_table_exists("undo_vfile") ){
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-
+  }
   return 1;
 }
 
 /*
 ** Locate the root directory of the local repository tree.  The root
-** directory is found by searching for a file named "_FOSSIL_" or ".fos"
+** directory is found by searching for a file named "_FOSSIL_" or ".fslckout"
 ** that contains a valid repository database.
+**
+** For legacy, also look for ".fos".  The use of ".fos" is deprecated
+** since "fos" has negative connotations in Hungarian, we are told.
 **
 ** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
 ** try again. Once the file is found, the g.zLocalRoot variable is set
@@ -818,7 +841,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  static const char *aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
   
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -836,6 +859,9 @@ int db_open_local(void){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
+        g.localOpen = 1;
+        db_open_config(0);
+        db_open_repository(0);
         return 1;
       }
     }
@@ -850,6 +876,24 @@ int db_open_local(void){
 }
 
 /*
+** Get the full pathname to the repository database file.  The
+** local database (the _FOSSIL_ or .fslckout database) must have already
+** been opened before this routine is called.
+*/
+const char *db_repository_filename(void){
+  static char *zRepo = 0;
+  assert( g.localOpen );
+  assert( g.zLocalRoot );
+  if( zRepo==0 ){
+    zRepo = db_lget("repository", 0);
+    if( zRepo && !file_is_absolute_path(zRepo) ){
+      zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+    }
+  }
+  return zRepo;
+}
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
@@ -857,7 +901,7 @@ void db_open_repository(const char *zDbName){
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
-      zDbName = db_lget("repository", 0);
+      zDbName = db_repository_filename();
     }
     if( zDbName==0 ){
       db_err("unable to find the name of a repository database");
@@ -865,11 +909,20 @@ void db_open_repository(const char *zDbName){
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( file_access(zDbName, 0) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DENIED;
+#endif
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
+#endif
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
@@ -904,7 +957,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     if( db_open_local()==0 ){
       goto rep_not_found;
     }
-    zRep = db_lget("repository", 0);
+    zRep = db_repository_filename();
     if( zRep==0 ){
       goto rep_not_found;
     }
@@ -916,6 +969,9 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
   }
 rep_not_found:
   if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
     fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
@@ -946,6 +1002,9 @@ int db_schema_is_outofdate(void){
 */
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
+#endif
     fossil_warning("incorrect repository schema version");
     fossil_warning("your repository has schema version \"%s\" "
           "but this binary expects version \"%s\"",
@@ -1166,7 +1225,7 @@ void db_initial_setup(
 }
 
 /*
-** COMMAND: new
+** COMMAND: new*
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
@@ -1623,12 +1682,19 @@ void db_lset_int(const char *zName, int value){
 **       repo:%s
 **
 ** The value field is set to 1.
+**
+** If running from a local checkout, also record the root of the checkout
+** as follows:
+**
+**       ckout:%s
+**
+** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
-    zName = db_lget("repository", 0);
+    zName = db_repository_filename();
   }
   file_canonical_name(zName, &full);
   db_swap_connections();
@@ -1637,6 +1703,13 @@ void db_record_repository_filename(const char *zName){
      "VALUES('repo:%q',1)",
      blob_str(&full)
   );
+  if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
+    db_multi_exec(
+      "REPLACE INTO global_config(name, value)"
+      "VALUES('ckout:%q','%q');",
+      g.zLocalRoot, blob_str(&full)
+    );
+  }
   db_swap_connections();
   blob_reset(&full);
 }
@@ -1679,7 +1752,7 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_delete_on_failure("./_FOSSIL_");
   db_open_local();
-  db_lset("repository", blob_str(&path));
+  db_lset("repository", g.argv[2]);
   db_record_repository_filename(blob_str(&path));
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
@@ -1763,7 +1836,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
-  { "allow-symlinks",0,                0, 0, "off"                 },
+  { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
@@ -1794,6 +1867,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               32, 0, ""                    },
+#ifdef FOSSIL_ENABLE_TCL
+  { "tcl",           0,                0, 0, "off"                 },
+#endif
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -1801,7 +1877,7 @@ struct stControlSettings const ctrlSettings[] = {
 
 /*
 ** COMMAND: settings
-** COMMAND: unset
+** COMMAND: unset*
 **
 ** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
 ** %fossil unset PROPERTY ?OPTIONS?
@@ -1818,7 +1894,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
-**                     them as symlinks on Unix. Has no effect on Windows
+**     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become 
 **                     plain-text files with link destination path inside).
 **                     Default: off
@@ -1947,6 +2023,12 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
+**
+**    tcl              If enabled, Tcl integration commands will be added to
+**                     the TH1 interpreter, allowing Tcl expressions and
+**                     scripts to be evaluated from TH1.  Additionally, the
+**                     Tcl interpreter will be able to evaluate TH1 expressions
+**                     and scripts.  Default: off.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

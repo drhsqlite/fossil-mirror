@@ -36,7 +36,7 @@
 ** Use _stati64 rather than stat on windows, in order to handle files
 ** larger than 2GB.
 */
-#if defined(_WIN32) && defined(__MSVCRT__)
+#if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
 # define stat _stati64
 #endif
 /*
@@ -396,7 +396,7 @@ void file_delete(const char *zFilename){
 ** Return the number of errors.
 */
 int file_mkdir(const char *zName, int forceFlag){
-  int rc = file_isdir(zName);
+  int rc = file_wd_isdir(zName);
   if( rc==2 ){
     if( !forceFlag ) return 1;
     file_delete(zName);
@@ -585,6 +585,24 @@ void file_getcwd(char *zBuf, int nBuf){
 }
 
 /*
+** Return true if zPath is an absolute pathname.  Return false
+** if it is relative.
+*/
+int file_is_absolute_path(const char *zPath){
+  if( zPath[0]=='/'
+#if defined(_WIN32)
+      || zPath[0]=='\\'
+      || (strlen(zPath)>3 && zPath[1]==':'
+           && (zPath[2]=='\\' || zPath[2]=='/'))
+#endif
+  ){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** Compute a canonical pathname for a file or directory.
 ** Make the name absolute if it is relative.
 ** Remove redundant / characters
@@ -592,13 +610,7 @@ void file_getcwd(char *zBuf, int nBuf){
 ** Convert /A/../ to just /
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
-  if( zOrigName[0]=='/' 
-#if defined(_WIN32)
-      || zOrigName[0]=='\\'
-      || (strlen(zOrigName)>3 && zOrigName[1]==':'
-           && (zOrigName[2]=='\\' || zOrigName[2]=='/'))
-#endif
-  ){
+  if( file_is_absolute_path(zOrigName) ){
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
   }else{
@@ -901,7 +913,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
   int rc;
   Blob onDisk;
 
-  iSize = file_size(zName);
+  iSize = file_wd_size(zName);
   if( iSize<0 ) return 0;
   if( iSize!=blob_size(pContent) ) return 0;
   if( file_wd_islink(zName) ){
@@ -999,7 +1011,8 @@ char *fossil_utf8_to_console(const char *zUtf8){
 */
 void fossil_mbcs_free(char *zOld){
 #ifdef _WIN32
-  free(zOld);
+  extern void sqlite3_free(void*);
+  sqlite3_free(zOld);
 #else
   /* No-op on unix */
 #endif  

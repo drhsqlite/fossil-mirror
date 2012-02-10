@@ -46,7 +46,7 @@ static struct tarball_t {
 **
 ** Initialize the GZIP compressor and the table of directory names.
 */
-static void tar_begin(void){
+static void tar_begin(sqlite3_int64 mTime){
   assert( tball.aHdr==0 );
   tball.aHdr = fossil_malloc(512+512);
   memset(tball.aHdr, 0, 512+512);
@@ -62,7 +62,7 @@ static void tar_begin(void){
   memcpy(&tball.aHdr[257], "ustar\00000", 8);  /* POSIX.1 format */
   memcpy(&tball.aHdr[265], "nobody", 7);   /* Owner name */
   memcpy(&tball.aHdr[297], "nobody", 7);   /* Group name */
-  gzip_begin();
+  gzip_begin(mTime);
   db_multi_exec(
     "CREATE TEMP TABLE dir(name UNIQUE);"
   );
@@ -429,7 +429,7 @@ void test_tarball_cmd(void){
     usage("ARCHIVE FILE....");
   }
   sqlite3_open(":memory:", &g.db);
-  tar_begin();
+  tar_begin(0);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);
     blob_read_from_file(&file, g.argv[i]);
@@ -475,7 +475,6 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   }
   blob_zero(&hash);
   blob_zero(&filename);
-  tar_begin();
 
   if( zDir && zDir[0] ){
     blob_appendf(&filename, "%s/", zDir);
@@ -485,6 +484,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
   pManifest = manifest_get(rid, CFTYPE_MANIFEST);
   if( pManifest ){
     mTime = (pManifest->rDate - 2440587.5)*86400.0;
+    tar_begin(mTime);
     if( db_get_boolean("manifest", 0) ){
       blob_append(&filename, "manifest", -1);
       zName = blob_str(&filename);
@@ -515,6 +515,7 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
     blob_append(&filename, blob_str(&hash), 16);
     zName = blob_str(&filename);
     mTime = db_int64(0, "SELECT (julianday('now') -  2440587.5)*86400.0;");
+    tar_begin(mTime);
     tar_add_file(zName, &mfile, 0, mTime);
   }
   manifest_destroy(pManifest);
@@ -524,9 +525,9 @@ void tarball_of_checkin(int rid, Blob *pTar, const char *zDir){
 }
 
 /*
-** COMMAND: tarball
+** COMMAND: tarball*
 **
-** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME]
+** Usage: %fossil tarball VERSION OUTPUTFILE [--name DIRECTORYNAME] [-R|--repository REPO]
 **
 ** Generate a compressed tarball for a specified version.  If the --name
 ** option is used, its argument becomes the name of the top-level directory

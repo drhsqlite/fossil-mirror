@@ -198,7 +198,8 @@ void page_dir(void){
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL, u);"
+     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL %s, u);",
+     filename_collation()
   );
   if( zCI ){
     Stmt ins;
@@ -233,12 +234,21 @@ void page_dir(void){
     }
     db_finalize(&ins);
   }else if( zD ){
-    db_multi_exec(
-      "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,%d), NULL FROM filename"
-      "  WHERE name GLOB '%q/*'",
-      nD, zD
-    );
+    if( filenames_are_case_sensitive() ){
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name GLOB '%q/*'",
+        nD, zD
+      );
+    }else{
+      db_multi_exec(
+        "INSERT OR IGNORE INTO localfiles"
+        " SELECT pathelement(name,%d), NULL FROM filename"
+        "  WHERE name LIKE '%q/%%'",
+        nD, zD
+      );
+    }
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
@@ -251,7 +261,10 @@ void page_dir(void){
   */
   mxLen = db_int(12, "SELECT max(length(x)) FROM localfiles /*scan*/");
   cnt = db_int(0, "SELECT count(*) FROM localfiles /*scan*/");
-  nCol = 4;
+  if( mxLen<12 ) mxLen = 12;
+  nCol = 100/mxLen;
+  if( nCol<1 ) nCol = 1;
+  if( nCol>5 ) nCol = 5;
   nRow = (cnt+nCol-1)/nCol;
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
   @ <table class="browser"><tr><td class="browser"><ul class="browser">
