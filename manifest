@@ -1,5 +1,5 @@
-C A\sbetter\sfix\sfor\sreporting\sinvalid\snames\sin\sthe\sartifact\scommand.
-D 2012-02-10T13:50:24.206
+C Detect\ssubsequent\sedits\sto\sa\sfile\sthat\swas\supdated\sby\smerge.\nThis\sfixes\sa\sproblem\sintroduced\sby\scheck-in\s[b9227b85cbd78]\sand\sreported\nby\sticket\s[67a47646ea38c7ed].
+D 2012-02-10T14:31:55.406
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -160,7 +160,7 @@ F src/update.c bf4a87ca6c8618cd4855303d67f7350d462731ae
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c 3eaff102120c0b10c32792dc31432539bbf3716d
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 08426c6571a3805efb0a35b6f7e8c2c7da42d5b9
+F src/vfile.c 7d270fb84210f18ceeb643a59be6e8c12dbae622
 F src/wiki.c af6df3466e3c4a88234bec84a2cad15b44eb5efe
 F src/wikiformat.c 4424c223d76eeb892156abe63ebe98217d6d4838
 F src/winhttp.c 6d4b4567c9d14be26b8d56eee2258aba01af26b9
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4e47bdc4a316c3d00e9ca07773a4a2e6cfed5547
-R 16c22849f01f221b566c066a18d48532
+P da94a3b1c5f181a8b4959c36199890d67f2f1049
+R 6d453eefac837fc8ce971ba24c33894a
 U drh
-Z 517818e6caeb7caf1f572cb32a2ef1b1
+Z 6db6e7d4a91dab84a430a45ca2455fd4
