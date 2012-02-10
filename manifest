@@ -1,5 +1,5 @@
-C Merge\sin\sdocumentation\supdates.
-D 2012-02-10T23:03:14.884
+C Merge\sin\sthe\sMistachkin\sSSL\slinking\sfix.
+D 2012-02-10T23:03:59.414
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/main.c 509ef6e6c8d12751a55040da895c80d5113a772a
 F src/main.mk ed1f677a710730a5471848cef636bf79a5cac09f
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl a4bf3124b73025972f2e446edc47390e2f7109be
+F src/makemake.tcl 627c041792f64239b6283e1afd0235f4610d38d9
 F src/manifest.c 5b591fe3c558198b5ad76641f88a9b6527812aa6
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c a3e1842fe2f1d318366c6087c80f75cd8837a03f
@@ -244,8 +244,8 @@ F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc e9c5a8c2b0a74ed8a569ed3de647ee9abe5a1811
-F win/Makefile.mingw 543baf30739a50c1c809381bb35c78fee1cbdc13
-F win/Makefile.mingw.mistachkin 2ce491e83b219193b4daaa028e301d6b767f0fdd
+F win/Makefile.mingw b4ebfb6bcacca4127ce4526d54f246cef623dadf
+F win/Makefile.mingw.mistachkin 22bc40eab344dceb5af2db1ea1f48fa45a4747d0
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 69da4aadfd93dbc7cd68c0c25b1eaf850f6312a8
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f0359882c9b5adf9b3704438cfbd6c1b34f3cd12 587dd57fe194af817ca5658702f6b6b7e91c40c6
-R bf6c2d0dfd963690eab4ad17cb2df5f4
+P 75ea5ac672d7b31738078158800831d948c56312 ff19cc215f4758ef22c030b9ff1da711b8e4f229
+R f502bcf2a8d428c7be15ddbe55bc6980
 U drh
-Z f135aa9c84f8bb715cc72659a10b8ae6
+Z b062c5972f1740aebe8a6557cf1e6a4c

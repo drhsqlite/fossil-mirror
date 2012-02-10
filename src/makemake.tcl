@@ -361,16 +361,16 @@ FOSSIL_TCL_SOURCE = 1
 #    to create a hard link between an "zlib-1.x.y" sub-directory of the
 #    Fossil source code directory and the target zlib source directory.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.5
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.5
+ZINCDIR = $(SRCDIR)/../zlib-1.2.6
+ZLIBDIR = $(SRCDIR)/../zlib-1.2.6
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.0e/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.0e
+OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.0g/include
+OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.0g
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -411,6 +411,7 @@ TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
+TCC += -Dpqueue_insert=pqueue_insert_fossil
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
 endif
 
