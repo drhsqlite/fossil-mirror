@@ -246,6 +246,16 @@ void ticket_init(void){
 }
 
 /*
+** Create the subscript interpreter and load the "change" code.
+*/
+int ticket_change(void){
+  const char *zConfig;
+  Th_FossilInit();
+  zConfig = ticket_change_code();
+  return Th_Eval(g.interp, 0, zConfig, -1);
+}
+
+/*
 ** Recreate the ticket table.
 */
 void ticket_create_table(int separateConnection){
@@ -489,7 +499,7 @@ static int submitTicketCmd(
     assert( blob_is_reset(&tktchng) );
     manifest_crosslink_end();
   }
-  return TH_RETURN;
+  return ticket_change();
 }
 
 
