@@ -365,6 +365,9 @@ struct SbsLine {
   int iStart;              /* Write zStart prior to character iStart */
   const char *zStart;      /* A <span> tag */
   int iEnd;                /* Write </span> prior to character iEnd */
+  int iStart2;             /* Write zStart2 prior to character iStart2 */
+  const char *zStart2;     /* A <span> tag */
+  int iEnd2;               /* Write </span> prior to character iEnd2 */
 };
 
 /*
@@ -383,6 +386,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int i;   /* Number of input characters consumed */
   int j;   /* Number of output characters generated */
   int k;   /* Cursor position */
+  int needEndSpan = 0;
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
@@ -393,9 +397,20 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
         int x = strlen(p->zStart);
         memcpy(z+j, p->zStart, x);
         j += x;
+        needEndSpan = 1;
+        if( p->iStart2 ){
+          p->iStart = p->iStart2;
+          p->zStart = p->zStart2;
+          p->iStart2 = 0;
+        }
       }else if( i==p->iEnd ){
         memcpy(z+j, "</span>", 7);
         j += 7;
+        needEndSpan = 0;
+        if( p->iEnd2 ){
+          p->iEnd = p->iEnd2;
+          p->iEnd2 = 0;
+        }
       }
     }
     if( c=='\t' ){
@@ -416,7 +431,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       z[j++] = c;
     }
   }
-  if( p->escHtml && i<=p->iEnd ){
+  if( needEndSpan ){
     memcpy(&z[j], "</span>", 7);
     j += 7;
   }
@@ -463,6 +478,73 @@ static void sbsWriteLineno(SbsLine *p, int ln){
 }
 
 /*
+** The two text segments zLeft and zRight are known to be different on 
+** both ends, but they might have  a common segment in the middle.  If
+** they do not have a common segment, return 0.  If they do have a large
+** common segment, return 1 and before doing so set:
+**
+**   aLCS[0] = start of the common segment in zLeft
+**   aLCS[1] = end of the common segment in zLeft
+**   aLCS[2] = start of the common segment in zLeft
+**   aLCS[3] = end of the common segment in zLeft
+**
+** This computation is for display purposes only and does not have to be
+** optimal or exact.
+*/
+static int textLCS(
+  const char *zLeft,  int nA,       /* String on the left */
+  const char *zRight,  int nB,      /* String on the right */
+  int *aLCS                         /* Identify bounds of LCS here */
+){
+  const unsigned char *zA = (const unsigned char*)zLeft;    /* left string */
+  const unsigned char *zB = (const unsigned char*)zRight;   /* right string */
+  int nt;                    /* Number of target points */
+  int ti[3];                 /* Index for start of each 4-byte target */
+  unsigned int target[3];    /* 4-byte alignment targets */
+  unsigned int probe;        /* probe to compare against target */
+  int iAS, iAE, iBS, iBE;    /* Range of common segment */
+  int i, j;                  /* Loop counters */
+  int rc = 0;                /* Result code.  1 for success */
+
+  if( nA<6 || nB<6 ) return 0;
+  memset(aLCS, 0, sizeof(int)*4);
+  ti[0] = i = nB/2-2;
+  target[0] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
+  probe = 0;
+  if( nB<16 ){
+    nt = 1;
+  }else{
+    ti[1] = i = nB/4-2;
+    target[1] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
+    ti[2] = i = (nB*3)/4-2;
+    target[2] = (zB[i]<<24) | (zB[i+1]<<16) | (zB[i+2]<<8) | zB[i+3];
+    nt = 3;
+  }
+  probe = (zA[0]<<16) | (zA[1]<<8) | zA[2];
+  for(i=3; i<nA; i++){
+    probe = (probe<<8) | zA[i];
+    for(j=0; j<nt; j++){
+      if( probe==target[j] ){
+        iAS = i-3;
+        iAE = i+1;
+        iBS = ti[j];
+        iBE = ti[j]+4;
+        while( iAE<nA && iBE<nB && zA[iAE]==zB[iBE] ){ iAE++; iBE++; }
+        while( iAS>0 && iBS>0 && zA[iAS-1]==zB[iBS-1] ){ iAS--; iBS--; }
+        if( iAE-iAS > aLCS[1] - aLCS[0] ){
+          aLCS[0] = iAS;
+          aLCS[1] = iAE;
+          aLCS[2] = iBS;
+          aLCS[3] = iBE;
+          rc = 1;
+        }
+      }
+    }
+  }
+  return rc;
+}
+
+/*
 ** Write out lines that have been edited.  Adjust the highlight to cover
 ** only those parts of the line that actually changed.
 */
@@ -479,6 +561,12 @@ static void sbsWriteLineChange(
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
   const char *zRight;  /* Text of the right line */
+  int nLeftDiff;       /* nLeft - nPrefix - nSuffix */
+  int nRightDiff;      /* nRight - nPrefix - nSuffix */
+  int aLCS[4];         /* Bounds of common middle segment */
+  static const char zClassRm[]   = "<span class=\"diffrm\">";
+  static const char zClassAdd[]  = "<span class=\"diffadd\">";
+  static const char zClassChng[] = "<span class=\"diffchng\">";
 
   nLeft = pLeft->h & LENGTH_MASK;
   zLeft = pLeft->z;
@@ -499,40 +587,98 @@ static void sbsWriteLineChange(
   }
   if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
   if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+
+  /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
-    /* Text inserted on the right */
     sbsWriteLineno(p, lnLeft);
+    p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
-    p->zStart = "<span class=\"diffadd\">";
+    p->zStart = zClassAdd;
     sbsWriteText(p, pRight, SBS_NEWLINE);
-  }else if( nPrefix+nSuffix==nRight ){
+    return;
+  }
+
+  /* A single chunk of text deleted from the left */
+  if( nPrefix+nSuffix==nRight ){
     /* Text deleted from the left */
     sbsWriteLineno(p, lnLeft);
+    p->iStart2 = p->iEnd2 = 0;
     p->iStart = nPrefix;
     p->iEnd = nLeft - nSuffix;
-    p->zStart = "<span class=\"diffrm\">";
+    p->zStart = zClassRm;
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pRight, SBS_NEWLINE);
-  }else{
-    /* Text modified between left and right */
+    return;
+  }
+
+  /* At this point we know that there is a chunk of text that has
+  ** changed between the left and the right.  Check to see if there
+  ** is a large unchanged section in the middle of that changed block.
+  */
+  nLeftDiff = nLeft - nSuffix - nPrefix;
+  nRightDiff = nRight - nSuffix - nPrefix;
+  if( p->escHtml
+   && nLeftDiff >= 6
+   && nRightDiff >= 6
+   && textLCS(&zLeft[nPrefix], nLeftDiff, &zRight[nPrefix], nRightDiff, aLCS)
+  ){
     sbsWriteLineno(p, lnLeft);
     p->iStart = nPrefix;
-    p->iEnd = nLeft - nSuffix;
-    p->zStart = "<span class=\"diffchng\">";
+    p->iEnd = nPrefix + aLCS[0];
+    p->zStart = aLCS[2]==0 ? zClassRm : zClassChng;
+    p->iStart2 = nPrefix + aLCS[1];
+    p->iEnd2 = nLeft - nSuffix;
+    p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
+    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+    if( p->iStart==p->iEnd ){
+      p->iStart = p->iStart2;
+      p->iEnd = p->iEnd2;
+      p->zStart = p->zStart2;
+      p->iStart2 = 0;
+      p->iEnd2 = 0;
+    }
+    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
-    p->iEnd = nRight - nSuffix;
+    p->iStart = nPrefix;
+    p->iEnd = nPrefix + aLCS[2];
+    p->zStart = aLCS[0]==0 ? zClassAdd : zClassChng;
+    p->iStart2 = nPrefix + aLCS[3];
+    p->iEnd2 = nRight - nSuffix;
+    p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
+    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+    if( p->iStart==p->iEnd ){
+      p->iStart = p->iStart2;
+      p->iEnd = p->iEnd2;
+      p->zStart = p->zStart2;
+      p->iStart2 = 0;
+      p->iEnd2 = 0;
+    }
+    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1; 
     sbsWriteText(p, pRight, SBS_NEWLINE);
+    return;
   }
+
+  /* If all else fails, show a single big change between left and right */
+  sbsWriteLineno(p, lnLeft);
+  p->iStart2 = p->iEnd2 = 0;
+  p->iStart = nPrefix;
+  p->iEnd = nLeft - nSuffix;
+  p->zStart = zClassChng;
+  sbsWriteText(p, pLeft, SBS_PAD);
+  sbsWrite(p, " | ", 3);
+  sbsWriteLineno(p, lnRight);
+  p->iEnd = nRight - nSuffix;
+  sbsWriteText(p, pRight, SBS_NEWLINE);
 }
 
 /*
@@ -736,7 +882,7 @@ static void sbsDiff(
   int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
 
-  s.zLine = fossil_malloc( 10*width + 100 );
+  s.zLine = fossil_malloc( 10*width + 200 );
   if( s.zLine==0 ) return;
   s.width = width;
   s.escHtml = escHtml;
