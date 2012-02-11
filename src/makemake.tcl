@@ -154,7 +154,7 @@ writeln {#
 # This file is included by primary Makefile.
 #
 
-XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR)
+XTCC = $(TCC) $(CFLAGS) -I. -I$(SRCDIR) -I$(OBJDIR)
 
 }
 writeln -nonewline "SRC ="
