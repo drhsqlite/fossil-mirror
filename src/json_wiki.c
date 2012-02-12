@@ -294,9 +294,9 @@ static cson_value * json_wiki_create_or_save(char createMode,
   wiki_cmd_commit(zPageName, 0==rid, &content);
   blob_reset(&content);
   /*
-    Our return value here has a race condition: if the page is saved
-    again before the next line finishes, payV could be the results
-    of the other save operation.
+    Our return value here has a race condition: if this operation
+    is called concurrently for the same wiki page via two requests,
+    payV could reflect the results of the other save operation.
   */
   payV = json_get_wiki_page_by_name(
            cson_string_cstr(
