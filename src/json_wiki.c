@@ -302,9 +302,9 @@ static cson_value * json_wiki_create_or_save(char createMode,
            cson_string_cstr(
              cson_value_get_string(nameV)),
              0);
-  assert( 0 != g.json.resultCode );
   goto ok;
   error:
+  assert( 0 != g.json.resultCode );
   assert( NULL == payV );
   ok:
   if( emptyContent ){
