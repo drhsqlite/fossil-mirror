@@ -226,16 +226,13 @@ static cson_value * json_wiki_get(){
 */
 static cson_value * json_wiki_create_or_save(char createMode,
                                              char allowCreateIfExists){
-  Blob content = empty_blob;
-  cson_value * nameV;
-  cson_value * contentV;
-  cson_value * emptyContent = NULL;
-  cson_value * payV = NULL;
-  cson_object * pay = NULL;
-  cson_string const * jstr = NULL;
-  char const * zContent;
-  char const * zBody = NULL;
-  char const * zPageName;
+  Blob content = empty_blob;  /* wiki  page content */
+  cson_value * nameV;         /* wiki page name */
+  char const * zPageName;     /* cstr form of page name */
+  cson_value * contentV;      /* passed-in content */
+  cson_value * emptyContent = NULL;  /* placeholder for empty content. */
+  cson_value * payV = NULL;   /* payload/return value */
+  cson_string const * jstr = NULL;  /* temp for cson_value-to-cson_string conversions. */
   unsigned int contentLen = 0;
   int rid;
   if( (createMode && !g.perm.NewWiki)
@@ -296,18 +293,19 @@ static cson_value * json_wiki_create_or_save(char createMode,
   }
   wiki_cmd_commit(zPageName, 0==rid, &content);
   blob_reset(&content);
-
-  payV = cson_value_new_object();
-  pay = cson_value_get_object(payV);
-  cson_object_set( pay, "name", nameV );
-  cson_object_set( pay, FossilJsonKeys.timestamp,
-                   json_new_timestamp(-1) );
-
+  /*
+    Our return value here has a race condition: if the page is saved
+    again before the next line finishes, payV could be the results
+    of the other save operation.
+  */
+  payV = json_get_wiki_page_by_name(
+           cson_string_cstr(
+             cson_value_get_string(nameV)),
+             0);
+  assert( 0 != g.json.resultCode );
   goto ok;
   error:
-  assert( 0 != g.json.resultCode );
-  cson_value_free(payV);
-  payV = NULL;
+  assert( NULL == payV );
   ok:
   if( emptyContent ){
     /* We have some potentially tricky memory ownership
