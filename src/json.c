@@ -583,10 +583,13 @@ char const * json_find_option_cstr2(char const * zKey,
   return rc;
 }
 
+/*
+** Short-hand form of json_find_option_cstr(zKey,zCLILong,zCLIShort,-1).
+*/
 char const * json_find_option_cstr(char const * zKey,
                                    char const * zCLILong,
                                    char const * zCLIShort){
-  return json_find_option_cstr2(zKey, zCLIShort, zCLIShort, -1);
+  return json_find_option_cstr2(zKey, zCLILong, zCLIShort, -1);
 }
 
 /*

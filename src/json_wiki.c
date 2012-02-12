@@ -53,14 +53,17 @@ cson_value * json_page_wiki(){
 
 /*
 ** Loads the given wiki page and creates a JSON object representation
-** of it. If the page is not found then NULL is returned. If doParse
-** is true then the page content is HTML-ized using fossil's
-** conventional wiki format, else it is not parsed.
+** of it. If the page is not found then NULL is returned. If
+** contentFormat is positive true then the page content is HTML-ized
+** using fossil's conventional wiki format, if it is negative then no
+** parsing is performed, if it is 0 then the content is not returned
+** in the response. If contentFormat is 0 then the contentSize reflects
+** the number of bytes, not characters, stored in the page.
 **
 ** The returned value, if not NULL, is-a JSON Object owned by the
 ** caller.
 */
-cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
+cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
   int rid;
   Manifest *pWiki = 0;
   char const * zBody = NULL;
@@ -94,39 +97,48 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char doParse){
     zUuid = NULL;
     /*cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));*/
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
-    cson_object_set(pay,FossilJsonKeys.timestamp, json_julian_to_timestamp(pWiki->rDate));
-    cson_object_set(pay,"contentFormat",json_new_string(zFormat));
-    if( doParse ){
-      Blob content = empty_blob;
-      Blob raw = empty_blob;
-      blob_append(&raw,zBody,-1);
-      wiki_convert(&raw,&content,0);
-      len = strlen(zBody);
-      len = (unsigned int)blob_size(&content);
-      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
-      cson_object_set(pay,"content",
-                      cson_value_new_string(blob_buffer(&content),len));
-      blob_reset(&content);
-      blob_reset(&raw);
+    cson_object_set(pay,FossilJsonKeys.timestamp,
+                    json_julian_to_timestamp(pWiki->rDate));
+    
+
+    if(0 == contentFormat){
+      cson_object_set(pay,"contentLength",
+                      json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
-      len = zBody ? strlen(zBody) : 0;
-      cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
-      cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+      cson_object_set(pay,"contentFormat",json_new_string(zFormat));
+      if( contentFormat>0 ){/*HTML-ize it*/
+        Blob content = empty_blob;
+        Blob raw = empty_blob;
+        blob_append(&raw,zBody,-1);
+        wiki_convert(&raw,&content,0);
+        len = strlen(zBody);
+        len = (unsigned int)blob_size(&content);
+        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"content",
+                        cson_value_new_string(blob_buffer(&content),len));
+        blob_reset(&content);
+        blob_reset(&raw);
+      }else{/*raw format*/
+        len = zBody ? strlen(zBody) : 0;
+        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"content",cson_value_new_string(zBody,len));
+      }
     }
     /*TODO: add 'T' (tag) fields*/
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
     return cson_object_value(pay);
-  }
+  }  
+  
 }
 
 
 /*
 ** Searches for a wiki page with the given rid. If found it behaves
-** like json_get_wiki_page_by_name(pageName, doParse), else it returns
+** like json_get_wiki_page_by_name(pageName, contentFormat), else it returns
 ** NULL.
 */
-cson_value * json_get_wiki_page_by_rid(int rid, char doParse){
+cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
   char * zPageName = NULL;
   cson_value * rc = NULL;
   zPageName = db_text(NULL,
@@ -137,7 +149,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char doParse){
                       " AND x.tagid=t.tagid AND b.rid=x.rid ",
                       rid);
   if( zPageName ){
-    rc = json_get_wiki_page_by_name(zPageName, doParse);
+    rc = json_get_wiki_page_by_name(zPageName, contentFormat);
     free(zPageName);
   }
   return rc;
@@ -154,6 +166,7 @@ static cson_value * json_wiki_get(){
   char const * zPageName;
   char const * zFormat = NULL;
   char * zUuid = NULL;
+  char contentFormat = -1;
   Stmt q;
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -182,13 +195,16 @@ static cson_value * json_wiki_get(){
   }
 
   zFormat = json_find_option_cstr("format",NULL,"f");
-  if(!zFormat || !*zFormat){
-    zFormat = "raw";
+  if(!zFormat || !*zFormat || ('r'==*zFormat)){
+    contentFormat = -1;
   }
-  if( 'r' != *zFormat ){
-    zFormat = "html";
+  else if('h'==*zFormat){
+    contentFormat = 1;
   }
-  return json_get_wiki_page_by_name(zPageName, 'h'==*zFormat);
+  else if('n'==*zFormat){
+    contentFormat = 0;
+  }
+  return json_get_wiki_page_by_name(zPageName, contentFormat);
 }
 
 /*
