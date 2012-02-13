@@ -101,25 +101,30 @@ static void db_err(const char *zFormat, ...){
   fossil_exit(rc);
 }
 
-static int nBegin = 0;      /* Nesting depth of BEGIN */
-static int doRollback = 0;  /* True to force a rollback */
-static int nCommitHook = 0; /* Number of commit hooks */
-static struct sCommitHook {
-  int (*xHook)(void);  /* Functions to call at db_end_transaction() */
-  int sequence;        /* Call functions in sequence order */
-} aHook[5];
-static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
-static int nPrepare = 0;    /* Number of calls to sqlite3_prepare() */
-static int nDeleteOnFail = 0;  /* Number of entries in azDeleteOnFail[] */
-static char *azDeleteOnFail[3]; /* Files to delete on a failure */
-
+/*
+** All static variable that a used by only this file are gathered into
+** the following structure.
+*/
+static struct DbLocalData {
+  int nBegin;               /* Nesting depth of BEGIN */
+  int doRollback;           /* True to force a rollback */
+  int nCommitHook;          /* Number of commit hooks */
+  Stmt *pAllStmt;           /* List of all unfinalized statements */
+  int nPrepare;             /* Number of calls to sqlite3_prepare() */
+  int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
+  struct sCommitHook {
+    int (*xHook)(void);         /* Functions to call at db_end_transaction() */
+    int sequence;               /* Call functions in sequence order */
+  } aHook[5];
+  char *azDeleteOnFail[3];  /* Files to delete on a failure */
+} db = {0, 0, 0, 0, 0, 0, };
 
 /*
 ** Arrange for the given file to be deleted on a failure.
 */
 void db_delete_on_failure(const char *zFilename){
-  assert( nDeleteOnFail<count(azDeleteOnFail) );
-  azDeleteOnFail[nDeleteOnFail++] = fossil_strdup(zFilename);
+  assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
+  db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
 }
 
 /*
@@ -132,7 +137,7 @@ void db_delete_on_failure(const char *zFilename){
 ** This is just a safety and sanity check.
 */
 static int db_verify_at_commit(void *notUsed){
-  if( nBegin ){
+  if( db.nBegin ){
     fossil_panic("illegal commit attempt");
     return 1;
   }
@@ -143,28 +148,28 @@ static int db_verify_at_commit(void *notUsed){
 ** Begin and end a nested transaction
 */
 void db_begin_transaction(void){
-  if( nBegin==0 ){
+  if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
   }
-  nBegin++;
+  db.nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
-  if( nBegin<=0 ) return;
-  if( rollbackFlag ) doRollback = 1;
-  nBegin--;
-  if( nBegin==0 ){
+  if( db.nBegin<=0 ) return;
+  if( rollbackFlag ) db.doRollback = 1;
+  db.nBegin--;
+  if( db.nBegin==0 ){
     int i;
-    if( doRollback==0 ) leaf_do_pending_checks();
-    for(i=0; doRollback==0 && i<nCommitHook; i++){
-      doRollback |= aHook[i].xHook();
+    if( db.doRollback==0 ) leaf_do_pending_checks();
+    for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
+      db.doRollback |= db.aHook[i].xHook();
     }
-    while( pAllStmt ){
-      db_finalize(pAllStmt);
+    while( db.pAllStmt ){
+      db_finalize(db.pAllStmt);
     }
-    db_multi_exec(doRollback ? "ROLLBACK" : "COMMIT");
-    doRollback = 0;
+    db_multi_exec(db.doRollback ? "ROLLBACK" : "COMMIT");
+    db.doRollback = 0;
   }
 }
 
@@ -181,17 +186,17 @@ void db_force_rollback(void){
   while( (pStmt = sqlite3_next_stmt(g.db,pStmt))!=0 ){
     sqlite3_reset(pStmt);
   }
-  while( pAllStmt ){
-    db_finalize(pAllStmt);
+  while( db.pAllStmt ){
+    db_finalize(db.pAllStmt);
   }
-  if( nBegin ){
+  if( db.nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
-    nBegin = 0;
+    db.nBegin = 0;
   }
   busy = 0;
   db_close(0);
-  for(i=0; i<nDeleteOnFail; i++){
-    file_delete(azDeleteOnFail[i]);
+  for(i=0; i<db.nDeleteOnFail; i++){
+    file_delete(db.azDeleteOnFail[i]);
   }
 }
 
@@ -207,21 +212,21 @@ void db_force_rollback(void){
 */
 void db_commit_hook(int (*x)(void), int sequence){
   int i;
-  assert( nCommitHook < sizeof(aHook)/sizeof(aHook[1]) );
-  for(i=0; i<nCommitHook; i++){
-    assert( x!=aHook[i].xHook );
-    if( aHook[i].sequence>sequence ){
+  assert( db.nCommitHook < sizeof(db.aHook)/sizeof(db.aHook[1]) );
+  for(i=0; i<db.nCommitHook; i++){
+    assert( x!=db.aHook[i].xHook );
+    if( db.aHook[i].sequence>sequence ){
       int s = sequence;
       int (*xS)(void) = x;
-      sequence = aHook[i].sequence;
-      x = aHook[i].xHook;
-      aHook[i].sequence = s;
-      aHook[i].xHook = xS;
+      sequence = db.aHook[i].sequence;
+      x = db.aHook[i].xHook;
+      db.aHook[i].sequence = s;
+      db.aHook[i].xHook = xS;
     }
   }
-  aHook[nCommitHook].sequence = sequence;
-  aHook[nCommitHook].xHook = x;
-  nCommitHook++;
+  db.aHook[db.nCommitHook].sequence = sequence;
+  db.aHook[db.nCommitHook].xHook = x;
+  db.nCommitHook++;
 }
 
 /*
@@ -236,7 +241,7 @@ int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
-  nPrepare++;
+  db.nPrepare++;
   rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0);
   if( rc!=0 && !errOk ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
@@ -267,10 +272,10 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, 0, zFormat, ap);
-    pStmt->pNext = pAllStmt;
+    pStmt->pNext = db.pAllStmt;
     pStmt->pPrev = 0;
-    if( pAllStmt ) pAllStmt->pPrev = pStmt;
-    pAllStmt = pStmt;
+    if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
+    db.pAllStmt = pStmt;
     va_end(ap);
   }
   return rc;
@@ -374,8 +379,8 @@ int db_finalize(Stmt *pStmt){
   }
   if( pStmt->pPrev ){
     pStmt->pPrev->pNext = pStmt->pNext;
-  }else if( pAllStmt==pStmt ){
-    pAllStmt = pStmt->pNext;
+  }else if( db.pAllStmt==pStmt ){
+    db.pAllStmt = pStmt->pNext;
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
@@ -1088,10 +1093,10 @@ void db_close(int reportErrors){
     fprintf(stderr, "-- MALLOC_COUNT           %10d %10d\n", cur, hiwtr);
     sqlite3_status(SQLITE_STATUS_PAGECACHE_OVERFLOW, &cur, &hiwtr, 0);
     fprintf(stderr, "-- PCACHE_OVFLOW          %10d %10d\n", cur, hiwtr);
-    fprintf(stderr, "-- prepared statements    %10d\n", nPrepare);
+    fprintf(stderr, "-- prepared statements    %10d\n", db.nPrepare);
   }
-  while( pAllStmt ){
-    db_finalize(pAllStmt);
+  while( db.pAllStmt ){
+    db_finalize(db.pAllStmt);
   }
   db_end_transaction(1);
   pStmt = 0;
