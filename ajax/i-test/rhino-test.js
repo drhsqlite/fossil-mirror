@@ -201,8 +201,8 @@ function testExternalProcess(){
     var osb = new java.io.BufferedWriter(osr);
     var json = JSON.stringify(req);
     osb.write(json,0, json.length);
-    //osb.flush();
     osb.close();
+    req = json = outs = osr = osb = undefined;
     var ins = p.getInputStream();
     var isr = new java.io.InputStreamReader(ins);
     var br = new java.io.BufferedReader(isr);
@@ -211,8 +211,10 @@ function testExternalProcess(){
     while( null !== (line=br.readLine())){
         print(line);
     }
-    //outs.close();
+    br.close();
+    isr.close();
     ins.close();
+    p.waitFor();
 }
 testExternalProcess.description = 'Run fossil as external process.';
 
@@ -240,7 +242,7 @@ testExternalProcessHandler.description = 'Try local fossil binary via AJAX inter
         testAnonymousLogin,
         testAnonWiki,
         testAnonLogout,
-        //testExternalProcess,
+        testExternalProcess,
         testExternalProcessHandler
     ];
     var i, f;
