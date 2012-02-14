@@ -1871,31 +1871,68 @@ int manifest_crosslink(int rid, Blob *pContent){
     const char *zName;
     const char *zValue;
     const char *zUuid;
+    int branchMove = 0;
     blob_zero(&comment);
     for(i=0; i<p->nTag; i++){
       zUuid = p->aTag[i].zUuid;
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
         if( i>0 ) blob_append(&comment, " ", 1);
-        blob_appendf(&comment, "Tag changes on [/timeline?dp=%S&n=4 | %S]:",
+        blob_appendf(&comment,
+           "Edit &#91;[/info/%S | %S]&#93;:",
            zUuid, zUuid);
+        branchMove = 0;
       }
       zName = p->aTag[i].zName;
       zValue = p->aTag[i].zValue;
-      if( zName[0]=='-' ){
-        blob_appendf(&comment, " Cancel");
-      }else if( zName[0]=='+' ){
-        blob_appendf(&comment, " Add");
-      }else{
-        blob_appendf(&comment, " Add propagating");
-      }
-      if( memcmp(&zName[1], "sym-",4)==0 ){
-        blob_appendf(&comment, " symbolic tag \"%h\".", &zName[5]);
-      }else if( fossil_strcmp(&zName[1], "comment")!=0 && zValue && zValue[0] ){
-        blob_appendf(&comment, " %h=%h.", &zName[1], zValue);
-      }else{
-        blob_appendf(&comment, " %h.", &zName[1]);
+      if( strcmp(zName, "*branch")==0 ){
+        blob_appendf(&comment,
+           " Move to branch [/timeline?r=%h&nd&dp=%S | %h].",
+           zValue, zUuid, zValue);
+        branchMove = 1;
+      }else if( strcmp(zName, "*bgcolor")==0 ){
+        blob_appendf(&comment,
+           " Change branch background color to \"%h\".", zValue);
+      }else if( strcmp(zName, "+bgcolor")==0 ){
+        blob_appendf(&comment,
+           " Change background color to \"%h\".", zValue);
+      }else if( strcmp(zName, "-bgcolor")==0 ){
+        blob_appendf(&comment, " Cancel background color.");
+      }else if( strcmp(zName, "+comment")==0 ){
+        blob_appendf(&comment, " Edit check-in comment.");
+      }else if( strcmp(zName, "+user")==0 ){
+        blob_appendf(&comment, " Change user to \"%h\".", zValue);
+      }else if( strcmp(zName, "+date")==0 ){
+        blob_appendf(&comment, " Timestamp %h.", zValue);
+      }else if( memcmp(zName, "-sym-",5)==0 ){
+        if( !branchMove ) blob_appendf(&comment, " Cancel tag %h.", &zName[5]);
+      }else if( memcmp(zName, "*sym-",5)==0 ){
+        if( !branchMove ){
+          blob_appendf(&comment, " Add propagating tag \"%h\".", &zName[5]);
+        }
+      }else if( memcmp(zName, "+sym-",5)==0 ){
+        blob_appendf(&comment, " Add tag \"%h\".", &zName[5]);
+      }else if( memcmp(zName, "-sym-",5)==0 ){
+        blob_appendf(&comment, " Cancel tag \"%h\".", &zName[5]);
+      }else if( strcmp(zName, "+closed")==0 ){
+        blob_appendf(&comment, " Marked \"Closed\".");
+      }else if( strcmp(zName, "-closed")==0 ){
+        blob_appendf(&comment, " Removed the \"Closed\" mark.");
+      }else {
+        if( zName[0]=='-' ){
+          blob_appendf(&comment, " Cancel \"%h\"", &zName[1]);
+        }else if( zName[0]=='+' ){
+          blob_appendf(&comment, " Add \"%h\"", &zName[1]);
+        }else{
+          blob_appendf(&comment, " Add propagating \"%h\"", &zName[1]);
+        }
+        if( zValue && zValue[0] ){
+          blob_appendf(&comment, " with value \"%h\".", zValue);
+        }else{
+          blob_appendf(&comment, ".");
+        }
       }
     }
+    /*blob_appendf(&comment, " &#91;[/info/%S | details]&#93;");*/
     db_multi_exec(
       "REPLACE INTO event(type,mtime,objid,user,comment)"
       "VALUES('g',%.17g,%d,%Q,%Q)",

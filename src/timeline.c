@@ -367,6 +367,11 @@ void www_print_timeline(
       @ (user: %h(zUser)%s(zTagList?",":"\051")
     }
 
+    /* Generate a "detail" link for tags. */
+    if( zType[0]=='g' && g.perm.History ){
+      @ [<a href="%s(g.zTop)/info/%S(zUuid)">details</a>]
+    }
+
     /* Generate the "tags: TAGLIST" at the end of the comment, together
     ** with hyperlinks to the tag list.
     */
@@ -395,6 +400,7 @@ void www_print_timeline(
         @ tags: %h(zTagList))
       }
     }
+
 
     /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
