@@ -61,7 +61,7 @@ cson_value * json_page_wiki(){
 ** the number of bytes, not characters, stored in the page.
 **
 ** The returned value, if not NULL, is-a JSON Object owned by the
-** caller.
+** caller. If it returns NULL then it may set g.json's error state.
 */
 cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
   int rid;
@@ -79,6 +79,8 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
              );
   if( (SQLITE_ROW != db_step(&q)) ){
     db_finalize(&q);
+    json_set_err( FSL_JSON_E_RESOURCE_NOT_FOUND, "Wiki page not found: %s",
+                  zPageName );
     return NULL;
   }
   rid = db_column_int(&q,0);
