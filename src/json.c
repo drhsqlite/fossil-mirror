@@ -1306,7 +1306,8 @@ static int json_dumbdown_rc( int code ){
 /*
 ** Convenience routine which converts a Julian time value into a Unix
 ** Epoch timestamp. Requires the db, so this cannot be used before the
-** repo is opened (will trigger a fatal error in db_xxx()).
+** repo is opened (will trigger a fatal error in db_xxx()). The returned
+** value is owned by the caller.
 */
 cson_value * json_julian_to_timestamp(double j){
   return cson_value_new_integer((cson_int_t)
@@ -1320,10 +1321,12 @@ cson_value * json_julian_to_timestamp(double j){
 cson_int_t json_timestamp(){
   return (cson_int_t)time(0);
 }
+
 /*
 ** Returns a new JSON value (owned by the caller) representing
 ** a timestamp. If timeVal is < 0 then time(0) is used to fetch
-** the time, else timeVal is used as-is
+** the time, else timeVal is used as-is. The returned value is
+** owned by the caller.
 */
 cson_value * json_new_timestamp(cson_int_t timeVal){
   return cson_value_new_integer((timeVal<0) ? (cson_int_t)time(0) : timeVal);
@@ -1506,7 +1509,8 @@ cson_value * json_create_response( int resultCode,
     goto cleanup; \
   }while(0)
 
-  tmp = cson_value_new_string(MANIFEST_UUID,strlen(MANIFEST_UUID));
+  
+  tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
 
   tmp = json_new_timestamp(-1);
@@ -1613,7 +1617,7 @@ cson_value * json_create_response( int resultCode,
 ** flush the output (and headers). Generally only do this if you are
 ** about to call exit().
 **
-** !g.isHTTP then alsoOutput is ignored and all output is sent to
+** If !g.isHTTP then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
 ** For generating the resultText property: if msg is not NULL then it
@@ -1707,7 +1711,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!colNames){
       colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
-      cson_value_add_reference(colNamesV);
+      cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
     }      
@@ -1780,8 +1784,8 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
 
 /*
 ** If the given COMMIT rid has any tags associated with it, this
-** function returns a JSON Array containing the tag names, else it
-** returns NULL.
+** function returns a JSON Array containing the tag names (owned by
+** the caller), else it returns NULL.
 **
 ** See info_tags_of_checkin() for more details (this is simply a JSON
 ** wrapper for that function).
