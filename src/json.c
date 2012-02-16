@@ -2265,6 +2265,51 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 {NULL,NULL,0}
 };
 
+/*
+** Internal helper for json_cmd_top() and json_page_top().
+**
+** Searches JsonPageDefs for a command with the given name. If found,
+** it is used to generate and output JSON response. If not found, it
+** generates a JSON-style error response.
+*/
+static void json_dispatch_root_command( char const * zCommand ){
+  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
+  cson_value * payload = NULL;
+  JsonPageDef const * pageDef = NULL;
+  /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
+  pageDef = json_handler_for_name(zCommand,&JsonPageDefs[0]);
+  if( ! pageDef ){
+    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
+    return;
+  }else if( pageDef->runMode < 0 /*CLI only*/){
+    rc = FSL_JSON_E_WRONG_MODE;
+  }else if( (g.isHTTP && (pageDef->runMode < 0 /*CLI only*/))
+            ||
+            (!g.isHTTP && (pageDef->runMode > 0 /*HTTP only*/))
+            ){
+    rc = FSL_JSON_E_WRONG_MODE;
+  }
+  else{
+    rc = 0;
+    g.json.dispatchDepth = 1;
+    payload = (*pageDef->func)();
+  }
+  if( g.json.resultCode /*can be set via pageDef->func()*/ ){
+    cson_value_free(payload);
+    json_err(g.json.resultCode, NULL, 0);
+  }else{
+    payload = json_create_response(rc, NULL, payload);
+    json_send_response(payload);
+    cson_value_free(payload);
+    if((0 != rc) && !g.isHTTP){
+      /* FIXME: we need a way of passing this error back
+         up to the routine which called this callback.
+         e.g. add g.errCode.
+      */
+      fossil_exit(1);
+    }
+  }
+}
 
 #ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
@@ -2276,36 +2321,16 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 */
 void json_page_top(void){
   int rc = FSL_JSON_E_UNKNOWN_COMMAND;
-  char const * cmd;
+  char const * zCommand;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef = NULL;
   BEGIN_TIMER;
   json_mode_bootstrap();
-  cmd = json_command_arg(1);
-  if(!cmd || !*cmd){
+  zCommand = json_command_arg(1);
+  if(!zCommand || !*zCommand){
     goto usage;
   }
-  /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
-  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
-  if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
-    return;
-  }else if( pageDef->runMode < 0 /*CLI only*/){
-    rc = FSL_JSON_E_WRONG_MODE;
-  }else{
-    rc = 0;
-    g.json.dispatchDepth = 1;
-    payload = (*pageDef->func)();
-  }
-  if( g.json.resultCode ){
-    cson_value_free(payload);
-    json_err(g.json.resultCode, NULL, 0);
-  }else{
-    cson_value * root = json_create_response(rc, NULL, payload);
-    json_send_response(root);
-    cson_value_free(root);
-  }
-
+  json_dispatch_root_command( zCommand );
   return;
   usage:
   {
@@ -2368,7 +2393,6 @@ void json_cmd_top(void){
   if( 2 > cson_array_length_get(g.json.cmd.a) ){
     goto usage;
   }
-  db_find_and_open_repository(0, 0);
 #if 0
   json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing.");
   json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing again.");
@@ -2377,32 +2401,7 @@ void json_cmd_top(void){
   if( !cmd || !*cmd ){
     goto usage;
   }
-  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
-  if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 1 );
-    return;
-  }else if( pageDef->runMode > 0 /*HTTP only*/){
-    rc = FSL_JSON_E_WRONG_MODE;
-  }else{
-    rc = 0;
-    g.json.dispatchDepth = 1;
-    payload = (*pageDef->func)();
-  }
-  if( g.json.resultCode ){
-    cson_value_free(payload);
-    json_err(g.json.resultCode, NULL, 1);
-  }else{
-    payload = json_create_response(rc, NULL, payload);
-    json_send_response(payload);
-    cson_value_free( payload );
-    if((0 != rc) && !g.isHTTP){
-      /* FIXME: we need a way of passing this error back
-         up to the routine which called this callback.
-         e.g. add g.errCode.
-      */
-      fossil_exit(1);
-    }
-  }
+  json_dispatch_root_command( cmd );
   return;
   usage:
   {
