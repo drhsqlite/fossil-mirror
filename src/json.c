@@ -54,17 +54,6 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "timestamp" /*timestamp*/
 };
 
-/*
-** Internal helpers to manipulate a byte array as a bitset. The B
-** argument must be-a array at least (BIT/8+1) bytes long.
-** The BIT argument is the bit number to query/set/clear/toggle.
-*/
-#define BITSET_BYTEFOR(B,BIT) ((B)[ BIT / 8 ])
-#define BITSET_SET(B,BIT) ((BITSET_BYTEFOR(B,BIT) |= (0x01 << (BIT%8))),0x01)
-#define BITSET_UNSET(B,BIT) ((BITSET_BYTEFOR(B,BIT) &= ~(0x01 << (BIT%8))),0x00)
-#define BITSET_GET(B,BIT) ((BITSET_BYTEFOR(B,BIT) & (0x01 << (BIT%8))) ? 0x01 : 0x00)
-#define BITSET_TOGGLE(B,BIT) (BITSET_GET(B,BIT) ? (BITSET_UNSET(B,BIT)) : (BITSET_SET(B,BIT)))
-
 
 /* Timer code taken from sqlite3's shell.c, modified slightly.
    FIXME: move the timer into the fossil core API so that we can
@@ -2331,7 +2320,7 @@ void json_page_top(void){
   }
 
 }
-#endif /* FOSSIL_ENABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON for mkindex */
 
 #ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
@@ -2427,11 +2416,6 @@ void json_cmd_top(void){
     fossil_exit(1);
   }
 }
-#endif /* FOSSIL_ENABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON for mkindex */
 
-#undef BITSET_BYTEFOR
-#undef BITSET_SET
-#undef BITSET_UNSET
-#undef BITSET_GET
-#undef BITSET_TOGGLE
 #endif /* FOSSIL_ENABLE_JSON */
