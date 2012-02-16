@@ -441,7 +441,7 @@ int main(int argc, char **argv){
   argc = g.argc;
   argv = g.argv;
   for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
-  if( getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
+  if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
   }else if( argc<2 ){
@@ -1631,7 +1631,7 @@ void cmd_test_http(void){
 ** Return true (1) if found and false (0) if not found.
 */
 static int binaryOnPath(const char *zBinary){
-  const char *zPath = getenv("PATH");
+  const char *zPath = fossil_getenv("PATH");
   char *zFull;
   int i;
   int bExists;

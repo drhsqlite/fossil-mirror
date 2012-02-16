@@ -916,7 +916,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** with the given name.
   */
   if( fossil_isupper(zName[0]) ){
-    const char *zValue = getenv(zName);
+    const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));

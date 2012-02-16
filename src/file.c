@@ -965,6 +965,17 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 }
 
 /*
+** Return the value of an environment variable as UTF8.
+*/
+char *fossil_getenv(const char *zName){
+  char *zValue = getenv(zName);
+#ifdef _WIN32
+  if( zValue ) zValue = fossil_msbc_to_utf8(zValue);
+#endif
+  return zValue;
+}
+
+/*
 ** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
 ** translated text..  Call fossil_mbcs_free() to deallocate any memory
 ** used to store the returned pointer when done.

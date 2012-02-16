@@ -437,7 +437,7 @@ cson_value * json_getenv( char const * zKey ){
          find_option(zKey,NULL,XYZ) here, but we don't have a sane
          default for the XYZ param here.
       */
-      cv = getenv(zKey);
+      cv = fossil_getenv(zKey);
     }
     if(cv){/*transform it to JSON for later use.*/
       /* use sscanf() to figure out if it's an int,

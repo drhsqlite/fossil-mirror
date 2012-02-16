@@ -663,7 +663,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   const char *zVfs;
   sqlite3 *db;
 
-  zVfs = getenv("FOSSIL_VFS");
+  zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -711,12 +711,12 @@ void db_open_config(int useAttach){
   const char *zHome;
   if( g.configOpen ) return;
 #if defined(_WIN32)
-  zHome = getenv("LOCALAPPDATA");
+  zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
-    zHome = getenv("APPDATA");
+    zHome = fossil_getenv("APPDATA");
     if( zHome==0 ){
-      char *zDrive = getenv("HOMEDRIVE");
-      zHome = getenv("HOMEPATH");
+      char *zDrive = fossil_getenv("HOMEDRIVE");
+      zHome = fossil_getenv("HOMEPATH");
       if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
@@ -725,9 +725,8 @@ void db_open_config(int useAttach){
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
                 "environment variables");
   }
-  zHome = fossil_mbcs_to_utf8(zHome);
 #else
-  zHome = getenv("HOME");
+  zHome = fossil_getenv("HOME");
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
                  "please set the HOME environment variable");
@@ -1145,9 +1144,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   }
   if( zUser==0 ){
 #if defined(_WIN32)
-    zUser = getenv("USERNAME");
+    zUser = fossil_getenv("USERNAME");
 #else
-    zUser = getenv("USER");
+    zUser = fossil_getenv("USER");
 #endif
   }
   if( zUser==0 ){

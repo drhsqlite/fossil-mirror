@@ -458,10 +458,10 @@ static void prepare_commit_comment(
   status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
-    zEditor = getenv("VISUAL");
+    zEditor = fossil_getenv("VISUAL");
   }
   if( zEditor==0 ){
-    zEditor = getenv("EDITOR");
+    zEditor = fossil_getenv("EDITOR");
   }
   if( zEditor==0 ){
     blob_append(&text,
