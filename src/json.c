@@ -202,7 +202,7 @@ static char const * json_err_cstr( int errCode ){
 
     C(GENERIC,"Generic error");
     C(INVALID_REQUEST,"Invalid request");
-    C(UNKNOWN_COMMAND,"Unknown Command");
+    C(UNKNOWN_COMMAND,"Unknown command or subcommand");
     C(UNKNOWN,"Unknown error");
     C(TIMEOUT,"Timeout reached");
     C(ASSERT,"Assertion failed");
@@ -1466,7 +1466,8 @@ cson_value * json_g_to_json(){
 ** on error.
 **
 ** If payload is not NULL and resultCode is 0 then it is set as the
-** "payload" property of the returned object.  If resultCode is
+** "payload" property of the returned object.  If resultCode is 0 then
+** it defaults to g.json.resultCode. If resultCode is (or defaults to)
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
 ** response. In either case, onwership of payload is transfered to (or
@@ -1486,7 +1487,7 @@ cson_value * json_create_response( int resultCode,
   cson_value * tmp = NULL;
   cson_object * o = NULL;
   int rc;
-  resultCode = json_dumbdown_rc(resultCode);
+  resultCode = json_dumbdown_rc(resultCode ? resultCode : g.json.resultCode);
   o = cson_new_object();
   v = cson_object_value(o);
   if( ! o ) return NULL;
@@ -2131,7 +2132,8 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   }
   def = json_handler_for_name( cmd, pages );
   if(!def){
-    g.json.resultCode = FSL_JSON_E_UNKNOWN_COMMAND;
+    json_set_err(FSL_JSON_E_UNKNOWN_COMMAND,
+                 "Unknown subcommand: %s", cmd);
     return NULL;
   }
   else{
@@ -2269,18 +2271,18 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 ** Internal helper for json_cmd_top() and json_page_top().
 **
 ** Searches JsonPageDefs for a command with the given name. If found,
-** it is used to generate and output JSON response. If not found, it
-** generates a JSON-style error response.
+** it is used to generate and output a JSON response. If not found, it
+** generates a JSON-style error response. Returns 0 on success, non-0
+** on error. On error it will set g.json's error state.
 */
-static void json_dispatch_root_command( char const * zCommand ){
-  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
+static int json_dispatch_root_command( char const * zCommand ){
+  int rc = 0;
   cson_value * payload = NULL;
   JsonPageDef const * pageDef = NULL;
-  /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
   pageDef = json_handler_for_name(zCommand,&JsonPageDefs[0]);
   if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
-    return;
+    rc = FSL_JSON_E_UNKNOWN_COMMAND;
+    json_set_err( rc, "Unknown command: %s", zCommand );
   }else if( pageDef->runMode < 0 /*CLI only*/){
     rc = FSL_JSON_E_WRONG_MODE;
   }else if( (g.isHTTP && (pageDef->runMode < 0 /*CLI only*/))
@@ -2294,21 +2296,10 @@ static void json_dispatch_root_command( char const * zCommand ){
     g.json.dispatchDepth = 1;
     payload = (*pageDef->func)();
   }
-  if( g.json.resultCode /*can be set via pageDef->func()*/ ){
-    cson_value_free(payload);
-    json_err(g.json.resultCode, NULL, 0);
-  }else{
-    payload = json_create_response(rc, NULL, payload);
-    json_send_response(payload);
-    cson_value_free(payload);
-    if((0 != rc) && !g.isHTTP){
-      /* FIXME: we need a way of passing this error back
-         up to the routine which called this callback.
-         e.g. add g.errCode.
-      */
-      fossil_exit(1);
-    }
-  }
+  payload = json_create_response(rc, rc ? g.zErrMsg : NULL, payload);
+  json_send_response(payload);
+  cson_value_free(payload);
+  return rc;
 }
 
 #ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
@@ -2320,10 +2311,7 @@ static void json_dispatch_root_command( char const * zCommand ){
 ** json_cmd_top().
 */
 void json_page_top(void){
-  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
   char const * zCommand;
-  cson_value * payload = NULL;
-  JsonPageDef const * pageDef = NULL;
   BEGIN_TIMER;
   json_mode_bootstrap();
   zCommand = json_command_arg(1);
@@ -2375,9 +2363,7 @@ void json_page_top(void){
 */
 void json_cmd_top(void){
   char const * cmd = NULL;
-  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
-  cson_value * payload = NULL;
-  JsonPageDef const * pageDef;
+  int rc = 0;
   BEGIN_TIMER;
   memset( &g.perm, 0xff, sizeof(g.perm) )
     /* In CLI mode fossil does not use permissions
@@ -2401,7 +2387,14 @@ void json_cmd_top(void){
   if( !cmd || !*cmd ){
     goto usage;
   }
-  json_dispatch_root_command( cmd );
+  rc = json_dispatch_root_command( cmd );
+  if(0 != rc){
+    /* FIXME: we need a way of passing this error back
+       up to the routine which called this callback.
+       e.g. add g.errCode.
+    */
+    fossil_exit(1);
+  }
   return;
   usage:
   {
