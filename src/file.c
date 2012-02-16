@@ -970,7 +970,7 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 char *fossil_getenv(const char *zName){
   char *zValue = getenv(zName);
 #ifdef _WIN32
-  if( zValue ) zValue = fossil_msbc_to_utf8(zValue);
+  if( zValue ) zValue = fossil_mbcs_to_utf8(zValue);
 #endif
   return zValue;
 }
