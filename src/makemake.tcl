@@ -435,7 +435,7 @@ ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
 endif
 
-# With Tcl support (statically linked)
+# With JSON support
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON
 endif
