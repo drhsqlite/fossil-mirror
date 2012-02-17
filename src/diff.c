@@ -1786,13 +1786,21 @@ static void annotate_file(
     const char *zDate = db_column_text(&q, 4);
     const char *zUser = db_column_text(&q, 5);
     if( webLabel ){
-      zLabel = mprintf(
-          "<a href='%s/info/%s' %s>%.10s</a> "
-          "<a href='%s/fdiff?v1=%s&v2=%s' %s>d</a> "
-          "%s %9.9s", 
-          g.zTop, zUuid, zInfoTarget, zUuid,
-          g.zTop, zUuidParentFile, zUuidFile, zDiffTarget,
-          zDate, zUser);
+      if (zUuidParentFile) {
+        zLabel = mprintf(
+            "<a href='%s/info/%s' %s>%.10s</a> "
+            "<a href='%s/fdiff?v1=%s&v2=%s' %s>d</a> "
+            "%s %9.9s", 
+            g.zTop, zUuid, zInfoTarget, zUuid,
+            g.zTop, zUuidParentFile, zUuidFile, zDiffTarget,
+            zDate, zUser);
+      }else{
+        zLabel = mprintf(
+            "<a href='%s/info/%s' %s>%.10s</a>   "
+            "%s %9.9s", 
+            g.zTop, zUuid, zInfoTarget, zUuid,
+            zDate, zUser);
+      }
     }else{
       zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
     }
