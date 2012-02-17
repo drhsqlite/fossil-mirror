@@ -435,6 +435,11 @@ ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
 endif
 
+# With Tcl support (statically linked)
+ifdef FOSSIL_ENABLE_JSON
+TCC += -DFOSSIL_ENABLE_JSON
+endif
+
 #### Extra arguments for linking the finished binary.  Fossil needs
 #    to link against the Z-Lib compression library.  There are no
 #    other mandatory dependencies.  We add the -static option here
