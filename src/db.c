@@ -1857,6 +1857,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
   { "empty-dirs",    0,               40, 1, ""                    },
+  { "href-targets",  0,                0, 0, "on"                  },
   { "http-port",     0,               16, 0, "8080"                },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },

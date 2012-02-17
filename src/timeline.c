@@ -207,6 +207,7 @@ void www_print_timeline(
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
+  const char *zDiffTarget;    /* String for the target diff window */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -215,6 +216,8 @@ void www_print_timeline(
   }else{
     wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
   }
+  zDiffTarget = db_get_boolean("href-targets", 1) ?
+      "target=\"diffwindow\"": "";
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -439,13 +442,13 @@ void www_print_timeline(
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
           @ <a href="%s(g.zTop)/artifact/%S(zNew)"
-          @ target="diffwindow">[view]</a></li>
+          @ %s(zDiffTarget)>[view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
           @ <a href="%s(g.zTop)/artifact/%S(zNew)"
-          @ target="diffwindow">[view]</a></li>
+          @ %s(zDiffTarget)>[view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
@@ -453,7 +456,7 @@ void www_print_timeline(
             @ <li> %h(zFilename) &nbsp;
           }
           @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
-          @ target="diffwindow">[diff]</a></li>
+          @ %s(zDiffTarget)>[diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
