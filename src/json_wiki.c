@@ -66,8 +66,6 @@ cson_value * json_page_wiki(){
 cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
   int rid;
   Manifest *pWiki = 0;
-  char const * zBody = NULL;
-  char const * zFormat = NULL;
   char * zUuid = NULL;
   Stmt q;
   db_prepare(&q,
@@ -86,13 +84,17 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
   rid = db_column_int(&q,0);
   zUuid = db_column_malloc(&q,1);
   db_finalize(&q);
-  if( (pWiki = manifest_get(rid, CFTYPE_WIKI))!=0 ){
-    zBody = pWiki->zWiki;
-  }
-
-  {
-    unsigned int len;
+  if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI)) ){
+    free(zUuid);
+    json_set_err( FSL_JSON_E_UNKNOWN,
+                  "Error reading wiki page from manifest (rid=%d, uuid=%s).",
+                  rid, zUuid );
+    return NULL;
+  }else{
+    char const * zFormat = NULL;
+    unsigned int len = 0;
     cson_object * pay = cson_new_object();
+    char const * zBody = pWiki->zWiki;
     cson_object_set(pay,"name",json_new_string(zPageName));
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
@@ -111,10 +113,11 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
       if( contentFormat>0 ){/*HTML-ize it*/
         Blob content = empty_blob;
         Blob raw = empty_blob;
-        blob_append(&raw,zBody,-1);
-        wiki_convert(&raw,&content,0);
-        len = strlen(zBody);
-        len = (unsigned int)blob_size(&content);
+        if(zBody && *zBody){
+          blob_append(&raw,zBody,-1);
+          wiki_convert(&raw,&content,0);
+          len = (unsigned int)blob_size(&content);
+        }
         cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",
                         cson_value_new_string(blob_buffer(&content),len));
