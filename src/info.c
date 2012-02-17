@@ -538,6 +538,8 @@ void ci_page(void){
         fossil_free(zUrl);
       }
       @   | <a href="%s(g.zTop)/artifact/%S(zUuid)">manifest</a>
+      @   | <a href="%s(g.zTop)/vdiff?from=pbranch:%S(zUuid)&to=%S(zUuid)">
+      @           vdiff to parent branch</a>
       if( g.perm.Write ){
         @   | <a href="%s(g.zTop)/ci_edit?r=%S(zUuid)">edit</a>
       }
