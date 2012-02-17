@@ -246,6 +246,16 @@ void ticket_init(void){
 }
 
 /*
+** Create the subscript interpreter and load the "change" code.
+*/
+int ticket_change(void){
+  const char *zConfig;
+  Th_FossilInit();
+  zConfig = ticket_change_code();
+  return Th_Eval(g.interp, 0, zConfig, -1);
+}
+
+/*
 ** Recreate the ticket table.
 */
 void ticket_create_table(int separateConnection){
@@ -489,7 +499,7 @@ static int submitTicketCmd(
     assert( blob_is_reset(&tktchng) );
     manifest_crosslink_end();
   }
-  return TH_RETURN;
+  return ticket_change();
 }
 
 
@@ -522,6 +532,9 @@ void tktnew_page(void){
   initializeVariablesFromCGI();
   @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
   login_insert_csrf_secret();
+  if( P("date_override") && g.perm.Setup ){
+    @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
+  }
   @ </p>
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin);
@@ -839,7 +852,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 }
 
 /*
-** COMMAND: ticket
+** COMMAND: ticket*
 ** Usage: %fossil ticket SUBCOMMAND ...
 **
 ** Run various subcommands to control tickets
@@ -855,6 +868,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         used in the gui. The data is written as flat file on stdout,
 **         using "," as separator. The separator "," can be changed using
 **         the -l or --limit option.
+**
 **         If TICKETFILTER is given on the commandline, the query is
 **         limited with a new WHERE-condition.
 **           example:  Report lists a column # with the uuid
@@ -865,7 +879,7 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **         quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
 **         cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
 **         Otherwise, the simplified encoding as on the show report raw
-**         page in the gui is used.
+**         page in the gui is used. This has no effect in JSON mode.
 **
 **         Instead of the report title its possible to use the report
 **         number. Using the special report number 0 list all columns,
@@ -959,7 +973,6 @@ void ticket_cmd(void){
           const char *zRep = 0;
           const char *zSep = 0;
           const char *zFilterUuid = 0;
-
           zSep = find_option("limit","l",1);
           zRep = g.argv[3];
           if( !strcmp(zRep,"0") ){
@@ -968,9 +981,7 @@ void ticket_cmd(void){
           if( g.argc>4 ){
             zFilterUuid = g.argv[4];
           }
-
           rptshow( zRep, zSep, zFilterUuid, tktEncoding );
-
         }
       }else{
         /* add a new ticket or update an existing ticket */

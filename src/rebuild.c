@@ -372,7 +372,11 @@ int rebuild_db(int randomize, int doOut, int doClustering){
   db_multi_exec(
     "DELETE FROM config WHERE name IN ('remote-code', 'remote-maxid')"
   );
-  totalSize = db_int(0, "SELECT count(*) FROM blob");
+
+  /* The following should be count(*) instead of max(rid). max(rid) is
+  ** an adequate approximation, however, and is much faster for large
+  ** repositories. */
+  totalSize = db_int(0, "SELECT max(rid) FROM blob");
   incrSize = totalSize/100;
   totalSize += incrSize*2;
   db_prepare(&s,
@@ -485,7 +489,7 @@ static void extra_deltification(void){
 }
 
 /*
-** COMMAND:  rebuild
+** COMMAND: rebuild
 **
 ** Usage: %fossil rebuild ?REPOSITORY? ?OPTIONS?
 **
@@ -718,7 +722,7 @@ void test_clusters_cmd(void){
 }
 
 /*
-** COMMAND: scrub
+** COMMAND: scrub*
 ** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
@@ -730,8 +734,8 @@ void test_clusters_cmd(void){
 ** are also purged.  If the --private option is used, then only private
 ** branches are removed and all other information is left intact.
 **
-** This command permanently deletes the scrubbed information.  The effects
-** of this command are irreversible.  Use with caution.
+** This command permanently deletes the scrubbed information. THE EFFECTS
+** OF THIS COMMAND ARE IRREVERSIBLE. USE WITH CAUTION!
 **
 ** The user is prompted to confirm the scrub unless the --force option
 ** is used.
@@ -769,11 +773,7 @@ void scrub_cmd(void){
   db_begin_transaction();
   if( privateOnly || bVerily ){
     bNeedRebuild = db_exists("SELECT 1 FROM private");
-    db_multi_exec(
-      "DELETE FROM blob WHERE rid IN private;"
-      "DELETE FROM delta WHERE rid IN private;"
-      "DELETE FROM private;"
-    );
+    delete_private_content();
   }
   if( !privateOnly ){
     db_multi_exec(
@@ -852,7 +852,7 @@ void recon_read_dir(char *zPath){
 }
 
 /*
-** COMMAND: reconstruct
+** COMMAND: reconstruct*
 **
 ** Usage: %fossil reconstruct FILENAME DIRECTORY
 **
@@ -913,7 +913,7 @@ void reconstruct_cmd(void) {
 }
 
 /*
-** COMMAND: deconstruct
+** COMMAND: deconstruct*
 **
 ** Usage %fossil deconstruct ?OPTIONS? DESTINATION
 **

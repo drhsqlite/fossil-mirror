@@ -126,26 +126,36 @@ void load_vfile_from_rid(int vid){
 }
 
 /*
-** Check the file signature of the disk image for every VFILE of vid.
+** Look at every VFILE entry with the given vid and  set update
+** VFILE.CHNGED field on every file according to whether or not
+** the file has changes.  0 means no change.  1 means edited.  2 means
+** the file has changed due to a merge.  3 means the file was added
+** by a merge.
 **
-** Set the VFILE.CHNGED field on every file that has changed.  Also 
-** set VFILE.CHNGED on every folder that contains a file or folder 
-** that has changed.
+** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was
+** either removed from managemented via "fossil rm" or added via
+** "fossil add", respectively, and in both cases we always know that 
+** the file has changed without having the check the size, mtime,
+** or on-disk content.
 **
-** If VFILE.DELETED is null or if VFILE.RID is zero, then we can assume
-** the file has changed without having the check the on-disk image.
+** If the size of the file has changed, then we always know that the file
+** changed without having to look at the mtime or on-disk content.
 **
-** If the size of the file has changed, then we assume that it has
-** changed.  If the mtime of the file has not changed and useSha1sum is false
-** and the mtime-changes setting is true (the default) then we assume that
-** the file has not changed.  If the mtime has changed, we go ahead and
-** double-check that the file has changed by looking at its SHA1 sum.
+** The mtime of the file is only a factor if the mtime-changes setting
+** is false and the useSha1sum flag is false.  If the mtime-changes
+** setting is true (or undefined - it defaults to true) or if useSha1sum
+** is true, then we do not trust the mtime and will examine the on-disk
+** content to determine if a file really is the same.
+**
+** If the mtime is used, it is used only to determine if files are the same.
+** If the mtime of a file has changed, we still examine the on-disk content
+** to see whether or not the edit was a null-edit.
 */
 void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int checkMtime = useSha1sum==0 && db_get_boolean("mtime-changes", 1);
+  int useMtime = useSha1sum==0 && db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
@@ -159,51 +169,63 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
     int oldChnged;
     i64 oldMtime;
     i64 currentMtime;
+    i64 origSize;
+    i64 currentSize;
 
     id = db_column_int(&q, 0);
     zName = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     isDeleted = db_column_int(&q, 3);
-    oldChnged = db_column_int(&q, 4);
+    oldChnged = chnged = db_column_int(&q, 4);
     oldMtime = db_column_int64(&q, 7);
-    if( isDeleted ){
+    currentSize = file_wd_size(zName);
+    origSize = db_column_int64(&q, 6);
+    currentMtime = file_wd_mtime(0);
+    if( chnged==0 && (isDeleted || rid==0) ){
+      /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
-    }else if( !file_wd_isfile_or_link(zName) && file_wd_size(0)>=0 ){
+    }else if( !file_wd_isfile_or_link(0) && currentSize>=0 ){
       if( notFileIsFatal ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
       }
       chnged = 1;
-    }else if( oldChnged>=2 ){
-      chnged = oldChnged;
-    }else if( rid==0 ){
-      chnged = 1;
     }
-    if( chnged!=1 ){
-      i64 origSize = db_column_int64(&q, 6);
-      currentMtime = file_wd_mtime(0);
-      if( origSize!=file_wd_size(0) ){
+    if( origSize!=currentSize ){
+      if( chnged!=1 ){
         /* A file size change is definitive - the file has changed.  No
-        ** need to check the sha1sum */
+        ** need to check the mtime or sha1sum */
         chnged = 1;
       }
-    }
-    if( chnged!=1 && (checkMtime==0 || currentMtime!=oldMtime) ){
+    }else if( chnged==1 && rid!=0 && !isDeleted ){
+      /* File is believed to have changed but it is the same size.
+      ** Double check that it really has changed by looking at content. */
+      assert( origSize==currentSize );
+      db_ephemeral_blob(&q, 5, &origCksum);
+      if( sha1sum_file(zName, &fileCksum) ){
+        blob_zero(&fileCksum);
+      }
+      if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
+      blob_reset(&origCksum);
+      blob_reset(&fileCksum);
+    }else if( chnged==0 && (useMtime==0 || currentMtime!=oldMtime) ){
+      /* For files that were formerly believed to be unchanged, if their
+      ** mtime changes, or unconditionally if --sha1sum is used, check
+      ** to see if they have been edited by looking at their SHA1 sum */
+      assert( origSize==currentSize );
       db_ephemeral_blob(&q, 5, &origCksum);
       if( sha1sum_file(zName, &fileCksum) ){
         blob_zero(&fileCksum);
       }
       if( blob_compare(&fileCksum, &origCksum) ){
         chnged = 1;
-      }else if( currentMtime!=oldMtime ){
-        db_multi_exec("UPDATE vfile SET mtime=%lld WHERE id=%d",
-                      currentMtime, id);
       }
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
     }
-    if( chnged!=oldChnged && (chnged || !checkMtime) ){
-      db_multi_exec("UPDATE vfile SET chnged=%d WHERE id=%d", chnged, id);
+    if( currentMtime!=oldMtime || chnged!=oldChnged ){
+      db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",
+                    currentMtime, chnged, id);
     }
   }
   db_finalize(&q);
@@ -315,7 +337,7 @@ void vfile_unlink(int vid){
 /*
 ** Check to see if the directory named in zPath is the top of a checkout.
 ** In other words, check to see if directory pPath contains a file named
-** "_FOSSIL_" or ".fos".  Return true or false.
+** "_FOSSIL_" or ".fslckout".  Return true or false.
 */
 int vfile_top_of_checkout(const char *zPath){
   char *zFile;
@@ -324,6 +346,17 @@ int vfile_top_of_checkout(const char *zPath){
   zFile = mprintf("%s/_FOSSIL_", zPath);
   fileFound = file_size(zFile)>=1024;
   fossil_free(zFile);
+  if( !fileFound ){
+    zFile = mprintf("%s/.fslckout", zPath);
+    fileFound = file_size(zFile)>=1024;
+    fossil_free(zFile);
+  }
+
+  /* Check for ".fos" for legacy support.  But the use of ".fos" as the
+  ** per-checkout database name is deprecated.  At some point, all support
+  ** for ".fos" will end and this code should be removed.  This comment
+  ** added on 2012-02-04.
+  */
   if( !fileFound ){
     zFile = mprintf("%s/.fos", zPath);
     fileFound = file_size(zFile)>=1024;

@@ -21,6 +21,9 @@
 #include <time.h>
 #include "report.h"
 #include <assert.h>
+#ifdef FOSSIL_ENABLE_JSON
+#  include "cson_amalgamation.h"
+#endif
 
 /* Forward references to static routines */
 static void report_format_hints(void);
@@ -1117,7 +1120,7 @@ void rptshow(
        "SELECT sqlcode FROM reportfmt WHERE rn=%d", rn);
     }else{
       db_prepare(&q,
-       "SELECT sqlcode FROM reportfmt WHERE title='%s'", zRep);
+       "SELECT sqlcode FROM reportfmt WHERE title=%Q", zRep);
     }
     if( db_step(&q)!=SQLITE_ROW ){
       db_finalize(&q);

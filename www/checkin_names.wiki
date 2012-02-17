@@ -128,19 +128,20 @@ check-in that occurs no later than the timestamp given:
 
 The space between the day and the year can optionally be 
 replaced by an uppercase <b>T</b> and the entire timestamp can
-optionally be followed by "<b>utc</b>".
+optionally be followed by "<b>z</b>" or "<b>Z</b>".
 
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
 distributed projects where participants are scattered around the globe.
 But there is an option on the Admin/Timeline page of the web-interface to
-switch to local time.  The "<b>utc</b>" suffix on an timestamp check-in
+switch to local time.  The "<b>Z</b>" suffix on an timestamp check-in
 name is meaningless if Fossil is in the default mode of using UTC for
 everything, but if Fossil has been switched to localtime mode, then the
-"<b>utc</b>" suffix means to interpret that particular timestamp using 
+"<b>Z</b>" suffix means to interpret that particular timestamp using 
 UTC instead localtime.
 
-As an example, consider the homepage for the Fossil website itself:
+For an example of how timestamps are useful, 
+consider the homepage for the Fossil website itself:
 
 <blockquote>
 http://www.fossil-scm.org/fossil/doc/<b>trunk</b>/www/index.wiki

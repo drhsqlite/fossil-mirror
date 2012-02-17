@@ -305,7 +305,7 @@ int content_get(int rid, Blob *pBlob){
 }
 
 /*
-** COMMAND: artifact
+** COMMAND: artifact*
 **
 ** Usage: %fossil artifact ARTIFACT-ID ?OUTPUT-FILENAME? ?OPTIONS?
 **
@@ -315,6 +315,8 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
+**
+** See also: finfo
 */
 void artifact_cmd(void){
   int rid;
@@ -324,6 +326,9 @@ void artifact_cmd(void){
   if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);
+  if( rid==0 ){
+    fossil_fatal("%s",g.zErrMsg);
+  }
   content_get(rid, &content);
   blob_write_to_file(&content, zFile);
 }
@@ -830,8 +835,31 @@ void test_integrity(void){
   Blob cksum;
   int n1 = 0;
   int n2 = 0;
+  int nErr = 0;
   int total;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+
+  /* Make sure no public artifact is a delta from a private artifact */
+  db_prepare(&q,
+    "SELECT "
+    "   rid, (SELECT uuid FROM blob WHERE rid=delta.rid),"
+    "   srcid, (SELECT uuid FROM blob WHERE rid=delta.srcid)"
+    "  FROM delta"
+    " WHERE srcid in private AND rid NOT IN private"
+  );
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    const char *zId = db_column_text(&q, 1);
+    int srcid = db_column_int(&q, 2);
+    const char *zSrc = db_column_text(&q, 3);
+    fossil_print(
+      "public artifact %S (%d) is a delta from private artifact %S (%d)\n",
+      zId, rid, zSrc, srcid
+    );
+    nErr++;
+  }
+  db_finalize(&q);
+    
   db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
   total = db_int(0, "SELECT max(rid) FROM blob");
   while( db_step(&q)==SQLITE_ROW ){
@@ -847,18 +875,21 @@ void test_integrity(void){
     }
     content_get(rid, &content);
     if( blob_size(&content)!=size ){
-      fossil_warning("size mismatch on blob rid=%d:  %d vs %d",
-                     rid, blob_size(&content), size);
+      fossil_print("size mismatch on artifact %d: wanted %d but got %d\n",
+                     rid, size, blob_size(&content));
+      nErr++;
     }
     sha1sum_blob(&content, &cksum);
     if( fossil_strcmp(blob_str(&cksum), zUuid)!=0 ){
-      fossil_fatal("checksum mismatch on blob rid=%d: %s vs %s",
-                   rid, blob_str(&cksum), zUuid);
+      fossil_print("checksum mismatch on artifact %d: wanted %s but got %s\n",
+                   rid, zUuid, blob_str(&cksum));
+      nErr++;
     }
     blob_reset(&cksum);
     blob_reset(&content);
     n2++;
   }
   db_finalize(&q);
-  fossil_print("%d non-phantom blobs (out of %d total) verified\n", n2, n1);
+  fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
+               n2, n1, nErr);
 }

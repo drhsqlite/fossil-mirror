@@ -22,6 +22,9 @@
 #include <time.h>
 #include "config.h"
 #include "timeline.h"
+#ifdef FOSSIL_ENABLE_JSON
+#  include "cson_amalgamation.h"
+#endif
 
 /*
 ** Shorten a UUID so that is the minimum length needed to contain
@@ -364,6 +367,11 @@ void www_print_timeline(
       @ (user: %h(zUser)%s(zTagList?",":"\051")
     }
 
+    /* Generate a "detail" link for tags. */
+    if( zType[0]=='g' && g.perm.History ){
+      @ [<a href="%s(g.zTop)/info/%S(zUuid)">details</a>]
+    }
+
     /* Generate the "tags: TAGLIST" at the end of the comment, together
     ** with hyperlinks to the tag list.
     */
@@ -392,6 +400,7 @@ void www_print_timeline(
         @ tags: %h(zTagList))
       }
     }
+
 
     /* Generate extra hyperlinks at the end of the comment */
     if( xExtra ){
@@ -770,20 +779,20 @@ const char *timeline_query_for_www(void){
   static char *zBase = 0;
   static const char zBaseSql[] =
     @ SELECT
-    @   blob.rid,
-    @   uuid,
+    @   blob.rid AS blobRid,
+    @   uuid AS uuid,
     @   datetime(event.mtime,'localtime') AS timestamp,
-    @   coalesce(ecomment, comment),
-    @   coalesce(euser, user),
-    @   blob.rid IN leaf,
-    @   bgcolor,
-    @   event.type,
+    @   coalesce(ecomment, comment) AS comment,
+    @   coalesce(euser, user) AS user,
+    @   blob.rid IN leaf AS leaf,
+    @   bgcolor AS bgColor,
+    @   event.type AS eventType,
     @   (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref
     @     WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
-    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0),
-    @   tagid,
-    @   brief,
-    @   event.mtime
+    @       AND tagxref.rid=blob.rid AND tagxref.tagtype>0) AS tags,
+    @   tagid AS tagid,
+    @   brief AS brief,
+    @   event.mtime AS mtime
     @  FROM event JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
@@ -1383,9 +1392,9 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
 const char *timeline_query_for_tty(void){
   static const char zBaseSql[] = 
     @ SELECT
-    @   blob.rid,
+    @   blob.rid AS rid,
     @   uuid,
-    @   datetime(event.mtime,'localtime'),
+    @   datetime(event.mtime,'localtime') AS mDateTime,
     @   coalesce(ecomment,comment)
     @     || ' (user: ' || coalesce(euser,user,'?')
     @     || (SELECT case when length(x)>0 then ' tags: ' || x else '' end
@@ -1393,10 +1402,10 @@ const char *timeline_query_for_tty(void){
     @                   FROM tag, tagxref
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
-    @     || ')',
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim),
-    @   (SELECT count(*) FROM plink WHERE cid=blob.rid),
-    @   event.mtime
+    @     || ')' as comment,
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim) AS primPlinkCount,
+    @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
+    @   event.mtime AS mtime
     @ FROM event, blob
     @ WHERE blob.rid=event.objid
   ;
@@ -1443,8 +1452,8 @@ static int isIsoDate(const char *z){
 **     ci = file commits only
 **     t  = tickets only
 **
-** The optional showfiles argument if specified prints the list of
-** files changed in a checkin after the checkin comment
+** The optional showfiles argument, if specified, prints the list of
+** files changed in a checkin after the checkin comment.
 **
 */
 void timeline_cmd(void){
@@ -1542,7 +1551,6 @@ void timeline_cmd(void){
   if( zType && (zType[0]!='a') ){
     blob_appendf(&sql, " AND event.type=%Q ", zType);
   }
-
   blob_appendf(&sql, " ORDER BY event.mtime DESC");
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

@@ -768,8 +768,20 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    fossil_puts(blob_str(pBlob), 0);
-    return blob_size(pBlob);
+    int n;
+#if defined(_WIN32)
+    if( _isatty(fileno(stdout)) ){
+      char *z;
+      z = fossil_utf8_to_console(blob_str(pBlob));
+      n = strlen(z);
+      fwrite(z, 1, n, stdout);
+      free(z);
+      return n;
+    }
+#endif
+    n = blob_size(pBlob);
+    fwrite(blob_buffer(pBlob), 1, n, stdout);
+    return n;
   }else{
     int i, nName;
     char *zName, zBuf[1000];
@@ -1040,4 +1052,31 @@ void shell_escape(Blob *pBlob, const char *zIn){
     }
   }
   blob_append(pBlob, zIn, -1);
+}
+
+/*
+** A read(2)-like impl for the Blob class. Reads (copies) up to nLen
+** bytes from pIn, starting at position pIn->iCursor, and copies them
+** to pDest (which must be valid memory at least nLen bytes long).
+**
+** Returns the number of bytes read/copied, which may be less than
+** nLen (if end-of-blob is encountered).
+**
+** Updates pIn's cursor.
+** 
+** Returns 0 if pIn contains no data.
+*/
+unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
+  if( !pIn->aData || (pIn->iCursor >= pIn->nUsed) ){
+    return 0;
+  } else if( (pIn->iCursor + nLen) > (unsigned int)pIn->nUsed ){
+    nLen = (unsigned int) (pIn->nUsed - pIn->iCursor);
+  }
+  assert( pIn->nUsed > pIn->iCursor );
+  assert( (pIn->iCursor+nLen)  <= pIn->nUsed );
+  if( nLen ){
+    memcpy( pDest, pIn->aData, nLen );
+    pIn->iCursor += nLen;
+  }
+  return nLen;
 }

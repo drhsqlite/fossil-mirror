@@ -50,7 +50,15 @@ struct Stmt {
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
   int nStep;              /* Number of sqlite3_step() calls */
 };
+
+/*
+** Copy this to initialize a Stmt object to a clean/empty state. This
+** is useful to help avoid assertions when performing cleanup in some
+** error handling cases.
+*/
+#define empty_Stmt_m {BLOB_INITIALIZER,NULL, NULL, NULL, 0}
 #endif /* INTERFACE */
+const struct Stmt empty_Stmt = empty_Stmt_m;
 
 /*
 ** Call this routine when a database error occurs.
@@ -58,6 +66,7 @@ struct Stmt {
 static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
+  int rc = 1;
   static const char zRebuildMsg[] = 
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
@@ -65,12 +74,21 @@ static void db_err(const char *zFormat, ...){
   va_start(ap, zFormat);
   z = vmprintf(zFormat, ap);
   va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  }
+  else
+#endif /* FOSSIL_ENABLE_JSON */
   if( g.xferPanic ){
     cgi_reset_content();
     @ error Database\serror:\s%F(z)
-    cgi_reply();
+      cgi_reply();
   }
-  if( g.cgiOutput ){
+  else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
@@ -78,29 +96,35 @@ static void db_err(const char *zFormat, ...){
   }else{
     fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
   }
+  free(z);
   db_force_rollback();
-  fossil_exit(1);
+  fossil_exit(rc);
 }
 
-static int nBegin = 0;      /* Nesting depth of BEGIN */
-static int doRollback = 0;  /* True to force a rollback */
-static int nCommitHook = 0; /* Number of commit hooks */
-static struct sCommitHook {
-  int (*xHook)(void);  /* Functions to call at db_end_transaction() */
-  int sequence;        /* Call functions in sequence order */
-} aHook[5];
-static Stmt *pAllStmt = 0;  /* List of all unfinalized statements */
-static int nPrepare = 0;    /* Number of calls to sqlite3_prepare() */
-static int nDeleteOnFail = 0;  /* Number of entries in azDeleteOnFail[] */
-static char *azDeleteOnFail[3]; /* Files to delete on a failure */
-
+/*
+** All static variable that a used by only this file are gathered into
+** the following structure.
+*/
+static struct DbLocalData {
+  int nBegin;               /* Nesting depth of BEGIN */
+  int doRollback;           /* True to force a rollback */
+  int nCommitHook;          /* Number of commit hooks */
+  Stmt *pAllStmt;           /* List of all unfinalized statements */
+  int nPrepare;             /* Number of calls to sqlite3_prepare() */
+  int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
+  struct sCommitHook {
+    int (*xHook)(void);         /* Functions to call at db_end_transaction() */
+    int sequence;               /* Call functions in sequence order */
+  } aHook[5];
+  char *azDeleteOnFail[3];  /* Files to delete on a failure */
+} db = {0, 0, 0, 0, 0, 0, };
 
 /*
 ** Arrange for the given file to be deleted on a failure.
 */
 void db_delete_on_failure(const char *zFilename){
-  assert( nDeleteOnFail<count(azDeleteOnFail) );
-  azDeleteOnFail[nDeleteOnFail++] = fossil_strdup(zFilename);
+  assert( db.nDeleteOnFail<count(db.azDeleteOnFail) );
+  db.azDeleteOnFail[db.nDeleteOnFail++] = fossil_strdup(zFilename);
 }
 
 /*
@@ -113,7 +137,7 @@ void db_delete_on_failure(const char *zFilename){
 ** This is just a safety and sanity check.
 */
 static int db_verify_at_commit(void *notUsed){
-  if( nBegin ){
+  if( db.nBegin ){
     fossil_panic("illegal commit attempt");
     return 1;
   }
@@ -124,28 +148,28 @@ static int db_verify_at_commit(void *notUsed){
 ** Begin and end a nested transaction
 */
 void db_begin_transaction(void){
-  if( nBegin==0 ){
+  if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
   }
-  nBegin++;
+  db.nBegin++;
 }
 void db_end_transaction(int rollbackFlag){
   if( g.db==0 ) return;
-  if( nBegin<=0 ) return;
-  if( rollbackFlag ) doRollback = 1;
-  nBegin--;
-  if( nBegin==0 ){
+  if( db.nBegin<=0 ) return;
+  if( rollbackFlag ) db.doRollback = 1;
+  db.nBegin--;
+  if( db.nBegin==0 ){
     int i;
-    if( doRollback==0 ) leaf_do_pending_checks();
-    for(i=0; doRollback==0 && i<nCommitHook; i++){
-      doRollback |= aHook[i].xHook();
+    if( db.doRollback==0 ) leaf_do_pending_checks();
+    for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
+      db.doRollback |= db.aHook[i].xHook();
     }
-    while( pAllStmt ){
-      db_finalize(pAllStmt);
+    while( db.pAllStmt ){
+      db_finalize(db.pAllStmt);
     }
-    db_multi_exec(doRollback ? "ROLLBACK" : "COMMIT");
-    doRollback = 0;
+    db_multi_exec(db.doRollback ? "ROLLBACK" : "COMMIT");
+    db.doRollback = 0;
   }
 }
 
@@ -162,17 +186,17 @@ void db_force_rollback(void){
   while( (pStmt = sqlite3_next_stmt(g.db,pStmt))!=0 ){
     sqlite3_reset(pStmt);
   }
-  while( pAllStmt ){
-    db_finalize(pAllStmt);
+  while( db.pAllStmt ){
+    db_finalize(db.pAllStmt);
   }
-  if( nBegin ){
+  if( db.nBegin ){
     sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
-    nBegin = 0;
+    db.nBegin = 0;
   }
   busy = 0;
   db_close(0);
-  for(i=0; i<nDeleteOnFail; i++){
-    file_delete(azDeleteOnFail[i]);
+  for(i=0; i<db.nDeleteOnFail; i++){
+    file_delete(db.azDeleteOnFail[i]);
   }
 }
 
@@ -188,21 +212,21 @@ void db_force_rollback(void){
 */
 void db_commit_hook(int (*x)(void), int sequence){
   int i;
-  assert( nCommitHook < sizeof(aHook)/sizeof(aHook[1]) );
-  for(i=0; i<nCommitHook; i++){
-    assert( x!=aHook[i].xHook );
-    if( aHook[i].sequence>sequence ){
+  assert( db.nCommitHook < sizeof(db.aHook)/sizeof(db.aHook[1]) );
+  for(i=0; i<db.nCommitHook; i++){
+    assert( x!=db.aHook[i].xHook );
+    if( db.aHook[i].sequence>sequence ){
       int s = sequence;
       int (*xS)(void) = x;
-      sequence = aHook[i].sequence;
-      x = aHook[i].xHook;
-      aHook[i].sequence = s;
-      aHook[i].xHook = xS;
+      sequence = db.aHook[i].sequence;
+      x = db.aHook[i].xHook;
+      db.aHook[i].sequence = s;
+      db.aHook[i].xHook = xS;
     }
   }
-  aHook[nCommitHook].sequence = sequence;
-  aHook[nCommitHook].xHook = x;
-  nCommitHook++;
+  db.aHook[db.nCommitHook].sequence = sequence;
+  db.aHook[db.nCommitHook].xHook = x;
+  db.nCommitHook++;
 }
 
 /*
@@ -217,7 +241,7 @@ int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
   blob_vappendf(&pStmt->sql, zFormat, ap);
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
-  nPrepare++;
+  db.nPrepare++;
   rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0);
   if( rc!=0 && !errOk ){
     db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
@@ -248,10 +272,10 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
     va_list ap;
     va_start(ap, zFormat);
     rc = db_vprepare(pStmt, 0, zFormat, ap);
-    pStmt->pNext = pAllStmt;
+    pStmt->pNext = db.pAllStmt;
     pStmt->pPrev = 0;
-    if( pAllStmt ) pAllStmt->pPrev = pStmt;
-    pAllStmt = pStmt;
+    if( db.pAllStmt ) db.pAllStmt->pPrev = pStmt;
+    db.pAllStmt = pStmt;
     va_end(ap);
   }
   return rc;
@@ -355,8 +379,8 @@ int db_finalize(Stmt *pStmt){
   }
   if( pStmt->pPrev ){
     pStmt->pPrev->pNext = pStmt->pNext;
-  }else if( pAllStmt==pStmt ){
-    pAllStmt = pStmt->pNext;
+  }else if( db.pAllStmt==pStmt ){
+    db.pAllStmt = pStmt->pNext;
   }
   pStmt->pNext = 0;
   pStmt->pPrev = 0;
@@ -563,7 +587,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
 ** obtained from malloc().  If the result set is empty, return
 ** zDefault instead.
 */
-char *db_text(char *zDefault, const char *zSql, ...){
+char *db_text(char const *zDefault, const char *zSql, ...){
   va_list ap;
   Stmt s;
   char *z;
@@ -639,7 +663,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   const char *zVfs;
   sqlite3 *db;
 
-  zVfs = getenv("FOSSIL_VFS");
+  zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
@@ -687,12 +711,12 @@ void db_open_config(int useAttach){
   const char *zHome;
   if( g.configOpen ) return;
 #if defined(_WIN32)
-  zHome = getenv("LOCALAPPDATA");
+  zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
-    zHome = getenv("APPDATA");
+    zHome = fossil_getenv("APPDATA");
     if( zHome==0 ){
-      char *zDrive = getenv("HOMEDRIVE");
-      zHome = getenv("HOMEPATH");
+      char *zDrive = fossil_getenv("HOMEDRIVE");
+      zHome = fossil_getenv("HOMEPATH");
       if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
@@ -701,9 +725,8 @@ void db_open_config(int useAttach){
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
                 "environment variables");
   }
-  zHome = fossil_mbcs_to_utf8(zHome);
 #else
-  zHome = getenv("HOME");
+  zHome = fossil_getenv("HOME");
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
                  "please set the HOME environment variable");
@@ -768,43 +791,47 @@ static int isValidLocalDb(const char *zDbName){
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
-  g.localOpen = 1;
-  db_open_config(0);
-  db_open_repository(0);
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "isexe") )
+  if( !db_local_column_exists("vfile", "isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
+  }
 
   /* If "islink"/"isLink" columns are missing from tables, then
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted. 
   */
-  if( !db_local_column_exists("vfile", "islink") )
+  if( !db_local_column_exists("vfile", "islink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("stashfile", "isLink") &&
-       db_local_table_exists("stashfile") )
+       db_local_table_exists("stashfile") ){
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
 
   if( !db_local_column_exists("undo", "isLink") &&
-       db_local_table_exists("undo") )
+       db_local_table_exists("undo") ){
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+  }
   
   if( !db_local_column_exists("undo_vfile", "islink") &&
-       db_local_table_exists("undo_vfile") )
+       db_local_table_exists("undo_vfile") ){
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-
+  }
   return 1;
 }
 
 /*
 ** Locate the root directory of the local repository tree.  The root
-** directory is found by searching for a file named "_FOSSIL_" or ".fos"
+** directory is found by searching for a file named "_FOSSIL_" or ".fslckout"
 ** that contains a valid repository database.
+**
+** For legacy, also look for ".fos".  The use of ".fos" is deprecated
+** since "fos" has negative connotations in Hungarian, we are told.
 **
 ** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
 ** try again. Once the file is found, the g.zLocalRoot variable is set
@@ -818,7 +845,7 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fos" };
+  static const char *aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
   
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
@@ -836,6 +863,9 @@ int db_open_local(void){
           zPwd[n] = 0;
         }
         g.zLocalRoot = mprintf("%s/", zPwd);
+        g.localOpen = 1;
+        db_open_config(0);
+        db_open_repository(0);
         return 1;
       }
     }
@@ -850,6 +880,24 @@ int db_open_local(void){
 }
 
 /*
+** Get the full pathname to the repository database file.  The
+** local database (the _FOSSIL_ or .fslckout database) must have already
+** been opened before this routine is called.
+*/
+const char *db_repository_filename(void){
+  static char *zRepo = 0;
+  assert( g.localOpen );
+  assert( g.zLocalRoot );
+  if( zRepo==0 ){
+    zRepo = db_lget("repository", 0);
+    if( zRepo && !file_is_absolute_path(zRepo) ){
+      zRepo = mprintf("%s%s", g.zLocalRoot, zRepo);
+    }
+  }
+  return zRepo;
+}
+
+/*
 ** Open the repository database given by zDbName.  If zDbName==NULL then
 ** get the name from the already open local database.
 */
@@ -857,7 +905,7 @@ void db_open_repository(const char *zDbName){
   if( g.repositoryOpen ) return;
   if( zDbName==0 ){
     if( g.localOpen ){
-      zDbName = db_lget("repository", 0);
+      zDbName = db_repository_filename();
     }
     if( zDbName==0 ){
       db_err("unable to find the name of a repository database");
@@ -865,11 +913,20 @@ void db_open_repository(const char *zDbName){
   }
   if( file_access(zDbName, R_OK) || file_size(zDbName)<1024 ){
     if( file_access(zDbName, 0) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
       fossil_panic("repository does not exist or"
                    " is in an unreadable directory: %s", zDbName);
     }else if( file_access(zDbName, R_OK) ){
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DENIED;
+#endif
       fossil_panic("read permission denied for repository %s", zDbName);
     }else{
+#ifdef FOSSIL_ENABLE_JSON
+      g.json.resultCode = FSL_JSON_E_DB_NOT_VALID;
+#endif
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
@@ -904,7 +961,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     if( db_open_local()==0 ){
       goto rep_not_found;
     }
-    zRep = db_lget("repository", 0);
+    zRep = db_repository_filename();
     if( zRep==0 ){
       goto rep_not_found;
     }
@@ -916,6 +973,9 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
   }
 rep_not_found:
   if( (bFlags & OPEN_OK_NOT_FOUND)==0 ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
+#endif
     fossil_fatal("use --repository or -R to specify the repository database");
   }
 }
@@ -946,6 +1006,9 @@ int db_schema_is_outofdate(void){
 */
 void db_verify_schema(void){
   if( db_schema_is_outofdate() ){
+#ifdef FOSSIL_ENABLE_JSON
+    g.json.resultCode = FSL_JSON_E_DB_NEEDS_REBUILD;
+#endif
     fossil_warning("incorrect repository schema version");
     fossil_warning("your repository has schema version \"%s\" "
           "but this binary expects version \"%s\"",
@@ -1029,10 +1092,10 @@ void db_close(int reportErrors){
     fprintf(stderr, "-- MALLOC_COUNT           %10d %10d\n", cur, hiwtr);
     sqlite3_status(SQLITE_STATUS_PAGECACHE_OVERFLOW, &cur, &hiwtr, 0);
     fprintf(stderr, "-- PCACHE_OVFLOW          %10d %10d\n", cur, hiwtr);
-    fprintf(stderr, "-- prepared statements    %10d\n", nPrepare);
+    fprintf(stderr, "-- prepared statements    %10d\n", db.nPrepare);
   }
-  while( pAllStmt ){
-    db_finalize(pAllStmt);
+  while( db.pAllStmt ){
+    db_finalize(db.pAllStmt);
   }
   db_end_transaction(1);
   pStmt = 0;
@@ -1081,9 +1144,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   }
   if( zUser==0 ){
 #if defined(_WIN32)
-    zUser = getenv("USERNAME");
+    zUser = fossil_getenv("USERNAME");
 #else
-    zUser = getenv("USER");
+    zUser = fossil_getenv("USER");
 #endif
   }
   if( zUser==0 ){
@@ -1166,7 +1229,7 @@ void db_initial_setup(
 }
 
 /*
-** COMMAND: new
+** COMMAND: new*
 ** COMMAND: init
 **
 ** Usage: %fossil new ?OPTIONS? FILENAME
@@ -1623,12 +1686,19 @@ void db_lset_int(const char *zName, int value){
 **       repo:%s
 **
 ** The value field is set to 1.
+**
+** If running from a local checkout, also record the root of the checkout
+** as follows:
+**
+**       ckout:%s
+**
+** Where %s is the checkout root.  The value is the repository file.
 */
 void db_record_repository_filename(const char *zName){
   Blob full;
   if( zName==0 ){
     if( !g.localOpen ) return;
-    zName = db_lget("repository", 0);
+    zName = db_repository_filename();
   }
   file_canonical_name(zName, &full);
   db_swap_connections();
@@ -1637,6 +1707,13 @@ void db_record_repository_filename(const char *zName){
      "VALUES('repo:%q',1)",
      blob_str(&full)
   );
+  if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
+    db_multi_exec(
+      "REPLACE INTO global_config(name, value)"
+      "VALUES('ckout:%q','%q');",
+      g.zLocalRoot, blob_str(&full)
+    );
+  }
   db_swap_connections();
   blob_reset(&full);
 }
@@ -1679,7 +1756,7 @@ void cmd_open(void){
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_delete_on_failure("./_FOSSIL_");
   db_open_local();
-  db_lset("repository", blob_str(&path));
+  db_lset("repository", g.argv[2]);
   db_record_repository_filename(blob_str(&path));
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
@@ -1763,7 +1840,7 @@ struct stControlSettings {
 #endif /* INTERFACE */
 struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
-  { "allow-symlinks",0,                0, 0, "off"                 },
+  { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
@@ -1794,6 +1871,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               32, 0, ""                    },
+#ifdef FOSSIL_ENABLE_TCL
+  { "tcl",           0,                0, 0, "off"                 },
+#endif
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -1801,10 +1881,10 @@ struct stControlSettings const ctrlSettings[] = {
 
 /*
 ** COMMAND: settings
-** COMMAND: unset
+** COMMAND: unset*
 **
-** %fossil settings ?PROPERTY? ?VALUE? ?-global?
-** %fossil unset PROPERTY ?-global?
+** %fossil settings ?PROPERTY? ?VALUE? ?OPTIONS?
+** %fossil unset PROPERTY ?OPTIONS?
 **
 ** The "settings" command with no arguments lists all properties and their
 ** values.  With just a property name it shows the value of that property.
@@ -1818,7 +1898,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
-**                     them as symlinks on Unix. Has no effect on Windows
+**     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become 
 **                     plain-text files with link destination path inside).
 **                     Default: off
@@ -1948,10 +2028,22 @@ struct stControlSettings const ctrlSettings[] = {
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
 **
+**    tcl              If enabled, Tcl integration commands will be added to
+**                     the TH1 interpreter, allowing Tcl expressions and
+**                     scripts to be evaluated from TH1.  Additionally, the
+**                     Tcl interpreter will be able to evaluate TH1 expressions
+**                     and scripts.  Default: off.
+**
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
 **                     Defaults to "start" on windows, "open" on Mac,
 **                     and "firefox" on Unix.
+**
+** Options:
+**   --global   set or unset the given property globally instead of
+**              setting or unsetting it for the open repository only.
+** 
+** See also: configuration
 */
 void setting_cmd(void){
   int i;

@@ -44,9 +44,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#if defined (__POCC__)
-# undef INTERFACE
-#endif
 #include "cgi.h"
 
 #if INTERFACE
@@ -415,6 +412,10 @@ static struct QParam {   /* One entry for each query parameter or cookie */
 void cgi_set_parameter_nocopy(const char *zName, const char *zValue){
   if( nAllocQP<=nUsedQP ){
     nAllocQP = nAllocQP*2 + 10;
+    if( nAllocQP>1000 ){
+      /* Prevent a DOS service attack against the framework */
+      fossil_fatal("Too many query parameters");
+    }
     aParamQP = fossil_realloc( aParamQP, nAllocQP*sizeof(aParamQP[0]) );
   }
   aParamQP[nUsedQP].zName = zName;
@@ -510,6 +511,9 @@ static void add_param_list(char *z, int terminator){
     if( fossil_islower(zName[0]) ){
       cgi_set_parameter_nocopy(zName, zValue);
     }
+#ifdef FOSSIL_ENABLE_JSON
+    json_setenv( zName, cson_value_new_string(zValue,strlen(zValue)) );
+#endif /* FOSSIL_ENABLE_JSON */
   }
 }
 
@@ -683,6 +687,84 @@ static void process_multipart_form_data(char *z, int len){
   }        
 }
 
+
+#ifdef FOSSIL_ENABLE_JSON
+/*
+** Internal helper for cson_data_source_FILE_n().
+*/
+typedef struct CgiPostReadState_ {
+    FILE * fh;
+    unsigned int len;
+    unsigned int pos;
+} CgiPostReadState;
+
+/*
+** cson_data_source_f() impl which reads only up to
+** a specified amount of data from its input FILE.
+** state MUST be a full populated (CgiPostReadState*).
+*/
+static int cson_data_source_FILE_n( void * state,
+                                    void * dest,
+                                    unsigned int * n ){
+    if( ! state || !dest || !n ) return cson_rc.ArgError;
+    else {
+      CgiPostReadState * st = (CgiPostReadState *)state;
+      if( st->pos >= st->len ){
+        *n = 0;
+        return 0;
+      } else if( !*n || ((st->pos + *n) > st->len) ){
+        return cson_rc.RangeError;
+      }else{
+        unsigned int rsz = (unsigned int)fread( dest, 1, *n, st->fh );
+        if( ! rsz ){
+          *n = rsz;
+          return feof(st->fh) ? 0 : cson_rc.IOError;
+        }else{
+          *n = rsz;
+          st->pos += *n;
+          return 0;
+        }
+      }
+    }
+}
+
+/*
+** Reads a JSON object from the first contentLen bytes of zIn.  On
+** g.json.post is updated to hold the content. On error a
+** FSL_JSON_E_INVALID_REQUEST response is output and fossil_exit() is
+** called (in HTTP mode exit code 0 is used).
+**
+** If contentLen is 0 then the whole file is read.
+*/
+void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
+  cson_value * jv = NULL;
+  int rc;
+  CgiPostReadState state;
+  state.fh = zIn;
+  state.len = contentLen;
+  state.pos = 0;
+  rc = cson_parse( &jv,
+                   contentLen ? cson_data_source_FILE_n : cson_data_source_FILE,
+                   contentLen ? (void *)&state : (void *)zIn, NULL, NULL );
+  if(rc){
+    goto invalidRequest;
+  }else{
+    json_gc_add( "POST.JSON", jv );
+    g.json.post.v = jv;
+    g.json.post.o = cson_value_get_object( jv );
+    if( !g.json.post.o ){ /* we don't support non-Object (Array) requests */
+      goto invalidRequest;
+    }
+  }
+  return;
+  invalidRequest:
+  cgi_set_content_type(json_guess_content_type());
+  json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  fossil_exit( g.isHTTP ? 0 : 1);
+}
+#endif /* FOSSIL_ENABLE_JSON */
+
+
 /*
 ** Initialize the query parameter database.  Information is pulled from
 ** the QUERY_STRING environment variable (if it exists), from standard
@@ -692,7 +774,18 @@ void cgi_init(void){
   char *z;
   const char *zType;
   int len;
+#ifdef FOSSIL_ENABLE_JSON
+  json_main_bootstrap();
+#endif
+  g.isHTTP = 1;
   cgi_destination(CGI_BODY);
+
+  z = (char*)P("HTTP_COOKIE");
+  if( z ){
+    z = mprintf("%s",z);
+    add_param_list(z, ';');
+  }
+  
   z = (char*)P("QUERY_STRING");
   if( z ){
     z = mprintf("%s",z);
@@ -700,7 +793,9 @@ void cgi_init(void){
   }
 
   z = (char*)P("REMOTE_ADDR");
-  if( z ) g.zIpAddr = mprintf("%s", z);
+  if( z ){
+    g.zIpAddr = mprintf("%s", z);
+  }
 
   len = atoi(PD("CONTENT_LENGTH", "0"));
   g.zContentType = zType = P("CONTENT_TYPE");
@@ -724,13 +819,32 @@ void cgi_init(void){
     }else if( fossil_strcmp(zType, "application/x-fossil-uncompressed")==0 ){
       blob_read_from_channel(&g.cgiIn, g.httpIn, len);
     }
+#ifdef FOSSIL_ENABLE_JSON
+    else if( fossil_strcmp(zType, "application/json")
+              || fossil_strcmp(zType,"text/plain")/*assume this MIGHT be JSON*/
+              || fossil_strcmp(zType,"application/javascript")){
+      g.json.isJsonMode = 1;
+      cgi_parse_POST_JSON(g.httpIn, (unsigned int)len);
+      /* FIXMEs:
+
+      - See if fossil really needs g.cgiIn to be set for this purpose
+      (i don't think it does). If it does then fill g.cgiIn and
+      refactor to parse the JSON from there.
+      
+      - After parsing POST JSON, copy the "first layer" of keys/values
+      to cgi_setenv(), honoring the upper-case distinction used
+      in add_param_list(). However...
+
+      - If we do that then we might get a disconnect in precedence of
+      GET/POST arguments. i prefer for GET entries to take precedence
+      over like-named POST entries, but in order for that to happen we
+      need to process QUERY_STRING _after_ reading the POST data.
+      */
+      cgi_set_content_type(json_guess_content_type());
+    }
+#endif /* FOSSIL_ENABLE_JSON */
   }
 
-  z = (char*)P("HTTP_COOKIE");
-  if( z ){
-    z = mprintf("%s",z);
-    add_param_list(z, ';');
-  }
 }
 
 /*
@@ -802,7 +916,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** with the given name.
   */
   if( fossil_isupper(zName[0]) ){
-    const char *zValue = getenv(zName);
+    const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));
@@ -944,16 +1058,29 @@ static NORETURN void malformed_request(void){
 NORETURN void cgi_panic(const char *zFormat, ...){
   va_list ap;
   cgi_reset_content();
-  cgi_set_status(500, "Internal Server Error");
-  cgi_printf(
-    "<html><body><h1>Internal Server Error</h1>\n"
-    "<plaintext>"
-  );
-  va_start(ap, zFormat);
-  vxprintf(pContent,zFormat,ap);
-  va_end(ap);
-  cgi_reply();
-  fossil_exit(1);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    char * zMsg;
+    va_start(ap, zFormat);
+    zMsg = vmprintf(zFormat,ap);
+    va_end(ap);
+    json_err( FSL_JSON_E_PANIC, zMsg, 1 );
+    free(zMsg);
+    fossil_exit( g.isHTTP ? 0 : 1 );
+  }else
+#endif /* FOSSIL_ENABLE_JSON */
+  {
+    cgi_set_status(500, "Internal Server Error");
+    cgi_printf(
+               "<html><body><h1>Internal Server Error</h1>\n"
+               "<plaintext>"
+               );
+    va_start(ap, zFormat);
+    vxprintf(pContent,zFormat,ap);
+    va_end(ap);
+    cgi_reply();
+    fossil_exit(1);
+  }
 }
 
 /*
@@ -994,7 +1121,6 @@ void cgi_handle_http_request(const char *zIpAddr){
   struct sockaddr_in remoteName;
   socklen_t size = sizeof(struct sockaddr_in);
   char zLine[2000];     /* A single line of input. */
-
   g.fullHttpReply = 1;
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
@@ -1058,14 +1184,13 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_IF_NONE_MATCH", zVal);
     }else if( fossil_strcmp(zFieldName,"if-modified-since:")==0 ){
       cgi_setenv("HTTP_IF_MODIFIED_SINCE", zVal);
-    }
 #if 0
-    else if( fossil_strcmp(zFieldName,"referer:")==0 ){
+    }else if( fossil_strcmp(zFieldName,"referer:")==0 ){
       cgi_setenv("HTTP_REFERER", zVal);
+#endif
     }else if( fossil_strcmp(zFieldName,"user-agent:")==0 ){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
-#endif
   }
 
   cgi_init();

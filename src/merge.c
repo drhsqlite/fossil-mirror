@@ -22,6 +22,39 @@
 #include "merge.h"
 #include <assert.h>
 
+/*
+** Print information about a particular check-in.
+*/
+void print_checkin_description(int rid, int indent, const char *zLabel){
+  Stmt q;
+  db_prepare(&q,
+     "SELECT datetime(mtime,'localtime'),"
+     "       coalesce(euser,user), coalesce(ecomment,comment),"
+     "       (SELECT uuid FROM blob WHERE rid=%d),"
+     "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+     "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+     "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
+     "  FROM event WHERE objid=%d", rid, rid, rid);
+  if( db_step(&q)==SQLITE_ROW ){
+    const char *zTagList = db_column_text(&q, 4);
+    char *zCom;
+    if( zTagList && zTagList[0] ){
+      zCom = mprintf("%s (%s)", db_column_text(&q, 2), zTagList);
+    }else{
+      zCom = mprintf("%s", db_column_text(&q,2));
+    }
+    fossil_print("%-*s [%S] by %s on %s\n%*s", 
+       indent-1, zLabel,
+       db_column_text(&q, 3),
+       db_column_text(&q, 1),
+       db_column_text(&q, 0),
+       indent, "");
+    comment_print(zCom, indent, 78);
+    fossil_free(zCom);
+  }
+  db_finalize(&q);
+}
+
 
 /*
 ** COMMAND: merge
@@ -118,7 +151,6 @@ void merge_cmd(void){
     if( pickFlag ){
       fossil_fatal("incompatible options: --cherrypick & --baseline");
     }
-    /* pickFlag = 1;  // Using --baseline is really like doing a cherrypick */
   }else if( pickFlag || backoutFlag ){
     pid = db_int(0, "SELECT pid FROM plink WHERE cid=%d AND isprim", mid);
     if( pid<=0 ){
@@ -145,6 +177,10 @@ void merge_cmd(void){
   }
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
+  }
+  if( detailFlag ){
+    print_checkin_description(mid, 12, "merge-from:");
+    print_checkin_description(pid, 12, "baseline:");
   }
   vfile_check_signature(vid, 1, 0);
   db_begin_transaction();
@@ -520,8 +556,17 @@ void merge_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  if( !pickFlag ){
-    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
+  db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
+                pickFlag ? -1 : (backoutFlag ? -2 : 0), mid);
+  if( pickFlag ){
+    /* For a cherry-pick merge, make the default check-in comment the same
+    ** as the check-in comment on the check-in that is being merged in. */
+    db_multi_exec(
+       "REPLACE INTO vvar(name,value)"
+       " SELECT 'ci-comment', coalesce(ecomment,comment) FROM event"
+       "  WHERE type='ci' AND objid=%d",
+       mid
+    );
   }
   undo_finish();
   db_end_transaction(nochangeFlag);

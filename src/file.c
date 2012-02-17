@@ -585,6 +585,24 @@ void file_getcwd(char *zBuf, int nBuf){
 }
 
 /*
+** Return true if zPath is an absolute pathname.  Return false
+** if it is relative.
+*/
+int file_is_absolute_path(const char *zPath){
+  if( zPath[0]=='/'
+#if defined(_WIN32)
+      || zPath[0]=='\\'
+      || (strlen(zPath)>3 && zPath[1]==':'
+           && (zPath[2]=='\\' || zPath[2]=='/'))
+#endif
+  ){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** Compute a canonical pathname for a file or directory.
 ** Make the name absolute if it is relative.
 ** Remove redundant / characters
@@ -592,13 +610,7 @@ void file_getcwd(char *zBuf, int nBuf){
 ** Convert /A/../ to just /
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
-  if( zOrigName[0]=='/' 
-#if defined(_WIN32)
-      || zOrigName[0]=='\\'
-      || (strlen(zOrigName)>3 && zOrigName[1]==':'
-           && (zOrigName[2]=='\\' || zOrigName[2]=='/'))
-#endif
-  ){
+  if( file_is_absolute_path(zOrigName) ){
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
   }else{
@@ -953,6 +965,17 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 }
 
 /*
+** Return the value of an environment variable as UTF8.
+*/
+char *fossil_getenv(const char *zName){
+  char *zValue = getenv(zName);
+#ifdef _WIN32
+  if( zValue ) zValue = fossil_mbcs_to_utf8(zValue);
+#endif
+  return zValue;
+}
+
+/*
 ** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
 ** translated text..  Call fossil_mbcs_free() to deallocate any memory
 ** used to store the returned pointer when done.
@@ -999,7 +1022,8 @@ char *fossil_utf8_to_console(const char *zUtf8){
 */
 void fossil_mbcs_free(char *zOld){
 #ifdef _WIN32
-  free(zOld);
+  extern void sqlite3_free(void*);
+  sqlite3_free(zOld);
 #else
   /* No-op on unix */
 #endif  

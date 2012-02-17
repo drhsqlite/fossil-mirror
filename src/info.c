@@ -141,6 +141,8 @@ void show_common_info(
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
+**
+** See also: annotate, artifact, finfo, timeline
 */
 void info_cmd(void){
   i64 fsize;
@@ -150,7 +152,6 @@ void info_cmd(void){
     db_open_repository(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
-    fossil_print("server-code:  %s\n", db_get("server-code", "<none>"));
     return;
   }
   db_find_and_open_repository(0,0);
@@ -160,7 +161,7 @@ void info_cmd(void){
     db_record_repository_filename(0);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     if( g.localOpen ){
-      fossil_print("repository:   %s\n", db_lget("repository", ""));
+      fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
 #if defined(_WIN32)
@@ -169,7 +170,6 @@ void info_cmd(void){
     }
 #endif
     fossil_print("project-code: %s\n", db_get("project-code", ""));
-    fossil_print("server-code:  %s\n", db_get("server-code", ""));
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
@@ -255,7 +255,7 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(const char *zFrom, const char *zTo){
+static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -272,40 +272,20 @@ static void append_diff(const char *zFrom, const char *zTo){
     blob_zero(&to);
   }
   blob_zero(&out);
-  text_diff(&from, &to, &out, 5, 1);
-  @ %h(blob_str(&out))
+  if( diffFlags & DIFF_SIDEBYSIDE ){
+    text_diff(&from, &to, &out, diffFlags | DIFF_HTML);
+    @ <div class="sbsdiff">
+    @ %s(blob_str(&out))
+    @ </div>
+  }else{
+    text_diff(&from, &to, &out, diffFlags | DIFF_LINENO | DIFF_HTML);
+    @ <div class="udiff">
+    @ %s(blob_str(&out))
+    @ </div>
+  }
   blob_reset(&from);
   blob_reset(&to);
   blob_reset(&out);  
-}
-
-
-/*
-** Write the difference between two RIDs to the output
-*/
-static void generate_sbsdiff(const char *zFrom, const char *zTo){
-  int fromid;
-  int toid;
-  Blob from, to;
-  if( zFrom ){
-    fromid = uuid_to_rid(zFrom, 0);
-    content_get(fromid, &from);
-  }else{
-    blob_zero(&from);
-  }
-  if( zTo ){
-    toid = uuid_to_rid(zTo, 0);
-    content_get(toid, &to);
-  }else{
-    blob_zero(&to);
-  }
-  @ <table class="sbsdiff">
-  @ <tr><th colspan="2" class="diffhdr">Old (%S(zFrom))</th><th/>
-  @ <th colspan="2" class="diffhdr">New (%S(zTo))</th></tr>
-  html_sbsdiff(&from, &to, 5, 1);
-  @ </table>
-  blob_reset(&from);
-  blob_reset(&to);
 }
 
 
@@ -318,8 +298,7 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  int showDiff,         /* Show edit diffs if true */
-  int sideBySide,       /* Show diffs side-by-side */
+  int diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.History ){
@@ -335,10 +314,10 @@ static void append_file_change_line(
     }else{
       @ <p>Changes to %h(zName)</p>
     }
-    if( showDiff ){
-      @ <blockquote><pre>
-      append_diff(zOld, zNew);
-      @ </pre></blockquote>
+    if( diffFlags ){
+      @ <pre style="white-space:pre;">
+      append_diff(zOld, zNew, diffFlags);
+      @ </pre>
     }
   }else{
     if( zOld && zNew ){
@@ -361,20 +340,48 @@ static void append_file_change_line(
       @ <p>Added <a href="%s(g.zTop)/finfo?name=%T(zName)">%h(zName)</a>
       @ version <a href="%s(g.zTop)/artifact/%s(zNew)">[%S(zNew)]</a>
     }
-    if( showDiff ){
-      if( sideBySide ){
-         generate_sbsdiff(zOld, zNew);
-      }else{
-        @ <blockquote><pre>
-        append_diff(zOld, zNew);
-        @ </pre></blockquote>
-      }
+    if( diffFlags ){
+      @ <pre style="white-space:pre;">
+      append_diff(zOld, zNew, diffFlags);
+      @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
       @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&amp;v2=%S(zNew)">[diff]</a>
     }
     @ </p>
   }
+}
+
+/*
+** Construct an appropriate diffFlag for text_diff() based on query
+** parameters and the to boolean arguments.
+*/
+int construct_diff_flags(int showDiff, int sideBySide){
+  int diffFlags;
+  if( showDiff==0 ){
+    diffFlags = 0;  /* Zero means do not show any diff */
+  }else{
+    int x;
+    if( sideBySide ){
+      diffFlags = DIFF_SIDEBYSIDE | DIFF_IGNORE_EOLWS;
+
+      /* "dw" query parameter determines width of each column */
+      x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
+      if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
+      diffFlags += x;
+    }else{
+      diffFlags = DIFF_INLINE | DIFF_IGNORE_EOLWS;
+    }
+
+    /* "dc" query parameter determines lines of context */
+    x = atoi(PD("dc","7"));
+    if( x<0 || x>DIFF_CONTEXT_MASK ) x = DIFF_CONTEXT_MASK;
+    diffFlags += x;
+
+    /* The "noopt" parameter disables diff optimization */
+    if( PD("noopt",0)!=0 ) diffFlags |= DIFF_NOOPT;
+  }
+  return diffFlags;
 }
 
 
@@ -397,8 +404,9 @@ void ci_page(void){
   Stmt q;
   int rid;
   int isLeaf;
-  int showDiff;
-  int sideBySide;
+  int showDiff;        /* True to show diffs */
+  int sideBySide;      /* True for side-by-side diffs */
+  int diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -545,47 +553,45 @@ void ci_page(void){
   showTags(rid, "");
   if( zParent ){
     @ <div class="section">Changes</div>
+    @ <div class="sectionmenu">
     showDiff = g.zPath[0]!='c';
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)">
+        @ hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/ci/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
       if( showDiff ){
-        @ <a href="%s(g.zTop)/ci/%T(zName)">[hide&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
+        @ <a class="button" href="%s(g.zTop)/ci/%T(zName)">hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=0">
-          @ [unified&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=0">
+          @ unified&nbsp;diffs</a>
         }else{
-          @ <a href="%s(g.zTop)/info/%T(zName)?sbs=1">
-          @ [side-by-side&nbsp;diffs]</a>
+          @ <a class="button" href="%s(g.zTop)/info/%T(zName)?sbs=1">
+          @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
-        @ [show&nbsp;unified&nbsp;diffs]</a>
-        @ &nbsp;&nbsp;
-        @ <a href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
-        @ [show&nbsp;side-by-side&nbsp;diffs]</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=0">
+        @ show&nbsp;unified&nbsp;diffs</a>
+        @ <a class="button" href="%s(g.zTop)/vinfo/%T(zName)?sbs=1">
+        @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ &nbsp;&nbsp;
-    @ <a href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">[patch]</a><br/>
+    @ <a class="button" href="%s(g.zTop)/vpatch?from=%S(zParent)&to=%S(zUuid)">
+    @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
@@ -597,14 +603,14 @@ void ci_page(void){
        " ORDER BY name /*sort*/",
        rid
     );
+    diffFlags = construct_diff_flags(showDiff, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){
       const char *zName = db_column_text(&q,0);
       int mperm = db_column_int(&q, 1);
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
       const char *zOldName = db_column_text(&q, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, showDiff,
-            sideBySide, mperm);
+      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags, mperm);
     }
     db_finalize(&q);
   }
@@ -762,6 +768,7 @@ void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
   int sideBySide = 0;
+  int diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
 
@@ -773,8 +780,9 @@ void vdiff_page(void){
   if( pFrom==0 ) return;
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
-  showDetail = atoi(PD("detail","0"));
   sideBySide = atoi(PD("sbs","1"));
+  showDetail = atoi(PD("detail","0"));
+  if( !showDetail && sideBySide ) showDetail = 1;
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
                           "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
@@ -795,6 +803,7 @@ void vdiff_page(void){
   pFileFrom = manifest_file_next(pFrom, 0);
   manifest_file_rewind(pTo);
   pFileTo = manifest_file_next(pTo, 0);
+  diffFlags = construct_diff_flags(showDetail, sideBySide);
   while( pFileFrom || pFileTo ){
     int cmp;
     if( pFileFrom==0 ){
@@ -806,11 +815,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, 0, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0, 0, 0,
+                              0, pFileTo->zUuid, 0, 0,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -820,7 +829,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName, 
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, showDetail, sideBySide,
+                              pFileTo->zUuid, 0, diffFlags,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
@@ -1071,6 +1080,8 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
+  int diffFlags;
+  const char *zStyle = "sbsdiff";
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1084,17 +1095,23 @@ void diff_page(void){
   if( isPatch ){
     pOut = cgi_output_blob();
     cgi_set_content_type("text/plain");
+    diffFlags = 4;
   }else{
     blob_zero(&diff);
     pOut = &diff;
+    diffFlags = construct_diff_flags(1, sideBySide);
+    if( sideBySide ){
+      zStyle = "sbsdiff";
+    }else{
+      diffFlags |= DIFF_LINENO;
+      zStyle = "udiff";
+    }
   }
-  if( !sideBySide || isPatch ){
-    content_get(v1, &c1);
-    content_get(v2, &c2);
-    text_diff(&c1, &c2, pOut, 4, 1);
-    blob_reset(&c1);
-    blob_reset(&c2);
-  }
+  content_get(v1, &c1);
+  content_get(v2, &c2);
+  text_diff(&c1, &c2, pOut, diffFlags | DIFF_HTML );
+  blob_reset(&c1);
+  blob_reset(&c2);
   if( !isPatch ){
     style_header("Diff");
     style_submenu_element("Patch", "Patch", "%s/fdiff?v1=%T&v2=%T&patch",
@@ -1109,19 +1126,22 @@ void diff_page(void){
                             g.zTop, P("v1"), P("v2"));
     }
 
-    @ <h2>Differences From
-    @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
-    object_description(v1, 0, 0);
-    @ <h2>To Artifact <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
-    object_description(v2, 0, 0);
-    @ <hr />
-    if( sideBySide ){
-      generate_sbsdiff(zV1, zV2);
+    if( P("smhdr")!=0 ){
+      @ <h2>Differences From Artifact
+      @ <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a> To
+      @ <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>.</h2>
     }else{
-      @ <blockquote><pre>
-      @ %h(blob_str(&diff))
-      @ </pre></blockquote>
+      @ <h2>Differences From
+      @ Artifact <a href="%s(g.zTop)/artifact/%S(zV1)">[%S(zV1)]</a>:</h2>
+      object_description(v1, 0, 0);
+      @ <h2>To Artifact
+      @ <a href="%s(g.zTop)/artifact/%S(zV2)">[%S(zV2)]</a>:</h2>
+      object_description(v2, 0, 0);
     }
+    @ <hr />
+    @ <div class="%s(zStyle)">
+    @ %s(blob_str(&diff))
+    @ </div>
     blob_reset(&diff);
     style_footer();
   }
@@ -1679,6 +1699,38 @@ void render_color_chooser(
 }
 
 /*
+** Do a comment comparison.
+**
+** +  Leading and trailing whitespace are ignored.
+** +  \r\n characters compare equal to \n
+**
+** Return true if equal and false if not equal.
+*/
+static int comment_compare(const char *zA, const char *zB){
+  if( zA==0 ) zA = "";
+  if( zB==0 ) zB = "";
+  while( fossil_isspace(zA[0]) ) zA++;
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( zA[0] && zB[0] ){
+    if( zA[0]==zB[0] ){ zA++; zB++; continue; }
+    if( zA[0]=='\r' && zA[1]=='\n' && zB[0]=='\n' ){
+      zA += 2;
+      zB++;
+      continue;
+    }
+    if( zB[0]=='\r' && zB[1]=='\n' && zA[0]=='\n' ){
+      zB += 2;
+      zA++;
+      continue;
+    }
+    return 0;
+  }
+  while( fossil_isspace(zB[0]) ) zB++;
+  while( fossil_isspace(zA[0]) ) zA++;
+  return zA[0]==0 && zB[0]==0;
+}
+
+/*
 ** WEBPAGE: ci_edit
 ** URL:  ci_edit?r=RID&c=NEWCOMMENT&u=NEWUSER
 **
@@ -1754,7 +1806,8 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor || fossil_strcmp(zColor,zNewColor)!=0)
+     && (fPropagateColor!=fNewPropagateColor 
+             || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
       if( fNewPropagateColor ){
@@ -1766,7 +1819,7 @@ void ci_edit_page(void){
     if( zNewColor[0]==0 && zColor[0]!=0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('bgcolor','-',NULL)");
     }
-    if( fossil_strcmp(zComment,zNewComment)!=0 ){
+    if( comment_compare(zComment,zNewComment)==0 ){
       db_multi_exec("REPLACE INTO newtags VALUES('comment','+',%Q)",
                     zNewComment);
     }

@@ -423,10 +423,11 @@ int md5sum_blob(const Blob *pIn, Blob *pCksum){
 
 
 /*
-** COMMAND: test-md5sum
+** COMMAND: md5sum*
+** Usage: %fossil md5sum FILES....
 **
 ** Compute an MD5 checksum of all files named on the command-line.
-** If an file is named "-" then take its content from standard input.
+** If a file is named "-" then content is read from standard input.
 */
 void md5sum_test(void){
   int i;

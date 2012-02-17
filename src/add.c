@@ -46,6 +46,14 @@ const char *fossil_reserved_name(int N){
      "_FOSSIL_-journal",
      "_FOSSIL_-wal",
      "_FOSSIL_-shm",
+     ".fslckout",
+     ".fslckout-journal",
+     ".fslckout-wal",
+     ".fslckout-shm",
+
+     /* The use of ".fos" as the name of the checkout database is 
+     ** deprecated.  Use ".fslckout" instead.  At some point, the following
+     ** entries should be removed.  2012-02-04 */
      ".fos",
      ".fos-journal",
      ".fos-wal",
@@ -247,9 +255,8 @@ void add_cmd(void){
     }else{
       char *zTreeName = &zName[nRoot];
       db_multi_exec(
-         "INSERT OR IGNORE INTO sfile(x)"
-         "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=%Q)",
-         zTreeName, zTreeName
+         "INSERT OR IGNORE INTO sfile(x) VALUES(%Q)",
+         zTreeName
       );
     }
     blob_reset(&fullName);
@@ -262,7 +269,7 @@ void add_cmd(void){
 
 /*
 ** COMMAND: rm
-** COMMAND: delete
+** COMMAND: delete*
 **
 ** Usage: %fossil rm FILE1 ?FILE2 ...?
 **    or: %fossil delete FILE1 ?FILE2 ...?
@@ -339,19 +346,34 @@ void capture_case_sensitive_option(void){
 ** setting.
 */
 int filenames_are_case_sensitive(void){
-  int caseSensitive;
+  static int caseSensitive;
+  static int once = 1;
 
-  if( zCaseSensitive ){
-    caseSensitive = is_truth(zCaseSensitive);
-  }else{
+  if( once ){
+    once = 0;
+    if( zCaseSensitive ){
+      caseSensitive = is_truth(zCaseSensitive);
+    }else{
 #if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
-    caseSensitive = 1;
+      caseSensitive = 1;  /* Unix */
 #else
-    caseSensitive = 0;
+      caseSensitive = 0;  /* Windows and Mac */
 #endif
-    caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
+      caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
+    }
   }
   return caseSensitive;
+}
+
+/*
+** Return one of two things:
+**
+**   ""                 (empty string) if filenames are case sensitive
+**
+**   "COLLATE nocase"   if filenames are not case sensitive.
+*/
+const char *filename_collation(void){
+  return filenames_are_case_sensitive() ? "" : "COLLATE nocase";
 }
 
 /*
@@ -475,7 +497,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 
 /*
 ** COMMAND: mv
-** COMMAND: rename
+** COMMAND: rename*
 **
 ** Usage: %fossil mv|rename OLDNAME NEWNAME
 **    or: %fossil mv|rename OLDNAME... DIR
@@ -487,9 +509,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
-**
-** SUMMARY: fossil mv|rename OLDNAME NEWNAME
-**      or: fossil mv|rename OLDNAME... DIR
+** See also: changes, status
 */
 void mv_cmd(void){
   int i;

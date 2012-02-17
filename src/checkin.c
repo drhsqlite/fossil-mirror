@@ -182,13 +182,13 @@ void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
-  fossil_print("server-code:  %s\n", db_get("server-code", ""));
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
   }
+  db_record_repository_filename(0);
   changes_cmd();
 }
 
@@ -290,7 +290,8 @@ void extra_cmd(void){
 
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   if( zIgnoreFlag==0 ){
@@ -308,6 +309,7 @@ void extra_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
@@ -456,10 +458,10 @@ static void prepare_commit_comment(
   status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
-    zEditor = getenv("VISUAL");
+    zEditor = fossil_getenv("VISUAL");
   }
   if( zEditor==0 ){
-    zEditor = getenv("EDITOR");
+    zEditor = fossil_getenv("EDITOR");
   }
   if( zEditor==0 ){
     blob_append(&text,
@@ -588,6 +590,9 @@ static void checkin_verify_younger(
 */
 char *date_in_standard_format(const char *zInputDate){
   char *zDate;
+  if( g.perm.Setup && fossil_strcmp(zInputDate,"now")==0 ){
+    zInputDate = PD("date_override","now");
+  }
   zDate = db_text(0, "SELECT strftime('%%Y-%%m-%%dT%%H:%%M:%%f',%Q)",
                   zInputDate);
   if( zDate[0]==0 ){
@@ -597,6 +602,22 @@ char *date_in_standard_format(const char *zInputDate){
     );
   }
   return zDate;
+}
+
+/*
+** COMMAND: test-date-format
+**
+** Usage: %fossil test-date-format DATE-STRING...
+**
+** Convert the DATE-STRING into the standard format used in artifacts
+** and display the result.
+*/
+void test_date_format(void){
+  int i;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  for(i=2; i<g.argc; i++){
+    fossil_print("%s -> %s\n", g.argv[i], date_in_standard_format(g.argv[i]));
+  }
 }
 
 /*
@@ -827,7 +848,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
 }
 
 /*
-** COMMAND: ci
+** COMMAND: ci*
 ** COMMAND: commit
 **
 ** Usage: %fossil commit ?OPTIONS? ?FILE...?

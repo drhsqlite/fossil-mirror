@@ -11,9 +11,13 @@
 SRCDIR = @srcdir@/src
 
 #### The directory into which object code files should be written.
+#    Having a "./" prefix in the value of this variable breaks our use of the
+#    "makeheaders" tool when running make on the MinGW platform, apparently
+#    due to some command line argument manipulation performed automatically
+#    by the shell.
 #
 #
-OBJDIR = ./bld
+OBJDIR = bld
 
 #### C Compiler and options for use in building executables that
 #    will run on the platform that is doing the build.  This is used
@@ -38,6 +42,7 @@ LIB =	@LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 TCC +=	@EXTRA_CFLAGS@ @CPPFLAGS@ @CFLAGS@ -DHAVE_AUTOCONFIG_H
 INSTALLDIR = $(DESTDIR)@prefix@/bin
 USE_SYSTEM_SQLITE = @USE_SYSTEM_SQLITE@
+FOSSIL_ENABLE_TCL = @FOSSIL_ENABLE_TCL@
 
 include $(SRCDIR)/main.mk
 

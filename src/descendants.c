@@ -204,7 +204,8 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
@@ -264,7 +265,7 @@ void compute_descendants(int rid, int N){
 }
 
 /*
-** COMMAND:  descendants
+** COMMAND: descendants*
 **
 ** Usage: %fossil descendants ?BASELINE-ID? ?OPTIONS?
 **
@@ -299,7 +300,7 @@ void descendants_cmd(void){
 }
 
 /*
-** COMMAND:  leaves
+** COMMAND: leaves*
 **
 ** Usage: %fossil leaves ?OPTIONS?
 **
