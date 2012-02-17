@@ -348,11 +348,6 @@ int json_user_update_from_json( cson_object * pUser ){
 
 /*
 ** Impl of /json/user/save.
-**
-** TODOs:
-**
-** - Return something useful in the payload (at least the id of the
-** modified/created user).
 */
 static cson_value * json_user_save(){
   /* try to get user info from GET/CLI args and construct
