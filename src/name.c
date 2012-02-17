@@ -494,7 +494,7 @@ int get_parent_branch_rid(int ridRequested){
     " WHERE tagid=%d"
     "   AND tagxref.tagtype>0"
     "   AND rid=%d",
-    TAG_BRANCH, rid);
+    TAG_BRANCH, ridRequested);
 
   if ( !branchName )
     return 0;
