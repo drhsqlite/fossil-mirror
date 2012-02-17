@@ -177,12 +177,9 @@ static cson_value * json_user_get(){
 ** On success the db record for the given user is updated.
 **
 ** Requires either Admin, Setup, or Password access. Non-admin/setup
-** users can only change their own information.
-**
-** TODOs:
-**
-** - Admin non-Setup users cannot change the information for Setup
-** users.
+** users can only change their own information. Non-setup users may
+** not modify the 's' permission. Admin users without setup
+** permissions may not edit any other user who has the 's' permission.
 **
 */
 int json_user_update_from_json( cson_object * pUser ){
@@ -197,6 +194,8 @@ int json_user_update_from_json( cson_object * pUser ){
   int gotFields = 0;
 #undef CSTR
   cson_int_t uid = cson_value_get_integer( cson_object_get(pUser, "uid") );
+  char const tgtHasSetup = zCap && (NULL!=strchr(zCap, 's'));
+  char tgtHadSetup = 0;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
 
@@ -221,7 +220,7 @@ int json_user_update_from_json( cson_object * pUser ){
     if(!g.perm.Admin && !g.perm.Setup){
       return json_set_err(FSL_JSON_E_DENIED,
                           "Requires 'a' or 's' privileges.");
-    } else if(!zName || !*zName){
+    }else if(!zName || !*zName){
       return json_set_err(FSL_JSON_E_MISSING_ARGS,
                           "No name specified for new user.");
     }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zName) ){
@@ -251,19 +250,30 @@ int json_user_update_from_json( cson_object * pUser ){
   */
   
   if(uid != g.userUid){
-    /*
-      TODO: do not allow an admin user to modify a setup user
-      unless the admin is also a setup user. setup.c uses
-      that logic. There is a corner case for a NEW Setup user
-      which the admin is just installing. Hmm.      
-    */
     if(!g.perm.Admin && !g.perm.Setup){
       json_set_err(FSL_JSON_E_DENIED,
                    "Changing another user's data requires "
                    "'a' or 's' privileges.");
     }
   }
-  
+  /* check if the target uid currently has setup rights. */
+  tgtHadSetup = db_int(0,"SELECT 1 FROM user where uid=%d"
+                       " AND cap GLOB '*s*'", uid);
+
+  if((tgtHasSetup || tgtHadSetup) && !g.perm.Setup){
+    /*
+      Do not allow a non-setup user to set or remove setup
+      privileges. setup.c uses similar logic.
+    */
+    return json_set_err(FSL_JSON_E_DENIED,
+                        "Modifying 's' users/privileges requires "
+                        "'s' privileges.");
+  }
+  /*
+    Potential todo: do not allow a setup user to remove 's' from
+    himself, to avoid locking himself out?
+  */
+
   blob_append(&sql, "UPDATE USER SET",-1 );
   blob_append(&sql, " mtime=cast(strftime('%s') AS INTEGER)", -1);
 

@@ -1,5 +1,5 @@
-C fixed\sa\spotential\scrash\sin\s/json/wiki/get\swhen\spage\scontents\sare\sNULL.
-D 2012-02-17T12:43:54.672
+C /json/user/save\snow\srequires\s's'\sprivilege\sin\sorder\sto\sset/remove\sthe\s's'\sprivilege\sor\sedit\sanother\suser\swho\scurrently\shas\sthe\s's'\sprivilege,\sto\ssomewhat\smore\sclosely\smimic\sthe\sHTML\sinterface's\sbehaviour.
+D 2012-02-17T12:59:16.067
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,7 +106,7 @@ F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c 5f12c6e590c38a2a3b765e4a0d7f967844d33f65
 F src/json_tag.c e02eb4a78098b1e30db27f556daca9216a4e69ab
 F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
-F src/json_user.c 5200ec22cc855e6316ee7c0a4dd257ecc62aad7e
+F src/json_user.c 76d8108d182f665caf2c59c5fb042fb553b489f7
 F src/json_wiki.c b54c1859911003e72ca54878edb58b5cbcb800ca
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0b3234924398838f3e6363bb194a9888acaca680
@@ -357,7 +357,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5daadddfdb911819080c73f957e3735f76b0944b
-R 4b197fe090d980470df1ad79efcdaea4
+P fca6c46cd99534fb7ec81340840b96c5e2369601
+R eac543ef14db05eb8536e8ce1e82102d
 U stephan
-Z cf5f651b26d36dfefc40f55e100acdac
+Z a8785a6fd8077f2d96097cebaa125a9e
