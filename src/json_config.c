@@ -131,10 +131,9 @@ static cson_value * json_config_get(){
               " FROM config "
               " WHERE 0 ", -1);
   {
-    i = 0;
     const struct JsonConfigProperty * prop = &JsonConfigProperties[0];
     blob_append(&sql," OR name IN (",-1);
-    for( ; prop->name; ++prop ){
+    for( i = 0; prop->name; ++prop ){
       if(prop->groupMask & confMask){
         if( i++ ){
           blob_append(&sql,",",1);

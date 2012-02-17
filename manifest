@@ -1,5 +1,5 @@
-C Added\sinitial\s/json/config/get\ssupport.
-D 2012-02-17T18:23:53.431
+C fixed\sa\sc99ism.
+D 2012-02-17T18:32:29.250
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -100,7 +100,7 @@ F src/info.c 95ee150973736af6035ab314937f93233d5f79d2
 F src/json.c 3c992cba5100819f16129636e5f12fb85b19093c
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
-F src/json_config.c e4fd054bf0aa81dc2ac19b4f493231f02e752b4d
+F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h 11be7e0f76631e707aed8c64eef63be8df5d25b5
 F src/json_diff.c 62bd36a899dd403e233d3d1c0d6865080f353b72
 F src/json_login.c 743fd9909923c48acec7e08a1b3b1d4fe4610765
@@ -359,7 +359,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P caddb9b42e45f36274948a027cc37685063e4def
-R 6cc74e8aa62c675f6543dea1015bc496
+P e5a86795da2d747a0fa76af7e15b15882e3fb628
+R 95459a03a30ea1030778a3d6be79d158
 U stephan
-Z ee13fdca4f75e7d367466b4668463243
+Z e283d32cb2a5823dd4c9840505c7aea5
