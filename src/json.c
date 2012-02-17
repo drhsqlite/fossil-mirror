@@ -2002,6 +2002,7 @@ cson_value * json_page_stat(){
   cson_object * jo = NULL;
   cson_value * jv2 = NULL;
   cson_object * jo2 = NULL;
+  char * zTmp = NULL;
   if( !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -2013,12 +2014,13 @@ cson_value * json_page_stat(){
   jv = cson_value_new_object();
   jo = cson_value_get_object(jv);
 
-  sqlite3_snprintf(BufLen, zBuf, db_get("project-name",""));
-  SETBUF(jo, "projectName");
-  /* FIXME: don't include project-description until we ensure that
-     zBuf will always be big enough. We "should" replace zBuf
-     with a blob for this purpose.
-  */
+  zTmp = db_get("project-name",NULL);
+  cson_object_set(jo, "projectName", json_new_string(zTmp));
+  free(zTmp);
+  zTmp = db_get("project-description",NULL);
+  cson_object_set(jo, "projectDescription", json_new_string(zTmp));
+  free(zTmp);
+  zTmp = NULL;
   fsize = file_size(g.zRepositoryName);
   cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
 
@@ -2201,7 +2203,8 @@ cson_value * json_page_report();
 cson_value * json_page_tag();
 /* Impl in json_user.c. */
 cson_value * json_page_user();
-
+/* Impl in json_config.c. */
+cson_value * json_page_config();
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -2212,6 +2215,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
+{"config", json_page_config, 0 },
 {"diff", json_page_diff, 0},
 {"dir", json_page_nyi, 0},
 {"g", json_page_g, 0},
