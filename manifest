@@ -1,5 +1,5 @@
-C Merge\sinto\strunk\sthe\sfix\sfor\s--with-openssl\swith\sa\smanual\spath.
-D 2012-02-18T19:06:59.331
+C latest\scson\scode\s-\sminor\sgcc\s4.6\sportability\sfixes\sonly.
+D 2012-02-18T22:56:05.649
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -74,7 +74,7 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c 91e8c74343df7aa23abbb63b88dd7dd49bba3db0
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
-F src/cson_amalgamation.c d7d2ccdd8b462db7f723e85a5679bb971f2ba48e
+F src/cson_amalgamation.c f1de50fa00f047630ae55d5471f52af4f65ed5cb
 F src/cson_amalgamation.h 791b543366864a33c1be4982f3d683273235aa19
 F src/db.c b19a2182d3153b40b9ba00a8b793cafb5b95db1e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
@@ -359,7 +359,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f355727b3450def54c76b1a2973450be6d767c73 2ce353f5b0b0ca14907d8e7af2e3393a5129bf03
-R 78d17fd90530711d546cef7cde8aad50
-U drh
-Z e93fc9f46501bb342bc35c0c72f6d10d
+P 06143581fe32057aac742843a65b5cec0617e20b
+R 719dcbddebb1a40e7b67f125c051daf6
+U stephan
+Z c959834712d01bc5559df761e9d08667
