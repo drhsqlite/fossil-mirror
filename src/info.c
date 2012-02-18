@@ -738,22 +738,26 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
 void checkin_description(int rid){
   Stmt q;
   db_prepare(&q,
-    "SELECT datetime(mtime), coalesce(euser,user),"
-    "       coalesce(ecomment,comment), uuid"
+    "SELECT datetime(event.mtime), coalesce(euser,user),"
+    "       coalesce(ecomment,comment), uuid,"
+    "       coalesce((SELECT value FROM tagxref"
+                    "  WHERE tagid=%d AND tagtype>0 AND rid=blob.rid),'trunk')"
     "  FROM event, blob"
     " WHERE event.objid=%d AND type='ci'"
     "   AND blob.rid=%d",
-    rid, rid
+    TAG_BRANCH, rid, rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zUser = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
+    const char *zBranch = db_column_text(&q, 4);
     @ Check-in
     hyperlink_to_uuid(zUuid);
-    @ - %w(zCom) by
-    hyperlink_to_user(zUser,zDate," on");
+    @ on branch <a href="%s(g.zTop)/timeline?r=%s(zBranch)&nd&c=%T(zDate)">
+    @   %s(zBranch)</a> - %w(zCom) by
+    hyperlink_to_user(zUser, zDate," on");
     hyperlink_to_date(zDate, ".");
   }
   db_finalize(&q);
