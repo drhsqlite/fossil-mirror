@@ -349,6 +349,8 @@ static cson_value * json_wiki_list(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
   Stmt q;
+  char const verbose = json_find_option_bool("verbose",NULL,"v",0);
+
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'j' or 'o' permissions.");
@@ -361,7 +363,13 @@ static cson_value * json_wiki_list(){
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   while( SQLITE_ROW == db_step(&q) ){
-    cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
+    cson_value * v;
+    if( verbose ){
+      char const * name = db_column_text(&q,0);
+      v = json_get_wiki_page_by_name(name,0);
+    }else{
+      v = cson_sqlite3_column_to_value(q.pStmt,0);
+    }
     if(!v){
       json_set_err(FSL_JSON_E_UNKNOWN,
                    "Could not convert wiki name column to JSON.");
