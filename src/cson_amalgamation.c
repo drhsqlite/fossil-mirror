@@ -2202,10 +2202,9 @@ static int cson_value_list_visit( cson_value_list * self,
 #endif
 
 /**
-   Allocates a new value of the specified type ownership of it to the
-   caller. It must eventually be destroyed, by the caller or its
-   owning container, by passing it to cson_value_free() or transfering
-   ownership to a container.
+   Allocates a new value of the specified type. Ownership is
+   transfered to the caller, who must eventually free it by passing it
+   to cson_value_free() or transfering ownership to a container.
 
    extra is only valid for type CSON_TYPE_STRING, and must be the length
    of the string to allocate + 1 byte (for the NUL).
@@ -2251,6 +2250,11 @@ cson_value * cson_value_new(cson_type_id t, size_t extra)
           break;
       case CSON_TYPE_INTEGER:
           assert( 0 == extra );
+          /* FIXME: if sizeof(void*) >= sizeof(cson_int_t) then store
+             the int value directly in the void pointer (requires no
+             extra alloc). The current behaviour requires 32
+             bytes(!!!) on 64-bit builds.
+           */
           def = cson_value_integer_empty;
           tx = sizeof(cson_int_t);
           reason = "cson_value:int";
@@ -2283,7 +2287,6 @@ cson_value * cson_value_new(cson_type_id t, size_t extra)
     return v;
 }
 
-
 void cson_value_free(cson_value *v)
 {
     cson_refcount_decr( v );
@@ -2306,11 +2309,6 @@ cson_type_id cson_value_type_id( cson_value const * v )
 
 char cson_value_is_undef( cson_value const * v )
 {
-    /**
-       This special-case impl is needed because the underlying
-       (generic) list operations do not know how to populate
-       new entries
-     */
     return ( !v || !v->api || (v->api==&cson_value_api_undef))
         ? 1 : 0;
 }
@@ -5506,7 +5504,6 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
         cson_value * rootV = NULL;
         cson_object * root = NULL;
         cson_value * aryV = NULL;
-        cson_array * ary = NULL;
         cson_value * rowsV = NULL;
         cson_array * rows = NULL;
         int rc = 0;
@@ -5528,7 +5525,6 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
             RETURN(rc);
         }
         aryV = NULL;
-        ary = NULL;
         rowsV = cson_value_new_array();
         if( ! rowsV ) RETURN(cson_rc.AllocError);
         rc = cson_object_set( root, "rows", rowsV );
