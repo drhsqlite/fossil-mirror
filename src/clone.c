@@ -22,14 +22,16 @@
 #include <assert.h>
 
 /*
-** Delete all private content from a repository.
+** If there are public BLOBs that deltas from private BLOBs, then
+** undeltify the public BLOBs so that the private BLOBs may be safely
+** deleted.
 */
-void delete_private_content(void){
+void fix_private_blob_dependencies(int showWarning){
   Bag toUndelta;
   Stmt q;
   int rid;
 
-  /* Carefule:  We are about to delete all BLOB entries that are private.
+  /* Careful:  We are about to delete all BLOB entries that are private.
   ** So make sure that any no public BLOBs are deltas from a private BLOB.
   ** Otherwise after the deletion, we won't be able to recreate the public
   ** BLOBs.
@@ -47,10 +49,12 @@ void delete_private_content(void){
     const char *zId = db_column_text(&q, 1);
     int srcid = db_column_int(&q, 2);
     const char *zSrc = db_column_text(&q, 3);
-    fossil_warning(
-      "public artifact %S (%d) is a delta from private artifact %S (%d)\n",
-      zId, rid, zSrc, srcid
-    );
+    if( showWarning ){
+      fossil_warning(
+        "public artifact %S (%d) is a delta from private artifact %S (%d)",
+        zId, rid, zSrc, srcid
+      );
+    }
     bag_insert(&toUndelta, rid);
   }
   db_finalize(&q);
@@ -59,9 +63,13 @@ void delete_private_content(void){
     bag_remove(&toUndelta, rid);
   }
   bag_clear(&toUndelta);
+}
 
-  /* Now it is safe to remove all private content
-  */
+/*
+** Delete all private content from a repository.
+*/
+void delete_private_content(void){
+  fix_private_blob_dependencies(1);
   db_multi_exec(
     "DELETE FROM blob WHERE rid IN private;"
     "DELETE FROM delta wHERE rid IN private;"
