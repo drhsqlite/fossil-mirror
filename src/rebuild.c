@@ -426,6 +426,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete((processCnt*1000)/totalSize);
   }
   if(!g.fQuiet && ttyOutput ){
+    percent_complete(1000);
     fossil_print("\n");
   }
   return errCnt;
