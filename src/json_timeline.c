@@ -407,7 +407,7 @@ static cson_value * json_timeline_branch(){
   }
    
   goto end;
-  error:
+
   assert( 0 != g.json.resultCode );
   cson_value_free(pay);
 
@@ -431,7 +431,6 @@ static cson_value * json_timeline_ci(){
   char showFiles = -1/*magic number*/;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
-  char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
   if( !g.perm.Read ){
     /* IMO this falls more under the category of g.perm.History, but

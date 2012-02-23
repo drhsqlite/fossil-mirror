@@ -87,7 +87,6 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     cson_object * o;
     cson_value * tmpV = NULL;
     const char *zUuid = db_column_text(&q, 0);
-    char * zTmp;
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;

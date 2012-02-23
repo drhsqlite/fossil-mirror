@@ -165,14 +165,9 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
 **
 */
 static cson_value * json_wiki_get(){
-  int rid;
-  Manifest *pWiki = 0;
-  char const * zBody = NULL;
   char const * zPageName;
   char const * zFormat = NULL;
-  char * zUuid = NULL;
   char contentFormat = -1;
-  Stmt q;
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' or 'j' access.");
