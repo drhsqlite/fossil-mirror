@@ -1,5 +1,5 @@
-C Make\ssure\sthe\s"fossil\srebuild"\scommand\salways\sends\sup\sshowing\s"100.0%\scomplete",\nnot\s"99.9%"\sor\s"100.1%".
-D 2012-02-21T02:01:20.193
+C Merge\swideAnnotateUser\sand\sjsonWarnings\sinto\strunk.
+D 2012-02-24T13:40:10.539
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/db.c b19a2182d3153b40b9ba00a8b793cafb5b95db1e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
-F src/diff.c b1fa7e636cf4e7b6ed20bba2d2680397f80c096a
+F src/diff.c 78c74c3b37e266f8f7e570d5cf476854b7af9d76
 F src/diffcmd.c 313e3cafca96cd9f99ea58b90fed91a1d9322c0a
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -97,19 +97,19 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 95ee150973736af6035ab314937f93233d5f79d2
-F src/json.c 3c992cba5100819f16129636e5f12fb85b19093c
-F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
+F src/json.c f2bde118b98af4bdd5c83cee3cf3877d0a536de4
+F src/json_artifact.c a36d503c289331874259186dd425a26cc0c3330b
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h 11be7e0f76631e707aed8c64eef63be8df5d25b5
-F src/json_diff.c 62bd36a899dd403e233d3d1c0d6865080f353b72
+F src/json_diff.c 82b51ac5684f5c1cc195cb7d97c97c8e5aa3cac4
 F src/json_login.c 743fd9909923c48acec7e08a1b3b1d4fe4610765
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c 5f12c6e590c38a2a3b765e4a0d7f967844d33f65
 F src/json_tag.c e02eb4a78098b1e30db27f556daca9216a4e69ab
-F src/json_timeline.c b027ca1b7bfe47974f3b8abc8ce50a1a8a447047
+F src/json_timeline.c 32b2e6e3c33b52f37c50ac8a31e82027d38851ce
 F src/json_user.c 84cbf5cb80b5e1a9fc03b47192de43a5c82dde3b
-F src/json_wiki.c df24784693a00c2b92bcc87e5aad6b85fa2df755
+F src/json_wiki.c 77ba03d0bfb9447f0b98caeccdb33f63d5442b0a
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0b3234924398838f3e6363bb194a9888acaca680
 F src/main.c 57230b021e2ca3cc64088d9855a1d9ee2ad1aad8
@@ -359,7 +359,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2f98f6603143a32547a4b9c238478f7d49d0e8f4
-R f2b53f1bc9f9da4dc2edc5a440088fd3
+P 3a44f95f40a193739aaafc2409f155df43e74a6f 86f6e675eb3f8761d70d8b82b052ce2b297fffd2 dbf4ecf414881c9aad6f4f125dab9762589ef3d7
+R 88d644f9585e7f1809380a0b0d319a60
 U drh
-Z a4aba0aad832d2f1c6f9776cd581d327
+Z 3f561ed84b6d94a245ad06503c43f55c
