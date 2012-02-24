@@ -1777,11 +1777,11 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %9.9s", 
+          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
           g.zTop, zUuid, zUuid, zDate, zUser
       );
     }else{
-      zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
+      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
     }
     p->nVers++;
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
