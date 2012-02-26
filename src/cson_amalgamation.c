@@ -3733,8 +3733,10 @@ static int cson_utf8Read(
 }
 #undef READ_UTF8
 
-#if defined(_WIN32)
-#  pragma warning( pop )
+#ifdef _MSC_VER
+#  if _MSC_VER >= 1400 /* Visual Studio 2005 and up */
+#    pragma warning( pop )
+#  endif
 #endif
 
 unsigned int cson_string_length_utf8( cson_string const * str )
