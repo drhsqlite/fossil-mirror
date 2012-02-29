@@ -52,13 +52,36 @@ typedef struct ArtifactDispatchEntry {
 
 
 /*
+** Generates a JSON Array reference holding the parent UUIDs (as strings).
+** If it finds no matches then it returns NULL (OOM is a fatal error).
+**
+** Returned value is NULL or an Array owned by the caller.
+*/
+cson_value * json_parent_uuids_for_ci( int rid ){
+  Stmt q = empty_Stmt;
+  cson_array * pParents = NULL;
+  db_prepare( &q,
+              "SELECT uuid FROM plink, blob"
+              " WHERE plink.cid=%d AND blob.rid=plink.pid"
+              " ORDER BY plink.isprim DESC",
+              rid );
+  while( SQLITE_ROW==db_step(&q) ){
+    if(!pParents) {
+      pParents = cson_new_array();
+    }
+    cson_array_append( pParents, cson_sqlite3_column_to_value( q.pStmt, 0 ) );
+  }
+  db_finalize(&q);
+  return cson_array_value(pParents);
+}
+
+/*
 ** Generates an artifact Object for the given rid,
 ** which must refer to a Checkin.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
 cson_value * json_artifact_for_ci( int rid, char showFiles ){
-  char * zParent = NULL;
   cson_value * v = NULL;
   Stmt q;
   static cson_value * eventTypeLabel = NULL;
@@ -66,11 +89,6 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     eventTypeLabel = json_new_string("checkin");
     json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel);
   }
-  zParent = db_text(0,
-    "SELECT uuid FROM plink, blob"
-    " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
-    rid
-  );
 
   db_prepare(&q, 
              "SELECT uuid, "
@@ -90,6 +108,10 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
+#define ADD_PRIMARY_PARENT_UUID 0 /* temporary local macro */
+#if ADD_PRIMARY_PARENT_UUID
+    char * zParent = NULL;
+#endif
     int mtime, omtime;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
@@ -132,8 +154,23 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("originTime",json_new_int(omtime));
     }
 
-    if(zParent){
-      SET("parentUuid", json_new_string(zParent));
+#if ADD_PRIMARY_PARENT_UUID
+    zParent = db_text(0,
+      "SELECT uuid FROM plink, blob"
+      " WHERE plink.cid=%d AND blob.rid=plink.pid"
+      " AND plink.isprim",
+      rid
+    );
+    tmpV = zParent ? json_new_string(zParent) : cson_value_null();
+    free(zParent);
+    zParent = NULL;
+    SET("parentUuid", tmpV );
+#endif
+#undef ADD_PRIMARY_PARENT_UUID
+
+    tmpV = json_parent_uuids_for_ci(rid);
+    if(tmpV){
+      SET("parents", tmpV);
     }
 
     tmpV = json_tags_for_checkin_rid(rid,0);
@@ -142,16 +179,14 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     }
 
     if( showFiles ){
-      cson_value * fileList = json_get_changed_files(rid);
-      if(fileList){
-        SET("files",fileList);
+      tmpV = json_get_changed_files(rid);
+      if(tmpV){
+        SET("files",tmpV);
       }
     }
 
-
 #undef SET
   }
-  free(zParent);
   db_finalize(&q);
   return v;
 }
