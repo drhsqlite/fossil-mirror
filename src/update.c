@@ -476,7 +476,7 @@ void update_cmd(void){
         internalConflictCnt = nConflict;
         nConflict = 0;
       }else{
-        fossil_print("WARNING: %d merge conflicts", nConflict);
+        fossil_warning("WARNING: %d merge conflicts", nConflict);
       }
     }
     if( nOverwrite ){
