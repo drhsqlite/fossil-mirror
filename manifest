@@ -1,5 +1,5 @@
-C Show\sthe\sbranch\sof\sthe\scheckin\sin\sthe\svdiff\spage.
-D 2012-02-18T10:37:36.645
+C Fixing\s'patch'\son\sthe\sfdiff\spage.
+D 2012-03-01T22:28:25.611
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 977ae46399a73735d10da6747809553a10350997
+F src/info.c 38c7b8dc82cf33e6929d4e008ff246e7cc0dc78a
 F src/json.c 3c992cba5100819f16129636e5f12fb85b19093c
 F src/json_artifact.c c5b51c2a77ddeac333a3dbb9d4f66b00dc65d510
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -359,7 +359,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 75b4676c51dad3ace5b33d331e1071cb32d50cf8
-R f73bfe7800c8982215fd595628d8902e
+P a50a28bb3f8359bab8abb4d5e5d6cf4bf00c8a8a
+R 82ea8ef90d5f1d95b5ad1d19c05eeefe
 U viriketo
-Z bf9f2389d992f25d39e8d0c78ae9c058
+Z 3ac850c11b7d4b0b44a38ce57bfdbe1c

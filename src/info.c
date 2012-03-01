@@ -1105,7 +1105,7 @@ void diff_page(void){
   }else{
     blob_zero(&diff);
     pOut = &diff;
-    diffFlags = construct_diff_flags(1, sideBySide);
+    diffFlags = construct_diff_flags(1, sideBySide) | DIFF_HTML;
     if( sideBySide ){
       zStyle = "sbsdiff";
     }else{
@@ -1115,7 +1115,7 @@ void diff_page(void){
   }
   content_get(v1, &c1);
   content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, diffFlags | DIFF_HTML );
+  text_diff(&c1, &c2, pOut, diffFlags);
   blob_reset(&c1);
   blob_reset(&c2);
   if( !isPatch ){
