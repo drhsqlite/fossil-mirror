@@ -344,6 +344,10 @@ OBJDIR = wbld
 #
 BCC = gcc
 
+#### Enable JSON (http://www.json.org) support using "cson"
+#
+# FOSSIL_ENABLE_JSON = 1
+
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 # FOSSIL_ENABLE_SSL = 1
@@ -437,7 +441,7 @@ endif
 
 # With JSON support
 ifdef FOSSIL_ENABLE_JSON
-TCC += -DFOSSIL_ENABLE_JSON
+TCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs

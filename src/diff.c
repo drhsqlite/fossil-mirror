@@ -1790,19 +1790,19 @@ static void annotate_file(
         zLabel = mprintf(
             "<a href='%s/info/%s' %s>%.10s</a> "
             "<a href='%s/fdiff?v1=%s&v2=%s' %s>d</a> "
-            "%s %9.9s", 
+            "%s %13.13s", 
             g.zTop, zUuid, zInfoTarget, zUuid,
             g.zTop, zUuidParentFile, zUuidFile, zDiffTarget,
             zDate, zUser);
       }else{
         zLabel = mprintf(
             "<a href='%s/info/%s' %s>%.10s</a>   "
-            "%s %9.9s", 
+            "%s %13.13s", 
             g.zTop, zUuid, zInfoTarget, zUuid,
             zDate, zUser);
       }
     }else{
-      zLabel = mprintf("%.10s %s %9.9s", zUuid, zDate, zUser);
+      zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
     }
     p->nVers++;
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );

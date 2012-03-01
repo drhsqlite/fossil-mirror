@@ -158,7 +158,7 @@ if {$ssldirs ne "none"} {
             } else {
                 set msg "ssl in $dir"
                 set cflags "-I$dir/include"
-                set ldflags "-L$dir/include"
+                set ldflags "-L$dir/lib"
             }
             if {[check-for-openssl $msg "$cflags $ldflags"]} {
                 incr found

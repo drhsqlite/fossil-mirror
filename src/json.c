@@ -86,13 +86,13 @@ static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
 static double endTimer(void){
   struct rusage sEnd;
   getrusage(RUSAGE_SELF, &sEnd);
-  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
-    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
 #if 0
   printf("CPU Time: user %f sys %f\n",
          timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
          timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
 #endif
+  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
+    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
 }
 
 #define BEGIN_TIMER beginTimer()
@@ -164,6 +164,7 @@ static double endTimer(void){
     return timeDiff(&ftUserBegin, &ftUserEnd) +
       timeDiff(&ftKernelBegin, &ftKernelEnd);
   }
+  return 0.0;
 }
 
 #define BEGIN_TIMER beginTimer()
@@ -914,7 +915,6 @@ int json_string_split( char const * zStr,
   char const * head  /* current start-of-token */;
   unsigned int len = 0   /* current token's length */;
   int rc = 0   /* return code (number of added elements)*/;
-  char skipWs = fossil_isspace(separator) ? 0 : 1;
   assert( zStr && target );
   while( fossil_isspace(*p) ){
     ++p;
@@ -1017,7 +1017,6 @@ cson_value * json_string_split2( char const * zStr,
 static void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
-  cson_value * pathSplit = NULL;
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
   if( once ){
     return;
@@ -1153,7 +1152,6 @@ static void json_mode_bootstrap(){
 
   {/* set up JSON output formatting options. */
     int indent = -1;
-    char const * indentStr = NULL;
     indent = json_find_option_int("indent",NULL,"I",-1);
     g.json.outOpt.indentation = (0>indent)
       ? (g.isHTTP ? 0 : 1)
@@ -1333,7 +1331,6 @@ static cson_value * json_response_command_path(){
   }else{
     cson_value * rc = NULL;
     Blob path = empty_blob;
-    char const * part;
     unsigned int aLen = g.json.dispatchDepth+1; /*cson_array_length_get(g.json.cmd.a);*/
     unsigned int i = 1;
     for( ; i < aLen; ++i ){

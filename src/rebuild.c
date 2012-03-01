@@ -426,6 +426,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
     percent_complete((processCnt*1000)/totalSize);
   }
   if(!g.fQuiet && ttyOutput ){
+    percent_complete(1000);
     fossil_print("\n");
   }
   return errCnt;
@@ -487,6 +488,26 @@ static void extra_deltification(void){
 
   db_end_transaction(0);
 }
+
+
+/* Reconstruct the private table.  The private table contains the rid
+** of every manifest that is tagged with "private" and every file that
+** is not used by a manifest that is not private.
+*/
+static void reconstruct_private_table(void){
+  db_multi_exec(
+    "CREATE TEMP TABLE private_ckin(rid INTEGER PRIMARY KEY);"
+    "INSERT INTO private_ckin "
+        " SELECT rid FROM tagxref WHERE tagid=%d AND tagtype>0;"
+    "INSERT OR IGNORE INTO private"
+        " SELECT fid FROM mlink"
+        " EXCEPT SELECT fid FROM mlink WHERE mid NOT IN private_ckin;"
+    "INSERT OR IGNORE INTO private SELECT rid FROM private_ckin;"
+    "DROP TABLE private_ckin;", TAG_PRIVATE
+  );
+  fix_private_blob_dependencies(0);
+}
+
 
 /*
 ** COMMAND: rebuild
@@ -553,6 +574,7 @@ void rebuild_database(void){
   db_begin_transaction();
   ttyOutput = 1;
   errCnt = rebuild_db(randomizeFlag, 1, doClustering);
+  reconstruct_private_table();
   db_multi_exec(
     "REPLACE INTO config(name,value,mtime) VALUES('content-schema','%s',now());"
     "REPLACE INTO config(name,value,mtime) VALUES('aux-schema','%s',now());",
@@ -883,21 +905,7 @@ void reconstruct_cmd(void) {
   fossil_print("\nBuilding the Fossil repository...\n");
 
   rebuild_db(0, 1, 1);
-
-  /* Reconstruct the private table.  The private table contains the rid
-  ** of every manifest that is tagged with "private" and every file that
-  ** is not used by a manifest that is not private.
-  */
-  db_multi_exec(
-    "CREATE TEMP TABLE private_ckin(rid INTEGER PRIMARY KEY);"
-    "INSERT INTO private_ckin "
-        " SELECT rid FROM tagxref WHERE tagid=%d AND tagtype>0;"
-    "INSERT OR IGNORE INTO private"
-        " SELECT fid FROM mlink"
-        " EXCEPT SELECT fid FROM mlink WHERE mid NOT IN private_ckin;"
-    "INSERT OR IGNORE INTO private SELECT rid FROM private_ckin;"
-    "DROP TABLE private_ckin;"
-  );
+  reconstruct_private_table();
 
   /* Skip the verify_before_commit() step on a reconstruct.  Most artifacts
   ** will have been changed and verification therefore takes a really, really
