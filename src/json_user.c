@@ -274,7 +274,7 @@ int json_user_update_from_json( cson_object * pUser ){
     himself, to avoid locking himself out?
   */
 
-  blob_append(&sql, "UPDATE USER SET",-1 );
+  blob_append(&sql, "UPDATE user SET",-1 );
   blob_append(&sql, " mtime=cast(strftime('%s') AS INTEGER)", -1);
 
   if((uid>0) && zNameNew){
@@ -300,13 +300,21 @@ int json_user_update_from_json( cson_object * pUser ){
     blob_appendf(&sql, ", cap=%Q", zCap);
     ++gotFields;
   }
-
+#define TRY_LOGIN_GROUP 0 /* login group support is not yet implemented. */
   if( zPW ){
+#if !TRY_LOGIN_GROUP
     char * zPWHash = NULL;
     ++gotFields;
     zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
     blob_appendf(&sql, ", pw=%Q", zPWHash);
     free(zPWHash);
+#else
+    ++gotFields;
+    blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
+                 "(SELECT value FROM config WHERE name='project-code')))",
+                 zPW, zNameNew ? zNameNew : zName);
+    /* shared_secret() func is undefined? */
+#endif
   }
 
   if( zInfo ){
@@ -326,16 +334,44 @@ int json_user_update_from_json( cson_object * pUser ){
     goto error;
   }
   assert(uid>0);
+#if !TRY_LOGIN_GROUP
   blob_appendf(&sql, " WHERE uid=%d", uid);
-  free( zNameFree );
+#else /* need name for login group support :/ */
+  blob_appendf(&sql, " WHERE login=%Q", zName);
+#endif
 #if 0
   puts(blob_str(&sql));
   cson_output_FILE( cson_object_value(pUser), stdout, NULL );
 #endif
   db_prepare(&q, "%s", blob_str(&sql));
-  blob_reset(&sql);
   db_exec(&q);
   db_finalize(&q);
+#if TRY_LOGIN_GROUP
+  if( zPW || forceLogout ){
+    Blob groupSql = empty_blob;
+    char * zErr = NULL;
+    blob_appendf(&groupSql,
+      "INSERT INTO user(login)"
+      "  SELECT %Q WHERE NOT EXISTS(SELECT 1 FROM user WHERE login=%Q);",
+      zName, zName
+    );
+    blob_append(&groupSql, blob_str(&sql), blob_size(&sql));
+    login_group_sql(blob_str(&groupSql), NULL, NULL, &zErr);
+    blob_reset(&groupSql);
+    if( zErr ){
+      json_set_err( FSL_JSON_E_UNKNOWN,
+                    "Repo-group update at least partially failed: %s",
+                    zErr);
+      free(zErr);
+      goto error;
+    }
+  }
+#endif /* TRY_LOGIN_GROUP */
+
+#undef TRY_LOGIN_GROUP
+
+  free( zNameFree );
+  blob_reset(&sql);
   return 0;
 
   error:
