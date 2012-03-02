@@ -428,11 +428,11 @@ static cson_value * json_timeline_ci(){
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.Read ){
-    /* IMO this falls more under the category of g.perm.History, but
-       i'm following the original timeline impl here.
+  if( !g.perm.History ){
+    /* Reminder to self: HTML impl requires 'o' (Read)
+       rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'o' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
   showFiles = json_find_option_bool("files",NULL,"f",0);

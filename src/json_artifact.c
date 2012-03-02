@@ -209,7 +209,7 @@ cson_value * json_artifact_ticket( int rid ){
 */
 static cson_value * json_artifact_ci( int rid ){
   if(! g.perm.History ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'h' access." );
     return NULL;
   }else{
     return json_artifact_for_ci(rid, 1);
