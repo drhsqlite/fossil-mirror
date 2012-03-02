@@ -2202,6 +2202,9 @@ cson_value * json_page_tag();
 cson_value * json_page_user();
 /* Impl in json_config.c. */
 cson_value * json_page_config();
+/* Impl in json_finfo.c. */
+cson_value * json_page_finfo();
+
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
 ** /json (in CGI mode) or a subcommand of the json command in CLI mode
@@ -2215,6 +2218,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"config", json_page_config, 0 },
 {"diff", json_page_diff, 0},
 {"dir", json_page_nyi, 0},
+{"finfo", json_page_finfo, 0},
 {"g", json_page_g, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,0},
