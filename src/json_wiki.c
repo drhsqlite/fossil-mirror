@@ -52,50 +52,39 @@ cson_value * json_page_wiki(){
 
 
 /*
-** Loads the given wiki page and creates a JSON object representation
-** of it. If the page is not found then NULL is returned. If
-** contentFormat is positive true then the page content is HTML-ized
-** using fossil's conventional wiki format, if it is negative then no
-** parsing is performed, if it is 0 then the content is not returned
-** in the response. If contentFormat is 0 then the contentSize reflects
-** the number of bytes, not characters, stored in the page.
+** Tries to load a wiki page from the given rid creates a JSON object
+** representation of it. If the page is not found then NULL is
+** returned. If contentFormat is positive then the page content
+** is HTML-ized using fossil's conventional wiki format, if it is
+** negative then no parsing is performed, if it is 0 then the content
+** is not returned in the response. If contentFormat is 0 then the
+** contentSize reflects the number of bytes, not characters, stored in
+** the page.
 **
 ** The returned value, if not NULL, is-a JSON Object owned by the
 ** caller. If it returns NULL then it may set g.json's error state.
 */
-cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
-  int rid;
-  Manifest *pWiki = 0;
-  char * zUuid = NULL;
-  Stmt q;
-  db_prepare(&q,
-             "SELECT x.rid, b.uuid FROM tag t, tagxref x, blob b"
-             " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
-             " AND b.rid=x.rid"
-             " ORDER BY x.mtime DESC LIMIT 1",
-             zPageName 
-             );
-  if( (SQLITE_ROW != db_step(&q)) ){
-    db_finalize(&q);
-    json_set_err( FSL_JSON_E_RESOURCE_NOT_FOUND, "Wiki page not found: %s",
-                  zPageName );
-    return NULL;
-  }
-  rid = db_column_int(&q,0);
-  zUuid = db_column_malloc(&q,1);
-  db_finalize(&q);
+cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
+  Manifest * pWiki = NULL;
   if( NULL == (pWiki = manifest_get(rid, CFTYPE_WIKI)) ){
-    free(zUuid);
     json_set_err( FSL_JSON_E_UNKNOWN,
-                  "Error reading wiki page from manifest (rid=%d, uuid=%s).",
-                  rid, zUuid );
+                  "Error reading wiki page from manifest (rid=%d).",
+                  rid );
     return NULL;
   }else{
-    char const * zFormat = NULL;
+    /*char const * zFormat = NULL;*/
     unsigned int len = 0;
     cson_object * pay = cson_new_object();
     char const * zBody = pWiki->zWiki;
-    cson_object_set(pay,"name",json_new_string(zPageName));
+    char const * zFormat = NULL;
+    char * zUuid = db_text(NULL,
+             "SELECT b.uuid FROM tag t, tagxref x, blob b"
+             " WHERE x.tagid=t.tagid AND t.tagname GLOB 'wiki-*' "
+             " AND b.rid=x.rid AND b.rid=%d"
+             " ORDER BY x.mtime DESC LIMIT 1",
+             rid
+             );
+    cson_object_set(pay,"name",json_new_string(pWiki->zWikiTitle));
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
     zUuid = NULL;
@@ -103,14 +92,12 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp,
                     json_julian_to_timestamp(pWiki->rDate));
-    
-
     if(0 == contentFormat){
       cson_object_set(pay,"contentLength",
                       json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
-      cson_object_set(pay,"contentFormat",json_new_string(zFormat));
       if( contentFormat>0 ){/*HTML-ize it*/
+        zFormat = "html";
         Blob content = empty_blob;
         Blob raw = empty_blob;
         if(zBody && *zBody){
@@ -124,41 +111,44 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
         blob_reset(&content);
         blob_reset(&raw);
       }else{/*raw format*/
+        zFormat = "raw";
         len = zBody ? strlen(zBody) : 0;
         cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",cson_value_new_string(zBody,len));
       }
+      cson_object_set(pay,"contentFormat",json_new_string(zFormat));
+
     }
     /*TODO: add 'T' (tag) fields*/
     /*TODO: add the 'A' card (file attachment) entries?*/
     manifest_destroy(pWiki);
     return cson_object_value(pay);
   }  
-  
 }
-
 
 /*
-** Searches for a wiki page with the given rid. If found it behaves
-** like json_get_wiki_page_by_name(pageName, contentFormat), else it returns
-** NULL.
+** Searches for the latest version of a wiki page with the given
+** name. If found it behaves like json_get_wiki_page_by_rid(theRid,
+** contentFormat), else it returns NULL.
 */
-cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
-  char * zPageName = NULL;
-  cson_value * rc = NULL;
-  zPageName = db_text(NULL,
-                      "SELECT substr(t.tagname,6) AS name "
-                      " FROM tag t, tagxref x, blob b "
-                      " WHERE b.rid=%d "
-                      " AND t.tagname GLOB 'wiki-*'"
-                      " AND x.tagid=t.tagid AND b.rid=x.rid ",
-                      rid);
-  if( zPageName ){
-    rc = json_get_wiki_page_by_name(zPageName, contentFormat);
-    free(zPageName);
+cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentFormat){
+  int rid;
+  rid = db_int(0,
+               "SELECT x.rid FROM tag t, tagxref x, blob b"
+               " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q' "
+               " AND b.rid=x.rid"
+               " ORDER BY x.mtime DESC LIMIT 1",
+               zPageName 
+             );
+  if( 0==rid ){
+    json_set_err( FSL_JSON_E_RESOURCE_NOT_FOUND, "Wiki page not found: %s",
+                  zPageName );
+    return NULL;
   }
-  return rc;
+  return json_get_wiki_page_by_rid(rid, contentFormat);
 }
+
+
 
 /*
 ** Implementation of /json/wiki/get.
