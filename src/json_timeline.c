@@ -137,7 +137,7 @@ const char const * json_timeline_query(void){
 ** Returns a positive value if it modifies pSql, 0 if it
 ** does not. It returns a negative value if the tag
 ** provided to the request was not found (pSql is not modified
-** in that case.
+** in that case).
 **
 ** If payload is not NULL then on success its "tag" or "branch"
 ** property is set to the tag/branch name found in the request.
@@ -235,8 +235,7 @@ static char json_timeline_add_time_clause(Blob *pSql){
 **
 ** Never returns a negative value. 0 means no limit.
 */
-static int json_timeline_limit(){
-  static const int defaultLimit = 20;
+static int json_timeline_limit(int defaultLimit){
   int limit = -1;
   if(!g.isHTTP){/* CLI mode */
     char const * arg = find_option("limit","n",1);
@@ -277,8 +276,8 @@ static int json_timeline_setup_sql( char const * zEventType,
     return FSL_JSON_E_INVALID_ARGS;
   }
   json_timeline_add_time_clause(pSql);
-  limit = json_timeline_limit();
-  if(limit>=0){
+  limit = json_timeline_limit(20);
+  if(limit>0){
     blob_appendf(pSql,"LIMIT %d ",limit);
   }
   if(pPayload){
@@ -355,6 +354,7 @@ static cson_value * json_timeline_branch(){
   cson_value * pay = NULL;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
+  int limit = 0;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -380,6 +380,10 @@ static cson_value * json_timeline_branch(){
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
                " ORDER BY event.mtime DESC",
                TAG_BRANCH);
+  limit = json_timeline_limit(20);
+  if(limit>0){
+    blob_appendf(&sql," LIMIT %d ",limit);
+  }
   db_prepare(&q,"%s", blob_str(&sql));
   blob_reset(&sql);
   pay = json_stmt_to_array_of_obj(&q, NULL);
@@ -397,10 +401,9 @@ static cson_value * json_timeline_branch(){
     for( ; i < len; ++i ){
       cson_object * row = cson_value_get_object(cson_array_get(ar,i));
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
-      if(row>0) {
-        cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
-        cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
-      }
+      assert( rid > 0 );
+      cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
+      cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
     }
     cson_value_free( cson_string_value(tags) );
     cson_value_free( cson_string_value(isLeaf) );
@@ -456,23 +459,6 @@ static cson_value * json_timeline_ci(){
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
              " rid AS rid"
-#if 0
-             " uuid AS uuid,"
-             " mtime AS timestamp,"
-#  if 0
-             " timestampString AS timestampString,"
-#  endif
-             " comment AS comment, "
-             " user AS user,"
-             " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
-             " bgColor AS bgColor," /* why always null? */
-             " eventType AS eventType"
-#  if 0
-             " tags AS tags"
-             /*tagId is always null?*/
-             " tagId AS tagId"
-#  endif
-#endif
              " FROM json_timeline"
              " ORDER BY rowid");
   listV = cson_value_new_array();
