@@ -405,13 +405,6 @@ static cson_value * json_timeline_branch(){
     cson_value_free( cson_string_value(tags) );
     cson_value_free( cson_string_value(isLeaf) );
   }
-   
-  goto end;
-
-  assert( 0 != g.json.resultCode );
-  cson_value_free(pay);
-
-  end:
   return pay;
 }
 
