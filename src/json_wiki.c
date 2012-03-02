@@ -149,6 +149,35 @@ cson_value * json_get_wiki_page_by_name(char const * zPageName, char contentForm
 }
 
 
+/*
+** Searches json_find_option_ctr("format",NULL,"f") for a flag.
+** If not found it returns defaultValue else it returns a value
+** depending on the first character of the format option:
+**
+** [h]tml = 1
+** [n]one = 0
+** [r]aw = -1
+**
+** The return value is intended for use with
+** json_get_wiki_page_by_rid() and friends.
+*/
+char json_wiki_get_content_format_flag( char defaultValue ){
+  char contentFormat = defaultValue;
+  char const * zFormat = json_find_option_cstr("format",NULL,"f");
+  if( !zFormat || !*zFormat ){
+    return contentFormat;
+  }
+  else if('r'==*zFormat){
+    contentFormat = -1;
+  }
+  else if('h'==*zFormat){
+    contentFormat = 1;
+  }
+  else if('n'==*zFormat){
+    contentFormat = 0;
+  }
+  return contentFormat;
+}
 
 /*
 ** Implementation of /json/wiki/get.
@@ -184,16 +213,7 @@ static cson_value * json_wiki_get(){
     return NULL;
   }
 
-  zFormat = json_find_option_cstr("format",NULL,"f");
-  if(!zFormat || !*zFormat || ('r'==*zFormat)){
-    contentFormat = -1;
-  }
-  else if('h'==*zFormat){
-    contentFormat = 1;
-  }
-  else if('n'==*zFormat){
-    contentFormat = 0;
-  }
+  contentFormat = json_wiki_get_content_format_flag(contentFormat);
   return json_get_wiki_page_by_name(zPageName, contentFormat);
 }
 

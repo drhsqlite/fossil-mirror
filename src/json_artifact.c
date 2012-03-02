@@ -243,9 +243,11 @@ cson_value * json_artifact_wiki(int rid){
                  "Requires 'j' privileges.");
     return NULL;
   }else{
-    char addContent = json_artifact_include_content_flag();
-    /* todo: support format=(raw|html|none) like /wiki/get does. */
-    return json_get_wiki_page_by_rid(rid, addContent ? -1 : 0);
+    char contentFormat = json_wiki_get_content_format_flag(-9);
+    if(-9 == contentFormat){
+      contentFormat = json_artifact_include_content_flag() ? -1 : 0;
+    }
+    return json_get_wiki_page_by_rid(rid, contentFormat);
   }
 }
 
