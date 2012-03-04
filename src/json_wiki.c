@@ -27,15 +27,16 @@ static cson_value * json_wiki_create();
 static cson_value * json_wiki_get();
 static cson_value * json_wiki_list();
 static cson_value * json_wiki_save();
-
+static cson_value * json_wiki_diff();
 /*
 ** Mapping of /json/wiki/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_Wiki[] = {
-{"create", json_wiki_create, 1},
+{"create", json_wiki_create, 0},
+{"diff", json_wiki_diff, 0},
 {"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
-{"save", json_wiki_save, 1},
+{"save", json_wiki_save, 0},
 {"timeline", json_timeline_wiki,0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
@@ -50,6 +51,16 @@ cson_value * json_page_wiki(){
   return json_page_dispatch_helper(&JsonPageDefs_Wiki[0]);
 }
 
+char * json_wiki_get_uuid_for_rid( int rid )
+{
+  return db_text(NULL,
+             "SELECT b.uuid FROM tag t, tagxref x, blob b"
+             " WHERE x.tagid=t.tagid AND t.tagname GLOB 'wiki-*' "
+             " AND b.rid=x.rid AND b.rid=%d"
+             " ORDER BY x.mtime DESC LIMIT 1",
+             rid
+             );
+}
 
 /*
 ** Tries to load a wiki page from the given rid creates a JSON object
@@ -77,13 +88,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
     cson_object * pay = cson_new_object();
     char const * zBody = pWiki->zWiki;
     char const * zFormat = NULL;
-    char * zUuid = db_text(NULL,
-             "SELECT b.uuid FROM tag t, tagxref x, blob b"
-             " WHERE x.tagid=t.tagid AND t.tagname GLOB 'wiki-*' "
-             " AND b.rid=x.rid AND b.rid=%d"
-             " ORDER BY x.mtime DESC LIMIT 1",
-             rid
-             );
+    char * zUuid = json_wiki_get_uuid_for_rid(rid);
     cson_object_set(pay,"name",json_new_string(pWiki->zWikiTitle));
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
@@ -424,4 +429,108 @@ static cson_value * json_wiki_list(){
   db_finalize(&q);
   return listV;
 }
+
+static cson_value * json_wiki_diff(){
+  char const * zV1 = NULL;
+  char const * zV2 = NULL;
+  char const * zContent = NULL;
+  cson_object * pay = NULL;
+  int argPos = g.json.dispatchDepth;
+  int r1 = 0, r2 = 0;
+  Manifest * pW1 = NULL, *pW2 = NULL;
+  Blob w1 = empty_blob, w2 = empty_blob, d = empty_blob;
+  char const * zErrTag = NULL;
+  int diffFlags;
+  char * zUuid = NULL;
+  if( !g.perm.History ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'h' permissions.");
+    return NULL;
+  }
+
+  
+  zV1 = json_find_option_cstr2( "v1",NULL, NULL, ++argPos );
+  zV2 = json_find_option_cstr2( "v2",NULL, NULL, ++argPos );
+  if(!zV1 || !*zV1 || !zV2 || !*zV2) {
+    json_set_err(FSL_JSON_E_INVALID_ARGS,
+                 "Requires both 'v1' and 'v2' arguments.");
+    return NULL;
+  }
+  
+  r1 = symbolic_name_to_rid( zV1, "w" );
+  zErrTag = zV1;
+  if(r1<0){
+    goto invalid;
+  }else if(0==r1){
+    goto ambiguous;
+  }
+
+  r2 = symbolic_name_to_rid( zV2, "w" );
+  zErrTag = zV2;
+  if(r2<0){
+    goto invalid;
+  }else if(0==r2){
+    goto ambiguous;
+  }
+
+  zErrTag = zV1;
+  pW1 = manifest_get(r1, CFTYPE_WIKI);
+  if( pW1==0 ) {
+    goto manifest;
+  }
+  zErrTag = zV2;
+  pW2 = manifest_get(r2, CFTYPE_WIKI);
+  if( pW2==0 ) {
+    goto manifest;
+  }
+
+  blob_init(&w1, pW1->zWiki, -1);
+  blob_zero(&w2);
+  blob_init(&w2, pW2->zWiki, -1);
+  blob_zero(&d);
+  diffFlags = DIFF_IGNORE_EOLWS | DIFF_INLINE;
+  text_diff(&w2, &w1, &d, diffFlags);
+  blob_reset(&w1);
+  blob_reset(&w2);
+
+  pay = cson_new_object();
+  
+  zUuid = json_wiki_get_uuid_for_rid( pW1->rid );
+  cson_object_set(pay, "v1", json_new_string(zUuid) );
+  free(zUuid);
+  zUuid = json_wiki_get_uuid_for_rid( pW2->rid );
+  cson_object_set(pay, "v2", json_new_string(zUuid) );
+  free(zUuid);
+  zUuid = NULL;
+
+  manifest_destroy(pW1);
+  manifest_destroy(pW2);
+
+  cson_object_set(pay, "diff",
+                  cson_value_new_string( blob_str(&d),
+                                         (unsigned int)blob_size(&d)));
+  
+  return cson_object_value(pay);
+
+  manifest:
+  json_set_err(FSL_JSON_E_UNKNOWN,
+               "Could not load wiki manifest for UUID [%s].",
+               zErrTag);
+  goto end;
+
+  ambiguous:
+  json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
+               "UUID [%s] is ambiguous.", zErrTag);
+  goto end;
+
+  invalid:
+  json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+               "UUID [%s] not found.", zErrTag);
+  goto end;
+
+  end:
+  cson_free_object(pay);
+  return NULL;
+}
+
 #endif /* FOSSIL_ENABLE_JSON */
