@@ -71,7 +71,7 @@ static int is_date(const char *z){
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 */
-static int symbolic_name_to_rid(const char *zTag, const char *zType){
+int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
   int rid = 0;
   int nTag;

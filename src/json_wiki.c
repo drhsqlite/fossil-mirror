@@ -88,6 +88,11 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
     cson_object_set(pay,"uuid",json_new_string(zUuid));
     free(zUuid);
     zUuid = NULL;
+    if( pWiki->nParent > 0 ){
+      cson_object_set( pay, "parent", json_new_string(pWiki->azParent[0]) )
+        /* Reminder: wiki pages do not branch and have only one parent
+           (except for the initial version, which has no parents). */;
+    }
     /*cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));*/
     cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp,
@@ -186,6 +191,7 @@ char json_wiki_get_content_format_flag( char defaultValue ){
 static cson_value * json_wiki_get(){
   char const * zPageName;
   char const * zFormat = NULL;
+  char const * zSymName = NULL;
   char contentFormat = -1;
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -207,14 +213,36 @@ static cson_value * json_wiki_get(){
   if(!zPageName){
     zPageName = json_command_arg(g.json.dispatchDepth+1);
   }
-  if(!zPageName||!*zPageName){
+
+  zSymName = json_find_option_cstr("uuid",NULL,"u");
+  
+  if((!zPageName||!*zPageName) && (!zSymName || !*zSymName)){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "'name' argument is missing.");
+                 "At least one of the 'name' or 'uuid' arguments must be provided.");
     return NULL;
   }
 
+  /* TODO: see if we have a page named zPageName. If not, try to resolve
+     zPageName as a UUID.
+  */
+  
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
-  return json_get_wiki_page_by_name(zPageName, contentFormat);
+  if(!zSymName || !*zSymName){
+    return json_get_wiki_page_by_name(zPageName, contentFormat);
+  }else{
+    int rid = symbolic_name_to_rid( zSymName ? zSymName : zPageName, "w" );
+    if(rid<0){
+      json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
+                   "UUID [%s] is ambiguious.", zSymName);
+      return NULL;
+    }else if(rid==0){
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "UUID [%s] does not resolve to a wiki page.", zSymName);
+      return NULL;
+    }else{
+      return json_get_wiki_page_by_rid(rid, contentFormat);
+    }
+  }
 }
 
 /*
