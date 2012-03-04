@@ -460,17 +460,17 @@ static cson_value * json_wiki_diff(){
   r1 = symbolic_name_to_rid( zV1, "w" );
   zErrTag = zV1;
   if(r1<0){
-    goto invalid;
-  }else if(0==r1){
     goto ambiguous;
+  }else if(0==r1){
+    goto invalid;
   }
 
   r2 = symbolic_name_to_rid( zV2, "w" );
   zErrTag = zV2;
   if(r2<0){
-    goto invalid;
-  }else if(0==r2){
     goto ambiguous;
+  }else if(0==r2){
+    goto invalid;
   }
 
   zErrTag = zV1;
