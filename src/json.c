@@ -492,7 +492,7 @@ int json_getenv_int(char const * pKey, int dflt ){
 ** Wrapper around json_getenv() which tries to evaluate a payload/env
 ** value as a boolean. Uses mostly the same logic as
 ** json_getenv_int(), with the addition that string values which
-** either start with a digit 1..9 or the letters [tT] are considered
+** either start with a digit 1..9 or the letters [tTyY] are considered
 ** to be true. If this function cannot find a matching key/value then
 ** dflt is returned. e.g. if it finds the key but the value is-a
 ** Object then dftl is returned.
@@ -514,8 +514,10 @@ char json_getenv_bool(char const * pKey, char dflt ){
     if(!*sv || ('0'==*sv)){
       return 0;
     }else{
-      return (('t'==*sv) || ('T'==*sv)
-              || (('1'<=*sv) && ('9'>=*sv)))
+      return ((('1'<=*sv) && ('9'>=*sv))
+              || ('t'==*sv) || ('T'==*sv)
+              || ('y'==*sv) || ('Y'==*sv)
+              )
         ? 1 : 0;
     }
   }else if( cson_value_is_bool(v) ){
@@ -543,7 +545,7 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+s** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
 ** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
@@ -574,7 +576,7 @@ char const * json_find_option_cstr2(char const * zKey,
 }
 
 /*
-** Short-hand form of json_find_option_cstr(zKey,zCLILong,zCLIShort,-1).
+** Short-hand form of json_find_option_cstr2(zKey,zCLILong,zCLIShort,-1).
 */
 char const * json_find_option_cstr(char const * zKey,
                                    char const * zCLILong,
@@ -604,14 +606,14 @@ char json_find_option_bool(char const * zKey,
 }
 
 /*
-** The integer equivalent of json_find_option_cstr().
+** The integer equivalent of json_find_option_cstr2().
 ** If the option is not found, dftl is returned.
 */
 int json_find_option_int(char const * zKey,
                          char const * zCLILong,
                          char const * zCLIShort,
                          int dflt ){
-  enum { Magic = -947 };
+  enum { Magic = -1947854832 };
   int rc = Magic;
   if(!g.isHTTP){
     /* FIXME: use strtol() for better error/dflt handling. */
@@ -981,7 +983,7 @@ int json_string_split( char const * zStr,
 ** in any way or produced no tokens).
 **
 ** The returned value is owned by the caller. If not NULL then it
-** _will_ have a JSON type of Array or Null.
+** _will_ have a JSON type of Array.
 */
 cson_value * json_string_split2( char const * zStr,
                                  char separator,
@@ -1168,6 +1170,13 @@ static void json_mode_bootstrap(){
     login_check_credentials()/* populates g.perm */;
   }
   else{
+    /* FIXME: we need an option which allows us to skip this. At least
+       one known command (/json/version) does not need an opened
+       repo. The problem here is we cannot know which functions need
+       it from here (because command dispatching hasn't yet happened)
+       and all other commands rely on the repo being opened before
+       they are called. A textbook example of lack of foresight :/.
+     */
     db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   }
 }
@@ -1477,9 +1486,9 @@ cson_value * json_g_to_json(){
 ** resultText property.
 **
 */
-cson_value * json_create_response( int resultCode,
-                                   char const * pMsg,
-                                   cson_value * payload){
+static cson_value * json_create_response( int resultCode,
+                                          char const * pMsg,
+                                          cson_value * payload){
   cson_value * v = NULL;
   cson_value * tmp = NULL;
   cson_object * o = NULL;
@@ -1753,6 +1762,9 @@ cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
 **
 ** pTgt has the same semantics as described for
 ** json_stmt_to_array_of_obj().
+**
+** FIXME: change this to take a (char const *) instead of a blob,
+** to simplify the trivial use-cases (which don't need a Blob).
 */
 cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
                                       char resetBlob){
@@ -1776,6 +1788,9 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
 **
 ** See info_tags_of_checkin() for more details (this is simply a JSON
 ** wrapper for that function).
+**
+** If there are no tags then this function returns NULL, not an empty
+** Array.
 */
 cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
   cson_value * v = NULL;
@@ -1815,11 +1830,7 @@ cson_value * json_page_resultCodes(){
     cson_string * kSymbol;
     cson_string * kNumber;
     cson_string * kDesc;
-    int rc = cson_array_reserve( list, 35 );
-    if(rc){
-        assert( 0 && "Allocation error.");
-        exit(1);
-    }
+    cson_array_reserve( list, 35 );
     kRC = cson_new_string("resultCode",10);
     kSymbol = cson_new_string("cSymbol",7);
     kNumber = cson_new_string("number",6);
@@ -2115,18 +2126,39 @@ static int json_pagedefs_to_string(JsonPageDef const * zPages,
   return i;
 }
 
+/*
+** Creates an error message using zErrPrefix and the given array of
+** JSON command definitions, and sets the g.json error state to
+** reflect FSL_JSON_E_MISSING_ARGS. If zErrPrefix is NULL then
+** some default is used (e.g. "Try one of: "). If it is "" then
+** no prefix is used.
+**
+** The intention is to provide the user (via the response.resultText)
+** a list of available commands/subcommands.
+**
+*/
+void json_dispatch_missing_args_err( JsonPageDef const * pCommands,
+                                     char const * zErrPrefix ){
+  Blob cmdNames = empty_blob;
+  blob_init(&cmdNames,NULL,0);
+  if( !zErrPrefix ) {
+    zErrPrefix = "Try one of: ";
+  }
+  blob_append( &cmdNames, zErrPrefix, strlen(zErrPrefix) );
+  json_pagedefs_to_string(pCommands, &cmdNames);
+  json_set_err(FSL_JSON_E_MISSING_ARGS, "%s",
+               blob_str(&cmdNames));
+  blob_reset(&cmdNames);
+}
 
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   JsonPageDef const * def;
   char const * cmd = json_command_arg(1+g.json.dispatchDepth);
   assert( NULL != pages );
   if( ! cmd ){
-    Blob cmdNames = empty_blob;
-    json_pagedefs_to_string(pages, &cmdNames);
-    json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "No subcommand specified. Try one of (%s).",
-                 blob_str(&cmdNames));
-    blob_reset(&cmdNames);
+    json_dispatch_missing_args_err(pages,
+                                   "No subcommand specified. "
+                                   "Try one of: ");
     return NULL;
   }
   def = json_handler_for_name( cmd, pages );
@@ -2217,7 +2249,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"cap", json_page_cap, 0},
 {"config", json_page_config, 0 },
 {"diff", json_page_diff, 0},
-{"dir", json_page_nyi, 0},
+/*{"dir", json_page_nyi, 0},*/
 {"finfo", json_page_finfo, 0},
 {"g", json_page_g, 0},
 {"HAI",json_page_version,0},
@@ -2229,45 +2261,12 @@ static const JsonPageDef JsonPageDefs[] = {
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
 {"tag", json_page_tag,0},
-{"ticket", json_page_nyi,0},
+/*{"ticket", json_page_nyi,0},*/
 {"timeline", json_page_timeline,0},
 {"user",json_page_user,0},
 {"version",json_page_version,0},
 {"whoami",json_page_whoami,0},
 {"wiki",json_page_wiki,0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-
-/*
-** Mapping of /json/ticket/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Ticket[] = {
-{"get", json_page_nyi, 0},
-{"list", json_page_nyi, 0},
-{"save", json_page_nyi, 1},
-{"create", json_page_nyi, 1},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Mapping of /json/artifact/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Artifact[] = {
-{"vinfo", json_page_nyi, 0},
-{"finfo", json_page_nyi, 0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Mapping of /json/tag/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Tag[] = {
-{"list", json_page_nyi, 0},
-{"create", json_page_nyi, 1},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
 };
@@ -2301,7 +2300,7 @@ static int json_dispatch_root_command( char const * zCommand ){
     g.json.dispatchDepth = 1;
     payload = (*pageDef->func)();
   }
-  payload = json_create_response(rc, rc ? g.zErrMsg : NULL, payload);
+  payload = json_create_response(rc, NULL, payload);
   json_send_response(payload);
   cson_value_free(payload);
   return rc;
@@ -2321,22 +2320,12 @@ void json_page_top(void){
   json_mode_bootstrap();
   zCommand = json_command_arg(1);
   if(!zCommand || !*zCommand){
-    goto usage;
+    json_dispatch_missing_args_err( JsonPageDefs,
+                                    "No command (sub-path) specified."
+                                    " Try one of: ");
+    return;
   }
   json_dispatch_root_command( zCommand );
-  return;
-  usage:
-  {
-    Blob cmdNames = empty_blob;
-    blob_init(&cmdNames,
-              "No command (sub-path) specified. Try one of: ",
-              -1);
-    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
-    json_err(FSL_JSON_E_MISSING_ARGS,
-             blob_str(&cmdNames), 0);
-    blob_reset(&cmdNames);
-  }
-
 }
 #endif /* FOSSIL_ENABLE_JSON for mkindex */
 
@@ -2347,23 +2336,38 @@ void json_page_top(void){
 **
 ** COMMAND: json
 **
-** Usage: %fossil json SUBCOMMAND
+** Usage: %fossil json SUBCOMMAND ?OPTIONS?
+**
+** In CLI mode, the -R REPO common option is supported. Due to limitations
+** in the argument dispatching code, any -FLAGS must come after the final
+** sub- (or subsub-) command.
 **
 ** The commands include:
 **
+**   anonymousPassord
+**   artifact
 **   branch
 **   cap
+**   diff
+**   g
+**   login
+**   logout
+**   query
+**   rebuild
+**   report
+**   resultCodes
 **   stat
+**   tag
 **   timeline
+**   user
 **   version (alias: HAI)
+**   whoami
 **   wiki
 **
+** Run '%fossil json' without any subcommand to see the full list (but be
+** aware that some listed might not yet be implemented).
 **
-** TODOs:
-**
-**   tag
-**   ticket
-**   ...
+** PS: the notable TODO-commands include: config, dir, finfo, ticket
 **
 */
 void json_cmd_top(void){
@@ -2403,13 +2407,13 @@ void json_cmd_top(void){
   return;
   usage:
   {
-    Blob cmdNames = empty_blob;
-    blob_init(&cmdNames,
-              "No subcommand specified. Try one of: ", -1);
-    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
-    json_err(FSL_JSON_E_MISSING_ARGS,
-             blob_str(&cmdNames), 1);
-    blob_reset(&cmdNames);
+    cson_value * payload;
+    json_dispatch_missing_args_err( JsonPageDefs,
+                                    "No subcommand specified."
+                                    " Try one of: ");
+    payload = json_create_response(0, NULL, NULL);
+    json_send_response(payload);
+    cson_value_free(payload);
     fossil_exit(1);
   }
 }

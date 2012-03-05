@@ -36,6 +36,10 @@
 ** for a given category have their high bits set to the category
 ** value.
 **
+** Maintenance reminder: when entries are added to this list, update
+** the code in json_page_resultCodes() and json_err_cstr() (both in
+** json.c)!
+**
 */
 enum FossilJsonCodes {
 FSL_JSON_W_START = 0,
