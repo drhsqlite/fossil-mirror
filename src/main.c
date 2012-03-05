@@ -1203,6 +1203,7 @@ static void process_one_web_page(const char *zNotFound){
       }
 
       if( szFile<1024 ){
+        set_base_url();
         if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
