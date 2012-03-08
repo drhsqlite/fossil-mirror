@@ -208,8 +208,8 @@ cson_value * json_artifact_ticket( int rid ){
 ** Sub-impl of /json/artifact for checkins.
 */
 static cson_value * json_artifact_ci( int rid ){
-  if(! g.perm.History ){
-    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'h' access." );
+  if(! g.perm.History && !g.perm.Read ){
+    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'h' or 'o' access." );
     return NULL;
   }else{
     return json_artifact_for_ci(rid, 1);
