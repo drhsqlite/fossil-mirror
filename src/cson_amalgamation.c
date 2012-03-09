@@ -1618,7 +1618,13 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 
 #define CSON_CAST(T,V) ((T*)((V)->value))
 #define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
-#define CSON_INT(V) ((cson_int_t*)(V)->value)
+
+#if CSON_VOID_PTR_IS_BIG
+#  define CSON_INT(V) ((cson_int_t*)(&((V)->value)))
+#else
+#  define CSON_INT(V) ((cson_int_t*)(V)->value)
+#endif
+
 #define CSON_DBL(V) CSON_CAST(cson_double_t,(V))
 #define CSON_STR(V) CSON_CAST(cson_string,(V))
 #define CSON_OBJ(V) CSON_CAST(cson_object,(V))
@@ -1960,7 +1966,7 @@ char const * cson_string_cstr(cson_string const *v)
     else if( v == &CSON_EMPTY_HOLDER.stringValue ) return "";
     else {
         assert((0 < v->length) && "How do we have a non-singleton empty string?");
-        return (char *)((unsigned char *)(v+1));
+        return (char const *)((unsigned char const *)(v+1));
     }
 #else
     return (NULL == v)
@@ -2041,6 +2047,9 @@ struct cson_kvp
 static const cson_kvp cson_kvp_empty = cson_kvp_empty_m;
 
 /** @def CSON_OBJECT_PROPS_SORT
+
+    Don't use this - it has not been updated to account for internal
+    changes in cson_object.
 
    If CSON_OBJECT_PROPS_SORT is set to a true value then
    qsort() and bsearch() are used to sort (upon insertion)
@@ -2223,7 +2232,8 @@ static int cson_value_list_visit( cson_value_list * self,
    The returned value->api member will be set appropriately and
    val->value will be set to point to the memory allocated to hold the
    native value type. Use the internal CSON_CAST() family of macros to
-   convert them.
+   convert the cson_values to their corresponding native
+   representation.
 
    Returns NULL on allocation error.
 
@@ -2259,13 +2269,10 @@ static cson_value * cson_value_new(cson_type_id t, size_t extra)
           break;
       case CSON_TYPE_INTEGER:
           assert( 0 == extra );
-          /* FIXME: if sizeof(void*) >= sizeof(cson_int_t) then store
-             the int value directly in the void pointer (requires no
-             extra alloc). The current behaviour requires 32
-             bytes(!!!) on 64-bit builds.
-           */
           def = cson_value_integer_empty;
+#if !CSON_VOID_PTR_IS_BIG
           tx = sizeof(cson_int_t);
+#endif
           reason = "cson_value:int";
           break;
       case CSON_TYPE_STRING:
@@ -2659,9 +2666,10 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
             case CSON_TYPE_ARRAY:
             case CSON_TYPE_OBJECT:
             default:
-              break;
+                rc = cson_rc.TypeError;
+                break;
         }
-        if(v) *v = i;
+        if(!rc && v) *v = i;
         return rc;
     }
 }
@@ -2874,7 +2882,9 @@ cson_value * cson_value_new_integer( cson_int_t v )
     else
     {
         cson_value * c = cson_value_new(CSON_TYPE_INTEGER,0);
-
+#if !defined(NDEBUG) && CSON_VOID_PTR_IS_BIG
+        assert( sizeof(cson_int_t) <= sizeof(void *) );
+#endif
         if( c )
         {
             *CSON_INT(c) = v;
@@ -4599,9 +4609,9 @@ cson_value * cson_object_get_sub2( cson_object const * obj, char const * path )
 /**
    If v is-a Object or Array then this function returns a deep
    clone, otherwise it returns v. In either case, the refcount
-   of the returned value is increased by 1.
+   of the returned value is increased by 1 by this call.
 */
-static cson_value * cson_value_clone_shared( cson_value * v )
+static cson_value * cson_value_clone_ref( cson_value * v )
 {
     cson_value * rc = NULL;
 #define TRY_SHARING 1
@@ -4646,7 +4656,7 @@ static cson_value * cson_value_clone_array( cson_value const * orig )
         cson_value * ch = cson_array_get( asrc, i );
         if( NULL != ch )
         {
-            cson_value * cl = cson_value_clone_shared( ch );
+            cson_value * cl = cson_value_clone_ref( ch );
             if( NULL == cl )
             {
                 cson_value_free( destV );
@@ -4689,8 +4699,8 @@ static cson_value * cson_value_clone_object( cson_value const * orig )
         cson_value * key = NULL;
         cson_value * val = NULL;
         assert( kvp->key && (kvp->key->refcount>0) );
-        key = cson_value_clone_shared(kvp->key);
-        val = key ? cson_value_clone_shared(kvp->value) : NULL;
+        key = cson_value_clone_ref(kvp->key);
+        val = key ? cson_value_clone_ref(kvp->value) : NULL;
         if( ! key || !val ){
             goto error;
         }
@@ -5002,23 +5012,25 @@ int cson_object_merge( cson_object * dest, cson_object const * src, int flags ){
 
 static cson_value * cson_guess_arg_type(char const *arg){
     char * end = NULL;
-    if(('0'<=*arg) && ('9'>=*arg)){
+    if(!arg || !*arg) return cson_value_null();
+    else if(('0'>*arg) || ('9'<*arg)){
         goto do_string;
     }
-    {
+    else{ /* try numbers... */
         long const val = strtol(arg, &end, 10);
         if(!*end){
             return cson_value_new_integer( (cson_int_t)val);
         }
-    }
-    {
-        double const val = strtod(arg, &end);
-        if(!*end){
-            return cson_value_new_double(val);
+        else if( '.' != *end ) {
+            goto do_string;
+        }
+        else {
+            double const val = strtod(arg, &end);
+            if(!*end){
+                return cson_value_new_double(val);
+            }
         }
     }
-
-    
     do_string:
     return cson_value_new_string(arg, strlen(arg));
 }
@@ -5053,9 +5065,7 @@ int cson_parse_argv_flags( int argc, char const * const * argv,
         }else{ /** --key=...*/
             assert('=' == *pos);
             ++pos /*skip '='*/;
-            v = *pos
-                ? cson_guess_arg_type(pos)
-                : cson_value_null();
+            v = cson_guess_arg_type(pos);
         }
         if(0 != (rc=cson_object_set_s(o, k, v))){
             cson_free_string(k);

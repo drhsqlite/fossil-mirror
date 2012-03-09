@@ -77,6 +77,42 @@ typedef double cson_double_t;
 #define CSON_DOUBLE_T_PFMT "f"
 #endif
 
+/** @def CSON_VOID_PTR_IS_BIG
+
+ONLY define this to a true value if you know that
+
+(sizeof(cson_int_t) <= sizeof(void*))
+
+If that is the case, cson does not need to dynamically
+allocate integers. However, enabling this may cause
+compilation warnings in 32-bit builds even though the code
+being warned about cannot ever be called. To get around such
+warnings, when building on a 64-bit environment you can define
+this to 1 to get "big" integer support. HOWEVER, all clients must
+also use the same value for this macro. If i knew a halfway reliable
+way to determine this automatically at preprocessor-time, i would
+automate this. We might be able to do halfway reliably by looking
+for a large INT_MAX value?
+*/
+#if !defined(CSON_VOID_PTR_IS_BIG)
+
+/* Largely taken from http://predef.sourceforge.net/prearch.html
+
+See also: http://poshlib.hookatooka.com/poshlib/trac.cgi/browser/posh.h
+*/
+#  if defined(_WIN64) || defined(__LP64__)/*gcc*/ \
+    || defined(_M_X64) || defined(__amd64__) || defined(__amd64) \
+    ||  defined(__x86_64__) || defined(__x86_64) \
+    || defined(__ia64__) || defined(__ia64) || defined(_IA64) || defined(__IA64__) \
+    || defined(_M_IA64) \
+    || defined(__sparc_v9__) || defined(__sparcv9) || defined(_ADDR64) \
+    || defined(__64BIT__)
+#    define CSON_VOID_PTR_IS_BIG 1
+#  else
+#    define CSON_VOID_PTR_IS_BIG 0
+#  endif
+#endif
+
 /** @def CSON_INT_T_SFMT
 
 scanf()-compatible format token for cson_int_t.
