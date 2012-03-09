@@ -19,6 +19,15 @@
 */
 
 #include "cson_amalgamation.h"
+
+/**
+   FOSSIL_JSON_API_VERSION holds the date (YYYYMMDD) of the latest
+   "significant" change to the JSON API (a change in an interface
+   or new functionality). It is sent as part of the /json/version
+   request. We could arguably add it to each response.
+*/
+#define FOSSIL_JSON_API_VERSION "20120409"
+
 /*
 ** Impl details for the JSON API which need to be shared
 ** across multiple C files.
