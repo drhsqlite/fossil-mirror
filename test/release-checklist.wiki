@@ -16,6 +16,11 @@ Click on each of the links in in the
 rendered correctly.
 
 <li><p>
+Click on each of the links in in the
+[./diff-test-1.wiki] document and verify that all diffs are
+rendered correctly.
+
+<li><p>
 Verify correct name-change tracking behavior (no net changes) for:
 <blockquote><b>
 fossil test-name-changes --debug  b120bc8b262ac 374920b20944b

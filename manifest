@@ -1,5 +1,5 @@
-C /json/artifact/CHECKIN\snow\saccepts\sonly\s"o"\spermissions,\sto\smatch\sthe\sHTML\sinterface.
-D 2012-03-08T19:02:36.265
+C Tweak\sto\sthe\sside-by-side\sdiff\salignment\salgorithm.\s\sAdd\sdiff\stest\scases\nto\sthe\srelease\schecklist.
+D 2012-03-09T02:07:33.853
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/db.c b19a2182d3153b40b9ba00a8b793cafb5b95db1e
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
-F src/diff.c 78c74c3b37e266f8f7e570d5cf476854b7af9d76
+F src/diff.c f7608cab26bb42ccbd7ff7c0ae2e5cd050cfd27d
 F src/diffcmd.c 313e3cafca96cd9f99ea58b90fed91a1d9322c0a
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -171,6 +171,7 @@ F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c 2e2b1b1d03fe6032c5ed4c14b255b4e8c2b55086
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
+F test/diff-test-1.wiki cc6d9895f06cc0065651366cdebf2011c25bd31e
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki 59c0afc22a0e3365672883bebe595854c5bd6a8e
 F test/merge1.test 2b9aaabfbcc632d76d39365fd5e07e03ce682059
@@ -180,7 +181,7 @@ F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 5447884e828abd47bb25d363342acc94269f36a8
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
-F test/release-checklist.wiki 950137e61c563cd91e53298ed059d8db77639226
+F test/release-checklist.wiki 6a36e538b94982e84c1fcddcfe62d12e2141d0ee
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
@@ -360,7 +361,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3628652dba10c62bfa7d155cc38ba0bf4494a1bf
-R 4211b722aa4aa415e284c762e9c88404
-U stephan
-Z dd680c238cf64d6160ff37e7be22c02b
+P 6b08628c7865f5fddac3f9f445f9d772cefb30e6
+R df67b3a7e6fb347350f0ec83d74a72b9
+U drh
+Z 616c4b32069a0a52a7f7ed43e0e01f3e
