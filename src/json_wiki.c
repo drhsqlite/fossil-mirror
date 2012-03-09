@@ -264,11 +264,11 @@ static cson_value * json_wiki_get(){
 ** would categorize such behaviour as "being too clever" or "doing too
 ** much automatically" (and i would likely agree with them).
 **
-** If allowCreateIfExists is true then this function will allow a new
+** If allowCreateIfNotExists is true then this function will allow a new
 ** page to be created even if createMode is false.
 */
 static cson_value * json_wiki_create_or_save(char createMode,
-                                             char allowCreateIfExists){
+                                             char allowCreateIfNotExists){
   Blob content = empty_blob;  /* wiki  page content */
   cson_value * nameV;         /* wiki page name */
   char const * zPageName;     /* cstr form of page name */
@@ -306,7 +306,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
                    zPageName);
       goto error;
     }
-  }else if(!allowCreateIfExists){
+  }else if(!createMode && !allowCreateIfNotExists){
     json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
                  "Wiki page '%s' not found.",
                  zPageName);
@@ -315,7 +315,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
 
   contentV = json_req_payload_get("content");
   if( !contentV ){
-    if( createMode || (!rid && allowCreateIfExists) ){
+    if( createMode || (!rid && allowCreateIfNotExists) ){
       contentV = emptyContent = cson_value_new_string("",0);
     }else{
       json_set_err(FSL_JSON_E_MISSING_ARGS,
