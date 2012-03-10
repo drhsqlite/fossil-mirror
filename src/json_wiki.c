@@ -26,6 +26,7 @@
 static cson_value * json_wiki_create();
 static cson_value * json_wiki_get();
 static cson_value * json_wiki_list();
+static cson_value * json_wiki_preview();
 static cson_value * json_wiki_save();
 static cson_value * json_wiki_diff();
 /*
@@ -36,6 +37,7 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 {"diff", json_wiki_diff, 0},
 {"get", json_wiki_get, 0},
 {"list", json_wiki_list, 0},
+{"preview", json_wiki_preview, 0},
 {"save", json_wiki_save, 0},
 {"timeline", json_timeline_wiki,0},
 /* Last entry MUST have a NULL name. */
@@ -263,6 +265,36 @@ static cson_value * json_wiki_get(){
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
   return json_wiki_get_by_name_or_symname( zPageName, zSymName, contentFormat );
 }
+
+/*
+** Implementation of /json/wiki/preview.
+**
+*/
+static cson_value * json_wiki_preview(){
+  char const * zPageName;
+  char const * zContent = NULL;
+  cson_value * pay = NULL;
+  Blob contentOrig = empty_blob;
+  Blob contentHtml = empty_blob;
+  if( !g.perm.WrWiki ){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'k' access.");
+    return NULL;
+  }
+  zContent = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
+  if(!zContent) {
+    json_set_err(FSL_JSON_E_MISSING_ARGS,
+                 "The 'payload' property must be a string containing the wiki code to preview.");
+    return NULL;
+  }
+  blob_append( &contentOrig, zContent, (int)cson_string_length_bytes(cson_value_get_string(g.json.reqPayload.v)) );
+  wiki_convert( &contentOrig, &contentHtml, 0 );
+  blob_reset( &contentOrig );
+  pay = cson_value_new_string( blob_str(&contentHtml), (unsigned int)blob_size(&contentHtml));
+  blob_reset( &contentHtml );
+  return pay;
+}
+
 
 /*
 ** Internal impl of /wiki/save and /wiki/create. If createMode is 0
