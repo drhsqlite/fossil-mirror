@@ -96,7 +96,7 @@ static cson_value * json_report_get(){
   nReport = json_report_get_number(3);
   if(nReport <=0){
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "Missing or invalid 'number' (-n) parameter.");
+                 "Missing or invalid 'report' (-r) parameter.");
     return NULL;
   }
 

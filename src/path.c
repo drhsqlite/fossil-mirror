@@ -135,7 +135,11 @@ PathNode *path_shortest(
     path.pEnd = path.pStart;
     return path.pStart;
   }
-  if( oneWayOnly ){
+  if( oneWayOnly && directOnly ){
+    db_prepare(&s, 
+        "SELECT cid, 1 FROM plink WHERE pid=:pid AND isprim"
+    );
+  }else if( oneWayOnly ){
     db_prepare(&s, 
         "SELECT cid, 1 FROM plink WHERE pid=:pid "
     );

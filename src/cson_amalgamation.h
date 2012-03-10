@@ -77,6 +77,42 @@ typedef double cson_double_t;
 #define CSON_DOUBLE_T_PFMT "f"
 #endif
 
+/** @def CSON_VOID_PTR_IS_BIG
+
+ONLY define this to a true value if you know that
+
+(sizeof(cson_int_t) <= sizeof(void*))
+
+If that is the case, cson does not need to dynamically
+allocate integers. However, enabling this may cause
+compilation warnings in 32-bit builds even though the code
+being warned about cannot ever be called. To get around such
+warnings, when building on a 64-bit environment you can define
+this to 1 to get "big" integer support. HOWEVER, all clients must
+also use the same value for this macro. If i knew a halfway reliable
+way to determine this automatically at preprocessor-time, i would
+automate this. We might be able to do halfway reliably by looking
+for a large INT_MAX value?
+*/
+#if !defined(CSON_VOID_PTR_IS_BIG)
+
+/* Largely taken from http://predef.sourceforge.net/prearch.html
+
+See also: http://poshlib.hookatooka.com/poshlib/trac.cgi/browser/posh.h
+*/
+#  if defined(_WIN64) || defined(__LP64__)/*gcc*/ \
+    || defined(_M_X64) || defined(__amd64__) || defined(__amd64) \
+    ||  defined(__x86_64__) || defined(__x86_64) \
+    || defined(__ia64__) || defined(__ia64) || defined(_IA64) || defined(__IA64__) \
+    || defined(_M_IA64) \
+    || defined(__sparc_v9__) || defined(__sparcv9) || defined(_ADDR64) \
+    || defined(__64BIT__)
+#    define CSON_VOID_PTR_IS_BIG 1
+#  else
+#    define CSON_VOID_PTR_IS_BIG 0
+#  endif
+#endif
+
 /** @def CSON_INT_T_SFMT
 
 scanf()-compatible format token for cson_int_t.
@@ -930,7 +966,8 @@ cson_string * cson_value_get_string( cson_value const * val );
    The bytes are owned by string and will be invalided when it
    is cleaned up.
 
-   If str is NULL then NULL is returned.
+   If str is NULL then NULL is returned. If the string has a length
+   of 0 then "" is returned.
 
    @see cson_string_length_bytes()
    @see cson_value_get_string()
@@ -1263,7 +1300,7 @@ void cson_free_array(cson_array *x);
 /**
    Equivalent to cson_value_free(cson_string_value(x)).
 */
-void cson_free_string(cson_string const *x);
+void cson_free_string(cson_string *x);
 
 
 /**
@@ -2039,10 +2076,10 @@ int cson_value_refcount_set( cson_value * v, unsigned short rc );
    Deeply copies a JSON value, be it an object/array or a "plain"
    value (e.g. number/string/boolean). If cv is not NULL then this
    function makes a deep clone of it and returns that clone. Ownership
-   of the clone is transfered to the caller, who must eventually free
-   the value using cson_value_free() or add it to a container
-   object/array to transfer ownership to the container. The returned
-   object will be of the same logical type as orig.
+   of the clone is identical t transfered to the caller, who must
+   eventually free the value using cson_value_free() or add it to a
+   container object/array to transfer ownership to the container. The
+   returned object will be of the same logical type as orig.
 
    ACHTUNG: if orig contains any cyclic references at any depth level
    this function will endlessly recurse. (Having _any_ cyclic
@@ -2053,6 +2090,32 @@ int cson_value_refcount_set( cson_value * v, unsigned short rc );
    allocation fails while constructing the clone. In other words, if
    cloning fails due to something other than an allocation error then
    either orig is in an invalid state or there is a bug.
+
+   When this function clones Objects or Arrays it shares any immutable
+   values (including object keys) between the parent and the
+   clone. Mutable values (Objects and Arrays) are copied, however.
+   For example, if we clone:
+
+   @code
+   { a: 1, b: 2, c:["hi"] }
+   @endcode
+
+   The cloned object and the array "c" would be a new Object/Array
+   instances but the object keys (a,b,b) and the values of (a,b), as
+   well as the string value within the "c" array, would be shared
+   between the original and the clone. The "c" array itself would be
+   deeply cloned, such that future changes to the clone are not
+   visible to the parent, and vice versa, but immutable values within
+   the array are shared (in this case the string "hi"). The
+   justification for this heuristic is that immutable values can never
+   be changed, so there is no harm in sharing them across
+   clones. Additionally, such types can never contribute to cycles in
+   a JSON tree, so they are safe to share this way. Objects and
+   Arrays, on the other hand, can be modified later and can contribute
+   to cycles, and thus the clone needs to be an independent instance.
+   Note, however, that if this function directly passed a
+   non-Object/Array, that value is deeply cloned. The sharing
+   behaviour only applies when traversing Objects/Arrays.
 */
 cson_value * cson_value_clone( cson_value const * orig );
 
@@ -2064,7 +2127,8 @@ cson_value * cson_value_clone( cson_value const * orig );
    behaviour (quite possibly downstream when the container tries to
    use it).
 
-   This function only returns NULL if s. is NULL.
+   This function only returns NULL if s is NULL. The length of the
+   returned string is cson_string_length_bytes().
 */
 cson_value * cson_string_value(cson_string const * s);
 /**
@@ -2081,15 +2145,16 @@ cson_value * cson_array_value(cson_array const * s);
 
 
 /**
-   Calculates the in-memory-allocated size of v, recursively if it is
-   a container type, with the following caveats and limitations:
+   Calculates the approximate in-memory-allocated size of v,
+   recursively if it is a container type, with the following caveats
+   and limitations:
 
-   If a given value is reference counted and multiple times within a
-   traversed container, each reference is counted at full cost. We
-   have no what of knowing if a given reference has been visited
-   already and whether it should or should not be counted, so we
-   pessimistically count them even though the _might_ not really count
-   for the given object tree (it depends on where the other open
+   If a given value is reference counted then it is only and multiple
+   times within a traversed container, each reference is counted at
+   full cost. We have no way of knowing if a given reference has been
+   visited already and whether it should or should not be counted, so
+   we pessimistically count them even though the _might_ not really
+   count for the given object tree (it depends on where the other open
    references live).
 
    This function returns 0 if any of the following are true:

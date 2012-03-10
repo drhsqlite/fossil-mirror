@@ -192,7 +192,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       chnged = 1;
     }
     if( origSize!=currentSize ){
-      if( chnged==0 ){
+      if( chnged!=1 ){
         /* A file size change is definitive - the file has changed.  No
         ** need to check the mtime or sha1sum */
         chnged = 1;
@@ -337,7 +337,7 @@ void vfile_unlink(int vid){
 /*
 ** Check to see if the directory named in zPath is the top of a checkout.
 ** In other words, check to see if directory pPath contains a file named
-** "_FOSSIL_" or ".fos".  Return true or false.
+** "_FOSSIL_" or ".fslckout".  Return true or false.
 */
 int vfile_top_of_checkout(const char *zPath){
   char *zFile;
@@ -346,6 +346,17 @@ int vfile_top_of_checkout(const char *zPath){
   zFile = mprintf("%s/_FOSSIL_", zPath);
   fileFound = file_size(zFile)>=1024;
   fossil_free(zFile);
+  if( !fileFound ){
+    zFile = mprintf("%s/.fslckout", zPath);
+    fileFound = file_size(zFile)>=1024;
+    fossil_free(zFile);
+  }
+
+  /* Check for ".fos" for legacy support.  But the use of ".fos" as the
+  ** per-checkout database name is deprecated.  At some point, all support
+  ** for ".fos" will end and this code should be removed.  This comment
+  ** added on 2012-02-04.
+  */
   if( !fileFound ){
     zFile = mprintf("%s/.fos", zPath);
     fileFound = file_size(zFile)>=1024;

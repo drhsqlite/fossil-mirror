@@ -129,10 +129,12 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
   blob_extract(pXfer->pIn, n, &content);
   if( !cloneFlag && uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( isPriv && !g.perm.Private ){
     /* Do not accept private files if not authorized */
+    blob_reset(&content);
     return;
   }
   if( cloneFlag ){
@@ -158,6 +160,8 @@ static void xfer_accept_file(Xfer *pXfer, int cloneFlag){
       pXfer->nDanglingFile++;
       db_multi_exec("DELETE FROM phantom WHERE rid=%d", rid);
       if( !isPriv ) content_make_public(rid);
+      blob_reset(&src);
+      blob_reset(&content);
       return;
     }
     pXfer->nDeltaRcvd++;
@@ -237,6 +241,7 @@ static void xfer_accept_compressed_file(Xfer *pXfer){
   blob_extract(pXfer->pIn, szC, &content);
   if( uuid_is_shunned(blob_str(&pXfer->aToken[1])) ){
     /* Ignore files that have been shunned */
+    blob_reset(&content);
     return;
   }
   if( pXfer->nToken==5 ){
@@ -422,6 +427,7 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     }else{
       pXfer->nDeltaSent++;
     }
+    blob_reset(&content);
   }
   remote_has(rid);
   blob_reset(&uuid);
@@ -792,6 +798,31 @@ static void server_private_xfer_not_authorized(void){
   @ error not\sauthorized\sto\ssync\sprivate\scontent
 }
 
+/*
+** Run the specified TH1 script, if any, and returns the return code or TH_OK
+** when there is no script.
+*/
+static int run_script(const char *zScript){
+  if( !zScript ){
+    return TH_OK; /* No script, return success. */
+  }
+  Th_FossilInit(); /* Make sure TH1 is ready. */
+  return Th_Eval(g.interp, 0, zScript, -1);
+}
+
+/*
+** Run the pre-transfer TH1 script, if any, and returns the return code.
+*/
+static int run_common_script(void){
+  return run_script(db_get("xfer-common-script", 0));
+}
+
+/*
+** Run the post-push TH1 script, if any, and returns the return code.
+*/
+static int run_push_script(void){
+  return run_script(db_get("xfer-push-script", 0));
+}
 
 /*
 ** If this variable is set, disable login checks.  Used for debugging
@@ -849,6 +880,11 @@ void page_xfer(void){
      "CREATE TEMP TABLE onremote(rid INTEGER PRIMARY KEY);"
   );
   manifest_crosslink_begin();
+  if( run_common_script()==TH_ERROR ){
+    cgi_reset_content();
+    @ error common\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+    nErr++;
+  }
   while( blob_line(xfer.pIn, &xfer.line) ){
     if( blob_buffer(&xfer.line)[0]=='#' ) continue;
     if( blob_size(&xfer.line)==0 ) continue;
@@ -1162,6 +1198,11 @@ void page_xfer(void){
     blobarray_reset(xfer.aToken, xfer.nToken);
   }
   if( isPush ){
+    if( run_push_script()==TH_ERROR ){
+      cgi_reset_content();
+      @ error push\sscript\sfailed:\s%F(Th_GetResult(g.interp, 0))
+      nErr++;
+    }
     request_phantoms(&xfer, 500);
   }
   if( isClone && nGimme==0 ){

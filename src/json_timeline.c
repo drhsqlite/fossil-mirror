@@ -37,10 +37,7 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 */
 {"branch", json_timeline_branch, 0},
 {"checkin", json_timeline_ci, 0},
-{"ci", json_timeline_ci, -1},
-{"t", json_timeline_ticket, -1},
 {"ticket", json_timeline_ticket, 0},
-{"w", json_timeline_wiki, -1},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
@@ -137,7 +134,7 @@ const char const * json_timeline_query(void){
 ** Returns a positive value if it modifies pSql, 0 if it
 ** does not. It returns a negative value if the tag
 ** provided to the request was not found (pSql is not modified
-** in that case.
+** in that case).
 **
 ** If payload is not NULL then on success its "tag" or "branch"
 ** property is set to the tag/branch name found in the request.
@@ -235,8 +232,7 @@ static char json_timeline_add_time_clause(Blob *pSql){
 **
 ** Never returns a negative value. 0 means no limit.
 */
-static int json_timeline_limit(){
-  static const int defaultLimit = 20;
+static int json_timeline_limit(int defaultLimit){
   int limit = -1;
   if(!g.isHTTP){/* CLI mode */
     char const * arg = find_option("limit","n",1);
@@ -277,8 +273,8 @@ static int json_timeline_setup_sql( char const * zEventType,
     return FSL_JSON_E_INVALID_ARGS;
   }
   json_timeline_add_time_clause(pSql);
-  limit = json_timeline_limit();
-  if(limit>=0){
+  limit = json_timeline_limit(20);
+  if(limit>0){
     blob_appendf(pSql,"LIMIT %d ",limit);
   }
   if(pPayload){
@@ -355,6 +351,7 @@ static cson_value * json_timeline_branch(){
   cson_value * pay = NULL;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
+  int limit = 0;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -380,6 +377,10 @@ static cson_value * json_timeline_branch(){
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
                " ORDER BY event.mtime DESC",
                TAG_BRANCH);
+  limit = json_timeline_limit(20);
+  if(limit>0){
+    blob_appendf(&sql," LIMIT %d ",limit);
+  }
   db_prepare(&q,"%s", blob_str(&sql));
   blob_reset(&sql);
   pay = json_stmt_to_array_of_obj(&q, NULL);
@@ -397,21 +398,13 @@ static cson_value * json_timeline_branch(){
     for( ; i < len; ++i ){
       cson_object * row = cson_value_get_object(cson_array_get(ar,i));
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
-      if(row>0) {
-        cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
-        cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
-      }
+      assert( rid > 0 );
+      cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
+      cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
     }
     cson_value_free( cson_string_value(tags) );
     cson_value_free( cson_string_value(isLeaf) );
   }
-   
-  goto end;
-  error:
-  assert( 0 != g.json.resultCode );
-  cson_value_free(pay);
-
-  end:
   return pay;
 }
 
@@ -431,13 +424,12 @@ static cson_value * json_timeline_ci(){
   char showFiles = -1/*magic number*/;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
-  char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.Read ){
-    /* IMO this falls more under the category of g.perm.History, but
-       i'm following the original timeline impl here.
+  if( !g.perm.History ){
+    /* Reminder to self: HTML impl requires 'o' (Read)
+       rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'o' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
   showFiles = json_find_option_bool("files",NULL,"f",0);
@@ -464,23 +456,6 @@ static cson_value * json_timeline_ci(){
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
              " rid AS rid"
-#if 0
-             " uuid AS uuid,"
-             " mtime AS timestamp,"
-#  if 0
-             " timestampString AS timestampString,"
-#  endif
-             " comment AS comment, "
-             " user AS user,"
-             " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
-             " bgColor AS bgColor," /* why always null? */
-             " eventType AS eventType"
-#  if 0
-             " tags AS tags"
-             /*tagId is always null?*/
-             " tagId AS tagId"
-#  endif
-#endif
              " FROM json_timeline"
              " ORDER BY rowid");
   listV = cson_value_new_array();
@@ -521,7 +496,6 @@ cson_value * json_timeline_wiki(){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
-  cson_value * tmp = NULL;
   cson_array * list = NULL;
   int check = 0;
   Stmt q = empty_Stmt;
@@ -538,12 +512,6 @@ cson_value * json_timeline_wiki(){
     goto error;
   }
 
-#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    json_set_err((cson_rc.AllocError==check)        \
-                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,       \
-                 "Object property insertion failed."); \
-    goto error;\
-  } (void)0
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
@@ -570,10 +538,8 @@ cson_value * json_timeline_wiki(){
              " ORDER BY rowid",
              -1);
   list = cson_new_array();
-  tmp = cson_array_value(list);
-  SET("timeline");
   json_stmt_to_array_of_obj(&q, list);
-#undef SET
+  cson_object_set(pay, "timeline", cson_array_value(list));
   goto ok;
   error:
   assert( 0 != g.json.resultCode );

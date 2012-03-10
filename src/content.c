@@ -315,6 +315,8 @@ int content_get(int rid, Blob *pBlob){
 **
 ** Options:
 **    -R|--repository FILE       Extract artifacts from repository FILE
+**
+** See also: finfo
 */
 void artifact_cmd(void){
   int rid;
@@ -324,6 +326,9 @@ void artifact_cmd(void){
   if( g.argc!=4 && g.argc!=3 ) usage("ARTIFACT-ID ?FILENAME? ?OPTIONS?");
   zFile = g.argc==4 ? g.argv[3] : "-";
   rid = name_to_rid(g.argv[2]);
+  if( rid==0 ){
+    fossil_fatal("%s",g.zErrMsg);
+  }
   content_get(rid, &content);
   blob_write_to_file(&content, zFile);
 }

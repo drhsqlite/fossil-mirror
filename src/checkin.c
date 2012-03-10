@@ -182,7 +182,7 @@ void status_cmd(void){
   int vid;
   db_must_be_within_tree();
        /* 012345678901234 */
-  fossil_print("repository:   %s\n", db_lget("repository",""));
+  fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
   vid = db_lget_int("checkout", 0);
   if( vid ){
@@ -458,10 +458,10 @@ static void prepare_commit_comment(
   status_report(&text, "# ", 1, 0);
   zEditor = db_get("editor", 0);
   if( zEditor==0 ){
-    zEditor = getenv("VISUAL");
+    zEditor = fossil_getenv("VISUAL");
   }
   if( zEditor==0 ){
-    zEditor = getenv("EDITOR");
+    zEditor = fossil_getenv("EDITOR");
   }
   if( zEditor==0 ){
     blob_append(&text,

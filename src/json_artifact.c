@@ -52,42 +52,59 @@ typedef struct ArtifactDispatchEntry {
 
 
 /*
+** Generates a JSON Array reference holding the parent UUIDs (as strings).
+** If it finds no matches then it returns NULL (OOM is a fatal error).
+**
+** Returned value is NULL or an Array owned by the caller.
+*/
+cson_value * json_parent_uuids_for_ci( int rid ){
+  Stmt q = empty_Stmt;
+  cson_array * pParents = NULL;
+  db_prepare( &q,
+              "SELECT uuid FROM plink, blob"
+              " WHERE plink.cid=%d AND blob.rid=plink.pid"
+              " ORDER BY plink.isprim DESC",
+              rid );
+  while( SQLITE_ROW==db_step(&q) ){
+    if(!pParents) {
+      pParents = cson_new_array();
+    }
+    cson_array_append( pParents, cson_sqlite3_column_to_value( q.pStmt, 0 ) );
+  }
+  db_finalize(&q);
+  return cson_array_value(pParents);
+}
+
+/*
 ** Generates an artifact Object for the given rid,
 ** which must refer to a Checkin.
 **
 ** Returned value is NULL or an Object owned by the caller.
 */
 cson_value * json_artifact_for_ci( int rid, char showFiles ){
-  char * zParent = NULL;
   cson_value * v = NULL;
-  Stmt q;
+  Stmt q = empty_Stmt;
   static cson_value * eventTypeLabel = NULL;
   if(!eventTypeLabel){
     eventTypeLabel = json_new_string("checkin");
     json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel);
   }
-  zParent = db_text(0,
-    "SELECT uuid FROM plink, blob"
-    " WHERE plink.cid=%d AND blob.rid=plink.pid AND plink.isprim",
-    rid
-  );
-
-  db_prepare(&q, 
-             "SELECT uuid, "
-             " cast(strftime('%%s',mtime) as int), "
-             " user, "
-             " comment,"
-             " strftime('%%s',omtime)"
-             " FROM blob, event"
-             " WHERE blob.rid=%d"
-             "   AND event.objid=%d",
+  
+  db_prepare(&q,
+             "SELECT b.uuid, "
+             " cast(strftime('%%s',e.mtime) as int), "
+             " strftime('%%s',e.omtime),"
+             " e.user, "
+             " e.comment"
+             " FROM blob b, event e"
+             " WHERE b.rid=%d"
+             "   AND e.objid=%d",
              rid, rid
              );
   if( db_step(&q)==SQLITE_ROW ){
     cson_object * o;
     cson_value * tmpV = NULL;
     const char *zUuid = db_column_text(&q, 0);
-    char * zTmp;
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
@@ -98,7 +115,15 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("type", eventTypeLabel );
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
-    zUser = db_column_text(&q,2);
+
+    mtime = db_column_int(&q,1);
+    SET("mtime",json_new_int(mtime));
+    omtime = db_column_int(&q,2);
+    if(omtime && (omtime!=mtime)){
+      SET("originTime",json_new_int(omtime));
+    }
+
+    zUser = db_column_text(&q,3);
     zEUser = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_USER, rid);
@@ -112,7 +137,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("user",json_new_string(zUser));
     }
 
-    zComment = db_column_text(&q,3);
+    zComment = db_column_text(&q,4);
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
@@ -126,15 +151,9 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("comment",json_new_string(zComment));
     }
 
-    mtime = db_column_int(&q,1);
-    SET("mtime",json_new_int(mtime));
-    omtime = db_column_int(&q,4);
-    if(omtime && (omtime!=mtime)){
-      SET("originTime",json_new_int(omtime));
-    }
-
-    if(zParent){
-      SET("parentUuid", json_new_string(zParent));
+    tmpV = json_parent_uuids_for_ci(rid);
+    if(tmpV){
+      SET("parents", tmpV);
     }
 
     tmpV = json_tags_for_checkin_rid(rid,0);
@@ -143,16 +162,14 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     }
 
     if( showFiles ){
-      cson_value * fileList = json_get_changed_files(rid);
-      if(fileList){
-        SET("files",fileList);
+      tmpV = json_get_changed_files(rid);
+      if(tmpV){
+        SET("files",tmpV);
       }
     }
 
-
 #undef SET
   }
-  free(zParent);
   db_finalize(&q);
   return v;
 }
@@ -191,8 +208,8 @@ cson_value * json_artifact_ticket( int rid ){
 ** Sub-impl of /json/artifact for checkins.
 */
 static cson_value * json_artifact_ci( int rid ){
-  if(! g.perm.Read ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if(!g.perm.Read){
+    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
     return NULL;
   }else{
     return json_artifact_for_ci(rid, 1);
@@ -226,7 +243,11 @@ cson_value * json_artifact_wiki(int rid){
                  "Requires 'j' privileges.");
     return NULL;
   }else{
-    return json_get_wiki_page_by_rid(rid, 0);
+    char contentFormat = json_wiki_get_content_format_flag(-9);
+    if(-9 == contentFormat){
+      contentFormat = json_artifact_include_content_flag() ? -1 : 0;
+    }
+    return json_get_wiki_page_by_rid(rid, contentFormat);
   }
 }
 
@@ -299,10 +320,10 @@ cson_value * json_page_artifact(){
   int rc;
   int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
-  zName = json_find_option_cstr2("uuid", NULL, NULL, 2);
+  zName = json_find_option_cstr2("name", NULL, NULL, 2);
   if(!zName || !*zName) {
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "Missing 'uuid' argument.");
+                 "Missing 'name' argument.");
     return NULL;
   }
 

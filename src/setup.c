@@ -75,6 +75,8 @@ void setup_page(void){
     " on the same server");
   setup_menu_entry("Tickets", "tktsetup",
     "Configure the trouble-ticketing system for this repository");
+  setup_menu_entry("Transfers", "xfersetup",
+    "Configure the transfer system for this repository");
   setup_menu_entry("Skins", "setup_skin",
     "Select from a menu of prepackaged \"skins\" for the web interface");
   setup_menu_entry("CSS", "setup_editcss",

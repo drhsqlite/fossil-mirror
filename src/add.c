@@ -46,6 +46,14 @@ const char *fossil_reserved_name(int N){
      "_FOSSIL_-journal",
      "_FOSSIL_-wal",
      "_FOSSIL_-shm",
+     ".fslckout",
+     ".fslckout-journal",
+     ".fslckout-wal",
+     ".fslckout-shm",
+
+     /* The use of ".fos" as the name of the checkout database is 
+     ** deprecated.  Use ".fslckout" instead.  At some point, the following
+     ** entries should be removed.  2012-02-04 */
      ".fos",
      ".fos-journal",
      ".fos-wal",
@@ -501,9 +509,7 @@ static void mv_one_file(int vid, const char *zOrig, const char *zNew){
 ** records the fact that filenames have changed so that appropriate notations
 ** can be made at the next commit/checkin.
 **
-**
-** SUMMARY: fossil mv|rename OLDNAME NEWNAME
-**      or: fossil mv|rename OLDNAME... DIR
+** See also: changes, status
 */
 void mv_cmd(void){
   int i;

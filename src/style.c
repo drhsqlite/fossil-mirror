@@ -400,66 +400,6 @@ const char zDefaultCSS[] =
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
-@
-@ /* Side-by-side diff */
-@ table.sbsdiff {
-@   background-color: white;
-@   font-family: fixed, Dejavu Sans Mono, Monaco, Lucida Console, monospace;
-@   font-size: 8pt;
-@   border-collapse:collapse;
-@   white-space: pre;
-@   width: 98%;
-@   border: 1px #000 dashed;
-@   margin-left: auto;
-@   margin-right: auto;
-@ }
-@
-@ table.sbsdiff th.diffhdr {
-@   border-bottom: dotted;
-@   border-width: 1px;
-@ }
-@
-@ table.sbsdiff tr td {
-@   white-space: pre;
-@   padding-left: 3px;
-@   padding-right: 3px;
-@   margin: 0px;
-@   vertical-align: top;
-@ }
-@
-@ table.sbsdiff tr td.lineno {
-@   text-align: right;
-@ }
-@
-@ table.sbsdiff tr td.srcline {
-@ }
-@
-@ table.sbsdiff tr td.meta {
-@   background-color: rgb(170, 160, 255);
-@   text-align: center;
-@ }
-@
-@ table.sbsdiff tr td.added {
-@   background-color: rgb(180, 250, 180);
-@ }
-@ table.sbsdiff tr td.addedvoid {
-@   background-color: rgb(190, 190, 180);
-@ }
-@
-@ table.sbsdiff tr td.removed {
-@   background-color: rgb(250, 130, 130);
-@ }
-@ table.sbsdiff tr td.removedvoid {
-@   background-color: rgb(190, 190, 180);
-@ }
-@
-@ table.sbsdiff tr td.changed {
-@   background-color: rgb(210, 210, 200);
-@ }
-@ table.sbsdiff tr td.changedvoid {
-@   background-color: rgb(190, 190, 180);
-@ }
-@
 ;
 
 
@@ -772,6 +712,11 @@ const struct strctCssDefaults {
     @   color: red;
     @   font-weight: bold;
   },
+  { "p.xfersetupError",
+    "format for xfersetup errors",
+    @   color: red;
+    @   font-weight: bold;
+  },
   { "p.thmainError",
     "format for th script errors",
     @   color: red;
@@ -807,6 +752,37 @@ const struct strctCssDefaults {
     "List of files in a timeline",
     @   margin-top: 3px;
     @   line-height: 100%;
+  },
+  { "div.sbsdiff",
+    "side-by-side diff display",
+    @   font-family: monospace;
+    @   font-size: smaller;
+    @   white-space: pre;
+  },
+  { "div.udiff",
+    "context diff display",
+    @   font-family: monospace;
+    @   white-space: pre;
+  },
+  { "span.diffchng",
+    "changes in a diff",
+    @   background-color: #c0c0ff;
+  },
+  { "span.diffadd",
+    "added code in a diff",
+    @   background-color: #c0ffc0;
+  },
+  { "span.diffrm",
+    "deleted in a diff",
+    @   background-color: #ffc8c8;
+  },
+  { "span.diffhr",
+    "suppressed lines in a diff",
+    @   color: #0000ff;
+  },
+  { "span.diffln",
+    "line nubmers in a diff",
+    @   color: #a0a0a0;
   },
   { 0,
     0,

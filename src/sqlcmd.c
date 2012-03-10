@@ -77,7 +77,7 @@ static void sqlcmd_compress(
 }
 
 /*
-** Implementation of the "uncontent(X)" SQL function.  The argument X
+** Implementation of the "decompress(X)" SQL function.  The argument X
 ** is a blob which was obtained from compress(Y).  The output will be
 ** the value Y.
 */

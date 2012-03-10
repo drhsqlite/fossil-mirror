@@ -54,17 +54,6 @@ const FossilJsonKeys_ FossilJsonKeys = {
   "timestamp" /*timestamp*/
 };
 
-/*
-** Internal helpers to manipulate a byte array as a bitset. The B
-** argument must be-a array at least (BIT/8+1) bytes long.
-** The BIT argument is the bit number to query/set/clear/toggle.
-*/
-#define BITSET_BYTEFOR(B,BIT) ((B)[ BIT / 8 ])
-#define BITSET_SET(B,BIT) ((BITSET_BYTEFOR(B,BIT) |= (0x01 << (BIT%8))),0x01)
-#define BITSET_UNSET(B,BIT) ((BITSET_BYTEFOR(B,BIT) &= ~(0x01 << (BIT%8))),0x00)
-#define BITSET_GET(B,BIT) ((BITSET_BYTEFOR(B,BIT) & (0x01 << (BIT%8))) ? 0x01 : 0x00)
-#define BITSET_TOGGLE(B,BIT) (BITSET_GET(B,BIT) ? (BITSET_UNSET(B,BIT)) : (BITSET_SET(B,BIT)))
-
 
 /* Timer code taken from sqlite3's shell.c, modified slightly.
    FIXME: move the timer into the fossil core API so that we can
@@ -97,13 +86,13 @@ static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
 static double endTimer(void){
   struct rusage sEnd;
   getrusage(RUSAGE_SELF, &sEnd);
-  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
-    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
 #if 0
   printf("CPU Time: user %f sys %f\n",
          timeDiff(&sBegin.ru_utime, &sEnd.ru_utime),
          timeDiff(&sBegin.ru_stime, &sEnd.ru_stime));
 #endif
+  return timeDiff(&sBegin.ru_utime, &sEnd.ru_utime)
+    + timeDiff(&sBegin.ru_stime, &sEnd.ru_stime);
 }
 
 #define BEGIN_TIMER beginTimer()
@@ -175,6 +164,7 @@ static double endTimer(void){
     return timeDiff(&ftUserBegin, &ftUserEnd) +
       timeDiff(&ftKernelBegin, &ftKernelEnd);
   }
+  return 0.0;
 }
 
 #define BEGIN_TIMER beginTimer()
@@ -213,7 +203,7 @@ static char const * json_err_cstr( int errCode ){
 
     C(GENERIC,"Generic error");
     C(INVALID_REQUEST,"Invalid request");
-    C(UNKNOWN_COMMAND,"Unknown Command");
+    C(UNKNOWN_COMMAND,"Unknown command or subcommand");
     C(UNKNOWN,"Unknown error");
     C(TIMEOUT,"Timeout reached");
     C(ASSERT,"Assertion failed");
@@ -437,7 +427,7 @@ cson_value * json_getenv( char const * zKey ){
          find_option(zKey,NULL,XYZ) here, but we don't have a sane
          default for the XYZ param here.
       */
-      cv = getenv(zKey);
+      cv = fossil_getenv(zKey);
     }
     if(cv){/*transform it to JSON for later use.*/
       /* use sscanf() to figure out if it's an int,
@@ -502,7 +492,7 @@ int json_getenv_int(char const * pKey, int dflt ){
 ** Wrapper around json_getenv() which tries to evaluate a payload/env
 ** value as a boolean. Uses mostly the same logic as
 ** json_getenv_int(), with the addition that string values which
-** either start with a digit 1..9 or the letters [tT] are considered
+** either start with a digit 1..9 or the letters [tTyY] are considered
 ** to be true. If this function cannot find a matching key/value then
 ** dflt is returned. e.g. if it finds the key but the value is-a
 ** Object then dftl is returned.
@@ -524,8 +514,10 @@ char json_getenv_bool(char const * pKey, char dflt ){
     if(!*sv || ('0'==*sv)){
       return 0;
     }else{
-      return (('t'==*sv) || ('T'==*sv)
-              || (('1'<=*sv) && ('9'>=*sv)))
+      return ((('1'<=*sv) && ('9'>=*sv))
+              || ('t'==*sv) || ('T'==*sv)
+              || ('y'==*sv) || ('Y'==*sv)
+              )
         ? 1 : 0;
     }
   }else if( cson_value_is_bool(v) ){
@@ -553,7 +545,7 @@ char const * json_getenv_cstr( char const * zKey ){
 ** GET/POST/CLI argument.
 **
 ** zKey must be the GET/POST parameter key. zCLILong must be the "long
-** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
+s** form" CLI flag (NULL means to use zKey). zCLIShort may be NULL or
 ** the "short form" CLI flag (if NULL, no short form is used).
 **
 ** If argPos is >=0 and no other match is found,
@@ -583,10 +575,13 @@ char const * json_find_option_cstr2(char const * zKey,
   return rc;
 }
 
+/*
+** Short-hand form of json_find_option_cstr2(zKey,zCLILong,zCLIShort,-1).
+*/
 char const * json_find_option_cstr(char const * zKey,
                                    char const * zCLILong,
                                    char const * zCLIShort){
-  return json_find_option_cstr2(zKey, zCLIShort, zCLIShort, -1);
+  return json_find_option_cstr2(zKey, zCLILong, zCLIShort, -1);
 }
 
 /*
@@ -611,14 +606,14 @@ char json_find_option_bool(char const * zKey,
 }
 
 /*
-** The integer equivalent of json_find_option_cstr().
+** The integer equivalent of json_find_option_cstr2().
 ** If the option is not found, dftl is returned.
 */
 int json_find_option_int(char const * zKey,
                          char const * zCLILong,
                          char const * zCLIShort,
                          int dflt ){
-  enum { Magic = -947 };
+  enum { Magic = -1947854832 };
   int rc = Magic;
   if(!g.isHTTP){
     /* FIXME: use strtol() for better error/dflt handling. */
@@ -922,7 +917,6 @@ int json_string_split( char const * zStr,
   char const * head  /* current start-of-token */;
   unsigned int len = 0   /* current token's length */;
   int rc = 0   /* return code (number of added elements)*/;
-  char skipWs = fossil_isspace(separator) ? 0 : 1;
   assert( zStr && target );
   while( fossil_isspace(*p) ){
     ++p;
@@ -989,7 +983,7 @@ int json_string_split( char const * zStr,
 ** in any way or produced no tokens).
 **
 ** The returned value is owned by the caller. If not NULL then it
-** _will_ have a JSON type of Array or Null.
+** _will_ have a JSON type of Array.
 */
 cson_value * json_string_split2( char const * zStr,
                                  char separator,
@@ -1025,7 +1019,6 @@ cson_value * json_string_split2( char const * zStr,
 static void json_mode_bootstrap(){
   static char once = 0  /* guard against multiple runs */;
   char const * zPath = P("PATH_INFO");
-  cson_value * pathSplit = NULL;
   assert( (0==once) && "json_mode_bootstrap() called too many times!");
   if( once ){
     return;
@@ -1161,7 +1154,6 @@ static void json_mode_bootstrap(){
 
   {/* set up JSON output formatting options. */
     int indent = -1;
-    char const * indentStr = NULL;
     indent = json_find_option_int("indent",NULL,"I",-1);
     g.json.outOpt.indentation = (0>indent)
       ? (g.isHTTP ? 0 : 1)
@@ -1178,6 +1170,13 @@ static void json_mode_bootstrap(){
     login_check_credentials()/* populates g.perm */;
   }
   else{
+    /* FIXME: we need an option which allows us to skip this. At least
+       one known command (/json/version) does not need an opened
+       repo. The problem here is we cannot know which functions need
+       it from here (because command dispatching hasn't yet happened)
+       and all other commands rely on the repo being opened before
+       they are called. A textbook example of lack of foresight :/.
+     */
     db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
   }
 }
@@ -1303,7 +1302,8 @@ static int json_dumbdown_rc( int code ){
 /*
 ** Convenience routine which converts a Julian time value into a Unix
 ** Epoch timestamp. Requires the db, so this cannot be used before the
-** repo is opened (will trigger a fatal error in db_xxx()).
+** repo is opened (will trigger a fatal error in db_xxx()). The returned
+** value is owned by the caller.
 */
 cson_value * json_julian_to_timestamp(double j){
   return cson_value_new_integer((cson_int_t)
@@ -1317,10 +1317,12 @@ cson_value * json_julian_to_timestamp(double j){
 cson_int_t json_timestamp(){
   return (cson_int_t)time(0);
 }
+
 /*
 ** Returns a new JSON value (owned by the caller) representing
 ** a timestamp. If timeVal is < 0 then time(0) is used to fetch
-** the time, else timeVal is used as-is
+** the time, else timeVal is used as-is. The returned value is
+** owned by the caller.
 */
 cson_value * json_new_timestamp(cson_int_t timeVal){
   return cson_value_new_integer((timeVal<0) ? (cson_int_t)time(0) : timeVal);
@@ -1338,7 +1340,6 @@ static cson_value * json_response_command_path(){
   }else{
     cson_value * rc = NULL;
     Blob path = empty_blob;
-    char const * part;
     unsigned int aLen = g.json.dispatchDepth+1; /*cson_array_length_get(g.json.cmd.a);*/
     unsigned int i = 1;
     for( ; i < aLen; ++i ){
@@ -1471,7 +1472,8 @@ cson_value * json_g_to_json(){
 ** on error.
 **
 ** If payload is not NULL and resultCode is 0 then it is set as the
-** "payload" property of the returned object.  If resultCode is
+** "payload" property of the returned object.  If resultCode is 0 then
+** it defaults to g.json.resultCode. If resultCode is (or defaults to)
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
 ** response. In either case, onwership of payload is transfered to (or
@@ -1484,14 +1486,14 @@ cson_value * json_g_to_json(){
 ** resultText property.
 **
 */
-cson_value * json_create_response( int resultCode,
-                                   char const * pMsg,
-                                   cson_value * payload){
+static cson_value * json_create_response( int resultCode,
+                                          char const * pMsg,
+                                          cson_value * payload){
   cson_value * v = NULL;
   cson_value * tmp = NULL;
   cson_object * o = NULL;
   int rc;
-  resultCode = json_dumbdown_rc(resultCode);
+  resultCode = json_dumbdown_rc(resultCode ? resultCode : g.json.resultCode);
   o = cson_new_object();
   v = cson_object_value(o);
   if( ! o ) return NULL;
@@ -1503,7 +1505,8 @@ cson_value * json_create_response( int resultCode,
     goto cleanup; \
   }while(0)
 
-  tmp = cson_value_new_string(MANIFEST_UUID,strlen(MANIFEST_UUID));
+  
+  tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
 
   tmp = json_new_timestamp(-1);
@@ -1610,7 +1613,7 @@ cson_value * json_create_response( int resultCode,
 ** flush the output (and headers). Generally only do this if you are
 ** about to call exit().
 **
-** !g.isHTTP then alsoOutput is ignored and all output is sent to
+** If !g.isHTTP then alsoOutput is ignored and all output is sent to
 ** stdout immediately.
 **
 ** For generating the resultText property: if msg is not NULL then it
@@ -1704,7 +1707,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!colNames){
       colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
-      cson_value_add_reference(colNamesV);
+      cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
     }      
@@ -1759,6 +1762,9 @@ cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
 **
 ** pTgt has the same semantics as described for
 ** json_stmt_to_array_of_obj().
+**
+** FIXME: change this to take a (char const *) instead of a blob,
+** to simplify the trivial use-cases (which don't need a Blob).
 */
 cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
                                       char resetBlob){
@@ -1777,11 +1783,14 @@ cson_value * json_sql_to_array_of_obj(Blob * pSql, cson_array * pTgt,
 
 /*
 ** If the given COMMIT rid has any tags associated with it, this
-** function returns a JSON Array containing the tag names, else it
-** returns NULL.
+** function returns a JSON Array containing the tag names (owned by
+** the caller), else it returns NULL.
 **
 ** See info_tags_of_checkin() for more details (this is simply a JSON
 ** wrapper for that function).
+**
+** If there are no tags then this function returns NULL, not an empty
+** Array.
 */
 cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
   cson_value * v = NULL;
@@ -1821,11 +1830,7 @@ cson_value * json_page_resultCodes(){
     cson_string * kSymbol;
     cson_string * kNumber;
     cson_string * kDesc;
-    int rc = cson_array_reserve( list, 35 );
-    if(rc){
-        assert( 0 && "Allocation error.");
-        exit(1);
-    }
+    cson_array_reserve( list, 35 );
     kRC = cson_new_string("resultCode",10);
     kSymbol = cson_new_string("cSymbol",7);
     kNumber = cson_new_string("number",6);
@@ -1896,11 +1901,12 @@ cson_value * json_page_version(){
   FSET(MANIFEST_DATE,"manifestDate");
   FSET(MANIFEST_YEAR,"manifestYear");
   FSET(RELEASE_VERSION,"releaseVersion");
-#undef FSET
   cson_object_set( jobj, "releaseVersionNumber",
                    cson_value_new_integer(RELEASE_VERSION_NUMBER) );
   cson_object_set( jobj, "resultCodeParanoiaLevel",
                    cson_value_new_integer(g.json.errorDetailParanoia) );
+  FSET(FOSSIL_JSON_API_VERSION, "jsonApiVersion" );
+#undef FSET
   return jval;
 }
 
@@ -2005,6 +2011,7 @@ cson_value * json_page_stat(){
   cson_object * jo = NULL;
   cson_value * jv2 = NULL;
   cson_object * jo2 = NULL;
+  char * zTmp = NULL;
   if( !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -2016,12 +2023,13 @@ cson_value * json_page_stat(){
   jv = cson_value_new_object();
   jo = cson_value_get_object(jv);
 
-  sqlite3_snprintf(BufLen, zBuf, db_get("project-name",""));
-  SETBUF(jo, "projectName");
-  /* FIXME: don't include project-description until we ensure that
-     zBuf will always be big enough. We "should" replace zBuf
-     with a blob for this purpose.
-  */
+  zTmp = db_get("project-name",NULL);
+  cson_object_set(jo, "projectName", json_new_string(zTmp));
+  free(zTmp);
+  zTmp = db_get("project-description",NULL);
+  cson_object_set(jo, "projectDescription", json_new_string(zTmp));
+  free(zTmp);
+  zTmp = NULL;
   fsize = file_size(g.zRepositoryName);
   cson_object_set(jo, "repositorySize", cson_value_new_integer((cson_int_t)fsize));
 
@@ -2119,23 +2127,45 @@ static int json_pagedefs_to_string(JsonPageDef const * zPages,
   return i;
 }
 
+/*
+** Creates an error message using zErrPrefix and the given array of
+** JSON command definitions, and sets the g.json error state to
+** reflect FSL_JSON_E_MISSING_ARGS. If zErrPrefix is NULL then
+** some default is used (e.g. "Try one of: "). If it is "" then
+** no prefix is used.
+**
+** The intention is to provide the user (via the response.resultText)
+** a list of available commands/subcommands.
+**
+*/
+void json_dispatch_missing_args_err( JsonPageDef const * pCommands,
+                                     char const * zErrPrefix ){
+  Blob cmdNames = empty_blob;
+  blob_init(&cmdNames,NULL,0);
+  if( !zErrPrefix ) {
+    zErrPrefix = "Try one of: ";
+  }
+  blob_append( &cmdNames, zErrPrefix, strlen(zErrPrefix) );
+  json_pagedefs_to_string(pCommands, &cmdNames);
+  json_set_err(FSL_JSON_E_MISSING_ARGS, "%s",
+               blob_str(&cmdNames));
+  blob_reset(&cmdNames);
+}
 
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
   JsonPageDef const * def;
   char const * cmd = json_command_arg(1+g.json.dispatchDepth);
   assert( NULL != pages );
   if( ! cmd ){
-    Blob cmdNames = empty_blob;
-    json_pagedefs_to_string(pages, &cmdNames);
-    json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "No subcommand specified. Try one of (%s).",
-                 blob_str(&cmdNames));
-    blob_reset(&cmdNames);
+    json_dispatch_missing_args_err(pages,
+                                   "No subcommand specified. "
+                                   "Try one of: ");
     return NULL;
   }
   def = json_handler_for_name( cmd, pages );
   if(!def){
-    g.json.resultCode = FSL_JSON_E_UNKNOWN_COMMAND;
+    json_set_err(FSL_JSON_E_UNKNOWN_COMMAND,
+                 "Unknown subcommand: %s", cmd);
     return NULL;
   }
   else{
@@ -2203,6 +2233,10 @@ cson_value * json_page_report();
 cson_value * json_page_tag();
 /* Impl in json_user.c. */
 cson_value * json_page_user();
+/* Impl in json_config.c. */
+cson_value * json_page_config();
+/* Impl in json_finfo.c. */
+cson_value * json_page_finfo();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2214,8 +2248,10 @@ static const JsonPageDef JsonPageDefs[] = {
 {"artifact", json_page_artifact, 0},
 {"branch", json_page_branch,0},
 {"cap", json_page_cap, 0},
+{"config", json_page_config, 0 },
 {"diff", json_page_diff, 0},
-{"dir", json_page_nyi, 0},
+/*{"dir", json_page_nyi, 0},*/
+{"finfo", json_page_finfo, 0},
 {"g", json_page_g, 0},
 {"HAI",json_page_version,0},
 {"login",json_page_login,0},
@@ -2226,7 +2262,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
 {"tag", json_page_tag,0},
-{"ticket", json_page_nyi,0},
+/*{"ticket", json_page_nyi,0},*/
 {"timeline", json_page_timeline,0},
 {"user",json_page_user,0},
 {"version",json_page_version,0},
@@ -2236,39 +2272,40 @@ static const JsonPageDef JsonPageDefs[] = {
 {NULL,NULL,0}
 };
 
-
 /*
-** Mapping of /json/ticket/XXX commands/paths to callbacks.
+** Internal helper for json_cmd_top() and json_page_top().
+**
+** Searches JsonPageDefs for a command with the given name. If found,
+** it is used to generate and output a JSON response. If not found, it
+** generates a JSON-style error response. Returns 0 on success, non-0
+** on error. On error it will set g.json's error state.
 */
-static const JsonPageDef JsonPageDefs_Ticket[] = {
-{"get", json_page_nyi, 0},
-{"list", json_page_nyi, 0},
-{"save", json_page_nyi, 1},
-{"create", json_page_nyi, 1},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Mapping of /json/artifact/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Artifact[] = {
-{"vinfo", json_page_nyi, 0},
-{"finfo", json_page_nyi, 0},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
-/*
-** Mapping of /json/tag/XXX commands/paths to callbacks.
-*/
-static const JsonPageDef JsonPageDefs_Tag[] = {
-{"list", json_page_nyi, 0},
-{"create", json_page_nyi, 1},
-/* Last entry MUST have a NULL name. */
-{NULL,NULL,0}
-};
-
+static int json_dispatch_root_command( char const * zCommand ){
+  int rc = 0;
+  cson_value * payload = NULL;
+  JsonPageDef const * pageDef = NULL;
+  pageDef = json_handler_for_name(zCommand,&JsonPageDefs[0]);
+  if( ! pageDef ){
+    rc = FSL_JSON_E_UNKNOWN_COMMAND;
+    json_set_err( rc, "Unknown command: %s", zCommand );
+  }else if( pageDef->runMode < 0 /*CLI only*/){
+    rc = FSL_JSON_E_WRONG_MODE;
+  }else if( (g.isHTTP && (pageDef->runMode < 0 /*CLI only*/))
+            ||
+            (!g.isHTTP && (pageDef->runMode > 0 /*HTTP only*/))
+            ){
+    rc = FSL_JSON_E_WRONG_MODE;
+  }
+  else{
+    rc = 0;
+    g.json.dispatchDepth = 1;
+    payload = (*pageDef->func)();
+  }
+  payload = json_create_response(rc, NULL, payload);
+  json_send_response(payload);
+  cson_value_free(payload);
+  return rc;
+}
 
 #ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
@@ -2279,52 +2316,19 @@ static const JsonPageDef JsonPageDefs_Tag[] = {
 ** json_cmd_top().
 */
 void json_page_top(void){
-  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
-  char const * cmd;
-  cson_value * payload = NULL;
-  JsonPageDef const * pageDef = NULL;
+  char const * zCommand;
   BEGIN_TIMER;
   json_mode_bootstrap();
-  cmd = json_command_arg(1);
-  if(!cmd || !*cmd){
-    goto usage;
-  }
-  /*cgi_printf("{\"cmd\":\"%s\"}\n",cmd); return;*/
-  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
-  if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 0 );
+  zCommand = json_command_arg(1);
+  if(!zCommand || !*zCommand){
+    json_dispatch_missing_args_err( JsonPageDefs,
+                                    "No command (sub-path) specified."
+                                    " Try one of: ");
     return;
-  }else if( pageDef->runMode < 0 /*CLI only*/){
-    rc = FSL_JSON_E_WRONG_MODE;
-  }else{
-    rc = 0;
-    g.json.dispatchDepth = 1;
-    payload = (*pageDef->func)();
   }
-  if( g.json.resultCode ){
-    cson_value_free(payload);
-    json_err(g.json.resultCode, NULL, 0);
-  }else{
-    cson_value * root = json_create_response(rc, NULL, payload);
-    json_send_response(root);
-    cson_value_free(root);
-  }
-
-  return;
-  usage:
-  {
-    Blob cmdNames = empty_blob;
-    blob_init(&cmdNames,
-              "No command (sub-path) specified. Try one of: ",
-              -1);
-    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
-    json_err(FSL_JSON_E_MISSING_ARGS,
-             blob_str(&cmdNames), 0);
-    blob_reset(&cmdNames);
-  }
-
+  json_dispatch_root_command( zCommand );
 }
-#endif /* FOSSIL_ENABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON for mkindex */
 
 #ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
 /*
@@ -2333,30 +2337,43 @@ void json_page_top(void){
 **
 ** COMMAND: json
 **
-** Usage: %fossil json SUBCOMMAND
+** Usage: %fossil json SUBCOMMAND ?OPTIONS?
+**
+** In CLI mode, the -R REPO common option is supported. Due to limitations
+** in the argument dispatching code, any -FLAGS must come after the final
+** sub- (or subsub-) command.
 **
 ** The commands include:
 **
+**   anonymousPassord
+**   artifact
 **   branch
 **   cap
+**   diff
+**   g
+**   login
+**   logout
+**   query
+**   rebuild
+**   report
+**   resultCodes
 **   stat
+**   tag
 **   timeline
+**   user
 **   version (alias: HAI)
+**   whoami
 **   wiki
 **
+** Run '%fossil json' without any subcommand to see the full list (but be
+** aware that some listed might not yet be implemented).
 **
-** TODOs:
-**
-**   tag
-**   ticket
-**   ...
+** PS: the notable TODO-commands include: config, dir, finfo, ticket
 **
 */
 void json_cmd_top(void){
   char const * cmd = NULL;
-  int rc = FSL_JSON_E_UNKNOWN_COMMAND;
-  cson_value * payload = NULL;
-  JsonPageDef const * pageDef;
+  int rc = 0;
   BEGIN_TIMER;
   memset( &g.perm, 0xff, sizeof(g.perm) )
     /* In CLI mode fossil does not use permissions
@@ -2372,7 +2389,6 @@ void json_cmd_top(void){
   if( 2 > cson_array_length_get(g.json.cmd.a) ){
     goto usage;
   }
-  db_find_and_open_repository(0, 0);
 #if 0
   json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing.");
   json_warn(FSL_JSON_W_ROW_TO_JSON_FAILED, "Just testing again.");
@@ -2381,50 +2397,27 @@ void json_cmd_top(void){
   if( !cmd || !*cmd ){
     goto usage;
   }
-  pageDef = json_handler_for_name(cmd,&JsonPageDefs[0]);
-  if( ! pageDef ){
-    json_err( FSL_JSON_E_UNKNOWN_COMMAND, NULL, 1 );
-    return;
-  }else if( pageDef->runMode > 0 /*HTTP only*/){
-    rc = FSL_JSON_E_WRONG_MODE;
-  }else{
-    rc = 0;
-    g.json.dispatchDepth = 1;
-    payload = (*pageDef->func)();
-  }
-  if( g.json.resultCode ){
-    cson_value_free(payload);
-    json_err(g.json.resultCode, NULL, 1);
-  }else{
-    payload = json_create_response(rc, NULL, payload);
-    json_send_response(payload);
-    cson_value_free( payload );
-    if((0 != rc) && !g.isHTTP){
-      /* FIXME: we need a way of passing this error back
-         up to the routine which called this callback.
-         e.g. add g.errCode.
-      */
-      fossil_exit(1);
-    }
+  rc = json_dispatch_root_command( cmd );
+  if(0 != rc){
+    /* FIXME: we need a way of passing this error back
+       up to the routine which called this callback.
+       e.g. add g.errCode.
+    */
+    fossil_exit(1);
   }
   return;
   usage:
   {
-    Blob cmdNames = empty_blob;
-    blob_init(&cmdNames,
-              "No subcommand specified. Try one of: ", -1);
-    json_pagedefs_to_string(&JsonPageDefs[0], &cmdNames);
-    json_err(FSL_JSON_E_MISSING_ARGS,
-             blob_str(&cmdNames), 1);
-    blob_reset(&cmdNames);
+    cson_value * payload;
+    json_dispatch_missing_args_err( JsonPageDefs,
+                                    "No subcommand specified."
+                                    " Try one of: ");
+    payload = json_create_response(0, NULL, NULL);
+    json_send_response(payload);
+    cson_value_free(payload);
     fossil_exit(1);
   }
 }
-#endif /* FOSSIL_ENABLE_JSON */
+#endif /* FOSSIL_ENABLE_JSON for mkindex */
 
-#undef BITSET_BYTEFOR
-#undef BITSET_SET
-#undef BITSET_UNSET
-#undef BITSET_GET
-#undef BITSET_TOGGLE
 #endif /* FOSSIL_ENABLE_JSON */

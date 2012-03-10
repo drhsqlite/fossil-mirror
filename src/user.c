@@ -326,7 +326,7 @@ void user_select(void){
 
   if( attempt_user(db_get("default-user", 0)) ) return;
 
-  if( attempt_user(getenv("USER")) ) return;
+  if( attempt_user(fossil_getenv("USER")) ) return;
 
   db_prepare(&s,
     "SELECT uid, login FROM user"
