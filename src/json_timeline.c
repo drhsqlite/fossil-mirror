@@ -496,7 +496,6 @@ cson_value * json_timeline_wiki(){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
-  cson_value * tmp = NULL;
   cson_array * list = NULL;
   int check = 0;
   Stmt q = empty_Stmt;
@@ -513,12 +512,6 @@ cson_value * json_timeline_wiki(){
     goto error;
   }
 
-#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    json_set_err((cson_rc.AllocError==check)        \
-                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,       \
-                 "Object property insertion failed."); \
-    goto error;\
-  } (void)0
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
@@ -545,10 +538,8 @@ cson_value * json_timeline_wiki(){
              " ORDER BY rowid",
              -1);
   list = cson_new_array();
-  tmp = cson_array_value(list);
-  SET("timeline");
   json_stmt_to_array_of_obj(&q, list);
-#undef SET
+  cson_object_set(pay, "timeline", cson_array_value(list));
   goto ok;
   error:
   assert( 0 != g.json.resultCode );
