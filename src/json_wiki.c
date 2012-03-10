@@ -190,6 +190,35 @@ char json_wiki_get_content_format_flag( char defaultValue ){
 }
 
 /*
+** Helper for /json/wiki/get and /json/wiki/preview. At least one of
+** zPageName (wiki page name) or zSymname must be set to a
+** non-empty/non-NULL value. zSymname takes precedence.  On success
+** the result of one of json_get_wiki_page_by_rid() or
+** json_get_wiki_page_by_name() will be returned (owned by the
+** caller). On error g.json's error state is set and NULL is returned.
+*/
+static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
+                                                     char const * zSymname,
+                                                     char contentFormat ){
+  if(!zSymname || !*zSymname){
+    return json_get_wiki_page_by_name(zPageName, contentFormat);
+  }else{
+    int rid = symbolic_name_to_rid( zSymname ? zSymname : zPageName, "w" );
+    if(rid<0){
+      json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
+                   "UUID [%s] is ambiguious.", zSymname);
+      return NULL;
+    }else if(rid==0){
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "UUID [%s] does not resolve to a wiki page.", zSymname);
+      return NULL;
+    }else{
+      return json_get_wiki_page_by_rid(rid, contentFormat);
+    }
+  }
+}
+
+/*
 ** Implementation of /json/wiki/get.
 **
 */
@@ -232,22 +261,7 @@ static cson_value * json_wiki_get(){
   */
   
   contentFormat = json_wiki_get_content_format_flag(contentFormat);
-  if(!zSymName || !*zSymName){
-    return json_get_wiki_page_by_name(zPageName, contentFormat);
-  }else{
-    int rid = symbolic_name_to_rid( zSymName ? zSymName : zPageName, "w" );
-    if(rid<0){
-      json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
-                   "UUID [%s] is ambiguious.", zSymName);
-      return NULL;
-    }else if(rid==0){
-      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                   "UUID [%s] does not resolve to a wiki page.", zSymName);
-      return NULL;
-    }else{
-      return json_get_wiki_page_by_rid(rid, contentFormat);
-    }
-  }
+  return json_wiki_get_by_name_or_symname( zPageName, zSymName, contentFormat );
 }
 
 /*
