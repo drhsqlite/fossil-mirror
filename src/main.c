@@ -448,9 +448,8 @@ int main(int argc, char **argv){
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
-       "   or: %s help COMMMAND  -- for help with the named command\n"
-       "   or: %s help commands  -- for a list of all commands\n",
-       argv[0], argv[0], argv[0], argv[0]);
+       "   or: %s help COMMMAND  -- for help with the named command\n",
+       argv[0], argv[0], argv[0]);
     fossil_exit(1);
   }else{
     g.isHTTP = 0;
