@@ -870,10 +870,11 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address turns used in login cookie", 3, "ip-prefix-terms", "ipt",
-                  "2");
-  @ <p>The number of octets of of the IP address used in the login cookie.  Set to
-  @ zero to omit the IP address from the login cookie.  A value of 2 is recommended.
+  entry_attribute("IP address terms used in login cookie", 3, 
+                  "ip-prefix-terms", "ipt", "2");
+  @ <p>The number of octets of of the IP address used in the login cookie.
+  @ Set to zero to omit the IP address from the login cookie.  A value of
+  @ 2 is recommended.
   @ </p>
   @
   @ <hr />

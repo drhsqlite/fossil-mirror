@@ -1,5 +1,5 @@
-C Further\srefinements\sto\sthe\shelp\smessage\sthat\sappears\swhen\sFossil\sis\ninvoked\swith\sno\sarguments.
-D 2012-03-11T18:26:23.266
+C Fix\sa\stypo\son\sthe\sSetup/Access\spage.
+D 2012-03-15T17:34:14.897
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -135,7 +135,7 @@ F src/report.c 72ec6d1e3df2e7f70a4c9432a66a9092a1f2d538
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 39a5e575b151f13ac9e4fa71179ba9fd0e5b14c0
+F src/setup.c 4c70f92d2baeddf58921bd07f3cb51b7c011194e
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 5abd9832824b7107a36b0ef1c328fdd0e537908c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -361,7 +361,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65a8db6ae3e66216b64a0e887c37d23f8635a646
-R 6bb619e42efa40be9eca68dff5785db7
+P 93f48ce0cb4cf56bd7a98ba8e064a2da8e15ff46
+R f02d318576dd28e5ff5df26e4e0ecd13
 U drh
-Z ef9cb87302e7257963217464813091e3
+Z 9f0543f6928be46376de0caeb2fa6e68
