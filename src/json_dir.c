@@ -36,7 +36,7 @@ static char const * json_dir_path_extra(){
   static char const * zP = NULL;
   if( !zP ){
     zP = g.zExtra;
-    while(zP && ('/'==*zP)){
+    while(zP && *zP && ('/'==*zP)){
       ++zP;
     }
   }
@@ -87,11 +87,11 @@ static cson_value * json_page_dir_list(){
     }
   }
 
-  zDX = g.isHTTP ? json_dir_path_extra() : NULL;
-  if(!zDX || !*zDX){
-    zDX = json_find_option_cstr2("name",NULL,"n", g.json.dispatchDepth+1);
+  zDX = json_find_option_cstr("name",NULL,"n");
+  if((!zDX || !*zDX) && !g.isHTTP){
+    zDX = json_command_arg(g.json.dispatchDepth+1);
   }
-  zD = zDX ? fossil_strdup(zDX) : NULL;
+  zD = (zDX && *zDX) ? fossil_strdup(zDX) : NULL;
   nD = zD ? strlen(zD)+1 : 0;
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
 
