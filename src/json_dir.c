@@ -50,14 +50,13 @@ static char const * json_dir_path_extra(){
 static cson_value * json_page_dir_list(){
   cson_object * zPayload = NULL;
   cson_array * zEntries = NULL;
-  cson_array * zFiles = NULL;
-  cson_array * zDirs = NULL;
   cson_object * zEntry = NULL;
   cson_string * zKeyName = NULL;
   cson_string * zKeyIsDir = NULL;
   cson_string * zKeyUuid = NULL;
   char * zD = NULL;
   char const * zDX = NULL;
+  cson_value const * zDV = NULL;
   int nD;
   char * zUuid = NULL;
   char const * zCI = NULL;
@@ -86,12 +85,30 @@ static cson_value * json_page_dir_list(){
       return NULL;
     }
   }
-
-  zDX = json_find_option_cstr("name",NULL,"n");
-  if((!zDX || !*zDX) && !g.isHTTP){
-    zDX = json_command_arg(g.json.dispatchDepth+1);
+  zDV = json_req_payload_get("name");
+  if(!zDV){
+    zDV = cson_object_get( g.json.param.o, "name" );
+    if(!zDV && !g.isHTTP){
+      zDX = json_command_arg(g.json.dispatchDepth+1);
+    }
   }
-  zD = (zDX && *zDX) ? fossil_strdup(zDX) : NULL;
+  if(!zDX){
+    zDX = zDV ? cson_value_get_cstr(zDV) : NULL;
+  }
+  if(!zDX && !g.isHTTP){
+    zDX = json_find_option_cstr("name",NULL,"n");
+  }
+#if 1
+  if(zDX && (!*zDX || (0==strcmp(zDX,"/")))){
+    zDX = NULL;
+  }
+#endif
+#if 0
+  if(!zDX || !*zDX){
+    zDX = "/";
+  }
+#endif
+  zD = zDX ? fossil_strdup(zDX) : NULL;
   nD = zD ? strlen(zD)+1 : 0;
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
 
@@ -123,10 +140,11 @@ static cson_value * json_page_dir_list(){
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
       if( nD>0 
-       && (memcmp(pFile->zName, zD, nD-1)!=0 || pFile->zName[nD-1]!='/')
+        && ((pFile->zName[nD-1]!='/') || (0!=memcmp(pFile->zName, zD, nD-1)))
       ){
         continue;
       }
+      /*printf("zD=%s, nD=%d, pFile->zName=%s\n", zD, nD, pFile->zName);*/
       if( pPrev
        && memcmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
        && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
@@ -142,7 +160,7 @@ static cson_value * json_page_dir_list(){
       if( c=='/' ) nPrev++;
     }
     db_finalize(&ins);
-  }else if( zD ){
+  }else if( zD && *zD ){
     if( filenames_are_case_sensitive() ){
       db_multi_exec(
         "INSERT OR IGNORE INTO localfiles"
@@ -179,37 +197,19 @@ static cson_value * json_page_dir_list(){
   cson_value_add_reference( cson_string_value(zKeyIsDir) );
 
   zPayload = cson_new_object();
-  cson_object_set_s( zPayload, zKeyName, json_new_string(zD ? zD : "/") );
+  cson_object_set_s( zPayload, zKeyName, json_new_string((zD&&*zD) ? zD : "/") );
   if(zUuid){
     cson_object_set_s( zPayload, zKeyUuid, cson_string_value(cson_new_string(zUuid, strlen(zUuid))) );
   }
-  if( zCI ) cson_object_set( zPayload, "checkin", json_new_string(zCI) );
+  if( zCI ){
+    cson_object_set( zPayload, "checkin", json_new_string(zCI) );
+  }
 
   while( (SQLITE_ROW==db_step(&q)) ){
     cson_value * name = NULL;
     char const * n = db_column_text(&q,0);
     char const * u = zCI ? db_column_text(&q,1) : NULL;
     zEntry = cson_new_object();
-#if 0
-    if('/'==*n){
-      if(!zDirs){
-        zDirs = cson_new_array();
-        cson_object_set( zPayload, "dirs", cson_array_value(zDirs) );
-      }
-      cson_array_append(zDirs, cson_object_value(zEntry) );
-      cson_object_set_s(zEntry, zKeyName, json_new_string( n+1 ) );
-    }else{
-      if(!zFiles){
-        zFiles = cson_new_array();
-        cson_object_set( zPayload, "files", cson_array_value(zFiles) );
-      }
-      cson_array_append(zFiles, cson_object_value(zEntry) );
-      cson_object_set_s(zEntry, zKeyName, json_new_string( n ) );
-    }
-    if(u && *u){
-      cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
-    }
-#else
     if(!zEntries){
       zEntries = cson_new_array();
       cson_object_set( zPayload, "entries", cson_array_value(zEntries) );
@@ -226,7 +226,6 @@ static cson_value * json_page_dir_list(){
     }
     cson_object_set_s(zEntry, zKeyName, name );
     cson_array_append(zEntries, cson_object_value(zEntry) );
-#endif
   }
   db_finalize(&q);
   if(pM){
