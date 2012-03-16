@@ -619,22 +619,34 @@ static cson_value * json_timeline_ticket(){
     int rc;
     int const rid = db_column_int(&q,0);
     Manifest * pMan = NULL;
-    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
-    cson_object * row = cson_value_get_object(rowV);
+    cson_value * rowV;
+    cson_object * row;
+    /*printf("rid=%d\n",rid);*/
+    pMan = manifest_get(rid, CFTYPE_TICKET);
+    if(!pMan){
+      /* this might be an attachment? i'm seeing this with
+         rid 15380, uuid [1292fef05f2472108].
+
+         /json/artifact/1292fef05f2472108 returns not-found,
+         probably because we haven't added artifact/ticket
+         yet(?).
+      */
+      continue;
+    }
+
+    rowV = cson_sqlite3_row_to_object(q.pStmt);
+    row = cson_value_get_object(rowV);
     if(!row){
+      manifest_destroy(pMan);
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
                  "Could not convert at least one timeline result row to JSON." );
       continue;
     }
-    pMan = manifest_get(rid, CFTYPE_TICKET);
-    assert( pMan && "Manifest is NULL!?!" );
-    if( pMan ){
-      /* FIXME: certainly there's a more efficient way for use to get
-         the ticket UUIDs?
-      */
-      cson_object_set(row,"ticketUuid",json_new_string(pMan->zTicketUuid));
-      manifest_destroy(pMan);
-    }
+    /* FIXME: certainly there's a more efficient way for use to get
+       the ticket UUIDs?
+    */
+    cson_object_set(row,"ticketUuid",json_new_string(pMan->zTicketUuid));
+    manifest_destroy(pMan);
     rc = cson_array_append( list, rowV );
     if( 0 != rc ){
       cson_value_free(rowV);
