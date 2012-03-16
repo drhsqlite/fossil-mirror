@@ -1,5 +1,5 @@
-C Allow\ssimultaneous\slogins\sto\sthe\ssame\suser\saccount\sas\slong\sas\sthe\nIP\saddress\sis\scompatible.
-D 2012-03-15T17:54:02.691
+C Pull\sin\sthe\slatest\sversion\s3.7.11-alpha\sof\sSQLite.
+D 2012-03-16T00:49:49.148
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -141,8 +141,8 @@ F src/shell.c 5abd9832824b7107a36b0ef1c328fdd0e537908c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c 8e7bdd8597030553e5fbc3fa9c625605dfd9078a
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
-F src/sqlite3.c fed047abba4083b9573b96aabf8654daeea00001
-F src/sqlite3.h d52f1f49a7bed31ca2bcab5a671cd41ce8f8e635
+F src/sqlite3.c 91636b81d6ac8359caa70d524c2be75107ae355b
+F src/sqlite3.h 14c264e3545760c02f5a981b7162fc4f51fc12d8
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 21de677ae1d01092a6c04678f57d0917c237c692
 F src/style.c 4a1429b833d23e220a41425e2232a40298422cc0
@@ -361,7 +361,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e67a77dfeca34f507e251043775db7c64a9d1c6b
-R 0a6e944aa7f25090248adfc25bd3905b
+P 73038baaa3028e01439d0aa6bf789f31106624bd
+R 41f9975b21c9bfd468ee6d558fd5dfa7
 U drh
-Z 9051e12845b9ed528f0f94e15c964f4c
+Z a7493d09ebfd3fdfdf9404e9c8aae727
