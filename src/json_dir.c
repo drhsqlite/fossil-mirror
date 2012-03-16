@@ -49,6 +49,7 @@ static char const * json_dir_path_extra(){
 */
 static cson_value * json_page_dir_list(){
   cson_object * zPayload = NULL;
+  cson_array * zEntries = NULL;
   cson_array * zFiles = NULL;
   cson_array * zDirs = NULL;
   cson_object * zEntry = NULL;
@@ -185,6 +186,7 @@ static cson_value * json_page_dir_list(){
   if( zCI ) cson_object_set( zPayload, "checkin", json_new_string(zCI) );
 
   while( (SQLITE_ROW==db_step(&q)) ){
+    cson_value * name = NULL;
     char const * n = db_column_text(&q,0);
     char const * u = zCI ? db_column_text(&q,1) : NULL;
     zEntry = cson_new_object();
@@ -208,20 +210,22 @@ static cson_value * json_page_dir_list(){
       cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
     }
 #else
-    if(!zFiles){
-      zFiles = cson_new_array();
-      cson_object_set( zPayload, "entries", cson_array_value(zFiles) );
+    if(!zEntries){
+      zEntries = cson_new_array();
+      cson_object_set( zPayload, "entries", cson_array_value(zEntries) );
     }
-    cson_array_append(zFiles, cson_object_value(zEntry) );
     if('/'==*n){
-      cson_object_set_s(zEntry, zKeyName, json_new_string( n+1 ) );
+      name = json_new_string( n+1 );
       cson_object_set_s(zEntry, zKeyIsDir, cson_value_true() );
+
     } else{
-      cson_object_set_s(zEntry, zKeyName, json_new_string( n ) );
+      name = json_new_string( n );
     }
     if(u && *u){
       cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
     }
+    cson_object_set_s(zEntry, zKeyName, name );
+    cson_array_append(zEntries, cson_object_value(zEntry) );
 #endif
   }
   db_finalize(&q);
