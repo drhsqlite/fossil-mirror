@@ -568,6 +568,9 @@ char const * json_find_option_cstr2(char const * zKey,
   }
   if(!rc && fossil_has_json()){
     rc = json_getenv_cstr(zKey);
+    if(!rc && zCLIShort){
+      rc = cson_value_get_cstr( cson_object_get( g.json.param.o, zCLIShort) );
+    }
   }
   if(!rc && (argPos>=0)){
     rc = json_command_arg((unsigned char)argPos);
@@ -782,10 +785,11 @@ cson_value * json_auth_token(){
 }
 
 /*
-** IFF json.reqPayload.o is not NULL then this returns
-** cson_object_get(json.reqPayload.o,pKey), else it returns NULL.
-**
-** The returned value is owned by (or shared with) json.reqPayload.v.
+** If g.json.reqPayload.o is NULL then NULL is returned, else the
+** given property is searched for in the request payload.  If found it
+** is returned. The returned value is owned by (or shares ownership
+** with) g.json, and must NOT be cson_value_free()'d by the
+** caller.
 */
 cson_value * json_req_payload_get(char const *pKey){
   return g.json.reqPayload.o
@@ -1229,20 +1233,6 @@ char const * json_command_arg(unsigned char ndx){
     return cson_string_cstr(cson_value_get_string(cson_array_get( ar, g.json.cmd.offset + ndx )));
   }
 }
-
-/*
-** If g.json.reqPayload.o is NULL then NULL is returned, else the
-** given property is searched for in the request payload.  If found it
-** is returned. The returned value is owned by (or shares ownership
-** with) g.json, and must NOT be cson_value_free()'d by the
-** caller.
-*/
-cson_value * json_payload_property( char const * key ){
-  return g.json.reqPayload.o ?
-    cson_object_get( g.json.reqPayload.o, key )
-    : NULL;
-}
-
 
 /* Returns the C-string form of json_auth_token(), or NULL
 ** if json_auth_token() returns NULL.
