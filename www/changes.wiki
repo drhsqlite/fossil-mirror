@@ -14,7 +14,7 @@
   *  Various additions and fixes for the JSON API.
   *  Improved merge-with-rename handling.
   *  Various minor bug fixes.
-  *  --cherrypick merges use their origin's commit by default.
+  *  --cherrypick merges use their origin's commit message by default.
   *  Added support for multiple concurrent logins per user.
   *  Update to use SQLite version 3.7.11.
 
