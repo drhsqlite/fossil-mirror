@@ -1,5 +1,5 @@
-C Fixed\s/json/timeline/ticket\sto\swork\saround\s(what\sappear\sto\sbe)\sattachment(?)\sartifacts\swhich\send\sup\sin\sits\squery\sresults.
-D 2012-03-16T12:41:22.091
+C Added\sinitial\s/json/dir\simplementation.
+D 2012-03-16T15:21:13.075
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -63,7 +63,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
 F src/blob.c 055253a9443c63fd3f3f429bd03f71596eb0646a
 F src/branch.c c1037d47c5c08a034def256fa8db15e7a0e595c8
-F src/browse.c 812364a30b5b7cbbad2e51fb3896b670554de6d5
+F src/browse.c b6400a4309d38099cf0e09d7fa2c84df41fdc6b5
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c 2067f4f5a75371baa422281ba5a194af4018877e
 F src/checkin.c 33538514eb070b6ebc49132d1dc76ffcc5d5b074
@@ -97,12 +97,13 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 95ee150973736af6035ab314937f93233d5f79d2
-F src/json.c 2a63700331948f99d0eebee998ee50dc5a362f36
+F src/json.c fee5bce8b1580c295838d8691bad6efe1afa7fb1
 F src/json_artifact.c c944c49c9001ea36f6cb1d324d41f42b5c97966a
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h a45f6a5c01c89a9bf98f0dd2b5a96b7db2a5a33d
 F src/json_diff.c 3894183bc4d182e2a8fba29dded40f171f54530f
+F src/json_dir.c deb57cc9ca3e504f6cfd3c4f29637e0822a08afa
 F src/json_finfo.c 2044366bcb3ca1ae0477a9df81addc9e088bb863
 F src/json_login.c 743fd9909923c48acec7e08a1b3b1d4fe4610765
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
@@ -114,10 +115,10 @@ F src/json_wiki.c 58b7f9d9b295ce2240a62a8fe39d96a16210183f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0975446217b2069fb094201ea7b5f91382e2000e
 F src/main.c b4253150b04287e3ca58447858ffe595cf0c9faf
-F src/main.mk afc3b8966c04291682c21036d0650840cc387aa3
+F src/main.mk 49c5b5cdbe2e308189fa1a938fe452c1118ecb11
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl ee80bc2d960ebb39f3ee47ddfe15aff2f26cb027
+F src/makemake.tcl 19421cea38dcf2d0bfd1c55c1c4c1c80efd8e204
 F src/manifest.c 8e439f60b651a31fea46876475770875fe263335
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
@@ -247,11 +248,11 @@ F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
-F win/Makefile.dmc 755829f2793cd7f134e8ca6f61796af7f5ee7916
-F win/Makefile.mingw 3a16bb67efcefd6693713900b195b87023ef6a2d
+F win/Makefile.dmc c55a42e4970c3325f7da3c6438d5da85cfe92352
+F win/Makefile.mingw e1bc3c9e3b167164b4ce9eddc625b6f55341ce79
 F win/Makefile.mingw.mistachkin 4988b96f00a5431b487ab67a5889a116fb6588ad
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
-F win/Makefile.msc 749abc9ab9450ee20bf40e822b88ee3cb44ff246
+F win/Makefile.msc a744e23c62419245ae04cbbc2cc92c3649e3e014
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 0c12553e61df0b74b4ab04bcb2fa032dfa1db005
 F win/icon.rc 231ad65d4da7aa90c0c1930c202ce7eb2347232d
@@ -361,7 +362,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 817084611738aa84e78e8a5507423eb790ef5944
-R 4e6525650a69877e3492456a98d0f0f9
+P ac6366218035ed62254c8d458f30801273e5d4fc
+R 339e22d8fdcfd73fcfc0cf188bd13078
 U stephan
-Z 7d3b8a3c8fbacf8c23928b44d207445a
+Z b72ab45ab3f3665ae498a80f4060c263

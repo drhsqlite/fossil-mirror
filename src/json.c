@@ -1345,9 +1345,11 @@ static cson_value * json_response_command_path(){
     for( ; i < aLen; ++i ){
       char const * part = cson_string_cstr(cson_value_get_string(cson_array_get(g.json.cmd.a, i)));
       if(!part){
-        fossil_warning("Iterating further than expected in %s.",
+#if 1
+          fossil_warning("Iterating further than expected in %s.",
                        __FILE__);
-        break;
+#endif
+          break;
       }
       blob_appendf(&path,"%s%s", (i>1 ? "/": ""), part);
     }
@@ -1753,6 +1755,23 @@ cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
   return cson_array_value(a);
 }
 
+cson_value * json_stmt_to_array_of_values(Stmt *pStmt,
+                                          int resultColumn,
+                                          cson_array * pTgt){
+  cson_array * a = pTgt;
+  while( (SQLITE_ROW==db_step(pStmt)) ){
+    cson_value * row = cson_sqlite3_column_to_value(pStmt->pStmt,
+                                                    resultColumn);
+    if(row){
+      if(!a){
+        a = cson_new_array();
+        assert(NULL!=a);
+      }
+      cson_array_append(a, row);
+    }
+  }
+  return cson_array_value(a);
+}
 
 /*
 ** Executes the given SQL and runs it through
@@ -2221,6 +2240,8 @@ cson_value * json_page_artifact();
 cson_value * json_page_branch();
 /* Impl in json_diff.c. */
 cson_value * json_page_diff();
+/* Impl in json_dir.c. */
+cson_value * json_page_dir();
 /* Impl in json_login.c. */
 cson_value * json_page_login();
 /* Impl in json_login.c. */
@@ -2250,7 +2271,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"cap", json_page_cap, 0},
 {"config", json_page_config, 0 },
 {"diff", json_page_diff, 0},
-/*{"dir", json_page_nyi, 0},*/
+{"dir", json_page_dir, 0},
 {"finfo", json_page_finfo, 0},
 {"g", json_page_g, 0},
 {"HAI",json_page_version,0},
