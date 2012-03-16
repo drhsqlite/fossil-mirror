@@ -307,7 +307,7 @@ cson_value * json_get_changed_files(int rid){
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
            "       (SELECT uuid FROM blob WHERE rid=fid) as uuid,"
-           "       (SELECT uuid FROM blob WHERE rid=pid) as prevUuid"
+           "       (SELECT uuid FROM blob WHERE rid=pid) as parent"
            "  FROM mlink"
            " WHERE mid=%d AND pid!=fid"
            " ORDER BY name /*sort*/",
@@ -328,7 +328,7 @@ cson_value * json_get_changed_files(int rid){
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
     if(!isNew){
-      cson_object_set(row, "prevUuid", json_new_string(db_column_text(&q,4)));
+      cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
     cson_object_set(row, "state",
                     json_new_string(isNew
