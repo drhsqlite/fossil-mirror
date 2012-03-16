@@ -390,11 +390,11 @@ static cson_value * json_timeline_branch(){
     /* get the array-form tags of each record. */
     cson_string * tags = cson_new_string("tags",4);
     cson_string * isLeaf = cson_new_string("isLeaf",6);
-    cson_value_add_reference( cson_string_value(tags) );
-    cson_value_add_reference( cson_string_value(isLeaf) );
     cson_array * ar = cson_value_get_array(pay);
     unsigned int i = 0;
     unsigned int len = cson_array_length_get(ar);
+    cson_value_add_reference( cson_string_value(tags) );
+    cson_value_add_reference( cson_string_value(isLeaf) );
     for( ; i < len; ++i ){
       cson_object * row = cson_value_get_object(cson_array_get(ar,i));
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
