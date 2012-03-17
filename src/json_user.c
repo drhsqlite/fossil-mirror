@@ -26,16 +26,11 @@
 static cson_value * json_user_get();
 static cson_value * json_user_list();
 static cson_value * json_user_save();
-#if 0
-static cson_value * json_user_create();
-
-#endif
 
 /*
 ** Mapping of /json/user/XXX commands/paths to callbacks.
 */
 static const JsonPageDef JsonPageDefs_User[] = {
-{"create", json_page_nyi, 0},
 {"save", json_user_save, 0},
 {"get", json_user_get, 0},
 {"list", json_user_list, 0},
@@ -54,7 +49,7 @@ cson_value * json_page_user(){
 
 
 /*
-** Impl of /json/user/list. Requires admin rights.
+** Impl of /json/user/list. Requires admin/setup rights.
 */
 static cson_value * json_user_list(){
   cson_value * payV = NULL;
@@ -104,7 +99,7 @@ static cson_value * json_load_user_by_name(char const * zName){
 }
 
 /*
-** Identical to _load_user_by_name(), but expects a user ID.  Returns
+** Identical to json_load_user_by_name(), but expects a user ID.  Returns
 ** NULL if no user found with that ID.
 */
 static cson_value * json_load_user_by_id(int uid){
@@ -127,7 +122,7 @@ static cson_value * json_load_user_by_id(int uid){
 
 
 /*
-** Impl of /json/user/get. Requires admin rights.
+** Impl of /json/user/get. Requires admin or setup rights.
 */
 static cson_value * json_user_get(){
   cson_value * payV = NULL;
@@ -167,12 +162,12 @@ static cson_value * json_user_get(){
 ** If uid is specified then name may refer to a _new_ name
 ** for a user, otherwise the name must refer to an existing user.
 ** If uid=-1 then the name must be specified and a new user is
-** created (failes if one already exists).
+** created (fails if one already exists).
 **
 ** If uid is not set, this function might modify pUser to contain the
 ** db-found (or inserted) user ID.
 **
-** On error g.json's error state is set one of the FSL_JSON_E_xxx
+** On error g.json's error state is set and one of the FSL_JSON_E_xxx
 ** values from FossilJsonCodes is returned.
 **
 ** On success the db record for the given user is updated.
@@ -220,14 +215,17 @@ int json_user_update_from_json( cson_object * pUser ){
   }else if(-1==uid){
     /* try to create a new user */
     if(!g.perm.Admin && !g.perm.Setup){
-      return json_set_err(FSL_JSON_E_DENIED,
-                          "Requires 'a' or 's' privileges.");
+      json_set_err(FSL_JSON_E_DENIED,
+                   "Requires 'a' or 's' privileges.");
+      goto error;
     }else if(!zName || !*zName){
-      return json_set_err(FSL_JSON_E_MISSING_ARGS,
-                          "No name specified for new user.");
+      json_set_err(FSL_JSON_E_MISSING_ARGS,
+                   "No name specified for new user.");
+      goto error;
     }else if( db_exists("SELECT 1 FROM user WHERE login=%Q", zName) ){
-      return json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
-                          "User %s already exists.", zName);
+      json_set_err(FSL_JSON_E_RESOURCE_ALREADY_EXISTS,
+                   "User %s already exists.", zName);
+      goto error;
     }else{
       Stmt ins = empty_Stmt;
       db_prepare(&ins, "INSERT INTO user (login) VALUES(%Q)",zName);
@@ -241,8 +239,9 @@ int json_user_update_from_json( cson_object * pUser ){
   }else{
     uid = db_int(0,"SELECT uid FROM user WHERE login=%Q", zName);
     if(uid<=0){
-      return json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                          "No login found for user [%s].", zName);
+      json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
+                   "No login found for user [%s].", zName);
+      goto error;
     }
     cson_object_set( pUser, "uid", cson_value_new_integer(uid) );
   }
@@ -256,6 +255,7 @@ int json_user_update_from_json( cson_object * pUser ){
       json_set_err(FSL_JSON_E_DENIED,
                    "Changing another user's data requires "
                    "'a' or 's' privileges.");
+      goto error;
     }
   }
   /* check if the target uid currently has setup rights. */
@@ -267,9 +267,10 @@ int json_user_update_from_json( cson_object * pUser ){
       Do not allow a non-setup user to set or remove setup
       privileges. setup.c uses similar logic.
     */
-    return json_set_err(FSL_JSON_E_DENIED,
-                        "Modifying 's' users/privileges requires "
-                        "'s' privileges.");
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Modifying 's' users/privileges requires "
+                 "'s' privileges.");
+    goto error;
   }
   /*
     Potential todo: do not allow a setup user to remove 's' from
@@ -299,30 +300,39 @@ int json_user_update_from_json( cson_object * pUser ){
     }
   }
 
-  if( zCap ){
+  if( zCap && *zCap ){
+    if(!g.perm.Admin || !g.perm.Setup){
+      /* we "could" arguably silently ignore cap in this case. */
+      json_set_err(FSL_JSON_E_DENIED,
+                   "Changing capabilities requires 'a' or 's' privileges.");
+      goto error;
+    }
     blob_appendf(&sql, ", cap=%Q", zCap);
     ++gotFields;
   }
-#define TRY_LOGIN_GROUP 0 /* login group support is not yet implemented. */
+
   if( zPW && *zPW ){
     if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
-      return json_set_err( FSL_JSON_E_DENIED,
-                           "Password change requires 'a', 's', "
-                           "or 'p' permissions.");
-    }
+      json_set_err( FSL_JSON_E_DENIED,
+                    "Password change requires 'a', 's', "
+                    "or 'p' permissions.");
+      goto error;
+    }else{
+#define TRY_LOGIN_GROUP 0 /* login group support is not yet implemented. */
 #if !TRY_LOGIN_GROUP
-    char * zPWHash = NULL;
-    ++gotFields;
-    zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
-    blob_appendf(&sql, ", pw=%Q", zPWHash);
-    free(zPWHash);
+      char * zPWHash = NULL;
+      ++gotFields;
+      zPWHash = sha1_shared_secret(zPW, zNameNew ? zNameNew : zName, NULL);
+      blob_appendf(&sql, ", pw=%Q", zPWHash);
+      free(zPWHash);
 #else
-    ++gotFields;
-    blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
-                 "(SELECT value FROM config WHERE name='project-code')))",
-                 zPW, zNameNew ? zNameNew : zName);
-    /* shared_secret() func is undefined? */
+      ++gotFields;
+      blob_appendf(&sql, ", pw=coalesce(shared_secret(%Q,%Q,"
+                   "(SELECT value FROM config WHERE name='project-code')))",
+                   zPW, zNameNew ? zNameNew : zName);
+      /* shared_secret() func is undefined? */
 #endif
+    }
   }
 
   if( zInfo ){
