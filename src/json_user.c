@@ -200,12 +200,13 @@ int json_user_update_from_json( cson_object * pUser ){
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
 
+#if 0
   if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
     return json_set_err( FSL_JSON_E_DENIED,
                          "Password change requires 'a', 's', "
                          "or 'p' permissions.");
   }
-  
+#endif
   if(uid<=0 && (!zName||!*zName)){
     return json_set_err(FSL_JSON_E_MISSING_ARGS,
                         "One of 'uid' or 'name' is required.");
@@ -280,21 +281,22 @@ int json_user_update_from_json( cson_object * pUser ){
 
   if((uid>0) && zNameNew){
     /* Check for name change... */
-    if( (!g.perm.Admin && !g.perm.Setup)
-        && zNameNew && (zName != zNameNew)
-        && (0!=strcmp(zNameNew,zName))){
-      json_set_err( FSL_JSON_E_DENIED,
-                    "Modifying user names requires 'a' or 's' privileges.");
-      goto error;
-    }
-    forceLogout = cson_value_true()
+    if(0!=strcmp(zName,zNameNew)){
+      if( (!g.perm.Admin && !g.perm.Setup)
+          && (zName != zNameNew)){
+        json_set_err( FSL_JSON_E_DENIED,
+                      "Modifying user names requires 'a' or 's' privileges.");
+        goto error;
+      }
+      forceLogout = cson_value_true()
         /* reminders: 1) does not allocate.
-         2) we do this because changing a name
-         invalidates any login token because the old name
-         is part of the token hash.
+           2) we do this because changing a name
+           invalidates any login token because the old name
+           is part of the token hash.
         */;
-    blob_appendf(&sql, ", login=%Q", zNameNew);
-    ++gotFields;
+      blob_appendf(&sql, ", login=%Q", zNameNew);
+      ++gotFields;
+    }
   }
 
   if( zCap ){
@@ -302,7 +304,12 @@ int json_user_update_from_json( cson_object * pUser ){
     ++gotFields;
   }
 #define TRY_LOGIN_GROUP 0 /* login group support is not yet implemented. */
-  if( zPW ){
+  if( zPW && *zPW ){
+    if(!g.perm.Admin && !g.perm.Setup && !g.perm.Password){
+      return json_set_err( FSL_JSON_E_DENIED,
+                           "Password change requires 'a', 's', "
+                           "or 'p' permissions.");
+    }
 #if !TRY_LOGIN_GROUP
     char * zPWHash = NULL;
     ++gotFields;
@@ -391,18 +398,33 @@ static cson_value * json_user_save(){
      a JSON form of it... */
   cson_object * u = cson_new_object();
   char const * str = NULL;
+  cson_value * tmpV = NULL;
   char b = -1;
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
 #define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL);             \
   if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
-  PROP("name");
   PROP("password");
   PROP("info");
   PROP("capabilities");
 #undef PROP
-  
+  if(g.isHTTP){
+    tmpV = json_req_payload_get("name");
+  }
+  if(!tmpV && !g.isHTTP){
+    /* only do this in CLI mode, to avoid the fossil-internal "name"
+       param from become a user's name. Been there, done that
+       (renamed my account to "user/save").
+    */
+    str = json_find_option_cstr("name",NULL,NULL);
+    if(str){
+      tmpV = json_new_string(str);
+    }
+  }
+  if(tmpV){
+    cson_object_set(u, "name", tmpV);
+  }
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
   if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
   PROP("forceLogout",-1);
