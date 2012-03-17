@@ -59,8 +59,9 @@ cson_value * json_page_user(){
 static cson_value * json_user_list(){
   cson_value * payV = NULL;
   Stmt q;
-  if(!g.perm.Admin){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if(!g.perm.Admin && !g.perm.Setup){
+    json_set_err(FSL_JSON_E_DENIED,
+                 "Requires 'a' or 's' privileges.");
     return NULL;
   }
   db_prepare(&q,"SELECT uid AS uid,"
@@ -131,9 +132,9 @@ static cson_value * json_load_user_by_id(int uid){
 static cson_value * json_user_get(){
   cson_value * payV = NULL;
   char const * pUser = NULL;
-  if(!g.perm.Admin){
+  if(!g.perm.Admin && !g.perm.Setup){
     json_set_err(FSL_JSON_E_DENIED,
-                 "Requires 'a' privileges.");
+                 "Requires 'a' or 's' privileges.");
     return NULL;
   }
   pUser = json_command_arg(g.json.dispatchDepth+1);
