@@ -409,9 +409,7 @@ static cson_value * json_user_save(){
   PROP("info");
   PROP("capabilities");
 #undef PROP
-  if(g.isHTTP){
-    tmpV = json_req_payload_get("name");
-  }
+  tmpV = json_req_payload_get("name");
   if(!tmpV && !g.isHTTP){
     /* only do this in CLI mode, to avoid the fossil-internal "name"
        param from become a user's name. Been there, done that
