@@ -132,14 +132,7 @@ static cson_value * json_user_get(){
                  "Requires 'a' or 's' privileges.");
     return NULL;
   }
-  pUser = json_command_arg(g.json.dispatchDepth+1);
-  if( g.isHTTP && (!pUser || !*pUser) ){
-    pUser = json_getenv_cstr("name")
-      /* ACHTUNG: fossil apparently internally sets name=user/get/XYZ
-         if we pass the name as part of the path, which is why we check
-         with json_command_path() before trying to get("name").
-      */;
-  }
+  pUser = json_find_option_cstr2("name", NULL, NULL, g.json.dispatchDepth+1);
   if(!pUser || !*pUser){
     json_set_err(FSL_JSON_E_MISSING_ARGS,"Missing 'name' property.");
     return NULL;
@@ -413,32 +406,19 @@ static cson_value * json_user_save(){
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
-#define PROP(LK) str = json_find_option_cstr(LK,NULL,NULL);             \
+#define PROP(LK,SK) str = json_find_option_cstr(LK,NULL,SK);     \
   if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
-  PROP("password");
-  PROP("info");
-  PROP("capabilities");
+  PROP("name","n");
+  PROP("password","p");
+  PROP("info","i");
+  PROP("capabilities","c");
 #undef PROP
-  tmpV = json_req_payload_get("name");
-  if(!tmpV && !g.isHTTP){
-    /* only do this in CLI mode, to avoid the fossil-internal "name"
-       param from become a user's name. Been there, done that
-       (renamed my account to "user/save").
-    */
-    str = json_find_option_cstr("name",NULL,NULL);
-    if(str){
-      tmpV = json_new_string(str);
-    }
-  }
-  if(tmpV){
-    cson_object_set(u, "name", tmpV);
-  }
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
   if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
   PROP("forceLogout",-1);
 #undef PROP
 
-#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);      \
+#define PROP(LK,DFLT) i = json_find_option_int(LK,NULL,NULL,DFLT);   \
   if(DFLT != i){ cson_object_set(u, LK, cson_value_new_integer(i)); } (void)0
   PROP("uid",-99);
 #undef PROP
