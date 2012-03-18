@@ -286,7 +286,10 @@ cson_value * json_artifact_file(int rid){
       "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
       "       coalesce(event.ecomment,event.comment) as comment,"
       "       coalesce(event.euser,event.user) as user,"
-      "       b.uuid as uuid, mlink.mperm as mperm,"
+      "       b.uuid as uuid, "
+#if 0
+      "       mlink.mperm as mperm,"
+#endif
       "       coalesce((SELECT value FROM tagxref"
                       "  WHERE tagid=%d AND tagtype>0 AND "
                       " rid=mlink.mid),'trunk') as branch"
@@ -299,6 +302,9 @@ cson_value * json_artifact_file(int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
+  /* TODO: add a "state" flag for the file in each checkin,
+     e.g. "modified", "new", "deleted".
+   */
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
   json_stmt_to_array_of_obj( &q, checkin_arr );
@@ -320,7 +326,7 @@ cson_value * json_page_artifact(){
   int rc;
   int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
-  zName = json_find_option_cstr2("name", NULL, NULL, 2);
+  zName = json_find_option_cstr2("name", NULL, NULL, g.json.dispatchDepth+1);
   if(!zName || !*zName) {
     json_set_err(FSL_JSON_E_MISSING_ARGS,
                  "Missing 'name' argument.");
