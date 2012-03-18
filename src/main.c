@@ -1307,6 +1307,17 @@ static void process_one_web_page(const char *zNotFound){
     }
     break;
   }
+#ifdef FOSSIL_ENABLE_JSON
+  /*
+  ** Workaround to allow us to customize some following behaviour for
+  ** JSON mode.  The problem is, we don't always know if we're in JSON
+  ** mode at this point (namely, for GET mode we don't know but POST
+  ** we do), so we snoop g.zPath and cheat a bit.
+  */
+  if( g.zPath && (0==strcmp("json",g.zPath)) ){
+    g.json.isJsonMode = 1;
+  }
+#endif
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.
