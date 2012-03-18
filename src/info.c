@@ -791,12 +791,24 @@ void vdiff_page(void){
   if( !showDetail && sideBySide ) showDetail = 1;
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
-                          g.zTop, P("from"), P("to"), showDetail);
+                          "%s/vdiff?from=%T&to=%T&detail=1&sbs=1",
+                          g.zTop, P("from"), P("to"));
+    if (showDetail){
+        style_submenu_element("Abstract", "abstract",
+                              "%s/vdiff?from=%T&to=%T&detail=0&sbs=0",
+                              g.zTop, P("from"), P("to"));
+    }else{
+        style_submenu_element("Unified Diff", "udiff",
+                              "%s/vdiff?from=%T&to=%T&detail=1&sbs=0",
+                              g.zTop, P("from"), P("to"));
+    }
   }else{
     style_submenu_element("Unified Diff", "udiff",
-                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=0",
-                          g.zTop, P("from"), P("to"), showDetail);
+                          "%s/vdiff?from=%T&to=%T&detail=1&sbs=0",
+                          g.zTop, P("from"), P("to"));
+    style_submenu_element("Abstract", "abstract",
+                          "%s/vdiff?from=%T&to=%T&detail=0&sbs=0",
+                          g.zTop, P("from"), P("to"));
   }
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
