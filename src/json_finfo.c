@@ -38,6 +38,7 @@ cson_value * json_page_finfo(){
   int limit = -1;
   int currentRow = 0;
   char const * zCheckin = NULL;
+  char sort = -1;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,"Requires 'o' privileges.");
     return NULL;
@@ -97,12 +98,13 @@ cson_value * json_page_finfo(){
   }else{
     if( zAfter && *zAfter ){
       blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zAfter);
+      sort = 1;
     }else if( zBefore && *zBefore ){
       blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zBefore);
     }
   }
 
-  blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
+  blob_appendf(&sql," ORDER BY event.mtime %s /*sort*/", (sort>0?"ASC":"DESC"));
   /*printf("SQL=\n%s\n",blob_str(&sql));*/
   db_prepare(&q, "%s", blob_str(&sql)/*extra %s to avoid double-expanding
                                        SQL escapes*/);
