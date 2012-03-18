@@ -226,7 +226,6 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
 */
 static cson_value * json_wiki_get(){
   char const * zPageName;
-  char const * zFormat = NULL;
   char const * zSymName = NULL;
   char contentFormat = -1;
   if( !g.perm.RdWiki && !g.perm.Read ){
@@ -257,7 +256,6 @@ static cson_value * json_wiki_get(){
 **
 */
 static cson_value * json_wiki_preview(){
-  char const * zPageName;
   char const * zContent = NULL;
   cson_value * pay = NULL;
   Blob contentOrig = empty_blob;
@@ -470,7 +468,6 @@ static cson_value * json_wiki_list(){
 static cson_value * json_wiki_diff(){
   char const * zV1 = NULL;
   char const * zV2 = NULL;
-  char const * zContent = NULL;
   cson_object * pay = NULL;
   int argPos = g.json.dispatchDepth;
   int r1 = 0, r2 = 0;

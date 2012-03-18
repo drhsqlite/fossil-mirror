@@ -32,6 +32,7 @@ static const JsonPageDef JsonPageDefs_Dir[] = {
 {NULL,NULL,0}
 };
 
+#if 0 /* TODO: Not used? */
 static char const * json_dir_path_extra(){
   static char const * zP = NULL;
   if( !zP ){
@@ -42,6 +43,7 @@ static char const * json_dir_path_extra(){
   }
   return zP;
 }
+#endif
 
 /*
 ** Impl of /json/dir. 98% of it was taken directly
@@ -57,14 +59,12 @@ static cson_value * json_page_dir_list(){
   cson_string * zKeyUuid = NULL;
   char * zD = NULL;
   char const * zDX = NULL;
-  cson_value const * zDV = NULL;
   int nD;
   char * zUuid = NULL;
   char const * zCI = NULL;
   Manifest * pM = NULL;
   Stmt q = empty_Stmt;
   int rid = 0;
-  char * zPrefix = NULL;
   if( !g.perm.History ){
     json_set_err(FSL_JSON_E_DENIED, "Requires 'h' permissions.");
     return NULL;

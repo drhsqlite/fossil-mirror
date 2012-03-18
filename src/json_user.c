@@ -401,7 +401,6 @@ static cson_value * json_user_save(){
      a JSON form of it... */
   cson_object * u = cson_new_object();
   char const * str = NULL;
-  cson_value * tmpV = NULL;
   char b = -1;
   int i = -1;
   int uid = -1;
