@@ -47,31 +47,32 @@ cson_value * json_page_finfo(){
   /* For the "name" argument we have to jump through some hoops to make sure that we don't
      get the fossil-internally-assigned "name" option.
   */
-  zFilename = json_find_option_cstr("name",NULL,NULL);
-  if(!zFilename && !g.isHTTP){
-    zFilename = json_command_arg(g.json.dispatchDepth+1);
-  }
-  if(!zFilename){
+  zFilename = json_find_option_cstr2("name",NULL,NULL, g.json.dispatchDepth+1);
+  if(!zFilename || !*zFilename){
     json_set_err(FSL_JSON_E_MISSING_ARGS, "Missing 'name' parameter.");
     return NULL;
   }
+
+  if(0==db_int(0,"SELECT 1 FROM filename WHERE name=%Q",zFilename)){
+    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND, "File entry not found.");
+    return NULL;
+  }
+  
   zBefore = json_find_option_cstr("before",NULL,"b");
   zAfter = json_find_option_cstr("after",NULL,"a");
   limit = json_find_option_int("limit",NULL,"n", -1);
   zCheckin = json_find_option_cstr("checkin",NULL,"ci");
 
   blob_appendf(&sql, 
-        "SELECT b.uuid,"
-        "   ci.uuid,"
-        "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
-        "   cast(strftime('%%s',event.mtime) AS INTEGER),"
-        "   coalesce(event.euser, event.user),"
-        "   coalesce(event.ecomment, event.comment),"
-#if 1
-        " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
-#endif
-        "   event.bgcolor,"
-        " 1"
+/*0*/   "SELECT b.uuid,"
+/*1*/   "   ci.uuid,"
+/*2*/   "   (SELECT uuid FROM blob WHERE rid=mlink.fid),"  /* Current file uuid */
+/*3*/   "   cast(strftime('%%s',event.mtime) AS INTEGER),"
+/*4*/   "   coalesce(event.euser, event.user),"
+/*5*/   "   coalesce(event.ecomment, event.comment),"
+/*6*/   " (SELECT uuid FROM blob WHERE rid=mlink.pid),"  /* Parent file uuid */
+/*7*/   "   event.bgcolor,"
+/*8*/   " b.size"
         "  FROM mlink, blob b, event, blob ci, filename"
         " WHERE filename.name=%Q %s"
         "   AND mlink.fnid=filename.fnid"
@@ -84,7 +85,7 @@ cson_value * json_page_finfo(){
   if( zCheckin && *zCheckin ){
     char * zU = NULL;
     int rc = name_to_uuid2( zCheckin, "ci", &zU );
-    printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);
+    /*printf("zCheckin=[%s], zU=[%s]", zCheckin, zU);*/
     if(rc<=0){
       json_set_err((rc<0) ? FSL_JSON_E_AMBIGUOUS_UUID : FSL_JSON_E_RESOURCE_NOT_FOUND,
                    "Checkin UUID %s.", (rc<0) ? "is ambiguous" : "not found");
@@ -94,12 +95,13 @@ cson_value * json_page_finfo(){
     blob_appendf(&sql, " AND ci.uuid='%q'", zU);
     free(zU);
   }else{
-    if( zAfter ){
+    if( zAfter && *zAfter ){
       blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zAfter);
-    }else if( zBefore ){
+    }else if( zBefore && *zBefore ){
       blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zBefore);
     }
   }
+
   blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
   /*printf("SQL=\n%s\n",blob_str(&sql));*/
   db_prepare(&q, "%s", blob_str(&sql)/*extra %s to avoid double-expanding
@@ -123,21 +125,13 @@ cson_value * json_page_finfo(){
     cson_object_set(row, "user", json_new_string( db_column_text(&q,4) ));
     cson_object_set(row, "comment", json_new_string( db_column_text(&q,5) ));
     /*cson_object_set(row, "bgColor", json_new_string( db_column_text(&q,7) ));*/
+    cson_object_set(row, "size", cson_value_new_integer( (cson_int_t)db_column_int64(&q,8) ));
     if( (0 < limit) && (++currentRow >= limit) ){
       break;
     }
   }
   db_finalize(&q);
 
-  if( !cson_array_length_get(checkins) ){
-    json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
-                 zCheckin
-                 ? "File not part of the given checkin."
-                 : "File not found." );
-    cson_free_object(pay);
-    pay = NULL;
-  }
-  
   return pay ? cson_object_value(pay) : NULL;
 }
 
