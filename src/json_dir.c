@@ -85,29 +85,13 @@ static cson_value * json_page_dir_list(){
       return NULL;
     }
   }
-  zDV = json_req_payload_get("name");
-  if(!zDV){
-    zDV = cson_object_get( g.json.param.o, "name" );
-    if(!zDV && !g.isHTTP){
-      zDX = json_command_arg(g.json.dispatchDepth+1);
-    }
-  }
-  if(!zDX){
-    zDX = zDV ? cson_value_get_cstr(zDV) : NULL;
-  }
+  zDX = json_find_option_cstr("name",NULL,NULL);
   if(!zDX && !g.isHTTP){
-    zDX = json_find_option_cstr("name",NULL,"n");
+    zDX = json_command_arg(g.json.dispatchDepth+1);
   }
-#if 1
   if(zDX && (!*zDX || (0==strcmp(zDX,"/")))){
     zDX = NULL;
   }
-#endif
-#if 0
-  if(!zDX || !*zDX){
-    zDX = "/";
-  }
-#endif
   zD = zDX ? fossil_strdup(zDX) : NULL;
   nD = zD ? strlen(zD)+1 : 0;
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }

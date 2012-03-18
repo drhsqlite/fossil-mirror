@@ -234,21 +234,7 @@ static cson_value * json_wiki_get(){
                  "Requires 'o' or 'j' access.");
     return NULL;
   }
-  zPageName = json_find_option_cstr("name",NULL,"n")
-      /* Damn... fossil automatically sets name to the PATH
-         part after /json, so we need a workaround down here....
-      */
-      ;
-  if( zPageName && (NULL != strstr(zPageName, "/"))){
-      /* Assume that we picked up a path remnant. */
-      zPageName = NULL;
-  }
-  if( !zPageName && cson_value_is_string(g.json.reqPayload.v) ){
-      zPageName = cson_string_cstr(cson_value_get_string(g.json.reqPayload.v));
-  }
-  if(!zPageName){
-    zPageName = json_command_arg(g.json.dispatchDepth+1);
-  }
+  zPageName = json_find_option_cstr2("name",NULL,"n",g.json.dispatchDepth+1);
 
   zSymName = json_find_option_cstr("uuid",NULL,"u");
   
@@ -338,6 +324,11 @@ static cson_value * json_wiki_create_or_save(char createMode,
     return NULL;
   }
   zPageName = cson_string_cstr(cson_value_get_string(nameV));
+  if(!zPageName || !*zPageName){
+    json_set_err(FSL_JSON_E_INVALID_ARGS,
+                 "'name' parameter must be a non-empty string.");
+    return NULL;
+  }
   rid = db_int(0,
      "SELECT x.rid FROM tag t, tagxref x"
      " WHERE x.tagid=t.tagid AND t.tagname='wiki-%q'"
@@ -372,7 +363,7 @@ static cson_value * json_wiki_create_or_save(char createMode,
   if( !cson_value_is_string(nameV)
       || !cson_value_is_string(contentV)){
     json_set_err(FSL_JSON_E_INVALID_ARGS,
-                 "'name' and 'content' parameters must be strings.");
+                 "'content' parameter must be a string.");
     goto error;
   }
   jstr = cson_value_get_string(contentV);
