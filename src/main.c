@@ -1312,9 +1312,21 @@ static void process_one_web_page(const char *zNotFound){
     ** will use g.zExtra directly.
     ** Reminder: the login mechanism uses 'name' differently, and may
     ** eventually have a problem/collision with this.
+    **
+    ** Disabled by stephan when running in JSON mode because this
+    ** particular parameter name is very common and i have had no end
+    ** of grief with this handling. The JSON API never relies on the
+    ** handling below, and by disabling it in JSON mode i can remove
+    ** lots of special-case handling in several JSON handlers.
     */
-    dehttpize(g.zExtra);
-    cgi_set_parameter_nocopy("name", g.zExtra);
+#ifdef FOSSIL_ENABLE_JSON
+    if(!g.json.isJsonMode){
+#endif
+      dehttpize(g.zExtra);
+      cgi_set_parameter_nocopy("name", g.zExtra);
+#ifdef FOSSIL_ENABLE_JSON
+    }
+#endif
   }
 
   /* Locate the method specified by the path and execute the function
