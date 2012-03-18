@@ -1,5 +1,5 @@
-C Removed\sthe\sspecial-cased\saddition\sof\sg.zExtra==parameter\snamed\s"name"\swhen\srunning\sin\sJSON\smode\sbecause\sit\scauses\sno\send\sof\sgrief\sin\sseveral\sJSON\shandlers\sand\snone\sof\sthe\shandlers\srely\son\sthat\shandling.
-D 2012-03-18T02:15:46.319
+C Added\sname_to_uuid2()
+D 2012-03-18T02:45:59.302
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -125,7 +125,7 @@ F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
 F src/merge3.c 08611f2f64e16c8b779e9c5b2312c81ec76832df
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
-F src/name.c 3065942cea7a93132e3e8f5a065377ef1be6796a
+F src/name.c af18fd6b7ba99be4e78f7da6847fa3acc1069149
 F src/path.c 157d9c226ff775c5d9388666acbfd3d14ea90c62
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
@@ -362,7 +362,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f7e215bcac885cb40b5a9dcda563f636c9c7fd7a
-R b8f0e35413858412b8d197c674a08162
+P ccd6c879b4442c57acbf95118f0b7371613645a7
+R c83f3da63dea4e5ba9ee294554393066
 U stephan
-Z 2c201d11603085bf01bbcbd83d0c23d8
+Z 34dacf38aa873f29eed16ba53c1d3fa3
