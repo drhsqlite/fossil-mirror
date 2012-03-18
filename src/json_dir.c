@@ -108,7 +108,7 @@ static cson_value * json_page_dir_list(){
   ** from directories in the loop that follows.
   */
   db_multi_exec(
-     "CREATE TEMP TABLE localfiles(x UNIQUE NOT NULL %s, u, sz);",
+     "CREATE TEMP TABLE localfiles(n UNIQUE NOT NULL %s, u, sz, mtime DEFAULT NULL);",
      filename_collation()
   );
 
@@ -120,8 +120,11 @@ static cson_value * json_page_dir_list(){
     int c;
 
     db_prepare(&ins,
-       "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u, "
-               "(SELECT size from blob where uuid=:s)"
+       "INSERT OR IGNORE INTO localfiles VALUES("
+               /*0*/ "pathelement(:x,0),"
+               /*1*/ ":u, "
+               /*2*/ "(SELECT size from blob where uuid=:s), "
+               /*3: TODO: mtime*/" NULL"
                ")"
     );
     manifest_file_rewind(pM);
@@ -141,6 +144,7 @@ static cson_value * json_page_dir_list(){
       db_bind_text(&ins, ":x", &pFile->zName[nD]);
       db_bind_text(&ins, ":u", pFile->zUuid);
       db_bind_text(&ins, ":s", pFile->zUuid);
+      /*db_bind_text(&ins, ":u3", pFile->zUuid);*/
       db_step(&ins);
       db_reset(&ins);
       pPrev = pFile;
@@ -152,14 +156,14 @@ static cson_value * json_page_dir_list(){
     if( filenames_are_case_sensitive() ){
       db_multi_exec(
         "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL, NULL FROM filename"
+        " SELECT pathelement(name,%d), NULL, NULL, NULL FROM filename"
         "  WHERE name GLOB '%q/*'",
         nD, zD
       );
     }else{
       db_multi_exec(
         "INSERT OR IGNORE INTO localfiles"
-        " SELECT pathelement(name,%d), NULL FROM filename"
+        " SELECT pathelement(name,%d), NULL, NULL, NULL FROM filename"
         "  WHERE name LIKE '%q/%%'",
         nD, zD
       );
@@ -167,14 +171,14 @@ static cson_value * json_page_dir_list(){
   }else{
     db_multi_exec(
       "INSERT OR IGNORE INTO localfiles"
-      " SELECT pathelement(name,0), NULL FROM filename"
+      " SELECT pathelement(name,0), NULL, NULL, NULL FROM filename"
     );
   }
 
   if(zCI){
-    db_prepare( &q, "SELECT x as name, u as uuid, sz as size FROM localfiles ORDER BY x");
+    db_prepare( &q, "SELECT n as name, u as uuid, sz as size FROM localfiles ORDER BY n");
   }else{/* UUIDs are all NULL. */
-    db_prepare( &q, "SELECT x as name FROM localfiles ORDER BY x");
+    db_prepare( &q, "SELECT n as name FROM localfiles ORDER BY n");
   }
 
   zKeyName = cson_new_string("name",4);
@@ -191,12 +195,14 @@ static cson_value * json_page_dir_list(){
   zPayload = cson_new_object();
   cson_object_set_s( zPayload, zKeyName,
                      json_new_string((zD&&*zD) ? zD : "/") );
+#if 0
   if(zUuid){
     cson_object_set_s( zPayload, zKeyUuid,
                        cson_string_value(cson_new_string(zUuid, strlen(zUuid))) );
   }
-  if( zCI ){
-    cson_object_set( zPayload, "checkin", json_new_string(zCI) );
+#endif
+  if( zUuid ){
+    cson_object_set( zPayload, "checkin", json_new_string(zUuid) );
   }
 
   while( (SQLITE_ROW==db_step(&q)) ){
@@ -216,18 +222,19 @@ static cson_value * json_page_dir_list(){
       name = json_new_string( n );
     }
     cson_object_set_s(zEntry, zKeyName, name );
-    if( zCI ){
+    if( zCI && !isDir){
+      /* don't add the uuid/size for dir entries - that data refers
+         to one of the files in that directory :/. */
       char const * u = db_column_text(&q,1);
       sqlite_int64 const sz = db_column_int64(&q,2);
-      if(!isDir){
-        /* don't add the uuid/size for dir entries - that data refers
-           to one of the files in that directory :/. */
-        if(u && *u){
-          cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
-        }
-        cson_object_set_s(zEntry, zKeySize,
-                          cson_value_new_integer( (cson_int_t)sz ));
+      /*sqlite_int64 const ts = db_column_int64(&q,3);*/
+      if(u && *u){
+        cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
       }
+      cson_object_set_s(zEntry, zKeySize,
+                        cson_value_new_integer( (cson_int_t)sz ));
+      /*cson_object_set(zEntry, "mtime",
+          cson_value_new_integer( (cson_int_t)ts ));*/
     }
   }
   db_finalize(&q);
