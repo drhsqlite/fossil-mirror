@@ -43,8 +43,15 @@ void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
     int w = diff_width(diffFlags);
     int n1 = strlen(zLeft);
     int x;
-    if( n1>w*2 ) n1 = w*2;
-    x = w*2+17 - (n1+2);
+    if (w > 0) {
+        if( n1>w*2 ) n1 = w*2;
+        x = w*2+17 - (n1+2);
+    }else{
+        /* Autocalculate width
+         * We can't know the width in advance, so we'll make it
+         * output three = around the name */
+        x = 6;
+    }
     z = mprintf("%.*c %.*s %.*c\n",
                 x/2, '=', n1, zLeft, (x+1)/2, '=');
   }else{

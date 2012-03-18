@@ -365,8 +365,9 @@ int construct_diff_flags(int showDiff, int sideBySide){
     if( sideBySide ){
       diffFlags = DIFF_SIDEBYSIDE | DIFF_IGNORE_EOLWS;
 
-      /* "dw" query parameter determines width of each column */
-      x = atoi(PD("dw","80"))*(DIFF_CONTEXT_MASK+1);
+      /* "dw" query parameter determines width of each column
+       * 0 means autocalculate. */
+      x = atoi(PD("dw","0"))*(DIFF_CONTEXT_MASK+1);
       if( x<0 || x>DIFF_WIDTH_MASK ) x = DIFF_WIDTH_MASK;
       diffFlags += x;
     }else{

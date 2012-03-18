@@ -353,6 +353,8 @@ static void contextDiff(
   }
 }
 
+static int maxwidth;
+
 /*
 ** Status of a single output line
 */
@@ -390,6 +392,10 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
+
+  if (n > maxwidth)
+    maxwidth = n;
+
   for(i=j=k=0; k<w && i<n; i++, k++){
     char c = zIn[i];
     if( p->escHtml ){
@@ -865,7 +871,7 @@ static void sbsDiff(
   Blob *pOut,        /* Write the results here */
   int nContext,      /* Number of lines of context around each change */
   int width,         /* Width of each column of output */
-  int escHtml        /* True to generate HTML output */
+  int escHtml       /* True to generate HTML output */
 ){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */  
@@ -1434,7 +1440,6 @@ int diff_context_lines(int diffFlags){
 */
 int diff_width(int diffFlags){
   int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
-  if( w==0 ) w = 80;
   return w;
 }
 
@@ -1494,6 +1499,14 @@ int *text_diff(
     int escHtml = (diffFlags & DIFF_HTML)!=0;
     if( diffFlags & DIFF_SIDEBYSIDE ){
       int width = diff_width(diffFlags);
+      if (width == 0){ /* Autocalculate */
+        Blob dump;
+        /* Webserver */
+        maxwidth = 0;
+        blob_zero(&dump);
+        sbsDiff(&c, &dump, nContext, width, escHtml);
+        width = maxwidth;
+      }
       sbsDiff(&c, pOut, nContext, width, escHtml);
     }else{
       int showLn = (diffFlags & DIFF_LINENO)!=0;
