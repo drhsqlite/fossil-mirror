@@ -1506,6 +1506,7 @@ int *text_diff(
         blob_zero(&dump);
         sbsDiff(&c, &dump, nContext, width, escHtml);
         width = maxwidth;
+        blob_reset(&dump);
       }
       sbsDiff(&c, pOut, nContext, width, escHtml);
     }else{

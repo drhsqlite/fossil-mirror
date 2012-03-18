@@ -1,5 +1,5 @@
-C Making\sthe\sside-by-side\sdiffs\sautocalculate\sthe\swidth,\sby\sdefault.
-D 2012-03-18T14:53:04.543
+C Fixing\san\sunnecessary\sheap\saccumulation.
+D 2012-03-18T19:46:45.451
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/db.c a333283281998e61c1c98e3931e4ae023f58a211
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
-F src/diff.c 8a792bd2c97c61a84bbd3b3cd167e1b9022345de
+F src/diff.c 1e3ebbd60b8221818218b9778c85f7e6addb659e
 F src/diffcmd.c 9a0cd0d1a0a4f7f9ac9a6bb3d4e40ae372ef819a
 F src/doc.c 2ff7f76502e45293640912e13f73b6dd3841cd80
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -359,7 +359,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e926e0b467ea16cee6502eef8c4503500714bb55
-R eef595abcda40634b08dc0a8715a00c3
+P 16397d86259278cb419a668389c59369e0876f72
+R 6adb1721a326e52cc3063b0fe24d30c4
 U viriketo
-Z 10f60d327040920ae5f2b03d2bd95dc9
+Z 0162f4027c83d6a6ad58640198b0c95f
