@@ -471,7 +471,7 @@ endif
 ifdef FOSSIL_ENABLE_TCL
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
 else
-LIB += -lws2_32
+LIB += -lkernel32 -lws2_32
 endif
 
 #### Tcl shell for use in running the fossil test suite.  This is only

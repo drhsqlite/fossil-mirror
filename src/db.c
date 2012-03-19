@@ -1708,11 +1708,14 @@ void db_record_repository_filename(const char *zName){
      blob_str(&full)
   );
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
+    Blob localRoot;
+    file_canonical_name(g.zLocalRoot, &localRoot);
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
       "VALUES('ckout:%q','%q');",
-      g.zLocalRoot, blob_str(&full)
+      blob_str(&localRoot), blob_str(&full)
     );
+    blob_reset(&localRoot);
   }
   db_swap_connections();
   blob_reset(&full);

@@ -22,6 +22,15 @@
 #include <assert.h>
 
 /*
+** Use the right null device for the platform.
+*/
+#if defined(_WIN32)
+#  define NULL_DEVICE "NUL"
+#else
+#  define NULL_DEVICE "/dev/null"
+#endif
+
+/*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
 void diff_print_index(const char *zFile, int diffFlags){
@@ -78,7 +87,7 @@ void diff_file(
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
     if( file_wd_size(zFile2)<0 ){
-      zName2 = "/dev/null";
+      zName2 = NULL_DEVICE;
     }else{
       if( file_wd_islink(zFile2) ){
         blob_read_link(&file2, zFile2);
@@ -285,7 +294,7 @@ static void diff_all_against_disk(
     int showDiff = 1;
     if( isDeleted ){
       fossil_print("DELETED  %s\n", zPathname);
-      if( !asNewFile ){ showDiff = 0; zFullName = "/dev/null"; }
+      if( !asNewFile ){ showDiff = 0; zFullName = NULL_DEVICE; }
     }else if( file_access(zFullName, 0) ){
       fossil_print("MISSING  %s\n", zPathname);
       if( !asNewFile ){ showDiff = 0; }

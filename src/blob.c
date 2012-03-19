@@ -92,6 +92,9 @@ int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
+int fossil_toupper(char c){
+  return fossil_islower(c) ? c - 'a' + 'A' : c;
+}
 int fossil_isalpha(char c){
   return (c>='a' && c<='z') || (c>='A' && c<='Z');
 }

@@ -31,6 +31,13 @@
 #include "file.h"
 
 /*
+** On Windows, include the Platform SDK header file.
+*/
+#ifdef _WIN32
+# include <windows.h>
+#endif
+
+/*
 ** The file status information from the most recent stat() call.
 **
 ** Use _stati64 rather than stat on windows, in order to handle files
@@ -611,11 +618,31 @@ int file_is_absolute_path(const char *zPath){
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut){
   if( file_is_absolute_path(zOrigName) ){
+#if defined(_WIN32)
+    char *zOut;
+#endif
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
+#if defined(_WIN32)
+    /*
+    ** On Windows, normalize the drive letter to upper case.
+    */
+    zOut = blob_str(pOut);
+    if( fossil_isalpha(zOut[0]) && zOut[1]==':' ){
+      zOut[0] = fossil_toupper(zOut[0]);
+    }
+#endif
   }else{
     char zPwd[2000];
     file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
+#if defined(_WIN32)
+    /*
+    ** On Windows, normalize the drive letter to upper case.
+    */
+    if( fossil_isalpha(zPwd[0]) && zPwd[1]==':' ){
+      zPwd[0] = fossil_toupper(zPwd[0]);
+    }
+#endif
     blob_zero(pOut);
     blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
@@ -770,33 +797,47 @@ void cmd_test_relative_name(void){
 ** The root of the tree is defined by the g.zLocalRoot variable.
 */
 int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
-  int n;
+  Blob localRoot;
+  int nLocalRoot;
+  char *zLocalRoot;
   Blob full;
   int nFull;
   char *zFull;
 
   blob_zero(pOut);
   db_must_be_within_tree();
+  file_canonical_name(g.zLocalRoot, &localRoot);
+  nLocalRoot = blob_size(&localRoot);
+  zLocalRoot = blob_buffer(&localRoot);
+  if ( zLocalRoot[nLocalRoot-1]!='/' ){
+    blob_append(&localRoot, "/", 1);
+    nLocalRoot = blob_size(&localRoot);
+    zLocalRoot = blob_buffer(&localRoot);
+  }
+  assert( nLocalRoot>0 && zLocalRoot[nLocalRoot-1]=='/' );
   file_canonical_name(zOrigName, &full);
-  n = strlen(g.zLocalRoot);
-  assert( n>0 && g.zLocalRoot[n-1]=='/' );
   nFull = blob_size(&full);
   zFull = blob_buffer(&full);
 
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
-  if( nFull==n-1 && memcmp(g.zLocalRoot, zFull, nFull)==0 ){
+  if( nFull==nLocalRoot-1 && memcmp(zLocalRoot, zFull, nFull)==0 ){
     blob_append(pOut, ".", 1);
+    blob_reset(&localRoot);
+    blob_reset(&full);
     return 1;
   }
 
-  if( nFull<=n || memcmp(g.zLocalRoot, zFull, n) ){
+  if( nFull<=nLocalRoot || memcmp(zLocalRoot, zFull, nLocalRoot) ){
+    blob_reset(&localRoot);
     blob_reset(&full);
     if( errFatal ){
       fossil_fatal("file outside of checkout tree: %s", zOrigName);
     }
     return 0;
   }
-  blob_append(pOut, &zFull[n], nFull-n);
+  blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  blob_reset(&localRoot);
+  blob_reset(&full);
   return 1;
 }
 
@@ -863,10 +904,16 @@ void file_parse_uri(
 */
 void file_tempname(int nBuf, char *zBuf){
   static const char *azDirs[] = {
+#if defined(_WIN32)
+     0, /* GetTempPath */
+     0, /* TEMP */
+     0, /* TMP */
+#else
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
      "/temp",
+#endif
      ".",
   };
   static const unsigned char zChars[] =
@@ -876,8 +923,21 @@ void file_tempname(int nBuf, char *zBuf){
   unsigned int i, j;
   const char *zDir = ".";
   int cnt = 0;
+
+#if defined(_WIN32)
+  char zTmpPath[MAX_PATH];
+
+  if( GetTempPath(sizeof(zTmpPath), zTmpPath) ){
+    azDirs[0] = zTmpPath;
+  }
+
+  azDirs[1] = fossil_getenv("TEMP");
+  azDirs[2] = fossil_getenv("TMP");
+#endif
+
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
+    if( azDirs[i]==0 ) continue;
     if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
     break;
@@ -900,6 +960,11 @@ void file_tempname(int nBuf, char *zBuf){
     }
     zBuf[j] = 0;
   }while( file_size(zBuf)>=0 );
+
+#if defined(_WIN32)
+  fossil_mbcs_free((char *)azDirs[1]);
+  fossil_mbcs_free((char *)azDirs[2]);
+#endif
 }
 
 
@@ -932,9 +997,6 @@ int file_is_the_same(Blob *pContent, const char *zName){
 ** Since everything is always UTF8 on unix, these routines are no-ops
 ** there.
 */
-#ifdef _WIN32
-# include <windows.h>
-#endif
 
 /*
 ** Translate MBCS to UTF8.  Return a pointer to the translated text.  
