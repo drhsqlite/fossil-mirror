@@ -401,7 +401,7 @@ cson_value * json_page_artifact(){
     cson_object_set( pay, "type", json_new_string(zType) );
     /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
     cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
-    cson_object_set( pay, "rid", cson_value_new_integer(rid) );
+    /*cson_object_set( pay, "rid", cson_value_new_integer(rid) );*/
     if(entry){
       cson_object_set(pay, "artifact", entry);
     }
