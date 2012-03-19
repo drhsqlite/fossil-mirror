@@ -243,7 +243,7 @@ void add_cmd(void){
     int isDir;
     Blob fullName;
 
-    file_canonical_name(g.argv[i], &fullName);
+    file_canonical_name(g.argv[i], &fullName, 0);
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){

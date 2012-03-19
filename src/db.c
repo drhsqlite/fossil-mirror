@@ -1037,7 +1037,7 @@ void move_repo_cmd(void){
     fossil_fatal("not in a local checkout");
     return;
   }
-  file_canonical_name(g.argv[2], &repo);
+  file_canonical_name(g.argv[2], &repo, 0);
   zRepo = blob_str(&repo);
   if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
@@ -1700,7 +1700,7 @@ void db_record_repository_filename(const char *zName){
     if( !g.localOpen ) return;
     zName = db_repository_filename();
   }
-  file_canonical_name(zName, &full);
+  file_canonical_name(zName, &full, 0);
   db_swap_connections();
   db_multi_exec(
      "INSERT OR IGNORE INTO global_config(name,value)"
@@ -1709,7 +1709,7 @@ void db_record_repository_filename(const char *zName){
   );
   if( g.localOpen && g.zLocalRoot && g.zLocalRoot[0] ){
     Blob localRoot;
-    file_canonical_name(g.zLocalRoot, &localRoot);
+    file_canonical_name(g.zLocalRoot, &localRoot, 1);
     db_multi_exec(
       "REPLACE INTO global_config(name, value)"
       "VALUES('ckout:%q','%q');",
@@ -1754,7 +1754,7 @@ void cmd_open(void){
   if( !allowNested && db_open_local() ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
   }
-  file_canonical_name(g.argv[2], &path);
+  file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
   db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
   db_delete_on_failure("./_FOSSIL_");

@@ -796,7 +796,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       zName = zBuf;
       memcpy(zName, zFilename, nName+1);
     }
-    nName = file_simplify_name(zName, nName);
+    nName = file_simplify_name(zName, nName, 0);
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;

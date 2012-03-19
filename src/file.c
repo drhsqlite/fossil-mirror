@@ -177,7 +177,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
       zName = zBuf;
       memcpy(zName, zLinkFile, nName+1);
     }
-    nName = file_simplify_name(zName, nName);
+    nName = file_simplify_name(zName, nName, 0);
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
@@ -268,7 +268,7 @@ int file_isdir(const char *zFilename){
 
   if( zFilename ){
     char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1);
+    file_simplify_name(zFN, -1, 0);
     rc = getStat(zFN, 0);
     free(zFN);
   }else{
@@ -285,7 +285,7 @@ int file_wd_isdir(const char *zFilename){
 
   if( zFilename ){
     char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1);
+    file_simplify_name(zFN, -1, 0);
     rc = getStat(zFN, 1);
     free(zFN);
   }else{
@@ -323,7 +323,7 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
   }
   if( relFlag ){
     Blob x;
-    file_relative_name(z, &x);
+    file_relative_name(z, &x, 0);
     fossil_free(z);
     z = blob_str(&x);
   }
@@ -482,8 +482,10 @@ static int backup_dir(const char *z, int *pJ){
 **  * removing /A/../
 **
 ** Changes are made in-place.  Return the new name length.
+** If the slash parameter is non-zero, the trailing slash, if any,
+** is retained.
 */
-int file_simplify_name(char *z, int n){
+int file_simplify_name(char *z, int n, int slash){
   int i, j;
   if( n<0 ) n = strlen(z);
 
@@ -495,7 +497,9 @@ int file_simplify_name(char *z, int n){
 #endif
 
   /* Removing trailing "/" characters */
-  while( n>1 && z[n-1]=='/' ){ n--; }
+  if ( !slash ){
+    while( n>1 && z[n-1]=='/' ){ n--; }
+  }
 
   /* Remove duplicate '/' characters.  Except, two // at the beginning
   ** of a pathname is allowed since this is important on windows. */
@@ -549,7 +553,7 @@ void cmd_test_simplify_name(void){
   for(i=2; i<g.argc; i++){
     z = mprintf("%s", g.argv[i]);
     fossil_print("[%s] -> ", z);
-    file_simplify_name(z, -1);
+    file_simplify_name(z, -1, 0);
     fossil_print("[%s]\n", z);
     fossil_free(z);
   }
@@ -615,8 +619,10 @@ int file_is_absolute_path(const char *zPath){
 ** Remove redundant / characters
 ** Remove all /./ path elements.
 ** Convert /A/../ to just /
+** If the slash parameter is non-zero, the trailing slash, if any,
+** is retained.
 */
-void file_canonical_name(const char *zOrigName, Blob *pOut){
+void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
   if( file_is_absolute_path(zOrigName) ){
 #if defined(_WIN32)
     char *zOut;
@@ -646,7 +652,8 @@ void file_canonical_name(const char *zOrigName, Blob *pOut){
     blob_zero(pOut);
     blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
-  blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
+  blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                       blob_size(pOut), slash));
 }
 
 /*
@@ -663,7 +670,7 @@ void cmd_test_canonical_name(void){
   for(i=2; i<g.argc; i++){
     char zBuf[100];
     const char *zName = g.argv[i];
-    file_canonical_name(zName, &x);
+    file_canonical_name(zName, &x, 0);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
@@ -717,12 +724,14 @@ char *file_without_drive_letter(char *zIn){
 
 /*
 ** Compute a pathname for a file or directory that is relative
-** to the current directory.
+** to the current directory.  If the slash parameter is non-zero,
+** the trailing slash, if any, is retained.
 */
-void file_relative_name(const char *zOrigName, Blob *pOut){
+void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
   char *zPath;
   blob_set(pOut, zOrigName);
-  blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut))); 
+  blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                       blob_size(pOut), slash));
   zPath = file_without_drive_letter(blob_buffer(pOut));
   if( zPath[0]=='/' ){
     int i, j;
@@ -782,7 +791,7 @@ void cmd_test_relative_name(void){
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_relative_name(g.argv[i], &x);
+    file_relative_name(g.argv[i], &x, 0);
     fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
@@ -806,16 +815,11 @@ int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
 
   blob_zero(pOut);
   db_must_be_within_tree();
-  file_canonical_name(g.zLocalRoot, &localRoot);
+  file_canonical_name(g.zLocalRoot, &localRoot, 1);
   nLocalRoot = blob_size(&localRoot);
   zLocalRoot = blob_buffer(&localRoot);
-  if ( zLocalRoot[nLocalRoot-1]!='/' ){
-    blob_append(&localRoot, "/", 1);
-    nLocalRoot = blob_size(&localRoot);
-    zLocalRoot = blob_buffer(&localRoot);
-  }
   assert( nLocalRoot>0 && zLocalRoot[nLocalRoot-1]=='/' );
-  file_canonical_name(zOrigName, &full);
+  file_canonical_name(zOrigName, &full, 0);
   nFull = blob_size(&full);
   zFull = blob_buffer(&full);
 

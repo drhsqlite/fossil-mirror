@@ -953,7 +953,7 @@ void setup_login_group(void){
   if( !g.perm.Setup ){
     login_needed();
   }
-  file_canonical_name(g.zRepositoryName, &fullName);
+  file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
