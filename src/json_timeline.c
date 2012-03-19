@@ -99,7 +99,7 @@ const char const * json_timeline_query(void){
     @   NULL,
     @   blob.rid,
     @   uuid,
-    @   strftime('%%s',event.mtime),
+    @   CAST(strftime('%%s',event.mtime) AS INTEGER),
     @   datetime(event.mtime,'utc'),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
