@@ -883,6 +883,7 @@ static void sbsDiff(
   int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
 
+  memset(&s, 0, sizeof(s));
   s.zLine = fossil_malloc( 10*width + 200 );
   if( s.zLine==0 ) return;
   s.width = width;
