@@ -634,8 +634,9 @@ static void create_manifest(
   const char *zDateOvrd,      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd,      /* User override.  If 0 then use g.zLogin */
   const char *zBranch,        /* Branch name.  May be 0 */
-  const char *zBgColor,       /* Background color.  May be 0 */
-  const char *zTag,           /* Tag to apply to this check-in */
+  const char *zColor,         /* One-time gackground color.  May be 0 */
+  const char *zBrClr,         /* Persistent branch color.  May be 0 */
+  const char **azTag,         /* Tags to apply to this check-in */
   int *pnFBcard               /* Number of generated B- and F-cards */
 ){
   char *zDate;                /* Date of the check-in */
@@ -647,6 +648,7 @@ static void create_manifest(
   Blob mcksum;                /* Manifest checksum */
   ManifestFile *pFile;        /* File from the baseline */
   int nFBcard = 0;            /* Number of B-cards and F-cards */
+  int i;                      /* Loop counter */
 
   assert( pBaseline==0 || pBaseline->zBaseline==0 );
   assert( pBaseline==0 || zBaselineUuid!=0 );
@@ -758,19 +760,27 @@ static void create_manifest(
   if( pCksum ) blob_appendf(pOut, "R %b\n", pCksum);
   if( zBranch && zBranch[0] ){
     /* Set tags for the new branch */
-    if( zBgColor && zBgColor[0] ){
-      blob_appendf(pOut, "T *bgcolor * %F\n", zBgColor);
+    if( zBrClr && zBrClr[0] ){
+      zColor = 0;
+      blob_appendf(pOut, "T *bgcolor * %F\n", zBrClr);
     }
     blob_appendf(pOut, "T *branch * %F\n", zBranch);
     blob_appendf(pOut, "T *sym-%F *\n", zBranch);
+  }
+  if( zColor && zColor[0] ){
+    /* One-time background color */
+    blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
   if( g.markPrivate ){
     /* If this manifest is private, mark it as such */
     blob_appendf(pOut, "T +private *\n");
   }
-  if( zTag && zTag[0] ){
-    /* Add a symbolic tag to this check-in */
-    blob_appendf(pOut, "T +sym-%F *\n", zTag);
+  if( azTag ){
+    for(i=0; azTag[i]; i++){
+      /* Add a symbolic tag to this check-in.  The tag names have already
+      ** been sorted and converted using the %F format */
+      blob_appendf(pOut, "T +sym-%s *\n", azTag[i]);
+    }
   }
   if( zBranch && zBranch[0] ){
     /* For a new branch, cancel all prior propagating tags */
@@ -783,8 +793,8 @@ static void create_manifest(
         " ORDER BY tagname",
         vid, zBranch);
     while( db_step(&q)==SQLITE_ROW ){
-      const char *zTag = db_column_text(&q, 0);
-      blob_appendf(pOut, "T -%F *\n", zTag);
+      const char *zBrTag = db_column_text(&q, 0);
+      blob_appendf(pOut, "T -%F *\n", zBrTag);
     }
     db_finalize(&q);
   }  
@@ -848,6 +858,15 @@ static void cr_warning(const Blob *p, const char *zFilename){
 }
 
 /*
+** qsort() comparison routine for an array of pointers to strings.
+*/
+static int tagCmp(const void *a, const void *b){
+  char **pA = (char**)a;
+  char **pB = (char**)b;
+  return fossil_strcmp(pA[0], pB[0]);
+}
+
+/*
 ** COMMAND: ci*
 ** COMMAND: commit
 **
@@ -879,8 +898,9 @@ static void cr_warning(const Blob *p, const char *zFilename){
 **
 ** Options:
 **    --baseline                 use a baseline manifest in the commit process
-**    --bgcolor COLOR            apply given COLOR to the branch
+**    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
+**    --branchcolor COLOR        apply given COLOR to the branch
 **    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    --delta                    use a delta manifest in the commit process
 **    --force|-f                 allow forking with this commit
@@ -910,11 +930,14 @@ void commit_cmd(void){
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
   int testRun;           /* True for a test run.  Debugging only */
   const char *zBranch;   /* Create a new branch with this name */
-  const char *zBgColor;  /* Set background color when branching */
+  const char *zBrClr;    /* Set background color when branching */
+  const char *zColor;    /* One-time check-in color */
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   const char *zComFile;  /* Read commit message from this file */
-  const char *zTag;      /* Symbolic tag to apply to this check-in */
+  int nTag = 0;          /* Number of --tag arguments */
+  const char *zTag;      /* A single --tag argument */
+  const char **azTag = 0;/* Array of all --tag arguments */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
@@ -933,13 +956,19 @@ void commit_cmd(void){
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
   zBranch = find_option("branch","b",1);
-  zBgColor = find_option("bgcolor",0,1);
-  zTag = find_option("tag",0,1);
+  zColor = find_option("bgcolor",0,1);
+  zBrClr = find_option("branchcolor",0,1);
+  while( (zTag = find_option("tag",0,1))!=0 ){
+    if( zTag[0]==0 ) continue;
+    azTag = fossil_realloc(azTag, sizeof(char*)*(nTag+2));
+    azTag[nTag++] = zTag;
+    azTag[nTag] = 0;
+  }
   zComFile = find_option("message-file", "M", 1);
   if( find_option("private",0,0) ){
     g.markPrivate = 1;
     if( zBranch==0 ) zBranch = "private";
-    if( zBgColor==0 ) zBgColor = "#fec084";  /* Orange */
+    if( zBrClr==0 && zColor==0 ) zBrClr = "#fec084";  /* Orange */
   }
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
@@ -949,6 +978,13 @@ void commit_cmd(void){
   useCksum = db_get_boolean("repo-cksum", 1);
   outputManifest = db_get_boolean("manifest", 0);
   verify_all_options();
+
+  /* Escape special characters in tags and put all tags in sorted order */
+  if( nTag ){
+    int i;
+    for(i=0; i<nTag; i++) azTag[i] = mprintf("%F", azTag[i]);
+    qsort((void*)azTag, nTag, sizeof(azTag[0]), tagCmp);
+  }
 
   /* So that older versions of Fossil (that do not understand delta-
   ** manifest) can continue to use this repository, do not create a new
@@ -1128,7 +1164,8 @@ void commit_cmd(void){
   }else{
     create_manifest(&manifest, 0, 0, &comment, vid,
                     !forceFlag, useCksum ? &cksum1 : 0,
-                    zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szB);
+                    zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
+                    azTag, &szB);
   }
 
   /* See if a delta-manifest would be more appropriate */
@@ -1148,7 +1185,8 @@ void commit_cmd(void){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
                       !forceFlag, useCksum ? &cksum1 : 0,
-                      zDateOvrd, zUserOvrd, zBranch, zBgColor, zTag, &szD);
+                      zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
+                      azTag, &szD);
       /*
       ** At this point, two manifests have been constructed, either of
       ** which would work for this checkin.  The first manifest (held
