@@ -37,7 +37,7 @@ FOSSIL_ENABLE_SSL = 1
 
 #### Enable scripting support via Tcl/Tk
 #
-FOSSIL_ENABLE_TCL = 1
+# FOSSIL_ENABLE_TCL = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -152,7 +152,7 @@ endif
 ifdef FOSSIL_ENABLE_TCL
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
 else
-LIB += -lws2_32
+LIB += -lkernel32 -lws2_32
 endif
 
 #### Tcl shell for use in running the fossil test suite.  This is only

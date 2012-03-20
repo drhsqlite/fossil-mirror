@@ -1406,13 +1406,13 @@ void login_group_join(
   zSelf = db_name("repository");
 
   /* Get the full pathname of the other repository */  
-  file_canonical_name(zRepo, &fullName);
+  file_canonical_name(zRepo, &fullName, 0);
   zRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
 
   /* Get the full pathname for our repository.  Also the project code
   ** and project name for ourself. */
-  file_canonical_name(g.zRepositoryName, &fullName);
+  file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
   zSelfProjCode = db_get("project-code", "unknown");

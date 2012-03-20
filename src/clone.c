@@ -152,7 +152,7 @@ void clone_cmd(void){
       /* If the --ssl-identity option was specified, store it as a setting */
       Blob fn;
       blob_zero(&fn);
-      file_canonical_name(g.zSSLIdentity, &fn);
+      file_canonical_name(g.zSSLIdentity, &fn, 0);
       db_set("ssl-identity", blob_str(&fn), 0);
       blob_reset(&fn);
     }

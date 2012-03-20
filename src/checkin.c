@@ -57,7 +57,7 @@ static void status_report(
     int isRenamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
     if( cwdRelative ){
-      file_relative_name(zFullName, &rewrittenPathname);
+      file_relative_name(zFullName, &rewrittenPathname, 0);
       zDisplayName = blob_str(&rewrittenPathname);
       if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
         zDisplayName += 2;  /* no unnecessary ./ prefix */
@@ -315,7 +315,7 @@ void extra_cmd(void){
     zDisplayName = zPathname = db_column_text(&q, 0);
     if( cwdRelative ) {
       char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-      file_relative_name(zFullName, &rewrittenPathname);
+      file_relative_name(zFullName, &rewrittenPathname, 0);
       free(zFullName);
       zDisplayName = blob_str(&rewrittenPathname);
       if( zDisplayName[0]=='.' && zDisplayName[1]=='/' ){
@@ -828,7 +828,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
   }
   if( nCrNl ){
     char c;
-    file_relative_name(zFilename, &fname);
+    file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains CR/NL line endings; commit anyhow (yes/no/all)?", 

@@ -1114,7 +1114,7 @@ static char *enter_chroot_jail(char *zRepo){
     Blob dir;
     char *zDir;
 
-    file_canonical_name(zRepo, &dir);
+    file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
       if( chdir(zDir) || chroot(zDir) || chdir("/") ){
@@ -1290,7 +1290,7 @@ static void process_one_web_page(const char *zNotFound){
         if( g.zLogin==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
-          file_simplify_name(zAltRepo, -1);
+          file_simplify_name(zAltRepo, -1, 0);
         }
         db_close(1);
         db_open_repository(zAltRepo);
@@ -1552,7 +1552,7 @@ static void find_server_repository(int disallowDir){
     db_must_be_within_tree();
   }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
     g.zRepositoryName = mprintf("%s", g.argv[2]);
-    file_simplify_name(g.zRepositoryName, -1);
+    file_simplify_name(g.zRepositoryName, -1, 0);
   }else{
     db_open_repository(g.argv[2]);
   }
