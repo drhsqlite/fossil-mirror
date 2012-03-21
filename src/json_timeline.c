@@ -391,6 +391,7 @@ static cson_value * json_timeline_branch(){
     cson_string * tags = cson_new_string("tags",4);
     cson_string * isLeaf = cson_new_string("isLeaf",6);
     cson_array * ar = cson_value_get_array(pay);
+    cson_object * outer = NULL;
     unsigned int i = 0;
     unsigned int len = cson_array_length_get(ar);
     cson_value_add_reference( cson_string_value(tags) );
@@ -400,10 +401,23 @@ static cson_value * json_timeline_branch(){
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
       assert( rid > 0 );
       cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
-      cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
+      cson_object_set_s(row, isLeaf,
+                        json_value_to_bool(cson_object_get(row,"isLeaf")));
+      cson_object_set(row, "rid", NULL)
+        /* remove rid - we don't really want it to be public */;
     }
     cson_value_free( cson_string_value(tags) );
     cson_value_free( cson_string_value(isLeaf) );
+
+    /* now we wrap the payload in an outer shell, for consistency with
+       other /json/timeline/xyz APIs...
+    */
+    outer = cson_new_object();
+    if(limit>0){
+      cson_object_set( outer, "limit", json_new_int(limit) );
+    }
+    cson_object_set( outer, "timeline", pay );
+    pay = cson_object_value(outer);
   }
   return pay;
 }
