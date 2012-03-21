@@ -362,7 +362,7 @@ static cson_value * json_timeline_branch(){
               "SELECT"
               "  blob.rid AS rid,"
               "  uuid AS uuid,"
-              "  datetime(event.mtime,'utc') as mtime,"
+              "  datetime(event.mtime,'utc') as timestamp,"
               "  coalesce(ecomment, comment) as comment,"
               "  coalesce(euser, user) as user,"
               "  blob.rid IN leaf as isLeaf,"

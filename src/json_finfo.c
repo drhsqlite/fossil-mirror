@@ -123,7 +123,7 @@ cson_value * json_page_finfo(){
     cson_object_set(row, "checkin", json_new_string( db_column_text(&q,1) ));
     cson_object_set(row, "uuid", json_new_string( db_column_text(&q,2) ));
     /*cson_object_set(row, "parentArtifact", json_new_string( db_column_text(&q,6) ));*/
-    cson_object_set(row, "mtime", json_new_int( db_column_int(&q,3) ));
+    cson_object_set(row, "timestamp", json_new_int( db_column_int(&q,3) ));
     cson_object_set(row, "user", json_new_string( db_column_text(&q,4) ));
     cson_object_set(row, "comment", json_new_string( db_column_text(&q,5) ));
     /*cson_object_set(row, "bgColor", json_new_string( db_column_text(&q,7) ));*/

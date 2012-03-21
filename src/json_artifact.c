@@ -117,7 +117,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
 
     mtime = db_column_int(&q,1);
-    SET("mtime",json_new_int(mtime));
+    SET("timestamp",json_new_int(mtime));
     omtime = db_column_int(&q,2);
     if(omtime && (omtime!=mtime)){
       SET("originTime",json_new_int(omtime));
@@ -283,7 +283,7 @@ cson_value * json_artifact_file(int rid){
 
   db_prepare(&q,
       "SELECT filename.name AS name, "
-      "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
+      "       cast(strftime('%%s',event.mtime) as int) AS timestamp,"
       "       coalesce(event.ecomment,event.comment) as comment,"
       "       coalesce(event.euser,event.user) as user,"
       "       b.uuid as uuid, "

@@ -63,7 +63,7 @@ static cson_value * json_user_list(){
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user ORDER BY login");
   payV = json_stmt_to_array_of_obj(&q, NULL);
   db_finalize(&q);
@@ -87,7 +87,7 @@ static cson_value * json_load_user_by_name(char const * zName){
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user"
              " WHERE login=%Q",
              zName);
@@ -109,7 +109,7 @@ static cson_value * json_load_user_by_id(int uid){
              " login AS name,"
              " cap AS capabilities,"
              " info AS info,"
-             " mtime AS mtime"
+             " mtime AS timestamp"
              " FROM user"
              " WHERE uid=%d",
              uid);

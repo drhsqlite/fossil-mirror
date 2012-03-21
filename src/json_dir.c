@@ -223,14 +223,16 @@ static cson_value * json_page_dir_list(){
     }
     cson_object_set_s(zEntry, zKeyName, name );
     if( zCI && !isDir){
-      /* don't add the uuid/size for dir entries - that data refers
-         to one of the files in that directory :/. */
+      /* Don't add the uuid/size for dir entries - that data refers to
+         one of the files in that directory :/. Entries with no
+         --checkin may refer to N versions, and therefore we cannot
+         associate a single size and uuid with them (and fetching all
+         would be overkill for most use cases).
+      */
       char const * u = db_column_text(&q,1);
       sqlite_int64 const sz = db_column_int64(&q,2);
       /*sqlite_int64 const ts = db_column_int64(&q,3);*/
-      if(u && *u){
-        cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
-      }
+      cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
       cson_object_set_s(zEntry, zKeySize,
                         cson_value_new_integer( (cson_int_t)sz ));
       /*cson_object_set(zEntry, "mtime",
