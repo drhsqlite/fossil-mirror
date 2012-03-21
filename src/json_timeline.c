@@ -533,7 +533,7 @@ cson_value * json_timeline_wiki(){
 #endif
   db_multi_exec(blob_buffer(&sql));
   blob_reset(&sql);
-  db_prepare(&q, "SELECT rid AS rid,"
+  db_prepare(&q, "SELECT"
              " uuid AS uuid,"
              " mtime AS timestamp,"
 #if 0
