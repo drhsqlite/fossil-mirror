@@ -293,25 +293,16 @@ cson_value * json_get_changed_files(int rid){
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
   db_prepare(&q, 
-#if 0
-             "SELECT (mlink.pid==0) AS isNew,"
-             "       (mlink.fid==0) AS isDel,"
-             "       filename.name AS name"
-             " FROM mlink, filename"
-             " WHERE mid=%d"
-             " AND pid!=fid"
-             " AND filename.fnid=mlink.fnid"
-             " ORDER BY 3 /*sort*/",
-#else
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
-           "       (SELECT uuid FROM blob WHERE rid=fid) as uuid,"
-           "       (SELECT uuid FROM blob WHERE rid=pid) as parent"
-           "  FROM mlink"
+           "       blob.uuid as uuid,"
+           "       (SELECT uuid FROM blob WHERE rid=pid) as parent,"
+           "       blob.size as size"
+           "  FROM mlink, blob"
            " WHERE mid=%d AND pid!=fid"
+           " AND blob.rid=fid "
            " ORDER BY name /*sort*/",
-#endif
              rid
              );
   while( (SQLITE_ROW == db_step(&q)) ){
@@ -330,6 +321,8 @@ cson_value * json_get_changed_files(int rid){
     if(!isNew){
       cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
+    cson_object_set(row, "size", json_new_int(db_column_int(&q,5)));
+
     cson_object_set(row, "state",
                     json_new_string(json_artifact_status_to_string(isNew,isDel)));
     zDownload = mprintf("/raw/%s?name=%s",
