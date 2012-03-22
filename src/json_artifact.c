@@ -251,10 +251,25 @@ cson_value * json_artifact_wiki(int rid){
   }
 }
 
+/*
+** Internal helper for routines which add a "status" flag to file
+** artifact data. isNew and isDel should be the "is this object new?" 
+** and "is this object removed?" flags of the underlying query.  This
+** function returns a static string from the set (added, removed,
+** modified), depending on the combination of the two args.
+**
+** Reminder to self: (mlink.pid==0) AS isNew, (mlink.fid==0) AS isDel
+*/
+char const * json_artifact_status_to_string( char isNew, char isDel ){
+  return isNew
+    ? "added"
+    : (isDel
+       ? "removed"
+       : "modified");
+}
+
 cson_value * json_artifact_file(int rid){
   cson_object * pay = NULL;
-  const char *zMime;
-  Blob content = empty_blob;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
 
@@ -266,31 +281,35 @@ cson_value * json_artifact_file(int rid){
   
   pay = cson_new_object();
 
-  content_get(rid, &content);
-  cson_object_set(pay, "contentLength",
-                  json_new_int( blob_size(&content) )
-                  /* achtung: overflow potential on 32-bit builds! */);
-  zMime = mimetype_from_content(&content);
-
-  cson_object_set(pay, "contentType",
-                  json_new_string(zMime ? zMime : "text/plain"));
-  if( json_artifact_include_content_flag() && !zMime ){
+  if( json_artifact_include_content_flag() ){
+    Blob content = empty_blob;
+    const char *zMime;
+    content_get(rid, &content);
+    zMime = mimetype_from_content(&content);
+    cson_object_set(pay, "contentType",
+                    json_new_string(zMime ? zMime : "text/plain"));
+    cson_object_set(pay, "size", json_new_int( blob_size(&content)) );
+    if(!zMime){
       cson_object_set(pay, "content",
                       cson_value_new_string(blob_str(&content),
                                             (unsigned int)blob_size(&content)));
+    }
+    blob_reset(&content);
   }
-  blob_reset(&content);
 
   db_prepare(&q,
       "SELECT filename.name AS name, "
-      "       cast(strftime('%%s',event.mtime) as int) AS timestamp,"
-      "       coalesce(event.ecomment,event.comment) as comment,"
-      "       coalesce(event.euser,event.user) as user,"
-      "       b.uuid as uuid, "
+      "  (mlink.pid==0) AS isNew,"
+      "  (mlink.fid==0) AS isDel,"
+      "  cast(strftime('%%s',event.mtime) as int) AS timestamp,"
+      "  coalesce(event.ecomment,event.comment) as comment,"
+      "  coalesce(event.euser,event.user) as user,"
+      "  a.size AS size,"
+      "  b.uuid as uuid, "
 #if 0
-      "       mlink.mperm as mperm,"
+      "  mlink.mperm as mperm,"
 #endif
-      "       coalesce((SELECT value FROM tagxref"
+      "  coalesce((SELECT value FROM tagxref"
                       "  WHERE tagid=%d AND tagtype>0 AND "
                       " rid=mlink.mid),'trunk') as branch"
       "  FROM mlink, filename, event, blob a, blob b"
@@ -307,7 +326,16 @@ cson_value * json_artifact_file(int rid){
    */
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
-  json_stmt_to_array_of_obj( &q, checkin_arr );
+  while( (SQLITE_ROW==db_step(&q) ) ){
+    cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));
+    char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
+    char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
+    cson_object_set(row, "isNew", NULL);
+    cson_object_set(row, "isDel", NULL);
+    cson_object_set(row, "status",
+                    json_new_string(json_artifact_status_to_string(isNew, isDel)));
+    cson_array_append( checkin_arr, cson_object_value(row) );
+  }
   db_finalize(&q);
   return cson_object_value(pay);
 }

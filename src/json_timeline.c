@@ -331,11 +331,7 @@ cson_value * json_get_changed_files(int rid){
       cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
     cson_object_set(row, "state",
-                    json_new_string(isNew
-                                    ? "added"
-                                    : (isDel
-                                       ? "removed"
-                                       : "modified")));
+                    json_new_string(json_artifact_status_to_string(isNew,isDel)));
     zDownload = mprintf("/raw/%s?name=%s",
                         /* reminder: g.zBaseURL is of course not set for CLI mode. */
                         db_column_text(&q,2),
