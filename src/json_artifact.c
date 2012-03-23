@@ -332,7 +332,7 @@ cson_value * json_artifact_file(int rid){
     char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
     cson_object_set(row, "isNew", NULL);
     cson_object_set(row, "isDel", NULL);
-    cson_object_set(row, "status",
+    cson_object_set(row, "state",
                     json_new_string(json_artifact_status_to_string(isNew, isDel)));
     cson_array_append( checkin_arr, cson_object_value(row) );
   }

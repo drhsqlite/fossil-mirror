@@ -132,7 +132,7 @@ cson_value * json_page_finfo(){
     cson_object_set(row, "comment", json_new_string( db_column_text(&q,5) ));
     /*cson_object_set(row, "bgColor", json_new_string( db_column_text(&q,7) ));*/
     cson_object_set(row, "size", cson_value_new_integer( (cson_int_t)db_column_int64(&q,8) ));
-    cson_object_set(row, "status",
+    cson_object_set(row, "state",
                     json_new_string(json_artifact_status_to_string(isNew,isDel)));
     if( (0 < limit) && (++currentRow >= limit) ){
       break;
