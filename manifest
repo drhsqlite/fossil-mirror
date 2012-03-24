@@ -1,5 +1,5 @@
-C /json/wiki:\ss/contentLength/size/\sand\ss/lastSavedBy/user/,\sfor\sconsistency.\sInterface-incompatible\schange.
-D 2012-03-24T12:32:54.247
+C Added\stimestamp\soutput\sto\s/json/dir\swhen\s-checkin\soption\sis\sprovided.
+D 2012-03-24T16:35:03.920
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -103,7 +103,7 @@ F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h a45f6a5c01c89a9bf98f0dd2b5a96b7db2a5a33d
 F src/json_diff.c 3894183bc4d182e2a8fba29dded40f171f54530f
-F src/json_dir.c ef14a9dec8a013c708ca655e4fce89e73c25f9db
+F src/json_dir.c ffe8d7ed1309a6b1f5e90528f1a12a9be601f05f
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
@@ -362,7 +362,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8f496ed159976bd64291e5cf8b52da21cc8a71c6
-R 2c7b273bb3de0fce6ffd0de0b2d454bf
+P c78773b2fdbdc7b9258269d8d788f41d2453833e
+R cac8030515d0541a6f0078f2e38efda9
 U stephan
-Z 0e40b5cce66fb76146653825c13f41c1
+Z ee654228dfba2fa073bc91c7d4b58718
