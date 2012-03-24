@@ -101,11 +101,11 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
            (except for the initial version, which has no parents). */;
     }
     /*cson_object_set(pay,"rid",json_new_int((cson_int_t)rid));*/
-    cson_object_set(pay,"lastSavedBy",json_new_string(pWiki->zUser));
+    cson_object_set(pay,"user",json_new_string(pWiki->zUser));
     cson_object_set(pay,FossilJsonKeys.timestamp,
                     json_julian_to_timestamp(pWiki->rDate));
     if(0 == contentFormat){
-      cson_object_set(pay,"contentLength",
+      cson_object_set(pay,"size",
                       json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
       if( contentFormat>0 ){/*HTML-ize it*/
@@ -117,7 +117,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
           wiki_convert(&raw,&content,0);
           len = (unsigned int)blob_size(&content);
         }
-        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"size",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",
                         cson_value_new_string(blob_buffer(&content),len));
         blob_reset(&content);
@@ -125,7 +125,7 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
       }else{/*raw format*/
         zFormat = "raw";
         len = zBody ? strlen(zBody) : 0;
-        cson_object_set(pay,"contentLength",json_new_int((cson_int_t)len));
+        cson_object_set(pay,"size",json_new_int((cson_int_t)len));
         cson_object_set(pay,"content",cson_value_new_string(zBody,len));
       }
       cson_object_set(pay,"contentFormat",json_new_string(zFormat));
