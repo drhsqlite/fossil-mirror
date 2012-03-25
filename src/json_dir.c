@@ -50,15 +50,16 @@ static char const * json_dir_path_extra(){
 ** from browse.c::page_dir()
 */
 static cson_value * json_page_dir_list(){
-  cson_object * zPayload = NULL;
-  cson_array * zEntries = NULL;
-  cson_object * zEntry = NULL;
-  cson_array * keyStore = NULL;
+  cson_object * zPayload = NULL; /* return value */
+  cson_array * zEntries = NULL; /* accumulated list of entries. */
+  cson_object * zEntry = NULL;  /* a single dir/file entry. */
+  cson_array * keyStore = NULL; /* garbage collector for shared strings. */
   cson_string * zKeyName = NULL;
   cson_string * zKeySize = NULL;
   cson_string * zKeyIsDir = NULL;
   cson_string * zKeyUuid = NULL;
   cson_string * zKeyTime = NULL;
+  cson_string * zKeyRaw = NULL;
   char * zD = NULL;
   char const * zDX = NULL;
   int nD;
@@ -88,6 +89,8 @@ static cson_value * json_page_dir_list(){
       return NULL;
     }
   }
+
+  /* Jump through some hoops to find the directory name... */
   zDX = json_find_option_cstr("name",NULL,NULL);
   if(!zDX && !g.isHTTP){
     zDX = json_command_arg(g.json.dispatchDepth+1);
@@ -109,10 +112,6 @@ static cson_value * json_page_dir_list(){
   ** first and it also gives us an easy way to distinguish files
   ** from directories in the loop that follows.
   */
-  db_multi_exec(
-     "CREATE TEMP TABLE json_dir_files(n UNIQUE NOT NULL %s, u, sz, mtime DEFAULT NULL);",
-     filename_collation()
-  );
 
   if( zCI ){
     Stmt ins;
@@ -121,10 +120,22 @@ static cson_value * json_page_dir_list(){
     int nPrev = 0;
     int c;
 
+    db_multi_exec(
+                  "CREATE TEMP TABLE json_dir_files("
+                  "  n UNIQUE NOT NULL %s," /* file name */
+                  "  fn UNIQUE NOT NULL %s," /* full file name */
+                  "  u DEFAULT NULL," /* file uuid */
+                  "  sz DEFAULT -1," /* file size */
+                  "  mtime DEFAULT NULL" /* file mtime in unix epoch format */
+                  ");",
+                  filename_collation(), filename_collation()
+                  );
+    
     db_prepare(&ins,
-               "INSERT OR IGNORE INTO json_dir_files (n,u,sz,mtime) "
+               "INSERT OR IGNORE INTO json_dir_files (n,fn,u,sz,mtime) "
                "SELECT"
                "  pathelement(:path,0),"
+               "  CASE WHEN %Q IS NULL THEN '' ELSE %Q||'/' END ||:abspath,"
                "  a.uuid,"
                "  a.size,"
                "  CAST(strftime('%%s',e.mtime) AS INTEGER) "
@@ -137,7 +148,8 @@ static cson_value * json_page_dir_list(){
                " e.objid=m.mid"
                " AND a.rid=m.fid"/*FILE artifact*/
                " AND b.rid=m.mid"/*CHECKIN artifact*/
-               " AND a.uuid=:uuid"
+               " AND a.uuid=:uuid",
+               zD, zD
                );
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
@@ -154,6 +166,7 @@ static cson_value * json_page_dir_list(){
         continue;
       }
       db_bind_text( &ins, ":path", &pFile->zName[nD] );
+      db_bind_text( &ins, ":abspath", &pFile->zName[nD] );
       db_bind_text( &ins, ":uuid", pFile->zUuid );
       db_step(&ins);
       db_reset(&ins);
@@ -165,35 +178,45 @@ static cson_value * json_page_dir_list(){
   }else if( zD && *zD ){
     if( filenames_are_case_sensitive() ){
       db_multi_exec(
-        "INSERT OR IGNORE INTO json_dir_files"
-        " SELECT pathelement(name,%d), NULL, NULL, NULL FROM filename"
-        "  WHERE name GLOB '%q/*'",
-        nD, zD
+        "CREATE TEMP VIEW json_dir_files AS"
+        " SELECT DISTINCT(pathelement(name,%d)) AS n,"
+        " %Q||'/'||name AS fn,"
+        " NULL AS u, NULL AS sz, NULL AS mtime"
+        " FROM filename"
+        "  WHERE name GLOB '%q/*'"
+        " GROUP BY n",
+        nD, zD, zD
       );
     }else{
       db_multi_exec(
-        "INSERT OR IGNORE INTO json_dir_files"
-        " SELECT pathelement(name,%d), NULL, NULL, NULL FROM filename"
-        "  WHERE name LIKE '%q/%%'",
-        nD, zD
+        "CREATE TEMP VIEW json_dir_files AS"
+        " SELECT DISTINCT(pathelement(name,%d)) AS n, "
+        " %Q||'/'||name AS fn,"
+        " NULL AS u, NULL AS sz, NULL AS mtime"
+        " FROM filename"
+        "  WHERE name LIKE '%q/%%'"
+        " GROUP BY n",
+        nD, zD, zD
       );
     }
   }else{
     db_multi_exec(
-      "INSERT OR IGNORE INTO json_dir_files"
-      " SELECT pathelement(name,0), NULL, NULL, NULL FROM filename"
+      "CREATE TEMP VIEW json_dir_files"
+      " AS SELECT DISTINCT(pathelement(name,0)) AS n, NULL AS fn"
+      " FROM filename"
     );
   }
 
   if(zCI){
     db_prepare( &q, "SELECT"
                 "  n as name,"
+                "  fn as fullname,"
                 "  u as uuid,"
                 "  sz as size,"
                 "  mtime as mtime "
                 "FROM json_dir_files ORDER BY n");
   }else{/* UUIDs are all NULL. */
-    db_prepare( &q, "SELECT n as name FROM json_dir_files ORDER BY n");
+    db_prepare( &q, "SELECT n, fn FROM json_dir_files ORDER BY n");
   }
 
   zKeyName = cson_new_string("name",4);
@@ -209,6 +232,8 @@ static cson_value * json_page_dir_list(){
     cson_array_append( keyStore, cson_string_value(zKeySize) );
     zKeyTime = cson_new_string("timestamp",9);
     cson_array_append( keyStore, cson_string_value(zKeyTime) );
+    zKeyRaw = cson_new_string("downloadPath",12);
+    cson_array_append( keyStore, cson_string_value(zKeyRaw) );
   }
   zPayload = cson_new_object();
   cson_object_set_s( zPayload, zKeyName,
@@ -241,14 +266,18 @@ static cson_value * json_page_dir_list(){
          associate a single size and uuid with them (and fetching all
          would be overkill for most use cases).
       */
-      char const * u = db_column_text(&q,1);
-      sqlite_int64 const sz = db_column_int64(&q,2);
-      sqlite_int64 const ts = db_column_int64(&q,3);
+      char const * fullName = db_column_text(&q,1);
+      char const * u = db_column_text(&q,2);
+      sqlite_int64 const sz = db_column_int64(&q,3);
+      sqlite_int64 const ts = db_column_int64(&q,4);
       cson_object_set_s(zEntry, zKeyUuid, json_new_string( u ) );
       cson_object_set_s(zEntry, zKeySize,
                         cson_value_new_integer( (cson_int_t)sz ));
       cson_object_set_s(zEntry, zKeyTime,
           cson_value_new_integer( (cson_int_t)ts ));
+      cson_object_set_s(zEntry, zKeyRaw,
+                        json_new_string_f("/raw/%s?name=%s",
+                                          fullName, u));
     }
   }
   db_finalize(&q);
