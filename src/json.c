@@ -380,7 +380,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   char * zStr;
   va_list vargs;
   va_start(vargs,fmt);
-  zStr = sqlite3_mprintf(fmt,vargs);
+  zStr = sqlite3_vmprintf(fmt,vargs);
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
   sqlite3_free(zStr);
