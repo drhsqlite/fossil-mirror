@@ -1,5 +1,5 @@
-C reverted\sthat\sswitch\sto\ssqlite3_mprintf()\s-\si\sdid\snot\srealize\sthat\svmprintf()\sis\simplemented\slocally.\sChanged\ssome\s%s\sto\s%t/%T.
-D 2012-03-25T01:35:42.200
+C Added\s--glob\sand\s--like\soptions\sto\s/json/wiki/list,\sto\sfilter\sthe\slist\sserver-side.
+D 2012-03-25T03:10:11.949
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -111,7 +111,7 @@ F src/json_report.c 0cd77e64d33c5253090810b41d4418551f81fed5
 F src/json_tag.c 82f2198134f2dad1d6b82851b4ce47e55a8db7b6
 F src/json_timeline.c f5aa40313eea422eb376b9377abb6e5b4b17dbe4
 F src/json_user.c 313737bc4b02588160fcebe758ab56d6912c37e4
-F src/json_wiki.c ce7fad50dee3f3bb9580a99be5053f16dfa27c99
+F src/json_wiki.c 4a921219e1009f5818f5942b177105b8c362c07f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 54db2bf366c4f3df16e12146d7bdb44c948a14c9
 F src/main.c 70e4b10c0208b37295353abe206873c0697f8218
@@ -362,7 +362,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 517d0ef8a5c88c86cf3fa5c8c7ae61232061aa01
-R d7b6b9aaf9997ef82231177a306da130
+P bb05bf6d36377e135361d0a4418ebc61aa01fb26
+R c6ce4bc76ca122468093ea6b4c580917
 U stephan
-Z 01acf542ae4c878b66105d57eb2a2179
+Z 55c52257004194dd82fbcabbe38507d1

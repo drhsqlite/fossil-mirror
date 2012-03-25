@@ -421,7 +421,9 @@ static cson_value * json_wiki_save(){
 static cson_value * json_wiki_list(){
   cson_value * listV = NULL;
   cson_array * list = NULL;
-  Stmt q;
+  char const * zGlob = NULL;
+  Stmt q = empty_Stmt;
+  Blob sql = empty_blob;
   char const verbose = json_find_option_bool("verbose",NULL,"v",0);
 
   if( !g.perm.RdWiki && !g.perm.Read ){
@@ -429,10 +431,22 @@ static cson_value * json_wiki_list(){
                  "Requires 'j' or 'o' permissions.");
     return NULL;
   }
-  db_prepare(&q,"SELECT"
-             " substr(tagname,6) as name"
-             " FROM tag WHERE tagname GLOB 'wiki-*'"
-             " ORDER BY lower(name)");
+  blob_append(&sql,"SELECT"
+              " substr(tagname,6) as name"
+              " FROM tag WHERE tagname GLOB 'wiki-*' ",
+              -1);
+  zGlob = json_find_option_cstr("glob",NULL,"g");
+  if(zGlob && *zGlob){
+    blob_appendf(&sql," AND name GLOB %Q ", zGlob);
+  }else{
+    zGlob = json_find_option_cstr("like",NULL,"l");
+    if(zGlob && *zGlob){
+      blob_appendf(&sql," AND name LIKE %Q ", zGlob);
+    }
+  }
+  blob_append(&sql,"ORDER BY lower(name)", -1);
+  db_prepare(&q,"%s", blob_str(&sql));
+  blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
   while( SQLITE_ROW == db_step(&q) ){
