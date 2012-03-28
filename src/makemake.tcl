@@ -671,7 +671,7 @@ SSL    =
 CFLAGS = -o
 BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
-LIBS   = $(DMDIR)\extra\lib\ zlib wsock32
+LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
 writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
 writeln -nonewline "SRC   = "
