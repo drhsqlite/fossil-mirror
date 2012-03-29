@@ -215,3 +215,8 @@ void pclose2(int fdIn, FILE *pOut, int childPid){
   kill(childPid, SIGINT);
 #endif
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

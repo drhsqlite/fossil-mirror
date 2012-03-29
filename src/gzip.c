@@ -138,3 +138,8 @@ void test_gzip_cmd(void){
   blob_reset(&b);
   fossil_free(zOut);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

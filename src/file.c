@@ -1104,3 +1104,8 @@ FILE *fossil_fopen(const char *zName, const char *zMode){
   fossil_mbcs_free(zMbcs);
   return f;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

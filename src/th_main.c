@@ -576,3 +576,8 @@ void test_th_render(void){
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

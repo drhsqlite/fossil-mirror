@@ -55,3 +55,8 @@ int main(int argc, char *argv[]){
     printf("#define RELEASE_VERSION_NUMBER %s\n", z);
     return 0;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

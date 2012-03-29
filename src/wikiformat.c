@@ -1736,3 +1736,8 @@ void wiki_extract_links(
   }
   free(renderer.aStack);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

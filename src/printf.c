@@ -893,3 +893,8 @@ int fossil_stricmp(const char *zA, const char *zB){
   if( rc==0 && zA[nByte] ) rc = 1;
   return rc;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

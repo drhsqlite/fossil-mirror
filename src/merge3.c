@@ -447,3 +447,8 @@ int merge_3way(
   blob_reset(&v1);
   return rc;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

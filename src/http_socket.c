@@ -213,3 +213,8 @@ size_t socket_receive(void *NotUsed, void *pContent, size_t N){
   }
   return total;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

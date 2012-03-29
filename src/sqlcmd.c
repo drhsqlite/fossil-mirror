@@ -153,3 +153,8 @@ void fossil_open(const char **pzRepoName){
   sqlite3_auto_extension((void(*)(void))sqlcmd_autoinit);
   *pzRepoName = g.zRepositoryName;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

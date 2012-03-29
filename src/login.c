@@ -1529,3 +1529,8 @@ void login_group_leave(char **pzErrMsg){
     "    OR name GLOB 'login-group-*';"
   );
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

@@ -168,3 +168,8 @@ void test_find_pivot(void){
          db_text("?","SELECT uuid FROM blob WHERE rid=%d",rid)
   );
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

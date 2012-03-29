@@ -698,3 +698,8 @@ void test_agg_cksum_cmd(void){
   printf("manifest: %s\n", blob_str(&hash));
   printf("recorded: %s\n", blob_str(&hash2));
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

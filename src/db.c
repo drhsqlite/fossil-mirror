@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2006 D. Richard Hipp
-**
+** 
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
@@ -865,11 +865,11 @@ int db_open_local(void){
           n--;
           zPwd[n] = 0;
         }
-				if( zPwd[n-1] == '/'){
-					g.zLocalRoot = mprintf("%s", zPwd);
-				}else{
-					g.zLocalRoot = mprintf("%s/", zPwd);
-				}
+        if( zPwd[n-1] == '/'){
+          g.zLocalRoot = mprintf("%s", zPwd);
+        }else{
+          g.zLocalRoot = mprintf("%s/", zPwd);
+        }
         g.localOpen = 1;
         db_open_config(0);
         db_open_repository(0);
@@ -2149,3 +2149,8 @@ void test_timespan_cmd(void){
   sqlite3_close(g.db);
   g.db = 0;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2 
+ */
+

@@ -185,3 +185,8 @@ void clone_cmd(void){
   if( !g.dontKeepUrl && zPw) db_set("last-sync-pw", obscure(zPw), 0);
   db_end_transaction(0);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

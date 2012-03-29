@@ -799,3 +799,8 @@ void git_import_cmd(void){
     fossil_print("admin-user: %s (password is \"%s\")\n", g.zLogin, zPassword);
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

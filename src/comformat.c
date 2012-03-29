@@ -98,3 +98,8 @@ void test_comment_format(void){
   fossil_print("%s ", g.argv[2]);
   fossil_print("(%d lines output)\n", comment_print(g.argv[3], indent, 79));
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

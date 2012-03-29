@@ -555,3 +555,8 @@ void vpatch_page(void){
   cgi_set_content_type("text/plain");
   diff_all_two_versions(zFrom, zTo, 0, DIFF_NEWFILE);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

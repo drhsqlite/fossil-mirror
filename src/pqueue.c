@@ -110,3 +110,8 @@ int pqueue_extract(PQueue *p, void **pp){
   p->cnt--;
   return e;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

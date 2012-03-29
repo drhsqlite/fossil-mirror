@@ -229,3 +229,8 @@ int bag_next(Bag *p, int e){
 int bag_count(Bag *p){
   return p->cnt;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

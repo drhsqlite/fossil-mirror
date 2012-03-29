@@ -408,3 +408,8 @@ size_t ssl_receive(void *NotUsed, void *pContent, size_t N){
 }
 
 #endif /* FOSSIL_ENABLE_SSL */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

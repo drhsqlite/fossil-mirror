@@ -1083,3 +1083,8 @@ unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
   }
   return nLen;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

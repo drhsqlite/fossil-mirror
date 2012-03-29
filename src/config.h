@@ -146,3 +146,8 @@ typedef signed char i8;
 #endif
 
 #endif /* _RC_COMPILE_ */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

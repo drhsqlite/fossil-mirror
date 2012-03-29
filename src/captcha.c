@@ -440,3 +440,8 @@ char const *captcha_decode(unsigned int seed){
   zRes[8] = 0;
   return zRes;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

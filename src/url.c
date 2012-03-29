@@ -396,3 +396,8 @@ void url_get_password_if_needed(void){
     url_prompt_for_password();
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

@@ -147,3 +147,8 @@ void page_timeline_rss(void){
     free( zFreeProjectName );
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

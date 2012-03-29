@@ -5639,3 +5639,8 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
 #endif /* CSON_ENABLE_SQLITE3 */
 /* end file ./cson_sqlite3.c */
 #endif /* FOSSIL_ENABLE_JSON */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

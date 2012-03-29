@@ -987,3 +987,8 @@ void wiki_cmd(void){
 wiki_cmd_usage:
   usage("export|create|commit|list ...");
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

@@ -130,3 +130,8 @@ void verify_all_cmd(void){
   verify_at_commit();
   assert( bag_count(&toVerify)==0 );
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

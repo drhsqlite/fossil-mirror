@@ -2607,3 +2607,8 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
   *z = '\0';
   return Th_SetResult(interp, zBuf, -1);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

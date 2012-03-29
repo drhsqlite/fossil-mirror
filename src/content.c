@@ -893,3 +893,8 @@ void test_integrity(void){
   fossil_print("%d non-phantom blobs (out of %d total) checked:  %d errors\n",
                n2, n1, nErr);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

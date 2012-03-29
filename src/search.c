@@ -208,3 +208,8 @@ void search_cmd(void){
   print_timeline(&q, 1000, 0);
   db_finalize(&q);
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

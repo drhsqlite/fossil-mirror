@@ -599,3 +599,8 @@ int delta_apply(
   /* ERROR: unterminated delta */
   return -1;
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

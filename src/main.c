@@ -1803,3 +1803,8 @@ void test_echo_cmd(void){
     fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

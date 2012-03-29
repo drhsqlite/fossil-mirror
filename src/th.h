@@ -181,3 +181,8 @@ int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

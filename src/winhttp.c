@@ -851,3 +851,8 @@ void cmd_win32_service(void){
 }
 
 #endif /* _WIN32  -- This code is for win32 only */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

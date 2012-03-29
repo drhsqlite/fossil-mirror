@@ -246,3 +246,8 @@ void bisect_cmd(void){
     usage("bad|good|next|reset|vlist ...");
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

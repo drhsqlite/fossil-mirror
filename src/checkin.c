@@ -1320,3 +1320,8 @@ void commit_cmd(void){
     fossil_print("**** warning: a fork has occurred *****\n");
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

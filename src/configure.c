@@ -910,3 +910,8 @@ void configuration_cmd(void){
                  " export import merge pull push reset");
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

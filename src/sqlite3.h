@@ -6997,3 +6997,8 @@ struct sqlite3_rtree_geometry {
 
 #endif  /* ifndef _SQLITE3RTREE_H_ */
 
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

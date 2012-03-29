@@ -283,3 +283,8 @@ void remote_url_cmd(void){
     fossil_print("%s\n", g.urlCanonical);
   }
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

@@ -2020,3 +2020,8 @@ void ci_edit_page(void){
   @ </div></form>
   style_footer();
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

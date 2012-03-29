@@ -269,3 +269,8 @@ char fossil_has_json();
 
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
 #endif /* FOSSIL_ENABLE_JSON */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

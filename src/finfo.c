@@ -356,3 +356,8 @@ void finfo_page(void){
   timeline_output_graph_javascript(pGraph, 0);
   style_footer();
 }
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+

@@ -2504,3 +2504,8 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
 #endif /* WANDERINGHORSE_NET_CSON_SQLITE3_H_INCLUDED */
 /* end file include/wh/cson/cson_sqlite3.h */
 #endif /* FOSSIL_ENABLE_JSON */
+
+/* 
+ * vim:ts=2:sts=2:et:sw=2:ft=c 
+ */
+
