@@ -883,10 +883,13 @@ static int tagCmp(const void *a, const void *b){
 ** All files that have changed will be committed unless some subset of
 ** files is specified on the command line.
 **
-** The --branch option followed by a branch name causes the new check-in
-** to be placed in the named branch.  The --bgcolor option can be followed
-** by a color name (ex:  '#ffc0c0') to specify the background color of
-** entries in the new branch when shown in the web timeline interface.
+** The --branch option followed by a branch name causes the new
+** check-in to be placed in a newly-created branch with the name
+** passed to the --branch option.
+**
+** The --bgcolor option can be followed by a color name (ex:
+** '#ffc0c0') to specify the background color of entries in the new
+** branch when shown in the web timeline interface.
 **
 ** A check-in is not permitted to fork unless the --force or -f
 ** option appears.  A check-in is not allowed against a closed leaf.
