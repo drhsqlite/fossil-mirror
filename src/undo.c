@@ -352,8 +352,8 @@ void undo_rollback(void){
 ** COMMAND: undo
 ** COMMAND: redo*
 **
-** Usage: %fossil undo ?--explain? ?FILENAME...?
-**    or: %fossil redo ?--explain? ?FILENAME...?
+** Usage: %fossil undo ?OPTIONS? ?FILENAME...?
+**    or: %fossil redo ?OPTIONS? ?FILENAME...?
 **
 ** Undo the changes to the working checkout caused by the most recent
 ** of the following operations:
@@ -373,6 +373,11 @@ void undo_rollback(void){
 **
 ** A single level of undo/redo is supported.  The undo/redo stack
 ** is cleared by the commit and checkout commands.
+**
+** Options:
+**   --explain    do not make changes but show what would be done
+**
+** See also: commit, status
 */
 void undo_cmd(void){
   int isRedo = g.argv[1][0]=='r';

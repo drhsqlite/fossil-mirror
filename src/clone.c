@@ -21,6 +21,61 @@
 #include "clone.h"
 #include <assert.h>
 
+/*
+** If there are public BLOBs that deltas from private BLOBs, then
+** undeltify the public BLOBs so that the private BLOBs may be safely
+** deleted.
+*/
+void fix_private_blob_dependencies(int showWarning){
+  Bag toUndelta;
+  Stmt q;
+  int rid;
+
+  /* Careful:  We are about to delete all BLOB entries that are private.
+  ** So make sure that any no public BLOBs are deltas from a private BLOB.
+  ** Otherwise after the deletion, we won't be able to recreate the public
+  ** BLOBs.
+  */
+  db_prepare(&q,
+    "SELECT "
+    "   rid, (SELECT uuid FROM blob WHERE rid=delta.rid),"
+    "   srcid, (SELECT uuid FROM blob WHERE rid=delta.srcid)"
+    "  FROM delta"
+    " WHERE srcid in private AND rid NOT IN private"
+  );
+  bag_init(&toUndelta);
+  while( db_step(&q)==SQLITE_ROW ){
+    int rid = db_column_int(&q, 0);
+    const char *zId = db_column_text(&q, 1);
+    int srcid = db_column_int(&q, 2);
+    const char *zSrc = db_column_text(&q, 3);
+    if( showWarning ){
+      fossil_warning(
+        "public artifact %S (%d) is a delta from private artifact %S (%d)",
+        zId, rid, zSrc, srcid
+      );
+    }
+    bag_insert(&toUndelta, rid);
+  }
+  db_finalize(&q);
+  while( (rid = bag_first(&toUndelta))>0 ){
+    content_undelta(rid);
+    bag_remove(&toUndelta, rid);
+  }
+  bag_clear(&toUndelta);
+}
+
+/*
+** Delete all private content from a repository.
+*/
+void delete_private_content(void){
+  fix_private_blob_dependencies(1);
+  db_multi_exec(
+    "DELETE FROM blob WHERE rid IN private;"
+    "DELETE FROM delta wHERE rid IN private;"
+    "DELETE FROM private;"
+  );
+}
 
 
 /*
@@ -74,11 +129,7 @@ void clone_cmd(void){
       " VALUES('last-sync-url', '%q',now());",
       g.urlCanonical
     );
-    db_multi_exec(
-       "DELETE FROM blob WHERE rid IN private;"
-       "DELETE FROM delta wHERE rid IN private;"
-       "DELETE FROM private;"
-    );
+    if( !bPrivate ) delete_private_content();
     shun_artifacts();
     db_create_default_users(1, zDefaultUser);
     if( zDefaultUser ){
@@ -101,7 +152,7 @@ void clone_cmd(void){
       /* If the --ssl-identity option was specified, store it as a setting */
       Blob fn;
       blob_zero(&fn);
-      file_canonical_name(g.zSSLIdentity, &fn);
+      file_canonical_name(g.zSSLIdentity, &fn, 0);
       db_set("ssl-identity", blob_str(&fn), 0);
       blob_reset(&fn);
     }

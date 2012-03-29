@@ -397,21 +397,23 @@ int merge_3way(
 ){
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
+  char *zPivot;       /* Name of the pivot file */
+  char *zOrig;        /* Name of the original content file */
+  char *zOther;       /* Name of the merge file */
 
   blob_read_from_file(&v1, zV1);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
-  if( rc>0 ){
-    char *zPivot;   /* Name of the pivot file */
-    char *zOrig;    /* Name of the original content file */
-    char *zOther;   /* Name of the merge file */
-    const char *zGMerge;   /* Name of the gmerge command */
-
+  if( rc!=0 ){
     zPivot = file_newname(zV1, "baseline", 1);
     blob_write_to_file(pPivot, zPivot);
     zOrig = file_newname(zV1, "original", 1);
     blob_write_to_file(&v1, zOrig);
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(pV2, zOther);
+  }
+  if( rc>0 ){
+    const char *zGMerge;   /* Name of the gmerge command */
+
     zGMerge = db_get("gmerge-command", 0);
     if( zGMerge && zGMerge[0] ){
       char *zOut;     /* Temporary output file */
@@ -436,6 +438,8 @@ int merge_3way(
       fossil_free(zCmd);
       fossil_free(zOut);
     }
+  }
+  if( rc!=0 ){
     fossil_free(zPivot);
     fossil_free(zOrig);
     fossil_free(zOther);

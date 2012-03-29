@@ -52,7 +52,7 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **
-** See also: descendants, info, leaves
+** See also: artifact, descendants, info, leaves
 */
 void finfo_cmd(void){
   capture_case_sensitive_option();

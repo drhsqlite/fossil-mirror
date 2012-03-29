@@ -740,12 +740,15 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   cson_value * jv = NULL;
   int rc;
   CgiPostReadState state;
+  cson_parse_opt popt = cson_parse_opt_empty;
+  cson_parse_info pinfo = cson_parse_info_empty;
+  popt.maxDepth = 15;
   state.fh = zIn;
   state.len = contentLen;
   state.pos = 0;
   rc = cson_parse( &jv,
                    contentLen ? cson_data_source_FILE_n : cson_data_source_FILE,
-                   contentLen ? (void *)&state : (void *)zIn, NULL, NULL );
+                   contentLen ? (void *)&state : (void *)zIn, &popt, &pinfo );
   if(rc){
     goto invalidRequest;
   }else{
@@ -759,7 +762,19 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
   return;
   invalidRequest:
   cgi_set_content_type(json_guess_content_type());
-  json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  if(0 != pinfo.errorCode){ /* fancy error message */
+      char * msg = mprintf("JSON parse error at line %u, column %u, "
+                           "byte offset %u: %s",
+                           pinfo.line, pinfo.col, pinfo.length,
+                           cson_rc_string(pinfo.errorCode));
+      json_err( FSL_JSON_E_INVALID_REQUEST, msg, 1 );
+      free(msg);
+  }else if(jv && !g.json.post.o){
+      json_err( FSL_JSON_E_INVALID_REQUEST,
+                "Request envelope must be a JSON Object (not array).", 1 );
+  }else{ /* generic error message */
+      json_err( FSL_JSON_E_INVALID_REQUEST, NULL, 1 );
+  }
   fossil_exit( g.isHTTP ? 0 : 1);
 }
 #endif /* FOSSIL_ENABLE_JSON */
@@ -916,7 +931,7 @@ const char *cgi_parameter(const char *zName, const char *zDefault){
   ** with the given name.
   */
   if( fossil_isupper(zName[0]) ){
-    const char *zValue = getenv(zName);
+    const char *zValue = fossil_getenv(zName);
     if( zValue ){
       cgi_set_parameter_nocopy(zName, zValue);
       CGIDEBUG(("env-match [%s] = [%s]\n", zName, zValue));

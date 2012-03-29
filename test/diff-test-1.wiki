@@ -1,0 +1,19 @@
+<title>Graph Test One</title>
+
+This page contains list of URLs of interesting diffs.
+Click on all URLs, one by one, to verify 
+the correct operation of the diff logic.
+
+  *  <a href="../../../info/030035345c#chunk59" target="testwindow">
+     Multiple edits on a single line.</a>  This is an SQLite version
+     update diff.  It is a large diff and contains many other interesting
+     features.  Scan the whole diff.
+  *  <a href="../../../fdiff?v1=6da016415dc52d61&v2=af6df3466e3c4a88"
+     target="testwindow">Tricky alignment and multiple edits per line</a>.
+  *  <a href="../../../fdiff?v1=7108d4748b111d23&v2=2303a98525b39d19#chunk3"
+     target="testwindow">Add a column to a table</a>
+
+External:
+
+  *  <a href="http://www.sqlite.org/src/fdiff?v1=aafcb21a74e41f9a&v2=a6d127dd05daf0f9#chunk3" target="testwindow">
+     Code indentation change.</a>

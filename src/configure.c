@@ -95,6 +95,7 @@ static struct {
   { "timeline-max-comment",   CONFIGSET_SKIN },
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
+  { "ticket-change",          CONFIGSET_TKT  },
   { "ticket-newpage",         CONFIGSET_TKT  },
   { "ticket-viewpage",        CONFIGSET_TKT  },
   { "ticket-editpage",        CONFIGSET_TKT  },
@@ -786,7 +787,7 @@ static void export_config(
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
 **
-** See also: set
+** See also: settings, unset
 */
 void configuration_cmd(void){
   int n;

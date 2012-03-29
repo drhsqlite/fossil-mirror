@@ -263,10 +263,18 @@ void login_set_user_cookie(
   int expires = atoi(zExpire)*3600;
   char *zHash;
   char *zCookie;
-  char const * zIpAddr = PD("REMOTE_ADDR","nil");   /* Complete IP address for logging */
-  char * zRemoteAddr = ipPrefix(zIpAddr);     /* Abbreviated IP address */
+  char const *zIpAddr = PD("REMOTE_ADDR","nil"); /* IP address of user */
+  char *zRemoteAddr = ipPrefix(zIpAddr);         /* Abbreviated IP address */
+
   assert((zUsername && *zUsername) && (uid > 0) && "Invalid user data.");
-  zHash = db_text(0, "SELECT hex(randomblob(25))");
+  zHash = db_text(0,
+      "SELECT cookie FROM user"
+      " WHERE uid=%d"
+      "   AND ipaddr=%Q"
+      "   AND cexpire>julianday('now')"
+      "   AND length(cookie)>30",
+      uid, zRemoteAddr);
+  if( zHash==0 ) zHash = db_text(0, "SELECT hex(randomblob(25))");
   zCookie = login_gen_user_cookie_value(zUsername, zHash);
   cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
   record_login_attempt(zUsername, zIpAddr, 1);
@@ -1398,13 +1406,13 @@ void login_group_join(
   zSelf = db_name("repository");
 
   /* Get the full pathname of the other repository */  
-  file_canonical_name(zRepo, &fullName);
+  file_canonical_name(zRepo, &fullName, 0);
   zRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
 
   /* Get the full pathname for our repository.  Also the project code
   ** and project name for ourself. */
-  file_canonical_name(g.zRepositoryName, &fullName);
+  file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
   zSelfProjCode = db_get("project-code", "unknown");

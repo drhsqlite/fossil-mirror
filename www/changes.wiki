@@ -1,5 +1,25 @@
 <title>Change Log</title>
 
+<h2>Changes For Version 1.22 (2012-03-17)</h2>
+  *  Greatly improved "diff" processing including the new --brief option,
+     partial line matching, colorized in-line diffs, and better performance.
+  *  Promote "allow-symlinks" to a versionable setting
+  *  Harden the CGI processing logic against DOS attacks
+  *  Add the ability to run TH1 scripts after sync requests
+  *  Store the repository name in _FOSSIL_ as it is type in the "open" command,
+     possibly as a relative pathname.
+  *  Make ".fslckout" the alternative name for the "_FOSSIL_" file. 
+  *  Change the "ssh:" transfer method to allow all access regardless of
+     user permission.
+  *  Improvements to the timeline messages associated with tag changes.
+     (Requires a "[/help/rebuild | fossil rebuild]" to take effect.)
+  *  Various additions and fixes for the JSON API.
+  *  Improved merge-with-rename handling.
+  *  --cherrypick merges use their origin's commit message by default.
+  *  Added support for multiple concurrent logins per user.
+  *  Update to use SQLite version 3.7.11.
+  *  Various minor bug fixes.
+
 <h2>Changes For Version 1.21 (2011-12-13)</h2>
   *  Added side-by-side diffs in the command-line interface
   *  Automatically enable hyperlinks if the UserAgent string in the 

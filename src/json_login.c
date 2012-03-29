@@ -54,7 +54,7 @@ cson_value * json_page_login(){
     checks then both forms work. Strangely enough, the
     "p"/"password" check is not affected by this.
    */
-  char const * name = cson_value_get_cstr(json_payload_property("name"));
+  char const * name = cson_value_get_cstr(json_req_payload_get("name"));
   char const * pw = NULL;
   char const * anonSeed = NULL;
   cson_value * payload = NULL;
@@ -64,7 +64,7 @@ cson_value * json_page_login(){
      "bar/baz". This collides with our name/password checking, and
      thus we do some rather elaborate name=... checking.
   */
-  pw = cson_value_get_cstr(json_payload_property("password"));
+  pw = cson_value_get_cstr(json_req_payload_get("password"));
   if( !pw ){
     pw = PD("p",NULL);
     if( !pw ){
@@ -101,7 +101,7 @@ cson_value * json_page_login(){
     cson_value const * jseed = json_getenv(FossilJsonKeys.anonymousSeed);
     seedBuffer[0] = 0;
     if( !jseed ){
-      jseed = json_payload_property(FossilJsonKeys.anonymousSeed);
+      jseed = json_req_payload_get(FossilJsonKeys.anonymousSeed);
       if( !jseed ){
         jseed = json_getenv("cs") /* name used by HTML interface */;
       }

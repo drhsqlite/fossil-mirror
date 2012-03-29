@@ -176,7 +176,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     FILE *out;
     traceCnt++;
     zOutFile = mprintf("http-request-%d.txt", traceCnt);
-    out = fopen(zOutFile, "w");
+    out = fopen(zOutFile, "wb");
     if( out ){
       fwrite(blob_buffer(&hdr), 1, blob_size(&hdr), out);
       fwrite(blob_buffer(&payload), 1, blob_size(&payload), out);
@@ -184,7 +184,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
     }
     free(zOutFile);
     zOutFile = mprintf("http-reply-%d.txt", traceCnt);
-    out = fopen(zOutFile, "w");
+    out = fopen(zOutFile, "wb");
     transport_log(out);
     free(zOutFile);
   }
@@ -255,6 +255,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }
     }
   }
+  if( iLength<0 ){
+    fossil_fatal("server did not reply");
+    goto write_err;
+  }
   if( rc!=200 ){
     fossil_warning("\"location:\" missing from 302 redirect reply");
     goto write_err;
@@ -263,10 +267,6 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
   /*
   ** Extract the reply payload that follows the header
   */
-  if( iLength<0 ){
-    fossil_fatal("server did not reply");
-    goto write_err;
-  }
   blob_zero(pReply);
   blob_resize(pReply, iLength);
   iLength = transport_receive(blob_buffer(pReply), iLength);

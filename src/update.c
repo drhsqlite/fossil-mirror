@@ -62,7 +62,7 @@ int update_to(int vid){
 /*
 ** COMMAND: update
 **
-** Usage: %fossil update ?VERSION? ?FILES...?
+** Usage: %fossil update ?OPTIONS? ?VERSION? ?FILES...?
 **
 ** Change the version of the current checkout to VERSION.  Any uncommitted
 ** changes are retained and applied to the new checkout.
@@ -85,6 +85,14 @@ int update_to(int vid){
 **
 ** The -v or --verbose option prints status information about unchanged
 ** files in addition to those file that actually do change.
+**
+** Options:
+**   --debug          print debug information on stdout
+**   --latest         acceptable in place of VERSION, update to latest version
+**   -n|--nochange    do not perform changes but show what would be done
+**   -v|--verbose     print status information about all files
+**
+** See also: revert
 */
 void update_cmd(void){
   int vid;              /* Current version */
@@ -265,18 +273,22 @@ void update_cmd(void){
   */
   db_multi_exec(
     "UPDATE fv SET"
-    " islinkv=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0),"
-    " islinkt=coalesce((SELECT islink FROM vfile WHERE vid=%d AND pathname=fnt),0)",
+    " islinkv=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0),"
+    " islinkt=coalesce((SELECT islink FROM vfile"
+                       " WHERE vid=%d AND pathname=fnt),0)",
     vid, tid
   );
 
 
   if( debugFlag ){
     db_prepare(&q,
-       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe, islinkv, islinkt FROM fv"
+       "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe,"
+       "       islinkv, islinkt FROM fv"
     );
     while( db_step(&q)==SQLITE_ROW ){
-       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d islinkv=%d  islinkt=%d\n",
+       fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d"
+                    " islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
           db_column_int(&q, 4),
           db_column_int(&q, 5),
@@ -327,7 +339,8 @@ void update_cmd(void){
   ** target
   */
   db_prepare(&q, 
-    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt, isexe, islinkv, islinkt FROM fv ORDER BY 1"
+    "SELECT fn, idv, ridv, idt, ridt, chnged, fnt,"
+    "       isexe, islinkv, islinkt FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -463,7 +476,7 @@ void update_cmd(void){
         internalConflictCnt = nConflict;
         nConflict = 0;
       }else{
-        fossil_print("WARNING: %d merge conflicts", nConflict);
+        fossil_warning("WARNING: %d merge conflicts", nConflict);
       }
     }
     if( nOverwrite ){
@@ -612,6 +625,11 @@ int historical_version_of_file(
 **
 ** If a file is reverted accidently, it can be restored using
 ** the "fossil undo" command.
+**
+** Options:
+**   -r REVISION    revert given FILE(s) back to given REVISION
+**
+** See also: redo, undo, update
 */
 void revert_cmd(void){
   const char *zFile;
@@ -668,7 +686,8 @@ void revert_cmd(void){
     char *zFull;
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
-    errCode = historical_version_of_file(zRevision, zFile, &record, &isLink, &isExe,2);
+    errCode = historical_version_of_file(zRevision, zFile, &record,
+                                         &isLink, &isExe,2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);
@@ -694,7 +713,7 @@ void revert_cmd(void){
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d, mrid=rid,"
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid,"
          "       pathname=coalesce(origname,pathname), origname=NULL"     
          " WHERE pathname=%Q",
          mtime, isExe, isLink, zFile

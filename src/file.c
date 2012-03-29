@@ -31,6 +31,13 @@
 #include "file.h"
 
 /*
+** On Windows, include the Platform SDK header file.
+*/
+#ifdef _WIN32
+# include <windows.h>
+#endif
+
+/*
 ** The file status information from the most recent stat() call.
 **
 ** Use _stati64 rather than stat on windows, in order to handle files
@@ -170,7 +177,7 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
       zName = zBuf;
       memcpy(zName, zLinkFile, nName+1);
     }
-    nName = file_simplify_name(zName, nName);
+    nName = file_simplify_name(zName, nName, 0);
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
@@ -261,7 +268,7 @@ int file_isdir(const char *zFilename){
 
   if( zFilename ){
     char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1);
+    file_simplify_name(zFN, -1, 0);
     rc = getStat(zFN, 0);
     free(zFN);
   }else{
@@ -278,7 +285,7 @@ int file_wd_isdir(const char *zFilename){
 
   if( zFilename ){
     char *zFN = mprintf("%s", zFilename);
-    file_simplify_name(zFN, -1);
+    file_simplify_name(zFN, -1, 0);
     rc = getStat(zFN, 1);
     free(zFN);
   }else{
@@ -316,7 +323,7 @@ char *file_newname(const char *zBase, const char *zSuffix, int relFlag){
   }
   if( relFlag ){
     Blob x;
-    file_relative_name(z, &x);
+    file_relative_name(z, &x, 0);
     fossil_free(z);
     z = blob_str(&x);
   }
@@ -475,8 +482,10 @@ static int backup_dir(const char *z, int *pJ){
 **  * removing /A/../
 **
 ** Changes are made in-place.  Return the new name length.
+** If the slash parameter is non-zero, the trailing slash, if any,
+** is retained.
 */
-int file_simplify_name(char *z, int n){
+int file_simplify_name(char *z, int n, int slash){
   int i, j;
   if( n<0 ) n = strlen(z);
 
@@ -488,7 +497,9 @@ int file_simplify_name(char *z, int n){
 #endif
 
   /* Removing trailing "/" characters */
-  while( n>1 && z[n-1]=='/' ){ n--; }
+  if ( !slash ){
+    while( n>1 && z[n-1]=='/' ){ n--; }
+  }
 
   /* Remove duplicate '/' characters.  Except, two // at the beginning
   ** of a pathname is allowed since this is important on windows. */
@@ -542,7 +553,7 @@ void cmd_test_simplify_name(void){
   for(i=2; i<g.argc; i++){
     z = mprintf("%s", g.argv[i]);
     fossil_print("[%s] -> ", z);
-    file_simplify_name(z, -1);
+    file_simplify_name(z, -1, 0);
     fossil_print("[%s]\n", z);
     fossil_free(z);
   }
@@ -585,29 +596,64 @@ void file_getcwd(char *zBuf, int nBuf){
 }
 
 /*
+** Return true if zPath is an absolute pathname.  Return false
+** if it is relative.
+*/
+int file_is_absolute_path(const char *zPath){
+  if( zPath[0]=='/'
+#if defined(_WIN32)
+      || zPath[0]=='\\'
+      || (strlen(zPath)>3 && zPath[1]==':'
+           && (zPath[2]=='\\' || zPath[2]=='/'))
+#endif
+  ){
+    return 1;
+  }else{
+    return 0;
+  }
+}
+
+/*
 ** Compute a canonical pathname for a file or directory.
 ** Make the name absolute if it is relative.
 ** Remove redundant / characters
 ** Remove all /./ path elements.
 ** Convert /A/../ to just /
+** If the slash parameter is non-zero, the trailing slash, if any,
+** is retained.
 */
-void file_canonical_name(const char *zOrigName, Blob *pOut){
-  if( zOrigName[0]=='/' 
+void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
+  if( file_is_absolute_path(zOrigName) ){
 #if defined(_WIN32)
-      || zOrigName[0]=='\\'
-      || (strlen(zOrigName)>3 && zOrigName[1]==':'
-           && (zOrigName[2]=='\\' || zOrigName[2]=='/'))
+    char *zOut;
 #endif
-  ){
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
+#if defined(_WIN32)
+    /*
+    ** On Windows, normalize the drive letter to upper case.
+    */
+    zOut = blob_str(pOut);
+    if( fossil_isalpha(zOut[0]) && zOut[1]==':' ){
+      zOut[0] = fossil_toupper(zOut[0]);
+    }
+#endif
   }else{
     char zPwd[2000];
     file_getcwd(zPwd, sizeof(zPwd)-strlen(zOrigName));
+#if defined(_WIN32)
+    /*
+    ** On Windows, normalize the drive letter to upper case.
+    */
+    if( fossil_isalpha(zPwd[0]) && zPwd[1]==':' ){
+      zPwd[0] = fossil_toupper(zPwd[0]);
+    }
+#endif
     blob_zero(pOut);
     blob_appendf(pOut, "%//%/", zPwd, zOrigName);
   }
-  blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut)));
+  blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                       blob_size(pOut), slash));
 }
 
 /*
@@ -624,7 +670,7 @@ void cmd_test_canonical_name(void){
   for(i=2; i<g.argc; i++){
     char zBuf[100];
     const char *zName = g.argv[i];
-    file_canonical_name(zName, &x);
+    file_canonical_name(zName, &x, 0);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
     sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
@@ -678,12 +724,14 @@ char *file_without_drive_letter(char *zIn){
 
 /*
 ** Compute a pathname for a file or directory that is relative
-** to the current directory.
+** to the current directory.  If the slash parameter is non-zero,
+** the trailing slash, if any, is retained.
 */
-void file_relative_name(const char *zOrigName, Blob *pOut){
+void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
   char *zPath;
   blob_set(pOut, zOrigName);
-  blob_resize(pOut, file_simplify_name(blob_buffer(pOut), blob_size(pOut))); 
+  blob_resize(pOut, file_simplify_name(blob_buffer(pOut),
+                                       blob_size(pOut), slash));
   zPath = file_without_drive_letter(blob_buffer(pOut));
   if( zPath[0]=='/' ){
     int i, j;
@@ -743,7 +791,7 @@ void cmd_test_relative_name(void){
   Blob x;
   blob_zero(&x);
   for(i=2; i<g.argc; i++){
-    file_relative_name(g.argv[i], &x);
+    file_relative_name(g.argv[i], &x, 0);
     fossil_print("%s\n", blob_buffer(&x));
     blob_reset(&x);
   }
@@ -758,33 +806,42 @@ void cmd_test_relative_name(void){
 ** The root of the tree is defined by the g.zLocalRoot variable.
 */
 int file_tree_name(const char *zOrigName, Blob *pOut, int errFatal){
-  int n;
+  Blob localRoot;
+  int nLocalRoot;
+  char *zLocalRoot;
   Blob full;
   int nFull;
   char *zFull;
 
   blob_zero(pOut);
   db_must_be_within_tree();
-  file_canonical_name(zOrigName, &full);
-  n = strlen(g.zLocalRoot);
-  assert( n>0 && g.zLocalRoot[n-1]=='/' );
+  file_canonical_name(g.zLocalRoot, &localRoot, 1);
+  nLocalRoot = blob_size(&localRoot);
+  zLocalRoot = blob_buffer(&localRoot);
+  assert( nLocalRoot>0 && zLocalRoot[nLocalRoot-1]=='/' );
+  file_canonical_name(zOrigName, &full, 0);
   nFull = blob_size(&full);
   zFull = blob_buffer(&full);
 
   /* Special case.  zOrigName refers to g.zLocalRoot directory. */
-  if( nFull==n-1 && memcmp(g.zLocalRoot, zFull, nFull)==0 ){
+  if( nFull==nLocalRoot-1 && memcmp(zLocalRoot, zFull, nFull)==0 ){
     blob_append(pOut, ".", 1);
+    blob_reset(&localRoot);
+    blob_reset(&full);
     return 1;
   }
 
-  if( nFull<=n || memcmp(g.zLocalRoot, zFull, n) ){
+  if( nFull<=nLocalRoot || memcmp(zLocalRoot, zFull, nLocalRoot) ){
+    blob_reset(&localRoot);
     blob_reset(&full);
     if( errFatal ){
       fossil_fatal("file outside of checkout tree: %s", zOrigName);
     }
     return 0;
   }
-  blob_append(pOut, &zFull[n], nFull-n);
+  blob_append(pOut, &zFull[nLocalRoot], nFull-nLocalRoot);
+  blob_reset(&localRoot);
+  blob_reset(&full);
   return 1;
 }
 
@@ -851,10 +908,16 @@ void file_parse_uri(
 */
 void file_tempname(int nBuf, char *zBuf){
   static const char *azDirs[] = {
+#if defined(_WIN32)
+     0, /* GetTempPath */
+     0, /* TEMP */
+     0, /* TMP */
+#else
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
      "/temp",
+#endif
      ".",
   };
   static const unsigned char zChars[] =
@@ -864,8 +927,21 @@ void file_tempname(int nBuf, char *zBuf){
   unsigned int i, j;
   const char *zDir = ".";
   int cnt = 0;
+
+#if defined(_WIN32)
+  char zTmpPath[MAX_PATH];
+
+  if( GetTempPath(sizeof(zTmpPath), zTmpPath) ){
+    azDirs[0] = zTmpPath;
+  }
+
+  azDirs[1] = fossil_getenv("TEMP");
+  azDirs[2] = fossil_getenv("TMP");
+#endif
+
   
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
+    if( azDirs[i]==0 ) continue;
     if( !file_isdir(azDirs[i]) ) continue;
     zDir = azDirs[i];
     break;
@@ -888,6 +964,11 @@ void file_tempname(int nBuf, char *zBuf){
     }
     zBuf[j] = 0;
   }while( file_size(zBuf)>=0 );
+
+#if defined(_WIN32)
+  fossil_mbcs_free((char *)azDirs[1]);
+  fossil_mbcs_free((char *)azDirs[2]);
+#endif
 }
 
 
@@ -920,9 +1001,6 @@ int file_is_the_same(Blob *pContent, const char *zName){
 ** Since everything is always UTF8 on unix, these routines are no-ops
 ** there.
 */
-#ifdef _WIN32
-# include <windows.h>
-#endif
 
 /*
 ** Translate MBCS to UTF8.  Return a pointer to the translated text.  
@@ -950,6 +1028,17 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 #else
   return (char*)zUtf8;  /* No-op on unix */
 #endif  
+}
+
+/*
+** Return the value of an environment variable as UTF8.
+*/
+char *fossil_getenv(const char *zName){
+  char *zValue = getenv(zName);
+#ifdef _WIN32
+  if( zValue ) zValue = fossil_mbcs_to_utf8(zValue);
+#endif
+  return zValue;
 }
 
 /*

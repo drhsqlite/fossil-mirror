@@ -1429,7 +1429,7 @@ extern "C" {
 */
 enum cson_type_id {
   /**
-    The special "null" value constant.
+    The special "undefined" value constant.
 
     Its value must be 0 for internal reasons.
  */
@@ -1599,6 +1599,14 @@ static const cson_value cson_value_string_empty = { &cson_value_api_string, NULL
 static const cson_value cson_value_array_empty = { &cson_value_api_array, NULL, 0 };
 static const cson_value cson_value_object_empty = { &cson_value_api_object, NULL, 0 };
 
+/**
+   Strings are allocated as an instances of this class with N+1
+   trailing bytes, where N is the length of the string being
+   allocated. To convert a cson_string to c-string we simply increment
+   the cson_string pointer. To do the opposite we use (cstr -
+   sizeof(cson_string)). Zero-length strings are a special case
+   handled by a couple of the cson_string functions.
+*/
 struct cson_string
 {
     unsigned int length;
@@ -1610,7 +1618,13 @@ static const cson_string cson_string_empty = cson_string_empty_m;
 
 #define CSON_CAST(T,V) ((T*)((V)->value))
 #define CSON_VCAST(V) ((cson_value *)(((unsigned char *)(V))-sizeof(cson_value)))
-#define CSON_INT(V) ((cson_int_t*)(V)->value)
+
+#if CSON_VOID_PTR_IS_BIG
+#  define CSON_INT(V) ((cson_int_t*)(&((V)->value)))
+#else
+#  define CSON_INT(V) ((cson_int_t*)(V)->value)
+#endif
+
 #define CSON_DBL(V) CSON_CAST(cson_double_t,(V))
 #define CSON_STR(V) CSON_CAST(cson_string,(V))
 #define CSON_OBJ(V) CSON_CAST(cson_object,(V))
@@ -1670,7 +1684,7 @@ static cson_value CSON_SPECIAL_VALUES[] = {
 { &cson_value_api_integer, NULL, 0 }, /* INT_0 */
 { &cson_value_api_double, NULL, 0 }, /* DBL_0 */
 { &cson_value_api_string, &CSON_EMPTY_HOLDER.stringValue, 0 }, /* STR_EMPTY */
-{ 0, NULL, 0 }
+{ NULL, NULL, 0 }
 };
 
 
@@ -1918,7 +1932,7 @@ unsigned int cson_string_length_bytes( cson_string const * str )
    access to the immutable bits, which are v->length bytes long. A
    length-0 string is returned as NULL from here, as opposed to
    "". (This is a side-effect of the string allocation mechanism.)
-   Returns NULL if !v.
+   Returns NULL if !v or if v is the internal empty-string singleton.
 */
 static char * cson_string_str(cson_string *v)
 {
@@ -1950,7 +1964,10 @@ char const * cson_string_cstr(cson_string const *v)
 #if 1
     if( ! v ) return NULL;
     else if( v == &CSON_EMPTY_HOLDER.stringValue ) return "";
-    else return (char *)((unsigned char *)(v+1));
+    else {
+        assert((0 < v->length) && "How do we have a non-singleton empty string?");
+        return (char const *)((unsigned char const *)(v+1));
+    }
 #else
     return (NULL == v)
         ? NULL
@@ -2030,6 +2047,9 @@ struct cson_kvp
 static const cson_kvp cson_kvp_empty = cson_kvp_empty_m;
 
 /** @def CSON_OBJECT_PROPS_SORT
+
+    Don't use this - it has not been updated to account for internal
+    changes in cson_object.
 
    If CSON_OBJECT_PROPS_SORT is set to a true value then
    qsort() and bsearch() are used to sort (upon insertion)
@@ -2202,10 +2222,9 @@ static int cson_value_list_visit( cson_value_list * self,
 #endif
 
 /**
-   Allocates a new value of the specified type ownership of it to the
-   caller. It must eventually be destroyed, by the caller or its
-   owning container, by passing it to cson_value_free() or transfering
-   ownership to a container.
+   Allocates a new value of the specified type. Ownership is
+   transfered to the caller, who must eventually free it by passing it
+   to cson_value_free() or transfering ownership to a container.
 
    extra is only valid for type CSON_TYPE_STRING, and must be the length
    of the string to allocate + 1 byte (for the NUL).
@@ -2213,7 +2232,8 @@ static int cson_value_list_visit( cson_value_list * self,
    The returned value->api member will be set appropriately and
    val->value will be set to point to the memory allocated to hold the
    native value type. Use the internal CSON_CAST() family of macros to
-   convert them.
+   convert the cson_values to their corresponding native
+   representation.
 
    Returns NULL on allocation error.
 
@@ -2225,9 +2245,7 @@ static int cson_value_list_visit( cson_value_list * self,
    @see cson_value_new_bool()
    @see cson_value_free()
 */
-static cson_value * cson_value_new(cson_type_id t, size_t extra);
-
-cson_value * cson_value_new(cson_type_id t, size_t extra)
+static cson_value * cson_value_new(cson_type_id t, size_t extra)
 {
     static const size_t vsz = sizeof(cson_value);
     const size_t sz = vsz + extra;
@@ -2252,7 +2270,9 @@ cson_value * cson_value_new(cson_type_id t, size_t extra)
       case CSON_TYPE_INTEGER:
           assert( 0 == extra );
           def = cson_value_integer_empty;
+#if !CSON_VOID_PTR_IS_BIG
           tx = sizeof(cson_int_t);
+#endif
           reason = "cson_value:int";
           break;
       case CSON_TYPE_STRING:
@@ -2283,7 +2303,6 @@ cson_value * cson_value_new(cson_type_id t, size_t extra)
     return v;
 }
 
-
 void cson_value_free(cson_value *v)
 {
     cson_refcount_decr( v );
@@ -2306,11 +2325,6 @@ cson_type_id cson_value_type_id( cson_value const * v )
 
 char cson_value_is_undef( cson_value const * v )
 {
-    /**
-       This special-case impl is needed because the underlying
-       (generic) list operations do not know how to populate
-       new entries
-     */
     return ( !v || !v->api || (v->api==&cson_value_api_undef))
         ? 1 : 0;
 }
@@ -2652,9 +2666,10 @@ int cson_value_fetch_integer( cson_value const * val, cson_int_t * v )
             case CSON_TYPE_ARRAY:
             case CSON_TYPE_OBJECT:
             default:
-              break;
+                rc = cson_rc.TypeError;
+                break;
         }
-        if(v) *v = i;
+        if(!rc && v) *v = i;
         return rc;
     }
 }
@@ -2867,7 +2882,9 @@ cson_value * cson_value_new_integer( cson_int_t v )
     else
     {
         cson_value * c = cson_value_new(CSON_TYPE_INTEGER,0);
-
+#if !defined(NDEBUG) && CSON_VOID_PTR_IS_BIG
+        assert( sizeof(cson_int_t) <= sizeof(void *) );
+#endif
         if( c )
         {
             *CSON_INT(c) = v;
@@ -3146,7 +3163,7 @@ int cson_object_set_s( cson_object * obj, cson_string * key, cson_value * v )
             return 0;
         }
         if( !obj->kvp.alloced || (obj->kvp.count == obj->kvp.alloced-1))
-        {
+        { /* reserve space */
             unsigned int const n = obj->kvp.count ? (obj->kvp.count*2) : 6;
             if( n > cson_kvp_list_reserve( &obj->kvp, n ) )
             {
@@ -3285,6 +3302,8 @@ static int cson_parser_set_key( cson_parser * p, cson_value * val )
             return cson_rc.AllocError;
         }
         kvp->key = cson_string_value(p->ckey)/*transfer ownership*/;
+        assert(0 == kvp->key->refcount);
+        cson_refcount_incr(kvp->key);
         p->ckey = NULL;
         kvp->value = val;
         cson_refcount_incr( val );
@@ -3365,7 +3384,7 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
           if( ! obja )
           {
               p->errNo = cson_rc.AllocError;
-              return 0;
+              break;
           }
           if( 0 != rc ) break;
           if( ! p->root )
@@ -3388,8 +3407,12 @@ static int cson_parse_callback( void * cx, int type, JSON_value const * value )
           else
           {
               rc = cson_array_append( &p->stack, obja );
-              if( 0 == rc ) rc = cson_parser_push_value( p, obja );
-              if( 0 == rc ) p->node = obja;
+              if(rc) cson_value_free( obja );
+              else
+              {
+                  rc = cson_parser_push_value( p, obja );
+                  if( 0 == rc ) p->node = obja;
+              }
           }
           break;
       }
@@ -3735,8 +3758,10 @@ static int cson_utf8Read(
 }
 #undef READ_UTF8
 
-#if defined(_WIN32)
-#  pragma warning( pop )
+#ifdef _MSC_VER
+#  if _MSC_VER >= 1400 /* Visual Studio 2005 and up */
+#    pragma warning( pop )
+#  endif
 #endif
 
 unsigned int cson_string_length_utf8( cson_string const * str )
@@ -4580,6 +4605,35 @@ cson_value * cson_object_get_sub2( cson_object const * obj, char const * path )
     return v;
 }
 
+
+/**
+   If v is-a Object or Array then this function returns a deep
+   clone, otherwise it returns v. In either case, the refcount
+   of the returned value is increased by 1 by this call.
+*/
+static cson_value * cson_value_clone_ref( cson_value * v )
+{
+    cson_value * rc = NULL;
+#define TRY_SHARING 1
+#if TRY_SHARING
+    if(!v ) return rc;
+    else if( cson_value_is_object(v)
+             || cson_value_is_array(v))
+    {
+        rc = cson_value_clone( v );
+    }
+    else
+    {
+        rc = v;
+    }
+#else
+    rc = cson_value_clone(v);
+#endif
+#undef TRY_SHARING
+    cson_value_add_reference(rc);
+    return rc;
+}
+    
 static cson_value * cson_value_clone_array( cson_value const * orig )
 {
     unsigned int i = 0;
@@ -4602,7 +4656,7 @@ static cson_value * cson_value_clone_array( cson_value const * orig )
         cson_value * ch = cson_array_get( asrc, i );
         if( NULL != ch )
         {
-            cson_value * cl = cson_value_clone( ch );
+            cson_value * cl = cson_value_clone_ref( ch );
             if( NULL == cl )
             {
                 cson_value_free( destV );
@@ -4614,11 +4668,12 @@ static cson_value * cson_value_clone_array( cson_value const * orig )
                 cson_value_free( destV );
                 return NULL;
             }
+            cson_value_free(cl)/*remove our artificial reference */;
         }
     }
     return destV;
 }
-
+    
 static cson_value * cson_value_clone_object( cson_value const * orig )
 {
     cson_object const * src = cson_value_get_object( orig );
@@ -4641,28 +4696,29 @@ static cson_value * cson_value_clone_object( cson_value const * orig )
     }
     while( (kvp = cson_object_iter_next( &iter )) )
     {
-        /*
-          FIXME: refcount the keys! We first need a setter which takes
-          a cson_string or cson_value key type.
-         */
         cson_value * key = NULL;
         cson_value * val = NULL;
-        key = cson_value_clone(kvp->key);
-        val = key ? cson_value_clone( kvp->value ) : NULL;
+        assert( kvp->key && (kvp->key->refcount>0) );
+        key = cson_value_clone_ref(kvp->key);
+        val = key ? cson_value_clone_ref(kvp->value) : NULL;
         if( ! key || !val ){
-            cson_value_free(key);
-            cson_value_free(val);
-            cson_value_free(destV);
-            return NULL;
+            goto error;
         }
         assert( CSON_STR(key) );
         if( 0 != cson_object_set_s( dest, CSON_STR(key), val ) )
         {
-            cson_value_free(key);
-            cson_value_free(val);
-            cson_value_free(destV);
-            return NULL;
+            goto error;
         }
+        /* remove our references */
+        cson_value_free(key);
+        cson_value_free(val);
+        continue;
+        error:
+        cson_value_free(key);
+        cson_value_free(val);
+        cson_value_free(destV);
+        destV = NULL;
+        break;
     }
     return destV;
 }
@@ -4735,13 +4791,13 @@ void cson_free_array(cson_array *x)
     if(x) cson_value_free(cson_array_value(x));
 }
 
-void cson_free_string(cson_string const *x)
+void cson_free_string(cson_string *x)
 {
     if(x) cson_value_free(cson_string_value(x));
 }
 void cson_free_value(cson_value *x)
 {
-    cson_value_free(x);
+    if(x) cson_value_free(x);
 }
 
 
@@ -4909,7 +4965,7 @@ unsigned int cson_value_msize(cson_value const * v)
           default:
               assert(0 && "Invalid typeID!");
               return 0;
-
+#undef RCCHECK
         }
         return rc;
     }
@@ -4956,23 +5012,25 @@ int cson_object_merge( cson_object * dest, cson_object const * src, int flags ){
 
 static cson_value * cson_guess_arg_type(char const *arg){
     char * end = NULL;
-    if(('0'<=*arg) && ('9'>=*arg)){
+    if(!arg || !*arg) return cson_value_null();
+    else if(('0'>*arg) || ('9'<*arg)){
         goto do_string;
     }
-    {
+    else{ /* try numbers... */
         long const val = strtol(arg, &end, 10);
         if(!*end){
             return cson_value_new_integer( (cson_int_t)val);
         }
-    }
-    {
-        double const val = strtod(arg, &end);
-        if(!*end){
-            return cson_value_new_double(val);
+        else if( '.' != *end ) {
+            goto do_string;
+        }
+        else {
+            double const val = strtod(arg, &end);
+            if(!*end){
+                return cson_value_new_double(val);
+            }
         }
     }
-
-    
     do_string:
     return cson_value_new_string(arg, strlen(arg));
 }
@@ -5007,9 +5065,7 @@ int cson_parse_argv_flags( int argc, char const * const * argv,
         }else{ /** --key=...*/
             assert('=' == *pos);
             ++pos /*skip '='*/;
-            v = *pos
-                ? cson_guess_arg_type(pos)
-                : cson_value_null();
+            v = cson_guess_arg_type(pos);
         }
         if(0 != (rc=cson_object_set_s(o, k, v))){
             cson_free_string(k);
@@ -5506,7 +5562,6 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
         cson_value * rootV = NULL;
         cson_object * root = NULL;
         cson_value * aryV = NULL;
-        cson_array * ary = NULL;
         cson_value * rowsV = NULL;
         cson_array * rows = NULL;
         int rc = 0;
@@ -5528,7 +5583,6 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
             RETURN(rc);
         }
         aryV = NULL;
-        ary = NULL;
         rowsV = cson_value_new_array();
         if( ! rowsV ) RETURN(cson_rc.AllocError);
         rc = cson_object_set( root, "rows", rowsV );

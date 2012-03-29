@@ -37,10 +37,7 @@ static const JsonPageDef JsonPageDefs_Timeline[] = {
 */
 {"branch", json_timeline_branch, 0},
 {"checkin", json_timeline_ci, 0},
-{"ci", json_timeline_ci, -1},
-{"t", json_timeline_ticket, -1},
 {"ticket", json_timeline_ticket, 0},
-{"w", json_timeline_wiki, -1},
 {"wiki", json_timeline_wiki, 0},
 /* Last entry MUST have a NULL name. */
 {NULL,NULL,0}
@@ -102,7 +99,7 @@ const char const * json_timeline_query(void){
     @   NULL,
     @   blob.rid,
     @   uuid,
-    @   strftime('%%s',event.mtime),
+    @   CAST(strftime('%%s',event.mtime) AS INTEGER),
     @   datetime(event.mtime,'utc'),
     @   coalesce(ecomment, comment),
     @   coalesce(euser, user),
@@ -137,7 +134,7 @@ const char const * json_timeline_query(void){
 ** Returns a positive value if it modifies pSql, 0 if it
 ** does not. It returns a negative value if the tag
 ** provided to the request was not found (pSql is not modified
-** in that case.
+** in that case).
 **
 ** If payload is not NULL then on success its "tag" or "branch"
 ** property is set to the tag/branch name found in the request.
@@ -235,8 +232,7 @@ static char json_timeline_add_time_clause(Blob *pSql){
 **
 ** Never returns a negative value. 0 means no limit.
 */
-static int json_timeline_limit(){
-  static const int defaultLimit = 20;
+static int json_timeline_limit(int defaultLimit){
   int limit = -1;
   if(!g.isHTTP){/* CLI mode */
     char const * arg = find_option("limit","n",1);
@@ -277,8 +273,8 @@ static int json_timeline_setup_sql( char const * zEventType,
     return FSL_JSON_E_INVALID_ARGS;
   }
   json_timeline_add_time_clause(pSql);
-  limit = json_timeline_limit();
-  if(limit>=0){
+  limit = json_timeline_limit(20);
+  if(limit>0){
     blob_appendf(pSql,"LIMIT %d ",limit);
   }
   if(pPayload){
@@ -297,25 +293,16 @@ cson_value * json_get_changed_files(int rid){
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
   db_prepare(&q, 
-#if 0
-             "SELECT (mlink.pid==0) AS isNew,"
-             "       (mlink.fid==0) AS isDel,"
-             "       filename.name AS name"
-             " FROM mlink, filename"
-             " WHERE mid=%d"
-             " AND pid!=fid"
-             " AND filename.fnid=mlink.fnid"
-             " ORDER BY 3 /*sort*/",
-#else
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
-           "       (SELECT uuid FROM blob WHERE rid=fid) as uuid,"
-           "       (SELECT uuid FROM blob WHERE rid=pid) as prevUuid"
-           "  FROM mlink"
+           "       blob.uuid as uuid,"
+           "       (SELECT uuid FROM blob WHERE rid=pid) as parent,"
+           "       blob.size as size"
+           "  FROM mlink, blob"
            " WHERE mid=%d AND pid!=fid"
+           " AND blob.rid=fid "
            " ORDER BY name /*sort*/",
-#endif
              rid
              );
   while( (SQLITE_ROW == db_step(&q)) ){
@@ -332,14 +319,12 @@ cson_value * json_get_changed_files(int rid){
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
     if(!isNew){
-      cson_object_set(row, "prevUuid", json_new_string(db_column_text(&q,4)));
+      cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
+    cson_object_set(row, "size", json_new_int(db_column_int(&q,5)));
+
     cson_object_set(row, "state",
-                    json_new_string(isNew
-                                    ? "added"
-                                    : (isDel
-                                       ? "removed"
-                                       : "modified")));
+                    json_new_string(json_artifact_status_to_string(isNew,isDel)));
     zDownload = mprintf("/raw/%s?name=%s",
                         /* reminder: g.zBaseURL is of course not set for CLI mode. */
                         db_column_text(&q,2),
@@ -355,6 +340,7 @@ static cson_value * json_timeline_branch(){
   cson_value * pay = NULL;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
+  int limit = 0;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -365,7 +351,7 @@ static cson_value * json_timeline_branch(){
               "SELECT"
               "  blob.rid AS rid,"
               "  uuid AS uuid,"
-              "  datetime(event.mtime,'utc') as mtime,"
+              "  CAST(strftime('%s',event.mtime) AS INTEGER) as timestamp,"
               "  coalesce(ecomment, comment) as comment,"
               "  coalesce(euser, user) as user,"
               "  blob.rid IN leaf as isLeaf,"
@@ -380,6 +366,10 @@ static cson_value * json_timeline_branch(){
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
                " ORDER BY event.mtime DESC",
                TAG_BRANCH);
+  limit = json_timeline_limit(20);
+  if(limit>0){
+    blob_appendf(&sql," LIMIT %d ",limit);
+  }
   db_prepare(&q,"%s", blob_str(&sql));
   blob_reset(&sql);
   pay = json_stmt_to_array_of_obj(&q, NULL);
@@ -389,29 +379,35 @@ static cson_value * json_timeline_branch(){
     /* get the array-form tags of each record. */
     cson_string * tags = cson_new_string("tags",4);
     cson_string * isLeaf = cson_new_string("isLeaf",6);
-    cson_value_add_reference( cson_string_value(tags) );
-    cson_value_add_reference( cson_string_value(isLeaf) );
     cson_array * ar = cson_value_get_array(pay);
+    cson_object * outer = NULL;
     unsigned int i = 0;
     unsigned int len = cson_array_length_get(ar);
+    cson_value_add_reference( cson_string_value(tags) );
+    cson_value_add_reference( cson_string_value(isLeaf) );
     for( ; i < len; ++i ){
       cson_object * row = cson_value_get_object(cson_array_get(ar,i));
       int rid = cson_value_get_integer(cson_object_get(row,"rid"));
-      if(row>0) {
-        cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
-        cson_object_set_s(row, isLeaf, json_value_to_bool(cson_object_get(row,"isLeaf")));
-      }
+      assert( rid > 0 );
+      cson_object_set_s(row, tags, json_tags_for_checkin_rid(rid,0));
+      cson_object_set_s(row, isLeaf,
+                        json_value_to_bool(cson_object_get(row,"isLeaf")));
+      cson_object_set(row, "rid", NULL)
+        /* remove rid - we don't really want it to be public */;
     }
     cson_value_free( cson_string_value(tags) );
     cson_value_free( cson_string_value(isLeaf) );
-  }
-   
-  goto end;
-  error:
-  assert( 0 != g.json.resultCode );
-  cson_value_free(pay);
 
-  end:
+    /* now we wrap the payload in an outer shell, for consistency with
+       other /json/timeline/xyz APIs...
+    */
+    outer = cson_new_object();
+    if(limit>0){
+      cson_object_set( outer, "limit", json_new_int(limit) );
+    }
+    cson_object_set( outer, "timeline", pay );
+    pay = cson_object_value(outer);
+  }
   return pay;
 }
 
@@ -431,13 +427,12 @@ static cson_value * json_timeline_ci(){
   char showFiles = -1/*magic number*/;
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
-  char warnStringToArrayFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.Read ){
-    /* IMO this falls more under the category of g.perm.History, but
-       i'm following the original timeline impl here.
+  if( !g.perm.History ){
+    /* Reminder to self: HTML impl requires 'o' (Read)
+       rights.
     */
-    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'o' access." );
+    json_set_err( FSL_JSON_E_DENIED, "Checkin timeline requires 'h' access." );
     return NULL;
   }
   showFiles = json_find_option_bool("files",NULL,"f",0);
@@ -464,23 +459,6 @@ static cson_value * json_timeline_ci(){
   blob_reset(&sql);
   db_prepare(&q, "SELECT "
              " rid AS rid"
-#if 0
-             " uuid AS uuid,"
-             " mtime AS timestamp,"
-#  if 0
-             " timestampString AS timestampString,"
-#  endif
-             " comment AS comment, "
-             " user AS user,"
-             " isLeaf AS isLeaf," /*FIXME: convert to JSON bool */
-             " bgColor AS bgColor," /* why always null? */
-             " eventType AS eventType"
-#  if 0
-             " tags AS tags"
-             /*tagId is always null?*/
-             " tagId AS tagId"
-#  endif
-#endif
              " FROM json_timeline"
              " ORDER BY rowid");
   listV = cson_value_new_array();
@@ -521,7 +499,6 @@ cson_value * json_timeline_wiki(){
   /* This code is 95% the same as json_timeline_ci(), by the way. */
   cson_value * payV = NULL;
   cson_object * pay = NULL;
-  cson_value * tmp = NULL;
   cson_array * list = NULL;
   int check = 0;
   Stmt q = empty_Stmt;
@@ -538,12 +515,6 @@ cson_value * json_timeline_wiki(){
     goto error;
   }
 
-#define SET(K) if(0!=(check=cson_object_set(pay,K,tmp))){ \
-    json_set_err((cson_rc.AllocError==check)        \
-                 ? FSL_JSON_E_ALLOC : FSL_JSON_E_UNKNOWN,       \
-                 "Object property insertion failed."); \
-    goto error;\
-  } (void)0
 #if 0
   /* only for testing! */
   tmp = cson_value_new_string(blob_buffer(&sql),strlen(blob_buffer(&sql)));
@@ -551,7 +522,7 @@ cson_value * json_timeline_wiki(){
 #endif
   db_multi_exec(blob_buffer(&sql));
   blob_reset(&sql);
-  db_prepare(&q, "SELECT rid AS rid,"
+  db_prepare(&q, "SELECT"
              " uuid AS uuid,"
              " mtime AS timestamp,"
 #if 0
@@ -570,10 +541,8 @@ cson_value * json_timeline_wiki(){
              " ORDER BY rowid",
              -1);
   list = cson_new_array();
-  tmp = cson_array_value(list);
-  SET("timeline");
   json_stmt_to_array_of_obj(&q, list);
-#undef SET
+  cson_object_set(pay, "timeline", cson_array_value(list));
   goto ok;
   error:
   assert( 0 != g.json.resultCode );
@@ -653,22 +622,34 @@ static cson_value * json_timeline_ticket(){
     int rc;
     int const rid = db_column_int(&q,0);
     Manifest * pMan = NULL;
-    cson_value * rowV = cson_sqlite3_row_to_object(q.pStmt);
-    cson_object * row = cson_value_get_object(rowV);
+    cson_value * rowV;
+    cson_object * row;
+    /*printf("rid=%d\n",rid);*/
+    pMan = manifest_get(rid, CFTYPE_TICKET);
+    if(!pMan){
+      /* this might be an attachment? i'm seeing this with
+         rid 15380, uuid [1292fef05f2472108].
+
+         /json/artifact/1292fef05f2472108 returns not-found,
+         probably because we haven't added artifact/ticket
+         yet(?).
+      */
+      continue;
+    }
+
+    rowV = cson_sqlite3_row_to_object(q.pStmt);
+    row = cson_value_get_object(rowV);
     if(!row){
+      manifest_destroy(pMan);
       json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED,
                  "Could not convert at least one timeline result row to JSON." );
       continue;
     }
-    pMan = manifest_get(rid, CFTYPE_TICKET);
-    assert( pMan && "Manifest is NULL!?!" );
-    if( pMan ){
-      /* FIXME: certainly there's a more efficient way for use to get
-         the ticket UUIDs?
-      */
-      cson_object_set(row,"ticketUuid",json_new_string(pMan->zTicketUuid));
-      manifest_destroy(pMan);
-    }
+    /* FIXME: certainly there's a more efficient way for use to get
+       the ticket UUIDs?
+    */
+    cson_object_set(row,"ticketUuid",json_new_string(pMan->zTicketUuid));
+    manifest_destroy(pMan);
     rc = cson_array_append( list, rowV );
     if( 0 != rc ){
       cson_value_free(rowV);

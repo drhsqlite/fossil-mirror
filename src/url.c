@@ -189,7 +189,7 @@ void url_parse(const char *zUrl){
   if( g.urlIsFile ){
     Blob cfile;
     dehttpize(zFile);  
-    file_canonical_name(zFile, &cfile);
+    file_canonical_name(zFile, &cfile, 0);
     free(zFile);
     g.urlProtocol = "file";
     g.urlPath = "";
@@ -267,7 +267,7 @@ void url_enable_proxy(const char *zMsg){
   if( zProxy==0 ){
     zProxy = db_get("proxy", 0);
     if( zProxy==0 || zProxy[0]==0 || is_truth(zProxy) ){
-      zProxy = getenv("http_proxy");
+      zProxy = fossil_getenv("http_proxy");
     }
   }
   if( zProxy && zProxy[0] && !is_false(zProxy) ){

@@ -71,7 +71,7 @@ static int is_date(const char *z){
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 */
-static int symbolic_name_to_rid(const char *zTag, const char *zType){
+int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
   int rid = 0;
   int nTag;
@@ -269,6 +269,26 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
 }
 
 /*
+** This routine is similar to name_to_uuid() except in the form it
+** takes its parameters and returns its value, and in that it does not
+** treat errors as fatal. zName must be a UUID, as described for
+** name_to_uuid(). zType is also as described for that function. If
+** zName does not resolve, 0 is returned. If it is ambiguous, a
+** negative value is returned. On success the rid is returned and
+** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** the full UUID, which must eventually be free()d by the caller.
+*/
+int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
+  int rid = symbolic_name_to_rid(zName, zType);
+  if((rid>0) && pUuid){
+    *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  }
+  return rid;
+}
+
+
+
+/*
 ** COMMAND:  test-name-to-id
 **
 ** Convert a name to a full artifact ID.
@@ -405,12 +425,17 @@ void whatis_cmd(void){
     fossil_print("Unknown artifact: %s\n", zName);
   }else{
     Stmt q;
-    db_prepare(&q, "SELECT uuid, size, datetime(mtime, 'localtime'), ipaddr"
-                   "  FROM blob, rcvfrom"
-                   " WHERE rid=%d"
-                   "   AND rcvfrom.rcvid=blob.rcvid",
-                   rid);
+    db_prepare(&q,
+       "SELECT uuid, size, datetime(mtime, 'localtime'), ipaddr,"
+       "       (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+       "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+       "           AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
+       "  FROM blob, rcvfrom"
+       " WHERE rid=%d"
+       "   AND rcvfrom.rcvid=blob.rcvid",
+       rid);
     if( db_step(&q)==SQLITE_ROW ){
+      const char *zTagList = db_column_text(&q, 4);
       if( fExtra ){
         fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
         fossil_print("size:     %d bytes\n", db_column_int(&q,1));
@@ -420,6 +445,9 @@ void whatis_cmd(void){
       }else{
         fossil_print("artifact: %s\n", db_column_text(&q,0));
         fossil_print("size:     %d bytes\n", db_column_int(&q,1));
+      }
+      if( zTagList && zTagList[0] ){
+        fossil_print("tags:     %s\n", zTagList);
       }
     }
     db_finalize(&q);
