@@ -887,9 +887,15 @@ static int tagCmp(const void *a, const void *b){
 ** check-in to be placed in a newly-created branch with the name
 ** passed to the --branch option.
 **
-** The --bgcolor option can be followed by a color name (ex:
+** Use the --branchcolor option followed by a color name (ex:
 ** '#ffc0c0') to specify the background color of entries in the new
-** branch when shown in the web timeline interface.
+** branch when shown in the web timeline interface.  The use of
+** the --branchcolor option is not recommend.  Instead, let Fossil
+** choose the branch color automatically.
+**
+** The --bgcolor option works like --branchcolor but only sets the
+** background color for a single check-in.  Subsequent check-ins revert
+** to the default color.
 **
 ** A check-in is not permitted to fork unless the --force or -f
 ** option appears.  A check-in is not allowed against a closed leaf.
