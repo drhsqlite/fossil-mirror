@@ -2496,6 +2496,25 @@ int cson_sqlite3_stmt_to_json( sqlite3_stmt * st, cson_value ** tgt, char fat );
 */
 int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql, char fat );
 
+/**
+   Binds a JSON value to a 1-based parameter index in a prepared SQL
+   statement. v must be NULL or one of one of the types (null, string,
+   integer, double, boolean, array). Booleans are bound as integer 0
+   or 1. NULL or null are bound as SQL NULL. Integers are bound as
+   64-bit ints. Strings are bound using sqlite3_bind_text() (as
+   opposed to text16), but we could/should arguably bind them as
+   blobs.
+
+   If v is an Array then ndx is is used as a starting position
+   (1-based) and each item in the array is bound to the next parameter
+   position (starting and ndx, though the array uses 0-based offsets).
+
+   TODO: add Object support for named parameters.
+
+   Returns 0 on success, non-0 on error.
+ */
+int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v );
+    
 #if defined(__cplusplus)
 } /*extern "C"*/
 #endif
