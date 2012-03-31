@@ -940,8 +940,7 @@ void login_set_anon_nobody_capabilities(void){
 ** Flags passed into the 2nd argument of login_set/replace_capabilities().
 */
 #if INTERFACE
-#define LOGIN_IGNORE_U   0x01         /* Ignore "u" */
-#define LOGIN_IGNORE_V   0x01         /* Ignore "v" */
+#define LOGIN_IGNORE_UV  0x01         /* Ignore "u" and "v" */
 #endif
 
 /*
@@ -988,10 +987,10 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */
       case 'u': {
-        if( (flags & LOGIN_IGNORE_U)==0 ){
+        if( (flags & LOGIN_IGNORE_UV)==0 ){
           const char *zUser;
           zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
-          login_set_capabilities(zUser, flags | LOGIN_IGNORE_U);
+          login_set_capabilities(zUser, flags | LOGIN_IGNORE_UV);
         }
         break;
       }
@@ -999,10 +998,10 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       /* The "v" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "developer" */
       case 'v': {
-        if( (flags & LOGIN_IGNORE_V)==0 ){
+        if( (flags & LOGIN_IGNORE_UV)==0 ){
           const char *zDev;
           zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
-          login_set_capabilities(zDev, flags | LOGIN_IGNORE_V);
+          login_set_capabilities(zDev, flags | LOGIN_IGNORE_UV);
         }
         break;
       }
