@@ -815,24 +815,31 @@ void cgi_append_default_css(void) {
 ** WEBPAGE: style.css
 */
 void page_style_css(void){
+  Blob css;
   const char *zCSS    = 0;
   int i;
 
   cgi_set_content_type("text/css");
-  zCSS = db_get("css",(char*)zDefaultCSS);
-  /* append user defined css */
-  cgi_append_content(zCSS, -1);
+  blob_init(&css, db_get("css",(char*)zDefaultCSS), -1);
+
   /* add special missing definitions */
-  for (i=1;cssDefaultList[i].elementClass;i++)
-    if (!strstr(zCSS,cssDefaultList[i].elementClass)) {
-      cgi_append_content("/* ", -1);
-      cgi_append_content(cssDefaultList[i].comment, -1);
-      cgi_append_content(" */\n", -1);
-      cgi_append_content(cssDefaultList[i].elementClass, -1);
-      cgi_append_content(" {\n", -1);
-      cgi_append_content(cssDefaultList[i].value, -1);
-      cgi_append_content("}\n\n", -1);
+  for(i=1; cssDefaultList[i].elementClass; i++){
+    if( strstr(blob_str(&css), cssDefaultList[i].elementClass)==0 ){
+      blob_appendf(&css, "/* %s */\n%s {\n%s}\n",
+          cssDefaultList[i].comment,
+          cssDefaultList[i].elementClass,
+          cssDefaultList[i].value);
     }
+  }
+
+  /* Process through TH1 in order to give an opportunity to substitute
+  ** variables such as $baseurl.
+  */
+  Th_Store("baseurl", g.zBaseURL);
+  Th_Store("home", g.zTop);
+  Th_Render(blob_str(&css));
+
+  /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;
 }
 
