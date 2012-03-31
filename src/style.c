@@ -816,7 +816,6 @@ void cgi_append_default_css(void) {
 */
 void page_style_css(void){
   Blob css;
-  const char *zCSS    = 0;
   int i;
 
   cgi_set_content_type("text/css");
