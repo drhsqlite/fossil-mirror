@@ -1216,11 +1216,6 @@ void register_page(void){
       }else{
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
-        char *zCookie;
-        const char *zCookieName;
-        const char *zExpire;
-        int expires;
-        const char *zIpAddr;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info)"
             "VALUES(%B,%Q,%B,%B)",
@@ -1230,19 +1225,7 @@ void register_page(void){
 
         /* The user is registered, now just log him in. */
         uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
-        zCookieName = login_cookie_name();
-        zExpire = db_get("cookie-expire","8766");
-        expires = atoi(zExpire)*3600;
-        zIpAddr = PD("REMOTE_ADDR","nil");
-
-        zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-        cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
-        record_login_attempt(zUsername, zIpAddr, 1);
-        db_multi_exec(
-            "UPDATE user SET cookie=%Q, ipaddr=%Q, "
-            "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-            zCookie, ipPrefix(zIpAddr), expires, uid
-        );
+        login_set_user_cookie( zUsername, uid, NULL );
         redirect_to_g();
 
       }
