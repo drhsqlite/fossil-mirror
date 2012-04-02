@@ -33,7 +33,8 @@ void stat_page(void){
   int szMax, szAvg;
   const char *zDb;
   int brief;
-  char zBuf[100];
+  char *z;
+  char zBuf[200];
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -42,14 +43,14 @@ void stat_page(void){
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
-  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", fsize);
-  @ %s(zBuf) bytes
+  z = mprintf("%llD", fsize);
+  @ %z(z) bytes
   @ </td></tr>
   if( !brief ){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
+    @ %D(n) (stored as %D(n-m) full text and %D(m) delta blobs)
     @ </td></tr>
     if( n>0 ){
       int a, b;
@@ -62,8 +63,8 @@ void stat_page(void){
       szAvg = db_column_int(&q, 1);
       szMax = db_column_int(&q, 2);
       db_finalize(&q);
-      sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
-      @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) bytes total
+      z = mprintf("%llD", t);
+      @ %D(szAvg) bytes average, %D(szMax) bytes max, %z(z) bytes total
       @ </td></tr>
       @ <tr><th>Compression&nbsp;Ratio:</th><td>
       if( t/fsize < 5 ){
@@ -78,27 +79,27 @@ void stat_page(void){
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
     n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
-    @ %d(n)
+    @ %D(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    @ %d(n)
+    @ %D(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Wiki&nbsp;Pages:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'wiki-*'");
-    @ %d(n)
+    @ %D(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Tickets:</th><td>
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE +tagname GLOB 'tkt-*'");
-    @ %d(n)
+    @ %D(n)
     @ </td></tr>
   }
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days
+  @ %D(n) days
   sqlite3_snprintf(sizeof(zBuf), zBuf, "%.2f", n/365.24);
   @ or approximately %s(zBuf) years
   @ </td></tr>

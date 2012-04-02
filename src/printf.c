@@ -49,6 +49,7 @@
 #define etWIKISTR    21 /* Wiki text rendered from a char*: %w */
 #define etWIKIBLOB   22 /* Wiki text rendered from a Blob*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
+#define etCOMMA      24 /* Like %d but with commas: %D */
 
 
 /*
@@ -92,6 +93,7 @@ static const et_info fmtinfo[] = {
   {  'Q',  0, 4, etSQLESCAPE2, 0,  0 },
   {  'b',  0, 2, etBLOB,       0,  0 },
   {  'B',  0, 2, etBLOBSQL,    0,  0 },
+  {  'D', 10, 2, etCOMMA,      0,  0 },
   {  'w',  0, 2, etWIKISTR,    0,  0 },
   {  'W',  0, 2, etWIKIBLOB,   0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
@@ -243,7 +245,7 @@ int vxprintf(
       break;
     }
     /* Find out what flags are present */
-    flag_leftjustify = flag_plussign = flag_blanksign = 
+    flag_leftjustify = flag_plussign = flag_blanksign =
      flag_alternateform = flag_altform2 = flag_zeropad = 0;
     done = 0;
     do{
@@ -349,6 +351,7 @@ int vxprintf(
         flag_long = sizeof(char*)==sizeof(long int);
         /* Fall through into the next case */
       case etRADIX:
+      case etCOMMA:
         if( infop->flags & FLAG_SIGNED ){
           i64 v;
           if( flag_longlong )   v = va_arg(ap,i64);
@@ -389,6 +392,17 @@ int vxprintf(
           *(--bufpt) = '0';                             /* Zero pad */
         }
         if( prefix ) *(--bufpt) = prefix;               /* Add sign */
+        length = &buf[etBUFSIZE-1]-bufpt;
+        if( xtype==etCOMMA && length>=4 ){
+          int i, j, k;
+          int nComma = (length-1)/3;
+          bufpt -= nComma;
+          for(i=k=0, j=nComma; i<j; i++, j++, k++){
+            bufpt[i] = bufpt[j];
+            if( (length-k)%3==1 ) bufpt[++i] = ',';
+          }
+          length += nComma;
+        }
         if( flag_alternateform && infop->prefix ){      /* Add "0" or "0x" */
           const char *pre;
           char x;
@@ -397,7 +411,6 @@ int vxprintf(
             for(; (x=(*pre))!=0; pre++) *(--bufpt) = x;
           }
         }
-        length = &buf[etBUFSIZE-1]-bufpt;
         break;
       case etFLOAT:
       case etEXP:
