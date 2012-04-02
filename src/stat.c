@@ -23,6 +23,25 @@
 #include "stat.h"
 
 /*
+** For a sufficiently large integer, provide an alternative
+** representation as MB or GB or TB.
+*/
+static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
+  if( v<100000 ){
+    sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
+  }else if( v<1000000000 ){
+    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fMB)",
+                    (double)v/1000000.0, v);
+  }else if( v<1000000000000 ){
+    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fGB)",
+                    (double)v/1000000000.0, v);
+  }else{
+    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fTB)",
+                    (double)v/1000000000000.0, v);
+  }
+}
+
+/*
 ** WEBPAGE: stat
 **
 ** Show statistics and global information about the repository.
@@ -42,8 +61,8 @@ void stat_page(void){
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
-  sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", fsize);
-  @ %s(zBuf) bytes
+  bigSizeName(sizeof(zBuf), zBuf, fsize);
+  @ %s(zBuf)
   @ </td></tr>
   if( !brief ){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
@@ -62,8 +81,8 @@ void stat_page(void){
       szAvg = db_column_int(&q, 1);
       szMax = db_column_int(&q, 2);
       db_finalize(&q);
-      sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", t);
-      @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) bytes total
+      bigSizeName(sizeof(zBuf), zBuf, t);
+      @ %d(szAvg) bytes average, %d(szMax) bytes max, %s(zBuf) total
       @ </td></tr>
       @ <tr><th>Compression&nbsp;Ratio:</th><td>
       if( t/fsize < 5 ){
