@@ -31,13 +31,10 @@ static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
     sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
   }else if( v<1000000000 ){
     sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fMB)",
-                    (double)v/1000000.0, v);
-  }else if( v<1000000000000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fGB)",
-                    (double)v/1000000000.0, v);
+                    v, (double)v/1000000.0);
   }else{
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fTB)",
-                    (double)v/1000000000000.0, v);
+    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fGB)",
+                    v, (double)v/1000000000.0);
   }
 }
 
