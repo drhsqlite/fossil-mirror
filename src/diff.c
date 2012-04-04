@@ -893,6 +893,7 @@ static void sbsDiff(
   s.width = width;
   s.escHtml = escHtml;
   s.iStart = -1;
+  s.iStart2 = 0;
   s.iEnd = -1;
   A = p->aFrom;
   B = p->aTo;
