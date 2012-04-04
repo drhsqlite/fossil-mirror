@@ -71,7 +71,7 @@ static int is_date(const char *z){
 ** zType is "ci" in most use cases since we are usually searching for
 ** a check-in.
 */
-static int symbolic_name_to_rid(const char *zTag, const char *zType){
+int symbolic_name_to_rid(const char *zTag, const char *zType){
   int vid;
   int rid = 0;
   int nTag;
@@ -275,6 +275,26 @@ int name_to_uuid(Blob *pName, int iErrPriority, const char *zType){
     return 0;
   }
 }
+
+/*
+** This routine is similar to name_to_uuid() except in the form it
+** takes its parameters and returns its value, and in that it does not
+** treat errors as fatal. zName must be a UUID, as described for
+** name_to_uuid(). zType is also as described for that function. If
+** zName does not resolve, 0 is returned. If it is ambiguous, a
+** negative value is returned. On success the rid is returned and
+** pUuid (if it is not NULL) is set to the a newly-allocated string,
+** the full UUID, which must eventually be free()d by the caller.
+*/
+int name_to_uuid2(char const *zName, const char *zType, char **pUuid){
+  int rid = symbolic_name_to_rid(zName, zType);
+  if((rid>0) && pUuid){
+    *pUuid = db_text(NULL, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  }
+  return rid;
+}
+
+
 
 /*
 ** COMMAND:  test-name-to-id

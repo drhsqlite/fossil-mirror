@@ -92,6 +92,9 @@ int fossil_isdigit(char c){ return c>='0' && c<='9'; }
 int fossil_tolower(char c){
   return fossil_isupper(c) ? c - 'A' + 'a' : c;
 }
+int fossil_toupper(char c){
+  return fossil_islower(c) ? c - 'a' + 'A' : c;
+}
 int fossil_isalpha(char c){
   return (c>='a' && c<='z') || (c>='A' && c<='Z');
 }
@@ -793,7 +796,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
       zName = zBuf;
       memcpy(zName, zFilename, nName+1);
     }
-    nName = file_simplify_name(zName, nName);
+    nName = file_simplify_name(zName, nName, 0);
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;

@@ -404,8 +404,6 @@ int merge_3way(
   blob_read_from_file(&v1, zV1);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
   if( rc!=0 ){
-    const char *zGMerge;   /* Name of the gmerge command */
-
     zPivot = file_newname(zV1, "baseline", 1);
     blob_write_to_file(pPivot, zPivot);
     zOrig = file_newname(zV1, "original", 1);

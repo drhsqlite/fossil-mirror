@@ -278,7 +278,7 @@ static cson_value * json_tag_find(){
       "   blob.rid AS rid,"
 #endif
       "   uuid AS uuid,"
-      "   cast(strftime('%s',event.mtime) as int) AS mtime,"
+      "   cast(strftime('%s',event.mtime) as int) AS timestamp,"
       "   coalesce(ecomment,comment) AS comment,"
       "   coalesce(euser,user) AS user,"
       "   CASE event.type"

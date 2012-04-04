@@ -448,9 +448,8 @@ int main(int argc, char **argv){
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
-       "   or: %s help COMMMAND  -- for help with the named command\n"
-       "   or: %s commands       -- for a list of all commands\n",
-       argv[0], argv[0], argv[0], argv[0]);
+       "   or: %s help COMMMAND  -- for help with the named command\n",
+       argv[0], argv[0], argv[0]);
     fossil_exit(1);
   }else{
     g.isHTTP = 0;
@@ -1115,7 +1114,7 @@ static char *enter_chroot_jail(char *zRepo){
     Blob dir;
     char *zDir;
 
-    file_canonical_name(zRepo, &dir);
+    file_canonical_name(zRepo, &dir, 0);
     zDir = blob_str(&dir);
     if( file_isdir(zDir)==1 ){
       if( chdir(zDir) || chroot(zDir) || chdir("/") ){
@@ -1203,6 +1202,7 @@ static void process_one_web_page(const char *zNotFound){
       }
 
       if( szFile<1024 ){
+        set_base_url();
         if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
@@ -1290,7 +1290,7 @@ static void process_one_web_page(const char *zNotFound){
         if( g.zLogin==0 ) zUser = "nobody";
         if( zAltRepo[0]!='/' ){
           zAltRepo = mprintf("%s/../%s", g.zRepositoryName, zAltRepo);
-          file_simplify_name(zAltRepo, -1);
+          file_simplify_name(zAltRepo, -1, 0);
         }
         db_close(1);
         db_open_repository(zAltRepo);
@@ -1307,14 +1307,37 @@ static void process_one_web_page(const char *zNotFound){
     }
     break;
   }
+#ifdef FOSSIL_ENABLE_JSON
+  /*
+  ** Workaround to allow us to customize some following behaviour for
+  ** JSON mode.  The problem is, we don't always know if we're in JSON
+  ** mode at this point (namely, for GET mode we don't know but POST
+  ** we do), so we snoop g.zPath and cheat a bit.
+  */
+  if( g.zPath && (0==strcmp("json",g.zPath)) ){
+    g.json.isJsonMode = 1;
+  }
+#endif
   if( g.zExtra ){
     /* CGI parameters get this treatment elsewhere, but places like getfile
     ** will use g.zExtra directly.
     ** Reminder: the login mechanism uses 'name' differently, and may
     ** eventually have a problem/collision with this.
+    **
+    ** Disabled by stephan when running in JSON mode because this
+    ** particular parameter name is very common and i have had no end
+    ** of grief with this handling. The JSON API never relies on the
+    ** handling below, and by disabling it in JSON mode i can remove
+    ** lots of special-case handling in several JSON handlers.
     */
-    dehttpize(g.zExtra);
-    cgi_set_parameter_nocopy("name", g.zExtra);
+#ifdef FOSSIL_ENABLE_JSON
+    if(!g.json.isJsonMode){
+#endif
+      dehttpize(g.zExtra);
+      cgi_set_parameter_nocopy("name", g.zExtra);
+#ifdef FOSSIL_ENABLE_JSON
+    }
+#endif
   }
 
   /* Locate the method specified by the path and execute the function
@@ -1529,7 +1552,7 @@ static void find_server_repository(int disallowDir){
     db_must_be_within_tree();
   }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
     g.zRepositoryName = mprintf("%s", g.argv[2]);
-    file_simplify_name(g.zRepositoryName, -1);
+    file_simplify_name(g.zRepositoryName, -1, 0);
   }else{
     db_open_repository(g.argv[2]);
   }

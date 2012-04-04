@@ -83,22 +83,22 @@ cson_value * json_parent_uuids_for_ci( int rid ){
 */
 cson_value * json_artifact_for_ci( int rid, char showFiles ){
   cson_value * v = NULL;
-  Stmt q;
+  Stmt q = empty_Stmt;
   static cson_value * eventTypeLabel = NULL;
   if(!eventTypeLabel){
     eventTypeLabel = json_new_string("checkin");
     json_gc_add("$EVENT_TYPE_LABEL(commit)", eventTypeLabel);
   }
-
-  db_prepare(&q, 
-             "SELECT uuid, "
-             " cast(strftime('%%s',mtime) as int), "
-             " user, "
-             " comment,"
-             " strftime('%%s',omtime)"
-             " FROM blob, event"
-             " WHERE blob.rid=%d"
-             "   AND event.objid=%d",
+  
+  db_prepare(&q,
+             "SELECT b.uuid, "
+             " cast(strftime('%%s',e.mtime) as int), "
+             " strftime('%%s',e.omtime),"
+             " e.user, "
+             " e.comment"
+             " FROM blob b, event e"
+             " WHERE b.rid=%d"
+             "   AND e.objid=%d",
              rid, rid
              );
   if( db_step(&q)==SQLITE_ROW ){
@@ -108,10 +108,6 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     const char *zUser;
     const char *zComment;
     char * zEUser, * zEComment;
-#define ADD_PRIMARY_PARENT_UUID 0 /* temporary local macro */
-#if ADD_PRIMARY_PARENT_UUID
-    char * zParent = NULL;
-#endif
     int mtime, omtime;
     v = cson_value_new_object();
     o = cson_value_get_object(v);
@@ -119,7 +115,15 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     SET("type", eventTypeLabel );
     SET("uuid",json_new_string(zUuid));
     SET("isLeaf", cson_value_new_bool(is_a_leaf(rid)));
-    zUser = db_column_text(&q,2);
+
+    mtime = db_column_int(&q,1);
+    SET("timestamp",json_new_int(mtime));
+    omtime = db_column_int(&q,2);
+    if(omtime && (omtime!=mtime)){
+      SET("originTime",json_new_int(omtime));
+    }
+
+    zUser = db_column_text(&q,3);
     zEUser = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_USER, rid);
@@ -133,7 +137,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
       SET("user",json_new_string(zUser));
     }
 
-    zComment = db_column_text(&q,3);
+    zComment = db_column_text(&q,4);
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
@@ -146,27 +150,6 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
     }else{
       SET("comment",json_new_string(zComment));
     }
-
-    mtime = db_column_int(&q,1);
-    SET("mtime",json_new_int(mtime));
-    omtime = db_column_int(&q,4);
-    if(omtime && (omtime!=mtime)){
-      SET("originTime",json_new_int(omtime));
-    }
-
-#if ADD_PRIMARY_PARENT_UUID
-    zParent = db_text(0,
-      "SELECT uuid FROM plink, blob"
-      " WHERE plink.cid=%d AND blob.rid=plink.pid"
-      " AND plink.isprim",
-      rid
-    );
-    tmpV = zParent ? json_new_string(zParent) : cson_value_null();
-    free(zParent);
-    zParent = NULL;
-    SET("parentUuid", tmpV );
-#endif
-#undef ADD_PRIMARY_PARENT_UUID
 
     tmpV = json_parent_uuids_for_ci(rid);
     if(tmpV){
@@ -225,8 +208,8 @@ cson_value * json_artifact_ticket( int rid ){
 ** Sub-impl of /json/artifact for checkins.
 */
 static cson_value * json_artifact_ci( int rid ){
-  if(! g.perm.Read ){
-    g.json.resultCode = FSL_JSON_E_DENIED;
+  if(!g.perm.Read){
+    json_set_err( FSL_JSON_E_DENIED, "Viewing checkins requires 'o' privileges." );
     return NULL;
   }else{
     return json_artifact_for_ci(rid, 1);
@@ -260,14 +243,33 @@ cson_value * json_artifact_wiki(int rid){
                  "Requires 'j' privileges.");
     return NULL;
   }else{
-    return json_get_wiki_page_by_rid(rid, 0);
+    char contentFormat = json_wiki_get_content_format_flag(-9);
+    if(-9 == contentFormat){
+      contentFormat = json_artifact_include_content_flag() ? -1 : 0;
+    }
+    return json_get_wiki_page_by_rid(rid, contentFormat);
   }
+}
+
+/*
+** Internal helper for routines which add a "status" flag to file
+** artifact data. isNew and isDel should be the "is this object new?" 
+** and "is this object removed?" flags of the underlying query.  This
+** function returns a static string from the set (added, removed,
+** modified), depending on the combination of the two args.
+**
+** Reminder to self: (mlink.pid==0) AS isNew, (mlink.fid==0) AS isDel
+*/
+char const * json_artifact_status_to_string( char isNew, char isDel ){
+  return isNew
+    ? "added"
+    : (isDel
+       ? "removed"
+       : "modified");
 }
 
 cson_value * json_artifact_file(int rid){
   cson_object * pay = NULL;
-  const char *zMime;
-  Blob content = empty_blob;
   Stmt q = empty_Stmt;
   cson_array * checkin_arr = NULL;
 
@@ -279,28 +281,35 @@ cson_value * json_artifact_file(int rid){
   
   pay = cson_new_object();
 
-  content_get(rid, &content);
-  cson_object_set(pay, "contentLength",
-                  json_new_int( blob_size(&content) )
-                  /* achtung: overflow potential on 32-bit builds! */);
-  zMime = mimetype_from_content(&content);
-
-  cson_object_set(pay, "contentType",
-                  json_new_string(zMime ? zMime : "text/plain"));
-  if( json_artifact_include_content_flag() && !zMime ){
+  if( json_artifact_include_content_flag() ){
+    Blob content = empty_blob;
+    const char *zMime;
+    content_get(rid, &content);
+    zMime = mimetype_from_content(&content);
+    cson_object_set(pay, "contentType",
+                    json_new_string(zMime ? zMime : "text/plain"));
+    cson_object_set(pay, "size", json_new_int( blob_size(&content)) );
+    if(!zMime){
       cson_object_set(pay, "content",
                       cson_value_new_string(blob_str(&content),
                                             (unsigned int)blob_size(&content)));
+    }
+    blob_reset(&content);
   }
-  blob_reset(&content);
 
   db_prepare(&q,
       "SELECT filename.name AS name, "
-      "       cast(strftime('%%s',event.mtime) as int) AS mtime,"
-      "       coalesce(event.ecomment,event.comment) as comment,"
-      "       coalesce(event.euser,event.user) as user,"
-      "       b.uuid as uuid, mlink.mperm as mperm,"
-      "       coalesce((SELECT value FROM tagxref"
+      "  (mlink.pid==0) AS isNew,"
+      "  (mlink.fid==0) AS isDel,"
+      "  cast(strftime('%%s',event.mtime) as int) AS timestamp,"
+      "  coalesce(event.ecomment,event.comment) as comment,"
+      "  coalesce(event.euser,event.user) as user,"
+      "  a.size AS size,"
+      "  b.uuid as uuid, "
+#if 0
+      "  mlink.mperm as mperm,"
+#endif
+      "  coalesce((SELECT value FROM tagxref"
                       "  WHERE tagid=%d AND tagtype>0 AND "
                       " rid=mlink.mid),'trunk') as branch"
       "  FROM mlink, filename, event, blob a, blob b"
@@ -312,9 +321,21 @@ cson_value * json_artifact_file(int rid){
       "   ORDER BY filename.name, event.mtime",
       TAG_BRANCH, rid
     );
+  /* TODO: add a "state" flag for the file in each checkin,
+     e.g. "modified", "new", "deleted".
+   */
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
-  json_stmt_to_array_of_obj( &q, checkin_arr );
+  while( (SQLITE_ROW==db_step(&q) ) ){
+    cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));
+    char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
+    char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
+    cson_object_set(row, "isNew", NULL);
+    cson_object_set(row, "isDel", NULL);
+    cson_object_set(row, "state",
+                    json_new_string(json_artifact_status_to_string(isNew, isDel)));
+    cson_array_append( checkin_arr, cson_object_value(row) );
+  }
   db_finalize(&q);
   return cson_object_value(pay);
 }
@@ -333,10 +354,10 @@ cson_value * json_page_artifact(){
   int rc;
   int rid = 0;
   ArtifactDispatchEntry const * dispatcher = &ArtifactDispatchList[0];
-  zName = json_find_option_cstr2("uuid", NULL, NULL, 2);
+  zName = json_find_option_cstr2("name", NULL, NULL, g.json.dispatchDepth+1);
   if(!zName || !*zName) {
     json_set_err(FSL_JSON_E_MISSING_ARGS,
-                 "Missing 'uuid' argument.");
+                 "Missing 'name' argument.");
     return NULL;
   }
 
@@ -408,7 +429,7 @@ cson_value * json_page_artifact(){
     cson_object_set( pay, "type", json_new_string(zType) );
     /*cson_object_set( pay, "uuid", json_new_string(zUuid) );*/
     cson_object_set( pay, "name", json_new_string(zName ? zName : zUuid) );
-    cson_object_set( pay, "rid", cson_value_new_integer(rid) );
+    /*cson_object_set( pay, "rid", cson_value_new_integer(rid) );*/
     if(entry){
       cson_object_set(pay, "artifact", entry);
     }

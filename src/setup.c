@@ -86,7 +86,7 @@ void setup_page(void){
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Logo", "setup_logo",
-    "Change the logo image for the server");
+    "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
     "Show artifacts that are shunned by this repository");
   setup_menu_entry("Log", "rcvfromlist",
@@ -870,10 +870,11 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address turns used in login cookie", 3, "ip-prefix-terms", "ipt",
-                  "2");
-  @ <p>The number of octets of of the IP address used in the login cookie.  Set to
-  @ zero to omit the IP address from the login cookie.  A value of 2 is recommended.
+  entry_attribute("IP address terms used in login cookie", 3, 
+                  "ip-prefix-terms", "ipt", "2");
+  @ <p>The number of octets of of the IP address used in the login cookie.
+  @ Set to zero to omit the IP address from the login cookie.  A value of
+  @ 2 is recommended.
   @ </p>
   @
   @ <hr />
@@ -952,7 +953,7 @@ void setup_login_group(void){
   if( !g.perm.Setup ){
     login_needed();
   }
-  file_canonical_name(g.zRepositoryName, &fullName);
+  file_canonical_name(g.zRepositoryName, &fullName, 0);
   zSelfRepo = mprintf(blob_str(&fullName));
   blob_reset(&fullName);
   if( P("join")!=0 ){
@@ -1320,21 +1321,27 @@ void setup_footer(void){
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
-  const char *zMime = db_get("logo-mimetype","image/gif");
-  const char *aImg = P("im");
-  int szImg = atoi(PD("im:bytes","0"));
-  if( szImg>0 ){
-    zMime = PD("im:mimetype","image/gif");
+  const char *zLogoMime = db_get("logo-mimetype","image/gif");
+  const char *aLogoImg = P("logoim");
+  int szLogoImg = atoi(PD("logoim:bytes","0"));
+  const char *zBgMime = db_get("background-mimetype","image/gif");
+  const char *aBgImg = P("bgim");
+  int szBgImg = atoi(PD("bgim:bytes","0"));
+  if( szLogoImg>0 ){
+    zLogoMime = PD("logoim:mimetype","image/gif");
+  }
+  if( szBgImg>0 ){
+    zBgMime = PD("bgim:mimetype","image/gif");
   }
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed();
   }
   db_begin_transaction();
-  if( P("set")!=0 && zMime && zMime[0] && szImg>0 ){
+  if( P("setlogo")!=0 && zLogoMime && zLogoMime[0] && szLogoImg>0 ){
     Blob img;
     Stmt ins;
-    blob_init(&img, aImg, szImg);
+    blob_init(&img, aLogoImg, szLogoImg);
     db_prepare(&ins,
         "REPLACE INTO config(name,value,mtime)"
         " VALUES('logo-image',:bytes,now())"
@@ -1344,43 +1351,91 @@ void setup_logo(void){
     db_finalize(&ins);
     db_multi_exec(
        "REPLACE INTO config(name,value,mtime) VALUES('logo-mimetype',%Q,now())",
-       zMime
+       zLogoMime
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
-  }else if( P("clr")!=0 ){
+  }else if( P("clrlogo")!=0 ){
     db_multi_exec(
-       "DELETE FROM config WHERE name GLOB 'logo-*'"
+       "DELETE FROM config WHERE name IN "
+           "('logo-image','logo-mimetype')"
+    );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("setbg")!=0 && zBgMime && zBgMime[0] && szBgImg>0 ){
+    Blob img;
+    Stmt ins;
+    blob_init(&img, aBgImg, szBgImg);
+    db_prepare(&ins,
+        "REPLACE INTO config(name,value,mtime)"
+        " VALUES('background-image',:bytes,now())"
+    );
+    db_bind_blob(&ins, ":bytes", &img);
+    db_step(&ins);
+    db_finalize(&ins);
+    db_multi_exec(
+       "REPLACE INTO config(name,value,mtime)"
+       " VALUES('background-mimetype',%Q,now())",
+       zBgMime
+    );
+    db_end_transaction(0);
+    cgi_redirect("setup_logo");
+  }else if( P("clrbg")!=0 ){
+    db_multi_exec(
+       "DELETE FROM config WHERE name IN "
+           "('background-image','background-mimetype')"
     );
     db_end_transaction(0);
     cgi_redirect("setup_logo");
   }
-  style_header("Edit Project Logo");
-  @ <p>The current project logo has a MIME-Type of <b>%h(zMime)</b> and looks
-  @ like this:</p>
-  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" /></p></blockquote>
+  style_header("Edit Project Logo And Background");
+  @ <p>The current project logo has a MIME-Type of <b>%h(zLogoMime)</b>
+  @ and looks like this:</p>
+  @ <blockquote><p><img src="%s(g.zTop)/logo" alt="logo" border="1" />
+  @ </p></blockquote>
   @
+  @ <form action="%s(g.zTop)/setup_logo" method="post"
+  @  enctype="multipart/form-data"><div>
   @ <p>The logo is accessible to all users at this URL:
   @ <a href="%s(g.zBaseURL)/logo">%s(g.zBaseURL)/logo</a>.
   @ The logo may or may not appear on each
   @ page depending on the <a href="setup_editcss">CSS</a> and
-  @ <a href="setup_header">header setup</a>.</p>
+  @ <a href="setup_header">header setup</a>.
+  @ To change the logo image, use the following form:</p>
+  login_insert_csrf_secret();
+  @ Logo Image file:
+  @ <input type="file" name="logoim" size="60" accept="image/*" />
+  @ <p align="center">
+  @ <input type="submit" name="setlogo" value="Change Logo" />
+  @ <input type="submit" name="clrlogo" value="Revert To Default" /></p>
+  @ </div></form>
+  @ <hr />
+  @
+  @ <p>The current background image has a MIME-Type of <b>%h(zBgMime)</b>
+  @ and looks like this:</p>
+  @ <blockquote><p><img src="%s(g.zTop)/background" alt="background" border=1 />
+  @ </p></blockquote>
   @
   @ <form action="%s(g.zTop)/setup_logo" method="post"
   @  enctype="multipart/form-data"><div>
-  @ <p>To set a new logo image, select a file to use as the logo using
-  @ the entry box below and then press the "Change Logo" button.</p>
+  @ <p>The background image is accessible to all users at this URL:
+  @ <a href="%s(g.zBaseURL)/background">%s(g.zBaseURL)/background</a>.
+  @ The background image may or may not appear on each
+  @ page depending on the <a href="setup_editcss">CSS</a> and
+  @ <a href="setup_header">header setup</a>.
+  @ To change the background image, use the following form:</p>
   login_insert_csrf_secret();
-  @ Logo Image file:
-  @ <input type="file" name="im" size="60" accept="image/*" /><br />
-  @ <input type="submit" name="set" value="Change Logo" />
-  @ <input type="submit" name="clr" value="Revert To Default" />
+  @ Background image file:
+  @ <input type="file" name="bgim" size="60" accept="image/*" />
+  @ <p align="center">
+  @ <input type="submit" name="setbg" value="Change Background" />
+  @ <input type="submit" name="clrbg" value="Revert To Default" /></p>
   @ </div></form>
+  @ <hr />
   @
-  @ <p><span class="note">Note:</span>  Your browser has probably cached the
-  @ logo image, so you will probably need to press the Reload button on your
-  @ browser after changing the logo to provoke your browser to reload the new
-  @ logo image. </p>
+  @ <p><span class="note">Note:</span>  Your browser has probably cached these
+  @ images, so you may need to press the Reload button before changes will
+  @ take effect. </p>
   style_footer();
   db_end_transaction(0);
 }

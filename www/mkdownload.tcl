@@ -6,20 +6,30 @@
 #
 set out [open download.html w]
 puts $out \
-{<html>
+{<!DOCTYPE html><html>
 <head>
-<title>Fossil: Downloads</title>
+<title>Fossil: Timeline</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
 </head>
 <body>
 <div class="header">
   <div class="logo">
-    <img src="/fossil/doc/tip/www/fossil_logo_small.gif" alt="logo">
+    <img src="/fossil/logo" alt="logo">
+    <br /><nobr>Fossil</nobr>
   </div>
+
   <div class="title">Fossil Downloads</div>
 </div>
-<div class="mainmenu"><a href='/fossil/doc/tip/www/index.wiki'>Home</a><a href='/fossil/timeline'>Timeline</a><a href='/fossil/brlist'>Branches</a><a href='/fossil/taglist'>Tags</a><a href='/fossil/reportlist'>Tickets</a><a href='/fossil/wiki'>Wiki</a><a href='/fossil/login'>Login</a></div>
+<div class="mainmenu">
+<a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
+<a href='/fossil/timeline'>Timeline</a>
+<a href='/fossil/dir?ci=tip'>Files</a>
+<a href='/fossil/brlist'>Branches</a>
+<a href='/fossil/taglist'>Tags</a>
+<a href='/fossil/reportlist'>Tickets</a>
+<a href='/fossil/wiki'>Wiki</a>
+</div>
 <div class="content">
 <p>
 

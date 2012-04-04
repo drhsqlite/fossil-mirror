@@ -36,7 +36,7 @@
 **      pathelement('abc/pqr', 4)      ->  'pqr'
 **      pathelement('abc/pqr/xyz', 0)  ->  '/abc'
 */
-static void pathelementFunc(
+void pathelementFunc(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv

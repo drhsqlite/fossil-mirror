@@ -729,6 +729,7 @@ static int match_dline(DLine *pA, DLine *pB){
   if( nB>250 ) nB = 250;
   avg = (nA+nB)/2;
   if( avg==0 ) return 0;
+  if( nA==nB && memcmp(zA, zB, nA)==0 ) return 0;
   memset(aFirst, 0, sizeof(aFirst));
   zA--; zB--;   /* Make both zA[] and zB[] 1-indexed */
   for(i=nB; i>0; i--){
@@ -888,6 +889,7 @@ static void sbsDiff(
   int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
 
+  memset(&s, 0, sizeof(s));
   s.zLine = fossil_malloc( 10*width + 200 );
   if( s.zLine==0 ) return;
   s.width = width;

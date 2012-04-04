@@ -189,7 +189,7 @@ void url_parse(const char *zUrl){
   if( g.urlIsFile ){
     Blob cfile;
     dehttpize(zFile);  
-    file_canonical_name(zFile, &cfile);
+    file_canonical_name(zFile, &cfile, 0);
     free(zFile);
     g.urlProtocol = "file";
     g.urlPath = "";

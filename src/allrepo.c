@@ -170,7 +170,7 @@ void all_cmd(void){
         char *zRepo = mprintf("repo:%s", zFilename);
         db_unset(zRepo, 1);
         free(zRepo);
-        file_canonical_name(zFilename, &cname);
+        file_canonical_name(zFilename, &cname, 0);
         zRepo = mprintf("repo:%s", blob_str(&cname));
         db_set(zRepo, "1", 1);
         free(zRepo);
