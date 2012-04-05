@@ -1048,9 +1048,10 @@ void commit_cmd(void){
   ** should be committed.
   */
   select_commit_files();
-  isAMerge = db_exists("SELECT 1 FROM vmerge");
+  /* id=0 means that it introduces a new parent */
+  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
   if( g.aCommitFile && isAMerge ){
-    fossil_fatal("cannot do a partial commit of a merge");
+    fossil_fatal("cannot do a partial commit of a graph merge");
   }
 
   user_select();
