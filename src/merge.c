@@ -557,7 +557,7 @@ void merge_cmd(void){
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
   db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
-                pickFlag ? -1 : (backoutFlag ? -2 : 0), mid);
+                pickFlag ? -1 : (backoutFlag ? -2 : (zPivot ? -3 : 0)), mid);
   if( pickFlag ){
     /* For a cherry-pick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */

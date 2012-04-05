@@ -1,5 +1,5 @@
-C Updating\sfrom\strunk\sto\sget\sthe\slatest\strunk\sfixes.
-D 2012-04-04T16:20:14.923
+C I\smake\s'merge\s--baseline'\snot\sintroduce\sa\snew\sparent\sin\sthe\smerge\scheckin.\sI\nthink\sit\sshould\sbehave\slike\s--cherrypick.
+D 2012-04-05T14:05:11.063
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl d1fdafbee69678278216e41840dc1db55e01f501
 F src/manifest.c 8e439f60b651a31fea46876475770875fe263335
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
-F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
+F src/merge.c 0735646a51afeb97fc8f9b4dd1d0c8c91004248e
 F src/merge3.c deba3fa65ff782998e0dfd8bfaaf375e28105b5f
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 92b2a5c390467a183828aad688fabf57148c5d96 b65ed0b106c2e6a4b7e78adb79dd991cd8a711a2
-R 875f3370294432258a1ebe722fd5a343
+P b7f3a32d4e67a900c0ac5e9b2bec23d412ef597c
+R 77ad797d691db54adffeda9e661a2e5b
 U viriketo
-Z f4cec09fde8f620f95d3f1142e341dbb
+Z 30b83e59acbc0e37a29193d90a356ce8
