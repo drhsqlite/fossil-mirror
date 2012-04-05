@@ -482,13 +482,16 @@ static void prepare_commit_comment(
 #endif
   blob_write_to_file(&text, zFile);
   if( zEditor ){
+    i64 original_time;
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
     fossil_print("%s\n", zCmd);
+    original_time = file_mtime(zFile);
     if( fossil_system(zCmd) ){
       fossil_panic("editor aborted");
     }
     blob_reset(&text);
-    blob_read_from_file(&text, zFile);
+    if (file_mtime(zFile) != original_time)
+        blob_read_from_file(&text, zFile);
   }else{
     char zIn[300];
     blob_reset(&text);
@@ -1117,7 +1120,7 @@ void commit_cmd(void){
   if( blob_size(&comment)==0 ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
+    prompt_user("empty/unchanged check-in comment.  continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       fossil_exit(1);
     }
