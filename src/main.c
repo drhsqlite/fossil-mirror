@@ -714,6 +714,9 @@ void fossil_binary_mode(FILE *p){
 #if defined(_WIN32)
   _setmode(_fileno(p), _O_BINARY);
 #endif
+#ifdef __EMX__     /* OS/2 */
+  setmode(fileno(p), O_BINARY);
+#endif
 }
 
 
@@ -1408,17 +1411,8 @@ void cmd_cgi(void){
   }
   g.httpOut = stdout;
   g.httpIn = stdin;
-#if defined(_WIN32)
-  /* Set binary mode on windows to avoid undesired translations
-  ** between \n and \r\n. */
-  setmode(_fileno(g.httpOut), _O_BINARY);
-  setmode(_fileno(g.httpIn), _O_BINARY);
-#endif
-#ifdef __EMX__
-  /* Similar hack for OS/2 */
-  setmode(fileno(g.httpOut), O_BINARY);
-  setmode(fileno(g.httpIn), O_BINARY);
-#endif
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){
