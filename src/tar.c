@@ -594,7 +594,7 @@ void tarball_page(void){
       }
     }
   }
-  rid = name_to_rid(nRid?zRid:zName);
+  rid = name_to_typed_rid(nRid?zRid:zName, "ci");
   if( rid==0 ){
     @ Not found
     return;
