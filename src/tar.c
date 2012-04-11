@@ -544,7 +544,7 @@ void tarball_cmd(void){
   if( g.argc!=4 ){
     usage("VERSION OUTPUTFILE");
   }
-  rid = name_to_typed_rid(g.argv[3], "ci");
+  rid = name_to_typed_rid(g.argv[2], "ci");
   if( rid==0 ){
     fossil_fatal("Checkin not found: %s", g.argv[2]);
     return;
