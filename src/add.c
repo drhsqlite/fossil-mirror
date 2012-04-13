@@ -377,6 +377,18 @@ const char *filename_collation(void){
 }
 
 /*
+** Do a strncmp() operation which is either case-sensitive or not
+** depending on the setting of filenames_are_case_sensitive().
+*/
+int filenames_strncmp(const char *zA, const char *zB, int nByte){
+  if( filenames_are_case_sensitive() ){
+    return fossil_strncmp(zA,zB,nByte);
+  }else{
+    return fossil_strnicmp(zA,zB,nByte);
+  }
+}
+
+/*
 ** COMMAND: addremove
 **
 ** Usage: %fossil addremove ?OPTIONS?
