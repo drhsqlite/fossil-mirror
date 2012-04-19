@@ -1,5 +1,5 @@
-C Merge\sthe\smsw-docco\schanges\sinto\strunk.
-D 2012-04-17T22:31:38.573
+C Merge\sdocumentation\supdates\sfrom\smsw-docco\sinto\strunk.
+D 2012-04-19T15:18:01.314
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -56,7 +56,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 3c524db25fd5531cca49d8ce92e86aa6fd8c92d3
-F src/add.c bffcf0515d5d6bdd939eee86303c577a10ef7b41
+F src/add.c 8397df79fabaaf202b702c8e347960d8ef4c35db
 F src/allrepo.c fc9f82147a76a151161948528d71cdaa1ac3013a
 F src/attach.c 396959ed10436b06f98db195b05b886dc5645c25
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4faefe630ebb36a60edb932d794eb7baf5349864 7727eb12b02e495fa3c356d0c4c13df3a5a5c72f
-R 8d0bd3c6733708159785342d07d42cb9
+P 3c637382b43d4baae71659076b3de408214a334c 626a317e5cea1ff0819994ad2c2a6fdd869bb0c1
+R 6192bb0a78bb1079e388d920e4bf39b4
 U drh
-Z 2ea1ef6ac79d4c6e09c8434fad4276ff
+Z 97d532f08e2f9601c280f402631a6355
