@@ -198,11 +198,16 @@ static int add_files_in_sfile(int vid, int caseSensitive){
 ** does not appear on the command line then the "ignore-glob" setting is
 ** used.
 **
+** The --case-sensitive option determines whether or not filenames should
+** be treated case sensitive or not. If the option is not given, the default
+** depends on the global setting, or the operating system default, if not set.
+**
 ** Options:
 **
-**    --dotfiles       include files beginning with a dot (".")   
-**    --ignore <CSG>   ignore files matching patterns from the 
-**                     comma separated list of glob patterns.
+**    --case-sensitive <BOOL> override case-sensitive setting
+**    --dotfiles              include files beginning with a dot (".")   
+**    --ignore <CSG>          ignore files matching patterns from the 
+**                            comma separated list of glob patterns.
 ** 
 ** See also: addremove, rm
 */
@@ -410,7 +415,8 @@ int filenames_strncmp(const char *zA, const char *zB, int nByte){
 ** Files and directories whose names begin with "." are ignored unless
 ** the --dotfiles option is used.
 **
-** The --ignore option overrides the "ignore-glob" setting.  See
+** The --ignore option overrides the "ignore-glob" setting, as does the
+** --case-sensitive option with the "case-sensitive" setting. See the
 ** documentation on the "settings" command for further information.
 **
 ** The --test option shows what would happen without actually doing anything.
@@ -418,10 +424,11 @@ int filenames_strncmp(const char *zA, const char *zB, int nByte){
 ** This command can be used to track third party software.
 ** 
 ** Options: 
-**   --dotfiles       include files beginning with a dot (".")   
-**   --ignore <CSG>   ignore files matching patterns from the 
-**                    comma separated list of glob patterns.
-**   --test           If given, show what would be done without doing so.
+**   --case-sensitive <BOOL> override case-sensitive setting
+**   --dotfiles              include files beginning with a dot (".")   
+**   --ignore <CSG>          ignore files matching patterns from the 
+**                           comma separated list of glob patterns.
+**   --test                  If given, display instead of run actions
 **
 ** See also: add, rm
 */
