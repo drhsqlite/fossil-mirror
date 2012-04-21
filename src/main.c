@@ -1642,7 +1642,7 @@ void cmd_test_http(void){
 }
 
 #if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
 /*
 ** Search for an executable on the PATH environment variable.
 ** Return true (1) if found and false (0) if not found.
@@ -1738,7 +1738,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
-#if !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
       static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
