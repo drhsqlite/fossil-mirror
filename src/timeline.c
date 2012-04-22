@@ -135,7 +135,7 @@ char *hash_color(const char *z){
     h = (h<<11) ^ (h<<1) ^ (h>>3) ^ z[i];
   }
 
-  /* 4 different random values per component, between 31 and 127 */
+  /* 'cpc' different random values per component, between 'cmin' and 127 */
   r = cmin + (h % cpc) * cfactor;  h /= cpc;
   g = cmin + (h % cpc) * cfactor;  h /= cpc;
   b = cmin + (h % cpc) * cfactor;  h /= cpc;
