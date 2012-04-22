@@ -865,6 +865,23 @@ int fossil_strcmp(const char *zA, const char *zB){
     return ((unsigned char)a) - (unsigned char)b;
   }
 }
+int fossil_strncmp(const char *zA, const char *zB, int nByte){
+  if( zA==0 ){
+    if( zB==0 ) return 0;
+    return -1;
+  }else if( zB==0 ){
+    return +1;
+  }else if( nByte>0 ){
+    int a, b;
+    do{ 
+      a = *zA++;
+      b = *zB++;
+    }while( a==b && a!=0 && (--nByte)>0 );
+    return ((unsigned char)a) - (unsigned char)b;
+  }else{
+    return 0;
+  }
+}
 
 /*
 ** Case insensitive string comparison.

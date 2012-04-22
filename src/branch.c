@@ -22,8 +22,8 @@
 #include <assert.h>
 
 /*
-**  fossil branch new    BRANCH-NAME ?ORIGIN-CHECK-IN? ?-bgcolor COLOR?
-**  argv0  argv1  argv2  argv3       argv4
+**  fossil branch new    NAME BASIS ?OPTIONS?
+**  argv0  argv1  argv2  argv3 argv4
 */
 void branch_new(void){
   int rootid;            /* RID of the root check-in - what we branch off of */
@@ -50,7 +50,7 @@ void branch_new(void){
   zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
   if( g.argc<5 ){
-    usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
+    usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);  
   noSign = db_get_int("omitsign", 0)|noSign;
@@ -228,14 +228,18 @@ void branch_prepare_list_query(Stmt *pQuery, int which ){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME BASIS ?--bgcolor COLOR? ?--private?
+**    %fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        You can optionally give the branch a default color.  The
-**        --private option makes the branch private.
+**        Supported options for this subcommand include:
+**        --private             branch is private (i.e., remains local)
+**        --bgcolor COLOR       use COLOR instead of automatic background
+**        --nosign              do not sign contents on this branch
+**        --date-override DATE  DATE to use instead of 'now'
+**        --user-override USER  USER to use instead of the current default
 **
-**    %fossil branch list ?-all | --closed?
-**    %fossil branch ls ?-all | --closed?
+**    %fossil branch list ?--all | --closed?
+**    %fossil branch ls ?--all | --closed?
 **
 **        List all branches.  Use --all or --closed to list all branches
 **        or closed branches.  The default is to show only open branches.

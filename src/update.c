@@ -122,13 +122,11 @@ void update_cmd(void){
   if( vid==0 ){
     fossil_fatal("cannot find current version");
   }
-  if( !nochangeFlag && db_exists("SELECT 1 FROM vmerge") ){
-    fossil_fatal("cannot update an uncommitted merge");
-  }
   if( !nochangeFlag && !internalUpdate ) autosync(AUTOSYNC_PULL);
   
-  /* Create any empty directories now, as well as after the update, so changes in settings are reflected now */
-  ensure_empty_dirs_created();
+  /* Create any empty directories now, as well as after the update,
+  ** so changes in settings are reflected now */
+  if( !nochangeFlag ) ensure_empty_dirs_created();
 
   if( internalUpdate ){
     tid = internalUpdate;
@@ -471,6 +469,22 @@ void update_cmd(void){
   /* Report on conflicts
   */
   if( !nochangeFlag ){
+    Stmt q;
+    int nMerge = 0;
+    db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
+                   " WHERE id<=0");
+    while( db_step(&q)==SQLITE_ROW ){
+      const char *zLabel = "merge";
+      switch( db_column_int(&q, 1) ){
+        case -1:  zLabel = "cherrypick merge"; break;
+        case -2:  zLabel = "backout merge";    break;
+      }
+      fossil_warning("uncommitted %s against %S.",
+                     zLabel, db_column_text(&q, 0));
+      nMerge++;
+    }
+    db_finalize(&q);
+    
     if( nConflict ){
       if( internalUpdate ){
         internalConflictCnt = nConflict;
@@ -482,6 +496,9 @@ void update_cmd(void){
     if( nOverwrite ){
       fossil_warning("WARNING: %d unmanaged files were overwritten",
                      nOverwrite);
+    }
+    if( nMerge ){
+      fossil_warning("WARNING: %d uncommitted prior merges", nMerge);
     }
   }
   

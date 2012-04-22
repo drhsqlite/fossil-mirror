@@ -714,6 +714,9 @@ void fossil_binary_mode(FILE *p){
 #if defined(_WIN32)
   _setmode(_fileno(p), _O_BINARY);
 #endif
+#ifdef __EMX__     /* OS/2 */
+  setmode(fileno(p), O_BINARY);
+#endif
 }
 
 
@@ -1408,17 +1411,8 @@ void cmd_cgi(void){
   }
   g.httpOut = stdout;
   g.httpIn = stdin;
-#if defined(_WIN32)
-  /* Set binary mode on windows to avoid undesired translations
-  ** between \n and \r\n. */
-  setmode(_fileno(g.httpOut), _O_BINARY);
-  setmode(_fileno(g.httpIn), _O_BINARY);
-#endif
-#ifdef __EMX__
-  /* Similar hack for OS/2 */
-  setmode(fileno(g.httpOut), O_BINARY);
-  setmode(fileno(g.httpIn), O_BINARY);
-#endif
+  fossil_binary_mode(g.httpOut);
+  fossil_binary_mode(g.httpIn);
   g.cgiOutput = 1;
   blob_read_from_file(&config, zFile);
   while( blob_line(&config, &line) ){
@@ -1648,7 +1642,7 @@ void cmd_test_http(void){
 }
 
 #if !defined(_WIN32)
-#if !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
 /*
 ** Search for an executable on the PATH environment variable.
 ** Return true (1) if found and false (0) if not found.
@@ -1744,7 +1738,7 @@ void cmd_webserver(void){
 #if !defined(_WIN32)
   /* Unix implementation */
   if( isUiCmd ){
-#if !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
       static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
