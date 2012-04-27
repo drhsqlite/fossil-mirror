@@ -1089,8 +1089,13 @@ void set_base_url(void){
     g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
     g.zTop = &g.zBaseURL[7+strlen(zHost)];
   }
-  db_optional_sql("REPLACE INTO config(name,value,mtime)"
+  if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL) ){
+    db_multi_exec("INSERT INTO config(name,value,mtime)"
                   "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+  }else{
+    db_optional_sql("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+  }
 }
 
 /*
