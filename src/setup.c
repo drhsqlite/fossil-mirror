@@ -904,6 +904,18 @@ void setup_access(void){
   @ </p>
 
   @ <hr />
+  entry_attribute("Public pages", 30, "public-pages",
+                  "pubpage", "");
+  @ <p>A comma-separated list of glob patterns for pages that are accessible
+  @ without needing a login and using the privileges given by the
+  @ "Default privileges" setting below.  Example use case: Set this field
+  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the 
+  @ latest version of the embedded documentation in the www/ folder without
+  @ allowing them to see the rest of the source code.
+  @ </p>
+
+
+  @ <hr />
   onoff_attribute("Allow users to register themselves",
                   "self-register", "selfregister", 0);
   @ <p>Allow users to register themselves through the HTTP UI. 
@@ -916,8 +928,10 @@ void setup_access(void){
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
                   "defaultperms", "u");
-  @ <p>Permissions given to users that register themselves using the HTTP UI
-  @ or are registered by the administrator using the command line interface.
+  @ <p>Permissions given to users that... <ul><li>register themselves using
+  @ the self-registration procedure (if enabled), or <li>access "public"
+  @ pages identified by the public-pages glob pattern above, or <li>
+  @ are users newly created by the administrator.</ul>
   @ </p>
 
   @ <hr />

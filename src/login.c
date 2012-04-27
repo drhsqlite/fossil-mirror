@@ -466,6 +466,7 @@ void login_page(void){
   const char *zUsername, *zPasswd;
   const char *zNew1, *zNew2;
   const char *zAnonPw = 0;
+  const char *zGoto = P("g");
   int anonFlag;
   char *zErrMsg = "";
   int uid;                     /* User id loged in user */
@@ -563,9 +564,12 @@ void login_page(void){
   }
   style_header("Login/Logout");
   @ %s(zErrMsg)
+  if( zGoto ){
+    @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
+  }
   @ <form action="login" method="post">
-  if( P("g") ){
-    @ <input type="hidden" name="g" value="%h(P("g"))" />
+  if( zGoto ){
+    @ <input type="hidden" name="g" value="%h(zGoto)" />
   }
   @ <table class="login_out">
   @ <tr>
@@ -763,6 +767,8 @@ static int login_find_user(
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.  Global variables set include g.userUid
 ** and g.zLogin and the g.perm family of permission booleans.
+**
+** If the 
 */
 void login_check_credentials(void){
   int uid = 0;                  /* User id */
@@ -770,6 +776,7 @@ void login_check_credentials(void){
   const char *zIpAddr;          /* Raw IP address of the requestor */
   char *zRemoteAddr;            /* Abbreviated IP address of the requestor */
   const char *zCap = 0;         /* Capability string */
+  const char *zPublicPages = 0; /* GLOB patterns of public pages */
 
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
@@ -909,6 +916,19 @@ void login_check_credentials(void){
   if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
       && isHuman(P("HTTP_USER_AGENT")) ){
     g.perm.History = 1;
+  }
+
+  /* If the public-pages glob pattern is defined and REQUEST_URI matches
+  ** one of the globs in public-pages, then also add in all default-perms
+  ** permissions.
+  */
+  zPublicPages = db_get("public-pages",0);
+  if( zPublicPages!=0 ){
+    Glob *pGlob = glob_create(zPublicPages);
+    if( glob_match(pGlob, PD("REQUEST_URI","no-match")) ){
+      login_set_capabilities(db_get("default-perms","u"), 0);
+    }
+    glob_free(pGlob);
   }
 }
 
