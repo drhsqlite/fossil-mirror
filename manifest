@@ -1,5 +1,5 @@
-C Update\sto\sthe\slatest\sSQLite\sversion\s3.7.12\sbeta.
-D 2012-04-24T13:36:55.791
+C Fix\san\sover-length\sline\sin\sglob.c.
+D 2012-04-27T12:31:24.794
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -88,7 +88,7 @@ F src/event.c 450531e50a9eae9e35112191152fb09de35aa228
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
 F src/file.c a249612d41f6bc6eb459ace70469b0a2f417f0b7
 F src/finfo.c dda083206303619661b1d59aa277a41f6c189c9f
-F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
+F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b2cc87103190ade4b5e27225697e13feb0352a0f
-R 35f768d6dd3f7ef936cde2d6061d780b
+P 6cfd8ecc05c82f1e60e302015ee4c26d2d128134
+R 14fc78a224ad9c2a47276e75c501d254
 U drh
-Z 80766492bbcfdf261b4eab90bdb79e64
+Z 6b413783317c16367b9e77a052315d60

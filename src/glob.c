@@ -112,7 +112,9 @@ Glob *glob_create(const char *zPatternList){
   z = (char*)&p[1];
   memcpy(z, zPatternList, nList+1);
   while( z[0] ){
-    while( z[0]==',' || z[0]==' ' || z[0]=='\n' || z[0]=='\r' ) z++;  /* Skip leading spaces and newlines */
+    while( z[0]==',' || z[0]==' ' || z[0]=='\n' || z[0]=='\r' ){
+      z++;  /* Skip leading spaces and newlines */
+    }
     if( z[0]=='\'' || z[0]=='"' ){
       delimiter = z[0];
       z++;
