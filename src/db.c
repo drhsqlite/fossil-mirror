@@ -117,6 +117,8 @@ static struct DbLocalData {
     int sequence;               /* Call functions in sequence order */
   } aHook[5];
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
+  char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
+  int nBeforeCommit;        /* Number of entries in azBeforeCommit */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -161,7 +163,14 @@ void db_end_transaction(int rollbackFlag){
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
-    if( db.doRollback==0 ) leaf_do_pending_checks();
+    if( db.doRollback==0 ){
+      while( db.nBeforeCommit ){
+        db.nBeforeCommit--;
+        db_multi_exec(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+      }
+      leaf_do_pending_checks();
+    }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
       db.doRollback |= db.aHook[i].xHook();
     }
@@ -488,6 +497,20 @@ int db_multi_exec(const char *zSql, ...){
   }
   blob_reset(&sql);
   return rc;
+}
+
+/*
+** Optionally make the following changes to the database if feasible and
+** convenient.  Do not start a transaction for these changes, but only
+** make these changes if other changes are also being made.
+*/
+void db_optional_sql(const char *zSql, ...){
+  if( db.nBeforeCommit < count(db.azBeforeCommit) ){
+    va_list ap;
+    va_start(ap, zSql);
+    db.azBeforeCommit[db.nBeforeCommit++] = sqlite3_vmprintf(zSql, ap);
+    va_end(ap);
+  }
 }
 
 /*
@@ -1715,6 +1738,9 @@ void db_record_repository_filename(const char *zName){
       "VALUES('ckout:%q','%q');",
       blob_str(&localRoot), blob_str(&full)
     );
+    db_optional_sql("REPLACE INTO config(name,value,mtime)"
+                    "VALUES('ckout:%q',1,now())",
+                    blob_str(&localRoot));
     blob_reset(&localRoot);
   }
   db_swap_connections();

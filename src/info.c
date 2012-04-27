@@ -123,6 +123,38 @@ void show_common_info(
   }
 }
 
+/*
+** Print information about the URLs used to access a repository and
+** checkouts in a repository.
+*/
+static void extraRepoInfo(void){
+  Stmt s;
+  db_prepare(&s, "SELECT substr(name,7), date(mtime,'unixepoch')"
+                 "  FROM config"
+                 " WHERE name GLOB 'ckout:*' ORDER BY name");
+  while( db_step(&s)==SQLITE_ROW ){
+    const char *zName;
+    const char *zCkout = db_column_text(&s, 0);
+    if( g.localOpen ){
+      if( fossil_strcmp(zCkout, g.zLocalRoot)==0 ) continue;
+      zName = "alt-root:";
+    }else{
+      zName = "check-out:";
+    }
+    fossil_print("%-11s   %-54s %s\n", zName, zCkout,
+                 db_column_text(&s, 1));
+  }
+  db_finalize(&s);
+  db_prepare(&s, "SELECT substr(name,9), date(mtime,'unixepoch')"
+                 "  FROM config"
+                 " WHERE name GLOB 'baseurl:*' ORDER BY name");
+  while( db_step(&s)==SQLITE_ROW ){
+    fossil_print("access-url:   %-54s %s\n", db_column_text(&s, 0),
+                 db_column_text(&s, 1));
+  }
+  db_finalize(&s);
+}
+
 
 /*
 ** COMMAND: info
@@ -152,6 +184,7 @@ void info_cmd(void){
     db_open_repository(g.argv[2]);
     fossil_print("project-name: %s\n", db_get("project-name", "<unnamed>"));
     fossil_print("project-code: %s\n", db_get("project-code", "<none>"));
+    extraRepoInfo();
     return;
   }
   db_find_and_open_repository(0,0);
@@ -164,6 +197,7 @@ void info_cmd(void){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
+    extraRepoInfo();
 #if defined(_WIN32)
     if( g.zHome ){
       fossil_print("user-home:    %s\n", g.zHome);
