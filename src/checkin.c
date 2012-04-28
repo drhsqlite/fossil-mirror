@@ -146,6 +146,8 @@ static int determine_cwd_relative_option()
 **                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**    --header          Identify the repository if there are changes
+**    -v                Say "no changes" if there are none
 ** 
 ** See also: extra, ls, status
 */
@@ -153,6 +155,8 @@ void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verbose = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
@@ -160,6 +164,13 @@ void changes_cmd(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
   status_report(&report, "", 0, cwdRelative);
+  if( verbose && blob_size(&report)==0 ){
+    blob_append(&report, "  (none)\n", -1);
+  }
+  if( showHdr && blob_size(&report)>0 ){
+    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
+                 g.zLocalRoot);
+  }
   blob_write_to_file(&report, "-");
 }
 

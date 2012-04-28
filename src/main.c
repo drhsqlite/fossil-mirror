@@ -453,6 +453,7 @@ int main(int argc, char **argv){
        argv[0], argv[0], argv[0]);
     fossil_exit(1);
   }else{
+    const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -463,6 +464,9 @@ int main(int argc, char **argv){
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    if( zChdir && chdir(zChdir) ){
+      fossil_fatal("unable to change directories to %s", zChdir);
+    }
     if( find_option("help",0,0)!=0 ){
       /* --help anywhere on the command line is translated into
       ** "fossil help argv[1] argv[2]..." */
@@ -558,7 +562,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       once = 0;
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
-    }else{
+    }else if( !g.fQuiet ){
       char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
       fossil_puts(zOut, 1);
     }
@@ -590,7 +594,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       g.cgiOutput = 0;
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
-    }else{
+    }else if( !g.fQuiet ){
       char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
       fossil_puts(zOut, 1);
     }
