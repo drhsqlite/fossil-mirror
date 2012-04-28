@@ -952,8 +952,7 @@ void object_description(
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
     @ - %w(zCom) (user:
-    hyperlink_to_user(zUser,zDate,"");
-    @ )
+    hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
       @ [annotate]</a>

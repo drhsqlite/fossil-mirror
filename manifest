@@ -1,5 +1,5 @@
-C Fix\sa\sstray\s")"\scharacter\sin\sthe\sdiff\sbuttons\sof\sthe\s"check-in"\sinformation\npage.
-D 2012-04-28T18:02:59.274
+C Remove\sa\ssurplus\sspace\scharacter\sfollowing\sthe\suser\sname\sin\sthe\sdescription\nof\scheck-ins.
+D 2012-04-28T18:24:02.933
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 54cc8f8a7f4cfb097bc15db1c18b38f2383402f2
+F src/info.c 2f59809dc8c0e77acd9118970db1a73f551c4da9
 F src/json.c 47a98bee9f2c90563162922f8ce4dd4f9ebcea42
 F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f1487280a8752504ccd31c0e1a7dd4ce14046581
-R 6f32847ab9995197994c77c548da3e0c
+P 82476370d0b1c4cf8785de1f0a86a373e6969de3
+R 7d0d9b4a9baae1ef008ddfc15826d908
 U drh
-Z d93ecf7ac225a3eea07d52343b7a6a24
+Z 97e8e155b110e4f7f409dd5d879cce31
