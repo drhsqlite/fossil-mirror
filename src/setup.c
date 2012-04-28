@@ -526,7 +526,7 @@ void user_edit(void){
   @    <input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password<br />
   @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
   @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
-  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))History<br />
+  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks<br />
   @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
   @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
   @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
@@ -627,10 +627,10 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">History</span> privilege allows a user
+  @ The <span class="capability">Hyperlinks</span> privilege allows a user
   @ to see most hyperlinks. This is recommended ON for most logged-in users
   @ but OFF for user "nobody" to avoid problems with spiders trying to walk
-  @ every historical version of every baseline and file.
+  @ every diff and annotation of every historical check-in and file.
   @ </p></li>
   @
   @ <li><p>
@@ -639,8 +639,8 @@ void user_edit(void){
   @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
   @ users to download ZIP archives without granting other rights like
   @ <span class="capability">Read</span> or
-  @ <span class="capability">History</span>.  This privilege is recommended for
-  @ user <span class="usertype">nobody</span> so that automatic package
+  @ <span class="capability">Hyperlink</span>.  The "z" privilege is recommended
+  @ for user <span class="usertype">nobody</span> so that automatic package
   @ downloaders can obtain the sources without going through the login
   @ procedure.
   @ </p></li>
@@ -706,8 +706,8 @@ void user_edit(void){
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignore.
   @ To avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (History) capability be turned 
-  @ off for the <span class="usertype">nobody</span> user.
+  @ that the <span class="capability">h</span> (Hyperlinks) capability be
+  @ turned off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
@@ -893,15 +893,23 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
-  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
-                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  onoff_attribute(
+      "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
+      "auto-enable-hyperlinks", "autohyperlink", 1);
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as the User-Agent string in the HTTP header
-  @ indicates that the request is coming from an actual human being and not a
-  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
-  @ that want.  So a bot that wants to impersonate a human can easily do so.
-  @ Hence, this technique does not necessarily exclude malicious bots.
-  @ </p>
+  @ including user "nobody", as long as (1) the User-Agent string in the
+  @ HTTP header indicates that the request is coming from an actual human
+  @ being and not a a robot or spider and (2) the user agent is able to
+  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
+  @ and spiders can specify whatever User-Agent string they that want and
+  @ they can run javascript just like browsers.  But most bots don't go to
+  @ that much trouble so this is normally an effective defense.</p>
+  @
+  @ <p>You do not normally want a bot to walk your entire repository because
+  @ if it does, your server will end up computing diffs and annotations for
+  @ every historical version of every file and creating ZIPs and tarballs of
+  @ every historical check-in, which can use a lot of CPU and bandwidth
+  @ even for relatively small projects.</p>
 
   @ <hr />
   entry_attribute("Public pages", 30, "public-pages",

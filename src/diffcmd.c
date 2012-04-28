@@ -543,7 +543,7 @@ void diff_cmd(void){
 
 /*
 ** WEBPAGE: vpatch
-** URL vpatch?from=UUID&amp;to=UUID
+** URL vpatch?from=UUID&to=UUID
 */
 void vpatch_page(void){
   const char *zFrom = P("from");

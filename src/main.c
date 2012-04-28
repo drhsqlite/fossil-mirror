@@ -62,7 +62,7 @@ struct FossilUserPerms {
   char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. checkin */
   char Read;             /* o: xfer outbound. checkout */
-  char History;          /* h: access historical information. */
+  char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
   char NewWiki;          /* f: create new wiki via web */
@@ -137,7 +137,8 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int isHTTP;             /* True if running in server/CGI modes, else assume CLI. */
+  char isHTTP;            /* True if erver/CGI modes, else assume CLI. */
+  char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */

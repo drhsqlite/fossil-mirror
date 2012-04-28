@@ -49,6 +49,7 @@
 #define etWIKISTR    21 /* Wiki text rendered from a char*: %w */
 #define etWIKIBLOB   22 /* Wiki text rendered from a Blob*: %W */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
+#define etROOT       24 /* String value of g.zTop: % */
 
 
 /*
@@ -95,6 +96,7 @@ static const et_info fmtinfo[] = {
   {  'w',  0, 2, etWIKISTR,    0,  0 },
   {  'W',  0, 2, etWIKIBLOB,   0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
+  {  'R',  0, 0, etROOT,       0,  0 },
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
   {  'T',  0, 4, etURLIZE,     0,  0 },  /* "/" unchanged */
   {  'F',  0, 4, etFOSSILIZE,  0,  0 },
@@ -571,6 +573,11 @@ int vxprintf(
           }
         }
         bufpt[length]='\0';
+        break;
+      }
+      case etROOT: {
+        bufpt = g.zTop;
+        length = (int)strlen(bufpt);
         break;
       }
       case etSTRINGID: {

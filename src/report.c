@@ -58,22 +58,25 @@ void view_list(void){
     if( zTitle[0] == '_' ){
       blob_appendf(&ril, "%s", zTitle);
     } else {
-      blob_appendf(&ril, "<a href=\"rptview?rn=%d\" rel=\"nofollow\">%h</a>", rn, zTitle);
+      blob_appendf(&ril, "%z%h</a>", href("%R/rptview?rn=%d", rn), zTitle);
     }
     blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
     if( g.perm.Write && zOwner && zOwner[0] ){
       blob_appendf(&ril, "(by <i>%h</i></i>) ", zOwner);
     }
     if( g.perm.TktFmt ){
-      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d&amp;copy=1\" rel=\"nofollow\">copy</a>] ", rn);
+      blob_appendf(&ril, "[%zcopy</a>] ",
+                   href("%R/rptedit?rn=%d&copy=1", rn));
     }
     if( g.perm.Admin 
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
     ){
-      blob_appendf(&ril, "[<a href=\"rptedit?rn=%d\" rel=\"nofollow\">edit</a>] ", rn);
+      blob_appendf(&ril, "[%zedit</a>]", 
+                         href("%R/rptedit?rn=%d", rn));
     }
     if( g.perm.TktFmt ){
-      blob_appendf(&ril, "[<a href=\"rptsql?rn=%d\" rel=\"nofollow\">sql</a>] ", rn);
+      blob_appendf(&ril, "[%zsql</a>]",
+                         href("%R/rptsql?rn=%d", rn));
     }
     blob_appendf(&ril, "</li>\n");
   }
@@ -418,7 +421,7 @@ void view_edit(void){
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&amp;del1=1", rn);
+    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -722,7 +725,7 @@ static int generate_html(
     if( zData==0 ) zData = "";
     if( pState->iNewRow>=0 && i>=pState->iNewRow ){
       if( zTid && g.perm.Write ){
-        @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
+        @ <td valign="top">%z(href("%R/tktedit/%h",zTid))edit</a></td>
         zTid = 0;
       }
       if( zData[0] ){
@@ -734,11 +737,7 @@ static int generate_html(
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
-      if( g.perm.History ){
-        @ <td valign="top"><a href="tktview?name=%h(zData)">%h(zData)</a></td>
-      }else{
-        @ <td valign="top">%h(zData)</td>
-      }
+      @ <td valign="top">%z(href("%R/tktview?name=%h",zData))%h(zData)</a></td>
     }else if( zData[0]==0 ){
       @ <td valign="top">&nbsp;</td>
     }else{
@@ -748,7 +747,7 @@ static int generate_html(
     }
   }
   if( zTid && g.perm.Write ){
-    @ <td valign="top"><a href="tktedit/%h(zTid)">edit</a></td>
+    @ <td valign="top">%z(href("%R/tktedit/%h",zTid))edit</a></td>
   }
   @ </tr>
   return 0;
@@ -951,7 +950,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&amp;%h", PD("QUERY_STRING",""));
+      "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin 
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);

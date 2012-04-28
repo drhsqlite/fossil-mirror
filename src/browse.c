@@ -79,13 +79,15 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
-    if( zPath[j] && g.perm.History ){
+    if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        blob_appendf(pOut, "%s<a href=\"%s/dir?ci=%S&amp;name=%#T\">%#h</a>", 
-                     zSep, g.zTop, zCI, j, zPath, j-i, &zPath[i]);
+        char *zLink = href("%R/dir?ci=%S&name=%#T", zCI, j, zPath);
+        blob_appendf(pOut, "%s%z%#h</a>", 
+                     zSep, zLink, j-i, &zPath[i]);
       }else{
-        blob_appendf(pOut, "%s<a href=\"%s/dir?name=%#T\">%#h</a>", 
-                     zSep, g.zTop, j, zPath, j-i, &zPath[i]);
+        char *zLink = href("%R/dir?name=%#T", j, zPath);
+        blob_appendf(pOut, "%s%z%#h</a>", 
+                     zSep, zLink, j-i, &zPath[i]);
       }
     }else{
       blob_appendf(pOut, "%s%#h", zSep, j-i, &zPath[i]);
@@ -120,7 +122,7 @@ void page_dir(void){
   const char *zSubdirLink;
 
   login_check_credentials();
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
@@ -157,14 +159,14 @@ void page_dir(void){
     char zShort[20];
     memcpy(zShort, zUuid, 10);
     zShort[10] = 0;
-    @ <h2>Files of check-in [<a href="vinfo?name=%T(zUuid)">%s(zShort)</a>]
+    @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%s/dir?ci=%S&amp;name=%T", g.zTop, zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir?ci=%S&name=%T", zUuid, zPrefix);
     if( zD ){
-      style_submenu_element("Top", "Top", "%s/dir?ci=%S", g.zTop, zUuid);
-      style_submenu_element("All", "All", "%s/dir?name=%t", g.zTop, zD);
+      style_submenu_element("Top", "Top", "%R/dir?ci=%S", zUuid);
+      style_submenu_element("All", "All", "%R/dir?name=%t", zD);
     }else{
-      style_submenu_element("All", "All", "%s/dir", g.zTop);
+      style_submenu_element("All", "All", "%R/dir");
     }
   }else{
     int hasTrunk;
@@ -173,19 +175,18 @@ void page_dir(void){
     hasTrunk = db_exists(
                   "SELECT 1 FROM tagxref WHERE tagid=%d AND value='trunk'",
                   TAG_BRANCH);
-    zSubdirLink = mprintf("%s/dir?name=%T", g.zTop, zPrefix);
+    zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
     if( zD ){
-      style_submenu_element("Top", "Top", "%s/dir", g.zTop);
-      style_submenu_element("Tip", "Tip", "%s/dir?name=%t&amp;ci=tip",
-                            g.zTop, zD);
+      style_submenu_element("Top", "Top", "%R/dir");
+      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
       if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%s/dir?name=%t&amp;ci=trunk",
-                               g.zTop,zD);
+        style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
+                               zD);
       }
     }else{
-      style_submenu_element("Tip", "Tip", "%s/dir?ci=tip", g.zTop);
+      style_submenu_element("Tip", "Tip", "%R/dir?ci=tip");
       if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%s/dir?ci=trunk", g.zTop);
+        style_submenu_element("Trunk", "Trunk", "%R/dir?ci=trunk");
       }
     }
   }
@@ -280,12 +281,12 @@ void page_dir(void){
     zFN = db_column_text(&q, 0);
     if( zFN[0]=='/' ){
       zFN++;
-      @ <li><a href="%s(zSubdirLink)%T(zFN)">%h(zFN)/</a></li>
+      @ <li>%z(href("%s%T",zSubdirLink,zFN))%h(zFN)</a></li>
     }else if( zCI ){
       const char *zUuid = db_column_text(&q, 1);
-      @ <li><a href="%s(g.zTop)/artifact/%s(zUuid)">%h(zFN)</a></li>
+      @ <li>%z(href("%R/artifact/%s",zUuid))%h(zFN)</a></li>
     }else{
-      @ <li><a href="%s(g.zTop)/finfo?name=%T(zPrefix)%T(zFN)">%h(zFN)
+      @ <li>%z(href("%R/finfo?name=%T%T",zPrefix,zFN))%h(zFN)
       @     </a></li>
     }
   }

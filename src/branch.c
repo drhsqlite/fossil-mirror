@@ -323,14 +323,14 @@ void brlist_page(void){
   login_anonymous_available();
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
-  @ <li> An <div class="sideboxDescribed"><a href="brlist">
+  @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
   @ open branch</a></div> is a branch that has one or
-  @ more <a href="leaves">open leaves.</a>
+  @ more %z(href("leaves"))open leaves.</a>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
-  @ <li> A <div class="sideboxDescribed"><a href="brlist?closed">
+  @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))
   @ closed branch</a></div> is a branch with only
-  @ <div class="sideboxDescribed"><a href="leaves?closed">
+  @ <div class="sideboxDescribed">%z(href("leaves?closed"))
   @ closed leaves</a></div>.
   @ Closed branches are fixed and do not change (unless they are first
   @ reopened)</li>
@@ -358,10 +358,8 @@ void brlist_page(void){
       const char *zColor = hash_color(zBr);
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
-    }else if( g.perm.History ){
-      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
-      @ <li><b>%h(zBr)</b></li>
+      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -384,7 +382,7 @@ void brlist_page(void){
 */
 static void brtimeline_extra(int rid){
   Stmt q;
-  if( !g.perm.History ) return;
+  if( !g.perm.Hyperlink ) return;
   db_prepare(&q, 
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
@@ -395,7 +393,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ <a href="%s(g.zTop)/timeline?r=%T(zTagName)">[timeline]</a>
+    @ %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }

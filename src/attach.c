@@ -77,9 +77,9 @@ void attachlist_page(void){
       }
     }
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      zUrlTail = mprintf("tkt=%s&amp;file=%t", zTarget, zFilename);
+      zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
     }else{
-      zUrlTail = mprintf("page=%t&amp;file=%t", zTarget, zFilename);
+      zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
     @
     @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
