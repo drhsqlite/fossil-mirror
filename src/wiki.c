@@ -106,7 +106,7 @@ void home_page(void){
   style_header("Home");
   @ <p>This is a stub home-page for the project.
   @ To fill in this page, first go to
-  @ <a href="%s(g.zTop)/setup_config">setup/config</a>
+  @ %z(href("%R/setup_config"))setup/config</a>
   @ and establish a "Project Name".  Then create a
   @ wiki page with that name.  The content of that wiki page
   @ will be displayed in place of this message.</p>
@@ -144,23 +144,21 @@ void wiki_page(void){
     @ <ul>
     { char *zHomePageName = db_get("project-name",0);
       if( zHomePageName ){
-        @ <li> <a href="%s(g.zTop)/wiki?name=%t(zHomePageName)">
+        @ <li> %z(href("%R/wiki?name=%t",zHomePageName))
         @      %h(zHomePageName)</a> wiki home page.</li>
       }
     }
-    @ <li> <a href="%s(g.zTop)/timeline?y=w">Recent changes</a> to wiki
-    @      pages. </li>
-    @ <li> <a href="%s(g.zTop)/wiki_rules">Formatting rules</a> for 
-    @      wiki.</li>
-    @ <li> Use the <a href="%s(g.zTop)/wiki?name=Sandbox">Sandbox</a>
+    @ <li> %z(href("%R/timeline?y=w"))Recent changes</a> to wiki pages.</li>
+    @ <li> %z(href("%R/wiki_rules"))Formatting rules</a> for wiki.</li>
+    @ <li> Use the %z(href("%R/wiki?name=Sandbox"))Sandbox</a>
     @      to experiment.</li>
     if( g.perm.NewWiki ){
-      @ <li>  Create a <a href="%s(g.zTop)/wikinew">new wiki page</a>.</li>
+      @ <li>  Create a %z(href("%R/wikinew"))new wiki page</a>.</li>
       if( g.perm.Write ){
-        @ <li>   Create a <a href="%s(g.zTop)/eventedit">new event</a>.</li>
+        @ <li>   Create a %z(href("%R/eventedit"))new event</a>.</li>
       }
     }
-    @ <li> <a href="%s(g.zTop)/wcontent">List of All Wiki Pages</a>
+    @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
     @      available on this server.</li>
     @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
     @     Search wiki titles: <input type="text" name="title"/>
@@ -201,7 +199,7 @@ void wiki_page(void){
       style_submenu_element("Append", "Add A Comment", "%s/wikiappend?name=%T",
            g.zTop, zPageName);
     }
-    if( g.perm.History ){
+    if( g.perm.Hyperlink ){
       style_submenu_element("History", "History", "%s/whistory?name=%T",
            g.zTop, zPageName);
     }
@@ -227,8 +225,8 @@ void wiki_page(void){
     }
     cnt++;
     @ <li>
-    if( g.perm.History && g.perm.Read ){
-      @ <a href="%s(g.zTop)/attachview?page=%s(zPageName)&amp;file=%t(zFile)">
+    if( g.perm.Hyperlink && g.perm.Read ){
+      @ %z(href("%R/attachview?page=%T&amp;file=%t",zPageName,zFile))
       @ %h(zFile)</a>
     }else{
       @ %h(zFile)
@@ -236,7 +234,7 @@ void wiki_page(void){
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.perm.WrWiki && g.perm.Attach ){
-      @ [<a href="%s(g.zTop)/attachdelete?page=%s(zPageName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/wiki%%3fname=%s(zPageName)">delete</a>]
+      @ [%z(href("%R/attachdelete?page=%t&amp;file=%t&amp;from=%R/wiki%%3fname=%f",zPageName,zFile,zPageName))delete</a>]
     }
     @ </li>
   }
@@ -546,7 +544,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ <a href="%s(g.zTop)/wdiff?name=%t(zWikiPageName)&amp;a=%d(rid)">[diff]</a>
+    @ %z(href("%R/wdiff?name=%t&amp;a=%d",zWikiPageName,rid))[diff]</a>
   }
 }
 
@@ -562,7 +560,7 @@ void whistory_page(void){
   char *zSQL;
   const char *zPageName;
   login_check_credentials();
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   zPageName = PD("name","");
   zTitle = mprintf("History Of %s", zPageName);
   style_header(zTitle);
@@ -599,7 +597,7 @@ void wdiff_page(void){
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   if( rid1==0 ) fossil_redirect_home();
   rid2 = atoi(PD("b","0"));
   zPageName = PD("name","");
@@ -676,9 +674,9 @@ void wcontent_page(void){
     const char *zName = db_column_text(&q, 0);
     int size = db_column_int(&q, 1);
     if( size>0 ){
-      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+      @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
     }else if( showAll ){
-      @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)"><s>%h(zName)</s></a></li>
+      @ <li>%z(href("%R/wiki?name=%T",zName))<s>%h(zName)</s></a></li>
     }
   }
   db_finalize(&q);
@@ -706,7 +704,7 @@ void wfind_page(void){
 	zTitle);
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    @ <li><a href="%s(g.zTop)/wiki?name=%T(zName)">%h(zName)</a></li>
+    @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
   }
   db_finalize(&q);
   @ </ul>

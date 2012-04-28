@@ -49,8 +49,8 @@ static void shorten_uuid(char *zDest, const char *zSrc){
 void hyperlink_to_uuid(const char *zUuid){
   char z[UUID_SIZE+1];
   shorten_uuid(z, zUuid);
-  if( g.perm.History ){
-    @ <a class="timelineHistLink" href="%s(g.zTop)/info/%s(z)">[%s(z)]</a>
+  if( g.perm.Hyperlink ){
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",z))[%s(z)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(z)]</span>
   }
@@ -60,11 +60,11 @@ void hyperlink_to_uuid(const char *zUuid){
 ** Generate a hyperlink to a diff between two versions.
 */
 void hyperlink_to_diff(const char *zV1, const char *zV2){
-  if( g.perm.History ){
+  if( g.perm.Hyperlink ){
     if( zV2==0 ){
-      @ <a href="%s(g.zTop)/diff?v2=%s(zV1)">[diff]</a>
+      @ %z(href("%R/diff?v2=%s",zV1))[diff]</a>
     }else{
-      @ <a href="%s(g.zTop)/diff?v1=%s(zV1)&amp;v2=%s(zV2)">[diff]</a>
+      @ %z(href("%R/diff?v1=%s&amp;v2=%s",zV1,zV2))[diff]</a>
     }
   }
 }
@@ -74,8 +74,8 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
 */
 void hyperlink_to_date(const char *zDate, const char *zSuffix){
   if( zSuffix==0 ) zSuffix = "";
-  if( g.perm.History ){
-    @ <a href="%s(g.zTop)/timeline?c=%T(zDate)">%s(zDate)</a>%s(zSuffix)
+  if( g.perm.Hyperlink ){
+    @ %z(href("%R/timeline?c=%T",zDate))%s(zDate)</a>%s(zSuffix)
   }else{
     @ %s(zDate)%s(zSuffix)
   }
@@ -88,11 +88,11 @@ void hyperlink_to_date(const char *zDate, const char *zSuffix){
 */
 void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
-  if( g.perm.History ){
+  if( g.perm.Hyperlink ){
     if( zD && zD[0] ){
-      @ <a href="%s(g.zTop)/timeline?c=%T(zD)&amp;u=%T(zU)">%h(zU)</a>%s(zSuf)
+      @ %z(href("%R/timeline?c=%T&amp;u=%T",zD,zU))%h(zU)</a>%s(zSuf)
     }else{
-      @ <a href="%s(g.zTop)/timeline?u=%T(zU)">%h(zU)</a>%s(zSuf)
+      @ %z(href("%R/timeline?u=%T",zU))%h(zU)</a>%s(zSuf)
     }
   }else{
     @ %s(zU)
@@ -355,25 +355,23 @@ void www_print_timeline(
     ** with a hyperlink to another timeline for that user.
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.perm.History && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%s/timeline?u=%h&c=%t&nd",
-                            g.zTop, zUser, zDate);
-      @ (user: <a href="%s(zLink)">%h(zUser)</a>%s(zTagList?",":"\051")
-      fossil_free(zLink);
+    if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zUser, zDate);
+      @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
     }else{
       @ (user: %h(zUser)%s(zTagList?",":"\051")
     }
 
     /* Generate a "detail" link for tags. */
-    if( zType[0]=='g' && g.perm.History ){
-      @ [<a href="%s(g.zTop)/info/%S(zUuid)">details</a>]
+    if( zType[0]=='g' && g.perm.Hyperlink ){
+      @ [%z(href("%R/info/%S",zUuid))details</a>]
     }
 
     /* Generate the "tags: TAGLIST" at the end of the comment, together
     ** with hyperlinks to the tag list.
     */
     if( zTagList ){
-      if( g.perm.History ){
+      if( g.perm.Hyperlink ){
         int i;
         const char *z = zTagList;
         Blob links;
@@ -382,8 +380,8 @@ void www_print_timeline(
           for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
-                  "<a href=\"%s/timeline?r=%#t&nd&c=%s\">%#h</a>%.2s",
-                  g.zTop, i, z, zDate, i, z, &z[i]
+                  "%z%#h</a>%.2s",
+                  href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
             );
           }else{
             blob_appendf(&links, "%#h", i+2, z);
@@ -405,7 +403,7 @@ void www_print_timeline(
     }
 
     /* Generate the file-change list if requested */
-    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.perm.History ){
+    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.perm.Hyperlink ){
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery, 
@@ -435,22 +433,22 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
-          @ target="diffwindow">[view]</a></li>
+          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
+          @ [view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
           @ <li> %h(zOldName) &rarr; %h(zFilename)
-          @ <a href="%s(g.zTop)/artifact/%S(zNew)"
-          @ target="diffwindow">[view]</a></li>
+          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
+          @ [view]</a></li>
         }else{
           if( zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ <a href="%s(g.zTop)/fdiff?v1=%S(zOld)&v2=%S(zNew)"
-          @ target="diffwindow">[diff]</a></li>
+          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S",zOld,zNew))
+          @ [diff]</a></li>
         }
       }
       db_reset(&fchngQuery);
@@ -976,17 +974,9 @@ void page_timeline(void){
     blob_append(&sql, ")", -1);
     path_reset();
     blob_append(&desc, "All nodes on the path from ", -1);
-    if( g.perm.History ){
-      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>",  g.zTop,zFrom,zFrom);
-    }else{
-      blob_appendf(&desc, "[%h]", zFrom);
-    }
+    blob_appendf(&desc, "%z%h</a>", href("%R/info/%h", zFrom), zFrom);
     blob_append(&desc, " and ", -1);
-    if( g.perm.History ){
-      blob_appendf(&desc, "<a href='%s/info/%h'>[%h]</a>.",  g.zTop, zTo, zTo);
-    }else{
-      blob_appendf(&desc, "[%h].", zTo);
-    }
+    blob_appendf(&desc, "%z[%h]</a>", href("%R/info/%h",zTo), zTo);
     tmFlags |= TIMELINE_DISJOINT;
     db_multi_exec("%s", blob_str(&sql));
   }else if( (p_rid || d_rid) && g.perm.Read ){
@@ -1023,12 +1013,8 @@ void page_timeline(void){
       }
       if( d_rid==0 && useDividers ) timeline_add_dividers(0, p_rid);
     }
-    if( g.perm.History ){
-      blob_appendf(&desc, " of <a href='%s/info/%s'>[%.10s]</a>",
-                   g.zTop, zUuid, zUuid);
-    }else{
-      blob_appendf(&desc, " of check-in [%.10s]", zUuid);
-    }
+    blob_appendf(&desc, " of %z[%.10s]</a>",
+                   href("%R/info/%s", zUuid), zUuid);
   }else if( f_rid && g.perm.Read ){
     /* If f= is present, ignore all other parameters other than n= */
     char *zUuid;
@@ -1044,12 +1030,7 @@ void page_timeline(void){
     if( useDividers ) timeline_add_dividers(0, f_rid);
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
-    if( g.perm.History ){
-      blob_appendf(&desc, "<a href='%s/info/%s'>[%.10s]</a>",
-                   g.zTop, zUuid, zUuid);
-    }else{
-      blob_appendf(&desc, "[%.10s]", zUuid);
-    }
+    blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
@@ -1221,7 +1202,7 @@ void page_timeline(void){
     if( zSearch ){
       blob_appendf(&desc, " matching \"%h\"", zSearch);
     }
-    if( g.perm.History ){
+    if( g.perm.Hyperlink ){
       if( zAfter || n==nEntry ){
         zDate = db_text(0, "SELECT min(timestamp) FROM timeline /*scan*/");
         timeline_submenu(&url, "Older", "b", zDate, "a");
@@ -1625,7 +1606,7 @@ void test_timewarp_page(void){
   Stmt q;
 
   login_check_credentials();
-  if( !g.perm.Read || !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Read || !g.perm.Hyperlink ){ login_needed(); return; }
   style_header("Instances of timewarp");
   @ <ul>
   db_prepare(&q,

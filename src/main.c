@@ -53,6 +53,13 @@
 
 /*
 ** Holds flags for fossil user permissions.
+**
+** History enables various hyperlinks directly, with an href= attribute
+** in the HTML.  Link puts an id= attribute in HTML and then adds the
+** href= attribute using javascript.  The Link option is designed to make
+** it harder for bots and spiders to follow hyperlinks, and yet give the
+** same experience to users.  the Hyperlink permission is a composite which
+** is enabled if either History or Hyperlink is turned on.
 */
 struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
@@ -63,6 +70,7 @@ struct FossilUserPerms {
   char Write;            /* i: xfer inbound. checkin */
   char Read;             /* o: xfer outbound. checkout */
   char History;          /* h: access historical information. */
+  char Link;             /* l: enable href= using javascript */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
   char NewWiki;          /* f: create new wiki via web */
@@ -77,6 +85,7 @@ struct FossilUserPerms {
   char RdAddr;           /* e: read email addresses or other private data */
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
+  char Hyperlink;        /* "h" or "l" */
 };
 
 #ifdef FOSSIL_ENABLE_TCL

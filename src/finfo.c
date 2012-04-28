@@ -307,7 +307,7 @@ void finfo_page(void){
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
     @ <tr><td class="timelineTime">
-    @ <a href="%s(g.zTop)/timeline?c=%t(zDate)">%s(zTime)</a></td>
+    @ %z(href("%R/timeline?c=%t",zDate))%s(zTime)</a></td>
     @ <td class="timelineGraph"><div id="m%d(gidx)"></div></td>
     if( zBgClr && zBgClr[0] ){
       @ <td class="timelineTableCell" style="background-color: %h(zBgClr);">
@@ -317,12 +317,7 @@ void finfo_page(void){
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
-      if( g.perm.History ){
-        @ <a href="%s(g.zTop)/artifact/%s(zUuid)">[%S(zUuid)]</a>
-      }else{
-        @ [%S(zUuid)]
-      }
-      @ part of check-in
+      @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
     }else{
       @ <b>Deleted</b> by check-in
     }
@@ -333,9 +328,9 @@ void finfo_page(void){
     if( g.perm.History && zUuid ){
       const char *z = zFilename;
       if( fpid ){
-        @ <a href="%s(g.zTop)/fdiff?v1=%s(zPUuid)&amp;v2=%s(zUuid)">[diff]</a>
+        @ %z(href("%R/fdiff?v1=%s&amp;v2=%s",zPUuid,zUuid))[diff]</a>
       }
-      @ <a href="%s(g.zTop)/annotate?checkin=%S(zCkin)&amp;filename=%h(z)">
+      @ %z(href("%R/annotate?checkin=%S&amp;filename=%h",zCkin,z))
       @ [annotate]</a>
     }
     @ </td></tr>

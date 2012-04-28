@@ -913,7 +913,8 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
-  if( zCap[0] && !g.perm.History && db_get_boolean("auto-enable-hyperlinks",1)
+  if( zCap[0] && !g.perm.History && !g.perm.Link
+   && db_get_boolean("auto-enable-hyperlinks",1)
       && isHuman(P("HTTP_USER_AGENT")) ){
     g.perm.History = 1;
   }
@@ -985,7 +986,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'z':   g.perm.Zip = 1;                                  break;
 
       case 'd':   g.perm.Delete = 1;                               break;
-      case 'h':   g.perm.History = 1;                              break;
+      case 'h':   g.perm.History = g.perm.Hyperlink = 1;           break;
+      case 'l':   g.perm.Link = g.perm.Hyperlink = 1;              break;
       case 'g':   g.perm.Clone = 1;                                break;
       case 'p':   g.perm.Password = 1;                             break;
 
@@ -1059,7 +1061,7 @@ int login_has_capability(const char *zCap, int nCap){
       case 'i':  rc = g.perm.Write;     break;
       case 'j':  rc = g.perm.RdWiki;    break;
       case 'k':  rc = g.perm.WrWiki;    break;
-      /* case 'l': */
+      case 'l':  rc = g.perm.Link;      break;
       case 'm':  rc = g.perm.ApndWiki;  break;
       case 'n':  rc = g.perm.NewTkt;    break;
       case 'o':  rc = g.perm.Read;      break;
@@ -1137,7 +1139,7 @@ void login_needed(void){
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.History &&
+  if( !g.perm.History && !g.perm.Link &&
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){

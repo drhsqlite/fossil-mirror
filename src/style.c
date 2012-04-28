@@ -47,6 +47,89 @@ static int headerHasBeenGenerated = 0;
 */
 static int sideboxUsed = 0;
 
+
+/*
+** List of hyperlinks that need to be resolved by javascript in
+** the footer.
+*/
+char **aHref = 0;
+int nHref = 0;
+int nHrefAlloc = 0;
+
+/*
+** Generate and return a anchor tag like this:
+**
+**        <a href="URL">
+**  or    <a id="ID">
+**
+** The form of the anchor tag is determined by the g.perm.History
+** variable.  The href="URL" form is used if g.perm.History is true.
+** If g.perm.History is false and g.perm.Link is true then the
+** id="ID" form is used and javascript is generated in the footer to cause
+** href values to be inserted after the page has loaded.  If both
+** g.perm.History and g.perm.Link are false, then the <a id="ID"> form is
+** generated but the javascript is not generated so the links never
+** activate.
+**
+** Handling the href="URL" using javascript is a defense against bots.
+**
+** The name of this routine is deliberately kept short so that can be
+** easily used within @-lines.  Example:
+**
+**      @ %z(href("%s/artifact/%s",g.zTop,zUuid))%h(zFN)</a>
+**
+** Note %z format.  The string returned by this function is always
+** obtained from fossil_malloc().
+**
+** There are two versions of this routine href() does a plain hyperlink
+** and xhref() adds extra attribute text.
+*/
+char *xhref(const char *zExtra, const char *zFormat, ...){
+  char *zUrl;
+  va_list ap;
+  va_start(ap, zFormat);
+  zUrl = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.perm.History ){
+    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+  }
+  if( nHref>=nHrefAlloc ){
+    nHrefAlloc = nHrefAlloc*2 + 10;
+    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+  }
+  aHref[nHref++] = zUrl;
+  return mprintf("<a %s id=%d>", zExtra, nHref);
+}
+char *href(const char *zFormat, ...){
+  char *zUrl;
+  va_list ap;
+  va_start(ap, zFormat);
+  zUrl = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.perm.History ){
+    return mprintf("<a href=\"%z\">", zUrl);
+  }
+  if( nHref>=nHrefAlloc ){
+    nHrefAlloc = nHrefAlloc*2 + 10;
+    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+  }
+  aHref[nHref++] = zUrl;
+  return mprintf("<a id=%d>", nHref);
+}
+
+/*
+** Generate javascript that will set the href= attribute on all anchors.
+*/
+void style_resolve_href(void){
+  int i;
+  if( !g.perm.Link || nHref==0 ) return;
+  @ <script>
+  for(i=0; i<nHref; i++){
+    @ document.getElementById(%d(i+1)).href="%s(aHref[i])";
+  }
+  @ </script>
+}
+
 /*
 ** Add a new element to the submenu
 */
@@ -166,6 +249,9 @@ void style_footer(void){
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</span>\n", -1);
   }
+
+  /* Set the href= field on hyperlinks */
+  style_resolve_href();
 }
 
 /*

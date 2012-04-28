@@ -1780,8 +1780,8 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%s/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
-          g.zTop, zUuid, zUuid, zDate, zUser
+          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
+          zUuid, zUuid, zDate, zUser
       );
     }else{
       zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
@@ -1823,7 +1823,7 @@ void annotation_page(void){
   }
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, fnid, mid, g.perm.History, iLimit, annFlags);
+  annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>

@@ -172,6 +172,9 @@ void setup_ulist(void){
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
      @ <tr><td valign="top"><b>k</b></td>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td valign="top"><b>l</b></td>
+     @   <td><i>Link-Late:</i> Use javascript for hyperlinks to
+     @          discourage bots</td></tr>
      @ <tr><td valign="top"><b>m</b></td>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
      @ <tr><td valign="top"><b>n</b></td>
@@ -250,7 +253,7 @@ static int isValidPwString(const char *zPw){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
-  char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
+  char *oak, *oad, *oac, *oaf, *oam, *oah, *oal, *oag, *oae;
   char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
@@ -306,6 +309,7 @@ void user_edit(void){
     int af = P("af")!=0;
     int am = P("am")!=0;
     int ah = P("ah")!=0;
+    int al = P("al")!=0;
     int ag = P("ag")!=0;
     int at = P("at")!=0;
     int au = P("au")!=0;
@@ -323,6 +327,7 @@ void user_edit(void){
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
+    if( al ){ zCap[i++] = 'l'; }
     if( am ){ zCap[i++] = 'm'; }
     if( an ){ zCap[i++] = 'n'; }
     if( ao ){ zCap[i++] = 'o'; }
@@ -414,7 +419,7 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   zPw = "";
-  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
+  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oal = oam =
         oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -432,6 +437,7 @@ void user_edit(void){
     if( strchr(zCap, 'i') ) oai = " checked=\"checked\"";
     if( strchr(zCap, 'j') ) oaj = " checked=\"checked\"";
     if( strchr(zCap, 'k') ) oak = " checked=\"checked\"";
+    if( strchr(zCap, 'l') ) oal = " checked=\"checked\"";
     if( strchr(zCap, 'm') ) oam = " checked=\"checked\"";
     if( strchr(zCap, 'n') ) oan = " checked=\"checked\"";
     if( strchr(zCap, 'o') ) oao = " checked=\"checked\"";
@@ -526,7 +532,8 @@ void user_edit(void){
   @    <input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password<br />
   @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
   @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
-  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))History<br />
+  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks<br />
+  @    <input type="checkbox" name="al"%s(oal) />%s(B('l'))Links-deferred<br />
   @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
   @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
   @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
@@ -627,10 +634,12 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">History</span> privilege allows a user
+  @ The <span class="capability">Hyperlinks</span> privilege allows a user
   @ to see most hyperlinks. This is recommended ON for most logged-in users
   @ but OFF for user "nobody" to avoid problems with spiders trying to walk
-  @ every historical version of every baseline and file.
+  @ every historical version of every baseline and file.  The
+  @ <span class="capability">Link-deferred</span> privilege enables hyperlinks
+  @ using javascript, which makes them harder for bots and spiders to find.
   @ </p></li>
   @
   @ <li><p>
@@ -639,8 +648,8 @@ void user_edit(void){
   @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
   @ users to download ZIP archives without granting other rights like
   @ <span class="capability">Read</span> or
-  @ <span class="capability">History</span>.  This privilege is recommended for
-  @ user <span class="usertype">nobody</span> so that automatic package
+  @ <span class="capability">Hyperlink</span>.  The "z" privilege is recommended
+  @ for user <span class="usertype">nobody</span> so that automatic package
   @ downloaders can obtain the sources without going through the login
   @ procedure.
   @ </p></li>
@@ -706,8 +715,8 @@ void user_edit(void){
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignore.
   @ To avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (History) capability be turned 
-  @ off for the <span class="usertype">nobody</span> user.
+  @ that the <span class="capability">h</span> (Hyperlinks) capability be
+  @ turned off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>

@@ -307,7 +307,7 @@ void tktview_page(void){
     style_submenu_element("Edit", "Edit The Ticket", "%s/tktedit?name=%T",
         g.zTop, PD("name",""));
   }
-  if( g.perm.History ){
+  if( g.perm.Hyperlink ){
     style_submenu_element("History", "History Of This Ticket", 
         "%s/tkthistory/%T", g.zTop, zUuid);
     style_submenu_element("Timeline", "Timeline Of This Ticket", 
@@ -355,8 +355,8 @@ void tktview_page(void){
       }
       cnt++;
       @ <li>
-      if( g.perm.Read && g.perm.History ){
-        @ <a href="%s(g.zTop)/attachview?tkt=%s(zFullName)&amp;file=%t(zFile)">
+      if( g.perm.Read && g.perm.Hyperlink ){
+        @ %z(href("%R/attachview?tkt=%s&amp;file=%t",zFullName,zFile))
         @ %h(zFile)</a>
       }else{
         @ %h(zFile)
@@ -364,7 +364,7 @@ void tktview_page(void){
       @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
       if( g.perm.WrTkt && g.perm.Attach ){
-        @ [<a href="%s(g.zTop)/attachdelete?tkt=%s(zFullName)&amp;file=%t(zFile)&amp;from=%s(g.zTop)/tktview%%3fname=%s(zFullName)">delete</a>]
+        @ [%z(href("%R/attachdelete?tkt=%s&amp;file=%t&amp;from=%R/tktview%%3fname=%s",zFullName,zFile,zFullName))delete</a>]
       }
       @ </li>
     }
@@ -664,7 +664,7 @@ void tkttimeline_page(void){
   const char *zType;
 
   login_check_credentials();
-  if( !g.perm.History || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
   zType = PD("y","a");
   if( zType[0]!='c' ){
@@ -738,7 +738,7 @@ void tkthistory_page(void){
   int tagid;
 
   login_check_credentials();
-  if( !g.perm.History || !g.perm.RdTkt ){ login_needed(); return; }
+  if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
   zUuid = PD("name","");
   zTitle = mprintf("History Of Ticket %h", zUuid);
   style_submenu_element("Status", "Status",
@@ -788,7 +788,7 @@ void tkthistory_page(void){
         @ 
         @ <p>Add attachment "%h(zFile)"
       }
-      @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zShort)</a>]
+      @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
       @ (rid %d(rid)) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".</p>");
@@ -797,7 +797,7 @@ void tkthistory_page(void){
       if( pTicket ){
         @
         @ <p>Ticket change
-        @ [<a href="%s(g.zTop)/artifact/%T(zChngUuid)">%s(zShort)</a>]
+        @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
