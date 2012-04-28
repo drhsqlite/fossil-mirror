@@ -594,7 +594,7 @@ void ci_page(void){
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ %z(xhref("class='button'","%R/vinfo/%T",zName)))
+        @ %z(xhref("class='button'","%R/vinfo/%T",zName))
         @ hide&nbsp;diffs</a>
         if( sideBySide ){
           @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
