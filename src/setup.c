@@ -927,7 +927,7 @@ void setup_access(void){
   @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
-      "auto-enable-hyperlinks", "autohyperlink", 1);
+      "auto-hyperlink", "autohyperlink", 1);
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
   @ including user "nobody", as long as (1) the User-Agent string in the
   @ HTTP header indicates that the request is coming from an actual human

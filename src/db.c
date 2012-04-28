@@ -1871,6 +1871,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
   { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
+  { "auto-hyperlink",0,                0, 0, "on",                 },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
   { "binary-glob",   0,               32, 1, ""                    },
@@ -1934,6 +1935,11 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on
+**
+**    auto-hyperlink   Use javascript to enable hyperlinks on web pages
+**                     for all users (regardless of the "h" privilege) if the
+**                     User-Agent string in the HTTP header look like it came
+**                     from real person, not a spider or bot.  Default: on
 **
 **    auto-shun        If enabled, automatically pull the shunning list
 **                     from a server to which the client autosyncs.

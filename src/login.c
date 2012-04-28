@@ -914,7 +914,7 @@ void login_check_credentials(void){
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
   if( zCap[0] && !g.perm.Hyperlink
-   && db_get_boolean("auto-enable-hyperlinks",1)
+   && db_get_boolean("auto-hyperlink",1)
       && isHuman(P("HTTP_USER_AGENT")) ){
     g.perm.Hyperlink = 1;
     g.javascriptHyperlink = 1;

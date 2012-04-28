@@ -1,5 +1,5 @@
-C Remove\sa\ssurplus\sspace\scharacter\sfollowing\sthe\suser\sname\sin\sthe\sdescription\nof\scheck-ins.
-D 2012-04-28T18:24:02.933
+C Change\sthe\sname\sof\sthe\sauto-enable-hyperlinks\ssetting\sto\sauto-hyperlink\sand\nmake\sit\savailable\svia\sthe\s"fossil\ssetting"\scommand.\s\s<b>Note:</b>\swhen\nupgrading\sthrough\sthis\schange,\sif\syou\sformerly\shad\sauto-hyperlink\sturned\soff,\nyou\swill\shave\sto\sturn\sit\soff\sagain\ssince\sthe\sname\shas\schanged.\sIt\sdefaults\nto\son.
+D 2012-04-28T18:55:29.704
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -76,7 +76,7 @@ F src/configure.c 44058300c4e3243869c5a42d0227a78562ed550c
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c 27306a292816ab910f299975dd7e696f65820b79
 F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
-F src/db.c 485e084cd3c353b635485f22b425defc952da7d2
+F src/db.c 30801b5a32068780e9f1a6c1825978ec201f0432
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -113,7 +113,7 @@ F src/json_timeline.c adf64805f1be966df94cb6800eee2a1f85d1533d
 F src/json_user.c 313737bc4b02588160fcebe758ab56d6912c37e4
 F src/json_wiki.c 8b0b032bf920e30aa075e21ff3ac974eedb8494c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 8fad5e7e9ba020902aeb406c2a90a63b076b21b0
+F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
 F src/main.c 1d19aafd39b92427811ee5f07fb3df07943259df
 F src/main.mk 49c5b5cdbe2e308189fa1a938fe452c1118ecb11
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -136,7 +136,7 @@ F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c ffe53ee90d8d9dea694e2f669919c5266f28c072
+F src/setup.c bdaf11ce7f5d51a0af20497ed645b205e81c5394
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 0266398855dbd1312107199af6a3c7a983c3cc13
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 82476370d0b1c4cf8785de1f0a86a373e6969de3
-R 7d0d9b4a9baae1ef008ddfc15826d908
+P 0ea8ed34a1b8e604a82d3ae43f244afaa7c0f06e
+R 95e41f5f1fc0b68b94beddb2c99dc37a
 U drh
-Z 97e8e155b110e4f7f409dd5d879cce31
+Z ed1dc55c0319f9ae701bbc5a70396897
