@@ -173,11 +173,13 @@ static void extraRepoInfo(void){
 ** Options:
 **
 **    -R|--repository FILE       Extract info from repository FILE
+**    -l|--detail                Show extra information
 **
 ** See also: annotate, artifact, finfo, timeline
 */
 void info_cmd(void){
   i64 fsize;
+  int bDetail = find_option("detail","l",0)!=0;
   if( g.argc==3 && (fsize = file_size(g.argv[2]))>0 && (fsize&0x1ff)==0 ){
     db_open_config(0);
     db_record_repository_filename(g.argv[2]);
@@ -197,7 +199,7 @@ void info_cmd(void){
       fossil_print("repository:   %s\n", db_repository_filename());
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
-    extraRepoInfo();
+    if( bDetail ) extraRepoInfo();
 #if defined(_WIN32)
     if( g.zHome ){
       fossil_print("user-home:    %s\n", g.zHome);
