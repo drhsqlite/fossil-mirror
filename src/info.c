@@ -380,7 +380,7 @@ static void append_file_change_line(
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
-      @ %z(href("%R/fdiff?v1=%S&amp;v2=%S",zOld,zNew))[diff]</a>
+      @ %z(href("%R/fdiff?v1=%S&v2=%S",zOld,zNew))[diff]</a>
     }
     @ </p>
   }
@@ -624,7 +624,7 @@ void ci_page(void){
         @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ %z(xhref("class='button'","%R/vpatch?from=%S&amp;to=%S",zParent,zUuid))
+    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
     @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"
@@ -794,7 +794,7 @@ void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff?from=UUID&amp;to=UUID&amp;detail=BOOLEAN;sbs=BOOLEAN
+** URL: /vdiff?from=UUID&to=UUID&detail=BOOLEAN;sbs=BOOLEAN
 **
 ** Show all differences between two checkins.  
 */
@@ -1260,7 +1260,7 @@ void hexdump_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1407,7 +1407,7 @@ void artifact_page(void){
   if( g.perm.Admin ){
     const char *zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
@@ -1466,7 +1466,7 @@ void artifact_page(void){
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&amp;m=%s(zMime)"></img>
+      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
@@ -1495,7 +1495,7 @@ void tinfo_page(void){
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( g.perm.Admin ){
     if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
-      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&amp;sub=1",
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
             g.zTop, zUuid);
     }else{
       style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",

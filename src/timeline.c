@@ -64,7 +64,7 @@ void hyperlink_to_diff(const char *zV1, const char *zV2){
     if( zV2==0 ){
       @ %z(href("%R/diff?v2=%s",zV1))[diff]</a>
     }else{
-      @ %z(href("%R/diff?v1=%s&amp;v2=%s",zV1,zV2))[diff]</a>
+      @ %z(href("%R/diff?v1=%s&v2=%s",zV1,zV2))[diff]</a>
     }
   }
 }
@@ -90,7 +90,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
   if( zSuf==0 ) zSuf = "";
   if( g.perm.Hyperlink ){
     if( zD && zD[0] ){
-      @ %z(href("%R/timeline?c=%T&amp;u=%T",zD,zU))%h(zU)</a>%s(zSuf)
+      @ %z(href("%R/timeline?c=%T&u=%T",zD,zU))%h(zU)</a>%s(zSuf)
     }else{
       @ %z(href("%R/timeline?u=%T",zU))%h(zU)</a>%s(zSuf)
     }
@@ -1618,7 +1618,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&d=%S(zUuid)">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();

@@ -66,7 +66,7 @@ void view_list(void){
     }
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zcopy</a>] ",
-                   href("%R/rptedit?rn=%d&amp;copy=1", rn));
+                   href("%R/rptedit?rn=%d&copy=1", rn));
     }
     if( g.perm.Admin 
      || (g.perm.WrTkt && zOwner && fossil_strcmp(g.zLogin,zOwner)==0)
@@ -421,7 +421,7 @@ void view_edit(void){
   if( zOwner==0 ) zOwner = g.zLogin;
   style_submenu_element("Cancel", "Cancel", "reportlist");
   if( rn>0 ){
-    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&amp;del1=1", rn);
+    style_submenu_element("Delete", "Delete", "rptedit?rn=%d&del1=1", rn);
   }
   style_header(rn>0 ? "Edit Report Format":"Create New Report Format");
   if( zErr ){
@@ -950,7 +950,7 @@ void rptview_page(void){
 
     db_multi_exec("PRAGMA empty_result_callbacks=ON");
     style_submenu_element("Raw", "Raw", 
-      "rptview?tablist=1&amp;%h", PD("QUERY_STRING",""));
+      "rptview?tablist=1&%h", PD("QUERY_STRING",""));
     if( g.perm.Admin 
        || (g.perm.TktFmt && g.zLogin && fossil_strcmp(g.zLogin,zOwner)==0) ){
       style_submenu_element("Edit", "Edit", "rptedit?rn=%d", rn);

@@ -192,7 +192,7 @@ void wiki_page(void){
     }
     if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
-           "%s/attachadd?page=%T&amp;from=%s/wiki%%3fname=%T",
+           "%s/attachadd?page=%T&from=%s/wiki%%3fname=%T",
            g.zTop, zPageName, g.zTop, zPageName);
     }
     if( rid && g.perm.ApndWiki ){
@@ -226,7 +226,7 @@ void wiki_page(void){
     cnt++;
     @ <li>
     if( g.perm.Hyperlink && g.perm.Read ){
-      @ %z(href("%R/attachview?page=%T&amp;file=%t",zPageName,zFile))
+      @ %z(href("%R/attachview?page=%T&file=%t",zPageName,zFile))
       @ %h(zFile)</a>
     }else{
       @ %h(zFile)
@@ -234,7 +234,7 @@ void wiki_page(void){
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.perm.WrWiki && g.perm.Attach ){
-      @ [%z(href("%R/attachdelete?page=%t&amp;file=%t&amp;from=%R/wiki%%3fname=%f",zPageName,zFile,zPageName))delete</a>]
+      @ [%z(href("%R/attachdelete?page=%t&file=%t&from=%R/wiki%%3fname=%f",zPageName,zFile,zPageName))delete</a>]
     }
     @ </li>
   }
@@ -544,7 +544,7 @@ static const char *zWikiPageName;
 */
 static void wiki_history_extra(int rid){
   if( db_exists("SELECT 1 FROM tagxref WHERE rid=%d", rid) ){
-    @ %z(href("%R/wdiff?name=%t&amp;a=%d",zWikiPageName,rid))[diff]</a>
+    @ %z(href("%R/wdiff?name=%t&a=%d",zWikiPageName,rid))[diff]</a>
   }
 }
 

@@ -325,12 +325,12 @@ void finfo_page(void){
     @ %h(zCom) (user: 
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
-    if( g.perm.History && zUuid ){
+    if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       if( fpid ){
-        @ %z(href("%R/fdiff?v1=%s&amp;v2=%s",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
       }
-      @ %z(href("%R/annotate?checkin=%S&amp;filename=%h",zCkin,z))
+      @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>
     }
     @ </td></tr>

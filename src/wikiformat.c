@@ -1045,11 +1045,7 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
     /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
-    if( 1 /* g.perm.History */ ){
-      blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
-    }else{
-      zTerm = "";
-    }
+    blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
   }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
     if( 1 ){
       blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);

@@ -79,9 +79,9 @@ void hyperlinked_path(const char *zPath, Blob *pOut, const char *zCI){
 
   for(i=0; zPath[i]; i=j){
     for(j=i; zPath[j] && zPath[j]!='/'; j++){}
-    if( zPath[j] && g.perm.History ){
+    if( zPath[j] && g.perm.Hyperlink ){
       if( zCI ){
-        char *zLink = href("%R/dir?ci=%S&amp;name=%#T", zCI, j, zPath);
+        char *zLink = href("%R/dir?ci=%S&name=%#T", zCI, j, zPath);
         blob_appendf(pOut, "%s%z%#h</a>", 
                      zSep, zLink, j-i, &zPath[i]);
       }else{
@@ -122,7 +122,7 @@ void page_dir(void){
   const char *zSubdirLink;
 
   login_check_credentials();
-  if( !g.perm.History ){ login_needed(); return; }
+  if( !g.perm.Hyperlink ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
@@ -161,7 +161,7 @@ void page_dir(void){
     zShort[10] = 0;
     @ <h2>Files of check-in [%z(href("vinfo?name=%T",zUuid))%s(zShort)</a>]
     @ %s(blob_str(&dirname))</h2>
-    zSubdirLink = mprintf("%R/dir?ci=%S&amp;name=%T", zUuid, zPrefix);
+    zSubdirLink = mprintf("%R/dir?ci=%S&name=%T", zUuid, zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%R/dir?ci=%S", zUuid);
       style_submenu_element("All", "All", "%R/dir?name=%t", zD);
@@ -178,9 +178,9 @@ void page_dir(void){
     zSubdirLink = mprintf("%R/dir?name=%T", zPrefix);
     if( zD ){
       style_submenu_element("Top", "Top", "%R/dir");
-      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&amp;ci=tip", zD);
+      style_submenu_element("Tip", "Tip", "%R/dir?name=%t&ci=tip", zD);
       if( hasTrunk ){
-        style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&amp;ci=trunk",
+        style_submenu_element("Trunk", "Trunk", "%R/dir?name=%t&ci=trunk",
                                zD);
       }
     }else{

@@ -172,9 +172,6 @@ void setup_ulist(void){
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
      @ <tr><td valign="top"><b>k</b></td>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
-     @ <tr><td valign="top"><b>l</b></td>
-     @   <td><i>Link-Late:</i> Use javascript for hyperlinks to
-     @          discourage bots</td></tr>
      @ <tr><td valign="top"><b>m</b></td>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
      @ <tr><td valign="top"><b>n</b></td>
@@ -253,7 +250,7 @@ static int isValidPwString(const char *zPw){
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
   char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
-  char *oak, *oad, *oac, *oaf, *oam, *oah, *oal, *oag, *oae;
+  char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
   char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
@@ -309,7 +306,6 @@ void user_edit(void){
     int af = P("af")!=0;
     int am = P("am")!=0;
     int ah = P("ah")!=0;
-    int al = P("al")!=0;
     int ag = P("ag")!=0;
     int at = P("at")!=0;
     int au = P("au")!=0;
@@ -327,7 +323,6 @@ void user_edit(void){
     if( ai ){ zCap[i++] = 'i'; }
     if( aj ){ zCap[i++] = 'j'; }
     if( ak ){ zCap[i++] = 'k'; }
-    if( al ){ zCap[i++] = 'l'; }
     if( am ){ zCap[i++] = 'm'; }
     if( an ){ zCap[i++] = 'n'; }
     if( ao ){ zCap[i++] = 'o'; }
@@ -419,7 +414,7 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   zPw = "";
-  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oal = oam =
+  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
         oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
@@ -437,7 +432,6 @@ void user_edit(void){
     if( strchr(zCap, 'i') ) oai = " checked=\"checked\"";
     if( strchr(zCap, 'j') ) oaj = " checked=\"checked\"";
     if( strchr(zCap, 'k') ) oak = " checked=\"checked\"";
-    if( strchr(zCap, 'l') ) oal = " checked=\"checked\"";
     if( strchr(zCap, 'm') ) oam = " checked=\"checked\"";
     if( strchr(zCap, 'n') ) oan = " checked=\"checked\"";
     if( strchr(zCap, 'o') ) oao = " checked=\"checked\"";
@@ -533,7 +527,6 @@ void user_edit(void){
   @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
   @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
   @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks<br />
-  @    <input type="checkbox" name="al"%s(oal) />%s(B('l'))Links-deferred<br />
   @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
   @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
   @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
@@ -637,9 +630,7 @@ void user_edit(void){
   @ The <span class="capability">Hyperlinks</span> privilege allows a user
   @ to see most hyperlinks. This is recommended ON for most logged-in users
   @ but OFF for user "nobody" to avoid problems with spiders trying to walk
-  @ every historical version of every baseline and file.  The
-  @ <span class="capability">Link-deferred</span> privilege enables hyperlinks
-  @ using javascript, which makes them harder for bots and spiders to find.
+  @ every diff and annotation of every historical check-in and file.
   @ </p></li>
   @
   @ <li><p>
@@ -902,15 +893,23 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
-  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
-                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  onoff_attribute(
+      "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
+      "auto-enable-hyperlinks", "autohyperlink", 1);
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as the User-Agent string in the HTTP header
-  @ indicates that the request is coming from an actual human being and not a
-  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
-  @ that want.  So a bot that wants to impersonate a human can easily do so.
-  @ Hence, this technique does not necessarily exclude malicious bots.
-  @ </p>
+  @ including user "nobody", as long as (1) the User-Agent string in the
+  @ HTTP header indicates that the request is coming from an actual human
+  @ being and not a a robot or spider and (2) the user agent is able to
+  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
+  @ and spiders can specify whatever User-Agent string they that want and
+  @ they can run javascript just like browsers.  But most bots don't go to
+  @ that much trouble so this is normally an effective defense.</p>
+  @
+  @ <p>You do not normally want a bot to walk your entire repository because
+  @ if it does, your server will end up computing diffs and annotations for
+  @ every historical version of every file and creating ZIPs and tarballs of
+  @ every historical check-in, which can use a lot of CPU and bandwidth
+  @ even for relatively small projects.</p>
 
   @ <hr />
   entry_attribute("Public pages", 30, "public-pages",

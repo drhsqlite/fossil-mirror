@@ -53,13 +53,6 @@
 
 /*
 ** Holds flags for fossil user permissions.
-**
-** History enables various hyperlinks directly, with an href= attribute
-** in the HTML.  Link puts an id= attribute in HTML and then adds the
-** href= attribute using javascript.  The Link option is designed to make
-** it harder for bots and spiders to follow hyperlinks, and yet give the
-** same experience to users.  the Hyperlink permission is a composite which
-** is enabled if either History or Hyperlink is turned on.
 */
 struct FossilUserPerms {
   char Setup;            /* s: use Setup screens on web interface */
@@ -69,8 +62,7 @@ struct FossilUserPerms {
   char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. checkin */
   char Read;             /* o: xfer outbound. checkout */
-  char History;          /* h: access historical information. */
-  char Link;             /* l: enable href= using javascript */
+  char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
   char NewWiki;          /* f: create new wiki via web */
@@ -85,7 +77,6 @@ struct FossilUserPerms {
   char RdAddr;           /* e: read email addresses or other private data */
   char Zip;              /* z: download zipped artifact via /zip URL */
   char Private;          /* x: can send and receive private content */
-  char Hyperlink;        /* "h" or "l" */
 };
 
 #ifdef FOSSIL_ENABLE_TCL
@@ -146,7 +137,8 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int isHTTP;             /* True if running in server/CGI modes, else assume CLI. */
+  char isHTTP;            /* True if erver/CGI modes, else assume CLI. */
+  char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */

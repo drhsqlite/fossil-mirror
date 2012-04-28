@@ -564,7 +564,7 @@ void login_page(void){
   }
   style_header("Login/Logout");
   @ %s(zErrMsg)
-  if( zGoto ){
+  if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
   }
   @ <form action="login" method="post">
@@ -913,10 +913,11 @@ void login_check_credentials(void){
   /* Set the capabilities */
   login_replace_capabilities(zCap, 0);
   login_set_anon_nobody_capabilities();
-  if( zCap[0] && !g.perm.History && !g.perm.Link
+  if( zCap[0] && !g.perm.Hyperlink
    && db_get_boolean("auto-enable-hyperlinks",1)
       && isHuman(P("HTTP_USER_AGENT")) ){
-    g.perm.History = 1;
+    g.perm.Hyperlink = 1;
+    g.javascriptHyperlink = 1;
   }
 
   /* If the public-pages glob pattern is defined and REQUEST_URI matches
@@ -976,18 +977,17 @@ void login_set_capabilities(const char *zCap, unsigned flags){
     switch( zCap[i] ){
       case 's':   g.perm.Setup = 1;  /* Fall thru into Admin */
       case 'a':   g.perm.Admin = g.perm.RdTkt = g.perm.WrTkt = g.perm.Zip =
-                              g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
-                              g.perm.ApndWiki = g.perm.History = g.perm.Clone = 
-                              g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
-                              g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt = 1;
-                              /* Fall thru into Read/Write */
+                           g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
+                           g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone = 
+                           g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
+                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt = 1;
+                           /* Fall thru into Read/Write */
       case 'i':   g.perm.Read = g.perm.Write = 1;                     break;
       case 'o':   g.perm.Read = 1;                                 break;
       case 'z':   g.perm.Zip = 1;                                  break;
 
       case 'd':   g.perm.Delete = 1;                               break;
-      case 'h':   g.perm.History = g.perm.Hyperlink = 1;           break;
-      case 'l':   g.perm.Link = g.perm.Hyperlink = 1;              break;
+      case 'h':   g.perm.Hyperlink = 1;                            break;
       case 'g':   g.perm.Clone = 1;                                break;
       case 'p':   g.perm.Password = 1;                             break;
 
@@ -1057,11 +1057,10 @@ int login_has_capability(const char *zCap, int nCap){
       case 'e':  rc = g.perm.RdAddr;    break;
       case 'f':  rc = g.perm.NewWiki;   break;
       case 'g':  rc = g.perm.Clone;     break;
-      case 'h':  rc = g.perm.History;   break;
+      case 'h':  rc = g.perm.Hyperlink; break;
       case 'i':  rc = g.perm.Write;     break;
       case 'j':  rc = g.perm.RdWiki;    break;
       case 'k':  rc = g.perm.WrWiki;    break;
-      case 'l':  rc = g.perm.Link;      break;
       case 'm':  rc = g.perm.ApndWiki;  break;
       case 'n':  rc = g.perm.NewTkt;    break;
       case 'o':  rc = g.perm.Read;      break;
@@ -1133,19 +1132,19 @@ void login_needed(void){
 }
 
 /*
-** Call this routine if the user lacks okHistory permission.  If
-** the anonymous user has okHistory permission, then paint a mesage
+** Call this routine if the user lacks g.perm.Hyperlink permission.  If
+** the anonymous user has Hyperlink permission, then paint a mesage
 ** to inform the user that much more information is available by
 ** logging in as anonymous.
 */
 void login_anonymous_available(void){
-  if( !g.perm.History && !g.perm.Link &&
+  if( !g.perm.Hyperlink &&
       db_exists("SELECT 1 FROM user"
                 " WHERE login='anonymous'"
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }

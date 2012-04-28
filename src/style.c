@@ -62,26 +62,27 @@ int nHrefAlloc = 0;
 **        <a href="URL">
 **  or    <a id="ID">
 **
-** The form of the anchor tag is determined by the g.perm.History
-** variable.  The href="URL" form is used if g.perm.History is true.
-** If g.perm.History is false and g.perm.Link is true then the
+** The form of the anchor tag is determined by the g.javascriptHyperlink
+** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
+** If g.javascriptHyperlink is true then the
 ** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If both
-** g.perm.History and g.perm.Link are false, then the <a id="ID"> form is
+** href values to be inserted after the page has loaded.  If 
+** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
 ** activate.
 **
-** Handling the href="URL" using javascript is a defense against bots.
+** Filling in the href="URL" using javascript is a defense against bots.
 **
 ** The name of this routine is deliberately kept short so that can be
 ** easily used within @-lines.  Example:
 **
-**      @ %z(href("%s/artifact/%s",g.zTop,zUuid))%h(zFN)</a>
+**      @ %z(href("%R/artifact/%s",zUuid))%h(zFN)</a>
 **
 ** Note %z format.  The string returned by this function is always
-** obtained from fossil_malloc().
+** obtained from fossil_malloc() so rendering it with %z will reclaim
+** that memory space.
 **
-** There are two versions of this routine href() does a plain hyperlink
+** There are two versions of this routine: href() does a plain hyperlink
 ** and xhref() adds extra attribute text.
 */
 char *xhref(const char *zExtra, const char *zFormat, ...){
@@ -90,7 +91,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.History ){
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
     return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
   }
   if( nHref>=nHrefAlloc ){
@@ -106,7 +107,7 @@ char *href(const char *zFormat, ...){
   va_start(ap, zFormat);
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
-  if( g.perm.History ){
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
     return mprintf("<a href=\"%z\">", zUrl);
   }
   if( nHref>=nHrefAlloc ){
@@ -122,7 +123,7 @@ char *href(const char *zFormat, ...){
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Link || nHref==0 ) return;
+  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
   @ <script>
   for(i=0; i<nHref; i++){
     @ document.getElementById(%d(i+1)).href="%s(aHref[i])";

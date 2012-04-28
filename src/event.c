@@ -127,13 +127,13 @@ void event_page(void){
                         g.zTop, zETime);
   if( g.perm.Hyperlink ){
     if( showDetail ){
-      style_submenu_element("Plain", "Plain", "%s/event?name=%s&amp;aid=%s",
+      style_submenu_element("Plain", "Plain", "%s/event?name=%s&aid=%s",
                             g.zTop, zEventId, zUuid);
       if( nextRid ){
         char *zNext;
         zNext = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", nextRid);
         style_submenu_element("Next", "Next",
-                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                              "%s/event?name=%s&aid=%s&detail=1",
                               g.zTop, zEventId, zNext);
         free(zNext);
       }
@@ -141,13 +141,13 @@ void event_page(void){
         char *zPrev;
         zPrev = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", prevRid);
         style_submenu_element("Prev", "Prev",
-                              "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                              "%s/event?name=%s&aid=%s&detail=1",
                               g.zTop, zEventId, zPrev);
         free(zPrev);
       }
     }else{
       style_submenu_element("Detail", "Detail",
-                            "%s/event?name=%s&amp;aid=%s&amp;detail=1",
+                            "%s/event?name=%s&aid=%s&detail=1",
                             g.zTop, zEventId, zUuid);
     }
   }
