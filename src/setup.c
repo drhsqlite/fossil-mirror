@@ -108,6 +108,7 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
+  int prevLevel = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -121,20 +122,51 @@ void setup_ulist(void){
   @ <tr><td class="usetupColumnLayout">
   @ <span class="note">Users:</span>
   @ <table class="usetupUserList">
-  @ <tr>
-  @   <th class="usetupListUser" style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
-  @   <th class="usetupListCap" style="text-align: center;padding-right: 15px;">Capabilities</th>
-  @   <th class="usetupListCon"  style="text-align: left;">Contact&nbsp;Info</th>
-  @ </tr>
-  db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
+  prevLevel = 0;
+  db_prepare(&s, 
+     "SELECT uid, login, cap, info, 1 FROM user"
+     " WHERE login IN ('anonymous','nobody','developer','reader') "
+     " UNION ALL "
+     "SELECT uid, login, cap, info, 2 FROM user"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
+     "ORDER BY 5, 2"
+  );
   while( db_step(&s)==SQLITE_ROW ){
+    int iLevel = db_column_int(&s, 4);
     const char *zCap = db_column_text(&s, 2);
+    const char *zLogin = db_column_text(&s, 1);
+    if( iLevel>prevLevel ){
+      if( prevLevel>0 ){
+        @ <tr><td colspan="3"><hr></td></tr>
+      }
+      if( iLevel==1 ){
+        @ <tr>
+        @   <th class="usetupListUser"
+        @    style="text-align: right;padding-right: 20px;">Category</th>
+        @   <th class="usetupListCap"
+        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
+        @   <th class="usetupListCon"
+        @    style="text-align: left;">Notes</th>
+        @ </tr>
+      }else{
+        @ <tr>
+        @   <th class="usetupListUser"
+        @    style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
+        @   <th class="usetupListCap"
+        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
+        @   <th class="usetupListCon"
+        @    style="text-align: left;">Contact&nbsp;Info</th>
+        @ </tr>
+      }
+      prevLevel = iLevel;
+    }
     @ <tr>
-    @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
+    @ <td class="usetupListUser"
+    @     style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
       @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
     }
-    @ %h(db_column_text(&s,1))
+    @ %h(zLogin)
     if( g.perm.Admin ){
       @ </a>
     }
