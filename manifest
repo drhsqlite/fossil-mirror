@@ -1,5 +1,8 @@
-C Add\sthe\s"fossil\sall\schanges"\scommand\sto\sshow\sall\scheck-outs\swith\suncommitted\nchanges.\s\sAlso\sadd\sthe\s"fossil\sall\slist\s--ckout"\soption\sto\sshow\sall\scurrent\ncheckouts\srather\sthan\sall\srepositories.
-D 2012-04-28T22:42:24.553
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+C Create\snew\sbranch\snamed\s"side-by-side-edit"
+D 2012-04-29T04:54:05.379
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -363,7 +366,17 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cb5db7598fdf93b37c3c35661c71908b586e6993
+P 42f4d14771b0a7a7b3266febf7c4f011929ee1a0
 R 2fc84a101e80c863091bab8329c991e9
-U drh
-Z dfa3e23dc9540783c1623a5cfbd91bba
+T *branch * side-by-side-edit
+T *sym-side-by-side-edit *
+T -sym-trunk *
+U renez
+Z 4c85c95657f52528e947c458a52e9bab
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iEYEARECAAYFAk+cyYYACgkQVIKNCA3WKks89ACffWo7UHyCaX19+2Z+kaUEuCgk
+aXQAoKYMZZNR05ZU7g6RzQrs19C20Y/j
+=9tdg
+-----END PGP SIGNATURE-----
