@@ -816,7 +816,7 @@ void cgi_init(void){
   g.zContentType = zType = P("CONTENT_TYPE");
   if( len>0 && zType ){
     blob_zero(&g.cgiIn);
-    if( fossil_strcmp(zType,"application/x-www-form-urlencoded")==0 
+    if( strncmp(zType,"application/x-www-form-urlencoded",33)==0 
          || strncmp(zType,"multipart/form-data",19)==0 ){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);

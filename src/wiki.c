@@ -377,7 +377,7 @@ void wikiedit_page(void){
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <div>  <input type="submit" id="ssb" name="ssb" value="Toggle Side-by-side" />
   @ </div><input type="hidden" name="ss" value="%d(ss)" />
-  @ <textarea id="w" name="w" class="wikiedit" cols="70" rows="%d(n)"
+  @ <textarea id="w" name="w" class="wikiedit" cols="60" rows="%d(n)"
   @  >%h(zBody)</textarea>
   @ <br />
   if(!ss){
