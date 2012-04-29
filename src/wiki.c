@@ -378,7 +378,7 @@ void wikiedit_page(void){
   @ <div>  <input type="submit" id="ssb" name="ssb" value="Toggle Side-by-side" />
   @ </div><input type="hidden" name="ss" value="%d(ss)" />
   @ <textarea id="w" name="w" class="wikiedit" cols="60" rows="%d(n)"
-  @  >%h(zBody)</textarea>
+  @   wrap="virtual">%h(zBody)</textarea>
   @ <br />
   if(!ss){
     @ <input type="submit" name="preview" value="Preview Your Changes" />
@@ -486,6 +486,9 @@ void wikiedit_page(void){
     @   setTimeout(preview,sto)
     @ }
     @ function pageLoaded(e){
+    @   if( window.ta.offsetHeight<window.prvw.offsetHeight ){
+    @     window.ta.style.height=window.prvw.offsetHeight+"px"
+    @   }
     @   window.isChanged =0
     @   setTimeout(preview,sto)
     @ }
