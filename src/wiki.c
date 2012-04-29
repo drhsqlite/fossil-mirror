@@ -260,6 +260,7 @@ void wikiedit_page(void){
   const char *zPageName;
   char *zHtmlPageName;
   int n;
+  int ss;
   const char *z;
   char *zBody = (char*)P("w");
 
@@ -338,31 +339,188 @@ void wikiedit_page(void){
   }
   zHtmlPageName = mprintf("Edit: %s", zPageName);
   style_header(zHtmlPageName);
-  if( P("preview")!=0 ){
+  ss = 0;
+  if(P("ss")) ss = atoi(P("ss"));
+  if( P("ssb")!=0 ){
+      ss= ss ? 0 : 1;
+  }
+  if(ss){
     blob_zero(&wiki);
     blob_append(&wiki, zBody, -1);
-    @ Preview:<hr />
-    wiki_convert(&wiki, 0, 0);
-    @ <hr />
-    blob_reset(&wiki);
+  } else {
+    if( P("preview")!=0 ){
+      blob_zero(&wiki);
+      blob_append(&wiki, zBody, -1);
+      @ Preview:<hr />
+      wiki_convert(&wiki, 0, 0);
+      @ <hr />
+      blob_reset(&wiki);
+    }
   }
   for(n=2, z=zBody; z[0]; z++){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
   if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+
+  if(ss){
+    @ <div id="twocolumns" style="width: 100%%;overflow:hidden">
+    @ <div id="colright" style="display:block;float:right;width:50%%;">
+    @ <div><h3>Preview</h3></div><div id="previewdiv">
+    wiki_convert(&wiki, 0, 0);
+    blob_reset(&wiki);
+    @ </div></div>
+    @ <div id="colleft" style="width:50%%;">
+  }
+  @ <form method="POST" action="%s(g.zTop)/wikiedit">
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <textarea name="w" class="wikiedit" cols="80" 
-  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+  @ <div>  <input type="submit" id="ssb" name="ssb" value="Toggle Side-by-side" />
+  @ </div><input type="hidden" name="ss" value="%d(ss)" />
+  @ <textarea id="w" name="w" class="wikiedit" cols="70" rows="40"
+  @  >%h(zBody)</textarea>
   @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
+  if(!ss){
+    @ <input type="submit" name="preview" value="Preview Your Changes" />
+  }
   @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ </form>
+  if(ss){
+    @ </div>
+    @ <script type='text/javascript'>
+    @ function ajax(u,a,cb,errcb){
+    @   var _url = u;
+    @   var _method ='POST';
+    @   var _async = a;
+    @   var _userCallback = cb ;
+    @   var _defError = function(s,t){ alert('Ajax err('+s+') : '+t);} ;
+    @   var _errorCallback = errcb === undefined ? _defError : errcb;
+    @ 
+    @   var _starting; 
+    @   var _request = false; 
+    @   var _debug = false; 
+    @   var _busy = function(){
+    @                 return (0 < _request.readyState && 4 > _request.readyState);
+    @               } 
+    @   
+    @  if (window.XMLHttpRequest){ // Non-IE browsers
+    @     _request = new XMLHttpRequest();
+    @    } else if (window.ActiveXObject) { // IE
+    @     try {
+    @       _request = new ActiveXObject("Msxml2.XMLHTTP");
+    @     } catch(e) {
+    @       try {
+    @         _request = new ActiveXObject("Microsoft.XMLHTTP");
+    @       } catch(E) {
+    @         _request = false;
+    @       }
+    @     }
+    @   } else {
+    @     _request = false;
+    @     _errrorCallback(-1,'Ajax not available!');
+    @   }
+    @   var _callback =function(){
+    @     if(4 == _request.readyState){
+    @       if(200 == _request.status) {
+    @         if(_debug){
+    @           var _ending = new Date();
+    @           var sec = (_ending.getTime() - _starting.getTime())/1000;
+    @           alert(sec+" seconds. Callback with text\n "+_request.responseText);
+    @         }
+    @         _userCallback(_request.responseText,_request.responseXML);
+    @       } else {
+    @         _errorCallback(_request.status,_request.status);
+    @       }
+    @     }
+    @   }
+    @   this.abort = function(){ if(_busy()) {_request.abort(); } }
+    @   this.setDebug = function(onOff){ _debug = onOff;} 
+    @   this.setMethod = function(onOff){ _method = onOff ? 'POST' : 'GET' ; }
+    @   this.setUrl = function(u){ _url = u; }
+    @   this.setAsync = function(onOff){ _async = onOff; }
+    @   this.send = function(data){
+    @     if(_debug) alert("in send function\nurl: "+_url
+    @           +"\nmethode "+_method
+    @           +"\nAsync "+_async
+    @           //+"\ndata "+data
+    @         );
+    @     if(_busy()){
+    @       if(_debug) alert('call in progress');
+    @       return 1;
+    @     }
+    @     try {
+    @       _starting = new Date();
+    @       _request.open(_method,_url,_async)
+    @       if(_async)
+    @         _request.onreadystatechange = _callback;
+    @       _request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    @       _request.send(data);
+    @       if(!_async){
+    @         _callback();
+    @         return _request.status;
+    @       }
+    @     } catch (e) {
+    @       _request.abort();
+    @     }
+    @   }
+    @ }
+    @ x = new ajax("%s(g.zTop)/wikipreview",true,cb)
+    @ //x.setDebug(true)
+    @ 
+    @ var sto  = 10000
+    @ window.ta = document.getElementById('w')
+    @ window.ta.onkeydown= changed; 
+    @ window.onload = pageLoaded
+    @ window.prvw = document.getElementById('previewdiv')
+    @ window.isChanged
+    @ function cb(text,xml){
+    @   window.prvw.innerHTML = text;
+    @   return true;
+    @ }
+    @ function preview(){
+    @   if(window.isChanged){
+    @     window.isChanged =0
+    @     x.send("w="+encodeURIComponent(window.ta.value))
+    @   }
+    @   setTimeout(preview,sto)
+    @ }
+    @ function pageLoaded(e){
+    @   window.isChanged =0
+    @   setTimeout(preview,sto)
+    @ }
+    @ function changed(e){
+    @   window.isChanged++
+    @   return true
+    @ }
+    @ </script>
+  }
   manifest_destroy(pWiki);
   style_footer();
+}
+
+/*
+** WEBPAGE: wikipreview
+** URL: /wikipreview
+**
+** render the contents of w
+** for use with Ajax. This is NOT
+** a complete web-page!
+*/
+void wikipreview_page(void){
+  Blob wiki;
+  char *zBody = (char*)P("w");
+  if( zBody ){
+    zBody = mprintf("%s", zBody);
+  }
+  login_check_credentials();
+  if( zBody==0 ){
+    zBody = mprintf("<i>Empty Page</i>");
+  }
+  blob_zero(&wiki);
+  blob_append(&wiki, zBody, -1);
+  wiki_convert(&wiki, 0, 0);
+  blob_reset(&wiki);
 }
 
 /*
