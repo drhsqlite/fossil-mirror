@@ -504,8 +504,8 @@ int db_multi_exec(const char *zSql, ...){
 ** convenient.  Do not start a transaction for these changes, but only
 ** make these changes if other changes are also being made.
 */
-void db_optional_sql(const char *zSql, ...){
-  if( db.nBeforeCommit < count(db.azBeforeCommit) ){
+void db_optional_sql(const char *zDb, const char *zSql, ...){
+  if( db_is_writeable(zDb) && db.nBeforeCommit < count(db.azBeforeCommit) ){
     va_list ap;
     va_start(ap, zSql);
     db.azBeforeCommit[db.nBeforeCommit++] = sqlite3_vmprintf(zSql, ap);
@@ -1021,6 +1021,13 @@ int db_schema_is_outofdate(void){
   return db_exists("SELECT 1 FROM config"
                    " WHERE name='aux-schema'"
                    "   AND value<>'%s'", AUX_SCHEMA);
+}
+
+/*
+** Return true if the database is writeable
+*/
+int db_is_writeable(const char *zName){
+  return !sqlite3_db_readonly(g.db, db_name(zName));
 }
 
 /*
@@ -1738,12 +1745,16 @@ void db_record_repository_filename(const char *zName){
       "VALUES('ckout:%q','%q');",
       blob_str(&localRoot), blob_str(&full)
     );
-    db_optional_sql("REPLACE INTO config(name,value,mtime)"
-                    "VALUES('ckout:%q',1,now())",
-                    blob_str(&localRoot));
+    db_swap_connections();
+    db_optional_sql("repository", 
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('ckout:%q',1,now())",
+        blob_str(&localRoot)
+    );
     blob_reset(&localRoot);
+  }else{
+    db_swap_connections();
   }
-  db_swap_connections();
   blob_reset(&full);
 }
 

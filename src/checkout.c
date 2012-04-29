@@ -293,6 +293,9 @@ void close_cmd(void){
   if( !forceFlag && unsaved_changes()==1 ){
     fossil_fatal("there are unsaved changes in the current checkout");
   }
+  if( db_is_writeable("repository") ){
+    db_multi_exec("DELETE FROM config WHERE name='ckout:%q'", g.zLocalRoot);
+  }
   unlink_local_database(1);
   db_close(1);
   unlink_local_database(0);
