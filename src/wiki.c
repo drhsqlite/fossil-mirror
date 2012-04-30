@@ -377,7 +377,11 @@ void wikiedit_page(void){
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <div>  <input type="submit" id="ssb" name="ssb" value="Toggle Side-by-side" />
   @ </div><input type="hidden" name="ss" value="%d(ss)" />
-  @ <textarea id="w" name="w" class="wikiedit" cols="60" rows="%d(n)"
+  if(ss){
+    @ <textarea id="w" name="w" class="wikiedit" cols="20" rows="5"
+  } else {
+    @ <textarea id="w" name="w" class="wikiedit" cols="60" rows="%d(n)"
+  }
   @   wrap="virtual">%h(zBody)</textarea>
   @ <br />
   if(!ss){
@@ -486,6 +490,9 @@ void wikiedit_page(void){
     @   setTimeout(preview,sto)
     @ }
     @ function pageLoaded(e){
+    @   if( window.ta.offsetWidth<window.prvw.offsetWidth ){
+    @     window.ta.style.width=(window.prvw.offsetWidth-40)+"px"
+    @   }
     @   if( window.ta.offsetHeight<window.prvw.offsetHeight ){
     @     window.ta.style.height=window.prvw.offsetHeight+"px"
     @   }
