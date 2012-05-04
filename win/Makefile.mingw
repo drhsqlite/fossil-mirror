@@ -49,8 +49,8 @@ FOSSIL_TCL_SOURCE = 1
 #    to create a hard link between an "zlib-1.x.y" sub-directory of the
 #    Fossil source code directory and the target zlib source directory.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.6
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.6
+ZINCDIR = $(SRCDIR)/../zlib-1.2.7
+ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
