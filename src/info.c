@@ -705,7 +705,7 @@ void winfo_page(void){
     if( g.perm.Hyperlink ){
       @ <tr><th>Commands:</th>
       @   <td>
-      @     &z(href("%R/whistory?name=%t",zName))history</a>
+      @     %z(href("%R/whistory?name=%t",zName))history</a>
       @     | %z(href("%R/artifact/%S",zUuid))raw-text</a>
       @   </td>
       @ </tr>
