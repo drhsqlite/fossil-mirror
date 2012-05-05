@@ -124,10 +124,13 @@ char *href(const char *zFormat, ...){
 void style_resolve_href(void){
   int i;
   if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
-  @ <script>
+  @ <script type="text/JavaScript">
+  @ /* <![CDATA[ */
+  @ function u(i,h){ document.getElementById(i).href=h; }
   for(i=0; i<nHref; i++){
-    @ document.getElementById(%d(i+1)).href="%s(aHref[i])";
+    @ u(%d(i+1),"%s(aHref[i])");
   }
+  @ /* ]]> */
   @ </script>
 }
 
@@ -239,6 +242,11 @@ void style_footer(void){
     @ <div class="endContent"></div>
   }
   @ </div>
+
+  /* Set the href= field on hyperlinks.  Do this before the footer since
+  ** the footer will be generating </html> */
+  style_resolve_href();
+
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
@@ -250,9 +258,6 @@ void style_footer(void){
     cgi_append_content(blob_str(&g.thLog), blob_size(&g.thLog));
     cgi_append_content("</span>\n", -1);
   }
-
-  /* Set the href= field on hyperlinks */
-  style_resolve_href();
 }
 
 /*
