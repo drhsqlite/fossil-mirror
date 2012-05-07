@@ -119,6 +119,7 @@ static struct DbLocalData {
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
+  int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -153,6 +154,7 @@ void db_begin_transaction(void){
   if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+    db.nPriorChanges = sqlite3_total_changes(g.db);
   }
   db.nBegin++;
 }
@@ -163,10 +165,10 @@ void db_end_transaction(int rollbackFlag){
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
-    if( db.doRollback==0 ){
+    if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
-        db_multi_exec(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
         sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
       }
       leaf_do_pending_checks();

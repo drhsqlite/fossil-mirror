@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sjavascript\sthat\senables\shyperlinks\sfor\sanonymous\susers.
-D 2012-05-05T13:53:37.782
+C Avoid\sdatabase\slocking\serrors\scaused\sby\sdb_optional_sql()\swrites.
+D 2012-05-07T20:59:43.945
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -76,7 +76,7 @@ F src/configure.c 44058300c4e3243869c5a42d0227a78562ed550c
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c 27306a292816ab910f299975dd7e696f65820b79
 F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
-F src/db.c 982285f5b8b21bb75b829a269bd39f5aeb7583bb
+F src/db.c 4c47e4e83281a901bec521d46f22f14464230b6a
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
@@ -114,7 +114,7 @@ F src/json_user.c 313737bc4b02588160fcebe758ab56d6912c37e4
 F src/json_wiki.c 8b0b032bf920e30aa075e21ff3ac974eedb8494c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
-F src/main.c 049447e6be5c259cc448399274bdb1945bd416b4
+F src/main.c 4fb17aa380867d46aeba8d9fd5424c681a5cc712
 F src/main.mk 49c5b5cdbe2e308189fa1a938fe452c1118ecb11
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -363,7 +363,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e2f5be6df11e71fa488aac7bb6078237945bb1f9
-R 9da6b725d7b2cd5518b209f586fc1f57
+P 7fb59a67dc6ecf144d29b0d2e9ecff679bd6e034
+R cd9b26603c2da97686f2e76a21ca5803
 U drh
-Z 80ae84ebf0d73e453ffde99b59f30210
+Z 523477f282376ab61eba52cbd4596005
