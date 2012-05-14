@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\sfirst\s3.7.12\srelease\scandidate.
-D 2012-05-12T19:03:50.797
+C added\sfossilwiki\s--\sa\sperl\sscript\sto\sdump\sinformation\sabout\sthe\swiki\spages\sin\sa\srepo
+D 2012-05-14T19:44:06.516
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -247,6 +247,7 @@ F tools/cvs2fossil/showg 3b5479d1527a33cf1316fcab935a127d86cf3532
 F tools/cvs2fossil/symboltree 6c405827269eda1089a1ffe58e03b4657a7bdfa6
 F tools/encode_math.sh 86eb1215d85a3e796788b6a4c2354b3f096f5f88
 F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
+F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 2a5d0a7aabe39bc44d223222ce5eb6558eb27110
 F win/Makefile.mingw c20f93c84967ff7bfb611a299e22d80bbcb88435
@@ -363,7 +364,7 @@ F www/tech_overview.wiki 729384def59791576850e08b00b506fdf7843334
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0141e20ff041bf3f77c2e079f238478a686741ac
-R e0d629cdf0df4c72b572cd6437682126
-U drh
-Z 894fa6f30d06e19d2f25be25b8121079
+P 3613fe5666661355764d4300fcdb4b71f1e5c662
+R 1032f5eb217f20561b07f9e27690356d
+U ron
+Z 6b31a81c47d72f3970d32d0d4083cd6e
