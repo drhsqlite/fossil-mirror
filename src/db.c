@@ -1085,7 +1085,7 @@ void move_repo_cmd(void){
 */
 void db_must_be_within_tree(void){
   if( db_open_local()==0 ){
-    fossil_fatal("not within an open checkout");
+    fossil_fatal("current directory is not within an open checkout");
   }
   db_open_repository(0);
   db_verify_schema();
