@@ -1795,8 +1795,13 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
-  db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
-  db_delete_on_failure("./_FOSSIL_");
+#if defined(_WIN32)
+# define LOCALDB_NAME "./_FOSSIL_"
+#else
+# define LOCALDB_NAME "./.fslckout"
+#endif
+  db_init_database(LOCALDB_NAME, zLocalSchema, (char*)0);
+  db_delete_on_failure(LOCALDB_NAME);
   db_open_local();
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(blob_str(&path));
