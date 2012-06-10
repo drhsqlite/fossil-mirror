@@ -254,7 +254,7 @@ void add_cmd(void){
     if( isDir==1 ){
       vfile_scan(&fullName, nRoot-1, includeDotFiles, pIgnore);
     }else if( isDir==0 ){
-      fossil_fatal("not found: %s", zName);
+      fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
       fossil_fatal("cannot open %s", zName);
     }else{
