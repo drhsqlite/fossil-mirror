@@ -97,11 +97,16 @@ static void status_report(
   }
   blob_reset(&rewrittenPathname);
   db_finalize(&q);
-  db_prepare(&q, "SELECT uuid FROM vmerge JOIN blob ON merge=rid"
-                 " WHERE id=0");
+  db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
+                 " WHERE id<=0");
   while( db_step(&q)==SQLITE_ROW ){
+    const char *zLabel = "MERGED_WITH";
+    switch( db_column_int(&q, 1) ){
+      case -1:  zLabel = "CHERRYPICK ";  break;
+      case -2:  zLabel = "BACKOUT    ";  break;
+    }
     blob_append(report, zPrefix, nPrefix);
-    blob_appendf(report, "MERGED_WITH %s\n", db_column_text(&q, 0));
+    blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
   }
   db_finalize(&q);
   if( nErr ){
@@ -141,6 +146,8 @@ static int determine_cwd_relative_option()
 **                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**    --header          Identify the repository if there are changes
+**    -v                Say "no changes" if there are none
 ** 
 ** See also: extra, ls, status
 */
@@ -148,6 +155,8 @@ void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verbose = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
@@ -155,6 +164,13 @@ void changes_cmd(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
   status_report(&report, "", 0, cwdRelative);
+  if( verbose && blob_size(&report)==0 ){
+    blob_append(&report, "  (none)\n", -1);
+  }
+  if( showHdr && blob_size(&report)>0 ){
+    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
+                 g.zLocalRoot);
+  }
   blob_write_to_file(&report, "-");
 }
 
@@ -740,8 +756,7 @@ static void create_manifest(
   blob_appendf(pOut, "P %s", zParentUuid);
   if( verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
-  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=:id");
-  db_bind_int(&q2, ":id", 0);
+  db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0");
   while( db_step(&q2)==SQLITE_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q2, 0);
@@ -1048,7 +1063,7 @@ void commit_cmd(void){
   ** should be committed.
   */
   select_commit_files();
-  isAMerge = db_exists("SELECT 1 FROM vmerge");
+  isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
   }
@@ -1111,6 +1126,12 @@ void commit_cmd(void){
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);
+    if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
+      Blob ans;
+      blob_zero(&ans);
+      prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
+      if( blob_str(&ans)[0]!='y' ) fossil_exit(1);;
+    }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
@@ -1271,7 +1292,7 @@ void commit_cmd(void){
   /* Update the vfile and vmerge tables */
   db_multi_exec(
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
-    "DELETE FROM vmerge WHERE file_is_selected(id) OR id=0;"
+    "DELETE FROM vmerge;"
     "UPDATE vfile SET vid=%d;"
     "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
     " WHERE file_is_selected(id);"

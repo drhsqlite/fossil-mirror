@@ -114,24 +114,18 @@ void stat_page(void){
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days
-  sqlite3_snprintf(sizeof(zBuf), zBuf, "%.2f", n/365.24);
-  @ or approximately %s(zBuf) years
+  @ %d(n) days or approximately %.2f(n/356.24) years.
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
   @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
-
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(COMPILER_NAME))
   @ </td></tr>
-  @ <tr><th>SQLite&nbsp;Version:</th><td>
-  sqlite3_snprintf(sizeof(zBuf), zBuf, "%.19s [%.10s] (%s)",
-                   SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
-  zDb = db_name("repository");
-  @ %s(zBuf)
-  @ </td></tr>
+  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
+  @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
+  zDb = db_name("repository");
   @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,
   @ %d(db_int(0, "PRAGMA %s.page_size", zDb)) bytes/page,
   @ %d(db_int(0, "PRAGMA %s.freelist_count", zDb)) free pages,

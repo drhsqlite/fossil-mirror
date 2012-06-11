@@ -494,7 +494,7 @@ static cson_value * json_wiki_diff(){
   char const * zErrTag = NULL;
   int diffFlags;
   char * zUuid = NULL;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'h' permissions.");
     return NULL;

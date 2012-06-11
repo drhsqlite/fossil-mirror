@@ -68,7 +68,7 @@ static cson_value * json_page_dir_list(){
   Manifest * pM = NULL;
   Stmt q = empty_Stmt;
   int rid = 0;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED, "Requires 'h' permissions.");
     return NULL;
   }

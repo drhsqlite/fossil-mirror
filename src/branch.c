@@ -22,8 +22,8 @@
 #include <assert.h>
 
 /*
-**  fossil branch new    BRANCH-NAME ?ORIGIN-CHECK-IN? ?-bgcolor COLOR?
-**  argv0  argv1  argv2  argv3       argv4
+**  fossil branch new    NAME BASIS ?OPTIONS?
+**  argv0  argv1  argv2  argv3 argv4
 */
 void branch_new(void){
   int rootid;            /* RID of the root check-in - what we branch off of */
@@ -50,7 +50,7 @@ void branch_new(void){
   zUserOvrd = find_option("user-override",0,1);
   verify_all_options();
   if( g.argc<5 ){
-    usage("new BRANCH-NAME CHECK-IN ?-bgcolor COLOR?");
+    usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
   db_find_and_open_repository(0, 0);  
   noSign = db_get_int("omitsign", 0)|noSign;
@@ -228,14 +228,18 @@ void branch_prepare_list_query(Stmt *pQuery, int which ){
 ** Run various subcommands to manage branches of the open repository or
 ** of the repository identified by the -R or --repository option.
 **
-**    %fossil branch new BRANCH-NAME BASIS ?--bgcolor COLOR? ?--private?
+**    %fossil branch new BRANCH-NAME BASIS ?OPTIONS?
 **
 **        Create a new branch BRANCH-NAME off of check-in BASIS.
-**        You can optionally give the branch a default color.  The
-**        --private option makes the branch private.
+**        Supported options for this subcommand include:
+**        --private             branch is private (i.e., remains local)
+**        --bgcolor COLOR       use COLOR instead of automatic background
+**        --nosign              do not sign contents on this branch
+**        --date-override DATE  DATE to use instead of 'now'
+**        --user-override USER  USER to use instead of the current default
 **
-**    %fossil branch list ?-all | --closed?
-**    %fossil branch ls ?-all | --closed?
+**    %fossil branch list ?--all | --closed?
+**    %fossil branch ls ?--all | --closed?
 **
 **        List all branches.  Use --all or --closed to list all branches
 **        or closed branches.  The default is to show only open branches.
@@ -319,14 +323,14 @@ void brlist_page(void){
   login_anonymous_available();
   style_sidebox_begin("Nomenclature:", "33%");
   @ <ol>
-  @ <li> An <div class="sideboxDescribed"><a href="brlist">
+  @ <li> An <div class="sideboxDescribed">%z(href("brlist"))
   @ open branch</a></div> is a branch that has one or
-  @ more <a href="leaves">open leaves.</a>
+  @ more %z(href("leaves"))open leaves.</a>
   @ The presence of open leaves presumably means
   @ that the branch is still being extended with new check-ins.</li>
-  @ <li> A <div class="sideboxDescribed"><a href="brlist?closed">
+  @ <li> A <div class="sideboxDescribed">%z(href("brlist?closed"))
   @ closed branch</a></div> is a branch with only
-  @ <div class="sideboxDescribed"><a href="leaves?closed">
+  @ <div class="sideboxDescribed">%z(href("leaves?closed"))
   @ closed leaves</a></div>.
   @ Closed branches are fixed and do not change (unless they are first
   @ reopened)</li>
@@ -354,10 +358,8 @@ void brlist_page(void){
       const char *zColor = hash_color(zBr);
       @ <li><span style="background-color: %s(zColor)">
       @ %h(zBr) &rarr; %s(zColor)</span></li>
-    }else if( g.perm.History ){
-      @ <li><a href="%s(g.zTop)/timeline?r=%T(zBr)")>%h(zBr)</a></li>
     }else{
-      @ <li><b>%h(zBr)</b></li>
+      @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
     }
   }
   if( cnt ){
@@ -380,7 +382,7 @@ void brlist_page(void){
 */
 static void brtimeline_extra(int rid){
   Stmt q;
-  if( !g.perm.History ) return;
+  if( !g.perm.Hyperlink ) return;
   db_prepare(&q, 
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
@@ -391,7 +393,7 @@ static void brtimeline_extra(int rid){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zTagName = db_column_text(&q, 0);
-    @ <a href="%s(g.zTop)/timeline?r=%T(zTagName)">[timeline]</a>
+    @ %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
   }
   db_finalize(&q);
 }

@@ -55,7 +55,7 @@ cson_value * json_page_timeline(){
      but it arguably should. For JSON mode i think one could argue
      that History permissions are required.
   */
-  if(! g.perm.History && !g.perm.Read ){
+  if(! g.perm.Hyperlink && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED, "Timeline requires 'h' or 'o' access.");
     return NULL;
   }
@@ -428,7 +428,7 @@ static cson_value * json_timeline_ci(){
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     /* Reminder to self: HTML impl requires 'o' (Read)
        rights.
     */

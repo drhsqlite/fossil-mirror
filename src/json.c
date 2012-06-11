@@ -1986,7 +1986,7 @@ cson_value * json_page_cap(){
   ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");
   ADD(Read,"checkout");
-  ADD(History,"history");
+  ADD(Hyperlink,"history");
   ADD(Clone,"clone");
   ADD(RdWiki,"readWiki");
   ADD(NewWiki,"createWiki");

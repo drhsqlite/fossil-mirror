@@ -77,9 +77,9 @@ void attachlist_page(void){
       }
     }
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
-      zUrlTail = mprintf("tkt=%s&amp;file=%t", zTarget, zFilename);
+      zUrlTail = mprintf("tkt=%s&file=%t", zTarget, zFilename);
     }else{
-      zUrlTail = mprintf("page=%t&amp;file=%t", zTarget, zFilename);
+      zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
     @
     @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
@@ -240,9 +240,18 @@ void attachadd_page(void){
     char *zDate;
     int rid;
     int i, n;
+    int addCompress = 0;
+    Manifest *pManifest;
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
+    pManifest = manifest_parse(&content, 0);
+    manifest_destroy(pManifest);
+    blob_init(&content, aContent, szContent);
+    if( pManifest ){
+      blob_compress(&content, &content);
+      addCompress = 1;
+    }
     rid = content_put(&content);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
@@ -251,7 +260,8 @@ void attachadd_page(void){
     }
     zName += n;
     if( zName[0]==0 ) zName = "unknown";
-    blob_appendf(&manifest, "A %F %F %s\n", zName, zTarget, zUUID);
+    blob_appendf(&manifest, "A %F%s %F %s\n",
+                 zName, addCompress ? ".gz" : "", zTarget, zUUID);
     zComment = PD("comment", "");
     while( fossil_isspace(zComment[0]) ) zComment++;
     n = strlen(zComment);

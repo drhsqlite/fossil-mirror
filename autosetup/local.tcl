@@ -22,6 +22,7 @@ proc parse-tclconfig-sh {args} {
 proc parse-tclconfig-sh-file {filename} {
 	foreach line [split [readfile $filename] \n] {
 		if {[regexp {^(TCL_[^=]*)=(.*)$} $line -> name value]} {
+			set value [regsub -all {\$\{.*\}} $value ""]
 			set tclconfig($name) [string trim $value ']
 		}
 	}
