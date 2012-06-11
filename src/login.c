@@ -940,8 +940,7 @@ void login_set_anon_nobody_capabilities(void){
 ** Flags passed into the 2nd argument of login_set/replace_capabilities().
 */
 #if INTERFACE
-#define LOGIN_IGNORE_U   0x01         /* Ignore "u" */
-#define LOGIN_IGNORE_V   0x01         /* Ignore "v" */
+#define LOGIN_IGNORE_UV  0x01         /* Ignore "u" and "v" */
 #endif
 
 /*
@@ -988,10 +987,10 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       /* The "u" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "reader" */
       case 'u': {
-        if( (flags & LOGIN_IGNORE_U)==0 ){
+        if( (flags & LOGIN_IGNORE_UV)==0 ){
           const char *zUser;
           zUser = db_text("", "SELECT cap FROM user WHERE login='reader'");
-          login_set_capabilities(zUser, flags | LOGIN_IGNORE_U);
+          login_set_capabilities(zUser, flags | LOGIN_IGNORE_UV);
         }
         break;
       }
@@ -999,10 +998,10 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       /* The "v" privileges is a little different.  It recursively 
       ** inherits all privileges of the user named "developer" */
       case 'v': {
-        if( (flags & LOGIN_IGNORE_V)==0 ){
+        if( (flags & LOGIN_IGNORE_UV)==0 ){
           const char *zDev;
           zDev = db_text("", "SELECT cap FROM user WHERE login='developer'");
-          login_set_capabilities(zDev, flags | LOGIN_IGNORE_V);
+          login_set_capabilities(zDev, flags | LOGIN_IGNORE_UV);
         }
         break;
       }
@@ -1217,11 +1216,6 @@ void register_page(void){
       }else{
         char *zPw = sha1_shared_secret(blob_str(&passwd), blob_str(&login), 0);
         int uid;
-        char *zCookie;
-        const char *zCookieName;
-        const char *zExpire;
-        int expires;
-        const char *zIpAddr;
         db_multi_exec(
             "INSERT INTO user(login,pw,cap,info)"
             "VALUES(%B,%Q,%B,%B)",
@@ -1231,19 +1225,7 @@ void register_page(void){
 
         /* The user is registered, now just log him in. */
         uid = db_int(0, "SELECT uid FROM user WHERE login=%Q", zUsername);
-        zCookieName = login_cookie_name();
-        zExpire = db_get("cookie-expire","8766");
-        expires = atoi(zExpire)*3600;
-        zIpAddr = PD("REMOTE_ADDR","nil");
-
-        zCookie = db_text(0, "SELECT '%d/' || hex(randomblob(25))", uid);
-        cgi_set_cookie(zCookieName, zCookie, login_cookie_path(), expires);
-        record_login_attempt(zUsername, zIpAddr, 1);
-        db_multi_exec(
-            "UPDATE user SET cookie=%Q, ipaddr=%Q, "
-            "  cexpire=julianday('now')+%d/86400.0 WHERE uid=%d",
-            zCookie, ipPrefix(zIpAddr), expires, uid
-        );
+        login_set_user_cookie( zUsername, uid, NULL );
         redirect_to_g();
 
       }

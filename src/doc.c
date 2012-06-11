@@ -607,6 +607,39 @@ void logo_page(void){
   g.isConst = 1;
 }
 
+/*
+** The default background image:  a 16x16 white GIF
+*/
+static const unsigned char aBackground[] = {
+    71,  73,  70,  56,  57,  97,  16,   0,  16,   0,
+   240,   0,   0, 255, 255, 255,   0,   0,   0,  33,
+   254,   4, 119, 105, 115, 104,   0,  44,   0,   0,
+     0,   0,  16,   0,  16,   0,   0,   2,  14, 132,
+   143, 169, 203, 237,  15, 163, 156, 180, 218, 139,
+   179,  62,   5,   0,  59,
+};
+
+
+/*
+** WEBPAGE: background
+**
+** Return the background image.
+*/
+void background_page(void){
+  Blob bgimg;
+  char *zMime;
+
+  zMime = db_get("background-mimetype", "image/gif");
+  blob_zero(&bgimg);
+  db_blob(&bgimg, "SELECT value FROM config WHERE name='background-image'");
+  if( blob_size(&bgimg)==0 ){
+    blob_init(&bgimg, (char*)aBackground, sizeof(aBackground));
+  }
+  cgi_set_content_type(zMime);
+  cgi_set_content(&bgimg);
+  g.isConst = 1;
+}
+
 /* 
  * vim:ts=2:sts=2:et:sw=2:ft=c 
  */

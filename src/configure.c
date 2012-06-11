@@ -80,6 +80,15 @@ static struct {
   { "footer",                 CONFIGSET_SKIN },
   { "logo-mimetype",          CONFIGSET_SKIN },
   { "logo-image",             CONFIGSET_SKIN },
+  { "background-mimetype",    CONFIGSET_SKIN },
+  { "background-image",       CONFIGSET_SKIN },
+  { "index-page",             CONFIGSET_SKIN },
+  { "timeline-block-markup",  CONFIGSET_SKIN },
+  { "timeline-max-comment",   CONFIGSET_SKIN },
+#ifdef FOSSIL_ENABLE_TCL
+  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+#endif
+
   { "project-name",           CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
@@ -87,12 +96,7 @@ static struct {
   { "crnl-glob",              CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
-  { "index-page",             CONFIGSET_SKIN },
-#ifdef FOSSIL_ENABLE_TCL
-  { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
-#endif
-  { "timeline-block-markup",  CONFIGSET_SKIN },
-  { "timeline-max-comment",   CONFIGSET_SKIN },
+
   { "ticket-table",           CONFIGSET_TKT  },
   { "ticket-common",          CONFIGSET_TKT  },
   { "ticket-change",          CONFIGSET_TKT  },
@@ -105,11 +109,16 @@ static struct {
   { "ticket-title-expr",      CONFIGSET_TKT  },
   { "ticket-closed-expr",     CONFIGSET_TKT  },
   { "@reportfmt",             CONFIGSET_TKT  },
+
   { "@user",                  CONFIGSET_USER },
+
   { "@concealed",             CONFIGSET_ADDR },
+
   { "@shun",                  CONFIGSET_SHUN },
+
   { "xfer-common-script",     CONFIGSET_XFER },
   { "xfer-push-script",       CONFIGSET_XFER },
+
 };
 static int iConfig = 0;
 

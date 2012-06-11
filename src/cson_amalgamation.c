@@ -5632,6 +5632,62 @@ int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql,
     }        
 }
 
+int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )
+{
+    int rc = 0;
+    char convertErr = 0;
+    if(!st) return cson_rc.ArgError;
+    else if( ndx < 1 ) {
+        rc = cson_rc.RangeError;
+    }
+    else if( cson_value_is_array(v) ){
+        cson_array * ar = cson_value_get_array(v);
+        unsigned int len = cson_array_length_get(ar);
+        unsigned int i;
+        assert(NULL != ar);
+        for( i = 0; !rc && (i < len); ++i ){
+            rc = cson_sqlite3_bind_value( st, (int)i+ndx,
+                                          cson_array_get(ar, i));
+        }
+    }
+    else if(!v || cson_value_is_null(v)){
+        rc = sqlite3_bind_null(st,ndx);
+        convertErr = 1;
+    }
+    else if( cson_value_is_double(v) ){
+        rc = sqlite3_bind_double( st, ndx, cson_value_get_double(v) );
+        convertErr = 1;
+    }
+    else if( cson_value_is_bool(v) ){
+        rc = sqlite3_bind_int( st, ndx, cson_value_get_bool(v) ? 1 : 0 );
+        convertErr = 1;
+    }
+    else if( cson_value_is_integer(v) ){
+        rc = sqlite3_bind_int64( st, ndx, cson_value_get_integer(v) );
+        convertErr = 1;
+    }
+    else if( cson_value_is_string(v) ){
+        cson_string const * s = cson_value_get_string(v);
+        rc = sqlite3_bind_text( st, ndx,
+                                cson_string_cstr(s),
+                                cson_string_length_bytes(s),
+                                SQLITE_TRANSIENT);
+        convertErr = 1;
+    }
+    else {
+        rc = cson_rc.TypeError;
+    }
+    if(convertErr && rc) switch(rc){
+      case SQLITE_TOOBIG:
+      case SQLITE_RANGE: rc = cson_rc.RangeError; break;
+      case SQLITE_NOMEM: rc = cson_rc.AllocError; break;
+      case SQLITE_IOERR: rc = cson_rc.IOError; break;
+      default: rc = cson_rc.UnknownError; break;
+    };
+    return rc;
+}
+
+
 #if defined(__cplusplus)
 } /*extern "C"*/
 #endif

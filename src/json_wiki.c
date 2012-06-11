@@ -425,6 +425,7 @@ static cson_value * json_wiki_list(){
   Stmt q = empty_Stmt;
   Blob sql = empty_blob;
   char const verbose = json_find_option_bool("verbose",NULL,"v",0);
+  char fInvert = json_find_option_bool("invert",NULL,"i",0);;
 
   if( !g.perm.RdWiki && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED,
@@ -433,18 +434,21 @@ static cson_value * json_wiki_list(){
   }
   blob_append(&sql,"SELECT"
               " substr(tagname,6) as name"
-              " FROM tag WHERE tagname GLOB 'wiki-*' ",
+              " FROM tag WHERE tagname GLOB 'wiki-*'",
               -1);
   zGlob = json_find_option_cstr("glob",NULL,"g");
   if(zGlob && *zGlob){
-    blob_appendf(&sql," AND name GLOB %Q ", zGlob);
+    blob_appendf(&sql," AND name %s GLOB %Q",
+                 fInvert ? "NOT" : "", zGlob);
   }else{
     zGlob = json_find_option_cstr("like",NULL,"l");
     if(zGlob && *zGlob){
-      blob_appendf(&sql," AND name LIKE %Q ", zGlob);
+      blob_appendf(&sql," AND name %s LIKE %Q",
+                   fInvert ? "NOT" : "",
+                   zGlob);
     }
   }
-  blob_append(&sql,"ORDER BY lower(name)", -1);
+  blob_append(&sql," ORDER BY lower(name)", -1);
   db_prepare(&q,"%s", blob_str(&sql));
   blob_reset(&sql);
   listV = cson_value_new_array();
