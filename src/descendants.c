@@ -164,15 +164,15 @@ void compute_ancestors(int rid, int N){
   Stmt ins;
   Stmt q;
   bag_init(&seen);
-  pqueue_init(&queue);
+  pqueuex_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0, 0);
+  pqueuex_insert(&queue, rid, 0.0, 0);
   db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
   db_prepare(&q,
     "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
     " WHERE a.cid=:rid"
   );
-  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
@@ -181,13 +181,13 @@ void compute_ancestors(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, -mtime, 0);
+        pqueuex_insert(&queue, pid, -mtime, 0);
       }
     }
     db_reset(&q);
   }
   bag_clear(&seen);
-  pqueue_clear(&queue);
+  pqueuex_clear(&queue);
   db_finalize(&ins);
   db_finalize(&q);
 }
@@ -239,12 +239,12 @@ void compute_descendants(int rid, int N){
   Stmt q;
 
   bag_init(&seen);
-  pqueue_init(&queue);
+  pqueuex_init(&queue);
   bag_insert(&seen, rid);
-  pqueue_insert(&queue, rid, 0.0, 0);
+  pqueuex_insert(&queue, rid, 0.0, 0);
   db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
   db_prepare(&q, "SELECT cid, mtime FROM plink WHERE pid=:rid");
-  while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
+  while( (N--)>0 && (rid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&ins, ":rid", rid);
     db_step(&ins);
     db_reset(&ins);
@@ -253,13 +253,13 @@ void compute_descendants(int rid, int N){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
-        pqueue_insert(&queue, pid, mtime, 0);
+        pqueuex_insert(&queue, pid, mtime, 0);
       }
     }
     db_reset(&q);
   }
   bag_clear(&seen);
-  pqueue_clear(&queue);
+  pqueuex_clear(&queue);
   db_finalize(&ins);
   db_finalize(&q);
 }

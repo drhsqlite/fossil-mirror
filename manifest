@@ -1,5 +1,5 @@
-C Minor\spedantic\swording\schange\sto\saccommodate\sa\srecent\scode\schange\sin\show\s_FOSSIL_\sstores\sthe\spath\sto\sthe\srepo\sfile.
-D 2012-06-11T11:39:26.444
+C Change\sthe\s"pqueue_"\sprefix\son\smethods\sof\sthe\spriority\squeue\sobject\sto\nbe\s"pqueuex_"\sto\savoid\sconflicts\swith\sOpenSSL.
+D 2012-06-12T11:20:13.791
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -79,7 +79,7 @@ F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
 F src/db.c a71fac98f85a291b92a955ceb711c9f756a03746
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c 685633650b44a0dd598b5161c82a6c45aac48919
+F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c c8c7a3a9794deba9e490c1995068ec84945a84f0
 F src/diffcmd.c ced292ca3111995479e1fd493536e0d3da91d54a
 F src/doc.c ac5a32d381d56ed6249c8a99be141005ae144152
@@ -129,7 +129,7 @@ F src/name.c af18fd6b7ba99be4e78f7da6847fa3acc1069149
 F src/path.c 157d9c226ff775c5d9388666acbfd3d14ea90c62
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
-F src/pqueue.c 49f71680db21a8757c891bd5ddd37a821fbce6bf
+F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c aa2683598d5dccc853080ad8b369b15422ee1fbf
 F src/rebuild.c f1d6ecabf37517e454efd79784771dcbaedd9b41
 F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
@@ -148,7 +148,7 @@ F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
 F src/style.c 96cf07af3cb9cb4060ab9d07f33498f0147fd02f
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
-F src/tag.c 9457a300b2e85fc0f66417a69212cc5411a3273b
+F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1ac9cece64349afca313a63de0f64662a3e9e3f9
-R 8a3c3088ea2484f7843bf61681b4cbf7
-U stephan
-Z fa3ae5cb33c043ac95cb69569d6c587b
+P 480367cecf0baebd8148c8fd8e64aaad05b24397
+R 14ab2360cbf9e22cb0a445b00fadf9e5
+U drh
+Z d00c59a6c8fbf6c2c463671b90938ffa
