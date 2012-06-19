@@ -109,9 +109,9 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
                       json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
       if( contentFormat>0 ){/*HTML-ize it*/
-        zFormat = "html";
         Blob content = empty_blob;
         Blob raw = empty_blob;
+        zFormat = "html";
         if(zBody && *zBody){
           blob_append(&raw,zBody,-1);
           wiki_convert(&raw,&content,0);

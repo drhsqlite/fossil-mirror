@@ -1667,8 +1667,9 @@ int json_set_err( int code, char const * fmt, ... ){
     g.zErrMsg = mprintf("%s", json_err_cstr(code));
   }else{
     va_list vargs;
+    char * msg;
     va_start(vargs,fmt);
-    char * msg = vmprintf(fmt, vargs);
+    msg = vmprintf(fmt, vargs);
     va_end(vargs);
     g.zErrMsg = msg;
   }

@@ -984,7 +984,7 @@ void commit_cmd(void){
   zBrClr = find_option("branchcolor",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    azTag = fossil_realloc(azTag, sizeof(char*)*(nTag+2));
+    azTag = fossil_realloc((void *)azTag, sizeof(char*)*(nTag+2));
     azTag[nTag++] = zTag;
     azTag[nTag] = 0;
   }

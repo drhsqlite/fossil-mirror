@@ -115,8 +115,9 @@ static cson_value * json_tag_add(){
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
   {
     Blob uu = empty_blob;
+    int rc;
     blob_append(&uu, zName, -1);
-    int const rc = name_to_uuid(&uu, 9, "*");
+    rc = name_to_uuid(&uu, 9, "*");
     if(0!=rc){
       json_set_err(FSL_JSON_E_UNKNOWN,"Could not convert name back to UUID!");
       blob_reset(&uu);

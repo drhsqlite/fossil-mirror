@@ -1,5 +1,5 @@
-C Remove\stemporary\spqueue_insert\srenaming\shack\sfrom\sthe\svarious\sMakefiles.
-D 2012-06-14T13:00:22.809
+C Fix\sseveral\sMSVC\scompiler\swarnings,\sincluding\sa\scouple\sC99-isms.
+D 2012-06-19T13:04:42.777
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,7 +66,7 @@ F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c a8ab196d8088546057193c3481f45720310104ba
-F src/checkin.c 577f5677d438ef6a1436bc3190a6f2219665733f
+F src/checkin.c bb549de0719801ab85be9fdfdbc61f15bba46f6a
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 953725b1398d472c266f3d59eb34a83987f0c2a6
@@ -97,7 +97,7 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 1b1203be8d62f3cc30559f0c250086332af40eed
-F src/json.c 47a98bee9f2c90563162922f8ce4dd4f9ebcea42
+F src/json.c e481f3747cb9c93096f5de3db505376bd4361287
 F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -108,10 +108,10 @@ F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
 F src/json_report.c 0cd77e64d33c5253090810b41d4418551f81fed5
-F src/json_tag.c 82f2198134f2dad1d6b82851b4ce47e55a8db7b6
+F src/json_tag.c 8275c6e70423e7733d00c0fe24481ea2e16a07de
 F src/json_timeline.c adf64805f1be966df94cb6800eee2a1f85d1533d
 F src/json_user.c 313737bc4b02588160fcebe758ab56d6912c37e4
-F src/json_wiki.c 8b0b032bf920e30aa075e21ff3ac974eedb8494c
+F src/json_wiki.c bd7d6612606e56e9bee44e82cde588e1ef0f4329
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
 F src/main.c 4fb17aa380867d46aeba8d9fd5424c681a5cc712
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 81162c716c07678d757ec7f756311c0f3218afd2
-R 5ebcbcde25bf132f3b0dd236db69d0f9
+P 4006ee4f23609e60c09f0cb2fce0f239bdc3b003
+R d485bef8904c3e20af6798e2e1a3e196
 U mistachkin
-Z 467c87308bea9b5680a644984ffcdcf0
+Z f0026c1c7b0813188d9bb9108d414e29
