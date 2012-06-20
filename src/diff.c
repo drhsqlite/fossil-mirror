@@ -381,7 +381,7 @@ struct SbsLine {
 ** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
 ** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
 **
-** This comment contains multi-byte unicode characters (ü, Æ, ð) in order
+** This comment contains multibyte unicode characters (ü, Æ, ð) in order
 ** to test the ability of the diff code to handle such characters.
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
@@ -432,6 +432,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       j += 4;
     }else{
       z[j++] = c;
+      if( (c&0xc0)==0x80 ) k--;
     }
   }
   if( needEndSpan ){
@@ -887,7 +888,7 @@ static void sbsDiff(
   SbsLine s;    /* Output line buffer */
 
   memset(&s, 0, sizeof(s));
-  s.zLine = fossil_malloc( 10*width + 200 );
+  s.zLine = fossil_malloc( 15*width + 200 );
   if( s.zLine==0 ) return;
   s.width = width;
   s.escHtml = escHtml;
