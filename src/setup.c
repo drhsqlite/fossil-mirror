@@ -1628,7 +1628,6 @@ void sql_page(void){
                break;
             }
             case SQLITE_TEXT: {
-               int k;
                const char *zText = (const char*)sqlite3_column_text(pStmt, i);
                @ <td align="left" valign="top"
                @ style="white-space:pre;">%h(zText)</td>
