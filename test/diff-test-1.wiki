@@ -12,6 +12,9 @@ the correct operation of the diff logic.
      target="testwindow">Tricky alignment and multiple edits per line</a>.
   *  <a href="../../../fdiff?v1=7108d4748b111d23&v2=2303a98525b39d19#chunk3"
      target="testwindow">Add a column to a table</a>
+  *  <a href="../../../fdiff?v1=d1c60722e0b9d775&v2=58d1a8991bacb113"
+     target="testwindow">Column alignment with multibyte characters.</a>
+     The edit of a line with multibyte characters is the first chunk.
 
 External:
 
