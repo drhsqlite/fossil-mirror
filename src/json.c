@@ -2319,7 +2319,8 @@ static int json_dispatch_root_command( char const * zCommand ){
   return rc;
 }
 
-#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
+#ifdef FOSSIL_ENABLE_JSON
+/* dupe ifdef needed for mkindex */
 /*
 ** WEBPAGE: json
 **
@@ -2342,7 +2343,8 @@ void json_page_top(void){
 }
 #endif /* FOSSIL_ENABLE_JSON for mkindex */
 
-#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
+#ifdef FOSSIL_ENABLE_JSON
+/* dupe ifdef needed for mkindex */
 /*
 ** This function dispatches json commands and is the CLI equivalent of
 ** json_page_top().
