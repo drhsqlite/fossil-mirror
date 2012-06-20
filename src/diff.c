@@ -377,9 +377,12 @@ struct SbsLine {
 #define SBS_PAD          0x0002   /* Pad output to width spaces */
 
 /*
-** Write up to width characters of pLine into z[].  Translate tabs into
+** Write up to width characters of pLine into p->zLine[].  Translate tabs into
 ** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
 ** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
+**
+** This comment contains multi-byte unicode characters (ü, Æ, ð) in order
+** to test the ability of the diff code to handle such characters.
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
