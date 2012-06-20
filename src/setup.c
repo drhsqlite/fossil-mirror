@@ -85,6 +85,8 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Ad-Unit", "setup_adunit",
+    "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
@@ -1180,9 +1182,11 @@ void setup_settings(void){
   @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
-  @ <p>Settings marked with (v) are 'versionable' and will be overridden by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
+  @ <p>Settings marked with (v) are 'versionable' and will be overridden
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
   @ <hr /><p>
-  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br />
+  @ These settings work in the same way, as the <kbd>set</kbd>
+  @ commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>
   db_end_transaction(0);
   style_footer();
@@ -1367,6 +1371,40 @@ void setup_footer(void){
   @ <blockquote><pre>
   @ %h(zDefaultFooter)
   @ </pre></blockquote>
+  style_footer();
+  db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_adunit
+*/
+void setup_adunit(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+  }else{
+    textarea_attribute(0, 0, 0, "adunit", "adunit", "");
+  }
+  style_header("Edit Ad Unit");
+  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  login_insert_csrf_secret();
+  @ <p>Edit HTML text for an ad unit that will be inserted after the
+  @ menu bar and above the content of every page.</p>
+  textarea_attribute("", 20, 80, "adunit", "adunit", "");
+  @ <br />
+  onoff_attribute("Omit ads to administrator",
+     "adunit_omit_if_admin", "adunit_omit_if_admin", 0);
+  @ <br />
+  onoff_attribute("Omit ads to logged-in users",
+     "adunit_omit_if_logged_in", "adunit_omit_if_logged_in", 0);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Delete Ad-Unit" />
+  @ </div></form>
   style_footer();
   db_end_transaction(0);
 }

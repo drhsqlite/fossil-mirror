@@ -1,5 +1,5 @@
-C Update\sthe\sdiff-test-1.wiki\stests\sto\sinclude\sa\scase\sfor\sside-by-side\sdiffs\nof\smultibyte\scharacters.
-D 2012-06-20T11:31:32.161
+C Allow\sad\sunits\sto\sbe\sadded\safter\sthe\smenu\sbar.\s\sOptionally\sdisable\sads\sfor\nlogged\sin\susers\sand/or\sadministrators.
+D 2012-06-20T14:14:22.539
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -136,7 +136,7 @@ F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c bdaf11ce7f5d51a0af20497ed645b205e81c5394
+F src/setup.c 801f66ce191a0b45c3311ec3efc2f34d5d7fb9f0
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 59a45477dd638b617f9685e4c11c416cc32eb7cb
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -146,7 +146,7 @@ F src/sqlite3.c 57b0d8183cab0e3d724ba7250b9bfbd20c1a32ad
 F src/sqlite3.h d4c9759003131debfd59799004bd10071f5f47e0
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
-F src/style.c 96cf07af3cb9cb4060ab9d07f33498f0147fd02f
+F src/style.c 3a2c37f277316c4e3477445965cc7927e07c8d94
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 484f8d29af0d130e5b5bb62eb69285a1c83cbd96
-R ea83b0350ebb0e88e122e0c82fce071a
+P c2b681e635327123493339bad3a15aa88177538d
+R 3fc23f536d0f0282ea91f194d106238e
 U drh
-Z 1097011d1ea888938b2c1311771646a0
+Z 197cc8272669bcaab04a489d478de855
