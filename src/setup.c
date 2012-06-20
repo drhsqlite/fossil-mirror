@@ -1397,10 +1397,10 @@ void setup_adunit(void){
   textarea_attribute("", 20, 80, "adunit", "adunit", "");
   @ <br />
   onoff_attribute("Omit ads to administrator",
-     "adunit_omit_if_admin", "adunit_omit_if_admin", 0);
+     "adunit-omit-if-admin", "oia", 0);
   @ <br />
   onoff_attribute("Omit ads to logged-in users",
-     "adunit_omit_if_logged_in", "adunit_omit_if_logged_in", 0);
+     "adunit-omit-if-user", "oiu", 0);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Delete Ad-Unit" />

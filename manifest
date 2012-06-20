@@ -1,5 +1,5 @@
-C Allow\sad\sunits\sto\sbe\sadded\safter\sthe\smenu\sbar.\s\sOptionally\sdisable\sads\sfor\nlogged\sin\susers\sand/or\sadministrators.
-D 2012-06-20T14:14:22.539
+C Change\sthe\snames\sof\sconfig\sparameters\sfor\sadunits\sto\suse\s"-"\sinstead\sof\s"_".\nAllow\sconfiguration\ssync\sof\sadunits\sas\spart\sof\sthe\sskin.
+D 2012-06-20T14:40:57.250
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -72,7 +72,7 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 953725b1398d472c266f3d59eb34a83987f0c2a6
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c 44058300c4e3243869c5a42d0227a78562ed550c
+F src/configure.c ebf8d685e75cf5cbf153c242f361d2a6831d5133
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c 27306a292816ab910f299975dd7e696f65820b79
 F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
@@ -136,7 +136,7 @@ F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 801f66ce191a0b45c3311ec3efc2f34d5d7fb9f0
+F src/setup.c ff8c824e18291a8bc5a3b5923f8fd219375381a6
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 59a45477dd638b617f9685e4c11c416cc32eb7cb
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -146,7 +146,7 @@ F src/sqlite3.c 57b0d8183cab0e3d724ba7250b9bfbd20c1a32ad
 F src/sqlite3.h d4c9759003131debfd59799004bd10071f5f47e0
 F src/stash.c 29ea7983837ed04ab214b27d488cdcca67cd1859
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
-F src/style.c 3a2c37f277316c4e3477445965cc7927e07c8d94
+F src/style.c 44536c4a1d7587cc227ddf9b9b330ac36754403f
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c2b681e635327123493339bad3a15aa88177538d
-R 3fc23f536d0f0282ea91f194d106238e
+P e33fc88630c4ac323772d35b9393350f0faac603
+R a60a4e08caff998fe6111f55c0df1ae5
 U drh
-Z 197cc8272669bcaab04a489d478de855
+Z 595b59de1d4223c3f78651ccc077c1c4

@@ -209,11 +209,11 @@ void style_header(const char *zTitleFormat, ...){
 */
 static void style_ad_unit(void){
   const char *zAd;
-  if( g.perm.Admin && db_get_boolean("adunit_omit_if_admin",0) ){
+  if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
     return;
   }
   if( g.zLogin && strcmp(g.zLogin,"anonymous")!=0
-      && db_get_boolean("adunit_omit_if_logged_in",0) ){
+      && db_get_boolean("adunit-omit-if-user",0) ){
     return;
   }
   zAd = db_get("adunit", 0);
