@@ -97,6 +97,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
+  setup_menu_entry("SQL", "admin_sql",
+    "Enter raw SQL commands");
   @ </table>
 
   style_footer();
@@ -1530,4 +1532,120 @@ void setup_logo(void){
   @ take effect. </p>
   style_footer();
   db_end_transaction(0);
+}
+
+
+/*
+** WEBPAGE: admin_sql
+**
+** Run raw SQL commands against the database file using the web interface.
+*/
+void sql_page(void){
+  const char *zQ = P("q");
+  int go = P("go")!=0;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  style_header("Raw SQL Commands");
+  @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
+  @ run by this page.  You can do serious and irrepairable damage to the
+  @ repository.  Proceed with extreme caution.</p>
+  @
+  @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
+  if( g.configOpen ){
+    @ <li>config &rarr; %s(db_name("configdb"))
+  }
+  if( g.localOpen ){
+    @ <li>local-checkout &rarr; %s(db_name("localdb"))
+  }
+  @ </ul></p>
+  @
+  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  login_insert_csrf_secret();
+  @ SQL:<br />
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <input type="submit" name="go" value="Run SQL">
+  @ <input type="submit" name="schema" value="Show Schema">
+  @ <input type="submit" name="tablelist" value="List Tables">
+  @ </form>
+  if( P("schema") ){
+    zQ = sqlite3_mprintf(
+            "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
+            db_name("repository"));
+    go = 1;
+  }else if( P("tablelist") ){
+    zQ = sqlite3_mprintf(
+            "SELECT name FROM %s.sqlite_master WHERE type='table'"
+            " ORDER BY name",
+            db_name("repository"));
+    go = 1;
+  }
+  if( go ){
+    sqlite3_stmt *pStmt;
+    int rc;
+    const char *zTail;
+    int nCol;
+    int nRow = 0;
+    int i;
+    @ <hr />
+    login_verify_csrf_secret();
+    rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
+    if( rc!=SQLITE_OK ){
+      @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
+      sqlite3_finalize(pStmt);
+    }else if( pStmt==0 ){
+      /* No-op */
+    }else if( (nCol = sqlite3_column_count(pStmt))==0 ){
+      sqlite3_step(pStmt);
+      rc = sqlite3_finalize(pStmt);
+      if( rc ){
+        @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
+      }
+    }else{
+      @ <table border=1>
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        if( nRow==0 ){
+          @ <tr>
+          for(i=0; i<nCol; i++){
+            @ <th>%h(sqlite3_column_name(pStmt, i))</th>
+          }
+          @ </tr>
+        }
+        nRow++;
+        @ <tr>
+        for(i=0; i<nCol; i++){
+          switch( sqlite3_column_type(pStmt, i) ){
+            case SQLITE_INTEGER:
+            case SQLITE_FLOAT: {
+               @ <td align="right" valign="top">
+               @ %s(sqlite3_column_text(pStmt, i))</td>
+               break;
+            }
+            case SQLITE_NULL: {
+               @ <td valign="top" align="center"><i>NULL</i></td>
+               break;
+            }
+            case SQLITE_TEXT: {
+               int k;
+               const char *zText = (const char*)sqlite3_column_text(pStmt, i);
+               @ <td align="left" valign="top"
+               @ style="white-space:pre;">%h(zText)</td>
+               break;
+            }
+            case SQLITE_BLOB: {
+               @ <td valign="top" align="center">
+               @ <i>%d(sqlite3_column_bytes(pStmt, i))-byte BLOB</i></td>
+               break;
+            }
+          }
+        }
+        @ </tr>
+      }
+      sqlite3_finalize(pStmt);
+      @ </table>
+    }
+  }
+  style_footer();
 }

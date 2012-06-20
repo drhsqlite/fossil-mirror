@@ -1,5 +1,5 @@
-C comment-after-#ifdef\spatch\sfrom\sAlexander\sOrefkov.
-D 2012-06-20T16:47:31.630
+C Add\sthe\sability\sfor\san\sadministrator\sto\srun\sraw\sSQL\scommands\svia\sthe\nweb\sinterface.
+D 2012-06-20T17:24:07.899
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -136,7 +136,7 @@ F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c ff8c824e18291a8bc5a3b5923f8fd219375381a6
+F src/setup.c fdd6ff44986c0019bf1ded86dc759a9d74f6fd5b
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 59a45477dd638b617f9685e4c11c416cc32eb7cb
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4bf5cdc873df8983ccee520cf170e7e25a21f34f
-R 962ca74d3439999d460c3c99165de907
-U stephan
-Z 511187a7e2717420ff9e5cbb49074223
+P c5d56e49746579e811db0c63d90ff135bbb92adc
+R e348452a58d3a29013488ee653f85fd5
+U drh
+Z df921bab6fa6d161022ab23539433785
