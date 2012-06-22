@@ -926,6 +926,9 @@ $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_wiki$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.h
+$(OBJDIR)\cson_amalgamation$(O): $(SRCDIR)\cson_amalgamation.c
+	$(TCC) -c $(SRCDIR)\cson_amalgamation.c -o $(OBJDIR)\cson_amalgamation$(O) -DCSON_FOSSIL_MODE
 
 }
 foreach s [lsort $src] {
