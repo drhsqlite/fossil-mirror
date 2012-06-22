@@ -1169,7 +1169,7 @@ static void longestCommonSequence(
       iSYb = iSY;
       iEXb = iEX;
       iEYb = iEY;
-    }else{
+    }else if( iEX>iEXp ){
       iSXp = iSX;
       iSYp = iSY;
       iEXp = iEX;

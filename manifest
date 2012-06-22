@@ -1,5 +1,5 @@
-C Minor\sMakefile\shack\sto\sallow\s"make\sclean"\sto\swork\sfrom\s./src/.
-D 2012-06-22T13:03:13.716
+C Huge\sperformance\simprovement\sfor\scertain\spathological\scases\sfor\sdiffing\nof\svery\slarge\sfiles.
+D 2012-06-22T22:39:32.418
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -80,7 +80,7 @@ F src/db.c a71fac98f85a291b92a955ceb711c9f756a03746
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
-F src/diff.c 58d1a8991bacb113cfa44346f5a9d05dda1ba515
+F src/diff.c 42067ab6c1d93abe5720f51eb5dfe43ba21bea07
 F src/diffcmd.c ced292ca3111995479e1fd493536e0d3da91d54a
 F src/doc.c ac5a32d381d56ed6249c8a99be141005ae144152
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2955cece33a51e53c75e0726d60a77a760e52688
-R edd907bd5033f62e3512cd5a514062b4
-U stephan
-Z ba1ac6c7d6329911a02b0784b8590ff6
+P 4e4b6cc35f0148741121fd1fa7bc5b9fdc9a6206
+R 1ae4a13620d67980a3192dcd0257c805
+U drh
+Z 479cce5f50f8c5994c32b0227c7a47e3
