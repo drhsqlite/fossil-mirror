@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sversion\sfrom\sthe\strunk\sof\sthe\nSQLite\stree.\s\sThe\sdiff\sof\sthis\sSQLite\schange\swill\sbe\svery\sslow\swithout\nthe\sprevious\scheck-in\sthat\senhances\sthe\sdiff\sperformance.
-D 2012-06-22T23:32:07.179
+C Updates\sto\stest\sprocedures.\s\sAdd\sa\stest\scase\sfor\sthe\shard-to-diff\ssqlite3.c\nchange.
+D 2012-06-22T23:42:11.886
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -172,9 +172,9 @@ F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c 2e2b1b1d03fe6032c5ed4c14b255b4e8c2b55086
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
-F test/diff-test-1.wiki 625fdcd447dc22318d2ac6ab412fb5b716881369
+F test/diff-test-1.wiki b0a4d8629bef84fcb8e8a7ffe511d4bfaa98c71c
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
-F test/graph-test-1.wiki 59c0afc22a0e3365672883bebe595854c5bd6a8e
+F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
 F test/merge1.test 2b9aaabfbcc632d76d39365fd5e07e03ce682059
 F test/merge2.test 60194e41fa120b44f2a561b890f55ddba18aebe6
 F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9e15437e971d3f823bf60aa14455676a70d56d7a
-R a63149667d7d20d13f97e86fc600f3f1
+P c5b835ddc0a66e9b833e8c450199997bf6a23e1c
+R 95e5727566f453d32ef29643f31dac6e
 U drh
-Z 211ef65766c69b0036a9565ac21347ef
+Z fa099473b7bf654e050d4b7a53ccc8cf

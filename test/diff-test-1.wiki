@@ -15,6 +15,9 @@ the correct operation of the diff logic.
   *  <a href="../../../fdiff?v1=d1c60722e0b9d775&v2=58d1a8991bacb113"
      target="testwindow">Column alignment with multibyte characters.</a>
      The edit of a line with multibyte characters is the first chunk.
+  *  <a href="../../../fdiff?v1=57b0d8183cab0e3d&v2=37b3ef49d73cdfe6"
+     target="testwindow">Large diff of sqlite3.c</a>.  This diff was very
+     slow prior to the preformance enhancement change [9e15437e97].
 
 External:
 
