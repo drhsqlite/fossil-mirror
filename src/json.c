@@ -1915,7 +1915,7 @@ cson_value * json_page_version(){
                    cson_value_new_integer(RELEASE_VERSION_NUMBER) );
   cson_object_set( jobj, "resultCodeParanoiaLevel",
                    cson_value_new_integer(g.json.errorDetailParanoia) );
-  /*FSET(FOSSIL_JSON_API_VERSION, "jsonApiVersion" );*/
+  FSET(FOSSIL_JSON_API_VERSION, "jsonApiVersion" );
 #undef FSET
   return jval;
 }

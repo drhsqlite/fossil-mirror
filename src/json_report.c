@@ -80,6 +80,7 @@ static int json_report_get_number(int argPos){
 }
 
 static cson_value * json_report_create(){
+  json_set_err(FSL_JSON_E_NYI, NULL);
   return NULL;
 }
 
