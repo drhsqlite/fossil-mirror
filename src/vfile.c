@@ -538,6 +538,21 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 }
 
 /*
+** Write a BLOB into a random filename.  Return the name of the file.
+*/
+static char *write_blob_to_temp_file(Blob *pBlob){
+  sqlite3_uint64 r;
+  char *zOut = 0;
+  do{
+    sqlite3_free(zOut);
+    sqlite3_randomness(8, &r);
+    zOut = sqlite3_mprintf("file-%08llx", r);
+  }while( file_size(zOut)>=0 );
+  blob_write_to_file(pBlob, zOut);
+  return zOut;
+}
+
+/*
 ** Do a file-by-file comparison of the content of the repository and
 ** the working check-out on disk.  Report any errors.
 */
@@ -545,6 +560,7 @@ void vfile_compare_repository_to_disk(int vid){
   int rc;
   Stmt q;
   Blob disk, repo;
+  char *zOut;
   
   db_must_be_within_tree();
   db_prepare(&q, 
@@ -574,6 +590,10 @@ void vfile_compare_repository_to_disk(int vid){
     if( blob_size(&repo)!=blob_size(&disk) ){
       fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+                   zName, zOut);
+      sqlite3_free(zOut);
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
@@ -582,6 +602,10 @@ void vfile_compare_repository_to_disk(int vid){
       fossil_print(
           "ERROR: [%s] is different on disk compared to the repository\n",
           zName);
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+          zName, zOut);
+      sqlite3_free(zOut);
     }
     blob_reset(&disk);
     blob_reset(&repo);
