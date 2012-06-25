@@ -208,10 +208,12 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( chnged==0 && (useMtime==0 || currentMtime!=oldMtime) ){
-      /* For files that were formerly believed to be unchanged, if their
-      ** mtime changes, or unconditionally if --sha1sum is used, check
-      ** to see if they have been edited by looking at their SHA1 sum */
+    }else if( (chnged==0 || chnged==2)
+           && (useMtime==0 || currentMtime!=oldMtime) ){
+      /* For files that were formerly believed to be unchanged or that were
+      ** changed by merging, if their mtime changes, or unconditionally
+      ** if --sha1sum is used, check to see if they have been edited by
+      ** looking at their SHA1 sum */
       assert( origSize==currentSize );
       db_ephemeral_blob(&q, 5, &origCksum);
       if( sha1sum_file(zName, &fileCksum) ){
