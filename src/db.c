@@ -765,9 +765,9 @@ void db_open_config(int useAttach){
   g.zHome = mprintf("%/", zHome);
 #if defined(_WIN32)
   /* . filenames give some window systems problems and many apps problems */
-  zDbName = mprintf("%//_fossil", zHome);
+  zDbName = mprintf("%//_fossil4", zHome);
 #else
-  zDbName = mprintf("%s/.fossil", zHome);
+  zDbName = mprintf("%s/.fossil4", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);

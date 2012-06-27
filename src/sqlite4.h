@@ -160,7 +160,7 @@ SQLITE_API int sqlite4_env_config(sqlite4_env*, int op, ...);
 */
 #define SQLITE_VERSION        "4.0.0"
 #define SQLITE_VERSION_NUMBER 4000000
-#define SQLITE_SOURCE_ID      "2012-06-26 20:17:04 f19a93d9f9d862741bc7fbb05e292d430864b2b1"
+#define SQLITE_SOURCE_ID      "2012-06-27 13:56:22 bd2216554bbcf5eee88dc17d0d6ae165a7eddbe4"
 
 /*
 ** CAPIREF: Run-Time Library Version Numbers
@@ -253,7 +253,7 @@ SQLITE_API int sqlite4_threadsafe(sqlite4_env*);
 ** pointer as an object.  The [sqlite4_open()]
 ** interface is its constructors, and [sqlite4_close()]
 ** is its destructor.  There are many other interfaces (such as
-** [sqlite4_prepare_v2()], [sqlite4_create_function()], and
+** [sqlite4_prepare], [sqlite4_create_function()], and
 ** [sqlite4_busy_timeout()] to name but three) that are methods on an
 ** sqlite4 object.
 */
@@ -340,7 +340,7 @@ typedef int (*sqlite4_callback)(void*,int,char**, char**);
 ** CAPIREF: One-Step Query Execution Interface
 **
 ** The sqlite4_exec() interface is a convenience wrapper around
-** [sqlite4_prepare_v2()], [sqlite4_step()], and [sqlite4_finalize()],
+** [sqlite4_prepare()], [sqlite4_step()], and [sqlite4_finalize()],
 ** that allows an application to run multiple statements of SQL
 ** without having to use a lot of C code. 
 **
@@ -1152,7 +1152,7 @@ SQLITE_API void sqlite4_randomness(sqlite4_env*, int N, void *P);
 ** ^This routine registers an authorizer callback with a particular
 ** [database connection], supplied in the first argument.
 ** ^The authorizer callback is invoked as SQL statements are being compiled
-** by [sqlite4_prepare()] or its variants [sqlite4_prepare_v2()],
+** by [sqlite4_prepare()] or its variants [sqlite4_prepare()],
 ** [sqlite4_prepare16()] and [sqlite4_prepare16_v2()].  ^At various
 ** points during the compilation process, as logic is being created
 ** to perform various actions, the authorizer callback is invoked to
@@ -1162,12 +1162,12 @@ SQLITE_API void sqlite4_randomness(sqlite4_env*, int N, void *P);
 ** compiled, or [SQLITE_DENY] to cause the entire SQL statement to be
 ** rejected with an error.  ^If the authorizer callback returns
 ** any value other than [SQLITE_IGNORE], [SQLITE_OK], or [SQLITE_DENY]
-** then the [sqlite4_prepare_v2()] or equivalent call that triggered
+** then the [sqlite4_prepare()] or equivalent call that triggered
 ** the authorizer will fail with an error message.
 **
 ** When the callback returns [SQLITE_OK], that means the operation
 ** requested is ok.  ^When the callback returns [SQLITE_DENY], the
-** [sqlite4_prepare_v2()] or equivalent call that triggered the
+** [sqlite4_prepare()] or equivalent call that triggered the
 ** authorizer will fail with an error message explaining that
 ** access is denied. 
 **
@@ -1212,10 +1212,10 @@ SQLITE_API void sqlite4_randomness(sqlite4_env*, int N, void *P);
 **
 ** The authorizer callback must not do anything that will modify
 ** the database connection that invoked the authorizer callback.
-** Note that [sqlite4_prepare_v2()] and [sqlite4_step()] both modify their
+** Note that [sqlite4_prepare()] and [sqlite4_step()] both modify their
 ** database connections for the meaning of "modify" in this paragraph.
 **
-** ^When [sqlite4_prepare_v2()] is used to prepare a statement, the
+** ^When [sqlite4_prepare()] is used to prepare a statement, the
 ** statement might be re-prepared during [sqlite4_step()] due to a 
 ** schema change.  Hence, the application should ensure that the
 ** correct authorizer callback remains in place during the [sqlite4_step()].
@@ -1224,7 +1224,7 @@ SQLITE_API void sqlite4_randomness(sqlite4_env*, int N, void *P);
 ** [sqlite4_prepare()] or its variants.  Authorization is not
 ** performed during statement evaluation in [sqlite4_step()], unless
 ** as stated in the previous paragraph, sqlite4_step() invokes
-** sqlite4_prepare_v2() to reprepare a statement after a schema change.
+** sqlite4_prepare() to reprepare a statement after a schema change.
 */
 SQLITE_API int sqlite4_set_authorizer(
   sqlite4*,
@@ -1356,7 +1356,7 @@ SQLITE_API SQLITE_EXPERIMENTAL void *sqlite4_profile(sqlite4*,
 **
 ** The progress handler callback must not do anything that will modify
 ** the database connection that invoked the progress handler.
-** Note that [sqlite4_prepare_v2()] and [sqlite4_step()] both modify their
+** Note that [sqlite4_prepare()] and [sqlite4_step()] both modify their
 ** database connections for the meaning of "modify" in this paragraph.
 **
 */
@@ -1473,7 +1473,7 @@ SQLITE_API const void *sqlite4_errmsg16(sqlite4*);
 ** The life of a statement object goes something like this:
 **
 ** <ol>
-** <li> Create the object using [sqlite4_prepare_v2()] or a related
+** <li> Create the object using [sqlite4_prepare()] or a related
 **      function.
 ** <li> Bind values to [host parameters] using the sqlite4_bind_*()
 **      interfaces.
@@ -1605,9 +1605,9 @@ SQLITE_API int sqlite4_limit(sqlite4*, int id, int newVal);
 ** The database connection must not have been closed.
 **
 ** The second argument, "zSql", is the statement to be compiled, encoded
-** as either UTF-8 or UTF-16.  The sqlite4_prepare() and sqlite4_prepare_v2()
-** interfaces use UTF-8, and sqlite4_prepare16() and sqlite4_prepare16_v2()
-** use UTF-16.
+** as either UTF-8 or UTF-16.  The sqlite4_prepare()
+** interface uses UTF-8, and sqlite4_prepare16()
+** uses UTF-16.
 **
 ** ^If the nByte argument is less than zero, then zSql is read up to the
 ** first zero terminator. ^If nByte is non-negative, then it is the maximum
@@ -1649,7 +1649,7 @@ SQLITE_API int sqlite4_prepare(
 **
 ** ^This interface can be used to retrieve a saved copy of the original
 ** SQL text used to create a [prepared statement] if that statement was
-** compiled using either [sqlite4_prepare_v2()] or [sqlite4_prepare16_v2()].
+** compiled using either [sqlite4_prepare()] or [sqlite4_prepare16_v2()].
 */
 SQLITE_API const char *sqlite4_sql(sqlite4_stmt *pStmt);
 
@@ -1761,7 +1761,7 @@ typedef struct sqlite4_context sqlite4_context;
 ** KEYWORDS: {host parameter} {host parameters} {host parameter name}
 ** KEYWORDS: {SQL parameter} {SQL parameters} {parameter binding}
 **
-** ^(In the SQL statement text input to [sqlite4_prepare_v2()] and its variants,
+** ^(In the SQL statement text input to [sqlite4_prepare()] and its variants,
 ** literals may be replaced by a [parameter] that matches one of following
 ** templates:
 **
@@ -1780,7 +1780,7 @@ typedef struct sqlite4_context sqlite4_context;
 **
 ** ^The first argument to the sqlite4_bind_*() routines is always
 ** a pointer to the [sqlite4_stmt] object returned from
-** [sqlite4_prepare_v2()] or its variants.
+** [sqlite4_prepare()] or its variants.
 **
 ** ^The second argument is the index of the SQL parameter to be set.
 ** ^The leftmost SQL parameter has an index of 1.  ^When the same named
@@ -2054,22 +2054,11 @@ SQLITE_API const void *sqlite4_column_decltype16(sqlite4_stmt*,int);
 /*
 ** CAPIREF: Evaluate An SQL Statement
 **
-** After a [prepared statement] has been prepared using either
-** [sqlite4_prepare_v2()] or [sqlite4_prepare16_v2()] or one of the legacy
-** interfaces [sqlite4_prepare()] or [sqlite4_prepare16()], this function
-** must be called one or more times to evaluate the statement.
+** After a [prepared statement] has been prepared using [sqlite4_prepare()],
+** this function must be called one or more times to evaluate the statement.
 **
-** The details of the behavior of the sqlite4_step() interface depend
-** on whether the statement was prepared using the newer "v2" interface
-** [sqlite4_prepare_v2()] and [sqlite4_prepare16_v2()] or the older legacy
-** interface [sqlite4_prepare()] and [sqlite4_prepare16()].  The use of the
-** new "v2" interface is recommended for new applications but the legacy
-** interface will continue to be supported.
-**
-** ^In the legacy interface, the return value will be either [SQLITE_BUSY],
-** [SQLITE_DONE], [SQLITE_ROW], [SQLITE_ERROR], or [SQLITE_MISUSE].
-** ^With the "v2" interface, any of the other [result codes] or
-** [extended result codes] might be returned as well.
+** ^This routine can return any of the other [result codes] or
+** [extended result codes].
 **
 ** ^[SQLITE_BUSY] means that the database engine was unable to acquire the
 ** database locks it needs to do its job.  ^If the statement is a [COMMIT]
@@ -2091,11 +2080,6 @@ SQLITE_API const void *sqlite4_column_decltype16(sqlite4_stmt*,int);
 ** ^[SQLITE_ERROR] means that a run-time error (such as a constraint
 ** violation) has occurred.  sqlite4_step() should not be called again on
 ** the VM. More information may be found by calling [sqlite4_errmsg()].
-** ^With the legacy interface, a more specific error code (for example,
-** [SQLITE_INTERRUPT], [SQLITE_SCHEMA], [SQLITE_CORRUPT], and so forth)
-** can be obtained by calling [sqlite4_reset()] on the
-** [prepared statement].  ^In the "v2" interface,
-** the more specific error code is returned directly by sqlite4_step().
 **
 ** [SQLITE_MISUSE] means that the this routine was called inappropriately.
 ** Perhaps it was called on a [prepared statement] that has
@@ -2103,30 +2087,6 @@ SQLITE_API const void *sqlite4_column_decltype16(sqlite4_stmt*,int);
 ** previously returned [SQLITE_ERROR] or [SQLITE_DONE].  Or it could
 ** be the case that the same database connection is being used by two or
 ** more threads at the same moment in time.
-**
-** For all versions of SQLite up to and including 3.6.23.1, a call to
-** [sqlite4_reset()] was required after sqlite4_step() returned anything
-** other than [SQLITE_ROW] before any subsequent invocation of
-** sqlite4_step().  Failure to reset the prepared statement using 
-** [sqlite4_reset()] would result in an [SQLITE_MISUSE] return from
-** sqlite4_step().  But after version 3.6.23.1, sqlite4_step() began
-** calling [sqlite4_reset()] automatically in this circumstance rather
-** than returning [SQLITE_MISUSE].  This is not considered a compatibility
-** break because any application that ever receives an SQLITE_MISUSE error
-** is broken by definition.  The [SQLITE_OMIT_AUTORESET] compile-time option
-** can be used to restore the legacy behavior.
-**
-** <b>Goofy Interface Alert:</b> In the legacy interface, the sqlite4_step()
-** API always returns a generic error code, [SQLITE_ERROR], following any
-** error other than [SQLITE_BUSY] and [SQLITE_MISUSE].  You must call
-** [sqlite4_reset()] or [sqlite4_finalize()] in order to find one of the
-** specific [error codes] that better describes the error.
-** We admit that this is a goofy design.  The problem has been fixed
-** with the "v2" interface.  If you prepare all of your SQL statements
-** using either [sqlite4_prepare_v2()] or [sqlite4_prepare16_v2()] instead
-** of the legacy [sqlite4_prepare()] and [sqlite4_prepare16()] interfaces,
-** then the more specific [error codes] are returned directly
-** by sqlite4_step().  The use of the "v2" interface is recommended.
 */
 SQLITE_API int sqlite4_step(sqlite4_stmt*);
 
@@ -2181,7 +2141,7 @@ SQLITE_API int sqlite4_data_count(sqlite4_stmt *pStmt);
 ** ^These routines return information about a single column of the current
 ** result row of a query.  ^In every case the first argument is a pointer
 ** to the [prepared statement] that is being evaluated (the [sqlite4_stmt*]
-** that was returned from [sqlite4_prepare_v2()] or one of its variants)
+** that was returned from [sqlite4_prepare()].
 ** and the second argument is the index of the column for which information
 ** should be returned. ^The leftmost column of the result set has the index 0.
 ** ^The number of columns in the result can be determined using
@@ -3039,7 +2999,7 @@ SQLITE_API int sqlite4_get_autocommit(sqlite4*);
 ** to which a [prepared statement] belongs.  ^The [database connection]
 ** returned by sqlite4_db_handle is the same [database connection]
 ** that was the first argument
-** to the [sqlite4_prepare_v2()] call (or its variants) that was used to
+** to the [sqlite4_prepare()] call (or its variants) that was used to
 ** create the statement in the first place.
 */
 SQLITE_API sqlite4 *sqlite4_db_handle(sqlite4_stmt*);

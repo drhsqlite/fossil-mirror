@@ -92,8 +92,9 @@ void load_vfile_from_rid(int vid){
   if( p==0 ) return;
   db_multi_exec("DELETE FROM vfile WHERE vid=%d", vid);
   db_prepare(&ins,
-    "INSERT INTO vfile(vid,isexe,islink,rid,mrid,pathname) "
-    " VALUES(:vid,:isexe,:islink,:id,:id,:name)");
+    "INSERT INTO vfile(id,vid,isexe,islink,rid,mrid,pathname) "
+    " VALUES(1+(SELECT coalesce(max(id),0) FROM vfile),"
+            ":vid,:isexe,:islink,:id,:id,:name)");
   db_prepare(&ridq, "SELECT rid,size FROM blob WHERE uuid=:uuid");
   db_bind_int(&ins, ":vid", vid);
   manifest_file_rewind(p);
