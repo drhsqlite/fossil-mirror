@@ -164,7 +164,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
     int nDate = strlen(zDate);
-    if( sqlite3_strnicmp(&zDate[nDate-3],"utc",3)==0 ){
+    if( sqlite4_strnicmp(&zDate[nDate-3],"utc",3)==0 ){
       zDate[nDate-3] = 'z';
       zDate[nDate-2] = 0;
     }

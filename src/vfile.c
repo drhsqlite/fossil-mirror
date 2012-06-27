@@ -493,7 +493,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         /* Instead of file content, use link destination path */
         Blob pathBuf;
 
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", 
+        sqlite4_snprintf(zBuf, sizeof(zBuf), " %ld\n", 
                          blob_read_link(&pathBuf, zFullpath));
         md5sum_step_text(zBuf, -1);
         md5sum_step_text(blob_str(&pathBuf), -1);
@@ -505,7 +505,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
           continue;
         }
         fseek(in, 0L, SEEK_END);
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %ld\n", ftell(in));
+        sqlite4_snprintf(zBuf, sizeof(zBuf), " %ld\n", ftell(in));
         fseek(in, 0L, SEEK_SET);
         md5sum_step_text(zBuf, -1);
         /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
@@ -528,7 +528,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
         md5sum_step_text(zName, -1);
         blob_zero(&file);
         content_get(rid, &file);
-        sqlite3_snprintf(sizeof(zBuf), zBuf, " %d\n", blob_size(&file));
+        sqlite4_snprintf(zBuf, sizeof(zBuf), " %d\n", blob_size(&file));
         md5sum_step_text(zBuf, -1);
         md5sum_step_blob(&file);
         blob_reset(&file);
@@ -543,12 +543,12 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 ** Write a BLOB into a random filename.  Return the name of the file.
 */
 static char *write_blob_to_temp_file(Blob *pBlob){
-  sqlite3_uint64 r;
+  sqlite4_uint64 r;
   char *zOut = 0;
   do{
-    sqlite3_free(zOut);
-    sqlite3_randomness(8, &r);
-    zOut = sqlite3_mprintf("file-%08llx", r);
+    sqlite4_free(0, zOut);
+    sqlite4_randomness(0, 8, &r);
+    zOut = sqlite4_mprintf(0, "file-%08llx", r);
   }while( file_size(zOut)>=0 );
   blob_write_to_file(pBlob, zOut);
   return zOut;
@@ -595,7 +595,7 @@ void vfile_compare_repository_to_disk(int vid){
       zOut = write_blob_to_temp_file(&repo);
       fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
                    zName, zOut);
-      sqlite3_free(zOut);
+      sqlite4_free(0, zOut);
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
@@ -607,7 +607,7 @@ void vfile_compare_repository_to_disk(int vid){
       zOut = write_blob_to_temp_file(&repo);
       fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
           zName, zOut);
-      sqlite3_free(zOut);
+      sqlite4_free(0, zOut);
     }
     blob_reset(&disk);
     blob_reset(&repo);
@@ -645,7 +645,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
     if( zOrigName && !isSelected ) zName = zOrigName;
     md5sum_step_text(zName, -1);
     content_get(rid, &file);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, " %d\n", blob_size(&file));
+    sqlite4_snprintf(zBuf, sizeof(zBuf), " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
     /*printf("%s %s %s",md5sum_current_state(),zName,zBuf); fflush(stdout);*/
     md5sum_step_blob(&file);
@@ -690,7 +690,7 @@ void vfile_aggregate_checksum_manifest(int vid, Blob *pOut, Blob *pManOut){
     fid = uuid_to_rid(pFile->zUuid, 0);
     md5sum_step_text(pFile->zName, -1);
     content_get(fid, &file);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, " %d\n", blob_size(&file));
+    sqlite4_snprintf(zBuf, sizeof(zBuf), " %d\n", blob_size(&file));
     md5sum_step_text(zBuf, -1);
     md5sum_step_blob(&file);
     blob_reset(&file);

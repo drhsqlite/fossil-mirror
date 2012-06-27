@@ -55,7 +55,7 @@ const FossilJsonKeys_ FossilJsonKeys = {
 };
 
 
-/* Timer code taken from sqlite3's shell.c, modified slightly.
+/* Timer code taken from sqlite4's shell.c, modified slightly.
    FIXME: move the timer into the fossil core API so that we can
    start the timer early on in the app init phase. Right now we're
    just timing the json ops themselves.
@@ -1050,7 +1050,7 @@ static void json_mode_bootstrap(){
     /* Calling this seems to trigger an SQLITE_MISUSE warning???
        Maybe it's not legal to set the logger more than once?
     */
-    sqlite3_config(SQLITE_CONFIG_LOG, NULL, 0)
+    sqlite4_env_config(0, SQLITE_CONFIG_LOG, NULL, 0)
         /* avoids debug messages on stderr in JSON mode */
         ;
 #endif
@@ -1698,13 +1698,13 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
       assert(NULL!=a);
     }
     if(!colNames){
-      colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
+      colNamesV = cson_sqlite4_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
       cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
     }      
-    row = cson_sqlite3_row_to_object2(pStmt->pStmt, colNames);
+    row = cson_sqlite4_row_to_object2(pStmt->pStmt, colNames);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
       continue;
@@ -1740,7 +1740,7 @@ cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
       a = cson_new_array();
       assert(NULL!=a);
     }
-    row = cson_sqlite3_row_to_array(pStmt->pStmt);
+    row = cson_sqlite4_row_to_array(pStmt->pStmt);
     cson_array_append(a, row);
   }
   return cson_array_value(a);
@@ -1751,7 +1751,7 @@ cson_value * json_stmt_to_array_of_values(Stmt *pStmt,
                                           cson_array * pTgt){
   cson_array * a = pTgt;
   while( (SQLITE_ROW==db_step(pStmt)) ){
-    cson_value * row = cson_sqlite3_column_to_value(pStmt->pStmt,
+    cson_value * row = cson_sqlite4_column_to_value(pStmt->pStmt,
                                                     resultColumn);
     if(row){
       if(!a){
@@ -1935,7 +1935,7 @@ cson_value * json_cap_value(){
     cson_value * val = NULL;
     db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
     if( db_step(&q)==SQLITE_ROW ){
-      char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
+      char const * str = (char const *)sqlite4_column_text(q.pStmt,0);
       if( str ){
         val = json_new_string(str);
       }
@@ -1964,12 +1964,12 @@ cson_value * json_page_cap(){
     /* reminder: we don't use g.zLogin because it's 0 for the guest
        user and the HTML UI appears to currently allow the name to be
        changed (but doing so would break other code). */
-    char const * str = (char const *)sqlite3_column_text(q.pStmt,0);
+    char const * str = (char const *)sqlite4_column_text(q.pStmt,0);
     if( str ){
       cson_object_set( obj, "name",
                        cson_value_new_string(str,strlen(str)) );
     }
-    str = (char const *)sqlite3_column_text(q.pStmt,1);
+    str = (char const *)sqlite4_column_text(q.pStmt,1);
     if( str ){
       cson_object_set( obj, "capabilities",
                        cson_value_new_string(str,strlen(str)) );
@@ -2069,7 +2069,7 @@ cson_value * json_page_stat(){
         b = 1;
       }
       a = t/fsize;
-      sqlite3_snprintf(BufLen,zBuf, "%d:%d", a, b);
+      sqlite4_snprintf(zBuf,BufLen, "%d:%d", a, b);
       SETBUF(jo, "compressionRatio");
     }
     n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
@@ -2087,25 +2087,25 @@ cson_value * json_page_stat(){
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
   cson_object_set(jo, "ageYears", cson_value_new_double(n/365.24));
-  sqlite3_snprintf(BufLen, zBuf, db_get("project-code",""));
+  sqlite4_snprintf(zBuf,BufLen, db_get("project-code",""));
   SETBUF(jo, "projectCode");
-  sqlite3_snprintf(BufLen, zBuf, db_get("server-code",""));
+  sqlite4_snprintf(zBuf,BufLen, db_get("server-code",""));
   SETBUF(jo, "serverCode");
   cson_object_set(jo, "compiler", cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
 
   jv2 = cson_value_new_object();
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
-  sqlite3_snprintf(BufLen, zBuf, "%.19s [%.10s] (%s)",
+  sqlite4_snprintf(zBuf, BufLen, "%.19s [%.10s] (%s)",
                    SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
   SETBUF(jo2, "version");
   zDb = db_name("repository");
   cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_count", zDb)));
   cson_object_set(jo2, "pageSize", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_size", zDb)));
   cson_object_set(jo2, "freeList", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.freelist_count", zDb)));
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.encoding", zDb));
+  sqlite4_snprintf(zBuf, BufLen, "%s", db_text(0, "PRAGMA %s.encoding", zDb));
   SETBUF(jo2, "encoding");
-  sqlite3_snprintf(BufLen, zBuf, "%s", db_text(0, "PRAGMA %s.journal_mode", zDb));
+  sqlite4_snprintf(zBuf, BufLen, "%s", db_text(0, "PRAGMA %s.journal_mode", zDb));
   cson_object_set(jo2, "journalMode", *zBuf ? cson_value_new_string(zBuf, strlen(zBuf)) : cson_value_null());
   return jv;
 #undef SETBUF
@@ -2200,7 +2200,7 @@ static cson_value * json_page_rebuild(){
 
      On large repos (e.g. fossil's) this operation is likely to take
      longer than the client timeout, which will cause it to fail (but
-     it's sqlite3, so it'll fail gracefully).
+     it's sqlite4, so it'll fail gracefully).
   */
     db_close(1);
     db_open_repository(g.zRepositoryName);

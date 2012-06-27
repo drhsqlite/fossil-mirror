@@ -98,11 +98,11 @@ struct TclContext {
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
   int isConst;            /* True if the output is unchanging */
-  sqlite3 *db;            /* The connection to the databases */
-  sqlite3 *dbConfig;      /* Separate connection for global_config table */
+  sqlite4 *db;            /* The connection to the databases */
+  sqlite4 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
   int configOpen;         /* True if the config database is open */
-  sqlite3_int64 now;      /* Seconds since 1970 */
+  sqlite4_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
@@ -420,7 +420,7 @@ int main(int argc, char **argv){
   g.tcl.interp = 0;
 #endif
 
-  sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
+  sqlite4_env_config(0, SQLITE_ENVCONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
   g.argc = argc;
@@ -755,7 +755,7 @@ static const char *sqlite_error_code_name(int iCode){
     case SQLITE_RANGE:      return "SQLITE_RANGE";
     case SQLITE_NOTADB:     return "SQLITE_NOTADB";
     default: {
-      sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
+      sqlite4_snprintf(zCode, sizeof(zCode), "error code %d",iCode);
     }
   }
   return zCode;

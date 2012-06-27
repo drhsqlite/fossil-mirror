@@ -673,9 +673,9 @@ void cmd_test_canonical_name(void){
     file_canonical_name(zName, &x, 0);
     fossil_print("[%s] -> [%s]\n", zName, blob_buffer(&x));
     blob_reset(&x);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_size(zName));
+    sqlite4_snprintf(zBuf, sizeof(zBuf), "%lld", file_wd_size(zName));
     fossil_print("  file_size   = %s\n", zBuf);
-    sqlite3_snprintf(sizeof(zBuf), zBuf, "%lld", file_wd_mtime(zName));
+    sqlite4_snprintf(zBuf, sizeof(zBuf), "%lld", file_wd_mtime(zName));
     fossil_print("  file_mtime  = %s\n", zBuf);
     fossil_print("  file_isfile = %d\n", file_wd_isfile(zName));
     fossil_print("  file_isfile_or_link = %d\n",file_wd_isfile_or_link(zName));
@@ -956,9 +956,9 @@ void file_tempname(int nBuf, char *zBuf){
 
   do{
     if( cnt++>20 ) fossil_panic("cannot generate a temporary filename");
-    sqlite3_snprintf(nBuf-17, zBuf, "%s/", zDir);
+    sqlite4_snprintf(zBuf, nBuf-17, "%s/", zDir);
     j = (int)strlen(zBuf);
-    sqlite3_randomness(15, &zBuf[j]);
+    sqlite4_randomness(0, 15, &zBuf[j]);
     for(i=0; i<15; i++, j++){
       zBuf[j] = (char)zChars[ ((unsigned char)zBuf[j])%(sizeof(zChars)-1) ];
     }
@@ -1009,8 +1009,8 @@ int file_is_the_same(Blob *pContent, const char *zName){
 */
 char *fossil_mbcs_to_utf8(const char *zMbcs){
 #ifdef _WIN32
-  extern char *sqlite3_win32_mbcs_to_utf8(const char*);
-  return sqlite3_win32_mbcs_to_utf8(zMbcs);
+  extern char *sqlite4_win32_mbcs_to_utf8(const char*);
+  return sqlite4_win32_mbcs_to_utf8(zMbcs);
 #else
   return (char*)zMbcs;  /* No-op on unix */
 #endif  
@@ -1023,8 +1023,8 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 */
 char *fossil_utf8_to_mbcs(const char *zUtf8){
 #ifdef _WIN32
-  extern char *sqlite3_win32_utf8_to_mbcs(const char*);
-  return sqlite3_win32_utf8_to_mbcs(zUtf8);
+  extern char *sqlite4_win32_utf8_to_mbcs(const char*);
+  return sqlite4_win32_utf8_to_mbcs(zUtf8);
 #else
   return (char*)zUtf8;  /* No-op on unix */
 #endif  
@@ -1088,8 +1088,8 @@ char *fossil_utf8_to_console(const char *zUtf8){
 */
 void fossil_mbcs_free(char *zOld){
 #ifdef _WIN32
-  extern void sqlite3_free(void*);
-  sqlite3_free(zOld);
+  extern void sqlite4_free(void*);
+  sqlite4_free(0, zOld);
 #else
   /* No-op on unix */
 #endif  

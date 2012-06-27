@@ -269,7 +269,7 @@ static cson_value * json_tag_find(){
         listV = cson_value_new_array();
         list = cson_value_get_array(listV);
       }
-      cson_array_append(list, cson_sqlite3_column_to_value(q.pStmt,0));
+      cson_array_append(list, cson_sqlite4_column_to_value(q.pStmt,0));
     }
     db_finalize(&q);
   }else{

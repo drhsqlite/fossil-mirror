@@ -183,10 +183,10 @@ void finfo_cmd(void){
       char *zOut;
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
+        zOut = sqlite4_mprintf(0, "[%.10s] %s (user: %s, artifact: [%.10s])",
                                zCiUuid, zCom, zUser, zFileUuid);
         comment_print(zOut, 11, 79);
-        sqlite3_free(zOut);
+        sqlite4_free(0, zOut);
       }else{
         blob_reset(&line);
         blob_appendf(&line, "%.10s ", zCiUuid);
@@ -299,7 +299,7 @@ void finfo_page(void){
     }
     gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
-      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
+      sqlite4_snprintf(zPrevDate, sizeof(zPrevDate), "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
@@ -314,8 +314,8 @@ void finfo_page(void){
     }else{
       @ <td class="timelineTableCell">
     }
-    sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
-    sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
+    sqlite4_snprintf(zShort, sizeof(zShort), "%.10s", zUuid);
+    sqlite4_snprintf(zShortCkin, sizeof(zShortCkin), "%.10s", zCkin);
     if( zUuid ){
       @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
     }else{

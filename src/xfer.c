@@ -1480,7 +1480,7 @@ int client_sync(
         if( memcmp(zLine, "# timestamp ", 12)==0 ){
           char zTime[20];
           double rDiff;
-          sqlite3_snprintf(sizeof(zTime), zTime, "%.19s", &zLine[12]);
+          sqlite4_snprintf(zTime, sizeof(zTime), "%.19s", &zLine[12]);
           rDiff = db_double(9e99, "SELECT julianday('%q') - %.17g",
                             zTime, rArrivalTime);
           if( rDiff>9e98 || rDiff<-9e98 ) rDiff = 0.0;

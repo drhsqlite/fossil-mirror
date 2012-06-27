@@ -392,7 +392,7 @@ void test_captcha(void){
   for(i=2; i<g.argc; i++){
     char zHex[30];
     v = (unsigned int)atoi(g.argv[i]);
-    sqlite3_snprintf(sizeof(zHex), zHex, "%x", v);
+    sqlite4_snprintf(zHex, sizeof(zHex), "%x", v);
     z = captcha_render(zHex);
     fossil_print("%s:\n%s", zHex, z);
     free(z);
@@ -407,7 +407,7 @@ void test_captcha(void){
 */
 unsigned int captcha_seed(void){
   unsigned int x;
-  sqlite3_randomness(sizeof(x), &x);
+  sqlite4_randomness(0, sizeof(x), &x);
   x &= 0x7fffffff;
   return x;
 }

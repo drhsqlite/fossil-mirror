@@ -715,7 +715,7 @@ void revert_cmd(void){
       }
       db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
     }else{
-      sqlite3_int64 mtime;
+      sqlite4_int64 mtime;
       undo_save(zFile);
       if( file_wd_size(zFull)>=0 && (isLink || file_wd_islink(zFull)) ){
         file_delete(zFull);

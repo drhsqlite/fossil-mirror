@@ -261,19 +261,19 @@ void configure_render_special_name(const char *zName, Blob *pOut){
 */
 static int configHasBeenReset = 0;
 static void config_is_reset_function(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
-  int m = sqlite3_value_int(argv[0]);
-  sqlite3_result_int(context, (configHasBeenReset&m)!=0 );
+  int m = sqlite4_value_int(argv[0]);
+  sqlite4_result_int(context, (configHasBeenReset&m)!=0 );
 }
 static void config_reset_function(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
-  int m = sqlite3_value_int(argv[0]);
+  int m = sqlite4_value_int(argv[0]);
   configHasBeenReset |= m;
 }
 
@@ -337,9 +337,9 @@ void configure_prepare_to_receive(int replaceFlag){
       @   SELECT config_reset(8);
       @ END;
     ;
-    sqlite3_create_function(g.db, "config_is_reset", 1, SQLITE_UTF8, 0,
+    sqlite4_create_function(g.db, "config_is_reset", 1, SQLITE_UTF8, 0,
          config_is_reset_function, 0, 0);
-    sqlite3_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
+    sqlite4_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
          config_reset_function, 0, 0);
     configHasBeenReset = 0;
     db_multi_exec(zSQL2);
@@ -597,7 +597,7 @@ void configure_receive_all(Blob *pIn, int groupMask){
 int configure_send_group(
   Blob *pOut,              /* Write output here */
   int groupMask,           /* Mask of groups to be send */
-  sqlite3_int64 iStart     /* Only write values changed since this time */
+  sqlite4_int64 iStart     /* Only write values changed since this time */
 ){
   Stmt q;
   Blob rec;
@@ -728,7 +728,7 @@ int configure_name_to_mask(const char *z, int notFoundIsFatal){
 static void export_config(
   int groupMask,            /* Mask indicating which configuration to export */
   const char *zMask,        /* Name of the configuration */
-  sqlite3_int64 iStart,     /* Start date */
+  sqlite4_int64 iStart,     /* Start date */
   const char *zFilename     /* Write into this file */
 ){
   Blob out;
@@ -814,7 +814,7 @@ void configuration_cmd(void){
   if( strncmp(zMethod, "export", n)==0 ){
     int mask;
     const char *zSince = find_option("since",0,1);
-    sqlite3_int64 iStart;
+    sqlite4_int64 iStart;
     if( g.argc!=5 ){
       usage("export AREA FILENAME");
     }

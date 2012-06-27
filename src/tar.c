@@ -46,7 +46,7 @@ static struct tarball_t {
 **
 ** Initialize the GZIP compressor and the table of directory names.
 */
-static void tar_begin(sqlite3_int64 mTime){
+static void tar_begin(sqlite4_int64 mTime){
   assert( tball.aHdr==0 );
   tball.aHdr = fossil_malloc(512+512);
   memset(tball.aHdr, 0, 512+512);
@@ -266,7 +266,7 @@ static void cksum_and_write_header(
   memset(&tball.aHdr[148], ' ', 8);
   tball.aHdr[156] = cType;
   for(i=0; i<512; i++) cksum += tball.aHdr[i];
-  sqlite3_snprintf(8, (char*)&tball.aHdr[148], "%07o", cksum);
+  sqlite4_snprintf((char*)&tball.aHdr[148], 8, "%07o", cksum);
   tball.aHdr[155] = 0;
   gzip_step((char*)tball.aHdr, 512);
 }
@@ -286,8 +286,8 @@ static void tar_add_header(
                             '0'==file. '2'==symlink. '5'==directory */
 ){
   /* set mode and modification time */
-  sqlite3_snprintf(8, (char*)&tball.aHdr[100], "%07o", iMode);
-  sqlite3_snprintf(12, (char*)&tball.aHdr[136], "%011o", mTime);
+  sqlite4_snprintf((char*)&tball.aHdr[100], 8, "%07o", iMode);
+  sqlite4_snprintf((char*)&tball.aHdr[136], 12, "%011o", mTime);
 
   /* see if we need to output a Pax Interchange Header */
   if( !is_iso646_name(zName, nName)
@@ -303,7 +303,7 @@ static void tar_add_header(
     add_pax_header("path", zName, nName);
 
     /* set the header length, and write the header */
-    sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o",
+    sqlite4_snprintf((char*)&tball.aHdr[124], 8, "%011o",
                      blob_size(&tball.pax));
     cksum_and_write_header('x');
 
@@ -319,7 +319,7 @@ static void tar_add_header(
                            (char*)&tball.aHdr[345], 0);
   }
   /* set the size */
-  sqlite3_snprintf(12, (char*)&tball.aHdr[124], "%011o", iSize);
+  sqlite4_snprintf((char*)&tball.aHdr[124], 12, "%011o", iSize);
 
   /* write the regular header */
   cksum_and_write_header(cType);
@@ -341,7 +341,7 @@ static void tar_add_directory_of(
   if( i < tball.nPrevDirAlloc && tball.zPrevDir[i]==0 &&
         memcmp(tball.zPrevDir, zName, i)==0 ) return;
   db_multi_exec("INSERT OR IGNORE INTO dir VALUES('%#q')", i, zName);
-  if( sqlite3_changes(g.db)==0 ) return;
+  if( sqlite4_changes(g.db)==0 ) return;
   tar_add_directory_of(zName, i-1, mTime);
   tar_add_header(zName, i, 0755, mTime, 0, '5');
   if( i >= tball.nPrevDirAlloc ){
@@ -381,7 +381,7 @@ static void tar_add_file(
    * store symlink as a plain-text file. (Not sure how TAR handles long links.)
    */
   if( mPerm == PERM_LNK && n <= 100 ){
-    sqlite3_snprintf(100, (char*)&tball.aHdr[157], "%s", blob_str(pContent));
+    sqlite4_snprintf((char*)&tball.aHdr[157], 100, "%s", blob_str(pContent));
     cType = '2';
     n = 0;
   }
@@ -428,7 +428,7 @@ void test_tarball_cmd(void){
   if( g.argc<3 ){
     usage("ARCHIVE FILE....");
   }
-  sqlite3_open(":memory:", &g.db);
+  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);
   tar_begin(0);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);

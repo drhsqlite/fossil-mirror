@@ -151,7 +151,7 @@ char *hash_color(const char *z){
     case 4:  r = h2; g = mn, b = mx;  break;
     default: r = mx; g = mn, b = h2;  break;
   }
-  sqlite3_snprintf(8, zColor, "#%02x%02x%02x", r,g,b);
+  sqlite4_snprintf(zColor, 8, "#%02x%02x%02x", r,g,b);
   return zColor;
 }
 
@@ -265,7 +265,7 @@ void www_print_timeline(
     }
     prevWasDivider = 0;
     if( memcmp(zDate, zPrevDate, 10) ){
-      sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
+      sqlite4_snprintf(zPrevDate, sizeof(zPrevDate), "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
       @ </td></tr>
@@ -1299,7 +1299,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
     
-    sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
+    sqlite4_snprintf(zUuid, sizeof(zUuid), "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
       memcpy(zPrevDate, zDate, 10);
@@ -1309,7 +1309,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     fossil_print("%.8s ", &zDate[11]);
     zPrefix[0] = 0;
     if( nParent>1 ){
-      sqlite3_snprintf(sizeof(zPrefix), zPrefix, "*MERGE* ");
+      sqlite4_snprintf(zPrefix, sizeof(zPrefix), "*MERGE* ");
       n = strlen(zPrefix);
     }
     if( nChild>1 ){
@@ -1319,16 +1319,16 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
       }else{
         zBrType = "*BRANCH* ";
       }
-      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], zBrType);
+      sqlite4_snprintf(zPrefix+n, sizeof(zPrefix)-n, zBrType);
       n = strlen(zPrefix);
     }
     if( fossil_strcmp(zCurrentUuid,zId)==0 ){
-      sqlite3_snprintf(sizeof(zPrefix)-n, &zPrefix[n], "*CURRENT* ");
+      sqlite4_snprintf(zPrefix+n, sizeof(zPrefix)-n, "*CURRENT* ");
       n += strlen(zPrefix);
     }
-    zFree = sqlite3_mprintf("[%.10s] %s%s", zUuid, zPrefix, zCom);
+    zFree = sqlite4_mprintf(0, "[%.10s] %s%s", zUuid, zPrefix, zCom);
     nLine += comment_print(zFree, 9, 79);
-    sqlite3_free(zFree);
+    sqlite4_free(0, zFree);
 
     if(showfiles){
       if( !fchngQueryInit ){

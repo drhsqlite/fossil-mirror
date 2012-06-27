@@ -69,7 +69,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
     if(!pParents) {
       pParents = cson_new_array();
     }
-    cson_array_append( pParents, cson_sqlite3_column_to_value( q.pStmt, 0 ) );
+    cson_array_append( pParents, cson_sqlite4_column_to_value( q.pStmt, 0 ) );
   }
   db_finalize(&q);
   return cson_array_value(pParents);
@@ -327,7 +327,7 @@ cson_value * json_artifact_file(int rid){
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
   while( (SQLITE_ROW==db_step(&q) ) ){
-    cson_object * row = cson_value_get_object(cson_sqlite3_row_to_object(q.pStmt));
+    cson_object * row = cson_value_get_object(cson_sqlite4_row_to_object(q.pStmt));
     char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
     char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));
     cson_object_set(row, "isNew", NULL);

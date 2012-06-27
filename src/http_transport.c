@@ -204,8 +204,8 @@ int transport_open(void){
       rc = 1;
       #endif
     }else if( g.urlIsFile ){
-      sqlite3_uint64 iRandId;
-      sqlite3_randomness(sizeof(iRandId), &iRandId);
+      sqlite4_uint64 iRandId;
+      sqlite4_randomness(0, sizeof(iRandId), &iRandId);
       transport.zOutFile = mprintf("%s-%llu-out.http", 
                                        g.zRepositoryName, iRandId);
       transport.zInFile = mprintf("%s-%llu-in.http", 

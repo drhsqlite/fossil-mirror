@@ -1406,7 +1406,7 @@ void init_JSON_config(JSON_config* config)
 #     pragma warning(disable:4996) /* unsecure sscanf (but snscanf() isn't in c89) */
 #     pragma warning(disable:4244) /* complaining about data loss due
                                       to integer precision in the
-                                      sqlite3 utf decoding routines */
+                                      sqlite4 utf decoding routines */
 #   endif
 #endif
 
@@ -3684,10 +3684,10 @@ int cson_parse( cson_value ** tgt, cson_data_source_f src, void * state,
 }
 
 /**
-   The UTF code was originally taken from sqlite3's public-domain
+   The UTF code was originally taken from sqlite4's public-domain
    source code (http://sqlite.org), modified only slightly for use
    here. This code generates some "possible data loss" warnings on
-   MSVC, but if this code is good enough for sqlite3 then it's damned
+   MSVC, but if this code is good enough for sqlite4 then it's damned
    well good enough for me, so we disable that warning for Windows
    builds.
 */
@@ -5276,11 +5276,11 @@ void cson_kvp_list_clean( cson_kvp_list * self,
     cson_kvp_list_reserve(self,0);
 }
 /* end file ./cson_lists.h */
-/* begin file ./cson_sqlite3.c */
-/** @file cson_sqlite3.c
+/* begin file ./cson_sqlite4.c */
+/** @file cson_sqlite4.c
 
 This file contains the implementation code for the cson
-sqlite3-to-JSON API.
+sqlite4-to-JSON API.
 
 License: the same as the cson core library.
 
@@ -5301,17 +5301,17 @@ Author: Stephan Beal (http://wanderinghorse.net/home/stephan)
 extern "C" {
 #endif
 
-cson_value * cson_sqlite3_column_to_value( sqlite3_stmt * st, int col )
+cson_value * cson_sqlite4_column_to_value( sqlite4_stmt * st, int col )
 {
     if( ! st ) return NULL;
     else
     {
 #if 0
-        sqlite3_value * val = sqlite3_column_type(st,col);
-        int const vtype = val ? sqlite3_value_type(val) : -1;
+        sqlite4_value * val = sqlite4_column_type(st,col);
+        int const vtype = val ? sqlite4_value_type(val) : -1;
         if( ! val ) return cson_value_null();
 #else
-        int const vtype = sqlite3_column_type(st,col);
+        int const vtype = sqlite4_column_type(st,col);
 #endif
         switch( vtype )
         {
@@ -5319,12 +5319,12 @@ cson_value * cson_sqlite3_column_to_value( sqlite3_stmt * st, int col )
               return cson_value_null();
           case SQLITE_INTEGER:
               /* FIXME: for large integers fall back to Double instead. */
-              return cson_value_new_integer( (cson_int_t) sqlite3_column_int64(st, col)  );
+              return cson_value_new_integer( (cson_int_t) sqlite4_column_int64(st, col)  );
           case SQLITE_FLOAT:
-              return cson_value_new_double( sqlite3_column_double(st, col) );
+              return cson_value_new_double( sqlite4_column_double(st, col) );
           case SQLITE_BLOB: /* arguably fall through... */
           case SQLITE_TEXT: {
-              char const * str = (char const *)sqlite3_column_text(st,col);
+              char const * str = (char const *)sqlite4_column_text(st,col);
               return cson_value_new_string(str, str ? strlen(str) : 0);
           }
           default:
@@ -5333,7 +5333,7 @@ cson_value * cson_sqlite3_column_to_value( sqlite3_stmt * st, int col )
     }
 }
 
-cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
+cson_value * cson_sqlite4_column_names( sqlite4_stmt * st )
 {
     cson_value * aryV = NULL;
     cson_array * ary = NULL;
@@ -5342,7 +5342,7 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
     int rc = 0;
     int colCount = 0;
     assert(st);
-    colCount = sqlite3_column_count(st);
+    colCount = sqlite4_column_count(st);
     if( colCount <= 0 ) return NULL;
     
     aryV = cson_value_new_array();
@@ -5351,7 +5351,7 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
     assert(ary);
     for( i = 0; (0 ==rc) && (i < colCount); ++i )
     {
-        colName = sqlite3_column_name( st, i );
+        colName = sqlite4_column_name( st, i );
         if( ! colName ) rc = cson_rc.AllocError;
         else
         {
@@ -5368,7 +5368,7 @@ cson_value * cson_sqlite3_column_names( sqlite3_stmt * st )
 }
 
 
-cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
+cson_value * cson_sqlite4_row_to_object2( sqlite4_stmt * st,
                                           cson_array * colNames )
 {
     cson_value * rootV = NULL;
@@ -5377,7 +5377,7 @@ cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
     int i = 0;
     int rc = 0;
     cson_value * currentValue = NULL;
-    int const colCount = sqlite3_column_count(st);
+    int const colCount = sqlite4_column_count(st);
     if( !colCount || (colCount>cson_array_length_get(colNames)) ) {
         return NULL;
     }
@@ -5388,7 +5388,7 @@ cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
     {
         colName = cson_value_get_string( cson_array_get( colNames, i ) );
         if( ! colName ) goto error;
-        currentValue = cson_sqlite3_column_to_value(st,i);
+        currentValue = cson_sqlite4_column_to_value(st,i);
         if( ! currentValue ) currentValue = cson_value_null();
         rc = cson_object_set_s( root, colName, currentValue );
         if( 0 != rc )
@@ -5406,16 +5406,16 @@ cson_value * cson_sqlite3_row_to_object2( sqlite3_stmt * st,
 }
 
 
-cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st )
+cson_value * cson_sqlite4_row_to_object( sqlite4_stmt * st )
 {
 #if 0
-    cson_value * arV = cson_sqlite3_column_names(st);
+    cson_value * arV = cson_sqlite4_column_names(st);
     cson_array * ar = NULL;
     cson_value * rc = NULL;
     if(!arV) return NULL;
     ar = cson_value_get_array(arV);
     assert( NULL != ar );
-    rc = cson_sqlite3_row_to_object2(st, ar);
+    rc = cson_sqlite4_row_to_object2(st, ar);
     cson_value_free(arV);
     return rc;
 #else
@@ -5425,16 +5425,16 @@ cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st )
     int i = 0;
     int rc = 0;
     cson_value * currentValue = NULL;
-    int const colCount = sqlite3_column_count(st);
+    int const colCount = sqlite4_column_count(st);
     if( !colCount ) return NULL;
     rootV = cson_value_new_object();
     if(!rootV) return NULL;
     root = cson_value_get_object(rootV);
     for( i = 0; i < colCount; ++i )
     {
-        colName = sqlite3_column_name( st, i );
+        colName = sqlite4_column_name( st, i );
         if( ! colName ) goto error;
-        currentValue = cson_sqlite3_column_to_value(st,i);
+        currentValue = cson_sqlite4_column_to_value(st,i);
         if( ! currentValue ) currentValue = cson_value_null();
         rc = cson_object_set( root, colName, currentValue );
         if( 0 != rc )
@@ -5452,13 +5452,13 @@ cson_value * cson_sqlite3_row_to_object( sqlite3_stmt * st )
 #endif
 }
 
-cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
+cson_value * cson_sqlite4_row_to_array( sqlite4_stmt * st )
 {
     cson_value * aryV = NULL;
     cson_array * ary = NULL;
     int i = 0;
     int rc = 0;
-    int const colCount = sqlite3_column_count(st);
+    int const colCount = sqlite4_column_count(st);
     if( ! colCount ) return NULL;
     aryV = cson_value_new_array();
     if( ! aryV ) return NULL;
@@ -5467,7 +5467,7 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
     if( 0 != rc ) goto error;
 
     for( i = 0; i < colCount; ++i ){
-        cson_value * elem = cson_sqlite3_column_to_value(st,i);
+        cson_value * elem = cson_sqlite4_column_to_value(st,i);
         if( ! elem ) goto error;
         rc = cson_array_append(ary,elem);
         if(0!=rc)
@@ -5486,10 +5486,10 @@ cson_value * cson_sqlite3_row_to_array( sqlite3_stmt * st )
 
     
 /**
-    Internal impl of cson_sqlite3_stmt_to_json() when the 'fat'
+    Internal impl of cson_sqlite4_stmt_to_json() when the 'fat'
     parameter is non-0.
 */
-static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
+static int cson_sqlite4_stmt_to_json_fat( sqlite4_stmt * st, cson_value ** tgt )
 {
 #define RETURN(RC) { if(rootV) cson_value_free(rootV); return RC; }
     if( ! tgt || !st ) return cson_rc.ArgError;
@@ -5503,11 +5503,11 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
         cson_array * rows = NULL;
         cson_value * objV = NULL;
         int rc = 0;
-        int const colCount = sqlite3_column_count(st);
+        int const colCount = sqlite4_column_count(st);
         if( colCount <= 0 ) return cson_rc.ArgError;
         rootV = cson_value_new_object();
         if( ! rootV ) return cson_rc.AllocError;
-        colsV = cson_sqlite3_column_names(st);
+        colsV = cson_sqlite4_column_names(st);
         if( ! colsV )
         {
             cson_value_free( rootV );
@@ -5532,9 +5532,9 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
         }
         rows = cson_value_get_array(rowsV);
         assert(rows);
-        while( SQLITE_ROW == sqlite3_step(st) )
+        while( SQLITE_ROW == sqlite4_step(st) )
         {
-            objV = cson_sqlite3_row_to_object2(st, cols);
+            objV = cson_sqlite4_row_to_object2(st, cols);
             if( ! objV ) RETURN(cson_rc.UnknownError);
             rc = cson_array_append( rows, objV );
             if( rc )
@@ -5550,10 +5550,10 @@ static int cson_sqlite3_stmt_to_json_fat( sqlite3_stmt * st, cson_value ** tgt )
 }
 
 /**
-    Internal impl of cson_sqlite3_stmt_to_json() when the 'fat'
+    Internal impl of cson_sqlite4_stmt_to_json() when the 'fat'
     parameter is 0.
 */
-static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt )
+static int cson_sqlite4_stmt_to_json_slim( sqlite4_stmt * st, cson_value ** tgt )
 {
 #define RETURN(RC) { if(rootV) cson_value_free(rootV); return RC; }
     if( ! tgt || !st ) return cson_rc.ArgError;
@@ -5565,11 +5565,11 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
         cson_value * rowsV = NULL;
         cson_array * rows = NULL;
         int rc = 0;
-        int const colCount = sqlite3_column_count(st);
+        int const colCount = sqlite4_column_count(st);
         if( colCount <= 0 ) return cson_rc.ArgError;
         rootV = cson_value_new_object();
         if( ! rootV ) return cson_rc.AllocError;
-        aryV = cson_sqlite3_column_names(st);
+        aryV = cson_sqlite4_column_names(st);
         if( ! aryV )
         {
             cson_value_free( rootV );
@@ -5593,9 +5593,9 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
         }
         rows = cson_value_get_array(rowsV);
         assert(rows);
-        while( SQLITE_ROW == sqlite3_step(st) )
+        while( SQLITE_ROW == sqlite4_step(st) )
         {
-            aryV = cson_sqlite3_row_to_array(st);
+            aryV = cson_sqlite4_row_to_array(st);
             if( ! aryV ) RETURN(cson_rc.UnknownError);
             rc = cson_array_append( rows, aryV );
             if( 0 != rc )
@@ -5610,29 +5610,29 @@ static int cson_sqlite3_stmt_to_json_slim( sqlite3_stmt * st, cson_value ** tgt 
 #undef RETURN
 }
 
-int cson_sqlite3_stmt_to_json( sqlite3_stmt * st, cson_value ** tgt, char fat )
+int cson_sqlite4_stmt_to_json( sqlite4_stmt * st, cson_value ** tgt, char fat )
 {
     return fat
-        ? cson_sqlite3_stmt_to_json_fat(st,tgt)
-        : cson_sqlite3_stmt_to_json_slim(st,tgt)
+        ? cson_sqlite4_stmt_to_json_fat(st,tgt)
+        : cson_sqlite4_stmt_to_json_slim(st,tgt)
         ;
 }
 
-int cson_sqlite3_sql_to_json( sqlite3 * db, cson_value ** tgt, char const * sql, char fat )
+int cson_sqlite4_sql_to_json( sqlite4 * db, cson_value ** tgt, char const * sql, char fat )
 {
     if( !db || !tgt || !sql || !*sql ) return cson_rc.ArgError;
     else
     {
-        sqlite3_stmt * st = NULL;
-        int rc = sqlite3_prepare_v2( db, sql, -1, &st, NULL );
+        sqlite4_stmt * st = NULL;
+        int rc = sqlite4_prepare( db, sql, -1, &st, NULL );
         if( 0 != rc ) return cson_rc.IOError /* FIXME: Better error code? */;
-        rc = cson_sqlite3_stmt_to_json( st, tgt, fat );
-        sqlite3_finalize( st );
+        rc = cson_sqlite4_stmt_to_json( st, tgt, fat );
+        sqlite4_finalize( st );
         return rc;
     }        
 }
 
-int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )
+int cson_sqlite4_bind_value( sqlite4_stmt * st, int ndx, cson_value const * v )
 {
     int rc = 0;
     char convertErr = 0;
@@ -5646,29 +5646,29 @@ int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )
         unsigned int i;
         assert(NULL != ar);
         for( i = 0; !rc && (i < len); ++i ){
-            rc = cson_sqlite3_bind_value( st, (int)i+ndx,
+            rc = cson_sqlite4_bind_value( st, (int)i+ndx,
                                           cson_array_get(ar, i));
         }
     }
     else if(!v || cson_value_is_null(v)){
-        rc = sqlite3_bind_null(st,ndx);
+        rc = sqlite4_bind_null(st,ndx);
         convertErr = 1;
     }
     else if( cson_value_is_double(v) ){
-        rc = sqlite3_bind_double( st, ndx, cson_value_get_double(v) );
+        rc = sqlite4_bind_double( st, ndx, cson_value_get_double(v) );
         convertErr = 1;
     }
     else if( cson_value_is_bool(v) ){
-        rc = sqlite3_bind_int( st, ndx, cson_value_get_bool(v) ? 1 : 0 );
+        rc = sqlite4_bind_int( st, ndx, cson_value_get_bool(v) ? 1 : 0 );
         convertErr = 1;
     }
     else if( cson_value_is_integer(v) ){
-        rc = sqlite3_bind_int64( st, ndx, cson_value_get_integer(v) );
+        rc = sqlite4_bind_int64( st, ndx, cson_value_get_integer(v) );
         convertErr = 1;
     }
     else if( cson_value_is_string(v) ){
         cson_string const * s = cson_value_get_string(v);
-        rc = sqlite3_bind_text( st, ndx,
+        rc = sqlite4_bind_text( st, ndx,
                                 cson_string_cstr(s),
                                 cson_string_length_bytes(s),
                                 SQLITE_TRANSIENT);
@@ -5693,5 +5693,5 @@ int cson_sqlite3_bind_value( sqlite3_stmt * st, int ndx, cson_value const * v )
 #endif
 #undef MARKER
 #endif /* CSON_ENABLE_SQLITE3 */
-/* end file ./cson_sqlite3.c */
+/* end file ./cson_sqlite4.c */
 #endif /* FOSSIL_ENABLE_JSON */

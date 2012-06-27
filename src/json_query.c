@@ -69,11 +69,11 @@ cson_value * json_page_query(){
   db_prepare(&q,"%s", zSql);
   switch(*zFmt){
     case 'a':
-      check = cson_sqlite3_stmt_to_json(q.pStmt, &payV, 0);
+      check = cson_sqlite4_stmt_to_json(q.pStmt, &payV, 0);
       break;
     case 'o':
     default:
-      check = cson_sqlite3_stmt_to_json(q.pStmt, &payV, 1);
+      check = cson_sqlite4_stmt_to_json(q.pStmt, &payV, 1);
   };
   db_finalize(&q);
   if(0 != check){

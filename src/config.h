@@ -86,7 +86,7 @@
 
 #ifndef _RC_COMPILE_
 
-#include "sqlite3.h"
+#include "sqlite4.h"
 
 /*
 ** On Solaris, getpass() will only return up to 8 characters. getpassphrase() returns up to 257.
@@ -98,8 +98,8 @@
 /*
 ** Typedef for a 64-bit integer
 */
-typedef sqlite3_int64 i64;
-typedef sqlite3_uint64 u64;
+typedef sqlite4_int64 i64;
+typedef sqlite4_uint64 u64;
 
 /*
 ** 8-bit types

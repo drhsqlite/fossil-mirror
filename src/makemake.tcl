@@ -119,7 +119,7 @@ set src {
 
 # Name of the final application
 #
-set name fossil
+set name fossil4
 
 # The "writeln" command sends output to the target makefile.
 #
@@ -212,10 +212,10 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/
 
 # The USE_SYSTEM_SQLITE variable may be undefined, set to 0, or set
 # to 1. If it is set to 1, then there is no need to build or link
-# the sqlite3.o object. Instead, the system sqlite will be linked
-# using -lsqlite3.
+# the sqlite4.o object. Instead, the system sqlite will be linked
+# using -lsqlite4.
 SQLITE3_OBJ.1 = 
-SQLITE3_OBJ.0 = $(OBJDIR)/sqlite3.o
+SQLITE3_OBJ.0 = $(OBJDIR)/sqlite4.o
 SQLITE3_OBJ.  = $(SQLITE3_OBJ.0)
 
 # The FOSSIL_ENABLE_TCL variable may be undefined, set to 0, or set to 1.
@@ -252,7 +252,7 @@ foreach s [lsort $src] {
   append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
+append mhargs " \$(SRCDIR)/sqlite4.h"
 append mhargs " \$(SRCDIR)/th.h"
 #append mhargs " \$(SRCDIR)/cson_amalgamation.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
@@ -275,7 +275,7 @@ foreach s [lsort $src] {
 }
 
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
+writeln "\$(OBJDIR)/sqlite4.o:\t\$(SRCDIR)/sqlite4.c"
 set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
 append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
 #append opt " -DSQLITE_ENABLE_FTS3=1"
@@ -283,10 +283,10 @@ append opt " -DSQLITE_ENABLE_STAT3"
 append opt " -Dlocaltime=fossil_localtime"
 append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
 set SQLITE_OPTIONS $opt
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite4.c -o \$(OBJDIR)/sqlite4.o\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite4.h"
+set opt {-Dmain=sqlite4_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
@@ -548,7 +548,7 @@ $(OBJDIR)/VERSION.h:	$(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(VERSION)
 	$(VERSION) $(SRCDIR)/../manifest.uuid $(SRCDIR)/../manifest $(SRCDIR)/../VERSION >$(OBJDIR)/VERSION.h
 
 EXTRAOBJ = \
-  $(OBJDIR)/sqlite3.o \
+  $(OBJDIR)/sqlite4.o \
   $(OBJDIR)/shell.o \
   $(OBJDIR)/th.o \
   $(OBJDIR)/th_lang.o \
@@ -584,7 +584,7 @@ foreach s [lsort $src] {
   append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
+append mhargs " \$(SRCDIR)/sqlite4.h"
 append mhargs " \$(SRCDIR)/th.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
@@ -606,17 +606,17 @@ foreach s [lsort $src] {
 }
 
 
-writeln "\$(OBJDIR)/sqlite3.o:\t\$(SRCDIR)/sqlite3.c"
+writeln "\$(OBJDIR)/sqlite4.o:\t\$(SRCDIR)/sqlite4.c"
 set opt $SQLITE_OPTIONS
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite4.c -o \$(OBJDIR)/sqlite4.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
-writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
-set opt {-Dmain=sqlite3_shell}
+writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite4.h"
+set opt {-Dmain=sqlite4_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
@@ -682,7 +682,7 @@ writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OBJDIR)\\$s\$O "
 }
-writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite3\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
+writeln "\$(OBJDIR)\\shell\$O \$(OBJDIR)\\sqlite4\$O \$(OBJDIR)\\th\$O \$(OBJDIR)\\th_lang\$O "
 writeln {
 
 RC=$(DMDIR)\bin\rcc
@@ -704,7 +704,7 @@ writeln -nonewline "\t+echo "
 foreach s [lsort $src] {
   writeln -nonewline "$s "
 }
-writeln "shell sqlite3 th th_lang > \$@"
+writeln "shell sqlite4 th th_lang > \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo fossil >> \$@"
 writeln "\t+echo \$(LIBS) >> \$@"
@@ -725,9 +725,9 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite3_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c -Dmain=sqlite4_shell $(SQLITE_OPTIONS) $**
 
-$(OBJDIR)\sqlite3$O : $(SRCDIR)\sqlite3.c
+$(OBJDIR)\sqlite4$O : $(SRCDIR)\sqlite4.c
 	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
@@ -780,7 +780,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\t +makehead
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR)\\sqlite4.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 close $output_file
@@ -848,7 +848,7 @@ writeln -nonewline "OBJ   = "
 foreach s [lsort $src] {
   writeln -nonewline "\$(OX)\\$s\$O "
 }
-writeln "\$(OX)\\shell\$O \$(OX)\\sqlite3\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
+writeln "\$(OX)\\shell\$O \$(OX)\\sqlite4\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
 writeln {
 
 APPNAME = $(OX)\fossil$(E)
@@ -861,7 +861,7 @@ $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
-foreach s [lsort [concat $src {shell sqlite3 th th_lang}]] {
+foreach s [lsort [concat $src {shell sqlite4 th th_lang}]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
@@ -885,9 +885,9 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite3_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ /Dmain=sqlite4_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
 
-$(OX)\sqlite3$O : $(SRCDIR)\sqlite3.c
+$(OX)\sqlite4$O : $(SRCDIR)\sqlite4.c
 	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
@@ -939,7 +939,7 @@ writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheader
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c:$s.h "
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln "\$(SRCDIR)\\sqlite4.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 
@@ -1039,7 +1039,7 @@ UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
 # define the sqlite files, which need special flags on compile
-SQLITESRC=sqlite3.c
+SQLITESRC=sqlite4.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
@@ -1048,7 +1048,7 @@ SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFA
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=-Dmain=sqlite4_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -1104,8 +1104,8 @@ VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
-	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite4.h ../src/th.h VERSION.h
+	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite4.h ../src/th.h VERSION.h
 	echo Done >$@
 
 # compile C sources with relevant options

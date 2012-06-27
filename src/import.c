@@ -559,7 +559,7 @@ static void git_fast_import(FILE *pIn){
       gg.zMark = fossil_strdup(&zLine[5]);
     }else
     if( memcmp(zLine, "tagger ", 7)==0 || memcmp(zLine, "committer ",10)==0 ){
-      sqlite3_int64 secSince1970;
+      sqlite4_int64 secSince1970;
       for(i=0; zLine[i] && zLine[i]!='<'; i++){}
       if( zLine[i]==0 ) goto malformed_line;
       z = &zLine[i+1];

@@ -428,26 +428,26 @@ void test_ishuman(void){
 ** Sets result to 0 if two values are equal.
 */
 static void constant_time_cmp_function(
- sqlite3_context *context,
+ sqlite4_context *context,
  int argc,
- sqlite3_value **argv
+ sqlite4_value **argv
 ){
   const unsigned char *buf1, *buf2;
   int len, i;
   unsigned char rc = 0;
 
   assert( argc==2 );
-  len = sqlite3_value_bytes(argv[0]);
-  if( len==0 || len!=sqlite3_value_bytes(argv[1]) ){
+  len = sqlite4_value_bytes(argv[0]);
+  if( len==0 || len!=sqlite4_value_bytes(argv[1]) ){
     rc = 1;
   }else{
-    buf1 = sqlite3_value_text(argv[0]);
-    buf2 = sqlite3_value_text(argv[1]);
+    buf1 = sqlite4_value_text(argv[0]);
+    buf2 = sqlite4_value_text(argv[1]);
     for( i=0; i<len; i++ ){
       rc = rc | (buf1[i] ^ buf2[i]);
     }
   }
-  sqlite3_result_int(context, rc);
+  sqlite4_result_int(context, rc);
 }
 
 /*
@@ -474,7 +474,7 @@ void login_page(void){
   const char *zIpAddr;         /* IP address of requestor */
 
   login_check_credentials();
-  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
@@ -684,8 +684,8 @@ static int login_transfer_credentials(
   const char *zHash,           /* HASH from login cookie HASH/CODE/LOGIN */
   const char *zRemoteAddr      /* Request comes from here */
 ){
-  sqlite3 *pOther = 0;         /* The other repository */
-  sqlite3_stmt *pStmt;         /* Query against the other repository */
+  sqlite4 *pOther = 0;         /* The other repository */
+  sqlite4_stmt *pStmt;         /* Query against the other repository */
   char *zSQL;                  /* SQL of the query against other repo */
   char *zOtherRepo;            /* Filename of the other repository */
   int rc;                      /* Result code from SQLite library functions */
@@ -697,12 +697,11 @@ static int login_transfer_credentials(
   );
   if( zOtherRepo==0 ) return 0;  /* No such peer repository */
 
-  rc = sqlite3_open(zOtherRepo, &pOther);
+  rc = sqlite4_open(0, zOtherRepo, &pOther, SQLITE_OPEN_READWRITE);
   if( rc==SQLITE_OK ){
-    sqlite3_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
-    sqlite3_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+    sqlite4_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite4_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
-    sqlite3_busy_timeout(pOther, 5000);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
       " WHERE login=%Q"
@@ -714,19 +713,19 @@ static int login_transfer_credentials(
       zLogin, zRemoteAddr, zHash
     );
     pStmt = 0;
-    rc = sqlite3_prepare_v2(pOther, zSQL, -1, &pStmt, 0);
-    if( rc==SQLITE_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+    rc = sqlite4_prepare(pOther, zSQL, -1, &pStmt, 0);
+    if( rc==SQLITE_OK && sqlite4_step(pStmt)==SQLITE_ROW ){
       db_multi_exec(
         "UPDATE user SET cookie=%Q, ipaddr=%Q, cexpire=%.17g"
         " WHERE login=%Q",
         zHash, zRemoteAddr,
-        sqlite3_column_double(pStmt, 0), zLogin
+        sqlite4_column_double(pStmt, 0), zLogin
       );
       nXfer++;
     }
-    sqlite3_finalize(pStmt);
+    sqlite4_finalize(pStmt);
   }
-  sqlite3_close(pOther);
+  sqlite4_close(pOther);
   fossil_free(zOtherRepo);
   return nXfer;
 }
@@ -781,7 +780,7 @@ void login_check_credentials(void){
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
 
-  sqlite3_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
@@ -801,7 +800,7 @@ void login_check_credentials(void){
     g.zLogin = db_text("?", "SELECT login FROM user WHERE uid=%d", uid);
     zCap = "sx";
     g.noPswd = 1;
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "localhost");
+    sqlite4_snprintf(g.zCsrfToken, sizeof(g.zCsrfToken), "localhost");
   }
 
   /* Check the login cookie to see if it matches a known valid user.
@@ -857,7 +856,7 @@ void login_check_credentials(void){
         if( uid ) record_login_attempt(zUser, zIpAddr, 1);
       }
     }
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "%.10s", zHash);
+    sqlite4_snprintf(g.zCsrfToken, sizeof(g.zCsrfToken), "%.10s", zHash);
   }
 
   /* If no user found and the REMOTE_USER environment variable is set,
@@ -879,7 +878,7 @@ void login_check_credentials(void){
       uid = -1;
       zCap = "";
     }
-    sqlite3_snprintf(sizeof(g.zCsrfToken), g.zCsrfToken, "none");
+    sqlite4_snprintf(g.zCsrfToken, sizeof(g.zCsrfToken), "none");
   }
 
   /* At this point, we know that uid!=0.  Find the privileges associated
@@ -1317,7 +1316,7 @@ int login_group_sql(
   const char *zSuffix,     /* Suffix to each error message */
   char **pzErrorMsg        /* Write error message here, if not NULL */
 ){
-  sqlite3 *pPeer;          /* Connection to another database */
+  sqlite4 *pPeer;          /* Connection to another database */
   int nErr = 0;            /* Number of errors seen so far */
   int rc;                  /* Result code from subroutine calls */
   char *zErr;              /* SQLite error text */
@@ -1348,30 +1347,29 @@ int login_group_sql(
       );
       continue;
     }
-    rc = sqlite3_open_v2(zRepoName, &pPeer, SQLITE_OPEN_READWRITE, 0);
+    rc = sqlite4_open(0, zRepoName, &pPeer, SQLITE_OPEN_READWRITE);
     if( rc!=SQLITE_OK ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
-                   sqlite3_errmsg(pPeer), zSuffix);
+                   sqlite4_errmsg(pPeer), zSuffix);
       nErr++;
-      sqlite3_close(pPeer);
+      sqlite4_close(pPeer);
       continue;
     }
-    sqlite3_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
+    sqlite4_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
-    sqlite3_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
-    sqlite3_busy_timeout(pPeer, 5000);
+    sqlite4_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
     zErr = 0;
-    rc = sqlite3_exec(pPeer, zSql, 0, 0, &zErr);
+    rc = sqlite4_exec(pPeer, zSql, 0, 0, &zErr);
     if( zErr ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName, zErr, zSuffix);
-      sqlite3_free(zErr);
+      sqlite4_free(0, zErr);
       nErr++;
     }else if( rc!=SQLITE_OK ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
-                   sqlite3_errmsg(pPeer), zSuffix);
+                   sqlite4_errmsg(pPeer), zSuffix);
       nErr++;
     }
-    sqlite3_close(pPeer);
+    sqlite4_close(pPeer);
   }
   db_finalize(&q);
   if( pzErrorMsg && blob_size(&err)>0 ){
@@ -1395,8 +1393,8 @@ void login_group_join(
   char **pzErrMsg            /* Leave an error message here */
 ){
   Blob fullName;             /* Blob for finding full pathnames */
-  sqlite3 *pOther;           /* The other repository */
-  int rc;                    /* Return code from sqlite3 functions */
+  sqlite4 *pOther;           /* The other repository */
+  int rc;                    /* Return code from sqlite4 functions */
   char *zOtherProjCode;      /* Project code for pOther */
   char *zPwHash;             /* Password hash on pOther */
   char *zSelfRepo;           /* Name of our repository */
@@ -1435,13 +1433,13 @@ void login_group_join(
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }
-  rc = sqlite3_open(zRepo, &pOther);
+  rc = sqlite4_open(0, zRepo, &pOther, SQLITE_OPEN_READWRITE);
   if( rc!=SQLITE_OK ){
-    *pzErrMsg = mprintf(sqlite3_errmsg(pOther));
+    *pzErrMsg = mprintf(sqlite4_errmsg(pOther));
   }else{
-    rc = sqlite3_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);
+    rc = sqlite4_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);
   }
-  sqlite3_close(pOther);
+  sqlite4_close(pOther);
   if( rc ) return;
 
   /* Attach the other respository.  Make sure the username/password is

@@ -415,26 +415,26 @@ char *sha1_shared_secret(
 ** Returns sha1($password/$login/$projcode).
 */
 void sha1_shared_secret_sql_function(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
   const char *zPw;
   const char *zLogin;
   const char *zProjid;
 
   assert( argc==2 || argc==3 );
-  zPw = (const char*)sqlite3_value_text(argv[0]);
+  zPw = (const char*)sqlite4_value_text(argv[0]);
   if( zPw==0 || zPw[0]==0 ) return;
-  zLogin = (const char*)sqlite3_value_text(argv[1]);
+  zLogin = (const char*)sqlite4_value_text(argv[1]);
   if( zLogin==0 ) return;
   if( argc==3 ){
-    zProjid = (const char*)sqlite3_value_text(argv[2]);
+    zProjid = (const char*)sqlite4_value_text(argv[2]);
     if( zProjid && zProjid[0]==0 ) zProjid = 0;
   }else{
     zProjid = 0;
   }
-  sqlite3_result_text(context, sha1_shared_secret(zPw, zLogin, zProjid), -1,
+  sqlite4_result_text(context, sha1_shared_secret(zPw, zLogin, zProjid), -1,
                       fossil_free);
 }
 

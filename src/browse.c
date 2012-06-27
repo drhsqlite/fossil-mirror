@@ -37,27 +37,27 @@
 **      pathelement('abc/pqr/xyz', 0)  ->  '/abc'
 */
 void pathelementFunc(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
   const unsigned char *z;
   int len, n, i;
   char *zOut;
 
   assert( argc==2 );
-  z = sqlite3_value_text(argv[0]);
+  z = sqlite4_value_text(argv[0]);
   if( z==0 ) return;
-  len = sqlite3_value_bytes(argv[0]);
-  n = sqlite3_value_int(argv[1]);
+  len = sqlite4_value_bytes(argv[0]);
+  n = sqlite4_value_int(argv[1]);
   if( len<=n ) return;
   if( n>0 && z[n-1]!='/' ) return;
   for(i=n; i<len && z[i]!='/'; i++){}
   if( i==len ){
-    sqlite3_result_text(context, (char*)&z[n], len-n, SQLITE_TRANSIENT);
+    sqlite4_result_text(context, (char*)&z[n], len-n, SQLITE_TRANSIENT);
   }else{
-    zOut = sqlite3_mprintf("/%.*s", i-n, &z[n]);
-    sqlite3_result_text(context, zOut, i-n+1, sqlite3_free);
+    zOut = sqlite4_mprintf(0, "/%.*s", i-n, &z[n]);
+    sqlite4_result_text(context, zOut, i-n+1, SQLITE_DYNAMIC);
   }
 }
 
@@ -125,7 +125,7 @@ void page_dir(void){
   if( !g.perm.Hyperlink ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
-  sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
 
   /* If the name= parameter is an empty string, make it a NULL pointer */

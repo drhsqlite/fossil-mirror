@@ -102,7 +102,7 @@ static cson_value * json_page_dir_list(){
   nD = zD ? strlen(zD)+1 : 0;
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
 
-  sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
                           pathelementFunc, 0, 0);
 
   /* Compute the temporary table "localfiles" containing the names

@@ -534,7 +534,7 @@ char *obscure(const char *zIn){
   if( zIn==0 ) return 0;
   n = strlen(zIn);
   zOut = fossil_malloc( n*2+3 );
-  sqlite3_randomness(1, &salt);
+  sqlite4_randomness(0, 1, &salt);
   zOut[n+1] = (char)salt;
   for(i=0; i<n; i++) zOut[i+n+2] = zIn[i]^aObscurer[i&0x0f]^salt;
   encode16((unsigned char*)&zOut[n+1], (unsigned char*)zOut, n+1);

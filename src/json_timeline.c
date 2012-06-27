@@ -637,7 +637,7 @@ static cson_value * json_timeline_ticket(){
       continue;
     }
 
-    rowV = cson_sqlite3_row_to_object(q.pStmt);
+    rowV = cson_sqlite4_row_to_object(q.pStmt);
     row = cson_value_get_object(rowV);
     if(!row){
       manifest_destroy(pMan);

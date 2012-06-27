@@ -627,17 +627,17 @@ void tktedit_page(void){
 char *ticket_schema_check(const char *zSchema){
   char *zErr = 0;
   int rc;
-  sqlite3 *db;
-  rc = sqlite3_open(":memory:", &db);
+  sqlite4 *db;
+  rc = sqlite4_open(0, ":memory:", &db, SQLITE_OPEN_READWRITE);
   if( rc==SQLITE_OK ){
-    rc = sqlite3_exec(db, zSchema, 0, 0, &zErr);
+    rc = sqlite4_exec(db, zSchema, 0, 0, &zErr);
     if( rc!=SQLITE_OK ){
-      sqlite3_close(db);
+      sqlite4_close(db);
       return zErr;
     }
-    rc = sqlite3_exec(db, "SELECT tkt_id, tkt_uuid, tkt_mtime FROM ticket",
+    rc = sqlite4_exec(db, "SELECT tkt_id, tkt_uuid, tkt_mtime FROM ticket",
                       0, 0, 0);
-    sqlite3_close(db);
+    sqlite4_close(db);
     if( rc!=SQLITE_OK ){
       zErr = mprintf("schema fails to define a valid ticket table "
                      "containing all required fields");
@@ -686,7 +686,7 @@ void tkttimeline_page(void){
   style_header(zTitle);
   free(zTitle);
 
-  sqlite3_snprintf(6, zGlobPattern, "%s", zUuid);
+  sqlite4_snprintf(zGlobPattern, 6, "%s", zUuid);
   canonical16(zGlobPattern, strlen(zGlobPattern));
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zUuid);
   if( tagid==0 ){

@@ -208,10 +208,10 @@ int report_query_authorizer(
 */
 static void report_restrict_sql(char **pzErr){
   (void)fossil_localtime(0);
-  sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
+  sqlite4_set_authorizer(g.db, report_query_authorizer, (void*)pzErr);
 }
 static void report_unrestrict_sql(void){
-  sqlite3_set_authorizer(g.db, 0, 0);
+  sqlite4_set_authorizer(g.db, 0, 0);
 }
 
 
@@ -225,7 +225,7 @@ char *verify_sql_statement(char *zSql){
   int i;
   char *zErr = 0;
   const char *zTail;
-  sqlite3_stmt *pStmt;
+  sqlite4_stmt *pStmt;
   int rc;
 
   /* First make sure the SQL is a single query command by verifying that
@@ -240,7 +240,7 @@ char *verify_sql_statement(char *zSql){
       int bad;
       int c = zSql[i+1];
       zSql[i+1] = 0;
-      bad = sqlite3_complete(zSql);
+      bad = sqlite4_complete(zSql);
       zSql[i+1] = c;
       if( bad ){
         /* A complete statement basically means that an unquoted semi-colon
@@ -254,15 +254,15 @@ char *verify_sql_statement(char *zSql){
   
   /* Compile the statement and check for illegal accesses or syntax errors. */
   report_restrict_sql(&zErr);
-  rc = sqlite3_prepare(g.db, zSql, -1, &pStmt, &zTail);
+  rc = sqlite4_prepare(g.db, zSql, -1, &pStmt, &zTail);
   if( rc!=SQLITE_OK ){
-    zErr = mprintf("Syntax error: %s", sqlite3_errmsg(g.db));
+    zErr = mprintf("Syntax error: %s", sqlite4_errmsg(g.db));
   }
-  if( !sqlite3_stmt_readonly(pStmt) ){
+  if( !sqlite4_stmt_readonly(pStmt) ){
     zErr = mprintf("SQL must not modify the database");
   }
   if( pStmt ){
-    sqlite3_finalize(pStmt);
+    sqlite4_finalize(pStmt);
   }
   report_unrestrict_sql();
   return zErr;
@@ -643,7 +643,7 @@ static int generate_html(
     /* Turn off the authorizer.  It is no longer doing anything since the
     ** query has already been prepared.
     */
-    sqlite3_set_authorizer(g.db, 0, 0);
+    sqlite4_set_authorizer(g.db, 0, 0);
 
     /* Figure out the number of columns, the column that determines background
     ** color, and whether or not this row of data is represented by multiple
@@ -836,23 +836,23 @@ void output_color_key(const char *zClrKey, int horiz, char *zTabArgs){
 ** Execute a single read-only SQL statement.  Invoke xCallback() on each
 ** row.
 */
-int sqlite3_exec_readonly(
-  sqlite3 *db,                /* The database on which the SQL executes */
+int sqlite4_exec_readonly(
+  sqlite4 *db,                /* The database on which the SQL executes */
   const char *zSql,           /* The SQL to be executed */
-  sqlite3_callback xCallback, /* Invoke this callback routine */
+  sqlite4_callback xCallback, /* Invoke this callback routine */
   void *pArg,                 /* First argument to xCallback() */
   char **pzErrMsg             /* Write error messages here */
 ){
   int rc = SQLITE_OK;         /* Return code */
   const char *zLeftover;      /* Tail of unprocessed SQL */
-  sqlite3_stmt *pStmt = 0;    /* The current SQL statement */
+  sqlite4_stmt *pStmt = 0;    /* The current SQL statement */
   char **azCols = 0;          /* Names of result columns */
   int nCol;                   /* Number of columns of output */
   char **azVals = 0;          /* Text of all output columns */
   int i;                      /* Loop counter */
 
   pStmt = 0;
-  rc = sqlite3_prepare_v2(db, zSql, -1, &pStmt, &zLeftover);
+  rc = sqlite4_prepare(db, zSql, -1, &pStmt, &zLeftover);
   assert( rc==SQLITE_OK || pStmt==0 );
   if( rc!=SQLITE_OK ){
     return rc;
@@ -861,28 +861,28 @@ int sqlite3_exec_readonly(
     /* this happens for a comment or white-space */
     return SQLITE_OK;
   }
-  if( !sqlite3_stmt_readonly(pStmt) ){
-    sqlite3_finalize(pStmt);
+  if( !sqlite4_stmt_readonly(pStmt) ){
+    sqlite4_finalize(pStmt);
     return SQLITE_ERROR;
   }
 
-  nCol = sqlite3_column_count(pStmt);
+  nCol = sqlite4_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
-  while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
+  while( (rc = sqlite4_step(pStmt))==SQLITE_ROW ){
     if( azCols==0 ){
       azCols = &azVals[nCol];
       for(i=0; i<nCol; i++){
-        azCols[i] = (char *)sqlite3_column_name(pStmt, i);
+        azCols[i] = (char *)sqlite4_column_name(pStmt, i);
       }
     }
     for(i=0; i<nCol; i++){
-      azVals[i] = (char *)sqlite3_column_text(pStmt, i);
+      azVals[i] = (char *)sqlite4_column_text(pStmt, i);
     }
     if( xCallback(pArg, nCol, azVals, azCols) ){
       break;
     }
   }
-  rc = sqlite3_finalize(pStmt);
+  rc = sqlite4_finalize(pStmt);
   fossil_free(azVals);
   return rc;
 }
@@ -969,7 +969,7 @@ void rptview_page(void){
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
-    sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
+    sqlite4_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
     @ </table>
     if( zErr1 ){
@@ -980,7 +980,7 @@ void rptview_page(void){
     style_footer();
   }else{
     report_restrict_sql(&zErr1);
-    sqlite3_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
+    sqlite4_exec_readonly(g.db, zSql, output_tab_separated, &count, &zErr2);
     report_unrestrict_sql();
     cgi_set_content_type("text/plain");
   }
@@ -1133,7 +1133,7 @@ void rptshow(
   tktEncode = enc;
   zSep = zSepIn;
   report_restrict_sql(&zErr1);
-  sqlite3_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
+  sqlite4_exec_readonly(g.db, zSql, output_separated_file, &count, &zErr2);
   report_unrestrict_sql();
   if( zFilter ){
     free(zSql);

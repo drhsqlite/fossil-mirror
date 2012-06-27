@@ -82,7 +82,7 @@ UTILS_OBJ=$(UTILS:.exe=.obj)
 UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 
 # define the sqlite files, which need special flags on compile
-SQLITESRC=sqlite3.c
+SQLITESRC=sqlite4.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
 SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
@@ -91,7 +91,7 @@ SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFA
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=-Dmain=sqlite4_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c
@@ -147,8 +147,8 @@ VERSION.h:	version.exe ..\manifest.uuid ..\manifest ..\VERSION
 	version.exe ..\manifest.uuid ..\manifest ..\VERSION  > $@
 
 # generate the simplified headers
-headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite3.h ../src/th.h VERSION.h
-	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite3.h ../src/th.h VERSION.h
+headers: makeheaders.exe page_index.h VERSION.h ../src/sqlite4.h ../src/th.h VERSION.h
+	makeheaders.exe $(foreach ts,$(TRANSLATEDSRC),$(ts):$(ts:_.c=.h)) ../src/sqlite4.h ../src/th.h VERSION.h
 	echo Done >$@
 
 # compile C sources with relevant options

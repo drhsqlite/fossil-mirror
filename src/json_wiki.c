@@ -459,7 +459,7 @@ static cson_value * json_wiki_list(){
       char const * name = db_column_text(&q,0);
       v = json_get_wiki_page_by_name(name,0);
     }else{
-      v = cson_sqlite3_column_to_value(q.pStmt,0);
+      v = cson_sqlite4_column_to_value(q.pStmt,0);
     }
     if(!v){
       json_set_err(FSL_JSON_E_UNKNOWN,

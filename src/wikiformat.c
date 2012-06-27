@@ -1099,7 +1099,7 @@ static void openHyperlink(
     zTerm = "";
   }
   assert( strlen(zTerm)<nClose );
-  sqlite3_snprintf(nClose, zClose, "%s", zTerm);
+  sqlite4_snprintf(zClose, nClose, "%s", zTerm);
 }
 
 /*

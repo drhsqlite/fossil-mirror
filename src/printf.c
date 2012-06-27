@@ -901,7 +901,7 @@ int fossil_strnicmp(const char *zA, const char *zB, int nByte){
     return +1;
   }
   if( nByte<0 ) nByte = strlen(zB);
-  return sqlite3_strnicmp(zA, zB, nByte);
+  return sqlite4_strnicmp(zA, zB, nByte);
 }
 int fossil_stricmp(const char *zA, const char *zB){
   int nByte;
@@ -913,7 +913,7 @@ int fossil_stricmp(const char *zA, const char *zB){
     return +1;
   }
   nByte = strlen(zB);
-  rc = sqlite3_strnicmp(zA, zB, nByte);
+  rc = sqlite4_strnicmp(zA, zB, nByte);
   if( rc==0 && zA[nByte] ) rc = 1;
   return rc;
 }

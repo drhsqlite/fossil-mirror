@@ -74,9 +74,9 @@ static void win32_process_one_http_request(void *pAppData){
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
-  sqlite3_snprintf(sizeof(zRequestFName), zRequestFName,
+  sqlite4_snprintf(zRequestFName, sizeof(zRequestFName),
                    "%s_in%d.txt", zTempPrefix, p->id);
-  sqlite3_snprintf(sizeof(zReplyFName), zReplyFName,
+  sqlite4_snprintf(zReplayFName, sizeof(zReplyFName),
                    "%s_out%d.txt", zTempPrefix, p->id);
   amt = 0;
   while( amt<sizeof(zHdr) ){
@@ -110,7 +110,7 @@ static void win32_process_one_http_request(void *pAppData){
   }
   fclose(out);
   out = 0;
-  sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
+  sqlite4_snprintf(zCmd, sizeof(zCmd), "\"%s\" http \"%s\" %s %s %s --nossl%s",
     fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName, 
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );

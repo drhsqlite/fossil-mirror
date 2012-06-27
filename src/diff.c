@@ -475,7 +475,7 @@ static void sbsWriteHtml(SbsLine *p, const char *zIn){
 */
 static void sbsWriteLineno(SbsLine *p, int ln){
   sbsWriteHtml(p, "<span class=\"diffln\">");
-  sqlite3_snprintf(7, &p->zLine[p->n], "%5d ", ln+1);
+  sqlite4_snprintf(&p->zLine[p->n], 7, "%5d ", ln+1);
   p->n += 6;
   sbsWriteHtml(p, "</span>");
   p->zLine[p->n++] = ' ';

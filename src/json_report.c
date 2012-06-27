@@ -116,7 +116,7 @@ static cson_value * json_report_get(){
                  "Report #%d not found.", nReport);
     return NULL;
   }
-  pay = cson_sqlite3_row_to_object(q.pStmt);
+  pay = cson_sqlite4_row_to_object(q.pStmt);
   db_finalize(&q);
   return pay;
 }
@@ -226,14 +226,14 @@ static cson_value * json_report_run(){
   }
   blob_reset(&sql);
 
-  colNames = cson_sqlite3_column_names(q.pStmt);
+  colNames = cson_sqlite4_column_names(q.pStmt);
   cson_object_set( pay, "columnNames", colNames);
   for( i = 0 ; ((limit>0) ?(i < limit) : 1)
          && (SQLITE_ROW == db_step(&q));
        ++i){
     cson_value * row = ('a'==*zFmt)
-      ? cson_sqlite3_row_to_array(q.pStmt)
-      : cson_sqlite3_row_to_object2(q.pStmt,
+      ? cson_sqlite4_row_to_array(q.pStmt)
+      : cson_sqlite4_row_to_object2(q.pStmt,
                                     cson_value_get_array(colNames));
     ;
     if(row && !tktList){

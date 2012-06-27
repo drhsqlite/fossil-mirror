@@ -113,7 +113,7 @@ int search_score(Search *p, const char *zDoc){
     if( isBoundary[c&0xff] ) continue;
     for(j=0; j<p->nTerm; j++){
       int n = p->a[j].n;
-      if( sqlite3_strnicmp(p->a[j].z, &zDoc[i], n)==0 ){
+      if( sqlite4_strnicmp(p->a[j].z, &zDoc[i], n)==0 ){
         score += 1;
         if( !seen[j] ){
           if( isBoundary[zDoc[i+n]&0xff] ) score += 10;
@@ -145,13 +145,13 @@ int search_score(Search *p, const char *zDoc){
 ** a pre-computed pattern.
 */
 static void search_score_sqlfunc(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
-  Search *p = (Search*)sqlite3_user_data(context);
-  int score = search_score(p, (const char*)sqlite3_value_text(argv[0]));
-  sqlite3_result_int(context, score);
+  Search *p = (Search*)sqlite4_user_data(context);
+  int score = search_score(p, (const char*)sqlite4_value_text(argv[0]));
+  sqlite4_result_int(context, score);
 }
 
 /*
@@ -160,7 +160,7 @@ static void search_score_sqlfunc(
 ** do not delete the Search object.
 */
 void search_sql_setup(Search *p){
-  sqlite3_create_function(g.db, "score", 1, SQLITE_UTF8, p,
+  sqlite4_create_function(g.db, "score", 1, SQLITE_UTF8, p,
      search_score_sqlfunc, 0, 0);
 }
 

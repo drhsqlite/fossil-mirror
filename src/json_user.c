@@ -92,7 +92,7 @@ static cson_value * json_load_user_by_name(char const * zName){
              " WHERE login=%Q",
              zName);
   if( (SQLITE_ROW == db_step(&q)) ){
-    u = cson_sqlite3_row_to_object(q.pStmt);
+    u = cson_sqlite4_row_to_object(q.pStmt);
   }
   db_finalize(&q);
   return u;  
@@ -114,7 +114,7 @@ static cson_value * json_load_user_by_id(int uid){
              " WHERE uid=%d",
              uid);
   if( (SQLITE_ROW == db_step(&q)) ){
-    u = cson_sqlite3_row_to_object(q.pStmt);
+    u = cson_sqlite4_row_to_object(q.pStmt);
   }
   db_finalize(&q);
   return u;  

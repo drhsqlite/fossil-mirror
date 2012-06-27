@@ -304,7 +304,7 @@ const char *mimetype_from_name(const char *zName){
   }
   len = strlen(z);
   if( len<sizeof(zSuffix)-1 ){
-    sqlite3_snprintf(sizeof(zSuffix), zSuffix, "%s", z);
+    sqlite4_snprintf(zSuffix, sizeof(zSuffix), "%s", z);
     for(i=0; zSuffix[i]; i++) zSuffix[i] = fossil_tolower(zSuffix[i]);
     first = 0;
     last = sizeof(aMime)/sizeof(aMime[0]);
@@ -388,7 +388,7 @@ void doc_page(void){
     }
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
-    sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
+    sqlite4_snprintf(zBaseline, sizeof(zBaseline), "tip");
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 ){
     /* Read from the local checkout */

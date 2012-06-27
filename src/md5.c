@@ -20,7 +20,7 @@
  */
 #include <string.h>
 #include <stdio.h>
-#include <sqlite3.h>
+#include <sqlite4.h>
 #include "md5.h"
 
 /*
@@ -339,7 +339,7 @@ const char *md5sum_current_state(void){
     cksum += *pFirst;
     pFirst++;
   }
-  sqlite3_snprintf(sizeof(zResult), zResult, "%08x", cksum);
+  sqlite4_snprintf(zResult, sizeof(zResult), "%08x", cksum);
   return zResult;
 }
 

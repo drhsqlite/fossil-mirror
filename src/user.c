@@ -370,7 +370,7 @@ void user_select(void){
 void user_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
-  sqlite3_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
                           sha1_shared_secret_sql_function, 0, 0);
   db_multi_exec(
     "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"

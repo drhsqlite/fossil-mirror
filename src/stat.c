@@ -26,14 +26,14 @@
 ** For a sufficiently large integer, provide an alternative
 ** representation as MB or GB or TB.
 */
-static void bigSizeName(int nOut, char *zOut, sqlite3_int64 v){
+static void bigSizeName(int nOut, char *zOut, sqlite4_int64 v){
   if( v<100000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes", v);
+    sqlite4_snprintf(zOut, nOut, "%lld bytes", v);
   }else if( v<1000000000 ){
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fMB)",
+    sqlite4_snprintf(zOut, nOut, "%lld bytes (%.1fMB)",
                     v, (double)v/1000000.0);
   }else{
-    sqlite3_snprintf(nOut, zOut, "%lld bytes (%.1fGB)",
+    sqlite4_snprintf(zOut, nOut, "%lld bytes (%.1fGB)",
                     v, (double)v/1000000000.0);
   }
 }

@@ -666,17 +666,17 @@ static void process_multipart_form_data(char *z, int len){
       for(i=0; i<nArg; i++){
         int c = fossil_tolower(azArg[i][0]);
         int n = strlen(azArg[i]);
-        if( c=='c' && sqlite3_strnicmp(azArg[i],"content-disposition:",n)==0 ){
+        if( c=='c' && sqlite4_strnicmp(azArg[i],"content-disposition:",n)==0 ){
           i++;
-        }else if( c=='n' && sqlite3_strnicmp(azArg[i],"name=",n)==0 ){
+        }else if( c=='n' && sqlite4_strnicmp(azArg[i],"name=",n)==0 ){
           zName = azArg[++i];
-        }else if( c=='f' && sqlite3_strnicmp(azArg[i],"filename=",n)==0 ){
+        }else if( c=='f' && sqlite4_strnicmp(azArg[i],"filename=",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:filename",zName), z);
           }
           showBytes = 1;
-        }else if( c=='c' && sqlite3_strnicmp(azArg[i],"content-type:",n)==0 ){
+        }else if( c=='c' && sqlite4_strnicmp(azArg[i],"content-type:",n)==0 ){
           char *z = azArg[++i];
           if( zName && z && fossil_islower(zName[0]) ){
             cgi_set_parameter_nocopy(mprintf("%s:mimetype",zName), z);

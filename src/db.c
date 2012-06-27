@@ -32,7 +32,7 @@
 #if ! defined(_WIN32)
 #  include <pwd.h>
 #endif
-#include <sqlite3.h>
+#include <sqlite4.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -46,9 +46,9 @@
 */
 struct Stmt {
   Blob sql;               /* The SQL for this statement */
-  sqlite3_stmt *pStmt;    /* The results of sqlite3_prepare() */
+  sqlite4_stmt *pStmt;    /* The results of sqlite4_prepare() */
   Stmt *pNext, *pPrev;    /* List of all unfinalized statements */
-  int nStep;              /* Number of sqlite3_step() calls */
+  int nStep;              /* Number of sqlite4_step() calls */
 };
 
 /*
@@ -110,7 +110,7 @@ static struct DbLocalData {
   int doRollback;           /* True to force a rollback */
   int nCommitHook;          /* Number of commit hooks */
   Stmt *pAllStmt;           /* List of all unfinalized statements */
-  int nPrepare;             /* Number of calls to sqlite3_prepare() */
+  int nPrepare;             /* Number of calls to sqlite4_prepare() */
   int nDeleteOnFail;        /* Number of entries in azDeleteOnFail[] */
   struct sCommitHook {
     int (*xHook)(void);         /* Functions to call at db_end_transaction() */
@@ -119,7 +119,7 @@ static struct DbLocalData {
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
   char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
   int nBeforeCommit;        /* Number of entries in azBeforeCommit */
-  int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
+  int nPriorChanges;        /* sqlite4_total_changes() at transaction start */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -153,8 +153,8 @@ static int db_verify_at_commit(void *notUsed){
 void db_begin_transaction(void){
   if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
-    sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
-    db.nPriorChanges = sqlite3_total_changes(g.db);
+    /* sqlite3_commit_hook(g.db, db_verify_at_commit, 0); */
+    db.nPriorChanges = sqlite4_total_changes(g.db);
   }
   db.nBegin++;
 }
@@ -165,11 +165,11 @@ void db_end_transaction(int rollbackFlag){
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
-    if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
+    if( db.doRollback==0 && db.nPriorChanges<sqlite4_total_changes(g.db) ){
       while( db.nBeforeCommit ){
         db.nBeforeCommit--;
-        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
-        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+        sqlite4_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
+        sqlite4_free(0, db.azBeforeCommit[db.nBeforeCommit]);
       }
       leaf_do_pending_checks();
     }
@@ -190,18 +190,18 @@ void db_end_transaction(int rollbackFlag){
 void db_force_rollback(void){
   int i;
   static int busy = 0;
-  sqlite3_stmt *pStmt = 0;
+  sqlite4_stmt *pStmt = 0;
   if( busy || g.db==0 ) return;
   busy = 1;
   undo_rollback();
-  while( (pStmt = sqlite3_next_stmt(g.db,pStmt))!=0 ){
-    sqlite3_reset(pStmt);
+  while( (pStmt = sqlite4_next_stmt(g.db,pStmt))!=0 ){
+    sqlite4_reset(pStmt);
   }
   while( db.pAllStmt ){
     db_finalize(db.pAllStmt);
   }
   if( db.nBegin ){
-    sqlite3_exec(g.db, "ROLLBACK", 0, 0, 0);
+    sqlite4_exec(g.db, "ROLLBACK", 0, 0, 0);
     db.nBegin = 0;
   }
   busy = 0;
@@ -253,9 +253,9 @@ int db_vprepare(Stmt *pStmt, int errOk, const char *zFormat, va_list ap){
   va_end(ap);
   zSql = blob_str(&pStmt->sql);
   db.nPrepare++;
-  rc = sqlite3_prepare_v2(g.db, zSql, -1, &pStmt->pStmt, 0);
+  rc = sqlite4_prepare(g.db, zSql, -1, &pStmt->pStmt, 0);
   if( rc!=0 && !errOk ){
-    db_err("%s\n%s", sqlite3_errmsg(g.db), zSql);
+    db_err("%s\n%s", sqlite4_errmsg(g.db), zSql);
   }
   pStmt->pNext = pStmt->pPrev = 0;
   pStmt->nStep = 0;
@@ -296,7 +296,7 @@ int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
 ** Return the index of a bind parameter
 */
 static int paramIdx(Stmt *pStmt, const char *zParamName){
-  int i = sqlite3_bind_parameter_index(pStmt->pStmt, zParamName);
+  int i = sqlite4_bind_parameter_index(pStmt->pStmt, zParamName);
   if( i==0 ){
     db_err("no such bind parameter: %s\nSQL: %b", zParamName, &pStmt->sql);
   }
@@ -306,23 +306,23 @@ static int paramIdx(Stmt *pStmt, const char *zParamName){
 ** Bind an integer, string, or Blob value to a named parameter.
 */
 int db_bind_int(Stmt *pStmt, const char *zParamName, int iValue){
-  return sqlite3_bind_int(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
+  return sqlite4_bind_int(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
 }
 int db_bind_int64(Stmt *pStmt, const char *zParamName, i64 iValue){
-  return sqlite3_bind_int64(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
+  return sqlite4_bind_int64(pStmt->pStmt, paramIdx(pStmt, zParamName), iValue);
 }
 int db_bind_double(Stmt *pStmt, const char *zParamName, double rValue){
-  return sqlite3_bind_double(pStmt->pStmt, paramIdx(pStmt, zParamName), rValue);
+  return sqlite4_bind_double(pStmt->pStmt, paramIdx(pStmt, zParamName), rValue);
 }
 int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
-  return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
+  return sqlite4_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
                            -1, SQLITE_STATIC);
 }
 int db_bind_null(Stmt *pStmt, const char *zParamName){
-  return sqlite3_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
+  return sqlite4_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
 int db_bind_blob(Stmt *pStmt, const char *zParamName, Blob *pBlob){
-  return sqlite3_bind_blob(pStmt->pStmt, paramIdx(pStmt, zParamName),
+  return sqlite4_bind_blob(pStmt->pStmt, paramIdx(pStmt, zParamName),
                           blob_buffer(pBlob), blob_size(pBlob), SQLITE_STATIC);
 }
 
@@ -331,7 +331,7 @@ int db_bind_blob(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 ** the Blob object like an SQL BLOB.
 */
 int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
-  return sqlite3_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName),
+  return sqlite4_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName),
                           blob_buffer(pBlob), blob_size(pBlob), SQLITE_STATIC);
 }
 
@@ -341,7 +341,7 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 */
 int db_step(Stmt *pStmt){
   int rc;
-  rc = sqlite3_step(pStmt->pStmt);
+  rc = sqlite4_step(pStmt->pStmt);
   pStmt->nStep++;
   return rc;
 }
@@ -352,11 +352,11 @@ int db_step(Stmt *pStmt){
 static void db_stats(Stmt *pStmt){
 #ifdef FOSSIL_DEBUG
   int c1, c2, c3;
-  const char *zSql = sqlite3_sql(pStmt->pStmt);
+  const char *zSql = sqlite4_sql(pStmt->pStmt);
   if( zSql==0 ) return;
-  c1 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
-  c2 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, 1);
-  c3 = sqlite3_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  c1 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
+  c2 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, 1);
+  c3 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
   if( c1>pStmt->nStep*4 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("%d scan steps for %d rows in [%s]", c1, pStmt->nStep, zSql);
   }else if( c2 ){
@@ -374,7 +374,7 @@ static void db_stats(Stmt *pStmt){
 int db_reset(Stmt *pStmt){
   int rc;
   db_stats(pStmt);
-  rc = sqlite3_reset(pStmt->pStmt);
+  rc = sqlite4_reset(pStmt->pStmt);
   db_check_result(rc);
   return rc;
 }
@@ -382,7 +382,7 @@ int db_finalize(Stmt *pStmt){
   int rc;
   db_stats(pStmt);
   blob_reset(&pStmt->sql);
-  rc = sqlite3_finalize(pStmt->pStmt);
+  rc = sqlite4_finalize(pStmt->pStmt);
   db_check_result(rc);
   pStmt->pStmt = 0;
   if( pStmt->pNext ){
@@ -402,7 +402,7 @@ int db_finalize(Stmt *pStmt){
 ** Return the rowid of the most recent insert
 */
 i64 db_last_insert_rowid(void){
-  return sqlite3_last_insert_rowid(g.db);
+  return sqlite4_last_insert_rowid(g.db);
 }
 
 /*
@@ -411,7 +411,7 @@ i64 db_last_insert_rowid(void){
 ** or other side effects are not counted.
 */
 int db_changes(void){
-  return sqlite3_changes(g.db);
+  return sqlite4_changes(g.db);
 }
 
 /*
@@ -419,35 +419,35 @@ int db_changes(void){
 ** current row.
 */
 int db_column_bytes(Stmt *pStmt, int N){
-  return sqlite3_column_bytes(pStmt->pStmt, N);
+  return sqlite4_column_bytes(pStmt->pStmt, N);
 }
 int db_column_int(Stmt *pStmt, int N){
-  return sqlite3_column_int(pStmt->pStmt, N);
+  return sqlite4_column_int(pStmt->pStmt, N);
 }
 i64 db_column_int64(Stmt *pStmt, int N){
-  return sqlite3_column_int64(pStmt->pStmt, N);
+  return sqlite4_column_int64(pStmt->pStmt, N);
 }
 double db_column_double(Stmt *pStmt, int N){
-  return sqlite3_column_double(pStmt->pStmt, N);
+  return sqlite4_column_double(pStmt->pStmt, N);
 }
 const char *db_column_text(Stmt *pStmt, int N){
-  return (char*)sqlite3_column_text(pStmt->pStmt, N);
+  return (char*)sqlite4_column_text(pStmt->pStmt, N);
 }
 const char *db_column_raw(Stmt *pStmt, int N){
-  return (const char*)sqlite3_column_blob(pStmt->pStmt, N);
+  return (const char*)sqlite4_column_blob(pStmt->pStmt, N);
 }
 const char *db_column_name(Stmt *pStmt, int N){
-  return (char*)sqlite3_column_name(pStmt->pStmt, N);
+  return (char*)sqlite4_column_name(pStmt->pStmt, N);
 }
 int db_column_count(Stmt *pStmt){
-  return sqlite3_column_count(pStmt->pStmt);
+  return sqlite4_column_count(pStmt->pStmt);
 }
 char *db_column_malloc(Stmt *pStmt, int N){
   return mprintf("%s", db_column_text(pStmt, N));
 }
 void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
-  blob_append(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
-              sqlite3_column_bytes(pStmt->pStmt, N));
+  blob_append(pBlob, sqlite4_column_blob(pStmt->pStmt, N),
+              sqlite4_column_bytes(pStmt->pStmt, N));
 }
 
 /*
@@ -456,8 +456,8 @@ void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
 ** invalid when the statement is stepped or reset.
 */
 void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
-  blob_init(pBlob, sqlite3_column_blob(pStmt->pStmt, N),
-              sqlite3_column_bytes(pStmt->pStmt, N));
+  blob_init(pBlob, sqlite4_column_blob(pStmt->pStmt, N),
+              sqlite4_column_bytes(pStmt->pStmt, N));
 }
 
 /*
@@ -466,7 +466,7 @@ void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
 */
 void db_check_result(int rc){
   if( rc!=SQLITE_OK ){
-    db_err("SQL error: %s", sqlite3_errmsg(g.db));
+    db_err("SQL error: %s", sqlite4_errmsg(g.db));
   }
 }
 
@@ -493,7 +493,7 @@ int db_multi_exec(const char *zSql, ...){
   va_start(ap, zSql);
   blob_vappendf(&sql, zSql, ap);
   va_end(ap);
-  rc = sqlite3_exec(g.db, blob_buffer(&sql), 0, 0, &zErr);
+  rc = sqlite4_exec(g.db, blob_buffer(&sql), 0, 0, &zErr);
   if( rc!=SQLITE_OK ){
     db_err("%s\n%s", zErr, blob_buffer(&sql));
   }
@@ -510,7 +510,7 @@ void db_optional_sql(const char *zDb, const char *zSql, ...){
   if( db_is_writeable(zDb) && db.nBeforeCommit < count(db.azBeforeCommit) ){
     va_list ap;
     va_start(ap, zSql);
-    db.azBeforeCommit[db.nBeforeCommit++] = sqlite3_vmprintf(zSql, ap);
+    db.azBeforeCommit[db.nBeforeCommit++] = sqlite4_vmprintf(0, zSql, ap);
     va_end(ap);
   }
 }
@@ -600,8 +600,8 @@ void db_blob(Blob *pResult, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    blob_append(pResult, sqlite3_column_blob(s.pStmt, 0),
-                         sqlite3_column_bytes(s.pStmt, 0));
+    blob_append(pResult, sqlite4_column_blob(s.pStmt, 0),
+                         sqlite4_column_bytes(s.pStmt, 0));
   }
   db_finalize(&s);
 }
@@ -620,7 +620,7 @@ char *db_text(char const *zDefault, const char *zSql, ...){
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
   if( db_step(&s)==SQLITE_ROW ){
-    z = mprintf("%s", sqlite3_column_text(s.pStmt, 0));
+    z = mprintf("%s", sqlite4_column_text(s.pStmt, 0));
   }else if( zDefault ){
     z = mprintf("%s", zDefault);
   }else{
@@ -639,31 +639,31 @@ void db_init_database(
   const char *zSchema,     /* First part of schema */
   ...                      /* Additional SQL to run.  Terminate with NULL. */
 ){
-  sqlite3 *db;
+  sqlite4 *db;
   int rc;
   const char *zSql;
   va_list ap;
 
-  rc = sqlite3_open(zFileName, &db);
+  rc = sqlite4_open(0, zFileName, &db,
+                    SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err(sqlite4_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000);
-  sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
-  rc = sqlite3_exec(db, zSchema, 0, 0, 0);
+  sqlite4_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
+  rc = sqlite4_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err(sqlite4_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
-    rc = sqlite3_exec(db, zSql, 0, 0, 0);
+    rc = sqlite4_exec(db, zSql, 0, 0, 0);
     if( rc!=SQLITE_OK ){
-      db_err(sqlite3_errmsg(db));
+      db_err(sqlite4_errmsg(db));
     }
   }
   va_end(ap);
-  sqlite3_exec(db, "COMMIT", 0, 0, 0);
-  sqlite3_close(db);
+  sqlite4_exec(db, "COMMIT", 0, 0, 0);
+  sqlite4_close(db);
 }
 
 /*
@@ -671,11 +671,11 @@ void db_init_database(
 ** the same as strftime('%s','now') but is more compact.
 */
 void db_now_function(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
-  sqlite3_result_int64(context, time(0));
+  sqlite4_result_int64(context, time(0));
 }
 
 
@@ -683,23 +683,20 @@ void db_now_function(
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
-static sqlite3 *openDatabase(const char *zDbName){
+static sqlite4 *openDatabase(const char *zDbName){
   int rc;
   const char *zVfs;
-  sqlite3 *db;
+  sqlite4 *db;
 
   zVfs = fossil_getenv("FOSSIL_VFS");
-  rc = sqlite3_open_v2(
+  rc = sqlite4_open(0,
        zDbName, &db,
-       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-       zVfs
+       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
   );
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err(sqlite4_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000); 
-  sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
-  sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
+  sqlite4_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
 }
 
@@ -879,7 +876,7 @@ int db_open_local(void){
   while( n>0 ){
     if( file_access(zPwd, W_OK) ) break;
     for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+      sqlite4_snprintf(zPwd+n, sizeof(zPwd)-n, "%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -1029,7 +1026,7 @@ int db_schema_is_outofdate(void){
 ** Return true if the database is writeable
 */
 int db_is_writeable(const char *zName){
-  return !sqlite3_db_readonly(g.db, db_name(zName));
+  return 1; /* !sqlite4_db_readonly(g.db, db_name(zName)); */
 }
 
 /*
@@ -1098,32 +1095,30 @@ void db_must_be_within_tree(void){
 ** argument is true.  Ignore unfinalized statements when false.
 */
 void db_close(int reportErrors){
-  sqlite3_stmt *pStmt;
+  sqlite4_stmt *pStmt;
   if( g.db==0 ) return;
   if( g.fSqlStats ){
     int cur, hiwtr;
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- LOOKASIDE_USED         %10d %10d\n", cur, hiwtr);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_HIT, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_HIT, &cur, &hiwtr, 0);
     fprintf(stderr, "-- LOOKASIDE_HIT                     %10d\n", hiwtr);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE, &cur,&hiwtr,0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE, &cur,&hiwtr,0);
     fprintf(stderr, "-- LOOKASIDE_MISS_SIZE               %10d\n", hiwtr);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL, &cur,&hiwtr,0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL, &cur,&hiwtr,0);
     fprintf(stderr, "-- LOOKASIDE_MISS_FULL               %10d\n", hiwtr);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- CACHE_USED             %10d\n", cur);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- SCHEMA_USED            %10d\n", cur);
-    sqlite3_db_status(g.db, SQLITE_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- STMT_USED              %10d\n", cur);
-    sqlite3_status(SQLITE_STATUS_MEMORY_USED, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE_ENVSTATUS_MEMORY_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MEMORY_USED            %10d %10d\n", cur, hiwtr);
-    sqlite3_status(SQLITE_STATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE_ENVSTATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MALLOC_SIZE                       %10d\n", hiwtr);
-    sqlite3_status(SQLITE_STATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE_ENVSTATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MALLOC_COUNT           %10d %10d\n", cur, hiwtr);
-    sqlite3_status(SQLITE_STATUS_PAGECACHE_OVERFLOW, &cur, &hiwtr, 0);
-    fprintf(stderr, "-- PCACHE_OVFLOW          %10d %10d\n", cur, hiwtr);
     fprintf(stderr, "-- prepared statements    %10d\n", db.nPrepare);
   }
   while( db.pAllStmt ){
@@ -1132,18 +1127,17 @@ void db_close(int reportErrors){
   db_end_transaction(1);
   pStmt = 0;
   if( reportErrors ){
-    while( (pStmt = sqlite3_next_stmt(g.db, pStmt))!=0 ){
-      fossil_warning("unfinalized SQL statement: [%s]", sqlite3_sql(pStmt));
+    while( (pStmt = sqlite4_next_stmt(g.db, pStmt))!=0 ){
+      fossil_warning("unfinalized SQL statement: [%s]", sqlite4_sql(pStmt));
     }
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
   g.configOpen = 0;
-  sqlite3_wal_checkpoint(g.db, 0);
-  sqlite3_close(g.db);
+  sqlite4_close(g.db);
   g.db = 0;
   if( g.dbConfig ){
-    sqlite3_close(g.dbConfig);
+    sqlite4_close(g.dbConfig);
     g.dbConfig = 0;
   }
 }
@@ -1312,15 +1306,15 @@ void create_repository_cmd(void){
 ** if the -sqlprint command-line option is turned on.
 */
 static void db_sql_print(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
   int i;
   if( g.fSqlPrint ){
     for(i=0; i<argc; i++){
       char c = i==argc-1 ? '\n' : ' ';
-      fossil_print("%s%c", sqlite3_value_text(argv[i]), c);
+      fossil_print("%s%c", sqlite4_value_text(argv[i]), c);
     }
   }
 }
@@ -1336,12 +1330,12 @@ static void db_sql_trace(void *notUsed, const char *zSql){
 ** returns the user ID of the current user.
 */
 static void db_sql_user(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
   if( g.zLogin!=0 ){
-    sqlite3_result_text(context, g.zLogin, -1, SQLITE_STATIC);
+    sqlite4_result_text(context, g.zLogin, -1, SQLITE_STATIC);
   }
 }
 
@@ -1351,15 +1345,15 @@ static void db_sql_user(
 ** if available. optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
-static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
+static void db_sql_cgi(sqlite4_context *context, int argc, sqlite4_value **argv){
   const char* zP;
   if( argc!=1 && argc!=2 ) return;
-  zP = P((const char*)sqlite3_value_text(argv[0]));
+  zP = P((const char*)sqlite4_value_text(argv[0]));
   if( zP ){
-    sqlite3_result_text(context, zP, -1, SQLITE_STATIC);
+    sqlite4_result_text(context, zP, -1, SQLITE_STATIC);
   }else if( argc==2 ){
-    zP = (const char*)sqlite3_value_text(argv[1]);
-    if( zP ) sqlite3_result_text(context, zP, -1, SQLITE_TRANSIENT);
+    zP = (const char*)sqlite4_value_text(argv[1]);
+    if( zP ) sqlite4_result_text(context, zP, -1, SQLITE_TRANSIENT);
   }
 }
 
@@ -1374,23 +1368,23 @@ static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv)
 ** Otherwise return false.
 */
 static void file_is_selected(
-  sqlite3_context *context,
+  sqlite4_context *context,
   int argc,
-  sqlite3_value **argv
+  sqlite4_value **argv
 ){
   assert(argc==1);
   if( g.aCommitFile ){
-    int iId = sqlite3_value_int(argv[0]);
+    int iId = sqlite4_value_int(argv[0]);
     int ii;
     for(ii=0; g.aCommitFile[ii]; ii++){
       if( iId==g.aCommitFile[ii] ){
-        sqlite3_result_int(context, 1);
+        sqlite4_result_int(context, 1);
         return;
       }
     }
-    sqlite3_result_int(context, 0);
+    sqlite4_result_int(context, 0);
   }else{
-    sqlite3_result_int(context, 1);
+    sqlite4_result_int(context, 1);
   }
 }
 
@@ -1419,7 +1413,7 @@ char *db_conceal(const char *zContent, int n){
   }else{
     sha1sum_step_text(zContent, n);
     sha1sum_finish(&out);
-    sqlite3_snprintf(sizeof(zHash), zHash, "%s", blob_str(&out));
+    sqlite4_snprintf(zHash, sizeof(zHash), "%s", blob_str(&out));
     blob_reset(&out);
     db_multi_exec(
        "INSERT OR IGNORE INTO concealed(hash,content,mtime)"
@@ -1457,16 +1451,16 @@ char *db_reveal(const char *zKey){
 ** database connection is first established.
 */
 LOCAL void db_connection_init(void){
-  sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-  sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-  sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
-  sqlite3_create_function(
+  sqlite4_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
+  sqlite4_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+  sqlite4_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite4_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite4_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite4_create_function(
     g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ){
-    sqlite3_trace(g.db, db_sql_trace, 0);
+    sqlite4_trace(g.db, db_sql_trace, 0);
   }
 }
 
@@ -1501,7 +1495,7 @@ int is_false(const char *zVal){
 */
 void db_swap_connections(void){
   if( !g.useAttach ){
-    sqlite3 *dbTemp = g.db;
+    sqlite4 *dbTemp = g.db;
     g.db = g.dbConfig;
     g.dbConfig = dbTemp;
   }
@@ -2156,22 +2150,22 @@ char *db_timespan_name(double rSpan){
   if( rSpan<0 ) rSpan = -rSpan;
   rSpan *= 24.0*3600.0;  /* Convert units to seconds */
   if( rSpan<120.0 ){
-    return sqlite3_mprintf("%.1f seconds", rSpan);
+    return sqlite4_mprintf(0, "%.1f seconds", rSpan);
   }
   rSpan /= 60.0;         /* Convert units to minutes */
   if( rSpan<90.0 ){
-    return sqlite3_mprintf("%.1f minutes", rSpan);
+    return sqlite4_mprintf(0, "%.1f minutes", rSpan);
   }
   rSpan /= 60.0;         /* Convert units to hours */
   if( rSpan<=48.0 ){
-    return sqlite3_mprintf("%.1f hours", rSpan);
+    return sqlite4_mprintf(0, "%.1f hours", rSpan);
   }
   rSpan /= 24.0;         /* Convert units to days */
   if( rSpan<=365.0 ){
-    return sqlite3_mprintf("%.1f days", rSpan);
+    return sqlite4_mprintf(0, "%.1f days", rSpan);
   }
   rSpan /= 356.24;         /* Convert units to years */
-  return sqlite3_mprintf("%.1f years", rSpan);
+  return sqlite4_mprintf(0, "%.1f years", rSpan);
 }
 
 /*
@@ -2183,9 +2177,9 @@ char *db_timespan_name(double rSpan){
 void test_timespan_cmd(void){
   double rDiff;
   if( g.argc!=3 ) usage("TIMESTAMP");
-  sqlite3_open(":memory:", &g.db);  
+  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);  
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
-  sqlite3_close(g.db);
+  sqlite4_close(g.db);
   g.db = 0;
 }

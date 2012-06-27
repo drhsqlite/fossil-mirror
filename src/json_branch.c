@@ -133,7 +133,7 @@ static cson_value * json_branch_list(){
   branch_prepare_list_query(&q, which);
   cson_object_set(pay,"branches",listV);
   while((SQLITE_ROW==db_step(&q))){
-    cson_value * v = cson_sqlite3_column_to_value(q.pStmt,0);
+    cson_value * v = cson_sqlite4_column_to_value(q.pStmt,0);
     if(v){
       cson_array_append(list,v);
     }else if(!sawConversionError){

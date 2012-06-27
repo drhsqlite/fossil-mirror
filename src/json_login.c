@@ -249,12 +249,12 @@ cson_value * json_page_whoami(){
     char const * str;
     payload = cson_value_new_object();
     obj = cson_value_get_object(payload);
-    str = (char const *)sqlite3_column_text(q.pStmt,0);
+    str = (char const *)sqlite4_column_text(q.pStmt,0);
     if( str ){
       cson_object_set( obj, "name",
                        cson_value_new_string(str,strlen(str)) );
     }
-    str = (char const *)sqlite3_column_text(q.pStmt,1);
+    str = (char const *)sqlite4_column_text(q.pStmt,1);
     if( str ){
       cson_object_set( obj, "capabilities",
                        cson_value_new_string(str,strlen(str)) );

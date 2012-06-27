@@ -2348,7 +2348,7 @@ typedef char u8;
 **
 ** An empty string is considered non-numeric.
 */
-static int sqlite3IsNumber(const char *z, int *realnum){
+static int sqlite4IsNumber(const char *z, int *realnum){
   int incr = 1;
   if( *z=='-' || *z=='+' ) z += incr;
   if( !th_isdigit(*(u8*)z) ){
@@ -2385,7 +2385,7 @@ static int sqlite3IsNumber(const char *z, int *realnum){
 ** of "." depending on how locale is set.  But that would cause problems
 ** for SQL.  So this routine always uses "." regardless of locale.
 */
-static int sqlite3AtoF(const char *z, double *pResult){
+static int sqlite4AtoF(const char *z, double *pResult){
   int sign = 1;
   const char *zBegin = z;
   LONGDOUBLE_TYPE v1 = 0.0;
@@ -2488,12 +2488,12 @@ int Th_ToDouble(
   int n, 
   double *pfOut
 ){
-  if( !sqlite3IsNumber((const char *)z, 0) ){
+  if( !sqlite4IsNumber((const char *)z, 0) ){
     Th_ErrorMessage(interp, "expected number, got: \"", z, n);
     return TH_ERROR;
   }
 
-  sqlite3AtoF((const char *)z, pfOut);
+  sqlite4AtoF((const char *)z, pfOut);
   return TH_OK;
 }
 

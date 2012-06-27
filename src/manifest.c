@@ -966,7 +966,7 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
-  sqlite3_open(":memory:", &g.db);
+  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
@@ -1470,7 +1470,7 @@ void manifest_crosslink_end(void){
   for(i=0; i<30; i++){
     db_step(&q);
     db_reset(&q);
-    if( sqlite3_changes(g.db)==0 ) break;
+    if( sqlite4_changes(g.db)==0 ) break;
     db_step(&u);
     db_reset(&u);
   }
@@ -1728,7 +1728,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     char zLength[40];
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
-    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
+    sqlite4_snprintf(zLength, sizeof(zLength), "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     free(zTag);
     prior = db_int(0,
@@ -1768,7 +1768,7 @@ int manifest_crosslink(int rid, Blob *pContent){
     char zLength[40];
     while( fossil_isspace(p->zWiki[0]) ) p->zWiki++;
     nWiki = strlen(p->zWiki);
-    sqlite3_snprintf(sizeof(zLength), zLength, "%d", nWiki);
+    sqlite4_snprintf(zLength, sizeof(zLength), "%d", nWiki);
     tag_insert(zTag, 1, zLength, rid, p->rDate, rid);
     free(zTag);
     prior = db_int(0,

@@ -49,7 +49,7 @@ static void put32(char *z, int v){
 /*
 ** Begin constructing a gzip file.
 */
-void gzip_begin(sqlite3_int64 now){
+void gzip_begin(sqlite4_int64 now){
   char aHdr[10];
   assert( gzip.eState==0 );
   blob_zero(&gzip.out);
@@ -127,7 +127,7 @@ void test_gzip_cmd(void){
   Blob b;
   char *zOut;
   if( g.argc!=3 ) usage("FILENAME");
-  sqlite3_open(":memory:", &g.db);
+  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);
   gzip_begin(0);
   blob_read_from_file(&b, g.argv[2]);
   zOut = mprintf("%s.gz", g.argv[2]);
