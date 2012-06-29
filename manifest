@@ -1,5 +1,5 @@
-C Fix\sthe\smanifest\sgenerator\sfor\scheck-ins\sso\sthat\swhen\sa\spartial\scommit\sis\ndone\sand\ssome\sof\sthe\suncommitted\sfiles\shave\sbeen\srenamed,\sthe\srows\sof\sthe\ncheck-in\smanifest\sare\sordered\sby\sthe\soriginal,\sunchanged\snames\sof\sthe\nuncommitted\srenamed\sfiles.
-D 2012-06-29T12:48:28.297
+C Remove\sredundant\sinclude\sargument\sfrom\sthe\scompilation\ssteps\sof\sseveral\ssource\sfiles.
+D 2012-06-29T19:35:44.349
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -115,10 +115,10 @@ F src/json_wiki.c bd7d6612606e56e9bee44e82cde588e1ef0f4329
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
 F src/main.c 4fb17aa380867d46aeba8d9fd5424c681a5cc712
-F src/main.mk 49c5b5cdbe2e308189fa1a938fe452c1118ecb11
+F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 2eeddfc0ab7a64d6265b3c143ec00c2f3c3b09a3
+F src/makemake.tcl 6d4c58e8bc507740dc9c2b01f38e01af84f12d99
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
@@ -250,8 +250,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 2a5d0a7aabe39bc44d223222ce5eb6558eb27110
-F win/Makefile.mingw c37a8d83fc7ef8a788b753e8584e5d335783d5b0
-F win/Makefile.mingw.mistachkin d6c6922d4b6656252babecb78d2334446db6363d
+F win/Makefile.mingw 7bc8231cff4b8ec817916ba300cabe914c5738f8
+F win/Makefile.mingw.mistachkin a05666460b7b2b1fef41d07221851c7e0587729f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc a744e23c62419245ae04cbbc2cc92c3649e3e014
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4113f5881bba98912b14ca5d77d17e9fb5816ac3
-R df3678c8b7e3b0d6d4d068fdae06adc3
-U drh
-Z 8c8a9e1fe792ac89e20318007bcd28c1
+P 01e4de6b8ae936b551bd215cce1e5a0826fe4a56
+R c5f098169d391b4bde88d2fe6418988e
+U mistachkin
+Z 474932fb932f1793b43229aa11b8344e

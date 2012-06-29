@@ -1067,15 +1067,15 @@ $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
+	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
 
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
+	$(XTCC) -c $(SRCDIR)/th_lang.c -o $(OBJDIR)/th_lang.o
 
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
+	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
 
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
 
