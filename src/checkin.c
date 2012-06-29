@@ -44,7 +44,7 @@ static void status_report(
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
-    " WHERE file_is_selected(id)"
+    " WHERE is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
   blob_zero(&rewrittenPathname);
@@ -684,11 +684,12 @@ static void create_manifest(
   zDate[10] = ' ';
   db_prepare(&q,
     "SELECT pathname, uuid, origname, blob.rid, isexe, islink,"
-    "       file_is_selected(vfile.id)"
+    "       is_selected(vfile.id)"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
-    " WHERE (NOT deleted OR NOT file_is_selected(vfile.id))"
+    " WHERE (NOT deleted OR NOT is_selected(vfile.id))"
     "   AND vfile.vid=%d"
-    " ORDER BY 1", vid);
+    " ORDER BY if_selected(vfile.id, pathname, origname)",
+    vid);
   blob_zero(&filename);
   blob_appendf(&filename, "%s", g.zLocalRoot);
   nBasename = blob_size(&filename);
@@ -1092,7 +1093,7 @@ void commit_cmd(void){
     blob_init(&unmodified, 0, 0);
     db_blob(&unmodified, 
       "SELECT pathname FROM vfile"
-      " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
+      " WHERE chnged = 0 AND origname IS NULL AND is_selected(id)"
     );
     if( strlen(blob_str(&unmodified)) ){
       fossil_fatal("file %s has not changed", blob_str(&unmodified));
@@ -1153,7 +1154,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
+    "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -1291,11 +1292,11 @@ void commit_cmd(void){
   
   /* Update the vfile and vmerge tables */
   db_multi_exec(
-    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
+    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
     "DELETE FROM vmerge;"
     "UPDATE vfile SET vid=%d;"
     "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
-    " WHERE file_is_selected(id);"
+    " WHERE is_selected(id);"
     , vid, nvid
   );
   db_lset_int("checkout", nvid);

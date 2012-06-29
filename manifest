@@ -1,5 +1,5 @@
-C Use\s~/.fossil4\sas\sthe\sconfiguration\sdatabase\sto\savoid\sconflicts\swith\nthe\soriginal\sfossil.\s\sAdjust\sSQL\sbecause\sINTEGER\sPRIMARY\sKEY\sdoes\snot\nauto-fill\sas\swith\sSQLite3.
-D 2012-06-27T13:59:08.497
+C Merge\sin\sthe\strunk\schanges.
+D 2012-06-29T15:47:46.763
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,7 +66,7 @@ F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 3be7a26dcd26612b38d8f31b7c86bdbaeda3c6b1
 F src/captcha.c c4bdcd7b01a5b8a6b45e842a6ff69c43c2b6a14f
 F src/cgi.c e37f580458217bf8d48a64485f1b935e0906805a
-F src/checkin.c bb549de0719801ab85be9fdfdbc61f15bba46f6a
+F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 953725b1398d472c266f3d59eb34a83987f0c2a6
@@ -76,7 +76,7 @@ F src/configure.c cfa5912a5debaf88bd0e5bb0fd060e5249387689
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c b6ce5b2327c1a4b4f2e17b2a23087db22a16c5f0
 F src/cson_amalgamation.h 0fa4c53b82dc370ebb134d9bce50182a4548fcba
-F src/db.c f32bd1bb3d6bbc6cb51fdc5d7896aa450fc55be6
+F src/db.c cf6d41165c0964bd811cb5b52e5e3aaad7535190
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
@@ -119,7 +119,7 @@ F src/main.mk be77dc72eb0e6b56c67799324d9965026b94e7da
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 0b0991256e82c5e61ea86eb5cdec776435868a87
-F src/manifest.c a9d149a1c87e8d42168a7da8940b7959b549c4f6
+F src/manifest.c 0ca44821f785255a7e1a9ca2a088cb5bac7baf20
 F src/md5.c be3f1f995a5c87147e798b3d5c15265018969506
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
 F src/merge3.c deba3fa65ff782998e0dfd8bfaaf375e28105b5f
@@ -164,7 +164,7 @@ F src/update.c f925c673a7365b63882d2fba3fa37809dc60dc02
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 71e8db363b57ae66bfb7a14c821676ad5e45385a
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 29937548acca1b5c56c65107b973f4f4c429e793
+F src/vfile.c 03beee9b173b87e3932b4ecae449fadb217b281e
 F src/wiki.c 54038f4bbdf890351114d2f2e7b16594b551a6ca
 F src/wikiformat.c 73dff07fbf02e5af88ed09a23c40e347a1e7197e
 F src/winhttp.c f902ea6416e32b26b3e61fb829ef1b2db982d750
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6823912746f3a2274cffb80f374a4edf8dcb34f1
-R 980602edc1bb54b9f7986d24ee91ca0b
+P 3f624d490b0696b85301eb7f618203bd03942625 01e4de6b8ae936b551bd215cce1e5a0826fe4a56
+R f325d1d775782b21b8d26522444d021d
 U drh
-Z 238877fb9eb85758bead47981e58ec54
+Z 8d6ec7612d6d7a52add4b594c1e441a0

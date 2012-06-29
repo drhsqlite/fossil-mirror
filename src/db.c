@@ -1358,33 +1358,50 @@ static void db_sql_cgi(sqlite4_context *context, int argc, sqlite4_value **argv)
 }
 
 /*
-** This is used by the [commit] command.
+** SQL function:
 **
-** Return true if either:
+**       is_selected(id)
+**       if_selected(id, X, Y)
 **
-**     a) Global.aCommitFile is NULL, or
-**     b) Global.aCommitFile contains the integer passed as an argument.
+** On the commit command, when filenames are specified (in order to do
+** a partial commit) the vfile.id values for the named files are loaded
+** into the g.aCommitFile[] array.  This function looks at that array
+** to see if a file is named on the command-line.
 **
-** Otherwise return false.
+** In the first form (1 argument) return TRUE if either no files are
+** named on the command line (g.aCommitFile is NULL meaning that all
+** changes are to be committed) or if id is found in g.aCommitFile[]
+** (meaning that id was named on the command-line).
+**
+** In the second form (3 arguments) return argument X if true and Y
+** if false.
 */
 static void file_is_selected(
   sqlite4_context *context,
   int argc,
   sqlite4_value **argv
 ){
-  assert(argc==1);
+  int rc = 0;
+
+  assert(argc==1 || argc==3);
   if( g.aCommitFile ){
     int iId = sqlite4_value_int(argv[0]);
     int ii;
     for(ii=0; g.aCommitFile[ii]; ii++){
       if( iId==g.aCommitFile[ii] ){
-        sqlite4_result_int(context, 1);
-        return;
+        rc = 1;
+        break;
       }
     }
-    sqlite4_result_int(context, 0);
   }else{
-    sqlite4_result_int(context, 1);
+    rc = 1;
+  }
+  if( argc==1 ){
+    sqlite4_result_int(context, rc);
+  }else{
+    assert( argc==3 );
+    assert( rc==0 || rc==1 );
+    sqlite4_result_value(context, argv[2-rc]);
   }
 }
 
@@ -1457,7 +1474,10 @@ LOCAL void db_connection_init(void){
   sqlite4_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
   sqlite4_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
   sqlite4_create_function(
-    g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+    g.db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  sqlite4_create_function(
+    g.db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ){
     sqlite4_trace(g.db, db_sql_trace, 0);
