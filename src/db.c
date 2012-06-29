@@ -1380,7 +1380,7 @@ static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv)
 ** (meaning that id was named on the command-line).
 **
 ** In the second form (3 arguments) return argument X if true and Y
-** if false.
+** if false.  Except if Y is NULL then always return X.
 */
 static void file_is_selected(
   sqlite3_context *context,
@@ -1407,6 +1407,7 @@ static void file_is_selected(
   }else{
     assert( argc==3 );
     assert( rc==0 || rc==1 );
+    if( sqlite3_value_type(argv[2-rc])==SQLITE_NULL ) rc = 1-rc;
     sqlite3_result_value(context, argv[2-rc]);
   }
 }
