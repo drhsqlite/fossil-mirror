@@ -26,7 +26,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h> /* atexit() */
-
+#if !defined(_WIN32)
+#  include <errno.h> /* errno global */
+#endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
@@ -1153,8 +1155,11 @@ static char *enter_chroot_jail(char *zRepo){
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
     }
-    setgid(sStat.st_gid);
-    setuid(sStat.st_uid);
+    i = setgid(sStat.st_gid);
+    i = i || setuid(sStat.st_uid);
+    if(i){
+      fossil_fatal("setgid/uid() failed with errno %d", errno);
+    }
     if( g.db!=0 ){
       db_close(1);
       db_open_repository(zRepo);
