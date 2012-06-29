@@ -1,5 +1,5 @@
-C Update\sthe\stest-parse-manifest\stest\scommand\sso\sthat\sit\sreports\sparse\nfailures\son\sstandard\soutput.
-D 2012-06-29T11:05:07.069
+C Fix\sthe\smanifest\sgenerator\sfor\scheck-ins\sso\sthat\swhen\sa\spartial\scommit\sis\ndone\sand\ssome\sof\sthe\suncommitted\sfiles\shave\sbeen\srenamed,\sthe\srows\sof\sthe\ncheck-in\smanifest\sare\sordered\sby\sthe\soriginal,\sunchanged\snames\sof\sthe\nuncommitted\srenamed\sfiles.
+D 2012-06-29T12:48:28.297
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -66,7 +66,7 @@ F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c a8ab196d8088546057193c3481f45720310104ba
-F src/checkin.c bb549de0719801ab85be9fdfdbc61f15bba46f6a
+F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 953725b1398d472c266f3d59eb34a83987f0c2a6
@@ -76,7 +76,7 @@ F src/configure.c ebf8d685e75cf5cbf153c242f361d2a6831d5133
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c 27306a292816ab910f299975dd7e696f65820b79
 F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
-F src/db.c a71fac98f85a291b92a955ceb711c9f756a03746
+F src/db.c faf75c8c76a92cec82302c7293cbbd572442e87f
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
@@ -164,7 +164,7 @@ F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 128e900b12e77f7c25e6d4e7d1293bf25a4d3f1a
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c c5109818f89471d3a0e0eae54fd958a25a45a00e
+F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 54038f4bbdf890351114d2f2e7b16594b551a6ca
 F src/wikiformat.c b61218645db9a4426c350539532af4f9d148583a
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 23022a8546d9fdc6bfb0560eb9c6b69db754b1c4
-R 0050dfda37ef6bc0cec2186df4722e9e
+P 4113f5881bba98912b14ca5d77d17e9fb5816ac3
+R df3678c8b7e3b0d6d4d068fdae06adc3
 U drh
-Z a9e9b900efdec4f22d8d2f49fd66f79d
+Z 8c8a9e1fe792ac89e20318007bcd28c1
