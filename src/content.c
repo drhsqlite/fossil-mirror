@@ -125,7 +125,7 @@ static int findSrcid(int rid){
   int srcid;
   db_static_prepare(&q, "SELECT srcid FROM delta WHERE rid=:rid");
   db_bind_int(&q, ":rid", rid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     srcid = db_column_int(&q, 0);
   }else{
     srcid = 0;
@@ -142,7 +142,7 @@ int content_size(int rid, int dflt){
   int sz = dflt;
   db_static_prepare(&q, "SELECT size FROM blob WHERE rid=:r");
   db_bind_int(&q, ":r", rid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     sz = db_column_int(&q, 0);
   }
   db_reset(&q);
@@ -196,7 +196,7 @@ static void content_mark_available(int rid){
     bag_insert(&contentCache.available, rid);
     db_static_prepare(&q, "SELECT rid FROM delta WHERE srcid=:rid");
     db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int nx = db_column_int(&q, 0);
       bag_insert(&pending, nx);
     }
@@ -214,7 +214,7 @@ static int content_of_blob(int rid, Blob *pBlob){
   int rc = 0;
   db_static_prepare(&q, "SELECT content FROM blob WHERE rid=:rid AND size>=0");
   db_bind_int(&q, ":rid", rid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     db_ephemeral_blob(&q, 0, pBlob);
     blob_uncompress(pBlob, pBlob);
     rc = 1;
@@ -394,7 +394,7 @@ void after_dephantomize(int rid, int linkFlag){
 
     /* Parse all delta-manifests that depend on baseline-manifest rid */
     db_prepare(&q, "SELECT rid FROM orphan WHERE baseline=%d", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int child = db_column_int(&q, 0);
       if( nChildUsed>=nChildAlloc ){
         nChildAlloc = nChildAlloc*2 + 10;
@@ -422,7 +422,7 @@ void after_dephantomize(int rid, int linkFlag){
        "   AND NOT EXISTS(SELECT 1 FROM mlink WHERE mid=delta.rid)",
        rid
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int child = db_column_int(&q, 0);
       if( nChildUsed>=nChildAlloc ){
         nChildAlloc = nChildAlloc*2 + 10;
@@ -511,7 +511,7 @@ int content_put_ex(
   ** or not the entry is a phantom
   */
   db_prepare(&s1, "SELECT rid, size FROM blob WHERE uuid=%B", &hash);
-  if( db_step(&s1)==SQLITE_ROW ){
+  if( db_step(&s1)==SQLITE4_ROW ){
     rid = db_column_int(&s1, 0);
     if( db_column_int(&s1, 1)>=0 || pBlob==0 ){
       /* Either the entry is not a phantom or it is a phantom but we
@@ -725,7 +725,7 @@ int content_is_private(int rid){
   db_bind_int(&s1, ":rid", rid);
   rc = db_step(&s1);
   db_reset(&s1);
-  return rc==SQLITE_ROW;  
+  return rc==SQLITE4_ROW;  
 }
 
 /*
@@ -847,7 +847,7 @@ void test_integrity(void){
     "  FROM delta"
     " WHERE srcid in private AND rid NOT IN private"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zId = db_column_text(&q, 1);
     int srcid = db_column_int(&q, 2);
@@ -862,7 +862,7 @@ void test_integrity(void){
     
   db_prepare(&q, "SELECT rid, uuid, size FROM blob ORDER BY rid");
   total = db_int(0, "SELECT max(rid) FROM blob");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);

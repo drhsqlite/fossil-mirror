@@ -127,11 +127,11 @@ int pivot_find(void){
     "   AND aqueue.rid=:rid"
   );
 
-  while( db_step(&q1)==SQLITE_ROW ){
+  while( db_step(&q1)==SQLITE4_ROW ){
     rid = db_column_int(&q1, 0);
     db_reset(&q1);
     db_bind_int(&q2, ":rid", rid);
-    if( db_step(&q2)==SQLITE_ROW ){
+    if( db_step(&q2)==SQLITE4_ROW ){
        break;
     }
     db_reset(&q2);

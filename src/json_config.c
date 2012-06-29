@@ -152,7 +152,7 @@ static cson_value * json_config_get(){
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
   pay = cson_new_object();
-  while( (SQLITE_ROW==db_step(&q)) ){
+  while( (SQLITE4_ROW==db_step(&q)) ){
     cson_object_set(pay,
                     db_column_text(&q,0),
                     json_new_string(db_column_text(&q,1)));

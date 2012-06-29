@@ -67,7 +67,7 @@ int count_nonbranch_children(int pid){
   ;
   db_static_prepare(&q, zSql, TAG_BRANCH, TAG_BRANCH);
   db_bind_int(&q, ":pid", pid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     nNonBranch = db_column_int(&q, 0);
   }
   db_reset(&q);
@@ -123,7 +123,7 @@ void leaf_check(int rid){
   db_bind_int(&checkIfLeaf, ":rid", rid);
   rc = db_step(&checkIfLeaf);
   db_reset(&checkIfLeaf);
-  if( rc==SQLITE_ROW ){
+  if( rc==SQLITE4_ROW ){
     db_static_prepare(&removeLeaf, "DELETE FROM leaf WHERE rid=:rid");
     db_bind_int(&removeLeaf, ":rid", rid);
     db_step(&removeLeaf);
@@ -165,7 +165,7 @@ void leaf_eventually_check(int rid){
   );
   db_bind_int(&parentsOf, ":rid", rid);
   bag_insert(&needToCheck, rid);
-  while( db_step(&parentsOf)==SQLITE_ROW ){
+  while( db_step(&parentsOf)==SQLITE4_ROW ){
     bag_insert(&needToCheck, db_column_int(&parentsOf, 0));
   }
   db_reset(&parentsOf);

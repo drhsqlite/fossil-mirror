@@ -37,7 +37,7 @@ static void print_person(const char *zUser){
   }
   db_static_prepare(&q, "SELECT info FROM user WHERE login=:user");
   db_bind_text(&q, ":user", zUser);
-  if( db_step(&q)!=SQLITE_ROW ){
+  if( db_step(&q)!=SQLITE4_ROW ){
     db_reset(&q);
     for(i=0; zUser[i] && zUser[i]!='>' && zUser[i]!='<'; i++){}
     if( zUser[i]==0 ){
@@ -184,7 +184,7 @@ void export_cmd(void){
     " WHERE fid>0 AND NOT EXISTS(SELECT 1 FROM oldblob WHERE rid=fid)");
   db_prepare(&q2, "INSERT INTO oldblob VALUES (:rid)");
   db_prepare(&q3, "SELECT rid FROM newblob WHERE srcid= (:srcid)");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     Blob content;
 
@@ -200,7 +200,7 @@ void export_cmd(void){
       blob_reset(&content);
 
       db_bind_int(&q3, ":srcid", rid);
-      if( db_step(&q3) != SQLITE_ROW ){
+      if( db_step(&q3) != SQLITE4_ROW ){
         db_reset(&q3);
         break;
       }
@@ -224,7 +224,7 @@ void export_cmd(void){
     TAG_BRANCH
   );
   db_prepare(&q2, "INSERT INTO oldcommit VALUES (:rid)");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     Stmt q4;
     const char *zSecondsSince1970 = db_column_text(&q, 0);
     int ckinId = db_column_int(&q, 1);
@@ -250,7 +250,7 @@ void export_cmd(void){
     if( zComment==0 ) zComment = "null comment";
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
     db_prepare(&q3, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
-    if( db_step(&q3) == SQLITE_ROW ){
+    if( db_step(&q3) == SQLITE4_ROW ){
       printf("from :%d\n", COMMITMARK(db_column_int(&q3, 0)));
       db_prepare(&q4,
         "SELECT pid FROM plink"
@@ -258,7 +258,7 @@ void export_cmd(void){
         "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
         " ORDER BY pid",
         ckinId);
-      while( db_step(&q4)==SQLITE_ROW ){
+      while( db_step(&q4)==SQLITE4_ROW ){
         printf("merge :%d\n", COMMITMARK(db_column_int(&q4,0)));
       }
       db_finalize(&q4);
@@ -272,7 +272,7 @@ void export_cmd(void){
       " WHERE mlink.mid=%d",
       ckinId
     );
-    while( db_step(&q4)==SQLITE_ROW ){
+    while( db_step(&q4)==SQLITE4_ROW ){
       const char *zName = db_column_text(&q4,0);
       int zNew = db_column_int(&q4,1);
       int mPerm = db_column_int(&q4,2);
@@ -304,7 +304,7 @@ void export_cmd(void){
      "  FROM tagxref JOIN tag USING(tagid)"
      " WHERE tagtype=1 AND tagname GLOB 'sym-*'"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTagname = db_column_text(&q, 0);
     char *zEncoded = 0;
     int rid = db_column_int(&q, 1);
@@ -332,12 +332,12 @@ void export_cmd(void){
       fossil_panic("cannot open %s for writing", markfile_out);
     }
     db_prepare(&q, "SELECT rid FROM oldblob");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       fprintf(f, "b%d\n", db_column_int(&q, 0));
     }
     db_finalize(&q);
     db_prepare(&q, "SELECT rid FROM oldcommit");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       fprintf(f, "c%d\n", db_column_int(&q, 0));
     }
     db_finalize(&q);

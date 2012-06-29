@@ -129,7 +129,7 @@ void branch_new(void){
       "   AND tagtype>0 AND tagname GLOB 'sym-*'"
       " ORDER BY tagname",
       rootid);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTag = db_column_text(&q, 0);
     blob_appendf(&branch, "T -%F *\n", zTag);
   }
@@ -271,7 +271,7 @@ void branch_cmd(void){
                             " WHERE rid=%d AND tagid=%d", vid, TAG_BRANCH);
     }
     branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zBr = db_column_text(&q, 0);
       int isCur = zCurrent!=0 && fossil_strcmp(zCurrent,zBr)==0;
       fossil_print("%s%s\n", (isCur ? "* " : "  "), zBr);
@@ -339,7 +339,7 @@ void brlist_page(void){
 
   branch_prepare_list_query(&q, showAll?1:(showClosed?-1:0));
   cnt = 0;
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zBr = db_column_text(&q, 0);
     if( cnt==0 ){
       if( colorTest ){
@@ -391,7 +391,7 @@ static void brtimeline_extra(int rid){
     "   AND tag.tagname GLOB 'sym-*'",
     rid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTagName = db_column_text(&q, 0);
     @ %z(href("%R/timeline?r=%T",zTagName))[timeline]</a>
   }

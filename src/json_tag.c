@@ -264,7 +264,7 @@ static cson_value * json_tag_find(){
                zName,
                (limit>0)?"":"--", limit
                );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       if(!listV){
         listV = cson_value_new_array();
         list = cson_value_get_array(listV);
@@ -389,7 +389,7 @@ static cson_value * json_tag_list(){
                rid,
                fRaw ? -1 : 0
                );
-    while( SQLITE_ROW == db_step(&q) ){
+    while( SQLITE4_ROW == db_step(&q) ){
       const char *zName = db_column_text(&q, 0);
       const char *zValue = db_column_text(&q, 1);
       if( fRaw==0 ){
@@ -447,7 +447,7 @@ static cson_value * json_tag_list(){
     db_prepare(&q, blob_buffer(&sql));
     blob_reset(&sql);
     cson_object_set(pay, "includeTickets", cson_value_new_bool(fTicket) );
-    while( SQLITE_ROW == db_step(&q) ){
+    while( SQLITE4_ROW == db_step(&q) ){
       const char *zName = db_column_text(&q, 0);
       if(NULL==arV){
         arV = cson_value_new_array();

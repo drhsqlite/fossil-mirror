@@ -167,7 +167,7 @@ static int add_files_in_sfile(int vid, int caseSensitive){
     );
   }
   db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
-  while( db_step(&loop)==SQLITE_ROW ){
+  while( db_step(&loop)==SQLITE4_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
     for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
@@ -317,7 +317,7 @@ void delete_cmd(void){
   }
   
   db_prepare(&loop, "SELECT x FROM sfile");
-  while( db_step(&loop)==SQLITE_ROW ){
+  while( db_step(&loop)==SQLITE4_ROW ){
     fossil_print("DELETED %s\n", db_column_text(&loop, 0));
   }
   db_finalize(&loop);
@@ -479,7 +479,7 @@ void addremove_cmd(void){
       " ORDER BY 1",
       g.zLocalRoot
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char * zFile;
     const char * zPath;
 
@@ -583,7 +583,7 @@ void mv_cmd(void){
          " ORDER BY 1",
          vid, zOrig, zOrig, zOrig
       );
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         const char *zPath = db_column_text(&q, 0);
         int nPath = db_column_bytes(&q, 0);
         const char *zTail;
@@ -601,7 +601,7 @@ void mv_cmd(void){
     }
   }
   db_prepare(&q, "SELECT f, t FROM mv ORDER BY f");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zFrom = db_column_text(&q, 0);
     const char *zTo = db_column_text(&q, 1);
     mv_one_file(vid, zFrom, zTo);

@@ -75,7 +75,7 @@ void finfo_cmd(void){
         "  FROM vfile WHERE vfile.pathname=%B %s",
         &fname, filename_collation());
     blob_zero(&line);
-    if ( db_step(&q)==SQLITE_ROW ) {
+    if ( db_step(&q)==SQLITE4_ROW ) {
       Blob uuid;
       int isDeleted = db_column_int(&q, 1);
       int isNew = db_column_int(&q,2) == 0;
@@ -174,7 +174,7 @@ void finfo_cmd(void){
     if( iBrief ){
       fossil_print("History of %s\n", blob_str(&fname));
     }
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zFileUuid = db_column_text(&q, 0);
       const char *zCiUuid = db_column_text(&q,1);
       const char *zDate = db_column_text(&q, 2);
@@ -276,7 +276,7 @@ void finfo_page(void){
   pGraph = graph_init();
   @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
   @ <table id="timelineTable" class="timelineTable">
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zCom = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);

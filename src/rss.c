@@ -106,7 +106,7 @@ void page_timeline_rss(void){
   free(zPubDate);
   db_prepare(&q, blob_str(&bSQL));
   blob_reset( &bSQL );
-  while( db_step(&q)==SQLITE_ROW && nLine<=nLimit ){
+  while( db_step(&q)==SQLITE4_ROW && nLine<=nLimit ){
     const char *zId = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 3);
     const char *zAuthor = db_column_text(&q, 4);

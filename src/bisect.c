@@ -230,7 +230,7 @@ void bisect_cmd(void){
     for(p=path_last(), n=0; p; p=p->pFrom, n++){
       const char *z;
       db_bind_int(&s, ":rid", p->rid);
-      if( db_step(&s)==SQLITE_ROW ){
+      if( db_step(&s)==SQLITE4_ROW ){
         z = db_column_text(&s, 0);
         fossil_print("%s", z);
         if( p->rid==bisect.good ) fossil_print(" GOOD");

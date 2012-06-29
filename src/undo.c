@@ -36,7 +36,7 @@ static void undo_one(const char *zPathname, int redoFlag){
     " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     int old_exists;
     int new_exists;
     int old_exe;
@@ -116,7 +116,7 @@ static void undo_all_filesystem(int redoFlag){
      " ORDER BY rowid",
      redoFlag
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zPathname = db_column_text(&q, 0);
     undo_one(zPathname, redoFlag);
   }
@@ -401,7 +401,7 @@ void undo_cmd(void){
       db_prepare(&q,
         "SELECT existsflag, pathname FROM undo ORDER BY pathname"
       );
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         if( nChng==0 ){
           fossil_print("The following file changes would occur if the "
                        "command above is %sne:\n\n", zCmd);

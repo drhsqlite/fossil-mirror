@@ -1061,10 +1061,10 @@ $(OBJDIR)/zip.o:	$(OBJDIR)/zip_.c $(OBJDIR)/zip.h  $(SRCDIR)/config.h
 
 $(OBJDIR)/zip.h:	$(OBJDIR)/headers
 $(OBJDIR)/sqlite4.o:	$(SRCDIR)/sqlite4.c
-	$(XTCC) -DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -DSQLITE_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite4.c -o $(OBJDIR)/sqlite4.o
+	$(XTCC) -DSQLITE4_OMIT_LOAD_EXTENSION=1 -DSQLITE4_THREADSAFE=0 -DSQLITE4_DEFAULT_FILE_FORMAT=4 -DSQLITE4_ENABLE_STAT3 -Dlocaltime=fossil_localtime -DSQLITE4_ENABLE_LOCKING_STYLE=0 -c $(SRCDIR)/sqlite4.c -o $(OBJDIR)/sqlite4.o
 
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite4.h
-	$(XTCC) -Dmain=sqlite4_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
+	$(XTCC) -Dmain=sqlite4_shell -DSQLITE4_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
 $(OBJDIR)/th.o:	$(SRCDIR)/th.c
 	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o

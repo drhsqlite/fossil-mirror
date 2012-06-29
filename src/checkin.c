@@ -48,7 +48,7 @@ static void status_report(
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
   blob_zero(&rewrittenPathname);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zPathname = db_column_text(&q,0);
     const char *zDisplayName = zPathname;
     int isDeleted = db_column_int(&q, 1);
@@ -99,7 +99,7 @@ static void status_report(
   db_finalize(&q);
   db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                  " WHERE id<=0");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
       case -1:  zLabel = "CHERRYPICK ";  break;
@@ -235,7 +235,7 @@ void ls_cmd(void){
      "  FROM vfile"
      " ORDER BY 1"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
     int isNew = db_column_int(&q,2)==0;
@@ -327,7 +327,7 @@ void extra_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     zDisplayName = zPathname = db_column_text(&q, 0);
     if( cwdRelative ) {
       char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
@@ -403,7 +403,7 @@ void clean_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     if( allFlag ){
       file_delete(db_column_text(&q, 0));
     }else{
@@ -693,7 +693,7 @@ static void create_manifest(
   blob_zero(&filename);
   blob_appendf(&filename, "%s", g.zLocalRoot);
   nBasename = blob_size(&filename);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zOrig = db_column_text(&q, 2);
@@ -758,7 +758,7 @@ static void create_manifest(
   if( verifyDate ) checkin_verify_younger(vid, zParentUuid, zDate);
   free(zParentUuid);
   db_prepare(&q2, "SELECT merge FROM vmerge WHERE id=0");
-  while( db_step(&q2)==SQLITE_ROW ){
+  while( db_step(&q2)==SQLITE4_ROW ){
     char *zMergeUuid;
     int mid = db_column_int(&q2, 0);
     if( !g.markPrivate && content_is_private(mid) ) continue;
@@ -808,7 +808,7 @@ static void create_manifest(
         "   AND tagname!='sym-'||%Q"
         " ORDER BY tagname",
         vid, zBranch);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zBrTag = db_column_text(&q, 0);
       blob_appendf(pOut, "T -%F *\n", zBrTag);
     }
@@ -1157,7 +1157,7 @@ void commit_cmd(void){
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;

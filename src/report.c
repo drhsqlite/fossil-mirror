@@ -46,7 +46,7 @@ void view_list(void){
   ticket_init();
 
   db_prepare(&q, "SELECT rn, title, owner FROM reportfmt ORDER BY title");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTitle = db_column_text(&q, 1);
     const char *zOwner = db_column_text(&q, 2);
     if( zTitle[0] =='_' && !g.perm.TktFmt ){
@@ -161,17 +161,17 @@ int report_query_authorizer(
   const char *zArg3,
   const char *zArg4
 ){
-  int rc = SQLITE_OK;
+  int rc = SQLITE4_OK;
   if( *(char**)pError ){
     /* We've already seen an error.  No need to continue. */
-    return SQLITE_OK;
+    return SQLITE4_OK;
   }
   switch( code ){
-    case SQLITE_SELECT:
-    case SQLITE_FUNCTION: {
+    case SQLITE4_SELECT:
+    case SQLITE4_FUNCTION: {
       break;
     }
-    case SQLITE_READ: {
+    case SQLITE4_READ: {
       static const char *azAllowed[] = {
          "ticket",
          "blob",
@@ -188,15 +188,15 @@ int report_query_authorizer(
       }
       if( i>=sizeof(azAllowed)/sizeof(azAllowed[0]) ){
         *(char**)pError = mprintf("access to table \"%s\" is restricted",zArg1);
-        rc = SQLITE_DENY;
+        rc = SQLITE4_DENY;
       }else if( !g.perm.RdAddr && strncmp(zArg2, "private_", 8)==0 ){
-        rc = SQLITE_IGNORE;
+        rc = SQLITE4_IGNORE;
       }
       break;
     }
     default: {
       *(char**)pError = mprintf("only SELECT statements are allowed");
-      rc = SQLITE_DENY;
+      rc = SQLITE4_DENY;
       break;
     }
   }
@@ -255,7 +255,7 @@ char *verify_sql_statement(char *zSql){
   /* Compile the statement and check for illegal accesses or syntax errors. */
   report_restrict_sql(&zErr);
   rc = sqlite4_prepare(g.db, zSql, -1, &pStmt, &zTail);
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     zErr = mprintf("Syntax error: %s", sqlite4_errmsg(g.db));
   }
   if( !sqlite4_stmt_readonly(pStmt) ){
@@ -288,7 +288,7 @@ void view_see_sql(void){
   db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                    "FROM reportfmt WHERE rn=%d",rn);
   style_header("SQL For Report Format Number %d", rn);
-  if( db_step(&q)!=SQLITE_ROW ){
+  if( db_step(&q)!=SQLITE4_ROW ){
     @ <p>Unknown report number: %d(rn)</p>
     style_footer();
     return;
@@ -405,7 +405,7 @@ void view_edit(void){
     Stmt q;
     db_prepare(&q, "SELECT title, sqlcode, owner, cols "
                      "FROM reportfmt WHERE rn=%d",rn);
-    if( db_step(&q)==SQLITE_ROW ){
+    if( db_step(&q)==SQLITE4_ROW ){
       zTitle = db_column_malloc(&q, 0);
       zSQL = db_column_malloc(&q, 1);
       zOwner = db_column_malloc(&q, 2);
@@ -843,7 +843,7 @@ int sqlite4_exec_readonly(
   void *pArg,                 /* First argument to xCallback() */
   char **pzErrMsg             /* Write error messages here */
 ){
-  int rc = SQLITE_OK;         /* Return code */
+  int rc = SQLITE4_OK;         /* Return code */
   const char *zLeftover;      /* Tail of unprocessed SQL */
   sqlite4_stmt *pStmt = 0;    /* The current SQL statement */
   char **azCols = 0;          /* Names of result columns */
@@ -853,22 +853,22 @@ int sqlite4_exec_readonly(
 
   pStmt = 0;
   rc = sqlite4_prepare(db, zSql, -1, &pStmt, &zLeftover);
-  assert( rc==SQLITE_OK || pStmt==0 );
-  if( rc!=SQLITE_OK ){
+  assert( rc==SQLITE4_OK || pStmt==0 );
+  if( rc!=SQLITE4_OK ){
     return rc;
   }
   if( !pStmt ){
     /* this happens for a comment or white-space */
-    return SQLITE_OK;
+    return SQLITE4_OK;
   }
   if( !sqlite4_stmt_readonly(pStmt) ){
     sqlite4_finalize(pStmt);
-    return SQLITE_ERROR;
+    return SQLITE4_ERROR;
   }
 
   nCol = sqlite4_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
-  while( (rc = sqlite4_step(pStmt))==SQLITE_ROW ){
+  while( (rc = sqlite4_step(pStmt))==SQLITE4_ROW ){
     if( azCols==0 ){
       azCols = &azVals[nCol];
       for(i=0; i<nCol; i++){
@@ -919,7 +919,7 @@ void rptview_page(void){
   /* view_add_functions(tabs); */
   db_prepare(&q,
     "SELECT title, sqlcode, owner, cols FROM reportfmt WHERE rn=%d", rn);
-  if( db_step(&q)!=SQLITE_ROW ){
+  if( db_step(&q)!=SQLITE4_ROW ){
     cgi_redirect("reportlist");
     return;
   }
@@ -1008,7 +1008,7 @@ void rpt_list_reports(void){
   fossil_print(aRptOutFrmt,"report number","report title");
   fossil_print(aRptOutFrmt,zFullTicketRptRn,zFullTicketRptTitle);
   db_prepare(&q,"SELECT rn,title FROM reportfmt ORDER BY rn");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zRn = db_column_text(&q, 0);
     const char *zTitle = db_column_text(&q, 1);
 
@@ -1118,7 +1118,7 @@ void rptshow(
       db_prepare(&q,
        "SELECT sqlcode FROM reportfmt WHERE title=%Q", zRep);
     }
-    if( db_step(&q)!=SQLITE_ROW ){
+    if( db_step(&q)!=SQLITE4_ROW ){
       db_finalize(&q);
       rpt_list_reports();
       fossil_fatal("unknown report format(%s)!",zRep);

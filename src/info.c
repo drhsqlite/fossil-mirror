@@ -85,7 +85,7 @@ void show_common_info(
     db_prepare(&q, "SELECT uuid, pid, isprim FROM plink JOIN blob ON pid=rid "
                    " WHERE cid=%d"
                    " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zUuid = db_column_text(&q, 0);
       const char *zType = db_column_int(&q, 2) ? "parent:" : "merged-from:";
       zDate = db_text("", 
@@ -99,7 +99,7 @@ void show_common_info(
     db_prepare(&q, "SELECT uuid, cid, isprim FROM plink JOIN blob ON cid=rid "
                    " WHERE pid=%d"
                    " ORDER BY isprim DESC, mtime DESC /*sort*/", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zUuid = db_column_text(&q, 0);
       const char *zType = db_column_int(&q, 2) ? "child:" : "merged-into:";
       zDate = db_text("", 
@@ -132,7 +132,7 @@ static void extraRepoInfo(void){
   db_prepare(&s, "SELECT substr(name,7), date(mtime,'unixepoch')"
                  "  FROM config"
                  " WHERE name GLOB 'ckout:*' ORDER BY name");
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     const char *zName;
     const char *zCkout = db_column_text(&s, 0);
     if( g.localOpen ){
@@ -148,7 +148,7 @@ static void extraRepoInfo(void){
   db_prepare(&s, "SELECT substr(name,9), date(mtime,'unixepoch')"
                  "  FROM config"
                  " WHERE name GLOB 'baseurl:*' ORDER BY name");
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     fossil_print("access-url:   %-54s %s\n", db_column_text(&s, 0),
                  db_column_text(&s, 1));
   }
@@ -235,7 +235,7 @@ static void showTags(int rid, const char *zNotGlob){
     " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
     " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTagname = db_column_text(&q, 1);
     const char *zSrcUuid = db_column_text(&q, 2);
     const char *zValue = db_column_text(&q, 3);
@@ -473,7 +473,7 @@ void ci_page(void){
      rid, rid
   );
   sideBySide = atoi(PD("sbs","1"));
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     char *zTitle = mprintf("Check-in [%.10s]", zUuid);
     char *zEUser, *zEComment;
@@ -529,7 +529,7 @@ void ci_page(void){
          " WHERE blob.rid=%d",
          rid
       );
-      if( db_step(&q)==SQLITE_ROW ){
+      if( db_step(&q)==SQLITE4_ROW ){
         const char *zIpAddr = db_column_text(&q, 0);
         const char *zUser = db_column_text(&q, 1);
         const char *zDate = db_column_text(&q, 2);
@@ -556,7 +556,7 @@ void ci_page(void){
                      " WHERE rid=%d AND tagtype>0 "
                      "   AND tag.tagid=tagxref.tagid "
                      "   AND +tag.tagname GLOB 'sym-*'", rid);
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         const char *zTagName = db_column_text(&q, 0);
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
@@ -640,7 +640,7 @@ void ci_page(void){
        rid
     );
     diffFlags = construct_diff_flags(showDiff, sideBySide);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zName = db_column_text(&q,0);
       int mperm = db_column_int(&q, 1);
       const char *zOld = db_column_text(&q,2);
@@ -683,7 +683,7 @@ void winfo_page(void){
      "   AND event.objid=%d",
      rid, rid, rid
   );
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     char *zTitle = mprintf("Wiki Page %s", zName);
@@ -779,7 +779,7 @@ void checkin_description(int rid){
     "   AND blob.rid=%d",
     rid, rid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zUser = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 2);
@@ -921,7 +921,7 @@ void object_description(
     TAG_BRANCH, rid
   );
   @ <ul>
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zCom = db_column_text(&q, 2);
@@ -975,7 +975,7 @@ void object_description(
     "   AND event.objid=tagxref.rid",
     rid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zPagename = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
@@ -1002,7 +1002,7 @@ void object_description(
       "   AND blob.rid=%d",
       rid, rid
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zDate = db_column_text(&q, 0);
       const char *zUser = db_column_text(&q, 1);
       const char *zCom = db_column_text(&q, 2);
@@ -1043,7 +1043,7 @@ void object_description(
     " ORDER BY mtime DESC /*sort*/",
     rid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTarget = db_column_text(&q, 0);
     const char *zFilename = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
@@ -1855,7 +1855,7 @@ void ci_edit_page(void){
        " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid",
        rid
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int tagid = db_column_int(&q, 0);
       const char *zTag = db_column_text(&q, 1);
       char zLabel[30];
@@ -1886,7 +1886,7 @@ void ci_edit_page(void){
     }
     db_prepare(&q, "SELECT tag, prefix, value FROM newtags"
                    " ORDER BY prefix || tag");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zTag = db_column_text(&q, 0);
       const char *zPrefix = db_column_text(&q, 1);
       const char *zValue = db_column_text(&q, 2);
@@ -1935,7 +1935,7 @@ void ci_edit_page(void){
                    " WHERE tagname GLOB 'sym-*' AND tagxref.rid=%d"
                    "   AND tagtype>1 AND tag.tagid=tagxref.tagid",
                    rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zTag = db_column_text(&q, 0);
       if( nTag==0 ){
         blob_appendf(&suffix, ", tags: %h", zTag);
@@ -1991,7 +1991,7 @@ void ci_edit_page(void){
      "               ELSE tagname END /*sort*/",
      rid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int tagid = db_column_int(&q, 0);
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];

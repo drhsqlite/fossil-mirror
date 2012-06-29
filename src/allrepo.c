@@ -166,7 +166,7 @@ void all_cmd(void){
     );
   }
   bag_init(&outOfDate);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zFilename = db_column_text(&q, 0);
     int rowid = db_column_int(&q, 1);
     if( file_access(zFilename, 0) || !file_is_canonical(zFilename) ){

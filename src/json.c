@@ -1047,10 +1047,10 @@ static void json_mode_bootstrap(){
       /* reminder: must be done after g.json.jsonp is initialized */
       ;
 #if 0
-    /* Calling this seems to trigger an SQLITE_MISUSE warning???
+    /* Calling this seems to trigger an SQLITE4_MISUSE warning???
        Maybe it's not legal to set the logger more than once?
     */
-    sqlite4_env_config(0, SQLITE_CONFIG_LOG, NULL, 0)
+    sqlite4_env_config(0, SQLITE4_CONFIG_LOG, NULL, 0)
         /* avoids debug messages on stderr in JSON mode */
         ;
 #endif
@@ -1691,7 +1691,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   char const * warnMsg = NULL;
   cson_value * colNamesV = NULL;
   cson_array * colNames = NULL;
-  while( (SQLITE_ROW==db_step(pStmt)) ){
+  while( (SQLITE4_ROW==db_step(pStmt)) ){
     cson_value * row = NULL;
     if(!a){
       a = cson_new_array();
@@ -1734,7 +1734,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
 cson_value * json_stmt_to_array_of_array(Stmt *pStmt,
                                          cson_array * pTgt){
   cson_array * a = pTgt;
-  while( (SQLITE_ROW==db_step(pStmt)) ){
+  while( (SQLITE4_ROW==db_step(pStmt)) ){
     cson_value * row = NULL;
     if(!a){
       a = cson_new_array();
@@ -1750,7 +1750,7 @@ cson_value * json_stmt_to_array_of_values(Stmt *pStmt,
                                           int resultColumn,
                                           cson_array * pTgt){
   cson_array * a = pTgt;
-  while( (SQLITE_ROW==db_step(pStmt)) ){
+  while( (SQLITE4_ROW==db_step(pStmt)) ){
     cson_value * row = cson_sqlite4_column_to_value(pStmt->pStmt,
                                                     resultColumn);
     if(row){
@@ -1934,7 +1934,7 @@ cson_value * json_cap_value(){
     Stmt q = empty_Stmt;
     cson_value * val = NULL;
     db_prepare(&q, "SELECT cap FROM user WHERE uid=%d", g.userUid);
-    if( db_step(&q)==SQLITE_ROW ){
+    if( db_step(&q)==SQLITE4_ROW ){
       char const * str = (char const *)sqlite4_column_text(q.pStmt,0);
       if( str ){
         val = json_new_string(str);
@@ -1960,7 +1960,7 @@ cson_value * json_page_cap(){
   Stmt q;
   cson_object * obj = cson_value_get_object(payload);
   db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d", g.userUid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     /* reminder: we don't use g.zLogin because it's 0 for the guest
        user and the HTML UI appears to currently allow the name to be
        changed (but doing so would break other code). */
@@ -2097,7 +2097,7 @@ cson_value * json_page_stat(){
   jo2 = cson_value_get_object(jv2);
   cson_object_set(jo, "sqlite", jv2);
   sqlite4_snprintf(zBuf, BufLen, "%.19s [%.10s] (%s)",
-                   SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20], SQLITE_VERSION);
+                   SQLITE4_SOURCE_ID, &SQLITE4_SOURCE_ID[20], SQLITE4_VERSION);
   SETBUF(jo2, "version");
   zDb = db_name("repository");
   cson_object_set(jo2, "pageCount", cson_value_new_integer((cson_int_t)db_int(0, "PRAGMA %s.page_count", zDb)));

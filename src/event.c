@@ -85,11 +85,11 @@ void event_page(void){
      " ORDER BY mtime DESC",
      zEventId
   );
-  while( db_step(&q1)==SQLITE_ROW ){
+  while( db_step(&q1)==SQLITE4_ROW ){
     nextRid = rid;
     rid = db_column_int(&q1, 0);
     if( specRid==0 || specRid==rid ){
-      if( db_step(&q1)==SQLITE_ROW ){
+      if( db_step(&q1)==SQLITE4_ROW ){
         prevRid = db_column_int(&q1, 0);
       }
       break;
@@ -326,7 +326,7 @@ void eventedit_page(void){
       /* Extract the tags in sorted order and make an entry in the
       ** artifact for each. */
       db_prepare(&q, "SELECT x FROM newtags ORDER BY x");
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         blob_appendf(&event, "T +sym-%F *\n", db_column_text(&q, 0));
       }
       db_finalize(&q);

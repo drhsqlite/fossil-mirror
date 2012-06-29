@@ -106,13 +106,13 @@ void compute_leaves(int iBase, int closeMode){
       int cnt = 0;
       bag_remove(&pending, rid);
       db_bind_int(&q1, ":rid", rid);
-      while( db_step(&q1)==SQLITE_ROW ){
+      while( db_step(&q1)==SQLITE4_ROW ){
         int cid = db_column_int(&q1, 0);
         if( bag_insert(&seen, cid) ){
           bag_insert(&pending, cid);
         }
         db_bind_int(&isBr, ":rid", cid);
-        if( db_step(&isBr)==SQLITE_DONE ){
+        if( db_step(&isBr)==SQLITE4_DONE ){
           cnt++;
         }
         db_reset(&isBr);
@@ -177,7 +177,7 @@ void compute_ancestors(int rid, int N){
     db_step(&ins);
     db_reset(&ins);
     db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){
@@ -215,7 +215,7 @@ void compute_direct_ancestors(int rid, int N){
   );
   while( (N--)>0 ){
     db_bind_int(&q, ":rid", rid);
-    if( db_step(&q)!=SQLITE_ROW ) break;
+    if( db_step(&q)!=SQLITE4_ROW ) break;
     rid = db_column_int(&q, 0);
     db_reset(&q);
     gen++;
@@ -249,7 +249,7 @@ void compute_descendants(int rid, int N){
     db_step(&ins);
     db_reset(&ins);
     db_bind_int(&q, ":rid", rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int pid = db_column_int(&q, 0);
       double mtime = db_column_double(&q, 1);
       if( bag_insert(&seen, pid) ){

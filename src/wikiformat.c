@@ -955,7 +955,7 @@ static int in_this_repo(const char *zUuid){
   db_bind_text(&q, ":u", zUuid);
   rc = db_step(&q);
   db_reset(&q);
-  return rc==SQLITE_ROW;
+  return rc==SQLITE4_ROW;
 }
 
 /*
@@ -990,7 +990,7 @@ static int is_ticket(
   }
   db_bind_text(&q, ":lwr", zLower);
   db_bind_text(&q, ":upr", zUpper);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     rc = 1;
     *pClosed = db_column_int(&q, 0);
   }else{

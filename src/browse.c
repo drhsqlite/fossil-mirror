@@ -54,10 +54,10 @@ void pathelementFunc(
   if( n>0 && z[n-1]!='/' ) return;
   for(i=n; i<len && z[i]!='/'; i++){}
   if( i==len ){
-    sqlite4_result_text(context, (char*)&z[n], len-n, SQLITE_TRANSIENT);
+    sqlite4_result_text(context, (char*)&z[n], len-n, SQLITE4_TRANSIENT);
   }else{
     zOut = sqlite4_mprintf(0, "/%.*s", i-n, &z[n]);
-    sqlite4_result_text(context, zOut, i-n+1, SQLITE_DYNAMIC);
+    sqlite4_result_text(context, zOut, i-n+1, SQLITE4_DYNAMIC);
   }
 }
 
@@ -125,7 +125,7 @@ void page_dir(void){
   if( !g.perm.Hyperlink ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
-  sqlite4_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "pathelement", 2, SQLITE4_UTF8, 0,
                           pathelementFunc, 0, 0);
 
   /* If the name= parameter is an empty string, make it a NULL pointer */
@@ -271,7 +271,7 @@ void page_dir(void){
   db_prepare(&q, "SELECT x, u FROM localfiles ORDER BY x /*scan*/");
   @ <table class="browser"><tr><td class="browser"><ul class="browser">
   i = 0;
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zFN;
     if( i==nRow ){
       @ </ul></td><td class="browser"><ul class="browser">

@@ -65,7 +65,7 @@ cson_value * json_parent_uuids_for_ci( int rid ){
               " WHERE plink.cid=%d AND blob.rid=plink.pid"
               " ORDER BY plink.isprim DESC",
               rid );
-  while( SQLITE_ROW==db_step(&q) ){
+  while( SQLITE4_ROW==db_step(&q) ){
     if(!pParents) {
       pParents = cson_new_array();
     }
@@ -101,7 +101,7 @@ cson_value * json_artifact_for_ci( int rid, char showFiles ){
              "   AND e.objid=%d",
              rid, rid
              );
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     cson_object * o;
     cson_value * tmpV = NULL;
     const char *zUuid = db_column_text(&q, 0);
@@ -326,7 +326,7 @@ cson_value * json_artifact_file(int rid){
    */
   checkin_arr = cson_new_array(); 
   cson_object_set(pay, "checkins", cson_array_value(checkin_arr));
-  while( (SQLITE_ROW==db_step(&q) ) ){
+  while( (SQLITE4_ROW==db_step(&q) ) ){
     cson_object * row = cson_value_get_object(cson_sqlite4_row_to_object(q.pStmt));
     char const isNew = cson_value_get_bool(cson_object_get(row,"isNew"));
     char const isDel = cson_value_get_bool(cson_object_get(row,"isDel"));

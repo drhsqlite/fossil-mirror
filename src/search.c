@@ -160,7 +160,7 @@ static void search_score_sqlfunc(
 ** do not delete the Search object.
 */
 void search_sql_setup(Search *p){
-  sqlite4_create_function(g.db, "score", 1, SQLITE_UTF8, p,
+  sqlite4_create_function(g.db, "score", 1, SQLITE4_UTF8, p,
      search_score_sqlfunc, 0, 0);
 }
 

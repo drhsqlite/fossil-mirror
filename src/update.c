@@ -284,7 +284,7 @@ void update_cmd(void){
        "SELECT rowid, fn, fnt, chnged, ridv, ridt, isexe,"
        "       islinkv, islinkt FROM fv"
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
        fossil_print("%3d: ridv=%-4d ridt=%-4d chnged=%d isexe=%d"
                     " islinkv=%d  islinkt=%d\n",
           db_column_int(&q, 0),
@@ -347,7 +347,7 @@ void update_cmd(void){
   assert( g.zLocalRoot!=0 );
   assert( strlen(g.zLocalRoot)>1 );
   assert( g.zLocalRoot[strlen(g.zLocalRoot)-1]=='/' );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);  /* The filename from root */
     int idv = db_column_int(&q, 1);             /* VFILE entry for current */
     int ridv = db_column_int(&q, 2);            /* RecordID for current */
@@ -473,7 +473,7 @@ void update_cmd(void){
     int nMerge = 0;
     db_prepare(&q, "SELECT uuid, id FROM vmerge JOIN blob ON merge=rid"
                    " WHERE id<=0");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zLabel = "merge";
       switch( db_column_int(&q, 1) ){
         case -1:  zLabel = "cherrypick merge"; break;
@@ -697,7 +697,7 @@ void revert_cmd(void){
     int vid = db_lget_int("checkout", 0);
     zRevision = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", vid);
   }
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int isExe = 0;
     int isLink = 0;
     char *zFull;

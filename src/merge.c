@@ -35,7 +35,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
      "         WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
      "           AND tagxref.rid=%d AND tagxref.tagtype>0)"
      "  FROM event WHERE objid=%d", rid, rid, rid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     const char *zTagList = db_column_text(&q, 4);
     char *zCom;
     if( zTagList && zTagList[0] ){
@@ -160,7 +160,7 @@ void merge_cmd(void){
     pivot_set_primary(mid);
     pivot_set_secondary(vid);
     db_prepare(&q, "SELECT merge FROM vmerge WHERE id=0");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       pivot_set_secondary(db_column_int(&q,0));
     }
     db_finalize(&q);
@@ -311,7 +311,7 @@ void merge_cmd(void){
        "SELECT rowid, fn, fnp, fnm, chnged, ridv, ridp, ridm, "
        "       isexe, islinkv, islinkm FROM fv"
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
        fossil_print("%3d: ridv=%-4d ridp=%-4d ridm=%-4d chnged=%d isexe=%d "
                     " islinkv=%d islinkm=%d\n",
           db_column_int(&q, 0),
@@ -337,7 +337,7 @@ void merge_cmd(void){
   db_prepare(&q,
     "SELECT idm FROM fv WHERE idp=0 AND idv>0 AND idm>0"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
     fossil_warning("WARNING - no common ancestor: %s\n", zName);
@@ -353,7 +353,7 @@ void merge_cmd(void){
     "SELECT idm, rowid, fnm FROM fv AS x"
     " WHERE idp=0 AND idv=0 AND idm>0"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int idm = db_column_int(&q, 0);
     int rowid = db_column_int(&q, 1);
     int idv;
@@ -391,7 +391,7 @@ void merge_cmd(void){
     " WHERE idp>0 AND idv>0 AND idm>0"
     "   AND ridm!=ridp AND ridv=ridp AND NOT chnged"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int idv = db_column_int(&q, 0);
     int ridm = db_column_int(&q, 1);
     const char *zName = db_column_text(&q, 2);
@@ -418,7 +418,7 @@ void merge_cmd(void){
     "   AND ridm!=ridp AND (ridv!=ridp OR chnged)",
     glob_expr("fv.fn", zBinGlob)
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int ridm = db_column_int(&q, 0);
     int idv = db_column_int(&q, 1);
     int ridp = db_column_int(&q, 2);
@@ -482,7 +482,7 @@ void merge_cmd(void){
     "SELECT idv, fn, chnged FROM fv"
     " WHERE idp>0 AND idv>0 AND idm=0"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int idv = db_column_int(&q, 0);
     const char *zName = db_column_text(&q, 1);
     int chnged = db_column_int(&q, 2);
@@ -513,7 +513,7 @@ void merge_cmd(void){
     "SELECT idv, fnp, fnm FROM fv"
     " WHERE idv>0 AND idp>0 AND idm>0 AND fnp=fn AND fnm!=fnp"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int idv = db_column_int(&q, 0);
     const char *zOldName = db_column_text(&q, 1);
     const char *zNewName = db_column_text(&q, 2);

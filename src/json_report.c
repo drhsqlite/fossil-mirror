@@ -110,7 +110,7 @@ static cson_value * json_report_get(){
              " FROM reportfmt"
              " WHERE rn=%d",
              nReport);
-  if( SQLITE_ROW != db_step(&q) ){
+  if( SQLITE4_ROW != db_step(&q) ){
     db_finalize(&q);
     json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
                  "Report #%d not found.", nReport);
@@ -191,7 +191,7 @@ static cson_value * json_report_run(){
              " FROM reportfmt"
              " WHERE rn=%d",
              nReport);
-  if(SQLITE_ROW != db_step(&q)){
+  if(SQLITE4_ROW != db_step(&q)){
     json_set_err(FSL_JSON_E_INVALID_ARGS,
                  "Report number %d not found.",
                  nReport);
@@ -229,7 +229,7 @@ static cson_value * json_report_run(){
   colNames = cson_sqlite4_column_names(q.pStmt);
   cson_object_set( pay, "columnNames", colNames);
   for( i = 0 ; ((limit>0) ?(i < limit) : 1)
-         && (SQLITE_ROW == db_step(&q));
+         && (SQLITE4_ROW == db_step(&q));
        ++i){
     cson_value * row = ('a'==*zFmt)
       ? cson_sqlite4_row_to_array(q.pStmt)

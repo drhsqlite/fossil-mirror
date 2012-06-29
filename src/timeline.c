@@ -226,7 +226,7 @@ void www_print_timeline(
 
   @ <table id="timelineTable" class="timelineTable">
   blob_zero(&comment);
-  while( db_step(pQuery)==SQLITE_ROW ){
+  while( db_step(pQuery)==SQLITE4_ROW ){
     int rid = db_column_int(pQuery, 0);
     const char *zUuid = db_column_text(pQuery, 1);
     int isLeaf = db_column_int(pQuery, 5);
@@ -281,7 +281,7 @@ void www_print_timeline(
     ){
       db_reset(&qbranch);   
       db_bind_int(&qbranch, ":rid", rid);
-      if( db_step(&qbranch)==SQLITE_ROW ){
+      if( db_step(&qbranch)==SQLITE4_ROW ){
         zBr = db_column_text(&qbranch, 0);
       }else{
         zBr = "trunk";
@@ -305,7 +305,7 @@ void www_print_timeline(
         " ORDER BY isprim DESC /*sort*/"
       );
       db_bind_int(&qparent, ":rid", rid);
-      while( db_step(&qparent)==SQLITE_ROW && nParent<32 ){
+      while( db_step(&qparent)==SQLITE4_ROW && nParent<32 ){
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
@@ -420,7 +420,7 @@ void www_print_timeline(
         fchngQueryInit = 1;
       }
       db_bind_int(&fchngQuery, ":mid", rid);
-      while( db_step(&fchngQuery)==SQLITE_ROW ){
+      while( db_step(&fchngQuery)==SQLITE4_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
@@ -1287,7 +1287,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     zCurrentUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   }
 
-  while( db_step(q)==SQLITE_ROW && nLine<=mxLine ){
+  while( db_step(q)==SQLITE4_ROW && nLine<=mxLine ){
     int rid = db_column_int(q, 0);
     const char *zId = db_column_text(q, 1);
     const char *zDate = db_column_text(q, 2);
@@ -1345,7 +1345,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
         fchngQueryInit = 1;
       }
       db_bind_int(&fchngQuery, ":mid", rid);
-      while( db_step(&fchngQuery)==SQLITE_ROW ){
+      while( db_step(&fchngQuery)==SQLITE4_ROW ){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
@@ -1585,7 +1585,7 @@ void test_timewarp_cmd(void){
      "  FROM plink p, plink c"
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     if( !showDetail ){
       fossil_print("%s\n", db_column_text(&q, 1));
     }else{
@@ -1615,7 +1615,7 @@ void test_timewarp_page(void){
      " WHERE p.cid=c.pid  AND p.mtime>c.mtime"
      "   AND blob.rid=c.cid"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
     @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&d=%S(zUuid)">%S(zUuid)</a>

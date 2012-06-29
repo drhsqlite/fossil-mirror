@@ -948,7 +948,7 @@ void file_tempname(int nBuf, char *zBuf){
   }
 
   /* Check that the output buffer is large enough for the temporary file 
-  ** name. If it is not, return SQLITE_ERROR.
+  ** name. If it is not, return SQLITE4_ERROR.
   */
   if( (strlen(zDir) + 17) >= (size_t)nBuf ){
     fossil_fatal("insufficient space for temporary filename");

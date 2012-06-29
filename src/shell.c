@@ -20,7 +20,7 @@
 /*
 ** Enable large-file support for fopen() and friends on unix.
 */
-#ifndef SQLITE_DISABLE_LFS
+#ifndef SQLITE4_DISABLE_LFS
 # define _LARGE_FILE       1
 # ifndef _FILE_OFFSET_BITS
 #   define _FILE_OFFSET_BITS 64
@@ -252,7 +252,7 @@ static char continuePrompt[20]; /* Continuation prompt. default: "   ...> " */
 /*
 ** Write I/O traces to the following stream.
 */
-#ifdef SQLITE_ENABLE_IOTRACE
+#ifdef SQLITE4_ENABLE_IOTRACE
 static FILE *iotrace = 0;
 #endif
 
@@ -262,7 +262,7 @@ static FILE *iotrace = 0;
 ** in place of % fields.  The result of formatting this string
 ** is written to iotrace.
 */
-#ifdef SQLITE_ENABLE_IOTRACE
+#ifdef SQLITE4_ENABLE_IOTRACE
 static void iotracePrintf(const char *zFormat, ...){
   va_list ap;
   char *z;
@@ -321,7 +321,7 @@ static void shellstaticFunc(
   assert( zShellStatic );
   UNUSED_PARAMETER(argc);
   UNUSED_PARAMETER(argv);
-  sqlite4_result_text(context, zShellStatic, -1, SQLITE_STATIC);
+  sqlite4_result_text(context, zShellStatic, -1, SQLITE4_STATIC);
 }
 
 
@@ -817,14 +817,14 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
       fprintf(p->out,"INSERT INTO %s VALUES(",p->zDestTable);
       for(i=0; i<nArg; i++){
         char *zSep = i>0 ? ",": "";
-        if( (azArg[i]==0) || (aiType && aiType[i]==SQLITE_NULL) ){
+        if( (azArg[i]==0) || (aiType && aiType[i]==SQLITE4_NULL) ){
           fprintf(p->out,"%sNULL",zSep);
-        }else if( aiType && aiType[i]==SQLITE_TEXT ){
+        }else if( aiType && aiType[i]==SQLITE4_TEXT ){
           if( zSep[0] ) fprintf(p->out,"%s",zSep);
           output_quoted_string(p->out, azArg[i]);
-        }else if( aiType && (aiType[i]==SQLITE_INTEGER || aiType[i]==SQLITE_FLOAT) ){
+        }else if( aiType && (aiType[i]==SQLITE4_INTEGER || aiType[i]==SQLITE4_FLOAT) ){
           fprintf(p->out,"%s%s",zSep, azArg[i]);
-        }else if( aiType && aiType[i]==SQLITE_BLOB && p->pStmt ){
+        }else if( aiType && aiType[i]==SQLITE4_BLOB && p->pStmt ){
           const void *pBlob = sqlite4_column_blob(p->pStmt, i);
           int nBlob = sqlite4_column_bytes(p->pStmt, i);
           if( zSep[0] ) fprintf(p->out,"%s",zSep);
@@ -941,7 +941,7 @@ static char *appendText(char *zIn, char const *zAppend, char quote){
 ** that result column on a line by itself with a semicolon terminator.
 **
 ** This is used, for example, to show the schema of the database by
-** querying the SQLITE_MASTER table.
+** querying the SQLITE4_MASTER table.
 */
 static int run_table_dump_query(
   struct callback_data *p, /* Query context */
@@ -951,13 +951,13 @@ static int run_table_dump_query(
   sqlite4_stmt *pSelect;
   int rc;
   rc = sqlite4_prepare(p->db, zSelect, -1, &pSelect, 0);
-  if( rc!=SQLITE_OK || !pSelect ){
+  if( rc!=SQLITE4_OK || !pSelect ){
     fprintf(p->out, "/**** ERROR: (%d) %s *****/\n", rc, sqlite4_errmsg(p->db));
     p->nErr++;
     return rc;
   }
   rc = sqlite4_step(pSelect);
-  while( rc==SQLITE_ROW ){
+  while( rc==SQLITE4_ROW ){
     if( zFirstRow ){
       fprintf(p->out, "%s", zFirstRow);
       zFirstRow = 0;
@@ -966,7 +966,7 @@ static int run_table_dump_query(
     rc = sqlite4_step(pSelect);
   }
   rc = sqlite4_finalize(pSelect);
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     fprintf(p->out, "/**** ERROR: (%d) %s *****/\n", rc, sqlite4_errmsg(p->db));
     p->nErr++;
   }
@@ -1000,28 +1000,28 @@ static int display_stats(
 
   if( pArg && pArg->out && db ){
     iHiwtr = iCur = -1;
-    sqlite4_db_status(db, SQLITE_DBSTATUS_LOOKASIDE_USED, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_LOOKASIDE_USED, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Lookaside Slots Used:                %d (max %d)\n", iCur, iHiwtr);
-    sqlite4_db_status(db, SQLITE_DBSTATUS_LOOKASIDE_HIT, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_LOOKASIDE_HIT, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Successful lookaside attempts:       %d\n", iHiwtr);
-    sqlite4_db_status(db, SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_LOOKASIDE_MISS_SIZE, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Lookaside failures due to size:      %d\n", iHiwtr);
-    sqlite4_db_status(db, SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_LOOKASIDE_MISS_FULL, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Lookaside failures due to OOM:       %d\n", iHiwtr);
     iHiwtr = iCur = -1;
-    sqlite4_db_status(db, SQLITE_DBSTATUS_SCHEMA_USED, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_SCHEMA_USED, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Schema Heap Usage:                   %d bytes\n", iCur); 
     iHiwtr = iCur = -1;
-    sqlite4_db_status(db, SQLITE_DBSTATUS_STMT_USED, &iCur, &iHiwtr, bReset);
+    sqlite4_db_status(db, SQLITE4_DBSTATUS_STMT_USED, &iCur, &iHiwtr, bReset);
     fprintf(pArg->out, "Statement Heap/Lookaside Usage:      %d bytes\n", iCur); 
   }
 
   if( pArg && pArg->out && db && pArg->pStmt ){
-    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, bReset);
+    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE4_STMTSTATUS_FULLSCAN_STEP, bReset);
     fprintf(pArg->out, "Fullscan Steps:                      %d\n", iCur);
-    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_SORT, bReset);
+    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE4_STMTSTATUS_SORT, bReset);
     fprintf(pArg->out, "Sort Operations:                     %d\n", iCur);
-    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, bReset);
+    iCur = sqlite4_stmt_status(pArg->pStmt, SQLITE4_STMTSTATUS_AUTOINDEX, bReset);
     fprintf(pArg->out, "Autoindex Inserts:                   %d\n", iCur);
   }
 
@@ -1046,7 +1046,7 @@ static int shell_exec(
   char **pzErrMsg                             /* Error msg written here */
 ){
   sqlite4_stmt *pStmt = NULL;     /* Statement to execute. */
-  int rc = SQLITE_OK;             /* Return Code */
+  int rc = SQLITE4_OK;             /* Return Code */
   int rc2;
   const char *zLeftover;          /* Tail of unprocessed SQL */
 
@@ -1054,9 +1054,9 @@ static int shell_exec(
     *pzErrMsg = NULL;
   }
 
-  while( zSql[0] && (SQLITE_OK == rc) ){
+  while( zSql[0] && (SQLITE4_OK == rc) ){
     rc = sqlite4_prepare(db, zSql, -1, &pStmt, &zLeftover);
-    if( SQLITE_OK != rc ){
+    if( SQLITE4_OK != rc ){
       if( pzErrMsg ){
         *pzErrMsg = save_err_msg(db);
       }
@@ -1083,7 +1083,7 @@ static int shell_exec(
       /* Output TESTCTRL_EXPLAIN text of requested */
       if( pArg && pArg->mode==MODE_Explain ){
         const char *zExplain = 0;
-        sqlite4_test_control(SQLITE_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
+        sqlite4_test_control(SQLITE4_TESTCTRL_EXPLAIN_STMT, pStmt, &zExplain);
         if( zExplain && zExplain[0] ){
           fprintf(pArg->out, "%s", zExplain);
         }
@@ -1094,14 +1094,14 @@ static int shell_exec(
       */
       rc = sqlite4_step(pStmt);
       /* if we have a result set... */
-      if( SQLITE_ROW == rc ){
+      if( SQLITE4_ROW == rc ){
         /* if we have a callback... */
         if( xCallback ){
           /* allocate space for col name ptr, value ptr, and type */
           int nCol = sqlite4_column_count(pStmt);
           void *pData = sqlite4_malloc(0, 3*nCol*sizeof(const char*) + 1);
           if( !pData ){
-            rc = SQLITE_NOMEM;
+            rc = SQLITE4_NOMEM;
           }else{
             char **azCols = (char **)pData;      /* Names of result columns */
             char **azVals = &azCols[nCol];       /* Results */
@@ -1117,28 +1117,28 @@ static int shell_exec(
               for(i=0; i<nCol; i++){
                 azVals[i] = (char *)sqlite4_column_text(pStmt, i);
                 aiTypes[i] = sqlite4_column_type(pStmt, i);
-                if( !azVals[i] && (aiTypes[i]!=SQLITE_NULL) ){
-                  rc = SQLITE_NOMEM;
+                if( !azVals[i] && (aiTypes[i]!=SQLITE4_NULL) ){
+                  rc = SQLITE4_NOMEM;
                   break; /* from for */
                 }
               } /* end for */
 
               /* if data and types extracted successfully... */
-              if( SQLITE_ROW == rc ){ 
+              if( SQLITE4_ROW == rc ){ 
                 /* call the supplied callback with the result row data */
                 if( xCallback(pArg, nCol, azVals, azCols, aiTypes) ){
-                  rc = SQLITE_ABORT;
+                  rc = SQLITE4_ABORT;
                 }else{
                   rc = sqlite4_step(pStmt);
                 }
               }
-            } while( SQLITE_ROW == rc );
+            } while( SQLITE4_ROW == rc );
             sqlite4_free(0, pData);
           }
         }else{
           do{
             rc = sqlite4_step(pStmt);
-          } while( rc == SQLITE_ROW );
+          } while( rc == SQLITE4_ROW );
         }
       }
 
@@ -1151,8 +1151,8 @@ static int shell_exec(
       ** copy of the error message. Otherwise, set zSql to point to the
       ** next statement to execute. */
       rc2 = sqlite4_finalize(pStmt);
-      if( rc!=SQLITE_NOMEM ) rc = rc2;
-      if( rc==SQLITE_OK ){
+      if( rc!=SQLITE4_NOMEM ) rc = rc2;
+      if( rc==SQLITE4_OK ){
         zSql = zLeftover;
         while( IsSpace(zSql[0]) ) zSql++;
       }else if( pzErrMsg ){
@@ -1226,7 +1226,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
 
     rc = sqlite4_prepare(p->db, zTableInfo, -1, &pTableInfo, 0);
     free(zTableInfo);
-    if( rc!=SQLITE_OK || !pTableInfo ){
+    if( rc!=SQLITE4_OK || !pTableInfo ){
       return 1;
     }
 
@@ -1237,12 +1237,12 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
     }
     zSelect = appendText(zSelect, " || ' VALUES(' || ", 0);
     rc = sqlite4_step(pTableInfo);
-    while( rc==SQLITE_ROW ){
+    while( rc==SQLITE4_ROW ){
       const char *zText = (const char *)sqlite4_column_text(pTableInfo, 1);
       zSelect = appendText(zSelect, "quote(", 0);
       zSelect = appendText(zSelect, zText, '"');
       rc = sqlite4_step(pTableInfo);
-      if( rc==SQLITE_ROW ){
+      if( rc==SQLITE4_ROW ){
         zSelect = appendText(zSelect, ") || ',' || ", 0);
       }else{
         zSelect = appendText(zSelect, ") ", 0);
@@ -1250,7 +1250,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
       nRow++;
     }
     rc = sqlite4_finalize(pTableInfo);
-    if( rc!=SQLITE_OK || nRow==0 ){
+    if( rc!=SQLITE4_OK || nRow==0 ){
       free(zSelect);
       return 1;
     }
@@ -1258,7 +1258,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
     zSelect = appendText(zSelect, zTable, '"');
 
     rc = run_table_dump_query(p, zSelect, zPrepStmt);
-    if( rc==SQLITE_CORRUPT ){
+    if( rc==SQLITE4_CORRUPT ){
       zSelect = appendText(zSelect, " ORDER BY rowid DESC", 0);
       run_table_dump_query(p, zSelect, 0);
     }
@@ -1271,7 +1271,7 @@ static int dump_callback(void *pArg, int nArg, char **azArg, char **azCol){
 ** Run zQuery.  Use dump_callback() as the callback routine so that
 ** the contents of the query are output as SQL statements.
 **
-** If we get a SQLITE_CORRUPT error, rerun the query after appending
+** If we get a SQLITE4_CORRUPT error, rerun the query after appending
 ** "ORDER BY rowid DESC" to the end.
 */
 static int run_schema_dump_query(
@@ -1281,7 +1281,7 @@ static int run_schema_dump_query(
   int rc;
   char *zErr = 0;
   rc = sqlite4_exec(p->db, zQuery, dump_callback, p, &zErr);
-  if( rc==SQLITE_CORRUPT ){
+  if( rc==SQLITE4_CORRUPT ){
     char *zQ2;
     int len = strlen30(zQuery);
     fprintf(p->out, "/****** CORRUPTION ERROR *******/\n");
@@ -1297,7 +1297,7 @@ static int run_schema_dump_query(
     if( rc ){
       fprintf(p->out, "/****** ERROR: %s ******/\n", zErr);
     }else{
-      rc = SQLITE_CORRUPT;
+      rc = SQLITE4_CORRUPT;
     }
     sqlite4_free(0, zErr);
     free(zQ2);
@@ -1324,10 +1324,10 @@ static char zHelp[] =
   ".indices ?TABLE?       Show names of all indices\n"
   "                         If TABLE specified, only show indices for tables\n"
   "                         matching LIKE pattern TABLE.\n"
-#ifdef SQLITE_ENABLE_IOTRACE
+#ifdef SQLITE4_ENABLE_IOTRACE
   ".iotrace FILE          Enable I/O diagnostic logging to FILE\n"
 #endif
-#ifndef SQLITE_OMIT_LOAD_EXTENSION
+#ifndef SQLITE4_OMIT_LOAD_EXTENSION
   ".load FILE ?ENTRY?     Load an extension library\n"
 #endif
   ".log FILE|off          Turn logging on or off.  FILE can be stderr/stdout\n"
@@ -1373,16 +1373,16 @@ static void open_db(struct callback_data *p){
   if( p->db==0 ){
     sqlite4_open(0, p->zDbFilename, &p->db, 0);
     db = p->db;
-    if( db && sqlite4_errcode(db)==SQLITE_OK ){
-      sqlite4_create_function(db, "shellstatic", 0, SQLITE_UTF8, 0,
+    if( db && sqlite4_errcode(db)==SQLITE4_OK ){
+      sqlite4_create_function(db, "shellstatic", 0, SQLITE4_UTF8, 0,
           shellstaticFunc, 0, 0);
     }
-    if( db==0 || SQLITE_OK!=sqlite4_errcode(db) ){
+    if( db==0 || SQLITE4_OK!=sqlite4_errcode(db) ){
       fprintf(stderr,"Error: unable to open database \"%s\": %s\n", 
           p->zDbFilename, sqlite4_errmsg(db));
       exit(1);
     }
-#if 0 /*ndef SQLITE_OMIT_LOAD_EXTENSION*/
+#if 0 /*ndef SQLITE4_OMIT_LOAD_EXTENSION*/
     sqlite4_enable_load_extension(p->db, 1);
 #endif
   }
@@ -1717,12 +1717,12 @@ static int do_meta_command(char *zLine, struct callback_data *p){
           }
           z[k] = 0;
         }
-        sqlite4_bind_text(pStmt, i+1, azCol[i], -1, SQLITE_STATIC);
+        sqlite4_bind_text(pStmt, i+1, azCol[i], -1, SQLITE4_STATIC);
       }
       sqlite4_step(pStmt);
       rc = sqlite4_reset(pStmt);
       free(zLine);
-      if( rc!=SQLITE_OK ){
+      if( rc!=SQLITE4_OK ){
         fprintf(stderr,"Error: %s\n", sqlite4_errmsg(db));
         zCommit = "ROLLBACK";
         rc = 1;
@@ -1769,13 +1769,13 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       fprintf(stderr,"Error: %s\n", zErrMsg);
       sqlite4_free(0, zErrMsg);
       rc = 1;
-    }else if( rc != SQLITE_OK ){
+    }else if( rc != SQLITE4_OK ){
       fprintf(stderr,"Error: querying sqlite_master and sqlite_temp_master\n");
       rc = 1;
     }
   }else
 
-#ifdef SQLITE_ENABLE_IOTRACE
+#ifdef SQLITE4_ENABLE_IOTRACE
   if( c=='i' && strncmp(azArg[0], "iotrace", n)==0 ){
     extern void (*sqlite4IoTrace)(const char*, ...);
     if( iotrace && iotrace!=stdout ) fclose(iotrace);
@@ -1798,7 +1798,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   }else
 #endif
 
-#if 0 /*ndef SQLITE_OMIT_LOAD_EXTENSION*/
+#if 0 /*ndef SQLITE4_OMIT_LOAD_EXTENSION*/
   if( c=='l' && strncmp(azArg[0], "load", n)==0 && nArg>=2 ){
     const char *zFile, *zProc;
     char *zErrMsg = 0;
@@ -1806,7 +1806,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     zProc = nArg>=3 ? azArg[2] : 0;
     open_db(p);
     rc = sqlite4_load_extension(p->db, zFile, zProc, &zErrMsg);
-    if( rc!=SQLITE_OK ){
+    if( rc!=SQLITE4_OK ){
       fprintf(stderr, "Error: %s\n", zErrMsg);
       sqlite4_free(0, zErrMsg);
       rc = 1;
@@ -1950,7 +1950,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         new_colv[0] = "sql";
         new_colv[1] = 0;
         callback(&data, 1, new_argv, new_colv);
-        rc = SQLITE_OK;
+        rc = SQLITE4_OK;
       }else if( strcmp(azArg[1],"sqlite_temp_master")==0 ){
         char *new_argv[2], *new_colv[2];
         new_argv[0] = "CREATE TEMP TABLE sqlite_temp_master (\n"
@@ -1964,7 +1964,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         new_colv[0] = "sql";
         new_colv[1] = 0;
         callback(&data, 1, new_argv, new_colv);
-        rc = SQLITE_OK;
+        rc = SQLITE4_OK;
       }else{
         zShellStatic = azArg[1];
         rc = sqlite4_exec(p->db,
@@ -1993,7 +1993,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       fprintf(stderr,"Error: %s\n", zErrMsg);
       sqlite4_free(0, zErrMsg);
       rc = 1;
-    }else if( rc != SQLITE_OK ){
+    }else if( rc != SQLITE4_OK ){
       fprintf(stderr,"Error: querying schema information\n");
       rc = 1;
     }else{
@@ -2046,7 +2046,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         " WHERE type IN ('table','view')"
         "   AND name NOT LIKE 'sqlite_%%'"
         "   AND name LIKE ?1");
-    while( sqlite4_step(pStmt)==SQLITE_ROW ){
+    while( sqlite4_step(pStmt)==SQLITE4_ROW ){
       const char *zDbName = (const char*)sqlite4_column_text(pStmt, 1);
       if( zDbName==0 || strcmp(zDbName,"main")==0 ) continue;
       if( strcmp(zDbName,"temp")==0 ){
@@ -2073,11 +2073,11 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     nRow = nAlloc = 0;
     azResult = 0;
     if( nArg>1 ){
-      sqlite4_bind_text(pStmt, 1, azArg[1], -1, SQLITE_TRANSIENT);
+      sqlite4_bind_text(pStmt, 1, azArg[1], -1, SQLITE4_TRANSIENT);
     }else{
-      sqlite4_bind_text(pStmt, 1, "%", -1, SQLITE_STATIC);
+      sqlite4_bind_text(pStmt, 1, "%", -1, SQLITE4_STATIC);
     }
-    while( sqlite4_step(pStmt)==SQLITE_ROW ){
+    while( sqlite4_step(pStmt)==SQLITE4_ROW ){
       if( nRow>=nAlloc ){
         char **azNew;
         int n = nAlloc*2 + 10;
@@ -2121,11 +2121,11 @@ static int do_meta_command(char *zLine, struct callback_data *p){
        const char *zCtrlName;   /* Name of a test-control option */
        int ctrlCode;            /* Integer code for that option */
     } aCtrl[] = {
-      { "fault_install",         SQLITE_TESTCTRL_FAULT_INSTALL          },
-      { "assert",                SQLITE_TESTCTRL_ASSERT                 },
-      { "always",                SQLITE_TESTCTRL_ALWAYS                 },
-      { "optimizations",         SQLITE_TESTCTRL_OPTIMIZATIONS          },
-      { "iskeyword",             SQLITE_TESTCTRL_ISKEYWORD              },
+      { "fault_install",         SQLITE4_TESTCTRL_FAULT_INSTALL          },
+      { "assert",                SQLITE4_TESTCTRL_ASSERT                 },
+      { "always",                SQLITE4_TESTCTRL_ALWAYS                 },
+      { "optimizations",         SQLITE4_TESTCTRL_OPTIMIZATIONS          },
+      { "iskeyword",             SQLITE4_TESTCTRL_ISKEYWORD              },
     };
     int testctrl = -1;
     int rc = 0;
@@ -2147,14 +2147,14 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       }
     }
     if( testctrl<0 ) testctrl = atoi(azArg[1]);
-    if( (testctrl<SQLITE_TESTCTRL_FIRST) || (testctrl>SQLITE_TESTCTRL_LAST) ){
+    if( (testctrl<SQLITE4_TESTCTRL_FIRST) || (testctrl>SQLITE4_TESTCTRL_LAST) ){
       fprintf(stderr,"Error: invalid testctrl option: %s\n", azArg[1]);
     }else{
       switch(testctrl){
 
         /* sqlite4_test_control(int, db, int) */
-        case SQLITE_TESTCTRL_OPTIMIZATIONS:
-        case SQLITE_TESTCTRL_RESERVE:             
+        case SQLITE4_TESTCTRL_OPTIMIZATIONS:
+        case SQLITE4_TESTCTRL_RESERVE:             
           if( nArg==3 ){
             int opt = (int)strtol(azArg[2], 0, 0);        
             rc = sqlite4_test_control(testctrl, p->db, opt);
@@ -2166,8 +2166,8 @@ static int do_meta_command(char *zLine, struct callback_data *p){
           break;
 
         /* sqlite4_test_control(int, int) */
-        case SQLITE_TESTCTRL_ASSERT:              
-        case SQLITE_TESTCTRL_ALWAYS:              
+        case SQLITE4_TESTCTRL_ASSERT:              
+        case SQLITE4_TESTCTRL_ALWAYS:              
           if( nArg==3 ){
             int opt = atoi(azArg[2]);        
             rc = sqlite4_test_control(testctrl, opt);
@@ -2179,8 +2179,8 @@ static int do_meta_command(char *zLine, struct callback_data *p){
           break;
 
         /* sqlite4_test_control(int, char *) */
-#ifdef SQLITE_N_KEYWORD
-        case SQLITE_TESTCTRL_ISKEYWORD:           
+#ifdef SQLITE4_N_KEYWORD
+        case SQLITE4_TESTCTRL_ISKEYWORD:           
           if( nArg==3 ){
             const char *opt = azArg[2];        
             rc = sqlite4_test_control(testctrl, opt);
@@ -2192,7 +2192,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
           break;
 #endif
 
-        case SQLITE_TESTCTRL_FAULT_INSTALL:       
+        case SQLITE4_TESTCTRL_FAULT_INSTALL:       
         default:
           fprintf(stderr,"Error: CLI support for testctrl %s not implemented\n",
                   azArg[1]);
@@ -2533,7 +2533,7 @@ static const char zOptions[] =
   "   -stats               print memory stats before each finalize\n"
   "   -nullvalue 'text'    set text string for NULL values\n"
   "   -version             show SQLite version\n"
-#ifdef SQLITE_ENABLE_MULTIPLEX
+#ifdef SQLITE4_ENABLE_MULTIPLEX
   "   -multiplex           enable the multiplexor VFS\n"
 #endif
 ;
@@ -2558,10 +2558,10 @@ static void main_init(struct callback_data *data) {
   data->mode = MODE_List;
   memcpy(data->separator,"|", 2);
   data->showHeader = 0;
-  sqlite4_env_config(0, SQLITE_ENVCONFIG_LOG, shellLog, data);
+  sqlite4_env_config(0, SQLITE4_ENVCONFIG_LOG, shellLog, data);
   sqlite4_snprintf(mainPrompt,sizeof(mainPrompt),        "sqlite> ");
   sqlite4_snprintf(continuePrompt,sizeof(continuePrompt),"   ...> ");
-  sqlite4_env_config(0, SQLITE_ENVCONFIG_SINGLETHREAD);
+  sqlite4_env_config(0, SQLITE4_ENVCONFIG_SINGLETHREAD);
 }
 
 int main(int argc, char **argv){
@@ -2572,9 +2572,9 @@ int main(int argc, char **argv){
   int i;
   int rc = 0;
 
-  if( strcmp(sqlite4_sourceid(),SQLITE_SOURCE_ID)!=0 ){
+  if( strcmp(sqlite4_sourceid(),SQLITE4_SOURCE_ID)!=0 ){
     fprintf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
-            sqlite4_sourceid(), SQLITE_SOURCE_ID);
+            sqlite4_sourceid(), SQLITE4_SOURCE_ID);
     exit(1);
   }
   Argv0 = argv[0];
@@ -2610,7 +2610,7 @@ int main(int argc, char **argv){
     }else if( strcmp(argv[i],"-batch")==0 ){
       stdin_is_interactive = 0;
     }else if( strcmp(argv[i],"-heap")==0 ){
-#if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
+#if defined(SQLITE4_ENABLE_MEMSYS3) || defined(SQLITE4_ENABLE_MEMSYS5)
       int j, c;
       const char *zSize;
       sqlite4_int64 szHeap;
@@ -2623,9 +2623,9 @@ int main(int argc, char **argv){
         if( c=='G' ){ szHeap *= 1000000000; break; }
       }
       if( szHeap>0x7fff0000 ) szHeap = 0x7fff0000;
-      sqlite4_config(0,SQLITE_CONFIG_HEAP, malloc((int)szHeap),(int)szHeap,64);
+      sqlite4_config(0,SQLITE4_CONFIG_HEAP, malloc((int)szHeap),(int)szHeap,64);
 #endif
-#ifdef SQLITE_ENABLE_MULTIPLEX
+#ifdef SQLITE4_ENABLE_MULTIPLEX
     }else if( strcmp(argv[i],"-multiplex")==0 ){
       extern int sqlite4_multiple_initialize(const char*,int);
       sqlite4_multiplex_initialize(0, 1);
@@ -2633,13 +2633,13 @@ int main(int argc, char **argv){
     }
   }
   if( i<argc ){
-#if defined(SQLITE_OS_OS2) && SQLITE_OS_OS2
+#if defined(SQLITE4_OS_OS2) && SQLITE4_OS_OS2
     data.zDbFilename = (const char *)convertCpPathToUtf8( argv[i++] );
 #else
     data.zDbFilename = argv[i++];
 #endif
   }else{
-#ifndef SQLITE_OMIT_MEMORYDB
+#ifndef SQLITE4_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";
 #else
     data.zDbFilename = 0;
@@ -2661,7 +2661,7 @@ int main(int argc, char **argv){
   }
   data.out = stdout;
 
-#ifdef SQLITE_OMIT_MEMORYDB
+#ifdef SQLITE4_OMIT_MEMORYDB
   if( data.zDbFilename==0 ){
     fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
     return 1;
@@ -2744,7 +2744,7 @@ int main(int argc, char **argv){
       stdin_is_interactive = 0;
     }else if( strcmp(z,"-heap")==0 ){
       i++;
-#ifdef SQLITE_ENABLE_MULTIPLEX
+#ifdef SQLITE4_ENABLE_MULTIPLEX
     }else if( strcmp(z,"-multiplex")==0 ){
       i++;
 #endif

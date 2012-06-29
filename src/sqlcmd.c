@@ -45,7 +45,7 @@ static void sqlcmd_content(
   if( rid==0 ) return;
   if( content_get(rid, &cx) ){
     sqlite4_result_blob(context, blob_buffer(&cx), blob_size(&cx), 
-                                 SQLITE_TRANSIENT);
+                                 SQLITE4_TRANSIENT);
     blob_reset(&cx);
   }
 }
@@ -73,7 +73,7 @@ static void sqlcmd_compress(
   pOut[2] = nIn>>8 & 0xff;
   pOut[3] = nIn & 0xff;
   compress(&pOut[4], &nOut, pIn, nIn);
-  sqlite4_result_blob(context, pOut, nOut+4, SQLITE_DYNAMIC);
+  sqlite4_result_blob(context, pOut, nOut+4, SQLITE4_DYNAMIC);
 }
 
 /*
@@ -98,7 +98,7 @@ static void sqlcmd_decompress(
   pOut = sqlite4_malloc(0, nOut+1);
   rc = uncompress(pOut, &nOut, &pIn[4], nIn-4);
   if( rc==Z_OK ){
-    sqlite4_result_blob(context, pOut, nOut, SQLITE_DYNAMIC);
+    sqlite4_result_blob(context, pOut, nOut, SQLITE4_DYNAMIC);
   }else{
     sqlite4_result_error(context, "input is not zlib compressed", -1);
   }
@@ -114,13 +114,13 @@ static int sqlcmd_autoinit(
   const char **pzErrMsg,
   const void *notUsed
 ){
-  sqlite4_create_function(db, "content", 1, SQLITE_ANY, 0,
+  sqlite4_create_function(db, "content", 1, SQLITE4_ANY, 0,
                           sqlcmd_content, 0, 0);
-  sqlite4_create_function(db, "compress", 1, SQLITE_ANY, 0,
+  sqlite4_create_function(db, "compress", 1, SQLITE4_ANY, 0,
                           sqlcmd_compress, 0, 0);
-  sqlite4_create_function(db, "decompress", 1, SQLITE_ANY, 0,
+  sqlite4_create_function(db, "decompress", 1, SQLITE4_ANY, 0,
                           sqlcmd_decompress, 0, 0);
-  return SQLITE_OK;
+  return SQLITE4_OK;
 }
 
 

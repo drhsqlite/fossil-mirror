@@ -32,7 +32,7 @@ int uuid_is_shunned(const char *zUuid){
   db_bind_text(&q, ":uuid", zUuid);
   rc = db_step(&q);
   db_reset(&q);
-  return rc==SQLITE_ROW;
+  return rc==SQLITE4_ROW;
 }
 
 /*
@@ -166,7 +166,7 @@ void shun_page(void){
   db_prepare(&q, 
      "SELECT uuid, EXISTS(SELECT 1 FROM blob WHERE blob.uuid=shun.uuid)"
      "  FROM shun ORDER BY uuid");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int stillExists = db_column_int(&q, 1);
     cnt++;
@@ -196,7 +196,7 @@ void shun_artifacts(void){
   db_prepare(&q,
      "SELECT rid FROM delta WHERE srcid IN toshun"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int srcid = db_column_int(&q, 0);
     content_undelta(srcid);
   }
@@ -251,7 +251,7 @@ void rcvfromlist_page(void){
   @     <th style="padding-right: 15px;text-align: left;">User</th>
   @     <th style="text-align: left;">IP&nbsp;Address</th></tr>
   cnt = 0;
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rcvid = db_column_int(&q, 0);
     const char *zUser = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);
@@ -297,7 +297,7 @@ void rcvfrom_page(void){
   @ <table cellspacing="15" cellpadding="0" border="0">
   @ <tr><td valign="top" align="right"><b>rcvid:</b></td>
   @ <td valign="top">%d(rcvid)</td></tr>
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     const char *zUser = db_column_text(&q, 0);
     const char *zDate = db_column_text(&q, 1);
     const char *zIpAddr = db_column_text(&q, 2);
@@ -314,7 +314,7 @@ void rcvfrom_page(void){
   );
   @ <tr><td valign="top" align="right"><b>Artifacts:</b></td>
   @ <td valign="top">
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     int size = db_column_int(&q, 2);

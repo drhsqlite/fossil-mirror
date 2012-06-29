@@ -122,8 +122,8 @@ void stat_page(void){
   @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(COMPILER_NAME))
   @ </td></tr>
-  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
-  @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
+  @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE4_SOURCE_ID)
+  @ [%.10s(&SQLITE4_SOURCE_ID[20])] (%s(SQLITE4_VERSION))</td></tr>
   @ <tr><th>Database&nbsp;Stats:</th><td>
   zDb = db_name("repository");
   @ %d(db_int(0, "PRAGMA %s.page_count", zDb)) pages,

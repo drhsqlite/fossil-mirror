@@ -132,7 +132,7 @@ static cson_value * json_branch_list(){
   
   branch_prepare_list_query(&q, which);
   cson_object_set(pay,"branches",listV);
-  while((SQLITE_ROW==db_step(&q))){
+  while((SQLITE4_ROW==db_step(&q))){
     cson_value * v = cson_sqlite4_column_to_value(q.pStmt,0);
     if(v){
       cson_array_append(list,v);
@@ -278,7 +278,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
       "   AND tagtype>0 AND tagname GLOB 'sym-*'"
       " ORDER BY tagname",
       rootid);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zTag = db_column_text(&q, 0);
     blob_appendf(&branch, "T -%F *\n", zTag);
   }

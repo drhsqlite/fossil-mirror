@@ -966,7 +966,7 @@ void manifest_test_parse_cmd(void){
   Blob b;
   int i;
   int n = 1;
-  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);
+  sqlite4_open(0, ":memory:", &g.db, SQLITE4_OPEN_READWRITE);
   if( g.argc!=3 && g.argc!=4 ){
     usage("FILENAME");
   }
@@ -1090,7 +1090,7 @@ static int filename_to_fnid(const char *zFilename){
   db_static_prepare(&q1, "SELECT fnid FROM filename WHERE name=:fn");
   db_bind_text(&q1, ":fn", zFilename);
   fnid = 0;
-  if( db_step(&q1)==SQLITE_ROW ){
+  if( db_step(&q1)==SQLITE4_ROW ){
     fnid = db_column_int(&q1, 0);
   }
   db_reset(&q1);
@@ -1285,7 +1285,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
   db_bind_int(&eq, ":mid", cid);
   rc = db_step(&eq);
   db_reset(&eq);
-  if( rc==SQLITE_ROW ) return;
+  if( rc==SQLITE4_ROW ) return;
 
   /* Compute the value of the missing pParent or pChild parameter.
   ** Fetch the baseline checkins for both.
@@ -1448,7 +1448,7 @@ void manifest_crosslink_end(void){
   int i;
   assert( manifest_crosslink_busy==1 );
   db_prepare(&q, "SELECT uuid FROM pending_tkt");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     ticket_rebuild_entry(zUuid);
   }
@@ -1627,7 +1627,7 @@ int manifest_crosslink(int rid, Blob *pContent){
         }
       }
       db_prepare(&q, "SELECT cid FROM plink WHERE pid=%d AND isprim", rid);
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         int cid = db_column_int(&q, 0);
         add_mlink(rid, p, cid, 0);
       }

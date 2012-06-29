@@ -135,7 +135,7 @@ void setup_ulist(void){
      " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
      "ORDER BY 5, 2"
   );
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     int iLevel = db_column_int(&s, 4);
     const char *zCap = db_column_text(&s, 2);
     const char *zLogin = db_column_text(&s, 1);
@@ -1070,7 +1070,7 @@ void setup_login_group(void){
        " WHERE name GLOB 'peer-repo-*'"
        " ORDER BY value"
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zRepo = db_column_text(&q, 0);
       const char *zTitle = db_column_text(&q, 1);
       n++;
@@ -1592,7 +1592,7 @@ void sql_page(void){
     @ <hr />
     login_verify_csrf_secret();
     rc = sqlite4_prepare(g.db, zQ, -1, &pStmt, &zTail);
-    if( rc!=SQLITE_OK ){
+    if( rc!=SQLITE4_OK ){
       @ <div class="generalError">%h(sqlite4_errmsg(g.db))</div>
       sqlite4_finalize(pStmt);
     }else if( pStmt==0 ){
@@ -1605,7 +1605,7 @@ void sql_page(void){
       }
     }else{
       @ <table border=1>
-      while( sqlite4_step(pStmt)==SQLITE_ROW ){
+      while( sqlite4_step(pStmt)==SQLITE4_ROW ){
         if( nRow==0 ){
           @ <tr>
           for(i=0; i<nCol; i++){
@@ -1617,23 +1617,23 @@ void sql_page(void){
         @ <tr>
         for(i=0; i<nCol; i++){
           switch( sqlite4_column_type(pStmt, i) ){
-            case SQLITE_INTEGER:
-            case SQLITE_FLOAT: {
+            case SQLITE4_INTEGER:
+            case SQLITE4_FLOAT: {
                @ <td align="right" valign="top">
                @ %s(sqlite4_column_text(pStmt, i))</td>
                break;
             }
-            case SQLITE_NULL: {
+            case SQLITE4_NULL: {
                @ <td valign="top" align="center"><i>NULL</i></td>
                break;
             }
-            case SQLITE_TEXT: {
+            case SQLITE4_TEXT: {
                const char *zText = (const char*)sqlite4_column_text(pStmt, i);
                @ <td align="left" valign="top"
                @ style="white-space:pre;">%h(zText)</td>
                break;
             }
-            case SQLITE_BLOB: {
+            case SQLITE4_BLOB: {
                @ <td valign="top" align="center">
                @ <i>%d(sqlite4_column_bytes(pStmt, i))-byte BLOB</i></td>
                break;

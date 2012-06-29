@@ -201,9 +201,9 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
         zUuid, zType
       );
     }
-    if( db_step(&q)==SQLITE_ROW ){
+    if( db_step(&q)==SQLITE4_ROW ){
       rid = db_column_int(&q, 0);
-      if( db_step(&q)==SQLITE_ROW ) rid = -1;
+      if( db_step(&q)==SQLITE4_ROW ) rid = -1;
     }
     db_finalize(&q);
     if( rid ) return rid;
@@ -367,7 +367,7 @@ void ambiguous_page(void){
   z = mprintf("%s", zName);
   canonical16(z, strlen(z));
   db_prepare(&q, "SELECT uuid, rid FROM blob WHERE uuid GLOB '%q*'", z);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     int rid = db_column_int(&q, 1);
     @ <li><p><a href="%s(g.zTop)/%T(zSrc)/%S(zUuid)">
@@ -434,7 +434,7 @@ void whatis_cmd(void){
        " WHERE rid=%d"
        "   AND rcvfrom.rcvid=blob.rcvid",
        rid);
-    if( db_step(&q)==SQLITE_ROW ){
+    if( db_step(&q)==SQLITE4_ROW ){
       const char *zTagList = db_column_text(&q, 4);
       if( fExtra ){
         fossil_print("artifact: %s (%d)\n", db_column_text(&q,0), rid);
@@ -455,7 +455,7 @@ void whatis_cmd(void){
        "SELECT type, datetime(mtime,'localtime'),"
        "       coalesce(euser,user), coalesce(ecomment,comment)"
        "  FROM event WHERE objid=%d", rid);
-    if( db_step(&q)==SQLITE_ROW ){
+    if( db_step(&q)==SQLITE4_ROW ){
       const char *zType;
       switch( db_column_text(&q,0)[0] ){
         case 'c':  zType = "Check-in";       break;
@@ -481,7 +481,7 @@ void whatis_cmd(void){
       "   AND blob.rid=mlink.mid"
       " ORDER BY event.mtime DESC /*sort*/",
       rid);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       fossil_print("file:     %s\n", db_column_text(&q,0));
       fossil_print("          part of [%.10s] by %s on %s\n",
         db_column_text(&q, 1),

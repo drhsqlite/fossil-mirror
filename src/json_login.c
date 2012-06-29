@@ -241,7 +241,7 @@ cson_value * json_page_whoami(){
       db_prepare(&q, "SELECT login, cap FROM user WHERE uid=%d",
                  g.userUid);
   }
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
 
     /* reminder: we don't use g.zLogin because it's 0 for the guest
        user and the HTML UI appears to currently allow the name to be

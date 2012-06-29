@@ -162,7 +162,7 @@ PathNode *path_shortest(
     path.pCurrent = 0;
     while( pPrev ){
       db_bind_int(&s, ":pid", pPrev->rid);
-      while( db_step(&s)==SQLITE_ROW ){
+      while( db_step(&s)==SQLITE4_ROW ){
         int cid = db_column_int(&s, 0);
         int isParent = db_column_int(&s, 1);
         if( bag_find(&path.seen, cid) ) continue;
@@ -265,7 +265,7 @@ int path_common_ancestor(int iMe, int iYou){
     path.pCurrent = 0;
     while( pPrev ){
       db_bind_int(&s, ":cid", pPrev->rid);
-      while( db_step(&s)==SQLITE_ROW ){
+      while( db_step(&s)==SQLITE4_ROW ){
         int pid = db_column_int(&s, 0);
         if( bag_find(pPrev->isPrim ? &you : &me, pid) ){
           /* pid is the common ancestor */
@@ -400,7 +400,7 @@ void find_filename_changes(
       continue;
     }
     db_bind_int(&q1, ":mid", p->rid);
-    while( db_step(&q1)==SQLITE_ROW ){
+    while( db_step(&q1)==SQLITE4_ROW ){
       fnid = db_column_int(&q1, 1);
       pfnid = db_column_int(&q1, 0);
       if( pfnid==0 ){

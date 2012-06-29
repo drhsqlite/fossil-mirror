@@ -215,7 +215,7 @@ void wiki_page(void){
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC",
      zPageName);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zFile = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
@@ -670,7 +670,7 @@ void wcontent_page(void){
   }
   @ <ul>
   wiki_prepare_page_list(&q);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     int size = db_column_int(&q, 1);
     if( size>0 ){
@@ -702,7 +702,7 @@ void wfind_page(void){
     "SELECT substr(tagname, 6, 1000) FROM tag WHERE tagname like 'wiki-%%%q%%'"
     " ORDER BY lower(tagname) /*sort*/" ,
 	zTitle);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     @ <li>%z(href("%R/wiki?name=%T",zName))%h(zName)</a></li>
   }
@@ -971,7 +971,7 @@ void wiki_cmd(void){
       "SELECT substr(tagname, 6) FROM tag WHERE tagname GLOB 'wiki-*'"
       " ORDER BY lower(tagname) /*sort*/"
     );
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zName = db_column_text(&q, 0);
       fossil_print( "%s\n",zName);
     }

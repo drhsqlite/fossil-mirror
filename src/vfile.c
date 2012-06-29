@@ -36,7 +36,7 @@ int fast_uuid_to_rid(const char *zUuid){
   int rid;
   db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
   db_bind_text(&q, ":uuid", zUuid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     rid = db_column_int(&q, 0);
   }else{
     rid = 0;
@@ -101,7 +101,7 @@ void load_vfile_from_rid(int vid){
   while( (pFile = manifest_file_next(p,0))!=0 ){
     if( pFile->zUuid==0 || uuid_is_shunned(pFile->zUuid) ) continue;
     db_bind_text(&ridq, ":uuid", pFile->zUuid);
-    if( db_step(&ridq)==SQLITE_ROW ){
+    if( db_step(&ridq)==SQLITE4_ROW ){
       rid = db_column_int(&ridq, 0);
       size = db_column_int(&ridq, 0);
     }else{
@@ -163,7 +163,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
                  "       vfile.mrid, deleted, chnged, uuid, size, mtime"
                  "  FROM vfile LEFT JOIN blob ON vfile.mrid=blob.rid"
                  " WHERE vid=%d ", g.zLocalRoot, vid);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int id, rid, isDeleted;
     const char *zName;
     int chnged = 0;
@@ -262,7 +262,7 @@ void vfile_to_disk(
                    " WHERE id=%d AND mrid>0",
                    g.zLocalRoot, id);
   }
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int id, rid, isExe, isLink;
     const char *zName;
 
@@ -327,7 +327,7 @@ void vfile_unlink(int vid){
   Stmt q;
   db_prepare(&q, "SELECT %Q || pathname FROM vfile"
                  " WHERE vid=%d AND mrid>0", g.zLocalRoot, vid);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName;
 
     zName = db_column_text(&q, 0);
@@ -483,7 +483,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
       g.zLocalRoot, vid
   );
   md5sum_init();
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zFullpath = db_column_text(&q, 0);
     const char *zName = db_column_text(&q, 1);
     int isSelected = db_column_int(&q, 3);
@@ -573,7 +573,7 @@ void vfile_compare_repository_to_disk(int vid){
       g.zLocalRoot, vid
   );
   md5sum_init();
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zFullpath = db_column_text(&q, 0);
     const char *zName = db_column_text(&q, 1);
     int rid = db_column_int(&q, 2);
@@ -639,7 +639,7 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
                  vid);
   blob_zero(&file);
   md5sum_init();
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zOrigName = db_column_text(&q, 1);
     int rid = db_column_int(&q, 2);

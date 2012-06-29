@@ -5315,15 +5315,15 @@ cson_value * cson_sqlite4_column_to_value( sqlite4_stmt * st, int col )
 #endif
         switch( vtype )
         {
-          case SQLITE_NULL:
+          case SQLITE4_NULL:
               return cson_value_null();
-          case SQLITE_INTEGER:
+          case SQLITE4_INTEGER:
               /* FIXME: for large integers fall back to Double instead. */
               return cson_value_new_integer( (cson_int_t) sqlite4_column_int64(st, col)  );
-          case SQLITE_FLOAT:
+          case SQLITE4_FLOAT:
               return cson_value_new_double( sqlite4_column_double(st, col) );
-          case SQLITE_BLOB: /* arguably fall through... */
-          case SQLITE_TEXT: {
+          case SQLITE4_BLOB: /* arguably fall through... */
+          case SQLITE4_TEXT: {
               char const * str = (char const *)sqlite4_column_text(st,col);
               return cson_value_new_string(str, str ? strlen(str) : 0);
           }
@@ -5532,7 +5532,7 @@ static int cson_sqlite4_stmt_to_json_fat( sqlite4_stmt * st, cson_value ** tgt )
         }
         rows = cson_value_get_array(rowsV);
         assert(rows);
-        while( SQLITE_ROW == sqlite4_step(st) )
+        while( SQLITE4_ROW == sqlite4_step(st) )
         {
             objV = cson_sqlite4_row_to_object2(st, cols);
             if( ! objV ) RETURN(cson_rc.UnknownError);
@@ -5593,7 +5593,7 @@ static int cson_sqlite4_stmt_to_json_slim( sqlite4_stmt * st, cson_value ** tgt 
         }
         rows = cson_value_get_array(rowsV);
         assert(rows);
-        while( SQLITE_ROW == sqlite4_step(st) )
+        while( SQLITE4_ROW == sqlite4_step(st) )
         {
             aryV = cson_sqlite4_row_to_array(st);
             if( ! aryV ) RETURN(cson_rc.UnknownError);
@@ -5671,17 +5671,17 @@ int cson_sqlite4_bind_value( sqlite4_stmt * st, int ndx, cson_value const * v )
         rc = sqlite4_bind_text( st, ndx,
                                 cson_string_cstr(s),
                                 cson_string_length_bytes(s),
-                                SQLITE_TRANSIENT);
+                                SQLITE4_TRANSIENT);
         convertErr = 1;
     }
     else {
         rc = cson_rc.TypeError;
     }
     if(convertErr && rc) switch(rc){
-      case SQLITE_TOOBIG:
-      case SQLITE_RANGE: rc = cson_rc.RangeError; break;
-      case SQLITE_NOMEM: rc = cson_rc.AllocError; break;
-      case SQLITE_IOERR: rc = cson_rc.IOError; break;
+      case SQLITE4_TOOBIG:
+      case SQLITE4_RANGE: rc = cson_rc.RangeError; break;
+      case SQLITE4_NOMEM: rc = cson_rc.AllocError; break;
+      case SQLITE4_IOERR: rc = cson_rc.IOError; break;
       default: rc = cson_rc.UnknownError; break;
     };
     return rc;

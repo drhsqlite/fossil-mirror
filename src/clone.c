@@ -44,7 +44,7 @@ void fix_private_blob_dependencies(int showWarning){
     " WHERE srcid in private AND rid NOT IN private"
   );
   bag_init(&toUndelta);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     const char *zId = db_column_text(&q, 1);
     int srcid = db_column_int(&q, 2);

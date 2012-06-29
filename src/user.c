@@ -228,7 +228,7 @@ void user_cmd(void){
   }else if( n>=2 && strncmp(g.argv[2],"list",n)==0 ){
     Stmt q;
     db_prepare(&q, "SELECT login, info FROM user ORDER BY login");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       fossil_print("%-12s %s\n", db_column_text(&q, 0), db_column_text(&q, 1));
     }
     db_finalize(&q);
@@ -332,7 +332,7 @@ void user_select(void){
     "SELECT uid, login FROM user"
     " WHERE login NOT IN ('anonymous','nobody','reader','developer')"
   );
-  if( db_step(&s)==SQLITE_ROW ){
+  if( db_step(&s)==SQLITE4_ROW ){
     g.userUid = db_column_int(&s, 0);
     g.zLogin = mprintf("%s", db_column_text(&s, 1));
   }
@@ -340,7 +340,7 @@ void user_select(void){
 
   if( g.userUid==0 ){
     db_prepare(&s, "SELECT uid, login FROM user");
-    if( db_step(&s)==SQLITE_ROW ){
+    if( db_step(&s)==SQLITE4_ROW ){
       g.userUid = db_column_int(&s, 0);
       g.zLogin = mprintf("%s", db_column_text(&s, 1));
     }
@@ -370,7 +370,7 @@ void user_select(void){
 void user_hash_passwords_cmd(void){
   if( g.argc!=3 ) usage("REPOSITORY");
   db_open_repository(g.argv[2]);
-  sqlite4_create_function(g.db, "shared_secret", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "shared_secret", 2, SQLITE4_UTF8, 0,
                           sha1_shared_secret_sql_function, 0, 0);
   db_multi_exec(
     "UPDATE user SET pw=shared_secret(pw,login), mtime=now()"
@@ -441,7 +441,7 @@ void access_log_page(void){
   @ <center><table border="1" cellpadding="5">
   @ <tr><th width="33%%">Date</th><th width="34%%">User</th>
   @ <th width="33%%">IP Address</th></tr>
-  while( rc==SQLITE_OK && db_step(&q)==SQLITE_ROW ){
+  while( rc==SQLITE4_OK && db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zIP = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);

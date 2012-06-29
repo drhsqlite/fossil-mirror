@@ -84,7 +84,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
      "VALUES(%d,:rid,:isadd,:isrm,:isexe,:islink,:orig,:new,:content)",
      stashid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int deleted = db_column_int(&q, 0);
     int rid = db_column_int(&q, 3);
     const char *zName = db_column_text(&q, 4);
@@ -187,7 +187,7 @@ static void stash_apply(int stashid, int nConflict){
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isExec = db_column_int(&q, 2);
@@ -278,7 +278,7 @@ static void stash_diff(int stashid, const char *zDiffCmd, int diffFlags){
      "  FROM stashfile WHERE stashid=%d",
      stashid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isLink = db_column_int(&q, 3);
@@ -434,7 +434,7 @@ void stash_cmd(void){
       int i = 2;
       Stmt q;
       db_prepare(&q,"SELECT origname FROM stashfile WHERE stashid=%d", stashid);
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         newArgv[i++] = mprintf("%s%s", g.zLocalRoot, db_column_text(&q, 0));
       }
       db_finalize(&q);
@@ -463,7 +463,7 @@ void stash_cmd(void){
       db_prepare(&q2, "SELECT isAdded, isRemoved, origname, newname"
                       "  FROM stashfile WHERE stashid=$id");
     }
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       int stashid = db_column_int(&q, 0);
       const char *zCom;
       n++;
@@ -479,7 +479,7 @@ void stash_cmd(void){
       }
       if( fDetail ){
         db_bind_int(&q2, "$id", stashid);
-        while( db_step(&q2)==SQLITE_ROW ){
+        while( db_step(&q2)==SQLITE4_ROW ){
           int isAdded = db_column_int(&q2, 0);
           int isRemoved = db_column_int(&q2, 1);
           const char *zOrig = db_column_text(&q2, 2);

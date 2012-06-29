@@ -120,7 +120,7 @@ void verify_all_cmd(void){
   int cnt = 0;
   db_must_be_within_tree();
   db_prepare(&q, "SELECT rid FROM blob");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     verify_before_commit(rid);
     cnt++;

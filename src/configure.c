@@ -198,7 +198,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
   Stmt q;
   if( fossil_strcmp(zName, "@shun")==0 ){
     db_prepare(&q, "SELECT uuid FROM shun");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n", 
         db_column_text(&q, 0)
       );
@@ -206,7 +206,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     db_finalize(&q);
   }else if( fossil_strcmp(zName, "@reportfmt")==0 ){
     db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
                          " VALUES(%Q,%Q,%Q);\n", 
         db_column_text(&q, 0),
@@ -219,7 +219,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     db_prepare(&q, 
         "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
         "       cap, info, quote(photo) FROM user");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(pOut, "INSERT INTO _xfer_user(login,pw,cap,info,photo)"
                          " VALUES(%Q,%Q,%Q,%Q,%s);\n",
         db_column_text(&q, 0),
@@ -232,7 +232,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     db_finalize(&q);
   }else if( fossil_strcmp(zName, "@concealed")==0 ){
     db_prepare(&q, "SELECT hash, content FROM concealed");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(pOut, "INSERT OR IGNORE INTO concealed(hash,content)"
                          " VALUES(%Q,%Q);\n",
         db_column_text(&q, 0),
@@ -337,9 +337,9 @@ void configure_prepare_to_receive(int replaceFlag){
       @   SELECT config_reset(8);
       @ END;
     ;
-    sqlite4_create_function(g.db, "config_is_reset", 1, SQLITE_UTF8, 0,
+    sqlite4_create_function(g.db, "config_is_reset", 1, SQLITE4_UTF8, 0,
          config_is_reset_function, 0, 0);
-    sqlite4_create_function(g.db, "config_reset", 1, SQLITE_UTF8, 0,
+    sqlite4_create_function(g.db, "config_reset", 1, SQLITE4_UTF8, 0,
          config_reset_function, 0, 0);
     configHasBeenReset = 0;
     db_multi_exec(zSQL2);
@@ -608,7 +608,7 @@ int configure_send_group(
   if( groupMask & CONFIGSET_SHUN ){
     db_prepare(&q, "SELECT mtime, quote(uuid), quote(scom) FROM shun"
                    " WHERE mtime>=%lld", iStart);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(&rec,"%s %s scom %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
@@ -625,7 +625,7 @@ int configure_send_group(
     db_prepare(&q, "SELECT mtime, quote(login), quote(pw), quote(cap),"
                    "       quote(info), quote(photo) FROM user"
                    " WHERE mtime>=%lld", iStart);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(&rec,"%s %s pw %s cap %s info %s photo %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
@@ -645,7 +645,7 @@ int configure_send_group(
     db_prepare(&q, "SELECT mtime, quote(title), quote(owner), quote(cols),"
                    "       quote(sqlcode) FROM reportfmt"
                    " WHERE mtime>=%lld", iStart);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(&rec,"%s %s owner %s cols %s sqlcode %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
@@ -663,7 +663,7 @@ int configure_send_group(
   if( groupMask & CONFIGSET_ADDR ){
     db_prepare(&q, "SELECT mtime, quote(hash), quote(content) FROM concealed"
                    " WHERE mtime>=%lld", iStart);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(&rec,"%s %s content %s",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
@@ -681,7 +681,7 @@ int configure_send_group(
   for(ii=0; ii<count(aConfig); ii++){
     if( (aConfig[ii].groupMask & groupMask)!=0 && aConfig[ii].zName[0]!='@' ){
       db_bind_text(&q, ":name", aConfig[ii].zName);
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         blob_appendf(&rec,"%s %s value %s",
           db_column_text(&q, 0),
           db_column_text(&q, 1),

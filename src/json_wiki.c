@@ -453,7 +453,7 @@ static cson_value * json_wiki_list(){
   blob_reset(&sql);
   listV = cson_value_new_array();
   list = cson_value_get_array(listV);
-  while( SQLITE_ROW == db_step(&q) ){
+  while( SQLITE4_ROW == db_step(&q) ){
     cson_value * v;
     if( verbose ){
       char const * name = db_column_text(&q,0);

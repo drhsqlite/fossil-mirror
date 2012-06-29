@@ -83,7 +83,7 @@ static void tag_propagate(
   }
   while( (pid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&s, ":pid", pid);
-    while( db_step(&s)==SQLITE_ROW ){
+    while( db_step(&s)==SQLITE4_ROW ){
       int doit = db_column_int(&s, 2);
       if( doit ){
         int cid = db_column_int(&s, 0);
@@ -122,7 +122,7 @@ void tag_propagate_all(int pid){
      " WHERE rid=%d",
      pid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int tagid = db_column_int(&q, 0);
     int tagtype = db_column_int(&q, 1);
     double mtime = db_column_double(&q, 2);
@@ -177,7 +177,7 @@ int tag_insert(
   db_bind_double(&s, ":mtime", mtime);
   rc = db_step(&s);
   db_finalize(&s);
-  if( rc==SQLITE_ROW ){
+  if( rc==SQLITE4_ROW ){
     /* Another entry that is more recent already exists.  Do nothing */
     return tagid;
   }
@@ -442,7 +442,7 @@ void tag_cmd(void){
         "   AND blob.rid=tagxref.rid",
         g.argv[3]
       );
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         fossil_print("%s\n", db_column_text(&q, 0));
       }
       db_finalize(&q);
@@ -476,7 +476,7 @@ void tag_cmd(void){
         "                 AND tagtype>0)"
         " ORDER BY tagname"
       );
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         const char *zName = db_column_text(&q, 0);
         if( fRaw ){
           fossil_print("%s\n", zName);
@@ -495,7 +495,7 @@ void tag_cmd(void){
         rid,
         fRaw ? -1 : 0
       );
-      while( db_step(&q)==SQLITE_ROW ){
+      while( db_step(&q)==SQLITE4_ROW ){
         const char *zName = db_column_text(&q, 0);
         const char *zValue = db_column_text(&q, 1);
         if( fRaw==0 ){
@@ -548,7 +548,7 @@ void taglist_page(void){
     " ORDER BY tagname"
   );
   @ <ul>
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
       @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))

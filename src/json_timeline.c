@@ -305,7 +305,7 @@ cson_value * json_get_changed_files(int rid){
            " ORDER BY name /*sort*/",
              rid
              );
-  while( (SQLITE_ROW == db_step(&q)) ){
+  while( (SQLITE4_ROW == db_step(&q)) ){
     cson_value * rowV = cson_value_new_object();
     cson_object * row = cson_value_get_object(rowV);
     int const isNew = db_column_int(&q,0);
@@ -465,7 +465,7 @@ static cson_value * json_timeline_ci(){
   list = cson_value_get_array(listV);
   tmp = listV;
   SET("timeline");
-  while( (SQLITE_ROW == db_step(&q) )){
+  while( (SQLITE4_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int const rid = db_column_int(&q,0);
     cson_value * rowV = json_artifact_for_ci(rid, showFiles);
@@ -617,7 +617,7 @@ static cson_value * json_timeline_ticket(){
   list = cson_value_get_array(listV);
   tmp = listV;
   SET("timeline");
-  while( (SQLITE_ROW == db_step(&q) )){
+  while( (SQLITE4_ROW == db_step(&q) )){
     /* convert each row into a JSON object...*/
     int rc;
     int const rid = db_column_int(&q,0);

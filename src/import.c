@@ -776,7 +776,7 @@ void git_import_cmd(void){
   if( !incrFlag ) db_initial_setup(0, 0, 1);
   git_fast_import(pIn);
   db_prepare(&q, "SELECT tcontent FROM xtag");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     Blob record;
     db_ephemeral_blob(&q, 0, &record);
     fast_insert_content(&record, 0, 0);

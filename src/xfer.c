@@ -59,7 +59,7 @@ static int rid_from_uuid(Blob *pUuid, int phantomize, int isPrivate){
 
   db_static_prepare(&q, "SELECT rid FROM blob WHERE uuid=:uuid");
   db_bind_str(&q, ":uuid", pUuid);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     rid = db_column_int(&q, 0);
   }else{
     rid = 0;
@@ -467,7 +467,7 @@ static void send_compressed_file(Xfer *pXfer, int rid){
   );
   db_bind_int(&q1, ":rid", rid);
   rc = db_step(&q1);
-  if( rc==SQLITE_ROW ){
+  if( rc==SQLITE4_ROW ){
     zUuid = db_column_text(&q1, 0);
     szU = db_column_int(&q1, 1);
     szC = db_column_bytes(&q1, 2);
@@ -516,7 +516,7 @@ static void request_phantoms(Xfer *pXfer, int maxReq){
     (pXfer->syncPrivate ? "" :
          "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)")
   );
-  while( db_step(&q)==SQLITE_ROW && maxReq-- > 0 ){
+  while( db_step(&q)==SQLITE4_ROW && maxReq-- > 0 ){
     const char *zUuid = db_column_text(&q, 0);
     blob_appendf(pXfer->pOut, "gimme %s\n", zUuid);
     pXfer->nGimmeSent++;
@@ -583,7 +583,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
      "   AND length(pw)>0",
      zLogin
   );
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     int szPw;
     Blob pw, combined, hash;
     blob_zero(&pw);
@@ -636,7 +636,7 @@ int check_login(Blob *pLogin, Blob *pNonce, Blob *pSig){
 static void send_unsent(Xfer *pXfer){
   Stmt q;
   db_prepare(&q, "SELECT rid FROM unsent EXCEPT SELECT rid FROM private");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     send_file(pXfer, rid, 0, 0);
   }
@@ -678,7 +678,7 @@ void create_cluster(void){
                    "   AND unclustered.rid=blob.rid"
                    "   AND NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
                    " ORDER BY 1");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(&cluster, "M %s\n", db_column_text(&q, 0));
       nRow++;
       if( nRow>=800 && nUncl>nRow+100 ){
@@ -716,7 +716,7 @@ static int send_private(Xfer *pXfer){
   Stmt q;
   if( pXfer->syncPrivate ){
     db_prepare(&q, "SELECT uuid FROM private JOIN blob USING(rid)");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       blob_appendf(pXfer->pOut, "igot %s 1\n", db_column_text(&q,0));
       cnt++;
     }
@@ -738,7 +738,7 @@ static int send_unclustered(Xfer *pXfer){
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
     "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
     cnt++;
   }
@@ -757,7 +757,7 @@ static void send_all(Xfer *pXfer){
     "   AND NOT EXISTS(SELECT 1 FROM private WHERE rid=blob.rid)"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=blob.rid)"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     blob_appendf(pXfer->pOut, "igot %s\n", db_column_text(&q, 0));
   }
   db_finalize(&q);

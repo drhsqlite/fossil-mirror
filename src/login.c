@@ -474,7 +474,7 @@ void login_page(void){
   const char *zIpAddr;         /* IP address of requestor */
 
   login_check_credentials();
-  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE4_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
   zUsername = P("u");
   zPasswd = P("p");
@@ -697,10 +697,10 @@ static int login_transfer_credentials(
   );
   if( zOtherRepo==0 ) return 0;  /* No such peer repository */
 
-  rc = sqlite4_open(0, zOtherRepo, &pOther, SQLITE_OPEN_READWRITE);
-  if( rc==SQLITE_OK ){
-    sqlite4_create_function(pOther,"now",0,SQLITE_ANY,0,db_now_function,0,0);
-    sqlite4_create_function(pOther, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+  rc = sqlite4_open(0, zOtherRepo, &pOther, SQLITE4_OPEN_READWRITE);
+  if( rc==SQLITE4_OK ){
+    sqlite4_create_function(pOther,"now",0,SQLITE4_ANY,0,db_now_function,0,0);
+    sqlite4_create_function(pOther, "constant_time_cmp", 2, SQLITE4_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
     zSQL = mprintf(
       "SELECT cexpire FROM user"
@@ -714,7 +714,7 @@ static int login_transfer_credentials(
     );
     pStmt = 0;
     rc = sqlite4_prepare(pOther, zSQL, -1, &pStmt, 0);
-    if( rc==SQLITE_OK && sqlite4_step(pStmt)==SQLITE_ROW ){
+    if( rc==SQLITE4_OK && sqlite4_step(pStmt)==SQLITE4_ROW ){
       db_multi_exec(
         "UPDATE user SET cookie=%Q, ipaddr=%Q, cexpire=%.17g"
         " WHERE login=%Q",
@@ -780,7 +780,7 @@ void login_check_credentials(void){
   /* Only run this check once.  */
   if( g.userUid!=0 ) return;
 
-  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "constant_time_cmp", 2, SQLITE4_UTF8, 0,
 		  constant_time_cmp_function, 0, 0);
 
   /* If the HTTP connection is coming over 127.0.0.1 and if
@@ -888,7 +888,7 @@ void login_check_credentials(void){
   if( zCap==0 ){
     Stmt s;
     db_prepare(&s, "SELECT login, cap FROM user WHERE uid=%d", uid);
-    if( db_step(&s)==SQLITE_ROW ){
+    if( db_step(&s)==SQLITE4_ROW ){
       g.zLogin = db_column_malloc(&s, 0);
       zCap = db_column_malloc(&s, 1);
     }
@@ -1336,7 +1336,7 @@ int login_group_sql(
     " ORDER BY +value",
     zSelfCode
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
     if( file_size(zRepoName)<0 ){
       /* Silently remove non-existant repositories from the login group. */
@@ -1347,24 +1347,24 @@ int login_group_sql(
       );
       continue;
     }
-    rc = sqlite4_open(0, zRepoName, &pPeer, SQLITE_OPEN_READWRITE);
-    if( rc!=SQLITE_OK ){
+    rc = sqlite4_open(0, zRepoName, &pPeer, SQLITE4_OPEN_READWRITE);
+    if( rc!=SQLITE4_OK ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
                    sqlite4_errmsg(pPeer), zSuffix);
       nErr++;
       sqlite4_close(pPeer);
       continue;
     }
-    sqlite4_create_function(pPeer, "shared_secret", 3, SQLITE_UTF8,
+    sqlite4_create_function(pPeer, "shared_secret", 3, SQLITE4_UTF8,
                             0, sha1_shared_secret_sql_function, 0, 0);
-    sqlite4_create_function(pPeer, "now", 0,SQLITE_ANY,0,db_now_function,0,0);
+    sqlite4_create_function(pPeer, "now", 0,SQLITE4_ANY,0,db_now_function,0,0);
     zErr = 0;
     rc = sqlite4_exec(pPeer, zSql, 0, 0, &zErr);
     if( zErr ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName, zErr, zSuffix);
       sqlite4_free(0, zErr);
       nErr++;
-    }else if( rc!=SQLITE_OK ){
+    }else if( rc!=SQLITE4_OK ){
       blob_appendf(&err, "%s%s: %s%s", zPrefix, zRepoName,
                    sqlite4_errmsg(pPeer), zSuffix);
       nErr++;
@@ -1433,8 +1433,8 @@ void login_group_join(
     *pzErrMsg = mprintf("repository file \"%s\" does not exist", zRepo);
     return;
   }
-  rc = sqlite4_open(0, zRepo, &pOther, SQLITE_OPEN_READWRITE);
-  if( rc!=SQLITE_OK ){
+  rc = sqlite4_open(0, zRepo, &pOther, SQLITE4_OPEN_READWRITE);
+  if( rc!=SQLITE4_OK ){
     *pzErrMsg = mprintf(sqlite4_errmsg(pOther));
   }else{
     rc = sqlite4_exec(pOther, "SELECT count(*) FROM user", 0, 0, pzErrMsg);

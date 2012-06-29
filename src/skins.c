@@ -1136,7 +1136,7 @@ void setup_skin(void){
      " WHERE name GLOB 'skin:*'"
      " ORDER BY name"
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zN = db_column_text(&q, 0);
     const char *zV = db_column_text(&q, 1);
     if( fossil_strcmp(zV, zCurrent)==0 ){

@@ -278,7 +278,7 @@ int db_prepare_ignore_error(Stmt *pStmt, const char *zFormat, ...){
   return rc;
 }
 int db_static_prepare(Stmt *pStmt, const char *zFormat, ...){
-  int rc = SQLITE_OK;
+  int rc = SQLITE4_OK;
   if( blob_size(&pStmt->sql)==0 ){
     va_list ap;
     va_start(ap, zFormat);
@@ -316,14 +316,14 @@ int db_bind_double(Stmt *pStmt, const char *zParamName, double rValue){
 }
 int db_bind_text(Stmt *pStmt, const char *zParamName, const char *zValue){
   return sqlite4_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName), zValue,
-                           -1, SQLITE_STATIC);
+                           -1, SQLITE4_STATIC);
 }
 int db_bind_null(Stmt *pStmt, const char *zParamName){
   return sqlite4_bind_null(pStmt->pStmt, paramIdx(pStmt, zParamName));
 }
 int db_bind_blob(Stmt *pStmt, const char *zParamName, Blob *pBlob){
   return sqlite4_bind_blob(pStmt->pStmt, paramIdx(pStmt, zParamName),
-                          blob_buffer(pBlob), blob_size(pBlob), SQLITE_STATIC);
+                          blob_buffer(pBlob), blob_size(pBlob), SQLITE4_STATIC);
 }
 
 /* bind_str() treats a Blob object like a TEXT string and binds it
@@ -332,12 +332,12 @@ int db_bind_blob(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 */
 int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
   return sqlite4_bind_text(pStmt->pStmt, paramIdx(pStmt, zParamName),
-                          blob_buffer(pBlob), blob_size(pBlob), SQLITE_STATIC);
+                          blob_buffer(pBlob), blob_size(pBlob), SQLITE4_STATIC);
 }
 
 /*
-** Step the SQL statement.  Return either SQLITE_ROW or an error code
-** or SQLITE_OK if the statement finishes successfully.
+** Step the SQL statement.  Return either SQLITE4_ROW or an error code
+** or SQLITE4_OK if the statement finishes successfully.
 */
 int db_step(Stmt *pStmt){
   int rc;
@@ -354,9 +354,9 @@ static void db_stats(Stmt *pStmt){
   int c1, c2, c3;
   const char *zSql = sqlite4_sql(pStmt->pStmt);
   if( zSql==0 ) return;
-  c1 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_FULLSCAN_STEP, 1);
-  c2 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_AUTOINDEX, 1);
-  c3 = sqlite4_stmt_status(pStmt->pStmt, SQLITE_STMTSTATUS_SORT, 1);
+  c1 = sqlite4_stmt_status(pStmt->pStmt, SQLITE4_STMTSTATUS_FULLSCAN_STEP, 1);
+  c2 = sqlite4_stmt_status(pStmt->pStmt, SQLITE4_STMTSTATUS_AUTOINDEX, 1);
+  c3 = sqlite4_stmt_status(pStmt->pStmt, SQLITE4_STMTSTATUS_SORT, 1);
   if( c1>pStmt->nStep*4 && strstr(zSql,"/*scan*/")==0 ){
     fossil_warning("%d scan steps for %d rows in [%s]", c1, pStmt->nStep, zSql);
   }else if( c2 ){
@@ -461,11 +461,11 @@ void db_ephemeral_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 
 /*
-** Check a result code.  If it is not SQLITE_OK, print the
+** Check a result code.  If it is not SQLITE4_OK, print the
 ** corresponding error message and exit.
 */
 void db_check_result(int rc){
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     db_err("SQL error: %s", sqlite4_errmsg(g.db));
   }
 }
@@ -475,7 +475,7 @@ void db_check_result(int rc){
 */
 int db_exec(Stmt *pStmt){
   int rc;
-  while( (rc = db_step(pStmt))==SQLITE_ROW ){}
+  while( (rc = db_step(pStmt))==SQLITE4_ROW ){}
   rc = db_reset(pStmt);
   db_check_result(rc);
   return rc;
@@ -494,7 +494,7 @@ int db_multi_exec(const char *zSql, ...){
   blob_vappendf(&sql, zSql, ap);
   va_end(ap);
   rc = sqlite4_exec(g.db, blob_buffer(&sql), 0, 0, &zErr);
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     db_err("%s\n%s", zErr, blob_buffer(&sql));
   }
   blob_reset(&sql);
@@ -525,7 +525,7 @@ i64 db_int64(i64 iDflt, const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)!=SQLITE_ROW ){
+  if( db_step(&s)!=SQLITE4_ROW ){
     rc = iDflt;
   }else{
     rc = db_column_int64(&s, 0);
@@ -540,7 +540,7 @@ int db_int(int iDflt, const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)!=SQLITE_ROW ){
+  if( db_step(&s)!=SQLITE4_ROW ){
     rc = iDflt;
   }else{
     rc = db_column_int(&s, 0);
@@ -560,7 +560,7 @@ int db_exists(const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)!=SQLITE_ROW ){
+  if( db_step(&s)!=SQLITE4_ROW ){
     rc = 0;
   }else{
     rc = 1;
@@ -580,7 +580,7 @@ double db_double(double rDflt, const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)!=SQLITE_ROW ){
+  if( db_step(&s)!=SQLITE4_ROW ){
     r = rDflt;
   }else{
     r = db_column_double(&s, 0);
@@ -599,7 +599,7 @@ void db_blob(Blob *pResult, const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)==SQLITE_ROW ){
+  if( db_step(&s)==SQLITE4_ROW ){
     blob_append(pResult, sqlite4_column_blob(s.pStmt, 0),
                          sqlite4_column_bytes(s.pStmt, 0));
   }
@@ -619,7 +619,7 @@ char *db_text(char const *zDefault, const char *zSql, ...){
   va_start(ap, zSql);
   db_vprepare(&s, 0, zSql, ap);
   va_end(ap);
-  if( db_step(&s)==SQLITE_ROW ){
+  if( db_step(&s)==SQLITE4_ROW ){
     z = mprintf("%s", sqlite4_column_text(s.pStmt, 0));
   }else if( zDefault ){
     z = mprintf("%s", zDefault);
@@ -645,19 +645,19 @@ void db_init_database(
   va_list ap;
 
   rc = sqlite4_open(0, zFileName, &db,
-                    SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE);
-  if( rc!=SQLITE_OK ){
+                    SQLITE4_OPEN_READWRITE|SQLITE4_OPEN_CREATE);
+  if( rc!=SQLITE4_OK ){
     db_err(sqlite4_errmsg(db));
   }
   sqlite4_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite4_exec(db, zSchema, 0, 0, 0);
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     db_err(sqlite4_errmsg(db));
   }
   va_start(ap, zSchema);
   while( (zSql = va_arg(ap, const char*))!=0 ){
     rc = sqlite4_exec(db, zSql, 0, 0, 0);
-    if( rc!=SQLITE_OK ){
+    if( rc!=SQLITE4_OK ){
       db_err(sqlite4_errmsg(db));
     }
   }
@@ -691,12 +691,12 @@ static sqlite4 *openDatabase(const char *zDbName){
   zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite4_open(0,
        zDbName, &db,
-       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE
+       SQLITE4_OPEN_READWRITE | SQLITE4_OPEN_CREATE
   );
-  if( rc!=SQLITE_OK ){
+  if( rc!=SQLITE4_OK ){
     db_err(sqlite4_errmsg(db));
   }
-  sqlite4_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
+  sqlite4_create_function(db, "now", 0, SQLITE4_ANY, 0, db_now_function, 0, 0);
   return db;
 }
 
@@ -1099,25 +1099,25 @@ void db_close(int reportErrors){
   if( g.db==0 ) return;
   if( g.fSqlStats ){
     int cur, hiwtr;
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- LOOKASIDE_USED         %10d %10d\n", cur, hiwtr);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_HIT, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_LOOKASIDE_HIT, &cur, &hiwtr, 0);
     fprintf(stderr, "-- LOOKASIDE_HIT                     %10d\n", hiwtr);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_SIZE, &cur,&hiwtr,0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_LOOKASIDE_MISS_SIZE, &cur,&hiwtr,0);
     fprintf(stderr, "-- LOOKASIDE_MISS_SIZE               %10d\n", hiwtr);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_MISS_FULL, &cur,&hiwtr,0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_LOOKASIDE_MISS_FULL, &cur,&hiwtr,0);
     fprintf(stderr, "-- LOOKASIDE_MISS_FULL               %10d\n", hiwtr);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_CACHE_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- CACHE_USED             %10d\n", cur);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_SCHEMA_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- SCHEMA_USED            %10d\n", cur);
-    sqlite4_db_status(g.db, SQLITE_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
+    sqlite4_db_status(g.db, SQLITE4_DBSTATUS_STMT_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- STMT_USED              %10d\n", cur);
-    sqlite4_env_status(0, SQLITE_ENVSTATUS_MEMORY_USED, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE4_ENVSTATUS_MEMORY_USED, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MEMORY_USED            %10d %10d\n", cur, hiwtr);
-    sqlite4_env_status(0, SQLITE_ENVSTATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE4_ENVSTATUS_MALLOC_SIZE, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MALLOC_SIZE                       %10d\n", hiwtr);
-    sqlite4_env_status(0, SQLITE_ENVSTATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
+    sqlite4_env_status(0, SQLITE4_ENVSTATUS_MALLOC_COUNT, &cur, &hiwtr, 0);
     fprintf(stderr, "-- MALLOC_COUNT           %10d %10d\n", cur, hiwtr);
     fprintf(stderr, "-- prepared statements    %10d\n", db.nPrepare);
   }
@@ -1335,7 +1335,7 @@ static void db_sql_user(
   sqlite4_value **argv
 ){
   if( g.zLogin!=0 ){
-    sqlite4_result_text(context, g.zLogin, -1, SQLITE_STATIC);
+    sqlite4_result_text(context, g.zLogin, -1, SQLITE4_STATIC);
   }
 }
 
@@ -1350,10 +1350,10 @@ static void db_sql_cgi(sqlite4_context *context, int argc, sqlite4_value **argv)
   if( argc!=1 && argc!=2 ) return;
   zP = P((const char*)sqlite4_value_text(argv[0]));
   if( zP ){
-    sqlite4_result_text(context, zP, -1, SQLITE_STATIC);
+    sqlite4_result_text(context, zP, -1, SQLITE4_STATIC);
   }else if( argc==2 ){
     zP = (const char*)sqlite4_value_text(argv[1]);
-    if( zP ) sqlite4_result_text(context, zP, -1, SQLITE_TRANSIENT);
+    if( zP ) sqlite4_result_text(context, zP, -1, SQLITE4_TRANSIENT);
   }
 }
 
@@ -1469,15 +1469,15 @@ char *db_reveal(const char *zKey){
 */
 LOCAL void db_connection_init(void){
   sqlite4_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-  sqlite4_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-  sqlite4_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite4_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite4_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite4_create_function(g.db, "user", 0, SQLITE4_ANY, 0, db_sql_user, 0, 0);
+  sqlite4_create_function(g.db, "cgi", 1, SQLITE4_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite4_create_function(g.db, "cgi", 2, SQLITE4_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite4_create_function(g.db, "print", -1, SQLITE4_UTF8, 0,db_sql_print,0,0);
   sqlite4_create_function(
-    g.db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+    g.db, "is_selected", 1, SQLITE4_UTF8, 0, file_is_selected,0,0
   );
   sqlite4_create_function(
-    g.db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
+    g.db, "if_selected", 3, SQLITE4_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ){
     sqlite4_trace(g.db, db_sql_trace, 0);
@@ -1676,14 +1676,14 @@ int db_get_int(const char *zName, int dflt){
     Stmt q;
     db_prepare(&q, "SELECT value FROM config WHERE name=%Q", zName);
     rc = db_step(&q);
-    if( rc==SQLITE_ROW ){
+    if( rc==SQLITE4_ROW ){
       v = db_column_int(&q, 0);
     }
     db_finalize(&q);
   }else{
-    rc = SQLITE_DONE;
+    rc = SQLITE4_DONE;
   }
-  if( rc==SQLITE_DONE && g.configOpen ){
+  if( rc==SQLITE4_DONE && g.configOpen ){
     db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1862,7 +1862,7 @@ static void print_setting(const struct stControlSettings *ctrlSetting, int local
       ctrlSetting->name
     );
   }
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     fossil_print("%-20s %-8s %s\n", ctrlSetting->name, db_column_text(&q, 0),
         db_column_text(&q, 1));
   }else{
@@ -2197,7 +2197,7 @@ char *db_timespan_name(double rSpan){
 void test_timespan_cmd(void){
   double rDiff;
   if( g.argc!=3 ) usage("TIMESTAMP");
-  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);  
+  sqlite4_open(0, ":memory:", &g.db, SQLITE4_OPEN_READWRITE);  
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite4_close(g.db);

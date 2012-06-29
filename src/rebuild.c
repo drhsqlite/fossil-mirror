@@ -235,7 +235,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
     db_static_prepare(&q1, "SELECT rid FROM delta WHERE srcid=:rid");
     db_bind_int(&q1, ":rid", rid);
     bag_init(&children);
-    while( db_step(&q1)==SQLITE_ROW ){
+    while( db_step(&q1)==SQLITE4_ROW ){
       int cid = db_column_int(&q1, 0);
       if( !bag_find(&bagDone, cid) ){
         bag_insert(&children, cid);
@@ -273,7 +273,7 @@ static void rebuild_step(int rid, int size, Blob *pBase){
       int sz;
       db_static_prepare(&q2, "SELECT content, size FROM blob WHERE rid=:rid");
       db_bind_int(&q2, ":rid", cid);
-      if( db_step(&q2)==SQLITE_ROW && (sz = db_column_int(&q2,1))>=0 ){
+      if( db_step(&q2)==SQLITE4_ROW && (sz = db_column_int(&q2,1))>=0 ){
         Blob delta, next;
         db_ephemeral_blob(&q2, 0, &delta);
         blob_uncompress(&delta, &delta);
@@ -385,7 +385,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );
   manifest_crosslink_begin();
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){
@@ -399,7 +399,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
      "SELECT rid, size FROM blob"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
   );
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){
@@ -449,7 +449,7 @@ static void extra_deltification(void){
      " ORDER BY event.mtime DESC"
   );
   topid = previd = 0;
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     rid = db_column_int(&q, 0);
     if( topid==0 ){
       topid = previd = rid;
@@ -471,7 +471,7 @@ static void extra_deltification(void){
      " ORDER BY mlink.fnid, plink.mtime DESC"
   );
   prevfnid = 0;
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     rid = db_column_int(&q, 0);
     fnid = db_column_int(&q, 1);
     if( prevfnid!=fnid ){
@@ -699,7 +699,7 @@ void test_clusters_cmd(void){
     "SELECT rid FROM unclustered WHERE rid IN"
     " (SELECT rid FROM tagxref WHERE tagid=%d)", TAG_CLUSTER
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     bag_insert(&pending, db_column_int(&q, 0));
   }
   db_finalize(&q);
@@ -736,7 +736,7 @@ void test_clusters_cmd(void){
   }else{
     fossil_print("%d unreachable artifacts:\n", n);
     db_prepare(&q, "SELECT rid, uuid FROM blob WHERE rid NOT IN xdone");
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       fossil_print("  %3d %s\n", db_column_int(&q,0), db_column_text(&q,1));
     }
     db_finalize(&q);
@@ -994,7 +994,7 @@ void deconstruct_cmd(void){
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
      "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
   );
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){
@@ -1008,7 +1008,7 @@ void deconstruct_cmd(void){
      "SELECT rid, size FROM blob"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
   );
-  while( db_step(&s)==SQLITE_ROW ){
+  while( db_step(&s)==SQLITE4_ROW ){
     int rid = db_column_int(&s, 0);
     int size = db_column_int(&s, 1);
     if( size>=0 ){

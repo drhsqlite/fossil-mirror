@@ -428,7 +428,7 @@ void test_tarball_cmd(void){
   if( g.argc<3 ){
     usage("ARCHIVE FILE....");
   }
-  sqlite4_open(0, ":memory:", &g.db, SQLITE_OPEN_READWRITE);
+  sqlite4_open(0, ":memory:", &g.db, SQLITE4_OPEN_READWRITE);
   tar_begin(0);
   for(i=3; i<g.argc; i++){
     blob_zero(&file);

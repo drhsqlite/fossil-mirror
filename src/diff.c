@@ -1777,7 +1777,7 @@ static void annotate_file(
     fnid,
     iLimit>0 ? iLimit : 10000000
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int pid = db_column_int(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
     const char *zDate = db_column_text(&q, 2);

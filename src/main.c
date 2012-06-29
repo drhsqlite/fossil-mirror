@@ -420,7 +420,7 @@ int main(int argc, char **argv){
   g.tcl.interp = 0;
 #endif
 
-  sqlite4_env_config(0, SQLITE_ENVCONFIG_LOG, fossil_sqlite_log, 0);
+  sqlite4_env_config(0, SQLITE4_ENVCONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
   g.argc = argc;
@@ -732,28 +732,28 @@ void fossil_binary_mode(FILE *p){
 static const char *sqlite_error_code_name(int iCode){
   static char zCode[30];
   switch( iCode & 0xff ){
-    case SQLITE_OK:         return "SQLITE_OK";
-    case SQLITE_ERROR:      return "SQLITE_ERROR";
-    case SQLITE_PERM:       return "SQLITE_PERM";
-    case SQLITE_ABORT:      return "SQLITE_ABORT";
-    case SQLITE_BUSY:       return "SQLITE_BUSY";
-    case SQLITE_NOMEM:      return "SQLITE_NOMEM";
-    case SQLITE_READONLY:   return "SQLITE_READONLY";
-    case SQLITE_INTERRUPT:  return "SQLITE_INTERRUPT";
-    case SQLITE_IOERR:      return "SQLITE_IOERR";
-    case SQLITE_CORRUPT:    return "SQLITE_CORRUPT";
-    case SQLITE_FULL:       return "SQLITE_FULL";
-    case SQLITE_CANTOPEN:   return "SQLITE_CANTOPEN";
-    case SQLITE_PROTOCOL:   return "SQLITE_PROTOCOL";
-    case SQLITE_EMPTY:      return "SQLITE_EMPTY";
-    case SQLITE_SCHEMA:     return "SQLITE_SCHEMA";
-    case SQLITE_CONSTRAINT: return "SQLITE_CONSTRAINT";
-    case SQLITE_MISMATCH:   return "SQLITE_MISMATCH";
-    case SQLITE_MISUSE:     return "SQLITE_MISUSE";
-    case SQLITE_NOLFS:      return "SQLITE_NOLFS";
-    case SQLITE_FORMAT:     return "SQLITE_FORMAT";
-    case SQLITE_RANGE:      return "SQLITE_RANGE";
-    case SQLITE_NOTADB:     return "SQLITE_NOTADB";
+    case SQLITE4_OK:         return "SQLITE4_OK";
+    case SQLITE4_ERROR:      return "SQLITE4_ERROR";
+    case SQLITE4_PERM:       return "SQLITE4_PERM";
+    case SQLITE4_ABORT:      return "SQLITE4_ABORT";
+    case SQLITE4_BUSY:       return "SQLITE4_BUSY";
+    case SQLITE4_NOMEM:      return "SQLITE4_NOMEM";
+    case SQLITE4_READONLY:   return "SQLITE4_READONLY";
+    case SQLITE4_INTERRUPT:  return "SQLITE4_INTERRUPT";
+    case SQLITE4_IOERR:      return "SQLITE4_IOERR";
+    case SQLITE4_CORRUPT:    return "SQLITE4_CORRUPT";
+    case SQLITE4_FULL:       return "SQLITE4_FULL";
+    case SQLITE4_CANTOPEN:   return "SQLITE4_CANTOPEN";
+    case SQLITE4_PROTOCOL:   return "SQLITE4_PROTOCOL";
+    case SQLITE4_EMPTY:      return "SQLITE4_EMPTY";
+    case SQLITE4_SCHEMA:     return "SQLITE4_SCHEMA";
+    case SQLITE4_CONSTRAINT: return "SQLITE4_CONSTRAINT";
+    case SQLITE4_MISMATCH:   return "SQLITE4_MISMATCH";
+    case SQLITE4_MISUSE:     return "SQLITE4_MISUSE";
+    case SQLITE4_NOLFS:      return "SQLITE4_NOLFS";
+    case SQLITE4_FORMAT:     return "SQLITE4_FORMAT";
+    case SQLITE4_RANGE:      return "SQLITE4_RANGE";
+    case SQLITE4_NOTADB:     return "SQLITE4_NOTADB";
     default: {
       sqlite4_snprintf(zCode, sizeof(zCode), "error code %d",iCode);
     }

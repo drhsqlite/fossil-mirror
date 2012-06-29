@@ -51,7 +51,7 @@ static void getAllTicketFields(void){
   int i;
   if( nField>0 ) return;
   db_prepare(&q, "PRAGMA table_info(ticket)");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zField = db_column_text(&q, 1);
     if( strncmp(zField,"tkt_",4)==0 ) continue;
     if( nField%10==0 ){
@@ -105,7 +105,7 @@ static void initializeVariablesFromDb(void){
   zName = PD("name","-none-");
   db_prepare(&q, "SELECT datetime(tkt_mtime,'localtime') AS tkt_datetime, *"
                  "  FROM ticket WHERE tkt_uuid GLOB '%q*'", zName);
-  if( db_step(&q)==SQLITE_ROW ){
+  if( db_step(&q)==SQLITE4_ROW ){
     n = db_column_count(&q);
     for(i=0; i<n; i++){
       const char *zVal = db_column_text(&q, i);
@@ -133,7 +133,7 @@ static void initializeVariablesFromDb(void){
     if( Th_Fetch("tkt_uuid",&size)==0 ){
       Th_Store("tkt_uuid",zName);
     }
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zField = db_column_text(&q, 1);
       if( Th_Fetch(zField, &size)==0 ){
         Th_Store(zField, "");
@@ -222,7 +222,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
      "DELETE FROM ticket WHERE tkt_uuid=%Q", zTktUuid
   );
   db_prepare(&q, "SELECT rid FROM tagxref WHERE tagid=%d ORDER BY mtime",tagid);
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     int rid = db_column_int(&q, 0);
     pTicket = manifest_get(rid, CFTYPE_TICKET);
     if( pTicket ){
@@ -278,7 +278,7 @@ void ticket_rebuild(void){
   ticket_create_table(1);
   db_begin_transaction();
   db_prepare(&q,"SELECT tagname FROM tag WHERE tagname GLOB 'tkt-*'");
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zName = db_column_text(&q, 0);
     int len;
     zName += 4;
@@ -345,7 +345,7 @@ void tktview_page(void){
        " WHERE isLatest AND src!='' AND target=%Q"
        " ORDER BY mtime DESC",
        zFullName);
-    while( db_step(&q)==SQLITE_ROW ){
+    while( db_step(&q)==SQLITE4_ROW ){
       const char *zDate = db_column_text(&q, 0);
       const char *zFile = db_column_text(&q, 1);
       const char *zUser = db_column_text(&q, 2);
@@ -628,17 +628,17 @@ char *ticket_schema_check(const char *zSchema){
   char *zErr = 0;
   int rc;
   sqlite4 *db;
-  rc = sqlite4_open(0, ":memory:", &db, SQLITE_OPEN_READWRITE);
-  if( rc==SQLITE_OK ){
+  rc = sqlite4_open(0, ":memory:", &db, SQLITE4_OPEN_READWRITE);
+  if( rc==SQLITE4_OK ){
     rc = sqlite4_exec(db, zSchema, 0, 0, &zErr);
-    if( rc!=SQLITE_OK ){
+    if( rc!=SQLITE4_OK ){
       sqlite4_close(db);
       return zErr;
     }
     rc = sqlite4_exec(db, "SELECT tkt_id, tkt_uuid, tkt_mtime FROM ticket",
                       0, 0, 0);
     sqlite4_close(db);
-    if( rc!=SQLITE_OK ){
+    if( rc!=SQLITE4_OK ){
       zErr = mprintf("schema fails to define a valid ticket table "
                      "containing all required fields");
       return zErr;
@@ -769,7 +769,7 @@ void tkthistory_page(void){
     " ORDER BY 1 DESC",
     tagid, tagid
   );
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     Manifest *pTicket;
     char zShort[12];
     const char *zDate = db_column_text(&q, 0);
@@ -1044,7 +1044,7 @@ void ticket_cmd(void){
             " ORDER BY 1 DESC",
             tagid, tagid
           );
-          while( db_step(&q)==SQLITE_ROW ){
+          while( db_step(&q)==SQLITE4_ROW ){
             Manifest *pTicket;
             char zShort[12];
             const char *zDate = db_column_text(&q, 0);

@@ -102,7 +102,7 @@ static cson_value * json_page_dir_list(){
   nD = zD ? strlen(zD)+1 : 0;
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
 
-  sqlite4_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
+  sqlite4_create_function(g.db, "pathelement", 2, SQLITE4_UTF8, 0,
                           pathelementFunc, 0, 0);
 
   /* Compute the temporary table "localfiles" containing the names
@@ -242,7 +242,7 @@ static cson_value * json_page_dir_list(){
     cson_object_set( zPayload, "checkin", json_new_string(zUuid) );
   }
 
-  while( (SQLITE_ROW==db_step(&q)) ){
+  while( (SQLITE4_ROW==db_step(&q)) ){
     cson_value * name = NULL;
     char const * n = db_column_text(&q,0);
     char const isDir = ('/'==*n);

@@ -119,7 +119,7 @@ cson_value * json_page_finfo(){
   }
   checkins = cson_new_array();
   cson_object_set(pay, "checkins", cson_array_value(checkins));
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     cson_object * row = cson_new_object();
     int const isNew = db_column_int(&q,9);
     int const isDel = db_column_int(&q,10);

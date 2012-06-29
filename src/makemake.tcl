@@ -276,18 +276,18 @@ foreach s [lsort $src] {
 
 
 writeln "\$(OBJDIR)/sqlite4.o:\t\$(SRCDIR)/sqlite4.c"
-set opt {-DSQLITE_OMIT_LOAD_EXTENSION=1}
-append opt " -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4"
-#append opt " -DSQLITE_ENABLE_FTS3=1"
-append opt " -DSQLITE_ENABLE_STAT3"
+set opt {-DSQLITE4_OMIT_LOAD_EXTENSION=1}
+append opt " -DSQLITE4_THREADSAFE=0 -DSQLITE4_DEFAULT_FILE_FORMAT=4"
+#append opt " -DSQLITE4_ENABLE_FTS3=1"
+append opt " -DSQLITE4_ENABLE_STAT3"
 append opt " -Dlocaltime=fossil_localtime"
-append opt " -DSQLITE_ENABLE_LOCKING_STYLE=0"
-set SQLITE_OPTIONS $opt
+append opt " -DSQLITE4_ENABLE_LOCKING_STYLE=0"
+set SQLITE4_OPTIONS $opt
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite4.c -o \$(OBJDIR)/sqlite4.o\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite4.h"
 set opt {-Dmain=sqlite4_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
+append opt " -DSQLITE4_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -607,7 +607,7 @@ foreach s [lsort $src] {
 
 
 writeln "\$(OBJDIR)/sqlite4.o:\t\$(SRCDIR)/sqlite4.c"
-set opt $SQLITE_OPTIONS
+set opt $SQLITE4_OPTIONS
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite4.c -o \$(OBJDIR)/sqlite4.o\n"
 
 set opt {}
@@ -617,7 +617,7 @@ writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite4.h"
 set opt {-Dmain=sqlite4_shell}
-append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
+append opt " -DSQLITE4_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
@@ -672,7 +672,7 @@ BCC    = $(DMDIR)\bin\dmc $(CFLAGS)
 TCC    = $(DMDIR)\bin\dmc $(CFLAGS) $(DMCDEF) $(SSL) $(INCL)
 LIBS   = $(DMDIR)\extra\lib\ zlib wsock32 advapi32
 }
-writeln "SQLITE_OPTIONS = $SQLITE_OPTIONS\n"
+writeln "SQLITE4_OPTIONS = $SQLITE4_OPTIONS\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -725,10 +725,10 @@ version$E: $B\src\mkversion.c
 	$(BCC) -o$@ $**
 
 $(OBJDIR)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) -o$@ -c -Dmain=sqlite4_shell $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c -Dmain=sqlite4_shell $(SQLITE4_OPTIONS) $**
 
 $(OBJDIR)\sqlite4$O : $(SRCDIR)\sqlite4.c
-	$(TCC) -o$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) -o$@ -c $(SQLITE4_OPTIONS) $**
 
 $(OBJDIR)\th$O : $(SRCDIR)\th.c
 	$(TCC) -o$@ -c $**
@@ -837,8 +837,8 @@ TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
-regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
-writeln "SQLITE_OPTIONS = $MSC_SQLITE_OPTIONS\n"
+regsub -all {[-]D} $SQLITE4_OPTIONS {/D} MSC_SQLITE4_OPTIONS
+writeln "SQLITE4_OPTIONS = $MSC_SQLITE4_OPTIONS\n"
 writeln -nonewline "SRC   = "
 foreach s [lsort $src] {
   writeln -nonewline "${s}_.c "
@@ -885,10 +885,10 @@ mkversion$E: $B\src\mkversion.c
 	$(BCC) $**
 
 $(OX)\shell$O : $(SRCDIR)\shell.c
-	$(TCC) /Fo$@ /Dmain=sqlite4_shell $(SQLITE_OPTIONS) -c $(SRCDIR)\shell.c
+	$(TCC) /Fo$@ /Dmain=sqlite4_shell $(SQLITE4_OPTIONS) -c $(SRCDIR)\shell.c
 
 $(OX)\sqlite4$O : $(SRCDIR)\sqlite4.c
-	$(TCC) /Fo$@ -c $(SQLITE_OPTIONS) $**
+	$(TCC) /Fo$@ -c $(SQLITE4_OPTIONS) $**
 
 $(OX)\th$O : $(SRCDIR)\th.c
 	$(TCC) /Fo$@ -c $**
@@ -1042,13 +1042,13 @@ UTILS_SRC=$(foreach uf,$(UTILS),$(SRCDIR)$(uf:.exe=.c))
 SQLITESRC=sqlite4.c
 ORIGSQLITESRC=$(foreach sf,$(SQLITESRC),$(SRCDIR)$(sf))
 SQLITEOBJ=$(foreach sf,$(SQLITESRC),$(sf:.c=.obj))
-SQLITEDEFINES=-DSQLITE_OMIT_LOAD_EXTENSION=1 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE_ENABLE_LOCKING_STYLE=0
+SQLITEDEFINES=-DSQLITE4_OMIT_LOAD_EXTENSION=1 -DSQLITE4_THREADSAFE=0 -DSQLITE4_DEFAULT_FILE_FORMAT=4 -Dlocaltime=fossil_localtime -DSQLITE4_ENABLE_LOCKING_STYLE=0
 
 # define the sqlite shell files, which need special flags on compile
 SQLITESHELLSRC=shell.c
 ORIGSQLITESHELLSRC=$(foreach sf,$(SQLITESHELLSRC),$(SRCDIR)$(sf))
 SQLITESHELLOBJ=$(foreach sf,$(SQLITESHELLSRC),$(sf:.c=.obj))
-SQLITESHELLDEFINES=-Dmain=sqlite4_shell -DSQLITE_OMIT_LOAD_EXTENSION=1
+SQLITESHELLDEFINES=-Dmain=sqlite4_shell -DSQLITE4_OMIT_LOAD_EXTENSION=1
 
 # define the th scripting files, which need special flags on compile
 THSRC=th.c th_lang.c

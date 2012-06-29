@@ -61,7 +61,7 @@ void attachlist_page(void){
   }
   blob_appendf(&sql, " ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_str(&sql));
-  while( db_step(&q)==SQLITE_ROW ){
+  while( db_step(&q)==SQLITE4_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zSrc = db_column_text(&q, 1);
     const char *zTarget = db_column_text(&q, 2);
