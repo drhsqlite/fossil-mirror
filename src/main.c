@@ -1338,7 +1338,7 @@ static void process_one_web_page(const char *zNotFound){
   ** mode at this point (namely, for GET mode we don't know but POST
   ** we do), so we snoop g.zPath and cheat a bit.
   */
-  if( g.zPath && (0==strcmp("json",g.zPath)) ){
+  if( !g.json.isJsonMode && g.zPath && (0==strncmp("json",g.zPath,4)) ){
     g.json.isJsonMode = 1;
   }
 #endif
