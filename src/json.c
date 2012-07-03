@@ -934,8 +934,7 @@ int json_string_split( char const * zStr,
         char * zPart = NULL;
         ++rc;
         assert( head != p );
-        zPart = (char*)malloc(len+1);
-        assert( (zPart != NULL) && "malloc failure" );
+        zPart = (char*)fossil_malloc(len+1);
         memcpy(zPart, head, len);
         zPart[len] = 0;
         if(doDeHttp){
@@ -959,7 +958,7 @@ int json_string_split( char const * zStr,
             */
             ;
         }
-        free(zPart);
+        fossil_free(zPart);
         len = 0;
       }
       if( !*p ){
