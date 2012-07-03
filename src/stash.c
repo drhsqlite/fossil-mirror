@@ -218,7 +218,7 @@ static void stash_apply(int stashid, int nConflict){
       }
       content_get(rid, &a);
       blob_delta_apply(&a, &delta, &b);
-      if( blob_compare(&disk, &a)==0 && isLink == isNewLink ){
+      if( isLink == isNewLink && blob_compare(&disk, &a)==0 ){
         if( isLink || isNewLink ){
           file_delete(zNPath);
         }
