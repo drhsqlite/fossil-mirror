@@ -991,17 +991,13 @@ int json_string_split( char const * zStr,
 cson_value * json_string_split2( char const * zStr,
                                  char separator,
                                  char doDeHttp ){
-  cson_value * v = cson_value_new_array();
-  cson_array * a = cson_value_get_array(v);
+  cson_array * a = cson_new_array();
   int rc = json_string_split( zStr, separator, doDeHttp, a );
-  if( 0 == rc ){
-    cson_value_free(v);
-    v = NULL;
-  }else if(rc<0){
-    cson_value_free(v);
-    v = NULL;
+  if( 0>=rc ){
+    cson_free_array(a);
+    a = NULL;
   }
-  return v;
+  return a ? cson_array_value(a) : NULL;
 }
 
 
@@ -1831,9 +1827,7 @@ cson_value * json_value_to_bool(cson_value const * zVal){
 **
 */
 cson_value * json_page_resultCodes(){
-    cson_value * listV = cson_value_new_array();
-    cson_array * list = cson_value_get_array(listV);
-    cson_value * objV = NULL;
+    cson_array * list = cson_new_array();
     cson_object * obj = NULL;
     cson_string * kRC;
     cson_string * kSymbol;
@@ -1844,12 +1838,12 @@ cson_value * json_page_resultCodes(){
     kSymbol = cson_new_string("cSymbol",7);
     kNumber = cson_new_string("number",6);
     kDesc = cson_new_string("description",11);
-#define C(K) objV = cson_value_new_object(); obj = cson_value_get_object(objV); \
+#define C(K) obj = cson_new_object(); \
     cson_object_set_s(obj, kRC, json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
     cson_object_set_s(obj, kSymbol, json_new_string("FSL_JSON_E_"#K) );             \
     cson_object_set_s(obj, kNumber, cson_value_new_integer(FSL_JSON_E_##K) );        \
     cson_object_set_s(obj, kDesc, json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
-    cson_array_append( list, objV ); obj = NULL; objV = NULL
+    cson_array_append( list, cson_object_value(obj) ); obj = NULL;
 
     C(GENERIC);
     C(INVALID_REQUEST);
@@ -1890,7 +1884,7 @@ cson_value * json_page_resultCodes(){
     C(DB_NOT_FOUND);
     C(DB_NOT_VALID);
 #undef C
-    return listV;
+    return cson_array_value(list);
 }
 
 

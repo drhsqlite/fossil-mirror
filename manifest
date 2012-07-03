@@ -1,5 +1,5 @@
-C Minor\simprovement\sto\sthe\s"are\swe\sin\sJSON\smode\sso\swe\scan\sdisable\sthe\sname\sparameter\shack?"\spre-check.
-D 2012-07-03T21:28:44.694
+C minor\scleanups\smade\spossible\sby\snewer\scson\sAPIs.
+D 2012-07-03T21:30:17.599
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,7 +97,7 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 1b1203be8d62f3cc30559f0c250086332af40eed
-F src/json.c b688e4776e6099f1061f5edd7367f35ff6f63f7a
+F src/json.c 7bdc00d988e28d4e097ff17d2fcd1328001dc299
 F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 75461b993e85b8000a4198bca39270835fc679bd
-R c86307f98bf3e2bc54339dacf6bfd127
+P 5ea759f9fe8e650f85000365dae5129fb30799a4
+R 5da156a2544a86042d0e3ec2353b5619
 U stephan
-Z e88f9edcebdd3e149a4e6f0400a3c41a
+Z 2adf18e253655a981056830e673188b1
