@@ -1,5 +1,5 @@
-C Minor\sinteral\sjson\srefactoring\smade\spossible\sby\srecent\scson\schanges.
-D 2012-07-05T19:24:25.285
+C Work\stoward\sgetting\sFossil\sto\sbe\sable\sto\ssync\sover\sIPV6.\s\sThis\scheck-in\ncompiles,\sbut\swe\sdo\snot\syet\shave\sa\sserver\sto\stest\sit\son.
+D 2012-07-05T21:25:26.870
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -92,7 +92,7 @@ F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
-F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
+F src/http_socket.c 49883508d5592000a83e1f71c7a1c0af2006681a
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
@@ -364,7 +364,10 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cde55bd7a3dc7c5eeb920ff085de1c72955aed1d
-R fa0cb3e130eef25312190f2c46c29ed5
-U stephan
-Z 9f448961304b17e10d9b3d4f30a75c8c
+P e40e79b7ab7b9f0fa6f85f95f97d5ae514c142de
+R 65dfd1a1da134cd73167a6a085a0061b
+T *branch * ipv6
+T *sym-ipv6 *
+T -sym-trunk *
+U drh
+Z 3c4e30d749056db7e3cd3530f9fce6f5

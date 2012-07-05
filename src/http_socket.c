@@ -138,42 +138,50 @@ void socket_close(void){
 */
 int socket_open(void){
   static struct sockaddr_in addr;  /* The server address */
-  static int addrIsInit = 0;       /* True once addr is initialized */
+  static int addrIsInit = 0;       /* True when initialized once */
+  static struct addrinfo *p = 0;   /* Succcessful open */
 
   socket_global_init();
   if( !addrIsInit ){
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(g.urlPort);
-    *(int*)&addr.sin_addr = inet_addr(g.urlName);
-    if( -1 == *(int*)&addr.sin_addr ){
-#ifndef FOSSIL_STATIC_LINK
-      struct hostent *pHost;
-      pHost = gethostbyname(g.urlName);
-      if( pHost!=0 ){
-        memcpy(&addr.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-      }else
-#endif
-      {
-        socket_set_errmsg("can't resolve host name: %s", g.urlName);
-        return 1;
-      }
+    struct addrinfo sHints;
+    int rc;
+    char zPort[30];
+    
+    memset(&sHints, 0, sizeof(sHints));
+    sHints.ai_family = AF_UNSPEC;
+    sHints.ai_socktype = SOCK_STREAM;
+    sHints.ai_flags = 0;
+    sHints.ai_protocol = 0;
+    sqlite3_snprintf(sizeof(zPort), zPort, "%d", g.urlPort);
+    rc = getaddrinfo(g.urlName, zPort, &sHints, &p);
+    if( rc!=0 ){
+      fossil_error("getaddrinfo: %s", gai_strerror(rc));
     }
     addrIsInit = 1;
+  }
 
-    /* Set the Global.zIpAddr variable to the server we are talking to.
-    ** This is used to populate the ipaddr column of the rcvfrom table,
-    ** if any files are received from the server.
-    */
-    g.zIpAddr = mprintf("%s", inet_ntoa(addr.sin_addr));
+  while( p ){
+    char zHost[NI_MAXHOST];
+    iSocket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+    if( iSocket<0 ){
+      p = p->ai_next;
+      continue;
+    }
+    if( connect(iSocket, p->ai_addr, p->ai_addrlen)<0 ){
+      p = p->ai_next;
+      socket_close();
+      continue;
+    }
+    p->ai_next = 0;
+    if( getnameinfo(p->ai_addr, p->ai_addrlen, zHost, sizeof(zHost),
+                    0, 0, NI_NUMERICHOST)==0 ){
+      g.zIpAddr = mprintf("%s", zHost);
+    }else{
+      fossil_fatal("cannot find numeric host IP address");
+    }
   }
-  iSocket = socket(AF_INET,SOCK_STREAM,0);
-  if( iSocket<0 ){
+  if( p==0 ){
     socket_set_errmsg("cannot create a socket");
-    return 1;
-  }
-  if( connect(iSocket,(struct sockaddr*)&addr,sizeof(addr))<0 ){
-    socket_set_errmsg("cannot connect to host %s:%d", g.urlName, g.urlPort);
-    socket_close();
     return 1;
   }
 #if !defined(_WIN32)
