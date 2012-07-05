@@ -177,7 +177,9 @@ static double endTimer(void){
 #define HAS_TIMER 0
 #endif
 
-
+/*
+** Returns true (non-0) if fossil appears to be running in JSON mode.
+*/
 char fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
 }
@@ -469,21 +471,22 @@ cson_value * json_getenv( char const * zKey ){
 */
 int json_getenv_int(char const * pKey, int dflt ){
   cson_value const * v = json_getenv(pKey);
-  if(!v){
-    return dflt;
-  }else if( cson_value_is_number(v) ){
-    return (int)cson_value_get_integer(v);
-  }else if( cson_value_is_string(v) ){
-    char const * sv = cson_string_cstr(cson_value_get_string(v));
-    assert( (NULL!=sv) && "This is quite unexpected." );
-    return sv ? atoi(sv) : dflt;
-  }else if( cson_value_is_bool(v) ){
-    return cson_value_get_bool(v) ? 1 : 0;
-  }else if( cson_value_is_null(v) ){
-    return 0;
-  }else{
-    /* we should arguably treat JSON null as 0. */
-    return dflt;
+  const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
+  switch(type){
+    case CSON_TYPE_INTEGER:
+    case CSON_TYPE_DOUBLE:
+      return (int)cson_value_get_integer(v);
+    case CSON_TYPE_STRING: {
+      char const * sv = cson_string_cstr(cson_value_get_string(v));
+      assert( (NULL!=sv) && "This is quite unexpected." );
+      return sv ? atoi(sv) : dflt;
+    }
+    case CSON_TYPE_BOOL:
+      return cson_value_get_bool(v) ? 1 : 0;
+    case CSON_TYPE_NULL:
+      return 0;
+    default:
+      return dflt;
   }
 }
 
@@ -505,27 +508,30 @@ int json_getenv_int(char const * pKey, int dflt ){
 */
 char json_getenv_bool(char const * pKey, char dflt ){
   cson_value const * v = json_getenv(pKey);
-  if(!v){
-    return dflt;
-  }else if( cson_value_is_number(v) ){
-    return cson_value_get_integer(v) ? 1 : 0;
-  }else if( cson_value_is_string(v) ){
-    char const * sv = cson_string_cstr(cson_value_get_string(v));
-    if(!*sv || ('0'==*sv)){
-      return 0;
-    }else{
-      return ((('1'<=*sv) && ('9'>=*sv))
-              || ('t'==*sv) || ('T'==*sv)
-              || ('y'==*sv) || ('Y'==*sv)
-              )
-        ? 1 : 0;
+  const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
+  switch(type){
+    case CSON_TYPE_INTEGER:
+    case CSON_TYPE_DOUBLE:
+      return cson_value_get_integer(v) ? 1 : 0;
+    case CSON_TYPE_STRING: {
+      char const * sv = cson_string_cstr(cson_value_get_string(v));
+      assert( (NULL!=sv) && "This is quite unexpected." );
+      if(!*sv || ('0'==*sv)){
+        return 0;
+      }else{
+        return ((('1'<=*sv) && ('9'>=*sv))
+                || ('t'==*sv) || ('T'==*sv)
+                || ('y'==*sv) || ('Y'==*sv)
+                )
+          ? 1 : 0;
+      }
     }
-  }else if( cson_value_is_bool(v) ){
-    return cson_value_get_bool(v) ? 1 : 0;
-  }else if( cson_value_is_null(v) ){
-    return 0;
-  }else{
-    return dflt;
+    case CSON_TYPE_BOOL:
+      return cson_value_get_bool(v) ? 1 : 0;
+    case CSON_TYPE_NULL:
+      return 0;
+    default:
+      return dflt;
   }
 }
 
@@ -757,9 +763,9 @@ cson_value * json_auth_token(){
       /* tell fossil to use this login info.
 
       FIXME?: because the JSON bits don't carry around
-      login_cookie_name(), there is a potential login hijacking
-      window here. We may need to change the JSON auth token to be
-      in the form: login_cookie_name()=...
+      login_cookie_name(), there is(?) a potential(?) login hijacking
+      window here. We may need to change the JSON auth token to be in
+      the form: login_cookie_name()=...
 
       Then again, the hardened cookie value helps ensure that
       only a proper key/value match is valid.

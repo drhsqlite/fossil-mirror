@@ -1,5 +1,5 @@
-C minor\scleanups\smade\spossible\sby\snewer\scson\sAPIs.
-D 2012-07-03T21:30:17.599
+C Pulled\sin\slatest\scson\samalgamation\sfor\sthe\scson_type_id\saddition\sand\sstarted\srefactoring\ssome\sO(N)\slookups\sto\sO(1)\sbased\son\sthat\saddition.
+D 2012-07-05T19:03:18.271
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -74,8 +74,8 @@ F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c ebf8d685e75cf5cbf153c242f361d2a6831d5133
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
-F src/cson_amalgamation.c 27306a292816ab910f299975dd7e696f65820b79
-F src/cson_amalgamation.h 46d462152e4e9665008b671d11c5cf9fb11d33d8
+F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
+F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
 F src/db.c 9b15f53f666d3c8f2c1ae01f5153bd1f7187433d
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -97,7 +97,7 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 1b1203be8d62f3cc30559f0c250086332af40eed
-F src/json.c 7bdc00d988e28d4e097ff17d2fcd1328001dc299
+F src/json.c 9562b606d70baf7cd2798103f33924302434865d
 F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5ea759f9fe8e650f85000365dae5129fb30799a4
-R 5da156a2544a86042d0e3ec2353b5619
+P 9be377fef1ba390d64100c1ad5ebf1bb8b328317
+R 322a5003feeb86e7f407096abb640414
 U stephan
-Z 2adf18e253655a981056830e673188b1
+Z 8d92596074fea7eb889c481cb0d639f1
