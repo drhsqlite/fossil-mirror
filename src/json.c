@@ -874,14 +874,13 @@ void json_warn( int code, char const * fmt, ... ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
-  if(!g.json.warnings.v){
-    g.json.warnings.v = cson_value_new_array();
-    assert((NULL != g.json.warnings.v) && "Alloc error.");
-    g.json.warnings.a = cson_value_get_array(g.json.warnings.v);
-    json_gc_add("$WARNINGS",g.json.warnings.v);
+  if(!g.json.warnings){
+    g.json.warnings = cson_new_array();
+    assert((NULL != g.json.warnings) && "Alloc error.");
+    json_gc_add("$WARNINGS",cson_array_value(g.json.warnings));
   }
   obj = cson_new_object();
-  cson_array_append(g.json.warnings.a, cson_object_value(obj));
+  cson_array_append(g.json.warnings, cson_object_value(obj));
   cson_object_set(obj,"code",cson_value_new_integer(code));
   if(fmt && *fmt){
     /* FIXME: treat NULL fmt as standard warning message for
@@ -1447,7 +1446,7 @@ cson_value * json_g_to_json(){
   VAL(cmd, g.json.cmd.v);
   VAL(param, g.json.param.v);
   VAL(POST, g.json.post.v);
-  VAL(warnings, g.json.warnings.v);
+  VAL(warnings, cson_array_value(g.json.warnings));
   /*cson_output_opt outOpt;*/
 
   
@@ -1560,8 +1559,8 @@ static cson_value * json_create_response( int resultCode,
     */
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
   }
-  if(g.json.warnings.v){
-    tmp = g.json.warnings.v;
+  if(g.json.warnings){
+    tmp = cson_array_value(g.json.warnings);
     SET("warnings");
   }
   

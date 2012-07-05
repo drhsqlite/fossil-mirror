@@ -247,10 +247,7 @@ struct Global {
       cson_value * v;
       cson_object * o;
     } reqPayload;              /* request payload object (if any) */
-    struct {                   /* response warnings */
-      cson_value * v;
-      cson_array * a;
-    } warnings;
+    cson_array * warnings;     /* response warnings */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
 };
