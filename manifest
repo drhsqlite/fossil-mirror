@@ -1,5 +1,5 @@
-C Minor\sinteral\sjson\srefactoring\smade\spossible\sby\srecent\scson\schanges.
-D 2012-07-05T19:24:25.285
+C /json/query\snow\sfails\swithout\sexecuting\sthe\squery\sif\sthe\sprovided\squery\shas\sno\sresult\s_columns_\s(to\sexplicitly\sdisallow\sINSERT/DELETE/DROP,\setc.).
+D 2012-07-06T16:18:48.449
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -106,7 +106,7 @@ F src/json_diff.c eb741b86584388e0eb6b8bbc266d3d0439f170e5
 F src/json_dir.c bce4d0459f63c09a94c06e3fa94e2734161341db
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
-F src/json_query.c 33aa747852a8f854bb03623bf499237fdca33dc0
+F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 27c02ef150caad448c56fcec287e8304e8222fd5
 F src/json_tag.c 8275c6e70423e7733d00c0fe24481ea2e16a07de
 F src/json_timeline.c adf64805f1be966df94cb6800eee2a1f85d1533d
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cde55bd7a3dc7c5eeb920ff085de1c72955aed1d
-R fa0cb3e130eef25312190f2c46c29ed5
+P e40e79b7ab7b9f0fa6f85f95f97d5ae514c142de
+R 7166c7f9a8071b0726c6ff7ba0f4a84c
 U stephan
-Z 9f448961304b17e10d9b3d4f30a75c8c
+Z e66beea40b9e0cf0b0ab2d91646c2784
