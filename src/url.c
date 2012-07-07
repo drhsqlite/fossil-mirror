@@ -103,8 +103,18 @@ void url_parse(const char *zUrl){
       g.urlName = mprintf("%.*s", j-i-1, &zUrl[i+1]);
       i = j;
     }else{
-      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && c!=':'; i++){}
+      int inSquare = 0;
+      int n;
+      for(i=iStart; (c=zUrl[i])!=0 && c!='/' && (inSquare || c!=':'); i++){
+        if( c=='[' ) inSquare = 1;
+        if( c==']' ) inSquare = 0;
+      }
       g.urlName = mprintf("%.*s", i-iStart, &zUrl[iStart]);
+      n = strlen(g.urlName);
+      if( g.urlName[0]=='[' && n>2 && g.urlName[n-1]==']' ){
+        g.urlName++;
+        g.urlName[n-2] = 0;
+      }
       zLogin = mprintf("");
     }
     url_tolower(g.urlName);

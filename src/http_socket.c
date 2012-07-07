@@ -43,6 +43,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <errno.h>
 
 /*
 ** There can only be a single socket connection open at a time.
@@ -155,7 +156,11 @@ int socket_open(void){
     sqlite3_snprintf(sizeof(zPort), zPort, "%d", g.urlPort);
     rc = getaddrinfo(g.urlName, zPort, &sHints, &p);
     if( rc!=0 ){
-      fossil_error("getaddrinfo: %s", gai_strerror(rc));
+      fossil_fatal("getaddrinfo(\"%s\",\"%s\",...): %s",
+                   g.urlName, zPort, gai_strerror(rc));
+    }
+    if( p==0 ){
+      fossil_fatal("no IP addresses returned by getaddrinfo()");
     }
     addrIsInit = 1;
   }
@@ -164,10 +169,12 @@ int socket_open(void){
     char zHost[NI_MAXHOST];
     iSocket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
     if( iSocket<0 ){
+      fossil_warning("socket() failed: %s", strerror(errno));
       p = p->ai_next;
       continue;
     }
     if( connect(iSocket, p->ai_addr, p->ai_addrlen)<0 ){
+      fossil_warning("connect() failed: %s", strerror(errno));
       p = p->ai_next;
       socket_close();
       continue;
@@ -179,6 +186,7 @@ int socket_open(void){
     }else{
       fossil_fatal("cannot find numeric host IP address");
     }
+    break;
   }
   if( p==0 ){
     socket_set_errmsg("cannot create a socket");
