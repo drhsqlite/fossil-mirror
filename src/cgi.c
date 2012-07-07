@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <netdb.h>
 #include "cgi.h"
 
 #if INTERFACE
@@ -1122,6 +1123,17 @@ static char *extract_token(char *zInput, char **zLeftOver){
 }
 
 /*
+** All possible forms of an IP address.  Needed to work around GCC strict
+** aliasing rules.
+*/
+typedef union {
+  struct sockaddr sa;              /* Abstract superclass */
+  struct sockaddr_in sa4;          /* IPv4 */
+  struct sockaddr_in6 sa6;         /* IPv6 */
+  struct sockaddr_storage sas;     /* Should be the maximum of the above 3 */
+} address;
+
+/*
 ** This routine handles a single HTTP request which is coming in on
 ** standard input and which replies on standard output.
 **
@@ -1159,11 +1171,15 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( zToken[i] ) zToken[i++] = 0;
   cgi_setenv("PATH_INFO", zToken);
   cgi_setenv("QUERY_STRING", &zToken[i]);
-  if( zIpAddr==0 &&
-        getpeername(fileno(g.httpIn), (struct sockaddr*)&remoteName, 
-                                &size)>=0
-  ){
-    zIpAddr = inet_ntoa(remoteName.sin_addr);
+  if( zIpAddr==0 ){
+    address remoteAddr;
+    unsigned int size = sizeof(remoteAddr);
+    char zHost[NI_MAXHOST];
+    if( getpeername(fileno(g.httpIn), &remoteAddr.sa, &size)>=0 ){
+      getnameinfo(&remoteAddr.sa, size, zHost, sizeof(zHost), 0, 0,
+                  NI_NUMERICHOST);
+      zIpAddr = mprintf("%s", zHost);
+    }
   }
   if( zIpAddr ){   
     cgi_setenv("REMOTE_ADDR", zIpAddr);

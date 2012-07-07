@@ -1,5 +1,5 @@
-C Fix\sthe\sURL\sparser\sso\sthat\sit\sis\sable\sto\shandle\sIPv6\saddresses.\nFixes\sto\sthe\sIPv6\sclient-side\scode.
-D 2012-07-07T13:32:12.361
+C Update\sthe\sinetd\shandler\sso\sthat\sit\sworks\swith\sIPv6.
+D 2012-07-07T14:07:59.945
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -65,7 +65,7 @@ F src/blob.c 373449e30b01522bdc9c04827ce4e15cecca8092
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c a8ab196d8088546057193c3481f45720310104ba
+F src/cgi.c 648bf4b2f45c0d605ce8e5d97393e60fdb9c072d
 F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0268e771ef8c10e7cb8a90aa0c743a9e4fd5c817
-R 1b49b32aa660c4d89e1ba2effdd0cef3
+P beea59873ab1863a625bd31c0beaff8b04adc937
+R 68f0cccdb2bea500e00ff952bbd82cf3
 U drh
-Z fd503d8d155c1b983f765691a37c99ad
+Z d1c25ef2f1abaf365d3253170b23dbf7
