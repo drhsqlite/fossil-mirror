@@ -2361,7 +2361,9 @@ void json_page_top(void){
 **   artifact
 **   branch
 **   cap
+**   config
 **   diff
+**   dir
 **   g
 **   login
 **   logout
@@ -2378,9 +2380,7 @@ void json_page_top(void){
 **   wiki
 **
 ** Run '%fossil json' without any subcommand to see the full list (but be
-** aware that some listed might not yet be implemented).
-**
-** PS: the notable TODO-commands include: config, dir, finfo, ticket
+** aware that some listed might not yet be fully implemented).
 **
 */
 void json_cmd_top(void){
