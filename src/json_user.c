@@ -358,7 +358,7 @@ int json_user_update_from_json( cson_object * pUser ){
   db_exec(&q);
   db_finalize(&q);
 #if TRY_LOGIN_GROUP
-  if( zPW || forceLogout ){
+  if( zPW || cson_value_get_bool(forceLogout) ){
     Blob groupSql = empty_blob;
     char * zErr = NULL;
     blob_appendf(&groupSql,
@@ -405,6 +405,7 @@ static cson_value * json_user_save(){
   int i = -1;
   int uid = -1;
   cson_value * payload = NULL;
+  /* String properties... */
 #define PROP(LK,SK) str = json_find_option_cstr(LK,NULL,SK);     \
   if(str){ cson_object_set(u, LK, json_new_string(str)); } (void)0
   PROP("name","n");
@@ -412,6 +413,7 @@ static cson_value * json_user_save(){
   PROP("info","i");
   PROP("capabilities","c");
 #undef PROP
+  /* Boolean properties... */
 #define PROP(LK,DFLT) b = json_find_option_bool(LK,NULL,NULL,DFLT);     \
   if(DFLT!=b){ cson_object_set(u, LK, cson_value_new_bool(b)); } (void)0
   PROP("forceLogout",-1);

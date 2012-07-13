@@ -1700,7 +1700,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!colNames){
       colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
-      cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
+      /*Why? cson_value_add_reference(colNamesV) avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
     }      
@@ -1711,10 +1711,10 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     }
     if( 0 != cson_array_append(a, row) ){
       cson_value_free(row);
-      assert( 0 && "Alloc error.");
       if(pTgt != a) {
         cson_free_array(a);
       }
+      assert( 0 && "Alloc error.");
       return NULL;
     }
   }

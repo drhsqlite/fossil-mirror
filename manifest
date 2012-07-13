@@ -1,5 +1,5 @@
-C /json/query\snow\sfails\swithout\sexecuting\sthe\squery\sif\sthe\sprovided\squery\shas\sno\sresult\s_columns_\s(to\sexplicitly\sdisallow\sINSERT/DELETE/DROP,\setc.).
-D 2012-07-06T16:18:48.449
+C Several\sminor\sinternal\scleanups\sto\sthe\sjson\scode\swhich\si\sthought\si\shad\scommitted\slast\sweek\s:/.
+D 2012-07-13T15:06:56.959
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -97,21 +97,21 @@ F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 1b1203be8d62f3cc30559f0c250086332af40eed
-F src/json.c d87e42d77e170317392b112e035ca9d5acad6863
+F src/json.c 7f3a2ef301ecd2d62fc838375a59a31a44faee0d
 F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
-F src/json_detail.h a45f6a5c01c89a9bf98f0dd2b5a96b7db2a5a33d
+F src/json_detail.h 48581ec29c18060854a6d986d69051277b6716b3
 F src/json_diff.c eb741b86584388e0eb6b8bbc266d3d0439f170e5
 F src/json_dir.c bce4d0459f63c09a94c06e3fa94e2734161341db
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
-F src/json_report.c 27c02ef150caad448c56fcec287e8304e8222fd5
+F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
 F src/json_tag.c 8275c6e70423e7733d00c0fe24481ea2e16a07de
 F src/json_timeline.c adf64805f1be966df94cb6800eee2a1f85d1533d
-F src/json_user.c 313737bc4b02588160fcebe758ab56d6912c37e4
-F src/json_wiki.c bd7d6612606e56e9bee44e82cde588e1ef0f4329
+F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
+F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
 F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e40e79b7ab7b9f0fa6f85f95f97d5ae514c142de
-R 7166c7f9a8071b0726c6ff7ba0f4a84c
+P 3e1dd97f77481a92408e5ef0f27337ea5167793e
+R 73cf40ec25809576c1ad752e70cc19ab
 U stephan
-Z e66beea40b9e0cf0b0ab2d91646c2784
+Z 78bd2a558f1aa9161f511e03ceeaa764

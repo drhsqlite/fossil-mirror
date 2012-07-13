@@ -174,6 +174,9 @@ typedef struct JsonPageDef{
   ** Now that we can simulate POST in CLI mode, the distinction
   ** between them has disappeared in most (or all) cases, so 0 is the
   ** the standard value.
+  **
+  ** 201207: this is not needed any more. We can get rid of it. Or
+  ** keep it around in case it becomes useful again at some point.
   */
   char runMode;
 } JsonPageDef;
@@ -213,22 +216,6 @@ const FossilJsonKeys_ FossilJsonKeys;
 ** the dispatch chain).
 */
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages);
-
-/*
-** Implements the /json/wiki family of pages/commands.
-**
-*/
-cson_value * json_page_wiki();
-
-/*
-** Implements /json/timeline/wiki and /json/wiki/timeline.
-*/
-cson_value * json_timeline_wiki();
-
-/*
-** Implements /json/timeline family of functions.
-*/
-cson_value * json_page_timeline();
 
 /*
 ** Convenience wrapper around cson_value_new_string().
