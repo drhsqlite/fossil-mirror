@@ -68,6 +68,7 @@ if {[opt-bool fossil-debug]} {
 
 if {[opt-bool json]} {
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
+    define FOSSIL_ENABLE_JSON
 }
 
 if {[opt-bool static]} {
