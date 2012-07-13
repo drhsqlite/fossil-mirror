@@ -755,14 +755,14 @@ int vxprintf(
       }
     }
     if( zExtra ){
-      free(zExtra);
+      fossil_free(zExtra);
     }
   }/* End for loop over the format string */
   return errorflag ? -1 : count;
 } /* End of function */
 
 /*
-** Print into memory obtained from malloc().
+** Print into memory obtained from fossil_malloc().
 */
 char *mprintf(const char *zFormat, ...){
   va_list ap;
