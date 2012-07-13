@@ -1,5 +1,5 @@
-C Added\s(hasfeature\sjson|ssl|tcl)\sfunction\sto\sTH1\sto\sdetermine\swhether\sthe\sgiven\scompile-time\soption\sis\senabled.
-D 2012-07-13T18:40:07.156
+C Reworked\sthe\s/json/artifact/FILE|CHECKIN\sresponse\spayloads\sto\sstreamline\sthe\sstructures,\sremove\sduplicate\sdata,\sand\sadd\sfile\sparent\sinformation.
+D 2012-07-13T18:49:21.354
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -98,10 +98,10 @@ F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
 F src/info.c 1b1203be8d62f3cc30559f0c250086332af40eed
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
-F src/json_artifact.c 8bf0a28c453c5d73848dc15ebf51d1965a44ae34
+F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
-F src/json_detail.h 48581ec29c18060854a6d986d69051277b6716b3
+F src/json_detail.h cbecd775dde197239936851398ed5631b5727620
 F src/json_diff.c eb741b86584388e0eb6b8bbc266d3d0439f170e5
 F src/json_dir.c bce4d0459f63c09a94c06e3fa94e2734161341db
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
@@ -109,7 +109,7 @@ F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
 F src/json_tag.c 8275c6e70423e7733d00c0fe24481ea2e16a07de
-F src/json_timeline.c adf64805f1be966df94cb6800eee2a1f85d1533d
+F src/json_timeline.c 22b41d51a82ec272ae312ff858642dd4dccc56e5
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 00b86a85be473132ebf1f32d43395f2d8e8a008e
-R 0580493958042cd3e50a54150197331f
+P 2be3a876fdf5c8b05e644eaa761dd5ef601993b9
+R 39315c69a02098ff977b69211defd19c
 U stephan
-Z ce5ec8c6fa0f0dff865b520a48d71699
+Z d97a434bdd4fae23d80c0562b7c543f5
