@@ -1083,3 +1083,14 @@ unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
   }
   return nLen;
 }
+
+/*
+** Swaps the contents of the given blobs. Results
+** are unspecified if either value is NULL or both
+** point to the same blob.
+*/
+void blob_swap( Blob *pLeft, Blob *pRight ){
+  Blob swap = *pLeft;
+  *pLeft = *pRight;
+  *pRight = swap;
+}
