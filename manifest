@@ -1,5 +1,5 @@
-C Several\sminor\sinternal\scleanups\sto\sthe\sjson\scode\swhich\si\sthought\si\shad\scommitted\slast\sweek\s:/.
-D 2012-07-13T15:06:56.959
+C Fixed\sa\ssegfault\swhich\scould/did\shappen\swhen\srunning\scontent\sthrough\swikification\sin\sCLI\smode\s(which\sg.zTop\sis\snot\sset).
+D 2012-07-13T16:56:10.203
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -130,7 +130,7 @@ F src/path.c 157d9c226ff775c5d9388666acbfd3d14ea90c62
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c aa2683598d5dccc853080ad8b369b15422ee1fbf
+F src/printf.c f3ef72046ddae948d0e9e5ebfdea371c01272549
 F src/rebuild.c f1d6ecabf37517e454efd79784771dcbaedd9b41
 F src/report.c 4245eb2331177496f129169e3e6474ac48d6ab1f
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3e1dd97f77481a92408e5ef0f27337ea5167793e
-R 73cf40ec25809576c1ad752e70cc19ab
+P 055dfb1223c42a2d89e388f5cf9d42c3b9f1c044
+R 6650471645e4bcea5d3cb2abe57d6c68
 U stephan
-Z 78bd2a558f1aa9161f511e03ceeaa764
+Z 77a2e60246c24e38c14c4cf03a483cb0

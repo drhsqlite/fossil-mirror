@@ -576,7 +576,7 @@ int vxprintf(
         break;
       }
       case etROOT: {
-        bufpt = g.zTop;
+        bufpt = g.zTop ? g.zTop : "";
         length = (int)strlen(bufpt);
         break;
       }
