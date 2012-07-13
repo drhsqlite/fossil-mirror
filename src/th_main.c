@@ -220,12 +220,13 @@ static int hascapCmd(
 /*
 ** TH command:     hasfeature STRING
 **
-** Return true if the user has the given compile-time feature.
-** The set of features includes:
+** Return true if the fossil binary has the given compile-time feature
+** enabled. The set of features includes:
 **
 ** "json" = FOSSIL_ENABLE_JSON
 ** "tcl" = FOSSIL_ENABLE_TCL
 ** "ssl" = FOSSIL_ENABLE_SSL
+**
 */
 static int hasfeatureCmd(
   Th_Interp *interp, 
