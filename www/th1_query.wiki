@@ -57,6 +57,17 @@ for {} {0 &lt; [query step $stmt]} {} {
 </pre></nowiki>
 
 
+<h2>strftime</h2>
+
+This works like <tt>col time</tt> (described below) but takes its
+value from an arbitrary source specified by the 3rd argument.
+
+<nowiki><pre>
+query strftime %s 1319211587 unixepoch
+query strftime {%Y%m%d @ %H:%M:%S} [query col string $stmt 2] {+10 years}]
+</pre></nowiki>
+
+
 <h2>bind xxx</h2>
 
 The <tt>bind xxx</tt> family of subcommands attach values to queries
@@ -89,6 +100,24 @@ values and metadata from result rows.
    *  <tt>col double StmtId Index</tt>
    *  <tt>col int StmtId Index</tt>
    *  <tt>col string StmtId Index</tt>
+   *  <tt>col string StmtId Index Format Modifiers</tt> See below.
    *  <tt>col type StmtId Index</tt> Return value corresponds to one of the <tt>SQLITE_TYPENAME</tt> family of constants.
 
 Achtung: the col API uses 0-based indexes, just like SQL does.
+
+<h3>col time</h3>
+
+This function is a proxy for sqlite3's
+<tt>[http://www.sqlite.org/lang_datefunc.html|strftime()]</tt> function. It is used like this:
+
+
+<nowiki><pre>
+query col time $stmt $index {%Y%m%d @ %H:%M:%S}
+</pre></nowiki>
+
+Any remaining arguments are treated as "modifiers" and passed as-is to strfmtime. For example:
+
+<nowiki><pre>
+query col time $stmt $index {%Y%m%d @ %H:%M:%S} {+5 years}
+query col time $stmt $index %s unixepoch
+</pre></nowiki>

@@ -780,6 +780,9 @@ int th_register_argv(Th_Interp *interp){
 /* end TH_USE_ARGV */
 
 #ifdef TH_USE_SQLITE
+#ifndef INTERFACE
+#include "blob.h"
+#endif
 
 /*
 ** TH Syntax:
@@ -1192,21 +1195,19 @@ static int queryColNameCmd(
 ){
   sqlite3_stmt * pStmt = NULL;
   char const * val;
-  int index;
   int rc = 0;
-  int valLen;
+  int index = -1;
   if( argc!=3 ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
                             "StmtHandle Index");
   }
-  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
-  if( rc < 1 ){
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
+    assert(NULL==pStmt);
     return TH_ERROR;
   }
-  if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
-    return TH_ERROR;
-  }
+  assert(NULL!=pStmt);
   val = sqlite3_column_name( pStmt, index );
   if(NULL==val){
     Th_ErrorMessage(interp, "Column index out of bounds(?):", argv[2], -1);
@@ -1216,6 +1217,86 @@ static int queryColNameCmd(
     return TH_OK;
   }
 }
+
+static int queryColTimeCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  char const * val;
+  char * fval;
+  int i, rc = 0;
+  int index = -1;
+  char const * fmt;
+  Blob sql = empty_blob;
+  if( argc<4 ){
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index Format");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
+    assert(NULL==pStmt);
+    return TH_ERROR;
+  }
+  val = sqlite3_column_text( pStmt, index );
+  fmt = argv[3];
+  assert(NULL!=pStmt);
+  blob_appendf(&sql,"SELECT strftime(%Q,%Q",
+               fmt, val);
+  if(argc>4){
+    for(i = 4; i < argc; ++i ){
+      blob_appendf(&sql, ",%Q", argv[i]);
+    }
+  }
+  blob_append(&sql, ")", 1);
+  fval = db_text(NULL,"%s", sql.aData);
+  
+  blob_reset(&sql);
+  Th_SetResult( interp, fval, fval ? strlen(fval) : 0 );
+  fossil_free(fval);
+  return 0;
+}
+
+static int queryStrftimeCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  char const * val;
+  char * fval;
+  int i, rc = 0;
+  int index = -1;
+  char const * fmt;
+  Blob sql = empty_blob;
+  if( argc<3 ){
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "Format Value ?Modifiers...?");
+  }
+  fmt = argv[1];
+  val = argv[2];
+  blob_appendf(&sql,"SELECT strftime(%Q,%Q",
+               fmt, val);
+  if(argc>3){
+    for(i = 3; i < argc; ++i ){
+      blob_appendf(&sql, ",%Q", argv[i]);
+    }
+  }
+  blob_append(&sql, ")", 1);
+  fval = db_text(NULL,"%s", sql.aData);
+  blob_reset(&sql);
+  Th_SetResult( interp, fval, fval ? strlen(fval) : 0 );
+  fossil_free(fval);
+  return 0;
+}
+
 
 /*
 ** TH Syntax:
@@ -1395,6 +1476,7 @@ static int queryColTopLevelCmd(
     {"double",  queryColDoubleCmd},
     {"int",     queryColIntCmd},
     {"string",  queryColStringCmd},
+    {"time",    queryColTimeCmd},
     {"type",    queryColTypeCmd},
     {0, 0}
   };
@@ -1415,10 +1497,12 @@ static int queryTopLevelCmd(
     {"step",        queryStepCmd},
     {"finalize",    queryFinalizeCmd},
     {"prepare",     queryPrepareCmd},
+    {"strftime",    queryStrftimeCmd},
     {0, 0}
   };
   Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
 }
+
 
 int th_register_sqlite(Th_Interp *interp){
   enum { BufLen = 100 };
