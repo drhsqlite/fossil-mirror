@@ -36,10 +36,10 @@ set arg [argv at 3]
 
 <h2>getstr</h2>
 
-Searches for a CLI/GET/POST parameter. This function has some non-intuitive behaviour
-inherited from fossil's internals: once a flag/parameter is fetched, it is removed
-from the internal arguments list, meaning that this function will never
-see it a second time.
+Searches for a CLI/GET/POST parameter. In CLI this function has some
+non-intuitive behaviour inherited from fossil's internals: once a
+flag/parameter is fetched, it is removed from the internal arguments
+list, meaning that this function will never see it a second time.
 
 <nowiki><pre>
 set something [argv getstr "something" "S" "default"]
@@ -47,6 +47,13 @@ set something [argv getstr "something" "S" "default"]
 
 If no default value is provided, an error is triggered if the value is
 not found.
+
+If you do not want to search for a short-form flag, set it to an empty
+string.
+
+BUG: flag checking does not work properly in CGI mode when using
+upper-case flags (apparently due to historic special-case behaviour in
+fossil for upper-case vars).
 
 <h2>getbool</h2>
 

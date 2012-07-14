@@ -1,5 +1,5 @@
-C Refactored\sth1\sargv_xxx\sto\s(argv\sxxx).\sAdded\sth1_argv.wiki\sdoc.
-D 2012-07-14T21:13:24.678
+C Fixed\sshort-form\sflag\shandling\sfor\sth1\sargv\scommand\sin\sCLI\smode.\sIt\snow\shandles\sGET/POST\sparams.
+D 2012-07-14T21:36:06.734
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -153,7 +153,7 @@ F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 85d4dab97375404257bb4cafcaf74b82eb5435c8
 F src/th.h 72877c744954f070a2607a01e3d762db24dfdb43
 F src/th_lang.c 65fc56338a975ca89056992e52e21ec72da0185b
-F src/th_main.c 9f417c10f96dc4e1aca028077f5c99c63c6300eb
+F src/th_main.c 49bb80bbeab9964277f010de32d9a3a8b90b8dfa
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
@@ -362,13 +362,13 @@ F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
-F www/th1_argv.wiki 247c66fdf35e322d4e458e216506030e86996d30
+F www/th1_argv.wiki d58569ae3d84f5e18f16b10eaf16204cee5fa088
 F www/th1_ob.wiki e777773962880670a4fa811d4392014bed3b7fdf
 F www/th1_query.wiki 63426ccd797683808c21200b2eb410d5667bc46b
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8260fdc99a96478aef82695cbfc285c697f243fa
-R 75af44c2572e6dd7690e649d2c2ee70b
+P 615ee71798931eec18ef34a64b3ac2c019f9b216
+R 4c2195cb894d80894394f91da2dbf8b8
 U stephan
-Z c14cda39fde798b977912379b2cc5926
+Z 6b93ec19905a20858449584963b468a4

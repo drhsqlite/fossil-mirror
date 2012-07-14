@@ -597,7 +597,14 @@ static int argvFindOptionStringCmd(
                            argv[0], argl[0],
                            "longName ?shortName? ?defaultVal?");
   }
-  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 1 );
+  if(g.cgiOutput){
+      zVal = cgi_parameter( zLong, NULL );
+      if( !zVal && zShort[0] ){
+          zVal = cgi_parameter( zShort, NULL );
+      }
+  }else{
+      zVal = find_option( zLong, zShort[0] ? zShort : NULL, 1 );
+  }
   if(!zVal){
     zVal = zDefault;
     if(!zVal){
@@ -626,6 +633,7 @@ static int argvFindOptionBoolCmd(
   const char **argv, 
   int *argl
 ){
+  /* FIXME: refactor to re-use the code from getstr */
   enum { BufLen = 100 };
   char zLong[BufLen] = {0};
   char zShort[BufLen] = {0};
@@ -655,7 +663,14 @@ static int argvFindOptionBoolCmd(
                             argv[0], argl[0],
                            "longName ?shortName? ?defaultVal?");
   }
-  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
+  if(g.cgiOutput){
+      zVal = cgi_parameter( zLong, NULL );
+      if( !zVal && zShort[0] ){
+          zVal = cgi_parameter( zShort, NULL );
+      }
+  }else{
+      zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
+  }
   if(zVal && !*zVal){
     zVal = "1";
   }
@@ -686,6 +701,7 @@ static int argvFindOptionIntCmd(
   const char **argv, 
   int *argl
 ){
+  /* FIXME: refactor to re-use the code from getstr */
   enum { BufLen = 100 };
   char zLong[BufLen] = {0};
   char zShort[BufLen] = {0};
@@ -714,7 +730,14 @@ static int argvFindOptionIntCmd(
                             argv[0], argl[0],
                            "longName ?shortName? ?defaultVal?");
   }
-  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
+  if(g.cgiOutput){
+      zVal = cgi_parameter( zLong, NULL );
+      if( !zVal && zShort[0] ){
+          zVal = cgi_parameter( zShort, NULL );
+      }
+  }else{
+      zVal = find_option( zLong, zShort[0] ? zShort : NULL, 1 );
+  }
   if(!zVal){
     zVal = zDefault;
     if(!zVal){
