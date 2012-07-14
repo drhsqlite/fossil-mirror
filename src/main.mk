@@ -358,6 +358,8 @@ TCL_OBJ.0 =
 TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
 TCL_OBJ. = $(TCL_OBJ.0)
 
+$(OBJDIR)/th.o: $(OBJDIR)/blob.h # horrible kludge!
+
 EXTRAOBJ =  $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE))  $(OBJDIR)/shell.o  $(OBJDIR)/th.o  $(OBJDIR)/th_lang.o  $(TCL_OBJ.$(FOSSIL_ENABLE_TCL))  $(OBJDIR)/cson_amalgamation.o
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ)
@@ -1066,7 +1068,7 @@ $(OBJDIR)/sqlite3.o:	$(SRCDIR)/sqlite3.c
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
-$(OBJDIR)/th.o:	$(SRCDIR)/th.c
+$(OBJDIR)/th.o:	$(SRCDIR)/th.c $(OBJDIR)/blob.h
 	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
 
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c

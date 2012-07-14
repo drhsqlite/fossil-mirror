@@ -225,6 +225,8 @@ TCL_OBJ.0 =
 TCL_OBJ.1 = $(OBJDIR)/th_tcl.o
 TCL_OBJ. = $(TCL_OBJ.0)
 
+$(OBJDIR)/th.o: $(OBJDIR)/blob.h # horrible kludge!
+
 EXTRAOBJ = \
   $(SQLITE3_OBJ.$(USE_SYSTEM_SQLITE)) \
   $(OBJDIR)/shell.o \
@@ -290,7 +292,7 @@ set opt {-Dmain=sqlite3_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
-writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
+writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c \$(OBJDIR)/blob.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
@@ -620,7 +622,7 @@ set opt {-Dmain=sqlite3_shell}
 append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
-writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
+writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c \$(OBJDIR)/blob.h"
 writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"

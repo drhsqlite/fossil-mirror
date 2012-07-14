@@ -1233,7 +1233,7 @@ $(OBJDIR)/json.o $(OBJDIR)/json_artifact.o $(OBJDIR)/json_branch.o $(OBJDIR)/jso
 $(OBJDIR)/shell.o:	$(SRCDIR)/shell.c $(SRCDIR)/sqlite3.h
 	$(XTCC) -Dmain=sqlite3_shell -DSQLITE_OMIT_LOAD_EXTENSION=1 -c $(SRCDIR)/shell.c -o $(OBJDIR)/shell.o
 
-$(OBJDIR)/th.o:	$(SRCDIR)/th.c
+$(OBJDIR)/th.o:	$(SRCDIR)/th.c $(OBJDIR)/blob.h
 	$(XTCC) -c $(SRCDIR)/th.c -o $(OBJDIR)/th.o
 
 $(OBJDIR)/th_lang.o:	$(SRCDIR)/th_lang.c
