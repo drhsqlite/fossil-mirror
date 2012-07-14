@@ -97,9 +97,16 @@ static void sendText(const char *z, int n, int encode){
       fwrite(z, 1, n, stdout);
       fflush(stdout);
     }
-    if( encode ) free((char*)z);
+    if( encode ) fossil_free((char*)z);
   }
 }
+
+struct PutsCmdData {
+  char escapeHtml;
+  char const * sep;
+  char const * eol;
+};
+typedef struct PutsCmdData PutsCmdData;
 
 /*
 ** TH command:     puts STRING
@@ -114,10 +121,21 @@ static int putsCmd(
   const char **argv, 
   int *argl
 ){
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "puts STRING");
+  PutsCmdData const * fmt = (PutsCmdData const *)pConvert;
+  const int sepLen = fmt->sep ? strlen(fmt->sep) : 0;
+  int i;
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "puts STRING ...STRING_N");
   }
-  sendText((char*)argv[1], argl[1], pConvert!=0);
+  for( i = 1; i < argc; ++i ){
+    if(sepLen && (i>1)){
+      sendText(fmt->sep, sepLen, 0);
+    }
+    sendText((char const*)argv[i], argl[i], fmt->escapeHtml);
+  }
+  if(fmt->eol){
+    sendText(fmt->eol, strlen(fmt->eol), 0);
+  }
   return TH_OK;
 }
 
@@ -417,6 +435,208 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+#ifdef TH_USE_SQLITE
+static int queryPrepareCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char const * zSql;
+  sqlite3_stmt * pStmt = NULL;
+  int rc;
+  char const * errMsg = NULL;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "query_prepare STRING");
+  }
+  zSql = argv[1];
+  rc = sqlite3_prepare( g.db, zSql, strlen(zSql), &pStmt, NULL );
+  if(SQLITE_OK==rc){
+    if(sqlite3_column_count( pStmt ) < 1){
+      errMsg = "Only SELECT-like queries are supported.";
+      rc = SQLITE_ERROR;
+      sqlite3_finalize( pStmt );
+      pStmt = NULL;
+    }
+  }else{
+    errMsg = sqlite3_errmsg( g.db );
+  }
+  if(SQLITE_OK!=rc){
+    assert(NULL != errMsg);
+    assert(NULL == pStmt);
+    Th_ErrorMessage(interp, "error preparing SQL:", errMsg, -1);
+    return TH_ERROR;
+  }
+  rc = Th_AddStmt( interp, pStmt );
+  assert( rc >= 0 && "AddStmt failed.");
+  Th_SetResultInt( interp, rc );
+  return TH_OK;
+}
+
+static sqlite3_stmt * queryStmtHandle(Th_Interp *interp, char const * arg, int argLen, int * stmtId ){
+  int rc = 0;
+  sqlite3_stmt * pStmt = NULL;
+  if( 0 == Th_ToInt( interp, arg, argLen, &rc ) ){
+    if(stmtId){
+      *stmtId = rc;
+    }
+    pStmt = Th_GetStmt( interp, rc );
+    if(NULL==pStmt){
+      Th_ErrorMessage(interp, "no such statement handle:", arg, -1);
+    }
+  }
+  return pStmt;
+
+}
+
+static int queryFinalizeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char * zSql;
+  sqlite3_stmt * pStmt = NULL;
+  int rc = 0;
+  char const * arg;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "query_finalize StmtHandle");
+  }
+  arg = argv[1];
+  pStmt = queryStmtHandle(interp, arg, argl[1], &rc);
+  if( rc < 1 ){
+    return TH_ERROR;
+  }
+  assert( NULL != pStmt );
+  rc = Th_FinalizeStmt( interp, rc );
+  Th_SetResultInt( interp, rc );
+  return TH_OK;
+}
+
+static void queryReportDbErr( Th_Interp * interp, int rc ){
+  char const * msg = sqlite3_errmsg( g.db );
+  Th_ErrorMessage(interp, "db error:", msg, -1);
+}
+
+static int queryStepCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc = 0;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "query_step StmtHandle");
+  }
+  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
+  if( rc < 1 ){
+    return TH_ERROR;
+  }
+  rc = sqlite3_step( pStmt );
+  switch(rc){
+    case SQLITE_ROW:
+      rc = 1;
+      break;
+    case SQLITE_DONE:
+      rc = 0;
+      break;
+    default:
+      queryReportDbErr( interp, rc );
+      return TH_ERROR;
+  }
+  Th_SetResultInt( interp, rc );
+  return TH_OK;
+}
+
+static int queryColStringCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  char const * val;
+  int index;
+  int rc = 0;
+  int valLen;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_column_string StmtHandle Index");
+  }
+  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
+  if( rc < 1 ){
+    return TH_ERROR;
+  }
+  if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
+    return TH_ERROR;
+  }
+  val = sqlite3_column_text( pStmt, index );
+  valLen = val ? sqlite3_column_bytes( pStmt, index ) : 0;
+  Th_SetResult( interp, val, valLen );
+  return TH_OK;
+}
+
+
+static int queryColCountCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int rc;
+  sqlite3_stmt * pStmt = NULL;
+  if( argc!=2 ){
+    return Th_WrongNumArgs(interp, "query_column_count StmtHandle");
+  }
+  pStmt = queryStmtHandle(interp, argv[1], argl[1], NULL);
+  if( NULL == pStmt ){
+    return TH_ERROR;
+  }
+  rc = sqlite3_column_count( pStmt );
+  Th_SetResultInt( interp, rc );
+  return TH_OK;
+}
+
+static int queryColNameCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  char const * val;
+  int index;
+  int rc = 0;
+  int valLen;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_column_name StmtHandle Index");
+  }
+  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
+  if( rc < 1 ){
+    return TH_ERROR;
+  }
+  if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
+    return TH_ERROR;
+  }
+  val = sqlite3_column_name( pStmt, index );
+  if(NULL==val){
+    Th_ErrorMessage(interp, "Column index out of bounds(?):", argv[2], -1);
+    return TH_ERROR;
+  }else{
+    Th_SetResult( interp, val, strlen( val ) );
+    return TH_OK;
+  }
+}
+
+#endif
+/* end TH_USE_SQLITE */
+
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
@@ -424,6 +644,9 @@ static int repositoryCmd(
 ** The interpreter is stored in the g.interp global variable.
 */
 void Th_FossilInit(void){
+  static PutsCmdData puts_Html = {0, 0, 0};
+  static PutsCmdData puts_Normal = {1, 0, 0};
+  static PutsCmdData puts_Ext = {1, " ", "\n"};
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -437,8 +660,17 @@ void Th_FossilInit(void){
     {"hasfeature",    hasfeatureCmd,        0},
     {"htmlize",       htmlizeCmd,           0},
     {"date",          dateCmd,              0},
-    {"html",          putsCmd,              0},
-    {"puts",          putsCmd,       (void*)1},
+    {"html",          putsCmd,     &puts_Html},
+    {"puts",          putsCmd,   &puts_Normal},
+    {"putsl",         putsCmd,      &puts_Ext},
+#ifdef TH_USE_SQLITE
+    {"query_column_count",   queryColCountCmd,  0},
+    {"query_column_name",    queryColNameCmd,   0},
+    {"query_finalize",       queryFinalizeCmd,  0},
+    {"query_prepare",        queryPrepareCmd,   0},
+    {"query_step",           queryStepCmd,      0},
+    {"query_column_string",  queryColStringCmd, 0},
+#endif
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},
     {0, 0, 0}
@@ -624,6 +856,7 @@ void test_th_render(void){
   }
   db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx tests. */;
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
 }

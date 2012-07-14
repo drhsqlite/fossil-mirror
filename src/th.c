@@ -22,6 +22,13 @@ struct Th_Interp {
   Th_Hash *paCmd;     /* Table of registered commands */
   Th_Frame *pFrame;   /* Current execution frame */
   int isListMode;     /* True if thSplitList() should operate in "list" mode */
+#ifdef TH_USE_SQLITE
+  struct {
+    sqlite3_stmt ** aStmt;
+    int nStmt;
+    int rc;
+  } stmt;
+#endif
 };
 
 /*
@@ -1650,6 +1657,15 @@ void Th_DeleteInterp(Th_Interp *interp){
   Th_HashIterate(interp, interp->paCmd, thFreeCommand, (void *)interp);
   Th_HashDelete(interp, interp->paCmd);
 
+#ifdef TH_USE_SQLITE
+  {
+    int i;
+    for( i = 0; i < interp->stmt.nStmt; ++i ){
+      Th_FinalizeStmt( interp, i );
+    }
+  }
+#endif
+  
   /* Delete the interpreter structure itself. */
   Th_Free(interp, (void *)interp);
 }
@@ -2607,3 +2623,52 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
   *z = '\0';
   return Th_SetResult(interp, zBuf, -1);
 }
+
+
+#ifdef TH_USE_SQLITE
+extern void *fossil_realloc(void *p, size_t n);
+int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
+  int i, x;
+  sqlite3_stmt * s;
+  sqlite3_stmt ** list = interp->stmt.aStmt;
+  for( i = 0; i < interp->stmt.nStmt; ++i ){
+    s = list[i];
+    if(NULL==s){
+      list[i] = pStmt;
+      return i+1;
+    }
+  }
+  x = (interp->stmt.nStmt + 1) * 2;
+  list = (sqlite3_stmt**)fossil_realloc( list, sizeof(sqlite3_stmt*)*x );
+  for( i = interp->stmt.nStmt; i < x; ++i ){
+    list[i] = NULL;
+  }
+  list[interp->stmt.nStmt] = pStmt;
+  x = interp->stmt.nStmt;
+  interp->stmt.nStmt = i;
+  interp->stmt.aStmt = list;
+  return x + 1;
+}
+
+
+int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
+  sqlite3_stmt * st;
+  int rc = 0;
+  assert( stmtId>0 && stmtId<=interp->stmt.nStmt );
+  st = interp->stmt.aStmt[stmtId-1];
+  if(NULL != st){
+    interp->stmt.aStmt[stmtId-1] = NULL;
+    sqlite3_finalize(st);
+    return 0;
+  }
+  return 1;
+}
+
+sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
+  return ((stmtId<1) || (stmtId > interp->stmt.nStmt))
+    ? NULL
+    : interp->stmt.aStmt[stmtId-1];
+}
+
+#endif
+/* end TH_USE_SQLITE */

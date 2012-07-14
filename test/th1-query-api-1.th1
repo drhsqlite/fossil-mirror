@@ -1,0 +1,94 @@
+<th1>
+proc bar {} {
+puts "json ?= [hasfeature json]\n"
+puts "tcl ?= [hasfeature tcl]\n"
+puts "ssl ?= [hasfeature ssl]\n"
+puts [lindex {a b c} 1] "\n"
+proc foo {a {b steve}} {
+        puts "a = ${a}\n"
+        puts "b = ${b}\n"
+}
+foo hi world
+foo hi {string list}
+# foo
+puts a b c foo \n
+}
+bar
+foo leaky
+
+proc xyz {} {
+        return 42
+}
+set a [xyz]
+puts "a=${a}" ! \n
+
+set stmt [query_prepare {SELECT login, cap FROM user}]
+set colCount [query_column_count $stmt]
+puts "query column count: ${colCount}\n"
+#set stmt2 [query_prepare {SELECT cap, login FROM user}]
+#puts "stmt=${stmt} stmt2=${stmt2}\n"
+#putsl "step =" [query_step $stmt]
+#putsl "val =" [query_column_string $stmt 1]
+
+proc noop {} {}
+proc incr {name {step 1}} {
+    upvar $name x
+    set x [expr $x+$step]
+}
+
+
+set sep "    "
+set i 0
+set colNames(0) 0
+for {set i 0} {$i < $colCount} {incr i} {
+    set colNames($i) [query_column_name $stmt $i]
+}
+
+for {set row 0} {0 < [query_step $stmt]} {incr row} {
+    for {set i 0} {$i < $colCount} {incr i} {
+        if {$i > 0} {
+            puts $sep
+        } else {
+            puts "#$row: $sep"
+        }
+        puts $colNames($i) = [query_column_string $stmt $i]
+    }
+    puts "\n"
+}
+unset row
+
+query_finalize $stmt
+#query_finalize $stmt2
+
+
+proc query_step_each {{stmt} {callback}} {
+    set colNames(0) 0
+    set colCount [query_column_count $stmt]
+    for {set i 0} {$i < $colCount} {incr i} {
+        set colNames($i) [query_column_name $stmt $i]
+    }
+    upvar cb $callback
+    for {set row 0} {0 < [query_step $stmt]} {incr row} {
+        #puts "Calling callback: $stmt $colCount colNames\n"
+        $callback $stmt $colCount
+    }
+}
+
+
+set stmt [query_prepare {SELECT login FROM user}]
+set rc 0
+catch {
+    proc my_each {stmt colCount} {
+        for {set i 0} {$i < $colCount} {incr i} {
+            if {$i > 0} { puts $sep }
+            puts [query_column_string $stmt $i]
+        }
+        puts "\n"
+#        error "hi!"
+    }
+    query_step_each $stmt my_each
+} rc
+query_finalize $stmt
+puts rc = $rc
+
+</th1>

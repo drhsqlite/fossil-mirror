@@ -1,4 +1,14 @@
 
+#ifdef TH_USE_SQLITE
+#if 0==TH_USE_SQLITE
+#undef TH_USE_SQLITE
+#endif
+#endif
+#define TH_USE_SQLITE
+#ifdef TH_USE_SQLITE
+#include "sqlite3.h"
+#endif
+
 /* This header file defines the external interface to the custom Scripting
 ** Language (TH) interpreter.  TH is very similar to TCL but is not an
 ** exact clone.
@@ -181,3 +191,12 @@ int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
+
+#ifdef TH_USE_SQLITE
+#include "stddef.h" /* size_t */
+extern void *fossil_realloc(void *p, size_t n);
+int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
+sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
+#endif
+
