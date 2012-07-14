@@ -1660,8 +1660,15 @@ void Th_DeleteInterp(Th_Interp *interp){
 #ifdef TH_USE_SQLITE
   {
     int i;
+    sqlite3_stmt * st;
     for( i = 0; i < interp->stmt.nStmt; ++i ){
-      Th_FinalizeStmt( interp, i );
+      st = interp->stmt.aStmt[i];
+      if(NULL != st){
+        fossil_warning("Auto-finalizing unfinalized query_prepare "
+                       "statement id #%d: %s",
+                       i+1, sqlite3_sql(st));
+        Th_FinalizeStmt( interp, i+1 );
+      }
     }
     Th_Free(interp, interp->stmt.aStmt);
   }
@@ -2661,8 +2668,9 @@ int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
     interp->stmt.aStmt[stmtId-1] = NULL;
     sqlite3_finalize(st);
     return 0;
+  }else{
+    return 1;
   }
-  return 1;
 }
 
 sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){

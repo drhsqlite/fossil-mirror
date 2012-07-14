@@ -195,8 +195,33 @@ int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
 #ifdef TH_USE_SQLITE
 #include "stddef.h" /* size_t */
 extern void *fossil_realloc(void *p, size_t n);
+
+/*
+** Adds the given prepared statement to the interpreter. Returns the
+** statements opaque identifier (a positive value). Ownerships of
+** pStmt is transfered to interp and it must be cleaned up by the
+** client by calling Th_FinalizeStmt(), passing it the value returned
+** by this function.
+**
+** If interp is destroyed before all statements are finalized,
+** it will finalize them but may emit a warning message.
+*/
 int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+
+/*
+** Expects stmtId to be a statement identifier returned by
+** Th_AddStmt(). On success, finalizes the statement and returns 0.
+** On error (statement not found) non-0 is returned. After this
+** call, some subsequent call to Th_AddStmt() may return the
+** same statement ID.
+*/
 int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
+
+/*
+** Fetches the statement with the given ID, as returned by
+** Th_AddStmt(). Returns NULL if stmtId does not refer (or no longer
+** refers) to a statement added via Th_AddStmt().
+*/
 sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
 #endif
 

@@ -134,5 +134,40 @@ catch {
 } exception
 puts exception = $exception "\n"
 
+
+proc multiStmt {} {
+    set max 5
+    set i 0
+    set s(0) 0
+    for {set i 0} {$i < $max} {incr i} {
+       set s($i) [query_prepare "SELECT $i"]
+       puts "s($i) = $s($i)\n"
+    }
+    for {set i 0} {$i < $max} {incr i} {
+       query_step $s($i)
+    }
+    for {set i 0} {$i < $max} {incr i} {
+       puts "closing stmt $s($i)\n"
+       query_finalize $s($i)
+    }
+
+    puts "Preparing again\n"
+
+    for {set i 0} {$i < $max} {incr i} {
+       set s($i) [query_prepare "SELECT $i"]
+       puts "s($i) = $s($i)\n"
+    }
+    for {set i 0} {$i < $max} {incr i} {
+       query_step $s($i)
+    }
+    puts "Closing again\n"
+
+    for {set i 0} {$i < $max} {incr i} {
+       puts "closing stmt $s($i)\n"
+       query_finalize $s($i)
+    }
+}
+multiStmt
+
 puts "If you got this far, you win!\n"
 </th1>
