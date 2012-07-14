@@ -2753,12 +2753,25 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
 
 
 #ifdef TH_USE_OUTBUF
+/* Reminder: the ob code "really" belongs in th_lang.c,
+   but we need access to Th_Interp internals in order to
+   swap out Th_Vtab parts for purposes of stacking layers
+   of buffers.
+*/
+/*
+** Manager of a stack of Blob objects for output buffering.
+*/
 struct Th_Ob_Man {
-  Blob ** aBuf;
-  int nBuf;
-  int cursor;
-  Th_Interp * interp;
-  Th_Vtab ** aVtab;
+  Blob ** aBuf;        /* Stack of Blobs */
+  int nBuf;            /* Number of blobs */
+  int cursor;          /* Current level (-1=not active) */
+  Th_Interp * interp;  /* The associated interpreter */
+  Th_Vtab ** aVtab;    /* Stack of Vtabs (they get restored
+                          when a buffering level is popped).
+                          Has nBuf entries.
+
+                          FIXME? Only swap out the "out" members?
+                       */
 };
 
 typedef struct Th_Ob_Man Th_Ob_Man;
@@ -2766,12 +2779,20 @@ typedef struct Th_Ob_Man Th_Ob_Man;
 static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
 static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
 
+/*
+** Returns the top-most Blob in pMan's stack, or NULL
+** if buffering is not active.
+*/
 static Blob * Th_ob_current( Th_Ob_Man * pMan ){
   return pMan->nBuf>0 ? pMan->aBuf[pMan->cursor] : 0;
 }
 
 
-static int Th_output_ob( char const * zData, int len, void * pState ){
+/*
+** Th_output_f() impl which expects pState to be (Th_Ob_Man*).
+** (zData,len) are appended to pState's current output buffer.
+*/
+static int Th_output_f_ob( char const * zData, int len, void * pState ){
   Th_Ob_Man * pMan = (Th_Ob_Man*)pState;
   Blob * b = Th_ob_current( pMan );
   assert( NULL != pMan );
@@ -2780,40 +2801,40 @@ static int Th_output_ob( char const * zData, int len, void * pState ){
   return len;
 }
 
+/*
+** Vtab impl for the ob buffering layer.
+*/
 static Th_Vtab Th_Vtab_Ob = { th_fossil_realloc,
   {
-    Th_output_ob,
+    Th_output_f_ob,
     NULL,
     1
   }
 };
 
-#if 0
-#define OB_MALLOC(I,N) malloc((N))
-#define OB_REALLOC(I,P,N) realloc((P),(N))
-#define OB_FREE(I,P) free((P))
-#else
-#define OB_MALLOC(I,N) Th_Malloc((I),(N))
-#define OB_REALLOC(I,P,N) Th_Realloc((I),(P),(N))
-#define OB_FREE(I,P) Th_Free((I),(P))
-#endif
+/*
+** Pushes a new blob onto pMan's stack. On success
+** returns TH_OK and assigns *pOut (if pOut is not NULL)
+** to the new blob (which is owned by pMan). On error
+** pOut is not modified and non-0 is returned.
+*/
 int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   Blob * pBlob;
   int x, i;
   assert( NULL != pMan->interp );
-  pBlob = (Blob *)OB_MALLOC(pMan->interp, sizeof(Blob));
+  pBlob = (Blob *)Th_Malloc(pMan->interp, sizeof(Blob));
   *pBlob = empty_blob;
 
   if( pMan->cursor <= pMan->nBuf ){
     /* expand if needed */
     x = (pMan->cursor>0 ? pMan->cursor : 1) * 2;
     /*fprintf(stderr,"OB EXPAND x=%d\n",x);*/
-    void * re = OB_REALLOC( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
+    void * re = Th_Realloc( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
     if(NULL==re){
       goto error;
     }
     pMan->aBuf = (Blob **)re;
-    re = OB_REALLOC( pMan->interp, pMan->aVtab, x * sizeof(Th_Vtab*) );
+    re = Th_Realloc( pMan->interp, pMan->aVtab, x * sizeof(Th_Vtab*) );
     if(NULL==re){
       goto error;
     }
@@ -2838,11 +2859,19 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   return TH_OK;
   error:
   if( pBlob ){
-    OB_FREE( pMan->interp, pBlob );
+    Th_Free( pMan->interp, pBlob );
   }
   return TH_ERROR;
 }
 
+/*
+** Pops the top-most output buffer off the stack and returns
+** it. Returns NULL if there is no current buffer.  When the last
+** buffer is popped, pMan's internals are cleaned up.
+**
+** The caller owns the returned object and must eventually call
+** blob_reset() on it.
+*/
 Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   if( pMan->cursor < 0 ){
     return NULL;
@@ -2854,8 +2883,8 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
     pMan->interp->pVtab = pMan->aVtab[pMan->cursor];
     pMan->aVtab[pMan->cursor] = NULL;
     if(-1 == --pMan->cursor){
-      OB_FREE( pMan->interp, pMan->aBuf );
-      OB_FREE( pMan->interp, pMan->aVtab );
+      Th_Free( pMan->interp, pMan->aBuf );
+      Th_Free( pMan->interp, pMan->aVtab );
       *pMan = Th_Ob_Man_empty;
     }
     /*fprintf(stderr,"OB pop: %p level=%d\n", rc, pMan->cursor-1);*/
@@ -2863,6 +2892,14 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   }
 }
 
+/*
+** TH Syntax:
+**
+** ob clean
+**
+** Erases any currently buffered contents but does not modify
+** the buffering level.
+*/
 static int ob_clean_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
@@ -2879,6 +2916,14 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** ob end
+**
+** Erases any currently buffered contents and pops the current buffer
+** from the stack.
+*/
 static int ob_end_command( Th_Interp *interp, void *ctx,
                            int argc,  const char **argv, int *argl ){
   Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
@@ -2890,11 +2935,23 @@ static int ob_end_command( Th_Interp *interp, void *ctx,
     return TH_ERROR;
   }else{
     blob_reset(b);
-    OB_FREE( interp, b );
+    Th_Free( interp, b );
   }
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** ob flush
+**
+** UNTESTED! Maybe not needed.
+**
+** Briefly reverts the output layer to the next-lower
+** level, flushes the current buffer to that output layer,
+** and clears out the current buffer. Does not change the
+** buffering level.
+*/
 static int ob_flush_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl ){
   Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
@@ -2914,6 +2971,17 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** ob get ?clean|end?
+**
+** Fetches the contents of the current buffer level.  If either
+** 'clean' or 'end' are specified then the effect is as if "ob clean"
+** or "ob end", respectively, are called after fetching the
+** value. Calling "ob get end" is functionality equivalent to "ob get"
+** followed by "ob end".
+*/
 static int ob_get_command( Th_Interp *interp, void *ctx,
                            int argc,  const char **argv, int *argl){
   Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
@@ -2944,6 +3012,30 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
   }
 }
 
+/*
+** TH Syntax:
+**
+** ob level
+**
+** Returns the buffering level, where 0 means no buffering is
+** active, 1 means 1 level is active, etc.
+*/
+static int ob_level_command( Th_Interp *interp, void *ctx,
+                             int argc,  const char **argv, int *argl
+){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Th_SetResultInt( interp, 1 + pMan->cursor );
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+** ob start
+**
+** Pushes a new level of buffering onto the buffer stack.
+** Returns the new buffering level (1-based).
+*/
 static int ob_start_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
@@ -2958,10 +3050,18 @@ static int ob_start_command( Th_Interp *interp, void *ctx,
   }
   assert( NULL != b );
   /*fprintf(stderr,"OB STARTED: %p level=%d\n", b, pMan->cursor);*/
-  Th_SetResultInt( interp, pMan->cursor );
+  Th_SetResultInt( interp, 1 + pMan->cursor );
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** ob clean|end|flush|get|level|start
+**
+** Runs the given subcommand.
+** 
+*/
 static int ob_cmd(
   Th_Interp *interp, 
   void *ignored, 
@@ -2975,6 +3075,7 @@ static int ob_cmd(
     { "end",       ob_end_command },
     { "flush",     ob_flush_command },
     { "get",       ob_get_command },
+    { "level",     ob_level_command },
     { "start",     ob_start_command },
     { 0, 0 }
   };
@@ -2982,7 +3083,8 @@ static int ob_cmd(
     pMan->interp = interp;
     /*
       FIXME: add rudamentary at-finalization GC to Th_Interp and clean
-      this up there.
+      this up there. We currently leak only if the client does not
+      close all buffering levels properly.
     */
   }
   return Th_CallSubCommand(interp, pMan, argc, argv, argl, aSub);
@@ -2996,9 +3098,8 @@ int th_register_ob(Th_Interp * interp){
   };
   return Th_register_commands( interp, aCommand );
 }
-#undef OB_MALLOC
-#undef OB_REALLOC
-#undef OB_FREE
+
+#undef Th_Ob_Man_empty_m
 #endif
 /* end TH_USE_OUTBUF */
 

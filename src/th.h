@@ -7,6 +7,8 @@
 
 /*
 ** TH_USE_OUTBUF, if defined, enables the "ob" family of functions.
+** They are functionally similar to PHP's ob_start(), ob_end(), etc.
+** family of functions, providing output capturing/buffering.
 */
 #define TH_USE_OUTBUF
 /*#undef TH_USE_OUTBUF*/
