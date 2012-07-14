@@ -2488,14 +2488,12 @@ static int sqlite3AtoF(const char *z, double *pResult){
 }
 
 /*
-** Try to convert the string passed as arguments (z, n) to an integer.
-** If successful, store the result in *piOut and return TH_OK. 
-**
-** If the string cannot be converted to an integer, return TH_ERROR. 
-** If the interp argument is not NULL, leave an error message in the 
-** interpreter result too.
+** Attempts to convert (zArg,nArg) to an integer. On success *piOut is
+** assigned to its value and TH_OK is returned, else piOut is not
+** modified and TH_ERROR is returned. Conversion errors are considered
+** non-fatal here, so interp's error state is not set.
 */
-int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
+int Th_TryInt(Th_Interp *interp, const char *z, int n, int *piOut){
   int i = 0;
   int iOut = 0;
 
@@ -2508,7 +2506,6 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
   }
   for(; i<n; i++){
     if( !th_isdigit(z[i]) ){
-      Th_ErrorMessage(interp, "expected integer, got: \"", z, n);
       return TH_ERROR;
     }
     iOut = iOut * 10 + (z[i] - 48);
@@ -2520,6 +2517,41 @@ int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
 
   *piOut = iOut;
   return TH_OK;
+}
+
+/*
+** Try to convert the string passed as arguments (z, n) to an integer.
+** If successful, store the result in *piOut and return TH_OK. 
+**
+** If the string cannot be converted to an integer, return TH_ERROR. 
+** If the interp argument is not NULL, leave an error message in the 
+** interpreter result too.
+*/
+int Th_ToInt(Th_Interp *interp, const char *z, int n, int *piOut){
+  const int rc = Th_TryInt(interp, z, n, piOut);
+  if( TH_OK != rc ){
+    Th_ErrorMessage(interp, "expected integer, got: \"", z, n);
+  }
+  return rc;
+}
+
+
+/*
+** Functionally/semantically identical to Th_TryInt() but works on
+** doubles.
+*/
+int Th_TryDouble(
+  Th_Interp *interp, 
+  const char *z, 
+  int n, 
+  double *pfOut
+){
+  if( !sqlite3IsNumber((const char *)z, 0) ){
+    return TH_ERROR;
+  }else{
+    sqlite3AtoF((const char *)z, pfOut);
+    return TH_OK;
+  }
 }
 
 /*
@@ -2536,13 +2568,11 @@ int Th_ToDouble(
   int n, 
   double *pfOut
 ){
-  if( !sqlite3IsNumber((const char *)z, 0) ){
-    Th_ErrorMessage(interp, "expected number, got: \"", z, n);
-    return TH_ERROR;
+  const int rc = Th_TryDouble(interp, z, n, pfOut);
+  if( TH_OK != rc ){
+      Th_ErrorMessage(interp, "expected number, got: \"", z, n);
   }
-
-  sqlite3AtoF((const char *)z, pfOut);
-  return TH_OK;
+  return rc;
 }
 
 /*

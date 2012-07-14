@@ -169,6 +169,8 @@ int Th_ToInt(Th_Interp *, const char *, int, int *);
 int Th_ToDouble(Th_Interp *, const char *, int, double *);
 int Th_SetResultInt(Th_Interp *, int);
 int Th_SetResultDouble(Th_Interp *, double);
+int Th_TryInt(Th_Interp *, const char * zArg, int nArg, int * piOut);
+int Th_TryDouble(Th_Interp *, const char * zArg, int nArg, double * pfOut);
 
 /*
 ** Drop in replacements for the corresponding standard library functions.
