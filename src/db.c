@@ -1100,6 +1100,12 @@ void db_must_be_within_tree(void){
 void db_close(int reportErrors){
   sqlite3_stmt *pStmt;
   if( g.db==0 ) return;
+  if(g.interp){
+    /* clean up up any query_prepare statements */
+    Th_DeleteInterp(g.interp);
+    g.interp = 0;
+  }
+
   if( g.fSqlStats ){
     int cur, hiwtr;
     sqlite3_db_status(g.db, SQLITE_DBSTATUS_LOOKASIDE_USED, &cur, &hiwtr, 0);

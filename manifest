@@ -1,5 +1,5 @@
-C Fixed\sa\smemleak\sin\sthe\scleanup\sof\sth1\squery_prepare\sstatement.
-D 2012-07-14T10:26:14.648
+C Added\sg.interp\scleanup\sto\sdb_close()\sto\sallow\sth1\sto\sclean\sup\sany\sstatement\shandles\sit\screates.
+D 2012-07-14T11:14:54.912
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -76,7 +76,7 @@ F src/configure.c ebf8d685e75cf5cbf153c242f361d2a6831d5133
 F src/content.c ae09e1bcb18382b20c713be13d60b5c98bb35725
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 9b15f53f666d3c8f2c1ae01f5153bd1f7187433d
+F src/db.c f0d657b18baaa72efd8afd78eb86d67294e38e6b
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a8eace9a2adf75c160fdaa6bb05bc710ca10dd7f
-R e54703c54eb5abdb577b3230f85e4690
+P eb4a373ee8144aefefdd5ef64ebebcec28563a6b
+R 7ba3896be27b170d05b65a3d0c3ac0e1
 U stephan
-Z 3043b3e8a7ac89dfaec5618af958970a
+Z 4e21a3fe11a719aa7502373ea40805ab
