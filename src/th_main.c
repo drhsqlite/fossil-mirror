@@ -1299,10 +1299,59 @@ static int queryBindDoubleCmd(
   return TH_OK;
 }
 
+int th_register_sqlite(Th_Interp *interp){
+  enum { BufLen = 100 };
+  char buf[BufLen];
+  int i, l;
+#define SET(K) l = snprintf(buf, BufLen, "%d", K);      \
+  Th_SetVar( interp, #K, strlen(#K), buf, l );
+  SET(SQLITE_BLOB);
+  SET(SQLITE_DONE);
+  SET(SQLITE_ERROR);
+  SET(SQLITE_FLOAT);
+  SET(SQLITE_INTEGER);
+  SET(SQLITE_NULL);
+  SET(SQLITE_OK);
+  SET(SQLITE_ROW);
+  SET(SQLITE_TEXT);
+#undef SET
+  static Th_Command_Reg aCommand[] = {
+    {"query_bind_int",    queryBindIntCmd,   0},
+    {"query_bind_double", queryBindDoubleCmd,0},
+    {"query_bind_null",   queryBindNullCmd,  0},
+    {"query_bind_string", queryBindStringCmd,0},
+    {"query_col_count",   queryColCountCmd,  0},
+    {"query_col_double",  queryColDoubleCmd, 0},
+    {"query_col_int",     queryColIntCmd,    0},
+    {"query_col_is_null", queryColIsNullCmd, 0},
+    {"query_col_name",    queryColNameCmd,   0},
+    {"query_col_string",  queryColStringCmd, 0},
+    {"query_col_type",    queryColTypeCmd,   0},
+    {"query_finalize",    queryFinalizeCmd,  0},
+    {"query_prepare",     queryPrepareCmd,   0},
+    {"query_step",        queryStepCmd,      0},
+    {0, 0, 0}
+  };
+  Th_register_commands( interp, aCommand );
+}
+
 #endif
 /* end TH_USE_SQLITE */
 
-
+int Th_register_commands( Th_Interp * interp,
+                           Th_Command_Reg const * aCommand ){
+  int i;
+  int rc = TH_OK;
+  for(i=0; (TH_OK==rc) && aCommand[i].zName; ++i){
+    if ( !aCommand[i].zName ) break;
+    else if( !aCommand[i].xProc ) continue;
+    else{
+      rc = Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc,
+                            aCommand[i].pContext, 0);
+    }
+  }
+  return rc;
+}
 
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
@@ -1313,11 +1362,7 @@ static int queryBindDoubleCmd(
 void Th_FossilInit(void){
   static PutsCmdData puts_Html = {0, 0, 0};
   static PutsCmdData puts_Normal = {1, 0, 0};
-  static struct _Command {
-    const char *zName;
-    Th_CommandProc xProc;
-    void *pContext;
-  } aCommand[] = {
+  static Th_Command_Reg aCommand[] = {
     {"anycap",        anycapCmd,            0},
     {"combobox",      comboboxCmd,          0},
     {"enable_output", enableOutputCmd,      0},
@@ -1339,23 +1384,6 @@ void Th_FossilInit(void){
     {"argv_getint",   argvFindOptionIntCmd,    0},
 #endif
 
-#ifdef TH_USE_SQLITE
-    {"query_bind_int",    queryBindIntCmd,   0},
-    {"query_bind_double", queryBindDoubleCmd,0},
-    {"query_bind_null",   queryBindNullCmd,  0},
-    {"query_bind_string", queryBindStringCmd,0},
-    {"query_col_count",   queryColCountCmd,  0},
-    {"query_col_double",  queryColDoubleCmd, 0},
-    {"query_col_int",     queryColIntCmd,    0},
-    {"query_col_is_null", queryColIsNullCmd, 0},
-    {"query_col_name",    queryColNameCmd,   0},
-    {"query_col_string",  queryColStringCmd, 0},
-    {"query_col_type",    queryColTypeCmd,   0},
-    {"query_finalize",    queryFinalizeCmd,  0},
-    {"query_prepare",     queryPrepareCmd,   0},
-    {"query_step",        queryStepCmd,      0},
-#endif
-
     {0, 0, 0}
   };
   if( g.interp==0 ){
@@ -1374,30 +1402,10 @@ void Th_FossilInit(void){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-    for(i=0; i<sizeof(aCommand)/sizeof(aCommand[0]); i++){
-      if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
-      Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
-                       aCommand[i].pContext, 0);
-    }
 #ifdef TH_USE_SQLITE
-    {
-      enum { BufLen = 100 };
-      char buf[BufLen];
-      int i, l;
-#define SET(K) l = snprintf(buf, BufLen, "%d", K); \
-      Th_SetVar( g.interp, #K, strlen(#K), buf, l );
-      SET(SQLITE_BLOB);
-      SET(SQLITE_DONE);
-      SET(SQLITE_ERROR);
-      SET(SQLITE_FLOAT);
-      SET(SQLITE_INTEGER);
-      SET(SQLITE_NULL);
-      SET(SQLITE_OK);
-      SET(SQLITE_ROW);
-      SET(SQLITE_TEXT);
-#undef SET
-    }
+    th_register_sqlite(g.interp);
 #endif
+    Th_register_commands( g.interp, aCommand );
   }
 }
 

@@ -1,5 +1,5 @@
-C minor\sgeneric\scleanups\sin\sth1\sbefore\scontinuing\son\sto\sreal\swork...
-D 2012-07-14T13:20:39.129
+C Refactored\sth1\sfunction\sregistration\scode\sto\sbe\sreusable\sacross\smodules.
+D 2012-07-14T13:43:04.911
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -151,9 +151,9 @@ F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 5f672a8d7e2eacae804ddc823849fe7f30adbc5f
-F src/th.h 98e13ab5770111cc11427bc9fcaff4e527823719
-F src/th_lang.c 5705aff44b7152704ba35c1beb363013d4cc251b
-F src/th_main.c e4e11063cfcdd15646303eeedaaa353c3b5e0a26
+F src/th.h 3d23440a15cdafb1a810af44ff3788ef18b21fe3
+F src/th_lang.c 19fa9554aacea40e68c80297fddc375511735a3d
+F src/th_main.c 40698821cd992d1c1c621874f5068d22f54838f8
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d3a623497404755832197ebac6329bb9a05a0786
-R 5d29529383364680d896c8c69ab7ad2a
+P 1767603f23ab757ac54e8a9212461ca846065a0d
+R bb9831402c549a0554931a52793bf10b
 U stephan
-Z 407a25b8fbd842d5447baa19b816fb9b
+Z 2c514b68de56cdcf129d6bee28edbde3

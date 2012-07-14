@@ -1040,11 +1040,7 @@ static int breakpoint_command(
 */
 int th_register_language(Th_Interp *interp){
   /* Array of built-in commands. */
-  struct _Command {
-    const char *zName;
-    Th_CommandProc xProc;
-    void *pContext;
-  } aCommand[] = {
+  struct Th_Command_Reg aCommand[] = {
     {"catch",    catch_command,   0},
     {"expr",     expr_command,    0},
     {"for",      for_command,     0},
@@ -1070,15 +1066,5 @@ int th_register_language(Th_Interp *interp){
 
     {0, 0, 0}
   };
-  int i;
-
-  /* Add the language commands. */
-  for(i=0; i<(sizeof(aCommand)/sizeof(aCommand[0])); i++){
-    void *ctx;
-    if ( !aCommand[i].zName || !aCommand[i].xProc ) continue;
-    ctx = aCommand[i].pContext;
-    Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc, ctx, 0);
-  }
-
-  return TH_OK;
+  return Th_register_commands(interp, aCommand);
 }

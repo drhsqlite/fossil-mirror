@@ -184,7 +184,7 @@ char *th_strdup(Th_Interp *interp, const char *z, int n);
 ** Interfaces to register the language extensions.
 */
 int th_register_language(Th_Interp *interp);            /* th_lang.c */
-int th_register_sqlite(Th_Interp *interp);              /* th_sqlite.c */
+int th_register_sqlite(Th_Interp *interp);              /* th_main.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
@@ -240,6 +240,24 @@ int Th_output( Th_Interp *pInterp, char const * zData, int len );
 */
 int Th_output_f_FILE( char const * zData, int len, void * pState );
 
+typedef struct Th_Command_Reg Th_Command_Reg;
+/*
+** A helper type for holding lists of function registration information.
+** For use with Th_register_commands().
+*/
+struct Th_Command_Reg {
+  const char *zName;     /* Function name. */
+  Th_CommandProc xProc;  /* Callback function */
+  void *pContext;        /* Arbitrary data for the callback. */
+};
+
+/*
+** Registers a list of commands with the interpreter. pList must be a non-NULL
+** pointer to an array of Th_Command_Reg objects, the last one of which MUST
+** have a NULL zName field (that is the end-of-list marker).
+** Returns TH_OK on success, "something else" on error.
+*/
+int Th_register_commands( Th_Interp * interp, Th_Command_Reg const * pList );
 
 #ifdef TH_USE_SQLITE
 #include "stddef.h" /* size_t */
