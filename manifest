@@ -1,5 +1,5 @@
-C Refactored\sth1's\soutput\smechanism:\smoved\soutput\sAPI\sto\sTh_Vtab\sto\ssupport\sarbitrary\soutput\sdestinations,\sthe\sintention\sbeing\sto\sbe\sable\sto\ssupport\san\soutput\sbuffer\sstack\sanalog\sto\sPHP's\sob_start(),\sob_get_clean()\sand\sfriends.
-D 2012-07-14T11:54:45.727
+C Refactored\ssendText()\sto\suse\sthe\snew\soutput\sabstraction\slayer.
+D 2012-07-14T12:02:53.517
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -153,7 +153,7 @@ F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 5f672a8d7e2eacae804ddc823849fe7f30adbc5f
 F src/th.h 7055ecc5af71a0c9a4d43b551d904985636bfaa2
 F src/th_lang.c f60e4d5f59b226173fc6cc84d6069dff7a7fe95c
-F src/th_main.c b7b6d3f138e18992fbbd67fed5bc036976be7665
+F src/th_main.c c7157d905a778b45fd1c07d6f37f1254e718c545
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4fdf0ac279a979f3313945c63d950749cb40d9ab
-R 31d7fa245e867d07c10be0f898e41964
+P 3c0209f5dcdc4e7505d1fb072bded0ca638ec187
+R 9e8ad5be78b30264d6a27ad6bd5ae3aa
 U stephan
-Z c74bee9565619a275f8b4946f9b100f7
+Z 417c6e1b5fe3f84bf3c2d1ec18ed3914

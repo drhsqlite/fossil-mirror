@@ -100,18 +100,18 @@ int Th_output_f_cgi_content( char const * zData, int nData, void * pState ){
 ** Send text to the appropriate output:  Either to the console
 ** or to the CGI reply buffer.
 */
-static void sendText(const char *z, int n, int encode){
+static void sendText(Th_Interp *pInterp, const char *z, int n, int encode){
+  if(NULL == pInterp){
+    pInterp = g.interp;
+  }
+  assert( NULL != pInterp );
   if( enableOutput && n ){
     if( n<0 ) n = strlen(z);
     if( encode ){
       z = htmlize(z, n);
       n = strlen(z);
     }
-    if( g.cgiOutput ){
-      Th_output_f_cgi_content(z, n, NULL);
-    }else{
-      Th_output_f_FILE( z, n, stdout );
-    }
+    Th_output( pInterp, z, n );
     if( encode ) fossil_free((char*)z);
   }
 }
@@ -144,12 +144,12 @@ static int putsCmd(
   }
   for( i = 1; i < argc; ++i ){
     if(sepLen && (i>1)){
-      sendText(fmt->sep, sepLen, 0);
+      sendText(interp, fmt->sep, sepLen, 0);
     }
-    sendText((char const*)argv[i], argl[i], fmt->escapeHtml);
+    sendText(interp, (char const*)argv[i], argl[i], fmt->escapeHtml);
   }
   if(fmt->eol){
-    sendText(fmt->eol, strlen(fmt->eol), 0);
+    sendText(interp, fmt->eol, strlen(fmt->eol), 0);
   }
   return TH_OK;
 }
@@ -364,7 +364,7 @@ static int comboboxCmd(
     zValue = Th_Fetch(blob_str(&name), &nValue);
     z = mprintf("<select name=\"%z\" size=\"%d\">", 
                  htmlize(blob_buffer(&name), blob_size(&name)), height);
-    sendText(z, -1, 0);
+    sendText(interp, z, -1, 0);
     free(z);
     blob_reset(&name);
     for(i=0; i<nElem; i++){
@@ -377,10 +377,10 @@ static int comboboxCmd(
         z = mprintf("<option value=\"%s\">%s</option>", zH, zH);
       }
       free(zH);
-      sendText(z, -1, 0);
+      sendText(interp, z, -1, 0);
       free(z);
     }
-    sendText("</select>", -1, 0);
+    sendText(interp, "</select>", -1, 0);
     Th_Free(interp, azElem);
   }
   return TH_OK;
@@ -1296,6 +1296,7 @@ void Th_FossilInit(void){
       vtab.out.f = Th_output_f_FILE;
       vtab.out.pState = stdout;
     }
+    vtab.out.enabled = enableOutput;
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
@@ -1444,7 +1445,7 @@ int Th_Render(const char *z){
       const char *zVar;
       int nVar;
       int encode = 1;
-      sendText(z, i, 0);
+      sendText(g.interp, z, i, 0);
       if( z[i+1]=='<' ){
         /* Variables of the form $<aaa> are html escaped */
         zVar = &z[i+2];
@@ -1459,9 +1460,9 @@ int Th_Render(const char *z){
       z += i+1+n;
       i = 0;
       zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText((char*)zResult, n, encode);
+      sendText(g.interp, (char*)zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
-      sendText(z, i, 0);
+      sendText(g.interp, z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
@@ -1474,12 +1475,12 @@ int Th_Render(const char *z){
     }
   }
   if( rc==TH_ERROR ){
-    sendText("<hr><p class=\"thmainError\">ERROR: ", -1, 0);
+    sendText(g.interp, "<hr><p class=\"thmainError\">ERROR: ", -1, 0);
     zResult = (char*)Th_GetResult(g.interp, &n);
-    sendText((char*)zResult, n, 1);
-    sendText("</p>", -1, 0);
+    sendText(g.interp, (char*)zResult, n, 1);
+    sendText(g.interp, "</p>", -1, 0);
   }else{
-    sendText(z, i, 0);
+    sendText(g.interp, z, i, 0);
   }
   return rc;
 }
