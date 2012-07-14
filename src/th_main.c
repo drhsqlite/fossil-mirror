@@ -1327,6 +1327,33 @@ static int queryBindDoubleCmd(
   return TH_OK;
 }
 
+static int queryTopLevelCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  static Th_SubCommand aSub[] = {
+    {"bind_int",    queryBindIntCmd},
+    {"bind_double", queryBindDoubleCmd},
+    {"bind_null",   queryBindNullCmd},
+    {"bind_string", queryBindStringCmd},
+    {"col_count",   queryColCountCmd},
+    {"col_double",  queryColDoubleCmd},
+    {"col_int",     queryColIntCmd},
+    {"col_is_null", queryColIsNullCmd},
+    {"col_name",    queryColNameCmd},
+    {"col_string",  queryColStringCmd},
+    {"col_type",    queryColTypeCmd},
+    {"step",        queryStepCmd},
+    {"finalize",    queryFinalizeCmd},
+    {"prepare",     queryPrepareCmd},
+    {0, 0}
+  };
+  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+}
+
 int th_register_sqlite(Th_Interp *interp){
   enum { BufLen = 100 };
   char buf[BufLen];
@@ -1344,6 +1371,8 @@ int th_register_sqlite(Th_Interp *interp){
   SET(SQLITE_TEXT);
 #undef SET
   static Th_Command_Reg aCommand[] = {
+    {"query",             queryTopLevelCmd,  0},
+#if 0
     {"query_bind_int",    queryBindIntCmd,   0},
     {"query_bind_double", queryBindDoubleCmd,0},
     {"query_bind_null",   queryBindNullCmd,  0},
@@ -1358,6 +1387,7 @@ int th_register_sqlite(Th_Interp *interp){
     {"query_finalize",    queryFinalizeCmd,  0},
     {"query_prepare",     queryPrepareCmd,   0},
     {"query_step",        queryStepCmd,      0},
+#endif
     {0, 0, 0}
   };
   Th_register_commands( interp, aCommand );

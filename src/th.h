@@ -225,7 +225,11 @@ int Th_WrongNumArgs2(Th_Interp *interp, const char *zCmdName,
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
-
+/*
+** Works similarly to Th_CallSubCommand() but adjusts argc/argv/argl
+** by 1 before passing on the call to the subcommand.
+*/
+int Th_CallSubCommand2(Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl, Th_SubCommand *aSub);
 /*
 ** Sends the given data through vTab->out.f() if vTab->out.enabled is
 ** true, otherwise this is a no-op. Returns 0 or higher on success, *

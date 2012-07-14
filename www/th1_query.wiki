@@ -1,0 +1,98 @@
+<h1>TH1 "query" API</h1>
+
+The "query" API provides limited access to the fossil database.
+It restricts usage to queries which return result columns (i.e.
+<tt>SELECT</tt> and friends).
+Example usage:
+
+<nowiki><pre>
+&lt;th1>
+catch {
+    set stmt [query prepare "SELECT login, cap FROM user"]
+    puts "stmt ID=$stmt\n"
+    for {} {0 < [query step $stmt]} {} {
+        puts [query col_string $stmt 0] ": " [query col_string $stmt 1] "\n"
+    }
+    query finalize $stmt
+    return 0
+} rc
+if {0 != $rc} {
+    puts "ERROR: $rc\n"
+}
+&lt;th1>
+</pre></nowiki>
+
+The various subcommands are summarized below...
+
+<h2>prepare</h2>
+
+This subcommand prepares a query for execution. It returns a statement handle
+ID which must be passed to any other functions using the API.
+
+All prepared statements must be <tt>finalize</tt>d when they have outlived
+their usefulness.
+
+<h2>finalize</h2>
+
+Releases all resources associated with the statement. Note that future
+calls to <tt>prepare</tt> might re-use the same statement statement
+ID.
+
+<nowiki><pre>
+set stmt [query prepare "SELECT ..."]
+query finalize $stmt
+</pre></nowiki>
+
+
+<h2>step</h2>
+
+This subcommand steps the result set by one row. It returns 0
+at the end of the set, a positive value if a new row is available,
+and throws for any other condition.
+
+<nowiki><pre>
+for {} {0 &lt; [query step $stmt]} {} {
+   puts [query col_string $stmt 0] "\n"
+}
+</pre></nowiki>
+
+
+<h2>bind_xxx</h2>
+
+The <tt>bind_xxx</tt> family of subcommands attach values to queries
+before stepping through them. The subcommands include:
+
+   *  <tt>bind_int StmtId Index Value</tt>
+   *  <tt>bind_double StmtId Index Value</tt>
+   *  <tt>bind_null StmtId Index</tt>
+   *  <tt>bind_string StmtId Index Value</tt>
+
+Achtung: the bind API uses 1-based indexes, just like SQL does.
+
+TODO: split bind_xxx into "bind xxx".
+
+<nowiki><pre>
+set stmt [query prepare "SELECT ... WHERE user=?"]
+query bind_int $stmt 1 drh
+if {0 &lt; [query step $stmt]} {
+   puts [query col_string $stmt 0] "\n"
+}
+query finalize $stmt
+</pre></nowiki>
+
+
+<h2>col_xxx</h2>
+
+The <tt>col_xxx</tt> familys of subcommands are for fetching
+values and metadata from result rows.
+
+   *  <tt>col_count StmtId</tt> Returns the number of result columns in the statement.
+   *  <tt>col_is_null StmtId Index</tt> Returns non-0 if the given column contains an SQL NULL value.
+   *  <tt>col_double StmtId Index</tt>
+   *  <tt>col_int StmtId Index</tt>
+   *  <tt>col_string StmtId Index</tt>
+   *  <tt>col_type StmtId Index</tt> Return value corresponds to one of the <tt>SQLITE_TYPENAME</tt> family of constants.
+
+TODO: split col_xxx into "col xxx".
+
+Achtung: the col API uses 0-based indexes, just like SQL does.

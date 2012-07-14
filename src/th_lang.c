@@ -884,6 +884,26 @@ int Th_CallSubCommand(
   return TH_ERROR;
 }
 
+int Th_CallSubCommand2(
+  Th_Interp *interp, 
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl,
+  Th_SubCommand *aSub
+){
+  int i;
+  for(i=0; aSub[i].zName; i++){
+    char const *zName = aSub[i].zName;
+    if( th_strlen(zName)==argl[1] && 0==memcmp(zName, argv[1], argl[1]) ){
+      return aSub[i].xProc(interp, ctx, argc-1, argv+1, argl+1);
+    }
+  }
+  Th_ErrorMessage(interp, "Expected sub-command, got:", argv[1], argl[1]);
+  return TH_ERROR;
+}
+
+
 /*
 ** TH Syntax:
 **

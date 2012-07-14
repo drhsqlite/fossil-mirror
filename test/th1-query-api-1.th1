@@ -24,8 +24,8 @@ proc xyz {} {
 set a [xyz]
 puts "a=${a}" ! \n
 
-set stmt [query_prepare {SELECT login, cap FROM user}]
-set colCount [query_col_count $stmt]
+set stmt [query prepare {SELECT login, cap FROM user}]
+set colCount [query col_count $stmt]
 puts "query column count: ${colCount}\n"
 puts "stmt id=${stmt}\n"
 
@@ -40,34 +40,34 @@ set sep "    "
 set i 0
 set colNames(0) 0
 for {set i 0} {$i < $colCount} {incr i} {
-    set colNames($i) [query_col_name $stmt $i]
+    set colNames($i) [query col_name $stmt $i]
     puts "colNames($i)=" $colNames($i) "\n"
 }
 
-for {set row 0} {0 < [query_step $stmt]} {incr row} {
+for {set row 0} {0 < [query step $stmt]} {incr row} {
     for {set i 0} {$i < $colCount} {incr i} {
         if {$i > 0} {
             puts $sep
         } else {
             puts "#$row: $sep"
         }
-        puts $colNames($i) = [query_col_string $stmt $i]
+        puts $colNames($i) = [query col_string $stmt $i]
     }
     puts "\n"
 }
 unset row
 
-query_finalize $stmt
+query finalize $stmt
 
 
 proc query_step_each {{stmt} {callback}} {
     set colNames(0) 0
-    set colCount [query_col_count $stmt]
+    set colCount [query col_count $stmt]
     for {set i 0} {$i < $colCount} {incr i} {
-        set colNames($i) [query_col_name $stmt $i]
+        set colNames($i) [query col_name $stmt $i]
     }
     upvar cb $callback
-    for {set row 0} {0 < [query_step $stmt]} {incr row} {
+    for {set row 0} {0 < [query step $stmt]} {incr row} {
         #puts "Calling callback: $stmt $colCount colNames\n"
         $callback $stmt $colCount
     }
@@ -76,35 +76,35 @@ proc query_step_each {{stmt} {callback}} {
 set sql {SELECT uid, login FROM user WHERE uid!=?}
 #set sql {SELECT uid, login FROM user WHERE login=?}
 #set sql {SELECT tagid, value, null FROM tagxref WHERE value IS ? LIMIT 3}
-set stmt [query_prepare $sql]
+set stmt [query prepare $sql]
 puts "stmt ID=" $stmt "\n"
-query_bind_int $stmt 1 3
-#set stmt [query_prepare $sql]
-#query_bind_string $stmt 1 stephan
-#set stmt [query_prepare $sql]
-#query_bind_null $stmt 1
+query bind_int $stmt 1 3
+#set stmt [query prepare $sql]
+#query bind_string $stmt 1 stephan
+#set stmt [query prepare $sql]
+#query bind_null $stmt 1
 set rc 0
 puts "USER LIST:\n"
 catch {
     proc my_each {stmt colCount} {
         upvar 2 sep sep
-        puts [query_col_int $stmt 0] " (type=" [query_col_type $stmt 0] ")" $sep
-        puts [query_col_double $stmt 0] $sep
-        puts [query_col_string $stmt 1]  " (type=" [query_col_type $stmt 1] ")" $sep
-        puts "isnull 0 ?= " [query_col_is_null $stmt 0] $sep
-        puts "isnull 2 ?= " [query_col_is_null $stmt 2]
+        puts [query col_int $stmt 0] " (type=" [query col_type $stmt 0] ")" $sep
+        puts [query col_double $stmt 0] $sep
+        puts [query col_string $stmt 1]  " (type=" [query col_type $stmt 1] ")" $sep
+        puts "isnull 0 ?= " [query col_is_null $stmt 0] $sep
+        puts "isnull 2 ?= " [query col_is_null $stmt 2]
 #        for {set i 0} {$i < $colCount} {incr i} {
 #            if {$i > 0} { puts $sep }
 #        }
         puts "\n"
 #        error "hi!"
     }
-    query_step_each $stmt my_each
-#    query_step_each $stmt {
+    query step_each $stmt my_each
+#    query step_each $stmt {
 #        proc each {stmt cc} { puts hi "\n" }
 #    }
 } rc
-query_finalize $stmt
+query finalize $stmt
 puts rc = $rc "\n"
 
 set consts [list SQLITE_BLOB SQLITE_DONE SQLITE_ERROR SQLITE_FLOAT SQLITE_INTEGER SQLITE_NULL SQLITE_OK SQLITE_ROW SQLITE_TEXT]
@@ -141,31 +141,31 @@ proc multiStmt {} {
     set i 0
     set s(0) 0
     for {set i 0} {$i < $max} {incr i} {
-       set s($i) [query_prepare "SELECT $i"]
+       set s($i) [query prepare "SELECT $i"]
        puts "s($i) = $s($i)\n"
     }
     for {set i 0} {$i < $max} {incr i} {
-       query_step $s($i)
+       query step $s($i)
     }
     for {set i 0} {$i < $max} {incr i} {
        puts "closing stmt $s($i)\n"
-       query_finalize $s($i)
+       query finalize $s($i)
     }
 
     puts "Preparing again\n"
 
     for {set i 0} {$i < $max} {incr i} {
-       set s($i) [query_prepare "SELECT $i"]
+       set s($i) [query prepare "SELECT $i"]
        puts "s($i) = $s($i)\n"
     }
     for {set i 0} {$i < $max} {incr i} {
-       query_step $s($i)
+       query step $s($i)
     }
     puts "Closing again\n"
 
     for {set i 0} {$i < $max} {incr i} {
        puts "closing stmt $s($i)\n"
-       query_finalize $s($i)
+       query finalize $s($i)
     }
 }
 multiStmt
