@@ -791,16 +791,30 @@ void remove_from_argv(int i, int n){
 ** hasArg==0 means the option is a flag.  It is either present or not.
 ** hasArg==1 means the option has an argument.  Return a pointer to the
 ** argument.
+**
+** Note that this function REMOVES any found entry from the args list,
+** so calling this twice for the same var will cause NULL to be returned
+** after the first time.
+**
+** zLong may not be NULL but zShort may be.
+**
+** Options are accepted in these forms, depending on the value of hasArg:
+**
+** hasArg=true:
+**  -long VALUE
+**  -long=VALUE
+**  -short VALUE
+**  -short=VALUE
 */
 const char *find_option(const char *zLong, const char *zShort, int hasArg){
   int i;
-  int nLong;
+  int nLong, nShort;
   const char *zReturn = 0;
   assert( hasArg==0 || hasArg==1 );
   nLong = strlen(zLong);
+  nShort = zShort ? strlen(zShort) : 0;
   for(i=1; i<g.argc; i++){
     char *z;
-    if (i+hasArg >= g.argc) break;
     z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -817,16 +831,25 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         remove_from_argv(i, 1);
         break;
       }else if( z[nLong]==0 ){
+        if (i+hasArg >= g.argc) break;
         zReturn = g.argv[i+hasArg];
         remove_from_argv(i, 1+hasArg);
         break;
       }
-    }else if( fossil_strcmp(z,zShort)==0 ){
-      zReturn = g.argv[i+hasArg];
-      remove_from_argv(i, 1+hasArg);
-      break;
+    }else if( strncmp(z,zShort,nShort)==0 ){
+      if( hasArg && z[nShort]=='=' ){
+        zReturn = &z[nShort+1];
+        remove_from_argv(i, 1);
+        break;
+      }else if( z[nShort]==0 ){
+        if (i+hasArg >= g.argc) break;
+        zReturn = g.argv[i+hasArg];
+        remove_from_argv(i, 1+hasArg);
+        break;
+      }
     }
   }
+
   return zReturn;
 }
 
