@@ -1663,6 +1663,7 @@ void Th_DeleteInterp(Th_Interp *interp){
     for( i = 0; i < interp->stmt.nStmt; ++i ){
       Th_FinalizeStmt( interp, i );
     }
+    Th_Free(interp, interp->stmt.aStmt);
   }
 #endif
   
