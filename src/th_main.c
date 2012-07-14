@@ -474,6 +474,16 @@ static int queryPrepareCmd(
   return TH_OK;
 }
 
+/*
+** Tries to convert arg, which must be argLen bytes long, to a
+** statement handle id and, in turn, to a sqlite3_stmt. On success
+** (the argument references a prepared statement) it returns the
+** handle and stmtId (if not NULL) is assigned to the integer value of
+** arg. On error NULL is returned and stmtId might be modified (if not
+** NULL). If stmtId is unmodified after an error then it is not a
+** number, else it is a number but does not reference an opened
+** statement.
+*/
 static sqlite3_stmt * queryStmtHandle(Th_Interp *interp, char const * arg, int argLen, int * stmtId ){
   int rc = 0;
   sqlite3_stmt * pStmt = NULL;
@@ -515,11 +525,25 @@ static int queryFinalizeCmd(
   return TH_OK;
 }
 
-static void queryReportDbErr( Th_Interp * interp, int rc ){
+static int queryReportDbErr( Th_Interp * interp ){
   char const * msg = sqlite3_errmsg( g.db );
   Th_ErrorMessage(interp, "db error:", msg, -1);
+  return TH_ERROR;
 }
 
+/*
+** Internal helper for fetching statement handle and index parameters.
+** The first 4 args should be the args passed to the TH1 callback.
+** pStmt must be a pointer to a NULL pointer. pIndex may be NULL or
+** a pointer to store the statement index argument in. If pIndex is
+** NULL then argc is asserted to be at least 2, else it must be at
+** least 3.
+**
+** On success it returns 0, sets *pStmt to the referenced statement
+** handle, and pIndex (if not NULL) to the integer value of argv[2]
+** argument. On error it reports the error via TH, returns non-0, and
+** modifies neither pStmt not pIndex.
+*/
 static int queryStmtIndexArgs(
   Th_Interp * interp,
   int argc,
@@ -568,6 +592,7 @@ static int queryStepCmd(
   if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, NULL)){
     return TH_ERROR;
   }
+  assert(NULL != pStmt);
   rc = sqlite3_step( pStmt );
   switch(rc){
     case SQLITE_ROW:
@@ -577,8 +602,7 @@ static int queryStepCmd(
       rc = 0;
       break;
     default:
-      queryReportDbErr( interp, rc );
-      return TH_ERROR;
+      return queryReportDbErr( interp );
   }
   Th_SetResultInt( interp, rc );
   return TH_OK;
@@ -593,12 +617,13 @@ static int queryColStringCmd(
 ){
   sqlite3_stmt * pStmt = NULL;
   char const * val;
-  int index;
+  int index = -1;
   int valLen;
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query_col_string StmtHandle Index");
   }
-  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
     return TH_ERROR;
   }
   val = sqlite3_column_text( pStmt, index );
@@ -616,11 +641,12 @@ static int queryColIntCmd(
 ){
   sqlite3_stmt * pStmt = NULL;
   int rc = 0;
-  int index = 0;
+  int index = -1;
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query_col_int StmtHandle Index");
   }
-  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
     return TH_ERROR;
   }
   Th_SetResultInt( interp, sqlite3_column_int( pStmt, index ) );
@@ -640,13 +666,55 @@ static int queryColDoubleCmd(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query_col_double StmtHandle Index");
   }
-  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
     return TH_ERROR;
   }
   Th_SetResultDouble( interp, sqlite3_column_double( pStmt, index ) );
   return TH_OK;
 }
 
+static int queryColIsNullCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  double rc = 0;
+  int index = -1;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_col_is_null StmtHandle Index");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
+    return TH_ERROR;
+  }
+  Th_SetResultInt( interp, SQLITE_NULL==sqlite3_column_type( pStmt, index ) );
+  return TH_OK;
+}
+
+static int queryColTypeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  double rc = 0;
+  int index = -1;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_col_type StmtHandle Index");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 0){
+    return TH_ERROR;
+  }
+  Th_SetResultInt( interp, sqlite3_column_type( pStmt, index ) );
+  return TH_OK;
+}
 
 static int queryColCountCmd(
   Th_Interp *interp,
@@ -701,6 +769,117 @@ static int queryColNameCmd(
   }
 }
 
+static int queryBindNullCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc;
+  int index = 0;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_bind_null StmtHandle Index");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 1){
+    return TH_ERROR;
+  }
+  rc = sqlite3_bind_null( pStmt, index );
+  if(rc){
+    return queryReportDbErr( interp );
+  }
+  Th_SetResultInt( interp, 0 );
+  return TH_OK;
+}
+
+
+static int queryBindStringCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc;
+  int index = 0;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "query_bind_string StmtHandle Index val");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 1){
+    return TH_ERROR;
+  }
+  rc = sqlite3_bind_text( pStmt, index, argv[3], argl[3], SQLITE_TRANSIENT );
+  if(rc){
+    return queryReportDbErr( interp );
+  }
+  Th_SetResultInt( interp, 0 );
+  return TH_OK;
+}
+
+static int queryBindIntCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc;
+  int val;
+  int index = 0;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "query_bind_int StmtHandle Index val");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 1){
+    return TH_ERROR;
+  }
+  if( 0 != Th_ToInt( interp, argv[3], argl[3], &val ) ){
+    return TH_ERROR;
+  }
+
+  rc = sqlite3_bind_int( pStmt, index, val );
+  if(rc){
+    return queryReportDbErr( interp );
+  }
+  Th_SetResultInt( interp, 0 );
+  return TH_OK;
+}
+
+static int queryBindDoubleCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc;
+  double val;
+  int index = 0;
+  if( argc!=4 ){
+    return Th_WrongNumArgs(interp, "query_bind_double StmtHandle Index val");
+  }
+  queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
+  if(index < 1){
+    return TH_ERROR;
+  }
+  if( 0 != Th_ToDouble( interp, argv[3], argl[3], &val ) ){
+    return TH_ERROR;
+  }
+
+  rc = sqlite3_bind_double( pStmt, index, val );
+  if(rc){
+    return queryReportDbErr( interp );
+  }
+  Th_SetResultInt( interp, 0 );
+  return TH_OK;
+}
+
 #endif
 /* end TH_USE_SQLITE */
 
@@ -730,18 +909,24 @@ void Th_FossilInit(void){
     {"html",          putsCmd,     &puts_Html},
     {"puts",          putsCmd,   &puts_Normal},
     {"putsl",         putsCmd,      &puts_Ext},
+    {"wiki",          wikiCmd,              0},
+    {"repository",    repositoryCmd,        0},
 #ifdef TH_USE_SQLITE
+    {"query_bind_int",    queryBindIntCmd,   0},
+    {"query_bind_double", queryBindDoubleCmd,0},
+    {"query_bind_null",   queryBindNullCmd,  0},
+    {"query_bind_string", queryBindStringCmd,0},
     {"query_col_count",   queryColCountCmd,  0},
+    {"query_col_double",  queryColDoubleCmd, 0},
+    {"query_col_int",     queryColIntCmd,    0},
+    {"query_col_is_null", queryColIsNullCmd, 0},
     {"query_col_name",    queryColNameCmd,   0},
     {"query_col_string",  queryColStringCmd, 0},
-    {"query_col_int",     queryColIntCmd,    0},
-    {"query_col_double",  queryColDoubleCmd, 0},
+    {"query_col_type",    queryColTypeCmd,   0},
     {"query_finalize",    queryFinalizeCmd,  0},
     {"query_prepare",     queryPrepareCmd,   0},
     {"query_step",        queryStepCmd,      0},
 #endif
-    {"wiki",          wikiCmd,              0},
-    {"repository",    repositoryCmd,        0},
     {0, 0, 0}
   };
   if( g.interp==0 ){
@@ -758,6 +943,25 @@ void Th_FossilInit(void){
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
+#ifdef TH_USE_SQLITE
+    {
+      enum { BufLen = 100 };
+      char buf[BufLen];
+      int i;
+#define SET(K) i = snprintf(buf, BufLen, "%d", K); \
+      Th_SetVar( g.interp, #K, strlen(#K), buf, i );
+      SET(SQLITE_BLOB);
+      SET(SQLITE_DONE);
+      SET(SQLITE_ERROR);
+      SET(SQLITE_FLOAT);
+      SET(SQLITE_INTEGER);
+      SET(SQLITE_NULL);
+      SET(SQLITE_OK);
+      SET(SQLITE_ROW);
+      SET(SQLITE_TEXT);
+#undef SET
+    }
+#endif
   }
 }
 

@@ -30,7 +30,7 @@ puts "query column count: ${colCount}\n"
 #set stmt2 [query_prepare {SELECT cap, login FROM user}]
 #puts "stmt=${stmt} stmt2=${stmt2}\n"
 #putsl "step =" [query_step $stmt]
-#putsl "val =" [query_col_string $stmt 1]
+#putsl "cap =" [query_col_string $stmt 1]
 
 proc noop {} {}
 proc incr {name {step 1}} {
@@ -44,6 +44,7 @@ set i 0
 set colNames(0) 0
 for {set i 0} {$i < $colCount} {incr i} {
     set colNames($i) [query_col_name $stmt $i]
+    puts "colNames($i)=" $colNames($i) "\n"
 }
 
 for {set row 0} {0 < [query_step $stmt]} {incr row} {
@@ -76,15 +77,26 @@ proc query_step_each {{stmt} {callback}} {
     }
 }
 
-
-set stmt [query_prepare {SELECT uid, login FROM user}]
+set sql {SELECT uid, login FROM user WHERE uid!=?}
+#set sql {SELECT uid, login FROM user WHERE login=?}
+#set sql {SELECT tagid, value, null FROM tagxref WHERE value IS ? LIMIT 3}
+set stmt [query_prepare $sql]
+puts "stmt ID=" $stmt "\n"
+query_bind_int $stmt 1 3
+#set stmt [query_prepare $sql]
+#query_bind_string $stmt 1 stephan
+#set stmt [query_prepare $sql]
+#query_bind_null $stmt 1
 set rc 0
+puts "USER LIST:\n"
 catch {
     proc my_each {stmt colCount} {
         upvar 2 sep sep
-        puts [query_col_int $stmt 0] $sep
+        puts [query_col_int $stmt 0] " (type=" [query_col_type $stmt 0] ")" $sep
         puts [query_col_double $stmt 0] $sep
-        puts [query_col_string $stmt 1]
+        puts [query_col_string $stmt 1]  " (type=" [query_col_type $stmt 1] ")" $sep
+        puts "isnull 0 ?= " [query_col_is_null $stmt 0] $sep
+        puts "isnull 2 ?= " [query_col_is_null $stmt 2]
 #        for {set i 0} {$i < $colCount} {incr i} {
 #            if {$i > 0} { puts $sep }
 #        }
@@ -97,6 +109,15 @@ catch {
 #    }
 } rc
 query_finalize $stmt
-puts rc = $rc
+puts rc = $rc "\n"
 
+set consts [list SQLITE_BLOB SQLITE_DONE SQLITE_ERROR SQLITE_FLOAT SQLITE_INTEGER SQLITE_NULL SQLITE_OK SQLITE_ROW SQLITE_TEXT]
+#set consts $SQLITE_CONSTANTS
+puts consts = $consts "\n"
+for {set i 0} {$i < [llength $consts]} {incr i} {
+    set x [lindex $consts $i]
+    puts \$$x = [expr \$$x] "\n"
+}
+
+puts "If you got this far, you win!\n"
 </th1>
