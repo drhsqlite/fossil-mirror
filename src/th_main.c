@@ -1327,6 +1327,44 @@ static int queryBindDoubleCmd(
   return TH_OK;
 }
 
+static int queryBindTopLevelCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  static Th_SubCommand aSub[] = {
+    {"int",    queryBindIntCmd},
+    {"double", queryBindDoubleCmd},
+    {"null",   queryBindNullCmd},
+    {"string", queryBindStringCmd},
+    {0, 0}
+  };
+  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+}
+
+static int queryColTopLevelCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  static Th_SubCommand aSub[] = {
+    {"count",   queryColCountCmd},
+    {"is_null", queryColIsNullCmd},
+    {"name",    queryColNameCmd},
+    {"double",  queryColDoubleCmd},
+    {"int",     queryColIntCmd},
+    {"string",  queryColStringCmd},
+    {"type",    queryColTypeCmd},
+    {0, 0}
+  };
+  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+}
+
+
 static int queryTopLevelCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -1335,17 +1373,8 @@ static int queryTopLevelCmd(
   int *argl
 ){
   static Th_SubCommand aSub[] = {
-    {"bind_int",    queryBindIntCmd},
-    {"bind_double", queryBindDoubleCmd},
-    {"bind_null",   queryBindNullCmd},
-    {"bind_string", queryBindStringCmd},
-    {"col_count",   queryColCountCmd},
-    {"col_double",  queryColDoubleCmd},
-    {"col_int",     queryColIntCmd},
-    {"col_is_null", queryColIsNullCmd},
-    {"col_name",    queryColNameCmd},
-    {"col_string",  queryColStringCmd},
-    {"col_type",    queryColTypeCmd},
+    {"bind",        queryBindTopLevelCmd},
+    {"col",         queryColTopLevelCmd},
     {"step",        queryStepCmd},
     {"finalize",    queryFinalizeCmd},
     {"prepare",     queryPrepareCmd},

@@ -11,7 +11,7 @@ catch {
     set stmt [query prepare "SELECT login, cap FROM user"]
     puts "stmt ID=$stmt\n"
     for {} {0 < [query step $stmt]} {} {
-        puts [query col_string $stmt 0] ": " [query col_string $stmt 1] "\n"
+        puts [query col string $stmt 0] ": " [query col string $stmt 1] "\n"
     }
     query finalize $stmt
     return 0
@@ -52,47 +52,43 @@ and throws for any other condition.
 
 <nowiki><pre>
 for {} {0 &lt; [query step $stmt]} {} {
-   puts [query col_string $stmt 0] "\n"
+   puts [query col string $stmt 0] "\n"
 }
 </pre></nowiki>
 
 
-<h2>bind_xxx</h2>
+<h2>bind xxx</h2>
 
-The <tt>bind_xxx</tt> family of subcommands attach values to queries
+The <tt>bind xxx</tt> family of subcommands attach values to queries
 before stepping through them. The subcommands include:
 
-   *  <tt>bind_int StmtId Index Value</tt>
-   *  <tt>bind_double StmtId Index Value</tt>
-   *  <tt>bind_null StmtId Index</tt>
-   *  <tt>bind_string StmtId Index Value</tt>
+   *  <tt>bind int StmtId Index Value</tt>
+   *  <tt>bind double StmtId Index Value</tt>
+   *  <tt>bind null StmtId Index</tt>
+   *  <tt>bind string StmtId Index Value</tt>
 
 Achtung: the bind API uses 1-based indexes, just like SQL does.
-
-TODO: split bind_xxx into "bind xxx".
 
 <nowiki><pre>
 set stmt [query prepare "SELECT ... WHERE user=?"]
 query bind_int $stmt 1 drh
 if {0 &lt; [query step $stmt]} {
-   puts [query col_string $stmt 0] "\n"
+   puts [query col string $stmt 0] "\n"
 }
 query finalize $stmt
 </pre></nowiki>
 
 
-<h2>col_xxx</h2>
+<h2>col xxx</h2>
 
-The <tt>col_xxx</tt> familys of subcommands are for fetching
+The <tt>col xxx</tt> familys of subcommands are for fetching
 values and metadata from result rows.
 
-   *  <tt>col_count StmtId</tt> Returns the number of result columns in the statement.
-   *  <tt>col_is_null StmtId Index</tt> Returns non-0 if the given column contains an SQL NULL value.
-   *  <tt>col_double StmtId Index</tt>
-   *  <tt>col_int StmtId Index</tt>
-   *  <tt>col_string StmtId Index</tt>
-   *  <tt>col_type StmtId Index</tt> Return value corresponds to one of the <tt>SQLITE_TYPENAME</tt> family of constants.
-
-TODO: split col_xxx into "col xxx".
+   *  <tt>col count StmtId</tt> Returns the number of result columns in the statement.
+   *  <tt>col is_null StmtId Index</tt> Returns non-0 if the given column contains an SQL NULL value.
+   *  <tt>col double StmtId Index</tt>
+   *  <tt>col int StmtId Index</tt>
+   *  <tt>col string StmtId Index</tt>
+   *  <tt>col type StmtId Index</tt> Return value corresponds to one of the <tt>SQLITE_TYPENAME</tt> family of constants.
 
 Achtung: the col API uses 0-based indexes, just like SQL does.
