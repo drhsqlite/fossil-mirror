@@ -517,7 +517,7 @@ void diff_cmd(void){
     if( zTo || zFrom ){
       fossil_fatal("cannot use --from or --to with --branch");
     }
-    zTo = mprintf("tag:%s", zBranch);
+    zTo = zBranch;
     zFrom = mprintf("root:%s", zBranch);
   }
   if( zTo==0 ){

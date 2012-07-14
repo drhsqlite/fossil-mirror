@@ -143,10 +143,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   }
 
   /* "tag:" + symbolic-name */
-  if( memcmp(zTag, "tag:", 4)==0
-   || memcmp(zTag, "root:", 5)==0
-  ){
-    int isRoot = zTag[0]=='r';
+  if( memcmp(zTag, "tag:", 4)==0 ){
     rid = db_int(0,
        "SELECT event.objid"
        "  FROM tag, tagxref, event"
@@ -155,28 +152,31 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
        "   AND event.objid=tagxref.rid "
        "   AND event.type GLOB '%q'"
        " ORDER BY event.mtime DESC /*sort*/",
-       &zTag[4+isRoot], zType
+       &zTag[4], zType
     );
-    if( isRoot && rid>0 ){
-      Stmt q;
-      int rc;
-      db_prepare(&q,
-        "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
-                           " WHERE tagid=%d AND tagtype>0"
-                           "   AND value=%Q AND rid=plink.pid)"
-        "  FROM plink"
-        " WHERE cid=:cid AND isprim",
-        TAG_BRANCH, &zTag[5]
-      );
-      do{
-        db_reset(&q);
-        db_bind_int(&q, ":cid", rid);
-        rc = db_step(&q);
-        if( rc!=SQLITE_ROW ) break;
-        rid = db_column_int(&q, 0);
-      }while( db_column_int(&q, 1)==1 && rid>0 );
-      db_finalize(&q);
-    }
+  }
+  
+  /* root:TAG -> The origin of the branch */
+  if( memcmp(zTag, "root:", 5)==0 ){
+    Stmt q;
+    int rc;
+    rid = symbolic_name_to_rid(zTag+5, zType);
+    db_prepare(&q,
+      "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
+                         " WHERE tagid=%d AND tagtype>0"
+                         "   AND value=%Q AND rid=plink.pid)"
+      "  FROM plink"
+      " WHERE cid=:cid AND isprim",
+      TAG_BRANCH, &zTag[5]
+    );
+    do{
+      db_reset(&q);
+      db_bind_int(&q, ":cid", rid);
+      rc = db_step(&q);
+      if( rc!=SQLITE_ROW ) break;
+      rid = db_column_int(&q, 0);
+    }while( db_column_int(&q, 1)==1 && rid>0 );
+    db_finalize(&q);
     return rid;
   }
 
