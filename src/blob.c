@@ -21,8 +21,8 @@
 #include "config.h"
 #include <zlib.h>
 #include "blob.h"
-
 #if INTERFACE
+typedef struct Blob Blob;
 /*
 ** A Blob can hold a string or a binary object of arbitrary size.  The
 ** size changes as necessary.
@@ -51,7 +51,6 @@ struct Blob {
 #define BLOB_SEEK_SET 1
 #define BLOB_SEEK_CUR 2
 #define BLOB_SEEK_END 3
-
 #endif /* INTERFACE */
 
 /*

@@ -1,13 +1,16 @@
+#include "config.h"
 
-#ifdef TH_USE_SQLITE
-#if 0==TH_USE_SQLITE
-#undef TH_USE_SQLITE
-#endif
-#endif
 #define TH_USE_SQLITE
 #ifdef TH_USE_SQLITE
 #include "sqlite3.h"
 #endif
+
+/*
+** TH_USE_OUTBUF, if defined, enables the "ob" family of functions.
+*/
+#define TH_USE_OUTBUF
+/*#undef TH_USE_OUTBUF*/
+
 
 /* This header file defines the external interface to the custom Scripting
 ** Language (TH) interpreter.  TH is very similar to TCL but is not an
@@ -38,8 +41,7 @@ typedef struct Th_Vtab_Output Th_Vtab_Output;
 ** for the lifetime of the interpreter.
 */
 struct Th_Vtab {
-  void *(*xMalloc)(unsigned int);
-  void (*xFree)(void *);
+  void *(*xRealloc)(void *, unsigned int);
   Th_Vtab_Output out;
 };
 typedef struct Th_Vtab Th_Vtab;
@@ -153,7 +155,7 @@ int Th_ErrorMessage(Th_Interp *, const char *, const char *, int);
 */
 void *Th_Malloc(Th_Interp *, int);
 void Th_Free(Th_Interp *, void *);
-
+void *Th_Realloc(Th_Interp *, void *, int);
 /* 
 ** Functions for handling TH lists.
 */
@@ -191,7 +193,7 @@ int th_register_argv(Th_Interp *interp);                /* th_main.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
-
+int th_register_ob(Th_Interp * interp);                 /* th.c */
 /*
 ** General purpose hash table from th_lang.c.
 */
@@ -263,8 +265,6 @@ struct Th_Command_Reg {
 int Th_register_commands( Th_Interp * interp, Th_Command_Reg const * pList );
 
 #ifdef TH_USE_SQLITE
-#include "stddef.h" /* size_t */
-extern void *fossil_realloc(void *p, size_t n);
 
 /*
 ** Adds the given prepared statement to the interpreter. Returns the

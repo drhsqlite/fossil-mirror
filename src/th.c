@@ -8,6 +8,16 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h> /* FILE class */
+#ifdef TH_USE_OUTBUF
+#ifndef INTERFACE
+#include "blob.h"
+#endif
+#endif
+
+extern void *fossil_realloc(void *p, size_t n);
+static void * th_fossil_realloc(void *p, unsigned int n){
+  return fossil_realloc( p, n );
+}
 
 typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
@@ -1379,16 +1389,22 @@ char *Th_TakeResult(Th_Interp *pInterp, int *pN){
 ** Wrappers around the supplied malloc() and free() 
 */
 void *Th_Malloc(Th_Interp *pInterp, int nByte){
-  void *p = pInterp->pVtab->xMalloc(nByte);
+  void * p = pInterp->pVtab->xRealloc(NULL, nByte);
   if( p ){
     memset(p, 0, nByte);
+  }else{
+    assert( 0 == nByte );
   }
   return p;
 }
 void Th_Free(Th_Interp *pInterp, void *z){
   if( z ){
-    pInterp->pVtab->xFree(z);
+    pInterp->pVtab->xRealloc(z, 0);
   }
+}
+void *Th_Realloc(Th_Interp *pInterp, void *z, int nByte){
+  void *p = pInterp->pVtab->xRealloc(z, nByte);
+  return p;
 }
 
 
@@ -1709,7 +1725,7 @@ Th_Interp * Th_CreateInterp(Th_Vtab *pVtab){
   Th_Interp *p;
 
   /* Allocate and initialise the interpreter and the global frame */
-  p = pVtab->xMalloc(sizeof(Th_Interp) + sizeof(Th_Frame));
+  p = pVtab->xRealloc(NULL, sizeof(Th_Interp) + sizeof(Th_Frame));
   memset(p, 0, sizeof(Th_Interp));
   p->pVtab = pVtab;
   p->paCmd = Th_HashNew(p);
@@ -2385,7 +2401,7 @@ int th_isalnum(char c){
 #ifndef LONGDOUBLE_TYPE
 # define LONGDOUBLE_TYPE long double
 #endif
-typedef char u8;
+/*typedef char u8;*/
 
 
 /*
@@ -2688,7 +2704,6 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 
 
 #ifdef TH_USE_SQLITE
-extern void *fossil_realloc(void *p, size_t n);
 int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
   int i, x;
   sqlite3_stmt * s;
@@ -2735,3 +2750,255 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
 
 #endif
 /* end TH_USE_SQLITE */
+
+
+#ifdef TH_USE_OUTBUF
+struct Th_Ob_Man {
+  Blob ** aBuf;
+  int nBuf;
+  int cursor;
+  Th_Interp * interp;
+  Th_Vtab ** aVtab;
+};
+
+typedef struct Th_Ob_Man Th_Ob_Man;
+#define Th_Ob_Man_empty_m { NULL, 0, -1, NULL, NULL }
+static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
+static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
+
+static Blob * Th_ob_current( Th_Ob_Man * pMan ){
+  return pMan->nBuf>0 ? pMan->aBuf[pMan->cursor] : 0;
+}
+
+
+static int Th_output_ob( char const * zData, int len, void * pState ){
+  Th_Ob_Man * pMan = (Th_Ob_Man*)pState;
+  Blob * b = Th_ob_current( pMan );
+  assert( NULL != pMan );
+  assert( b );
+  blob_append( b, zData, len );
+  return len;
+}
+
+static Th_Vtab Th_Vtab_Ob = { th_fossil_realloc,
+  {
+    Th_output_ob,
+    NULL,
+    1
+  }
+};
+
+#if 0
+#define OB_MALLOC(I,N) malloc((N))
+#define OB_REALLOC(I,P,N) realloc((P),(N))
+#define OB_FREE(I,P) free((P))
+#else
+#define OB_MALLOC(I,N) Th_Malloc((I),(N))
+#define OB_REALLOC(I,P,N) Th_Realloc((I),(P),(N))
+#define OB_FREE(I,P) Th_Free((I),(P))
+#endif
+int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
+  Blob * pBlob;
+  int x, i;
+  assert( NULL != pMan->interp );
+  pBlob = (Blob *)OB_MALLOC(pMan->interp, sizeof(Blob));
+  *pBlob = empty_blob;
+
+  if( pMan->cursor <= pMan->nBuf ){
+    /* expand if needed */
+    x = (pMan->cursor>0 ? pMan->cursor : 1) * 2;
+    /*fprintf(stderr,"OB EXPAND x=%d\n",x);*/
+    void * re = OB_REALLOC( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
+    if(NULL==re){
+      goto error;
+    }
+    pMan->aBuf = (Blob **)re;
+    re = OB_REALLOC( pMan->interp, pMan->aVtab, x * sizeof(Th_Vtab*) );
+    if(NULL==re){
+      goto error;
+    }
+    pMan->aVtab = (Th_Vtab**)re;
+    for( i = pMan->nBuf; i < x; ++i ){
+      pMan->aVtab[i] = NULL;
+      pMan->aBuf[i] = NULL;
+    }
+    pMan->nBuf = x;
+  }
+  assert( pMan->nBuf > pMan->cursor );
+  assert( pMan->cursor >= -1 );
+  ++pMan->cursor;
+  pMan->aBuf[pMan->cursor] = pBlob;
+  pMan->aVtab[pMan->cursor] = pMan->interp->pVtab;
+  pMan->interp->pVtab = &Th_Vtab_Ob;
+  Th_Vtab_Ob.out.pState = pMan;
+  if( pOut ){
+    *pOut = pBlob;
+  }
+  /*fprintf(stderr,"OB PUSH: %p\n", pBlob);*/
+  return TH_OK;
+  error:
+  if( pBlob ){
+    OB_FREE( pMan->interp, pBlob );
+  }
+  return TH_ERROR;
+}
+
+Blob * Th_ob_pop( Th_Ob_Man * pMan ){
+  if( pMan->cursor < 0 ){
+    return NULL;
+  }else{
+    Blob * rc;
+    assert( pMan->nBuf > pMan->cursor );
+    rc = pMan->aBuf[pMan->cursor];
+    pMan->aBuf[pMan->cursor] = NULL;
+    pMan->interp->pVtab = pMan->aVtab[pMan->cursor];
+    pMan->aVtab[pMan->cursor] = NULL;
+    if(-1 == --pMan->cursor){
+      OB_FREE( pMan->interp, pMan->aBuf );
+      OB_FREE( pMan->interp, pMan->aVtab );
+      *pMan = Th_Ob_Man_empty;
+    }
+    /*fprintf(stderr,"OB pop: %p level=%d\n", rc, pMan->cursor-1);*/
+    return rc;
+  }
+}
+
+static int ob_clean_command( Th_Interp *interp, void *ctx,
+                             int argc,  const char **argv, int *argl
+){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Blob * b;
+  assert( pMan && (interp == pMan->interp) );
+  b = pMan ? Th_ob_current(pMan) : NULL;
+  if(!b){
+    Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
+    return TH_ERROR;
+  }else{
+    blob_reset(b);
+  }
+  return TH_OK;
+}
+
+static int ob_end_command( Th_Interp *interp, void *ctx,
+                           int argc,  const char **argv, int *argl ){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Blob * b;
+  assert( pMan && (interp == pMan->interp) );
+  b = Th_ob_pop(pMan);
+  if(!b){
+    Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
+    return TH_ERROR;
+  }else{
+    blob_reset(b);
+    OB_FREE( interp, b );
+  }
+  return TH_OK;
+}
+
+static int ob_flush_command( Th_Interp *interp, void *ctx,
+                             int argc,  const char **argv, int *argl ){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Blob * b = NULL;
+  Th_Vtab * oldVtab;
+  assert( pMan && (interp == pMan->interp) );
+  b = Th_ob_current(pMan);
+  if( NULL == b ){
+    Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
+    return TH_ERROR;
+  }
+  oldVtab = interp->pVtab;
+  interp->pVtab = pMan->aVtab[pMan->cursor];
+  Th_output( interp, blob_str(b), b->nUsed );
+  interp->pVtab = oldVtab;
+  blob_reset(b);
+  return TH_OK;
+}
+
+static int ob_get_command( Th_Interp *interp, void *ctx,
+                           int argc,  const char **argv, int *argl){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Blob * b = NULL;
+  assert( pMan && (interp == pMan->interp) );
+  b = Th_ob_current(pMan);
+  if( NULL == b ){
+    Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
+    return TH_ERROR;
+  }else{
+    int argPos = 2;
+    char const * sub;
+    int subL;
+    int rc = TH_OK;
+    Th_SetResult( interp, blob_str(b), b->nUsed );
+    if(argc>=argPos){
+      sub = argv[argPos];
+      subL = argl[argPos];
+      /* "ob get clean" */
+      if(!rc && th_strlen(sub)==5 && 0==memcmp("clean", sub, subL)){
+        rc |= ob_clean_command(interp, ctx, argc-1, argv+1, argl+1);
+      }/* "ob get end" */
+      else if(!rc && th_strlen(sub)==3 && 0==memcmp("end", sub, subL)){
+        rc |= ob_end_command(interp, ctx, argc-1, argv+1, argl+1);
+      }
+    }
+    return rc;
+  }
+}
+
+static int ob_start_command( Th_Interp *interp, void *ctx,
+                             int argc,  const char **argv, int *argl
+){
+  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Blob * b = NULL;
+  int rc;
+  assert( pMan && (interp == pMan->interp) );
+  rc = Th_ob_push(pMan, &b);
+  if( TH_OK != rc ){
+    assert( NULL == b );
+    return rc;
+  }
+  assert( NULL != b );
+  /*fprintf(stderr,"OB STARTED: %p level=%d\n", b, pMan->cursor);*/
+  Th_SetResultInt( interp, pMan->cursor );
+  return TH_OK;
+}
+
+static int ob_cmd(
+  Th_Interp *interp, 
+  void *ignored, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  static Th_Ob_Man * pMan = &Th_Ob_Man_instance;
+  Th_SubCommand aSub[] = {
+    { "clean",     ob_clean_command },
+    { "end",       ob_end_command },
+    { "flush",     ob_flush_command },
+    { "get",       ob_get_command },
+    { "start",     ob_start_command },
+    { 0, 0 }
+  };
+  if(NULL == pMan->interp){
+    pMan->interp = interp;
+    /*
+      FIXME: add rudamentary at-finalization GC to Th_Interp and clean
+      this up there.
+    */
+  }
+  return Th_CallSubCommand(interp, pMan, argc, argv, argl, aSub);
+  
+}
+
+int th_register_ob(Th_Interp * interp){
+  static Th_Command_Reg aCommand[] = {
+    {"ob",    ob_cmd,   0},
+    {0,0,0}
+  };
+  return Th_register_commands( interp, aCommand );
+}
+#undef OB_MALLOC
+#undef OB_REALLOC
+#undef OB_FREE
+#endif
+/* end TH_USE_OUTBUF */
+

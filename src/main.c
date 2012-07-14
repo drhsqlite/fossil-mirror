@@ -681,9 +681,9 @@ void fossil_free(void *p){
   free(p);
 }
 void *fossil_realloc(void *p, size_t n){
-  p = realloc(p, n);
-  if( p==0 ) fossil_panic("out of memory");
-  return p;
+  void * re = realloc(p, n);
+  if( re==0 && n>0 ) fossil_panic("out of memory");
+  return (n > 0) ? re : 0;
 }
 
 /*

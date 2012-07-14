@@ -42,13 +42,27 @@ static void xFree(void *p){
   if( p ){
     nOutstandingMalloc--;
   }
-  free(p);
+  fossil_free(p);
 }
 
-static Th_Vtab vtab = { xMalloc, xFree, {
-  NULL,
-  NULL,
-  1
+static void *xRealloc(void * p, unsigned int n){
+  if(0 == n){
+    xFree(p);
+    return NULL;
+  }else if(NULL == p){
+    return xMalloc(n);
+  }else{
+    return fossil_realloc(p, n)
+      /* FIXME: try to find some reasonable nOutstandingMalloc
+         heuristics, e.g. if !p then ++, if !n then --, etc.
+      */;
+  }
+}
+
+static Th_Vtab vtab = { xRealloc, {
+    NULL,
+    NULL,
+    1
   }
 };
 
@@ -729,6 +743,7 @@ int th_register_argv(Th_Interp *interp){
 /* end TH_USE_ARGV */
 
 #ifdef TH_USE_SQLITE
+
 /*
 ** TH Syntax:
 **

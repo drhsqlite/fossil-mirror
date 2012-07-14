@@ -1,5 +1,5 @@
-C Refactored\sTh_ToXXX()\sto\slive\son\stop\sof\sTh_TryXXX()\sto\ssimplify\ssome\sdownstream\scode.
-D 2012-07-14T14:02:18.689
+C Added\sPHP-like\s"ob"\s(output\sbuffering)\sAPI\sto\sth1.\sRefactred\sTh_Vtab\sallocator\sto\suse\sa\ssingle\srealloc()-like\sinterface.
+D 2012-07-14T18:32:42.720
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -61,7 +61,7 @@ F src/allrepo.c b6606e9f9234dd32208cca7c8a6d882f6c2d2385
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c daac777e30c9163c67d59b3d13faffbf5f8327a8
+F src/blob.c e5db248168fcda8824b4c402c172620c35986b1f
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
@@ -114,7 +114,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
-F src/main.c 821da79bd66b24db09bc12270fdb653848b03d16
+F src/main.c dde983130456bceb9804b53980c1c0242fe7f52c
 F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -150,10 +150,10 @@ F src/style.c 44536c4a1d7587cc227ddf9b9b330ac36754403f
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 798989c30c43dccc5d1851f5b1b2dcf013aa094a
-F src/th.h 9314466a1e655d6923faad9de0bb4ed5958bf9b1
-F src/th_lang.c 19fa9554aacea40e68c80297fddc375511735a3d
-F src/th_main.c 3b22435c06d0172360b5783fe511e17688affc05
+F src/th.c ad5a3e755d333f023ca552e59908f05548aab0e3
+F src/th.h 8017c2d209826387150b8943ccd292afb9c6ff77
+F src/th_lang.c c35567dc160b438b5d68564d99d5534c0d85767b
+F src/th_main.c e087c759fcd66e4f19866caaa10b88f8e420614d
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3b25f80edd84de7c16494d3572aac5a49b925724
-R 5c0ca2f9f4e09ead7c27d86739f4ba3c
+P 7554072246373e4b93120a8ca95e1e9584babeab
+R 4206db8ae711b84d79702769e26914e8
 U stephan
-Z bffede050edf03ab46e5d8042421dede
+Z 80c908ea6825c2429fa7f3b0a4c2f888

@@ -1039,6 +1039,7 @@ static int breakpoint_command(
 ** Usually this is called soon after interpreter creation.
 */
 int th_register_language(Th_Interp *interp){
+  int rc;
   /* Array of built-in commands. */
   struct Th_Command_Reg aCommand[] = {
     {"catch",    catch_command,   0},
@@ -1066,5 +1067,9 @@ int th_register_language(Th_Interp *interp){
 
     {0, 0, 0}
   };
-  return Th_register_commands(interp, aCommand);
+  rc = Th_register_commands(interp, aCommand);
+#ifdef TH_USE_OUTBUF
+  rc |= th_register_ob(interp);
+#endif
+  return rc;
 }
