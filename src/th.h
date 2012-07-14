@@ -185,6 +185,7 @@ char *th_strdup(Th_Interp *interp, const char *z, int n);
 */
 int th_register_language(Th_Interp *interp);            /* th_lang.c */
 int th_register_sqlite(Th_Interp *interp);              /* th_main.c */
+int th_register_argv(Th_Interp *interp);                /* th_main.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */

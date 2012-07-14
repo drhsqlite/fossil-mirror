@@ -118,7 +118,7 @@ for {set i 0} {$i < [llength $consts]} {incr i} {
 set ARGC [argv_len]
 puts ARGC = $ARGC "\n"
 for {set i 0} {$i < $ARGC} {incr i} {
-    puts "argv_getat $i = " [argv_getat $i] \n
+    puts "argv_at $i = " [argv_at $i] \n
 }
 
 set magicDefault hi

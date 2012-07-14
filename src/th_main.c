@@ -712,6 +712,19 @@ static int argvFindOptionIntCmd(
   Th_SetResultInt( interp, val );
   return TH_OK;  
 }
+
+int th_register_argv(Th_Interp *interp){
+  static Th_Command_Reg aCommand[] = {
+    {"argv_len",      argvArgcCmd,             0},
+    {"argv_at",       argvGetAtCmd,            0},
+    {"argv_getstr",   argvFindOptionStringCmd, 0},
+    {"argv_getbool",  argvFindOptionBoolCmd,   0},
+    {"argv_getint",   argvFindOptionIntCmd,    0},
+    {0, 0, 0}
+  };
+  Th_register_commands( interp, aCommand );
+}
+
 #endif
 /* end TH_USE_ARGV */
 
@@ -1376,14 +1389,6 @@ void Th_FossilInit(void){
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},
 
-#ifdef TH_USE_ARGV
-    {"argv_len",      argvArgcCmd,             0},
-    {"argv_getat",    argvGetAtCmd,            0},
-    {"argv_getstr",   argvFindOptionStringCmd, 0},
-    {"argv_getbool",  argvFindOptionBoolCmd,   0},
-    {"argv_getint",   argvFindOptionIntCmd,    0},
-#endif
-
     {0, 0, 0}
   };
   if( g.interp==0 ){
@@ -1404,6 +1409,9 @@ void Th_FossilInit(void){
 #endif
 #ifdef TH_USE_SQLITE
     th_register_sqlite(g.interp);
+#endif
+#ifdef TH_USE_ARGV
+    th_register_argv(g.interp);
 #endif
     Th_register_commands( g.interp, aCommand );
   }
@@ -1582,7 +1590,9 @@ void test_th_render(void){
   }
   blob_zero(&in);
   db_open_config(0); /* Needed for global "tcl" setting. */
-  db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx tests. */;
+#ifdef TH_USE_SQLITE
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx API. */;
+#endif
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
 }
