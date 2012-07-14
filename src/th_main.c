@@ -520,6 +520,39 @@ static void queryReportDbErr( Th_Interp * interp, int rc ){
   Th_ErrorMessage(interp, "db error:", msg, -1);
 }
 
+static int queryStmtIndexArgs(
+  Th_Interp * interp,
+  int argc,
+  char const ** argv,
+  int *argl,
+  sqlite3_stmt ** pStmt,
+  int * pIndex ){
+  int index = 0;
+  sqlite3_stmt * stmt;
+  if( !pIndex ){
+    if(argc<2){
+      return Th_WrongNumArgs(interp, "StmtHandle");
+    }
+  }else{
+    if( argc<3 ){
+      return Th_WrongNumArgs(interp, "StmtHandle, Index");
+    }
+    if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
+      return TH_ERROR;
+    }
+  }
+  stmt = queryStmtHandle(interp, argv[1], argl[1], NULL);
+  if( NULL == stmt ){
+    return TH_ERROR;
+  }else{
+    *pStmt = stmt;
+    if( pIndex ){
+      *pIndex = index;
+    }
+    return 0;
+  }
+}
+
 static int queryStepCmd(
   Th_Interp *interp,
   void *p, 
@@ -532,8 +565,7 @@ static int queryStepCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "query_step StmtHandle");
   }
-  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
-  if( rc < 1 ){
+  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, NULL)){
     return TH_ERROR;
   }
   rc = sqlite3_step( pStmt );
@@ -562,21 +594,56 @@ static int queryColStringCmd(
   sqlite3_stmt * pStmt = NULL;
   char const * val;
   int index;
-  int rc = 0;
   int valLen;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_column_string StmtHandle Index");
+    return Th_WrongNumArgs(interp, "query_col_string StmtHandle Index");
   }
-  pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
-  if( rc < 1 ){
-    return TH_ERROR;
-  }
-  if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
+  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
     return TH_ERROR;
   }
   val = sqlite3_column_text( pStmt, index );
   valLen = val ? sqlite3_column_bytes( pStmt, index ) : 0;
   Th_SetResult( interp, val, valLen );
+  return TH_OK;
+}
+
+static int queryColIntCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  int rc = 0;
+  int index = 0;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_col_int StmtHandle Index");
+  }
+  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
+    return TH_ERROR;
+  }
+  Th_SetResultInt( interp, sqlite3_column_int( pStmt, index ) );
+  return TH_OK;
+}
+
+static int queryColDoubleCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = NULL;
+  double rc = 0;
+  int index = -1;
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query_col_double StmtHandle Index");
+  }
+  if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index)){
+    return TH_ERROR;
+  }
+  Th_SetResultDouble( interp, sqlite3_column_double( pStmt, index ) );
   return TH_OK;
 }
 
@@ -591,7 +658,7 @@ static int queryColCountCmd(
   int rc;
   sqlite3_stmt * pStmt = NULL;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "query_column_count StmtHandle");
+    return Th_WrongNumArgs(interp, "query_col_count StmtHandle");
   }
   pStmt = queryStmtHandle(interp, argv[1], argl[1], NULL);
   if( NULL == pStmt ){
@@ -615,7 +682,7 @@ static int queryColNameCmd(
   int rc = 0;
   int valLen;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_column_name StmtHandle Index");
+    return Th_WrongNumArgs(interp, "query_col_name StmtHandle Index");
   }
   pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
   if( rc < 1 ){
@@ -664,12 +731,14 @@ void Th_FossilInit(void){
     {"puts",          putsCmd,   &puts_Normal},
     {"putsl",         putsCmd,      &puts_Ext},
 #ifdef TH_USE_SQLITE
-    {"query_column_count",   queryColCountCmd,  0},
-    {"query_column_name",    queryColNameCmd,   0},
-    {"query_finalize",       queryFinalizeCmd,  0},
-    {"query_prepare",        queryPrepareCmd,   0},
-    {"query_step",           queryStepCmd,      0},
-    {"query_column_string",  queryColStringCmd, 0},
+    {"query_col_count",   queryColCountCmd,  0},
+    {"query_col_name",    queryColNameCmd,   0},
+    {"query_col_string",  queryColStringCmd, 0},
+    {"query_col_int",     queryColIntCmd,    0},
+    {"query_col_double",  queryColDoubleCmd, 0},
+    {"query_finalize",    queryFinalizeCmd,  0},
+    {"query_prepare",     queryPrepareCmd,   0},
+    {"query_step",        queryStepCmd,      0},
 #endif
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},

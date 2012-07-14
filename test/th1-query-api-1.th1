@@ -1,3 +1,5 @@
+This is not a formal test suite, but a tinkering ground.
+Run it through "fossil test-th-render THIS_FILE".
 <th1>
 proc bar {} {
 puts "json ?= [hasfeature json]\n"
@@ -23,12 +25,12 @@ set a [xyz]
 puts "a=${a}" ! \n
 
 set stmt [query_prepare {SELECT login, cap FROM user}]
-set colCount [query_column_count $stmt]
+set colCount [query_col_count $stmt]
 puts "query column count: ${colCount}\n"
 #set stmt2 [query_prepare {SELECT cap, login FROM user}]
 #puts "stmt=${stmt} stmt2=${stmt2}\n"
 #putsl "step =" [query_step $stmt]
-#putsl "val =" [query_column_string $stmt 1]
+#putsl "val =" [query_col_string $stmt 1]
 
 proc noop {} {}
 proc incr {name {step 1}} {
@@ -41,7 +43,7 @@ set sep "    "
 set i 0
 set colNames(0) 0
 for {set i 0} {$i < $colCount} {incr i} {
-    set colNames($i) [query_column_name $stmt $i]
+    set colNames($i) [query_col_name $stmt $i]
 }
 
 for {set row 0} {0 < [query_step $stmt]} {incr row} {
@@ -51,7 +53,7 @@ for {set row 0} {0 < [query_step $stmt]} {incr row} {
         } else {
             puts "#$row: $sep"
         }
-        puts $colNames($i) = [query_column_string $stmt $i]
+        puts $colNames($i) = [query_col_string $stmt $i]
     }
     puts "\n"
 }
@@ -63,9 +65,9 @@ query_finalize $stmt
 
 proc query_step_each {{stmt} {callback}} {
     set colNames(0) 0
-    set colCount [query_column_count $stmt]
+    set colCount [query_col_count $stmt]
     for {set i 0} {$i < $colCount} {incr i} {
-        set colNames($i) [query_column_name $stmt $i]
+        set colNames($i) [query_col_name $stmt $i]
     }
     upvar cb $callback
     for {set row 0} {0 < [query_step $stmt]} {incr row} {
@@ -75,18 +77,24 @@ proc query_step_each {{stmt} {callback}} {
 }
 
 
-set stmt [query_prepare {SELECT login FROM user}]
+set stmt [query_prepare {SELECT uid, login FROM user}]
 set rc 0
 catch {
     proc my_each {stmt colCount} {
-        for {set i 0} {$i < $colCount} {incr i} {
-            if {$i > 0} { puts $sep }
-            puts [query_column_string $stmt $i]
-        }
+        upvar 2 sep sep
+        puts [query_col_int $stmt 0] $sep
+        puts [query_col_double $stmt 0] $sep
+        puts [query_col_string $stmt 1]
+#        for {set i 0} {$i < $colCount} {incr i} {
+#            if {$i > 0} { puts $sep }
+#        }
         puts "\n"
 #        error "hi!"
     }
     query_step_each $stmt my_each
+#    query_step_each $stmt {
+#        proc each {stmt cc} { puts hi "\n" }
+#    }
 } rc
 query_finalize $stmt
 puts rc = $rc
