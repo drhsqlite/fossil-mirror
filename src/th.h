@@ -25,6 +25,13 @@
 */
 typedef int (*Th_output_f)( char const * zData, int len, void * pState );
 
+struct Th_Vtab_Output {
+  Th_output_f f;   /* output handler */
+  void * pState;   /* final argument for xOut() */
+  char enabled;    /* if 0, Th_output() does nothing. */
+};
+typedef struct Th_Vtab_Output Th_Vtab_Output;
+
 /*
 ** Before creating an interpreter, the application must allocate and
 ** populate an instance of the following structure. It must remain valid
@@ -33,11 +40,7 @@ typedef int (*Th_output_f)( char const * zData, int len, void * pState );
 struct Th_Vtab {
   void *(*xMalloc)(unsigned int);
   void (*xFree)(void *);
-  struct {
-    Th_output_f f;   /* output handler */
-    void * pState;   /* final argument for xOut() */
-    char enabled;    /* if 0, Th_output() does nothing. */
-  } out;
+  Th_Vtab_Output out;
 };
 typedef struct Th_Vtab Th_Vtab;
 
@@ -206,6 +209,12 @@ Th_HashEntry *Th_HashFind(Th_Interp*, Th_Hash*, const char*, int, int);
 ** Useful functions from th_lang.c.
 */
 int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
+/*
+** Works like Th_WrongNumArgs() but expects (zCmdName,zCmdLen) to be
+** the current command's (name,length), i.e. (argv[0],argl[0]).
+*/
+int Th_WrongNumArgs2(Th_Interp *interp, const char *zCmdName,
+                     int zCmdLen, const char *zMsg);
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
@@ -225,8 +234,9 @@ int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int len );
 int Th_output( Th_Interp *pInterp, char const * zData, int len );
 
 /*
-** Th_output_f() implementation which sends its output to either pState
-** (which must be NULL or a (FILE*)) or stdout (if pState is NULL).
+** Th_output_f() implementation which sends its output to either
+** pState (which must be NULL or a (FILE*)) or stdout (if pState is
+** NULL).
 */
 int Th_output_f_FILE( char const * zData, int len, void * pState );
 

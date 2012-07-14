@@ -45,9 +45,8 @@ static void xFree(void *p){
   free(p);
 }
 
-
 static Th_Vtab vtab = { xMalloc, xFree, {
-  Th_output_f_FILE,
+  NULL,
   NULL,
   1
   }
@@ -82,7 +81,9 @@ static int enableOutputCmd(
   int *argl
 ){
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                           "BOOLEAN");
   }else{
     int rc = Th_ToInt(interp, argv[1], argl[1], &enableOutput);
     vtab.out.enabled = enableOutput;
@@ -140,7 +141,9 @@ static int putsCmd(
   const int sepLen = fmt->sep ? strlen(fmt->sep) : 0;
   int i;
   if( argc<2 ){
-    return Th_WrongNumArgs(interp, "puts STRING ...STRING_N");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING ...STRING_N");
   }
   for( i = 1; i < argc; ++i ){
     if(sepLen && (i>1)){
@@ -167,7 +170,9 @@ static int wikiCmd(
   int *argl
 ){
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "wiki STRING");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING");
   }
   if( enableOutput ){
     Blob src;
@@ -193,7 +198,9 @@ static int htmlizeCmd(
 ){
   char *zOut;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "htmlize STRING");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING");
   }
   zOut = htmlize((char*)argv[1], argl[1]);
   Th_SetResult(interp, zOut, -1);
@@ -240,7 +247,9 @@ static int hascapCmd(
 ){
   int rc;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "hascap STRING");
+    return Th_WrongNumArgs2(interp,
+                           argv[0], argl[0],
+                           "STRING");
   }
   rc = login_has_capability((char*)argv[1],argl[1]);
   if( g.thTrace ){
@@ -271,7 +280,9 @@ static int hasfeatureCmd(
   int rc = 0;
   char const * zArg;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "hasfeature STRING");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING");
   }
   zArg = (char const*)argv[1];
   if(NULL==zArg){
@@ -315,7 +326,9 @@ static int anycapCmd(
   int rc = 0;
   int i;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "anycap STRING");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING");
   }
   for(i=0; rc==0 && i<argl[1]; i++){
     rc = login_has_capability((char*)&argv[1][i],1);
@@ -345,7 +358,9 @@ static int comboboxCmd(
   int *argl
 ){
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "combobox NAME TEXT-LIST NUMLINES");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "NAME TEXT-LIST NUMLINES");
   }
   if( enableOutput ){
     int height;
@@ -403,7 +418,9 @@ static int linecntCmd(
   int size, n, i;
   int iMin, iMax;
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "linecount STRING MAX MIN");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING MAX MIN");
   }
   if( Th_ToInt(interp, argv[2], argl[2], &iMax) ) return TH_ERROR;
   if( Th_ToInt(interp, argv[3], argl[3], &iMin) ) return TH_ERROR;
@@ -438,7 +455,9 @@ static int repositoryCmd(
   int openRepository;
 
   if( argc!=1 && argc!=2 ){
-    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "?BOOLEAN?");
   }
   if( argc==2 ){
     if( Th_ToInt(interp, argv[1], argl[1], &openRepository) ){
@@ -491,7 +510,9 @@ static int argvGetAtCmd(
   char const * zVal;
   int pos = 0;
   if( argc != 2 ){
-    return Th_WrongNumArgs(interp, "argv_get Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "Index");
   }
   if( TH_OK != Th_ToInt(interp, argv[1], argl[1], &pos) ){
     return TH_ERROR;
@@ -542,20 +563,25 @@ static int argvFindOptionStringCmd(
   int hasArg;
   char const * zVal = NULL;
   char const * zDefault = NULL;
+  int check;
   if( 1 < argc ){
     assert( argl[1] < BufLen );
-    snprintf( zLong, BufLen, "%s", argv[1] );
+    check = snprintf( zLong, BufLen, "%s", argv[1] );
+    assert( check <= BufLen );
   }
   if( (2 < argc) && (0 < argl[2]) ){
     assert( argl[2] < BufLen );
-    snprintf( zShort, BufLen, "%s", argv[2] );
+    check = snprintf( zShort, BufLen, "%s", argv[2] );
+    assert( check <= BufLen );
   }
   if( 3 < argc){
     zDefault = argv[3];
   }
 
   if(0 == zLong[0]){
-    return Th_WrongNumArgs(interp, "argv_getstr longName ?shortName? ?defaultVal?");
+    return Th_WrongNumArgs2(interp,
+                           argv[0], argl[0],
+                           "longName ?shortName? ?defaultVal?");
   }
   zVal = find_option( zLong, zShort[0] ? zShort : NULL, 1 );
   if(!zVal){
@@ -595,20 +621,25 @@ static int argvFindOptionBoolCmd(
   char const * zDefault = NULL;
   int val;
   int rc;
+  int check;
   if( 1 < argc ){
     assert( argl[1] < BufLen );
-    snprintf( zLong, BufLen, "%s", argv[1] );
+    check = snprintf( zLong, BufLen, "%s", argv[1] );
+    assert( check <= BufLen );
   }
   if( (2 < argc) && (0 < argl[2]) ){
     assert( argl[2] < BufLen );
-    snprintf( zShort, BufLen, "%s", argv[2] );
+    check = snprintf( zShort, BufLen, "%s", argv[2] );
+    assert( check <= BufLen );
   }
   if( 3 < argc){
     zDefault = argv[3];
   }
 
   if(0 == zLong[0]){
-    return Th_WrongNumArgs(interp, "argv_getbool longName ?shortName? ?defaultVal?");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                           "longName ?shortName? ?defaultVal?");
   }
   zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
   if(zVal && !*zVal){
@@ -649,20 +680,25 @@ static int argvFindOptionIntCmd(
   char const * zVal = NULL;
   char const * zDefault = NULL;
   int val = 0;
+  int check;
   if( 1 < argc ){
     assert( argl[1] < BufLen );
-    snprintf( zLong, BufLen, "%s", argv[1] );
+    check = snprintf( zLong, BufLen, "%s", argv[1] );
+    assert( check <= BufLen );
   }
   if( (2 < argc) && (0 < argl[2]) ){
     assert( argl[2] < BufLen );
-    snprintf( zShort, BufLen, "%s", argv[2] );
+    check = snprintf( zShort, BufLen, "%s", argv[2] );
+    assert( check <= BufLen );
   }
   if( 3 < argc){
     zDefault = argv[3];
   }
 
   if(0 == zLong[0]){
-    return Th_WrongNumArgs(interp, "argv_getint longName ?shortName? ?defaultVal?");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                           "longName ?shortName? ?defaultVal?");
   }
   zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
   if(!zVal){
@@ -699,7 +735,9 @@ static int queryPrepareCmd(
   int rc;
   char const * errMsg = NULL;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "query_prepare STRING");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING");
   }
   zSql = argv[1];
   rc = sqlite3_prepare( g.db, zSql, strlen(zSql), &pStmt, NULL );
@@ -770,7 +808,9 @@ static int queryFinalizeCmd(
   int rc = 0;
   char const * arg;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "query_finalize StmtHandle");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle");
   }
   arg = argv[1];
   pStmt = queryStmtHandle(interp, arg, argl[1], &rc);
@@ -816,11 +856,15 @@ static int queryStmtIndexArgs(
   sqlite3_stmt * stmt;
   if( !pIndex ){
     if(argc<2){
-      return Th_WrongNumArgs(interp, "StmtHandle");
+      return Th_WrongNumArgs2(interp,
+                              argv[0], argl[0],
+                              "StmtHandle");
     }
   }else{
     if( argc<3 ){
-      return Th_WrongNumArgs(interp, "StmtHandle, Index");
+      return Th_WrongNumArgs2(interp,
+                              argv[0], argl[0],
+                              "StmtHandle Index");
     }
     if( 0 != Th_ToInt( interp, argv[2], argl[2], &index ) ){
       return TH_ERROR;
@@ -856,7 +900,9 @@ static int queryStepCmd(
   sqlite3_stmt * pStmt = NULL;
   int rc = 0;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "query_step StmtHandle");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle");
   }
   if(0 != queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, NULL)){
     return TH_ERROR;
@@ -896,7 +942,9 @@ static int queryColStringCmd(
   int index = -1;
   int valLen;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_string StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 0){
@@ -926,7 +974,9 @@ static int queryColIntCmd(
   int rc = 0;
   int index = -1;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_int StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 0){
@@ -954,7 +1004,9 @@ static int queryColDoubleCmd(
   double rc = 0;
   int index = -1;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_double StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 0){
@@ -983,7 +1035,9 @@ static int queryColIsNullCmd(
   double rc = 0;
   int index = -1;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_is_null StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 0){
@@ -1015,7 +1069,9 @@ static int queryColTypeCmd(
   double rc = 0;
   int index = -1;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_type StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 0){
@@ -1042,7 +1098,9 @@ static int queryColCountCmd(
   int rc;
   sqlite3_stmt * pStmt = NULL;
   if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "query_col_count StmtHandle");
+    return Th_WrongNumArgs2(interp,
+                           argv[0], argl[0],
+                           "StmtHandle");
   }
   pStmt = queryStmtHandle(interp, argv[1], argl[1], NULL);
   if( NULL == pStmt ){
@@ -1073,7 +1131,9 @@ static int queryColNameCmd(
   int rc = 0;
   int valLen;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_col_name StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   pStmt = queryStmtHandle(interp, argv[1], argl[1], &rc);
   if( rc < 1 ){
@@ -1110,7 +1170,9 @@ static int queryBindNullCmd(
   int rc;
   int index = 0;
   if( argc!=3 ){
-    return Th_WrongNumArgs(interp, "query_bind_null StmtHandle Index");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 1){
@@ -1143,7 +1205,9 @@ static int queryBindStringCmd(
   int rc;
   int index = 0;
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "query_bind_string StmtHandle Index val");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index Value");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 1){
@@ -1176,7 +1240,9 @@ static int queryBindIntCmd(
   int val;
   int index = 0;
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "query_bind_int StmtHandle Index val");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index Value");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 1){
@@ -1213,7 +1279,9 @@ static int queryBindDoubleCmd(
   double val;
   int index = 0;
   if( argc!=4 ){
-    return Th_WrongNumArgs(interp, "query_bind_double StmtHandle Index val");
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "StmtHandle Index Value");
   }
   queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
   if(index < 1){
@@ -1233,6 +1301,8 @@ static int queryBindDoubleCmd(
 
 #endif
 /* end TH_USE_SQLITE */
+
+
 
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
