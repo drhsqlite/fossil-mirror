@@ -1,0 +1,85 @@
+<h1>TH1 "ob" (Output Buffering) API</h1>
+
+The "ob" API mimics the
+[http://php.net/manual/en/function.ob-start.php|PHP output buffering] fairly closely,
+and provides these features:
+
+   *  Redirect output from <tt>puts</tt> and friends to a buffer.
+   *  Fetch the buffer as a string or discard it (as you wish).
+   *  Supports nesting buffering arbitrarily deep, but each level which gets opened must also be closed by the scripter.
+
+Example usage:
+
+<nowiki><pre>
+&lt;th1>
+puts "this is unbuffered"
+ob start
+# all output until the next ob start|end gets collected
+# in a buffer...
+&lt;/th1>
+
+this is buffered
+
+&lt;th1>
+puts "current buffer level = " [ob level] "\n"
+puts "this part is also collected in the buffer."
+
+# Collect the buffer's contents:
+set buf [ob get end]
+# That is equivalent to:
+#  set buf [ob get]
+#  ob  end
+
+puts "\nThis is now unbuffered, but we buffered: $buf\n"
+&lt;/th1>
+</pre></nowiki>
+
+The functions are summarized below...
+
+<h2>ob start</h2>
+
+<tt>ob start</tt> pushes a level of buffering onto the buffer stack, such that
+future calls which generate output through the th1-internal mechanism will have it
+transparently redirected to the current buffer.
+
+It is important that every call to <tt>ob start</tt> be followed up (eventually)
+by either <tt>ob end</tt> or <tt>ob get end</tt>.
+
+<h2>ob end</h2>
+
+This discards any current buffered contents and reverts the output state to
+the one it had before the previous <tt>ob start</tt>. i.e. that might be another
+buffering level or it might be the th1-normal output mechanism.
+
+The global resources associated with buffering are cleaned up when the
+last buffering level is left (and re-created as needed when a new
+level is started).
+
+<h2>ob clean</h2>
+
+This discards the current contents of the current buffer level but
+does not change the buffer stack level.
+
+<h2>ob get</h2>
+
+This fetches the current contents as a string. It optionally accepts
+either <tt>end</tt> or <tt>clean</tt>, in which cases it behaves like
+either <tt>ob end</tt> or <tt>ob clean</tt>, respectively, in addition
+to returning the buffer contents. i.e. <tt>ob get clean</tt> will
+fetch the contents and clean up the buffer, but does not change the
+buffering level, whereas <tt>ob get end</tt> pops the buffer off the
+stack after fetching its contents.
+
+<h2>ob level</h2>
+
+Returns the current buffering level (0 if not buffering).
+
+<h2>ob flush</h2>
+
+It is not expected that this will be useful all that often, but for
+the cases where it is, here's how it works: this behaves as if we
+fetched the buffer state (<tt>ob get</tt>), reverted TH1 to its
+previous output mechanism, push the buffer state to TH1, revert TH1
+<em>back</em> to the current buffering state, and then clear the
+current buffer contents (like <tt>ob clean</tt>). This does not change
+the buffering level, though it temporarily behaves as if it does.
