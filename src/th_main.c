@@ -435,7 +435,243 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+
+extern const char *find_option(const char *zLong, const char *zShort, int hasArg);
+
+/*
+** TH Syntax:
+**
+** argv_len
+**
+** Returns the number of command-line arguments.
+*/
+static int argvArgcCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  Th_SetResultInt( interp, g.argc );
+  return TH_OK;
+}
+
+#define TH_USE_ARGV
+#ifdef TH_USE_ARGV
+/*
+** TH Syntax:
+**
+** argv_getat Index
+**
+** Returns the raw argument at the given index, throwing if
+** out of bounds.
+*/
+static int argvGetAtCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  char const * zVal;
+  int pos = 0;
+  if( argc != 2 ){
+    return Th_WrongNumArgs(interp, "argv_get Index");
+  }
+  if( TH_OK != Th_ToInt(interp, argv[1], argl[1], &pos) ){
+    return TH_ERROR;
+  }
+  if( pos < 0 || pos >= g.argc ){
+    Th_ErrorMessage(interp, "Argument out of range:", argv[1], argl[1]);
+    return TH_ERROR;
+  }
+  if( 0 == pos ){/*special case*/
+    zVal = fossil_nameofexe();
+  }else{
+    zVal = (pos>0 && pos<g.argc) ? g.argv[pos] : 0;
+  }
+  Th_SetResult( interp, zVal, zVal ? strlen(zVal) : 0 );
+  return TH_OK;  
+}
+
+
+/*
+** TH Syntax:
+**
+** argv_getstr longName ??shortName? ?defaultValue??
+**
+** Functions more or less like Fossil's find_option().
+** If the given argument is found then its value is returned,
+** else defaultValue is returned. If that is not set
+** and the option is not found, an error is thrown.
+** If defaultValue is provided, shortName must also be provided
+** but it may be empty. For example:
+**
+** set foo [argv_getstr foo "" "hi, world"]
+**
+** ACHTUNG: find_option() removes any entries it finds from
+** g.argv, such that future calls to find_option() will not
+** find the same option.
+*/
+static int argvFindOptionStringCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  enum { BufLen = 100 };
+  char zLong[BufLen] = {0};
+  char zShort[BufLen] = {0};
+  char aBuf[BufLen] = {0};
+  int hasArg;
+  char const * zVal = NULL;
+  char const * zDefault = NULL;
+  if( 1 < argc ){
+    assert( argl[1] < BufLen );
+    snprintf( zLong, BufLen, "%s", argv[1] );
+  }
+  if( (2 < argc) && (0 < argl[2]) ){
+    assert( argl[2] < BufLen );
+    snprintf( zShort, BufLen, "%s", argv[2] );
+  }
+  if( 3 < argc){
+    zDefault = argv[3];
+  }
+
+  if(0 == zLong[0]){
+    return Th_WrongNumArgs(interp, "argv_getstr longName ?shortName? ?defaultVal?");
+  }
+  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 1 );
+  if(!zVal){
+    zVal = zDefault;
+    if(!zVal){
+      Th_ErrorMessage(interp, "Option not found and no default provided:", zLong, -1);
+      return TH_ERROR;
+    }
+  }
+  Th_SetResult( interp, zVal, zVal ? strlen(zVal) : 0 );
+  return TH_OK;  
+}
+
+/*
+** TH Syntax:
+**
+** argv_getbool longName ??shortName? ?defaultValue??
+**
+** Works just like argv_getstr but treats any empty value or one
+** starting with the digit '0' as a boolean false.
+**
+** Returns the result as an integer 0 (false) or 1 (true).
+*/
+static int argvFindOptionBoolCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  enum { BufLen = 100 };
+  char zLong[BufLen] = {0};
+  char zShort[BufLen] = {0};
+  char aBuf[BufLen] = {0};
+  int hasArg;
+  char const * zVal = NULL;
+  char const * zDefault = NULL;
+  int val;
+  int rc;
+  if( 1 < argc ){
+    assert( argl[1] < BufLen );
+    snprintf( zLong, BufLen, "%s", argv[1] );
+  }
+  if( (2 < argc) && (0 < argl[2]) ){
+    assert( argl[2] < BufLen );
+    snprintf( zShort, BufLen, "%s", argv[2] );
+  }
+  if( 3 < argc){
+    zDefault = argv[3];
+  }
+
+  if(0 == zLong[0]){
+    return Th_WrongNumArgs(interp, "argv_getbool longName ?shortName? ?defaultVal?");
+  }
+  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
+  if(zVal && !*zVal){
+    zVal = "1";
+  }
+  if(!zVal){
+    zVal = zDefault;
+    if(!zVal){
+      Th_ErrorMessage(interp, "Option not found and no default provided:", zLong, -1);
+      return TH_ERROR;
+    }
+  }
+  if( !*zVal ){
+    zVal = "0";
+  }
+  zVal = (zVal && *zVal && (*zVal!='0')) ? zVal : 0;
+  Th_SetResultInt( interp, zVal ? 1 : 0 );
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
+** argv_getint longName ?shortName? ?defaultValue?
+*/
+static int argvFindOptionIntCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  enum { BufLen = 100 };
+  char zLong[BufLen] = {0};
+  char zShort[BufLen] = {0};
+  char aBuf[BufLen] = {0};
+  int hasArg;
+  char const * zVal = NULL;
+  char const * zDefault = NULL;
+  int val = 0;
+  if( 1 < argc ){
+    assert( argl[1] < BufLen );
+    snprintf( zLong, BufLen, "%s", argv[1] );
+  }
+  if( (2 < argc) && (0 < argl[2]) ){
+    assert( argl[2] < BufLen );
+    snprintf( zShort, BufLen, "%s", argv[2] );
+  }
+  if( 3 < argc){
+    zDefault = argv[3];
+  }
+
+  if(0 == zLong[0]){
+    return Th_WrongNumArgs(interp, "argv_getint longName ?shortName? ?defaultVal?");
+  }
+  zVal = find_option( zLong, zShort[0] ? zShort : NULL, 0 );
+  if(!zVal){
+    zVal = zDefault;
+    if(!zVal){
+      Th_ErrorMessage(interp, "Option not found and no default provided:", zLong, -1);
+      return TH_ERROR;
+    }
+  }
+  Th_ToInt(interp, zVal, strlen(zVal), &val);
+  Th_SetResultInt( interp, val );
+  return TH_OK;  
+}
+#endif
+/* end TH_USE_ARGV */
+
 #ifdef TH_USE_SQLITE
+/*
+** TH Syntax:
+**
+** query_prepare SQL
+**
+** Returns an opaque statement identifier.
+*/
 static int queryPrepareCmd(
   Th_Interp *interp,
   void *p, 
@@ -500,6 +736,13 @@ static sqlite3_stmt * queryStmtHandle(Th_Interp *interp, char const * arg, int a
 
 }
 
+/*
+** TH Syntax:
+**
+** query_finalize stmtId
+**
+** sqlite3_finalize()s the given statement.
+*/
 static int queryFinalizeCmd(
   Th_Interp *interp,
   void *p, 
@@ -525,6 +768,9 @@ static int queryFinalizeCmd(
   return TH_OK;
 }
 
+/*
+** Reports the current sqlite3_errmsg() via TH and returns TH_ERROR.
+*/
 static int queryReportDbErr( Th_Interp * interp ){
   char const * msg = sqlite3_errmsg( g.db );
   Th_ErrorMessage(interp, "db error:", msg, -1);
@@ -577,6 +823,14 @@ static int queryStmtIndexArgs(
   }
 }
 
+/*
+** TH Syntax:
+**
+** query_step stmtId
+**
+** Steps the given statement handle. Returns 0 at the end of the set,
+** a positive value if it fetches a row, and throws on error.
+*/
 static int queryStepCmd(
   Th_Interp *interp,
   void *p, 
@@ -608,6 +862,13 @@ static int queryStepCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_string stmtId Index
+**
+** Returns the result column value at the given 0-based index.
+*/
 static int queryColStringCmd(
   Th_Interp *interp,
   void *p, 
@@ -632,6 +893,13 @@ static int queryColStringCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_int stmtId Index
+**
+** Returns the result column value at the given 0-based index.
+*/
 static int queryColIntCmd(
   Th_Interp *interp,
   void *p, 
@@ -653,6 +921,13 @@ static int queryColIntCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_double stmtId Index
+**
+** Returns the result column value at the given 0-based index.
+*/
 static int queryColDoubleCmd(
   Th_Interp *interp,
   void *p, 
@@ -674,6 +949,14 @@ static int queryColDoubleCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_is_null stmtId Index
+**
+** Returns non-0 if the given 0-based result column index contains
+** an SQL NULL value, else returns 0.
+*/
 static int queryColIsNullCmd(
   Th_Interp *interp,
   void *p, 
@@ -691,10 +974,21 @@ static int queryColIsNullCmd(
   if(index < 0){
     return TH_ERROR;
   }
-  Th_SetResultInt( interp, SQLITE_NULL==sqlite3_column_type( pStmt, index ) );
+  Th_SetResultInt( interp,
+                   SQLITE_NULL==sqlite3_column_type( pStmt, index )
+                   ? 1 : 0);
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_type stmtId Index
+**
+** Returns the sqlite type identifier for the given 0-based result
+** column index. The values are available in TH as $SQLITE_NULL,
+** $SQLITE_INTEGER, etc.
+*/
 static int queryColTypeCmd(
   Th_Interp *interp,
   void *p, 
@@ -716,6 +1010,13 @@ static int queryColTypeCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_count stmtId
+**
+** Returns the number of result columns in the query.
+*/
 static int queryColCountCmd(
   Th_Interp *interp,
   void *p, 
@@ -737,6 +1038,13 @@ static int queryColCountCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_col_count stmtId Index
+**
+** Returns the result column name at the given 0-based index.
+*/
 static int queryColNameCmd(
   Th_Interp *interp,
   void *p, 
@@ -769,6 +1077,13 @@ static int queryColNameCmd(
   }
 }
 
+/*
+** TH Syntax:
+**
+** query_bind_null stmtId Index
+**
+** Binds a value to the given 1-based parameter index.
+*/
 static int queryBindNullCmd(
   Th_Interp *interp,
   void *p, 
@@ -795,6 +1110,13 @@ static int queryBindNullCmd(
 }
 
 
+/*
+** TH Syntax:
+**
+** query_bind_string stmtId Index Value
+**
+** Binds a value to the given 1-based parameter index.
+*/
 static int queryBindStringCmd(
   Th_Interp *interp,
   void *p, 
@@ -820,6 +1142,13 @@ static int queryBindStringCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_bind_int stmtId Index Value
+**
+** Binds a value to the given 1-based parameter index.
+*/
 static int queryBindIntCmd(
   Th_Interp *interp,
   void *p, 
@@ -850,6 +1179,13 @@ static int queryBindIntCmd(
   return TH_OK;
 }
 
+/*
+** TH Syntax:
+**
+** query_bind_double stmtId Index Value
+**
+** Binds a value to the given 1-based parameter index.
+*/
 static int queryBindDoubleCmd(
   Th_Interp *interp,
   void *p, 
@@ -892,7 +1228,6 @@ static int queryBindDoubleCmd(
 void Th_FossilInit(void){
   static PutsCmdData puts_Html = {0, 0, 0};
   static PutsCmdData puts_Normal = {1, 0, 0};
-  static PutsCmdData puts_Ext = {1, " ", "\n"};
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -908,9 +1243,17 @@ void Th_FossilInit(void){
     {"date",          dateCmd,              0},
     {"html",          putsCmd,     &puts_Html},
     {"puts",          putsCmd,   &puts_Normal},
-    {"putsl",         putsCmd,      &puts_Ext},
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},
+
+#ifdef TH_USE_ARGV
+    {"argv_len",      argvArgcCmd,             0},
+    {"argv_getat",    argvGetAtCmd,            0},
+    {"argv_getstr",   argvFindOptionStringCmd, 0},
+    {"argv_getbool",  argvFindOptionBoolCmd,   0},
+    {"argv_getint",   argvFindOptionIntCmd,    0},
+#endif
+
 #ifdef TH_USE_SQLITE
     {"query_bind_int",    queryBindIntCmd,   0},
     {"query_bind_double", queryBindDoubleCmd,0},
@@ -927,6 +1270,7 @@ void Th_FossilInit(void){
     {"query_prepare",     queryPrepareCmd,   0},
     {"query_step",        queryStepCmd,      0},
 #endif
+
     {0, 0, 0}
   };
   if( g.interp==0 ){
@@ -947,9 +1291,9 @@ void Th_FossilInit(void){
     {
       enum { BufLen = 100 };
       char buf[BufLen];
-      int i;
-#define SET(K) i = snprintf(buf, BufLen, "%d", K); \
-      Th_SetVar( g.interp, #K, strlen(#K), buf, i );
+      int i, l;
+#define SET(K) l = snprintf(buf, BufLen, "%d", K); \
+      Th_SetVar( g.interp, #K, strlen(#K), buf, l );
       SET(SQLITE_BLOB);
       SET(SQLITE_DONE);
       SET(SQLITE_ERROR);
@@ -1121,14 +1465,23 @@ int Th_Render(const char *z){
 
 /*
 ** COMMAND: test-th-render
+** COMMAND: th1
+**
+** Processes a file provided on the command line as a TH1-capable
+** script/page. Output is sent to stdout or the CGI output buffer, as
+** appropriate. The input file is assumed to be text/wiki/HTML content
+** which may contain TH1 tag blocks. Each block is executed in the
+** same TH1 interpreter instance.
+**
 */
 void test_th_render(void){
   Blob in;
   if( g.argc<3 ){
     usage("FILE");
+    assert(0 && "usage() does not return");
   }
-  db_open_config(0); /* Needed for global "tcl" setting. */
   blob_zero(&in);
+  db_open_config(0); /* Needed for global "tcl" setting. */
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx tests. */;
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));

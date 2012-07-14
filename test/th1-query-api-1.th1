@@ -27,10 +27,7 @@ puts "a=${a}" ! \n
 set stmt [query_prepare {SELECT login, cap FROM user}]
 set colCount [query_col_count $stmt]
 puts "query column count: ${colCount}\n"
-#set stmt2 [query_prepare {SELECT cap, login FROM user}]
-#puts "stmt=${stmt} stmt2=${stmt2}\n"
-#putsl "step =" [query_step $stmt]
-#putsl "cap =" [query_col_string $stmt 1]
+puts "stmt id=${stmt}\n"
 
 proc noop {} {}
 proc incr {name {step 1}} {
@@ -61,7 +58,6 @@ for {set row 0} {0 < [query_step $stmt]} {incr row} {
 unset row
 
 query_finalize $stmt
-#query_finalize $stmt2
 
 
 proc query_step_each {{stmt} {callback}} {
@@ -118,6 +114,25 @@ for {set i 0} {$i < [llength $consts]} {incr i} {
     set x [lindex $consts $i]
     puts \$$x = [expr \$$x] "\n"
 }
+
+set ARGC [argv_len]
+puts ARGC = $ARGC "\n"
+for {set i 0} {$i < $ARGC} {incr i} {
+    puts "argv_getat $i = " [argv_getat $i] \n
+}
+
+set magicDefault hi
+set optA [argv_getstr AA a $magicDefault]
+puts "argv_getstr AA = " $optA \n
+
+set optA [argv_getbool BB b 0]
+puts "argv_getbool BB = " $optA \n
+
+set exception 0
+catch {
+    argv_getint noSuchOptionAndNoDefault
+} exception
+puts exception = $exception "\n"
 
 puts "If you got this far, you win!\n"
 </th1>
