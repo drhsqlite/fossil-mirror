@@ -807,11 +807,17 @@ void vdiff_page(void){
   int diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
+  const char *zBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
 
+  zBranch = P("branch");
+  if( zBranch && zBranch[0] ){
+    cgi_replace_parameter("from", mprintf("root:%s", zBranch));
+    cgi_replace_parameter("to", mprintf("tag:%s", zBranch));
+  }
   pFrom = vdiff_parse_manifest("from", &ridFrom);
   if( pFrom==0 ) return;
   pTo = vdiff_parse_manifest("to", &ridTo);
