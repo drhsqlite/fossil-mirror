@@ -2929,7 +2929,7 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
     int subL;
     int rc = TH_OK;
     Th_SetResult( interp, blob_str(b), b->nUsed );
-    if(argc>=argPos){
+    if(argc>argPos){
       sub = argv[argPos];
       subL = argl[argPos];
       /* "ob get clean" */

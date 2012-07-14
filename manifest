@@ -1,5 +1,5 @@
-C i\sthink\si\sfixed\sthe\sth.c-needs-blob.h\sbuild\sproblem\s(again).\sMerged\sin\s9f83e033a2304a9.
-D 2012-07-14T18:44:12.410
+C Fixed\sa\scrash\scase\soff-by-1\sin\sth1\s(ob\sget).
+D 2012-07-14T18:55:12.027
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,7 +150,7 @@ F src/style.c 44536c4a1d7587cc227ddf9b9b330ac36754403f
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c ad5a3e755d333f023ca552e59908f05548aab0e3
+F src/th.c 0a8839d72409e10eeb6a75c33102967d2963cc0f
 F src/th.h 8017c2d209826387150b8943ccd292afb9c6ff77
 F src/th_lang.c c35567dc160b438b5d68564d99d5534c0d85767b
 F src/th_main.c e087c759fcd66e4f19866caaa10b88f8e420614d
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b7930639549f7bcc987799e7f77e94035b477cb0 9f83e033a2304a95eae85a1676cc78ea21370fa1
-R d2f25902cdc1598f7b96fdee0876f7b1
+P 960576b961031c0c84df11820305c2f05978321c
+R 63cb738c7ac48af05737fb29c7f8b6c4
 U stephan
-Z 1f18107c66f24e47dd2674e64c2400a4
+Z a21a1cefe6bdbbbfa431112d2b30a477
