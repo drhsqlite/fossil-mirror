@@ -789,22 +789,28 @@ void remove_from_argv(int i, int n){
 ** Return NULL if missing.
 **
 ** hasArg==0 means the option is a flag.  It is either present or not.
-** hasArg==1 means the option has an argument.  Return a pointer to the
-** argument.
+** hasArg==1 means the option has an argument.  Return a pointer to
+** the argument. If hasArg is 0 and the argument is found then a
+** pointer to an empty string is returned (to distinguish from
+** NULL). If hasArg==1 and the option lies at the end of the argument
+** list, it is treated as if it had not been found.
 **
 ** Note that this function REMOVES any found entry from the args list,
-** so calling this twice for the same var will cause NULL to be returned
-** after the first time.
+** so calling this twice for the same var will cause NULL to be
+** returned after the first time.
 **
 ** zLong may not be NULL but zShort may be.
 **
-** Options are accepted in these forms, depending on the value of hasArg:
+** Options are accepted in these forms, depending on the value of
+** hasArg:
 **
 ** hasArg=true:
-**  -long VALUE
-**  -long=VALUE
-**  -short VALUE
-**  -short=VALUE
+**  -long        (hasArg==0)
+**  -long VALUE  (hasArg==1)
+**  -long=VALUE  (hasArg==1)
+**  -short       (hasArg==0)
+**  -short VALUE (hasArg==1)
+**  -short=VALUE (hasArg==1)
 */
 const char *find_option(const char *zLong, const char *zShort, int hasArg){
   int i;
@@ -831,8 +837,12 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         remove_from_argv(i, 1);
         break;
       }else if( z[nLong]==0 ){
-        if (i+hasArg >= g.argc) break;
-        zReturn = g.argv[i+hasArg];
+        if( hasArg ){
+          if (i+hasArg >= g.argc) break;
+          zReturn = g.argv[i+hasArg];
+        }else{
+          zReturn = "";
+        }
         remove_from_argv(i, 1+hasArg);
         break;
       }
@@ -842,8 +852,12 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
         remove_from_argv(i, 1);
         break;
       }else if( z[nShort]==0 ){
-        if (i+hasArg >= g.argc) break;
-        zReturn = g.argv[i+hasArg];
+        if( hasArg ){
+          if (i+hasArg >= g.argc) break;
+          zReturn = g.argv[i+hasArg];
+        }else{
+          zReturn = "";
+        }
         remove_from_argv(i, 1+hasArg);
         break;
       }
