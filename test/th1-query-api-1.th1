@@ -115,22 +115,22 @@ for {set i 0} {$i < [llength $consts]} {incr i} {
     puts \$$x = [expr \$$x] "\n"
 }
 
-set ARGC [argv_len]
+set ARGC [argv len]
 puts ARGC = $ARGC "\n"
 for {set i 0} {$i < $ARGC} {incr i} {
-    puts "argv_at $i = " [argv_at $i] \n
+    puts "argv at $i = " [argv at $i] \n
 }
 
 set magicDefault hi
-set optA [argv_getstr AA a $magicDefault]
-puts "argv_getstr AA = " $optA \n
+set optA [argv getstr AA a $magicDefault]
+puts "argv getstr AA = " $optA \n
 
-set optA [argv_getbool BB b 0]
-puts "argv_getbool BB = " $optA \n
+set optA [argv getbool BB b 0]
+puts "argv getbool BB = " $optA \n
 
 set exception 0
 catch {
-    argv_getint noSuchOptionAndNoDefault
+    argv getint noSuchOptionAndNoDefault
 } exception
 puts exception = $exception "\n"
 

@@ -727,13 +727,27 @@ static int argvFindOptionIntCmd(
   return TH_OK;  
 }
 
+static int argvTopLevelCmd(
+  Th_Interp *interp,
+  void *ctx, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  static Th_SubCommand aSub[] = {
+    {"len",      argvArgcCmd},
+    {"at",       argvGetAtCmd},
+    {"getstr",   argvFindOptionStringCmd},
+    {"getbool",  argvFindOptionBoolCmd},
+    {"getint",   argvFindOptionIntCmd},
+    {0, 0}
+  };
+  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+}
+
 int th_register_argv(Th_Interp *interp){
   static Th_Command_Reg aCommand[] = {
-    {"argv_len",      argvArgcCmd,             0},
-    {"argv_at",       argvGetAtCmd,            0},
-    {"argv_getstr",   argvFindOptionStringCmd, 0},
-    {"argv_getbool",  argvFindOptionBoolCmd,   0},
-    {"argv_getint",   argvFindOptionIntCmd,    0},
+    {"argv",            argvTopLevelCmd, 0 },
     {0, 0, 0}
   };
   Th_register_commands( interp, aCommand );

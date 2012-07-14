@@ -1,0 +1,67 @@
+<h1>TH1 "argv" API</h1>
+
+The "argv" API provides features for accessing command-line arguments
+and GET/POST values.
+
+Example usage:
+
+<nowiki><pre>
+&lt;th1>
+set argc [argv len]
+set appName [argv at 0]
+# Fetch --foo|-f argument:
+set foo [argv getstr foo f "default value"]
+&lt;th1>
+</pre></nowiki>
+
+The various subcommands are described below...
+
+<h2>len</h2>
+
+Returns the number of arguments.
+
+<nowiki><pre>
+set argc [argv len]
+</pre></nowiki>
+
+
+<h2>at</h2>
+
+Fetches the argument at the given index.
+
+<nowiki><pre>
+set arg [argv at 3]
+</pre></nowiki>
+
+
+<h2>getstr</h2>
+
+Searches for a CLI/GET/POST parameter. This function has some non-intuitive behaviour
+inherited from fossil's internals: once a flag/parameter is fetched, it is removed
+from the internal arguments list, meaning that this function will never
+see it a second time.
+
+<nowiki><pre>
+set something [argv getstr "something" "S" "default"]
+</pre></nowiki>
+
+If no default value is provided, an error is triggered if the value is
+not found.
+
+<h2>getbool</h2>
+
+Works almost like <tt>getstr</tt> but searches for boolean flags. CLI boolean flags
+have no explicit value, and are "true" if the are set at all.
+
+<nowiki><pre>
+set doSomething [argv getbool "do-something" "D" 0]
+</pre></nowiki>
+
+<h2>getint</h2>
+
+Works almost like <tt>getstr</tt> but searches for integer flags.
+
+
+<nowiki><pre>
+set limit [argv getbool "limit" "L" 10]
+</pre></nowiki>
