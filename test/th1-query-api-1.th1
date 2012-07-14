@@ -134,6 +134,7 @@ catch {
 } exception
 puts exception = $exception "\n"
 
+enable_output 1
 
 proc multiStmt {} {
     set max 5
@@ -169,5 +170,6 @@ proc multiStmt {} {
 }
 multiStmt
 
+enable_output 1
 puts "If you got this far, you win!\n"
 </th1>

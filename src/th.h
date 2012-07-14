@@ -15,6 +15,17 @@
 */
 
 /*
+** Th_output_f() specifies a generic output routine for use by Th_Vtab
+** and friends. Its first argument is the data to write, the second is
+** the number of bytes to write, and the 3rd is an
+** implementation-specific state pointer (may be NULL, depending on
+** the implementation). The return value is the number of bytes output
+** (which may differ from len due to encoding and whatnot).  On error
+** a negative value must be returned.
+*/
+typedef int (*Th_output_f)( char const * zData, int len, void * pState );
+
+/*
 ** Before creating an interpreter, the application must allocate and
 ** populate an instance of the following structure. It must remain valid
 ** for the lifetime of the interpreter.
@@ -22,13 +33,20 @@
 struct Th_Vtab {
   void *(*xMalloc)(unsigned int);
   void (*xFree)(void *);
+  struct {
+    Th_output_f f;   /* output handler */
+    void * pState;   /* final argument for xOut() */
+    char enabled;    /* if 0, Th_output() does nothing. */
+  } out;
 };
 typedef struct Th_Vtab Th_Vtab;
+
 
 /*
 ** Opaque handle for interpeter.
 */
 typedef struct Th_Interp Th_Interp;
+
 
 /* 
 ** Create and delete interpreters. 
@@ -191,6 +209,27 @@ int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
+
+/*
+** Sends the given data through vTab->out.f() if vTab->out.enabled is
+** true, otherwise this is a no-op. Returns 0 or higher on success, *
+** a negative value if vTab->out.f is NULL.
+*/
+int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int len );
+
+/*
+** Sends the given output through pInterp's v-table's output
+** implementation. See Th_Vtab_output() for the argument and
+** return value semantics.
+*/
+int Th_output( Th_Interp *pInterp, char const * zData, int len );
+
+/*
+** Th_output_f() implementation which sends its output to either pState
+** (which must be NULL or a (FILE*)) or stdout (if pState is NULL).
+*/
+int Th_output_f_FILE( char const * zData, int len, void * pState );
+
 
 #ifdef TH_USE_SQLITE
 #include "stddef.h" /* size_t */

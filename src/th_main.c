@@ -44,7 +44,14 @@ static void xFree(void *p){
   }
   free(p);
 }
-static Th_Vtab vtab = { xMalloc, xFree };
+
+
+static Th_Vtab vtab = { xMalloc, xFree, {
+  Th_output_f_FILE,
+  NULL,
+  1
+  }
+};
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -76,9 +83,18 @@ static int enableOutputCmd(
 ){
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+  }else{
+    int rc = Th_ToInt(interp, argv[1], argl[1], &enableOutput);
+    vtab.out.enabled = enableOutput;
+    return rc;
   }
-  return Th_ToInt(interp, argv[1], argl[1], &enableOutput);
 }
+
+int Th_output_f_cgi_content( char const * zData, int nData, void * pState ){
+  cgi_append_content(zData, nData);
+  return nData;
+}
+
 
 /*
 ** Send text to the appropriate output:  Either to the console
@@ -92,10 +108,9 @@ static void sendText(const char *z, int n, int encode){
       n = strlen(z);
     }
     if( g.cgiOutput ){
-      cgi_append_content(z, n);
+      Th_output_f_cgi_content(z, n, NULL);
     }else{
-      fwrite(z, 1, n, stdout);
-      fflush(stdout);
+      Th_output_f_FILE( z, n, stdout );
     }
     if( encode ) fossil_free((char*)z);
   }
@@ -1275,6 +1290,12 @@ void Th_FossilInit(void){
   };
   if( g.interp==0 ){
     int i;
+    if(g.cgiOutput){
+      vtab.out.f = Th_output_f_cgi_content;
+    }else{
+      vtab.out.f = Th_output_f_FILE;
+      vtab.out.pState = stdout;
+    }
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL

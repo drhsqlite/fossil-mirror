@@ -1,5 +1,5 @@
-C Cleanups\sin\sthe\sth1\squery\sstatement\sfinalization.
-D 2012-07-14T11:15:05.211
+C Refactored\sth1's\soutput\smechanism:\smoved\soutput\sAPI\sto\sTh_Vtab\sto\ssupport\sarbitrary\soutput\sdestinations,\sthe\sintention\sbeing\sto\sbe\sable\sto\ssupport\san\soutput\sbuffer\sstack\sanalog\sto\sPHP's\sob_start(),\sob_get_clean()\sand\sfriends.
+D 2012-07-14T11:54:45.727
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,10 +150,10 @@ F src/style.c 44536c4a1d7587cc227ddf9b9b330ac36754403f
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 1f6f28040c3f793aaa80a8ddb2a7a65b70809f30
-F src/th.h 16247eaedb18f5dbdf5dde13d3597eed51ae2af9
+F src/th.c 5f672a8d7e2eacae804ddc823849fe7f30adbc5f
+F src/th.h 7055ecc5af71a0c9a4d43b551d904985636bfaa2
 F src/th_lang.c f60e4d5f59b226173fc6cc84d6069dff7a7fe95c
-F src/th_main.c 2468df42096c1131a5795a40c9bb8364e9403d2d
+F src/th_main.c b7b6d3f138e18992fbbd67fed5bc036976be7665
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
@@ -184,7 +184,7 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 6a36e538b94982e84c1fcddcfe62d12e2141d0ee
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-query-api-1.th1 7b7cce551d26ada73651337b625d1b49e87edff1
+F test/th1-query-api-1.th1 7e44f1fe86c40914d958a9b06144c56c090ac6f0
 F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
 F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 008a16c0e5980626793bc1ceed2f6eea37786aa5
-R 9d688ff52b335678b7a01a054cec57f5
+P 4fdf0ac279a979f3313945c63d950749cb40d9ab
+R 31d7fa245e867d07c10be0f898e41964
 U stephan
-Z 3654858474630fee0f1d0581478f1ec9
+Z c74bee9565619a275f8b4946f9b100f7

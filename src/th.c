@@ -7,6 +7,7 @@
 #include "th.h"
 #include <string.h>
 #include <assert.h>
+#include <stdio.h> /* FILE class */
 
 typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
@@ -1388,6 +1389,29 @@ void Th_Free(Th_Interp *pInterp, void *z){
   if( z ){
     pInterp->pVtab->xFree(z);
   }
+}
+
+
+int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int nData ){
+  if(!vTab->out.f){
+    return -1;
+  }else if(!vTab->out.enabled){
+    return 0;
+  }else{
+    return vTab->out.f( zData, nData, vTab->out.pState );
+  }
+}
+
+
+int Th_output( Th_Interp *pInterp, char const * zData, int nData ){
+  return Th_Vtab_output( pInterp->pVtab, zData, nData );
+}
+
+int Th_output_f_FILE( char const * zData, int nData, void * pState ){
+  FILE * dest = pState ? (FILE*)pState : stdout;
+  int rc = (int)fwrite(zData, 1, nData, dest);
+  fflush(dest);
+  return rc;
 }
 
 /*
