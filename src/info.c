@@ -756,7 +756,12 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
 
   *pRid = rid = name_to_rid_www(zParam);
   if( rid==0 ){
-    webpage_error("Missing \"%s\" query parameter.", zParam);
+    const char *z = P(zParam);
+    if( z==0 || z[0]==0 ){
+      webpage_error("Missing \"%s\" query parameter.", zParam);
+    }else{
+      webpage_error("No such artifact: \"%s\"", z);
+    }
     return 0;
   }
   if( !is_a_version(rid) ){
@@ -807,15 +812,21 @@ void vdiff_page(void){
   int diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
+  const char *zBranch;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
 
-  pFrom = vdiff_parse_manifest("from", &ridFrom);
-  if( pFrom==0 ) return;
+  zBranch = P("branch");
+  if( zBranch && zBranch[0] ){
+    cgi_replace_parameter("from", mprintf("root:%s", zBranch));
+    cgi_replace_parameter("to", zBranch);
+  }
   pTo = vdiff_parse_manifest("to", &ridTo);
   if( pTo==0 ) return;
+  pFrom = vdiff_parse_manifest("from", &ridFrom);
+  if( pFrom==0 ) return;
   sideBySide = atoi(PD("sbs","1"));
   showDetail = atoi(PD("detail","0"));
   if( !showDetail && sideBySide ) showDetail = 1;
