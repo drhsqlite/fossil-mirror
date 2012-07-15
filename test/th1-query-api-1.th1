@@ -56,9 +56,12 @@ set sql {SELECT uid, login FROM user WHERE uid!=?}
 #set sql {SELECT tagid, value, null FROM tagxref WHERE value IS ? LIMIT 3}
 set stmt [query prepare $sql]
 puts "stmt ID=" $stmt "\n"
-query bind int $stmt 1 3
+#query bind int $stmt 1 3
+#query $stmt bind 1 int 3
+query $stmt bind 1 string 3
+#query $stmt bind string 1 3
 #set stmt [query prepare $sql]
-#query bind string $stmt 1 stephan
+#query $stmt bind 1 string 1
 #set stmt [query prepare $sql]
 #query $stmt bind null 1
 puts "USER LIST:\n"
@@ -77,12 +80,17 @@ catch {
 #        error "hi!"
     }
     query_step_each $stmt my_each
+#    query reset $stmt
+#    query $stmt reset 
 #    query_step_each $stmt {
 #        proc each {stmt cc} { puts hi "\n" }
 #    }
+    return 0
 } rc
 query finalize $stmt
-puts rc = $rc "\n"
+if { 0 != $rc } {
+        puts "ERROR: $rc\n"
+}
 
 set consts [list SQLITE_BLOB SQLITE_DONE SQLITE_ERROR SQLITE_FLOAT SQLITE_INTEGER SQLITE_NULL SQLITE_OK SQLITE_ROW SQLITE_TEXT]
 #set consts $SQLITE_CONSTANTS

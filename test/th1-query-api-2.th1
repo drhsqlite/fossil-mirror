@@ -1,0 +1,70 @@
+<th1>
+catch {
+    set stmt [query prepare {
+        SELECT login, cap, cexpire, mtime, NULL FROM user
+        WHERE uid<? AND cexpire IS NOT NULL
+        AND mtime IS NOT NULL
+    }]
+    puts "stmt ID=$stmt\n"
+#    query bind int $stmt 1 2
+#    query $stmt bind int 1 2
+    query $stmt bind 1 int 2
+# segfault:    query bind 1 int $stmt 2
+    set sep "\n"
+    for {} {0 < [query $stmt step]} {} {
+        puts [query $stmt col string 0] $sep
+        puts [query $stmt col time 2 {%Y%m%d @ %H:%M:%S}] $sep
+        puts [query $stmt col time 2 {%Y%m%d @ %H:%M:%S} {+10 years}] $sep
+        puts [query $stmt col 2 time {%Y%m%d @ %H:%M:%S} {+10 years}] $sep
+#        puts [query col time $stmt 2 %s] $sep
+        puts [query col time $stmt 3 %s unixepoch] $sep
+#        puts [query strftime %s [query col string $stmt 3] unixepoch]
+        puts [query strftime %s [query col string $stmt 3] unixepoch] $sep
+        puts [query strftime {%Y%m%d @ %H:%M:%S} [query col string $stmt 2] {+10 years}] $sep
+        puts "\n"
+        puts "old isnull: " [query col isnull $stmt 4] "\n"
+
+        puts "new old isnull: " [query col 4 isnull $stmt] "\n"
+        puts "new isnull: " [query $stmt col isnull 4] "\n"
+        puts "new new isnull: " [query $stmt col 4 isnull] "\n"
+
+        puts "old col type: " [query col type $stmt 1] "\n"
+        puts "new col type: " [query $stmt col type 1] "\n"
+        puts "new new col type: " [query $stmt col 1 type] "\n"
+
+        puts "old col name: " [query col name $stmt 1] "\n"
+        puts "new col name: " [query $stmt col name 1] "\n"
+        puts "new new col name: " [query $stmt col 1 name] "\n"
+
+        puts "old col double: " [query col double $stmt 2] "\n"
+        puts "new col double: " [query $stmt col double 2] "\n"
+        puts "new new col double: " [query $stmt col 2 double] "\n"
+
+        puts "old col int: " [query col int $stmt 2] "\n"
+        puts "new col int: " [query $stmt col int 2] "\n"
+        puts "new new col int: " [query $stmt col 2 int] "\n"
+
+        puts "old col string: " [query col string $stmt 2] "\n"
+        puts "new col string: " [query $stmt col string 2] "\n"
+        puts "new new col string: " [query $stmt col 2 string] "\n"
+
+        puts "\n"
+    }
+
+    puts "alt-form col count: " [query $stmt col count] "\n"
+    query finalize $stmt
+    return 0
+} rc
+if {0 != $rc} {
+    puts "ERROR: $rc\n"
+}
+puts "Done!\n"
+
+
+ob start
+puts buffered
+set x [ob get pop]
+puts x=$x
+
+
+</th1>

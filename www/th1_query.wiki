@@ -78,14 +78,14 @@ for {} {0 &lt; [query $stmt step]} {} {
 </pre></nowiki>
 
 
-<h2>strftime</h2>
+<h2>reset</h2>
 
-This works like <tt>col time</tt> (described below) but takes its
-value from an arbitrary source specified by the 3rd argument.
+Resets a query so that it can be executed again. This is only needed when
+binding parameters in a loop - call it at the end of each loop iteration.
 
 <nowiki><pre>
-query strftime %s 1319211587 unixepoch
-query strftime {%Y%m%d @ %H:%M:%S} [query $stmt col string 2] {+10 years}]
+query $stmt reset
+query reset $stmt
 </pre></nowiki>
 
 
@@ -102,7 +102,9 @@ before stepping through them. The subcommands include:
 Note that all of those optionally accept the statement handle directly after
 the "query" command (before the "col" subcommand). e.g.
 <tt>query bind null $stmt 1</tt> and
-<tt>query $stmt bind null 1</tt> are equivalent.
+<tt>query $stmt bind null 1</tt> are equivalent. They also accept the column index
+either before or after the type name, e.g.
+<tt>query $stmt bind 1 string ...</tt> and <tt>query $stmt bind string 1 ...</tt> are equivalent.
 
 
 Achtung: the bind API uses 1-based indexes, just like SQL does.
@@ -155,3 +157,17 @@ Any remaining arguments are treated as "modifiers" and passed as-is to strfmtime
 query $stmt col time $index {%Y%m%d @ %H:%M:%S} {+5 years}
 query $stmt col time $index %s unixepoch
 </pre></nowiki>
+
+
+
+
+<h2>strftime</h2>
+
+This works like <tt>col time</tt> (described below) but takes its
+value from an arbitrary source specified by the 3rd argument.
+
+<nowiki><pre>
+query strftime %s 1319211587 unixepoch
+query strftime {%Y%m%d @ %H:%M:%S} [query $stmt col string 2] {+10 years}]
+</pre></nowiki>
+

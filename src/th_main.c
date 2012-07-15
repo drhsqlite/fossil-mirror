@@ -1191,6 +1191,24 @@ static int queryStepCmd(
   return TH_OK;
 }
 
+static int queryResetCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
+  int const rc = sqlite3_reset(pStmt);
+  if(rc){
+    Th_ErrorMessage(interp, "Reset of statement failed.", NULL, 0);
+    return TH_ERROR;
+  }else{
+    return TH_OK;
+  }
+}
+
+
 /*
 ** TH Syntax:
 **
@@ -1207,11 +1225,13 @@ static int queryColStringCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
   char const * val;
-  int index = -1;
   int valLen;
+  if( index >= 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1219,7 +1239,7 @@ static int queryColStringCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt(interp, argv[1], argl[1], &index);
   }
   if(index < 0){
@@ -1247,10 +1267,12 @@ static int queryColIntCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
   int rc = 0;
-  int index = -1;
+  if( index >= 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1258,10 +1280,9 @@ static int queryColIntCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt(interp, argv[1], argl[1], &index);
   }
-     
   if(index < 0){
     return TH_ERROR;
   }
@@ -1285,10 +1306,12 @@ static int queryColDoubleCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
   double rc = 0;
-  int index = -1;
+  if( index >= 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1296,7 +1319,7 @@ static int queryColDoubleCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt(interp, argv[1], argl[1], &index);
   }
   if(index < 0){
@@ -1584,10 +1607,12 @@ static int queryBindNullCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
+  if( index > 0 ) --requireArgc;
   int rc;
-  int index = 0;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1595,7 +1620,7 @@ static int queryBindNullCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<1){
     Th_ToInt( interp, argv[1], argl[1], &index );
   }
   if(index < 1){
@@ -1625,10 +1650,13 @@ static int queryBindStringCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
   int rc;
-  int index = 0;
+  int argPos;
+  if( index > 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1636,13 +1664,17 @@ static int queryBindStringCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+    argPos = 3;
+  }else if(index<1){
     Th_ToInt( interp, argv[1], argl[1], &index );
+    argPos = 2;
+  }else{
+    argPos = 1;
   }
   if(index < 1){
     return TH_ERROR;
   }
-  rc = sqlite3_bind_text( pStmt, index, argv[3], argl[3], SQLITE_TRANSIENT );
+  rc = sqlite3_bind_text( pStmt, index, argv[argPos], argl[argPos], SQLITE_TRANSIENT );
   if(rc){
     return queryReportDbErr( interp );
   }
@@ -1665,12 +1697,14 @@ static int queryBindIntCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
   int rc;
-  int index = 0;
   int argPos;
   int val;
+  if( index > 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1679,9 +1713,11 @@ static int queryBindIntCmd(
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
     argPos = 3;
-  }else{
+  }else if(index<1){
     Th_ToInt( interp, argv[1], argl[1], &index );
     argPos = 2;
+  }else{
+    argPos = 1;
   }
   if(index < 1){
     return TH_ERROR;
@@ -1713,12 +1749,14 @@ static int queryBindDoubleCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
   int rc;
-  int index = 0;
   int argPos;
   double val;
+  if( index > 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1727,9 +1765,11 @@ static int queryBindDoubleCmd(
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
     argPos = 3;
-  }else{
+  }else if(index<1){
     Th_ToInt( interp, argv[1], argl[1], &index );
     argPos = 2;
+  }else{
+    argPos = 1;
   }
   if(index < 1){
     return TH_ERROR;
@@ -1753,6 +1793,7 @@ static int queryBindTopLevelCmd(
   const char **argv, 
   int *argl
 ){
+  int colIndex = -1;
   static Th_SubCommand aSub[] = {
     {"int",    queryBindIntCmd},
     {"double", queryBindDoubleCmd},
@@ -1760,7 +1801,24 @@ static int queryBindTopLevelCmd(
     {"string", queryBindStringCmd},
     {0, 0}
   };
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  assert(NULL != sq);
+  if( 1 == argc ){
+      Th_WrongNumArgs2( interp, argv[0], argl[0],
+                        "subcommand");
+      return TH_ERROR;
+  }else if( 0 == Th_TryInt(interp,argv[1], argl[1], &colIndex) ){
+    if(colIndex <0){
+      Th_ErrorMessage( interp, "Invalid column index.", NULL, 0);
+      return TH_ERROR;
+    }
+    ++argv;
+    ++argl;
+    --argc;
+  }
+  sq->colCmdIndex = colIndex;
   Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+
 }
 
 static int queryColTopLevelCmd(
@@ -1810,9 +1868,6 @@ static int queryColTopLevelCmd(
     --argc;
   }
   sq->colCmdIndex = colIndex;
-  /* TODO: accept the index as the first param after "col", and make
-     subcommands aware of sq->colCmdIndex.
-  */
   Th_CallSubCommand2( interp, ctx, argc, argv, argl,
                       (colIndex<0) ? aSub : aSubWithIndex );
 }
@@ -1830,6 +1885,7 @@ static int queryTopLevelCmd(
   static Th_SubCommand aSubAll[] = {
     {"bind",        queryBindTopLevelCmd},
     {"col",         queryColTopLevelCmd},
+    {"reset",       queryResetCmd},
     {"step",        queryStepCmd},
     {"finalize",    queryFinalizeCmd},
     {"prepare",     queryPrepareCmd},
@@ -1845,6 +1901,7 @@ static int queryTopLevelCmd(
     {"col",         queryColTopLevelCmd},
     {"step",        queryStepCmd},
     {"finalize",    queryFinalizeCmd},
+    {"reset",       queryResetCmd},
     {0, 0}
   };
 
