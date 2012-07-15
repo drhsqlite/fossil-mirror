@@ -15,7 +15,7 @@ extern void *fossil_realloc(void *p, size_t n);
 static void * th_fossil_realloc(void *p, unsigned int n){
   return fossil_realloc( p, n );
 }
-
+static int Th_output_f_ob( char const * zData, int len, void * pState );
 typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
 typedef struct Th_Variable  Th_Variable;
@@ -2829,10 +2829,22 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
   0/*nBuf*/,            \
   -1/*cursor*/,       \
   NULL/*interp*/,     \
-  NULL/*aVtab*/       \
+  NULL/*aOutput*/       \
+}
+#define Th_Vtab_Output_empty_m { \
+  Th_output_f_ob /*f*/, \
+  NULL /*pState*/,\
+  1/*enabled*/\
+}
+#define Th_Vtab_Output_ob_m {                \
+  Th_output_f_ob /*f*/, \
+  NULL /*pState*/,\
+  1/*enabled*/\
 }
 static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
 static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
+static Th_Vtab_Output Th_Vtab_Output_ob = Th_Vtab_Output_ob_m;
+static Th_Vtab_Output Th_Vtab_Output_empty = Th_Vtab_Output_empty_m;
 #define Th_Ob_Man_KEY "Th_Ob_Man"
 Th_Ob_Man * Th_ob_manager(Th_Interp *interp){
   void * rc = Th_Data_Get(interp, Th_Ob_Man_KEY );
@@ -2851,7 +2863,7 @@ Blob * Th_ob_current( Th_Ob_Man * pMan ){
 ** Th_output_f() impl which expects pState to be (Th_Ob_Man*).
 ** (zData,len) are appended to pState's current output buffer.
 */
-static int Th_output_f_ob( char const * zData, int len, void * pState ){
+int Th_output_f_ob( char const * zData, int len, void * pState ){
   Th_Ob_Man * pMan = (Th_Ob_Man*)pState;
   Blob * b = Th_ob_current( pMan );
   assert( NULL != pMan );
@@ -2890,13 +2902,13 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
       goto error;
     }
     pMan->aBuf = (Blob **)re;
-    re = Th_Realloc( pMan->interp, pMan->aVtab, x * sizeof(Th_Vtab*) );
+    re = Th_Realloc( pMan->interp, pMan->aOutput, x * sizeof(Th_Vtab_Output) );
     if(NULL==re){
       goto error;
     }
-    pMan->aVtab = (Th_Vtab**)re;
+    pMan->aOutput = (Th_Vtab_Output*)re;
     for( i = pMan->nBuf; i < x; ++i ){
-      pMan->aVtab[i] = NULL;
+      pMan->aOutput[i] = Th_Vtab_Output_empty;
       pMan->aBuf[i] = NULL;
     }
     pMan->nBuf = x;
@@ -2905,9 +2917,9 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   assert( pMan->cursor >= -1 );
   ++pMan->cursor;
   pMan->aBuf[pMan->cursor] = pBlob;
-  pMan->aVtab[pMan->cursor] = pMan->interp->pVtab;
-  pMan->interp->pVtab = &Th_Vtab_Ob;
-  Th_Vtab_Ob.out.pState = pMan;
+  pMan->aOutput[pMan->cursor] = pMan->interp->pVtab->out;
+  pMan->interp->pVtab->out = Th_Vtab_Ob.out;
+  pMan->interp->pVtab->out.pState = pMan;
   if( pOut ){
     *pOut = pBlob;
   }
@@ -2929,12 +2941,12 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
     assert( pMan->nBuf > pMan->cursor );
     rc = pMan->aBuf[pMan->cursor];
     pMan->aBuf[pMan->cursor] = NULL;
-    pMan->interp->pVtab = pMan->aVtab[pMan->cursor];
-    pMan->aVtab[pMan->cursor] = NULL;
+    pMan->interp->pVtab->out = pMan->aOutput[pMan->cursor];
+    pMan->aOutput[pMan->cursor] = Th_Vtab_Output_empty;
     if(-1 == --pMan->cursor){
       Th_Interp * interp = pMan->interp;
       Th_Free( pMan->interp, pMan->aBuf );
-      Th_Free( pMan->interp, pMan->aVtab );
+      Th_Free( pMan->interp, pMan->aOutput );
       *pMan = Th_Ob_Man_empty;
       pMan->interp = interp;
     }
@@ -3032,7 +3044,7 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
     return TH_ERROR;
   }
   oldVtab = interp->pVtab;
-  interp->pVtab = pMan->aVtab[pMan->cursor];
+  interp->pVtab->out = pMan->aOutput[pMan->cursor];
   Th_output( interp, blob_str(b), b->nUsed );
   interp->pVtab = oldVtab;
   blob_reset(b);

@@ -345,15 +345,11 @@ struct Th_Ob_Man {
   int nBuf;            /* Number of blobs */
   int cursor;          /* Current level (-1=not active) */
   Th_Interp * interp;  /* The associated interpreter */
-  Th_Vtab ** aVtab;    /* Stack of Vtabs (they get restored
-                          when a buffering level is popped).
+  Th_Vtab_Output * aOutput
+                       /* Stack of output routines corresponding
+                          to the current buffering level.
                           Has nBuf entries.
-
-                          FIXME? Only swap out the "out" members, and
-                          not xRealloc (that could get us into
-                          trouble, but we currently only use one
-                          realloc impl).
-                       */
+                       */;
 };
 
 typedef struct Th_Ob_Man Th_Ob_Man;
