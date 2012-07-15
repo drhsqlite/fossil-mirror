@@ -2800,9 +2800,13 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   pBlob = (Blob *)Th_Malloc(pMan->interp, sizeof(Blob));
   *pBlob = empty_blob;
 
-  if( pMan->cursor <= pMan->nBuf ){
+  if( pMan->cursor >= pMan->nBuf-2 ){
     /* expand if needed */
-    x = (pMan->cursor>0 ? pMan->cursor : 1) * 2;
+    x = pMan->nBuf + 5;
+    if( pMan->cursor >= x ) {
+      assert( 0 && "This really should not happen." );
+      x = pMan->cursor + 5;
+    }
     /*fprintf(stderr,"OB EXPAND x=%d\n",x);*/
     void * re = Th_Realloc( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
     if(NULL==re){
@@ -2879,8 +2883,9 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
     return TH_ERROR;
   }else{
     blob_reset(b);
+    Th_SetResultInt( interp, 0 );
+    return TH_OK;
   }
-  return TH_OK;
 }
 
 /*
@@ -2903,27 +2908,29 @@ static int ob_end_command( Th_Interp *interp, void *ctx,
   }else{
     blob_reset(b);
     Th_Free( interp, b );
+    Th_SetResultInt( interp, 0 );
+    return TH_OK;
   }
-  return TH_OK;
 }
 
 /*
 ** TH Syntax:
 **
-** ob flush
-**
-** UNTESTED! Maybe not needed.
+** ob flush ?pop|end?
 **
 ** Briefly reverts the output layer to the next-lower
 ** level, flushes the current buffer to that output layer,
 ** and clears out the current buffer. Does not change the
-** buffering level.
+** buffering level unless "end" is specified, in which case
+** it behaves as if "ob end" had been called (after flushing
+** the buffer).
 */
 static int ob_flush_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl ){
   Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
   Blob * b = NULL;
   Th_Vtab * oldVtab;
+  int rc = TH_OK;
   assert( pMan && (interp == pMan->interp) );
   b = Th_ob_current(pMan);
   if( NULL == b ){
@@ -2935,13 +2942,26 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
   Th_output( interp, blob_str(b), b->nUsed );
   interp->pVtab = oldVtab;
   blob_reset(b);
-  return TH_OK;
+
+  if(!rc && argc>2){
+    int argPos = 2;
+    char const * sub = argv[argPos];
+    int subL = argl[argPos];
+    /* "flush end" */
+    if(th_strlen(sub)==3 &&
+       ((0==memcmp("end", sub, subL)
+         || (0==memcmp("pop", sub, subL))))){
+      rc |= ob_end_command(interp, ctx, argc-1, argv+1, argl+1);
+    }
+  }
+  Th_SetResultInt( interp, 0 );
+  return rc;
 }
 
 /*
 ** TH Syntax:
 **
-** ob get ?clean|end?
+** ob get ?clean|end|pop?
 **
 ** Fetches the contents of the current buffer level.  If either
 ** 'clean' or 'end' are specified then the effect is as if "ob clean"
@@ -2971,7 +2991,9 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
       if(!rc && th_strlen(sub)==5 && 0==memcmp("clean", sub, subL)){
         rc |= ob_clean_command(interp, ctx, argc-1, argv+1, argl+1);
       }/* "ob get end" */
-      else if(!rc && th_strlen(sub)==3 && 0==memcmp("end", sub, subL)){
+      else if(!rc && th_strlen(sub)==3 &&
+              ((0==memcmp("end", sub, subL))
+               || (0==memcmp("pop", sub, subL)))){
         rc |= ob_end_command(interp, ctx, argc-1, argv+1, argl+1);
       }
     }
@@ -3043,6 +3065,8 @@ static int ob_cmd(
     { "flush",     ob_flush_command },
     { "get",       ob_get_command },
     { "level",     ob_level_command },
+    { "pop",       ob_end_command },
+    { "push",      ob_start_command },
     { "start",     ob_start_command },
     { 0, 0 }
   };

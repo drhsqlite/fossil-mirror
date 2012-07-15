@@ -1,5 +1,5 @@
-C Added\sincr\sas\sbuilt-in\sfunction.
-D 2012-07-15T09:20:12.990
+C Added\spush/pop\sas\saliases\sfor\sstart/end\sin\sthe\sob\sAPI.\sFixed\sa\shorrible\ssize\scalculation\sbug\swhich\striggered\san\sassert()\sfor\sob\snesting\slevels\sdeeper\sthan\s2.
+D 2012-07-15T09:23:59.077
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,7 +150,7 @@ F src/style.c c13b0f33b1b3de752d41424be135c24a5e3e7c7b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 3104bd50673909956bbbd9603325f071550b542a
+F src/th.c 1938ba8dae0f9f79736df14c0740fba0aec5188e
 F src/th.h b6df3bdc11e48d0e54f4ef3101b83dbc93e26888
 F src/th_lang.c 3e685acd9983a5c2330a8d5fabf8a3e99edb3149
 F src/th_main.c 1192d3dba4d49f1c6ab80a62790fa09d0d4290f4
@@ -368,7 +368,7 @@ F www/th1_query.wiki 904185464ab1661e63d2ced0143ed0b84ad7fc34
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 66da00e9690d0078ed384880b665ebabe0b5e93b
-R 967385b887245564a6927af5c9acdfc3
+P dc3c8ac3deb06a8f29e68435e7bf523205441433
+R 575a03d11aee380b3f19fc1a3e438faa
 U stephan
-Z bfcf07300ab7ab6726f7ee819ef8fadb
+Z 6611e3f1710a3b4798af3fc0098619d9
