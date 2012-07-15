@@ -13,7 +13,7 @@ Example usage:
 <nowiki><pre>
 &lt;th1>
 puts "this is unbuffered"
-ob start
+ob push # or: ob start (same thing)
 # all output until the next ob start|end gets collected
 # in a buffer...
 &lt;/th1>
@@ -25,10 +25,10 @@ puts "current buffer level = " [ob level] "\n"
 puts "this part is also collected in the buffer."
 
 # Collect the buffer's contents:
-set buf [ob get end]
+set buf [ob get pop]
 # That is equivalent to:
 #  set buf [ob get]
-#  ob  end
+#  ob pop
 
 puts "\nThis is now unbuffered, but we buffered: $buf\n"
 &lt;/th1>
@@ -36,7 +36,10 @@ puts "\nThis is now unbuffered, but we buffered: $buf\n"
 
 The functions are summarized below...
 
-<h2>ob start</h2>
+<h2>ob push|start</h2>
+
+<tt>push</tt> and <tt>start</tt> are aliases ("start" comes from the PHP API, but
+"push" is probably more natural to those working with th1).
 
 <tt>ob start</tt> pushes a level of buffering onto the buffer stack, such that
 future calls which generate output through the th1-internal mechanism will have it
@@ -45,7 +48,10 @@ transparently redirected to the current buffer.
 It is important that every call to <tt>ob start</tt> be followed up (eventually)
 by either <tt>ob end</tt> or <tt>ob get end</tt>.
 
-<h2>ob end</h2>
+<h2>ob pop|end</h2>
+
+<tt>pop</tt> and <tt>end</tt> are aliases ("end" comes from the PHP API, but
+"pop" is probably more natural to those working with th1).
 
 This discards any current buffered contents and reverts the output state to
 the one it had before the previous <tt>ob start</tt>. i.e. that might be another
@@ -63,11 +69,11 @@ does not change the buffer stack level.
 <h2>ob get</h2>
 
 This fetches the current contents as a string. It optionally accepts
-either <tt>end</tt> or <tt>clean</tt>, in which cases it behaves like
-either <tt>ob end</tt> or <tt>ob clean</tt>, respectively, in addition
+either <tt>end</tt> (or its alias <tt>pop</tt>) or <tt>clean</tt>, in which cases it behaves like
+either <tt>ob end|pop</tt> or <tt>ob clean</tt>, respectively, in addition
 to returning the buffer contents. i.e. <tt>ob get clean</tt> will
 fetch the contents and clean up the buffer, but does not change the
-buffering level, whereas <tt>ob get end</tt> pops the buffer off the
+buffering level, whereas <tt>ob get end|pop</tt> pops the buffer off the
 stack after fetching its contents.
 
 <h2>ob level</h2>
@@ -83,3 +89,8 @@ previous output mechanism, push the buffer state to TH1, revert TH1
 <em>back</em> to the current buffering state, and then clear the
 current buffer contents (like <tt>ob clean</tt>). This does not change
 the buffering level, though it temporarily behaves as if it does.
+
+In other words, this function pushes the current buffer contents to the
+next-lower output mechanism (which may be another ob buffering level,
+fossil's internal CGI output buffer, or it might be be
+<tt>fwrite(stdout)</tt>).

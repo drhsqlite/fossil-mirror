@@ -853,7 +853,7 @@ int th_register_argv(Th_Interp *interp){
 ** If interp is destroyed before all statements are finalized,
 ** it will finalize them but may emit a warning message.
 */
-int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+static int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
 
 /*
 ** Expects stmtId to be a statement identifier returned by
@@ -862,14 +862,14 @@ int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
 ** call, some subsequent call to Th_AddStmt() may return the
 ** same statement ID.
 */
-int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
+static int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
 
 /*
 ** Fetches the statement with the given ID, as returned by
 ** Th_AddStmt(). Returns NULL if stmtId does not refer (or no longer
 ** refers) to a statement added via Th_AddStmt().
 */
-sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
+static sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
 
 
 struct Th_Sqlite {
@@ -884,7 +884,7 @@ static Th_Sqlite * Th_sqlite_manager( Th_Interp * interp ){
   return p ? (Th_Sqlite*)p : NULL;
 }
 
-int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
+static int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
   Th_Sqlite * sq = Th_sqlite_manager(interp);
   int i, x;
   sqlite3_stmt * s;
@@ -909,7 +909,7 @@ int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
 }
 
 
-int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
+static int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
   Th_Sqlite * sq = Th_sqlite_manager(interp);
   sqlite3_stmt * st;
   int rc = 0;
@@ -924,7 +924,7 @@ int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
   }
 }
 
-sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
+static sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
   Th_Sqlite * sq = Th_sqlite_manager(interp);
   return ((stmtId<1) || (stmtId > sq->nStmt))
     ? NULL
@@ -933,7 +933,7 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
 
 
 static void finalizerSqlite( Th_Interp * interp, void * p ){
-  Th_Sqlite * sq = Th_sqlite_manager( interp );
+  Th_Sqlite * sq = (Th_Sqlite *)p;
   int i;
   sqlite3_stmt * st = NULL;
   if(!sq) {
@@ -943,7 +943,7 @@ static void finalizerSqlite( Th_Interp * interp, void * p ){
   for( i = 0; i < sq->nStmt; ++i ){
     st = sq->aStmt[i];
     if(NULL != st){
-      fossil_warning("Auto-finalizing unfinalized query_prepare "
+      fossil_warning("Auto-finalizing unfinalized "
                      "statement id #%d: %s",
                      i+1, sqlite3_sql(st));
       Th_FinalizeStmt( interp, i+1 );
