@@ -330,7 +330,7 @@ void tktview_page(void){
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
-  Th_Render(zScript);
+  Th_Render(zScript, Th_Render_Flags_DEFAULT );
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
 
   zFullName = db_text(0, 
@@ -542,7 +542,7 @@ void tktnew_page(void){
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW_SCRIPT<br />\n", -1);
-  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zNewUuid ){
+  if( Th_Render(zScript, Th_Render_Flags_DEFAULT)==TH_RETURN && !g.thTrace && zNewUuid ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
@@ -609,7 +609,7 @@ void tktedit_page(void){
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT_SCRIPT<br />\n", -1);
-  if( Th_Render(zScript)==TH_RETURN && !g.thTrace && zName ){
+  if( Th_Render(zScript, Th_Render_Flags_DEFAULT)==TH_RETURN && !g.thTrace && zName ){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }

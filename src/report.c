@@ -21,6 +21,7 @@
 #include <time.h>
 #include "report.h"
 #include <assert.h>
+#include "th.h"
 
 /* Forward references to static routines */
 static void report_format_hints(void);
@@ -83,7 +84,7 @@ void view_list(void){
 
   Th_Store("report_items", blob_str(&ril));
   
-  Th_Render(zScript);
+  Th_Render(zScript, Th_Render_Flags_DEFAULT);
   
   blob_reset(&ril);
   if( g.thTrace ) Th_Trace("END_REPORTLIST<br />\n", -1);

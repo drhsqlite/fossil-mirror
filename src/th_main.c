@@ -19,8 +19,10 @@
 ** (an independent project) and fossil.
 */
 #include "config.h"
+
 #include "th_main.h"
 
+/*#include "th_main.h"*/
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -221,6 +223,59 @@ static int htmlizeCmd(
   free(zOut);
   return TH_OK;
 }
+
+#if 0
+/* i'm not sure we need this */
+/*
+** TH command:      render STRING
+**
+** Render the input string as TH1.
+*/
+static int renderCmd(
+  Th_Interp *interp, 
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  if( argc<2 ){
+    return Th_WrongNumArgs2(interp,
+                            argv[0], argl[0],
+                            "STRING ?STRING...?");
+  }else{
+    Th_Ob_Man * man = Th_ob_manager(interp);
+    Blob * b = NULL;
+    Blob buf = empty_blob;
+    int rc, i;
+    /*FIXME: assert(NULL != man && man->interp==interp);*/
+    man->interp = interp;
+    /* Combine all inputs into one buffer so that we can use that to
+       embed TH1 tags across argument boundaries.
+
+       FIX:E optimize away buf for the 1-arg case.
+     */
+    for( i = 1; TH_OK==rc && i < argc; ++i ){
+      char const * str = argv[i];
+      blob_append( &buf, str, argl[i] );
+      /*rc = Th_Render( str, Th_Render_Flags_NO_DOLLAR_DEREF );*/
+    }
+    rc = Th_ob_push( man, &b );
+    if(rc){
+      blob_reset( &buf );
+      return rc;
+    }
+    rc = Th_Render( buf.aData, Th_Render_Flags_DEFAULT );
+    blob_reset(&buf);
+    b = Th_ob_pop( man );
+    if(TH_OK==rc){
+      Th_SetResult( interp, b->aData, b->nUsed );
+    }
+    blob_reset( b );
+    Th_Free( interp, b );
+    return rc;
+  }
+}/* renderCmd() */
+#endif
 
 /*
 ** TH command:      date
@@ -1573,16 +1628,19 @@ void Th_FossilInit(void){
   static Th_Command_Reg aCommand[] = {
     {"anycap",        anycapCmd,            0},
     {"combobox",      comboboxCmd,          0},
+    {"date",          dateCmd,              0},
     {"enable_output", enableOutputCmd,      0},
-    {"linecount",     linecntCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
-    {"htmlize",       htmlizeCmd,           0},
-    {"date",          dateCmd,              0},
     {"html",          putsCmd,     &puts_Html},
+    {"htmlize",       htmlizeCmd,           0},
+    {"linecount",     linecntCmd,           0},
     {"puts",          putsCmd,   &puts_Normal},
-    {"wiki",          wikiCmd,              0},
+#if 0
+    {"render",        renderCmd,            0},
+#endif
     {"repository",    repositoryCmd,        0},
+    {"wiki",          wikiCmd,              0},
 
     {0, 0, 0}
   };
@@ -1707,22 +1765,25 @@ static int validVarName(const char *z){
 
 /*
 ** The z[] input contains text mixed with TH1 scripts.
-** The TH1 scripts are contained within <th1>...</th1>. 
-** TH1 variables are $aaa or $<aaa>.  The first form of
-** variable is literal.  The second is run through htmlize
-** before being inserted.
+** The TH1 scripts are contained within <th1>...</th1>.
+**
+** If flags does NOT contain the Th_Render_Flags_NO_DOLLAR_DEREF bit
+** then TH1 variables are $aaa or $<aaa>.  The first form of variable
+** is literal.  The second is run through htmlize before being
+** inserted.
 **
 ** This routine processes the template and writes the results
-** on either stdout or into CGI.
+** via Th_output().
 */
-int Th_Render(const char *z){
+int Th_Render(const char *z, int flags){
   int i = 0;
   int n;
   int rc = TH_OK;
-  char *zResult;
+  char const *zResult;
+  char doDollar = !(flags & Th_Render_Flags_NO_DOLLAR_DEREF);
   Th_FossilInit();
   while( z[i] ){
-    if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
+    if( doDollar && z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
       int nVar;
       int encode = 1;
@@ -1737,11 +1798,11 @@ int Th_Render(const char *z){
         nVar = n;
         encode = 0;
       }
-      rc = Th_GetVar(g.interp, (char*)zVar, nVar);
+      rc = Th_GetVar(g.interp, zVar, nVar);
       z += i+1+n;
       i = 0;
-      zResult = (char*)Th_GetResult(g.interp, &n);
-      sendText(g.interp, (char*)zResult, n, encode);
+      zResult = Th_GetResult(g.interp, &n);
+      sendText(g.interp, zResult, n, encode);
     }else if( z[i]=='<' && isBeginScriptTag(&z[i]) ){
       sendText(g.interp, z, i, 0);
       z += i+5;
@@ -1789,5 +1850,5 @@ void test_th_render(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx API. */;
 #endif
   blob_read_from_file(&in, g.argv[2]);
-  Th_Render(blob_str(&in));
+  Th_Render(blob_str(&in), Th_Render_Flags_DEFAULT);
 }

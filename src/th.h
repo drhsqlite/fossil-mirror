@@ -12,6 +12,9 @@
 */
 #define TH_USE_OUTBUF
 /*#undef TH_USE_OUTBUF*/
+#ifndef INTERFACE
+#include "blob.h"
+#endif
 
 
 /* This header file defines the external interface to the custom Scripting
@@ -262,6 +265,13 @@ struct Th_Command_Reg {
   void *pContext;        /* Arbitrary data for the callback. */
 };
 
+/* mkindex cannot do enums enum Th_Render_Flags { */
+#define Th_Render_Flags_DEFAULT 0
+#define Th_Render_Flags_NO_DOLLAR_DEREF (1 << 1)
+/*};*/
+
+int Th_Render(const char *z, int flags);
+
 /*
 ** Registers a list of commands with the interpreter. pList must be a non-NULL
 ** pointer to an array of Th_Command_Reg objects, the last one of which MUST
@@ -301,3 +311,56 @@ int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
 sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
 #endif
 
+#ifdef TH_USE_OUTBUF
+/*
+** Manager of a stack of Blob objects for output buffering.
+*/
+struct Th_Ob_Man {
+  Blob ** aBuf;        /* Stack of Blobs */
+  int nBuf;            /* Number of blobs */
+  int cursor;          /* Current level (-1=not active) */
+  Th_Interp * interp;  /* The associated interpreter */
+  Th_Vtab ** aVtab;    /* Stack of Vtabs (they get restored
+                          when a buffering level is popped).
+                          Has nBuf entries.
+
+                          FIXME? Only swap out the "out" members, and
+                          not xRealloc (that could get us into
+                          trouble, but we currently only use one
+                          realloc impl).
+                       */
+};
+
+typedef struct Th_Ob_Man Th_Ob_Man;
+
+/*
+** Returns the ob manager for the given interpreter.
+*/
+Th_Ob_Man * Th_ob_manager(Th_Interp *ignored);
+
+/*
+** Returns the top-most Blob in pMan's stack, or NULL
+** if buffering is not active.
+*/
+Blob * Th_ob_current( Th_Ob_Man * pMan );
+
+/*
+** Pushes a new blob onto pMan's stack. On success
+** returns TH_OK and assigns *pOut (if pOut is not NULL)
+** to the new blob (which is owned by pMan). On error
+** pOut is not modified and non-0 is returned.
+*/
+int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut );
+
+/*
+** Pops the top-most output buffer off the stack and returns
+** it. Returns NULL if there is no current buffer.  When the last
+** buffer is popped, pMan's internals are cleaned up.
+**
+** The caller owns the returned object and must eventually call
+** blob_reset() on it and Th_Free() it.
+*/
+Blob * Th_ob_pop( Th_Ob_Man * pMan );
+
+#endif
+/* TH_USE_OUTBUF */

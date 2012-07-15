@@ -20,7 +20,7 @@
 */
 #include "config.h"
 #include "style.h"
-
+#include "th.h"
 
 /*
 ** Elements of the submenu are collected into the following
@@ -195,7 +195,7 @@ void style_header(const char *zTitleFormat, ...){
     Th_Store("login", g.zLogin);
   }
   if( g.thTrace ) Th_Trace("BEGIN_HEADER_SCRIPT<br />\n", -1);
-  Th_Render(zHeader);
+  Th_Render(zHeader, Th_Render_Flags_DEFAULT);
   if( g.thTrace ) Th_Trace("END_HEADER<br />\n", -1);
   Th_Unstore("title");   /* Avoid collisions with ticket field names */
   cgi_destination(CGI_BODY);
@@ -266,7 +266,7 @@ void style_footer(void){
 
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
-  Th_Render(zFooter);
+  Th_Render(zFooter, Th_Render_Flags_DEFAULT);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
   
   /* Render trace log if TH1 tracing is enabled. */
@@ -945,7 +945,7 @@ void page_style_css(void){
   */
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
-  Th_Render(blob_str(&css));
+  Th_Render(blob_str(&css), Th_Render_Flags_DEFAULT);
 
   /* Tell CGI that the content returned by this page is considered cacheable */
   g.isConst = 1;

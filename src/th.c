@@ -9,9 +9,6 @@
 #include <assert.h>
 #include <stdio.h> /* FILE class */
 #ifdef TH_USE_OUTBUF
-#ifndef INTERFACE
-#include "blob.h"
-#endif
 #endif
 
 extern void *fossil_realloc(void *p, size_t n);
@@ -2758,32 +2755,16 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
    swap out Th_Vtab parts for purposes of stacking layers
    of buffers.
 */
-/*
-** Manager of a stack of Blob objects for output buffering.
-*/
-struct Th_Ob_Man {
-  Blob ** aBuf;        /* Stack of Blobs */
-  int nBuf;            /* Number of blobs */
-  int cursor;          /* Current level (-1=not active) */
-  Th_Interp * interp;  /* The associated interpreter */
-  Th_Vtab ** aVtab;    /* Stack of Vtabs (they get restored
-                          when a buffering level is popped).
-                          Has nBuf entries.
-
-                          FIXME? Only swap out the "out" members?
-                       */
-};
-
-typedef struct Th_Ob_Man Th_Ob_Man;
 #define Th_Ob_Man_empty_m { NULL, 0, -1, NULL, NULL }
 static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
 static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
 
-/*
-** Returns the top-most Blob in pMan's stack, or NULL
-** if buffering is not active.
-*/
-static Blob * Th_ob_current( Th_Ob_Man * pMan ){
+Th_Ob_Man * Th_ob_manager(Th_Interp *ignored){
+  return &Th_Ob_Man_instance;
+}
+  
+
+Blob * Th_ob_current( Th_Ob_Man * pMan ){
   return pMan->nBuf>0 ? pMan->aBuf[pMan->cursor] : 0;
 }
 
@@ -2812,12 +2793,6 @@ static Th_Vtab Th_Vtab_Ob = { th_fossil_realloc,
   }
 };
 
-/*
-** Pushes a new blob onto pMan's stack. On success
-** returns TH_OK and assigns *pOut (if pOut is not NULL)
-** to the new blob (which is owned by pMan). On error
-** pOut is not modified and non-0 is returned.
-*/
 int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   Blob * pBlob;
   int x, i;
@@ -2864,14 +2839,6 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   return TH_ERROR;
 }
 
-/*
-** Pops the top-most output buffer off the stack and returns
-** it. Returns NULL if there is no current buffer.  When the last
-** buffer is popped, pMan's internals are cleaned up.
-**
-** The caller owns the returned object and must eventually call
-** blob_reset() on it.
-*/
 Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   if( pMan->cursor < 0 ){
     return NULL;
