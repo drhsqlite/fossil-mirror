@@ -1,5 +1,5 @@
-C Refactord\sob\sapi\sto\sonly\sswap\sout\sthe\sVtab\soutput\sstate,\sas\sopposed\sto\sthe\swhole\sVtab\sstate\s(which\sincludes\sthe\sallocator).
-D 2012-07-15T11:16:04.745
+C Refactored\sth1/sqlite\sbits\sto\suse\sTh_Data_Get/Set(),\sremoved\ssqlite\sdata\sfrom\sTh_Interp\sclass.\sOther\sminor\scleanups.
+D 2012-07-15T12:27:14.492
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,10 +150,10 @@ F src/style.c c13b0f33b1b3de752d41424be135c24a5e3e7c7b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 687f0c4cd891441d227a6ad1739ffaf0a39334b7
-F src/th.h 1a4bfda056677d91b81df4823214d01ac1a06b12
+F src/th.c c1abbb626f0b99f357f0e5b6a2a0978691058f75
+F src/th.h 3251735c733d463ed4ed5b5c493cd21a0810c825
 F src/th_lang.c 3e685acd9983a5c2330a8d5fabf8a3e99edb3149
-F src/th_main.c 1192d3dba4d49f1c6ab80a62790fa09d0d4290f4
+F src/th_main.c e38bf12d4b013994f6564ed63ea3c3023452c4f1
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -362,13 +362,13 @@ F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
-F www/th1_argv.wiki d58569ae3d84f5e18f16b10eaf16204cee5fa088
+F www/th1_argv.wiki a2231c611e8e3b525864f1314f4f1f2764947067
 F www/th1_ob.wiki e777773962880670a4fa811d4392014bed3b7fdf
 F www/th1_query.wiki 904185464ab1661e63d2ced0143ed0b84ad7fc34
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 236cf1359400683074daf36782dc117195705035
-R 69f2036f3a499db5b06ff83bed21ce31
+P d9e0ee2f1e23408c91189f6af54e6774eabcd487
+R 85b33f37f09b63c942d42fa0858028f5
 U stephan
-Z fe0f31ec15091c4c460106fd029aa8b6
+Z 44a23cad1399724d3a545c4a1455a038

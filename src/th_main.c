@@ -19,8 +19,13 @@
 ** (an independent project) and fossil.
 */
 #include "config.h"
-
 #include "th_main.h"
+#ifndef INTERFACE
+#include "blob.h"
+#endif
+#ifdef TH_USE_SQLITE
+#include "sqlite3.h"
+#endif
 
 /*#include "th_main.h"*/
 /*
@@ -539,12 +544,14 @@ static int repositoryCmd(
 }
 
 
-extern const char *find_option(const char *zLong, const char *zShort, int hasArg);
-
+#ifdef TH_USE_ARGV
+extern const char *find_option(const char *zLong,
+                               const char *zShort,
+                               int hasArg) /* from main.c */;
 /*
 ** TH Syntax:
 **
-** argv_len
+** argv len
 **
 ** Returns the number of command-line arguments.
 */
@@ -559,8 +566,8 @@ static int argvArgcCmd(
   return TH_OK;
 }
 
-#define TH_USE_ARGV
-#ifdef TH_USE_ARGV
+
+
 /*
 ** TH Syntax:
 **
@@ -835,9 +842,117 @@ int th_register_argv(Th_Interp *interp){
 /* end TH_USE_ARGV */
 
 #ifdef TH_USE_SQLITE
-#ifndef INTERFACE
-#include "blob.h"
-#endif
+
+/*
+** Adds the given prepared statement to the interpreter. Returns the
+** statements opaque identifier (a positive value). Ownerships of
+** pStmt is transfered to interp and it must be cleaned up by the
+** client by calling Th_FinalizeStmt(), passing it the value returned
+** by this function.
+**
+** If interp is destroyed before all statements are finalized,
+** it will finalize them but may emit a warning message.
+*/
+int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+
+/*
+** Expects stmtId to be a statement identifier returned by
+** Th_AddStmt(). On success, finalizes the statement and returns 0.
+** On error (statement not found) non-0 is returned. After this
+** call, some subsequent call to Th_AddStmt() may return the
+** same statement ID.
+*/
+int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
+
+/*
+** Fetches the statement with the given ID, as returned by
+** Th_AddStmt(). Returns NULL if stmtId does not refer (or no longer
+** refers) to a statement added via Th_AddStmt().
+*/
+sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
+
+
+struct Th_Sqlite {
+  sqlite3_stmt ** aStmt;
+  int nStmt;
+};
+#define Th_Sqlite_KEY "Th_Sqlite"
+typedef struct Th_Sqlite Th_Sqlite;
+
+static Th_Sqlite * Th_sqlite_manager( Th_Interp * interp ){
+  void * p = Th_Data_Get( interp, Th_Sqlite_KEY );
+  return p ? (Th_Sqlite*)p : NULL;
+}
+
+int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int i, x;
+  sqlite3_stmt * s;
+  sqlite3_stmt ** list = sq->aStmt;
+  for( i = 0; i < sq->nStmt; ++i ){
+    s = list[i];
+    if(NULL==s){
+      list[i] = pStmt;
+      return i+1;
+    }
+  }
+  x = (sq->nStmt + 1) * 2;
+  list = (sqlite3_stmt**)fossil_realloc( list, sizeof(sqlite3_stmt*)*x );
+  for( i = sq->nStmt; i < x; ++i ){
+    list[i] = NULL;
+  }
+  list[sq->nStmt] = pStmt;
+  x = sq->nStmt;
+  sq->nStmt = i;
+  sq->aStmt = list;
+  return x + 1;
+}
+
+
+int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  sqlite3_stmt * st;
+  int rc = 0;
+  assert( stmtId>0 && stmtId<=sq->nStmt );
+  st = sq->aStmt[stmtId-1];
+  if(NULL != st){
+    sq->aStmt[stmtId-1] = NULL;
+    sqlite3_finalize(st);
+    return 0;
+  }else{
+    return 1;
+  }
+}
+
+sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  return ((stmtId<1) || (stmtId > sq->nStmt))
+    ? NULL
+    : sq->aStmt[stmtId-1];
+}
+
+
+static void finalizerSqlite( Th_Interp * interp, void * p ){
+  Th_Sqlite * sq = Th_sqlite_manager( interp );
+  int i;
+  sqlite3_stmt * st = NULL;
+  if(!sq) {
+    fossil_warning("Got a finalizer call for a NULL Th_Sqlite.");
+    return;
+  }
+  for( i = 0; i < sq->nStmt; ++i ){
+    st = sq->aStmt[i];
+    if(NULL != st){
+      fossil_warning("Auto-finalizing unfinalized query_prepare "
+                     "statement id #%d: %s",
+                     i+1, sqlite3_sql(st));
+      Th_FinalizeStmt( interp, i+1 );
+    }
+  }
+  Th_Free(interp, sq->aStmt);
+  Th_Free(interp, sq);
+}
+
 
 /*
 ** TH Syntax:
@@ -1546,6 +1661,7 @@ static int queryTopLevelCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
   static Th_SubCommand aSub[] = {
     {"bind",        queryBindTopLevelCmd},
     {"col",         queryColTopLevelCmd},
@@ -1555,7 +1671,8 @@ static int queryTopLevelCmd(
     {"strftime",    queryStrftimeCmd},
     {0, 0}
   };
-  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+  assert( NULL != sq );
+  Th_CallSubCommand2( interp, sq, argc, argv, argl, aSub );
 }
 
 
@@ -1575,27 +1692,24 @@ int th_register_sqlite(Th_Interp *interp){
   SET(SQLITE_ROW);
   SET(SQLITE_TEXT);
 #undef SET
+  int rc = TH_OK;
   static Th_Command_Reg aCommand[] = {
     {"query",             queryTopLevelCmd,  0},
-#if 0
-    {"query_bind_int",    queryBindIntCmd,   0},
-    {"query_bind_double", queryBindDoubleCmd,0},
-    {"query_bind_null",   queryBindNullCmd,  0},
-    {"query_bind_string", queryBindStringCmd,0},
-    {"query_col_count",   queryColCountCmd,  0},
-    {"query_col_double",  queryColDoubleCmd, 0},
-    {"query_col_int",     queryColIntCmd,    0},
-    {"query_col_is_null", queryColIsNullCmd, 0},
-    {"query_col_name",    queryColNameCmd,   0},
-    {"query_col_string",  queryColStringCmd, 0},
-    {"query_col_type",    queryColTypeCmd,   0},
-    {"query_finalize",    queryFinalizeCmd,  0},
-    {"query_prepare",     queryPrepareCmd,   0},
-    {"query_step",        queryStepCmd,      0},
-#endif
     {0, 0, 0}
   };
-  Th_register_commands( interp, aCommand );
+  rc = Th_register_commands( interp, aCommand );
+  if(TH_OK==rc){
+    Th_Sqlite * sq = Th_Malloc(interp, sizeof(Th_Sqlite));
+    if(!sq){
+      rc = TH_ERROR;
+    }else{
+      assert( NULL == sq->aStmt );
+      assert( 0 == sq->nStmt );
+      Th_Data_Set( interp, Th_Sqlite_KEY, sq, finalizerSqlite );
+      assert( sq == Th_sqlite_manager(interp) );
+    }
+  }
+  return rc;
 }
 
 #endif
@@ -1822,8 +1936,8 @@ int Th_Render(const char *z, int flags){
   }
   if( rc==TH_ERROR ){
     sendText(g.interp, "<hr><p class=\"thmainError\">ERROR: ", -1, 0);
-    zResult = (char*)Th_GetResult(g.interp, &n);
-    sendText(g.interp, (char*)zResult, n, 1);
+    zResult = Th_GetResult(g.interp, &n);
+    sendText(g.interp, zResult, n, 1);
     sendText(g.interp, "</p>", -1, 0);
   }else{
     sendText(g.interp, z, i, 0);
@@ -1851,7 +1965,8 @@ void test_th_render(void){
   blob_zero(&in);
   db_open_config(0); /* Needed for global "tcl" setting. */
 #ifdef TH_USE_SQLITE
-  db_find_and_open_repository(OPEN_ANY_SCHEMA,0) /* for query_xxx API. */;
+  db_find_and_open_repository(OPEN_ANY_SCHEMA,0)
+    /* required for th1 query API. */;
 #endif
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in), Th_Render_Flags_DEFAULT);

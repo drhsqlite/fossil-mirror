@@ -1,7 +1,8 @@
 <h1>TH1 "argv" API</h1>
 
 The "argv" API provides features for accessing command-line arguments
-and GET/POST values.
+and GET/POST values. They (unfortunately) do not provide access to
+POST data submitted in JSON mode.
 
 Example usage:
 

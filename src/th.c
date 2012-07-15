@@ -46,12 +46,6 @@ struct Th_Interp {
                         entries), but Th_Hash has the strong advantage
                         of being here and working.
                      */
-#ifdef TH_USE_SQLITE
-  struct {
-    sqlite3_stmt ** aStmt;
-    int nStmt;
-  } stmt;           /* list of prepared statements */
-#endif
 };
 
 /*
@@ -1733,22 +1727,6 @@ void Th_DeleteInterp(Th_Interp *interp){
   Th_HashIterate(interp, interp->paCmd, thFreeCommand, (void *)interp);
   Th_HashDelete(interp, interp->paCmd);
 
-#ifdef TH_USE_SQLITE
-  {
-    int i;
-    sqlite3_stmt * st;
-    for( i = 0; i < interp->stmt.nStmt; ++i ){
-      st = interp->stmt.aStmt[i];
-      if(NULL != st){
-        fossil_warning("Auto-finalizing unfinalized query_prepare "
-                       "statement id #%d: %s",
-                       i+1, sqlite3_sql(st));
-        Th_FinalizeStmt( interp, i+1 );
-      }
-    }
-    Th_Free(interp, interp->stmt.aStmt);
-  }
-#endif
   
   /* Delete the interpreter structure itself. */
   Th_Free(interp, (void *)interp);
@@ -2766,56 +2744,9 @@ void * Th_Data_Get( Th_Interp * interp, char const * key ){
   Th_HashEntry * e = interp->paGc
     ? Th_HashFind(interp, interp->paGc, key, th_strlen(key), 0)
     : NULL;
-  return e ? e->pData : NULL;
+  return e ? ((Th_GcEntry*)e->pData)->pData : NULL;
 }
 
-#ifdef TH_USE_SQLITE
-int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
-  int i, x;
-  sqlite3_stmt * s;
-  sqlite3_stmt ** list = interp->stmt.aStmt;
-  for( i = 0; i < interp->stmt.nStmt; ++i ){
-    s = list[i];
-    if(NULL==s){
-      list[i] = pStmt;
-      return i+1;
-    }
-  }
-  x = (interp->stmt.nStmt + 1) * 2;
-  list = (sqlite3_stmt**)fossil_realloc( list, sizeof(sqlite3_stmt*)*x );
-  for( i = interp->stmt.nStmt; i < x; ++i ){
-    list[i] = NULL;
-  }
-  list[interp->stmt.nStmt] = pStmt;
-  x = interp->stmt.nStmt;
-  interp->stmt.nStmt = i;
-  interp->stmt.aStmt = list;
-  return x + 1;
-}
-
-
-int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
-  sqlite3_stmt * st;
-  int rc = 0;
-  assert( stmtId>0 && stmtId<=interp->stmt.nStmt );
-  st = interp->stmt.aStmt[stmtId-1];
-  if(NULL != st){
-    interp->stmt.aStmt[stmtId-1] = NULL;
-    sqlite3_finalize(st);
-    return 0;
-  }else{
-    return 1;
-  }
-}
-
-sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
-  return ((stmtId<1) || (stmtId > interp->stmt.nStmt))
-    ? NULL
-    : interp->stmt.aStmt[stmtId-1];
-}
-
-#endif
-/* end TH_USE_SQLITE */
 
 
 #ifdef TH_USE_OUTBUF
@@ -2842,15 +2773,11 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
   1/*enabled*/\
 }
 static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
-static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
 static Th_Vtab_Output Th_Vtab_Output_ob = Th_Vtab_Output_ob_m;
 static Th_Vtab_Output Th_Vtab_Output_empty = Th_Vtab_Output_empty_m;
 #define Th_Ob_Man_KEY "Th_Ob_Man"
 Th_Ob_Man * Th_ob_manager(Th_Interp *interp){
-  void * rc = Th_Data_Get(interp, Th_Ob_Man_KEY );
-  return rc
-    ? ((Th_GcEntry*)rc)->pData
-    : NULL;
+  return (Th_Ob_Man*) Th_Data_Get(interp, Th_Ob_Man_KEY );
 }
 
 
@@ -2923,6 +2850,7 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   if( pOut ){
     *pOut = pBlob;
   }
+  /*printf( "push: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
   return TH_OK;
   error:
   if( pBlob ){
@@ -2931,13 +2859,12 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   return TH_ERROR;
 }
 
-
-
 Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   if( pMan->cursor < 0 ){
     return NULL;
   }else{
     Blob * rc;
+    /*printf( "pop: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
     assert( pMan->nBuf > pMan->cursor );
     rc = pMan->aBuf[pMan->cursor];
     pMan->aBuf[pMan->cursor] = NULL;
@@ -2949,7 +2876,9 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
       Th_Free( pMan->interp, pMan->aOutput );
       *pMan = Th_Ob_Man_empty;
       pMan->interp = interp;
+      assert(-1 == pMan->cursor);
     }
+    /*printf( "post-pop: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
     return rc;
   }
 }
@@ -3154,9 +3083,7 @@ static void finalizerObMan( Th_Interp * interp, void * p ){
   if(man){
     assert( interp == man->interp );
     Th_ob_cleanup( man );
-    if( man != &Th_Ob_Man_instance ){
-      Th_Free( interp, man );
-    }
+    Th_Free( interp, man );
   }
 }
 
@@ -3201,13 +3128,16 @@ int th_register_ob(Th_Interp * interp){
   rc = Th_register_commands( interp, aCommand );
   if(NULL == Th_ob_manager(interp)){
     Th_Ob_Man * pMan;
-    pMan = 1
-      ? &Th_Ob_Man_instance
-      : Th_Malloc(interp, sizeof(Th_Ob_Man));
-    /* *pMan = Th_Ob_Man_empty;*/
-    pMan->interp = interp;
-    Th_Data_Set( interp, Th_Ob_Man_KEY, pMan, finalizerObMan );
-    assert( NULL != Th_ob_manager(interp) );
+    pMan = Th_Malloc(interp, sizeof(Th_Ob_Man));
+    if(!pMan){
+      rc = TH_ERROR;
+    }else{
+      *pMan = Th_Ob_Man_empty;
+      pMan->interp = interp;
+      assert( -1 == pMan->cursor );
+      Th_Data_Set( interp, Th_Ob_Man_KEY, pMan, finalizerObMan );
+      assert( NULL != Th_ob_manager(interp) );
+    }
   }
   return rc;
 }
