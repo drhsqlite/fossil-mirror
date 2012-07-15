@@ -1,5 +1,5 @@
-C Added\sability\sto\stie\sclient\sdata/finalizer\sto\sth1,\sallowing\sa\srefactoring\sof\sOB\smanager\sto\suse\sper-interpreter-instance\sstate\sinstead\sof\sglobal\sstate.
-D 2012-07-15T10:59:44.779
+C minor\sdoc\sadditions.
+D 2012-07-15T11:04:14.680
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,7 +150,7 @@ F src/style.c c13b0f33b1b3de752d41424be135c24a5e3e7c7b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 5792a201c55697971f7691194a7d74ebab5357d5
+F src/th.c 91a759352aab22d84740aec122a21716d25ffdb3
 F src/th.h d6b66703cbef6b07106e87d9c69856d3121afa42
 F src/th_lang.c 3e685acd9983a5c2330a8d5fabf8a3e99edb3149
 F src/th_main.c 1192d3dba4d49f1c6ab80a62790fa09d0d4290f4
@@ -368,7 +368,7 @@ F www/th1_query.wiki 904185464ab1661e63d2ced0143ed0b84ad7fc34
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9b3a11e16095e2ce9ab1db03d0ada3a02f5046a1
-R d7be1d6f4c8d5b46fe00b704f397816a
+P 147c602d935c272b1f754581427fab0b326cbdba
+R 80c8e7256c09fe0a04035ad6de6997da
 U stephan
-Z 1f112745964491b2010acf11e7efa660
+Z 705d67ae3fcb9c9f4917035d2d1c955a

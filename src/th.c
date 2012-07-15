@@ -20,9 +20,13 @@ typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
 typedef struct Th_Variable  Th_Variable;
 
+/*
+** Holds client-provided "garbage collected" data for
+** a Th_Interp instance.
+*/
 struct Th_GcEntry {
-  void * pData;
-  void (*xDel)( Th_Interp *, void * );
+  void * pData;                        /* arbitrary data */
+  void (*xDel)( Th_Interp *, void * ); /* finalizer for pData */
 };
 typedef struct Th_GcEntry Th_GcEntry;
 
@@ -36,7 +40,12 @@ struct Th_Interp {
   Th_Hash *paCmd;    /* Table of registered commands */
   Th_Frame *pFrame;  /* Current execution frame */
   int isListMode;    /* True if thSplitList() should operate in "list" mode */
-  Th_Hash * paGc;    /* holds client-provided data owned by this object */
+  Th_Hash * paGc;    /* Holds client-provided data owned by this
+                        object. It would be more efficient to store
+                        these in a list (we don't expect many
+                        entries), but Th_Hash has the strong advantage
+                        of being here and working.
+                     */
 #ifdef TH_USE_SQLITE
   struct {
     sqlite3_stmt ** aStmt;
