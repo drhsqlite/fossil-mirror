@@ -1667,6 +1667,10 @@ void Th_FossilInit(void){
     th_register_argv(g.interp);
 #endif
     Th_register_commands( g.interp, aCommand );
+    Th_Eval( g.interp, 0, "proc incr {name {step 1}} {\n"
+             "upvar $name x\n"
+             "set x [expr $x+$step]\n"
+             "}", -1 );
   }
 }
 

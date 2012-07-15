@@ -1,5 +1,5 @@
-C Fixed\sa\smissing\sNUL\sterminator.
-D 2012-07-15T00:57:10.709
+C Added\sincr\sas\sbuilt-in\sfunction.
+D 2012-07-15T09:20:12.990
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -153,7 +153,7 @@ F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 3104bd50673909956bbbd9603325f071550b542a
 F src/th.h b6df3bdc11e48d0e54f4ef3101b83dbc93e26888
 F src/th_lang.c 3e685acd9983a5c2330a8d5fabf8a3e99edb3149
-F src/th_main.c e9f752aa3baae390e3d8fc21cefb5a114bc2abea
+F src/th_main.c 1192d3dba4d49f1c6ab80a62790fa09d0d4290f4
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -368,7 +368,7 @@ F www/th1_query.wiki 904185464ab1661e63d2ced0143ed0b84ad7fc34
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3ab06e8962024e0457ceb9f3c1ca73a9c493313e
-R 071f5665a722499dcbeb107ed66db585
+P 66da00e9690d0078ed384880b665ebabe0b5e93b
+R 967385b887245564a6927af5c9acdfc3
 U stephan
-Z f2327dd917109cb12efc34f2fb69c7eb
+Z bfcf07300ab7ab6726f7ee819ef8fadb
