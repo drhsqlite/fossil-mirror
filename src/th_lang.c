@@ -26,6 +26,7 @@ int Th_WrongNumArgs2(Th_Interp *interp, const char *zCmdName,
   Th_StringAppend(interp, &zBuf, &nBuf, zCmdName, zCmdLen);
   Th_StringAppend(interp, &zBuf, &nBuf, ": wrong # args: expecting: ", -1);
   Th_StringAppend(interp, &zBuf, &nBuf, zMsg, -1);
+  Th_StringAppend(interp, &zBuf, &nBuf, "", 1);
   Th_ErrorMessage(interp, zBuf, NULL, 0);
   Th_Free(interp, zBuf);
   return TH_ERROR;
