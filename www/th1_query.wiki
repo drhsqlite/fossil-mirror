@@ -10,10 +10,10 @@ Example usage:
 catch {
     set stmt [query prepare "SELECT login, cap FROM user"]
     puts "stmt ID=$stmt\n"
-    for {} {0 < [query step $stmt]} {} {
-        puts [query col string $stmt 0] ": " [query col string $stmt 1] "\n"
+    for {} {0 < [query $stmt step]} {} {
+        puts [query $stmt col string 0] ": " [query $stmt col string 1] "\n"
     }
-    query finalize $stmt
+    query $stmt finalize
     return 0
 } rc
 if {0 != $rc} {
@@ -22,7 +22,28 @@ if {0 != $rc} {
 &lt;th1>
 </pre></nowiki>
 
-The various subcommands are summarized below...
+The various subcommands are summarized in the following subsections, and here
+are some notes regarding calling conventions:
+
+The (bind, col, step, finalize) functions accept their statement ID argument
+either right after the "query" command or right after the final subcommand.
+The following examples demonstrate this:
+
+<nowiki><pre>
+query $stmt step
+query step $stmt
+
+
+query $stmt finalize
+query finalize $stmt
+
+query col string $stmt 1
+query $stmt col string 1
+
+query bind string $stmt 1 "foo"
+query $stmt bind string 1 "foo"
+</pre></nowiki>
+
 
 <h2>prepare</h2>
 
@@ -40,7 +61,7 @@ ID.
 
 <nowiki><pre>
 set stmt [query prepare "SELECT ..."]
-query finalize $stmt
+query $stmt finalize
 </pre></nowiki>
 
 
@@ -51,8 +72,8 @@ at the end of the set, a positive value if a new row is available,
 and throws for any other condition.
 
 <nowiki><pre>
-for {} {0 &lt; [query step $stmt]} {} {
-   puts [query col string $stmt 0] "\n"
+for {} {0 &lt; [query $stmt step]} {} {
+   puts [query $stmt col string 0] "\n"
 }
 </pre></nowiki>
 
@@ -64,7 +85,7 @@ value from an arbitrary source specified by the 3rd argument.
 
 <nowiki><pre>
 query strftime %s 1319211587 unixepoch
-query strftime {%Y%m%d @ %H:%M:%S} [query col string $stmt 2] {+10 years}]
+query strftime {%Y%m%d @ %H:%M:%S} [query $stmt col string 2] {+10 years}]
 </pre></nowiki>
 
 
@@ -82,11 +103,11 @@ Achtung: the bind API uses 1-based indexes, just like SQL does.
 
 <nowiki><pre>
 set stmt [query prepare "SELECT ... WHERE user=?"]
-query bind_int $stmt 1 drh
-if {0 &lt; [query step $stmt]} {
-   puts [query col string $stmt 0] "\n"
+query $stmt bind int 1 drh
+if {0 &lt; [query $stmt step]} {
+   puts [query $stmt col string 0] "\n"
 }
-query finalize $stmt
+query $stmt finalize
 </pre></nowiki>
 
 
@@ -112,12 +133,12 @@ This function is a proxy for sqlite3's
 
 
 <nowiki><pre>
-query col time $stmt $index {%Y%m%d @ %H:%M:%S}
+query $stmt col time $index {%Y%m%d @ %H:%M:%S}
 </pre></nowiki>
 
 Any remaining arguments are treated as "modifiers" and passed as-is to strfmtime. For example:
 
 <nowiki><pre>
-query col time $stmt $index {%Y%m%d @ %H:%M:%S} {+5 years}
-query col time $stmt $index %s unixepoch
+query $stmt col time $index {%Y%m%d @ %H:%M:%S} {+5 years}
+query $stmt col time $index %s unixepoch
 </pre></nowiki>

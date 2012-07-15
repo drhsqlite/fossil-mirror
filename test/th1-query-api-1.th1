@@ -1,31 +1,8 @@
 This is not a formal test suite, but a tinkering ground.
 Run it through "fossil test-th-render THIS_FILE".
 <th1>
-proc bar {} {
-puts "json ?= [hasfeature json]\n"
-puts "tcl ?= [hasfeature tcl]\n"
-puts "ssl ?= [hasfeature ssl]\n"
-puts [lindex {a b c} 1] "\n"
-proc foo {a {b steve}} {
-        puts "a = ${a}\n"
-        puts "b = ${b}\n"
-}
-foo hi world
-foo hi {string list}
-# foo
-puts a b c foo \n
-}
-bar
-foo leaky
-
-proc xyz {} {
-        return 42
-}
-set a [xyz]
-puts "a=${a}" ! \n
-
 set stmt [query prepare {SELECT login, cap FROM user}]
-set colCount [query col count $stmt]
+set colCount [query $stmt col count]
 puts "query column count: ${colCount}\n"
 puts "stmt id=${stmt}\n"
 
@@ -40,34 +17,35 @@ set sep "    "
 set i 0
 set colNames(0) 0
 for {set i 0} {$i < $colCount} {incr i} {
-    set colNames($i) [query col name $stmt $i]
+    set colNames($i) [query $stmt col name $i]
     puts "colNames($i)=" $colNames($i) "\n"
 }
 
-for {set row 0} {0 < [query step $stmt]} {incr row} {
+for {set row 0} {0 < [query $stmt step]} {incr row} {
     for {set i 0} {$i < $colCount} {incr i} {
         if {$i > 0} {
             puts $sep
         } else {
             puts "#$row: $sep"
         }
-        puts $colNames($i) = [query col string $stmt $i]
+        puts $colNames($i) = [query $stmt col string $i]
     }
     puts "\n"
 }
 unset row
 
-query finalize $stmt
+query $stmt finalize
+#query finalize $stmt 
 
 
 proc query_step_each {{stmt} {callback}} {
     set colNames(0) 0
-    set colCount [query col count $stmt]
+    set colCount [query $stmt col count]
     for {set i 0} {$i < $colCount} {incr i} {
-        set colNames($i) [query col name $stmt $i]
+        set colNames($i) [query $stmt col name $i]
     }
     upvar cb $callback
-    for {set row 0} {0 < [query step $stmt]} {incr row} {
+    for {set row 0} {0 < [query $stmt step]} {incr row} {
         #puts "Calling callback: $stmt $colCount colNames\n"
         $callback $stmt $colCount
     }
@@ -82,16 +60,15 @@ query bind int $stmt 1 3
 #set stmt [query prepare $sql]
 #query bind string $stmt 1 stephan
 #set stmt [query prepare $sql]
-#query bind null $stmt 1
-set rc 0
+#query $stmt bind null 1
 puts "USER LIST:\n"
 catch {
     proc my_each {stmt colCount} {
         upvar 2 sep sep
-        puts [query col int $stmt 0] " (type=" [query col type $stmt 0] ")" $sep
-        puts [query col double $stmt 0] $sep
-        puts [query col string $stmt 1]  " (type=" [query col type $stmt 1] ")" $sep
-        puts "isnull 0 ?= " [query col is_null $stmt 0] $sep
+        puts [query $stmt col int 0] " (type=" [query $stmt col type 0] ")" $sep
+        puts [query $stmt col double 0] $sep
+        puts [query $stmt col string 1]  " (type=" [query $stmt col type 1] ")" $sep
+        puts "isnull 0 ?= " [query $stmt col is_null 0] $sep
         puts "isnull 2 ?= " [query col is_null $stmt 2]
 #        for {set i 0} {$i < $colCount} {incr i} {
 #            if {$i > 0} { puts $sep }
@@ -99,8 +76,8 @@ catch {
         puts "\n"
 #        error "hi!"
     }
-    query step_each $stmt my_each
-#    query step_each $stmt {
+    query_step_each $stmt my_each
+#    query_step_each $stmt {
 #        proc each {stmt cc} { puts hi "\n" }
 #    }
 } rc
@@ -145,11 +122,11 @@ proc multiStmt {} {
        puts "s($i) = $s($i)\n"
     }
     for {set i 0} {$i < $max} {incr i} {
-       query step $s($i)
+       query $s($i) step
     }
     for {set i 0} {$i < $max} {incr i} {
        puts "closing stmt $s($i)\n"
-       query finalize $s($i)
+       query $s($i) finalize
     }
 
     puts "Preparing again\n"
@@ -159,13 +136,13 @@ proc multiStmt {} {
        puts "s($i) = $s($i)\n"
     }
     for {set i 0} {$i < $max} {incr i} {
-       query step $s($i)
+       query $s($i) step
     }
     puts "Closing again\n"
 
     for {set i 0} {$i < $max} {incr i} {
        puts "closing stmt $s($i)\n"
-       query finalize $s($i)
+       query $s($i) finalize
     }
 }
 multiStmt
