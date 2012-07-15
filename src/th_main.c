@@ -67,9 +67,10 @@ static void *xRealloc(void * p, unsigned int n){
 }
 
 static Th_Vtab vtab = { xRealloc, {
-    NULL,
-    NULL,
-    1
+  NULL /*write()*/,
+  NULL/*dispose()*/,
+  NULL/*pState*/,
+  1/*enabled*/
   }
 };
 
@@ -2008,9 +2009,9 @@ void Th_FossilInit(void){
   if( g.interp==0 ){
     int i;
     if(g.cgiOutput){
-      vtab.out.f = Th_output_f_cgi_content;
+      vtab.out.write = Th_output_f_cgi_content;
     }else{
-      vtab.out.f = Th_output_f_FILE;
+      vtab.out = Th_Vtab_Output_FILE;
       vtab.out.pState = stdout;
     }
     vtab.out.enabled = enableOutput;

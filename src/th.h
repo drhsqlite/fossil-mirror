@@ -42,12 +42,24 @@
 */
 typedef int (*Th_output_f)( char const * zData, int len, void * pState );
 
+/*
+** This structure defines the output state associated with a
+** Th_Vtab. It is intended that a given Vtab be able to swap out
+** output back-ends during its lifetime, e.g. to form a stack of
+** buffers.
+*/
 struct Th_Vtab_Output {
-  Th_output_f f;   /* output handler */
-  void * pState;   /* final argument for xOut() */
+  Th_output_f write;   /* output handler */
+  void (*dispose)( void * pState );
+  void * pState;   /* final argument for xOut() and dispose()*/
   char enabled;    /* if 0, Th_output() does nothing. */
 };
 typedef struct Th_Vtab_Output Th_Vtab_Output;
+
+/*
+** Shared Th_Vtab_Output instance used for copy-initialization.
+*/
+extern const Th_Vtab_Output Th_Vtab_Output_FILE;
 
 /*
 ** Before creating an interpreter, the application must allocate and
@@ -55,8 +67,8 @@ typedef struct Th_Vtab_Output Th_Vtab_Output;
 ** for the lifetime of the interpreter.
 */
 struct Th_Vtab {
-  void *(*xRealloc)(void *, unsigned int);
-  Th_Vtab_Output out;
+  void *(*xRealloc)(void *, unsigned int); /* Re/deallocation routine. */
+  Th_Vtab_Output out;                      /* output implementation */
 };
 typedef struct Th_Vtab Th_Vtab;
 
@@ -262,6 +274,11 @@ int Th_output( Th_Interp *pInterp, char const * zData, int len );
 ** NULL).
 */
 int Th_output_f_FILE( char const * zData, int len, void * pState );
+/*
+** Th_Vtab_Output::dispose impl for FILE handles. If pState is not
+** one of the standard streams then it is fclose()d.
+*/
+void Th_output_dispose_FILE( void * pState );
 
 typedef struct Th_Command_Reg Th_Command_Reg;
 /*
@@ -341,7 +358,7 @@ Blob * Th_ob_current( Th_Ob_Man * pMan );
 ** to the new blob (which is owned by pMan). On error
 ** pOut is not modified and non-0 is returned.
 */
-int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut );
+int Th_ob_push( Th_Ob_Man * pMan, Th_Vtab_Output const * pWriter, Blob ** pOut );
 
 /*
 ** Pops the top-most output buffer off the stack and returns
