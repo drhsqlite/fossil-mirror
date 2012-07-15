@@ -1057,22 +1057,6 @@ static int breakpoint_command(
   return TH_OK;
 }
 
-static int call_command(
-  Th_Interp *interp, 
-  void *ctx, 
-  int argc, 
-  const char **argv, 
-  int *argl
-){
-  if( argc<2 ){
-    return Th_WrongNumArgs2(interp,
-                            argv[0], argl[0],
-                           "funcName ?args...?");
-  }
-  
-
-}
-
 /*
 ** Register the built-in th1 language commands with interpreter interp.
 ** Usually this is called soon after interpreter creation.
@@ -1107,8 +1091,5 @@ int th_register_language(Th_Interp *interp){
     {0, 0, 0}
   };
   rc = Th_register_commands(interp, aCommand);
-#ifdef TH_USE_OUTBUF
-  rc |= th_register_ob(interp);
-#endif
   return rc;
 }

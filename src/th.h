@@ -1,26 +1,26 @@
 #include "config.h"
 
 /*
-** TH_USE_SQLITE, if defined, enables the "query" family of functions.
+** TH_ENABLE_SQLITE, if defined, enables the "query" family of functions.
 ** They provide SELECT-only access to the repository db.
 */
-#define TH_USE_SQLITE
+#define TH_ENABLE_SQLITE
 
 /*
-** TH_USE_OUTBUF, if defined, enables the "ob" family of functions.
+** TH_ENABLE_OUTBUF, if defined, enables the "ob" family of functions.
 ** They are functionally similar to PHP's ob_start(), ob_end(), etc.
 ** family of functions, providing output capturing/buffering.
 */
-#define TH_USE_OUTBUF
+#define TH_ENABLE_OUTBUF
 
 /*
-** TH_USE_ARGV, if defined, enables the "argv" family of functions.
+** TH_ENABLE_ARGV, if defined, enables the "argv" family of functions.
 ** They provide access to CLI arguments as well as GET/POST arguments.
 ** They do not provide access to POST data submitted in JSON mode.
 */
-#define TH_USE_ARGV
+#define TH_ENABLE_ARGV
 
-#ifdef TH_USE_OUTBUF
+#ifdef TH_ENABLE_OUTBUF
 #ifndef INTERFACE
 #include "blob.h"
 #endif
@@ -202,7 +202,7 @@ char *th_strdup(Th_Interp *interp, const char *z, int n);
 ** Interfaces to register the language extensions.
 */
 int th_register_language(Th_Interp *interp);            /* th_lang.c */
-int th_register_sqlite(Th_Interp *interp);              /* th_main.c */
+int th_register_query(Th_Interp *interp);              /* th_main.c */
 int th_register_argv(Th_Interp *interp);                /* th_main.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
@@ -315,26 +315,17 @@ void * Th_Data_Get( Th_Interp * interp, char const * key );
 int Th_register_commands( Th_Interp * interp, Th_Command_Reg const * pList );
 
 
-#ifdef TH_USE_OUTBUF
+#ifdef TH_ENABLE_OUTBUF
 /*
 ** Manager of a stack of Blob objects for output buffering.
+** See Th_ob_manager().
 */
-struct Th_Ob_Man {
-  Blob ** aBuf;        /* Stack of Blobs */
-  int nBuf;            /* Number of blobs */
-  int cursor;          /* Current level (-1=not active) */
-  Th_Interp * interp;  /* The associated interpreter */
-  Th_Vtab_Output * aOutput
-                       /* Stack of output routines corresponding
-                          to the current buffering level.
-                          Has nBuf entries.
-                       */;
-};
-
 typedef struct Th_Ob_Man Th_Ob_Man;
 
 /*
-** Returns the ob manager for the given interpreter.
+** Returns the ob manager for the given interpreter.  The manager gets
+** installed by the th_register_ob(). In Fossil ob support is
+** installed automatically if it is available at built time.
 */
 Th_Ob_Man * Th_ob_manager(Th_Interp *ignored);
 
@@ -354,13 +345,20 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut );
 
 /*
 ** Pops the top-most output buffer off the stack and returns
-** it. Returns NULL if there is no current buffer.  When the last
-** buffer is popped, pMan's internals are cleaned up.
+** it. Returns NULL if there is no current buffer. When the last
+** buffer is popped, pMan's internals are cleaned up (but pMan is not
+** freed).
 **
-** The caller owns the returned object and must eventually call
-** blob_reset() on it and Th_Free() it.
+** The caller owns the returned object and must eventually clean it up
+** by first passing it to blob_reset() and then Th_Free() it.
 */
 Blob * Th_ob_pop( Th_Ob_Man * pMan );
+/*
+** Convenience form of Th_ob_pop() which pops and frees the
+** top-most buffer. Returns 0 on success, non-0 if there is no
+** stack to pop.
+*/
+int Th_ob_pop_free( Th_Ob_Man * pMan );
 
 #endif
-/* TH_USE_OUTBUF */
+/* TH_ENABLE_OUTBUF */

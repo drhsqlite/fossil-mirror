@@ -1,5 +1,5 @@
-C Made\sa\sfew\smore\sfunctions\sstatic.\sth1\sob\sdoc\sadditions.
-D 2012-07-15T12:52:17.453
+C Minor\scleanups.\sMade\sTh_Ob_Man\sopaque.\sRenamed\sTH_USE_xxx\sto\sTH_ENABLE_xxx.
+D 2012-07-15T13:14:37.412
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,10 +150,10 @@ F src/style.c c13b0f33b1b3de752d41424be135c24a5e3e7c7b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c c1abbb626f0b99f357f0e5b6a2a0978691058f75
-F src/th.h 3251735c733d463ed4ed5b5c493cd21a0810c825
-F src/th_lang.c 3e685acd9983a5c2330a8d5fabf8a3e99edb3149
-F src/th_main.c 4ade52e2a3bc4a4b7cf267ac4e492e7851d70f3e
+F src/th.c 8dffdb5d0506ba698b17f9f3a9af7eee5dcd1d17
+F src/th.h 862e5bac5726a31bde1246c5c2ea56d999879c22
+F src/th_lang.c ef7625e462915e3a5bd140887478d95a086a241a
+F src/th_main.c 06178abdcedc8c8a40d3e48333cf8e1352267fa8
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -368,7 +368,7 @@ F www/th1_query.wiki 904185464ab1661e63d2ced0143ed0b84ad7fc34
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3167ff33f84ef8324c4a8c2af0cdbbb83494b08c
-R 5551998bce273948ebc45a7e2b7f0041
+P 8027581c5e9e8754d9a629bc94b3baa7980d9e61
+R 8c97f982a5a832d309e17c33c8643c26
 U stephan
-Z e3182315abe85ea07bd7d9321a412624
+Z a6a7fde0101317cb6f3a686ae3f87abd

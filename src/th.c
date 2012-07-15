@@ -8,7 +8,19 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h> /* FILE class */
-#ifdef TH_USE_OUTBUF
+
+#ifdef TH_ENABLE_OUTBUF
+struct Th_Ob_Man {
+  Blob ** aBuf;        /* Stack of Blobs */
+  int nBuf;            /* Number of blobs */
+  int cursor;          /* Current level (-1=not active) */
+  Th_Interp * interp;  /* The associated interpreter */
+  Th_Vtab_Output * aOutput
+                       /* Stack of output routines corresponding
+                          to the current buffering level.
+                          Has nBuf entries.
+                       */;
+};
 #endif
 
 extern void *fossil_realloc(void *p, size_t n);
@@ -2749,7 +2761,7 @@ void * Th_Data_Get( Th_Interp * interp, char const * key ){
 
 
 
-#ifdef TH_USE_OUTBUF
+#ifdef TH_ENABLE_OUTBUF
 /* Reminder: the ob code "really" belongs in th_lang.c,
    but we need access to Th_Interp internals in order to
    swap out Th_Vtab parts for purposes of stacking layers
@@ -2883,12 +2895,18 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   }
 }
 
-void Th_ob_cleanup( Th_Ob_Man * man ){
-  Blob * b;
-  while( (b = Th_ob_pop(man)) ){
+int Th_ob_pop_free( Th_Ob_Man * pMan ){
+  Blob * b = Th_ob_pop( pMan );
+  if(!b) return 1;
+  else {
     blob_reset(b);
-    Th_Free( man->interp, b );
+    Th_Free( pMan->interp, b );
   }
+}
+
+
+void Th_ob_cleanup( Th_Ob_Man * man ){
+  while( 0 == Th_ob_pop_free(man) ){}
 }
 
 
@@ -3145,5 +3163,5 @@ int th_register_ob(Th_Interp * interp){
 #undef Th_Ob_Man_empty_m
 #undef Th_Ob_Man_KEY
 #endif
-/* end TH_USE_OUTBUF */
+/* end TH_ENABLE_OUTBUF */
 

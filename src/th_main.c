@@ -23,7 +23,7 @@
 #ifndef INTERFACE
 #include "blob.h"
 #endif
-#ifdef TH_USE_SQLITE
+#ifdef TH_ENABLE_SQLITE
 #include "sqlite3.h"
 #endif
 
@@ -544,7 +544,7 @@ static int repositoryCmd(
 }
 
 
-#ifdef TH_USE_ARGV
+#ifdef TH_ENABLE_ARGV
 extern const char *find_option(const char *zLong,
                                const char *zShort,
                                int hasArg) /* from main.c */;
@@ -839,9 +839,9 @@ int th_register_argv(Th_Interp *interp){
 }
 
 #endif
-/* end TH_USE_ARGV */
+/* end TH_ENABLE_ARGV */
 
-#ifdef TH_USE_SQLITE
+#ifdef TH_ENABLE_SQLITE
 
 /*
 ** Adds the given prepared statement to the interpreter. Returns the
@@ -1676,7 +1676,7 @@ static int queryTopLevelCmd(
 }
 
 
-int th_register_sqlite(Th_Interp *interp){
+int th_register_query(Th_Interp *interp){
   enum { BufLen = 100 };
   char buf[BufLen];
   int i, l;
@@ -1713,7 +1713,7 @@ int th_register_sqlite(Th_Interp *interp){
 }
 
 #endif
-/* end TH_USE_SQLITE */
+/* end TH_ENABLE_SQLITE */
 
 int Th_register_commands( Th_Interp * interp,
                            Th_Command_Reg const * aCommand ){
@@ -1774,10 +1774,13 @@ void Th_FossilInit(void){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-#ifdef TH_USE_SQLITE
-    th_register_sqlite(g.interp);
+#ifdef TH_ENABLE_OUTBUF
+    th_register_ob(g.interp);
 #endif
-#ifdef TH_USE_ARGV
+#ifdef TH_ENABLE_SQLITE
+    th_register_query(g.interp);
+#endif
+#ifdef TH_ENABLE_ARGV
     th_register_argv(g.interp);
 #endif
     Th_register_commands( g.interp, aCommand );
@@ -1964,7 +1967,7 @@ void test_th_render(void){
   }
   blob_zero(&in);
   db_open_config(0); /* Needed for global "tcl" setting. */
-#ifdef TH_USE_SQLITE
+#ifdef TH_ENABLE_SQLITE
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0)
     /* required for th1 query API. */;
 #endif
