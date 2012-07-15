@@ -273,6 +273,31 @@ struct Th_Command_Reg {
 int Th_Render(const char *z, int flags);
 
 /*
+** Adds a piece of memory to the given interpreter, such that:
+**
+** a) it will be cleaned up when the interpreter is destroyed, by
+** calling finalizer(interp, pData). The finalizer may be NULL.
+** Cleanup happens in an unspecified/unpredictable order.
+**
+** b) it can be fetched via Th_Data_Get().
+**
+** If a given key is added more than once then any previous
+** entry is cleaned up before adding it.
+**
+** Returns 0 on success, non-0 on allocation error.
+*/
+int Th_Data_Set( Th_Interp * interp, char const * key,
+                 void * pData,
+                 void (*finalizer)( Th_Interp *, void * ) );
+
+/*
+** Fetches data added via Th_Data_Set(), or NULL if no data
+** has been associated with the given key.
+*/
+void * Th_Data_Get( Th_Interp * interp, char const * key );
+
+
+/*
 ** Registers a list of commands with the interpreter. pList must be a non-NULL
 ** pointer to an array of Th_Command_Reg objects, the last one of which MUST
 ** have a NULL zName field (that is the end-of-list marker).

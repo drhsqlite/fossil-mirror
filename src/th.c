@@ -20,22 +20,28 @@ typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
 typedef struct Th_Variable  Th_Variable;
 
+struct Th_GcEntry {
+  void * pData;
+  void (*xDel)( Th_Interp *, void * );
+};
+typedef struct Th_GcEntry Th_GcEntry;
+
 /*
 ** Interpreter structure.
 */
 struct Th_Interp {
-  Th_Vtab *pVtab;     /* Copy of the argument passed to Th_CreateInterp() */
+  Th_Vtab *pVtab;    /* Copy of the argument passed to Th_CreateInterp() */
   char *zResult;     /* Current interpreter result (Th_Malloc()ed) */
-  int nResult;        /* number of bytes in zResult */
-  Th_Hash *paCmd;     /* Table of registered commands */
-  Th_Frame *pFrame;   /* Current execution frame */
-  int isListMode;     /* True if thSplitList() should operate in "list" mode */
+  int nResult;       /* number of bytes in zResult */
+  Th_Hash *paCmd;    /* Table of registered commands */
+  Th_Frame *pFrame;  /* Current execution frame */
+  int isListMode;    /* True if thSplitList() should operate in "list" mode */
+  Th_Hash * paGc;    /* holds client-provided data owned by this object */
 #ifdef TH_USE_SQLITE
   struct {
     sqlite3_stmt ** aStmt;
     int nStmt;
-    int rc;
-  } stmt;
+  } stmt;           /* list of prepared statements */
 #endif
 };
 
@@ -123,6 +129,7 @@ static void thPopFrame(Th_Interp*);
 
 static void thFreeVariable(Th_HashEntry*, void*);
 static void thFreeCommand(Th_HashEntry*, void*);
+static void thFreeGc(Th_HashEntry*, void*);
 
 /*
 ** The following are used by both the expression and language parsers.
@@ -305,6 +312,22 @@ static void thFreeCommand(Th_HashEntry *pEntry, void *pContext){
   Th_Free((Th_Interp *)pContext, pEntry->pData);
   pEntry->pData = 0;
 }
+
+/*
+** Th_Hash visitor/destructor for Th_Interp::paGc entries. Frees
+** pEntry->pData but not pEntry.
+*/
+static void thFreeGc(Th_HashEntry *pEntry, void *pContext){
+  Th_GcEntry *gc = (Th_GcEntry *)pEntry->pData;
+  if(gc){
+    if( gc->xDel ){
+      gc->xDel( (Th_Interp*)pContext, gc->pData );
+    }
+    Th_Free((Th_Interp *)pContext, pEntry->pData);
+    pEntry->pData = 0;
+  }
+}
+
 
 /*
 ** Push a new frame onto the stack.
@@ -1684,6 +1707,13 @@ void Th_DeleteInterp(Th_Interp *interp){
   assert(interp->pFrame);
   assert(0==interp->pFrame->pCaller);
 
+  /* Delete any client-side gc entries first. */
+  if( interp->paGc ){
+    Th_HashIterate(interp, interp->paGc, thFreeGc, (void *)interp);
+    Th_HashDelete(interp, interp->paGc);
+    interp->paGc = NULL;
+  }
+  
   /* Delete the contents of the global frame. */
   thPopFrame(interp);
 
@@ -2334,7 +2364,7 @@ Th_HashEntry *Th_HashFind(
 int th_strlen(const char *zStr){
   int n = 0;
   if( zStr ){
-    while( zStr[n] ) n++;
+    while( zStr[n] ) ++n;
   }
   return n;
 }
@@ -2700,6 +2730,36 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 }
 
 
+int Th_Data_Set( Th_Interp * interp, char const * key,
+                 void * pData,
+                 void (*finalizer)( Th_Interp *, void * ) ){
+  Th_HashEntry * pEnt;
+  Th_GcEntry * pGc;
+  if(NULL == interp->paGc){
+    interp->paGc = Th_HashNew(interp);
+    assert(NULL != interp->paGc);
+    if(!interp->paGc){
+      return TH_ERROR;
+    }
+  }
+  pEnt = Th_HashFind(interp, interp->paGc, key, th_strlen(key), 1);
+  if( pEnt->pData ){
+    thFreeGc( pEnt, interp );
+  }
+  assert( NULL == pEnt->pData );
+  pEnt->pData = pGc = (Th_GcEntry*)Th_Malloc(interp, sizeof(Th_GcEntry));
+  pGc->pData = pData;
+  pGc->xDel = finalizer;
+  return 0;
+ 
+}
+void * Th_Data_Get( Th_Interp * interp, char const * key ){
+  Th_HashEntry * e = interp->paGc
+    ? Th_HashFind(interp, interp->paGc, key, th_strlen(key), 0)
+    : NULL;
+  return e ? e->pData : NULL;
+}
+
 #ifdef TH_USE_SQLITE
 int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
   int i, x;
@@ -2755,14 +2815,23 @@ sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
    swap out Th_Vtab parts for purposes of stacking layers
    of buffers.
 */
-#define Th_Ob_Man_empty_m { NULL, 0, -1, NULL, NULL }
+#define Th_Ob_Man_empty_m { \
+  NULL/*aBuf*/,           \
+  0/*nBuf*/,            \
+  -1/*cursor*/,       \
+  NULL/*interp*/,     \
+  NULL/*aVtab*/       \
+}
 static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
 static Th_Ob_Man Th_Ob_Man_instance = Th_Ob_Man_empty_m;
-
-Th_Ob_Man * Th_ob_manager(Th_Interp *ignored){
-  return &Th_Ob_Man_instance;
+#define Th_Ob_Man_KEY "Th_Ob_Man"
+Th_Ob_Man * Th_ob_manager(Th_Interp *interp){
+  void * rc = Th_Data_Get(interp, Th_Ob_Man_KEY );
+  return rc
+    ? ((Th_GcEntry*)rc)->pData
+    : NULL;
 }
-  
+
 
 Blob * Th_ob_current( Th_Ob_Man * pMan ){
   return pMan->nBuf>0 ? pMan->aBuf[pMan->cursor] : 0;
@@ -2807,7 +2876,6 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
       assert( 0 && "This really should not happen." );
       x = pMan->cursor + 5;
     }
-    /*fprintf(stderr,"OB EXPAND x=%d\n",x);*/
     void * re = Th_Realloc( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
     if(NULL==re){
       goto error;
@@ -2834,7 +2902,6 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   if( pOut ){
     *pOut = pBlob;
   }
-  /*fprintf(stderr,"OB PUSH: %p\n", pBlob);*/
   return TH_OK;
   error:
   if( pBlob ){
@@ -2842,6 +2909,8 @@ int Th_ob_push( Th_Ob_Man * pMan, Blob ** pOut ){
   }
   return TH_ERROR;
 }
+
+
 
 Blob * Th_ob_pop( Th_Ob_Man * pMan ){
   if( pMan->cursor < 0 ){
@@ -2854,14 +2923,24 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
     pMan->interp->pVtab = pMan->aVtab[pMan->cursor];
     pMan->aVtab[pMan->cursor] = NULL;
     if(-1 == --pMan->cursor){
+      Th_Interp * interp = pMan->interp;
       Th_Free( pMan->interp, pMan->aBuf );
       Th_Free( pMan->interp, pMan->aVtab );
       *pMan = Th_Ob_Man_empty;
+      pMan->interp = interp;
     }
-    /*fprintf(stderr,"OB pop: %p level=%d\n", rc, pMan->cursor-1);*/
     return rc;
   }
 }
+
+void Th_ob_cleanup( Th_Ob_Man * man ){
+  Blob * b;
+  while( (b = Th_ob_pop(man)) ){
+    blob_reset(b);
+    Th_Free( man->interp, b );
+  }
+}
+
 
 /*
 ** TH Syntax:
@@ -2874,7 +2953,8 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
 static int ob_clean_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  const char doRc = ctx ? 1 : 0;
+  Th_Ob_Man * pMan = ctx ? (Th_Ob_Man *)ctx : Th_ob_manager(interp);
   Blob * b;
   assert( pMan && (interp == pMan->interp) );
   b = pMan ? Th_ob_current(pMan) : NULL;
@@ -2883,7 +2963,9 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
     return TH_ERROR;
   }else{
     blob_reset(b);
-    Th_SetResultInt( interp, 0 );
+    if( doRc ) {
+      Th_SetResultInt( interp, 0 );
+    }
     return TH_OK;
   }
 }
@@ -2898,7 +2980,8 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
 */
 static int ob_end_command( Th_Interp *interp, void *ctx,
                            int argc,  const char **argv, int *argl ){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  const char doRc = ctx ? 1 : 0;
+  Th_Ob_Man * pMan = ctx ? (Th_Ob_Man *)ctx : Th_ob_manager(interp);
   Blob * b;
   assert( pMan && (interp == pMan->interp) );
   b = Th_ob_pop(pMan);
@@ -2908,7 +2991,9 @@ static int ob_end_command( Th_Interp *interp, void *ctx,
   }else{
     blob_reset(b);
     Th_Free( interp, b );
-    Th_SetResultInt( interp, 0 );
+    if(doRc){
+      Th_SetResultInt( interp, 0 );
+    }
     return TH_OK;
   }
 }
@@ -2951,7 +3036,7 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
     if(th_strlen(sub)==3 &&
        ((0==memcmp("end", sub, subL)
          || (0==memcmp("pop", sub, subL))))){
-      rc |= ob_end_command(interp, ctx, argc-1, argv+1, argl+1);
+      rc |= ob_end_command(interp, NULL, argc-1, argv+1, argl+1);
     }
   }
   Th_SetResultInt( interp, 0 );
@@ -2989,12 +3074,12 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
       subL = argl[argPos];
       /* "ob get clean" */
       if(!rc && th_strlen(sub)==5 && 0==memcmp("clean", sub, subL)){
-        rc |= ob_clean_command(interp, ctx, argc-1, argv+1, argl+1);
+        rc |= ob_clean_command(interp, NULL, argc-1, argv+1, argl+1);
       }/* "ob get end" */
       else if(!rc && th_strlen(sub)==3 &&
               ((0==memcmp("end", sub, subL))
                || (0==memcmp("pop", sub, subL)))){
-        rc |= ob_end_command(interp, ctx, argc-1, argv+1, argl+1);
+        rc |= ob_end_command(interp, NULL, argc-1, argv+1, argl+1);
       }
     }
     return rc;
@@ -3038,17 +3123,29 @@ static int ob_start_command( Th_Interp *interp, void *ctx,
     return rc;
   }
   assert( NULL != b );
-  /*fprintf(stderr,"OB STARTED: %p level=%d\n", b, pMan->cursor);*/
   Th_SetResultInt( interp, 1 + pMan->cursor );
   return TH_OK;
+}
+
+static void finalizerObMan( Th_Interp * interp, void * p ){
+  Th_Ob_Man * man = (Th_Ob_Man*)p;
+  /*printf("finalizerObMan(%p,%p)\n", interp, p );*/
+  if(man){
+    assert( interp == man->interp );
+    Th_ob_cleanup( man );
+    if( man != &Th_Ob_Man_instance ){
+      Th_Free( interp, man );
+    }
+  }
 }
 
 /*
 ** TH Syntax:
 **
-** ob clean|end|flush|get|level|start
+** ob clean|(end|pop)|flush|get|level|(start|push)
 **
-** Runs the given subcommand.
+** Runs the given subcommand. Some subcommands have other subcommands
+** (see their docs for details).
 ** 
 */
 static int ob_cmd(
@@ -3058,7 +3155,7 @@ static int ob_cmd(
   const char **argv, 
   int *argl
 ){
-  static Th_Ob_Man * pMan = &Th_Ob_Man_instance;
+  Th_Ob_Man * pMan = Th_ob_manager(interp);
   Th_SubCommand aSub[] = {
     { "clean",     ob_clean_command },
     { "end",       ob_end_command },
@@ -3070,27 +3167,32 @@ static int ob_cmd(
     { "start",     ob_start_command },
     { 0, 0 }
   };
-  if(NULL == pMan->interp){
-    pMan->interp = interp;
-    /*
-      FIXME: add rudamentary at-finalization GC to Th_Interp and clean
-      this up there. We currently leak only if the client does not
-      close all buffering levels properly.
-    */
-  }
+  assert(NULL != pMan && pMan->interp==interp);
   return Th_CallSubCommand(interp, pMan, argc, argv, argl, aSub);
-  
 }
 
 int th_register_ob(Th_Interp * interp){
+  int rc;
   static Th_Command_Reg aCommand[] = {
     {"ob",    ob_cmd,   0},
     {0,0,0}
   };
-  return Th_register_commands( interp, aCommand );
+  rc = Th_register_commands( interp, aCommand );
+  if(NULL == Th_ob_manager(interp)){
+    Th_Ob_Man * pMan;
+    pMan = 1
+      ? &Th_Ob_Man_instance
+      : Th_Malloc(interp, sizeof(Th_Ob_Man));
+    /* *pMan = Th_Ob_Man_empty;*/
+    pMan->interp = interp;
+    Th_Data_Set( interp, Th_Ob_Man_KEY, pMan, finalizerObMan );
+    assert( NULL != Th_ob_manager(interp) );
+  }
+  return rc;
 }
 
 #undef Th_Ob_Man_empty_m
+#undef Th_Ob_Man_KEY
 #endif
 /* end TH_USE_OUTBUF */
 
