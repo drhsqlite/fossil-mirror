@@ -99,6 +99,12 @@ before stepping through them. The subcommands include:
    *  <tt>bind null StmtId Index</tt>
    *  <tt>bind string StmtId Index Value</tt>
 
+Note that all of those optionally accept the statement handle directly after
+the "query" command (before the "col" subcommand). e.g.
+<tt>query bind null $stmt 1</tt> and
+<tt>query $stmt bind null 1</tt> are equivalent.
+
+
 Achtung: the bind API uses 1-based indexes, just like SQL does.
 
 <nowiki><pre>
@@ -117,12 +123,19 @@ The <tt>col xxx</tt> familys of subcommands are for fetching
 values and metadata from result rows.
 
    *  <tt>col count StmtId</tt> Returns the number of result columns in the statement.
-   *  <tt>col is_null StmtId Index</tt> Returns non-0 if the given column contains an SQL NULL value.
+   *  <tt>col isnull StmtId Index</tt> Returns non-0 if the given column contains an SQL NULL value.
    *  <tt>col double StmtId Index</tt>
    *  <tt>col int StmtId Index</tt>
    *  <tt>col string StmtId Index</tt>
    *  <tt>col string StmtId Index Format Modifiers</tt> See below.
    *  <tt>col type StmtId Index</tt> Return value corresponds to one of the <tt>SQLITE_TYPENAME</tt> family of constants.
+
+Note that all of those optionally accept the statement handle directly after
+the "query" command (before the "col" subcommand). e.g.
+<tt>query $stmt col count</tt> and
+<tt>query col count $stmt</tt> are equivalent. They also accept the column index
+either before or after the type name, e.g.
+<tt>query $stmt col 1 string</tt> and <tt>query $stmt col string 1</tt> are equivalent.
 
 Achtung: the col API uses 0-based indexes, just like SQL does.
 

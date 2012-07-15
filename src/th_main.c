@@ -876,6 +876,7 @@ static sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
 struct Th_Sqlite {
   sqlite3_stmt ** aStmt;
   int nStmt;
+  int colCmdIndex;
 };
 #define Th_Sqlite_KEY "Th_Sqlite"
 typedef struct Th_Sqlite Th_Sqlite;
@@ -1195,6 +1196,7 @@ static int queryStepCmd(
 **
 ** query col string stmtId Index
 ** query stmtId col string Index
+** query stmtId col Index string
 **
 ** Returns the result column value at the given 0-based index.
 */
@@ -1234,6 +1236,7 @@ static int queryColStringCmd(
 **
 ** query col int stmtId Index
 ** query stmtId col int Index
+** query stmtId col Index int
 **
 ** Returns the result column value at the given 0-based index.
 */
@@ -1271,6 +1274,7 @@ static int queryColIntCmd(
 **
 ** query col double stmtId Index
 ** query stmtId col double Index
+** query stmtId col Index double
 **
 ** Returns the result column value at the given 0-based index.
 */
@@ -1305,8 +1309,9 @@ static int queryColDoubleCmd(
 /*
 ** TH Syntax:
 **
-** query col is_null stmtId Index
+** query col isnull stmtId Index
 ** query stmtId col is_null Index
+** query stmtId col Index isnull
 **
 ** Returns non-0 if the given 0-based result column index contains
 ** an SQL NULL value, else returns 0.
@@ -1318,10 +1323,12 @@ static int queryColIsNullCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
+  if( index >= 0 ) --requireArgc;
   double rc = 0;
-  int index = -1;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1329,7 +1336,7 @@ static int queryColIsNullCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt(interp, argv[1], argl[1], &index);
   }
   if(index < 0){
@@ -1346,6 +1353,7 @@ static int queryColIsNullCmd(
 **
 ** query col type stmtId Index
 ** query stmtId col type Index
+** query stmtId col Index type
 **
 ** Returns the sqlite type identifier for the given 0-based result
 ** column index. The values are available in TH as $SQLITE_NULL,
@@ -1358,10 +1366,12 @@ static int queryColTypeCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
+  if( index >= 0 ) --requireArgc;
   double rc = 0;
-  int index = -1;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1369,7 +1379,7 @@ static int queryColTypeCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt( interp, argv[1], argl[1], &index );
   }
   if(index < 0){
@@ -1418,6 +1428,7 @@ static int queryColCountCmd(
 **
 ** query col name stmtId Index
 ** query stmtId col name Index
+** query stmtId col Index name 
 **
 ** Returns the result column name at the given 0-based index.
 */
@@ -1428,11 +1439,13 @@ static int queryColNameCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
   char const * val;
   int rc = 0;
-  int index = -1;
+  if( index >= 0 ) --requireArgc;
   if( argc!=requireArgc ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1440,7 +1453,7 @@ static int queryColNameCmd(
   }
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
-  }else{
+  }else if(index<0){
     Th_ToInt( interp, argv[1], argl[1], &index );
   }
   if(index < 0){
@@ -1462,6 +1475,7 @@ static int queryColNameCmd(
 **
 ** query col time stmtId Index format
 ** query stmtId col name Index format
+** query stmtId col Index name format
 **
 ** Returns the result column name at the given 0-based index.
 */
@@ -1472,15 +1486,17 @@ static int queryColTimeCmd(
   const char **argv, 
   int *argl
 ){
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)ctx;
   int minArgs = pStmt ? 3 : 4;
   int argPos;
   char const * val;
   char * fval;
   int i, rc = 0;
-  int index = -1;
   char const * fmt;
   Blob sql = empty_blob;
+  if( index >= 0 ) --minArgs;
   if( argc<minArgs ){
     return Th_WrongNumArgs2(interp,
                             argv[0], argl[0],
@@ -1489,9 +1505,11 @@ static int queryColTimeCmd(
   if(!pStmt){
     queryStmtIndexArgs(interp, argc, argv, argl, &pStmt, &index);
     argPos = 3;
-  }else{
+  }else if(index<0){
     Th_ToInt( interp, argv[1], argl[1], &index );
     argPos = 2;
+  }else{
+    argPos = 1;
   }
   if(index < 0){
     return TH_ERROR;
@@ -1752,18 +1770,51 @@ static int queryColTopLevelCmd(
   const char **argv, 
   int *argl
 ){
+  int colIndex = -1;
   static Th_SubCommand aSub[] = {
     {"count",   queryColCountCmd},
-  {"is_null", queryColIsNullCmd},
+    {"is_null", queryColIsNullCmd},
+    {"isnull",  queryColIsNullCmd},
     {"name",    queryColNameCmd},
     {"double",  queryColDoubleCmd},
     {"int",     queryColIntCmd},
     {"string",  queryColStringCmd},
     {"time",    queryColTimeCmd},
- {"type",    queryColTypeCmd},
+    {"type",    queryColTypeCmd},
     {0, 0}
   };
-  Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
+  static Th_SubCommand aSubWithIndex[] = {
+    {"is_null", queryColIsNullCmd},
+    {"isnull",  queryColIsNullCmd},
+    {"name",    queryColNameCmd},
+    {"double",  queryColDoubleCmd},
+    {"int",     queryColIntCmd},
+    {"string",  queryColStringCmd},
+    {"time",    queryColTimeCmd},
+    {"type",    queryColTypeCmd},
+    {0, 0}
+  };
+  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  assert(NULL != sq);
+  if( 1 == argc ){
+      Th_WrongNumArgs2( interp, argv[0], argl[0],
+                        "subcommand");
+      return TH_ERROR;
+  }else if( 0 == Th_TryInt(interp,argv[1], argl[1], &colIndex) ){
+    if(colIndex <0){
+      Th_ErrorMessage( interp, "Invalid column index.", NULL, 0);
+      return TH_ERROR;
+    }
+    ++argv;
+    ++argl;
+    --argc;
+  }
+  sq->colCmdIndex = colIndex;
+  /* TODO: accept the index as the first param after "col", and make
+     subcommands aware of sq->colCmdIndex.
+  */
+  Th_CallSubCommand2( interp, ctx, argc, argv, argl,
+                      (colIndex<0) ? aSub : aSubWithIndex );
 }
 
 

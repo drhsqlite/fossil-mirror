@@ -1,5 +1,5 @@
-C th1\squery\sAPI\snow\saccepts\sthe\sstatement\sID\sas\sthe\sfirst\sarg\safter\sthe\squery\scommand\sor\slater\son\safter\sthe\ssubcommand,\sfor\sall\ssubcommands\swhere\sthis\smakes\ssense.
-D 2012-07-15T14:31:28.576
+C Made\sthe\squery\scol\sargument\sordering\smore\sflexible/forgiving.
+D 2012-07-15T14:54:21.903
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -153,7 +153,7 @@ F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 8dffdb5d0506ba698b17f9f3a9af7eee5dcd1d17
 F src/th.h 862e5bac5726a31bde1246c5c2ea56d999879c22
 F src/th_lang.c ef7625e462915e3a5bd140887478d95a086a241a
-F src/th_main.c 65924c996aed70a5a314f45aef6265a25d4d819a
+F src/th_main.c 8ba7e2834439d4544444fa3cd24115b2aac33bb9
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -364,11 +364,11 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/th1_argv.wiki a2231c611e8e3b525864f1314f4f1f2764947067
 F www/th1_ob.wiki 5f30dc8f80503ec1000dfbea819eed54e7cf3de2
-F www/th1_query.wiki a2da192daab59f180e49f11a1e99dd3113df33f2
+F www/th1_query.wiki 32488f76009dcba11e61987f8b38862f431b9cca
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3d243a5681fb177e124adbdc5e729248b1cff76c
-R ddc670edaf1718c03bdb9dab4b755627
+P 09d7df15972dcf3d91e90ab64f43b2f4e6d8a82a
+R dec368e7fc12899cc136b15803c5314f
 U stephan
-Z 7118dad42b30219388d4e7b729e80209
+Z bb8a23e234c789572833494af23cf722
