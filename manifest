@@ -1,5 +1,5 @@
-C Started\sadding\sinfrastructure\sto\sallow\sus\sto\sexpand\sthe\sob\shandler\ssupport\sto\sinclude\smore\stypes.\sAdded\sanother\sth1\stest\sscript.
-D 2012-07-15T17:33:55.065
+C Minor\sdoc\scorrection.
+D 2012-07-16T14:36:30.472
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -61,7 +61,7 @@ F src/allrepo.c b6606e9f9234dd32208cca7c8a6d882f6c2d2385
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c e5db248168fcda8824b4c402c172620c35986b1f
+F src/blob.c 885b8b443fd2fd014b080cd9a960a0a595746bd5
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
@@ -370,7 +370,7 @@ F www/th1_query.wiki 2ee2fbda869da91a84fc3491fcbfa1045961a913
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f2ee33d46085df6e2a6de35f6402e437f4bde7e3
-R 7335a68ca2c8a751beb79130045738ba
+P 726f998b5f6565800a9125bd788bbc70053a55e7
+R 5cb204fd04256154b4ba6eb457ba00ae
 U stephan
-Z be29e5b690b55f1512916e6676f220e8
+Z 30d3cea1964fa186236111beb1325292

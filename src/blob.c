@@ -702,7 +702,8 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read.  Return -1 for an error.
+** Return the number of bytes read. Calls fossil_panic() error (i.e.
+** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
   int size, got;
