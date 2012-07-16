@@ -20,7 +20,6 @@
 */
 #include "config.h"
 #include "style.h"
-#include "th.h"
 
 /*
 ** Elements of the submenu are collected into the following

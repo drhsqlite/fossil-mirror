@@ -21,7 +21,6 @@
 #include <time.h>
 #include "report.h"
 #include <assert.h>
-#include "th.h"
 
 /* Forward references to static routines */
 static void report_format_hints(void);
