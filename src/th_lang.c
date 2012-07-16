@@ -1090,6 +1090,6 @@ int th_register_language(Th_Interp *interp){
 
     {0, 0, 0}
   };
-  rc = Th_register_commands(interp, aCommand);
+  rc = Th_RegisterCommands(interp, aCommand);
   return rc;
 }

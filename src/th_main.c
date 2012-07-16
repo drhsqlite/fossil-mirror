@@ -20,14 +20,13 @@
 */
 #include "config.h"
 #include "th_main.h"
+
+#ifdef TH_ENABLE_QUERY
 #ifndef INTERFACE
-#include "blob.h"
-#endif
-#ifdef TH_ENABLE_SQLITE
 #include "sqlite3.h"
 #endif
+#endif
 
-/*#include "th_main.h"*/
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -52,7 +51,11 @@ static void xFree(void *p){
   fossil_free(p);
 }
 
+/*
+** Default Th_Vtab::xRealloc() implementation.
+*/
 static void *xRealloc(void * p, unsigned int n){
+  assert(n>=0 && "Invalid memory (re/de)allocation size.");
   if(0 == n){
     xFree(p);
     return NULL;
@@ -60,19 +63,11 @@ static void *xRealloc(void * p, unsigned int n){
     return xMalloc(n);
   }else{
     return fossil_realloc(p, n)
-      /* FIXME: try to find some reasonable nOutstandingMalloc
-         heuristics, e.g. if !p then ++, if !n then --, etc.
+      /* In theory nOutstandingMalloc doesn't need to be updated here
+         unless xRealloc() is sorely misused.
       */;
   }
 }
-
-static Th_Vtab vtab = { xRealloc, {
-  NULL /*write()*/,
-  NULL/*dispose()*/,
-  NULL/*pState*/,
-  1/*enabled*/
-  }
-};
 
 /*
 ** Generate a TH1 trace message if debugging is enabled.
@@ -87,6 +82,14 @@ void Th_Trace(const char *zFormat, ...){
 
 /*
 ** True if output is enabled.  False if disabled.
+**
+** We "could" replace this with Th_OutputEnable() and friends, but
+** there is a functional difference: this particular flag prohibits
+** some extra escaping which would happen (but be discared, unused) if
+** relied solely on that API. Also, because that API only works on the
+** current Vtab_Output handler, relying soly on that handling would
+** introduce incompatible behaviour with the historical enable_output
+** command.
 */
 static int enableOutput = 1;
 
@@ -108,12 +111,14 @@ static int enableOutputCmd(
                            "BOOLEAN");
   }else{
     int rc = Th_ToInt(interp, argv[1], argl[1], &enableOutput);
-    vtab.out.enabled = enableOutput;
     return rc;
   }
 }
 
-int Th_output_f_cgi_content( char const * zData, int nData, void * pState ){
+/*
+** Th_Output_f() impl which sends all output to cgi_append_content().
+*/
+static int Th_Output_f_cgi_content( char const * zData, int nData, void * pState ){
   cgi_append_content(zData, nData);
   return nData;
 }
@@ -134,15 +139,24 @@ static void sendText(Th_Interp *pInterp, const char *z, int n, int encode){
       z = htmlize(z, n);
       n = strlen(z);
     }
-    Th_output( pInterp, z, n );
+    Th_Output( pInterp, z, n );
     if( encode ) fossil_free((char*)z);
   }
 }
 
+/*
+** Internal state for the putsCmd() function, allowing it to be used
+** as the basis for multiple implementations with slightly different
+** behaviours based on the context. An instance of this type must be
+** set as the Context parameter for any putsCmd()-based script command
+** binding.
+*/
 struct PutsCmdData {
-  char escapeHtml;
-  char const * sep;
-  char const * eol;
+  char escapeHtml;    /* If true, htmlize all output. */
+  char const * sep;   /* Optional NUL-terminated separator to output
+                         between arguments. May be NULL. */
+  char const * eol;   /* Optional NUL-terminated end-of-line separator,
+                         output after the final argument. May be NULL. */
 };
 typedef struct PutsCmdData PutsCmdData;
 
@@ -150,7 +164,10 @@ typedef struct PutsCmdData PutsCmdData;
 ** TH command:     puts STRING
 ** TH command:     html STRING
 **
-** Output STRING as HTML (html) or unchanged (puts).  
+** Output STRING as HTML (html) or unchanged (puts).
+**
+** pConvert MUST be a (PutsCmdData [const]*). It is not modified by
+** this function.
 */
 static int putsCmd(
   Th_Interp *interp, 
@@ -231,7 +248,8 @@ static int htmlizeCmd(
 }
 
 #if 0
-/* i'm not sure we need this */
+/* This is not yet needed, but something like it may become useful for
+   custom page/command support, for rendering snippets/templates. */
 /*
 ** TH command:      render STRING
 **
@@ -249,7 +267,7 @@ static int renderCmd(
                             argv[0], argl[0],
                             "STRING ?STRING...?");
   }else{
-    Th_Ob_Man * man = Th_ob_manager(interp);
+    Th_Ob_Manager * man = Th_Ob_GetManager(interp);
     Blob * b = NULL;
     Blob buf = empty_blob;
     int rc, i;
@@ -265,14 +283,14 @@ static int renderCmd(
       blob_append( &buf, str, argl[i] );
       /*rc = Th_Render( str, Th_Render_Flags_NO_DOLLAR_DEREF );*/
     }
-    rc = Th_ob_push( man, &b );
+    rc = Th_Ob_Push( man, &b );
     if(rc){
       blob_reset( &buf );
       return rc;
     }
     rc = Th_Render( buf.aData, Th_Render_Flags_DEFAULT );
     blob_reset(&buf);
-    b = Th_ob_pop( man );
+    b = Th_Ob_Pop( man );
     if(TH_OK==rc){
       Th_SetResult( interp, b->aData, b->nUsed );
     }
@@ -546,11 +564,8 @@ static int repositoryCmd(
 
 
 #ifdef TH_ENABLE_ARGV
-extern const char *find_option(const char *zLong,
-                               const char *zShort,
-                               int hasArg) /* from main.c */;
 /*
-** TH Syntax:
+** TH command:
 **
 ** argv len
 **
@@ -570,7 +585,7 @@ static int argvArgcCmd(
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** argv at Index
 **
@@ -609,7 +624,7 @@ static int argvGetAtCmd(
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** argv getstr longName ??shortName? ?defaultValue??
 **
@@ -680,11 +695,11 @@ static int argvFindOptionStringCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** argv getbool longName ??shortName? ?defaultValue??
 **
-** Works just like argv_getstr but treats any empty value or one
+** Works just like argv getstr but treats any empty value or one
 ** starting with the digit '0' as a boolean false.
 **
 ** Returns the result as an integer 0 (false) or 1 (true).
@@ -753,9 +768,12 @@ static int argvFindOptionBoolCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** argv getint longName ?shortName? ?defaultValue?
+**
+** Works like argv getstr but returns the value as an integer
+** (throwing an error if the argument cannot be converted).
 */
 static int argvFindOptionIntCmd(
   Th_Interp *interp,
@@ -813,6 +831,13 @@ static int argvFindOptionIntCmd(
   return TH_OK;  
 }
 
+/*
+** TH command:
+**
+** argv subcommand
+**
+** This is the top-level dispatching function.
+*/
 static int argvTopLevelCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -836,59 +861,54 @@ int th_register_argv(Th_Interp *interp){
     {"argv",            argvTopLevelCmd, 0 },
     {0, 0, 0}
   };
-  Th_register_commands( interp, aCommand );
+  Th_RegisterCommands( interp, aCommand );
 }
 
 #endif
 /* end TH_ENABLE_ARGV */
 
-#ifdef TH_ENABLE_SQLITE
+#ifdef TH_ENABLE_QUERY
 
 /*
 ** Adds the given prepared statement to the interpreter. Returns the
 ** statement's opaque identifier (a positive value). Ownerships of
 ** pStmt is transfered to interp and it must be cleaned up by the
-** client by calling Th_FinalizeStmt(), passing it the value returned
+** client by calling Th_query_FinalizeStmt(), passing it the value returned
 ** by this function.
 **
 ** If interp is destroyed before all statements are finalized,
 ** it will finalize them but may emit a warning message.
 */
-static int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+static int Th_query_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt);
+
 
 /*
-** Expects stmtId to be a statement identifier returned by
-** Th_AddStmt(). On success, finalizes the statement and returns 0.
-** On error (statement not found) non-0 is returned. After this
-** call, some subsequent call to Th_AddStmt() may return the
-** same statement ID.
+** Internal state for the "query" API.
 */
-static int Th_FinalizeStmt(Th_Interp *interp, int stmtId);
-static int Th_FinalizeStmt2(Th_Interp *interp, sqlite3_stmt *);
-
-/*
-** Fetches the statement with the given ID, as returned by
-** Th_AddStmt(). Returns NULL if stmtId does not refer (or no longer
-** refers) to a statement added via Th_AddStmt().
-*/
-static sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId);
-
-
-struct Th_Sqlite {
-  sqlite3_stmt ** aStmt;
-  int nStmt;
-  int colCmdIndex;
+struct Th_Query {
+  sqlite3_stmt ** aStmt; /* Array of statement handles. */
+  int nStmt;             /* number of entries in aStmt. */
+  int colCmdIndex;       /* column index argument. Set by some top-level dispatchers
+                            for their subcommands.
+                         */
 };
-#define Th_Sqlite_KEY "Th_Sqlite"
-typedef struct Th_Sqlite Th_Sqlite;
+/*
+** Internal key for use with Th_Data_Add().
+*/
+#define Th_Query_KEY "Th_Query"
+typedef struct Th_Query Th_Query;
 
-static Th_Sqlite * Th_sqlite_manager( Th_Interp * interp ){
-  void * p = Th_Data_Get( interp, Th_Sqlite_KEY );
-  return p ? (Th_Sqlite*)p : NULL;
+/*
+** Returns the Th_Query object associated with the given interpreter,
+** or 0 if there is not one.
+*/
+static Th_Query * Th_query_manager( Th_Interp * interp ){
+  void * p = Th_GetData( interp, Th_Query_KEY );
+  return p ? (Th_Query*)p : NULL;
 }
 
-static int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+static int Th_query_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
+  Th_Query * sq = Th_query_manager(interp);
   int i, x;
   sqlite3_stmt * s;
   sqlite3_stmt ** list = sq->aStmt;
@@ -912,8 +932,15 @@ static int Th_AddStmt(Th_Interp *interp, sqlite3_stmt * pStmt){
 }
 
 
-static int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+/*
+** Expects stmtId to be a statement identifier returned by
+** Th_query_AddStmt(). On success, finalizes the statement and returns 0.
+** On error (statement not found) non-0 is returned. After this
+** call, some subsequent call to Th_query_AddStmt() may return the
+** same statement ID.
+*/
+static int Th_query_FinalizeStmt(Th_Interp *interp, int stmtId){
+  Th_Query * sq = Th_query_manager(interp);
   sqlite3_stmt * st;
   int rc = 0;
   assert( stmtId>0 && stmtId<=sq->nStmt );
@@ -927,8 +954,12 @@ static int Th_FinalizeStmt(Th_Interp *interp, int stmtId){
   }
 }
 
-static int Th_FinalizeStmt2(Th_Interp *interp, sqlite3_stmt * pSt){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+/*
+** Works like Th_query_FinalizeStmt() but takes a statement pointer, which
+** must have been Th_query_AddStmt()'d to the given interpreter.
+*/
+static int Th_query_FinalizeStmt2(Th_Interp *interp, sqlite3_stmt * pSt){
+  Th_Query * sq = Th_query_manager(interp);
   int i = 0;
   sqlite3_stmt * st = NULL;
   int rc = 0;
@@ -947,20 +978,28 @@ static int Th_FinalizeStmt2(Th_Interp *interp, sqlite3_stmt * pSt){
 }
 
 
-static sqlite3_stmt * Th_GetStmt(Th_Interp *interp, int stmtId){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
-  return ((stmtId<1) || (stmtId > sq->nStmt))
+/*
+** Fetches the statement with the given ID, as returned by
+** Th_query_AddStmt(). Returns NULL if stmtId does not refer (or no longer
+** refers) to a statement added via Th_query_AddStmt().
+*/
+static sqlite3_stmt * Th_query_GetStmt(Th_Interp *interp, int stmtId){
+  Th_Query * sq = Th_query_manager(interp);
+  return (!sq || (stmtId<1) || (stmtId > sq->nStmt))
     ? NULL
     : sq->aStmt[stmtId-1];
 }
 
 
+/*
+** Th_GCEntry finalizer which requires that p be a (Th_Query*).
+*/
 static void finalizerSqlite( Th_Interp * interp, void * p ){
-  Th_Sqlite * sq = (Th_Sqlite *)p;
+  Th_Query * sq = (Th_Query *)p;
   int i;
   sqlite3_stmt * st = NULL;
   if(!sq) {
-    fossil_warning("Got a finalizer call for a NULL Th_Sqlite.");
+    fossil_warning("Got a finalizer call for a NULL Th_Query.");
     return;
   }
   for( i = 0; i < sq->nStmt; ++i ){
@@ -969,7 +1008,7 @@ static void finalizerSqlite( Th_Interp * interp, void * p ){
       fossil_warning("Auto-finalizing unfinalized "
                      "statement id #%d: %s",
                      i+1, sqlite3_sql(st));
-      Th_FinalizeStmt( interp, i+1 );
+      Th_query_FinalizeStmt( interp, i+1 );
     }
   }
   Th_Free(interp, sq->aStmt);
@@ -978,7 +1017,7 @@ static void finalizerSqlite( Th_Interp * interp, void * p ){
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query prepare SQL
 **
@@ -1018,7 +1057,7 @@ static int queryPrepareCmd(
     Th_ErrorMessage(interp, "error preparing SQL:", errMsg, -1);
     return TH_ERROR;
   }
-  rc = Th_AddStmt( interp, pStmt );
+  rc = Th_query_AddStmt( interp, pStmt );
   assert( rc >= 0 && "AddStmt failed.");
   Th_SetResultInt( interp, rc );
   return TH_OK;
@@ -1041,7 +1080,7 @@ static sqlite3_stmt * queryStmtHandle(Th_Interp *interp, char const * arg, int a
     if(stmtId){
       *stmtId = rc;
     }
-    pStmt = Th_GetStmt( interp, rc );
+    pStmt = Th_query_GetStmt( interp, rc );
     if(NULL==pStmt){
       Th_ErrorMessage(interp, "no such statement handle:", arg, -1);
     }
@@ -1051,7 +1090,7 @@ static sqlite3_stmt * queryStmtHandle(Th_Interp *interp, char const * arg, int a
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query finalize stmtId
 ** query stmtId finalize 
@@ -1085,7 +1124,7 @@ static int queryFinalizeCmd(
     }
   }
   assert( NULL != pStmt );
-  rc = Th_FinalizeStmt2( interp, pStmt );
+  rc = Th_query_FinalizeStmt2( interp, pStmt );
   Th_SetResultInt( interp, rc );
   return TH_OK;
 }
@@ -1150,7 +1189,7 @@ static int queryStmtIndexArgs(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query step stmtId
 ** query stmtId step
@@ -1192,6 +1231,14 @@ static int queryStepCmd(
   return TH_OK;
 }
 
+/*
+** TH command:
+**
+** query StmtId reset
+** query reset StmtId
+**
+** Equivalent to sqlite3_reset().
+*/
 static int queryResetCmd(
   Th_Interp *interp,
   void *p, 
@@ -1211,7 +1258,7 @@ static int queryResetCmd(
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col string stmtId Index
 ** query stmtId col string Index
@@ -1226,7 +1273,7 @@ static int queryColStringCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1253,7 +1300,7 @@ static int queryColStringCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col int stmtId Index
 ** query stmtId col int Index
@@ -1268,7 +1315,7 @@ static int queryColIntCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1292,7 +1339,7 @@ static int queryColIntCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col double stmtId Index
 ** query stmtId col double Index
@@ -1307,7 +1354,7 @@ static int queryColDoubleCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1331,10 +1378,10 @@ static int queryColDoubleCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col isnull stmtId Index
-** query stmtId col is_null Index
+** query stmtId col isnull Index
 ** query stmtId col Index isnull
 **
 ** Returns non-0 if the given 0-based result column index contains
@@ -1347,7 +1394,7 @@ static int queryColIsNullCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1373,7 +1420,7 @@ static int queryColIsNullCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col type stmtId Index
 ** query stmtId col type Index
@@ -1390,7 +1437,7 @@ static int queryColTypeCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1414,7 +1461,7 @@ static int queryColTypeCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col count stmtId
 ** query stmtId col count
@@ -1448,7 +1495,7 @@ static int queryColCountCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col name stmtId Index
 ** query stmtId col name Index
@@ -1463,7 +1510,7 @@ static int queryColNameCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1495,7 +1542,7 @@ static int queryColNameCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query col time stmtId Index format
 ** query stmtId col name Index format
@@ -1510,7 +1557,7 @@ static int queryColTimeCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)ctx;
   int minArgs = pStmt ? 3 : 4;
@@ -1557,6 +1604,13 @@ static int queryColTimeCmd(
   return 0;
 }
 
+/*
+** TH command:
+**
+**  query strftime TimeVal ?Modifiers...?
+**
+** Acts as a proxy to sqlite3's strftime() SQL function.
+*/
 static int queryStrftimeCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -1594,7 +1648,7 @@ static int queryStrftimeCmd(
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query bind null stmtId Index
 ** query stmtId bind null Index
@@ -1608,7 +1662,7 @@ static int queryBindNullCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 2 : 3;
@@ -1637,7 +1691,7 @@ static int queryBindNullCmd(
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query bind string stmtId Index Value
 ** query stmtId bind string Index Value
@@ -1651,7 +1705,7 @@ static int queryBindStringCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
@@ -1684,7 +1738,7 @@ static int queryBindStringCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query bind int stmtId Index Value
 ** query stmtId bind int Index Value
@@ -1698,7 +1752,7 @@ static int queryBindIntCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
@@ -1736,7 +1790,7 @@ static int queryBindIntCmd(
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** query bind double stmtId Index Value
 ** query stmtId bind double Index Value
@@ -1750,7 +1804,7 @@ static int queryBindDoubleCmd(
   const char **argv, 
   int *argl
 ){
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   int index = sq->colCmdIndex;
   sqlite3_stmt * pStmt = (sqlite3_stmt*)p;
   int requireArgc = pStmt ? 3 : 4;
@@ -1787,6 +1841,14 @@ static int queryBindDoubleCmd(
   return TH_OK;
 }
 
+/*
+** TH command:
+**
+** bind subcommand StmtId...
+** bind StmtId subcommand...
+**
+** This is the top-level dispatcher for the "bind" family of commands.
+*/
 static int queryBindTopLevelCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -1802,11 +1864,11 @@ static int queryBindTopLevelCmd(
     {"string", queryBindStringCmd},
     {0, 0}
   };
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   assert(NULL != sq);
   if( 1 == argc ){
       Th_WrongNumArgs2( interp, argv[0], argl[0],
-                        "subcommand");
+                        "subcommand: int|double|null|string");
       return TH_ERROR;
   }else if( 0 == Th_TryInt(interp,argv[1], argl[1], &colIndex) ){
     if(colIndex <0){
@@ -1822,6 +1884,14 @@ static int queryBindTopLevelCmd(
 
 }
 
+/*
+** TH command:
+**
+** query col subcommand ...
+** query StmtId col subcommand ...
+**
+** This is the top-level dispatcher for the col subcommands.
+*/
 static int queryColTopLevelCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -1843,6 +1913,12 @@ static int queryColTopLevelCmd(
     {0, 0}
   };
   static Th_SubCommand aSubWithIndex[] = {
+    /*
+      This subset is coded to accept the column index
+      either before the subcommand name or after it.
+      If called like (bind StmtId subcommand) then
+      only these commands will be checked.
+    */
     {"is_null", queryColIsNullCmd},
     {"isnull",  queryColIsNullCmd},
     {"name",    queryColNameCmd},
@@ -1853,11 +1929,13 @@ static int queryColTopLevelCmd(
     {"type",    queryColTypeCmd},
     {0, 0}
   };
-  Th_Sqlite * sq = Th_sqlite_manager(interp);
+  Th_Query * sq = Th_query_manager(interp);
   assert(NULL != sq);
   if( 1 == argc ){
       Th_WrongNumArgs2( interp, argv[0], argl[0],
-                        "subcommand");
+                        "subcommand: "
+                        "count|is_null|isnull|name|"
+                        "double|int|string|time|type");
       return TH_ERROR;
   }else if( 0 == Th_TryInt(interp,argv[1], argl[1], &colIndex) ){
     if(colIndex <0){
@@ -1874,6 +1952,14 @@ static int queryColTopLevelCmd(
 }
 
 
+/*
+** TH command:
+**
+** query subcommand ...
+** query StmtId subcommand ...
+**
+** This is the top-level dispatcher for the query subcommand.
+*/
 static int queryTopLevelCmd(
   Th_Interp *interp,
   void *ctx, 
@@ -1886,18 +1972,17 @@ static int queryTopLevelCmd(
   static Th_SubCommand aSubAll[] = {
     {"bind",        queryBindTopLevelCmd},
     {"col",         queryColTopLevelCmd},
-    {"reset",       queryResetCmd},
-    {"step",        queryStepCmd},
     {"finalize",    queryFinalizeCmd},
     {"prepare",     queryPrepareCmd},
+    {"reset",       queryResetCmd},
+    {"step",        queryStepCmd},
     {"strftime",    queryStrftimeCmd},
     {0, 0}
   };
   static Th_SubCommand aSubWithStmt[] = {
-  /* These entries are coded to deal with
-     being supplied a statement via pStmt
-     or via one of their args.
-   */
+    /* This subset is coded to deal with being supplied a statement
+       via pStmt or via one of their args. When called like (query
+       StmtId ...) only these subcommands will be checked.*/
     {"bind",        queryBindTopLevelCmd},
     {"col",         queryColTopLevelCmd},
     {"step",        queryStepCmd},
@@ -1907,23 +1992,26 @@ static int queryTopLevelCmd(
   };
 
 
-  assert( NULL != Th_sqlite_manager(interp) );
+  assert( NULL != Th_query_manager(interp) );
   if( 1 == argc ){
       Th_WrongNumArgs2( interp, argv[0], argl[0],
-                        "subcommand");
+                        "subcommand: bind|col|finalize|prepare|reset|step|strftime");
       return TH_ERROR;
   }else if( 0 == Th_TryInt(interp,argv[1], argl[1], &stmtId) ){
     ++argv;
     ++argl;
     --argc;
-    pStmt = Th_GetStmt( interp, stmtId );
+    pStmt = Th_query_GetStmt( interp, stmtId );
   }
 
   Th_CallSubCommand2( interp, pStmt, argc, argv, argl,
                       pStmt ? aSubWithStmt : aSubAll );
 }
 
-
+/*
+** Registers the "query" API with the given interpreter. Returns TH_OK
+** on success, TH_ERROR on error.
+*/
 int th_register_query(Th_Interp *interp){
   enum { BufLen = 100 };
   char buf[BufLen];
@@ -1945,38 +2033,23 @@ int th_register_query(Th_Interp *interp){
     {"query",             queryTopLevelCmd,  0},
     {0, 0, 0}
   };
-  rc = Th_register_commands( interp, aCommand );
+  rc = Th_RegisterCommands( interp, aCommand );
   if(TH_OK==rc){
-    Th_Sqlite * sq = Th_Malloc(interp, sizeof(Th_Sqlite));
+    Th_Query * sq = Th_Malloc(interp, sizeof(Th_Query));
     if(!sq){
       rc = TH_ERROR;
     }else{
       assert( NULL == sq->aStmt );
       assert( 0 == sq->nStmt );
-      Th_Data_Set( interp, Th_Sqlite_KEY, sq, finalizerSqlite );
-      assert( sq == Th_sqlite_manager(interp) );
+      Th_SetData( interp, Th_Query_KEY, sq, finalizerSqlite );
+      assert( sq == Th_query_manager(interp) );
     }
   }
   return rc;
 }
 
 #endif
-/* end TH_ENABLE_SQLITE */
-
-int Th_register_commands( Th_Interp * interp,
-                           Th_Command_Reg const * aCommand ){
-  int i;
-  int rc = TH_OK;
-  for(i=0; (TH_OK==rc) && aCommand[i].zName; ++i){
-    if ( !aCommand[i].zName ) break;
-    else if( !aCommand[i].xProc ) continue;
-    else{
-      rc = Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc,
-                            aCommand[i].pContext, 0);
-    }
-  }
-  return rc;
-}
+/* end TH_ENABLE_QUERY */
 
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
@@ -1985,6 +2058,15 @@ int Th_register_commands( Th_Interp * interp,
 ** The interpreter is stored in the g.interp global variable.
 */
 void Th_FossilInit(void){
+  /* The fossil-internal Th_Vtab instance. */
+  static Th_Vtab vtab = { xRealloc, {/*out*/
+    NULL /*write()*/,
+    NULL/*dispose()*/,
+    NULL/*pState*/,
+    1/*enabled*/
+    }
+  };
+
   static PutsCmdData puts_Html = {0, 0, 0};
   static PutsCmdData puts_Normal = {1, 0, 0};
   static Th_Command_Reg aCommand[] = {
@@ -2009,9 +2091,9 @@ void Th_FossilInit(void){
   if( g.interp==0 ){
     int i;
     if(g.cgiOutput){
-      vtab.out.write = Th_output_f_cgi_content;
+      vtab.out.write = Th_Output_f_cgi_content;
     }else{
-      vtab.out = Th_Vtab_Output_FILE;
+      vtab.out = Th_Vtab_OutputMethods_FILE;
       vtab.out.pState = stdout;
     }
     vtab.out.enabled = enableOutput;
@@ -2022,16 +2104,16 @@ void Th_FossilInit(void){
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
-#ifdef TH_ENABLE_OUTBUF
+#ifdef TH_ENABLE_OB
     th_register_ob(g.interp);
 #endif
-#ifdef TH_ENABLE_SQLITE
+#ifdef TH_ENABLE_QUERY
     th_register_query(g.interp);
 #endif
 #ifdef TH_ENABLE_ARGV
     th_register_argv(g.interp);
 #endif
-    Th_register_commands( g.interp, aCommand );
+    Th_RegisterCommands( g.interp, aCommand );
     Th_Eval( g.interp, 0, "proc incr {name {step 1}} {\n"
              "upvar $name x\n"
              "set x [expr $x+$step]\n"
@@ -2142,7 +2224,7 @@ static int validVarName(const char *z){
 ** inserted.
 **
 ** This routine processes the template and writes the results
-** via Th_output().
+** via Th_Output().
 */
 int Th_Render(const char *z, int flags){
   int i = 0;
@@ -2203,8 +2285,12 @@ int Th_Render(const char *z, int flags){
 ** Processes a file provided on the command line as a TH1-capable
 ** script/page. Output is sent to stdout or the CGI output buffer, as
 ** appropriate. The input file is assumed to be text/wiki/HTML content
-** which may contain TH1 tag blocks. Each block is executed in the
-** same TH1 interpreter instance.
+** which may contain TH1 tag blocks and variables in the form $var or
+** $<var>. Each block is executed in the same TH1 interpreter
+** instance.
+**
+** ACHTUNG: not all of the $variables which are set in CGI mode
+** are available via this (CLI) command.
 **
 */
 void test_th_render(void){
@@ -2215,7 +2301,7 @@ void test_th_render(void){
   }
   blob_zero(&in);
   db_open_config(0); /* Needed for global "tcl" setting. */
-#ifdef TH_ENABLE_SQLITE
+#ifdef TH_ENABLE_QUERY
   db_find_and_open_repository(OPEN_ANY_SCHEMA,0)
     /* required for th1 query API. */;
 #endif

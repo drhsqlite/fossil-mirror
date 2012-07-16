@@ -1,17 +1,17 @@
 #include "config.h"
 
 /*
-** TH_ENABLE_SQLITE, if defined, enables the "query" family of functions.
+** TH_ENABLE_QUERY, if defined, enables the "query" family of functions.
 ** They provide SELECT-only access to the repository db.
 */
-#define TH_ENABLE_SQLITE
+#define TH_ENABLE_QUERY
 
 /*
-** TH_ENABLE_OUTBUF, if defined, enables the "ob" family of functions.
+** TH_ENABLE_OB, if defined, enables the "ob" family of functions.
 ** They are functionally similar to PHP's ob_start(), ob_end(), etc.
 ** family of functions, providing output capturing/buffering.
 */
-#define TH_ENABLE_OUTBUF
+#define TH_ENABLE_OB
 
 /*
 ** TH_ENABLE_ARGV, if defined, enables the "argv" family of functions.
@@ -20,9 +20,9 @@
 */
 #define TH_ENABLE_ARGV
 
-#ifdef TH_ENABLE_OUTBUF
+#ifdef TH_ENABLE_OB
 #ifndef INTERFACE
-#include "blob.h"
+#include "blob.h" /* maintenance reminder: also pulls in fossil_realloc() and friends */
 #endif
 #endif
 
@@ -32,15 +32,15 @@
 */
 
 /*
-** Th_output_f() specifies a generic output routine for use by Th_Vtab
-** and friends. Its first argument is the data to write, the second is
-** the number of bytes to write, and the 3rd is an
-** implementation-specific state pointer (may be NULL, depending on
+** Th_Output_f() specifies a generic output routine for use by
+** Th_Vtab_OutputMethods and friends. Its first argument is the data to
+** write, the second is the number of bytes to write, and the 3rd is
+** an implementation-specific state pointer (may be NULL, depending on
 ** the implementation). The return value is the number of bytes output
 ** (which may differ from len due to encoding and whatnot).  On error
 ** a negative value must be returned.
 */
-typedef int (*Th_output_f)( char const * zData, int len, void * pState );
+typedef int (*Th_Output_f)( char const * zData, int len, void * pState );
 
 /*
 ** This structure defines the output state associated with a
@@ -48,18 +48,24 @@ typedef int (*Th_output_f)( char const * zData, int len, void * pState );
 ** output back-ends during its lifetime, e.g. to form a stack of
 ** buffers.
 */
-struct Th_Vtab_Output {
-  Th_output_f write;   /* output handler */
-  void (*dispose)( void * pState );
-  void * pState;   /* final argument for xOut() and dispose()*/
-  char enabled;    /* if 0, Th_output() does nothing. */
+struct Th_Vtab_OutputMethods {
+  Th_Output_f write;   /* output handler */
+    void (*dispose)( void * pState ); /* Called when the framework is done with
+                                         this output handler,passed this object's
+                                         pState pointer.. */
+  void * pState;   /* final argument for write() and dispose()*/
+  char enabled;    /* if 0, Th_Output() does nothing. */
 };
-typedef struct Th_Vtab_Output Th_Vtab_Output;
+typedef struct Th_Vtab_OutputMethods Th_Vtab_OutputMethods;
 
 /*
-** Shared Th_Vtab_Output instance used for copy-initialization.
+** Shared Th_Vtab_OutputMethods instance used for copy-initialization. This
+** implementation uses Th_Output_f_FILE as its write() impl and
+** Th_Output_dispose_FILE() for cleanup. If its pState member is NULL
+** it outputs to stdout, else pState must be a (FILE*) which it will
+** output to.
 */
-extern const Th_Vtab_Output Th_Vtab_Output_FILE;
+extern const Th_Vtab_OutputMethods Th_Vtab_OutputMethods_FILE;
 
 /*
 ** Before creating an interpreter, the application must allocate and
@@ -67,8 +73,20 @@ extern const Th_Vtab_Output Th_Vtab_Output_FILE;
 ** for the lifetime of the interpreter.
 */
 struct Th_Vtab {
-  void *(*xRealloc)(void *, unsigned int); /* Re/deallocation routine. */
-  Th_Vtab_Output out;                      /* output implementation */
+  void *(*xRealloc)(void *, unsigned int); /**
+                                           Re/deallocation routine. Must behave like
+                                           realloc(3), with the minor extension that
+                                           realloc(anything,positiveValue) _must_ return
+                                           NULL on allocation error. The Standard's wording
+                                           allows realloc() to return "some value suitable for
+                                           passing to free()" on error, but because client code
+                                           has no way of knowing if any non-NULL value is an error
+                                           value, no sane realloc() implementation would/should
+                                           return anything _but_ NULL on allocation error.
+                                           */
+  Th_Vtab_OutputMethods out;                      /** Output handler. TH functions which generate
+                                               output should send it here (via Th_Output()).
+                                           */
 };
 typedef struct Th_Vtab Th_Vtab;
 
@@ -80,10 +98,21 @@ typedef struct Th_Interp Th_Interp;
 
 
 /* 
-** Create and delete interpreters. 
+** Creates a new interpreter instance using the given v-table. pVtab
+** must outlive the returned object, and pVtab->out.dispose() will be
+** called when the interpreter is cleaned up. The optional "ob" API
+** swaps out Vtab::out instances, so pVtab->out might not be active
+** for the entire lifetime of the interpreter.
+**
+** Potential TODO: we "should probably" add a dispose() method to the
+** Th_Vtab interface.
 */
 Th_Interp * Th_CreateInterp(Th_Vtab *pVtab);
-void Th_DeleteInterp(Th_Interp *);
+
+/*
+** Frees up all resources associated with interp then frees interp.
+*/
+void Th_DeleteInterp(Th_Interp *interp);
 
 /* 
 ** Evaluate an TH program in the stack frame identified by parameter
@@ -115,15 +144,33 @@ int Th_SetVar(Th_Interp *, const char *, int, const char *, int);
 int Th_LinkVar(Th_Interp *, const char *, int, int, const char *, int);
 int Th_UnsetVar(Th_Interp *, const char *, int);
 
-typedef int (*Th_CommandProc)(Th_Interp *, void *, int, const char **, int *);
+/*
+** Typedef for Th interpreter callbacks, i.e. script-bound native C
+** functions.
+**
+** The interp argument is the interpreter running the function. pState
+** is arbitrary state which is passed to Th_CreateCommand(). arg
+** contains the number of arguments (argument #0 is the command's
+** name, in the same way that main()'s argv[0] is the binary's
+** name). argv is the list of arguments. argl is an array argc items
+** long which contains the length of each argument in the
+** list. e.g. argv[0] is argl[0] bytes long.
+*/
+typedef int (*Th_CommandProc)(Th_Interp * interp, void * pState, int argc, const char ** argv, int * argl);
 
 /* 
-** Register new commands. 
+** Registers a new command with interp. zName must be a NUL-terminated
+** name for the function. xProc is the native implementation of the
+** function.  pContext is arbitrary data to pass as xProc()'s 2nd
+** argument. xDel is an optional finalizer which should be called when
+** interpreter is finalized. If xDel is not NULL then it is passed
+** (interp,pContext) when interp is finalized.
+**
+** Return TH_OK on success.
 */
 int Th_CreateCommand(
   Th_Interp *interp, 
   const char *zName, 
-  /* int (*xProc)(Th_Interp *, void *, int, const char **, int *), */
   Th_CommandProc xProc,
   void *pContext,
   void (*xDel)(Th_Interp *, void *)
@@ -214,12 +261,35 @@ char *th_strdup(Th_Interp *interp, const char *z, int n);
 ** Interfaces to register the language extensions.
 */
 int th_register_language(Th_Interp *interp);            /* th_lang.c */
-int th_register_query(Th_Interp *interp);              /* th_main.c */
-int th_register_argv(Th_Interp *interp);                /* th_main.c */
 int th_register_vfs(Th_Interp *interp);                 /* th_vfs.c */
 int th_register_testvfs(Th_Interp *interp);             /* th_testvfs.c */
+
+/*
+** Registers the TCL extensions. Only available if FOSSIL_ENABLE_TCL
+** is enabled at compile-time.
+*/
 int th_register_tcl(Th_Interp *interp, void *pContext); /* th_tcl.c */
+
+#ifdef TH_ENABLE_ARGV
+/*
+** Registers the "argv" API. See www/th1_argv.wiki.
+*/
+int th_register_argv(Th_Interp *interp);                /* th_main.c */
+#endif
+
+#ifdef TH_ENABLE_QUERY
+/*
+** Registers the "query" API. See www/th1_query.wiki.
+*/
+int th_register_query(Th_Interp *interp);              /* th_main.c */
+#endif
+#ifdef TH_ENABLE_OB
+/*
+** Registers the "ob" API. See www/th1_ob.wiki.
+*/
 int th_register_ob(Th_Interp * interp);                 /* th.c */
+#endif
+
 /*
 ** General purpose hash table from th_lang.c.
 */
@@ -239,7 +309,13 @@ Th_HashEntry *Th_HashFind(Th_Interp*, Th_Hash*, const char*, int, int);
 /*
 ** Useful functions from th_lang.c.
 */
+
+/*
+** Generic "wrong number of arguments" helper which sets the error
+** state of interp to the given message plus a generic prefix.
+*/
 int Th_WrongNumArgs(Th_Interp *interp, const char *zMsg);
+
 /*
 ** Works like Th_WrongNumArgs() but expects (zCmdName,zCmdLen) to be
 ** the current command's (name,length), i.e. (argv[0],argl[0]).
@@ -249,54 +325,91 @@ int Th_WrongNumArgs2(Th_Interp *interp, const char *zCmdName,
 
 typedef struct Th_SubCommand {char *zName; Th_CommandProc xProc;} Th_SubCommand;
 int Th_CallSubCommand(Th_Interp*,void*,int,const char**,int*,Th_SubCommand*);
+
 /*
 ** Works similarly to Th_CallSubCommand() but adjusts argc/argv/argl
-** by 1 before passing on the call to the subcommand.
+** by 1 before passing on the call to the subcommand. This allows them
+** to function the same whether they are called as top-level commands
+** or as sub-sub-commands.
 */
 int Th_CallSubCommand2(Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl, Th_SubCommand *aSub);
+
 /*
 ** Sends the given data through vTab->out.f() if vTab->out.enabled is
 ** true, otherwise this is a no-op. Returns 0 or higher on success, *
 ** a negative value if vTab->out.f is NULL.
 */
-int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int len );
+int Th_Vtab_Output( Th_Vtab *vTab, char const * zData, int len );
 
 /*
-** Sends the given output through pInterp's v-table's output
-** implementation. See Th_Vtab_output() for the argument and
+** Sends the given output through pInterp's vtab's output
+** implementation. See Th_Vtab_OutputMethods() for the argument and
 ** return value semantics.
 */
-int Th_output( Th_Interp *pInterp, char const * zData, int len );
+int Th_Output( Th_Interp *pInterp, char const * zData, int len );
 
 /*
-** Th_output_f() implementation which sends its output to either
+** Enables or disables output of the current Vtab API, depending on
+** whether flag is true (non-0) or false (0). Note that when output
+** buffering/stacking is enabled (e.g. via the "ob" API) this modifies
+** only the current output mechanism, and not any further down the
+** stack.
+*/
+void Th_OutputEnable( Th_Interp *pInterp, char flag );
+
+/*
+** Returns true if output is enabled for the current output mechanism
+** of pInterp, else false. See Th_OutputEnable().
+*/
+char Th_OutputEnabled( Th_Interp *pInterp );
+
+
+
+/*
+** A Th_Output_f() implementation which sends its output to either
 ** pState (which must be NULL or a (FILE*)) or stdout (if pState is
 ** NULL).
 */
-int Th_output_f_FILE( char const * zData, int len, void * pState );
-/*
-** Th_Vtab_Output::dispose impl for FILE handles. If pState is not
-** one of the standard streams then it is fclose()d.
-*/
-void Th_output_dispose_FILE( void * pState );
+int Th_Output_f_FILE( char const * zData, int len, void * pState );
 
-typedef struct Th_Command_Reg Th_Command_Reg;
+/*
+** A Th_Vtab_OutputMethods::dispose() impl for FILE handles. If pState is not
+** one of the standard streams (stdin, stdout, stderr) then it is
+** fclose()d.
+*/
+void Th_Output_dispose_FILE( void * pState );
+
 /*
 ** A helper type for holding lists of function registration information.
-** For use with Th_register_commands().
+** For use with Th_RegisterCommands().
 */
 struct Th_Command_Reg {
   const char *zName;     /* Function name. */
   Th_CommandProc xProc;  /* Callback function */
   void *pContext;        /* Arbitrary data for the callback. */
 };
+typedef struct Th_Command_Reg Th_Command_Reg;
 
-/* mkindex cannot do enums enum Th_Render_Flags { */
+/*
+** Th_Render_Flags_XXX are flags for Th_Render().
+*/
+/* makeheaders cannot do enums: enum Th_Render_Flags {...};*/
+/*
+** Default flags ("compatibility mode").
+*/
 #define Th_Render_Flags_DEFAULT 0
+/*
+** If set, Th_Render() will not process $var and $<var>
+** variable references outside of TH1 blocks.
+*/
 #define Th_Render_Flags_NO_DOLLAR_DEREF (1 << 1)
-/*};*/
 
-int Th_Render(const char *z, int flags);
+/*
+** Runs the given th1 program through Fossil's th1 interpreter. Flags
+** may contain a bitmask made up of any of the Th_Render_Flags_XXX
+** values.
+*/
+int Th_Render(const char *zTh1Program, int Th_Render_Flags);
 
 /*
 ** Adds a piece of memory to the given interpreter, such that:
@@ -305,22 +418,22 @@ int Th_Render(const char *z, int flags);
 ** calling finalizer(interp, pData). The finalizer may be NULL.
 ** Cleanup happens in an unspecified/unpredictable order.
 **
-** b) it can be fetched via Th_Data_Get().
+** b) it can be fetched via Th_GetData().
 **
 ** If a given key is added more than once then any previous
 ** entry is cleaned up before adding it.
 **
 ** Returns 0 on success, non-0 on allocation error.
 */
-int Th_Data_Set( Th_Interp * interp, char const * key,
+int Th_SetData( Th_Interp * interp, char const * key,
                  void * pData,
                  void (*finalizer)( Th_Interp *, void * ) );
 
 /*
-** Fetches data added via Th_Data_Set(), or NULL if no data
+** Fetches data added via Th_SetData(), or NULL if no data
 ** has been associated with the given key.
 */
-void * Th_Data_Get( Th_Interp * interp, char const * key );
+void * Th_GetData( Th_Interp * interp, char const * key );
 
 
 /*
@@ -329,36 +442,61 @@ void * Th_Data_Get( Th_Interp * interp, char const * key );
 ** have a NULL zName field (that is the end-of-list marker).
 ** Returns TH_OK on success, "something else" on error.
 */
-int Th_register_commands( Th_Interp * interp, Th_Command_Reg const * pList );
+int Th_RegisterCommands( Th_Interp * interp, Th_Command_Reg const * pList );
 
-
-#ifdef TH_ENABLE_OUTBUF
+#ifdef TH_ENABLE_OB
 /*
-** Manager of a stack of Blob objects for output buffering.
-** See Th_ob_manager().
+** Output buffer stack manager for TH. Used/managed by the Th_ob_xxx() functions.
 */
-typedef struct Th_Ob_Man Th_Ob_Man;
+struct Th_Ob_Manager {
+  Blob ** aBuf;        /* Stack of Blobs */
+  int nBuf;            /* Number of blobs */
+  int cursor;          /* Current level (-1=not active) */
+  Th_Interp * interp;  /* The associated interpreter */
+  Th_Vtab_OutputMethods * aOutput
+                       /* Stack of output routines corresponding
+                          to the current buffering level.
+                          Has nBuf entries.
+                       */;
+};
 
 /*
-** Returns the ob manager for the given interpreter.  The manager gets
+** Manager of a stack of Th_Vtab_Output objects for output buffering.
+** It gets its name ("ob") from the similarly-named PHP functionality.
+**
+** See Th_Ob_GetManager().
+**
+** Potential TODO: remove the Blob from the interface and replace it
+** with a Th_Output_f (or similar) which clients can pass in to have
+** the data transfered from Th_Ob_Manager to them. We would also need to
+** add APIs for clearing the buffer.
+*/
+typedef struct Th_Ob_Manager Th_Ob_Manager;
+
+/*
+** Returns the ob manager for the given interpreter. The manager gets
 ** installed by the th_register_ob(). In Fossil ob support is
 ** installed automatically if it is available at built time.
 */
-Th_Ob_Man * Th_ob_manager(Th_Interp *ignored);
+Th_Ob_Manager * Th_Ob_GetManager(Th_Interp *ignored);
 
 /*
-** Returns the top-most Blob in pMan's stack, or NULL
-** if buffering is not active.
+** Returns the top-most Blob in pMan's stack, or NULL if buffering is
+** not active or if the current buffering level does not refer to a
+** blob. (Note: the latter will never currently be the case, but may
+** be if the API is expanded to offer other output direction options,
+** e.g.  (ob start file /tmp/foo.out).)
 */
-Blob * Th_ob_current( Th_Ob_Man * pMan );
+Blob * Th_Ob_GetCurrentBuffer( Th_Ob_Manager * pMan );
 
 /*
-** Pushes a new blob onto pMan's stack. On success
-** returns TH_OK and assigns *pOut (if pOut is not NULL)
-** to the new blob (which is owned by pMan). On error
-** pOut is not modified and non-0 is returned.
+** Pushes a new blob onto pMan's stack. On success returns TH_OK and
+** assigns *pOut (if pOut is not NULL) to the new blob (which is owned
+** by pMan). On error pOut is not modified and non-0 is returned. The
+** new blob can be cleaned up via Th_Ob_Pop() or Th_Ob_PopAndFree()
+** (please read both to understand the difference!).
 */
-int Th_ob_push( Th_Ob_Man * pMan, Th_Vtab_Output const * pWriter, Blob ** pOut );
+int Th_Ob_Push( Th_Ob_Manager * pMan, Th_Vtab_OutputMethods const * pWriter, Blob ** pOut );
 
 /*
 ** Pops the top-most output buffer off the stack and returns
@@ -368,14 +506,19 @@ int Th_ob_push( Th_Ob_Man * pMan, Th_Vtab_Output const * pWriter, Blob ** pOut )
 **
 ** The caller owns the returned object and must eventually clean it up
 ** by first passing it to blob_reset() and then Th_Free() it.
+**
+** See also: Th_Ob_PopAndFree().
 */
-Blob * Th_ob_pop( Th_Ob_Man * pMan );
+Blob * Th_Ob_Pop( Th_Ob_Manager * pMan );
+
 /*
-** Convenience form of Th_ob_pop() which pops and frees the
+** Convenience form of Th_Ob_Pop() which pops and frees the
 ** top-most buffer. Returns 0 on success, non-0 if there is no
-** stack to pop.
+** stack to pop. Thus is can be used in a loop like:
+**
+** while( !Th_Ob_PopAndFree(theManager) ) {}
 */
-int Th_ob_pop_free( Th_Ob_Man * pMan );
+int Th_Ob_PopAndFree( Th_Ob_Manager * pMan );
 
 #endif
-/* TH_ENABLE_OUTBUF */
+/* end TH_ENABLE_OB */

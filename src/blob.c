@@ -22,7 +22,7 @@
 #include <zlib.h>
 #include "blob.h"
 #if INTERFACE
-typedef struct Blob Blob;
+
 /*
 ** A Blob can hold a string or a binary object of arbitrary size.  The
 ** size changes as necessary.

@@ -9,33 +9,26 @@
 #include <assert.h>
 #include <stdio.h> /* FILE class */
 
-#ifdef TH_ENABLE_OUTBUF
-struct Th_Ob_Man {
-  Blob ** aBuf;        /* Stack of Blobs */
-  int nBuf;            /* Number of blobs */
-  int cursor;          /* Current level (-1=not active) */
-  Th_Interp * interp;  /* The associated interpreter */
-  Th_Vtab_Output * aOutput
-                       /* Stack of output routines corresponding
-                          to the current buffering level.
-                          Has nBuf entries.
-                       */;
-};
-#endif
+/*
+** Th_Output_f() impl which redirects output to a Th_Ob_Manager.
+*/
+static int Th_Output_f_ob( char const * zData, int len, void * pState );
 
-extern void *fossil_realloc(void *p, size_t n);
-static void * th_fossil_realloc(void *p, unsigned int n){
-  return fossil_realloc( p, n );
-}
-static int Th_output_f_ob( char const * zData, int len, void * pState );
-static void Th_output_dispose_ob( void * pState );
+/*
+** Th_Output::dispose() impl which requires pState to be-a Th_Ob_Manager.
+*/
+static void Th_Output_dispose_ob( void * pState );
+
 typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
 typedef struct Th_Variable  Th_Variable;
 
-const Th_Vtab_Output Th_Vtab_Output_FILE = {
-  Th_output_f_FILE /* write() */,
-  Th_output_dispose_FILE /* dispose() */,
+/*
+** Shared instance. See th.h for the docs.
+*/
+const Th_Vtab_OutputMethods Th_Vtab_OutputMethods_FILE = {
+  Th_Output_f_FILE /* write() */,
+  Th_Output_dispose_FILE /* dispose() */,
   NULL /*pState*/,
   1/*enabled*/
 };
@@ -62,7 +55,7 @@ struct Th_Interp {
   int isListMode;    /* True if thSplitList() should operate in "list" mode */
   Th_Hash * paGc;    /* Holds client-provided data owned by this
                         object. It would be more efficient to store
-                        these in a list (we don't expect many
+                        these in a list (because we don't expect many
                         entries), but Th_Hash has the strong advantage
                         of being here and working.
                      */
@@ -1451,7 +1444,7 @@ void *Th_Realloc(Th_Interp *pInterp, void *z, int nByte){
 }
 
 
-int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int nData ){
+int Th_Vtab_Output( Th_Vtab *vTab, char const * zData, int nData ){
   if(!vTab->out.write){
     return -1;
   }else if(!vTab->out.enabled){
@@ -1462,18 +1455,26 @@ int Th_Vtab_output( Th_Vtab *vTab, char const * zData, int nData ){
 }
 
 
-int Th_output( Th_Interp *pInterp, char const * zData, int nData ){
-  return Th_Vtab_output( pInterp->pVtab, zData, nData );
+int Th_Output( Th_Interp *pInterp, char const * zData, int nData ){
+  return Th_Vtab_Output( pInterp->pVtab, zData, nData );
 }
 
-int Th_output_f_FILE( char const * zData, int nData, void * pState ){
+void Th_OutputEnable( Th_Interp *pInterp, char flag ){
+  pInterp->pVtab->out.enabled = flag;
+}
+
+char Th_OutputEnabled( Th_Interp *pInterp ){
+  return pInterp->pVtab->out.enabled ? 1 : 0;
+}
+
+int Th_Output_f_FILE( char const * zData, int nData, void * pState ){
   FILE * dest = pState ? (FILE*)pState : stdout;
   int rc = (int)fwrite(zData, 1, nData, dest);
   fflush(dest);
   return rc;
 }
 
-void Th_output_dispose_FILE( void * pState ){
+void Th_Output_dispose_FILE( void * pState ){
   FILE * f = pState ? (FILE*)pState : NULL;
   if(f
      && (f != stdout)
@@ -1746,6 +1747,11 @@ void Th_DeleteInterp(Th_Interp *interp){
     Th_HashIterate(interp, interp->paGc, thFreeGc, (void *)interp);
     Th_HashDelete(interp, interp->paGc);
     interp->paGc = NULL;
+  }
+
+  /* Clean up the output abstraction. */
+  if( interp->pVtab && interp->pVtab->out.dispose ){
+      interp->pVtab->out.dispose( interp->pVtab->out.pState );
   }
   
   /* Delete the contents of the global frame. */
@@ -2446,7 +2452,6 @@ int th_isalnum(char c){
 #ifndef LONGDOUBLE_TYPE
 # define LONGDOUBLE_TYPE long double
 #endif
-/*typedef char u8;*/
 
 
 /*
@@ -2748,7 +2753,7 @@ int Th_SetResultDouble(Th_Interp *interp, double fVal){
 }
 
 
-int Th_Data_Set( Th_Interp * interp, char const * key,
+int Th_SetData( Th_Interp * interp, char const * key,
                  void * pData,
                  void (*finalizer)( Th_Interp *, void * ) ){
   Th_HashEntry * pEnt;
@@ -2771,21 +2776,40 @@ int Th_Data_Set( Th_Interp * interp, char const * key,
   return 0;
  
 }
-void * Th_Data_Get( Th_Interp * interp, char const * key ){
+void * Th_GetData( Th_Interp * interp, char const * key ){
   Th_HashEntry * e = interp->paGc
     ? Th_HashFind(interp, interp->paGc, key, th_strlen(key), 0)
     : NULL;
   return e ? ((Th_GcEntry*)e->pData)->pData : NULL;
 }
 
+int Th_RegisterCommands( Th_Interp * interp,
+                          Th_Command_Reg const * aCommand ){
+  int i;
+  int rc = TH_OK;
+  for(i=0; (TH_OK==rc) && aCommand[i].zName; ++i){
+    if ( !aCommand[i].zName ) break;
+    else if( !aCommand[i].xProc ) continue;
+    else{
+      rc = Th_CreateCommand(interp, aCommand[i].zName, aCommand[i].xProc,
+                            aCommand[i].pContext, 0);
+    }
+  }
+  return rc;
+}
 
 
-#ifdef TH_ENABLE_OUTBUF
-/* Reminder: the ob code "really" belongs in th_lang.c,
-   but we need access to Th_Interp internals in order to
-   swap out Th_Vtab parts for purposes of stacking layers
-   of buffers.
+
+#ifdef TH_ENABLE_OB
+/* Reminder: the ob code "really" belongs in th_lang.c or th_main.c,
+   but it needs access to Th_Interp::pVtab in order to swap out
+   Th_Vtab_OutputMethods parts for purposes of stacking layers of
+   buffers. We could add access to it via the public interface,
+   but that didn't seem appropriate.
 */
+
+
+/* Empty-initialized Th_Ob_Manager instance. */
 #define Th_Ob_Man_empty_m { \
   NULL/*aBuf*/,           \
   0/*nBuf*/,            \
@@ -2794,54 +2818,60 @@ void * Th_Data_Get( Th_Interp * interp, char const * key ){
   NULL/*aOutput*/       \
 }
 
-/*
-** Vtab impl for the ob buffering layer.
-*/
-#define Th_Vtab_Output_empty_m { \
+/* Empty-initialized Th_Vtab_OutputMethods instance. */
+#define Th_Vtab_OutputMethods_empty_m { \
   NULL /* write() */, \
   NULL /* dispose() */, \
   NULL /*pState*/,\
   1/*enabled*/\
 }
-#define Th_Vtab_Output_ob_m { \
-  Th_output_f_ob /*write()*/, \
-  Th_output_dispose_ob /* dispose() */, \
+/* Vtab_OutputMethods instance initialized for OB support. */
+#define Th_Vtab_OutputMethods_ob_m { \
+  Th_Output_f_ob /*write()*/, \
+  Th_Output_dispose_ob /* dispose() */, \
   NULL /*pState*/,\
   1/*enabled*/\
 }
-static const Th_Ob_Man Th_Ob_Man_empty = Th_Ob_Man_empty_m;
-static Th_Vtab_Output Th_Vtab_Output_ob = Th_Vtab_Output_ob_m;
-static Th_Vtab_Output Th_Vtab_Output_empty = Th_Vtab_Output_empty_m;
-#define Th_Ob_Man_KEY "Th_Ob_Man"
-Th_Ob_Man * Th_ob_manager(Th_Interp *interp){
-  return (Th_Ob_Man*) Th_Data_Get(interp, Th_Ob_Man_KEY );
+/* Empty-initialized Th_Vtab_Man instance. */
+static const Th_Ob_Manager Th_Ob_Man_empty = Th_Ob_Man_empty_m;
+/* Empty-initialized Th_Vtab_OutputMethods instance. */
+static Th_Vtab_OutputMethods Th_Vtab_OutputMethods_empty = Th_Vtab_OutputMethods_empty_m;
+/* Th_Vtab_OutputMethods instance initialized for OB support. */
+static Th_Vtab_OutputMethods Th_Vtab_OutputMethods_ob = Th_Vtab_OutputMethods_ob_m;
+
+/*
+**   Internal key for Th_Set/GetData(), for storing a Th_Ob_Manager instance.
+*/
+#define Th_Ob_Man_KEY "Th_Ob_Manager"
+
+Th_Ob_Manager * Th_Ob_GetManager(Th_Interp *interp){
+  return (Th_Ob_Manager*) Th_GetData(interp, Th_Ob_Man_KEY );
 }
 
-Blob * Th_ob_current( Th_Ob_Man * pMan ){
+Blob * Th_Ob_GetCurrentBuffer( Th_Ob_Manager * pMan ){
   return pMan->nBuf>0 ? pMan->aBuf[pMan->cursor] : 0;
 }
 
 
 /*
-** Th_output_f() impl which expects pState to be (Th_Ob_Man*).
+** Th_Output_f() impl which expects pState to be (Th_Ob_Manager*).
 ** (zData,len) are appended to pState's current output buffer.
 */
-int Th_output_f_ob( char const * zData, int len, void * pState ){
-  Th_Ob_Man * pMan = (Th_Ob_Man*)pState;
-  Blob * b = Th_ob_current( pMan );
+int Th_Output_f_ob( char const * zData, int len, void * pState ){
+  Th_Ob_Manager * pMan = (Th_Ob_Manager*)pState;
+  Blob * b = Th_Ob_GetCurrentBuffer( pMan );
   assert( NULL != pMan );
   assert( b );
   blob_append( b, zData, len );
   return len;
 }
 
-static void Th_output_dispose_ob( void * pState ){
+static void Th_Output_dispose_ob( void * pState ){
   /* possible todo: move the cleanup logic from
-     Th_ob_pop() to here? */
-  /*printf("disposing() ob vtab.\n"); */
+     Th_Ob_Pop() to here? */
 #if 0
-  Th_Ob_Man * pMan = (Th_Ob_Man*)pState;
-  Blob * b = Th_ob_current( pMan );
+  Th_Ob_Manager * pMan = (Th_Ob_Manager*)pState;
+  Blob * b = Th_Ob_GetCurrentBuffer( pMan );
   assert( NULL != pMan );
   assert( b );
 #endif
@@ -2849,13 +2879,13 @@ static void Th_output_dispose_ob( void * pState ){
 
 
 
-int Th_ob_push( Th_Ob_Man * pMan,
-                Th_Vtab_Output const * pWriter,
+int Th_Ob_Push( Th_Ob_Manager * pMan,
+                Th_Vtab_OutputMethods const * pWriter,
                 Blob ** pOut ){
   Blob * pBlob;
   int x, i;
   if( NULL == pWriter ){
-    pWriter = &Th_Vtab_Output_ob;
+    pWriter = &Th_Vtab_OutputMethods_ob;
   }
   assert( NULL != pMan->interp );
   pBlob = (Blob *)Th_Malloc(pMan->interp, sizeof(Blob));
@@ -2873,13 +2903,13 @@ int Th_ob_push( Th_Ob_Man * pMan,
       goto error;
     }
     pMan->aBuf = (Blob **)re;
-    re = Th_Realloc( pMan->interp, pMan->aOutput, x * sizeof(Th_Vtab_Output) );
+    re = Th_Realloc( pMan->interp, pMan->aOutput, x * sizeof(Th_Vtab_OutputMethods) );
     if(NULL==re){
       goto error;
     }
-    pMan->aOutput = (Th_Vtab_Output*)re;
+    pMan->aOutput = (Th_Vtab_OutputMethods*)re;
     for( i = pMan->nBuf; i < x; ++i ){
-      pMan->aOutput[i] = Th_Vtab_Output_empty;
+      pMan->aOutput[i] = Th_Vtab_OutputMethods_empty;
       pMan->aBuf[i] = NULL;
     }
     pMan->nBuf = x;
@@ -2894,7 +2924,6 @@ int Th_ob_push( Th_Ob_Man * pMan,
   if( pOut ){
     *pOut = pBlob;
   }
-  /*printf( "push: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
   return TH_OK;
   error:
   if( pBlob ){
@@ -2903,13 +2932,12 @@ int Th_ob_push( Th_Ob_Man * pMan,
   return TH_ERROR;
 }
 
-Blob * Th_ob_pop( Th_Ob_Man * pMan ){
+Blob * Th_Ob_Pop( Th_Ob_Manager * pMan ){
   if( pMan->cursor < 0 ){
     return NULL;
   }else{
     Blob * rc;
-    Th_Vtab_Output * theOut;
-    /*printf( "pop: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
+    Th_Vtab_OutputMethods * theOut;
     assert( pMan->nBuf > pMan->cursor );
     rc = pMan->aBuf[pMan->cursor];
     pMan->aBuf[pMan->cursor] = NULL;
@@ -2918,7 +2946,7 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
       theOut->dispose( theOut->pState );
     }
     pMan->interp->pVtab->out = *theOut;
-    pMan->aOutput[pMan->cursor] = Th_Vtab_Output_empty;
+    pMan->aOutput[pMan->cursor] = Th_Vtab_OutputMethods_empty;
     if(-1 == --pMan->cursor){
       Th_Interp * interp = pMan->interp;
       Th_Free( pMan->interp, pMan->aBuf );
@@ -2927,13 +2955,12 @@ Blob * Th_ob_pop( Th_Ob_Man * pMan ){
       pMan->interp = interp;
       assert(-1 == pMan->cursor);
     }
-    /*printf( "post-pop: pMan->nBuf=%d, pMan->cursor=%d\n", pMan->nBuf, pMan->cursor);*/
     return rc;
   }
 }
 
-int Th_ob_pop_free( Th_Ob_Man * pMan ){
-  Blob * b = Th_ob_pop( pMan );
+int Th_Ob_PopAndFree( Th_Ob_Manager * pMan ){
+  Blob * b = Th_Ob_Pop( pMan );
   if(!b) return 1;
   else {
     blob_reset(b);
@@ -2942,13 +2969,13 @@ int Th_ob_pop_free( Th_Ob_Man * pMan ){
 }
 
 
-void Th_ob_cleanup( Th_Ob_Man * man ){
-  while( 0 == Th_ob_pop_free(man) ){}
+void Th_ob_cleanup( Th_Ob_Manager * man ){
+  while( 0 == Th_Ob_PopAndFree(man) ){}
 }
 
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob clean
 **
@@ -2959,10 +2986,10 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
   const char doRc = ctx ? 1 : 0;
-  Th_Ob_Man * pMan = ctx ? (Th_Ob_Man *)ctx : Th_ob_manager(interp);
+  Th_Ob_Manager * pMan = ctx ? (Th_Ob_Manager *)ctx : Th_Ob_GetManager(interp);
   Blob * b;
   assert( pMan && (interp == pMan->interp) );
-  b = pMan ? Th_ob_current(pMan) : NULL;
+  b = pMan ? Th_Ob_GetCurrentBuffer(pMan) : NULL;
   if(!b){
     Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
     return TH_ERROR;
@@ -2976,7 +3003,7 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob end
 **
@@ -2986,10 +3013,10 @@ static int ob_clean_command( Th_Interp *interp, void *ctx,
 static int ob_end_command( Th_Interp *interp, void *ctx,
                            int argc,  const char **argv, int *argl ){
   const char doRc = ctx ? 1 : 0;
-  Th_Ob_Man * pMan = ctx ? (Th_Ob_Man *)ctx : Th_ob_manager(interp);
+  Th_Ob_Manager * pMan = ctx ? (Th_Ob_Manager *)ctx : Th_Ob_GetManager(interp);
   Blob * b;
   assert( pMan && (interp == pMan->interp) );
-  b = Th_ob_pop(pMan);
+  b = Th_Ob_Pop(pMan);
   if(!b){
     Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
     return TH_ERROR;
@@ -3004,7 +3031,7 @@ static int ob_end_command( Th_Interp *interp, void *ctx,
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob flush ?pop|end?
 **
@@ -3017,19 +3044,19 @@ static int ob_end_command( Th_Interp *interp, void *ctx,
 */
 static int ob_flush_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl ){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Th_Ob_Manager * pMan = (Th_Ob_Manager *)ctx;
   Blob * b = NULL;
   Th_Vtab * oldVtab;
   int rc = TH_OK;
   assert( pMan && (interp == pMan->interp) );
-  b = Th_ob_current(pMan);
+  b = Th_Ob_GetCurrentBuffer(pMan);
   if( NULL == b ){
     Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
     return TH_ERROR;
   }
   oldVtab = interp->pVtab;
   interp->pVtab->out = pMan->aOutput[pMan->cursor];
-  Th_output( interp, blob_str(b), b->nUsed );
+  Th_Output( interp, blob_str(b), b->nUsed );
   interp->pVtab = oldVtab;
   blob_reset(b);
 
@@ -3049,7 +3076,7 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob get ?clean|end|pop?
 **
@@ -3061,10 +3088,10 @@ static int ob_flush_command( Th_Interp *interp, void *ctx,
 */
 static int ob_get_command( Th_Interp *interp, void *ctx,
                            int argc,  const char **argv, int *argl){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Th_Ob_Manager * pMan = (Th_Ob_Manager *)ctx;
   Blob * b = NULL;
   assert( pMan && (interp == pMan->interp) );
-  b = Th_ob_current(pMan);
+  b = Th_Ob_GetCurrentBuffer(pMan);
   if( NULL == b ){
     Th_ErrorMessage( interp, "Not currently buffering.", NULL, 0 );
     return TH_ERROR;
@@ -3092,7 +3119,7 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob level
 **
@@ -3102,13 +3129,13 @@ static int ob_get_command( Th_Interp *interp, void *ctx,
 static int ob_level_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Th_Ob_Manager * pMan = (Th_Ob_Manager *)ctx;
   Th_SetResultInt( interp, 1 + pMan->cursor );
   return TH_OK;
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob start|push
 **
@@ -3122,12 +3149,12 @@ static int ob_level_command( Th_Interp *interp, void *ctx,
 static int ob_start_command( Th_Interp *interp, void *ctx,
                              int argc,  const char **argv, int *argl
 ){
-  Th_Ob_Man * pMan = (Th_Ob_Man *)ctx;
+  Th_Ob_Manager * pMan = (Th_Ob_Manager *)ctx;
   Blob * b = NULL;
   int rc;
-  Th_Vtab_Output const * pWriter = &Th_Vtab_Output_ob;
+  Th_Vtab_OutputMethods const * pWriter = &Th_Vtab_OutputMethods_ob;
   assert( pMan && (interp == pMan->interp) );
-  rc = Th_ob_push(pMan, NULL, &b);
+  rc = Th_Ob_Push(pMan, NULL, &b);
   if( TH_OK != rc ){
     assert( NULL == b );
     return rc;
@@ -3138,17 +3165,16 @@ static int ob_start_command( Th_Interp *interp, void *ctx,
 }
 
 static void finalizerObMan( Th_Interp * interp, void * p ){
-  Th_Ob_Man * man = (Th_Ob_Man*)p;
-  /*printf("finalizerObMan(%p,%p)\n", interp, p );*/
+  Th_Ob_Manager * man = (Th_Ob_Manager*)p;
   if(man){
     assert( interp == man->interp );
     Th_ob_cleanup( man );
-    Th_Free( interp, man );
+    Th_Free( interp, p );
   }
 }
 
 /*
-** TH Syntax:
+** TH command:
 **
 ** ob clean|(end|pop)|flush|get|level|(start|push)
 **
@@ -3163,7 +3189,7 @@ static int ob_cmd(
   const char **argv, 
   int *argl
 ){
-  Th_Ob_Man * pMan = Th_ob_manager(interp);
+  Th_Ob_Manager * pMan = Th_Ob_GetManager(interp);
   Th_SubCommand aSub[] = {
     { "clean",     ob_clean_command },
     { "end",       ob_end_command },
@@ -3173,6 +3199,7 @@ static int ob_cmd(
     { "pop",       ob_end_command },
     { "push",      ob_start_command },
     { "start",     ob_start_command },
+    /* TODO: enable/disable commands which call Th_OutputEnable(). */
     { 0, 0 }
   };
   assert(NULL != pMan && pMan->interp==interp);
@@ -3185,25 +3212,26 @@ int th_register_ob(Th_Interp * interp){
     {"ob",    ob_cmd,   0},
     {0,0,0}
   };
-  rc = Th_register_commands( interp, aCommand );
-  if(NULL == Th_ob_manager(interp)){
-    Th_Ob_Man * pMan;
-    pMan = Th_Malloc(interp, sizeof(Th_Ob_Man));
+  rc = Th_RegisterCommands( interp, aCommand );
+  if(NULL == Th_Ob_GetManager(interp)){
+    Th_Ob_Manager * pMan;
+    pMan = Th_Malloc(interp, sizeof(Th_Ob_Manager));
     if(!pMan){
       rc = TH_ERROR;
     }else{
       *pMan = Th_Ob_Man_empty;
       pMan->interp = interp;
       assert( -1 == pMan->cursor );
-      Th_Data_Set( interp, Th_Ob_Man_KEY, pMan, finalizerObMan );
-      assert( NULL != Th_ob_manager(interp) );
+      Th_SetData( interp, Th_Ob_Man_KEY, pMan, finalizerObMan );
+      assert( NULL != Th_Ob_GetManager(interp) );
     }
   }
   return rc;
 }
 
 #undef Th_Ob_Man_empty_m
+#undef Th_Vtab_OutputMethods_empty_m
+#undef Th_Vtab_OutputMethods_ob_m
 #undef Th_Ob_Man_KEY
 #endif
-/* end TH_ENABLE_OUTBUF */
-
+/* end TH_ENABLE_OB */

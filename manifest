@@ -1,5 +1,5 @@
-C Minor\sdoc\scorrection.
-D 2012-07-16T14:36:30.472
+C Cleanups\srequested\sby\sDRH,\splus\ssome\sincidental\sconsistency/maintenance-related\scleanups\sfound\salong\sthe\sway.
+D 2012-07-16T18:56:11.332
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -61,7 +61,7 @@ F src/allrepo.c b6606e9f9234dd32208cca7c8a6d882f6c2d2385
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c 885b8b443fd2fd014b080cd9a960a0a595746bd5
+F src/blob.c 0f042d1f79357ed5293b18f2aed7fc754cffb654
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
@@ -150,10 +150,10 @@ F src/style.c c13b0f33b1b3de752d41424be135c24a5e3e7c7b
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c fe4923f6402668e61ee37ad8dc43b37313bf49f0
-F src/th.h 79b5d0281bc4078cc88863e9e335ac32fbda1ee1
-F src/th_lang.c ef7625e462915e3a5bd140887478d95a086a241a
-F src/th_main.c c3e527fc4a01bd49056144e758a00824bbe511fa
+F src/th.c 4abae97ee06df4ae60a507245870c7382ddb0346
+F src/th.h e2eb85ead2b633a8574fe50841b732bc9b1301e4
+F src/th_lang.c ab9f8c3844a4e4d824be3c563b567ec507dd4cf3
+F src/th_main.c f77b026787b9a03d46245d3adca6121c227b4c3b
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -370,7 +370,7 @@ F www/th1_query.wiki 2ee2fbda869da91a84fc3491fcbfa1045961a913
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 726f998b5f6565800a9125bd788bbc70053a55e7
-R 5cb204fd04256154b4ba6eb457ba00ae
+P 4295728159451e0dde96226d2108b4aaa040c263
+R 83165b4028973a04aa7980382379ece9
 U stephan
-Z 30d3cea1964fa186236111beb1325292
+Z c8b20ff363f3bb1b12bd285c7930af99
