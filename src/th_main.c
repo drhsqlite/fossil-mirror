@@ -2091,7 +2091,7 @@ void Th_FossilInit(void){
   if( g.interp==0 ){
     int i;
     if(g.cgiOutput){
-      vtab.out.write = Th_Output_f_cgi_content;
+      vtab.out.xWrite = Th_Output_f_cgi_content;
     }else{
       vtab.out = Th_Vtab_OutputMethods_FILE;
       vtab.out.pState = stdout;

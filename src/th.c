@@ -9,16 +9,6 @@
 #include <assert.h>
 #include <stdio.h> /* FILE class */
 
-/*
-** Th_Output_f() impl which redirects output to a Th_Ob_Manager.
-*/
-static int Th_Output_f_ob( char const * zData, int len, void * pState );
-
-/*
-** Th_Output::dispose() impl which requires pState to be-a Th_Ob_Manager.
-*/
-static void Th_Output_dispose_ob( void * pState );
-
 typedef struct Th_Command   Th_Command;
 typedef struct Th_Frame     Th_Frame;
 typedef struct Th_Variable  Th_Variable;
@@ -27,7 +17,7 @@ typedef struct Th_Variable  Th_Variable;
 ** Shared instance. See th.h for the docs.
 */
 const Th_Vtab_OutputMethods Th_Vtab_OutputMethods_FILE = {
-  Th_Output_f_FILE /* write() */,
+  Th_Output_f_FILE /* xWrite() */,
   Th_Output_dispose_FILE /* dispose() */,
   NULL /*pState*/,
   1/*enabled*/
@@ -1445,12 +1435,12 @@ void *Th_Realloc(Th_Interp *pInterp, void *z, int nByte){
 
 
 int Th_Vtab_Output( Th_Vtab *vTab, char const * zData, int nData ){
-  if(!vTab->out.write){
+  if(!vTab->out.xWrite){
     return -1;
   }else if(!vTab->out.enabled){
     return 0;
   }else{
-    return vTab->out.write( zData, nData, vTab->out.pState );
+    return vTab->out.xWrite( zData, nData, vTab->out.pState );
   }
 }
 
@@ -1750,8 +1740,8 @@ void Th_DeleteInterp(Th_Interp *interp){
   }
 
   /* Clean up the output abstraction. */
-  if( interp->pVtab && interp->pVtab->out.dispose ){
-      interp->pVtab->out.dispose( interp->pVtab->out.pState );
+  if( interp->pVtab && interp->pVtab->out.xDispose ){
+      interp->pVtab->out.xDispose( interp->pVtab->out.pState );
   }
   
   /* Delete the contents of the global frame. */
@@ -2808,6 +2798,16 @@ int Th_RegisterCommands( Th_Interp * interp,
    but that didn't seem appropriate.
 */
 
+/*
+** Th_Output_f() impl which redirects output to a Th_Ob_Manager.
+** Requires that pState be a (Th_Ob_Man*).
+*/
+static int Th_Output_f_ob( char const * zData, int len, void * pState );
+
+/*
+** Th_Output::dispose() impl which requires pState to be-a Th_Ob_Manager.
+*/
+static void Th_Output_dispose_ob( void * pState );
 
 /* Empty-initialized Th_Ob_Manager instance. */
 #define Th_Ob_Man_empty_m { \
@@ -2866,7 +2866,7 @@ int Th_Output_f_ob( char const * zData, int len, void * pState ){
   return len;
 }
 
-static void Th_Output_dispose_ob( void * pState ){
+void Th_Output_dispose_ob( void * pState ){
   /* possible todo: move the cleanup logic from
      Th_Ob_Pop() to here? */
 #if 0
@@ -2942,9 +2942,17 @@ Blob * Th_Ob_Pop( Th_Ob_Manager * pMan ){
     rc = pMan->aBuf[pMan->cursor];
     pMan->aBuf[pMan->cursor] = NULL;
     theOut = &pMan->aOutput[pMan->cursor];
-    if( theOut->dispose ){
-      theOut->dispose( theOut->pState );
+#if 0
+    /* We need something like this (but not this!) if we extend the
+       support to use other (non-Blob) proxies. We will likely need
+       another callback function or two for that case, e.g. xStart()
+       and xEnd(), which would be called when they are pushed/popped
+       to/from the stack.
+    */
+    if( theOut->xDispose ){
+      theOut->xDispose( theOut->pState );
     }
+#endif
     pMan->interp->pVtab->out = *theOut;
     pMan->aOutput[pMan->cursor] = Th_Vtab_OutputMethods_empty;
     if(-1 == --pMan->cursor){

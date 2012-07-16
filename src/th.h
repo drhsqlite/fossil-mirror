@@ -49,11 +49,11 @@ typedef int (*Th_Output_f)( char const * zData, int len, void * pState );
 ** buffers.
 */
 struct Th_Vtab_OutputMethods {
-  Th_Output_f write;   /* output handler */
-    void (*dispose)( void * pState ); /* Called when the framework is done with
+  Th_Output_f xWrite;   /* output handler */
+    void (*xDispose)( void * pState ); /* Called when the framework is done with
                                          this output handler,passed this object's
                                          pState pointer.. */
-  void * pState;   /* final argument for write() and dispose()*/
+  void * pState;   /* final argument for xWrite() and xDispose()*/
   char enabled;    /* if 0, Th_Output() does nothing. */
 };
 typedef struct Th_Vtab_OutputMethods Th_Vtab_OutputMethods;
@@ -99,7 +99,7 @@ typedef struct Th_Interp Th_Interp;
 
 /* 
 ** Creates a new interpreter instance using the given v-table. pVtab
-** must outlive the returned object, and pVtab->out.dispose() will be
+** must outlive the returned object, and pVtab->out.xDispose() will be
 ** called when the interpreter is cleaned up. The optional "ob" API
 ** swaps out Vtab::out instances, so pVtab->out might not be active
 ** for the entire lifetime of the interpreter.
@@ -373,9 +373,9 @@ char Th_OutputEnabled( Th_Interp *pInterp );
 int Th_Output_f_FILE( char const * zData, int len, void * pState );
 
 /*
-** A Th_Vtab_OutputMethods::dispose() impl for FILE handles. If pState is not
+** A Th_Vtab_OutputMethods::xDispose() impl for FILE handles. If pState is not
 ** one of the standard streams (stdin, stdout, stderr) then it is
-** fclose()d.
+** fclose()d by this call.
 */
 void Th_Output_dispose_FILE( void * pState );
 
@@ -446,7 +446,12 @@ int Th_RegisterCommands( Th_Interp * interp, Th_Command_Reg const * pList );
 
 #ifdef TH_ENABLE_OB
 /*
-** Output buffer stack manager for TH. Used/managed by the Th_ob_xxx() functions.
+** Output buffer stack manager for TH. Used/managed by the Th_ob_xxx()
+** functions. This class manages Th_Interp::pVtab->out for a specific
+** interpreter, swapping it in and out in order to redirect output
+** generated via Th_Output() to internal buffers. The buffers can be
+** pushed and popped from the stack, allowing clients to selectively
+** capture output for a given block of TH1 code.
 */
 struct Th_Ob_Manager {
   Blob ** aBuf;        /* Stack of Blobs */
