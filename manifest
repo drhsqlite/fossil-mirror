@@ -1,5 +1,5 @@
-C cherry-picked\s[4295728159451e0d].
-D 2012-07-16T14:37:28.612
+C Separate\sthe\sdownload\slinks\son\sthe\s"info"\sand\s"ci"\spages\sonto\sa\sseparate\nline\swith\sa\sseparate\slabel.
+D 2012-07-17T16:55:21.727
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 56ebb64906cfda67d19484c145664b7f193c1f2d
+F src/info.c b966edd59c586f5bdbd862472e1850182f9d5ad0
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9f83e033a2304a95eae85a1676cc78ea21370fa1
-R 52c3f4def4f4e137ff25d8b339136ae3
-U stephan
-Z a87b8b019b10344c990d4e18078d44ec
+P a7eb71475810af4edb06ddf5b21fef2300e8c4ad
+R 03cd3897530dc1080c52ac46ea1c59b8
+U drh
+Z 01d7e81ad43978261c6f5b9cee93b18b
