@@ -1,5 +1,5 @@
-C /ci_edit\snow\sauto-checks\sthe\sAdd\sTag\scheckbox\sif\sthe\suser\stypes\sin\sthe\stag\sname\sfield.\sThanks\sto\sNolan\sD.\sfor\sthe\ssuggestion\sand\sSteve\sH.\sfor\sthe\sgraceful\ssolution.
-D 2012-07-19T18:41:16.687
+C Automatically\scheck\sboth\s"Tags:"\sand\s"Branching:"\sboxes\swhen\stext\sis\sentered\ninto\sthe\sname\sfields\son\sthe\s"ci_edit"\spage.
+D 2012-07-19T18:53:22.543
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 0ff4cb774a5b96c6c2de4f3456b66eedb1aee51a
+F src/info.c 1fd0218f49a3fd39d10d4af82936a50cfd959a4d
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c0f268ff3fd2b0b12d936ac0e3c9b7418e908af
-R afed483102e686fca47ddb7f556adb0e
-U stephan
-Z 5351291f0d082dfda35021ef50288842
+P 542f989a27d923f99786dc8b47311aeeb2a772d2
+R 4bab7bff6dde8056a2eec8aeb9d21af5
+U drh
+Z faf05d7bfe0aacd86bce261cfa4b37ee
