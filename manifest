@@ -1,5 +1,5 @@
-C Automatically\scheck\sboth\s"Tags:"\sand\s"Branching:"\sboxes\swhen\stext\sis\sentered\ninto\sthe\sname\sfields\son\sthe\s"ci_edit"\spage.
-D 2012-07-19T18:53:22.543
+C Create\sa\sjavascript\sfunction\s$(id)\swhich\sis\san\salias\sfor\s\ndocument.getElementById(id).\s\sUse\sthe\s$(id)\sfunction\severywhere\sthat\ndocument.getElementById(id)\swas\sused.
+D 2012-07-19T21:44:32.609
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 1fd0218f49a3fd39d10d4af82936a50cfd959a4d
+F src/info.c 2a1597419d222d4baa9d15c6b0a63825e0119fff
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -113,7 +113,7 @@ F src/json_timeline.c 22b41d51a82ec272ae312ff858642dd4dccc56e5
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
+F src/login.c 9593f2721951e285805e7f74c4ef156d74dca211
 F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
 F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -146,7 +146,7 @@ F src/sqlite3.c 37b3ef49d73cdfe6909c35f5fd7d586835eee6b2
 F src/sqlite3.h 30e827673bcf04cd8d8dac57e3b5b90d666d6148
 F src/stash.c 81347a619ea41772d3063de61e0caa83c4f6da2d
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
-F src/style.c 44536c4a1d7587cc227ddf9b9b330ac36754403f
+F src/style.c 433f48ccc240f35ca7066b175c34974808a69cd6
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
@@ -155,7 +155,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c f60e4d5f59b226173fc6cc84d6069dff7a7fe95c
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
-F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
+F src/timeline.c 163ffb8914df5b0d622455b9d9ccdd538c610a11
 F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
 F src/tktsetup.c 9bbae8cc78bda8c3fe5a9a2533f833682e9b712e
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 542f989a27d923f99786dc8b47311aeeb2a772d2
-R 4bab7bff6dde8056a2eec8aeb9d21af5
+P b2164fb70c0e4d052d6b60e3bc2e9f0da750d940
+R 404e628ed9a8e10ea6278ff65b552124
 U drh
-Z faf05d7bfe0aacd86bce261cfa4b37ee
+Z ae7cceb4977ce3344b1610331469889c

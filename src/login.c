@@ -596,7 +596,7 @@ void login_page(void){
   @ </tr>
   @ </table>
   @ <script type="text/JavaScript">
-  @   document.getElementById('u').focus()
+  @   $('u').focus()
   @   function chngAction(form){
   if( g.sslNotAvailable==0
    && memcmp(g.zBaseURL,"https:",6)!=0
@@ -637,8 +637,7 @@ void login_page(void){
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
-        @  onclick="document.getElementById('u').value='anonymous';
-        @           document.getElementById('p').value='%s(zDecoded)';" />
+        @  onclick="$('u').value='anonymous'; $('p').value='%s(zDecoded)';" />
     }
     @ </div>
     free(zCaptcha);
