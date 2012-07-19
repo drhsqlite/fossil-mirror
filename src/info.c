@@ -481,6 +481,7 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+    const char *zBranch;
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -490,6 +491,9 @@ void ci_page(void){
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
+    zBranch = db_text("trunk",
+                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
+                   TAG_BRANCH, rid);
     zUser = db_column_text(&q, 2);
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
@@ -561,18 +565,29 @@ void ci_page(void){
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
       db_finalize(&q);
-      @ </td></tr>
-      @ <tr><th>Other&nbsp;Links:</th>
-      @   <td>
-      @     %z(href("%R/dir?ci=%S",zUuid))files</a>
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);
-        @ | %z(href("%s",zUrl))Tarball</a>
+        @ </td></tr>
+        @ <tr><th>Downloads:</th><td>
+        @ %z(href("%s",zUrl))Tarball</a>
         @ | %z(href("%R/zip/%s-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
+#if 0
+      if( isLeaf && fossil_strcmp(zBranch,"trunk")!=0 ){
+        @ </td></tr>
+        @ <tr><th>Diffs:</th><td>
+        @ %z(href("%R/vdiff?branch=%t",zBranch))Changes in %h(zBranch)</a>
+        @ | %z(href("%R/vdiff?from=trunk&to=%t",zBranch))Changes
+        @         from trunk</a>
+      }
+#endif
+      @ </td></tr>
+      @ <tr><th>Other&nbsp;Links:</th>
+      @   <td>
+      @     %z(href("%R/dir?ci=%S",zUuid))files</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       if( g.perm.Write ){
         @   | %z(href("%R/ci_edit?r=%S",zUuid))edit</a>

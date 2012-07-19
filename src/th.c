@@ -2479,7 +2479,8 @@ static int sqlite3IsNumber(const char *z, int *realnum){
 
 /*
 ** The string z[] is an ascii representation of a real number.
-** Convert this string to a double.
+** Convert this string to a double and assigns its value to
+** pResult.
 **
 ** This routine assumes that z[] really is a valid number.  If it
 ** is not, the result is undefined.
@@ -2488,6 +2489,8 @@ static int sqlite3IsNumber(const char *z, int *realnum){
 ** the library atof() might want to use "," as the decimal point instead
 ** of "." depending on how locale is set.  But that would cause problems
 ** for SQL.  So this routine always uses "." regardless of locale.
+**
+** Returns the number of bytes of z consumed in parsing the value.
 */
 static int sqlite3AtoF(const char *z, double *pResult){
   int sign = 1;

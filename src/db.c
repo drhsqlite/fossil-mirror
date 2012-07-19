@@ -1029,7 +1029,7 @@ int db_schema_is_outofdate(void){
 ** Return true if the database is writeable
 */
 int db_is_writeable(const char *zName){
-  return !sqlite3_db_readonly(g.db, db_name(zName));
+  return g.db!=0 && !sqlite3_db_readonly(g.db, db_name(zName));
 }
 
 /*
