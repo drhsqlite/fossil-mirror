@@ -2009,7 +2009,8 @@ void ci_edit_page(void){
   @ <td valign="top">
   @ <input type="checkbox" name="newtag"%s(zNewTagFlag) />
   @ Add the following new tag name to this check-in:
-  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)" />
+  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
+  @  onkeyup="var cb = document.getElementsByName('newtag'); cb=cb?cb[0]:false; if(cb) cb.checked = !!this.value"/>
   db_prepare(&q,
      "SELECT tag.tagid, tagname FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
