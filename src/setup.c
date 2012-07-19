@@ -1168,7 +1168,7 @@ void setup_settings(void){
       }
     }
   }
-  @ </td><td style="width: 30;"></td><td valign="top">
+  @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     if( pSet->width!=0 ){
       entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
