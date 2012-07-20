@@ -569,7 +569,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
-    @ var canvasDiv = $("canvas");
+    @ var canvasDiv = gebi("canvas");
 #if 0
     @ var realCanvas = null;
 #endif
@@ -589,7 +589,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   canvasDiv.appendChild(n);
     @ }
     @ function absoluteY(id){
-    @   var obj = $(id);
+    @   var obj = gebi(id);
     @   if( !obj ) return;
     @   var top = 0;
     @   if( obj.offsetParent ){
@@ -600,7 +600,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   return top;
     @ }
     @ function absoluteX(id){
-    @   var obj = $(id);
+    @   var obj = gebi(id);
     @   if( !obj ) return;
     @   var left = 0;
     @   if( obj.offsetParent ){
@@ -689,7 +689,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   }
     @ }
     @ function renderGraph(){
-    @   var canvasDiv = $("canvas");
+    @   var canvasDiv = gebi("canvas");
     @   while( canvasDiv.hasChildNodes() ){
     @     canvasDiv.removeChild(canvasDiv.firstChild);
     @   }
@@ -706,7 +706,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
     @        'style="position:absolute;left:'+(left-5)+'px;"' +
     @        ' width="'+width+'" height="'+btm+'"><'+'/canvas>';
-    @     realCanvas = $('timeline-canvas');
+    @     realCanvas = gebi('timeline-canvas');
     @   }else{
     @     realCanvas = 0;
     @   }
