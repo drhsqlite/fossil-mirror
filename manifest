@@ -1,5 +1,5 @@
-C Replaced\s$(x)\swith\sgebi(x),\sas\sper\sML\sdiscussion.
-D 2012-07-20T15:06:50.018
+C /json/dir\snow\srequires\sRead\s("o"),\sinstead\sof\sHyperlink\s("h")\spermission,\sanalog\sto\scheckin\s[ded8615f95].
+D 2012-07-20T15:19:07.201
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -103,7 +103,7 @@ F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h cbecd775dde197239936851398ed5631b5727620
 F src/json_diff.c eb741b86584388e0eb6b8bbc266d3d0439f170e5
-F src/json_dir.c bce4d0459f63c09a94c06e3fa94e2734161341db
+F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ded8615f952666328b656e506fe4eedb516cd21f
-R 1d0217f2ad9a63b4c8b39fdd04499910
+P dfce20e487f3c86f598a9d4ca6e02231c8a0c503
+R 3bc05b69779ce70a2dd269ee07281ff5
 U stephan
-Z 5dce91352aaf9fe8b33b6cdd2464ca58
+Z c3789cec0924a1f24561197b120789c3
