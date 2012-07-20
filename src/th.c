@@ -2896,12 +2896,13 @@ int Th_Ob_Push( Th_Ob_Manager * pMan,
 
   if( pMan->cursor >= pMan->nBuf-2 ){
     /* expand if needed */
+    void * re;
     x = pMan->nBuf + 5;
     if( pMan->cursor >= x ) {
       assert( 0 && "This really should not happen." );
       x = pMan->cursor + 5;
     }
-    void * re = Th_Realloc( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
+    re = Th_Realloc( pMan->interp, pMan->aBuf, x * sizeof(Blob*) );
     if(NULL==re){
       goto error;
     }
@@ -2976,6 +2977,7 @@ int Th_Ob_PopAndFree( Th_Ob_Manager * pMan ){
   else {
     blob_reset(b);
     Th_Free( pMan->interp, b );
+    return 0;
   }
 }
 

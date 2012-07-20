@@ -1,5 +1,5 @@
-C Removed\sunneeded\sth.c/blob.h\sdep\s(having\sit\sdoes\snot\sfix\sparallel\sbuilds).
-D 2012-07-20T11:56:05.322
+C Fixed\sa\sc99ism\sand\sa\smissing\sreturn\sstatement.
+D 2012-07-20T18:54:11.684
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -150,7 +150,7 @@ F src/style.c 1435e8a549f4b27dbf04a322bbead5d3061e251c
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
-F src/th.c 61b51a92096ab3033c38b6ad2acab23fdb8b7e89
+F src/th.c 27c40633c5ee4c04e8cbb88fb9ef2a018ed5feff
 F src/th.h 472a2118c2b6e44c53849ae1b5de74846df0076d
 F src/th_lang.c ab9f8c3844a4e4d824be3c563b567ec507dd4cf3
 F src/th_main.c 868f744286a3755db4e7b3ecaea820a1b1e1e3b8
@@ -370,7 +370,7 @@ F www/th1_query.wiki 2ee2fbda869da91a84fc3491fcbfa1045961a913
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 56db35330d0e19569e38f56647866bed64c3cff4
-R 53bd5ea7170f6684d9a0c03d1545c3b2
+P dff26b750e4c3ce7c0eace7f15a767957564ad84
+R eccb8df64d8e9ea2ad4630d80ad8a523
 U stephan
-Z 40ab85d664d868bcb8156e77f7e29cae
+Z f7136319620f277cf3c0d10de6b7a8ec
