@@ -1,5 +1,5 @@
-C Merged\sin\s[0c0f268ff3],\sminor\sth1-internal\sdoc\saddition.
-D 2012-07-19T18:03:39.230
+C Removed\sunneeded\sth.c/blob.h\sdep\s(having\sit\sdoes\snot\sfix\sparallel\sbuilds).
+D 2012-07-20T11:56:05.322
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -115,10 +115,10 @@ F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
 F src/main.c dde983130456bceb9804b53980c1c0242fe7f52c
-F src/main.mk 780cd00c1adb1689c62560f915ef5fb2e039f166
+F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 23b086cdeb569940c8ccb5ed6044b0eb3e6ebdb1
+F src/makemake.tcl 6d4c58e8bc507740dc9c2b01f38e01af84f12d99
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
@@ -253,7 +253,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 2a5d0a7aabe39bc44d223222ce5eb6558eb27110
-F win/Makefile.mingw 31bef5fdfc2ac24978c93d3dc1a7bc24a4cd39f1
+F win/Makefile.mingw 7bc8231cff4b8ec817916ba300cabe914c5738f8
 F win/Makefile.mingw.mistachkin a05666460b7b2b1fef41d07221851c7e0587729f
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc a744e23c62419245ae04cbbc2cc92c3649e3e014
@@ -370,7 +370,7 @@ F www/th1_query.wiki 2ee2fbda869da91a84fc3491fcbfa1045961a913
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 27dc9b0b3856354278fbd9a7a5e23d4ab10fc363 0c0f268ff3fd2b0b12d936ac0e3c9b7418e908af
-R 1c41dca11280c5c8d6ee3b84dd28b85f
+P 56db35330d0e19569e38f56647866bed64c3cff4
+R 53bd5ea7170f6684d9a0c03d1545c3b2
 U stephan
-Z 35a70e0931cca2c7195b8ceb84547649
+Z 40ab85d664d868bcb8156e77f7e29cae
