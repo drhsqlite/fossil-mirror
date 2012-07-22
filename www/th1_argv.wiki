@@ -2,7 +2,8 @@
 
 The "argv" API provides features for accessing command-line arguments
 and GET/POST values. They (unfortunately) do not provide access to
-POST data submitted in JSON mode.
+POST data submitted in JSON mode (which fossil internally doesn't really
+know about).
 
 Example usage:
 
@@ -14,6 +15,10 @@ set appName [argv at 0]
 set foo [argv getstr foo f "default value"]
 &lt;th1>
 </pre></nowiki>
+
+(Note that fossil does not actually care if an argument starts
+with 1 or 2 dashes. The convention of using 1 for "short-form"
+flags and 2 for "long-form" is purely historical.)
 
 The various subcommands are described below...
 
@@ -28,14 +33,15 @@ set argc [argv len]
 
 <h2>at</h2>
 
-Fetches the argument at the given index.
+Fetches the argument at the given index (0-based).
 
 <nowiki><pre>
 set arg [argv at 3]
 </pre></nowiki>
 
+The fossil binary's name is stored in argument #0.
 
-<h2>getstr</h2>
+<h2>getstr|string</h2>
 
 Searches for a CLI/GET/POST parameter. In CLI this function has some
 non-intuitive behaviour inherited from fossil's internals: once a
@@ -43,7 +49,7 @@ flag/parameter is fetched, it is removed from the internal arguments
 list, meaning that this function will never see it a second time.
 
 <nowiki><pre>
-set something [argv getstr "something" "S" "default"]
+set something [argv string "something" "S" "default"]
 </pre></nowiki>
 
 If no default value is provided, an error is triggered if the value is
@@ -52,24 +58,23 @@ not found.
 If you do not want to search for a short-form flag, set it to an empty
 string.
 
-BUG: flag checking does not work properly in CGI mode when using
-upper-case flags (apparently due to historic special-case behaviour in
-fossil for upper-case vars).
+NOTE: flag checking does not work in CGI mode when using <em>upper-case</em>
+flags (fossil treats upper-case names as environment variables).
 
-<h2>getbool</h2>
+<h2>getbool|bool</h2>
 
 Works almost like <tt>getstr</tt> but searches for boolean flags. CLI boolean flags
 have no explicit value, and are "true" if the are set at all.
 
 <nowiki><pre>
-set doSomething [argv getbool "do-something" "D" 0]
+set doSomething [argv bool "do-something" "D" 0]
 </pre></nowiki>
 
-<h2>getint</h2>
+<h2>getint|int</h2>
 
 Works almost like <tt>getstr</tt> but searches for integer flags.
 
 
 <nowiki><pre>
-set limit [argv getbool "limit" "L" 10]
+set limit [argv int "limit" "L" 10]
 </pre></nowiki>

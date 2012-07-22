@@ -107,19 +107,17 @@ for {set i 0} {$i < $ARGC} {incr i} {
 }
 
 set magicDefault hi
-set optA [argv getstr AA a $magicDefault]
-puts "argv getstr AA = " $optA \n
+set optA [argv string AA a $magicDefault]
+puts "argv string AA = " $optA \n
 
-set optA [argv getbool BB b 0]
-puts "argv getbool BB = " $optA \n
+set optA [argv bool BB b 0]
+puts "argv bool BB = " $optA \n
 
 set exception 0
 catch {
-    argv getint noSuchOptionAndNoDefault
+    argv int noSuchOptionAndNoDefault
 } exception
 puts exception = $exception "\n"
-
-enable_output 1
 
 proc multiStmt {} {
     set max 5
@@ -155,6 +153,5 @@ proc multiStmt {} {
 }
 multiStmt
 
-enable_output 1
 puts "If you got this far, you win!\n"
 </th1>

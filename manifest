@@ -1,5 +1,5 @@
-C Reduced\sthe\sset\sof\sth1-exported\sSQLITE_xxx\sconstants\sto\sthose\swhich\sare\sactually\sused\sin\sscript\sAPIs.\sMinor\sdoc\supdates.
-D 2012-07-22T11:55:56.780
+C Minor\susage\ssimplifications\sin\sthe\sth1\sargv\sAPI.
+D 2012-07-22T13:11:44.514
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -153,7 +153,7 @@ F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 27c40633c5ee4c04e8cbb88fb9ef2a018ed5feff
 F src/th.h 472a2118c2b6e44c53849ae1b5de74846df0076d
 F src/th_lang.c ab9f8c3844a4e4d824be3c563b567ec507dd4cf3
-F src/th_main.c a40ce027fc6fb2493838490255cddb520ebe3330
+F src/th_main.c 1478f496f44cce64e3da9ae66f42cb820dfbc2f5
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
@@ -185,7 +185,7 @@ F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 6a36e538b94982e84c1fcddcfe62d12e2141d0ee
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-ob-1.th1 1e5d7dc9257536ae0a7476cef916879d05c71dae
-F test/th1-query-api-1.th1 e0914337eda5446f3d24ac2c214e48fc3c86d57f
+F test/th1-query-api-1.th1 1a4e97a91bb3b1e7b5fdc29e98b6344fe41ea397
 F test/th1-query-api-2.th1 b1be1fd9a07ef1e6bed0b814b05c1df33d93e561
 F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
@@ -364,13 +364,13 @@ F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
 F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
-F www/th1_argv.wiki a2231c611e8e3b525864f1314f4f1f2764947067
+F www/th1_argv.wiki b41d2b9dea2d13922bbe2548cc7aa094a328b732
 F www/th1_ob.wiki 5f30dc8f80503ec1000dfbea819eed54e7cf3de2
 F www/th1_query.wiki 9653f738180f6387e77eaf31d4c7a4d43d14fd82
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2b4b2a5091dc81ae770c47f915210d4be3275710
-R bd22bc8eb94c0681334b67df4076ab7d
+P 8e0405513321df912a3abb64d92f6b3767746c0f
+R ec3320841ec4a57f6ef9993341d764a3
 U stephan
-Z 335f303d3b308a1068a7e2939fefd783
+Z ef79c9dbd50dba2f16d0968a7ccb0fa5

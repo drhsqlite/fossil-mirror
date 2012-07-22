@@ -635,7 +635,7 @@ static int argvGetAtCmd(
 ** If defaultValue is provided, shortName must also be provided
 ** but it may be empty. For example:
 **
-** set foo [argv_getstr foo "" "hi, world"]
+** set foo [argv getstr foo "" "hi, world"]
 **
 ** ACHTUNG: find_option() removes any entries it finds from
 ** g.argv, such that future calls to find_option() will not
@@ -849,8 +849,11 @@ static int argvTopLevelCmd(
     {"len",      argvArgcCmd},
     {"at",       argvGetAtCmd},
     {"getstr",   argvFindOptionStringCmd},
+    {"string",   argvFindOptionStringCmd},
     {"getbool",  argvFindOptionBoolCmd},
+    {"bool",     argvFindOptionBoolCmd},
     {"getint",   argvFindOptionIntCmd},
+    {"int",      argvFindOptionIntCmd},
     {0, 0}
   };
   Th_CallSubCommand2( interp, ctx, argc, argv, argl, aSub );
