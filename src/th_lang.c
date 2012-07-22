@@ -373,6 +373,9 @@ static int proc_call2(Th_Interp *interp, void *pContext1, void *pContext2){
       Th_ListAppend(interp, &zArgs, &nArgs, pArgs->argv[i], pArgs->argl[i]);
     }
     Th_SetVar(interp, (const char *)"args", -1, zArgs, nArgs);
+    if(zArgs){
+      Th_Free(interp, zArgs);
+    }
   }
 
   Th_SetResult(interp, 0, 0);
