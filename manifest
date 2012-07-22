@@ -1,5 +1,5 @@
-C /json/dir\snow\srequires\sRead\s("o"),\sinstead\sof\sHyperlink\s("h")\spermission,\sanalog\sto\scheckin\s[ded8615f95].
-D 2012-07-20T15:19:07.201
+C Pulled\sin\sminor\smemleak\sfix\s[bee0036681].
+D 2012-07-22T17:40:20.322
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -152,7 +152,7 @@ F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
-F src/th_lang.c f60e4d5f59b226173fc6cc84d6069dff7a7fe95c
+F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dfce20e487f3c86f598a9d4ca6e02231c8a0c503
-R 3bc05b69779ce70a2dd269ee07281ff5
+P 625ed00498b13f22dab2a837f960cb062e9a5c74
+R aaba94e68bc702b3fd9b99eadc2aed37
 U stephan
-Z c3789cec0924a1f24561197b120789c3
+Z 1d8bc38963323df9303ac0c8366f2b1e
