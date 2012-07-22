@@ -125,7 +125,7 @@ void style_resolve_href(void){
   if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
-  @ function u(i,h){ document.getElementById(i).href=h; }
+  @ function u(i,h){gebi(i).href=h;}
   for(i=0; i<nHref; i++){
     @ u(%d(i+1),"%s(aHref[i])");
   }
@@ -175,7 +175,8 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
-  cgi_printf("%s","<!DOCTYPE html>");
+
+  @ <!DOCTYPE html>
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
@@ -201,6 +202,22 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+
+  /* Make the gebi(x) function available as an almost-alias for
+  ** document.getElementById(x) (except that it throws if the element is not found).
+  **
+  ** Maintenance note: this function must of course be available
+  ** before it is called. It "should" go in the HEAD so that client
+  ** HEAD code can make use of it, but because the client can replace
+  ** the HEAD, and some fossil pages rely on gebi(), we put it here.
+  */
+  @ <script>
+  @ function gebi(x){
+  @ if(/^#/.test(x)) x = x.substr(1);
+  @ var e = document.getElementById(x);
+  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ else return e;}
+  @ </script>
 }
 
 /*

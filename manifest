@@ -1,5 +1,5 @@
-C Fixed\sa\smemleak\sin\sthe\sth1\svariadic\sproc\sargs\ssupport.
-D 2012-07-22T16:54:38.566
+C merged\sin\strunk\s[11abffbb497d67a],\sadded\sa\stest\sscript\sto\scheck\sa\sth1\smemleak\scase.
+D 2012-07-22T17:59:58.009
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -63,7 +63,7 @@ F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
 F src/blob.c 0f042d1f79357ed5293b18f2aed7fc754cffb654
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
-F src/browse.c 0e21319cfcbe615ce80ba2b8d9d4326b67e5189d
+F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c a8ab196d8088546057193c3481f45720310104ba
 F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
@@ -96,14 +96,14 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c b966edd59c586f5bdbd862472e1850182f9d5ad0
+F src/info.c 7bcda31e8d7a647311236c1e067d874621fed21c
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h cbecd775dde197239936851398ed5631b5727620
 F src/json_diff.c eb741b86584388e0eb6b8bbc266d3d0439f170e5
-F src/json_dir.c bce4d0459f63c09a94c06e3fa94e2734161341db
+F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c 8129423296347faa4d63a9ad2f0bd3abdfb9c3c4
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
@@ -113,7 +113,7 @@ F src/json_timeline.c 22b41d51a82ec272ae312ff858642dd4dccc56e5
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c a59fff19706baf93cab23f6098b0bdc638dc53bb
+F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
 F src/main.c dde983130456bceb9804b53980c1c0242fe7f52c
 F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -136,7 +136,7 @@ F src/report.c aa35f95abbd48ca74ef8e1efd1d8a2c5d5cef8a0
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 522bf0aea55d7b9342307a3632ed6d2f2f00d982
+F src/setup.c 0e5a18204c297d658ced452641b6565489018a49
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c a69cc006d6f547f4aec57ee91e1b8a3405a6a22c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -146,7 +146,7 @@ F src/sqlite3.c 37b3ef49d73cdfe6909c35f5fd7d586835eee6b2
 F src/sqlite3.h 30e827673bcf04cd8d8dac57e3b5b90d666d6148
 F src/stash.c 81347a619ea41772d3063de61e0caa83c4f6da2d
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
-F src/style.c 1435e8a549f4b27dbf04a322bbead5d3061e251c
+F src/style.c 97d571cffa6a4c4a1c4463c2d30e25a279532910
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c f286bf17c6862848284206d6beb4c5b4df3866d5
@@ -155,7 +155,7 @@ F src/th.h 472a2118c2b6e44c53849ae1b5de74846df0076d
 F src/th_lang.c c4c3211c2f3d004db5a7aa1f83fedbe4a7bfb0e5
 F src/th_main.c 1478f496f44cce64e3da9ae66f42cb820dfbc2f5
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
-F src/timeline.c bb0f2f96082d0171d1db6eaaf697fa800f2820c2
+F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c cc6228e7573de21a3a573b3b4d60687cf05a9c87
 F src/tktsetup.c 9bbae8cc78bda8c3fe5a9a2533f833682e9b712e
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -196,6 +196,7 @@ F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
 F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
+F test/th1-variadic-proc.th1 8e13b9cae45a1d8c93deec9fc6160a6132a7a29d
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -370,7 +371,7 @@ F www/th1_query.wiki 9653f738180f6387e77eaf31d4c7a4d43d14fd82
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 24b9fbca0fb2202874c3289c328f7cc04459078a
-R 71af58127f024dd7575c393420ae128b
+P bee00366812f437af172118505a72f5cca76053c 11abffbb497d67a12b9daa24783aabd68d07da97
+R 05f7b2eba695c2002129cde599f709d0
 U stephan
-Z f61d37558345ae0c92335378bd5681b8
+Z 14b30948ffedacc36ee7f9a2fad57378

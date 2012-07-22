@@ -1,0 +1,10 @@
+<th1>
+proc vfunc {args} {
+  set argc [llength $args]
+  puts "argc=$argc Check this for a memleak when args length > 0\n"
+}
+vfunc
+vfunc 1
+vfunc 1 2
+vfunc 1 2 3
+</th1>

@@ -1390,11 +1390,7 @@ static void output_text_with_line_numbers(
   if( n<iEnd ) cgi_printf("</div>");
   @ </pre>
   if( iStart ){
-    @ <script type="text/JavaScript">
-    @ /* <![CDATA[ */
-    @ document.getElementById('topln').scrollIntoView(true);
-    @ /* ]]> */
-    @ </script>
+    @ <script>gebi('topln').scrollIntoView(true);</script>
   }
 }
 
@@ -2007,9 +2003,10 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" name="newtag"%s(zNewTagFlag) />
+  @ <input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
   @ Add the following new tag name to this check-in:
-  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)" />
+  @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
+  @ onkeyup="gebi('newtag').checked=!!this.value" />
   db_prepare(&q,
      "SELECT tag.tagid, tagname FROM tagxref, tag"
      " WHERE tagxref.rid=%d AND tagtype>0 AND tagxref.tagid=tag.tagid"
@@ -2038,9 +2035,10 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Branching:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ <input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
   @ Make this check-in the start of a new branch named:
-  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)" />
+  @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
+  @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
 
   if( is_a_leaf(rid)

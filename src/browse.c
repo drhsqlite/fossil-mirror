@@ -122,7 +122,7 @@ void page_dir(void){
   const char *zSubdirLink;
 
   login_check_credentials();
-  if( !g.perm.Hyperlink ){ login_needed(); return; }
+  if( !g.perm.Read ){ login_needed(); return; }
   while( nD>1 && zD[nD-2]=='/' ){ zD[(--nD)-1] = 0; }
   style_header("File List");
   sqlite3_create_function(g.db, "pathelement", 2, SQLITE_UTF8, 0,
