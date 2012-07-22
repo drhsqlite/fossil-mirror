@@ -2019,14 +2019,17 @@ int th_register_query(Th_Interp *interp){
 #define SET(K) l = snprintf(buf, BufLen, "%d", K);      \
   Th_SetVar( interp, #K, strlen(#K), buf, l );
   SET(SQLITE_BLOB);
-  SET(SQLITE_DONE);
-  SET(SQLITE_ERROR);
   SET(SQLITE_FLOAT);
   SET(SQLITE_INTEGER);
   SET(SQLITE_NULL);
+  SET(SQLITE_TEXT);
+#if 0
+  /* so far we don't need these in script code */
+  SET(SQLITE_ERROR);
+  SET(SQLITE_DONE);
   SET(SQLITE_OK);
   SET(SQLITE_ROW);
-  SET(SQLITE_TEXT);
+#endif
 #undef SET
   int rc = TH_OK;
   static Th_Command_Reg aCommand[] = {

@@ -92,7 +92,7 @@ if { 0 != $rc } {
         puts "ERROR: $rc\n"
 }
 
-set consts [list SQLITE_BLOB SQLITE_DONE SQLITE_ERROR SQLITE_FLOAT SQLITE_INTEGER SQLITE_NULL SQLITE_OK SQLITE_ROW SQLITE_TEXT]
+set consts [list SQLITE_BLOB SQLITE_FLOAT SQLITE_INTEGER SQLITE_NULL SQLITE_TEXT]
 #set consts $SQLITE_CONSTANTS
 puts consts = $consts "\n"
 for {set i 0} {$i < [llength $consts]} {incr i} {
