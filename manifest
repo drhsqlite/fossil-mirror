@@ -1,5 +1,5 @@
-C Fixed\sa\sc99ism\sand\sa\smissing\sreturn\sstatement.
-D 2012-07-20T18:54:11.684
+C minor\sth1\sdoc\sand\sscript\scode\scleanups.
+D 2012-07-22T11:39:04.123
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -185,8 +185,8 @@ F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki 6a36e538b94982e84c1fcddcfe62d12e2141d0ee
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-ob-1.th1 1e5d7dc9257536ae0a7476cef916879d05c71dae
-F test/th1-query-api-1.th1 72a69e7ac53f6c4df646cb816f65c7343bdb246c
-F test/th1-query-api-2.th1 478b8124d46071f9e033800e0157169de8cab3e9
+F test/th1-query-api-1.th1 5f4d9252c24fdc24c13a62e1fa00111951050993
+F test/th1-query-api-2.th1 b1be1fd9a07ef1e6bed0b814b05c1df33d93e561
 F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
 F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
@@ -366,11 +366,11 @@ F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/th1_argv.wiki a2231c611e8e3b525864f1314f4f1f2764947067
 F www/th1_ob.wiki 5f30dc8f80503ec1000dfbea819eed54e7cf3de2
-F www/th1_query.wiki 2ee2fbda869da91a84fc3491fcbfa1045961a913
+F www/th1_query.wiki e4985894ac6d6e0ad402eee273856592419665e2
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dff26b750e4c3ce7c0eace7f15a767957564ad84
-R eccb8df64d8e9ea2ad4630d80ad8a523
+P c01764b0d10c64480f8c3e24df329711d2f95b9d
+R 98345c2fab96cc1892728f1d158cfa03
 U stephan
-Z f7136319620f277cf3c0d10de6b7a8ec
+Z cda66d24031d5e188e7f964db9f18e60

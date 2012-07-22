@@ -8,10 +8,10 @@ catch {
     puts "stmt ID=$stmt\n"
 #    query bind int $stmt 1 2
 #    query $stmt bind int 1 2
-    query $stmt bind 1 int 2
+    query $stmt bind 1 int 5
 # segfault:    query bind 1 int $stmt 2
     set sep "\n"
-    for {} {0 < [query $stmt step]} {} {
+    for {} {[query $stmt step]} {} {
         puts [query $stmt col string 0] $sep
         puts [query $stmt col time 2 {%Y%m%d @ %H:%M:%S}] $sep
         puts [query $stmt col time 2 {%Y%m%d @ %H:%M:%S} {+10 years}] $sep

@@ -10,8 +10,8 @@ Example usage:
 catch {
     set stmt [query prepare "SELECT login, cap FROM user"]
     puts "stmt ID=$stmt\n"
-    for {} {0 < [query $stmt step]} {} {
-        puts [query $stmt col string 0] ": " [query $stmt col string 1] "\n"
+    for {} {[query $stmt step]} {} {
+        puts [query $stmt col string 0] " " [query $stmt col string 1] \n
     }
     query $stmt finalize
     return 0
