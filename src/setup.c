@@ -553,6 +553,7 @@ void user_edit(void){
   @   <td class="usetupEditLabel">Capabilities:</td>
   @   <td>
 #define B(x) inherit[x]
+  @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
     @  <label><input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup
     @  </label><br />
@@ -571,6 +572,7 @@ void user_edit(void){
   @  </label><br />
   @  <label><input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks
   @  </label><br />
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader
   @  </label><br />
   @  <label><input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer
@@ -587,6 +589,7 @@ void user_edit(void){
   @  </label><br />
   @  <label><input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments
   @  </label><br />
+  @ </td><td><td width="40"></td><td valign="top">
   @  <label><input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket
   @  </label><br />
   @  <label><input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket
@@ -601,6 +604,7 @@ void user_edit(void){
   @  </label><br />
   @  <label><input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
   @  </label>
+  @ </td></tr></table>
   @   </td>
   @ </tr>
   @ <tr>
