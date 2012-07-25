@@ -1799,6 +1799,7 @@ void ci_edit_page(void){
   const char *zCloseFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
   Stmt q;
@@ -1813,6 +1814,7 @@ void ci_edit_page(void){
   if( P("cancel") ){
     cgi_redirectf("ci?name=%s", zUuid);
   }
+  if( g.perm.Setup ) zChngTime = P("chngtime");
   zNewComment = PD("c",zComment);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
@@ -1844,7 +1846,7 @@ void ci_edit_page(void){
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
-    zNow = date_in_standard_format("now");
+    zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
@@ -1970,6 +1972,10 @@ void ci_edit_page(void){
     blob_appendf(&suffix, ")");
     @ %s(blob_str(&suffix))
     @ </td></tr></table>
+    if( zChngTime ){
+      @ <p>The timestamp on the tag used to make the changes above
+      @ will be overridden as: %s(date_in_standard_format(zChngTime))</p>
+    }
     @ </blockquote>
     @ <hr />
     blob_reset(&suffix);
@@ -1995,6 +2001,13 @@ void ci_edit_page(void){
   @ <td valign="top">
   @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
+
+  if( zChngTime ){
+    @ <tr><td align="right" valign="top"><b>Timestamp of this change:</b></td>
+    @ <td valign="top">
+    @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)" />
+    @ </td></tr>
+  }
 
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
