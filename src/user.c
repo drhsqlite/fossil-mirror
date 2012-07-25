@@ -467,23 +467,23 @@ void access_log_page(void){
   db_finalize(&q);
   @ <hr>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delold">
-  @ Delete all but the most recent 200 entries</input>
+  @ <label><input type="checkbox" name="delold">
+  @ Delete all but the most recent 200 entries</input></label>
   @ <input type="submit" name="deloldbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delanon">
-  @ Delete all entries for user "anonymous"</input>
+  @ <label><input type="checkbox" name="delanon">
+  @ Delete all entries for user "anonymous"</input></label>
   @ <input type="submit" name="delanonbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delfail">
-  @ Delete all failed login attempts</input>
+  @ <label><input type="checkbox" name="delfail">
+  @ Delete all failed login attempts</input></label>
   @ <input type="submit" name="delfailbtn" value="Delete"></input>
   @ </form>
   @ <form method="post" action="%s(g.zTop)/access_log">
-  @ <input type="checkbox" name="delall">
-  @ Delete all entries</input>
+  @ <label><input type="checkbox" name="delall">
+  @ Delete all entries</input></label>
   @ <input type="submit" name="delallbtn" value="Delete"></input>
   @ </form>
   style_footer();

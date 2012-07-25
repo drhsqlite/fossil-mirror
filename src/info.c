@@ -1693,13 +1693,13 @@ void render_color_chooser(
 
   @ <table border="0" cellpadding="0" cellspacing="1">
   if( zIdPropagate ){
-    @ <tr><td colspan="6" align="left">
+    @ <tr><td colspan="6" align="left"><label>
     if( fPropagate ){
       @ <input type="checkbox" name="%s(zIdPropagate)" checked="checked" />
     }else{
       @ <input type="checkbox" name="%s(zIdPropagate)" />
     }
-    @ Propagate color to descendants</td></tr>
+    @ Propagate color to descendants</label></td></tr>
   }
   @ <tr>
   for(i=0; i<nColor; i++){
@@ -2003,8 +2003,8 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
-  @ Add the following new tag name to this check-in:
+  @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
+  @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
   db_prepare(&q,
@@ -2019,15 +2019,16 @@ void ci_edit_page(void){
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
+    @ <br /><label>
     if( P(zLabel) ){
-      @ <br /><input type="checkbox" name="c%d(tagid)" checked="checked" />
+      @ <input type="checkbox" name="c%d(tagid)" checked="checked" />
     }else{
-      @ <br /><input type="checkbox" name="c%d(tagid)" />
+      @ <input type="checkbox" name="c%d(tagid)" />
     }
     if( strncmp(zTagName, "sym-", 4)==0 ){
-      @ Cancel tag <b>%h(&zTagName[4])</b>
+      @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }else{
-      @ Cancel special tag <b>%h(zTagName)</b>
+      @ Cancel special tag <b>%h(zTagName)</b></label>
     }
   }
   db_finalize(&q);
@@ -2035,8 +2036,8 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Branching:</b></td>
   @ <td valign="top">
-  @ <input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
-  @ Make this check-in the start of a new branch named:
+  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ Make this check-in the start of a new branch named:</label>
   @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
   @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
@@ -2048,9 +2049,9 @@ void ci_edit_page(void){
   ){
     @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
     @ <td valign="top">
-    @ <input type="checkbox" name="close"%s(zCloseFlag) />
+    @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".
+    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".</label>
     @ </td></tr>
   }
 

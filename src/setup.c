@@ -554,30 +554,53 @@ void user_edit(void){
   @   <td>
 #define B(x) inherit[x]
   if( g.perm.Setup ){
-    @    <input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup<br />
+    @  <label><input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup
+    @  </label><br />
   }
-  @    <input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin<br />
-  @    <input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete<br />
-  @    <input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email<br />
-  @    <input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password<br />
-  @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
-  @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
-  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks<br />
-  @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
-  @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
-  @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
-  @    <input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki<br />
-  @    <input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki<br />
-  @    <input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki<br />
-  @    <input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki<br />
-  @    <input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments<br />
-  @    <input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket<br />
-  @    <input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket<br />
-  @    <input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket<br />
-  @    <input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket<br />
-  @    <input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report<br />
-  @    <input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private<br />
-  @    <input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
+  @  <label><input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin
+  @  </label><br />
+  @  <label><input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete
+  @  </label><br />
+  @  <label><input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email
+  @  </label><br />
+  @  <label><input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password
+  @  </label><br />
+  @  <label><input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In
+  @  </label><br />
+  @  <label><input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out
+  @  </label><br />
+  @  <label><input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks
+  @  </label><br />
+  @  <label><input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader
+  @  </label><br />
+  @  <label><input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer
+  @  </label><br />
+  @  <label><input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone
+  @  </label><br />
+  @  <label><input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments
+  @  </label><br />
+  @  <label><input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report
+  @  </label><br />
+  @  <label><input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private
+  @  </label><br />
+  @  <label><input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
+  @  </label>
   @   </td>
   @ </tr>
   @ <tr>
