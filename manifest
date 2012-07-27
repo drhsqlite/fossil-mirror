@@ -1,5 +1,5 @@
-C Fix\sa\sfaulty\s(but\sharmless)\sinitialization\sin\sthe\sMD5\scode.
-D 2012-07-27T00:00:45.741
+C Fix\sanother\sfaulty\sthough\sharmless\smemset()\sinitialization.
+D 2012-07-27T00:26:26.665
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -126,7 +126,7 @@ F src/merge3.c deba3fa65ff782998e0dfd8bfaaf375e28105b5f
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c ae0f607314e748e2084418ae82893c40a0728de4
-F src/path.c 157d9c226ff775c5d9388666acbfd3d14ea90c62
+F src/path.c 0c676ca3ee6b4a09f00ff22a49a5bcd04880b787
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bff50b17eb9fc6c78bf75644f4ee887384b5cac2
-R e63f8f78bf76758f4181f9ac54c7f7c6
+P ed005e302de418dd20a3b86ced7f103347422a1c
+R b851b7b5b687ba56575ecf5f3c1c89db
 U drh
-Z 0de37605d7e1b7d6c8ea4429fb5d9ce4
+Z 1d837c57418bccc400ed01bdcc9fd0de

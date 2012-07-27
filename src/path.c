@@ -91,7 +91,7 @@ void path_reset(void){
     fossil_free(p);
   }
   bag_clear(&path.seen);
-  memset(&path, 0, sizeof(&path));
+  memset(&path, 0, sizeof(path));
 }
 
 /*
