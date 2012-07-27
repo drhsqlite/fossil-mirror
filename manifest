@@ -1,5 +1,5 @@
-C Removed\slegacy\scomparison\sof\suint<0\s(the\stype\sused\sto\sbe\s'long',\sIIRC).\sThanks\sto\sDoug\sC.\sfor\sthe\sreport.
-D 2012-07-26T17:27:10.217
+C Fix\sa\sfaulty\s(but\sharmless)\sinitialization\sin\sthe\sMD5\scode.
+D 2012-07-27T00:00:45.741
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -120,7 +120,7 @@ F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 6d4c58e8bc507740dc9c2b01f38e01af84f12d99
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
-F src/md5.c b3c2d3918d5d197fa99b8df19be5f85de72de8b8
+F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
 F src/merge3.c deba3fa65ff782998e0dfd8bfaaf375e28105b5f
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ca72f02c9b7b2c801235ec7b8ab1ac2e35ca773b
-R 01834e90d7b4919b9685da45db2011ba
-U stephan
-Z 23d12fe26dc3e8d67a95868bd44a0b51
+P bff50b17eb9fc6c78bf75644f4ee887384b5cac2
+R e63f8f78bf76758f4181f9ac54c7f7c6
+U drh
+Z 0de37605d7e1b7d6c8ea4429fb5d9ce4
