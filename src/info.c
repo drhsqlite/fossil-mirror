@@ -1693,13 +1693,13 @@ void render_color_chooser(
 
   @ <table border="0" cellpadding="0" cellspacing="1">
   if( zIdPropagate ){
-    @ <tr><td colspan="6" align="left">
+    @ <tr><td colspan="6" align="left"><label>
     if( fPropagate ){
       @ <input type="checkbox" name="%s(zIdPropagate)" checked="checked" />
     }else{
       @ <input type="checkbox" name="%s(zIdPropagate)" />
     }
-    @ Propagate color to descendants</td></tr>
+    @ Propagate color to descendants</label></td></tr>
   }
   @ <tr>
   for(i=0; i<nColor; i++){
@@ -1799,6 +1799,7 @@ void ci_edit_page(void){
   const char *zCloseFlag;
   int fPropagateColor;          /* True if color propagates before edit */
   int fNewPropagateColor;       /* True if color propagates after edit */
+  const char *zChngTime = 0;     /* Value of chngtime= query param, if any */
   char *zUuid;
   Blob comment;
   Stmt q;
@@ -1813,6 +1814,7 @@ void ci_edit_page(void){
   if( P("cancel") ){
     cgi_redirectf("ci?name=%s", zUuid);
   }
+  if( g.perm.Setup ) zChngTime = P("chngtime");
   zNewComment = PD("c",zComment);
   zUser = db_text(0, "SELECT coalesce(euser,user)"
                      "  FROM event WHERE objid=%d", rid);
@@ -1844,7 +1846,7 @@ void ci_edit_page(void){
 
     login_verify_csrf_secret();
     blob_zero(&ctrl);
-    zNow = date_in_standard_format("now");
+    zNow = date_in_standard_format(zChngTime ? zChngTime : "now");
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
@@ -1970,6 +1972,10 @@ void ci_edit_page(void){
     blob_appendf(&suffix, ")");
     @ %s(blob_str(&suffix))
     @ </td></tr></table>
+    if( zChngTime ){
+      @ <p>The timestamp on the tag used to make the changes above
+      @ will be overridden as: %s(date_in_standard_format(zChngTime))</p>
+    }
     @ </blockquote>
     @ <hr />
     blob_reset(&suffix);
@@ -1996,6 +2002,13 @@ void ci_edit_page(void){
   @   <input type="text" name="dt" size="20" value="%h(zNewDate)" />
   @ </td></tr>
 
+  if( zChngTime ){
+    @ <tr><td align="right" valign="top"><b>Timestamp of this change:</b></td>
+    @ <td valign="top">
+    @   <input type="text" name="chngtime" size="20" value="%h(zChngTime)" />
+    @ </td></tr>
+  }
+
   @ <tr><td align="right" valign="top"><b>Background Color:</b></td>
   @ <td valign="top">
   render_color_chooser(fNewPropagateColor, zNewColor, "pclr", "clr", "clrcust");
@@ -2003,8 +2016,8 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Tags:</b></td>
   @ <td valign="top">
-  @ <input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
-  @ Add the following new tag name to this check-in:
+  @ <label><input type="checkbox" id="newtag" name="newtag"%s(zNewTagFlag) />
+  @ Add the following new tag name to this check-in:</label>
   @ <input type="text" style="width:15;" name="tagname" value="%h(zNewTag)"
   @ onkeyup="gebi('newtag').checked=!!this.value" />
   db_prepare(&q,
@@ -2019,15 +2032,16 @@ void ci_edit_page(void){
     const char *zTagName = db_column_text(&q, 1);
     char zLabel[30];
     sqlite3_snprintf(sizeof(zLabel), zLabel, "c%d", tagid);
+    @ <br /><label>
     if( P(zLabel) ){
-      @ <br /><input type="checkbox" name="c%d(tagid)" checked="checked" />
+      @ <input type="checkbox" name="c%d(tagid)" checked="checked" />
     }else{
-      @ <br /><input type="checkbox" name="c%d(tagid)" />
+      @ <input type="checkbox" name="c%d(tagid)" />
     }
     if( strncmp(zTagName, "sym-", 4)==0 ){
-      @ Cancel tag <b>%h(&zTagName[4])</b>
+      @ Cancel tag <b>%h(&zTagName[4])</b></label>
     }else{
-      @ Cancel special tag <b>%h(zTagName)</b>
+      @ Cancel special tag <b>%h(zTagName)</b></label>
     }
   }
   db_finalize(&q);
@@ -2035,8 +2049,8 @@ void ci_edit_page(void){
 
   @ <tr><td align="right" valign="top"><b>Branching:</b></td>
   @ <td valign="top">
-  @ <input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
-  @ Make this check-in the start of a new branch named:
+  @ <label><input id="newbr" type="checkbox" name="newbr"%s(zNewBrFlag) />
+  @ Make this check-in the start of a new branch named:</label>
   @ <input type="text" style="width:15;" name="brname" value="%h(zNewBranch)"
   @ onkeyup="gebi('newbr').checked=!!this.value" />
   @ </td></tr>
@@ -2048,9 +2062,9 @@ void ci_edit_page(void){
   ){
     @ <tr><td align="right" valign="top"><b>Leaf Closure:</b></td>
     @ <td valign="top">
-    @ <input type="checkbox" name="close"%s(zCloseFlag) />
+    @ <label><input type="checkbox" name="close"%s(zCloseFlag) />
     @ Mark this leaf as "closed" so that it no longer appears on the
-    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".
+    @ "leaves" page and is no longer labeled as a "<b>Leaf</b>".</label>
     @ </td></tr>
   }
 

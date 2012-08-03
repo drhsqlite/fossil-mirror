@@ -440,9 +440,6 @@ int blob_seek(Blob *p, int offset, int whence){
   }else if( whence==BLOB_SEEK_END ){
     p->iCursor = p->nUsed + offset - 1;
   }
-  if( p->iCursor<0 ){
-    p->iCursor = 0;
-  }
   if( p->iCursor>p->nUsed ){
     p->iCursor = p->nUsed;
   }
