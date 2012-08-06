@@ -279,7 +279,7 @@ An example cluster from Fossil can be seen
 Control artifacts are used to assign properties to other artifacts
 within the repository.  The basic format of a control artifact is
 the same as a manifest or cluster.  A control artifact is a text
-files divided into cards by newline characters.  Each card has a
+file divided into cards by newline characters.  Each card has a
 single-character card type followed by arguments.  Spaces separate
 the card type and the arguments.  No surplus whitespace is allowed.
 All cards must occur in strict lexicographical order.
