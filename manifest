@@ -1,5 +1,5 @@
-C Fix\sminor\sdocumentation\stypo.
-D 2012-08-06T11:15:51.828
+C Add\s--user-override\sand\s--date-override\soptions\sto\sthe\s"fossil\sticket\sadd"\ncommand.
+D 2012-08-06T14:41:24.876
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -156,7 +156,7 @@ F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
-F src/tkt.c ba599897826ab217e2aa1cc64d60185fb03a27dd
+F src/tkt.c 4952a053cd866a279769ef69b01621a83368f1b9
 F src/tktsetup.c 9bbae8cc78bda8c3fe5a9a2533f833682e9b712e
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 336e1355b927fe34991368af8b35b27a7a52dbc9
-R 2addf7e18e2a2a229a5b43d2d9019607
+P 372879b3885d45e661d842e29a00685f045a1608
+R 8af62bdbb835115796bd4d16aa1a6465
 U drh
-Z 79263551f548a4ec83bbe434b7069196
+Z d85a5900227e518c3b22a924603d5053

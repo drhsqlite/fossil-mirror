@@ -857,330 +857,335 @@ void ticket_output_change_artifact(Manifest *pTkt){
 **
 ** Run various subcommands to control tickets
 **
-**     %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
+**   %fossil ticket show (REPORTTITLE|REPORTNR) ?TICKETFILTER? ?options?
 **
-**         options can be:
-**           ?-l|--limit LIMITCHAR?
-**           ?-q|--quote?
-**           ?-R|--repository FILE?
+**     options can be:
+**       ?-l|--limit LIMITCHAR?
+**       ?-q|--quote?
+**       ?-R|--repository FILE?
 **
-**         Run the ticket report, identified by the report format title
-**         used in the gui. The data is written as flat file on stdout,
-**         using "," as separator. The separator "," can be changed using
-**         the -l or --limit option.
+**     Run the ticket report, identified by the report format title
+**     used in the gui. The data is written as flat file on stdout,
+**     using "," as separator. The separator "," can be changed using
+**     the -l or --limit option.
 **
-**         If TICKETFILTER is given on the commandline, the query is
-**         limited with a new WHERE-condition.
-**           example:  Report lists a column # with the uuid
-**                     TICKETFILTER may be [#]='uuuuuuuuu'
-**           example:  Report only lists rows with status not open
-**                     TICKETFILTER: status != 'open'
-**         If the option -q|--quote is used, the tickets are encoded by
-**         quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
-**         cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
-**         Otherwise, the simplified encoding as on the show report raw
-**         page in the gui is used. This has no effect in JSON mode.
+**     If TICKETFILTER is given on the commandline, the query is
+**     limited with a new WHERE-condition.
+**       example:  Report lists a column # with the uuid
+**                 TICKETFILTER may be [#]='uuuuuuuuu'
+**       example:  Report only lists rows with status not open
+**                 TICKETFILTER: status != 'open'
+**     If the option -q|--quote is used, the tickets are encoded by
+**     quoting special chars(space -> \\s, tab -> \\t, newline -> \\n,
+**     cr -> \\r, formfeed -> \\f, vtab -> \\v, nul -> \\0, \\ -> \\\\).
+**     Otherwise, the simplified encoding as on the show report raw
+**     page in the gui is used. This has no effect in JSON mode.
 **
-**         Instead of the report title its possible to use the report
-**         number. Using the special report number 0 list all columns,
-**         defined in the ticket table.
+**     Instead of the report title its possible to use the report
+**     number. Using the special report number 0 list all columns,
+**     defined in the ticket table.
 **
-**     %fossil ticket list fields
+**   %fossil ticket list fields
 **
-**         list all fields, defined for ticket in the fossil repository
+**     list all fields, defined for ticket in the fossil repository
 **
-**     %fossil ticket list reports
+**   %fossil ticket list reports
 **
-**         list all ticket reports, defined in the fossil repository
+**     list all ticket reports, defined in the fossil repository
 **
-**     %fossil ticket set TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
-**     %fossil ticket change TICKETUUID FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+**   %fossil ticket set TICKETUUID (FIELD VALUE)+ ?-q|--quote?
+**   %fossil ticket change TICKETUUID (FIELD VALUE)+ ?-q|--quote?
 **
-**         change ticket identified by TICKETUUID and set the value of
-**         field FIELD to VALUE. Valid field descriptions are:
-**            status, type, severity, priority, resolution,
-**            foundin, private_contact, resolution, title or comment
-**         Field names given above are the ones, defined in a standard
-**         fossil environment. If you have added, deleted columns, you
-**         change the all your configured columns.
-**         If you use +FIELD, the VALUE Is appended to the field FIELD.
-**         You can use more than one field/value pair on the commandline.
-**         Using -q|--quote  enables the special character decoding as
-**         in "ticket show". So it's possible, to set multiline text or
-**         text with special characters.
+**     change ticket identified by TICKETUUID and set the value of
+**     field FIELD to VALUE.
 **
-**     %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
+**     Field names as defined in the TICKET table.  By default, these
+**     names include: type, status, subsystem, priority, severity, foundin,
+**     resolution, title, and comment, but other field names can be added
+**     or substituted in customized installations.
 **
-**         like set, but create a new ticket with the given values.
+**     If you use +FIELD, the VALUE Is appended to the field FIELD.
+**     You can use more than one field/value pair on the commandline.
+**     Using -q|--quote  enables the special character decoding as
+**     in "ticket show". So it's possible, to set multiline text or
+**     text with special characters.
 **
-**     %fossil ticket history TICKETUUID
+**   %fossil ticket add FIELD VALUE ?FIELD VALUE .. ? ?-q|--quote?
 **
-**         Show the complete change history for the ticket
+**     like set, but create a new ticket with the given values.
+**
+**   %fossil ticket history TICKETUUID
+**
+**     Show the complete change history for the ticket
 **
 ** The values in set|add are not validated against the definitions
 ** given in "Ticket Common Script".
 */
 void ticket_cmd(void){
   int n;
+  const char *zUser;
+  const char *zDate;
 
   /* do some ints, we want to be inside a checkout */
   db_find_and_open_repository(0, 0);
   user_select();
+
+  zUser = find_option("user-override",0,1);
+  if( zUser==0 ) zUser = g.zLogin;
+  zDate = find_option("date-override",0,1);
+  if( zDate==0 ) zDate = "now";
+  zDate = date_in_standard_format(zDate);
+
   /*
   ** Check that the user exists.
   */
-  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
-    fossil_fatal("no such user: %s", g.zLogin);
+  if( !db_exists("SELECT 1 FROM user WHERE login=%Q", zUser) ){
+    fossil_fatal("no such user: %s", zUser);
   }
 
   if( g.argc<3 ){
     usage("add|fieldlist|set|show|history");
-  }else{
-    n = strlen(g.argv[2]);
-    if( n==1 && g.argv[2][0]=='s' ){
-      /* set/show cannot be distinguished, so show the usage */
-      usage("add|fieldlist|set|show|history");
-    }else if( strncmp(g.argv[2],"list",n)==0 ){
-      if( g.argc==3 ){
-        usage("list fields|reports");
-      }else{
-        n = strlen(g.argv[3]);
-        if( !strncmp(g.argv[3],"fields",n) ){
-          /* simply show all field names */
-          int i;
+  }
+  n = strlen(g.argv[2]);
+  if( n==1 && g.argv[2][0]=='s' ){
+    /* set/show cannot be distinguished, so show the usage */
+    usage("add|fieldlist|set|show|history");
+  }
+  if( strncmp(g.argv[2],"list",n)==0 ){
+    if( g.argc==3 ){
+      usage("list fields|reports");
+    }else{
+      n = strlen(g.argv[3]);
+      if( !strncmp(g.argv[3],"fields",n) ){
+        /* simply show all field names */
+        int i;
 
-          /* read all available ticket fields */
-          getAllTicketFields();
-          for(i=0; i<nField; i++){
-            printf("%s\n",azField[i]);
-          }
-        }else if( !strncmp(g.argv[3],"reports",n) ){
-          rpt_list_reports();
-        }else{
-          fossil_fatal("unknown ticket list option '%s'!",g.argv[3]);
+        /* read all available ticket fields */
+        getAllTicketFields();
+        for(i=0; i<nField; i++){
+          printf("%s\n",azField[i]);
         }
+      }else if( !strncmp(g.argv[3],"reports",n) ){
+        rpt_list_reports();
+      }else{
+        fossil_fatal("unknown ticket list option '%s'!",g.argv[3]);
+      }
+    }
+  }else{
+    /* add a new ticket or set fields on existing tickets */
+    tTktShowEncoding tktEncoding;
+
+    tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
+    
+    if( strncmp(g.argv[2],"show",n)==0 ){
+      if( g.argc==3 ){
+        usage("show REPORTNR");
+      }else{
+        const char *zRep = 0;
+        const char *zSep = 0;
+        const char *zFilterUuid = 0;
+        zSep = find_option("limit","l",1);
+        zRep = g.argv[3];
+        if( !strcmp(zRep,"0") ){
+          zRep = 0;
+        }
+        if( g.argc>4 ){
+          zFilterUuid = g.argv[4];
+        }
+        rptshow( zRep, zSep, zFilterUuid, tktEncoding );
       }
     }else{
-      /* add a new ticket or set fields on existing tickets */
-      tTktShowEncoding tktEncoding;
+      /* add a new ticket or update an existing ticket */
+      enum { set,add,history,err } eCmd = err;
+      int i = 0;
+      int rid;
+      const char *zTktUuid = 0;
+      Blob tktchng, cksum;
 
-      tktEncoding = find_option("quote","q",0) ? tktFossilize : tktNoTab;
-      
-      if( strncmp(g.argv[2],"show",n)==0 ){
-        if( g.argc==3 ){
-          usage("show REPORTNR");
+      /* get command type (set/add) and get uuid, if needed for set */
+      if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ||
+         strncmp(g.argv[2],"history",n)==0 ){
+        if( strncmp(g.argv[2],"history",n)==0 ){
+          eCmd = history;
         }else{
-          const char *zRep = 0;
-          const char *zSep = 0;
-          const char *zFilterUuid = 0;
-          zSep = find_option("limit","l",1);
-          zRep = g.argv[3];
-          if( !strcmp(zRep,"0") ){
-            zRep = 0;
-          }
-          if( g.argc>4 ){
-            zFilterUuid = g.argv[4];
-          }
-          rptshow( zRep, zSep, zFilterUuid, tktEncoding );
+          eCmd = set;
         }
-      }else{
-        /* add a new ticket or update an existing ticket */
-        enum { set,add,history,err } eCmd = err;
-        int i = 0;
-        int rid;
-        const char *zTktUuid = 0;
-        Blob tktchng, cksum;
-
-        /* get command type (set/add) and get uuid, if needed for set */
-        if( strncmp(g.argv[2],"set",n)==0 || strncmp(g.argv[2],"change",n)==0 ||
-           strncmp(g.argv[2],"history",n)==0 ){
-          if( strncmp(g.argv[2],"history",n)==0 ){
-            eCmd = history;
-          }else{
-            eCmd = set;
-          }
-          if( g.argc==3 ){
-            usage("set TICKETUUID");
-          }
-          zTktUuid = db_text(0, 
-            "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
-          );
-          if( !zTktUuid ){
-            fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
-          }
-          i=4;
-        }else if( strncmp(g.argv[2],"add",n)==0 ){
-          eCmd = add;
-          i = 3;
-          zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        if( g.argc==3 ){
+          usage("set TICKETUUID");
         }
-        /* none of set/add, so show the usage! */
-        if( eCmd==err ){
-          usage("add|fieldlist|set|show|history");
+        zTktUuid = db_text(0, 
+          "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
+        );
+        if( !zTktUuid ){
+          fossil_fatal("unknown ticket: '%s'!",g.argv[3]);
         }
+        i=4;
+      }else if( strncmp(g.argv[2],"add",n)==0 ){
+        eCmd = add;
+        i = 3;
+        zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+      }
+      /* none of set/add, so show the usage! */
+      if( eCmd==err ){
+        usage("add|fieldlist|set|show|history");
+      }
 
-        /* we just handle history separately here, does not get out */
-        if( eCmd==history ){
-          Stmt q;
-          int tagid;
+      /* we just handle history separately here, does not get out */
+      if( eCmd==history ){
+        Stmt q;
+        int tagid;
 
-          if ( i != g.argc ){
-            fossil_fatal("no other parameters expected to %s!",g.argv[2]);
-          }
-          tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zTktUuid);
-          if( tagid==0 ){
-            fossil_fatal("no such ticket %h", zTktUuid);
-          }  
-          db_prepare(&q,
-            "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
-            "  FROM event, blob"
-            " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
-            "   AND blob.rid=event.objid"
-            " UNION "
-            "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
-            "  FROM attachment, blob"
-            " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
-            "   AND blob.rid=attachid"
-            " ORDER BY 1 DESC",
-            tagid, tagid
-          );
-          while( db_step(&q)==SQLITE_ROW ){
-            Manifest *pTicket;
-            char zShort[12];
-            const char *zDate = db_column_text(&q, 0);
-            int rid = db_column_int(&q, 1);
-            const char *zChngUuid = db_column_text(&q, 2);
-            const char *zFile = db_column_text(&q, 4);
-            memcpy(zShort, zChngUuid, 10);
-            zShort[10] = 0;
-            if( zFile!=0 ){
-              const char *zSrc = db_column_text(&q, 3);
-              const char *zUser = db_column_text(&q, 5);
-              if( zSrc==0 || zSrc[0]==0 ){
-                fossil_print("Delete attachment %h\n", zFile);
-              }else{
-                fossil_print("Add attachment %h\n", zFile);
-              }
-              fossil_print(" by %h on %h\n", zUser, zDate);
+        if ( i != g.argc ){
+          fossil_fatal("no other parameters expected to %s!",g.argv[2]);
+        }
+        tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zTktUuid);
+        if( tagid==0 ){
+          fossil_fatal("no such ticket %h", zTktUuid);
+        }  
+        db_prepare(&q,
+          "SELECT datetime(mtime,'localtime'), objid, uuid, NULL, NULL, NULL"
+          "  FROM event, blob"
+          " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
+          "   AND blob.rid=event.objid"
+          " UNION "
+          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+          "  FROM attachment, blob"
+          " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
+          "   AND blob.rid=attachid"
+          " ORDER BY 1 DESC",
+          tagid, tagid
+        );
+        while( db_step(&q)==SQLITE_ROW ){
+          Manifest *pTicket;
+          char zShort[12];
+          const char *zDate = db_column_text(&q, 0);
+          int rid = db_column_int(&q, 1);
+          const char *zChngUuid = db_column_text(&q, 2);
+          const char *zFile = db_column_text(&q, 4);
+          memcpy(zShort, zChngUuid, 10);
+          zShort[10] = 0;
+          if( zFile!=0 ){
+            const char *zSrc = db_column_text(&q, 3);
+            const char *zUser = db_column_text(&q, 5);
+            if( zSrc==0 || zSrc[0]==0 ){
+              fossil_print("Delete attachment %h\n", zFile);
             }else{
-              pTicket = manifest_get(rid, CFTYPE_TICKET);
-              if( pTicket ){
-                int i;
+              fossil_print("Add attachment %h\n", zFile);
+            }
+            fossil_print(" by %h on %h\n", zUser, zDate);
+          }else{
+            pTicket = manifest_get(rid, CFTYPE_TICKET);
+            if( pTicket ){
+              int i;
 
-                fossil_print("Ticket Change by %h on %h:\n", pTicket->zUser, zDate);
-                for(i=0; i<pTicket->nField; i++){
-                  Blob val;
-                  const char *z;
-                  z = pTicket->aField[i].zName;
-                  blob_set(&val, pTicket->aField[i].zValue);
-                  if( z[0]=='+' ){
-                    fossil_print("  Append to ");
+              fossil_print("Ticket Change by %h on %h:\n", pTicket->zUser, zDate);
+              for(i=0; i<pTicket->nField; i++){
+                Blob val;
+                const char *z;
+                z = pTicket->aField[i].zName;
+                blob_set(&val, pTicket->aField[i].zValue);
+                if( z[0]=='+' ){
+                  fossil_print("  Append to ");
 		    z++;
 		  }else{
 		    fossil_print("  Change ");
-                  }
+                }
 		  fossil_print("%h: ",z);
 		  if( blob_size(&val)>50 || contains_newline(&val)) {
-                    fossil_print("\n    ",blob_str(&val));
-                    comment_print(blob_str(&val),4,79);
-                  }else{
-                    fossil_print("%s\n",blob_str(&val));
-                  }
-                  blob_reset(&val);
+                  fossil_print("\n    ",blob_str(&val));
+                  comment_print(blob_str(&val),4,79);
+                }else{
+                  fossil_print("%s\n",blob_str(&val));
                 }
+                blob_reset(&val);
               }
-              manifest_destroy(pTicket);
             }
-          }
-          db_finalize(&q);
-          return;
-        }
-        /* read all given ticket field/value pairs from command line */
-        if( i==g.argc ){
-          fossil_fatal("empty %s command aborted!",g.argv[2]);
-        }
-        getAllTicketFields();
-        /* read commandline and assign fields in the azValue array */
-        while( i<g.argc ){
-          char *zFName;
-          char *zFValue;
-          int j;
-          int append = 0;
-
-          zFName = g.argv[i++];
-          if( i==g.argc ){
-            fossil_fatal("missing value for '%s'!",zFName);
-          }
-          zFValue = g.argv[i++];
-          if( tktEncoding == tktFossilize ){
-            zFValue=mprintf("%s",zFValue);
-            defossilize(zFValue);
-          }
-          append = (zFName[0] == '+');
-          if (append){
-            zFName++;
-          }
-          j = fieldId(zFName);
-          if( j == -1 ){
-            fossil_fatal("unknown field name '%s'!",zFName);
-          }else{
-            if (append) {
-              azAppend[j] = zFValue;
-            } else {
-              azValue[j] = zFValue;
-            }
+            manifest_destroy(pTicket);
           }
         }
-
-        /* now add the needed artifacts to the repository */
-        blob_zero(&tktchng);
-        { /* add the time to the ticket manifest */
-          char *zDate;
-
-          zDate = date_in_standard_format("now");
-          blob_appendf(&tktchng, "D %s\n", zDate);
-          free(zDate);
-        }
-        /* append defined elements */
-        for(i=0; i<nField; i++){
-          char *zValue = 0;
-          char *zPfx;
-
-          if (azAppend[i] && azAppend[i][0] ){
-            zPfx = " +";
-            zValue = azAppend[i];
-          } else if( azValue[i] && azValue[i][0] ){
-            zPfx = " ";
-            zValue = azValue[i];
-          } else {
-            continue;
-          }
-          if( strncmp(azField[i], "private_", 8)==0 ){
-            zValue = db_conceal(zValue, strlen(zValue));
-            blob_appendf(&tktchng, "J%s%s %s\n", zPfx, azField[i], zValue);
-          }else{
-            blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
-                         azField[i], strlen(zValue), zValue);
-          }
-          if( tktEncoding == tktFossilize ){
-            free(azValue[i]);
-          }
-        }
-        blob_appendf(&tktchng, "K %s\n", zTktUuid);
-        blob_appendf(&tktchng, "U %F\n", g.zLogin);
-        md5sum_blob(&tktchng, &cksum);
-        blob_appendf(&tktchng, "Z %b\n", &cksum);
-        rid = content_put(&tktchng);
-        if( rid==0 ){
-          fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-        }
-        manifest_crosslink_begin();
-        manifest_crosslink(rid, &tktchng);
-        manifest_crosslink_end();
-        assert( blob_is_reset(&tktchng) );
-        printf("ticket %s succeeded for UID %s\n",
-               (eCmd==set?"set":"add"),zTktUuid);
+        db_finalize(&q);
+        return;
       }
+      /* read all given ticket field/value pairs from command line */
+      if( i==g.argc ){
+        fossil_fatal("empty %s command aborted!",g.argv[2]);
+      }
+      getAllTicketFields();
+      /* read commandline and assign fields in the azValue array */
+      while( i<g.argc ){
+        char *zFName;
+        char *zFValue;
+        int j;
+        int append = 0;
+
+        zFName = g.argv[i++];
+        if( i==g.argc ){
+          fossil_fatal("missing value for '%s'!",zFName);
+        }
+        zFValue = g.argv[i++];
+        if( tktEncoding == tktFossilize ){
+          zFValue=mprintf("%s",zFValue);
+          defossilize(zFValue);
+        }
+        append = (zFName[0] == '+');
+        if (append){
+          zFName++;
+        }
+        j = fieldId(zFName);
+        if( j == -1 ){
+          fossil_fatal("unknown field name '%s'!",zFName);
+        }else{
+          if (append) {
+            azAppend[j] = zFValue;
+          } else {
+            azValue[j] = zFValue;
+          }
+        }
+      }
+
+      /* now add the needed artifacts to the repository */
+      blob_zero(&tktchng);
+      /* add the time to the ticket manifest */
+      blob_appendf(&tktchng, "D %s\n", zDate);
+      /* append defined elements */
+      for(i=0; i<nField; i++){
+        char *zValue = 0;
+        char *zPfx;
+
+        if (azAppend[i] && azAppend[i][0] ){
+          zPfx = " +";
+          zValue = azAppend[i];
+        } else if( azValue[i] && azValue[i][0] ){
+          zPfx = " ";
+          zValue = azValue[i];
+        } else {
+          continue;
+        }
+        if( strncmp(azField[i], "private_", 8)==0 ){
+          zValue = db_conceal(zValue, strlen(zValue));
+          blob_appendf(&tktchng, "J%s%s %s\n", zPfx, azField[i], zValue);
+        }else{
+          blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
+                       azField[i], strlen(zValue), zValue);
+        }
+        if( tktEncoding == tktFossilize ){
+          free(azValue[i]);
+        }
+      }
+      blob_appendf(&tktchng, "K %s\n", zTktUuid);
+      blob_appendf(&tktchng, "U %F\n", zUser);
+      md5sum_blob(&tktchng, &cksum);
+      blob_appendf(&tktchng, "Z %b\n", &cksum);
+      rid = content_put(&tktchng);
+      if( rid==0 ){
+        fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+      }
+      manifest_crosslink_begin();
+      manifest_crosslink(rid, &tktchng);
+      manifest_crosslink_end();
+      assert( blob_is_reset(&tktchng) );
+      printf("ticket %s succeeded for %s\n",
+             (eCmd==set?"set":"add"),zTktUuid);
     }
   }
 }
