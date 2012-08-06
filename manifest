@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s1.23.
-D 2012-08-06T15:04:30.936
+C Update\sthe\schange\slog.
+D 2012-08-06T15:28:54.742
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -278,7 +278,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki 05a555c3959cb675b7b609ed447cec9d6d760ee7
-F www/changes.wiki b38f45ce74f51d51f00684969efc0ddb77e82ab2
+F www/changes.wiki d0fd3f415a0017e9066a5b1f89906fc953335804
 F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
 F www/checkin_names.wiki e0131236d0af2bd20c6fa96e1a7b84f1f555ea8b
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ea4acb5c5db5d15b86da6d785bc616c4ff300103
-R f6eaf075fc39b5dfbf70cb5fd2aa80b5
+P 399e868d72a7ef6de7ca7cefe2ba58c7f6a451f7
+R dd022a18b67549e4adc7c72a982cff43
 U drh
-Z b2f08b8b30d60cf568cb388bed29fcc4
+Z 8d9888c1be4e80aebd992f725ec81444
