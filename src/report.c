@@ -866,6 +866,9 @@ int sqlite3_exec_readonly(
     return SQLITE_ERROR;
   }
 
+  i = sqlite3_bind_parameter_index(pStmt, "$login");
+  if( i ) sqlite3_bind_text(pStmt, i, g.zLogin, -1, SQLITE_TRANSIENT);
+
   nCol = sqlite3_column_count(pStmt);
   azVals = fossil_malloc(2*nCol*sizeof(const char*) + 1);
   while( (rc = sqlite3_step(pStmt))==SQLITE_ROW ){
