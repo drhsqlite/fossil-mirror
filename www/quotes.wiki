@@ -42,12 +42,19 @@ for making git bearable.
 <i>maro at [http://news.ycombinator.com/item?id=1433387]</i>
 </blockquote>
 
+<li>Klingon Code Warriors embrace Git; we enjoy arbitrary conflicts. Git is not for the weak and feeble. TODAY IS A GOOD DAY TO CODE.
+
+<blockquote>
+<i>teastain at [http://www.reddit.com/r/programming/comments/xpitj/10_things_i_hate_about_git/c5oj4fk]
+</blockquote>
+
+
 </ol>
 
 <h2>On The Usability Of Fossil:</h2>
 
 <ol>
-<li value=4>
+<li value=6>
 Fossil mesmerizes me with simplicity especially after I struggled to
 get a bug-tracking system to work with mercurial.
 
@@ -69,7 +76,7 @@ such simplicity and flexibility!!!
 <h2>On Git Versus Fossil</h2>
 
 <ol>
-<li value=6>
+<li value=8>
 Just want to say thanks for fossil making my life easier.... 
 Also <nowiki>[for]</nowiki> not having a misanthropic command line interface.
 
