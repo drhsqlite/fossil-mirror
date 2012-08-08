@@ -317,6 +317,7 @@ APPNAME = fossil$(E)
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):

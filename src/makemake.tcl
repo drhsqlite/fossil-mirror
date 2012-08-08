@@ -182,6 +182,7 @@ writeln {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):
@@ -521,6 +522,7 @@ $(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
 	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):

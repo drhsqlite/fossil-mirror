@@ -1,5 +1,5 @@
-C If\sno\suuid=\squery\sparameter\sis\sused\sfor\sthe\s/tarball\sor\s/zip\sURIs,\sthen\nuse\sthe\slatest\scheckin\s(aka\s"tip").
-D 2012-08-08T12:41:50.157
+C Changes\s"make\sinstall"\sso\sthat\sit\smakes\ssure\sthat\sthe\sinstallation\sdirectory\nactually\sexists.\s\sTicket\s[6e23fe11013961].
+D 2012-08-08T13:04:11.475
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -115,10 +115,10 @@ F src/json_wiki.c c1e4ba2b53380bb4ea7dfebfef2a8f621a08dcb8
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
 F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
-F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
+F src/main.mk 212da82a48e928b02fb443675be40776f626f5e2
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl b8b662d7ab694188d75dc37b1b802110bddd1820
+F src/makemake.tcl 3f4dbc2324462cf89527e14aa75337cb18d1bde8
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
@@ -250,7 +250,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 2a5d0a7aabe39bc44d223222ce5eb6558eb27110
-F win/Makefile.mingw 437ee0f3fd7ff9c6a48307b9642f490928041d3a
+F win/Makefile.mingw d2ca6e322b246656a44d34c771555f600c8b4f1c
 F win/Makefile.mingw.mistachkin a9d2f75c06d182040b69db3fbe48a410806fa32a
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc a744e23c62419245ae04cbbc2cc92c3649e3e014
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0bc2a94104e68d4519f10f7fbf49e75f0e343587
-R b8b01c07a2a0e4064c146672628c9446
+P 8f002216829b6370593176b30498dd8231f3c514
+R e81b28e3ddd79201fab08e2728ba404a
 U drh
-Z c3dd6c19c7275aafb121743a1b9489da
+Z e2ea54537ce4a349d122a674cabd7084
