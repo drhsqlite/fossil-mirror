@@ -925,6 +925,7 @@ void ticket_cmd(void){
   int n;
   const char *zUser;
   const char *zDate;
+  const char *zTktUuid;
 
   /* do some ints, we want to be inside a checkout */
   db_find_and_open_repository(0, 0);
@@ -935,6 +936,10 @@ void ticket_cmd(void){
   zDate = find_option("date-override",0,1);
   if( zDate==0 ) zDate = "now";
   zDate = date_in_standard_format(zDate);
+  zTktUuid = find_option("uuid-override",0,1);
+  if( zTktUuid && (strlen(zTktUuid)!=40 || !validate16(zTktUuid,40)) ){
+    fossil_fatal("invalid --uuid-override: must be 40 characters of hex");
+  }
 
   /*
   ** Check that the user exists.
@@ -999,7 +1004,6 @@ void ticket_cmd(void){
       enum { set,add,history,err } eCmd = err;
       int i = 0;
       int rid;
-      const char *zTktUuid = 0;
       Blob tktchng, cksum;
 
       /* get command type (set/add) and get uuid, if needed for set */
@@ -1023,7 +1027,9 @@ void ticket_cmd(void){
       }else if( strncmp(g.argv[2],"add",n)==0 ){
         eCmd = add;
         i = 3;
-        zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        if( zTktUuid==0 ){
+          zTktUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");
+        }
       }
       /* none of set/add, so show the usage! */
       if( eCmd==err ){
