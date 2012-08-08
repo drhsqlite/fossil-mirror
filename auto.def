@@ -11,7 +11,7 @@ options {
     static=0             => {Link a static executable}
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
-    json=0        => {Build with fossil JSON API enabled}
+    json=0               => {Build with fossil JSON API enabled}
 }
 
 # sqlite wants these types if possible
@@ -68,6 +68,7 @@ if {[opt-bool fossil-debug]} {
 
 if {[opt-bool json]} {
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
+    define FOSSIL_ENABLE_JSON
 }
 
 if {[opt-bool static]} {

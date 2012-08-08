@@ -47,6 +47,93 @@ static int headerHasBeenGenerated = 0;
 */
 static int sideboxUsed = 0;
 
+
+/*
+** List of hyperlinks that need to be resolved by javascript in
+** the footer.
+*/
+char **aHref = 0;
+int nHref = 0;
+int nHrefAlloc = 0;
+
+/*
+** Generate and return a anchor tag like this:
+**
+**        <a href="URL">
+**  or    <a id="ID">
+**
+** The form of the anchor tag is determined by the g.javascriptHyperlink
+** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
+** If g.javascriptHyperlink is true then the
+** id="ID" form is used and javascript is generated in the footer to cause
+** href values to be inserted after the page has loaded.  If 
+** g.perm.History is false, then the <a id="ID"> form is still
+** generated but the javascript is not generated so the links never
+** activate.
+**
+** Filling in the href="URL" using javascript is a defense against bots.
+**
+** The name of this routine is deliberately kept short so that can be
+** easily used within @-lines.  Example:
+**
+**      @ %z(href("%R/artifact/%s",zUuid))%h(zFN)</a>
+**
+** Note %z format.  The string returned by this function is always
+** obtained from fossil_malloc() so rendering it with %z will reclaim
+** that memory space.
+**
+** There are two versions of this routine: href() does a plain hyperlink
+** and xhref() adds extra attribute text.
+*/
+char *xhref(const char *zExtra, const char *zFormat, ...){
+  char *zUrl;
+  va_list ap;
+  va_start(ap, zFormat);
+  zUrl = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+  }
+  if( nHref>=nHrefAlloc ){
+    nHrefAlloc = nHrefAlloc*2 + 10;
+    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+  }
+  aHref[nHref++] = zUrl;
+  return mprintf("<a %s id=%d>", zExtra, nHref);
+}
+char *href(const char *zFormat, ...){
+  char *zUrl;
+  va_list ap;
+  va_start(ap, zFormat);
+  zUrl = vmprintf(zFormat, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    return mprintf("<a href=\"%z\">", zUrl);
+  }
+  if( nHref>=nHrefAlloc ){
+    nHrefAlloc = nHrefAlloc*2 + 10;
+    aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
+  }
+  aHref[nHref++] = zUrl;
+  return mprintf("<a id=%d>", nHref);
+}
+
+/*
+** Generate javascript that will set the href= attribute on all anchors.
+*/
+void style_resolve_href(void){
+  int i;
+  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
+  @ <script type="text/JavaScript">
+  @ /* <![CDATA[ */
+  @ function u(i,h){gebi(i).href=h;}
+  for(i=0; i<nHref; i++){
+    @ u(%d(i+1),"%s(aHref[i])");
+  }
+  @ /* ]]> */
+  @ </script>
+}
+
 /*
 ** Add a new element to the submenu
 */
@@ -89,7 +176,8 @@ void style_header(const char *zTitleFormat, ...){
   va_end(ap);
   
   cgi_destination(CGI_HEADER);
-  cgi_printf("%s","<!DOCTYPE html>");
+
+  @ <!DOCTYPE html>
   
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
@@ -115,6 +203,38 @@ void style_header(const char *zTitleFormat, ...){
   g.cgiOutput = 1;
   headerHasBeenGenerated = 1;
   sideboxUsed = 0;
+
+  /* Make the gebi(x) function available as an almost-alias for
+  ** document.getElementById(x) (except that it throws if the element is not found).
+  **
+  ** Maintenance note: this function must of course be available
+  ** before it is called. It "should" go in the HEAD so that client
+  ** HEAD code can make use of it, but because the client can replace
+  ** the HEAD, and some fossil pages rely on gebi(), we put it here.
+  */
+  @ <script>
+  @ function gebi(x){
+  @ if(/^#/.test(x)) x = x.substr(1);
+  @ var e = document.getElementById(x);
+  @ if(!e) throw new Error("Expecting element with ID "+x);
+  @ else return e;}
+  @ </script>
+}
+
+/*
+** Append ad unit text if appropriate.
+*/
+static void style_ad_unit(void){
+  const char *zAd;
+  if( g.perm.Admin && db_get_boolean("adunit-omit-if-admin",0) ){
+    return;
+  }
+  if( g.zLogin && strcmp(g.zLogin,"anonymous")!=0
+      && db_get_boolean("adunit-omit-if-user",0) ){
+    return;
+  }
+  zAd = db_get("adunit", 0);
+  if( zAd ) cgi_append_content(zAd, -1);
 }
 
 /*
@@ -144,6 +264,7 @@ void style_footer(void){
     }
     @ </div>
   }
+  style_ad_unit();
   @ <div class="content">
   cgi_destination(CGI_BODY);
 
@@ -155,6 +276,11 @@ void style_footer(void){
     @ <div class="endContent"></div>
   }
   @ </div>
+
+  /* Set the href= field on hyperlinks.  Do this before the footer since
+  ** the footer will be generating </html> */
+  style_resolve_href();
+
   zFooter = db_get("footer", (char*)zDefaultFooter);
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);

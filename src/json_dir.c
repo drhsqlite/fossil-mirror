@@ -68,8 +68,8 @@ static cson_value * json_page_dir_list(){
   Manifest * pM = NULL;
   Stmt q = empty_Stmt;
   int rid = 0;
-  if( !g.perm.History ){
-    json_set_err(FSL_JSON_E_DENIED, "Requires 'h' permissions.");
+  if( !g.perm.Read ){
+    json_set_err(FSL_JSON_E_DENIED, "Requires 'o' permissions.");
     return NULL;
   }
   zCI = json_find_option_cstr("checkin",NULL,"ci" );

@@ -379,9 +379,12 @@ struct SbsLine {
 #define SBS_PAD          0x0002   /* Pad output to width spaces */
 
 /*
-** Write up to width characters of pLine into z[].  Translate tabs into
+** Write up to width characters of pLine into p->zLine[].  Translate tabs into
 ** spaces.  Add a newline if SBS_NEWLINE is set.  Translate HTML characters
 ** if SBS_HTML is set.  Pad the rendering out width bytes if SBS_PAD is set.
+**
+** This comment contains multibyte unicode characters (ü, Æ, ð) in order
+** to test the ability of the diff code to handle such characters.
 */
 static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   int n = pLine->h & LENGTH_MASK;
@@ -435,6 +438,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       j += 4;
     }else{
       z[j++] = c;
+      if( (c&0xc0)==0x80 ) k--;
     }
   }
   if( needEndSpan ){
@@ -890,7 +894,7 @@ static void sbsDiff(
   SbsLine s;    /* Output line buffer */
 
   memset(&s, 0, sizeof(s));
-  s.zLine = fossil_malloc( 10*width + 200 );
+  s.zLine = fossil_malloc( 15*width + 200 );
   if( s.zLine==0 ) return;
   s.width = width;
   s.escHtml = escHtml;
@@ -1171,7 +1175,7 @@ static void longestCommonSequence(
       iSYb = iSY;
       iEXb = iEX;
       iEYb = iEY;
-    }else{
+    }else if( iEX>iEXp ){
       iSXp = iSX;
       iSYp = iSY;
       iEXp = iEX;
@@ -1805,17 +1809,17 @@ static void annotate_file(
     if( webLabel ){
       if (zUuidParentFile) {
         zLabel = mprintf(
-            "<a href='%s/info/%s' %s>%.10s</a> "
-            "<a href='%s/fdiff?v1=%s&v2=%s' %s>d</a> "
+            "<a href='%R/info/%s' %s>%.10s</a> "
+            "<a href='%R/fdiff?v1=%s&v2=%s' %s>d</a> "
             "%s %13.13s", 
-            g.zTop, zUuid, zInfoTarget, zUuid,
-            g.zTop, zUuidParentFile, zUuidFile, zDiffTarget,
+            zUuid, zInfoTarget, zUuid,
+            zUuidParentFile, zUuidFile, zDiffTarget,
             zDate, zUser);
       }else{
         zLabel = mprintf(
-            "<a href='%s/info/%s' %s>%.10s</a>   "
+            "<a href='%R/info/%s' %s>%.10s</a>   "
             "%s %13.13s", 
-            g.zTop, zUuid, zInfoTarget, zUuid,
+            zUuid, zInfoTarget, zUuid,
             zDate, zUser);
       }
     }else{
@@ -1858,7 +1862,7 @@ void annotation_page(void){
   }
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
-  annotate_file(&ann, P("filename"), fnid, mid, g.perm.History, iLimit, annFlags);
+  annotate_file(&ann, P("filename"), fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
   if( P("log") ){
     int i;
     @ <h2>Versions analyzed:</h2>

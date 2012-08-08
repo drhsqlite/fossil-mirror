@@ -45,8 +45,8 @@ static void tag_propagate(
   Stmt eventupdate;    /* UPDATE event */
 
   assert( tagType==0 || tagType==2 );
-  pqueue_init(&queue);
-  pqueue_insert(&queue, pid, 0.0, 0);
+  pqueuex_init(&queue);
+  pqueuex_insert(&queue, pid, 0.0, 0);
 
   /* Query for children of :pid to which to propagate the tag.
   ** Three returns:  (1) rid of the child.  (2) timestamp of child.
@@ -81,14 +81,14 @@ static void tag_propagate(
       "UPDATE event SET bgcolor=%Q WHERE objid=:rid", zValue
     );
   }
-  while( (pid = pqueue_extract(&queue, 0))!=0 ){
+  while( (pid = pqueuex_extract(&queue, 0))!=0 ){
     db_bind_int(&s, ":pid", pid);
     while( db_step(&s)==SQLITE_ROW ){
       int doit = db_column_int(&s, 2);
       if( doit ){
         int cid = db_column_int(&s, 0);
         double mtime = db_column_double(&s, 1);
-        pqueue_insert(&queue, cid, mtime, 0);
+        pqueuex_insert(&queue, cid, mtime, 0);
         db_bind_int(&ins, ":rid", cid);
         db_step(&ins);
         db_reset(&ins);
@@ -104,7 +104,7 @@ static void tag_propagate(
     }
     db_reset(&s);
   }
-  pqueue_clear(&queue);
+  pqueuex_clear(&queue);
   db_finalize(&ins);
   db_finalize(&s);
   if( tagid==TAG_BGCOLOR ){
@@ -550,8 +550,8 @@ void taglist_page(void){
   @ <ul>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
-    if( g.perm.History ){
-      @ <li><a class="tagLink" href="%s(g.zTop)/timeline?t=%T(zName)">
+    if( g.perm.Hyperlink ){
+      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>

@@ -177,7 +177,9 @@ static double endTimer(void){
 #define HAS_TIMER 0
 #endif
 
-
+/*
+** Returns true (non-0) if fossil appears to be running in JSON mode.
+*/
 char fossil_has_json(){
   return g.json.isJsonMode && (g.isHTTP || g.json.post.o);
 }
@@ -469,21 +471,22 @@ cson_value * json_getenv( char const * zKey ){
 */
 int json_getenv_int(char const * pKey, int dflt ){
   cson_value const * v = json_getenv(pKey);
-  if(!v){
-    return dflt;
-  }else if( cson_value_is_number(v) ){
-    return (int)cson_value_get_integer(v);
-  }else if( cson_value_is_string(v) ){
-    char const * sv = cson_string_cstr(cson_value_get_string(v));
-    assert( (NULL!=sv) && "This is quite unexpected." );
-    return sv ? atoi(sv) : dflt;
-  }else if( cson_value_is_bool(v) ){
-    return cson_value_get_bool(v) ? 1 : 0;
-  }else if( cson_value_is_null(v) ){
-    return 0;
-  }else{
-    /* we should arguably treat JSON null as 0. */
-    return dflt;
+  const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
+  switch(type){
+    case CSON_TYPE_INTEGER:
+    case CSON_TYPE_DOUBLE:
+      return (int)cson_value_get_integer(v);
+    case CSON_TYPE_STRING: {
+      char const * sv = cson_string_cstr(cson_value_get_string(v));
+      assert( (NULL!=sv) && "This is quite unexpected." );
+      return sv ? atoi(sv) : dflt;
+    }
+    case CSON_TYPE_BOOL:
+      return cson_value_get_bool(v) ? 1 : 0;
+    case CSON_TYPE_NULL:
+      return 0;
+    default:
+      return dflt;
   }
 }
 
@@ -505,27 +508,30 @@ int json_getenv_int(char const * pKey, int dflt ){
 */
 char json_getenv_bool(char const * pKey, char dflt ){
   cson_value const * v = json_getenv(pKey);
-  if(!v){
-    return dflt;
-  }else if( cson_value_is_number(v) ){
-    return cson_value_get_integer(v) ? 1 : 0;
-  }else if( cson_value_is_string(v) ){
-    char const * sv = cson_string_cstr(cson_value_get_string(v));
-    if(!*sv || ('0'==*sv)){
-      return 0;
-    }else{
-      return ((('1'<=*sv) && ('9'>=*sv))
-              || ('t'==*sv) || ('T'==*sv)
-              || ('y'==*sv) || ('Y'==*sv)
-              )
-        ? 1 : 0;
+  const cson_type_id type = v ? cson_value_type_id(v) : CSON_TYPE_UNDEF;
+  switch(type){
+    case CSON_TYPE_INTEGER:
+    case CSON_TYPE_DOUBLE:
+      return cson_value_get_integer(v) ? 1 : 0;
+    case CSON_TYPE_STRING: {
+      char const * sv = cson_string_cstr(cson_value_get_string(v));
+      assert( (NULL!=sv) && "This is quite unexpected." );
+      if(!*sv || ('0'==*sv)){
+        return 0;
+      }else{
+        return ((('1'<=*sv) && ('9'>=*sv))
+                || ('t'==*sv) || ('T'==*sv)
+                || ('y'==*sv) || ('Y'==*sv)
+                )
+          ? 1 : 0;
+      }
     }
-  }else if( cson_value_is_bool(v) ){
-    return cson_value_get_bool(v) ? 1 : 0;
-  }else if( cson_value_is_null(v) ){
-    return 0;
-  }else{
-    return dflt;
+    case CSON_TYPE_BOOL:
+      return cson_value_get_bool(v) ? 1 : 0;
+    case CSON_TYPE_NULL:
+      return 0;
+    default:
+      return dflt;
   }
 }
 
@@ -757,9 +763,9 @@ cson_value * json_auth_token(){
       /* tell fossil to use this login info.
 
       FIXME?: because the JSON bits don't carry around
-      login_cookie_name(), there is a potential login hijacking
-      window here. We may need to change the JSON auth token to be
-      in the form: login_cookie_name()=...
+      login_cookie_name(), there is(?) a potential(?) login hijacking
+      window here. We may need to change the JSON auth token to be in
+      the form: login_cookie_name()=...
 
       Then again, the hardened cookie value helps ensure that
       only a proper key/value match is valid.
@@ -868,14 +874,13 @@ void json_warn( int code, char const * fmt, ... ){
   assert( (code>FSL_JSON_W_START)
           && (code<FSL_JSON_W_END)
           && "Invalid warning code.");
-  if(!g.json.warnings.v){
-    g.json.warnings.v = cson_value_new_array();
-    assert((NULL != g.json.warnings.v) && "Alloc error.");
-    g.json.warnings.a = cson_value_get_array(g.json.warnings.v);
-    json_gc_add("$WARNINGS",g.json.warnings.v);
+  if(!g.json.warnings){
+    g.json.warnings = cson_new_array();
+    assert((NULL != g.json.warnings) && "Alloc error.");
+    json_gc_add("$WARNINGS",cson_array_value(g.json.warnings));
   }
   obj = cson_new_object();
-  cson_array_append(g.json.warnings.a, cson_object_value(obj));
+  cson_array_append(g.json.warnings, cson_object_value(obj));
   cson_object_set(obj,"code",cson_value_new_integer(code));
   if(fmt && *fmt){
     /* FIXME: treat NULL fmt as standard warning message for
@@ -934,8 +939,7 @@ int json_string_split( char const * zStr,
         char * zPart = NULL;
         ++rc;
         assert( head != p );
-        zPart = (char*)malloc(len+1);
-        assert( (zPart != NULL) && "malloc failure" );
+        zPart = (char*)fossil_malloc(len+1);
         memcpy(zPart, head, len);
         zPart[len] = 0;
         if(doDeHttp){
@@ -959,7 +963,7 @@ int json_string_split( char const * zStr,
             */
             ;
         }
-        free(zPart);
+        fossil_free(zPart);
         len = 0;
       }
       if( !*p ){
@@ -992,17 +996,13 @@ int json_string_split( char const * zStr,
 cson_value * json_string_split2( char const * zStr,
                                  char separator,
                                  char doDeHttp ){
-  cson_value * v = cson_value_new_array();
-  cson_array * a = cson_value_get_array(v);
+  cson_array * a = cson_new_array();
   int rc = json_string_split( zStr, separator, doDeHttp, a );
-  if( 0 == rc ){
-    cson_value_free(v);
-    v = NULL;
-  }else if(rc<0){
-    cson_value_free(v);
-    v = NULL;
+  if( 0>=rc ){
+    cson_free_array(a);
+    a = NULL;
   }
-  return v;
+  return a ? cson_array_value(a) : NULL;
 }
 
 
@@ -1446,7 +1446,7 @@ cson_value * json_g_to_json(){
   VAL(cmd, g.json.cmd.v);
   VAL(param, g.json.param.v);
   VAL(POST, g.json.post.v);
-  VAL(warnings, g.json.warnings.v);
+  VAL(warnings, cson_array_value(g.json.warnings));
   /*cson_output_opt outOpt;*/
 
   
@@ -1559,8 +1559,8 @@ static cson_value * json_create_response( int resultCode,
     */
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
   }
-  if(g.json.warnings.v){
-    tmp = g.json.warnings.v;
+  if(g.json.warnings){
+    tmp = cson_array_value(g.json.warnings);
     SET("warnings");
   }
   
@@ -1667,8 +1667,9 @@ int json_set_err( int code, char const * fmt, ... ){
     g.zErrMsg = mprintf("%s", json_err_cstr(code));
   }else{
     va_list vargs;
+    char * msg;
     va_start(vargs,fmt);
-    char * msg = vmprintf(fmt, vargs);
+    msg = vmprintf(fmt, vargs);
     va_end(vargs);
     g.zErrMsg = msg;
   }
@@ -1699,7 +1700,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     if(!colNames){
       colNamesV = cson_sqlite3_column_names(pStmt->pStmt);
       assert(NULL != colNamesV);
-      cson_value_add_reference(colNamesV)/*avoids an ownership problem*/;
+      /*Why? cson_value_add_reference(colNamesV) avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
     }      
@@ -1710,10 +1711,10 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
     }
     if( 0 != cson_array_append(a, row) ){
       cson_value_free(row);
-      assert( 0 && "Alloc error.");
       if(pTgt != a) {
         cson_free_array(a);
       }
+      assert( 0 && "Alloc error.");
       return NULL;
     }
   }
@@ -1831,9 +1832,7 @@ cson_value * json_value_to_bool(cson_value const * zVal){
 **
 */
 cson_value * json_page_resultCodes(){
-    cson_value * listV = cson_value_new_array();
-    cson_array * list = cson_value_get_array(listV);
-    cson_value * objV = NULL;
+    cson_array * list = cson_new_array();
     cson_object * obj = NULL;
     cson_string * kRC;
     cson_string * kSymbol;
@@ -1844,12 +1843,12 @@ cson_value * json_page_resultCodes(){
     kSymbol = cson_new_string("cSymbol",7);
     kNumber = cson_new_string("number",6);
     kDesc = cson_new_string("description",11);
-#define C(K) objV = cson_value_new_object(); obj = cson_value_get_object(objV); \
+#define C(K) obj = cson_new_object(); \
     cson_object_set_s(obj, kRC, json_new_string(json_rc_cstr(FSL_JSON_E_##K)) ); \
     cson_object_set_s(obj, kSymbol, json_new_string("FSL_JSON_E_"#K) );             \
     cson_object_set_s(obj, kNumber, cson_value_new_integer(FSL_JSON_E_##K) );        \
     cson_object_set_s(obj, kDesc, json_new_string(json_err_cstr(FSL_JSON_E_##K))); \
-    cson_array_append( list, objV ); obj = NULL; objV = NULL
+    cson_array_append( list, cson_object_value(obj) ); obj = NULL;
 
     C(GENERIC);
     C(INVALID_REQUEST);
@@ -1890,7 +1889,7 @@ cson_value * json_page_resultCodes(){
     C(DB_NOT_FOUND);
     C(DB_NOT_VALID);
 #undef C
-    return listV;
+    return cson_array_value(list);
 }
 
 
@@ -1914,7 +1913,7 @@ cson_value * json_page_version(){
                    cson_value_new_integer(RELEASE_VERSION_NUMBER) );
   cson_object_set( jobj, "resultCodeParanoiaLevel",
                    cson_value_new_integer(g.json.errorDetailParanoia) );
-  /*FSET(FOSSIL_JSON_API_VERSION, "jsonApiVersion" );*/
+  FSET(FOSSIL_JSON_API_VERSION, "jsonApiVersion" );
 #undef FSET
   return jval;
 }
@@ -1986,7 +1985,7 @@ cson_value * json_page_cap(){
   ADD(Query,"query"); /* don't think this one is actually used */
   ADD(Write,"checkin");
   ADD(Read,"checkout");
-  ADD(History,"history");
+  ADD(Hyperlink,"history");
   ADD(Clone,"clone");
   ADD(RdWiki,"readWiki");
   ADD(NewWiki,"createWiki");
@@ -2318,7 +2317,8 @@ static int json_dispatch_root_command( char const * zCommand ){
   return rc;
 }
 
-#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
+#ifdef FOSSIL_ENABLE_JSON
+/* dupe ifdef needed for mkindex */
 /*
 ** WEBPAGE: json
 **
@@ -2341,7 +2341,8 @@ void json_page_top(void){
 }
 #endif /* FOSSIL_ENABLE_JSON for mkindex */
 
-#ifdef FOSSIL_ENABLE_JSON /* dupe ifdef needed for mkindex */
+#ifdef FOSSIL_ENABLE_JSON
+/* dupe ifdef needed for mkindex */
 /*
 ** This function dispatches json commands and is the CLI equivalent of
 ** json_page_top().
@@ -2360,7 +2361,9 @@ void json_page_top(void){
 **   artifact
 **   branch
 **   cap
+**   config
 **   diff
+**   dir
 **   g
 **   login
 **   logout
@@ -2377,9 +2380,7 @@ void json_page_top(void){
 **   wiki
 **
 ** Run '%fossil json' without any subcommand to see the full list (but be
-** aware that some listed might not yet be implemented).
-**
-** PS: the notable TODO-commands include: config, dir, finfo, ticket
+** aware that some listed might not yet be fully implemented).
 **
 */
 void json_cmd_top(void){

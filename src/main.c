@@ -26,7 +26,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h> /* atexit() */
-
+#if !defined(_WIN32)
+#  include <errno.h> /* errno global */
+#endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
@@ -62,7 +64,7 @@ struct FossilUserPerms {
   char Query;            /* q: create new reports */
   char Write;            /* i: xfer inbound. checkin */
   char Read;             /* o: xfer outbound. checkout */
-  char History;          /* h: access historical information. */
+  char Hyperlink;        /* h: enable the display of hyperlinks */
   char Clone;            /* g: clone */
   char RdWiki;           /* j: view wiki via web */
   char NewWiki;          /* f: create new wiki via web */
@@ -137,7 +139,8 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  int isHTTP;             /* True if running in server/CGI modes, else assume CLI. */
+  char isHTTP;            /* True if erver/CGI modes, else assume CLI. */
+  char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
   int urlIsFile;          /* True if a "file:" url */
   int urlIsHttps;         /* True if a "https:" url */
@@ -244,10 +247,7 @@ struct Global {
       cson_value * v;
       cson_object * o;
     } reqPayload;              /* request payload object (if any) */
-    struct {                   /* response warnings */
-      cson_value * v;
-      cson_array * a;
-    } warnings;
+    cson_array * warnings;     /* response warnings */
   } json;
 #endif /* FOSSIL_ENABLE_JSON */
 };
@@ -452,6 +452,7 @@ int main(int argc, char **argv){
        argv[0], argv[0], argv[0]);
     fossil_exit(1);
   }else{
+    const char *zChdir = find_option("chdir",0,1);
     g.isHTTP = 0;
     g.fQuiet = find_option("quiet", 0, 0)!=0;
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
@@ -462,6 +463,9 @@ int main(int argc, char **argv){
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    if( zChdir && chdir(zChdir) ){
+      fossil_fatal("unable to change directories to %s", zChdir);
+    }
     if( find_option("help",0,0)!=0 ){
       /* --help anywhere on the command line is translated into
       ** "fossil help argv[1] argv[2]..." */
@@ -557,7 +561,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       once = 0;
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
-    }else{
+    }else if( !g.fQuiet ){
       char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
       fossil_puts(zOut, 1);
     }
@@ -589,7 +593,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       g.cgiOutput = 0;
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
-    }else{
+    }else if( !g.fQuiet ){
       char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
       fossil_puts(zOut, 1);
     }
@@ -1089,6 +1093,17 @@ void set_base_url(void){
     g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
     g.zTop = &g.zBaseURL[7+strlen(zHost)];
   }
+  if( db_is_writeable("repository") ){
+    if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
+      db_multi_exec("INSERT INTO config(name,value,mtime)"
+                    "VALUES('baseurl:%q',1,now())", g.zBaseURL);
+    }else{
+      db_optional_sql("repository",
+           "REPLACE INTO config(name,value,mtime)"
+           "VALUES('baseurl:%q',1,now())", g.zBaseURL
+      );
+    }
+  }
 }
 
 /*
@@ -1137,8 +1152,11 @@ static char *enter_chroot_jail(char *zRepo){
     if( stat(zRepo, &sStat)!=0 ){
       fossil_fatal("cannot stat() repository: %s", zRepo);
     }
-    setgid(sStat.st_gid);
-    setuid(sStat.st_uid);
+    i = setgid(sStat.st_gid);
+    i = i || setuid(sStat.st_uid);
+    if(i){
+      fossil_fatal("setgid/uid() failed with errno %d", errno);
+    }
     if( g.db!=0 ){
       db_close(1);
       db_open_repository(zRepo);
@@ -1317,7 +1335,7 @@ static void process_one_web_page(const char *zNotFound){
   ** mode at this point (namely, for GET mode we don't know but POST
   ** we do), so we snoop g.zPath and cheat a bit.
   */
-  if( g.zPath && (0==strcmp("json",g.zPath)) ){
+  if( !g.json.isJsonMode && g.zPath && (0==strncmp("json",g.zPath,4)) ){
     g.json.isJsonMode = 1;
   }
 #endif

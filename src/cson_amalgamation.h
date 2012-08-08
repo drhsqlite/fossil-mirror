@@ -134,6 +134,55 @@ scanf()-compatible format token for cson_double_t.
 printf()-compatible format token for cson_double_t.
 */
 
+/**
+    Type IDs corresponding to JavaScript/JSON types.
+
+    These are only in the public API to allow O(1) client-side
+    dispatching based on cson_value types.
+*/
+enum cson_type_id {
+  /**
+    The special "undefined" value constant.
+
+    Its value must be 0 for internal reasons.
+ */
+ CSON_TYPE_UNDEF = 0,
+ /**
+    The special "null" value constant.
+ */
+ CSON_TYPE_NULL = 1,
+ /**
+    The bool value type.
+ */
+ CSON_TYPE_BOOL = 2,
+ /**
+    The integer value type, represented in this library
+    by cson_int_t.
+ */
+ CSON_TYPE_INTEGER = 3,
+ /**
+    The double value type, represented in this library
+    by cson_double_t.
+ */
+ CSON_TYPE_DOUBLE = 4,
+ /** The immutable string type. This library stores strings
+    as immutable UTF8.
+ */
+ CSON_TYPE_STRING = 5,
+ /** The "Array" type. */
+ CSON_TYPE_ARRAY = 6,
+ /** The "Object" type. */
+ CSON_TYPE_OBJECT = 7
+};
+/**
+   Convenience typedef.
+*/
+typedef enum cson_type_id cson_type_id;
+
+
+/**
+   Convenience typedef.
+*/
 typedef struct cson_value cson_value;
 
 /** @struct cson_value
@@ -213,6 +262,7 @@ typedef struct cson_value cson_value;
    @see cson_value_false()
    @see cson_value_null()
    @see cson_value_free()
+   @see cson_value_type_id()
 */
 
 /** @var cson_rc
@@ -742,6 +792,12 @@ int cson_output_FILE( cson_value const * src, FILE * dest, cson_output_opt const
    @see cson_output_FILE()
 */
 int cson_output_filename( cson_value const * src, char const * dest, cson_output_opt const * fmt );
+
+/**
+   Returns the virtual type of v, or CSON_TYPE_UNDEF if !v.
+*/
+cson_type_id cson_value_type_id( cson_value const * v );
+
 
 /** Returns true if v is null, v->api is NULL, or v holds the special undefined value. */
 char cson_value_is_undef( cson_value const * v );

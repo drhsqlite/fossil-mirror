@@ -53,7 +53,7 @@ cson_value * json_page_report(){
                  "Requires 'r' or 'n' permissions.");
     return NULL;
   }
-  return json_page_dispatch_helper(&JsonPageDefs_Report[0]);
+  return json_page_dispatch_helper(JsonPageDefs_Report);
 }
 
 /*
@@ -80,6 +80,7 @@ static int json_report_get_number(int argPos){
 }
 
 static cson_value * json_report_create(){
+  json_set_err(FSL_JSON_E_NYI, NULL);
   return NULL;
 }
 
@@ -250,7 +251,7 @@ static cson_value * json_report_run(){
   assert(0 != g.json.resultCode);
   cson_value_free( cson_object_value(pay) );
   pay = NULL;
-    end:
+  end:
 
   return pay ? cson_object_value(pay) : NULL;
 

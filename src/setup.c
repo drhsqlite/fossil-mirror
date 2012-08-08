@@ -85,6 +85,8 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Ad-Unit", "setup_adunit",
+    "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
     "Change the logo and background images for the server");
   setup_menu_entry("Shunned", "shun",
@@ -95,6 +97,8 @@ void setup_page(void){
     "A record of login attempts");
   setup_menu_entry("Stats", "stat",
     "Display repository statistics");
+  setup_menu_entry("SQL", "admin_sql",
+    "Enter raw SQL commands");
   @ </table>
 
   style_footer();
@@ -108,6 +112,7 @@ void setup_page(void){
 */
 void setup_ulist(void){
   Stmt s;
+  int prevLevel = 0;
 
   login_check_credentials();
   if( !g.perm.Admin ){
@@ -121,20 +126,51 @@ void setup_ulist(void){
   @ <tr><td class="usetupColumnLayout">
   @ <span class="note">Users:</span>
   @ <table class="usetupUserList">
-  @ <tr>
-  @   <th class="usetupListUser" style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
-  @   <th class="usetupListCap" style="text-align: center;padding-right: 15px;">Capabilities</th>
-  @   <th class="usetupListCon"  style="text-align: left;">Contact&nbsp;Info</th>
-  @ </tr>
-  db_prepare(&s, "SELECT uid, login, cap, info FROM user ORDER BY login");
+  prevLevel = 0;
+  db_prepare(&s, 
+     "SELECT uid, login, cap, info, 1 FROM user"
+     " WHERE login IN ('anonymous','nobody','developer','reader') "
+     " UNION ALL "
+     "SELECT uid, login, cap, info, 2 FROM user"
+     " WHERE login NOT IN ('anonymous','nobody','developer','reader') "
+     "ORDER BY 5, 2"
+  );
   while( db_step(&s)==SQLITE_ROW ){
+    int iLevel = db_column_int(&s, 4);
     const char *zCap = db_column_text(&s, 2);
+    const char *zLogin = db_column_text(&s, 1);
+    if( iLevel>prevLevel ){
+      if( prevLevel>0 ){
+        @ <tr><td colspan="3"><hr></td></tr>
+      }
+      if( iLevel==1 ){
+        @ <tr>
+        @   <th class="usetupListUser"
+        @    style="text-align: right;padding-right: 20px;">Category</th>
+        @   <th class="usetupListCap"
+        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
+        @   <th class="usetupListCon"
+        @    style="text-align: left;">Notes</th>
+        @ </tr>
+      }else{
+        @ <tr>
+        @   <th class="usetupListUser"
+        @    style="text-align: right;padding-right: 20px;">User&nbsp;ID</th>
+        @   <th class="usetupListCap"
+        @    style="text-align: center;padding-right: 15px;">Capabilities</th>
+        @   <th class="usetupListCon"
+        @    style="text-align: left;">Contact&nbsp;Info</th>
+        @ </tr>
+      }
+      prevLevel = iLevel;
+    }
     @ <tr>
-    @ <td class="usetupListUser" style="text-align: right;padding-right: 20px;white-space:nowrap;">
+    @ <td class="usetupListUser"
+    @     style="text-align: right;padding-right: 20px;white-space:nowrap;">
     if( g.perm.Admin && (zCap[0]!='s' || g.perm.Setup) ){
       @ <a href="setup_uedit?id=%d(db_column_int(&s,0))">
     }
-    @ %h(db_column_text(&s,1))
+    @ %h(zLogin)
     if( g.perm.Admin ){
       @ </a>
     }
@@ -517,31 +553,58 @@ void user_edit(void){
   @   <td class="usetupEditLabel">Capabilities:</td>
   @   <td>
 #define B(x) inherit[x]
+  @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @    <input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup<br />
+    @  <label><input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup
+    @  </label><br />
   }
-  @    <input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin<br />
-  @    <input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete<br />
-  @    <input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email<br />
-  @    <input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password<br />
-  @    <input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In<br />
-  @    <input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out<br />
-  @    <input type="checkbox" name="ah"%s(oah) />%s(B('h'))History<br />
-  @    <input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader<br />
-  @    <input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer<br />
-  @    <input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone<br />
-  @    <input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki<br />
-  @    <input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki<br />
-  @    <input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki<br />
-  @    <input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki<br />
-  @    <input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments<br />
-  @    <input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket<br />
-  @    <input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket<br />
-  @    <input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket<br />
-  @    <input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket<br />
-  @    <input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report<br />
-  @    <input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private<br />
-  @    <input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
+  @  <label><input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin
+  @  </label><br />
+  @  <label><input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete
+  @  </label><br />
+  @  <label><input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email
+  @  </label><br />
+  @  <label><input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password
+  @  </label><br />
+  @  <label><input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In
+  @  </label><br />
+  @  <label><input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out
+  @  </label><br />
+  @  <label><input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks
+  @  </label><br />
+  @ </td><td><td width="40"></td><td valign="top">
+  @  <label><input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader
+  @  </label><br />
+  @  <label><input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer
+  @  </label><br />
+  @  <label><input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone
+  @  </label><br />
+  @  <label><input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments
+  @  </label><br />
+  @ </td><td><td width="40"></td><td valign="top">
+  @  <label><input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report
+  @  </label><br />
+  @  <label><input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private
+  @  </label><br />
+  @  <label><input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
+  @  </label>
+  @ </td></tr></table>
   @   </td>
   @ </tr>
   @ <tr>
@@ -627,10 +690,10 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The <span class="capability">History</span> privilege allows a user
+  @ The <span class="capability">Hyperlinks</span> privilege allows a user
   @ to see most hyperlinks. This is recommended ON for most logged-in users
   @ but OFF for user "nobody" to avoid problems with spiders trying to walk
-  @ every historical version of every baseline and file.
+  @ every diff and annotation of every historical check-in and file.
   @ </p></li>
   @
   @ <li><p>
@@ -639,8 +702,8 @@ void user_edit(void){
   @ hyperlink and permits access to the <tt>/zip</tt> page.  This allows
   @ users to download ZIP archives without granting other rights like
   @ <span class="capability">Read</span> or
-  @ <span class="capability">History</span>.  This privilege is recommended for
-  @ user <span class="usertype">nobody</span> so that automatic package
+  @ <span class="capability">Hyperlink</span>.  The "z" privilege is recommended
+  @ for user <span class="usertype">nobody</span> so that automatic package
   @ downloaders can obtain the sources without going through the login
   @ procedure.
   @ </p></li>
@@ -706,8 +769,8 @@ void user_edit(void){
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignore.
   @ To avoid problems with spiders overloading the server, it is recommended
-  @ that the <span class="capability">h</span> (History) capability be turned 
-  @ off for the <span class="usertype">nobody</span> user.
+  @ that the <span class="capability">h</span> (Hyperlinks) capability be
+  @ turned off for the <span class="usertype">nobody</span> user.
   @ </p></li>
   @
   @ <li><p>
@@ -893,15 +956,35 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
-  onoff_attribute("Enable hyperlinks for \"nobody\" based on User-Agent",
-                  "auto-enable-hyperlinks", "autohyperlink", 1);
+  onoff_attribute(
+      "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
+      "auto-hyperlink", "autohyperlink", 1);
   @ <p>Enable hyperlinks (the equivalent of the "h" permission) for all users
-  @ including user "nobody", as long as the User-Agent string in the HTTP header
-  @ indicates that the request is coming from an actual human being and not a
-  @ a robot or script.  Note:  Bots can specify whatever User-Agent string they
-  @ that want.  So a bot that wants to impersonate a human can easily do so.
-  @ Hence, this technique does not necessarily exclude malicious bots.
+  @ including user "nobody", as long as (1) the User-Agent string in the
+  @ HTTP header indicates that the request is coming from an actual human
+  @ being and not a a robot or spider and (2) the user agent is able to
+  @ run Javascript in order to set the href= attribute of hyperlinks.  Bots
+  @ and spiders can specify whatever User-Agent string they that want and
+  @ they can run javascript just like browsers.  But most bots don't go to
+  @ that much trouble so this is normally an effective defense.</p>
+  @
+  @ <p>You do not normally want a bot to walk your entire repository because
+  @ if it does, your server will end up computing diffs and annotations for
+  @ every historical version of every file and creating ZIPs and tarballs of
+  @ every historical check-in, which can use a lot of CPU and bandwidth
+  @ even for relatively small projects.</p>
+
+  @ <hr />
+  entry_attribute("Public pages", 30, "public-pages",
+                  "pubpage", "");
+  @ <p>A comma-separated list of glob patterns for pages that are accessible
+  @ without needing a login and using the privileges given by the
+  @ "Default privileges" setting below.  Example use case: Set this field
+  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the 
+  @ latest version of the embedded documentation in the www/ folder without
+  @ allowing them to see the rest of the source code.
   @ </p>
+
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
@@ -916,8 +999,10 @@ void setup_access(void){
   @ <hr />
   entry_attribute("Default privileges", 10, "default-perms",
                   "defaultperms", "u");
-  @ <p>Permissions given to users that register themselves using the HTTP UI
-  @ or are registered by the administrator using the command line interface.
+  @ <p>Permissions given to users that... <ul><li>register themselves using
+  @ the self-registration procedure (if enabled), or <li>access "public"
+  @ pages identified by the public-pages glob pattern above, or <li>
+  @ are users newly created by the administrator.</ul>
   @ </p>
 
   @ <hr />
@@ -1110,7 +1195,7 @@ void setup_settings(void){
       }
     }
   }
-  @ </td><td style="width: 30;"></td><td valign="top">
+  @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     if( pSet->width!=0 ){
       entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
@@ -1126,9 +1211,11 @@ void setup_settings(void){
   @ </td></tr></table>
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>
-  @ <p>Settings marked with (v) are 'versionable' and will be overridden by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
+  @ <p>Settings marked with (v) are 'versionable' and will be overridden
+  @ by the contents of files named <tt>.fossil-settings/PROPERTY</tt>.</p>
   @ <hr /><p>
-  @ These settings work in the same way, as the <kbd>set</kbd> commandline:<br />
+  @ These settings work in the same way, as the <kbd>set</kbd>
+  @ commandline:<br />
   @ </p><pre>%s(zHelp_setting_cmd)</pre>
   db_end_transaction(0);
   style_footer();
@@ -1318,6 +1405,40 @@ void setup_footer(void){
 }
 
 /*
+** WEBPAGE: setup_adunit
+*/
+void setup_adunit(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  if( P("clear")!=0 ){
+    db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+  }else{
+    textarea_attribute(0, 0, 0, "adunit", "adunit", "");
+  }
+  style_header("Edit Ad Unit");
+  @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
+  login_insert_csrf_secret();
+  @ <p>Edit HTML text for an ad unit that will be inserted after the
+  @ menu bar and above the content of every page.</p>
+  textarea_attribute("", 20, 80, "adunit", "adunit", "");
+  @ <br />
+  onoff_attribute("Omit ads to administrator",
+     "adunit-omit-if-admin", "oia", 0);
+  @ <br />
+  onoff_attribute("Omit ads to logged-in users",
+     "adunit-omit-if-user", "oiu", 0);
+  @ <br />
+  @ <input type="submit" name="submit" value="Apply Changes" />
+  @ <input type="submit" name="clear" value="Delete Ad-Unit" />
+  @ </div></form>
+  style_footer();
+  db_end_transaction(0);
+}
+
+/*
 ** WEBPAGE: setup_logo
 */
 void setup_logo(void){
@@ -1438,4 +1559,119 @@ void setup_logo(void){
   @ take effect. </p>
   style_footer();
   db_end_transaction(0);
+}
+
+
+/*
+** WEBPAGE: admin_sql
+**
+** Run raw SQL commands against the database file using the web interface.
+*/
+void sql_page(void){
+  const char *zQ = P("q");
+  int go = P("go")!=0;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  style_header("Raw SQL Commands");
+  @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
+  @ run by this page.  You can do serious and irrepairable damage to the
+  @ repository.  Proceed with extreme caution.</p>
+  @
+  @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
+  if( g.configOpen ){
+    @ <li>config &rarr; %s(db_name("configdb"))
+  }
+  if( g.localOpen ){
+    @ <li>local-checkout &rarr; %s(db_name("localdb"))
+  }
+  @ </ul></p>
+  @
+  @ <form method="post" action="%s(g.zTop)/admin_sql">
+  login_insert_csrf_secret();
+  @ SQL:<br />
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <input type="submit" name="go" value="Run SQL">
+  @ <input type="submit" name="schema" value="Show Schema">
+  @ <input type="submit" name="tablelist" value="List Tables">
+  @ </form>
+  if( P("schema") ){
+    zQ = sqlite3_mprintf(
+            "SELECT sql FROM %s.sqlite_master WHERE sql IS NOT NULL",
+            db_name("repository"));
+    go = 1;
+  }else if( P("tablelist") ){
+    zQ = sqlite3_mprintf(
+            "SELECT name FROM %s.sqlite_master WHERE type='table'"
+            " ORDER BY name",
+            db_name("repository"));
+    go = 1;
+  }
+  if( go ){
+    sqlite3_stmt *pStmt;
+    int rc;
+    const char *zTail;
+    int nCol;
+    int nRow = 0;
+    int i;
+    @ <hr />
+    login_verify_csrf_secret();
+    rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
+    if( rc!=SQLITE_OK ){
+      @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
+      sqlite3_finalize(pStmt);
+    }else if( pStmt==0 ){
+      /* No-op */
+    }else if( (nCol = sqlite3_column_count(pStmt))==0 ){
+      sqlite3_step(pStmt);
+      rc = sqlite3_finalize(pStmt);
+      if( rc ){
+        @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
+      }
+    }else{
+      @ <table border=1>
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){
+        if( nRow==0 ){
+          @ <tr>
+          for(i=0; i<nCol; i++){
+            @ <th>%h(sqlite3_column_name(pStmt, i))</th>
+          }
+          @ </tr>
+        }
+        nRow++;
+        @ <tr>
+        for(i=0; i<nCol; i++){
+          switch( sqlite3_column_type(pStmt, i) ){
+            case SQLITE_INTEGER:
+            case SQLITE_FLOAT: {
+               @ <td align="right" valign="top">
+               @ %s(sqlite3_column_text(pStmt, i))</td>
+               break;
+            }
+            case SQLITE_NULL: {
+               @ <td valign="top" align="center"><i>NULL</i></td>
+               break;
+            }
+            case SQLITE_TEXT: {
+               const char *zText = (const char*)sqlite3_column_text(pStmt, i);
+               @ <td align="left" valign="top"
+               @ style="white-space:pre;">%h(zText)</td>
+               break;
+            }
+            case SQLITE_BLOB: {
+               @ <td valign="top" align="center">
+               @ <i>%d(sqlite3_column_bytes(pStmt, i))-byte BLOB</i></td>
+               break;
+            }
+          }
+        }
+        @ </tr>
+      }
+      sqlite3_finalize(pStmt);
+      @ </table>
+    }
+  }
+  style_footer();
 }

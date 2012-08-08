@@ -22,11 +22,16 @@
 
 /**
    FOSSIL_JSON_API_VERSION holds the date (YYYYMMDD) of the latest
-   "significant" change to the JSON API (a change in an interface
-   or new functionality). It is sent as part of the /json/version
-   request. We could arguably add it to each response.
+   "significant" change to the JSON API (a change in an interface or
+   new functionality). It is sent as part of the /json/version
+   request. We could arguably add it to each response or even add a
+   version number to each response type, allowing very fine (too
+   fine?) granularity in compatibility change notification. The
+   version number could be included in part of the command dispatching
+   framework, allowing the top-level dispatching code to deal with it
+   (for the most part).
 */
-#define FOSSIL_JSON_API_VERSION "20120409"
+#define FOSSIL_JSON_API_VERSION "20120713"
 
 /*
 ** Impl details for the JSON API which need to be shared
@@ -174,6 +179,9 @@ typedef struct JsonPageDef{
   ** Now that we can simulate POST in CLI mode, the distinction
   ** between them has disappeared in most (or all) cases, so 0 is the
   ** the standard value.
+  **
+  ** 201207: this is not needed any more. We can get rid of it. Or
+  ** keep it around in case it becomes useful again at some point.
   */
   char runMode;
 } JsonPageDef;
@@ -215,22 +223,6 @@ const FossilJsonKeys_ FossilJsonKeys;
 cson_value * json_page_dispatch_helper(JsonPageDef const * pages);
 
 /*
-** Implements the /json/wiki family of pages/commands.
-**
-*/
-cson_value * json_page_wiki();
-
-/*
-** Implements /json/timeline/wiki and /json/wiki/timeline.
-*/
-cson_value * json_timeline_wiki();
-
-/*
-** Implements /json/timeline family of functions.
-*/
-cson_value * json_page_timeline();
-
-/*
 ** Convenience wrapper around cson_value_new_string().
 ** Returns NULL if str is NULL or on allocation error.
 */
@@ -266,6 +258,9 @@ cson_value * json_new_string_f( char const * fmt, ... );
 */
 char fossil_has_json();
 
+enum json_get_changed_files_flags {
+    json_get_changed_files_ELIDE_PARENT = 1 << 0
+};
 
 #endif/*FOSSIL_JSON_DETAIL_H_INCLUDED*/
 #endif /* FOSSIL_ENABLE_JSON */

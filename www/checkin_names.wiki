@@ -10,6 +10,7 @@ names:
 <li> Tag or branchname
 <li> Timestamp:  <i>YYYY-MM-DD HH:MM:SS</i>
 <li> <i>tag-name</i> <big><b>:</b></big> <i>timestamp</i>
+<li> <b>root :</b> <i>branchname</i>
 <li> Special names:
 <ul>
 <li> <b>tip</b>
@@ -125,10 +126,14 @@ check-in that occurs no later than the timestamp given:
   *   <i>YYYY-MM-DD</i>
   *   <i>YYYY-MM-DD HH:MM</i>
   *   <i>YYYY-MM-DD HH:MM:SS</i>
+  *   <i>YYYY-MM-DD HH:MM:SS.SSS</i>
 
 The space between the day and the year can optionally be 
 replaced by an uppercase <b>T</b> and the entire timestamp can
-optionally be followed by "<b>z</b>" or "<b>Z</b>".
+optionally be followed by "<b>z</b>" or "<b>Z</b>".  In the fourth
+form with fractional seconds, any number of digits may follow the
+decimal point, though due to precision limits only the first three
+digits will be significant.
 
 In its default configuration, Fossil interprets and displays all dates
 in Universal Coordinated Time (UTC).  This tends to work the best for
@@ -169,6 +174,19 @@ fossil update trunk:2010-07-01T14:30
 Would cause Fossil to update the working check-out to be the most recent
 check-in on the trunk that is not more recent that 14:30 (UTC) on 
 July 1, 2010.
+
+<h2>Root Of A Branch</h2>
+
+A branch name that begins with the "<tt>root:</tt>" prefix refers to the
+last check-in in the parent branch prior to the beginning of the branch.
+Such a label is useful, for example, in computing all diffs for a single
+branch.  The following example will show all changes in the hypothetical
+branch "xyzzy":
+
+<blockquote>
+fossil diff --from root:xyzzy --to xyzzy
+</blockquote>
+
 
 <h2>Special Tags</h2>
 

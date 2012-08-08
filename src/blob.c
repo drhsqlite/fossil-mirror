@@ -441,9 +441,6 @@ int blob_seek(Blob *p, int offset, int whence){
   }else if( whence==BLOB_SEEK_END ){
     p->iCursor = p->nUsed + offset - 1;
   }
-  if( p->iCursor<0 ){
-    p->iCursor = 0;
-  }
   if( p->iCursor>p->nUsed ){
     p->iCursor = p->nUsed;
   }
@@ -703,7 +700,8 @@ int blob_read_from_channel(Blob *pBlob, FILE *in, int nToRead){
 **
 ** Any prior content of the blob is discarded, not freed.
 **
-** Return the number of bytes read.  Return -1 for an error.
+** Return the number of bytes read. Calls fossil_panic() error (i.e.
+** it exit()s and does not return).
 */
 int blob_read_from_file(Blob *pBlob, const char *zFilename){
   int size, got;
@@ -1082,4 +1080,15 @@ unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){
     pIn->iCursor += nLen;
   }
   return nLen;
+}
+
+/*
+** Swaps the contents of the given blobs. Results
+** are unspecified if either value is NULL or both
+** point to the same blob.
+*/
+void blob_swap( Blob *pLeft, Blob *pRight ){
+  Blob swap = *pLeft;
+  *pLeft = *pRight;
+  *pRight = swap;
 }

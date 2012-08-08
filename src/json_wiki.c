@@ -1,6 +1,6 @@
 #ifdef FOSSIL_ENABLE_JSON
 /*
-** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011-12 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -50,9 +50,14 @@ static const JsonPageDef JsonPageDefs_Wiki[] = {
 **
 */
 cson_value * json_page_wiki(){
-  return json_page_dispatch_helper(&JsonPageDefs_Wiki[0]);
+  return json_page_dispatch_helper(JsonPageDefs_Wiki);
 }
 
+/*
+** Returns the UUID for the given wiki blob RID, or NULL if not
+** found. The returned string is allocated via db_text() and must be
+** free()d by the caller.
+*/
 char * json_wiki_get_uuid_for_rid( int rid )
 {
   return db_text(NULL,
@@ -85,7 +90,6 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
                   rid );
     return NULL;
   }else{
-    /*char const * zFormat = NULL;*/
     unsigned int len = 0;
     cson_object * pay = cson_new_object();
     char const * zBody = pWiki->zWiki;
@@ -109,9 +113,9 @@ cson_value * json_get_wiki_page_by_rid(int rid, char contentFormat){
                       json_new_int((cson_int_t)(zBody?strlen(zBody):0)));
     }else{
       if( contentFormat>0 ){/*HTML-ize it*/
-        zFormat = "html";
         Blob content = empty_blob;
         Blob raw = empty_blob;
+        zFormat = "html";
         if(zBody && *zBody){
           blob_append(&raw,zBody,-1);
           wiki_convert(&raw,&content,0);
@@ -494,7 +498,7 @@ static cson_value * json_wiki_diff(){
   char const * zErrTag = NULL;
   int diffFlags;
   char * zUuid = NULL;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'h' permissions.");
     return NULL;

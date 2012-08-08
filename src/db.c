@@ -117,6 +117,9 @@ static struct DbLocalData {
     int sequence;               /* Call functions in sequence order */
   } aHook[5];
   char *azDeleteOnFail[3];  /* Files to delete on a failure */
+  char *azBeforeCommit[5];  /* Commands to run prior to COMMIT */
+  int nBeforeCommit;        /* Number of entries in azBeforeCommit */
+  int nPriorChanges;        /* sqlite3_total_changes() at transaction start */
 } db = {0, 0, 0, 0, 0, 0, };
 
 /*
@@ -151,6 +154,7 @@ void db_begin_transaction(void){
   if( db.nBegin==0 ){
     db_multi_exec("BEGIN");
     sqlite3_commit_hook(g.db, db_verify_at_commit, 0);
+    db.nPriorChanges = sqlite3_total_changes(g.db);
   }
   db.nBegin++;
 }
@@ -161,7 +165,14 @@ void db_end_transaction(int rollbackFlag){
   db.nBegin--;
   if( db.nBegin==0 ){
     int i;
-    if( db.doRollback==0 ) leaf_do_pending_checks();
+    if( db.doRollback==0 && db.nPriorChanges<sqlite3_total_changes(g.db) ){
+      while( db.nBeforeCommit ){
+        db.nBeforeCommit--;
+        sqlite3_exec(g.db, db.azBeforeCommit[db.nBeforeCommit], 0, 0, 0);
+        sqlite3_free(db.azBeforeCommit[db.nBeforeCommit]);
+      }
+      leaf_do_pending_checks();
+    }
     for(i=0; db.doRollback==0 && i<db.nCommitHook; i++){
       db.doRollback |= db.aHook[i].xHook();
     }
@@ -488,6 +499,20 @@ int db_multi_exec(const char *zSql, ...){
   }
   blob_reset(&sql);
   return rc;
+}
+
+/*
+** Optionally make the following changes to the database if feasible and
+** convenient.  Do not start a transaction for these changes, but only
+** make these changes if other changes are also being made.
+*/
+void db_optional_sql(const char *zDb, const char *zSql, ...){
+  if( db_is_writeable(zDb) && db.nBeforeCommit < count(db.azBeforeCommit) ){
+    va_list ap;
+    va_start(ap, zSql);
+    db.azBeforeCommit[db.nBeforeCommit++] = sqlite3_vmprintf(zSql, ap);
+    va_end(ap);
+  }
 }
 
 /*
@@ -1001,6 +1026,13 @@ int db_schema_is_outofdate(void){
 }
 
 /*
+** Return true if the database is writeable
+*/
+int db_is_writeable(const char *zName){
+  return g.db!=0 && !sqlite3_db_readonly(g.db, db_name(zName));
+}
+
+/*
 ** Verify that the repository schema is correct.  If it is not correct,
 ** issue a fatal error and die.
 */
@@ -1053,7 +1085,7 @@ void move_repo_cmd(void){
 */
 void db_must_be_within_tree(void){
   if( db_open_local()==0 ){
-    fossil_fatal("not within an open checkout");
+    fossil_fatal("current directory is not within an open checkout");
   }
   db_open_repository(0);
   db_verify_schema();
@@ -1332,33 +1364,51 @@ static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv)
 }
 
 /*
-** This is used by the [commit] command.
+** SQL function:
 **
-** Return true if either:
+**       is_selected(id)
+**       if_selected(id, X, Y)
 **
-**     a) Global.aCommitFile is NULL, or
-**     b) Global.aCommitFile contains the integer passed as an argument.
+** On the commit command, when filenames are specified (in order to do
+** a partial commit) the vfile.id values for the named files are loaded
+** into the g.aCommitFile[] array.  This function looks at that array
+** to see if a file is named on the command-line.
 **
-** Otherwise return false.
+** In the first form (1 argument) return TRUE if either no files are
+** named on the command line (g.aCommitFile is NULL meaning that all
+** changes are to be committed) or if id is found in g.aCommitFile[]
+** (meaning that id was named on the command-line).
+**
+** In the second form (3 arguments) return argument X if true and Y
+** if false.  Except if Y is NULL then always return X.
 */
 static void file_is_selected(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
 ){
-  assert(argc==1);
+  int rc = 0;
+
+  assert(argc==1 || argc==3);
   if( g.aCommitFile ){
     int iId = sqlite3_value_int(argv[0]);
     int ii;
     for(ii=0; g.aCommitFile[ii]; ii++){
       if( iId==g.aCommitFile[ii] ){
-        sqlite3_result_int(context, 1);
-        return;
+        rc = 1;
+        break;
       }
     }
-    sqlite3_result_int(context, 0);
   }else{
-    sqlite3_result_int(context, 1);
+    rc = 1;
+  }
+  if( argc==1 ){
+    sqlite3_result_int(context, rc);
+  }else{
+    assert( argc==3 );
+    assert( rc==0 || rc==1 );
+    if( sqlite3_value_type(argv[2-rc])==SQLITE_NULL ) rc = 1-rc;
+    sqlite3_result_value(context, argv[2-rc]);
   }
 }
 
@@ -1431,7 +1481,10 @@ LOCAL void db_connection_init(void){
   sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
   sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
   sqlite3_create_function(
-    g.db, "file_is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+    g.db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  sqlite3_create_function(
+    g.db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
   );
   if( g.fSqlTrace ){
     sqlite3_trace(g.db, db_sql_trace, 0);
@@ -1715,9 +1768,16 @@ void db_record_repository_filename(const char *zName){
       "VALUES('ckout:%q','%q');",
       blob_str(&localRoot), blob_str(&full)
     );
+    db_swap_connections();
+    db_optional_sql("repository", 
+        "REPLACE INTO config(name,value,mtime)"
+        "VALUES('ckout:%q',1,now())",
+        blob_str(&localRoot)
+    );
     blob_reset(&localRoot);
+  }else{
+    db_swap_connections();
   }
-  db_swap_connections();
   blob_reset(&full);
 }
 
@@ -1756,8 +1816,13 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
-  db_init_database("./_FOSSIL_", zLocalSchema, (char*)0);
-  db_delete_on_failure("./_FOSSIL_");
+#if defined(_WIN32)
+# define LOCALDB_NAME "./_FOSSIL_"
+#else
+# define LOCALDB_NAME "./.fslckout"
+#endif
+  db_init_database(LOCALDB_NAME, zLocalSchema, (char*)0);
+  db_delete_on_failure(LOCALDB_NAME);
   db_open_local();
   db_lset("repository", g.argv[2]);
   db_record_repository_filename(blob_str(&path));
@@ -1845,6 +1910,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "access-log",    0,                0, 0, "off"                 },
   { "allow-symlinks",0,                0, 1, "off"                 },
   { "auto-captcha",  "autocaptcha",    0, 0, "on"                  },
+  { "auto-hyperlink",0,                0, 0, "on",                 },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
   { "binary-glob",   0,               32, 1, ""                    },
@@ -1909,6 +1975,11 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    auto-captcha     If enabled, the Login page provides a button to
 **                     fill in the captcha password.  Default: on
+**
+**    auto-hyperlink   Use javascript to enable hyperlinks on web pages
+**                     for all users (regardless of the "h" privilege) if the
+**                     User-Agent string in the HTTP header look like it came
+**                     from real person, not a spider or bot.  Default: on
 **
 **    auto-shun        If enabled, automatically pull the shunning list
 **                     from a server to which the client autosyncs.

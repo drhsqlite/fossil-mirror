@@ -55,7 +55,7 @@ cson_value * json_page_timeline(){
      but it arguably should. For JSON mode i think one could argue
      that History permissions are required.
   */
-  if(! g.perm.History && !g.perm.Read ){
+  if(! g.perm.Hyperlink && !g.perm.Read ){
     json_set_err(FSL_JSON_E_DENIED, "Timeline requires 'h' or 'o' access.");
     return NULL;
   }
@@ -283,12 +283,16 @@ static int json_timeline_setup_sql( char const * zEventType,
   return 0;
 }
 
+
 /*
 ** If any files are associated with the given rid, a JSON array
 ** containing information about them is returned (and is owned by the
 ** caller). If no files are associated with it then NULL is returned.
+**
+** flags may optionally be a bitmask of json_get_changed_files flags,
+** or 0 for defaults.
 */
-cson_value * json_get_changed_files(int rid){
+cson_value * json_get_changed_files(int rid, int flags){
   cson_value * rowsV = NULL;
   cson_array * rows = NULL;
   Stmt q = empty_Stmt;
@@ -318,7 +322,7 @@ cson_value * json_get_changed_files(int rid){
     cson_array_append( rows, rowV );
     cson_object_set(row, "name", json_new_string(db_column_text(&q,2)));
     cson_object_set(row, "uuid", json_new_string(db_column_text(&q,3)));
-    if(!isNew){
+    if(!isNew && (flags & json_get_changed_files_ELIDE_PARENT)){
       cson_object_set(row, "parent", json_new_string(db_column_text(&q,4)));
     }
     cson_object_set(row, "size", json_new_int(db_column_int(&q,5)));
@@ -428,7 +432,7 @@ static cson_value * json_timeline_ci(){
   Stmt q = empty_Stmt;
   char warnRowToJsonFailed = 0;
   Blob sql = empty_blob;
-  if( !g.perm.History ){
+  if( !g.perm.Hyperlink ){
     /* Reminder to self: HTML impl requires 'o' (Read)
        rights.
     */

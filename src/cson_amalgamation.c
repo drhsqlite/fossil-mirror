@@ -1424,44 +1424,6 @@ extern "C" {
 
 
     
-/**
-   Type IDs corresponding to JavaScript/JSON types.
-*/
-enum cson_type_id {
-  /**
-    The special "undefined" value constant.
-
-    Its value must be 0 for internal reasons.
- */
- CSON_TYPE_UNDEF = 0,
- /**
-    The special "null" value constant.
- */
- CSON_TYPE_NULL = 1,
- /**
-    The bool value type.
- */
- CSON_TYPE_BOOL = 2,
- /**
-    The integer value type, represented in this library
-    by cson_int_t.
- */
- CSON_TYPE_INTEGER = 3,
- /**
-    The double value type, represented in this library
-    by cson_double_t.
- */
- CSON_TYPE_DOUBLE = 4,
- /** The immutable string type. This library stores strings
-    as immutable UTF8.
- */
- CSON_TYPE_STRING = 5,
- /** The "Array" type. */
- CSON_TYPE_ARRAY = 6,
- /** The "Object" type. */
- CSON_TYPE_OBJECT = 7
-};
-typedef enum cson_type_id cson_type_id;
 
 /**
    This type holds the "vtbl" for type-specific operations when
@@ -2316,12 +2278,10 @@ static char cson_value_is_a( cson_value const * v, cson_type_id is )
 }
 #endif
 
-#if 0
 cson_type_id cson_value_type_id( cson_value const * v )
 {
     return (v && v->api) ? v->api->typeID : CSON_TYPE_UNDEF;
 }
-#endif
 
 char cson_value_is_undef( cson_value const * v )
 {
@@ -4474,7 +4434,7 @@ Tokenizes an input string on a given separator. Inputs are:
 
 - (end) = a pointer to NULL. i.e. (*end == NULL)
 
-This function scans *inp for the given separator char or a NULL char.
+This function scans *inp for the given separator char or a NUL char.
 Successive separators at the start of *inp are skipped. The effect is
 that, when this function is called in a loop, all neighboring
 separators are ignored. e.g. the string "aa.bb...cc" will tokenize to

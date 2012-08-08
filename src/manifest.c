@@ -976,6 +976,7 @@ void manifest_test_parse_cmd(void){
     Blob b2;
     blob_copy(&b2, &b);
     p = manifest_parse(&b2, 0);
+    if( p==0 ) fossil_print("FAILED!\n");
     manifest_destroy(p);
   }
 }

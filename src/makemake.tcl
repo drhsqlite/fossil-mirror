@@ -182,6 +182,7 @@ writeln {
 all:	$(OBJDIR) $(APPNAME)
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):
@@ -291,18 +292,18 @@ append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
 writeln "\$(OBJDIR)/th_tcl.o:\t\$(SRCDIR)/th_tcl.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 
 set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
 }
 
 close $output_file
@@ -368,16 +369,16 @@ FOSSIL_TCL_SOURCE = 1
 #    to create a hard link between an "zlib-1.x.y" sub-directory of the
 #    Fossil source code directory and the target zlib source directory.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.6
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.6
+ZINCDIR = $(SRCDIR)/../zlib-1.2.7
+ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1a/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1a
+OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1c/include
+OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1c
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -418,7 +419,6 @@ TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
-TCC += -Dpqueue_insert=pqueue_insert_fossil
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
 endif
 
@@ -508,10 +508,10 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
-MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
-MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex.exe)
-VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
+writeln {TRANSLATE   = $(OBJDIR)/translate.exe
+MAKEHEADERS = $(OBJDIR)/makeheaders.exe
+MKINDEX     = $(OBJDIR)/mkindex.exe
+VERSION     = $(OBJDIR)/version.exe
 }
 
 writeln {
@@ -522,6 +522,7 @@ $(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
 	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
 
 install:	$(APPNAME)
+	mkdir -p $(INSTALLDIR)
 	mv $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):
@@ -622,14 +623,14 @@ append opt " -DSQLITE_OMIT_LOAD_EXTENSION=1"
 writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/shell.c -o \$(OBJDIR)/shell.o\n"
 
 writeln "\$(OBJDIR)/th.o:\t\$(SRCDIR)/th.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th.c -o \$(OBJDIR)/th.o\n"
 
 writeln "\$(OBJDIR)/th_lang.o:\t\$(SRCDIR)/th_lang.c"
-writeln "\t\$(XTCC) -I\$(SRCDIR) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
+writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 
 writeln {ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
-	$(XTCC) -I$(SRCDIR) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
+	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
 endif
 }
 

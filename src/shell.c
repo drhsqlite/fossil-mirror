@@ -36,17 +36,13 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
+#if !defined(_WIN32) && !defined(WIN32)
 # include <signal.h>
 # if !defined(__RTP__) && !defined(_WRS_KERNEL)
 #  include <pwd.h>
 # endif
 # include <unistd.h>
 # include <sys/types.h>
-#endif
-
-#ifdef __OS2__
-# include <unistd.h>
 #endif
 
 #ifdef HAVE_EDITLINE
@@ -92,7 +88,7 @@ static int enableTimer = 0;
 #define IsDigit(X)  isdigit((unsigned char)X)
 #define ToLower(X)  (char)tolower((unsigned char)X)
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
+#if !defined(_WIN32) && !defined(WIN32) && !defined(_WRS_KERNEL)
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -499,7 +495,7 @@ static void output_hex_blob(FILE *out, const void *pBlob, int nBlob){
   int i;
   char *zBlob = (char *)pBlob;
   fprintf(out,"X'");
-  for(i=0; i<nBlob; i++){ fprintf(out,"%02x",zBlob[i]); }
+  for(i=0; i<nBlob; i++){ fprintf(out,"%02x",zBlob[i]&0xff); }
   fprintf(out,"'");
 }
 
@@ -2184,23 +2180,25 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         zShellStatic = azArg[1];
         rc = sqlite3_exec(p->db,
           "SELECT sql FROM "
-          "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
+          "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
           "     FROM sqlite_master UNION ALL"
-          "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
+          "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
           "WHERE lower(tbl_name) LIKE shellstatic()"
           "  AND type!='meta' AND sql NOTNULL "
-          "ORDER BY substr(type,2,1), name",
+          "ORDER BY substr(type,2,1), "
+                  " CASE type WHEN 'view' THEN rowid ELSE name END",
           callback, &data, &zErrMsg);
         zShellStatic = 0;
       }
     }else{
       rc = sqlite3_exec(p->db,
          "SELECT sql FROM "
-         "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
+         "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
          "     FROM sqlite_master UNION ALL"
-         "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
+         "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
          "WHERE type!='meta' AND sql NOTNULL AND name NOT LIKE 'sqlite_%'"
-         "ORDER BY substr(type,2,1), name",
+         "ORDER BY substr(type,2,1),"
+                  " CASE type WHEN 'view' THEN rowid ELSE name END",
          callback, &data, &zErrMsg
       );
     }
@@ -2248,46 +2246,71 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   }else
 
   if( c=='t' && n>1 && strncmp(azArg[0], "tables", n)==0 && nArg<3 ){
+    sqlite3_stmt *pStmt;
     char **azResult;
-    int nRow;
-    char *zErrMsg;
+    int nRow, nAlloc;
+    char *zSql = 0;
+    int ii;
     open_db(p);
-    if( nArg==1 ){
-      rc = sqlite3_get_table(p->db,
-        "SELECT name FROM sqlite_master "
-        "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' "
-        "UNION ALL "
-        "SELECT name FROM sqlite_temp_master "
-        "WHERE type IN ('table','view') "
-        "ORDER BY 1",
-        &azResult, &nRow, 0, &zErrMsg
-      );
-    }else{
-      zShellStatic = azArg[1];
-      rc = sqlite3_get_table(p->db,
-        "SELECT name FROM sqlite_master "
-        "WHERE type IN ('table','view') AND name LIKE shellstatic() "
-        "UNION ALL "
-        "SELECT name FROM sqlite_temp_master "
-        "WHERE type IN ('table','view') AND name LIKE shellstatic() "
-        "ORDER BY 1",
-        &azResult, &nRow, 0, &zErrMsg
-      );
-      zShellStatic = 0;
+    rc = sqlite3_prepare_v2(p->db, "PRAGMA database_list", -1, &pStmt, 0);
+    if( rc ) return rc;
+    zSql = sqlite3_mprintf(
+        "SELECT name FROM sqlite_master"
+        " WHERE type IN ('table','view')"
+        "   AND name NOT LIKE 'sqlite_%%'"
+        "   AND name LIKE ?1");
+    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+      const char *zDbName = (const char*)sqlite3_column_text(pStmt, 1);
+      if( zDbName==0 || strcmp(zDbName,"main")==0 ) continue;
+      if( strcmp(zDbName,"temp")==0 ){
+        zSql = sqlite3_mprintf(
+                 "%z UNION ALL "
+                 "SELECT 'temp.' || name FROM sqlite_temp_master"
+                 " WHERE type IN ('table','view')"
+                 "   AND name NOT LIKE 'sqlite_%%'"
+                 "   AND name LIKE ?1", zSql);
+      }else{
+        zSql = sqlite3_mprintf(
+                 "%z UNION ALL "
+                 "SELECT '%q.' || name FROM \"%w\".sqlite_master"
+                 " WHERE type IN ('table','view')"
+                 "   AND name NOT LIKE 'sqlite_%%'"
+                 "   AND name LIKE ?1", zSql, zDbName, zDbName);
+      }
     }
-    if( zErrMsg ){
-      fprintf(stderr,"Error: %s\n", zErrMsg);
-      sqlite3_free(zErrMsg);
-      rc = 1;
-    }else if( rc != SQLITE_OK ){
-      fprintf(stderr,"Error: querying sqlite_master and sqlite_temp_master\n");
-      rc = 1;
+    sqlite3_finalize(pStmt);
+    zSql = sqlite3_mprintf("%z ORDER BY 1", zSql);
+    rc = sqlite3_prepare_v2(p->db, zSql, -1, &pStmt, 0);
+    sqlite3_free(zSql);
+    if( rc ) return rc;
+    nRow = nAlloc = 0;
+    azResult = 0;
+    if( nArg>1 ){
+      sqlite3_bind_text(pStmt, 1, azArg[1], -1, SQLITE_TRANSIENT);
     }else{
+      sqlite3_bind_text(pStmt, 1, "%", -1, SQLITE_STATIC);
+    }
+    while( sqlite3_step(pStmt)==SQLITE_ROW ){
+      if( nRow>=nAlloc ){
+        char **azNew;
+        int n = nAlloc*2 + 10;
+        azNew = sqlite3_realloc(azResult, sizeof(azResult[0])*n);
+        if( azNew==0 ){
+          fprintf(stderr, "Error: out of memory\n");
+          break;
+        }
+        nAlloc = n;
+        azResult = azNew;
+      }
+      azResult[nRow] = sqlite3_mprintf("%s", sqlite3_column_text(pStmt, 0));
+      if( azResult[nRow] ) nRow++;
+    }
+    sqlite3_finalize(pStmt);        
+    if( nRow>0 ){
       int len, maxlen = 0;
       int i, j;
       int nPrintCol, nPrintRow;
-      for(i=1; i<=nRow; i++){
-        if( azResult[i]==0 ) continue;
+      for(i=0; i<nRow; i++){
         len = strlen30(azResult[i]);
         if( len>maxlen ) maxlen = len;
       }
@@ -2295,14 +2318,15 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       if( nPrintCol<1 ) nPrintCol = 1;
       nPrintRow = (nRow + nPrintCol - 1)/nPrintCol;
       for(i=0; i<nPrintRow; i++){
-        for(j=i+1; j<=nRow; j+=nPrintRow){
-          char *zSp = j<=nPrintRow ? "" : "  ";
+        for(j=i; j<nRow; j+=nPrintRow){
+          char *zSp = j<nPrintRow ? "" : "  ";
           printf("%s%-*s", zSp, maxlen, azResult[j] ? azResult[j] : "");
         }
         printf("\n");
       }
     }
-    sqlite3_free_table(azResult);
+    for(ii=0; ii<nRow; ii++) sqlite3_free(azResult[ii]);
+    sqlite3_free(azResult);
   }else
 
   if( c=='t' && n>=8 && strncmp(azArg[0], "testctrl", n)==0 && nArg>=2 ){
@@ -2437,6 +2461,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   }else
   
   if( c=='t' && strncmp(azArg[0], "trace", n)==0 && nArg>1 ){
+    open_db(p);
     output_file_close(p->traceOut);
     p->traceOut = output_file_open(azArg[1]);
 #ifndef SQLITE_OMIT_TRACE
@@ -2572,7 +2597,9 @@ static int process_input(struct callback_data *p, FILE *in){
     free(zLine);
     zLine = one_input_line(zSql, in);
     if( zLine==0 ){
-      break;  /* We have reached EOF */
+      /* End of input */
+      if( stdin_is_interactive ) printf("\n");
+      break;
     }
     if( seenInterrupt ){
       if( in!=0 ) break;
@@ -2665,11 +2692,13 @@ static char *find_home_dir(void){
   static char *home_dir = NULL;
   if( home_dir ) return home_dir;
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
-  struct passwd *pwent;
-  uid_t uid = getuid();
-  if( (pwent=getpwuid(uid)) != NULL) {
-    home_dir = pwent->pw_dir;
+#if !defined(_WIN32) && !defined(WIN32) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
+  {
+    struct passwd *pwent;
+    uid_t uid = getuid();
+    if( (pwent=getpwuid(uid)) != NULL) {
+      home_dir = pwent->pw_dir;
+    }
   }
 #endif
 
@@ -2679,7 +2708,7 @@ static char *find_home_dir(void){
   home_dir = "/";
 #else
 
-#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
+#if defined(_WIN32) || defined(WIN32)
   if (!home_dir) {
     home_dir = getenv("USERPROFILE");
   }
@@ -2689,7 +2718,7 @@ static char *find_home_dir(void){
     home_dir = getenv("HOME");
   }
 
-#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
+#if defined(_WIN32) || defined(WIN32)
   if (!home_dir) {
     char *zDrive, *zPath;
     int n;
@@ -2905,11 +2934,7 @@ int main(int argc, char **argv){
     }
   }
   if( i<argc ){
-#if defined(SQLITE_OS_OS2) && SQLITE_OS_OS2
-    data.zDbFilename = (const char *)convertCpPathToUtf8( argv[i++] );
-#else
     data.zDbFilename = argv[i++];
-#endif
   }else{
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";

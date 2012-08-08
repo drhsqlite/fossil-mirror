@@ -583,7 +583,7 @@ void tarball_page(void){
   if( !g.perm.Zip ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid",""));
+  zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
   if( nName>7 && fossil_strcmp(&zName[nName-7], ".tar.gz")==0 ){
     /* Special case:  Remove the ".tar.gz" suffix.  */

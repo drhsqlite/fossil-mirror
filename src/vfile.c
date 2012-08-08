@@ -208,10 +208,12 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       if( blob_compare(&fileCksum, &origCksum)==0 ) chnged = 0;
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
-    }else if( chnged==0 && (useMtime==0 || currentMtime!=oldMtime) ){
-      /* For files that were formerly believed to be unchanged, if their
-      ** mtime changes, or unconditionally if --sha1sum is used, check
-      ** to see if they have been edited by looking at their SHA1 sum */
+    }else if( (chnged==0 || chnged==2)
+           && (useMtime==0 || currentMtime!=oldMtime) ){
+      /* For files that were formerly believed to be unchanged or that were
+      ** changed by merging, if their mtime changes, or unconditionally
+      ** if --sha1sum is used, check to see if they have been edited by
+      ** looking at their SHA1 sum */
       assert( origSize==currentSize );
       db_ephemeral_blob(&q, 5, &origCksum);
       if( sha1sum_file(zName, &fileCksum) ){
@@ -473,10 +475,10 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 
   db_must_be_within_tree();
   db_prepare(&q, 
-      "SELECT %Q || pathname, pathname, origname, file_is_selected(id), rid"
+      "SELECT %Q || pathname, pathname, origname, is_selected(id), rid"
       "  FROM vfile"
-      " WHERE (NOT deleted OR NOT file_is_selected(id)) AND vid=%d"
-      " ORDER BY pathname /*scan*/",
+      " WHERE (NOT deleted OR NOT is_selected(id)) AND vid=%d"
+      " ORDER BY if_selected(id, pathname, origname) /*scan*/",
       g.zLocalRoot, vid
   );
   md5sum_init();
@@ -538,6 +540,21 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 }
 
 /*
+** Write a BLOB into a random filename.  Return the name of the file.
+*/
+static char *write_blob_to_temp_file(Blob *pBlob){
+  sqlite3_uint64 r;
+  char *zOut = 0;
+  do{
+    sqlite3_free(zOut);
+    sqlite3_randomness(8, &r);
+    zOut = sqlite3_mprintf("file-%08llx", r);
+  }while( file_size(zOut)>=0 );
+  blob_write_to_file(pBlob, zOut);
+  return zOut;
+}
+
+/*
 ** Do a file-by-file comparison of the content of the repository and
 ** the working check-out on disk.  Report any errors.
 */
@@ -545,11 +562,13 @@ void vfile_compare_repository_to_disk(int vid){
   int rc;
   Stmt q;
   Blob disk, repo;
+  char *zOut;
   
   db_must_be_within_tree();
   db_prepare(&q, 
       "SELECT %Q || pathname, pathname, rid FROM vfile"
-      " WHERE NOT deleted AND vid=%d AND file_is_selected(id)",
+      " WHERE NOT deleted AND vid=%d AND is_selected(id)"
+      " ORDER BY if_selected(id, pathname, origname) /*scan*/",
       g.zLocalRoot, vid
   );
   md5sum_init();
@@ -574,6 +593,10 @@ void vfile_compare_repository_to_disk(int vid){
     if( blob_size(&repo)!=blob_size(&disk) ){
       fossil_print("ERROR: [%s] is %d bytes on disk but %d in the repository\n",
              zName, blob_size(&disk), blob_size(&repo));
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+                   zName, zOut);
+      sqlite3_free(zOut);
       blob_reset(&disk);
       blob_reset(&repo);
       continue;
@@ -582,6 +605,10 @@ void vfile_compare_repository_to_disk(int vid){
       fossil_print(
           "ERROR: [%s] is different on disk compared to the repository\n",
           zName);
+      zOut = write_blob_to_temp_file(&repo);
+      fossil_print("NOTICE: Repository version of [%s] stored in [%s]\n",
+          zName, zOut);
+      sqlite3_free(zOut);
     }
     blob_reset(&disk);
     blob_reset(&repo);
@@ -603,11 +630,11 @@ void vfile_aggregate_checksum_repository(int vid, Blob *pOut){
 
   db_must_be_within_tree();
  
-  db_prepare(&q, "SELECT pathname, origname, rid, file_is_selected(id)"
+  db_prepare(&q, "SELECT pathname, origname, rid, is_selected(id)"
                  " FROM vfile"
-                 " WHERE (NOT deleted OR NOT file_is_selected(id))"
+                 " WHERE (NOT deleted OR NOT is_selected(id))"
                  "   AND rid>0 AND vid=%d"
-                 " ORDER BY pathname /*scan*/",
+                 " ORDER BY if_selected(id,pathname,origname) /*scan*/",
                  vid);
   blob_zero(&file);
   md5sum_init();

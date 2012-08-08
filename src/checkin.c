@@ -44,7 +44,7 @@ static void status_report(
   db_prepare(&q, 
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
-    " WHERE file_is_selected(id)"
+    " WHERE is_selected(id)"
     "   AND (chnged OR deleted OR rid=0 OR pathname!=origname) ORDER BY 1"
   );
   blob_zero(&rewrittenPathname);
@@ -149,6 +149,8 @@ static int determine_cwd_relative_option()
 **                      directory.
 **    --sha1sum         Verify file status using SHA1 hashing rather
 **                      than relying on file mtimes.
+**    --header          Identify the repository if there are changes
+**    -v                Say "no changes" if there are none
 ** 
 ** See also: extra, ls, status
 */
@@ -156,6 +158,8 @@ void changes_cmd(void){
   Blob report;
   int vid;
   int useSha1sum = find_option("sha1sum", 0, 0)!=0;
+  int showHdr = find_option("header",0,0)!=0;
+  int verbose = find_option("verbose","v",0)!=0;
   int cwdRelative = 0;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
@@ -163,6 +167,13 @@ void changes_cmd(void){
   vid = db_lget_int("checkout", 0);
   vfile_check_signature(vid, 0, useSha1sum);
   status_report(&report, "", 0, cwdRelative);
+  if( verbose && blob_size(&report)==0 ){
+    blob_append(&report, "  (none)\n", -1);
+  }
+  if( showHdr && blob_size(&report)>0 ){
+    fossil_print("Changes for %s at %s:\n", db_get("project-name","???"),
+                 g.zLocalRoot);
+  }
   blob_write_to_file(&report, "-");
 }
 
@@ -676,11 +687,12 @@ static void create_manifest(
   zDate[10] = ' ';
   db_prepare(&q,
     "SELECT pathname, uuid, origname, blob.rid, isexe, islink,"
-    "       file_is_selected(vfile.id)"
+    "       is_selected(vfile.id)"
     "  FROM vfile JOIN blob ON vfile.mrid=blob.rid"
-    " WHERE (NOT deleted OR NOT file_is_selected(vfile.id))"
+    " WHERE (NOT deleted OR NOT is_selected(vfile.id))"
     "   AND vfile.vid=%d"
-    " ORDER BY 1", vid);
+    " ORDER BY if_selected(vfile.id, pathname, origname)",
+    vid);
   blob_zero(&filename);
   blob_appendf(&filename, "%s", g.zLocalRoot);
   nBasename = blob_size(&filename);
@@ -976,7 +988,7 @@ void commit_cmd(void){
   zBrClr = find_option("branchcolor",0,1);
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
-    azTag = fossil_realloc(azTag, sizeof(char*)*(nTag+2));
+    azTag = fossil_realloc((void *)azTag, sizeof(char*)*(nTag+2));
     azTag[nTag++] = zTag;
     azTag[nTag] = 0;
   }
@@ -1085,7 +1097,7 @@ void commit_cmd(void){
     blob_init(&unmodified, 0, 0);
     db_blob(&unmodified, 
       "SELECT pathname FROM vfile"
-      " WHERE chnged = 0 AND origname IS NULL AND file_is_selected(id)"
+      " WHERE chnged = 0 AND origname IS NULL AND is_selected(id)"
     );
     if( strlen(blob_str(&unmodified)) ){
       fossil_fatal("file %s has not changed", blob_str(&unmodified));
@@ -1146,7 +1158,7 @@ void commit_cmd(void){
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s FROM vfile "
-    "WHERE chnged==1 AND NOT deleted AND file_is_selected(id)",
+    "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -1284,11 +1296,11 @@ void commit_cmd(void){
   
   /* Update the vfile and vmerge tables */
   db_multi_exec(
-    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND file_is_selected(id);"
+    "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
     "DELETE FROM vmerge;"
     "UPDATE vfile SET vid=%d;"
     "UPDATE vfile SET rid=mrid, chnged=0, deleted=0, origname=NULL"
-    " WHERE file_is_selected(id);"
+    " WHERE is_selected(id);"
     , vid, nvid
   );
   db_lset_int("checkout", nvid);

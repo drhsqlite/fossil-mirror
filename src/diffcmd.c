@@ -490,6 +490,7 @@ static void diff_all_two_versions(
 ** deleted files to be displayed.
 **
 ** Options:
+**   --branch BRANCH     Show diff of all changes on BRANCH
 **   --brief             Show filenames only
 **   --context|-c N      Use N lines of context 
 **   --from|-r VERSION   select VERSION as source for the diff
@@ -505,6 +506,7 @@ void diff_cmd(void){
   int hasNFlag;              /* True if -N or --new-file flag is used */
   const char *zFrom;         /* Source version number */
   const char *zTo;           /* Target version number */
+  const char *zBranch;       /* Branch to diff */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
   int diffFlags = 0;         /* Flags to control the DIFF */
   int f;
@@ -513,10 +515,18 @@ void diff_cmd(void){
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);
   zTo = find_option("to", 0, 1);
+  zBranch = find_option("branch", 0, 1);
   diffFlags = diff_options();
   hasNFlag = find_option("new-file","N",0)!=0;
   if( hasNFlag ) diffFlags |= DIFF_NEWFILE;
 
+  if( zBranch ){
+    if( zTo || zFrom ){
+      fossil_fatal("cannot use --from or --to with --branch");
+    }
+    zTo = zBranch;
+    zFrom = mprintf("root:%s", zBranch);
+  }
   if( zTo==0 ){
     db_must_be_within_tree();
     verify_all_options();
@@ -550,7 +560,7 @@ void diff_cmd(void){
 
 /*
 ** WEBPAGE: vpatch
-** URL vpatch?from=UUID&amp;to=UUID
+** URL vpatch?from=UUID&to=UUID
 */
 void vpatch_page(void){
   const char *zFrom = P("from");
