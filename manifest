@@ -1,5 +1,5 @@
-C The\sSQL\sparameter\s$login\sin\sthe\sSQL\sfor\sa\sreport\sreturns\sthe\sname\sof\sthe\nlogin\sname\sof\sthe\scurrent\suser.
-D 2012-08-07T14:58:03.122
+C Bump\sversion\sof\sOpenSSL\sin\sthe\sMinGW\smakefiles.\s\sAlso,\sremove\ssuperfluous\ssubst\soperations\sfrom\sthe\sMinGW\smakefiles.
+D 2012-08-08T03:28:22.356
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -118,7 +118,7 @@ F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
 F src/main.mk b1bb46c6aee58a4b5902d43c671093fef373bdc3
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 6d4c58e8bc507740dc9c2b01f38e01af84f12d99
+F src/makemake.tcl b8b662d7ab694188d75dc37b1b802110bddd1820
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 97116104e753460b2ccf73dad72f3e61cb3e2f98
@@ -250,8 +250,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 2a5d0a7aabe39bc44d223222ce5eb6558eb27110
-F win/Makefile.mingw 7bc8231cff4b8ec817916ba300cabe914c5738f8
-F win/Makefile.mingw.mistachkin a05666460b7b2b1fef41d07221851c7e0587729f
+F win/Makefile.mingw 437ee0f3fd7ff9c6a48307b9642f490928041d3a
+F win/Makefile.mingw.mistachkin a9d2f75c06d182040b69db3fbe48a410806fa32a
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc a744e23c62419245ae04cbbc2cc92c3649e3e014
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e00e6205b624f0a17a17a0bea45832743dec7cf7
-R 8dc9c8abc5886a69e5febd76203f1eab
-U drh
-Z a6777674d07f0db8233b858fccd46902
+P a4249d2180521bddb2df2a2d6f168f5611dc7539
+R d4035f86e79328152d478cd99297eda9
+U mistachkin
+Z 6e9291144bb75561b98bc493e730c86e

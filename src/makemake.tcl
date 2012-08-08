@@ -376,8 +376,8 @@ ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1a/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1a
+OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1c/include
+OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1c
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -507,10 +507,10 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
-MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
-MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex.exe)
-VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
+writeln {TRANSLATE   = $(OBJDIR)/translate.exe
+MAKEHEADERS = $(OBJDIR)/makeheaders.exe
+MKINDEX     = $(OBJDIR)/mkindex.exe
+VERSION     = $(OBJDIR)/version.exe
 }
 
 writeln {
