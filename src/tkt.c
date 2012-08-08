@@ -1168,9 +1168,6 @@ void ticket_cmd(void){
           blob_appendf(&tktchng, "J%s%s %#F\n", zPfx,
                        azField[i], strlen(zValue), zValue);
         }
-        if( tktEncoding == tktFossilize ){
-          free(azValue[i]);
-        }
       }
       blob_appendf(&tktchng, "K %s\n", zTktUuid);
       blob_appendf(&tktchng, "U %F\n", zUser);
