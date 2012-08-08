@@ -4,10 +4,10 @@
   *  The default checkout database name is now ".fslckout" instead of
      "_FOSSIL_" on unix.  Both names continue to work.
   *  Added the "fossil all changes" command
-  *  Added the "fossil all list --ckout" command
-  *  Added the "public-pages" glob pattern that allows anonymous users to
-     embedded documentation on sites where source code should not be
-     accessible to anonymous users.
+  *  Added the --ckout option to the "fossil all list" command
+  *  Added the "public-pages" glob pattern that can be configured to allow
+     anonymous users to see embedded documentation on sites where source
+     code should not be accessible to anonymous users.
   *  Allow multiple --tag options on the same "fossil commit" command.
   *  Change the meaning of the --bgcolor option for "fossil commit" to only
      change the color for that one commit.  The new --branchcolor option 
@@ -15,7 +15,11 @@
   *  Add the branch= query parameter to the vdiff page and the --branch option
      to the "fossil diff" command.
   *  Check-in names of the form "root:BRANCH" now refer to the origin of
-     the branch.
+     the branch.  Hence to see all changes in a branch, use 
+     "fossil diff --from root:BRANCH --to BRANCH".  The --branch option on
+     the diff command is an alias for the same.
+  *  Add the ability to configure ad-units to be displayed between the menu
+     bar and the content.
   *  Add the ability to set a background image as part of server configuration.
   *  Allow partial commits of cherrypick merges.
   *  Updates against an uncommitted merge are now a warning, not a fatal error.
@@ -27,12 +31,12 @@
   *  Improved defense against spiders:  The src= attribute of
      &lt;a&gt; elements is set using javascript after the page loads.
   *  Enhanced formatting of the user list page.
-  *  If a file named in "fossil add" is missing, that is now a warning not
-     a fatal error.
+  *  If a file named in "fossil add" is missing, that is now a warning instead
+     of a fatal error.
   *  Fix side-by-side diff so that it displays correctly with 
      multi-byte UTF8 characters.
   *  Performance improvements in the diff logic.
-  *  Lots of other performance tweaks and documentation updates.
+  *  Other performance tweaks and documentation updates.
 
 <h2>Changes For Version 1.22 (2012-03-17)</h2>
   *  Greatly improved "diff" processing including the new --brief option,
