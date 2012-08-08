@@ -431,7 +431,7 @@ void baseline_zip_page(void){
   if( !g.perm.Zip ){ login_needed(); return; }
   zName = mprintf("%s", PD("name",""));
   nName = strlen(zName);
-  zRid = mprintf("%s", PD("uuid","tip"));
+  zRid = mprintf("%s", PD("uuid","trunk"));
   nRid = strlen(zRid);
   for(nName=strlen(zName)-1; nName>5; nName--){
     if( zName[nName]=='.' ){
