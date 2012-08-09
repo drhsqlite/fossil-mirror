@@ -1415,6 +1415,7 @@ void setup_adunit(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
+    cgi_replace_parameter("adunit","");
   }else{
     textarea_attribute(0, 0, 0, "adunit", "adunit", "");
   }
