@@ -1749,3 +1749,114 @@ void wiki_extract_links(
   }
   free(renderer.aStack);
 }
+
+/*
+** Get the next HTML token.
+**
+** z points to the start of a token.  Return the number of
+** characters in that token.
+*/
+static int nextHtmlToken(const char *z){
+  int n;
+  if( z[0]=='<' ){
+    n = markupLength(z);
+    if( n<=0 ) n = 1;
+  }else if( fossil_isspace(z[0]) ){
+    for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+  }else{
+    for(n=1; z[n] && z[n]!='<' && !fossil_isspace(z[n]); n++){}
+  }
+  return n;
+}
+
+/*
+** Return true if z[] is the word zWord in any case.
+*/
+static int isWord(const char *z, const char *zWord, int nWord){
+  return fossil_strnicmp(z, zWord, nWord)==0 && !fossil_isalpha(z[nWord]);
+}
+
+/*
+** Attempt to reformat messy HTML to be easily readable by humans.
+**
+**    *  Try to keep lines less than 80 characters in length
+**    *  Collapse white space into a single space
+**    *  Put a blank line before:
+**          <blockquote><center><code><hN><p><pre><table>
+**    *  Put a newline after <br> and <hr>
+**    *  Start each of the following elements on a new line:
+**          <address><cite><dd><div><dl><dt><li><ol><samp>
+**          <tbody><td><tfoot><th><thead><tr><ul>
+**
+** Except, do not do any reformatting inside of <pre>...</pre>
+*/
+void htmlTidy(const char *zIn, Blob *pOut){
+  int n;
+  int nPre = 0;
+  int iCur = 0;
+  while( zIn[0] ){
+    n = nextHtmlToken(zIn);
+    if( zIn[0]=='<' && n>1 ){
+      if( isWord(zIn, "<pre", 4) ){
+        if( iCur && nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+        nPre++;
+      }else if( isWord(zIn, "</pre", 5) ){
+        nPre--;
+        if( nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+      }else if( isWord(zIn, "<blockquote", 11)
+             || isWord(zIn, "<center", 7)
+             || (isWord(zIn, "<h", 2) && fossil_isdigit(zIn[2]))
+             || isWord(zIn, "<p", 2)
+             || isWord(zIn, "<table", 6) ){
+        blob_append(pOut, "\n\n", 1 + (iCur>0));
+        iCur = 0;
+      }else if( isWord(zIn, "<dd", 3)
+             || isWord(zIn, "<div", 4)
+             || isWord(zIn, "<dl", 3)
+             || isWord(zIn, "<dt", 3)
+             || isWord(zIn, "<li", 3)
+             || isWord(zIn, "<ol", 3)
+             || isWord(zIn, "<td", 3)
+             || isWord(zIn, "<th", 3)
+             || isWord(zIn, "<tr", 3)
+             || isWord(zIn, "<ul", 3) ){
+        if( iCur>0 ) blob_append(pOut, "\n", 1);
+        iCur = 0;
+      }
+      blob_append(pOut, zIn, n);
+      iCur += n;
+    }else if( fossil_isspace(zIn[0]) ){
+      if( nPre ){
+        blob_append(pOut, zIn, n);
+      }else if( iCur>=70 ){
+        blob_append(pOut, "\n", 1);
+        iCur = 0;
+      }else{
+        blob_append(pOut, " ", 1);
+        iCur++;
+      }
+    }else{
+      blob_append(pOut, zIn, n);
+      iCur += n;
+    }
+    zIn += n;
+  }
+  if( iCur ) blob_append(pOut, "\n", 1);
+}
+
+/*
+** COMMAND: test-html-tidy
+*/
+void test_html_tidy(void){
+  Blob in, out;
+  int i;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i]);
+    blob_zero(&out);
+    htmlTidy(blob_str(&in), &out);
+    blob_reset(&in);
+    fossil_puts(blob_str(&out), 0);
+    blob_reset(&out);
+  }
+}

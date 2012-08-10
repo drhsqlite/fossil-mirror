@@ -264,9 +264,17 @@ void wikiedit_page(void){
   int n;
   const char *z;
   char *zBody = (char*)P("w");
+  int isWysiwyg = P("wysiwyg")!=0;
 
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    if( isWysiwyg ){
+      Blob body;
+      blob_zero(&body);
+      htmlTidy(zBody, &body);
+      zBody = blob_str(&body);
+    }else{
+      zBody = mprintf("%s", zBody);
+    }
   }
   login_check_credentials();
   zPageName = PD("name","");
@@ -362,12 +370,15 @@ void wikiedit_page(void){
     @ <input type="submit" name="preview" value="Preview Your Changes" />
   }else{
     /* Wysiwyg editing */
-    Blob html;
+    Blob html, temp;
     @ <form method="post" action="%s(g.zTop)/wikiedit"
     @  onsubmit="wysiwygSubmit()"><div>
     @ <input type="hidden" name="wysiwyg" value="1" />
+    blob_zero(&temp);
+    wiki_convert(&wiki, &temp, 0);
     blob_zero(&html);
-    wiki_convert(&wiki, &html, 0);
+    htmlTidy(blob_str(&temp), &html);
+    blob_reset(&temp);
     wysiwygEditor("w", blob_str(&html), 60, n);
     blob_reset(&html);
     @ <br />
