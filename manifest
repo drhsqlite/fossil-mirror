@@ -1,5 +1,5 @@
-C Automatically\sclean\sup\sthe\sHTML\sthat\sis\sgenerated\sby\swebbrowsers\sand\nby\sthe\sFossil\swiki-to-html\stranslator\sso\sthat\sthe\sHTML\sis\seasier\sto\nread\sin\sthe\swysiwyg\seditor.
-D 2012-08-10T23:12:18.934
+C Reduce\sthe\smaximum\sheight\sof\sa\swiki\sedit\sframe\sto\s30\srows.
+D 2012-08-10T23:18:44.924
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -165,7 +165,7 @@ F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
-F src/wiki.c e5302bee2f0ae1e704806601ae57b116adc09ded
+F src/wiki.c 62bb8e01fb0e4d962976c55dedff3145ced0dde5
 F src/wikiformat.c 547181f9495ae19db2b00813089234a882c2124b
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/wysiwyg.c cee6f9773d6b7cd069fc18be6524cf2c62477af1
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6cd9847f5479336ffbce9fe7460e5926e2832140
-R 2f26204a66cf52762af65516db97cc2f
+P fb6f1b7b719f9f62322b6eb950ccf72cb86de4c6
+R f55adb79b27464750657a6efaa03b5d5
 U drh
-Z 7a5a490d890befb4a90b5b9b4f7d96de
+Z 08416325137cf5999ab01f6f1a59bbbc

@@ -360,7 +360,7 @@ void wikiedit_page(void){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
-  if( n>40 ) n = 40;
+  if( n>30 ) n = 30;
   if( P("wysiwyg")==0 ){
     /* Traditional markup-only editing */
     @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
