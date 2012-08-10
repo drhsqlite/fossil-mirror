@@ -56,39 +56,41 @@
 #define ATTR_SIZE               19
 #define ATTR_SRC                20
 #define ATTR_START              21
-#define ATTR_TARGET             22
-#define ATTR_TYPE               23
-#define ATTR_VALIGN             24
-#define ATTR_VALUE              25
-#define ATTR_VSPACE             26
-#define ATTR_WIDTH              27
-#define AMSK_ALIGN              0x0000001
-#define AMSK_ALT                0x0000002
-#define AMSK_BGCOLOR            0x0000004
-#define AMSK_BORDER             0x0000008
-#define AMSK_CELLPADDING        0x0000010
-#define AMSK_CELLSPACING        0x0000020
-#define AMSK_CLEAR              0x0000040
-#define AMSK_COLOR              0x0000080
-#define AMSK_COLSPAN            0x0000100
-#define AMSK_COMPACT            0x0000200
-#define AMSK_FACE               0x0000400
-#define AMSK_HEIGHT             0x0000800
-#define AMSK_HREF               0x0001000
-#define AMSK_HSPACE             0x0002000
-#define AMSK_ID                 0x0004000
-#define AMSK_NAME               0x0008000
-#define AMSK_ROWSPAN            0x0010000
-#define AMSK_SIZE               0x0020000
-#define AMSK_SRC                0x0040000
-#define AMSK_START              0x0080000
-#define AMSK_TYPE               0x0100000
-#define AMSK_VALIGN             0x0200000
-#define AMSK_VALUE              0x0400000
-#define AMSK_VSPACE             0x0800000
-#define AMSK_WIDTH              0x1000000
-#define AMSK_CLASS              0x2000000
-#define AMSK_TARGET             0x4000000
+#define ATTR_STYLE              22
+#define ATTR_TARGET             23
+#define ATTR_TYPE               24
+#define ATTR_VALIGN             25
+#define ATTR_VALUE              26
+#define ATTR_VSPACE             27
+#define ATTR_WIDTH              28
+#define AMSK_ALIGN              0x00000001
+#define AMSK_ALT                0x00000002
+#define AMSK_BGCOLOR            0x00000004
+#define AMSK_BORDER             0x00000008
+#define AMSK_CELLPADDING        0x00000010
+#define AMSK_CELLSPACING        0x00000020
+#define AMSK_CLASS              0x00000040
+#define AMSK_CLEAR              0x00000080
+#define AMSK_COLOR              0x00000100
+#define AMSK_COLSPAN            0x00000200
+#define AMSK_COMPACT            0x00000400
+#define AMSK_FACE               0x00000800
+#define AMSK_HEIGHT             0x00001000
+#define AMSK_HREF               0x00002000
+#define AMSK_HSPACE             0x00004000
+#define AMSK_ID                 0x00008000
+#define AMSK_NAME               0x00010000
+#define AMSK_ROWSPAN            0x00020000
+#define AMSK_SIZE               0x00040000
+#define AMSK_SRC                0x00080000
+#define AMSK_START              0x00100000
+#define AMSK_STYLE              0x00200000
+#define AMSK_TARGET             0x00400000
+#define AMSK_TYPE               0x00800000
+#define AMSK_VALIGN             0x01000000
+#define AMSK_VALUE              0x02000000
+#define AMSK_VSPACE             0x04000000
+#define AMSK_WIDTH              0x08000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -116,6 +118,7 @@ static const struct AllowedAttribute {
   { "size",          AMSK_SIZE,           },
   { "src",           AMSK_SRC,            },
   { "start",         AMSK_START,          },
+  { "style",         AMSK_STYLE,          },
   { "target",        AMSK_TARGET,         },
   { "type",          AMSK_TYPE,           },
   { "valign",        AMSK_VALIGN,         },
@@ -243,76 +246,92 @@ static const struct AllowedMarkup {
 } aMarkup[] = {
  { 0,               MARKUP_INVALID,      0,                    0  },
  { "a",             MARKUP_A,            MUTYPE_HYPERLINK,
-                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET },
- { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         0  },
- { "b",             MARKUP_B,            MUTYPE_FONT,          0  },
- { "big",           MARKUP_BIG,          MUTYPE_FONT,          0  },
- { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         0  },
- { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR  },
- { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         0  },
- { "cite",          MARKUP_CITE,         MUTYPE_FONT,          0  },
- { "code",          MARKUP_CODE,         MUTYPE_FONT,          0  },
+                    AMSK_HREF|AMSK_NAME|AMSK_CLASS|AMSK_TARGET|AMSK_STYLE },
+ { "address",       MARKUP_ADDRESS,      MUTYPE_BLOCK,         AMSK_STYLE },
+ { "b",             MARKUP_B,            MUTYPE_FONT,          AMSK_STYLE },
+ { "big",           MARKUP_BIG,          MUTYPE_FONT,          AMSK_STYLE },
+ { "blockquote",    MARKUP_BLOCKQUOTE,   MUTYPE_BLOCK,         AMSK_STYLE },
+ { "br",            MARKUP_BR,           MUTYPE_SINGLE,        AMSK_CLEAR },
+ { "center",        MARKUP_CENTER,       MUTYPE_BLOCK,         AMSK_STYLE },
+ { "cite",          MARKUP_CITE,         MUTYPE_FONT,          AMSK_STYLE },
+ { "code",          MARKUP_CODE,         MUTYPE_FONT,          AMSK_STYLE },
  { "col",           MARKUP_COL,          MUTYPE_SINGLE,
-                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH  },
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE },
  { "colgroup",      MARKUP_COLGROUP,     MUTYPE_BLOCK,
-                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH},
- { "dd",            MARKUP_DD,           MUTYPE_LI,            0  },
- { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          0  },
- { "div",           MARKUP_DIV,          MUTYPE_BLOCK,         AMSK_ID|AMSK_CLASS      },
- { "dl",            MARKUP_DL,           MUTYPE_LIST,          AMSK_COMPACT },
- { "dt",            MARKUP_DT,           MUTYPE_LI,            0  },
- { "em",            MARKUP_EM,           MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_COLSPAN|AMSK_WIDTH|AMSK_STYLE},
+ { "dd",            MARKUP_DD,           MUTYPE_LI,            AMSK_STYLE },
+ { "dfn",           MARKUP_DFN,          MUTYPE_FONT,          AMSK_STYLE },
+ { "div",           MARKUP_DIV,          MUTYPE_BLOCK,
+                    AMSK_ID|AMSK_CLASS|AMSK_STYLE },
+ { "dl",            MARKUP_DL,           MUTYPE_LIST,
+                    AMSK_COMPACT|AMSK_STYLE },
+ { "dt",            MARKUP_DT,           MUTYPE_LI,            AMSK_STYLE },
+ { "em",            MARKUP_EM,           MUTYPE_FONT,          AMSK_STYLE },
  { "font",          MARKUP_FONT,         MUTYPE_FONT,
-                    AMSK_COLOR|AMSK_FACE|AMSK_SIZE   },
- { "h1",            MARKUP_H1,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h2",            MARKUP_H2,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h3",            MARKUP_H3,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h4",            MARKUP_H4,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h5",            MARKUP_H5,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "h6",            MARKUP_H6,           MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_COLOR|AMSK_FACE|AMSK_SIZE|AMSK_STYLE },
+ { "h1",            MARKUP_H1,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h2",            MARKUP_H2,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h3",            MARKUP_H3,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h4",            MARKUP_H4,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h5",            MARKUP_H5,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "h6",            MARKUP_H6,           MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "hr",            MARKUP_HR,           MUTYPE_SINGLE,
-                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|AMSK_CLASS  },
- { "i",             MARKUP_I,            MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_COLOR|AMSK_SIZE|AMSK_WIDTH|
+                    AMSK_STYLE|AMSK_CLASS  },
+ { "i",             MARKUP_I,            MUTYPE_FONT,          AMSK_STYLE },
  { "img",           MARKUP_IMG,          MUTYPE_SINGLE,
                     AMSK_ALIGN|AMSK_ALT|AMSK_BORDER|AMSK_HEIGHT|
-                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH  },
- { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          0  },
+                    AMSK_HSPACE|AMSK_SRC|AMSK_VSPACE|AMSK_WIDTH|AMSK_STYLE  },
+ { "kbd",           MARKUP_KBD,          MUTYPE_FONT,          AMSK_STYLE },
  { "li",            MARKUP_LI,           MUTYPE_LI,
-                    AMSK_TYPE|AMSK_VALUE  },
+                    AMSK_TYPE|AMSK_VALUE|AMSK_STYLE  },
  { "nobr",          MARKUP_NOBR,         MUTYPE_FONT,          0  },
  { "nowiki",        MARKUP_NOWIKI,       MUTYPE_SPECIAL,       0  },
  { "ol",            MARKUP_OL,           MUTYPE_LIST,
-                    AMSK_START|AMSK_TYPE|AMSK_COMPACT  },
- { "p",             MARKUP_P,            MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         0  },
- { "s",             MARKUP_S,            MUTYPE_FONT,          0  },
- { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          0  },
- { "small",         MARKUP_SMALL,        MUTYPE_FONT,          0  },
- { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
- { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          0  },
- { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          0  },
- { "sub",           MARKUP_SUB,          MUTYPE_FONT,          0  },
- { "sup",           MARKUP_SUP,          MUTYPE_FONT,          0  },
+                    AMSK_START|AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
+ { "p",             MARKUP_P,            MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "pre",           MARKUP_PRE,          MUTYPE_BLOCK,         AMSK_STYLE },
+ { "s",             MARKUP_S,            MUTYPE_FONT,          AMSK_STYLE },
+ { "samp",          MARKUP_SAMP,         MUTYPE_FONT,          AMSK_STYLE },
+ { "small",         MARKUP_SMALL,        MUTYPE_FONT,          AMSK_STYLE },
+ { "span",          MARKUP_SPAN,         MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "strike",        MARKUP_STRIKE,       MUTYPE_FONT,          AMSK_STYLE },
+ { "strong",        MARKUP_STRONG,       MUTYPE_FONT,          AMSK_STYLE },
+ { "sub",           MARKUP_SUB,          MUTYPE_FONT,          AMSK_STYLE },
+ { "sup",           MARKUP_SUP,          MUTYPE_FONT,          AMSK_STYLE },
  { "table",         MARKUP_TABLE,        MUTYPE_TABLE,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_BORDER|AMSK_CELLPADDING|
-                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS  },
- { "tbody",         MARKUP_TBODY,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_CELLSPACING|AMSK_HSPACE|AMSK_VSPACE|AMSK_CLASS|
+                    AMSK_STYLE  },
+ { "tbody",         MARKUP_TBODY,        MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
- { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK, 
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
-                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS  },
- { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,         AMSK_ALIGN|AMSK_CLASS  },
+                    AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
+ { "thead",         MARKUP_THEAD,        MUTYPE_BLOCK,
+                    AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "tr",            MARKUP_TR,           MUTYPE_TR,
-                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS  },
- { "tt",            MARKUP_TT,           MUTYPE_FONT,          0  },
- { "u",             MARKUP_U,            MUTYPE_FONT,          0  },
+                    AMSK_ALIGN|AMSK_BGCOLOR|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE },
+ { "tt",            MARKUP_TT,           MUTYPE_FONT,          AMSK_STYLE },
+ { "u",             MARKUP_U,            MUTYPE_FONT,          AMSK_STYLE },
  { "ul",            MARKUP_UL,           MUTYPE_LIST,
-                    AMSK_TYPE|AMSK_COMPACT  },
- { "var",           MARKUP_VAR,          MUTYPE_FONT,          0  },
- { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,       AMSK_ID|AMSK_TYPE },
+                    AMSK_TYPE|AMSK_COMPACT|AMSK_STYLE  },
+ { "var",           MARKUP_VAR,          MUTYPE_FONT,          AMSK_STYLE },
+ { "verbatim",      MARKUP_VERBATIM,     MUTYPE_SPECIAL,
+                    AMSK_ID|AMSK_TYPE },
 };
 
 void show_allowed_wiki_markup( void ){

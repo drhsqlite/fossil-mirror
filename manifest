@@ -1,5 +1,5 @@
-C Fix\sthe\s"Delete\sAd-Unit"\sbutton\sso\sthat\sit\sreally\sdoes\sdelete\sthe\sad-unit.
-D 2012-08-09T19:16:13.323
+C Allow\sthe\sstyle=\sattribute\sin\swiki\smarkup.
+D 2012-08-10T12:59:56.123
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -166,7 +166,7 @@ F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 54038f4bbdf890351114d2f2e7b16594b551a6ca
-F src/wikiformat.c b61218645db9a4426c350539532af4f9d148583a
+F src/wikiformat.c b4b0e31e2daf2d64b0f0636e9ef86c2efd489030
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P eb0933ca55591d7ba79eacf237bc784bf46a0a99
-R bb78bb0d7ec56c7266995b78e055b47a
+P 869e27e739921adafd7aa104c2df8cec2fc2833b
+R 6e5ac8f3b7e26bcdff7211d83a4a08af
 U drh
-Z e7c0d1587f86f9f21b454d7c2781f646
+Z 5ca19e94107e3c0c99f7e6ede98192e1
