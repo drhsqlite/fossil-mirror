@@ -1,5 +1,5 @@
-C Reduce\sthe\smaximum\sheight\sof\sa\swiki\sedit\sframe\sto\s30\srows.
-D 2012-08-10T23:18:44.924
+C Improvements\sto\sthe\sHTML\sbeautifier.
+D 2012-08-11T02:33:17.362
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -166,7 +166,7 @@ F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 62bb8e01fb0e4d962976c55dedff3145ced0dde5
-F src/wikiformat.c 547181f9495ae19db2b00813089234a882c2124b
+F src/wikiformat.c dad2cb9055578cddb71213855f8e1eb8f7b0c80a
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/wysiwyg.c cee6f9773d6b7cd069fc18be6524cf2c62477af1
 F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fb6f1b7b719f9f62322b6eb950ccf72cb86de4c6
-R f55adb79b27464750657a6efaa03b5d5
+P e000f7f0fd8d90992fc45c5cc2b6684036d9b608
+R 9b74f8373e9d8ec4f3efa2fbf1997a15
 U drh
-Z 08416325137cf5999ab01f6f1a59bbbc
+Z 563c829b00bc33e7767bec61e4e1e592

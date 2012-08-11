@@ -1794,50 +1794,86 @@ void htmlTidy(const char *zIn, Blob *pOut){
   int n;
   int nPre = 0;
   int iCur = 0;
+  int wantSpace = 0;
+  int omitSpace = 1;
   while( zIn[0] ){
     n = nextHtmlToken(zIn);
     if( zIn[0]=='<' && n>1 ){
-      if( isWord(zIn, "<pre", 4) ){
-        if( iCur && nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
-        nPre++;
-      }else if( isWord(zIn, "</pre", 5) ){
-        nPre--;
-        if( nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
-      }else if( isWord(zIn, "<blockquote", 11)
-             || isWord(zIn, "<center", 7)
-             || (isWord(zIn, "<h", 2) && fossil_isdigit(zIn[2]))
-             || isWord(zIn, "<p", 2)
-             || isWord(zIn, "<table", 6) ){
-        blob_append(pOut, "\n\n", 1 + (iCur>0));
-        iCur = 0;
-      }else if( isWord(zIn, "<dd", 3)
-             || isWord(zIn, "<div", 4)
-             || isWord(zIn, "<dl", 3)
-             || isWord(zIn, "<dt", 3)
-             || isWord(zIn, "<li", 3)
-             || isWord(zIn, "<ol", 3)
-             || isWord(zIn, "<td", 3)
-             || isWord(zIn, "<th", 3)
-             || isWord(zIn, "<tr", 3)
-             || isWord(zIn, "<ul", 3) ){
-        if( iCur>0 ) blob_append(pOut, "\n", 1);
-        iCur = 0;
+      int i, j;
+      int isCloseTag;
+      int eTag;
+      int eType;
+      char zTag[32];
+      isCloseTag = zIn[1]=='/';
+      for(i=0, j=1+isCloseTag; i<30 && fossil_isalnum(zIn[j]); i++, j++){
+         zTag[i] = fossil_tolower(zIn[j]);
+      }
+      zTag[i] = 0;
+      eTag = findTag(zTag);
+      eType = aMarkup[eTag].iType;
+      if( eTag==MARKUP_PRE ){
+        if( isCloseTag ){
+          nPre--;
+          blob_append(pOut, zIn, n);
+          zIn += n;
+          if( nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          continue;
+        }else{
+          if( iCur && nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          nPre++;
+        }
+      }else if( eType & (MUTYPE_BLOCK|MUTYPE_TABLE) ){
+        if( !isCloseTag && nPre==0 && blob_size(pOut)>0 ){
+          blob_append(pOut, "\n\n", 1 + (iCur>0));
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }else if( (eType & (MUTYPE_LIST|MUTYPE_LI|MUTYPE_TR|MUTYPE_TD))!=0
+             || eTag==MARKUP_HR
+      ){
+        if( nPre==0 && (!isCloseTag || (eType&MUTYPE_LIST)!=0) && iCur>0 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
       }
       blob_append(pOut, zIn, n);
       iCur += n;
+      wantSpace = 0;
+      if( eTag==MARKUP_BR || eTag==MARKUP_HR ){
+        blob_append(pOut, "\n", 1);
+        iCur = 0;
+      }
     }else if( fossil_isspace(zIn[0]) ){
       if( nPre ){
         blob_append(pOut, zIn, n);
-      }else if( iCur>=70 ){
-        blob_append(pOut, "\n", 1);
-        iCur = 0;
       }else{
-        blob_append(pOut, " ", 1);
-        iCur++;
+        wantSpace = !omitSpace;
       }
     }else{
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
+      }
       blob_append(pOut, zIn, n);
       iCur += n;
+      wantSpace = omitSpace = 0;
     }
     zIn += n;
   }
