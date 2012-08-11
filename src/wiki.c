@@ -374,10 +374,11 @@ void wikiedit_page(void){
     @ <textarea name="w" class="wikiedit" cols="80" 
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
-    @ <input type="submit" name="preview" value="Preview Your Changes" />
     if( db_get_boolean("wysiwyg-wiki", 0) ){
-      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor" />
+      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
+      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
     }
+    @ <input type="submit" name="preview" value="Preview Your Changes" />
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
@@ -392,12 +393,14 @@ void wikiedit_page(void){
     wysiwygEditor("w", blob_str(&html), 60, n);
     blob_reset(&html);
     @ <br />
-    @ <input type="submit" name="edit-markup" value="Markup Editor" />
+    @ <input type="submit" name="edit-markup" value="Markup Editor"
+    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
   }
   @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="cancel" value="Cancel"
+  @  onclick='confirm("Abandon your changes?")' />
   @ </div></form>
   manifest_destroy(pWiki);
   blob_reset(&wiki);
