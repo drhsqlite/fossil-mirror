@@ -1250,10 +1250,16 @@ void setup_config(void){
   @ <p>Give your project a name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.</p>
   @ <hr />
-  textarea_attribute("Project Description", 5, 60,
+  textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "");
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  onoff_attribute("Enable WYSIWYG Wiki Editing",
+                  "wysiwyg-wiki", "wysiwyg-wiki", 0);
+  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
+  @ The WYSIWYG editor generates HTML instead of markup, which makes
+  @ subsequent manual editing more difficult.</p>
   @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home");
   @ <p>Enter the pathname of the page to display when the "Home" menu

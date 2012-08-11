@@ -187,10 +187,15 @@ void wiki_page(void){
   }
   if( !g.isHome ){
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
-      style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
-           g.zTop, zPageName);
-      style_submenu_element("Wysiwyg", "Wysiwyg Editor",
-           "%s/wikiedit?name=%T&wysiwyg", g.zTop, zPageName);
+      if( db_get_boolean("wysiwyg-wiki", 0) ){
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T&wysiwyg=1",
+             g.zTop, zPageName);
+      }else{
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T",
+             g.zTop, zPageName);
+      }
     }
     if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
@@ -266,6 +271,8 @@ void wikiedit_page(void){
   char *zBody = (char*)P("w");
   int isWysiwyg = P("wysiwyg")!=0;
 
+  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
+  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
   if( zBody ){
     if( isWysiwyg ){
       Blob body;
@@ -361,13 +368,16 @@ void wikiedit_page(void){
   }
   if( n<20 ) n = 20;
   if( n>30 ) n = 30;
-  if( P("wysiwyg")==0 ){
+  if( !isWysiwyg ){
     /* Traditional markup-only editing */
     @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
     @ <textarea name="w" class="wikiedit" cols="80" 
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
     @ <input type="submit" name="preview" value="Preview Your Changes" />
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor" />
+    }
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
@@ -382,6 +392,7 @@ void wikiedit_page(void){
     wysiwygEditor("w", blob_str(&html), 60, n);
     blob_reset(&html);
     @ <br />
+    @ <input type="submit" name="edit-markup" value="Markup Editor" />
   }
   @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
@@ -409,7 +420,11 @@ void wikinew_page(void){
   }  
   zName = PD("name","");
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    cgi_redirectf("wikiedit?name=%T&wysiwyg", zName);
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
+    }else{
+      cgi_redirectf("wikiedit?name=%T", zName);
+    }
   }
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
