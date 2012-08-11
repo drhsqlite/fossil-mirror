@@ -99,6 +99,14 @@ void cgi_destination(int dest){
 }
 
 /*
+** Check to see if the header contains the zNeedle string.  Return true
+** if it does and false if it does not.
+*/
+int cgi_header_contains(const char *zNeedle){
+  return strstr(blob_str(&cgiContent[0]), zNeedle)!=0;
+}
+
+/*
 ** Append reply content to what already exists.
 */
 void cgi_append_content(const char *zData, int nAmt){

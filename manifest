@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sHTML\sbeautifier.
-D 2012-08-11T02:33:17.362
+C Add\s&lt;base\shref="$baseurl/"&gt;\sto\sthe\shtml\sheader\sin\sthe\sdefault\nconfiguration\sand\sin\sall\sbuilt-in\sskins.\s\sAdd\sa\swarning\sif\s&lt;base&gt;\nis\snot\sconfigured.\s\sGenerate\shyperlinks\sfrom\swiki\srelative\sto\sthe\s\n&lt;base&gt;
+D 2012-08-11T13:58:55.432
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -65,7 +65,7 @@ F src/blob.c ae8377eef8ccc02e38112323b2d3154289e78cfd
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c a8ab196d8088546057193c3481f45720310104ba
+F src/cgi.c c7ccb7dde6b5181b069c2eb7b481e42af6955b4e
 F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -136,17 +136,17 @@ F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 3971411e51a99b72fb91c152b90b48a2981860a3
+F src/setup.c b80aee4d6d7d99a7a71128eee78383c261d607b4
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c a69cc006d6f547f4aec57ee91e1b8a3405a6a22c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c 8e7bdd8597030553e5fbc3fa9c625605dfd9078a
+F src/skins.c bf85b6310365e48759707be25802472d0686a341
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
 F src/sqlite3.c 37b3ef49d73cdfe6909c35f5fd7d586835eee6b2
 F src/sqlite3.h 30e827673bcf04cd8d8dac57e3b5b90d666d6148
 F src/stash.c 81347a619ea41772d3063de61e0caa83c4f6da2d
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
-F src/style.c 30368dec79559d94207b7d2b954c7d7e1ebbbc72
+F src/style.c c847e4de74543123bdcfc2a77b59884feb6dbfdc
 F src/sync.c f9014273d5aadbd029def1ef1e01ed7d0b1c047a
 F src/tag.c f5783e253e58cb5a54b70d7bc7888331b4592248
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -166,7 +166,7 @@ F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 62bb8e01fb0e4d962976c55dedff3145ced0dde5
-F src/wikiformat.c dad2cb9055578cddb71213855f8e1eb8f7b0c80a
+F src/wikiformat.c 5cd19b16aa2776a78bda8063125d3a66a97237f1
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/wysiwyg.c cee6f9773d6b7cd069fc18be6524cf2c62477af1
 F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e000f7f0fd8d90992fc45c5cc2b6684036d9b608
-R 9b74f8373e9d8ec4f3efa2fbf1997a15
+P 0e57bafcfa4d9a9eb19ab63b2ce8ca8ddbd9db39
+R 9c445c5ca2de946b7549723ed8863f9c
 U drh
-Z 563c829b00bc33e7767bec61e4e1e592
+Z b3aa80b51b108be298f025ce4676f1af

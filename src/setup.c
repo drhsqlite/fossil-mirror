@@ -59,6 +59,15 @@ void setup_page(void){
   }
 
   style_header("Server Administration");
+
+  /* Make sure the header contains <base href="...">.   Issue a warning
+  ** if it does not. */
+  if( !cgi_header_contains("<base href=") ){
+    @ <p class="generalError"><b>Configuration Error:</b> Please add
+    @ <tt>&lt;base href="$baseurl/" /&gt</tt> after <tt>&lt;head&gt;</tt>
+    @ in the <a href="setup_header">HTML header</a>!</p>
+  }
+
   @ <table border="0" cellspacing="7">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
