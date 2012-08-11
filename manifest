@@ -1,5 +1,5 @@
-C Add\s&lt;base\shref="$baseurl/"&gt;\sto\sthe\shtml\sheader\sin\sthe\sdefault\nconfiguration\sand\sin\sall\sbuilt-in\sskins.\s\sAdd\sa\swarning\sif\s&lt;base&gt;\nis\snot\sconfigured.\s\sGenerate\shyperlinks\sfrom\swiki\srelative\sto\sthe\s\n&lt;base&gt;
-D 2012-08-11T13:58:55.432
+C Improvements\sto\sthe\ssetup\spage,\sincluding\sa\sbutton\sto\sautomatically\nadd\sthe\s&lt;base&gt;\selement\sto\sthe\sheader\sif\sit\sis\smissing.
+D 2012-08-11T15:06:47.494
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -136,7 +136,7 @@ F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c b80aee4d6d7d99a7a71128eee78383c261d607b4
+F src/setup.c 7e22aed22a8350d63b61dbc842ef4a6490a093f4
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c a69cc006d6f547f4aec57ee91e1b8a3405a6a22c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0e57bafcfa4d9a9eb19ab63b2ce8ca8ddbd9db39
-R 9c445c5ca2de946b7549723ed8863f9c
+P 31732d77ff6c661a14f548db5c036639cf37084f
+R e15d6e2ef364700782f5a315a3ec29ad
 U drh
-Z b3aa80b51b108be298f025ce4676f1af
+Z de95a9da473ef918403b3ca953772b5f

@@ -64,7 +64,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/" /&gt</tt> after <tt>&lt;head&gt;</tt>
+    @ <tt>&lt;base href="$baseurl/"&gt</tt> after <tt>&lt;head&gt;</tt>
     @ in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -880,9 +880,11 @@ static void textarea_attribute(
     z = zQ;
   }
   if( rows>0 && cols>0 ){
-    @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
-    if (zLabel && *zLabel)
+    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
+    @ cols="%d(cols)">%h(z)</textarea>
+    if (zLabel && *zLabel){
       @ <span class="textareaLabel">%s(zLabel)</span>
+    }
   }
 }
 
@@ -1308,10 +1310,9 @@ void setup_editcss(void){
     cgi_replace_parameter("css", zDefaultCSS);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
-  }else{
-    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
   }
   if( P("submit")!=0 ){
+    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
@@ -1319,7 +1320,7 @@ void setup_editcss(void){
   @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
-  textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
+  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1350,16 +1351,39 @@ void setup_header(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='header'");
     cgi_replace_parameter("header", zDefaultHeader);
-  }else{
+  }else if( P("submit")!=0 ){
     textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
+  }else if( P("fixbase")!=0 ){
+    const char *z = db_get("header", (char*)zDefaultHeader);
+    char *zHead = strstr(z, "<head>");
+    if( strstr(z, "<base href=")==0 && zHead!=0 ){
+      char *zNew;
+      char *zTail = &zHead[6];
+      while( fossil_isspace(zTail[0]) ) zTail++;
+      zNew = mprintf("%.*s\n<base href=\"$baseurl/\" />\n%s",
+                     zHead+6-z, z, zTail);
+      cgi_replace_parameter("header", zNew);
+      db_set("header", zNew, 0);
+    }
   }
+
   style_header("Edit Page Header");
-  @ <form action="%s(g.zTop)/setup_header" method="post"><div>
+  @ <form action="%R/setup_header" method="post"><div>
+
+  /* Make sure the header contains <base href="...">.   Issue a warning
+  ** if it does not. */
+  if( !cgi_header_contains("<base href=") ){
+    @ <p class="generalError">Please add
+    @ <tt>&lt;base href="$baseurl/"&gt</tt> after <tt>&lt;head&gt;</tt>
+    @ in the header!
+    @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
+  }
+
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
-  textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
+  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1388,9 +1412,8 @@ void setup_footer(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='footer'");
     cgi_replace_parameter("footer", zDefaultFooter);
-  }else{
-    textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
   }
+
   style_header("Edit Page Footer");
   @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
@@ -1425,9 +1448,8 @@ void setup_adunit(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
     cgi_replace_parameter("adunit","");
-  }else{
-    textarea_attribute(0, 0, 0, "adunit", "adunit", "");
   }
+
   style_header("Edit Ad Unit");
   @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
