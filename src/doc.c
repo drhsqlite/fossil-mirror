@@ -372,6 +372,7 @@ void doc_page(void){
     zName = "index.html";
     goto doc_not_found;
   }
+  g.zPath = mprintf("%s/%s", g.zPath, zName);
   memcpy(zBaseline, zName, i);
   zBaseline[i] = 0;
   zName += i;
