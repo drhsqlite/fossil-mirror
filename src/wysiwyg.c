@@ -195,6 +195,8 @@ void wysiwygEditor(
   @ 7/2BYIQVhHg9pEgVGIklyDEUBy/RlE4FQF4dCj2AQXAiJQDCWQCAEBwIioEMQBgSAFhDAGghG
   @ i9XgHAhMNoSZgJkJei33UESv2+/4vD4TAQA7" />
 
+#if 0  /* Cut/Copy/Paste requires special browser permissions for security
+       ** reasons.  So omit these buttons */
   @ <img class="intLink" title="Cut"
   @ onclick="formatDoc('cut');"
   @ src="data:image/gif;base64,R0lGODlhFgAWAIQSAB1ChBFNsRJTySJYwjljwkxwl19vj1
@@ -220,6 +222,8 @@ void wysiwygEditor(
   @ SyFJjVDs6nJLB0khR4AkBCmfsCGBQAoCwjF5gwquVykSFbwZE+AwIBV0GhFog2EwIDchjwRiQ
   @ o9E2Fx4XD5R+B0DDAEnBXBhBhN2DgwDAQFjJYVhCQYRfgoIDGiQJAWTCQMRiwwMfgicnVcAAA
   @ MOaK+bLAOrtLUyt7i5uiUhADs=" />
+#endif
+
   @ </div>
   @ <div id="wysiwygBox"
   @  style="resize:both; overflow:auto; width: %d(w)em; height: %d(h)em;"

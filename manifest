@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s&lt;base&gt;\saddition\sto\sthe\sHTML\sheader\sso\sthat\sit\sworks\ncorrectly\swith\sthe\s"doc"\swebpage.\s\sHref\sis\snow\s$baseurl/$current_page.
-D 2012-08-13T12:30:18.966
+C Disable\sthe\scut/copy/paste\sbuttons\son\sthe\sWYSIWYG\seditor,\ssince\sdoing\ncut/copy/paste\sunder\sjavascript\scontrol\sis\snormally\sdisallowed\sfor\nsecurity\sreasons.
+D 2012-08-13T12:54:08.972
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -168,7 +168,7 @@ F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 29575e6bc16953b0a0deab04b7e80c7555f3be69
 F src/wikiformat.c 5cd19b16aa2776a78bda8063125d3a66a97237f1
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
-F src/wysiwyg.c cee6f9773d6b7cd069fc18be6524cf2c62477af1
+F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cb6804a2e3f7ca4db601acd8819e87274adf0e19
-R 329267447c49b270e760dc85c08e6847
+P fd10cdbaf8c759127add463eff960e77ed9c9036
+R 70ab8a48d060767146a6bd9ce8518e36
 U drh
-Z 507d06508f1a64bdb5177e2f33d34bcd
+Z 477abaa46ac56e7b407f2f8da2ab2649
