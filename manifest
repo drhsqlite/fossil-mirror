@@ -1,5 +1,5 @@
-C Add\sconfirmation\sdialog\sboxes\swhen\schanging\sbetween\smarkup\sand\swysisyg\neditor\smode,\sand\sbefore\scancelling\san\sedit.
-D 2012-08-11T22:25:48.518
+C Fixes\sto\sthe\s&lt;base&gt;\saddition\sto\sthe\sHTML\sheader\sso\sthat\sit\sworks\ncorrectly\swith\sthe\s"doc"\swebpage.\s\sHref\sis\snow\s$baseurl/$current_page.
+D 2012-08-13T12:30:18.966
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -82,7 +82,7 @@ F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 42067ab6c1d93abe5720f51eb5dfe43ba21bea07
 F src/diffcmd.c 2fa9b1c34d6977c31b4d20261ca16f731d636a17
-F src/doc.c ac5a32d381d56ed6249c8a99be141005ae144152
+F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
@@ -136,11 +136,11 @@ F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 6fba39859e30ce97408f04c69aa73c0076614b32
+F src/setup.c a69711b73e197e96db398cc3bd52692ce94dfded
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c a69cc006d6f547f4aec57ee91e1b8a3405a6a22c
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
-F src/skins.c bf85b6310365e48759707be25802472d0686a341
+F src/skins.c a2b9ca191c00835bf416f3bc6e336b406cca329d
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
 F src/sqlite3.c 37b3ef49d73cdfe6909c35f5fd7d586835eee6b2
 F src/sqlite3.h 30e827673bcf04cd8d8dac57e3b5b90d666d6148
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ebc48bf180d84a82f7f8955d818b62d8dc5fdac3
-R b562d76939ddfaf2c71baae38fb7dd0e
+P cb6804a2e3f7ca4db601acd8819e87274adf0e19
+R 329267447c49b270e760dc85c08e6847
 U drh
-Z 16afd66c5a8bbdb51553fc11c957925a
+Z 507d06508f1a64bdb5177e2f33d34bcd
