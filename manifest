@@ -1,5 +1,5 @@
-C Adjust\sthe\s$current_page\sfor\sthe\sdoc\swebpage\sso\sthat\sit\sincludes\sthe\nembedded\sdocument\sbeing\srendered.
-D 2012-08-13T12:39:18.129
+C Have\sthe\s"raw"\swebpage\stry\sto\sguess\sthe\sfilename\sand\sthe\smimetype\sof\sthe\nartifact\sbeing\sdownloaded,\sif\sthe\sm=\squery\sparameter\sis\somitted.
+D 2012-08-13T16:18:08.194
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c 33360c8c6055dfacfd6c6e7a98b0fc4bc42d6e59
+F src/info.c 93cbc55ae94c6ec61e8f483c4d155e004edc2974
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -364,7 +364,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 717cd2782c41addd04e1b37107d0505645562dfa
-R 5a23206674a832514f5df50101e14259
+P 22e2051111a2e5d4d718fe691d30a6567175b80a
+R 00f9bb22206f2d46563e91225f037b24
 U drh
-Z 121edc2baa1443129d41c2ef708b7167
+Z 3073c017ae5a3d91c7bc43459341e666

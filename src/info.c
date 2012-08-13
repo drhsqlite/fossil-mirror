@@ -1207,10 +1207,17 @@ void rawartifact_page(void){
   Blob content;
 
   rid = name_to_rid_www("name");
-  zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
+  zMime = P("m");
+  if( zMime==0 ){
+    char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
+                              " WHERE mlink.fid=%d"
+                              "   AND filename.fnid=mlink.fnid", rid);
+    if( zFName ) zMime = mimetype_from_name(zFName);
+    if( zMime==0 ) zMime = "application/x-fossil-artifact";
+  }
   content_get(rid, &content);
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
