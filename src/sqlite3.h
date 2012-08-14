@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.14"
 #define SQLITE_VERSION_NUMBER 3007014
-#define SQLITE_SOURCE_ID      "2012-06-21 17:21:52 d5e6880279210ca63e2d5e7f6d009f30566f1242"
+#define SQLITE_SOURCE_ID      "2012-08-14 17:29:27 6954fef006431d153de6e63e362b8d260ebeb1c6"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4157,11 +4157,11 @@ typedef void (*sqlite3_destructor_type)(void*);
 ** the error code is SQLITE_ERROR.  ^A subsequent call to sqlite3_result_error()
 ** or sqlite3_result_error16() resets the error code to SQLITE_ERROR.
 **
-** ^The sqlite3_result_toobig() interface causes SQLite to throw an error
-** indicating that a string or BLOB is too long to represent.
+** ^The sqlite3_result_error_toobig() interface causes SQLite to throw an
+** error indicating that a string or BLOB is too long to represent.
 **
-** ^The sqlite3_result_nomem() interface causes SQLite to throw an error
-** indicating that a memory allocation failed.
+** ^The sqlite3_result_error_nomem() interface causes SQLite to throw an
+** error indicating that a memory allocation failed.
 **
 ** ^The sqlite3_result_int() interface sets the return value
 ** of the application-defined function to be the 32-bit signed integer
