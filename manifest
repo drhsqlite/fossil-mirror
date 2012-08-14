@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\s3.7.14\sbeta.\sFossil\sdoes\snot\sneed\nthis\supgrade\s-\sthe\spurpose\sis\sto\stest\sSQLite.
-D 2012-08-14T17:42:49.784
+C Remove\san\sunused\sfunction\sfrom\sthe\swiki\sformatter.
+D 2012-08-14T17:46:00.005
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -166,7 +166,7 @@ F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
 F src/wiki.c 29575e6bc16953b0a0deab04b7e80c7555f3be69
-F src/wikiformat.c 5cd19b16aa2776a78bda8063125d3a66a97237f1
+F src/wikiformat.c 11314c22154dab309d5ee0941fa9aa8b9d74f2b1
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4b51f5efc7df1998d41cab1ae421b86532db8472
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65870e8736f65fbc55d50901e49cb73b17f05e5b
-R 1310e1fab82fdd285e3a8c27d0dc6173
+P 1f4af61f41449c63f10ffef67e4cb833d772507c
+R 25122c47ee50a30f9db395221b4a92de
 U drh
-Z 7449aaff04142137d488903a8df3c101
+Z 2abe8b888c44468968914cfcb11a7e39

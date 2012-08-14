@@ -1770,13 +1770,6 @@ static int nextHtmlToken(const char *z){
 }
 
 /*
-** Return true if z[] is the word zWord in any case.
-*/
-static int isWord(const char *z, const char *zWord, int nWord){
-  return fossil_strnicmp(z, zWord, nWord)==0 && !fossil_isalpha(z[nWord]);
-}
-
-/*
 ** Attempt to reformat messy HTML to be easily readable by humans.
 **
 **    *  Try to keep lines less than 80 characters in length
