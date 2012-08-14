@@ -158,6 +158,7 @@ static const char zBuiltinSkin1[] =
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
@@ -360,6 +361,7 @@ static const char zBuiltinSkin2[] =
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
@@ -596,6 +598,7 @@ static const char zBuiltinSkin3[] =
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">
@@ -894,6 +897,7 @@ static const char zBuiltinSkin4[] =
 @ }');
 @ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss">

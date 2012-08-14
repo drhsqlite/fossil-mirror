@@ -111,6 +111,7 @@ set src {
   wiki
   wikiformat
   winhttp
+  wysiwyg
   xfer
   xfersetup
   zip

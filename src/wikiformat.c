@@ -1081,7 +1081,7 @@ static void openHyperlink(
         if( g.perm.Hyperlink ){
           blob_appendf(p->pOut,
              "%z<span class=\"wikiTagCancelled\">[",
-             href("%R/info/%s",zTarget)
+             href("info/%s",zTarget)
           );
           zTerm = "]</span></a>";
         }else{
@@ -1090,7 +1090,7 @@ static void openHyperlink(
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
+          blob_appendf(p->pOut,"%z[", href("info/%s", zTarget));
           zTerm = "]</a>";
         }else{
           blob_appendf(p->pOut, "[");
@@ -1101,18 +1101,18 @@ static void openHyperlink(
       blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
       zTerm = "]</span>";
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
+      blob_appendf(p->pOut, "%z[",href("info/%s", zTarget));
       zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/timeline?c=%T\">", g.zTop, zTarget);
+    blob_appendf(p->pOut, "<a href=\"timeline?c=%T\">", zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
+    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%s/wiki?name=%T\">", g.zTop, zTarget);
+    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
   }else{
     blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
@@ -1748,4 +1748,151 @@ void wiki_extract_links(
     z += n;
   }
   free(renderer.aStack);
+}
+
+/*
+** Get the next HTML token.
+**
+** z points to the start of a token.  Return the number of
+** characters in that token.
+*/
+static int nextHtmlToken(const char *z){
+  int n;
+  if( z[0]=='<' ){
+    n = markupLength(z);
+    if( n<=0 ) n = 1;
+  }else if( fossil_isspace(z[0]) ){
+    for(n=1; z[n] && fossil_isspace(z[n]); n++){}
+  }else{
+    for(n=1; z[n] && z[n]!='<' && !fossil_isspace(z[n]); n++){}
+  }
+  return n;
+}
+
+/*
+** Return true if z[] is the word zWord in any case.
+*/
+static int isWord(const char *z, const char *zWord, int nWord){
+  return fossil_strnicmp(z, zWord, nWord)==0 && !fossil_isalpha(z[nWord]);
+}
+
+/*
+** Attempt to reformat messy HTML to be easily readable by humans.
+**
+**    *  Try to keep lines less than 80 characters in length
+**    *  Collapse white space into a single space
+**    *  Put a blank line before:
+**          <blockquote><center><code><hN><p><pre><table>
+**    *  Put a newline after <br> and <hr>
+**    *  Start each of the following elements on a new line:
+**          <address><cite><dd><div><dl><dt><li><ol><samp>
+**          <tbody><td><tfoot><th><thead><tr><ul>
+**
+** Except, do not do any reformatting inside of <pre>...</pre>
+*/
+void htmlTidy(const char *zIn, Blob *pOut){
+  int n;
+  int nPre = 0;
+  int iCur = 0;
+  int wantSpace = 0;
+  int omitSpace = 1;
+  while( zIn[0] ){
+    n = nextHtmlToken(zIn);
+    if( zIn[0]=='<' && n>1 ){
+      int i, j;
+      int isCloseTag;
+      int eTag;
+      int eType;
+      char zTag[32];
+      isCloseTag = zIn[1]=='/';
+      for(i=0, j=1+isCloseTag; i<30 && fossil_isalnum(zIn[j]); i++, j++){
+         zTag[i] = fossil_tolower(zIn[j]);
+      }
+      zTag[i] = 0;
+      eTag = findTag(zTag);
+      eType = aMarkup[eTag].iType;
+      if( eTag==MARKUP_PRE ){
+        if( isCloseTag ){
+          nPre--;
+          blob_append(pOut, zIn, n);
+          zIn += n;
+          if( nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          continue;
+        }else{
+          if( iCur && nPre==0 ){ blob_append(pOut, "\n", 1); iCur = 0; }
+          nPre++;
+        }
+      }else if( eType & (MUTYPE_BLOCK|MUTYPE_TABLE) ){
+        if( !isCloseTag && nPre==0 && blob_size(pOut)>0 ){
+          blob_append(pOut, "\n\n", 1 + (iCur>0));
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }else if( (eType & (MUTYPE_LIST|MUTYPE_LI|MUTYPE_TR|MUTYPE_TD))!=0
+             || eTag==MARKUP_HR
+      ){
+        if( nPre==0 && (!isCloseTag || (eType&MUTYPE_LIST)!=0) && iCur>0 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }
+        wantSpace = 0;
+        omitSpace = 1;
+      }
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
+      }
+      blob_append(pOut, zIn, n);
+      iCur += n;
+      wantSpace = 0;
+      if( eTag==MARKUP_BR || eTag==MARKUP_HR ){
+        blob_append(pOut, "\n", 1);
+        iCur = 0;
+      }
+    }else if( fossil_isspace(zIn[0]) ){
+      if( nPre ){
+        blob_append(pOut, zIn, n);
+      }else{
+        wantSpace = !omitSpace;
+      }
+    }else{
+      if( wantSpace && nPre==0 ){
+        if( iCur+n+1>=80 ){
+          blob_append(pOut, "\n", 1);
+          iCur = 0;
+        }else{
+          blob_append(pOut, " ", 1);
+          iCur++;
+        }
+      }
+      blob_append(pOut, zIn, n);
+      iCur += n;
+      wantSpace = omitSpace = 0;
+    }
+    zIn += n;
+  }
+  if( iCur ) blob_append(pOut, "\n", 1);
+}
+
+/*
+** COMMAND: test-html-tidy
+*/
+void test_html_tidy(void){
+  Blob in, out;
+  int i;
+
+  for(i=2; i<g.argc; i++){
+    blob_read_from_file(&in, g.argv[i]);
+    blob_zero(&out);
+    htmlTidy(blob_str(&in), &out);
+    blob_reset(&in);
+    fossil_puts(blob_str(&out), 0);
+    blob_reset(&out);
+  }
 }

@@ -187,8 +187,15 @@ void wiki_page(void){
   }
   if( !g.isHome ){
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
-      style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
-           g.zTop, zPageName);
+      if( db_get_boolean("wysiwyg-wiki", 0) ){
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T&wysiwyg=1",
+             g.zTop, zPageName);
+      }else{
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T",
+             g.zTop, zPageName);
+      }
     }
     if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
@@ -262,9 +269,19 @@ void wikiedit_page(void){
   int n;
   const char *z;
   char *zBody = (char*)P("w");
+  int isWysiwyg = P("wysiwyg")!=0;
 
+  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
+  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    if( isWysiwyg ){
+      Blob body;
+      blob_zero(&body);
+      htmlTidy(zBody, &body);
+      zBody = blob_str(&body);
+    }else{
+      zBody = mprintf("%s", zBody);
+    }
   }
   login_check_credentials();
   zPageName = PD("name","");
@@ -338,9 +355,9 @@ void wikiedit_page(void){
   }
   zHtmlPageName = mprintf("Edit: %s", zPageName);
   style_header(zHtmlPageName);
+  blob_zero(&wiki);
+  blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
-    blob_zero(&wiki);
-    blob_append(&wiki, zBody, -1);
     @ Preview:<hr />
     wiki_convert(&wiki, 0, 0);
     @ <hr />
@@ -350,18 +367,43 @@ void wikiedit_page(void){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
-  if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+  if( n>30 ) n = 30;
+  if( !isWysiwyg ){
+    /* Traditional markup-only editing */
+    @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+    @ <textarea name="w" class="wikiedit" cols="80" 
+    @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+    @ <br />
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
+      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
+    }
+    @ <input type="submit" name="preview" value="Preview Your Changes" />
+  }else{
+    /* Wysiwyg editing */
+    Blob html, temp;
+    @ <form method="post" action="%s(g.zTop)/wikiedit"
+    @  onsubmit="wysiwygSubmit()"><div>
+    @ <input type="hidden" name="wysiwyg" value="1" />
+    blob_zero(&temp);
+    wiki_convert(&wiki, &temp, 0);
+    blob_zero(&html);
+    htmlTidy(blob_str(&temp), &html);
+    blob_reset(&temp);
+    wysiwygEditor("w", blob_str(&html), 60, n);
+    blob_reset(&html);
+    @ <br />
+    @ <input type="submit" name="edit-markup" value="Markup Editor"
+    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
+  }
+  @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <textarea name="w" class="wikiedit" cols="80" 
-  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
-  @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
-  @ <input type="submit" name="submit" value="Apply These Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="cancel" value="Cancel"
+  @  onclick='confirm("Abandon your changes?")' />
   @ </div></form>
   manifest_destroy(pWiki);
+  blob_reset(&wiki);
   style_footer();
 }
 
@@ -381,7 +423,11 @@ void wikinew_page(void){
   }  
   zName = PD("name","");
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    cgi_redirectf("wikiedit?name=%T", zName);
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
+    }else{
+      cgi_redirectf("wikiedit?name=%T", zName);
+    }
   }
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>

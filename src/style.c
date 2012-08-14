@@ -205,7 +205,8 @@ void style_header(const char *zTitleFormat, ...){
   sideboxUsed = 0;
 
   /* Make the gebi(x) function available as an almost-alias for
-  ** document.getElementById(x) (except that it throws if the element is not found).
+  ** document.getElementById(x) (except that it throws an error
+  ** if the element is not found).
   **
   ** Maintenance note: this function must of course be available
   ** before it is called. It "should" go in the HEAD so that client
@@ -318,6 +319,7 @@ void style_sidebox_end(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
+@ <base href="$baseurl/">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
@@ -342,30 +344,30 @@ const char zDefaultHeader[] =
 @ <th1>
 @ html "<a href='$home$index_page'>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href='$home/timeline'>Timeline</a>\n"
+@   html "<a href='timeline'>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='$home/dir?ci=tip'>Files</a>\n"
+@   html "<a href='dir?ci=tip'>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$home/brlist'>Branches</a>\n"
-@   html "<a href='$home/taglist'>Tags</a>\n"
+@   html "<a href='brlist'>Branches</a>\n"
+@   html "<a href='taglist'>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$home/reportlist'>Tickets</a>\n"
+@   html "<a href='reportlist'>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$home/wiki'>Wiki</a>\n"
+@   html "<a href='wiki'>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$home/setup'>Admin</a>\n"
+@   html "<a href='setup'>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href='$home/setup_ulist'>Users</a>\n"
+@   html "<a href='setup_ulist'>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$home/login'>Logout</a>\n"
+@   html "<a href='login'>Logout</a>\n"
 @ } else {
-@   html "<a href='$home/login'>Login</a>\n"
+@   html "<a href='login'>Login</a>\n"
 @ }
 @ </th1></div>
 ;
