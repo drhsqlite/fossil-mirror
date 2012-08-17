@@ -1,5 +1,5 @@
-C Remove\san\sunused\sfunction\sfrom\sthe\swiki\sformatter.
-D 2012-08-14T17:46:00.005
+C Fixed\sa\snumber\sof\s"the\sthe"\sduplications\sin\scomments,\sdocumentation,\sand\sHTML\s(templates).\sLeft\sthe\s17\soccurences\sof\ssame\sin\ssqlite.c\salone.
+D 2012-08-17T18:14:12.198
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -50,7 +50,7 @@ F autosetup/config.sub 32f90ac76aa68c2265471dd377c34f264acaf173 x
 F autosetup/find-tclsh f973558ad74bd8e4d55b677d9c166cbb35f34186 x
 F autosetup/jimsh0.c 6cce70f00c6b63a3b80965f19f0b2813c8816f67
 F autosetup/local.tcl 79b8c81822e992ec573689e57b042b348dc6923c
-F autosetup/system.tcl 180ac175844a263c5767cc0a4e1e574c5919c31c
+F autosetup/system.tcl afcf59dd1055440e12f9632749d56f3ab4442146
 F autosetup/test-tclsh f197a4c7bfa8bde7672864fc36dcbc7f85bdda6c
 F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
@@ -157,7 +157,7 @@ F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
 F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
-F src/tktsetup.c 9bbae8cc78bda8c3fe5a9a2533f833682e9b712e
+F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
 F src/update.c bee8c866be0d1820745041873508918b17c5e547
@@ -183,7 +183,7 @@ F test/merge4.test f9e326862fd16c3bc92bb6b4c1259dcf2573648f
 F test/merge5.test 5447884e828abd47bb25d363342acc94269f36a8
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
-F test/release-checklist.wiki 6a36e538b94982e84c1fcddcfe62d12e2141d0ee
+F test/release-checklist.wiki f05433096a91b7d12739d1429744e57ca3d9240a
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
@@ -326,9 +326,9 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl d8f6f65fdd348b664496f5edd956545b71ff0e6a
 F www/faq.wiki f4c4247ef0889e554685f27177e6123fcc7aaeb4
-F www/fileformat.wiki 9bb164765e853e2284279f17fc362feda7eae781
+F www/fileformat.wiki 45ac15ba94012b47f6b079761250e899edf38dbe
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
-F www/fossil-v-git.wiki 8caffe08ca790491bac1a88e10e7fbcb386174be
+F www/fossil-v-git.wiki 1462aaee5753b210e32854000fe6a4705a06620d
 F www/fossil.eps 672ae6297081bd6a1c9565a9cae7c8299a1d61e3
 F www/fossil.gif 590c4da59ebd76b65da0c9ba610d661f1bcb0146
 F www/fossil2.eps d8e0aba6acbeb3cba071ed894783ca9b8de9a310
@@ -365,7 +365,7 @@ F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1f4af61f41449c63f10ffef67e4cb833d772507c
-R 25122c47ee50a30f9db395221b4a92de
-U drh
-Z 2abe8b888c44468968914cfcb11a7e39
+P b1cc5a4c12a6542326e27c74fa4e314ca1eda05f
+R 34cbdb6d7a378082fc8d2624b7b77eda
+U andreask
+Z fd46bf56e7206a1367f4259022971c98

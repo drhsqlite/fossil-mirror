@@ -106,7 +106,7 @@ proc write-if-changed {file buf {script {}}} {
 # If $outfile is blank/omitted, $template should end with ".in" which
 # is removed to create the output file name.
 #
-# Each pattern of the form @define@ is replaced the the corresponding
+# Each pattern of the form @define@ is replaced by the corresponding
 # define, if it exists, or left unchanged if not.
 # 
 # The special value @srcdir@ is subsituted with the relative

@@ -178,7 +178,7 @@ in that it defines a predecessor to the current check-in.  But
 whereas a P-card defines the immediate ancestor or a merge
 ancestor, the Q-card is used to identify a single check-in or a small
 range of check-ins which were cherry-picked for inclusion in or
-exclusion from the the current manifest.  The first argument of
+exclusion from the current manifest.  The first argument of
 the Q-card is the artifact ID of another manifest (the "target")
 which has had its changes included or excluded in the current manifest.  
 The target is preceeded by "+" or "-" to show inclusion or

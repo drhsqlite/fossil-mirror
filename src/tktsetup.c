@@ -664,7 +664,7 @@ char *ticket_report_template(void){
 void tktsetup_rpttplt_page(void){
   static const char zDesc[] =
   @ Enter the default ticket report format template.  This is the
-  @ the template report format that initially appears when creating a
+  @ template report format that initially appears when creating a
   @ new ticket summary report.
   ;
   tktsetup_generic(
