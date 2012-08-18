@@ -1,5 +1,5 @@
-C Fixed\sa\snumber\sof\s"the\sthe"\sduplications\sin\scomments,\sdocumentation,\sand\sHTML\s(templates).\sLeft\sthe\s17\soccurences\sof\ssame\sin\ssqlite.c\salone.
-D 2012-08-17T18:14:12.198
+C Add\sthe\s"uitest.html"\sdocument.
+D 2012-08-18T14:43:16.574
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -363,9 +363,10 @@ F www/style.wiki 563afb27ea91812024a804b9c9593171dd1ed8d4
 F www/sync.wiki 9ea990b4d45a19cf4d7aa473249213db6798378d
 F www/tech_overview.wiki af7d67dc04b74817ebc586997f3310ae197db8f0
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
+F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b1cc5a4c12a6542326e27c74fa4e314ca1eda05f
-R 34cbdb6d7a378082fc8d2624b7b77eda
-U andreask
-Z fd46bf56e7206a1367f4259022971c98
+P b00e462ffc38a10d88f6e381b4a645ddbe0037a1
+R 309d16f84db71a9d75cbd26dd00ed3b2
+U drh
+Z 23e69a5fb1ca31bbdb7b3e58e64c3cba
