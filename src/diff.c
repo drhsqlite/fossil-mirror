@@ -45,6 +45,7 @@
 ** Maximum length of a line in a text file.  (8192)
 */
 #define LENGTH_MASK_SZ  13
+#define TABLENGTH        4
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
 
 /*
@@ -396,15 +397,16 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   char *z = &p->zLine[p->n];
   int w = p->width;
 
-  if (n > maxwidth)
-    maxwidth = n;
-
-  for(i=j=k=0; k<w && i<n; i++, k++){
+  /* In the case w == 0, we want to calculate the output line
+   * width (k), but not write anything to 'z', because it has
+   * a buffer of limited size. */
+  for(i=j=k=0; (w == 0 || k<w) && i<n; i++, k++){
     char c = zIn[i];
     if( p->escHtml ){
       if( i==p->iStart ){
         int x = strlen(p->zStart);
-        memcpy(z+j, p->zStart, x);
+        if (w != 0)
+          memcpy(z+j, p->zStart, x);
         j += x;
         needEndSpan = 1;
         if( p->iStart2 ){
@@ -413,7 +415,8 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
           p->iStart2 = 0;
         }
       }else if( i==p->iEnd ){
-        memcpy(z+j, "</span>", 7);
+        if (w != 0)
+          memcpy(z+j, "</span>", 7);
         j += 7;
         needEndSpan = 0;
         if( p->iEnd2 ){
@@ -423,21 +426,35 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
       }
     }
     if( c=='\t' ){
-      z[j++] = ' ';
-      while( (k&7)!=7 && k<w ){ z[j++] = ' '; k++; }
+      if (w != 0)
+        z[j++] = ' ';
+      while( (k%TABLENGTH)!=0 && (w == 0 || k<w) ){
+        if (w != 0)
+          z[j++] = ' ';
+        k++;
+      }
     }else if( c=='\r' || c=='\f' ){
-      z[j++] = ' ';
+      if (w != 0)
+        z[j++] = ' ';
     }else if( c=='<' && p->escHtml ){
-      memcpy(&z[j], "&lt;", 4);
-      j += 4;
+      if (w != 0) {
+        memcpy(&z[j], "&lt;", 4);
+        j += 4;
+      }
     }else if( c=='&' && p->escHtml ){
-      memcpy(&z[j], "&amp;", 5);
-      j += 5;
+      if (w != 0) {
+        memcpy(&z[j], "&amp;", 5);
+        j += 5;
+      }
     }else if( c=='>' && p->escHtml ){
-      memcpy(&z[j], "&gt;", 4);
-      j += 4;
+      if (w != 0) {
+        memcpy(&z[j], "&gt;", 4);
+        j += 4;
+      }
     }else{
-      z[j++] = c;
+      if (w != 0) {
+        z[j++] = c;
+      }
       if( (c&0xc0)==0x80 ) k--;
     }
   }
@@ -445,6 +462,10 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     memcpy(&z[j], "</span>", 7);
     j += 7;
   }
+
+  if (k > maxwidth)
+    maxwidth = k;
+
   if( (flags & SBS_PAD)!=0 ){
     while( k<w ){ k++;  z[j++] = ' '; }
   }
