@@ -291,7 +291,7 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
+static void append_diff(const char *zFrom, const char *zTo, u64	diffFlags){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -334,7 +334,7 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  int diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
+  u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.Hyperlink ){
@@ -392,8 +392,8 @@ static void append_file_change_line(
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-int construct_diff_flags(int showDiff, int sideBySide){
-  int diffFlags;
+u64 construct_diff_flags(int showDiff, int sideBySide){
+  u64 diffFlags;
   if( showDiff==0 ){
     diffFlags = 0;  /* Zero means do not show any diff */
   }else{
@@ -442,7 +442,7 @@ void ci_page(void){
   int isLeaf;
   int showDiff;        /* True to show diffs */
   int sideBySide;      /* True for side-by-side diffs */
-  int diffFlags;       /* Flag parameter for text_diff() */
+  u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -824,7 +824,7 @@ void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
   int sideBySide = 0;
-  int diffFlags = 0;
+  u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
   const char *zBranch;
@@ -1128,7 +1128,7 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
-  int diffFlags;
+  u64 diffFlags;
   const char *zStyle = "sbsdiff";
 
   login_check_credentials();

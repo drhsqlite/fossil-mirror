@@ -27,17 +27,18 @@
 /*
 ** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
 */
-#define DIFF_CONTEXT_MASK  0x0000ffff  /* Lines of context.  Default if 0 */
-#define DIFF_WIDTH_MASK    0x00ff0000  /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
-#define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
-#define DIFF_BRIEF         0x08000000  /* Show filenames only */
-#define DIFF_INLINE        0x00000000  /* Inline (not side-by-side) diff */
-#define DIFF_HTML          0x10000000  /* Render for HTML */
-#define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
-#define DIFF_NOOPT         0x40000000  /* Suppress optimizations for debug */
-#define DIFF_INVERT        0x80000000  /* Invert the diff for debug */
+#define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
+#define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
+#define DIFF_NEWFILE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
+#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
+#define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
+#define DIFF_LINENO       ((u64)0x20000000) /* Show line numbers */
+#define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
+#define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
+#define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 
 #endif /* INTERFACE */
 
@@ -1429,7 +1430,7 @@ static void diff_optimize(DContext *p){
 ** Extract the number of lines of context from diffFlags.  Supply an
 ** appropriate default if no context width is specified.
 */
-int diff_context_lines(int diffFlags){
+int diff_context_lines(u64 diffFlags){
   int n = diffFlags & DIFF_CONTEXT_MASK;
   if( n==0 ) n = 5;
   return n;
@@ -1439,7 +1440,7 @@ int diff_context_lines(int diffFlags){
 ** Extract the width of columns for side-by-side diff.  Supply an
 ** appropriate default if no width is given.
 */
-int diff_width(int diffFlags){
+int diff_width(u64 diffFlags){
   int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
   if( w==0 ) w = 80;
   return w;
@@ -1463,7 +1464,7 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  int diffFlags    /* DIFF_* flags defined above */
+  u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
   int nContext;    /* Amount of context to display */	
@@ -1534,7 +1535,7 @@ int *text_diff(
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 int diff_options(void){
-  int diffFlags = 0;
+  u64 diffFlags = 0;
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
@@ -1563,7 +1564,7 @@ void test_rawdiff_cmd(void){
   int r;
   int i;
   int *R;
-  int diffFlags = diff_options();
+  u64 diffFlags = diff_options();
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
   blob_read_from_file(&a, g.argv[2]);
   for(i=3; i<g.argc; i++){
@@ -1585,7 +1586,7 @@ void test_rawdiff_cmd(void){
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
-  int diffFlag = diff_options();
+  u64 diffFlag = diff_options();
 
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_read_from_file(&a, g.argv[2]);

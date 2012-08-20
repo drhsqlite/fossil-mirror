@@ -33,7 +33,7 @@
 /*
 ** Print the "Index:" message that patches wants to see at the top of a diff.
 */
-void diff_print_index(const char *zFile, int diffFlags){
+void diff_print_index(const char *zFile, u64 diffFlags){
   if( (diffFlags & (DIFF_SIDEBYSIDE|DIFF_BRIEF))==0 ){
     char *z = mprintf("Index: %s\n%.66c\n", zFile, '=');
     fossil_print("%s", z);
@@ -44,7 +44,7 @@ void diff_print_index(const char *zFile, int diffFlags){
 /*
 ** Print the +++/--- filename lines for a diff operation.
 */
-void diff_print_filenames(const char *zLeft, const char *zRight, int diffFlags){
+void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
   char *z = 0;
   if( diffFlags & DIFF_BRIEF ){
     /* no-op */
@@ -77,7 +77,7 @@ void diff_file(
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
-  int diffFlags             /* Flags to control the diff */
+  u64 diffFlags             /* Flags to control the diff */
 ){
   if( zDiffCmd==0 ){
     Blob out;                 /* Diff output text */
@@ -159,7 +159,7 @@ void diff_file_mem(
   Blob *pFile2,             /* In memory content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
-  int diffFlags             /* Diff flags */
+  u64 diffFlags             /* Diff flags */
 ){
   if( diffFlags & DIFF_BRIEF ) return;
   if( zDiffCmd==0 ){
@@ -207,7 +207,7 @@ void diff_file_mem(
 static void diff_one_against_disk(
   const char *zFrom,        /* Name of file */
   const char *zDiffCmd,     /* Use this "diff" command */
-  int diffFlags,            /* Diff control flags */
+  u64 diffFlags,            /* Diff control flags */
   const char *zFileTreeName
 ){
   Blob fname;
@@ -233,7 +233,7 @@ static void diff_one_against_disk(
 static void diff_all_against_disk(
   const char *zFrom,        /* Version to difference from */
   const char *zDiffCmd,     /* Use this diff command.  NULL for built-in */
-  int diffFlags             /* Flags controlling diff output */
+  u64 diffFlags             /* Flags controlling diff output */
 ){
   int vid;
   Blob sql;
@@ -339,7 +339,7 @@ static void diff_one_two_versions(
   const char *zFrom,
   const char *zTo,
   const char *zDiffCmd,
-  int diffFlags,
+  u64 diffFlags,
   const char *zFileTreeName
 ){
   char *zName;
@@ -371,7 +371,7 @@ static void diff_manifest_entry(
   struct ManifestFile *pFrom,
   struct ManifestFile *pTo,
   const char *zDiffCmd,
-  int diffFlags
+  u64 diffFlags
 ){
   Blob f1, f2;
   int rid;
@@ -402,7 +402,7 @@ static void diff_all_two_versions(
   const char *zFrom,
   const char *zTo,
   const char *zDiffCmd,
-  int diffFlags
+  u64 diffFlags
 ){
   Manifest *pFrom, *pTo;
   ManifestFile *pFromFile, *pToFile;
@@ -501,7 +501,7 @@ void diff_cmd(void){
   const char *zTo;           /* Target version number */
   const char *zBranch;       /* Branch to diff */
   const char *zDiffCmd = 0;  /* External diff command. NULL for internal diff */
-  int diffFlags = 0;         /* Flags to control the DIFF */
+  u64 diffFlags = 0;         /* Flags to control the DIFF */
   int f;
 
   isGDiff = g.argv[1][0]=='g';

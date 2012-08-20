@@ -639,7 +639,7 @@ void wdiff_page(void){
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
   Blob w1, w2, d;
-  int diffFlags;
+  u64 diffFlags;
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));

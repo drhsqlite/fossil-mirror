@@ -269,7 +269,7 @@ static void stash_apply(int stashid, int nConflict){
 /*
 ** Show the diffs associate with a single stash.
 */
-static void stash_diff(int stashid, const char *zDiffCmd, int diffFlags){
+static void stash_diff(int stashid, const char *zDiffCmd, u64 diffFlags){
   Stmt q;
   Blob empty;
   blob_zero(&empty);
@@ -552,14 +552,14 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "diff", nCmd)==0 ){
     const char *zDiffCmd = db_get("diff-command", 0);
-    int diffFlags = diff_options();
+    u64 diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd, diffFlags);
   }else
   if( memcmp(zCmd, "gdiff", nCmd)==0 ){
     const char *zDiffCmd = db_get("gdiff-command", 0);
-    int diffFlags = diff_options();
+    u64 diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd, diffFlags);
