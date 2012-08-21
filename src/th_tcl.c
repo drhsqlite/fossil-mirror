@@ -95,8 +95,7 @@ static char *getTclResult(
 ** copied from and should be kept in sync with the one in "main.c".
 */
 struct TclContext {
-  int argc;
-  char **argv;
+  char *argv0;
   Tcl_Interp *interp;
 };
 
@@ -343,7 +342,7 @@ static int Th1ExprObjCmd(
 ** Array of Tcl integration commands.  Used when adding or removing the Tcl
 ** integration commands from TH1.
 */
-static struct _Command {
+static const struct _Command {
   const char *zName;
   Th_CommandProc xProc;
   void *pContext;
@@ -391,8 +390,8 @@ static int createTclInterp(
   if ( tclContext->interp ){
     return TH_OK;
   }
-  if ( tclContext->argc>0 && tclContext->argv ) {
-    Tcl_FindExecutable(tclContext->argv[0]);
+  if ( tclContext->argv0 ){
+    Tcl_FindExecutable(tclContext->argv0);
   }
   tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
