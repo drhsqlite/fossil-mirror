@@ -23,11 +23,11 @@
 */
 #include "config.h"
 #ifdef _WIN32
-# include <windows.h>           /* for Sleep once server works again */
 #  if defined(__MINGW32__)
-#    define sleep Sleep            /* windows does not have sleep, but Sleep */
-#    include <ws2tcpip.h>          
+#    include <ws2tcpip.h>
 #  endif
+#  include <windows.h>           /* for Sleep once server works again */
+#  define sleep Sleep            /* windows does not have sleep, but Sleep */
 #else
 # include <sys/socket.h>
 # include <netinet/in.h>

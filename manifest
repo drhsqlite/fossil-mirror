@@ -1,5 +1,5 @@
-C Those\stwo\sfiles\stell\seclipse\sthat\sit\scan\sbe\schecked\sout\sas\sa\sproject,\sand\sthat\sthe\sLF\seol-convention\sshould\sbe\sused.
-D 2012-08-21T13:26:27.642
+C Merge\sall\srecent\strunk\schanges\sinto\sthe\seclipse-project\sbranch.
+D 2012-08-21T14:27:11.158
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
@@ -67,7 +67,7 @@ F src/blob.c ae8377eef8ccc02e38112323b2d3154289e78cfd
 F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c c7ccb7dde6b5181b069c2eb7b481e42af6955b4e
+F src/cgi.c 9d60492eb4d7be76d6508d56dbc1f9816732d625
 F src/checkin.c d73d7df8d36a5cd44af01c0f010ecb5cb528e774
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -88,13 +88,13 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c a249612d41f6bc6eb459ace70469b0a2f417f0b7
+F src/file.c 332957705ddb3d794fc60eaa98aff151ef8d09ff
 F src/finfo.c da98a7c6360a3205ed32dda99fc37f85792b1aa0
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
-F src/http_socket.c 91e3dc023c0ae9d3cc83f9c1de553955cc0ae978
+F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
@@ -116,7 +116,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
-F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
+F src/main.c eb504afe23741b82c20d2013929ec5daeabbc3ae
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -140,7 +140,7 @@ F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
 F src/setup.c a69711b73e197e96db398cc3bd52692ce94dfded
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
-F src/shell.c a69cc006d6f547f4aec57ee91e1b8a3405a6a22c
+F src/shell.c cb92f3683c618232035796bc7cf9e2eb704a5ce4
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c a2b9ca191c00835bf416f3bc6e336b406cca329d
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
@@ -156,7 +156,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
+F src/th_tcl.c 0d80e8b99ae38272519cc2746e976c5fa8535ab1
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -369,10 +369,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e25f55dd4d910f6b9a2175839e90cb2454184efc
-R 801984a9944d87ced307989ca7bfc814
-T *branch * eclipse-project
-T *sym-eclipse-project *
-T -sym-trunk *
-U jan.nijtmans
-Z c7433008b5faa792b25656c83f994ba3
+P 6c945311bc58e50af8c0f66fcb25760a415743e7 7f96a7159942bfd9c8d5ac2c9d7c4026dcce0860
+R ca8268e33b3decf92dd461ca4b6e3080
+U drh
+Z c18b394f14aee12948d06de9961d44e8

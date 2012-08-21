@@ -88,8 +88,7 @@ struct FossilUserPerms {
 ** "th_tcl.c".
 */
 struct TclContext {
-  int argc;
-  char **argv;
+  char *argv0;
   Tcl_Interp *interp;
 };
 #endif
@@ -414,8 +413,7 @@ int main(int argc, char **argv){
   int i;
 
 #ifdef FOSSIL_ENABLE_TCL
-  g.tcl.argc = argc;
-  g.tcl.argv = argv;
+  g.tcl.argv0 = argv[0];
   g.tcl.interp = 0;
 #endif
 
