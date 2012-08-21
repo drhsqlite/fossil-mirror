@@ -1,5 +1,5 @@
-C Tcl\sonly\suses\sargv0\sso\sit\sis\senough\sto\stransfer\sonly\sthat\sone\sargument.
-D 2012-08-21T14:25:43.935
+C Restore\sthe\sprevious\sTcl\sargc/argv\shandling\sas\sall\sthe\sarguments\swill\sbe\sused\sfor\sthe\sTcl\sargv\sscript\svariable.
+D 2012-08-21T23:45:56.840
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
-F src/main.c eb504afe23741b82c20d2013929ec5daeabbc3ae
+F src/main.c 3b8b7f720b492cd177b279d3698fdd87244dbea0
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -154,7 +154,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 0d80e8b99ae38272519cc2746e976c5fa8535ab1
+F src/th_tcl.c 356133defb81ff9280975fd0dbde622b9cb3bac1
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -367,7 +367,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d89b99e38365155b7e59a67a9f3012dfe28a847b b82eacd569c35fbe4a1b908c6827b66897d0a7d4
-R e1c36c4a7fa7234458e54eab7a8175c5
-U drh
-Z 96a13f2985ce46a860435774ece4ba02
+P 7f96a7159942bfd9c8d5ac2c9d7c4026dcce0860
+R 886a09b381483b284bf948fc8bd59240
+U mistachkin
+Z 19b1b24f18dc05b204826ef468f035c1
