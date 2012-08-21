@@ -44,6 +44,7 @@
 ** larger than 2GB.
 */
 #if defined(_WIN32) && (defined(__MSVCRT__) || defined(_MSC_VER))
+# undef stat
 # define stat _stati64
 #endif
 /*
