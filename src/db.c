@@ -1001,7 +1001,11 @@ rep_not_found:
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
-    fossil_fatal("use --repository or -R to specify the repository database");
+    if( nArgUsed==0 ){
+      fossil_fatal("use --repository or -R to specify the repository database");
+    }else{
+      fossil_fatal("specify the repository name as a command-line argument");
+    }
   }
 }
 

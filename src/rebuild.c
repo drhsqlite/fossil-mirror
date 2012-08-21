@@ -772,22 +772,13 @@ void scrub_cmd(void){
   int bForce = find_option("force", "f", 0)!=0;
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
-  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  if( g.argc==2 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-    if( g.argc!=2 ){
-      usage("?REPOSITORY-FILENAME?");
-    }
-    db_close(1);
-    db_open_repository(g.zRepositoryName);
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( !bForce ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("Scrubbing the repository will permanently information.\n"
-                "Changes cannot be undone.  Continue (y/N)? ", &ans);
+    prompt_user(
+         "Scrubbing the repository will permanently delete information.\n"
+         "Changes cannot be undone.  Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       fossil_exit(1);
     }
