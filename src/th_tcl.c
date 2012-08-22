@@ -439,6 +439,7 @@ static int createTclInterp(
   struct TclContext *tclContext = (struct TclContext *)pContext;
   int argc;
   char **argv;
+  char *argv0 = 0;
   Tcl_Interp *tclInterp;
 
   if ( !tclContext ){
@@ -451,9 +452,10 @@ static int createTclInterp(
   }
   argc = tclContext->argc;
   argv = tclContext->argv;
-  if ( argc>0 && argv ) {
-    Tcl_FindExecutable(argv[0]);
+  if( argc>0 && argv ){
+    argv0 = argv[0];
   }
+  Tcl_FindExecutable(argv0);
   tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
