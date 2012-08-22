@@ -19,6 +19,8 @@
 ** for windows. It also implements a Windows Service which allows the HTTP
 ** server to be run without any user logged on.
 */
+#undef UNICODE
+#undef _UNICODE
 #include "config.h"
 #ifdef _WIN32
 /* This code is for win32 only */

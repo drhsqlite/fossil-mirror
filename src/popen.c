@@ -67,7 +67,7 @@ static void win32_fatal_error(const char *zMsg){
 ** Return the number of errors.
 */
 static int win32_create_child_process(
-  char *zCmd,          /* The command that the child process will run */
+  TCHAR *zCmd,          /* The command that the child process will run */
   HANDLE hIn,          /* Standard input */
   HANDLE hOut,         /* Standard output */
   HANDLE hErr,         /* Standard error */
@@ -141,7 +141,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   }
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
   
-  win32_create_child_process((char*)zCmd, 
+  win32_create_child_process(fossil_utf8_to_unicode(zCmd),
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
