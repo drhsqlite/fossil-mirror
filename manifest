@@ -1,5 +1,5 @@
-C Merge\sthe\sTCL\sargument\shandling\spatches\sinto\sthe\sEclipse\sbranch.
-D 2012-08-22T11:52:30.664
+C new\sfunctions\sfossil_unicode_to_utf8\sand\sfossil_utf8_to_unicode.\nModify\sfile_delete,\sfile_tempname,\sfossil_getenv\sand\sfossil_fopen\sto\suse\sit,\sso\snow\sthey\scan\shandle\sall\sunicode\scharacters\snot\sonly\sthe\sones\sfrom\sthe\smbcs\nThis\sshould\sallow\sall\sfilenames\sand\senvironment\svariables\sto\scontain\sunicode\scharacters,\swithout\sproblems\son\sWIN32.\nIf\smain.c\sis\scompiled\swith\s-DUNICODE\s-D_UNICODE,\sthen\scommand\sline\sarguments\sallow\sunicode\scharacters\son\swin32\sas\swell.\sBuild\ssystem\snot\sadapted\sfor\sthat\syet.
+D 2012-08-22T13:47:12.194
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
@@ -87,8 +87,8 @@ F src/diffcmd.c 9bdfa7b5cc0cf1feda5e4d168bfb68f2b1adbe7c
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
-F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 332957705ddb3d794fc60eaa98aff151ef8d09ff
+F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
+F src/file.c 836eeba3d22b48d156d349a9854522b572112226
 F src/finfo.c da98a7c6360a3205ed32dda99fc37f85792b1aa0
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -97,9 +97,9 @@ F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
-F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
+F src/import.c b79a02214ff8e3210b39c00135c9491351d700c5
 F src/info.c c92f8c3405be97f4d136e037c6b469c4a4626bbc
-F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
+F src/json.c 240cc43834927d1361b81edca8c3ccc74f16ac5c
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -116,7 +116,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
-F src/main.c 5d74e1e33667d1e2598a7af887f199404099f07d
+F src/main.c 08d8d9df097448d8f95e618666770159c561a7c8
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -370,7 +370,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e2d0fa884a13c1a63e85f00d372e9b2d990934f8 b6a7e52c938fc223d7d97bed2402a9096addb640
-R 8b220adc3097fd3ed189bf689b859b21
-U drh
-Z ef76c6909d32a41d5e46ce104ef027b5
+P 1bafc7e677562e0f309ea3fa1daf4d0e96126a3f
+R 995d084875468577d0323557f4e6e5c6
+U jan.nijtmans
+Z a5d1e880e435f502b37faf910cf91090

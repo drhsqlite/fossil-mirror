@@ -331,7 +331,8 @@ void fossil_atexit(void) {
 }
 
 /*
-** Search g.argv for arguments "--args FILENAME".  If found, then
+** Convert all arguments from mbcs (or unicode) to UTF-8. Then
+** search g.argv for arguments "--args FILENAME". If found, then
 ** (1) remove the two arguments from g.argv
 ** (2) Read the file FILENAME
 ** (3) Use the contents of FILE to replace the two removed arguments:
@@ -340,7 +341,7 @@ void fossil_atexit(void) {
 **     (c) If the line begins with "-" and contains a space, it is broken
 **         into two arguments at the space.
 */
-static void expand_args_option(void){
+static void expand_args_option(int argc, void *argv){
   Blob file = empty_blob;   /* Content of the file */
   Blob line = empty_blob;   /* One line of the file */
   unsigned int nLine;       /* Number of lines in the file*/
@@ -350,6 +351,14 @@ static void expand_args_option(void){
   char **newArgv;     /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
+
+  g.argc = argc;
+  g.argv = argv;
+#if defined(_WIN32) && defined(UNICODE)
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#else
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -363,7 +372,7 @@ static void expand_args_option(void){
   zFileName = g.argv[i+1];
   zInFile = (0==strcmp("-",zFileName))
     ? stdin
-    : fopen(zFileName,"rb");
+    : fossil_fopen(zFileName,"rb");
   if(!zInFile){
     fossil_panic("Cannot open -args file [%s]", zFileName);
   }else{
@@ -387,7 +396,7 @@ static void expand_args_option(void){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
     }
-    newArgv[j++] = z;
+    newArgv[j++] = z = fossil_mbcs_to_utf8(z);
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
       if( z[k] ){
@@ -407,17 +416,19 @@ static void expand_args_option(void){
 /*
 ** This procedure runs first.
 */
-int main(int argc, char **argv){
+#if defined(_WIN32) && defined(UNICODE)
+int wmain(int argc, char **argv)
+#else
+int main(int argc, char **argv)
+#endif
+{
   const char *zCmdName = "unknown";
   int idx;
   int rc;
-  int i;
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
-  g.argc = argc;
-  g.argv = argv;
 #ifdef FOSSIL_ENABLE_JSON
 #if defined(NDEBUG)
   g.json.errorDetailParanoia = 2 /* FIXME: make configurable
@@ -431,8 +442,7 @@ int main(int argc, char **argv){
   g.json.outOpt.addNewline = 1;
   g.json.outOpt.indentation = 1 /* in CGI/server mode this can be configured */;
 #endif /* FOSSIL_ENABLE_JSON */
-  expand_args_option();
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+  expand_args_option(argc, argv);
 #ifdef FOSSIL_ENABLE_TCL
   g.tcl.argc = g.argc;
   g.tcl.argv = g.argv;
@@ -1434,7 +1444,7 @@ void cmd_cgi(void){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
     if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      g.fDebug = fopen(blob_str(&value), "a");
+      g.fDebug = fossil_fopen(blob_str(&value), "a");
       blob_reset(&value);
       continue;
     }
