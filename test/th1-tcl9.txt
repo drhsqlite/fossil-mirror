@@ -1,0 +1,9 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  set channel stdout; tclInvoke set channel $channel
+  tclEval {puts $channel [list [file tail $argv0] $argc $argv]}
+</th1>

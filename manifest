@@ -1,5 +1,5 @@
-C Merge\sall\srecent\strunk\schanges\sinto\sthe\seclipse-project\sbranch.
-D 2012-08-21T14:27:11.158
+C Merge\sthe\sTCL\sargument\shandling\spatches\sinto\sthe\sEclipse\sbranch.
+D 2012-08-22T11:52:30.664
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
@@ -116,7 +116,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 46952b893a5e6dcc29f1beb5a9f2bfb7282f4915
-F src/main.c eb504afe23741b82c20d2013929ec5daeabbc3ae
+F src/main.c 5d74e1e33667d1e2598a7af887f199404099f07d
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -156,7 +156,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 0d80e8b99ae38272519cc2746e976c5fa8535ab1
+F src/th_tcl.c 22672925a4c8bdba458a9150a5f70431bfe584d9
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -187,7 +187,7 @@ F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki f05433096a91b7d12739d1429744e57ca3d9240a
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
-F test/th1-tcl.test 39d10fc9feddd823a2451c353a2f8b02af65dbcc
+F test/th1-tcl.test dda70031d6113f07c165385664b5553ac79d42a3
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
 F test/th1-tcl2.txt 290dfebd6bc023f841c4351c23cd3f1e60d1bc3f
 F test/th1-tcl3.txt 208d6e2a9a68969df9220f6f6c190402a62b4919
@@ -196,6 +196,7 @@ F test/th1-tcl5.txt 7d1fc8a760f4521e187489ea7f520a43c8c9c4d8
 F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
+F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -255,7 +256,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
 F win/Makefile.mingw 4933f73719cc5d5f3efd6d3af16469dbaf685811
-F win/Makefile.mingw.mistachkin a9d2f75c06d182040b69db3fbe48a410806fa32a
+F win/Makefile.mingw.mistachkin 858e0b1ca212102bcf8cb2f03758646289d7d689
 F win/Makefile.mingw32cross 3f22ae0c001081d0904c04df243f607a067f6b9c
 F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -369,7 +370,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6c945311bc58e50af8c0f66fcb25760a415743e7 7f96a7159942bfd9c8d5ac2c9d7c4026dcce0860
-R ca8268e33b3decf92dd461ca4b6e3080
+P e2d0fa884a13c1a63e85f00d372e9b2d990934f8 b6a7e52c938fc223d7d97bed2402a9096addb640
+R 8b220adc3097fd3ed189bf689b859b21
 U drh
-Z c18b394f14aee12948d06de9961d44e8
+Z ef76c6909d32a41d5e46ce104ef027b5

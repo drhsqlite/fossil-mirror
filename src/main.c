@@ -88,7 +88,8 @@ struct FossilUserPerms {
 ** "th_tcl.c".
 */
 struct TclContext {
-  char *argv0;
+  int argc;
+  char **argv;
   Tcl_Interp *interp;
 };
 #endif
@@ -412,11 +413,6 @@ int main(int argc, char **argv){
   int rc;
   int i;
 
-#ifdef FOSSIL_ENABLE_TCL
-  g.tcl.argv0 = argv[0];
-  g.tcl.interp = 0;
-#endif
-
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);
@@ -436,18 +432,21 @@ int main(int argc, char **argv){
   g.json.outOpt.indentation = 1 /* in CGI/server mode this can be configured */;
 #endif /* FOSSIL_ENABLE_JSON */
   expand_args_option();
-  argc = g.argc;
-  argv = g.argv;
-  for(i=0; i<argc; i++) g.argv[i] = fossil_mbcs_to_utf8(argv[i]);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#ifdef FOSSIL_ENABLE_TCL
+  g.tcl.argc = g.argc;
+  g.tcl.argv = g.argv;
+  g.tcl.interp = 0;
+#endif
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";
     g.isHTTP = 1;
-  }else if( argc<2 ){
+  }else if( g.argc<2 ){
     fossil_print(
        "Usage: %s COMMAND ...\n"
        "   or: %s help           -- for a list of common commands\n"
        "   or: %s help COMMMAND  -- for help with the named command\n",
-       argv[0], argv[0], argv[0]);
+       g.argv[0], g.argv[0], g.argv[0]);
     fossil_exit(1);
   }else{
     const char *zChdir = find_option("chdir",0,1);
@@ -469,9 +468,9 @@ int main(int argc, char **argv){
       ** "fossil help argv[1] argv[2]..." */
       int i;
       char **zNewArgv = fossil_malloc( sizeof(char*)*(g.argc+2) );
-      for(i=1; i<g.argc; i++) zNewArgv[i+1] = argv[i];
+      for(i=1; i<g.argc; i++) zNewArgv[i+1] = g.argv[i];
       zNewArgv[i+1] = 0;
-      zNewArgv[0] = argv[0];
+      zNewArgv[0] = g.argv[0];
       zNewArgv[1] = "help";
       g.argc++;
       g.argv = zNewArgv;
@@ -482,7 +481,7 @@ int main(int argc, char **argv){
   if( rc==1 ){
     fossil_fatal("%s: unknown command: %s\n"
                  "%s: use \"help\" for more information\n",
-                   argv[0], zCmdName, argv[0]);
+                   g.argv[0], zCmdName, g.argv[0]);
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
@@ -496,7 +495,7 @@ int main(int argc, char **argv){
     fossil_print("%s: ambiguous command prefix: %s\n"
                  "%s: could be any of:%s\n"
                  "%s: use \"help\" for more information\n",
-                 argv[0], zCmdName, argv[0], blob_str(&couldbe), argv[0]);
+                 g.argv[0], zCmdName, g.argv[0], blob_str(&couldbe), g.argv[0]);
     fossil_exit(1);
   }
   atexit( fossil_atexit );

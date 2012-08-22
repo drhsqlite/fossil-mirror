@@ -100,3 +100,9 @@ Cannot invoke Tcl command: tailcall</p>} || $RESULT eq {<hr><p\
 class="thmainError">ERROR: tailcall can only be called from a proc or\
 lambda</p>}}
 
+###############################################################################
+
+fossil test-th-render [file nativename [file join $dir th1-tcl9.txt]]
+
+test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 2 \
+[list test-th-render [file nativename [file join $dir th1-tcl9.txt]]]]}
