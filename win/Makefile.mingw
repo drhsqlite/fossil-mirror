@@ -135,12 +135,12 @@ endif
 LIB = -static
 LIB += -lmingwex -lz
 
-# OpenSSL: Add the necessary libaries required, if enabled.
+# OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libaries required, if enabled.
+# Tcl: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
