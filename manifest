@@ -1,5 +1,5 @@
-C Modify\sthe\sTcl\sargument\shandling\sto\sdeal\swith\sobject\sreference\scounts\sand\serrors.
-D 2012-08-22T11:15:25.575
+C When\sthere\sare\sno\scommand\sline\sarguments,\sset\sthe\sargv\sscript\svariable\sto\san\sempty\slist.
+D 2012-08-22T11:33:20.762
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -154,7 +154,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c b7fc9cd04cf0b3d37ddf1ce1ca58357adb9d7080
+F src/th_tcl.c 6fb9f4ec16b4af35b355f995afcf18ae7c1343ff
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
 F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -368,10 +368,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3709b1eaa212e0b1c5b014db4080c15bc508d967
-R 2ceadfacc4710edf2a90938e6f187228
-T *branch * tcl-argv-handling-v2
-T *sym-tcl-argv-handling-v2 *
-T -sym-tcl-argv-handling *
+P 46864ac9cc3e800a29157f1922d07a968117b000
+R cee8a049d955bfef1e06d17b13d3dda4
 U mistachkin
-Z aef10a2a4e7153ef8e4d9dbc4289eed5
+Z f1d50efe30cb099fd91b2493c0fa79f8

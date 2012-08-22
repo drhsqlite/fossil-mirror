@@ -383,7 +383,7 @@ static int setTclArguments(
   Tcl_Obj *objPtr;
   Tcl_Obj *resultObjPtr;
   Tcl_Obj *listPtr;
-  int rc;
+  int rc = TCL_OK;
   if( argc<=0 || !argv ){
     return TCL_OK;
   }
@@ -403,9 +403,9 @@ static int setTclArguments(
   if( !resultObjPtr ){
     return TCL_ERROR;
   }
+  listPtr = Tcl_NewListObj(0, NULL);
+  Tcl_IncrRefCount(listPtr);
   if( argc>1 ){
-    listPtr = Tcl_NewListObj(0, NULL);
-    Tcl_IncrRefCount(listPtr);
     while( --argc ){
       objPtr = Tcl_NewStringObj(*++argv, -1);
       Tcl_IncrRefCount(objPtr);
@@ -415,15 +415,15 @@ static int setTclArguments(
         break;
       }
     }
-    if( rc==TCL_OK ){
-      resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv", NULL, listPtr,
-          TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-      if( !resultObjPtr ){
-        rc = TCL_ERROR;
-      }
-    }
-    Tcl_DecrRefCount(listPtr);
   }
+  if( rc==TCL_OK ){
+    resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv", NULL, listPtr,
+        TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
+    if( !resultObjPtr ){
+      rc = TCL_ERROR;
+    }
+  }
+  Tcl_DecrRefCount(listPtr);
   return rc;
 }
 
