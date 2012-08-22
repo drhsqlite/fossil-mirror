@@ -372,6 +372,62 @@ static void Th1DeleteProc(
 }
 
 /*
+** Sets the "argv0", "argc", and "argv" script variables in the Tcl interpreter
+** based on the supplied command line arguments.
+ */
+static int setTclArguments(
+  Tcl_Interp *pInterp,
+  int argc,
+  char **argv
+){
+  Tcl_Obj *objPtr;
+  Tcl_Obj *resultObjPtr;
+  Tcl_Obj *listPtr;
+  int rc = TCL_OK;
+  if( argc<=0 || !argv ){
+    return TCL_OK;
+  }
+  objPtr = Tcl_NewStringObj(argv[0], -1);
+  Tcl_IncrRefCount(objPtr);
+  resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv0", NULL, objPtr,
+      TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
+  Tcl_DecrRefCount(objPtr);
+  if( !resultObjPtr ){
+    return TCL_ERROR;
+  }
+  objPtr = Tcl_NewIntObj(argc - 1);
+  Tcl_IncrRefCount(objPtr);
+  resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
+      TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
+  Tcl_DecrRefCount(objPtr);
+  if( !resultObjPtr ){
+    return TCL_ERROR;
+  }
+  listPtr = Tcl_NewListObj(0, NULL);
+  Tcl_IncrRefCount(listPtr);
+  if( argc>1 ){
+    while( --argc ){
+      objPtr = Tcl_NewStringObj(*++argv, -1);
+      Tcl_IncrRefCount(objPtr);
+      rc = Tcl_ListObjAppendElement(pInterp, listPtr, objPtr);
+      Tcl_DecrRefCount(objPtr);
+      if( rc!=TCL_OK ){
+        break;
+      }
+    }
+  }
+  if( rc==TCL_OK ){
+    resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv", NULL, listPtr,
+        TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
+    if( !resultObjPtr ){
+      rc = TCL_ERROR;
+    }
+  }
+  Tcl_DecrRefCount(listPtr);
+  return rc;
+}
+
+/*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
 ** interpreter.  Stores the created Tcl interpreter in the Tcl context supplied
 ** by the caller.
@@ -381,6 +437,9 @@ static int createTclInterp(
   void *pContext
 ){
   struct TclContext *tclContext = (struct TclContext *)pContext;
+  int argc;
+  char **argv;
+  char *argv0 = 0;
   Tcl_Interp *tclInterp;
 
   if ( !tclContext ){
@@ -391,9 +450,12 @@ static int createTclInterp(
   if ( tclContext->interp ){
     return TH_OK;
   }
-  if ( tclContext->argc>0 && tclContext->argv ) {
-    Tcl_FindExecutable(tclContext->argv[0]);
+  argc = tclContext->argc;
+  argv = tclContext->argv;
+  if( argc>0 && argv ){
+    argv0 = argv[0];
   }
+  Tcl_FindExecutable(argv0);
   tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
@@ -403,6 +465,13 @@ static int createTclInterp(
   if( Tcl_Init(tclInterp)!=TCL_OK ){
     Th_ErrorMessage(interp,
         "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
+    Tcl_DeleteInterp(tclInterp);
+    tclContext->interp = tclInterp = 0;
+    return TH_ERROR;
+  }
+  if( setTclArguments(tclInterp, argc, argv)!=TCL_OK ){
+    Th_ErrorMessage(interp,
+        "Tcl error setting arguments:", Tcl_GetStringResult(tclInterp), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
