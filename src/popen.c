@@ -141,8 +141,13 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   }
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
   
+#ifdef UNICODE
   win32_create_child_process(fossil_utf8_to_unicode(zCmd),
                              hStdinRd, hStdoutWr, hStderr,&childPid);
+#else
+  win32_create_child_process(fossil_utf8_to_mbcs(zCmd),
+                             hStdinRd, hStdoutWr, hStderr,&childPid);
+#endif
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);
   fd = _open_osfhandle(PTR_TO_INT(hStdinWr), 0);

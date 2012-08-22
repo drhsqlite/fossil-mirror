@@ -1,5 +1,5 @@
-C Allow\spopen.c\sand\swinhttp.c\sto\sbe\scompiled\swith\s-DUNICODE\s-D_UNICODE\s\n(the\slatter\sjust\sby\sundefining\sthose)
-D 2012-08-22T14:53:14.976
+C ...\sand\swithout\s-DUNICODE\sas\swell
+D 2012-08-22T14:57:06.971
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
@@ -130,7 +130,7 @@ F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
 F src/name.c ae0f607314e748e2084418ae82893c40a0728de4
 F src/path.c 0c676ca3ee6b4a09f00ff22a49a5bcd04880b787
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
-F src/popen.c 518804cd86f4a98110e791c812bf7323d37f6068
+F src/popen.c 31ed458f1df67aff543f8dd8f16b4c001e03138e
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
 F src/rebuild.c 2bfd7bccdcd3028df1902063a1b7736482f5908a
@@ -370,7 +370,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 65c8ca0571a3ea8dd2cf9a5aeeab54e5a72f0d20
-R 1471f0979fe47e9e21cbdb6b7c165aef
+P 8bde948434b7c8eabe9ded22591b187c4ac5ffe7
+R 6756256b07664b69dcc32419eb93a4de
 U jan.nijtmans
-Z fdad34f2ef5b4914d595185f6748a549
+Z 9d03c7e68426ebb39a00c09bf8c239cd
