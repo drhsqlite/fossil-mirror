@@ -1,5 +1,5 @@
-C Merge\sthe\sTCL\sargument\shandling\spatches\sinto\strunk.
-D 2012-08-22T11:51:01.355
+C Make\suse\sof\s%q\sinstead\sof\s%s\sto\savoid\sSQL\sinjections.
+D 2012-08-22T20:19:15.968
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -56,13 +56,13 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 0a869f4dc6664a5b5ed6ccc4a012c39083c31524
+F src/add.c 8cf1adde57a614ceeab72f7d749f9bff95d9d071
 F src/allrepo.c b6606e9f9234dd32208cca7c8a6d882f6c2d2385
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
 F src/blob.c ae8377eef8ccc02e38112323b2d3154289e78cfd
-F src/branch.c 1aa724b4bcfe1d6cdce544d029ea724e620bb76d
+F src/branch.c 3df909076f844634940791541df7de2c8934fc5d
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c 9d60492eb4d7be76d6508d56dbc1f9816732d625
@@ -96,7 +96,7 @@ F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c b2f3fa631e707dcfffd51aeec4443aab6382877f
 F src/import.c 9951c2734404c5eb8cf61bcf97e5fb03ea6bc1e8
-F src/info.c c92f8c3405be97f4d136e037c6b469c4a4626bbc
+F src/info.c 70d8dd31ab6b877d16d35c3acd73e599641dd479
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -156,7 +156,7 @@ F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
 F src/th_tcl.c 22672925a4c8bdba458a9150a5f70431bfe584d9
 F src/timeline.c a1324219e8a730150e2ef0b04c58b88d7a00039d
-F src/tkt.c d4e00f15d0ba8863eefad69002a6249b307aa93f
+F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
@@ -368,7 +368,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c9bb3200658911d8c8cc73b8bd5d315101e51d9e a7392129c060e1d365924b98e36658c08f405163
-R 49d0d8b93b3c99073c15ad3ed2033ec1
+P b6a7e52c938fc223d7d97bed2402a9096addb640
+R 306828ed4d075bba907b5966ffa1ebc7
 U drh
-Z 2d206f3d3c1fe3c5225a08bb809baa77
+Z 8667cf6234cc0ff7831733348ee38dd3

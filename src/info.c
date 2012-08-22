@@ -232,7 +232,7 @@ static void showTags(int rid, const char *zNotGlob){
     "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
+    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%q'"
     " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
