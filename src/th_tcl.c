@@ -391,9 +391,7 @@ static int createTclInterp(
   if ( tclContext->interp ){
     return TH_OK;
   }
-  if ( tclContext->argc>0 && tclContext->argv ) {
-    Tcl_FindExecutable(tclContext->argv[0]);
-  }
+  Tcl_FindExecutable(tclContext->argv[0]);
   tclInterp = tclContext->interp = Tcl_CreateInterp();
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
@@ -407,6 +405,16 @@ static int createTclInterp(
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
   }
+  if (tclContext->argc > 0) {
+	int argc = tclContext->argc - 1;
+	char **argv = tclContext->argv + 1;
+    Tcl_Obj *argvPtr = Tcl_NewListObj(0, NULL);
+    while (argc--) {
+      Tcl_ListObjAppendElement(NULL, argvPtr, Tcl_NewStringObj(*argv++, -1));
+    }
+    Tcl_SetVar2Ex(tclContext->interp, "argv", NULL, argvPtr, TCL_GLOBAL_ONLY);
+  }
+
   /* Add the TH1 integration commands to Tcl. */
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
