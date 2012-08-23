@@ -53,7 +53,7 @@ VS_VERSION_INFO VERSIONINFO
   FILEVERSION 1,0,0,0
   PRODUCTVERSION 1,0,0,0
   FILEFLAGSMASK 0x3F
-#if !defined(NDEBUG) && defined(_DEBUG)
+#if defined(_DEBUG)
   FILEFLAGS 0x1L
 #else
   FILEFLAGS 0x0L
@@ -68,7 +68,7 @@ BEGIN
     BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
       VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
-      VALUE "ProductName", "fossil\0"
+      VALUE "ProductName", "Fossil\0"
       VALUE "ProductVersion", RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "FileVersion", RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "InternalName", "fossil\0"
