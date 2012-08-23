@@ -428,33 +428,44 @@ LIBTCL = -ltcl86
 #
 TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
+#### Compile resources for use in building executables that will run
+#    on the target platform.
+#
+RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
+
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
+RCC += -I$(OPENSSLINCDIR)
 endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 ifdef FOSSIL_TCL_SOURCE
 TCC += -L$(TCLSRCDIR)/win -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
+RCC += -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
 else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
+RCC += -I$(TCLINCDIR)
 endif
 endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
+RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
 # With Tcl support (statically linked)
 ifdef FOSSIL_ENABLE_TCL
 TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
+RCC += -DFOSSIL_ENABLE_TCL=1
 endif
 
 # With JSON support
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
+RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
 #### Extra arguments for linking the finished binary.  Fossil needs
@@ -531,7 +542,7 @@ all:	$(OBJDIR) $(APPNAME)
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc
 	cp $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	cp $(SRCDIR)/../win/fossil.ico $(OBJDIR)
-	$(PREFIX)windres -I$(SRCDIR) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
+	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)

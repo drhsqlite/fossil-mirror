@@ -27,6 +27,15 @@
 #include "VERSION.h"
 #define _RC_COMPILE_
 #include "config.h"
+#include "zlib.h"
+
+#ifdef FOSSIL_ENABLE_SSL
+#include "openssl/opensslv.h"
+#endif
+
+#ifdef FOSSIL_ENABLE_TCL
+#include "tcl.h"
+#endif
 
 /*
  * English (U.S.) resources
@@ -69,12 +78,22 @@ BEGIN
       VALUE "CompanyName", "Fossil Development Team\0"
       VALUE "FileDescription", "Simple, high-reliability, distributed software configuration management system.\0"
       VALUE "ProductName", "Fossil\0"
-      VALUE "ProductVersion", RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
-      VALUE "FileVersion", RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
+      VALUE "ProductVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
+      VALUE "FileVersion", "Fossil " RELEASE_VERSION " " MANIFEST_VERSION " " MANIFEST_DATE " UTC\0"
       VALUE "InternalName", "fossil\0"
       VALUE "LegalCopyright", "Copyright © " MANIFEST_YEAR " by D. Richard Hipp.  All rights reserved.\0"
       VALUE "OriginalFilename", "fossil.exe\0"
       VALUE "Compiler", COMPILER_NAME "\0"
+      VALUE "ZlibEnabled", "Yes, zlib " ZLIB_VERSION "\0"
+#ifdef FOSSIL_ENABLE_SSL
+      VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
+#endif
+#ifdef FOSSIL_ENABLE_TCL
+      VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
+#endif
+#ifdef FOSSIL_ENABLE_JSON
+      VALUE "JsonEnabled", "Yes, cson\0"
+#endif
     END
   END
   BLOCK "VarFileInfo"
