@@ -468,14 +468,10 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### Extra arguments for linking the finished binary.  Fossil needs
-#    to link against the Z-Lib compression library.  There are no
-#    other mandatory dependencies.  We add the -static option here
-#    so that we can build a static executable that will run in a
-#    chroot jail.
+#### We add the -static option here so that we can build a static
+#    executable that will run in a chroot jail.
 #
 LIB = -static
-LIB += -lmingwex -lz
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
@@ -486,6 +482,12 @@ endif
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
+
+#### Extra arguments for linking the finished binary.  Fossil needs
+#    to link against the Z-Lib compression library.  There are no
+#    other mandatory dependencies.
+#
+LIB += -lmingwex -lz
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
