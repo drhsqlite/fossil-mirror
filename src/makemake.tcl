@@ -329,8 +329,17 @@ writeln {#!/usr/bin/make
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-# This is a makefile for us on windows using MinGW.
+# This is a makefile for use on Windows/Linux/Darwin/Cygwin using MinGW/Mingw-w64.
 #
+
+####
+#
+# Select one of mingw, mingw-64 (32-bit) or mingw-w64 (64-bit)
+#
+PREFIX=i686-pc-mingw32-
+#PREFIX=i686-w64-mingw32-
+#PREFIX=x86_64-w64-mingw32-
+
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
@@ -416,7 +425,7 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
@@ -518,9 +527,9 @@ VERSION     = $(OBJDIR)/version.exe
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
-	cp $(SRCDIR)/../win/icon.rc $(OBJDIR)
-	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc
+	cp $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+	$(PREFIX)windres -I$(SRCDIR) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
 install:	$(APPNAME)
 	mkdir -p $(INSTALLDIR)
@@ -561,8 +570,8 @@ ifdef FOSSIL_ENABLE_TCL
 EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
