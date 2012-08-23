@@ -63,7 +63,7 @@ void branch_new(void){
   if( db_exists(
         "SELECT 1 FROM tagxref"
         " WHERE tagtype>0"
-        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%s')",
+        "   AND tagid=(SELECT tagid FROM tag WHERE tagname='sym-%q')",
         zBranch)!=0 ){
     fossil_fatal("branch \"%s\" already exists", zBranch);
   }
