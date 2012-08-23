@@ -29,6 +29,10 @@
 #include <string.h>
 #include <errno.h>
 #include "file.h"
+#if defined(_WIN32)
+#include <direct.h>
+#endif
+
 
 /*
 ** On Windows, include the Platform SDK header file.
@@ -70,8 +74,8 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   }
 #else
   int rc = 0;
-  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
-  rc = stat(zMbcs, buf);
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  rc = _wstati64(zMbcs, buf);
   fossil_mbcs_free(zMbcs);
   return rc;
 #endif
@@ -300,9 +304,13 @@ int file_wd_isdir(const char *zFilename){
 ** Wrapper around the access() system call.
 */
 int file_access(const char *zFilename, int flags){
-  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
-  int rc = access(zMbcs, flags);
+#ifdef _WIN32
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  int rc = _waccess(zMbcs, flags);
   fossil_mbcs_free(zMbcs);
+#else
+  int rc = access(zFilename, flags);
+#endif
   return rc;
 }
 
@@ -567,7 +575,7 @@ void cmd_test_simplify_name(void){
 /*
 ** Get the current working directory.
 **
-** On windows, the name is converted from MBCS to UTF8 and all '\\'
+** On windows, the name is converted from unicode to UTF8 and all '\\'
 ** characters are converted to '/'.  No conversions are needed on
 ** unix.
 */
@@ -576,11 +584,11 @@ void file_getcwd(char *zBuf, int nBuf){
   char *zPwdUtf8;
   int nPwd;
   int i;
-  char zPwd[2000];
-  if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
+  wchar_t zPwd[2000];
+  if( _wgetcwd(zPwd, sizeof(zPwd)-1)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
-  zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
+  zPwdUtf8 = fossil_unicode_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
   if( nPwd > nBuf-1 ){
     fossil_fatal("pwd too big: max %d\n", nBuf-1);
