@@ -67,6 +67,10 @@ if {[opt-bool fossil-debug]} {
 }
 
 if {[opt-bool json]} {
+    # Reminder/FIXME (stephan): FOSSIL_ENABLE_JSON
+    # is required in the CFLAGS because json*.c
+    # have #ifdef guards around the whole file without
+    # reading config.h first.
     define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_JSON
     define FOSSIL_ENABLE_JSON
 }

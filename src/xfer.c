@@ -1048,7 +1048,7 @@ void page_xfer(void){
           }
           seqno++;
         }
-        if( seqno>=max ) seqno = 0;
+        if( seqno>max ) seqno = 0;
         @ clone_seqno %d(seqno)
       }else{
         isClone = 1;

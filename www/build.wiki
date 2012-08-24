@@ -92,8 +92,11 @@ all unix and unix-like systems.  Simply type "<b>make</b>".
 can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
 edits to Makefile.classic to configure the build for your system.
 
-<li><p><i>Msys/MinGW</i> &rarr; Use the
-mingw makefile: "<b>make -f win/Makefile.mingw</b>"
+<li><p><i>MinGW/MinGW-w64</i> &rarr; Use the mingw makefile:
+"<b>make -f win/Makefile.mingw</b>". On a Windows box you will
+need either Cygwin or Msys as build environment. On Cygwin, Linux
+or Darwin you may want to make minor edits to win/Makefile.mingw
+to configure the cross-compile environment.
 
 <li><p><i>VC++</i> &rarr; Use the msc makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
