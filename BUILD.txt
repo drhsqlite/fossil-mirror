@@ -12,8 +12,9 @@ instead use:
    make -f Makefile.classic
 
 On a windows box, use one of the Makefiles in the win/ subdirectory,
-according to your compiler and environment.  If you have GCC and MSYS
-installed on your system, then consider:
+according to your compiler and environment.  If you have MinGW or
+MinGW-w64 installed on your system (Msys or Cygwin, or as
+cross-compile environment on Linux or Darwin), then consider:
 
    make -f win/Makefile.mingw
 
@@ -43,7 +44,7 @@ For example:
   ../configure
   make
 
-This will now keep all generates files seperate from the maintained
+This will now keep all generates files separate from the maintained
 source code.
 
 --------------------------------------------------------------------------
