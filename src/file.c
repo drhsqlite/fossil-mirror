@@ -424,8 +424,8 @@ int file_mkdir(const char *zName, int forceFlag){
   if( rc!=1 ){
 #if defined(_WIN32)
     int rc;
-    char *zMbcs = fossil_utf8_to_mbcs(zName);
-    rc = mkdir(zMbcs);
+    wchar_t *zMbcs = fossil_utf8_to_unicode(zName);
+    rc = _wmkdir(zMbcs);
     fossil_mbcs_free(zMbcs);
     return rc;
 #else

@@ -1,5 +1,5 @@
-C Better\ssupport\sfor\sunicode\sfilenames\son\sWin32\n(Not\stested\son\sother\splatforms\syet,\swill\snot\swork!)
-D 2012-08-24T13:15:12.589
+C add\smkdir\sto\sthe\sunicode-supported\sfunctions\nadd\schinese-named\sfile\sand\sdirectory\sin\stest\sdirectory,\sdemonstrating\sthe\sfix
+D 2012-08-24T13:42:27.968
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 05c11eb2b52267121eb863851d4f0f6d87b24f36
+F src/file.c 8eb40fea3e87b2a58e124d324fb55e4879df1db1
 F src/finfo.c da98a7c6360a3205ed32dda99fc37f85792b1aa0
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -195,6 +195,7 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
+F test/世界/界世.txt d1efc220d1a1063760c6e71112fc07ea931dee64
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -366,10 +367,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4e93e84e55cf3744029f52add0d9260a6ce3344d
-R 3ab4497bc89d95d85ad3d6dd3579b364
-T *branch * unicode
-T *sym-unicode *
-T -sym-trunk *
+P d8e1431fc0f3e7a9795436d36a2d67855755efa0
+R 6d45484fa0150f5ca689e5de90526484
 U jan.nijtmans
-Z 402a24285ac33d50a319128be1626041
+Z 2ae6b748929078676af7f326d50ada7c
