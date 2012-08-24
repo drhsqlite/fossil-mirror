@@ -820,24 +820,24 @@ void scrub_cmd(void){
 ** every file read as a new artifact in the repository.
 */
 void recon_read_dir(char *zPath){
-  DIR *d;
-  struct dirent *pEntry;
+  _WDIR *d;
+  struct _wdirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
-  char *zMbcsPath;
+  wchar_t *zMbcsPath;
   char *zUtf8Name;
 
-  zMbcsPath = fossil_utf8_to_mbcs(zPath);
-  d = opendir(zMbcsPath);
+  zMbcsPath = fossil_utf8_to_unicode(zPath);
+  d = _wopendir(zMbcsPath);
   if( d ){
-    while( (pEntry=readdir(d))!=0 ){
+    while( (pEntry=_wreaddir(d))!=0 ){
       Blob path;
       char *zSubpath;
 
-      if( pEntry->d_name[0]=='.' ){
+      if( pEntry->d_name[0]==L'.' ){
         continue;
       }
-      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
@@ -856,7 +856,7 @@ void recon_read_dir(char *zPath){
       fossil_print("\r%d", ++nFileRead);
       fflush(stdout);
     }
-    closedir(d);
+    _wclosedir(d);
   }else {
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);

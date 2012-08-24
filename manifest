@@ -1,5 +1,5 @@
-C wiki\stweaks\sregarding\sMinGW\sbuild\senhancements
-D 2012-08-24T08:13:51.486
+C Better\ssupport\sfor\sunicode\sfilenames\son\sWin32\n(Not\stested\son\sother\splatforms\syet,\swill\snot\swork!)
+D 2012-08-24T13:15:12.589
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c 5b67529e6e0e958d461cf7e4962102e042d13432
-F src/file.c 332957705ddb3d794fc60eaa98aff151ef8d09ff
+F src/file.c 05c11eb2b52267121eb863851d4f0f6d87b24f36
 F src/finfo.c da98a7c6360a3205ed32dda99fc37f85792b1aa0
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -131,7 +131,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
-F src/rebuild.c 2bfd7bccdcd3028df1902063a1b7736482f5908a
+F src/rebuild.c e912ea735a1b4013599fca2dfea6cd7c89e9972e
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -164,7 +164,7 @@ F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 0844336aab4d00f4e55a54473dec1b2d3186f9f7
+F src/vfile.c 2a961de447abdbfa01d143fc837ec7a6e977a4d2
 F src/wiki.c e912fc9c532a111419caa4ca95086d4d2864d421
 F src/wikiformat.c 11314c22154dab309d5ee0941fa9aa8b9d74f2b1
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
@@ -366,7 +366,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 02bff595e10312323a3f24bf4c25089d1a83ec15
-R b82acf95fe1589621dc9e50a717b9e66
+P 4e93e84e55cf3744029f52add0d9260a6ce3344d
+R 3ab4497bc89d95d85ad3d6dd3579b364
+T *branch * unicode
+T *sym-unicode *
+T -sym-trunk *
 U jan.nijtmans
-Z 3d17bca85072732a7a52ce9010331de8
+Z 402a24285ac33d50a319128be1626041

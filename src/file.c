@@ -29,6 +29,10 @@
 #include <string.h>
 #include <errno.h>
 #include "file.h"
+#if defined(_WIN32)
+#include <direct.h>
+#endif
+
 
 /*
 ** On Windows, include the Platform SDK header file.
@@ -70,8 +74,8 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   }
 #else
   int rc = 0;
-  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
-  rc = stat(zMbcs, buf);
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  rc = _wstati64(zMbcs, buf);
   fossil_mbcs_free(zMbcs);
   return rc;
 #endif
@@ -300,9 +304,13 @@ int file_wd_isdir(const char *zFilename){
 ** Wrapper around the access() system call.
 */
 int file_access(const char *zFilename, int flags){
-  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
-  int rc = access(zMbcs, flags);
+#ifdef _WIN32
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  int rc = _waccess(zMbcs, flags);
   fossil_mbcs_free(zMbcs);
+#else
+  int rc = access(zFilename, flags);
+#endif
   return rc;
 }
 
@@ -391,9 +399,13 @@ int file_wd_setexe(const char *zFilename, int onoff){
 ** Delete a file.
 */
 void file_delete(const char *zFilename){
-  char *z = fossil_utf8_to_mbcs(zFilename);
-  unlink(z);
+#ifdef _WIN32
+  wchar_t *z = fossil_utf8_to_unicode(zFilename);
+  _wunlink(z);
   fossil_mbcs_free(z);
+#else
+  unlink(zFilename);
+#endif
 }
 
 /*
@@ -563,7 +575,7 @@ void cmd_test_simplify_name(void){
 /*
 ** Get the current working directory.
 **
-** On windows, the name is converted from MBCS to UTF8 and all '\\'
+** On windows, the name is converted from unicode to UTF8 and all '\\'
 ** characters are converted to '/'.  No conversions are needed on
 ** unix.
 */
@@ -572,11 +584,11 @@ void file_getcwd(char *zBuf, int nBuf){
   char *zPwdUtf8;
   int nPwd;
   int i;
-  char zPwd[2000];
-  if( getcwd(zPwd, sizeof(zPwd)-1)==0 ){
+  wchar_t zPwd[2000];
+  if( _wgetcwd(zPwd, sizeof(zPwd)-1)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
-  zPwdUtf8 = fossil_mbcs_to_utf8(zPwd);
+  zPwdUtf8 = fossil_unicode_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
   if( nPwd > nBuf-1 ){
     fossil_fatal("pwd too big: max %d\n", nBuf-1);
@@ -930,10 +942,10 @@ void file_tempname(int nBuf, char *zBuf){
   int cnt = 0;
 
 #if defined(_WIN32)
-  char zTmpPath[MAX_PATH];
+  wchar_t zTmpPath[MAX_PATH];
 
-  if( GetTempPath(sizeof(zTmpPath), zTmpPath) ){
-    azDirs[0] = zTmpPath;
+  if( GetTempPathW(MAX_PATH, zTmpPath) ){
+    azDirs[0] = fossil_unicode_to_utf8(zTmpPath);
   }
 
   azDirs[1] = fossil_getenv("TEMP");
@@ -1018,6 +1030,25 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 }
 
 /*
+** Translate Unicode to UTF8.  Return a pointer to the translated text.
+** Call fossil_mbcs_free() to deallocate any memory used to store the
+** returned pointer when done.
+*/
+char *fossil_unicode_to_utf8(const void *zUnicode){
+#ifdef _WIN32
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
+  char *zUtf = sqlite3_malloc( nByte );
+  if( zUtf==0 ){
+    return 0;
+  }
+  WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
+  return zUtf;
+#else
+  return (char *)zUnicode;  /* No-op on unix */
+#endif
+}
+
+/*
 ** Translate UTF8 to MBCS for use in system calls.  Return a pointer to the
 ** translated text..  Call fossil_mbcs_free() to deallocate any memory
 ** used to store the returned pointer when done.
@@ -1032,12 +1063,35 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 }
 
 /*
+** Translate UTF8 to unicode for use in system calls.  Return a pointer to the
+** translated text..  Call fossil_mbcs_free() to deallocate any memory
+** used to store the returned pointer when done.
+*/
+void *fossil_utf8_to_unicode(const char *zUtf8){
+#ifdef _WIN32
+  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  return zUnicode;
+#else
+  return (void *)zUtf8;  /* No-op on unix */
+#endif
+}
+
+/*
 ** Return the value of an environment variable as UTF8.
 */
 char *fossil_getenv(const char *zName){
-  char *zValue = getenv(zName);
 #ifdef _WIN32
-  if( zValue ) zValue = fossil_mbcs_to_utf8(zValue);
+  wchar_t *uName = fossil_utf8_to_unicode(zName);
+  void *zValue = _wgetenv(uName);
+  fossil_mbcs_free(uName);
+  if( zValue ) zValue = fossil_unicode_to_utf8(zValue);
+#else
+  char *zValue = getenv(zName);
 #endif
   return zValue;
 }
@@ -1087,7 +1141,7 @@ char *fossil_utf8_to_console(const char *zUtf8){
 ** Translate MBCS to UTF8.  Return a pointer.  Call fossil_mbcs_free()
 ** to deallocate any memory used to store the returned pointer when done.
 */
-void fossil_mbcs_free(char *zOld){
+void fossil_mbcs_free(void *zOld){
 #ifdef _WIN32
   extern void sqlite3_free(void*);
   sqlite3_free(zOld);
@@ -1100,8 +1154,14 @@ void fossil_mbcs_free(char *zOld){
 ** Like fopen() but always takes a UTF8 argument.
 */
 FILE *fossil_fopen(const char *zName, const char *zMode){
-  char *zMbcs = fossil_utf8_to_mbcs(zName);
-  FILE *f = fopen(zMbcs, zMode);
-  fossil_mbcs_free(zMbcs);
+#ifdef _WIN32
+  wchar_t *uMode = fossil_utf8_to_unicode(zMode);
+  wchar_t *uName = fossil_utf8_to_unicode(zName);
+  FILE *f = _wfopen(uName, uMode);
+  fossil_mbcs_free(uName);
+  fossil_mbcs_free(uMode);
+#else
+  FILE *f = fopen(zName, zMode);
+#endif
   return f;
 }
