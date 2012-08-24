@@ -424,8 +424,8 @@ int file_mkdir(const char *zName, int forceFlag){
   if( rc!=1 ){
 #if defined(_WIN32)
     int rc;
-    char *zMbcs = fossil_utf8_to_mbcs(zName);
-    rc = mkdir(zMbcs);
+    wchar_t *zMbcs = fossil_utf8_to_unicode(zName);
+    rc = _wmkdir(zMbcs);
     fossil_mbcs_free(zMbcs);
     return rc;
 #else
@@ -1034,6 +1034,7 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
+#undef fossil_unicode_to_utf8
 char *fossil_unicode_to_utf8(const void *zUnicode){
 #ifdef _WIN32
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);

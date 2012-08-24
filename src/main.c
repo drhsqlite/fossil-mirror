@@ -38,6 +38,12 @@
 #include "tcl.h"
 #endif
 
+#if !defined(_WIN32)
+# define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
+# define wchar_t char
+# define wmain main
+#endif
+
 /*
 ** Number of elements in an array
 */
@@ -354,11 +360,7 @@ static void expand_args_option(int argc, void *argv){
 
   g.argc = argc;
   g.argv = argv;
-#if defined(_WIN32) && defined(UNICODE)
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
-#else
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
-#endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -416,11 +418,7 @@ static void expand_args_option(int argc, void *argv){
 /*
 ** This procedure runs first.
 */
-#if defined(_WIN32) && defined(UNICODE)
-int wmain(int argc, char **argv)
-#else
-int main(int argc, char **argv)
-#endif
+int wmain(int argc, wchar_t **argv)
 {
   const char *zCmdName = "unknown";
   int idx;
