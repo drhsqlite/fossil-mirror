@@ -84,7 +84,7 @@ BEGIN
       VALUE "InternalName", "fossil\0"
       VALUE "LegalCopyright", "Copyright © " MANIFEST_YEAR " by D. Richard Hipp.  All rights reserved.\0"
       VALUE "OriginalFilename", "fossil.exe\0"
-      VALUE "Compiler", COMPILER_NAME "\0"
+      VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
 #ifdef FOSSIL_ENABLE_SSL
