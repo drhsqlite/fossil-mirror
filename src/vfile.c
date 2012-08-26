@@ -27,6 +27,15 @@
 #include <dirent.h>
 #endif
 
+#ifndef _WIN32
+#define _WDIR DIR
+#define _wdirent dirent
+#define _wopendir opendir
+#define _wreaddir readdir
+#define _wclosedir closedir
+#define wchar_t char
+#endif
+
 /*
 ** The input is guaranteed to be a 40-character well-formed UUID.
 ** Find its rid.

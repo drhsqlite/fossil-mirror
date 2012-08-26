@@ -1,5 +1,5 @@
-C add\smkdir\sto\sthe\sunicode-supported\sfunctions\nadd\schinese-named\sfile\sand\sdirectory\sin\stest\sdirectory,\sdemonstrating\sthe\sfix
-D 2012-08-24T13:42:27.968
+C merge\strunk\sinto\sunicode\sbranch,\sand\sfix\sbuild\son\sUNIX
+D 2012-08-26T18:17:53.277
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,19 +131,19 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
-F src/rebuild.c e912ea735a1b4013599fca2dfea6cd7c89e9972e
+F src/rebuild.c e79d8ac65170c0b9491700503a638b1cbbc88477
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
 F src/setup.c a69711b73e197e96db398cc3bd52692ce94dfded
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
-F src/shell.c cb92f3683c618232035796bc7cf9e2eb704a5ce4
+F src/shell.c c9987e5911e698c5d58d15e2f01b4a6844737d13
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c a2b9ca191c00835bf416f3bc6e336b406cca329d
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
-F src/sqlite3.c 77b6816f661ce1d7248072cbabe8bc43b0e85c61
-F src/sqlite3.h c99c98eba68ce96f0827ab3a2e55ca4889fd94a6
+F src/sqlite3.c 4bcd94cc973d4c02f2cfaf8ef215a5ac69cc273f
+F src/sqlite3.h 60aa3c8f4fb6bee4d04143ff9b1769b487a024f3
 F src/stash.c 64b6f7485654e44a8d3434ec8d27f016811c4ab7
 F src/stat.c 1a5f0535c1eef238efc29927c7b86b37d8e0abe7
 F src/style.c c847e4de74543123bdcfc2a77b59884feb6dbfdc
@@ -164,7 +164,7 @@ F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 2a961de447abdbfa01d143fc837ec7a6e977a4d2
+F src/vfile.c a4c8f42cac33b18e3b33eb6f2a6e4d41c0663c3b
 F src/wiki.c e912fc9c532a111419caa4ca95086d4d2864d421
 F src/wikiformat.c 11314c22154dab309d5ee0941fa9aa8b9d74f2b1
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
@@ -367,7 +367,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d8e1431fc0f3e7a9795436d36a2d67855755efa0
-R 6d45484fa0150f5ca689e5de90526484
+P c780793749f436abad9753df283d701b1b063873 d7736649cdd05770f1d774dc673d343179f9b849
+R 5d2615b3192051872d365a11d7839a13
 U jan.nijtmans
-Z 2ae6b748929078676af7f326d50ada7c
+Z d5942122ba6bc86cb014387aecb066fe

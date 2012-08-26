@@ -23,6 +23,15 @@
 #include <dirent.h>
 #include <errno.h>
 
+#ifndef _WIN32
+#define _WDIR DIR
+#define _wdirent dirent
+#define _wopendir opendir
+#define _wreaddir readdir
+#define _wclosedir closedir
+#define wchar_t char
+#endif
+
 /*
 ** Make changes to the stable part of the schema (the part that is not
 ** simply deleted and reconstructed on a rebuild) to bring the schema
