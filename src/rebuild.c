@@ -23,15 +23,13 @@
 #include <dirent.h>
 #include <errno.h>
 
-#if !defined(_WIN32)
-# define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
-# define fossil_utf8_to_unicode fossil_utf8_to_mbcs
-# define wchar_t char
-# define _WDIR DIR
-# define _wdirent dirent
-# define _wopendir opendir
-# define _wreaddir readdir
-# define _wclosedir closedir
+#ifndef _WIN32
+#define _WDIR DIR
+#define _wdirent dirent
+#define _wopendir opendir
+#define _wreaddir readdir
+#define _wclosedir closedir
+#define wchar_t char
 #endif
 
 /*
