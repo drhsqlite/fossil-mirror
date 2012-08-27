@@ -1,5 +1,5 @@
-C All\sthe\sa=,\sb=,\sand\sc=\squery\sparameters\sof\sthe\stimeline\swebpage\sto\sbe\ntags\sand\slabels\sin\saddition\sto\stimestamps.
-D 2012-08-27T18:36:20.167
+C Re-do\spart\sof\s[d89b99e383],\swhich\swas\slost\sby\s[d7736649cd]
+D 2012-08-27T19:05:44.971
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -138,7 +138,7 @@ F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
 F src/setup.c a69711b73e197e96db398cc3bd52692ce94dfded
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
-F src/shell.c c9987e5911e698c5d58d15e2f01b4a6844737d13
+F src/shell.c 4e319394db07ae8e049128216043618124abd31f
 F src/shun.c 4361efe5c919b11b04369dc102cafd932c7f4d8b
 F src/skins.c a2b9ca191c00835bf416f3bc6e336b406cca329d
 F src/sqlcmd.c 431c30c840004c142011f5ce96e0821f5dab31d3
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d7736649cdd05770f1d774dc673d343179f9b849
-R 173cf7e6d6bd39a820211ec75e5ec73a
-U drh
-Z da4b307a03cec790caab3fb1f5affb44
+P 66f4fa9bd5a5c4bc748d45b10ad476f8c5f2014c
+R 8296109c6f3266f79d75f5e8d83f168e
+U jan.nijtmans
+Z 210d17abcc70ec4728db72a2bc235962
