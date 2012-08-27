@@ -813,28 +813,44 @@ static void timeline_submenu(
 
 
 /*
+** Convert a symbolic name used as an argument to the a=, b=, or c=
+** query parameters of timeline into a julianday mtime value.
+*/
+double symbolic_name_to_mtime(const char *z){
+  double mtime;
+  int rid;
+  if( z==0 ) return -1.0;
+  rid = symbolic_name_to_rid(z, "ci");
+  if( rid==0 ) return -1.0;
+  mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+  return mtime;
+}
+
+/*
+** The value of one second in julianday notation
+*/
+#define ONE_SECOND (1.0/86400.0)
+
+/*
 ** zDate is a localtime date.  Insert records into the
 ** "timeline" table to cause <hr> to be inserted before and after
 ** entries of that date.  If zDate==NULL then put dividers around
 ** the event identified by rid.
 */
-static void timeline_add_dividers(const char *zDate, int rid){
+static void timeline_add_dividers(double rDate, int rid){
   char *zToDel = 0;
-  if( zDate==0 ){
-    zToDel = db_text(0,"SELECT julianday(mtime,'localtime') FROM event"
-                       " WHERE objid=%d", rid);
-    zDate = zToDel;
-    if( zDate==0 ) zDate = "1";
+  if( rDate==0 ){
+    rDate = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
   }
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-1,julianday(%Q,'utc')-1.0e-5,'div')",
-    zDate
+    "VALUES(-1,%.16g,'div')",
+    rDate-ONE_SECOND
   );
   db_multi_exec(
     "INSERT INTO timeline(rid,sortby,etype)"
-    "VALUES(-2,julianday(%Q,'utc')+1.0e-5,'div')",
-     zDate
+    "VALUES(-2,%.17g,'div')",
+    rDate+ONE_SECOND
   );
   fossil_free(zToDel);
 }
@@ -845,10 +861,10 @@ static void timeline_add_dividers(const char *zDate, int rid){
 **
 ** Query parameters:
 **
-**    a=TIMESTAMP    after this date
-**    b=TIMESTAMP    before this date.
-**    c=TIMESTAMP    "circa" this date.
-**    n=COUNT        number of events in output
+**    a=TIMEORTAG    after this event
+**    b=TIMEORTAG    before this event
+**    c=TIMEORTAG    "circa" this event
+**    n=COUNT        max number of events in output
 **    p=UUID         artifact and up to COUNT parents and ancestors
 **    d=UUID         artifact and up to COUNT descendants
 **    dp=UUUID       The same as d=UUID&p=UUID
@@ -903,6 +919,7 @@ void page_timeline(void){
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;
+  double rBefore, rAfter, rCirca;     /* Boundary times */
 
   /* To view the timeline, must have permission to read project data.
   */
@@ -1123,49 +1140,44 @@ void page_timeline(void){
         zSearch, zSearch);
       url_add_parameter(&url, "s", zSearch);
     }
-    if( zAfter ){
-      while( fossil_isspace(zAfter[0]) ){ zAfter++; }
-      if( zAfter[0] ){
+    rBefore = symbolic_name_to_mtime(zBefore);
+    rAfter = symbolic_name_to_mtime(zAfter);
+    rCirca = symbolic_name_to_mtime(zCirca);
+    if( rAfter>0.0 ){
+      if( rBefore>0.0 ){
         blob_appendf(&sql, 
-           " AND event.mtime>=(SELECT julianday(%Q, 'utc'))"
-           " ORDER BY event.mtime ASC", zAfter);
+           " AND event.mtime>=%.17g AND event.mtime<=%.17g"
+           " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
-        zBefore = 0;
-      }else{
-        zAfter = 0;
-      }
-    }else if( zBefore ){
-      while( fossil_isspace(zBefore[0]) ){ zBefore++; }
-      if( zBefore[0] ){
-        blob_appendf(&sql, 
-           " AND event.mtime<=(SELECT julianday(%Q, 'utc'))"
-           " ORDER BY event.mtime DESC", zBefore);
         url_add_parameter(&url, "b", zBefore);
-       }else{
-        zBefore = 0;
-      }
-    }else if( zCirca ){
-      while( fossil_isspace(zCirca[0]) ){ zCirca++; }
-      if( zCirca[0] ){
-        double rCirca = db_double(0.0, "SELECT julianday(%Q, 'utc')", zCirca);
-        Blob sql2;
-        blob_init(&sql2, blob_str(&sql), -1);
-        blob_appendf(&sql2,
-            " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
-            rCirca, (nEntry+1)/2
-        );
-        db_multi_exec("%s", blob_str(&sql2));
-        blob_reset(&sql2);
-        blob_appendf(&sql,
-            " AND event.mtime>=%f ORDER BY event.mtime ASC",
-            rCirca
-        );
-        nEntry -= (nEntry+1)/2;
-        if( useDividers ) timeline_add_dividers(zCirca, 0);
-        url_add_parameter(&url, "c", zCirca);
+        nEntry = 1000000;
       }else{
-        zCirca = 0;
+        blob_appendf(&sql, 
+           " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
+           rAfter-ONE_SECOND);
+        url_add_parameter(&url, "a", zAfter);
       }
+    }else if( rBefore>0.0 ){
+      blob_appendf(&sql, 
+         " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
+         rBefore+ONE_SECOND);
+      url_add_parameter(&url, "b", zBefore);
+    }else if( rCirca>0.0 ){
+      Blob sql2;
+      blob_init(&sql2, blob_str(&sql), -1);
+      blob_appendf(&sql2,
+          " AND event.mtime<=%f ORDER BY event.mtime DESC LIMIT %d",
+          rCirca, (nEntry+1)/2
+      );
+      db_multi_exec("%s", blob_str(&sql2));
+      blob_reset(&sql2);
+      blob_appendf(&sql,
+          " AND event.mtime>=%f ORDER BY event.mtime ASC",
+          rCirca
+      );
+      nEntry -= (nEntry+1)/2;
+      if( useDividers ) timeline_add_dividers(rCirca, 0);
+      url_add_parameter(&url, "c", zCirca);
     }else{
       blob_appendf(&sql, " ORDER BY event.mtime DESC");
     }
@@ -1173,9 +1185,6 @@ void page_timeline(void){
     db_multi_exec("%s", blob_str(&sql));
 
     n = db_int(0, "SELECT count(*) FROM timeline /*scan*/");
-    if( n<nEntry && zAfter ){
-      cgi_redirect(url_render(&url, "a", 0, "b", 0));
-    }
     if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
@@ -1192,11 +1201,16 @@ void page_timeline(void){
       blob_appendf(&desc, " related to \"%h\"", zBrName);
       tmFlags |= TIMELINE_DISJOINT;
     }
-    if( zAfter ){
-      blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
-    }else if( zBefore ){
+    if( rAfter>0.0 ){
+      if( rBefore>0.0 ){
+        blob_appendf(&desc, " occurring between %h and %h.<br>",
+                     zAfter, zBefore);
+      }else{
+        blob_appendf(&desc, " occurring on or after %h.<br />", zAfter);
+      }
+    }else if( rBefore>0.0 ){
       blob_appendf(&desc, " occurring on or before %h.<br />", zBefore);
-    }else if( zCirca ){
+    }else if( rCirca>0.0 ){
       blob_appendf(&desc, " occurring around %h.<br />", zCirca);
     }
     if( zSearch ){
