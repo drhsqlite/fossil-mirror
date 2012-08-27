@@ -178,6 +178,10 @@ void merge_cmd(void){
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
   }
+  if( mid==pid ){
+    fossil_print("This merge is a no-op.\n");
+    return;
+  }
   if( detailFlag ){
     print_checkin_description(mid, 12, "merge-from:");
     print_checkin_description(pid, 12, "baseline:");
