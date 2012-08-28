@@ -1,5 +1,5 @@
-C Make\smerges\sa\sno-op\sif\sthe\spivot\sis\sthe\ssame\sas\sthe\sversion\sbeing\smerged.
-D 2012-08-27T22:56:24.670
+C This\schange\sallows\sutf-8\scharacters\s(like\s&rarr;\sand\s&bull;)\sin\sall\sc-sources\n\sto\sbe\sreplaced\sby\sits\sutf-8\sequivalent.\sThe\stranslate\sutility\swill\stranslate\n\sthis\sto\sthe\sright\sescape-sequence,\sso\sthe\sC-compiler\scan\shandle\sit.\nAs\slong\sas\sthe\sC-source\scontains\snu\sutf-8\scharacters,\sthis\sgenerates\n\sexactly\sthe\ssame\s*_.c\sfiles\sas\sbefore.
+D 2012-08-28T06:24:23.123
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -158,7 +158,7 @@ F src/th_tcl.c 22672925a4c8bdba458a9150a5f70431bfe584d9
 F src/timeline.c 9db44ce1717cdb1f3e9821e52ff206e8e2abf233
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
-F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
+F src/translate.c 8807022e957bce8452af093429aaa7dcb7934ecd
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
 F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
@@ -366,7 +366,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 724bf68a2f4eaccd6b1ed91fb7c299c68dab5550
-R dd71b146b953eb3a75aaf092a47c0305
-U drh
-Z e53ef7efe59acaacf0ade3410634faf4
+P bf079432fb2ecc14ce07fb73f02a9450c2d98cfc
+R 2fef41c7af37860b4935ab0fb497c9c6
+T *branch * utf8-in-sources
+T *sym-utf8-in-sources *
+T -sym-trunk *
+U jan.nijtmans
+Z ef8c1a562bd4f1baaa07bbacc231527c
