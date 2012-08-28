@@ -109,7 +109,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( memcmp(zTag, "date:", 5)==0 ){
     rid = db_int(0, 
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       &zTag[5], zType);
     return rid;
@@ -117,7 +117,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( is_date(zTag) ){
     rid = db_int(0, 
       "SELECT objid FROM event"
-      " WHERE mtime<=julianday(%Q) AND type GLOB '%q'"
+      " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
       " ORDER BY mtime DESC LIMIT 1",
       zTag, zType);
     if( rid) return rid;

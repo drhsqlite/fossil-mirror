@@ -160,7 +160,9 @@ void finfo_cmd(void){
     db_prepare(&q,
         "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
         "       coalesce(event.ecomment, event.comment),"
-        "       coalesce(event.euser, event.user)"
+        "       coalesce(event.euser, event.user),"
+        "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
+                                " AND tagxref.rid=mlink.mid)" /* Tags */
         "  FROM mlink, blob b, event, blob ci, filename"
         " WHERE filename.name=%Q %s"
         "   AND mlink.fnid=filename.fnid"
@@ -168,7 +170,7 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        zFilename, filename_collation(), iLimit, iOffset
+        TAG_BRANCH, zFilename, filename_collation(), iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -180,11 +182,13 @@ void finfo_cmd(void){
       const char *zDate = db_column_text(&q, 2);
       const char *zCom = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 4);
+      const char *zBr = db_column_text(&q, 5);
       char *zOut;
+      if( zBr==0 ) zBr = "trunk";
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
-                               zCiUuid, zCom, zUser, zFileUuid);
+        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+                               zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, 11, 79);
         sqlite3_free(zOut);
       }else{
@@ -192,6 +196,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
+        blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-40.40s\n", zCom );
         comment_print(blob_str(&line), 0, 79);
       }
