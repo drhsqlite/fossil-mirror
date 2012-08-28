@@ -1081,7 +1081,7 @@ static void openHyperlink(
         if( g.perm.Hyperlink ){
           blob_appendf(p->pOut,
              "%z<span class=\"wikiTagCancelled\">[",
-             href("info/%s",zTarget)
+             href("%R/info/%s",zTarget)
           );
           zTerm = "]</span></a>";
         }else{
@@ -1090,7 +1090,7 @@ static void openHyperlink(
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("info/%s", zTarget));
+          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
           zTerm = "]</a>";
         }else{
           blob_appendf(p->pOut, "[");
@@ -1101,18 +1101,18 @@ static void openHyperlink(
       blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
       zTerm = "]</span>";
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("info/%s", zTarget));
+      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
       zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"timeline?c=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
   }else{
     blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
