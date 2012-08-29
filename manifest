@@ -1,5 +1,5 @@
-C working\spart\sof\s[ticket-01a2f3a346]
-D 2012-08-29T20:48:08.218
+C undo\s[bf079432fb]:\sIt's\scrucial\sfor\sthe\sTcl\sfossil\srepository\sto\sbe\nable\sto\sdo\sa\sno-op\smerge-mark.\sThis\schange\swould\smake\sthat\simpossible.
+D 2012-08-29T20:57:33.901
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 6af4d14367908f51a6620238c2a602eec1b9ea6a
 F src/manifest.c 8171acd1165491299323e75737e13a56f9ae38fa
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
-F src/merge.c 11d12155bd1fd319a2de4b114458e1eaae1bb208
+F src/merge.c b056796af2aebb5a04262478e3fffc643477cf37
 F src/merge3.c 61acc9c0f2aa800e3fe9d824aec43efc6bfccce9
 F src/mkindex.c d78e8b7b359a5f4d1767b4db0cedf7d4f05a7073
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 208d67675cdea2a0dc6967c0876f2d3d4477d9dd
-R 9cce695549c9b9099b61262ffd1b43a7
+P 517309406aef9632f47184d2bd5069086f64eb69
+R 82594d76eea791199d6b1a74a5c4db18
 U jan.nijtmans
-Z dfaa66ca09fa566b5cc44960f0aa657d
+Z 5cba9ad71504187bd5fa63025ef0a8f1
