@@ -1,5 +1,5 @@
-C An\sattempt\sto\sfactor\sout\sthe\sopendir()\sfamily\sof\sroutines\sand\sprovide\nportable\salternatives,\sfossil_opendir().\s\sThis\ssimplistic\sfirst\sattempt\nworks\son\snon-windows\splatforms,\sbut\sthe\sbuild\sfails\son\swindows.
-D 2012-08-29T16:51:45.713
+C make\sit\slink\son\smsvc.\sDoesn't\srun\syet.
+D 2012-08-29T20:27:10.983
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/doc.c 44aa60b6011b1a3b6aabf2090b4b05ef6eddc5fc
 F src/encode.c f54e2cca6d84269df452b33bde62e259c7fed56a
 F src/event.c eddf32aaf134cdb0addbd27c47f9ca70a064c5dd
 F src/export.c 33ae18edc879e5cd5ad81fa6b0993dcb8cd7a1cf
-F src/file.c e077298affa3c85c9ea171a07a3b0d888bcab06d
+F src/file.c 501aa73991b48340182859282a53fbc4dfeb0f9e
 F src/finfo.c 0cb516937d1dadab8d8297b366488de3257865e6
 F src/glob.c adad610febdf338463d5a34fc25a709058a022cd
 F src/graph.c 5d7ae478257a3aff7652f5a432052952fc846ec1
@@ -258,7 +258,7 @@ F win/Makefile.mingw.mistachkin b440c6cf507edbb453e7b1bea4403791c0db56bd
 F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 7996074276478a694f6aa7f2e9fc70a6cf184e45
-F win/include/dirent.h 6d92ab4f8a822f3ae05f6c5d29584ef7cd747bb8
+F win/include/dirent.h 17afd0f5f5e818ed0952883fd2b94684eaa94939
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9f6abc5968b4650571d0b664a6a2cb42c97631d9
-R adf7d3d08c2317638c8889bd263687b7
-U drh
-Z 99851d0d57b6a08a2b1759aae550a77e
+P 8d8e529aa9a6295ee138cf510b94b4878aacb0e1
+R 6083024c7c77152778172a796fa6d1a9
+U jan.nijtmans
+Z d456f10e4d6369a26a3c579de5159c31
