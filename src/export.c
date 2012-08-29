@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2010 D. Richard Hipp
+** Copyright © 2010 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -138,7 +138,7 @@ void export_cmd(void){
     char line[100];
     FILE *f;
 
-    f = fopen(markfile_in, "r");
+    f = fossil_fopen(markfile_in, "r");
     if( f==0 ){
       fossil_panic("cannot open %s for reading", markfile_in);
     }
@@ -327,7 +327,7 @@ void export_cmd(void){
 
   if( markfile_out!=0 ){
     FILE *f;
-    f = fopen(markfile_out, "w");
+    f = fossil_fopen(markfile_out, "w");
     if( f == 0 ){
       fossil_panic("cannot open %s for writing", markfile_out);
     }
