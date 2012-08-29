@@ -1,5 +1,5 @@
-C undo\s[bf079432fb]:\sIt's\scrucial\sfor\sthe\sTcl\sfossil\srepository\sto\sbe\nable\sto\sdo\sa\sno-op\smerge-mark.\sThis\schange\swould\smake\sthat\simpossible.
-D 2012-08-29T20:57:33.901
+C upgrade\sto\sdirent-1.11
+D 2012-08-29T21:32:52.947
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -258,7 +258,7 @@ F win/Makefile.mingw.mistachkin b440c6cf507edbb453e7b1bea4403791c0db56bd
 F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 7996074276478a694f6aa7f2e9fc70a6cf184e45
-F win/include/dirent.h 6d92ab4f8a822f3ae05f6c5d29584ef7cd747bb8
+F win/include/dirent.h d5e44f0f45f1c5b7a3ed058b4c23fc848a0abe19
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -366,7 +366,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 517309406aef9632f47184d2bd5069086f64eb69
-R 82594d76eea791199d6b1a74a5c4db18
+P 41577fd3ef8cd65d0e68d2cf28134c148f382955
+R bee08a9cc82e1b2d2a0ac36ffde5b5fd
+T *branch * dirent-1.11
+T *sym-dirent-1.11 *
+T -sym-trunk *
 U jan.nijtmans
-Z 5cba9ad71504187bd5fa63025ef0a8f1
+Z 7199988c20e38ddbf1aad7d5119d3b38
