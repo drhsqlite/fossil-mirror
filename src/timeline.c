@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -320,7 +320,7 @@ void www_print_timeline(
       @ <td class="timelineTableCell">
     }
     if( pGraph && zType[0]!='c' ){
-      @ &bull;
+      @ •
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -438,12 +438,12 @@ void www_print_timeline(
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ <li> %h(zOldName) → %h(zFilename)
           @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
           @ [view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) &rarr; %h(zFilename)
+            @ <li> %h(zOldName) → %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
