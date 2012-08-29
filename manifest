@@ -1,5 +1,5 @@
-C Update\sfile\sheader\scomments\sfor\sthe\sTH1/Tcl\sintegration\ssource\scode.
-D 2012-08-29T23:17:12.917
+C The\s--force\sflag\schange\sshould\shave\sbeen\son\strunk.\s\sDRH\sshould\sfollow\shis\sown\nchecklists!
+D 2012-08-29T23:34:18.418
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -121,7 +121,7 @@ F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 6af4d14367908f51a6620238c2a602eec1b9ea6a
 F src/manifest.c 8171acd1165491299323e75737e13a56f9ae38fa
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
-F src/merge.c 11d12155bd1fd319a2de4b114458e1eaae1bb208
+F src/merge.c a59b62cfcc0acbe792c27ac2529b7f96b7e301c6
 F src/merge3.c 61acc9c0f2aa800e3fe9d824aec43efc6bfccce9
 F src/mkindex.c d78e8b7b359a5f4d1767b4db0cedf7d4f05a7073
 F src/mkversion.c f2a3e37f7fd400ffa48dbd4d8d2ee5f283c58809
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f9f0570db8c8dd91baec5f398ea4756517e85f7
-R 4494749733f337d495d8583492f06a0c
-U mistachkin
-Z b3678fee33130ee056b4daa4d4e62f12
+P 5f22bc09e1334fdc3b8d7d500dec5ed37a4f4f6e d787bcd44a5b0a68a7210bdd9b4a9c6da8b5396a
+R f0e379a75990f0f5f95b85ffbc50a32b
+U drh
+Z 8c7f97a257db288cee9e70280e04edbe
