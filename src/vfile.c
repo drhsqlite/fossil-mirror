@@ -27,6 +27,15 @@
 #include <dirent.h>
 #endif
 
+#ifndef _WIN32
+#define _WDIR DIR
+#define _wdirent dirent
+#define _wopendir opendir
+#define _wreaddir readdir
+#define _wclosedir closedir
+#define wchar_t char
+#endif
+
 /*
 ** The input is guaranteed to be a 40-character well-formed UUID.
 ** Find its rid.
@@ -383,14 +392,14 @@ int vfile_top_of_checkout(const char *zPath){
 ** nPrefix characters are elided from the filename.
 */
 void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
-  DIR *d;
+  _WDIR *d;
   int origSize;
   const char *zDir;
-  struct dirent *pEntry;
+  struct _wdirent *pEntry;
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
-  char *zMbcs;
+  wchar_t *zMbcs;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -409,10 +418,10 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  zMbcs = fossil_utf8_to_mbcs(zDir);
-  d = opendir(zMbcs);
+  zMbcs = fossil_utf8_to_unicode(zDir);
+  d = _wopendir(zMbcs);
   if( d ){
-    while( (pEntry=readdir(d))!=0 ){
+    while( (pEntry=_wreaddir(d))!=0 ){
       char *zPath;
       char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
@@ -420,7 +429,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zUtf8 = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_unicode_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
@@ -437,7 +446,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       }
       blob_resize(pPath, origSize);
     }
-    closedir(d);
+    _wclosedir(d);
   }
   fossil_mbcs_free(zMbcs);
 
