@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -1081,7 +1081,7 @@ static void openHyperlink(
         if( g.perm.Hyperlink ){
           blob_appendf(p->pOut,
              "%z<span class=\"wikiTagCancelled\">[",
-             href("info/%s",zTarget)
+             href("%R/info/%s",zTarget)
           );
           zTerm = "]</span></a>";
         }else{
@@ -1090,7 +1090,7 @@ static void openHyperlink(
         }
       }else{
         if( g.perm.Hyperlink ){
-          blob_appendf(p->pOut,"%z[", href("info/%s", zTarget));
+          blob_appendf(p->pOut,"%z[", href("%R/info/%s", zTarget));
           zTerm = "]</a>";
         }else{
           blob_appendf(p->pOut, "[");
@@ -1101,18 +1101,18 @@ static void openHyperlink(
       blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
       zTerm = "]</span>";
     }else if( g.perm.Hyperlink ){
-      blob_appendf(p->pOut, "%z[",href("info/%s", zTarget));
+      blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
       zTerm = "]</a>";
     }
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"timeline?c=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
   }else if( strncmp(zTarget, "wiki:", 5)==0 
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"wiki?name=%T\">", zTarget);
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
   }else{
     blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
@@ -1192,7 +1192,7 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_BUL_LI: {
         if( inlineOnly ){
-          blob_append(p->pOut, " &bull; ", -1);
+          blob_append(p->pOut, " • ", -1);
         }else{
           if( p->wikiList!=MARKUP_UL ){
             if( p->wikiList ){
@@ -1412,14 +1412,14 @@ static void wiki_render(Renderer *p, char *z){
             if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[0].zValue;
             }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
+              blob_appendf(p->pOut, "<pre name=\"code\" class=\"%s\">",
                 markup.aAttr[vAttrIdx].zValue);
               vAttrDidAppend=1;
             }
           }
           if( !vAttrDidAppend ) {
             endAutoParagraph(p);
-            blob_append(p->pOut, "<pre class='verbatim'>",-1);
+            blob_append(p->pOut, "<pre class=\"verbatim\">",-1);
           }
           p->wantAutoParagraph = 0;
         }else

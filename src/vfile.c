@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -424,10 +424,10 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
     while( (pEntry=_wreaddir(d))!=0 ){
       char *zPath;
       char *zUtf8;
-      if( pEntry->d_name[0]==L'.' ){
+      if( pEntry->d_name[0]=='.' ){
         if( !allFlag ) continue;
         if( pEntry->d_name[1]==0 ) continue;
-        if( pEntry->d_name[1]==L'.' && pEntry->d_name[2]==0 ) continue;
+        if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
       zUtf8 = fossil_unicode_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);

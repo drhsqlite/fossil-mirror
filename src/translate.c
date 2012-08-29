@@ -92,7 +92,7 @@ static void trans(FILE *in, FILE *out){
     for(i=0; zLine[i] && isspace(zLine[i]); i++){}
     if( zLine[i]!='@' ){
       if( inPrint || inStr ) end_block(out);
-      for(j=0; zLine[i]; i++){
+      for(i=0,j=0; zLine[i]; i++){
         if (128 <= (unsigned char)zLine[i]) {
           sprintf(&zOut[j], "\\0x%.2X", zLine[i] & 0xFF);
           j += 5;

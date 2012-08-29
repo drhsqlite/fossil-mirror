@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -1542,7 +1542,7 @@ void tinfo_page(void){
   zTktName[10] = 0;
   if( g.perm.Hyperlink ){
     @ <h2>Changes to ticket
-    @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid)))%s(zTktName)</a></h2>
+    @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid))%s(zTktName)</a></h2>
     @
     @ <p>By %h(pTktChng->zUser) on %s(zDate).  See also:
     @ %z(href("%R/artifact/%T",zUuid))artifact content</a>, and

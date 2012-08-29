@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -498,7 +498,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='developer'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-         "<span class=\"ueditInheritDeveloper\">&bull;</span>";
+         "<span class=\"ueditInheritDeveloper\">•</span>";
     }
     free(z2);
   }
@@ -507,7 +507,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='reader'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-          "<span class=\"ueditInheritReader\">&bull;</span>";
+          "<span class=\"ueditInheritReader\">•</span>";
     }
     free(z2);
   }
@@ -516,7 +516,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='anonymous'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritAnonymous\">&bull;</span>";
+           "<span class=\"ueditInheritAnonymous\">•</span>";
     }
     free(z2);
   }
@@ -525,7 +525,7 @@ void user_edit(void){
     z1 = z2 = db_text(0,"SELECT cap FROM user WHERE login='nobody'");
     while( z1 && *z1 ){
       inherit[0x7f & *(z1++)] =
-           "<span class=\"ueditInheritNobody\">&bull;</span>";
+           "<span class=\"ueditInheritNobody\">•</span>";
     }
     free(z2);
   }
@@ -664,26 +664,26 @@ void user_edit(void){
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritNobody"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritNobody"><big>•</big></span>" mark
   @ indicates the privileges of <span class="usertype">nobody</span> that
   @ are available to all users regardless of whether or not they are logged in.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritAnonymous"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritAnonymous"><big>•</big></span>" mark
   @ indicates the privileges of <span class="usertype">anonymous</span> that
   @ are inherited by all logged-in users.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritDeveloper"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritDeveloper"><big>•</big></span>" mark
   @ indicates the privileges of <span class="usertype">developer</span> that
   @ are inherited by all users with the
   @ <span class="capability">Developer</span> privilege.
   @ </p></li>
   @
   @ <li><p>
-  @ The "<span class="ueditInheritReader"><big>&bull;</big></span>" mark
+  @ The "<span class="ueditInheritReader"><big>•</big></span>" mark
   @ indicates the privileges of <span class="usertype">reader</span> that
   @ are inherited by all users with the <span class="capability">Reader</span>
   @ privilege.
@@ -1618,12 +1618,12 @@ void sql_page(void){
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
   @
-  @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
+  @ <p>Database names:<ul><li>repository → %s(db_name("repository"))
   if( g.configOpen ){
-    @ <li>config &rarr; %s(db_name("configdb"))
+    @ <li>config → %s(db_name("configdb"))
   }
   if( g.localOpen ){
-    @ <li>local-checkout &rarr; %s(db_name("localdb"))
+    @ <li>local-checkout → %s(db_name("localdb"))
   }
   @ </ul></p>
   @

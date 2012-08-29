@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2006 D. Richard Hipp
+** Copyright © 2006 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -29,15 +29,12 @@
 #include <string.h>
 #include <errno.h>
 #include "file.h"
-#if defined(_WIN32)
-#include <direct.h>
-#endif
-
 
 /*
 ** On Windows, include the Platform SDK header file.
 */
 #ifdef _WIN32
+# include <direct.h>
 # include <windows.h>
 #endif
 
