@@ -843,7 +843,7 @@ void recon_read_dir(char *zPath){
       Blob path;
       char *zSubpath;
 
-      if( pEntry->d_name[0]==L'.' ){
+      if( pEntry->d_name[0]=='.' ){
         continue;
       }
       zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);

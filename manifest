@@ -1,5 +1,5 @@
-C merge\strunk\sinto\sticket-01a2f3a346\sbranch
-D 2012-08-28T09:05:34.384
+C merge\strunk
+D 2012-08-29T08:02:16.382
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -131,7 +131,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c bb42b2da7e7815804428537ddb690862e7d99e0b
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
-F src/rebuild.c e79d8ac65170c0b9491700503a638b1cbbc88477
+F src/rebuild.c 5737dabc9b325093eb2c0a6eccb414da6c208e3b
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -164,9 +164,9 @@ F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 1b7364c2b75dcf65402ec6d811800131418cbf84
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c a4c8f42cac33b18e3b33eb6f2a6e4d41c0663c3b
+F src/vfile.c 299b9a6f9ccb2478c5e34a898f2330c50be61f38
 F src/wiki.c e912fc9c532a111419caa4ca95086d4d2864d421
-F src/wikiformat.c 11314c22154dab309d5ee0941fa9aa8b9d74f2b1
+F src/wikiformat.c bd7addadb3c9e0a4b0ed93854bdfc2cdf730eee9
 F src/winhttp.c 6cf76cd73164a55fa942cf78213abcaa4688ed74
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 9d4a4604f72a153bb34f3e78f90fd82ce5157eb7
@@ -195,7 +195,6 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
-F test/世界/界世.txt d1efc220d1a1063760c6e71112fc07ea931dee64
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -367,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8596323b5ba7ae808a941f077c2e48cce9a535cf bf079432fb2ecc14ce07fb73f02a9450c2d98cfc
-R 8019bb5194f85f37cc7d3dceb38434ca
+P f89bd067c2060b67b2741d8a79aa1a8f47821c32 ed6adcaf3bc7c64f14d4b2cb8539a7bd260abef7
+R 77ab8de534d4eea7b17745613dfc5509
 U jan.nijtmans
-Z 2ee0252fbfc000a6e5e10eb08a976343
+Z 43f74d537c6a0703df98560a8a064eec
