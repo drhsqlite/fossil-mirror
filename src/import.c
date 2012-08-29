@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2010 D. Richard Hipp
+** Copyright © 2010 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -734,7 +734,7 @@ void git_import_cmd(void){
     usage("REPOSITORY-NAME");
   }
   if( g.argc==4 ){
-    pIn = fopen(g.argv[3], "rb");
+    pIn = fossil_fopen(g.argv[3], "rb");
   }else{
     pIn = stdin;
     fossil_binary_mode(pIn);
