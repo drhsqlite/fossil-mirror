@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2009 D. Richard Hipp
+** Copyright © 2009 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public
