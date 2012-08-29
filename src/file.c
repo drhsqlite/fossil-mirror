@@ -1005,6 +1005,30 @@ int file_is_the_same(Blob *pContent, const char *zName){
   return rc==0;
 }
 
+/*
+** Portable unicode implementation of opendir()
+*/
+#if INTERFACE
+
+#if defined(_WIN32)
+# include <wdirent.h>
+# define FOSSIL_DIR WDIR
+# define fossil_dirent wdirent
+# define fossil_opendir wopendir
+# define fossil_readdir wreaddir
+# define fossil_closedir wclosedir
+#else
+# include <dirent.h>
+# define FOSSIL_DIR DIR
+# define fossil_dirent dirent
+# define fossil_opendir opendir
+# define fossil_readdir readdir
+# define fossil_closedir closedir
+#endif
+
+#endif /* INTERFACE */
+
+
 
 /**************************************************************************
 ** The following routines translate between MBCS and UTF8 on windows.
