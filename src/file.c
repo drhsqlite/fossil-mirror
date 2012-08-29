@@ -582,7 +582,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int nPwd;
   int i;
   wchar_t zPwd[2000];
-  if( _wgetcwd(zPwd, sizeof(zPwd)-1)==0 ){
+  if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_unicode_to_utf8(zPwd);
