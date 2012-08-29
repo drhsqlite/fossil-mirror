@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2007 D. Richard Hipp
+** Copyright © 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -20,7 +20,6 @@
 #include "config.h"
 #include "rebuild.h"
 #include <assert.h>
-#include <dirent.h>
 #include <errno.h>
 
 /*
@@ -820,24 +819,24 @@ void scrub_cmd(void){
 ** every file read as a new artifact in the repository.
 */
 void recon_read_dir(char *zPath){
-  DIR *d;
-  struct dirent *pEntry;
+  FOSSIL_DIR *d;
+  struct fossil_dirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
-  char *zMbcsPath;
+  void *zUnicodePath;
   char *zUtf8Name;
 
-  zMbcsPath = fossil_utf8_to_mbcs(zPath);
-  d = opendir(zMbcsPath);
+  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  d = fossil_opendir(zUnicodePath);
   if( d ){
-    while( (pEntry=readdir(d))!=0 ){
+    while( (pEntry=fossil_readdir(d))!=0 ){
       Blob path;
       char *zSubpath;
 
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
@@ -856,12 +855,12 @@ void recon_read_dir(char *zPath){
       fossil_print("\r%d", ++nFileRead);
       fflush(stdout);
     }
-    closedir(d);
+    fossil_closedir(d);
   }else {
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_mbcs_free(zMbcsPath);
+  fossil_mbcs_free(zUnicodePath);
 }
 
 /*
