@@ -26,7 +26,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h> /* atexit() */
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#  include <windows.h>
+#else
 #  include <errno.h> /* errno global */
 #endif
 #if INTERFACE
@@ -36,12 +38,6 @@
 #endif
 #ifdef FOSSIL_ENABLE_TCL
 #include "tcl.h"
-#endif
-
-#if !defined(_WIN32) || !defined(UNICODE)
-# define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
-# define wchar_t char
-# define wmain main
 #endif
 
 /*
@@ -357,10 +353,22 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;     /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
+  int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
+#ifdef _WIN32
+  wchar_t buf[PATH_MAX];
+#endif
 
   g.argc = argc;
   g.argv = argv;
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#ifdef _WIN32
+  GetModuleFileNameW(NULL, buf, PATH_MAX);
+  g.argv[0] = fossil_unicode_to_utf8(buf);
+#ifdef UNICODE
+  for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#else
+  for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#endif
+#endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -394,11 +402,21 @@ static void expand_args_option(int argc, void *argv){
     if( n<=1 ) continue;
     z = blob_buffer(&line);
     z[n-1] = 0;
+    if (foundBom == -1) {
+      static const char bom[] = { 0xEF, 0xBB, 0xBF };
+      foundBom = memcmp(z, bom, 3)==0;
+      if( foundBom ) {
+    	  z += 3; n -= 3;
+      }
+    }
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
     }
-    newArgv[j++] = z = fossil_mbcs_to_utf8(z);
+    if (!foundBom) {
+      z = fossil_mbcs_to_utf8(z);
+    }
+    newArgv[j++] = z;
     if( z[0]=='-' ){
       for(k=1; z[k] && !fossil_isspace(z[k]); k++){}
       if( z[k] ){
@@ -418,7 +436,11 @@ static void expand_args_option(int argc, void *argv){
 /*
 ** This procedure runs first.
 */
+#if defined(_WIN32) && defined(UNICODE)
 int wmain(int argc, wchar_t **argv)
+#else
+int main(int argc, char **argv)
+#endif
 {
   const char *zCmdName = "unknown";
   int idx;
@@ -524,11 +546,7 @@ static int mainInFatalError = 0;
 ** Return the name of the current executable.
 */
 const char *fossil_nameofexe(void){
-#ifdef _WIN32
-  return _pgmptr;
-#else
   return g.argv[0];
-#endif
 }
 
 /*
@@ -701,9 +719,9 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  char *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
-  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zMbcs);
-  rc = system(zMbcs);
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zNewCmd);
+  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zNewCmd);
+  rc = _wsystem(zMbcs);
   fossil_mbcs_free(zMbcs);
   free(zNewCmd);
 #else

@@ -19,8 +19,6 @@
 ** for windows. It also implements a Windows Service which allows the HTTP
 ** server to be run without any user logged on.
 */
-#undef UNICODE
-#undef _UNICODE
 #include "config.h"
 #ifdef _WIN32
 /* This code is for win32 only */
@@ -150,7 +148,7 @@ void win32_http_server(
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
-  char zTmpPath[MAX_PATH];
+  wchar_t zTmpPath[MAX_PATH];
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
@@ -195,10 +193,10 @@ void win32_http_server(
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
-  if( !GetTempPath(sizeof(zTmpPath), zTmpPath) ){
+  if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_", zTmpPath, iPort);
+  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_unicode_to_utf8(zTmpPath), iPort);
   fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
@@ -272,37 +270,37 @@ static SERVICE_STATUS_HANDLE sshStatusHandle;
 static char *win32_get_last_errmsg(void){
   DWORD nMsg;
   DWORD nErr = GetLastError();
-  LPTSTR tmp = NULL;
+  LPWSTR tmp = NULL;
   char *zMsg = NULL;
 
   /* Try first to get the error text in english. */
-  nMsg = FormatMessage(
+  nMsg = FormatMessageW(
            FORMAT_MESSAGE_ALLOCATE_BUFFER |
            FORMAT_MESSAGE_FROM_SYSTEM     |
            FORMAT_MESSAGE_IGNORE_INSERTS,
            NULL,
            nErr,
            MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US),
-           (LPTSTR) &tmp,
+           (LPWSTR) &tmp,
            0,
            NULL
          );
   if( !nMsg ){
     /* No english, get what the system has available. */
-    nMsg = FormatMessage(
+    nMsg = FormatMessageW(
              FORMAT_MESSAGE_ALLOCATE_BUFFER |
              FORMAT_MESSAGE_FROM_SYSTEM     |
              FORMAT_MESSAGE_IGNORE_INSERTS,
              NULL,
              nErr,
              0,
-             (LPTSTR) &tmp,
+             (LPWSTR) &tmp,
              0,
              NULL
            );
   }
   if( nMsg ){
-    zMsg = fossil_mbcs_to_utf8(tmp);
+	zMsg = fossil_unicode_to_utf8(tmp);
   }else{
     fossil_fatal("unable to get system error message.");
   }
@@ -384,11 +382,15 @@ static void WINAPI win32_http_service_main(
   /* Update the service information. */
   hsData.isRunningAsService = 1;
   if( argc>0 ){
-    hsData.zServiceName = argv[0];
+#ifdef UNICODE
+    hsData.zServiceName = fossil_unicode_to_utf8(argv[0]);
+#else
+    hsData.zServiceName = fossil_mbcs_to_utf8(argv[0]);
+#endif
   }
 
   /* Register the service control handler function */
-  sshStatusHandle = RegisterServiceCtrlHandler("", win32_http_service_ctrl);
+  sshStatusHandle = RegisterServiceCtrlHandlerW(L"", win32_http_service_ctrl);
   if( !sshStatusHandle ){
     win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
     return;
@@ -432,8 +434,8 @@ int win32_http_service(
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   /* Define the service table. */
-  SERVICE_TABLE_ENTRY ServiceTable[] =
-    {{"", (LPSERVICE_MAIN_FUNCTION)win32_http_service_main}, {NULL, NULL}};
+  SERVICE_TABLE_ENTRYW ServiceTable[] =
+    {{L"", (LPSERVICE_MAIN_FUNCTIONW)win32_http_service_main}, {NULL, NULL}};
   
   /* Initialize the HttpService structure. */
   hsData.port = nPort;
@@ -441,7 +443,7 @@ int win32_http_service(
   hsData.flags = flags;
 
   /* Try to start the control dispatcher thread for the service. */
-  if( !StartServiceCtrlDispatcher(ServiceTable) ){
+  if( !StartServiceCtrlDispatcherW(ServiceTable) ){
     if( GetLastError()==ERROR_FAILED_SERVICE_CONTROLLER_CONNECT ){
       return 1;
     }else{
@@ -569,7 +571,7 @@ void cmd_win32_service(void){
     SC_HANDLE hScm;
     SC_HANDLE hSvc;
     SERVICE_DESCRIPTION
-      svcDescr = {"Fossil - Distributed Software Configuration Management"};
+      svcDescr = {TEXT("Fossil - Distributed Software Configuration Management")};
     char *zErrFmt = "unable to create service '%s': %s";
     DWORD dwStartType = SERVICE_DEMAND_START;
     const char *zDisplay    = find_option("display", "D", 1);
@@ -624,26 +626,26 @@ void cmd_win32_service(void){
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);
     blob_appendf(&binPath, " \"%s\"", g.zRepositoryName);
     /* Create the service. */
-    hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = CreateService(
+    hSvc = CreateServiceW(
              hScm,                                    /* Handle to the SCM */
-             fossil_utf8_to_mbcs(zSvcName),           /* Name of the service */
-             fossil_utf8_to_mbcs(zDisplay),           /* Display name */
+             fossil_utf8_to_unicode(zSvcName),           /* Name of the service */
+             fossil_utf8_to_unicode(zDisplay),           /* Display name */
              SERVICE_ALL_ACCESS,                      /* Desired access */
              SERVICE_WIN32_OWN_PROCESS,               /* Service type */
              dwStartType,                             /* Start type */
              SERVICE_ERROR_NORMAL,                    /* Error control */
-             fossil_utf8_to_mbcs(blob_str(&binPath)), /* Binary path */
+             fossil_utf8_to_unicode(blob_str(&binPath)), /* Binary path */
              NULL,                                    /* Load ordering group */
              NULL,                                    /* Tag value */
              NULL,                                    /* Service dependencies */
-             fossil_utf8_to_mbcs(zUsername),          /* Service account */
-             fossil_utf8_to_mbcs(zPassword)           /* Account password */
+             fossil_utf8_to_unicode(zUsername),          /* Service account */
+             fossil_utf8_to_unicode(zPassword)           /* Account password */
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Set the service description. */
-    ChangeServiceConfig2(hSvc, SERVICE_CONFIG_DESCRIPTION, &svcDescr);
+    ChangeServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION, &svcDescr);
     fossil_print("Service '%s' successfully created.\n", zSvcName);
     CloseServiceHandle(hSvc);
     CloseServiceHandle(hScm);
@@ -660,9 +662,9 @@ void cmd_win32_service(void){
     }else if( g.argc>4 ){
       fossil_fatal("to much arguments for delete method.");
     }
-    hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
@@ -695,7 +697,7 @@ void cmd_win32_service(void){
     SC_HANDLE hScm;
     SC_HANDLE hSvc;
     SERVICE_STATUS sstat;
-    LPQUERY_SERVICE_CONFIG pSvcConfig;
+    LPQUERY_SERVICE_CONFIGW pSvcConfig;
     LPSERVICE_DESCRIPTION pSvcDescr;
     BOOL bStatus;
     DWORD nRequired;
@@ -728,17 +730,17 @@ void cmd_win32_service(void){
     }else if( g.argc>4 ){
       fossil_fatal("to much arguments for show method.");
     }
-    hScm = OpenSCManager(NULL, NULL, GENERIC_READ);
+    hScm = OpenSCManagerW(NULL, NULL, GENERIC_READ);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), GENERIC_READ);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), GENERIC_READ);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Get the service configuration */
-    bStatus = QueryServiceConfig(hSvc, NULL, 0, &nRequired);
+    bStatus = QueryServiceConfigW(hSvc, NULL, 0, &nRequired);
     if( !bStatus && GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
       fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     }
     pSvcConfig = fossil_malloc(nRequired);
-    bStatus = QueryServiceConfig(hSvc, pSvcConfig, nRequired, &nRequired);
+    bStatus = QueryServiceConfigW(hSvc, pSvcConfig, nRequired, &nRequired);
     if( !bStatus ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Translate the service type */
     switch( pSvcConfig->dwServiceType ){
@@ -757,13 +759,13 @@ void cmd_win32_service(void){
       case SERVICE_DISABLED:      zSvcStartType = zSvcStartTypes[4]; break;
     }
     /* Get the service description. */
-    bStatus = QueryServiceConfig2(hSvc, SERVICE_CONFIG_DESCRIPTION,
+    bStatus = QueryServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION,
                                   NULL, 0, &nRequired);
     if( !bStatus && GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
       fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     }
     pSvcDescr = fossil_malloc(nRequired);
-    bStatus = QueryServiceConfig2(hSvc, SERVICE_CONFIG_DESCRIPTION,
+    bStatus = QueryServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION,
                                   (LPBYTE)pSvcDescr, nRequired, &nRequired);
     if( !bStatus ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Retrieves the current status of the specified service. */
@@ -782,15 +784,15 @@ void cmd_win32_service(void){
     /* Print service information to terminal */
     fossil_print("Service name .......: %s\n", zSvcName);
     fossil_print("Display name .......: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpDisplayName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpDisplayName));
     fossil_print("Service description : %s\n",
-                 fossil_mbcs_to_utf8(pSvcDescr->lpDescription));
+                 fossil_unicode_to_utf8(pSvcDescr->lpDescription));
     fossil_print("Service type .......: %s.\n", zSvcType);
     fossil_print("Service start type .: %s.\n", zSvcStartType);
     fossil_print("Binary path name ...: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpBinaryPathName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpBinaryPathName));
     fossil_print("Service username ...: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpServiceStartName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpServiceStartName));
     fossil_print("Current state ......: %s.\n", zSvcState);
     /* Cleanup */
     fossil_free(pSvcConfig);
@@ -810,15 +812,15 @@ void cmd_win32_service(void){
     }else if( g.argc>4 ){
       fossil_fatal("to much arguments for start method.");
     }
-    hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_RUNNING ){
       fossil_print("Starting service '%s'", zSvcName);
       if( sstat.dwCurrentState!=SERVICE_START_PENDING ){
-        if( !StartService(hSvc, 0, NULL) ){
+        if( !StartServiceW(hSvc, 0, NULL) ){
           fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
         }
       }
@@ -846,9 +848,9 @@ void cmd_win32_service(void){
     }else if( g.argc>4 ){
       fossil_fatal("to much arguments for stop method.");
     }
-    hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
