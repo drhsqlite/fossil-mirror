@@ -51,7 +51,7 @@
 /*
 ** On Windows S_ISLNK always returns FALSE.
 */
-#if defined(_WIN32)
+#if !defined(S_ISLNK)
 # define S_ISLNK(x) (0)
 #endif
 static int fileStatValid = 0;
@@ -224,7 +224,7 @@ void symlink_copy(const char *zFrom, const char *zTo){
 int file_wd_perm(const char *zFilename){
   if( getStat(zFilename, 1) ) return PERM_REG;
 #if defined(_WIN32)
-#  if defined(__DMC__) || defined(_MSC_VER)
+#  ifndef S_IXUSR
 #    define S_IXUSR  _S_IEXEC
 #  endif
   if( S_ISREG(fileStat.st_mode) && ((S_IXUSR)&fileStat.st_mode)!=0 )
