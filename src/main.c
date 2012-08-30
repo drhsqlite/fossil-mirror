@@ -355,13 +355,13 @@ static void expand_args_option(int argc, char **argv){
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
 #ifdef _WIN32
-  wchar_t buf[PATH_MAX];
+  wchar_t buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
-  GetModuleFileNameW(NULL, buf, PATH_MAX);
+  GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #endif
