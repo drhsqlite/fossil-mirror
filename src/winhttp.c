@@ -300,7 +300,7 @@ static char *win32_get_last_errmsg(void){
            );
   }
   if( nMsg ){
-	zMsg = fossil_unicode_to_utf8(tmp);
+    zMsg = fossil_unicode_to_utf8(tmp);
   }else{
     fossil_fatal("unable to get system error message.");
   }
@@ -382,11 +382,7 @@ static void WINAPI win32_http_service_main(
   /* Update the service information. */
   hsData.isRunningAsService = 1;
   if( argc>0 ){
-#ifdef UNICODE
     hsData.zServiceName = fossil_unicode_to_utf8(argv[0]);
-#else
-    hsData.zServiceName = fossil_mbcs_to_utf8(argv[0]);
-#endif
   }
 
   /* Register the service control handler function */
@@ -570,8 +566,8 @@ void cmd_win32_service(void){
   if( strncmp(zMethod, "create", n)==0 ){
     SC_HANDLE hScm;
     SC_HANDLE hSvc;
-    SERVICE_DESCRIPTION
-      svcDescr = {TEXT("Fossil - Distributed Software Configuration Management")};
+    SERVICE_DESCRIPTIONW
+      svcDescr = {L"Fossil - Distributed Software Configuration Management"};
     char *zErrFmt = "unable to create service '%s': %s";
     DWORD dwStartType = SERVICE_DEMAND_START;
     const char *zDisplay    = find_option("display", "D", 1);
@@ -698,31 +694,31 @@ void cmd_win32_service(void){
     SC_HANDLE hSvc;
     SERVICE_STATUS sstat;
     LPQUERY_SERVICE_CONFIGW pSvcConfig;
-    LPSERVICE_DESCRIPTION pSvcDescr;
+    LPSERVICE_DESCRIPTIONW pSvcDescr;
     BOOL bStatus;
     DWORD nRequired;
-    char *zErrFmt = "unable to show service '%s': %s";
-    static const char *zSvcTypes[] = {
+    static const char *zErrFmt = "unable to show service '%s': %s";
+    static const char *const zSvcTypes[] = {
       "Driver service",
       "File system driver service",
       "Service runs in its own process",
       "Service shares a process with other services",
       "Service can interact with the desktop"
     };
-    const char *zSvcType = "";
-    static char *zSvcStartTypes[] = {
+    static const char *zSvcType = "";
+    static const char *zSvcStartTypes[] = {
       "Started by the system loader",
       "Started by the IoInitSystem function",
       "Started automatically by the service control manager",
       "Started manually",
       "Service cannot be started"
     };
-    const char *zSvcStartType = "";
+    static const char *zSvcStartType = "";
     static const char *zSvcStates[] = {
       "Stopped", "Starting", "Stopping", "Running",
       "Continue pending", "Pause pending", "Paused"
     };
-    const char *zSvcState = "";
+    static const char *zSvcState = "";
 
     verify_all_options();
     if( g.argc==4 ){
