@@ -1,5 +1,5 @@
-C Fix\soverzealous\sidentification\sof\sno-op\smerges\sthat\sare\snot\sreally\sno-ops.
-D 2012-08-30T12:05:36.750
+C typos
+D 2012-08-30T14:30:10.432
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -57,7 +57,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 9504afe96f045ea1dfedc46ade55aec8384185f8
-F src/allrepo.c 70835c7761cfc1b38caf3a5c09ff61f891fc32e0
+F src/allrepo.c 6e5868de9cd06a639f0c23209f4e449e9dc52c67
 F src/attach.c 97a7b5e5e64ad8c5a5d6e0f2abb57208d35f79dc
 F src/bag.c 8215e2d15ca49dd40f5b1036115ab24a8bfa1133
 F src/bisect.c 2f6f28ae9f36104a3461a5c9c75632f3806df958
@@ -96,7 +96,7 @@ F src/http_socket.c b9965a92b277e90bbb2759cf3348667e32622544
 F src/http_ssl.c ad601603ed61be8a1ef21d998ae36af1afb91bac
 F src/http_transport.c 6c84be29f46eb76a475a1f128397008a7eb1dbfa
 F src/import.c b61a6ef1cf35741be0372fcdba4993dc30a0369f
-F src/info.c 3c75d4c3adfd244a3f3146d0bb8949d79f21a666
+F src/info.c 6edbd475b15d092f516505558749d6b91eab3262
 F src/json.c de26dedcc89635f183c95257e8c86d89943be996
 F src/json_artifact.c 8ee2c03ef75ed4f2c2c015ff0805bfcbea9e074c
 F src/json_branch.c 00422d44d59ba2933163198c5ef374521aaf1173
@@ -113,8 +113,8 @@ F src/json_timeline.c 0fab5163dd5f53537662b383a57a44f8e849ef15
 F src/json_user.c 05543dd254a9baafa225be5119046523645ddbca
 F src/json_wiki.c ef0dcd5cac05446b9ef5d8885fee6c6255bc140f
 F src/leaf.c 1f0e53b318d84b001db79e1d97d8649a89606cee
-F src/login.c 10651b92dddeeaa30771932f2c973cf859ca4510
-F src/main.c 521820b31c0ccab595da8605381ac7058b6dd7e6
+F src/login.c a019c5b5129afd1081816de7ff05f5bc9301724c
+F src/main.c 4dcbb0521a5c0c8e10515dac69ddce16b608abaa
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -131,7 +131,7 @@ F src/pivot.c ea0330c4c35eb9caf00450efc9f9e764d8dd13b9
 F src/popen.c d7da3ac6fb729185d04b068835853b246ec03467
 F src/pqueue.c f54f6fabd0dad07d3d8b05921d828bb5e1792ee2
 F src/printf.c 6aa06b146a84ba8fb5361136eea9de2ebaf543da
-F src/rebuild.c 012186ef9647a4abd7313d8d66f7ef106b135ef2
+F src/rebuild.c be4f27e4ee284b53cfbec082656846ab2c4f0a63
 F src/report.c f06c9923cbae7f7738de4088311a76403d874e68
 F src/rss.c d2c93f59ce4eceff76b1d748e67923f50bc46fd4
 F src/schema.c 34f23f559dee3a167b8748d3f14071af473b971d
@@ -139,7 +139,7 @@ F src/search.c f2349954a3cd5b30712457e58058a330b33bef74
 F src/setup.c bea5d6515684360c3ad19c89a3411b31ded09782
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 4e319394db07ae8e049128216043618124abd31f
-F src/shun.c 656a31bf264be8ec42a2c775df3bc142adf1d096
+F src/shun.c 1c53f3dc02ade1f5786bd929146f1e40a7a05d3f
 F src/skins.c 278f120af22eb9f4638d7751cd32489f008225f6
 F src/sqlcmd.c 41337575cca702ec50eff40903990e135c389a9c
 F src/sqlite3.c 4bcd94cc973d4c02f2cfaf8ef215a5ac69cc273f
@@ -147,7 +147,7 @@ F src/sqlite3.h 60aa3c8f4fb6bee4d04143ff9b1769b487a024f3
 F src/stash.c f19944790e34da776ceae87f5691429d098f40d0
 F src/stat.c 78196be5eb71bd202356614f268b04e9d19a4021
 F src/style.c 61b2a0124a939d3ba8900d6d1aa066c4a5650088
-F src/sync.c 9e4be051b15514f56ffed0d32e5edd0f92878dfe
+F src/sync.c 9752811b1ce78471e7858156c7ffa307b8c448e3
 F src/tag.c 30cc5944f472da63128458917335c0e7c2b55d9b
 F src/tar.c ed1d0b8c643c2139d670c6b8ff99b1ba76450256
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
@@ -165,11 +165,11 @@ F src/url.c 65a050e80a4f4a45477df01b7fd2bc6dce671ced
 F src/user.c 7806375e668b072a8f914cc306a907feadc2a029
 F src/verify.c 281517d7e736e6ece4baba87a04af707208b460a
 F src/vfile.c a4c2a2d74b3a6fbfcf6a83f74e858fadbd2dd325
-F src/wiki.c 060c9131daa9e8476d458498d24a7fda0149d662
+F src/wiki.c e42252409610dc02bbedce27da373301a53412fd
 F src/wikiformat.c bbf4c74d963dd4a85807b175a265e82b68ca7b38
-F src/winhttp.c bb2549c2d1f8fc5ba2d3ca51eb63606cc827e669
+F src/winhttp.c b974e9da20104531796497aebb9498129a5d9a30
 F src/wysiwyg.c dc552bb5ea0eaf623ca531f2e074d2be359c7e84
-F src/xfer.c fd3be8d7f48288fc28c0345012e0d566d42f2a57
+F src/xfer.c c602b143a9c157946fc75f3cec3398a28311eb90
 F src/xfersetup.c df76b2eaf1c4d19428a82bb2e5bd52eebbdfdc59
 F src/zip.c 270a1c0b36de02f643b967d72d258519b0b5e656
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ae85ba156cae59e2aa6037c74df555c66417002f
-R 8a705a055d0be4d2338efd986a7fddb0
-U drh
-Z d514f4efe87b1aee442371c75600e7b4
+P efba2bc17b2586e8ea782160689d81c7243b4678
+R f50260ea81e301f3a42ab93c53a8f04c
+U jan.nijtmans
+Z a0afde0a1703b85a16885df301190094

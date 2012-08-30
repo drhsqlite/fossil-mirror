@@ -506,14 +506,14 @@ int win32_http_service(
 **              The repository option may be omitted if the working directory
 **              is within an open checkout.
 **              The REPOSITORY can be a directory (aka folder) that contains
-**              one or more respositories with names ending in ".fossil".
+**              one or more repositories with names ending in ".fossil".
 **              In that case, the first element of the URL is used to select
 **              among the various repositories.
 **
 **         --notfound URL
 **
 **              If REPOSITORY is a directory that contains one or more
-**              respositories with names of the form "*.fossil" then the
+**              repositories with names of the form "*.fossil" then the
 **              first element of the URL  pathname selects among the various
 **              repositories. If the pathname does not select a valid
 **              repository and the --notfound option is available,

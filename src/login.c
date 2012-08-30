@@ -1443,7 +1443,7 @@ void login_group_join(
   sqlite3_close(pOther);
   if( rc ) return;
 
-  /* Attach the other respository.  Make sure the username/password is
+  /* Attach the other repository.  Make sure the username/password is
   ** valid and has Setup permission.
   */
   db_multi_exec("ATTACH %Q AS other", zRepo);

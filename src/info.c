@@ -163,7 +163,7 @@ static void extraRepoInfo(void){
 **
 ** With no arguments, provide information about the current tree.
 ** If an argument is specified, provide information about the object
-** in the respository of the current tree that the argument refers
+** in the repository of the current tree that the argument refers
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
 **

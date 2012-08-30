@@ -31,7 +31,7 @@
 #endif /* INTERFACE */
 
 /*
-** If the respository is configured for autosyncing, then do an
+** If the repository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
 ** if the argument is false.
 **

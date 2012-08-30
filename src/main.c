@@ -1547,7 +1547,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
 ** a check-out and the repository to be served is the repository of
 ** that check-out.
 **
-** Open the respository to be served if it is known.  If g.argv[2] is
+** Open the repository to be served if it is known.  If g.argv[2] is
 ** a directory full of repositories, then set g.zRepositoryName to
 ** the name of that directory and the specific repository will be
 ** opened later by process_one_web_page() based on the content of
@@ -1583,7 +1583,7 @@ static void find_server_repository(int disallowDir){
 ** handler from inetd, for example.  The argument is the name of the 
 ** repository.
 **
-** If REPOSITORY is a directory that contains one or more respositories
+** If REPOSITORY is a directory that contains one or more repositories
 ** with names of the form "*.fossil" then the first element of the URL
 ** pathname selects among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
@@ -1699,7 +1699,7 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
-** that contains one or more respositories with names ending in ".fossil".
+** that contains one or more rspositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
 **

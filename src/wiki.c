@@ -827,7 +827,7 @@ void wikirules_page(void){
 }
 
 /*
-** Add a new wiki page to the respository.  The page name is
+** Add a new wiki page to the repository.  The page name is
 ** given by the zPageName parameter.  isNew must be true to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
