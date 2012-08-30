@@ -1,5 +1,5 @@
-C proposed\sfix\sfor\s[c8c0b78c84].\nAnd\s-\sbonus\s-\sallow\sa\sBOM\sin\sthe\s--args\sfile
-D 2012-08-30T08:55:17.405
+C ...\sand\steach\spopen\show\sto\shandle\snon-mbcs\scharacters
+D 2012-08-30T09:21:54.649
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/json_user.c 05543dd254a9baafa225be5119046523645ddbca
 F src/json_wiki.c ef0dcd5cac05446b9ef5d8885fee6c6255bc140f
 F src/leaf.c 1f0e53b318d84b001db79e1d97d8649a89606cee
 F src/login.c 10651b92dddeeaa30771932f2c973cf859ca4510
-F src/main.c f23f371b764c26064530cf9a2630960b4f1d14f6
+F src/main.c 65c0691b01206e0ebc2fbf7f8b24f43c58d69b05
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -128,7 +128,7 @@ F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
 F src/name.c 803340db9128f81a4faffbf113fdf457d92a6aa0
 F src/path.c 4d3ab41381243162ecaf3226c3a7e6908ba997ff
 F src/pivot.c ea0330c4c35eb9caf00450efc9f9e764d8dd13b9
-F src/popen.c d7da3ac6fb729185d04b068835853b246ec03467
+F src/popen.c 0bcd50971669383079dcadf51067cbb1ec4962c6
 F src/pqueue.c f54f6fabd0dad07d3d8b05921d828bb5e1792ee2
 F src/printf.c 6aa06b146a84ba8fb5361136eea9de2ebaf543da
 F src/rebuild.c 012186ef9647a4abd7313d8d66f7ef106b135ef2
@@ -366,10 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ae85ba156cae59e2aa6037c74df555c66417002f
-R 3c4bb3e5153ff2706c462d4e19815a5a
-T *branch * ticket-c8c0b78c84
-T *sym-ticket-c8c0b78c84 *
-T -sym-trunk *
+P 95f212433d36525af1c4f3e9567b369bd4218172
+R 28e206042951871568487862b8e0533b
 U jan.nijtmans
-Z 6e8739ca33b27bfb5c3b2f886d8b7c5a
+Z ef2dfb95c74af7802e5306dfbbbf5bc9
