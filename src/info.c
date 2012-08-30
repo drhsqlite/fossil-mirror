@@ -609,39 +609,39 @@ void ci_page(void){
     if( db_get_boolean("show-version-diffs", 0)==0 ){
       showDiff = !showDiff;
       if( showDiff ){
-        @ %z(xhref("class='button'","%R/vinfo/%T",zName))
+        @ %z(xhref("class=\"button\"","%R/vinfo/%T",zName))
         @ hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
+          @ %z(xhref("class=\"button\"","%R/ci/%T?sbs=0",zName))
           @ unified&nbsp;diffs</a>
         }else{
-          @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
+          @ %z(xhref("class=\"button\"","%R/ci/%T?sbs=1",zName))
           @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=0",zName))
+        @ %z(xhref("class=\"button\"","%R/ci/%T?sbs=0",zName))
         @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/ci/%T?sbs=1",zName))
+        @ %z(xhref("class=\"button\"","%R/ci/%T?sbs=1",zName))
         @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }else{
       if( showDiff ){
-        @ %z(xhref("class='button'","%R/ci/%T",zName))hide&nbsp;diffs</a>
+        @ %z(xhref("class=\"button\"","%R/ci/%T",zName))hide&nbsp;diffs</a>
         if( sideBySide ){
-          @ %z(xhref("class='button'","%R/info/%T?sbs=0",zName))
+          @ %z(xhref("class=\"button\"","%R/info/%T?sbs=0",zName))
           @ unified&nbsp;diffs</a>
         }else{
-          @ %z(xhref("class='button'","%R/info/%T?sbs=1",zName))
+          @ %z(xhref("class=\"button\"","%R/info/%T?sbs=1",zName))
           @ side-by-side&nbsp;diffs</a>
         }
       }else{
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=0",zName))
+        @ %z(xhref("class=\"button\"","%R/vinfo/%T?sbs=0",zName))
         @ show&nbsp;unified&nbsp;diffs</a>
-        @ %z(xhref("class='button'","%R/vinfo/%T?sbs=1",zName))
+        @ %z(xhref("class=\"button\"","%R/vinfo/%T?sbs=1",zName))
         @ show&nbsp;side-by-side&nbsp;diffs</a>
       }
     }
-    @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
+    @ %z(xhref("class=\"button\"","%R/vpatch?from=%S&to=%S",zParent,zUuid))
     @ patch</a></div>
     db_prepare(&q,
        "SELECT name,"

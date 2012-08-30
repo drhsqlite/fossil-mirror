@@ -20,17 +20,7 @@
 #include "config.h"
 #include "rebuild.h"
 #include <assert.h>
-#include <dirent.h>
 #include <errno.h>
-
-#ifndef _WIN32
-#define _WDIR DIR
-#define _wdirent dirent
-#define _wopendir opendir
-#define _wreaddir readdir
-#define _wclosedir closedir
-#define wchar_t char
-#endif
 
 /*
 ** Make changes to the stable part of the schema (the part that is not
@@ -829,17 +819,17 @@ void scrub_cmd(void){
 ** every file read as a new artifact in the repository.
 */
 void recon_read_dir(char *zPath){
-  _WDIR *d;
-  struct _wdirent *pEntry;
+  FOSSIL_DIR *d;
+  struct fossil_dirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
-  wchar_t *zMbcsPath;
+  void *zUnicodePath;
   char *zUtf8Name;
 
-  zMbcsPath = fossil_utf8_to_unicode(zPath);
-  d = _wopendir(zMbcsPath);
+  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  d = fossil_opendir(zUnicodePath);
   if( d ){
-    while( (pEntry=_wreaddir(d))!=0 ){
+    while( (pEntry=fossil_readdir(d))!=0 ){
       Blob path;
       char *zSubpath;
 
@@ -865,12 +855,12 @@ void recon_read_dir(char *zPath){
       fossil_print("\r%d", ++nFileRead);
       fflush(stdout);
     }
-    _wclosedir(d);
+    fossil_closedir(d);
   }else {
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_mbcs_free(zMbcsPath);
+  fossil_mbcs_free(zUnicodePath);
 }
 
 /*

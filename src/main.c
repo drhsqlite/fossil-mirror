@@ -38,7 +38,7 @@
 #include "tcl.h"
 #endif
 
-#if !defined(_WIN32)
+#if !defined(_WIN32) || !defined(UNICODE)
 # define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
 # define wchar_t char
 # define wmain main

@@ -582,7 +582,7 @@ void file_getcwd(char *zBuf, int nBuf){
   int nPwd;
   int i;
   wchar_t zPwd[2000];
-  if( _wgetcwd(zPwd, sizeof(zPwd)-1)==0 ){
+  if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
   zPwdUtf8 = fossil_unicode_to_utf8(zPwd);
@@ -1005,6 +1005,30 @@ int file_is_the_same(Blob *pContent, const char *zName){
   return rc==0;
 }
 
+/*
+** Portable unicode implementation of opendir()
+*/
+#if INTERFACE
+
+#if defined(_WIN32)
+# include <dirent.h>
+# define FOSSIL_DIR _WDIR
+# define fossil_dirent _wdirent
+# define fossil_opendir _wopendir
+# define fossil_readdir _wreaddir
+# define fossil_closedir _wclosedir
+#else
+# include <dirent.h>
+# define FOSSIL_DIR DIR
+# define fossil_dirent dirent
+# define fossil_opendir opendir
+# define fossil_readdir readdir
+# define fossil_closedir closedir
+#endif
+
+#endif /* INTERFACE */
+
+
 
 /**************************************************************************
 ** The following routines translate between MBCS and UTF8 on windows.
@@ -1031,7 +1055,6 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
-#undef fossil_unicode_to_utf8
 char *fossil_unicode_to_utf8(const void *zUnicode){
 #ifdef _WIN32
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);

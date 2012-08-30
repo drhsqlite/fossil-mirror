@@ -21,20 +21,6 @@
 #include "vfile.h"
 #include <assert.h>
 #include <sys/types.h>
-#if defined(__DMC__)
-#include "dirent.h"
-#else
-#include <dirent.h>
-#endif
-
-#ifndef _WIN32
-#define _WDIR DIR
-#define _wdirent dirent
-#define _wopendir opendir
-#define _wreaddir readdir
-#define _wclosedir closedir
-#define wchar_t char
-#endif
 
 /*
 ** The input is guaranteed to be a 40-character well-formed UUID.
@@ -392,14 +378,14 @@ int vfile_top_of_checkout(const char *zPath){
 ** nPrefix characters are elided from the filename.
 */
 void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
-  _WDIR *d;
+  FOSSIL_DIR *d;
   int origSize;
   const char *zDir;
-  struct _wdirent *pEntry;
+  struct fossil_dirent *pEntry;
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
-  wchar_t *zMbcs;
+  void *zMbcs;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -419,9 +405,9 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
 
   zDir = blob_str(pPath);
   zMbcs = fossil_utf8_to_unicode(zDir);
-  d = _wopendir(zMbcs);
+  d = fossil_opendir(zMbcs);
   if( d ){
-    while( (pEntry=_wreaddir(d))!=0 ){
+    while( (pEntry=fossil_readdir(d))!=0 ){
       char *zPath;
       char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
@@ -446,7 +432,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       }
       blob_resize(pPath, origSize);
     }
-    _wclosedir(d);
+    fossil_closedir(d);
   }
   fossil_mbcs_free(zMbcs);
 

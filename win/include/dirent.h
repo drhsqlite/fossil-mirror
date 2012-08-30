@@ -63,34 +63,33 @@
 #include <assert.h>
 
 
-typedef struct dirent
+typedef struct _wdirent
 {
-   char d_name[MAX_PATH + 1]; /* current dir entry (multi-byte char string) */
-   WIN32_FIND_DATAA data;     /* file attributes */
-}  dirent;
+   wchar_t d_name[MAX_PATH + 1]; /* current dir entry (unicode char string) */
+   WIN32_FIND_DATAW data;     /* file attributes */
+}  _wdirent;
 
 
-typedef struct DIR
+typedef struct _WDIR
 {
-   dirent current;            /* Current directory entry */
+   _wdirent current;            /* Current directory entry */
    int    cached;             /* Indicates un-processed entry in memory */
    HANDLE search_handle;      /* File search handle */
-   char   patt[MAX_PATH + 3]; /* search pattern (3 = pattern + "\\*\0") */
-} DIR;
+   wchar_t   patt[MAX_PATH + 3]; /* search pattern (3 = pattern + "\\*\0") */
+} _WDIR;
 
 
 /* Forward declarations */
-static DIR *opendir (const char *dirname);
-static struct dirent *readdir (DIR *dirp);
-static int closedir (DIR *dirp);
-static void rewinddir(DIR* dirp);
+static _WDIR *_wopendir (const wchar_t *dirname);
+static struct _wdirent *_wreaddir (_WDIR *dirp);
+static int _wclosedir (_WDIR *dirp);
 
 
 /* Use the new safe string functions introduced in Visual Studio 2005 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-# define STRNCPY(dest,src,size) strncpy_s((dest),(size),(src),_TRUNCATE)
+# define STRNCPY(dest,src,size) wcsncpy_s((dest),(size),(src),_TRUNCATE)
 #else
-# define STRNCPY(dest,src,size) strncpy((dest),(src),(size))
+# define STRNCPY(dest,src,size) wcsncpy((dest),(src),(size))
 #endif
 
 
@@ -99,23 +98,23 @@ static void rewinddir(DIR* dirp);
  * internal working area that is used to retrieve individual directory
  * entries.
  */
-static DIR *opendir(const char *dirname)
+static _WDIR *_wopendir(const wchar_t *dirname)
 {
-   DIR *dirp;
+   _WDIR *dirp;
    assert (dirname != NULL);
-   assert (strlen (dirname) < MAX_PATH);
+   assert (wcslen (dirname) < MAX_PATH);
 
-   /* construct new DIR structure */
-   dirp = (DIR*) malloc (sizeof (struct DIR));
+   /* construct new _WDIR structure */
+   dirp = (_WDIR*) malloc (sizeof (struct _WDIR));
    if (dirp != NULL) {
-      char *p;
+      wchar_t *p;
 
       /* take directory name... */
       STRNCPY (dirp->patt, dirname, sizeof(dirp->patt));
       dirp->patt[MAX_PATH] = '\0';
 
       /* ... and append search pattern to it */
-      p = strchr (dirp->patt, '\0');
+      p = wcschr (dirp->patt, '\0');
       if (dirp->patt < p  &&  *(p-1) != '\\'  &&  *(p-1) != ':') {
          *p++ = '\\';
       }
@@ -123,7 +122,7 @@ static DIR *opendir(const char *dirname)
       *p = '\0';
 
       /* open stream and retrieve first file */
-      dirp->search_handle = FindFirstFileA (dirp->patt, &dirp->current.data);
+      dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->current.data);
       if (dirp->search_handle == INVALID_HANDLE_VALUE) {
          /* invalid search pattern? */
          free (dirp);
@@ -145,7 +144,7 @@ static DIR *opendir(const char *dirname)
  * sub-directories, pseudo-directories "." and "..", but also volume labels,
  * hidden files and system files may be returned.
  */
-static struct dirent *readdir(DIR *dirp)
+static struct _wdirent *_wreaddir(_WDIR *dirp)
 {
    assert (dirp != NULL);
 
@@ -160,7 +159,7 @@ static struct dirent *readdir(DIR *dirp)
       dirp->cached = 0;
    } else {
       /* read next directory entry from disk */
-      if (FindNextFileA (dirp->search_handle, &dirp->current.data) == FALSE) {
+      if (FindNextFileW (dirp->search_handle, &dirp->current.data) == FALSE) {
          /* the very last file has been processed or an error occured */
          FindClose (dirp->search_handle);
          dirp->search_handle = INVALID_HANDLE_VALUE;
@@ -183,7 +182,7 @@ static struct dirent *readdir(DIR *dirp)
  * directory stream invalidates the DIR structure as well as any previously
  * read directory entry.
  */
-static int closedir(DIR *dirp)
+static int _wclosedir(_WDIR *dirp)
 {
    assert (dirp != NULL);
 
@@ -197,34 +196,5 @@ static int closedir(DIR *dirp)
    free (dirp);
    return 0;
 }
-
-
-/*****************************************************************************
- * Resets the position of the directory stream to which dirp refers to the
- * beginning of the directory. It also causes the directory stream to refer
- * to the current state of the corresponding directory, as a call to opendir()
- * would have done. If dirp does not refer to a directory stream, the effect
- * is undefined.
- */
-static void rewinddir(DIR* dirp)
-{
-   /* release search handle */
-   if (dirp->search_handle != INVALID_HANDLE_VALUE) {
-      FindClose (dirp->search_handle);
-      dirp->search_handle = INVALID_HANDLE_VALUE;
-   }
-
-   /* open new search handle and retrieve first file */
-   dirp->search_handle = FindFirstFileA (dirp->patt, &dirp->current.data);
-   if (dirp->search_handle == INVALID_HANDLE_VALUE) {
-      /* invalid search pattern? */
-      free (dirp);
-      return;
-   }
-
-   /* there is an un-processed directory entry in memory now */
-   dirp->cached = 1;
-}
-
 
 #endif /*DIRENT_H*/
