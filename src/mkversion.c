@@ -15,10 +15,8 @@ int main(int argc, char *argv[]){
     char *z;
     int i, x, d;
     char b[1000];
-    char b2[1000];
     char vx[1000];
     memset(b,0,sizeof(b));
-    memset(b2,0,sizeof(b2));
     memset(vx,0,sizeof(vx));
     u = fopen(argv[1],"r");
     fgets(b, sizeof(b)-1,u);
@@ -57,9 +55,10 @@ int main(int argc, char *argv[]){
     }
     for(z=vx; z[0]=='0'; z++){}
     printf("#define RELEASE_VERSION_NUMBER %s\n", z);
-    strcpy(b2,b);
+    memset(vx,0,sizeof(vx));
+    strcpy(vx,b);
     d = 0;
-    for(z=b2; z[0]; z++){
+    for(z=vx; z[0]; z++){
       if( z[0]!='.' ) continue;
       if ( d<3 ){
         z[0] = ',';
@@ -69,7 +68,7 @@ int main(int argc, char *argv[]){
         break;
       }
     }
-    printf("#define RELEASE_RESOURCE_VERSION %s", b2);
+    printf("#define RELEASE_RESOURCE_VERSION %s", vx);
     while( d<3 ){ printf(",0"); d++; }
     printf("\n");
     return 0;
