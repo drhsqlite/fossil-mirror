@@ -532,11 +532,21 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(OBJDIR)/translate.exe
+writeln {
+#### Attempt to determine if this is the actual MSYS shell.  If so, we need to
+#    use forward slashes for correctness.
+#
+ifeq ($(MSYSTEM), MINGW32)
+TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
 VERSION     = $(OBJDIR)/version.exe
-}
+else
+TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
+MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
+MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex.exe)
+VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
+endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
