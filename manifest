@@ -1,5 +1,5 @@
-C Merge\sthe\sfork\sof\strunk.
-D 2012-08-31T12:44:51.156
+C Remove\sobsolete\sdocumentation\sfrom\sthe\swww/\sfolder.
+D 2012-08-31T18:40:07.705
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -283,20 +283,6 @@ F www/changes.wiki fb6b72c563ee82df8caf5c66f39a658b56322d74
 F www/checkin.wiki 3bdc69b731d30ef5f0a31557f2aa07f187b11e03
 F www/checkin_names.wiki d6cc061f0d1c4b3f4e614239f4b6dfa00676efaa
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
-F www/cmd_add.wiki 234a66203bcf15d9b88f437c71f724acf518e45a
-F www/cmd_all.wiki c4a2506cfe9e9bb2ebcb400d3aabcb96ceedd0cc
-F www/cmd_cgi.wiki 89c3b9cdc5fdeef0560f63fecf6f8e3115487ec3
-F www/cmd_changes.wiki 86458abed3ae282b89305c872e88c3a9078d88a6
-F www/cmd_checkout.wiki 4f48d3f620856ae6c035dea65ebcae1a29e39018
-F www/cmd_extra.wiki 5b5620b81d50b036c200cf4eaf43c99924f1ccc2
-F www/cmd_ls.wiki 421096bb587e540c44f08991990bf52e06f48415
-F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
-F www/cmd_new.wiki ba37188db8f11b51f3901506b4d673f94141c7d8
-F www/cmd_rm.wiki b96ff20fcfe6d9f7ba72d9d546f95fae5dfa5969
-F www/cmd_status.wiki c1fc9a0df106f1f5df4aeed3236d9ba07895af5b
-F www/cmd_sync.wiki 81c0b88996c8f62e3e810ee733275a85ff36ed4f
-F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
-F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
 F www/concept1.gif 6bb98f69a2cfe883ad6dbfbb70561b2282a563e1
 F www/concept2.gif ff6165d1e94186362309c951622c8dcee6edcf2c
 F www/concepts.wiki 846a2562a2be89af51f46216560092ceff6ed833
@@ -350,7 +336,6 @@ F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 3b877d274455a3e46816b8e1889adddcf271bd0d
 F www/quotes.wiki 5deaf1966801b130f717bec64f68239a3f6b3cb4
-F www/reference.wiki 3253cb5ee5453b16c96c2184f5ae82ab6cf5696d
 F www/reviews.wiki 77742df324c5dc19f5589d9ded2f178b1f75e525
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
@@ -366,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 927d07c7273b32c9819ba3688554b6ad92c24132 4e62bffa63d0dfd40054a830325039e2092471c3
-R c1493583b92ff55e3acb5acc0edfdb14
-U mistachkin
-Z 35c8760da20cacbf993f94cd334c8128
+P 231113eac291edc82f22ea4f4207c0bb99a05f88
+R 18a14085482a56c2449b2b45ab5ce7a5
+U drh
+Z e448913b07931c62da06821fcb845299
