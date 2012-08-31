@@ -534,9 +534,10 @@ writeln "\n"
 writeln "APPNAME = ${name}.exe"
 writeln {
 #### Attempt to determine if this is the actual MSYS shell.  If so, we need to
-#    use forward slashes for correctness.
+#    use forward slashes for correctness.  If the SHELL environment variable
+#    exists, it is assumed that we are building inside of a Unix-style shell.
 #
-ifeq ($(MSYSTEM), MINGW32)
+ifdef SHELL
 TRANSLATE   = $(OBJDIR)/translate.exe
 MAKEHEADERS = $(OBJDIR)/makeheaders.exe
 MKINDEX     = $(OBJDIR)/mkindex.exe
