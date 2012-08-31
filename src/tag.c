@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -551,7 +551,7 @@ void taglist_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     if( g.perm.Hyperlink ){
-      @ <li>%z(xhref("class=\"taglink\"","%R/timeline?t=%T",zName))
+      @ <li>%z(xhref("class='taglink'","%R/timeline?t=%T",zName))
       @ %h(zName)</a></li>
     }else{
       @ <li><span class="tagDsp">%h(zName)</span></li>

@@ -1,6 +1,6 @@
 /*
-** Copyright © 2007 D. Richard Hipp
-** Copyright © 2008 Stephan Beal
+** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2008 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -376,7 +376,7 @@ void wikiedit_page(void){
     @ <br />
     if( db_get_boolean("wysiwyg-wiki", 0) ){
       @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
-      @  onclick="return confirm('Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?')" />
+      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
     }
     @ <input type="submit" name="preview" value="Preview Your Changes" />
   }else{
@@ -394,13 +394,13 @@ void wikiedit_page(void){
     blob_reset(&html);
     @ <br />
     @ <input type="submit" name="edit-markup" value="Markup Editor"
-    @  onclick="return confirm('Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?')" />
+    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
   }
   @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="submit" name="cancel" value="Cancel"
-  @  onclick="confirm('Abandon your changes?')" />
+  @  onclick='confirm("Abandon your changes?")' />
   @ </div></form>
   manifest_destroy(pWiki);
   blob_reset(&wiki);

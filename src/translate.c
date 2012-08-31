@@ -1,5 +1,5 @@
 /*
-** Copyright © 2002 D. Richard Hipp
+** Copyright (c) 2002 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -78,30 +78,13 @@ static void trans(FILE *in, FILE *out){
   int lastWasComma = 0; /* True if last non-whitespace character was "," */
   char zLine[2000];     /* A single line of input */
   char zOut[4000];      /* The input line translated into appropriate output */
-  int isFirstline = 1;  /* True if this is the first line */
 
   c1 = c2 = '-';
   while( fgets(zLine, sizeof(zLine), in) ){
-    if (isFirstline) {
-      static const char bom[] = { 0xEF, 0xBB, 0xBF };
-      if( memcmp(zLine, bom, 3)==0 ) {
-    	  memmove(zLine, zLine+3, sizeof(zLine)-3);
-      }
-      isFirstline = 0;
-    }
     for(i=0; zLine[i] && isspace(zLine[i]); i++){}
     if( zLine[i]!='@' ){
       if( inPrint || inStr ) end_block(out);
-      for(i=0,j=0; zLine[i]; i++){
-        if (128 <= (unsigned char)zLine[i]) {
-          sprintf(&zOut[j], "\\0x%.2X", zLine[i] & 0xFF);
-          j += 5;
-        } else {
-          zOut[j++] = zLine[i];
-        }
-      }
-      zOut[j] = 0;
-      fprintf(out,"%s",zOut);
+      fprintf(out,"%s",zLine);
                        /* 0123456789 12345 */
       if( strncmp(zLine, "/* @-comment: ", 14)==0 ){
         c1 = zLine[14];
@@ -129,12 +112,7 @@ static void trans(FILE *in, FILE *out){
            omitline = 1; break; 
         }
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
-        if (128 <= (unsigned char)zLine[i]) {
-          sprintf(&zOut[j], "\\0x%.2X", zLine[i] & 0xFF);
-          j += 5;
-        } else {
-          zOut[j++] = zLine[i];
-        }
+        zOut[j++] = zLine[i];
       }
       while( j>0 && isspace(zOut[j-1]) ){ j--; }
       zOut[j] = 0;
@@ -158,12 +136,7 @@ static void trans(FILE *in, FILE *out){
       indent = i;
       for(j=0; zLine[i] && zLine[i]!='\r' && zLine[i]!='\n'; i++){
         if( zLine[i]=='"' || zLine[i]=='\\' ){ zOut[j++] = '\\'; }
-        if (128 <= (unsigned char)zLine[i]) {
-          sprintf(&zOut[j], "\\0x%.2X", zLine[i] & 0xFF);
-          j += 5;
-        } else {
-          zOut[j++] = zLine[i];
-        }
+        zOut[j++] = zLine[i];
         if( zLine[i]!='%' || zLine[i+1]=='%' || zLine[i+1]==0 ) continue;
         for(nC=1; zLine[i+nC] && zLine[i+nC]!='('; nC++){}
         if( zLine[i+nC]!='(' || !isalpha(zLine[i+nC-1]) ) continue;

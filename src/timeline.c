@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -50,7 +50,7 @@ void hyperlink_to_uuid(const char *zUuid){
   char z[UUID_SIZE+1];
   shorten_uuid(z, zUuid);
   if( g.perm.Hyperlink ){
-    @ %z(xhref("class=\"timelineHistLink\"","%R/info/%s",z))[%s(z)]</a>
+    @ %z(xhref("class='timelineHistLink'","%R/info/%s",z))[%s(z)]</a>
   }else{
     @ <span class="timelineHistDsp">[%s(z)]</span>
   }
@@ -320,7 +320,7 @@ void www_print_timeline(
       @ <td class="timelineTableCell">
     }
     if( pGraph && zType[0]!='c' ){
-      @ •
+      @ &bull;
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
@@ -433,21 +433,21 @@ void www_print_timeline(
         }
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
-          @ %z(xhref("target=\"diffwindow\"","%R/artifact/%S",zNew))
+          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
           @ [view]</a></li>
         }else if( isDel ){
           @ <li> %h(zFilename) (deleted)</li>
         }else if( fossil_strcmp(zOld,zNew)==0 && zOldName!=0 ){
-          @ <li> %h(zOldName) → %h(zFilename)
-          @ %z(xhref("target=\"diffwindow\"","%R/artifact/%S",zNew))
+          @ <li> %h(zOldName) &rarr; %h(zFilename)
+          @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
           @ [view]</a></li>
         }else{
           if( zOldName!=0 ){
-            @ <li> %h(zOldName) → %h(zFilename)
+            @ <li> %h(zOldName) &rarr; %h(zFilename)
           }else{
             @ <li> %h(zFilename) &nbsp;
           }
-          @ %z(xhref("target=\"diffwindow\"","%R/fdiff?v1=%S&v2=%S",zOld,zNew))
+          @ %z(xhref("target='diffwindow'","%R/fdiff?v1=%S&v2=%S",zOld,zNew))
           @ [diff]</a></li>
         }
       }
