@@ -478,7 +478,7 @@ char *transport_receive_line(void){
 
 void transport_global_shutdown(void){
   if( g.urlIsSsh && sshPid ){
-    printf("Closing SSH tunnel: ");
+    /*printf("Closing SSH tunnel: ");*/
     fflush(stdout);
     pclose2(sshIn, sshOut, sshPid);
     sshPid = 0;

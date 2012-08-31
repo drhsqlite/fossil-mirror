@@ -1,5 +1,5 @@
-C Improved\shandling\sof\scommand-line\sarguments\sunder\swindows.\nPossible\sfix\sfor\sticket\s[c8c0b78c84].
-D 2012-08-31T19:47:28.906
+C Avoid\sprompting\sfor\sthe\spassword\sfor\sSSH\ssyncs,\ssince\sthe\spassword\sis\nnever\sused.\s\sOmit\sdebugging\soutput\son\sSSH\ssyncs.
+D 2012-08-31T19:57:42.353
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,7 +94,7 @@ F src/gzip.c 421a05000bc8155f90d911effa5ce00a9c7838f5
 F src/http.c 06b395634b4c4b5bbdf73337668512358671fe6b
 F src/http_socket.c b9965a92b277e90bbb2759cf3348667e32622544
 F src/http_ssl.c ad601603ed61be8a1ef21d998ae36af1afb91bac
-F src/http_transport.c 6c84be29f46eb76a475a1f128397008a7eb1dbfa
+F src/http_transport.c d14015b69ff52239a1fba3aeae20c4cec3b55a87
 F src/import.c b61a6ef1cf35741be0372fcdba4993dc30a0369f
 F src/info.c 50fbc5d8243025c56482a710442aaf0d3529061e
 F src/json.c de26dedcc89635f183c95257e8c86d89943be996
@@ -147,7 +147,7 @@ F src/sqlite3.h 60aa3c8f4fb6bee4d04143ff9b1769b487a024f3
 F src/stash.c f19944790e34da776ceae87f5691429d098f40d0
 F src/stat.c 78196be5eb71bd202356614f268b04e9d19a4021
 F src/style.c 61b2a0124a939d3ba8900d6d1aa066c4a5650088
-F src/sync.c 9752811b1ce78471e7858156c7ffa307b8c448e3
+F src/sync.c 78e1002ba77e1bcdc2e8ee15064bd4a111d4b120
 F src/tag.c c322b18ca0b0cb987581844670c7eba5a468877f
 F src/tar.c ed1d0b8c643c2139d670c6b8ff99b1ba76450256
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
@@ -161,7 +161,7 @@ F src/tktsetup.c 73b73602c4c9e337d5ae02297af03f63931a685e
 F src/translate.c d0f351998c6f036011126ec7a13be7303dfa69c2
 F src/undo.c 60e6a8ae059c622f0873567e55fdb55e7096a7da
 F src/update.c 5b580dfeb162ab17354a99864a40b543615c1877
-F src/url.c 65a050e80a4f4a45477df01b7fd2bc6dce671ced
+F src/url.c eb2624cb85a276bd35cac31fefe23000f3f9456d
 F src/user.c 7806375e668b072a8f914cc306a907feadc2a029
 F src/verify.c 281517d7e736e6ece4baba87a04af707208b460a
 F src/vfile.c a4c2a2d74b3a6fbfcf6a83f74e858fadbd2dd325
@@ -351,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d80f2dc058706c9eb7a1c486029321c8cfd6e6a7 b41c57d5c82aa49365391583d9ca1905855a9ae0
-R c27dbbc818204141c5de00475b0a9091
+P 0c7ae64ab519d4836181e4ad86b6af2e5a058c3a
+R dc3f78ecc512c79b3049b0c62c9f5e25
 U drh
-Z bd20279b3fbd092b07f05a8de1f26ead
+Z d2fa0596d194f191a783343dc7a76576
