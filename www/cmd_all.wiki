@@ -40,7 +40,7 @@ The <code>all</code> command uses the <i>.fossil</i> file in the home
 directory to find all of your repositories, so you can mess it up by
 moving your repositories around.  This is easy to do inadvertently if
 you have a cavalier attitude about repos, but you'll know pretty
-quickly that you've done it&#8212;many commands you try to use from
+quickly that you've done it—many commands you try to use from
 inside of a checkout won't work correctly.  The <i>.fossil</i> file is
 an <b>sqlite</b> db file which fossil uses to keeping track of
 repository locations. Advice: if you move your repositories around,

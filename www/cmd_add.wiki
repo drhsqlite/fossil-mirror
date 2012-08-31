@@ -19,7 +19,7 @@ networking functions.  Not particularly accurate, but reasonable.
 
 Typing <code>&nbsp;fossil add myfile</code> causes fossil to put
 <i>myfile</i> into the repository at the next
-<code>commit</code>&#8212;provided you issue it from within the source
+<code>commit</code>—provided you issue it from within the source
 tree, of course.
 
 By contrast, <code>&nbsp;fossil add mydirectory</code> will add

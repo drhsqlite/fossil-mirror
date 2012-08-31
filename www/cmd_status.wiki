@@ -34,7 +34,7 @@ version of the <b>fossil</b> repository as I write this:
 </pre></nowiki>
 
 Once I actually make changes to the repository (say, a
-[./cmd_commit.wiki | commit]) most of that will change&#8212;all
+[./cmd_commit.wiki | commit]) most of that will change—all
 of those files showing as "EDITED" will be checked in and won't
 show up, and the artifact IDs will reflect the new state of the
 repository.

@@ -62,12 +62,13 @@ foreach {file title} $doclist {
     set suffix [lrange $title [expr {$i+1}] end]
     set firstword [string tolower [lindex $suffix 0]]
     if {[lsearch $stopwords $firstword]<0} {
-      lappend permindex [list "$suffix &#151; $prefix" $file]
+      lappend permindex [list "$suffix \u2014 $prefix" $file]
     }
   }
 }
 set permindex [lsort -dict $permindex]
 set out [open permutedindex.wiki w]
+fconfigure $out -encoding utf-8 -translation lf
 puts $out "<title>Permuted Index Of Fossil Documentation</title>"
 puts $out "<nowiki>"
 puts $out "<ul>"

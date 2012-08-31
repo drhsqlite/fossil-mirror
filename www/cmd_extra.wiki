@@ -18,7 +18,7 @@ the project.
 Suppose, for example, you have a "noodle.src" file as a scratch pad
 for source code, and you don't want to include your latest
 hare-brained ideas in the repository?  You don't <code>add</code> it
-to the repository, of course&#8212;though there are ways you might add
+to the repository, of course—though there are ways you might add
 it unintentionally.  If your project is big, and you want to find
 noodle.src, and anything else that isn't under source control within
 the project directories, then<code> fossil&nbsp;extra </code> will

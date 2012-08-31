@@ -1,5 +1,5 @@
-C Removed\ssome\svery\sold\sTODO\scomments\s(from\sme)\swhich\sjust\sclutter\sup\sthe\swiki\shelp\stext.
-D 2012-08-31T08:58:33.667
+C use\smore\sutf-8\scharacters\sin\sthe\swiki,\sin\sstead\sof\shtml\sentities
+D 2012-08-31T09:03:44.224
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -278,22 +278,22 @@ F www/build-icons/mac.gif b25243f405328861f9a8736fb1141c65752ce193
 F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
-F www/build.wiki 21db88ae1feae01188a3e8557e28c58608e38bed
+F www/build.wiki e16503f3b7534e3fb46d35aa5e783fe4b96bd409
 F www/changes.wiki fb6b72c563ee82df8caf5c66f39a658b56322d74
-F www/checkin.wiki 823315ac8eea22c60479b023895c5ae7872f8ccb
+F www/checkin.wiki 3bdc69b731d30ef5f0a31557f2aa07f187b11e03
 F www/checkin_names.wiki d6cc061f0d1c4b3f4e614239f4b6dfa00676efaa
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
-F www/cmd_add.wiki 18a01b12477009b67b3975c570a6dc7ae557a839
-F www/cmd_all.wiki ae2cdbfb64c1e6859e3d237f4f400583bf3d2302
+F www/cmd_add.wiki 234a66203bcf15d9b88f437c71f724acf518e45a
+F www/cmd_all.wiki c4a2506cfe9e9bb2ebcb400d3aabcb96ceedd0cc
 F www/cmd_cgi.wiki 89c3b9cdc5fdeef0560f63fecf6f8e3115487ec3
 F www/cmd_changes.wiki 86458abed3ae282b89305c872e88c3a9078d88a6
 F www/cmd_checkout.wiki 4f48d3f620856ae6c035dea65ebcae1a29e39018
-F www/cmd_extra.wiki ffbd0d5ce685c6ab7df2fd129b5b651cfb32ebc2
+F www/cmd_extra.wiki 5b5620b81d50b036c200cf4eaf43c99924f1ccc2
 F www/cmd_ls.wiki 421096bb587e540c44f08991990bf52e06f48415
 F www/cmd_mv.wiki 9e4a34eb8c37279fe0792a05d008e04a634b9864
 F www/cmd_new.wiki ba37188db8f11b51f3901506b4d673f94141c7d8
 F www/cmd_rm.wiki b96ff20fcfe6d9f7ba72d9d546f95fae5dfa5969
-F www/cmd_status.wiki ef339202a88c02fa3f2dcc4c59f13ffc2964112b
+F www/cmd_status.wiki c1fc9a0df106f1f5df4aeed3236d9ba07895af5b
 F www/cmd_sync.wiki 81c0b88996c8f62e3e810ee733275a85ff36ed4f
 F www/cmd_update.wiki c7cfffb36444eaaa62f62d33711f7e4ec7e9332a
 F www/cmd_version.wiki 6b980e208e7e48aa48104c497a898063bac68620
@@ -338,20 +338,20 @@ F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki ada72d48110b4c70a2fffffa32b354034760d6b3
-F www/inout.wiki 01d1dd12e8143038dea34e74d4d045b37bfd3320
+F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl a47f64d5c33f92b36aace6677bdd88843b8e3404
-F www/mkindex.tcl 29cd5ce47956b9714d310c5e0af45484062afba8
+F www/mkindex.tcl 3ba5310d0b63740ae68ade01fd5d88c80227b3ef
 F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki 827a8f22f1d71ea20421480fd7fe6f2b293b1492
+F www/permutedindex.wiki 6d899353514f73c41b4c2bde3a8576ae3e98ad91
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 3b877d274455a3e46816b8e1889adddcf271bd0d
 F www/quotes.wiki 5deaf1966801b130f717bec64f68239a3f6b3cb4
-F www/reference.wiki f9dcb97a7748bf6be04ddcb3e3955dbbf0cfa731
-F www/reviews.wiki 73094a4819d6d2956c8ad8e948290afbcecca08a
+F www/reference.wiki 3253cb5ee5453b16c96c2184f5ae82ab6cf5696d
+F www/reviews.wiki 77742df324c5dc19f5589d9ded2f178b1f75e525
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 34fcb9634e54a919be10b88d4c4664e62ddcf461
-R 300c12be8a3fff35a836607aa396e2fa
-U stephan
-Z 48e61740bbadf6936eda3ccf9257ea6d
+P f1c56bd31d0dfcd4df682ff11e24a868e8598ab6
+R 67637bed052d8f2647bcbb5b077ef6a2
+U jan.nijtmans
+Z 66a53de9bacfeb65a706fb55aac5dfc4
