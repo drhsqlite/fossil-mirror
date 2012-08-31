@@ -551,7 +551,7 @@ endif}
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
 	cp $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	cp $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
