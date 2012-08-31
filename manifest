@@ -1,5 +1,5 @@
-C upgrade\sdirent.h\sto\slatest\savailable\sversion\s(1.11)
-D 2012-08-30T19:29:41.666
+C More\sconsistancy\sin\shtml\sgeneration:\sUse\s'"'\swhere\spossible.
+D 2012-08-31T08:08:37.217
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c b9965a92b277e90bbb2759cf3348667e32622544
 F src/http_ssl.c ad601603ed61be8a1ef21d998ae36af1afb91bac
 F src/http_transport.c 6c84be29f46eb76a475a1f128397008a7eb1dbfa
 F src/import.c b61a6ef1cf35741be0372fcdba4993dc30a0369f
-F src/info.c 6edbd475b15d092f516505558749d6b91eab3262
+F src/info.c 50fbc5d8243025c56482a710442aaf0d3529061e
 F src/json.c de26dedcc89635f183c95257e8c86d89943be996
 F src/json_artifact.c 8ee2c03ef75ed4f2c2c015ff0805bfcbea9e074c
 F src/json_branch.c 00422d44d59ba2933163198c5ef374521aaf1173
@@ -148,14 +148,14 @@ F src/stash.c f19944790e34da776ceae87f5691429d098f40d0
 F src/stat.c 78196be5eb71bd202356614f268b04e9d19a4021
 F src/style.c 61b2a0124a939d3ba8900d6d1aa066c4a5650088
 F src/sync.c 9752811b1ce78471e7858156c7ffa307b8c448e3
-F src/tag.c 30cc5944f472da63128458917335c0e7c2b55d9b
+F src/tag.c c322b18ca0b0cb987581844670c7eba5a468877f
 F src/tar.c ed1d0b8c643c2139d670c6b8ff99b1ba76450256
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c 9e44f658af80de3ba239c262d4456eedc60cc43f
 F src/th_tcl.c 29dfaf88c33c11e6d4785c67893aed5618e1fe25
-F src/timeline.c db60f2aea3d5d968222ba51f7098c129fe005a3e
+F src/timeline.c 291615f1dd924abdae25ad23abd8fa6dcea47d1c
 F src/tkt.c d8e154b4462727b79b854e92811505fdc52f6601
 F src/tktsetup.c 73b73602c4c9e337d5ae02297af03f63931a685e
 F src/translate.c d0f351998c6f036011126ec7a13be7303dfa69c2
@@ -165,7 +165,7 @@ F src/url.c 65a050e80a4f4a45477df01b7fd2bc6dce671ced
 F src/user.c 7806375e668b072a8f914cc306a907feadc2a029
 F src/verify.c 281517d7e736e6ece4baba87a04af707208b460a
 F src/vfile.c a4c2a2d74b3a6fbfcf6a83f74e858fadbd2dd325
-F src/wiki.c e42252409610dc02bbedce27da373301a53412fd
+F src/wiki.c cd742c9a0929b809f253e0b80ea6010cc4783cd0
 F src/wikiformat.c bbf4c74d963dd4a85807b175a265e82b68ca7b38
 F src/winhttp.c b974e9da20104531796497aebb9498129a5d9a30
 F src/wysiwyg.c dc552bb5ea0eaf623ca531f2e074d2be359c7e84
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7c0f4ecadff7e11640275ff3d7df692558ea1e2f
-R 8d281b64c9ce6bed317456ae58aa10b5
+P fb07d8693efc99aad3e4a1f659850c4c071e7f71
+R fd3b851a3eb5345d5965269f555637ae
 U jan.nijtmans
-Z 9c4eec670c3ce021ab69c9a5ad74639c
+Z 8bbfd7257a9fdc2cf1cd2b279a124bf4
