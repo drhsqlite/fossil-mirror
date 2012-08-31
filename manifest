@@ -1,5 +1,5 @@
-C More\sconsistancy\sin\shtml\sgeneration:\sUse\s'"'\swhere\spossible.
-D 2012-08-31T08:08:37.217
+C Removed\ssome\svery\sold\sTODO\scomments\s(from\sme)\swhich\sjust\sclutter\sup\sthe\swiki\shelp\stext.
+D 2012-08-31T08:58:33.667
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -165,7 +165,7 @@ F src/url.c 65a050e80a4f4a45477df01b7fd2bc6dce671ced
 F src/user.c 7806375e668b072a8f914cc306a907feadc2a029
 F src/verify.c 281517d7e736e6ece4baba87a04af707208b460a
 F src/vfile.c a4c2a2d74b3a6fbfcf6a83f74e858fadbd2dd325
-F src/wiki.c cd742c9a0929b809f253e0b80ea6010cc4783cd0
+F src/wiki.c 729673cfa0168e66e80b102eca159fa8b39ba1ed
 F src/wikiformat.c bbf4c74d963dd4a85807b175a265e82b68ca7b38
 F src/winhttp.c b974e9da20104531796497aebb9498129a5d9a30
 F src/wysiwyg.c dc552bb5ea0eaf623ca531f2e074d2be359c7e84
@@ -366,7 +366,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fb07d8693efc99aad3e4a1f659850c4c071e7f71
-R fd3b851a3eb5345d5965269f555637ae
-U jan.nijtmans
-Z 8bbfd7257a9fdc2cf1cd2b279a124bf4
+P 34fcb9634e54a919be10b88d4c4664e62ddcf461
+R 300c12be8a3fff35a836607aa396e2fa
+U stephan
+Z 48e61740bbadf6936eda3ccf9257ea6d
