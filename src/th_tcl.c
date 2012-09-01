@@ -1,6 +1,6 @@
 /*
-** Copyright © 2011 D. Richard Hipp
-** Copyright © 2011 Joe Mistachkin
+** Copyright (c) 2011 D. Richard Hipp
+** Copyright (c) 2011 Joe Mistachkin
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also

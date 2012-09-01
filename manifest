@@ -1,5 +1,5 @@
-C Revert\schange\s[208d67675c].\s\sThe\spolicy\sis\sto\skeep\sthe\sFossil\ssource\scode\nASCII\seven\sif\sFossil\sitself\sis\sable\sto\shandle\snon-ASCII\ssource\sfiles.\nFurthermore,\sthe\s[208d67675c]\schange\sbroken\sthings.\s\sAlso\sbackout\nchange\s[34fcb9634e]\ssince\sit\scomplicates\sthe\sC\scode\swith\sunnecessary\nbackslash\scharacters\sin\sorder\sto\schanges\ssingle-quotes\sto\sdouble-quotes\nin\sthe\sgenerated\sHTML\sand\sJavascript,\swhich\sis\spointless.
-D 2012-08-31T20:46:09.911
+C Remove\sleftover\sinstances\sof\snon-ASCII\scharacters\sfrom\sseveral\sfiles.
+D 2012-09-01T04:45:05.697
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -85,8 +85,8 @@ F src/diffcmd.c 9bdfa7b5cc0cf1feda5e4d168bfb68f2b1adbe7c
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
-F src/export.c 33ae18edc879e5cd5ad81fa6b0993dcb8cd7a1cf
-F src/file.c b6832b2cc99b3c04c36efe3cd893f03cae7ed4d0
+F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
+F src/file.c 84de81811ce4b816baf96945ebfebb6ddd612094
 F src/finfo.c 65f708f825e18d62d6883662ed6298233de0eac7
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -95,7 +95,7 @@ F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c 2631435110221eb95905b168c0dadffcce71f53c
-F src/import.c b61a6ef1cf35741be0372fcdba4993dc30a0369f
+F src/import.c b79a02214ff8e3210b39c00135c9491351d700c5
 F src/info.c 8eb89d709ad8725a0ab96d8ee3cdbfdb143989e7
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
@@ -131,7 +131,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 8c51da410617e924f432f742aa73562f0d682b04
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
-F src/rebuild.c be4f27e4ee284b53cfbec082656846ab2c4f0a63
+F src/rebuild.c d266a029721dfad8bd0c33044097f609110a3379
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -154,7 +154,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 29dfaf88c33c11e6d4785c67893aed5618e1fe25
+F src/th_tcl.c fd12bc589b41e15f35146cbeafc48f02fa577234
 F src/timeline.c 9db44ce1717cdb1f3e9821e52ff206e8e2abf233
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -164,7 +164,7 @@ F src/update.c bee8c866be0d1820745041873508918b17c5e547
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c a4c2a2d74b3a6fbfcf6a83f74e858fadbd2dd325
+F src/vfile.c 97d67c8a8758fee2095a11ecd9139e2198245be9
 F src/wiki.c 2ae848ec1648ea2aa4ffc17a19e056f0a3057de5
 F src/wikiformat.c bd7addadb3c9e0a4b0ed93854bdfc2cdf730eee9
 F src/winhttp.c be9f4cc885de98a24b09202e725c99512c9434cb
@@ -351,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d1eb341f8020397940bcb14523c8543d5cfc8416
-R 5032f2d3cb5c8f27c8c3f7604937a0ab
-U drh
-Z 6dcd4e2eb6d96db2134d2d90012169ff
+P c19f34cb69fa4a2335e27245bf257f9af1969421
+R 1e254879e59bac26a3232cfff4ae7118
+U mistachkin
+Z 7f2b5c33f0b037213f576e6c1b061cd5
