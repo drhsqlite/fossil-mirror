@@ -167,7 +167,7 @@ void branch_new(void){
       "      branch.  To begin working on the new branch, do this:\n"
       "\n"
       "      %s update %s\n",
-      fossil_nameofexe(), zBranch
+      g.argv[0], zBranch
     );
   }
 

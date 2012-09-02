@@ -354,17 +354,10 @@ static void expand_args_option(int argc, char **argv){
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
-#ifdef _WIN32
-  wchar_t buf[MAX_PATH];
-#endif
 
   g.argc = argc;
   g.argv = argv;
-#ifdef _WIN32
-  GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.argv[0] = fossil_unicode_to_utf8(buf);
-  for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
-#endif
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -537,7 +530,17 @@ static int mainInFatalError = 0;
 ** Return the name of the current executable.
 */
 const char *fossil_nameofexe(void){
+#ifdef _WIN32
+  static const char *z = 0;
+  if (!z) {
+    wchar_t buf[MAX_PATH];
+    GetModuleFileNameW(NULL, buf, MAX_PATH);
+    z = fossil_unicode_to_utf8(buf);
+  }
+  return z;
+#else
   return g.argv[0];
+#endif
 }
 
 /*
@@ -576,8 +579,9 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
+      free(zOut);
     }
   }
   free(z);
@@ -608,8 +612,9 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
+      free(zOut);
     }
   }
   free(z);
@@ -649,7 +654,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else{
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
       free(zOut);
     }
@@ -675,7 +680,7 @@ void fossil_warning(const char *zFormat, ...){
     if( g.cgiOutput ){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
     }else{
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
       free(zOut);
     }
@@ -710,10 +715,14 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  char *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
-  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zMbcs);
-  rc = system(zMbcs);
-  fossil_mbcs_free(zMbcs);
+  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  if( g.fSystemTrace ) {
+    char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
+    fossil_puts(zOut, 1);
+    free(zOut);
+  }
+  rc = _wsystem(zUnicode);
+  fossil_mbcs_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
@@ -783,7 +792,7 @@ void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_fatal("Usage: %s %s %s\n", fossil_nameofexe(), g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
 }
 
 /*
@@ -944,7 +953,7 @@ void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc<3 ){
-    z = fossil_nameofexe();
+    z = g.argv[0];
     fossil_print(
       "Usage: %s help COMMAND\n"
       "Common COMMANDs:  (use \"%s help --all\" for a complete list)\n",
@@ -983,7 +992,7 @@ void help_cmd(void){
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      fossil_print("%s", fossil_nameofexe());
+      fossil_print("%s", g.argv[0]);
       z += 7;
     }else{
       putchar(*z);

@@ -1300,7 +1300,7 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   }
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
-    if( system(zBrowser)<0 ){
+    if( fossil_system(zBrowser)<0 ){
       fossil_warning("cannot start browser: %s\n", zBrowser);
     }
   }
