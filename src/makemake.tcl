@@ -538,10 +538,10 @@ writeln {
 #    exists, it is assumed that we are building inside of a Unix-style shell.
 #
 ifdef SHELL
-TRANSLATE   = $(OBJDIR)/translate.exe
-MAKEHEADERS = $(OBJDIR)/makeheaders.exe
-MKINDEX     = $(OBJDIR)/mkindex.exe
-VERSION     = $(OBJDIR)/version.exe
+TRANSLATE   = $(OBJDIR)/translate
+MAKEHEADERS = $(OBJDIR)/makeheaders
+MKINDEX     = $(OBJDIR)/mkindex
+VERSION     = $(OBJDIR)/version
 else
 TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
 MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
