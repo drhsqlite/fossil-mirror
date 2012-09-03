@@ -659,13 +659,12 @@ append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
+writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
-writeln "\techo Done >\$(OBJDIR)/headers"
-writeln ""
-writeln "\$(OBJDIR)/headers: Makefile"
-writeln "Makefile:"
+writeln "\techo Done >\$(OBJDIR)/headers\n"
+writeln "\$(OBJDIR)/headers: Makefile\n"
+writeln "Makefile:\n"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
 foreach s [lsort $src] {
@@ -700,8 +699,7 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln {ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif
-}
+endif}
 
 close $output_file
 #
