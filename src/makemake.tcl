@@ -337,6 +337,7 @@ writeln {#!/usr/bin/make
 #    By default, this is an empty string (i.e. use the native compiler).
 #
 PREFIX =
+# PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
 # PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
@@ -533,44 +534,60 @@ foreach s [lsort $src] {
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
 writeln {
-#### If the SHELL environment variable exists, it is assumed that we are
-#    building inside of a Unix-style shell; otherwise, it is assumed that
-#    we are building inside of a Windows-style shell.
+#### If the USE_WINDOWS variable exists, it is assumed that we are building
+#    inside of a Windows-style shell; otherwise, it is assumed that we are
+#    building inside of a Unix-style shell.
 #
-ifdef SHELL
+ifdef USE_WINDOWS
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
+VERSION     = $(subst /,\,$(OBJDIR)/version)
+CP          = copy
+MV          = move
+RM          = del /Q
+MKDIR       = mkdir
+RMDIR       = rmdir /S /Q
+else
 TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
 CP          = cp
 MV          = mv
-RM          = rm -rf
+RM          = rm -f
 MKDIR       = mkdir -p
-else
-TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate)
-MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders)
-MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex)
-VERSION     = $(subst /,\\,$(OBJDIR)/version)
-CP          = copy
-MV          = move
-RM          = del /S /Q
-MKDIR       = mkdir
+RMDIR       = rm -rf
 endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+ifdef USE_WINDOWS
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+else
 	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
 	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
 install:	$(APPNAME)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(INSTALLDIR))
+	$(MV) $(APPNAME) $(subst /,\,$(INSTALLDIR))
+else
 	$(MKDIR) $(INSTALLDIR)
 	$(MV) $(APPNAME) $(INSTALLDIR)
+endif
 
 $(OBJDIR):
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(OBJDIR))
+else
 	$(MKDIR) $(OBJDIR)
+endif
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
 	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
@@ -618,11 +635,16 @@ $(SRCDIR)/../manifest:
 # but a MSDOS-shell builtin.
 #
 clean:
-	$(RM) $(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(RM) $(subst /,\,$(APPNAME))
+	$(RMDIR) $(subst /,\,$(OBJDIR))
+else
+	$(RM) $(APPNAME)
+	$(RMDIR) $(OBJDIR)
+endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./fossil.nsi
-
 }
 
 set mhargs {}
