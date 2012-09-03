@@ -549,7 +549,7 @@ VERSION     = $(subst /,\,$(OBJDIR)/version)
 CP          = copy
 MV          = copy
 RM          = del /Q
-MKDIR       = mkdir
+MKDIR       = -mkdir
 RMDIR       = rmdir /S /Q
 else
 TRANSLATE   = $(OBJDIR)/translate
@@ -559,7 +559,7 @@ VERSION     = $(OBJDIR)/version
 CP          = cp
 MV          = mv
 RM          = rm -f
-MKDIR       = mkdir -p
+MKDIR       = -mkdir -p
 RMDIR       = rm -rf
 endif}
 
