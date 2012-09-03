@@ -313,7 +313,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.mingw
+# Begin win/Makefile.mingw output
 #
 puts "building ../win/Makefile.mingw"
 set output_file [open ../win/Makefile.mingw w]
@@ -543,10 +543,10 @@ MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
 else
-TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate.exe)
-MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders.exe)
-MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex.exe)
-VERSION     = $(subst /,\\,$(OBJDIR)/version.exe)
+TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate)
+MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders)
+MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex)
+VERSION     = $(subst /,\\,$(OBJDIR)/version)
 endif}
 
 writeln {
@@ -640,7 +640,7 @@ foreach s [lsort $src] {
   writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
 
@@ -672,11 +672,11 @@ endif
 
 close $output_file
 #
-# End of the main.mk output
+# End of the win/Makefile.mingw output
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.dmc
+# Begin win/Makefile.dmc output
 #
 puts "building ../win/Makefile.dmc"
 set output_file [open ../win/Makefile.dmc w]
@@ -827,7 +827,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.msc
+# Begin win/Makefile.msc output
 #
 puts "building ../win/Makefile.msc"
 set output_file [open ../win/Makefile.msc w]
@@ -987,7 +987,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.PellesCGMake
+# Begin win/Makefile.PellesCGMake output
 #
 puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]
