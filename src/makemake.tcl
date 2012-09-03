@@ -533,36 +533,44 @@ foreach s [lsort $src] {
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
 writeln {
-#### Attempt to determine if this is the actual MSYS shell.  If so, we need to
-#    use forward slashes for correctness.  If the SHELL environment variable
-#    exists, it is assumed that we are building inside of a Unix-style shell.
+#### If the SHELL environment variable exists, it is assumed that we are
+#    building inside of a Unix-style shell; otherwise, it is assumed that
+#    we are building inside of a Windows-style shell.
 #
 ifdef SHELL
 TRANSLATE   = $(OBJDIR)/translate
 MAKEHEADERS = $(OBJDIR)/makeheaders
 MKINDEX     = $(OBJDIR)/mkindex
 VERSION     = $(OBJDIR)/version
+CP          = cp
+MV          = mv
+RM          = rm -rf
+MKDIR       = mkdir -p
 else
 TRANSLATE   = $(subst /,\\,$(OBJDIR)/translate)
 MAKEHEADERS = $(subst /,\\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\\,$(OBJDIR)/version)
+CP          = copy
+MV          = move
+RM          = del /S /Q
+MKDIR       = mkdir
 endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
 $(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
-	cp $(SRCDIR)/../win/fossil.rc $(OBJDIR)
-	cp $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
 install:	$(APPNAME)
-	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+	$(MKDIR) $(INSTALLDIR)
+	$(MV) $(APPNAME) $(INSTALLDIR)
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+	$(MKDIR) $(OBJDIR)
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
 	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
@@ -610,7 +618,7 @@ $(SRCDIR)/../manifest:
 # but a MSDOS-shell builtin.
 #
 clean:
-	rm -rf $(OBJDIR) $(APPNAME)
+	$(RM) $(OBJDIR) $(APPNAME)
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./fossil.nsi
