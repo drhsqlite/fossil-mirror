@@ -536,7 +536,10 @@ writeln "APPNAME = ${name}.exe"
 writeln {
 #### If the USE_WINDOWS variable exists, it is assumed that we are building
 #    inside of a Windows-style shell; otherwise, it is assumed that we are
-#    building inside of a Unix-style shell.
+#    building inside of a Unix-style shell.  Note that the "move" command is
+#    broken when attempting to use it from the Windows shell via MinGW make
+#    because the SHELL variable is only used for certain commands that are
+#    recognized internally by make.
 #
 ifdef USE_WINDOWS
 TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
@@ -544,7 +547,7 @@ MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
 MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
 VERSION     = $(subst /,\,$(OBJDIR)/version)
 CP          = copy
-MV          = move
+MV          = copy
 RM          = del /Q
 MKDIR       = mkdir
 RMDIR       = rmdir /S /Q
@@ -573,10 +576,10 @@ else
 endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
-install:	$(APPNAME)
+install:	$(OBJDIR) $(APPNAME)
 ifdef USE_WINDOWS
 	$(MKDIR) $(subst /,\,$(INSTALLDIR))
-	$(MV) $(APPNAME) $(subst /,\,$(INSTALLDIR))
+	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
 else
 	$(MKDIR) $(INSTALLDIR)
 	$(MV) $(APPNAME) $(INSTALLDIR)
