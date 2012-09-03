@@ -633,10 +633,6 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 $(SRCDIR)/../manifest:
 	# noop
 
-# Requires MSYS to be installed in addition to the MinGW, for the "rm"
-# command.  "del" will not work here because it is not a separate command
-# but a MSDOS-shell builtin.
-#
 clean:
 ifdef USE_WINDOWS
 	$(RM) $(subst /,\,$(APPNAME))
