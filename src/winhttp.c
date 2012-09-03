@@ -69,14 +69,14 @@ static void win32_process_one_http_request(void *pAppData){
   int amt, got;
   int wanted = 0;
   char *z;
-  char zRequestFName[100];
-  char zReplyFName[100];
+  char zRequestFName[MAX_PATH];
+  char zReplyFName[MAX_PATH];
   char zCmd[2000];          /* Command-line to process the request */
   char zHdr[2000];          /* The HTTP request header */
 
-  sqlite3_snprintf(sizeof(zRequestFName), zRequestFName,
+  sqlite3_snprintf(MAX_PATH, zRequestFName,
                    "%s_in%d.txt", zTempPrefix, p->id);
-  sqlite3_snprintf(sizeof(zReplyFName), zReplyFName,
+  sqlite3_snprintf(MAX_PATH, zReplyFName,
                    "%s_out%d.txt", zTempPrefix, p->id);
   amt = 0;
   while( amt<sizeof(zHdr) ){
@@ -193,10 +193,10 @@ void win32_http_server(
                    " port in the range %d..%d", mnPort, mxPort);
     }
   }
-  if( !GetTempPath(sizeof(zTmpPath), zTmpPath) ){
+  if( !GetTempPath(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_", zTmpPath, iPort);
+  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_mbcs_to_utf8(zTmpPath), iPort);
   fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
