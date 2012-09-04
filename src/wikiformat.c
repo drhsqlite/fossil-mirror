@@ -1051,7 +1051,8 @@ static void openHyperlink(
   Renderer *p,            /* Rendering context */
   const char *zTarget,    /* Hyperlink traget; text within [...] */
   char *zClose,           /* Write hyperlink closing text here */
-  int nClose              /* Bytes available in zClose[] */
+  int nClose,             /* Bytes available in zClose[] */
+  const char *zOrig       /* Complete document text */
 ){
   const char *zTerm = "</a>";
   assert( nClose>=20 );
@@ -1113,6 +1114,10 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
   }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
+  }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
+    /* Probably an array subscript in code */
+    blob_appendf(p->pOut, "[");
+    zTerm = "]";
   }else{
     blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
@@ -1156,6 +1161,7 @@ static void wiki_render(Renderer *p, char *z){
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
   int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
+  char *zOrig = z;
 
   /* Make sure the attribute constants and names still align
   ** following changes in the attribute list. */
@@ -1291,7 +1297,7 @@ static void wiki_render(Renderer *p, char *z){
         }else{
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
-        openHyperlink(p, zTarget, zClose, sizeof(zClose));
+        openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
         savedState = p->state;
         p->state &= ~ALLOW_WIKI;
         p->state |= FONT_MARKUP_ONLY;
