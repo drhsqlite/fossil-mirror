@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -1208,7 +1208,7 @@ void page_xfer(void){
   if( isClone && nGimme==0 ){
     /* The initial "clone" message from client to server contains no
     ** "gimme" cards. On that initial message, send the client an "igot"
-    ** card for every artifact currently in the respository.  This will
+    ** card for every artifact currently in the repository.  This will
     ** cause the client to create phantoms for all artifacts, which will
     ** in turn make sure that the entire repository is sent efficiently
     ** and expeditiously.

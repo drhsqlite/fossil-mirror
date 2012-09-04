@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -357,7 +357,7 @@ void brlist_page(void){
     if( colorTest ){
       const char *zColor = hash_color(zBr);
       @ <li><span style="background-color: %s(zColor)">
-      @ %h(zBr) → %s(zColor)</span></li>
+      @ %h(zBr) &rarr; %s(zColor)</span></li>
     }else{
       @ <li>%z(href("%R/timeline?r=%T",zBr))%h(zBr)</a></li>
     }

@@ -1,5 +1,5 @@
 /*
-** Copyright © 2009 D. Richard Hipp
+** Copyright (c) 2009 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -478,7 +478,7 @@ char *transport_receive_line(void){
 
 void transport_global_shutdown(void){
   if( g.urlIsSsh && sshPid ){
-    printf("Closing SSH tunnel: ");
+    /*printf("Closing SSH tunnel: ");*/
     fflush(stdout);
     pclose2(sshIn, sshOut, sshPid);
     sshPid = 0;

@@ -2,7 +2,7 @@
 #if !defined(FOSSIL_JSON_DETAIL_H_INCLUDED)
 #define FOSSIL_JSON_DETAIL_H_INCLUDED
 /*
-** Copyright © 2011 D. Richard Hipp
+** Copyright (c) 2011 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also

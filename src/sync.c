@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -31,7 +31,7 @@
 #endif /* INTERFACE */
 
 /*
-** If the respository is configured for autosyncing, then do an
+** If the repository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
 ** if the argument is false.
 **
@@ -116,7 +116,7 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
     usage("URL");
   }
   url_parse(zUrl);
-  if( g.urlUser!=0 && g.urlPasswd==0 ){
+  if( g.urlUser!=0 && g.urlPasswd==0 && g.urlIsSsh==0 ){
     if( zPw==0 ){
       url_prompt_for_password();
     }else{
@@ -263,7 +263,7 @@ void remote_url_cmd(void){
       db_unset("last-sync-pw", 0);
     }else{
       url_parse(g.argv[2]);
-      if( g.urlUser && g.urlPasswd==0 ){
+      if( g.urlUser && g.urlPasswd==0 && g.urlIsSsh==0 ){
         url_prompt_for_password();
       }
       db_set("last-sync-url", g.urlCanonical, 0);

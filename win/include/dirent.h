@@ -22,6 +22,28 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
+ * Aug 30, 2012, Jan Nijtmans
+ * Remove rewinddir() (not necessary for fossil)
+ * Replace everything with its wide-character variant.
+ *
+ * Mar 15, 2011, Toni Ronkko
+ * Defined FILE_ATTRIBUTE_DEVICE for MSVC 6.0.
+ *
+ * Aug 11, 2010, Toni Ronkko
+ * Added d_type and d_namlen fields to dirent structure.  The former is
+ * especially useful for determining whether directory entry represents a
+ * file or a directory.  For more information, see
+ * http://www.delorie.com/gnu/docs/glibc/libc_270.html
+ *
+ * Aug 11, 2010, Toni Ronkko
+ * Improved conformance to the standards.  For example, errno is now set
+ * properly on failure and assert() is never used.  Thanks to Peter Brockam
+ * for suggestions.
+ *
+ * Aug 11, 2010, Toni Ronkko
+ * Fixed a bug in rewinddir(): when using relative directory names, change
+ * of working directory no longer causes rewinddir() to fail.
+ *
  * Dec 15, 2009, John Cunningham
  * Added rewinddir member function
  *
@@ -58,38 +80,117 @@
 #ifndef DIRENT_H
 #define DIRENT_H
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <string.h>
-#include <assert.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+
+/* Entries missing from MSVC 6.0 */
+#if !defined(FILE_ATTRIBUTE_DEVICE)
+# define FILE_ATTRIBUTE_DEVICE 0x40
+#endif
+
+/* File type and permission flags for stat() */
+#if defined(_MSC_VER)  &&  !defined(S_IREAD)
+# define S_IFMT   _S_IFMT                      /* file type mask */
+# define S_IFDIR  _S_IFDIR                     /* directory */
+# define S_IFCHR  _S_IFCHR                     /* character device */
+# define S_IFFIFO _S_IFFIFO                    /* pipe */
+# define S_IFREG  _S_IFREG                     /* regular file */
+# define S_IREAD  _S_IREAD                     /* read permission */
+# define S_IWRITE _S_IWRITE                    /* write permission */
+# define S_IEXEC  _S_IEXEC                     /* execute permission */
+#endif
+#define S_IFBLK   0                            /* block device */
+#define S_IFLNK   0                            /* link */
+#define S_IFSOCK  0                            /* socket */
+
+#if defined(_MSC_VER)
+# define S_IRUSR  S_IREAD                      /* read, user */
+# define S_IWUSR  S_IWRITE                     /* write, user */
+# define S_IXUSR  0                            /* execute, user */
+# define S_IRGRP  0                            /* read, group */
+# define S_IWGRP  0                            /* write, group */
+# define S_IXGRP  0                            /* execute, group */
+# define S_IROTH  0                            /* read, others */
+# define S_IWOTH  0                            /* write, others */
+# define S_IXOTH  0                            /* execute, others */
+#endif
+
+/* Indicates that d_type field is available in dirent structure */
+#define _DIRENT_HAVE_D_TYPE
+
+/* File type flags for d_type */
+#define DT_UNKNOWN  0
+#define DT_REG      S_IFREG
+#define DT_DIR      S_IFDIR
+#define DT_FIFO     S_IFFIFO
+#define DT_SOCK     S_IFSOCK
+#define DT_CHR      S_IFCHR
+#define DT_BLK      S_IFBLK
+
+/* Macros for converting between st_mode and d_type */
+#define IFTODT(mode) ((mode) & S_IFMT)
+#define DTTOIF(type) (type)
+
+/*
+ * File type macros.  Note that block devices, sockets and links cannot be
+ * distinguished on Windows and the macros S_ISBLK, S_ISSOCK and S_ISLNK are
+ * only defined for compatibility.  These macros should always return false
+ * on Windows.
+ */
+#define	S_ISFIFO(mode) (((mode) & S_IFMT) == S_IFFIFO)
+#define	S_ISDIR(mode)  (((mode) & S_IFMT) == S_IFDIR)
+#define	S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
+#define	S_ISLNK(mode)  (((mode) & S_IFMT) == S_IFLNK)
+#define	S_ISSOCK(mode) (((mode) & S_IFMT) == S_IFSOCK)
+#define	S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
+#define	S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 typedef struct _wdirent
 {
-   wchar_t d_name[MAX_PATH + 1]; /* current dir entry (unicode char string) */
-   WIN32_FIND_DATAW data;     /* file attributes */
-}  _wdirent;
+   wchar_t d_name[MAX_PATH + 1];               /* File name */
+   size_t d_namlen;                            /* Length of name without \0 */
+   int d_type;                                 /* File type */
+} _wdirent;
 
 
 typedef struct _WDIR
 {
-   _wdirent current;            /* Current directory entry */
-   int    cached;             /* Indicates un-processed entry in memory */
-   HANDLE search_handle;      /* File search handle */
-   wchar_t   patt[MAX_PATH + 3]; /* search pattern (3 = pattern + "\\*\0") */
+   _wdirent         curentry;                  /* Current directory entry */
+   WIN32_FIND_DATAW find_data;                 /* Private file data */
+   int              cached;                    /* True if data is valid */
+   HANDLE           search_handle;             /* Win32 search handle */
+   wchar_t          patt[MAX_PATH + 3];        /* Initial directory name */
 } _WDIR;
 
 
 /* Forward declarations */
-static _WDIR *_wopendir (const wchar_t *dirname);
-static struct _wdirent *_wreaddir (_WDIR *dirp);
-static int _wclosedir (_WDIR *dirp);
+static _WDIR *_wopendir(const wchar_t *dirname);
+static struct _wdirent *_wreaddir(_WDIR *dirp);
+static int _wclosedir(_WDIR *dirp);
 
 
 /* Use the new safe string functions introduced in Visual Studio 2005 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-# define STRNCPY(dest,src,size) wcsncpy_s((dest),(size),(src),_TRUNCATE)
+# define DIRENT_STRNCPY(dest,src,size) wcsncpy_s((dest),(size),(src),_TRUNCATE)
 #else
-# define STRNCPY(dest,src,size) wcsncpy((dest),(src),(size))
+# define DIRENT_STRNCPY(dest,src,size) wcsncpy((dest),(src),(size))
+#endif
+
+/* Set errno variable */
+#if defined(_MSC_VER)
+#define DIRENT_SET_ERRNO(x) _set_errno (x)
+#else
+#define DIRENT_SET_ERRNO(x) (errno = (x))
 #endif
 
 
@@ -101,36 +202,59 @@ static int _wclosedir (_WDIR *dirp);
 static _WDIR *_wopendir(const wchar_t *dirname)
 {
    _WDIR *dirp;
-   assert (dirname != NULL);
-   assert (wcslen (dirname) < MAX_PATH);
 
-   /* construct new _WDIR structure */
+   /* ensure that the resulting search pattern will be a valid file name */
+   if (dirname == NULL) {
+      DIRENT_SET_ERRNO (ENOENT);
+      return NULL;
+   }
+   if (wcslen (dirname) + 3 >= MAX_PATH) {
+      DIRENT_SET_ERRNO (ENAMETOOLONG);
+      return NULL;
+   }
+
+   /* construct new DIR structure */
    dirp = (_WDIR*) malloc (sizeof (struct _WDIR));
    if (dirp != NULL) {
-      wchar_t *p;
+      int error;
 
-      /* take directory name... */
-      STRNCPY (dirp->patt, dirname, sizeof(dirp->patt));
-      dirp->patt[MAX_PATH] = '\0';
+      /*
+       * Convert relative directory name to an absolute one.  This
+       * allows rewinddir() to function correctly when the current working
+       * directory is changed between opendir() and rewinddir().
+       */
+      if (GetFullPathNameW (dirname, MAX_PATH, dirp->patt, NULL)) {
+         wchar_t *p;
 
-      /* ... and append search pattern to it */
-      p = wcschr (dirp->patt, '\0');
-      if (dirp->patt < p  &&  *(p-1) != '\\'  &&  *(p-1) != ':') {
-         *p++ = '\\';
+         /* append the search pattern "\\*\0" to the directory name */
+         p = wcschr (dirp->patt, '\0');
+         if (dirp->patt < p  &&  *(p-1) != '\\'  &&  *(p-1) != ':') {
+           *p++ = '\\';
+         }
+         *p++ = '*';
+         *p = '\0';
+
+         /* open directory stream and retrieve the first entry */
+         dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->find_data);
+         if (dirp->search_handle != INVALID_HANDLE_VALUE) {
+            /* a directory entry is now waiting in memory */
+            dirp->cached = 1;
+            error = 0;
+         } else {
+            /* search pattern is not a directory name? */
+            DIRENT_SET_ERRNO (ENOENT);
+            error = 1;
+         }
+      } else {
+         /* buffer too small */
+         DIRENT_SET_ERRNO (ENOMEM);
+         error = 1;
       }
-      *p++ = '*';
-      *p = '\0';
 
-      /* open stream and retrieve first file */
-      dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->current.data);
-      if (dirp->search_handle == INVALID_HANDLE_VALUE) {
-         /* invalid search pattern? */
+      if (error) {
          free (dirp);
-         return NULL;
+         dirp = NULL;
       }
-
-      /* there is an un-processed directory entry in memory now */
-      dirp->cached = 1;
    }
 
    return dirp;
@@ -146,10 +270,10 @@ static _WDIR *_wopendir(const wchar_t *dirname)
  */
 static struct _wdirent *_wreaddir(_WDIR *dirp)
 {
-   assert (dirp != NULL);
-
-   if (dirp->search_handle == INVALID_HANDLE_VALUE) {
-      /* directory stream was opened/rewound incorrectly or ended normally */
+   DWORD attr;
+   if (dirp == NULL) {
+      /* directory stream did not open */
+      DIRENT_SET_ERRNO (EBADF);
       return NULL;
    }
 
@@ -158,22 +282,37 @@ static struct _wdirent *_wreaddir(_WDIR *dirp)
       /* a valid directory entry already in memory */
       dirp->cached = 0;
    } else {
-      /* read next directory entry from disk */
-      if (FindNextFileW (dirp->search_handle, &dirp->current.data) == FALSE) {
-         /* the very last file has been processed or an error occured */
+      /* get the next directory entry from stream */
+      if (dirp->search_handle == INVALID_HANDLE_VALUE) {
+         return NULL;
+      }
+      if (FindNextFileW (dirp->search_handle, &dirp->find_data) == FALSE) {
+         /* the very last entry has been processed or an error occured */
          FindClose (dirp->search_handle);
          dirp->search_handle = INVALID_HANDLE_VALUE;
          return NULL;
       }
    }
 
-   /* copy as a multibyte character string */
-   STRNCPY ( dirp->current.d_name,
-             dirp->current.data.cFileName,
-             sizeof(dirp->current.d_name) );
-   dirp->current.d_name[MAX_PATH] = '\0';
+   /* copy as a unicode character string */
+   DIRENT_STRNCPY ( dirp->curentry.d_name,
+             dirp->find_data.cFileName,
+             sizeof(dirp->curentry.d_name)/sizeof(dirp->curentry.d_name[0]) );
+   dirp->curentry.d_name[MAX_PATH] = '\0';
 
-   return &dirp->current;
+   /* compute the length of name */
+   dirp->curentry.d_namlen = wcslen (dirp->curentry.d_name);
+
+   /* determine file type */
+   attr = dirp->find_data.dwFileAttributes;
+   if ((attr & FILE_ATTRIBUTE_DEVICE) != 0) {
+      dirp->curentry.d_type = DT_CHR;
+   } else if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+      dirp->curentry.d_type = DT_DIR;
+   } else {
+      dirp->curentry.d_type = DT_REG;
+   }
+   return &dirp->curentry;
 }
 
 
@@ -184,7 +323,11 @@ static struct _wdirent *_wreaddir(_WDIR *dirp)
  */
 static int _wclosedir(_WDIR *dirp)
 {
-   assert (dirp != NULL);
+   if (dirp == NULL) {
+      /* invalid directory stream */
+      DIRENT_SET_ERRNO (EBADF);
+      return -1;
+   }
 
    /* release search handle */
    if (dirp->search_handle != INVALID_HANDLE_VALUE) {
@@ -192,9 +335,13 @@ static int _wclosedir(_WDIR *dirp)
       dirp->search_handle = INVALID_HANDLE_VALUE;
    }
 
-   /* release directory handle */
+   /* release directory structure */
    free (dirp);
    return 0;
 }
 
+
+#ifdef __cplusplus
+}
+#endif
 #endif /*DIRENT_H*/

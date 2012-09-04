@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -182,7 +182,7 @@ void merge_cmd(void){
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
   }
-  if( !forceFlag && (mid==pid || vid==pid || mid==vid) ){
+  if( !forceFlag && mid==pid ){
     fossil_print("Merge skipped because it is a no-op. "
                  " Use --force to override.\n");
     return;

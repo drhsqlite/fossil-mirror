@@ -1,6 +1,6 @@
 /*
-** Copyright © 2007 D. Richard Hipp
-** Copyright © 2008 Stephan Beal
+** Copyright (c) 2007 D. Richard Hipp
+** Copyright (c) 2008 Stephan Beal
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -827,7 +827,7 @@ void wikirules_page(void){
 }
 
 /*
-** Add a new wiki page to the respository.  The page name is
+** Add a new wiki page to the repository.  The page name is
 ** given by the zPageName parameter.  isNew must be true to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
@@ -917,26 +917,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **        Lists all wiki entries, one per line, ordered
 **        case-insentively by name.
 **
-** TODOs:
-**
-**     %fossil wiki export ?-u ARTIFACT? WikiName ?FILE?
-**
-**        Outputs the selected version of WikiName.
-**
-**     %fossil wiki delete ?-m MESSAGE? WikiName
-**
-**        The same as deleting a file entry, but i don't know if fossil
-**        supports a commit message for Wiki entries.
-**
-**     %fossil wiki ?-u? ?-d? ?-s=[|]? list
-**
-**        Lists the artifact ID and/or Date of last change along with
-**        each entry name, delimited by the -s char.
-**
-**     %fossil wiki diff ?ARTIFACT? ?-f infile[=stdin]? EntryName
-**
-**        Diffs the local copy of a page with a given version (defaulting
-**        to the head version).
 */
 void wiki_cmd(void){
   int n;

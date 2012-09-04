@@ -1,5 +1,5 @@
 /*
-** Copyright © 2006 D. Richard Hipp
+** Copyright (c) 2006 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -355,13 +355,13 @@ static void expand_args_option(int argc, void *argv){
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
 #ifdef _WIN32
-  wchar_t buf[PATH_MAX];
+  wchar_t buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
-  GetModuleFileNameW(NULL, buf, PATH_MAX);
+  GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
 #ifdef UNICODE
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
@@ -1573,7 +1573,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
 ** a check-out and the repository to be served is the repository of
 ** that check-out.
 **
-** Open the respository to be served if it is known.  If g.argv[2] is
+** Open the repository to be served if it is known.  If g.argv[2] is
 ** a directory full of repositories, then set g.zRepositoryName to
 ** the name of that directory and the specific repository will be
 ** opened later by process_one_web_page() based on the content of
@@ -1609,7 +1609,7 @@ static void find_server_repository(int disallowDir){
 ** handler from inetd, for example.  The argument is the name of the 
 ** repository.
 **
-** If REPOSITORY is a directory that contains one or more respositories
+** If REPOSITORY is a directory that contains one or more repositories
 ** with names of the form "*.fossil" then the first element of the URL
 ** pathname selects among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
@@ -1725,7 +1725,7 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
-** that contains one or more respositories with names ending in ".fossil".
+** that contains one or more rspositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
 **

@@ -1,5 +1,5 @@
 /*
-** Copyright © 2008 D. Richard Hipp
+** Copyright (c) 2008 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -79,7 +79,7 @@ static char *quoteFilename(const char *zFilename){
 **
 **    sync       Run a "sync" on all repositories
 **
-** Respositories are automatically added to the set of known repositories
+** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository: clone,
 ** info, pull, push, or sync.  Even previously ignored repositories are
 ** added back to the list of repositories by these commands.

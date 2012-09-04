@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -1192,7 +1192,7 @@ static void wiki_render(Renderer *p, char *z){
       }
       case TOKEN_BUL_LI: {
         if( inlineOnly ){
-          blob_append(p->pOut, " • ", -1);
+          blob_append(p->pOut, " &bull; ", -1);
         }else{
           if( p->wikiList!=MARKUP_UL ){
             if( p->wikiList ){
@@ -1412,14 +1412,14 @@ static void wiki_render(Renderer *p, char *z){
             if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[0].zValue;
             }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name=\"code\" class=\"%s\">",
+              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
                 markup.aAttr[vAttrIdx].zValue);
               vAttrDidAppend=1;
             }
           }
           if( !vAttrDidAppend ) {
             endAutoParagraph(p);
-            blob_append(p->pOut, "<pre class=\"verbatim\">",-1);
+            blob_append(p->pOut, "<pre class='verbatim'>",-1);
           }
           p->wantAutoParagraph = 0;
         }else

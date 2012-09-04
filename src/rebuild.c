@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -747,7 +747,7 @@ void test_clusters_cmd(void){
 ** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
-** repository so that the respository can be sent to an untrusted reader.
+** repository so that the repository can be sent to an untrusted reader.
 **
 ** By default, only passwords are removed.  However, if the --verily option
 ** is added, then private branches, concealed email addresses, IP

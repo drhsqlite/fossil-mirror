@@ -313,7 +313,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.mingw
+# Begin win/Makefile.mingw output
 #
 puts "building ../win/Makefile.mingw"
 set output_file [open ../win/Makefile.mingw w]
@@ -337,6 +337,7 @@ writeln {#!/usr/bin/make
 #    By default, this is an empty string (i.e. use the native compiler).
 #
 PREFIX =
+# PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
 # PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
@@ -532,26 +533,64 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(OBJDIR)/translate.exe
-MAKEHEADERS = $(OBJDIR)/makeheaders.exe
-MKINDEX     = $(OBJDIR)/mkindex.exe
-VERSION     = $(OBJDIR)/version.exe
-}
+writeln {
+#### If the USE_WINDOWS variable exists, it is assumed that we are building
+#    inside of a Windows-style shell; otherwise, it is assumed that we are
+#    building inside of a Unix-style shell.  Note that the "move" command is
+#    broken when attempting to use it from the Windows shell via MinGW make
+#    because the SHELL variable is only used for certain commands that are
+#    recognized internally by make.
+#
+ifdef USE_WINDOWS
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
+VERSION     = $(subst /,\,$(OBJDIR)/version)
+CP          = copy
+MV          = copy
+RM          = del /Q
+MKDIR       = -mkdir
+RMDIR       = rmdir /S /Q
+else
+TRANSLATE   = $(OBJDIR)/translate
+MAKEHEADERS = $(OBJDIR)/makeheaders
+MKINDEX     = $(OBJDIR)/mkindex
+VERSION     = $(OBJDIR)/version
+CP          = cp
+MV          = mv
+RM          = rm -f
+MKDIR       = -mkdir -p
+RMDIR       = rm -rf
+endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc
-	cp $(SRCDIR)/../win/fossil.rc $(OBJDIR)
-	cp $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+ifdef USE_WINDOWS
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+else
+	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+endif
 	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
-install:	$(APPNAME)
-	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+install:	$(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(INSTALLDIR))
+	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+else
+	$(MKDIR) $(INSTALLDIR)
+	$(MV) $(APPNAME) $(INSTALLDIR)
+endif
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(OBJDIR))
+else
+	$(MKDIR) $(OBJDIR)
+endif
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
 	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
@@ -594,16 +633,17 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
 $(SRCDIR)/../manifest:
 	# noop
 
-# Requires MSYS to be installed in addition to the MinGW, for the "rm"
-# command.  "del" will not work here because it is not a separate command
-# but a MSDOS-shell builtin.
-#
 clean:
-	rm -rf $(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(RM) $(subst /,\,$(APPNAME))
+	$(RMDIR) $(subst /,\,$(OBJDIR))
+else
+	$(RM) $(APPNAME)
+	$(RMDIR) $(OBJDIR)
+endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./fossil.nsi
-
 }
 
 set mhargs {}
@@ -615,13 +655,12 @@ append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
+writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
-writeln "\techo Done >\$(OBJDIR)/headers"
-writeln ""
-writeln "\$(OBJDIR)/headers: Makefile"
-writeln "Makefile:"
+writeln "\techo Done >\$(OBJDIR)/headers\n"
+writeln "\$(OBJDIR)/headers: Makefile\n"
+writeln "Makefile:\n"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
 foreach s [lsort $src] {
@@ -629,7 +668,7 @@ foreach s [lsort $src] {
   writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
 
@@ -656,16 +695,15 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln {ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif
-}
+endif}
 
 close $output_file
 #
-# End of the main.mk output
+# End of the win/Makefile.mingw output
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.dmc
+# Begin win/Makefile.dmc output
 #
 puts "building ../win/Makefile.dmc"
 set output_file [open ../win/Makefile.dmc w]
@@ -816,7 +854,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.msc
+# Begin win/Makefile.msc output
 #
 puts "building ../win/Makefile.msc"
 set output_file [open ../win/Makefile.msc w]
@@ -976,7 +1014,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.PellesCGMake
+# Begin win/Makefile.PellesCGMake output
 #
 puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]

@@ -5,9 +5,9 @@ check-in or commit to the Fossil repository:</h2>
 
 Before every check-in:
 
-  0.   <b>fossil user default</b> &rarr; your username is correct.
+  0.   <b>fossil user default</b> → your username is correct.
 
-  1.   <b>fossil diff</b> &rarr;
+  1.   <b>fossil diff</b> →
        <ol type="a">
        <li> No stray changes
        <li> All changes comply with the license
@@ -15,10 +15,10 @@ Before every check-in:
        <li> No injection attacks via %s formats
        </ol>
 
-  2.   <b>fossil extra</b> &rarr; no unmanaged files need to be added.
+  2.   <b>fossil extra</b> → no unmanaged files need to be added.
 
   3.   The check-in will go onto the desired branch.
-       &rarr;  Do <u>not</u> check into trunk without prior approval from
+       →  Do <u>not</u> check into trunk without prior approval from
        the lead programmer (drh)!
 
   4.   auto-sync is on, or the system clock is verified

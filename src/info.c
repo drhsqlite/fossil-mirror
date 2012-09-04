@@ -1,5 +1,5 @@
 /*
-** Copyright © 2007 D. Richard Hipp
+** Copyright (c) 2007 D. Richard Hipp
 **
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
@@ -163,7 +163,7 @@ static void extraRepoInfo(void){
 **
 ** With no arguments, provide information about the current tree.
 ** If an argument is specified, provide information about the object
-** in the respository of the current tree that the argument refers
+** in the repository of the current tree that the argument refers
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
 **
