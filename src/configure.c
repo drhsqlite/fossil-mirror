@@ -29,13 +29,14 @@
 ** Configuration transfers occur in groups.  These are the allowed
 ** groupings:
 */
-#define CONFIGSET_SKIN      0x000001     /* WWW interface appearance */
-#define CONFIGSET_TKT       0x000002     /* Ticket configuration */
-#define CONFIGSET_PROJ      0x000004     /* Project name */
-#define CONFIGSET_SHUN      0x000008     /* Shun settings */
-#define CONFIGSET_USER      0x000010     /* The USER table */
-#define CONFIGSET_ADDR      0x000020     /* The CONCEALED table */
-#define CONFIGSET_XFER      0x000040     /* Transfer configuration */
+#define CONFIGSET_CSS       0x000001     /* Style sheet only */
+#define CONFIGSET_SKIN      0x000002     /* WWW interface appearance */
+#define CONFIGSET_TKT       0x000004     /* Ticket configuration */
+#define CONFIGSET_PROJ      0x000008     /* Project name */
+#define CONFIGSET_SHUN      0x000010     /* Shun settings */
+#define CONFIGSET_USER      0x000020     /* The USER table */
+#define CONFIGSET_ADDR      0x000040     /* The CONCEALED table */
+#define CONFIGSET_XFER      0x000080     /* Transfer configuration */
 
 #define CONFIGSET_ALL       0x0000ff     /* Everything */
 
@@ -54,7 +55,9 @@ static struct {
 } aGroupName[] = {
   { "/email",        CONFIGSET_ADDR,  "Concealed email addresses in tickets" },
   { "/project",      CONFIGSET_PROJ,  "Project name and description"         },
-  { "/skin",         CONFIGSET_SKIN,  "Web interface apparance settings"     },
+  { "/skin",         CONFIGSET_SKIN | CONFIGSET_CSS,
+                                      "Web interface apparance settings"     },
+  { "/css",          CONFIGSET_CSS,   "Style sheet"                          },
   { "/shun",         CONFIGSET_SHUN,  "List of shunned artifacts"            },
   { "/ticket",       CONFIGSET_TKT,   "Ticket setup",                        },
   { "/user",         CONFIGSET_USER,  "Users and privilege settings"         },
@@ -75,7 +78,7 @@ static struct {
   const char *zName;   /* Name of the configuration parameter */
   int groupMask;       /* Which config groups is it part of */
 } aConfig[] = {
-  { "css",                    CONFIGSET_SKIN },
+  { "css",                    CONFIGSET_CSS  },
   { "header",                 CONFIGSET_SKIN },
   { "footer",                 CONFIGSET_SKIN },
   { "logo-mimetype",          CONFIGSET_SKIN },
