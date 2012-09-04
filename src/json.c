@@ -350,7 +350,7 @@ void json_gc_add( char const * key, cson_value * v ){
   }
   assert( (0==rc) && "Adding item to GC failed." );
   if(0!=rc){
-    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe())
+    fprintf(stderr,"%s: FATAL: alloc error.\n", g.argv[0])
         /* reminder: allocation error is the only reasonable cause of
            error here, provided g.json.gc.a and v are not NULL.
         */
@@ -1106,7 +1106,7 @@ static void json_mode_bootstrap(){
     }
     inFile = (0==strcmp("-",jfile))
       ? stdin
-      : fossil_fopen(jfile,"rb");
+      : fopen(jfile,"rb");
     if(!inFile){
       g.json.resultCode = FSL_JSON_E_FILE_OPEN_FAILED;
       fossil_fatal("Could not open JSON file [%s].",jfile)
@@ -1630,7 +1630,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
        call fossil_panic() here because that calls this function.
     */
     fprintf(stderr, "%s: Fatal error: could not allocate "
-            "response object.\n", fossil_nameofexe());
+            "response object.\n", g.argv[0]);
     fossil_exit(1);
   }
   if( g.isHTTP ){

@@ -915,7 +915,7 @@ void configuration_cmd(void){
     db_end_transaction(0);
     fossil_print("Configuration reset to factory defaults.\n");
     fossil_print("To recover, use:  %s %s import %s\n", 
-            fossil_nameofexe(), g.argv[1], zBackup);
+            g.argv[0], g.argv[1], zBackup);
   }else
   {
     fossil_fatal("METHOD should be one of:"

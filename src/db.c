@@ -94,7 +94,9 @@ static void db_err(const char *zFormat, ...){
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
+    char *zOut = mprintf("%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
+    fossil_puts(zOut, 1);
+    fossil_free(zOut);
   }
   free(z);
   db_force_rollback();

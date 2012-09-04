@@ -585,8 +585,9 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
+      fossil_free(zOut);
     }
   }
   free(z);
@@ -617,8 +618,9 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
+      fossil_free(zOut);
     }
   }
   free(z);
@@ -658,9 +660,9 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else{
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
-      free(zOut);
+      fossil_free(zOut);
     }
   }
   db_force_rollback();
@@ -684,9 +686,9 @@ void fossil_warning(const char *zFormat, ...){
     if( g.cgiOutput ){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
     }else{
-      char *zOut = mprintf("\r%s: %s\n", fossil_nameofexe(), z);
+      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
       fossil_puts(zOut, 1);
-      free(zOut);
+      fossil_free(zOut);
     }
   }
   free(z);
@@ -719,10 +721,14 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zNewCmd);
-  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zNewCmd);
-  rc = _wsystem(zMbcs);
-  fossil_mbcs_free(zMbcs);
+  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  if( g.fSystemTrace ) {
+    char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
+    fossil_puts(zOut, 1);
+    fossil_free(zOut);
+  }
+  rc = _wsystem(zUnicode);
+  fossil_mbcs_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
@@ -792,7 +798,7 @@ void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_fatal("Usage: %s %s %s\n", fossil_nameofexe(), g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
 }
 
 /*
@@ -953,7 +959,7 @@ void help_cmd(void){
   int rc, idx;
   const char *z;
   if( g.argc<3 ){
-    z = fossil_nameofexe();
+    z = g.argv[0];
     fossil_print(
       "Usage: %s help COMMAND\n"
       "Common COMMANDs:  (use \"%s help --all\" for a complete list)\n",
@@ -992,7 +998,7 @@ void help_cmd(void){
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
-      fossil_print("%s", fossil_nameofexe());
+      fossil_print("%s", g.argv[0]);
       z += 7;
     }else{
       putchar(*z);
@@ -1039,7 +1045,7 @@ void help_page(void){
         @ <blockquote><pre>
         @ %h(z)
         @ </pre></blockquote>
-        free(z);
+        fossil_free(z);
       }
     }
   }else{
@@ -1698,7 +1704,7 @@ static int binaryOnPath(const char *zBinary){
     for(i=0; zPath[i] && zPath[i]!=':'; i++){}
     zFull = mprintf("%.*s/%s", i, zPath, zBinary);
     bExists = file_access(zFull, X_OK);
-    free(zFull);
+    fossil_free(zFull);
     if( bExists==0 ) return 1;
     zPath += i;
   }
