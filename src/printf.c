@@ -817,7 +817,7 @@ void fossil_error_reset(void){
 void fossil_puts(const char *z, int toStdErr){
 #if defined(_WIN32)
   if( fossil_utf8_to_console(z, strlen(z), toStdErr) >= 0 ){
-	  return;
+    return;
   }
 #endif
   assert( toStdErr==0 || toStdErr==1 );

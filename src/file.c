@@ -1120,15 +1120,14 @@ char *fossil_getenv(const char *zName){
 /*
 ** Display UTF8 on the console.  Return the number of
 ** Characters written. If stdout or stderr is redirected
-** to a file, so it is not a console, -1 is returned and
-** nothing is written.
+** to a file, -1 is returned and ** nothing is written
+** to the console.
 */
 int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
   int nChar;
-  WCHAR *zUnicode;   /* Unicode version of zUtf8 */
-  char *zConsole;    /* Console version of zUtf8 */
-  int codepage;      /* Console code page */
+  wchar_t *zUnicode; /* Unicode version of zUtf8 */
+  DWORD dummy;
 
   static int once = 1;
   static int istty[2];
@@ -1152,24 +1151,8 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     free(zUnicode);
     return 0;
   }
-  zUnicode[nChar] = '\0';
-  codepage = GetConsoleCP();
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, 0, 0, 0, 0);
-  zConsole = malloc( nByte + 1);
-  if( zConsole==0 ){
-    free(zUnicode);
-    return 0;
-  }
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, zConsole, nByte, 0, 0);
-  zConsole[nByte] = '\0';
-  free(zUnicode);
-  if( nByte == 0 ){
-    free(zConsole);
-    zConsole = 0;
-    return 0;
-  }
-  fwrite(zConsole, 1, nByte, toStdErr ? stderr : stdout);
-  fflush(toStdErr ? stderr : stdout);
+  zUnicode[nChar] = '\0';;
+  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE + toStdErr), zUnicode, nChar, &dummy, 0);
   return nChar;
 #else
   return -1;  /* No-op on unix */
