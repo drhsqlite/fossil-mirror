@@ -230,17 +230,24 @@ void finfo_page(void){
   int n;
   Blob title;
   Blob sql;
+  HQuery url;
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
+  int firstChngOnly = P("fco")!=0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   style_header("File History");
   login_anonymous_available();
+  url_initialize(&url, "finfo");
+  if( brBg ) url_add_parameter(&url, "brbg", 0);
+  if( uBg ) url_add_parameter(&url, "ubg", 0);
+  if( firstChngOnly ) url_add_parameter(&url, "fco", 0);
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
   blob_appendf(&sql, 
     "SELECT"
@@ -254,22 +261,40 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)" /* Tags */
+                                " AND tagxref.rid=mlink.mid)", /* Tags */
+    TAG_BRANCH
+  );
+  if( firstChngOnly ){
+    blob_appendf(&sql, ", min(event.mtime)");
+  }
+  blob_appendf(&sql,
     "  FROM mlink, event"
     " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q %s)"
     "   AND event.objid=mlink.mid",
-    TAG_BRANCH,
     zFilename, filename_collation()
   );
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+    url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
     blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+    url_add_parameter(&url, "b", zB);
+  }
+  if( firstChngOnly ){
+    blob_appendf(&sql, " GROUP BY mlink.fid");
   }
   blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
   if( (n = atoi(PD("n","0")))>0 ){
     blob_appendf(&sql, " LIMIT %d", n);
+    url_add_parameter(&url, "n", P("n"));
+  }
+  if( firstChngOnly ){
+    style_submenu_element("Full", "Show all changes",
+                          url_render(&url, "fco", 0, 0, 0));
+  }else{
+    style_submenu_element("Simplified", "Show only first use of a change",
+                          url_render(&url, "fco", "1", 0, 0));
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);

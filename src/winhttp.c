@@ -25,10 +25,6 @@
 #include <windows.h>
 #include "winhttp.h"
 
-#ifndef UNICODE
-#  define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
-#  define fossil_utf8_to_unicode fossil_utf8_to_mbcs
-#endif
 /*
 ** The HttpRequest structure holds information about each incoming
 ** HTTP request.
@@ -139,6 +135,12 @@ end_request:
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
 */
+
+#if !defined(UNICODE)
+#  define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
+#  define fossil_utf8_to_unicode fossil_utf8_to_mbcs
+#endif
+
 void win32_http_server(
   int mnPort, int mxPort,   /* Range of allowed TCP port numbers */
   const char *zBrowser,     /* Command to launch browser.  (Or NULL) */
@@ -453,7 +455,8 @@ int win32_http_service(
   return 0;
 }
 
-/*
+#ifdef _WIN32
+/* dupe ifdef needed for mkindex */
 ** COMMAND: winsrv*
 ** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
@@ -878,5 +881,6 @@ void cmd_win32_service(void){
   }
   return;
 }
+#endif /* _WIN32 */
 
 #endif /* _WIN32  -- This code is for win32 only */

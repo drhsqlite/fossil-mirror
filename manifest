@@ -1,5 +1,5 @@
-C const-qualification
-D 2012-09-05T12:55:23.497
+C merge\strunk,\sfix\scompilation\son\sCygwin/Linux
+D 2012-09-05T13:45:17.810
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -90,7 +90,7 @@ F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 1b7828bf8b85b275209bcd0425b33f50bd8fdcc9
-F src/finfo.c 65f708f825e18d62d6883662ed6298233de0eac7
+F src/finfo.c 5dfd626877fa53300b00825c9a36578dd6d52569
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -170,7 +170,7 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 97d67c8a8758fee2095a11ecd9139e2198245be9
 F src/wiki.c 1c74d1c8c8190725e718727d921cb90452ecc236
 F src/wikiformat.c da3cf9bb0a3a3eed61f2bc9e051057a0e98a0e11
-F src/winhttp.c fa362cd4b092da7a35752622aa8b9902ea51f96f
+F src/winhttp.c 4f25ce10b94fec31499f73ddc7aaa5f0c96b5ea2
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 73e62b82875257f88983d7ef4b36ac30e48c7e07
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
@@ -355,7 +355,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5d9f57a72104ffb938088e8ad93cab12fc2bc920
-R 2e3134f761d05d405a71eaa5b0e0285a
+P 645f34834d2ebc8e6d6ead2341a7740a0a2f8a91 f1fae7f9eab303dd43e77f1840aa0285cfacf062
+R 5bf77f2e4ca74476886d57bdc178eb3b
 U jan.nijtmans
-Z 5f21f9ebb176b8ac7781349bf39d9fb0
+Z bb9aed64208c7eb756ca8f45357e4e27
