@@ -1120,7 +1120,7 @@ char *fossil_getenv(const char *zName){
 /*
 ** Display UTF8 on the console.  Return the number of
 ** Characters written. If stdout or stderr is redirected
-** to a file, -1 is returned and ** nothing is written
+** to a file, -1 is returned and nothing is written
 ** to the console.
 */
 int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
@@ -1151,7 +1151,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     free(zUnicode);
     return 0;
   }
-  zUnicode[nChar] = '\0';;
+  zUnicode[nChar] = '\0';
   WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar, &dummy, 0);
   return nChar;
 #else
