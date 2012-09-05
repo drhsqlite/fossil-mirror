@@ -1,5 +1,5 @@
-C superflueous\ssemicolon.
-D 2012-09-05T09:05:26.811
+C be\ssmarter\sabout\sistty\sstatic\sinitialization
+D 2012-09-05T09:26:47.790
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -89,7 +89,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c 5af50ea0590a780eb8b3cf004f21c97c03a9f7ca
+F src/file.c 1b7828bf8b85b275209bcd0425b33f50bd8fdcc9
 F src/finfo.c 65f708f825e18d62d6883662ed6298233de0eac7
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -257,7 +257,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw 17a4a98eeb9a23de106853138d83a111abd15aa8
+F win/Makefile.mingw a2a0dc687270872beb9e6f58dd99925be5715215
 F win/Makefile.mingw.mistachkin 4eb8299fc8084bda4d415e7fe28bdf0ba2bc2ba5
 F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -355,7 +355,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b4bab791fc54dcd1b5fb3ab82c60bbc485553ab1
-R e5855be36cb017852cb44c54895f8d50
+P 6f3b0f344510f684b5b73a3925c6d63f5f3346d5
+R a6db42a3ad5476f5e28f23c343eaf2d3
 U jan.nijtmans
-Z c5baa56d758b2efc896d12f60bd04675
+Z cad0be7b5ba3a3361d670d10b11e3898

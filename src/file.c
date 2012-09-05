@@ -1129,12 +1129,9 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
 
-  static int once = 1;
-  static int istty[2];
-  if( once ){
-    istty[0] = _isatty(fileno(stdout));
-    istty[1] = _isatty(fileno(stderr));
-    once = 0;
+  static int istty[2] = { -1, -1 };
+  if( istty[toStdErr] == -1 ){
+    istty[toStdErr] = _isatty(toStdErr + 1) != 0;
   }
   if( !istty[toStdErr] ){
     /* stdout/stderr is not a console. */
