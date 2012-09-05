@@ -1357,9 +1357,9 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
 /*
 ** Name of days and months.
 */
-static const char *azDays[] =
+static const char *const azDays[] =
     {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", 0};
-static const char *azMonths[] =
+static const char *const azMonths[] =
     {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", 0};
 

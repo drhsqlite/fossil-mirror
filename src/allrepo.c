@@ -201,7 +201,7 @@ void all_cmd(void){
   */
   if( bag_count(&outOfDate)>0 ){
     Blob sql;
-    char *zSep = "(";
+    const char *zSep = "(";
     int rowid;
     blob_zero(&sql);
     blob_appendf(&sql, "DELETE FROM global_config WHERE rowid IN ");

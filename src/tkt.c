@@ -28,9 +28,9 @@
 ** used.  The internal-use fields begin with "tkt_".
 */
 static int nField = 0;
-static char **azField = 0;    /* Names of database fields */
-static char **azValue = 0;    /* Original values */
-static char **azAppend = 0;   /* Value to be appended */
+static const char **azField = 0;    /* Names of database fields */
+static const char **azValue = 0;    /* Original values */
+static const char **azAppend = 0;   /* Value to be appended */
 
 /*
 ** Compare two entries in azField for sorting purposes
@@ -1119,8 +1119,8 @@ void ticket_cmd(void){
       getAllTicketFields();
       /* read commandline and assign fields in the azValue array */
       while( i<g.argc ){
-        char *zFName;
-        char *zFValue;
+        const char *zFName;
+        const char *zFValue;
         int j;
         int append = 0;
 
@@ -1130,8 +1130,9 @@ void ticket_cmd(void){
         }
         zFValue = g.argv[i++];
         if( tktEncoding == tktFossilize ){
-          zFValue=mprintf("%s",zFValue);
-          defossilize(zFValue);
+          char *z = mprintf("%s",zFValue);
+          defossilize(z);
+          zFValue = z;
         }
         append = (zFName[0] == '+');
         if (append){
@@ -1155,8 +1156,8 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "D %s\n", zDate);
       /* append defined elements */
       for(i=0; i<nField; i++){
-        char *zValue = 0;
-        char *zPfx;
+        const char *zValue = 0;
+        const char *zPfx;
 
         if (azAppend[i] && azAppend[i][0] ){
           zPfx = " +";

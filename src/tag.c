@@ -400,7 +400,7 @@ void tag_cmd(void){
   }
 
   if( strncmp(g.argv[2],"add",n)==0 ){
-    char *zValue;
+    const char *zValue;
     const char *zDateOvrd = find_option("date-override",0,1);
     const char *zUserOvrd = find_option("user-override",0,1);
     if( g.argc!=5 && g.argc!=6 ){

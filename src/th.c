@@ -2298,7 +2298,7 @@ int th_strlen(const char *zStr){
 **    " 0x22
 **
 */
-static unsigned char aCharProp[256] = {
+static const unsigned char aCharProp[256] = {
   0,  0,  0,  0,  0,  0,  0,  0,     0,  1,  1,  1,  1,  1,  0,  0,   /* 0x0. */
   0,  0,  1,  1,  0,  0,  0,  0,     0,  0,  0,  0,  0,  0,  0,  0,   /* 0x1. */
   5,  4, 20,  4,  4,  4,  4,  4,     4,  4,  4,  4,  4,  4,  4,  4,   /* 0x2. */

@@ -272,7 +272,7 @@ static int send_delta_parent(
   Blob *pContent,         /* The content of the file to send */
   Blob *pUuid             /* The UUID of the file to send */
 ){
-  static const char *azQuery[] = {
+  static const char *const azQuery[] = {
     "SELECT pid FROM plink x"
     " WHERE cid=%d"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"

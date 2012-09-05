@@ -188,7 +188,7 @@ void checkout_cmd(void){
   int forceFlag;                 /* Force checkout even if edits exist */
   int keepFlag;                  /* Do not change any files on disk */
   int latestFlag;                /* Checkout the latest version */
-  char *zVers;                   /* Version to checkout */
+  const char *zVers;             /* Version to checkout */
   int promptFlag;                /* True to prompt before overwriting */
   int vid, prior;
   Blob cksum1, cksum1b, cksum2;

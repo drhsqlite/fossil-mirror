@@ -349,8 +349,8 @@ static void expand_args_option(int argc, void *argv){
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
-  char *z;            /* General use string pointer */
-  char **newArgv;     /* New expanded g.argv under construction */
+  char *z;                  /* General use string pointer */
+  char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
@@ -1751,7 +1751,7 @@ static int binaryOnPath(const char *zBinary){
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
   const char *zPort;        /* Value of the --port option */
-  char *zBrowser;           /* Name of web browser program */
+  const char *zBrowser;     /* Name of web browser program */
   char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
@@ -1788,7 +1788,7 @@ void cmd_webserver(void){
 #if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
-      static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      static const char *const azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
       int i;
       zBrowser = "echo";
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){

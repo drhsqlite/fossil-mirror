@@ -1646,7 +1646,7 @@ static Token *FindDeclName(Token *pFirst, Token *pLast){
     if( p->eType==TT_Id ){
       static IdentTable sReserved;
       static int isInit = 0;
-      static char *aWords[] = { "char", "class", 
+      static const char *const aWords[] = { "char", "class",
        "const", "double", "enum", "extern", "EXPORT", "ET_PROC", 
        "float", "int", "long",
        "PRIVATE", "PROTECTED", "PUBLIC",
@@ -3255,7 +3255,7 @@ static void Usage(const char *argv0, const char *argvN){
 ** The following text contains a few simple #defines that we want
 ** to be available to every file.
 */
-static char zInit[] = 
+static const char zInit[] =
   "#define INTERFACE 0\n"
   "#define EXPORT_INTERFACE 0\n"
   "#define LOCAL_INTERFACE 0\n"

@@ -610,7 +610,7 @@ void rebuild_database(void){
     }
   }
   if( showStats ){
-    static struct { int idx; const char *zLabel; } aStat[] = {
+    static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
        { CFTYPE_MANIFEST,  "Manifests:" },
        { CFTYPE_CLUSTER,   "Clusters:" },
@@ -818,7 +818,7 @@ void scrub_cmd(void){
 ** Recursively read all files from the directory zPath and install
 ** every file read as a new artifact in the repository.
 */
-void recon_read_dir(char *zPath){
+void recon_read_dir(const char *zPath){
   FOSSIL_DIR *d;
   struct fossil_dirent *pEntry;
   Blob aContent; /* content of the just read artifact */

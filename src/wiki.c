@@ -965,7 +965,7 @@ void wiki_cmd(void){
   }else
   if( strncmp(g.argv[2],"commit",n)==0
       || strncmp(g.argv[2],"create",n)==0 ){
-    char *zPageName;
+    const char *zPageName;
     Blob content;
     if( g.argc!=4 && g.argc!=5 ){
       usage("commit PAGENAME ?FILE?");

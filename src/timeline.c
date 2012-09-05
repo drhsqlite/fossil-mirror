@@ -1453,7 +1453,7 @@ void timeline_cmd(void){
   int n, k;
   const char *zCount;
   const char *zType;
-  char *zOrigin;
+  const char *zOrigin;
   char *zDate;
   Blob sql;
   int objid = 0;

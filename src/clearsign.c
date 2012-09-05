@@ -30,7 +30,7 @@ int clearsign(Blob *pIn, Blob *pOut){
   char *zRand;
   char *zIn;
   char *zOut;
-  char *zBase = db_get("pgp-command", "gpg --clearsign -o ");
+  const char *zBase = db_get("pgp-command", "gpg --clearsign -o ");
   char *zCmd;
   int rc;
   if( is_false(zBase) ){

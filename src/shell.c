@@ -453,7 +453,7 @@ struct callback_data {
 #define MODE_Csv      7  /* Quote strings, numbers are plain */
 #define MODE_Explain  8  /* Like MODE_Column, but do not truncate data */
 
-static const char *modeDescr[] = {
+static const char *const modeDescr[] = {
   "line",
   "column",
   "list",
@@ -1383,7 +1383,7 @@ static int run_schema_dump_query(
 /*
 ** Text of a help message
 */
-static char zHelp[] =
+static const char zHelp[] =
   ".backup ?DB? FILE      Backup DB (default \"main\") to FILE\n"
   ".bail ON|OFF           Stop after hitting an error.  Default OFF\n"
   ".databases             List names and files of attached databases\n"
@@ -1438,7 +1438,7 @@ static char zHelp[] =
   ".width NUM1 NUM2 ...   Set column widths for \"column\" mode\n"
 ;
 
-static char zTimerHelp[] =
+static const char zTimerHelp[] =
   ".timer ON|OFF          Turn the CPU timer measurement on or off\n"
 ;
 

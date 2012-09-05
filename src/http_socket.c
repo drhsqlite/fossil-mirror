@@ -68,7 +68,7 @@ static void socket_clear_errmsg(void){
 /*
 ** Set the socket error message.
 */
-void socket_set_errmsg(char *zFormat, ...){
+void socket_set_errmsg(const char *zFormat, ...){
   va_list ap;
   socket_clear_errmsg();
   va_start(ap, zFormat);
