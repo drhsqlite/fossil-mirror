@@ -481,7 +481,9 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+#if 0
     const char *zBranch;
+#endif
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -491,9 +493,11 @@ void ci_page(void){
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
+#if 0
     zBranch = db_text("trunk",
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_BRANCH, rid);
+#endif
     zUser = db_column_text(&q, 2);
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
