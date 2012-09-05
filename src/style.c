@@ -447,6 +447,8 @@ const char zDefaultCSS[] =
 @   text-align: center;
 @   letter-spacing: 1px;
 @   background-color: #558195;
+@   border-top-left-radius: 8px;
+@   border-top-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -472,7 +474,9 @@ const char zDefaultCSS[] =
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
-@   padding: 0ex 1ex 0ex 2ex;
+@   padding: 0ex 1ex 1ex 1ex;
+@   border: solid #aaa;
+@   border-width: 1px;
 @ }
 @
 @ /* Some pages have section dividers */
@@ -503,10 +507,11 @@ const char zDefaultCSS[] =
 @ div.footer {
 @   clear: both;
 @   font-size: 0.8em;
-@   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
 @   text-align: right;
 @   background-color: #558195;
+@   border-bottom-left-radius: 8px;
+@   border-bottom-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -550,7 +555,7 @@ const struct strctCssDefaults {
     @   background-color: white;
     @   border-width: medium;
     @   border-style: double;
-    @   margin: 10;
+    @   margin: 10px;
   },
   { "div.sideboxTitle",
     "The nomenclature title in sideboxes for branches,..",
@@ -573,14 +578,12 @@ const struct strctCssDefaults {
   },
   { "table.timelineTable",
     "the format for the timeline data table",
-    @   cellspacing: 0;
     @   border: 0;
-    @   cellpadding: 0
   },
   { "td.timelineTableCell",
     "the format for the timeline data cells",
-    @   valign: top;
-    @   align: left;
+    @   vertical-align: top;
+    @   text-align: left;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",

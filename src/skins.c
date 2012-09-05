@@ -544,7 +544,6 @@ static const char zBuiltinSkin3[] =
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
-@   float right;
 @   padding: 2ex 1ex 0ex 2ex;
 @ }
 @ 
@@ -662,7 +661,7 @@ static const char zBuiltinSkin3[] =
 
 
 /*
-** Gradients and rounded corners.
+** Shadow boxes and rounded corners.
 */
 static const char zBuiltinSkin4[] = 
 @ REPLACE INTO config(name,mtime,value)
@@ -724,22 +723,12 @@ static const char zBuiltinSkin4[] =
 @ div.mainmenu {
 @   text-align: center;
 @   color: white;
-@   -moz-border-top-right-radius: 5px;
-@   -moz-border-top-left-radius: 5px;
-@   -webkit-border-top-right-radius: 5px;
-@   -webkit-border-top-left-radius: 5px;
-@   -border-top-right-radius: 5px;
-@   -border-top-left-radius: 5px;
 @   border-top-left-radius: 5px;
 @   border-top-right-radius: 5px;
 @   vertical-align: middle;
 @   padding-top: 8px;
 @   padding-bottom: 8px;
 @   background-color: #446979;
-@   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
-@   background: -moz-linear-gradient(center bottom,rgb(51,81,94) 2%, rgb(85,129,149) 76%);
-@   -webkit-box-shadow: 0px 3px 4px #333333;
-@   -moz-box-shadow: 0px 3px 4px #333333;
 @   box-shadow: 0px 3px 4px #333333;
 @ }
 @ 
@@ -752,8 +741,6 @@ static const char zBuiltinSkin4[] =
 @   background-color: #fff;
 @   height: 1.5em;
 @   vertical-align:middle;
-@   -webkit-box-shadow: 0px 3px 4px #999;
-@   -moz-box-shadow: 0px 3px 4px #999;
 @   box-shadow: 0px 3px 4px #999;
 @ }
 @ div.mainmenu a, div.mainmenu a:visited {
@@ -768,14 +755,9 @@ static const char zBuiltinSkin4[] =
 @   font-family: Arial;
 @   text-decoration: none;
 @   margin:auto;
-@   -webkit-border-radius: 5px;
-@   -moz-border-radius: 5px;
 @   border-radius: 5px;
-@   background: -webkit-gradient(linear,left bottom, left top, color-stop(0, rgb(184,184,184)), color-stop(0.75, rgb(214,214,214)));
-@   background: -moz-linear-gradient(center bottom, rgb(184,184,184) 0%, rgb(214,214,214) 75%);
 @   background-color: #e0e0e0 ;
 @   text-shadow: 0px -1px 0px #eee;
-@   filter: dropshadow(color=#eeeeee, offx=0, offy=-1);
 @   border: 1px solid #000;
 @ }
 @ 
@@ -785,8 +767,6 @@ static const char zBuiltinSkin4[] =
 @ }
 @ 
 @ div.submenu a:hover, div.sectionmenu>a.button:hover {
-@   background: -webkit-gradient(linear,left bottom, left top, color-stop(0, rgb(214,214,214)), color-stop(0.75, rgb(184,184,184)));
-@   background: -moz-linear-gradient(center bottom, rgb(214,214,214) 0%, rgb(184,184,184) 75%);
 @   background-color: #c0c0c0 ;
 @ }
 @ 
@@ -794,13 +774,7 @@ static const char zBuiltinSkin4[] =
 @  ** the footer */
 @ div.content {
 @   background-color: #fff;
-@   -webkit-box-shadow: 0px 3px 4px #999;
-@   -moz-box-shadow: 0px 3px 4px #999;
 @   box-shadow: 0px 3px 4px #999;
-@   -moz-border-bottom-right-radius: 5px;
-@   -moz-border-bottom-left-radius: 5px;
-@   -webkit-border-bottom-right-radius: 5px;
-@   -webkit-border-bottom-left-radius: 5px;
 @   border-bottom-right-radius: 5px;
 @   border-bottom-left-radius: 5px;
 @   padding-bottom: 1em;
@@ -813,24 +787,13 @@ static const char zBuiltinSkin4[] =
 @   margin-bottom: 0.5em;
 @   margin-top: 1em;
 @   margin-right: auto;
-@ 
 @   padding: 1px 1px 1px 1px;
 @   font-size: 1.2em;
 @   font-weight: bold;
-@ 
 @   text-align: center;
 @   color: white;
-@ 
-@   -webkit-border-radius: 5px;
-@   -moz-border-radius: 5px;
 @   border-radius: 5px;
-@ 
 @   background-color: #446979;
-@   background: -webkit-gradient(linear,left bottom,left top, color-stop(0.02, rgb(51,81,94)),  color-stop(0.76, rgb(85,129,149)));
-@   background: -moz-linear-gradient(center bottom,rgb(51,81,94) 2%, rgb(85,129,149) 76%);
-@ 
-@   -webkit-box-shadow: 0px 3px 4px #333333;
-@   -moz-box-shadow: 0px 3px 4px #333333;
 @   box-shadow: 0px 3px 4px #333333;
 @ }
 @ 
@@ -970,7 +933,7 @@ static struct BuiltinSkin {
   { "Plain Gray, No Logo",         zBuiltinSkin1                },
   { "Khaki, No Logo",              zBuiltinSkin2                },
   { "Black & White, Menu on Left", zBuiltinSkin3                },
-  { "Gradient, Rounded Corners",   zBuiltinSkin4                },
+  { "Shadow boxes & Rounded Corners", zBuiltinSkin4             },
 };
 
 /*

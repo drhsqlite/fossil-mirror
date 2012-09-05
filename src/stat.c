@@ -55,6 +55,9 @@ void stat_page(void){
   if( !g.perm.Read ){ login_needed(); return; }
   brief = P("brief")!=0;
   style_header("Repository Statistics");
+  if( g.perm.Admin ){
+    style_submenu_element("URLs", "URLs and Checkouts", "urllist");
+  }
   @ <table class="label-value">
   @ <tr><th>Repository&nbsp;Size:</th><td>
   fsize = file_size(g.zRepositoryName);
@@ -133,6 +136,52 @@ void stat_page(void){
   @ %s(db_text(0, "PRAGMA %s.journal_mode", zDb)) mode
   @ </td></tr>
 
+  @ </table>
+  style_footer();
+}
+
+/*
+** WEBPAGE: urllist
+**
+** Show ways in which this repository has been accessed
+*/
+void urllist_page(void){
+  Stmt q;
+  int cnt;
+  login_check_credentials();
+  if( !g.perm.Admin ){ login_needed(); return; }
+
+  style_header("URLs and Checkouts");
+  style_submenu_element("Stat", "Repository Stats", "stat");
+  @ <div class="section">URLs</div>
+  @ <table border="0" width='100%%'>
+  db_prepare(&q, "SELECT substr(name,9), datetime(mtime,'unixepoch')"
+                 "  FROM config WHERE name GLOB 'baseurl:*' ORDER BY 2");
+  cnt = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt==0 ){
+    @ <tr><td>(none)</td>
+  }
+  @ </table>
+  @ <div class="section">Checkouts</div>
+  @ <table border="0" width='100%%'>
+  db_prepare(&q, "SELECT substr(name,7), datetime(mtime,'unixepoch')"
+                 "  FROM config WHERE name GLOB 'ckout:*' ORDER BY 2");
+  cnt = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    @ <tr><td width='100%%'>%h(db_column_text(&q,0))</td>
+    @ <td><nobr>%h(db_column_text(&q,1))</nobr></td></tr>
+    cnt++;
+  }
+  db_finalize(&q);
+  if( cnt==0 ){
+    @ <tr><td>(none)</td>
+  }
   @ </table>
   style_footer();
 }
