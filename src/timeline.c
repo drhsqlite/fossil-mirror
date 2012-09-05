@@ -1188,7 +1188,7 @@ void page_timeline(void){
     blob_appendf(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_str(&sql));
 
-    n = db_int(0, "SELECT count(*) FROM timeline /*scan*/");
+    n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
