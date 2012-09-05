@@ -1118,43 +1118,61 @@ char *fossil_getenv(const char *zName){
 }
 
 /*
-** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
-** translated text..  Call fossil_mbcs_free() to deallocate any memory
-** used to store the returned pointer when done.
+** Display UTF8 on the console.  Return the number of
+** Characters written. If stdout or stderr is redirected
+** to a file, so it is not a console, -1 is returned and
+** nothing is written.
 */
-char *fossil_utf8_to_console(const char *zUtf8){
+int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
-  int nChar, nByte;
+  int nChar;
   WCHAR *zUnicode;   /* Unicode version of zUtf8 */
   char *zConsole;    /* Console version of zUtf8 */
   int codepage;      /* Console code page */
 
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, NULL, 0);
-  zUnicode = malloc( nChar*sizeof(zUnicode[0]) );
+  static int once = 1;
+  static int istty[2];
+  if( once ){
+    istty[0] = _isatty(fileno(stdout));
+    istty[1] = _isatty(fileno(stderr));
+    once = 0;
+  }
+  if( !istty[toStdErr] ){
+    /* stdout/stderr is not a console. */
+    return -1;
+  }
+
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, NULL, 0);
+  zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
   if( zUnicode==0 ){
     return 0;
   }
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
   if( nChar==0 ){
     free(zUnicode);
     return 0;
   }
+  zUnicode[nChar] = '\0';
   codepage = GetConsoleCP();
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, 0, 0, 0, 0);
-  zConsole = malloc( nByte );
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, 0, 0, 0, 0);
+  zConsole = malloc( nByte + 1);
   if( zConsole==0 ){
     free(zUnicode);
     return 0;
   }
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, zConsole, nByte, 0, 0);
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, zConsole, nByte, 0, 0);
+  zConsole[nByte] = '\0';
   free(zUnicode);
   if( nByte == 0 ){
     free(zConsole);
     zConsole = 0;
+    return 0;
   }
-  return zConsole;
+  fwrite(zConsole, 1, nByte, toStdErr ? stderr : stdout);
+  fflush(toStdErr ? stderr : stdout);
+  return nChar;
 #else
-  return (char*)zUtf8;  /* No-op on unix */
+  return -1;  /* No-op on unix */
 #endif  
 }
 

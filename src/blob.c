@@ -769,18 +769,12 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    int n;
+    int n = blob_size(pBlob);
 #if defined(_WIN32)
-    if( _isatty(fileno(stdout)) ){
-      char *z;
-      z = fossil_utf8_to_console(blob_str(pBlob));
-      n = strlen(z);
-      fwrite(z, 1, n, stdout);
-      free(z);
+    if( fossil_utf8_to_console(blob_buffer(pBlob), n, 0) >= 0 ){
       return n;
     }
 #endif
-    n = blob_size(pBlob);
     fwrite(blob_buffer(pBlob), 1, n, stdout);
     return n;
   }else{
