@@ -658,9 +658,7 @@ static void create_manifest(
   char *zDate;                /* Date of the check-in */
   char *zParentUuid;          /* UUID of parent check-in */
   Blob filename;              /* A single filename */
-#if !defined(_WIN32)
   int nBasename;              /* Size of base filename */
-#endif
   Stmt q;                     /* Query of files changed */
   Stmt q2;                    /* Query of merge parents */
   Blob mcksum;                /* Manifest checksum */
@@ -694,9 +692,7 @@ static void create_manifest(
     vid);
   blob_zero(&filename);
   blob_appendf(&filename, "%s", g.zLocalRoot);
-#if !defined(_WIN32)
   nBasename = blob_size(&filename);
-#endif
   while( db_step(&q)==SQLITE_ROW ){
     const char *zName = db_column_text(&q, 0);
     const char *zUuid = db_column_text(&q, 1);
@@ -707,20 +703,22 @@ static void create_manifest(
     int isSelected = db_column_int(&q, 6);
     const char *zPerm;
     int cmp;
-#if !defined(_WIN32)
-    int mPerm;
-
-    /* For unix, extract the "executable" and "symlink" permissions
-    ** directly from the filesystem.  On windows, permissions are
-    ** unchanged from the original. 
-    */
 
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
 
-    mPerm = file_wd_perm(blob_str(&filename));
-    isExe = ( mPerm==PERM_EXE );
-    isLink = ( mPerm==PERM_LNK );
+#if !defined(_WIN32)
+    /* For unix, extract the "executable" and "symlink" permissions
+    ** directly from the filesystem.  On windows, permissions are
+    ** unchanged from the original. 
+    */
+    {
+      int mPerm;
+
+      mPerm = file_wd_perm(blob_str(&filename));
+      isExe = ( mPerm==PERM_EXE );
+      isLink = ( mPerm==PERM_LNK );
+    }
 #endif
     if( isExe ){
       zPerm = " x";

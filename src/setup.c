@@ -1131,6 +1131,8 @@ void setup_login_group(void){
 ** WEBPAGE: setup_timeline
 */
 void setup_timeline(void){
+  double tmDiff;
+  char zTmDiff[20];
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed();
@@ -1151,7 +1153,22 @@ void setup_timeline(void){
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
-  @ Zulu) instead of in local time.</p>
+  @ Zulu) instead of in local time.  On this server, local time is currently
+  g.fTimeFormat = 2;
+  tmDiff = db_double(0.0, "SELECT julianday('now')");
+  tmDiff = db_double(0.0, 
+        "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
+        tmDiff, tmDiff);
+  sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", tmDiff);
+  if( strcmp(zTmDiff, "0.0")==0 ){
+    @ the same as UTC and so this setting will make no difference in
+    @ the display.</p>
+  }else if( tmDiff<0.0 ){
+    sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", -tmDiff);
+    @ %s(zTmDiff) hours behind UTC.</p>
+  }else{
+    @ %s(zTmDiff) hours ahead of UTC.</p>
+  }
 
   @ <hr />
   onoff_attribute("Show version differences by default",

@@ -31,7 +31,7 @@
 ** have the final say-so about whether or not the date/time string is
 ** well-formed.
 */
-static int is_date(const char *z){
+int fossil_isdate(const char *z){
   if( !fossil_isdigit(z[0]) ) return 0;
   if( !fossil_isdigit(z[1]) ) return 0;
   if( !fossil_isdigit(z[2]) ) return 0;
@@ -114,7 +114,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       &zTag[5], zType);
     return rid;
   }
-  if( is_date(zTag) ){
+  if( fossil_isdate(zTag) ){
     rid = db_int(0, 
       "SELECT objid FROM event"
       " WHERE mtime<=julianday(%Q,'utc') AND type GLOB '%q'"
@@ -183,7 +183,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* symbolic-name ":" date-time */
   nTag = strlen(zTag);
   for(i=0; i<nTag-10 && zTag[i]!=':'; i++){}
-  if( zTag[i]==':' && is_date(&zTag[i+1]) ){
+  if( zTag[i]==':' && fossil_isdate(&zTag[i+1]) ){
     char *zDate = mprintf("%s", &zTag[i+1]);
     char *zTagBase = mprintf("%.*s", i, zTag);
     int nDate = strlen(zDate);
