@@ -466,7 +466,7 @@ void ci_page(void){
   isLeaf = is_a_leaf(rid);
   db_prepare(&q, 
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
-     "       datetime(omtime, 'localtime')"
+     "       datetime(omtime, 'localtime'), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -481,6 +481,10 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+    char *zThisBranch;
+    double thisMtime;
+    int seenDiffTitle = 0;
+    
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -494,6 +498,7 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     zOrigDate = db_column_text(&q, 4);
+    thisMtime = db_column_double(&q, 5);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -561,6 +566,58 @@ void ci_page(void){
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
       db_finalize(&q);
+
+      /* Select a few other branches to diff against */
+      zThisBranch = db_text("trunk", "SELECT value FROM tagxref"
+                                     " WHERE tagid=%d AND tagtype>0"
+                                     "   AND rid=%d",
+                                     TAG_BRANCH, rid);
+
+      /* Find nearby leaves to offer to diff against */
+      db_prepare(&q,
+         "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
+         "  FROM leaf, event, tagxref, blob"
+         " WHERE event.mtime BETWEEN %.17g AND %.17g"
+         "   AND event.type='ci'"
+         "   AND event.objid=leaf.rid"
+         "   AND NOT %z"
+         "   AND tagxref.rid=event.objid"
+         "   AND tagxref.tagid=%d AND tagxref.tagtype>0"
+         "   AND tagxref.value!=%Q"
+         "   AND blob.rid=tagxref.rid"
+         " GROUP BY 1 ORDER BY 3",
+         thisMtime, thisMtime-7, thisMtime+7,
+         leaf_is_closed_sql("leaf.rid"),
+         TAG_BRANCH, zThisBranch
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zBr = db_column_text(&q, 0);
+        const char *zId = db_column_text(&q, 1);
+        if( !seenDiffTitle ){
+          @ <tr><th valign="top">Diffs:</th><td valign="top">
+          seenDiffTitle = 1;
+        }else{
+          @ |
+        }
+        @ %z(href("%R/vdiff?from=%S&to=%S",zId, zUuid))%h(zBr)</a>
+      }
+      db_finalize(&q);
+
+      if( fossil_strcmp(zThisBranch,"trunk")!=0 ){
+        if( !seenDiffTitle ){
+          @ <tr><th valign="top">Diffs:</th><td valign="top">
+          seenDiffTitle = 1;
+        }else{
+          @ |
+        }
+        @ %z(href("%R/vdiff?from=root:%S&to=%S",zUuid,zUuid))root of
+        @ this branch</a>
+      }
+      if( seenDiffTitle ){
+        @ </td></tr>
+      }
+
+      /* The Download: line */
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);

@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sname\sresolution\swhen\sthe\sname\sbegins\swith\s"tag:"
-D 2012-09-06T18:26:10.480
+C On\sthe\scheck-in\sinfo\spage,\soffer\sa\sselection\sof\snearby\sleaves\sto\sdiff\s\nagainst.
+D 2012-09-06T19:52:24.476
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -96,7 +96,7 @@ F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c 2631435110221eb95905b168c0dadffcce71f53c
 F src/import.c b79a02214ff8e3210b39c00135c9491351d700c5
-F src/info.c cca58d29452efff91bbf0e86ee9eca5d55bf62ec
+F src/info.c 16eb12bc2889929891f8ebef47cd1e5f800909b7
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -351,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b0036a3c971dc7eb612927510d7a5dbfea78d799
-R 976ea2a21ba3fe052d475b989005a601
+P ac65f5bd54b71628d73843f82bfb955c40dde92d
+R cf0786ebd3001b4ecb6240875b9f74e8
 U drh
-Z 930a452ec146302614705bb3bd223b88
+Z f769583900deae76d892303df0c75b93
