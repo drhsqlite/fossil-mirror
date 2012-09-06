@@ -703,20 +703,22 @@ static void create_manifest(
     int isSelected = db_column_int(&q, 6);
     const char *zPerm;
     int cmp;
-#if !defined(_WIN32)
-    int mPerm;
-
-    /* For unix, extract the "executable" and "symlink" permissions
-    ** directly from the filesystem.  On windows, permissions are
-    ** unchanged from the original. 
-    */
 
     blob_resize(&filename, nBasename);
     blob_append(&filename, zName, -1);
 
-    mPerm = file_wd_perm(blob_str(&filename));
-    isExe = ( mPerm==PERM_EXE );
-    isLink = ( mPerm==PERM_LNK );
+#if !defined(_WIN32)
+    /* For unix, extract the "executable" and "symlink" permissions
+    ** directly from the filesystem.  On windows, permissions are
+    ** unchanged from the original. 
+    */
+    {
+      int mPerm;
+
+      mPerm = file_wd_perm(blob_str(&filename));
+      isExe = ( mPerm==PERM_EXE );
+      isLink = ( mPerm==PERM_LNK );
+    }
 #endif
     if( isExe ){
       zPerm = " x";

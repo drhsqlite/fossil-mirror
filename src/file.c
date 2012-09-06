@@ -1127,7 +1127,12 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
   int nChar;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
+#ifdef UNICODE
   DWORD dummy;
+#else
+  char *zConsole;    /* Console version of zUtf8 */
+  int codepage;      /* Console code page */
+#endif
 
   static int istty[2] = { -1, -1 };
   if( istty[toStdErr] == -1 ){
@@ -1149,7 +1154,27 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return 0;
   }
   zUnicode[nChar] = '\0';
+#ifdef UNICODE
   WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar, &dummy, 0);
+#else /* !UNICODE */
+  codepage = GetConsoleCP();
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, 0, 0, 0, 0);
+  zConsole = malloc( nByte + 1);
+  if( zConsole==0 ){
+    free(zUnicode);
+    return 0;
+  }
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, zConsole, nByte, 0, 0);
+  zConsole[nByte] = '\0';
+  free(zUnicode);
+  if( nByte == 0 ){
+    free(zConsole);
+    zConsole = 0;
+    return 0;
+  }
+  fwrite(zConsole, 1, nByte, toStdErr ? stderr : stdout);
+  fflush(toStdErr ? stderr : stdout);
+#endif /* UNICODE */
   return nChar;
 #else
   return -1;  /* No-op on unix */

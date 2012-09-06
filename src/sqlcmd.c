@@ -120,6 +120,8 @@ static int sqlcmd_autoinit(
                           sqlcmd_compress, 0, 0);
   sqlite3_create_function(db, "decompress", 1, SQLITE_ANY, 0,
                           sqlcmd_decompress, 0, 0);
+  g.repositoryOpen = 1;
+  g.db = db;
   return SQLITE_OK;
 }
 

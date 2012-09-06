@@ -820,6 +820,10 @@ double symbolic_name_to_mtime(const char *z){
   double mtime;
   int rid;
   if( z==0 ) return -1.0;
+  if( fossil_isdate(z) ){
+    mtime = db_double(0.0, "SELECT julianday(%Q,'utc')", z);
+    if( mtime>0.0 ) return mtime;
+  }
   rid = symbolic_name_to_rid(z, "ci");
   if( rid==0 ) return -1.0;
   mtime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
@@ -1184,7 +1188,7 @@ void page_timeline(void){
     blob_appendf(&sql, " LIMIT %d", nEntry);
     db_multi_exec("%s", blob_str(&sql));
 
-    n = db_int(0, "SELECT count(*) FROM timeline /*scan*/");
+    n = db_int(0, "SELECT count(*) FROM timeline WHERE etype!='div' /*scan*/");
     if( zAfter==0 && zBefore==0 && zCirca==0 ){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{

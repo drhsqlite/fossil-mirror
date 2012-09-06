@@ -336,10 +336,9 @@ writeln {#!/usr/bin/make
 #### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
-# PREFIX = i686-w64-mingw32-
+PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
@@ -427,7 +426,7 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -DUNICODE -D_UNICODE -L$(ZLIBDIR) -I$(ZINCDIR)
 
 #### Compile resources for use in building executables that will run
 #    on the target platform.
@@ -499,10 +498,12 @@ else
 LIB += -lkernel32 -lws2_32
 endif
 
+LIB += -municode
+
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.
 #
-TCLSH = tclsh
+TCLSH = tclsh86
 
 #### Nullsoft installer MakeNSIS location
 #
@@ -896,7 +897,7 @@ ZLIB    = zlib.lib
 
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
-CFLAGS = -nologo -MT -O2
+CFLAGS = -nologo -MT -O2 -DUNICODE -D_UNICODE
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)

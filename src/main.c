@@ -490,6 +490,8 @@ int main(int argc, char **argv)
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
+    if( find_option("utc",0,0) ) g.fTimeFormat = 1;
+    if( find_option("localtime",0,0) ) g.fTimeFormat = 2;
     if( zChdir && chdir(zChdir) ){
       fossil_fatal("unable to change directories to %s", zChdir);
     }

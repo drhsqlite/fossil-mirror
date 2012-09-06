@@ -220,6 +220,7 @@ void finfo_cmd(void){
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
+**    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
   Stmt q;
@@ -234,7 +235,7 @@ void finfo_page(void){
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
-  int firstChngOnly = P("fco")!=0;
+  int firstChngOnly = atoi(PD("fco","1"))!=0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -243,7 +244,7 @@ void finfo_page(void){
   url_initialize(&url, "finfo");
   if( brBg ) url_add_parameter(&url, "brbg", 0);
   if( uBg ) url_add_parameter(&url, "ubg", 0);
-  if( firstChngOnly ) url_add_parameter(&url, "fco", 0);
+  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
@@ -291,7 +292,7 @@ void finfo_page(void){
   }
   if( firstChngOnly ){
     style_submenu_element("Full", "Show all changes",
-                          url_render(&url, "fco", 0, 0, 0));
+                          url_render(&url, "fco", "0", 0, 0));
   }else{
     style_submenu_element("Simplified", "Show only first use of a change",
                           url_render(&url, "fco", "1", 0, 0));
