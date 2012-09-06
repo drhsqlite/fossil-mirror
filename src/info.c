@@ -833,11 +833,14 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
 /*
 ** Output a description of a check-in
 */
-void checkin_description(int rid){
+static void checkin_description(int rid){
   Stmt q;
   db_prepare(&q,
     "SELECT datetime(mtime), coalesce(euser,user),"
-    "       coalesce(ecomment,comment), uuid"
+    "       coalesce(ecomment,comment), uuid,"
+    "      (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+    "        WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+    "          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
     "  FROM event, blob"
     " WHERE event.objid=%d AND type='ci'"
     "   AND blob.rid=%d",
@@ -846,13 +849,41 @@ void checkin_description(int rid){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zUser = db_column_text(&q, 1);
-    const char *zCom = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    @ Check-in
+    const char *zTagList = db_column_text(&q, 4);
+    Blob comment;
+    int wikiFlags = WIKI_INLINE;
+    if( db_get_boolean("timeline-block-markup", 0)==0 ){
+      wikiFlags |= WIKI_NOBLOCK;
+    }
     hyperlink_to_uuid(zUuid);
-    @ - %w(zCom) by
-    hyperlink_to_user(zUser,zDate," on");
-    hyperlink_to_date(zDate, ".");
+    blob_zero(&comment);
+    db_column_blob(&q, 2, &comment);
+    wiki_convert(&comment, 0, wikiFlags);
+    blob_reset(&comment);
+    @ (user:
+    hyperlink_to_user(zUser,zDate,",");
+    if( zTagList && zTagList[0] && g.perm.Hyperlink ){
+      int i;
+      const char *z = zTagList;
+      Blob links;
+      blob_zero(&links);
+      while( z && z[0] ){
+        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
+        blob_appendf(&links,
+              "%z%#h</a>%.2s",
+              href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+        );
+        if( z[i]==0 ) break;
+        z += i+2;
+      }
+      @ tags: %s(blob_str(&links)),
+      blob_reset(&links);
+    }else{
+      @ tags: %h(zTagList),
+    }
+    @ date:
+    hyperlink_to_date(zDate, ")");
   }
   db_finalize(&q);
 }
