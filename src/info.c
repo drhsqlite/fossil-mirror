@@ -803,7 +803,16 @@ void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff?from=UUID&to=UUID&detail=BOOLEAN;sbs=BOOLEAN
+** URL: /vdiff
+**
+** Query parameters:
+**
+**   from=TAG
+**   to=TAG
+**   branch=TAG
+**   detail=BOOLEAN
+**   sbs=BOOLEAN
+**
 **
 ** Show all differences between two checkins.  
 */
@@ -815,6 +824,8 @@ void vdiff_page(void){
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
   const char *zBranch;
+  const char *zFrom;
+  const char *zTo;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -832,15 +843,20 @@ void vdiff_page(void){
   sideBySide = atoi(PD("sbs","1"));
   showDetail = atoi(PD("detail","0"));
   if( !showDetail && sideBySide ) showDetail = 1;
+  zFrom = P("from");
+  zTo = P("to");
   if( !sideBySide ){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=1",
-                          g.zTop, P("from"), P("to"), showDetail);
+                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=1",
+                          zFrom, zTo, showDetail);
   }else{
     style_submenu_element("Unified Diff", "udiff",
-                          "%s/vdiff?from=%T&to=%T&detail=%d&sbs=0",
-                          g.zTop, P("from"), P("to"), showDetail);
+                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=0",
+                          zFrom, zTo, showDetail);
   }
+  style_submenu_element("Invert", "invert",
+                        "%R/vdiff?from=%T&to=%T&detail=%d&sbs=%d",
+                        zTo, zFrom, showDetail, sideBySide);
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
