@@ -154,6 +154,7 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
        " ORDER BY event.mtime DESC /*sort*/",
        &zTag[4], zType
     );
+    return rid;
   }
   
   /* root:TAG -> The origin of the branch */
