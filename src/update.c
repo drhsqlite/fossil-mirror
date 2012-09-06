@@ -107,6 +107,7 @@ void update_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
+  int nUpdate = 0;      /* Number of chagnes of any kind */
   Stmt mtimeXfer;       /* Statment to transfer mtimes */
 
   if( !internalUpdate ){
@@ -365,6 +366,7 @@ void update_cmd(void){
     zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
     nameChng = fossil_strcmp(zName, zNewName);
+    nUpdate++;
     if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
@@ -448,6 +450,7 @@ void update_cmd(void){
       blob_reset(&t);
       blob_reset(&r);
     }else{
+      nUpdate--;
       if( chnged ){
         if( verboseFlag ) fossil_print("EDITED %s\n", zName);
       }else{
@@ -463,8 +466,15 @@ void update_cmd(void){
   }
   db_finalize(&q);
   db_finalize(&mtimeXfer);
-  fossil_print("--------------\n");
-  show_common_info(tid, "updated-to:", 1, 0);
+  fossil_print("%.79c\n",'-');
+  if( nUpdate==0 ){
+    show_common_info(tid, "checkout:", 1, 0);
+    fossil_print("%-13s None. Already up-to-date\n", "changes:");
+  }else{
+    show_common_info(tid, "updated-to:", 1, 0);
+    fossil_print("%-13s %d file%s modified.\n", "changes:",
+                 nUpdate, nUpdate>1 ? "s" : "");
+  }
 
   /* Report on conflicts
   */

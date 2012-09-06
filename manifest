@@ -1,5 +1,5 @@
-C Do\snot\scount\sdivider\slines\sas\s"items"\son\sthe\stimeline.
-D 2012-09-05T20:54:56.128
+C Show\sthe\snumber\sof\schanges\sfollowing\sa\s"fossil\supdate".
+D 2012-09-06T10:23:02.919
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -160,7 +160,7 @@ F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
-F src/update.c bee8c866be0d1820745041873508918b17c5e547
+F src/update.c 5b74d4f9de38eff1203c4e3ebbcc14729109b763
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c 5ba9fbad1b4574bc3d225f1c56e9ce37b966e2f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -351,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 41c3c1900bd022d552744038232f0ab836a0f889
-R f282c90d2d5a2b9424f673f0a1234643
+P 4913964321c48b6f02be59d38f5e12679369590b be10939bff0970b39cc1ff2d4fde7a0a770985ae
+R 5ce0e9d6981e591589b18a6a1bbe559e
 U drh
-Z 3c58c1a99bd4cda9869889e7cb73d1a3
+Z 1381ecb9e232c1fe918481e2dd39af05
