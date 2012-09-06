@@ -160,15 +160,21 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   if( memcmp(zTag, "root:", 5)==0 ){
     Stmt q;
     int rc;
+    char *zBr;
     rid = symbolic_name_to_rid(zTag+5, zType);
+    zBr = db_text("trunk","SELECT value FROM tagxref"
+                          " WHERE rid=%d AND tagid=%d"
+                          " AND tagtype>0",
+                          rid, TAG_BRANCH);
     db_prepare(&q,
       "SELECT pid, EXISTS(SELECT 1 FROM tagxref"
                          " WHERE tagid=%d AND tagtype>0"
                          "   AND value=%Q AND rid=plink.pid)"
       "  FROM plink"
       " WHERE cid=:cid AND isprim",
-      TAG_BRANCH, &zTag[5]
+      TAG_BRANCH, zBr
     );
+    fossil_free(zBr);
     do{
       db_reset(&q);
       db_bind_int(&q, ":cid", rid);
