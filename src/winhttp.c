@@ -111,7 +111,7 @@ static void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
-    fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName, 
+    fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName,
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
@@ -131,6 +131,11 @@ end_request:
   free(p);
 }
 
+#if !defined(UNICODE)
+#  define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
+#  define fossil_utf8_to_unicode fossil_utf8_to_mbcs
+#endif
+
 /*
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
@@ -148,7 +153,7 @@ void win32_http_server(
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
-  char zTmpPath[MAX_PATH];
+  TCHAR zTmpPath[MAX_PATH];
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
@@ -196,7 +201,7 @@ void win32_http_server(
   if( !GetTempPath(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_mbcs_to_utf8(zTmpPath), iPort);
+  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_unicode_to_utf8(zTmpPath), iPort);
   fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
@@ -216,7 +221,7 @@ void win32_http_server(
 
     client = accept(s, (struct sockaddr*)&client_addr, &len);
     if( client==INVALID_SOCKET ){
-      /* If the service control handler has closed the listener socket, 
+      /* If the service control handler has closed the listener socket,
       ** cleanup and return, otherwise report a fatal error. */
       wsaError =  WSAGetLastError();
       if( (wsaError==WSAEINTR) || (wsaError==WSAENOTSOCK) ){
@@ -251,7 +256,7 @@ struct HttpService {
   const char *zNotFound;    /* The --notfound option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
-  const char *zServiceName; /* Name of the service */
+  const TCHAR *zServiceName;/* Name of the service */
   SOCKET s;                 /* Socket on which the http server listens */
 };
 
@@ -300,7 +305,7 @@ static char *win32_get_last_errmsg(void){
            );
   }
   if( nMsg ){
-    zMsg = fossil_mbcs_to_utf8(tmp);
+    zMsg = fossil_unicode_to_utf8(tmp);
   }else{
     fossil_fatal("unable to get system error message.");
   }
@@ -328,7 +333,7 @@ static void win32_report_service_status(
   ssStatus.dwWin32ExitCode = dwWin32ExitCode;
   ssStatus.dwWaitHint = dwWaitHint;
 
-  if( (dwCurrentState==SERVICE_RUNNING) || 
+  if( (dwCurrentState==SERVICE_RUNNING) ||
       (dwCurrentState==SERVICE_STOPPED) ){
     ssStatus.dwCheckPoint = 0;
   }else{
@@ -386,7 +391,7 @@ static void WINAPI win32_http_service_main(
   }
 
   /* Register the service control handler function */
-  sshStatusHandle = RegisterServiceCtrlHandler("", win32_http_service_ctrl);
+  sshStatusHandle = RegisterServiceCtrlHandler(TEXT(""), win32_http_service_ctrl);
   if( !sshStatusHandle ){
     win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
     return;
@@ -431,8 +436,8 @@ int win32_http_service(
 ){
   /* Define the service table. */
   SERVICE_TABLE_ENTRY ServiceTable[] =
-    {{"", (LPSERVICE_MAIN_FUNCTION)win32_http_service_main}, {NULL, NULL}};
-  
+    {{TEXT(""), (LPSERVICE_MAIN_FUNCTION)win32_http_service_main}, {NULL, NULL}};
+
   /* Initialize the HttpService structure. */
   hsData.port = nPort;
   hsData.zNotFound = zNotFound;
@@ -449,7 +454,8 @@ int win32_http_service(
   return 0;
 }
 
-/*
+#ifdef _WIN32
+/* dupe ifdef needed for mkindex
 ** COMMAND: winsrv*
 ** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
 **
@@ -461,7 +467,7 @@ int win32_http_service(
 **
 ** In the following description of the methods, "Fossil-DSCM" will be
 ** used as the default SERVICE-NAME:
-** 
+**
 **    fossil winsrv create ?SERVICE-NAME? ?OPTIONS?
 **
 **         Creates a service. Available options include:
@@ -567,7 +573,7 @@ void cmd_win32_service(void){
     SC_HANDLE hScm;
     SC_HANDLE hSvc;
     SERVICE_DESCRIPTION
-      svcDescr = {"Fossil - Distributed Software Configuration Management"};
+      svcDescr = {TEXT("Fossil - Distributed Software Configuration Management")};
     char *zErrFmt = "unable to create service '%s': %s";
     DWORD dwStartType = SERVICE_DEMAND_START;
     const char *zDisplay    = find_option("display", "D", 1);
@@ -626,18 +632,18 @@ void cmd_win32_service(void){
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     hSvc = CreateService(
              hScm,                                    /* Handle to the SCM */
-             fossil_utf8_to_mbcs(zSvcName),           /* Name of the service */
-             fossil_utf8_to_mbcs(zDisplay),           /* Display name */
+             fossil_utf8_to_unicode(zSvcName),           /* Name of the service */
+             fossil_utf8_to_unicode(zDisplay),           /* Display name */
              SERVICE_ALL_ACCESS,                      /* Desired access */
              SERVICE_WIN32_OWN_PROCESS,               /* Service type */
              dwStartType,                             /* Start type */
              SERVICE_ERROR_NORMAL,                    /* Error control */
-             fossil_utf8_to_mbcs(blob_str(&binPath)), /* Binary path */
+             fossil_utf8_to_unicode(blob_str(&binPath)), /* Binary path */
              NULL,                                    /* Load ordering group */
              NULL,                                    /* Tag value */
              NULL,                                    /* Service dependencies */
-             fossil_utf8_to_mbcs(zUsername),          /* Service account */
-             fossil_utf8_to_mbcs(zPassword)           /* Account password */
+             fossil_utf8_to_unicode(zUsername),          /* Service account */
+             fossil_utf8_to_unicode(zPassword)           /* Account password */
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Set the service description. */
@@ -660,7 +666,7 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenService(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
@@ -697,8 +703,8 @@ void cmd_win32_service(void){
     LPSERVICE_DESCRIPTION pSvcDescr;
     BOOL bStatus;
     DWORD nRequired;
-    char *zErrFmt = "unable to show service '%s': %s";
-    static const char *zSvcTypes[] = {
+    const char *zErrFmt = "unable to show service '%s': %s";
+    static const char *const zSvcTypes[] = {
       "Driver service",
       "File system driver service",
       "Service runs in its own process",
@@ -706,7 +712,7 @@ void cmd_win32_service(void){
       "Service can interact with the desktop"
     };
     const char *zSvcType = "";
-    static char *zSvcStartTypes[] = {
+    static const char *const zSvcStartTypes[] = {
       "Started by the system loader",
       "Started by the IoInitSystem function",
       "Started automatically by the service control manager",
@@ -714,7 +720,7 @@ void cmd_win32_service(void){
       "Service cannot be started"
     };
     const char *zSvcStartType = "";
-    static const char *zSvcStates[] = {
+    static const char *const zSvcStates[] = {
       "Stopped", "Starting", "Stopping", "Running",
       "Continue pending", "Pause pending", "Paused"
     };
@@ -728,7 +734,7 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManager(NULL, NULL, GENERIC_READ);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), GENERIC_READ);
+    hSvc = OpenService(hScm, fossil_utf8_to_unicode(zSvcName), GENERIC_READ);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Get the service configuration */
     bStatus = QueryServiceConfig(hSvc, NULL, 0, &nRequired);
@@ -780,15 +786,15 @@ void cmd_win32_service(void){
     /* Print service information to terminal */
     fossil_print("Service name .......: %s\n", zSvcName);
     fossil_print("Display name .......: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpDisplayName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpDisplayName));
     fossil_print("Service description : %s\n",
-                 fossil_mbcs_to_utf8(pSvcDescr->lpDescription));
+                 fossil_unicode_to_utf8(pSvcDescr->lpDescription));
     fossil_print("Service type .......: %s.\n", zSvcType);
     fossil_print("Service start type .: %s.\n", zSvcStartType);
     fossil_print("Binary path name ...: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpBinaryPathName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpBinaryPathName));
     fossil_print("Service username ...: %s\n",
-                 fossil_mbcs_to_utf8(pSvcConfig->lpServiceStartName));
+                 fossil_unicode_to_utf8(pSvcConfig->lpServiceStartName));
     fossil_print("Current state ......: %s.\n", zSvcState);
     /* Cleanup */
     fossil_free(pSvcConfig);
@@ -810,7 +816,7 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenService(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_RUNNING ){
@@ -846,7 +852,7 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenService(hScm, fossil_utf8_to_mbcs(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenService(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
@@ -874,5 +880,6 @@ void cmd_win32_service(void){
   }
   return;
 }
+#endif /* _WIN32 */
 
 #endif /* _WIN32  -- This code is for win32 only */

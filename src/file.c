@@ -116,7 +116,7 @@ i64 file_size(const char *zFilename){
 ** Same as file_size(), but takes into account symlinks.
 */
 i64 file_wd_size(const char *zFilename){
-  return getStat(zFilename, 1) ? -1 : fileStat.st_size;  
+  return getStat(zFilename, 1) ? -1 : fileStat.st_size;
 }
 
 /*
@@ -136,7 +136,7 @@ i64 file_wd_mtime(const char *zFilename){
 }
 
 /*
-** Return TRUE if the named file is an ordinary file or symlink 
+** Return TRUE if the named file is an ordinary file or symlink
 ** and symlinks are allowed.
 ** Return false for directories, devices, fifos, etc.
 */
@@ -193,10 +193,10 @@ void symlink_create(const char *zTargetFile, const char *zLinkFile){
     if( zName!=zBuf ) free(zName);
 
     if( symlink(zTargetFile, zName)!=0 ){
-      fossil_fatal_recursive("unable to create symlink \"%s\"", zName);      
+      fossil_fatal_recursive("unable to create symlink \"%s\"", zName);
     }
   }else
-#endif 
+#endif
   {
     Blob content;
     blob_set(&content, zTargetFile);
@@ -232,7 +232,7 @@ int file_wd_perm(const char *zFilename){
   else
     return PERM_REG;
 #else
-  if( S_ISREG(fileStat.st_mode) && 
+  if( S_ISREG(fileStat.st_mode) &&
       ((S_IXUSR|S_IXGRP|S_IXOTH)&fileStat.st_mode)!=0 )
     return PERM_EXE;
   else if( g.allowSymlinks && S_ISLNK(fileStat.st_mode) )
@@ -407,7 +407,7 @@ void file_delete(const char *zFilename){
 
 /*
 ** Create the directory named in the argument, if it does not already
-** exist.  If forceFlag is 1, delete any prior non-directory object 
+** exist.  If forceFlag is 1, delete any prior non-directory object
 ** with the same name.
 **
 ** Return the number of errors.
@@ -721,7 +721,7 @@ int file_is_canonical(const char *z){
   return 1;
 }
 
-/* 
+/*
 ** Return a pointer to the first character in a pathname past the
 ** drive letter.  This routine is a no-op on unix.
 */
@@ -949,7 +949,7 @@ void file_tempname(int nBuf, char *zBuf){
   azDirs[2] = fossil_getenv("TMP");
 #endif
 
-  
+
   for(i=0; i<sizeof(azDirs)/sizeof(azDirs[0]); i++){
     if( azDirs[i]==0 ) continue;
     if( !file_isdir(azDirs[i]) ) continue;
@@ -957,7 +957,7 @@ void file_tempname(int nBuf, char *zBuf){
     break;
   }
 
-  /* Check that the output buffer is large enough for the temporary file 
+  /* Check that the output buffer is large enough for the temporary file
   ** name. If it is not, return SQLITE_ERROR.
   */
   if( (strlen(zDir) + 17) >= (size_t)nBuf ){
@@ -1037,7 +1037,7 @@ int file_is_the_same(Blob *pContent, const char *zName){
 */
 
 /*
-** Translate MBCS to UTF8.  Return a pointer to the translated text.  
+** Translate MBCS to UTF8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
@@ -1047,7 +1047,7 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
   return sqlite3_win32_mbcs_to_utf8(zMbcs);
 #else
   return (char*)zMbcs;  /* No-op on unix */
-#endif  
+#endif
 }
 
 /*
@@ -1080,7 +1080,7 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
   return sqlite3_win32_utf8_to_mbcs(zUtf8);
 #else
   return (char*)zUtf8;  /* No-op on unix */
-#endif  
+#endif
 }
 
 /*
@@ -1118,44 +1118,67 @@ char *fossil_getenv(const char *zName){
 }
 
 /*
-** Translate UTF8 to MBCS for display on the console.  Return a pointer to the
-** translated text..  Call fossil_mbcs_free() to deallocate any memory
-** used to store the returned pointer when done.
+** Display UTF8 on the console.  Return the number of
+** Characters written. If stdout or stderr is redirected
+** to a file, -1 is returned and nothing is written
+** to the console.
 */
-char *fossil_utf8_to_console(const char *zUtf8){
+int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
-  int nChar, nByte;
-  WCHAR *zUnicode;   /* Unicode version of zUtf8 */
+  int nChar;
+  wchar_t *zUnicode; /* Unicode version of zUtf8 */
+#ifdef UNICODE
+  DWORD dummy;
+#else
   char *zConsole;    /* Console version of zUtf8 */
   int codepage;      /* Console code page */
+#endif
 
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, NULL, 0);
-  zUnicode = malloc( nChar*sizeof(zUnicode[0]) );
+  static int istty[2] = { -1, -1 };
+  if( istty[toStdErr] == -1 ){
+    istty[toStdErr] = _isatty(toStdErr + 1) != 0;
+  }
+  if( !istty[toStdErr] ){
+    /* stdout/stderr is not a console. */
+    return -1;
+  }
+
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, NULL, 0);
+  zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
   if( zUnicode==0 ){
     return 0;
   }
-  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
   if( nChar==0 ){
     free(zUnicode);
     return 0;
   }
+  zUnicode[nChar] = '\0';
+#ifdef UNICODE
+  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar, &dummy, 0);
+#else /* !UNICODE */
   codepage = GetConsoleCP();
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, 0, 0, 0, 0);
-  zConsole = malloc( nByte );
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, 0, 0, 0, 0);
+  zConsole = malloc( nByte + 1);
   if( zConsole==0 ){
     free(zUnicode);
     return 0;
   }
-  nByte = WideCharToMultiByte(codepage, 0, zUnicode, -1, zConsole, nByte, 0, 0);
+  nByte = WideCharToMultiByte(codepage, 0, zUnicode, nChar, zConsole, nByte, 0, 0);
+  zConsole[nByte] = '\0';
   free(zUnicode);
   if( nByte == 0 ){
     free(zConsole);
     zConsole = 0;
+    return 0;
   }
-  return zConsole;
+  fwrite(zConsole, 1, nByte, toStdErr ? stderr : stdout);
+  fflush(toStdErr ? stderr : stdout);
+#endif /* UNICODE */
+  return nChar;
 #else
-  return (char*)zUtf8;  /* No-op on unix */
-#endif  
+  return -1;  /* No-op on unix */
+#endif
 }
 
 /*
@@ -1168,7 +1191,7 @@ void fossil_mbcs_free(void *zOld){
   sqlite3_free(zOld);
 #else
   /* No-op on unix */
-#endif  
+#endif
 }
 
 /*

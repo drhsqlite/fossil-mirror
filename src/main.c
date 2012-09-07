@@ -159,7 +159,7 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
-  
+
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -170,7 +170,7 @@ struct Global {
   int rcvid;              /* The rcvid.  0 if not yet defined. */
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
-  
+
   /* permissions used by the server */
   struct FossilUserPerms perm;
 
@@ -197,7 +197,7 @@ struct Global {
   const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
   const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
-  
+
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
 #ifdef FOSSIL_ENABLE_JSON
@@ -264,7 +264,7 @@ struct Global {
 Global g;
 
 /*
-** The table of web pages supported by this application is generated 
+** The table of web pages supported by this application is generated
 ** automatically by the "mkindex" program and written into a file
 ** named "page_index.h".  We include that file here to get access
 ** to the table.
@@ -333,8 +333,8 @@ void fossil_atexit(void) {
 }
 
 /*
-** Convert all arguments from mbcs to UTF-8. Then
-** search g.argv for arguments "--args FILENAME". If found, then
+** Convert all arguments to UTF-8. Then search g.argv for for arguments
+** "--args FILENAME". If found, then
 ** (1) remove the two arguments from g.argv
 ** (2) Read the file FILENAME
 ** (3) Use the contents of FILE to replace the two removed arguments:
@@ -343,7 +343,7 @@ void fossil_atexit(void) {
 **     (c) If the line begins with "-" and contains a space, it is broken
 **         into two arguments at the space.
 */
-static void expand_args_option(int argc, char **argv){
+static void expand_args_option(int argc, void *argv){
   Blob file = empty_blob;   /* Content of the file */
   Blob line = empty_blob;   /* One line of the file */
   unsigned int nLine;       /* Number of lines in the file*/
@@ -363,7 +363,11 @@ static void expand_args_option(int argc, char **argv){
 #ifdef _WIN32
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
+#ifdef UNICODE
+  for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#else
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#endif
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
@@ -392,7 +396,7 @@ static void expand_args_option(int argc, char **argv){
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
-  
+
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
     if( n<=1 ) continue;
@@ -432,7 +436,12 @@ static void expand_args_option(int argc, char **argv){
 /*
 ** This procedure runs first.
 */
-int main(int argc, char **argv){
+#if defined(_WIN32) && defined(UNICODE)
+int wmain(int argc, wchar_t **argv)
+#else
+int main(int argc, char **argv)
+#endif
+{
   const char *zCmdName = "unknown";
   int idx;
   int rc;
@@ -728,8 +737,8 @@ int fossil_system(const char *zOrigCmd){
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
   rc = system(zOrigCmd);
-#endif 
-  return rc; 
+#endif
+  return rc;
 }
 
 /*
@@ -1196,7 +1205,7 @@ static char *enter_chroot_jail(char *zRepo){
 ** If the repository is known, it has already been opened.  If unknown,
 ** then g.zRepositoryName holds the directory that contains the repository
 ** and the actual repository is taken from the first element of PATH_INFO.
-** 
+**
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 */
@@ -1269,7 +1278,7 @@ static void process_one_web_page(const char *zNotFound){
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     db_open_repository(zRepo);
     if( g.fHttpTrace ){
-      fprintf(stderr, 
+      fprintf(stderr,
           "# repository: [%s]\n"
           "# new PATH_INFO = [%s]\n"
           "# new SCRIPT_NAME = [%s]\n",
@@ -1284,7 +1293,7 @@ static void process_one_web_page(const char *zNotFound){
     zPathInfo = "/xfer";
   }
   set_base_url();
-  if( zPathInfo==0 || zPathInfo[0]==0 
+  if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
@@ -1314,7 +1323,7 @@ static void process_one_web_page(const char *zNotFound){
       ** where NAME is the first component of the path.  The value of the
       ** the CONFIG entries is the string "USER:FILENAME" where USER is the
       ** USER name to log in as in the subrepository and FILENAME is the
-      ** repository filename. 
+      ** repository filename.
       */
       zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
                          g.zPath);
@@ -1516,7 +1525,7 @@ void cmd_cgi(void){
 **
 **    redirect:  repository-filename  http://hostname/path/%s
 **
-** then control jumps here.  Search each repository for an artifact ID 
+** then control jumps here.  Search each repository for an artifact ID
 ** that matches the "name" CGI parameter and for the first match,
 ** redirect to the corresponding URL with the "name" CGI parameter
 ** inserted.  Paint an error page if no match is found.
@@ -1532,7 +1541,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
   const char *zNotFound = 0;         /* Not found URL */
   const char *zName = P("name");
-  set_base_url();          
+  set_base_url();
   if( zName==0 ){
     zName = P("SCRIPT_NAME");
     if( zName && zName[0]=='/' ) zName++;
@@ -1605,7 +1614,7 @@ static void find_server_repository(int disallowDir){
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
-** handler from inetd, for example.  The argument is the name of the 
+** handler from inetd, for example.  The argument is the name of the
 ** repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories
