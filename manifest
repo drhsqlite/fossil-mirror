@@ -1,5 +1,5 @@
-C Add\san\sauthorizer\sto\sthe\sraw-SQL\sentry\sbox.\s\sThis\sauthorizer\sis\snot\nstrictly\snecessary\sfor\ssecurity.\s\sIt\sis\sjust\sanother\slayer\sof\sdefense.
-D 2012-09-07T19:16:47.320
+C On\swindows,\smake\s"gdiff"\sdefault\sto\susing\sWinDiff.exe.
+D 2012-09-07T21:12:29.628
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -81,7 +81,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 02c6c15cdae13157afda3cace3578bfa951e6640
-F src/diffcmd.c 9bdfa7b5cc0cf1feda5e4d168bfb68f2b1adbe7c
+F src/diffcmd.c f70e6d0dd77ac0c98ea50c4c00ee72a972188ce7
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
@@ -144,7 +144,7 @@ F src/skins.c 065fd92b26b058b4c79009a832ea1462c00de1ed
 F src/sqlcmd.c 0c96c363b6c0ae8789bca0ab169bca41011848b2
 F src/sqlite3.c 5fdf596b29bb426001f28b488ff356ae14d5a5a6
 F src/sqlite3.h f950c88e5f2b4930b34efb4c446daab238cb49c8
-F src/stash.c 64b6f7485654e44a8d3434ec8d27f016811c4ab7
+F src/stash.c f12cfed0fae39c133f3277fa583f10f9c790e709
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c f2c948af2b538cc63ce44c11a0d7926a9f7e00c9
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -351,7 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6b22a464d7ff59a29a455792e948f06dba32470c
-R 7372ac11701ad8372b10b78e92c932c4
+P 98f29f24cd4349ddaa276cea05d231d28351a7bf
+R 9e1cc43f562061dbd209278c9f2374ac
 U drh
-Z b94a045452676dfccdfed78a1674e6eb
+Z 8677efde62fee55e0bb0f8fa7e15644f
