@@ -332,127 +332,121 @@ void fossil_atexit(void) {
   }
 }
 
+#if defined(_WIN32)
 /*
- *-------------------------------------------------------------------------
- *
- * setargv --
- *
- *	Parse the Windows command line string into argc/argv. Done here
- *	because we don't trust the builtin argument parser in crt0. Windows
- *	applications are responsible for breaking their command line into
- *	arguments.
- *
- *	2N backslashes + quote -> N backslashes + begin quoted string
- *	2N + 1 backslashes + quote -> literal
- *	N backslashes + non-quote -> literal
- *	quote + quote in a quoted string -> single quote
- *	quote + quote not in quoted string -> empty string
- *	quote -> begin quoted string
- *
- * Results:
- *	Fills argcPtr with the number of arguments and argvPtr with the array
- *	of arguments.
- *
- * Side effects:
- *	Memory allocated.
- *
- *--------------------------------------------------------------------------
- */
-
-#ifdef MINGW_BROKEN_MAINARGS
+** Parse the command-line arguments passed to windows.  We do this
+** ourselves to work around bugs in the command-line parsing of MinGW.
+** It is possible (in theory) to only use this routine when compiling
+** with MinGW and to use built-in command-line parsing for MSVC and
+** MinGW-64.  However, the code is here, it is efficient, and works, and
+** by using it in all cases we do a better job of testing it.  If you suspect
+** a bug in this code, test your theory by invoking "fossil test-echo".
+**
+** This routine is copied from TCL with some reformatting.
+** The original comment text follows:
+**
+** Parse the Windows command line string into argc/argv. Done here
+** because we don't trust the builtin argument parser in crt0. Windows
+** applications are responsible for breaking their command line into
+** arguments.
+**
+** 2N backslashes + quote -> N backslashes + begin quoted string
+** 2N + 1 backslashes + quote -> literal
+** N backslashes + non-quote -> literal
+** quote + quote in a quoted string -> single quote
+** quote + quote not in quoted string -> empty string
+** quote -> begin quoted string
+**
+** Results:
+** Fills argcPtr with the number of arguments and argvPtr with the array
+** of arguments.
+*/
 #include <tchar.h>
+#define tchar_isspace(X)  ((X)==TEXT(' ') || (X)==TEXT('\t'))
+static void parse_windows_command_line(
+  int *argcPtr,   /* Filled with number of argument strings. */
+  void *argvPtr   /* Filled with argument strings (malloc'd). */
+){
+  TCHAR *cmdLine, *p, *arg, *argSpace;
+  TCHAR **argv;
+  int argc, size, inquote, copy, slashes;
 
-static void
-setargv(
-    int *argcPtr,		/* Filled with number of argument strings. */
-    void *argvPtr)		/* Filled with argument strings (malloc'd). */
-{
-    TCHAR *cmdLine, *p, *arg, *argSpace;
-    TCHAR **argv;
-    int argc, size, inquote, copy, slashes;
+  cmdLine = GetCommandLine();
 
-    cmdLine = GetCommandLine();
-
-    /*
-     * Precompute an overly pessimistic guess at the number of arguments in
-     * the command line by counting non-space spans.
-     */
-
-    size = 2;
-    for (p = cmdLine; *p != TEXT('\0'); p++) {
-	if ((*p == TEXT(' ')) || (*p == TEXT('\t'))) {	/* INTL: ISO space. */
-	    size++;
-	    while ((*p == TEXT(' ')) || (*p == TEXT('\t'))) { /* INTL: ISO space. */
-		p++;
-	    }
-	    if (*p == TEXT('\0')) {
-		break;
-	    }
-	}
+  /*
+  ** Precompute an overly pessimistic guess at the number of arguments in
+  ** the command line by counting non-space spans.
+  */
+  size = 2;
+  for(p=cmdLine; *p!=TEXT('\0'); p++){
+    if( tchar_isspace(*p) ){
+      size++;
+      while( tchar_isspace(*p) ){
+        p++;
+      }
+      if( *p==TEXT('\0') ){
+        break;
+      }
     }
+  }
 
-    argSpace = fossil_malloc(size * sizeof(char *)
-	    + (_tcslen(cmdLine) * sizeof(TCHAR)) + sizeof(TCHAR));
-    argv = (TCHAR **) argSpace;
-    argSpace += size * (sizeof(char *)/sizeof(TCHAR));
-    size--;
+  argSpace = fossil_malloc(size * sizeof(char*)
+    + (_tcslen(cmdLine) * sizeof(TCHAR)) + sizeof(TCHAR));
+  argv = (TCHAR**)argSpace;
+  argSpace += size*(sizeof(char*)/sizeof(TCHAR));
+  size--;
 
-    p = cmdLine;
-    for (argc = 0; argc < size; argc++) {
-	argv[argc] = arg = argSpace;
-	while ((*p == TEXT(' ')) || (*p == TEXT('\t'))) {	/* INTL: ISO space. */
-	    p++;
-	}
-	if (*p == TEXT('\0')) {
-	    break;
-	}
-
-	inquote = 0;
-	slashes = 0;
-	while (1) {
-	    copy = 1;
-	    while (*p == TEXT('\\')) {
-		slashes++;
-		p++;
-	    }
-	    if (*p == TEXT('"')) {
-		if ((slashes & 1) == 0) {
-		    copy = 0;
-		    if ((inquote) && (p[1] == TEXT('"'))) {
-			p++;
-			copy = 1;
-		    } else {
-			inquote = !inquote;
-		    }
-		}
-		slashes >>= 1;
-	    }
-
-	    while (slashes) {
-		*arg = TEXT('\\');
-		arg++;
-		slashes--;
-	    }
-
-	    if ((*p == TEXT('\0')) || (!inquote &&
-		    ((*p == TEXT(' ')) || (*p == TEXT('\t'))))) {	/* INTL: ISO space. */
-		break;
-	    }
-	    if (copy != 0) {
-		*arg = *p;
-		arg++;
-	    }
-	    p++;
-	}
-	*arg = '\0';
-	argSpace = arg + 1;
+  p = cmdLine;
+  for(argc=0; argc<size; argc++){
+    argv[argc] = arg = argSpace;
+    while( tchar_isspace(*p) ){
+      p++;
     }
-    argv[argc] = NULL;
-
-    *argcPtr = argc;
-    *((TCHAR ***)argvPtr) = argv;
+    if (*p == TEXT('\0')) {
+      break;
+    }
+    inquote = 0;
+    slashes = 0;
+    while(1){
+      copy = 1;
+      while( *p==TEXT('\\') ){
+        slashes++;
+        p++;
+      }
+      if( *p==TEXT('"') ){
+        if( (slashes&1)==0 ){
+          copy = 0;
+          if( inquote && p[1]==TEXT('"') ){
+            p++;
+            copy = 1;
+          }else{
+            inquote = !inquote;
+          }
+        }
+        slashes >>= 1;
+      }
+      while( slashes ){
+        *arg = TEXT('\\');
+        arg++;
+        slashes--;
+      }
+      if( *p==TEXT('\0') || (!inquote && tchar_isspace(*p)) ){
+        break;
+      }
+      if( copy!=0 ){
+        *arg = *p;
+        arg++;
+      }
+      p++;
+    }
+    *arg = '\0';
+    argSpace = arg + 1;
+  }
+  argv[argc] = NULL;
+  *argcPtr = argc;
+  *((TCHAR ***)argvPtr) = argv;
 }
-#endif /* MINGW_BROKEN_MAINARGS */
+#endif /* defined(_WIN32) */
 
 
 /*
@@ -484,9 +478,7 @@ static void expand_args_option(int argc, void *argv){
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
-#ifdef MINGW_BROKEN_MAINARGS
-  setargv(&g.argc, &g.argv);
-#endif
+  parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
 #ifdef UNICODE
@@ -532,7 +524,7 @@ static void expand_args_option(int argc, void *argv){
       static const char bom[] = { 0xEF, 0xBB, 0xBF };
       foundBom = memcmp(z, bom, 3)==0;
       if( foundBom ) {
-    	  z += 3; n -= 3;
+        z += 3; n -= 3;
       }
     }
     if((n>1) && ('\r'==z[n-2])){
@@ -562,12 +554,7 @@ static void expand_args_option(int argc, void *argv){
 /*
 ** This procedure runs first.
 */
-#if defined(_WIN32) && defined(UNICODE) && !defined(MINGW_BROKEN_MAINARGS)
-int wmain(int argc, wchar_t **argv)
-#else
-int main(int argc, char **argv)
-#endif
-{
+int main(int argc, char **argv){
   const char *zCmdName = "unknown";
   int idx;
   int rc;

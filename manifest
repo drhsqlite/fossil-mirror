@@ -1,5 +1,5 @@
-C Fix\sticket\s[906c533302].\sIf\syou\swant\sto\sreplace\sthe\smingw\scommand-line\spa\sa\sbetter\sone\s(conforming\sto\sms\srules),\scompile\swith\s-DMINGW_BROKEN_MAINARGS.\nMinGW\sdoesn't\ssupport\sunicode\scommand\sline\sparsing\s(linker\soption\s-municode),\sso\sthe\soption\s-DMINGW_BROKEN_MAINARGS\scan\sbe\sused\sto\sfix\sthat\stoo.
-D 2012-09-09T20:53:48.927
+C Reformat\sthe\swindows\scommand-line\sparser\sto\sfollowing\sthe\sFossil\sstyle.\nUse\sthe\salternative\scommand-line\sparser\son\sall\swindows\sbuilds,\snot\sjust\nfor\sMinGW\sbuilds,\sto\ssimplify\sthe\slogic\sand\sso\sthat\sthe\salternative\sparser\ncode\sis\stesting\smore\sheavily.
+D 2012-09-09T22:06:21.882
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,7 +114,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fa3f4f61e885df02ffde8bf19197014c03c58e68
-F src/main.c 91e4eb7fce1d5802140b6f3ec2a89cbb5b1dae0e
+F src/main.c a60ec8d593802b57ef99ab0c9cea6f69f188d11c
 F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -351,10 +351,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c42408e15b8566b9bbafbb90480f3bb01c6d0759
-R 36b835724f26f29739e3d9e71f3d8c43
-T *branch * mingw-broken-cmdline
-T *sym-mingw-broken-cmdline *
-T -sym-trunk *
-U jan.nijtmans
-Z 7fea1f141919e2a9065b81e41c0926d6
+P 047dd626041159512720c5fd2d9663cf18c94a91
+R 0f29d0a307b7f7f1377ab2bc8049c464
+U drh
+Z e1e85f1f8b182a450aeb50d11cafe918
