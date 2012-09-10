@@ -1090,3 +1090,10 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
 
+#
+# The list of all the targets that do not correspond to real files. This stops
+# 'make' from getting confused when someone makes an error in a rule.
+#
+
+.PHONY: all install test clean
+
