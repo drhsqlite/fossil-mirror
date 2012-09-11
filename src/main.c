@@ -159,7 +159,7 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
-  
+
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
@@ -170,7 +170,7 @@ struct Global {
   int rcvid;              /* The rcvid.  0 if not yet defined. */
   char *zIpAddr;          /* The remote IP address */
   char *zNonce;           /* The nonce used for login */
-  
+
   /* permissions used by the server */
   struct FossilUserPerms perm;
 
@@ -197,7 +197,7 @@ struct Global {
   const char *azAuxVal[MX_AUX];  /* Value of each aux() or option() value */
   const char **azAuxOpt[MX_AUX]; /* Options of each option() value */
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
-  
+
   int allowSymlinks;             /* Cached "allow-symlinks" option */
 
 #ifdef FOSSIL_ENABLE_JSON
@@ -264,7 +264,7 @@ struct Global {
 Global g;
 
 /*
-** The table of web pages supported by this application is generated 
+** The table of web pages supported by this application is generated
 ** automatically by the "mkindex" program and written into a file
 ** named "page_index.h".  We include that file here to get access
 ** to the table.
@@ -332,8 +332,125 @@ void fossil_atexit(void) {
   }
 }
 
+#if defined(_WIN32)
 /*
-** Convert all arguments from mbcs to UTF-8. Then
+** Parse the command-line arguments passed to windows.  We do this
+** ourselves to work around bugs in the command-line parsing of MinGW.
+** It is possible (in theory) to only use this routine when compiling
+** with MinGW and to use built-in command-line parsing for MSVC and
+** MinGW-64.  However, the code is here, it is efficient, and works, and
+** by using it in all cases we do a better job of testing it.  If you suspect
+** a bug in this code, test your theory by invoking "fossil test-echo".
+**
+** This routine is copied from TCL with some reformatting.
+** The original comment text follows:
+**
+** Parse the Windows command line string into argc/argv. Done here
+** because we don't trust the builtin argument parser in crt0. Windows
+** applications are responsible for breaking their command line into
+** arguments.
+**
+** 2N backslashes + quote -> N backslashes + begin quoted string
+** 2N + 1 backslashes + quote -> literal
+** N backslashes + non-quote -> literal
+** quote + quote in a quoted string -> single quote
+** quote + quote not in quoted string -> empty string
+** quote -> begin quoted string
+**
+** Results:
+** Fills argcPtr with the number of arguments and argvPtr with the array
+** of arguments.
+*/
+#include <tchar.h>
+#define tchar_isspace(X)  ((X)==TEXT(' ') || (X)==TEXT('\t'))
+static void parse_windows_command_line(
+  int *argcPtr,   /* Filled with number of argument strings. */
+  void *argvPtr   /* Filled with argument strings (malloc'd). */
+){
+  TCHAR *cmdLine, *p, *arg, *argSpace;
+  TCHAR **argv;
+  int argc, size, inquote, copy, slashes;
+
+  cmdLine = GetCommandLine();
+
+  /*
+  ** Precompute an overly pessimistic guess at the number of arguments in
+  ** the command line by counting non-space spans.
+  */
+  size = 2;
+  for(p=cmdLine; *p!=TEXT('\0'); p++){
+    if( tchar_isspace(*p) ){
+      size++;
+      while( tchar_isspace(*p) ){
+        p++;
+      }
+      if( *p==TEXT('\0') ){
+        break;
+      }
+    }
+  }
+
+  argSpace = fossil_malloc(size * sizeof(char*)
+    + (_tcslen(cmdLine) * sizeof(TCHAR)) + sizeof(TCHAR));
+  argv = (TCHAR**)argSpace;
+  argSpace += size*(sizeof(char*)/sizeof(TCHAR));
+  size--;
+
+  p = cmdLine;
+  for(argc=0; argc<size; argc++){
+    argv[argc] = arg = argSpace;
+    while( tchar_isspace(*p) ){
+      p++;
+    }
+    if (*p == TEXT('\0')) {
+      break;
+    }
+    inquote = 0;
+    slashes = 0;
+    while(1){
+      copy = 1;
+      while( *p==TEXT('\\') ){
+        slashes++;
+        p++;
+      }
+      if( *p==TEXT('"') ){
+        if( (slashes&1)==0 ){
+          copy = 0;
+          if( inquote && p[1]==TEXT('"') ){
+            p++;
+            copy = 1;
+          }else{
+            inquote = !inquote;
+          }
+        }
+        slashes >>= 1;
+      }
+      while( slashes ){
+        *arg = TEXT('\\');
+        arg++;
+        slashes--;
+      }
+      if( *p==TEXT('\0') || (!inquote && tchar_isspace(*p)) ){
+        break;
+      }
+      if( copy!=0 ){
+        *arg = *p;
+        arg++;
+      }
+      p++;
+    }
+    *arg = '\0';
+    argSpace = arg + 1;
+  }
+  argv[argc] = NULL;
+  *argcPtr = argc;
+  *((TCHAR ***)argvPtr) = argv;
+}
+#endif /* defined(_WIN32) */
+
+
+/*
+** Convert all arguments from mbcs (or unicode) to UTF-8. Then
 ** search g.argv for arguments "--args FILENAME". If found, then
 ** (1) remove the two arguments from g.argv
 ** (2) Read the file FILENAME
@@ -343,14 +460,14 @@ void fossil_atexit(void) {
 **     (c) If the line begins with "-" and contains a space, it is broken
 **         into two arguments at the space.
 */
-static void expand_args_option(int argc, char **argv){
+static void expand_args_option(int argc, void *argv){
   Blob file = empty_blob;   /* Content of the file */
   Blob line = empty_blob;   /* One line of the file */
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
-  char *z;            /* General use string pointer */
-  char **newArgv;     /* New expanded g.argv under construction */
+  char *z;                  /* General use string pointer */
+  char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
@@ -361,9 +478,14 @@ static void expand_args_option(int argc, char **argv){
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
+  parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
+#ifdef UNICODE
+  for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#else
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#endif
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
@@ -392,7 +514,7 @@ static void expand_args_option(int argc, char **argv){
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
   for(j=0; j<i; j++) newArgv[j] = g.argv[j];
-  
+
   blob_rewind(&file);
   while( (n = blob_line(&file, &line))>0 ){
     if( n<=1 ) continue;
@@ -402,7 +524,7 @@ static void expand_args_option(int argc, char **argv){
       static const char bom[] = { 0xEF, 0xBB, 0xBF };
       foundBom = memcmp(z, bom, 3)==0;
       if( foundBom ) {
-    	  z += 3; n -= 3;
+        z += 3; n -= 3;
       }
     }
     if((n>1) && ('\r'==z[n-2])){
@@ -432,7 +554,12 @@ static void expand_args_option(int argc, char **argv){
 /*
 ** This procedure runs first.
 */
-int main(int argc, char **argv){
+#if defined(_WIN32) && defined(UNICODE)
+int wmain(int argc, wchar_t **argv)
+#else
+int main(int argc, char **argv)
+#endif
+{
   const char *zCmdName = "unknown";
   int idx;
   int rc;
@@ -728,8 +855,8 @@ int fossil_system(const char *zOrigCmd){
   */
   if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
   rc = system(zOrigCmd);
-#endif 
-  return rc; 
+#endif
+  return rc;
 }
 
 /*
@@ -1196,7 +1323,7 @@ static char *enter_chroot_jail(char *zRepo){
 ** If the repository is known, it has already been opened.  If unknown,
 ** then g.zRepositoryName holds the directory that contains the repository
 ** and the actual repository is taken from the first element of PATH_INFO.
-** 
+**
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
 */
@@ -1269,7 +1396,7 @@ static void process_one_web_page(const char *zNotFound){
     cgi_replace_parameter("SCRIPT_NAME", zNewScript);
     db_open_repository(zRepo);
     if( g.fHttpTrace ){
-      fprintf(stderr, 
+      fprintf(stderr,
           "# repository: [%s]\n"
           "# new PATH_INFO = [%s]\n"
           "# new SCRIPT_NAME = [%s]\n",
@@ -1284,7 +1411,7 @@ static void process_one_web_page(const char *zNotFound){
     zPathInfo = "/xfer";
   }
   set_base_url();
-  if( zPathInfo==0 || zPathInfo[0]==0 
+  if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
 #ifdef FOSSIL_ENABLE_JSON
     if(g.json.isJsonMode){
@@ -1314,7 +1441,7 @@ static void process_one_web_page(const char *zNotFound){
       ** where NAME is the first component of the path.  The value of the
       ** the CONFIG entries is the string "USER:FILENAME" where USER is the
       ** USER name to log in as in the subrepository and FILENAME is the
-      ** repository filename. 
+      ** repository filename.
       */
       zAltRepo = db_text(0, "SELECT value FROM config WHERE name='subrepo:%q'",
                          g.zPath);
@@ -1516,7 +1643,7 @@ void cmd_cgi(void){
 **
 **    redirect:  repository-filename  http://hostname/path/%s
 **
-** then control jumps here.  Search each repository for an artifact ID 
+** then control jumps here.  Search each repository for an artifact ID
 ** that matches the "name" CGI parameter and for the first match,
 ** redirect to the corresponding URL with the "name" CGI parameter
 ** inserted.  Paint an error page if no match is found.
@@ -1532,7 +1659,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
   const char *zNotFound = 0;         /* Not found URL */
   const char *zName = P("name");
-  set_base_url();          
+  set_base_url();
   if( zName==0 ){
     zName = P("SCRIPT_NAME");
     if( zName && zName[0]=='/' ) zName++;
@@ -1605,7 +1732,7 @@ static void find_server_repository(int disallowDir){
 **
 ** Handle a single HTTP request appearing on stdin.  The resulting webpage
 ** is delivered on stdout.  This method is used to launch an HTTP request
-** handler from inetd, for example.  The argument is the name of the 
+** handler from inetd, for example.  The argument is the name of the
 ** repository.
 **
 ** If REPOSITORY is a directory that contains one or more repositories
@@ -1744,7 +1871,7 @@ static int binaryOnPath(const char *zBinary){
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
   const char *zPort;        /* Value of the --port option */
-  char *zBrowser;           /* Name of web browser program */
+  const char *zBrowser;     /* Name of web browser program */
   char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
@@ -1781,7 +1908,7 @@ void cmd_webserver(void){
 #if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
-      static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      static const char *const azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
       int i;
       zBrowser = "echo";
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){

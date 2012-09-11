@@ -1,5 +1,5 @@
-C add\s.PHONY\starget\sto\smakefile,\sthis\smakes\s"make\stest"\swork\seven\sthough\sthere\salready\sis\sa\sdirectory\snamed\s"test"
-D 2012-09-10T18:15:16.196
+C Merge\sthe\sunicode-cmdline\sbranch\sinto\strunk.
+D 2012-09-11T12:16:29.660
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -61,7 +61,7 @@ F src/allrepo.c 9e86d840533990e879e05d29c3ff42612004b4b3
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
-F src/blob.c ae8377eef8ccc02e38112323b2d3154289e78cfd
+F src/blob.c ab2e4ebceb9224c9f9b433f3f2e76e7a643d04c7
 F src/branch.c 3df909076f844634940791541df7de2c8934fc5d
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
@@ -86,7 +86,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c 84de81811ce4b816baf96945ebfebb6ddd612094
+F src/file.c 2f7c8ff4699254936a1da141fa4250692da9105c
 F src/finfo.c a1b4516f572a7537c8556a5d5a89d6cefadaa273
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -114,11 +114,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fa3f4f61e885df02ffde8bf19197014c03c58e68
-F src/main.c f9e487efbbc9d7f9f56a2ad1e2f2bbfa2c1618d6
+F src/main.c 6079479b3e3de61a1c80ffb8853c3d1b2c953bdd
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 1165d879932501375cab004d476ee39c5514377f
+F src/makemake.tcl 0ecea4bf48f04880cbbef711bbef8545cc1409e9
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -130,7 +130,7 @@ F src/path.c 0c676ca3ee6b4a09f00ff22a49a5bcd04880b787
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 8c51da410617e924f432f742aa73562f0d682b04
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 366d56c15971aaf4fcbd2b711b7ba02666ae2c6c
+F src/printf.c 8478f895e4d224541b8cae5b15169584eff6e7a4
 F src/rebuild.c d266a029721dfad8bd0c33044097f609110a3379
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
@@ -167,11 +167,12 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 97d67c8a8758fee2095a11ecd9139e2198245be9
 F src/wiki.c 2ae848ec1648ea2aa4ffc17a19e056f0a3057de5
 F src/wikiformat.c da3cf9bb0a3a3eed61f2bc9e051057a0e98a0e11
-F src/winhttp.c 55ec43dd65fb454742643198f9a11f3ed9e15950
+F src/winhttp.c 8d0bd8f52c811ec8f182b578eaf3fe4660dbe972
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4f993e0ea36825f961796e613645b2dd1b407311
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
+F test/cmdline.test ab7e375016963c49200252c41ccc8a19f3adff52
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki b0a4d8629bef84fcb8e8a7ffe511d4bfaa98c71c
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -253,9 +254,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw 17a4a98eeb9a23de106853138d83a111abd15aa8
+F win/Makefile.mingw 3c8bdea6182a2865958341449e80ce900a30e941
 F win/Makefile.mingw.mistachkin 4eb8299fc8084bda4d415e7fe28bdf0ba2bc2ba5
-F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
+F win/Makefile.msc 7a3bcf42f80ef46f3f856362045e9494cd3d69cc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
 F win/include/dirent.h 5e16297fe4f99eabc2b286b6cfb8b66bd5d1e192
@@ -351,7 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c42408e15b8566b9bbafbb90480f3bb01c6d0759
-R 1bd219afd81a4c00496db5e8af6de038
-U jan.nijtmans
-Z 6ca964842ac5e80b3662df1cf180c5a0
+P ffcdfadbda404d9eadd6784db526859fb206d256 b19ef490fdbe5822c893ae12ea8de463575a33e1
+R 26b1a2ca2ef3acf016c951e897e326d6
+U drh
+Z 41433b87b25f47bced8daa26fc08e62c

@@ -132,7 +132,7 @@ static void blob_panic(void){
 /*
 ** A reallocation function that assumes that aData came from malloc().
 ** This function attempts to resize the buffer of the blob to hold
-** newSize bytes.  
+** newSize bytes.
 **
 ** No attempt is made to recover from an out-of-memory error.
 ** If an OOM error occurs, an error message is printed on stderr
@@ -370,7 +370,7 @@ int blob_eq_str(Blob *pBlob, const char *z, int n){
 
 
 /*
-** Attempt to resize a blob so that its internal buffer is 
+** Attempt to resize a blob so that its internal buffer is
 ** nByte in size.  The blob is truncated if necessary.
 */
 void blob_resize(Blob *pBlob, unsigned int newSize){
@@ -455,7 +455,7 @@ int blob_tell(Blob *p){
 }
 
 /*
-** Extract a single line of text from pFrom beginning at the current 
+** Extract a single line of text from pFrom beginning at the current
 ** cursor location and use that line of text to initialize pTo.
 ** pTo will include the terminating \n.  Return the number of bytes
 ** in the line including the \n at the end.  0 is returned at
@@ -671,7 +671,7 @@ void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
 }
 
 /*
-** Initalize a blob to the data on an input channel.  Return 
+** Initalize a blob to the data on an input channel.  Return
 ** the number of bytes read into the blob.  Any prior content
 ** of the blob is discarded, not freed.
 */
@@ -769,18 +769,12 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
   int wrote;
 
   if( zFilename[0]==0 || (zFilename[0]=='-' && zFilename[1]==0) ){
-    int n;
+    int n = blob_size(pBlob);
 #if defined(_WIN32)
-    if( _isatty(fileno(stdout)) ){
-      char *z;
-      z = fossil_utf8_to_console(blob_str(pBlob));
-      n = strlen(z);
-      fwrite(z, 1, n, stdout);
-      free(z);
+    if( fossil_utf8_to_console(blob_buffer(pBlob), n, 0) >= 0 ){
       return n;
     }
 #endif
-    n = blob_size(pBlob);
     fwrite(blob_buffer(pBlob), 1, n, stdout);
     return n;
   }else{
@@ -835,8 +829,8 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
 
 /*
 ** Compress a blob pIn.  Store the result in pOut.  It is ok for pIn and
-** pOut to be the same blob. 
-** 
+** pOut to be the same blob.
+**
 ** pOut must either be the same as pIn or else uninitialized.
 */
 void blob_compress(Blob *pIn, Blob *pOut){
@@ -873,9 +867,9 @@ void compress_cmd(void){
 }
 
 /*
-** Compress the concatenation of a blobs pIn1 and pIn2.  Store the result 
-** in pOut. 
-** 
+** Compress the concatenation of a blobs pIn1 and pIn2.  Store the result
+** in pOut.
+**
 ** pOut must be either uninitialized or must be the same as either pIn1 or
 ** pIn2.
 */
@@ -946,7 +940,7 @@ int blob_uncompress(Blob *pIn, Blob *pOut){
   blob_zero(&temp);
   blob_resize(&temp, nOut+1);
   nOut2 = (long int)nOut;
-  rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2, 
+  rc = uncompress((unsigned char*)blob_buffer(&temp), &nOut2,
                   &inBuf[4], nIn - 4);
   if( rc!=Z_OK ){
     blob_reset(&temp);
@@ -1064,7 +1058,7 @@ void shell_escape(Blob *pBlob, const char *zIn){
 ** nLen (if end-of-blob is encountered).
 **
 ** Updates pIn's cursor.
-** 
+**
 ** Returns 0 if pIn contains no data.
 */
 unsigned int blob_read(Blob *pIn, void * pDest, unsigned int nLen ){

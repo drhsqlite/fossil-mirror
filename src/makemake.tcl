@@ -476,6 +476,11 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
+# Fix buggy MinGW command line parsing
+ifdef MINGW_BROKEN_MAINARGS
+TCC += -DMINGW_BROKEN_MAINARGS
+endif
+
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
