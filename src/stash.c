@@ -551,16 +551,16 @@ void stash_cmd(void){
     undo_finish();
   }else
   if( memcmp(zCmd, "diff", nCmd)==0 ){
-    const char *zDiffCmd = db_get("diff-command", 0);
+    const char *zDiffCmd = diff_command_external(0);
     u64 diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd, diffFlags);
   }else
   if( memcmp(zCmd, "gdiff", nCmd)==0 ){
-    const char *zDiffCmd = db_get("gdiff-command", 0);
+    const char *zDiffCmd = diff_command_external(1);
     u64 diffFlags = diff_options();
-    if( g.argc>4 ) usage("diff STASHID");
+    if( g.argc>4 ) usage("gdiff STASHID");
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
     stash_diff(stashid, zDiffCmd, diffFlags);
   }else

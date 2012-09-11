@@ -332,9 +332,126 @@ void fossil_atexit(void) {
   }
 }
 
+#if defined(_WIN32)
 /*
-** Convert all arguments to UTF-8. Then search g.argv for for arguments
-** "--args FILENAME". If found, then
+** Parse the command-line arguments passed to windows.  We do this
+** ourselves to work around bugs in the command-line parsing of MinGW.
+** It is possible (in theory) to only use this routine when compiling
+** with MinGW and to use built-in command-line parsing for MSVC and
+** MinGW-64.  However, the code is here, it is efficient, and works, and
+** by using it in all cases we do a better job of testing it.  If you suspect
+** a bug in this code, test your theory by invoking "fossil test-echo".
+**
+** This routine is copied from TCL with some reformatting.
+** The original comment text follows:
+**
+** Parse the Windows command line string into argc/argv. Done here
+** because we don't trust the builtin argument parser in crt0. Windows
+** applications are responsible for breaking their command line into
+** arguments.
+**
+** 2N backslashes + quote -> N backslashes + begin quoted string
+** 2N + 1 backslashes + quote -> literal
+** N backslashes + non-quote -> literal
+** quote + quote in a quoted string -> single quote
+** quote + quote not in quoted string -> empty string
+** quote -> begin quoted string
+**
+** Results:
+** Fills argcPtr with the number of arguments and argvPtr with the array
+** of arguments.
+*/
+#include <tchar.h>
+#define tchar_isspace(X)  ((X)==TEXT(' ') || (X)==TEXT('\t'))
+static void parse_windows_command_line(
+  int *argcPtr,   /* Filled with number of argument strings. */
+  void *argvPtr   /* Filled with argument strings (malloc'd). */
+){
+  TCHAR *cmdLine, *p, *arg, *argSpace;
+  TCHAR **argv;
+  int argc, size, inquote, copy, slashes;
+
+  cmdLine = GetCommandLine();
+
+  /*
+  ** Precompute an overly pessimistic guess at the number of arguments in
+  ** the command line by counting non-space spans.
+  */
+  size = 2;
+  for(p=cmdLine; *p!=TEXT('\0'); p++){
+    if( tchar_isspace(*p) ){
+      size++;
+      while( tchar_isspace(*p) ){
+        p++;
+      }
+      if( *p==TEXT('\0') ){
+        break;
+      }
+    }
+  }
+
+  argSpace = fossil_malloc(size * sizeof(char*)
+    + (_tcslen(cmdLine) * sizeof(TCHAR)) + sizeof(TCHAR));
+  argv = (TCHAR**)argSpace;
+  argSpace += size*(sizeof(char*)/sizeof(TCHAR));
+  size--;
+
+  p = cmdLine;
+  for(argc=0; argc<size; argc++){
+    argv[argc] = arg = argSpace;
+    while( tchar_isspace(*p) ){
+      p++;
+    }
+    if (*p == TEXT('\0')) {
+      break;
+    }
+    inquote = 0;
+    slashes = 0;
+    while(1){
+      copy = 1;
+      while( *p==TEXT('\\') ){
+        slashes++;
+        p++;
+      }
+      if( *p==TEXT('"') ){
+        if( (slashes&1)==0 ){
+          copy = 0;
+          if( inquote && p[1]==TEXT('"') ){
+            p++;
+            copy = 1;
+          }else{
+            inquote = !inquote;
+          }
+        }
+        slashes >>= 1;
+      }
+      while( slashes ){
+        *arg = TEXT('\\');
+        arg++;
+        slashes--;
+      }
+      if( *p==TEXT('\0') || (!inquote && tchar_isspace(*p)) ){
+        break;
+      }
+      if( copy!=0 ){
+        *arg = *p;
+        arg++;
+      }
+      p++;
+    }
+    *arg = '\0';
+    argSpace = arg + 1;
+  }
+  argv[argc] = NULL;
+  *argcPtr = argc;
+  *((TCHAR ***)argvPtr) = argv;
+}
+#endif /* defined(_WIN32) */
+
+
+/*
+** Convert all arguments from mbcs (or unicode) to UTF-8. Then
+** search g.argv for arguments "--args FILENAME". If found, then
 ** (1) remove the two arguments from g.argv
 ** (2) Read the file FILENAME
 ** (3) Use the contents of FILE to replace the two removed arguments:
@@ -349,8 +466,8 @@ static void expand_args_option(int argc, void *argv){
   unsigned int nLine;       /* Number of lines in the file*/
   unsigned int i, j, k;     /* Loop counters */
   int n;                    /* Number of bytes in one line */
-  char *z;            /* General use string pointer */
-  char **newArgv;     /* New expanded g.argv under construction */
+  char *z;                  /* General use string pointer */
+  char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
@@ -361,6 +478,7 @@ static void expand_args_option(int argc, void *argv){
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
+  parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
 #ifdef UNICODE
@@ -406,7 +524,7 @@ static void expand_args_option(int argc, void *argv){
       static const char bom[] = { 0xEF, 0xBB, 0xBF };
       foundBom = memcmp(z, bom, 3)==0;
       if( foundBom ) {
-    	  z += 3; n -= 3;
+        z += 3; n -= 3;
       }
     }
     if((n>1) && ('\r'==z[n-2])){
@@ -1753,7 +1871,7 @@ static int binaryOnPath(const char *zBinary){
 void cmd_webserver(void){
   int iPort, mxPort;        /* Range of TCP ports allowed */
   const char *zPort;        /* Value of the --port option */
-  char *zBrowser;           /* Name of web browser program */
+  const char *zBrowser;     /* Name of web browser program */
   char *zBrowserCmd = 0;    /* Command to launch the web browser */
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
@@ -1790,7 +1908,7 @@ void cmd_webserver(void){
 #if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
-      static char *azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      static const char *const azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
       int i;
       zBrowser = "echo";
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){

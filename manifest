@@ -1,5 +1,5 @@
-C merge\strunk
-D 2012-09-07T07:55:06.921
+C Merge\sthe\slatest\strunk\schanges\sand\sthe\smingw-broken-cmdline\sbranch\sinto\sunicode-cmdline.
+D 2012-09-11T11:57:57.508
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -81,7 +81,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 02c6c15cdae13157afda3cace3578bfa951e6640
-F src/diffcmd.c 9bdfa7b5cc0cf1feda5e4d168bfb68f2b1adbe7c
+F src/diffcmd.c 4b1879686e7bdcf3e4f9852d27fe1754404ee2b6
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
@@ -114,11 +114,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fa3f4f61e885df02ffde8bf19197014c03c58e68
-F src/main.c 98fc0802404e4d8bc1dea0893b2ff849d5ec0279
-F src/main.mk bdbf1434646d8358ecc9b25335b2f390820eb169
+F src/main.c 6079479b3e3de61a1c80ffb8853c3d1b2c953bdd
+F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 60b8207b0b2ade8a6fb01e82c77325b4e7af246a
+F src/makemake.tcl 0ecea4bf48f04880cbbef711bbef8545cc1409e9
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -136,7 +136,7 @@ F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c 87bd52283cc4db2168fc4726b1f5374853a1f224
+F src/setup.c b2d7ba8e4284a7c4ca8d550736cac2b62bf94318
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 4e319394db07ae8e049128216043618124abd31f
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -144,7 +144,7 @@ F src/skins.c 065fd92b26b058b4c79009a832ea1462c00de1ed
 F src/sqlcmd.c 0c96c363b6c0ae8789bca0ab169bca41011848b2
 F src/sqlite3.c 5fdf596b29bb426001f28b488ff356ae14d5a5a6
 F src/sqlite3.h f950c88e5f2b4930b34efb4c446daab238cb49c8
-F src/stash.c 64b6f7485654e44a8d3434ec8d27f016811c4ab7
+F src/stash.c f12cfed0fae39c133f3277fa583f10f9c790e709
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c f2c948af2b538cc63ce44c11a0d7926a9f7e00c9
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -172,6 +172,7 @@ F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4f993e0ea36825f961796e613645b2dd1b407311
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
+F test/cmdline.test ab7e375016963c49200252c41ccc8a19f3adff52
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki b0a4d8629bef84fcb8e8a7ffe511d4bfaa98c71c
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -253,7 +254,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw 17a4a98eeb9a23de106853138d83a111abd15aa8
+F win/Makefile.mingw 3c8bdea6182a2865958341449e80ce900a30e941
 F win/Makefile.mingw.mistachkin 4eb8299fc8084bda4d415e7fe28bdf0ba2bc2ba5
 F win/Makefile.msc 7a3bcf42f80ef46f3f856362045e9494cd3d69cc
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -351,7 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 286950208ca7ec50643d1323050ee21a0c5610d3 6b22a464d7ff59a29a455792e948f06dba32470c
-R 6b277fb0b6e76a0235eafc77aae77793
-U jan.nijtmans
-Z d69f23640d518b73c627ee556919d75f
+P af4287ac3a314b4088b6fb40620fda9327722249 d43165418ce3639eec4f390d9efdcd8830d22088 ffcdfadbda404d9eadd6784db526859fb206d256
+R 26b1a2ca2ef3acf016c951e897e326d6
+U drh
+Z d34cac77561f545f70b7b84ac74b1c43

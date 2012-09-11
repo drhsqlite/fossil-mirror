@@ -455,6 +455,28 @@ static void diff_all_two_versions(
 }
 
 /*
+** Return the name of the external diff command, or return NULL if
+** no external diff command is defined.
+*/
+const char *diff_command_external(int guiDiff){
+  char *zDefault;
+  const char *zName;
+
+  if( guiDiff ){
+#if defined(_WIN32)
+    zDefault = "WinDiff.exe";
+#else
+    zDefault = 0;
+#endif
+    zName = "gdiff-command";
+  }else{
+    zDefault = 0;
+    zName = "diff-command";
+  }
+  return db_get(zName, zDefault);
+}
+
+/*
 ** COMMAND: diff
 ** COMMAND: gdiff
 **
@@ -524,7 +546,7 @@ void diff_cmd(void){
     db_must_be_within_tree();
     verify_all_options();
     if( !isInternDiff ){
-      zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
+      zDiffCmd = diff_command_external(isGDiff);
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
@@ -539,7 +561,7 @@ void diff_cmd(void){
     db_find_and_open_repository(0, 0);
     verify_all_options();
     if( !isInternDiff ){
-      zDiffCmd = db_get(isGDiff ? "gdiff-command" : "diff-command", 0);
+      zDiffCmd = diff_command_external(isGDiff);
     }
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){

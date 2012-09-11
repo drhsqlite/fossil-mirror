@@ -305,6 +305,13 @@ set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+
+#
+# The list of all the targets that do not correspond to real files. This stops
+# 'make' from getting confused when someone makes an error in a rule.
+#
+
+.PHONY: all install test clean
 }
 
 close $output_file
@@ -467,6 +474,11 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
+endif
+
+# Fix buggy MinGW command line parsing
+ifdef MINGW_BROKEN_MAINARGS
+TCC += -DMINGW_BROKEN_MAINARGS
 endif
 
 #### We add the -static option here so that we can build a static

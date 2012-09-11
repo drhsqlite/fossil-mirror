@@ -1616,6 +1616,29 @@ void setup_logo(void){
   db_end_transaction(0);
 }
 
+/*
+** Prevent the RAW SQL feature from being used to ATTACH a different
+** database and query it.
+**
+** Actually, the RAW SQL feature only does a single statement per request.
+** So it is not possible to ATTACH and then do a separate query.  This
+** routine is not strictly necessary, therefore.  But it does not hurt
+** to be paranoid.
+*/
+int raw_sql_query_authorizer(
+  void *pError,
+  int code,
+  const char *zArg1,
+  const char *zArg2,
+  const char *zArg3,
+  const char *zArg4
+){
+  if( code==SQLITE_ATTACH ){
+    return SQLITE_DENY;
+  }
+  return SQLITE_OK;
+}
+
 
 /*
 ** WEBPAGE: admin_sql
@@ -1634,6 +1657,9 @@ void sql_page(void){
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
+  @
+  @ <p>Only a the first statement in the entry box will be run.
+  @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
   if( g.configOpen ){
@@ -1673,6 +1699,7 @@ void sql_page(void){
     int i;
     @ <hr />
     login_verify_csrf_secret();
+    sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
     if( rc!=SQLITE_OK ){
       @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>
