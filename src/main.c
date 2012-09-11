@@ -554,11 +554,7 @@ static void expand_args_option(int argc, void *argv){
 /*
 ** This procedure runs first.
 */
-#if defined(_WIN32) && defined(UNICODE)
-int wmain(int argc, wchar_t **argv)
-#else
 int main(int argc, char **argv)
-#endif
 {
   const char *zCmdName = "unknown";
   int idx;

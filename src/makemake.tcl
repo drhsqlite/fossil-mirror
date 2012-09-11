@@ -434,7 +434,7 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -DUNICODE -D_UNICODE -L$(ZLIBDIR) -I$(ZINCDIR)
 
 #### Compile resources for use in building executables that will run
 #    on the target platform.
@@ -474,11 +474,6 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
-endif
-
-# Fix buggy MinGW command line parsing
-ifdef MINGW_BROKEN_MAINARGS
-TCC += -DMINGW_BROKEN_MAINARGS
 endif
 
 #### We add the -static option here so that we can build a static

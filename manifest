@@ -1,5 +1,5 @@
-C Merge\sthe\sunicode-cmdline\sbranch\sinto\strunk.
-D 2012-09-11T12:16:29.660
+C enable\sunicode\scommandline\sfor\sMinGW/MinGW-w64\sas\swell\n<p>\sremove\sunused\sMINGW_BROKEN_MAINARGS
+D 2012-09-11T18:49:29.587
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -114,11 +114,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c fa3f4f61e885df02ffde8bf19197014c03c58e68
-F src/main.c 6079479b3e3de61a1c80ffb8853c3d1b2c953bdd
+F src/main.c 90c404e7e7b6acff6c3e39610dbd4e8a48e29103
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 0ecea4bf48f04880cbbef711bbef8545cc1409e9
+F src/makemake.tcl 7ce8b73750d21e8ee5cb0bd9510f3fa5e8d3bbee
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -172,7 +172,7 @@ F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4f993e0ea36825f961796e613645b2dd1b407311
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
-F test/cmdline.test ab7e375016963c49200252c41ccc8a19f3adff52
+F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki b0a4d8629bef84fcb8e8a7ffe511d4bfaa98c71c
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -254,9 +254,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw 3c8bdea6182a2865958341449e80ce900a30e941
-F win/Makefile.mingw.mistachkin 4eb8299fc8084bda4d415e7fe28bdf0ba2bc2ba5
-F win/Makefile.msc 7a3bcf42f80ef46f3f856362045e9494cd3d69cc
+F win/Makefile.mingw c1e41be4fa11fa24ef2d11e3eb63c50d239e9d9d
+F win/Makefile.mingw.mistachkin 7acd437683403d8cf7c452f40e6f61b9322e3a57
+F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
 F win/include/dirent.h 5e16297fe4f99eabc2b286b6cfb8b66bd5d1e192
@@ -352,7 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ffcdfadbda404d9eadd6784db526859fb206d256 b19ef490fdbe5822c893ae12ea8de463575a33e1
-R 26b1a2ca2ef3acf016c951e897e326d6
-U drh
-Z 41433b87b25f47bced8daa26fc08e62c
+P f668ff44c04174dd04bae5f594aa1fd7852f67af
+R 7767e61769164634bf31af4805f29349
+U jan.nijtmans
+Z 1b8034c3a88d130744bbf3d9d2e3c587
