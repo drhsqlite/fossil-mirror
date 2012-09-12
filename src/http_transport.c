@@ -94,7 +94,11 @@ static void sshin_read(char *zBuf, int szBuf){
 /*
 ** Default SSH command
 */
+#ifdef __MINGW32__
 static char zDefaultSshCmd[] = "ssh";
+#else
+static char zDefaultSshCmd[] = "ssh -e none";
+#endif
 
 /*
 ** Global initialization of the transport layer

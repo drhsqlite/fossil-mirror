@@ -1,5 +1,5 @@
-C Now,\sjust\scall\s/bin/sh\sas\scommand\sargument..\sI\sdon't\shave\sproblem\swith\smail\nchecking\sand\smotd\sand\smodification\sis\svery\ssimple..\n\n-\sHave\sto\scheck\sif\sit\swork\sin\sall\sconditions\sand\sall\ssystems.\n\n-\sMight\snot\swork\sfor\ssettups\swhere\sserver\suse\sa\srestricted\sshell..
-D 2012-09-12T15:27:25.182
+C Need\sthis\s"-e\snone"\soptions\sto\sssh..\sif\snot,\sssh\scan\sprocess\sthe\sescape\ncaracter\sto\sprocess\scommand\sfrom\sdata\sthat's\sgoes\sto\sfossil\sproces..
+D 2012-09-12T16:24:43.899
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,7 +94,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
-F src/http_transport.c 3690f29d84a6eabd0f37d2e468334fc4275ee50b
+F src/http_transport.c 90114cef9c66f046bedf6881eaa8cdb2efba4da6
 F src/import.c b79a02214ff8e3210b39c00135c9491351d700c5
 F src/info.c 39dc3f83bd2ddc1d6a85899c11192e79f891f1a9
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
@@ -352,6 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e8fac25a20c840f62f672cf205c11546255cc475
-U mgagnon
-Z 0c949542c506d0c23987bd856c31a56f
+P 531a58fd2178c56bb448414a71b7e943d6eadac9
+R d517c744a948fb5de904ee4eb4aa3329
+U meeks
+Z 8c8a557d73a5c8258f3e668ea74b2f32
