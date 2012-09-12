@@ -94,11 +94,7 @@ static void sshin_read(char *zBuf, int szBuf){
 /*
 ** Default SSH command
 */
-#ifdef __MINGW32__
-static char zDefaultSshCmd[] = "ssh -T";
-#else
-static char zDefaultSshCmd[] = "ssh -e none -T";
-#endif
+static char zDefaultSshCmd[] = "ssh";
 
 /*
 ** Global initialization of the transport layer
@@ -151,29 +147,21 @@ void transport_global_startup(void){
     shell_escape(&zCmd, zHost);
     fossil_print(" %s\n", zHost);  /* Show the conclusion of the SSH command */
     free(zHost);
+     
+    /* Append fossil test-http command directly during the invocation of ssh,
+    ** to make sure no output from shell or login will pollute the sshIn pipe.
+     */
+    blob_append(&zCmd, " \"", 2);
+    shell_escape(&zCmd, g.urlFossil);
+    blob_append(&zCmd, " test-http ", -1);
+    shell_escape(&zCmd, g.urlPath);
+    blob_append(&zCmd, "\"", 1);
+    
     popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
     }
     blob_reset(&zCmd);
-
-    /* Send an "echo" command to the other side to make sure that the
-    ** connection is up and working.
-    */
-    zIn = fossil_malloc(16000);
-    fprintf(sshOut, "echo toto\n");
-    fflush(sshOut);
-    usleep(2000000);
-    sshin_read(zIn, 16000);
-    fossil_print("Second Read: [%s]\n", zIn);
-    fprintf(sshOut, "echo test\n");
-    fflush(sshOut);
-    sshin_read(zIn, 16000);
-    if( memcmp(zIn, "test", 4)!=0 ){
-      pclose2(sshIn, sshOut, sshPid);
-      fossil_fatal("ssh connection failed: [%s]", zIn);
-    }
-    fossil_free(zIn);
   }
 }
 
@@ -191,15 +179,7 @@ int transport_open(void){
   int rc = 0;
   if( transport.isOpen==0 ){
     if( g.urlIsSsh ){
-      Blob cmd;
-      blob_zero(&cmd);
-      shell_escape(&cmd, g.urlFossil);
-      blob_append(&cmd, " test-http ", -1);
-      shell_escape(&cmd, g.urlPath);
-      /* printf("%s\n", blob_str(&cmd)); fflush(stdout); */
-      fprintf(sshOut, "%s\n", blob_str(&cmd));
-      fflush(sshOut);
-      blob_reset(&cmd);
+      transport.isOpen = 1;
     }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open();
