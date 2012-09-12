@@ -832,11 +832,9 @@ int fossil_system(const char *zOrigCmd){
   /* On windows NT, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */
-#ifdef UNICODE
-  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-#else
   OSVERSIONINFOA sInfo;
   char *zNewCmd;
+  TCHAR *zMbcs;
 
   sInfo.dwOSVersionInfoSize = sizeof(sInfo);
   GetVersionExA(&sInfo);
@@ -845,8 +843,7 @@ int fossil_system(const char *zOrigCmd){
   } else {
     zNewCmd = mprintf("%s", zOrigCmd);
   }
-#endif
-  TCHAR *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
+  zMbcs = fossil_utf8_to_mbcs(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
     fossil_puts(zOut, 1);
