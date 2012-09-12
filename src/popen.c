@@ -67,13 +67,13 @@ static void win32_fatal_error(const char *zMsg){
 ** Return the number of errors.
 */
 static int win32_create_child_process(
-  wchar_t *zCmd,       /* The command that the child process will run */
+  TCHAR *zCmd,         /* The command that the child process will run */
   HANDLE hIn,          /* Standard input */
   HANDLE hOut,         /* Standard output */
   HANDLE hErr,         /* Standard error */
   DWORD *pChildPid     /* OUT: Child process handle */
 ){
-  STARTUPINFOW si;
+  STARTUPINFO si;
   PROCESS_INFORMATION pi;
   BOOL rc;
 
@@ -86,7 +86,7 @@ static int win32_create_child_process(
   si.hStdOutput = hOut;
   SetHandleInformation(hErr, HANDLE_FLAG_INHERIT, TRUE);
   si.hStdError  = hErr;
-  rc = CreateProcessW(
+  rc = CreateProcess(
      NULL,  /* Application Name */
      zCmd,  /* Command-line */
      NULL,  /* Process attributes */
@@ -141,7 +141,7 @@ int popen2(const char *zCmd, int *pfdIn, FILE **ppOut, int *pChildPid){
   }
   SetHandleInformation( hStdinWr, HANDLE_FLAG_INHERIT, FALSE);
   
-  win32_create_child_process(fossil_utf8_to_unicode(zCmd),
+  win32_create_child_process(fossil_utf8_to_mbcs(zCmd),
                              hStdinRd, hStdoutWr, hStderr,&childPid);
   *pChildPid = childPid;
   *pfdIn = _open_osfhandle(PTR_TO_INT(hStdoutRd), 0);

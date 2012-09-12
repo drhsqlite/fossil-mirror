@@ -509,7 +509,7 @@ static void prepare_commit_comment(
     char zIn[300];
     blob_reset(&text);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
+      char *zUtf8 = fossil_console_to_utf8(zIn);
       if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
         fossil_mbcs_free(zUtf8);
         break;

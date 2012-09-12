@@ -610,7 +610,7 @@ void rebuild_database(void){
     }
   }
   if( showStats ){
-    static struct { int idx; const char *zLabel; } aStat[] = {
+    static const struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
        { CFTYPE_MANIFEST,  "Manifests:" },
        { CFTYPE_CLUSTER,   "Clusters:" },
@@ -826,7 +826,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  zUnicodePath = fossil_utf8_to_mbcs(zPath);
   d = fossil_opendir(zUnicodePath);
   if( d ){
     while( (pEntry=fossil_readdir(d))!=0 ){
@@ -836,7 +836,7 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){

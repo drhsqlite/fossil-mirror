@@ -472,20 +472,16 @@ static void expand_args_option(int argc, void *argv){
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
 #ifdef _WIN32
-  wchar_t buf[MAX_PATH];
+  TCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
   parse_windows_command_line(&g.argc, &g.argv);
-  GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.argv[0] = fossil_unicode_to_utf8(buf);
-#ifdef UNICODE
-  for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
-#else
+  GetModuleFileName(NULL, buf, MAX_PATH);
+  g.argv[0] = fossil_mbcs_to_utf8(buf);
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
-#endif
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
@@ -532,7 +528,7 @@ static void expand_args_option(int argc, void *argv){
       z[n-2] = 0;
     }
     if (!foundBom) {
-      z = fossil_mbcs_to_utf8(z);
+      z = fossil_console_to_utf8(z);
     }
     newArgv[j++] = z;
     if( z[0]=='-' ){
@@ -837,15 +833,15 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  TCHAR *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
     fossil_puts(zOut, 1);
     fossil_free(zOut);
   }
-  rc = _wsystem(zUnicode);
-  fossil_mbcs_free(zUnicode);
-  free(zNewCmd);
+  rc = _tsystem(zMbcs);
+  fossil_mbcs_free(zMbcs);
+  fossil_free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
