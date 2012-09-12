@@ -151,17 +151,26 @@ void transport_global_startup(void){
     /* Append fossil test-http command directly during the invocation of ssh,
     ** to make sure no output from shell or login will pollute the sshIn pipe.
      */
-    blob_append(&zCmd, " \"", 2);
-    shell_escape(&zCmd, g.urlFossil);
-    blob_append(&zCmd, " test-http ", -1);
-    shell_escape(&zCmd, g.urlPath);
-    blob_append(&zCmd, "\"", 1);
+    blob_append(&zCmd, " /bin/sh", -1);
     
     popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
     }
     blob_reset(&zCmd);
+
+    /* Send an "echo" command to the other side to make sure that the
+    ** connection is up and working.
+    */
+    fprintf(sshOut, "echo test\n");
+    fflush(sshOut);
+    zIn = fossil_malloc(16000);
+    sshin_read(zIn, 16000);
+    if( memcmp(zIn, "test", 4)!=0 ){
+      pclose2(sshIn, sshOut, sshPid);
+      fossil_fatal("ssh connection failed: [%s]", zIn);
+    }
+    fossil_free(zIn);
   }
 }
 
@@ -179,7 +188,15 @@ int transport_open(void){
   int rc = 0;
   if( transport.isOpen==0 ){
     if( g.urlIsSsh ){
-      transport.isOpen = 1;
+      Blob cmd;
+      blob_zero(&cmd);
+      shell_escape(&cmd, g.urlFossil);
+      blob_append(&cmd, " test-http ", -1);
+      shell_escape(&cmd, g.urlPath);
+      /* printf("%s\n", blob_str(&cmd)); fflush(stdout); */
+      fprintf(sshOut, "%s\n", blob_str(&cmd));
+      fflush(sshOut);
+      blob_reset(&cmd);
     }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
       rc = ssl_open();
