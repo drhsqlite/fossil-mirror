@@ -829,10 +829,23 @@ void *fossil_realloc(void *p, size_t n){
 int fossil_system(const char *zOrigCmd){
   int rc;
 #if defined(_WIN32)
-  /* On windows, we have to put double-quotes around the entire command.
+  /* On windows NT, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */
+#ifdef UNICODE
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
+#else
+  OSVERSIONINFOA sInfo;
+  char *zNewCmd;
+
+  sInfo.dwOSVersionInfoSize = sizeof(sInfo);
+  GetVersionExA(&sInfo);
+  if (sInfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
+    zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  } else {
+    zNewCmd = mprintf("%s", zOrigCmd);
+  }
+#endif
   TCHAR *zMbcs = fossil_utf8_to_mbcs(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
