@@ -22,9 +22,8 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Aug 30, 2012, Jan Nijtmans
- * Remove rewinddir() (not necessary for fossil)
- * Replace everything with its wide-character variant.
+ * Sept 12, 2012, Jan Nijtmans
+ * Switchable wide-character variant.
  *
  * Mar 15, 2011, Toni Ronkko
  * Defined FILE_ATTRIBUTE_DEVICE for MSVC 6.0.
@@ -151,23 +150,22 @@
 #define	S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
 #define	S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifdef UNICODE
 #  define dirent _wdirent
 #  define opendir _wopendir
 #  define readdir _wreaddir
 #  define closedir _wclosedir
+#  define rewinddir _wrewinddir
 #  define DIR _WDIR
-#else
-#  define wchar_t char
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef struct dirent
 {
-   wchar_t d_name[MAX_PATH + 1];               /* File name */
+   TCHAR d_name[MAX_PATH + 1];                 /* File name */
    size_t d_namlen;                            /* Length of name without \0 */
    int d_type;                                 /* File type */
 } dirent;
@@ -179,14 +177,15 @@ typedef struct DIR
    WIN32_FIND_DATA  find_data;                 /* Private file data */
    int              cached;                    /* True if data is valid */
    HANDLE           search_handle;             /* Win32 search handle */
-   wchar_t          patt[MAX_PATH + 3];        /* Initial directory name */
+   TCHAR            patt[MAX_PATH + 3];        /* Initial directory name */
 } DIR;
 
 
 /* Forward declarations */
-static DIR *opendir(const wchar_t *dirname);
+static DIR *opendir(const TCHAR *dirname);
 static struct dirent *readdir(DIR *dirp);
 static int closedir(DIR *dirp);
+static void rewinddir(DIR* dirp);
 
 
 /* Use the new safe string functions introduced in Visual Studio 2005 */
@@ -209,7 +208,7 @@ static int closedir(DIR *dirp);
  * internal working area that is used to retrieve individual directory
  * entries.
  */
-static DIR *opendir(const wchar_t *dirname)
+static DIR *opendir(const TCHAR *dirname)
 {
    DIR *dirp;
 
@@ -234,7 +233,7 @@ static DIR *opendir(const wchar_t *dirname)
        * directory is changed between opendir() and rewinddir().
        */
       if (GetFullPathName (dirname, MAX_PATH, dirp->patt, NULL)) {
-         wchar_t *p;
+         TCHAR *p;
 
          /* append the search pattern "\\*\0" to the directory name */
          p = _tcschr (dirp->patt, '\0');
@@ -304,10 +303,10 @@ static struct dirent *readdir(DIR *dirp)
       }
    }
 
-   /* copy as a unicode character string */
+   /* copy as a multibyte/unicode character string */
    DIRENT_STRNCPY ( dirp->curentry.d_name,
              dirp->find_data.cFileName,
-             sizeof(dirp->curentry.d_name)/sizeof(dirp->curentry.d_name[0]) );
+             sizeof(dirp->curentry.d_name)/sizeof(TCHAR) );
    dirp->curentry.d_name[MAX_PATH] = '\0';
 
    /* compute the length of name */
@@ -350,14 +349,39 @@ static int closedir(DIR *dirp)
    return 0;
 }
 
+/*****************************************************************************
+ * Resets the position of the directory stream to which dirp refers to the
+ * beginning of the directory.  It also causes the directory stream to refer
+ * to the current state of the corresponding directory, as a call to opendir()
+ * would have done.  If dirp does not refer to a directory stream, the effect
+ * is undefined.
+ */
+static void rewinddir(DIR* dirp)
+{
+   if (dirp != NULL) {
+      /* release search handle */
+      if (dirp->search_handle != INVALID_HANDLE_VALUE) {
+         FindClose (dirp->search_handle);
+      }
+
+      /* open new search handle and retrieve the first entry */
+      dirp->search_handle = FindFirstFile (dirp->patt, &dirp->find_data);
+      if (dirp->search_handle != INVALID_HANDLE_VALUE) {
+         /* a directory entry is now waiting in memory */
+         dirp->cached = 1;
+      } else {
+         /* failed to re-open directory: no directory entry in memory */
+         dirp->cached = 0;
+      }
+   }
+}
+
 #ifdef UNICODE
 #  undef dirent
 #  undef opendir
 #  undef readdir
 #  undef closedir
 #  undef DIR
-#else
-#  undef wchar_t
 #endif
 
 #ifdef __cplusplus
