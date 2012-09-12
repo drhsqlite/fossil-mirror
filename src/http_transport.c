@@ -161,9 +161,11 @@ void transport_global_startup(void){
     ** connection is up and working.
     */
     zIn = fossil_malloc(16000);
-    fprintf(sshOut, "echo .\n");
+    fprintf(sshOut, "echo toto\n");
     fflush(sshOut);
+    usleep(2000000);
     sshin_read(zIn, 16000);
+    fossil_print("Second Read: [%s]\n", zIn);
     fprintf(sshOut, "echo test\n");
     fflush(sshOut);
     sshin_read(zIn, 16000);
