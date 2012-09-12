@@ -160,9 +160,12 @@ void transport_global_startup(void){
     /* Send an "echo" command to the other side to make sure that the
     ** connection is up and working.
     */
+    zIn = fossil_malloc(16000);
+    fprintf(sshOut, "echo .\n");
+    fflush(sshOut);
+    sshin_read(zIn, 16000);
     fprintf(sshOut, "echo test\n");
     fflush(sshOut);
-    zIn = fossil_malloc(16000);
     sshin_read(zIn, 16000);
     if( memcmp(zIn, "test", 4)!=0 ){
       pclose2(sshIn, sshOut, sshPid);

@@ -1,5 +1,5 @@
-C enable\sunicode\scommandline\sfor\sMinGW/MinGW-w64\sas\swell\n<p>\sremove\sunused\sMINGW_BROKEN_MAINARGS
-D 2012-09-11T18:49:29.587
+C attemp\sto\sfix\sssh\sproblem\son\sdebian\slinux\shost\swhen\snon\sinteractive\sshell\sstill\nprint\ssome\smessage\s(motd\sand\smail\schecking\sstuff).\n\n\t***\snot\sreally\sworking\syet..
+D 2012-09-12T00:35:59.381
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -94,7 +94,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
-F src/http_transport.c 2631435110221eb95905b168c0dadffcce71f53c
+F src/http_transport.c 0aa7c320d746daafa19e0bfb9807116084841756
 F src/import.c b79a02214ff8e3210b39c00135c9491351d700c5
 F src/info.c 39dc3f83bd2ddc1d6a85899c11192e79f891f1a9
 F src/json.c 4d41e2be20f07ae46ccf5c2954e3423a275d8372
@@ -352,7 +352,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f668ff44c04174dd04bae5f594aa1fd7852f67af
-R 7767e61769164634bf31af4805f29349
-U jan.nijtmans
-Z 1b8034c3a88d130744bbf3d9d2e3c587
+P 274d8a1dcd3b1eaae45e1665471c684708c24129
+R f0ae34d667b41e4b0813fddf749ee129
+T *branch * mg_sshfix
+T *sym-mg_sshfix *
+T -sym-trunk *
+U meeks
+Z d8034675976cf93b3e7b86ad49f74e85
