@@ -381,6 +381,7 @@ static void rewinddir(DIR* dirp)
 #  undef opendir
 #  undef readdir
 #  undef closedir
+#  undef rewinddir
 #  undef DIR
 #endif
 
