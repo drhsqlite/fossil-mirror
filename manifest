@@ -1,5 +1,5 @@
-C enable\sunicode\scommandline\sfor\sMinGW/MinGW-w64\sas\swell\n<p>\sremove\sunused\sMINGW_BROKEN_MAINARGS
-D 2012-09-11T18:49:29.587
+C re-enable\sunicode\scommandline\sfor\sMSVC\sbuild\s(previous\scommit\saccidently\sremoved\sthat)\n<p>New\sversion\sof\sdirent.h,\swhich\ssupports\sboth\sMBCS\sand\sUNICODE
+D 2012-09-13T07:12:57.656
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -118,7 +118,7 @@ F src/main.c 90c404e7e7b6acff6c3e39610dbd4e8a48e29103
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 7ce8b73750d21e8ee5cb0bd9510f3fa5e8d3bbee
+F src/makemake.tcl 23aa872d5896968ddd27cded96fa6a892021da2f
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -256,10 +256,10 @@ F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
 F win/Makefile.mingw c1e41be4fa11fa24ef2d11e3eb63c50d239e9d9d
 F win/Makefile.mingw.mistachkin 7acd437683403d8cf7c452f40e6f61b9322e3a57
-F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
+F win/Makefile.msc 3fd9b082d31ad4656667ae0aa94ee6c54cb29a21
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
-F win/include/dirent.h 5e16297fe4f99eabc2b286b6cfb8b66bd5d1e192
+F win/include/dirent.h 4361c1b373a1a4cd37677b65a169345b3876f5b2
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -352,7 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f668ff44c04174dd04bae5f594aa1fd7852f67af
-R 7767e61769164634bf31af4805f29349
+P 274d8a1dcd3b1eaae45e1665471c684708c24129
+R 935dc9a67e31f7e6089b64feffcc6b91
 U jan.nijtmans
-Z 1b8034c3a88d130744bbf3d9d2e3c587
+Z 8b8b56f2d3e35805655383ad0488e4ac
