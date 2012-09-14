@@ -479,7 +479,7 @@ endif
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
-LIB = -static
+LIB = -lunicows -static
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
@@ -906,7 +906,7 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) -DUNICODE -D_UNICODE $(MSCDEF) $(SSL) $(INCL)
-LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
+LIBS   = unicows.lib $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS

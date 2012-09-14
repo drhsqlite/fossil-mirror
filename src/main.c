@@ -199,6 +199,9 @@ struct Global {
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
 
   int allowSymlinks;             /* Cached "allow-symlinks" option */
+#ifdef _WIN32
+  int isNT;
+#endif
 
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
@@ -555,9 +558,17 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+#ifdef _WIN32
+  OSVERSIONINFOA sInfo;
+#endif
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
+#ifdef _WIN32
+  sInfo.dwOSVersionInfoSize = sizeof(sInfo);
+  GetVersionExA(&sInfo);
+  g.isNT = sInfo.dwPlatformId==VER_PLATFORM_WIN32_NT;
+#endif
   g.now = time(0);
 #ifdef FOSSIL_ENABLE_JSON
 #if defined(NDEBUG)
@@ -832,13 +843,10 @@ int fossil_system(const char *zOrigCmd){
   /* On windows NT, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */
-  OSVERSIONINFOA sInfo;
   char *zNewCmd;
   TCHAR *zMbcs;
 
-  sInfo.dwOSVersionInfoSize = sizeof(sInfo);
-  GetVersionExA(&sInfo);
-  if (sInfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
+  if (g.isNT) {
     zNewCmd = mprintf("\"%s\"", zOrigCmd);
   } else {
     zNewCmd = mprintf("%s", zOrigCmd);
