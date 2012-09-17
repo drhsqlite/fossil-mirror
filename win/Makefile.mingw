@@ -151,7 +151,7 @@ endif
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
-LIB = -static
+LIB = -municows -static
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL

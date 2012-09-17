@@ -131,11 +131,6 @@ end_request:
   free(p);
 }
 
-#if !defined(UNICODE)
-#  define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
-#  define fossil_utf8_to_unicode fossil_utf8_to_mbcs
-#endif
-
 /*
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.
@@ -563,6 +558,11 @@ void cmd_win32_service(void){
   const char *zMethod;
   const char *zSvcName = "Fossil-DSCM";    /* Default service name */
 
+#ifdef _WIN32
+  if( !g.isNT ) {
+    fossil_fatal("%s command not support on Windows 9x", g.argv[1]);
+  }
+#endif
   if( g.argc<3 ){
     usage("create|delete|show|start|stop ...");
   }

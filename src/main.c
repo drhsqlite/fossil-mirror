@@ -199,6 +199,9 @@ struct Global {
   int anAuxCols[MX_AUX];         /* Number of columns for option() values */
 
   int allowSymlinks;             /* Cached "allow-symlinks" option */
+#ifdef _WIN32
+  int isNT;
+#endif
 
 #ifdef FOSSIL_ENABLE_JSON
   struct FossilJsonBits {
@@ -472,20 +475,16 @@ static void expand_args_option(int argc, void *argv){
   FILE * zInFile;           /* input FILE */
   int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
 #ifdef _WIN32
-  wchar_t buf[MAX_PATH];
+  TCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
 #ifdef _WIN32
   parse_windows_command_line(&g.argc, &g.argv);
-  GetModuleFileNameW(NULL, buf, MAX_PATH);
+  GetModuleFileName(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
-#ifdef UNICODE
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
-#else
-  for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
-#endif
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
@@ -559,9 +558,17 @@ int main(int argc, char **argv)
   const char *zCmdName = "unknown";
   int idx;
   int rc;
+#ifdef _WIN32
+  OSVERSIONINFOA sInfo;
+#endif
 
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
+#ifdef _WIN32
+  sInfo.dwOSVersionInfoSize = sizeof(sInfo);
+  GetVersionExA(&sInfo);
+  g.isNT = sInfo.dwPlatformId==VER_PLATFORM_WIN32_NT;
+#endif
   g.now = time(0);
 #ifdef FOSSIL_ENABLE_JSON
 #if defined(NDEBUG)
@@ -836,16 +843,23 @@ int fossil_system(const char *zOrigCmd){
   /* On windows, we have to put double-quotes around the entire command.
   ** Who knows why - this is just the way windows works.
   */
-  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  char *zNewCmd;
+  TCHAR *zUnicode;
+
+  if (g.isNT) {
+    zNewCmd = mprintf("\"%s\"", zOrigCmd);
+  } else {
+    zNewCmd = mprintf("%s", zOrigCmd);
+  }
+  zUnicode = fossil_utf8_to_unicode(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
     fossil_puts(zOut, 1);
     fossil_free(zOut);
   }
-  rc = _wsystem(zUnicode);
+  rc = _tsystem(zUnicode);
   fossil_mbcs_free(zUnicode);
-  free(zNewCmd);
+  fossil_free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
   */
