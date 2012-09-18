@@ -211,6 +211,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
@@ -265,7 +266,6 @@ void wikiedit_page(void){
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
-  char *zHtmlPageName;
   int n;
   const char *z;
   char *zBody = (char*)P("w");
@@ -353,8 +353,8 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  zHtmlPageName = mprintf("Edit: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Edit: %s", zPageName);
   blob_zero(&wiki);
   blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
@@ -476,7 +476,6 @@ void wikiappend_page(void){
   int rid = 0;
   int isSandbox;
   const char *zPageName;
-  char *zHtmlPageName;
   const char *zUser;
 
   login_check_credentials();
@@ -551,8 +550,8 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  zHtmlPageName = mprintf("Append Comment To: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Append Comment To: %s", zPageName);
   if( P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);

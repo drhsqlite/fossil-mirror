@@ -162,6 +162,26 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
+/* Use this for the $current_page variable if it is not NULL.  If it is
+** NULL then use g.zPath.
+*/
+static char *local_zCurrentPage = 0;
+
+/*
+** Set the desired $current_page to something other than g.zPath
+*/
+void style_set_current_page(const char *zFormat, ...){
+  fossil_free(local_zCurrentPage);
+  if( zFormat==0 ){
+    local_zCurrentPage = 0;
+  }else{
+    va_list ap;
+    va_start(ap, zFormat);
+    local_zCurrentPage = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+}
+
 /*
 ** Draw the header.
 */
@@ -187,7 +207,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", g.zPath);
+  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
