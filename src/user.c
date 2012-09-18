@@ -329,8 +329,8 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
   fossil_print(
-    "Cannot figure out who your are!  Consider using the --user\n"
-    "command line option, or setting your USER environment variable\n"
+    "Cannot figure out who you are!  Consider using the --user\n"
+    "command line option, setting your USER environment variable,\n"
     "or setting a default user with \"fossil user default USER\".\n"
   );
   fossil_fatal("cannot determine user");
