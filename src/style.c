@@ -319,7 +319,7 @@ void style_sidebox_end(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/">
+@ <base href="$baseurl/$current_page">
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
