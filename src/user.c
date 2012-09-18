@@ -311,8 +311,6 @@ static int attempt_user(const char *zLogin){
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  Stmt s;
-
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -328,33 +326,14 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USER")) ) return;
 
-  db_prepare(&s,
-    "SELECT uid, login FROM user"
-    " WHERE login NOT IN ('anonymous','nobody','reader','developer')"
+  if( attempt_user(fossil_getenv("USERNAME")) ) return;
+
+  fossil_print(
+    "Cannot figure out who your are!  Consider using the --user\n"
+    "command line option, or setting your USER environment variable\n"
+    "or setting a default user with \"fossil user default USER\".\n"
   );
-  if( db_step(&s)==SQLITE_ROW ){
-    g.userUid = db_column_int(&s, 0);
-    g.zLogin = mprintf("%s", db_column_text(&s, 1));
-  }
-  db_finalize(&s);
-
-  if( g.userUid==0 ){
-    db_prepare(&s, "SELECT uid, login FROM user");
-    if( db_step(&s)==SQLITE_ROW ){
-      g.userUid = db_column_int(&s, 0);
-      g.zLogin = mprintf("%s", db_column_text(&s, 1));
-    }
-    db_finalize(&s);
-  }
-
-  if( g.userUid==0 ){
-    db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info, mtime)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
-    );
-    g.userUid = db_last_insert_rowid();
-    g.zLogin = "anonymous";
-  }
+  fossil_fatal("cannot determine user");
 }
 
 
