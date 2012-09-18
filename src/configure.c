@@ -161,6 +161,28 @@ const char *configure_next_name(int iMask){
 }
 
 /*
+** Return a pointer to a string that contains the RHS of an IN operator
+** that will select CONFIG table names that are part of the configuration
+** that matchines iMatch.
+*/
+const char *configure_inop_rhs(int iMask){
+  Blob x;
+  int i;
+  const char *zSep = "";
+
+  blob_zero(&x);
+  blob_append(&x, "(", 1);
+  for(i=0; i<count(aConfig); i++){
+    if( (aConfig[i].groupMask & iMask)==0 ) continue;
+    if( aConfig[i].zName[0]=='@' ) continue;
+    blob_appendf(&x, "%s'%s'", zSep, aConfig[i].zName);
+    zSep = ",";
+  }
+  blob_append(&x, ")", 1);
+  return blob_str(&x);
+}
+
+/*
 ** Return the mask for the named configuration parameter if it can be
 ** safely exported.  Return 0 if the parameter is not safe to export.
 **

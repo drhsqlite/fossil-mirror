@@ -1269,26 +1269,19 @@ void db_initial_setup(
 
   if( zTemplate ){
     /*
-    ** Copy all settings from the supplied template repository
-    ** except those that are, by definition, always unique to a
-    ** specific project.  The list of settings excluded by this
-    ** SQL statement may need to be revised in the future.
+    ** Copy all settings from the supplied template repository.
     */
     db_multi_exec(
       "INSERT OR REPLACE INTO config"
-      " SELECT name,value,mtime"
-      " FROM settingSrc.config WHERE name NOT IN ("
-      "       'content-schema','aux-schema',"
-      "       'server-code','project-code',"
-      "       'last-sync-url','last-sync-pw',"
-      "       'captcha-secret','login-group-code',"
-      "       'login-group-name'"
-      " ) AND "
-      " name NOT GLOB 'ckout:*' AND"
-      " name NOT GLOB 'baseurl:*' AND"
-      " name NOT GLOB 'peer-name-*' AND"
-      " name NOT GLOB 'peer-repo-*';"
+      " SELECT name,value,mtime FROM settingSrc.config"
+      "  WHERE name IN %s"
+      "    AND name NOT GLOB 'project-*';",
+      configure_inop_rhs(CONFIGSET_ALL)
     );
+    db_multi_exec(
+      "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
+    );
+
     /*
     ** Copy the user permissions, contact information, last modified
     ** time, and photo for all the "system" users from the supplied
