@@ -312,6 +312,7 @@ void style_sidebox_end(void){
   @ </div>
 }
 
+/* @-comment: # */
 /*
 ** The default page header.
 */
