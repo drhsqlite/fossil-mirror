@@ -306,7 +306,7 @@ static int attempt_user(const char *zLogin){
 **
 **   (4)  Try the USER environment variable.
 **
-**   (5)  Use the first user in the USER table.
+**   (5)  Try the USERNAME environment variable.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
