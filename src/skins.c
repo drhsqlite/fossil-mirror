@@ -21,7 +21,7 @@
 #include "config.h"
 #include "skins.h"
 
-/* @-comment: // */
+/* @-comment: ## */
 /*
 ** A black-and-white theme with the project title in a bar across the top
 ** and no logo image.
@@ -922,6 +922,309 @@ static const char zBuiltinSkin4[] =
 @ ');
 ;
 
+
+/*
+** This skin is intended to be almost identical to the default one, with the
+** following changes to the header and footer:
+**
+** 1. The logo image in the header is a hyperlink to the root of the web
+**    site containing the repository using the same scheme (i.e. HTTP or
+**    HTTPS) as the base URL for the repository.  The header contains a TH1
+**    script block to help accomplish this task.
+**
+** 2. The Fossil version information in the footer has been augmented with
+**    hyperlinks to the corresponding points on the timeline in the official
+**    Fossil repository.  Additionally, if the Tcl integration feature is
+**    enabled, the loaded version of Tcl is included, with a hyperlink to the
+**    official Tcl/Tk web site.
+*/
+static const char zBuiltinSkin5[] = 
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('css',now(),'/* General settings for the entire page */
+@ body {
+@   margin: 0ex 1ex;
+@   padding: 0px;
+@   background-color: white;
+@   font-family: sans-serif;
+@ }
+@
+@ /* The project logo in the upper left-hand corner of each page */
+@ div.logo {
+@   display: table-cell;
+@   text-align: center;
+@   vertical-align: bottom;
+@   font-weight: bold;
+@   color: #558195;
+@   min-width: 200px;
+@ }
+@
+@ /* The page title centered at the top of each page */
+@ div.title {
+@   display: table-cell;
+@   font-size: 2em;
+@   font-weight: bold;
+@   text-align: center;
+@   padding: 0 0 0 1em;
+@   color: #558195;
+@   vertical-align: bottom;
+@   width: 100% ;
+@ }
+@
+@ /* The login status message in the top right-hand corner */
+@ div.status {
+@   display: table-cell;
+@   text-align: right;
+@   vertical-align: bottom;
+@   color: #558195;
+@   font-size: 0.8em;
+@   font-weight: bold;
+@   min-width: 200px;
+@   white-space: nowrap;
+@ }
+@
+@ /* The header across the top of the page */
+@ div.header {
+@   display: table;
+@   width: 100% ;
+@ }
+@
+@ /* The main menu bar that appears at the top of the page beneath
+@ ** the header */
+@ div.mainmenu {
+@   padding: 5px 10px 5px 10px;
+@   font-size: 0.9em;
+@   font-weight: bold;
+@   text-align: center;
+@   letter-spacing: 1px;
+@   background-color: #558195;
+@   border-top-left-radius: 8px;
+@   border-top-right-radius: 8px;
+@   color: white;
+@ }
+@
+@ /* The submenu bar that *sometimes* appears below the main menu */
+@ div.submenu, div.sectionmenu {
+@   padding: 3px 10px 3px 0px;
+@   font-size: 0.9em;
+@   text-align: center;
+@   background-color: #456878;
+@   color: white;
+@ }
+@ div.mainmenu a, div.mainmenu a:visited, div.submenu a, div.submenu a:visited,
+@ div.sectionmenu>a.button:link, div.sectionmenu>a.button:visited {
+@   padding: 3px 10px 3px 10px;
+@   color: white;
+@   text-decoration: none;
+@ }
+@ div.mainmenu a:hover, div.submenu a:hover, div.sectionmenu>a.button:hover {
+@   color: #558195;
+@   background-color: white;
+@ }
+@
+@ /* All page content from the bottom of the menu or submenu down to
+@ ** the footer */
+@ div.content {
+@   padding: 0ex 1ex 1ex 1ex;
+@   border: solid #aaa;
+@   border-width: 1px;
+@ }
+@
+@ /* Some pages have section dividers */
+@ div.section {
+@   margin-bottom: 0px;
+@   margin-top: 1em;
+@   padding: 1px 1px 1px 1px;
+@   font-size: 1.2em;
+@   font-weight: bold;
+@   background-color: #558195;
+@   color: white;
+@   white-space: nowrap;
+@ }
+@
+@ /* The "Date" that occurs on the left hand side of timelines */
+@ div.divider {
+@   background: #a1c4d4;
+@   border: 2px #558195 solid;
+@   font-size: 1em; font-weight: normal;
+@   padding: .25em;
+@   margin: .2em 0 .2em 0;
+@   float: left;
+@   clear: left;
+@   white-space: nowrap;
+@ }
+@
+@ /* The footer at the very bottom of the page */
+@ div.footer {
+@   clear: both;
+@   font-size: 0.8em;
+@   padding: 5px 10px 5px 10px;
+@   text-align: right;
+@   background-color: #558195;
+@   border-bottom-left-radius: 8px;
+@   border-bottom-right-radius: 8px;
+@   color: white;
+@ }
+@
+@ /* Hyperlink colors in the footer */
+@ div.footer a { color: white; }
+@ div.footer a:link { color: white; }
+@ div.footer a:visited { color: white; }
+@ div.footer a:hover { background-color: white; color: #558195; }
+@ 
+@ /* verbatim blocks */
+@ pre.verbatim {
+@    background-color: #f5f5f5;
+@    padding: 0.5em;
+@}
+@
+@ /* The label/value pairs on (for example) the ci page */
+@ table.label-value th {
+@   vertical-align: top;
+@   text-align: right;
+@   padding: 0.2ex 2ex;
+@ }');
+@ REPLACE INTO config(name,mtime,value) VALUES('header',now(),'<html>
+@ <head>
+@ <base href="$baseurl/$current_page" />
+@ <title>$<project_name>: $<title></title>
+@ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
+@       href="$home/timeline.rss" />
+@ <link rel="stylesheet" href="$home/style.css?enhanced" type="text/css"
+@       media="screen" />
+@ </head>
+@ <body>
+@ <div class="header">
+@   <div class="logo">
+@     <th1>
+@     ##
+@     ## NOTE: The purpose of this procedure is to take the base URL of the
+@     ##       Fossil project and return the root of the entire web site using
+@     ##       the same URI scheme as the base URL (e.g. http or https).
+@     ##
+@     proc getLogoUrl { baseurl } {
+@       set idx(first) [string first // $baseurl]
+@       if {$idx(first) != -1} {
+@         ##
+@         ## NOTE: Skip second slash.
+@         ##
+@         set idx(first+1) [expr {$idx(first) + 2}]
+@         ##
+@         ## NOTE: (part 1) The [string first] command does NOT actually
+@         ##       the optional startIndex argument as specified in the
+@         ##       TH1 support manual; therefore, we fake it by using the
+@         ##       [string range] command and then adding the necessary
+@         ##       offset to the resulting index manually (below).  In Tcl,
+@         ##       we could use the following instead:
+@         ##
+@         ##       set idx(next) [string first / $baseurl $idx(first+1)]
+@         ##
+@         set idx(nextRange) [string range $baseurl $idx(first+1) end]
+@         set idx(next) [string first / $idx(nextRange)]
+@         if {$idx(next) != -1} {
+@           ##
+@           ## NOTE: (part 2) Add the necessary offset to the result of the
+@           ##       search for the next slash (i.e. the one after the initial
+@           ##       search for the two slashes).
+@           ##
+@           set idx(next) [expr {$idx(next) + $idx(first+1)}]
+@           ##
+@           ## NOTE: Back up one character from the next slash.
+@           ##
+@           set idx(next-1) [expr {$idx(next) - 1}]
+@           ##
+@           ## NOTE: Extract the URI scheme and host from the base URL.
+@           ##
+@           set scheme [string range $baseurl 0 $idx(first)]
+@           set host [string range $baseurl $idx(first+1) $idx(next-1)]
+@           ##
+@           ## NOTE: Try to stay in SSL mode if we are there now.
+@           ##
+@           if {[string compare $scheme http:/] == 0} {
+@             set scheme http://
+@           } else {
+@             set scheme https://
+@           }
+@           set logourl $scheme$host/
+@         } else {
+@           set logourl $baseurl
+@         }
+@       } else {
+@         set logourl $baseurl
+@       }
+@       return $logourl
+@     }
+@     set logourl [getLogoUrl $baseurl]
+@     </th1>
+@     <a href="$logourl">
+@       <img src="$baseurl/logo" border="0" alt="$project_name">
+@     </a>
+@   </div>
+@   <div class="title"><small>$<project_name></small><br />$<title></div>
+@   <div class="status"><nobr><th1>
+@      if {[info exists login]} {
+@        puts "Logged in as $login"
+@      } else {
+@        puts "Not logged in"
+@      }
+@   </th1></nobr></div>
+@ </div>
+@ <div class="mainmenu">
+@ <th1>
+@ html "<a href=''$home$index_page''>Home</a>\n"
+@ if {[anycap jor]} {
+@   html "<a href=''timeline''>Timeline</a>\n"
+@ }
+@ if {[hascap oh]} {
+@   html "<a href=''dir?ci=tip''>Files</a>\n"
+@ }
+@ if {[hascap o]} {
+@   html "<a href=''brlist''>Branches</a>\n"
+@   html "<a href=''taglist''>Tags</a>\n"
+@ }
+@ if {[hascap r]} {
+@   html "<a href=''reportlist''>Tickets</a>\n"
+@ }
+@ if {[hascap j]} {
+@   html "<a href=''wiki''>Wiki</a>\n"
+@ }
+@ if {[hascap s]} {
+@   html "<a href=''setup''>Admin</a>\n"
+@ } elseif {[hascap a]} {
+@   html "<a href=''setup_ulist''>Users</a>\n"
+@ }
+@ if {[info exists login]} {
+@   html "<a href=''login''>Logout</a>\n"
+@ } else {
+@   html "<a href=''login''>Login</a>\n"
+@ }
+@ </th1></div>
+@ ');
+@ REPLACE INTO config(name,mtime,value)
+@ VALUES('footer',now(),'<div class="footer">
+@   <th1>
+@   proc getTclVersion {} {
+@     if {[catch {tclEval info patchlevel} tclVersion] == 0} {
+@       return "<a href=\"http://www.tcl.tk/\">Tcl</a> version $tclVersion"
+@     }
+@     return ""
+@   }
+@   proc getVersion { version } {
+@     set length [string length $version]
+@     return [string range $version 1 [expr {$length - 2}]]
+@   }
+@   set version [getVersion $manifest_version]
+@   set tclVersion [getTclVersion]
+@   set fossilUrl http://www.fossil-scm.org
+@   </th1>
+@   <a href="$fossilUrl/">Fossil</a>
+@   version $release_version $tclVersion
+@   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
+@   <a href="$fossilUrl/fossil/timeline?c=$manifest_date&y=ci">$manifest_date</a>
+@ </div>
+@ </body></html>
+@ ');
+;
+
 /*
 ** An array of available built-in skins.
 */
@@ -934,6 +1237,7 @@ static struct BuiltinSkin {
   { "Khaki, No Logo",              zBuiltinSkin2                },
   { "Black & White, Menu on Left", zBuiltinSkin3                },
   { "Shadow boxes & Rounded Corners", zBuiltinSkin4             },
+  { "Enhanced Default",            zBuiltinSkin5                },
 };
 
 /*
