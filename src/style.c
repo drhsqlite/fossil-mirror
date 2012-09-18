@@ -312,14 +312,13 @@ void style_sidebox_end(void){
   @ </div>
 }
 
-/* @-comment: // */
 /*
 ** The default page header.
 */
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
-@ <base href="$baseurl/$current_page">
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
@@ -329,7 +328,63 @@ const char zDefaultHeader[] =
 @ <body>
 @ <div class="header">
 @   <div class="logo">
-@     <img src="$home/logo" alt="logo" />
+@     <th1>
+@     #
+@     # NOTE: The purpose of this procedure is to take the base URL of the
+@     #       Fossil project and return the root of the entire web site using
+@     #       the same URI scheme as the base URL (e.g. http or https).
+@     #
+@     proc getLogoUrl { baseurl } {
+@       set idx(first) [string first // $baseurl]
+@       if {$idx(first) != -1} {
+@         set idx(first+1) [expr {$idx(first) + 2}]; # NOTE: Skip second slash.
+@         #
+@         # NOTE: (part 1) The [string first] command does NOT actually support
+@         #       the optional startIndex argument as specified in the TH1
+@         #       manual; therefore, we fake it by using [string range] and then
+@         #       adding the necessary offset to the resulting index manually
+@         #       (below).
+@         #
+@         # set idx(next) [string first / $baseurl $idx(first+1)]
+@         set idx(next) [string first / [string range $baseurl $idx(first+1) end]]
+@         if {$idx(next) != -1} {
+@           #
+@           # NOTE: (part 2) Add the necessary offset to the result of the
+@           #       search for the next slash (i.e. the one after the initial
+@           #       search for the two slashes).
+@           #
+@           set idx(next) [expr {$idx(next) + $idx(first+1)}]
+@           #
+@           # NOTE: Back up one character from the next slash.
+@           #
+@           set idx(next-1) [expr {$idx(next) - 1}]
+@           #
+@           # NOTE: Extract the URI scheme and host from the base URL.
+@           #
+@           set scheme [string range $baseurl 0 $idx(first)]
+@           set host [string range $baseurl $idx(first+1) $idx(next-1)]
+@           #
+@           # NOTE: Try to stay in SSL mode if we are there now.
+@           #
+@           if {[string compare $scheme http:/] == 0} {
+@             set scheme "http://"
+@           } else {
+@             set scheme "https://"
+@           }
+@           set logourl "$scheme$host/"
+@         } else {
+@           set logourl $baseurl
+@         }
+@       } else {
+@         set logourl $baseurl
+@       }
+@       return $logourl
+@     }
+@     set logourl [getLogoUrl $baseurl]
+@     </th1>
+@     <a href="$logourl">
+@       <img src="$baseurl/logo" border="0" alt="$project_name">
+@     </a>
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
 @   <div class="status"><th1>
@@ -377,7 +432,25 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] = 
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@   <th1>
+@   proc getTclVersion {} {
+@     if {[catch {tclEval info patchlevel} tclVersion] == 0} {
+@       return "<a href=\"http://www.tcl.tk/\">Tcl</a> version $tclVersion"
+@     }
+@     return ""
+@   }
+@   proc getVersion { version } {
+@     set length [string length $version]
+@     return [string range $version 1 [expr {$length - 2}]]
+@   }
+@   set version [getVersion $manifest_version]
+@   set tclVersion [getTclVersion]
+@   set fossilUrl http://www.fossil-scm.org
+@   </th1>
+@   <a href="$fossilUrl/">Fossil</a>
+@   version $release_version $tclVersion
+@   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
+@   <a href="$fossilUrl/fossil/timeline?c=$manifest_date&y=ci">$manifest_date</a>
 @ </div>
 @ </body></html>
 ;
