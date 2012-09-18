@@ -773,7 +773,7 @@ void git_import_cmd(void){
 
 
   db_begin_transaction();
-  if( !incrFlag ) db_initial_setup(0, 0, 1);
+  if( !incrFlag ) db_initial_setup(0, 0, 0, 1);
   git_fast_import(pIn);
   db_prepare(&q, "SELECT tcontent FROM xtag");
   while( db_step(&q)==SQLITE_ROW ){
