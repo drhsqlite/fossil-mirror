@@ -705,6 +705,21 @@ static sqlite3 *openDatabase(const char *zDbName){
 
 
 /*
+** Detaches the zLabel database.
+*/
+void db_detach(const char *zLabel){
+  db_multi_exec("DETACH DATABASE %s", zLabel);
+}
+
+/*
+** zDbName is the name of a database file.  Attach zDbName using
+** the name zLabel.
+*/
+void db_attach(const char *zDbName, const char *zLabel){
+  db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+}
+
+/*
 ** zDbName is the name of a database file.  If no other database
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
@@ -715,7 +730,7 @@ static void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zMainDbType = zLabel;
     db_connection_init();
   }else{
-    db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+    db_attach(zDbName, zLabel);
   }
 }
 
@@ -1210,10 +1225,37 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** Return a pointer to a string that contains the RHS of an IN operator
+** that will select CONFIG table names that are in the list of control
+** settings.
+*/
+const char *db_setting_inop_rhs(){
+  Blob x;
+  int i;
+  const char *zSep = "";
+
+  blob_zero(&x);
+  blob_append(&x, "(", 1);
+  for(i=0; ctrlSettings[i].name; i++){
+    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+    zSep = ",";
+  }
+  blob_append(&x, ")", 1);
+  return blob_str(&x);
+}
+
+/*
 ** Fill an empty repository database with the basic information for a
 ** repository. This function is shared between 'create_repository_cmd'
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
+**
+** The zTemplate parameter determines if the settings for the repository
+** should be copied from another repository.  If zTemplate is 0 then the
+** settings will have their normal default values.  If zTemplate is
+** non-zero, it is assumed that the caller of this function has already
+** attached a database using the label "settingSrc".  If not, the call to
+** this function will fail.
 **
 ** The zInitialDate parameter determines the date of the initial check-in
 ** that is automatically created.  If zInitialDate is 0 then no initial
@@ -1221,6 +1263,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 ** not server and project codes are invented for this repository.
 */
 void db_initial_setup(
+  const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
   const char *zDefaultUser,    /* Default user for the repository */
   int makeServerCodes          /* True to make new server & project codes */
@@ -1243,6 +1286,43 @@ void db_initial_setup(
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   db_create_default_users(0, zDefaultUser);
   user_select();
+
+  if( zTemplate ){
+    /*
+    ** Copy all settings from the supplied template repository.
+    */
+    db_multi_exec(
+      "INSERT OR REPLACE INTO config"
+      " SELECT name,value,mtime FROM settingSrc.config"
+      "  WHERE (name IN %s OR name IN %s)"
+      "    AND name NOT GLOB 'project-*';",
+      configure_inop_rhs(CONFIGSET_ALL),
+      db_setting_inop_rhs()
+    );
+    db_multi_exec(
+      "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
+    );
+
+    /*
+    ** Copy the user permissions, contact information, last modified
+    ** time, and photo for all the "system" users from the supplied
+    ** template repository into the one being setup.  The other columns
+    ** are not copied because they contain security information or other
+    ** data specific to the other repository.  The list of columns copied
+    ** by this SQL statement may need to be revised in the future.
+    */
+    db_multi_exec("UPDATE user SET"
+      "  cap = (SELECT u2.cap FROM settingSrc.user u2"
+      "         WHERE u2.login = user.login),"
+      "  info = (SELECT u2.info FROM settingSrc.user u2"
+      "          WHERE u2.login = user.login),"
+      "  mtime = (SELECT u2.mtime FROM settingSrc.user u2"
+      "           WHERE u2.login = user.login),"
+      "  photo = (SELECT u2.photo FROM settingSrc.user u2"
+      "           WHERE u2.login = user.login)"
+      " WHERE user.login IN ('anonymous','nobody','developer','reader');"
+    );
+  }
 
   if( zInitialDate ){
     int rid;
@@ -1279,7 +1359,17 @@ void db_initial_setup(
 ** admin user. This can be overridden using the -A|--admin-user
 ** parameter.
 **
+** By default, all settings will be initialized to their default values.
+** This can be overridden using the --template parameter to specify a
+** repository file from which to copy the initial settings.  When a template
+** repository is used, almost all of the settings accessible from the setup
+** page, either directly or indirectly, will be copied.  Normal users and
+** their associated permissions will not be copied; however, the system
+** default users "anonymous", "nobody", "reader", "developer", and their
+** associated permissions will be copied.
+**
 ** Options:
+**    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **
@@ -1287,9 +1377,11 @@ void db_initial_setup(
 */
 void create_repository_cmd(void){
   char *zPassword;
+  const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
 
+  zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
   if( zDate==0 ) zDate = "now";
@@ -1299,9 +1391,11 @@ void create_repository_cmd(void){
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
+  if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
   db_end_transaction(0);
+  if( zTemplate ) db_detach("settingSrc");
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
