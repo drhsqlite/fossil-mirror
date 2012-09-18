@@ -1225,6 +1225,26 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** Return a pointer to a string that contains the RHS of an IN operator
+** that will select CONFIG table names that are in the list of control
+** settings.
+*/
+const char *db_setting_inop_rhs(){
+  Blob x;
+  int i;
+  const char *zSep = "";
+
+  blob_zero(&x);
+  blob_append(&x, "(", 1);
+  for(i=0; ctrlSettings[i].name; i++){
+    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+    zSep = ",";
+  }
+  blob_append(&x, ")", 1);
+  return blob_str(&x);
+}
+
+/*
 ** Fill an empty repository database with the basic information for a
 ** repository. This function is shared between 'create_repository_cmd'
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
@@ -1274,9 +1294,10 @@ void db_initial_setup(
     db_multi_exec(
       "INSERT OR REPLACE INTO config"
       " SELECT name,value,mtime FROM settingSrc.config"
-      "  WHERE name IN %s"
+      "  WHERE (name IN %s OR name IN %s)"
       "    AND name NOT GLOB 'project-*';",
-      configure_inop_rhs(CONFIGSET_ALL)
+      configure_inop_rhs(CONFIGSET_ALL),
+      db_setting_inop_rhs()
     );
     db_multi_exec(
       "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
@@ -1292,14 +1313,14 @@ void db_initial_setup(
     */
     db_multi_exec("UPDATE user SET"
       "  cap = (SELECT u2.cap FROM settingSrc.user u2"
-      "         WHERE u2.login = login),"
+      "         WHERE u2.login = user.login),"
       "  info = (SELECT u2.info FROM settingSrc.user u2"
-      "          WHERE u2.login = login),"
+      "          WHERE u2.login = user.login),"
       "  mtime = (SELECT u2.mtime FROM settingSrc.user u2"
-      "           WHERE u2.login = login),"
+      "           WHERE u2.login = user.login),"
       "  photo = (SELECT u2.photo FROM settingSrc.user u2"
-      "           WHERE u2.login = login)"
-      " WHERE login IN ('anonymous','nobody','developer','reader');"
+      "           WHERE u2.login = user.login)"
+      " WHERE user.login IN ('anonymous','nobody','developer','reader');"
     );
   }
 
