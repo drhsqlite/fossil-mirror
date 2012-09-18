@@ -927,16 +927,17 @@ static const char zBuiltinSkin4[] =
 ** This skin is intended to be almost identical to the default one, with the
 ** following changes to the header and footer:
 **
-** 1. The logo image in the header is a hyperlink to the root of the web
-**    site containing the repository using the same scheme (i.e. HTTP or
-**    HTTPS) as the base URL for the repository.  The header contains a TH1
-**    script block to help accomplish this task.
+** 1. The logo image in the header has been modified to be a hyperlink to the
+**    root of the web site containing the repository using the same scheme
+**    (i.e. HTTP or HTTPS) as the base URL for the repository.  The header
+**    contains a TH1 script block to help accomplish these tasks.
 **
 ** 2. The Fossil version information in the footer has been augmented with
 **    hyperlinks to the corresponding points on the timeline in the official
 **    Fossil repository.  Additionally, if the Tcl integration feature is
 **    enabled, the loaded version of Tcl is included, with a hyperlink to the
-**    official Tcl/Tk web site.
+**    official Tcl/Tk web site.  The footer also contains a TH1 script block
+**    to help accomplish these tasks.
 */
 static const char zBuiltinSkin5[] = 
 @ REPLACE INTO config(name,mtime,value)
