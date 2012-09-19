@@ -140,8 +140,7 @@ internet these days. What makes Fossil worthy of attention?
      hosted on fossil.
   *  How to [./shunning.wiki | delete content] from a fossil repository.
   *  How Fossil does [./password.wiki | password management].
-  *  Some (unfinished but expanding) extended
-      [./reference.wiki | reference documentation] for the fossil command line.
+  *  On-line [/help | help].
   *  Documentation on the
      [http://www.sqliteconcepts.org/THManual.pdf | TH1 Script Language] used
      to configure the ticketing subsystem.
