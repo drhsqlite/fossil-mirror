@@ -308,9 +308,13 @@ static int attempt_user(const char *zLogin){
 **
 **   (5)  Try the USERNAME environment variable.
 **
+**   (6)  Check if the user can be extracted from the remote URL.
+**
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
+  char *zUrl;
+
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -327,6 +331,12 @@ void user_select(void){
   if( attempt_user(fossil_getenv("USER")) ) return;
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
+
+  zUrl = db_get("last-sync-url", 0);
+  if( zUrl ){
+    url_parse(zUrl);
+    if( attempt_user(g.urlUser) ) return;
+  }
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"
