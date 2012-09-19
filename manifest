@@ -1,5 +1,5 @@
-C A\scouple\sof\sminor\sdocumentation\supdates.
-D 2012-09-19T11:52:19.869
+C Updates\sto\sthe\spermuted\sdocumentation\sindex.
+D 2012-09-19T12:23:23.747
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -324,14 +324,14 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 3f1160118888bf52f7b774dc25c248a22d1594cc
+F www/index.wiki 1a2f93b4c6a5e6cbe2f72988011b367b81d85dfe
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl a47f64d5c33f92b36aace6677bdd88843b8e3404
-F www/mkindex.tcl 3ba5310d0b63740ae68ade01fd5d88c80227b3ef
-F www/newrepo.wiki c6c830e7916cfeb8b887ed357d40bad41b8cb34b
+F www/mkindex.tcl c85112ed277b47fd102e9df7114784bd8233529b
+F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki 6d899353514f73c41b4c2bde3a8576ae3e98ad91
+F www/permutedindex.wiki 92f1426afa5781a23cdfda8b9d5e4dfe79d677b7
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
@@ -352,7 +352,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2e9691055efd0021e9618b4953b4b9833962d51b
-R 6710bf0d55763d3857f0b8cdf93233fa
+P a55fd04538eb85a3d65c99e29c6ee9bf1b6620c6
+R f03be2a0abf092601e755418226588ae
 U drh
-Z c515ff3a8add2bf301f1da9989923dad
+Z 5f5f5b6c9970be458936d37cc15afefe
