@@ -8,6 +8,7 @@ set out [open download.html w]
 puts $out \
 {<!DOCTYPE html><html>
 <head>
+<base href="http://www.fossil-scm.org/" />
 <title>Fossil: Timeline</title>
 <link rel="stylesheet" href="/fossil/style.css" type="text/css"
       media="screen">
@@ -23,12 +24,13 @@ puts $out \
 </div>
 <div class="mainmenu">
 <a href='/fossil/doc/trunk/www/index.wiki'>Home</a>
-<a href='/fossil/timeline'>Timeline</a>
-<a href='/fossil/dir?ci=tip'>Files</a>
+<a href='/fossil/timeline?y=ci'>Timeline</a>
+<a href='/download.html'>Download</a>
+<a href='/fossil/dir?ci=trunk'>Code</a>
+<a href='/fossil/doc/trunk/www/permutedindex.wiki'>Documentation</a>
 <a href='/fossil/brlist'>Branches</a>
 <a href='/fossil/taglist'>Tags</a>
 <a href='/fossil/reportlist'>Tickets</a>
-<a href='/fossil/wiki'>Wiki</a>
 </div>
 <div class="content">
 <p>
