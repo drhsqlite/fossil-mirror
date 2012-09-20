@@ -131,11 +131,6 @@ end_request:
   free(p);
 }
 
-#if !defined(UNICODE)
-#  define fossil_unicode_to_utf8 fossil_mbcs_to_utf8
-#  define fossil_utf8_to_unicode fossil_utf8_to_mbcs
-#endif
-
 /*
 ** Start a listening socket and process incoming HTTP requests on
 ** that socket.

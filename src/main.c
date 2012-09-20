@@ -481,11 +481,7 @@ static void expand_args_option(int argc, void *argv){
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.argv[0] = fossil_unicode_to_utf8(buf);
-#ifdef UNICODE
   for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
-#else
-  for(i=1; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
-#endif
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
