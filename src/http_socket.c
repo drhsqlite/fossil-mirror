@@ -32,8 +32,7 @@
 #  if defined(__MINGW32__)
 #    include <ws2tcpip.h>          
 #  endif
-#  include <windows.h>           /* for Sleep once server works again */
-#  define sleep Sleep            /* windows does not have sleep, but Sleep */
+#  include <windows.h>
 #else
 #  include <netinet/in.h>
 #  include <arpa/inet.h>

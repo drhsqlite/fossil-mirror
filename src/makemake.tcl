@@ -434,7 +434,7 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = $(PREFIX)gcc -Os -Wall -DUNICODE -D_UNICODE -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
 #### Compile resources for use in building executables that will run
 #    on the target platform.
@@ -905,7 +905,7 @@ INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
-TCC    = $(CC) -c $(CFLAGS) -DUNICODE -D_UNICODE $(MSCDEF) $(SSL) $(INCL)
+TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
 }

@@ -361,62 +361,61 @@ void fossil_atexit(void) {
 ** Fills argcPtr with the number of arguments and argvPtr with the array
 ** of arguments.
 */
-#include <tchar.h>
-#define tchar_isspace(X)  ((X)==TEXT(' ') || (X)==TEXT('\t'))
+#define wchar_isspace(X)  ((X)==L' ' || (X)==L'\t')
 static void parse_windows_command_line(
   int *argcPtr,   /* Filled with number of argument strings. */
   void *argvPtr   /* Filled with argument strings (malloc'd). */
 ){
-  TCHAR *cmdLine, *p, *arg, *argSpace;
-  TCHAR **argv;
+  WCHAR *cmdLine, *p, *arg, *argSpace;
+  WCHAR **argv;
   int argc, size, inquote, copy, slashes;
 
-  cmdLine = GetCommandLine();
+  cmdLine = GetCommandLineW();
 
   /*
   ** Precompute an overly pessimistic guess at the number of arguments in
   ** the command line by counting non-space spans.
   */
   size = 2;
-  for(p=cmdLine; *p!=TEXT('\0'); p++){
-    if( tchar_isspace(*p) ){
+  for(p=cmdLine; *p!=L'\0'; p++){
+    if( wchar_isspace(*p) ){
       size++;
-      while( tchar_isspace(*p) ){
+      while( wchar_isspace(*p) ){
         p++;
       }
-      if( *p==TEXT('\0') ){
+      if( *p==L'\0' ){
         break;
       }
     }
   }
 
   argSpace = fossil_malloc(size * sizeof(char*)
-    + (_tcslen(cmdLine) * sizeof(TCHAR)) + sizeof(TCHAR));
-  argv = (TCHAR**)argSpace;
-  argSpace += size*(sizeof(char*)/sizeof(TCHAR));
+    + (wcslen(cmdLine) * sizeof(WCHAR)) + sizeof(WCHAR));
+  argv = (WCHAR**)argSpace;
+  argSpace += size*(sizeof(char*)/sizeof(WCHAR));
   size--;
 
   p = cmdLine;
   for(argc=0; argc<size; argc++){
     argv[argc] = arg = argSpace;
-    while( tchar_isspace(*p) ){
+    while( wchar_isspace(*p) ){
       p++;
     }
-    if (*p == TEXT('\0')) {
+    if (*p == L'\0') {
       break;
     }
     inquote = 0;
     slashes = 0;
     while(1){
       copy = 1;
-      while( *p==TEXT('\\') ){
+      while( *p==L'\\' ){
         slashes++;
         p++;
       }
-      if( *p==TEXT('"') ){
+      if( *p==L'"' ){
         if( (slashes&1)==0 ){
           copy = 0;
-          if( inquote && p[1]==TEXT('"') ){
+          if( inquote && p[1]==L'"' ){
             p++;
             copy = 1;
           }else{
@@ -426,11 +425,11 @@ static void parse_windows_command_line(
         slashes >>= 1;
       }
       while( slashes ){
-        *arg = TEXT('\\');
+        *arg = L'\\';
         arg++;
         slashes--;
       }
-      if( *p==TEXT('\0') || (!inquote && tchar_isspace(*p)) ){
+      if( *p==L'\0' || (!inquote && wchar_isspace(*p)) ){
         break;
       }
       if( copy!=0 ){
@@ -444,7 +443,7 @@ static void parse_windows_command_line(
   }
   argv[argc] = NULL;
   *argcPtr = argc;
-  *((TCHAR ***)argvPtr) = argv;
+  *((WCHAR ***)argvPtr) = argv;
 }
 #endif /* defined(_WIN32) */
 
