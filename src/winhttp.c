@@ -148,7 +148,7 @@ void win32_http_server(
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
-  TCHAR zTmpPath[MAX_PATH];
+  WCHAR zTmpPath[MAX_PATH];
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
@@ -251,7 +251,7 @@ struct HttpService {
   const char *zNotFound;    /* The --notfound option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
-  const TCHAR *zServiceName;/* Name of the service */
+  const WCHAR *zServiceName;/* Name of the service */
   SOCKET s;                 /* Socket on which the http server listens */
 };
 
@@ -386,7 +386,7 @@ static void WINAPI win32_http_service_main(
   }
 
   /* Register the service control handler function */
-  sshStatusHandle = RegisterServiceCtrlHandler(TEXT(""), win32_http_service_ctrl);
+  sshStatusHandle = RegisterServiceCtrlHandler(L"", win32_http_service_ctrl);
   if( !sshStatusHandle ){
     win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
     return;
@@ -431,7 +431,7 @@ int win32_http_service(
 ){
   /* Define the service table. */
   SERVICE_TABLE_ENTRY ServiceTable[] =
-    {{TEXT(""), (LPSERVICE_MAIN_FUNCTION)win32_http_service_main}, {NULL, NULL}};
+    {{L"", (LPSERVICE_MAIN_FUNCTION)win32_http_service_main}, {NULL, NULL}};
 
   /* Initialize the HttpService structure. */
   hsData.port = nPort;
@@ -568,7 +568,7 @@ void cmd_win32_service(void){
     SC_HANDLE hScm;
     SC_HANDLE hSvc;
     SERVICE_DESCRIPTION
-      svcDescr = {TEXT("Fossil - Distributed Software Configuration Management")};
+      svcDescr = {L"Fossil - Distributed Software Configuration Management"};
     char *zErrFmt = "unable to create service '%s': %s";
     DWORD dwStartType = SERVICE_DEMAND_START;
     const char *zDisplay    = find_option("display", "D", 1);
