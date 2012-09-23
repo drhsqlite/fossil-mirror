@@ -1,5 +1,5 @@
-C Add\san\sapple-touch-icon.png
-D 2012-09-21T23:32:36.372
+C Merge\sthe\sremaining\sWin32\sTCHAR\scleanup\sto\strunk.
+D 2012-09-23T04:41:01.304
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -65,7 +65,7 @@ F src/blob.c ab2e4ebceb9224c9f9b433f3f2e76e7a643d04c7
 F src/branch.c 3df909076f844634940791541df7de2c8934fc5d
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
-F src/cgi.c 9d60492eb4d7be76d6508d56dbc1f9816732d625
+F src/cgi.c 93af3e70c15d4ee2aedd9b72ef0ccd92a9fc4453
 F src/checkin.c 0bd6fe24dcd2248ca327175ba17b79273d427c0a
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -86,13 +86,13 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c 249fe63bcd3ef4f518aa6eae2c71289b3900db96
+F src/file.c 779dc56b5ba4c5d7b8556b7dfb36891f17cb829d
 F src/finfo.c a1b4516f572a7537c8556a5d5a89d6cefadaa273
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
-F src/http_socket.c 9ad16c2e1146329f84e17228fccdd7f580f6e2a6
+F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c 2631435110221eb95905b168c0dadffcce71f53c
 F src/import.c 9ae08185778cbfe647367c80d7056e5a4605201c
@@ -114,11 +114,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 8b4e8b1c55294c35721527e2bc28f04a0ad14f3c
-F src/main.c a1f96b6eea9500fed0733fc21ad555be68d4ac73
+F src/main.c 2ed50785336985741c53692ed2c5bcb9247d9676
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 23aa872d5896968ddd27cded96fa6a892021da2f
+F src/makemake.tcl 1165d879932501375cab004d476ee39c5514377f
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -167,7 +167,7 @@ F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c 97d67c8a8758fee2095a11ecd9139e2198245be9
 F src/wiki.c abdd9822c1dc2367345f4e9283a6f8f3a825a3dd
 F src/wikiformat.c da3cf9bb0a3a3eed61f2bc9e051057a0e98a0e11
-F src/winhttp.c 7f4ac59a6a10ed5f7da30bfad356a341832dd2d1
+F src/winhttp.c d5ea31720b39cef8dfb6876497ddd975318408f6
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
 F src/xfer.c 4f993e0ea36825f961796e613645b2dd1b407311
 F src/xfersetup.c d91bdba295da0265acc3e28a83e4424382c349bc
@@ -254,9 +254,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw c1e41be4fa11fa24ef2d11e3eb63c50d239e9d9d
-F win/Makefile.mingw.mistachkin 7acd437683403d8cf7c452f40e6f61b9322e3a57
-F win/Makefile.msc 3fd9b082d31ad4656667ae0aa94ee6c54cb29a21
+F win/Makefile.mingw 17a4a98eeb9a23de106853138d83a111abd15aa8
+F win/Makefile.mingw.mistachkin 4eb8299fc8084bda4d415e7fe28bdf0ba2bc2ba5
+F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
 F win/include/dirent.h 4361c1b373a1a4cd37677b65a169345b3876f5b2
@@ -353,7 +353,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1bfa3a0bbff5c8cda8c7f74e402a6ad90fc95dd5
-R 6e64e553c35e338d37198071f9ed6027
-U drh
-Z ccca50848ca2d024b26e9ae78dc1f901
+P fd05645df50e15aeda35164698c7564003630a21 4abd4c5d389aa82e0def96800b479f232f350722
+R 5ff7ec10e30e34f2567fcf91d4aebf67
+U mistachkin
+Z 0646f7b798a3081efa1c130bc5e9e1fd

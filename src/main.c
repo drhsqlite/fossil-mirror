@@ -370,7 +370,7 @@ static void parse_windows_command_line(
   WCHAR **argv;
   int argc, size, inquote, copy, slashes;
 
-  cmdLine = GetCommandLine();
+  cmdLine = GetCommandLineW();
 
   /*
   ** Precompute an overly pessimistic guess at the number of arguments in

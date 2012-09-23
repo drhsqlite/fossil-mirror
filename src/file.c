@@ -1149,7 +1149,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return 0;
   }
   zUnicode[nChar] = '\0';
-  WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar, &dummy, 0);
+  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar, &dummy, 0);
   return nChar;
 #else
   return -1;  /* No-op on unix */
