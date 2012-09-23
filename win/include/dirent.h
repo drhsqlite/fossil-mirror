@@ -22,6 +22,9 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
+ * Sept 22, 2012, Joe Mistachkin
+ * Check for DIRENT_UNICODE define in addition to UNICODE.
+ *
  * Sept 12, 2012, Jan Nijtmans
  * Switchable wide-character variant.
  *
@@ -150,7 +153,7 @@
 #define	S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
 #define	S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
 
-#ifdef UNICODE
+#if defined(UNICODE) || defined(DIRENT_UNICODE)
 #  define dirent _wdirent
 #  define opendir _wopendir
 #  define readdir _wreaddir

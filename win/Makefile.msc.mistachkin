@@ -14,9 +14,6 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
-
 # Uncomment below for SSL support
 SSL =
 SSLLIB =
@@ -28,17 +25,17 @@ SSLLIB =
 #ZINCDIR = C:\zlib125-dll\include
 #ZLIBDIR = C:\zlib125-dll\lib
 #ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(SRCDIR)\..\zlib-1.2.7
+ZLIBDIR = $(SRCDIR)\..\zlib-1.2.7
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) -DDIRENT_UNICODE=1 $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+LIBDIR = -LIBPATH:$(ZLIBDIR)
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 /DSQLITE_THREADSAFE=0 /DSQLITE_DEFAULT_FILE_FORMAT=4 /DSQLITE_ENABLE_STAT3 /Dlocaltime=fossil_localtime /DSQLITE_ENABLE_LOCKING_STYLE=0
 

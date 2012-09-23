@@ -23,9 +23,7 @@
 */
 #include "config.h"
 #ifdef _WIN32
-#  if defined(__MINGW32__)
-#    include <ws2tcpip.h>
-#  endif
+# include <ws2tcpip.h>
 #else
 # include <sys/socket.h>
 # include <netinet/in.h>
