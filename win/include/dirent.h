@@ -22,8 +22,8 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
- * Sept 22, 2012, Joe Mistachkin
- * Check for DIRENT_UNICODE define in addition to UNICODE.
+ * Sept 23, 2012, Joe Mistachkin
+ * Modified to use wide-character APIs.
  *
  * Sept 12, 2012, Jan Nijtmans
  * Switchable wide-character variant.
@@ -89,7 +89,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <tchar.h>
 
 /* Entries missing from MSVC 6.0 */
 #if !defined(FILE_ATTRIBUTE_DEVICE)
@@ -153,22 +152,13 @@
 #define	S_ISCHR(mode)  (((mode) & S_IFMT) == S_IFCHR)
 #define	S_ISBLK(mode)  (((mode) & S_IFMT) == S_IFBLK)
 
-#if defined(UNICODE) || defined(DIRENT_UNICODE)
-#  define dirent _wdirent
-#  define opendir _wopendir
-#  define readdir _wreaddir
-#  define closedir _wclosedir
-#  define rewinddir _wrewinddir
-#  define DIR _WDIR
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct dirent
 {
-   TCHAR d_name[MAX_PATH + 1];                 /* File name */
+   WCHAR d_name[MAX_PATH + 1];                 /* File name */
    size_t d_namlen;                            /* Length of name without \0 */
    int d_type;                                 /* File type */
 } dirent;
@@ -177,15 +167,15 @@ typedef struct dirent
 typedef struct DIR
 {
    dirent           curentry;                  /* Current directory entry */
-   WIN32_FIND_DATA  find_data;                 /* Private file data */
+   WIN32_FIND_DATAW find_data;                 /* Private file data */
    int              cached;                    /* True if data is valid */
    HANDLE           search_handle;             /* Win32 search handle */
-   TCHAR            patt[MAX_PATH + 3];        /* Initial directory name */
+   WCHAR            patt[MAX_PATH + 3];        /* Initial directory name */
 } DIR;
 
 
 /* Forward declarations */
-static DIR *opendir(const TCHAR *dirname);
+static DIR *opendir(const WCHAR *dirname);
 static struct dirent *readdir(DIR *dirp);
 static int closedir(DIR *dirp);
 static void rewinddir(DIR* dirp);
@@ -193,9 +183,9 @@ static void rewinddir(DIR* dirp);
 
 /* Use the new safe string functions introduced in Visual Studio 2005 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-# define DIRENT_STRNCPY(dest,src,size) _tcsncpy_s((dest),(size),(src),_TRUNCATE)
+# define DIRENT_STRNCPY(dest,src,size) wcsncpy_s((dest),(size),(src),_TRUNCATE)
 #else
-# define DIRENT_STRNCPY(dest,src,size) _tcsncpy((dest),(src),(size))
+# define DIRENT_STRNCPY(dest,src,size) wcsncpy((dest),(src),(size))
 #endif
 
 /* Set errno variable */
@@ -211,7 +201,7 @@ static void rewinddir(DIR* dirp);
  * internal working area that is used to retrieve individual directory
  * entries.
  */
-static DIR *opendir(const TCHAR *dirname)
+static DIR *opendir(const WCHAR *dirname)
 {
    DIR *dirp;
 
@@ -220,7 +210,7 @@ static DIR *opendir(const TCHAR *dirname)
       DIRENT_SET_ERRNO (ENOENT);
       return NULL;
    }
-   if (_tcslen (dirname) + 3 >= MAX_PATH) {
+   if (wcslen (dirname) + 3 >= MAX_PATH) {
       DIRENT_SET_ERRNO (ENAMETOOLONG);
       return NULL;
    }
@@ -235,11 +225,11 @@ static DIR *opendir(const TCHAR *dirname)
        * allows rewinddir() to function correctly when the current working
        * directory is changed between opendir() and rewinddir().
        */
-      if (GetFullPathName (dirname, MAX_PATH, dirp->patt, NULL)) {
-         TCHAR *p;
+      if (GetFullPathNameW (dirname, MAX_PATH, dirp->patt, NULL)) {
+         WCHAR *p;
 
          /* append the search pattern "\\*\0" to the directory name */
-         p = _tcschr (dirp->patt, '\0');
+         p = wcschr (dirp->patt, '\0');
          if (dirp->patt < p  &&  *(p-1) != '\\'  &&  *(p-1) != ':') {
            *p++ = '\\';
          }
@@ -247,7 +237,7 @@ static DIR *opendir(const TCHAR *dirname)
          *p = '\0';
 
          /* open directory stream and retrieve the first entry */
-         dirp->search_handle = FindFirstFile (dirp->patt, &dirp->find_data);
+         dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->find_data);
          if (dirp->search_handle != INVALID_HANDLE_VALUE) {
             /* a directory entry is now waiting in memory */
             dirp->cached = 1;
@@ -298,7 +288,7 @@ static struct dirent *readdir(DIR *dirp)
       if (dirp->search_handle == INVALID_HANDLE_VALUE) {
          return NULL;
       }
-      if (FindNextFile (dirp->search_handle, &dirp->find_data) == FALSE) {
+      if (FindNextFileW (dirp->search_handle, &dirp->find_data) == FALSE) {
          /* the very last entry has been processed or an error occured */
          FindClose (dirp->search_handle);
          dirp->search_handle = INVALID_HANDLE_VALUE;
@@ -313,7 +303,7 @@ static struct dirent *readdir(DIR *dirp)
    dirp->curentry.d_name[MAX_PATH] = '\0';
 
    /* compute the length of name */
-   dirp->curentry.d_namlen = _tcslen (dirp->curentry.d_name);
+   dirp->curentry.d_namlen = wcslen (dirp->curentry.d_name);
 
    /* determine file type */
    attr = dirp->find_data.dwFileAttributes;
@@ -368,7 +358,7 @@ static void rewinddir(DIR* dirp)
       }
 
       /* open new search handle and retrieve the first entry */
-      dirp->search_handle = FindFirstFile (dirp->patt, &dirp->find_data);
+      dirp->search_handle = FindFirstFileW (dirp->patt, &dirp->find_data);
       if (dirp->search_handle != INVALID_HANDLE_VALUE) {
          /* a directory entry is now waiting in memory */
          dirp->cached = 1;
@@ -378,14 +368,6 @@ static void rewinddir(DIR* dirp)
       }
    }
 }
-
-#ifdef UNICODE
-#  undef dirent
-#  undef opendir
-#  undef readdir
-#  undef closedir
-#  undef DIR
-#endif
 
 #ifdef __cplusplus
 }
