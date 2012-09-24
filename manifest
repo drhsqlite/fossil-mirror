@@ -1,5 +1,5 @@
-C Fix\stypo\sin\swin32_fatal_error().
-D 2012-09-24T11:48:55.341
+C Updates\sto\sthe\s"branching.wiki"\sdocument.
+D 2012-09-24T23:26:59.751
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -273,7 +273,7 @@ F www/branch02.gif 55c3567748366595e1678a1c43448a9370ff105e
 F www/branch03.gif 3840bdbb5ed0f57104089c2888ee286d4c79a17b
 F www/branch04.gif 908b4fc1688810f78250e0a269741165ee31979a
 F www/branch05.gif 4808cbf6e0a4095580fca0f56a35f16ba975dbf9
-F www/branching.wiki 876dfdf511b2e859fb343caea56a40f5cbe0ac8d
+F www/branching.wiki a0ceb3e1b54611e9c7b7f90a10c70af42f8a594e
 F www/bugtheory.wiki e43e29be95b51db3cbe00dfc0c4cea6a3a424eec
 F www/build-icons/linux.gif d816e94fb198073feb570da5d28e4106b70bae57
 F www/build-icons/linux64.gif 522442bc41cc8399b8957ab3cb1af4f5fe46b11f
@@ -354,7 +354,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 03424a031b608276d9baea9a7714d9cf9adaed2e
-R b07531414ebf1a7c06caecae7f425b87
-U mistachkin
-Z d6c314e66f66565d1b26eca7bc3158ff
+P 9301375f3e9a35e210b3d2137742f87d1fc7d7c4
+R b784623342f944bce55ae58cb505153a
+U drh
+Z 69438f3052b9a02e71158c11358c8b34
