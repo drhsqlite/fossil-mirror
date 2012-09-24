@@ -68,7 +68,7 @@ static struct {
 
 /*
 ** The following is a list of settings that we are willing to
-** transfer.  
+** transfer.
 **
 ** Setting names that begin with an alphabetic characters refer to
 ** single entries in the CONFIG table.  Setting names that begin with
@@ -224,7 +224,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
   if( fossil_strcmp(zName, "@shun")==0 ){
     db_prepare(&q, "SELECT uuid FROM shun");
     while( db_step(&q)==SQLITE_ROW ){
-      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n", 
+      blob_appendf(pOut, "INSERT OR IGNORE INTO shun VALUES('%s');\n",
         db_column_text(&q, 0)
       );
     }
@@ -233,7 +233,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     db_prepare(&q, "SELECT title, cols, sqlcode FROM reportfmt");
     while( db_step(&q)==SQLITE_ROW ){
       blob_appendf(pOut, "INSERT INTO _xfer_reportfmt(title,cols,sqlcode)"
-                         " VALUES(%Q,%Q,%Q);\n", 
+                         " VALUES(%Q,%Q,%Q);\n",
         db_column_text(&q, 0),
         db_column_text(&q, 1),
         db_column_text(&q, 2)
@@ -241,7 +241,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
     }
     db_finalize(&q);
   }else if( fossil_strcmp(zName, "@user")==0 ){
-    db_prepare(&q, 
+    db_prepare(&q,
         "SELECT login, CASE WHEN length(pw)==40 THEN pw END,"
         "       cap, info, quote(photo) FROM user");
     while( db_step(&q)==SQLITE_ROW ){
@@ -276,7 +276,7 @@ void configure_render_special_name(const char *zName, Blob *pOut){
 **
 ** The config_is_reset() function takes the integer valued argument and
 ** ANDs it against the static variable "configHasBeenReset" below.  The
-** function returns TRUE or FALSE depending on the result depending on 
+** function returns TRUE or FALSE depending on the result depending on
 ** whether or not the corresponding configuration table has been reset.  The
 ** config_reset() function adds the bits to "configHasBeenReset" that
 ** are given in the argument.
@@ -339,7 +339,7 @@ void configure_prepare_to_receive(int replaceFlag){
     @    SELECT uid,login,pw,cap,cookie,ipaddr,cexpire,info,photo FROM user;
   ;
   db_multi_exec(zSQL1);
-  
+
   /* When the replace flag is set, add triggers that run the first time
   ** that new data is seen.  The triggers run only once and delete all the
   ** existing data.
@@ -443,7 +443,7 @@ static int safeInt(const char *z){
 ** The second token is a primary key for the table identified by zName.  If
 ** The entry with the corresponding primary key exists and has a more recent
 ** mtime, then nothing happens.  If the entry does not exist or if it has
-** an older mtime, then the content described by subsequent token pairs is 
+** an older mtime, then the content described by subsequent token pairs is
 ** inserted.  The first element of each token pair is a column name and
 ** the second is its value.
 **
@@ -521,7 +521,7 @@ void configure_receive(const char *zName, Blob *pContent, int groupMask){
       thisMask = configure_is_exportable(aType[ii].zName);
     }
     if( (thisMask & groupMask)==0 ) return;
-    
+
     blob_zero(&sql);
     if( groupMask & CONFIGSET_OVERWRITE ){
       if( (thisMask & configHasBeenReset)==0 && aType[ii].zName[0]!='/' ){
@@ -608,7 +608,7 @@ void configure_receive_all(Blob *pIn, int groupMask){
     }
   }
 }
-    
+
 
 /*
 ** Send "config" cards using the new format for all elements of a group
@@ -758,7 +758,7 @@ static void export_config(
 ){
   Blob out;
   blob_zero(&out);
-  blob_appendf(&out, 
+  blob_appendf(&out,
     "# The \"%s\" configuration exported from\n"
     "# repository \"%s\"\n"
     "# on %s\n",
@@ -819,7 +819,7 @@ static void export_config(
 **    %fossil configuration sync AREA ?URL?
 **
 **         Synchronize configuration changes in the local repository with
-**         the remote repository at URL.  
+**         the remote repository at URL.
 **
 ** Options:
 **    -R|--repository FILE       Extract info from repository FILE
@@ -854,7 +854,7 @@ void configuration_cmd(void){
     }
     export_config(mask, g.argv[3], iStart, g.argv[4]);
   }else
-  if( strncmp(zMethod, "import", n)==0 
+  if( strncmp(zMethod, "import", n)==0
        || strncmp(zMethod, "merge", n)==0 ){
     Blob in;
     int groupMask;
@@ -917,7 +917,7 @@ void configuration_cmd(void){
     char *zBackup;
     if( g.argc!=4 ) usage("reset AREA");
     mask = configure_name_to_mask(g.argv[3], 1);
-    zBackup = db_text(0, 
+    zBackup = db_text(0,
        "SELECT strftime('config-backup-%%Y%%m%%d%%H%%M%%f','now')");
     db_begin_transaction();
     export_config(mask, g.argv[3], 0, zBackup);
@@ -939,8 +939,8 @@ void configuration_cmd(void){
     }
     db_end_transaction(0);
     fossil_print("Configuration reset to factory defaults.\n");
-    fossil_print("To recover, use:  %s %s import %s\n", 
-            fossil_nameofexe(), g.argv[1], zBackup);
+    fossil_print("To recover, use:  %s %s import %s\n",
+            g.argv[0], g.argv[1], zBackup);
   }else
   {
     fossil_fatal("METHOD should be one of:"

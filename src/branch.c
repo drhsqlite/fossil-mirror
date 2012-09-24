@@ -42,7 +42,7 @@ void branch_new(void){
   const char *zDateOvrd; /* Override date string */
   const char *zUserOvrd; /* Override user name */
   int isPrivate = 0;     /* True if the branch should be private */
- 
+
   noSign = find_option("nosign","",0)!=0;
   zColor = find_option("bgcolor","c",1);
   isPrivate = find_option("private",0,0)!=0;
@@ -52,9 +52,9 @@ void branch_new(void){
   if( g.argc<5 ){
     usage("new BRANCH-NAME BASIS ?OPTIONS?");
   }
-  db_find_and_open_repository(0, 0);  
+  db_find_and_open_repository(0, 0);
   noSign = db_get_int("omitsign", 0)|noSign;
-  
+
   /* fossil branch new name */
   zBranch = g.argv[3];
   if( zBranch==0 || zBranch[0]==0 ){
@@ -134,7 +134,7 @@ void branch_new(void){
     blob_appendf(&branch, "T -%F *\n", zTag);
   }
   db_finalize(&q);
-  
+
   blob_appendf(&branch, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(&branch, &mcksum);
   blob_appendf(&branch, "Z %b\n", &mcksum);
@@ -167,14 +167,14 @@ void branch_new(void){
       "      branch.  To begin working on the new branch, do this:\n"
       "\n"
       "      %s update %s\n",
-      fossil_nameofexe(), zBranch
+      g.argv[0], zBranch
     );
   }
 
 
   /* Commit */
   db_end_transaction(0);
-  
+
   /* Do an autosync push, if requested */
   if( !isPrivate ) autosync(AUTOSYNC_PUSH);
 }
@@ -383,7 +383,7 @@ void brlist_page(void){
 static void brtimeline_extra(int rid){
   Stmt q;
   if( !g.perm.Hyperlink ) return;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname,5) FROM tagxref, tag"
     " WHERE tagxref.rid=%d"
     "   AND tagxref.tagid=tag.tagid"

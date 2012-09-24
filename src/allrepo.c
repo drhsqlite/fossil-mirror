@@ -149,7 +149,7 @@ void all_cmd(void){
                  "changes ignore list ls push pull rebuild sync");
   }
   verify_all_options();
-  zFossil = quoteFilename(fossil_nameofexe());
+  zFossil = quoteFilename(g.nameOfExe);
   if( useCheckouts ){
     db_prepare(&q,
        "SELECT substr(name, 7) COLLATE nocase, max(rowid)"

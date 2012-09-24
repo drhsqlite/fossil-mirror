@@ -67,7 +67,7 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] = 
+  static const char zRebuildMsg[] =
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
       "schemas up to date.\n";
@@ -94,7 +94,7 @@ static void db_err(const char *zFormat, ...){
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
   }
   free(z);
   db_force_rollback();
@@ -697,7 +697,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000); 
+  sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
@@ -834,7 +834,7 @@ static int isValidLocalDb(const char *zDbName){
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  ** upgraded, this code can be safely deleted.
   */
   if( !db_local_column_exists("vfile", "isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
@@ -842,12 +842,12 @@ static int isValidLocalDb(const char *zDbName){
 
   /* If "islink"/"isLink" columns are missing from tables, then
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
-  ** After all users have upgraded, this code can be safely deleted. 
+  ** After all users have upgraded, this code can be safely deleted.
   */
   if( !db_local_column_exists("vfile", "islink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
   }
-  
+
   if( !db_local_column_exists("stashfile", "isLink") &&
        db_local_table_exists("stashfile") ){
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
@@ -857,7 +857,7 @@ static int isValidLocalDb(const char *zDbName){
        db_local_table_exists("undo") ){
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
   }
-  
+
   if( !db_local_column_exists("undo_vfile", "islink") &&
        db_local_table_exists("undo_vfile") ){
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
@@ -873,7 +873,7 @@ static int isValidLocalDb(const char *zDbName){
 ** For legacy, also look for ".fos".  The use of ".fos" is deprecated
 ** since "fos" has negative connotations in Hungarian, we are told.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
+** If no valid _FOSSIL_ or .fos file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
@@ -885,8 +885,8 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
-  
+  static const char *const aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
+
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
@@ -1399,7 +1399,7 @@ void create_repository_cmd(void){
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n", 
+  fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
 }
 
@@ -1445,7 +1445,7 @@ static void db_sql_user(
 
 /*
 ** Implement the cgi() SQL function.  cgi() takes a an argument which is
-** a name of CGI query parameter. The value of that parameter is returned, 
+** a name of CGI query parameter. The value of that parameter is returned,
 ** if available. optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
@@ -1640,7 +1640,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
-  
+
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1867,7 +1867,7 @@ void db_record_repository_filename(const char *zName){
       blob_str(&localRoot), blob_str(&full)
     );
     db_swap_connections();
-    db_optional_sql("repository", 
+    db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
         "VALUES('ckout:%q',1,now())",
         blob_str(&localRoot)
@@ -2066,7 +2066,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
-**                     (existing links in repository created on Unix become 
+**                     (existing links in repository created on Unix become
 **                     plain-text files with link destination path inside).
 **                     Default: off
 **
@@ -2214,7 +2214,7 @@ struct stControlSettings const ctrlSettings[] = {
 ** Options:
 **   --global   set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only.
-** 
+**
 ** See also: configuration
 */
 void setting_cmd(void){
@@ -2302,7 +2302,7 @@ char *db_timespan_name(double rSpan){
 void test_timespan_cmd(void){
   double rDiff;
   if( g.argc!=3 ) usage("TIMESTAMP");
-  sqlite3_open(":memory:", &g.db);  
+  sqlite3_open(":memory:", &g.db);
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);

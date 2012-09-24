@@ -101,6 +101,7 @@ struct TclContext {
 */
 struct Global {
   int argc; char **argv;  /* Command-line arguments to the program */
+  char *nameOfExe;        /* Full path of executable. */
   int isConst;            /* True if the output is unchanging */
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
@@ -479,8 +480,10 @@ static void expand_args_option(int argc, void *argv){
 #ifdef _WIN32
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.argv[0] = fossil_unicode_to_utf8(buf);
-  for(i=1; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+  g.nameOfExe = fossil_unicode_to_utf8(buf);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+#else
+  g.nameOfExe = g.argv[0];
 #endif
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
@@ -652,13 +655,6 @@ int main(int argc, char **argv)
 ** shutting down, the recursive errors are silently ignored.
 */
 static int mainInFatalError = 0;
-
-/*
-** Return the name of the current executable.
-*/
-const char *fossil_nameofexe(void){
-  return g.argv[0];
-}
 
 /*
 ** Exit.  Take care to close the database first.

@@ -111,7 +111,7 @@ static void win32_process_one_http_request(void *pAppData){
   fclose(out);
   out = 0;
   sqlite3_snprintf(sizeof(zCmd), zCmd, "\"%s\" http \"%s\" %s %s %s --nossl%s",
-    fossil_nameofexe(), g.zRepositoryName, zRequestFName, zReplyFName,
+    g.nameOfExe, g.zRepositoryName, zRequestFName, zReplyFName,
     inet_ntoa(p->addr.sin_addr), p->zOptions
   );
   fossil_system(zCmd);
@@ -616,7 +616,7 @@ void cmd_win32_service(void){
     db_close(0);
     /* Build the fully-qualified path to the service binary file. */
     blob_zero(&binPath);
-    blob_appendf(&binPath, "\"%s\" server", fossil_nameofexe());
+    blob_appendf(&binPath, "\"%s\" server", g.nameOfExe);
     if( zPort ) blob_appendf(&binPath, " --port %s", zPort);
     if( zNotFound ) blob_appendf(&binPath, " --notfound \"%s\"", zNotFound);
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);
