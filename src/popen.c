@@ -27,7 +27,7 @@
 ** Print a fatal error and quit.
 */
 static void win32_fatal_error(const char *zMsg){
-  fossil_fatal("%s");
+  fossil_fatal("%s", zMsg);
 }
 #endif
 
