@@ -156,33 +156,34 @@
 extern "C" {
 #endif
 
-typedef struct dirent
+typedef struct _wdirent
 {
    WCHAR d_name[MAX_PATH + 1];                 /* File name */
    size_t d_namlen;                            /* Length of name without \0 */
    int d_type;                                 /* File type */
-} dirent;
+} _wdirent;
 
 
-typedef struct DIR
+typedef struct _WDIR
 {
-   dirent           curentry;                  /* Current directory entry */
+   _wdirent         curentry;                  /* Current directory entry */
    WIN32_FIND_DATAW find_data;                 /* Private file data */
    int              cached;                    /* True if data is valid */
    HANDLE           search_handle;             /* Win32 search handle */
    WCHAR            patt[MAX_PATH + 3];        /* Initial directory name */
-} DIR;
+} _WDIR;
 
 
 /* Forward declarations */
-static DIR *opendir(const WCHAR *dirname);
-static struct dirent *readdir(DIR *dirp);
-static int closedir(DIR *dirp);
-static void rewinddir(DIR* dirp);
+static _WDIR *_wopendir(const WCHAR *dirname);
+static struct _wdirent *_wreaddir(_WDIR *dirp);
+static int _wclosedir(_WDIR *dirp);
+static void _wrewinddir(_WDIR* dirp);
 
 
 /* Use the new safe string functions introduced in Visual Studio 2005 */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
+
 # define DIRENT_STRNCPY(dest,src,size) wcsncpy_s((dest),(size),(src),_TRUNCATE)
 #else
 # define DIRENT_STRNCPY(dest,src,size) wcsncpy((dest),(src),(size))
@@ -201,9 +202,9 @@ static void rewinddir(DIR* dirp);
  * internal working area that is used to retrieve individual directory
  * entries.
  */
-static DIR *opendir(const WCHAR *dirname)
+static _WDIR *_wopendir(const WCHAR *dirname)
 {
-   DIR *dirp;
+   _WDIR *dirp;
 
    /* ensure that the resulting search pattern will be a valid file name */
    if (dirname == NULL) {
@@ -215,8 +216,8 @@ static DIR *opendir(const WCHAR *dirname)
       return NULL;
    }
 
-   /* construct new DIR structure */
-   dirp = (DIR*) malloc (sizeof (struct DIR));
+   /* construct new _WDIR structure */
+   dirp = (_WDIR*) malloc (sizeof (struct _WDIR));
    if (dirp != NULL) {
       int error;
 
@@ -264,13 +265,13 @@ static DIR *opendir(const WCHAR *dirname)
 
 
 /*****************************************************************************
- * Read a directory entry, and return a pointer to a dirent structure
+ * Read a directory entry, and return a pointer to a _wdirent structure
  * containing the name of the entry in d_name field.  Individual directory
  * entries returned by this very function include regular files,
  * sub-directories, pseudo-directories "." and "..", but also volume labels,
  * hidden files and system files may be returned.
  */
-static struct dirent *readdir(DIR *dirp)
+static struct _wdirent *_wreaddir(_WDIR *dirp)
 {
    DWORD attr;
    if (dirp == NULL) {
@@ -320,10 +321,10 @@ static struct dirent *readdir(DIR *dirp)
 
 /*****************************************************************************
  * Close directory stream opened by opendir() function.  Close of the
- * directory stream invalidates the DIR structure as well as any previously
+ * directory stream invalidates the _WDIR structure as well as any previously
  * read directory entry.
  */
-static int closedir(DIR *dirp)
+static int _wclosedir(_WDIR *dirp)
 {
    if (dirp == NULL) {
       /* invalid directory stream */
@@ -349,7 +350,7 @@ static int closedir(DIR *dirp)
  * would have done.  If dirp does not refer to a directory stream, the effect
  * is undefined.
  */
-static void rewinddir(DIR* dirp)
+static void _wrewinddir(_WDIR* dirp)
 {
    if (dirp != NULL) {
       /* release search handle */

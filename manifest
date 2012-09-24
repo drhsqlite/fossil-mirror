@@ -1,5 +1,5 @@
-C Always\suse\swide-character\sWin32\sAPIs\sfor\sdirent.h.
-D 2012-09-23T23:52:58.975
+C previous\scommit\sfixed\sthe\sMSVC\sbuild,\sbut\sbroke\sthe\smingw\sbuild.\sNow\sfix\sboth\sof\sthem.
+D 2012-09-24T07:00:02.796
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -86,7 +86,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c 51f6c61f870451941adcd764af6a8f49eff3fbc7
+F src/file.c e02733ba8ab6de2e73734a9f5c87b0e9bfb822bd
 F src/finfo.c a1b4516f572a7537c8556a5d5a89d6cefadaa273
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -131,7 +131,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c 8c51da410617e924f432f742aa73562f0d682b04
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 8478f895e4d224541b8cae5b15169584eff6e7a4
-F src/rebuild.c 3fff16bc8378ad6dc9f4b4054957fc09a8af8c0e
+F src/rebuild.c 341f7c9680e93dfaf4908f3926773856b3a26316
 F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -164,7 +164,7 @@ F src/update.c 5b74d4f9de38eff1203c4e3ebbcc14729109b763
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 97d67c8a8758fee2095a11ecd9139e2198245be9
+F src/vfile.c cc07a9184dc58b8e5f1e53e1c2516dc4b597a0a0
 F src/wiki.c abdd9822c1dc2367345f4e9283a6f8f3a825a3dd
 F src/wikiformat.c da3cf9bb0a3a3eed61f2bc9e051057a0e98a0e11
 F src/winhttp.c d5ea31720b39cef8dfb6876497ddd975318408f6
@@ -260,7 +260,7 @@ F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
-F win/include/dirent.h e534daa07b4ff19b8e39b600b66d115dfd41ee0b
+F win/include/dirent.h 9c9c88f5b772cb41471f1fdf611207f6325f28d2
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -354,7 +354,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bb85c12e1028ae52c621e73032e1b83a678169a0
-R 8d65d7d27fe932e5d28dd89a0301acaa
-U mistachkin
-Z 8cee35b92b2a4f82b6f97ef538b58c72
+P ea621d75efeadb6ac8e9840b7b7a4c03e54120e6
+R 7aed5d387a811ba2d7eaec1254759a3d
+U jan.nijtmans
+Z 06a2535bf16ede1592e9708fa1426b6d

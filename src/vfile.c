@@ -378,10 +378,10 @@ int vfile_top_of_checkout(const char *zPath){
 ** nPrefix characters are elided from the filename.
 */
 void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
-  FOSSIL_DIR *d;
+  DIR *d;
   int origSize;
   const char *zDir;
-  struct fossil_dirent *pEntry;
+  struct dirent *pEntry;
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
@@ -405,9 +405,9 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
 
   zDir = blob_str(pPath);
   zMbcs = fossil_utf8_to_unicode(zDir);
-  d = fossil_opendir(zMbcs);
+  d = opendir(zMbcs);
   if( d ){
-    while( (pEntry=fossil_readdir(d))!=0 ){
+    while( (pEntry=readdir(d))!=0 ){
       char *zPath;
       char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
@@ -432,7 +432,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       }
       blob_resize(pPath, origSize);
     }
-    fossil_closedir(d);
+    closedir(d);
   }
   fossil_mbcs_free(zMbcs);
 

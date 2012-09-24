@@ -1011,11 +1011,13 @@ int file_is_the_same(Blob *pContent, const char *zName){
 #if INTERFACE
 
 #include <dirent.h>
-#define FOSSIL_DIR DIR
-#define fossil_dirent dirent
-#define fossil_opendir opendir
-#define fossil_readdir readdir
-#define fossil_closedir closedir
+#if defined(_WIN32)
+# define DIR _WDIR
+# define dirent _wdirent
+# define opendir _wopendir
+# define readdir _wreaddir
+# define closedir _wclosedir
+#endif /* _WIN32 */
 
 #endif /* INTERFACE */
 
