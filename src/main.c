@@ -519,7 +519,7 @@ static void expand_args_option(int argc, void *argv){
     z = blob_buffer(&line);
     z[n-1] = 0;
     if (foundBom == -1) {
-      static const char bom[] = { 0xEF, 0xBB, 0xBF };
+      static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
       foundBom = memcmp(z, bom, 3)==0;
       if( foundBom ) {
         z += 3; n -= 3;

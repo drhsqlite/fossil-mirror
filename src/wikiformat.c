@@ -1493,7 +1493,7 @@ static void wiki_render(Renderer *p, char *z){
 ** tools add to the beginning of text files.
 */
 char *skip_bom(char *z){
-  static const char bom[] = { 0xEF, 0xBB, 0xBF };
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
   if( z && memcmp(z, bom, 3)==0 ) z += 3;
   return z;
 }
