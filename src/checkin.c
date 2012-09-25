@@ -1153,8 +1153,11 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }else{
-    /* If the comment comes from the command line, it is utf-8 already. */
-    if( zComment == 0 ) {
+#ifdef _WIN32
+    /* On windows, the check-in comment might come back from the editor
+    ** in various encodings.  Try to figure out the encoding and do the
+    ** right thing. */
+    if( zComment==0 ){
       static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
       static const unsigned short ubom = 0xfeff;
       static const unsigned short urbom = 0xfffe;
@@ -1165,9 +1168,8 @@ void commit_cmd(void){
         fossil_mbcs_free(zUtf8);
         blob_swap(&temp, &comment);
         blob_reset(&temp);
-      } else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
+      }else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
           && memcmp(blob_buffer(&comment), &ubom, 2)==0 ) {
-#ifdef _WIN32
         char *zUtf8;
         /* Make sure the blob contains two terminating 0-bytes */
         blob_append(&comment, "", 1);
@@ -1176,20 +1178,17 @@ void commit_cmd(void){
         blob_zero(&comment);
         blob_set(&comment, zUtf8);
         fossil_mbcs_free(zUtf8);
-#else
-        fossil_fatal("unicode bom (le) not (yet) implemented");
-#endif
-      } else if( blob_size(&comment)>1 && memcmp(blob_buffer(&comment), &urbom, 2)==0 ) {
+      }else if( blob_size(&comment)>1
+            && memcmp(blob_buffer(&comment), &urbom, 2)==0 ){
         fossil_fatal("unicode bom (be) not (yet) implemented");
-#ifdef _WIN32
-      } else {
-          char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
-          blob_zero(&comment);
-          blob_set(&comment, zUtf8);
-          fossil_mbcs_free(zUtf8);
-#endif
+      }else{
+        char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
+        blob_zero(&comment);
+        blob_set(&comment, zUtf8);
+        fossil_mbcs_free(zUtf8);
       }
     }
+#endif /* _WIN32 */
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
     db_end_transaction(0);
     db_begin_transaction();
