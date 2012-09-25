@@ -1164,7 +1164,7 @@ void commit_cmd(void){
       if( blob_size(&comment)>2 && memcmp(blob_buffer(&comment), bom, 3)==0 ) {
     	struct Blob temp;
         char *zUtf8 = blob_str(&comment) + 3;
-        blob_set(&temp, zUtf8);
+        blob_append(&temp, zUtf8, -1);
         fossil_mbcs_free(zUtf8);
         blob_swap(&temp, &comment);
         blob_reset(&temp);
@@ -1176,15 +1176,15 @@ void commit_cmd(void){
         zUtf8 = blob_str(&comment) + 2;
         zUtf8 = fossil_unicode_to_utf8(zUtf8);
         blob_zero(&comment);
-        blob_set(&comment, zUtf8);
+        blob_append(&comment, zUtf8, -1);
         fossil_mbcs_free(zUtf8);
       }else if( blob_size(&comment)>1
-            && memcmp(blob_buffer(&comment), &urbom, 2)==0 ){
+          && memcmp(blob_buffer(&comment), &urbom, 2)==0 ){
         fossil_fatal("unicode bom (be) not (yet) implemented");
       }else{
         char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
         blob_zero(&comment);
-        blob_set(&comment, zUtf8);
+        blob_append(&comment, zUtf8, -1);
         fossil_mbcs_free(zUtf8);
       }
     }
