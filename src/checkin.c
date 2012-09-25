@@ -488,7 +488,7 @@ static void prepare_commit_comment(
        "# or \"-M\" command-line options, you will need to enter the\n"
        "# check-in comment below.  Type \".\" on a line by itself when\n"
        "# you are done:\n", -1);
-    zFile = NULL;
+    zFile = mprintf("-");
   }else{
     zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                     g.zLocalRoot);
@@ -525,10 +525,10 @@ static void prepare_commit_comment(
     }
   }
   blob_remove_cr(&text);
-  if( zFile ) {
+  if( zEditor ) {
     file_delete(zFile);
-    fossil_free(zFile);
   }
+  fossil_free(zFile);
   blob_zero(pComment);
   while( blob_line(&text, &line) ){
     int i, n;
