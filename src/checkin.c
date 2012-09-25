@@ -497,8 +497,8 @@ static void prepare_commit_comment(
   blob_add_cr(&text);
 #endif
   if( zEditor || fossil_utf8_to_console(blob_buffer(&text), blob_size(&text), 0) < 0) {
-	/* We have an external editor or else we cannot write it directly to the
-	 * (windows) console, so write it to stdout in mbcs encoding. */
+	/* We have an external editor or else we cannot write directly to the
+	 * (windows) console, so write it out in mbcs encoding. */
     struct Blob temp;
     zComment = fossil_utf8_to_mbcs(blob_str(&text));
     blob_set(&temp, zComment);
