@@ -488,7 +488,7 @@ static void prepare_commit_comment(
        "# or \"-M\" command-line options, you will need to enter the\n"
        "# check-in comment below.  Type \".\" on a line by itself when\n"
        "# you are done:\n", -1);
-    zFile = mprintf("-");
+    zFile = NULL;
   }else{
     zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
                     g.zLocalRoot);
@@ -496,7 +496,16 @@ static void prepare_commit_comment(
 #if defined(_WIN32)
   blob_add_cr(&text);
 #endif
-  blob_write_to_file(&text, zFile);
+  if( zEditor || fossil_utf8_to_console(blob_buffer(&text), blob_size(&text), 0) < 0) {
+	/* We have an external editor or else we cannot write it directly to the
+	 * (windows) console, so write it to stdout in mbcs encoding. */
+    struct Blob temp;
+    zComment = fossil_utf8_to_mbcs(blob_str(&text));
+    blob_set(&temp, zComment);
+    blob_write_to_file(&temp, zFile);
+    blob_zero(&temp);
+    fossil_mbcs_free(zComment);
+  }
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
     fossil_print("%s\n", zCmd);
@@ -509,18 +518,17 @@ static void prepare_commit_comment(
     char zIn[300];
     blob_reset(&text);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
-      if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
-        fossil_mbcs_free(zUtf8);
+      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ){
         break;
       }
       blob_append(&text, zIn, -1);
-      fossil_mbcs_free(zUtf8);
     }
   }
   blob_remove_cr(&text);
-  file_delete(zFile);
-  free(zFile);
+  if( zFile ) {
+    file_delete(zFile);
+    fossil_free(zFile);
+  }
   blob_zero(pComment);
   while( blob_line(&text, &line) ){
     int i, n;
@@ -1145,6 +1153,43 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }else{
+    /* If the comment comes from the command line, it is utf-8 already. */
+    if( zComment == 0 ) {
+      static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+      static const unsigned short ubom = 0xfeff;
+      static const unsigned short urbom = 0xfffe;
+      if( blob_size(&comment)>2 && memcmp(blob_buffer(&comment), bom, 3)==0 ) {
+    	struct Blob temp;
+        char *zUtf8 = blob_str(&comment) + 3;
+        blob_set(&temp, zUtf8);
+        fossil_mbcs_free(zUtf8);
+        blob_swap(&temp, &comment);
+        blob_reset(&temp);
+      } else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
+          && memcmp(blob_buffer(&comment), &ubom, 2)==0 ) {
+#ifdef _WIN32
+        char *zUtf8;
+        /* Make sure the blob contains two terminating 0-bytes */
+        blob_append(&comment, "", 1);
+        zUtf8 = blob_str(&comment) + 2;
+        zUtf8 = fossil_unicode_to_utf8(zUtf8);
+        blob_zero(&comment);
+        blob_set(&comment, zUtf8);
+        fossil_mbcs_free(zUtf8);
+#else
+        fossil_fatal("unicode bom (le) not (yet) implemented");
+#endif
+      } else if( blob_size(&comment)>1 && memcmp(blob_buffer(&comment), &urbom, 2)==0 ) {
+        fossil_fatal("unicode bom (be) not (yet) implemented");
+#ifdef _WIN32
+      } else {
+          char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
+          blob_zero(&comment);
+          blob_set(&comment, zUtf8);
+          fossil_mbcs_free(zUtf8);
+#endif
+      }
+    }
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
     db_end_transaction(0);
     db_begin_transaction();
