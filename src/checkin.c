@@ -444,13 +444,21 @@ static void prepare_commit_comment(
   int parent_rid,
   const char *zUserOvrd
 ){
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
   const char *zEditor;
   char *zCmd;
   char *zFile;
   Blob text, line;
   char *zComment;
   int i;
+#ifdef _WIN32
+  blob_init(&text, (const char *) bom, 3);
+  if( zInit && zInit[0]) {
+    blob_append(&text, zInit, -1);
+  }
+#else
   blob_init(&text, zInit, -1);
+#endif
   blob_append(&text,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
@@ -496,16 +504,7 @@ static void prepare_commit_comment(
 #if defined(_WIN32)
   blob_add_cr(&text);
 #endif
-  if( zEditor || fossil_utf8_to_console(blob_buffer(&text), blob_size(&text), 0) < 0) {
-	/* We have an external editor or else we cannot write directly to the
-	 * (windows) console, so write it out in mbcs encoding. */
-    struct Blob temp;
-    zComment = fossil_utf8_to_mbcs(blob_str(&text));
-    blob_set(&temp, zComment);
-    blob_write_to_file(&temp, zFile);
-    blob_zero(&temp);
-    fossil_mbcs_free(zComment);
-  }
+  blob_write_to_file(&text, zFile);
   if( zEditor ){
     zCmd = mprintf("%s \"%s\"", zEditor, zFile);
     fossil_print("%s\n", zCmd);
