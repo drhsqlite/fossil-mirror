@@ -514,7 +514,7 @@ static void prepare_commit_comment(
         fossil_mbcs_free(zUtf8);
         break;
       }
-      blob_append(&text, zIn, -1);
+      blob_append(&text, zUtf8, -1);
       fossil_mbcs_free(zUtf8);
     }
   }
