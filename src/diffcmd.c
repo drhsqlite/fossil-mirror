@@ -479,6 +479,7 @@ const char *diff_command_external(int guiDiff){
 /* A Tcl/Tk script used to render diff output.
 */
 static const char zDiffScript[] = 
+@ package require Tk
 @ wm withdraw .
 @ wm title . {Fossil Diff}
 @ wm iconname . {Fossil Diff}
@@ -539,7 +540,7 @@ static void diff_tk(void){
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   zTempFile = write_blob_to_temp_file(&script);
-  zCmd = mprintf("wish \"%s\"", zTempFile);
+  zCmd = mprintf("tclsh \"%s\"", zTempFile);
   fossil_system(zCmd);
   file_delete(zTempFile);
 }

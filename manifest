@@ -1,5 +1,5 @@
-C Add\sthe\s--tk\soption\sto\s"fossil\sdiff"\sin\sorder\sto\slaunch\sa\sTcl/Tk\sGUI\sdisplay\nof\scolorized\sside-by-side\sdiffs.
-D 2012-09-26T12:55:20.464
+C For\sthe\s--tk\soption\sto\sthe\sdiff\scommand,\sinvoke\s"tclsh"\sinstead\sof\s"wish"\nand\sinvoke\s"package\srequire\sTk"\sat\sthe\sbeginning\sof\sthe\sscript.
+D 2012-09-26T13:52:44.873
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -84,7 +84,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 1f6c64f1db0694b57c00ee633896e902f6cc899b
-F src/diffcmd.c 71b39dcf56bd985fab30c08b3cdb522e7bba8169
+F src/diffcmd.c f88066a5ae30505b0a9747d40075417a1e86ed14
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ecb85f61a9a9a2f00cf42b89081378125fe32df2
-R c4a6378523bcfc68ed819caa2d73c11f
+P 22e5d711e50de36f1023b0ce8c9f11617a2179ab
+R 3c805d0a9c3fa6149e13c0e2828a331c
 U drh
-Z 0adf9bb7c52ecc6bd93fe4e1d0739797
+Z 0d61b9321496d3a784547c9cf8f29c86
