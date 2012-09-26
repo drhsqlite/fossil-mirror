@@ -977,7 +977,11 @@ static void sbsDiff(
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = s.width;
           sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " <\n", 3);
+          if( escHtml ){
+            sbsWrite(&s, " &lt;\n", 6);
+          }else{
+            sbsWrite(&s, " <\n", 3);
+          }
           blob_append(pOut, s.zLine, s.n);
           assert( ma>0 );
           ma--;
@@ -994,7 +998,11 @@ static void sbsDiff(
         }else{
           s.n = 0;
           sbsWriteSpace(&s, width + 7);
-          sbsWrite(&s, " > ", 3);
+          if( escHtml ){
+            sbsWrite(&s, " &gt; ", 6);
+          }else{
+            sbsWrite(&s, " > ", 3);
+          }
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";

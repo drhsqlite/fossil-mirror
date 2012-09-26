@@ -517,10 +517,13 @@ static void prepare_commit_comment(
     char zIn[300];
     blob_reset(&text);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ){
+      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
+      if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
+        fossil_mbcs_free(zUtf8);
         break;
       }
-      blob_append(&text, zIn, -1);
+      blob_append(&text, zUtf8, -1);
+      fossil_mbcs_free(zUtf8);
     }
   }
   blob_remove_cr(&text);
