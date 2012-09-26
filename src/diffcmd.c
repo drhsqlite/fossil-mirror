@@ -476,6 +476,74 @@ const char *diff_command_external(int guiDiff){
   return db_get(zName, zDefault);
 }
 
+/* A Tcl/Tk script used to render diff output.
+*/
+static const char zDiffScript[] = 
+@ wm withdraw .
+@ wm title . {Fossil Diff}
+@ wm iconname . {Fossil Diff}
+@ set body {}
+@ set mx 80          ;# Length of the longest line of text
+@ set nLine 0        ;# Number of lines of text
+@ text .t -width 180 -yscroll {.sb set}
+@ if {$tcl_platform(platform)=="windows"} {.t config -font {courier 9}}
+@ .t tag config ln -foreground gray
+@ .t tag config chng -background {#d0d0ff}
+@ .t tag config add -background {#c0ffc0}
+@ .t tag config rm -background {#ffc0c0}
+@ proc dehtml {x} {return [string map {&amp; & &lt; < &gt; >} $x]}
+@ set in [open $cmd r]
+@ while {![eof $in]} {
+@   set line [gets $in]
+@   if {[regexp {^<a name="chunk.*"></a>} $line]} continue
+@   if {[regexp {^===} $line]} {
+@     set n [string length $line]
+@     if {$n>$mx} {set mx $n}
+@   }
+@   incr nLine
+@   while {[regexp {^(.*?)<span class="diff([a-z]+)">(.*?)</span>(.*)$} $line \
+@             all pre class mid tail]} {
+@     .t insert end [dehtml $pre] {} [dehtml $mid] $class
+@     set line $tail
+@   }
+@   .t insert end [dehtml $line]\n {}
+@ }
+@ close $in
+@ if {$mx>250} {set mx 250}      ;# Limit window width to 200 lines
+@ if {$nLine>55} {set nLine 55}  ;# Limit window height to 55 lines
+@ .t config -height $nLine -width $mx
+@ pack .t -side left -fill both -expand 1
+@ scrollbar .sb -command {.t yview} -orient vertical
+@ pack .sb -side left -fill y
+@ wm deiconify .
+;
+
+/*
+** Show diff output in a Tcl/Tk window, in response to the --tk option
+** to the diff command.
+** 
+** Steps:
+** (1) Write the Tcl/Tk script used for rendering into a temp file.
+** (2) Invoke "wish" on the temp file using fossil_system().
+** (3) Delete the temp file.
+*/
+static void diff_tk(void){
+  int i;
+  Blob script;
+  char *zTempFile;
+  char *zCmd;
+  blob_zero(&script);
+  blob_appendf(&script, "set cmd {| \"%s\" diff --html -y", g.argv[0]);
+  for(i=2; i<g.argc; i++){
+    blob_appendf(&script, " \"%s\"", g.argv[i]);
+  }
+  blob_appendf(&script, "}\n%s", zDiffScript);
+  zTempFile = write_blob_to_temp_file(&script);
+  zCmd = mprintf("wish \"%s\"", zTempFile);
+  fossil_system(zCmd);
+  file_delete(zTempFile);
+}
+
 /*
 ** COMMAND: diff
 ** COMMAND: gdiff
@@ -511,6 +579,7 @@ const char *diff_command_external(int guiDiff){
 **   --from|-r VERSION   select VERSION as source for the diff
 **   -i                  use internal diff logic
 **   --new-file|-N       output complete text of added or deleted files
+**   --tk                Launch a Tcl/Tk GUI for display
 **   --to VERSION        select VERSION as target for the diff
 **   --side-by-side|-y   side-by-side diff
 **   --width|-W N        Width of lines in side-by-side diff 
@@ -526,6 +595,10 @@ void diff_cmd(void){
   u64 diffFlags = 0;         /* Flags to control the DIFF */
   int f;
 
+  if( find_option("tk",0,0)!=0 ){
+    diff_tk();
+    return;
+  }
   isGDiff = g.argv[1][0]=='g';
   isInternDiff = find_option("internal","i",0)!=0;
   zFrom = find_option("from", "r", 1);

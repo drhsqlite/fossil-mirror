@@ -537,7 +537,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 /*
 ** Write a BLOB into a random filename.  Return the name of the file.
 */
-static char *write_blob_to_temp_file(Blob *pBlob){
+char *write_blob_to_temp_file(Blob *pBlob){
   sqlite3_uint64 r;
   char *zOut = 0;
   do{
