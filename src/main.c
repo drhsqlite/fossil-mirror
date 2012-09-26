@@ -1209,25 +1209,53 @@ void test_all_help_page(void){
 ** Set the g.zBaseURL value to the full URL for the toplevel of
 ** the fossil tree.  Set g.zTop to g.zBaseURL without the
 ** leading "http://" and the host and port.
+**
+** The g.zBaseURL is normally set based on HTTP_HOST and SCRIPT_NAME
+** environment variables.  However, if zAltBase is not NULL then it
+** is the argument to the --baseurl option command-line option and
+** g.zBaseURL and g.zTop is set from that instead.
 */
-void set_base_url(void){
+static void set_base_url(const char *zAltBase){
   int i;
   const char *zHost;
   const char *zMode;
   const char *zCur;
 
   if( g.zBaseURL!=0 ) return;
-  zHost = PD("HTTP_HOST","");
-  zMode = PD("HTTPS","off");
-  zCur = PD("SCRIPT_NAME","/");
-  i = strlen(zCur);
-  while( i>0 && zCur[i-1]=='/' ) i--;
-  if( fossil_stricmp(zMode,"on")==0 ){
-    g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
-    g.zTop = &g.zBaseURL[8+strlen(zHost)];
+  if( zAltBase ){
+    int i, n, c;
+    g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    if( memcmp(g.zTop, "http://", 7)!=0 && memcmp(g.zTop,"https://",8)!=0 ){
+      fossil_fatal("argument to --baseurl should be 'http://host/path'"
+                   " or 'https://host/path'");
+    }
+    for(i=n=0; (c = g.zTop[i])!=0; i++){
+      if( c=='/' ){
+        n++;
+        if( n==3 ){
+          g.zTop += i;
+          break;
+        }
+      }
+    }
+    if( g.zTop==g.zBaseURL ){
+      fossil_fatal("argument to --baseurl should be 'http://host/path'"
+                   " or 'https://host/path'");
+    }
+    if( g.zTop[1]==0 ) g.zTop++;
   }else{
-    g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
-    g.zTop = &g.zBaseURL[7+strlen(zHost)];
+    zHost = PD("HTTP_HOST","");
+    zMode = PD("HTTPS","off");
+    zCur = PD("SCRIPT_NAME","/");
+    i = strlen(zCur);
+    while( i>0 && zCur[i-1]=='/' ) i--;
+    if( fossil_stricmp(zMode,"on")==0 ){
+      g.zBaseURL = mprintf("https://%s%.*s", zHost, i, zCur);
+      g.zTop = &g.zBaseURL[8+strlen(zHost)];
+    }else{
+      g.zBaseURL = mprintf("http://%s%.*s", zHost, i, zCur);
+      g.zTop = &g.zBaseURL[7+strlen(zHost)];
+    }
   }
   if( db_is_writeable("repository") ){
     if( !db_exists("SELECT 1 FROM config WHERE name='baseurl:%q'", g.zBaseURL)){
@@ -1359,7 +1387,7 @@ static void process_one_web_page(const char *zNotFound){
       }
 
       if( szFile<1024 ){
-        set_base_url();
+        set_base_url(0);
         if( zNotFound ){
           cgi_redirect(zNotFound);
         }else{
@@ -1397,7 +1425,7 @@ static void process_one_web_page(const char *zNotFound){
   if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
     zPathInfo = "/xfer";
   }
-  set_base_url();
+  set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
 #ifdef FOSSIL_ENABLE_JSON
@@ -1646,7 +1674,7 @@ void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
   const char *zNotFound = 0;         /* Not found URL */
   const char *zName = P("name");
-  set_base_url();
+  set_base_url(0);
   if( zName==0 ){
     zName = P("SCRIPT_NAME");
     if( zName && zName[0]=='/' ) zName++;
@@ -1738,11 +1766,12 @@ static void find_server_repository(int disallowDir){
 ** enabled.
 **
 ** Options:
-**   --localauth    enable automatic login for local connections
-**   --host NAME    specify hostname of the server
-**   --https        signal a request coming in via https
-**   --nossl        signal that no SSL connections are available
-**   --notfound URL use URL as "HTTP 404, object not found" page.
+**   --localauth      enable automatic login for local connections
+**   --host NAME      specify hostname of the server
+**   --https          signal a request coming in via https
+**   --nossl          signal that no SSL connections are available
+**   --notfound URL   use URL as "HTTP 404, object not found" page.
+**   --baseurl URL    base URL (useful with reverse proxies)
 **
 ** See also: cgi, server, winsrv
 */
@@ -1750,9 +1779,12 @@ void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
   const char *zHost;
+  const char *zAltBase;
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
+  zAltBase = find_option("baseurl", 0, 1);
+  if( zAltBase ) set_base_url(zAltBase);
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
@@ -1852,6 +1884,7 @@ static int binaryOnPath(const char *zBinary){
 **   --localauth         enable automatic login for requests from localhost
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
+**   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **
 ** See also: cgi, http, winsrv
 */
@@ -1863,6 +1896,7 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
+  const char *zAltBase;     /* Argument to the --baseurl option */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -1876,6 +1910,10 @@ void cmd_webserver(void){
   }
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
+  zAltBase = find_option("baseurl", 0, 1);
+  if( zAltBase ){
+    set_base_url(zAltBase);
+  }
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){
