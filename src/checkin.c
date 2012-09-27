@@ -710,9 +710,10 @@ static void create_manifest(
 #if !defined(_WIN32)
     /* For unix, extract the "executable" and "symlink" permissions
     ** directly from the filesystem.  On windows, permissions are
-    ** unchanged from the original. 
+    ** unchanged from the original.  However, only do this if the file
+    ** itself is actually selected to be part of this check-in.
     */
-    {
+    if( isSelected ){
       int mPerm;
 
       mPerm = file_wd_perm(blob_str(&filename));
