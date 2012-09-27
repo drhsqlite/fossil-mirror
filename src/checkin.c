@@ -1089,17 +1089,15 @@ void commit_cmd(void){
   /* If none of the files that were named on the command line have
   ** been modified, bail out now unless the --force flag is used.
   */
-  if( g.aCommitFile && !forceFlag ){
-    Blob modified;
-    memset(&modified, 0, sizeof(Blob));
-    blob_init(&modified, 0, 0);
-    db_blob(&modified,
-      "SELECT pathname FROM vfile"
-      " WHERE chnged = 1 AND origname IS NULL AND is_selected(id)"
-    );
-    if( strlen(blob_str(&modified))==0 ){
-      fossil_fatal("none of the selected files have changed, use -f or --force.", blob_str(&modified));
-    }
+  if( g.aCommitFile
+   && !forceFlag
+   && !db_exists(
+        "SELECT 1 FROM vfile "
+        " WHERE is_selected(id)"
+        "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)")
+  ){
+    fossil_fatal("none of the selected files have changed; use -f"
+                 " or --force.");
   }
 
   /*
