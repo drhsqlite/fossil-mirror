@@ -492,7 +492,9 @@ static const char zDiffScript[] =
 @ .t tag config chng -background {#d0d0ff}
 @ .t tag config add -background {#c0ffc0}
 @ .t tag config rm -background {#ffc0c0}
-@ proc dehtml {x} {return [string map {&amp; & &lt; < &gt; >} $x]}
+@ proc dehtml {x} {
+@   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
+@ }
 @ set in [open $cmd r]
 @ while {![eof $in]} {
 @   set line [gets $in]
@@ -583,6 +585,7 @@ static void diff_tk(void){
 **   --tk                Launch a Tcl/Tk GUI for display
 **   --to VERSION        select VERSION as target for the diff
 **   --side-by-side|-y   side-by-side diff
+**   --unified           unified diff
 **   --width|-W N        Width of lines in side-by-side diff 
 */
 void diff_cmd(void){

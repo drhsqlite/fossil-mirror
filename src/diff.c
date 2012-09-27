@@ -1540,6 +1540,7 @@ int *text_diff(
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 int diff_options(void){
@@ -1547,6 +1548,7 @@ int diff_options(void){
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
