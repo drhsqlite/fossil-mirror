@@ -512,7 +512,7 @@ static const char zDiffScript[] =
 @   .t insert end [dehtml $line]\n {}
 @ }
 @ close $in
-@ if {$mx>250} {set mx 250}      ;# Limit window width to 200 lines
+@ if {$mx>250} {set mx 250}      ;# Limit window width to 200 characters
 @ if {$nLine>55} {set nLine 55}  ;# Limit window height to 55 lines
 @ .t config -height $nLine -width $mx
 @ pack .t -side left -fill both -expand 1

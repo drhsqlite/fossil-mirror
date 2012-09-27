@@ -176,6 +176,7 @@ static void appendDiffLine(
   DLine *pLine,       /* The line to be output */
   int html            /* True if generating HTML.  False for plain text */
 ){
+  int i;
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
@@ -185,6 +186,10 @@ static void appendDiffLine(
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
     zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
+    for(i=0; i<strlen(zHtml); i++){
+      char c = zHtml[i];
+      if( c=='\t' || c=='\r' || c=='\f' ) zHtml[i] = ' ';
+    }
     blob_append(pOut, zHtml, -1);
     fossil_free(zHtml);
     if( cPrefix!=' ' ){
@@ -431,6 +436,9 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     }else if( c=='>' && p->escHtml ){
       memcpy(&z[j], "&gt;", 4);
       j += 4;
+    }else if( c=='"' && p->escHtml ){
+      memcpy(&z[j], "&quot;", 6);
+      j += 6;
     }else{
       z[j++] = c;
       if( (c&0xc0)==0x80 ) k--;
@@ -450,7 +458,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
 }
 
 /*
-** Append a string to an SbSLine with coding, interpretation, or padding.
+** Append a string to an SbSLine without coding, interpretation, or padding.
 */
 static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
   memcpy(p->zLine+p->n, zIn, nIn);
