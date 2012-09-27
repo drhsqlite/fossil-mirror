@@ -18,8 +18,8 @@ Before every check-in:
   2.   <b>fossil extra</b> → no unmanaged files need to be added.
 
   3.   The check-in will go onto the desired branch.
-       →  Do <u>not</u> check into trunk without prior approval from
-       the lead programmer (drh)!
+       →  Check-ins to trunk normally require approval from
+       the lead programmer (drh).
 
   4.   auto-sync is on, or the system clock is verified
 
@@ -42,9 +42,13 @@ within the project. Also remember to enable the localauth setting
 if you intend to make changes via a locally served web UI.
 
 Item 1 is the most important step.  Consider using <b>gdiff</b>
-instead of <b>diff</b> if you have a graphical differ configured.  Or,
-pipe the output of "<b>fossil diff</b>" into "<b>open -f</b>" (on a mac) to
-get the diff output in a separate text window for easier viewing.
+instead of <b>diff</b> if you have a graphical differ configured.  Or
+use the command-line option <b>--tk</b>.  Also consider the <b>-N</b>
+command-line option to show the complete text newly added files.
+The recommended command for completing checklist item 1 is:
+
+   <b>fossil diff --tk -N</b>
+
 Look carefully at every changed line in item 1.
 Make sure that you are not about to commit unrelated changes.
 If there are two or more unrelated changes present, consider
