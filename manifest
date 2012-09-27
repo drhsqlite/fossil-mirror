@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\s--tk\sdiff\soption\sto\ssupport\sunified\sdiff\son\sWindows.
-D 2012-09-27T01:38:43.722
+C Merge\sthe\sfix\sfor\s[711d04b6d8577]\sinto\strunk.\s\sOnly\sbail\sout\sof\sa\scommit\nif\snone\sof\sthe\sselected\sfiles\shave\schanged,\srather\sthan\sif\sany\sselected\nfile\sis\sunchanged.
+D 2012-09-27T13:02:56.207
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c eba0a221118dcd146c8afcb084047b134b86829d
-F src/checkin.c 754a3dae928e8568a783271997ade0535edc1b6f
+F src/checkin.c 13789786a549259c9320d8b00b824c7dfad2fb1d
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5be507df71828bfa19ef3111e684197a97586e24
-R ce2b9e2947665155481c5f5cb0531772
-U mistachkin
-Z 8ad255e71e6b936745bb00bd871b5602
+P 1048bccf14a3da71326b9f7b9fe18def643834de 94e2deef6d6fa4fef085a9ff7cfe1ed1762eb1cb
+R 748d2ae7a7e0dade20c6c81dd4056365
+U drh
+Z 45af9b300cf43256a6ade314fb705e38
