@@ -37,6 +37,12 @@
 #define USE_TCL_EVALOBJV   1
 #endif
 
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <dlfcn.h>
+#endif
+
 /*
 ** These macros are designed to reduce the redundant code required to marshal
 ** arguments from TH1 to Tcl.
@@ -447,6 +453,24 @@ static int createTclInterp(
   int argc;
   char **argv;
   char *argv0 = 0;
+#ifdef USE_TCL_STUBS
+#ifdef _WIN32
+  WCHAR lib[] = L"tcl87.dll";
+#define minver lib[4]
+#define dlopen(a,b) (void *)LoadLibraryW(a);
+#define dlsym(a,b) GetProcAddress((HANDLE)(a),b);
+#else
+#ifdef __CYGWIN__
+  char lib[] = "libtcl8.7.dll";
+#else
+  char lib[] = "libtcl8.7.so";
+#endif
+#define minver lib[8]
+#endif
+  void *handle = NULL;
+  void (*findExecutable)(const char *) = 0;
+  Tcl_Interp *(*createInterp)() = 0;
+#endif /* USE_TCL_STUBS */
   Tcl_Interp *tclInterp;
 
   if ( !tclContext ){
@@ -462,13 +486,40 @@ static int createTclInterp(
   if( argc>0 && argv ){
     argv0 = argv[0];
   }
-  Tcl_FindExecutable(argv0);
-  tclInterp = tclContext->interp = Tcl_CreateInterp();
-  if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
+#ifdef USE_TCL_STUBS
+  while( --minver>'3' ){
+    handle = dlopen(lib, RTLD_NOW | RTLD_LOCAL);
+    if( handle ) {
+      const char *sym = "_Tcl_FindExecutable";
+      findExecutable = (void (*)(const char *)) dlsym(handle, sym+1);
+      if (!findExecutable)
+        findExecutable = (void (*)(const char *)) dlsym(handle, sym);
+      sym = "_Tcl_CreateInterp";
+      createInterp = (Tcl_Interp * (*)(void)) dlsym(handle, sym+1);
+      if (!createInterp)
+        createInterp = (Tcl_Interp * (*)(void)) dlsym(handle, sym);
+      break;
+    }
+  }
+  if( !handle ){
     Th_ErrorMessage(interp,
         "Could not create Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
+#  undef Tcl_FindExecutable
+#  define Tcl_FindExecutable findExecutable
+#  undef Tcl_CreateInterp
+#  define Tcl_CreateInterp createInterp
+#endif /* USE_TCL_STUBS */
+  Tcl_FindExecutable(argv0);
+  tclInterp = Tcl_CreateInterp();
+  if( !tclInterp || !Tcl_InitStubs(tclInterp, "8.4", 0)
+      || Tcl_InterpDeleted(tclInterp) ){
+    Th_ErrorMessage(interp,
+        "Could not create Tcl interpreter", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  tclContext->interp = tclInterp;
   if( Tcl_Init(tclInterp)!=TCL_OK ){
     Th_ErrorMessage(interp,
         "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);

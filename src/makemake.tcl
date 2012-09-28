@@ -426,7 +426,7 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
-LIBTCL = -ltcl86
+LIBTCL = -ltclstub86
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -464,9 +464,9 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
-# With Tcl support (statically linked)
+# With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
+TCC += -DFOSSIL_ENABLE_TCL=1 -DUSE_TCL_STUBS
 RCC += -DFOSSIL_ENABLE_TCL=1
 endif
 
