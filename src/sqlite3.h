@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.15"
 #define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-09-17 21:24:01 698b2a28004a9a2f0eabaadf36d833da4400b2bf"
+#define SQLITE_SOURCE_ID      "2012-09-28 00:44:28 1e874629d7cf568368b912b295bd3001147d0b52"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -4751,6 +4751,9 @@ SQLITE_API void *sqlite3_update_hook(
 ** ^Shared cache is disabled by default. But this might change in
 ** future releases of SQLite.  Applications that care about shared
 ** cache setting should set it explicitly.
+**
+** This interface is threadsafe on processors where writing a
+** 32-bit integer is atomic.
 **
 ** See Also:  [SQLite Shared-Cache Mode]
 */

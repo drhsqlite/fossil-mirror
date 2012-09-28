@@ -371,8 +371,10 @@ NORETURN void cgi_redirect(const char *zURL){
   if( strncmp(zURL,"http:",5)==0 || strncmp(zURL,"https:",6)==0 ){
     zLocation = mprintf("Location: %s\r\n", zURL);
   }else if( *zURL=='/' ){
-    zLocation = mprintf("Location: %.*s%s\r\n",
-         strlen(g.zBaseURL)-strlen(g.zTop), g.zBaseURL, zURL);
+    int n1 = (int)strlen(g.zBaseURL);
+    int n2 = (int)strlen(g.zTop);
+    if( g.zBaseURL[n1-1]=='/' ) zURL++;
+    zLocation = mprintf("Location: %.*s%s\r\n", n1-n2, g.zBaseURL, zURL);
   }else{
     zLocation = mprintf("Location: %s/%s\r\n", g.zBaseURL, zURL);
   }
@@ -1127,10 +1129,11 @@ static char *extract_token(char *zInput, char **zLeftOver){
 
 /*
 ** This routine handles a single HTTP request which is coming in on
-** standard input and which replies on standard output.
+** g.httpIn and which replies on g.httpOut
 **
-** The HTTP request is read from standard input and is used to initialize
-** environment variables as per CGI.  The cgi_init() routine to complete
+** The HTTP request is read from g.httpIn and is used to initialize
+** entries in the cgi_parameter() hash, as if those entries were
+** environment variables.  A call to cgi_init() completes
 ** the setup.  Once all the setup is finished, this procedure returns
 ** and subsequent code handles the actual generation of the webpage.
 */
