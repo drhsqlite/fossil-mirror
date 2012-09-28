@@ -1,5 +1,5 @@
-C load\sTcl\sdynamically\susing\sthe\sStubs\smechanism\sin\sstead\sof\slinking\sin\sthe\slibrary\sstatically.
-D 2012-09-28T07:26:14.809
+C Refinements\sto\sthe\sTcl\sstubs\sintegration.
+D 2012-09-28T20:15:46.754
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -117,11 +117,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 8b4e8b1c55294c35721527e2bc28f04a0ad14f3c
-F src/main.c 297817f7e72706e7d07d1e9a483f03d9a73c80c4
+F src/main.c e6ecc351968a9a6e3ce245c565bd9df317bc7b0b
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 7ac45ad9a68c1343bc889513810d3b6ed0a0ebcc
+F src/makemake.tcl edc15f032b69b2081808552b9642c9274b50cb39
 F src/manifest.c 74fc37dc0175e6fd71a7e870c8976d38b722c68c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 4341f5c47d870b61945b5d7382e32d8d273db071
@@ -157,7 +157,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 70f73d4e231bfb4e27219a2bf78d2ba4c699db96
+F src/th_tcl.c 73d3049f6e3d309376ba1eb4d7f8ee7cc235d98b
 F src/timeline.c 2f7437d0e0c8559f1ee648f4714e626b9910112a
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -257,12 +257,12 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 8e9e04e0150b8b33adb0bd1de1ac6a48f718111c
-F win/Makefile.mingw 39124c26aea1e1b8c22374eba191aa163df6a440
-F win/Makefile.mingw.mistachkin 518d0dffd268192efb14c621dde9ed26a48b3f95
+F win/Makefile.mingw 8f17885192cf5a41d083a9c9f7e1c4e2b3552ce9
+F win/Makefile.mingw.mistachkin 957851ac4ee11c15bd6a7ed073ebf578133ed62c
 F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc 6e9b4438870b1d0e1af4928e9e1a8d15ba6daf06
+F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
 F win/include/dirent.h 9c9c88f5b772cb41471f1fdf611207f6325f28d2
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -357,10 +357,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a0da8b3873071649c5007424366d75b2e3b60a2c
-R 35d45e12f88c90044e977ba73b2de226
-T *branch * stubbed-tcl
-T *sym-stubbed-tcl *
-T -sym-trunk *
-U jan.nijtmans
-Z 88340a1f156d5c95637d517d2fb1feeb
+P ba91fe5f9e999b98429601712faf8dca5f7f9a4d
+R cdf998069e2190375f647ba46fcdad6f
+T *branch * tclStubsV2
+T *sym-tclStubsV2 *
+T -sym-stubbed-tcl *
+U mistachkin
+Z 6fb088d4e5c6f51df80322be0217fc8a

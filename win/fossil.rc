@@ -92,6 +92,11 @@ BEGIN
 #endif
 #ifdef FOSSIL_ENABLE_TCL
       VALUE "TclEnabled", "Yes, Tcl " TCL_PATCH_LEVEL "\0"
+#ifdef FOSSIL_ENABLE_TCL_STUBS
+      VALUE "TclStubsEnabled", "Yes\0"
+#else
+      VALUE "TclStubsEnabled", "No\0"
+#endif
 #endif
 #ifdef FOSSIL_ENABLE_JSON
       VALUE "JsonEnabled", "Yes, cson\0"

@@ -378,6 +378,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
+#### Load Tcl using the stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_STUBS = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -426,7 +430,11 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
+ifdef FOSSIL_ENABLE_TCL_STUBS
 LIBTCL = -ltclstub86
+else
+LIBTCL = -ltcl86
+endif
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -466,8 +474,16 @@ endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1 -DUSE_TCL_STUBS
+TCC += -DFOSSIL_ENABLE_TCL=1
 RCC += -DFOSSIL_ENABLE_TCL=1
+# Either statically linked or via stubs
+ifdef FOSSIL_ENABLE_TCL_STUBS
+TCC += -DUSE_TCL_STUBS
+RCC += -DUSE_TCL_STUBS
+else
+TCC += -DSTATIC_BUILD
+RCC += -DSTATIC_BUILD
+endif
 endif
 
 # With JSON support
