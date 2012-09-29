@@ -536,7 +536,7 @@ static void diff_tk(void){
   char *zTempFile;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" diff --html -y", g.nameOfExe);
+  blob_appendf(&script, "set cmd {| \"%/\" diff --html -y -i", g.nameOfExe);
   for(i=2; i<g.argc; i++){
     blob_appendf(&script, " \"%s\"", g.argv[i]);
   }
