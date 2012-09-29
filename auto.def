@@ -94,31 +94,36 @@ if {![cc-check-includes zlib.h] || ![cc-check-function-in-lib inflateEnd z]} {
 
 set tclpath [opt-val with-tcl]
 if {$tclpath ne ""} {
-	# Note parse-tclconfig-sh is in autosetup/local.tcl
+    # Note parse-tclconfig-sh is in autosetup/local.tcl
     if {$tclpath eq "1"} {
         # Use the system Tcl. Look in some likely places.
         array set tclconfig [parse-tclconfig-sh /usr /usr/local /usr/share /opt/local]
-		set msg "on your system"
-	} else {
+        set msg "on your system"
+    } else {
         array set tclconfig [parse-tclconfig-sh $tclpath]
-		set msg "at $tclpath"
-	}
-	if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
-		user-error "Cannot find Tcl $msg"
-	}
-	set cflags $tclconfig(TCL_INCLUDE_SPEC)
-	set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
-	cc-with [list -cflags $cflags -libs $libs] {
-		if {![cc-check-functions Tcl_CreateInterp]} {
-			user-error "Cannot find a usable Tcl $msg"
-		}
-	}
-	set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
-	msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
-	define-append LIBS $libs
-	define-append EXTRA_CFLAGS $cflags
-	define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
-
+        set msg "at $tclpath"
+    }
+    if {![info exists tclconfig(TCL_INCLUDE_SPEC)]} {
+        user-error "Cannot find Tcl $msg"
+    }
+    set tclstubs [opt-val with-tcl-stubs]
+    if {$tclstubs eq "1" && $tclconfig(TCL_SUPPORTS_STUBS)} {
+        set libs "$tclconfig(TCL_STUB_LIB_SPEC)"
+        define FOSSIL_ENABLE_TCL_STUBS
+    } else {
+        set libs "$tclconfig(TCL_LIB_SPEC) $tclconfig(TCL_LIBS)"
+    }
+    set cflags $tclconfig(TCL_INCLUDE_SPEC)
+    cc-with [list -cflags $cflags -libs $libs] {
+        if {![cc-check-functions Tcl_CreateInterp]} {
+            user-error "Cannot find a usable Tcl $msg"
+        }
+    }
+    set version $tclconfig(TCL_VERSION)$tclconfig(TCL_PATCH_LEVEL)
+    msg-result "Found Tcl $version at $tclconfig(TCL_PREFIX)"
+    define-append LIBS $libs
+    define-append EXTRA_CFLAGS $cflags
+    define-append EXTRA_LDFLAGS $tclconfig(TCL_LD_FLAGS)
     define FOSSIL_ENABLE_TCL
 }
 

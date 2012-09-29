@@ -478,8 +478,8 @@ TCC += -DFOSSIL_ENABLE_TCL=1
 RCC += -DFOSSIL_ENABLE_TCL=1
 # Either statically linked or via stubs
 ifdef FOSSIL_ENABLE_TCL_STUBS
-TCC += -DUSE_TCL_STUBS
-RCC += -DUSE_TCL_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
@@ -517,7 +517,11 @@ LIB += -lmingwex -lz
 #    or linking with it will not work (exact reason unknown).
 #
 ifdef FOSSIL_ENABLE_TCL
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIB += -lkernel32 -lws2_32
+else
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+endif
 else
 LIB += -lkernel32 -lws2_32
 endif
