@@ -295,14 +295,14 @@ static int tclInvoke_command(
   int *argl
 ){
   Tcl_Interp *tclInterp;
-#ifndef USE_TCL_EVALOBJV
+#if !defined(USE_TCL_EVALOBJV)
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
 #endif
   int rc;
   int nResult;
   const char *zResult;
-#ifndef USE_TCL_EVALOBJV
+#if !defined(USE_TCL_EVALOBJV)
   Tcl_Obj *objPtr;
 #endif
   USE_ARGV_TO_OBJV();
@@ -319,7 +319,7 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   Tcl_Preserve((ClientData)tclInterp);
-#ifndef USE_TCL_EVALOBJV
+#if !defined(USE_TCL_EVALOBJV)
   objPtr = Tcl_NewStringObj(argv[1], argl[1]);
   Tcl_IncrRefCount(objPtr);
   command = Tcl_GetCommandFromObj(tclInterp, objPtr);
@@ -338,7 +338,7 @@ static int tclInvoke_command(
   Tcl_DecrRefCount(objPtr);
 #endif
   COPY_ARGV_TO_OBJV();
-#ifdef USE_TCL_EVALOBJV
+#if defined(USE_TCL_EVALOBJV)
   rc = Tcl_EvalObjv(tclInterp, objc, objv, 0);
 #else
   Tcl_ResetResult(tclInterp);
@@ -604,8 +604,11 @@ static int createTclInterp(
   }
   tclContext->xFindExecutable(argv0);
   tclInterp = tclContext->xCreateInterp();
-  if( !tclInterp || !Tcl_InitStubs(tclInterp, "8.4", 0)
-      || Tcl_InterpDeleted(tclInterp) ){
+  if( !tclInterp ||
+#if defined(USE_TCL_STUBS)
+      !Tcl_InitStubs(tclInterp, "8.4", 0) ||
+#endif
+      Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
         "Could not create Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;

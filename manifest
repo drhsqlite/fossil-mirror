@@ -1,5 +1,5 @@
-C Merge\supdates\sfrom\strunk.
-D 2012-09-29T07:20:40.648
+C Skip\scalling\sTcl_InitStubs\swhen\snot\scompiled\sto\suse\sthe\sTcl\sstubs\smechanism.
+D 2012-09-29T07:29:21.565
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -157,7 +157,7 @@ F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c 73d3049f6e3d309376ba1eb4d7f8ee7cc235d98b
+F src/th_tcl.c bb5731f616d1cca6b4a84499b1f3e7bfe3374feb
 F src/timeline.c 2f7437d0e0c8559f1ee648f4714e626b9910112a
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 01de4c53b12e188b3f6354c9be9885045aacf056 c0f245de25a61fcbd3924a5e05169e711ab1f762
-R 9cf82366cbd5b4445b140ac075521d1b
+P fbd3c2a5978908e33e75e1d6a5fe155e0760ed92
+R f28e04829ddd01952271af10e520d8f2
 U mistachkin
-Z c1b17c1b22524fcb8f5261ded0451f1c
+Z 25bdb34d73f74a6e0116370bf3a5bd52
