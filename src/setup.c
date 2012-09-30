@@ -954,7 +954,7 @@ void setup_access(void){
   @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
-  @ positive number.  The default is 8760 hours which is approximately equal
+  @ positive number.  The default is 8766 hours which is approximately equal
   @ to a year.</p>
 
   @ <hr />

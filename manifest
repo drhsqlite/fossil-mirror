@@ -1,5 +1,5 @@
-C Make\sthe\s"--tk"\soption\sto\sthe\s"diff"\scommand\salso\simply\sthe\s"-i"\soption\sto\nforce\sthe\suse\sof\sthe\sinternal\sdiff\sengine.
-D 2012-09-29T14:08:30.248
+C Fix\stypo\sin\scomment.
+D 2012-09-30T01:43:09.969
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -139,7 +139,7 @@ F src/report.c 6b04a97525aa5e67154e676f65f0d0e37bd1d5b3
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
 F src/search.c 0dfee06e96d9aaeb63b3998c230658b4f51ba51f
-F src/setup.c b2d7ba8e4284a7c4ca8d550736cac2b62bf94318
+F src/setup.c 44d86dfb907e290cb27203133af7097992376586
 F src/sha1.c f2b110720a1cb75332b5e28f96c5371993ba2ff4
 F src/shell.c 43370665eaacdcf2eaa2a02445bc4b3aaf3361a5
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c0f245de25a61fcbd3924a5e05169e711ab1f762
-R 299a554451d37e58e05e91a5cd658e25
-U drh
-Z 05c14fe4755c5c954b6eb36c7856e7f6
+P 5a4fbb0a2800b8f36c431427a39a8d6062ef57e8
+R 205fa925202086c3039fdc510a2b9655
+U mistachkin
+Z 25db2f1cab9139609bc94b6e5aa500e4
