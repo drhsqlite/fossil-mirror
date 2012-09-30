@@ -780,15 +780,12 @@ void diff_cmd(void){
   }
   if( zTo==0 ){
     db_must_be_within_tree();
-    verify_all_options();
     if( !isInternDiff ){
       zDiffCmd = diff_command_external(isGDiff);
     }
-    if( zDiffCmd ){
-      db_open_config(0);
-      zBinGlob = diff_get_binary_glob();
-      fIncludeBinary = diff_include_binary_files();
-    }
+    zBinGlob = diff_get_binary_glob();
+    fIncludeBinary = diff_include_binary_files();
+    verify_all_options();
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
         diff_one_against_disk(zFrom, zDiffCmd, zBinGlob, fIncludeBinary,
@@ -802,15 +799,12 @@ void diff_cmd(void){
     fossil_fatal("must use --from if --to is present");
   }else{
     db_find_and_open_repository(0, 0);
-    verify_all_options();
     if( !isInternDiff ){
       zDiffCmd = diff_command_external(isGDiff);
     }
-    if( zDiffCmd ){
-      db_open_config(0);
-      zBinGlob = diff_get_binary_glob();
-      fIncludeBinary = diff_include_binary_files();
-    }
+    zBinGlob = diff_get_binary_glob();
+    fIncludeBinary = diff_include_binary_files();
+    verify_all_options();
     if( g.argc>=3 ){
       for(f=2; f<g.argc; ++f){
         diff_one_two_versions(zFrom, zTo, zDiffCmd, zBinGlob, fIncludeBinary,

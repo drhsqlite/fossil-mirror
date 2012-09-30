@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\sskipping\sbinary\sfiles\swhen\susing\san\sexternal\sdiff\sprogram.\s\sThe\sexisting\s'binary-glob'\ssetting\sand\snew\s'diff-binary'\sboolean\ssetting\scontrol\sthis\sfeature.
-D 2012-09-30T06:25:04.460
+C Make\ssure\sthe\snew\scommand\sline\soptions\sare\salways\sprocessed;\showever,\swait\suntil\safter\sthe\ssettings\sare\savailable.
+D 2012-09-30T07:39:18.572
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -84,7 +84,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 8be46c386b1952d872270f53f96763612ae9d899
-F src/diffcmd.c 1bdabe4a1e39178be59474e5daf6bf48581215c9
+F src/diffcmd.c 6a041e2e323f93a9d2d64d95786a2e2540de5120
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
@@ -357,10 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 97f68e61da120259f050bb8a5f7d8fc4f8246723
-R 5eef8cfdb446f2d14f3d40445a2eaf02
-T *branch * diffBinExternal
-T *sym-diffBinExternal *
-T -sym-trunk *
+P c50eb50718dbea9efd4214096bd5ca46fa5db52b
+R 8a040ce4e1ee1c307876bdbfe861c1b9
 U mistachkin
-Z 709581b51f8fedb8e93ffef3b6c2dfe4
+Z f3d78c57737e96712a012881cfa27dfe
