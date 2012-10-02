@@ -2016,6 +2016,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "case-sensitive",0,                0, 0, "on"                  },
   { "crnl-glob",     0,               16, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
+  { "diff-binary",   0,                0, 0, "on"                  },
   { "diff-command",  0,               16, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
   { "editor",        0,               16, 0, ""                    },
@@ -2108,6 +2109,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
 **                     Administration of the HTTP UI. Default: u.
+**
+**    diff-binary      If TRUE (the default), permit files that may be binary
+**                     or that match the "binary-glob" setting to be used with
+**                     external diff programs.  If FALSE, skip these files.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
