@@ -92,6 +92,9 @@ struct FossilUserPerms {
 struct TclContext {
   int argc;
   char **argv;
+  void *library;
+  void *xFindExecutable; /* see tcl_FindExecutableProc in th_tcl.c */
+  void *xCreateInterp;   /* see tcl_CreateInterpProc in th_tcl.c */
   Tcl_Interp *interp;
 };
 #endif

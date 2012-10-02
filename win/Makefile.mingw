@@ -50,6 +50,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL = 1
 
+#### Load Tcl using the stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_STUBS = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -98,7 +102,11 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIBTCL = -ltclstub86
+else
 LIBTCL = -ltcl86
+endif
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -136,10 +144,18 @@ TCC += -DFOSSIL_ENABLE_SSL=1
 RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
-# With Tcl support (statically linked)
+# With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
+TCC += -DFOSSIL_ENABLE_TCL=1
 RCC += -DFOSSIL_ENABLE_TCL=1
+# Either statically linked or via stubs
+ifdef FOSSIL_ENABLE_TCL_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+else
+TCC += -DSTATIC_BUILD
+RCC += -DSTATIC_BUILD
+endif
 endif
 
 # With JSON support
@@ -173,7 +189,11 @@ LIB += -lmingwex -lz
 #    or linking with it will not work (exact reason unknown).
 #
 ifdef FOSSIL_ENABLE_TCL
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIB += -lkernel32 -lws2_32
+else
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+endif
 else
 LIB += -lkernel32 -lws2_32
 endif
