@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.15"
 #define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-09-28 00:44:28 1e874629d7cf568368b912b295bd3001147d0b52"
+#define SQLITE_SOURCE_ID      "2012-10-03 12:56:18 956e4d7f8958e7065ff2d61cd71519d6f4113d4a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -857,6 +857,17 @@ struct sqlite3_io_methods {
 ** file control occurs at the beginning of pragma statement analysis and so
 ** it is able to override built-in [PRAGMA] statements.
 ** </ul>
+**
+** <li>[[SQLITE_FCNTL_BUSYHANDLER]]
+** ^This file-control may be invoked by SQLite on the database file handle
+** shortly after it is opened in order to provide a custom VFS with access
+** to the connections busy-handler callback. The argument is of type (void **)
+** - an array of two (void *) values. The first (void *) actually points
+** to a function of type (int (*)(void *)). In order to invoke the connections
+** busy-handler, this function should be invoked with the second (void *) in
+** the array as the only argument. If it returns non-zero, then the operation
+** should be retried. If it returns zero, the custom VFS should abandon the
+** current operation.
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
 #define SQLITE_GET_LOCKPROXYFILE             2
@@ -872,6 +883,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_VFSNAME                12
 #define SQLITE_FCNTL_POWERSAFE_OVERWRITE    13
 #define SQLITE_FCNTL_PRAGMA                 14
+#define SQLITE_FCNTL_BUSYHANDLER            15
 
 /*
 ** CAPI3REF: Mutex Handle

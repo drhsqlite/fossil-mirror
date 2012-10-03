@@ -1,5 +1,5 @@
-C Enable\sbuilding\swith\sthe\sTCL\sstubs\slibrary\sand\sthen\sloading\sthe\smain\nTCL\slibrary\sat\srun-time,\sand\sonly\sif\sneeded.
-D 2012-10-02T23:01:12.372
+C Import\sthe\slatest\sSQLite\score\sfrom\supstream.
+D 2012-10-03T14:58:47.799
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -145,8 +145,8 @@ F src/shell.c 43370665eaacdcf2eaa2a02445bc4b3aaf3361a5
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c 0c96c363b6c0ae8789bca0ab169bca41011848b2
-F src/sqlite3.c 458af22ae5ab0cf7269a7219def7f105d8bae001
-F src/sqlite3.h 93981474acb61e75d02cb11a70011beb41fa118f
+F src/sqlite3.c 9e9ac99bcf83e12efc7e1b029a161506cc2673d2
+F src/sqlite3.h ebf8248903d7df787ad50deaef704da8c70b4aac
 F src/stash.c 05790c6224ebae178cca3e2b178530e56699d158
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f8339c2743dfcf8434a9844480d6ad585789e95b 2d63ffdd4f912ef0ad6ac504c7689cf5ba212b71
-R ec6e29cc46379c5a2496deffcdc9a5c3
+P 25f7fa1157482b6d797777272cc31aa090cf3cf4
+R d520d42fb2c19ad4ddc7384fa74ea29a
 U drh
-Z 0a8cea267041f2cd7742aeeda65145e4
+Z 8b4a7c166817ca144b9cf739ad67d0f2
