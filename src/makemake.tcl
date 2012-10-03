@@ -73,6 +73,8 @@ set src {
   login
   main
   manifest
+  markdown
+  markdown_html
   md5
   merge
   merge3
