@@ -1,5 +1,5 @@
-C Merge\sthe\scontrolInfoLink\sbranch\sinto\strunk.
-D 2012-10-05T12:10:22.198
+C Get\sthe\s--tk\soption\sworking\sfor\s"fossil\sstash\sdiff".
+D 2012-10-05T12:38:11.684
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -84,7 +84,7 @@ F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
 F src/diff.c 8be46c386b1952d872270f53f96763612ae9d899
-F src/diffcmd.c 6a041e2e323f93a9d2d64d95786a2e2540de5120
+F src/diffcmd.c 28669a1d829f8bb83326bd443f0b4876b603bbbf
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
@@ -147,7 +147,7 @@ F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c 0c96c363b6c0ae8789bca0ab169bca41011848b2
 F src/sqlite3.c 9e9ac99bcf83e12efc7e1b029a161506cc2673d2
 F src/sqlite3.h ebf8248903d7df787ad50deaef704da8c70b4aac
-F src/stash.c 05790c6224ebae178cca3e2b178530e56699d158
+F src/stash.c a3df29891f732c2cd75857803a43330e305892e7
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7f3379f3a9926e20551803e57d955bf02c8b0bd0 bcf41d31ca99067ae36e5e4a4fa6f4a971811d9d
-R 7fc0b67628a99f91963f0673a79260fd
+P 71c3b67a7973f0d7059f2ba49c9a56b9a15ec451
+R 482b72f55859218b419c06adb82aa410
 U drh
-Z 01638691959198a9b48f3a74628ca490
+Z c1ca4abfb7566288cd7e0c1c5137ef71

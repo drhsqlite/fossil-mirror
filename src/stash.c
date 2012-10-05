@@ -428,6 +428,17 @@ static int stash_get_id(const char *zStashId){
 **
 **     Show diffs of the current working directory and what that
 **     directory would be if STASHID were applied.  
+**
+** SUMMARY:
+**  fossil stash
+**  fossil stash save ?-m COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m COMMENT? ?FILES...?
+**  fossil stash list|ls  ?-l? ?--detail?
+**  fossil stash pop
+**  fossil stash apply ?STASHID?
+**  fossil stash goto ?STASHID?
+**  fossil stash rm|drop ?STASHID? ?--all?
+**  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
   const char *zDb;
@@ -574,9 +585,18 @@ void stash_cmd(void){
     undo_finish();
   }else
   if( memcmp(zCmd, "diff", nCmd)==0 ){
-    const char *zDiffCmd = diff_command_external(0);
+    const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+
+    if( find_option("tk",0,0)!=0 ){
+      db_close(0);
+      diff_tk("stash diff", 3);
+      return;
+    }
+    if( find_option("internal","i",0)==0 ){
+      zDiffCmd = diff_command_external(0);
+    }
     u64 diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     if( zDiffCmd ){
@@ -587,9 +607,12 @@ void stash_cmd(void){
     stash_diff(stashid, zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
   }else
   if( memcmp(zCmd, "gdiff", nCmd)==0 ){
-    const char *zDiffCmd = diff_command_external(1);
+    const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+    if( find_option("internal","i",0)==0 ){
+      zDiffCmd = diff_command_external(0);
+    }
     u64 diffFlags = diff_options();
     if( g.argc>4 ) usage("gdiff STASHID");
     if( zDiffCmd ){
