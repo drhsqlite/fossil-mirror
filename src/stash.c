@@ -602,6 +602,7 @@ void stash_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+    u64 diffFlags;
 
     if( find_option("tk",0,0)!=0 ){
       db_close(0);
@@ -611,7 +612,7 @@ void stash_cmd(void){
     if( find_option("internal","i",0)==0 ){
       zDiffCmd = diff_command_external(0);
     }
-    u64 diffFlags = diff_options();
+    diffFlags = diff_options();
     if( g.argc>4 ) usage("diff STASHID");
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
@@ -624,10 +625,12 @@ void stash_cmd(void){
     const char *zDiffCmd = 0;
     const char *zBinGlob = 0;
     int fIncludeBinary = 0;
+    u64 diffFlags;
+
     if( find_option("internal","i",0)==0 ){
       zDiffCmd = diff_command_external(0);
     }
-    u64 diffFlags = diff_options();
+    diffFlags = diff_options();
     if( g.argc>4 ) usage("gdiff STASHID");
     if( zDiffCmd ){
       zBinGlob = diff_get_binary_glob();
