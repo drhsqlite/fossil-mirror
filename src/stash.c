@@ -157,6 +157,20 @@ static int stash_create(void){
 
   zComment = find_option("comment", "m", 1);
   verify_all_options();
+  if( zComment==0 ){
+    Blob prompt;                       /* Prompt for stash comment */
+    Blob comment;                      /* User comment reply */
+    blob_zero(&prompt);
+    blob_append(&prompt,
+       "\n"
+       "# Enter a description of what is being stashed.  Lines beginning\n"
+       "# with \"#\" are ignored.  Stash comments are plain text except.\n"
+       "# newlines are not preserved.\n",
+       -1);
+    prompt_for_user_comment(&comment, &prompt);
+    blob_reset(&prompt);
+    zComment = blob_str(&comment);
+  }
   stashid = db_lget_int("stash-next", 1);
   db_lset_int("stash-next", stashid+1);
   vid = db_lget_int("checkout", 0);

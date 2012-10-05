@@ -1,5 +1,5 @@
-C Get\sthe\s--tk\soption\sworking\sfor\s"fossil\sstash\sdiff".
-D 2012-10-05T12:38:11.684
+C Update\sthe\s"fossil\sstash"\scommand\sso\sthat\sit\salways\sprompts\sfor\sa\ncomment\sif\sthe\s-m\soption\sis\somitted.
+D 2012-10-05T13:10:30.565
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c eba0a221118dcd146c8afcb084047b134b86829d
-F src/checkin.c 5471a598a5da13e38fb83b28ab74857b2a0b9aac
+F src/checkin.c f21a7769ca0c3bc3a3922f80ec99ee0bd30a2870
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -147,7 +147,7 @@ F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c 0c96c363b6c0ae8789bca0ab169bca41011848b2
 F src/sqlite3.c 9e9ac99bcf83e12efc7e1b029a161506cc2673d2
 F src/sqlite3.h ebf8248903d7df787ad50deaef704da8c70b4aac
-F src/stash.c a3df29891f732c2cd75857803a43330e305892e7
+F src/stash.c fd839e731f6b0029effae371bbcf074e80ac9e0e
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 71c3b67a7973f0d7059f2ba49c9a56b9a15ec451
-R 482b72f55859218b419c06adb82aa410
+P 2ed8cdc5187acfda773ec17f01a72297848baea5
+R f16121818e35c4d740211cc1a0d9e216
 U drh
-Z c1ca4abfb7566288cd7e0c1c5137ef71
+Z 44b4581feaee7bf57e4b021e712ab41c
