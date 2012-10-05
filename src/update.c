@@ -627,7 +627,7 @@ int historical_version_of_file(
       manifest_destroy(pManifest);
       rc = content_get(rid, content);
       if( rc && pIsBin ){
-        *pIsBin = looks_like_binary(blob_str(content), blob_size(content));
+        *pIsBin = looks_like_binary(content);
       }
       return rc;
     }

@@ -149,7 +149,7 @@ void diff_file(
           blob_read_from_file(&file2, zFile2);
         }
       }
-      if( looks_like_binary(blob_str(&file2), blob_size(&file2)) ){
+      if( looks_like_binary(&file2) ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
@@ -403,8 +403,7 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      isBin = fIncludeBinary ? 0 : looks_like_binary(blob_str(&content),
-                                                     blob_size(&content));
+      isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
       diff_print_index(zPathname, diffFlags);
       diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
                 zBinGlob, fIncludeBinary, diffFlags);
@@ -497,10 +496,8 @@ static void diff_manifest_entry(
   }else{
     blob_zero(&f2);
   }
-  isBin1 = fIncludeBinary ? 0 : looks_like_binary(blob_str(&f1),
-                                                  blob_size(&f1));
-  isBin2 = fIncludeBinary ? 0 : looks_like_binary(blob_str(&f2),
-                                                  blob_size(&f2));
+  isBin1 = fIncludeBinary ? 0 : looks_like_binary(&f1);
+  isBin2 = fIncludeBinary ? 0 : looks_like_binary(&f2);
   diff_file_mem(&f1, &f2, isBin1, isBin2, zName, zDiffCmd,
                 zBinGlob, fIncludeBinary, diffFlags);
   blob_reset(&f1);
