@@ -1,5 +1,5 @@
-C Update\sthe\s"fossil\sstash"\scommand\sso\sthat\sit\salways\sprompts\sfor\sa\ncomment\sif\sthe\s-m\soption\sis\somitted.
-D 2012-10-05T13:10:30.565
+C Enhancements\sto\sthe\s"bisect"\scommand:\s\s(1)\sCreate\salias\s"ls"\sfor\sthe\s"vlist"\nsubcommand.\s\s(2)\sShow\san\sabbreviated\slisting\sunless\sthe\s--all\soption\sis\sused.\n(3)\sAutomatically\sshow\sthe\sabbreviated\slisting\safter\seach\s"next".
+D 2012-10-05T13:44:55.035
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -63,7 +63,7 @@ F src/add.c 8cf1adde57a614ceeab72f7d749f9bff95d9d071
 F src/allrepo.c 6de7c8aeabdf7e20084198675674a1d3ec4e9750
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
-F src/bisect.c d5bb68de5dabcf29e0ec286f326a660d53f1a4b9
+F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c ab2e4ebceb9224c9f9b433f3f2e76e7a643d04c7
 F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
@@ -129,7 +129,7 @@ F src/merge3.c deba3fa65ff782998e0dfd8bfaaf375e28105b5f
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
 F src/name.c 655d3ceb30432b3efce16805490d73ff958a2353
-F src/path.c 0c676ca3ee6b4a09f00ff22a49a5bcd04880b787
+F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2ed8cdc5187acfda773ec17f01a72297848baea5
-R f16121818e35c4d740211cc1a0d9e216
+P 16371dcb1b5b48701289fab8c6fb54192fe8cd5f
+R f50ff226014e68fa616d9f5b0df63f9b
 U drh
-Z 44b4581feaee7bf57e4b021e712ab41c
+Z e08604052ef89743c1d871e9037cb860
