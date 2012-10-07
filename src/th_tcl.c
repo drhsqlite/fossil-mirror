@@ -82,13 +82,13 @@
 #      define TCL_MINOR_OFFSET (4)
 #    endif
 #    ifndef dlopen
-#      define dlopen(a,b) (void *)LoadLibrary((a));
+#      define dlopen(a,b) (void *)LoadLibrary((a))
 #    endif
 #    ifndef dlsym
-#      define dlsym(a,b) GetProcAddress((HANDLE)(a),(b));
+#      define dlsym(a,b) GetProcAddress((HANDLE)(a),(b))
 #    endif
 #    ifndef dlclose
-#      define dlclose(a) FreeLibrary((HANDLE)(a));
+#      define dlclose(a) FreeLibrary((HANDLE)(a))
 #    endif
 #  else
 #    include <dlfcn.h>
@@ -124,14 +124,32 @@
 #endif /* defined(USE_TCL_STUBS) */
 
 /*
-** The function pointer types for Tcl_FindExecutable and Tcl_CreateInterp are
-** needed when the Tcl library is being loaded dynamically by a stubs-enabled
+** The function types for Tcl_FindExecutable and Tcl_CreateInterp are needed
+** when the Tcl library is being loaded dynamically by a stubs-enabled
 ** application (i.e. the inverse of using a stubs-enabled package).  These are
 ** the only Tcl API functions that MUST be called prior to being able to call
 ** Tcl_InitStubs (i.e. because it requires a Tcl interpreter).
  */
 typedef void (tcl_FindExecutableProc) (CONST char * argv0);
 typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
+
+/*
+** The function types for the "hook" functions to be called before and after a
+** TH1 command makes a call to evaluate a Tcl script.  If the "pre" function
+** returns anything but TH_OK, then evaluation of the Tcl script is skipped and
+** that value is used as the return code.  If the "post" function returns
+** anything other than its rc argument, that will become the new return code
+** for the command.
+ */
+typedef int (tcl_NotifyProc) (
+  void *pContext,    /* The context for this notification. */
+  Th_Interp *interp, /* The TH1 interpreter being used. */
+  void *ctx,         /* The original TH1 command context. */
+  int argc,          /* Number of arguments for the TH1 command. */
+  const char **argv, /* Array of arguments for the TH1 command. */
+  int *argl,         /* Array of lengths for the TH1 command arguments. */
+  int rc             /* Recommended notification return value. */
+);
 
 /*
 ** Creates and initializes a Tcl interpreter for use with the specified TH1
@@ -175,7 +193,43 @@ struct TclContext {
   tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   char *setup;        /* The optional Tcl setup script. */
+  tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
+  void *pPreContext;         /* Optional, provided to xPreEval(). */
+  tcl_NotifyProc *xPostEval; /* Optional, called after Tcl_Eval*(). */
+  void *pPostContext;        /* Optional, provided to xPostEval(). */
 };
+
+/*
+** This function calls the configured xPreEval or xPostEval functions, if any.
+** May have arbitrary side-effects.  This function returns the result of the
+** called notification function or the value of the rc argument if there is no
+** notification function configured.
+*/
+static int notifyPreOrPostEval(
+  int bIsPost,
+  Th_Interp *interp,
+  void *ctx,
+  int argc,
+  const char **argv,
+  int *argl,
+  int rc
+){
+  struct TclContext *tclContext = (struct TclContext *)ctx;
+  tcl_NotifyProc *xNotifyProc;
+
+  if ( !tclContext ){
+    Th_ErrorMessage(interp,
+        "Invalid Tcl context", (const char *)"", 0);
+    return TH_ERROR;
+  }
+  xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
+  if ( xNotifyProc ){
+    rc = xNotifyProc(bIsPost ?
+        tclContext->pPostContext : tclContext->pPreContext,
+        interp, ctx, argc, argv, argl, rc);
+  }
+  return rc;
+}
 
 /*
 ** Syntax:
@@ -191,11 +245,11 @@ static int tclEval_command(
 ){
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
-  int rc;
+  int rc = TH_OK;
   int nResult;
   const char *zResult;
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
+  if( createTclInterp(interp, ctx)!=TH_OK ){
     return TH_ERROR;
   }
   if( argc<2 ){
@@ -205,6 +259,10 @@ static int tclEval_command(
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
+  }
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  if( rc!=TH_OK ){
+    return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
@@ -224,6 +282,7 @@ static int tclEval_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
   return rc;
 }
 
@@ -242,11 +301,11 @@ static int tclExpr_command(
   Tcl_Interp *tclInterp;
   Tcl_Obj *objPtr;
   Tcl_Obj *resultObjPtr;
-  int rc;
+  int rc = TH_OK;
   int nResult;
   const char *zResult;
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
+  if( createTclInterp(interp, ctx)!=TH_OK ){
     return TH_ERROR;
   }
   if( argc<2 ){
@@ -256,6 +315,10 @@ static int tclExpr_command(
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
+  }
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  if( rc!=TH_OK ){
+    return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
   if( argc==2 ){
@@ -280,6 +343,7 @@ static int tclExpr_command(
   Th_SetResult(interp, zResult, nResult);
   if( rc==TCL_OK ) Tcl_DecrRefCount(resultObjPtr);
   Tcl_Release((ClientData)tclInterp);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
   return rc;
 }
 
@@ -300,7 +364,7 @@ static int tclInvoke_command(
   Tcl_Command command;
   Tcl_CmdInfo cmdInfo;
 #endif
-  int rc;
+  int rc = TH_OK;
   int nResult;
   const char *zResult;
 #if !defined(USE_TCL_EVALOBJV)
@@ -308,7 +372,7 @@ static int tclInvoke_command(
 #endif
   USE_ARGV_TO_OBJV();
 
-  if ( createTclInterp(interp, ctx)!=TH_OK ){
+  if( createTclInterp(interp, ctx)!=TH_OK ){
     return TH_ERROR;
   }
   if( argc<2 ){
@@ -318,6 +382,10 @@ static int tclInvoke_command(
   if( !tclInterp || Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp, "invalid Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
+  }
+  rc = notifyPreOrPostEval(0, interp, ctx, argc, argv, argl, rc);
+  if( rc!=TH_OK ){
+    return rc;
   }
   Tcl_Preserve((ClientData)tclInterp);
 #if !defined(USE_TCL_EVALOBJV)
@@ -349,6 +417,7 @@ static int tclInvoke_command(
   zResult = getTclResult(tclInterp, &nResult);
   Th_SetResult(interp, zResult, nResult);
   Tcl_Release((ClientData)tclInterp);
+  rc = notifyPreOrPostEval(1, interp, ctx, argc, argv, argl, rc);
   return rc;
 }
 

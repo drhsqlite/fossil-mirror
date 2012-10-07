@@ -97,6 +97,10 @@ struct TclContext {
   void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   char *setup;           /* The optional Tcl setup script. */
+  void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
+  void *pPreContext;     /* Optional, provided to xPreEval(). */
+  void *xPostEval;       /* Optional, called after Tcl_Eval*(). */
+  void *pPostContext;    /* Optional, provided to xPostEval(). */
 };
 #endif
 
