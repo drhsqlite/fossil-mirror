@@ -168,12 +168,13 @@ static char *getTclResult(
 ** copied from and should be kept in sync with the one in "main.c".
 */
 struct TclContext {
-  int argc;
-  char **argv;
-  void *library;
-  tcl_FindExecutableProc *xFindExecutable;
-  tcl_CreateInterpProc *xCreateInterp;
-  Tcl_Interp *interp;
+  int argc;           /* Number of original arguments. */
+  char **argv;        /* Full copy of the original arguments. */
+  void *library;      /* The Tcl library module handle. */
+  tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
+  tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
+  Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
+  char *setup;        /* The optional Tcl setup script. */
 };
 
 /*
@@ -584,6 +585,7 @@ static int createTclInterp(
   char **argv;
   char *argv0 = 0;
   Tcl_Interp *tclInterp;
+  char *setup;
 
   if ( !tclContext ){
     Th_ErrorMessage(interp,
@@ -632,6 +634,15 @@ static int createTclInterp(
   Tcl_CallWhenDeleted(tclInterp, Th1DeleteProc, interp);
   Tcl_CreateObjCommand(tclInterp, "th1Eval", Th1EvalObjCmd, interp, NULL);
   Tcl_CreateObjCommand(tclInterp, "th1Expr", Th1ExprObjCmd, interp, NULL);
+  /* If necessary, evaluate the custom Tcl setup script. */
+  setup = tclContext->setup;
+  if( setup && Tcl_Eval(tclInterp, setup)!=TCL_OK ){
+    Th_ErrorMessage(interp,
+        "Tcl setup script error:", Tcl_GetStringResult(tclInterp), -1);
+    Tcl_DeleteInterp(tclInterp);
+    tclContext->interp = tclInterp = 0;
+    return TH_ERROR;
+  }
   return TH_OK;
 }
 

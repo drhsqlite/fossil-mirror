@@ -1,5 +1,5 @@
-C Add\sthe\s"stash\sshow"\scommand.\s\sSimplifications\sto\sthe\sdiff\scode,\sand\sespecially\nthe\slooks_like_binary()\sfunction.
-D 2012-10-05T20:39:19.969
+C Add\s'tcl-setup'\ssetting\sfor\sthe\soptional\sTcl\sscript\sto\sevaluate\safter\screating\sand\sinitializing\sthe\sTcl\sinterpreter.\s\sMake\ssure\sTcl\sgets\sa\scopy\sof\sall\sthe\soriginal\sexpanded\sarguments.
+D 2012-10-07T10:12:16.735
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -75,11 +75,11 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c c1bf83e434c28e0d73f580d7d9f0e599e6d753af
+F src/configure.c c89251c280e7b94f8fb68312daa951211236b22d
 F src/content.c e11e805bd27e7cefc0e39ceb1e92763cb8587e50
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c bf0c69be023b3dba8912e10fbb726b325ea4ae64
+F src/db.c 4026df1279c65799d827ee553cd477213cce5d7a
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 8b4e8b1c55294c35721527e2bc28f04a0ad14f3c
-F src/main.c e6ecc351968a9a6e3ce245c565bd9df317bc7b0b
+F src/main.c 5d050d5fbed8d99eed112964ea53dd69d1eead86
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -156,8 +156,8 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
-F src/th_main.c c8565dd64572d8c9f75bf471ab74ad142e8b4534
-F src/th_tcl.c bb5731f616d1cca6b4a84499b1f3e7bfe3374feb
+F src/th_main.c ad962ee24af9c4e25715d15b62f713940b2dbe1b
+F src/th_tcl.c 93858d1dc5f9632d88c820b0c452145ac6870383
 F src/timeline.c 93656d26997b413974de45167587e904286221e6
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f378800aedba817f9716244b1ffc258a68f760a4
-R f3e832fd8b9a0ebb719bdd95ed74ab4d
-U drh
-Z 591cffef941b0fbc5417aafe79ae7d26
+P 4e0e69f691d5c4cd0fb969e4becfb27a68beba07
+R ede706fe4806bbfb65ca479a0b7d8d05
+U mistachkin
+Z 771ff1e05d9e82d53ea163c11bc9d1d0
