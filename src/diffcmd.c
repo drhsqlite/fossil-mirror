@@ -149,7 +149,7 @@ void diff_file(
           blob_read_from_file(&file2, zFile2);
         }
       }
-      if( looks_like_binary(blob_str(&file2), blob_size(&file2)) ){
+      if( looks_like_binary(&file2) ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
@@ -403,8 +403,7 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      isBin = fIncludeBinary ? 0 : looks_like_binary(blob_str(&content),
-                                                     blob_size(&content));
+      isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
       diff_print_index(zPathname, diffFlags);
       diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
                 zBinGlob, fIncludeBinary, diffFlags);
@@ -497,10 +496,8 @@ static void diff_manifest_entry(
   }else{
     blob_zero(&f2);
   }
-  isBin1 = fIncludeBinary ? 0 : looks_like_binary(blob_str(&f1),
-                                                  blob_size(&f1));
-  isBin2 = fIncludeBinary ? 0 : looks_like_binary(blob_str(&f2),
-                                                  blob_size(&f2));
+  isBin1 = fIncludeBinary ? 0 : looks_like_binary(&f1);
+  isBin2 = fIncludeBinary ? 0 : looks_like_binary(&f2);
   diff_file_mem(&f1, &f2, isBin1, isBin2, zName, zDiffCmd,
                 zBinGlob, fIncludeBinary, diffFlags);
   blob_reset(&f1);
@@ -619,6 +616,7 @@ static const char zDiffScript[] =
 @ proc dehtml {x} {
 @   return [string map {&amp; & &lt; < &gt; > &#39; ' &quot; \"} $x]
 @ }
+@ # puts $cmd
 @ set in [open $cmd r]
 @ while {![eof $in]} {
 @   set line [gets $in]
@@ -654,21 +652,24 @@ static const char zDiffScript[] =
 ** (2) Invoke "wish" on the temp file using fossil_system().
 ** (3) Delete the temp file.
 */
-static void diff_tk(void){
+void diff_tk(const char *zSubCmd, int firstArg){
   int i;
   Blob script;
   char *zTempFile;
   char *zCmd;
   blob_zero(&script);
-  blob_appendf(&script, "set cmd {| \"%/\" diff --html -y -i", g.nameOfExe);
-  for(i=2; i<g.argc; i++){
-    blob_appendf(&script, " \"%s\"", g.argv[i]);
+  blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i",
+               g.nameOfExe, zSubCmd);
+  for(i=firstArg; i<g.argc; i++){
+    blob_append(&script, " ", 1);
+    shell_escape(&script, g.argv[i]);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   zTempFile = write_blob_to_temp_file(&script);
   zCmd = mprintf("tclsh \"%s\"", zTempFile);
   fossil_system(zCmd);
   file_delete(zTempFile);
+  fossil_free(zCmd);
 }
 
 /*
@@ -759,7 +760,7 @@ void diff_cmd(void){
   int f;
 
   if( find_option("tk",0,0)!=0 ){
-    diff_tk();
+    diff_tk("diff", 2);
     return;
   }
   isGDiff = g.argv[1][0]=='g';

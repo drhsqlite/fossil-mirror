@@ -919,7 +919,7 @@ void page_timeline(void){
   HQuery url;                        /* URL for various branch links */
   int from_rid = name_to_typed_rid(P("from"),"ci"); /* from= for paths */
   int to_rid = name_to_typed_rid(P("to"),"ci");    /* to= for path timelines */
-  int noMerge = P("nomerge")!=0;          /* Do not follow merge links */
+  int noMerge = P("shortest")==0;           /* Follow merge links if shorter */
   int me_rid = name_to_typed_rid(P("me"),"ci");  /* me= for common ancestory */
   int you_rid = name_to_typed_rid(P("you"),"ci");/* you= for common ancst */
   int pd_rid;

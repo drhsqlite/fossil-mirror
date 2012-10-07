@@ -174,15 +174,28 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** Returns non-zero if the specified content appears to be binary or
 ** contains a line that is too long.
 */
-int looks_like_binary(const char *z, int n){
-  int nLine;
-  DLine *aContent = break_into_lines(z, n, &nLine, 0);
-  if( aContent ){
-    fossil_free(aContent);
-    return 0;
-  }else{
-    return 1;
+int looks_like_binary(Blob *pContent){
+  const char *z = blob_str(pContent);
+  int n = blob_size(pContent);
+  int i, j;
+
+  /* Count the number of lines.  Allocate space to hold
+  ** the returned array.
+  */
+  for(i=j=0; i<n; i++, j++){
+    int c = z[i];
+    if( c==0 ) return 1;  /* \000 byte in a file -> binary */
+    if( c=='\n' && z[i+1]!=0 ){
+      if( j>LENGTH_MASK ){
+        return 1;   /* Very long line -> binary */
+      }
+      j = 0;
+    }
   }
+  if( j>LENGTH_MASK ){
+    return 1;  /* Very long line -> binary */
+  }
+  return 0;   /* No problems seen -> not binary */
 }
 
 /*
