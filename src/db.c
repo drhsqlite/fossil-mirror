@@ -2041,6 +2041,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssh-command",   0,               32, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
+  { "tcl-rdonly",    0,                0, 0, "on"                  },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "web-browser",   0,               32, 0, ""                    },
@@ -2212,6 +2213,17 @@ struct stControlSettings const ctrlSettings[] = {
 **                     scripts to be evaluated from TH1.  Additionally, the Tcl
 **                     interpreter will be able to evaluate arbitrary TH1
 **                     expressions and scripts. Default: off.
+**
+**    tcl-rdonly       If enabled (and Fossil was compiled with support for the
+**                     SQLite package for Tcl), Tcl scripts using the SQLite
+**                     package in the Fossil process will not be able to write
+**                     to any of the databases used by the repository.  This
+**                     feature is designed to provide some protection against
+**                     accidentally writing to a repository database; however,
+**                     it is not a security feature and does not guarantee that
+**                     writing to a repository database will be impossible if
+**                     somebody is determined to do so.
+**                     Default: on.
 **
 **    tcl-setup        This is the setup script to be evaluated after creating
 **                     and initializing the Tcl interpreter.  By default, this

@@ -106,3 +106,10 @@ fossil test-th-render [file nativename [file join $dir th1-tcl9.txt]]
 
 test th1-tcl-9 {[string trim $RESULT] eq [list [file tail $fossilexe] 2 \
 [list test-th-render [file nativename [file join $dir th1-tcl9.txt]]]]}
+
+###############################################################################
+
+fossil test-th-render [file nativename [file join $dir th1-tclA.txt]]
+
+test th1-tcl-A {[string trim $RESULT] eq \
+"1 {attempt to write a readonly database}"}

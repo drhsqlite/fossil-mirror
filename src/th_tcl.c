@@ -692,6 +692,21 @@ static int createTclInterp(
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
   }
+#ifdef FOSSIL_ENABLE_TCL_SQLITE
+  /*
+  ** Make sure the Tcl interpreter uses the SQLite package for Tcl that we
+  ** are statically linked with rather than another one that may be present
+  ** on the system.
+  */
+  extern int Sqlite3_Init(Tcl_Interp *interp);
+  if( Sqlite3_Init(tclInterp)!=TCL_OK ){
+    Th_ErrorMessage(interp,
+        "SQLite package for Tcl error:", Tcl_GetStringResult(tclInterp), -1);
+    Tcl_DeleteInterp(tclInterp);
+    tclContext->interp = tclInterp = 0;
+    return TH_ERROR;
+  }
+#endif
   if( setTclArguments(tclInterp, argc, argv)!=TCL_OK ){
     Th_ErrorMessage(interp,
         "Tcl error setting arguments:", Tcl_GetStringResult(tclInterp), -1);

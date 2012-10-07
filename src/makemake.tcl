@@ -382,6 +382,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_TCL_STUBS = 1
 
+#### Provide the SQLite package to Tcl
+#
+# FOSSIL_ENABLE_TCL_SQLITE = 1
+
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
@@ -483,6 +487,11 @@ RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
 else
 TCC += -DSTATIC_BUILD
 RCC += -DSTATIC_BUILD
+endif
+# Provide the SQLite package to Tcl
+ifdef FOSSIL_ENABLE_TCL_SQLITE
+TCC += -DFOSSIL_ENABLE_TCL_SQLITE=1 -DBUILD_sqlite=1
+RCC += -DFOSSIL_ENABLE_TCL_SQLITE=1 -DBUILD_sqlite=1
 endif
 endif
 

@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.15"
 #define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-10-05 07:36:34 43155b1543bddbb84a8bc13a5b7344b228ddacb9"
+#define SQLITE_SOURCE_ID      "2012-10-07 14:14:44 bbb0d189b7b6aecfc0e0b6c2bcd9f49aaea8c34a"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1240,11 +1240,11 @@ SQLITE_API int sqlite3_os_end(void);
 /*
 ** CAPI3REF: Configuring The SQLite Library
 **
-** The sqlite3_config() interface is used to make global configuration
-** changes to SQLite in order to tune SQLite to the specific needs of
-** the application.  The default configuration is recommended for most
-** applications and so this routine is usually not necessary.  It is
-** provided to support rare applications with unusual needs.
+** The sqlite3_config() and sqlite3_reconfig() interfaces are used to make
+** global configuration changes to SQLite in order to tune SQLite to the
+** specific needs of the application.  The default configuration is recommended
+** for most applications and so this routine is usually not necessary.  They
+** are provided to support rare applications with unusual needs.
 **
 ** The sqlite3_config() interface is not threadsafe.  The application
 ** must insure that no other SQLite interfaces are invoked by other
@@ -1256,17 +1256,23 @@ SQLITE_API int sqlite3_os_end(void);
 ** Note, however, that ^sqlite3_config() can be called as part of the
 ** implementation of an application-defined [sqlite3_os_init()].
 **
-** The first argument to sqlite3_config() is an integer
-** [configuration option] that determines
+** The sqlite3_reconfig() interface is threadsafe and may be called at any
+** time.  However, it supports only a small subset of the configuration
+** options available for use with sqlite3_config().
+**
+** The first argument to both sqlite3_config() and sqlite3_reconfig() is an
+** integer [configuration option] that determines
 ** what property of SQLite is to be configured.  Subsequent arguments
 ** vary depending on the [configuration option]
 ** in the first argument.
 **
-** ^When a configuration option is set, sqlite3_config() returns [SQLITE_OK].
+** ^When a configuration option is set, both sqlite3_config() and
+** sqlite3_reconfig() return [SQLITE_OK].
 ** ^If the option is unknown or SQLite is unable to set the option
-** then this routine returns a non-zero [error code].
+** then these routines returns a non-zero [error code].
 */
 SQLITE_API int sqlite3_config(int, ...);
+SQLITE_API int sqlite3_reconfig(int, ...);
 
 /*
 ** CAPI3REF: Configure database connections
@@ -1592,6 +1598,19 @@ struct sqlite3_mem_methods {
 ** disable the optimization allows the older, buggy application code to work
 ** without change even with newer versions of SQLite.
 **
+** [[SQLITE_CONFIG_READONLY]] <dt>SQLITE_CONFIG_READONLY
+** <dd> This option takes a single argument of type int. If non-zero, then
+** read-only mode for opening databases is globally enabled. If the parameter
+** is zero, then read-only mode for opening databases is globally disabled. If
+** read-only mode for opening databases is globally enabled, all databases
+** opened by [sqlite3_open()], [sqlite3_open16()], or specified as part of
+** [ATTACH] commands will be opened in read-only mode. Additionally, all calls
+** to [sqlite3_open_v2()] must have the [SQLITE_OPEN_READONLY] flag set in the
+** third argument; otherwise, a [SQLITE_READONLY] error will be returned. If it
+** is globally disabled, [sqlite3_open()], [sqlite3_open16()],
+** [sqlite3_open_v2()], and [ATTACH] commands will function normally. By
+** default, read-only mode is globally disabled.
+**
 ** [[SQLITE_CONFIG_PCACHE]] [[SQLITE_CONFIG_GETPCACHE]]
 ** <dt>SQLITE_CONFIG_PCACHE and SQLITE_CONFIG_GETPCACHE
 ** <dd> These options are obsolete and should not be used by new code.
@@ -1618,6 +1637,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_PCACHE2      18  /* sqlite3_pcache_methods2* */
 #define SQLITE_CONFIG_GETPCACHE2   19  /* sqlite3_pcache_methods2* */
 #define SQLITE_CONFIG_COVERING_INDEX_SCAN 20  /* int */
+#define SQLITE_CONFIG_READONLY     21  /* int */
 
 /*
 ** CAPI3REF: Database Connection Configuration Options

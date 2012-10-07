@@ -21,6 +21,10 @@
 #include "config.h"
 #include "th_main.h"
 
+#ifdef FOSSIL_ENABLE_TCL
+#  include <sqlite3.h>
+#endif
+
 /*
 ** Global variable counting the number of outstanding calls to malloc()
 ** made by the th1 implementation. This is used to catch memory leaks
@@ -423,6 +427,61 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+#ifdef FOSSIL_ENABLE_TCL
+static int wasReconfigured = 0;
+
+static int Th_PreTclEval(
+  void *pContext,
+  Th_Interp *interp, /* NOT USED */
+  void *ctx,         /* NOT USED */
+  int argc,          /* NOT USED */
+  const char **argv, /* NOT USED */
+  int *argl,         /* NOT USED */
+  int rc
+){
+#if SQLITE_VERSION_NUMBER >= 3007015
+  int *pbReconfigured = pContext;
+  if( pbReconfigured ) *pbReconfigured = 0;
+  if( db_get_boolean("tcl-rdonly", 1) ){
+    int rc2;
+    if ( (rc2=sqlite3_reconfig(SQLITE_CONFIG_READONLY, 1))==SQLITE_OK ){
+      if( pbReconfigured ) *pbReconfigured = 1;
+    }else{
+      Th_ErrorMessage(interp,
+          "failed to reconfigure SQLite:", sqlite3_errstr(rc2), -1);
+      return TH_ERROR;
+    }
+  }
+#endif
+  return rc;
+}
+
+static int Th_PostTclEval(
+  void *pContext,
+  Th_Interp *interp,  /* NOT USED */
+  void *ctx,          /* NOT USED */
+  int argc,           /* NOT USED */
+  const char **argv,  /* NOT USED */
+  int *argl,          /* NOT USED */
+  int rc
+){
+#if SQLITE_VERSION_NUMBER >= 3007015
+  int *pbReconfigured = pContext;
+  if( pbReconfigured && *pbReconfigured ){
+    int rc2;
+    if ( (rc2=sqlite3_reconfig(SQLITE_CONFIG_READONLY, 0))==SQLITE_OK ){
+      if( pbReconfigured ) *pbReconfigured = 0;
+    }else{
+      Th_ErrorMessage(interp,
+          "failed to reconfigure SQLite:", sqlite3_errstr(rc2), -1);
+      return TH_ERROR;
+    }
+  }
+#endif
+  return rc;
+}
+#endif
+
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
@@ -456,6 +515,10 @@ void Th_FossilInit(void){
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
       g.tcl.setup = db_get("tcl-setup", 0); /* Grab optional setup script. */
+      g.tcl.xPreEval = Th_PreTclEval;
+      g.tcl.pPreContext = &wasReconfigured;
+      g.tcl.xPostEval = Th_PostTclEval;
+      g.tcl.pPostContext = &wasReconfigured;
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif

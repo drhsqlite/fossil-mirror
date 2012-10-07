@@ -1,0 +1,25 @@
+<th1>
+  #
+  # This is a "TH1 fragment" used to test the Tcl integration features of TH1.
+  # The corresponding test file executes this file using the test-th-render
+  # Fossil command.
+  #
+  # NOTE: This test requires that the SQLite package be available for the Tcl
+  #       interpreter that is linked to the Fossil executable.
+  #
+  tclInvoke set repository_name [repository 1]
+  proc doOut {msg} {puts $msg; puts \n}
+  doOut [tclEval {
+    package require sqlite3
+    set c [catch {
+      sqlite3 db $repository_name
+      set m [clock seconds]
+      db eval {
+        INSERT INTO config (name, value, mtime)
+        VALUES('test-rdonly', 'no', $m);
+      }
+      db close
+    } x]
+    return [list $c $x]
+  }]
+</th1>

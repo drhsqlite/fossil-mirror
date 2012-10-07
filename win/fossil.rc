@@ -97,6 +97,11 @@ BEGIN
 #else
       VALUE "TclStubsEnabled", "No\0"
 #endif
+#ifdef FOSSIL_ENABLE_TCL_SQLITE
+      VALUE "TclSqlitePackage", "Yes\0"
+#else
+      VALUE "TclSqlitePackage", "No\0"
+#endif
 #endif
 #ifdef FOSSIL_ENABLE_JSON
       VALUE "JsonEnabled", "Yes, cson\0"
