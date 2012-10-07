@@ -1,5 +1,5 @@
-C Add\s'markdown'\ssetting\sto\senable\sruntime\scontrol\sover\swhether\sor\snot\sit\sis\sused.
-D 2012-10-07T10:29:22.200
+C Update\sthe\s'makemake'\sscript\swith\sthe\sMinGW\smakefile\schanges\sfor\sthe\smarkdown\sfeature\sas\swell.
+D 2012-10-07T14:28:21.033
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -121,7 +121,7 @@ F src/main.c 5d050d5fbed8d99eed112964ea53dd69d1eead86
 F src/main.mk 707ba82ac00da849c69655a61f184f4a4898af84
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 112b4676a5b8d0062499fd07d1e680efbecf7251
+F src/makemake.tcl 1faff896cb501af3b483be2cecadab323f38ed5f
 F src/manifest.c ccf5a57524ac055c2622182e6139963152e78c06
 F src/markdown.c d79f134a528b5a97e707d17768c86f901997eb9d
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
@@ -359,7 +359,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a8add9c1bdfcd0b42051e81babe4f0da16ae9b8b
-R bdf955eb7b131e11996f36ccbb34e4bf
+P 1c5085d963022598a15d1a3196ad53844bf85416
+R 654bfa0b2bbffd25d6ba9a053321a07f
 U mistachkin
-Z 19daefc5a2474200df93c1f43ce40183
+Z fa14bb271353576ac1d7041498146a94
