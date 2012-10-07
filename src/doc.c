@@ -500,7 +500,8 @@ void doc_page(void){
     }
     style_footer();
 #ifdef FOSSIL_ENABLE_MARKDOWN
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
+         && db_get_boolean("markdown", 0) ){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
