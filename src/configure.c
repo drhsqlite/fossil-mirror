@@ -91,13 +91,16 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+  { "tcl-setup",              CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
 #endif
 
   { "project-name",           CONFIGSET_PROJ },
   { "project-description",    CONFIGSET_PROJ },
   { "manifest",               CONFIGSET_PROJ },
+  { "binary-glob",            CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },

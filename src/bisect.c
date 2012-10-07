@@ -89,6 +89,62 @@ int bisect_option(const char *zName){
 }
 
 /*
+** List a bisect path.
+*/
+static void bisect_list(int abbreviated){
+  PathNode *p;
+  int vid = db_lget_int("checkout", 0);
+  int n;
+  Stmt s;
+  int nStep;
+  int nHidden = 0;
+  bisect_path();
+  db_prepare(&s, "SELECT blob.uuid, datetime(event.mtime) "
+                 "  FROM blob, event"
+                 " WHERE blob.rid=:rid AND event.objid=:rid"
+                 "   AND event.type='ci'");
+  nStep = path_length();
+  if( abbreviated ){
+    for(p=path_last(); p; p=p->pFrom) p->isHidden = 1;
+    for(p=path_last(), n=0; p; p=p->pFrom, n++){
+      if( p->rid==bisect.good
+       || p->rid==bisect.bad
+       || p->rid==vid
+       || (nStep>1 && n==nStep/2)
+      ){
+        p->isHidden = 0;
+        if( p->pFrom ) p->pFrom->isHidden = 0;
+      }
+    }
+    for(p=path_last(); p; p=p->pFrom){
+      if( p->pFrom && p->pFrom->isHidden==0 ) p->isHidden = 0;
+    }
+  }
+  for(p=path_last(), n=0; p; p=p->pFrom, n++){
+    if( p->isHidden && (nHidden || (p->pFrom && p->pFrom->isHidden)) ){
+      nHidden++;
+      continue;
+    }else if( nHidden ){
+      fossil_print("  ... eliding %d check-ins\n", nHidden);
+      nHidden = 0;
+    }
+    db_bind_int(&s, ":rid", p->rid);
+    if( db_step(&s)==SQLITE_ROW ){
+      const char *zUuid = db_column_text(&s, 0);
+      const char *zDate = db_column_text(&s, 1);
+      fossil_print("%s %S", zDate, zUuid);
+      if( p->rid==bisect.good ) fossil_print(" GOOD");
+      if( p->rid==bisect.bad ) fossil_print(" BAD");
+      if( p->rid==vid ) fossil_print(" CURRENT");
+      if( nStep>1 && n==nStep/2 ) fossil_print(" NEXT");
+      fossil_print("\n");
+    }
+    db_reset(&s);
+  }
+  db_finalize(&s);
+}
+
+/*
 ** COMMAND: bisect
 **
 ** Usage: %fossil bisect SUBCOMMAND ...
@@ -120,7 +176,7 @@ int bisect_option(const char *zName){
 **     Reinitialize a bisect session.  This cancels prior bisect history
 **     and allows a bisect session to start over from the beginning.
 **
-**   fossil bisect vlist
+**   fossil bisect vlist|ls ?--all?
 **
 **     List the versions in between "bad" and "good".
 */
@@ -181,6 +237,7 @@ void bisect_cmd(void){
     g.argc = 3;
     g.fNoSync = 1;
     update_cmd();
+    bisect_list(1);
   }else if( memcmp(zCmd, "options", n)==0 ){
     if( g.argc==3 ){
       unsigned int i;
@@ -215,33 +272,9 @@ void bisect_cmd(void){
     db_multi_exec(
       "DELETE FROM vvar WHERE name IN ('bisect-good', 'bisect-bad');"
     );
-  }else if( memcmp(zCmd, "vlist", n)==0 ){
-    PathNode *p;
-    int vid = db_lget_int("checkout", 0);
-    int n;
-    Stmt s;
-    int nStep;
-    bisect_path();
-    db_prepare(&s, "SELECT substr(blob.uuid,1,20) || ' ' || "
-                   "       datetime(event.mtime) FROM blob, event"
-                   " WHERE blob.rid=:rid AND event.objid=:rid"
-                   "   AND event.type='ci'");
-    nStep = path_length();
-    for(p=path_last(), n=0; p; p=p->pFrom, n++){
-      const char *z;
-      db_bind_int(&s, ":rid", p->rid);
-      if( db_step(&s)==SQLITE_ROW ){
-        z = db_column_text(&s, 0);
-        fossil_print("%s", z);
-        if( p->rid==bisect.good ) fossil_print(" GOOD");
-        if( p->rid==bisect.bad ) fossil_print(" BAD");
-        if( p->rid==vid ) fossil_print(" CURRENT");
-        if( nStep>1 && n==nStep/2 ) fossil_print(" NEXT");
-        fossil_print("\n");
-      }
-      db_reset(&s);
-    }
-    db_finalize(&s);
+  }else if( memcmp(zCmd, "vlist", n)==0 || memcmp(zCmd, "ls", n)==0 ){
+    int fAll = find_option("all", 0, 0)!=0;
+    bisect_list(!fAll);
   }else{
     usage("bad|good|next|reset|vlist ...");
   }

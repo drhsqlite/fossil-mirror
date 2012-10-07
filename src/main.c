@@ -90,9 +90,17 @@ struct FossilUserPerms {
 ** "th_tcl.c".
 */
 struct TclContext {
-  int argc;
-  char **argv;
-  Tcl_Interp *interp;
+  int argc;              /* Number of original (expanded) arguments. */
+  char **argv;           /* Full copy of the original (expanded) arguments. */
+  void *library;         /* The Tcl library module handle. */
+  void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
+  void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
+  char *setup;           /* The optional Tcl setup script. */
+  void *xPreEval;        /* Optional, called before Tcl_Eval*(). */
+  void *pPreContext;     /* Optional, provided to xPreEval(). */
+  void *xPostEval;       /* Optional, called after Tcl_Eval*(). */
+  void *pPostContext;    /* Optional, provided to xPostEval(). */
 };
 #endif
 
@@ -550,6 +558,20 @@ static void expand_args_option(int argc, void *argv){
 }
 
 /*
+** Make a deep copy of the provided argument array and return it.
+*/
+static char **copy_args(int argc, char **argv){
+  char **zNewArgv;
+  int i;
+  zNewArgv = fossil_malloc( sizeof(char*)*(argc+1) );
+  memset(zNewArgv, 0, sizeof(char*)*(argc+1));
+  for(i=0; i<argc; i++){
+    zNewArgv[i] = fossil_strdup(argv[i]);
+  }
+  return zNewArgv;
+}
+
+/*
 ** This procedure runs first.
 */
 int main(int argc, char **argv)
@@ -576,9 +598,9 @@ int main(int argc, char **argv)
 #endif /* FOSSIL_ENABLE_JSON */
   expand_args_option(argc, argv);
 #ifdef FOSSIL_ENABLE_TCL
+  memset(&g.tcl, 0, sizeof(TclContext));
   g.tcl.argc = g.argc;
-  g.tcl.argv = g.argv;
-  g.tcl.interp = 0;
+  g.tcl.argv = copy_args(g.argc, g.argv); /* save full arguments */
 #endif
   if( fossil_getenv("GATEWAY_INTERFACE")!=0 && !find_option("nocgi", 0, 0)){
     zCmdName = "cgi";

@@ -421,6 +421,92 @@ void clean_cmd(void){
 }
 
 /*
+** Prompt the user for a check-in or stash comment (given in pPrompt),
+** gather the response, then return the response in pComment.
+**
+** Lines of the prompt that begin with # are discarded.  Excess whitespace
+** is removed from the reply.
+**
+** Appropriate encoding translations are made on windows.
+*/
+void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
+  const char *zEditor;
+  char *zCmd;
+  char *zFile;
+  Blob reply, line;
+  char *zComment;
+  int i;
+
+  zEditor = db_get("editor", 0);
+  if( zEditor==0 ){
+    zEditor = fossil_getenv("VISUAL");
+  }
+  if( zEditor==0 ){
+    zEditor = fossil_getenv("EDITOR");
+  }
+#ifdef _WIN32
+  if( zEditor==0 ){
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SystemRoot"));
+  }
+#endif
+  if( zEditor==0 ){
+    blob_append(pPrompt,
+       "#\n"
+       "# Since no default text editor is set using EDITOR or VISUAL\n"
+       "# environment variables or the \"fossil set editor\" command,\n"
+       "# and because no comment was specified using the \"-m\" or \"-M\"\n"
+       "# command-line options, you will need to enter the comment below.\n"
+       "# Type \".\" on a line by itself when you are done:\n", -1);
+    zFile = mprintf("-");
+  }else{
+    zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
+                    g.zLocalRoot);
+  }
+#if defined(_WIN32)
+  blob_add_cr(pPrompt);
+#endif
+  blob_write_to_file(pPrompt, zFile);
+  if( zEditor ){
+    zCmd = mprintf("%s \"%s\"", zEditor, zFile);
+    fossil_print("%s\n", zCmd);
+    if( fossil_system(zCmd) ){
+      fossil_fatal("editor aborted: \"%s\"", zCmd);
+    }
+
+    blob_read_from_file(&reply, zFile);
+  }else{
+    char zIn[300];
+    blob_zero(&reply);
+    while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
+      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ){
+        break;
+      }
+      blob_append(&reply, zIn, -1);
+    }
+  }
+  blob_remove_cr(&reply);
+  file_delete(zFile);
+  free(zFile);
+  blob_zero(pComment);
+  while( blob_line(&reply, &line) ){
+    int i, n;
+    char *z;
+    n = blob_size(&line);
+    z = blob_buffer(&line);
+    for(i=0; i<n && fossil_isspace(z[i]);  i++){}
+    if( i<n && z[i]=='#' ) continue;
+    if( i<n || blob_size(pComment)>0 ){
+      blob_appendf(pComment, "%b", &line);
+    }
+  }
+  blob_reset(&reply);
+  zComment = blob_str(pComment);
+  i = strlen(zComment);
+  while( i>0 && fossil_isspace(zComment[i-1]) ){ i--; }
+  blob_resize(pComment, i);
+}
+
+/*
 ** Prepare a commit comment.  Let the user modify it using the
 ** editor specified in the global_config table or either
 ** the VISUAL or EDITOR environment variable.
@@ -444,107 +530,39 @@ static void prepare_commit_comment(
   int parent_rid,
   const char *zUserOvrd
 ){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-  const char *zEditor;
-  char *zCmd;
-  char *zFile;
-  Blob text, line;
-  char *zComment;
-  int i;
+  Blob prompt;
 #ifdef _WIN32
-  blob_init(&text, (const char *) bom, 3);
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+  blob_init(&prompt, (const char *) bom, 3);
   if( zInit && zInit[0]) {
-    blob_append(&text, zInit, -1);
+    blob_append(&prompt, zInit, -1);
   }
 #else
-  blob_init(&text, zInit, -1);
+  blob_init(&prompt, zInit, -1);
 #endif
-  blob_append(&text,
+  blob_append(&prompt,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
     "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
-  blob_appendf(&text, "# user: %s\n", zUserOvrd ? zUserOvrd : g.zLogin);
+  blob_appendf(&prompt, "# user: %s\n", zUserOvrd ? zUserOvrd : g.zLogin);
   if( zBranch && zBranch[0] ){
-    blob_appendf(&text, "# tags: %s\n#\n", zBranch);
+    blob_appendf(&prompt, "# tags: %s\n#\n", zBranch);
   }else{
     char *zTags = info_tags_of_checkin(parent_rid, 1);
-    if( zTags )  blob_appendf(&text, "# tags: %z\n#\n", zTags);
+    if( zTags )  blob_appendf(&prompt, "# tags: %z\n#\n", zTags);
   }
+  status_report(&prompt, "# ", 1, 0);
   if( g.markPrivate ){
-    blob_append(&text,
+    blob_append(&prompt,
       "# PRIVATE BRANCH: This check-in will be private and will not sync to\n"
       "# repositories.\n"
       "#\n", -1
     );
   }
-  status_report(&text, "# ", 1, 0);
-  zEditor = db_get("editor", 0);
-  if( zEditor==0 ){
-    zEditor = fossil_getenv("VISUAL");
-  }
-  if( zEditor==0 ){
-    zEditor = fossil_getenv("EDITOR");
-  }
-  if( zEditor==0 ){
-    blob_append(&text,
-       "#\n"
-       "# Since no default text editor is set using EDITOR or VISUAL\n"
-       "# environment variables or the \"fossil set editor\" command,\n"
-       "# and because no check-in comment was specified using the \"-m\"\n"
-       "# or \"-M\" command-line options, you will need to enter the\n"
-       "# check-in comment below.  Type \".\" on a line by itself when\n"
-       "# you are done:\n", -1);
-    zFile = mprintf("-");
-  }else{
-    zFile = db_text(0, "SELECT '%qci-comment-' || hex(randomblob(6)) || '.txt'",
-                    g.zLocalRoot);
-  }
-#if defined(_WIN32)
-  blob_add_cr(&text);
-#endif
-  blob_write_to_file(&text, zFile);
-  if( zEditor ){
-    zCmd = mprintf("%s \"%s\"", zEditor, zFile);
-    fossil_print("%s\n", zCmd);
-    if( fossil_system(zCmd) ){
-      fossil_panic("editor aborted");
-    }
-    blob_reset(&text);
-    blob_read_from_file(&text, zFile);
-  }else{
-    char zIn[300];
-    blob_reset(&text);
-    while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ){
-        break;
-      }
-      blob_append(&text, zIn, -1);
-    }
-  }
-  blob_remove_cr(&text);
-  if( zEditor ) {
-    file_delete(zFile);
-  }
-  fossil_free(zFile);
-  blob_zero(pComment);
-  while( blob_line(&text, &line) ){
-    int i, n;
-    char *z;
-    n = blob_size(&line);
-    z = blob_buffer(&line);
-    for(i=0; i<n && fossil_isspace(z[i]);  i++){}
-    if( i<n && z[i]=='#' ) continue;
-    if( i<n || blob_size(pComment)>0 ){
-      blob_appendf(pComment, "%b", &line);
-    }
-  }
-  blob_reset(&text);
-  zComment = blob_str(pComment);
-  i = strlen(zComment);
-  while( i>0 && fossil_isspace(zComment[i-1]) ){ i--; }
-  blob_resize(pComment, i);
+  prompt_for_user_comment(pComment, &prompt);
+  blob_reset(&prompt);
 }
 
 /*

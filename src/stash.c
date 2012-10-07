@@ -157,6 +157,20 @@ static int stash_create(void){
 
   zComment = find_option("comment", "m", 1);
   verify_all_options();
+  if( zComment==0 ){
+    Blob prompt;                       /* Prompt for stash comment */
+    Blob comment;                      /* User comment reply */
+    blob_zero(&prompt);
+    blob_append(&prompt,
+       "\n"
+       "# Enter a description of what is being stashed.  Lines beginning\n"
+       "# with \"#\" are ignored.  Stash comments are plain text except.\n"
+       "# newlines are not preserved.\n",
+       -1);
+    prompt_for_user_comment(&comment, &prompt);
+    blob_reset(&prompt);
+    zComment = blob_str(&comment);
+  }
   stashid = db_lget_int("stash-next", 1);
   db_lset_int("stash-next", stashid+1);
   vid = db_lget_int("checkout", 0);
@@ -269,7 +283,14 @@ static void stash_apply(int stashid, int nConflict){
 /*
 ** Show the diffs associate with a single stash.
 */
-static void stash_diff(int stashid, const char *zDiffCmd, u64 diffFlags){
+static void stash_diff(
+  int stashid,             /* The stash entry to diff */
+  const char *zDiffCmd,    /* Command used for diffing */
+  const char *zBinGlob,    /* GLOB pattern to determine binary files */
+  int fBaseline,           /* Diff against original baseline check-in if true */
+  int fIncludeBinary,      /* Do diffs against binary files */
+  u64 diffFlags            /* Other diff flags */
+){
   Stmt q;
   Blob empty;
   blob_zero(&empty);
@@ -282,46 +303,62 @@ static void stash_diff(int stashid, const char *zDiffCmd, u64 diffFlags){
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isLink = db_column_int(&q, 3);
+    int isBin1, isBin2;
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
-    Blob delta;
+    Blob delta, a, b, disk;
     if( rid==0 ){
-      db_ephemeral_blob(&q, 6, &delta);
+      db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew, diffFlags);
-      diff_file_mem(&empty, &delta, zNew, zDiffCmd, diffFlags);
+      isBin1 = 0;
+      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
+      diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
+                    zBinGlob, fIncludeBinary, diffFlags);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
-      if( file_wd_islink(zOPath) ){
-        blob_read_link(&delta, zOPath);
+      if( fBaseline==0 ){
+        if( file_wd_islink(zOPath) ){
+          blob_read_link(&a, zOPath);
+        }else{
+          blob_read_from_file(&a, zOPath);
+        }
       }else{
-        blob_read_from_file(&delta, zOPath);
+        content_get(rid, &a);
       }
       diff_print_index(zNew, diffFlags);
-      diff_file_mem(&delta, &empty, zOrig, zDiffCmd, diffFlags);
+      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
+      isBin2 = 0;
+      diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
+                    zBinGlob, fIncludeBinary, diffFlags);
     }else{
-      Blob a, b, disk;
       int isOrigLink = file_wd_islink(zOPath);
       db_ephemeral_blob(&q, 6, &delta);
-      if( isOrigLink ){
-        blob_read_link(&disk, zOPath);
-      }else{
-        blob_read_from_file(&disk, zOPath);        
+      if( fBaseline==0 ){
+        if( isOrigLink ){
+          blob_read_link(&disk, zOPath);
+        }else{
+          blob_read_from_file(&disk, zOPath);        
+        }
       }
       fossil_print("CHANGED %s\n", zNew);
       if( !isOrigLink != !isLink ){
         diff_print_index(zNew, diffFlags);
         diff_print_filenames(zOrig, zNew, diffFlags);
-        printf("cannot compute difference between symlink and regular file\n");
+        printf(DIFF_CANNOT_COMPUTE_SYMLINK);
       }else{
+        Blob *pBase = fBaseline ? &a : &disk;
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
-        diff_file_mem(&disk, &b, zNew, zDiffCmd, diffFlags);
+        isBin1 = fIncludeBinary ? 0 : looks_like_binary(pBase);
+        isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
+        diff_file_mem(fBaseline? &a : &disk, &b, isBin1, isBin2, zNew,
+                      zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
         blob_reset(&a);
         blob_reset(&b);
       }
-      blob_reset(&disk);
+      if( !fBaseline ) blob_reset(&disk);
     }
     blob_reset(&delta);
  }
@@ -381,6 +418,10 @@ static int stash_get_id(const char *zStashId){
 **     List all changes sets currently stashed.  Show information about
 **     individual files in each changeset if --detail or -l is used.
 **
+**  fossil stash show ?STASHID? ?DIFF-FLAGS?
+**
+**     Show the content of a stash
+**
 **  fossil stash pop
 **  fossil stash apply ?STASHID?
 **
@@ -406,6 +447,18 @@ static int stash_get_id(const char *zStashId){
 **
 **     Show diffs of the current working directory and what that
 **     directory would be if STASHID were applied.  
+**
+** SUMMARY:
+**  fossil stash
+**  fossil stash save ?-m COMMENT? ?FILES...?
+**  fossil stash snapshot ?-m COMMENT? ?FILES...?
+**  fossil stash list|ls  ?-l? ?--detail?
+**  fossil stash show ?STASHID? ?DIFF-OPTIONS?
+**  fossil stash pop
+**  fossil stash apply ?STASHID?
+**  fossil stash goto ?STASHID?
+**  fossil stash rm|drop ?STASHID? ?--all?
+**  fossil stash [g]diff ?STASHID? ?DIFF-OPTIONS?
 */
 void stash_cmd(void){
   const char *zDb;
@@ -415,6 +468,7 @@ void stash_cmd(void){
 
   undo_capture_command_line();
   db_must_be_within_tree();
+  db_open_config(0);
   db_begin_transaction();
   zDb = db_name("localdb");
   db_multi_exec(zStashInit, zDb, zDb);
@@ -550,19 +604,32 @@ void stash_cmd(void){
                   stashid);
     undo_finish();
   }else
-  if( memcmp(zCmd, "diff", nCmd)==0 ){
-    const char *zDiffCmd = diff_command_external(0);
-    u64 diffFlags = diff_options();
-    if( g.argc>4 ) usage("diff STASHID");
+  if( memcmp(zCmd, "diff", nCmd)==0
+   || memcmp(zCmd, "gdiff", nCmd)==0
+   || memcmp(zCmd, "show", nCmd)==0
+  ){
+    const char *zDiffCmd = 0;
+    const char *zBinGlob = 0;
+    int fIncludeBinary = 0;
+    u64 diffFlags;
+
+    if( find_option("tk",0,0)!=0 ){
+      db_close(0);
+      diff_tk((zCmd[0]=='s' ? "stash show" : "stash diff"), 3);
+      return;
+    }
+    if( find_option("internal","i",0)==0 ){
+      zDiffCmd = diff_command_external(0);
+    }
+    diffFlags = diff_options();
+    if( g.argc>4 ) usage(mprintf("%s STASHID", zCmd));
+    if( zDiffCmd ){
+      zBinGlob = diff_get_binary_glob();
+      fIncludeBinary = diff_include_binary_files();
+    }
     stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, diffFlags);
-  }else
-  if( memcmp(zCmd, "gdiff", nCmd)==0 ){
-    const char *zDiffCmd = diff_command_external(1);
-    u64 diffFlags = diff_options();
-    if( g.argc>4 ) usage("gdiff STASHID");
-    stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
-    stash_diff(stashid, zDiffCmd, diffFlags);
+    stash_diff(stashid, zDiffCmd, zBinGlob, zCmd[0]=='s', fIncludeBinary,
+               diffFlags);
   }else
   if( memcmp(zCmd, "help", nCmd)==0 ){
     g.argv[1] = "help";

@@ -597,8 +597,9 @@ int historical_version_of_file(
   const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
-  int *pIsLink,             /* Set to true if file is link. */
+  int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
+  int *pIsBin,             /* Set to true if file is binary */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
@@ -619,11 +620,16 @@ int historical_version_of_file(
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
     if( pFile ){
+      int rc;
       rid = uuid_to_rid(pFile->zUuid, 0);
       if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
       if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
       manifest_destroy(pManifest);
-      return content_get(rid, content);
+      rc = content_get(rid, content);
+      if( rc && pIsBin ){
+        *pIsBin = looks_like_binary(content);
+      }
+      return rc;
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
@@ -714,7 +720,7 @@ void revert_cmd(void){
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
     errCode = historical_version_of_file(zRevision, zFile, &record,
-                                         &isLink, &isExe,2);
+                                         &isLink, &isExe, 0, 2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);

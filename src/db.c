@@ -2016,6 +2016,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "case-sensitive",0,                0, 0, "on"                  },
   { "crnl-glob",     0,               16, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
+  { "diff-binary",   0,                0, 0, "on"                  },
   { "diff-command",  0,               16, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
   { "editor",        0,               16, 0, ""                    },
@@ -2040,6 +2041,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssh-command",   0,               32, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
+  { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
@@ -2108,6 +2110,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
 **                     Administration of the HTTP UI. Default: u.
+**
+**    diff-binary      If TRUE (the default), permit files that may be binary
+**                     or that match the "binary-glob" setting to be used with
+**                     external diff programs.  If FALSE, skip these files.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -2200,11 +2206,16 @@ struct stControlSettings const ctrlSettings[] = {
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
 **
-**    tcl              If enabled, Tcl integration commands will be added to
-**                     the TH1 interpreter, allowing Tcl expressions and
-**                     scripts to be evaluated from TH1.  Additionally, the
-**                     Tcl interpreter will be able to evaluate TH1 expressions
-**                     and scripts.  Default: off.
+**    tcl              If enabled (and Fossil was compiled with Tcl support),
+**                     Tcl integration commands will be added to the TH1
+**                     interpreter, allowing arbitrary Tcl expressions and
+**                     scripts to be evaluated from TH1.  Additionally, the Tcl
+**                     interpreter will be able to evaluate arbitrary TH1
+**                     expressions and scripts. Default: off.
+**
+**    tcl-setup        This is the setup script to be evaluated after creating
+**                     and initializing the Tcl interpreter.  By default, this
+**                     is empty and no extra setup is performed.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

@@ -40,6 +40,16 @@
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 
+/*
+** These error messages are shared in multiple locations.  They are defined
+** here for consistency.
+*/
+#define DIFF_CANNOT_COMPUTE_BINARY \
+    "cannot compute difference between binary files\n"
+
+#define DIFF_CANNOT_COMPUTE_SYMLINK \
+    "cannot compute difference between symlink and regular file\n"
+
 #endif /* INTERFACE */
 
 /*
@@ -158,6 +168,34 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   /* Return results */
   *pnLine = nLine;
   return a;
+}
+
+/*
+** Returns non-zero if the specified content appears to be binary or
+** contains a line that is too long.
+*/
+int looks_like_binary(Blob *pContent){
+  const char *z = blob_str(pContent);
+  int n = blob_size(pContent);
+  int i, j;
+
+  /* Count the number of lines.  Allocate space to hold
+  ** the returned array.
+  */
+  for(i=j=0; i<n; i++, j++){
+    int c = z[i];
+    if( c==0 ) return 1;  /* \000 byte in a file -> binary */
+    if( c=='\n' && z[i+1]!=0 ){
+      if( j>LENGTH_MASK ){
+        return 1;   /* Very long line -> binary */
+      }
+      j = 0;
+    }
+  }
+  if( j>LENGTH_MASK ){
+    return 1;  /* Very long line -> binary */
+  }
+  return 0;   /* No problems seen -> not binary */
 }
 
 /*
@@ -1501,10 +1539,10 @@ int *text_diff(
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
                            &c.nTo, ignoreEolWs);
   if( c.aFrom==0 || c.aTo==0 ){
-    free(c.aFrom);
-    free(c.aTo);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
     if( pOut ){
-      blob_appendf(pOut, "cannot compute difference between binary files\n");
+      blob_appendf(pOut, DIFF_CANNOT_COMPUTE_BINARY);
     }
     return 0;
   }
@@ -1523,9 +1561,9 @@ int *text_diff(
       int showLn = (diffFlags & DIFF_LINENO)!=0;
       contextDiff(&c, pOut, nContext, showLn, escHtml);
     }
-    free(c.aFrom);
-    free(c.aTo);
-    free(c.aEdit);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
+    fossil_free(c.aEdit);
     return 0;
   }else{
     /* If a context diff is not requested, then return the
@@ -1704,7 +1742,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   }
 
   /* Clear out the diff results */
-  free(p->c.aEdit);
+  fossil_free(p->c.aEdit);
   p->c.aEdit = 0;
   p->c.nEdit = 0;
   p->c.nEditAlloc = 0;
