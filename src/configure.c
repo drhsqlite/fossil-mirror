@@ -94,6 +94,7 @@ static struct {
 
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
+  { "tcl-rdonly",             CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
   { "tcl-setup",              CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
 #endif
 
