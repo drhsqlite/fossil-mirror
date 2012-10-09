@@ -468,7 +468,7 @@ static int submitTicketCmd(
   }
   if( *(char**)pUuid ){
     zUuid = db_text(0, 
-       "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", P("name")
+       "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%q*'", P("name")
     );
   }else{
     zUuid = db_text(0, "SELECT lower(hex(randomblob(20)))");

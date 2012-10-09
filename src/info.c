@@ -163,7 +163,7 @@ static void extraRepoInfo(void){
 **
 ** With no arguments, provide information about the current tree.
 ** If an argument is specified, provide information about the object
-** in the respository of the current tree that the argument refers
+** in the repository of the current tree that the argument refers
 ** to.  Or if the argument is the name of a repository, show
 ** information about that repository.
 **
@@ -232,7 +232,7 @@ static void showTags(int rid, const char *zNotGlob){
     "       value, datetime(tagxref.mtime,'localtime'), tagtype,"
     "       (SELECT uuid FROM blob WHERE rid=tagxref.origid AND rid!=%d)"
     "  FROM tagxref JOIN tag ON tagxref.tagid=tag.tagid"
-    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%s'"
+    " WHERE tagxref.rid=%d AND tagname NOT GLOB '%q'"
     " ORDER BY tagname /*sort*/", rid, rid, rid, zNotGlob
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -291,7 +291,7 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(const char *zFrom, const char *zTo, int diffFlags){
+static void append_diff(const char *zFrom, const char *zTo, u64	diffFlags){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -334,7 +334,7 @@ static void append_file_change_line(
   const char *zOld,     /* blob.uuid before change.  NULL for added files */
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
-  int diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
+  u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.Hyperlink ){
@@ -392,8 +392,8 @@ static void append_file_change_line(
 ** Construct an appropriate diffFlag for text_diff() based on query
 ** parameters and the to boolean arguments.
 */
-int construct_diff_flags(int showDiff, int sideBySide){
-  int diffFlags;
+u64 construct_diff_flags(int showDiff, int sideBySide){
+  u64 diffFlags;
   if( showDiff==0 ){
     diffFlags = 0;  /* Zero means do not show any diff */
   }else{
@@ -443,7 +443,7 @@ void ci_page(void){
   int isLeaf;
   int showDiff;        /* True to show diffs */
   int sideBySide;      /* True for side-by-side diffs */
-  int diffFlags;       /* Flag parameter for text_diff() */
+  u64 diffFlags;       /* Flag parameter for text_diff() */
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
@@ -467,7 +467,7 @@ void ci_page(void){
   isLeaf = is_a_leaf(rid);
   db_prepare(&q, 
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
-     "       datetime(omtime, 'localtime')"
+     "       datetime(omtime, 'localtime'), mtime"
      "  FROM blob, event"
      " WHERE blob.rid=%d"
      "   AND event.objid=%d",
@@ -482,7 +482,10 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
-    const char *zBranch;
+    char *zThisBranch;
+    double thisMtime;
+    int seenDiffTitle = 0;
+    
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
@@ -492,13 +495,11 @@ void ci_page(void){
     zEComment = db_text(0, 
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
-    zBranch = db_text("trunk",
-                   "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
-                   TAG_BRANCH, rid);
     zUser = db_column_text(&q, 2);
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     zOrigDate = db_column_text(&q, 4);
+    thisMtime = db_column_double(&q, 5);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -566,6 +567,58 @@ void ci_page(void){
         @  | %z(href("%R/timeline?r=%T",zTagName))%h(zTagName)</a>
       }
       db_finalize(&q);
+
+      /* Select a few other branches to diff against */
+      zThisBranch = db_text("trunk", "SELECT value FROM tagxref"
+                                     " WHERE tagid=%d AND tagtype>0"
+                                     "   AND rid=%d",
+                                     TAG_BRANCH, rid);
+
+      /* Find nearby leaves to offer to diff against */
+      db_prepare(&q,
+         "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
+         "  FROM leaf, event, tagxref, blob"
+         " WHERE event.mtime BETWEEN %.17g AND %.17g"
+         "   AND event.type='ci'"
+         "   AND event.objid=leaf.rid"
+         "   AND NOT %z"
+         "   AND tagxref.rid=event.objid"
+         "   AND tagxref.tagid=%d AND tagxref.tagtype>0"
+         "   AND tagxref.value!=%Q"
+         "   AND blob.rid=tagxref.rid"
+         " GROUP BY 1 ORDER BY 3",
+         thisMtime, thisMtime-7, thisMtime+7,
+         leaf_is_closed_sql("leaf.rid"),
+         TAG_BRANCH, zThisBranch
+      );
+      while( db_step(&q)==SQLITE_ROW ){
+        const char *zBr = db_column_text(&q, 0);
+        const char *zId = db_column_text(&q, 1);
+        if( !seenDiffTitle ){
+          @ <tr><th valign="top">Diffs:</th><td valign="top">
+          seenDiffTitle = 1;
+        }else{
+          @ |
+        }
+        @ %z(href("%R/vdiff?from=%S&to=%S",zId, zUuid))%h(zBr)</a>
+      }
+      db_finalize(&q);
+
+      if( fossil_strcmp(zThisBranch,"trunk")!=0 ){
+        if( !seenDiffTitle ){
+          @ <tr><th valign="top">Diffs:</th><td valign="top">
+          seenDiffTitle = 1;
+        }else{
+          @ |
+        }
+        @ %z(href("%R/vdiff?from=root:%S&to=%S",zUuid,zUuid))root of
+        @ this branch</a>
+      }
+      if( seenDiffTitle ){
+        @ </td></tr>
+      }
+
+      /* The Download: line */
       if( g.perm.Zip ){
         char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);
@@ -576,15 +629,6 @@ void ci_page(void){
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
-#if 0
-      if( isLeaf && fossil_strcmp(zBranch,"trunk")!=0 ){
-        @ </td></tr>
-        @ <tr><th>Diffs:</th><td>
-        @ %z(href("%R/vdiff?branch=%t",zBranch))Changes in %h(zBranch)</a>
-        @ | %z(href("%R/vdiff?from=trunk&to=%t",zBranch))Changes
-        @         from trunk</a>
-      }
-#endif
       @ </td></tr>
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
@@ -792,30 +836,57 @@ static Manifest *vdiff_parse_manifest(const char *zParam, int *pRid){
 /*
 ** Output a description of a check-in
 */
-void checkin_description(int rid){
+static void checkin_description(int rid){
   Stmt q;
   db_prepare(&q,
-    "SELECT datetime(event.mtime), coalesce(euser,user),"
+    "SELECT datetime(mtime), coalesce(euser,user),"
     "       coalesce(ecomment,comment), uuid,"
-    "       coalesce((SELECT value FROM tagxref"
-                    "  WHERE tagid=%d AND tagtype>0 AND rid=blob.rid),'trunk')"
+    "      (SELECT group_concat(substr(tagname,5), ', ') FROM tag, tagxref"
+    "        WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid"
+    "          AND tagxref.rid=blob.rid AND tagxref.tagtype>0)"
     "  FROM event, blob"
     " WHERE event.objid=%d AND type='ci'"
     "   AND blob.rid=%d",
-    TAG_BRANCH, rid, rid
+    rid, rid
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zUser = db_column_text(&q, 1);
-    const char *zCom = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
-    const char *zBranch = db_column_text(&q, 4);
-    @ Check-in
+    const char *zTagList = db_column_text(&q, 4);
+    Blob comment;
+    int wikiFlags = WIKI_INLINE;
+    if( db_get_boolean("timeline-block-markup", 0)==0 ){
+      wikiFlags |= WIKI_NOBLOCK;
+    }
     hyperlink_to_uuid(zUuid);
-    @ on branch <a href="%s(g.zTop)/timeline?r=%s(zBranch)&nd&c=%T(zDate)">
-    @   %s(zBranch)</a> - %w(zCom) by
-    hyperlink_to_user(zUser, zDate," on");
-    hyperlink_to_date(zDate, ".");
+    blob_zero(&comment);
+    db_column_blob(&q, 2, &comment);
+    wiki_convert(&comment, 0, wikiFlags);
+    blob_reset(&comment);
+    @ (user:
+    hyperlink_to_user(zUser,zDate,",");
+    if( zTagList && zTagList[0] && g.perm.Hyperlink ){
+      int i;
+      const char *z = zTagList;
+      Blob links;
+      blob_zero(&links);
+      while( z && z[0] ){
+        for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
+        blob_appendf(&links,
+              "%z%#h</a>%.2s",
+              href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+        );
+        if( z[i]==0 ) break;
+        z += i+2;
+      }
+      @ tags: %s(blob_str(&links)),
+      blob_reset(&links);
+    }else{
+      @ tags: %h(zTagList),
+    }
+    @ date:
+    hyperlink_to_date(zDate, ")");
   }
   db_finalize(&q);
 }
@@ -823,7 +894,16 @@ void checkin_description(int rid){
 
 /*
 ** WEBPAGE: vdiff
-** URL: /vdiff?from=UUID&to=UUID&detail=BOOLEAN;sbs=BOOLEAN
+** URL: /vdiff
+**
+** Query parameters:
+**
+**   from=TAG
+**   to=TAG
+**   branch=TAG
+**   detail=BOOLEAN
+**   sbs=BOOLEAN
+**
 **
 ** Show all differences between two checkins.  
 */
@@ -831,10 +911,12 @@ void vdiff_page(void){
   int ridFrom, ridTo;
   int showDetail = 0;
   int sideBySide = 0;
-  int diffFlags = 0;
+  u64 diffFlags = 0;
   Manifest *pFrom, *pTo;
   ManifestFile *pFileFrom, *pFileTo;
   const char *zBranch;
+  const char *zFrom;
+  const char *zTo;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -852,24 +934,29 @@ void vdiff_page(void){
   sideBySide = atoi(PD("sbs","1"));
   showDetail = atoi(PD("detail","0"));
   if( !showDetail && sideBySide ) showDetail = 1;
+  zFrom = P("from");
+  zTo = P("to");
   if (showDetail){
     style_submenu_element("Abstract", "abstract",
                           "%s/vdiff?from=%T&to=%T&detail=0&sbs=0",
-                          g.zTop, P("from"), P("to"));
+                          g.zTop, zFrom, zTo);
   }
   if( !showDetail || sideBySide ){
     style_submenu_element("Unified Diff", "udiff",
-                          "%s/vdiff?from=%T&to=%T&detail=1&sbs=0",
-                          g.zTop, P("from"), P("to"));
+                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=0",
+                          zFrom, zTo, showDetail);
   }
   if (!sideBySide){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%s/vdiff?from=%T&to=%T&detail=1&sbs=1",
-                          g.zTop, P("from"), P("to"));
+                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=1",
+                          zFrom, zTo, showDetail);
   }
   style_submenu_element("Patch", "patch",
                         "%s/vpatch?from=%T&to=%T",
                         g.zTop, P("from"), P("to"));
+  style_submenu_element("Invert", "invert",
+                        "%R/vdiff?from=%T&to=%T&detail=%d&sbs=%d",
+                        zTo, zFrom, showDetail, sideBySide);
   style_header("Check-in Differences");
   @ <h2>Difference From:</h2><blockquote>
   checkin_description(ridFrom);
@@ -1144,7 +1231,7 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
-  int diffFlags;
+  u64 diffFlags;
   const char *zStyle = "sbsdiff";
 
   login_check_credentials();
@@ -1223,10 +1310,23 @@ void rawartifact_page(void){
   Blob content;
 
   rid = name_to_rid_www("name");
-  zMime = PD("m","application/x-fossil-artifact");
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   if( rid==0 ) fossil_redirect_home();
+  zMime = P("m");
+  if( zMime==0 ){
+    char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
+                              " WHERE mlink.fid=%d"
+                              "   AND filename.fnid=mlink.fnid", rid);
+    if( !zFName ){
+      /* Look also at the attachment table */
+      zFName = db_text(0, "SELECT attachment.filename FROM attachment, blob"
+                          " WHERE blob.rid=%d"
+                          "   AND attachment.src=blob.uuid", rid);
+    }
+    if( zFName ) zMime = mimetype_from_name(zFName);
+    if( zMime==0 ) zMime = "application/x-fossil-artifact";
+  }
   content_get(rid, &content);
   cgi_set_content_type(zMime);
   cgi_set_content(&content);
@@ -1551,7 +1651,7 @@ void tinfo_page(void){
   zTktName[10] = 0;
   if( g.perm.Hyperlink ){
     @ <h2>Changes to ticket
-    @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid)))%s(zTktName)</a></h2>
+    @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid))%s(zTktName)</a></h2>
     @
     @ <p>By %h(pTktChng->zUser) on %s(zDate).  See also:
     @ %z(href("%R/artifact/%T",zUuid))artifact content</a>, and

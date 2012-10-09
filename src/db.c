@@ -67,7 +67,7 @@ static void db_err(const char *zFormat, ...){
   va_list ap;
   char *z;
   int rc = 1;
-  static const char zRebuildMsg[] = 
+  static const char zRebuildMsg[] =
       "If you have recently updated your fossil executable, you might\n"
       "need to run \"fossil all rebuild\" to bring the repository\n"
       "schemas up to date.\n";
@@ -94,7 +94,7 @@ static void db_err(const char *zFormat, ...){
                "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
     cgi_reply();
   }else{
-    fprintf(stderr, "%s: %s\n\n%s", fossil_nameofexe(), z, zRebuildMsg);
+    fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
   }
   free(z);
   db_force_rollback();
@@ -697,12 +697,27 @@ static sqlite3 *openDatabase(const char *zDbName){
   if( rc!=SQLITE_OK ){
     db_err(sqlite3_errmsg(db));
   }
-  sqlite3_busy_timeout(db, 5000); 
+  sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   return db;
 }
 
+
+/*
+** Detaches the zLabel database.
+*/
+void db_detach(const char *zLabel){
+  db_multi_exec("DETACH DATABASE %s", zLabel);
+}
+
+/*
+** zDbName is the name of a database file.  Attach zDbName using
+** the name zLabel.
+*/
+void db_attach(const char *zDbName, const char *zLabel){
+  db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+}
 
 /*
 ** zDbName is the name of a database file.  If no other database
@@ -715,7 +730,7 @@ static void db_open_or_attach(const char *zDbName, const char *zLabel){
     g.zMainDbType = zLabel;
     db_connection_init();
   }else{
-    db_multi_exec("ATTACH DATABASE %Q AS %s", zDbName, zLabel);
+    db_attach(zDbName, zLabel);
   }
 }
 
@@ -819,7 +834,7 @@ static int isValidLocalDb(const char *zDbName){
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
-  ** upgraded, this code can be safely deleted. 
+  ** upgraded, this code can be safely deleted.
   */
   if( !db_local_column_exists("vfile", "isexe") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
@@ -827,12 +842,12 @@ static int isValidLocalDb(const char *zDbName){
 
   /* If "islink"/"isLink" columns are missing from tables, then
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
-  ** After all users have upgraded, this code can be safely deleted. 
+  ** After all users have upgraded, this code can be safely deleted.
   */
   if( !db_local_column_exists("vfile", "islink") ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
   }
-  
+
   if( !db_local_column_exists("stashfile", "isLink") &&
        db_local_table_exists("stashfile") ){
     db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
@@ -842,7 +857,7 @@ static int isValidLocalDb(const char *zDbName){
        db_local_table_exists("undo") ){
     db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
   }
-  
+
   if( !db_local_column_exists("undo_vfile", "islink") &&
        db_local_table_exists("undo_vfile") ){
     db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
@@ -858,7 +873,7 @@ static int isValidLocalDb(const char *zDbName){
 ** For legacy, also look for ".fos".  The use of ".fos" is deprecated
 ** since "fos" has negative connotations in Hungarian, we are told.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and 
+** If no valid _FOSSIL_ or .fos file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
@@ -870,8 +885,8 @@ static int isValidLocalDb(const char *zDbName){
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
-  
+  static const char *const aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
+
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
@@ -1001,7 +1016,11 @@ rep_not_found:
 #ifdef FOSSIL_ENABLE_JSON
     g.json.resultCode = FSL_JSON_E_DB_NOT_FOUND;
 #endif
-    fossil_fatal("use --repository or -R to specify the repository database");
+    if( nArgUsed==0 ){
+      fossil_fatal("use --repository or -R to specify the repository database");
+    }else{
+      fossil_fatal("specify the repository name as a command-line argument");
+    }
   }
 }
 
@@ -1206,10 +1225,37 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 }
 
 /*
+** Return a pointer to a string that contains the RHS of an IN operator
+** that will select CONFIG table names that are in the list of control
+** settings.
+*/
+const char *db_setting_inop_rhs(){
+  Blob x;
+  int i;
+  const char *zSep = "";
+
+  blob_zero(&x);
+  blob_append(&x, "(", 1);
+  for(i=0; ctrlSettings[i].name; i++){
+    blob_appendf(&x, "%s'%s'", zSep, ctrlSettings[i].name);
+    zSep = ",";
+  }
+  blob_append(&x, ")", 1);
+  return blob_str(&x);
+}
+
+/*
 ** Fill an empty repository database with the basic information for a
 ** repository. This function is shared between 'create_repository_cmd'
 ** ('new') and 'reconstruct_cmd' ('reconstruct'), both of which create
 ** new repositories.
+**
+** The zTemplate parameter determines if the settings for the repository
+** should be copied from another repository.  If zTemplate is 0 then the
+** settings will have their normal default values.  If zTemplate is
+** non-zero, it is assumed that the caller of this function has already
+** attached a database using the label "settingSrc".  If not, the call to
+** this function will fail.
 **
 ** The zInitialDate parameter determines the date of the initial check-in
 ** that is automatically created.  If zInitialDate is 0 then no initial
@@ -1217,6 +1263,7 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
 ** not server and project codes are invented for this repository.
 */
 void db_initial_setup(
+  const char *zTemplate,       /* Repository from which to copy settings. */
   const char *zInitialDate,    /* Initial date of repository. (ex: "now") */
   const char *zDefaultUser,    /* Default user for the repository */
   int makeServerCodes          /* True to make new server & project codes */
@@ -1239,6 +1286,43 @@ void db_initial_setup(
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
   db_create_default_users(0, zDefaultUser);
   user_select();
+
+  if( zTemplate ){
+    /*
+    ** Copy all settings from the supplied template repository.
+    */
+    db_multi_exec(
+      "INSERT OR REPLACE INTO config"
+      " SELECT name,value,mtime FROM settingSrc.config"
+      "  WHERE (name IN %s OR name IN %s)"
+      "    AND name NOT GLOB 'project-*';",
+      configure_inop_rhs(CONFIGSET_ALL),
+      db_setting_inop_rhs()
+    );
+    db_multi_exec(
+      "REPLACE INTO reportfmt SELECT * FROM settingSrc.reportfmt;"
+    );
+
+    /*
+    ** Copy the user permissions, contact information, last modified
+    ** time, and photo for all the "system" users from the supplied
+    ** template repository into the one being setup.  The other columns
+    ** are not copied because they contain security information or other
+    ** data specific to the other repository.  The list of columns copied
+    ** by this SQL statement may need to be revised in the future.
+    */
+    db_multi_exec("UPDATE user SET"
+      "  cap = (SELECT u2.cap FROM settingSrc.user u2"
+      "         WHERE u2.login = user.login),"
+      "  info = (SELECT u2.info FROM settingSrc.user u2"
+      "          WHERE u2.login = user.login),"
+      "  mtime = (SELECT u2.mtime FROM settingSrc.user u2"
+      "           WHERE u2.login = user.login),"
+      "  photo = (SELECT u2.photo FROM settingSrc.user u2"
+      "           WHERE u2.login = user.login)"
+      " WHERE user.login IN ('anonymous','nobody','developer','reader');"
+    );
+  }
 
   if( zInitialDate ){
     int rid;
@@ -1275,7 +1359,17 @@ void db_initial_setup(
 ** admin user. This can be overridden using the -A|--admin-user
 ** parameter.
 **
+** By default, all settings will be initialized to their default values.
+** This can be overridden using the --template parameter to specify a
+** repository file from which to copy the initial settings.  When a template
+** repository is used, almost all of the settings accessible from the setup
+** page, either directly or indirectly, will be copied.  Normal users and
+** their associated permissions will not be copied; however, the system
+** default users "anonymous", "nobody", "reader", "developer", and their
+** associated permissions will be copied.
+**
 ** Options:
+**    --template      FILE      copy settings from repository file
 **    --admin-user|-A USERNAME  select given USERNAME as admin user
 **    --date-override DATETIME  use DATETIME as time of the initial checkin
 **
@@ -1283,9 +1377,11 @@ void db_initial_setup(
 */
 void create_repository_cmd(void){
   char *zPassword;
+  const char *zTemplate;      /* Repository from which to copy settings */
   const char *zDate;          /* Date of the initial check-in */
   const char *zDefaultUser;   /* Optional name of the default user */
 
+  zTemplate = find_option("template",0,1);
   zDate = find_option("date-override",0,1);
   zDefaultUser = find_option("admin-user","A",1);
   if( zDate==0 ) zDate = "now";
@@ -1295,13 +1391,15 @@ void create_repository_cmd(void){
   db_create_repository(g.argv[2]);
   db_open_repository(g.argv[2]);
   db_open_config(0);
+  if( zTemplate ) db_attach(zTemplate, "settingSrc");
   db_begin_transaction();
-  db_initial_setup(zDate, zDefaultUser, 1);
+  db_initial_setup(zTemplate, zDate, zDefaultUser, 1);
   db_end_transaction(0);
+  if( zTemplate ) db_detach("settingSrc");
   fossil_print("project-id: %s\n", db_get("project-code", 0));
   fossil_print("server-id:  %s\n", db_get("server-code", 0));
   zPassword = db_text(0, "SELECT pw FROM user WHERE login=%Q", g.zLogin);
-  fossil_print("admin-user: %s (initial password is \"%s\")\n", 
+  fossil_print("admin-user: %s (initial password is \"%s\")\n",
                g.zLogin, zPassword);
 }
 
@@ -1347,7 +1445,7 @@ static void db_sql_user(
 
 /*
 ** Implement the cgi() SQL function.  cgi() takes a an argument which is
-** a name of CGI query parameter. The value of that parameter is returned, 
+** a name of CGI query parameter. The value of that parameter is returned,
 ** if available. optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
@@ -1542,7 +1640,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
     const char *zName, *zValue;
   } *cacheEntry = 0;
   static struct _cacheEntry *cache = 0;
-  
+
   /* Look up name in cache */
   cacheEntry = cache;
   while( cacheEntry!=0 ){
@@ -1769,7 +1867,7 @@ void db_record_repository_filename(const char *zName){
       blob_str(&localRoot), blob_str(&full)
     );
     db_swap_connections();
-    db_optional_sql("repository", 
+    db_optional_sql("repository",
         "REPLACE INTO config(name,value,mtime)"
         "VALUES('ckout:%q',1,now())",
         blob_str(&localRoot)
@@ -1918,6 +2016,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "case-sensitive",0,                0, 0, "on"                  },
   { "crnl-glob",     0,               16, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
+  { "diff-binary",   0,                0, 0, "on"                  },
   { "diff-command",  0,               16, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
   { "editor",        0,               16, 0, ""                    },
@@ -1943,6 +2042,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssh-command",   0,               32, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
+  { "tcl-setup",     0,               40, 0, ""                    },
 #endif
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
@@ -1969,7 +2069,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
-**                     (existing links in repository created on Unix become 
+**                     (existing links in repository created on Unix become
 **                     plain-text files with link destination path inside).
 **                     Default: off
 **
@@ -2011,6 +2111,10 @@ struct stControlSettings const ctrlSettings[] = {
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
 **                     Administration of the HTTP UI. Default: u.
+**
+**    diff-binary      If TRUE (the default), permit files that may be binary
+**                     or that match the "binary-glob" setting to be used with
+**                     external diff programs.  If FALSE, skip these files.
 **
 **    diff-command     External command to run when performing a diff.
 **                     If undefined, the internal text diff will be used.
@@ -2103,11 +2207,16 @@ struct stControlSettings const ctrlSettings[] = {
 **    ssh-command      Command used to talk to a remote machine with
 **                     the "ssh://" protocol.
 **
-**    tcl              If enabled, Tcl integration commands will be added to
-**                     the TH1 interpreter, allowing Tcl expressions and
-**                     scripts to be evaluated from TH1.  Additionally, the
-**                     Tcl interpreter will be able to evaluate TH1 expressions
-**                     and scripts.  Default: off.
+**    tcl              If enabled (and Fossil was compiled with Tcl support),
+**                     Tcl integration commands will be added to the TH1
+**                     interpreter, allowing arbitrary Tcl expressions and
+**                     scripts to be evaluated from TH1.  Additionally, the Tcl
+**                     interpreter will be able to evaluate arbitrary TH1
+**                     expressions and scripts. Default: off.
+**
+**    tcl-setup        This is the setup script to be evaluated after creating
+**                     and initializing the Tcl interpreter.  By default, this
+**                     is empty and no extra setup is performed.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
@@ -2117,7 +2226,7 @@ struct stControlSettings const ctrlSettings[] = {
 ** Options:
 **   --global   set or unset the given property globally instead of
 **              setting or unsetting it for the open repository only.
-** 
+**
 ** See also: configuration
 */
 void setting_cmd(void){
@@ -2205,7 +2314,7 @@ char *db_timespan_name(double rSpan){
 void test_timespan_cmd(void){
   double rDiff;
   if( g.argc!=3 ) usage("TIMESTAMP");
-  sqlite3_open(":memory:", &g.db);  
+  sqlite3_open(":memory:", &g.db);
   rDiff = db_double(0.0, "SELECT julianday('now') - julianday(%Q)", g.argv[2]);
   fossil_print("Time differences: %s\n", db_timespan_name(rDiff));
   sqlite3_close(g.db);

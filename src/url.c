@@ -392,6 +392,7 @@ void url_get_password_if_needed(void){
   if( (g.urlUser && g.urlUser[0])
    && (g.urlPasswd==0 || g.urlPasswd[0]==0)
    && isatty(fileno(stdin)) 
+   && g.urlIsSsh==0
   ){
     url_prompt_for_password();
   }

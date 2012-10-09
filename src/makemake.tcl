@@ -111,6 +111,7 @@ set src {
   wiki
   wikiformat
   winhttp
+  wysiwyg
   xfer
   xfersetup
   zip
@@ -304,6 +305,13 @@ set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
 	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+
+#
+# The list of all the targets that do not correspond to real files. This stops
+# 'make' from getting confused when someone makes an error in a rule.
+#
+
+.PHONY: all install test clean
 }
 
 close $output_file
@@ -312,7 +320,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.mingw
+# Begin win/Makefile.mingw output
 #
 puts "building ../win/Makefile.mingw"
 set output_file [open ../win/Makefile.mingw w]
@@ -328,8 +336,19 @@ writeln {#!/usr/bin/make
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-# This is a makefile for us on windows using MinGW.
+# This is a makefile for use on Windows/Linux/Darwin/Cygwin using MinGW or
+# MinGW-w64.
 #
+
+#### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
+#    By default, this is an empty string (i.e. use the native compiler).
+#
+PREFIX =
+# PREFIX = mingw32-
+# PREFIX = i686-pc-mingw32-
+# PREFIX = i686-w64-mingw32-
+# PREFIX = x86_64-w64-mingw32-
+
 #### The toplevel directory of the source tree.  Fossil can be built
 #    in a directory that is separate from the source tree.  Just change
 #    the following to point from the build directory to the src/ folder.
@@ -358,6 +377,10 @@ BCC = gcc
 #### Enable scripting support via Tcl/Tk
 #
 # FOSSIL_ENABLE_TCL = 1
+
+#### Load Tcl using the stubs mechanism
+#
+# FOSSIL_ENABLE_TCL_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
@@ -407,7 +430,11 @@ TCLLIBDIR = $(TCLDIR)/lib
 
 #### Tcl: Which Tcl library do we want to use (8.4, 8.5, 8.6, etc)?
 #
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIBTCL = -ltclstub86
+else
 LIBTCL = -ltcl86
+endif
 
 #### C Compile and options for use in building executables that
 #    will run on the target platform.  This is usually the same
@@ -415,61 +442,86 @@ LIBTCL = -ltcl86
 #    the finished binary for fossil.  The BCC compiler above is used
 #    for building intermediate code-generator tools.
 #
-TCC = gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+
+#### Compile resources for use in building executables that will run
+#    on the target platform.
+#
+RCC = $(PREFIX)windres -I$(SRCDIR) -I$(ZINCDIR)
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -L$(OPENSSLLIBDIR) -I$(OPENSSLINCDIR)
+RCC += -I$(OPENSSLINCDIR)
 endif
 
 # With Tcl support
 ifdef FOSSIL_ENABLE_TCL
 ifdef FOSSIL_TCL_SOURCE
 TCC += -L$(TCLSRCDIR)/win -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
+RCC += -I$(TCLSRCDIR)/generic -I$(TCLSRCDIR)/win
 else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
+RCC += -I$(TCLINCDIR)
 endif
 endif
 
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
+RCC += -DFOSSIL_ENABLE_SSL=1
 endif
 
-# With Tcl support (statically linked)
+# With Tcl support
 ifdef FOSSIL_ENABLE_TCL
-TCC += -DFOSSIL_ENABLE_TCL=1 -DSTATIC_BUILD
+TCC += -DFOSSIL_ENABLE_TCL=1
+RCC += -DFOSSIL_ENABLE_TCL=1
+# Either statically linked or via stubs
+ifdef FOSSIL_ENABLE_TCL_STUBS
+TCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+RCC += -DFOSSIL_ENABLE_TCL_STUBS=1 -DUSE_TCL_STUBS
+else
+TCC += -DSTATIC_BUILD
+RCC += -DSTATIC_BUILD
+endif
 endif
 
 # With JSON support
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
+RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
-#### Extra arguments for linking the finished binary.  Fossil needs
-#    to link against the Z-Lib compression library.  There are no
-#    other mandatory dependencies.  We add the -static option here
-#    so that we can build a static executable that will run in a
-#    chroot jail.
+#### We add the -static option here so that we can build a static
+#    executable that will run in a chroot jail.
 #
 LIB = -static
-LIB += -lmingwex -lz
 
-# OpenSSL: Add the necessary libaries required, if enabled.
+# OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
 endif
 
-# Tcl: Add the necessary libaries required, if enabled.
+# Tcl: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_TCL
 LIB += $(LIBTCL)
 endif
+
+#### Extra arguments for linking the finished binary.  Fossil needs
+#    to link against the Z-Lib compression library.  There are no
+#    other mandatory dependencies.
+#
+LIB += -lmingwex -lz
 
 #### These libraries MUST appear in the same order as they do for Tcl
 #    or linking with it will not work (exact reason unknown).
 #
 ifdef FOSSIL_ENABLE_TCL
+ifdef FOSSIL_ENABLE_TCL_STUBS
+LIB += -lkernel32 -lws2_32
+else
 LIB += -lnetapi32 -lkernel32 -luser32 -ladvapi32 -lws2_32
+endif
 else
 LIB += -lkernel32 -lws2_32
 endif
@@ -508,25 +560,64 @@ foreach s [lsort $src] {
 }
 writeln "\n"
 writeln "APPNAME = ${name}.exe"
-writeln {TRANSLATE   = $(OBJDIR)/translate.exe
-MAKEHEADERS = $(OBJDIR)/makeheaders.exe
-MKINDEX     = $(OBJDIR)/mkindex.exe
-VERSION     = $(OBJDIR)/version.exe
-}
+writeln {
+#### If the USE_WINDOWS variable exists, it is assumed that we are building
+#    inside of a Windows-style shell; otherwise, it is assumed that we are
+#    building inside of a Unix-style shell.  Note that the "move" command is
+#    broken when attempting to use it from the Windows shell via MinGW make
+#    because the SHELL variable is only used for certain commands that are
+#    recognized internally by make.
+#
+ifdef USE_WINDOWS
+TRANSLATE   = $(subst /,\,$(OBJDIR)/translate)
+MAKEHEADERS = $(subst /,\,$(OBJDIR)/makeheaders)
+MKINDEX     = $(subst /,\,$(OBJDIR)/mkindex)
+VERSION     = $(subst /,\,$(OBJDIR)/version)
+CP          = copy
+MV          = copy
+RM          = del /Q
+MKDIR       = -mkdir
+RMDIR       = rmdir /S /Q
+else
+TRANSLATE   = $(OBJDIR)/translate
+MAKEHEADERS = $(OBJDIR)/makeheaders
+MKINDEX     = $(OBJDIR)/mkindex
+VERSION     = $(OBJDIR)/version
+CP          = cp
+MV          = mv
+RM          = rm -f
+MKDIR       = -mkdir -p
+RMDIR       = rm -rf
+endif}
 
 writeln {
 all:	$(OBJDIR) $(APPNAME)
 
-$(OBJDIR)/icon.o:	$(SRCDIR)/../win/icon.rc
-	cp $(SRCDIR)/../win/icon.rc $(OBJDIR)
-	windres $(OBJDIR)/icon.rc -o $(OBJDIR)/icon.o
+$(OBJDIR)/fossil.o:	$(SRCDIR)/../win/fossil.rc $(OBJDIR)/VERSION.h
+ifdef USE_WINDOWS
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.rc) $(subst /,\,$(OBJDIR))
+	$(CP) $(subst /,\,$(SRCDIR)\..\win\fossil.ico) $(subst /,\,$(OBJDIR))
+else
+	$(CP) $(SRCDIR)/../win/fossil.rc $(OBJDIR)
+	$(CP) $(SRCDIR)/../win/fossil.ico $(OBJDIR)
+endif
+	$(RCC) $(OBJDIR)/fossil.rc -o $(OBJDIR)/fossil.o
 
-install:	$(APPNAME)
-	mkdir -p $(INSTALLDIR)
-	mv $(APPNAME) $(INSTALLDIR)
+install:	$(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(INSTALLDIR))
+	$(MV) $(subst /,\,$(APPNAME)) $(subst /,\,$(INSTALLDIR))
+else
+	$(MKDIR) $(INSTALLDIR)
+	$(MV) $(APPNAME) $(INSTALLDIR)
+endif
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+ifdef USE_WINDOWS
+	$(MKDIR) $(subst /,\,$(OBJDIR))
+else
+	$(MKDIR) $(OBJDIR)
+endif
 
 $(OBJDIR)/translate:	$(SRCDIR)/translate.c
 	$(BCC) -o $(OBJDIR)/translate $(SRCDIR)/translate.c
@@ -560,8 +651,8 @@ ifdef FOSSIL_ENABLE_TCL
 EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
-	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/icon.o
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
 # an executable named "manifest" out of the file named "manifest.c"
@@ -569,16 +660,17 @@ $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/icon.o
 $(SRCDIR)/../manifest:
 	# noop
 
-# Requires MSYS to be installed in addition to the MinGW, for the "rm"
-# command.  "del" will not work here because it is not a separate command
-# but a MSDOS-shell builtin.
-#
 clean:
-	rm -rf $(OBJDIR) $(APPNAME)
+ifdef USE_WINDOWS
+	$(RM) $(subst /,\,$(APPNAME))
+	$(RMDIR) $(subst /,\,$(OBJDIR))
+else
+	$(RM) $(APPNAME)
+	$(RMDIR) $(OBJDIR)
+endif
 
 setup: $(OBJDIR) $(APPNAME)
 	$(MAKENSIS) ./fossil.nsi
-
 }
 
 set mhargs {}
@@ -590,13 +682,12 @@ append mhargs " \$(SRCDIR)/sqlite3.h"
 append mhargs " \$(SRCDIR)/th.h"
 append mhargs " \$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
-writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@"
+writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
 writeln "\t\$(MAKEHEADERS) $mhargs"
-writeln "\techo Done >\$(OBJDIR)/headers"
-writeln ""
-writeln "\$(OBJDIR)/headers: Makefile"
-writeln "Makefile:"
+writeln "\techo Done >\$(OBJDIR)/headers\n"
+writeln "\$(OBJDIR)/headers: Makefile\n"
+writeln "Makefile:\n"
 set extra_h(main) \$(OBJDIR)/page_index.h
 
 foreach s [lsort $src] {
@@ -604,7 +695,7 @@ foreach s [lsort $src] {
   writeln "\t\$(TRANSLATE) \$(SRCDIR)/$s.c >\$(OBJDIR)/${s}_.c\n"
   writeln "\$(OBJDIR)/$s.o:\t\$(OBJDIR)/${s}_.c \$(OBJDIR)/$s.h $extra_h($s) \$(SRCDIR)/config.h"
   writeln "\t\$(XTCC) -o \$(OBJDIR)/$s.o -c \$(OBJDIR)/${s}_.c\n"
-  writeln "$s.h:\t\$(OBJDIR)/headers"
+  writeln "\$(OBJDIR)/${s}.h:\t\$(OBJDIR)/headers\n"
 }
 
 
@@ -631,16 +722,15 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_lang.c -o \$(OBJDIR)/th_lang.o\n"
 writeln {ifdef FOSSIL_ENABLE_TCL
 $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 	$(XTCC) -c $(SRCDIR)/th_tcl.c -o $(OBJDIR)/th_tcl.o
-endif
-}
+endif}
 
 close $output_file
 #
-# End of the main.mk output
+# End of the win/Makefile.mingw output
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.dmc
+# Begin win/Makefile.dmc output
 #
 puts "building ../win/Makefile.dmc"
 set output_file [open ../win/Makefile.dmc w]
@@ -791,7 +881,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.msc
+# Begin win/Makefile.msc output
 #
 puts "building ../win/Makefile.msc"
 set output_file [open ../win/Makefile.msc w]
@@ -951,7 +1041,7 @@ close $output_file
 ##############################################################################
 ##############################################################################
 ##############################################################################
-# Begin win/Makefile.PellesCGMake
+# Begin win/Makefile.PellesCGMake output
 #
 puts "building ../win/Makefile.PellesCGMake"
 set output_file [open ../win/Makefile.PellesCGMake w]

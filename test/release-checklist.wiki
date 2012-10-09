@@ -39,7 +39,7 @@ Compile for all of the following platforms:
 </ol>
 
 <li><p>
-Run at least one occurrence of the the following commands on every
+Run at least one occurrence of the following commands on every
 platform:
 <ol type="a">
 <li> <b>fossil rebuild</b>

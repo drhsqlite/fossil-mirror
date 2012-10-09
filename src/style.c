@@ -162,6 +162,26 @@ static int submenuCompare(const void *a, const void *b){
   return fossil_strcmp(A->zLabel, B->zLabel);
 }
 
+/* Use this for the $current_page variable if it is not NULL.  If it is
+** NULL then use g.zPath.
+*/
+static char *local_zCurrentPage = 0;
+
+/*
+** Set the desired $current_page to something other than g.zPath
+*/
+void style_set_current_page(const char *zFormat, ...){
+  fossil_free(local_zCurrentPage);
+  if( zFormat==0 ){
+    local_zCurrentPage = 0;
+  }else{
+    va_list ap;
+    va_start(ap, zFormat);
+    local_zCurrentPage = vmprintf(zFormat, ap);
+    va_end(ap);
+  }
+}
+
 /*
 ** Draw the header.
 */
@@ -187,7 +207,7 @@ void style_header(const char *zTitleFormat, ...){
   Th_Store("baseurl", g.zBaseURL);
   Th_Store("home", g.zTop);
   Th_Store("index_page", db_get("index-page","/home"));
-  Th_Store("current_page", g.zPath);
+  Th_Store("current_page", local_zCurrentPage ? local_zCurrentPage : g.zPath);
   Th_Store("release_version", RELEASE_VERSION);
   Th_Store("manifest_version", MANIFEST_VERSION);
   Th_Store("manifest_date", MANIFEST_DATE);
@@ -205,7 +225,8 @@ void style_header(const char *zTitleFormat, ...){
   sideboxUsed = 0;
 
   /* Make the gebi(x) function available as an almost-alias for
-  ** document.getElementById(x) (except that it throws if the element is not found).
+  ** document.getElementById(x) (except that it throws an error
+  ** if the element is not found).
   **
   ** Maintenance note: this function must of course be available
   ** before it is called. It "should" go in the HEAD so that client
@@ -318,6 +339,7 @@ void style_sidebox_end(void){
 const char zDefaultHeader[] = 
 @ <html>
 @ <head>
+@ <base href="$baseurl/$current_page" />
 @ <title>$<project_name>: $<title></title>
 @ <link rel="alternate" type="application/rss+xml" title="RSS Feed"
 @       href="$home/timeline.rss" />
@@ -342,30 +364,30 @@ const char zDefaultHeader[] =
 @ <th1>
 @ html "<a href='$home$index_page'>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href='$home/timeline'>Timeline</a>\n"
+@   html "<a href='timeline'>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='$home/dir?ci=tip'>Files</a>\n"
+@   html "<a href='dir?ci=tip'>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href='$home/brlist'>Branches</a>\n"
-@   html "<a href='$home/taglist'>Tags</a>\n"
+@   html "<a href='brlist'>Branches</a>\n"
+@   html "<a href='taglist'>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href='$home/reportlist'>Tickets</a>\n"
+@   html "<a href='reportlist'>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href='$home/wiki'>Wiki</a>\n"
+@   html "<a href='wiki'>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href='$home/setup'>Admin</a>\n"
+@   html "<a href='setup'>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href='$home/setup_ulist'>Users</a>\n"
+@   html "<a href='setup_ulist'>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href='$home/login'>Logout</a>\n"
+@   html "<a href='login'>Logout</a>\n"
 @ } else {
-@   html "<a href='$home/login'>Login</a>\n"
+@   html "<a href='login'>Login</a>\n"
 @ }
 @ </th1></div>
 ;
@@ -445,6 +467,8 @@ const char zDefaultCSS[] =
 @   text-align: center;
 @   letter-spacing: 1px;
 @   background-color: #558195;
+@   border-top-left-radius: 8px;
+@   border-top-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -470,7 +494,9 @@ const char zDefaultCSS[] =
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
-@   padding: 0ex 1ex 0ex 2ex;
+@   padding: 0ex 1ex 1ex 1ex;
+@   border: solid #aaa;
+@   border-width: 1px;
 @ }
 @
 @ /* Some pages have section dividers */
@@ -501,10 +527,11 @@ const char zDefaultCSS[] =
 @ div.footer {
 @   clear: both;
 @   font-size: 0.8em;
-@   margin-top: 12px;
 @   padding: 5px 10px 5px 10px;
 @   text-align: right;
 @   background-color: #558195;
+@   border-bottom-left-radius: 8px;
+@   border-bottom-right-radius: 8px;
 @   color: white;
 @ }
 @
@@ -548,7 +575,7 @@ const struct strctCssDefaults {
     @   background-color: white;
     @   border-width: medium;
     @   border-style: double;
-    @   margin: 10;
+    @   margin: 10px;
   },
   { "div.sideboxTitle",
     "The nomenclature title in sideboxes for branches,..",
@@ -571,14 +598,12 @@ const struct strctCssDefaults {
   },
   { "table.timelineTable",
     "the format for the timeline data table",
-    @   cellspacing: 0;
     @   border: 0;
-    @   cellpadding: 0
   },
   { "td.timelineTableCell",
     "the format for the timeline data cells",
-    @   valign: top;
-    @   align: left;
+    @   vertical-align: top;
+    @   text-align: left;
   },
   { "span.timelineLeaf",
     "the format for the timeline leaf marks",

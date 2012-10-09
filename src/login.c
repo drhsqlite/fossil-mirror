@@ -1443,10 +1443,10 @@ void login_group_join(
   sqlite3_close(pOther);
   if( rc ) return;
 
-  /* Attach the other respository.  Make sure the username/password is
+  /* Attach the other repository.  Make sure the username/password is
   ** valid and has Setup permission.
   */
-  db_multi_exec("ATTACH %Q AS other", zRepo);
+  db_attach(zRepo, "other");
   zOtherProjCode = db_text("x", "SELECT value FROM other.config"
                                 " WHERE name='project-code'");
   zPwHash = sha1_shared_secret(zPassword, zLogin, zOtherProjCode);
@@ -1456,7 +1456,7 @@ void login_group_join(
     "   AND (pw=%Q OR pw=%Q)",
     zLogin, zPassword, zPwHash)
   ){
-    db_multi_exec("DETACH other");
+    db_detach("other");
     *pzErrMsg = "The supplied username/password does not correspond to a"
                 " user Setup permission on the other repository.";
     return;

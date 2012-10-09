@@ -59,6 +59,15 @@ void setup_page(void){
   }
 
   style_header("Server Administration");
+
+  /* Make sure the header contains <base href="...">.   Issue a warning
+  ** if it does not. */
+  if( !cgi_header_contains("<base href=") ){
+    @ <p class="generalError"><b>Configuration Error:</b> Please add
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
+  }
+
   @ <table border="0" cellspacing="7">
   setup_menu_entry("Users", "setup_ulist",
     "Grant privileges to individual users.");
@@ -871,9 +880,11 @@ static void textarea_attribute(
     z = zQ;
   }
   if( rows>0 && cols>0 ){
-    @ <textarea name="%s(zQP)" rows="%d(rows)" cols="%d(cols)">%h(z)</textarea>
-    if (zLabel && *zLabel)
+    @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
+    @ cols="%d(cols)">%h(z)</textarea>
+    if (zLabel && *zLabel){
       @ <span class="textareaLabel">%s(zLabel)</span>
+    }
   }
 }
 
@@ -943,7 +954,7 @@ void setup_access(void){
   @ <hr />
   entry_attribute("Login expiration time", 6, "cookie-expire", "cex", "8766");
   @ <p>The number of hours for which a login is valid.  This must be a
-  @ positive number.  The default is 8760 hours which is approximately equal
+  @ positive number.  The default is 8766 hours which is approximately equal
   @ to a year.</p>
 
   @ <hr />
@@ -1120,6 +1131,8 @@ void setup_login_group(void){
 ** WEBPAGE: setup_timeline
 */
 void setup_timeline(void){
+  double tmDiff;
+  char zTmDiff[20];
   login_check_credentials();
   if( !g.perm.Setup ){
     login_needed();
@@ -1140,7 +1153,22 @@ void setup_timeline(void){
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or
-  @ Zulu) instead of in local time.</p>
+  @ Zulu) instead of in local time.  On this server, local time is currently
+  g.fTimeFormat = 2;
+  tmDiff = db_double(0.0, "SELECT julianday('now')");
+  tmDiff = db_double(0.0, 
+        "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
+        tmDiff, tmDiff);
+  sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", tmDiff);
+  if( strcmp(zTmDiff, "0.0")==0 ){
+    @ the same as UTC and so this setting will make no difference in
+    @ the display.</p>
+  }else if( tmDiff<0.0 ){
+    sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", -tmDiff);
+    @ %s(zTmDiff) hours behind UTC.</p>
+  }else{
+    @ %s(zTmDiff) hours ahead of UTC.</p>
+  }
 
   @ <hr />
   onoff_attribute("Show version differences by default",
@@ -1239,10 +1267,16 @@ void setup_config(void){
   @ <p>Give your project a name so visitors know what this site is about.
   @ The project name will also be used as the RSS feed title.</p>
   @ <hr />
-  textarea_attribute("Project Description", 5, 60,
+  textarea_attribute("Project Description", 3, 80,
                      "project-description", "pd", "");
   @ <p>Describe your project. This will be used in page headers for search
   @ engines as well as a short RSS description.</p>
+  @ <hr />
+  onoff_attribute("Enable WYSIWYG Wiki Editing",
+                  "wysiwyg-wiki", "wysiwyg-wiki", 0);
+  @ <p>Enable what-you-see-is-what-you-get (WYSIWYG) editing of wiki pages.
+  @ The WYSIWYG editor generates HTML instead of markup, which makes
+  @ subsequent manual editing more difficult.</p>
   @ <hr />
   entry_attribute("Index Page", 60, "index-page", "idxpg", "/home");
   @ <p>Enter the pathname of the page to display when the "Home" menu
@@ -1299,10 +1333,9 @@ void setup_editcss(void){
     cgi_replace_parameter("css", zDefaultCSS);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
-  }else{
-    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
   }
   if( P("submit")!=0 ){
+    textarea_attribute(0, 0, 0, "css", "css", zDefaultCSS);
     db_end_transaction(0);
     cgi_redirect("setup_editcss");
   }
@@ -1310,7 +1343,7 @@ void setup_editcss(void){
   @ <form action="%s(g.zTop)/setup_editcss" method="post"><div>
   login_insert_csrf_secret();
   @ Edit the CSS below:<br />
-  textarea_attribute("", 40, 80, "css", "css", zDefaultCSS);
+  textarea_attribute("", 35, 80, "css", "css", zDefaultCSS);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1341,16 +1374,39 @@ void setup_header(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='header'");
     cgi_replace_parameter("header", zDefaultHeader);
-  }else{
+  }else if( P("submit")!=0 ){
     textarea_attribute(0, 0, 0, "header", "header", zDefaultHeader);
+  }else if( P("fixbase")!=0 ){
+    const char *z = db_get("header", (char*)zDefaultHeader);
+    char *zHead = strstr(z, "<head>");
+    if( strstr(z, "<base href=")==0 && zHead!=0 ){
+      char *zNew;
+      char *zTail = &zHead[6];
+      while( fossil_isspace(zTail[0]) ) zTail++;
+      zNew = mprintf("%.*s\n<base href=\"$baseurl/$current_page\" />\n%s",
+                     zHead+6-z, z, zTail);
+      cgi_replace_parameter("header", zNew);
+      db_set("header", zNew, 0);
+    }
   }
+
   style_header("Edit Page Header");
-  @ <form action="%s(g.zTop)/setup_header" method="post"><div>
+  @ <form action="%R/setup_header" method="post"><div>
+
+  /* Make sure the header contains <base href="...">.   Issue a warning
+  ** if it does not. */
+  if( !cgi_header_contains("<base href=") ){
+    @ <p class="generalError">Please add
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;head&gt;</tt> in the header!
+    @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
+  }
+
   login_insert_csrf_secret();
   @ <p>Edit HTML text with embedded TH1 (a TCL dialect) that will be used to
   @ generate the beginning of every page through start of the main
   @ menu.</p>
-  textarea_attribute("", 40, 80, "header", "header", zDefaultHeader);
+  textarea_attribute("", 35, 80, "header", "header", zDefaultHeader);
   @ <br />
   @ <input type="submit" name="submit" value="Apply Changes" />
   @ <input type="submit" name="clear" value="Revert To Default" />
@@ -1379,9 +1435,8 @@ void setup_footer(void){
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name='footer'");
     cgi_replace_parameter("footer", zDefaultFooter);
-  }else{
-    textarea_attribute(0, 0, 0, "footer", "footer", zDefaultFooter);
   }
+
   style_header("Edit Page Footer");
   @ <form action="%s(g.zTop)/setup_footer" method="post"><div>
   login_insert_csrf_secret();
@@ -1415,9 +1470,9 @@ void setup_adunit(void){
   db_begin_transaction();
   if( P("clear")!=0 ){
     db_multi_exec("DELETE FROM config WHERE name GLOB 'adunit*'");
-  }else{
-    textarea_attribute(0, 0, 0, "adunit", "adunit", "");
+    cgi_replace_parameter("adunit","");
   }
+
   style_header("Edit Ad Unit");
   @ <form action="%s(g.zTop)/setup_adunit" method="post"><div>
   login_insert_csrf_secret();
@@ -1561,6 +1616,29 @@ void setup_logo(void){
   db_end_transaction(0);
 }
 
+/*
+** Prevent the RAW SQL feature from being used to ATTACH a different
+** database and query it.
+**
+** Actually, the RAW SQL feature only does a single statement per request.
+** So it is not possible to ATTACH and then do a separate query.  This
+** routine is not strictly necessary, therefore.  But it does not hurt
+** to be paranoid.
+*/
+int raw_sql_query_authorizer(
+  void *pError,
+  int code,
+  const char *zArg1,
+  const char *zArg2,
+  const char *zArg3,
+  const char *zArg4
+){
+  if( code==SQLITE_ATTACH ){
+    return SQLITE_DENY;
+  }
+  return SQLITE_OK;
+}
+
 
 /*
 ** WEBPAGE: admin_sql
@@ -1579,6 +1657,9 @@ void sql_page(void){
   @ <p><b>Caution:</b> There are no restrictions on the SQL that can be
   @ run by this page.  You can do serious and irrepairable damage to the
   @ repository.  Proceed with extreme caution.</p>
+  @
+  @ <p>Only a the first statement in the entry box will be run.
+  @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
   if( g.configOpen ){
@@ -1618,6 +1699,7 @@ void sql_page(void){
     int i;
     @ <hr />
     login_verify_csrf_secret();
+    sqlite3_set_authorizer(g.db, raw_sql_query_authorizer, 0);
     rc = sqlite3_prepare_v2(g.db, zQ, -1, &pStmt, &zTail);
     if( rc!=SQLITE_OK ){
       @ <div class="generalError">%h(sqlite3_errmsg(g.db))</div>

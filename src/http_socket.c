@@ -29,11 +29,10 @@
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
-#  include <windows.h>           /* for Sleep once server works again */
-#  define sleep Sleep            /* windows does not have sleep, but Sleep */
 #  if defined(__MINGW32__)
 #    include <ws2tcpip.h>          
 #  endif
+#  include <windows.h>
 #else
 #  include <netinet/in.h>
 #  include <arpa/inet.h>

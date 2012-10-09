@@ -20,7 +20,6 @@
 #include "config.h"
 #include "rebuild.h"
 #include <assert.h>
-#include <dirent.h>
 #include <errno.h>
 
 /*
@@ -748,7 +747,7 @@ void test_clusters_cmd(void){
 ** %fossil scrub ?OPTIONS? ?REPOSITORY?
 **
 ** The command removes sensitive information (such as passwords) from a
-** repository so that the respository can be sent to an untrusted reader.
+** repository so that the repository can be sent to an untrusted reader.
 **
 ** By default, only passwords are removed.  However, if the --verily option
 ** is added, then private branches, concealed email addresses, IP
@@ -772,22 +771,13 @@ void scrub_cmd(void){
   int bForce = find_option("force", "f", 0)!=0;
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
-  if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
-  if( g.argc==2 ){
-    db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
-    if( g.argc!=2 ){
-      usage("?REPOSITORY-FILENAME?");
-    }
-    db_close(1);
-    db_open_repository(g.zRepositoryName);
-  }else{
-    db_open_repository(g.argv[2]);
-  }
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( !bForce ){
     Blob ans;
     blob_zero(&ans);
-    prompt_user("Scrubbing the repository will permanently information.\n"
-                "Changes cannot be undone.  Continue (y/N)? ", &ans);
+    prompt_user(
+         "Scrubbing the repository will permanently delete information.\n"
+         "Changes cannot be undone.  Continue (y/N)? ", &ans);
     if( blob_str(&ans)[0]!='y' ){
       fossil_exit(1);
     }
@@ -833,11 +823,11 @@ void recon_read_dir(char *zPath){
   struct dirent *pEntry;
   Blob aContent; /* content of the just read artifact */
   static int nFileRead = 0;
-  char *zMbcsPath;
+  void *zUnicodePath;
   char *zUtf8Name;
 
-  zMbcsPath = fossil_utf8_to_mbcs(zPath);
-  d = opendir(zMbcsPath);
+  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       Blob path;
@@ -846,7 +836,7 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
@@ -870,7 +860,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_mbcs_free(zMbcsPath);
+  fossil_mbcs_free(zUnicodePath);
 }
 
 /*
@@ -898,7 +888,7 @@ void reconstruct_cmd(void) {
   db_open_repository(g.argv[2]);
   db_open_config(0);
   db_begin_transaction();
-  db_initial_setup(0, 0, 1);
+  db_initial_setup(0, 0, 0, 1);
 
   fossil_print("Reading files from directory \"%s\"...\n", g.argv[3]);
   recon_read_dir(g.argv[3]);

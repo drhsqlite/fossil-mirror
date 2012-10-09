@@ -187,8 +187,15 @@ void wiki_page(void){
   }
   if( !g.isHome ){
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
-      style_submenu_element("Edit", "Edit Wiki Page", "%s/wikiedit?name=%T",
-           g.zTop, zPageName);
+      if( db_get_boolean("wysiwyg-wiki", 0) ){
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T&wysiwyg=1",
+             g.zTop, zPageName);
+      }else{
+        style_submenu_element("Edit", "Edit Wiki Page",
+             "%s/wikiedit?name=%T",
+             g.zTop, zPageName);
+      }
     }
     if( rid && g.perm.ApndWiki && g.perm.Attach ){
       style_submenu_element("Attach", "Add An Attachment",
@@ -204,6 +211,7 @@ void wiki_page(void){
            g.zTop, zPageName);
     }
   }
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header(zPageName);
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
@@ -258,13 +266,22 @@ void wikiedit_page(void){
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
-  char *zHtmlPageName;
   int n;
   const char *z;
   char *zBody = (char*)P("w");
+  int isWysiwyg = P("wysiwyg")!=0;
 
+  if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
+  if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
   if( zBody ){
-    zBody = mprintf("%s", zBody);
+    if( isWysiwyg ){
+      Blob body;
+      blob_zero(&body);
+      htmlTidy(zBody, &body);
+      zBody = blob_str(&body);
+    }else{
+      zBody = mprintf("%s", zBody);
+    }
   }
   login_check_credentials();
   zPageName = PD("name","");
@@ -336,11 +353,11 @@ void wikiedit_page(void){
   if( zBody==0 ){
     zBody = mprintf("<i>Empty Page</i>");
   }
-  zHtmlPageName = mprintf("Edit: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Edit: %s", zPageName);
+  blob_zero(&wiki);
+  blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
-    blob_zero(&wiki);
-    blob_append(&wiki, zBody, -1);
     @ Preview:<hr />
     wiki_convert(&wiki, 0, 0);
     @ <hr />
@@ -350,18 +367,43 @@ void wikiedit_page(void){
     if( z[0]=='\n' ) n++;
   }
   if( n<20 ) n = 20;
-  if( n>40 ) n = 40;
-  @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+  if( n>30 ) n = 30;
+  if( !isWysiwyg ){
+    /* Traditional markup-only editing */
+    @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+    @ <textarea name="w" class="wikiedit" cols="80" 
+    @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
+    @ <br />
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      @ <input type="submit" name="edit-wysiwyg" value="Wysiwyg Editor"
+      @  onclick='return confirm("Switching to WYSIWYG-mode\nwill erase your markup\nedits. Continue?")' />
+    }
+    @ <input type="submit" name="preview" value="Preview Your Changes" />
+  }else{
+    /* Wysiwyg editing */
+    Blob html, temp;
+    @ <form method="post" action="%s(g.zTop)/wikiedit"
+    @  onsubmit="wysiwygSubmit()"><div>
+    @ <input type="hidden" name="wysiwyg" value="1" />
+    blob_zero(&temp);
+    wiki_convert(&wiki, &temp, 0);
+    blob_zero(&html);
+    htmlTidy(blob_str(&temp), &html);
+    blob_reset(&temp);
+    wysiwygEditor("w", blob_str(&html), 60, n);
+    blob_reset(&html);
+    @ <br />
+    @ <input type="submit" name="edit-markup" value="Markup Editor"
+    @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
+  }
+  @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
-  @ <textarea name="w" class="wikiedit" cols="80" 
-  @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
-  @ <br />
-  @ <input type="submit" name="preview" value="Preview Your Changes" />
-  @ <input type="submit" name="submit" value="Apply These Changes" />
-  @ <input type="submit" name="cancel" value="Cancel" />
+  @ <input type="submit" name="cancel" value="Cancel"
+  @  onclick='confirm("Abandon your changes?")' />
   @ </div></form>
   manifest_destroy(pWiki);
+  blob_reset(&wiki);
   style_footer();
 }
 
@@ -381,7 +423,11 @@ void wikinew_page(void){
   }  
   zName = PD("name","");
   if( zName[0] && wiki_name_is_wellformed((const unsigned char *)zName) ){
-    cgi_redirectf("wikiedit?name=%T", zName);
+    if( db_get_boolean("wysiwyg-wiki", 0) ){
+      cgi_redirectf("wikiedit?name=%T&wysiwyg=1", zName);
+    }else{
+      cgi_redirectf("wikiedit?name=%T", zName);
+    }
   }
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
@@ -430,7 +476,6 @@ void wikiappend_page(void){
   int rid = 0;
   int isSandbox;
   const char *zPageName;
-  char *zHtmlPageName;
   const char *zUser;
 
   login_check_credentials();
@@ -505,8 +550,8 @@ void wikiappend_page(void){
     cgi_redirectf("wiki?name=%T", zPageName);
     return;
   }
-  zHtmlPageName = mprintf("Append Comment To: %s", zPageName);
-  style_header(zHtmlPageName);
+  style_set_current_page("%s?name=%T", g.zPath, zPageName);
+  style_header("Append Comment To: %s", zPageName);
   if( P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
@@ -593,7 +638,7 @@ void wdiff_page(void){
   const char *zPageName;
   Manifest *pW1, *pW2 = 0;
   Blob w1, w2, d;
-  int diffFlags;
+  u64 diffFlags;
 
   login_check_credentials();
   rid1 = atoi(PD("a","0"));
@@ -781,7 +826,7 @@ void wikirules_page(void){
 }
 
 /*
-** Add a new wiki page to the respository.  The page name is
+** Add a new wiki page to the repository.  The page name is
 ** given by the zPageName parameter.  isNew must be true to create
 ** a new page.  If no previous page with the name zPageName exists
 ** and isNew is false, then this routine throws an error.
@@ -871,26 +916,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **        Lists all wiki entries, one per line, ordered
 **        case-insentively by name.
 **
-** TODOs:
-**
-**     %fossil wiki export ?-u ARTIFACT? WikiName ?FILE?
-**
-**        Outputs the selected version of WikiName.
-**
-**     %fossil wiki delete ?-m MESSAGE? WikiName
-**
-**        The same as deleting a file entry, but i don't know if fossil
-**        supports a commit message for Wiki entries.
-**
-**     %fossil wiki ?-u? ?-d? ?-s=[|]? list
-**
-**        Lists the artifact ID and/or Date of last change along with
-**        each entry name, delimited by the -s char.
-**
-**     %fossil wiki diff ?ARTIFACT? ?-f infile[=stdin]? EntryName
-**
-**        Diffs the local copy of a page with a given version (defaulting
-**        to the head version).
 */
 void wiki_cmd(void){
   int n;

@@ -245,7 +245,7 @@ int vxprintf(
       break;
     }
     /* Find out what flags are present */
-    flag_leftjustify = flag_plussign = flag_blanksign = 
+    flag_leftjustify = flag_plussign = flag_blanksign =
      flag_alternateform = flag_altform2 = flag_zeropad = 0;
     done = 0;
     do{
@@ -816,21 +816,12 @@ void fossil_error_reset(void){
 */
 void fossil_puts(const char *z, int toStdErr){
 #if defined(_WIN32)
-  static int once = 1;
-  static int istty[2];
-  char *zToFree = 0;
-  if( once ){
-    istty[0] = _isatty(fileno(stdout));
-    istty[1] = _isatty(fileno(stderr));
-    once = 0;
+  if( fossil_utf8_to_console(z, strlen(z), toStdErr) >= 0 ){
+    return;
   }
-  assert( toStdErr==0 || toStdErr==1 );
-  if( istty[toStdErr] ) z = zToFree = fossil_utf8_to_console(z);
-  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
-  free(zToFree);
-#else
-  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
 #endif
+  assert( toStdErr==0 || toStdErr==1 );
+  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
   fflush(toStdErr ? stderr : stdout);
 }
 
@@ -865,7 +856,7 @@ int fossil_strcmp(const char *zA, const char *zB){
     return +1;
   }else{
     int a, b;
-    do{ 
+    do{
       a = *zA++;
       b = *zB++;
     }while( a==b && a!=0 );
@@ -880,7 +871,7 @@ int fossil_strncmp(const char *zA, const char *zB, int nByte){
     return +1;
   }else if( nByte>0 ){
     int a, b;
-    do{ 
+    do{
       a = *zA++;
       b = *zB++;
     }while( a==b && a!=0 && (--nByte)>0 );

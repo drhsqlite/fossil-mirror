@@ -303,7 +303,7 @@ void transport_flip(void){
     char *zCmd;
     fclose(transport.pFile);
     zCmd = mprintf("\"%s\" http \"%s\" \"%s\" \"%s\" 127.0.0.1 --localauth",
-       fossil_nameofexe(), g.urlName, transport.zOutFile, transport.zInFile
+       g.nameOfExe, g.urlName, transport.zOutFile, transport.zInFile
     );
     fossil_system(zCmd);
     free(zCmd);
@@ -478,7 +478,7 @@ char *transport_receive_line(void){
 
 void transport_global_shutdown(void){
   if( g.urlIsSsh && sshPid ){
-    printf("Closing SSH tunnel: ");
+    /*printf("Closing SSH tunnel: ");*/
     fflush(stdout);
     pclose2(sshIn, sshOut, sshPid);
     sshPid = 0;

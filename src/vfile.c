@@ -21,11 +21,6 @@
 #include "vfile.h"
 #include <assert.h>
 #include <sys/types.h>
-#if defined(__DMC__)
-#include "dirent.h"
-#else
-#include <dirent.h>
-#endif
 
 /*
 ** The input is guaranteed to be a 40-character well-formed UUID.
@@ -390,7 +385,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
-  char *zMbcs;
+  void *zMbcs;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -409,7 +404,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  zMbcs = fossil_utf8_to_mbcs(zDir);
+  zMbcs = fossil_utf8_to_unicode(zDir);
   d = opendir(zMbcs);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -420,7 +415,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zUtf8 = fossil_mbcs_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_unicode_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
@@ -542,7 +537,7 @@ void vfile_aggregate_checksum_disk(int vid, Blob *pOut){
 /*
 ** Write a BLOB into a random filename.  Return the name of the file.
 */
-static char *write_blob_to_temp_file(Blob *pBlob){
+char *write_blob_to_temp_file(Blob *pBlob){
   sqlite3_uint64 r;
   char *zOut = 0;
   do{

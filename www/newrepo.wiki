@@ -1,4 +1,4 @@
-<h1>HOWTO: creating a new repository</h1>
+<title>How To Create A New Fossil Repository</title>
 
 <p> The [/doc/tip/www/quickstart.wiki|quickstart guide] explains how
 to get up and running with fossil. But once you're running, what can

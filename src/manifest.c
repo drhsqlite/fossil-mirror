@@ -1881,8 +1881,8 @@ int manifest_crosslink(int rid, Blob *pContent){
       if( i==0 || fossil_strcmp(zUuid, p->aTag[i-1].zUuid)!=0 ){
         if( i>0 ) blob_append(&comment, " ", 1);
         blob_appendf(&comment,
-           "Edit &#91;[/info/%S | %S]&#93;:",
-           zUuid, zUuid);
+           "Edit [%S]:",
+           zUuid);
         branchMove = 0;
       }
       zName = p->aTag[i].zName;

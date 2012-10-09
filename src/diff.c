@@ -27,17 +27,28 @@
 /*
 ** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
 */
-#define DIFF_CONTEXT_MASK  0x0000ffff  /* Lines of context.  Default if 0 */
-#define DIFF_WIDTH_MASK    0x00ff0000  /* side-by-side column width */
-#define DIFF_IGNORE_EOLWS  0x01000000  /* Ignore end-of-line whitespace */
-#define DIFF_SIDEBYSIDE    0x02000000  /* Generate a side-by-side diff */
-#define DIFF_NEWFILE       0x04000000  /* Missing files are as empty files */
-#define DIFF_BRIEF         0x08000000  /* Show filenames only */
-#define DIFF_INLINE        0x00000000  /* Inline (not side-by-side) diff */
-#define DIFF_HTML          0x10000000  /* Render for HTML */
-#define DIFF_LINENO        0x20000000  /* Show line numbers in context diff */
-#define DIFF_NOOPT         0x40000000  /* Suppress optimizations for debug */
-#define DIFF_INVERT        0x80000000  /* Invert the diff for debug */
+#define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
+#define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
+#define DIFF_IGNORE_EOLWS ((u64)0x01000000) /* Ignore end-of-line whitespace */
+#define DIFF_SIDEBYSIDE   ((u64)0x02000000) /* Generate a side-by-side diff */
+#define DIFF_NEWFILE      ((u64)0x04000000) /* Missing shown as empty files */
+#define DIFF_BRIEF        ((u64)0x08000000) /* Show filenames only */
+#define DIFF_INLINE       ((u64)0x00000000) /* Inline (not side-by-side) diff */
+#define DIFF_HTML         ((u64)0x10000000) /* Render for HTML */
+#define DIFF_LINENO       ((u64)0x20000000) /* Show line numbers */
+#define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
+#define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
+#define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
+
+/*
+** These error messages are shared in multiple locations.  They are defined
+** here for consistency.
+*/
+#define DIFF_CANNOT_COMPUTE_BINARY \
+    "cannot compute difference between binary files\n"
+
+#define DIFF_CANNOT_COMPUTE_SYMLINK \
+    "cannot compute difference between symlink and regular file\n"
 
 #endif /* INTERFACE */
 
@@ -161,6 +172,34 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
+** Returns non-zero if the specified content appears to be binary or
+** contains a line that is too long.
+*/
+int looks_like_binary(Blob *pContent){
+  const char *z = blob_str(pContent);
+  int n = blob_size(pContent);
+  int i, j;
+
+  /* Count the number of lines.  Allocate space to hold
+  ** the returned array.
+  */
+  for(i=j=0; i<n; i++, j++){
+    int c = z[i];
+    if( c==0 ) return 1;  /* \000 byte in a file -> binary */
+    if( c=='\n' && z[i+1]!=0 ){
+      if( j>LENGTH_MASK ){
+        return 1;   /* Very long line -> binary */
+      }
+      j = 0;
+    }
+  }
+  if( j>LENGTH_MASK ){
+    return 1;  /* Very long line -> binary */
+  }
+  return 0;   /* No problems seen -> not binary */
+}
+
+/*
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
@@ -176,6 +215,7 @@ static void appendDiffLine(
   DLine *pLine,       /* The line to be output */
   int html            /* True if generating HTML.  False for plain text */
 ){
+  int i;
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
@@ -185,6 +225,10 @@ static void appendDiffLine(
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
     zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
+    for(i=0; i<strlen(zHtml); i++){
+      char c = zHtml[i];
+      if( c=='\t' || c=='\r' || c=='\f' ) zHtml[i] = ' ';
+    }
     blob_append(pOut, zHtml, -1);
     fossil_free(zHtml);
     if( cPrefix!=' ' ){
@@ -451,6 +495,9 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
         memcpy(&z[j], "&gt;", 4);
         j += 4;
       }
+    }else if( c=='"' && p->escHtml ){
+      memcpy(&z[j], "&quot;", 6);
+      j += 6;
     }else{
       if (w != 0) {
         z[j++] = c;
@@ -476,7 +523,7 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
 }
 
 /*
-** Append a string to an SbSLine with coding, interpretation, or padding.
+** Append a string to an SbSLine without coding, interpretation, or padding.
 */
 static void sbsWrite(SbsLine *p, const char *zIn, int nIn){
   memcpy(p->zLine+p->n, zIn, nIn);
@@ -1003,7 +1050,11 @@ static void sbsDiff(
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = s.width;
           sbsWriteText(&s, &A[a], SBS_PAD);
-          sbsWrite(&s, " <\n", 3);
+          if( escHtml ){
+            sbsWrite(&s, " &lt;\n", 6);
+          }else{
+            sbsWrite(&s, " <\n", 3);
+          }
           blob_append(pOut, s.zLine, s.n);
           assert( ma>0 );
           ma--;
@@ -1020,7 +1071,11 @@ static void sbsDiff(
         }else{
           s.n = 0;
           sbsWriteSpace(&s, width + 7);
-          sbsWrite(&s, " > ", 3);
+          if( escHtml ){
+            sbsWrite(&s, " &gt; ", 6);
+          }else{
+            sbsWrite(&s, " > ", 3);
+          }
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
@@ -1456,7 +1511,7 @@ static void diff_optimize(DContext *p){
 ** Extract the number of lines of context from diffFlags.  Supply an
 ** appropriate default if no context width is specified.
 */
-int diff_context_lines(int diffFlags){
+int diff_context_lines(u64 diffFlags){
   int n = diffFlags & DIFF_CONTEXT_MASK;
   if( n==0 ) n = 5;
   return n;
@@ -1466,7 +1521,7 @@ int diff_context_lines(int diffFlags){
 ** Extract the width of columns for side-by-side diff.  Supply an
 ** appropriate default if no width is given.
 */
-int diff_width(int diffFlags){
+int diff_width(u64 diffFlags){
   int w = (diffFlags & DIFF_WIDTH_MASK)/(DIFF_CONTEXT_MASK+1);
   return w;
 }
@@ -1489,7 +1544,7 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
-  int diffFlags    /* DIFF_* flags defined above */
+  u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
   int nContext;    /* Amount of context to display */	
@@ -1510,10 +1565,10 @@ int *text_diff(
   c.aTo = break_into_lines(blob_str(pB_Blob), blob_size(pB_Blob),
                            &c.nTo, ignoreEolWs);
   if( c.aFrom==0 || c.aTo==0 ){
-    free(c.aFrom);
-    free(c.aTo);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
     if( pOut ){
-      blob_appendf(pOut, "cannot compute difference between binary files\n");
+      blob_appendf(pOut, DIFF_CANNOT_COMPUTE_BINARY);
     }
     return 0;
   }
@@ -1541,9 +1596,9 @@ int *text_diff(
       int showLn = (diffFlags & DIFF_LINENO)!=0;
       contextDiff(&c, pOut, nContext, showLn, escHtml);
     }
-    free(c.aFrom);
-    free(c.aTo);
-    free(c.aEdit);
+    fossil_free(c.aFrom);
+    fossil_free(c.aTo);
+    fossil_free(c.aEdit);
     return 0;
   }else{
     /* If a context diff is not requested, then return the
@@ -1566,13 +1621,15 @@ int *text_diff(
 **   --linenum|-n           Show line numbers      DIFF_LINENO
 **   --noopt                Disable optimization   DIFF_NOOPT
 **   --side-by-side|-y      Side-by-side diff.     DIFF_SIDEBYSIDE
+**   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
 int diff_options(void){
-  int diffFlags = 0;
+  u64 diffFlags = 0;
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
+  if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
   if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
     diffFlags |= f;
@@ -1598,7 +1655,7 @@ void test_rawdiff_cmd(void){
   int r;
   int i;
   int *R;
-  int diffFlags = diff_options();
+  u64 diffFlags = diff_options();
   if( g.argc<4 ) usage("FILE1 FILE2 ...");
   blob_read_from_file(&a, g.argv[2]);
   for(i=3; i<g.argc; i++){
@@ -1620,7 +1677,7 @@ void test_rawdiff_cmd(void){
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
-  int diffFlag = diff_options();
+  u64 diffFlag = diff_options();
 
   if( g.argc!=4 ) usage("FILE1 FILE2");
   blob_read_from_file(&a, g.argv[2]);
@@ -1720,7 +1777,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   }
 
   /* Clear out the diff results */
-  free(p->c.aEdit);
+  fossil_free(p->c.aEdit);
   p->c.aEdit = 0;
   p->c.nEdit = 0;
   p->c.nEditAlloc = 0;

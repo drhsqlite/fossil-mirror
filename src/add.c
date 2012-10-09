@@ -95,7 +95,7 @@ const char *fossil_all_reserved_names(void){
     blob_zero(&x);
     for(i=0; (z = fossil_reserved_name(i))!=0; i++){
       if( i>0 ) blob_append(&x, ",", 1);
-      blob_appendf(&x, "'%s'", z);
+      blob_appendf(&x, "'%q'", z);
     }
     zAll = blob_str(&x);
   }
@@ -509,7 +509,7 @@ void addremove_cmd(void){
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
-    "UPDATE vfile SET pathname='%s' WHERE pathname='%s' AND vid=%d",
+    "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",
     zNew, zOrig, vid
   );
 }
@@ -593,7 +593,7 @@ void mv_cmd(void){
           zTail = &zPath[nOrig+1];
         }
         db_multi_exec(
-          "INSERT INTO mv VALUES('%s','%s%s')",
+          "INSERT INTO mv VALUES('%q','%q%q')",
           zPath, blob_str(&dest), zTail
         );
       }

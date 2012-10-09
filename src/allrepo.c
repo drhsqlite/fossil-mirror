@@ -79,7 +79,7 @@ static char *quoteFilename(const char *zFilename){
 **
 **    sync       Run a "sync" on all repositories
 **
-** Respositories are automatically added to the set of known repositories
+** Repositories are automatically added to the set of known repositories
 ** when one of the following commands are run against the repository: clone,
 ** info, pull, push, or sync.  Even previously ignored repositories are
 ** added back to the list of repositories by these commands.
@@ -149,7 +149,7 @@ void all_cmd(void){
                  "changes ignore list ls push pull rebuild sync");
   }
   verify_all_options();
-  zFossil = quoteFilename(fossil_nameofexe());
+  zFossil = quoteFilename(g.nameOfExe);
   if( useCheckouts ){
     db_prepare(&q,
        "SELECT substr(name, 7) COLLATE nocase, max(rowid)"

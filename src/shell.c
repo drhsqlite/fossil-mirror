@@ -64,7 +64,9 @@
 # include <io.h>
 #define isatty(h) _isatty(h)
 #define access(f,m) _access((f),(m))
+#undef popen
 #define popen(a,b) _popen((a),(b))
+#undef pclose
 #define pclose(x) _pclose(x)
 #else
 /* Make sure isatty() has a prototype.
@@ -694,7 +696,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
           }else{
             w = 0;
           }
-          if( w<=0 ){
+          if( w==0 ){
             w = strlen30(azCol[i] ? azCol[i] : "");
             if( w<10 ) w = 10;
             n = strlen30(azArg && azArg[i] ? azArg[i] : p->nullvalue);
@@ -704,7 +706,11 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
             p->actualWidth[i] = w;
           }
           if( p->showHeader ){
-            fprintf(p->out,"%-*.*s%s",w,w,azCol[i], i==nArg-1 ? "\n": "  ");
+            if( w<0 ){
+              fprintf(p->out,"%*.*s%s",-w,-w,azCol[i], i==nArg-1 ? "\n": "  ");
+            }else{
+              fprintf(p->out,"%-*.*s%s",w,w,azCol[i], i==nArg-1 ? "\n": "  ");
+            }
           }
         }
         if( p->showHeader ){
@@ -712,6 +718,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
             int w;
             if( i<ArraySize(p->actualWidth) ){
                w = p->actualWidth[i];
+               if( w<0 ) w = -w;
             }else{
                w = 10;
             }
@@ -733,8 +740,13 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
            strlen30(azArg[i])>w ){
           w = strlen30(azArg[i]);
         }
-        fprintf(p->out,"%-*.*s%s",w,w,
-            azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
+        if( w<0 ){
+          fprintf(p->out,"%*.*s%s",-w,-w,
+              azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
+        }else{
+          fprintf(p->out,"%-*.*s%s",w,w,
+              azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
+        }
       }
       break;
     }
@@ -1414,9 +1426,10 @@ static char zHelp[] =
   "                         list     Values delimited by .separator string\n"
   "                         tabs     Tab-separated values\n"
   "                         tcl      TCL list elements\n"
-  ".nullvalue STRING      Print STRING in place of NULL values\n"
+  ".nullvalue STRING      Use STRING in place of NULL values\n"
   ".output FILENAME       Send output to FILENAME\n"
   ".output stdout         Send output to the screen\n"
+  ".print STRING...       Print literal STRING\n"
   ".prompt MAIN CONTINUE  Replace the standard prompts\n"
   ".quit                  Exit this program\n"
   ".read FILENAME         Execute SQL in FILENAME\n"
@@ -1449,6 +1462,7 @@ static int process_input(struct callback_data *p, FILE *in);
 */
 static void open_db(struct callback_data *p){
   if( p->db==0 ){
+    sqlite3_initialize();
     sqlite3_open(p->zDbFilename, &p->db);
     db = p->db;
     if( db && sqlite3_errcode(db)==SQLITE_OK ){
@@ -2067,6 +2081,15 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     }
   }else
 
+  if( c=='p' && n>=3 && strncmp(azArg[0], "print", n)==0 ){
+    int i;
+    for(i=1; i<nArg; i++){
+      if( i>1 ) fprintf(p->out, " ");
+      fprintf(p->out, "%s", azArg[i]);
+    }
+    fprintf(p->out, "\n");
+  }else
+
   if( c=='p' && strncmp(azArg[0], "prompt", n)==0 && (nArg==2 || nArg==3)){
     if( nArg >= 2) {
       strncpy(mainPrompt,azArg[1],(int)ArraySize(mainPrompt)-1);
@@ -2464,7 +2487,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     open_db(p);
     output_file_close(p->traceOut);
     p->traceOut = output_file_open(azArg[1]);
-#ifndef SQLITE_OMIT_TRACE
+#if !defined(SQLITE_OMIT_TRACE) && !defined(SQLITE_OMIT_FLOATING_POINT)
     if( p->traceOut==0 ){
       sqlite3_trace(p->db, 0, 0);
     }else{
@@ -2489,6 +2512,13 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       }
     }
   }else
+
+#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
+  if( c=='w' && strncmp(azArg[0], "wheretrace", n)==0 ){
+    extern int sqlite3WhereTrace;
+    sqlite3WhereTrace = atoi(azArg[1]);
+  }else
+#endif
 
   if( c=='w' && strncmp(azArg[0], "width", n)==0 && nArg>1 ){
     int j;
@@ -2771,6 +2801,7 @@ static int process_sqliterc(
 #endif
       return 1;
     }
+    sqlite3_initialize();
     zBuf = sqlite3_mprintf("%s/.sqliterc",home_dir);
     sqliterc = zBuf;
   }

@@ -496,7 +496,7 @@ static cson_value * json_wiki_diff(){
   Manifest * pW1 = NULL, *pW2 = NULL;
   Blob w1 = empty_blob, w2 = empty_blob, d = empty_blob;
   char const * zErrTag = NULL;
-  int diffFlags;
+  u64 diffFlags;
   char * zUuid = NULL;
   if( !g.perm.Hyperlink ){
     json_set_err(FSL_JSON_E_DENIED,

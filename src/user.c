@@ -306,12 +306,14 @@ static int attempt_user(const char *zLogin){
 **
 **   (4)  Try the USER environment variable.
 **
-**   (5)  Use the first user in the USER table.
+**   (5)  Try the USERNAME environment variable.
+**
+**   (6)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  Stmt s;
+  char *zUrl;
 
   if( g.userUid ) return;
   if( g.zLogin ){
@@ -328,33 +330,20 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USER")) ) return;
 
-  db_prepare(&s,
-    "SELECT uid, login FROM user"
-    " WHERE login NOT IN ('anonymous','nobody','reader','developer')"
+  if( attempt_user(fossil_getenv("USERNAME")) ) return;
+
+  zUrl = db_get("last-sync-url", 0);
+  if( zUrl ){
+    url_parse(zUrl);
+    if( attempt_user(g.urlUser) ) return;
+  }
+
+  fossil_print(
+    "Cannot figure out who you are!  Consider using the --user\n"
+    "command line option, setting your USER environment variable,\n"
+    "or setting a default user with \"fossil user default USER\".\n"
   );
-  if( db_step(&s)==SQLITE_ROW ){
-    g.userUid = db_column_int(&s, 0);
-    g.zLogin = mprintf("%s", db_column_text(&s, 1));
-  }
-  db_finalize(&s);
-
-  if( g.userUid==0 ){
-    db_prepare(&s, "SELECT uid, login FROM user");
-    if( db_step(&s)==SQLITE_ROW ){
-      g.userUid = db_column_int(&s, 0);
-      g.zLogin = mprintf("%s", db_column_text(&s, 1));
-    }
-    db_finalize(&s);
-  }
-
-  if( g.userUid==0 ){
-    db_multi_exec(
-      "INSERT INTO user(login, pw, cap, info, mtime)"
-      "VALUES('anonymous', '', 'cfghjkmnoqw', '', now())"
-    );
-    g.userUid = db_last_insert_rowid();
-    g.zLogin = "anonymous";
-  }
+  fossil_fatal("cannot determine user");
 }
 
 

@@ -15,7 +15,7 @@
 **   http://www.hwaci.com/drh/
 **
 *******************************************************************************
-**  
+**
 ** Code for the JSON API.
 **
 ** For notes regarding the public JSON interface, please see:
@@ -76,7 +76,7 @@ static void beginTimer(void){
 
 /* Return the difference of two time_structs in milliseconds */
 static double timeDiff(struct timeval *pStart, struct timeval *pEnd){
-  return ((pEnd->tv_usec - pStart->tv_usec)*0.001 + 
+  return ((pEnd->tv_usec - pStart->tv_usec)*0.001 +
           (double)((pEnd->tv_sec - pStart->tv_sec)*1000.0));
 }
 
@@ -130,7 +130,7 @@ static int hasTimer(void){
         if( NULL != getProcessTimesAddr ){
           return 1;
         }
-        FreeLibrary(hinstLib); 
+        FreeLibrary(hinstLib);
       }
     }
   }
@@ -172,7 +172,7 @@ static double endTimer(void){
 #define HAS_TIMER hasTimer()
 
 #else
-#define BEGIN_TIMER 
+#define BEGIN_TIMER
 #define END_TIMER 0.0
 #define HAS_TIMER 0
 #endif
@@ -214,7 +214,7 @@ static char const * json_err_cstr( int errCode ){
     C(PANIC,"x");
     C(MANIFEST_READ_FAILED,"Reading artifact manifest failed");
     C(FILE_OPEN_FAILED,"Opening file failed");
-    
+
     C(AUTH,"Authentication error");
     C(MISSING_AUTH,"Authentication info missing from request");
     C(DENIED,"Access denied");
@@ -350,7 +350,7 @@ void json_gc_add( char const * key, cson_value * v ){
   }
   assert( (0==rc) && "Adding item to GC failed." );
   if(0!=rc){
-    fprintf(stderr,"%s: FATAL: alloc error.\n", fossil_nameofexe())
+    fprintf(stderr,"%s: FATAL: alloc error.\n", g.argv[0])
         /* reminder: allocation error is the only reasonable cause of
            error here, provided g.json.gc.a and v are not NULL.
         */
@@ -386,7 +386,7 @@ cson_value * json_new_string_f( char const * fmt, ... ){
   va_end(vargs);
   v = cson_value_new_string(zStr, strlen(zStr));
   free(zStr);
-  return v;  
+  return v;
 }
 
 cson_value * json_new_int( int v ){
@@ -675,7 +675,7 @@ char const * json_guess_content_type(){
   }else{
     /*
       Content-type
-      
+
       If the browser does not sent an ACCEPT for application/json
       then we fall back to text/plain.
     */
@@ -1119,7 +1119,7 @@ static void json_mode_bootstrap(){
     }
     break;
   }
-  
+
   /* g.json.reqPayload exists only to simplify some of our access to
      the request payload. We currently only use this in the context of
      Object payloads, not Arrays, strings, etc.
@@ -1148,7 +1148,7 @@ static void json_mode_bootstrap(){
     }
   }
 
-  
+
   if(!g.json.jsonp){
     g.json.jsonp = json_find_option_cstr("jsonp",NULL,NULL);
   }
@@ -1449,7 +1449,7 @@ cson_value * json_g_to_json(){
   VAL(warnings, cson_array_value(g.json.warnings));
   /*cson_output_opt outOpt;*/
 
-  
+
 #undef INT
 #undef CSTR
 #undef VAL
@@ -1497,7 +1497,7 @@ static cson_value * json_create_response( int resultCode,
     goto cleanup; \
   }while(0)
 
-  
+
   tmp = json_new_string(MANIFEST_UUID);
   SET("fossil");
 
@@ -1526,7 +1526,7 @@ static cson_value * json_create_response( int resultCode,
     tmp = json_response_command_path();
   }
   SET("command");
-  
+
   tmp = json_getenv(FossilJsonKeys.requestId);
   if( tmp ) cson_object_set( o, FossilJsonKeys.requestId, tmp );
 
@@ -1563,7 +1563,7 @@ static cson_value * json_create_response( int resultCode,
     tmp = cson_array_value(g.json.warnings);
     SET("warnings");
   }
-  
+
   /* Only add the payload to SUCCESS responses. Else delete it. */
   if( NULL != payload ){
     if( resultCode ){
@@ -1580,7 +1580,7 @@ static cson_value * json_create_response( int resultCode,
     tmp = json_g_to_json();
     SET("g");
   }
-  
+
 #undef SET
   goto ok;
   cleanup:
@@ -1630,7 +1630,7 @@ void json_err( int code, char const * msg, char alsoOutput ){
        call fossil_panic() here because that calls this function.
     */
     fprintf(stderr, "%s: Fatal error: could not allocate "
-            "response object.\n", fossil_nameofexe());
+            "response object.\n", g.argv[0]);
     fossil_exit(1);
   }
   if( g.isHTTP ){
@@ -1703,7 +1703,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
       /*Why? cson_value_add_reference(colNamesV) avoids an ownership problem*/;
       colNames = cson_value_get_array(colNamesV);
       assert(NULL != colNames);
-    }      
+    }
     row = cson_sqlite3_row_to_object2(pStmt->pStmt, colNames);
     if(!row && !warnMsg){
       warnMsg = "Could not convert at least one result row to JSON.";
@@ -1722,7 +1722,7 @@ cson_value * json_stmt_to_array_of_obj(Stmt *pStmt,
   if(warnMsg){
     json_warn( FSL_JSON_W_ROW_TO_JSON_FAILED, warnMsg );
   }
-  return cson_array_value(a);  
+  return cson_array_value(a);
 }
 
 /*
@@ -1811,7 +1811,7 @@ cson_value * json_tags_for_checkin_rid(int rid, char propagatingOnly){
     }
     free(tags);
   }
-  return v;  
+  return v;
 }
 
 /*
@@ -1861,7 +1861,7 @@ cson_value * json_page_resultCodes(){
     C(PANIC);
     C(MANIFEST_READ_FAILED);
     C(FILE_OPEN_FAILED);
-    
+
     C(AUTH);
     C(MISSING_AUTH);
     C(DENIED);

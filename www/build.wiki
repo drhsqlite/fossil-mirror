@@ -85,17 +85,20 @@ Other configuration options can be seen by running
 details depend on your platform and compiler.
 
 <ol type="a">
-<li><p><i>Unix</i> &rarr; the configure-generated Makefile should work on
+<li><p><i>Unix</i> → the configure-generated Makefile should work on
 all unix and unix-like systems.  Simply type "<b>make</b>".
 
-<li><p><i>Unix without running "configure"</i> &rarr; if you prefer to avoid running configure, you
+<li><p><i>Unix without running "configure"</i> → if you prefer to avoid running configure, you
 can also use: <b>make -f Makefile.classic</b>.  You may want to make minor
 edits to Makefile.classic to configure the build for your system.
 
-<li><p><i>Msys/MinGW</i> &rarr; Use the
-mingw makefile: "<b>make -f win/Makefile.mingw</b>"
+<li><p><i>MinGW/MinGW-w64</i> → Use the mingw makefile:
+"<b>make -f win/Makefile.mingw</b>". On a Windows box you will
+need either Cygwin or Msys as build environment. On Cygwin, Linux
+or Darwin you may want to make minor edits to win/Makefile.mingw
+to configure the cross-compile environment.
 
-<li><p><i>VC++</i> &rarr; Use the msc makefile.  First
+<li><p><i>VC++</i> → Use the msc makefile.  First
 change to the "win/" subdirectory ("<b>cd win</b>") then run
 "<b>nmake /f Makefile.msc</b>".
 </ol>

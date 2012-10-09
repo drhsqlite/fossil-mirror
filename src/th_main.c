@@ -223,9 +223,10 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "json" = FOSSIL_ENABLE_JSON
-** "tcl" = FOSSIL_ENABLE_TCL
-** "ssl" = FOSSIL_ENABLE_SSL
+** "json"     = FOSSIL_ENABLE_JSON
+** "ssl"      = FOSSIL_ENABLE_SSL
+** "tcl"      = FOSSIL_ENABLE_TCL
+** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
 **
 */
 static int hasfeatureCmd(
@@ -256,6 +257,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
   else if( 0 == fossil_strnicmp( zArg, "tcl", 3 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+  else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
     rc = 1;
   }
 #endif
@@ -449,6 +455,7 @@ void Th_FossilInit(void){
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
+      g.tcl.setup = db_get("tcl-setup", 0); /* Grab optional setup script. */
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif

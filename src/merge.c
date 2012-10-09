@@ -92,6 +92,8 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **   --case-sensitive BOOL   Overwrite the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
+**
+**   --force | -f            Force the merge even if it would be a no-op.
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */
@@ -101,6 +103,7 @@ void merge_cmd(void){
   int pickFlag;         /* True if the --cherrypick option is present */
   int backoutFlag;      /* True if the --backout option is present */
   int nochangeFlag;     /* True if the --nochange or -n option is present */
+  int forceFlag;        /* True if the --force or -f option is present */
   const char *zBinGlob; /* The value of --binary */
   const char *zPivot;   /* The value of --baseline */
   int debugFlag;        /* True if --debug is present */
@@ -127,6 +130,7 @@ void merge_cmd(void){
   debugFlag = find_option("debug",0,0)!=0;
   zBinGlob = find_option("binary",0,1);
   nochangeFlag = find_option("nochange","n",0)!=0;
+  forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   capture_case_sensitive_option();
   if( g.argc!=3 ){
@@ -177,6 +181,11 @@ void merge_cmd(void){
   }
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
+  }
+  if( !forceFlag && mid==pid ){
+    fossil_print("Merge skipped because it is a no-op. "
+                 " Use --force to override.\n");
+    return;
   }
   if( detailFlag ){
     print_checkin_description(mid, 12, "merge-from:");

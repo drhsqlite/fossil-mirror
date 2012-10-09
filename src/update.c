@@ -107,6 +107,7 @@ void update_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
+  int nUpdate = 0;      /* Number of chagnes of any kind */
   Stmt mtimeXfer;       /* Statment to transfer mtimes */
 
   if( !internalUpdate ){
@@ -365,6 +366,7 @@ void update_cmd(void){
     zFullPath = mprintf("%s%s", g.zLocalRoot, zName);
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
     nameChng = fossil_strcmp(zName, zNewName);
+    nUpdate++;
     if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
@@ -448,6 +450,7 @@ void update_cmd(void){
       blob_reset(&t);
       blob_reset(&r);
     }else{
+      nUpdate--;
       if( chnged ){
         if( verboseFlag ) fossil_print("EDITED %s\n", zName);
       }else{
@@ -463,8 +466,15 @@ void update_cmd(void){
   }
   db_finalize(&q);
   db_finalize(&mtimeXfer);
-  fossil_print("--------------\n");
-  show_common_info(tid, "updated-to:", 1, 0);
+  fossil_print("%.79c\n",'-');
+  if( nUpdate==0 ){
+    show_common_info(tid, "checkout:", 1, 0);
+    fossil_print("%-13s None. Already up-to-date\n", "changes:");
+  }else{
+    show_common_info(tid, "updated-to:", 1, 0);
+    fossil_print("%-13s %d file%s modified.\n", "changes:",
+                 nUpdate, nUpdate>1 ? "s" : "");
+  }
 
   /* Report on conflicts
   */
@@ -587,8 +597,9 @@ int historical_version_of_file(
   const char *revision,    /* The checkin containing the file */
   const char *file,        /* Full treename of the file */
   Blob *content,           /* Put the content here */
-  int *pIsLink,             /* Set to true if file is link. */
+  int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
+  int *pIsBin,             /* Set to true if file is binary */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
@@ -609,11 +620,16 @@ int historical_version_of_file(
   if( pManifest ){
     pFile = manifest_file_find(pManifest, file);
     if( pFile ){
+      int rc;
       rid = uuid_to_rid(pFile->zUuid, 0);
       if( pIsExe ) *pIsExe = ( manifest_file_mperm(pFile)==PERM_EXE );
       if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
       manifest_destroy(pManifest);
-      return content_get(rid, content);
+      rc = content_get(rid, content);
+      if( rc && pIsBin ){
+        *pIsBin = looks_like_binary(content);
+      }
+      return rc;
     }
     manifest_destroy(pManifest);
     if( errCode<=0 ){
@@ -704,7 +720,7 @@ void revert_cmd(void){
     zFile = db_column_text(&q, 0);
     zFull = mprintf("%/%/", g.zLocalRoot, zFile);
     errCode = historical_version_of_file(zRevision, zFile, &record,
-                                         &isLink, &isExe,2);
+                                         &isLink, &isExe, 0, 2);
     if( errCode==2 ){
       if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);

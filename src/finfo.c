@@ -117,7 +117,7 @@ void finfo_cmd(void){
 
     file_tree_name(g.argv[2], &fname, 1);
     if( zRevision ){
-      historical_version_of_file(zRevision, blob_str(&fname), &record, 0, 0, 0);
+      historical_version_of_file(zRevision, blob_str(&fname), &record, 0,0,0,0);
     }else{
       int rid = db_int(0, "SELECT rid FROM vfile WHERE pathname=%B %s",
                        &fname, filename_collation());
@@ -160,7 +160,9 @@ void finfo_cmd(void){
     db_prepare(&q,
         "SELECT b.uuid, ci.uuid, date(event.mtime,'localtime'),"
         "       coalesce(event.ecomment, event.comment),"
-        "       coalesce(event.euser, event.user)"
+        "       coalesce(event.euser, event.user),"
+        "       (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
+                                " AND tagxref.rid=mlink.mid)" /* Tags */
         "  FROM mlink, blob b, event, blob ci, filename"
         " WHERE filename.name=%Q %s"
         "   AND mlink.fnid=filename.fnid"
@@ -168,7 +170,7 @@ void finfo_cmd(void){
         "   AND event.objid=mlink.mid"
         "   AND event.objid=ci.rid"
         " ORDER BY event.mtime DESC LIMIT %d OFFSET %d",
-        zFilename, filename_collation(), iLimit, iOffset
+        TAG_BRANCH, zFilename, filename_collation(), iLimit, iOffset
     );
     blob_zero(&line);
     if( iBrief ){
@@ -180,11 +182,13 @@ void finfo_cmd(void){
       const char *zDate = db_column_text(&q, 2);
       const char *zCom = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 4);
+      const char *zBr = db_column_text(&q, 5);
       char *zOut;
+      if( zBr==0 ) zBr = "trunk";
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s])",
-                               zCiUuid, zCom, zUser, zFileUuid);
+        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+                               zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, 11, 79);
         sqlite3_free(zOut);
       }else{
@@ -192,6 +196,7 @@ void finfo_cmd(void){
         blob_appendf(&line, "%.10s ", zCiUuid);
         blob_appendf(&line, "%.10s ", zDate);
         blob_appendf(&line, "%8.8s ", zUser);
+        blob_appendf(&line, "%8.8s ", zBr);
         blob_appendf(&line,"%-40.40s\n", zCom );
         comment_print(blob_str(&line), 0, 79);
       }
@@ -215,6 +220,7 @@ void finfo_cmd(void){
 **    n=NUM      Show the first NUM changes only
 **    brbg       Background color by branch name
 **    ubg        Background color by user name
+**    fco=BOOL   Show only first occurrence of each version if true (default)
 */
 void finfo_page(void){
   Stmt q;
@@ -225,17 +231,24 @@ void finfo_page(void){
   int n;
   Blob title;
   Blob sql;
+  HQuery url;
   GraphContext *pGraph;
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
+  int firstChngOnly = atoi(PD("fco","1"))!=0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   style_header("File History");
   login_anonymous_available();
+  url_initialize(&url, "finfo");
+  if( brBg ) url_add_parameter(&url, "brbg", 0);
+  if( uBg ) url_add_parameter(&url, "ubg", 0);
+  if( firstChngOnly ) url_add_parameter(&url, "fco", "0");
 
   zPrevDate[0] = 0;
   zFilename = PD("name","");
+  url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
   blob_appendf(&sql, 
     "SELECT"
@@ -249,22 +262,40 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)" /* Tags */
+                                " AND tagxref.rid=mlink.mid)", /* Tags */
+    TAG_BRANCH
+  );
+  if( firstChngOnly ){
+    blob_appendf(&sql, ", min(event.mtime)");
+  }
+  blob_appendf(&sql,
     "  FROM mlink, event"
     " WHERE mlink.fnid IN (SELECT fnid FROM filename WHERE name=%Q %s)"
     "   AND event.objid=mlink.mid",
-    TAG_BRANCH,
     zFilename, filename_collation()
   );
   if( (zA = P("a"))!=0 ){
     blob_appendf(&sql, " AND event.mtime>=julianday('%q')", zA);
+    url_add_parameter(&url, "a", zA);
   }
   if( (zB = P("b"))!=0 ){
     blob_appendf(&sql, " AND event.mtime<=julianday('%q')", zB);
+    url_add_parameter(&url, "b", zB);
+  }
+  if( firstChngOnly ){
+    blob_appendf(&sql, " GROUP BY mlink.fid");
   }
   blob_appendf(&sql," ORDER BY event.mtime DESC /*sort*/");
   if( (n = atoi(PD("n","0")))>0 ){
     blob_appendf(&sql, " LIMIT %d", n);
+    url_add_parameter(&url, "n", P("n"));
+  }
+  if( firstChngOnly ){
+    style_submenu_element("Full", "Show all changes",
+                          url_render(&url, "fco", "0", 0, 0));
+  }else{
+    style_submenu_element("Simplified", "Show only first use of a change",
+                          url_render(&url, "fco", "1", 0, 0));
   }
   db_prepare(&q, blob_str(&sql));
   blob_reset(&sql);
