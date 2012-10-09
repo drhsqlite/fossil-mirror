@@ -1,5 +1,5 @@
-C Adding\sback\sthe\sbranch\stelling\sat\scheckin\sinfo\sfor\svdiff.
-D 2012-10-09T13:53:30.109
+C Fixing\sthe\svdiff\ssubmenus,\sso\sthey\sbehave\sas\susual\s(for\sthis\sbranch)
+D 2012-10-09T14:01:00.410
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -99,7 +99,7 @@ F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
 F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
 F src/http_transport.c 0941c8ec61f0bfab9c33a34cac2e1f9121f7f44d
 F src/import.c 9ae08185778cbfe647367c80d7056e5a4605201c
-F src/info.c 3ea5875064f978ec39dde6566741daf3a3753808
+F src/info.c b41781a64e8a6765b2e21d1cbbd74f3e49e5a979
 F src/json.c 6ae61780a43e0fae9b196e9e1f62f4f79ccbb704
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f4b082d464885b12f52902f4d57e1796f49f7e8c
-R f128782b44d0cf33a8591de7b605be37
+P e29d3822e9f060599c700a249cabda98cbc956cd
+R 52e1255c406d2ddb2ecd7780b71bdd75
 U viriketo
-Z ce1ce0b86ef2514344c7a5f1fa6eadf2
+Z 7b119f6b276f956f1c299e634aebdb3f

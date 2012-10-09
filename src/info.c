@@ -948,17 +948,17 @@ void vdiff_page(void){
   }
   if( !showDetail || sideBySide ){
     style_submenu_element("Unified Diff", "udiff",
-                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=0",
-                          zFrom, zTo, showDetail);
+                          "%R/vdiff?from=%T&to=%T&detail=1&sbs=0",
+                          zFrom, zTo);
   }
   if (!sideBySide){
     style_submenu_element("Side-by-side Diff", "sbsdiff",
-                          "%R/vdiff?from=%T&to=%T&detail=%d&sbs=1",
-                          zFrom, zTo, showDetail);
+                          "%R/vdiff?from=%T&to=%T&detail=1&sbs=1",
+                          zFrom, zTo);
   }
   style_submenu_element("Patch", "patch",
                         "%s/vpatch?from=%T&to=%T",
-                        g.zTop, P("from"), P("to"));
+                        g.zTop, zFrom, zTo);
   style_submenu_element("Invert", "invert",
                         "%R/vdiff?from=%T&to=%T&detail=%d&sbs=%d",
                         zTo, zFrom, showDetail, sideBySide);
