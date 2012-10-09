@@ -1306,6 +1306,12 @@ void rawartifact_page(void){
     char *zFName = db_text(0, "SELECT filename.name FROM mlink, filename"
                               " WHERE mlink.fid=%d"
                               "   AND filename.fnid=mlink.fnid", rid);
+    if( !zFName ){
+      /* Look also at the attachment table */
+      zFName = db_text(0, "SELECT attachment.filename FROM attachment, blob"
+                          " WHERE blob.rid=%d"
+                          "   AND attachment.src=blob.uuid", rid);
+    }
     if( zFName ) zMime = mimetype_from_name(zFName);
     if( zMime==0 ) zMime = "application/x-fossil-artifact";
   }
