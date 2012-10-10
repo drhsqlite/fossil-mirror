@@ -724,7 +724,7 @@ void db_attach(const char *zDbName, const char *zLabel){
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
 */
-static void db_open_or_attach(const char *zDbName, const char *zLabel){
+void db_open_or_attach(const char *zDbName, const char *zLabel){
   if( !g.db ){
     g.db = openDatabase(zDbName);
     g.zMainDbType = zLabel;

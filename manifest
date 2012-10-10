@@ -1,5 +1,5 @@
-C Making\sthe\sraw\spage\sdownload\sguess\sthe\smime\stype\sbased\son\sfilename\salso\sfor\nattachments,\snot\sonly\srepository\sfiles.
-D 2012-10-09T13:30:21.297
+C The\s"fossil\sundo"\sand\s"fossil\sredo"\scommands\sremember\sfile\smtimes\sand\s\nrestore\sthem\sappropriately.\s\sWhen\supgrading\sthrough\sthis\sversion,\syou\nmay\sneed\sto\srun\s"fossil\sundo\s--reset"\sto\sclear\syour\sold\sundo\sstack.
+D 2012-10-10T16:06:37.834
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -79,7 +79,7 @@ F src/configure.c c89251c280e7b94f8fb68312daa951211236b22d
 F src/content.c e11e805bd27e7cefc0e39ceb1e92763cb8587e50
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 4026df1279c65799d827ee553cd477213cce5d7a
+F src/db.c 6c379328a1f0d697931a4d7b803bc12479fb582f
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
@@ -89,7 +89,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c e02733ba8ab6de2e73734a9f5c87b0e9bfb822bd
+F src/file.c adc8ffdec07a1b65f9b5762e0d8e3ead96fa5856
 F src/finfo.c 02754a8836283fdc2fc3aba15df9617897581c7f
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 8b4e8b1c55294c35721527e2bc28f04a0ad14f3c
-F src/main.c f13e899e99f7f1cd91002571b353cb609d6a01cc
+F src/main.c 9c11060660fb64f56746c7cdb13002a38913feea
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -162,7 +162,7 @@ F src/timeline.c 93656d26997b413974de45167587e904286221e6
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
-F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
+F src/undo.c 72ce08ff2cea4026a432a5deed2f18b22a2c569e
 F src/update.c a20da9ef728dbb4cd9d4f762f5597c6fbcfa847c
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 51858373cb6f4f01975ae596fe781fc4685f0903
-R 553f0ac4634937ee8539a060f079129e
-U viriketo
-Z 428be39681200177071b1121ad35807b
+P 5f3916ac5b75a69c72abb41ee90cfe87c0a65bac
+R 2a8935aae0b6237ea10ce08cc85029db
+U drh
+Z a1bb673de0b68e0286c03da35a0abe50
