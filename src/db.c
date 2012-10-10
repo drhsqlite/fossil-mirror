@@ -678,6 +678,22 @@ void db_now_function(
   sqlite3_result_int64(context, time(0));
 }
 
+/*
+** Function to return the check-in time for a file.
+*/
+void db_checkin_mtime_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  i64 mtime;
+  int rc = mtime_of_manifest_file(sqlite3_value_int(argv[0]),
+                                  sqlite3_value_int(argv[1]), &mtime);
+  if( rc==0 ){
+    sqlite3_result_int64(context, mtime);
+  }
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -700,6 +716,8 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_ANY, 0,
+                          db_checkin_mtime_function, 0, 0);
   return db;
 }
 

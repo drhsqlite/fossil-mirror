@@ -1,5 +1,5 @@
-C The\s"fossil\sundo"\sand\s"fossil\sredo"\scommands\sremember\sfile\smtimes\sand\s\nrestore\sthem\sappropriately.\s\sWhen\supgrading\sthrough\sthis\sversion,\syou\nmay\sneed\sto\srun\s"fossil\sundo\s--reset"\sto\sclear\syour\sold\sundo\sstack.
-D 2012-10-10T16:06:37.834
+C Add\sthe\sinternal\scheckin_mtime()\sfunction.\s\sUse\sit\sto\simplement\sthe\s--age\nand\s-t\soptions\sto\sthe\s"fossil\sls"\scommand.
+D 2012-10-10T20:03:49.821
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c ac80c2f68cd864fb6d4891d5d789bead7960b8ea
 F src/captcha.c 78477f592dff3b20b37d3d7e3f8a6d8759d9f9a6
 F src/cgi.c eba0a221118dcd146c8afcb084047b134b86829d
-F src/checkin.c f21a7769ca0c3bc3a3922f80ec99ee0bd30a2870
+F src/checkin.c 72187b0ff719a05a58607322de2178fa12aa02cc
 F src/checkout.c 1ae2326b5c189df381292e47d4d5f13ed94ae0b0
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -79,10 +79,10 @@ F src/configure.c c89251c280e7b94f8fb68312daa951211236b22d
 F src/content.c e11e805bd27e7cefc0e39ceb1e92763cb8587e50
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 6c379328a1f0d697931a4d7b803bc12479fb582f
+F src/db.c 61c1e7795a42171fe855aee05fcad6c3b1ee45f9
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
+F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
 F src/diff.c ba6c48d4b006f4488dbefc4aaab6cf0c1edda81f
 F src/diffcmd.c 160d2565ecb4b9eaa458d1443c202b48032f715a
 F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
@@ -158,7 +158,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c ad962ee24af9c4e25715d15b62f713940b2dbe1b
 F src/th_tcl.c 060b51efd4092d090005c1548c0e54bf9ff6a653
-F src/timeline.c 93656d26997b413974de45167587e904286221e6
+F src/timeline.c 0d401d64a8f6a531468d5a7cd6752e98b82ddae2
 F src/tkt.c 583b882efd0979b42e0bd73de3f9aa19e1851677
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5f3916ac5b75a69c72abb41ee90cfe87c0a65bac
-R 2a8935aae0b6237ea10ce08cc85029db
+P 0c37874941c89728f6cc0063a2a44b8bc2a38c6c
+R 2baac56a7419c741657f76fcd2c91f10
 U drh
-Z a1bb673de0b68e0286c03da35a0abe50
+Z 45fc6f18701c2f0d8d71db292cd2c567
