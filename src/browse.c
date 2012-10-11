@@ -167,6 +167,8 @@ void page_dir(void){
       style_submenu_element("All", "All", "%R/dir?name=%t", zD);
     }else{
       style_submenu_element("All", "All", "%R/dir");
+      style_submenu_element("File Ages", "File Ages", "%R/fileage?name=%S",
+                            zUuid);
     }
   }else{
     int hasTrunk;
@@ -380,6 +382,7 @@ int compute_fileage(int vid){
 void fileage_page(void){
   int rid;
   const char *zName;
+  char *zBaseTime;
   Stmt q;
   double baseTime;
   int lastMid = -1;
@@ -392,11 +395,19 @@ void fileage_page(void){
   if( rid==0 ){
     fossil_fatal("not a valid check-in: %s", zName);
   }
-  style_header("File Ages for %h", zName);
+  style_header("File Ages", zName);
   compute_fileage(rid);
-  @ <h1>Times since each file was changed as of check-in %h(zName)</h1>
-  @ <table border=0 cellspacing=0 cellpadding=0>
   baseTime = db_double(0.0, "SELECT mtime FROM event WHERE objid=%d", rid);
+  zBaseTime = db_text("","SELECT datetime(%.20g,'localtime')", baseTime);
+  @ <h2>File Ages For Check-in
+  @ %z(href("%R/info?name=%T",zName))%h(zName)</a></h2>
+  @
+  @ <p>The times given are relative 
+  @ %z(href("%R/timeline?c=%T",zBaseTime))%s(zBaseTime)</a>, which is the
+  @ check-in time for 
+  @ %z(href("%R/info?name=%T",zName))%h(zName)</a></p>
+  @
+  @ <table border=0 cellspacing=0 cellpadding=0>
   db_prepare(&q,
     "SELECT mtime, (SELECT uuid FROM blob WHERE rid=fid), mid, pathname"
     "  FROM fileage"
