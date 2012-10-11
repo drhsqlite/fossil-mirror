@@ -25,6 +25,12 @@
 #include <errno.h>
 #include "file.h"
 
+#ifdef _WIN32
+# include <sys/utime.h>
+#else
+# include <sys/time.h>
+#endif
+
 /*
 ** The file status information from the most recent stat() call.
 **
@@ -216,6 +222,49 @@ int file_setexe(const char *zFilename, int onoff){
   }
 #endif /* _WIN32 */
   return rc;
+}
+
+/*
+** Set the mtime for a file.
+*/
+void file_set_mtime(const char *zFilename, i64 newMTime){
+#if !defined(_WIN32)
+  struct timeval tv[2];
+  memset(tv, 0, sizeof(tv[0])*2);
+  tv[0].tv_sec = newMTime;
+  tv[1].tv_sec = newMTime;
+  utimes(zFilename, tv);
+#else
+  struct utimbuf tb;
+  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  tb.actime = newMTime;
+  tb.modtime = newMTime;
+  _wutime(zMbcs, &tb);
+  fossil_mbcs_free(zMbcs);
+#endif
+}
+
+/*
+** COMMAND: test-set-mtime
+**
+** Usage: %fossil test-set-mtime FILENAME DATE/TIME
+**
+** Sets the mtime of the named file to the date/time shown.
+*/
+void test_set_mtime(void){
+  const char *zFile;
+  char *zDate;
+  i64 iMTime;
+  if( g.argc!=4 ){
+    usage("test-set-mtime FILENAME DATE/TIME");
+  }
+  db_open_or_attach(":memory:", "mem");
+  iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
+  zFile = g.argv[2];
+  file_set_mtime(zFile, iMTime);
+  iMTime = file_mtime(zFile);
+  zDate = db_text(0, "SELECT datetime(%lld, 'unixepoch')", iMTime);
+  fossil_print("Set mtime of \"%s\" to %s (%lld)\n", zFile, zDate, iMTime);
 }
 
 /*

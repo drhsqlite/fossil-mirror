@@ -214,7 +214,7 @@ static void diff_all_against_disk(
   ignoreEolWs = (diffFlags & DIFF_NOEOLWS)!=0;
   asNewFile = (diffFlags & DIFF_NEWFILE)!=0;
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   blob_zero(&sql);
   db_begin_transaction();
   if( zFrom ){

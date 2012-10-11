@@ -145,7 +145,7 @@ void merge_cmd(void){
   if( !is_a_version(pid) ){
     fossil_fatal("not a version: record #%d", pid);
   }
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);

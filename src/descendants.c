@@ -158,7 +158,7 @@ void compute_leaves(int iBase, int closeMode){
 ** Load the record ID rid and up to N-1 closest ancestors into
 ** the "ok" table.
 */
-void compute_ancestors(int rid, int N){
+void compute_ancestors(int rid, int N, int directOnly){
   Bag seen;
   PQueue queue;
   Stmt ins;
@@ -170,7 +170,8 @@ void compute_ancestors(int rid, int N){
   db_prepare(&ins, "INSERT OR IGNORE INTO ok VALUES(:rid)");
   db_prepare(&q,
     "SELECT a.pid, b.mtime FROM plink a LEFT JOIN plink b ON b.cid=a.pid"
-    " WHERE a.cid=:rid"
+    " WHERE a.cid=:rid %s",
+    directOnly ? " AND a.isprim" : ""
   );
   while( (N--)>0 && (rid = pqueue_extract(&queue, 0))!=0 ){
     db_bind_int(&ins, ":rid", rid);
@@ -204,7 +205,9 @@ void compute_direct_ancestors(int rid, int N){
   Stmt q;
   int gen = 0;
   db_multi_exec(
-    "CREATE TEMP TABLE ancestor(rid INTEGER, generation INTEGER PRIMARY KEY);"
+    "CREATE TEMP TABLE IF NOT EXISTS ancestor(rid INTEGER,"
+                                            " generation INTEGER PRIMARY KEY);"
+    "DELETE FROM ancestor;"
     "INSERT INTO ancestor VALUES(%d, 0);", rid
   );
   db_prepare(&ins, "INSERT INTO ancestor VALUES(:rid, :gen)");
@@ -225,6 +228,40 @@ void compute_direct_ancestors(int rid, int N){
   }
   db_finalize(&ins);
   db_finalize(&q);
+}
+
+/*
+** Compute the "mtime" of the file given whose blob.rid is "fid" that
+** is part of check-in "vid".  The mtime will be the mtime on vid or
+** some ancestor of vid where fid first appears.
+*/
+int mtime_of_manifest_file(
+  int vid,       /* The check-in that contains fid */
+  int fid,       /* The id of the file whose check-in time is sought */
+  i64 *pMTime    /* Write result here */
+){
+  static int prevVid = -1;
+  static Stmt q;
+
+  if( prevVid!=vid ){
+    prevVid = vid;
+    db_multi_exec("DROP TABLE IF EXISTS temp.ok;"
+                  "CREATE TEMP TABLE ok(x INTEGER PRIMARY KEY);");
+    compute_ancestors(vid, 100000000, 1);
+  }
+  db_static_prepare(&q,
+    "SELECT (max(event.mtime)-2440587.5)*86400 FROM mlink, event"
+    " WHERE mlink.mid=event.objid"
+    "   AND +mlink.mid IN ok"
+    "   AND mlink.fid=:fid");
+  db_bind_int(&q, ":fid", fid);
+  if( db_step(&q)!=SQLITE_ROW ){
+    db_reset(&q);
+    return 1;
+  }
+  *pMTime = db_column_int64(&q, 0);
+  db_reset(&q);
+  return 0;
 }
 
 /*

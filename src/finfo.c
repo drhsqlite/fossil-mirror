@@ -53,7 +53,7 @@ void finfo_cmd(void){
     if( vid==0 ){
       fossil_panic("no checkout to finfo files in");
     }
-    vfile_check_signature(vid, 1, 0);
+    vfile_check_signature(vid, CKSIG_ENOTFILE);
     file_tree_name(g.argv[2], &fname, 1);
     db_prepare(&q,
         "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"

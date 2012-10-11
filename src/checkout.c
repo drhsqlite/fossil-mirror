@@ -35,7 +35,7 @@ int unsaved_changes(void){
   db_must_be_within_tree();
   vid = db_lget_int("checkout",0);
   if( vid==0 ) return 2;
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   return db_exists("SELECT 1 FROM vfile WHERE chnged"
                    " OR coalesce(origname!=pathname,0)");
 }
