@@ -32,7 +32,7 @@ static void undo_one(const char *zPathname, int redoFlag){
   Stmt q;
   char *zFullname;
   db_prepare(&q,
-    "SELECT content, existsflag, isExe, isLink, mtime FROM undo"
+    "SELECT content, existsflag, isExe, isLink FROM undo"
     " WHERE pathname=%Q AND redoflag=%d",
      zPathname, redoFlag
   );
@@ -43,7 +43,6 @@ static void undo_one(const char *zPathname, int redoFlag){
     int new_exe;
     int new_link;
     int old_link;
-    i64 old_mtime, new_mtime;
     Blob current;
     Blob new;
     zFullname = mprintf("%s/%s", g.zLocalRoot, zPathname);
@@ -57,16 +56,13 @@ static void undo_one(const char *zPathname, int redoFlag){
         blob_read_from_file(&current, zFullname);        
       }
       new_exe = file_wd_isexe(zFullname);
-      new_mtime = file_wd_mtime(zFullname);
     }else{
       blob_zero(&current);
       new_exe = 0;
-      new_mtime = 0;
     }
     blob_zero(&new);
     old_exists = db_column_int(&q, 1);
     old_exe = db_column_int(&q, 2);
-    old_mtime = db_column_int64(&q, 4);
     if( old_exists ){
       db_ephemeral_blob(&q, 0, &new);
     }
@@ -85,7 +81,6 @@ static void undo_one(const char *zPathname, int redoFlag){
         blob_write_to_file(&new, zFullname);
       }
       file_wd_setexe(zFullname, old_exe);
-      file_set_mtime(zFullname, old_mtime);
     }else{
       fossil_print("DELETE %s\n", zPathname);
       file_delete(zFullname);
@@ -95,9 +90,9 @@ static void undo_one(const char *zPathname, int redoFlag){
     db_finalize(&q);
     db_prepare(&q, 
        "UPDATE undo SET content=:c, existsflag=%d, isExe=%d, isLink=%d,"
-             " mtime=%lld, redoflag=NOT redoflag"
+             " redoflag=NOT redoflag"
        " WHERE pathname=%Q",
-       new_exists, new_exe, new_link, new_mtime, zPathname
+       new_exists, new_exe, new_link, zPathname
     );
     if( new_exists ){
       db_bind_blob(&q, ":c", &current);
@@ -232,7 +227,6 @@ void undo_begin(void){
     @   existsflag BOOLEAN,               -- True if the file exists
     @   isExe BOOLEAN,                    -- True if the file is executable
     @   isLink BOOLEAN,                   -- True if the file is symlink
-    @   mtime DATETIME,                   -- File modification time 
     @   content BLOB                      -- Saved content
     @ );
     @ CREATE TABLE %s.undo_vfile AS SELECT * FROM vfile;
@@ -282,10 +276,9 @@ void undo_save(const char *zPathname){
   isLink = file_wd_islink(zFullname);
   db_prepare(&q,
     "INSERT OR IGNORE INTO"
-    "   undo(pathname,redoflag,existsflag,isExe,isLink,mtime,content)"
-    " VALUES(%Q,0,%d,%d,%d,%lld,:c)",
-    zPathname, existsFlag, file_wd_isexe(zFullname), isLink,
-    file_wd_mtime(zFullname)
+    "   undo(pathname,redoflag,existsflag,isExe,isLink,content)"
+    " VALUES(%Q,0,%d,%d,%d,:c)",
+    zPathname, existsFlag, file_wd_isexe(zFullname), isLink
   );
   if( existsFlag ){
     if( isLink ){
@@ -392,7 +385,6 @@ void undo_cmd(void){
   int explainFlag = find_option("explain", 0, 0)!=0;
   const char *zCmd = isRedo ? "redo" : "undo";
   db_must_be_within_tree();
-  if( find_option("reset", 0, 0)!=0 ){ undo_reset(); return; }
   verify_all_options();
   db_begin_transaction();
   undo_available = db_lget_int("undo_available", 0);
