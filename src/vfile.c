@@ -120,15 +120,26 @@ void load_vfile_from_rid(int vid){
   db_end_transaction(0);
 }
 
+#if INTERFACE
 /*
-** Look at every VFILE entry with the given vid and  set update
-** VFILE.CHNGED field on every file according to whether or not
-** the file has changes.  0 means no change.  1 means edited.  2 means
+** The cksigFlags parameter to vfile_check_signature() is an OR-ed
+** combination of the following bits:
+*/
+#define CKSIG_ENOTFILE  0x001   /* non-file FS objects throw an error */
+#define CKSIG_SHA1      0x002   /* Verify file content using sha1sum */
+#define CKSIG_SETMTIME  0x004   /* Set mtime to last check-out time */
+
+#endif /* INTERFACE */
+
+/*
+** Look at every VFILE entry with the given vid and update
+** VFILE.CHNGED field according to whether or not
+** the file has changed.  0 means no change.  1 means edited.  2 means
 ** the file has changed due to a merge.  3 means the file was added
 ** by a merge.
 **
-** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was
-** either removed from managemented via "fossil rm" or added via
+** If VFILE.DELETED is true or if VFILE.RID is zero, then the file was either
+** removed from configuration management via "fossil rm" or added via
 ** "fossil add", respectively, and in both cases we always know that 
 ** the file has changed without having the check the size, mtime,
 ** or on-disk content.
@@ -146,11 +157,12 @@ void load_vfile_from_rid(int vid){
 ** If the mtime of a file has changed, we still examine the on-disk content
 ** to see whether or not the edit was a null-edit.
 */
-void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
+void vfile_check_signature(int vid, unsigned int cksigFlags){
   int nErr = 0;
   Stmt q;
   Blob fileCksum, origCksum;
-  int useMtime = useSha1sum==0 && db_get_boolean("mtime-changes", 1);
+  int useMtime = (cksigFlags & CKSIG_SHA1)==0
+                    && db_get_boolean("mtime-changes", 1);
 
   db_begin_transaction();
   db_prepare(&q, "SELECT id, %Q || pathname,"
@@ -180,7 +192,7 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       /* "fossil rm" or "fossil add" always change the file */
       chnged = 1;
     }else if( !file_wd_isfile_or_link(0) && currentSize>=0 ){
-      if( notFileIsFatal ){
+      if( cksigFlags & CKSIG_ENOTFILE ){
         fossil_warning("not an ordinary file: %s", zName);
         nErr++;
       }
@@ -219,6 +231,15 @@ void vfile_check_signature(int vid, int notFileIsFatal, int useSha1sum){
       }
       blob_reset(&origCksum);
       blob_reset(&fileCksum);
+    }
+    if( (cksigFlags & CKSIG_SETMTIME) && (chnged==0 || chnged==2) ){
+      i64 desiredMtime;
+      if( mtime_of_manifest_file(vid,rid,&desiredMtime)==0 ){
+        if( currentMtime!=desiredMtime ){
+          file_set_mtime(zName, desiredMtime);
+          currentMtime = file_wd_mtime(zName);
+        }
+      }
     }
     if( currentMtime!=oldMtime || chnged!=oldChnged ){
       db_multi_exec("UPDATE vfile SET mtime=%lld, chnged=%d WHERE id=%d",

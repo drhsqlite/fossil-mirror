@@ -162,7 +162,7 @@ void changes_cmd(void){
   cwdRelative = determine_cwd_relative_option();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, useSha1sum);
+  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
   status_report(&report, "", 0, cwdRelative);
   if( verbose && blob_size(&report)==0 ){
     blob_append(&report, "  (none)\n", -1);
@@ -246,7 +246,7 @@ void ls_cmd(void){
     }
   }
   verify_all_options();
-  vfile_check_signature(vid, 0, 0);
+  vfile_check_signature(vid, 0);
   if( showAge ){
     db_prepare(&q,
        "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
