@@ -174,7 +174,7 @@ static int stash_create(void){
   stashid = db_lget_int("stash-next", 1);
   db_lset_int("stash-next", stashid+1);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, 0);
+  vfile_check_signature(vid, 0);
   db_multi_exec(
     "INSERT INTO stash(stashid,vid,comment,ctime)"
     "VALUES(%d,%d,%Q,julianday('now'))",

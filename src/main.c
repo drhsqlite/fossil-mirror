@@ -557,6 +557,7 @@ static void expand_args_option(int argc, void *argv){
   g.argv = newArgv;
 }
 
+#ifdef FOSSIL_ENABLE_TCL
 /*
 ** Make a deep copy of the provided argument array and return it.
 */
@@ -570,6 +571,7 @@ static char **copy_args(int argc, char **argv){
   }
   return zNewArgv;
 }
+#endif
 
 /*
 ** This procedure runs first.

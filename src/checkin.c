@@ -162,7 +162,7 @@ void changes_cmd(void){
   cwdRelative = determine_cwd_relative_option();
   blob_zero(&report);
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, useSha1sum);
+  vfile_check_signature(vid, useSha1sum ? CKSIG_SHA1 : 0);
   status_report(&report, "", 0, cwdRelative);
   if( verbose && blob_size(&report)==0 ){
     blob_append(&report, "  (none)\n", -1);
@@ -209,15 +209,21 @@ void status_cmd(void){
 }
 
 /*
+** Implementation of the checkin_mtime SQL function
+*/
+
+
+/*
 ** COMMAND: ls
 **
-** Usage: %fossil ls ?OPTIONS?
+** Usage: %fossil ls ?OPTIONS? ?VERSION?
 **
 ** Show the names of all files in the current checkout.  The -l provides
 ** extra information about each file.
 **
 ** Options:
-**   -l      Provide extra information about each file.
+**   -l              Provide extra information about each file.
+**   --age           Show when each file was committed
 **
 ** See also: changes, extra, status
 */
@@ -225,16 +231,36 @@ void ls_cmd(void){
   int vid;
   Stmt q;
   int isBrief;
+  int showAge;
+  char *zOrderBy = "pathname";
 
   isBrief = find_option("l","l", 0)==0;
+  showAge = find_option("age",0,0)!=0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
-  vfile_check_signature(vid, 0, 0);
-  db_prepare(&q,
-     "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
-     "  FROM vfile"
-     " ORDER BY 1"
-  );
+  if( find_option("t","t",0)!=0 ){
+    if( showAge ){
+      zOrderBy = mprintf("checkin_mtime(%d,rid) DESC", vid);
+    }else{
+      zOrderBy = "mtime DESC";
+    }
+  }
+  verify_all_options();
+  vfile_check_signature(vid, 0);
+  if( showAge ){
+    db_prepare(&q,
+       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0),"
+       "       datetime(checkin_mtime(%d,rid),'unixepoch','localtime')"
+       "  FROM vfile"
+       " ORDER BY %s", vid, zOrderBy
+    );
+  }else{
+    db_prepare(&q,
+       "SELECT pathname, deleted, rid, chnged, coalesce(origname!=pathname,0)"
+       "  FROM vfile"
+       " ORDER BY %s", zOrderBy
+    );
+  }
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
     int isDeleted = db_column_int(&q, 1);
@@ -242,7 +268,9 @@ void ls_cmd(void){
     int chnged = db_column_int(&q,3);
     int renamed = db_column_int(&q,4);
     char *zFullName = mprintf("%s%s", g.zLocalRoot, zPathname);
-    if( isBrief ){
+    if( showAge ){
+      fossil_print("%s  %s\n", db_column_text(&q, 5), zPathname);
+    }else if( isBrief ){
       fossil_print("%s\n", zPathname);
     }else if( isNew ){
       fossil_print("ADDED      %s\n", zPathname);
@@ -298,12 +326,13 @@ void extra_cmd(void){
   Stmt q;
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
-  int allFlag = find_option("dotfiles",0,0)!=0;
+  unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -314,7 +343,7 @@ void extra_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT x FROM sfile"
@@ -369,12 +398,13 @@ void extra_cmd(void){
 **    --force          Remove files without prompting
 **    --ignore <CSG>   ignore files matching patterns from the 
 **                     comma separated list of glob patterns.
+**    --temp           Remove only Fossil-generated temporary files
 **
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
   int allFlag;
-  int dotfilesFlag;
+  unsigned scanFlags = 0;
   const char *zIgnoreFlag;
   Blob path, repo;
   Stmt q;
@@ -382,7 +412,8 @@ void clean_cmd(void){
   Glob *pIgnore;
 
   allFlag = find_option("force","f",0)!=0;
-  dotfilesFlag = find_option("dotfiles",0,0)!=0;
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -392,7 +423,7 @@ void clean_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), dotfilesFlag, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"
@@ -814,10 +845,6 @@ static void create_manifest(
   if( zColor && zColor[0] ){
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
-  }
-  if( g.markPrivate ){
-    /* If this manifest is private, mark it as such */
-    blob_appendf(pOut, "T +private *\n");
   }
   if( azTag ){
     for(i=0; azTag[i]; i++){
