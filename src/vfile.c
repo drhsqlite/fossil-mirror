@@ -383,6 +383,44 @@ int vfile_top_of_checkout(const char *zPath){
   return fileFound;
 }
 
+/*
+** Return TRUE if zFile is a temporary file.  Return FALSE if not.
+*/
+static int is_temporary_file(const char *zName){
+  static const char *azTemp[] = {
+     "baseline",
+     "merge",
+     "original",
+     "output",
+  };
+  int i, j, n;
+  
+  if( strglob("ci-comment-????????????.txt", zName) ) return 1;
+  for(; zName[0]!=0; zName++){
+    if( zName[0]=='/' && strglob("/ci-comment-????????????.txt", zName) ){
+      return 1;
+    }
+    if( zName[0]!='-' ) continue;
+    for(i=0; i<sizeof(azTemp)/sizeof(azTemp[0]); i++){
+      n = (int)strlen(azTemp[i]);
+      if( memcmp(azTemp[i], zName+1, n) ) continue;
+      if( zName[n+1]==0 ) return 1;
+      if( zName[n+1]=='-' ){
+        for(j=n+2; zName[j] && fossil_isdigit(zName[j]); j++){}
+        if( zName[j]==0 ) return 1;
+      }
+    }      
+  }
+  return 0;
+}
+
+#if INTERFACE
+/*
+** Values for the scanFlags parameter to vfile_scan().
+*/
+#define SCAN_ALL    0x001    /* Includes files that begin with "." */
+#define SCAN_TEMP   0x002    /* Only Fossil-generated files like *-baseline */
+#endif /* INTERFACE */
 
 /*
 ** Load into table SFILE the name of every ordinary file in
@@ -398,7 +436,7 @@ int vfile_top_of_checkout(const char *zPath){
 ** excluded from the scan.  Name matching occurs after the first
 ** nPrefix characters are elided from the filename.
 */
-void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
+void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   DIR *d;
   int origSize;
   const char *zDir;
@@ -432,7 +470,7 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
       char *zPath;
       char *zUtf8;
       if( pEntry->d_name[0]=='.' ){
-        if( !allFlag ) continue;
+        if( (scanFlags & SCAN_ALL)==0 ) continue;
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
@@ -444,12 +482,14 @@ void vfile_scan(Blob *pPath, int nPrefix, int allFlag, Glob *pIgnore){
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, allFlag, pIgnore);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
         }
       }else if( file_wd_isfile_or_link(zPath) ){
-        db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
-        db_step(&ins);
-        db_reset(&ins);
+        if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(pEntry->d_name) ){
+          db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
+          db_step(&ins);
+          db_reset(&ins);
+        }
       }
       blob_resize(pPath, origSize);
     }

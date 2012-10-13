@@ -326,12 +326,13 @@ void extra_cmd(void){
   Stmt q;
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
-  int allFlag = find_option("dotfiles",0,0)!=0;
+  unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int cwdRelative = 0;
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
 
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   db_must_be_within_tree();
   cwdRelative = determine_cwd_relative_option();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
@@ -342,7 +343,7 @@ void extra_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT x FROM sfile"
@@ -397,12 +398,13 @@ void extra_cmd(void){
 **    --force          Remove files without prompting
 **    --ignore <CSG>   ignore files matching patterns from the 
 **                     comma separated list of glob patterns.
+**    --temp           Remove only Fossil-generated temporary files
 **
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
   int allFlag;
-  int dotfilesFlag;
+  unsigned scanFlags = 0;
   const char *zIgnoreFlag;
   Blob path, repo;
   Stmt q;
@@ -410,7 +412,8 @@ void clean_cmd(void){
   Glob *pIgnore;
 
   allFlag = find_option("force","f",0)!=0;
-  dotfilesFlag = find_option("dotfiles",0,0)!=0;
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
+  if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -420,7 +423,7 @@ void clean_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), dotfilesFlag, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   db_prepare(&q, 
       "SELECT %Q || x FROM sfile"

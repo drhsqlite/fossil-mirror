@@ -218,9 +218,10 @@ void add_cmd(void){
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore;             /* Ignore everything matching this glob pattern */
   int caseSensitive;         /* True if filenames are case sensitive */
+  unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
 
   zIgnoreFlag = find_option("ignore",0,1);
-  includeDotFiles = find_option("dotfiles",0,0)!=0;
+  if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
   db_must_be_within_tree();
   caseSensitive = filenames_are_case_sensitive();
@@ -252,7 +253,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, includeDotFiles, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -435,7 +436,7 @@ int filenames_strncmp(const char *zA, const char *zB, int nByte){
 void addremove_cmd(void){
   Blob path;
   const char *zIgnoreFlag = find_option("ignore",0,1);
-  int allFlag = find_option("dotfiles",0,0)!=0;
+  unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int isTest = find_option("test",0,0)!=0;
   int caseSensitive;
   int n;
@@ -468,7 +469,7 @@ void addremove_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), allFlag, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
   nAdd = add_files_in_sfile(vid, caseSensitive);
 
