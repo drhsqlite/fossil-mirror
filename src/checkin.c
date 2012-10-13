@@ -836,10 +836,6 @@ static void create_manifest(
     /* One-time background color */
     blob_appendf(pOut, "T +bgcolor * %F\n", zColor);
   }
-  if( g.markPrivate ){
-    /* If this manifest is private, mark it as such */
-    blob_appendf(pOut, "T +private *\n");
-  }
   if( azTag ){
     for(i=0; azTag[i]; i++){
       /* Add a symbolic tag to this check-in.  The tag names have already
