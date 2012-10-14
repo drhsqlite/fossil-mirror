@@ -1207,6 +1207,7 @@ void commit_cmd(void){
       if( blob_size(&comment)>2 && memcmp(blob_buffer(&comment), bom, 3)==0 ) {
     	struct Blob temp;
         char *zUtf8 = blob_str(&comment) + 3;
+        blob_zero(&temp);
         blob_append(&temp, zUtf8, -1);
         fossil_mbcs_free(zUtf8);
         blob_swap(&temp, &comment);
