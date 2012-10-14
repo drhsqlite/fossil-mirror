@@ -1221,9 +1221,23 @@ void commit_cmd(void){
         blob_zero(&comment);
         blob_append(&comment, zUtf8, -1);
         fossil_mbcs_free(zUtf8);
-      }else if( blob_size(&comment)>1
-          && memcmp(blob_buffer(&comment), &urbom, 2)==0 ){
-        fossil_fatal("unicode bom (be) not (yet) implemented");
+      }else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
+          && memcmp(blob_buffer(&comment), &urbom, 2)==0 ) {
+        char *zUtf8 = blob_buffer(&comment);
+        unsigned int i = blob_size(&comment);
+        while( i > 0 ){
+            /* swap bytes of unicode representation */
+            char temp = zUtf8[--i];
+            zUtf8[i] = zUtf8[i-1];
+            zUtf8[--i] = temp;
+        }
+        /* Make sure the blob contains two terminating 0-bytes */
+        blob_append(&comment, "", 1);
+        zUtf8 = blob_str(&comment) + 2;
+        zUtf8 = fossil_unicode_to_utf8(zUtf8);
+        blob_zero(&comment);
+        blob_append(&comment, zUtf8, -1);
+        fossil_mbcs_free(zUtf8);
       }else{
         char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
         blob_zero(&comment);
