@@ -476,7 +476,6 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
       }
       zUtf8 = fossil_unicode_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
-      fossil_mbcs_free(zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
         /* do nothing */
@@ -485,12 +484,13 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
           vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
         }
       }else if( file_wd_isfile_or_link(zPath) ){
-        if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(pEntry->d_name) ){
+        if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){
           db_bind_text(&ins, ":file", &zPath[nPrefix+1]);
           db_step(&ins);
           db_reset(&ins);
         }
       }
+      fossil_mbcs_free(zUtf8);
       blob_resize(pPath, origSize);
     }
     closedir(d);
