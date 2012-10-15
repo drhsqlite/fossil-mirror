@@ -1,5 +1,5 @@
-C merge\strunk
-D 2012-10-15T05:11:49.632
+C unused\svariable\sincludeDotFiles\n<p>struct\sutimbuf\s->\sstruct\s_utimbuf\s(compiler\swarning\swith\smingw-w64)\n<p>a\sfew\s"const"\sadditions
+D 2012-10-15T05:28:46.920
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -59,7 +59,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 50c72bbcb4ebe0d15997e3069997ced42a0d513d
+F src/add.c 8951400388e38b8eb872a1acbc0fb168796f14ce
 F src/allrepo.c 6de7c8aeabdf7e20084198675674a1d3ec4e9750
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -89,7 +89,7 @@ F src/doc.c c0a2fbd8a127515aafd577bf934301853ae7579e
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
-F src/file.c adc8ffdec07a1b65f9b5762e0d8e3ead96fa5856
+F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
 F src/finfo.c 3b7178cbdafb235737917f68b157b3647f41c732
 F src/glob.c 4b3b7ee4ce8da15130475e9ce3b90a2f64d2f584
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -167,7 +167,7 @@ F src/update.c 27cd294b9d1482f96c0f907306375fe3c7cc40f0
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 27646499236e24b2a3771cfffd2d3c47cfca244c
+F src/vfile.c 451d85c26d4ccc37926b677fb07615d7f1447bc9
 F src/wiki.c abdd9822c1dc2367345f4e9283a6f8f3a825a3dd
 F src/wikiformat.c 8536ce40296890417f80ea30490812c29e1ae293
 F src/winhttp.c 15af9c7f038e5edb7a41f2be42647e801208aa96
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8a0c2c366c655c8e025318889e7d7a970ae491c3 0e6b7bc363e9e22fa116d110aaac3822a3bbd675
-R 66fa9e7de494e20b92ce35dec116b571
+P 69a0db2dd029978fa61dbc8aec447d08fe7d0b90
+R e1ef9dabe5f60dafab0b1b291fbe2379
 U jan.nijtmans
-Z 569440e5aa8c8d2309ef778d92cd927d
+Z d38cc58dfd80faa1e4d35f03c0aa4ea3

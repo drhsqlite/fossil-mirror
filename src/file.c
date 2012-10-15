@@ -404,7 +404,7 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   tv[1].tv_sec = newMTime;
   utimes(zFilename, tv);
 #else
-  struct utimbuf tb;
+  struct _utimbuf tb;
   wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
   tb.actime = newMTime;
   tb.modtime = newMTime;
