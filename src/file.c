@@ -236,10 +236,10 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   utimes(zFilename, tv);
 #else
   struct utimbuf tb;
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  char *zMbcs = fossil_utf8_to_mbcs(zFilename);
   tb.actime = newMTime;
   tb.modtime = newMTime;
-  _wutime(zMbcs, &tb);
+  _utime(zMbcs, &tb);
   fossil_mbcs_free(zMbcs);
 #endif
 }

@@ -1,5 +1,5 @@
-C Cherrypick\schanges\s[0c37874941c8972],\s[9ba8a393fcc569b],\sand\n[ae092ec605eed11]\sin\sorder\sto\sbackport\sthe\s--setmtime\soption\sof\s"fossil\supdate"\nand\sthe\s--age\sand\s-t\soptions\sof\s"fossil\sls"\sto\sversion\s1.19.
-D 2012-10-11T19:45:13.372
+C Fix\sthe\swindows\sbuild\sfor\sthe\s1.19\sbranch.
+D 2012-10-15T15:01:30.131
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -78,7 +78,7 @@ F src/doc.c 0f170fcdb07e4a6a53ef3e2d5d9130533a3b9d4b
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c 62533a9a182317ddc6812a873782be7eee863179
 F src/export.c 2e5077b437d6093b9ee7687c4b3a5fb58f834f25
-F src/file.c 9a93649b9e3189e8aab0c61f176273fea8cf4e44
+F src/file.c d64d55f4942125fb378a8de8637dc1b8fb849f4a
 F src/finfo.c ed6f54ae22e08696d130e176853bdce321dc6dce
 F src/glob.c 5257b10168b449dd232ee90cead4cda24687e832
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -325,10 +325,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 6517b5c857fe389e17f93efb8c3583af99ddd842
-R 7c04c1fa79c3eae31dc97412f4b39a9b
-T *branch * branch-1.19
-T *sym-branch-1.19 *
-T -sym-trunk *
+P 773c6c5f2c386031f0a313967e397bde001db2be
+R fb6d06a8fab6349b715bd6f4a95469f3
 U drh
-Z 7ca01b5b1a3369c618e898cb4b69a31d
+Z 39e20ebe7860957e7f4d88eab201292e
