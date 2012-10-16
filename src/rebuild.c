@@ -927,6 +927,7 @@ void reconstruct_cmd(void) {
 **   -R|--repository REPOSITORY  deconstruct given REPOSITORY
 **   -L|--prefixlength N         set the length of the names of the DESTINATION
 **                               subdirectories to N
+**   --private                   Include private artifacts.
 **
 ** See also: rebuild, reconstruct
 */
@@ -934,16 +935,8 @@ void deconstruct_cmd(void){
   const char *zDestDir;
   const char *zPrefixOpt;
   Stmt        s;
+  int privateFlag;
 
-  /* check number of arguments */
-  if( (g.argc != 3) && (g.argc != 5)  && (g.argc != 7)){
-    usage ("?-R|--repository REPOSITORY? ?-L|--prefixlength N? DESTINATION");
-  }
-  /* get and check argument destination directory */
-  zDestDir = g.argv[g.argc-1];
-  if( !*zDestDir  || !file_isdir(zDestDir)) {
-    fossil_panic("DESTINATION(%s) is not a directory!",zDestDir);
-  }
   /* get and check prefix length argument and build format string */
   zPrefixOpt=find_option("prefixlength","L",1);
   if( !zPrefixOpt ){
@@ -954,6 +947,19 @@ void deconstruct_cmd(void){
     }else{
       fossil_fatal("N(%s) is not a a valid prefix length!",zPrefixOpt);
     }
+  }
+  /* open repository and open query for all artifacts */
+  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+  privateFlag = find_option("private",0,0)!=0;
+  verify_all_options();
+  /* check number of arguments */
+  if( g.argc!=3 ){
+    usage ("?OPTIONS? DESTINATION");
+  }
+  /* get and check argument destination directory */
+  zDestDir = g.argv[g.argc-1];
+  if( !*zDestDir  || !file_isdir(zDestDir)) {
+    fossil_fatal("DESTINATION(%s) is not a directory!",zDestDir);
   }
 #ifndef _WIN32
   if( file_access(zDestDir, W_OK) ){
@@ -969,8 +975,7 @@ void deconstruct_cmd(void){
   }else{
     zFNameFormat = mprintf("%s/%%s",zDestDir);
   }
-  /* open repository and open query for all artifacts */
-  db_find_and_open_repository(OPEN_ANY_SCHEMA, 0);
+
   bag_init(&bagDone);
   ttyOutput = 1;
   processCnt = 0;
@@ -982,7 +987,8 @@ void deconstruct_cmd(void){
   db_prepare(&s,
      "SELECT rid, size FROM blob /*scan*/"
      " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
-     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid)"
+     "   AND NOT EXISTS(SELECT 1 FROM delta WHERE rid=blob.rid) %s",
+     privateFlag==0 ? "AND rid NOT IN private" : ""
   );
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);
@@ -996,7 +1002,8 @@ void deconstruct_cmd(void){
   db_finalize(&s);
   db_prepare(&s,
      "SELECT rid, size FROM blob"
-     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid)"
+     " WHERE NOT EXISTS(SELECT 1 FROM shun WHERE uuid=blob.uuid) %s",
+     privateFlag==0 ? "AND rid NOT IN private" : ""
   );
   while( db_step(&s)==SQLITE_ROW ){
     int rid = db_column_int(&s, 0);

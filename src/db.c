@@ -678,6 +678,22 @@ void db_now_function(
   sqlite3_result_int64(context, time(0));
 }
 
+/*
+** Function to return the check-in time for a file.
+*/
+void db_checkin_mtime_function(
+  sqlite3_context *context,
+  int argc,
+  sqlite3_value **argv
+){
+  i64 mtime;
+  int rc = mtime_of_manifest_file(sqlite3_value_int(argv[0]),
+                                  sqlite3_value_int(argv[1]), &mtime);
+  if( rc==0 ){
+    sqlite3_result_int64(context, mtime);
+  }
+}
+
 
 /*
 ** Open a database file.  Return a pointer to the new database
@@ -700,6 +716,8 @@ static sqlite3 *openDatabase(const char *zDbName){
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
+  sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_ANY, 0,
+                          db_checkin_mtime_function, 0, 0);
   return db;
 }
 
@@ -724,7 +742,7 @@ void db_attach(const char *zDbName, const char *zLabel){
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
 */
-static void db_open_or_attach(const char *zDbName, const char *zLabel){
+void db_open_or_attach(const char *zDbName, const char *zLabel){
   if( !g.db ){
     g.db = openDatabase(zDbName);
     g.zMainDbType = zLabel;
@@ -1593,7 +1611,7 @@ LOCAL void db_connection_init(void){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true", "1" };
   int i;
   for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
@@ -1601,7 +1619,7 @@ int is_truth(const char *zVal){
   return 0;
 }
 int is_false(const char *zVal){
-  static const char *azOff[] = { "off", "no", "false", "0" };
+  static const char *const azOff[] = { "off", "no", "false", "0" };
   int i;
   for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
     if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;

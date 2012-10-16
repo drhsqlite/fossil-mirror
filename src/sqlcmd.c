@@ -145,6 +145,7 @@ void sqlite3_cmd(void){
   db_close(1);
   sqlite3_shutdown();
   sqlite3_shell(g.argc-1, g.argv+1);
+  g.db = 0;
 }
 
 /*

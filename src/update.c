@@ -102,6 +102,7 @@ void update_cmd(void){
   int nochangeFlag;     /* -n or --nochange.  Do a dry run */
   int verboseFlag;      /* -v or --verbose.  Output extra information */
   int debugFlag;        /* --debug option */
+  int setmtimeFlag;     /* --setmtime.  Set mtimes on files */
   int nChng;            /* Number of file renames */
   int *aChng;           /* Array of file renames */
   int i;                /* Loop counter */
@@ -118,6 +119,7 @@ void update_cmd(void){
   nochangeFlag = find_option("nochange","n",0)!=0;
   verboseFlag = find_option("verbose","v",0)!=0;
   debugFlag = find_option("debug",0,0)!=0;
+  setmtimeFlag = find_option("setmtime",0,0)!=0;
   db_must_be_within_tree();
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
@@ -196,7 +198,7 @@ void update_cmd(void){
   }
 
   db_begin_transaction();
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   if( !nochangeFlag && !internalUpdate ) undo_begin();
   load_vfile_from_rid(tid);
 
@@ -531,6 +533,7 @@ void update_cmd(void){
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
     }
     if( !internalUpdate ) undo_finish();
+    if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
     db_end_transaction(0);
   }
 }
@@ -698,7 +701,7 @@ void revert_cmd(void){
   }else{
     int vid;
     vid = db_lget_int("checkout", 0);
-    vfile_check_signature(vid, 0, 0);
+    vfile_check_signature(vid, 0);
     db_multi_exec(
       "DELETE FROM vmerge;"
       "INSERT INTO torevert "
