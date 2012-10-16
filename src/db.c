@@ -1611,7 +1611,7 @@ LOCAL void db_connection_init(void){
 ** Return true if the string zVal represents "true" (or "false").
 */
 int is_truth(const char *zVal){
-  static const char *azOn[] = { "on", "yes", "true", "1" };
+  static const char *const azOn[] = { "on", "yes", "true", "1" };
   int i;
   for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
@@ -1619,7 +1619,7 @@ int is_truth(const char *zVal){
   return 0;
 }
 int is_false(const char *zVal){
-  static const char *azOff[] = { "off", "no", "false", "0" };
+  static const char *const azOff[] = { "off", "no", "false", "0" };
   int i;
   for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
     if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;

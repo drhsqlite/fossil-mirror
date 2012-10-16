@@ -387,7 +387,7 @@ int vfile_top_of_checkout(const char *zPath){
 ** Return TRUE if zFile is a temporary file.  Return FALSE if not.
 */
 static int is_temporary_file(const char *zName){
-  static const char *azTemp[] = {
+  static const char *const azTemp[] = {
      "baseline",
      "merge",
      "original",
