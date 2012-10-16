@@ -496,8 +496,10 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
         j += 4;
       }
     }else if( c=='"' && p->escHtml ){
-      memcpy(&z[j], "&quot;", 6);
-      j += 6;
+      if (w != 0) {
+        memcpy(&z[j], "&quot;", 6);
+        j += 6;
+      }
     }else{
       if (w != 0) {
         z[j++] = c;
@@ -506,8 +508,10 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
     }
   }
   if( needEndSpan ){
-    memcpy(&z[j], "</span>", 7);
-    j += 7;
+    if (w != 0) {
+      memcpy(&z[j], "</span>", 7);
+      j += 7;
+    }
   }
 
   if (k > maxwidth)

@@ -1,5 +1,5 @@
-C Adding\smime\stypes\sfor\ssome\sopenoffice\sdocuments
-D 2012-10-09T14:19:38.407
+C Fixing\sbuffer\soverflows\sin\sthe\swidth\scalculation\sof\ssbsDiff.
+D 2012-10-16T12:18:33.457
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c 54a873dd6da5d124950e85e2e0402c8483ccdf02
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 3d30d73f69d468beeb6be2857163b8c51a741bd6
-F src/diff.c 5e1e1884774014a4b838c5904cab8612e081ea24
+F src/diff.c d1bdd97703ccd75252e49948bc83cd350578fcde
 F src/diffcmd.c 1baa500578d35f4464dc162964ef975b7d13372e
 F src/doc.c 5b99a9f94ce65b79fda1d50a5933f1d52fab143a
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4cf8c3d348a5fe6c1be2819ccd9072736dc6dbdc
-R 07e6eaa08d0afd45cb30064785ce1c90
+P 770cf7fc358909c5e7c248b8ad698fe3340c5143
+R 4a6b49b5b655713d1cae32abf8ffb22e
 U viriketo
-Z 4b386f53f6bc4c6e09f2ba25d89ad4fb
+Z 72038281652e43eaed83c5728d27741a
