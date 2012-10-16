@@ -1024,7 +1024,7 @@ void page_timeline(void){
       db_multi_exec("DELETE FROM ok");
     }
     if( p_rid ){
-      compute_ancestors(p_rid, nEntry+1);
+      compute_ancestors(p_rid, nEntry+1, 0);
       np = db_int(0, "SELECT count(*)-1 FROM ok");
       if( np>0 ){
         if( nd>0 ) blob_appendf(&desc, " and ");
@@ -1539,7 +1539,7 @@ void timeline_cmd(void){
     if( mode==3 ){
       compute_descendants(objid, n);
     }else{
-      compute_ancestors(objid, n);
+      compute_ancestors(objid, n, 0);
     }
     blob_appendf(&sql, " AND blob.rid IN ok");
   }

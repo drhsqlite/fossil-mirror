@@ -435,6 +435,7 @@ static int submitTicketCmd(
   const char *zUuid;
   int i;
   int rid;
+  int nJ = 0;
   Blob tktchng, cksum;
 
   login_verify_csrf_secret();
@@ -463,6 +464,7 @@ static int submitTicketCmd(
         }else{
           blob_appendf(&tktchng, "J %s %#F\n", azField[i], nValue, zValue);
         }
+        nJ++;
       }
     }
   }
@@ -478,6 +480,10 @@ static int submitTicketCmd(
   blob_appendf(&tktchng, "U %F\n", g.zLogin ? g.zLogin : "");
   md5sum_blob(&tktchng, &cksum);
   blob_appendf(&tktchng, "Z %b\n", &cksum);
+  if( nJ==0 ){
+    blob_reset(&tktchng);
+    return TH_OK;
+  }
   if( g.zPath[0]=='d' ){
     /* If called from /debug_tktnew or /debug_tktedit... */
     @ <font color="blue">

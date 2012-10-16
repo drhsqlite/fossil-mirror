@@ -633,6 +633,7 @@ void ci_page(void){
       @ <tr><th>Other&nbsp;Links:</th>
       @   <td>
       @     %z(href("%R/dir?ci=%S",zUuid))files</a>
+      @   | %z(href("%R/fileage?name=%S",zUuid))file ages</a>
       @   | %z(href("%R/artifact/%S",zUuid))manifest</a>
       @   | <a href="%s(g.zTop)/vdiff?from=pbranch:%S(zUuid)&to=%S(zUuid)">
       @           vdiff to parent branch</a>
@@ -985,11 +986,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName, 
-                              pFileFrom->zUuid, 0, 0, 0, 0);
+                              pFileFrom->zUuid, 0, 0, diffFlags, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName, 
-                              0, pFileTo->zUuid, 0, 0,
+                              0, pFileTo->zUuid, 0, diffFlags,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){

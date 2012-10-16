@@ -263,11 +263,15 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* Undocumented:  numeric tags get translated directly into the RID */
   for(i=0; fossil_isdigit(zTag[i]); i++){}
   if( zTag[i]==0 ){
-    rid = db_int(0, 
-      "SELECT event.objid"
-      "  FROM event"
-      " WHERE event.objid=%s"
-      "   AND event.type GLOB '%q'", zTag, zType);
+    if( strcmp(zType,"*")==0 ){
+      rid = atoi(zTag);
+    }else{
+      rid = db_int(0, 
+        "SELECT event.objid"
+        "  FROM event"
+        " WHERE event.objid=%s"
+        "   AND event.type GLOB '%q'", zTag, zType);
+    }
   }
   return rid;
 }

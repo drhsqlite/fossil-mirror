@@ -100,7 +100,7 @@ char *captcha_render(const char *zPw){
 
 
 #if CAPTCHA==2
-static const char *azFont2[] = {
+static const char *const azFont2[] = {
  /* 0 */
  "  __  ",
  " /  \\ ",
@@ -225,7 +225,7 @@ char *captcha_render(const char *zPw){
 #endif /* CAPTCHA==2 */
 
 #if CAPTCHA==3
-static const char *azFont3[] = {
+static const char *const azFont3[] = {
   /* 0 */
   "  ___  ",
   " / _ \\ ",

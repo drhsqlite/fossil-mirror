@@ -191,7 +191,7 @@ void merge_cmd(void){
     print_checkin_description(mid, 12, "merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);
