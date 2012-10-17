@@ -454,6 +454,23 @@ static ImportFile *import_find_file(const char *zName, int *pI, int mx){
   return 0;
 }
 
+/*
+** Dequote a fast-export filename.  Filenames are normally unquoted.  But
+** if the contain some obscure special characters, quotes might be added.
+*/
+static dequote_git_filename(char *zName){
+  int n, i, j;
+  if( zName==0 || zName[0]!='"' ) return;
+  n = (int)strlen(zName);
+  if( zName[n-1]!='"' ) return;
+  for(i=0, j=1; j<n-1; j++){
+    char c = zName[j];
+    if( c=='\\' ) c = zName[++j];
+    zName[i++] = c;
+  }
+  zName[i] = 0;
+}
+
 
 /*
 ** Read the git-fast-import format from pIn and insert the corresponding
@@ -598,6 +615,7 @@ static void git_fast_import(FILE *pIn){
       zPerm = next_token(&z);
       zUuid = next_token(&z);
       zName = rest_of_line(&z);
+      dequote_git_filename(zName);
       i = 0;
       pFile = import_find_file(zName, &i, gg.nFile);
       if( pFile==0 ){
@@ -614,6 +632,7 @@ static void git_fast_import(FILE *pIn){
       import_prior_files();
       z = &zLine[2];
       zName = rest_of_line(&z);
+      dequote_git_filename(zName);
       i = 0;
       while( (pFile = import_find_file(zName, &i, gg.nFile))!=0 ){
         if( pFile->isFrom==0 ) continue;
