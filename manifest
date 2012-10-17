@@ -1,5 +1,5 @@
-C Updating\sfrom\strunk.
-D 2012-10-16T12:19:44.992
+C Picking\sthe\slatest\sfix\sin\strunk
+D 2012-10-17T14:05:09.279
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -159,7 +159,7 @@ F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c ad962ee24af9c4e25715d15b62f713940b2dbe1b
 F src/th_tcl.c 060b51efd4092d090005c1548c0e54bf9ff6a653
 F src/timeline.c e3e443fdc1ae34872350f58699977587dc44736d
-F src/tkt.c 56daedb7d0a7ae6d47a12e18b66dc6a96ce1a483
+F src/tkt.c dc448aad23eaaa045ba2e80ec387dd03c8c95a1a
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 314a2943217668521d02470f546d82586ef742b6 6032dd51f2bca8f714a4b499888707fed9a4123d
-R e2f4326710960e1157037d883017e047
+P 3cdf9480dd9f1889ad791fe731c5c073c5926d74 f02946aa8b4e27124c1e5840ef907a60dc875025
+R a568a702863bd186bf7b4cab405c9ca3
 U viriketo
-Z 7ea6cb34cc9b87e236e4a970cefbe610
+Z 853f7335a741a655fc237d25ce3f3700
