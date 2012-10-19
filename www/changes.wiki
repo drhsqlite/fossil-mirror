@@ -64,6 +64,9 @@
   *  Add the "urllist" webpage, showing a list of URLs by which a server
      instance of Fossil has been accessed.  Requires "Administrator" privileges.
      A link is on the "Setup" main page.
+  *  Enable dynamic loading of the Tcl runtime for installations that want
+     to use Tcl as part of their configuration.  This reduces the size of
+     the Fossil binary and allows any version of Tcl 8.4 or later to be used.
   *  Merge the latest SQLite changes from upstream.
   *  Lots of minor bug fixes.
 
