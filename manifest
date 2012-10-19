@@ -1,5 +1,5 @@
-C Increase\sthe\sversion\snumber\sto\s1.24.
-D 2012-10-19T13:30:44.974
+C Add\sa\sproposed\schange\slog\sfor\sthe\snext\srelease.
+D 2012-10-19T14:36:24.541
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -285,7 +285,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki e16503f3b7534e3fb46d35aa5e783fe4b96bd409
-F www/changes.wiki fb6b72c563ee82df8caf5c66f39a658b56322d74
+F www/changes.wiki 5e3663ed79d492f43cdc13ee5c03e752a4dfa339
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki d6cc061f0d1c4b3f4e614239f4b6dfa00676efaa
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ee424936daca3fcaeb4e2f6db979d6dbbe9a0ae2
-R 0d2b2da95ecf504a5db6cbdcbbead75a
+P caa4d5786fd84b8f32e4c5f03d43062561efd065
+R abac47ceff5ac87aa4eb85a5d0a12df5
 U drh
-Z 6ac59768f4b6a14091e70bde6351214c
+Z a64e7439d0d4485d91bd2a2619206cc9
