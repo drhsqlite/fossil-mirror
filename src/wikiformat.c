@@ -26,7 +26,7 @@
 ** Allowed wiki transformation operations
 */
 #define WIKI_NOFOLLOW       0x001
-#define WIKI_HTML           0x002
+#define WIKI_FULL_HTML      0x002  /* Allow unrestricted HTML */
 #define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
 #define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
 #endif
@@ -1161,6 +1161,7 @@ static void wiki_render(Renderer *p, char *z){
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
   int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
+  int fullHtml = (p->state & WIKI_FULL_HTML)!=0;
   char *zOrig = z;
 
   /* Make sure the attribute constants and names still align
@@ -1320,6 +1321,10 @@ static void wiki_render(Renderer *p, char *z){
       case TOKEN_MARKUP: {
         const char *zId;
         int iDiv;
+        if( fullHtml ){
+          blob_append(p->pOut, z, n);
+          break;
+        }
         parseMarkup(&markup, z);
 
         /* Markup of the form </div id=ID> where there is a matching
