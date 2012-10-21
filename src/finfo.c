@@ -291,10 +291,10 @@ void finfo_page(void){
     url_add_parameter(&url, "n", P("n"));
   }
   if( firstChngOnly ){
-    style_submenu_element("Full", "Show all changes",
+    style_submenu_element("Full", "Show all changes","%s",
                           url_render(&url, "fco", "0", 0, 0));
   }else{
-    style_submenu_element("Simplified", "Show only first use of a change",
+    style_submenu_element("Simplified", "Show only first use of a change","%s",
                           url_render(&url, "fco", "1", 0, 0));
   }
   db_prepare(&q, blob_str(&sql));
