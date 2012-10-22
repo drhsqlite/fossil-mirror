@@ -29,6 +29,7 @@
 #define WIKI_HTML           0x002
 #define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
 #define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
+#define WIKI_BUTTONS        0x010  /* Allow sub-menu buttons */
 #endif
 
 
@@ -380,15 +381,15 @@ static int findTag(const char *z){
 #define TOKEN_TEXT          11 /* None of the above */
 
 /*
-** State flags
+** State flags.  Save the lower 16 bits for the WIKI_* flags.
 */
-#define AT_NEWLINE          0x001  /* At start of a line */
-#define AT_PARAGRAPH        0x002  /* At start of a paragraph */
-#define ALLOW_WIKI          0x004  /* Allow wiki markup */
-#define FONT_MARKUP_ONLY    0x008  /* Only allow MUTYPE_FONT markup */
-#define INLINE_MARKUP_ONLY  0x010  /* Allow only "inline" markup */
-#define IN_LIST             0x020  /* Within wiki <ul> or <ol> */
-#define WIKI_USE_HTML       0x040  /* wiki-use-html option = on */
+#define AT_NEWLINE          0x0010000  /* At start of a line */
+#define AT_PARAGRAPH        0x0020000  /* At start of a paragraph */
+#define ALLOW_WIKI          0x0040000  /* Allow wiki markup */
+#define FONT_MARKUP_ONLY    0x0080000  /* Only allow MUTYPE_FONT markup */
+#define INLINE_MARKUP_ONLY  0x0100000  /* Allow only "inline" markup */
+#define IN_LIST             0x0200000  /* Within wiki <ul> or <ol> */
+#define WIKI_USE_HTML       0x0400000  /* wiki-use-html option = on */
 
 /*
 ** Current state of the rendering engine
@@ -827,17 +828,67 @@ static void unparseMarkup(ParsedMarkup *p){
 }
 
 /*
-** Return the ID attribute for markup.  Return NULL if there is no
+** Return the value of attribute attrId.  Return NULL if there is no
 ** ID attribute.
 */
-static const char *markupId(ParsedMarkup *p){
+static const char *attributeValue(ParsedMarkup *p, int attrId){
   int i;
   for(i=0; i<p->nAttr; i++){
-    if( p->aAttr[i].iACode==ATTR_ID ){
+    if( p->aAttr[i].iACode==attrId ){
       return p->aAttr[i].zValue;
     }
   }
   return 0;
+}
+
+/*
+** Return the ID attribute for markup.  Return NULL if there is no
+** ID attribute.
+*/
+static const char *markupId(ParsedMarkup *p){
+  return attributeValue(p, ATTR_ID);
+}
+
+/*
+** Check markup pMarkup to see if it is a hyperlink with class "button"
+** that is follows by simple text and an </a> only.  Example:
+**
+**     <a class="button" href="../index.wiki">Index</a>
+**
+** If the markup matches this pattern, and if the WIKI_BUTTONS flag was
+** passed to wiki_convert(), then transform this link into a submenu
+** button, skip the text, and set *pN equal to the total length of the
+** text through the end of </a> and return true.  If the markup does 
+** not match or if WIKI_BUTTONS is not set, then make no changes to *pN
+** and return false.
+*/
+static int isButtonHyperlink(
+  Renderer *p,              /* Renderer state */
+  ParsedMarkup *pMarkup,    /* Potential button markup */
+  const char *z,            /* Complete text of Wiki */
+  int *pN                   /* Characters of z[] consumed */
+){
+  const char *zClass;
+  const char *zHref;
+  char *zTag;
+  int i, j;
+  if( (p->state & WIKI_BUTTONS)==0 ) return 0;
+  zClass = attributeValue(pMarkup, ATTR_CLASS);
+  if( zClass==0 ) return 0;
+  if( fossil_strcmp(zClass, "button")!=0 ) return 0;
+  zHref = attributeValue(pMarkup, ATTR_HREF);
+  if( zHref==0 ) return 0;
+  i = *pN;
+  while( z[i] && z[i]!='<' ){ i++; }
+  if( fossil_strnicmp(&z[i], "</a>",4)!=0 ) return 0;
+  for(j=*pN; fossil_isspace(z[j]); j++){}
+  zTag = mprintf("%.*s", i-j, &z[j]);
+  j = (int)strlen(zTag);
+  while( j>0 && fossil_isspace(zTag[j-1]) ){ j--; }
+  if( j==0 ) return 0;
+  style_submenu_element(zTag, zTag, "%s", zHref);
+  *pN = i+4;
+  return 1;
 }
 
 /*
@@ -1455,10 +1506,12 @@ static void wiki_render(Renderer *p, char *z){
           }
         }else
         if( markup.iType==MUTYPE_HYPERLINK ){
-          popStackToTag(p, markup.iCode);
-          startAutoParagraph(p);
-          renderMarkup(p->pOut, &markup);
-          pushStack(p, markup.iCode);
+          if( !isButtonHyperlink(p, &markup, z, &n) ){
+            popStackToTag(p, markup.iCode);
+            startAutoParagraph(p);
+            renderMarkup(p->pOut, &markup);
+            pushStack(p, markup.iCode);
+          }
         }else
         {
           if( markup.iType==MUTYPE_FONT ){
@@ -1510,7 +1563,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   Renderer renderer;
 
   memset(&renderer, 0, sizeof(renderer));
-  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
+  renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
   if( flags & WIKI_NOBLOCK ){
     renderer.state |= INLINE_MARKUP_ONLY;
   }
@@ -1540,13 +1593,21 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 
 /*
 ** COMMAND: test-wiki-render
+**
+** %fossil test-wiki-render FILE [OPTIONS]
+**
+** Options:
+**    --buttons        Set the WIKI_BUTTONS flag
 */
 void test_wiki_render(void){
   Blob in, out;
+  int flags = 0;
+  if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
+  verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
   blob_read_from_file(&in, g.argv[2]);
-  wiki_convert(&in, &out, 0);
+  wiki_convert(&in, &out, flags);
   blob_write_to_file(&out, "-");
 }
 

@@ -491,10 +491,10 @@ void doc_page(void){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
-      wiki_convert(&tail, 0, 0);
+      wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
       style_header("Documentation");
-      wiki_convert(&filebody, 0, 0);
+      wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
