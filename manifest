@@ -1,5 +1,5 @@
-C Merge\sin\sthe\sability\sto\sadd\ssubmenu\sbuttons\son\sembedded\sdocumentation\susing\nhyperlinks\swith\sthe\s"button"\sclass.
-D 2012-10-22T13:38:54.779
+C Merge\sthe\schanges\sto\suse\svarious\sUTF\sencodings\sfor\swin32\scheck-in\scomment\neditor\sinto\strunk.
+D 2012-10-22T17:29:40.241
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c e2649c4e23fb93f9494390e2f6e753f3881856a3
+F src/checkin.c 5e923bdb46813a7daa525f2b83d6d755350a985e
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d34d1748a1c72fb4328374a33e084a12351b633 5678565beca5fe70579c9e02eaf6b58a13b80ad1
-R 833108db5f6a2a2544f7b1754e282b11
+P 18c310afd84c5c9b60652bc51718ed54d2ee59fc 7f939bd8d7148059f4097c303cf4e00619ef36b1
+R a39badc1d98b2284e6ac21c070f18fc2
 U drh
-Z 94149e42731c7cf8b1eeb0cb14ec889c
+Z 659fa2a2286d959ed258112fc6723a31

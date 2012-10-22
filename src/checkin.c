@@ -479,6 +479,11 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
   if( zEditor==0 ){
     zEditor = fossil_getenv("EDITOR");
   }
+#ifdef _WIN32
+  if( zEditor==0 ){
+    zEditor = mprintf("%s\\notepad.exe", fossil_getenv("SystemRoot"));
+  }
+#endif
   if( zEditor==0 ){
     blob_append(pPrompt,
        "#\n"
@@ -508,13 +513,10 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
     char zIn[300];
     blob_zero(&reply);
     while( fgets(zIn, sizeof(zIn), stdin)!=0 ){
-      char *zUtf8 = fossil_mbcs_to_utf8(zIn);
-      if( zUtf8[0]=='.' && (zUtf8[1]==0 || zUtf8[1]=='\r' || zUtf8[1]=='\n') ){
-        fossil_mbcs_free(zUtf8);
+      if( zIn[0]=='.' && (zIn[1]==0 || zIn[1]=='\r' || zIn[1]=='\n') ){
         break;
       }
-      blob_append(&reply, zUtf8, -1);
-      fossil_mbcs_free(zUtf8);
+      blob_append(&reply, zIn, -1);
     }
   }
   blob_remove_cr(&reply);
@@ -564,7 +566,15 @@ static void prepare_commit_comment(
   const char *zUserOvrd
 ){
   Blob prompt;
+#ifdef _WIN32
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+  blob_init(&prompt, (const char *) bom, 3);
+  if( zInit && zInit[0]) {
+    blob_append(&prompt, zInit, -1);
+  }
+#else
   blob_init(&prompt, zInit, -1);
+#endif
   blob_append(&prompt,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
@@ -1194,6 +1204,57 @@ void commit_cmd(void){
       fossil_exit(1);
     }
   }else{
+#ifdef _WIN32
+    /* On windows, the check-in comment might come back from the editor
+    ** in various encodings.  Try to figure out the encoding and do the
+    ** right thing. */
+    if( zComment==0 ){
+      static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+      static const unsigned short ubom = 0xfeff;
+      static const unsigned short urbom = 0xfffe;
+      if( blob_size(&comment)>2 && memcmp(blob_buffer(&comment), bom, 3)==0 ) {
+    	struct Blob temp;
+        char *zUtf8 = blob_str(&comment) + 3;
+        blob_zero(&temp);
+        blob_append(&temp, zUtf8, -1);
+        fossil_mbcs_free(zUtf8);
+        blob_swap(&temp, &comment);
+        blob_reset(&temp);
+      }else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
+          && memcmp(blob_buffer(&comment), &ubom, 2)==0 ) {
+        char *zUtf8;
+        /* Make sure the blob contains two terminating 0-bytes */
+        blob_append(&comment, "", 1);
+        zUtf8 = blob_str(&comment) + 2;
+        zUtf8 = fossil_unicode_to_utf8(zUtf8);
+        blob_zero(&comment);
+        blob_append(&comment, zUtf8, -1);
+        fossil_mbcs_free(zUtf8);
+      }else if( blob_size(&comment)>1 && (blob_size(&comment)&1)==0
+          && memcmp(blob_buffer(&comment), &urbom, 2)==0 ) {
+        char *zUtf8 = blob_buffer(&comment);
+        unsigned int i = blob_size(&comment);
+        while( i > 0 ){
+            /* swap bytes of unicode representation */
+            char temp = zUtf8[--i];
+            zUtf8[i] = zUtf8[i-1];
+            zUtf8[--i] = temp;
+        }
+        /* Make sure the blob contains two terminating 0-bytes */
+        blob_append(&comment, "", 1);
+        zUtf8 = blob_str(&comment) + 2;
+        zUtf8 = fossil_unicode_to_utf8(zUtf8);
+        blob_zero(&comment);
+        blob_append(&comment, zUtf8, -1);
+        fossil_mbcs_free(zUtf8);
+      }else{
+        char *zUtf8 = fossil_mbcs_to_utf8(blob_str(&comment));
+        blob_zero(&comment);
+        blob_append(&comment, zUtf8, -1);
+        fossil_mbcs_free(zUtf8);
+      }
+    }
+#endif /* _WIN32 */
     db_multi_exec("REPLACE INTO vvar VALUES('ci-comment',%B)", &comment);
     db_end_transaction(0);
     db_begin_transaction();
