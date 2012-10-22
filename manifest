@@ -1,5 +1,5 @@
-C Merge\sthe\schanges\sto\suse\svarious\sUTF\sencodings\sfor\swin32\scheck-in\scomment\neditor\sinto\strunk.
-D 2012-10-22T17:29:40.241
+C Update\sto\sToni\sRönkkö's\slatest\sversion\s(1.12.1)\sof\sdirent.h\s[http://www.softagalleria.net/dirent.php]
+D 2012-10-22T21:16:06.577
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -263,7 +263,7 @@ F win/Makefile.msc 72fdb0af9c7e94ff54bf38e5d8d91f1b00f0e59f
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
-F win/include/dirent.h 9c9c88f5b772cb41471f1fdf611207f6325f28d2
+F win/include/dirent.h a02e08abaf451289a2502dc2aed9884592349c2e
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 18c310afd84c5c9b60652bc51718ed54d2ee59fc 7f939bd8d7148059f4097c303cf4e00619ef36b1
-R a39badc1d98b2284e6ac21c070f18fc2
-U drh
-Z 659fa2a2286d959ed258112fc6723a31
+P cc01ec5094264e02489db3636f3cf48c3d101315
+R 954a9da418fbdbf697ccac9629aecb7e
+U jan.nijtmans
+Z c049eccbdc83b2889131da165a94e2cd
