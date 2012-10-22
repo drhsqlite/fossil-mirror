@@ -135,6 +135,16 @@ static int output_one_side(
   return i;
 }
 
+/*
+** Text of boundary markers for merge conflicts.
+*/
+static char const * const mergeMarker[] = {
+ /*123456789 123456789 123456789 123456789 123456789 123456789 123456789*/
+  "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n",
+  "======= COMMON ANCESTOR content follows ============================\n",
+  "======= MERGED IN content follows ==================================\n",
+  ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
+};
 
 
 /*
@@ -156,14 +166,6 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   int nCpy, nDel, nIns;  /* Number of lines to copy, delete, or insert */
   int limit1, limit2;    /* Sizes of aC1[] and aC2[] */
   int nConflict = 0;     /* Number of merge conflicts seen so far */
-  static const char zBegin[] =
-    "<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<\n";
-  static const char zMid1[]   =
-    "======= COMMON ANCESTOR content follows ============================\n";
-  static const char zMid2[]   =
-    "======= MERGED IN content follows ==================================\n";
-  static const char zEnd[]   =
-    ">>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
 
   blob_zero(pOut);         /* Merge results stored in pOut */
 
@@ -268,13 +270,13 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
         sz++;
       }
       DEBUG( printf("CONFLICT %d\n", sz); )
-      blob_appendf(pOut, zBegin);
+      blob_appendf(pOut, mergeMarker[0]);
       i1 = output_one_side(pOut, pV1, aC1, i1, sz);
-      blob_appendf(pOut, zMid1);
+      blob_appendf(pOut, mergeMarker[1]);
       blob_copy_lines(pOut, pPivot, sz);
-      blob_appendf(pOut, zMid2);
+      blob_appendf(pOut, mergeMarker[2]);
       i2 = output_one_side(pOut, pV2, aC2, i2, sz);
-      blob_appendf(pOut, zEnd);
+      blob_appendf(pOut, mergeMarker[3]);
    }
 
     /* If we are finished with an edit triple, advance to the next
@@ -302,6 +304,41 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   free(aC1);
   free(aC2);
   return nConflict;
+}
+
+/*
+** Return true if the input string contains a merge marker on a line by
+** itself.
+*/
+int contains_merge_marker(Blob *p){
+  int i, j;
+  int len = (int)strlen(mergeMarker[0]);
+  const char *z = blob_buffer(p);
+  int n = blob_size(p) - len + 1;
+  assert( len==(int)strlen(mergeMarker[1]) );
+  assert( len==(int)strlen(mergeMarker[2]) );
+  assert( len==(int)strlen(mergeMarker[3]) );
+  assert( sizeof(mergeMarker)/sizeof(mergeMarker[0])==4 );
+  for(i=0; i<n; ){
+    for(j=0; j<4; j++){
+      if( memcmp(&z[i], mergeMarker[j], len)==0 ) return 1;
+    }
+    while( i<n && z[i]!='\n' ){ i++; }
+    while( i<n && z[i]=='\n' ){ i++; }
+  }
+  return 0;
+}
+
+/*
+** Return true if the named file contains an unresolved merge marker line.
+*/
+int file_contains_merge_marker(const char *zFullpath){
+  Blob file;
+  int rc;
+  blob_read_from_file(&file, zFullpath);
+  rc = contains_merge_marker(&file);
+  blob_reset(&file);
+  return rc;
 }
 
 /*
