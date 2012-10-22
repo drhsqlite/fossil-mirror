@@ -89,7 +89,11 @@ static void status_report(
     }else if( isChnged==3 ){
       blob_appendf(report, "ADDED_BY_MERGE %s\n", zDisplayName);
     }else if( isChnged==1 ){
-      blob_appendf(report, "EDITED     %s\n", zDisplayName);
+      if( file_contains_merge_marker(zFullName) ){
+        blob_appendf(report, "CONFLICT   %s\n", zDisplayName);
+      }else{
+        blob_appendf(report, "EDITED     %s\n", zDisplayName);
+      }
     }else if( isRenamed ){
       blob_appendf(report, "RENAMED    %s\n", zDisplayName);
     }
@@ -988,6 +992,7 @@ static int tagCmp(const void *a, const void *b){
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
+**    --conflict                 allow unresolved merge conflicts
 **    
 ** See also: branch, changes, checkout, extra, sync
 */
@@ -1005,6 +1010,7 @@ void commit_cmd(void){
   int forceFlag = 0;     /* Force a fork */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
+  int allowConflict = 0; /* Allow unresolve merge conflicts */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -1024,6 +1030,7 @@ void commit_cmd(void){
   Blob cksum1b;          /* Checksum recorded in the manifest */
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
+  int nConflict = 0;     /* Number of unresolved merge conflicts */
  
   url_proxy_options();
   noSign = find_option("nosign",0,0)!=0;
@@ -1052,6 +1059,7 @@ void commit_cmd(void){
   }
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
+  allowConflict = find_option("conflict",0,0)!=0;
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
@@ -1257,7 +1265,7 @@ void commit_cmd(void){
   ** the identified fils are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, chnged FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
     g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
   );
@@ -1265,12 +1273,13 @@ void commit_cmd(void){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk;
+    int crnlOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
+    chnged = db_column_int(&q, 4);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1280,6 +1289,11 @@ void commit_cmd(void){
       blob_read_from_file(&content, zFullname);        
     }
     if( !crnlOk ) cr_warning(&content, zFullname);
+    if( chnged==1 && contains_merge_marker(&content) ){
+      nConflict++;
+      fossil_print("possible unresolved merge conflict in %s\n",
+                   zFullname+strlen(g.zLocalRoot));
+    }
     nrid = content_put(&content);
     blob_reset(&content);
     if( rid>0 ){
@@ -1289,6 +1303,9 @@ void commit_cmd(void){
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
+  if( nConflict && !allowConflict ){
+    fossil_fatal("abort due to unresolve merge conflicts");
+  }
 
   /* Create the new manifest */
   if( blob_size(&comment)==0 ){

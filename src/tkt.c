@@ -448,6 +448,7 @@ static int submitTicketCmd(
     if( azAppend[i] ){
       blob_appendf(&tktchng, "J +%s %z\n", azField[i],
                    fossilize(azAppend[i], -1));
+      ++nJ;
     }
   }
   for(i=0; i<nField; i++){
