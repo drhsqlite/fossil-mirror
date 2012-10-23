@@ -821,21 +821,24 @@ void db_open_config(int useAttach){
 
 
 /*
- * * Returns TRUE if zTable exists in the local database.
- */
-static int db_local_table_exists(const char *zTable){
-  return db_exists("SELECT 1 FROM %s.sqlite_master"
+** Returns TRUE if zTable exists in the local database but lacks column
+** zColumn
+*/
+static int db_local_table_exists_but_lacks_column(
+  const char *zTable,
+  const char *zColumn
+){
+  char *zDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                    " WHERE name=='%s' /*scan*/",
                    db_name("localdb"), zTable);
-}
-
-/*
-** Returns TRUE if zColumn exists in zTable in the local database.
-*/
-static int db_local_column_exists(const char *zTable, const char *zColumn){
-  return db_exists("SELECT 1 FROM %s.sqlite_master"
-                   " WHERE name=='%s' AND sql GLOB '* %s *' /*scan*/",
-                   db_name("localdb"), zTable, zColumn);
+  int rc = 0;
+  if( zDef ){
+    char *zPattern = mprintf("* %s *", zColumn);
+    rc = strglob(zPattern, zDef)==0;
+    fossil_free(zPattern);
+    fossil_free(zDef);
+  }
+  return rc;
 }
 
 /*
@@ -844,17 +847,20 @@ static int db_local_column_exists(const char *zTable, const char *zColumn){
 */
 static int isValidLocalDb(const char *zDbName){
   i64 lsize;
+  char *zVFileDef;
 
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
   db_open_or_attach(zDbName, "localdb");
+  zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
+                         " WHERE name=='vfile'", db_name("localdb"));
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
   ** upgraded, this code can be safely deleted.
   */
-  if( !db_local_column_exists("vfile", "isexe") ){
+  if( !strglob("* isexe *", zVFileDef) ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN isexe BOOLEAN DEFAULT 0");
   }
 
@@ -862,23 +868,17 @@ static int isValidLocalDb(const char *zDbName){
   ** add them now.   This code added on 2011-01-17 and 2011-08-27.
   ** After all users have upgraded, this code can be safely deleted.
   */
-  if( !db_local_column_exists("vfile", "islink") ){
+  if( !strglob("* islink *", zVFileDef) ){
     db_multi_exec("ALTER TABLE vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
-  }
-
-  if( !db_local_column_exists("stashfile", "isLink") &&
-       db_local_table_exists("stashfile") ){
-    db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOLEAN DEFAULT 0");
-  }
-
-  if( !db_local_column_exists("undo", "isLink") &&
-       db_local_table_exists("undo") ){
-    db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
-  }
-
-  if( !db_local_column_exists("undo_vfile", "islink") &&
-       db_local_table_exists("undo_vfile") ){
-    db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOLEAN DEFAULT 0");
+    if( db_local_table_exists_but_lacks_column("stashfile", "isLink") ){
+      db_multi_exec("ALTER TABLE stashfile ADD COLUMN isLink BOOL DEFAULT 0");
+    }
+    if( db_local_table_exists_but_lacks_column("undo", "isLink") ){
+      db_multi_exec("ALTER TABLE undo ADD COLUMN isLink BOOLEAN DEFAULT 0");
+    }
+    if( db_local_table_exists_but_lacks_column("undo_vfile", "islink") ){
+      db_multi_exec("ALTER TABLE undo_vfile ADD COLUMN islink BOOL DEFAULT 0");
+    }
   }
   return 1;
 }
