@@ -626,8 +626,8 @@ void cmd_win32_service(void){
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     hSvc = CreateServiceW(
              hScm,                                    /* Handle to the SCM */
-             fossil_utf8_to_unicode(zSvcName),           /* Name of the service */
-             fossil_utf8_to_unicode(zDisplay),           /* Display name */
+             fossil_utf8_to_unicode(zSvcName),        /* Name of the service */
+             fossil_utf8_to_unicode(zDisplay),        /* Display name */
              SERVICE_ALL_ACCESS,                      /* Desired access */
              SERVICE_WIN32_OWN_PROCESS,               /* Service type */
              dwStartType,                             /* Start type */
@@ -636,8 +636,8 @@ void cmd_win32_service(void){
              NULL,                                    /* Load ordering group */
              NULL,                                    /* Tag value */
              NULL,                                    /* Service dependencies */
-             fossil_utf8_to_unicode(zUsername),          /* Service account */
-             fossil_utf8_to_unicode(zPassword)           /* Account password */
+             fossil_utf8_to_unicode(zUsername),       /* Service account */
+             fossil_utf8_to_unicode(zPassword)        /* Account password */
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Set the service description. */
@@ -660,7 +660,8 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName),
+                        SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
@@ -810,7 +811,8 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName),
+                        SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_RUNNING ){
@@ -846,7 +848,8 @@ void cmd_win32_service(void){
     }
     hScm = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     if( !hScm ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
-    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName), SERVICE_ALL_ACCESS);
+    hSvc = OpenServiceW(hScm, fossil_utf8_to_unicode(zSvcName),
+                        SERVICE_ALL_ACCESS);
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     QueryServiceStatus(hSvc, &sstat);
     if( sstat.dwCurrentState!=SERVICE_STOPPED ){
