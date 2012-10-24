@@ -1180,7 +1180,7 @@ void object_description(
       }
     }else{
       if( g.perm.Hyperlink && g.perm.RdWiki ){
-        @ wiki page [%z(href("%R/wiki?name=%t",zTarget)))%h(zTarget)</a>]
+        @ wiki page [%z(href("%R/wiki?name=%t",zTarget))%h(zTarget)</a>]
       }else{
         @ wiki page [%h(zTarget)]
       }
