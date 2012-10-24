@@ -533,7 +533,7 @@ void update_cmd(void){
       db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
     }
     if( !internalUpdate ) undo_finish();
-    if( setmtimeFlag ) vfile_check_signature(vid, CKSIG_SETMTIME);
+    if( setmtimeFlag ) vfile_check_signature(tid, CKSIG_SETMTIME);
     db_end_transaction(0);
   }
 }

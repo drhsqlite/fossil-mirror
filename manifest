@@ -1,5 +1,5 @@
-C Removing\ssuperfluous\sparenthesis\sin\shtml\soutput.
-D 2012-10-24T13:43:34.005
+C Fix\sthe\s--setmtime\sflag\son\sfossil-commit\sso\sthat\sit\sworks\swhen\schanging\nversion,\sand\snot\sjust\swhen\supdating\sthe\scurrent\sversion.
+D 2012-10-24T19:04:54.243
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -163,7 +163,7 @@ F src/tkt.c dc448aad23eaaa045ba2e80ec387dd03c8c95a1a
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
-F src/update.c 27cd294b9d1482f96c0f907306375fe3c7cc40f0
+F src/update.c 8fe7d392722740d2f69d948926c82854a6115b6e
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 21f8161e8e5f733e567daecf99ded88ed64b7a45
-R 32e53b2adebb5fedb85f84a6812395bb
-U viriketo
-Z a337b03d03d46c14be49572cc191f7ed
+P ad9cf1cad60a338b72144d77994f6d1837aceeca
+R dbe445e85e4529ebf87fff987da4ceaf
+U drh
+Z 1d75eb5234ba1c50b1d30328e02ddbf6
