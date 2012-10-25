@@ -903,13 +903,14 @@ static void cr_warning(const Blob *p, const char *zFilename){
     if( c==0 ) return;   /* It's binary */
     if( c=='\n' ){
       if( i>0 && z[i-1]=='\r' ){
-        nCrNl++;
-        if( i>10000 ) break;
+        nCrNl = 1;
+        if( i>8191 ) break;
       }
       lastNl = 0;
     }else{
       lastNl++;
-      if( lastNl>1000 ) return;   /* Binary if any line longer than 1000 */
+      /* Binary if any line longer than 8191, see looks_like_binary() */
+      if( lastNl>8191 ) return;
     }
   }
   if( nCrNl ){
