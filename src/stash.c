@@ -160,7 +160,12 @@ static int stash_create(void){
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
+#ifdef _WIN32
+    static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+    blob_init(&prompt, (const char *) bom, 3);
+#else
     blob_zero(&prompt);
+#endif
     blob_append(&prompt,
        "\n"
        "# Enter a description of what is being stashed.  Lines beginning\n"
