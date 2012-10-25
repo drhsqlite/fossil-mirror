@@ -1,5 +1,5 @@
-C use\sutf8\sin\sstash\scomment\seditor\son\sWindows,\sjust\slike\sthe\scommit\scomment\seditor
-D 2012-10-25T10:27:01.329
+C Allow\sthe\sdeletion\sof\smultiple\sstash\sentries\susing\s"fossil\sstash\srm"\swith\nmultiple\sarguments.\s\sMulti-stash\sdeletion\sis\sundoable.
+D 2012-10-25T13:59:42.329
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -147,7 +147,7 @@ F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c ddee867532e6ff37f6cbd180d50ff9cc09378f95
 F src/sqlite3.c 1d2acc1a2a65c2bf58c95c1a6d3c1069be22a28d
 F src/sqlite3.h 9a4e83225bf3df039576099d0a7c876fcdb1c881
-F src/stash.c af61ca8245396b748a12314199c3651b6fd19a27
+F src/stash.c a5f9f7e28b2fafdc3f2f71fddc2f88a4bb63ecbf
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -162,7 +162,7 @@ F src/timeline.c 0d401d64a8f6a531468d5a7cd6752e98b82ddae2
 F src/tkt.c dc448aad23eaaa045ba2e80ec387dd03c8c95a1a
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
-F src/undo.c a798885c14a91a2affd5be63432a000c09168f61
+F src/undo.c 2ce5d095174e26b9e76fffde95b52513e8f82b8d
 F src/update.c 8fe7d392722740d2f69d948926c82854a6115b6e
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1d3256cbcacc6f018b13247c19822d5860637321
-R 6f13992dfc5a328c42ae1ec66b90c584
-U jan.nijtmans
-Z 09d5472febba771d704fddbc79a5012d
+P fb565614db96487c7b20975a863f252bd2c03d0a
+R a20e6b90c2c2032eeefc6bb6d3138625
+U drh
+Z 3679b6abd8f18c18fc0a544382a2b0d4

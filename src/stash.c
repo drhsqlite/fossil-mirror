@@ -562,7 +562,6 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
-    if( g.argc>4 ) usage("drop STASHID");
     if( allFlag ){
       Blob ans;
       blob_zero(&ans);
@@ -570,10 +569,18 @@ void stash_cmd(void){
       if( blob_str(&ans)[0]=='y' ){
         db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
       }
-    }else{
-      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    }else if( g.argc>=4 ){
+      int i;
       undo_begin();
-      undo_save_stash(stashid);
+      for(i=3; i<g.argc; i++){
+        stashid = stash_get_id(g.argv[i]);
+        undo_save_stash(stashid);
+        stash_drop(stashid);
+      }
+      undo_finish();
+    }else{
+      undo_begin();
+      undo_save_stash(0);
       stash_drop(stashid);
       undo_finish();
     }
