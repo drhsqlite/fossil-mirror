@@ -1,5 +1,5 @@
-C For\sthe\scorrect\sjoin\sorder\son\stimeline\sgeneration\susing\sa\sCROSS\sJOIN.
-D 2012-10-26T20:46:44.608
+C Add\sthe\s--deanalyze\soption\sto\s"fossil\srebuild"\sfor\sremoving\sANALYZE\sresults.\nWe\sreally\sdon't\swant\sANALYZE\srun\son\sa\srepository\sbecause\sall\sthe\squeries\sare\ntuned\sto\swork\swithout\sit.\s\sAdd\sthe\sability\sto\spass\srebuild\sarguments\sto\n"fossil\sall\srebuild".
+D 2012-10-26T21:34:28.374
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -60,7 +60,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 8951400388e38b8eb872a1acbc0fb168796f14ce
-F src/allrepo.c 6de7c8aeabdf7e20084198675674a1d3ec4e9750
+F src/allrepo.c 42f2f4d8bc92c1c9f3c0efedc2b4127e270ed82e
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
@@ -134,7 +134,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 8478f895e4d224541b8cae5b15169584eff6e7a4
-F src/rebuild.c c324d9726f72e33e1131d3215321becba3349d14
+F src/rebuild.c 7be23a5713981e4a1d9c2b621f202a8e3c43c277
 F src/report.c 87ef18958fd3f1cb114ce48abc42ca1937a9805b
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 09681e17bb7cb60fa16976f891592752acaf5b03
-R dac913a751178c6e001c82f4e0d5c456
+P 60b409322ade042535340df54f297c4e8118ff78
+R de5234bd791074d690c8ccdbfaa9be34
 U drh
-Z f1ce446f047c91d91d3e78de3b6f975f
+Z 4bdc1b2ed5f0d85df802e9cda13890c2
