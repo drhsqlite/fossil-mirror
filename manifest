@@ -1,5 +1,5 @@
-C a\slittle\sconsistancy:\sAllow\slower\sand\suppercase\sfor\sall\scommit\sresponds,\sso\sif\sCaps-Lock\shangs\sthat\sdoesn't\smatter\sany\smore.
-D 2012-10-26T12:14:01.587
+C Oops,\snot\stoo\sfast.....
+D 2012-10-26T12:38:54.737
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c 9e4d474df63d7374b61569c37a05069c25eda913
+F src/checkin.c 3120de8d7b61f4ec838ce93034618f8704540bed
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 748071a25d582a9ac9d50fb7ec6b6a001ae34657
-R ae523eacb93020e17a2a6eaa3f2e89e3
+P 110d68f2a1de532121d8691eb875345a179beee3
+R 018b837cf858fd654977cad99c0b4cc4
 U jan.nijtmans
-Z 48dc4774179faed96b4ac3545477d4f6
+Z 8ff9c436cc29df5f01c4abf6c57668f3

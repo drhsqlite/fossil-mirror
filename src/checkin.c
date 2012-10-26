@@ -1098,7 +1098,7 @@ void commit_cmd(void){
     blob_zero(&ans);
     prompt_user("continue in spite of time skew (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' || cReply=='Y' ){
+    if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
   }
@@ -1180,7 +1180,7 @@ void commit_cmd(void){
       blob_zero(&ans);
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply!='y' || cReply=='Y' ) fossil_exit(1);;
+      if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
     }
     free(zInit);
   }
@@ -1188,7 +1188,7 @@ void commit_cmd(void){
     blob_zero(&ans);
     prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' || cReply=='Y' ){
+    if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
   }else{
@@ -1309,7 +1309,7 @@ void commit_cmd(void){
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' || cReply=='Y' ){
+    if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
   }
