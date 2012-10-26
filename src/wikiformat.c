@@ -1542,16 +1542,6 @@ static void wiki_render(Renderer *p, char *z){
 }
 
 /*
-** Skip over the UTF-8 Byte-Order-Mark that some broken Windows
-** tools add to the beginning of text files.
-*/
-char *skip_bom(char *z){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-  if( z && memcmp(z, bom, 3)==0 ) z += 3;
-  return z;
-}
-
-/*
 ** Transform the text in the pIn blob.  Write the results
 ** into the pOut blob.  The pOut blob should already be
 ** initialized.  The output is merely appended to pOut.
@@ -1559,7 +1549,6 @@ char *skip_bom(char *z){
 ** reply.
 */
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
-  char *z;
   Renderer renderer;
 
   memset(&renderer, 0, sizeof(renderer));
@@ -1581,8 +1570,8 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.pOut = cgi_output_blob();
   }
 
-  z = skip_bom(blob_str(pIn));
-  wiki_render(&renderer, z);
+  blob_strip_bom(pIn, 0);
+  wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
@@ -1624,7 +1613,8 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   char *z;
   int i;
   int iStart;
-  z = skip_bom(blob_str(pIn));
+  blob_strip_bom(pIn, 0);
+  z = blob_str(pIn);
   for(i=0; fossil_isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;
   i++;
