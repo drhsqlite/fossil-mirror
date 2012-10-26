@@ -1,5 +1,5 @@
-C Improvements\sto\sside-by-side\sdiff\salignment.
-D 2012-10-26T02:35:43.464
+C <pre>src/stash.c:\sIn\sfunction\s‘stash_cmd’:\nsrc/stash.c:377:16:\swarning:\s‘stashid’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\nsrc/stash.c:472:7:\snote:\s‘stashid’\swas\sdeclared\shere</pre>
+D 2012-10-26T12:28:03.436
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -147,7 +147,7 @@ F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c ddee867532e6ff37f6cbd180d50ff9cc09378f95
 F src/sqlite3.c 1d2acc1a2a65c2bf58c95c1a6d3c1069be22a28d
 F src/sqlite3.h 9a4e83225bf3df039576099d0a7c876fcdb1c881
-F src/stash.c a5f9f7e28b2fafdc3f2f71fddc2f88a4bb63ecbf
+F src/stash.c 07a3bc6c6ad9f1e447d3f1f687f83c3c03a2feab
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8a1c80fb34958c4757605c1a8412b667cbc81929
-R e860ab5f0d554e7734a274c5be3a7b66
-U drh
-Z edd9247fb75925a28e2c85d50082b4b1
+P 511405f4268502ec1266935cd8f365bfe4d4965a
+R 96a00cab059b28c360e13eb08250b296
+U jan.nijtmans
+Z c75dd32dca11c4c9dd920ff9f54ec1ed

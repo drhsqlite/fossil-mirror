@@ -24,7 +24,7 @@
 /*
 ** SQL code to implement the tables needed by the stash.
 */
-static const char zStashInit[] = 
+static const char zStashInit[] =
 @ CREATE TABLE IF NOT EXISTS %s.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
 @   vid INTEGER,                     -- The baseline check-out for this stash
@@ -116,7 +116,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       /* A modified file */
       Blob orig;
       Blob disk;
-      
+
       if( isNewLink ){
         blob_read_link(&disk, zPath);
       }else{
@@ -244,7 +244,7 @@ static void stash_apply(int stashid, int nConflict){
         if( isLink ){
           symlink_create(blob_str(&b), zNPath);
         }else{
-          blob_write_to_file(&b, zNPath);          
+          blob_write_to_file(&b, zNPath);
         }
         file_wd_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
@@ -256,7 +256,7 @@ static void stash_apply(int stashid, int nConflict){
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
           rc = merge_3way(&a, zOPath, &b, &out);
-          blob_write_to_file(&out, zNPath);          
+          blob_write_to_file(&out, zNPath);
           blob_reset(&out);
           file_wd_setexe(zNPath, isExec);
         }
@@ -344,7 +344,7 @@ static void stash_diff(
         if( isOrigLink ){
           blob_read_link(&disk, zOPath);
         }else{
-          blob_read_from_file(&disk, zOPath);        
+          blob_read_from_file(&disk, zOPath);
         }
       }
       fossil_print("CHANGED %s\n", zNew);
@@ -451,7 +451,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash gdiff ?STASHID?
 **
 **     Show diffs of the current working directory and what that
-**     directory would be if STASHID were applied.  
+**     directory would be if STASHID were applied.
 **
 ** SUMMARY:
 **  fossil stash
@@ -469,7 +469,7 @@ void stash_cmd(void){
   const char *zDb;
   const char *zCmd;
   int nCmd;
-  int stashid;
+  int stashid = 0;
 
   undo_capture_command_line();
   db_must_be_within_tree();
