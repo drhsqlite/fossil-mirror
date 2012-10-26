@@ -23,3 +23,5 @@ External:
 
   *  <a href="http://www.sqlite.org/src/fdiff?v1=aafcb21a74e41f9a&v2=a6d127dd05daf0f9#chunk3" target="testwindow">
      Code indentation change.</a>
+  *  <a href="http://www.sqlite.org/src/fdiff?v1=ab90126ee0163539&v2=a867cafae0235324#chunk1" target="testwindow">
+     A more difficult code indentation change.</a>

@@ -71,7 +71,7 @@ struct DLine {
   unsigned int h;       /* Hash of the line */
   unsigned int iNext;   /* 1+(Index of next line with same the same hash) */
 
-  /* an array of DLine elements services two purposes.  The fields
+  /* an array of DLine elements serves two purposes.  The fields
   ** above are one per line of input text.  But each entry is also
   ** a bucket in a hash table, as follows: */
   unsigned int iHash;   /* 1+(first entry in the hash chain) */
@@ -262,7 +262,7 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
 
 
 /*
-** Given a diff context in which the aEdit[] array has been filled
+** Given a raw diff p[] in which the p->aEdit[] array has been filled
 ** in, compute a context diff into pOut.
 */
 static void contextDiff(
@@ -645,7 +645,7 @@ static void sbsWriteLineChange(
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, " | ", 3);
+    sbsWrite(p, nLeft==nRight ? "   " : " | ", 3);
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
@@ -909,6 +909,16 @@ static unsigned char *sbsAlignment(
 }
 
 /*
+** R[] is an array of six integer, two COPY/DELETE/INSERT triples for a
+** pair of adjacent differences.  Return true if the gap between these
+** two differences is so small that they should be rendered as a single
+** edit.
+*/
+static int smallGap(int *R){
+  return R[3]<=2 || R[3]<=(R[1]+R[2]+R[4]+R[5])/8;
+}
+
+/*
 ** Given a diff context in which the aEdit[] array has been filled
 ** in, compute a side-by-side diff into pOut.
 */
@@ -1014,6 +1024,17 @@ static void sbsDiff(
       unsigned char *alignment;
       ma = R[r+i*3+1];   /* Lines on left but not on right */
       mb = R[r+i*3+2];   /* Lines on right but not on left */
+
+      /* If the gap between the current diff and then next diff within the
+      ** same block is not too great, then render them as if they are a 
+      ** single diff. */
+      while( i<nr-1 && smallGap(&R[r+i*3]) ){
+        i++;
+        m = R[r+i*3];
+        ma += R[r+i*3+1] + m;
+        mb += R[r+i*3+2] + m;
+      }
+
       alignment = sbsAlignment(&A[a], ma, &B[b], mb);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
