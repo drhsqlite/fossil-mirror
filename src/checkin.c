@@ -35,13 +35,13 @@ static void status_report(
   Blob *report,          /* Append the status report here */
   const char *zPrefix,   /* Prefix on each line of the report */
   int missingIsFatal,    /* MISSING and NOT_A_FILE are fatal errors */
-  int cwdRelative        /* Report relative to the current working dir */ 
+  int cwdRelative        /* Report relative to the current working dir */
 ){
   Stmt q;
   int nPrefix = strlen(zPrefix);
   int nErr = 0;
   Blob rewrittenPathname;
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT pathname, deleted, chnged, rid, coalesce(origname!=pathname,0)"
     "  FROM vfile "
     " WHERE is_selected(id)"
@@ -152,7 +152,7 @@ static int determine_cwd_relative_option()
 **                      than relying on file mtimes.
 **    --header          Identify the repository if there are changes
 **    -v                Say "no changes" if there are none
-** 
+**
 ** See also: extra, ls, status
 */
 void changes_cmd(void){
@@ -317,8 +317,8 @@ void ls_cmd(void){
 **
 ** Options:
 **    --abs-paths      Display absolute pathnames.
-**    --dotfiles       include files beginning with a dot (".")   
-**    --ignore <CSG>   ignore files matching patterns from the 
+**    --dotfiles       include files beginning with a dot (".")
+**    --ignore <CSG>   ignore files matching patterns from the
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
@@ -349,7 +349,7 @@ void extra_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
@@ -398,9 +398,9 @@ void extra_cmd(void){
 ** is used if the --ignore option is omitted.
 **
 ** Options:
-**    --dotfiles       include files beginning with a dot (".")   
+**    --dotfiles       include files beginning with a dot (".")
 **    --force          Remove files without prompting
-**    --ignore <CSG>   ignore files matching patterns from the 
+**    --ignore <CSG>   ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --temp           Remove only Fossil-generated temporary files
 **
@@ -429,7 +429,7 @@ void clean_cmd(void){
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
-  db_prepare(&q, 
+  db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
@@ -443,11 +443,13 @@ void clean_cmd(void){
       file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
+      char cReply;
       char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
-      if( blob_str(&ans)[0]=='y' ){
+      cReply = blob_str(&ans)[0];
+      if( cReply=='y' || cReply=='Y' ){
         file_delete(db_column_text(&q, 0));
       }
     }
@@ -662,7 +664,7 @@ static void checkin_verify_younger(
 
 /*
 ** zDate should be a valid date string.  Convert this string into the
-** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date, 
+** format YYYY-MM-DDTHH:MM:SS.  If the string is not a valid date,
 ** print a fatal error and quit.
 */
 char *date_in_standard_format(const char *zInputDate){
@@ -873,7 +875,7 @@ static void create_manifest(
       blob_appendf(pOut, "T -%F *\n", zBrTag);
     }
     db_finalize(&q);
-  }  
+  }
   blob_appendf(pOut, "U %F\n", zUserOvrd ? zUserOvrd : g.zLogin);
   md5sum_blob(pOut, &mcksum);
   blob_appendf(pOut, "Z %b\n", &mcksum);
@@ -888,14 +890,15 @@ static void cr_warning(const Blob *p, const char *zFilename){
   int looksLike;          /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
-  Blob ans;               /* Answer to continue prompt */
   static int allOk = 0;   /* Set to true to disable this routine */
-  char c;
 
   if( allOk ) return;
   looksLike = looks_like_text(p);
   if( looksLike<0 ){
     const char *type = (looksLike&1)?"CR/NL line endings":"unicode";
+    Blob ans;
+    char cReply;
+
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
@@ -903,10 +906,10 @@ static void cr_warning(const Blob *p, const char *zFilename){
          blob_str(&fname), type);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
-    c = blob_str(&ans)[0];
-    if( c=='a' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply=='a' || cReply=='A' ){
       allOk = 1;
-    }else if( c!='y' ){
+    }else if( cReply=='y' || cReply=='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    type, blob_str(&fname));
     }
@@ -932,7 +935,7 @@ static int tagCmp(const void *a, const void *b){
 **
 ** Create a new version containing all of the changes in the current
 ** checkout.  You will be prompted to enter a check-in comment unless
-** the comment has been specified on the command-line using "-m" or a 
+** the comment has been specified on the command-line using "-m" or a
 ** file containing the comment using -M.  The editor defined in the
 ** "editor" fossil option (see %fossil help set) will be used, or from
 ** the "VISUAL" or "EDITOR" environment variables (in that order) if
@@ -976,7 +979,7 @@ static int tagCmp(const void *a, const void *b){
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **    --conflict                 allow unresolved merge conflicts
-**    
+**
 ** See also: branch, changes, checkout, extra, sync
 */
 void commit_cmd(void){
@@ -1014,7 +1017,9 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
- 
+  Blob ans;
+  char cReply;
+
   url_proxy_options();
   noSign = find_option("nosign",0,0)!=0;
   forceDelta = find_option("delta",0,0)!=0;
@@ -1078,7 +1083,6 @@ void commit_cmd(void){
   */
   if( !g.markPrivate ){
     if( autosync(AUTOSYNC_PULL) ){
-      Blob ans;
       blob_zero(&ans);
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
       if( blob_str(&ans)[0]!='y' ){
@@ -1091,10 +1095,10 @@ void commit_cmd(void){
   ** clock skew
   */
   if( g.clockSkewSeen ){
-    Blob ans;
     blob_zero(&ans);
     prompt_user("continue in spite of time skew (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' || cReply=='Y' ){
       fossil_exit(1);
     }
   }
@@ -1122,7 +1126,7 @@ void commit_cmd(void){
   if( !db_exists("SELECT 1 FROM user WHERE login=%Q", g.zLogin) ){
     fossil_fatal("no such user: %s", g.zLogin);
   }
-  
+
   hasChanges = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
@@ -1153,7 +1157,7 @@ void commit_cmd(void){
   }
 
   /*
-  ** Do not allow a commit against a closed leaf 
+  ** Do not allow a commit against a closed leaf
   */
   if( db_exists("SELECT 1 FROM tagxref"
                 " WHERE tagid=%d AND rid=%d AND tagtype>0",
@@ -1173,18 +1177,18 @@ void commit_cmd(void){
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);
     if( zInit && zInit[0] && fossil_strcmp(zInit, blob_str(&comment))==0 ){
-      Blob ans;
       blob_zero(&ans);
       prompt_user("unchanged check-in comment.  continue (y/N)? ", &ans);
-      if( blob_str(&ans)[0]!='y' ) fossil_exit(1);;
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' || cReply=='Y' ) fossil_exit(1);;
     }
     free(zInit);
   }
   if( blob_size(&comment)==0 ){
-    Blob ans;
     blob_zero(&ans);
     prompt_user("empty check-in comment.  continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' || cReply=='Y' ){
       fossil_exit(1);
     }
   }else{
@@ -1193,7 +1197,7 @@ void commit_cmd(void){
     db_begin_transaction();
   }
 
-  /* Step 1: Insert records for all modified files into the blob 
+  /* Step 1: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
   ** the identified fils are inserted (if they have been modified).
   */
@@ -1219,7 +1223,7 @@ void commit_cmd(void){
       /* Instead of file content, put link destination path */
       blob_read_link(&content, zFullname);
     }else{
-      blob_read_from_file(&content, zFullname);        
+      blob_read_from_file(&content, zFullname);
     }
     if( !crnlOk ) cr_warning(&content, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
@@ -1302,16 +1306,16 @@ void commit_cmd(void){
     }
   }
   if( !noSign && !g.markPrivate && clearsign(&manifest, &manifest) ){
-    Blob ans;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' || cReply=='Y' ){
       fossil_exit(1);
     }
   }
 
   /* If the --test option is specified, output the manifest file
-  ** and rollback the transaction.  
+  ** and rollback the transaction.
   */
   if( testRun ){
     blob_write_to_file(&manifest, "");
@@ -1343,7 +1347,7 @@ void commit_cmd(void){
     blob_reset(&muuid);
   }
 
-  
+
   /* Update the vfile and vmerge tables */
   db_multi_exec(
     "DELETE FROM vfile WHERE (vid!=%d OR deleted) AND is_selected(id);"
@@ -1367,7 +1371,7 @@ void commit_cmd(void){
                    "up in the repository:  %b versus %b",
                    &cksum1, &cksum2);
     }
-  
+
     /* Verify that the manifest checksum matches the expected checksum */
     vfile_aggregate_checksum_manifest(nvid, &cksum2, &cksum1b);
     if( blob_compare(&cksum1, &cksum1b) ){
@@ -1379,7 +1383,7 @@ void commit_cmd(void){
          "working checkout does not match manifest after commit: "
          "%b versus %b", &cksum1, &cksum2);
     }
-  
+
     /* Verify that the commit did not modify any disk images. */
     vfile_aggregate_checksum_disk(nvid, &cksum2);
     if( blob_compare(&cksum1, &cksum2) ){
@@ -1399,7 +1403,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync(AUTOSYNC_PUSH);  
+    autosync(AUTOSYNC_PUSH);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
