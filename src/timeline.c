@@ -788,7 +788,7 @@ const char *timeline_query_for_www(void){
     @   tagid AS tagid,
     @   brief AS brief,
     @   event.mtime AS mtime
-    @  FROM event JOIN blob 
+    @  FROM event CROSS JOIN blob 
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
