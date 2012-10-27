@@ -423,6 +423,87 @@ static int repositoryCmd(
   return TH_OK;
 }
 
+#ifdef _WIN32
+# include <windows.h>
+#else
+# include <sys/time.h>
+# include <sys/resource.h>
+#endif
+
+/*
+** Get user and kernel times in microseconds.
+*/
+static void getCpuTimes(sqlite3_uint64 *piUser, sqlite3_uint64 *piKernel){
+#ifdef _WIN32
+  FILETIME not_used;
+  FILETIME kernel_time;
+  FILETIME user_time;
+  GetProcessTimes(GetCurrentProcess(), &not_used, &not_used,
+                  &kernel_time, &user_time);
+  if( piUser ){
+     *piUser = ((((sqlite3_uint64)user_time.dwHighDateTime)<<32) +
+                         (sqlite3_uint64)user_time.dwLowDateTime + 5)/10;
+  }
+  if( piKernel ){
+     *piKernel = ((((sqlite3_uint64)kernel_time.dwHighDateTime)<<32) +
+                         (sqlite3_uint64)kernel_time.dwLowDateTime + 5)/10;
+  }
+#else
+  struct rusage s;
+  getrusage(RUSAGE_SELF, &s);
+  if( piUser ){
+    *piUser = ((sqlite3_uint64)s.ru_utime.tv_sec)*1000000 + s.ru_utime.tv_usec;
+  }
+  if( piKernel ){
+    *piKernel = 
+              ((sqlite3_uint64)s.ru_stime.tv_sec)*1000000 + s.ru_stime.tv_usec;
+  }
+#endif
+}
+
+/*
+** TH1 command:     utime
+**
+** Return the number of microseconds of CPU time consumed by the current
+** process in user space.
+*/
+static int utimeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_uint64 x;
+  char zUTime[50];
+  getCpuTimes(&x, 0);
+  sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
+  Th_SetResult(interp, zUTime, -1);
+  return TH_OK;
+}
+
+/*
+** TH1 command:     stime
+**
+** Return the number of microseconds of CPU time consumed by the current
+** process in systsem space.
+*/
+static int stimeCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_uint64 x;
+  char zUTime[50];
+  getCpuTimes(0, &x);
+  sqlite3_snprintf(sizeof(zUTime), zUTime, "%llu", x);
+  Th_SetResult(interp, zUTime, -1);
+  return TH_OK;
+}
+
+
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
@@ -447,6 +528,8 @@ void Th_FossilInit(void){
     {"puts",          putsCmd,       (void*)1},
     {"wiki",          wikiCmd,              0},
     {"repository",    repositoryCmd,        0},
+    {"utime",         utimeCmd,             0},
+    {"stime",         stimeCmd,             0},
     {0, 0, 0}
   };
   if( g.interp==0 ){
