@@ -1,5 +1,5 @@
-C missing\s<tr>\stag
-D 2012-10-28T22:37:18.307
+C Simplify\sthe\slooks_like_binary()\smacro.\s\sRemove\sliteral\stab\scharacter,\sadjust\sstyling\sand\scomments\sin\slooks_like_text().
+D 2012-10-28T23:01:39.209
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c 06680055cf5422b865dbe8c6400b247d3a960bcf
+F src/diff.c a6943a2f41f5b1282c1f1adf3b47b2e9d790362e
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 7ae998e9b479f762019a8f584f70f0029000eb96
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 101a53cfc969b76527811abddb59606e14bbcde7
-R c0fac230720b2387f94ebbb9b3df556b
-U jan.nijtmans
-Z 30862f013809f50c84684cd5ab9f9908
+P b2204034ecb389e50afe75cabf61c180eb578173
+R c34e727651f955e2f9e5531c9956c626
+U mistachkin
+Z 3f8327a31b10368a47877509a9eace4c

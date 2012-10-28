@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) (!(looks_like_text(blob)&1))
+#define looks_like_binary(blob) (looks_like_text((blob)) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -181,11 +181,11 @@ int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;
+  int result = 1;  /* Assume text with no CrLf */
 
   /* Check individual lines.
   */
-  if( n==0 ) return 1;  /* Empty file -> text */
+  if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
   j = (c!='\n');
@@ -194,10 +194,10 @@ int looks_like_text(const Blob *pContent){
     if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
-    	  result = -1;   /* Contains CrLf, continue */
+        result = -1;  /* Contains CrLf, continue */
       }
       if( j>LENGTH_MASK ){
-        return 0;   /* Very long line -> binary */
+        return 0;  /* Very long line -> binary */
       }
       j = 0;
     }
@@ -205,7 +205,7 @@ int looks_like_text(const Blob *pContent){
   if( j>LENGTH_MASK ){
     return 0;  /* Very long line -> binary */
   }
-  return result;   /* No problems seen -> not binary */
+  return result;  /* No problems seen -> not binary */
 }
 
 /*
