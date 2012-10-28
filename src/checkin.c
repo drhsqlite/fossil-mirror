@@ -887,34 +887,12 @@ static void create_manifest(
 ** if a \r\n line ending is seen in a text file.
 */
 static void cr_warning(const Blob *p, const char *zFilename){
-  int nCrNl = 0;          /* Number of \r\n line endings seen */
-  const unsigned char *z; /* File text */
-  int n;                  /* Size of the file in bytes */
-  int lastNl = 0;         /* Characters since last \n */
-  int i;                  /* Loop counter */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
-  z = (unsigned char*)blob_buffer(p);
-  n = blob_size(p);
-  for(i=0; i<n-1; i++){
-    unsigned char c = z[i];
-    if( c==0 ) return;   /* It's binary */
-    if( c=='\n' ){
-      if( i>0 && z[i-1]=='\r' ){
-        nCrNl = 1;
-        if( i>8191 ) break;
-      }
-      lastNl = 0;
-    }else{
-      lastNl++;
-      /* Binary if any line longer than 8191, see looks_like_binary() */
-      if( lastNl>8191 ) return;
-    }
-  }
-  if( nCrNl ){
+  if( looks_like_text(p)<0 ){
     Blob ans;
     char cReply;
 

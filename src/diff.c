@@ -50,6 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
+#define looks_like_binary(blob) (!(looks_like_text(blob)&1))
 #endif /* INTERFACE */
 
 /*
@@ -108,7 +109,7 @@ struct DContext {
 
 /*
 ** Return an array of DLine objects containing a pointer to the
-** start of each line and a hash of that line.  The lower 
+** start of each line and a hash of that line.  The lower
 ** bits of the hash store the length of each line.
 **
 ** Trailing whitespace is removed from each line.  2010-08-20:  Not any
@@ -171,31 +172,36 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** Returns non-zero if the specified content appears to be binary or
-** contains a line that is too long.
+** Returns 1, if the file appears text, and does not contain CrLf
+** Returns 0 if the specified content appears to be binary or
+** contains a line that is too long
+** Returns -1, if the file appears text, but it contains CrLf
 */
-int looks_like_binary(const Blob *pContent){
+int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   int n = blob_size(pContent);
   int i, j;
+  int result = 1;
 
-  /* Count the number of lines.  Allocate space to hold
-  ** the returned array.
+  /* Check individual lines.
   */
   for(i=j=0; i<n; i++, j++){
     int c = z[i];
     if( c==0 ) return 1;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
+      if( i>0 && z[i-1]=='\r' ){
+    	  result = -1;   /* Contains CrLf, continue */
+      }
       if( j>LENGTH_MASK ){
-        return 1;   /* Very long line -> binary */
+        return 0;   /* Very long line -> binary */
       }
       j = 0;
     }
   }
   if( j>LENGTH_MASK ){
-    return 1;  /* Very long line -> binary */
+    return 0;  /* Very long line -> binary */
   }
-  return 0;   /* No problems seen -> not binary */
+  return result;   /* No problems seen -> not binary */
 }
 
 /*
@@ -243,7 +249,7 @@ static void appendDiffLine(
 ** Add two line numbers to the beginning of an output line for a context
 ** diff.  One or of the other of the two numbers might be zero, which means
 ** to leave that number field blank.  The "html" parameter means to format
-** the output for HTML.  
+** the output for HTML.
 */
 static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   if( html ) blob_append(pOut, "<span class=\"diffln\">", -1);
@@ -273,7 +279,7 @@ static void contextDiff(
   int html          /* Render as HTML */
 ){
   DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */  
+  DLine *B;     /* Right side of the diff */
   int a = 0;    /* Index of next line in A[] */
   int b = 0;    /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
@@ -529,7 +535,7 @@ static void sbsWriteLineno(SbsLine *p, int ln){
 }
 
 /*
-** The two text segments zLeft and zRight are known to be different on 
+** The two text segments zLeft and zRight are known to be different on
 ** both ends, but they might have  a common segment in the middle.  If
 ** they do not have a common segment, return 0.  If they do have a large
 ** common segment, return 1 and before doing so set:
@@ -714,7 +720,7 @@ static void sbsWriteLineChange(
       p->iStart2 = 0;
       p->iEnd2 = 0;
     }
-    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1; 
+    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }
@@ -930,7 +936,7 @@ static void sbsDiff(
   int escHtml        /* True to generate HTML output */
 ){
   DLine *A;     /* Left side of the diff */
-  DLine *B;     /* Right side of the diff */  
+  DLine *B;     /* Right side of the diff */
   int a = 0;    /* Index of next line in A[] */
   int b = 0;    /* Index of next line in B[] */
   int *R;       /* Array of COPY/DELETE/INSERT triples */
@@ -1026,7 +1032,7 @@ static void sbsDiff(
       mb = R[r+i*3+2];   /* Lines on right but not on left */
 
       /* If the gap between the current diff and then next diff within the
-      ** same block is not too great, then render them as if they are a 
+      ** same block is not too great, then render them as if they are a
       ** single diff. */
       while( i<nr-1 && smallGap(&R[r+i*3]) ){
         i++;
@@ -1172,7 +1178,7 @@ static void optimalLCS(
 ** Ideally, the common sequence should be the longest possible common
 ** sequence.  However, an exact computation of LCS is O(N*N) which is
 ** way too slow for larger files.  So this routine uses an O(N)
-** heuristic approximation based on hashing that usually works about 
+** heuristic approximation based on hashing that usually works about
 ** as well.  But if the O(N) algorithm doesn't get a good solution
 ** and N is not too large, we fall back to an exact solution by
 ** calling optimalLCS().
@@ -1205,7 +1211,7 @@ static void longestCommonSequence(
   for(i=iS1; i<iE1; i++){
     int limit = 0;
     j = p->aTo[p->aFrom[i].h % p->nTo].iHash;
-    while( j>0 
+    while( j>0
       && (j-1<iS2 || j>=iE2 || !same_dline(&p->aFrom[i], &p->aTo[j-1]))
     ){
       if( limit++ > 10 ){
@@ -1262,7 +1268,7 @@ static void longestCommonSequence(
     *piEX = iEXb;
     *piEY = iEYb;
   }
-  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n", 
+  /* printf("LCS(%d..%d/%d..%d) = %d..%d/%d..%d\n",
      iS1, iE1, iS2, iE2, *piSX, *piEX, *piSY, *piEY);  */
 }
 
@@ -1297,7 +1303,7 @@ static void appendTriple(DContext *p, int nCopy, int nDel, int nIns){
       p->aEdit[p->nEdit-1] += nIns;
       return;
     }
-  }  
+  }
   if( p->nEdit+3>p->nEditAlloc ){
     expandEdit(p, p->nEdit*2 + 15);
     if( p->aEdit==0 ) return;
@@ -1525,7 +1531,7 @@ int diff_width(u64 diffFlags){
 ** Generate a report of the differences between files pA and pB.
 ** If pOut is not NULL then a unified diff is appended there.  It
 ** is assumed that pOut has already been initialized.  If pOut is
-** NULL, then a pointer to an array of integers is returned.  
+** NULL, then a pointer to an array of integers is returned.
 ** The integers come in triples.  For each triple,
 ** the elements are the number of lines copied, the number of
 ** lines deleted, and the number of lines inserted.  The vector
@@ -1542,7 +1548,7 @@ int *text_diff(
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
-  int nContext;    /* Amount of context to display */	
+  int nContext;    /* Amount of context to display */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
@@ -1598,7 +1604,7 @@ int *text_diff(
 
 /*
 ** Process diff-related command-line options and return an appropriate
-** "diffFlags" integer.  
+** "diffFlags" integer.
 **
 **   --brief                Show filenames only    DIFF_BRIEF
 **   --context|-c N         N lines of context.    DIFF_CONTEXT_MASK
@@ -1769,7 +1775,7 @@ static int annotation_step(Annotator *p, Blob *pParent, char *zPName){
   p->c.nEditAlloc = 0;
 
   /* Clear out the from file */
-  free(p->c.aFrom);    
+  free(p->c.aFrom);
 
   /* Return no errors */
   return 0;
@@ -1840,7 +1846,7 @@ static void annotate_file(
   compute_direct_ancestors(mid, iLimit);
   annotation_start(p, &toAnnotate);
 
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT mlink.fid,"
     "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime), "
@@ -1862,7 +1868,7 @@ static void annotate_file(
     const char *zUser = db_column_text(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
+          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
           zUuid, zUuid, zDate, zUser
       );
     }else{
@@ -1997,7 +2003,7 @@ void annotate_cmd(void){
     printf("---------------------------------------------------\n");
   }
   for(i=0; i<ann.nOrig; i++){
-    fossil_print("%s: %.*s\n", 
+    fossil_print("%s: %.*s\n",
                  ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
 }
