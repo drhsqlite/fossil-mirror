@@ -172,16 +172,11 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** Returns 3, if everything OK, UTF-8 BOM
-** Returns 1, if everything OK, no BOM
+** Returns 1, if everything OK
 ** Returns 0 if the specified content appears to be binary or
 ** contains a line that is too long
-** Returns -1, if the file appears text, but it contains CrLf, UTF-8 BOM
-** Returns -2, if the file starts with an UTF-16 BOM (le)
-** Returns -3, if the file appears text, but it contains CrLf, no BOM
-** Returns -4, if the file starts with an UTF-16 BOM (be)
-**
-** The values -2 and -4 are only supported on Windows (for now)
+** Returns -1, if the file appears text, but it contains CrLf
+** Returns -2, if the file starts with an UTF-16 BOM (le or be)
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
@@ -189,26 +184,21 @@ int looks_like_text(const Blob *pContent){
   int i, j;
   int result = 1;
 
-  if ( n > 1){
-    static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-    if ( n > 2 && !memcmp(z, bom, 3) ) {
-      result = 3;
-#ifdef _WIN32
-    } else if ( (z[0]==(char)0xff) && (z[1]==(char)0xfe) ){
+  if ( n > 1 ){
+    if ( (z[0]==(char)0xff) && (z[1]==(char)0xfe) ){
       return -2;
     } else if ( (z[0]==(char)0xfe) && (z[1]==(char)0xff) ){
-      return -4;
-#endif /* _WIN32 */
+      return -2;
     }
   }
-  /* Count the number of lines.
+  /* Check individual lines.
   */
   for(i=j=0; i<n; i++, j++){
     int c = z[i];
     if( c==0 ) return 1;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
-      if( i>0 && z[i-1]=='\r' && result>0 ){
-    	  result -= 4;   /* Contains CrLf */
+      if( i>0 && z[i-1]=='\r' ){
+    	  result = -1;   /* Contains CrLf, continue */
       }
       if( j>LENGTH_MASK ){
         return 0;   /* Very long line -> binary */

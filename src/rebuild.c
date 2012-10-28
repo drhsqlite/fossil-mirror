@@ -525,6 +525,7 @@ static void reconstruct_private_table(void){
 **   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
+**   --deanalyze   Remove ANALYZE tables from the database
 **   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
 **
@@ -540,6 +541,7 @@ void rebuild_database(void){
   int newPagesize = 0;
   int activateWal;
   int runVacuum;
+  int runDeanalyze;
   int runCompress;
   int showStats;
 
@@ -548,6 +550,7 @@ void rebuild_database(void){
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
+  runDeanalyze = find_option("deanalyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
@@ -599,6 +602,10 @@ void rebuild_database(void){
     if( newPagesize ){
       db_multi_exec("PRAGMA page_size=%d", newPagesize);
       runVacuum = 1;
+    }
+    if( runDeanalyze ){
+      db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
+                    "DROP TABLE IF EXISTS sqlite_stat3;");
     }
     if( runVacuum ){
       fossil_print("Vacuuming the database... "); fflush(stdout);

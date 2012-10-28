@@ -909,9 +909,9 @@ static void cr_warning(const Blob *p, const char *zFilename){
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
-    }else if( cReply=='y' || cReply=='Y' ){
-      fossil_fatal("Abandoning commit due to %s in %s",
-                   type, blob_str(&fname));
+    }else if( cReply!='y' && cReply!='Y' ){
+      fossil_fatal("Abandoning commit due to CR/NL line endings in %s",
+                   blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
