@@ -1,5 +1,5 @@
-C -\sfinally,\sdo\sthe\s++j\supdate\sin\slooks_like_text()\sright\n-\sMore\sconsistancy\sin\sprompt\shandling:\saccept\sCapitals\severywhere,\suse\s'('\snot\s'[',\sand\sabbreviate\syes/no\sto\sy/N\severywhere
-D 2012-10-28T21:38:51.538
+C now\stested\swith\sssl\senabled\sas\swell
+D 2012-10-28T21:52:19.050
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -96,7 +96,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
-F src/http_ssl.c 853a8105a66942cb978621f805477755bb9cd553
+F src/http_ssl.c a55074729af2b90a9a1a68c6398ddcae3e396f34
 F src/http_transport.c 0941c8ec61f0bfab9c33a34cac2e1f9121f7f44d
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c fce18c097f5419eb32eba2d1c60c596a9f846c1b
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6542935c9d97f01c6de4a971cb2a86a3442cbf2c
-R b955b08642994aa4f25e44a00d6cb99c
+P 7c527165a62cc867cc092ac988b791e4d8b97490
+R 0c78715c54c69cec8057646d83920c2a
 U jan.nijtmans
-Z 803756b69cdfd7d10878538e48c0c562
+Z 122fd077a9e8bdf4e5a11caee3890303

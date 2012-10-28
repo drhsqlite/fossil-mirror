@@ -255,6 +255,7 @@ int ssl_open(void){
     char *desc, *prompt;
     char *warning = "";
     Blob ans;
+    char cReply;
     BIO *mem;
     unsigned char md[32];
     unsigned int mdLength = 31;
