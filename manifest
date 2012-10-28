@@ -1,5 +1,5 @@
-C fix\sabandoning\smessage
-D 2012-10-28T10:05:33.705
+C merge\strunk
+D 2012-10-28T22:08:56.403
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -65,11 +65,11 @@ F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c 3e6c350ebb7fc7d3ed3a03d760f74911431e16f2
-F src/branch.c 347981c7107b9afb05bb29f87b8703cbce4c5495
+F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c c3d5c506444295b60b1ea1a5415be31f385a5b07
+F src/checkin.c 1a3ec3d9353ee404032fc33b0f7e5b76fb4cb139
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -83,7 +83,7 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c 2810a1c1a000c9cfd9afebb2c552dded165d27cf
+F src/diff.c cf9d22ad66741332f3784755a23275fb72364b43
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 7ae998e9b479f762019a8f584f70f0029000eb96
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -96,7 +96,7 @@ F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
-F src/http_ssl.c 0c52f90e41ccd58fec78ae06134d7c515b237658
+F src/http_ssl.c a55074729af2b90a9a1a68c6398ddcae3e396f34
 F src/http_transport.c 0941c8ec61f0bfab9c33a34cac2e1f9121f7f44d
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c fce18c097f5419eb32eba2d1c60c596a9f846c1b
@@ -128,13 +128,13 @@ F src/merge.c 1f87761ed9c4435a2d09dcbef5f06423b19a9b94
 F src/merge3.c aedae8473b0267ce7a2702c2848903a097df8bd7
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
-F src/name.c c40c25d5785a03b913ae14aea296079f9ce3ed1e
+F src/name.c 2d4bcb6f65598f22119f20f0481a0c193b3ced1c
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 8478f895e4d224541b8cae5b15169584eff6e7a4
-F src/rebuild.c 7be23a5713981e4a1d9c2b621f202a8e3c43c277
+F src/rebuild.c 43e7058a289f60e39a7fbe73e7f57eedeaef5c37
 F src/report.c 87ef18958fd3f1cb114ce48abc42ca1937a9805b
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -147,7 +147,7 @@ F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c ddee867532e6ff37f6cbd180d50ff9cc09378f95
 F src/sqlite3.c bc8100c9ee01b8c20aa421f9b3a24bca7f10cc61
 F src/sqlite3.h ffdd1f3edf6ffc1e0ab077750d64ed330cdeb1b5
-F src/stash.c 07a3bc6c6ad9f1e447d3f1f687f83c3c03a2feab
+F src/stash.c a4330d6337d341902a50ad681e421a133f1eec4b
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -167,7 +167,7 @@ F src/update.c 8fe7d392722740d2f69d948926c82854a6115b6e
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
-F src/vfile.c 451d85c26d4ccc37926b677fb07615d7f1447bc9
+F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
 F src/wiki.c abdd9822c1dc2367345f4e9283a6f8f3a825a3dd
 F src/wikiformat.c 6220b2bdce31928a70868db66fa2f8e37a7e498f
 F src/winhttp.c 3d4e34318d7860fd47d4dfa6eb586f0618d6b54b
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0b6b0dfd0b1938a5a459f5951cb1352acf7cc644
-R f123e4bf31f52214cd0a0cae5902a9c9
+P f57f74b2af5d937f625bf1fb37a3560436ac3b47 101a53cfc969b76527811abddb59606e14bbcde7
+R a27f28ad053f1fc34a6b54ba89ab01db
 U jan.nijtmans
-Z 6c76342c96cf4b2e7c2046f594e62675
+Z fd93bbc8bdfe3784127af153007a8764

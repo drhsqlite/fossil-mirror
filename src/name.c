@@ -145,13 +145,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* "tag:" + symbolic-name */
   if( memcmp(zTag, "tag:", 4)==0 ){
     rid = db_int(0,
-       "SELECT event.objid"
+       "SELECT event.objid, max(event.mtime)"
        "  FROM tag, tagxref, event"
        " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
-       "   AND event.type GLOB '%q'"
-       " ORDER BY event.mtime DESC /*sort*/",
+       "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
     return rid;
@@ -199,14 +198,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       zDate[nDate-2] = 0;
     }
     rid = db_int(0,
-      "SELECT event.objid"
+      "SELECT event.objid, max(event.mtime)"
       "  FROM tag, tagxref, event"
       " WHERE tag.tagname='sym-%q' "
       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
       "   AND event.objid=tagxref.rid "
       "   AND event.mtime<=julianday(%Q)"
-      "   AND event.type GLOB '%q'"
-      " ORDER BY event.mtime DESC /*sort*/ ",
+      "   AND event.type GLOB '%q'",
       zTagBase, zDate, zType
     );
     return rid;
@@ -241,13 +239,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Symbolic name */
   rid = db_int(0,
-    "SELECT event.objid"
+    "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
     " WHERE tag.tagname='sym-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
-    "   AND event.type GLOB '%q'"
-    " ORDER BY event.mtime DESC /*sort*/ ",
+    "   AND event.type GLOB '%q'",
     zTag, zType
   );
   if( rid>0 ) return rid;
