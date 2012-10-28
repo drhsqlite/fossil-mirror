@@ -196,7 +196,7 @@ int looks_like_text(const Blob *pContent){
       if( z[-1]=='\r' ){
     	  result = -1;   /* Contains CrLf, continue */
       }
-      if( j>LENGTH_MASK ){
+      if( ++j>LENGTH_MASK ){
         return 0;   /* Very long line -> binary */
       }
       j = 0;
