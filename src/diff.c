@@ -179,17 +179,21 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
-  int n = blob_size(pContent);
-  int i, j;
+  unsigned int n = blob_size(pContent);
+  int j, c;
   int result = 1;
 
   /* Check individual lines.
   */
-  for(i=j=0; i<n; i++, j++){
-    int c = z[i];
-    if( c==0 ) return 1;  /* \000 byte in a file -> binary */
+  if( n==0 ) return 1;  /* Empty file -> text */
+  c = *z;
+  if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+  j = (c!='\n');
+  while( --n>0 ){
+    c = *++z;
+    if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
-      if( i>0 && z[i-1]=='\r' ){
+      if( z[-1]=='\r' ){
     	  result = -1;   /* Contains CrLf, continue */
       }
       if( j>LENGTH_MASK ){
