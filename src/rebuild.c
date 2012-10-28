@@ -781,11 +781,13 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( !bForce ){
     Blob ans;
+    char cReply;
     blob_zero(&ans);
     prompt_user(
          "Scrubbing the repository will permanently delete information.\n"
          "Changes cannot be undone.  Continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
   }

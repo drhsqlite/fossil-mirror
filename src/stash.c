@@ -564,9 +564,11 @@ void stash_cmd(void){
     int allFlag = find_option("all", 0, 0)!=0;
     if( allFlag ){
       Blob ans;
+      char cReply;
       blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
-      if( blob_str(&ans)[0]=='y' ){
+      cReply = blob_str(&ans)[0];
+      if( cReply=='y' || cReply=='Y' ){
         db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
       }
     }else if( g.argc>=4 ){

@@ -306,9 +306,7 @@ void vfile_to_disk(
       blob_reset(&ans);
       if( cReply=='a' || cReply=='A' ){
         promptFlag = 0;
-        cReply = 'y';
-      }
-      if( cReply=='n' || cReply=='N' ){
+      } else if( cReply!='y' && cReply!='Y' ){
         blob_reset(&content);
         continue;
       }

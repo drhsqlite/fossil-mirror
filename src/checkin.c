@@ -899,7 +899,7 @@ static void cr_warning(const Blob *p, const char *zFilename){
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains CR/NL line endings; commit anyhow (yes/no/all)?",
+         "%s contains CR/NL line endings; commit anyhow (a=all/y/N)?",
          blob_str(&fname));
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
@@ -1082,7 +1082,8 @@ void commit_cmd(void){
     if( autosync(AUTOSYNC_PULL) ){
       blob_zero(&ans);
       prompt_user("continue in spite of sync failure (y/N)? ", &ans);
-      if( blob_str(&ans)[0]!='y' ){
+      cReply = blob_str(&ans)[0];
+      if( cReply!='y' && cReply!='Y' ){
         fossil_exit(1);
       }
     }

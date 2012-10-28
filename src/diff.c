@@ -190,13 +190,13 @@ int looks_like_text(const Blob *pContent){
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
   j = (c!='\n');
   while( --n>0 ){
-    c = *++z;
+    c = *++z; ++j;
     if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
     	  result = -1;   /* Contains CrLf, continue */
       }
-      if( ++j>LENGTH_MASK ){
+      if( j>LENGTH_MASK ){
         return 0;   /* Very long line -> binary */
       }
       j = 0;
