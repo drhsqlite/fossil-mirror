@@ -1,5 +1,5 @@
-C now\stested\swith\sssl\senabled\sas\swell
-D 2012-10-28T21:52:19.050
+C missing\s<tr>\stag
+D 2012-10-28T22:37:18.307
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -332,7 +332,7 @@ F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/index.wiki 1a2f93b4c6a5e6cbe2f72988011b367b81d85dfe
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
-F www/mkdownload.tcl 430bd3e42c5e554661f064382d840d960ad04515
+F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
 F www/mkindex.tcl c85112ed277b47fd102e9df7114784bd8233529b
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7c527165a62cc867cc092ac988b791e4d8b97490
-R 0c78715c54c69cec8057646d83920c2a
+P 101a53cfc969b76527811abddb59606e14bbcde7
+R c0fac230720b2387f94ebbb9b3df556b
 U jan.nijtmans
-Z 122fd077a9e8bdf4e5a11caee3890303
+Z 30862f013809f50c84684cd5ab9f9908
