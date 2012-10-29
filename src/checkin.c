@@ -888,7 +888,7 @@ static void create_manifest(
 **
 ** Return 1 if the user pressed 'c', 0 otherwise.
 */
-static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
+static int encoding_warning(Blob *p, int crnlOk, const char *zFilename){
   int looksLike;          /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
@@ -899,10 +899,11 @@ static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
   looksLike = looks_like_text(p);
   if( looksLike<0 ){
     const char *type;
+    const char *c = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( looksLike&1 ){
+    if( looksLike==-3 ){
       if( crnlOk ){
         return 0; /* We don't want CrLf warnings for this file. */
       }
@@ -912,17 +913,40 @@ static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
         return 0; /* We don't want Unicode warnings for this file. */
       }
       type = "unicode";
+#ifndef _WIN32
+      c = ""; /* On UNIX, we cannot convert unicode files */
+#endif
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s; commit anyhow (a=all/y/N)?",
-         blob_str(&fname), type);
+         "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
+         blob_str(&fname), type, c);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
-      allOk[looksLike&1] = 1;
+      allOk[looksLike==-3] = 1;
+    }else if( (cReply=='c' || cReply=='C')
+#ifndef _WIN32
+        && (looksLike==-3)
+#endif
+    ){
+      char *zOrig = file_newname(zFilename, "original", 1);
+      FILE *f;
+      blob_write_to_file(p, zOrig);
+      fossil_free(zOrig);
+      f = fossil_fopen(zFilename, "wb");
+      if( looksLike==-3 ) {
+        blob_remove_cr(p);
+      }else{
+        static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+        fwrite(bom, 1, 3, f);
+        blob_strip_bom(p, 0);
+      }
+      fwrite(blob_buffer(p), 1, blob_size(p), f);
+      fclose(f);
+      return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    type, blob_str(&fname));
