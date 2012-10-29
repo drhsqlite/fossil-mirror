@@ -886,7 +886,7 @@ static void create_manifest(
 ** Issue a warning and give the user an opportunity to abandon out
 ** if unicode or a \r\n line ending is seen in a text file.
 */
-static void cr_warning(const Blob *p, const char *zFilename){
+static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
   int looksLike;          /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
@@ -895,10 +895,18 @@ static void cr_warning(const Blob *p, const char *zFilename){
   if( allOk ) return;
   looksLike = looks_like_text(p);
   if( looksLike<0 ){
-    const char *type = (looksLike&1)?"CR/NL line endings":"unicode";
+    const char *type;
     Blob ans;
     char cReply;
 
+    if( looksLike&1 ){
+      if( crnlOk ){
+        return; /* We don't want CrLf warnings for this file. */
+      }
+      type = "CR/NL line endings";
+    }else{
+      type = "unicode";
+    }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
@@ -1226,7 +1234,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    if( !crnlOk ) cr_warning(&content, zFullname);
+    encoding_warning(&content, crnlOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       nConflict++;
       fossil_print("possible unresolved merge conflict in %s\n",
