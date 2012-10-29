@@ -74,7 +74,8 @@ foreach datetime [lsort -decr [array names adate]] {
   puts $out "<tr><td colspan=6 align=left><hr>"
   puts $out "<center><b><a href=\"$hr\">$dt</a></b></center>"
   puts $out "</td></tr>"
-  
+  puts $out "<tr>"
+
   foreach {prefix suffix img desc} {
     fossil-linux-x86 zip linux.gif {Linux x86}
     fossil-macosx-x86 zip mac.gif {Mac 10.5 x86}
@@ -128,7 +129,7 @@ puts $out {<html>
 <body>
 <h1 align="center">Checksums For Fossil Downloads</h1>
 <p>The following table shows the SHA1 checksums for the precompiled
-binaries available on the 
+binaries available on the
 <a href="http://www.fossil-scm.org/download.html">Fossil website</a>.</p>
 <pre>}
 
