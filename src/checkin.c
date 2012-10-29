@@ -884,31 +884,42 @@ static void create_manifest(
 
 /*
 ** Issue a warning and give the user an opportunity to abandon out
-** if a \r\n line ending is seen in a text file.
+** if unicode or a \r\n line ending is seen in a text file.
 */
-static void cr_warning(const Blob *p, const char *zFilename){
+static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
+  int looksLike;          /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
-  if( looks_like_text(p)<0 ){
+  looksLike = looks_like_text(p);
+  if( looksLike<0 ){
+    const char *type;
     Blob ans;
     char cReply;
 
+    if( looksLike&1 ){
+      if( crnlOk ){
+        return; /* We don't want CrLf warnings for this file. */
+      }
+      type = "CR/NL line endings";
+    }else{
+      type = "unicode";
+    }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains CR/NL line endings; commit anyhow (a=all/y/N)?",
-         blob_str(&fname));
+         "%s contains %s; commit anyhow (a=all/y/N)?",
+         blob_str(&fname), type);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
     }else if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to CR/NL line endings in %s",
-                   blob_str(&fname));
+      fossil_fatal("Abandoning commit due to %s in %s",
+                   type, blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
@@ -1223,7 +1234,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    if( !crnlOk ) cr_warning(&content, zFullname);
+    encoding_warning(&content, crnlOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 

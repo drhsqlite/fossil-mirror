@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) (looks_like_text((blob)) == 0)
+#define looks_like_binary(blob) ((looks_like_text(blob)&1) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -172,10 +172,11 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** Returns 1, if the file appears text, and does not contain CrLf
+** Returns 1, if everything OK
 ** Returns 0 if the specified content appears to be binary or
 ** contains a line that is too long
 ** Returns -1, if the file appears text, but it contains CrLf
+** Returns -2, if the file starts with an UTF-16 BOM (le or be)
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
@@ -188,6 +189,13 @@ int looks_like_text(const Blob *pContent){
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+  if ( n > 1 ){
+    if ( (c==(char)0xff) && (z[1]==(char)0xfe) ){
+      return -2;
+    } else if ( (c==(char)0xfe) && (z[1]==(char)0xff) ){
+      return -2;
+    }
+  }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;

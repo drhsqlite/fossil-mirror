@@ -478,9 +478,8 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
-  int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
 #ifdef _WIN32
-  wchar_t buf[MAX_PATH];
+  WCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
@@ -516,6 +515,7 @@ static void expand_args_option(int argc, void *argv){
     }
     zInFile = NULL;
   }
+  blob_strip_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
@@ -526,19 +526,9 @@ static void expand_args_option(int argc, void *argv){
     if( n<=1 ) continue;
     z = blob_buffer(&line);
     z[n-1] = 0;
-    if (foundBom == -1) {
-      static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-      foundBom = memcmp(z, bom, 3)==0;
-      if( foundBom ) {
-        z += 3; n -= 3;
-      }
-    }
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
-    }
-    if (!foundBom) {
-      z = fossil_mbcs_to_utf8(z);
     }
     newArgv[j++] = z;
     if( z[0]=='-' ){
@@ -852,7 +842,7 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  WCHAR *zUnicode = fossil_utf8_to_unicode(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
     fossil_puts(zOut, 1);

@@ -317,7 +317,7 @@ static const struct AllowedMarkup {
  { "td",            MARKUP_TD,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
                     AMSK_ROWSPAN|AMSK_VALIGN|AMSK_CLASS|AMSK_STYLE  },
- { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK, 
+ { "tfoot",         MARKUP_TFOOT,        MUTYPE_BLOCK,
                     AMSK_ALIGN|AMSK_CLASS|AMSK_STYLE  },
  { "th",            MARKUP_TH,           MUTYPE_TD,
                     AMSK_ALIGN|AMSK_BGCOLOR|AMSK_COLSPAN|
@@ -858,7 +858,7 @@ static const char *markupId(ParsedMarkup *p){
 ** If the markup matches this pattern, and if the WIKI_BUTTONS flag was
 ** passed to wiki_convert(), then transform this link into a submenu
 ** button, skip the text, and set *pN equal to the total length of the
-** text through the end of </a> and return true.  If the markup does 
+** text through the end of </a> and return true.  If the markup does
 ** not match or if WIKI_BUTTONS is not set, then make no changes to *pN
 ** and return false.
 */
@@ -1021,7 +1021,7 @@ static int in_this_repo(const char *zUuid){
   int rc;
   int n;
   char zU2[UUID_SIZE+1];
-  db_static_prepare(&q, 
+  db_static_prepare(&q,
      "SELECT 1 FROM blob WHERE uuid>=:u AND uuid<:u2"
   );
   db_bind_text(&q, ":u", zUuid);
@@ -1167,7 +1167,7 @@ static void openHyperlink(
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
-  }else if( strncmp(zTarget, "wiki:", 5)==0 
+  }else if( strncmp(zTarget, "wiki:", 5)==0
         && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     zTarget += 5;
     blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
@@ -1550,16 +1550,6 @@ static void wiki_render(Renderer *p, char *z){
 }
 
 /*
-** Skip over the UTF-8 Byte-Order-Mark that some broken Windows
-** tools add to the beginning of text files.
-*/
-char *skip_bom(char *z){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-  if( z && memcmp(z, bom, 3)==0 ) z += 3;
-  return z;
-}
-
-/*
 ** Transform the text in the pIn blob.  Write the results
 ** into the pOut blob.  The pOut blob should already be
 ** initialized.  The output is merely appended to pOut.
@@ -1567,7 +1557,6 @@ char *skip_bom(char *z){
 ** reply.
 */
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
-  char *z;
   Renderer renderer;
 
   memset(&renderer, 0, sizeof(renderer));
@@ -1589,8 +1578,8 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.pOut = cgi_output_blob();
   }
 
-  z = skip_bom(blob_str(pIn));
-  wiki_render(&renderer, z);
+  blob_strip_bom(pIn, 0);
+  wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
@@ -1632,7 +1621,8 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   char *z;
   int i;
   int iStart;
-  z = skip_bom(blob_str(pIn));
+  blob_strip_bom(pIn, 0);
+  z = blob_str(pIn);
   for(i=0; fossil_isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;
   i++;
