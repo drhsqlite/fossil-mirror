@@ -1,5 +1,5 @@
-C Allow\sunicode\sfiles\sfor\sWiki-rendering\son\sWindows.\n<p>Trying\sto\scommit\sa\sfile\swith\san\sUTF-16\sBOM\swill\snow\sgive\sa\swarning,\sjust\sas\sa\sfile\scontaining\scrlf
-D 2012-10-29T14:45:09.068
+C (experiment)\sAllow\s'c'\sfor\sconverting\sunicode/crlf\sfiles\sat\suser\srequest,\snot\scomplete\syet.
+D 2012-10-29T15:57:19.741
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c 40cafba28289d70910285105124ffff9ecb269dd
+F src/checkin.c ca25f425060c558015cd8b63030b86bfe1d92e50
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -357,7 +357,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2a15d87edbd7948467ee03912088802951c96845 9267dba49830aedabc9982c10b1973d5ea99e5c9
-R e04df8a9a4b7c86f1bb72c963855b0c2
+P 70b4f105ebaab44c807092d06c74943768c00391
+R 38b96e379417aa74ecddc0b211b8d9f9
+T *branch * use-blob_strip_bom
+T *sym-use-blob_strip_bom *
+T -sym-trunk *
 U jan.nijtmans
-Z 9f0c25308a8144eab13afcd8221af5f0
+Z 40a60882d773f968d6318d95da96705a

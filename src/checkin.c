@@ -885,14 +885,17 @@ static void create_manifest(
 /*
 ** Issue a warning and give the user an opportunity to abandon out
 ** if unicode or a \r\n line ending is seen in a text file.
+**
+** Return 1 if the user pressed 'c', 0 otherwise.
 */
-static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
+static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
   int looksLike;          /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
-  static int allOk = 0;   /* Set to true to disable this routine */
+  static int allOk[2] = {0, 0};   /* Set to true to disable this routine */
 
-  if( allOk ) return;
+  if(allOk[0]) crnlOk = 1;
+  if (crnlOk && allOk[1]) return 0;
   looksLike = looks_like_text(p);
   if( looksLike<0 ){
     const char *type;
@@ -900,11 +903,14 @@ static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
     char cReply;
 
     if( looksLike&1 ){
-      if( crnlOk ){
-        return; /* We don't want CrLf warnings for this file. */
+      if( allOk[1] ){
+        return 0; /* We don't want CrLf warnings for this file. */
       }
       type = "CR/NL line endings";
     }else{
+      if( crnlOk ){
+        return 0; /* We don't want CrLf warnings for this file. */
+      }
       type = "unicode";
     }
     file_relative_name(zFilename, &fname, 0);
@@ -916,7 +922,7 @@ static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
-      allOk = 1;
+      allOk[looksLike&1] = 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    type, blob_str(&fname));
@@ -924,6 +930,7 @@ static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
     blob_reset(&ans);
     blob_reset(&fname);
   }
+  return 0;
 }
 
 /*
@@ -1025,6 +1032,7 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
+  int abortCommit = 0;
   Blob ans;
   char cReply;
 
@@ -1234,7 +1242,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    encoding_warning(&content, crnlOk, zFullname);
+    abortCommit |= encoding_warning(&content, crnlOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
@@ -1255,6 +1263,8 @@ void commit_cmd(void){
   db_finalize(&q);
   if( nConflict && !allowConflict ){
     fossil_fatal("abort due to unresolve merge conflicts");
+  } else if( abortCommit ){
+    fossil_fatal("files are converted on your request. Please re-test before committing");
   }
 
   /* Create the new manifest */
