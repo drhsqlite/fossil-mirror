@@ -1225,9 +1225,13 @@ void commit_cmd(void){
     }
     if( !crnlOk ) cr_warning(&content, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
+      Blob fname; /* Relative pathname of the file */
+
       nConflict++;
+      file_relative_name(zFullname, &fname, 0);
       fossil_print("possible unresolved merge conflict in %s\n",
-                   zFullname+strlen(g.zLocalRoot));
+                   blob_str(&fname));
+      blob_reset(&fname);
     }
     nrid = content_put(&content);
     blob_reset(&content);
