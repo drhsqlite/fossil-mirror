@@ -894,8 +894,8 @@ static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
   Blob fname;             /* Relative pathname of the file */
   static int allOk[2] = {0, 0};   /* Set to true to disable this routine */
 
-  if(allOk[0]) crnlOk = 1;
-  if (crnlOk && allOk[1]) return 0;
+  if( allOk[1] ) crnlOk = 1;
+  if( allOk[0] && crnlOk ) return 0;
   looksLike = looks_like_text(p);
   if( looksLike<0 ){
     const char *type;
@@ -903,13 +903,13 @@ static int encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
     char cReply;
 
     if( looksLike&1 ){
-      if( allOk[1] ){
+      if( crnlOk ){
         return 0; /* We don't want CrLf warnings for this file. */
       }
       type = "CR/NL line endings";
     }else{
-      if( crnlOk ){
-        return 0; /* We don't want CrLf warnings for this file. */
+      if( allOk[0] ){
+        return 0; /* We don't want Unicode warnings for this file. */
       }
       type = "unicode";
     }
