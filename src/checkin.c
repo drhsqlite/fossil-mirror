@@ -884,34 +884,39 @@ static void create_manifest(
 
 /*
 ** Issue a warning and give the user an opportunity to abandon out
-** if unicode or a \r\n line ending is seen in a text file.
+** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
+** is seen in a text file.
 */
-static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
-  int looksLike;          /* return value of looks_like_text() */
+static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
+  int eType;              /* return value of looks_like_text() */
+  int fUnicode;           /* return value of starts_with_utf16_bom() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
-  looksLike = looks_like_text(p);
-  if( looksLike<0 ){
-    const char *type;
+  eType = looks_like_text(p);
+  fUnicode = starts_with_utf16_bom(p);
+  if( eType==-1 || fUnicode ){
+    const char *zWarning;
     Blob ans;
     char cReply;
 
-    if( looksLike&1 ){
+    if( eType==-1 && fUnicode ){
+      zWarning = "Unicode and CR/NL line endings";
+    }else if( eType==-1 ){
       if( crnlOk ){
-        return; /* We don't want CrLf warnings for this file. */
+        return; /* We don't want CR/NL warnings for this file. */
       }
-      type = "CR/NL line endings";
+      zWarning = "CR/NL line endings";
     }else{
-      type = "unicode";
+      zWarning = "Unicode";
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s; commit anyhow (a=all/y/N)?",
-         blob_str(&fname), type);
+         blob_str(&fname), zWarning);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
@@ -919,7 +924,7 @@ static void encoding_warning(const Blob *p, int crnlOk, const char *zFilename){
       allOk = 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
-                   type, blob_str(&fname));
+                   zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
@@ -1234,7 +1239,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    encoding_warning(&content, crnlOk, zFullname);
+    commit_warning(&content, crnlOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 

@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) ((looks_like_text(blob)&1) == 0)
+#define looks_like_binary(blob) (looks_like_text((blob)) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -172,37 +172,42 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** Returns 1, if everything OK
-** Returns 0 if the specified content appears to be binary or
-** contains a line that is too long
-** Returns -1, if the file appears text, but it contains CrLf
-** Returns -2, if the file starts with an UTF-16 BOM (le or be)
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  Possible return
+** values are:
+**
+**  (1) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters; however, the encoding may
+**         not be UTF-8.
+**
+**  (0) -- The content appears to be binary because it contains embedded
+**         NUL (\000) characters or an extremely long line.  Since this
+**         function does not understand UTF-16, it may falsely consider
+**         UTF-16 text to be binary.
+**
+** (-1) -- The content appears to consist entirely of text, with lines
+**         delimited by carriage-return, line-feed pairs; however, the
+**         encoding may not be UTF-8.
+**
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume text with no CrLf */
+  int result = 1;  /* Assume text with no CR/NL */
 
   /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
-  if ( n > 1 ){
-    if ( (c==(char)0xff) && (z[1]==(char)0xfe) ){
-      return -2;
-    } else if ( (c==(char)0xfe) && (z[1]==(char)0xff) ){
-      return -2;
-    }
-  }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
-        result = -1;  /* Contains CrLf, continue */
+        result = -1;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
         return 0;  /* Very long line -> binary */
@@ -214,6 +219,24 @@ int looks_like_text(const Blob *pContent){
     return 0;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le or
+** UTF-16be byte-order-mark (BOM).
+*/
+int starts_with_utf16_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }else if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }
+  return 0;
 }
 
 /*
