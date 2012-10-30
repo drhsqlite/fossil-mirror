@@ -884,35 +884,36 @@ static void create_manifest(
 
 /*
 ** Issue a warning and give the user an opportunity to abandon out
-** if unicode or a \r\n line ending is seen in a text file.
+** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
+** is seen in a text file.
 **
 ** Return 1 if the user pressed 'c', 0 otherwise.
 */
-static int encoding_warning(Blob *p, int crnlOk, const char *zFilename){
-  int looksLike;          /* return value of looks_like_text() */
+static int commit_warning(Blob *p, int crnlOk, const char *zFilename){
+  int eType;              /* return value of looks_like_text() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk[2] = {0, 0};   /* Set to true to disable this routine */
 
   if( allOk[1] ) crnlOk = 1;
   if( allOk[0] && crnlOk ) return 0;
-  looksLike = looks_like_text(p);
-  if( looksLike<0 ){
-    const char *type;
+  eType = looks_like_text(p);
+  if( eType<0 ){
+    const char *zWarning;
     const char *c = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( looksLike==-3 ){
+    if( eType==-3 ){
       if( crnlOk ){
-        return 0; /* We don't want CrLf warnings for this file. */
+        return 0; /* We don't want CR/NL warnings for this file. */
       }
-      type = "CR/NL line endings";
+      zWarning = "CR/NL line endings";
     }else{
       if( allOk[0] ){
         return 0; /* We don't want Unicode warnings for this file. */
       }
-      type = "unicode";
+      zWarning = "Unicode";
 #ifndef _WIN32
       c = ""; /* On UNIX, we cannot convert unicode files */
 #endif
@@ -921,15 +922,15 @@ static int encoding_warning(Blob *p, int crnlOk, const char *zFilename){
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), type, c);
+         blob_str(&fname), zWarning, c);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
-      allOk[looksLike==-3] = 1;
+      allOk[eType==-3] = 1;
     }else if( (cReply=='c' || cReply=='C')
 #ifndef _WIN32
-        && (looksLike==-3)
+        && (eType==-3)
 #endif
     ){
       char *zOrig = file_newname(zFilename, "original", 1);
@@ -937,7 +938,7 @@ static int encoding_warning(Blob *p, int crnlOk, const char *zFilename){
       blob_write_to_file(p, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
-      if( looksLike==-3 ) {
+      if( eType==-3 ) {
         blob_remove_cr(p);
       }else{
         static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
@@ -949,7 +950,7 @@ static int encoding_warning(Blob *p, int crnlOk, const char *zFilename){
       return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
-                   type, blob_str(&fname));
+                   zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
@@ -1266,7 +1267,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    abortCommit |= encoding_warning(&content, crnlOk, zFullname);
+    abortCommit |= commit_warning(&content, crnlOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 

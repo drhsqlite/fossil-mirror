@@ -172,18 +172,32 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
-** Returns 1, if everything OK
-** Returns 0 if the specified content appears to be binary or
-** contains a line that is too long
-** Returns -1, if the file starts with an UTF-16 BOM (be)
-** Returns -2, if the file starts with an UTF-16 BOM (le)
-** Returns -3, if the file appears text, but it contains CrLf
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  Possible return
+** values are:
+**
+**  (1) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters; however, the encoding may
+**         not be UTF-8.
+**
+**  (0) -- The content appears to be binary because it contains embedded
+**         NUL (\000) characters or an extremely long line.
+**
+** (-1) -- The content appears to consist entirely of text, in the
+**         UTF-16 (BE) encoding.
+**
+** (-2) -- The content appears to consist entirely of text, in the
+**         UTF-16 (LE) encoding.
+**
+** (-3) -- The content appears to consist entirely of text, with lines
+**         delimited by carriage-return, line-feed pairs; however, the
+**         encoding may not be UTF-8.
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume text with no CrLf */
+  int result = 1;  /* Assume text with no CR/NL */
 
   /* Check individual lines.
   */
@@ -203,7 +217,7 @@ int looks_like_text(const Blob *pContent){
     if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
-        result = -3;  /* Contains CrLf, continue */
+        result = -3;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
         return 0;  /* Very long line -> binary */
