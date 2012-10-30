@@ -387,7 +387,7 @@ static int prefix_match(const char *zPattern, const char *zStr){
 */
 static int isHuman(const char *zAgent){
   int i;
-  if( zAgent==0 ) return 0;  /* If not UserAgent, then probably a bot */
+  if( zAgent==0 ) return 0;  /* If no UserAgent, then probably a bot */
   for(i=0; zAgent[i]; i++){
     if( prefix_match("bot", zAgent+i) ) return 0;
     if( prefix_match("spider", zAgent+i) ) return 0;

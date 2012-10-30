@@ -1,5 +1,5 @@
-C working\sutf-16\sdiff,\sstill\sbeing\stested
-D 2012-10-30T15:18:21.177
+C merge\strunk
+D 2012-10-30T16:16:26.143
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -116,7 +116,7 @@ F src/json_timeline.c 22b41d51a82ec272ae312ff858642dd4dccc56e5
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c af5fdc808315bf2f73d20958ee9f3f799300577c
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 8b4e8b1c55294c35721527e2bc28f04a0ad14f3c
+F src/login.c a8033f18cacdb7b63a9ca4509c343d8313870b02
 F src/main.c 0eb9635fb82dbb431f5b9b3ff586b2903ec99b2e
 F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ab5a6b436e7be0b4ede8d6e3004899aa93b51906
-R a2e195cacf7450c5573f1f80110af93a
+P 879d1e2405a640380de78f77c9f16fd678664c38 c7b2b2ed3ce6b253495d2695ddc32b76427fc163
+R bd93191cdc98ea7b87a786829016acea
 U jan.nijtmans
-Z 5d0a84df5c0ae010e2d27ced01b5aadd
+Z 7c419f204b8104f289b0ba653b4ca203
