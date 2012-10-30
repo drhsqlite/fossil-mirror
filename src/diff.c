@@ -191,27 +191,33 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         UTF-16 (BE or LE) encoding.
 */
 int looks_like_text(const Blob *pContent){
-  const char *z = blob_buffer(pContent);
+  const unsigned char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
+  int j;
+  unsigned char c;
   int result = 1;  /* Assume text with no CR/NL */
+  static const char isBinary[256] = {
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 1, 0,  1, 1, 1, 1
+  };
+
 
   /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+  if( isBinary[c] ) return 0;  /* non-text byte in a file -> binary */
   if ( n > 1 ){
-    if ( (c==(char)0xff) && (z[1]==(char)0xfe) ){
+    if ( (c==0xff) && (z[1]==0xfe) ){
       return -2;
-    } else if ( (c==(char)0xfe) && (z[1]==(char)0xff) ){
+    } else if ( (c==0xfe) && (z[1]==0xff) ){
       return -2;
     }
   }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+    if( isBinary[c] ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
         result = -1;  /* Contains CR/NL, continue */
