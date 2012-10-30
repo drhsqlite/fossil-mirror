@@ -1,5 +1,5 @@
-C Style\sen\scomment\sfixes,\sbackported\sfrom\s[d57f0a9361]
-D 2012-10-30T16:14:58.517
+C Update\sto\sthe\sversion\sof\sSQLite\sthat\sadds\ssupport\sfor\scoroutines\sused\sto\ngenerate\ssubqueries.
+D 2012-10-30T18:14:27.152
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -145,8 +145,8 @@ F src/shell.c 3b47e233d57ec42f05ddd305040fa0d4f5755b81
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 946a289aa3124c1a4b9e18611da156efde10689c
 F src/sqlcmd.c ddee867532e6ff37f6cbd180d50ff9cc09378f95
-F src/sqlite3.c bc8100c9ee01b8c20aa421f9b3a24bca7f10cc61
-F src/sqlite3.h ffdd1f3edf6ffc1e0ab077750d64ed330cdeb1b5
+F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
+F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
 F src/stash.c a4330d6337d341902a50ad681e421a133f1eec4b
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c d1ecdef86e97ae5c7e71816463b92c371557832e
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1167d7b14569c61ee78e9e1de2d4b094e6ff10c0
-R 4c0263bb69896d901fad40896b77ba1a
-U jan.nijtmans
-Z 9b6b0023fee523a9d0b057dd0f4a49b4
+P c7b2b2ed3ce6b253495d2695ddc32b76427fc163
+R 32a307473b2d60c010a86ae3a902dec6
+U drh
+Z 86a5598159b30c374d9d5b2d99dd4891
