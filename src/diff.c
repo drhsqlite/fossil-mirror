@@ -47,10 +47,11 @@
 #define DIFF_CANNOT_COMPUTE_BINARY \
     "cannot compute difference between binary files\n"
 
+#define DIFF_CANNOT_COMPUTE_ENCODING \
+    "cannot compute difference between files with different encodings\n"
+
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
-
-#define looks_like_binary(blob) ((looks_like_text(blob)&3) != 1)
 #endif /* INTERFACE */
 
 /*

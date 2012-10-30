@@ -308,7 +308,7 @@ static void stash_diff(
     int rid = db_column_int(&q, 0);
     int isRemoved = db_column_int(&q, 1);
     int isLink = db_column_int(&q, 3);
-    int isBin1, isBin2;
+    int eType = 0;
     const char *zOrig = db_column_text(&q, 4);
     const char *zNew = db_column_text(&q, 5);
     char *zOPath = mprintf("%s%s", g.zLocalRoot, zOrig);
@@ -317,9 +317,10 @@ static void stash_diff(
       db_ephemeral_blob(&q, 6, &a);
       fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew, diffFlags);
-      isBin1 = 0;
-      isBin2 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      diff_file_mem(&empty, &a, isBin1, isBin2, zNew, zDiffCmd,
+      if( !fIncludeBinary ){
+        eType = looks_like_text(&a)&3;
+      }
+      diff_file_mem(&empty, &a, eType, zNew, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else if( isRemoved ){
       fossil_print("DELETE %s\n", zOrig);
@@ -333,9 +334,10 @@ static void stash_diff(
         content_get(rid, &a);
       }
       diff_print_index(zNew, diffFlags);
-      isBin1 = fIncludeBinary ? 0 : looks_like_binary(&a);
-      isBin2 = 0;
-      diff_file_mem(&a, &empty, isBin1, isBin2, zOrig, zDiffCmd,
+      if( !fIncludeBinary){
+        eType = looks_like_text(&a)&3;
+      }
+      diff_file_mem(&a, &empty, eType, zOrig, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
     }else{
       int isOrigLink = file_wd_islink(zOPath);
@@ -356,17 +358,25 @@ static void stash_diff(
         Blob *pBase = fBaseline ? &a : &disk;
         content_get(rid, &a);
         blob_delta_apply(&a, &delta, &b);
-        isBin1 = fIncludeBinary ? 0 : looks_like_binary(pBase);
-        isBin2 = fIncludeBinary ? 0 : looks_like_binary(&b);
-        diff_file_mem(fBaseline? &a : &disk, &b, isBin1, isBin2, zNew,
-                      zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
+        int eType2 = 0;
+        if( !fIncludeBinary ){
+          eType = looks_like_text(pBase)&3;
+          eType2 = looks_like_text(&b)&3;
+        }
+        if( eType!=eType2 ){
+          diff_print_filenames(zOrig, zNew, diffFlags);
+          printf(DIFF_CANNOT_COMPUTE_ENCODING);
+        }else{
+          diff_file_mem(pBase, &b, eType, zNew, zDiffCmd,
+                        zBinGlob, fIncludeBinary, diffFlags);
+        }
         blob_reset(&a);
         blob_reset(&b);
       }
       if( !fBaseline ) blob_reset(&disk);
     }
     blob_reset(&delta);
- }
+  }
   db_finalize(&q);
 }
 

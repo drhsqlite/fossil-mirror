@@ -602,7 +602,7 @@ int historical_version_of_file(
   Blob *content,           /* Put the content here */
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
-  int *pIsBin,             /* Set to true if file is binary */
+  int *pEType,             /* Set to file type, look_like_text()&3 */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
@@ -629,8 +629,8 @@ int historical_version_of_file(
       if( pIsLink ) *pIsLink = ( manifest_file_mperm(pFile)==PERM_LNK );
       manifest_destroy(pManifest);
       rc = content_get(rid, content);
-      if( rc && pIsBin ){
-        *pIsBin = looks_like_binary(content);
+      if( rc && pEType ){
+        *pEType = looks_like_text(content)&3;
       }
       return rc;
     }

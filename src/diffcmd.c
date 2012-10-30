@@ -78,7 +78,7 @@ void diff_print_filenames(const char *zLeft, const char *zRight, u64 diffFlags){
 */
 void diff_file(
   Blob *pFile1,             /* In memory content to compare from */
-  int isBin1,               /* Does the 'from' content appear to be binary */
+  int eType1,               /* Does the 'from' content appear to be text */
   const char *zFile2,       /* On disk content to compare to */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
@@ -90,6 +90,7 @@ void diff_file(
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
     const char *zName2;       /* Name of zFile2 for display */
+    int eType2;
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
@@ -103,13 +104,19 @@ void diff_file(
       }
       zName2 = zName;
     }
-
+    eType2 = looks_like_text(&file2)&3;
     /* Compute and output the differences */
     if( diffFlags & DIFF_BRIEF ){
       if( blob_compare(pFile1, &file2) ){
         fossil_print("CHANGED  %s\n", zName);
       }
+    }else if( eType1!=eType2 ){
+      fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
     }else{
+      if( eType1>1 ){
+        blob_strip_bom(pFile1, 0);
+        blob_strip_bom(&file2, 0);
+      }
       blob_zero(&out);
       text_diff(pFile1, &file2, &out, diffFlags);
       if( blob_size(&out) ){
@@ -128,7 +135,8 @@ void diff_file(
 
     if( !fIncludeBinary ){
       Blob file2;
-      if( isBin1 ){
+      int eType2;
+      if( eType1!=1 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
@@ -149,7 +157,8 @@ void diff_file(
           blob_read_from_file(&file2, zFile2);
         }
       }
-      if( looks_like_binary(&file2) ){
+      eType2 = looks_like_text(&file2)&3;
+      if( eType2!=1 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
@@ -199,8 +208,7 @@ void diff_file(
 void diff_file_mem(
   Blob *pFile1,             /* In memory content to compare from */
   Blob *pFile2,             /* In memory content to compare to */
-  int isBin1,               /* Does the 'from' content appear to be binary */
-  int isBin2,               /* Does the 'to' content appear to be binary */
+  int eType,                /* Does the content appear to be text */
   const char *zName,        /* Display name of the file */
   const char *zDiffCmd,     /* Command for comparison */
   const char *zBinGlob,     /* Treat file names matching this as binary */
@@ -212,6 +220,10 @@ void diff_file_mem(
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
+    if( eType>1 ){
+      blob_strip_bom(pFile1, 0);
+      blob_strip_bom(pFile2, 0);
+    }
     text_diff(pFile1, pFile2, &out, diffFlags);
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print("%s\n", blob_str(&out));
@@ -224,7 +236,7 @@ void diff_file_mem(
     char zTemp2[300];
 
     if( !fIncludeBinary ){
-      if( isBin1 || isBin2 ){
+      if( eType==0 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
@@ -284,14 +296,14 @@ static void diff_one_against_disk(
   Blob fname;
   Blob content;
   int isLink;
-  int isBin;
+  int eType = 0;
   file_tree_name(zFileTreeName, &fname, 1);
   historical_version_of_file(zFrom, blob_str(&fname), &content, &isLink, 0,
-                             fIncludeBinary ? 0 : &isBin, 0);
+                             fIncludeBinary ? 0 : &eType, 0);
   if( !isLink != !file_wd_islink(zFrom) ){
     fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
   }else{
-    diff_file(&content, isBin, zFileTreeName, zFileTreeName,
+    diff_file(&content, eType, zFileTreeName, zFileTreeName,
               zDiffCmd, zBinGlob, fIncludeBinary, diffFlags);
   }
   blob_reset(&content);
@@ -391,7 +403,7 @@ static void diff_all_against_disk(
     }
     if( showDiff ){
       Blob content;
-      int isBin;
+      int eType = 0;
       if( !isLink != !file_wd_islink(zFullName) ){
         diff_print_index(zPathname, diffFlags);
         diff_print_filenames(zPathname, zPathname, diffFlags);
@@ -403,9 +415,11 @@ static void diff_all_against_disk(
       }else{
         blob_zero(&content);
       }
-      isBin = fIncludeBinary ? 0 : looks_like_binary(&content);
+      if( !fIncludeBinary ){
+        eType = looks_like_text(&content)&3;
+      }
       diff_print_index(zPathname, diffFlags);
-      diff_file(&content, isBin, zFullName, zPathname, zDiffCmd,
+      diff_file(&content, eType, zFullName, zPathname, zDiffCmd,
                 zBinGlob, fIncludeBinary, diffFlags);
       blob_reset(&content);
     }
@@ -439,19 +453,22 @@ static void diff_one_two_versions(
   Blob fname;
   Blob v1, v2;
   int isLink1, isLink2;
-  int isBin1, isBin2;
+  int eType = 0, eType2 = 0;
   if( diffFlags & DIFF_BRIEF ) return;
   file_tree_name(zFileTreeName, &fname, 1);
   zName = blob_str(&fname);
   historical_version_of_file(zFrom, zName, &v1, &isLink1, 0,
-                             fIncludeBinary ? 0 : &isBin1, 0);
+                             fIncludeBinary ? 0 : &eType, 0);
   historical_version_of_file(zTo, zName, &v2, &isLink2, 0,
-                             fIncludeBinary ? 0 : &isBin2, 0);
+                             fIncludeBinary ? 0 : &eType2, 0);
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+  }else if( eType!=eType2 ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
   }else{
-    diff_file_mem(&v1, &v2, isBin1, isBin2, zName, zDiffCmd,
+    diff_file_mem(&v1, &v2, eType, zName, zDiffCmd,
                   zBinGlob, fIncludeBinary, diffFlags);
   }
   blob_reset(&v1);
@@ -479,7 +496,7 @@ static void diff_manifest_entry(
   u64 diffFlags
 ){
   Blob f1, f2;
-  int isBin1, isBin2;
+  int eType = 0, eType2 = 0;
   int rid;
   const char *zName =  pFrom ? pFrom->zName : pTo->zName;
   if( diffFlags & DIFF_BRIEF ) return;
@@ -496,10 +513,17 @@ static void diff_manifest_entry(
   }else{
     blob_zero(&f2);
   }
-  isBin1 = fIncludeBinary ? 0 : looks_like_binary(&f1);
-  isBin2 = fIncludeBinary ? 0 : looks_like_binary(&f2);
-  diff_file_mem(&f1, &f2, isBin1, isBin2, zName, zDiffCmd,
-                zBinGlob, fIncludeBinary, diffFlags);
+  if ( !fIncludeBinary ){
+    eType = looks_like_text(&f1)&3;
+    eType2 = looks_like_text(&f2)&3;
+  }
+  if( eType!=eType2 ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
+  }else{
+    diff_file_mem(&f1, &f2, eType, zName, zDiffCmd,
+                  zBinGlob, fIncludeBinary, diffFlags);
+  }
   blob_reset(&f1);
   blob_reset(&f2);
 }
