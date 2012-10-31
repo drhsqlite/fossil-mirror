@@ -1,5 +1,5 @@
-C Update\sto\sthe\sversion\sof\sSQLite\sthat\sadds\ssupport\sfor\scoroutines\sused\sto\ngenerate\ssubqueries.
-D 2012-10-30T18:14:27.152
+C Avoid\sthe\suse\sof\sstdarg.h\sin\sthe\s"all"\scommand,\ssince\sit\swas\scausing\sproblems\nfor\sreasons\sI\sdo\snot\sunderstand.
+D 2012-10-31T00:11:29.573
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -60,7 +60,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 8951400388e38b8eb872a1acbc0fb168796f14ce
-F src/allrepo.c 42f2f4d8bc92c1c9f3c0efedc2b4127e270ed82e
+F src/allrepo.c 57180b5f206faa57c32a36c1908af892f7bc2944
 F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c7b2b2ed3ce6b253495d2695ddc32b76427fc163
-R 32a307473b2d60c010a86ae3a902dec6
+P bdbe6c74b82231e2d124b91e2f1c1abc7a23a307
+R 0eed7efe94f78ac428b6c35d307dde73
 U drh
-Z 86a5598159b30c374d9d5b2d99dd4891
+Z ab857e17731484365461acc5299a04d1
