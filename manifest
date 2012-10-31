@@ -1,5 +1,5 @@
-C Faster\sdetermination\sof\sbinary\sfiles,\sby\snot\sonly\schecking\sfor\sNUL\n<p>re-use\slooks_like_blob
-D 2012-10-30T20:10:28.744
+C Enhance\slooks_like_text():\n<br>-\sDetect\sline-length\soverflow\searlier,\snot\sat\sthe\snext\sNL\n<br>-\sImplement\sthe\ssame\sbinary\sand\sline-length\scheck\sfor\sUTF-16\sas\swell\n<p>For\sUTF-16,\sthe\sline-length\slimit\sis\sset\sto\s2/3th\sof\sthe\sline\slength\slimit\sfor\sother\stext,\nbecause\sUTF-16\s->\sUTF-8\sconversion\scan\sincrease\sthe\sline\slength\s(in\sbytes)\sby\smax\s50%.\sThis\nguarantees\sthat\sa\sUTF-16\sdiff\scan\sbe\smade\sby\sconverting\sthe\stwo\sUTF-16\sfiles\sto\sUTF-8\nand\sthen\sdo\sa\snormal\sdiff.
+D 2012-10-31T08:43:48.006
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c 2c85916ecdef5f93f7d3faae8b4dbfa0906d8ffb
+F src/diff.c 7b7879a7fc18ace85f1fe162b069b5fc5bb56a88
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c e3815bcae9672025e24aa9e5885bd8b45caf4b54
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -357,10 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bdbe6c74b82231e2d124b91e2f1c1abc7a23a307
-R 1d59e056a32853bc940954ca70e78088
-T *branch * improve_looks_like_binary
-T *sym-improve_looks_like_binary *
-T -sym-trunk *
+P 0ba08f9d26ecb3a53d79d05d3f95dfc8cc36c248
+R 7978a40f6845d03e6d25e0b5865924c6
 U jan.nijtmans
-Z 5148e44170b886ef1b2a31c6831dab4b
+Z 5f627111181eef5a9df708614f2e2773

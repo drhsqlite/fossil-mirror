@@ -181,7 +181,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         NUL (\000) characters or an extremely long line.
+**         non-text (\0x0-\0x8, \0xe-\0x1a, \x01c-\x01f) characters or an
+**         extremely long line.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
@@ -191,7 +192,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         UTF-16 (BE or LE) encoding.
 */
 int looks_like_text(const Blob *pContent){
-  const unsigned char *z = blob_buffer(pContent);
+  unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j;
   unsigned char c;
@@ -207,29 +208,54 @@ int looks_like_text(const Blob *pContent){
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( isBinary[c] ) return 0;  /* non-text byte in a file -> binary */
-  if ( n > 1 ){
-    if ( (c==0xff) && (z[1]==0xfe) ){
-      return -2;
-    } else if ( (c==0xfe) && (z[1]==0xff) ){
-      return -2;
+  if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
+    if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
+      result = -2;
+      j = LENGTH_MASK*2/3;
+      while( (n-=2)>0 ){
+        c = *(z+=2);
+        if( z[1]==0 ){ /* High-byte must be 0 for further checks */
+          if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
+          if( c=='\n' ){
+            j = LENGTH_MASK;
+          }
+        }
+        if( --j==0 ){
+          return 0;  /* Very long line -> binary */
+        }
+      }
+      return result;
+    } else if ( (c==0xfe) && (z[1]==0xff) ){ /* UTF-16 BE BOM */
+      result = -2;
+      ++z; j = LENGTH_MASK*2/3;
+       while( (n-=2)>0 ){
+        c = *(z+=2);
+        if ( z[-1]==0 ){ /* High-byte must be 0 for further checks */
+          if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
+          if( c=='\n' ){
+            j = LENGTH_MASK;
+          }
+        }
+        if( --j==0 ){
+          return 0;  /* Very long line -> binary */
+        }
+      }
+      return result;
     }
   }
-  j = (c!='\n');
+  j = LENGTH_MASK - (c!='\n');
   while( --n>0 ){
-    c = *++z; ++j;
-    if( isBinary[c] ) return 0;  /* \000 byte in a file -> binary */
+    c = *++z;
+    if( isBinary[c] ) return 0;  /* non-text byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
         result = -1;  /* Contains CR/NL, continue */
       }
-      if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
-      }
-      j = 0;
+      j = LENGTH_MASK;
     }
-  }
-  if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+    if( --j==0 ){
+      return 0;  /* Very long line -> binary */
+    }
   }
   return result;  /* No problems seen -> not binary */
 }
