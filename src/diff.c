@@ -181,8 +181,8 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         non-text (\0x0-\0x8, \0xe-\0x1a, \x01c-\x01f) characters or an
-**         extremely long line.
+**         non-text characters - \0x0-\0x8, \0xe-\0x19, \0x1c-\0x1f, \uffff,
+**         or \ufffe,\ufeff (except as BOM) - or an extremely long line.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the

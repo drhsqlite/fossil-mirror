@@ -1,5 +1,5 @@
-C Two\smore\senhancements.\n<br>-\sDOS\stext\sfiles\ssometimes\suse\sControl-Z\s(0x1a)\sas\seof-marker,\sso\sthis\sbyte\sshould\sbe\sconsidered\stext.\n<br>-\sFEFF,\sFFFE\sand\sFFFF\sare\sinvalid\sUTF-16\scode\spoints\s(when\snot\sused\sas\sBOM),\sso\sfiles\scontaining\sthose\sshould\sbe\sconsidered\sbinary.
-D 2012-10-31T12:58:07.513
+C fix\scomment
+D 2012-10-31T13:58:09.525
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c d478cdf59b0e161233fd76ce7cb259918ec46b00
+F src/diff.c 6124262f6d224a399cfc986ab5bec8fff42f69b8
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c e3815bcae9672025e24aa9e5885bd8b45caf4b54
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 44c6be2ab6d047152531f5f0681c2ea413c9fe5a
-R b40d8502f6abc32d0397ce05d1b0c97a
+P e3f3c390f1c3461d5a5f1c061316ca7ae90c73e5
+R 903279701e75df14f80a22e28b8dab74
 U jan.nijtmans
-Z 3f5a755fdde219692e1bd435e685628c
+Z 51cf523b2dd8d79a2fce74e0c2e2d1a2
