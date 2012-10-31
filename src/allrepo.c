@@ -150,6 +150,11 @@ void all_cmd(void){
     zCmd = "sync -autourl -R";
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
+  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+    zCmd = "test-orphans -R";
+  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+    zCmd = "test-missing -q -R";
+    collect_argument(&extra, "notshunned");
   }else if( strncmp(zCmd, "changes", n)==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
