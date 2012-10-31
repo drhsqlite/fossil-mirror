@@ -1,5 +1,5 @@
-C Avoid\sthe\suse\sof\sstdarg.h\sin\sthe\s"all"\scommand,\ssince\sit\swas\scausing\sproblems\nfor\sreasons\sI\sdo\snot\sunderstand.
-D 2012-10-31T00:11:29.573
+C strip\sBOM\sfrom\sartifacts\sembedded\sin\sHTML\sor\stext
+D 2012-10-31T09:56:21.142
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -99,7 +99,7 @@ F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
 F src/http_ssl.c a55074729af2b90a9a1a68c6398ddcae3e396f34
 F src/http_transport.c 0941c8ec61f0bfab9c33a34cac2e1f9121f7f44d
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c fce18c097f5419eb32eba2d1c60c596a9f846c1b
+F src/info.c c50a44c252d2676d0b22dcf4f25a4dc4b0916316
 F src/json.c 6ae61780a43e0fae9b196e9e1f62f4f79ccbb704
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bdbe6c74b82231e2d124b91e2f1c1abc7a23a307
-R 0eed7efe94f78ac428b6c35d307dde73
-U drh
-Z ab857e17731484365461acc5299a04d1
+P ec4c9352235ee6b468aa2d08a8b330b831aae7a1
+R 8d1bb752e9089c4d0b228629e331e516
+U jan.nijtmans
+Z af93c0b2f331b296cd7132d71c21d9ea

@@ -24,8 +24,8 @@
 #include <assert.h>
 
 /*
-** Return a string (in memory obtained from malloc) holding a 
-** comma-separated list of tags that apply to check-in with 
+** Return a string (in memory obtained from malloc) holding a
+** comma-separated list of tags that apply to check-in with
 ** record-id rid.  If the "propagatingOnly" flag is true, then only
 ** show branch tags (tags that propagate to children).
 **
@@ -64,7 +64,7 @@ void show_common_info(
   char *zUuid;
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   if( zUuid ){
-    zDate = db_text(0, 
+    zDate = db_text(0,
       "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
       rid
     );
@@ -74,7 +74,7 @@ void show_common_info(
     free(zDate);
   }
   if( zUuid && showComment ){
-    zComment = db_text(0, 
+    zComment = db_text(0,
       "SELECT coalesce(ecomment,comment) || "
       "       ' (user: ' || coalesce(euser,user,'?') || ')' "
       "  FROM event WHERE objid=%d",
@@ -88,7 +88,7 @@ void show_common_info(
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
       const char *zType = db_column_int(&q, 2) ? "parent:" : "merged-from:";
-      zDate = db_text("", 
+      zDate = db_text("",
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
@@ -102,7 +102,7 @@ void show_common_info(
     while( db_step(&q)==SQLITE_ROW ){
       const char *zUuid = db_column_text(&q, 0);
       const char *zType = db_column_int(&q, 2) ? "child:" : "merged-into:";
-      zDate = db_text("", 
+      zDate = db_text("",
         "SELECT datetime(mtime) || ' UTC' FROM event WHERE objid=%d",
         db_column_int(&q, 1)
       );
@@ -291,7 +291,7 @@ static void showTags(int rid, const char *zNotGlob){
 /*
 ** Append the difference between two RIDs to the output
 */
-static void append_diff(const char *zFrom, const char *zTo, u64	diffFlags){
+static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -321,12 +321,12 @@ static void append_diff(const char *zFrom, const char *zTo, u64	diffFlags){
   }
   blob_reset(&from);
   blob_reset(&to);
-  blob_reset(&out);  
+  blob_reset(&out);
 }
 
 
 /*
-** Write a line of web-page output that shows changes that have occurred 
+** Write a line of web-page output that shows changes that have occurred
 ** to a file between two check-ins.
 */
 static void append_file_change_line(
@@ -426,7 +426,7 @@ u64 construct_diff_flags(int showDiff, int sideBySide){
 ** WEBPAGE: ci
 ** URL:  /ci?name=RID|ARTIFACTID
 **
-** Display information about a particular check-in. 
+** Display information about a particular check-in.
 **
 ** We also jump here from /info if the name is a version.
 **
@@ -464,7 +464,7 @@ void ci_page(void){
     rid
   );
   isLeaf = is_a_leaf(rid);
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT uuid, datetime(mtime, 'localtime'), user, comment,"
      "       datetime(omtime, 'localtime'), mtime"
      "  FROM blob, event"
@@ -484,14 +484,14 @@ void ci_page(void){
     char *zThisBranch;
     double thisMtime;
     int seenDiffTitle = 0;
-    
+
     style_header(zTitle);
     login_anonymous_available();
     free(zTitle);
     zEUser = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                     TAG_USER, rid);
-    zEComment = db_text(0, 
+    zEComment = db_text(0,
                    "SELECT value FROM tagxref WHERE tagid=%d AND rid=%d",
                    TAG_COMMENT, rid);
     zUser = db_column_text(&q, 2);
@@ -528,7 +528,7 @@ void ci_page(void){
       @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
     }
     if( g.perm.Admin ){
-      db_prepare(&q, 
+      db_prepare(&q,
          "SELECT rcvfrom.ipaddr, user.login, datetime(rcvfrom.mtime)"
          "  FROM blob JOIN rcvfrom USING(rcvid) LEFT JOIN user USING(uid)"
          " WHERE blob.rid=%d",
@@ -732,7 +732,7 @@ void winfo_page(void){
     style_footer();
     return;
   }
-  db_prepare(&q, 
+  db_prepare(&q,
      "SELECT substr(tagname, 6, 1000), uuid,"
      "       datetime(event.mtime, 'localtime'), user"
      "  FROM tagxref, tag, blob, event"
@@ -903,7 +903,7 @@ static void checkin_description(int rid){
 **   sbs=BOOLEAN
 **
 **
-** Show all differences between two checkins.  
+** Show all differences between two checkins.
 */
 void vdiff_page(void){
   int ridFrom, ridTo;
@@ -968,11 +968,11 @@ void vdiff_page(void){
       cmp = fossil_strcmp(pFileFrom->zName, pFileTo->zName);
     }
     if( cmp<0 ){
-      append_file_change_line(pFileFrom->zName, 
+      append_file_change_line(pFileFrom->zName,
                               pFileFrom->zUuid, 0, 0, diffFlags, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
-      append_file_change_line(pFileTo->zName, 
+      append_file_change_line(pFileTo->zName,
                               0, pFileTo->zUuid, 0, diffFlags,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
@@ -981,7 +981,7 @@ void vdiff_page(void){
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
     }else{
-      append_file_change_line(pFileFrom->zName, 
+      append_file_change_line(pFileFrom->zName,
                               pFileFrom->zUuid,
                               pFileTo->zUuid, 0, diffFlags,
                               manifest_file_mperm(pFileTo));
@@ -1056,7 +1056,7 @@ void object_description(
       }else if( mPerm==PERM_EXE ){
         @ <li>Executable file
       }else{
-        @ <li>File        
+        @ <li>File
       }
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
       @ <ul>
@@ -1083,12 +1083,12 @@ void object_description(
   @ </ul></ul>
   free(prevName);
   db_finalize(&q);
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT substr(tagname, 6, 10000), datetime(event.mtime),"
     "       coalesce(event.euser, event.user)"
     "  FROM tagxref, tag, event"
     " WHERE tagxref.rid=%d"
-    "   AND tag.tagid=tagxref.tagid" 
+    "   AND tag.tagid=tagxref.tagid"
     "   AND tag.tagname LIKE 'wiki-%%'"
     "   AND event.objid=tagxref.rid",
     rid
@@ -1154,7 +1154,7 @@ void object_description(
     }
     db_finalize(&q);
   }
-  db_prepare(&q, 
+  db_prepare(&q,
     "SELECT target, filename, datetime(mtime), user, src"
     "  FROM attachment"
     " WHERE src=(SELECT uuid FROM blob WHERE rid=%d)"
@@ -1289,7 +1289,7 @@ void diff_page(void){
 /*
 ** WEBPAGE: raw
 ** URL: /raw?name=ARTIFACTID&m=TYPE
-** 
+**
 ** Return the uninterpreted content of an artifact.  Used primarily
 ** to view artifacts that are images.
 */
@@ -1375,7 +1375,7 @@ static void hexdump(Blob *pBlob){
 /*
 ** WEBPAGE: hexdump
 ** URL: /hexdump?name=ARTIFACTID
-** 
+**
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
 */
@@ -1404,7 +1404,7 @@ void hexdump_page(void){
   @ <h2>Artifact %s(zUuid):</h2>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
-  style_submenu_element("Download", "Download", 
+  style_submenu_element("Download", "Download",
         "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   @ <hr />
   content_get(rid, &content);
@@ -1510,7 +1510,7 @@ static void output_text_with_line_numbers(
 **   ln              - show line numbers
 **   ln=N            - highlight line number N
 **   ln=M-N          - highlight lines M through N inclusive
-** 
+**
 ** Show the complete content of a file identified by ARTIFACTID
 ** as preformatted text.
 */
@@ -1547,7 +1547,7 @@ void artifact_page(void){
   @ <h2>Artifact %s(zUuid)</h2>
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
-  style_submenu_element("Download", "Download", 
+  style_submenu_element("Download", "Download",
           "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
@@ -1577,6 +1577,7 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <div>
+    blob_strip_bom(&content, 0);
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
@@ -1585,7 +1586,9 @@ void artifact_page(void){
     @ <blockquote>
     if( zMime==0 ){
       const char *zLn = P("ln");
-      const char *z = blob_str(&content);
+      const char *z;
+      blob_strip_bom(&content, 0);
+      z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);
       }else{
@@ -1601,7 +1604,7 @@ void artifact_page(void){
     @ </blockquote>
   }
   style_footer();
-}  
+}
 
 /*
 ** WEBPAGE: tinfo
@@ -1665,7 +1668,7 @@ void tinfo_page(void){
 ** URL: info/ARTIFACTID
 **
 ** The argument is a artifact ID which might be a baseline or a file or
-** a ticket changes or a wiki edit or something else. 
+** a ticket changes or a wiki edit or something else.
 **
 ** Figure out what the artifact ID is and jump to it.
 */
@@ -1674,7 +1677,7 @@ void info_page(void){
   Blob uuid;
   int rid;
   int rc;
-  
+
   zName = P("name");
   if( zName==0 ) fossil_redirect_home();
   if( validate16(zName, strlen(zName)) ){
@@ -1771,7 +1774,7 @@ void render_color_chooser(
      { "#d1d3a8", 0 },
      { "#b1d3a8", 0 },
 
-     { "#8eb2a1", 0 }, 
+     { "#8eb2a1", 0 },
      { "#8ea7b2", 0 },
      { "#8f8eb2", 0 },
      { "#ab8eb2", 0 },
@@ -1780,7 +1783,7 @@ void render_color_chooser(
      { "#b0b28e", 0 },
      { "#95b28e", 0 },
 
-     { "#80d6b0", 0 }, 
+     { "#80d6b0", 0 },
      { "#80bbd6", 0 },
      { "#8680d6", 0 },
      { "#c680d6", 0 },
@@ -1788,7 +1791,7 @@ void render_color_chooser(
      { "#d69b80", 0 },
      { "#d1d680", 0 },
      { "#91d680", 0 },
-    
+
 
      { "custom",  "##" },
   };
@@ -1895,7 +1898,7 @@ void ci_edit_page(void){
   const char *zNewUser;         /* Revised user */
   const char *zDate;            /* Current date of the check-in */
   const char *zNewDate;         /* Revised check-in date */
-  const char *zColor;       
+  const char *zColor;
   const char *zNewColor;
   const char *zNewTagFlag;
   const char *zNewTag;
@@ -1908,7 +1911,7 @@ void ci_edit_page(void){
   char *zUuid;
   Blob comment;
   Stmt q;
-  
+
   login_check_credentials();
   if( !g.perm.Write ){ login_needed(); return; }
   rid = name_to_typed_rid(P("r"), "ci");
@@ -1955,7 +1958,7 @@ void ci_edit_page(void){
     blob_appendf(&ctrl, "D %s\n", zNow);
     db_multi_exec("CREATE TEMP TABLE newtags(tag UNIQUE, prefix, value)");
     if( zNewColor[0]
-     && (fPropagateColor!=fNewPropagateColor 
+     && (fPropagateColor!=fNewPropagateColor
              || fossil_strcmp(zColor,zNewColor)!=0)
     ){
       char *zPrefix = "+";
