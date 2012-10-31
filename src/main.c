@@ -72,10 +72,12 @@ struct FossilUserPerms {
   char NewWiki;          /* f: create new wiki via web */
   char ApndWiki;         /* m: append to wiki via web */
   char WrWiki;           /* k: edit wiki via web */
+  char ModWiki;          /* l: approve and publish wiki content (Moderator) */
   char RdTkt;            /* r: view tickets via web */
   char NewTkt;           /* n: create new tickets */
   char ApndTkt;          /* c: append to tickets via the web */
   char WrTkt;            /* w: make changes to tickets via web */
+  char ModTkt;           /* q: approve and publish ticket changes (Moderator) */
   char Attach;           /* b: add attachments */
   char TktFmt;           /* t: create new ticket report formats */
   char RdAddr;           /* e: read email addresses or other private data */

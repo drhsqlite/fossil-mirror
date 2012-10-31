@@ -364,7 +364,10 @@ void tktview_page(void){
       @ added by %h(zUser) on
       hyperlink_to_date(zDate, ".");
       if( g.perm.WrTkt && g.perm.Attach ){
-        @ [%z(href("%R/attachdelete?tkt=%s&file=%t&from=%R/tktview%%3fname=%s",zFullName,zFile,zFullName))delete</a>]
+        char *zH;
+        zH = href("%R/attachdelete?tkt=%s&file=%t&from=%R/tktview%%3fname=%s",
+                  zFullName, zFile, zFullName);
+        @ [%z(zH)delete</a>]
       }
       @ </li>
     }

@@ -37,6 +37,11 @@ const char *mimetype_from_content(Blob *pBlob){
   int n;
   const unsigned char *x;
 
+  static const char isBinary[256] = {
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1,
+  };
+
   /* A table of mimetypes based on file content prefixes
   */
   static const struct {
@@ -53,7 +58,13 @@ const char *mimetype_from_content(Blob *pBlob){
 
   x = (const unsigned char*)blob_buffer(pBlob);
   n = blob_size(pBlob);
-  if( looks_like_text(pBlob) ){
+  for(i=0; i<n; i++){
+    unsigned char c = x[i];
+    if( isBinary[c] ){
+      break;
+    }
+  }
+  if( i>=n ){
     return 0;   /* Plain text */
   }
   for(i=0; i<sizeof(aMime)/sizeof(aMime[0]); i++){

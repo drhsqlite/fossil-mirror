@@ -994,6 +994,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'k':   g.perm.WrWiki = g.perm.RdWiki = g.perm.ApndWiki =1;    break;
       case 'm':   g.perm.ApndWiki = 1;                             break;
       case 'f':   g.perm.NewWiki = 1;                              break;
+      case 'l':   g.perm.ModWiki = 1;                              break;
 
       case 'e':   g.perm.RdAddr = 1;                               break;
       case 'r':   g.perm.RdTkt = 1;                                break;
@@ -1001,6 +1002,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt = 
                   g.perm.ApndTkt = 1;                              break;
       case 'c':   g.perm.ApndTkt = 1;                              break;
+      case 'q':   g.perm.ModTkt = 1;                               break;
       case 't':   g.perm.TktFmt = 1;                               break;
       case 'b':   g.perm.Attach = 1;                               break;
       case 'x':   g.perm.Private = 1;                              break;
@@ -1060,11 +1062,12 @@ int login_has_capability(const char *zCap, int nCap){
       case 'i':  rc = g.perm.Write;     break;
       case 'j':  rc = g.perm.RdWiki;    break;
       case 'k':  rc = g.perm.WrWiki;    break;
+      case 'l':  rc = g.perm.ModWiki;   break;
       case 'm':  rc = g.perm.ApndWiki;  break;
       case 'n':  rc = g.perm.NewTkt;    break;
       case 'o':  rc = g.perm.Read;      break;
       case 'p':  rc = g.perm.Password;  break;
-      /* case 'q': */
+      case 'q':  rc = g.perm.ModTkt;    break;
       case 'r':  rc = g.perm.RdTkt;     break;
       case 's':  rc = g.perm.Setup;     break;
       case 't':  rc = g.perm.TktFmt;    break;

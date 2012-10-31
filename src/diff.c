@@ -197,17 +197,13 @@ int looks_like_text(const Blob *pContent){
   int j;
   unsigned char c;
   int result = 1;  /* Assume text with no CR/NL */
-  static const char isBinary[256] = {
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1
-  };
 
-
-  /* Check individual lines.
+  /*
+  **  Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
-  if( isBinary[c] ) return 0;  /* non-text byte in a file -> binary */
+  if( c==0 ) return 0;  /* \000 byte in a file -> binary */
   if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
     if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
       result = -2;
@@ -215,13 +211,10 @@ int looks_like_text(const Blob *pContent){
       while( (n-=2)>0 ){
         c = *(z+=2);
         if( z[1]==0 ){ /* High-byte must be 0 for further checks */
-          if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
+          if( c==0 ) return 0;  /* \000 char in a file -> binary */
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
-        }else if( (c+z[1])>0x1fc ){
-          /* FEFF, FFFE and FFFF are invalid UTF-16 here. */
-          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
@@ -234,13 +227,10 @@ int looks_like_text(const Blob *pContent){
        while( (n-=2)>0 ){
         c = *(z+=2);
         if ( z[-1]==0 ){ /* High-byte must be 0 for further checks */
-          if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
+          if( c==0 ) return 0;  /* \000 char in a file -> binary */
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
-        }else if( (c+z[-1])>0x1fc ){
-          /* FEFF, FFFE and FFFF are invalid UTF-16 here. */
-          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
@@ -252,7 +242,7 @@ int looks_like_text(const Blob *pContent){
   j = LENGTH_MASK - (c!='\n');
   while( --n>0 ){
     c = *++z;
-    if( isBinary[c] ) return 0;  /* non-text byte in a file -> binary */
+    if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
         result = -1;  /* Contains CR/NL, continue */

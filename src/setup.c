@@ -217,6 +217,8 @@ void setup_ulist(void){
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
      @ <tr><td valign="top"><b>k</b></td>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td valign="top"><b>l</b></td>
+     @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
      @ <tr><td valign="top"><b>m</b></td>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
      @ <tr><td valign="top"><b>n</b></td>
@@ -225,6 +227,8 @@ void setup_ulist(void){
      @   <td><i>Check-Out:</i> Check out versions</td></tr>
      @ <tr><td valign="top"><b>p</b></td>
      @   <td><i>Password:</i> Change your own password</td></tr>
+     @ <tr><td valign="top"><b>q</b></td>
+     @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
      @ <tr><td valign="top"><b>r</b></td>
      @   <td><i>Read-Tkt:</i> View tickets</td></tr>
      @ <tr><td valign="top"><b>s</b></td>
@@ -294,16 +298,15 @@ static int isValidPwString(const char *zPw){
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
-  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
-  char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
-  char *inherit[128];
   int doWrite;
-  int uid;
+  int uid, i;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
+  char *inherit[128];
+  int a[128];
+  char *oa[128];
 
   /* Must have ADMIN privleges to access this page
   */
@@ -332,54 +335,15 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
-    char zCap[50];
-    int i = 0;
-    int aa = P("aa")!=0;
-    int ab = P("ab")!=0;
-    int ad = P("ad")!=0;
-    int ae = P("ae")!=0;
-    int ai = P("ai")!=0;
-    int aj = P("aj")!=0;
-    int ak = P("ak")!=0;
-    int an = P("an")!=0;
-    int ao = P("ao")!=0;
-    int ap = P("ap")!=0;
-    int ar = P("ar")!=0;
-    int as = g.perm.Setup && P("as")!=0;
-    int aw = P("aw")!=0;
-    int ac = P("ac")!=0;
-    int af = P("af")!=0;
-    int am = P("am")!=0;
-    int ah = P("ah")!=0;
-    int ag = P("ag")!=0;
-    int at = P("at")!=0;
-    int au = P("au")!=0;
-    int av = P("av")!=0;
-    int ax = P("ax")!=0;
-    int az = P("az")!=0;
-    if( aa ){ zCap[i++] = 'a'; }
-    if( ab ){ zCap[i++] = 'b'; }
-    if( ac ){ zCap[i++] = 'c'; }
-    if( ad ){ zCap[i++] = 'd'; }
-    if( ae ){ zCap[i++] = 'e'; }
-    if( af ){ zCap[i++] = 'f'; }
-    if( ah ){ zCap[i++] = 'h'; }
-    if( ag ){ zCap[i++] = 'g'; }
-    if( ai ){ zCap[i++] = 'i'; }
-    if( aj ){ zCap[i++] = 'j'; }
-    if( ak ){ zCap[i++] = 'k'; }
-    if( am ){ zCap[i++] = 'm'; }
-    if( an ){ zCap[i++] = 'n'; }
-    if( ao ){ zCap[i++] = 'o'; }
-    if( ap ){ zCap[i++] = 'p'; }
-    if( ar ){ zCap[i++] = 'r'; }
-    if( as ){ zCap[i++] = 's'; }
-    if( at ){ zCap[i++] = 't'; }
-    if( au ){ zCap[i++] = 'u'; }
-    if( av ){ zCap[i++] = 'v'; }
-    if( aw ){ zCap[i++] = 'w'; }
-    if( ax ){ zCap[i++] = 'x'; }
-    if( az ){ zCap[i++] = 'z'; }
+    char c;
+    char zCap[50], zNm[4];
+    zNm[0] = 'a';
+    zNm[2] = 0;
+    for(i=0, c='a'; c<='z'; c++){
+      zNm[1] = c;
+      a[c] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      if( a[c] ) zCap[i++] = c;
+    }
 
     zCap[i] = 0;
     zPw = P("pw");
@@ -459,36 +423,16 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   zPw = "";
-  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
+  for(i='a'; i<='z'; i++) oa[i] = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
-    if( strchr(zCap, 'a') ) oaa = " checked=\"checked\"";
-    if( strchr(zCap, 'b') ) oab = " checked=\"checked\"";
-    if( strchr(zCap, 'c') ) oac = " checked=\"checked\"";
-    if( strchr(zCap, 'd') ) oad = " checked=\"checked\"";
-    if( strchr(zCap, 'e') ) oae = " checked=\"checked\"";
-    if( strchr(zCap, 'f') ) oaf = " checked=\"checked\"";
-    if( strchr(zCap, 'g') ) oag = " checked=\"checked\"";
-    if( strchr(zCap, 'h') ) oah = " checked=\"checked\"";
-    if( strchr(zCap, 'i') ) oai = " checked=\"checked\"";
-    if( strchr(zCap, 'j') ) oaj = " checked=\"checked\"";
-    if( strchr(zCap, 'k') ) oak = " checked=\"checked\"";
-    if( strchr(zCap, 'm') ) oam = " checked=\"checked\"";
-    if( strchr(zCap, 'n') ) oan = " checked=\"checked\"";
-    if( strchr(zCap, 'o') ) oao = " checked=\"checked\"";
-    if( strchr(zCap, 'p') ) oap = " checked=\"checked\"";
-    if( strchr(zCap, 'r') ) oar = " checked=\"checked\"";
-    if( strchr(zCap, 's') ) oas = " checked=\"checked\"";
-    if( strchr(zCap, 't') ) oat = " checked=\"checked\"";
-    if( strchr(zCap, 'u') ) oau = " checked=\"checked\"";
-    if( strchr(zCap, 'v') ) oav = " checked=\"checked\"";
-    if( strchr(zCap, 'w') ) oaw = " checked=\"checked\"";
-    if( strchr(zCap, 'x') ) oax = " checked=\"checked\"";
-    if( strchr(zCap, 'z') ) oaz = " checked=\"checked\"";
+    for(i=0; zCap[i]; i++){
+      char c = zCap[i];
+      if( c>='a' && c<='z' ) oa[c] = " checked=\"checked\"";
+    }
   }
 
   /* figure out inherited permissions */
@@ -564,55 +508,59 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup
+    @  <label><input type="checkbox" name="as"%s(oa['s']) />%s(B('s'))Setup
     @  </label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin
+  @  <label><input type="checkbox" name="aa"%s(oa['a']) />%s(B('a'))Admin
   @  </label><br />
-  @  <label><input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete
+  @  <label><input type="checkbox" name="ad"%s(oa['d']) />%s(B('d'))Delete
   @  </label><br />
-  @  <label><input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email
+  @  <label><input type="checkbox" name="ae"%s(oa['e']) />%s(B('e'))Email
   @  </label><br />
-  @  <label><input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password
+  @  <label><input type="checkbox" name="ap"%s(oa['p']) />%s(B('p'))Password
   @  </label><br />
-  @  <label><input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In
+  @  <label><input type="checkbox" name="ai"%s(oa['i']) />%s(B('i'))Check-In
   @  </label><br />
-  @  <label><input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out
+  @  <label><input type="checkbox" name="ao"%s(oa['o']) />%s(B('o'))Check-Out
   @  </label><br />
-  @  <label><input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks
+  @  <label><input type="checkbox" name="ah"%s(oa['h']) />%s(B('h'))Hyperlinks
   @  </label><br />
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader
-  @  </label><br />
-  @  <label><input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer
-  @  </label><br />
-  @  <label><input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone
-  @  </label><br />
-  @  <label><input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments
+  @  <label><input type="checkbox" name="ab"%s(oa['b']) />%s(B('b'))Attachments
   @  </label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket
+  @  <label><input type="checkbox" name="au"%s(oa['u']) />%s(B('u'))Reader
   @  </label><br />
-  @  <label><input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket
+  @  <label><input type="checkbox" name="av"%s(oa['v']) />%s(B('v'))Developer
   @  </label><br />
-  @  <label><input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket
+  @  <label><input type="checkbox" name="ag"%s(oa['g']) />%s(B('g'))Clone
   @  </label><br />
-  @  <label><input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket
+  @  <label><input type="checkbox" name="aj"%s(oa['j']) />%s(B('j'))Read Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report
+  @  <label><input type="checkbox" name="af"%s(oa['f']) />%s(B('f'))New Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private
+  @  <label><input type="checkbox" name="am"%s(oa['m']) />%s(B('m'))Append Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
-  @  </label>
+  @  <label><input type="checkbox" name="ak"%s(oa['k']) />%s(B('k'))Write Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="al"%s(oa['l']) />%s(B('l'))Moderate
+  @  Wiki</label><br />
+  @ </td><td><td width="40"></td><td valign="top">
+  @  <label><input type="checkbox" name="ar"%s(oa['r']) />%s(B('r'))Read Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="an"%s(oa['n']) />%s(B('n'))New Tickets
+  @  </label><br />
+  @  <label><input type="checkbox" name="ac"%s(oa['c']) />%s(B('c'))Append
+  @  To Ticket </label><br />
+  @  <label><input type="checkbox" name="aw"%s(oa['w']) />%s(B('w'))Write
+  @  Tickets </label><br />
+  @  <label><input type="checkbox" name="aq"%s(oa['q']) />%s(B('q'))Moderate
+  @  Tickets </label><br />
+  @  <label><input type="checkbox" name="at"%s(oa['t']) />%s(B('t'))Ticket
+  @  Report </label><br />
+  @  <label><input type="checkbox" name="ax"%s(oa['x']) />%s(B('x'))Private
+  @  </label><br />
+  @  <label><input type="checkbox" name="az"%s(oa['z']) />%s(B('z'))Download
+  @  Zip </label>
   @ </td></tr></table>
   @   </td>
   @ </tr>

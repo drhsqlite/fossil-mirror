@@ -902,16 +902,16 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
 
     if( eType&1 ){
       if( crnlOk ){
-        return; /* We don't want CrLf warnings for this file. */
+        return; /* We don't want CR/NL warnings for this file. */
       }
-      zWarning  = "CR/NL line endings";
+      zWarning = "CR/NL line endings";
     }else{
-      zWarning  = "Unicode";
+      zWarning = "Unicode";
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s. commit anyhow (a=all/y/N)? ",
+         "%s contains %s.  commit anyhow (a=all/y/N)? ",
          blob_str(&fname), zWarning );
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
