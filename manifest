@@ -1,5 +1,5 @@
-C strip\sBOM\sfrom\sartifacts\sembedded\sin\sHTML\sor\stext
-D 2012-10-31T09:56:21.142
+C Enhance\sthe\scontrol-artifact\sparser\sto\soptionally\sreturn\san\serror\swhen\sthe\nparse\sfails.\s\sFix\sa\sbug\sin\sthe\sartifact\sparser\swhich\scaused\sit\sto\signore\nZ-card\schecksum\sfailures.
+D 2012-10-31T12:12:30.547
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -61,10 +61,10 @@ F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 8951400388e38b8eb872a1acbc0fb168796f14ce
 F src/allrepo.c 57180b5f206faa57c32a36c1908af892f7bc2944
-F src/attach.c 7a2d523955ca1a02137784c771dcd6766e7c34a8
+F src/attach.c 646853e669fb0e624b6f4883e13260a5f93bc944
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
-F src/blob.c 3e6c350ebb7fc7d3ed3a03d760f74911431e16f2
+F src/blob.c 0320a4f8d6a8f615a0fa2dbeadf0d9a9d9f04b73
 F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
@@ -122,7 +122,7 @@ F src/main.mk 2defa7a8d071949e3d50e1f32770639ba548e0a4
 F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 58e7f6d910e1659d47ec4a954c13a8b4b76f58f5
-F src/manifest.c ccf5a57524ac055c2622182e6139963152e78c06
+F src/manifest.c 36a03989adcf7ed8ebc6279ee8badf26feecae7c
 F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
 F src/merge.c 1f87761ed9c4435a2d09dcbef5f06423b19a9b94
 F src/merge3.c aedae8473b0267ce7a2702c2848903a097df8bd7
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ec4c9352235ee6b468aa2d08a8b330b831aae7a1
-R 8d1bb752e9089c4d0b228629e331e516
-U jan.nijtmans
-Z af93c0b2f331b296cd7132d71c21d9ea
+P 01050d689d21d36124adba3eed63820170078bf7
+R 50f3e88bbf4eb154895c9411532ce936
+U drh
+Z a2910020793e3f62f74fe22c6ecf36bb

@@ -661,13 +661,15 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 ** Do printf-style string rendering and append the results to a blob.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  vxprintf(pBlob, zFormat, ap);
-  va_end(ap);
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+  }
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  vxprintf(pBlob, zFormat, ap);
+  if( pBlob ) vxprintf(pBlob, zFormat, ap);
 }
 
 /*
