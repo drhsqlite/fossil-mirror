@@ -211,13 +211,13 @@ int looks_like_text(const Blob *pContent){
   if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
     if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
       result = -2;
-      j = LENGTH_MASK*2/3;
+      j = LENGTH_MASK/3;
       while( (n-=2)>0 ){
         c = *(z+=2);
         if( z[1]==0 ){ /* High-byte must be 0 for further checks */
           if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
           if( c=='\n' ){
-            j = LENGTH_MASK;
+            j = LENGTH_MASK/3;
           }
         }
         if( --j==0 ){
@@ -227,13 +227,13 @@ int looks_like_text(const Blob *pContent){
       return result;
     } else if ( (c==0xfe) && (z[1]==0xff) ){ /* UTF-16 BE BOM */
       result = -2;
-      ++z; j = LENGTH_MASK*2/3;
+      ++z; j = LENGTH_MASK/3;
        while( (n-=2)>0 ){
         c = *(z+=2);
         if ( z[-1]==0 ){ /* High-byte must be 0 for further checks */
           if( isBinary[c] ) return 0;  /* non-text char in a file -> binary */
           if( c=='\n' ){
-            j = LENGTH_MASK;
+            j = LENGTH_MASK/3;
           }
         }
         if( --j==0 ){
