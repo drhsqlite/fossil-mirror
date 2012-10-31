@@ -349,7 +349,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog')"
+                         "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
     );
     if( zTable==0 ) break;

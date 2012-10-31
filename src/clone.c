@@ -74,6 +74,7 @@ void delete_private_content(void){
     "DELETE FROM blob WHERE rid IN private;"
     "DELETE FROM delta wHERE rid IN private;"
     "DELETE FROM private;"
+    "DROP TABLE IF EXISTS modreq;"
   );
 }
 

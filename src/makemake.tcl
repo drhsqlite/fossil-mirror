@@ -76,6 +76,7 @@ set src {
   md5
   merge
   merge3
+  moderate
   name
   path
   pivot
