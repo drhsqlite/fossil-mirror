@@ -31,13 +31,13 @@ void moderation_table_create(void){
   db_multi_exec(
      "CREATE TABLE IF NOT EXISTS modreq("
      "  mreqid INTEGER PRIMARY KEY,"  /* Unique ID for the request */
-     "  ctime DATE,"                  /* Julian day number */
+     "  objid INT UNIQUE,"            /* Record pending approval */
+     "  ctime DATETIME,"              /* Julian day number */
      "  user TEXT,"                   /* Name of user submitter */
      "  ipaddr TEXT,"                 /* IP address of submitter */
-     "  mtype CHAR(1),"               /* 't', 'w', or 'a' */
-     "  rid INT,"                     /* Record pending approval */
+     "  mtype TEXT,"                  /* 't', 'w', 'at', or 'aw' */
      "  afile INT,"                   /* File being attached, or NULL */
-     "  objid ANY"                    /* TicketId or Wiki Name */
+     "  aid ANY"                      /* TicketId or Wiki Name */
      ");"
   );
 }

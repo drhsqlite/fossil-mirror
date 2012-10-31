@@ -320,16 +320,18 @@ static char next_card(ManifestText *p){
 ** Manifest object is freed.  Zeros are inserted into the blob
 ** as string terminators so that blob should not be used again.
 **
-** Return TRUE if the content really is a control file of some
-** kind.  Return FALSE if there are syntax errors.
+** Return a pointer to an allocated Manifest object if the content
+** really is a control file of some kind.  This object needs to be
+** freed by a subsequent call to manifest_destroy().  Return NULL
+** if there are syntax errors.
 **
 ** This routine is strict about the format of a control file.
 ** The format must match exactly or else it is rejected.  This
 ** rule minimizes the risk that a content file will be mistaken
 ** for a control file simply because they look the same.
 **
-** The pContent is reset.  If TRUE is returned, then pContent will
-** be reset when the Manifest object is cleared.  If FALSE is
+** The pContent is reset.  If a pointer is returned, then pContent will
+** be reset when the Manifest object is cleared.  If NULL is
 ** returned then the Manifest object is cleared automatically
 ** and pContent is reset before the return.
 **

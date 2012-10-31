@@ -242,7 +242,10 @@ void wiki_page(void){
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     if( g.perm.WrWiki && g.perm.Attach ){
-      @ [%z(href("%R/attachdelete?page=%t&file=%t&from=%R/wiki%%3fname=%f",zPageName,zFile,zPageName))delete</a>]
+      char *zH;
+      zH = href("%R/attachdelete?page=%t&file=%t&from=%R/wiki%%3fname=%f",
+                zPageName, zFile, zPageName);
+      @ [%z(zH)delete</a>]
     }
     @ </li>
   }

@@ -715,80 +715,62 @@ void ci_page(void){
 
 /*
 ** WEBPAGE: winfo
-** URL:  /winfo?name=RID
+** URL:  /winfo?name=UUID
 **
 ** Return information about a wiki page.
 */
 void winfo_page(void){
-  Stmt q;
   int rid;
+  Manifest *pWiki;
+  char *zUuid;
+  char *zDate;
+  Blob wiki;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
-  if( rid==0 ){
+  if( rid==0 || (pWiki = manifest_get(rid, CFTYPE_WIKI))==0 ){
     style_header("Wiki Page Information Error");
-    @ No such object: %h(g.argv[2])
+    @ No such object: %h(P("name"))
     style_footer();
     return;
   }
-  db_prepare(&q,
-     "SELECT substr(tagname, 6, 1000), uuid,"
-     "       datetime(event.mtime, 'localtime'), user"
-     "  FROM tagxref, tag, blob, event"
-     " WHERE tagxref.rid=%d"
-     "   AND tag.tagid=tagxref.tagid"
-     "   AND tag.tagname LIKE 'wiki-%%'"
-     "   AND blob.rid=%d"
-     "   AND event.objid=%d",
-     rid, rid, rid
-  );
-  if( db_step(&q)==SQLITE_ROW ){
-    const char *zName = db_column_text(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    char *zTitle = mprintf("Wiki Page %s", zName);
-    const char *zDate = db_column_text(&q,2);
-    const char *zUser = db_column_text(&q,3);
-    style_header(zTitle);
-    free(zTitle);
-    login_anonymous_available();
-    @ <div class="section">Overview</div>
-    @ <p><table class="label-value">
-    @ <tr><th>Version:</th><td>%s(zUuid)</td></tr>
-    @ <tr><th>Date:</th><td>
-    hyperlink_to_date(zDate, "</td></tr>");
-    if( g.perm.Setup ){
-      @ <tr><th>Record ID:</th><td>%d(rid)</td></tr>
-    }
-    @ <tr><th>Original&nbsp;User:</th><td>
-    hyperlink_to_user(zUser, zDate, "</td></tr>");
-    if( g.perm.Hyperlink ){
-      @ <tr><th>Commands:</th>
-      @   <td>
-      @     %z(href("%R/whistory?name=%t",zName))history</a>
-      @     | %z(href("%R/artifact/%S",zUuid))raw-text</a>
-      @   </td>
-      @ </tr>
-    }
-    @ </table></p>
-  }else{
-    style_header("Wiki Information");
-    rid = 0;
+  style_header("Edit To %h", pWiki->zWikiTitle);
+  zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+  zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
+  style_submenu_element("Raw", "Raw", "artifact/%S", zUuid);
+  style_submenu_element("History", "History", "whistory?name=%t",
+                        pWiki->zWikiTitle);
+  style_submenu_element("Page", "Page", "wiki?name=%t",
+                        pWiki->zWikiTitle);
+  login_anonymous_available();
+  @ <div class="section">Overview</div>
+  @ <p><table class="label-value">
+  @ <tr><th>Artifact&nbsp;ID:</th><td>%s(zUuid)
+  if( g.perm.Setup ){
+    @ (%d(rid))
   }
-  db_finalize(&q);
-  showTags(rid, "wiki-*");
-  if( rid ){
-    Manifest *pWiki;
-    pWiki = manifest_get(rid, CFTYPE_WIKI);
-    if( pWiki ){
-      Blob wiki;
-      blob_init(&wiki, pWiki->zWiki, -1);
-      @ <div class="section">Content</div>
-      wiki_convert(&wiki, 0, 0);
-      blob_reset(&wiki);
+  @ </td></tr>
+  @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
+  @ <tr><th>Date:</th><td>
+  hyperlink_to_date(zDate, "</td></tr>");
+  @ <tr><th>Original&nbsp;User:</th><td>
+  hyperlink_to_user(pWiki->zUser, zDate, "</td></tr>");
+  if( pWiki->nParent>0 ){
+    int i;
+    @ <tr><th>Parent%s(pWiki->nParent==1?"":"s"):</th><td>
+    for(i=0; i<pWiki->nParent; i++){
+      char *zParent = pWiki->azParent[i];
+      @ %z(href("info/%S",zParent))%s(zParent)</a>
     }
-    manifest_destroy(pWiki);
+    @ </td></tr>
   }
+  @ </table>
+  blob_init(&wiki, pWiki->zWiki, -1);
+  @ <div class="section">Content</div>
+  wiki_convert(&wiki, 0, 0);
+  blob_reset(&wiki);
+  manifest_destroy(pWiki);
   style_footer();
 }
 
@@ -995,6 +977,21 @@ void vdiff_page(void){
   style_footer();
 }
 
+#if INTERFACE
+/*
+** Possible return values from object_description()
+*/
+#define OBJTYPE_CHECKIN    0x0001
+#define OBJTYPE_CONTENT    0x0002
+#define OBJTYPE_WIKI       0x0004
+#define OBJTYPE_TICKET     0x0008
+#define OBJTYPE_ATTACHMENT 0x0010
+#define OBJTYPE_EVENT      0x0020
+#define OBJTYPE_TAG        0x0040
+#define OBJTYPE_SYMLINK    0x0080
+#define OBJTYPE_EXE        0x0100
+#endif
+
 /*
 ** Write a description of an object to the www reply.
 **
@@ -1010,7 +1007,7 @@ void vdiff_page(void){
 **     * date of check-in
 **     * Comment & user
 */
-void object_description(
+int object_description(
   int rid,                 /* The artifact ID */
   int linkToView,          /* Add viewer link if true */
   Blob *pDownloadName      /* Fill with an appropriate download name */
@@ -1018,6 +1015,7 @@ void object_description(
   Stmt q;
   int cnt = 0;
   int nWiki = 0;
+  int objType = 0;
   char *zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
 
   char *prevName = 0;
@@ -1053,11 +1051,14 @@ void object_description(
       }
       if( mPerm==PERM_LNK ){
         @ <li>Symbolic link
+        objType |= OBJTYPE_SYMLINK;
       }else if( mPerm==PERM_EXE ){
         @ <li>Executable file
+        objType |= OBJTYPE_EXE;
       }else{
         @ <li>File
       }
+      objType |= OBJTYPE_CONTENT;
       @ %z(href("%R/finfo?name=%T",zName))%h(zName)</a>
       @ <ul>
       prevName = fossil_strdup(zName);
@@ -1102,13 +1103,14 @@ void object_description(
     }else{
       @ Wiki page
     }
+    objType |= OBJTYPE_WIKI;
     @ [%z(href("%R/wiki?name=%t",zPagename))%h(zPagename)</a>] by
     hyperlink_to_user(zUser,zDate," on");
     hyperlink_to_date(zDate,".");
     nWiki++;
     cnt++;
     if( pDownloadName && blob_size(pDownloadName)==0 ){
-      blob_appendf(pDownloadName, "%s.wiki", zPagename);
+      blob_appendf(pDownloadName, "%s.txt", zPagename);
     }
   }
   db_finalize(&q);
@@ -1131,12 +1133,16 @@ void object_description(
       }
       if( zType[0]=='w' ){
         @ Wiki edit
+        objType |= OBJTYPE_WIKI;
       }else if( zType[0]=='t' ){
         @ Ticket change
+        objType |= OBJTYPE_TICKET;
       }else if( zType[0]=='c' ){
         @ Manifest of check-in
+        objType |= OBJTYPE_CHECKIN;
       }else if( zType[0]=='e' ){
         @ Instance of event
+        objType |= OBJTYPE_EVENT;
         hyperlink_to_event_tagid(db_column_int(&q, 5));
       }else{
         @ Control file referencing
@@ -1172,6 +1178,7 @@ void object_description(
     }else{
       @ Attachment "%h(zFilename)" to
     }
+    objType |= OBJTYPE_ATTACHMENT;
     if( strlen(zTarget)==UUID_SIZE && validate16(zTarget,UUID_SIZE) ){
       if( g.perm.Hyperlink && g.perm.RdTkt ){
         @ ticket [%z(href("%R/tktview?name=%S",zTarget))%S(zTarget)</a>]
@@ -1202,6 +1209,7 @@ void object_description(
   }else if( linkToView && g.perm.Hyperlink ){
     @ %z(href("%R/artifact/%S",zUuid))[view]</a>
   }
+  return objType;
 }
 
 
@@ -1521,7 +1529,11 @@ void artifact_page(void){
   Blob downloadName;
   int renderAsWiki = 0;
   int renderAsHtml = 0;
+  int objType;
+  int asText;
   const char *zUuid;
+  Manifest *pManifest;
+
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename();
   }
@@ -1546,13 +1558,14 @@ void artifact_page(void){
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
   @ <h2>Artifact %s(zUuid)</h2>
   blob_zero(&downloadName);
-  object_description(rid, 0, &downloadName);
+  objType = object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
           "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+  asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
     if( fossil_strcmp(zMime, "text/html")==0 ){
-      if( P("txt") ){
+      if( asText ){
         style_submenu_element("Html", "Html",
                               "%s/artifact/%s", g.zTop, zUuid);
       }else{
@@ -1561,7 +1574,7 @@ void artifact_page(void){
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }else if( fossil_strcmp(zMime, "application/x-fossil-wiki")==0 ){
-      if( P("txt") ){
+      if( asText ){
         style_submenu_element("Wiki", "Wiki",
                               "%s/artifact/%s", g.zTop, zUuid);
       }else{
@@ -1570,6 +1583,9 @@ void artifact_page(void){
                               "%s/artifact/%s?txt=1", g.zTop, zUuid);
       }
     }
+  }
+  if( (objType & (OBJTYPE_WIKI|OBJTYPE_TICKET))!=0 ){
+    style_submenu_element("Parsed", "Parsed", "%R/info/%s", zUuid);
   }
   @ <hr />
   content_get(rid, &content);
@@ -1645,9 +1661,10 @@ void tinfo_page(void){
     @ <h2>Changes to ticket
     @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid))%s(zTktName)</a></h2>
     @
-    @ <p>By %h(pTktChng->zUser) on %s(zDate).  See also:
-    @ %z(href("%R/artifact/%T",zUuid))artifact content</a>, and
-    @ %z(href("%R/tkthistory/%s",pTktChng->zTicketUuid))ticket history</a></p>
+    @ <p>By %h(pTktChng->zUser) on %s(zDate).
+    style_submenu_element("Raw", "Raw", "%R/artifact/%T", zUuid);
+    style_submenu_element("History", "History", 
+             "%R/tkthistory/%s", pTktChng->zTicketUuid);
   }else{
     @ <h2>Changes to ticket %s(zTktName)</h2>
     @
