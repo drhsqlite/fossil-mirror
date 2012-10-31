@@ -181,8 +181,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         non-text characters - \0x0-\0x8, \0xe-\0x19, \0x1c-\0x1f, \uffff,
-**         or \ufffe,\ufeff (except as BOM) - or an extremely long line.
+**         NUL (\000) characters or an extremely long line.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
@@ -198,8 +197,7 @@ int looks_like_text(const Blob *pContent){
   unsigned char c;
   int result = 1;  /* Assume text with no CR/NL */
 
-  /*
-  **  Check individual lines.
+  /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;

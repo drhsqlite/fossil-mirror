@@ -1,5 +1,5 @@
-C Don't\smake\sit\stoo\scomplicated,\stoo\smuch\srisk\sto\sbreak\sother\sthings.
-D 2012-10-31T20:49:40.018
+C adapt\scomments\saccordingly
+D 2012-10-31T20:56:17.824
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,9 +83,9 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c 39b4b80bc52177d04cff70a8745e632faae6889c
+F src/diff.c 7c124f7d5b6931813c1d090a5bd48d7e1fb3a58e
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
-F src/doc.c a2ca95e226af37b0509a947b53a891ca21c39fad
+F src/doc.c 4ad05b6e6c90ebd7f1450eaaceb0dbc523b50c38
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e1aed25eee903b319b956bfc27f4ca46705892a6 fc0bffd995d8ee0a740d458c97f6b8e5db068a86
-R b64d9232af835c12fce3b2fa6b181e14
+P de5a2ef66171ff07aa819d53c7e5632b0437619f
+R e70cd5567ba717c7ea128a26c30d46de
 U jan.nijtmans
-Z ae06b0cf0e818487f9ce3b1e4c7fcba9
+Z cc931f2a8c3096b91758909d89e3ef57
