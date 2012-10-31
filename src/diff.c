@@ -199,7 +199,7 @@ int looks_like_text(const Blob *pContent){
   int result = 1;  /* Assume text with no CR/NL */
   static const char isBinary[256] = {
      1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 1, 0,  1, 1, 1, 1
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1
   };
 
 
@@ -219,6 +219,9 @@ int looks_like_text(const Blob *pContent){
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
+        }else if( (c+z[1])>0x1fc ){
+          /* FEFF, FFFE and FFFF are invalid UTF-16 here. */
+          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
@@ -235,6 +238,9 @@ int looks_like_text(const Blob *pContent){
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
+        }else if( (c+z[-1])>0x1fc ){
+          /* FEFF, FFFE and FFFF are invalid UTF-16 here. */
+          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
