@@ -888,15 +888,15 @@ static void create_manifest(
 ** is seen in a text file.
 */
 static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
-  int eType;              /* return value of looks_like_text() */
+  int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
-  eType = looks_like_text(p);
   fUnicode = starts_with_utf16_bom(p);
+  eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==-1 || fUnicode ){
     const char *zWarning;
     Blob ans;
@@ -909,6 +909,8 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
         return; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
+    }else if( eType==0 ){
+      zWarning = "binary data";
     }else{
       zWarning = "Unicode";
     }
