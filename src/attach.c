@@ -43,7 +43,9 @@ void attachlist_page(void){
   login_check_credentials();
   blob_zero(&sql);
   blob_append(&sql,
-     "SELECT datetime(mtime,'localtime'), src, target, filename, comment, user"
+     "SELECT datetime(mtime,'localtime'), src, target, filename,"
+     "       comment, user,"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), attachid"
      "  FROM attachment",
      -1
   );
@@ -61,6 +63,7 @@ void attachlist_page(void){
   }
   blob_appendf(&sql, " ORDER BY mtime DESC");
   db_prepare(&q, "%s", blob_str(&sql));
+  @ <ol>
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
     const char *zSrc = db_column_text(&q, 1);
@@ -68,6 +71,8 @@ void attachlist_page(void){
     const char *zFilename = db_column_text(&q, 3);
     const char *zComment = db_column_text(&q, 4);
     const char *zUser = db_column_text(&q, 5);
+    const char *zUuid = db_column_text(&q, 6);
+    int attachid = db_column_int(&q, 7);
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
@@ -81,8 +86,12 @@ void attachlist_page(void){
     }else{
       zUrlTail = mprintf("page=%t&file=%t", zTarget, zFilename);
     }
-    @
-    @ <p><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
+    @ <li><p>
+    @ Attachment %z(href("%R/ainfo/%s",zUuid))%S(zUuid)</a>
+    if( moderation_pending(attachid) ){
+      @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
+    }
+    @ <br><a href="/attachview?%s(zUrlTail)">%h(zFilename)</a>
     @ [<a href="/attachdownload/%t(zFilename)?%s(zUrlTail)">download</a>]<br />
     if( zComment ) while( fossil_isspace(zComment[0]) ) zComment++;
     if( zComment && zComment[0] ){
@@ -113,6 +122,7 @@ void attachlist_page(void){
     free(zUrlTail);
   }
   db_finalize(&q);
+  @ </ol>
   style_footer();
   return;
 }
@@ -184,6 +194,24 @@ void attachview_page(void){
   }
 }
 
+/*
+** Save an attachment control artifact into the repository
+*/
+static void attach_put(Blob *pAttach, int attachRid, int needMod){
+  int rid;
+  if( needMod ){
+    rid = content_put_ex(pAttach, 0, 0, 0, 1);
+    moderation_table_create();
+    db_multi_exec(
+      "INSERT INTO modreq(objid,attachRid) VALUES(%d,%d);",
+      rid, attachRid
+    );
+  }else{
+    content_put(pAttach);
+  }
+  manifest_crosslink(rid, pAttach);
+}
+
 
 /*
 ** WEBPAGE: attachadd
@@ -242,6 +270,7 @@ void attachadd_page(void){
     int i, n;
     int addCompress = 0;
     Manifest *pManifest;
+    int isModerator;
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
@@ -252,7 +281,8 @@ void attachadd_page(void){
       blob_compress(&content, &content);
       addCompress = 1;
     }
-    rid = content_put(&content);
+    isModerator = (zTkt!=0 && g.perm.ModTkt) || (zPage!=0 && g.perm.ModWiki);
+    rid = content_put_ex(&content, 0, 0, 0, !isModerator);
     zUUID = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
     blob_zero(&manifest);
     for(i=n=0; zName[i]; i++){
@@ -274,8 +304,7 @@ void attachadd_page(void){
     blob_appendf(&manifest, "U %F\n", g.zLogin ? g.zLogin : "nobody");
     md5sum_blob(&manifest, &cksum);
     blob_appendf(&manifest, "Z %b\n", &cksum);
-    rid = content_put(&manifest);
-    manifest_crosslink(rid, &manifest);
+    attach_put(&manifest, rid, !isModerator);
     assert( blob_is_reset(&manifest) );
     db_end_transaction(0);
     cgi_redirect(zFrom);

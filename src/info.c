@@ -765,7 +765,7 @@ void winfo_page(void){
   }
   modPending = moderation_pending(rid);
   if( modPending ){
-    @ <span class="modpending">*** Moderation Pending ***</span>
+    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
   }
   @ </td></tr>
   @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
@@ -1441,7 +1441,11 @@ void hexdump_page(void){
   }
   style_header("Hex Artifact Content");
   zUuid = db_text("?","SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>Artifact %s(zUuid):</h2>
+  if( g.perm.Setup ){
+    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+  }else{
+    @ <h2>Artifact %s(zUuid):</h2>
+  }
   blob_zero(&downloadName);
   object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
@@ -1588,7 +1592,11 @@ void artifact_page(void){
   }
   style_header("Artifact Content");
   zUuid = db_text("?", "SELECT uuid FROM blob WHERE rid=%d", rid);
-  @ <h2>Artifact %s(zUuid)</h2>
+  if( g.perm.Setup ){
+    @ <h2>Artifact %s(zUuid) (%d(rid)):</h2>
+  }else{
+    @ <h2>Artifact %s(zUuid):</h2>
+  }
   blob_zero(&downloadName);
   objType = object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
@@ -1684,11 +1692,9 @@ void tinfo_page(void){
     }
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  if( pTktChng==0 ) fossil_redirect_home();
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
   memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);
-  if( pTktChng==0 ){
-    fossil_redirect_home();
-  }
   if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
     if( strcmp(zModAction,"delete")==0 ){
       moderation_disapprove(rid);
@@ -1714,7 +1720,7 @@ void tinfo_page(void){
   }
   modPending = moderation_pending(rid);
   if( modPending ){
-    @ <span class="modpending">*** Moderation Pending ***</span>
+    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
   }
   @ <tr><th>Ticket:</th>
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
@@ -1742,6 +1748,159 @@ void tinfo_page(void){
   @ <p>
   ticket_output_change_artifact(pTktChng);
   manifest_destroy(pTktChng);
+  style_footer();
+}
+
+/*
+** WEBPAGE: ainfo
+** URL: /ainfo?name=ARTIFACTID
+**
+** Show the details of an attachment artifact.
+*/
+void ainfo_page(void){
+  int rid;                       /* RID for the control artifact */
+  int ridSrc;                    /* RID for the attached file */
+  char *zDate;                   /* Date attached */
+  const char *zUuid;             /* UUID of the control artifact */
+  Manifest *pAttach;             /* Parse of the control artifact */
+  const char *zTarget;           /* Wiki or ticket attached to */
+  const char *zSrc;              /* UUID of the attached file */
+  const char *zName;             /* Name of the attached file */
+  const char *zDesc;             /* Description of the attached file */
+  const char *zWikiName = 0;     /* Wiki page name when attached to Wiki */
+  const char *zTktUuid = 0;      /* Ticket ID when attached to a ticket */
+  int modPending;                /* True if awaiting moderation */
+  const char *zModAction;        /* Moderation action or NULL */
+  int isModerator;               /* TRUE if user is the moderator */
+  const char *zMime;             /* MIME Type */
+  Blob attach;                   /* Content of the attachment */
+
+  login_check_credentials();
+  if( !g.perm.Attach ){ login_needed(); return; }
+  rid = name_to_rid_www("name");
+  if( rid==0 ){ fossil_redirect_home(); }
+  zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
+#if 0
+  /* Shunning here needs to get both the attachment control artifact and
+  ** the object that is attached. */
+  if( g.perm.Admin ){
+    if( db_exists("SELECT 1 FROM shun WHERE uuid='%s'", zUuid) ){
+      style_submenu_element("Unshun","Unshun", "%s/shun?uuid=%s&sub=1",
+            g.zTop, zUuid);
+    }else{
+      style_submenu_element("Shun","Shun", "%s/shun?shun=%s#addshun",
+            g.zTop, zUuid);
+    }
+  }
+#endif
+  pAttach = manifest_get(rid, CFTYPE_ATTACHMENT);
+  if( pAttach==0 ) fossil_redirect_home();
+  zTarget = pAttach->zAttachTarget;
+  zSrc = pAttach->zAttachSrc;
+  ridSrc = db_int(0,"SELECT rid FROM blob WHERE uuid='%s'", zSrc);
+  zName = pAttach->zAttachName;
+  zDesc = pAttach->zComment;
+  if( validate16(zTarget, strlen(zTarget))
+   && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
+  ){
+    zTktUuid = zTarget;
+  }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
+    zWikiName = zTarget;
+  }
+  zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
+  isModerator = (zTktUuid && g.perm.ModTkt) || (zWikiName && g.perm.ModWiki);
+  if( isModerator && (zModAction = P("modaction"))!=0 ){
+    if( strcmp(zModAction,"delete")==0 ){
+      moderation_disapprove(rid);
+      if( zTktUuid ){
+        cgi_redirectf("%R/tktview/%s", zTktUuid);
+      }else{
+        cgi_redirectf("%R/wiki?name=%t", zWikiName);
+      }
+      return;
+    }
+    if( strcmp(zModAction,"approve")==0 ){
+      moderation_approve(rid);
+    }
+  }
+  style_header("Attachment Details");
+  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+
+  @ <div class="section">Overview</div>
+  @ <p><table class="label-value">
+  @ <tr><th>Artifact&nbsp;ID:</th>
+  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  if( g.perm.Setup ){
+    @ (%d(rid))
+  }
+  modPending = moderation_pending(rid);
+  if( modPending ){
+    @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
+  }
+  if( zTktUuid ){
+    @ <tr><th>Ticket:</th>
+    @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
+  }
+  if( zWikiName ){
+    @ <tr><th>Wiki&nbsp;Page:</th>
+    @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
+  }
+  @ <tr><th>Date:</th><td>
+  hyperlink_to_date(zDate, "</td></tr>");
+  free(zDate);
+  @ <tr><th>User:</th><td>
+  hyperlink_to_user(pAttach->zUser, zDate, "</td></tr>");
+  @ <tr><th>Artifact&nbsp;Attached:</th>
+  @ <td>%z(href("%R/artifact/%s",zSrc))%s(zSrc)</a>
+  if( g.perm.Setup ){
+    @ (%d(ridSrc))
+  }
+  @ <tr><th>Filename:</th><td>%h(zName)</td></tr>
+  zMime = mimetype_from_name(zName);
+  if( g.perm.Setup ){
+    @ <tr><th>MIME-Type:</th><td>%h(zMime)</td></tr>
+  }
+  @ <tr><th valign="top">Description:</th><td valign="top">%h(zDesc)</td></tr>
+  @ </table>
+  
+  if( isModerator && modPending ){
+    @ <div class="section">Moderation</div>
+    @ <blockquote>
+    @ <form method="POST" action="%R/ainfo/%s(zUuid)">
+    @ <label><input type="radio" name="modaction" value="delete">
+    @ Delete this change</label><br />
+    @ <label><input type="radio" name="modaction" value="approve">
+    @ Approve this change</label><br />
+    @ <input type="submit" value="Submit">
+    @ </form>
+    @ </blockquote>
+  }
+
+  @ <div class="section">Content Appended</div>
+  @ <blockquote>
+  blob_zero(&attach);
+  if( zMime==0 || strncmp(zMime,"text/", 5)==0 ){
+    const char *z;
+    const char *zLn = P("ln");
+    content_get(ridSrc, &attach);
+    blob_strip_bom(&attach, 0);
+    z = blob_str(&attach);
+    if( zLn ){
+      output_text_with_line_numbers(z, zLn);
+    }else{
+      @ <pre>
+      @ %h(z)
+      @ </pre>
+    }
+  }else if( strncmp(zMime, "image/", 6)==0 ){
+    @ <img src="%R/raw?name=%s(zSrc)&m=%s(zMime)"></img>
+  }else{
+    int sz = db_int(0, "SELECT sz FROM blob WHERE rid=%d", ridSrc);
+    @ <i>(file is %d(sz) bytes of binary data)</i>
+  }
+  @ </blockquote>
+  manifest_destroy(pAttach);
+  blob_reset(&attach);
   style_footer();
 }
 
@@ -1809,6 +1968,9 @@ void info_page(void){
   }else
   if( db_exists("SELECT 1 FROM plink WHERE pid=%d", rid) ){
     ci_page();
+  }else
+  if( db_exists("SELECT 1 FROM attachment WHERE attachid=%d", rid) ){
+    ainfo_page();
   }else
   {
     artifact_page();

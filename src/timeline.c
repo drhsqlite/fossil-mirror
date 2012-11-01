@@ -327,7 +327,7 @@ void www_print_timeline(
       @ &bull;
     }
     if( modPending ){
-      @ <span class="modpending">(Pending Moderation)</span>
+      @ <span class="modpending">(Awaiting Moderator Approval)</span>
     }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);

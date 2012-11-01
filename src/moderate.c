@@ -30,7 +30,7 @@ void moderation_table_create(void){
   db_multi_exec(
      "CREATE TABLE IF NOT EXISTS modreq(\n"
      "  objid INTEGER PRIMARY KEY,\n"        /* Record pending approval */
-     "  parent INTEGER REFERENCES modreq,\n" /* Parent record */
+     "  attachRid INT,\n"                    /* Object attached */
      "  tktid TEXT\n"                        /* Associated ticket id */
      ");\n"
   );
@@ -63,14 +63,36 @@ int moderation_pending(int rid){
 }
 
 /*
-** Delete a moderation item given by rid
+** Check to see if the object identified by RID is used for anything.
 */
-void moderation_disapprove(int rid){
+static int object_used(int rid){
+  static const char *aTabField[] = {
+     "modreq",     "attachRid",
+     "mlink",      "mid",
+     "mlink",      "fid",
+     "tagxref",    "srcid",
+     "tagxref",    "rid",
+  };
+  int i;
+  for(i=0; i<sizeof(aTabField)/sizeof(aTabField[0]); i+=2){
+    if( db_exists("SELECT 1 FROM %s WHERE %s=%d",
+                  aTabField[i], aTabField[i+1], rid) ) return 1;
+  }
+  return 0;
+}
+
+/*
+** Delete a moderation item given by objid
+*/
+void moderation_disapprove(int objid){
   Stmt q;
   char *zTktid;
-  if( !moderation_pending(rid) ) return;
+  int attachRid = 0;
+  int rid;
+  if( !moderation_pending(objid) ) return;
   db_begin_transaction();
-  if( content_is_private(rid) ){
+  rid = objid;
+  while( rid && content_is_private(rid) ){
     db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
     while( db_step(&q)==SQLITE_ROW ){
       int ridUser = db_column_int(&q, 0);
@@ -82,25 +104,22 @@ void moderation_disapprove(int rid){
       "DELETE FROM delta WHERE rid=%d;"
       "DELETE FROM event WHERE objid=%d;"
       "DELETE FROM tagxref WHERE rid=%d;"
-      "DELETE FROM private WHERE rid=%d;",
-      rid, rid, rid, rid, rid
+      "DELETE FROM private WHERE rid=%d;"
+      "DELETE FROM attachment WHERE attachid=%d;",
+      rid, rid, rid, rid, rid, rid
     );
-    zTktid = db_text(0, "SELECT tktid FROm modreq WHERE objid=%d", rid);
-    if( zTktid ){
+    zTktid = db_text(0, "SELECT tktid FROM modreq WHERE objid=%d", rid);
+    if( zTktid && zTktid[0] ){
       ticket_rebuild_entry(zTktid);
       fossil_free(zTktid);
     }
+    attachRid = db_int(0, "SELECT attachRid FROM modreq WHERE objid=%d", rid);
+    if( rid==objid ){
+      db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+    }
+    if( attachRid && object_used(attachRid) ) attachRid = 0;
+    rid = attachRid;
   }
-  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d "
-                 "UNION SELECT parent FROM modreq WHERE objid=%d",
-                 rid, rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int other = db_column_int(&q, 0);
-    if( other==rid ) continue;
-    moderation_approve(other);
-  }
-  db_finalize(&q);
-  db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
   db_end_transaction(0);
 }
 
@@ -108,7 +127,6 @@ void moderation_disapprove(int rid){
 ** Approve an object held for moderation.
 */
 void moderation_approve(int rid){
-  Stmt q;
   if( !moderation_pending(rid) ) return;
   db_begin_transaction();
   db_multi_exec(
@@ -117,15 +135,6 @@ void moderation_approve(int rid){
     "INSERT OR IGNORE INTO unsent VALUES(%d);",
     rid, rid, rid
   );
-  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d "
-                 "UNION SELECT parent FROM modreq WHERE objid=%d",
-                 rid, rid);
-  while( db_step(&q)==SQLITE_ROW ){
-    int other = db_column_int(&q, 0);
-    if( other==rid ) continue;
-    moderation_approve(other);
-  }
-  db_finalize(&q);
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
   db_end_transaction(0);
 }
