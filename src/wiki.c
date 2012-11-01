@@ -216,44 +216,7 @@ void wiki_page(void){
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
-
-  db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'), filename, user"
-     "  FROM attachment"
-     " WHERE isLatest AND src!='' AND target=%Q"
-     " ORDER BY mtime DESC",
-     zPageName);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zFile = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    if( cnt==0 ){
-      @ <hr /><h2>Attachments:</h2>
-      @ <ul>
-    }
-    cnt++;
-    @ <li>
-    if( g.perm.Hyperlink && g.perm.Read ){
-      @ %z(href("%R/attachview?page=%T&file=%t",zPageName,zFile))
-      @ %h(zFile)</a>
-    }else{
-      @ %h(zFile)
-    }
-    @ added by %h(zUser) on
-    hyperlink_to_date(zDate, ".");
-    if( g.perm.WrWiki && g.perm.Attach ){
-      char *zH;
-      zH = href("%R/attachdelete?page=%t&file=%t&from=%R/wiki%%3fname=%f",
-                zPageName, zFile, zPageName);
-      @ [%z(zH)delete</a>]
-    }
-    @ </li>
-  }
-  if( cnt ){
-    @ </ul>
-  }
-  db_finalize(&q);
- 
+  attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   style_footer();
 }
@@ -263,7 +226,7 @@ void wiki_page(void){
 */
 static void wiki_put(Blob *pWiki, int parent){
   int nrid;
-  if( g.perm.ModWiki ){
+  if( g.perm.ModWiki || db_get_boolean("modreq-wiki",0)==0 ){
     nrid = content_put_ex(pWiki, 0, 0, 0, 0);
     if( parent) content_deltify(parent, nrid, 0);
   }else{
@@ -272,6 +235,7 @@ static void wiki_put(Blob *pWiki, int parent){
     db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
   }
   db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
   manifest_crosslink(nrid, pWiki);
 }
 

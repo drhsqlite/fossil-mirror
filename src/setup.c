@@ -94,6 +94,9 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Moderation", "setup_modreq",
+    "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
+    "edits and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
@@ -1405,6 +1408,50 @@ void setup_footer(void){
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_modreq
+*/
+void setup_modreq(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+
+  style_header("Moderator For Wiki And Tickets");
+  db_begin_transaction();
+  @ <form action="%R/setup_modreq" method="post"><div>
+  login_insert_csrf_secret();
+  @ <hr />
+  onoff_attribute("Moderate ticket changes",
+     "modreq-tkt", "modreq-tkt", 0);
+  @ <p>When enabled, any change to tickets is subject to the approval
+  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ Ticket changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Ticket changes made by
+  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ moderation.
+  @
+  @ <hr />
+  onoff_attribute("Moderate wiki changes",
+     "modreq-wiki", "modreq-wiki", 0);
+  @ <p>When enabled, any change to wiki is subject to the approval
+  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ Wiki changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Wiki changes made by
+  @ a user who has the Mod-Wiki privilege are never subject to
+  @ moderation.
+  @ </p>
+ 
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+
 }
 
 /*
