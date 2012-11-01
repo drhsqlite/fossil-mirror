@@ -900,7 +900,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
     Blob ans;
     char cReply;
 
-    if( eType&1 ){
+    if( eType==-3 ){
       if( crnlOk ){
         return; /* We don't want CR/NL warnings for this file. */
       }

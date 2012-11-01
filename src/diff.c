@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) ((looks_like_text(blob)&1) == 0)
+#define looks_like_binary(blob) ((looks_like_text(blob)&3) == 1)
 #endif /* INTERFACE */
 
 /*
@@ -183,12 +183,16 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL (\000) characters or an extremely long line.
 **
-** (-1) -- The content appears to consist entirely of text, with lines
+** (-1) -- The content appears to consist entirely of text, in the
+**         UTF-16 (LE) encoding.
+**
+** (-2) -- The content appears to consist entirely of text, in the
+**         UTF-16 (BE) encoding.
+**
+** (-3) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
-** (-2) -- The content appears to consist entirely of text, in the
-**         UTF-16 (BE or LE) encoding.
 */
 int looks_like_text(const Blob *pContent){
   unsigned char *z = (unsigned char *) blob_buffer(pContent);
@@ -204,7 +208,7 @@ int looks_like_text(const Blob *pContent){
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
   if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
     if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
-      result = -2;
+      result = -1;
       j = LENGTH_MASK/3;
       while( (n-=2)>0 ){
         c = *(z+=2);
@@ -243,7 +247,7 @@ int looks_like_text(const Blob *pContent){
     if( c==0 ) return 0;  /* \000 byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+        result = -3;  /* Contains CR/NL, continue */
       }
       j = LENGTH_MASK;
     }
