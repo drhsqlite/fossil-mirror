@@ -725,6 +725,8 @@ void winfo_page(void){
   char *zUuid;
   char *zDate;
   Blob wiki;
+  int modPending;
+  const char *zModAction;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
@@ -735,7 +737,17 @@ void winfo_page(void){
     style_footer();
     return;
   }
-  style_header("Edit To %h", pWiki->zWikiTitle);
+  if( g.perm.ModWiki && (zModAction = P("modaction"))!=0 ){
+    if( strcmp(zModAction,"delete")==0 ){
+      moderation_disapprove(rid);
+      cgi_redirectf("%R/wiki?name=%T", pWiki->zWikiTitle);
+      /*NOTREACHED*/
+    }
+    if( strcmp(zModAction,"approve")==0 ){
+      moderation_approve(rid);
+    }
+  }
+  style_header("Update of \"%h\"", pWiki->zWikiTitle);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zDate = db_text(0, "SELECT datetime(%.17g)", pWiki->rDate);
   style_submenu_element("Raw", "Raw", "artifact/%S", zUuid);
@@ -746,9 +758,14 @@ void winfo_page(void){
   login_anonymous_available();
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
-  @ <tr><th>Artifact&nbsp;ID:</th><td>%s(zUuid)
+  @ <tr><th>Artifact&nbsp;ID:</th>
+  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
   if( g.perm.Setup ){
     @ (%d(rid))
+  }
+  modPending = moderation_pending(rid);
+  if( modPending ){
+    @ <span class="modpending">*** Moderation Pending ***</span>
   }
   @ </td></tr>
   @ <tr><th>Page&nbsp;Name:</th><td>%h(pWiki->zWikiTitle)</td></tr>
@@ -766,8 +783,23 @@ void winfo_page(void){
     @ </td></tr>
   }
   @ </table>
-  blob_init(&wiki, pWiki->zWiki, -1);
+
+  if( g.perm.ModWiki && modPending ){
+    @ <div class="section">Moderation</div>
+    @ <blockquote>
+    @ <form method="POST" action="%R/winfo/%s(zUuid)">
+    @ <label><input type="radio" name="modaction" value="delete">
+    @ Delete this change</label><br />
+    @ <label><input type="radio" name="modaction" value="approve">
+    @ Approve this change</label><br />
+    @ <input type="submit" value="Submit">
+    @ </form>
+    @ </blockquote>
+  }
+
+
   @ <div class="section">Content</div>
+  blob_init(&wiki, pWiki->zWiki, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
   manifest_destroy(pWiki);

@@ -259,6 +259,23 @@ void wiki_page(void){
 }
 
 /*
+** Write a wiki artifact into the repository
+*/
+static void wiki_put(Blob *pWiki, int parent){
+  int nrid;
+  if( g.perm.ModWiki ){
+    nrid = content_put_ex(pWiki, 0, 0, 0, 0);
+    if( parent) content_deltify(parent, nrid, 0);
+  }else{
+    nrid = content_put_ex(pWiki, 0, 0, 0, 1);
+    moderation_table_create();
+    db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
+  }
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  manifest_crosslink(nrid, pWiki);
+}
+
+/*
 ** WEBPAGE: wikiedit
 ** URL: /wikiedit?name=PAGENAME
 */
@@ -340,11 +357,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, 0);
     }
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -540,11 +553,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, rid);
       db_end_transaction(0);
     }
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -883,11 +892,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-  manifest_crosslink(nrid,&wiki);
-  assert( blob_is_reset(&wiki) );
-  content_deltify(rid,nrid,0);
+  wiki_put(&wiki, 0);
   db_end_transaction(0);
   return 1;
 }

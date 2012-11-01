@@ -69,6 +69,7 @@ void moderation_disapprove(int rid){
   Stmt q;
   char *zTktid;
   if( !moderation_pending(rid) ) return;
+  db_begin_transaction();
   if( content_is_private(rid) ){
     db_prepare(&q, "SELECT rid FROM delta WHERE srcid=%d", rid);
     while( db_step(&q)==SQLITE_ROW ){
@@ -90,7 +91,7 @@ void moderation_disapprove(int rid){
       fossil_free(zTktid);
     }
   }
-  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d AND "
+  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d "
                  "UNION SELECT parent FROM modreq WHERE objid=%d",
                  rid, rid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -100,6 +101,7 @@ void moderation_disapprove(int rid){
   }
   db_finalize(&q);
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+  db_end_transaction(0);
 }
 
 /*
@@ -108,8 +110,14 @@ void moderation_disapprove(int rid){
 void moderation_approve(int rid){
   Stmt q;
   if( !moderation_pending(rid) ) return;
-  db_multi_exec("DELETE FROM private WHERE rid=%d;", rid);
-  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d AND "
+  db_begin_transaction();
+  db_multi_exec(
+    "DELETE FROM private WHERE rid=%d;"
+    "INSERT OR IGNORE INTO unclustered VALUES(%d);"
+    "INSERT OR IGNORE INTO unsent VALUES(%d);",
+    rid, rid, rid
+  );
+  db_prepare(&q, "SELECT objid FROM modreq WHERE parent=%d "
                  "UNION SELECT parent FROM modreq WHERE objid=%d",
                  rid, rid);
   while( db_step(&q)==SQLITE_ROW ){
@@ -119,6 +127,7 @@ void moderation_approve(int rid){
   }
   db_finalize(&q);
   db_multi_exec("DELETE FROM modreq WHERE objid=%d", rid);
+  db_end_transaction(0);
 }
 
 /*
