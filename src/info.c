@@ -1632,7 +1632,7 @@ void tinfo_page(void){
   int rid;
   char *zDate;
   const char *zUuid;
-  char zTktName[20];
+  char zTktName[UUID_SIZE+1];
   Manifest *pTktChng;
 
   login_check_credentials();
@@ -1655,11 +1655,11 @@ void tinfo_page(void){
   }
   style_header("Ticket Change Details");
   zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
-  memcpy(zTktName, pTktChng->zTicketUuid, 10);
-  zTktName[10] = 0;
+  memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE);
+  zTktName[UUID_SIZE] = 0;
   if( g.perm.Hyperlink ){
     @ <h2>Changes to ticket
-    @ %z(href("%R/tktview/%s",pTktChng->zTicketUuid))%s(zTktName)</a></h2>
+    @ %z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></h2>
     @
     @ <p>By %h(pTktChng->zUser) on %s(zDate).
     style_submenu_element("Raw", "Raw", "%R/artifact/%T", zUuid);
@@ -1671,11 +1671,14 @@ void tinfo_page(void){
     @ <p>By %h(pTktChng->zUser) on %s(zDate).
     @ </p>
   }
-  @
-  @ <ol>
   free(zDate);
   ticket_output_change_artifact(pTktChng);
   manifest_destroy(pTktChng);
+  if( g.perm.Setup ){
+    @
+    @ <p>These changes are implemented by artifact
+    @ %z(href("%R/artifact/%s",zUuid))%s(zUuid)</a> (%d(rid)).</p>
+  }
   style_footer();
 }
 
