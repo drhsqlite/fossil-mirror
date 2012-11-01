@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) ((looks_like_text(blob)&3) == 1)
+#define looks_like_binary(blob) ((looks_like_text(blob)&3) != 1)
 #endif /* INTERFACE */
 
 /*
