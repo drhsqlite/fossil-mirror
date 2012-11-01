@@ -915,7 +915,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s; commit anyhow (a=all/y/N)?",
+         "%s contains %s.  commit anyhow (a=all/y/N)? ",
          blob_str(&fname), zWarning);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
