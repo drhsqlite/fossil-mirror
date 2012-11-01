@@ -90,7 +90,7 @@ void diff_file(
     Blob out;                 /* Diff output text */
     Blob file2;               /* Content of zFile2 */
     const char *zName2;       /* Name of zFile2 for display */
-    int eType2;
+    int eType2 = 0;
 
     /* Read content of zFile2 into memory */
     blob_zero(&file2);
@@ -104,7 +104,9 @@ void diff_file(
       }
       zName2 = zName;
     }
-    eType2 = looks_like_text(&file2)&3;
+    if( !fIncludeBinary ){
+      eType2 = looks_like_text(&file2)&3;
+    }
     /* Compute and output the differences */
     if( diffFlags & DIFF_BRIEF ){
       if( blob_compare(pFile1, &file2) ){
@@ -113,10 +115,8 @@ void diff_file(
     }else if( eType1!=eType2 ){
       fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
     }else{
-      if( eType1>1 ){
-        blob_strip_bom(pFile1, 0);
-        blob_strip_bom(&file2, 0);
-      }
+      blob_strip_bom(pFile1, 2);
+      blob_strip_bom(&file2, 2);
       blob_zero(&out);
       text_diff(pFile1, &file2, &out, diffFlags);
       if( blob_size(&out) ){
@@ -220,10 +220,8 @@ void diff_file_mem(
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    if( eType>1 ){
-      blob_strip_bom(pFile1, 0);
-      blob_strip_bom(pFile2, 0);
-    }
+    blob_strip_bom(pFile1, 2);
+    blob_strip_bom(pFile2, 2);
     text_diff(pFile1, pFile2, &out, diffFlags);
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print("%s\n", blob_str(&out));

@@ -1093,8 +1093,9 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 ** Strip a possible BOM from the blob. On Windows, if there
 ** is either no BOM at all or an (le/be) UTF-16 BOM, a conversion
 ** to UTF-8 is done.
-** If useMbcs is false and there is no BOM, the input string
+** If useMbcs is 0 and there is no BOM, the input string
 ** is assumed to be UTF-8 already, so no conversion is done.
+** If useMbcs is 2, any BOM is replaced by the UTF-8 BOM
 */
 void blob_strip_bom(Blob *pBlob, int useMbcs){
   static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
@@ -1104,13 +1105,15 @@ void blob_strip_bom(Blob *pBlob, int useMbcs){
 #endif /* _WIN32 */
   char *zUtf8;
   if( blob_size(pBlob)>2 && memcmp(blob_buffer(pBlob), bom, 3)==0 ) {
-	struct Blob temp;
-    zUtf8 = blob_str(pBlob) + 3;
-    blob_zero(&temp);
-    blob_append(&temp, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
-    blob_swap(pBlob, &temp);
-    blob_reset(&temp);
+    if( useMbcs<2 ){
+      struct Blob temp;
+      zUtf8 = blob_str(pBlob) + 3;
+      blob_zero(&temp);
+      blob_append(&temp, zUtf8, -1);
+      fossil_mbcs_free(zUtf8);
+      blob_swap(pBlob, &temp);
+      blob_reset(&temp);
+    }
 #ifdef _WIN32
   }else if( blob_size(pBlob)>1 && (blob_size(pBlob)&1)==0
       && memcmp(blob_buffer(pBlob), &ubom, 2)==0 ) {
@@ -1119,6 +1122,9 @@ void blob_strip_bom(Blob *pBlob, int useMbcs){
     zUtf8 = blob_str(pBlob) + 2;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
+    if( useMbcs>1 ){
+      blob_append(pBlob, (char*)bom, 3);
+    }
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
   }else if( blob_size(pBlob)>1 && (blob_size(pBlob)&1)==0
@@ -1136,9 +1142,12 @@ void blob_strip_bom(Blob *pBlob, int useMbcs){
     zUtf8 = blob_str(pBlob) + 2;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
+    if( useMbcs>1 ){
+      blob_append(pBlob, (char*)bom, 3);
+    }
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
-  }else if (useMbcs) {
+  }else if (useMbcs==1) {
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);

@@ -938,13 +938,12 @@ static int commit_warning(Blob *p, int crnlOk, const char *zFilename){
       blob_write_to_file(p, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
-      if( eType==-3 ) {
-        blob_remove_cr(p);
-      }else{
+      if( eType!=-3 ) {
         static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
         fwrite(bom, 1, 3, f);
         blob_strip_bom(p, 0);
       }
+      blob_remove_cr(p);
       fwrite(blob_buffer(p), 1, blob_size(p), f);
       fclose(f);
       return 1;
