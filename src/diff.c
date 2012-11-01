@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) ((looks_like_text(blob)&1) == 0)
+#define looks_like_binary(blob) (looks_like_text((blob)) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -181,14 +181,14 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         NUL (\000) characters or an extremely long line.
+**         NUL (\000) characters or an extremely long line.  Since this
+**         function does not understand UTF-16, it may falsely consider
+**         UTF-16 text to be binary.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
-** (-2) -- The content appears to consist entirely of text, in the
-**         UTF-16 (BE or LE) encoding.
 */
 int looks_like_text(const Blob *pContent){
   const char *z = blob_buffer(pContent);
@@ -201,13 +201,6 @@ int looks_like_text(const Blob *pContent){
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* \000 byte in a file -> binary */
-  if ( n > 1 ){
-    if ( (c==(char)0xff) && (z[1]==(char)0xfe) ){
-      return -2;
-    } else if ( (c==(char)0xfe) && (z[1]==(char)0xff) ){
-      return -2;
-    }
-  }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
@@ -226,6 +219,24 @@ int looks_like_text(const Blob *pContent){
     return 0;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le or
+** UTF-16be byte-order-mark (BOM).
+*/
+int starts_with_utf16_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }else if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }
+  return 0;
 }
 
 /*

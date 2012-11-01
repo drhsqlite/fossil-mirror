@@ -889,18 +889,22 @@ static void create_manifest(
 */
 static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
   int eType;              /* return value of looks_like_text() */
+  int fUnicode;           /* return value of starts_with_utf16_bom() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
   eType = looks_like_text(p);
-  if( eType<0 ){
-    const char *zWarning ;
+  fUnicode = starts_with_utf16_bom(p);
+  if( eType==-1 || fUnicode ){
+    const char *zWarning;
     Blob ans;
     char cReply;
 
-    if( eType&1 ){
+    if( eType==-1 && fUnicode ){
+      zWarning = "Unicode and CR/NL line endings";
+    }else if( eType==-1 ){
       if( crnlOk ){
         return; /* We don't want CR/NL warnings for this file. */
       }
@@ -911,8 +915,8 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s.  commit anyhow (a=all/y/N)? ",
-         blob_str(&fname), zWarning );
+         "%s contains %s; commit anyhow (a=all/y/N)?",
+         blob_str(&fname), zWarning);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
@@ -920,7 +924,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
       allOk = 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning , blob_str(&fname));
+                   zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
