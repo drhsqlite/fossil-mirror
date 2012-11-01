@@ -1,5 +1,5 @@
-C merge\strunk\n<p>let\slooks_like_text()\sgive\sdifferent\svalues\sfor\sUTF-16\sBE/LE.\sNot\sused\syet.
-D 2012-11-01T11:48:55.974
+C style\sfix
+D 2012-11-01T11:52:53.610
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c 3ef473f2bdcb97af226b786023b8d5cbbc90f633
+F src/checkin.c 6525918989441cf32aa40816f5f9b70377f30829
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 018c9728d591938515cbba9cc5197bf1ede13979
@@ -357,7 +357,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b5123d51542a179578eeb754797a7223c062e342 ef6c243ed9298372778bde8861ce7219d622c531
-R 26b4238e05bc94a7985c50db09ffdf77
+P 348637dedfdef286ad80d1cb9002dec242fef3b1
+R 8e390fc3a411a018bdbef759098a60a4
 U jan.nijtmans
-Z 8d4769f34f0e1d05d22f51db9a84b82e
+Z 2b54a9aab00df9bc6ff180d06dda80fd

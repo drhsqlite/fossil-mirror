@@ -912,7 +912,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s.  commit anyhow (a=all/y/N)? ",
-         blob_str(&fname), zWarning );
+         blob_str(&fname), zWarning);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
@@ -920,7 +920,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
       allOk = 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning , blob_str(&fname));
+                   zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
     blob_reset(&fname);
