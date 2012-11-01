@@ -217,6 +217,9 @@ int looks_like_text(const Blob *pContent){
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
+        }else if( (z[1]==0xff)&&(c>0xfd) ){
+          /* FFFE and FFFF are invalid UTF-16. */
+          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
@@ -233,6 +236,9 @@ int looks_like_text(const Blob *pContent){
           if( c=='\n' ){
             j = LENGTH_MASK/3;
           }
+        }else if( (z[-1]==0xff)&&(c>0xfd) ){
+          /* FFFE and FFFF are invalid UTF-16. */
+          return 0;
         }
         if( --j==0 ){
           return 0;  /* Very long line -> binary */
