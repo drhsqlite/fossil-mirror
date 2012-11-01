@@ -419,6 +419,30 @@ static int appendRemarkCmd(
 }
 
 /*
+** Write a ticket into the repository.
+*/
+static void ticket_put(Blob *pTicket, const char *zTktId, int needMod){
+  int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
+  if( rid==0 ){
+    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+  }
+  if( needMod ){
+    moderation_table_create();
+    db_multi_exec(
+      "INSERT INTO modreq(objid, tktid) VALUES(%d,'%s')",
+      rid, zTktId
+    );
+  }else{
+    db_multi_exec("INSERT INTO unsent VALUES(%d);", rid);
+    db_multi_exec("INSERT INTO unclustered VALUES(%d);", rid);
+  }
+  manifest_crosslink_begin();
+  manifest_crosslink(rid, pTicket);
+  assert( blob_is_reset(pTicket) );
+  manifest_crosslink_end();
+}
+
+/*
 ** Subscript command:   submit_ticket
 **
 ** Construct and submit a new ticket artifact.  The fields of the artifact
@@ -500,14 +524,7 @@ static int submitTicketCmd(
              "}<br />\n",
        blob_str(&tktchng));
   }else{
-    rid = content_put(&tktchng);
-    if( rid==0 ){
-      fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-    }
-    manifest_crosslink_begin();
-    manifest_crosslink(rid, &tktchng);
-    assert( blob_is_reset(&tktchng) );
-    manifest_crosslink_end();
+    ticket_put(&tktchng, zUuid, g.perm.ModTkt==0);
   }
   return ticket_change();
 }
@@ -1189,14 +1206,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      rid = content_put(&tktchng);
-      if( rid==0 ){
-        fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-      }
-      manifest_crosslink_begin();
-      manifest_crosslink(rid, &tktchng);
-      manifest_crosslink_end();
-      assert( blob_is_reset(&tktchng) );
+      ticket_put(&tktchng, zTktUuid, 0);
       printf("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
     }

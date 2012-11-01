@@ -1,5 +1,5 @@
-C Wiki\smoderation\snow\sappears\sto\sbe\sworking.
-D 2012-11-01T14:34:34.536
+C Tickets\sare\snow\sheld\sfor\smoderator\sapproval.
+D 2012-11-01T15:08:29.735
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -99,7 +99,7 @@ F src/http_socket.c 61d4e1c76475082f9be9c2a92ed2856e5901df77
 F src/http_ssl.c a55074729af2b90a9a1a68c6398ddcae3e396f34
 F src/http_transport.c 0941c8ec61f0bfab9c33a34cac2e1f9121f7f44d
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 0b0f4a12bbd303aa118be9bc125e28f5c1ee9471
+F src/info.c be54e9901d4eefd71d34448d1a615d606214bc78
 F src/json.c 6ae61780a43e0fae9b196e9e1f62f4f79ccbb704
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -128,7 +128,7 @@ F src/merge.c 1f87761ed9c4435a2d09dcbef5f06423b19a9b94
 F src/merge3.c aedae8473b0267ce7a2702c2848903a097df8bd7
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
-F src/moderate.c b9d4644dd6f7e3edca057c8d931173dae905b1c7
+F src/moderate.c 10b1ac22e95e766b1f8229f25fc73d6aeae0eadf
 F src/name.c 2d4bcb6f65598f22119f20f0481a0c193b3ced1c
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -160,7 +160,7 @@ F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c abbcc50c4742aef30f2266e7d5b2d5241cb924c5
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c ad95514ee8907592c4a49802054587edf29a2bdc
-F src/tkt.c e44f5e20412dcb9ebcf7c3c7ee91f83916793a67
+F src/tkt.c 3ed8a40a618d32b8aed07a5cc048426145d0d33e
 F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 2ce5d095174e26b9e76fffde95b52513e8f82b8d
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P f7938ebd00ee6d47fa7684c44de4be68dc778a58
-R 3178b84b23a70cd6627d08c0601b18ac
+P b7ccf110f37cf390e5b8a2c9439a426f73273027
+R 77ed88104e5619baf6dca06c8500059d
 U drh
-Z a0c12692de9a627ca6c2d643555ff71d
+Z 971273e5bc44fff111ccfcf370af07de

@@ -1666,6 +1666,8 @@ void tinfo_page(void){
   const char *zUuid;
   char zTktName[UUID_SIZE+1];
   Manifest *pTktChng;
+  int modPending;
+  const char *zModAction;
 
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(); return; }
@@ -1682,35 +1684,64 @@ void tinfo_page(void){
     }
   }
   pTktChng = manifest_get(rid, CFTYPE_TICKET);
+  zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
+  memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE+1);
   if( pTktChng==0 ){
     fossil_redirect_home();
   }
-  style_header("Ticket Change Details");
-  zDate = db_text(0, "SELECT datetime(%.12f)", pTktChng->rDate);
-  memcpy(zTktName, pTktChng->zTicketUuid, UUID_SIZE);
-  zTktName[UUID_SIZE] = 0;
-  if( g.perm.Hyperlink ){
-    @ <h2>Changes to ticket
-    @ %z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></h2>
-    @
-    @ <p>By %h(pTktChng->zUser) on %s(zDate).
-    style_submenu_element("Raw", "Raw", "%R/artifact/%T", zUuid);
-    style_submenu_element("History", "History", 
-             "%R/tkthistory/%s", pTktChng->zTicketUuid);
-  }else{
-    @ <h2>Changes to ticket %s(zTktName)</h2>
-    @
-    @ <p>By %h(pTktChng->zUser) on %s(zDate).
-    @ </p>
+  if( g.perm.ModTkt && (zModAction = P("modaction"))!=0 ){
+    if( strcmp(zModAction,"delete")==0 ){
+      moderation_disapprove(rid);
+      cgi_redirectf("%R/tktview/%s", zTktName);
+      /*NOTREACHED*/
+    }
+    if( strcmp(zModAction,"approve")==0 ){
+      moderation_approve(rid);
+    }
   }
+  style_header("Ticket Change Details");
+  style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
+  style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
+  style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
+  style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
+
+  @ <div class="section">Overview</div>
+  @ <p><table class="label-value">
+  @ <tr><th>Artifact&nbsp;ID:</th>
+  @ <td>%z(href("%R/artifact/%s",zUuid))%s(zUuid)</a>
+  if( g.perm.Setup ){
+    @ (%d(rid))
+  }
+  modPending = moderation_pending(rid);
+  if( modPending ){
+    @ <span class="modpending">*** Moderation Pending ***</span>
+  }
+  @ <tr><th>Ticket:</th>
+  @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
+  @ <tr><th>Date:</th><td>
+  hyperlink_to_date(zDate, "</td></tr>");
   free(zDate);
+  @ <tr><th>User:</th><td>
+  hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
+  @ </table>
+  
+  if( g.perm.ModTkt && modPending ){
+    @ <div class="section">Moderation</div>
+    @ <blockquote>
+    @ <form method="POST" action="%R/tinfo/%s(zUuid)">
+    @ <label><input type="radio" name="modaction" value="delete">
+    @ Delete this change</label><br />
+    @ <label><input type="radio" name="modaction" value="approve">
+    @ Approve this change</label><br />
+    @ <input type="submit" value="Submit">
+    @ </form>
+    @ </blockquote>
+  }
+
+  @ <div class="section">Changes</div>
+  @ <p>
   ticket_output_change_artifact(pTktChng);
   manifest_destroy(pTktChng);
-  if( g.perm.Setup ){
-    @
-    @ <p>These changes are implemented by artifact
-    @ %z(href("%R/artifact/%s",zUuid))%s(zUuid)</a> (%d(rid)).</p>
-  }
   style_footer();
 }
 

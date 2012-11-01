@@ -142,6 +142,7 @@ void modreq_page(void){
   login_check_credentials();
   if( !g.perm.RdWiki && !g.perm.RdTkt ){ login_needed(); return; }
   style_header("Pending Moderation Requests");
+  @ <h2>All Pending Moderation Requests</h2>
   blob_init(&sql, timeline_query_for_www(), -1);
   blob_appendf(&sql,
       " AND event.objid IN (SELECT objid FROM modreq)"
