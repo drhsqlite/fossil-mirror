@@ -245,7 +245,7 @@ void attachadd_page(void){
 
     db_begin_transaction();
     blob_init(&content, aContent, szContent);
-    pManifest = manifest_parse(&content, 0);
+    pManifest = manifest_parse(&content, 0, 0);
     manifest_destroy(pManifest);
     blob_init(&content, aContent, szContent);
     if( pManifest ){
