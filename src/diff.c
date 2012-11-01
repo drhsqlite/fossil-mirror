@@ -233,7 +233,7 @@ int starts_with_utf16_bom(const Blob *pContent){
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
     return 1;
-  }else if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
     return 1;
   }
   return 0;
