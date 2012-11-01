@@ -897,7 +897,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
   if( allOk ) return;
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType==-1 || fUnicode ){
+  if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
     Blob ans;
     char cReply;
