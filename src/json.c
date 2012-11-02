@@ -1991,10 +1991,12 @@ cson_value * json_page_cap(){
   ADD(NewWiki,"createWiki");
   ADD(ApndWiki,"appendWiki");
   ADD(WrWiki,"editWiki");
+  ADD(ModWiki,"moderateWiki");
   ADD(RdTkt,"readTicket");
   ADD(NewTkt,"createTicket");
   ADD(ApndTkt,"appendTicket");
   ADD(WrTkt,"editTicket");
+  ADD(ModTkt,"moderateTicket");
   ADD(Attach,"attachFile");
   ADD(TktFmt,"createTicketReport");
   ADD(RdAddr,"readPrivate");
