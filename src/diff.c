@@ -50,11 +50,11 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) (looks_like_text((blob)) == 0)
+#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
 #endif /* INTERFACE */
 
 /*
-** Maximum length of a line in a text file.  (8192)
+** Maximum length of a line in a text file, in bytes.  (8192)
 */
 #define LENGTH_MASK_SZ  13
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
@@ -181,30 +181,30 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         NUL (\000) characters or an extremely long line.  Since this
-**         function does not understand UTF-16, it may falsely consider
-**         UTF-16 text to be binary.
+**         NUL characters or an extremely long line.  Since this function
+**         does not understand UTF-16, it may falsely consider UTF-16 text
+**         to be binary.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
 */
-int looks_like_text(const Blob *pContent){
+int looks_like_utf8(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume text with no CR/NL */
+  int result = 1;  /* Assume UTF-8 text with no CR/NL */
 
   /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
     if( c=='\n' ){
       if( z[-1]=='\r' ){
         result = -1;  /* Contains CR/NL, continue */
@@ -216,6 +216,74 @@ int looks_like_text(const Blob *pContent){
     }
   }
   if( j>LENGTH_MASK ){
+    return 0;  /* Very long line -> binary */
+  }
+  return result;  /* No problems seen -> not binary */
+}
+
+/*
+** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
+** The number of bytes represented by this value cannot exceed LENGTH_MASK
+** bytes, because that is the line buffer size used by the diff engine.
+*/
+#define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-1)
+#define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
+
+/*
+** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
+** encodings.
+*/
+#define UTF16BE_CR  ((wchar_t)'\r')
+#define UTF16BE_LF  ((wchar_t)'\n')
+#define UTF16LE_CR  (((wchar_t)'\r')<<(sizeof(wchar_t)<<2))
+#define UTF16LE_LF  (((wchar_t)'\n')<<(sizeof(wchar_t)<<2))
+
+/*
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  Possible return
+** values are:
+**
+**  (1) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters; however, the encoding may
+**         not be UTF-16.
+**
+**  (0) -- The content appears to be binary because it contains embedded
+**         NUL characters or an extremely long line.  Since this function
+**         does not understand UTF-8, it may falsely consider UTF-8 text
+**         to be binary.
+**
+** (-1) -- The content appears to consist entirely of text, with lines
+**         delimited by carriage-return, line-feed pairs; however, the
+**         encoding may not be UTF-16.
+**
+*/
+int looks_like_utf16(const Blob *pContent){
+  const wchar_t *z = (wchar_t *)blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+  int j, c;
+  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+
+  /* Check individual lines.
+  */
+  if( n==0 ) return result;  /* Empty file -> text */
+  if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
+  c = *z;
+  if( c==0 ) return 0;  /* NUL character in a file -> binary */
+  j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
+  while( (n-=2)>0 ){
+    c = *++z; ++j;
+    if( c==0 ) return 0;  /* NUL character in a file -> binary */
+    if( c==UTF16BE_LF || c==UTF16LE_LF ){
+      if( z[-1]==UTF16BE_CR || z[-1]==UTF16LE_CR ){
+        result = -1;  /* Contains CR/NL, continue */
+      }
+      if( j>UTF16_LENGTH_MASK ){
+        return 0;  /* Very long line -> binary */
+      }
+      j = 0;
+    }
+  }
+  if( j>UTF16_LENGTH_MASK ){
     return 0;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */
