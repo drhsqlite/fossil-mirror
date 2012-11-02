@@ -223,12 +223,12 @@ int looks_like_utf8(const Blob *pContent){
 }
 
 /*
-** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
-** The number of bytes represented by this value cannot exceed LENGTH_MASK
+** Maximum length of a line in a text file, in UTF-16 characters.  (2731)
+** The number of bytes represented by this value after conversion to
+** UTF-8 (which can increase the size by 50%) cannot exceed LENGTH_MASK
 ** bytes, because that is the line buffer size used by the diff engine.
 */
-#define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-1)
-#define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
+#define UTF16_LENGTH_MASK     (LENGTH_MASK/3)
 
 /*
 ** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
@@ -238,6 +238,7 @@ int looks_like_utf8(const Blob *pContent){
 #define UTF16BE_LF  ((wchar_t)'\n')
 #define UTF16LE_CR  (((wchar_t)'\r')<<(sizeof(wchar_t)<<2))
 #define UTF16LE_LF  (((wchar_t)'\n')<<(sizeof(wchar_t)<<2))
+#define UTF16_FFFF  ((wchar_t)-1)
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -273,7 +274,7 @@ int looks_like_utf16(const Blob *pContent){
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
   while( (n-=2)>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* NUL character in a file -> binary */
+    if( c==0 || c==UTF16_FFFF ) return 0;  /* NUL/FFFF character in a file -> binary */
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
