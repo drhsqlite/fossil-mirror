@@ -414,11 +414,13 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore;
+  int testFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
+  testFlag = find_option("test",0,0)!=0;
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
@@ -439,8 +441,11 @@ void clean_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
-    if( allFlag ){
+    if( testFlag ){
+      fossil_print("%s\n", db_column_text(&q,0));
+    }else if( allFlag ){
       file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
