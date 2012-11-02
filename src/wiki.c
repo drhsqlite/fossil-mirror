@@ -160,6 +160,9 @@ void wiki_page(void){
     }
     @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
     @      available on this server.</li>
+    if( g.perm.ModWiki ){
+      @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
+    }
     @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
     @     Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>

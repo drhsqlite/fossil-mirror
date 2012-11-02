@@ -1,5 +1,5 @@
-C All\saspects\sof\sWiki\sand\sTicket\smoderation\sand\sattachments\sare\sworking\sbetter.\nBut\sthere\sare\sstill\sroom\sfor\simprovement\sbefore\smerging\sthis\senhancement\nsprint\sinto\strunk.
-D 2012-11-01T22:54:28.524
+C Additional\stweaks\sto\sthe\swiki/ticket\sediting\slogic\swith\smoderation\scontrol.
+D 2012-11-02T02:26:17.367
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -61,7 +61,7 @@ F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 8951400388e38b8eb872a1acbc0fb168796f14ce
 F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
-F src/attach.c 557f31b9366cf652795106d532e300a2ce67c654
+F src/attach.c 4ff8d3a617475aa3fabe5529d39088095753c5b2
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c 0320a4f8d6a8f615a0fa2dbeadf0d9a9d9f04b73
@@ -157,11 +157,11 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 9b086aa08594f5ba9173a8573096c626c17a60af
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
-F src/th_main.c abbcc50c4742aef30f2266e7d5b2d5241cb924c5
+F src/th_main.c 2913c7655e29b6021612480b76cea3eca6773f27
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c 2e1ceb53c895e098119058328265408fe01b6766
 F src/tkt.c 4f504ab19d1a66146dc0955ea239abe5ea0d8e34
-F src/tktsetup.c a63d053af5cc76ef22b8f8018a36dcef35033420
+F src/tktsetup.c 925be10cc5707c2b3fa7e982a8480a467c51f2cd
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 2ce5d095174e26b9e76fffde95b52513e8f82b8d
 F src/update.c 8fe7d392722740d2f69d948926c82854a6115b6e
@@ -169,7 +169,7 @@ F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
 F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
-F src/wiki.c b9f910083d5f98c38f0a0a210f085c5bed301a83
+F src/wiki.c f367103c10340e9d6777adeae3c3779acb40e98e
 F src/wikiformat.c 3870d4293b82ef3b6c886a57b30b38c9f165042d
 F src/winhttp.c 3d4e34318d7860fd47d4dfa6eb586f0618d6b54b
 F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9ac467310fd2155256ea4b3278412553fb7cfa4a
-R eeaadf75043f6cd70c09451d49786b69
+P 628c402414e3d47c2f83d757d66709d22f00360e
+R e65b0edbf96384f4f20b38dc63b64cf0
 U drh
-Z 3b89047eee3488fe356ce3cf6849221a
+Z 0aa1b6ec7f2935a338b9a2a2d19f71a5

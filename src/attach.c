@@ -363,7 +363,7 @@ void ainfo_page(void){
   int wantToDelete = P("del")!=0;/* Want to delete */
 
   login_check_credentials();
-  if( !g.perm.Attach ){ login_needed(); return; }
+  if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }
   rid = name_to_rid_www("name");
   if( rid==0 ){ fossil_redirect_home(); }
   zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", rid);
@@ -391,8 +391,16 @@ void ainfo_page(void){
    && db_exists("SELECT 1 FROM ticket WHERE tkt_uuid='%s'", zTarget)
   ){
     zTktUuid = zTarget;
+    if( !g.perm.RdTkt ){ login_needed(); return; }
+    if( g.perm.WrTkt ){
+      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+    }
   }else if( db_exists("SELECT 1 FROM tag WHERE tagname='wiki-%q'",zTarget) ){
     zWikiName = zTarget;
+    if( !g.perm.RdWiki ){ login_needed(); return; }
+    if( g.perm.WrWiki ){
+      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
+    }
   }
   zDate = db_text(0, "SELECT datetime(%.12f)", pAttach->rDate);
 
@@ -465,16 +473,10 @@ void ainfo_page(void){
   if( zTktUuid ){
     @ <tr><th>Ticket:</th>
     @ <td>%z(href("%R/tktview/%s",zTktUuid))%s(zTktUuid)</a></td></tr>
-    if( g.perm.WrTkt ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
-    }
   }
   if( zWikiName ){
     @ <tr><th>Wiki&nbsp;Page:</th>
     @ <td>%z(href("%R/wiki?name=%t",zWikiName))%h(zWikiName)</a></td></tr>
-    if( g.perm.WrWiki ){
-      style_submenu_element("Delete","Delete","%R/ainfo/%s?del", zUuid);
-    }
   }
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
@@ -546,7 +548,7 @@ void attachment_list(
   Stmt q;
   db_prepare(&q,
      "SELECT datetime(mtime,'localtime'), filename, user,"
-     "       (SELECT uuid FROM blob WHERE rid=attachid)"
+     "       (SELECT uuid FROM blob WHERE rid=attachid), src"
      "  FROM attachment"
      " WHERE isLatest AND src!='' AND target=%Q"
      " ORDER BY mtime DESC", 
@@ -557,12 +559,13 @@ void attachment_list(
     const char *zFile = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
+    const char *zSrc = db_column_text(&q, 4);
     if( cnt==0 ){
       @ %s(zHeader)
     }
     cnt++;
     @ <li>
-    @ %z(href("%R/artifact/%s",zUuid))%h(zFile)</a>
+    @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
     @ added by %h(zUser) on
     hyperlink_to_date(zDate, ".");
     @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
