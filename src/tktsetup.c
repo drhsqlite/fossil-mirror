@@ -597,9 +597,14 @@ static const char zDefaultReportList[] =
 @ </ol>
 @ 
 @ <th1>
-@ if {[hascap t]} {
-@   html "<p>Create a new ticket display format:</p>"
-@   html "<ul><li><a href='rptnew'>New report format</a></li></ul>"
+@ if {[hascap t q]} {
+@   html "<p>Other options:</p>\n<ul>\n"
+@   if {[hascap t]} {
+@     html "<li><a href='rptnew'>New report format</a></li>\n"
+@   }
+@   if {[hascap q]} {
+@     html "<li><a href='modreq'>Tend to pending moderation requests</a></li>\n"
+@   }
 @ }
 @ </th1>
 ;

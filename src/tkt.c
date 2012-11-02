@@ -337,44 +337,7 @@ void tktview_page(void){
        "SELECT tkt_uuid FROM ticket"
        " WHERE tkt_uuid GLOB '%q*'", zUuid);
   if( zFullName ){
-    int cnt = 0;
-    Stmt q;
-    db_prepare(&q,
-       "SELECT datetime(mtime,'localtime'), filename, user"
-       "  FROM attachment"
-       " WHERE isLatest AND src!='' AND target=%Q"
-       " ORDER BY mtime DESC",
-       zFullName);
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zDate = db_column_text(&q, 0);
-      const char *zFile = db_column_text(&q, 1);
-      const char *zUser = db_column_text(&q, 2);
-      if( cnt==0 ){
-        @ <hr /><h2>Attachments:</h2>
-        @ <ul>
-      }
-      cnt++;
-      @ <li>
-      if( g.perm.Read && g.perm.Hyperlink ){
-        @ %z(href("%R/attachview?tkt=%s&file=%t",zFullName,zFile))
-        @ %h(zFile)</a>
-      }else{
-        @ %h(zFile)
-      }
-      @ added by %h(zUser) on
-      hyperlink_to_date(zDate, ".");
-      if( g.perm.WrTkt && g.perm.Attach ){
-        char *zH;
-        zH = href("%R/attachdelete?tkt=%s&file=%t&from=%R/tktview%%3fname=%s",
-                  zFullName, zFile, zFullName);
-        @ [%z(zH)delete</a>]
-      }
-      @ </li>
-    }
-    if( cnt ){
-      @ </ul>
-    }
-    db_finalize(&q);
+    attachment_list(zFullName, "<hr /><h2>Attachments:</h2><ul>");
   }
  
   style_footer();
@@ -416,6 +379,34 @@ static int appendRemarkCmd(
   }
   azAppend[idx] = mprintf("%.*s", argl[2], argv[2]);
   return TH_OK;
+}
+
+/*
+** Write a ticket into the repository.
+*/
+static void ticket_put(
+  Blob *pTicket,           /* The text of the ticket change record */
+  const char *zTktId,      /* The ticket to which this change is applied */
+  int needMod              /* True if moderation is needed */
+){
+  int rid = content_put_ex(pTicket, 0, 0, 0, needMod);
+  if( rid==0 ){
+    fossil_panic("trouble committing ticket: %s", g.zErrMsg);
+  }
+  if( needMod ){
+    moderation_table_create();
+    db_multi_exec(
+      "INSERT INTO modreq(objid, tktid) VALUES(%d,'%s')",
+      rid, zTktId
+    );
+  }else{
+    db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d);", rid);
+    db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", rid);
+  }
+  manifest_crosslink_begin();
+  manifest_crosslink(rid, pTicket);
+  assert( blob_is_reset(pTicket) );
+  manifest_crosslink_end();
 }
 
 /*
@@ -500,14 +491,8 @@ static int submitTicketCmd(
              "}<br />\n",
        blob_str(&tktchng));
   }else{
-    rid = content_put(&tktchng);
-    if( rid==0 ){
-      fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-    }
-    manifest_crosslink_begin();
-    manifest_crosslink(rid, &tktchng);
-    assert( blob_is_reset(&tktchng) );
-    manifest_crosslink_end();
+    ticket_put(&tktchng, zUuid,
+               (g.perm.ModTkt==0 && db_get_boolean("modreq-tkt",0)==1));
   }
   return ticket_change();
 }
@@ -1189,14 +1174,7 @@ void ticket_cmd(void){
       blob_appendf(&tktchng, "U %F\n", zUser);
       md5sum_blob(&tktchng, &cksum);
       blob_appendf(&tktchng, "Z %b\n", &cksum);
-      rid = content_put(&tktchng);
-      if( rid==0 ){
-        fossil_panic("trouble committing ticket: %s", g.zErrMsg);
-      }
-      manifest_crosslink_begin();
-      manifest_crosslink(rid, &tktchng);
-      manifest_crosslink_end();
-      assert( blob_is_reset(&tktchng) );
+      ticket_put(&tktchng, zTktUuid, 0);
       printf("ticket %s succeeded for %s\n",
              (eCmd==set?"set":"add"),zTktUuid);
     }

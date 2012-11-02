@@ -979,7 +979,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                            g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
                            g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone = 
                            g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
-                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt = 1;
+                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt =
+                           g.perm.ModWiki = g.perm.ModTkt = 1;
                            /* Fall thru into Read/Write */
       case 'i':   g.perm.Read = g.perm.Write = 1;                     break;
       case 'o':   g.perm.Read = 1;                                 break;

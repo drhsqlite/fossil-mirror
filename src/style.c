@@ -932,8 +932,13 @@ const struct strctCssDefaults {
     @   color: #0000ff;
   },
   { "span.diffln",
-    "line nubmers in a diff",
+    "line numbers in a diff",
     @   color: #a0a0a0;
+  },
+  { "span.modpending",
+    "Moderation Pending message on timelin",
+    @   color: #b03800;
+    @   font-style: italic;
   },
   { 0,
     0,

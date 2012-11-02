@@ -238,8 +238,12 @@ void www_print_timeline(
     int tagid = db_column_int(pQuery, 9);
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
+    int modPending;           /* Pending moderation */
     char zTime[8];
+
+    modPending =  moderation_pending(rid);
     if( tagid ){
+      if( modPending ) tagid = -tagid;
       if( tagid==prevTagid ){
         if( tmFlags & TIMELINE_BRIEF ){
           suppressCnt++;
@@ -322,6 +326,9 @@ void www_print_timeline(
     if( pGraph && zType[0]!='c' ){
       @ &bull;
     }
+    if( modPending ){
+      @ <span class="modpending">(Awaiting Moderator Approval)</span>
+    }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
       if( isLeaf ){
@@ -334,7 +341,7 @@ void www_print_timeline(
         }
       }
     }else if( zType[0]=='e' && tagid ){
-      hyperlink_to_event_tagid(tagid);
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
@@ -363,7 +370,7 @@ void www_print_timeline(
     }
 
     /* Generate a "detail" link for tags. */
-    if( zType[0]=='g' && g.perm.Hyperlink ){
+    if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
       @ [%z(href("%R/info/%S",zUuid))details</a>]
     }
 
