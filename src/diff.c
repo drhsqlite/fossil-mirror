@@ -206,7 +206,8 @@ int looks_like_utf8(const Blob *pContent){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
     if( c=='\n' ){
-      if( z[-1]=='\r' ){
+      int c2 = z[-1];
+      if( c2=='\r' ){
         result = -1;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
@@ -274,7 +275,8 @@ int looks_like_utf16(const Blob *pContent){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* NUL character in a file -> binary */
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
-      if( z[-1]==UTF16BE_CR || z[-1]==UTF16LE_CR ){
+      int c2 = z[-1];
+      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
         result = -1;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
