@@ -204,6 +204,7 @@ int looks_like_utf8(const Blob *pContent){
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
+  j = (c!='\n');
   if( c<0x80 ){
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   }else if( c<0xC0 ){
@@ -212,24 +213,23 @@ int looks_like_utf8(const Blob *pContent){
     if( n<2 || ((z[1]&0xC0)!=0x80) ){
       result = -2; /* Invalid 2-byte UTF-8, continue */
     }else{
-      --n; ++z;
+      --n; ++j; ++z;
     }
   }else if( c<0xF0 ){
     if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
       result = -2; /* Invalid 3-byte UTF-8, continue */
     }else{
-      n-=2; z+=2;
+      n-=2; j+=2; z+=2;
     }
   }else if( c<0xF8 ){
     if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
       result = -2; /* Invalid 4-byte UTF-8, continue */
     }else{
-      n-=3; z+=3;
+      n-=3; j+=3; z+=3;
     }
   }else{
     result = -2;  /* Invalid multi-byte UTF-8, continue */
   }
-  j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
     if( c<0x80 ){
@@ -250,17 +250,17 @@ int looks_like_utf8(const Blob *pContent){
       if( n<2 || ((z[1]&0xC0)!=0x80) ){
         result = -2; continue; /* Invalid 2-byte UTF-8, continue */
       }
-      --n; ++z;
+      --n; ++j; ++z;
     }else if( c<0xF0 ){
       if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
         result = -2; continue; /* Invalid 3-byte UTF-8, continue */
       }
-      n-=2; z+=2;
+      n-=2; j+=2; z+=2;
     }else if( c<0xF8 ){
       if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
         result = -2; continue; /* Invalid 4-byte UTF-8, continue */
       }
-      n-=3; z+=3;
+      n-=3; j+=3; z+=3;
     }else{
       result = -2;  /* Invalid multi-byte UTF-8, continue */
     }
