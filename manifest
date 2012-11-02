@@ -1,5 +1,5 @@
-C speedup\smimetype_from_content()\sby\susing\sa\s256\sbyte\sarray.\n<br>Mark\sVT\sand\sCtrl-Z\sas\stext\sbytes,\snot\sbinary.\n<br>Decrease\smaximum\sUTF-16\sline\slength\sto\s2731\n<br>Check\sfor\sFFFF\sin\saddition\sto\s0,\sin\sUTF-16/binary\sdetection.
-D 2012-11-02T08:31:20.275
+C Generate\swarning\swhen\sto-be-committed\sfile\scontains\sinvalid\sUTF-8
+D 2012-11-02T10:55:01.960
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c 22ac5a70a01cdb8d40b6782120461b0fca3d49ea
+F src/checkin.c db795eeb504631d67fdb407b484d3046f8d7cba6
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 511979459393fc8d72d44c9995982a3e23067435
@@ -83,7 +83,7 @@ F src/db.c b743628236c79f42c9dd2b923480f6110d7f100c
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c ca927be57fa716627a2cd198e04495d328d8f4ad
+F src/diff.c a88475a1d598eb37d90fdeaf216489b9972354da
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -358,7 +358,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1cc7e8ce2985bf5ec44f4e96975513d86641caef
-R 14ffa2f50093c99c6b7672f9b8362462
+P d804902f2333e4198223063c27cbbc17ec81f5ac
+R c833b33db9bb1f1c78ae87556cc4cb9f
+T *branch * invalid_utf8_warning
+T *sym-invalid_utf8_warning *
+T -sym-trunk *
 U jan.nijtmans
-Z 592fbe6dbae9af04f7b940101fe4b976
+Z 2077b6ac215ebb48beaa9a6ce8a8b06d

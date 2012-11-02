@@ -177,8 +177,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** values are:
 **
 **  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-8.
+**         delimited by line-feed characters.
 **
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL characters or an extremely long line.  Since this function
@@ -186,34 +185,84 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         to be binary.
 **
 ** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-8.
+**         delimited by carriage-return, line-feed pairs.
+**
+** (-2) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters or carriage-return,
+**         line-feed pairs; however, the encoding is not UTF-8 or ASCII.
 **
 */
+
 int looks_like_utf8(const Blob *pContent){
-  const char *z = blob_buffer(pContent);
+  unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
+  unsigned int j;
+  unsigned char c;
   int result = 1;  /* Assume UTF-8 text with no CR/NL */
 
   /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+  if( c<0x80 ){
+    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+  }else if( c<0xC0 ){
+    result = -2;  /* Invalid UTF-8, continue */
+  }else if( c<0xE0 ){
+    if( n<2 || ((z[1]&0xC0)!=0x80) ){
+      result = -2; /* Invalid 2-byte UTF-8, continue */
+    }else{
+      --n; ++z;
+    }
+  }else if( c<0xF0 ){
+    if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
+      result = -2; /* Invalid 3-byte UTF-8, continue */
+    }else{
+      n-=2; z+=2;
+    }
+  }else if( c<0xF8 ){
+    if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
+      result = -2; /* Invalid 4-byte UTF-8, continue */
+    }else{
+      n-=3; z+=3;
+    }
+  }else{
+    result = -2;  /* Invalid multi-byte UTF-8, continue */
+  }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-    if( c=='\n' ){
-      int c2 = z[-1];
-      if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+    if( c<0x80 ){
+      if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+      if( c=='\n' ){
+        unsigned char c2 = z[-1];
+        if( c2=='\r' && result>0 ){
+          result = -1;  /* Contains CR/NL, continue */
+        }
+        if( j>LENGTH_MASK ){
+          return 0;  /* Very long line -> binary */
+        }
+        j = 0;
       }
-      if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+    }else if( c<0xC0 ){
+      result = -2;  /* Invalid UTF-8, continue */
+    }else if( c<0xE0 ){
+      if( n<2 || ((z[1]&0xC0)!=0x80) ){
+        result = -2; continue; /* Invalid 2-byte UTF-8, continue */
       }
-      j = 0;
+      --n; ++z;
+    }else if( c<0xF0 ){
+      if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
+        result = -2; continue; /* Invalid 3-byte UTF-8, continue */
+      }
+      n-=2; z+=2;
+    }else if( c<0xF8 ){
+      if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
+        result = -2; continue; /* Invalid 4-byte UTF-8, continue */
+      }
+      n-=3; z+=3;
+    }else{
+      result = -2;  /* Invalid multi-byte UTF-8, continue */
     }
   }
   if( j>LENGTH_MASK ){

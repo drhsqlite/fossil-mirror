@@ -897,7 +897,7 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
   if( allOk ) return;
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType==0 || eType==-1 || fUnicode ){
+  if( eType<0 || fUnicode ){
     const char *zWarning;
     Blob ans;
     char cReply;
@@ -909,8 +909,8 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
         return; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
-    }else if( eType==0 ){
-      zWarning = "binary data";
+    }else if( eType==-2 ){
+      zWarning = "invalid UTF-8 or ASCII";
     }else{
       zWarning = "Unicode";
     }
