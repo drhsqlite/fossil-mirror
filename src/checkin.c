@@ -887,7 +887,12 @@ static void create_manifest(
 ** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
 ** is seen in a text file.
 */
-static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
+static void commit_warning(
+  const Blob *p,        /* The content of the file being committed. */
+  int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
+  int binOk,            /* Non-zero if binary warnings should be disabled. */
+  const char *zFilename /* The full name of the file being committed. */
+){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   char *zMsg;             /* Warning message */
@@ -910,6 +915,9 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
       }
       zWarning = "CR/NL line endings";
     }else if( eType==0 ){
+      if( binOk ){
+        return; /* We don't want binary warnings for this file. */
+      }
       zWarning = "binary data";
     }else{
       zWarning = "Unicode";
@@ -1218,21 +1226,23 @@ void commit_cmd(void){
   ** the identified fils are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, chnged, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
-    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
+    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("binary-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, chnged;
+    int crnlOk, binOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
+    binOk = db_column_int(&q, 5);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1241,7 +1251,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    commit_warning(&content, crnlOk, zFullname);
+    commit_warning(&content, crnlOk, binOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
