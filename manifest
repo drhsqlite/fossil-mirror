@@ -1,5 +1,5 @@
-C Additional\stweaks\sto\sthe\swiki/ticket\sediting\slogic\swith\smoderation\scontrol.
-D 2012-11-02T02:26:17.367
+C Make\ssure\sthe\sMODREQ\stable\sexists\sbefore\susing\sit\sin\sthe\s"modreq"\swebpage.
+D 2012-11-02T02:34:13.066
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -128,7 +128,7 @@ F src/merge.c 1f87761ed9c4435a2d09dcbef5f06423b19a9b94
 F src/merge3.c aedae8473b0267ce7a2702c2848903a097df8bd7
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
-F src/moderate.c 06374cc954cbac692e82cac2453d30d82475d63e
+F src/moderate.c 704772b428d469a012bf6848633c932bff35a781
 F src/name.c 2d4bcb6f65598f22119f20f0481a0c193b3ced1c
 F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 628c402414e3d47c2f83d757d66709d22f00360e
-R e65b0edbf96384f4f20b38dc63b64cf0
+P d3d094ff55d9ab853a6d72a11e2ab28bba07856a
+R 30ec33b9142cd242904410fdf2eba639
 U drh
-Z 0aa1b6ec7f2935a338b9a2a2d19f71a5
+Z af8b19eeecf14823ee245c37fcd8b64f

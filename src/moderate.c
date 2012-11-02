@@ -152,13 +152,15 @@ void modreq_page(void){
   if( !g.perm.RdWiki && !g.perm.RdTkt ){ login_needed(); return; }
   style_header("Pending Moderation Requests");
   @ <h2>All Pending Moderation Requests</h2>
-  blob_init(&sql, timeline_query_for_www(), -1);
-  blob_appendf(&sql,
-      " AND event.objid IN (SELECT objid FROM modreq)"
-      " ORDER BY event.mtime DESC"
-  );
-  db_prepare(&q, blob_str(&sql));
-  www_print_timeline(&q, 0, 0, 0, 0);
-  db_finalize(&q);
+  if( moderation_table_exists() ){
+    blob_init(&sql, timeline_query_for_www(), -1);
+    blob_appendf(&sql,
+        " AND event.objid IN (SELECT objid FROM modreq)"
+        " ORDER BY event.mtime DESC"
+    );
+    db_prepare(&q, blob_str(&sql));
+    www_print_timeline(&q, 0, 0, 0, 0);
+    db_finalize(&q);
+  }
   style_footer();
 }
