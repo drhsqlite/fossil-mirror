@@ -204,6 +204,7 @@ void www_print_timeline(
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
+  int pendingEndTr = 0;       /* True if a </td></tr> is needed */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -255,10 +256,13 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td /><td /><td>
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
       @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
+    }
+    if( pendingEndTr ){
+      @ </td></tr>
+      pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
@@ -463,13 +467,15 @@ void www_print_timeline(
         @ </ul>
       }
     }
-    @ </td></tr>
+    pendingEndTr = 1;
   }
   if( suppressCnt ){
-    @ <tr><td /><td /><td>
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
     @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
     suppressCnt = 0;
+  }
+  if( pendingEndTr ){
+    @ </td></tr>
   }
   if( pGraph ){
     graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
