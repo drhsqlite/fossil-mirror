@@ -343,7 +343,7 @@ void fossil_atexit(void) {
   }
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
 /*
 ** Parse the command-line arguments passed to windows.  We do this
 ** ourselves to work around bugs in the command-line parsing of MinGW.
@@ -456,7 +456,7 @@ static void parse_windows_command_line(
   *argcPtr = argc;
   *((WCHAR ***)argvPtr) = argv;
 }
-#endif /* defined(_WIN32) */
+#endif /* defined(_WIN32) && !defined(__MINGW32__) */
 
 
 /*
@@ -480,13 +480,13 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
   WCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_unicode_to_utf8(buf);
