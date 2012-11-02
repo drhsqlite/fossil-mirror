@@ -2029,16 +2029,16 @@ struct stControlSettings const ctrlSettings[] = {
   { "auto-hyperlink",0,                0, 0, "on",                 },
   { "auto-shun",     0,                0, 0, "on"                  },
   { "autosync",      0,                0, 0, "on"                  },
-  { "binary-glob",   0,               32, 1, ""                    },
+  { "binary-glob",   0,               40, 1, ""                    },
   { "clearsign",     0,                0, 0, "off"                 },
   { "case-sensitive",0,                0, 0, "on"                  },
-  { "crnl-glob",     0,               16, 1, ""                    },
+  { "crnl-glob",     0,               40, 1, ""                    },
   { "default-perms", 0,               16, 0, "u"                   },
   { "diff-binary",   0,                0, 0, "on"                  },
-  { "diff-command",  0,               16, 0, ""                    },
+  { "diff-command",  0,               40, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
-  { "editor",        0,               16, 0, ""                    },
-  { "gdiff-command", 0,               16, 0, "gdiff"               },
+  { "editor",        0,               32, 0, ""                    },
+  { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
@@ -2049,14 +2049,14 @@ struct stControlSettings const ctrlSettings[] = {
   { "manifest",      0,                0, 1, "off"                 },
   { "max-upload",    0,               25, 0, "250000"              },
   { "mtime-changes", 0,                0, 0, "on"                  },
-  { "pgp-command",   0,               32, 0, "gpg --clearsign -o " },
+  { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
   { "proxy",         0,               32, 0, "off"                 },
   { "relative-paths",0,                0, 0, "on"                  },
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
-  { "ssh-command",   0,               32, 0, ""                    },
+  { "ssh-command",   0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
@@ -2110,7 +2110,7 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    binary-glob      The VALUE is a comma or newline-separated list of
 **     (versionable)   GLOB patterns that should be treated as binary files
-**                     for merging purposes.  Example:   *.xml
+**                     for committing and merging purposes.  Example: *.jpg
 **
 **    case-sensitive   If TRUE, the files whose names differ only in case
 **                     care considered distinct.  If FALSE files whose names
