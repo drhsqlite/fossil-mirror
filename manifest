@@ -1,5 +1,5 @@
-C Only\suse\sthe\sTcl-derived\sargv/argc\sparser\swhen\scompiling\son\swindows\susing\na\scompiler\sother\sthan\smingw.\s\sThe\scrt0\sfor\smingw\sworks,\sand\sit\salso\sdoes\nwildcard\sexpansion.\s\sNeed\sto\supdate\sthe\sparse_windows_command_line()\sfunction\nto\sdo\swildcard\sexpansion\sin\sorder\sto\sfix\sbuilds\susing\snon-mingw\swindows\ncompilers.\s\sTicket\s[8ca2aae39172f9]
-D 2012-11-02T21:45:45.994
+C Be\saware\sof\sthe\sfilename\scase\ssensitivity\sof\sthe\sunderlying\sfilesystem\nin\sthe\s"fossil\sclean"\scommand.\s\sTicket\s[03fec0ab6021c77].
+D 2012-11-02T21:53:05.004
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c c97b87e77acdd5dea5efb7e3b061b69cd67e7719
+F src/checkin.c 4c2059c674378b8ceb823b34be2ce2a3f5a7b823
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 511979459393fc8d72d44c9995982a3e23067435
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 004a31a6c70f21c20a3600522fcc59ea580a0045
-R 631be714d34f7487c3903e11579d82ec
+P fca9c526379c87f1d2de607df34b1b961f1d4c16
+R 3c839581fdb2fb96f0ec456cd5d96e35
 U drh
-Z e3240b4c5ed84d40c51da1e031dee1c4
+Z 804300390c853738133d9500b1576484
