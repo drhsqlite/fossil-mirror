@@ -1,5 +1,5 @@
-C Fix\sa\ssegfault\sthat\soccurs\swith\sthe\s"fossil\smd5sum"\scommand\swhen\sfiles\nnamed\son\sthe\scommand-line\sdo\snot\sactually\sexist.\s\s\nTicket\s[8ca2aae39172f90c].
-D 2012-11-02T21:20:19.373
+C Fix\san\sout-of-order\svariable\sdeclaration\sin\sblob.c.
+D 2012-11-02T21:33:54.002
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -64,7 +64,7 @@ F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
 F src/attach.c 303e7d45edd0c431ffdb26735d5810c5b2e1b084
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
-F src/blob.c 0320a4f8d6a8f615a0fa2dbeadf0d9a9d9f04b73
+F src/blob.c 6acd36518d39b3be95317eebdc9ae6f01727a255
 F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c24b6890199575bb9acae75edd41b8cb7afb2215
-R d18306bdbe1522c31a50f5e5332b7194
+P 52199a504a9c7c20a4f7d9a71c32f3df0cabd404
+R cb23ce1898f3e336771e475e90dbec65
 U drh
-Z 984197fdf7d12acff6b3bf1f20874358
+Z f34a168d1c590c2291dcbe55ee26e9e4
