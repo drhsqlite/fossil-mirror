@@ -1,5 +1,5 @@
-C Make\sform\sfield\swidths\sconsistent\sfor\ssettings.\s\sFix\scomment\sfor\sthe\s'binary-glob'\ssetting.
-D 2012-11-02T17:49:28.976
+C Fix\sa\ssegfault\sthat\soccurs\swith\sthe\s"fossil\smd5sum"\scommand\swhen\sfiles\nnamed\son\sthe\scommand-line\sdo\snot\sactually\sexist.\s\s\nTicket\s[8ca2aae39172f90c].
+D 2012-11-02T21:20:19.373
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -123,7 +123,7 @@ F src/makeheaders.c 8ddc86f2e9e0415364c41206bcf8157739541927
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 7bffaa81dd8c80d300c571e23b2dcd19b7ba77be
 F src/manifest.c dfe322ce658e318eb1c33f8dcb84e4609085aea3
-F src/md5.c 7be99ec5e3232aac88893aee3d630a8730534390
+F src/md5.c 5ad027eacd220355be4fb4f35e19b68ecacf8261
 F src/merge.c 1f87761ed9c4435a2d09dcbef5f06423b19a9b94
 F src/merge3.c aedae8473b0267ce7a2702c2848903a097df8bd7
 F src/mkindex.c d9f9cfdff56bcc1b4c30fa16ec2f6ba78d8f358e
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d25f6ddf35ae0e42a3792042cd5ff07657ed3070
-R 9468f04a55b4c0ffffe27cf19c7fce9e
-U mistachkin
-Z e261c1d52d6ee29e4382d1f0ef9555f2
+P c24b6890199575bb9acae75edd41b8cb7afb2215
+R d18306bdbe1522c31a50f5e5332b7194
+U drh
+Z 984197fdf7d12acff6b3bf1f20874358
