@@ -360,7 +360,6 @@ void ainfo_page(void){
   int isModerator;               /* TRUE if user is the moderator */
   const char *zMime;             /* MIME Type */
   Blob attach;                   /* Content of the attachment */
-  int wantToDelete = P("del")!=0;/* Want to delete */
 
   login_check_credentials();
   if( !g.perm.RdTkt && !g.perm.RdWiki ){ login_needed(); return; }

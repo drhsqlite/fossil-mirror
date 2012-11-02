@@ -133,8 +133,6 @@ void wiki_page(void){
   Manifest *pWiki = 0;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  Stmt q;
-  int cnt = 0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
@@ -301,7 +299,6 @@ void wikiedit_page(void){
   if( P("submit")!=0 && zBody!=0 ){
     char *zDate;
     Blob cksum;
-    int nrid;
     blob_zero(&wiki);
     db_begin_transaction();
     if( isSandbox ){
@@ -485,7 +482,6 @@ void wikiappend_page(void){
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
     char *zDate;
     Blob cksum;
-    int nrid;
     Blob body;
     Blob wiki;
     Manifest *pWiki = 0;
@@ -816,7 +812,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
-  int nrid;               /* artifact ID of new wiki page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
 

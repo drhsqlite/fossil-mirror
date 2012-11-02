@@ -1568,7 +1568,6 @@ void artifact_page(void){
   int objType;
   int asText;
   const char *zUuid;
-  Manifest *pManifest;
 
   if( P("ci") && P("filename") ){
     rid = artifact_from_ci_and_filename();

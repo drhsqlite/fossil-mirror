@@ -428,7 +428,6 @@ static int submitTicketCmd(
   char *zDate;
   const char *zUuid;
   int i;
-  int rid;
   int nJ = 0;
   Blob tktchng, cksum;
 
@@ -998,7 +997,6 @@ void ticket_cmd(void){
       /* add a new ticket or update an existing ticket */
       enum { set,add,history,err } eCmd = err;
       int i = 0;
-      int rid;
       Blob tktchng, cksum;
 
       /* get command type (set/add) and get uuid, if needed for set */
