@@ -1158,15 +1158,16 @@ void commit_cmd(void){
     Stmt qRename;
     db_prepare(&qRename,
        "SELECT v1.pathname, v2.pathname"
-       "  FROM vfile AS v2 CROSS JOIN vfile AS v1"
+       "  FROM vfile AS v1, vfile AS v2"
        " WHERE is_selected(v1.id)"
        "   AND v2.origname IS NOT NULL"
-       "   AND v2.origname=v1.pathname");
+       "   AND v2.origname=v1.pathname"
+       "   AND NOT is_selected(v2.id)");
     if( db_step(&qRename)==SQLITE_ROW ){
       const char *zFrom = db_column_text(&qRename, 0);
       const char *zTo = db_column_text(&qRename, 1);
-      fossil_fatal("cannot do a partial commit of '%s' because "
-                   "'%s' was renamed to '%s'", zFrom, zFrom, zTo);
+      fossil_fatal("cannot do a partial commit of '%s' without '%s' because "
+                   "'%s' was renamed to '%s'", zFrom, zTo, zFrom, zTo);
     }
     db_finalize(&qRename);
   }
