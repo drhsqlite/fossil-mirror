@@ -187,9 +187,13 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs.
 **
-** (-2) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters or carriage-return,
-**         line-feed pairs; however, the encoding is not UTF-8 or ASCII.
+** (-3) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters; however, the encoding is
+**         not UTF-8 or ASCII.
+**
+** (-5) -- The content appears to consist entirely of text, with lines
+**         delimited by carriage-return, line-feed pairs; however, the
+**         encoding is not UTF-8 or ASCII.
 **
 */
 
@@ -198,46 +202,45 @@ int looks_like_utf8(const Blob *pContent){
   unsigned int n = blob_size(pContent);
   unsigned int j;
   unsigned char c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int result = 0;  /* Assume UTF-8 text with no CR/NL */
 
   /* Check individual lines.
   */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   j = (c!='\n');
   if( c<0x80 ){
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   }else if( c<0xC0 ){
-    result = -2;  /* Invalid UTF-8, continue */
+    result |= 4;  /* Invalid UTF-8, continue */
   }else if( c<0xE0 ){
     if( n<2 || ((z[1]&0xC0)!=0x80) ){
-      result = -2; /* Invalid 2-byte UTF-8, continue */
+      result |= 4; /* Invalid 2-byte UTF-8, continue */
     }else{
       --n; ++j; ++z;
     }
   }else if( c<0xF0 ){
     if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
-      result = -2; /* Invalid 3-byte UTF-8, continue */
+      result |= 4; /* Invalid 3-byte UTF-8, continue */
     }else{
       n-=2; j+=2; z+=2;
     }
   }else if( c<0xF8 ){
     if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
-      result = -2; /* Invalid 4-byte UTF-8, continue */
+      result |= 4; /* Invalid 4-byte UTF-8, continue */
     }else{
       n-=3; j+=3; z+=3;
     }
   }else{
-    result = -2;  /* Invalid multi-byte UTF-8, continue */
+    result |= 4;  /* Invalid multi-byte UTF-8, continue */
   }
   while( --n>0 ){
     c = *++z; ++j;
     if( c<0x80 ){
       if( c==0 ) return 0;  /* Zero byte in a file -> binary */
       if( c=='\n' ){
-        unsigned char c2 = z[-1];
-        if( c2=='\r' && result>0 ){
-          result = -1;  /* Contains CR/NL, continue */
+        if( z[-1]=='\r'){
+          result |= 2;  /* Contains CR/NL, continue */
         }
         if( j>LENGTH_MASK ){
           return 0;  /* Very long line -> binary */
@@ -245,30 +248,30 @@ int looks_like_utf8(const Blob *pContent){
         j = 0;
       }
     }else if( c<0xC0 ){
-      result = -2;  /* Invalid UTF-8, continue */
+      result |= 4;  /* Invalid UTF-8, continue */
     }else if( c<0xE0 ){
       if( n<2 || ((z[1]&0xC0)!=0x80) ){
-        result = -2; continue; /* Invalid 2-byte UTF-8, continue */
+        result |= 4; continue; /* Invalid 2-byte UTF-8, continue */
       }
       --n; ++j; ++z;
     }else if( c<0xF0 ){
       if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
-        result = -2; continue; /* Invalid 3-byte UTF-8, continue */
+        result |= 4; continue; /* Invalid 3-byte UTF-8, continue */
       }
       n-=2; j+=2; z+=2;
     }else if( c<0xF8 ){
       if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
-        result = -2; continue; /* Invalid 4-byte UTF-8, continue */
+        result |= 4; continue; /* Invalid 4-byte UTF-8, continue */
       }
       n-=3; j+=3; z+=3;
     }else{
-      result = -2;  /* Invalid multi-byte UTF-8, continue */
+      result |= 4;  /* Invalid multi-byte UTF-8, continue */
     }
   }
   if( j>LENGTH_MASK ){
     return 0;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return 1-result;  /* No problems seen -> not binary */
 }
 
 /*

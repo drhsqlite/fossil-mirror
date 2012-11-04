@@ -414,16 +414,19 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore;
+  int testFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
+  testFlag = find_option("test",0,0)!=0;
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
-  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
+  db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
+                filename_collation());
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
@@ -438,8 +441,11 @@ void clean_cmd(void){
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
   }
+  db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
-    if( allFlag ){
+    if( testFlag ){
+      fossil_print("%s\n", db_column_text(&q,0));
+    }else if( allFlag ){
       file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
@@ -887,7 +893,12 @@ static void create_manifest(
 ** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
 ** is seen in a text file.
 */
-static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
+static void commit_warning(
+  const Blob *p,        /* The content of the file being committed. */
+  int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
+  int binOk,            /* Non-zero if binary warnings should be disabled. */
+  const char *zFilename /* The full name of the file being committed. */
+){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   char *zMsg;             /* Warning message */
@@ -897,7 +908,26 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
   if( allOk ) return;
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType<0 || fUnicode ){
+  if( eType<3){
+    Blob ans;
+    char cReply;
+
+    blob_zero(&ans);
+    file_relative_name(zFilename, &fname, 0);
+    zMsg = mprintf(
+         "%s appears to be text, but not UTF-8 or ASCII.  commit anyhow (a=all/y/N)? ",
+         blob_str(&fname));
+    prompt_user(zMsg, &ans);
+    fossil_free(zMsg);
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y' ){
+      fossil_fatal("Abandoning commit due to non-UTF-8 in %s",
+                   blob_str(&fname));
+    }
+    blob_reset(&ans);
+    eType +=4 ;
+  }
+  if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
     Blob ans;
     char cReply;
@@ -909,8 +939,11 @@ static void commit_warning(const Blob *p, int crnlOk, const char *zFilename){
         return; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
-    }else if( eType==-2 ){
-      zWarning = "invalid UTF-8 or ASCII";
+    }else if( eType==0 ){
+      if( binOk ){
+        return; /* We don't want binary warnings for this file. */
+      }
+      zWarning = "binary data";
     }else{
       zWarning = "Unicode";
     }
@@ -1135,6 +1168,28 @@ void commit_cmd(void){
     fossil_fatal("cannot do a partial commit of a merge");
   }
 
+  /* Doing "fossil mv fileA fileB; fossil add fileA; fossil commit fileA"
+  ** will generate a manifest that has two fileA entries, which is illegal.
+  ** When you think about it, the sequence above makes no sense.  So detect
+  ** it and disallow it.  Ticket [0ff64b0a5fc8].
+  */
+  if( g.aCommitFile ){
+    Stmt qRename;
+    db_prepare(&qRename,
+       "SELECT v1.pathname, v2.pathname"
+       "  FROM vfile AS v2 CROSS JOIN vfile AS v1"
+       " WHERE is_selected(v1.id)"
+       "   AND v2.origname IS NOT NULL"
+       "   AND v2.origname=v1.pathname");
+    if( db_step(&qRename)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&qRename, 0);
+      const char *zTo = db_column_text(&qRename, 1);
+      fossil_fatal("cannot do a partial commit of '%s' because "
+                   "'%s' was renamed to '%s'", zFrom, zFrom, zTo);
+    }
+    db_finalize(&qRename);
+  }
+
   user_select();
   /*
   ** Check that the user exists.
@@ -1218,21 +1273,23 @@ void commit_cmd(void){
   ** the identified fils are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, chnged, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
-    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob",""))
+    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("binary-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, chnged;
+    int crnlOk, binOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
+    binOk = db_column_int(&q, 5);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1241,7 +1298,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    commit_warning(&content, crnlOk, zFullname);
+    commit_warning(&content, crnlOk, binOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
