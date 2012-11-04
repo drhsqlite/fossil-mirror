@@ -1149,6 +1149,28 @@ void commit_cmd(void){
     fossil_fatal("cannot do a partial commit of a merge");
   }
 
+  /* Doing "fossil mv fileA fileB; fossil add fileA; fossil commit fileA"
+  ** will generate a manifest that has two fileA entries, which is illegal.
+  ** When you think about it, the sequence above makes no sense.  So detect
+  ** it and disallow it.  Ticket [0ff64b0a5fc8].
+  */
+  if( g.aCommitFile ){
+    Stmt qRename;
+    db_prepare(&qRename,
+       "SELECT v1.pathname, v2.pathname"
+       "  FROM vfile AS v2 CROSS JOIN vfile AS v1"
+       " WHERE is_selected(v1.id)"
+       "   AND v2.origname IS NOT NULL"
+       "   AND v2.origname=v1.pathname");
+    if( db_step(&qRename)==SQLITE_ROW ){
+      const char *zFrom = db_column_text(&qRename, 0);
+      const char *zTo = db_column_text(&qRename, 1);
+      fossil_fatal("cannot do a partial commit of '%s' because "
+                   "'%s' was renamed to '%s'", zFrom, zFrom, zTo);
+    }
+    db_finalize(&qRename);
+  }
+
   user_select();
   /*
   ** Check that the user exists.

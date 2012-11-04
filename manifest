@@ -1,5 +1,5 @@
-C Perserve\sthe\s"ubg",\s"brbg",\sand\s"ng"\squery\sparameters\son\sthe\stimeline\swhen\nmoving\sthe\sdisplay\sforwards\sand\sbackwards\sin\stime\sor\schanging\sthe\slength,\setc,\nusing\sthe\ssubmenu\sbuttons.
-D 2012-11-03T02:53:24.186
+C Disallow\sthe\ssequence:\s"fossil\smv\sA\sB;\sfossil\sadd\sA;\sfossil\scommit\sA;"\ssince\ndoing\sso\srequires\sboth\sthe\sold\sA\sand\sthe\snew\sA\sto\sbe\sin\sthe\ssame\scheck-in.\nTicket\s[0ff64b0a5fc8].
+D 2012-11-04T00:46:20.950
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c 0f63a1e758d6c7894d6e21cde93fa2f2fa966e5e
+F src/checkin.c eada68a8afa48842a4881c85db627bc93633fa60
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 511979459393fc8d72d44c9995982a3e23067435
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dccb97fc344a0c353fd29e4e77ff7b8fd4022099
-R 2b9bff5041bf858016c6e6215a2486e2
+P 19ca7c6c54d685acc2956dde5e32e367e80ccec9
+R cd55477700d68d3be87ee2d55ccb24f9
 U drh
-Z f4f1cc152f7dac77986dbb28f6b3b915
+Z 70aeaf2c19cde429575a241c0c18dbba
