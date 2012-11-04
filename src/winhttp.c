@@ -273,7 +273,7 @@ static char *win32_get_last_errmsg(void){
   LPWSTR tmp = NULL;
   char *zMsg = NULL;
 
-  /* Try first to get the error text in english. */
+  /* Try first to get the error text in English. */
   nMsg = FormatMessageW(
            FORMAT_MESSAGE_ALLOCATE_BUFFER |
            FORMAT_MESSAGE_FROM_SYSTEM     |

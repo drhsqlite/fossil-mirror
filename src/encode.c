@@ -136,7 +136,7 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
 /*
 ** Convert the input string into a form that is suitable for use as
 ** a token in the HTTP protocol.  Spaces are encoded as '+' and special
-** characters are encoded as "%HH" where HH is a two-digit hexidecimal
+** characters are encoded as "%HH" where HH is a two-digit hexadecimal
 ** representation of the character.  The "/" character is encoded
 ** as "%2F".
 */

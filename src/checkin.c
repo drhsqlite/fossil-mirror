@@ -719,7 +719,7 @@ static void create_manifest(
   const char *zDateOvrd,      /* Date override.  If 0 then use 'now' */
   const char *zUserOvrd,      /* User override.  If 0 then use g.zLogin */
   const char *zBranch,        /* Branch name.  May be 0 */
-  const char *zColor,         /* One-time gackground color.  May be 0 */
+  const char *zColor,         /* One-time background color.  May be 0 */
   const char *zBrClr,         /* Persistent branch color.  May be 0 */
   const char **azTag,         /* Tags to apply to this check-in */
   int *pnFBcard               /* Number of generated B- and F-cards */
@@ -1252,7 +1252,7 @@ void commit_cmd(void){
 
   /* Step 1: Insert records for all modified files into the blob
   ** table. If there were arguments passed to this command, only
-  ** the identified fils are inserted (if they have been modified).
+  ** the identified files are inserted (if they have been modified).
   */
   db_prepare(&q,
     "SELECT id, %Q || pathname, mrid, %s, chnged, %s FROM vfile "

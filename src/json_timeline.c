@@ -631,7 +631,7 @@ static cson_value * json_timeline_ticket(){
     /*printf("rid=%d\n",rid);*/
     pMan = manifest_get(rid, CFTYPE_TICKET);
     if(!pMan){
-      /* this might be an attachment? i'm seeing this with
+      /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].
 
          /json/artifact/1292fef05f2472108 returns not-found,

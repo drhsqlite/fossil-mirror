@@ -294,7 +294,7 @@ void transport_send(Blob *toSend){
 
 /*
 ** This routine is called when the outbound message is complete and
-** it is time to being recieving a reply.
+** it is time to being receiving a reply.
 */
 void transport_flip(void){
   if( g.urlIsSsh ){

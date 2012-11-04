@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to help verify the integrity of the
+** This file contains code used to help verify the integrity of
 ** the repository.
 **
 ** This file primarily implements the verify_before_commit() interface.

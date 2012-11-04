@@ -215,7 +215,7 @@ void db_force_rollback(void){
 ** Install a commit hook.  Hooks are installed in sequence order.
 ** It is an error to install the same commit hook more than once.
 **
-** Each commit hook is called (in order of accending sequence) at
+** Each commit hook is called (in order of ascending sequence) at
 ** each commit operation.  If any commit hook returns non-zero,
 ** the subsequence commit hooks are omitted and the transaction
 ** rolls back rather than commit.  It is the responsibility of the
@@ -327,7 +327,7 @@ int db_bind_blob(Stmt *pStmt, const char *zParamName, Blob *pBlob){
 }
 
 /* bind_str() treats a Blob object like a TEXT string and binds it
-** to the SQL variable.  Constrast this to bind_blob() which treats
+** to the SQL variable.  Contrast this to bind_blob() which treats
 ** the Blob object like an SQL BLOB.
 */
 int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
@@ -451,7 +451,7 @@ void db_column_blob(Stmt *pStmt, int N, Blob *pBlob){
 }
 
 /*
-** Initialize a blob to an ephermeral copy of the content of a
+** Initialize a blob to an ephemeral copy of the content of a
 ** column in the current row.  The data in the blob will become
 ** invalid when the statement is stepped or reset.
 */
@@ -1462,9 +1462,9 @@ static void db_sql_user(
 }
 
 /*
-** Implement the cgi() SQL function.  cgi() takes a an argument which is
+** Implement the cgi() SQL function.  cgi() takes an argument which is
 ** a name of CGI query parameter. The value of that parameter is returned,
-** if available. optional second argument will be returned if the first
+** if available. Optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
 static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
@@ -2158,7 +2158,7 @@ struct stControlSettings const ctrlSettings[] = {
 **    http-port        The TCP/IP port number to use by the "server"
 **                     and "ui" commands.  Default: 8080
 **
-**    https-login      Send login creditials using HTTPS instead of HTTP
+**    https-login      Send login credentials using HTTPS instead of HTTP
 **                     even if the login page request came via HTTP.
 **
 **    ignore-glob      The VALUE is a comma or newline-separated list of GLOB
@@ -2296,7 +2296,7 @@ void setting_cmd(void){
 }
 
 /*
-** The input in a a timespan measured in days.  Return a string which
+** The input in a timespan measured in days.  Return a string which
 ** describes that timespan in units of seconds, minutes, hours, days,
 ** or years, depending on its duration.
 */
