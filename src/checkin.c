@@ -908,7 +908,7 @@ static void commit_warning(
   if( allOk ) return;
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType<-3){
+  if( eType<-2){
     Blob ans;
     char cReply;
 
