@@ -1,5 +1,5 @@
-C merge\strunk
-D 2012-11-04T10:50:47.301
+C merge\strunk\n<p>Factor\sout\smain\spart\sof\sUTF-8\scheck\sto\smacro
+D 2012-11-04T18:00:56.723
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 4402835f9bf241a6bff61545a4e819b2282f115b
 F src/captcha.c af2faae2944babf084f55ba56cc88e32fa2a49f0
 F src/cgi.c 9adb71987ba3a9e474ddf608513bd39ed6f69c09
-F src/checkin.c bc3f83ad651790e6b1d96bcd482094eb1690436f
+F src/checkin.c f4124009386bda22b32b7be8a17ec8eef89cbd45
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 511979459393fc8d72d44c9995982a3e23067435
@@ -83,7 +83,7 @@ F src/db.c d19dc238fd91833d8757962b9650e4bb8856291f
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c c387f2c6e2b8c8aa26ff8c034ab6c3234e805a60
-F src/diff.c c1ecaef4b268822acc52a2398c45814040767bac
+F src/diff.c 995db27e1ab0e6319b0f5f770d62fda09f6cd5ca
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c f09c83a1a637bf77ddf5d102956c094179515918
@@ -258,7 +258,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 540c31789886c9ebf3d531724388e55cd2d57094
-F win/Makefile.mingw e67b0e6b3fcb6e532649db8e470b596feadd6e41
+F win/Makefile.mingw 04c9bfc27f6d0faac94db3569c822541c08ac469
 F win/Makefile.mingw.mistachkin 34febe203177b9af5db5a1180d70d1ebaf41618a
 F win/Makefile.msc fed7e3f0ad077992b2aa28d2eaa91c62485d9689
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 517a6f7a53b6e04821aafd6ad90f37abdbadbee9 27298fffc87fe42f238542e94246395a25b6ba07
-R 550836dee9b0d70af07b35f9e9224b37
+P bd7b8a485f969da0126db57f82305c679f412109 c0fe455c78aa6b976a1b536fac58c2c87b399426
+R bd559bb1d7d6ab3024a953684a3b8f03
 U jan.nijtmans
-Z 7d484214351257164acd4e547c79a8ab
+Z 5a53deda47daab65f3cdea190a273b9d

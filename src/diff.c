@@ -172,6 +172,42 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 }
 
 /*
+** Macro which checks for proper UTF-8, when the first byte >= 0x80
+** It uses the method described in:
+**   http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
+** except for the "overlong form" which is not considered
+** invalid: Some languages like Java and Tcl use it.
+**
+** Any invalid byte causes bit 2 of result to be set (result |= 4),
+** otherwise for valid multibyte utf-8 sequences n, j and z are
+** updated so the continuation bytes are not checked again.
+ */
+#define CHECKUTF8(c) \
+if( c<0xC0 ){ \
+  result |= 4;  /* Invalid 1-byte UTF-8, continue */ \
+}else if( c<0xE0 ){ \
+  if( n<2 || ((z[1]&0xC0)!=0x80) ){ \
+    result |= 4; /* Invalid 2-byte UTF-8, continue */ \
+  }else{ \
+    --n; ++j; ++z; \
+  } \
+}else if( c<0xF0 ){ \
+  if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){ \
+    result |= 4; /* Invalid 3-byte UTF-8, continue */ \
+  }else{ \
+    n-=2; j+=2; z+=2; \
+  } \
+}else if( c<0xF8 ){ \
+  if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){ \
+    result |= 4; /* Invalid 4-byte UTF-8, continue */ \
+  }else{ \
+    n-=3; j+=3; z+=3; \
+  } \
+}else{ \
+  result |= 4;  /* Invalid multi-byte UTF-8, continue */ \
+}
+
+/*
 ** This function attempts to scan each logical line within the blob to
 ** determine the type of content it appears to contain.  Possible return
 ** values are:
@@ -197,10 +233,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **
 ************************************ WARNING **********************************
 **
-** This function does not validate that the blob content is properly formed
-** UTF-8.  It assumes that all code points are the same size.  It does not
-** validate any code points.  It makes no attempt to detect if any [invalid]
-** switches between UTF-8 and other encodings occur.
+** This function does not validate any code points.
 **
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
@@ -220,63 +253,25 @@ int looks_like_utf8(const Blob *pContent){
   if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   j = (c!='\n');
-  if( c<0x80 ){
-    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-  }else if( c<0xC0 ){
-    result |= 4;  /* Invalid UTF-8, continue */
-  }else if( c<0xE0 ){
-    if( n<2 || ((z[1]&0xC0)!=0x80) ){
-      result |= 4; /* Invalid 2-byte UTF-8, continue */
-    }else{
-      --n; ++j; ++z;
-    }
-  }else if( c<0xF0 ){
-    if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
-      result |= 4; /* Invalid 3-byte UTF-8, continue */
-    }else{
-      n-=2; j+=2; z+=2;
-    }
-  }else if( c<0xF8 ){
-    if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
-      result |= 4; /* Invalid 4-byte UTF-8, continue */
-    }else{
-      n-=3; j+=3; z+=3;
-    }
-  }else{
-    result |= 4;  /* Invalid multi-byte UTF-8, continue */
+  if( c>=0x80 ){
+    CHECKUTF8(c)
+  } else if( c==0 ){
+    return 0;  /* Zero byte in a file -> binary */ \
   }
   while( --n>0 ){
     c = *++z; ++j;
-    if( c<0x80 ){
-      if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-      if( c=='\n' ){
-        if( z[-1]=='\r'){
-          result |= 2;  /* Contains CR/NL, continue */
-        }
-        if( j>LENGTH_MASK ){
-          return 0;  /* Very long line -> binary */
-        }
-        j = 0;
+    if( c>=0x80 ){
+      CHECKUTF8(c)
+    } else if( c==0 ){
+      return 0;  /* Zero byte in a file -> binary */ \
+    } else if( c=='\n' ){
+      if( z[-1]=='\r' ){
+        result |= 2;  /* Contains CR/NL, continue */
       }
-    }else if( c<0xC0 ){
-      result |= 4;  /* Invalid UTF-8, continue */
-    }else if( c<0xE0 ){
-      if( n<2 || ((z[1]&0xC0)!=0x80) ){
-        result |= 4; continue; /* Invalid 2-byte UTF-8, continue */
+      if( j>LENGTH_MASK ){
+        return 0;  /* Very long line -> binary */
       }
-      --n; ++j; ++z;
-    }else if( c<0xF0 ){
-      if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){
-        result |= 4; continue; /* Invalid 3-byte UTF-8, continue */
-      }
-      n-=2; j+=2; z+=2;
-    }else if( c<0xF8 ){
-      if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){
-        result |= 4; continue; /* Invalid 4-byte UTF-8, continue */
-      }
-      n-=3; j+=3; z+=3;
-    }else{
-      result |= 4;  /* Invalid multi-byte UTF-8, continue */
+      j = 0;
     }
   }
   if( j>LENGTH_MASK ){
