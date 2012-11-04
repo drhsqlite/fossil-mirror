@@ -72,7 +72,7 @@ void delete_private_content(void){
   fix_private_blob_dependencies(1);
   db_multi_exec(
     "DELETE FROM blob WHERE rid IN private;"
-    "DELETE FROM delta wHERE rid IN private;"
+    "DELETE FROM delta WHERE rid IN private;"
     "DELETE FROM private;"
     "DROP TABLE IF EXISTS modreq;"
   );

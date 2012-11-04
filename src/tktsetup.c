@@ -98,8 +98,8 @@ static void tktsetup_generic(
   const char *zDbField,         /* Configuration field being edited */
   const char *zDfltValue,       /* Default text value */
   const char *zDesc,            /* Description of this field */
-  char *(*xText)(const char*),  /* Validitity test or NULL */
-  void (*xRebuild)(void),       /* Run after successulf update */
+  char *(*xText)(const char*),  /* Validity test or NULL */
+  void (*xRebuild)(void),       /* Run after successful update */
   int height                    /* Height of the edit box */
 ){
   const char *z;

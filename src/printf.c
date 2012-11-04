@@ -26,7 +26,7 @@
 */
 #define etRADIX       1 /* Integer types.  %d, %x, %o, and so forth */
 #define etFLOAT       2 /* Floating point.  %f */
-#define etEXP         3 /* Exponentional notation. %e and %E */
+#define etEXP         3 /* Exponential notation. %e and %E */
 #define etGENERIC     4 /* Floating or exponential, depending on exponent. %g */
 #define etSIZE        5 /* Return number of characters processed so far. %n */
 #define etSTRING      6 /* Strings. %s */

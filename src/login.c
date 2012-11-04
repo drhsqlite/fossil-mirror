@@ -356,7 +356,7 @@ void login_clear_login_data(){
                   "  'developer','reader')", g.userUid);
     cgi_replace_parameter(cookie, NULL)
       /* At the time of this writing, cgi_replace_parameter() was
-      ** "NULL-value-safe", and i'm hoping the NULL doesn't cause any
+      ** "NULL-value-safe", and I'm hoping the NULL doesn't cause any
       ** downstream problems here. We could alternately use "" here.
       */
       ;
@@ -469,7 +469,7 @@ void login_page(void){
   const char *zGoto = P("g");
   int anonFlag;
   char *zErrMsg = "";
-  int uid;                     /* User id loged in user */
+  int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
 
@@ -762,7 +762,7 @@ static int login_find_user(
 }
 
 /*
-** This routine examines the login cookie to see if it exists and and
+** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.  Global variables set include g.userUid
 ** and g.zLogin and the g.perm family of permission booleans.
@@ -1162,7 +1162,7 @@ void login_insert_csrf_secret(void){
 
 /*
 ** Before using the results of a form, first call this routine to verify
-** that ths Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 ** is missing or is incorrect, that indicates a cross-site scripting attach
 ** so emits an error message and abort.
 */
@@ -1343,7 +1343,7 @@ int login_group_sql(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
     if( file_size(zRepoName)<0 ){
-      /* Silently remove non-existant repositories from the login group. */
+      /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
       db_multi_exec(
          "DELETE FROM config WHERE name GLOB 'peer-*-%q'",

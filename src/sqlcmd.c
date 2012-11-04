@@ -105,7 +105,7 @@ static void sqlcmd_decompress(
 }
 
 /*
-** This is the "automatic extensionn" initializer that runs right after
+** This is the "automatic extension" initializer that runs right after
 ** the connection to the repository database is opened.  Set up the
 ** database connection to be more useful to the human operator.
 */

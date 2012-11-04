@@ -884,7 +884,7 @@ static void timeline_add_dividers(double rDate, int rid){
 **    n=COUNT        max number of events in output
 **    p=UUID         artifact and up to COUNT parents and ancestors
 **    d=UUID         artifact and up to COUNT descendants
-**    dp=UUUID       The same as d=UUID&p=UUID
+**    dp=UUID        The same as d=UUID&p=UUID
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
@@ -904,7 +904,7 @@ static void timeline_add_dividers(double rDate, int rid){
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If a= and b= appear, only a= is used.  If neither appear, the most
-** recent events are choosen.
+** recent events are chosen.
 **
 ** If n= is missing, the default count is 20.
 */
@@ -1087,10 +1087,10 @@ void page_timeline(void){
       if( zBrName ){
         url_add_parameter(&url, "r", zBrName);
         /* The next two blob_appendf() calls add SQL that causes checkins that
-        ** are not part of the branch which are parents or childen of the branch
-        ** to be included in the report.  This related check-ins are useful
-        ** in helping to visualize what has happened on a quiescent branch 
-        ** that is infrequently merged with a much more activate branch.
+        ** are not part of the branch which are parents or children of the
+        ** branch to be included in the report.  This related check-ins are
+        ** useful in helping to visualize what has happened on a quiescent
+        ** branch that is infrequently merged with a much more activate branch.
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"

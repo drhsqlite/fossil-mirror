@@ -64,7 +64,7 @@ int fossil_isdate(const char *z){
 **   *  "next"
 **
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
-** match any known object.  Or return -1 if the name is ambiguious.
+** match any known object.  Or return -1 if the name is ambiguous.
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g. 
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
@@ -379,7 +379,7 @@ int name_to_rid(const char *zName){
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=UUID&src=WEBPAGE
 ** 
-** The UUID given by the name paramager is ambiguous.  Display a page
+** The UUID given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){

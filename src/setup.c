@@ -311,7 +311,7 @@ void user_edit(void){
   int a[128];
   char *oa[128];
 
-  /* Must have ADMIN privleges to access this page
+  /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(); return; }

@@ -1080,7 +1080,7 @@ static int is_ticket(
 
 /*
 ** Resolve a hyperlink.  The zTarget argument is the content of the [...]
-** in the wiki.  Append to the output string whatever text is approprate
+** in the wiki.  Append to the output string whatever text is appropriate
 ** for opening the hyperlink.  Write into zClose[0...nClose-1] text that will
 ** close the markup.
 **
@@ -1108,7 +1108,7 @@ static int is_ticket(
 */
 static void openHyperlink(
   Renderer *p,            /* Rendering context */
-  const char *zTarget,    /* Hyperlink traget; text within [...] */
+  const char *zTarget,    /* Hyperlink target; text within [...] */
   char *zClose,           /* Write hyperlink closing text here */
   int nClose,             /* Bytes available in zClose[] */
   const char *zOrig       /* Complete document text */

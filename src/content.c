@@ -22,11 +22,11 @@
 #include <assert.h>
 
 /*
-** The artifact retrival cache
+** The artifact retrieval cache
 */
 static struct {
   i64 szTotal;         /* Total size of all entries in the cache */
-  int n;               /* Current number of eache entries */
+  int n;               /* Current number of cache entries */
   int nAlloc;          /* Number of slots allocated in a[] */
   int nextAge;         /* Age counter for implementing LRU */
   int skipCnt;         /* Used to limit entries expelled from cache */
@@ -44,7 +44,7 @@ static struct {
   ** either because they are phantoms or because they are a delta that
   ** depends on a phantom.  Artifacts whose content we are certain is
   ** available are in availableCache.  If an artifact is in neither cache
-  ** then its current availablity is unknown.
+  ** then its current availability is unknown.
   */
   Bag missing;         /* Cache of artifacts that are incomplete */
   Bag available;       /* Cache of artifacts that are complete */
@@ -473,7 +473,7 @@ void content_enable_dephantomize(int onoff){
 **
 ** The original content of pBlob is not disturbed.  The caller continues
 ** to be responsible for pBlob.  This routine does *not* take over
-** responsiblity for freeing pBlob.
+** responsibility for freeing pBlob.
 */
 int content_put_ex(
   Blob *pBlob,              /* Content to add to the repository */
