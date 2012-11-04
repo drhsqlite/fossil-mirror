@@ -195,6 +195,17 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding is not UTF-8 or ASCII.
 **
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-8.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between UTF-8 and other encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+************************************ WARNING **********************************
 */
 
 int looks_like_utf8(const Blob *pContent){
@@ -275,22 +286,32 @@ int looks_like_utf8(const Blob *pContent){
 }
 
 /*
-** Maximum length of a line in a text file, in UTF-16 characters.  (2731)
-** The number of bytes represented by this value after conversion to
-** UTF-8 (which can increase the size by 50%) cannot exceed LENGTH_MASK
+** Define the type needed to represent a Unicode (UTF-16) character.
+*/
+#ifndef WCHAR_T
+#  ifdef _WIN32
+#    define WCHAR_T wchar_t
+#  else
+#    define WCHAR_T unsigned short
+#  endif
+#endif
+
+/*
+** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
+** The number of bytes represented by this value cannot exceed LENGTH_MASK
 ** bytes, because that is the line buffer size used by the diff engine.
 */
-#define UTF16_LENGTH_MASK     (LENGTH_MASK/3)
+#define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
+#define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
 
 /*
 ** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
 ** encodings.
 */
-#define UTF16BE_CR  ((wchar_t)'\r')
-#define UTF16BE_LF  ((wchar_t)'\n')
-#define UTF16LE_CR  (((wchar_t)'\r')<<(sizeof(wchar_t)<<2))
-#define UTF16LE_LF  (((wchar_t)'\n')<<(sizeof(wchar_t)<<2))
-#define UTF16_FFFF  ((wchar_t)-1)
+#define UTF16BE_CR  ((WCHAR_T)'\r')
+#define UTF16BE_LF  ((WCHAR_T)'\n')
+#define UTF16LE_CR  (((WCHAR_T)'\r')<<(sizeof(char)<<3))
+#define UTF16LE_LF  (((WCHAR_T)'\n')<<(sizeof(char)<<3))
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -310,9 +331,20 @@ int looks_like_utf8(const Blob *pContent){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-16.
 **
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-16.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between the UTF-16be and UTF-16le encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+************************************ WARNING **********************************
 */
 int looks_like_utf16(const Blob *pContent){
-  const wchar_t *z = (wchar_t *)blob_buffer(pContent);
+  const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
   int result = 1;  /* Assume UTF-16 text with no CR/NL */
@@ -326,7 +358,7 @@ int looks_like_utf16(const Blob *pContent){
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
   while( (n-=2)>0 ){
     c = *++z; ++j;
-    if( c==0 || c==UTF16_FFFF ) return 0;  /* NUL/FFFF character in a file -> binary */
+    if( c==0 ) return 0;  /* NUL character in a file -> binary */
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( c2==UTF16BE_CR || c2==UTF16LE_CR ){

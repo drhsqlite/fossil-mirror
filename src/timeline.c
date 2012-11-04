@@ -204,6 +204,7 @@ void www_print_timeline(
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
+  int pendingEndTr = 0;       /* True if a </td></tr> is needed */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -255,10 +256,13 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td /><td /><td>
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
       @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
+    }
+    if( pendingEndTr ){
+      @ </td></tr>
+      pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
@@ -463,13 +467,15 @@ void www_print_timeline(
         @ </ul>
       }
     }
-    @ </td></tr>
+    pendingEndTr = 1;
   }
   if( suppressCnt ){
-    @ <tr><td /><td /><td>
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
     @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
     suppressCnt = 0;
+  }
+  if( pendingEndTr ){
+    @ </td></tr>
   }
   if( pGraph ){
     graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
@@ -943,6 +949,7 @@ void page_timeline(void){
     login_needed();
     return;
   }
+  url_initialize(&url, "timeline");
   if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
@@ -959,9 +966,16 @@ void page_timeline(void){
   }
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
+    url_add_parameter(&url, "ng", 0);
   }
-  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  if( P("brbg")!=0 ){
+    tmFlags |= TIMELINE_BRCOLOR;
+    url_add_parameter(&url, "brbg", 0);
+  }
+  if( P("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+    url_add_parameter(&url, "ubg", 0);
+  }
 
   style_header("Timeline");
   login_anonymous_available();
@@ -970,7 +984,6 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  url_initialize(&url, "timeline");
   if( P("fc")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "fc", 0);

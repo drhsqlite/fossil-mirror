@@ -915,7 +915,7 @@ static void commit_warning(
     blob_zero(&ans);
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s appears to be text, but not UTF-8 or ASCII.  commit anyhow (a=all/y/N)? ",
+         "%s appears to be text, but not UTF-8 or ASCII.  commit anyhow (y/N)? ",
          blob_str(&fname));
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
