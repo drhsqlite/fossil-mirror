@@ -673,7 +673,7 @@ void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
 }
 
 /*
-** Initalize a blob to the data on an input channel.  Return
+** Initialize a blob to the data on an input channel.  Return
 ** the number of bytes read into the blob.  Any prior content
 ** of the blob is discarded, not freed.
 */

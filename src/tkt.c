@@ -93,7 +93,7 @@ static int fieldId(const char *zField){
 ** Fields of the TICKET table that begin with "private_" are
 ** expanded using the db_reveal() function.  If g.perm.RdAddr is
 ** true, then the db_reveal() function will decode the content
-** using the CONCEALED table so that the content legable.
+** using the CONCEALED table so that the content legible.
 ** Otherwise, db_reveal() is a no-op and the content remains
 ** obscured.
 */
@@ -501,7 +501,7 @@ static int submitTicketCmd(
 ** WEBPAGE: tktnew
 ** WEBPAGE: debug_tktnew
 **
-** Enter a new ticket.  the tktnew_template script in the ticket
+** Enter a new ticket.  The tktnew_template script in the ticket
 ** configuration is used.  The /tktnew page is the official ticket
 ** entry page.  The /debug_tktnew page is used for debugging the
 ** tktnew_template in the ticket configuration.  /debug_tktnew works

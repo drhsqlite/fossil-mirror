@@ -25,7 +25,7 @@
 
 #if INTERFACE
 /*
-** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
+** Allowed flag parameters to the text_diff() and html_sbsdiff() functions:
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
@@ -2138,7 +2138,7 @@ void annotate_cmd(void){
   int mid;          /* Manifest where file was checked in */
   int cid;          /* Checkout ID */
   Blob treename;    /* FILENAME translated to canonical form */
-  char *zFilename;  /* Cannonical filename */
+  char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
   const char *zLimit; /* The value to the --limit option */

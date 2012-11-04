@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code to a simple text-based CAPTCHA.  Though eaily
+** This file contains code to a simple text-based CAPTCHA.  Though easily
 ** defeated by a sophisticated attacker, this CAPTCHA does at least make
 ** scripting attacks more difficult.
 */

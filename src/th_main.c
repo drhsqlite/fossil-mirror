@@ -488,7 +488,7 @@ static int utimeCmd(
 ** TH1 command:     stime
 **
 ** Return the number of microseconds of CPU time consumed by the current
-** process in systsem space.
+** process in system space.
 */
 static int stimeCmd(
   Th_Interp *interp,

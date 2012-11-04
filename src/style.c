@@ -702,7 +702,7 @@ const struct strctCssDefaults {
     @   font-weight: bold;
   },
   { "span.textareaLabel",
-    "format for textare labels",
+    "format for textarea labels",
     @   font-weight: bold;
   },
   { "table.usetupLayoutTable",
@@ -802,7 +802,7 @@ const struct strctCssDefaults {
     @   border: 1px blue solid;
   },
   { "p.missingPriv",
-    "format for missing priviliges note on user setup page",
+    "format for missing privileges note on user setup page",
     @  color: blue;
   },
   { "span.wikiruleHead",
@@ -936,7 +936,7 @@ const struct strctCssDefaults {
     @   color: #a0a0a0;
   },
   { "span.modpending",
-    "Moderation Pending message on timelin",
+    "Moderation Pending message on timeline",
     @   color: #b03800;
     @   font-style: italic;
   },

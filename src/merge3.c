@@ -85,7 +85,7 @@ static int sameEdit(
 **   (1)  The number of lines to delete
 **   (2)  The number of liens to insert
 **
-** Suppose we want to advance over sz lines of the originl file.  This routine
+** Suppose we want to advance over sz lines of the original file.  This routine
 ** returns true if that advance would land us on a copy operation.  It
 ** returns false if the advance would end on a delete.
 */

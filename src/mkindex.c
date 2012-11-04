@@ -48,7 +48,7 @@
 ** is generated.  That table is used implement the "fossil help" command
 ** and the "/help" HTTP method.
 **
-** Multiple occurrances of WEBPAGE: or COMMAND: (but not both) can appear
+** Multiple occurrences of WEBPAGE: or COMMAND: (but not both) can appear
 ** before each function name.  In this way, webpages and commands can
 ** have aliases.
 */

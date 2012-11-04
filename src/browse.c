@@ -22,7 +22,7 @@
 #include <assert.h>
 
 /*
-** This is the implemention of the "pathelement(X,N)" SQL function.
+** This is the implementation of the "pathelement(X,N)" SQL function.
 **
 ** If X is a unix-like pathname (with "/" separators) and N is an
 ** integer, then skip the initial N characters of X and return the

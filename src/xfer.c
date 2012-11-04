@@ -550,7 +550,7 @@ static int check_tail_hash(Blob *pHash, Blob *pMsg){
 ** SIGNATURE is the SHA1 checksum of the NONCE concatenated 
 ** with the users password.
 **
-** The parameters to this routine are ephermeral blobs holding the
+** The parameters to this routine are ephemeral blobs holding the
 ** LOGIN, NONCE and SIGNATURE.
 **
 ** This routine attempts to locate the user and verify the signature.

@@ -368,7 +368,7 @@ char *md5sum_finish(Blob *pOut){
 
 /*
 ** Compute the MD5 checksum of a file on disk.  Store the resulting
-** checksum in the blob pCksum.  pCksum is assumed to be ininitialized.
+** checksum in the blob pCksum.  pCksum is assumed to be initialized.
 **
 ** Return the number of errors.
 */
