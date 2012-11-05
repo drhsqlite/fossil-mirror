@@ -1,5 +1,5 @@
-C Merge\sthe\s"spelling"\sbranch\sinto\strunk,\sfixing\sa\shuge\snumber\sof\stypos,\smostly\nin\scomments,\sbut\soccasionally\sin\serror\smessages\sor\shelp\sscreens.
-D 2012-11-04T17:41:29.329
+C If\sthe\scommitted\sfile\shas\sCR/NL\sor\sUTF-16\s(or\sboth),\sgive\sthe\suser\sthe\spossibility\sto\sconvert\sit\sto\sresp\sNL\sor\sUTF-8\s(or\sboth)\swithout\scommitting
+D 2012-11-05T13:10:04.116
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c b7cb3097253693ec81b87adf088b9673bad6a714
+F src/checkin.c b8a448a4d873f488ab6d2859e9ec2cbd9a7145f5
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
@@ -358,7 +358,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c0fe455c78aa6b976a1b536fac58c2c87b399426 45065c5c282cda9916c4c224f4e962a1fc791252
-R 12e75066ee40048496159961c55e7ed3
-U drh
-Z fe9b6c165f61cd23eee18286e1366e47
+P db0c512767ac7e8854bf9df9dae4284988a45305
+R 6876dd9c4233942988174cdd78f51ad7
+T *branch * convert_before_commit
+T *sym-convert_before_commit *
+T -sym-trunk *
+U jan.nijtmans
+Z 4e6584276cbfa5abfa1b468063ed5397

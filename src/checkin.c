@@ -892,9 +892,13 @@ static void create_manifest(
 ** Issue a warning and give the user an opportunity to abandon out
 ** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
 ** is seen in a text file.
+**
+** Return 1 if the user pressed 'c'. In that case, the file will have
+** been converted to UTF-8 (if it was UTF-16) with NL line-endings,
+** and the original file will have been renamed to "<filename>-original".
 */
-static void commit_warning(
-  const Blob *p,        /* The content of the file being committed. */
+static int commit_warning(
+  Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
@@ -905,11 +909,12 @@ static void commit_warning(
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
-  if( allOk ) return;
+  if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
+    const char *c = "c=convert/";
     Blob ans;
     char cReply;
 
@@ -917,27 +922,49 @@ static void commit_warning(
       zWarning = "Unicode and CR/NL line endings";
     }else if( eType==-1 ){
       if( crnlOk ){
-        return; /* We don't want CR/NL warnings for this file. */
+        return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
     }else if( eType==0 ){
       if( binOk ){
-        return; /* We don't want binary warnings for this file. */
+        return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
     }else{
       zWarning = "Unicode";
+#ifndef _WIN32
+      c = ""; /* On UNIX, we cannot convert unicode files */
+#endif
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s.  commit anyhow (a=all/y/N)? ",
-         blob_str(&fname), zWarning);
+         "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
+         blob_str(&fname), zWarning, c);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
+    }else if( (cReply=='c' || cReply=='C')
+#ifndef _WIN32
+        && fUnicode
+#endif
+    ){
+      char *zOrig = file_newname(zFilename, "original", 1);
+      FILE *f;
+      blob_write_to_file(p, zOrig);
+      fossil_free(zOrig);
+      f = fossil_fopen(zFilename, "wb");
+      if( fUnicode ) {
+        static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+        fwrite(bom, 1, 3, f);
+        blob_strip_bom(p, 0);
+      }
+      blob_remove_cr(p);
+      fwrite(blob_buffer(p), 1, blob_size(p), f);
+      fclose(f);
+      return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
@@ -945,6 +972,7 @@ static void commit_warning(
     blob_reset(&ans);
     blob_reset(&fname);
   }
+  return 0;
 }
 
 /*
@@ -1046,6 +1074,7 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
+  int abortCommit = 0;
   Blob ans;
   char cReply;
 
@@ -1280,7 +1309,7 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    commit_warning(&content, crnlOk, binOk, zFullname);
+    abortCommit |= commit_warning(&content, crnlOk, binOk, zFullname);
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
@@ -1301,6 +1330,8 @@ void commit_cmd(void){
   db_finalize(&q);
   if( nConflict && !allowConflict ){
     fossil_fatal("abort due to unresolve merge conflicts");
+  } else if( abortCommit ){
+    fossil_fatal("files are converted on your request. Please re-test before committing");
   }
 
   /* Create the new manifest */
