@@ -425,10 +425,11 @@ void update_cmd(void){
         fossil_print("***** Cannot merge symlink %s\n", zNewName);
         nConflict++;        
       }else{
+        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
         undo_save(zName);
         content_get(ridt, &t);
         content_get(ridv, &v);
-        rc = merge_3way(&v, zFullPath, &t, &r);
+        rc = merge_3way(&v, zFullPath, &t, &r, mergeFlags);
         if( rc>=0 ){
           if( !nochangeFlag ){
             blob_write_to_file(&r, zFullNewPath);
