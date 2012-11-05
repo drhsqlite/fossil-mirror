@@ -909,20 +909,26 @@ static void commit_warning(
   fUnicode = starts_with_utf16_bom(p);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType<-2){
+    const char *zWarning;
     Blob ans;
     char cReply;
 
+    if(eType==-4){
+      zWarning = "long lines";
+    }else{
+      zWarning = "invalid UTF-8";
+    }
     blob_zero(&ans);
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s appears to be text, but not UTF-8 or ASCII.  commit anyhow (y/N)? ",
-         blob_str(&fname));
+         "%s appears to be text, but contains %s.  commit anyhow (y/N)? ",
+         blob_str(&fname), zWarning);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to non-UTF-8 in %s",
-                   blob_str(&fname));
+      fossil_fatal("Abandoning commit due to %s in %s",
+                   blob_str(&fname), zWarning);
     }
     blob_reset(&ans);
     eType +=4 ;

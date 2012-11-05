@@ -1,5 +1,5 @@
-C off-by-one
-D 2012-11-04T18:06:29.721
+C Add\scommit\swarning\smessate\swhen\stext\sfiles\shave\sa\slong\sline\slength
+D 2012-11-05T11:23:56.295
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c 1156ef599b282035fc22153a18ea320dbe4cfa11
+F src/checkin.c a4afd36d60f931b859deccdef3cf2562d178896f
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c cc05b20228499e99e2d3a62be4449febdbd4e447
-F src/diff.c 254b516e0a9ec694c8af4298918b7c3778a1f82e
+F src/diff.c cebaa876ff9fceb6f78127053e83ae843ad3d103
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e86aa2a1e80050460de11fc169541950721684b6
-R 80a7b392460b7d2bdf8b723ea3e2a9cc
+P a7fff6fea61901ccc6dcafac77aef3ced06317b5
+R a48ff375498e77241cb9d220b4e9bd2f
 U jan.nijtmans
-Z dd8525d13b093d18d8a239c8e7942234
+Z 4eb70f9f32ae79489788440e0145a01e

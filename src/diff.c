@@ -50,7 +50,7 @@
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
+#define looks_like_binary(blob) ((looks_like_utf8((blob))&3) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -223,13 +223,11 @@ if( c<0xC0 ){ \
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs.
 **
-** (-3) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding is
-**         not UTF-8 or ASCII.
+** (-3, -5) The same as (1, -3); however, the encoding is not UTF-8 or ASCII.
 **
-** (-5) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding is not UTF-8 or ASCII.
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
 **
 ************************************ WARNING **********************************
 **
@@ -269,13 +267,13 @@ int looks_like_utf8(const Blob *pContent){
         result |= 2;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        return -4;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
   if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+    return -4;  /* Very long line -> binary */
   }
   return 1-result;  /* No problems seen -> not binary */
 }
@@ -326,6 +324,10 @@ int looks_like_utf8(const Blob *pContent){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-16.
 **
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
+**
 ************************************ WARNING **********************************
 **
 ** This function does not validate that the blob content is properly formed
@@ -360,13 +362,13 @@ int looks_like_utf16(const Blob *pContent){
         result = -1;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        return -4;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
   if( j>UTF16_LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+    return -4;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */
 }
