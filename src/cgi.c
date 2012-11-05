@@ -967,7 +967,7 @@ char *cgi_parameter_trimmed(const char *zName, const char *zDefault){
 
 /*
 ** Return the name of the i-th CGI parameter.  Return NULL if there
-** are fewer than i registered CGI parmaeters.
+** are fewer than i registered CGI parameters.
 */
 const char *cgi_parameter_name(int i){
   if( i>=0 && i<nUsedQP ){

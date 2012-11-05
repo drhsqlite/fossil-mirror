@@ -15,7 +15,7 @@
 **
 *******************************************************************************
 **
-** This file contains code used to find decendants of a version
+** This file contains code used to find descendants of a version
 ** or leaves of a version tree.
 */
 #include "config.h"
@@ -26,7 +26,7 @@
 /*
 ** Create a temporary table named "leaves" if it does not
 ** already exist.  Load this table with the RID of all
-** check-ins that are leaves which are decended from
+** check-ins that are leaves which are descended from
 ** check-in iBase.
 **
 ** A "leaf" is a check-in that has no children in the same branch.
@@ -73,7 +73,7 @@ void compute_leaves(int iBase, int closeMode){
 
     /* This query returns all non-branch-merge children of check-in :rid.
     **
-    ** If a a child is a merge of a fork within the same branch, it is 
+    ** If a child is a merge of a fork within the same branch, it is 
     ** returned.  Only merge children in different branches are excluded.
     */
     db_prepare(&q1,

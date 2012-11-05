@@ -152,7 +152,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  char isHTTP;            /* True if erver/CGI modes, else assume CLI. */
+  char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
   int urlIsFile;          /* True if a "file:" url */
@@ -343,7 +343,7 @@ void fossil_atexit(void) {
   }
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
 /*
 ** Parse the command-line arguments passed to windows.  We do this
 ** ourselves to work around bugs in the command-line parsing of MinGW.
@@ -456,7 +456,7 @@ static void parse_windows_command_line(
   *argcPtr = argc;
   *((WCHAR ***)argvPtr) = argv;
 }
-#endif /* defined(_WIN32) */
+#endif /* defined(_WIN32) && !defined(__MINGW32__) */
 
 
 /*
@@ -480,13 +480,13 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
   WCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_unicode_to_utf8(buf);
@@ -1528,7 +1528,7 @@ static void process_one_web_page(const char *zNotFound){
     ** Disabled by stephan when running in JSON mode because this
     ** particular parameter name is very common and i have had no end
     ** of grief with this handling. The JSON API never relies on the
-    ** handling below, and by disabling it in JSON mode i can remove
+    ** handling below, and by disabling it in JSON mode I can remove
     ** lots of special-case handling in several JSON handlers.
     */
 #ifdef FOSSIL_ENABLE_JSON
@@ -1684,7 +1684,7 @@ void cmd_cgi(void){
 **    redirect: * URL
 **
 ** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primative error message is returned.
+** very primitive error message is returned.
 */
 void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -1886,7 +1886,7 @@ static int binaryOnPath(const char *zBinary){
 ** only process HTTP traffic from the local machine.
 **
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
-** that contains one or more rspositories with names ending in ".fossil".
+** that contains one or more repositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
 ** various repositories.
 **

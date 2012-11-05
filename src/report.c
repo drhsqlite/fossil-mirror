@@ -120,7 +120,7 @@ char *extract_integer(const char *zOrig){
 
 /*
 ** Remove blank lines from the beginning of a string and
-** all whitespace from the end. Removes whitespace preceeding a NL,
+** all whitespace from the end. Removes whitespace preceding a NL,
 ** which also converts any CRNL sequence into a single NL.
 */
 char *remove_blank_lines(const char *zOrig){
@@ -1094,7 +1094,7 @@ int output_separated_file(
 
 /*
 ** Generate a report.  The rn query parameter is the report number.
-** The output is written to stdout as flat file. The zFilter paramater
+** The output is written to stdout as flat file. The zFilter parameter
 ** is a full WHERE-condition.
 */
 void rptshow( 

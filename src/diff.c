@@ -25,7 +25,7 @@
 
 #if INTERFACE
 /*
-** Allowed flag parameters to the text_diff() and html_sbsdiff() funtions:
+** Allowed flag parameters to the text_diff() and html_sbsdiff() functions:
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
@@ -52,10 +52,12 @@
 
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
+
+#define looks_like_text(blob) (looks_like_utf8(blob)&3)
 #endif /* INTERFACE */
 
 /*
-** Maximum length of a line in a text file.  (8192)
+** Maximum length of a line in a text file, in bytes.  (8192)
 */
 #define LENGTH_MASK_SZ  13
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
@@ -182,81 +184,207 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
-**         NUL (\000) characters or an extremely long line.
+**         NUL characters or an extremely long line.  Since this function
+**         does not understand UTF-16, it may falsely consider UTF-16 text
+**         to be binary.
 **
-** (-1) -- The content appears to consist entirely of text, in the
-**         UTF-16 (LE) encoding.
-**
-** (-2) -- The content appears to consist entirely of text, in the
-**         UTF-16 (BE) encoding.
+** (-1,-2) UTF-16 (le/be)
 **
 ** (-3) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-8.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between UTF-8 and other encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+************************************ WARNING **********************************
 */
-int looks_like_text(const Blob *pContent){
-  unsigned char *z = (unsigned char *) blob_buffer(pContent);
+int looks_like_utf8(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j;
-  unsigned char c;
-  int result = 1;  /* Assume text with no CR/NL */
+  int j, c;
+  int result = 1;  /* Assume UTF-8 text with no CR/NL */
 
   /* Check individual lines.
   */
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+  j = (c!='\n');
   if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
     if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
       result = -1;
-      j = LENGTH_MASK/3;
       while( (n-=2)>0 ){
-        c = *(z+=2);
+        c = *(z+=2); ++j;
         if( z[1]==0 ){ /* High-byte must be 0 for further checks */
-          if( c==0 ) return 0;  /* \000 char in a file -> binary */
+          if( c==0 ) return 0;  /* Zero char in a file -> binary */
           if( c=='\n' ){
-            j = LENGTH_MASK/3;
+            if( j>LENGTH_MASK ){
+              return 0;  /* Very long line -> binary */
+            }
+            j = 0;
           }
         }
-        if( --j==0 ){
+        if( j>LENGTH_MASK ){
           return 0;  /* Very long line -> binary */
         }
       }
       return result;
     } else if ( (c==0xfe) && (z[1]==0xff) ){ /* UTF-16 BE BOM */
       result = -2;
-      ++z; j = LENGTH_MASK/3;
-       while( (n-=2)>0 ){
-        c = *(z+=2);
+      ++z;
+      while( (n-=2)>0 ){
+        c = *(z+=2); ++j;
         if ( z[-1]==0 ){ /* High-byte must be 0 for further checks */
-          if( c==0 ) return 0;  /* \000 char in a file -> binary */
+          if( c==0 ) return 0;  /* Zero char in a file -> binary */
           if( c=='\n' ){
-            j = LENGTH_MASK/3;
+            if( j>LENGTH_MASK ){
+              return 0;  /* Very long line -> binary */
+            }
+            j = 0;
           }
         }
-        if( --j==0 ){
+        if( j>LENGTH_MASK ){
           return 0;  /* Very long line -> binary */
         }
       }
       return result;
     }
   }
-  j = LENGTH_MASK - (c!='\n');
   while( --n>0 ){
-    c = *++z;
-    if( c==0 ) return 0;  /* \000 byte in a file -> binary */
+    c = *++z; ++j;
+    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
     if( c=='\n' ){
-      if( z[-1]=='\r' ){
-        result = -3;  /* Contains CR/NL, continue */
+      int c2 = z[-1];
+      if( c2=='\r' ){
+        result = -1;  /* Contains CR/NL, continue */
       }
-      j = LENGTH_MASK;
-    }
-    if( --j==0 ){
-      return 0;  /* Very long line -> binary */
+      if( j>LENGTH_MASK ){
+        return 0;  /* Very long line -> binary */
+      }
+      j = 0;
     }
   }
+  if( j>LENGTH_MASK ){
+    return 0;  /* Very long line -> binary */
+  }
   return result;  /* No problems seen -> not binary */
+}
+
+/*
+** Define the type needed to represent a Unicode (UTF-16) character.
+*/
+#ifndef WCHAR_T
+#  ifdef _WIN32
+#    define WCHAR_T wchar_t
+#  else
+#    define WCHAR_T unsigned short
+#  endif
+#endif
+
+/*
+** Maximum length of a line in a text file, in UTF-16 characters.  (2731)
+** The number of characters represented by this value cannot exceed
+** LENGTH_UTF16_LENGTH_MASK characters, because when converting UTF-16
+** to UTF-8 it could overflow the line buffer used by the diff engine.
+*/
+#define UTF16_LENGTH_MASK     (LENGTH_MASK/3)
+
+/*
+** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
+** encodings.
+*/
+#define UTF16BE_CR  ((WCHAR_T)'\r')
+#define UTF16BE_LF  ((WCHAR_T)'\n')
+#define UTF16LE_CR  (((WCHAR_T)'\r')<<(sizeof(char)<<3))
+#define UTF16LE_LF  (((WCHAR_T)'\n')<<(sizeof(char)<<3))
+
+/*
+** This function attempts to scan each logical line within the blob to
+** determine the type of content it appears to contain.  Possible return
+** values are:
+**
+**  (1) -- The content appears to consist entirely of text, with lines
+**         delimited by line-feed characters; however, the encoding may
+**         not be UTF-16.
+**
+**  (0) -- The content appears to be binary because it contains embedded
+**         NUL characters or an extremely long line.  Since this function
+**         does not understand UTF-8, it may falsely consider UTF-8 text
+**         to be binary.
+**
+** (-1) -- The content appears to consist entirely of text, with lines
+**         delimited by carriage-return, line-feed pairs; however, the
+**         encoding may not be UTF-16.
+**
+************************************ WARNING **********************************
+**
+** This function does not validate that the blob content is properly formed
+** UTF-16.  It assumes that all code points are the same size.  It does not
+** validate any code points.  It makes no attempt to detect if any [invalid]
+** switches between the UTF-16be and UTF-16le encodings occur.
+**
+** The only code points that this function cares about are the NUL character,
+** carriage-return, and line-feed.
+**
+************************************ WARNING **********************************
+*/
+int looks_like_utf16(const Blob *pContent){
+  const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
+  unsigned int n = blob_size(pContent);
+  int j, c;
+  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+
+  /* Check individual lines.
+  */
+  if( n==0 ) return result;  /* Empty file -> text */
+  if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
+  c = *z;
+  if( c==0 ) return 0;  /* NUL character in a file -> binary */
+  j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
+  while( (n-=2)>0 ){
+    c = *++z; ++j;
+    if( c==0 ) return 0;  /* NUL character in a file -> binary */
+    if( c==UTF16BE_LF || c==UTF16LE_LF ){
+      int c2 = z[-1];
+      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
+        result = -1;  /* Contains CR/NL, continue */
+      }
+      if( j>UTF16_LENGTH_MASK ){
+        return 0;  /* Very long line -> binary */
+      }
+      j = 0;
+    }
+  }
+  if( j>UTF16_LENGTH_MASK ){
+    return 0;  /* Very long line -> binary */
+  }
+  return result;  /* No problems seen -> not binary */
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le or
+** UTF-16be byte-order-mark (BOM).
+*/
+int starts_with_utf16_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
+    return 1;
+  }
+  return 0;
 }
 
 /*
@@ -2008,7 +2136,7 @@ void annotate_cmd(void){
   int mid;          /* Manifest where file was checked in */
   int cid;          /* Checkout ID */
   Blob treename;    /* FILENAME translated to canonical form */
-  char *zFilename;  /* Cannonical filename */
+  char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
   const char *zLimit; /* The value to the --limit option */

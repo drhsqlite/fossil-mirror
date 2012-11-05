@@ -108,8 +108,8 @@ void update_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of merge conflicts */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
-  int nUpdate = 0;      /* Number of chagnes of any kind */
-  Stmt mtimeXfer;       /* Statment to transfer mtimes */
+  int nUpdate = 0;      /* Number of changes of any kind */
+  Stmt mtimeXfer;       /* Statement to transfer mtimes */
 
   if( !internalUpdate ){
     undo_capture_command_line();
@@ -153,9 +153,9 @@ void update_cmd(void){
   }
   
   /* If no VERSION is specified on the command-line, then look for a
-  ** descendent of the current version.  If there are multiple descendents,
+  ** descendent of the current version.  If there are multiple descendants,
   ** look for one from the same branch as the current version.  If there
-  ** are still multiple descendents, show them all and refuse to update
+  ** are still multiple descendants, show them all and refuse to update
   ** until the user selects one.
   */
   if( tid==0 ){
@@ -630,7 +630,7 @@ int historical_version_of_file(
       manifest_destroy(pManifest);
       rc = content_get(rid, content);
       if( rc && pEType ){
-        *pEType = looks_like_text(content)&3;
+        *pEType = looks_like_text(content);
       }
       return rc;
     }

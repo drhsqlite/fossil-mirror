@@ -204,6 +204,7 @@ void www_print_timeline(
   int fchngQueryInit = 0;     /* True if fchngQuery is initialized */
   Stmt fchngQuery;            /* Query for file changes on check-ins */
   static Stmt qbranch;
+  int pendingEndTr = 0;       /* True if a </td></tr> is needed */
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
@@ -238,8 +239,12 @@ void www_print_timeline(
     int tagid = db_column_int(pQuery, 9);
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
+    int modPending;           /* Pending moderation */
     char zTime[8];
+
+    modPending =  moderation_pending(rid);
     if( tagid ){
+      if( modPending ) tagid = -tagid;
       if( tagid==prevTagid ){
         if( tmFlags & TIMELINE_BRIEF ){
           suppressCnt++;
@@ -251,10 +256,13 @@ void www_print_timeline(
     }
     prevTagid = tagid;
     if( suppressCnt ){
-      @ <tr><td /><td /><td>
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
       @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
       suppressCnt = 0;
+    }
+    if( pendingEndTr ){
+      @ </td></tr>
+      pendingEndTr = 0;
     }
     if( fossil_strcmp(zType,"div")==0 ){
       if( !prevWasDivider ){
@@ -322,6 +330,9 @@ void www_print_timeline(
     if( pGraph && zType[0]!='c' ){
       @ &bull;
     }
+    if( modPending ){
+      @ <span class="modpending">(Awaiting Moderator Approval)</span>
+    }
     if( zType[0]=='c' ){
       hyperlink_to_uuid(zUuid);
       if( isLeaf ){
@@ -334,7 +345,7 @@ void www_print_timeline(
         }
       }
     }else if( zType[0]=='e' && tagid ){
-      hyperlink_to_event_tagid(tagid);
+      hyperlink_to_event_tagid(tagid<0?-tagid:tagid);
     }else if( (tmFlags & TIMELINE_ARTID)!=0 ){
       hyperlink_to_uuid(zUuid);
     }
@@ -363,7 +374,7 @@ void www_print_timeline(
     }
 
     /* Generate a "detail" link for tags. */
-    if( zType[0]=='g' && g.perm.Hyperlink ){
+    if( (zType[0]=='g' || zType[0]=='w' || zType[0]=='t') && g.perm.Hyperlink ){
       @ [%z(href("%R/info/%S",zUuid))details</a>]
     }
 
@@ -456,13 +467,15 @@ void www_print_timeline(
         @ </ul>
       }
     }
-    @ </td></tr>
+    pendingEndTr = 1;
   }
   if( suppressCnt ){
-    @ <tr><td /><td /><td>
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
     @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
     suppressCnt = 0;
+  }
+  if( pendingEndTr ){
+    @ </td></tr>
   }
   if( pGraph ){
     graph_finish(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
@@ -871,7 +884,7 @@ static void timeline_add_dividers(double rDate, int rid){
 **    n=COUNT        max number of events in output
 **    p=UUID         artifact and up to COUNT parents and ancestors
 **    d=UUID         artifact and up to COUNT descendants
-**    dp=UUUID       The same as d=UUID&p=UUID
+**    dp=UUID        The same as d=UUID&p=UUID
 **    t=TAGID        show only check-ins with the given tagid
 **    r=TAGID        show check-ins related to tagid
 **    u=USER         only if belonging to this user
@@ -891,7 +904,7 @@ static void timeline_add_dividers(double rDate, int rid){
 ** appear, then u=, y=, a=, and b= are ignored.
 **
 ** If a= and b= appear, only a= is used.  If neither appear, the most
-** recent events are choosen.
+** recent events are chosen.
 **
 ** If n= is missing, the default count is 20.
 */
@@ -936,6 +949,7 @@ void page_timeline(void){
     login_needed();
     return;
   }
+  url_initialize(&url, "timeline");
   if( zTagName && g.perm.Read ){
     tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='sym-%q'", zTagName);
     zThisTag = zTagName;
@@ -952,9 +966,16 @@ void page_timeline(void){
   }
   if( P("ng")!=0 || zSearch!=0 ){
     tmFlags &= ~TIMELINE_GRAPH;
+    url_add_parameter(&url, "ng", 0);
   }
-  if( P("brbg")!=0 ) tmFlags |= TIMELINE_BRCOLOR;
-  if( P("ubg")!=0 ) tmFlags |= TIMELINE_UCOLOR;
+  if( P("brbg")!=0 ){
+    tmFlags |= TIMELINE_BRCOLOR;
+    url_add_parameter(&url, "brbg", 0);
+  }
+  if( P("ubg")!=0 ){
+    tmFlags |= TIMELINE_UCOLOR;
+    url_add_parameter(&url, "ubg", 0);
+  }
 
   style_header("Timeline");
   login_anonymous_available();
@@ -963,7 +984,6 @@ void page_timeline(void){
   blob_zero(&desc);
   blob_append(&sql, "INSERT OR IGNORE INTO timeline ", -1);
   blob_append(&sql, timeline_query_for_www(), -1);
-  url_initialize(&url, "timeline");
   if( P("fc")!=0 || P("detail")!=0 ){
     tmFlags |= TIMELINE_FCHANGES;
     url_add_parameter(&url, "fc", 0);
@@ -1067,10 +1087,10 @@ void page_timeline(void){
       if( zBrName ){
         url_add_parameter(&url, "r", zBrName);
         /* The next two blob_appendf() calls add SQL that causes checkins that
-        ** are not part of the branch which are parents or childen of the branch
-        ** to be included in the report.  This related check-ins are useful
-        ** in helping to visualize what has happened on a quiescent branch 
-        ** that is infrequently merged with a much more activate branch.
+        ** are not part of the branch which are parents or children of the
+        ** branch to be included in the report.  This related check-ins are
+        ** useful in helping to visualize what has happened on a quiescent
+        ** branch that is infrequently merged with a much more activate branch.
         */
         blob_appendf(&sql,
           " OR EXISTS(SELECT 1 FROM plink JOIN tagxref ON rid=cid"

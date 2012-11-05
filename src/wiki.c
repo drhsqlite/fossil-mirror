@@ -29,7 +29,7 @@
 ** Well-formed wiki page names do not begin or end with whitespace,
 ** and do not contain tabs or other control characters and do not
 ** contain more than a single space character in a row.  Well-formed
-** names must be between 3 and 100 chracters in length, inclusive.
+** names must be between 3 and 100 characters in length, inclusive.
 */
 int wiki_name_is_wellformed(const unsigned char *z){
   int i;
@@ -133,8 +133,6 @@ void wiki_page(void){
   Manifest *pWiki = 0;
   const char *zPageName;
   char *zBody = mprintf("%s","<i>Empty Page</i>");
-  Stmt q;
-  int cnt = 0;
 
   login_check_credentials();
   if( !g.perm.RdWiki ){ login_needed(); return; }
@@ -160,6 +158,9 @@ void wiki_page(void){
     }
     @ <li> %z(href("%R/wcontent"))List of All Wiki Pages</a>
     @      available on this server.</li>
+    if( g.perm.ModWiki ){
+      @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
+    }
     @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
     @     Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
@@ -216,43 +217,27 @@ void wiki_page(void){
   blob_init(&wiki, zBody, -1);
   wiki_convert(&wiki, 0, 0);
   blob_reset(&wiki);
-
-  db_prepare(&q,
-     "SELECT datetime(mtime,'localtime'), filename, user"
-     "  FROM attachment"
-     " WHERE isLatest AND src!='' AND target=%Q"
-     " ORDER BY mtime DESC",
-     zPageName);
-  while( db_step(&q)==SQLITE_ROW ){
-    const char *zDate = db_column_text(&q, 0);
-    const char *zFile = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    if( cnt==0 ){
-      @ <hr /><h2>Attachments:</h2>
-      @ <ul>
-    }
-    cnt++;
-    @ <li>
-    if( g.perm.Hyperlink && g.perm.Read ){
-      @ %z(href("%R/attachview?page=%T&file=%t",zPageName,zFile))
-      @ %h(zFile)</a>
-    }else{
-      @ %h(zFile)
-    }
-    @ added by %h(zUser) on
-    hyperlink_to_date(zDate, ".");
-    if( g.perm.WrWiki && g.perm.Attach ){
-      @ [%z(href("%R/attachdelete?page=%t&file=%t&from=%R/wiki%%3fname=%f",zPageName,zFile,zPageName))delete</a>]
-    }
-    @ </li>
-  }
-  if( cnt ){
-    @ </ul>
-  }
-  db_finalize(&q);
- 
+  attachment_list(zPageName, "<hr /><h2>Attachments:</h2><ul>");
   manifest_destroy(pWiki);
   style_footer();
+}
+
+/*
+** Write a wiki artifact into the repository
+*/
+static void wiki_put(Blob *pWiki, int parent){
+  int nrid;
+  if( g.perm.ModWiki || db_get_boolean("modreq-wiki",0)==0 ){
+    nrid = content_put_ex(pWiki, 0, 0, 0, 0);
+    if( parent) content_deltify(parent, nrid, 0);
+  }else{
+    nrid = content_put_ex(pWiki, 0, 0, 0, 1);
+    moderation_table_create();
+    db_multi_exec("INSERT INTO modreq(objid) VALUES(%d)", nrid);
+  }
+  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
+  db_multi_exec("INSERT OR IGNORE INTO unclustered VALUES(%d);", nrid);
+  manifest_crosslink(nrid, pWiki);
 }
 
 /*
@@ -314,7 +299,6 @@ void wikiedit_page(void){
   if( P("submit")!=0 && zBody!=0 ){
     char *zDate;
     Blob cksum;
-    int nrid;
     blob_zero(&wiki);
     db_begin_transaction();
     if( isSandbox ){
@@ -337,11 +321,7 @@ void wikiedit_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, 0);
     }
     db_end_transaction(0);
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -502,7 +482,6 @@ void wikiappend_page(void){
   if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
     char *zDate;
     Blob cksum;
-    int nrid;
     Blob body;
     Blob wiki;
     Manifest *pWiki = 0;
@@ -537,11 +516,7 @@ void wikiappend_page(void){
       md5sum_blob(&wiki, &cksum);
       blob_appendf(&wiki, "Z %b\n", &cksum);
       blob_reset(&cksum);
-      nrid = content_put(&wiki);
-      db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-      manifest_crosslink(nrid, &wiki);
-      assert( blob_is_reset(&wiki) );
-      content_deltify(rid, nrid, 0);
+      wiki_put(&wiki, rid);
       db_end_transaction(0);
     }
     cgi_redirectf("wiki?name=%T", zPageName);
@@ -837,7 +812,6 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   Blob wiki;              /* Wiki page content */
   Blob cksum;             /* wiki checksum */
   int rid;                /* artifact ID of parent page */
-  int nrid;               /* artifact ID of new wiki page */
   char *zDate;            /* timestamp */
   char *zUuid;            /* uuid for rid */
 
@@ -880,11 +854,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
   blob_appendf(&wiki, "Z %b\n", &cksum);
   blob_reset(&cksum);
   db_begin_transaction();
-  nrid = content_put( &wiki);
-  db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
-  manifest_crosslink(nrid,&wiki);
-  assert( blob_is_reset(&wiki) );
-  content_deltify(rid,nrid,0);
+  wiki_put(&wiki, 0);
   db_end_transaction(0);
   return 1;
 }
@@ -914,7 +884,7 @@ int wiki_cmd_commit(char const * zPageName, int isNew, Blob *pContent){
 **     %fossil wiki list
 **
 **        Lists all wiki entries, one per line, ordered
-**        case-insentively by name.
+**        case-insensitively by name.
 **
 */
 void wiki_cmd(void){

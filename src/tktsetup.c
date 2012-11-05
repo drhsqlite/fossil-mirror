@@ -98,8 +98,8 @@ static void tktsetup_generic(
   const char *zDbField,         /* Configuration field being edited */
   const char *zDfltValue,       /* Default text value */
   const char *zDesc,            /* Description of this field */
-  char *(*xText)(const char*),  /* Validitity test or NULL */
-  void (*xRebuild)(void),       /* Run after successulf update */
+  char *(*xText)(const char*),  /* Validity test or NULL */
+  void (*xRebuild)(void),       /* Run after successful update */
   int height                    /* Height of the edit box */
 ){
   const char *z;
@@ -597,9 +597,14 @@ static const char zDefaultReportList[] =
 @ </ol>
 @ 
 @ <th1>
-@ if {[hascap t]} {
-@   html "<p>Create a new ticket display format:</p>"
-@   html "<ul><li><a href='rptnew'>New report format</a></li></ul>"
+@ if {[hascap t q]} {
+@   html "<p>Other options:</p>\n<ul>\n"
+@   if {[hascap t]} {
+@     html "<li><a href='rptnew'>New report format</a></li>\n"
+@   }
+@   if {[hascap q]} {
+@     html "<li><a href='modreq'>Tend to pending moderation requests</a></li>\n"
+@   }
 @ }
 @ </th1>
 ;

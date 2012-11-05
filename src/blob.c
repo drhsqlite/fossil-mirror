@@ -673,7 +673,7 @@ void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
 }
 
 /*
-** Initalize a blob to the data on an input channel.  Return
+** Initialize a blob to the data on an input channel.  Return
 ** the number of bytes read into the blob.  Any prior content
 ** of the blob is discarded, not freed.
 */
@@ -1129,8 +1129,8 @@ void blob_strip_bom(Blob *pBlob, int useMbcs){
     fossil_mbcs_free(zUtf8);
   }else if( blob_size(pBlob)>1 && (blob_size(pBlob)&1)==0
       && memcmp(blob_buffer(pBlob), &urbom, 2)==0 ) {
-    zUtf8 = blob_buffer(pBlob);
     unsigned int i = blob_size(pBlob);
+    zUtf8 = blob_buffer(pBlob);
     while( i > 0 ){
         /* swap bytes of unicode representation */
         char temp = zUtf8[--i];

@@ -194,7 +194,7 @@ static int dateCmd(
 }
 
 /*
-** TH command:     hascap STRING
+** TH command:     hascap STRING...
 **
 ** Return true if the user has all of the capabilities listed in STRING.
 */
@@ -205,11 +205,13 @@ static int hascapCmd(
   const char **argv, 
   int *argl
 ){
-  int rc;
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "hascap STRING");
+  int rc = 0, i;
+  if( argc<2 ){
+    return Th_WrongNumArgs(interp, "hascap STRING ...");
   }
-  rc = login_has_capability((char*)argv[1],argl[1]);
+  for(i=1; i<argc && rc==0; i++){
+    rc = login_has_capability((char*)argv[i],argl[i]);
+  }
   if( g.thTrace ){
     Th_Trace("[hascap %#h] => %d<br />\n", argl[1], argv[1], rc);
   }
@@ -486,7 +488,7 @@ static int utimeCmd(
 ** TH1 command:     stime
 **
 ** Return the number of microseconds of CPU time consumed by the current
-** process in systsem space.
+** process in system space.
 */
 static int stimeCmd(
   Th_Interp *interp,

@@ -207,7 +207,7 @@ static void rebuild_step_done(rid){
 ** called to run "fossil deconstruct" instead of the usual
 ** "fossil rebuild".  In that case, instead of rebuilding the
 ** cross-referencing information, write the file content out
-** to the approriate directory.
+** to the appropriate directory.
 **
 ** In both cases, this routine automatically recurses to process
 ** other artifacts that are deltas off of the current artifact.
@@ -319,7 +319,7 @@ static void rebuild_tag_trunk(void){
 }
 
 /*
-** Core function to rebuild the infomration in the derived tables of a
+** Core function to rebuild the information in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
@@ -349,7 +349,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog')"
+                         "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
     );
     if( zTable==0 ) break;
@@ -954,7 +954,7 @@ void deconstruct_cmd(void){
     if( zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1] ){
       prefixLength = (int)(*zPrefixOpt-'0');
     }else{
-      fossil_fatal("N(%s) is not a a valid prefix length!",zPrefixOpt);
+      fossil_fatal("N(%s) is not a valid prefix length!",zPrefixOpt);
     }
   }
   /* open repository and open query for all artifacts */
@@ -976,7 +976,7 @@ void deconstruct_cmd(void){
   }
 #else
   /* write access on windows is not checked, errors will be
-  ** dected on blob_write_to_file
+  ** detected on blob_write_to_file
   */
 #endif
   if( prefixLength ){

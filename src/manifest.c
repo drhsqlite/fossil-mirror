@@ -320,16 +320,18 @@ static char next_card(ManifestText *p){
 ** Manifest object is freed.  Zeros are inserted into the blob
 ** as string terminators so that blob should not be used again.
 **
-** Return TRUE if the content really is a control file of some
-** kind.  Return FALSE if there are syntax errors.
+** Return a pointer to an allocated Manifest object if the content
+** really is a control file of some kind.  This object needs to be
+** freed by a subsequent call to manifest_destroy().  Return NULL
+** if there are syntax errors.
 **
 ** This routine is strict about the format of a control file.
 ** The format must match exactly or else it is rejected.  This
 ** rule minimizes the risk that a content file will be mistaken
 ** for a control file simply because they look the same.
 **
-** The pContent is reset.  If TRUE is returned, then pContent will
-** be reset when the Manifest object is cleared.  If FALSE is
+** The pContent is reset.  If a pointer is returned, then pContent will
+** be reset when the Manifest object is cleared.  If NULL is
 ** returned then the Manifest object is cleared automatically
 ** and pContent is reset before the return.
 **
@@ -450,7 +452,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       /*
       **    B <uuid>
       **
-      ** A B-line gives the UUID for the baselinen of a delta-manifest.
+      ** A B-line gives the UUID for the baseline of a delta-manifest.
       */
       case 'B': {
         if( p->zBaseline ) SYNTAX("more than one B-card");
@@ -1154,7 +1156,7 @@ int manifest_file_mperm(ManifestFile *pFile){
 static void add_one_mlink(
   int mid,                  /* The record ID of the manifest */
   const char *zFromUuid,    /* UUID for the mlink.pid. "" to add file */
-  const char *zToUuid,      /* UUID for the mlink.fid. "" to delele */
+  const char *zToUuid,      /* UUID for the mlink.fid. "" to delete */
   const char *zFilename,    /* Filename */
   const char *zPrior,       /* Previous filename. NULL if unchanged */
   int isPublic,             /* True if mid is not a private manifest */
@@ -1341,7 +1343,7 @@ static void add_mlink(int pid, Manifest *pParent, int cid, Manifest *pChild){
 
   /* Try to make the parent manifest a delta from the child, if that
   ** is an appropriate thing to do.  For a new baseline, make the 
-  ** previoius baseline a delta from the current baseline.
+  ** previous baseline a delta from the current baseline.
   */
   if( (pParent->zBaseline==0)==(pChild->zBaseline==0) ){
     content_deltify(pid, cid, 0); 
@@ -1734,7 +1736,7 @@ int manifest_crosslink(int rid, Blob *pContent){
       }
       if( tid ){
         switch( p->aTag[i].zName[0] ){
-          case '-':  type = 0;  break;  /* Cancel prior occurances */
+          case '-':  type = 0;  break;  /* Cancel prior occurrences */
           case '+':  type = 1;  break;  /* Apply to target only */
           case '*':  type = 2;  break;  /* Propagate to descendants */
           default:

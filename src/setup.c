@@ -94,6 +94,9 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Moderation", "setup_modreq",
+    "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
+    "edits and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
@@ -308,7 +311,7 @@ void user_edit(void){
   int a[128];
   char *oa[128];
 
-  /* Must have ADMIN privleges to access this page
+  /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(); return; }
@@ -341,8 +344,8 @@ void user_edit(void){
     zNm[2] = 0;
     for(i=0, c='a'; c<='z'; c++){
       zNm[1] = c;
-      a[c] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
-      if( a[c] ) zCap[i++] = c;
+      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      if( a[c&0x7f] ) zCap[i++] = c;
     }
 
     zCap[i] = 0;
@@ -431,7 +434,7 @@ void user_edit(void){
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
     for(i=0; zCap[i]; i++){
       char c = zCap[i];
-      if( c>='a' && c<='z' ) oa[c] = " checked=\"checked\"";
+      if( c>='a' && c<='z' ) oa[c&0x7f] = " checked=\"checked\"";
     }
   }
 
@@ -1405,6 +1408,50 @@ void setup_footer(void){
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_modreq
+*/
+void setup_modreq(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+
+  style_header("Moderator For Wiki And Tickets");
+  db_begin_transaction();
+  @ <form action="%R/setup_modreq" method="post"><div>
+  login_insert_csrf_secret();
+  @ <hr />
+  onoff_attribute("Moderate ticket changes",
+     "modreq-tkt", "modreq-tkt", 0);
+  @ <p>When enabled, any change to tickets is subject to the approval
+  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ Ticket changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Ticket changes made by
+  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ moderation.
+  @
+  @ <hr />
+  onoff_attribute("Moderate wiki changes",
+     "modreq-wiki", "modreq-wiki", 0);
+  @ <p>When enabled, any change to wiki is subject to the approval
+  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ Wiki changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Wiki changes made by
+  @ a user who has the Mod-Wiki privilege are never subject to
+  @ moderation.
+  @ </p>
+ 
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+
 }
 
 /*
