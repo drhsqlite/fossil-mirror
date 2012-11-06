@@ -289,7 +289,7 @@ void www_print_timeline(
     if( zType[0]=='c'
     && (pGraph || zBgClr==0 || (tmFlags & TIMELINE_BRCOLOR)!=0)
     ){
-      db_reset(&qbranch);   
+      db_reset(&qbranch);
       db_bind_int(&qbranch, ":rid", rid);
       if( db_step(&qbranch)==SQLITE_ROW ){
         zBr = db_column_text(&qbranch, 0);
@@ -375,7 +375,7 @@ void www_print_timeline(
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zUser, zDate);
+      char *zLink = mprintf("%R/timeline?u=%h&amp;c=%t&amp;nd", zUser, zDate);
       @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
     }else{
       @ (user: %h(zUser)%s(zTagList?",":"\051")
@@ -400,7 +400,7 @@ void www_print_timeline(
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
                   "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+                  href("%R/timeline?r=%#t&amp;nd&amp;c=%t",i,z,zDate), i,z, &z[i]
             );
           }else{
             blob_appendf(&links, "%#h", i+2, z);
@@ -425,7 +425,7 @@ void www_print_timeline(
     if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.perm.Hyperlink ){
       int inUl = 0;
       if( !fchngQueryInit ){
-        db_prepare(&fchngQuery, 
+        db_prepare(&fchngQuery,
           "SELECT (pid==0) AS isnew,"
           "       (fid==0) AS isdel,"
           "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
@@ -494,7 +494,7 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      @ <tr><td /><td>
+      @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
       @ </td></tr>
     }
@@ -663,7 +663,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
       @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
-    } 
+    }
     @   if( p.mo>0 ){
     @     var x1 = p.mo + left - 1;
     @     var y1 = p.y-3;
@@ -768,7 +768,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
 ** Create a temporary table suitable for storing timeline data.
 */
 static void timeline_temp_table(void){
-  static const char zSql[] = 
+  static const char zSql[] =
     @ CREATE TEMP TABLE IF NOT EXISTS timeline(
     @   rid INTEGER PRIMARY KEY,
     @   uuid TEXT,
@@ -809,7 +809,7 @@ const char *timeline_query_for_www(void){
     @   tagid AS tagid,
     @   brief AS brief,
     @   event.mtime AS mtime
-    @  FROM event CROSS JOIN blob 
+    @  FROM event CROSS JOIN blob
     @ WHERE blob.rid=event.objid
   ;
   if( zBase==0 ){
@@ -1177,20 +1177,20 @@ void page_timeline(void){
     rCirca = symbolic_name_to_mtime(zCirca);
     if( rAfter>0.0 ){
       if( rBefore>0.0 ){
-        blob_appendf(&sql, 
+        blob_appendf(&sql,
            " AND event.mtime>=%.17g AND event.mtime<=%.17g"
            " ORDER BY event.mtime ASC", rAfter-ONE_SECOND, rBefore+ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
         url_add_parameter(&url, "b", zBefore);
         nEntry = 1000000;
       }else{
-        blob_appendf(&sql, 
+        blob_appendf(&sql,
            " AND event.mtime>=%.17g  ORDER BY event.mtime ASC",
            rAfter-ONE_SECOND);
         url_add_parameter(&url, "a", zAfter);
       }
     }else if( rBefore>0.0 ){
-      blob_appendf(&sql, 
+      blob_appendf(&sql,
          " AND event.mtime<=%.17g ORDER BY event.mtime DESC",
          rBefore+ONE_SECOND);
       url_add_parameter(&url, "b", zBefore);
@@ -1310,7 +1310,7 @@ void page_timeline(void){
 ** summary of those records.
 **
 ** Limit the number of entries printed to nLine.
-** 
+**
 ** The query should return these columns:
 **
 **    0.  rid
@@ -1344,7 +1344,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
     int n = 0;
     char zPrefix[80];
     char zUuid[UUID_SIZE+1];
-    
+
     sqlite3_snprintf(sizeof(zUuid), zUuid, "%.10s", zId);
     if( memcmp(zDate, zPrevDate, 10) ){
       fossil_print("=== %.10s ===\n", zDate);
@@ -1378,7 +1378,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
 
     if(showfiles){
       if( !fchngQueryInit ){
-        db_prepare(&fchngQuery, 
+        db_prepare(&fchngQuery,
            "SELECT (pid==0) AS isnew,"
            "       (fid==0) AS isdel,"
            "       (SELECT name FROM filename WHERE fnid=mlink.fnid) AS name,"
@@ -1395,7 +1395,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
         const char *zFilename = db_column_text(&fchngQuery, 2);
         int isNew = db_column_int(&fchngQuery, 0);
         int isDel = db_column_int(&fchngQuery, 1);
-        if( isNew ){    
+        if( isNew ){
           fossil_print("   ADDED %s\n",zFilename);
         }else if( isDel ){
           fossil_print("   DELETED %s\n",zFilename);
@@ -1414,7 +1414,7 @@ void print_timeline(Stmt *q, int mxLine, int showfiles){
 ** a timeline query for display on a TTY.
 */
 const char *timeline_query_for_tty(void){
-  static const char zBaseSql[] = 
+  static const char zBaseSql[] =
     @ SELECT
     @   blob.rid AS rid,
     @   uuid,
