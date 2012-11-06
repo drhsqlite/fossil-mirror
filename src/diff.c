@@ -156,7 +156,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<k; x++){
+    for(h=0, x=0; x<=k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
     a[i].h = h = (h<<LENGTH_MASK_SZ) | k;;
@@ -789,7 +789,11 @@ static void sbsWriteLineChange(
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, nLeft==nRight ? "   " : " | ", 3);
+    if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
+      sbsWrite(p, "   ", 3);
+    }else{
+      sbsWrite(p, " | ", 3);
+    }
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;

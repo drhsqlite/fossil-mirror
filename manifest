@@ -1,5 +1,5 @@
-C gcc\swarnings:\n<pre>src/merge3.c:\sIn\sfunction\s‘merge_3way’:\nsrc/merge3.c:445:9:\swarning:\s‘zPivot’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\nsrc/merge3.c:446:9:\swarning:\s‘zOrig’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\nsrc/merge3.c:447:9:\swarning:\s‘zOther’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\n</pre>
-D 2012-11-06T12:20:47.516
+C When\sone\sversion\sof\sa\sfile\sends\sin\sa\snewline\sand\sthe\sother\sdoes\snot,\nbe\ssure\sto\sshow\sthat\sdifference.\s\sTicket\s[7541963870703f0].
+D 2012-11-06T16:35:46.899
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c cc05b20228499e99e2d3a62be4449febdbd4e447
-F src/diff.c 5006e9fe32335db507eabf0e95f139d60eeb878b
+F src/diff.c eac3efd0da75abf48f7c6cb98e2a39b0b2e12c7a
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c5e08c3fa86ce61751f8b404b55fb1f6d3724fba
-R 9290ae01aa1cd32497346477b40a7957
-U jan.nijtmans
-Z f6888c98dcba2827c0cc44642e6f405d
+P 233463c4ec13c1be7e89748caf034cd5e293c5ab
+R b782a6094ed64b5337732029839ac6db
+U drh
+Z b09744e49a3aea37afe0db88aa06dca5
