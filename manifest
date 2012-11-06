@@ -1,5 +1,5 @@
-C When\strying\sto\screate\sa\sdirectory,\sif\smkdir\sfails,\smake\ssure\sthe\sdirectory\ndoesn't\salready\sexist\sbefore\sgiving\sup\sand\sreporting\san\serror.
-D 2012-11-06T18:31:22.708
+C Make\ssure\sfile\snames\sin\sfile\sbrowser\sdon't\swrap\sby\sadding\swhite-space\sproperty\sto\sdefault\sCSS.
+D 2012-11-06T18:38:19.440
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -150,7 +150,7 @@ F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
 F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c a42cd260da35f84580032e486a7fa7f84fa863ac
+F src/style.c c8ee680a470d4e4484c20ce47569dfd6a9265624
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d764f449d78f9882a9034ed08f99138ef8ff5ea4
-R 4be86545a9e24006f93adf781613e13f
-U drh
-Z 600ab9d7267a15a4100fd96cf5aed89c
+P bc74a8171d478a4e01ba2dbec4f1908aaeec5fef
+R b42c0208566ab6a1b307d56983c1b708
+U dmitry
+Z c5513f47a0dadf132821843b792d798e
