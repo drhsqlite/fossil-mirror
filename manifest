@@ -1,5 +1,5 @@
-C 3\sminor\sviolations\sagainst\shtml5
-D 2012-11-06T08:44:54.063
+C gcc\swarnings:\n<pre>src/merge3.c:\sIn\sfunction\s‘merge_3way’:\nsrc/merge3.c:445:9:\swarning:\s‘zPivot’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\nsrc/merge3.c:446:9:\swarning:\s‘zOrig’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\nsrc/merge3.c:447:9:\swarning:\s‘zOther’\smay\sbe\sused\suninitialized\sin\sthis\sfunction\n</pre>
+D 2012-11-06T12:20:47.516
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -125,7 +125,7 @@ F src/makemake.tcl 7bffaa81dd8c80d300c571e23b2dcd19b7ba77be
 F src/manifest.c 9a9c3d01c80c7075700510f93a476649fbc4cd3b
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
-F src/merge3.c 72b9d55020769fd2ac3f6f91310bf3d58d8f9497
+F src/merge3.c 475e466404418a8e2eaa53bda3014b6af93f5ba9
 F src/mkindex.c ddf461c2f1b7edb62752f4f6367eb198996884e3
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
 F src/moderate.c 704772b428d469a012bf6848633c932bff35a781
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 90e928deeaa82ae8fa4a16f43f66addc4e327ed5
-R 9369ea3a4a57b381395feac5bb421861
+P c5e08c3fa86ce61751f8b404b55fb1f6d3724fba
+R 9290ae01aa1cd32497346477b40a7957
 U jan.nijtmans
-Z fe7b3f4bae9aee292276435c6350a25e
+Z f6888c98dcba2827c0cc44642e6f405d
