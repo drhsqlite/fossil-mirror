@@ -1,5 +1,5 @@
-C When\sone\sversion\sof\sa\sfile\sends\sin\sa\snewline\sand\sthe\sother\sdoes\snot,\nbe\ssure\sto\sshow\sthat\sdifference.\s\sTicket\s[7541963870703f0].
-D 2012-11-06T16:35:46.899
+C When\strying\sto\screate\sa\sdirectory,\sif\smkdir\sfails,\smake\ssure\sthe\sdirectory\ndoesn't\salready\sexist\sbefore\sgiving\sup\sand\sreporting\san\serror.
+D 2012-11-06T18:31:22.708
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -64,7 +64,7 @@ F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
 F src/attach.c 303e7d45edd0c431ffdb26735d5810c5b2e1b084
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
-F src/blob.c 7bd5b3131b29146bef50fb61d44b28c28efb3763
+F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
@@ -358,7 +358,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 233463c4ec13c1be7e89748caf034cd5e293c5ab
-R b782a6094ed64b5337732029839ac6db
+P d764f449d78f9882a9034ed08f99138ef8ff5ea4
+R 4be86545a9e24006f93adf781613e13f
 U drh
-Z b09744e49a3aea37afe0db88aa06dca5
+Z 600ab9d7267a15a4100fd96cf5aed89c
