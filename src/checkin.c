@@ -930,10 +930,11 @@ static int commit_warning(
         return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
+      c = ""; /* We cannot automatically convert binary files */
     }else{
       zWarning = "Unicode";
 #ifndef _WIN32
-      c = ""; /* On UNIX, we cannot convert unicode files */
+      c = ""; /* On UNIX, we cannot automatically convert unicode files */
 #endif
     }
     file_relative_name(zFilename, &fname, 0);
@@ -946,11 +947,7 @@ static int commit_warning(
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
-    }else if( (cReply=='c' || cReply=='C')
-#ifndef _WIN32
-        && fUnicode
-#endif
-    ){
+    }else if( (c[0] != 0) && (cReply=='c' || cReply=='C') ){
       char *zOrig = file_newname(zFilename, "original", 1);
       FILE *f;
       blob_write_to_file(p, zOrig);

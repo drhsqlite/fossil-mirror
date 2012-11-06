@@ -408,6 +408,13 @@ char *string_subst(const char *zInput, int nSubst, const char **azSubst){
   return blob_str(&x);
 }
 
+#if INTERFACE
+/*
+** Flags to the 3-way merger
+*/
+#define MERGE_DRYRUN  0x0001
+#endif
+
 
 /*
 ** This routine is a wrapper around blob_merge() with the following
@@ -430,7 +437,8 @@ int merge_3way(
   Blob *pPivot,       /* Common ancestor (older) */
   const char *zV1,    /* Name of file for version merging into (mine) */
   Blob *pV2,          /* Version merging from (yours) */
-  Blob *pOut          /* Output written here */
+  Blob *pOut,         /* Output written here */
+  unsigned mergeFlags /* Flags that control operation */
 ){
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
@@ -440,7 +448,7 @@ int merge_3way(
 
   blob_read_from_file(&v1, zV1);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
-  if( rc!=0 ){
+  if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
     zPivot = file_newname(zV1, "baseline", 1);
     blob_write_to_file(pPivot, zPivot);
     zOrig = file_newname(zV1, "original", 1);
@@ -448,7 +456,7 @@ int merge_3way(
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(pV2, zOther);
   }
-  if( rc>0 ){
+  if( rc>0 && (mergeFlags & MERGE_DRYRUN)==0 ){
     const char *zGMerge;   /* Name of the gmerge command */
 
     zGMerge = db_get("gmerge-command", 0);
@@ -476,7 +484,7 @@ int merge_3way(
       fossil_free(zOut);
     }
   }
-  if( rc!=0 ){
+  if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
     fossil_free(zPivot);
     fossil_free(zOrig);
     fossil_free(zOther);
