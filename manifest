@@ -1,5 +1,5 @@
-C Fix\sthe\s--setmtime\sflag\son\sfossil-commit\sso\sthat\sit\sworks\swhen\schanging\nversion,\sand\snot\sjust\swhen\supdating\sthe\scurrent\sversion.
-D 2012-10-24T19:08:00.919
+C Make\ssure\sthat\spending\sdeletes\sfrom\s"fossil\srm"\soperations\sare\spreserved\nacross\sa\s"fossil\supdate".
+D 2012-11-06T19:47:16.325
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -136,7 +136,7 @@ F src/tkt.c af72aa0605b5b3187c796e351dfb1d3fd8807eee
 F src/tktsetup.c 44113180c092a8a88050cda3ec3c9ed25d9416ad
 F src/translate.c adcf4ce2c7f647c6bec2a98097a73b1a10035979
 F src/undo.c af64411afe2a50c0607c83db92bd173a31d76c46
-F src/update.c d90c6bde724be8cb889fe3e0f6260aca80c0a765
+F src/update.c a155e1e95ff25f1d4fe30816ea4f7870f96051e2
 F src/url.c 0e256b8ebdfe9aef0c69bc2d9f094a2ded13301c
 F src/user.c b4f2467e92933669c85692aed9db5e9d2113e7dc
 F src/verify.c 56e57557addc812d37e599da3b962d03099f0a8e
@@ -157,6 +157,8 @@ F test/merge5.test 9fdb69baacc1b622a59bfe2d49282d5b659ef3d5
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/release-checklist.wiki a1c249681952a51e5516837b08a9ba50e8f676b6
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
+F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
+F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -325,7 +327,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d3e7557a54ae7bf412fb5c22b50273a60199ff1e
-R 4fe87ca2ec06ac942615e76b49297aa5
+P d4bdac3c5133f0751f58324c98521225a36b388f
+R e0e544f9a50320afd2772c805f9801f0
 U drh
-Z 44f69e114c33b16e10cc72877ba7b7d2
+Z aac9c7a26b51fa828c3ddfce839a6bf1
