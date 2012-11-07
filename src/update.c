@@ -219,6 +219,7 @@ void update_cmd(void){
     "  ridv INTEGER,"             /* Record ID for current version */
     "  ridt INTEGER,"             /* Record ID for target */
     "  isexe BOOLEAN,"            /* Does target have execute permission? */
+    "  deleted BOOLEAN DEFAULT 0,"/* File marke by "rm" to become unmanaged */
     "  fnt TEXT"                  /* Filename of same file on target version */
     ");"
   );
@@ -226,8 +227,8 @@ void update_cmd(void){
   /* Add files found in the current version
   */
   db_multi_exec(
-    "INSERT OR IGNORE INTO fv(fn,fnt,idv,idt,ridv,ridt,isexe,chnged)"
-    " SELECT pathname, pathname, id, 0, rid, 0, isexe, chnged"
+    "INSERT OR IGNORE INTO fv(fn,fnt,idv,idt,ridv,ridt,isexe,chnged,deleted)"
+    " SELECT pathname, pathname, id, 0, rid, 0, isexe, chnged, deleted"
     "   FROM vfile WHERE vid=%d",
     vid
   );
@@ -341,7 +342,7 @@ void update_cmd(void){
   */
   db_prepare(&q, 
     "SELECT fn, idv, ridv, idt, ridt, chnged, fnt,"
-    "       isexe, islinkv, islinkt FROM fv ORDER BY 1"
+    "       isexe, islinkv, islinkt, deleted FROM fv ORDER BY 1"
   );
   db_prepare(&mtimeXfer,
     "UPDATE vfile SET mtime=(SELECT mtime FROM vfile WHERE id=:idv)"
@@ -361,6 +362,7 @@ void update_cmd(void){
     int isexe = db_column_int(&q, 7);           /* EXE perm for new file */
     int islinkv = db_column_int(&q, 8);         /* Is current file is a link */
     int islinkt = db_column_int(&q, 9);         /* Is target file is a link */
+    int deleted = db_column_int(&q, 10);        /* Marked for deletion */
     char *zFullPath;                            /* Full pathname of the file */
     char *zFullNewPath;                         /* Full pathname of dest */
     char nameChng;                              /* True if the name changed */
@@ -369,6 +371,9 @@ void update_cmd(void){
     zFullNewPath = mprintf("%s%s", g.zLocalRoot, zNewName);
     nameChng = fossil_strcmp(zName, zNewName);
     nUpdate++;
+    if( deleted ){
+      db_multi_exec("UPDATE vfile SET deleted=1 WHERE id=%d", idt);
+    }
     if( idv>0 && ridv==0 && idt>0 && ridt>0 ){
       /* Conflict.  This file has been added to the current checkout
       ** but also exists in the target checkout.  Use the current version.
@@ -378,22 +383,27 @@ void update_cmd(void){
     }else if( idt>0 && idv==0 ){
       /* File added in the target. */
       if( file_wd_isfile_or_link(zFullPath) ){
-        fossil_print("ADD %s (overwrites an unmanaged file)\n", zName);
+        fossil_print("ADD %s - overwrites an unmanaged file\n", zName);
         nOverwrite++;
       }else{
         fossil_print("ADD %s\n", zName);
       }
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
-    }else if( idt>0 && idv>0 && ridt!=ridv && chnged==0 ){
+    }else if( idt>0 && idv>0 && ridt!=ridv && (chnged==0 || deleted) ){
       /* The file is unedited.  Change it to the target version */
       undo_save(zName);
-      fossil_print("UPDATE %s\n", zName);
+      if( deleted ){
+        fossil_print("UPDATE %s - change to unmanged file\n", zName);
+      }else{
+        fossil_print("UPDATE %s\n", zName);
+      }
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt>0 && idv>0 && file_wd_size(zFullPath)<0 ){
       /* The file missing from the local check-out. Restore it to the
       ** version that appears in the target. */
-      fossil_print("UPDATE %s\n", zName);
+      fossil_print("UPDATE %s%s\n", zName,
+                    deleted?" - change to unmanaged file":"");
       undo_save(zName);
       if( !nochangeFlag ) vfile_to_disk(0, idt, 0, 0);
     }else if( idt==0 && idv>0 ){

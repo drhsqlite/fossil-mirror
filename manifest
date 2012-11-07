@@ -1,5 +1,5 @@
-C ...\sbut\srevert\swin/Makefile.mingw\s(accidently\scommitted)
-D 2012-11-06T09:39:23.055
+C merge\strunk
+D 2012-11-07T08:30:40.230
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -64,7 +64,7 @@ F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
 F src/attach.c 303e7d45edd0c431ffdb26735d5810c5b2e1b084
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
-F src/blob.c 7bd5b3131b29146bef50fb61d44b28c28efb3763
+F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c cc05b20228499e99e2d3a62be4449febdbd4e447
-F src/diff.c 5006e9fe32335db507eabf0e95f139d60eeb878b
+F src/diff.c eac3efd0da75abf48f7c6cb98e2a39b0b2e12c7a
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -125,7 +125,7 @@ F src/makemake.tcl 7bffaa81dd8c80d300c571e23b2dcd19b7ba77be
 F src/manifest.c 9a9c3d01c80c7075700510f93a476649fbc4cd3b
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
-F src/merge3.c 72b9d55020769fd2ac3f6f91310bf3d58d8f9497
+F src/merge3.c 475e466404418a8e2eaa53bda3014b6af93f5ba9
 F src/mkindex.c ddf461c2f1b7edb62752f4f6367eb198996884e3
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
 F src/moderate.c 704772b428d469a012bf6848633c932bff35a781
@@ -150,7 +150,7 @@ F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
 F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c a42cd260da35f84580032e486a7fa7f84fa863ac
+F src/style.c c8ee680a470d4e4484c20ce47569dfd6a9265624
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -164,7 +164,7 @@ F src/tkt.c 45ff29e1f9b5e3a8520d58c7eb04f004e4b87b21
 F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
-F src/update.c 818535fc6ac4660aff615c5c8c0a0d878d306134
+F src/update.c 5d56ff23f36ee4ce2472c4e3e67d02a903f1967c
 F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
@@ -200,6 +200,8 @@ F test/th1-tcl6.txt 8fa6cba360402c03caf0d9f4b61e7fcb818cba33
 F test/th1-tcl7.txt 99d669388e668cd4da281782a96fa165895feeb6
 F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
+F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
+F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -358,7 +360,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4fa4972104e07e01a48565c05d7d2b6ffa3342ed
-R 856b8b3f73b81ef1b5a5a48e02fa6050
+P 8f6cd5f3a3b5e13db24f024b4f682718b3f02cf2 28272fa125bb160cad334e47d5c3e10ae5349208
+R 8a9b9cb27ed47a0c97531a3246e877b7
 U jan.nijtmans
-Z 11e54392d52d5ad71d7860bd3b7fa265
+Z b63b65368b1324fcb3eca880232460d3

@@ -669,6 +669,7 @@ const struct strctCssDefaults {
     "format for the list in the file browser",
     @   margin-left: 0.5em;
     @   padding-left: 0.5em;
+    @   white-space: nowrap;
   },
   { "table.login_out",
     "table format for login/out label/input table",
