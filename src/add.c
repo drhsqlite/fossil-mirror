@@ -502,6 +502,16 @@ void addremove_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q", zNew);
+  if( x>=0 ){
+    if( x==0 ){
+      fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
+                   " is currently under management", zOrig, zNew, zNew); 
+    }else{
+      fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
+                   "not yet been committed", zOrig, zNew, zNew);
+    }
+  }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
     "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",
