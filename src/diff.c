@@ -192,7 +192,7 @@ if( c<0xC0 || c>=0xF8 ){ \
     break; \
   }else{ \
     /* prepare for checking remaining continuation bytes */ \
-    c<<=2; --n; ++j; ++z; \
+    c<<=1; --n; ++j; ++z; \
   } \
 }while( c>=0xC0 );
 
