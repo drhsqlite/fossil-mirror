@@ -1101,6 +1101,12 @@ void setup_timeline(void){
   @ without block markup (paragraphs, tables, etc.)</p>
 
   @ <hr />
+  onoff_attribute("Plaintext comments on timelines",
+                  "timeline-plaintext", "tpt", 0);
+  @ <p>In timeline displays, check-in comments are displayed literally,
+  @ without any wiki or HTML interpretation.</p>
+
+  @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
                   "timeline-utc", "utc", 1);
   @ <p>Show times as UTC (also sometimes called Greenwich Mean Time (GMT) or

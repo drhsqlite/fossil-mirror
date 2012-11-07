@@ -802,7 +802,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         */
         if( !(i==2 && zName[1]==':') ){
 #endif
-          if( file_mkdir(zName, 1) ){
+          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }

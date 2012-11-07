@@ -255,7 +255,7 @@ static void stash_apply(int stashid, int nConflict){
           blob_zero(&b); /* because we reset it later */
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
-          rc = merge_3way(&a, zOPath, &b, &out);
+          rc = merge_3way(&a, zOPath, &b, &out, 0);
           blob_write_to_file(&out, zNPath);
           blob_reset(&out);
           file_wd_setexe(zNPath, isExec);

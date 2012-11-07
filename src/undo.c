@@ -324,7 +324,7 @@ void undo_save_stash(int stashid){
 void undo_finish(void){
   if( undoActive ){
     if( undoNeedRollback ){
-      fossil_print("\"fossil undo\" is available to undo changes"
+      fossil_print(" \"fossil undo\" is available to undo changes"
              " to the working checkout.\n");
     }
     undoActive = 0;

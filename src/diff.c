@@ -156,7 +156,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
     for(j=0; z[j] && z[j]!='\n'; j++){}
     k = j;
     while( ignoreWS && k>0 && fossil_isspace(z[k-1]) ){ k--; }
-    for(h=0, x=0; x<k; x++){
+    for(h=0, x=0; x<=k; x++){
       h = h ^ (h<<2) ^ z[x];
     }
     a[i].h = h = (h<<LENGTH_MASK_SZ) | k;;
@@ -183,29 +183,18 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** updated so the continuation bytes are not checked again.
  */
 #define CHECKUTF8(c) \
-if( c<0xC0 ){ \
-  result |= 4;  /* Invalid 1-byte UTF-8, continue */ \
-}else if( c<0xE0 ){ \
+if( c<0xC0 || c>=0xF8 ){ \
+  result |= 4;  /* Invalid 1-byte or multibyte UTF-8, continue */ \
+}else do{ \
+  /* Check if all continuation bytes >=0x80 and <0xC0 */ \
   if( n<2 || ((z[1]&0xC0)!=0x80) ){ \
-    result |= 4; /* Invalid 2-byte UTF-8, continue */ \
+    result |= 4; /* Invalid continuation byte, continue */ \
+    break; \
   }else{ \
-    --n; ++j; ++z; \
+	/* prepare for checking remaining continuation bytes */ \
+    c<<=2; --n; ++j; ++z; \
   } \
-}else if( c<0xF0 ){ \
-  if( n<3 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) ){ \
-    result |= 4; /* Invalid 3-byte UTF-8, continue */ \
-  }else{ \
-    n-=2; j+=2; z+=2; \
-  } \
-}else if( c<0xF8 ){ \
-  if( n<4 || ((z[1]&0xC0)!=0x80) || ((z[2]&0xC0)!=0x80) || ((z[3]&0xC0)!=0x80) ){ \
-    result |= 4; /* Invalid 4-byte UTF-8, continue */ \
-  }else{ \
-    n-=3; j+=3; z+=3; \
-  } \
-}else{ \
-  result |= 4;  /* Invalid multi-byte UTF-8, continue */ \
-}
+}while( c>=0xC0 );
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -838,7 +827,11 @@ static void sbsWriteLineChange(
     p->iStart2 = p->iEnd2 = 0;
     p->iStart = p->iEnd = -1;
     sbsWriteText(p, pLeft, SBS_PAD);
-    sbsWrite(p, nLeft==nRight ? "   " : " | ", 3);
+    if( nLeft==nRight && zLeft[nLeft]==zRight[nRight] ){
+      sbsWrite(p, "   ", 3);
+    }else{
+      sbsWrite(p, " | ", 3);
+    }
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nRight - nSuffix;
