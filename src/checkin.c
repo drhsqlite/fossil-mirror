@@ -928,7 +928,7 @@ static void commit_warning(
     cReply = blob_str(&ans)[0];
     if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
-                   blob_str(&fname), zWarning);
+                   zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
     eType +=4 ;
