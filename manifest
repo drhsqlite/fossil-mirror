@@ -1,5 +1,5 @@
-C merge\strunk.\s\n<p>simplify\sutf-8\scontinuation\sbyte\schecking,\susing\sa\sloop\sin\sstead\sof\sseparater\s2/3/4-byte\sversions.
-D 2012-11-07T09:43:25.510
+C styling
+D 2012-11-07T09:47:40.743
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c cc05b20228499e99e2d3a62be4449febdbd4e447
-F src/diff.c 1e873a9f40d4c6254933ae2f8e1e25173d0ec01c
+F src/diff.c de0ffe74534b514b228ad7673e8eeae99e3f612b
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -360,7 +360,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 879012769b2dfc2f26c3f7d177ba9264065c500e 28272fa125bb160cad334e47d5c3e10ae5349208
-R 351e26f8d35b3a7f52bd78c377498d97
+P 2f7ac60f78e68d1e20e4f79d2d9b68097e0d2200
+R ce42d2eee711a99d83a80f9113c0a103
 U jan.nijtmans
-Z f587b716178a552acfd23c7dc9985caa
+Z a300bc74510d5b15ef04c3a6cdbe4e9d

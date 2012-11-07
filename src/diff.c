@@ -191,7 +191,7 @@ if( c<0xC0 || c>=0xF8 ){ \
     result |= 4; /* Invalid continuation byte, continue */ \
     break; \
   }else{ \
-	/* prepare for checking remaining continuation bytes */ \
+    /* prepare for checking remaining continuation bytes */ \
     c<<=2; --n; ++j; ++z; \
   } \
 }while( c>=0xC0 );
@@ -243,14 +243,14 @@ int looks_like_utf8(const Blob *pContent){
   if( c>=0x80 ){
     CHECKUTF8(c)
   } else if( c==0 ){
-    return 0;  /* Zero byte in a file -> binary */ \
+    return 0;  /* Zero byte in a file -> binary */
   }
   while( --n>0 ){
     c = *++z; ++j;
     if( c>=0x80 ){
       CHECKUTF8(c)
     } else if( c==0 ){
-      return 0;  /* Zero byte in a file -> binary */ \
+      return 0;  /* Zero byte in a file -> binary */
     } else if( c=='\n' ){
       if( z[-1]=='\r' ){
         result |= 2;  /* Contains CR/NL, continue */
