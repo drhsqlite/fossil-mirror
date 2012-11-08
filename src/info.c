@@ -1725,10 +1725,10 @@ void tinfo_page(void){
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
-  free(zDate);
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
+  free(zDate);
   
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>

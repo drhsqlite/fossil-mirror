@@ -1147,7 +1147,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }
