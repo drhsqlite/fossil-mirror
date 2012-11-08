@@ -1,5 +1,5 @@
-C accidently\scommitted\stwo\sunrelated\sfiles...
-D 2012-11-08T15:45:04.281
+C Add\sa\snew\stest\sscript\sthat\sruns\s10,000\sweb\spages\swithout\svalgrind\slooking\nfor\sperformance\sissues\sor\sfatal\serrors.\s\sFix\sone\sincorrect\sSQL\sstatement\nfound\sby\sthis\sscript.\s\sUpdate\sthe\svalgrind\stest\sscript\sto\srun\sdiscovered\nweb\spages\sin\sa\srandom\sorder.
+D 2012-11-08T16:09:45.868
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -61,7 +61,7 @@ F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 36b983620949b2ea033342eeee14fb63b3b7d89f
 F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
-F src/attach.c 303e7d45edd0c431ffdb26735d5810c5b2e1b084
+F src/attach.c 44e077eddd7808444ac2f2929caf10d0d02c21d2
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
@@ -181,6 +181,7 @@ F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 2fb88044a8fb6bfc95c9aa0fab959f3f44657652
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
+F test/many-www.tcl b56384b63219ecdcb89e8477af0fc097036f1cdf
 F test/merge1.test 2b9aaabfbcc632d76d39365fd5e07e03ce682059
 F test/merge2.test 60194e41fa120b44f2a561b890f55ddba18aebe6
 F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
@@ -202,7 +203,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/valgrind-www.tcl 25eb8540ce9be0c97613291f2af1f34fe33a9124
+F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
 F tools/cvs2fossil/doc/LICENSE aede671429a0e8a5cc2fa35dfe5bcadd5c281b58
@@ -361,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 44d5ad59b40b0db3a8cb6350c0f82d2740890a9f
-R f22e1993e69fe78781ec5eb5ac45167b
-U jan.nijtmans
-Z 52908323b3098826b705156f7855ba09
+P b1199eb92bf09b55054d3a87ebc6fc40e8adc021
+R cc39abc16ba79a4864b2246176720687
+U drh
+Z 0bfa00dbedaa1005e9b1ecbb5c20b9f3

@@ -527,7 +527,7 @@ void ainfo_page(void){
   }else if( strncmp(zMime, "image/", 6)==0 ){
     @ <img src="%R/raw?name=%s(zSrc)&m=%s(zMime)"></img>
   }else{
-    int sz = db_int(0, "SELECT sz FROM blob WHERE rid=%d", ridSrc);
+    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>
   }
   @ </blockquote>
