@@ -66,8 +66,11 @@ for {set i 0} {$i<$limit} {incr i} {
   if {[string length $x]>1000000} {
     set x [string range $x 0 1000000]
   }
+  set k 0
   while {[regexp {<[aA] .*?href="(/[a-z].*?)".*?>(.*)$} $x all url tail]} {
     # if {$npending>2*($limit - $i)} break
+    incr k
+    if {$k>100} break
     set u2 [string map {&lt; < &gt; > &quot; \" &amp; &} $url]
     if {![info exists seen($u2)]} {
       set next($u2) 1

@@ -1,5 +1,5 @@
-C Update\sthe\smany-www.tcl\stest\sscript\sto\sstage\sthe\sURLs\stesting\sand\sto\srun\smore\nof\sthem.
-D 2012-11-08T20:28:29.285
+C Correctly\sescape\sZIP\sand\sTarball\sfilenames\sfor\sURLs.\s\sLimit\sSHA1\shashs\son\ndiff\sURLs\susing\s%S\sinstead\sof\s%s.\s\sLimit\sthe\snumber\sof\slinks\sto\sfollow\soff\nof\seach\spage\sin\sthe\smany-www.tcl\stest\sscript.
+D 2012-11-08T20:51:35.470
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -90,7 +90,7 @@ F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
-F src/finfo.c 33bc4f6f59bfbc7869864cf49235c69656e47773
+F src/finfo.c c2dbad9a56e59a4703c511fb66de0474e893c986
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -99,7 +99,7 @@ F src/http_socket.c 326f54adf82358dbd3ea1780dda4a7edf19fd52d
 F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
 F src/http_transport.c 935bc0a983135b26ce8ef36f7f537d23f6cc7898
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c b70a43112a4685e20bf4e6a6e4210e6ec6b8b7f8
+F src/info.c 4df68f2366ba2ce2a07bcb9a1033ec9feae2cf1a
 F src/json.c b36b961f7dcbb1c9cebb760007786b1082fb8516
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c ff5d979e8bd4a65a5490cd0d9f81a8fb771d4992
@@ -181,7 +181,7 @@ F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 2fb88044a8fb6bfc95c9aa0fab959f3f44657652
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
-F test/many-www.tcl 257271793f5acc86a24226412c1bd5d37de7c86a
+F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
 F test/merge1.test 2b9aaabfbcc632d76d39365fd5e07e03ce682059
 F test/merge2.test 60194e41fa120b44f2a561b890f55ddba18aebe6
 F test/merge3.test f224461c6ea82ba03dd10c2c3a092c017ac909b5
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cd8aad43929cdc86324001e6358f1420238d575a
-R af7bfcbf1a6ef8859cd7a48c884e5fcf
+P 691f18840211f8b0855eee7a4f5f05cabfb37e93
+R d25b442cc34a4662aa718c1218ff85f3
 U drh
-Z 5930804e59b585a0d84567123fc6ca6b
+Z eaf3bcb702de55dc35fd799ac77b57b0

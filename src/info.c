@@ -619,12 +619,12 @@ void ci_page(void){
 
       /* The Download: line */
       if( g.perm.Zip ){
-        char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
+        char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%s-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
