@@ -1664,7 +1664,7 @@ void test_timewarp_page(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
     @ <li>
-    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&d=%S(zUuid)">%S(zUuid)</a>
+    @ <a href="%s(g.zTop)/timeline?p=%S(zUuid)&amp;d=%S(zUuid)">%S(zUuid)</a>
   }
   db_finalize(&q);
   style_footer();
