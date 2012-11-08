@@ -108,7 +108,10 @@ char *href(const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a href=\"%z\">", zUrl);
+    char *link = htmlize(zUrl, strlen(zUrl));
+    zUrl = mprintf("<a href=\"%z\">", link);
+    fossil_free(link);
+    return zUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
@@ -144,11 +147,14 @@ void style_submenu_element(
   ...
 ){
   va_list ap;
+  char *link;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
   aSubmenu[nSubmenu].zTitle = zTitle;
   va_start(ap, zLink);
-  aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
+  link = vmprintf(zLink, ap);
+  aSubmenu[nSubmenu].zLink = htmlize(link, strlen(link));
+  fossil_free(link);
   va_end(ap);
   nSubmenu++;
 }

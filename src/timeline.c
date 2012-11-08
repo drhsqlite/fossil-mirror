@@ -375,7 +375,7 @@ void www_print_timeline(
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&amp;c=%t&amp;nd", zUser, zDate);
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&amp;nd", zUser, zDate);
       @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
     }else{
       @ (user: %h(zUser)%s(zTagList?",":"\051")
@@ -400,7 +400,7 @@ void www_print_timeline(
           if( zThisTag==0 || memcmp(z, zThisTag, i)!=0 || zThisTag[i]!=0 ){
             blob_appendf(&links,
                   "%z%#h</a>%.2s",
-                  href("%R/timeline?r=%#t&amp;nd&amp;c=%t",i,z,zDate), i,z, &z[i]
+                  href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
             );
           }else{
             blob_appendf(&links, "%#h", i+2, z);
