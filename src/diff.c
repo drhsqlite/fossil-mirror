@@ -991,6 +991,15 @@ static unsigned char *sbsAlignment(
     memset(aM, 1, nLeft);
     return aM;
   }
+
+  /* This algorithm is O(N**2).  So if N is too big, bail out with a
+  ** simple (but stupid and ugly) result that doesn't take too long. */
+  if( nLeft*nRight>100000 ){
+    memset(aM, 3, nRight);
+    memset(aM+nRight, 1, nLeft);
+    return aM;
+  }
+
   if( nRight < (sizeof(aBuf)/sizeof(aBuf[0]))-1 ){
     pToFree = 0;
     a = aBuf;

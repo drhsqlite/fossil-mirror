@@ -1,5 +1,5 @@
-C Add\sa\snew\stest\sscript\sthat\sruns\s10,000\sweb\spages\swithout\svalgrind\slooking\nfor\sperformance\sissues\sor\sfatal\serrors.\s\sFix\sone\sincorrect\sSQL\sstatement\nfound\sby\sthis\sscript.\s\sUpdate\sthe\svalgrind\stest\sscript\sto\srun\sdiscovered\nweb\spages\sin\sa\srandom\sorder.
-D 2012-11-08T16:09:45.868
+C Short-circuit\sa\srare\spathological\scase\sin\sthe\sdiff\sgenerator\sto\sprevent\sit\nfrom\staking\stoo\smuch\stime.
+D 2012-11-08T16:25:48.211
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c cc05b20228499e99e2d3a62be4449febdbd4e447
-F src/diff.c eac3efd0da75abf48f7c6cb98e2a39b0b2e12c7a
+F src/diff.c a7ceea3b03ffa615c12fd14463c517f9c03d5f3f
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b1199eb92bf09b55054d3a87ebc6fc40e8adc021
-R cc39abc16ba79a4864b2246176720687
+P a1064042722ba2a2d41ec103cd18284e9c5a9ba1
+R 4011b95923c0b585d7232dda85e139eb
 U drh
-Z 0bfa00dbedaa1005e9b1ecbb5c20b9f3
+Z d806c488ae0100cecd5d006ebb35c3f5
