@@ -887,7 +887,7 @@ static void checkin_description(int rid){
         for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
         blob_appendf(&links,
               "%z%#h</a>%.2s",
-              href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+              href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
         );
         if( z[i]==0 ) break;
         z += i+2;
