@@ -62,7 +62,7 @@ void view_list(void){
     }
     blob_appendf(&ril, "&nbsp;&nbsp;&nbsp;");
     if( g.perm.Write && zOwner && zOwner[0] ){
-      blob_appendf(&ril, "(by <i>%h</i></i>) ", zOwner);
+      blob_appendf(&ril, "(by <i>%h</i>) ", zOwner);
     }
     if( g.perm.TktFmt ){
       blob_appendf(&ril, "[%zcopy</a>] ",
