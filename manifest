@@ -1,5 +1,5 @@
-C one\smore\ssimilar\sfix,\sin\sxhref().\sThere\sis\sonly\sone\shyperlink\susing\sxhref\swith\sampersands,\sin\sthe\s"vinfo"\sand\s"ci"\spages,\sbut\sjust\sfor\scompleteness…
-D 2012-11-08T12:04:23.935
+C Always\sHTML-encode\sthe\shref\sattribute\sof\s&lt;a&gt;\selements.\s\sThis\scheck-in\nsimplifies\sand\sfixes\sdouble-frees\sin\sthe\sprevious.\s\s\nTicket\s[5ff2043c9668]
+D 2012-11-08T13:44:16.383
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -150,7 +150,7 @@ F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
 F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c 98cd7372c3839c883b30b43e55f1b327b0babdd4
+F src/style.c e34269aff2e16bb75db5b9aa1777bd13646012d5
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -165,7 +165,7 @@ F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/update.c 5d56ff23f36ee4ce2472c4e3e67d02a903f1967c
-F src/url.c 31cda8fc34f6c65ce4fcdd5eb521c817600ba7f6
+F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
 F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
@@ -360,7 +360,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d1f16f718ab7489b9e63db67040e7e6fc1cbab6c
-R 8d11958473c47c00c35d7ff95f63b694
-U jan.nijtmans
-Z 8a784f29644b20a62f25dd98c5a6018d
+P e47d862a59c2548747c1c2122be5f5cc2b92ccce
+R 1649fe87dd1bf0bea96284abf25c9f7a
+U drh
+Z ec25bb6b054763ea4583bbda3e0794fc

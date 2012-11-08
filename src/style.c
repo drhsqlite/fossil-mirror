@@ -92,10 +92,9 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *link = htmlize(zUrl, strlen(zUrl));
-    zUrl = mprintf("<a %s href=\"%z\">", zExtra, link);
-    fossil_free(link);
-    return zUrl;
+    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
@@ -111,10 +110,9 @@ char *href(const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    char *link = htmlize(zUrl, strlen(zUrl));
-    zUrl = mprintf("<a href=\"%z\">", link);
-    fossil_free(link);
-    return zUrl;
+    char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
@@ -150,14 +148,11 @@ void style_submenu_element(
   ...
 ){
   va_list ap;
-  char *link;
   assert( nSubmenu < sizeof(aSubmenu)/sizeof(aSubmenu[0]) );
   aSubmenu[nSubmenu].zLabel = zLabel;
   aSubmenu[nSubmenu].zTitle = zTitle;
   va_start(ap, zLink);
-  link = vmprintf(zLink, ap);
-  aSubmenu[nSubmenu].zLink = htmlize(link, strlen(link));
-  fossil_free(link);
+  aSubmenu[nSubmenu].zLink = vmprintf(zLink, ap);
   va_end(ap);
   nSubmenu++;
 }
@@ -289,7 +284,7 @@ void style_footer(void){
       if( p->zLink==0 ){
         @ <span class="label">%h(p->zLabel)</span>
       }else{
-        @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
+        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
       }
     }
     @ </div>
