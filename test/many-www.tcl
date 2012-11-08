@@ -24,22 +24,40 @@ foreach url {
   /setup
   /dir
   /wcontent
+  /attachlist
+  /taglist
+  /test_env
+  /stat
+  /rcvfromlist
+  /urllist
+  /modreq
+  /info/d5c4
+  /test-all-help
+  /leaves
+  /timeline?a=1970-01-01
 } {
   set seen($url) 1
   set pending($url) 1
 }
-set limit 10000
+set round 1
+set limit 25000
 set npending [llength [array names pending]]
 proc get_pending {} {
-  global pending npending
+  global pending npending round next
+  if {$npending==0} {
+    incr round
+    array set pending [array get next]
+    set npending [llength [array names pending]]
+    unset -nocomplain next
+  }
   set res [lindex [array names pending] [expr {int(rand()*$npending)}]]
   unset pending($res)
   incr npending -1
   return $res
 }
-for {set i 0} {$npending>0 && $i<$limit} {incr i} {
+for {set i 0} {$i<$limit} {incr i} {
   set url [get_pending]
-  puts -nonewline "([expr {$i+1}]) $url "
+  puts -nonewline "($round/[expr {$i+1}]) $url "
   flush stdout
   set tm [time {set x [run_query $url]}]
   set ms [lindex $tm 0]
@@ -52,9 +70,8 @@ for {set i 0} {$npending>0 && $i<$limit} {incr i} {
     # if {$npending>2*($limit - $i)} break
     set u2 [string map {&lt; < &gt; > &quot; \" &amp; &} $url]
     if {![info exists seen($u2)]} {
-      set pending($u2) 1
+      set next($u2) 1
       set seen($u2) 1
-      incr npending
     }
     set x $tail
   }
