@@ -92,7 +92,10 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+    char *link = htmlize(zUrl, strlen(zUrl));
+    zUrl = mprintf("<a %s href=\"%z\">", zExtra, link);
+    fossil_free(link);
+    return zUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
