@@ -25,19 +25,30 @@ foreach url {
   /reportlist
   /setup
   /dir
+  /wcontent
 } {
   set seen($url) 1
-  lappend todo $url
+  set pending($url) 1
 }
-for {set i 0} {$i<[llength $todo] && $i<1000} {incr i} {
-  set url [lindex $todo $i]
+set limit 1000
+set npending [llength [array names pending]]
+proc get_pending {} {
+  global pending npending
+  set res [lindex [array names pending] [expr {int(rand()*$npending)}]]
+  unset pending($res)
+  incr npending -1
+  return $res
+}
+for {set i 0} {$npending>0 && $i<$limit} {incr i} {
+  set url [get_pending]
   puts "====== ([expr {$i+1}]) $url ======"
   set x [run_query $url]
   while {[regexp {<[aA] .*?href="(/[a-z].*?)".*?>(.*)$} $x all url tail]} {
     set u2 [string map {&lt; < &gt; > &quot; \" &amp; &} $url]
     if {![info exists seen($u2)]} {
-      lappend todo $u2
+      set pending($u2) 1
       set seen($u2) 1
+      incr npending
     }
     set x $tail
   }
