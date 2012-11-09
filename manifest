@@ -1,5 +1,5 @@
-C Correctly\sescape\sZIP\sand\sTarball\sfilenames\sfor\sURLs.\s\sLimit\sSHA1\shashs\son\ndiff\sURLs\susing\s%S\sinstead\sof\s%s.\s\sLimit\sthe\snumber\sof\slinks\sto\sfollow\soff\nof\seach\spage\sin\sthe\smany-www.tcl\stest\sscript.
-D 2012-11-08T20:51:35.470
+C In\shtml5,\severy\stable\srow\sis\sexpected\sto\shave\sthe\ssame\snumber\sof\scells.
+D 2012-11-09T11:56:42.179
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -90,7 +90,7 @@ F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
-F src/finfo.c c2dbad9a56e59a4703c511fb66de0474e893c986
+F src/finfo.c a56a77ded3a454e39668943c1422f197cbea9cea
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -159,7 +159,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c dae51631100e23fca4b45e79ccd35306dabe176b
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c a53d31fe54afc4b1997d5152cb1fe52269554664
+F src/timeline.c 9f85430f822196765d93027749fcdb3c9d8e5c8c
 F src/tkt.c 45ff29e1f9b5e3a8520d58c7eb04f004e4b87b21
 F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 691f18840211f8b0855eee7a4f5f05cabfb37e93
-R d25b442cc34a4662aa718c1218ff85f3
-U drh
-Z eaf3bcb702de55dc35fd799ac77b57b0
+P 76e8600b94210e4a83288264a278f423051e4b1d
+R e33e2213b934571fd55857be7bc7df97
+U jan.nijtmans
+Z 54f9868aab1fe78784916b98025fb5ef
