@@ -1,5 +1,5 @@
-C In\shtml5,\severy\stable\srow\sis\sexpected\sto\shave\sthe\ssame\snumber\sof\scells.
-D 2012-11-09T11:56:42.179
+C Pull\sthe\slatest\sSQLite\sfrom\supstream\sfor\stesting\spurposes.
+D 2012-11-09T23:35:05.878
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -146,8 +146,8 @@ F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c a9c85593f70548cc66d02aa89dbb8a34fc421c65
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
-F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
-F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
+F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
+F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c e34269aff2e16bb75db5b9aa1777bd13646012d5
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 76e8600b94210e4a83288264a278f423051e4b1d
-R e33e2213b934571fd55857be7bc7df97
-U jan.nijtmans
-Z 54f9868aab1fe78784916b98025fb5ef
+P cc746fc66c7935185cfb4888e780929e2d845457
+R ec8635b3153bfa641775852e8396c3e6
+U drh
+Z 9d55b9ae13afa7db147348f112803f38
