@@ -278,7 +278,7 @@ void www_print_timeline(
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
-      @ </td></tr>
+      @ </td><td></td><td></td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
@@ -496,7 +496,7 @@ void www_print_timeline(
       */
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
-      @ </td></tr>
+      @ </td><td></td></tr>
     }
   }
   @ </table>

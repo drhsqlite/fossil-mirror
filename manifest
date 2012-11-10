@@ -1,5 +1,5 @@
-C Attempt\sto\sfix\s[fb3057f6ed].\sSeems\sto\swork.
-D 2012-11-09T09:01:33.629
+C merge\strunk
+D 2012-11-10T19:57:32.441
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -59,7 +59,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 36b983620949b2ea033342eeee14fb63b3b7d89f
+F src/add.c c877f19ebec7aa014fc29295bca449fcbecc9610
 F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
 F src/attach.c 44e077eddd7808444ac2f2929caf10d0d02c21d2
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c b7cb3097253693ec81b87adf088b9673bad6a714
+F src/checkin.c 5f626facaa1613b61df8cc411108dbf4ff39e4e1
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
@@ -90,7 +90,7 @@ F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
-F src/finfo.c c2dbad9a56e59a4703c511fb66de0474e893c986
+F src/finfo.c a56a77ded3a454e39668943c1422f197cbea9cea
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -146,8 +146,8 @@ F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c a1d9e804939add9efdcb48746df09e9bd7c1a077
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
-F src/sqlite3.c 3f61c760838e15df78da78dc492a8932c7993127
-F src/sqlite3.h 5937c84f0b5be1adc284ae3b5e0308c7a82cfdac
+F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
+F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c 84ae470bbb550f8d2bb7e5070324426f69555770
@@ -159,7 +159,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c dae51631100e23fca4b45e79ccd35306dabe176b
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c a53d31fe54afc4b1997d5152cb1fe52269554664
+F src/timeline.c 9f85430f822196765d93027749fcdb3c9d8e5c8c
 F src/tkt.c 45ff29e1f9b5e3a8520d58c7eb04f004e4b87b21
 F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -172,7 +172,7 @@ F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
 F src/wiki.c 645b3b48287298d77bbbbe8a1b4e2559c45843ca
 F src/wikiformat.c 76f46528a550d74ba0b18d42a4e4535fecc0f8dd
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
-F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
+F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c baab37133d1af27ac6813fecf51b18785621ea79
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
@@ -362,10 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 76e8600b94210e4a83288264a278f423051e4b1d
-R 528563ece0a000db20b45b1ab13b0b6f
-T *branch * ticket-fb3057f6ed
-T *sym-ticket-fb3057f6ed *
-T -sym-trunk *
+P b0917b10007ee78e9ef723ebad1e9940db07f685 449947b7d61905d5a7f87f34b38ba6b2d9f6125a
+R b1519ce5ff358d3efdd5d1def352f6b0
 U jan.nijtmans
-Z ec0aed5a69bc98b179310aa57173c629
+Z 19b6c1879fcba343c285916b3dc56194
