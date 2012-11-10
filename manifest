@@ -1,5 +1,5 @@
-C Enhance\sthe\sfossil_reserved_name()\sfunction\sto\sinclude\sthe\srepository\sfilename\nand\sits\sjournals\sand\sauxiliary\sfiles.\s\sTicket\s[7d790e7e5e0f701e01].
-D 2012-11-10T00:26:26.196
+C Reverse\sthe\slabels\son\sthe\sAdd/Delete\sindentation\sbuttons\sin\sthe\sWysiwyg\neditor.\s\sTicket\s[9d4cb9cf117b10a68]
+D 2012-11-10T01:12:13.684
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -172,7 +172,7 @@ F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
 F src/wiki.c 645b3b48287298d77bbbbe8a1b4e2559c45843ca
 F src/wikiformat.c 76f46528a550d74ba0b18d42a4e4535fecc0f8dd
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
-F src/wysiwyg.c a2268dad5e4e6f5f7870043d3c4bd66d605db1f4
+F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c baab37133d1af27ac6813fecf51b18785621ea79
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 50c534ee530d0e5f229e0b99384d3648acd76c9c
-R 505a5cb9c8d6953129dfe97afb58f93e
+P 8b06be709f13c55bf06eaec9bd753afb1bf036fe
+R 52cb143529c59826e664974465d4ed34
 U drh
-Z becca1989c53e64f10cf91aaef06e3d1
+Z 7f1959ae8d5c46a4dc380babc1efaf6d
