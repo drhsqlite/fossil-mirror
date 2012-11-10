@@ -62,18 +62,35 @@ const char *fossil_reserved_name(int N){
      "manifest.uuid",
   };
 
+  /*
+  ** Names of repository files, if they exist in the checkout.
+  */
+  static const char *azRepo[4] = { 0, 0, 0, 0 };
+
   /* Cached setting "manifest" */
   static int cachedManifest = -1;
 
   if( cachedManifest == -1 ){
+    Blob repo;
     cachedManifest = db_get_boolean("manifest",0);
+    blob_zero(&repo);
+    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+      const char *zRepo = blob_str(&repo);
+      azRepo[0] = zRepo;
+      azRepo[1] = mprintf("%s-journal", zRepo);
+      azRepo[2] = mprintf("%s-wal", zRepo);
+      azRepo[3] = mprintf("%s-shm", zRepo);
+    }
   }
 
-  if( N>=0 && N<count(azName) ) return azName[N];
-  if( N>=count(azName) && N<count(azName)+count(azManifest)
-      && cachedManifest ){
-    return azManifest[N-count(azName)];
+  if( N<0 ) return 0;
+  if( N<count(azName) ) return azName[N];
+  N -= count(azName);
+  if( cachedManifest ){
+    if( N<count(azManifest) ) return azManifest[N];
+    N -= count(azManifest);
   }
+  if( N<count(azRepo) ) return azRepo[N];
   return 0;
 }
 
@@ -94,6 +111,21 @@ const char *fossil_all_reserved_names(void){
     zAll = blob_str(&x);
   }
   return zAll;
+}
+
+/*
+** COMMAND: test-reserved-names
+**
+** Show all reserved filenames for the current check-out.
+*/
+void test_reserved_names(void){
+  int i;
+  const char *z;
+  db_must_be_within_tree();
+  for(i=0; (z = fossil_reserved_name(i))!=0; i++){
+    fossil_print("%3d: %s\n", i, z);
+  }
+  fossil_print("ALL: (%s)\n", fossil_all_reserved_names());
 }
 
 /*

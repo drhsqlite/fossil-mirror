@@ -1,5 +1,5 @@
-C Pull\sthe\slatest\sSQLite\sfrom\supstream\sfor\stesting\spurposes.
-D 2012-11-09T23:35:05.878
+C Enhance\sthe\sfossil_reserved_name()\sfunction\sto\sinclude\sthe\srepository\sfilename\nand\sits\sjournals\sand\sauxiliary\sfiles.\s\sTicket\s[7d790e7e5e0f701e01].
+D 2012-11-10T00:26:26.196
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -59,7 +59,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 36b983620949b2ea033342eeee14fb63b3b7d89f
+F src/add.c c877f19ebec7aa014fc29295bca449fcbecc9610
 F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
 F src/attach.c 44e077eddd7808444ac2f2929caf10d0d02c21d2
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c b7cb3097253693ec81b87adf088b9673bad6a714
+F src/checkin.c 5f626facaa1613b61df8cc411108dbf4ff39e4e1
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cc746fc66c7935185cfb4888e780929e2d845457
-R ec8635b3153bfa641775852e8396c3e6
+P 50c534ee530d0e5f229e0b99384d3648acd76c9c
+R 505a5cb9c8d6953129dfe97afb58f93e
 U drh
-Z 9d55b9ae13afa7db147348f112803f38
+Z becca1989c53e64f10cf91aaef06e3d1

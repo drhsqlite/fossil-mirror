@@ -326,7 +326,6 @@ void ls_cmd(void){
 */
 void extra_cmd(void){
   Blob path;
-  Blob repo;
   Stmt q;
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
@@ -355,9 +354,6 @@ void extra_cmd(void){
       " ORDER BY 1",
       fossil_all_reserved_names()
   );
-  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
-    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
-  }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
