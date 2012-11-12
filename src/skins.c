@@ -1173,30 +1173,30 @@ static const char zBuiltinSkin5[] =
 @ <th1>
 @ html "<a href=''$home$index_page''>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href=''timeline''>Timeline</a>\n"
+@   html "<a href=''$home/timeline''>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href=''dir?ci=tip''>Files</a>\n"
+@   html "<a href=''$home/dir?ci=tip''>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href=''brlist''>Branches</a>\n"
-@   html "<a href=''taglist''>Tags</a>\n"
+@   html "<a href=''$home/brlist''>Branches</a>\n"
+@   html "<a href=''$home/taglist''>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href=''reportlist''>Tickets</a>\n"
+@   html "<a href=''$home/reportlist''>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href=''wiki''>Wiki</a>\n"
+@   html "<a href=''$home/wiki''>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href=''setup''>Admin</a>\n"
+@   html "<a href=''$home/setup''>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href=''setup_ulist''>Users</a>\n"
+@   html "<a href=''$home/setup_ulist''>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href=''login''>Logout</a>\n"
+@   html "<a href=''$home/login''>Logout</a>\n"
 @ } else {
-@   html "<a href=''login''>Login</a>\n"
+@   html "<a href=''$home/login''>Login</a>\n"
 @ }
 @ </th1></div>
 @ ');
