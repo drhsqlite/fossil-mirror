@@ -158,6 +158,10 @@ static void transport_ssh_startup(void){
     fflush(stdout);
   }
   sshin_read(zIn, nBuf);
+  if( zIn[0]==0 ){
+    sqlite3_sleep(250);
+    sshin_read(zIn, nBuf);
+  }
   if( g.fSshTrace ){
     printf("Got back-----------------------------------------------\n"
            "%s\n"
