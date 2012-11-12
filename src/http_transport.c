@@ -101,23 +101,31 @@ static char zDefaultSshCmd[] = "ssh -e none -T";
 #endif
 
 /*
+** Generate a random SSH link problem keyword
+*/
+static int random_probe(char *zProbe, int nProbe){
+  unsigned r[4];
+  sqlite3_randomness(sizeof(r), r);
+  sqlite3_snprintf(nProbe, zProbe, "probe-%08x%08x%08x%08x",
+                   r[0], r[1], r[2], r[3]);
+  return (int)strlen(zProbe);
+}
+
+/*
 ** Bring up an SSH link.  This involves sending some "echo" commands and
 ** get back appropriate responses.  The point is to move past the MOTD and
 ** verify that the link is working.
 */
 static void transport_ssh_startup(void){
-  char *zIn;         /* An input line received back from remote */
-  int nWait;         /* Number of times waiting for the MOTD */
-  unsigned iRandom;  /* Random probe value */
-  char zProbe[30];   /* Text of the random probe */
-  int nProbe;        /* Size of probe message */
+  char *zIn;                       /* An input line received back from remote */
+  int nWait;                       /* Number of times waiting for the MOTD */
+  char zProbe[40];                 /* Text of the random probe */
+  int nProbe;                      /* Size of probe message */
   int nIn;                         /* Size of input */
   static const int nBuf = 10000;   /* Size of input buffer */
 
   zIn = fossil_malloc(nBuf);
-  sqlite3_randomness(sizeof(iRandom), &iRandom);
-  sqlite3_snprintf(sizeof(zProbe), zProbe, "probe-%08x", iRandom);
-  nProbe = (int)strlen(zProbe);
+  nProbe = random_probe(zProbe, sizeof(zProbe));
   fprintf(sshOut, "echo %s\n", zProbe);
   fflush(sshOut);
   if( g.fSshTrace ){
@@ -142,8 +150,7 @@ static void transport_ssh_startup(void){
       fflush(stdout);
     }
   }
-  sqlite3_randomness(sizeof(iRandom), &iRandom);
-  sqlite3_snprintf(sizeof(zProbe), zProbe, "probe-%08x", iRandom);
+  nProbe = random_probe(zProbe, sizeof(zProbe));
   fprintf(sshOut, "echo %s\n", zProbe);
   fflush(sshOut);
   if( g.fSshTrace ){
