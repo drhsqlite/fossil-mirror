@@ -1,5 +1,5 @@
-C merge\strunk
-D 2012-11-12T13:12:56.211
+C revert\sunrelated\schanges
+D 2012-11-12T13:16:27.404
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1fbb39f593d3785d75e64b35ee10f94c8c104887
-F src/main.c f3c7c40a847c2d20047acc3357bcf70556b3045e
+F src/main.c bbf2feec5bc71ec001a133140e961d27f9806427
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -144,13 +144,13 @@ F src/setup.c 10f96c0f6f9129b2ecf4efe38a534828641ec95c
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
-F src/skins.c 20501e457e221b694af5e79aaac3b24a7c0df8cf
+F src/skins.c a9c85593f70548cc66d02aa89dbb8a34fc421c65
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
 F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
 F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c 828e4f1ec7f34f842ca116cf7aa3636cf8018fea
+F src/style.c e34269aff2e16bb75db5b9aa1777bd13646012d5
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -262,7 +262,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 540c31789886c9ebf3d531724388e55cd2d57094
-F win/Makefile.mingw 1b25d41560c56dd0cbdee27c251d82455e01b323
+F win/Makefile.mingw 04c9bfc27f6d0faac94db3569c822541c08ac469
 F win/Makefile.mingw.mistachkin 34febe203177b9af5db5a1180d70d1ebaf41618a
 F win/Makefile.msc fed7e3f0ad077992b2aa28d2eaa91c62485d9689
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9627a9051b5a573ad6dc02c394af55c705d06f45 4473a27f3b6e049e3c162e440e0e4c87daf9570c
-R f1a463c333cd6e98f4b1e95de27f1bcb
+P b1beeb77ee0f0d9979ca6d22384a01387728470b
+R 02f38bc9a3cc4d879f0971abdee2b3c6
 U jan.nijtmans
-Z af5e5a5162952f7687ef5f2bec649bb7
+Z 6d7a553841b469c4ee11388378913709

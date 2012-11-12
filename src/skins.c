@@ -46,7 +46,6 @@ static const char zBuiltinSkin1[] =
 @   background-color: #707070;
 @   color: #ffffff;
 @   min-width: 200px;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The page title centered at the top of each page */
@@ -70,7 +69,6 @@ static const char zBuiltinSkin1[] =
 @   font-size: 0.8em;
 @   font-weight: bold;
 @   min-width: 200px;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The header across the top of the page */
@@ -170,13 +168,13 @@ static const char zBuiltinSkin1[] =
 @ <body>
 @ <div class="header">
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
-@   <div class="status"><th1>
+@   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></div>
+@   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu">
 @ <th1>
@@ -239,7 +237,6 @@ static const char zBuiltinSkin2[] =
 @   font-weight: bold;
 @   font-size: 2.5em;
 @   color: #a09048;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The page title centered at the top of each page */
@@ -263,7 +260,6 @@ static const char zBuiltinSkin2[] =
 @   padding: 5px 5px 0 0;
 @   font-size: 0.8em;
 @   font-weight: bold;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The header across the top of the page */
@@ -376,14 +372,14 @@ static const char zBuiltinSkin2[] =
 @ <div class="header">
 @   <div class="title">$<title></div>
 @   <div class="status">
-@     <div class="logo">$<project_name></div><br/>
-@     <th1>
+@     <div class="logo"><nobr>$<project_name></nobr></div><br/>
+@     <nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></div>
+@   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu">
 @ <th1>
@@ -454,7 +450,6 @@ static const char zBuiltinSkin3[] =
 @   vertical-align: bottom;
 @   font-weight: bold;
 @   color: #333;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The page title centered at the top of each page */
@@ -478,7 +473,6 @@ static const char zBuiltinSkin3[] =
 @   color: #333;
 @   font-size: 0.8em;
 @   font-weight: bold;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The header across the top of the page */
@@ -614,16 +608,16 @@ static const char zBuiltinSkin3[] =
 @ <div class="header">
 @   <div class="logo">
 @     <img src="$home/logo" alt="logo">
-@     <br />$<project_name>
+@     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
-@   <div class="status"><th1>
+@   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></div>
+@   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu">
 @ <th1>
@@ -690,7 +684,6 @@ static const char zBuiltinSkin4[] =
 @   text-align: right;
 @   vertical-align: bottom;
 @   font-weight: normal;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* Widths */
@@ -723,7 +716,6 @@ static const char zBuiltinSkin4[] =
 @   vertical-align: bottom;
 @   color: #333;
 @   margin-right: -20px;
-@   white-space: nowrap;
 @ }
 @ 
 @ /* The main menu bar that appears at the top of the page beneath
@@ -879,16 +871,16 @@ static const char zBuiltinSkin4[] =
 @ <div class="header">
 @   <div class="logo">
 @     <img src="$home/logo" alt="logo">
-@     <br />$<project_name>
+@     <br /><nobr>$<project_name></nobr>
 @   </div>
 @   <div class="title">$<title></div>
-@   <div class="status"><th1>
+@   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></div>
+@   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu">
 @ <th1>
@@ -965,7 +957,6 @@ static const char zBuiltinSkin5[] =
 @   font-weight: bold;
 @   color: #558195;
 @   min-width: 200px;
-@   white-space: nowrap;
 @ }
 @
 @ /* The page title centered at the top of each page */
@@ -1170,13 +1161,13 @@ static const char zBuiltinSkin5[] =
 @     </a>
 @   </div>
 @   <div class="title"><small>$<project_name></small><br />$<title></div>
-@   <div class="status"><th1>
+@   <div class="status"><nobr><th1>
 @      if {[info exists login]} {
 @        puts "Logged in as $login"
 @      } else {
 @        puts "Not logged in"
 @      }
-@   </th1></div>
+@   </th1></nobr></div>
 @ </div>
 @ <div class="mainmenu">
 @ <th1>

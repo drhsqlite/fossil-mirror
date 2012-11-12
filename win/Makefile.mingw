@@ -15,10 +15,10 @@
 #### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-# PREFIX =
+PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
-PREFIX = i686-w64-mingw32-
+# PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
@@ -44,15 +44,15 @@ BCC = gcc
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
-FOSSIL_ENABLE_SSL = 1
+# FOSSIL_ENABLE_SSL = 1
 
 #### Enable scripting support via Tcl/Tk
 #
-FOSSIL_ENABLE_TCL = 1
+# FOSSIL_ENABLE_TCL = 1
 
 #### Load Tcl using the stubs mechanism
 #
-FOSSIL_ENABLE_TCL_STUBS = 1
+# FOSSIL_ENABLE_TCL_STUBS = 1
 
 #### Use the Tcl source directory instead of the install directory?
 #    This is useful when Tcl has been compiled statically with MinGW.
