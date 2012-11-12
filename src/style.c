@@ -92,7 +92,9 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
@@ -108,7 +110,9 @@ char *href(const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a href=\"%z\">", zUrl);
+    char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
@@ -280,7 +284,7 @@ void style_footer(void){
       if( p->zLink==0 ){
         @ <span class="label">%h(p->zLabel)</span>
       }else{
-        @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
+        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
       }
     }
     @ </div>

@@ -333,7 +333,7 @@ void finfo_page(void){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
       @   <div class="divider">%s(zPrevDate)</div>
-      @ </td></tr>
+      @ </td><td></td><td></td></tr>
     }
     memcpy(zTime, &zDate[11], 5);
     zTime[5] = 0;
@@ -359,7 +359,7 @@ void finfo_page(void){
     if( g.perm.Hyperlink && zUuid ){
       const char *z = zFilename;
       if( fpid ){
-        @ %z(href("%R/fdiff?v1=%s&v2=%s",zPUuid,zUuid))[diff]</a>
+        @ %z(href("%R/fdiff?v1=%S&v2=%S",zPUuid,zUuid))[diff]</a>
       }
       @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>
@@ -375,7 +375,7 @@ void finfo_page(void){
     }else{
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
-      @     </td></tr>
+      @     </td><td></td></tr>
     }
   }
   @ </table>

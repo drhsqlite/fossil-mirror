@@ -619,12 +619,12 @@ void ci_page(void){
 
       /* The Download: line */
       if( g.perm.Zip ){
-        char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
+        char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%s-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
@@ -887,7 +887,7 @@ static void checkin_description(int rid){
         for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
         blob_appendf(&links,
               "%z%#h</a>%.2s",
-              href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+              href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
         );
         if( z[i]==0 ) break;
         z += i+2;
@@ -1725,10 +1725,10 @@ void tinfo_page(void){
   @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
-  free(zDate);
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
+  free(zDate);
   
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>

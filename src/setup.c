@@ -64,7 +64,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -1354,7 +1354,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }

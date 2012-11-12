@@ -326,7 +326,6 @@ void ls_cmd(void){
 */
 void extra_cmd(void){
   Blob path;
-  Blob repo;
   Stmt q;
   int n;
   const char *zIgnoreFlag = find_option("ignore",0,1);
@@ -355,9 +354,6 @@ void extra_cmd(void){
       " ORDER BY 1",
       fossil_all_reserved_names()
   );
-  if( file_tree_name(g.zRepositoryName, &repo, 0) ){
-    db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
-  }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
   while( db_step(&q)==SQLITE_ROW ){
@@ -1033,6 +1029,7 @@ static int tagCmp(const void *a, const void *b){
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
 **    --conflict                 allow unresolved merge conflicts
+**    --binary-ok                do not warn about committing binary files
 **
 ** See also: branch, changes, checkout, extra, sync
 */
@@ -1051,6 +1048,7 @@ void commit_cmd(void){
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
   int allowConflict = 0; /* Allow unresolve merge conflicts */
+  int binaryOk = 0;      /* The --binary-ok flag */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -1087,6 +1085,7 @@ void commit_cmd(void){
   zBranch = find_option("branch","b",1);
   zColor = find_option("bgcolor",0,1);
   zBrClr = find_option("branchcolor",0,1);
+  binaryOk = find_option("binary-ok",0,0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
     azTag = fossil_realloc((void *)azTag, sizeof(char*)*(nTag+2));
@@ -1296,7 +1295,7 @@ void commit_cmd(void){
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
-    binOk = db_column_int(&q, 5);
+    binOk = binaryOk || db_column_int(&q, 5);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
