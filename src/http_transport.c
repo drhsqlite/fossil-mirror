@@ -112,6 +112,8 @@ void transport_global_startup(void){
     Blob zCmd;         /* The SSH command */
     char *zHost;       /* The host name to contact */
     char *zIn;         /* An input line received back from remote */
+    unsigned iRandom;
+    char zProbe[30]; 
 
     zSsh = db_get("ssh-command", zDefaultSshCmd);
     blob_init(&zCmd, zSsh, -1);
@@ -157,14 +159,19 @@ void transport_global_startup(void){
     }
     blob_reset(&zCmd);
 
-    /* Send an "echo" command to the other side to make sure that the
+    /* Send a couple of "echo" command to the other side to make sure that the
     ** connection is up and working.
     */
-    fprintf(sshOut, "echo test\n");
+    fprintf(sshOut, "echo test1\n");
     fflush(sshOut);
-    zIn = fossil_malloc(16000);
-    sshin_read(zIn, 16000);
-    if( memcmp(zIn, "test", 4)!=0 ){
+    zIn = fossil_malloc(50000);
+    sshin_read(zIn, 50000);
+    sqlite3_randomness(sizeof(iRandom), &iRandom);
+    sqlite3_snprintf(sizeof(zProbe), zProbe, "probe-%08x", iRandom);
+    fprintf(sshOut, "echo %s\n", zProbe);
+    fflush(sshOut);
+    sshin_read(zIn, 500);
+    if( memcmp(zIn, zProbe, 14)!=0 ){
       pclose2(sshIn, sshOut, sshPid);
       fossil_fatal("ssh connection failed: [%s]", zIn);
     }
