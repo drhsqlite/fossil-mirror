@@ -259,7 +259,7 @@ void www_print_timeline(
     prevTagid = tagid;
     if( suppressCnt ){
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
+      @ event%s(suppressCnt>1?"s":"") omitted.</span>
       suppressCnt = 0;
     }
     if( pendingEndTr ){
@@ -479,7 +479,7 @@ void www_print_timeline(
   }
   if( suppressCnt ){
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
+    @ event%s(suppressCnt>1?"s":"") omitted.</span>
     suppressCnt = 0;
   }
   if( pendingEndTr ){
