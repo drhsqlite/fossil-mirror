@@ -375,7 +375,7 @@ void www_print_timeline(
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
     if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&amp;nd", zUser, zDate);
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zUser, zDate);
       @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
     }else{
       @ (user: %h(zUser)%s(zTagList?",":"\051")
