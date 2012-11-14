@@ -1383,23 +1383,35 @@ static void process_one_web_page(const char *zNotFound){
       zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
       /* To avoid mischief, make sure the repository basename contains no
-      ** characters other than alphanumerics, "-", "/", and "_".
+      ** characters other than alphanumerics, "-", "/", "_", and "." beside
+      ** "/" or ".".
       */
       for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
-        if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
+        char c = zRepo[j];
+        if( !fossil_isalnum(c) && c!='-' && c!='/'
+         && (c!='.' || zRepo[j+1]=='/' || zRepo[j-1]=='/' || zRepo[j+1]=='.')
+        ){
           zRepo[j] = '_';
         }
       }
       if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
 
       szFile = file_size(zRepo);
-      if( zPathInfo[i]=='/' && szFile<0 ){
+      if( szFile<0 ){
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
-        if( file_isdir(zRepo)==1 ){
+        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
+        }
+        if( file_isfile(zRepo) ){
+          Blob content;
+          blob_read_from_file(&content, zRepo);
+          cgi_set_content_type(mimetype_from_name(zRepo));
+          cgi_set_content(&content);
+          cgi_reply();
+          return;
         }
         zRepo[j] = '.';
       }
