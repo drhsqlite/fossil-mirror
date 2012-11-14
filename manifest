@@ -1,5 +1,5 @@
-C Update\sthe\s"fossil\sserver\sDIRECTORY"\soperation\sso\sthat\sit\swill\sserve\nstatic\scontent\scontained\sin\sDIRECTORY\sin\saddition\sto\sFossil\srepositories.
-D 2012-11-14T17:23:44.538
+C Allow\sthe\s"fossil\sui"\scommand\sto\sspecify\sa\sdirectory\sas\slong\sas\sthe\n"--notfound"\soption\sis\salso\sused.\s\sGive\sa\sbetter\serror\smessage\sif\sthese\nconditions\sare\snot\smet.
+D 2012-11-14T17:39:51.838
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1fbb39f593d3785d75e64b35ee10f94c8c104887
-F src/main.c 7bf80de4356c961b8f5abc0aaa75ca8da417dcda
+F src/main.c fddc77945ed05649599e9ce8dc76af15cf378576
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2017763c31cfd16373b66dc0ea91d4d58ce8ad4c
-R dab06e359768aad00593f24abb28abdf
+P 87d6aa31965d7dd789d38e0faa28e313cba89f57
+R 565508baeaf567ca2ec28bd2cacf934d
 U drh
-Z f01ba347cbc34b5c040fcacada86bf89
+Z 6033978e40b0c69f2f2c3601bfa461c2

@@ -1756,9 +1756,13 @@ void redirect_web_page(int nRedirect, char **azRedirect){
 static void find_server_repository(int disallowDir){
   if( g.argc<3 ){
     db_must_be_within_tree();
-  }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
-    g.zRepositoryName = mprintf("%s", g.argv[2]);
-    file_simplify_name(g.zRepositoryName, -1, 0);
+  }else if( file_isdir(g.argv[2])==1 ){
+    if( disallowDir ){
+      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[2]);
+    }else{
+      g.zRepositoryName = mprintf("%s", g.argv[2]);
+      file_simplify_name(g.zRepositoryName, -1, 0);
+    }
   }else{
     db_open_repository(g.argv[2]);
   }
@@ -1950,7 +1954,7 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
   }
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
   }else{
@@ -1989,7 +1993,7 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
   process_one_web_page(zNotFound);
