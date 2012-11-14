@@ -271,6 +271,9 @@ int content_get(int rid, Blob *pBlob){
         && (nextRid = findSrcid(nextRid))>0 ){
       n++;
       if( n>=nAlloc ){
+        if( n>db_int(0, "SELECT max(rid) FROM blob") ){
+          fossil_panic("infinite loop in DELTA table");
+        }
         nAlloc = nAlloc*2 + 10;
         a = fossil_realloc(a, nAlloc*sizeof(a[0]));
       }

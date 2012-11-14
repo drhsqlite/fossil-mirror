@@ -1,5 +1,5 @@
-C Make\ssure\sthat\spending\sdeletes\sfrom\s"fossil\srm"\soperations\sare\spreserved\nacross\sa\s"fossil\supdate".
-D 2012-11-06T19:47:16.325
+C Detect\sinfinite\sloops\sin\sthe\sDELTA\stable\sand\sabort\sout\sof\scontent_get()\nwhen\sthey\sare\sfound.\s\sFix\san\soff-by-one\serror\sin\sthe\sversion-3\sclone\sprotocol.\sThis\serror\smight\scause\san\sincomplete\sand\scorrupt\sclone\sif\sa\stransfer\sblock\sfills\sup\sjust\sbefore\ssending\sthe\svery\slast\sblob.\s\sBackport\sof\sfixes\sfrom\n[2012-08-23\s23:15:36]
+D 2012-11-14T20:28:38.339
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -67,7 +67,7 @@ F src/clone.c fbb2bbe9ede160ccb9dc024a20d069617e6b22fe
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h 81b52b466de531509b9dcbefa66d0d2ea33f30c9
 F src/configure.c 0b592a384968c82558dc7f28a95a2eb1953f6e37
-F src/content.c 391824951f587bfa192e811dab2e241bf5852b80
+F src/content.c 7428bd2337ce05bda2bd1071f62fdea63d6f74f6
 F src/db.c 7a13e1cd9781f8ad84de30e0a65f94ff34d9c8ce
 F src/delta.c e3dfb31289b71aa446b61fc6e9d09a3fcdd92710
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -144,7 +144,7 @@ F src/vfile.c 4a847133c8729f8b69b2ec3acfdef5291477907d
 F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c e980baf030c8a51fd31d0615e98a3606ddfa3158
+F src/xfer.c 05496533a381d113b1f717a72da9166c926ecb1e
 F src/zip.c 4ea71245f12fbd56cd700d799476a8c8199e6fff
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -327,7 +327,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P d4bdac3c5133f0751f58324c98521225a36b388f
-R e0e544f9a50320afd2772c805f9801f0
+P 76c6f8fcb8a98627d0f8a982bfbbeacae8f13db9
+R 1e601348c1779fdb2dddfac95527cf8d
 U drh
-Z aac9c7a26b51fa828c3ddfce839a6bf1
+Z 16b90aaa0b044a6ef277341a02168b74
