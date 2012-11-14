@@ -1,5 +1,5 @@
-C Allow\sthe\s"fossil\sui"\scommand\sto\sspecify\sa\sdirectory\sas\slong\sas\sthe\n"--notfound"\soption\sis\salso\sused.\s\sGive\sa\sbetter\serror\smessage\sif\sthese\nconditions\sare\snot\smet.
-D 2012-11-14T17:39:51.838
+C Modify\sthe\scustom\sMinGW\smakefile\sto\ssupport\ssymbols.
+D 2012-11-14T18:07:07.039
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -263,7 +263,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 540c31789886c9ebf3d531724388e55cd2d57094
 F win/Makefile.mingw 04c9bfc27f6d0faac94db3569c822541c08ac469
-F win/Makefile.mingw.mistachkin 34febe203177b9af5db5a1180d70d1ebaf41618a
+F win/Makefile.mingw.mistachkin 59215b80eb5e2d26771889f15486fd1d188b7a65
 F win/Makefile.msc fed7e3f0ad077992b2aa28d2eaa91c62485d9689
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 87d6aa31965d7dd789d38e0faa28e313cba89f57
-R 565508baeaf567ca2ec28bd2cacf934d
-U drh
-Z 6033978e40b0c69f2f2c3601bfa461c2
+P 4e368da19cf34e88960fac5dd4225daab1694c1a
+R c308ba1f8eac121c89ef00ed2a35dbbd
+U mistachkin
+Z 129551bfed04b259265d4f879cca4185
