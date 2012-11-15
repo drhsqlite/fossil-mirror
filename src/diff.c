@@ -1983,6 +1983,7 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -1992,31 +1993,28 @@ static void annotate_file(
   if( !content_get(rid, &toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
-  db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(mid, iLimit);
   annotation_start(p, &toAnnotate);
-
+  
   db_prepare(&q,
-    "SELECT mlink.fid,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
-    "       date(event.mtime), "
-    "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
-    " WHERE mlink.fnid=%d"
-    "   AND mlink.mid=ancestor.rid"
-    "   AND event.objid=ancestor.rid"
-    " ORDER BY ancestor.generation ASC"
-    " LIMIT %d",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
-    fnid,
-    iLimit>0 ? iLimit : 10000000
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       date(event.mtime),"
+    "       coalesce(event.euser,event.user),"
+    "       mlink.pid"
+    "  FROM mlink, event"
+    " WHERE mlink.fid=:rid"
+    "   AND event.objid=mlink.mid"
+    " ORDER BY event.mtime",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
+  
+  db_bind_int(&q, ":rid", rid);
+  if( iLimit==0 ) iLimit = 1000000000;
+  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    int prevId = db_column_int(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
           "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
@@ -2028,9 +2026,13 @@ static void annotate_file(
     p->nVers++;
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
     p->azVers[p->nVers-1] = zLabel;
-    content_get(pid, &step);
+    content_get(rid, &step);
     annotation_step(p, &step, zLabel);
     blob_reset(&step);
+    db_reset(&q);
+    rid = prevId;
+    db_bind_int(&q, ":rid", prevId);
+    cnt++;
   }
   db_finalize(&q);
 }
