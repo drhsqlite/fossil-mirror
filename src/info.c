@@ -1599,7 +1599,11 @@ void artifact_page(void){
   blob_zero(&downloadName);
   objType = object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
-          "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+          "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
+  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+    style_submenu_element("Checkins Using", "Checkins Using",
+          "%R/timeline?uf=%s&n=200",zUuid);
+  }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){

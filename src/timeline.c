@@ -932,6 +932,7 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
+  const char *zUses = P("uf");       /* Only show checkins hold this file */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -983,6 +984,18 @@ void page_timeline(void){
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
     url_add_parameter(&url, "ubg", 0);
+  }
+  if( zUses!=0 ){
+    int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
+    if( ufid ){
+      zUses = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ufid);
+      url_add_parameter(&url, "uf", zUses);
+      db_multi_exec("CREATE TEMP TABLE usesfile(rid INTEGER PRIMARY KEY)");
+      compute_uses_file("usesfile", ufid, 0);
+      zType = "ci";
+    }else{
+      zUses = 0;
+    }
   }
 
   style_header("Timeline");
@@ -1087,6 +1100,9 @@ void page_timeline(void){
     char *zDate;
     char *zNEntry = mprintf("%d", nEntry);
     url_add_parameter(&url, "n", zNEntry);
+    if( zUses ){
+      blob_appendf(&sql, " AND event.objid IN usesfile ");
+    }
     if( tagid>0 ){
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1221,6 +1237,11 @@ void page_timeline(void){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
+    }
+    if( zUses ){
+      blob_appendf(&desc, " using file %z%S</a>",
+                   href("%R/artifact/%S",zUses), zUses);
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
