@@ -206,6 +206,8 @@ void finfo_cmd(void){
   }
 }
 
+/* Values for the debug= query parameter to finfo */
+#define FINFO_DEBUG_MLINK  0x01
 
 /*
 ** WEBPAGE: finfo
@@ -236,6 +238,7 @@ void finfo_page(void){
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
   int firstChngOnly = atoi(PD("fco","1"))!=0;
+  int fDebug = atoi(PD("debug","0"));
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -265,6 +268,9 @@ void finfo_page(void){
                                 " AND tagxref.rid=mlink.mid)", /* Tags */
     TAG_BRANCH
   );
+  if( fDebug & FINFO_DEBUG_MLINK ){
+    blob_appendf(&sql, ", mlink.mid");
+  }
   if( firstChngOnly ){
     blob_appendf(&sql, ", min(event.mtime)");
   }
@@ -318,10 +324,14 @@ void finfo_page(void){
     const char *zCkin = db_column_text(&q,7);
     const char *zBgClr = db_column_text(&q, 8);
     const char *zBr = db_column_text(&q, 9);
+    int fmid = 0;
     int gidx;
     char zTime[10];
     char zShort[20];
     char zShortCkin[20];
+    if( fDebug & FINFO_DEBUG_MLINK ){
+      fmid = db_column_int(&q,10);
+    }
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
@@ -363,6 +373,9 @@ void finfo_page(void){
       }
       @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>
+    }
+    if( fDebug & FINFO_DEBUG_MLINK ){
+      @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)
     }
     @ </td></tr>
   }

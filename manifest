@@ -1,5 +1,5 @@
-C Modify\sthe\scustom\sMinGW\smakefile\sto\ssupport\ssymbols.
-D 2012-11-14T18:07:07.039
+C Add\sthe\sdebug=\squery\sparameter\sto\sthe\sfinfo\sfile\stimeline\spage.\s\sSetting\nthe\s1\sbit\son\sdebug\scauses\sthe\sfid,\spid,\sand\smid\sof\seach\sfile\schange\sto\sbe\ndisplayed\sin\sthe\stimeline.
+D 2012-11-15T12:38:06.755
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -90,7 +90,7 @@ F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
-F src/finfo.c a56a77ded3a454e39668943c1422f197cbea9cea
+F src/finfo.c 34eb6ba4b033e2bd1e6b8e4b4da06c858f12add4
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4e368da19cf34e88960fac5dd4225daab1694c1a
-R c308ba1f8eac121c89ef00ed2a35dbbd
-U mistachkin
-Z 129551bfed04b259265d4f879cca4185
+P 0e812a8edd5ce31fcaa202471774e1aea3381b8c
+R 2737600a30050e9a50a0b26fecee8ab1
+U drh
+Z c4e863a32cfd34f39888711705ace77c
