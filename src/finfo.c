@@ -231,6 +231,8 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
+  int fnid;
+  
   Blob title;
   Blob sql;
   HQuery url;
@@ -265,12 +267,11 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)", /* Tags */
+                                " AND tagxref.rid=mlink.mid)," /* Tags */
+    " mlink.mid,"                                    /* check-in ID */
+    " mlink.pfnid",                                  /* Previous filename */
     TAG_BRANCH
   );
-  if( fDebug & FINFO_DEBUG_MLINK ){
-    blob_appendf(&sql, ", mlink.mid");
-  }
   if( firstChngOnly ){
     blob_appendf(&sql, ", min(event.mtime)");
   }
@@ -324,14 +325,12 @@ void finfo_page(void){
     const char *zCkin = db_column_text(&q,7);
     const char *zBgClr = db_column_text(&q, 8);
     const char *zBr = db_column_text(&q, 9);
-    int fmid = 0;
+    int fmid = db_column_int(&q, 10);
+    int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
     char zShort[20];
     char zShortCkin[20];
-    if( fDebug & FINFO_DEBUG_MLINK ){
-      fmid = db_column_int(&q,10);
-    }
     if( zBr==0 ) zBr = "trunk";
     if( uBg ){
       zBgClr = hash_color(zUser);
@@ -358,9 +357,30 @@ void finfo_page(void){
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
+      if( fpid==0 ){
+        @ <b>Added</b>
+      }else if( pfnid ){
+        char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
+                                  pfnid);
+        @ <b>Renamed</b> from
+        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      }
       @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
     }else{
-      @ <b>Deleted</b> by check-in
+      char *zNewName;
+      zNewName = db_text(0, 
+        "SELECT name FROM filename WHERE fnid = "
+        "   (SELECT fnid FROM mlink"
+        "     WHERE mid=%d"
+        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q %s))",
+        fmid, zFilename, filename_collation());
+      if( zNewName ){
+        @ <b>Renamed</b> to
+        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a> by check-in
+        fossil_free(zNewName);
+      }else{
+        @ <b>Deleted</b> by check-in
+      }
     }
     hyperlink_to_uuid(zShortCkin);
     @ %h(zCom) (user: 
