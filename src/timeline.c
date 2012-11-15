@@ -880,6 +880,30 @@ static void timeline_add_dividers(double rDate, int rid){
   fossil_free(zToDel);
 }
 
+/*
+** Return all possible names for file zUuid.
+*/
+char *names_of_file(const char *zUuid){
+  Stmt q;
+  Blob out;
+  const char *zSep = "";
+  db_prepare(&q,
+    "SELECT DISTINCT filename.name FROM mlink, filename"
+    " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid='%s')"
+    "   AND filename.fnid=mlink.fnid",
+    zUuid
+  );
+  blob_zero(&out);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFN = db_column_text(&q, 0);
+    blob_appendf(&out, "%s%z%h</a>", zSep,
+          href("%R/finfo?name=%t", zFN), zFN);
+    zSep = " or ";
+  }
+  db_finalize(&q);
+  return blob_str(&out);
+}
+
 
 /*
 ** WEBPAGE: timeline
@@ -1239,7 +1263,8 @@ void page_timeline(void){
       blob_appendf(&desc, "%d %ss", n, zEType);
     }
     if( zUses ){
-      blob_appendf(&desc, " using file %z%S</a>",
+      char *zFilenames = names_of_file(zUses);
+      blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
                    href("%R/artifact/%S",zUses), zUses);
       tmFlags |= TIMELINE_DISJOINT;
     }

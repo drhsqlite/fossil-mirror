@@ -373,6 +373,7 @@ void finfo_page(void){
       }
       @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
     }
     if( fDebug & FINFO_DEBUG_MLINK ){
       @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)

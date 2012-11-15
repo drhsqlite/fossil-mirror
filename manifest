@@ -1,5 +1,5 @@
-C Add\sthe\suf=\squery\sparameter\sto\stimeline.\s\sThe\stimeline\sshows\sonly\sthose\ncheckins\sthat\scontain\sthe\sfile\sidentified.
-D 2012-11-15T15:14:27.954
+C Enhancements\sto\sthe\stimeline\slabeling\swith\sthe\suf=\soption.\s\sNew\shyperlinks\nfrom\sthe\sfinfo\spage\sto\stimeline\swith\suf=.
+D 2012-11-15T15:57:45.225
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -90,7 +90,7 @@ F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c a7543ea73450bc858661cc2db6cc02ad30ff89bd
 F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
-F src/finfo.c 34eb6ba4b033e2bd1e6b8e4b4da06c858f12add4
+F src/finfo.c b1ef8ed97ead7f51957104f45771ccb4bcb58325
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -159,7 +159,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
 F src/th_main.c dae51631100e23fca4b45e79ccd35306dabe176b
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c 71a41ebda1ae16162da1fa4eca790736be10e01f
+F src/timeline.c 865712c5d6e99ae6808a75d47d8cb4760c0e9dc3
 F src/tkt.c 45ff29e1f9b5e3a8520d58c7eb04f004e4b87b21
 F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P badd78e167add873b03907cef2100eb059364b10
-R 544c11287c90188302d7bf7533d29a2b
+P eb3cc76d509d680cad5e69e0cbbb7ebf8640050b
+R d66be4b3c6dc26fda6acd911507c6e8e
 U drh
-Z 8070c2e7c9f91db34745363d3f62c520
+Z d7200bda8fc9398c8850a6d62718b275
