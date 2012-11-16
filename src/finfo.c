@@ -231,7 +231,6 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
-  int fnid;
   
   Blob title;
   Blob sql;
