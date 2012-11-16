@@ -275,15 +275,11 @@ static int send_delta_parent(
   static const char *const azQuery[] = {
     "SELECT pid FROM plink x"
     " WHERE cid=%d"
-    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
-    "   AND NOT EXISTS(SELECT 1 FROM plink y"
-                      " WHERE y.pid=x.cid AND y.cid=x.pid)",
-
-    "SELECT pid FROM mlink x"
+    "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)",
+    
+    "SELECT pid, min(mtime) FROM mlink, event ON mlink.mid=event.objid"
     " WHERE fid=%d"
     "   AND NOT EXISTS(SELECT 1 FROM phantom WHERE rid=pid)"
-    "   AND NOT EXISTS(SELECT 1 FROM mlink y"
-                     "  WHERE y.pid=x.fid AND y.fid=x.pid)"
   };
   int i;
   Blob src, delta;
@@ -305,7 +301,7 @@ static int send_delta_parent(
     }else if( uuid_is_shunned(zUuid) ){
       size = 0;
     }else{
-      if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
+       if( isPrivate ) blob_append(pXfer->pOut, "private\n", -1);
       blob_appendf(pXfer->pOut, "file %b %s %d\n", pUuid, zUuid, size);
       blob_append(pXfer->pOut, blob_buffer(&delta), size);
     }
