@@ -430,6 +430,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   color: #558195;
 @   min-width: 200px;
+@   white-space: nowrap;
 @ }
 @
 @ /* The page title centered at the top of each page */
