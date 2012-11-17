@@ -443,3 +443,69 @@ void leaves_page(void){
   @ </script>
   style_footer();
 }
+
+#if INTERFACE
+/* Flag parameters to compute_uses_file() */
+#define USESFILE_DELETE   0x01  /* Include the check-ins where file deleted */
+
+#endif
+
+
+/*
+** Add to table zTab the record ID (rid) of every check-in that contains
+** the file fid.
+*/
+void compute_uses_file(const char *zTab, int fid, int usesFlags){
+  Bag seen;
+  Bag pending;
+  Stmt ins;
+  Stmt q;
+  int rid;
+
+  bag_init(&seen);
+  bag_init(&pending);
+  db_prepare(&ins, "INSERT OR IGNORE INTO \"%s\" VALUES(:rid)", zTab);
+  db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&pending, mid);
+    bag_insert(&seen, mid);
+    db_bind_int(&ins, ":rid", mid);
+    db_step(&ins);
+    db_reset(&ins);
+  }
+  db_finalize(&q);
+  
+  db_prepare(&q, "SELECT mid FROM mlink WHERE pid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&seen, mid);
+    if( usesFlags & USESFILE_DELETE ){
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+  }
+  db_finalize(&q);
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+
+  while( (rid = bag_first(&pending))!=0 ){
+    bag_remove(&pending, rid);
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int mid = db_column_int(&q, 0);
+      if( bag_find(&seen, mid) ) continue;
+      bag_insert(&seen, mid);
+      bag_insert(&pending, mid);
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
+  db_finalize(&ins);
+  bag_clear(&seen);
+  bag_clear(&pending);
+}
+
