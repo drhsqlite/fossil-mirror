@@ -1,5 +1,5 @@
-C Provisional\schanges\saimed\sat\spreventing\sdelta\sloops\son\ssync\soperations\nthat\smight\sotherwise\soccur\sif\sa\ssequence\sof\sfile\schanges\sends\swith\sa\sfile\nback\sto\sits\soriginal\sstate\safter\sa\ssequence\sof\stwo\sor\smore\sintermediate\nstates.
-D 2012-11-16T21:57:33.319
+C Only\sshow\sthe\s"pull\sonly\s-\snot\sauthorized\sto\spush"\smessage\sonce\swhen\nsyncing\swith\sa\srepo\sfor\swhich\sthere\sis\sread-only\spermission.
+D 2012-11-17T15:03:43.201
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -173,7 +173,7 @@ F src/wiki.c 645b3b48287298d77bbbbe8a1b4e2559c45843ca
 F src/wikiformat.c 76f46528a550d74ba0b18d42a4e4535fecc0f8dd
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 4b3e57185b3c31c77267fe9477af6184687a634c
+F src/xfer.c 02cf33052a7c1abc95d7798696d3f640474a3c4e
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
 F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
@@ -362,10 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6fb750d77ceedd5f60e498f0152e43cf464337d1
-R 57bded87e4eb5981bd861d6158f9c660
-T *branch * fix-sync-delta-loop
-T *sym-fix-sync-delta-loop *
-T -sym-trunk *
+P 141b990722ea81e10e5a317dfd8221a32cbc4105
+R 9ab156d5aa1117d7791c4dbfafa7c33a
 U drh
-Z 31cd0198db9f042c479e2ae5e0b4fffd
+Z 4961b56e43ee772e87bb24588b9e5770

@@ -1657,7 +1657,11 @@ int client_sync(
       if( blob_eq(&xfer.aToken[0],"message") && xfer.nToken==2 ){
         char *zMsg = blob_terminate(&xfer.aToken[1]);
         defossilize(zMsg);
-        if( zMsg ) fossil_print("\rServer says: %s\n", zMsg);
+        if( pushFlag && zMsg && strglob("pull only *", zMsg) ){
+          pushFlag = 0;
+          zMsg = 0;
+        }
+        fossil_print("\rServer says: %s\n", zMsg);
       }else
 
       /*    pragma NAME VALUE...
