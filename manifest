@@ -1,5 +1,5 @@
-C remove\sunused\svariable
-D 2012-11-16T07:50:43.265
+C Avoid\sthe\s&lt;nobr&gt;\stag\sin\sgenerated\sHTML.
+D 2012-11-17T19:07:12.848
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -144,13 +144,13 @@ F src/setup.c 10f96c0f6f9129b2ecf4efe38a534828641ec95c
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
-F src/skins.c a1d9e804939add9efdcb48746df09e9bd7c1a077
+F src/skins.c 0115839a7331e3d35e64aa315880bb7447ede769
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
 F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
 F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c 84ae470bbb550f8d2bb7e5070324426f69555770
+F src/style.c c773a8b02646281e42039fbc6edde4f02607a062
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ee33b951a4063e3394414b6282b63ceb1208e3df
-R 102182d3e6597aa13829ea9adc677c15
-U jan.nijtmans
-Z 94e019e0f8215f9989c3c2c0a6eebb50
+P 6fb750d77ceedd5f60e498f0152e43cf464337d1 46fba0f1c6b54932a3d01a944bf40ec9858602ba
+R fce7f8f5a26ae257d27a86464b41e389
+U drh
+Z d7fa9fdff5855289e3cd347158c1f71e
