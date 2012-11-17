@@ -1,5 +1,5 @@
-C Detect\sinfinite\sloops\sin\sthe\sDELTA\stable\sand\sabort\sout\sof\scontent_get()\nwhen\sthey\sare\sfound.\s\sFix\san\soff-by-one\serror\sin\sthe\sversion-3\sclone\sprotocol.\sThis\serror\smight\scause\san\sincomplete\sand\scorrupt\sclone\sif\sa\stransfer\sblock\sfills\sup\sjust\sbefore\ssending\sthe\svery\slast\sblob.\s\sBackport\sof\sfixes\sfrom\n[2012-08-23\s23:15:36]
-D 2012-11-14T20:28:38.339
+C Prevent\sdelta\sloops\son\ssync\soperations\nthat\smight\sotherwise\soccur\sif\sa\ssequence\sof\sfile\schanges\sends\swith\sa\sfile\nback\sto\sits\soriginal\sstate\safter\sa\ssequence\sof\stwo\sor\smore\sintermediate\nstates.\s\sThe\sis\sa\sbackport/cherrypick\sof\scheck-in\s[141b990722ea81e10e5]
+D 2012-11-17T19:22:46.802
 F BUILD.txt 8ebfd7f92eff1922aaf28ebcce6639a39fcb5cdd
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
@@ -144,7 +144,7 @@ F src/vfile.c 4a847133c8729f8b69b2ec3acfdef5291477907d
 F src/wiki.c 9842ff91f37d9520d566cbfa07313d1f42df693b
 F src/wikiformat.c 2dc35197011e4f84ac6f03a9ce28f2477bb50ef0
 F src/winhttp.c 74db29c013b9ed202f351ccdf8ed316a9f8501b7
-F src/xfer.c 05496533a381d113b1f717a72da9166c926ecb1e
+F src/xfer.c dca3a6b19e3988bc8bbfcdb659a5ed227134b214
 F src/zip.c 4ea71245f12fbd56cd700d799476a8c8199e6fff
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -327,7 +327,7 @@ F www/tech_overview.wiki 487503a4bf90dc6b42f23cdb0db76e1cd8e8c866
 F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki ac404a90fc9d210d80d5e7c1c2f24028d957dc4a
-P 76c6f8fcb8a98627d0f8a982bfbbeacae8f13db9
-R 1e601348c1779fdb2dddfac95527cf8d
+P 99053ab14108599b4a89cacb47530e44b779004c
+R b9658f4dcffd8a005d50913d9c30eb96
 U drh
-Z 16b90aaa0b044a6ef277341a02168b74
+Z 4a220d356a158189f17559ac615f39f1
