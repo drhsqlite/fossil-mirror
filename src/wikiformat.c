@@ -30,6 +30,8 @@
 #define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
 #define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
 #define WIKI_BUTTONS        0x010  /* Allow sub-menu buttons */
+#define WIKI_NOBADLINKS     0x020  /* Ignore broken hyperlinks */
+#define WIKI_DECORATEONLY   0x040  /* No markup.  Only decorate links */
 #endif
 
 
@@ -398,6 +400,7 @@ typedef struct Renderer Renderer;
 struct Renderer {
   Blob *pOut;                 /* Output appended to this blob */
   int state;                  /* Flag that govern rendering */
+  unsigned renderFlags;       /* Flags from the client */
   int wikiList;               /* Current wiki list type */
   int inVerbatim;             /* True in <verbatim> mode */
   int preVerbState;           /* Value of state prior to verbatim */
@@ -1079,10 +1082,31 @@ static int is_ticket(
 }
 
 /*
+** Return a pointer to the name part of zTarget (skipping the "wiki:" prefix
+** if there is one) if zTarget is a valid wiki page name.  Return NULL if
+** zTarget names a page that does not exist.
+*/
+static const char *validWikiPageName(const char *zTarget){
+  if( strncmp(zTarget, "wiki:", 5)==0
+      && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
+    return zTarget+5;
+  }
+  if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
+  if( wiki_name_is_wellformed((const unsigned char *)zTarget)
+   && db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget) ){
+    return zTarget;
+  }
+  return 0;
+}
+
+/*
 ** Resolve a hyperlink.  The zTarget argument is the content of the [...]
 ** in the wiki.  Append to the output string whatever text is appropriate
 ** for opening the hyperlink.  Write into zClose[0...nClose-1] text that will
 ** close the markup.
+**
+** If this routine determines that no hyperlink should be generated, then
+** set zClose[0] to 0.
 **
 ** Actually, this routine might or might not append the hyperlink, depending
 ** on current rendering rules: specifically does the current user have
@@ -1115,6 +1139,7 @@ static void openHyperlink(
 ){
   const char *zTerm = "</a>";
   assert( nClose>=20 );
+  const char *z;
 
   if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
@@ -1158,8 +1183,12 @@ static void openHyperlink(
         }
       }
     }else if( !in_this_repo(zTarget) ){
-      blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
-      zTerm = "]</span>";
+      if( (p->state & (WIKI_DECORATEONLY|WIKI_NOBADLINKS))!=0 ){
+        zTerm = "";
+      }else{
+        blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
+        zTerm = "]</span>";
+      }
     }else if( g.perm.Hyperlink ){
       blob_appendf(p->pOut, "%z[",href("%R/info/%s", zTarget));
       zTerm = "]</a>";
@@ -1167,19 +1196,16 @@ static void openHyperlink(
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
-  }else if( strncmp(zTarget, "wiki:", 5)==0
-        && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
-    zTarget += 5;
-    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
-  }else if( wiki_name_is_wellformed((const unsigned char *)zTarget) ){
-    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", zTarget);
+  }else if( (z = validWikiPageName(zTarget))!=0 ){
+    blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
-    blob_appendf(p->pOut, "[");
-    zTerm = "]";
-  }else{
-    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]</span>", zTarget);
     zTerm = "";
+  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_DECORATEONLY))!=0 ){
+    zTerm = "";
+  }else{
+    blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
+    zTerm = "</span>";
   }
   assert( strlen(zTerm)<nClose );
   sqlite3_snprintf(nClose, zClose, "%s", zTerm);
@@ -1340,12 +1366,16 @@ static void wiki_render(Renderer *p, char *z){
         int i, j;
         int savedState;
         char zClose[20];
+        char cS1 = 0;
+        int iS1;
 
         startAutoParagraph(p);
         zTarget = &z[1];
         for(i=1; z[i] && z[i]!=']'; i++){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
+            iS1 = i;
+            cS1 = z[i];
             z[i] = 0;
             for(j=i-1; j>0 && fossil_isspace(z[j]); j--){ z[j] = 0; }
           }
@@ -1357,12 +1387,17 @@ static void wiki_render(Renderer *p, char *z){
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
         openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
-        savedState = p->state;
-        p->state &= ~ALLOW_WIKI;
-        p->state |= FONT_MARKUP_ONLY;
-        wiki_render(p, zDisplay);
-        p->state = savedState;
-        blob_append(p->pOut, zClose, -1);
+        if( zClose[0] ){
+          savedState = p->state;
+          p->state &= ~ALLOW_WIKI;
+          p->state |= FONT_MARKUP_ONLY;
+          wiki_render(p, zDisplay);
+          p->state = savedState;
+          blob_append(p->pOut, zClose, -1);
+        }else{
+          if( cS1 ) z[iS1] = cS1;
+          blob_appendf(p->pOut, "[%h]", zTarget);
+        }
         break;
       }
       case TOKEN_TEXT: {
@@ -1559,7 +1594,11 @@ static void wiki_render(Renderer *p, char *z){
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   Renderer renderer;
 
+  /* Never show bad hyperlinks */
+  flags |= WIKI_NOBADLINKS;
+
   memset(&renderer, 0, sizeof(renderer));
+  renderer.renderFlags = flags;
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH|flags;
   if( flags & WIKI_NOBLOCK ){
     renderer.state |= INLINE_MARKUP_ONLY;
