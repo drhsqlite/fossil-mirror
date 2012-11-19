@@ -325,6 +325,27 @@ int looks_like_utf16(const Blob *pContent){
 }
 
 /*
+** This function returns an array of bytes representing the byte-order-mark
+** for UTF-8.
+*/
+const unsigned char *get_utf8_bom(){
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+  return bom;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-8
+** byte-order-mark (BOM).
+*/
+int starts_with_utf8_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  const unsigned char *bom = get_utf8_bom();
+
+  if( blob_size(pContent)<3 ) return 0;
+  return memcmp(z, bom, 3)==0;
+}
+
+/*
 ** This function returns non-zero if the blob starts with a UTF-16le or
 ** UTF-16be byte-order-mark (BOM).
 */
@@ -337,6 +358,38 @@ int starts_with_utf16_bom(const Blob *pContent){
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
     return 1;
   }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16le_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16be
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16be_bom(const Blob *pContent){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
     return 1;
   }
   return 0;

@@ -515,7 +515,7 @@ void ainfo_page(void){
     const char *z;
     const char *zLn = P("ln");
     content_get(ridSrc, &attach);
-    blob_strip_bom(&attach, 0);
+    blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
       output_text_with_line_numbers(z, zLn);

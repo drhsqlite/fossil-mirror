@@ -523,7 +523,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
       blob_append(&reply, zIn, -1);
     }
   }
-  blob_strip_bom(&reply, 1);
+  blob_to_utf8_no_bom(&reply, 1);
   blob_remove_cr(&reply);
   file_delete(zFile);
   free(zFile);
@@ -572,7 +572,7 @@ static void prepare_commit_comment(
 ){
   Blob prompt;
 #ifdef _WIN32
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+  const unsigned char *bom = get_utf8_bom();
   blob_init(&prompt, (const char *) bom, 3);
   if( zInit && zInit[0]) {
     blob_append(&prompt, zInit, -1);
@@ -910,7 +910,7 @@ static int commit_warning(
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
-    const char *c = "c=convert/";
+    const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
@@ -926,33 +926,33 @@ static int commit_warning(
         return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
-      c = ""; /* We cannot automatically convert binary files */
+      zConvert = ""; /* We cannot convert binary files. */
     }else{
       zWarning = "Unicode";
 #ifndef _WIN32
-      c = ""; /* On UNIX, we cannot automatically convert unicode files */
+      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, c);
+         blob_str(&fname), zWarning, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
-    }else if( (c[0] != 0) && (cReply=='c' || cReply=='C') ){
+    }else if( *zConvert && (cReply=='c' || cReply=='C') ){
       char *zOrig = file_newname(zFilename, "original", 1);
       FILE *f;
       blob_write_to_file(p, zOrig);
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
       if( fUnicode ) {
-        static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+        const unsigned char *bom = get_utf8_bom();
         fwrite(bom, 1, 3, f);
-        blob_strip_bom(p, 0);
+        blob_to_utf8_no_bom(p, 0);
       }
       blob_remove_cr(p);
       fwrite(blob_buffer(p), 1, blob_size(p), f);
@@ -1250,7 +1250,7 @@ void commit_cmd(void){
   }else if( zComFile ){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
-    blob_strip_bom(&comment, 1);
+    blob_to_utf8_no_bom(&comment, 1);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);
