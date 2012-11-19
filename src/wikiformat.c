@@ -1367,7 +1367,7 @@ static void wiki_render(Renderer *p, char *z){
         int savedState;
         char zClose[20];
         char cS1 = 0;
-        int iS1;
+        int iS1 = 0;
 
         startAutoParagraph(p);
         zTarget = &z[1];

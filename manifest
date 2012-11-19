@@ -1,5 +1,5 @@
-C Fix\sthe\sgit-fast-export\sgenerator\sso\sthat\sit\sdoes\snot\smake\slinks\sto\sfiles\nthat\sfor\ssome\sreason\sor\sanother\sdo\snot\sexist\sin\sthe\srepository.\s\sAlso\sfix\nsome\sstylistic\sproblems\sin\sthe\sexport\scode.
-D 2012-11-19T16:41:11.266
+C Fix\sharmless\scompiler\swarning\sin\sthe\swiki\srendering\scode.
+D 2012-11-19T23:57:13.646
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -170,7 +170,7 @@ F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
 F src/wiki.c 645b3b48287298d77bbbbe8a1b4e2559c45843ca
-F src/wikiformat.c 9a75adba314c370b676fadb0b7a8943fb179c0fb
+F src/wikiformat.c fdbaea7fe8d4dea887dde307e8568d46c0878917
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c 02cf33052a7c1abc95d7798696d3f640474a3c4e
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 90676f48f09d191360b560cb2baae6fbdded7428
-R 296e57e9962217eb3040a93fc3f84fc6
-U drh
-Z 25e8446c4426aea6b936f509f30d14a4
+P c3bfb0083a56efe850b3ca1cd539b85003195d5f
+R d63cc65d4557e8705ce057f5f6cb93ed
+U mistachkin
+Z cedf38c5bd62a7cbcb6b7b82d1601286
