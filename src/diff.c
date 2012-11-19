@@ -328,8 +328,9 @@ int looks_like_utf16(const Blob *pContent){
 ** This function returns an array of bytes representing the byte-order-mark
 ** for UTF-8.
 */
-const unsigned char *get_utf8_bom(){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
+const unsigned char *get_utf8_bom(int *pnByte){
+  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00 };
+  if( pnByte ) *pnByte = 3;
   return bom;
 }
 
@@ -339,10 +340,11 @@ const unsigned char *get_utf8_bom(){
 */
 int starts_with_utf8_bom(const Blob *pContent){
   const char *z = blob_buffer(pContent);
-  const unsigned char *bom = get_utf8_bom();
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
 
-  if( blob_size(pContent)<3 ) return 0;
-  return memcmp(z, bom, 3)==0;
+  if( blob_size(pContent)<bomSize ) return 0;
+  return memcmp(z, bom, bomSize)==0;
 }
 
 /*

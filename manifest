@@ -1,5 +1,5 @@
-C Modularize\sbyte-order-mark\sand\sblob\sUTF-8\sconversion\shandling.
-D 2012-11-19T04:39:51.973
+C Allow\sthe\sget_utf8_bom\sfunction\sto\sreturn\sthe\ssize\sas\swell.
+D 2012-11-19T20:39:19.752
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c b579ae92627ef86ab15a2dac66fd2ef1bff37ce9
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c 41dcd24d8f76c0e26b8ec9eee0dd787af24002ba
+F src/checkin.c 6f24415b11ed2e9d4a8aa486cf9343c66d6374eb
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
@@ -83,7 +83,7 @@ F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c a8f8a0ad2d04534b6afc44662106b037d3c64489
-F src/diff.c cfaee26db91e51042d49918e489e0f259a406b66
+F src/diff.c 604f19d9d7810a30806cd1ae8b70edef11c7c1e8
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
@@ -148,7 +148,7 @@ F src/skins.c 0115839a7331e3d35e64aa315880bb7447ede769
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
 F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
 F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
-F src/stash.c 5920b94323f00fa0d7c33643d9aa10a604e5cd1b
+F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c c773a8b02646281e42039fbc6edde4f02607a062
 F src/sync.c 77b404bdcd169f9d05d4d6ec503d5963c022689a
@@ -362,10 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7e7dcdd2c9b6be29078470de7c42a55694338c0b
-R e215e42865333bbfc54e5480480bc765
-T *branch * convert_before_commit_v2
-T *sym-convert_before_commit_v2 *
-T -sym-convert_before_commit *
+P d29dd5449c8b4b3f7a8b8e97d501bf7d56b9634d
+R 33e06b722149bfaf3a873a65e720c393
 U mistachkin
-Z 70cd1f6f3980f7be8bb9ce431f9e145d
+Z 1785207d0f1f96479bccc7a328b26d7b

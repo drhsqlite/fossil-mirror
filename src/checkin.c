@@ -572,8 +572,9 @@ static void prepare_commit_comment(
 ){
   Blob prompt;
 #ifdef _WIN32
-  const unsigned char *bom = get_utf8_bom();
-  blob_init(&prompt, (const char *) bom, 3);
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+  blob_init(&prompt, (const char *) bom, bomSize);
   if( zInit && zInit[0]) {
     blob_append(&prompt, zInit, -1);
   }
@@ -950,8 +951,9 @@ static int commit_warning(
       fossil_free(zOrig);
       f = fossil_fopen(zFilename, "wb");
       if( fUnicode ) {
-        const unsigned char *bom = get_utf8_bom();
-        fwrite(bom, 1, 3, f);
+        int bomSize;
+        const unsigned char *bom = get_utf8_bom(&bomSize);
+        fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
       }
       blob_remove_cr(p);
