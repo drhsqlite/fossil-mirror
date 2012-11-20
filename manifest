@@ -1,5 +1,5 @@
-C If\sapplicable,\suse\sthe\sOPEN_ANY_SCHEMA\sflag\sin\sTh_FossilInit.
-D 2012-11-20T08:21:19.483
+C Experimental\sfix\sfor\sissue\s[d17d6e5b17].\n<p>Should\shave\sa\sLOT\smore\stesting\sbefore\smerging\sit\sto\strunk,\sbecause\sit\sis\sdangerous!\n<p>The\smethod\sused\sis\sas\sdescribed\sat:\n<br>\s\s\s\s[http://cygwin.com/cygwin-ug-net/using-specialnames.html]\nThe\sonly\sproblematic\scharacters\sleft\sare\s':'\sand\s'\\',\sall\sother\nproblematic\scharacters\sare\shandled\sby\stranslating\sthem\sto\scharacters\nin\sthe\srange\sU+F000\sto\sU+F0FF\n<p>Feedback\swelcome.
+D 2012-11-20T13:46:26.087
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -89,7 +89,7 @@ F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 9e4401da8ba72797c357f5a5ddd6a0e94f4ac836
 F src/event.c e094f8b1c4b5151320c65b18ffe3491a7643f870
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
-F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
+F src/file.c 69d8909e1b87707b6b53d27705aa40353c63e555
 F src/finfo.c aa52b909e4c05ea5de924077df74d93c98db6dac
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -362,7 +362,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b058c8a944f96c98712ad4c8eab65fee3f362e0c
-R 7b0b9d24b90ab58eb3afe1a6e16e98ae
-U mistachkin
-Z c6946694d8e01f9ff4e4542cde88769d
+P 3c1ad1def951372a07d1aeaaab2ba1c2ae9545d8
+R ee94b77e0d94730709ba2694d37be310
+T *branch * ticket-d17d6e5b17
+T *sym-ticket-d17d6e5b17 *
+T -sym-trunk *
+U jan.nijtmans
+Z 8efbe6c7ea52daee8642f21df93b440a

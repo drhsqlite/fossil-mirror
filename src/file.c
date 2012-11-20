@@ -483,7 +483,7 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 **     *  Does not begin with "/"
 **     *  Does not contain any path element named "." or ".."
-**     *  Does not contain any of these characters in the path: "\*[]?"
+**     *  Does not contain any of these characters in the path: "\:"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
@@ -497,7 +497,7 @@ int file_is_simple_pathname(const char *z){
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
   for(i=0; (c=z[i])!=0; i++){
-    if( c=='\\' || c=='*' || c=='[' || c==']' || c=='?' ){
+    if( c=='\\' || c==':' ){
       return 0;
     }
     if( c=='/' ){
@@ -1091,11 +1091,29 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** Translate Unicode to UTF8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
+**
+** On Windows, characters in the range U+FF01 to U+FF7F (private use area)
+** are translated in ASCII characters in the range U+0001 - U+007F. The
+** only place they can come from are filenames using Cygwin's trick
+** to circumvent invalid characters in filenames.
+** See: <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
+** This way, fossil will work nicely together with the cygwin shell
+** handling those filenames. On other shells, the generated filename
+** might not be as expected, but apart from that nothing goes wrong.
 */
-char *fossil_unicode_to_utf8(const void *zUnicode){
+char *fossil_unicode_to_utf8(void *zUnicode){
 #ifdef _WIN32
-  int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
-  char *zUtf = sqlite3_malloc( nByte );
+  int nByte = 0;
+  char *zUtf;
+  WCHAR *wUnicode = zUnicode;
+  while( *wUnicode != 0 ){
+    if ( (*wUnicode > 0xF000) && (*wUnicode <= 0xF07F) ){
+      *wUnicode &= 0x7F;
+    }
+    ++wUnicode;
+  }
+  nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
+  zUtf = sqlite3_malloc( nByte );
   if( zUtf==0 ){
     return 0;
   }
@@ -1124,15 +1142,35 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 ** Translate UTF8 to unicode for use in system calls.  Return a pointer to the
 ** translated text..  Call fossil_mbcs_free() to deallocate any memory
 ** used to store the returned pointer when done.
+**
+** On Windows, characters in the range U+001 to U+0031 and the
+** characters '"', '*', ':', '<', '>', '?', '|' and '\\' are invalid
+** to be used. Therefore, translated those to characters in the
+** (private use area), in the range U+0001 - U+007F, so those
+** characters never arrive in any Windows API. The filenames might
+** look strange in Windows explorer, but in the cygwin shell
+** everything looks as expected.
+**
+** See: <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
+**
 */
 void *fossil_utf8_to_unicode(const char *zUtf8){
 #ifdef _WIN32
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
   wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  wchar_t *wUnicode;
   if( zUnicode==0 ){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  wUnicode = zUnicode;
+  while( --nByte > 0){
+    if ( (*wUnicode < 32) || wcschr(L"\"*<>?|", *wUnicode) ){
+      *wUnicode |= 0xF000;
+    }
+    ++wUnicode;
+  }
+
   return zUnicode;
 #else
   return (void *)zUtf8;  /* No-op on unix */
