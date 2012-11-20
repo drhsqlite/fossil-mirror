@@ -831,11 +831,11 @@ void ticket_output_change_artifact(Manifest *pTkt){
     blob_set(&val, pTkt->aField[i].zValue);
     if( z[0]=='+' ){
       @ <li>Appended to %h(&z[1]):<blockquote>
-      wiki_convert(&val, 0, 0);
+      wiki_convert(&val, 0, WIKI_NOBADLINKS);
       @ </blockquote></li>
     }else if( blob_size(&val)<=50 && contains_newline(&val) ){
       @ <li>Change %h(z) to:<blockquote>
-      wiki_convert(&val, 0, 0);
+      wiki_convert(&val, 0, WIKI_NOBADLINKS);
       @ </blockquote></li>
     }else{
       @ <li>Change %h(z) to "%h(blob_str(&val))"</li>

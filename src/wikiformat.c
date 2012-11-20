@@ -1086,14 +1086,16 @@ static int is_ticket(
 ** if there is one) if zTarget is a valid wiki page name.  Return NULL if
 ** zTarget names a page that does not exist.
 */
-static const char *validWikiPageName(const char *zTarget){
+static const char *validWikiPageName(Renderer *p, const char *zTarget){
   if( strncmp(zTarget, "wiki:", 5)==0
       && wiki_name_is_wellformed((const unsigned char*)zTarget) ){
     return zTarget+5;
   }
   if( strcmp(zTarget, "Sandbox")==0 ) return zTarget;
   if( wiki_name_is_wellformed((const unsigned char *)zTarget)
-   && db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget) ){
+   && ((p->state & WIKI_NOBADLINKS)==0 ||
+        db_exists("SELECT 1 FROM tag WHERE tagname GLOB 'wiki-%q'", zTarget))
+  ){
     return zTarget;
   }
   return 0;
@@ -1196,7 +1198,7 @@ static void openHyperlink(
   }else if( strlen(zTarget)>=10 && fossil_isdigit(zTarget[0]) && zTarget[4]=='-'
             && db_int(0, "SELECT datetime(%Q) NOT NULL", zTarget) ){
     blob_appendf(p->pOut, "<a href=\"%R/timeline?c=%T\">", zTarget);
-  }else if( (z = validWikiPageName(zTarget))!=0 ){
+  }else if( (z = validWikiPageName(p, zTarget))!=0 ){
     blob_appendf(p->pOut, "<a href=\"%R/wiki?name=%T\">", z);
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
@@ -1593,9 +1595,6 @@ static void wiki_render(Renderer *p, char *z){
 */
 void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   Renderer renderer;
-
-  /* Never show bad hyperlinks */
-  flags |= WIKI_NOBADLINKS;
 
   memset(&renderer, 0, sizeof(renderer));
   renderer.renderFlags = flags;

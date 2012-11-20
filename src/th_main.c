@@ -175,7 +175,7 @@ static int wikiCmd(
   if( enableOutput ){
     Blob src;
     blob_init(&src, (char*)argv[1], argl[1]);
-    wiki_convert(&src, 0, WIKI_INLINE);
+    wiki_convert(&src, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     blob_reset(&src);
   }
   return TH_OK;

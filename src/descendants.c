@@ -508,4 +508,3 @@ void compute_uses_file(const char *zTab, int fid, int usesFlags){
   bag_clear(&seen);
   bag_clear(&pending);
 }
-
