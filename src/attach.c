@@ -73,6 +73,7 @@ void attachlist_page(void){
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
     int attachid = db_column_int(&q, 7);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
@@ -117,7 +118,7 @@ void attachlist_page(void){
         @ Added
       }
     }
-    @ by %h(zUser) on
+    @ by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     free(zUrlTail);
   }
@@ -559,13 +560,14 @@ void attachment_list(
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
     const char *zSrc = db_column_text(&q, 4);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     if( cnt==0 ){
       @ %s(zHeader)
     }
     cnt++;
     @ <li>
     @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
-    @ added by %h(zUser) on
+    @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
     @ </li>
