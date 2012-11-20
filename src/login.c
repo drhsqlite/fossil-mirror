@@ -633,7 +633,7 @@ void login_page(void){
     @ Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %s(zCaptcha)
+    @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
@@ -1292,7 +1292,7 @@ void register_page(void){
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
-  @ %s(zCaptcha)
+  @ %h(zCaptcha)
   @ </pre></td></tr></table>
   @ </form>
   style_footer();

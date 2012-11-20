@@ -1,5 +1,5 @@
-C Change\sthe\saction=\sattribute\sof\s&lt;form&gt;\selements\susing\sjavascript,\sas\nan\sadditional\sdefense\sagainst\sspam-bots.
-D 2012-11-20T22:13:58.607
+C Centralize\sescaping\sof\sreserved\sHTML\scharacters\sin\sthe\scaptcha\soutput.
+D 2012-11-20T22:28:46.831
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -67,7 +67,7 @@ F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
-F src/captcha.c 2ec810b913011be59985113c86820a7620f2269a
+F src/captcha.c 5a22bf2fcd394e639300b91c948eef012de62dff
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
 F src/checkin.c 7c1fe418202f9bbc1388d40bddc642e6b5162506
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
@@ -116,7 +116,7 @@ F src/json_timeline.c 7dd30421b8f0ca73b7cbf56d6072b1ecc630a166
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 903ff0b106d8488507564d54e94ed41a104cd80f
+F src/login.c 400ac68a6bf3e0a0b7cb22a3ad7de20277daed1d
 F src/main.c 33d79f5b0a26d5000a64fdf2dae07f02a531849f
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fb04f278294a8ca6f40425d5a0681c41e4c25169
-R 939aae6c6415fa7405bfeb135c4c9724
-U drh
-Z 8fcaac28de683a4432de38c9a6b782a2
+P dfa3579455cd3491bf159e9af3ef18c78477a065
+R a462a7c547863cf27cb417e93bc9a02b
+U mistachkin
+Z d4ccbcbb834995cb57fd168f9ec73e49
