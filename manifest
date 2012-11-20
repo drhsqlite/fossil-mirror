@@ -1,5 +1,5 @@
-C Add\s'th1-setup'\ssetting\sfor\sthe\soptional\sTH1\sscript\sto\sevaluate\safter\screating\sand\sinitializing\sthe\sTH1\sinterpreter.\s\sRevise\sTH1\sintegration\sin\spreparation\sfor\sgeneralized\shooks.
-D 2012-11-20T06:04:19.932
+C Proof-of-concept\sfor\sgeneralized\sTH1\scommand/webpage\shooks.
+D 2012-11-20T06:26:13.105
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1fbb39f593d3785d75e64b35ee10f94c8c104887
-F src/main.c 33d79f5b0a26d5000a64fdf2dae07f02a531849f
+F src/main.c f51303cd35ee36dcc7081ba3083399248a269393
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -157,7 +157,7 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 63d1bbb543a11dd5289a56a85db33182ff22fabd
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
-F src/th_main.c 144e8b499526f28ec8657aa397d6a7af4b7f4630
+F src/th_main.c 522402d5bc07cd8505055a24a84dc22cee6f9ae7
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c 865712c5d6e99ae6808a75d47d8cb4760c0e9dc3
 F src/tkt.c 7ed3cf114c782280366062f67135392cd0f7ef3c
@@ -362,7 +362,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 60f71ba20a9d9c9f58d8c8eb1ae2c4082d491540
-R 10997106631cf218f984eafb941cb7c4
+P b058c8a944f96c98712ad4c8eab65fee3f362e0c
+R e6e4bd53ec9275a53a6876acab3f4de9
+T *branch * th1Hooks
+T *sym-th1Hooks *
+T -sym-trunk *
 U mistachkin
-Z 6e2287730de07d7ddca612a5acd6d38b
+Z fe55ffe356c9d00067aebf7cd2a08f8f

@@ -198,6 +198,7 @@ struct Global {
 
   int parseCnt[10];       /* Counts of artifacts parsed */
   FILE *fDebug;           /* Write debug information here, if the file exists */
+  int fNoThHook;          /* Disable all TH1 command/webpage hooks */
   int thTrace;            /* True to enable TH1 debugging output */
   Blob thLog;             /* Text of the TH1 debugging output */
 
@@ -619,6 +620,7 @@ int main(int argc, char **argv)
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
+    g.fNoThHook = find_option("no-th-hook", 0, 0)!=0;
     g.zLogin = find_option("user", "U", 1);
     g.zSSLIdentity = find_option("ssl-identity", 0, 1);
     if( find_option("utc",0,0) ) g.fTimeFormat = 1;
@@ -662,7 +664,13 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }
   atexit( fossil_atexit );
-  aCommand[idx].xFunc();
+  if( g.isHTTP || g.fNoThHook ||
+      Th_CommandHook(aCommand[idx].zName, aCommand[idx].cmdFlags)==TH_OK ){
+    aCommand[idx].xFunc();
+    if( !g.isHTTP && !g.fNoThHook ){
+      Th_CommandNotify(aCommand[idx].zName, aCommand[idx].cmdFlags);
+    }
+  }
   fossil_exit(0);
   /*NOT_REACHED*/
   return 0;
@@ -1583,7 +1591,13 @@ static void process_one_web_page(const char *zNotFound){
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-    aWebpage[idx].xFunc();
+    if( g.isHTTP || g.fNoThHook ||
+        Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags)==TH_OK ){
+      aWebpage[idx].xFunc();
+      if( !g.isHTTP && !g.fNoThHook ){
+        Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+      }
+    }
   }
 
   /* Return the result.
