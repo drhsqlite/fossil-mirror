@@ -867,7 +867,7 @@ static void checkin_description(int rid){
     const char *zUuid = db_column_text(&q, 3);
     const char *zTagList = db_column_text(&q, 4);
     Blob comment;
-    int wikiFlags = WIKI_INLINE;
+    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-block-markup", 0)==0 ){
       wikiFlags |= WIKI_NOBLOCK;
     }
@@ -2155,7 +2155,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE);
+    wiki_convert(&comment, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

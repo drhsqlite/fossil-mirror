@@ -211,9 +211,9 @@ void www_print_timeline(
   plainText = db_get_int("timeline-plaintext", 0);
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
-    wikiFlags = WIKI_INLINE;
+    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
   }else{
-    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
   }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
