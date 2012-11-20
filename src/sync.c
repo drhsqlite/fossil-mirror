@@ -21,15 +21,6 @@
 #include "sync.h"
 #include <assert.h>
 
-#if INTERFACE
-/*
-** Flags used to determine which direction(s) an autosync goes in.
-*/
-#define AUTOSYNC_PUSH  1
-#define AUTOSYNC_PULL  2
-
-#endif /* INTERFACE */
-
 /*
 ** If the repository is configured for autosyncing, then do an
 ** autosync.  This will be a pull if the argument is true or a push
@@ -46,12 +37,12 @@ int autosync(int flags){
   if( g.fNoSync ){
     return 0;
   }
-  if( flags==AUTOSYNC_PUSH && db_get_boolean("dont-push",0) ){
+  if( flags==SYNC_PUSH && db_get_boolean("dont-push",0) ){
     return 0;
   }
   zAutosync = db_get("autosync", 0);
   if( zAutosync ){
-    if( (flags & AUTOSYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
+    if( (flags & SYNC_PUSH)!=0 && memcmp(zAutosync,"pull",4)==0 ){
       return 0;   /* Do not auto-push when autosync=pullonly */
     }
     if( is_false(zAutosync) ){
@@ -83,7 +74,7 @@ int autosync(int flags){
 #endif
   fossil_print("Autosync:  %s\n", g.urlCanonical);
   url_enable_proxy("via proxy: ");
-  rc = client_sync((flags & AUTOSYNC_PUSH)!=0, 1, 0, 0, configSync, 0);
+  rc = client_sync(flags, configSync, 0);
   if( rc ) fossil_warning("Autosync failed");
   return rc;
 }
@@ -94,13 +85,18 @@ int autosync(int flags){
 ** of a server to sync against.  If no argument is given, use the
 ** most recently synced URL.  Remember the current URL for next time.
 */
-static void process_sync_args(int *pConfigSync, int *pPrivate){
+static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
   const char *zPw = 0;
-  int configSync = 0;
+  unsigned configSync = 0;
   int urlOptional = find_option("autourl",0,0)!=0;
   g.dontKeepUrl = find_option("once",0,0)!=0;
-  *pPrivate = find_option("private",0,0)!=0;
+  if( find_option("private",0,0)!=0 ){
+    *pSyncFlags |= SYNC_PRIVATE;
+  }
+  if( find_option("verbose","v",0)!=0 ){
+    *pSyncFlags |= SYNC_VERBOSE;
+  }
   url_proxy_options();
   db_find_and_open_repository(0, 0);
   db_open_config(0);
@@ -129,10 +125,16 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
   }
   user_select();
   if( g.argc==2 ){
-    fossil_print("Server:    %s\n", g.urlCanonical);
+    if( ((*pSyncFlags) & (SYNC_PUSH|SYNC_PULL))==(SYNC_PUSH|SYNC_PULL) ){
+      fossil_print("Sync with %s\n", g.urlCanonical);
+    }else if( (*pSyncFlags) & SYNC_PUSH ){
+      fossil_print("Push to %s\n", g.urlCanonical);
+    }else if( (*pSyncFlags) & SYNC_PULL ){
+      fossil_print("Pull from %s\n", g.urlCanonical);
+    }
   }
   url_enable_proxy("via proxy: ");
-  *pConfigSync = configSync;
+  *pConfigFlags |= configSync;
 }
 
 /*
@@ -158,10 +160,10 @@ static void process_sync_args(int *pConfigSync, int *pPrivate){
 ** See also: clone, push, sync, remote-url
 */
 void pull_cmd(void){
-  int syncFlags;
-  int bPrivate;
-  process_sync_args(&syncFlags, &bPrivate);
-  client_sync(0,1,0,bPrivate,syncFlags,0);
+  unsigned configFlags = 0;
+  unsigned syncFlags = SYNC_PULL;
+  process_sync_args(&configFlags, &syncFlags);
+  client_sync(syncFlags, configFlags, 0);
 }
 
 /*
@@ -187,13 +189,13 @@ void pull_cmd(void){
 ** See also: clone, pull, sync, remote-url
 */
 void push_cmd(void){
-  int syncFlags;
-  int bPrivate;
-  process_sync_args(&syncFlags, &bPrivate);
+  unsigned configFlags = 0;
+  unsigned syncFlags = SYNC_PUSH;
+  process_sync_args(&configFlags, &syncFlags);
   if( db_get_boolean("dont-push",0) ){
     fossil_fatal("pushing is prohibited: the 'dont-push' option is set");
   }
-  client_sync(1,0,0,bPrivate,0,0);
+  client_sync(syncFlags, 0, 0);
 }
 
 
@@ -225,13 +227,12 @@ void push_cmd(void){
 ** See also:  clone, push, pull, remote-url
 */
 void sync_cmd(void){
-  int syncFlags;
-  int bPrivate;
-  int pushFlag = 1;
-  process_sync_args(&syncFlags, &bPrivate);
-  if( db_get_boolean("dont-push",0) ) pushFlag = 0;
-  client_sync(pushFlag,1,0,bPrivate,syncFlags,0);
-  if( pushFlag==0 ){
+  unsigned configFlags = 0;
+  unsigned syncFlags = SYNC_PUSH|SYNC_PULL;
+  process_sync_args(&configFlags, &syncFlags);
+  if( db_get_boolean("dont-push",0) ) syncFlags &= ~SYNC_PUSH;
+  client_sync(syncFlags, configFlags, 0);
+  if( (syncFlags & SYNC_PUSH)==0 ){
     fossil_warning("pull only: the 'dont-push' option is set");
   }
 }

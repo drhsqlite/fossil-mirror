@@ -307,7 +307,7 @@ static int json_branch_new(BranchCreateOptions * zOpt,
   
 #if 0 /* Do an autosync push, if requested */
   /* arugable for JSON mode? */
-  if( !g.isHTTP && !isPrivate ) autosync(AUTOSYNC_PUSH);
+  if( !g.isHTTP && !isPrivate ) autosync(SYNC_PUSH);
 #endif
   return 0;
 }
