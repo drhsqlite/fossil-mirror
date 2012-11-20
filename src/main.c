@@ -644,9 +644,22 @@ int main(int argc, char **argv)
   }
   rc = name_search(zCmdName, aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fossil_fatal("%s: unknown command: %s\n"
-                 "%s: use \"help\" for more information\n",
-                   g.argv[0], zCmdName, g.argv[0]);
+    if( !g.isHTTP && !g.fNoThHook ){
+      rc = Th_CommandHook(zCmdName, 0);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){
+        fossil_fatal("%s: unknown command: %s\n"
+                     "%s: use \"help\" for more information\n",
+                     g.argv[0], zCmdName, g.argv[0]);
+      }
+      if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
+        Th_CommandNotify(zCmdName, 0);
+      }
+    }
+    fossil_exit(0);
   }else if( rc==2 ){
     int i, n;
     Blob couldbe;
