@@ -765,7 +765,7 @@ int Th_CommandHook(
   ** TH_BREAK or TH_CONTINUE.
   */
   if( g.thTrace ){
-    Th_Trace("[command_hook {%h}] => %d<br />\n", zName,
+    Th_Trace("[command_hook {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc));
   }
   return (rc != TH_ERROR) ? rc : TH_OK;
@@ -788,7 +788,7 @@ int Th_CommandNotify(
   Th_StoreInt("cmd_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "command_notify", -1);
   if( g.thTrace ){
-    Th_Trace("[command_notify {%h}] => %d<br />\n", zName,
+    Th_Trace("[command_notify {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc));
   }
   return rc;
@@ -828,7 +828,7 @@ int Th_WebpageHook(
   ** returning TH_BREAK or TH_CONTINUE.
   */
   if( g.thTrace ){
-    Th_Trace("[webpage_hook {%h}] => %d<br />\n", zName,
+    Th_Trace("[webpage_hook {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc));
   }
   return (rc != TH_ERROR) ? rc : TH_OK;
@@ -851,7 +851,7 @@ int Th_WebpageNotify(
   Th_StoreInt("web_flags", cmdFlags);
   rc = Th_Eval(g.interp, 0, "webpage_notify", -1);
   if( g.thTrace ){
-    Th_Trace("[webpage_notify {%h}] => %d<br />\n", zName,
+    Th_Trace("[webpage_notify {%h}] => %h<br />\n", zName,
              Th_ReturnCodeName(rc));
   }
   return rc;
