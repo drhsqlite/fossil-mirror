@@ -240,7 +240,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
 */
 void ticket_init(void){
   const char *zConfig;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   zConfig = ticket_common_code();
   Th_Eval(g.interp, 0, zConfig, -1);
 }
@@ -250,7 +250,7 @@ void ticket_init(void){
 */
 int ticket_change(void){
   const char *zConfig;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   zConfig = ticket_change_code();
   return Th_Eval(g.interp, 0, zConfig, -1);
 }

@@ -81,6 +81,24 @@ static int enableOutputCmd(
 }
 
 /*
+** Return a name for a TH1 return code.
+*/
+const char *Th_ReturnCodeName(int rc){
+  static char zRc[32];
+  switch( rc ){
+    case TH_OK:       return "TH_OK";
+    case TH_ERROR:    return "TH_ERROR";
+    case TH_BREAK:    return "TH_BREAK";
+    case TH_RETURN:   return "TH_RETURN";
+    case TH_CONTINUE: return "TH_CONTINUE";
+    default: {
+      sqlite3_snprintf(sizeof(zRc),zRc,"return code %d",rc);
+    }
+  }
+  return zRc;
+}
+
+/*
 ** Send text to the appropriate output:  Either to the console
 ** or to the CGI reply buffer.
 */
@@ -99,6 +117,15 @@ static void sendText(const char *z, int n, int encode){
     }
     if( encode ) free((char*)z);
   }
+}
+
+static void sendError(const char *z, int n, int forceCgi){
+  if( forceCgi || g.cgiOutput ){
+    sendText("<hr><p class=\"thmainError\">", -1, 0);
+  }
+  sendText("ERROR: ", -1, 0);
+  sendText((char*)z, n, 1);
+  sendText(forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
 }
 
 /*
@@ -512,7 +539,8 @@ static int stimeCmd(
 **
 ** The interpreter is stored in the g.interp global variable.
 */
-void Th_FossilInit(void){
+void Th_FossilInit(int needConfig, int forceSetup){
+  int wasInit = 0;
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -534,13 +562,25 @@ void Th_FossilInit(void){
     {"stime",         stimeCmd,             0},
     {0, 0, 0}
   };
+  if( needConfig ){
+    /*
+    ** This function uses several settings which may be defined in the
+    ** repository and/or the global configuration.  Since the caller
+    ** passed a non-zero value for the needConfig parameter, make sure
+    ** the necessary database connections are open prior to continuing.
+    */
+    db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+    db_open_config(0);
+  }
   if( g.interp==0 ){
     int i;
     g.interp = Th_CreateInterp(&vtab);
     th_register_language(g.interp);       /* Basic scripting commands. */
 #ifdef FOSSIL_ENABLE_TCL
     if( getenv("TH1_ENABLE_TCL")!=0 || db_get_boolean("tcl", 0) ){
-      g.tcl.setup = db_get("tcl-setup", 0); /* Grab optional setup script. */
+      if( !g.tcl.setup ){
+        g.tcl.setup = db_get("tcl-setup", 0); /* Grab Tcl setup script. */
+      }
       th_register_tcl(g.interp, &g.tcl);  /* Tcl integration commands. */
     }
 #endif
@@ -549,6 +589,26 @@ void Th_FossilInit(void){
       Th_CreateCommand(g.interp, aCommand[i].zName, aCommand[i].xProc,
                        aCommand[i].pContext, 0);
     }
+  }else{
+    wasInit = 1;
+  }
+  if( forceSetup || !wasInit ){
+    int rc = TH_OK;
+    if( !g.th1Setup ){
+      g.th1Setup = db_get("th1-setup", 0); /* Grab TH1 setup script. */
+    }
+    if( g.th1Setup ){
+      rc = Th_Eval(g.interp, 0, g.th1Setup, -1);
+      if( rc==TH_ERROR ){
+        int nResult = 0;
+        char *zResult = (char*)Th_GetResult(g.interp, &nResult);
+        sendError(zResult, nResult, 0);
+      }
+    }
+    if( g.thTrace ){
+      Th_Trace("th1-setup {%h} => %h<br />\n", g.th1Setup,
+               Th_ReturnCodeName(rc));
+    }
   }
 }
 
@@ -556,13 +616,30 @@ void Th_FossilInit(void){
 ** Store a string value in a variable in the interpreter.
 */
 void Th_Store(const char *zName, const char *zValue){
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   if( zValue ){
     if( g.thTrace ){
       Th_Trace("set %h {%h}<br />\n", zName, zValue);
     }
     Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
   }
+}
+
+/*
+** Store an integer value in a variable in the interpreter.
+*/
+void Th_StoreInt(const char *zName, int iValue){
+  Blob value;
+  char *zValue;
+  Th_FossilInit(0, 0);
+  blob_zero(&value);
+  blob_appendf(&value, "%d", iValue);
+  zValue = blob_str(&value);
+  if( g.thTrace ){
+    Th_Trace("set %h {%h}<br />\n", zName, zValue);
+  }
+  Th_SetVar(g.interp, zName, -1, zValue, strlen(zValue));
+  blob_reset(&value);
 }
 
 /*
@@ -580,7 +657,7 @@ void Th_Unstore(const char *zName){
 */
 char *Th_Fetch(const char *zName, int *pSize){
   int rc;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   rc = Th_GetVar(g.interp, (char*)zName, -1);
   if( rc==TH_OK ){
     return (char*)Th_GetResult(g.interp, pSize);
@@ -660,7 +737,7 @@ int Th_Render(const char *z){
   int n;
   int rc = TH_OK;
   char *zResult;
-  Th_FossilInit();
+  Th_FossilInit(0, 0);
   while( z[i] ){
     if( z[i]=='$' && (n = validVarName(&z[i+1]))>0 ){
       const char *zVar;
@@ -696,10 +773,8 @@ int Th_Render(const char *z){
     }
   }
   if( rc==TH_ERROR ){
-    sendText("<hr><p class=\"thmainError\">ERROR: ", -1, 0);
     zResult = (char*)Th_GetResult(g.interp, &n);
-    sendText((char*)zResult, n, 1);
-    sendText("</p>", -1, 0);
+    sendError(zResult, n, 1);
   }else{
     sendText(z, i, 0);
   }

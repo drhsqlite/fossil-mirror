@@ -1,5 +1,5 @@
-C Fix\sharmless\scompiler\swarning\sin\sthe\swiki\srendering\scode.
-D 2012-11-19T23:57:13.646
+C Add\s'th1-setup'\ssetting\sfor\sthe\soptional\sTH1\sscript\sto\sevaluate\safter\screating\sand\sinitializing\sthe\sTH1\sinterpreter.\s\sRevise\sTH1\sintegration\sin\spreparation\sfor\sgeneralized\shooks.
+D 2012-11-20T06:04:19.932
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -75,11 +75,11 @@ F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 0ef90bcea22810a3b49628a6d793f909e6776a0b
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c 11d17d4e1f47e6255c4dfec6dd7a001bec6e4e28
+F src/configure.c ae8a92f42503139ed1aa3dd7d3753fcadd8946e5
 F src/content.c 5a249dcb3bad542381a9632edea5a0f41e9d2ad7
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c e913e7d3a188c2e6c06b5c88b125dd6fe576bf9d
+F src/db.c 7ff0e0ad2d970bea6ec04f911bd357ca60d4b2cb
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c a8f8a0ad2d04534b6afc44662106b037d3c64489
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 1fbb39f593d3785d75e64b35ee10f94c8c104887
-F src/main.c fddc77945ed05649599e9ce8dc76af15cf378576
+F src/main.c 33d79f5b0a26d5000a64fdf2dae07f02a531849f
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -157,10 +157,10 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 63d1bbb543a11dd5289a56a85db33182ff22fabd
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
-F src/th_main.c dae51631100e23fca4b45e79ccd35306dabe176b
+F src/th_main.c 144e8b499526f28ec8657aa397d6a7af4b7f4630
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c 865712c5d6e99ae6808a75d47d8cb4760c0e9dc3
-F src/tkt.c 45ff29e1f9b5e3a8520d58c7eb04f004e4b87b21
+F src/tkt.c 7ed3cf114c782280366062f67135392cd0f7ef3c
 F src/tktsetup.c 69e0b84786fd9bf52a5fbeef6cd10323cbce11a8
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
@@ -173,7 +173,7 @@ F src/wiki.c 645b3b48287298d77bbbbe8a1b4e2559c45843ca
 F src/wikiformat.c fdbaea7fe8d4dea887dde307e8568d46c0878917
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 02cf33052a7c1abc95d7798696d3f640474a3c4e
+F src/xfer.c 1e5e5ec0a8bdeed51dc3bea43ad459bf24ced9c8
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
 F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c3bfb0083a56efe850b3ca1cd539b85003195d5f
-R d63cc65d4557e8705ce057f5f6cb93ed
+P 60f71ba20a9d9c9f58d8c8eb1ae2c4082d491540
+R 10997106631cf218f984eafb941cb7c4
 U mistachkin
-Z cedf38c5bd62a7cbcb6b7b82d1601286
+Z 6e2287730de07d7ddca612a5acd6d38b

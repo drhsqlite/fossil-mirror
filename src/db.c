@@ -2057,6 +2057,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
   { "ssh-command",   0,               40, 0, ""                    },
+  { "th1-setup",     0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
@@ -2233,6 +2234,10 @@ struct stControlSettings const ctrlSettings[] = {
 **
 **    tcl-setup        This is the setup script to be evaluated after creating
 **                     and initializing the Tcl interpreter.  By default, this
+**                     is empty and no extra setup is performed.
+**
+**    th1-setup        This is the setup script to be evaluated after creating
+**                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
 **    web-browser      A shell command used to launch your preferred

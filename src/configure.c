@@ -91,6 +91,7 @@ static struct {
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "th1-setup",              CONFIGSET_ALL },
 
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
