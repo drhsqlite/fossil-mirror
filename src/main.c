@@ -664,10 +664,29 @@ int main(int argc, char **argv)
     fossil_exit(1);
   }
   atexit( fossil_atexit );
-  if( g.isHTTP || g.fNoThHook ||
-      Th_CommandHook(aCommand[idx].zName, aCommand[idx].cmdFlags)==TH_OK ){
-    aCommand[idx].xFunc();
-    if( !g.isHTTP && !g.fNoThHook ){
+  /*
+  ** The TH1 return codes from the hook will be handled as follows:
+  **
+  ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+  **
+  ** TH_ERROR: The xFunc() and the TH1 notification will both be skipped.
+  **
+  ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+  **
+  ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+  **            skipped.
+  **
+  ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+  **              executed.
+  */
+  if( !g.isHTTP && !g.fNoThHook ){
+    rc = Th_CommandHook(aCommand[idx].zName, aCommand[idx].cmdFlags);
+  }else{
+    rc = TH_OK;
+  }
+  if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+    if( rc==TH_OK || rc==TH_RETURN ){ aCommand[idx].xFunc(); }
+    if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
       Th_CommandNotify(aCommand[idx].zName, aCommand[idx].cmdFlags);
     }
   }
@@ -1591,10 +1610,30 @@ static void process_one_web_page(const char *zNotFound){
       @ the administrator to run <b>fossil rebuild</b>.</p>
     }
   }else{
-    if( g.isHTTP || g.fNoThHook ||
-        Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags)==TH_OK ){
-      aWebpage[idx].xFunc();
-      if( !g.isHTTP && !g.fNoThHook ){
+    /*
+    ** The TH1 return codes from the hook will be handled as follows:
+    **
+    ** TH_OK: The xFunc() and the TH1 notification will both be executed.
+    **
+    ** TH_ERROR: The xFunc() and the TH1 notification will both be skipped.
+    **
+    ** TH_BREAK: The xFunc() and the TH1 notification will both be skipped.
+    **
+    ** TH_RETURN: The xFunc() will be executed, the TH1 notification will be
+    **            skipped.
+    **
+    ** TH_CONTINUE: The xFunc() will be skipped, the TH1 notification will be
+    **              executed.
+    */
+    int rc;
+    if( !g.isHTTP && !g.fNoThHook ){
+      rc = Th_WebpageHook(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
+    }else{
+      rc = TH_OK;
+    }
+    if( rc==TH_OK || rc==TH_RETURN || rc==TH_CONTINUE ){
+      if( rc==TH_OK || rc==TH_RETURN ){ aWebpage[idx].xFunc(); }
+      if( !g.isHTTP && !g.fNoThHook && (rc==TH_OK || rc==TH_CONTINUE) ){
         Th_WebpageNotify(aWebpage[idx].zName, aWebpage[idx].cmdFlags);
       }
     }
