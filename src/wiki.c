@@ -129,6 +129,7 @@ void wiki_page(void){
   char *zTag;
   int rid = 0;
   int isSandbox;
+  char *zUuid;
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
@@ -173,6 +174,7 @@ void wiki_page(void){
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     zBody = db_get("sandbox",zBody);
+    rid = 0;
   }else{
     zTag = mprintf("wiki-%s", zPageName);
     rid = db_int(0, 
@@ -187,6 +189,13 @@ void wiki_page(void){
     }
   }
   if( !g.isHome ){
+    if( rid ){
+      style_submenu_element("Diff", "Last change",
+                 "%R/wdiff?name=%T&a=%d", zPageName, rid);
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      style_submenu_element("Details", "Details",
+                   "%R/info/%S", zUuid);
+    }
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "Edit Wiki Page",
