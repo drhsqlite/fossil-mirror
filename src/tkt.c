@@ -524,7 +524,7 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
+  form_begin(0, "%R/%s", g.zPath);
   login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
@@ -593,7 +593,7 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
+  form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   @ </p>

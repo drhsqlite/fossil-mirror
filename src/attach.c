@@ -320,8 +320,8 @@ void attachadd_page(void){
   }
   style_header("Add Attachment");
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zTop)/attachadd" method="post"
-  @  enctype="multipart/form-data"><div>
+  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  @ <div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
   @ Description:<br />
@@ -435,7 +435,7 @@ void ainfo_page(void){
   if( P("del")
    && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
   ){
-    @ <form method="post" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -499,7 +499,7 @@ void ainfo_page(void){
   if( isModerator && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
-    @ <form method="POST" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
     @ Delete this change</label><br />
     @ <label><input type="radio" name="modaction" value="approve">

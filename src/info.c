@@ -2185,9 +2185,9 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%s",zUuid))%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zTop)/ci_edit" method="post"><div>
+  form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%S(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>

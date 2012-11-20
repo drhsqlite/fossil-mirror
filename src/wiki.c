@@ -162,8 +162,9 @@ void wiki_page(void){
     if( g.perm.ModWiki ){
       @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
     }
-    @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
-    @     Search wiki titles: <input type="text" name="title"/>
+    @ <li>
+    form_begin(0, "%R/wfind");
+    @  <div>Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
     @ </ul>
@@ -359,7 +360,8 @@ void wikiedit_page(void){
   if( n>30 ) n = 30;
   if( !isWysiwyg ){
     /* Traditional markup-only editing */
-    @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+    form_begin(0, "%R/wikiedit");
+    @ <div>
     @ <textarea name="w" class="wikiedit" cols="80" 
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
@@ -371,8 +373,8 @@ void wikiedit_page(void){
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
-    @ <form method="post" action="%s(g.zTop)/wikiedit"
-    @  onsubmit="wysiwygSubmit()"><div>
+    form_begin("onsubmit='wysiwygSubmit()'", "%R/wikiedit");
+    @ <div>
     @ <input type="hidden" name="wysiwyg" value="1" />
     blob_zero(&temp);
     wiki_convert(&wiki, &temp, 0);
@@ -421,7 +423,7 @@ void wikinew_page(void){
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ <form method="post" action="%s(g.zTop)/wikinew">
+  form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
   @ <input type="submit" value="Create" />
@@ -546,7 +548,7 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="post" action="%s(g.zTop)/wikiappend">
+  form_begin(0, "%R/wikiappend");
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
