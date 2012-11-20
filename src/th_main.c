@@ -569,7 +569,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     ** passed a non-zero value for the needConfig parameter, make sure
     ** the necessary database connections are open prior to continuing.
     */
-    db_find_and_open_repository(OPEN_OK_NOT_FOUND, 0);
+    db_find_and_open_repository(OPEN_ANY_SCHEMA | OPEN_OK_NOT_FOUND, 0);
     db_open_config(0);
   }
   if( g.interp==0 ){
