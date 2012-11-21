@@ -25,13 +25,12 @@
 /*
 ** Allowed wiki transformation operations
 */
-#define WIKI_NOFOLLOW       0x001
-#define WIKI_HTML           0x002
-#define WIKI_INLINE         0x004  /* Do not surround with <p>..</p> */
-#define WIKI_NOBLOCK        0x008  /* No block markup of any kind */
-#define WIKI_BUTTONS        0x010  /* Allow sub-menu buttons */
-#define WIKI_NOBADLINKS     0x020  /* Ignore broken hyperlinks */
-#define WIKI_DECORATEONLY   0x040  /* No markup.  Only decorate links */
+#define WIKI_HTMLONLY       0x001  /* HTML markup only.  No wiki */
+#define WIKI_INLINE         0x002  /* Do not surround with <p>..</p> */
+#define WIKI_NOBLOCK        0x004  /* No block markup of any kind */
+#define WIKI_BUTTONS        0x008  /* Allow sub-menu buttons */
+#define WIKI_NOBADLINKS     0x010  /* Ignore broken hyperlinks */
+#define WIKI_LINKSONLY      0x020  /* No markup.  Only decorate links */
 #endif
 
 
@@ -391,7 +390,6 @@ static int findTag(const char *z){
 #define FONT_MARKUP_ONLY    0x0080000  /* Only allow MUTYPE_FONT markup */
 #define INLINE_MARKUP_ONLY  0x0100000  /* Allow only "inline" markup */
 #define IN_LIST             0x0200000  /* Within wiki <ul> or <ol> */
-#define WIKI_USE_HTML       0x0400000  /* wiki-use-html option = on */
 
 /*
 ** Current state of the rendering engine
@@ -987,6 +985,7 @@ static int backupToType(Renderer *p, int iMask){
 */
 static void startAutoParagraph(Renderer *p){
   if( p->wantAutoParagraph==0 ) return;
+  if( p->state & WIKI_LINKSONLY ) return;
   if( p->wikiList==MARKUP_OL || p->wikiList==MARKUP_UL ) return;
   blob_appendf(p->pOut, "<p>", -1);
   pushStack(p, MARKUP_P);
@@ -1149,15 +1148,10 @@ static void openHyperlink(
    || strncmp(zTarget, "mailto:", 7)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
-    /* zTerm = "&#x27FE;</a>"; // doesn't work on windows */
   }else if( zTarget[0]=='/' ){
     blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
   }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
-    if( 1 ){
-      blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
-    }else{
-      zTerm = "";
-    }
+    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
   }else if( is_valid_uuid(zTarget) ){
     int isClosed = 0;
     if( is_ticket(zTarget, &isClosed) ){
@@ -1185,7 +1179,7 @@ static void openHyperlink(
         }
       }
     }else if( !in_this_repo(zTarget) ){
-      if( (p->state & (WIKI_DECORATEONLY|WIKI_NOBADLINKS))!=0 ){
+      if( (p->state & (WIKI_LINKSONLY|WIKI_NOBADLINKS))!=0 ){
         zTerm = "";
       }else{
         blob_appendf(p->pOut, "<span class=\"brokenlink\">[", zTarget);
@@ -1203,7 +1197,7 @@ static void openHyperlink(
   }else if( zTarget>=&zOrig[2] && !fossil_isspace(zTarget[-2]) ){
     /* Probably an array subscript in code */
     zTerm = "";
-  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_DECORATEONLY))!=0 ){
+  }else if( (p->state & (WIKI_NOBADLINKS|WIKI_LINKSONLY))!=0 ){
     zTerm = "";
   }else{
     blob_appendf(p->pOut, "<span class=\"brokenlink\">[%h]", zTarget);
@@ -1247,7 +1241,8 @@ static void wiki_render(Renderer *p, char *z){
   ParsedMarkup markup;
   int n;
   int inlineOnly = (p->state & INLINE_MARKUP_ONLY)!=0;
-  int wikiUseHtml = (p->state & WIKI_USE_HTML)!=0;
+  int wikiHtmlOnly = (p->state & (WIKI_HTMLONLY | WIKI_LINKSONLY))!=0;
+  int linksOnly = (p->state & WIKI_LINKSONLY)!=0;
   char *zOrig = z;
 
   /* Make sure the attribute constants and names still align
@@ -1255,7 +1250,7 @@ static void wiki_render(Renderer *p, char *z){
   assert( fossil_strcmp(aAttribute[ATTR_WIDTH].zName, "width")==0 );
 
   while( z[0] ){
-    if( wikiUseHtml ){
+    if( wikiHtmlOnly ){
       n = nextRawToken(z, p, &tokenType);
     }else{
       n = nextWikiToken(z, p, &tokenType);
@@ -1376,10 +1371,10 @@ static void wiki_render(Renderer *p, char *z){
         for(i=1; z[i] && z[i]!=']'; i++){
           if( z[i]=='|' && zDisplay==0 ){
             zDisplay = &z[i+1];
-            iS1 = i;
-            cS1 = z[i];
-            z[i] = 0;
-            for(j=i-1; j>0 && fossil_isspace(z[j]); j--){ z[j] = 0; }
+            for(j=i; j>0 && fossil_isspace(z[j-1]); j--){}
+            iS1 = j;
+            cS1 = z[j];
+            z[j] = 0;
           }
         }
         z[i] = 0;
@@ -1389,16 +1384,20 @@ static void wiki_render(Renderer *p, char *z){
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
         openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
-        if( zClose[0] ){
+        if( linksOnly || zClose[0]==0 ){
+          if( cS1 ) z[iS1] = cS1;
+          if( zClose[0]!=']' ){
+            blob_appendf(p->pOut, "[%h]%s", zTarget, zClose);
+          }else{
+            blob_appendf(p->pOut, "%h%s", zTarget, zClose);
+          }
+        }else{
           savedState = p->state;
           p->state &= ~ALLOW_WIKI;
           p->state |= FONT_MARKUP_ONLY;
           wiki_render(p, zDisplay);
           p->state = savedState;
           blob_append(p->pOut, zClose, -1);
-        }else{
-          if( cS1 ) z[iS1] = cS1;
-          blob_appendf(p->pOut, "[%h]", zTarget);
         }
         break;
       }
@@ -1410,7 +1409,11 @@ static void wiki_render(Renderer *p, char *z){
         break;
       }
       case TOKEN_RAW: {
-        blob_append(p->pOut, z, n);
+        if( linksOnly ){
+          htmlize_to_blob(p->pOut, z, n);
+        }else{
+          blob_append(p->pOut, z, n);
+        }
         break;
       }
       case TOKEN_MARKUP: {
@@ -1608,7 +1611,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.wantAutoParagraph = 1;
   }
   if( wikiUsesHtml() ){
-    renderer.state |= WIKI_USE_HTML;
+    renderer.state |= WIKI_HTMLONLY;
   }
   if( pOut ){
     renderer.pOut = pOut;
@@ -1617,11 +1620,13 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }
 
   blob_strip_bom(pIn, 0);
+  if( flags & WIKI_LINKSONLY ) blob_append(renderer.pOut, "<pre>", 5);
   wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
   }
+  if( flags & WIKI_LINKSONLY ) blob_append(renderer.pOut, "</pre>", 5);
   blob_append(renderer.pOut, "\n", 1);
   free(renderer.aStack);
 }
@@ -1633,11 +1638,22 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 **
 ** Options:
 **    --buttons        Set the WIKI_BUTTONS flag
+**    --htmlonly       Set the WIKI_HTMLONLY flag
+**    --linksonly      Set the WIKI_LINKSONLY flag
+**    --nobadlinks     Set the WIKI_NOBADLINKS flag
+**    --inline         Set the WIKI_INLINE flag
+**    --noblock        Set the WIKI_NOBLOCK flag
 */
 void test_wiki_render(void){
   Blob in, out;
   int flags = 0;
   if( find_option("buttons",0,0)!=0 ) flags |= WIKI_BUTTONS;
+  if( find_option("htmlonly",0,0)!=0 ) flags |= WIKI_HTMLONLY;
+  if( find_option("linksonly",0,0)!=0 ) flags |= WIKI_LINKSONLY;
+  if( find_option("nobadlinks",0,0)!=0 ) flags |= WIKI_NOBADLINKS;
+  if( find_option("inline",0,0)!=0 ) flags |= WIKI_INLINE;
+  if( find_option("noblock",0,0)!=0 ) flags |= WIKI_NOBLOCK;
+  db_find_and_open_repository(0,0);
   verify_all_options();
   if( g.argc!=3 ) usage("FILE");
   blob_zero(&out);
@@ -1696,7 +1712,7 @@ void wiki_extract_links(
   ParsedMarkup markup;
   int n;
   int inlineOnly;
-  int wikiUseHtml = 0;
+  int wikiHtmlOnly = 0;
 
   memset(&renderer, 0, sizeof(renderer));
   renderer.state = ALLOW_WIKI|AT_NEWLINE|AT_PARAGRAPH;
@@ -1704,8 +1720,8 @@ void wiki_extract_links(
     renderer.state |= INLINE_MARKUP_ONLY;
   }
   if( wikiUsesHtml() ){
-    renderer.state |= WIKI_USE_HTML;
-    wikiUseHtml = 1;
+    renderer.state |= WIKI_HTMLONLY;
+    wikiHtmlOnly = 1;
   }
   inlineOnly = (renderer.state & INLINE_MARKUP_ONLY)!=0;
   if( replaceFlag ){
@@ -1714,7 +1730,7 @@ void wiki_extract_links(
   }
 
   while( z[0] ){
-    if( wikiUseHtml ){
+    if( wikiHtmlOnly ){
       n = nextRawToken(z, &renderer, &tokenType);
     }else{
       n = nextWikiToken(z, &renderer, &tokenType);
