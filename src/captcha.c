@@ -442,7 +442,13 @@ char const *captcha_decode(unsigned int seed){
 }
 
 /*
-** Return true if a CAPTCHA is required.
+** Return true if a CAPTCHA is required for editing wiki or tickets or for
+** adding attachments.
+**
+** A CAPTCHA is required in those cases if the user is not logged in (if they
+** are user "nobody") and if the "require-captcha" setting is true.  The
+** "require-captcha" setting is controlled on the Admin/Access page.  It 
+** defaults to true.
 */
 int captcha_needed(void){
   if( g.zLogin!=0 ) return 0;
@@ -451,10 +457,13 @@ int captcha_needed(void){
 
 /*
 ** If a captcha is required but the correct captcha code is not supplied
-** in the query parameters, then return false (0).  
+** in the query parameters, then return false (0).
 **
 ** If no captcha is required or if the correct captcha is supplied, return
 ** true (non-zero).
+**
+** The query parameters examined are "captchaseed" for the seed value and
+** "captcha" for text that the user types in response to the captcha prompt.
 */
 int captcha_is_correct(void){
   const char *zSeed;
@@ -473,8 +482,11 @@ int captcha_is_correct(void){
 }
 
 /*
-** Generate a new CAPTCHA seed.  Write it as a hidden variable named
-** "captchaseed".  Then return the rendered captcha text.
+** Generate a captcha display together with the necessary hidden parameter
+** for the seed and the entry box into which the user will type the text of
+** the captcha.  This is typically done at the very bottom of a form.
+**
+** This routine is a no-op if no captcha is required.
 */
 void captcha_generate(void){
   unsigned int uSeed;

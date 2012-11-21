@@ -1,5 +1,5 @@
-C Optionally\srequire\sa\sCAPTCHA\s(controlled\sby\sAdmin/Access)\swhen\sa\suser\swho\sis\nnot\slogged\sin\stries\sto\sedit\swiki,\sor\sa\sticket,\sor\san\sattachment.
-D 2012-11-21T00:51:01.903
+C Improvements\sto\scomments\son\srecently\sadded\sCAPTCHA\scode.
+D 2012-11-21T01:08:56.787
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -67,7 +67,7 @@ F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
 F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
-F src/captcha.c 0e942e5935c0959c3fd26c56d133e4fadf622e3c
+F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
 F src/checkin.c 7c1fe418202f9bbc1388d40bddc642e6b5162506
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a460326337fc2900484c141f2d9d2bda61e35adf
-R 06e5bcec7d891e6391d541744f940caa
+P 82b8587a502f32e9e4a76a3312c55057bcfd1538
+R a630fa0f46d9c4403eef4cf7fb4cc583
 U drh
-Z 3fb5d0a5bf0accd82ee0ea53b9d6ce0d
+Z 8ca42991b513cfd16f3ac64d24a1e7ac
