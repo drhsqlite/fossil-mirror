@@ -1,5 +1,5 @@
-C Add\ssupport\sfor\s&lt;verbatim\stype="allow-links"&gt;
-D 2012-11-21T16:28:03.433
+C Enhancements\sto\sTH1\sscripting\sin\ssupport\sof\snew\sticket\sfunctionality.
+D 2012-11-21T21:02:44.756
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -157,7 +157,7 @@ F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c 63d1bbb543a11dd5289a56a85db33182ff22fabd
 F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 18bca7c6d555b8e428c984ef63ccaf8b31ea65ea
-F src/th_main.c 5a60b1543d35b1fb39e280b4ed89064e272622af
+F src/th_main.c 59b5a1aa3e090582fa3b813a547645d372c6014b
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c b4f8dd565967eae6813fcb91c16dbadffe2f8024
 F src/tkt.c cf65e91ea4f19825b91ff0f68af015b2b8f44d57
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4615bc8faf85010b7f5e0444be1fad713e5fd095
-R 509749a83e9056e59c70261041113f46
+P bf67db062dd3a20bd855549cf4023c64813b4674
+R 7d590047f89a88621c2b3c431e9ee514
 U drh
-Z 5bb3c66fe58dcad890a445efd6e2db72
+Z 074794e5024580214722a7cd152095d4

@@ -100,7 +100,8 @@ const char *Th_ReturnCodeName(int rc){
 
 /*
 ** Send text to the appropriate output:  Either to the console
-** or to the CGI reply buffer.
+** or to the CGI reply buffer.  Escape all characters with special
+** meaning to HTML if the encode parameter is true.
 */
 static void sendText(const char *z, int n, int encode){
   if( enableOutput && n ){
@@ -132,7 +133,7 @@ static void sendError(const char *z, int n, int forceCgi){
 ** TH command:     puts STRING
 ** TH command:     html STRING
 **
-** Output STRING as HTML (html) or unchanged (puts).  
+** Output STRING escaped for HTML (html) or unchanged (puts).  
 */
 static int putsCmd(
   Th_Interp *interp, 
@@ -144,7 +145,7 @@ static int putsCmd(
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "puts STRING");
   }
-  sendText((char*)argv[1], argl[1], pConvert!=0);
+  sendText((char*)argv[1], argl[1], *(unsigned int*)pConvert);
   return TH_OK;
 }
 
@@ -160,13 +161,14 @@ static int wikiCmd(
   const char **argv, 
   int *argl
 ){
+  int flags = WIKI_INLINE | WIKI_NOBADLINKS | *(unsigned int*)p;
   if( argc!=2 ){
     return Th_WrongNumArgs(interp, "wiki STRING");
   }
   if( enableOutput ){
     Blob src;
     blob_init(&src, (char*)argv[1], argl[1]);
-    wiki_convert(&src, 0, WIKI_INLINE|WIKI_NOBADLINKS);
+    wiki_convert(&src, 0, flags);
     blob_reset(&src);
   }
   return TH_OK;
@@ -534,6 +536,41 @@ static int stimeCmd(
 
 
 /*
+** TH1 command:     randhex  N
+**
+** Return N*2 random hexadecimal digits with N<50.  If N is omitted, 
+** use a value of 10.
+*/
+static int randhexCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  int n;
+  char aRand[50];
+  char zOut[100];
+  if( argc!=1 && argc!=2 ){
+    return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
+  }
+  if( argc==2 ){
+    if( Th_ToInt(interp, argv[1], argl[1], &n) ){
+      return TH_ERROR;
+    }
+    if( n<1 ) n = 1;
+    if( n>sizeof(aRand) ) n = sizeof(aRand);
+  }else{
+    n = 10;
+  }
+  sqlite3_randomness(n, aRand);
+  encode16(aRand, zOut, n);
+  Th_SetResult(interp, zOut, -1);
+  return TH_OK;
+}
+
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -541,6 +578,7 @@ static int stimeCmd(
 */
 void Th_FossilInit(int needConfig, int forceSetup){
   int wasInit = 0;
+  static unsigned int aFlags[] = { 0, 1, WIKI_LINKSONLY };
   static struct _Command {
     const char *zName;
     Th_CommandProc xProc;
@@ -548,18 +586,20 @@ void Th_FossilInit(int needConfig, int forceSetup){
   } aCommand[] = {
     {"anycap",        anycapCmd,            0},
     {"combobox",      comboboxCmd,          0},
+    {"date",          dateCmd,              0},
+    {"decorate",      wikiCmd,              (void*)&aFlags[2]},
     {"enable_output", enableOutputCmd,      0},
-    {"linecount",     linecntCmd,           0},
     {"hascap",        hascapCmd,            0},
     {"hasfeature",    hasfeatureCmd,        0},
+    {"html",          putsCmd,              (void*)&aFlags[0]},
     {"htmlize",       htmlizeCmd,           0},
-    {"date",          dateCmd,              0},
-    {"html",          putsCmd,              0},
-    {"puts",          putsCmd,       (void*)1},
-    {"wiki",          wikiCmd,              0},
+    {"linecount",     linecntCmd,           0},
+    {"puts",          putsCmd,              (void*)&aFlags[1]},
+    {"randhex",       randhexCmd,           0},
     {"repository",    repositoryCmd,        0},
-    {"utime",         utimeCmd,             0},
     {"stime",         stimeCmd,             0},
+    {"utime",         utimeCmd,             0},
+    {"wiki",          wikiCmd,              (void*)&aFlags[0]},
     {0, 0, 0}
   };
   if( needConfig ){
