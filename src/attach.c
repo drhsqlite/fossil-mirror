@@ -238,6 +238,7 @@ void attachadd_page(void){
   const char *zTarget;
   const char *zTargetType;
   int szContent = atoi(PD("f:bytes","0"));
+  int goodCaptcha = 1;
 
   if( P("cancel") ) cgi_redirect(zFrom);
   if( zPage && zTkt ) fossil_redirect_home();
@@ -266,7 +267,7 @@ void attachadd_page(void){
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
     Blob content;
     Blob manifest;
     Blob cksum;
@@ -319,6 +320,9 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
   form_begin("enctype='multipart/form-data'", "%R/attachadd");
   @ <div>
@@ -334,7 +338,9 @@ void attachadd_page(void){
   @ <input type="hidden" name="from" value="%h(zFrom)" />
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   style_footer();
 }
 

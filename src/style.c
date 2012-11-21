@@ -714,6 +714,7 @@ const struct strctCssDefaults {
   { "div.captcha",
     "captcha display options",
     @   text-align: center;
+    @   padding: 1ex;
   },
   { "table.captcha",
     "format for the layout table, used for the captcha display",

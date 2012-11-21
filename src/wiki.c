@@ -265,6 +265,7 @@ void wikiedit_page(void){
   const char *z;
   char *zBody = (char*)P("w");
   int isWysiwyg = P("wysiwyg")!=0;
+  int goodCaptcha = 1;
 
   if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
   if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
@@ -306,7 +307,9 @@ void wikiedit_page(void){
       zBody = pWiki->zWiki;
     }
   }
-  if( P("submit")!=0 && zBody!=0 ){
+  if( P("submit")!=0 && zBody!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
     blob_zero(&wiki);
@@ -345,6 +348,9 @@ void wikiedit_page(void){
   }
   style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header("Edit: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error:  Incorrect security code.</p>
+  }
   blob_zero(&wiki);
   blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
@@ -387,12 +393,14 @@ void wikiedit_page(void){
     @ <input type="submit" name="edit-markup" value="Markup Editor"
     @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
   }
-  @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
+  @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="submit" name="cancel" value="Cancel"
   @  onclick='confirm("Abandon your changes?")' />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   manifest_destroy(pWiki);
   blob_reset(&wiki);
   style_footer();
@@ -468,6 +476,7 @@ void wikiappend_page(void){
   int isSandbox;
   const char *zPageName;
   const char *zUser;
+  int goodCaptcha = 1;
 
   login_check_credentials();
   zPageName = PD("name","");
@@ -490,7 +499,9 @@ void wikiappend_page(void){
     login_needed();
     return;
   }
-  if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
+  if( P("submit")!=0 && P("r")!=0 && P("u")!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
     Blob body;
@@ -538,6 +549,9 @@ void wikiappend_page(void){
   }
   style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header("Append Comment To: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   if( P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
@@ -560,6 +574,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="preview" value="Preview Your Comment" />
   @ <input type="submit" name="submit" value="Append Your Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  captcha_generate();
   @ </form>
   style_footer();
 }

@@ -432,6 +432,10 @@ static int submitTicketCmd(
   Blob tktchng, cksum;
 
   login_verify_csrf_secret();
+  if( !captcha_is_correct() ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+    return TH_OK;
+  }
   zUuid = (const char *)pUuid;
   blob_zero(&tktchng);
   zDate = date_in_standard_format("now");
@@ -531,7 +535,7 @@ void tktnew_page(void){
   }
   @ </p>
   zScript = ticket_newpage_code();
-  Th_Store("login", g.zLogin);
+  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
@@ -540,6 +544,7 @@ void tktnew_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
+  captcha_generate();
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
@@ -598,7 +603,7 @@ void tktedit_page(void){
   login_insert_csrf_secret();
   @ </p>
   zScript = ticket_editpage_code();
-  Th_Store("login", g.zLogin);
+  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
@@ -607,6 +612,7 @@ void tktedit_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
+  captcha_generate();
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
