@@ -835,7 +835,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  zUnicodePath = fossil_utf8_to_filename(zPath);
   d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -845,7 +845,7 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
       fossil_mbcs_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){

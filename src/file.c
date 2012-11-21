@@ -72,7 +72,7 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   }
 #else
   int rc = 0;
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   rc = _wstati64(zMbcs, buf);
   fossil_mbcs_free(zMbcs);
   return rc;
@@ -303,7 +303,7 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = _waccess(zMbcs, flags);
   fossil_mbcs_free(zMbcs);
 #else
@@ -405,7 +405,7 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   utimes(zFilename, tv);
 #else
   struct _utimbuf tb;
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   tb.actime = newMTime;
   tb.modtime = newMTime;
   _wutime(zMbcs, &tb);
@@ -441,7 +441,7 @@ void test_set_mtime(void){
 */
 void file_delete(const char *zFilename){
 #ifdef _WIN32
-  wchar_t *z = fossil_utf8_to_unicode(zFilename);
+  wchar_t *z = fossil_utf8_to_filename(zFilename);
   _wunlink(z);
   fossil_mbcs_free(z);
 #else
@@ -465,7 +465,7 @@ int file_mkdir(const char *zName, int forceFlag){
   if( rc!=1 ){
 #if defined(_WIN32)
     int rc;
-    wchar_t *zMbcs = fossil_utf8_to_unicode(zName);
+    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
     rc = _wmkdir(zMbcs);
     fossil_mbcs_free(zMbcs);
     return rc;
@@ -483,7 +483,7 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 **     *  Does not begin with "/"
 **     *  Does not contain any path element named "." or ".."
-**     *  Does not contain any of these characters in the path: "\:"
+**     *  Does not contain any of these characters in the path: "\*[]?"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
@@ -497,7 +497,7 @@ int file_is_simple_pathname(const char *z){
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
   for(i=0; (c=z[i])!=0; i++){
-    if( c=='\\' || c==':' ){
+    if( c=='\\' || c=='*' || c=='[' || c==']' || c=='?' ){
       return 0;
     }
     if( c=='/' ){
@@ -1091,8 +1091,27 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** Translate Unicode to UTF8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
+*/
+char *fossil_unicode_to_utf8(const void *zUnicode){
+#ifdef _WIN32
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
+  char *zUtf = sqlite3_malloc( nByte );
+  if( zUtf==0 ){
+    return 0;
+  }
+  WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
+  return zUtf;
+#else
+  return (char *)zUnicode;  /* No-op on unix */
+#endif
+}
+
+/*
+** Translate Unicode (filename) to UTF8.  Return a pointer to the
+** translated text.  Call fossil_mbcs_free() to deallocate any
+** memory used to store the returned pointer when done.
 **
-** On Windows, characters in the range U+FF01 to U+FF7F (private use area)
+** On Windows, characters in the range U+F001 to U+F07F (private use area)
 ** are translated in ASCII characters in the range U+0001 - U+007F. The
 ** only place they can come from are filenames using Cygwin's trick
 ** to circumvent invalid characters in filenames.
@@ -1101,24 +1120,20 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** handling those filenames. On other shells, the generated filename
 ** might not be as expected, but apart from that nothing goes wrong.
 */
-char *fossil_unicode_to_utf8(void *zUnicode){
+char *fossil_filename_to_utf8(void *zUnicode){
 #ifdef _WIN32
-  int nByte = 0;
-  char *zUtf;
   WCHAR *wUnicode = zUnicode;
   while( *wUnicode != 0 ){
-    if ( (*wUnicode > 0xF000) && (*wUnicode <= 0xF07F) ){
-      *wUnicode &= 0x7F;
+    if ( (*wUnicode & 0xFF80) == 0xF000 ){
+      WCHAR converted = (*wUnicode & 0x7F);
+      /* Only really convert it when the resulting char is in the given range*/
+      if ( (converted < 32) || wcschr(L"\"*<>?|:", converted) ){
+        *wUnicode = converted;
+      }
     }
     ++wUnicode;
   }
-  nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
-  zUtf = sqlite3_malloc( nByte );
-  if( zUtf==0 ){
-    return 0;
-  }
-  WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
-  return zUtf;
+  return fossil_unicode_to_utf8(zUnicode);
 #else
   return (char *)zUnicode;  /* No-op on unix */
 #endif
@@ -1142,11 +1157,31 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 ** Translate UTF8 to unicode for use in system calls.  Return a pointer to the
 ** translated text..  Call fossil_mbcs_free() to deallocate any memory
 ** used to store the returned pointer when done.
+*/
+void *fossil_utf8_to_unicode(const char *zUtf8){
+#ifdef _WIN32
+  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+
+  return zUnicode;
+#else
+  return (void *)zUtf8;  /* No-op on unix */
+#endif
+}
+
+/*
+** Translate UTF8 to unicode for use in filename translations.
+** Return a pointer to the translated text..  Call fossil_mbcs_free()
+** to deallocate any memory used to store the returned pointer when done.
 **
-** On Windows, characters in the range U+001 to U+0031 and the
+** On Windows, characters in the range U+0001 to U+0031 and the
 ** characters '"', '*', ':', '<', '>', '?', '|' and '\\' are invalid
 ** to be used. Therefore, translated those to characters in the
-** (private use area), in the range U+0001 - U+007F, so those
+** (private use area), in the range U+F001 - U+F07F, so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
 ** everything looks as expected.
@@ -1154,18 +1189,16 @@ char *fossil_utf8_to_mbcs(const char *zUtf8){
 ** See: <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
 **
 */
-void *fossil_utf8_to_unicode(const char *zUtf8){
+void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
-  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
-  wchar_t *wUnicode;
-  if( zUnicode==0 ){
-    return 0;
+  WCHAR *zUnicode = fossil_utf8_to_unicode(zUtf8);
+  WCHAR *wUnicode = zUnicode;
+  /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
+  if ( file_is_absolute_path(zUtf8) ){
+    wUnicode += 3;
   }
-  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
-  wUnicode = zUnicode;
-  while( --nByte > 0){
-    if ( (*wUnicode < 32) || wcschr(L"\"*<>?|", *wUnicode) ){
+  while( *wUnicode != '\0' ){
+    if ( (*wUnicode < 32) || wcschr(L"\"*<>?|:", *wUnicode) ){
       *wUnicode |= 0xF000;
     }
     ++wUnicode;
@@ -1250,7 +1283,7 @@ void fossil_mbcs_free(void *zOld){
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32
   wchar_t *uMode = fossil_utf8_to_unicode(zMode);
-  wchar_t *uName = fossil_utf8_to_unicode(zName);
+  wchar_t *uName = fossil_utf8_to_filename(zName);
   FILE *f = _wfopen(uName, uMode);
   fossil_mbcs_free(uName);
   fossil_mbcs_free(uMode);

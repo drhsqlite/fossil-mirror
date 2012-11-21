@@ -461,7 +461,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  zMbcs = fossil_utf8_to_unicode(zDir);
+  zMbcs = fossil_utf8_to_filename(zDir);
   d = opendir(zMbcs);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -472,7 +472,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
         if( pEntry->d_name[1]==0 ) continue;
         if( pEntry->d_name[1]=='.' && pEntry->d_name[2]==0 ) continue;
       }
-      zUtf8 = fossil_unicode_to_utf8(pEntry->d_name);
+      zUtf8 = fossil_filename_to_utf8(pEntry->d_name);
       blob_appendf(pPath, "/%s", zUtf8);
       zPath = blob_str(pPath);
       if( glob_match(pIgnore, &zPath[nPrefix+1]) ){
