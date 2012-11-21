@@ -767,15 +767,7 @@ void db_open_or_attach(const char *zDbName, const char *zLabel){
 void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
-  if( g.configOpen ){
-    if( useAttach==g.useAttach ) return;
-    if( g.useAttach ){
-      db_detach("configdb");
-    }else if( g.dbConfig ){
-      sqlite3_close(g.dbConfig);
-      g.dbConfig = 0;
-    }
-  }
+  if( g.configOpen ) return;
 #if defined(_WIN32)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
