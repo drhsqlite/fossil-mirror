@@ -387,9 +387,10 @@ static int findTag(const char *z){
 #define AT_NEWLINE          0x0010000  /* At start of a line */
 #define AT_PARAGRAPH        0x0020000  /* At start of a paragraph */
 #define ALLOW_WIKI          0x0040000  /* Allow wiki markup */
-#define FONT_MARKUP_ONLY    0x0080000  /* Only allow MUTYPE_FONT markup */
-#define INLINE_MARKUP_ONLY  0x0100000  /* Allow only "inline" markup */
-#define IN_LIST             0x0200000  /* Within wiki <ul> or <ol> */
+#define ALLOW_LINKS         0x0080000  /* Allow [...] hyperlinks */
+#define FONT_MARKUP_ONLY    0x0100000  /* Only allow MUTYPE_FONT markup */
+#define INLINE_MARKUP_ONLY  0x0200000  /* Allow only "inline" markup */
+#define IN_LIST             0x0400000  /* Within wiki <ul> or <ol> */
 
 /*
 ** Current state of the rendering engine
@@ -487,14 +488,23 @@ static int paragraphBreakLength(const char *z){
 **      \n
 **      [
 **
-** The "[" and "\n" are only considered interesting if the "useWiki"
-** flag is set.
+** The "[" is only considered if flags contain ALLOW_LINKS or ALLOW_WIKI.
+** The "\n" is only considered interesting if the flags constains ALLOW_WIKI.
 */
-static int textLength(const char *z, int useWiki){
+static int textLength(const char *z, int flags){
   int n = 0;
-  int c;
-  while( (c = z[0])!=0 && c!='<' && c!='&' &&
-               (useWiki==0 || (c!='[' && c!='\n')) ){
+  int c, x1, x2;
+
+  if( flags & ALLOW_WIKI ){
+    x1 = '[';
+    x2 = '\n';
+  }else if( flags & ALLOW_LINKS ){
+    x1 = '[';
+    x2 = 0;
+  }else{
+    x1 = x2 = 0;
+  }
+  while( (c = z[0])!=0 && c!='<' && c!='&' && c!=x1 && c!=x2 ){
     n++;
     z++;
   }
@@ -671,9 +681,12 @@ static int nextWikiToken(const char *z, Renderer *p, int *pTokenType){
       *pTokenType = TOKEN_LINK;
       return n;
     }
+  }else if( (p->state & ALLOW_LINKS)!=0 && z[0]=='[' && (n = linkLength(z))>0 ){
+    *pTokenType = TOKEN_LINK;
+    return n;
   }
   *pTokenType = TOKEN_TEXT;
-  return 1 + textLength(z+1, p->state & ALLOW_WIKI);
+  return 1 + textLength(z+1, p->state);
 }
 
 /*
@@ -1384,7 +1397,7 @@ static void wiki_render(Renderer *p, char *z){
           while( fossil_isspace(*zDisplay) ) zDisplay++;
         }
         openHyperlink(p, zTarget, zClose, sizeof(zClose), zOrig);
-        if( linksOnly || zClose[0]==0 ){
+        if( linksOnly || zClose[0]==0 || p->inVerbatim ){
           if( cS1 ) z[iS1] = cS1;
           if( zClose[0]!=']' ){
             blob_appendf(p->pOut, "[%h]%s", zTarget, zClose);
@@ -1508,18 +1521,22 @@ static void wiki_render(Renderer *p, char *z){
         ** ignored.
         */
         if( markup.iCode==MARKUP_VERBATIM ){
-          int vAttrIdx, vAttrDidAppend=0;
+          int ii, vAttrDidAppend=0;
           p->zVerbatimId = 0;
           p->inVerbatim = 1;
           p->preVerbState = p->state;
           p->state &= ~ALLOW_WIKI;
-          for (vAttrIdx = 0; vAttrIdx < markup.nAttr; vAttrIdx++){
-            if( markup.aAttr[vAttrIdx].iACode == ATTR_ID ){
-              p->zVerbatimId = markup.aAttr[0].zValue;
-            }else if( markup.aAttr[vAttrIdx].iACode == ATTR_TYPE ){
-              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                markup.aAttr[vAttrIdx].zValue);
-              vAttrDidAppend=1;
+          for(ii=0; ii<markup.nAttr; ii++){
+            if( markup.aAttr[ii].iACode == ATTR_ID ){
+              p->zVerbatimId = markup.aAttr[ii].zValue;
+            }else if( markup.aAttr[ii].iACode == ATTR_TYPE ){
+              if( fossil_stricmp(markup.aAttr[ii].zValue, "allow-links")==0 ){
+                p->state |= ALLOW_LINKS;
+              }else{
+                blob_appendf(p->pOut, "<pre name='code' class='%s'>",
+                  markup.aAttr[ii].zValue);
+                vAttrDidAppend=1;
+              }
             }
           }
           if( !vAttrDidAppend ) {
