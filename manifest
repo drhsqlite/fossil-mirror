@@ -1,13 +1,15 @@
-C Somehow,\spart\sof\sprevious\schange\sgot\slost
-D 2012-11-21T09:20:15.736
+C Just\scommit\ssome\sweird\sfilenames,\seven\sone\swith\sa\snewline\sin\sit,\sto\stest\sthe\scode.
+D 2012-11-21T20:53:36.815
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
+F :abc da39a3ee5e6b4b0d3255bfef95601890afd80709
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
 F Makefile.in ed20ed61a1d9a7c221b3c916bdda056f031dcd8e
 F VERSION 9d40cd2d3b936f12cce9f6b351f9db8a0aafb026
+F abc\ndef.txt 50a4e988380c09d290acdab4bd53d24ee7b497df
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
 F ajax/i-test/rhino-shell.js 2b735676d55e3d06d670ffbc643e5d3f748b95ea
@@ -176,6 +178,8 @@ F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c 1e5e5ec0a8bdeed51dc3bea43ad459bf24ced9c8
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
+F str"i"ng.h da39a3ee5e6b4b0d3255bfef95601890afd80709
+F str[ing.txt da39a3ee5e6b4b0d3255bfef95601890afd80709
 F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 2fb88044a8fb6bfc95c9aa0fab959f3f44657652
@@ -362,7 +366,11 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b59dc078187891db8420f2dcf84f5a8728364307
-R b5fda668eee386460fe973ae712a2852
+F xyz<5.x da39a3ee5e6b4b0d3255bfef95601890afd80709
+P 92725735119d221cd9844d879607da6d8f9a0e59
+R 88de8a503dfebc20fd58404310674620
+T *branch * test-ticket-d17d6e5b17
+T *sym-test-ticket-d17d6e5b17 *
+T -sym-ticket-d17d6e5b17 *
 U jan.nijtmans
-Z c462ad07938aeda16751449aac7ffa69
+Z 77e3860d14be90def0773de6cbfdf2de
