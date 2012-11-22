@@ -1014,7 +1014,7 @@ void ticket_cmd(void){
           eCmd = set;
         }
         if( g.argc==3 ){
-          usage("set TICKETUUID");
+          usage("set|change|history TICKETUUID");
         }
         zTktUuid = db_text(0, 
           "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]

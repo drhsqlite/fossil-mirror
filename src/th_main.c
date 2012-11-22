@@ -549,8 +549,8 @@ static int randhexCmd(
   int *argl
 ){
   int n;
-  char aRand[50];
-  char zOut[100];
+  unsigned char aRand[50];
+  unsigned char zOut[100];
   if( argc!=1 && argc!=2 ){
     return Th_WrongNumArgs(interp, "repository ?BOOLEAN?");
   }
@@ -565,7 +565,7 @@ static int randhexCmd(
   }
   sqlite3_randomness(n, aRand);
   encode16(aRand, zOut, n);
-  Th_SetResult(interp, zOut, -1);
+  Th_SetResult(interp, (const char *)zOut, -1);
   return TH_OK;
 }
 
