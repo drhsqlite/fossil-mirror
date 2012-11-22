@@ -195,7 +195,6 @@ void www_print_timeline(
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
   int wikiFlags;
-  int plainText;
   int mxWikiLen;
   Blob comment;
   int prevTagid = 0;
@@ -209,12 +208,14 @@ void www_print_timeline(
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
 
   zPrevDate[0] = 0;
-  plainText = db_get_int("timeline-plaintext", 0);
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
     wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
   }else{
     wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
+  }
+  if( db_get_boolean("timeline-plaintext", 0) ){
+    wikiFlags |= WIKI_LINKSONLY;
   }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
@@ -359,14 +360,8 @@ void www_print_timeline(
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      if( plainText ){
-        @ %h(blob_str(&truncated))
-      }else{
-        wiki_convert(&truncated, 0, wikiFlags);
-      }
+      wiki_convert(&truncated, 0, wikiFlags);
       blob_reset(&truncated);
-    }else if( plainText ){
-      @ %h(blob_str(&comment));
     }else{
       wiki_convert(&comment, 0, wikiFlags);
     }
