@@ -1,5 +1,5 @@
-C Fix\susage\serror\smessage\sfor\s'ticket\schange'\sand\s'ticket\shistory'\scommands.\s\sAlso,\ssilence\sharmless\scompiler\swarnings.
-D 2012-11-22T00:12:35.236
+C For\sthe\sMinGW\sbuild,\senable\scompiling\swith\sdebugging\ssymbols\sif\sFOSSIL_ENABLE_SYMBOLS\sis\sset.
+D 2012-11-22T10:46:49.628
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -121,7 +121,7 @@ F src/main.c 33d79f5b0a26d5000a64fdf2dae07f02a531849f
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 7bffaa81dd8c80d300c571e23b2dcd19b7ba77be
+F src/makemake.tcl fd268516c78e655f33b3d5136854288068fb223b
 F src/manifest.c 9a9c3d01c80c7075700510f93a476649fbc4cd3b
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
@@ -262,8 +262,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 540c31789886c9ebf3d531724388e55cd2d57094
-F win/Makefile.mingw 04c9bfc27f6d0faac94db3569c822541c08ac469
-F win/Makefile.mingw.mistachkin 59215b80eb5e2d26771889f15486fd1d188b7a65
+F win/Makefile.mingw 720e21f4c2eb33c8c523e5baae6600f4b9a5dc01
+F win/Makefile.mingw.mistachkin fd623ec4c21593980bf7cf1c7541a43b88a14fb8
 F win/Makefile.msc fed7e3f0ad077992b2aa28d2eaa91c62485d9689
 F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bb3fe3997be9355a87016829890f9127e935e3da
-R 0f762d700e5b684d2af6ae32e795333a
+P fc5a217602a97cdcf150a39067fae10c6a77ea33
+R 1bf2a1e13be9221bc372419ed7ab1b12
 U mistachkin
-Z d2bc431801a05082a462f8fc6f69d922
+Z b77ce3a1f035d5e815981ad5c35e5c4e
