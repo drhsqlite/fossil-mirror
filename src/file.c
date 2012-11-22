@@ -1194,7 +1194,8 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   WCHAR *zUnicode = fossil_utf8_to_unicode(zUtf8);
   WCHAR *wUnicode = zUnicode;
   /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
-  if ( file_is_absolute_path(zUtf8) ){
+  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
+           && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
     wUnicode += 3;
   }
   while( *wUnicode != '\0' ){
