@@ -367,6 +367,10 @@ OBJDIR = wbld
 #
 BCC = gcc
 
+#### Enable compiling with debug symbols (much larger binary)
+#
+# FOSSIL_ENABLE_SYMBOLS = 1
+
 #### Enable JSON (http://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
@@ -444,6 +448,13 @@ endif
 #    for building intermediate code-generator tools.
 #
 TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
+
+#### Add the necessary command line options to build with debugging
+#    symbols, if enabled.
+#
+ifdef FOSSIL_ENABLE_SYMBOLS
+TCC += -g
+endif
 
 #### Compile resources for use in building executables that will run
 #    on the target platform.

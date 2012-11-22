@@ -669,7 +669,10 @@ int content_new(const char *zUuid, int isPrivate){
 /*
 ** COMMAND:  test-content-put
 **
-** Extract a blob from a file and write it into the database
+** Usage: %fossil test-content-put FILE
+**
+** Read the content of FILE and add it to the Blob table as a new
+** artifact using a direct call to content_put().
 */
 void test_content_put_cmd(void){
   int rid;
