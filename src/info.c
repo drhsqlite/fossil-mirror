@@ -867,7 +867,7 @@ static void checkin_description(int rid){
     const char *zUuid = db_column_text(&q, 3);
     const char *zTagList = db_column_text(&q, 4);
     Blob comment;
-    int wikiFlags = WIKI_INLINE;
+    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-block-markup", 0)==0 ){
       wikiFlags |= WIKI_NOBLOCK;
     }
@@ -2155,7 +2155,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE);
+    wiki_convert(&comment, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"
@@ -2185,9 +2185,9 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%s",zUuid))%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zTop)/ci_edit" method="post"><div>
+  form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%S(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>

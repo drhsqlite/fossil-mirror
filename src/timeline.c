@@ -87,6 +87,7 @@ void hyperlink_to_date(const char *zDate, const char *zSuffix){
 ** is centered on that date+time.
 */
 void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
+  if( zU==0 || zU[0]==0 ) zU = "anonymous";
   if( zSuf==0 ) zSuf = "";
   if( g.perm.Hyperlink ){
     if( zD && zD[0] ){
@@ -211,9 +212,9 @@ void www_print_timeline(
   plainText = db_get_int("timeline-plaintext", 0);
   mxWikiLen = db_get_int("timeline-max-comment", 0);
   if( db_get_boolean("timeline-block-markup", 0) ){
-    wikiFlags = WIKI_INLINE;
+    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
   }else{
-    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
+    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
   }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
@@ -239,6 +240,7 @@ void www_print_timeline(
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
@@ -374,11 +376,11 @@ void www_print_timeline(
     ** with a hyperlink to another timeline for that user.
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zUser, zDate);
-      @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
+    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zDispUser, zDate);
+      @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
     }else{
-      @ (user: %h(zUser)%s(zTagList?",":"\051")
+      @ (user: %h(zDispUser)%s(zTagList?",":"\051")
     }
 
     /* Generate a "detail" link for tags. */

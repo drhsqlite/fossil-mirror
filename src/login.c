@@ -567,7 +567,7 @@ void login_page(void){
   if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
   }
-  @ <form action="login" method="post">
+  form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }
@@ -633,7 +633,7 @@ void login_page(void){
     @ Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %s(zCaptcha)
+    @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
@@ -654,7 +654,7 @@ void login_page(void){
     @ <p>To change your password, enter your old password and your
     @ new password twice below then press the "Change Password"
     @ button.</p>
-    @ <form action="login" method="post">
+    form_begin(0, "%R/login");
     @ <table>
     @ <tr><td class="login_out_label">Old Password:</td>
     @ <td><input type="password" name="p" size="30" /></td></tr>
@@ -1262,7 +1262,7 @@ void register_page(void){
   zCaptcha = captcha_render(zDecoded);
 
   /* Print out the registration form. */
-  @ <form action="register" method="post">
+  form_begin(0, "%R/register");
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
@@ -1292,7 +1292,7 @@ void register_page(void){
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
-  @ %s(zCaptcha)
+  @ %h(zCaptcha)
   @ </pre></td></tr></table>
   @ </form>
   style_footer();

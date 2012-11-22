@@ -909,11 +909,11 @@ void configuration_cmd(void){
     if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,0,0,0,mask);
+      client_sync(0,0,(unsigned)mask);
     }else if( strncmp(zMethod, "pull", n)==0 ){
-      client_sync(0,0,0,0,mask,0);
+      client_sync(0,(unsigned)mask,0);
     }else{
-      client_sync(0,0,0,0,mask,mask);
+      client_sync(0,(unsigned)mask,(unsigned)mask);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){

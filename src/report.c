@@ -732,7 +732,7 @@ static int generate_html(
         Blob content;
         @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
         blob_init(&content, zData, -1);
-        wiki_convert(&content, 0, 0);
+        wiki_convert(&content, 0, WIKI_NOBADLINKS);
         blob_reset(&content);
       }
     }else if( azName[i][0]=='#' ){
