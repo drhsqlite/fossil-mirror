@@ -583,7 +583,6 @@ static void prepare_commit_comment(
   blob_append(&prompt,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
-    "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", zUserOvrd ? zUserOvrd : g.zLogin);

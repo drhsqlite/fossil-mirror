@@ -194,7 +194,6 @@ void www_print_timeline(
   const char *zThisTag,  /* Suppress links to this tag */
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
-  int wikiFlags;
   int mxWikiLen;
   Blob comment;
   int prevTagid = 0;
@@ -209,14 +208,6 @@ void www_print_timeline(
 
   zPrevDate[0] = 0;
   mxWikiLen = db_get_int("timeline-max-comment", 0);
-  if( db_get_boolean("timeline-block-markup", 0) ){
-    wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
-  }else{
-    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
-  }
-  if( db_get_boolean("timeline-plaintext", 0) ){
-    wikiFlags |= WIKI_LINKSONLY;
-  }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -360,10 +351,10 @@ void www_print_timeline(
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      wiki_convert(&truncated, 0, wikiFlags);
+      @ %w(blob_str(&truncated))
       blob_reset(&truncated);
     }else{
-      wiki_convert(&comment, 0, wikiFlags);
+      @ %w(blob_str(&comment))
     }
     blob_reset(&comment);
 

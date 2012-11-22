@@ -1647,6 +1647,16 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
 }
 
 /*
+** Send a string as wiki to CGI output.
+*/
+void wiki_write(const char *zIn, int flags){
+  Blob in;
+  blob_init(&in, zIn, -1);
+  wiki_convert(&in, 0, flags);
+  blob_reset(&in);
+}
+
+/*
 ** COMMAND: test-wiki-render
 **
 ** %fossil test-wiki-render FILE [OPTIONS]

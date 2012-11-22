@@ -46,8 +46,7 @@
 #define etURLIZE     18 /* Make text safe for HTTP.  "/" not encoded */
 #define etFOSSILIZE  19 /* The fossil header encoding format. */
 #define etPATH       20 /* Path type */
-#define etWIKISTR    21 /* Wiki text rendered from a char*: %w */
-#define etWIKIBLOB   22 /* Wiki text rendered from a Blob*: %W */
+#define etWIKISTR    21 /* Timeline comment text rendered from a char*: %w */
 #define etSTRINGID   23 /* String with length limit for a UUID prefix: %S */
 #define etROOT       24 /* String value of g.zTop: % */
 
@@ -94,7 +93,6 @@ static const et_info fmtinfo[] = {
   {  'b',  0, 2, etBLOB,       0,  0 },
   {  'B',  0, 2, etBLOBSQL,    0,  0 },
   {  'w',  0, 2, etWIKISTR,    0,  0 },
-  {  'W',  0, 2, etWIKIBLOB,   0,  0 },
   {  'h',  0, 4, etHTMLIZE,    0,  0 },
   {  'R',  0, 0, etROOT,       0,  0 },
   {  't',  0, 4, etHTTPIZE,    0,  0 },  /* "/" -> "%2F" */
@@ -158,6 +156,27 @@ static int StrNLen32(const char *z, int N){
   while( (N-- != 0) && *(z++)!=0 ){ n++; }
   return n;
 }
+
+/*
+** Return an appropriate set of flags for wiki_convert() for displaying
+** comments on a timeline.  These flag settings are determined by
+** configuration parameters.
+*/
+static int wiki_convert_flags(void){
+  static int wikiFlags = 0;
+  if( wikiFlags==0 ){
+    if( db_get_boolean("timeline-block-markup", 0) ){
+      wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
+    }else{
+      wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
+    }
+    if( db_get_boolean("timeline-plaintext", 0) ){
+      wikiFlags |= WIKI_LINKSONLY;
+    }
+  }
+  return wikiFlags;
+}
+
 
 
 /*
@@ -700,14 +719,8 @@ int vxprintf(
         char *zWiki = va_arg(ap, char*);
         Blob wiki;
         blob_init(&wiki, zWiki, limit);
-        wiki_convert(&wiki, pBlob, WIKI_INLINE);
+        wiki_convert(&wiki, pBlob, wiki_convert_flags());
         blob_reset(&wiki);
-        length = width = 0;
-        break;
-      }
-      case etWIKIBLOB: {
-        Blob *pWiki = va_arg(ap, Blob*);
-        wiki_convert(pWiki, pBlob, WIKI_INLINE);
         length = width = 0;
         break;
       }
