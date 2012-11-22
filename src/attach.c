@@ -238,6 +238,7 @@ void attachadd_page(void){
   const char *zTarget;
   const char *zTargetType;
   int szContent = atoi(PD("f:bytes","0"));
+  int goodCaptcha = 1;
 
   if( P("cancel") ) cgi_redirect(zFrom);
   if( zPage && zTkt ) fossil_redirect_home();
@@ -266,7 +267,7 @@ void attachadd_page(void){
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
     Blob content;
     Blob manifest;
     Blob cksum;
@@ -319,9 +320,12 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zTop)/attachadd" method="post"
-  @  enctype="multipart/form-data"><div>
+  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  @ <div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
   @ Description:<br />
@@ -334,7 +338,9 @@ void attachadd_page(void){
   @ <input type="hidden" name="from" value="%h(zFrom)" />
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   style_footer();
 }
 
@@ -435,7 +441,7 @@ void ainfo_page(void){
   if( P("del")
    && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
   ){
-    @ <form method="post" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -499,7 +505,7 @@ void ainfo_page(void){
   if( isModerator && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
-    @ <form method="POST" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
     @ Delete this change</label><br />
     @ <label><input type="radio" name="modaction" value="approve">

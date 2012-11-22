@@ -49,12 +49,14 @@ static int sideboxUsed = 0;
 
 
 /*
-** List of hyperlinks that need to be resolved by javascript in
+** List of hyperlinks and forms that need to be resolved by javascript in
 ** the footer.
 */
 char **aHref = 0;
 int nHref = 0;
 int nHrefAlloc = 0;
+char **aFormAction = 0;
+int nFormAction = 0;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -123,16 +125,42 @@ char *href(const char *zFormat, ...){
 }
 
 /*
+** Generate <form method="post" action=ARG>.  The ARG value is inserted
+** by javascript.
+*/
+void form_begin(const char *zOtherArgs, const char *zAction, ...){
+  char *zLink;
+  va_list ap;
+  if( zOtherArgs==0 ) zOtherArgs = "";
+  va_start(ap, zAction);
+  zLink = vmprintf(zAction, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
+  }else{
+    int n;
+    aFormAction = fossil_realloc(aFormAction, (nFormAction+1)*sizeof(char*));
+    aFormAction[nFormAction++] = zLink;
+    n = nFormAction;
+    @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
+  }
+}
+
+/*
 ** Generate javascript that will set the href= attribute on all anchors.
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
+  if( !g.perm.Hyperlink || !g.javascriptHyperlink ) return;
+  if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
   @ function u(i,h){gebi(i).href=h;}
   for(i=0; i<nHref; i++){
     @ u(%d(i+1),"%s(aHref[i])");
+  }
+  for(i=0; i<nFormAction; i++){
+    @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ /* ]]> */
   @ </script>
@@ -686,6 +714,7 @@ const struct strctCssDefaults {
   { "div.captcha",
     "captcha display options",
     @   text-align: center;
+    @   padding: 1ex;
   },
   { "table.captcha",
     "format for the layout table, used for the captcha display",

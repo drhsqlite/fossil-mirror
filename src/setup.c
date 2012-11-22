@@ -937,6 +937,13 @@ void setup_access(void){
   @ even for relatively small projects.</p>
 
   @ <hr />
+  onoff_attribute("Require a CAPTCHA if not logged in",
+                  "require-captcha", "reqcapt", 1);
+  @ <p>Require a CAPTCHA for edit operations (appending, creating, or
+  @ editing wiki or tickets or adding attachments to wiki or tickets)
+  @ for users who are not logged in.</p>
+
+  @ <hr />
   entry_attribute("Public pages", 30, "public-pages",
                   "pubpage", "");
   @ <p>A comma-separated list of glob patterns for pages that are accessible
@@ -946,7 +953,6 @@ void setup_access(void){
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ </p>
-
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",

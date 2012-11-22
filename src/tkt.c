@@ -432,6 +432,10 @@ static int submitTicketCmd(
   Blob tktchng, cksum;
 
   login_verify_csrf_secret();
+  if( !captcha_is_correct() ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+    return TH_OK;
+  }
   zUuid = (const char *)pUuid;
   blob_zero(&tktchng);
   zDate = date_in_standard_format("now");
@@ -524,14 +528,14 @@ void tktnew_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   initializeVariablesFromCGI();
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
+  form_begin(0, "%R/%s", g.zPath);
   login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
   @ </p>
   zScript = ticket_newpage_code();
-  Th_Store("login", g.zLogin);
+  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd,
                    (void*)&zNewUuid, 0);
@@ -540,6 +544,7 @@ void tktnew_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zNewUuid));
     return;
   }
+  captcha_generate();
   @ </form>
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
   style_footer();
@@ -593,12 +598,12 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
-  @ <form method="post" action="%s(g.zTop)/%s(g.zPath)"><p>
+  form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
   @ </p>
   zScript = ticket_editpage_code();
-  Th_Store("login", g.zLogin);
+  Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
   Th_CreateCommand(g.interp, "append_field", appendRemarkCmd, 0, 0);
   Th_CreateCommand(g.interp, "submit_ticket", submitTicketCmd, (void*)&zName,0);
@@ -607,6 +612,7 @@ void tktedit_page(void){
     cgi_redirect(mprintf("%s/tktview/%s", g.zTop, zName));
     return;
   }
+  captcha_generate();
   @ </form>
   if( g.thTrace ) Th_Trace("BEGIN_TKTEDIT<br />\n", -1);
   style_footer();
@@ -1008,7 +1014,7 @@ void ticket_cmd(void){
           eCmd = set;
         }
         if( g.argc==3 ){
-          usage("set TICKETUUID");
+          usage("set|change|history TICKETUUID");
         }
         zTktUuid = db_text(0, 
           "SELECT tkt_uuid FROM ticket WHERE tkt_uuid GLOB '%s*'", g.argv[3]
