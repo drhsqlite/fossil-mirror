@@ -1,5 +1,5 @@
-C Fix\susage\serror\smessage\sfor\s'ticket\schange'\sand\s'ticket\shistory'\scommands.\s\sAlso,\ssilence\sharmless\scompiler\swarnings.
-D 2012-11-22T00:12:35.236
+C Modify\sdb_open_config()\sand\sassociated\sroutines\sto\smake\stheir\sinternal\sstate\smore\sconsistent\sand\sdiscoverable.
+D 2012-11-22T10:16:34.884
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -79,7 +79,7 @@ F src/configure.c 8ed7afc5bab10f8ec65e09844dc2b57cfc32a45d
 F src/content.c 5a249dcb3bad542381a9632edea5a0f41e9d2ad7
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 7ff0e0ad2d970bea6ec04f911bd357ca60d4b2cb
+F src/db.c d971ac4e9bd29e717304c1f6b3a4aecafb69a8f3
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
@@ -89,7 +89,7 @@ F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
-F src/file.c 91e4570f94626cdd0fe6b1943e356ee0be868dc6
+F src/file.c 65e5ec5a68cb05ac074625fd5134f23a967649f2
 F src/finfo.c aa52b909e4c05ea5de924077df74d93c98db6dac
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -100,7 +100,7 @@ F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
 F src/http_transport.c 5e45d2dfc6be8485a6ce237ba78f7ddde62d0e03
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c dae0af04973d3158c4584d9603a3ce22ca424def
-F src/json.c b36b961f7dcbb1c9cebb760007786b1082fb8516
+F src/json.c 7c2b9fa4d91d1e5324d5e1fc72b4f8cf22b8d007
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 400ac68a6bf3e0a0b7cb22a3ad7de20277daed1d
-F src/main.c 33d79f5b0a26d5000a64fdf2dae07f02a531849f
+F src/main.c 11baf490e32a9a9f670e9f8eaade9e6383f57bdc
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -362,7 +362,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bb3fe3997be9355a87016829890f9127e935e3da
-R 0f762d700e5b684d2af6ae32e795333a
+P fc5a217602a97cdcf150a39067fae10c6a77ea33
+R 2937fed31cc89275d7dafff62b952585
+T *branch * dbOpenConfig
+T *sym-dbOpenConfig *
+T -sym-trunk *
 U mistachkin
-Z d2bc431801a05082a462f8fc6f69d922
+Z 1070fbcd112cca351e1d47c5d0b50cc6
