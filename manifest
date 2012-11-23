@@ -1,5 +1,5 @@
-C When\sdb_open_config()\sis\scalled\swith\sthe\suseAttach\sparameter\sset\sto\snon-zero,\nit\smay\sneed\sto\sclose\sand\sreopen\sthe\sdatabase\susing\sATTACH\sif\sthat\swas\snot\ndone\spreviously.
-D 2012-11-23T01:50:34.316
+C some\sunnecessary\sspacing
+D 2012-11-23T19:33:47.499
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -144,13 +144,13 @@ F src/setup.c 147f224f39403fcf8461fd5276fa341ac6dd9df6
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
-F src/skins.c 0115839a7331e3d35e64aa315880bb7447ede769
+F src/skins.c e5056f0d9780f72c65debe13726073b1dc36975e
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
 F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
 F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
 F src/stash.c 13e964f3fc613974463daee55c87c45f5b164944
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c 038211057145f1b8e7ebbc950ef05512bd2db718
+F src/style.c 7a4dda86f01e369e989f5f7949a3eb2f1272bef5
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2c6fa9c3b05788e22cca9ceafbd07134aa42996d 52a68687005a09a6a0ef8c512db2fa14e9e4bd94
-R 405c97267a7d7c0df29b5d33929d17ac
-U drh
-Z 30e04e0dd426ce32b5898b1f41f98ced
+P fe453a4893ca5e6be46d265b7e6fdfd2ae5f0262
+R da1d2c00c49e41e6b6bb0af321b04973
+U jan.nijtmans
+Z 944f5c24425ef27d4a44f29de0c25165
