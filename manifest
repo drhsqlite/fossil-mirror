@@ -1,5 +1,5 @@
-C New\sand\simproved\sdefault\sticket\ssetup.
-D 2012-11-23T22:29:43.192
+C Make\stimeline-plaintext\sthe\sdefault\sfor\snew\srepositories.
+D 2012-11-23T23:00:42.976
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -79,7 +79,7 @@ F src/configure.c 02e95ea160f5afc0a3045d0920b6c3bb2dc88b75
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c d971ac4e9bd29e717304c1f6b3a4aecafb69a8f3
+F src/db.c 2c0cbe71edb3a2675924ffdef20906a9f613ba00
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b28ae72e846c1951536f37e773bec5ec541c83f3
-R ec16c8176aec262197d32b522f2a7086
+P 340040a8a547825f91302f7770318cf1c9fa5eb3
+R 45700fcc055c6d9a3a6ca2937e5864be
 U drh
-Z 76fcd408701d264947ae4f4e585edd14
+Z 7a6fb26556ee0018965d7edbea25e004
