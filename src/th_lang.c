@@ -821,6 +821,8 @@ static int string_repeat_command(
 ** TH Syntax:
 **
 **   string trim STRING
+**   string trimleft STRING
+**   string trimright STRING
 */
 static int string_trim_command(
   Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
@@ -833,8 +835,12 @@ static int string_trim_command(
   }
   z = argv[2];
   n = argl[2];
-  while( n && th_isspace(z[0]) ){ z++; n--; }
-  while( n && th_isspace(z[n-1]) ){ n--; }
+  if( argl[1]<5 || argv[1][4]=='l' ){
+    while( n && th_isspace(z[0]) ){ z++; n--; }
+  }
+  if( argl[1]<5 || argv[1][4]=='r' ){
+    while( n && th_isspace(z[n-1]) ){ n--; }
+  }
   Th_SetResult(interp, z, n);
   return TH_OK;
 }
@@ -921,7 +927,9 @@ static int string_command(
     { "length",  string_length_command },
     { "range",   string_range_command },
     { "repeat",  string_repeat_command },
-    { "trim",    string_trim_command },
+    { "trim",      string_trim_command },
+    { "trimleft",  string_trim_command },
+    { "trimright", string_trim_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);
