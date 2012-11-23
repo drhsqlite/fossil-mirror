@@ -53,18 +53,19 @@
 #define ATTR_HREF               14
 #define ATTR_HSPACE             15
 #define ATTR_ID                 16
-#define ATTR_NAME               17
-#define ATTR_ROWSPAN            18
-#define ATTR_SIZE               19
-#define ATTR_SRC                20
-#define ATTR_START              21
-#define ATTR_STYLE              22
-#define ATTR_TARGET             23
-#define ATTR_TYPE               24
-#define ATTR_VALIGN             25
-#define ATTR_VALUE              26
-#define ATTR_VSPACE             27
-#define ATTR_WIDTH              28
+#define ATTR_LINKS              17
+#define ATTR_NAME               18
+#define ATTR_ROWSPAN            19
+#define ATTR_SIZE               20
+#define ATTR_SRC                21
+#define ATTR_START              22
+#define ATTR_STYLE              23
+#define ATTR_TARGET             24
+#define ATTR_TYPE               25
+#define ATTR_VALIGN             26
+#define ATTR_VALUE              27
+#define ATTR_VSPACE             28
+#define ATTR_WIDTH              29
 #define AMSK_ALIGN              0x00000001
 #define AMSK_ALT                0x00000002
 #define AMSK_BGCOLOR            0x00000004
@@ -81,18 +82,19 @@
 #define AMSK_HREF               0x00002000
 #define AMSK_HSPACE             0x00004000
 #define AMSK_ID                 0x00008000
-#define AMSK_NAME               0x00010000
-#define AMSK_ROWSPAN            0x00020000
-#define AMSK_SIZE               0x00040000
-#define AMSK_SRC                0x00080000
-#define AMSK_START              0x00100000
-#define AMSK_STYLE              0x00200000
-#define AMSK_TARGET             0x00400000
-#define AMSK_TYPE               0x00800000
-#define AMSK_VALIGN             0x01000000
-#define AMSK_VALUE              0x02000000
-#define AMSK_VSPACE             0x04000000
-#define AMSK_WIDTH              0x08000000
+#define AMSK_LINKS              0x00010000
+#define AMSK_NAME               0x00020000
+#define AMSK_ROWSPAN            0x00040000
+#define AMSK_SIZE               0x00080000
+#define AMSK_SRC                0x00100000
+#define AMSK_START              0x00200000
+#define AMSK_STYLE              0x00400000
+#define AMSK_TARGET             0x00800000
+#define AMSK_TYPE               0x01000000
+#define AMSK_VALIGN             0x02000000
+#define AMSK_VALUE              0x04000000
+#define AMSK_VSPACE             0x08000000
+#define AMSK_WIDTH              0x10000000
 
 static const struct AllowedAttribute {
   const char *zName;
@@ -115,6 +117,7 @@ static const struct AllowedAttribute {
   { "href",          AMSK_HREF,           },
   { "hspace",        AMSK_HSPACE,         },
   { "id",            AMSK_ID,             },
+  { "links",         AMSK_LINKS,          },
   { "name",          AMSK_NAME,           },
   { "rowspan",       AMSK_ROWSPAN,        },
   { "size",          AMSK_SIZE,           },
@@ -440,7 +443,7 @@ static int markupLength(const char *z){
   int c;
   if( z[n]=='/' ){ n++; }
   if( !fossil_isalpha(z[n]) ) return 0;
-  while( fossil_isalnum(z[n]) ){ n++; }
+  while( fossil_isalnum(z[n]) || z[n]=='-' ){ n++; }
   c = z[n];
   if( c=='/' && z[n+1]=='>' ){ return n+2; }
   if( c!='>' && !fossil_isspace(c) ) return 0;
@@ -752,8 +755,19 @@ static void parseMarkup(ParsedMarkup *p, char *z){
   p->iCode = findTag(zTag);
   p->iType = aMarkup[p->iCode].iType;
   p->nAttr = 0;
+  c = 0;
+  if( z[i]=='-' ){
+    p->aAttr[0].iACode = iACode = ATTR_ID;
+    i++;
+    p->aAttr[0].zValue = &z[i];
+    while( fossil_isalnum(z[i]) ){ i++; }
+    p->aAttr[0].cTerm = c = z[i];
+    z[i++] = 0;
+    p->nAttr = 1;
+    if( c=='>' ) return;
+  }
   while( fossil_isspace(z[i]) ){ i++; }
-  while( p->nAttr<8 && fossil_isalpha(z[i]) ){
+  while( c!='>' && p->nAttr<8 && fossil_isalpha(z[i]) ){
     int attrOk;    /* True to preserver attribute.  False to ignore it */
     j = 0;
     while( fossil_isalnum(z[i]) ){
@@ -1435,9 +1449,8 @@ static void wiki_render(Renderer *p, char *z){
         parseMarkup(&markup, z);
 
         /* Markup of the form </div id=ID> where there is a matching
-        ** ID somewhere on the stack.  Exit the verbatim if were are in
-        ** it.  Pop the stack up to the matching <div>.  Discard the
-        ** </div>
+        ** ID somewhere on the stack.  Exit any contained verbatim.
+        ** Pop the stack up to the matching <div>.  Discard the </div>
         */
         if( markup.iCode==MARKUP_DIV && markup.endTag &&
              (zId = markupId(&markup))!=0 &&
@@ -1529,14 +1542,13 @@ static void wiki_render(Renderer *p, char *z){
           for(ii=0; ii<markup.nAttr; ii++){
             if( markup.aAttr[ii].iACode == ATTR_ID ){
               p->zVerbatimId = markup.aAttr[ii].zValue;
-            }else if( markup.aAttr[ii].iACode == ATTR_TYPE ){
-              if( fossil_stricmp(markup.aAttr[ii].zValue, "allow-links")==0 ){
-                p->state |= ALLOW_LINKS;
-              }else{
-                blob_appendf(p->pOut, "<pre name='code' class='%s'>",
-                  markup.aAttr[ii].zValue);
-                vAttrDidAppend=1;
-              }
+            }else if( markup.aAttr[ii].iACode==ATTR_TYPE ){
+              blob_appendf(p->pOut, "<pre name='code' class='%s'>",
+                markup.aAttr[ii].zValue);
+              vAttrDidAppend=1;
+            }else if( markup.aAttr[ii].iACode==ATTR_LINKS
+                   && !is_false(markup.aAttr[ii].zValue) ){
+              p->state |= ALLOW_LINKS;
             }
           }
           if( !vAttrDidAppend ) {

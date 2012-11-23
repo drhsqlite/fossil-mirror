@@ -74,10 +74,15 @@ static int enableOutputCmd(
   const char **argv, 
   int *argl
 ){
-  if( argc!=2 ){
-    return Th_WrongNumArgs(interp, "enable_output BOOLEAN");
+  int rc;
+  if( argc<2 || argc>3 ){
+    return Th_WrongNumArgs(interp, "enable_output [LABEL] BOOLEAN");
   }
-  return Th_ToInt(interp, argv[1], argl[1], &enableOutput);
+  rc = Th_ToInt(interp, argv[argc-1], argl[argc-1], &enableOutput);
+  if( g.thTrace ){
+    Th_Trace("enable_output {%.*s} -> %d<br>\n", argl[1],argv[1],enableOutput);
+  }
+  return rc;
 }
 
 /*
@@ -121,12 +126,15 @@ static void sendText(const char *z, int n, int encode){
 }
 
 static void sendError(const char *z, int n, int forceCgi){
+  int savedEnable = enableOutput;
+  enableOutput = 1;
   if( forceCgi || g.cgiOutput ){
     sendText("<hr><p class=\"thmainError\">", -1, 0);
   }
   sendText("ERROR: ", -1, 0);
   sendText((char*)z, n, 1);
   sendText(forceCgi || g.cgiOutput ? "</p>" : "\n", -1, 0);
+  enableOutput = savedEnable;
 }
 
 /*
@@ -803,6 +811,9 @@ int Th_Render(const char *z){
       sendText(z, i, 0);
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
+      if( g.thTrace ){
+        Th_Trace("eval %d{<pre>%.*h</pre>}<br>", i, i, z);
+      }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
       z += i;

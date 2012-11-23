@@ -1852,6 +1852,10 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
   cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");

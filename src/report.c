@@ -491,9 +491,16 @@ static void report_format_hints(void){
   @ <li><p>If a column of the result set is named "bgcolor" then the content
   @ of that column determines the background color of the row.</p></li>
   @
+  @ <li><p>The text of all columns prior to the first column whose name begins
+  @ with underscore ("_") is shown character-for-character as it appears in
+  @ the database.  In other words, it is assumed to have a mimetype of
+  @ text/plain.
+  @
   @ <li><p>The first column whose name begins with underscore ("_") and all
-  @ subsequent columns are shown on their own rows in the table.  This might
-  @ be useful for displaying the description of tickets.
+  @ subsequent columns are shown on their own rows in the table and with
+  @ wiki formatting.  In other words, such rows are shown with a mimetype
+  @ of text/x-fossil-wiki.  This is recommended for the "description" field
+  @ of tickets.
   @ </p></li>
   @
   @ <li><p>The query can join other tables in the database besides TICKET.
@@ -591,8 +598,8 @@ static void report_format_hints(void){
   @    severity AS 'Svr',
   @    priority AS 'Pri',
   @    title AS 'Title',
-  @    description AS '_Description',   -- When the column name begins with '_'
-  @    remarks AS '_Remarks'            -- the data is shown on a separate row.
+  @    description AS '_Description',  -- When the column name begins with '_'
+  @    remarks AS '_Remarks'           -- content is rendered as wiki
   @  FROM ticket
   @ </pre></blockquote>
   @
@@ -730,7 +737,8 @@ static int generate_html(
       }
       if( zData[0] ){
         Blob content;
-        @ </tr><tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ </tr>
+        @ <tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
         blob_init(&content, zData, -1);
         wiki_convert(&content, 0, WIKI_NOBADLINKS);
         blob_reset(&content);
