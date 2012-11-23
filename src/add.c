@@ -140,7 +140,8 @@ static int add_one_file(
 ){
   const char *zCollate = caseSensitive ? "binary" : "nocase";
   if( !file_is_simple_pathname(zPath) ){
-    fossil_fatal("filename contains illegal characters: %s", zPath);
+    fossil_warning("filename contains illegal characters: %s", zPath);
+    return 0;
   }
   if( db_exists("SELECT 1 FROM vfile"
                 " WHERE pathname=%Q COLLATE %s", zPath, zCollate) ){

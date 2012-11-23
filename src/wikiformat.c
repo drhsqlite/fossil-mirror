@@ -1637,15 +1637,23 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
   }
 
   blob_strip_bom(pIn, 0);
-  if( flags & WIKI_LINKSONLY ) blob_append(renderer.pOut, "<pre>", 5);
   wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
     popStack(&renderer);
   }
-  if( flags & WIKI_LINKSONLY ) blob_append(renderer.pOut, "</pre>", 5);
   blob_append(renderer.pOut, "\n", 1);
   free(renderer.aStack);
+}
+
+/*
+** Send a string as wiki to CGI output.
+*/
+void wiki_write(const char *zIn, int flags){
+  Blob in;
+  blob_init(&in, zIn, -1);
+  wiki_convert(&in, 0, flags);
+  blob_reset(&in);
 }
 
 /*

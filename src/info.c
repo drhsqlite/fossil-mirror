@@ -2155,7 +2155,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE|WIKI_NOBADLINKS);
+    @ %w(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

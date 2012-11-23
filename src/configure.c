@@ -88,6 +88,7 @@ static struct {
   { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
+  { "timeline-plaintext",     CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },

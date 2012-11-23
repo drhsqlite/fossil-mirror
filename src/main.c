@@ -121,6 +121,7 @@ struct Global {
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
+  const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
@@ -154,6 +155,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
+  int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
