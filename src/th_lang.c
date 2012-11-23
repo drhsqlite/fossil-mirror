@@ -820,6 +820,28 @@ static int string_repeat_command(
 /*
 ** TH Syntax:
 **
+**   string trim STRING
+*/
+static int string_trim_command(
+  Th_Interp *interp, void *ctx, int argc, const char **argv, int *argl
+){
+  int n;
+  const char *z;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "string trim string");
+  }
+  z = argv[2];
+  n = argl[2];
+  while( n && th_isspace(z[0]) ){ z++; n--; }
+  while( n && th_isspace(z[n-1]) ){ n--; }
+  Th_SetResult(interp, z, n);
+  return TH_OK;
+}
+
+/*
+** TH Syntax:
+**
 **   info exists VAR
 */
 static int info_exists_command(
@@ -899,6 +921,7 @@ static int string_command(
     { "length",  string_length_command },
     { "range",   string_range_command },
     { "repeat",  string_repeat_command },
+    { "trim",    string_trim_command },
     { 0, 0 }
   };
   return Th_CallSubCommand(interp, ctx, argc, argv, argl, aSub);

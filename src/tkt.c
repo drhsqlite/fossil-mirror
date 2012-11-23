@@ -327,6 +327,7 @@ void tktview_page(void){
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
+  initializeVariablesFromCGI();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
