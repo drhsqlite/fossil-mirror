@@ -742,13 +742,21 @@ void db_attach(const char *zDbName, const char *zLabel){
 ** file is open, then open this one.  If another database file is
 ** already open, then attach zDbName using the name zLabel.
 */
-void db_open_or_attach(const char *zDbName, const char *zLabel){
+void db_open_or_attach(
+  const char *zDbName,
+  const char *zLabel,
+  int *pWasAttached
+){
   if( !g.db ){
+    assert( g.zMainDbType==0 );
     g.db = openDatabase(zDbName);
     g.zMainDbType = zLabel;
     db_connection_init();
+    if ( pWasAttached ) *pWasAttached = 0;
   }else{
+    assert( g.zMainDbType!=0 );
     db_attach(zDbName, zLabel);
+    if ( pWasAttached ) *pWasAttached = 1;
   }
 }
 
@@ -808,12 +816,14 @@ void db_open_config(int useAttach){
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
-  g.useAttach = useAttach;
   if( useAttach ){
-    db_open_or_attach(zDbName, "configdb");
+    db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
+    g.zConfigDbType = 0;
   }else{
+    g.useAttach = 0;
     g.dbConfig = openDatabase(zDbName);
+    g.zConfigDbType = "configdb";
   }
   g.configOpen = 1;
   free(zDbName);
@@ -852,7 +862,7 @@ static int isValidLocalDb(const char *zDbName){
   if( file_access(zDbName, F_OK) ) return 0;
   lsize = file_size(zDbName);
   if( lsize%1024!=0 || lsize<4096 ) return 0;
-  db_open_or_attach(zDbName, "localdb");
+  db_open_or_attach(zDbName, "localdb", 0);
   zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                          " WHERE name=='vfile'", db_name("localdb"));
 
@@ -988,7 +998,7 @@ void db_open_repository(const char *zDbName){
       fossil_panic("not a valid repository: %s", zDbName);
     }
   }
-  db_open_or_attach(zDbName, "repository");
+  db_open_or_attach(zDbName, "repository", 0);
   g.repositoryOpen = 1;
   g.zRepositoryName = mprintf("%s", zDbName);
   /* Cache "allow-symlinks" option, because we'll need it on every stat call */
@@ -1111,7 +1121,7 @@ void move_repo_cmd(void){
   if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
   }
-  db_open_or_attach(zRepo, "test_repo");
+  db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
   db_close(1);
 }
@@ -1179,9 +1189,11 @@ void db_close(int reportErrors){
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
+  g.zMainDbType = 0;
   if( g.dbConfig ){
     sqlite3_close(g.dbConfig);
     g.dbConfig = 0;
+    g.zConfigDbType = 0;
   }
 }
 
@@ -1632,15 +1644,28 @@ int is_false(const char *zVal){
 ** work on the ~/.fossil database instead of on the repository database.
 ** Be sure to swap them back after doing the operation.
 **
-** If g.useAttach that means the ~/.fossil database was opened with
-** the useAttach flag set to 1.  In that case no connection swap is required
-** so this routine is a no-op.
+** If the ~/.fossil database has already been opened as the main database or
+** is attached to the main database, no connection swaps are required so this
+** routine is a no-op.
 */
 void db_swap_connections(void){
-  if( !g.useAttach ){
+  /*
+  ** When swapping the main database connection with the config database
+  ** connection, the config database connection must be open (not simply
+  ** attached); otherwise, the swap would end up leaving the main database
+  ** connection invalid, defeating the very purpose of this routine.  This
+  ** same constraint also holds true when restoring the previously swapped
+  ** database connection; otherwise, it means that no swap was performed
+  ** because the main database connection was already pointing to the config
+  ** database.
+  */
+  if( g.dbConfig ){
     sqlite3 *dbTemp = g.db;
+    const char *zTempDbType = g.zMainDbType;
     g.db = g.dbConfig;
+    g.zMainDbType = g.zConfigDbType;
     g.dbConfig = dbTemp;
+    g.zConfigDbType = zTempDbType;
   }
 }
 
