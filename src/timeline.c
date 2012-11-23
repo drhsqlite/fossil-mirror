@@ -347,7 +347,7 @@ void www_print_timeline(
     }
     db_column_blob(pQuery, commentColumn, &comment);
     if( zType[0]!='c' ){
-      @ %s(blob_str(&comment))
+      wiki_convert(&comment, 0, WIKI_INLINE);
     }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
       Blob truncated;
       blob_zero(&truncated);
