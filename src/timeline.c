@@ -346,7 +346,9 @@ void www_print_timeline(
       hyperlink_to_uuid(zUuid);
     }
     db_column_blob(pQuery, commentColumn, &comment);
-    if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
+    if( zType[0]!='c' ){
+      @ %s(blob_str(&comment))
+    }else if( mxWikiLen>0 && blob_size(&comment)>mxWikiLen ){
       Blob truncated;
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
