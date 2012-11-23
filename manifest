@@ -1,5 +1,5 @@
-C Make\stimeline-plaintext\sthe\sdefault\sfor\snew\srepositories.
-D 2012-11-23T23:00:42.976
+C Display\sticket\stitles\sas\splaintext\son\sthe\stimeline.\s\sProvide\sa\shyperlink\nto\sattachments\son\sthe\stimeline.
+D 2012-11-23T23:25:52.456
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -122,7 +122,7 @@ F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl fd268516c78e655f33b3d5136854288068fb223b
-F src/manifest.c 4a52f482bb83a0f3643658f227c924b9cd3e64da
+F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
 F src/merge3.c 475e466404418a8e2eaa53bda3014b6af93f5ba9
@@ -159,7 +159,7 @@ F src/th.h 6d108f597b5eb64bd77e3faa399a7392e5c4c8fb
 F src/th_lang.c 3662908a480bfc88a77b0a435a5618131afb44ec
 F src/th_main.c 5cb1bfd04cd81ed70248d42cab3927e547d436a1
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c 9bcc55369f4d515c31f7d4d18d25354c8837364a
+F src/timeline.c ef824d733c9d6be2a79f7e30ff86c0d92716433b
 F src/tkt.c 66a3a5e9582e26157ec940fc598acf694700a16f
 F src/tktsetup.c cb72be1ac5a9ad1ffaebb0aee2808608989d996b
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 340040a8a547825f91302f7770318cf1c9fa5eb3
-R 45700fcc055c6d9a3a6ca2937e5864be
+P ae63f485715c09894345299a1f205f74dc484224
+R ff6da7cdded8c29169c46eb4fd45d6ba
 U drh
-Z 7a6fb26556ee0018965d7edbea25e004
+Z a328eb68faf345caf3294d23edbc3c4e
