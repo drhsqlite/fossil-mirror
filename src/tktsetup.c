@@ -279,80 +279,118 @@ void tktsetup_change_page(void){
 
 static const char zDefaultNew[] =
 @ <th1>
+@   if {![info exists mutype]} {set mutype {[links only]}}
 @   if {[info exists submit]} {
 @      set status Open
+@      set ctxt "<i>By [htmlize $login] on [date] UTC:</i><br />"
+@      if {$mutype eq "HTML"} {
+@        set x "<nowiki>\n[string trimright $comment]\n</nowiki>"
+@      } elseif {$mutype eq "Plain Text"} {
+@        set r [randhex]
+@        set x "<verbatim-$r>\n[string trimright $comment]\n</verbatim-$r>"
+@      } elseif {$mutype eq {[links only]}} {
+@        set r [randhex]
+@        set x [string trimright $comment]
+@        set x "<verbatim-$r links>\n$x\n</verbatim-$r>"
+@      } else {
+@        set x $comment
+@      }
+@      set comment "$ctxt\n$x"
 @      submit_ticket
 @   }
 @ </th1>
 @ <h1 style="text-align: center;">Enter A New Ticket</h1>
 @ <table cellpadding="5">
 @ <tr>
-@ <td colspan="2">
+@ <td colspan="3">
 @ Enter a one-line summary of the ticket:<br />
 @ <input type="text" name="title" size="60" value="$<title>" />
 @ </td>
 @ </tr>
 @ 
 @ <tr>
-@ <td style="text-align: center;">Type:
-@ <th1>combobox type $type_choices 1</th1>
-@ </td>
-@ <td>What type of ticket is this?</td>
+@ <td align="right">Type:</td>
+@ <td align="left"><th1>combobox type $type_choices 1</th1></td>
+@ <td align="left">What type of ticket is this?</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td style="text-align: center;">Version: 
+@ <td align="right">Version:</td>
+@ <td align="left">
 @ <input type="text" name="foundin" size="20" value="$<foundin>" />
 @ </td>
-@ <td>In what version or build number do you observe the problem?</td>
+@ <td align="left">In what version or build number do you observe
+@ the problem?</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td style="text-align: center;">Severity:
-@ <th1>combobox severity $severity_choices 1</th1>
-@ </td>
-@ <td>How debilitating is the problem?  How badly does the problem
+@ <td align="right">Severity:</td>
+@ <td align="left"><th1>combobox severity $severity_choices 1</th1></td>
+@ <td align="left">How debilitating is the problem?  How badly does the problem
 @ affect the operation of the product?</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td style="text-align: center;">EMail:
-@ <input type="text" name="private_contact" value="$<private_contact>" size="30" />
+@ <td align="right">EMail:</td>
+@ <td align="left">
+@ <input type="text" name="private_contact" value="$<private_contact>"
+@  size="30" />
 @ </td>
-@ <td><span style="text-decoration: underline;">Not publicly visible</span>.
+@ <td align="left"><u>Not publicly visible</u>
 @ Used by developers to contact you with questions.</td>
 @ </tr>
 @ 
 @ <tr>
-@ <td colspan="2">
+@ <td colspan="3">
 @ Enter a detailed description of the problem.
 @ For code defects, be sure to provide details on exactly how
 @ the problem can be reproduced.  Provide as much detail as
-@ possible.
+@ possible.  Format:
+@ <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
 @ <textarea name="comment" cols="80" rows="$nline"
 @  wrap="virtual" class="wikiedit">$<comment></textarea><br />
-@ <input type="submit" name="preview" value="Preview" /></td>
 @ </tr>
-@
-@ <th1>enable_output [info exists preview]</th1>
-@ <tr><td colspan="2">
+@ 
+@ <th1>enable_output A [info exists preview]</th1>
+@ <tr><td colspan="3">
 @ Description Preview:<br /><hr />
-@ <th1>wiki $comment</th1>
-@ <hr />
-@ </td></tr>
-@ <th1>enable_output 1</th1>
+@ <th1>
+@ if {$mutype eq "Wiki"} {
+@   wiki $comment
+@ } elseif {$mutype eq "Plain Text"} {
+@   set r [randhex]
+@   wiki "<verbatim-$r>\n[string trimright $comment]\n</verbatim-$r>"
+@ } elseif {$mutype eq {[links only]}} {
+@   set r [randhex]
+@   wiki "<verbatim-$r links>\n[string trimright $comment]\n</verbatim-$r>"
+@ } else {
+@   wiki "<nowiki>\n[string trimright $comment]\n</nowiki>"
+@ }
+@ </th1>
+@ <hr /></td></tr>
+@ <th1>enable_output B 1</th1>
 @ 
 @ <tr>
-@ <td style="text-align: center;">
+@ <td><td align="left">
+@ <input type="submit" name="preview" value="Preview" />
+@ </td>
+@ <td align="left">See how the description will appear after formatting.</td>
+@ </tr>
+@ 
+@ <th1>enable_output C [info exists preview]</th1>
+@ <tr>
+@ <td><td align="left">
 @ <input type="submit" name="submit" value="Submit" />
 @ </td>
-@ <td>After filling in the information above, press this button to create
-@ the new ticket</td>
+@ <td align="left">After filling in the information above, press this 
+@ button to create the new ticket</td>
 @ </tr>
+@ <th1>enable_output D 1</th1>
+@ 
 @ <tr>
-@ <td style="text-align: center;">
+@ <td><td align="left">
 @ <input type="submit" name="cancel" value="Cancel" />
 @ </td>
 @ <td>Abandon and forget this ticket</td>
@@ -392,7 +430,7 @@ static const char zDefaultView[] =
 @ <td class="tktDspValue" colspan="3">$<tkt_uuid></td></tr>
 @ <tr><td class="tktDspLabel">Title:</td>
 @ <td class="tktDspValue" colspan="3">
-@ <th1>wiki $title</th1>
+@ $<title>
 @ </td></tr>
 @ <tr><td class="tktDspLabel">Status:</td><td class="tktDspValue">
 @ $<status>
@@ -426,8 +464,15 @@ static const char zDefaultView[] =
 @ $<foundin>
 @ </td></tr>
 @ <tr><td>Description &amp; Comments:</td></tr>
-@ <tr><td colspan="4" class="tktDspValue">
-@ <th1>wiki $comment</th1>
+@ <tr><td colspan="5" class="tktDspValue">
+@ <th1>
+@ if {[info exists plaintext]} {
+@   set r [randhex]
+@   wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
+@ } else {
+@   wiki $comment
+@ }
+@ </th1>
 @ </td></tr>
 @ </table>
 ;
@@ -460,16 +505,29 @@ void tktsetup_viewpage_page(void){
 
 static const char zDefaultEdit[] =
 @ <th1>
+@   if {![info exists mutype]} {set mutype {[links only]}}
 @   if {![info exists username]} {set username $login}
 @   if {[info exists submit]} {
 @     if {[info exists cmappnd]} {
 @       if {[string length $cmappnd]>0} {
-@         set ctxt "\n\n<hr /><i>[htmlize $login]"
+@         set ctxt "\n\n<hr />\n<i>[htmlize $login]"
 @         if {$username ne $login} {
 @           set ctxt "$ctxt claiming to be [htmlize $username]"
 @         }
-@         set ctxt "$ctxt added on [date] UTC:</i><br />\n$cmappnd"
-@         append_field comment $ctxt
+@         set ctxt "$ctxt added on [date] UTC:</i><br />"
+@         if {$mutype eq "Plain Text"} {
+@           set r [randhex]
+@           set x "<verbatim-$r>\n[string trimright $cmappnd]\n</verbatim-$r>"
+@         } elseif {$mutype eq {[links only]}} {
+@           set r [randhex]
+@           set x [string trimright $cmappnd]
+@           set x "<verbatim-$r links>\n$x\n</verbatim-$r>"
+@         } elseif {$mutype eq "HTML"} {
+@           set x "<nowiki>\n[string trimright $cmappnd]\n</nowiki>"
+@         } else {
+@           set x $cmappnd
+@         }
+@         append_field comment "$ctxt\n$x\n"
 @       }
 @     }
 @     submit_ticket
@@ -479,34 +537,42 @@ static const char zDefaultEdit[] =
 @ <tr><td class="tktDspLabel">Title:</td><td>
 @ <input type="text" name="title" value="$<title>" size="60" />
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Status:</td><td>
 @ <th1>combobox status $status_choices 1</th1>
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Type:</td><td>
 @ <th1>combobox type $type_choices 1</th1>
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Severity:</td><td>
 @ <th1>combobox severity $severity_choices 1</th1>
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Priority:</td><td>
 @ <th1>combobox priority $priority_choices 1</th1>
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Resolution:</td><td>
 @ <th1>combobox resolution $resolution_choices 1</th1>
 @ </td></tr>
+@ 
 @ <tr><td class="tktDspLabel">Subsystem:</td><td>
 @ <th1>combobox subsystem $subsystem_choices 1</th1>
 @ </td></tr>
+@ 
 @ <th1>enable_output [hascap e]</th1>
 @   <tr><td class="tktDspLabel">Contact:</td><td>
 @   <input type="text" name="private_contact" size="40"
 @    value="$<private_contact>" />
 @   </td></tr>
 @ <th1>enable_output 1</th1>
+@ 
 @ <tr><td class="tktDspLabel">Version&nbsp;Found&nbsp;In:</td><td>
 @ <input type="text" name="foundin" size="50" value="$<foundin>" />
 @ </td></tr>
-@ <tr><td colspan="2">
+@ 
 @ <th1>
 @   if {![info exists eall]} {set eall 0}
 @   if {[info exists aonlybtn]} {set eall 0}
@@ -516,42 +582,91 @@ static const char zDefaultEdit[] =
 @   set nline [linecount $comment 15 10]
 @   enable_output $eall
 @ </th1>
-@   Description And Comments:<br />
+@ 
+@ <tr><td colspan="2">
+@   Description And Comments:  (Format is "Wiki" or text/x-fossil-wiki)<br />
 @   <textarea name="comment" cols="80" rows="$nline"
 @    wrap="virtual" class="wikiedit">$<comment></textarea><br />
 @   <input type="hidden" name="eall" value="1" />
-@   <input type="submit" name="aonlybtn" value="Append Remark" />
-@   <input type="submit" name="preview1btn" value="Preview" />
+@   <input type="hidden" name="mutype" value="$<mutype>" />
+@ </td></tr>
+@ 
 @ <th1>enable_output [expr {!$eall}]</th1>
-@   Append Remark from 
+@ <tr><td colspan="2">
+@   Append Remark with format 
+@   <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
+@   from
 @   <input type="text" name="username" value="$<username>" size="30" />:<br />
 @   <textarea name="cmappnd" cols="80" rows="15"
-@    wrap="virtual" class="wikiedit">$<cmappnd></textarea><br />
+@    wrap="virtual" class="wikiedit">$<cmappnd></textarea>
+@ </td></tr>
+@ <th1>enable_output 1</th1>
+@ 
+@ <th1>enable_output [info exists preview]</th1>
+@ <tr><td colspan="2">
+@ Description Preview:<br><hr>
+@ <th1>
+@ if {$eall} {
+@   wiki $comment
+@ } elseif {$mutype eq "Wiki"} {
+@   wiki $cmappnd
+@ } elseif {$mutype eq "Plain Text"} {
+@   set r [randhex]
+@   wiki "<verbatim-$r>\n[string trimright $cmappnd]\n</verbatim-$r>"
+@ } elseif {$mutype eq {[links only]}} {
+@   set r [randhex]
+@   wiki "<verbatim-$r links>\n[string trimright $cmappnd]</verbatim-$r>"
+@ } else {
+@   wiki "<nowiki>\n[string trimright $cmappnd]</nowiki>"
+@ }
+@ </th1>
+@ <hr>
+@ </td></tr>
+@ <th1>enable_output 1</th1>
+@ 
+@ 
 @ <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
+@ <tr>
+@ <td align="right">
 @   <input type="submit" name="eallbtn" value="Edit All" />
-@ <th1>enable_output [expr {!$eall}]</th1>
-@   <input type="submit" name="preview2btn" value="Preview" />
+@ </td>
+@ <td align="left">Edit the entire description history</td>
+@ </tr>
+@ 
+@ 
+@ <th1>enable_output $eall</th1>
+@ <tr>
+@ <td align="right">
+@   <input type="submit" name="aonlybtn" value="Append Only" />
+@ </td>
+@ <td align="left">Append a remark to the end of the description, leaving
+@ prior description text unchanged.</td>
+@ </tr>
+@ 
 @ <th1>enable_output 1</th1>
-@ </td></tr>
-@
-@ <th1>enable_output [info exists preview1btn]</th1>
-@ <tr><td colspan="2">
-@ Description Preview:<br /><hr />
-@ <th1>wiki $comment</th1>
-@ <hr />
-@ </td></tr>
-@ <th1>enable_output [info exists preview2btn]</th1>
-@ <tr><td colspan="2">
-@ Description Preview:<br /><hr />
-@ <th1>wiki $cmappnd</th1>
-@ <hr />
-@ </td></tr>
+@ <tr>
+@ <td align="right">
+@ <input type="submit" name="preview" value="Preview" />
+@ </td>
+@ <td align="left">See how the description will appear after formatting.</td>
+@ </tr>
+@ 
+@ <th1>enable_output [info exists preview]</th1>
+@ <tr>
+@ <td align="right">
+@ <input type="submit" name="submit" value="Submit" />
+@ </td>
+@ <td align="left">Apply the changes shown above</td>
+@ </tr>
 @ <th1>enable_output 1</th1>
-@
-@ <tr><td align="right"></td><td>
-@ <input type="submit" name="submit" value="Submit Changes" />
+@ 
+@ <tr>
+@ <td align="right">
 @ <input type="submit" name="cancel" value="Cancel" />
-@ </td></tr>
+@ </td>
+@ <td>Abandon this edit</td>
+@ </tr>
+@ 
 @ </table>
 ;
 
