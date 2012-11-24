@@ -20,6 +20,7 @@
 */
 #include "config.h"
 #include "th_main.h"
+#include "sqlite3.h"
 
 /*
 ** Global variable counting the number of outstanding calls to malloc()
@@ -577,6 +578,82 @@ static int randhexCmd(
   return TH_OK;
 }
 
+/*
+** TH1 command:     query SQL CODE
+**
+** Run the SQL query given by the SQL argument.  For each row in the result
+** set, run CODE.
+**
+** In SQL, parameters such as $var are filled in using the value of variable
+** "var".  Result values are stored in variables with the column name prior
+** to each invocation of CODE.
+*/
+static int queryCmd(
+  Th_Interp *interp,
+  void *p, 
+  int argc, 
+  const char **argv, 
+  int *argl
+){
+  sqlite3_stmt *pStmt;
+  int rc;
+  const char *zSql;
+  int nSql;
+  const char *zTail;
+  int n, i;
+  int res = TH_OK;
+  int nVar;
+
+  if( argc!=3 ){
+    return Th_WrongNumArgs(interp, "query SQL CODE");
+  }
+  if( g.db==0 ){
+    Th_ErrorMessage(interp, "database is not open", 0, 0);
+    return TH_ERROR;
+  }
+  zSql = argv[1];
+  nSql = argl[1];
+  while( res==TH_OK && nSql>0 ){
+    rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
+    if( rc!=0 ){
+      Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
+      return TH_ERROR;
+    }
+    n = (int)(zTail - zSql);
+    zSql += n;
+    nSql -= n;
+    if( pStmt==0 ) continue;
+    nVar = sqlite3_bind_parameter_count(pStmt);
+    for(i=1; i<=nVar; i++){
+      const char *zVar = sqlite3_bind_parameter_name(pStmt, i);
+      int szVar = zVar ? th_strlen(zVar) : 0;
+      if( szVar>1 && zVar[0]=='$'
+       && Th_GetVar(interp, zVar+1, szVar-1)==TH_OK ){
+        int nVal;
+        const char *zVal = Th_GetResult(interp, &nVal);
+        sqlite3_bind_text(pStmt, i, zVal, nVal, SQLITE_TRANSIENT);
+      }
+    }
+    while( res==TH_OK && sqlite3_step(pStmt)==SQLITE_ROW ){
+      int nCol = sqlite3_column_count(pStmt);
+      for(i=0; i<nCol; i++){
+        const char *zCol = sqlite3_column_name(pStmt, i);
+        int szCol = th_strlen(zCol);
+        const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
+        int szVal = sqlite3_column_bytes(pStmt, i);
+        Th_SetVar(interp, zCol, szCol, zVal, szVal);
+      }
+      res = Th_Eval(interp, 0, argv[2], argl[2]);
+      if( res==TH_BREAK || res==TH_CONTINUE ) res = TH_OK;
+    }
+    rc = sqlite3_finalize(pStmt);
+    if( rc!=SQLITE_OK ){
+      Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
+      return TH_ERROR;
+    }
+  } 
+  return res;
+}
 
 /*
 ** Make sure the interpreter has been initialized.  Initialize it if
@@ -603,6 +680,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"htmlize",       htmlizeCmd,           0},
     {"linecount",     linecntCmd,           0},
     {"puts",          putsCmd,              (void*)&aFlags[1]},
+    {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
     {"repository",    repositoryCmd,        0},
     {"stime",         stimeCmd,             0},

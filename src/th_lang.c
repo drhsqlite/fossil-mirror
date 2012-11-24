@@ -858,8 +858,8 @@ static int info_exists_command(
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "info exists var");
   }
-  rc = Th_GetVar(interp, argv[2], argl[2]);
-  Th_SetResultInt(interp, rc?0:1);
+  rc = Th_ExistsVar(interp, argv[2], argl[2]);
+  Th_SetResultInt(interp, rc);
   return TH_OK;
 }
 
