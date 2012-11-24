@@ -890,7 +890,7 @@ int Th_Render(const char *z){
       z += i+5;
       for(i=0; z[i] && (z[i]!='<' || !isEndScriptTag(&z[i])); i++){}
       if( g.thTrace ){
-        Th_Trace("eval %d{<pre>%.*h</pre>}<br>", i, i, z);
+        Th_Trace("eval {<pre>%#h</pre>}<br>", i, z);
       }
       rc = Th_Eval(g.interp, 0, (const char*)z, i);
       if( rc!=TH_OK ) break;
