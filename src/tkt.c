@@ -324,6 +324,12 @@ void tktview_page(void){
         "%s/attachadd?tkt=%T&from=%s/tktview/%t",
         g.zTop, zUuid, g.zTop, zUuid);
   }
+  if( P("plaintext") ){
+    style_submenu_element("Formatted", "Formatted", "%R/tktview/%S", zUuid);
+  }else{
+    style_submenu_element("Plaintext", "Plaintext",
+                          "%R/tktview/%S?plaintext", zUuid);
+  }
   style_header("View Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
@@ -737,6 +743,7 @@ void tkthistory_page(void){
   char *zTitle;
   const char *zUuid;
   int tagid;
+  int nChng = 0;
 
   login_check_credentials();
   if( !g.perm.Hyperlink || !g.perm.RdTkt ){ login_needed(); return; }
@@ -774,7 +781,7 @@ void tkthistory_page(void){
     "  FROM attachment, blob"
     " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
     "   AND blob.rid=attachid"
-    " ORDER BY 1 DESC",
+    " ORDER BY 1",
     tagid, tagid
   );
   while( db_step(&q)==SQLITE_ROW ){
@@ -786,15 +793,20 @@ void tkthistory_page(void){
     const char *zFile = db_column_text(&q, 4);
     memcpy(zShort, zChngUuid, 10);
     zShort[10] = 0;
+    if( nChng==0 ){
+      @ <ol>
+    }
+    nChng++;
     if( zFile!=0 ){
       const char *zSrc = db_column_text(&q, 3);
       const char *zUser = db_column_text(&q, 5);
       if( zSrc==0 || zSrc[0]==0 ){
         @ 
-        @ <p>Delete attachment "%h(zFile)"
+        @ <li><p>Delete attachment "%h(zFile)"
       }else{
         @ 
-        @ <p>Add attachment "%h(zFile)"
+        @ <li><p>Add attachment
+        @ "%z(href("%R/artifact/%S",zSrc))%h(zFile)</a>"
       }
       @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
       @ (rid %d(rid)) by
@@ -804,18 +816,21 @@ void tkthistory_page(void){
       pTicket = manifest_get(rid, CFTYPE_TICKET);
       if( pTicket ){
         @
-        @ <p>Ticket change
+        @ <li><p>Ticket change
         @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
         @ (rid %d(rid)) by
         hyperlink_to_user(pTicket->zUser,zDate," on");
         hyperlink_to_date(zDate, ":");
         @ </p>
-        ticket_output_change_artifact(pTicket);
+        ticket_output_change_artifact(pTicket, "a");
       }
       manifest_destroy(pTicket);
     }
   }
   db_finalize(&q);
+  if( nChng ){
+    @ </ol>
+  }
   style_footer();
 }
 
@@ -835,7 +850,7 @@ static int contains_newline(Blob *p){
 ** The pTkt object is a ticket change artifact.  Output a detailed
 ** description of this object.
 */
-void ticket_output_change_artifact(Manifest *pTkt){
+void ticket_output_change_artifact(Manifest *pTkt, const char *zListType){
   int i;
   int wikiFlags = WIKI_NOBADLINKS;
   const char *zBlock = "<blockquote>";
@@ -845,7 +860,8 @@ void ticket_output_change_artifact(Manifest *pTkt){
     zBlock = "<blockquote><pre class='verbatim'>";
     zEnd = "</pre></blockquote>";
   }
-  @ <ol>
+  if( zListType==0 ) zListType = "1";
+  @ <ol type="%s(zListType)">
   for(i=0; i<pTkt->nField; i++){
     Blob val;
     const char *z;
@@ -1059,7 +1075,8 @@ void ticket_cmd(void){
         if ( i != g.argc ){
           fossil_fatal("no other parameters expected to %s!",g.argv[2]);
         }
-        tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",zTktUuid);
+        tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
+                       zTktUuid);
         if( tagid==0 ){
           fossil_fatal("no such ticket %h", zTktUuid);
         }  
@@ -1069,7 +1086,8 @@ void ticket_cmd(void){
           " WHERE objid IN (SELECT rid FROM tagxref WHERE tagid=%d)"
           "   AND blob.rid=event.objid"
           " UNION "
-          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, filename, user"
+          "SELECT datetime(mtime,'localtime'), attachid, uuid, src, "
+          "       filename, user"
           "  FROM attachment, blob"
           " WHERE target=(SELECT substr(tagname,5) FROM tag WHERE tagid=%d)"
           "   AND blob.rid=attachid"

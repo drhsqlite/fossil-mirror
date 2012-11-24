@@ -1177,7 +1177,11 @@ static void openHyperlink(
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
   }else if( zTarget[0]=='/' ){
     blob_appendf(p->pOut, "<a href=\"%s%h\">", g.zTop, zTarget);
-  }else if( zTarget[0]=='.' || zTarget[0]=='#' ){
+  }else if( zTarget[0]=='.'
+         && (zTarget[1]=='/' || (zTarget[1]=='.' && zTarget[2]=='/'))
+         && (p->state & WIKI_LINKSONLY)==0 ){
+    blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
+  }else if( zTarget[0]=='#' ){
     blob_appendf(p->pOut, "<a href=\"%h\">", zTarget);
   }else if( is_valid_uuid(zTarget) ){
     int isClosed = 0;

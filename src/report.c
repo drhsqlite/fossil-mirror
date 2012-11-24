@@ -628,6 +628,9 @@ struct GenerateHTML {
   int isMultirow;  /* True if multiple table rows per query result row */
   int iNewRow;     /* Index of first column that goes on separate row */
   int iBg;         /* Index of column that defines background color */
+  int wikiFlags;   /* Flags passed into wiki_convert() */
+  const char *zWikiStart;    /* HTML before display of multi-line wiki */
+  const char *zWikiEnd;      /* HTML after display of multi-line wiki */
 };
 
 /*
@@ -672,6 +675,19 @@ static int generate_html(
         if( azName[i][0]=='_' ){
           pState->isMultirow = 1;
           pState->iNewRow = i;
+          pState->wikiFlags = WIKI_NOBADLINKS;
+          pState->zWikiStart = "";
+          pState->zWikiEnd = "";
+          if( P("plaintext") ){
+            pState->wikiFlags |= WIKI_LINKSONLY;
+            pState->zWikiStart = "<pre class='verbatim'>";
+            pState->zWikiEnd = "</pre>";
+            style_submenu_element("Formatted", "Formatted",
+                                  "%R/rptview?rn=%d", pState->rn);
+          }else{
+            style_submenu_element("Plaintext", "Plaintext",
+                                  "%R/rptview?rn=%d&plaintext", pState->rn);
+          }
         }else{
           pState->nCol++;
         }
@@ -739,9 +755,11 @@ static int generate_html(
         Blob content;
         @ </tr>
         @ <tr style="background-color:%h(zBg)"><td colspan=%d(pState->nCol)>
+        @ %s(pState->zWikiStart)
         blob_init(&content, zData, -1);
-        wiki_convert(&content, 0, WIKI_NOBADLINKS);
+        wiki_convert(&content, 0, pState->wikiFlags);
         blob_reset(&content);
+        @ %s(pState->zWikiEnd)
       }
     }else if( azName[i][0]=='#' ){
       zTid = zData;
