@@ -196,7 +196,6 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   Blob sql1, sql2, sql3;
   Stmt q;
   int i, j;
-  const char *zSep = "(";
 
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
@@ -218,12 +217,13 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
       }
     }else{
       if( (j = fieldId(zName))<0 ) continue;
-      blob_appendf(&sql1,", %s=%Q", zName, p->aField[i].zValue);
+      if( aField[j].mUsed & USEDBY_TICKET ){
+        blob_appendf(&sql1,", %s=%Q", zName, p->aField[i].zValue);
+      }
     }
     if( aField[j].mUsed & USEDBY_TICKETCHNG ){
-      blob_appendf(&sql2, "%s%s", zSep, zName);
-      blob_appendf(&sql3, "%s%Q", p->aField[i].zValue);
-      zSep = ",";
+      blob_appendf(&sql2, ",%s", zName);
+      blob_appendf(&sql3, ",%Q", p->aField[i].zValue);
     }
     if( rid>0 ){
       wiki_extract_links(p->aField[i].zValue, rid, 1, p->rDate, i==0, 0);
@@ -236,8 +236,12 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   db_finalize(&q);
   blob_reset(&sql1);
   if( blob_size(&sql2)>0 ){
-    db_multi_exec("INSERT INTO ticketchng %s) VALUES %s)",
-                  blob_str(&sql2), blob_str(&sql3));
+    db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
+                   "VALUES(%d,:mtime%s)",
+                  blob_str(&sql2), tktid, blob_str(&sql3));
+    db_bind_double(&q, ":mtime", p->rDate);
+    db_step(&q);
+    db_finalize(&q);
   }
   blob_reset(&sql2);
   blob_reset(&sql3);
@@ -510,7 +514,8 @@ static int submitTicketCmd(
     zValue = Th_Fetch(aField[i].zName, &nValue);
     if( zValue ){
       while( nValue>0 && fossil_isspace(zValue[nValue-1]) ){ nValue--; }
-      if( memcmp(zValue, aField[i].zValue, nValue)!=0
+      if( ((aField[i].mUsed & USEDBY_TICKETCHNG)!=0 && nValue>0)
+       || memcmp(zValue, aField[i].zValue, nValue)!=0
        || strlen(aField[i].zValue)!=nValue
       ){
         if( memcmp(aField[i].zName, "private_", 8)==0 ){
