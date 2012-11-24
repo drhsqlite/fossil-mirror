@@ -69,7 +69,7 @@ static const char zDefaultTicketTable[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
-@   -- Add as many field as required below this line
+@   -- Add as many fields as required below this line
 @   type TEXT,
 @   status TEXT,
 @   subsystem TEXT,
@@ -81,6 +81,17 @@ static const char zDefaultTicketTable[] =
 @   title TEXT,
 @   comment TEXT
 @ );
+@ CREATE TABLE ticketchng(
+@   -- Do not change any column that begins with tkt_
+@   tkt_id INTEGER REFERENCES ticket,
+@   tkt_mtime DATE,
+@   -- Add as many fields as required below this line
+@   login TEXT,
+@   username TEXT,
+@   mimetype TEXT,
+@   icomment TEXT
+@ );
+@ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
 ;
 
 /*
@@ -122,7 +133,7 @@ static void tktsetup_generic(
     login_verify_csrf_secret();
     db_unset(zDbField, 0);
     if( xRebuild ) xRebuild();
-    z = zDfltValue;
+    cgi_redirect("tktsetup");
   }else if( isSubmit ){
     char *zErr = 0;
     login_verify_csrf_secret();
