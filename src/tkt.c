@@ -748,6 +748,13 @@ void tkthistory_page(void){
     "%s/tkttimeline?name=%s&y=ci", g.zTop, zUuid);
   style_submenu_element("Timeline", "Timeline",
     "%s/tkttimeline?name=%s", g.zTop, zUuid);
+  if( P("plaintext")!=0 ){
+    style_submenu_element("Formatted", "Formatted",
+                          "%R/tkthistory/%S", zUuid);
+  }else{
+    style_submenu_element("Plaintext", "Plaintext",
+                          "%R/tkthistory/%S?plaintext", zUuid);
+  }
   style_header(zTitle);
   free(zTitle);
 
@@ -830,6 +837,14 @@ static int contains_newline(Blob *p){
 */
 void ticket_output_change_artifact(Manifest *pTkt){
   int i;
+  int wikiFlags = WIKI_NOBADLINKS;
+  const char *zBlock = "<blockquote>";
+  const char *zEnd = "</blockquote>";
+  if( P("plaintext")!=0 ){
+    wikiFlags |= WIKI_LINKSONLY;
+    zBlock = "<blockquote><pre class='verbatim'>";
+    zEnd = "</pre></blockquote>";
+  }
   @ <ol>
   for(i=0; i<pTkt->nField; i++){
     Blob val;
@@ -837,13 +852,13 @@ void ticket_output_change_artifact(Manifest *pTkt){
     z = pTkt->aField[i].zName;
     blob_set(&val, pTkt->aField[i].zValue);
     if( z[0]=='+' ){
-      @ <li>Appended to %h(&z[1]):<blockquote>
-      wiki_convert(&val, 0, WIKI_NOBADLINKS);
-      @ </blockquote></li>
-    }else if( blob_size(&val)<=50 && contains_newline(&val) ){
-      @ <li>Change %h(z) to:<blockquote>
-      wiki_convert(&val, 0, WIKI_NOBADLINKS);
-      @ </blockquote></li>
+      @ <li>Appended to %h(&z[1]):%s(zBlock)
+      wiki_convert(&val, 0, wikiFlags);
+      @ %s(zEnd)</li>
+    }else if( blob_size(&val)>50 || contains_newline(&val) ){
+      @ <li>Change %h(z) to:%s(zBlock)
+      wiki_convert(&val, 0, wikiFlags);
+      @ %s(zEnd)</li>
     }else{
       @ <li>Change %h(z) to "%h(blob_str(&val))"</li>
     }
