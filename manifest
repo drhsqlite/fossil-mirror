@@ -1,5 +1,5 @@
-C Fix\sa\sbug\sin\sTH1\strace\soutput.
-D 2012-11-24T22:40:31.265
+C When\s--httptrace\sis\sused\swith\s"fossil\sui"\sor\s"fossil\sserver",\screate\slog\sfiles\ncontaining\sthe\stext\sof\seach\sHTTP\srequest.
+D 2012-11-24T23:07:12.556
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -68,7 +68,7 @@ F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
-F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
+F src/cgi.c 247bf563847f2f200d04e201df540d00a4aa36ac
 F src/checkin.c 07b34fa8e583de7105db8d5c5bcbcd08dcd9c7ea
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 48645c39a4c1d4729b266fbf52c4ec7ae132d4ba
-R 7a856f1a08ac7ad2e2d7f0a51bf36626
+P 48cf099427aab8ed754d007272055e4b45ad83d6
+R f39ff87205c8f9a5256d9fd58ffba51f
 U drh
-Z 0b4a0d5ca9427e65624d482cc10367cf
+Z 695f5a05a3c9f6382dbc5d138060e3fe

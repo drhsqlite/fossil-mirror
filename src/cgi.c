@@ -785,6 +785,34 @@ void cgi_parse_POST_JSON( FILE * zIn, unsigned int contentLen ){
 }
 #endif /* FOSSIL_ENABLE_JSON */
 
+/*
+** Log HTTP traffic to a file.  Begin the log on first use.  Close the log
+** when the argument is NULL.
+*/
+void cgi_trace(const char *z){
+  static FILE *pLog = 0;
+  if( g.fHttpTrace==0 ) return;
+  if( z==0 ){
+    if( pLog ) fclose(pLog);
+    pLog = 0;
+    return;
+  }
+  if( pLog==0 ){
+    char zFile[50];
+    unsigned r;
+    sqlite3_randomness(sizeof(r), &r);
+    sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
+    pLog = fopen(zFile, "w");
+    if( pLog ){
+      fprintf(stderr, "# open log on %s\n", zFile);
+    }else{
+      fprintf(stderr, "# failed to open %s\n", zFile);
+      return;
+    }
+  }
+  fputs(z, pLog);
+}
+
 
 /*
 ** Initialize the query parameter database.  Information is pulled from
@@ -827,6 +855,7 @@ void cgi_init(void){
       z = fossil_malloc( len+1 );
       len = fread(z, 1, len, g.httpIn);
       z[len] = 0;
+      cgi_trace(z);
       if( zType[0]=='a' ){
         add_param_list(z, '&');
       }else{
@@ -1147,6 +1176,7 @@ void cgi_handle_http_request(const char *zIpAddr){
   if( fgets(zLine, sizeof(zLine),g.httpIn)==0 ){
     malformed_request();
   }
+  cgi_trace(zLine);
   zToken = extract_token(zLine, &z);
   if( zToken==0 ){
     malformed_request();
@@ -1183,6 +1213,7 @@ void cgi_handle_http_request(const char *zIpAddr){
     char *zFieldName;
     char *zVal;
 
+    cgi_trace(zLine);
     zFieldName = extract_token(zLine,&zVal);
     if( zFieldName==0 || *zFieldName==0 ) break;
     while( fossil_isspace(*zVal) ){ zVal++; }
@@ -1214,8 +1245,8 @@ void cgi_handle_http_request(const char *zIpAddr){
       cgi_setenv("HTTP_USER_AGENT", zVal);
     }
   }
-
   cgi_init();
+  cgi_trace(0);
 }
 
 #if INTERFACE
