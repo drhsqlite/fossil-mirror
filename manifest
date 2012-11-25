@@ -1,5 +1,5 @@
-C Bug\sfixes\sin\sthe\sTICKETCHNG\supdate\smechanism.
-D 2012-11-24T23:54:08.954
+C Use\sbinary\smode\sfor\sCGI\strace\sfiles.\s\sMake\sCGI\strace\scross-platform.
+D 2012-11-25T11:16:28.588
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -68,7 +68,7 @@ F src/blob.c 357fba7532e002652001fd1fbb9d561be499c88c
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
-F src/cgi.c 247bf563847f2f200d04e201df540d00a4aa36ac
+F src/cgi.c 40e2d5cf0d95670b89e08fbd83a42026ebfdea78
 F src/checkin.c 07b34fa8e583de7105db8d5c5bcbcd08dcd9c7ea
 F src/checkout.c 399cc4acf0d8e587612e41f4a4b4c0de9407c997
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 400ac68a6bf3e0a0b7cb22a3ad7de20277daed1d
-F src/main.c b4180f7c1cb9eb619ba7736cf278d080698c50d5
+F src/main.c 974237212b98527539c2755f87fb879105e20662
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6f3d328fbf91fdee2291d1ce556bfb1947543193
-R d7b10630ef22335e2c6c817e914fb783
+P 7136ff4c65754f081adc86139ae68c5569183c5d 95f02a572e712e6b64a95579b8d0b5444b06f4f6
+R ca2cdc3a53b9d88a8e490a7b5150bd33
 U drh
-Z ec454f2818e928eb643cbe6e41e29028
+Z 54123a01d41231cdebf084f3301d802b

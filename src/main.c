@@ -1634,7 +1634,7 @@ void cmd_cgi(void){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
     if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      g.fDebug = fossil_fopen(blob_str(&value), "a");
+      g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
       continue;
     }

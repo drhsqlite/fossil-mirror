@@ -802,7 +802,7 @@ void cgi_trace(const char *z){
     unsigned r;
     sqlite3_randomness(sizeof(r), &r);
     sqlite3_snprintf(sizeof(zFile), zFile, "httplog-%08x.txt", r);
-    pLog = fopen(zFile, "w");
+    pLog = fossil_fopen(zFile, "wb");
     if( pLog ){
       fprintf(stderr, "# open log on %s\n", zFile);
     }else{
