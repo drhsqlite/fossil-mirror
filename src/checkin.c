@@ -910,8 +910,8 @@ static void commit_warning(
     char cReply;
 
     if( eType==-1 && fUnicode ){
-      if ( unicodeOk ){
-        return; /* We don't want unicode warnings for this file. */
+      if ( crnlOk && unicodeOk ){
+        return; /* We don't want Unicode/CR/NL warnings for this file. */
       }
       zWarning = "Unicode and CR/NL line endings";
     }else if( eType==-1 ){

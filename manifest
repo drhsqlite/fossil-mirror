@@ -1,5 +1,5 @@
-C Patch\sprovided\sby\sStefan\sBellon,\n>Attached\syou'll\sfind\sa\spatch\sthat\sadds\sthe\s"unicode-glob"\sto\sthe\n>settings\sand\srespects\sits\ssetting\sin\sthe\scheck-in.\sAdditionally\sI\n>disabled\sall\sthe\scheck-in\swarnings\s(crnl,\sbinary\sand\sunicode)\sin\scase\n>--force/-f\sis\sset\son\scommit.
-D 2012-11-25T21:42:31.192
+C Adjust\scheck\sfor\sbypassing\sUnicode/CR/NL\swarning.
+D 2012-11-25T22:01:03.536
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c da0f078fbf78a8635d39f7cb8dd35005af248468
+F src/checkin.c 3ad6b2cf359bdb1c549483905259904ff72a7bde
 F src/checkout.c e5dbdb7639cb6c3d6678e0a9f6e0730e48f7f3b1
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3776a09e12b72b2158d18742e6b65708b8e5cfe1
@@ -362,10 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7a8938ab8441bc13165c5acbb8780cc90e11baaf
-R e31d7024d23178399b6255b641cb5514
-T *branch * bellon-unicode
-T *sym-bellon-unicode *
-T -sym-trunk *
-U jan.nijtmans
-Z 41dc621491979211a616881d0faf0080
+P 0c2f705c80613594b04033c6928322ec38c71953
+R dc4ef434eb9e4ce21fe76af69654c263
+U mistachkin
+Z 9469fc3a56c1157684a9a8b33e2056aa
