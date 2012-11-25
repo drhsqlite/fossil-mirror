@@ -1699,7 +1699,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
     zVersionedPathname = blob_str(&versionedPathname);
     if( file_size(zVersionedPathname)>=0 ){
