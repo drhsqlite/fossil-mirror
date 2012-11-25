@@ -892,6 +892,7 @@ static void commit_warning(
   const Blob *p,        /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
+  int unicodeOk,        /* Non-zero if unicode warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
@@ -909,6 +910,9 @@ static void commit_warning(
     char cReply;
 
     if( eType==-1 && fUnicode ){
+      if ( unicodeOk ){
+        return; /* We don't want unicode warnings for this file. */
+      }
       zWarning = "Unicode and CR/NL line endings";
     }else if( eType==-1 ){
       if( crnlOk ){
@@ -921,6 +925,9 @@ static void commit_warning(
       }
       zWarning = "binary data";
     }else{
+      if ( unicodeOk ){
+        return; /* We don't want unicode warnings for this file. */
+      }
       zWarning = "Unicode";
     }
     file_relative_name(zFilename, &fname, 0);
@@ -1253,16 +1260,18 @@ void commit_cmd(void){
   ** the identified files are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged, %s FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
-    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob","")),
-    glob_expr("pathname", db_get("binary-glob",""))
+    g.zLocalRoot,
+    glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("binary-glob","")),
+    glob_expr("pathname", db_get("unicode-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, chnged;
+    int crnlOk, binOk, unicodeOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
@@ -1270,6 +1279,7 @@ void commit_cmd(void){
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
     binOk = binaryOk || db_column_int(&q, 5);
+    unicodeOk = db_column_int(&q, 6);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1278,7 +1288,10 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    commit_warning(&content, crnlOk, binOk, zFullname);
+    if( !forceFlag ){
+      /* Do not emit any warnings in force mode. */
+      commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
+    }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
