@@ -1026,17 +1026,17 @@ void setup_login_group(void){
     @
     @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ <blockquote><table broder="0">
+    @ <blockquote><table border="0">
     @
     @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <td align="right"><b>Login on the above repo:</b></td>
+    @ <tr><td align="right"><b>Login on the above repo:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <td align="right"><b>Password:</b></td>
+    @ <tr><td align="right"><b>Password:</b></td>
     @ <td width="5"></td><td>
     @ <input type="password" size="20" name="pw"></td></tr>
     @
@@ -1047,7 +1047,7 @@ void setup_login_group(void){
     @
     @ <tr><td colspan="3" align="center">
     @ <input type="submit" value="Join" name="join"></td></tr>
-    @ </table>
+    @ </table></blockquote></div></form>
   }else{
     Stmt q;
     int n = 0;
