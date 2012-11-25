@@ -1152,9 +1152,9 @@ static void openHyperlink(
   const char *zOrig       /* Complete document text */
 ){
   const char *zTerm = "</a>";
-  assert( nClose>=20 );
   const char *z;
 
+  assert( nClose>=20 );
   if( strncmp(zTarget, "http:", 5)==0
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0
