@@ -1025,6 +1025,7 @@ void commit_cmd(void){
   char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
+  int noWarningFlag = 0; /* True if skipping all warnings */
   int forceFlag = 0;     /* Force a fork */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
@@ -1063,6 +1064,7 @@ void commit_cmd(void){
   testRun = find_option("test",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
+  noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   zBranch = find_option("branch","b",1);
   zColor = find_option("bgcolor",0,1);
   zBrClr = find_option("branchcolor",0,1);
@@ -1288,8 +1290,8 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    if( !forceFlag ){
-      /* Do not emit any warnings in force mode. */
+    /* Do not emit any warnings when they are disabled. */
+    if( !noWarningFlag ){
       commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
     }
     if( chnged==1 && contains_merge_marker(&content) ){
