@@ -26,7 +26,7 @@
 ** A black-and-white theme with the project title in a bar across the top
 ** and no logo image.
 */
-static const char zBuiltinSkin1[] = 
+static const char zBuiltinSkin1[] =
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
@@ -35,7 +35,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: white;
 @   font-family: sans-serif;
 @ }
-@ 
+@
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: table-row;
@@ -48,7 +48,7 @@ static const char zBuiltinSkin1[] =
 @   min-width: 200px;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -60,7 +60,7 @@ static const char zBuiltinSkin1[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@ 
+@
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -72,13 +72,13 @@ static const char zBuiltinSkin1[] =
 @   min-width: 200px;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
 @   width: 100%;
 @ }
-@ 
+@
 @ /* The main menu bar that appears at the top of the page beneath
 @ ** the header */
 @ div.mainmenu {
@@ -119,7 +119,7 @@ static const char zBuiltinSkin1[] =
 @ div.content a { color: #604000; }
 @ div.content a:link { color: #604000;}
 @ div.content a:visited { color: #600000; }
-@ 
+@
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -131,7 +131,7 @@ static const char zBuiltinSkin1[] =
 @   color: white;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #a0a0a0;
@@ -143,7 +143,7 @@ static const char zBuiltinSkin1[] =
 @   clear: left;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -153,7 +153,7 @@ static const char zBuiltinSkin1[] =
 @   background-color: #404040;
 @   color: white;
 @ }
-@ 
+@
 @ /* The label/value pairs on (for example) the vinfo page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -213,7 +213,7 @@ static const char zBuiltinSkin1[] =
 @ ');
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('footer',now(),'<div class="footer">
-@ Fossil version $manifest_version $manifest_date 
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 @ ');
@@ -223,7 +223,7 @@ static const char zBuiltinSkin1[] =
 ** A tan theme with the project title above the user identification
 ** and no logo image.
 */
-static const char zBuiltinSkin2[] = 
+static const char zBuiltinSkin2[] =
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
@@ -232,7 +232,7 @@ static const char zBuiltinSkin2[] =
 @   background-color: #fef3bc;
 @   font-family: sans-serif;
 @ }
-@ 
+@
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: inline;
@@ -243,7 +243,7 @@ static const char zBuiltinSkin2[] =
 @   color: #a09048;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -255,7 +255,7 @@ static const char zBuiltinSkin2[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@ 
+@
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -267,13 +267,13 @@ static const char zBuiltinSkin2[] =
 @   font-weight: bold;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
 @   width: 100%;
 @ }
-@ 
+@
 @ /* The main menu bar that appears at the top of the page beneath
 @ ** the header */
 @ div.mainmenu {
@@ -285,7 +285,7 @@ static const char zBuiltinSkin2[] =
 @   background-color: #a09048;
 @   color: black;
 @ }
-@ 
+@
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 0px;
@@ -304,7 +304,7 @@ static const char zBuiltinSkin2[] =
 @   color: #a09048;
 @   background-color: white;
 @ }
-@ 
+@
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
@@ -314,7 +314,7 @@ static const char zBuiltinSkin2[] =
 @ div.content a:link { color: #706532; }
 @ div.content a:visited { color: #704032; }
 @ div.content a:hover { background-color: white; color: #706532; }
-@ 
+@
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -326,7 +326,7 @@ static const char zBuiltinSkin2[] =
 @   color: white;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #e1d498;
@@ -338,7 +338,7 @@ static const char zBuiltinSkin2[] =
 @   clear: left;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -348,19 +348,19 @@ static const char zBuiltinSkin2[] =
 @   background-color: #a09048;
 @   color: white;
 @ }
-@ 
+@
 @ /* Hyperlink colors */
 @ div.footer a { color: white; }
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
 @ }
-@ 
+@
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -432,7 +432,7 @@ static const char zBuiltinSkin2[] =
 ** Black letters on a white or cream background with the main menu
 ** stuck on the left-hand side.
 */
-static const char zBuiltinSkin3[] = 
+static const char zBuiltinSkin3[] =
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
@@ -442,7 +442,7 @@ static const char zBuiltinSkin3[] =
 @     color:#333;
 @     background-color:white;
 @ }
-@ 
+@
 @ /* consistent colours */
 @ h2 {
 @   color: #333;
@@ -450,7 +450,7 @@ static const char zBuiltinSkin3[] =
 @ h3 {
 @   color: #333;
 @ }
-@ 
+@
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: table-cell;
@@ -460,7 +460,7 @@ static const char zBuiltinSkin3[] =
 @   color: #333;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The page title centered at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -471,7 +471,7 @@ static const char zBuiltinSkin3[] =
 @   vertical-align: bottom;
 @   width: 100%;
 @ }
-@ 
+@
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -484,7 +484,7 @@ static const char zBuiltinSkin3[] =
 @   font-weight: bold;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The header across the top of the page */
 @ div.header {
 @     margin:10px 0px 10px 0px;
@@ -494,7 +494,7 @@ static const char zBuiltinSkin3[] =
 @     border-width:1px 0px;
 @     background-color:#eee;
 @ }
-@ 
+@
 @ /* The main menu bar that appears at the top left of the page beneath
 @ ** the header. Width must be co-ordinated with the container below */
 @ div.mainmenu {
@@ -508,7 +508,7 @@ static const char zBuiltinSkin3[] =
 @   border:1px solid #999;
 @   width:8em;
 @ }
-@ 
+@
 @ /* Main menu is now a list */
 @ div.mainmenu ul {
 @   padding: 0;
@@ -523,13 +523,13 @@ static const char zBuiltinSkin3[] =
 @   color: #eee;
 @   background-color: #333;
 @ }
-@ 
+@
 @ /* Container for the sub-menu and content so they don''t spread
 @ ** out underneath the main menu */
 @ #container {
 @   padding-left: 9em;
 @ }
-@ 
+@
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu, div.sectionmenu {
 @   padding: 3px 10px 3px 10px;
@@ -550,13 +550,13 @@ static const char zBuiltinSkin3[] =
 @   color: #eee;
 @   background-color: #333;
 @ }
-@ 
+@
 @ /* All page content from the bottom of the menu or submenu down to
 @ ** the footer */
 @ div.content {
 @   padding: 2ex 1ex 0ex 2ex;
 @ }
-@ 
+@
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0px;
@@ -571,7 +571,7 @@ static const char zBuiltinSkin3[] =
 @   color: #333;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
 @   background: #eee;
@@ -584,7 +584,7 @@ static const char zBuiltinSkin3[] =
 @   color: #333;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.8em;
@@ -594,13 +594,13 @@ static const char zBuiltinSkin3[] =
 @   background-color: #eee;
 @   color: #555;
 @ }
-@ 
+@
 @ /* <verbatim> blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
 @    padding: 0.5em;
 @ }
-@ 
+@
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
@@ -675,7 +675,7 @@ static const char zBuiltinSkin3[] =
 /*
 ** Shadow boxes and rounded corners.
 */
-static const char zBuiltinSkin4[] = 
+static const char zBuiltinSkin4[] =
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('css',now(),'/* General settings for the entire page */
 @ html {
@@ -689,7 +689,7 @@ static const char zBuiltinSkin4[] =
 @   font-family: Verdana, sans-serif;
 @   font-size: 0.8em;
 @ }
-@ 
+@
 @ /* The project logo in the upper left-hand corner of each page */
 @ div.logo {
 @   display: table-cell;
@@ -698,7 +698,7 @@ static const char zBuiltinSkin4[] =
 @   font-weight: normal;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* Widths */
 @ div.header, div.mainmenu, div.submenu, div.content, div.footer {
 @   max-width: 900px;
@@ -706,7 +706,7 @@ static const char zBuiltinSkin4[] =
 @   padding: 3px 20px 3px 20px;
 @   clear: both;
 @ }
-@ 
+@
 @ /* The page title at the top of each page */
 @ div.title {
 @   display: table-cell;
@@ -721,7 +721,7 @@ static const char zBuiltinSkin4[] =
 @   color: #558195;
 @   text-shadow: 0px 2px 2px #999999;
 @ }
-@ 
+@
 @ /* The login status message in the top right-hand corner */
 @ div.status {
 @   display: table-cell;
@@ -731,7 +731,7 @@ static const char zBuiltinSkin4[] =
 @   margin-right: -20px;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The main menu bar that appears at the top of the page beneath
 @  ** the header */
 @ div.mainmenu {
@@ -745,7 +745,7 @@ static const char zBuiltinSkin4[] =
 @   background-color: #446979;
 @   box-shadow: 0px 3px 4px #333333;
 @ }
-@ 
+@
 @ /* The submenu bar that *sometimes* appears below the main menu */
 @ div.submenu {
 @   padding-top:10px;
@@ -770,20 +770,20 @@ static const char zBuiltinSkin4[] =
 @   text-decoration: none;
 @   margin:auto;
 @   border-radius: 5px;
-@   background-color: #e0e0e0 ;
+@   background-color: #e0e0e0;
 @   text-shadow: 0px -1px 0px #eee;
 @   border: 1px solid #000;
 @ }
-@ 
+@
 @ div.mainmenu a:hover {
 @   color: #000;
 @   background-color: white;
 @ }
-@ 
+@
 @ div.submenu a:hover, div.sectionmenu>a.button:hover {
-@   background-color: #c0c0c0 ;
+@   background-color: #c0c0c0;
 @ }
-@ 
+@
 @ /* All page content from the bottom of the menu or submenu down to
 @  ** the footer */
 @ div.content {
@@ -794,8 +794,8 @@ static const char zBuiltinSkin4[] =
 @   padding-bottom: 1em;
 @   min-height:40%;
 @ }
-@ 
-@ 
+@
+@
 @ /* Some pages have section dividers */
 @ div.section {
 @   margin-bottom: 0.5em;
@@ -811,16 +811,16 @@ static const char zBuiltinSkin4[] =
 @   box-shadow: 0px 3px 4px #333333;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The "Date" that occurs on the left hand side of timelines */
 @ div.divider {
-@   font-size: 1.2em; 
+@   font-size: 1.2em;
 @   font-family: Georgia, serif;
 @   font-weight: bold;
 @   margin-top: 1em;
 @   white-space: nowrap;
 @ }
-@ 
+@
 @ /* The footer at the very bottom of the page */
 @ div.footer {
 @   font-size: 0.9em;
@@ -828,13 +828,13 @@ static const char zBuiltinSkin4[] =
 @   margin-bottom: 1em;
 @   color: #666;
 @ }
-@ 
+@
 @ /* Hyperlink colors in the footer */
 @ div.footer a { color: white; }
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* <verbatim> blocks */
 @ pre.verbatim, blockquote pre {
 @   font-family: Dejavu Sans Mono, Monaco, Lucida Console, monospace;
@@ -842,34 +842,34 @@ static const char zBuiltinSkin4[] =
 @   padding: 0.5em;
 @   white-space: pre-wrap;
 @ }
-@ 
+@
 @ blockquote pre {
 @   border: 1px #000 dashed;
 @ }
-@ 
+@
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
 @   vertical-align: top;
 @   text-align: right;
 @   padding: 0.2ex 2ex;
 @ }
-@ 
-@ 
+@
+@
 @ table.report {
 @   border-collapse:collapse;
 @   border: 1px solid #999;
 @   margin: 1em 0 1em 0;
 @ }
-@ 
+@
 @ table.report tr th {
 @   padding: 3px 5px;
-@   text-transform : capitalize;
+@   text-transform: capitalize;
 @ }
-@ 
+@
 @ table.report tr td {
 @   padding: 3px 5px;
 @ }
-@ 
+@
 @ textarea {
 @   font-size: 1em;
 @ }');
@@ -954,7 +954,7 @@ static const char zBuiltinSkin4[] =
 **    official Tcl/Tk web site.  The footer also contains a TH1 script block
 **    to help accomplish these tasks.
 */
-static const char zBuiltinSkin5[] = 
+static const char zBuiltinSkin5[] =
 @ REPLACE INTO config(name,mtime,value)
 @ VALUES('css',now(),'/* General settings for the entire page */
 @ body {
@@ -984,7 +984,7 @@ static const char zBuiltinSkin5[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -1002,7 +1002,7 @@ static const char zBuiltinSkin5[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -1087,7 +1087,7 @@ static const char zBuiltinSkin5[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* verbatim blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
@@ -1399,7 +1399,7 @@ void setup_skin(void){
     @ <p><font color="red">%h(zErr)</font></p>
   }
   @ <p>A "skin" is a combination of
-  @ <a href="setup_editcss">CSS</a>, 
+  @ <a href="setup_editcss">CSS</a>,
   @ <a href="setup_header">Header</a>,
   @ <a href="setup_footer">Footer</a>, and
   @ <a href="setup_logo">Logo</a> that determines the look and feel
@@ -1413,7 +1413,7 @@ void setup_skin(void){
       @ <li><p>%h(z).&nbsp;&nbsp; <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post"><div>
-      @ %h(z).&nbsp;&nbsp; 
+      @ %h(z).&nbsp;&nbsp;
       @ <input type="hidden" name="sn" value="%h(z)" />
       @ <input type="submit" name="load" value="Use This Skin" />
       @ </div></form></li>
@@ -1431,7 +1431,7 @@ void setup_skin(void){
       @ <li><p>%h(zN).&nbsp;&nbsp;  <b>Currently In Use</b></p>
     }else{
       @ <li><form action="%s(g.zTop)/setup_skin" method="post">
-      @ %h(zN).&nbsp;&nbsp; 
+      @ %h(zN).&nbsp;&nbsp;
       @ <input type="hidden" name="sn" value="%h(zN)">
       @ <input type="submit" name="load" value="Use This Skin">
       @ <input type="submit" name="del1" value="Delete This Skin">
