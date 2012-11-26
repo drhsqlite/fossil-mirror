@@ -1,5 +1,5 @@
-C During\scommit,\sinstead\sof\susing\sthe\s'--force'\soption\sto\sbypass\sfile\stype\swarnings,\sadd\sa\snew\soption\s'--no-warnings'.
-D 2012-11-25T22:31:28.715
+C -\sMake\s--force\simply\s--no-warnings\n-\sAdd\s--no-warnings\sto\s"fossil\sscrub"\sand\s"fossil\sclean"\n-\sRemove\s"--conflict"\soption\sfor\s"fossil\smerge",\suse\s--force\sfor\sthat.
+D 2012-11-26T12:23:58.873
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -69,7 +69,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
 F src/cgi.c 64ef4d8ed182a90bf5ee8232983aa997a02c76ca
-F src/checkin.c 9d5deff6c991973b58092bab7ad105f9a9bf196b
+F src/checkin.c 34e6f3d9d1f0b78a76b6ab7aabfe9b7da4e2ebe4
 F src/checkout.c e5dbdb7639cb6c3d6678e0a9f6e0730e48f7f3b1
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3776a09e12b72b2158d18742e6b65708b8e5cfe1
@@ -135,7 +135,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 0b747a77c1cd20cff694e2fa8499420269df292b
-F src/rebuild.c 84b68313490dca4b7c9292f4d79d2d8ba3743228
+F src/rebuild.c 642edb1fd5e7d0766b288ae10a29e8654a360fc8
 F src/report.c aef48be85a96033b50f8dff87d02a3d1383e0e65
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c 55ec98db6d1ad99cf744eee17b6fcd02a8573924
@@ -362,7 +362,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P be15485aa6a78209c1060da2ebdd3063399da5f5
-R 6d46cc291d2274352fb4d05d33d3db5a
-U mistachkin
-Z 544ad21142106f8ae07282731960757b
+P e9954e588bccc79836192ce559f448c119c59e95
+R d09b30883767b84da8b829e693e0c732
+T *branch * bellon-unicode-v2
+T *sym-bellon-unicode-v2 *
+T -sym-bellon-unicode *
+U jan.nijtmans
+Z a41a4ce9a24f8ac61d123bd910f96571

@@ -584,7 +584,7 @@ void rebuild_database(void){
   );
   if( errCnt && !forceFlag ){
     fossil_print(
-      "%d errors. Rolling back changes. Use --force to force a commit.\n",
+      "%d errors. Rolling back changes. Use -f or --force to force a commit.\n",
       errCnt
     );
     db_end_transaction(1);
@@ -769,17 +769,18 @@ void test_clusters_cmd(void){
 ** is used.
 **
 ** Options:
-**   --force     do not prompt for confirmation
-**   --private   only private branches are removed from the repository
-**   --verily    scrub real thoroughly (see above)
+**   --no-warnings do not prompt for confirmation
+**   --private     only private branches are removed from the repository
+**   --verily      scrub real thoroughly (see above)
 */
 void scrub_cmd(void){
   int bVerily = find_option("verily",0,0)!=0;
   int bForce = find_option("force", "f", 0)!=0;
+  int bNoWarning = find_option("no-warnings", 0, 0)!=0 || bForce;
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
-  if( !bForce ){
+  if( !bNoWarning ){
     Blob ans;
     char cReply;
     blob_zero(&ans);

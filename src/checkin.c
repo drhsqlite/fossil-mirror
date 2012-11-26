@@ -395,7 +395,7 @@ void extra_cmd(void){
 **
 ** Options:
 **    --dotfiles       include files beginning with a dot (".")
-**    --force          Remove files without prompting
+**    --no-warnings    Remove files without prompting
 **    --ignore <CSG>   ignore files matching patterns from the
 **                     comma separated list of glob patterns.
 **    --temp           Remove only Fossil-generated temporary files
@@ -403,7 +403,7 @@ void extra_cmd(void){
 ** See also: addremove, extra, status
 */
 void clean_cmd(void){
-  int allFlag;
+  int allFlag, bForce;
   unsigned scanFlags = 0;
   const char *zIgnoreFlag;
   Blob path, repo;
@@ -412,7 +412,8 @@ void clean_cmd(void){
   Glob *pIgnore;
   int testFlag = 0;
 
-  allFlag = find_option("force","f",0)!=0;
+  bForce = find_option("force","f",0)!=0;
+  allFlag = find_option("no-warnings", 0, 0)!=0 || bForce;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
@@ -1004,12 +1005,12 @@ static int tagCmp(const void *a, const void *b){
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    --delta                    use a delta manifest in the commit process
-**    --force|-f                 allow forking with this commit
+**    --force|-f                 allow forking/unresolved merge conflicts with this commit
 **    --message-file|-M FILE     read the commit comment from given file
 **    --nosign                   do not attempt to sign this commit with gpg
+**    --no-warnings              do not warn about anything
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
-**    --conflict                 allow unresolved merge conflicts
 **    --binary-ok                do not warn about committing binary files
 **
 ** See also: branch, changes, checkout, extra, sync
@@ -1026,10 +1027,9 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
-  int forceFlag = 0;     /* Force a fork */
+  int forceFlag = 0;     /* Force a fork/commit with unresolved merge conflicts */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
-  int allowConflict = 0; /* Allow unresolve merge conflicts */
   int binaryOk = 0;      /* The --binary-ok flag */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
@@ -1064,7 +1064,7 @@ void commit_cmd(void){
   testRun = find_option("test",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
-  noWarningFlag = find_option("no-warnings", 0, 0)!=0;
+  noWarningFlag = find_option("no-warnings", 0, 0)!=0 || forceFlag;
   zBranch = find_option("branch","b",1);
   zColor = find_option("bgcolor",0,1);
   zBrClr = find_option("branchcolor",0,1);
@@ -1083,7 +1083,6 @@ void commit_cmd(void){
   }
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
-  allowConflict = find_option("conflict",0,0)!=0;
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
@@ -1191,7 +1190,7 @@ void commit_cmd(void){
   db_begin_transaction();
   db_record_repository_filename(0);
   if( hasChanges==0 && !isAMerge && !forceFlag ){
-    fossil_fatal("nothing has changed");
+    fossil_fatal("nothing has changed; use -f or --force.");
   }
 
   /* If none of the files that were named on the command line have
@@ -1312,8 +1311,9 @@ void commit_cmd(void){
     db_multi_exec("INSERT OR IGNORE INTO unsent VALUES(%d)", nrid);
   }
   db_finalize(&q);
-  if( nConflict && !allowConflict ){
-    fossil_fatal("abort due to unresolve merge conflicts");
+  if( nConflict && !forceFlag ){
+    fossil_fatal("abort due to unresolved merge conflicts; use -f"
+                 " or --force.");
   }
 
   /* Create the new manifest */
