@@ -658,7 +658,7 @@ static void checkin_verify_younger(
   );
   if( b ){
     fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
-                 " Use -f to override.", zUuid, zDate);
+                 " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
 }
@@ -989,8 +989,19 @@ static int tagCmp(const void *a, const void *b){
 ** background color for a single check-in.  Subsequent check-ins revert
 ** to the default color.
 **
-** A check-in is not permitted to fork unless the --force or -f
-** option appears.  A check-in is not allowed against a closed leaf.
+** A check-in is not permitted to fork unless the --allow-fork option
+** appears.  An empty check-in (i.e. with nothing changed) is not
+** allowed unless the --allow-empty option appears.  A check-in may not
+** be older than its ancestor unless the --allow-older option appears.
+** If any of files in the check-in appear to contain unresolved merge
+** conflicts, the check-in will not be allowed unless the
+** --allow-conflict option is present.  In addition, the entire
+** check-in process may be aborted if a file contains content that
+** appears to be binary, Unicode text, or text with CR/NL line endings
+** unless the interactive user chooses to proceed.  If there is no
+** interactive user or these warnings should be skipped for some other
+** reason, the --no-warnings option may be used.  A check-in is not
+** allowed against a closed leaf.
 **
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
@@ -998,19 +1009,21 @@ static int tagCmp(const void *a, const void *b){
 ** the --tag option applies the symbolic tag name to the check-in.
 **
 ** Options:
+**    --allow-conflict           allow unresolved merge conflicts
+**    --allow-empty              allow a commit with no changes
+**    --allow-fork               allow the commit to fork
+**    --allow-older              allow a commit older than its ancestor
 **    --baseline                 use a baseline manifest in the commit process
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    --delta                    use a delta manifest in the commit process
-**    --force|-f                 allow forking with this commit
 **    --message-file|-M FILE     read the commit comment from given file
+**    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
-**    --conflict                 allow unresolved merge conflicts
-**    --binary-ok                do not warn about committing binary files
 **
 ** See also: branch, changes, checkout, extra, sync
 */
@@ -1026,11 +1039,13 @@ void commit_cmd(void){
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
   int noWarningFlag = 0; /* True if skipping all warnings */
-  int forceFlag = 0;     /* Force a fork */
+  int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
   int allowConflict = 0; /* Allow unresolve merge conflicts */
-  int binaryOk = 0;      /* The --binary-ok flag */
+  int allowEmpty = 0;    /* Allow a commit with no changes */
+  int allowFork = 0;     /* Allow the commit to fork */
+  int allowOlder = 0;    /* Allow a commit older than its ancestor */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -1064,11 +1079,14 @@ void commit_cmd(void){
   testRun = find_option("test",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
+  allowConflict = find_option("allow-conflict",0,0)!=0;
+  allowEmpty = find_option("allow-empty",0,0)!=0;
+  allowFork = find_option("allow-fork",0,0)!=0;
+  allowOlder = find_option("allow-older",0,0)!=0;
   noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   zBranch = find_option("branch","b",1);
   zColor = find_option("bgcolor",0,1);
   zBrClr = find_option("branchcolor",0,1);
-  binaryOk = find_option("binary-ok",0,0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
     azTag = fossil_realloc((void *)azTag, sizeof(char*)*(nTag+2));
@@ -1083,7 +1101,6 @@ void commit_cmd(void){
   }
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
-  allowConflict = find_option("conflict",0,0)!=0;
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
@@ -1190,30 +1207,34 @@ void commit_cmd(void){
   hasChanges = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
-  if( hasChanges==0 && !isAMerge && !forceFlag ){
-    fossil_fatal("nothing has changed");
+  if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
+    fossil_fatal("nothing has changed; use --allow-empty to override");
   }
 
   /* If none of the files that were named on the command line have
-  ** been modified, bail out now unless the --force flag is used.
+  ** been modified, bail out now unless the --allow-empty or --force
+  ** flags is used.
   */
   if( g.aCommitFile
+   && !allowEmpty
    && !forceFlag
    && !db_exists(
         "SELECT 1 FROM vfile "
         " WHERE is_selected(id)"
         "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)")
   ){
-    fossil_fatal("none of the selected files have changed; use -f"
-                 " or --force.");
+    fossil_fatal("none of the selected files have changed; use "
+                 "--allow-empty to override.");
   }
 
   /*
-  ** Do not allow a commit that will cause a fork unless the --force flag
-  ** is used or unless this is a private check-in.
+  ** Do not allow a commit that will cause a fork unless the --allow-fork
+  ** or --force flags is used, or unless this is a private check-in.
   */
-  if( zBranch==0 && forceFlag==0 && g.markPrivate==0 && !is_a_leaf(vid) ){
-    fossil_fatal("would fork.  \"update\" first or use -f or --force.");
+  if( zBranch==0 && allowFork==0 && forceFlag==0
+    && g.markPrivate==0 && !is_a_leaf(vid)
+  ){
+    fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
   }
 
   /*
@@ -1280,7 +1301,7 @@ void commit_cmd(void){
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
-    binOk = binaryOk || db_column_int(&q, 5);
+    binOk = db_column_int(&q, 5);
     unicodeOk = db_column_int(&q, 6);
 
     blob_zero(&content);
@@ -1313,7 +1334,8 @@ void commit_cmd(void){
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){
-    fossil_fatal("abort due to unresolve merge conflicts");
+    fossil_fatal("abort due to unresolved merge conflicts; "
+                 "use --allow-conflict to override");
   }
 
   /* Create the new manifest */
@@ -1324,7 +1346,7 @@ void commit_cmd(void){
     blob_zero(&manifest);
   }else{
     create_manifest(&manifest, 0, 0, &comment, vid,
-                    !forceFlag, useCksum ? &cksum1 : 0,
+                    !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
                     zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
                     azTag, &szB);
   }
@@ -1345,7 +1367,7 @@ void commit_cmd(void){
     if( pBaseline ){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
-                      !forceFlag, useCksum ? &cksum1 : 0,
+                      !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
                       zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
                       azTag, &szD);
       /*
