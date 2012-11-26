@@ -578,6 +578,10 @@ int main(int argc, char **argv)
   int idx;
   int rc;
 
+#if defined(_WIN32) && defined(_MSC_VER) && defined(_DEBUG)
+  if( _wgetenv(L"FOSSIL_BREAKPOINT")!=0 ) __debugbreak();
+#endif
+
   sqlite3_config(SQLITE_CONFIG_LOG, fossil_sqlite_log, 0);
   memset(&g, 0, sizeof(g));
   g.now = time(0);

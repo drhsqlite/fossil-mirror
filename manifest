@@ -1,5 +1,5 @@
-C Merge\sbyte-order-mark\shandling\senhancements\sto\strunk.
-D 2012-11-26T22:51:27.306
+C Changes\sto\ssupport\seasier\sdebugging\son\sWindows.
+D 2012-11-26T23:54:58.671
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -117,7 +117,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 400ac68a6bf3e0a0b7cb22a3ad7de20277daed1d
-F src/main.c a3ec0a62d3672094bed534fc8f9691e849bfc887
+F src/main.c a569e3e4c35d86895ec05a510744e4d3cbf41357
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -265,7 +265,7 @@ F win/Makefile.dmc 540c31789886c9ebf3d531724388e55cd2d57094
 F win/Makefile.mingw 720e21f4c2eb33c8c523e5baae6600f4b9a5dc01
 F win/Makefile.mingw.mistachkin fd623ec4c21593980bf7cf1c7541a43b88a14fb8
 F win/Makefile.msc fed7e3f0ad077992b2aa28d2eaa91c62485d9689
-F win/Makefile.msc.mistachkin d21f2fde279a7db86004d2cd374a3058c166501c
+F win/Makefile.msc.mistachkin 0d645ff0e5a744ce966dea9bb1f4c137cb1e8af1
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
 F win/include/dirent.h a02e08abaf451289a2502dc2aed9884592349c2e
@@ -362,7 +362,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2ff70a313088a4ff9a4adb74a846e2d5605e2051 d857d20bef0e5945d3c7f1302cf884e3e27b07f0
-R 5a2fbd26cc2ff3efbee16edc6f269398
+P 9b800ee41c32c4e1941a3bc19798c7b90a6b9e9c
+R 17db13fd6de862b452a41c537ad4dcbf
+T *branch * winDebug
+T *sym-winDebug *
+T -sym-trunk *
 U mistachkin
-Z b9f7a4155be9307407b692d92157fcdf
+Z bb2972e472aab8471e17dc7cb4a7ff0f
