@@ -435,10 +435,10 @@ static const char zDefaultView[] =
 @ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
 @ <th1>
 @ if {[hascap s]} {
-@   html "<td class=''tktDspValue'' colspan=''3''>$tkt_uuid "
+@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid "
 @   html "($tkt_id)</td></tr>\n"
 @ } else {
-@   html "<td class=''tktDspValue'' colspan=''3''>$tkt_uuid</td></tr>\n"
+@   html "<td class='tktDspValue' colspan='3'>$tkt_uuid</td></tr>\n"
 @ }
 @ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
@@ -500,7 +500,7 @@ static const char zDefaultView[] =
 @     html "<hr>\n"
 @   } else {
 @     html "<tr><th>User Comments:</td></tr>\n"
-@     html "<tr><td colspan=''5'' class=''tktDspValue''>\n"
+@     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
 @   html "[htmlize $xlogin] added on $xdate:\n"

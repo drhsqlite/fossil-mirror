@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\sticketing\sscripts\sto\stake\sadvantage\sof\sTICKETCHNG.
-D 2012-11-26T19:32:30.550
+C Fix\sa\sstring-quoting\serror\sin\sthe\sprevious\scommit.
+D 2012-11-26T21:30:56.823
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -161,7 +161,7 @@ F src/th_main.c d164441ca06f2e593cc1098c8211681634e3fbcc
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c ef824d733c9d6be2a79f7e30ff86c0d92716433b
 F src/tkt.c 7d7e2e02d8d2b41f12ef8248f78da0f6e51aca25
-F src/tktsetup.c 94697dc4e00aae50cec91647d7da642b32e5cc7a
+F src/tktsetup.c 69087889bc4495a043001bc0d5c13f967be0c6c2
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/update.c a226834189ce840be5332c8874449277d256aced
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7de5f6c05686ccb7af040fd8f9e7bc5196393ac2
-R 74474f15d0de9a2c5859a3f1343ba10d
+P fb3b0f66a352ae6bcf12c49359ceeed092dd2c95
+R 44c833c239263608f65452e288b44c68
 U drh
-Z 2a96f11615845f43ec3b347b6a5e9c09
+Z 0cf491e529fac336ed4752559c6e3933
