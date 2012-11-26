@@ -1636,7 +1636,7 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <div>
-    blob_strip_bom(&content, 0);
+    blob_to_utf8_no_bom(&content, 0);
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
@@ -1646,7 +1646,7 @@ void artifact_page(void){
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_strip_bom(&content, 0);
+      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);
