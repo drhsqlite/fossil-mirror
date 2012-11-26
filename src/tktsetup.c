@@ -293,20 +293,15 @@ static const char zDefaultNew[] =
 @   if {![info exists mutype]} {set mutype {[links only]}}
 @   if {[info exists submit]} {
 @      set status Open
-@      set ctxt "<i>By [htmlize $login] on [date] UTC:</i><br />"
 @      if {$mutype eq "HTML"} {
-@        set x "<nowiki>\n[string trimright $comment]\n</nowiki>"
-@      } elseif {$mutype eq "Plain Text"} {
-@        set r [randhex]
-@        set x "<verbatim-$r>\n[string trimright $comment]\n</verbatim-$r>"
+@        set mimetype "text/html"
+@      } elseif {$mutype eq "Wiki"} {
+@        set mimetype "text/x-fossil-wiki"
 @      } elseif {$mutype eq {[links only]}} {
-@        set r [randhex]
-@        set x [string trimright $comment]
-@        set x "<verbatim-$r links>\n$x\n</verbatim-$r>"
+@        set mimetype "text/x-fossil-plain"
 @      } else {
-@        set x $comment
+@        set mimetype "text/plain"
 @      }
-@      set comment "$ctxt\n$x"
 @      submit_ticket
 @   }
 @ </th1>
@@ -360,28 +355,28 @@ static const char zDefaultNew[] =
 @ <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
 @ <br />
 @ <th1>set nline [linecount $comment 50 10]</th1>
-@ <textarea name="comment" cols="80" rows="$nline"
-@  wrap="virtual" class="wikiedit">$<comment></textarea><br />
+@ <textarea name="icomment" cols="80" rows="$nline"
+@  wrap="virtual" class="wikiedit">$<icomment></textarea><br />
 @ </tr>
 @ 
-@ <th1>enable_output A [info exists preview]</th1>
+@ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="3">
 @ Description Preview:<br /><hr />
 @ <th1>
 @ if {$mutype eq "Wiki"} {
-@   wiki $comment
+@   wiki $icomment
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
-@   wiki "<verbatim-$r>\n[string trimright $comment]\n</verbatim-$r>"
+@   wiki "<verbatim-$r>[string trimright $icomment]\n</verbatim-$r>"
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
-@   wiki "<verbatim-$r links>\n[string trimright $comment]\n</verbatim-$r>"
+@   wiki "<verbatim-$r links>[string trimright $icomment]\n</verbatim-$r>"
 @ } else {
-@   wiki "<nowiki>\n[string trimright $comment]\n</nowiki>"
+@   wiki "<nowiki>$icomment\n</nowiki>"
 @ }
 @ </th1>
 @ <hr /></td></tr>
-@ <th1>enable_output B 1</th1>
+@ <th1>enable_output 1</th1>
 @ 
 @ <tr>
 @ <td><td align="left">
@@ -390,7 +385,7 @@ static const char zDefaultNew[] =
 @ <td align="left">See how the description will appear after formatting.</td>
 @ </tr>
 @ 
-@ <th1>enable_output C [info exists preview]</th1>
+@ <th1>enable_output [info exists preview]</th1>
 @ <tr>
 @ <td><td align="left">
 @ <input type="submit" name="submit" value="Submit" />
@@ -398,7 +393,7 @@ static const char zDefaultNew[] =
 @ <td align="left">After filling in the information above, press this 
 @ button to create the new ticket</td>
 @ </tr>
-@ <th1>enable_output D 1</th1>
+@ <th1>enable_output 1</th1>
 @ 
 @ <tr>
 @ <td><td align="left">
@@ -438,7 +433,14 @@ void tktsetup_newpage_page(void){
 static const char zDefaultView[] =
 @ <table cellpadding="5">
 @ <tr><td class="tktDspLabel">Ticket&nbsp;UUID:</td>
-@ <td class="tktDspValue" colspan="3">$<tkt_uuid></td></tr>
+@ <th1>
+@ if {[hascap s]} {
+@   html "<td class=''tktDspValue'' colspan=''3''>$tkt_uuid "
+@   html "($tkt_id)</td></tr>\n"
+@ } else {
+@   html "<td class=''tktDspValue'' colspan=''3''>$tkt_uuid</td></tr>\n"
+@ }
+@ </th1>
 @ <tr><td class="tktDspLabel">Title:</td>
 @ <td class="tktDspValue" colspan="3">
 @ $<title>
@@ -474,14 +476,45 @@ static const char zDefaultView[] =
 @ <td colspan="3" valign="top" class="tktDspValue">
 @ $<foundin>
 @ </td></tr>
-@ <tr><td>Description &amp; Comments:</td></tr>
-@ <tr><td colspan="5" class="tktDspValue">
+@ 
 @ <th1>
-@ if {[info exists plaintext]} {
-@   set r [randhex]
-@   wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
-@ } else {
-@   wiki $comment
+@ if {[info exists comment] && [string length $comment]>10} {
+@   html {
+@     <tr><td colspan="5">Legacy Description &amp; Comments:</td></tr>
+@     <tr><td colspan="5" class="tktDspValue">
+@   }
+@   if {[info exists plaintext]} {
+@     set r [randhex]
+@     wiki "<verbatim-$r links>\n$comment\n</verbatim-$r>"
+@   } else {
+@     wiki $comment
+@   }
+@ }
+@ set seenRow 0
+@ set alwaysPlaintext [info exists plaintext]
+@ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
+@               mimetype as xmimetype, icomment AS xcomment
+@          FROM ticketchng
+@         WHERE tkt_id=$tkt_id} {
+@   if {$seenRow} {
+@     html "<hr>\n"
+@   } else {
+@     html "<tr><th>User Comments:</td></tr>\n"
+@     html "<tr><td colspan=''5'' class=''tktDspValue''>\n"
+@     set seenRow 1
+@   }
+@   html "[htmlize $xlogin] added on $xdate:\n"
+@   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
+@     set r [randhex]
+@     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
+@   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
+@     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
+@   } elseif {$xmimetype eq "text/html"} {
+@     wiki "<p><nowiki>\n[string trimright $xcomment]\n</nowiki>\n"
+@   } else {
+@     set r [randhex]
+@     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
+@   }
 @ }
 @ </th1>
 @ </td></tr>
@@ -517,29 +550,17 @@ void tktsetup_viewpage_page(void){
 static const char zDefaultEdit[] =
 @ <th1>
 @   if {![info exists mutype]} {set mutype {[links only]}}
+@   if {![info exists icomment]} {set icomment {}}
 @   if {![info exists username]} {set username $login}
 @   if {[info exists submit]} {
-@     if {[info exists cmappnd]} {
-@       if {[string length $cmappnd]>0} {
-@         set ctxt "\n\n<hr />\n<i>[htmlize $login]"
-@         if {$username ne $login} {
-@           set ctxt "$ctxt claiming to be [htmlize $username]"
-@         }
-@         set ctxt "$ctxt added on [date] UTC:</i><br />"
-@         if {$mutype eq "Plain Text"} {
-@           set r [randhex]
-@           set x "<verbatim-$r>\n[string trimright $cmappnd]\n</verbatim-$r>"
-@         } elseif {$mutype eq {[links only]}} {
-@           set r [randhex]
-@           set x [string trimright $cmappnd]
-@           set x "<verbatim-$r links>\n$x\n</verbatim-$r>"
-@         } elseif {$mutype eq "HTML"} {
-@           set x "<nowiki>\n[string trimright $cmappnd]\n</nowiki>"
-@         } else {
-@           set x $cmappnd
-@         }
-@         append_field comment "$ctxt\n$x\n"
-@       }
+@     if {$mutype eq "Wiki"} {
+@       set mimetype text/x-fossil-wiki
+@     } elseif {$mutype eq "HTML"} {
+@       set mimetype text/html
+@     } elseif {$mutype eq {[links only]}} {
+@       set mimetype text/x-fossil-plain
+@     } else {
+@       set mimetype text/plain
 @     }
 @     submit_ticket
 @   }
@@ -584,77 +605,35 @@ static const char zDefaultEdit[] =
 @ <input type="text" name="foundin" size="50" value="$<foundin>" />
 @ </td></tr>
 @ 
-@ <th1>
-@   if {![info exists eall]} {set eall 0}
-@   if {[info exists aonlybtn]} {set eall 0}
-@   if {[info exists eallbtn]} {set eall 1}
-@   if {![hascap w]} {set eall 0}
-@   if {![info exists cmappnd]} {set cmappnd {}}
-@   set nline [linecount $comment 15 10]
-@   enable_output $eall
-@ </th1>
-@ 
 @ <tr><td colspan="2">
-@   Description And Comments:  (Format is "Wiki" or text/x-fossil-wiki)<br />
-@   <textarea name="comment" cols="80" rows="$nline"
-@    wrap="virtual" class="wikiedit">$<comment></textarea><br />
-@   <input type="hidden" name="eall" value="1" />
-@   <input type="hidden" name="mutype" value="$<mutype>" />
-@ </td></tr>
-@ 
-@ <th1>enable_output [expr {!$eall}]</th1>
-@ <tr><td colspan="2">
-@   Append Remark with format 
+@   Append Remark with format
 @   <th1>combobox mutype {Wiki HTML {Plain Text} {[links only]}} 1</th1>
 @   from
 @   <input type="text" name="username" value="$<username>" size="30" />:<br />
-@   <textarea name="cmappnd" cols="80" rows="15"
-@    wrap="virtual" class="wikiedit">$<cmappnd></textarea>
+@   <textarea name="icomment" cols="80" rows="15"
+@    wrap="virtual" class="wikiedit">$<icomment></textarea>
 @ </td></tr>
-@ <th1>enable_output 1</th1>
 @ 
 @ <th1>enable_output [info exists preview]</th1>
 @ <tr><td colspan="2">
 @ Description Preview:<br><hr>
 @ <th1>
-@ if {$eall} {
-@   wiki $comment
-@ } elseif {$mutype eq "Wiki"} {
-@   wiki $cmappnd
+@ if {$mutype eq "Wiki"} {
+@   wiki $icomment
 @ } elseif {$mutype eq "Plain Text"} {
 @   set r [randhex]
-@   wiki "<verbatim-$r>\n[string trimright $cmappnd]\n</verbatim-$r>"
+@   wiki "<verbatim-$r>\n[string trimright $icomment]\n</verbatim-$r>"
 @ } elseif {$mutype eq {[links only]}} {
 @   set r [randhex]
-@   wiki "<verbatim-$r links>\n[string trimright $cmappnd]</verbatim-$r>"
+@   wiki "<verbatim-$r links>\n[string trimright $icomment]</verbatim-$r>"
 @ } else {
-@   wiki "<nowiki>\n[string trimright $cmappnd]</nowiki>"
+@   wiki "<nowiki>\n[string trimright $icomment]\n</nowiki>"
 @ }
 @ </th1>
 @ <hr>
 @ </td></tr>
 @ <th1>enable_output 1</th1>
 @ 
-@ 
-@ <th1>enable_output [expr {[hascap w] && !$eall}]</th1>
-@ <tr>
-@ <td align="right">
-@   <input type="submit" name="eallbtn" value="Edit All" />
-@ </td>
-@ <td align="left">Edit the entire description history</td>
-@ </tr>
-@ 
-@ 
-@ <th1>enable_output $eall</th1>
-@ <tr>
-@ <td align="right">
-@   <input type="submit" name="aonlybtn" value="Append Only" />
-@ </td>
-@ <td align="left">Append a remark to the end of the description, leaving
-@ prior description text unchanged.</td>
-@ </tr>
-@ 
-@ <th1>enable_output 1</th1>
 @ <tr>
 @ <td align="right">
 @ <input type="submit" name="preview" value="Preview" />
