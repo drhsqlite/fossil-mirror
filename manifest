@@ -1,5 +1,5 @@
-C Use\sbinary\smode\sfor\sCGI\strace\sfiles.\s\sMake\sCGI\strace\scross-platform.
-D 2012-11-25T11:16:28.588
+C Improvements\sto\sTH1\svariable\ssetup\swhen\sprocessing\stickets\sthat\suse\nTICKETCHNG.
+D 2012-11-26T16:28:20.122
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -160,7 +160,7 @@ F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c d164441ca06f2e593cc1098c8211681634e3fbcc
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c ef824d733c9d6be2a79f7e30ff86c0d92716433b
-F src/tkt.c e5b35d3eafb70db87ad2f3fd33cb751259445efb
+F src/tkt.c 8b935ac9fa149983e8cfa28f8f2c3760d5d6c83e
 F src/tktsetup.c 3d09ca70d379203dbe633fa44a701e6296033fc4
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7136ff4c65754f081adc86139ae68c5569183c5d 95f02a572e712e6b64a95579b8d0b5444b06f4f6
-R ca2cdc3a53b9d88a8e490a7b5150bd33
+P 6a8084abcb24c02c23da0cd8df402253edf44ee3
+R ff3c13dabe10b9e8bbe9efb3de32725c
 U drh
-Z 54123a01d41231cdebf084f3301d802b
+Z bf8d799e757109ef4ddb768cc5fa63a0

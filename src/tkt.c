@@ -145,29 +145,18 @@ static void initializeVariablesFromDb(void){
       }
       if( (j = fieldId(zName))>=0 ){
         aField[j].zValue = mprintf("%s", zVal);
-      }
-      if( Th_Fetch(zName, &size)==0 ){
+      }else if( memcmp(zName, "tkt_", 4)==0 && Th_Fetch(zName, &size)==0 ){
         Th_Store(zName, zVal);
       }
       free(zRevealed);
     }
-  }else{
-    db_finalize(&q);
-    db_prepare(&q, "PRAGMA table_info(ticket)");
-    if( Th_Fetch("tkt_uuid",&size)==0 ){
-      Th_Store("tkt_uuid",zName);
-    }
-    while( db_step(&q)==SQLITE_ROW ){
-      const char *zField = db_column_text(&q, 1);
-      if( Th_Fetch(zField, &size)==0 ){
-        Th_Store(zField, "");
-      }
-    }
-    if( Th_Fetch("tkt_datetime",&size)==0 ){
-      Th_Store("tkt_datetime","");
-    }
   }
   db_finalize(&q);
+  for(i=0; i<nField; i++){
+    if( Th_Fetch(aField[i].zName, &size)==0 ){
+      Th_Store(aField[i].zName, aField[i].zValue);
+    }
+  }
 }
 
 /*
@@ -386,6 +375,7 @@ void tktview_page(void){
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW<br />\n", -1);
   ticket_init();
   initializeVariablesFromCGI();
+  getAllTicketFields();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
