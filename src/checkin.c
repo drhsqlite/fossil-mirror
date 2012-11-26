@@ -1334,7 +1334,8 @@ void commit_cmd(void){
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){
-    fossil_fatal("abort due to unresolved merge conflicts");
+    fossil_fatal("abort due to unresolved merge conflicts; "
+                 "use --allow-conflict to override");
   }
 
   /* Create the new manifest */
