@@ -332,6 +332,26 @@ void ticket_rebuild(void){
 }
 
 /*
+** For trouble-shooting purposes, render a dump of the aField[] table to
+** the webpage currently under construction.
+*/
+static void showAllFields(void){
+  int i;
+  @ <font color="blue">
+  @ <p>Database fields:</p><ul>
+  for(i=0; i<nField; i++){
+    @ <li>aField[%d(i)].zName = "%h(aField[i].zName)";
+    @ originally = "%h(aField[i].zValue)";
+    @ currently = "%h(PD(aField[i].zName,""))"";
+    if( aField[i].zAppend ){
+      @ zAppend = "%h(aField[i].zAppend)";
+    }
+    @ mUsed = %d(aField[i].mUsed);
+  }
+  @ </ul></font>
+}
+
+/*
 ** WEBPAGE: tktview
 ** URL:  tktview?name=UUID
 **
@@ -378,6 +398,7 @@ void tktview_page(void){
   getAllTicketFields();
   initializeVariablesFromDb();
   zScript = ticket_viewpage_code();
+  if( P("showfields")!=0 ) showAllFields();
   if( g.thTrace ) Th_Trace("BEGIN_TKTVIEW_SCRIPT<br />\n", -1);
   Th_Render(zScript);
   if( g.thTrace ) Th_Trace("END_TKTVIEW<br />\n", -1);
@@ -577,9 +598,10 @@ void tktnew_page(void){
   style_header("New Ticket");
   if( g.thTrace ) Th_Trace("BEGIN_TKTNEW<br />\n", -1);
   ticket_init();
+  initializeVariablesFromCGI();
   getAllTicketFields();
   initializeVariablesFromDb();
-  initializeVariablesFromCGI();
+  if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
   login_insert_csrf_secret();
   if( P("date_override") && g.perm.Setup ){
@@ -650,6 +672,7 @@ void tktedit_page(void){
   getAllTicketFields();
   initializeVariablesFromCGI();
   initializeVariablesFromDb();
+  if( g.zPath[0]=='d' ) showAllFields();
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
