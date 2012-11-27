@@ -915,51 +915,62 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
-
 # Uncomment below for SSL support
 SSL =
 SSLLIB =
-#SSL = -DFOSSIL_ENABLE_SSL=1
-#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# SSL = -DFOSSIL_ENABLE_SSL=1
+# SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
 
 # zlib options
-# When using precompiled from http://zlib.net/zlib125-dll.zip
-#ZINCDIR = C:\zlib125-dll\include
-#ZLIBDIR = C:\zlib125-dll\lib
-#ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(B)\compat\zlib
+ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+LIBDIR = -LIBPATH:$(ZLIBDIR)
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
-writeln "SQLITE_OPTIONS = $MSC_SQLITE_OPTIONS\n"
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 writeln -nonewline "SRC   = "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "\$(OX)\\$s\$O "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
-writeln "\$(OX)\\shell\$O \$(OX)\\sqlite3\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
+writeln " \\"
+writeln "        \$(OX)\\shell\$O \\"
+writeln "        \$(OX)\\sqlite3\$O \\"
+writeln "        \$(OX)\\th\$O \\"
+writeln "        \$(OX)\\th_lang\$O"
 writeln {
-
 APPNAME = $(OX)\fossil$(E)
 
 all: $(OX) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+zlib:
+	@echo Building zlib from "$(ZLIBDIR)"...
+	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
 	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
 
@@ -1010,11 +1021,20 @@ page_index.h: mkindex$E $(SRC)
 
 clean:
 	-del $(OX)\*.obj
-	-del *.obj *_.c *.h *.map
-	-del headers linkopts
+	-del *.obj
+	-del *_.c
+	-del *.h
+	-del *.map
+	-del *.manifest
+	-del headers
+	-del linkopts
 
-realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+realclean: clean
+	-del $(APPNAME)
+	-del translate$E
+	-del mkindex$E
+	-del makeheaders$E
+	-del mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1039,11 +1059,20 @@ foreach s [lsort $src] {
   writeln "\ttranslate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheaders\$E "
+writeln "headers: makeheaders\$E page_index.h VERSION.h"
+writeln -nonewline "\tmakeheaders\$E "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c:$s.h "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "\t\t\t"
+  }
+  writeln -nonewline "${s}_.c:$s.h"; incr i
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln " \\\n\t\t\t\$(SRCDIR)\\sqlite3.h \\"
+writeln "\t\t\t\$(SRCDIR)\\th.h \\"
+writeln "\t\t\tVERSION.h \\"
+writeln "\t\t\t\$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 
