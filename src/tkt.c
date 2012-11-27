@@ -607,7 +607,6 @@ void tktnew_page(void){
   if( P("date_override") && g.perm.Setup ){
     @ <input type="hidden" name="date_override" value="%h(P("date_override"))">
   }
-  @ </p>
   zScript = ticket_newpage_code();
   Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));
@@ -676,7 +675,6 @@ void tktedit_page(void){
   form_begin(0, "%R/%s", g.zPath);
   @ <input type="hidden" name="name" value="%s(zName)" />
   login_insert_csrf_secret();
-  @ </p>
   zScript = ticket_editpage_code();
   Th_Store("login", g.zLogin ? g.zLogin : "nobody");
   Th_Store("date", db_text(0, "SELECT datetime('now')"));

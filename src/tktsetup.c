@@ -480,7 +480,7 @@ static const char zDefaultView[] =
 @ <th1>
 @ if {[info exists comment] && [string length $comment]>10} {
 @   html {
-@     <tr><td colspan="5">Legacy Description &amp; Comments:</td></tr>
+@     <tr><td class="tktDspLabel">Description:</td></tr>
 @     <tr><td colspan="5" class="tktDspValue">
 @   }
 @   if {[info exists plaintext]} {
@@ -493,19 +493,25 @@ static const char zDefaultView[] =
 @ set seenRow 0
 @ set alwaysPlaintext [info exists plaintext]
 @ query {SELECT datetime(tkt_mtime) AS xdate, login AS xlogin,
-@               mimetype as xmimetype, icomment AS xcomment
+@               mimetype as xmimetype, icomment AS xcomment,
+@               username AS xusername
 @          FROM ticketchng
 @         WHERE tkt_id=$tkt_id} {
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
-@     html "<tr><th>User Comments:</td></tr>\n"
+@     html "<tr><td class='tktDspLabel'>User Comments:</td></tr>\n"
 @     html "<tr><td colspan='5' class='tktDspValue'>\n"
 @     set seenRow 1
 @   }
-@   html "[htmlize $xlogin] added on $xdate:\n"
+@   html "[htmlize $xlogin]"
+@   if {$xlogin ne $xusername && [string length $xusername]>0} {
+@     html " (claiming to be [htmlize $xusername])"
+@   }
+@   html " added on $xdate:\n"
 @   if {$alwaysPlaintext || $xmimetype eq "text/plain"} {
 @     set r [randhex]
+@     if {$xmimetype ne "text/plain"} {html "([htmlize $xmimetype])\n"}
 @     wiki "<verbatim-$r>[string trimright $xcomment]</verbatim-$r>\n"
 @   } elseif {$xmimetype eq "text/x-fossil-wiki"} {
 @     wiki "<p>\n[string trimright $xcomment]\n</p>\n"
@@ -516,8 +522,8 @@ static const char zDefaultView[] =
 @     wiki "<verbatim-$r links>[string trimright $xcomment]</verbatim-$r>\n"
 @   }
 @ }
+@ if {$seenRow} {html "</td></tr>\n"}
 @ </th1>
-@ </td></tr>
 @ </table>
 ;
 
