@@ -614,7 +614,7 @@ EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
 zlib:
-	make -C $(ZLIBDIR) -f win32/Makefile.gcc libz.a
+	make -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
