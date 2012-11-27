@@ -1113,7 +1113,7 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  @ </ul></ul>
+  @ </ul>
   free(prevName);
   db_finalize(&q);
   db_prepare(&q,
@@ -1656,7 +1656,9 @@ void artifact_page(void){
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
+      @ <img src="%R/raw/%S(zUuid)?m=%s(zMime)" />
+      style_submenu_element("Image", "Image",
+                            "%R/raw/%S?m=%s", zUuid, zMime);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
@@ -1713,6 +1715,12 @@ void tinfo_page(void){
   style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
   style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
+  if( P("plaintext") ){
+    style_submenu_element("Formatted", "Formatted", "%R/info/%S", zUuid);
+  }else{
+    style_submenu_element("Plaintext", "Plaintext",
+                          "%R/info/%S?plaintext", zUuid);
+  }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -1749,7 +1757,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng);
+  ticket_output_change_artifact(pTktChng, 0);
   manifest_destroy(pTktChng);
   style_footer();
 }
