@@ -1093,6 +1093,7 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
+  int abortCommit = 0;
   Blob ans;
   char cReply;
 
@@ -1340,7 +1341,7 @@ void commit_cmd(void){
     }
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
-      commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
+      abortCommit |= commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
     }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -1363,6 +1364,8 @@ void commit_cmd(void){
   if( nConflict && !allowConflict ){
     fossil_fatal("abort due to unresolved merge conflicts; "
                  "use --allow-conflict to override");
+  } else if( abortCommit ){
+    fossil_fatal("files are converted on your request. Please re-test before committing");
   }
 
   /* Create the new manifest */
