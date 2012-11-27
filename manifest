@@ -1,5 +1,5 @@
-C blob_to_utf8_no_bom():\sthe\sstarts_with_utf16(le|be)_bom\scalls\swere\sswapped.
-D 2012-11-27T09:42:17.306
+C Make\sthe\s--admin-user\sfor\sthe\s"init"\scommand\salso\sbe\sthe\slogin\suser.\nTicket\s[1038e224fa3956]
+D 2012-11-27T13:15:02.637
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -79,7 +79,7 @@ F src/configure.c b0293c07ed1687ef7437f3563e3d6112b58dc826
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 17333a6b063a5bf052c4f1defdeebdd4e9548583
+F src/db.c 48333673c5a85abbb2b1fa593d670eb2d7df2586
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
@@ -362,7 +362,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 77cd6e0dfb252635e3f43d656829398a34277145
-R 4c6268ae20d07ab09017d082ad8992b5
-U jan.nijtmans
-Z 98d7aea317c897e5ac667acd347e6dba
+P d27cddf17cc25c5248091de5292e63f457ab92b8 9f3622b22a654f51deb73ec85b4257a948582edd
+R 1d7d1af75f4083072408bce4f7687c76
+U drh
+Z 65594f1d3a550c46454ebdbc8f9a7b1f
