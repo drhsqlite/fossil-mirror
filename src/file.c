@@ -427,7 +427,7 @@ void test_set_mtime(void){
   if( g.argc!=4 ){
     usage("test-set-mtime FILENAME DATE/TIME");
   }
-  db_open_or_attach(":memory:", "mem");
+  db_open_or_attach(":memory:", "mem", 0);
   iMTime = db_int64(0, "SELECT strftime('%%s',%Q)", g.argv[3]);
   zFile = g.argv[2];
   file_set_mtime(zFile, iMTime);
@@ -497,6 +497,31 @@ int file_is_simple_pathname(const char *z){
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
   for(i=0; (c=z[i])!=0; i++){
+    if( (c & 0xf0) == 0xf0 ) {
+      /* Unicode characters > U+FFFF are not supported.
+       * Windows XP and earlier cannot handle them.
+       */
+      return 0;
+    }
+    if( (c & 0xf0) == 0xe0 ) {
+      /* This is a 3-byte UTF-8 character */
+      if ( (c & 0xfe) == 0xee ){
+        /* Range U+E000 - U+FFFF (Starting with 0xee or 0xef in UTF-8 ) */
+        if ( (c & 1) && ((z[i+1] & 0xff) >= 0xa4) ){
+          /* But exclude U+F900 - U+FFFF (0xef followed by byte >= 0xa4),
+           * which contain valid characters. */
+          continue;
+        }
+        /* Unicode character in the range U+E000 - U+F8FF are for
+         * private use, they shouldn't occur in filenames.  */
+        return 0;
+      }
+      if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
+        /* Unicode character in the range U+D800 - U+DFFF are for
+         * surrogate pairs, they shouldn't occur in filenames. */
+        return 0;
+      }
+    }
     if( c=='\\' || c=='*' || c=='[' || c==']' || c=='?' ){
       return 0;
     }

@@ -125,7 +125,9 @@ void update_cmd(void){
   if( vid==0 ){
     fossil_fatal("cannot find current version");
   }
-  if( !nochangeFlag && !internalUpdate ) autosync(AUTOSYNC_PULL);
+  if( !nochangeFlag && !internalUpdate ){
+    autosync(SYNC_PULL + SYNC_VERBOSE*verboseFlag);
+  }
   
   /* Create any empty directories now, as well as after the update,
   ** so changes in settings are reflected now */

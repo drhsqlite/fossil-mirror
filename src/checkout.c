@@ -108,7 +108,7 @@ void checkout_set_all_exe(int vid){
   pManifest = manifest_get(vid, CFTYPE_MANIFEST);
   if( pManifest==0 ) return;
   blob_zero(&filename);
-  blob_appendf(&filename, "%s/", g.zLocalRoot);
+  blob_appendf(&filename, "%s", g.zLocalRoot);
   baseLen = blob_size(&filename);
   manifest_file_rewind(pManifest);
   while( (pFile = manifest_file_next(pManifest, 0))!=0 ){

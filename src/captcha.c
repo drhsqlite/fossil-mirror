@@ -440,3 +440,68 @@ char const *captcha_decode(unsigned int seed){
   zRes[8] = 0;
   return zRes;
 }
+
+/*
+** Return true if a CAPTCHA is required for editing wiki or tickets or for
+** adding attachments.
+**
+** A CAPTCHA is required in those cases if the user is not logged in (if they
+** are user "nobody") and if the "require-captcha" setting is true.  The
+** "require-captcha" setting is controlled on the Admin/Access page.  It 
+** defaults to true.
+*/
+int captcha_needed(void){
+  if( g.zLogin!=0 ) return 0;
+  return db_get_boolean("require-captcha", 1);
+}
+
+/*
+** If a captcha is required but the correct captcha code is not supplied
+** in the query parameters, then return false (0).
+**
+** If no captcha is required or if the correct captcha is supplied, return
+** true (non-zero).
+**
+** The query parameters examined are "captchaseed" for the seed value and
+** "captcha" for text that the user types in response to the captcha prompt.
+*/
+int captcha_is_correct(void){
+  const char *zSeed;
+  const char *zEntered;
+  const char *zDecode;
+  if( !captcha_needed() ){
+    return 1;  /* No captcha needed */
+  }
+  zSeed = P("captchaseed");
+  if( zSeed==0 ) return 0;
+  zEntered = P("captcha");
+  if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
+  zDecode = captcha_decode((unsigned int)atoi(zSeed));
+  if( strcmp(zDecode,zEntered)!=0 ) return 0;
+  return 1;
+}
+
+/*
+** Generate a captcha display together with the necessary hidden parameter
+** for the seed and the entry box into which the user will type the text of
+** the captcha.  This is typically done at the very bottom of a form.
+**
+** This routine is a no-op if no captcha is required.
+*/
+void captcha_generate(void){
+  unsigned int uSeed;
+  const char *zDecoded;
+  char *zCaptcha;
+
+  if( !captcha_needed() ) return;
+  uSeed = captcha_seed();
+  zDecoded = captcha_decode(uSeed);
+  zCaptcha = captcha_render(zDecoded);
+  @ <div class="captcha"><table class="captcha"><tr><td><pre>
+  @ %h(zCaptcha)
+  @ </pre>
+  @ Enter security code shown above:
+  @ <input type="hidden" name="captchaseed" value="%u(uSeed)" />
+  @ <input type="text" name="captcha" size=8 />
+  @ </td></tr></table></div>
+}

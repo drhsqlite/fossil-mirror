@@ -49,12 +49,14 @@ static int sideboxUsed = 0;
 
 
 /*
-** List of hyperlinks that need to be resolved by javascript in
+** List of hyperlinks and forms that need to be resolved by javascript in
 ** the footer.
 */
 char **aHref = 0;
 int nHref = 0;
 int nHrefAlloc = 0;
+char **aFormAction = 0;
+int nFormAction = 0;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -66,7 +68,7 @@ int nHrefAlloc = 0;
 ** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
 ** If g.javascriptHyperlink is true then the
 ** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If 
+** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
 ** activate.
@@ -123,16 +125,42 @@ char *href(const char *zFormat, ...){
 }
 
 /*
+** Generate <form method="post" action=ARG>.  The ARG value is inserted
+** by javascript.
+*/
+void form_begin(const char *zOtherArgs, const char *zAction, ...){
+  char *zLink;
+  va_list ap;
+  if( zOtherArgs==0 ) zOtherArgs = "";
+  va_start(ap, zAction);
+  zLink = vmprintf(zAction, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
+  }else{
+    int n;
+    aFormAction = fossil_realloc(aFormAction, (nFormAction+1)*sizeof(char*));
+    aFormAction[nFormAction++] = zLink;
+    n = nFormAction;
+    @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
+  }
+}
+
+/*
 ** Generate javascript that will set the href= attribute on all anchors.
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
+  if( !g.perm.Hyperlink || !g.javascriptHyperlink ) return;
+  if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
   @ function u(i,h){gebi(i).href=h;}
   for(i=0; i<nHref; i++){
     @ u(%d(i+1),"%s(aHref[i])");
+  }
+  for(i=0; i<nFormAction; i++){
+    @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ /* ]]> */
   @ </script>
@@ -192,17 +220,17 @@ void style_set_current_page(const char *zFormat, ...){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
 
   @ <!DOCTYPE html>
-  
+
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -269,7 +297,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-  
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -310,7 +338,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-  
+
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
@@ -340,7 +368,7 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] = 
+const char zDefaultHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
@@ -399,7 +427,7 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] = 
+const char zDefaultFooter[] =
 @ <div class="footer">
 @ Fossil version $release_version $manifest_version $manifest_date
 @ </div>
@@ -413,7 +441,7 @@ const char zDefaultFooter[] =
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
-const char zDefaultCSS[] = 
+const char zDefaultCSS[] =
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -442,7 +470,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -460,7 +488,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -545,7 +573,7 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* verbatim blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
@@ -662,12 +690,12 @@ const struct strctCssDefaults {
   { "table.browser",
     "format for the file display table",
     @ /* the format for wiki errors */
-    @   width: 100% ;
+    @   width: 100%;
     @   border: 0;
   },
   { "td.browser",
     "format for cells in the file browser",
-    @   width: 24% ;
+    @   width: 24%;
     @   vertical-align: top;
   },
   { "ul.browser",
@@ -686,6 +714,7 @@ const struct strctCssDefaults {
   { "div.captcha",
     "captcha display options",
     @   text-align: center;
+    @   padding: 1ex;
   },
   { "table.captcha",
     "format for the layout table, used for the captcha display",

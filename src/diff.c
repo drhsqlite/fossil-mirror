@@ -329,7 +329,9 @@ int looks_like_utf16(const Blob *pContent){
 ** for UTF-8.
 */
 const unsigned char *get_utf8_bom(int *pnByte){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00 };
+  static const unsigned char bom[] = {
+    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
+  };
   if( pnByte ) *pnByte = 3;
   return bom;
 }
@@ -338,11 +340,12 @@ const unsigned char *get_utf8_bom(int *pnByte){
 ** This function returns non-zero if the blob starts with a UTF-8
 ** byte-order-mark (BOM).
 */
-int starts_with_utf8_bom(const Blob *pContent){
+int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
-  int bomSize;
+  int bomSize = 0;
   const unsigned char *bom = get_utf8_bom(&bomSize);
 
+  if( pnByte ) *pnByte = bomSize;
   if( blob_size(pContent)<bomSize ) return 0;
   return memcmp(z, bom, bomSize)==0;
 }
@@ -351,10 +354,11 @@ int starts_with_utf8_bom(const Blob *pContent){
 ** This function returns non-zero if the blob starts with a UTF-16le or
 ** UTF-16be byte-order-mark (BOM).
 */
-int starts_with_utf16_bom(const Blob *pContent){
+int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
   int c1, c2;
 
+  if( pnByte ) *pnByte = 2;
   if( blob_size(pContent)<2 ) return 0;
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
@@ -369,10 +373,11 @@ int starts_with_utf16_bom(const Blob *pContent){
 ** This function returns non-zero if the blob starts with a UTF-16le
 ** byte-order-mark (BOM).
 */
-int starts_with_utf16le_bom(const Blob *pContent){
+int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
   int c1, c2;
 
+  if( pnByte ) *pnByte = 2;
   if( blob_size(pContent)<2 ) return 0;
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
@@ -385,10 +390,11 @@ int starts_with_utf16le_bom(const Blob *pContent){
 ** This function returns non-zero if the blob starts with a UTF-16be
 ** byte-order-mark (BOM).
 */
-int starts_with_utf16be_bom(const Blob *pContent){
+int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
   int c1, c2;
 
+  if( pnByte ) *pnByte = 2;
   if( blob_size(pContent)<2 ) return 0;
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xfe) && (c2==(char)0xff) ){
