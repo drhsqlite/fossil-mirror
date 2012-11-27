@@ -1106,7 +1106,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
 #ifdef _WIN32
-  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
+  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
     /* Make sure the blob contains two terminating 0-bytes */
     blob_append(pBlob, "", 1);
     zUtf8 = blob_str(pBlob) + bomSize;
@@ -1114,7 +1114,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
-  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
+  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
     unsigned int i = blob_size(pBlob);
     zUtf8 = blob_buffer(pBlob);
     while( i > 0 ){
