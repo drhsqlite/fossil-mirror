@@ -1636,7 +1636,7 @@ void wiki_convert(Blob *pIn, Blob *pOut, int flags){
     renderer.pOut = cgi_output_blob();
   }
 
-  blob_strip_bom(pIn, 0);
+  blob_to_utf8_no_bom(pIn, 0);
   wiki_render(&renderer, blob_str(pIn));
   endAutoParagraph(&renderer);
   while( renderer.nStack ){
@@ -1700,7 +1700,7 @@ int wiki_find_title(Blob *pIn, Blob *pTitle, Blob *pTail){
   char *z;
   int i;
   int iStart;
-  blob_strip_bom(pIn, 0);
+  blob_to_utf8_no_bom(pIn, 0);
   z = blob_str(pIn);
   for(i=0; fossil_isspace(z[i]); i++){}
   if( z[i]!='<' ) return 0;

@@ -406,6 +406,7 @@ static int isHuman(const char *zAgent){
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
   if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  if( memcmp(zAgent, "NetSurf/", 8)==0 ) return 1;
   return 0;
 }
 

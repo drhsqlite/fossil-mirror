@@ -523,7 +523,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
       blob_append(&reply, zIn, -1);
     }
   }
-  blob_strip_bom(&reply, 1);
+  blob_to_utf8_no_bom(&reply, 1);
   blob_remove_cr(&reply);
   file_delete(zFile);
   free(zFile);
@@ -572,8 +572,9 @@ static void prepare_commit_comment(
 ){
   Blob prompt;
 #ifdef _WIN32
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-  blob_init(&prompt, (const char *) bom, 3);
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+  blob_init(&prompt, (const char *) bom, bomSize);
   if( zInit && zInit[0]) {
     blob_append(&prompt, zInit, -1);
   }
@@ -902,7 +903,7 @@ static void commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return;
-  fUnicode = starts_with_utf16_bom(p);
+  fUnicode = starts_with_utf16_bom(p, 0);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
@@ -1253,7 +1254,7 @@ void commit_cmd(void){
   }else if( zComFile ){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
-    blob_strip_bom(&comment, 1);
+    blob_to_utf8_no_bom(&comment, 1);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);

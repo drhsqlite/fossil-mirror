@@ -521,7 +521,7 @@ static void expand_args_option(int argc, void *argv){
     }
     zInFile = NULL;
   }
-  blob_strip_bom(&file, 1);
+  blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
