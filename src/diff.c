@@ -212,7 +212,7 @@ if( c<0xC0 || c>=0xF8 ){ \
 ** (-1) -- The content appears to consist entirely of text, with lines
 **         delimited by carriage-return, line-feed pairs.
 **
-** (-3, -5) The same as (1, -3); however, the encoding is not UTF-8 or ASCII.
+** (-3, -5) The same as (1, -1); however, the encoding is not UTF-8 or ASCII.
 **
 ** (-4) -- The same as 0, but the determination is based on the fact that
 **         the blob might be text (any encoding) but it has a line length
@@ -240,14 +240,14 @@ int looks_like_utf8(const Blob *pContent){
   if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   j = (c!='\n');
-  if( c>=0x80 ){
+  if( c&0x80 ){
     CHECKUTF8(c)
   } else if( c==0 ){
     return 0;  /* Zero byte in a file -> binary */
   }
   while( --n>0 ){
     c = *++z; ++j;
-    if( c>=0x80 ){
+    if( c&0x80 ){
       CHECKUTF8(c)
     } else if( c==0 ){
       return 0;  /* Zero byte in a file -> binary */
@@ -363,18 +363,79 @@ int looks_like_utf16(const Blob *pContent){
 }
 
 /*
+** This function returns an array of bytes representing the byte-order-mark
+** for UTF-8.
+*/
+const unsigned char *get_utf8_bom(int *pnByte){
+  static const unsigned char bom[] = {
+    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
+  };
+  if( pnByte ) *pnByte = 3;
+  return bom;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-8
+** byte-order-mark (BOM).
+*/
+int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int bomSize = 0;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+
+  if( pnByte ) *pnByte = bomSize;
+  if( blob_size(pContent)<bomSize ) return 0;
+  return memcmp(z, bom, bomSize)==0;
+}
+
+/*
 ** This function returns non-zero if the blob starts with a UTF-16le or
 ** UTF-16be byte-order-mark (BOM).
 */
-int starts_with_utf16_bom(const Blob *pContent){
+int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
   int c1, c2;
 
+  if( pnByte ) *pnByte = 2;
   if( blob_size(pContent)<2 ) return 0;
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
     return 1;
   }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( pnByte ) *pnByte = 2;
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16be
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( pnByte ) *pnByte = 2;
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
     return 1;
   }
   return 0;
@@ -2021,6 +2082,7 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
   rid = db_int(0, "SELECT fid FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid);
@@ -2030,31 +2092,28 @@ static void annotate_file(
   if( !content_get(rid, &toAnnotate) ){
     fossil_panic("unable to retrieve content of artifact #%d", rid);
   }
-  db_multi_exec("CREATE TEMP TABLE ok(rid INTEGER PRIMARY KEY)");
   if( iLimit<=0 ) iLimit = 1000000000;
-  compute_direct_ancestors(mid, iLimit);
   annotation_start(p, &toAnnotate);
-
+  
   db_prepare(&q,
-    "SELECT mlink.fid,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
-    "       date(event.mtime), "
-    "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
-    " WHERE mlink.fnid=%d"
-    "   AND mlink.mid=ancestor.rid"
-    "   AND event.objid=ancestor.rid"
-    " ORDER BY ancestor.generation ASC"
-    " LIMIT %d",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
-    fnid,
-    iLimit>0 ? iLimit : 10000000
+    "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       date(event.mtime),"
+    "       coalesce(event.euser,event.user),"
+    "       mlink.pid"
+    "  FROM mlink, event"
+    " WHERE mlink.fid=:rid"
+    "   AND event.objid=mlink.mid"
+    " ORDER BY event.mtime",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
   );
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
+  
+  db_bind_int(&q, ":rid", rid);
+  if( iLimit==0 ) iLimit = 1000000000;
+  while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
+    const char *zUuid = db_column_text(&q, 0);
+    const char *zDate = db_column_text(&q, 1);
+    const char *zUser = db_column_text(&q, 2);
+    int prevId = db_column_int(&q, 3);
     if( webLabel ){
       zLabel = mprintf(
           "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
@@ -2066,9 +2125,13 @@ static void annotate_file(
     p->nVers++;
     p->azVers = fossil_realloc(p->azVers, p->nVers*sizeof(p->azVers[0]) );
     p->azVers[p->nVers-1] = zLabel;
-    content_get(pid, &step);
+    content_get(rid, &step);
     annotation_step(p, &step, zLabel);
     blob_reset(&step);
+    db_reset(&q);
+    rid = prevId;
+    db_bind_int(&q, ":rid", prevId);
+    cnt++;
   }
   db_finalize(&q);
 }

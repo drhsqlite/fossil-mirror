@@ -867,7 +867,7 @@ static void checkin_description(int rid){
     const char *zUuid = db_column_text(&q, 3);
     const char *zTagList = db_column_text(&q, 4);
     Blob comment;
-    int wikiFlags = WIKI_INLINE;
+    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-block-markup", 0)==0 ){
       wikiFlags |= WIKI_NOBLOCK;
     }
@@ -1599,7 +1599,11 @@ void artifact_page(void){
   blob_zero(&downloadName);
   objType = object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
-          "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+          "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
+  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+    style_submenu_element("Checkins Using", "Checkins Using",
+          "%R/timeline?uf=%s&n=200",zUuid);
+  }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
@@ -1632,7 +1636,7 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <div>
-    blob_strip_bom(&content, 0);
+    blob_to_utf8_no_bom(&content, 0);
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
@@ -1642,7 +1646,7 @@ void artifact_page(void){
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_strip_bom(&content, 0);
+      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);
@@ -2151,7 +2155,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE);
+    @ %w(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"
@@ -2181,9 +2185,9 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%s",zUuid))%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zTop)/ci_edit" method="post"><div>
+  form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%S(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>

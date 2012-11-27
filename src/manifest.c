@@ -835,7 +835,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
     }
   }
-  if( x.z<x.zEnd ) SYNTAX("card in the wrong order");
+  if( x.z<x.zEnd ) SYNTAX("extra characters at end of card");
 
   if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
     if( p->nCChild>0 ) SYNTAX("M-card in check-in");

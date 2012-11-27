@@ -121,6 +121,7 @@ struct Global {
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
+  const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
@@ -131,7 +132,8 @@ struct Global {
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
-  int fNoSync;            /* Do not do an autosync even.  --nosync */
+  int fSshTrace;          /* Trace the SSH setup traffic */
+  int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -145,6 +147,7 @@ struct Global {
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
+  char *th1Setup;         /* The TH1 post-creation setup script, if any */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
@@ -152,6 +155,7 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
+  int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
   char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
@@ -517,7 +521,7 @@ static void expand_args_option(int argc, void *argv){
     }
     zInFile = NULL;
   }
-  blob_strip_bom(&file, 1);
+  blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
@@ -613,6 +617,7 @@ int main(int argc, char **argv)
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
+    g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -1381,23 +1386,35 @@ static void process_one_web_page(const char *zNotFound){
       zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
       /* To avoid mischief, make sure the repository basename contains no
-      ** characters other than alphanumerics, "-", "/", and "_".
+      ** characters other than alphanumerics, "-", "/", "_", and "." beside
+      ** "/" or ".".
       */
       for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
-        if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
+        char c = zRepo[j];
+        if( !fossil_isalnum(c) && c!='-' && c!='/'
+         && (c!='.' || zRepo[j+1]=='/' || zRepo[j-1]=='/' || zRepo[j+1]=='.')
+        ){
           zRepo[j] = '_';
         }
       }
       if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
 
       szFile = file_size(zRepo);
-      if( zPathInfo[i]=='/' && szFile<0 ){
+      if( szFile<0 ){
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
-        if( file_isdir(zRepo)==1 ){
+        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
+        }
+        if( file_isfile(zRepo) ){
+          Blob content;
+          blob_read_from_file(&content, zRepo);
+          cgi_set_content_type(mimetype_from_name(zRepo));
+          cgi_set_content(&content);
+          cgi_reply();
+          return;
         }
         zRepo[j] = '.';
       }
@@ -1742,9 +1759,13 @@ void redirect_web_page(int nRedirect, char **azRedirect){
 static void find_server_repository(int disallowDir){
   if( g.argc<3 ){
     db_must_be_within_tree();
-  }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
-    g.zRepositoryName = mprintf("%s", g.argv[2]);
-    file_simplify_name(g.zRepositoryName, -1, 0);
+  }else if( file_isdir(g.argv[2])==1 ){
+    if( disallowDir ){
+      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[2]);
+    }else{
+      g.zRepositoryName = mprintf("%s", g.argv[2]);
+      file_simplify_name(g.zRepositoryName, -1, 0);
+    }
   }else{
     db_open_repository(g.argv[2]);
   }
@@ -1936,7 +1957,7 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
   }
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
   }else{
@@ -1975,7 +1996,7 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
   process_one_web_page(zNotFound);

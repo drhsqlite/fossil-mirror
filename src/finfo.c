@@ -206,6 +206,8 @@ void finfo_cmd(void){
   }
 }
 
+/* Values for the debug= query parameter to finfo */
+#define FINFO_DEBUG_MLINK  0x01
 
 /*
 ** WEBPAGE: finfo
@@ -229,6 +231,7 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
+  
   Blob title;
   Blob sql;
   HQuery url;
@@ -236,6 +239,7 @@ void finfo_page(void){
   int brBg = P("brbg")!=0;
   int uBg = P("ubg")!=0;
   int firstChngOnly = atoi(PD("fco","1"))!=0;
+  int fDebug = atoi(PD("debug","0"));
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -262,7 +266,9 @@ void finfo_page(void){
     " (SELECT uuid FROM blob WHERE rid=mlink.mid),"  /* Check-in uuid */
     " event.bgcolor,"                                /* Background color */
     " (SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0"
-                                " AND tagxref.rid=mlink.mid)", /* Tags */
+                                " AND tagxref.rid=mlink.mid)," /* Tags */
+    " mlink.mid,"                                    /* check-in ID */
+    " mlink.pfnid",                                  /* Previous filename */
     TAG_BRANCH
   );
   if( firstChngOnly ){
@@ -318,6 +324,8 @@ void finfo_page(void){
     const char *zCkin = db_column_text(&q,7);
     const char *zBgClr = db_column_text(&q, 8);
     const char *zBr = db_column_text(&q, 9);
+    int fmid = db_column_int(&q, 10);
+    int pfnid = db_column_int(&q, 11);
     int gidx;
     char zTime[10];
     char zShort[20];
@@ -348,9 +356,30 @@ void finfo_page(void){
     sqlite3_snprintf(sizeof(zShort), zShort, "%.10s", zUuid);
     sqlite3_snprintf(sizeof(zShortCkin), zShortCkin, "%.10s", zCkin);
     if( zUuid ){
+      if( fpid==0 ){
+        @ <b>Added</b>
+      }else if( pfnid ){
+        char *zPrevName = db_text(0, "SELECT name FROM filename WHERE fnid=%d",
+                                  pfnid);
+        @ <b>Renamed</b> from
+        @ %z(href("%R/finfo?name=%t", zPrevName))%h(zPrevName)</a>
+      }
       @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
     }else{
-      @ <b>Deleted</b> by check-in
+      char *zNewName;
+      zNewName = db_text(0, 
+        "SELECT name FROM filename WHERE fnid = "
+        "   (SELECT fnid FROM mlink"
+        "     WHERE mid=%d"
+        "       AND pfnid IN (SELECT fnid FROM filename WHERE name=%Q %s))",
+        fmid, zFilename, filename_collation());
+      if( zNewName ){
+        @ <b>Renamed</b> to
+        @ %z(href("%R/finfo?name=%t",zNewName))%h(zNewName)</a> by check-in
+        fossil_free(zNewName);
+      }else{
+        @ <b>Deleted</b> by check-in
+      }
     }
     hyperlink_to_uuid(zShortCkin);
     @ %h(zCom) (user: 
@@ -363,6 +392,10 @@ void finfo_page(void){
       }
       @ %z(href("%R/annotate?checkin=%S&filename=%h",zCkin,z))
       @ [annotate]</a>
+      @ %z(href("%R/timeline?n=200&uf=%S",zUuid))[checkins&nbsp;using]</a>
+    }
+    if( fDebug & FINFO_DEBUG_MLINK ){
+      @ fid=%d(frid), pid=%d(fpid), mid=%d(fmid)
     }
     @ </td></tr>
   }

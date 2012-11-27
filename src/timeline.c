@@ -87,6 +87,7 @@ void hyperlink_to_date(const char *zDate, const char *zSuffix){
 ** is centered on that date+time.
 */
 void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
+  if( zU==0 || zU[0]==0 ) zU = "anonymous";
   if( zSuf==0 ) zSuf = "";
   if( g.perm.Hyperlink ){
     if( zD && zD[0] ){
@@ -193,8 +194,6 @@ void www_print_timeline(
   const char *zThisTag,  /* Suppress links to this tag */
   void (*xExtra)(int)    /* Routine to call on each line of display */
 ){
-  int wikiFlags;
-  int plainText;
   int mxWikiLen;
   Blob comment;
   int prevTagid = 0;
@@ -208,13 +207,7 @@ void www_print_timeline(
   int pendingEndTr = 0;       /* True if a </td></tr> is needed */
 
   zPrevDate[0] = 0;
-  plainText = db_get_int("timeline-plaintext", 0);
   mxWikiLen = db_get_int("timeline-max-comment", 0);
-  if( db_get_boolean("timeline-block-markup", 0) ){
-    wikiFlags = WIKI_INLINE;
-  }else{
-    wikiFlags = WIKI_INLINE | WIKI_NOBLOCK;
-  }
   if( tmFlags & TIMELINE_GRAPH ){
     pGraph = graph_init();
     /* style is not moved to css, because this is
@@ -239,6 +232,7 @@ void www_print_timeline(
     const char *zUser = db_column_text(pQuery, 4);
     const char *zTagList = db_column_text(pQuery, 8);
     int tagid = db_column_int(pQuery, 9);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     const char *zBr = 0;      /* Branch */
     int commentColumn = 3;    /* Column containing comment text */
     int modPending;           /* Pending moderation */
@@ -259,7 +253,7 @@ void www_print_timeline(
     prevTagid = tagid;
     if( suppressCnt ){
       @ <span class="timelineDisabled">... %d(suppressCnt) similar
-      @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
+      @ event%s(suppressCnt>1?"s":"") omitted.</span>
       suppressCnt = 0;
     }
     if( pendingEndTr ){
@@ -357,16 +351,10 @@ void www_print_timeline(
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      if( plainText ){
-        @ %h(blob_str(&truncated))
-      }else{
-        wiki_convert(&truncated, 0, wikiFlags);
-      }
+      @ %w(blob_str(&truncated))
       blob_reset(&truncated);
-    }else if( plainText ){
-      @ %h(blob_str(&comment));
     }else{
-      wiki_convert(&comment, 0, wikiFlags);
+      @ %w(blob_str(&comment))
     }
     blob_reset(&comment);
 
@@ -374,11 +362,11 @@ void www_print_timeline(
     ** with a hyperlink to another timeline for that user.
     */
     if( zTagList && zTagList[0]==0 ) zTagList = 0;
-    if( g.perm.Hyperlink && fossil_strcmp(zUser, zThisUser)!=0 ){
-      char *zLink = mprintf("%R/timeline?u=%h&c=%t&amp;nd", zUser, zDate);
-      @ (user: %z(href("%z",zLink))%h(zUser)</a>%s(zTagList?",":"\051")
+    if( g.perm.Hyperlink && fossil_strcmp(zDispUser, zThisUser)!=0 ){
+      char *zLink = mprintf("%R/timeline?u=%h&c=%t&nd", zDispUser, zDate);
+      @ (user: %z(href("%z",zLink))%h(zDispUser)</a>%s(zTagList?",":"\051")
     }else{
-      @ (user: %h(zUser)%s(zTagList?",":"\051")
+      @ (user: %h(zDispUser)%s(zTagList?",":"\051")
     }
 
     /* Generate a "detail" link for tags. */
@@ -479,7 +467,7 @@ void www_print_timeline(
   }
   if( suppressCnt ){
     @ <span class="timelineDisabled">... %d(suppressCnt) similar
-    @ event%s(suppressCnt>1?"s":"") omitted.</span></td></tr>
+    @ event%s(suppressCnt>1?"s":"") omitted.</span>
     suppressCnt = 0;
   }
   if( pendingEndTr ){
@@ -880,6 +868,30 @@ static void timeline_add_dividers(double rDate, int rid){
   fossil_free(zToDel);
 }
 
+/*
+** Return all possible names for file zUuid.
+*/
+char *names_of_file(const char *zUuid){
+  Stmt q;
+  Blob out;
+  const char *zSep = "";
+  db_prepare(&q,
+    "SELECT DISTINCT filename.name FROM mlink, filename"
+    " WHERE mlink.fid=(SELECT rid FROM blob WHERE uuid='%s')"
+    "   AND filename.fnid=mlink.fnid",
+    zUuid
+  );
+  blob_zero(&out);
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zFN = db_column_text(&q, 0);
+    blob_appendf(&out, "%s%z%h</a>", zSep,
+          href("%R/finfo?name=%t", zFN), zFN);
+    zSep = " or ";
+  }
+  db_finalize(&q);
+  return blob_str(&out);
+}
+
 
 /*
 ** WEBPAGE: timeline
@@ -932,6 +944,7 @@ void page_timeline(void){
   const char *zTagName = P("t");     /* Show events with this tag */
   const char *zBrName = P("r");      /* Show events related to this tag */
   const char *zSearch = P("s");      /* Search string */
+  const char *zUses = P("uf");       /* Only show checkins hold this file */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
@@ -983,6 +996,18 @@ void page_timeline(void){
   if( P("ubg")!=0 ){
     tmFlags |= TIMELINE_UCOLOR;
     url_add_parameter(&url, "ubg", 0);
+  }
+  if( zUses!=0 ){
+    int ufid = db_int(0, "SELECT rid FROM blob WHERE uuid GLOB '%q*'", zUses);
+    if( ufid ){
+      zUses = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", ufid);
+      url_add_parameter(&url, "uf", zUses);
+      db_multi_exec("CREATE TEMP TABLE usesfile(rid INTEGER PRIMARY KEY)");
+      compute_uses_file("usesfile", ufid, 0);
+      zType = "ci";
+    }else{
+      zUses = 0;
+    }
   }
 
   style_header("Timeline");
@@ -1087,6 +1112,9 @@ void page_timeline(void){
     char *zDate;
     char *zNEntry = mprintf("%d", nEntry);
     url_add_parameter(&url, "n", zNEntry);
+    if( zUses ){
+      blob_appendf(&sql, " AND event.objid IN usesfile ");
+    }
     if( tagid>0 ){
       blob_appendf(&sql,
         "AND (EXISTS(SELECT 1 FROM tagxref"
@@ -1221,6 +1249,12 @@ void page_timeline(void){
       blob_appendf(&desc, "%d most recent %ss", n, zEType);
     }else{
       blob_appendf(&desc, "%d %ss", n, zEType);
+    }
+    if( zUses ){
+      char *zFilenames = names_of_file(zUses);
+      blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
+                   href("%R/artifact/%S",zUses), zUses);
+      tmFlags |= TIMELINE_DISJOINT;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);
