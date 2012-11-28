@@ -38,6 +38,9 @@
 # include <windows.h>
 # include <sys/utime.h>
 #endif
+#ifdef __CYGWIN__
+# include <sys/time.h>
+#endif
 
 /*
 ** The file status information from the most recent stat() call.

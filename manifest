@@ -1,5 +1,5 @@
-C Enhancements\sto\sticket\sprocessing.\s\sThere\sare\snow\stwo\stables:\sTICKET\sand\nTICKETCHNG.\s\sThere\sis\sone\srow\sin\sTICKETCHNG\sfor\seach\sticket\sartifact.\nFields\sfrom\sticket\sartifacts\sgo\sinto\seither\sor\sboth\sof\sTICKET\sand\sTICKETCHNG,\nwhichever\scontain\smatching\scolumn\snames.\s\sDefault\sticket\sedit\sand\sviewing\nscripts\sare\supdated\sto\suse\sTICKETCHNG.\s\sThe\sTH1\sscripting\slanguage\sis\nenhanced\sto\ssupport\sthis,\sincluding\sthe\snew\s"query"\scommand\sfor\sdoing\nSQL\squeries\sagainst\sthe\srepository\sdatabase.\s\sAll\schanges\sshould\sbe\nbackwards\scompatible.
-D 2012-11-27T16:26:29.504
+C Add\sa\sconditional\s#include\sin\san\sattempt\sto\sget\sthe\sbuild\sworking\son\sCygwin.
+D 2012-11-28T11:13:49.159
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -319,7 +319,7 @@ F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
-F src/file.c 85dbb08d93081ee2b7cc43ec1bec8d7a62ea6f82
+F src/file.c 826843ae83f1f03b665bcfc8428cbe39dbace256
 F src/finfo.c aa52b909e4c05ea5de924077df74d93c98db6dac
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
@@ -591,7 +591,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 14cf3f3c9ddafad2013fc67146f61c3e37209d9e 7575b52e15cd84fb09987b9aca076b11bbd9dd4e
-R 87ca058b76b6b2a223f4c1e788f42321
+P 4f8c8975bc4d1303a604da339f869c32eb0da960
+R 6620ee3515b609321f5bd1b2b0681d54
 U drh
-Z b5207368cb03bf1d7b8b149e76d96b7f
+Z 4e7b89a415c52846c2c0f46f01b388c4
