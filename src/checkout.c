@@ -263,7 +263,7 @@ void checkout_cmd(void){
 static void unlink_local_database(int manifestOnly){
   const char *zReserved;
   int i;
-  for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
+  for(i=0; (zReserved = fossil_reserved_name(i, 1))!=0; i++){
     if( manifestOnly==0 || zReserved[0]=='m' ){
       char *z;
       z = mprintf("%s%s", g.zLocalRoot, zReserved);

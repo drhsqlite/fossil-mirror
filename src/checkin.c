@@ -352,7 +352,7 @@ void extra_cmd(void){
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      fossil_all_reserved_names()
+      fossil_all_reserved_names(0)
   );
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
@@ -432,7 +432,7 @@ void clean_cmd(void){
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names()
+      g.zLocalRoot, fossil_all_reserved_names(0)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
