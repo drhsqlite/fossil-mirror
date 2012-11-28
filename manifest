@@ -1,5 +1,5 @@
-C Add\sa\sconditional\s#include\sin\san\sattempt\sto\sget\sthe\sbuild\sworking\son\sCygwin.
-D 2012-11-28T11:13:49.159
+C Take\scare\sthat\sxfer\serror\smessages\sand\suser\sprompts\salways\sbegin\sat\sthe\nstart\sof\sa\snew\sline.
+D 2012-11-28T19:28:04.282
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -327,7 +327,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 326f54adf82358dbd3ea1780dda4a7edf19fd52d
 F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
-F src/http_transport.c 5e45d2dfc6be8485a6ce237ba78f7ddde62d0e03
+F src/http_transport.c 2ad73fe61bdd448fa7f89e00f7542d5b916e31a7
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c d889823fba29341f5ea4e746e837f0106b2337ab
 F src/json.c 7c2b9fa4d91d1e5324d5e1fc72b4f8cf22b8d007
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
-F src/main.c bacdb135dcacc698f0207364510ce1c2c2c3dd73
+F src/main.c 4c1953a125fce5a844e473d8f6c6b76ffc9f78f9
 F src/main.mk 803a1280b716a8f8cef590666409605a50b8c85b
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -364,7 +364,7 @@ F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 0b747a77c1cd20cff694e2fa8499420269df292b
+F src/printf.c 7a4d5d41eb33b6d9145d6af51135e56e409172cb
 F src/rebuild.c 84b68313490dca4b7c9292f4d79d2d8ba3743228
 F src/report.c 7030e52dd71e29a709cfb34ffbc23affbc8eee55
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
@@ -396,14 +396,14 @@ F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/update.c a226834189ce840be5332c8874449277d256aced
 F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
-F src/user.c f81e6f0e01aaac07d8dba57458d553bd47c7f7f3
+F src/user.c be21df36f410f63b71ab7c3e8b8e981bbfb5b2ac
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c fc72d682c14d6a1fa9dda46f6ce5c835037c1c95
 F src/wiki.c d389a9a510d81387de91cf2d394bb171d98a82a1
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
 F src/winhttp.c 2de20a62beff51201d2a0ab84dac65e5f0e5c765
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 0aa3d3bb8161cf5ae6d6931409270dfae3da1e67
+F src/xfer.c a7cc8b7e85ca57f7821425f2f7030539b585cdfe
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
 F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
@@ -591,7 +591,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f8c8975bc4d1303a604da339f869c32eb0da960
-R 6620ee3515b609321f5bd1b2b0681d54
+P b963446708df0d0c04fc8dac6d3986cef715ba63
+R 6e4c1d1869c6f34da827cbb6db51eab1
 U drh
-Z 4e7b89a415c52846c2c0f46f01b388c4
+Z b4e5220ee34f46391517b77890f2d443

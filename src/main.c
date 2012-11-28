@@ -714,6 +714,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -747,6 +748,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -789,6 +791,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_reply();
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -815,6 +818,7 @@ void fossil_warning(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }

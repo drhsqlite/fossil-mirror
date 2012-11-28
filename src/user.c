@@ -134,6 +134,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
+  fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);

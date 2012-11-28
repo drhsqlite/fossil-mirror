@@ -820,6 +820,14 @@ void fossil_error_reset(void){
   g.iErrPriority = 0;
 }
 
+/* True if the last character standard output cursor is setting at
+** the beginning of a blank link.  False if a \r has been to move the
+** cursor to the beginning of the line or if not at the beginning of
+** a line.
+** was a \n
+*/
+static int stdoutAtBOL = 1;
+
 /*
 ** Write to standard output or standard error.
 **
@@ -828,14 +836,25 @@ void fossil_error_reset(void){
 ** a file, no translation occurs.  No translation ever occurs on unix.
 */
 void fossil_puts(const char *z, int toStdErr){
+  int n = (int)strlen(z);
+  if( n==0 ) return;
+  if( toStdErr==0 ) stdoutAtBOL = (z[n-1]=='\n');
 #if defined(_WIN32)
-  if( fossil_utf8_to_console(z, strlen(z), toStdErr) >= 0 ){
+  if( fossil_utf8_to_console(z, n, toStdErr) >= 0 ){
     return;
   }
 #endif
   assert( toStdErr==0 || toStdErr==1 );
-  fwrite(z, 1, strlen(z), toStdErr ? stderr : stdout);
+  fwrite(z, 1, n, toStdErr ? stderr : stdout);
   fflush(toStdErr ? stderr : stdout);
+}
+
+/*
+** Force the the standard output cursor to move to the beginning 
+** of a line, if it is not there already.
+*/
+void fossil_force_newline(void){
+  if( g.cgiOutput==0 && stdoutAtBOL==0 ) fossil_puts("\n", 0);
 }
 
 /*
