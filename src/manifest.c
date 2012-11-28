@@ -1554,7 +1554,7 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%s</i>",
+      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
@@ -1568,7 +1568,7 @@ void manifest_ticket_event(
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%s</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
@@ -1870,8 +1870,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     ){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to wiki page [%h]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
@@ -1885,8 +1886,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     }else{
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to ticket [%S]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
              p->zAttachName, p->zAttachTarget);

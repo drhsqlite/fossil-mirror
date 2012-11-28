@@ -64,12 +64,9 @@ BCC = gcc
 FOSSIL_TCL_SOURCE = 1
 
 #### The directories where the zlib include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "zlib-1.x.y" sub-directory of the
-#    Fossil source code directory and the target zlib source directory.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.7
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
+ZINCDIR = $(SRCDIR)/../compat/zlib
+ZLIBDIR = $(SRCDIR)/../compat/zlib
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
@@ -616,7 +613,10 @@ ifdef FOSSIL_ENABLE_TCL
 EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+zlib:
+	make -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
