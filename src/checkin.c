@@ -1341,7 +1341,8 @@ void commit_cmd(void){
     }
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
-      abortCommit |= commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
+      abortCommit |= commit_warning(&content, crnlOk, binOk,
+                                    unicodeOk, zFullname);
     }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -1365,7 +1366,8 @@ void commit_cmd(void){
     fossil_fatal("abort due to unresolved merge conflicts; "
                  "use --allow-conflict to override");
   } else if( abortCommit ){
-    fossil_fatal("files are converted on your request. Please re-test before committing");
+    fossil_fatal("one or more files were converted on your request; "
+                 "please re-test before committing");
   }
 
   /* Create the new manifest */

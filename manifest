@@ -1,5 +1,5 @@
-C Give\sthe\suser\sthe\soption\sto\sconvert\sfile\sinto\sUTF8\sif\sthey\sare\sin\ssome\nother\sencoding\swhen\scommitted.\s\sThe\scommit\saborts\sregardless,\sto\sgive\sthe\noperator\san\sopporunity\sto\sretest\sthe\schanges\sbefore\scommitting\sagain.
-D 2012-11-29T01:45:37.830
+C Fix\sa\scouple\sline\slength\sissues\sand\smodify\san\serror\smessage.
+D 2012-11-29T07:56:39.938
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c c7f34e607c7f858ce04d0d29db6f549f38fa5ed2
 F src/cgi.c 40e2d5cf0d95670b89e08fbd83a42026ebfdea78
-F src/checkin.c 8e708e3bc664acb2ac8f3feb3138843578a9d79e
+F src/checkin.c 3bb5dd4dcebd6783cc759a7c67ffad98b93b60a6
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3776a09e12b72b2158d18742e6b65708b8e5cfe1
@@ -591,7 +591,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fcdeaa29098ade4fc245392a2eeef261d17bd593 9d67e2e2d3da0705d15588265f1dd0bc182a0771
-R 551fcf5a2b335bec417c8a0a5d13c0d5
-U drh
-Z b341d8ba17c0f650d28af11dd40c6597
+P 22b570f4f33e1d9ba32d0eddc47c5fed7fabc0bd
+R e0a1b1a8312e6a100ae1b6ce048acdd1
+U mistachkin
+Z fa32f42aaa8b1645906710a769432aa5
