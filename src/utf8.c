@@ -136,22 +136,22 @@ char *fossil_filename_to_utf8(void *zFilename){
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
   return zUtf;
 #elif defined(__APPLE__)
+  char *zIn = (char*)zFilename;
   char *zOut;
   iconv_t cd;
   size_t n, x;
-  const char *zUtf = zFilename1
-  for(n=0; zUtf[n]>0 && zUtf[n]<=0x7f; n++){}
-  if( zUtf[n]!=0 && (cd = iconv_open("UTF-8", "UTF-8-MAC"))!=(iconv_t)-1 ){
-    char *zIn = (char*)zUtf;
+  for(n=0; zIn[n]>0 && zIn[n]<=0x7f; n++){}
+  if( zIn[n]!=0 && (cd = iconv_open("UTF-8", "UTF-8-MAC"))!=(iconv_t)-1 ){
     char *zOutx;
+    char *zOrig = zIn;
     size_t nIn, nOutx;
-    nIn = n = strlen(zUtf);
+    nIn = n = strlen(zIn);
     nOutx = nIn+100;
     zOutx = zOut = fossil_malloc( nOutx+1 );
     x = iconv(cd, &zIn, &nIn, &zOutx, &nOutx);
     if( x==(size_t)-1 ){
       fossil_free(zOut);
-      zOut = fossil_strdup(zUtf);
+      zOut = fossil_strdup(zOrig);
     }else{
       zOut[n+100-nOutx] = 0;
     }

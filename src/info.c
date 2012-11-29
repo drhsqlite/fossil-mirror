@@ -1113,6 +1113,9 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
+  if( prevName ){
+    @ </ul>
+  }
   @ </ul>
   free(prevName);
   db_finalize(&q);
