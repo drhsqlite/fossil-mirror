@@ -497,6 +497,7 @@ static void expand_args_option(int argc, void *argv){
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
 #elif defined(__APPLE__)
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+  g.nameOfExe = g.argv[0];
 #else
   g.nameOfExe = g.argv[0];
 #endif
