@@ -264,7 +264,7 @@ static SERVICE_STATUS_HANDLE sshStatusHandle;
 
 /*
 ** Get message string of the last system error. Return a pointer to the
-** message string. Call fossil_mbcs_free() to deallocate any memory used
+** message string. Call fossil_unicode_free() to deallocate any memory used
 ** to store the message string when done.
 */
 static char *win32_get_last_errmsg(void){

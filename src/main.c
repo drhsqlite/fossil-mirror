@@ -494,7 +494,7 @@ static void expand_args_option(int argc, void *argv){
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_unicode_to_utf8(buf);
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
 #else
   g.nameOfExe = g.argv[0];
 #endif
@@ -860,7 +860,7 @@ int fossil_system(const char *zOrigCmd){
     fossil_free(zOut);
   }
   rc = _wsystem(zUnicode);
-  fossil_mbcs_free(zUnicode);
+  fossil_unicode_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
