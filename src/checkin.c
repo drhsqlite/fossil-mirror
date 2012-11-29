@@ -888,9 +888,13 @@ static void create_manifest(
 ** Issue a warning and give the user an opportunity to abandon out
 ** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
 ** is seen in a text file.
+**
+** Return 1 if the user pressed 'c'. In that case, the file will have
+** been converted to UTF-8 (if it was UTF-16) with NL line-endings,
+** and the original file will have been renamed to "<filename>-original".
 */
-static void commit_warning(
-  const Blob *p,        /* The content of the file being committed. */
+static int commit_warning(
+  Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
   int unicodeOk,        /* Non-zero if unicode warnings should be disabled. */
@@ -902,45 +906,66 @@ static void commit_warning(
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
-  if( allOk ) return;
+  if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
+    const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
     if( eType==-1 && fUnicode ){
       if ( crnlOk && unicodeOk ){
-        return; /* We don't want Unicode/CR/NL warnings for this file. */
+        return 0; /* We don't want Unicode/CR/NL warnings for this file. */
       }
       zWarning = "Unicode and CR/NL line endings";
     }else if( eType==-1 ){
       if( crnlOk ){
-        return; /* We don't want CR/NL warnings for this file. */
+        return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
     }else if( eType==0 ){
       if( binOk ){
-        return; /* We don't want binary warnings for this file. */
+        return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
+      zConvert = ""; /* We cannot convert binary files. */
     }else{
       if ( unicodeOk ){
-        return; /* We don't want unicode warnings for this file. */
+        return 0; /* We don't want unicode warnings for this file. */
       }
       zWarning = "Unicode";
+#ifndef _WIN32
+      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
+#endif
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s.  commit anyhow (a=all/y/N)? ",
-         blob_str(&fname), zWarning);
+         "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
+         blob_str(&fname), zWarning, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
+    }else if( *zConvert && (cReply=='c' || cReply=='C') ){
+      char *zOrig = file_newname(zFilename, "original", 1);
+      FILE *f;
+      blob_write_to_file(p, zOrig);
+      fossil_free(zOrig);
+      f = fossil_fopen(zFilename, "wb");
+      if( fUnicode ) {
+        int bomSize;
+        const unsigned char *bom = get_utf8_bom(&bomSize);
+        fwrite(bom, 1, bomSize, f);
+        blob_to_utf8_no_bom(p, 0);
+      }
+      blob_remove_cr(p);
+      fwrite(blob_buffer(p), 1, blob_size(p), f);
+      fclose(f);
+      return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
@@ -948,6 +973,7 @@ static void commit_warning(
     blob_reset(&ans);
     blob_reset(&fname);
   }
+  return 0;
 }
 
 /*
@@ -1067,6 +1093,7 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
+  int abortCommit = 0;
   Blob ans;
   char cReply;
 
@@ -1314,7 +1341,7 @@ void commit_cmd(void){
     }
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
-      commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
+      abortCommit |= commit_warning(&content, crnlOk, binOk, unicodeOk, zFullname);
     }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
@@ -1337,6 +1364,8 @@ void commit_cmd(void){
   if( nConflict && !allowConflict ){
     fossil_fatal("abort due to unresolved merge conflicts; "
                  "use --allow-conflict to override");
+  } else if( abortCommit ){
+    fossil_fatal("files are converted on your request. Please re-test before committing");
   }
 
   /* Create the new manifest */
