@@ -1694,7 +1694,8 @@ int client_sync(
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
-        fossil_print("\rServer says: %s\n", zMsg);
+        fossil_force_newline();
+        fossil_print("Server says: %s\n", zMsg);
       }else
 
       /*    pragma NAME VALUE...
@@ -1806,7 +1807,7 @@ int client_sync(
     if( cloneSeqno<=0 && nCycle>1 ) go = 0;   
   };
   transport_stats(&nSent, &nRcvd, 1);
-  if( (syncFlags & SYNC_VERBOSE)==0 ) fossil_print("\n");
+  fossil_force_newline();
   fossil_print(
      "%s finished with %lld bytes sent, %lld bytes received\n",
      zOpType, nSent, nRcvd);
