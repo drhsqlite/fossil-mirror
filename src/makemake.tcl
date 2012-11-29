@@ -109,6 +109,7 @@ set src {
   user
   verify
   vfile
+  utf8
   wiki
   wikiformat
   winhttp
