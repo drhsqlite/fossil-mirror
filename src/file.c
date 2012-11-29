@@ -1102,10 +1102,10 @@ char *fossil_getenv(const char *zName){
   wchar_t *uName = fossil_utf8_to_unicode(zName);
   void *zValue = _wgetenv(uName);
   fossil_unicode_free(uName);
-  if( zValue ) zValue = fossil_filename_to_utf8(zValue);
 #else
   char *zValue = getenv(zName);
 #endif
+  if( zValue ) zValue = fossil_filename_to_utf8(zValue);
   return zValue;
 }
 
