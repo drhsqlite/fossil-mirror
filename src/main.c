@@ -493,11 +493,11 @@ static void expand_args_option(int argc, void *argv){
 #if defined(_WIN32) && !defined(__MINGW32__)
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_unicode_to_utf8(buf);
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+  g.nameOfExe = fossil_filename_to_utf8(buf);
 #else
   g.nameOfExe = g.argv[0];
 #endif
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;

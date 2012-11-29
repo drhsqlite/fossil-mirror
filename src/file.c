@@ -657,14 +657,14 @@ void file_getcwd(char *zBuf, int nBuf){
   if( _wgetcwd(zPwd, sizeof(zPwd)/sizeof(zPwd[0])-1)==0 ){
     fossil_fatal("cannot find the current working directory.");
   }
-  zPwdUtf8 = fossil_unicode_to_utf8(zPwd);
+  zPwdUtf8 = fossil_filename_to_utf8(zPwd);
   nPwd = strlen(zPwdUtf8);
   if( nPwd > nBuf-1 ){
     fossil_fatal("pwd too big: max %d\n", nBuf-1);
   }
   for(i=0; zPwdUtf8[i]; i++) if( zPwdUtf8[i]=='\\' ) zPwdUtf8[i] = '/';
   memcpy(zBuf, zPwdUtf8, nPwd+1);
-  fossil_unicode_free(zPwdUtf8);
+  fossil_filename_free(zPwdUtf8);
 #else
   if( getcwd(zBuf, nBuf-1)==0 ){
     if( errno==ERANGE ){
@@ -1014,7 +1014,7 @@ void file_tempname(int nBuf, char *zBuf){
   wchar_t zTmpPath[MAX_PATH];
 
   if( GetTempPathW(MAX_PATH, zTmpPath) ){
-    azDirs[0] = fossil_unicode_to_utf8(zTmpPath);
+    azDirs[0] = fossil_filename_to_utf8(zTmpPath);
   }
 
   azDirs[1] = fossil_getenv("TEMP");
@@ -1095,14 +1095,14 @@ int file_is_the_same(Blob *pContent, const char *zName){
 
 /*
 ** Return the value of an environment variable as UTF8.
-** Use fossil_unicode_free() to release resources.
+** Use fossil_filename_free() to release resources.
 */
 char *fossil_getenv(const char *zName){
 #ifdef _WIN32
   wchar_t *uName = fossil_utf8_to_unicode(zName);
   void *zValue = _wgetenv(uName);
   fossil_unicode_free(uName);
-  if( zValue ) zValue = fossil_unicode_to_utf8(zValue);
+  if( zValue ) zValue = fossil_filename_to_utf8(zValue);
 #else
   char *zValue = getenv(zName);
 #endif
