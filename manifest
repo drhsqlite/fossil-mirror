@@ -1,5 +1,5 @@
-C One\smore\sthing\sI\sspotted\s(but\scannot\stest!):\sUTF8-mac\sencoded\svalues\scould\senter\sfossil\sthrough\senvironment\svariables\sas\swell...
-D 2012-11-29T09:59:32.194
+C Translate\sdecomposed-UTF8\sfilenames\son\sMacOS\sinto\sprecomposed-UTF8.\nFix\sfor\sticket\s[e399bc1edfe45b]
+D 2012-11-29T13:12:25.378
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -40,7 +40,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 35afef7842614640b880362559368dcd3e961159
+F auto.def 156a42ca5c786a37fbba083abc2ff797116f9608
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 25457f035f5cd3b31e13ccd1e6623b6b1b67fa60
 F autosetup/autosetup 6414861f6fd35b77beffdd4ff67e6f808fbeebb5 x
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
-F src/main.c e994dec5cfbea60b642a56977f92de4ca93fcff9
+F src/main.c d1ea73a695b8fc94e35328aada3a447329e96c8f
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -397,7 +397,7 @@ F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/update.c a226834189ce840be5332c8874449277d256aced
 F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
 F src/user.c be21df36f410f63b71ab7c3e8b8e981bbfb5b2ac
-F src/utf8.c 967da60ed436deadfea014177cd38586424c4cba
+F src/utf8.c 4f03bea6ca6f508bce5cdaac40fca6682d6ac65b
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c cebf0342c1b3452ad42d65234cfa460bb17925ba
 F src/wiki.c d389a9a510d81387de91cf2d394bb171d98a82a1
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a0148eac539221cd05e0ff4958d2e96d06321416
-R 1ea20b17c4f2e453afbca836c0049416
-U jan.nijtmans
-Z 5084cad22350ed9cbaa8b82b33d2a31f
+P 42951c59ae7191100c484a89ad56970717cd77cc
+R ec559680cb4edc147390eedc162cd1eb
+U drh
+Z 9e1e7c6f0fcecb11201bbf0e9353760e

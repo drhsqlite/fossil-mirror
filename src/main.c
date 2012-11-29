@@ -2025,12 +2025,29 @@ void cmd_webserver(void){
 /*
 ** COMMAND:  test-echo
 **
+** Usage:  %fossil test-echo [--hex] ARGS...
+**
 ** Echo all command-line arguments (enclosed in [...]) to the screen so that
 ** wildcard expansion behavior of the host shell can be investigated.
+**
+** With the --hex option, show the output as hexadecimal.  This can be used
+** to verify the fossil_filename_to_utf8() routine on Windows and Mac.
 */
 void test_echo_cmd(void){
-  int i;
-  for(i=0; i<g.argc; i++){
-    fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+  int i, j;
+  if( find_option("hex",0,0)==0 ){
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+    }
+  }else{
+    unsigned char *z, c;
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [", i);
+      z = (unsigned char*)g.argv[i];
+      for(j=0; (c = z[j])!=0; j++){
+        fossil_print("%02x", c);
+      }
+      fossil_print("]\n");
+    }
   }
 }

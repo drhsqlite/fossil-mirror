@@ -44,7 +44,7 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 ** After translating from UTF8 to MBCS, invoke this routine to deallocate
 ** any memory used to hold the translation
 */
-void fossil_mbcs_free(void *zOld){
+void fossil_mbcs_free(char *zOld){
 #ifdef _WIN32
   sqlite3_free(zOld);
 #else
@@ -58,7 +58,7 @@ void fossil_mbcs_free(void *zOld){
 ** Call fossil_unicode_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
-char *fossil_unicode_to_utf8(const void *zUnicode){
+char *fossil_unicode_to_utf8(const char *zUnicode){
 #ifdef _WIN32
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
   char *zUtf = sqlite3_malloc( nByte );
@@ -113,7 +113,7 @@ void fossil_unicode_free(void *pOld){
 ** Call fossil_filename_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
-char *fossil_filename_to_utf8(const void *zFilename){
+char *fossil_filename_to_utf8(const char *zFilename){
 #if defined(_WIN32)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
   char *zUtf = sqlite3_malloc( nByte );
@@ -128,14 +128,18 @@ char *fossil_filename_to_utf8(const void *zFilename){
   size_t n, x;
   for(n=0; zFilename[n]>0 && zFilename[n]<=0x7f; n++){}
   if( zFilename[n]!=0 && (cd = iconv_open("UTF-8", "UTF-8-MAC"))!=(iconv_t)-1 ){
-    n = strlen(zFilename);
-    zOut = fossil_malloc( n+100 );
-    x = iconv(cd, zFilename, n, zOut, n+100);
+    char *zIn = (char*)zFilename;
+    char *zOutx;
+    size_t nIn, nOutx;
+    nIn = n = strlen(zFilename);
+    nOutx = nIn+100;
+    zOutx = zOut = fossil_malloc( nOutx+1 );
+    x = iconv(cd, &zIn, &nIn, &zOutx, &nOutx);
     if( x==(size_t)-1 ){
       fossil_free(zOut);
       zOut = fossil_strdup(zFilename);
     }else{
-      zOut[x] = 0;
+      zOut[n+100-nOutx] = 0;
     }
     iconv_close(cd);
   }else{
