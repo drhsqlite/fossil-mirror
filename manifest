@@ -1,5 +1,5 @@
-C Modify\sthe\stest-echo\scommand\sto\salso\sshow\sthe\sname\sof\sthe\sexecutable.
-D 2012-11-29T18:46:32.112
+C All\sthe\s--verbose\soption\son\s"all\ssync",\s"all\spush",\sand\s"all\spull".
+D 2012-11-29T20:23:31.997
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,7 +290,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 4f9777f58961d887699beaea2c2695acfff03af4
-F src/allrepo.c c2585bd15ae90978ea611ee627a7d0c3a12eec82
+F src/allrepo.c 9a4f7592a877bab3c4cf834c08ff06afd0e8a039
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2f187c2f222dd9f92583c87b81282a18482832c5
-R 23a80bf34166a969136f6be6725cdc14
+P 5ed566f805daa2151c17d77d8bdf4380d55b6015
+R 3b42e189467c41f421ca90a41c97d82d
 U drh
-Z 5c85abb1dee32c7943123ed26f9b4d1c
+Z de6042463498f5f12631321a771748e5
