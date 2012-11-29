@@ -442,7 +442,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   int skipAll = 0;
   static Stmt ins;
   static int depth = 0;
-  void *zMbcs;
+  void *zNative;
 
   origSize = blob_size(pPath);
   if( pIgnore ){
@@ -461,8 +461,8 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  zMbcs = fossil_utf8_to_filename(zDir);
-  d = opendir(zMbcs);
+  zNative = fossil_utf8_to_filename(zDir);
+  d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
       char *zPath;
@@ -488,12 +488,12 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
           db_reset(&ins);
         }
       }
-      fossil_mbcs_free(zUtf8);
+      fossil_filename_free(zUtf8);
       blob_resize(pPath, origSize);
     }
     closedir(d);
   }
-  fossil_mbcs_free(zMbcs);
+  fossil_filename_free(zNative);
 
   depth--;
   if( depth==0 ){

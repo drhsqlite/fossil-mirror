@@ -15,10 +15,10 @@
 #### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-PREFIX =
+# PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
-# PREFIX = i686-w64-mingw32-
+PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
@@ -209,7 +209,7 @@ endif
 #### Tcl shell for use in running the fossil test suite.  This is only
 #    used for testing.
 #
-TCLSH = tclsh
+TCLSH = tclsh86
 
 #### Nullsoft installer MakeNSIS location
 #
@@ -315,6 +315,7 @@ SRC = \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
+  $(SRCDIR)/utf8.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
   $(SRCDIR)/wiki.c \
@@ -416,6 +417,7 @@ TRANS_SRC = \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
+  $(OBJDIR)/utf8_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
   $(OBJDIR)/wiki_.c \
@@ -517,6 +519,7 @@ OBJ = \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
+ $(OBJDIR)/utf8.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
  $(OBJDIR)/wiki.o \
@@ -641,7 +644,7 @@ $(OBJDIR)/page_index.h: $(TRANS_SRC) $(OBJDIR)/mkindex
 	$(MKINDEX) $(TRANS_SRC) >$@
 
 $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSION.h
-	$(MAKEHEADERS)  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/glob_.c:$(OBJDIR)/glob.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/json_.c:$(OBJDIR)/json.h $(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h $(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h $(OBJDIR)/json_config_.c:$(OBJDIR)/json_config.h $(OBJDIR)/json_diff_.c:$(OBJDIR)/json_diff.h $(OBJDIR)/json_dir_.c:$(OBJDIR)/json_dir.h $(OBJDIR)/json_finfo_.c:$(OBJDIR)/json_finfo.h $(OBJDIR)/json_login_.c:$(OBJDIR)/json_login.h $(OBJDIR)/json_query_.c:$(OBJDIR)/json_query.h $(OBJDIR)/json_report_.c:$(OBJDIR)/json_report.h $(OBJDIR)/json_tag_.c:$(OBJDIR)/json_tag.h $(OBJDIR)/json_timeline_.c:$(OBJDIR)/json_timeline.h $(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h $(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/path_.c:$(OBJDIR)/path.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/tar_.c:$(OBJDIR)/tar.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
+	$(MAKEHEADERS)  $(OBJDIR)/add_.c:$(OBJDIR)/add.h $(OBJDIR)/allrepo_.c:$(OBJDIR)/allrepo.h $(OBJDIR)/attach_.c:$(OBJDIR)/attach.h $(OBJDIR)/bag_.c:$(OBJDIR)/bag.h $(OBJDIR)/bisect_.c:$(OBJDIR)/bisect.h $(OBJDIR)/blob_.c:$(OBJDIR)/blob.h $(OBJDIR)/branch_.c:$(OBJDIR)/branch.h $(OBJDIR)/browse_.c:$(OBJDIR)/browse.h $(OBJDIR)/captcha_.c:$(OBJDIR)/captcha.h $(OBJDIR)/cgi_.c:$(OBJDIR)/cgi.h $(OBJDIR)/checkin_.c:$(OBJDIR)/checkin.h $(OBJDIR)/checkout_.c:$(OBJDIR)/checkout.h $(OBJDIR)/clearsign_.c:$(OBJDIR)/clearsign.h $(OBJDIR)/clone_.c:$(OBJDIR)/clone.h $(OBJDIR)/comformat_.c:$(OBJDIR)/comformat.h $(OBJDIR)/configure_.c:$(OBJDIR)/configure.h $(OBJDIR)/content_.c:$(OBJDIR)/content.h $(OBJDIR)/db_.c:$(OBJDIR)/db.h $(OBJDIR)/delta_.c:$(OBJDIR)/delta.h $(OBJDIR)/deltacmd_.c:$(OBJDIR)/deltacmd.h $(OBJDIR)/descendants_.c:$(OBJDIR)/descendants.h $(OBJDIR)/diff_.c:$(OBJDIR)/diff.h $(OBJDIR)/diffcmd_.c:$(OBJDIR)/diffcmd.h $(OBJDIR)/doc_.c:$(OBJDIR)/doc.h $(OBJDIR)/encode_.c:$(OBJDIR)/encode.h $(OBJDIR)/event_.c:$(OBJDIR)/event.h $(OBJDIR)/export_.c:$(OBJDIR)/export.h $(OBJDIR)/file_.c:$(OBJDIR)/file.h $(OBJDIR)/finfo_.c:$(OBJDIR)/finfo.h $(OBJDIR)/glob_.c:$(OBJDIR)/glob.h $(OBJDIR)/graph_.c:$(OBJDIR)/graph.h $(OBJDIR)/gzip_.c:$(OBJDIR)/gzip.h $(OBJDIR)/http_.c:$(OBJDIR)/http.h $(OBJDIR)/http_socket_.c:$(OBJDIR)/http_socket.h $(OBJDIR)/http_ssl_.c:$(OBJDIR)/http_ssl.h $(OBJDIR)/http_transport_.c:$(OBJDIR)/http_transport.h $(OBJDIR)/import_.c:$(OBJDIR)/import.h $(OBJDIR)/info_.c:$(OBJDIR)/info.h $(OBJDIR)/json_.c:$(OBJDIR)/json.h $(OBJDIR)/json_artifact_.c:$(OBJDIR)/json_artifact.h $(OBJDIR)/json_branch_.c:$(OBJDIR)/json_branch.h $(OBJDIR)/json_config_.c:$(OBJDIR)/json_config.h $(OBJDIR)/json_diff_.c:$(OBJDIR)/json_diff.h $(OBJDIR)/json_dir_.c:$(OBJDIR)/json_dir.h $(OBJDIR)/json_finfo_.c:$(OBJDIR)/json_finfo.h $(OBJDIR)/json_login_.c:$(OBJDIR)/json_login.h $(OBJDIR)/json_query_.c:$(OBJDIR)/json_query.h $(OBJDIR)/json_report_.c:$(OBJDIR)/json_report.h $(OBJDIR)/json_tag_.c:$(OBJDIR)/json_tag.h $(OBJDIR)/json_timeline_.c:$(OBJDIR)/json_timeline.h $(OBJDIR)/json_user_.c:$(OBJDIR)/json_user.h $(OBJDIR)/json_wiki_.c:$(OBJDIR)/json_wiki.h $(OBJDIR)/leaf_.c:$(OBJDIR)/leaf.h $(OBJDIR)/login_.c:$(OBJDIR)/login.h $(OBJDIR)/main_.c:$(OBJDIR)/main.h $(OBJDIR)/manifest_.c:$(OBJDIR)/manifest.h $(OBJDIR)/md5_.c:$(OBJDIR)/md5.h $(OBJDIR)/merge_.c:$(OBJDIR)/merge.h $(OBJDIR)/merge3_.c:$(OBJDIR)/merge3.h $(OBJDIR)/moderate_.c:$(OBJDIR)/moderate.h $(OBJDIR)/name_.c:$(OBJDIR)/name.h $(OBJDIR)/path_.c:$(OBJDIR)/path.h $(OBJDIR)/pivot_.c:$(OBJDIR)/pivot.h $(OBJDIR)/popen_.c:$(OBJDIR)/popen.h $(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h $(OBJDIR)/printf_.c:$(OBJDIR)/printf.h $(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h $(OBJDIR)/report_.c:$(OBJDIR)/report.h $(OBJDIR)/rss_.c:$(OBJDIR)/rss.h $(OBJDIR)/schema_.c:$(OBJDIR)/schema.h $(OBJDIR)/search_.c:$(OBJDIR)/search.h $(OBJDIR)/setup_.c:$(OBJDIR)/setup.h $(OBJDIR)/sha1_.c:$(OBJDIR)/sha1.h $(OBJDIR)/shun_.c:$(OBJDIR)/shun.h $(OBJDIR)/skins_.c:$(OBJDIR)/skins.h $(OBJDIR)/sqlcmd_.c:$(OBJDIR)/sqlcmd.h $(OBJDIR)/stash_.c:$(OBJDIR)/stash.h $(OBJDIR)/stat_.c:$(OBJDIR)/stat.h $(OBJDIR)/style_.c:$(OBJDIR)/style.h $(OBJDIR)/sync_.c:$(OBJDIR)/sync.h $(OBJDIR)/tag_.c:$(OBJDIR)/tag.h $(OBJDIR)/tar_.c:$(OBJDIR)/tar.h $(OBJDIR)/th_main_.c:$(OBJDIR)/th_main.h $(OBJDIR)/timeline_.c:$(OBJDIR)/timeline.h $(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h $(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h $(OBJDIR)/undo_.c:$(OBJDIR)/undo.h $(OBJDIR)/update_.c:$(OBJDIR)/update.h $(OBJDIR)/url_.c:$(OBJDIR)/url.h $(OBJDIR)/user_.c:$(OBJDIR)/user.h $(OBJDIR)/utf8_.c:$(OBJDIR)/utf8.h $(OBJDIR)/verify_.c:$(OBJDIR)/verify.h $(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h $(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h $(OBJDIR)/wikiformat_.c:$(OBJDIR)/wikiformat.h $(OBJDIR)/winhttp_.c:$(OBJDIR)/winhttp.h $(OBJDIR)/wysiwyg_.c:$(OBJDIR)/wysiwyg.h $(OBJDIR)/xfer_.c:$(OBJDIR)/xfer.h $(OBJDIR)/xfersetup_.c:$(OBJDIR)/xfersetup.h $(OBJDIR)/zip_.c:$(OBJDIR)/zip.h $(SRCDIR)/sqlite3.h $(SRCDIR)/th.h $(OBJDIR)/VERSION.h
 	echo Done >$(OBJDIR)/headers
 
 $(OBJDIR)/headers: Makefile
@@ -1367,6 +1370,14 @@ $(OBJDIR)/user.o:	$(OBJDIR)/user_.c $(OBJDIR)/user.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/user.o -c $(OBJDIR)/user_.c
 
 $(OBJDIR)/user.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/utf8_.c:	$(SRCDIR)/utf8.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/utf8.c >$(OBJDIR)/utf8_.c
+
+$(OBJDIR)/utf8.o:	$(OBJDIR)/utf8_.c $(OBJDIR)/utf8.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/utf8.o -c $(OBJDIR)/utf8_.c
+
+$(OBJDIR)/utf8.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/verify_.c:	$(SRCDIR)/verify.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/verify.c >$(OBJDIR)/verify_.c

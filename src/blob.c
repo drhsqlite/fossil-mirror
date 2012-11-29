@@ -1113,7 +1113,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
+    fossil_unicode_free(zUtf8);
   }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
     unsigned int i = blob_size(pBlob);
     zUtf8 = blob_buffer(pBlob);
@@ -1129,7 +1129,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
+    fossil_unicode_free(zUtf8);
   }else if( useMbcs ){
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);

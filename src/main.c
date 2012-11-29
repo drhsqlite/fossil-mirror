@@ -493,11 +493,11 @@ static void expand_args_option(int argc, void *argv){
 #if defined(_WIN32) && !defined(__MINGW32__)
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_unicode_to_utf8(buf);
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+  g.nameOfExe = fossil_filename_to_utf8(buf);
 #else
   g.nameOfExe = g.argv[0];
 #endif
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
@@ -714,6 +714,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -747,6 +748,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -789,6 +791,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_reply();
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -815,6 +818,7 @@ void fossil_warning(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -856,7 +860,7 @@ int fossil_system(const char *zOrigCmd){
     fossil_free(zOut);
   }
   rc = _wsystem(zUnicode);
-  fossil_mbcs_free(zUnicode);
+  fossil_unicode_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
@@ -2021,12 +2025,29 @@ void cmd_webserver(void){
 /*
 ** COMMAND:  test-echo
 **
+** Usage:  %fossil test-echo [--hex] ARGS...
+**
 ** Echo all command-line arguments (enclosed in [...]) to the screen so that
 ** wildcard expansion behavior of the host shell can be investigated.
+**
+** With the --hex option, show the output as hexadecimal.  This can be used
+** to verify the fossil_filename_to_utf8() routine on Windows and Mac.
 */
 void test_echo_cmd(void){
-  int i;
-  for(i=0; i<g.argc; i++){
-    fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+  int i, j;
+  if( find_option("hex",0,0)==0 ){
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+    }
+  }else{
+    unsigned char *z, c;
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [", i);
+      z = (unsigned char*)g.argv[i];
+      for(j=0; (c = z[j])!=0; j++){
+        fossil_print("%02x", c);
+      }
+      fossil_print("]\n");
+    }
   }
 }
