@@ -2039,6 +2039,7 @@ void cmd_webserver(void){
 void test_echo_cmd(void){
   int i, j;
   if( find_option("hex",0,0)==0 ){
+    fossil_print("g.nameOfExe = [%s]\n", g.nameOfExe);
     for(i=0; i<g.argc; i++){
       fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
     }
