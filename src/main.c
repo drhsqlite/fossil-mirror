@@ -494,10 +494,12 @@ static void expand_args_option(int argc, void *argv){
   parse_windows_command_line(&g.argc, &g.argv);
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_filename_to_utf8(buf);
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+#elif defined(__APPLE__)
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
 #else
   g.nameOfExe = g.argv[0];
 #endif
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
   for(i=1; i<g.argc-1; i++){
     z = g.argv[i];
     if( z[0]!='-' ) continue;
