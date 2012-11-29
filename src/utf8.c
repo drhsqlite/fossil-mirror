@@ -22,6 +22,9 @@
 #include "config.h"
 #include "utf8.h"
 #include <sqlite3.h>
+#ifdef _WIN32
+# include <windows.h>
+#endif
 
 /*
 ** Translate MBCS to UTF8.  Return a pointer to the translated text.
@@ -92,9 +95,9 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 ** Deallocate any memory that was previously allocated by
 ** fossil_unicode_to_utf8().
 */
-void fossil_unicode_free(char *pOld){
+void fossil_unicode_free(void *pOld){
 #ifdef _WIN32
-  sqlite3_free(zOld);
+  sqlite3_free(pOld);
 #else
   /* No-op on unix */
 #endif
@@ -150,9 +153,9 @@ char *fossil_filename_to_utf8(const void *zFilename){
 */
 void fossil_filename_free(char *pOld){
 #if defined(_WIN32)
-  sqlite3_free(zOld);
+  sqlite3_free(pOld);
 #elif defined(__APPLE__)
-  fossil_free(zOld);
+  fossil_free(pOld);
 #else
   /* No-op on all other unix */
 #endif
