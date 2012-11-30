@@ -192,7 +192,7 @@ int graph_add_row(
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
-  if( zUuid==0 ) zUuid=="";
+  if( zUuid==0 ) zUuid = "";
   sqlite3_snprintf(sizeof(pRow->zUuid), pRow->zUuid, "%s", zUuid);
   pRow->isLeaf = isLeaf;
   memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
