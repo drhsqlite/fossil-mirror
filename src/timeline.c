@@ -752,8 +752,8 @@ void timeline_output_graph_javascript(
     @   if( selRow!=null ) clickOnRow(selRow);
     @ }
     @ function clickOnGraph(event){
-    @   var x=event.clientX-absoluteX("canvas");
-    @   var y=event.clientY-absoluteY("canvas");
+    @   var x=event.clientX-absoluteX("canvas")+window.pageXOffset;
+    @   var y=event.clientY-absoluteY("canvas")+window.pageYOffset;
     @   for(var i in rowinfo){
     @     p = rowinfo[i];
     @     if( p.y<y-10 ) continue;
