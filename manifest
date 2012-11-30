@@ -1,5 +1,5 @@
-C All\sthe\s--verbose\soption\son\s"all\ssync",\s"all\spush",\sand\s"all\spull".
-D 2012-11-29T20:23:31.997
+C Update\scustom\sMinGW\smakefile\swith\srecent\schanges.
+D 2012-11-30T00:38:56.251
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -494,7 +494,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc b9f41e07a1a46961d4d29738b9b13c708302efde
 F win/Makefile.mingw 12949a2402e7b66846ebf12e7ffac5f3fc5ad636
-F win/Makefile.mingw.mistachkin 48f5bc25756111b94508be2a1f29156b4a7e3ca9
+F win/Makefile.mingw.mistachkin 72ade4337581d166007935fd3c0d87d7ae129366
 F win/Makefile.msc 9c66d542814826c406e646d037fe5af7c5ac250e
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5ed566f805daa2151c17d77d8bdf4380d55b6015
-R 3b42e189467c41f421ca90a41c97d82d
-U drh
-Z de6042463498f5f12631321a771748e5
+P 4ee99cc8a6c27647c60738721e444e29853fe25d
+R 23db0368ea31dd9c1ef3beceb89dabd2
+U mistachkin
+Z 4e33229ed9658e75eb7404715bb02b38
