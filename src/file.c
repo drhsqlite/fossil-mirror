@@ -525,7 +525,7 @@ int file_is_simple_pathname(const char *z){
         return 0;
       }
     }
-    if( c=='\\' || c=='*' || c=='[' || c==']' || c=='?' ){
+    if( c=='\\' ){
       return 0;
     }
     if( c=='/' ){
