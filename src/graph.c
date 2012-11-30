@@ -36,6 +36,7 @@ struct GraphRow {
   int *aParent;               /* Array of parents.  0 element is primary .*/
   char *zBranch;              /* Branch name */
   char *zBgClr;               /* Background Color */
+  char zUuid[17];             /* Check-in for file ID */
 
   GraphRow *pNext;            /* Next row down in the list of all rows */
   GraphRow *pPrev;            /* Previous row */
@@ -177,6 +178,7 @@ int graph_add_row(
   int *aParent,        /* Array of parents */
   const char *zBranch, /* Branch for this check-in */
   const char *zBgClr,  /* Background color. NULL or "" for white. */
+  const char *zUuid,   /* SHA1 hash of the object being graphed */
   int isLeaf           /* True if this row is a leaf */
 ){
   GraphRow *pRow;
@@ -190,6 +192,8 @@ int graph_add_row(
   pRow->rid = rid;
   pRow->nParent = nParent;
   pRow->zBranch = persistBranchName(p, zBranch);
+  if( zUuid==0 ) zUuid = "";
+  sqlite3_snprintf(sizeof(pRow->zUuid), pRow->zUuid, "%s", zUuid);
   pRow->isLeaf = isLeaf;
   memset(pRow->aiRiser, -1, sizeof(pRow->aiRiser));
   if( zBgClr==0 || zBgClr[0]==0 ) zBgClr = "white";
