@@ -869,6 +869,13 @@ const struct strctCssDefaults {
     @   border-collapse: collapse;
     @   border-spacing: 0;
   },
+  { "table.report",
+    "Ticket report table formatting",
+    @   border-collapse:collapse;
+    @   border: 1px solid #999;
+    @   margin: 1em 0 1em 0;
+    @   cursor: pointer;
+  },
   { "td.rpteditex",
     "format for example table cells on the report edit page",
     @   border-width: thin;
