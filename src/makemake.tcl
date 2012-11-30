@@ -107,9 +107,9 @@ set src {
   update
   url
   user
+  utf8
   verify
   vfile
-  utf8
   wiki
   wikiformat
   winhttp
