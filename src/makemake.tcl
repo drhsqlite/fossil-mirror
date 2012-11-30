@@ -505,7 +505,7 @@ endif
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
-LIB = -static
+LIB = -static -municode
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
@@ -973,7 +973,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}

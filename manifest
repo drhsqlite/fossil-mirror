@@ -1,5 +1,5 @@
-C Move\sthe\snew\sutf8.c\sfile\sinto\salphabetical\sorder\sin\sthe\smakemake.tcl\stool.
-D 2012-11-30T00:40:49.802
+C (experimental)\scommand-line\sexpansion\sfor\sMinGW-w64.\sShould\swork\son\sMSVC\sas\swell.\sDoesn't\swork\swith\sMinGW.
+D 2012-11-30T13:27:20.250
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,11 +347,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
-F src/main.c a6c2200ac42ab90d691b0240f003bbf05a04d50e
+F src/main.c 11ed02cfb8977e60f0bfa01336b7f97f12a88037
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 55750dffcb37208aec5fd569892c183f029c1fa6
+F src/makemake.tcl 29f0395f239d5040ba670ef087ab9a1e0b9434c3
 F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
@@ -493,9 +493,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc b9f41e07a1a46961d4d29738b9b13c708302efde
-F win/Makefile.mingw 12949a2402e7b66846ebf12e7ffac5f3fc5ad636
-F win/Makefile.mingw.mistachkin 72ade4337581d166007935fd3c0d87d7ae129366
-F win/Makefile.msc 9c66d542814826c406e646d037fe5af7c5ac250e
+F win/Makefile.mingw 23756bce1cd403559796703fcf5a4b234e78bc65
+F win/Makefile.mingw.mistachkin f893355006ded4f033f5086780fb6f904fe06edf
+F win/Makefile.msc b007f0b23780ee23467ca6e8cb49f43e61e3b4a4
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
 F win/include/dirent.h a02e08abaf451289a2502dc2aed9884592349c2e
@@ -592,7 +592,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d754ca84b5e7b3293fc18b2d33d1b91006cdc4b
-R 1c8b25cc08b5c1eba516cee4a7dda897
-U mistachkin
-Z 955876fca3e5a31fc9f0abe786ad9d1d
+P 3e0f48c76d6db12fdd943cd42981d86a90c28265
+R aeb59619b9eb10b64a50a9f9f2abb44d
+T *branch * cmdline-expansion
+T *sym-cmdline-expansion *
+T -sym-trunk *
+U jan.nijtmans
+Z e3773f3e89a56bdc2f0cfde22ba6bc0a
