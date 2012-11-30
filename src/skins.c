@@ -854,20 +854,15 @@ static const char zBuiltinSkin4[] =
 @   padding: 0.2ex 2ex;
 @ }
 @
-@
-@ table.report {
-@   border-collapse:collapse;
-@   border: 1px solid #999;
-@   margin: 1em 0 1em 0;
-@ }
-@
 @ table.report tr th {
 @   padding: 3px 5px;
 @   text-transform: capitalize;
+@   cursor: pointer;
 @ }
 @
 @ table.report tr td {
 @   padding: 3px 5px;
+@   cursor: pointer;
 @ }
 @
 @ textarea {

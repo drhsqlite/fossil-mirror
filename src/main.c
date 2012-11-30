@@ -374,7 +374,11 @@ static void expand_args_option(int argc, void *argv){
 
   g.argc = argc;
   g.argv = argv;
+#if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#else
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+#endif
 #if defined(_WIN32)
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_filename_to_utf8(buf);
@@ -456,7 +460,7 @@ static char **copy_args(int argc, char **argv){
 /*
 ** This procedure runs first.
 */
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
 int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
 int wmain(int argc, wchar_t **argv)
 #else
