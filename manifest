@@ -1,5 +1,5 @@
-C fix\stestcase
-D 2012-11-30T14:09:58.254
+C Add\sjavascript\sto\sticket\sreports\stables\sso\sthat\sclicking\son\scolumn\sheaders\ncauses\sthe\stable\sto\sbe\ssorted\sby\sthat\sheader.\s\sClicking\sagain\sreverses\sthe\nsort\sorder.
+D 2012-11-30T15:07:50.727
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -366,7 +366,7 @@ F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 7a4d5d41eb33b6d9145d6af51135e56e409172cb
 F src/rebuild.c 08f17cdf7bbca599f174143982bbe6b7466802ac
-F src/report.c 7030e52dd71e29a709cfb34ffbc23affbc8eee55
+F src/report.c 02fe10d6a7bb2986d1f5b3c37f1f24e0ea4dc864
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c e5fed139255f0980d04af829d1f5351d841d04e9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
@@ -592,7 +592,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3e0f48c76d6db12fdd943cd42981d86a90c28265
-R 6cc1ae1404e9d94aa263b67b84dd6e3c
-U jan.nijtmans
-Z 6592e5a0d63ba2fc6d1aad7d0838c79c
+P e08073d33366052c30182f435b2a9c14f0180a77
+R 75678a3175393ab88a83d75cf539ce67
+T *branch * click-to-sort-reports
+T *sym-click-to-sort-reports *
+T -sym-trunk *
+U drh
+Z 93f8bbeadfeaa7e33e222988fd4d6603
