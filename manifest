@@ -1,5 +1,5 @@
-C Move\sthe\snew\sutf8.c\sfile\sinto\salphabetical\sorder\sin\sthe\smakemake.tcl\stool.
-D 2012-11-30T00:40:49.802
+C fix\stestcase
+D 2012-11-30T14:09:58.254
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -407,7 +407,7 @@ F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c a7cc8b7e85ca57f7821425f2f7030539b585cdfe
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c a8c940f165cd8ea0018363d81ac08ceac622c332
-F test/cmdline.test 5200d31de78ee794d47d2fb59d6056a659c2fb01
+F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
 F test/diff-test-1.wiki 2fb88044a8fb6bfc95c9aa0fab959f3f44657652
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d754ca84b5e7b3293fc18b2d33d1b91006cdc4b
-R 1c8b25cc08b5c1eba516cee4a7dda897
-U mistachkin
-Z 955876fca3e5a31fc9f0abe786ad9d1d
+P 3e0f48c76d6db12fdd943cd42981d86a90c28265
+R 6cc1ae1404e9d94aa263b67b84dd6e3c
+U jan.nijtmans
+Z 6592e5a0d63ba2fc6d1aad7d0838c79c
