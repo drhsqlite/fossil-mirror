@@ -15,10 +15,10 @@
 #### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
-PREFIX =
+# PREFIX =
 # PREFIX = mingw32-
 # PREFIX = i686-pc-mingw32-
-# PREFIX = i686-w64-mingw32-
+PREFIX = i686-w64-mingw32-
 # PREFIX = x86_64-w64-mingw32-
 
 #### The toplevel directory of the source tree.  Fossil can be built
@@ -175,7 +175,13 @@ endif
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
-LIB = -static -municode
+LIB = -static
+
+ifeq ($(PREFIX),)
+TCC += -DBROKEN_MINGW_CMDLINE
+else
+LIB += -municode
+endif
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL

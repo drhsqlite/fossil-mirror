@@ -1,5 +1,5 @@
-C merge\strunk.\s\nAdd\sfallback\smechanism\sfor\sMinGW
-D 2012-11-30T16:43:56.541
+C forgot\smakemake.tcl\sand\sMakefile.mingw.mistachkin\schanges
+D 2012-11-30T16:59:07.879
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -351,7 +351,7 @@ F src/main.c 2bd4fb55c221e6f6f4898a92200df81fa8d94255
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 29f0395f239d5040ba670ef087ab9a1e0b9434c3
+F src/makemake.tcl 84521afa2826317390550542f970b1d96ac953f0
 F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
@@ -494,7 +494,7 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc b9f41e07a1a46961d4d29738b9b13c708302efde
 F win/Makefile.mingw 716e609141807ae039d46ccc0b067ac9ce92b55a
-F win/Makefile.mingw.mistachkin f893355006ded4f033f5086780fb6f904fe06edf
+F win/Makefile.mingw.mistachkin 40d0b7c13518e06aaabc0112a7e50d46c196b152
 F win/Makefile.msc b007f0b23780ee23467ca6e8cb49f43e61e3b4a4
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P bac4b248f50b31389302f409787c16b3116e26c5 d091c609d29fecb8785dd4c6179be4cba7b23023
-R 675b3f2524dbcf387500ede340e2f8e4
+P 2459ee7b71172d70c3c167620f95f3527090c352
+R 1b027e09b5d0b6c2c3d95809e80e1dad
 U jan.nijtmans
-Z 49402b6394a27908b23f66ea90c70aa1
+Z b5af752121e0261ee7b9005fa7afc52e
