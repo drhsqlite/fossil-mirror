@@ -114,7 +114,7 @@ void fossil_unicode_free(void *pOld){
 ** returned pointer when done.
 */
 char *fossil_filename_to_utf8(void *zFilename){
-#ifdef _WIN32
+#if defined(_WIN32)
   int nByte;
   char *zUtf;
   WCHAR *wUnicode = zFilename;
@@ -157,11 +157,9 @@ char *fossil_filename_to_utf8(void *zFilename){
     }
     iconv_close(cd);
   }else{
-    zOut = fossil_strdup(zUtf);
+    zOut = fossil_strdup(zFilename);
   }
   return zOut;
-#elif defined(__APPLE__)
-  return fossil_strdup(zFilename);
 #else
   return (char *)zFilename;  /* No-op on non-mac unix */
 #endif
@@ -200,6 +198,8 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   }
 
   return zUnicode;
+#elif defined(__APPLE__)
+  return fossil_strdup(zUtf8);
 #else
   return (void *)zUtf8;  /* No-op on unix */
 #endif
