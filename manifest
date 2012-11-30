@@ -1,5 +1,5 @@
-C Move\sthe\snew\sutf8.c\sfile\sinto\salphabetical\sorder\sin\sthe\smakemake.tcl\stool.
-D 2012-11-30T00:40:49.802
+C Click\son\sthe\stimeline\sgraph\sonce\sto\sselect\sa\snode.\s\sClick\son\sa\sdifferent\nnode\sto\ssee\sa\sdiff\sbetween\sthe\stwo.\s\sClick\son\sthe\sselected\snode\sto\sundo\nthe\sselection.\s\sWorks\swith\scheck-in\stimelines\sand\sfile\stimelines.
+D 2012-11-30T03:10:24.712
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -320,9 +320,9 @@ F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c f2ab8b982cfe379166477f65b6eecb570b707c3e
-F src/finfo.c 167e3357b2f957b6eca7bd89be508423f8830fc5
+F src/finfo.c da3a11b527b597b2b7780e171c3fdaae4a884244
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
-F src/graph.c 578504b7ea73c8a82fdaba92a5e6ce83b1ad0830
+F src/graph.c 21001362be24a6b1c934c424a6735ec6bb79b04e
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
 F src/http_socket.c 326f54adf82358dbd3ea1780dda4a7edf19fd52d
@@ -389,7 +389,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c d164441ca06f2e593cc1098c8211681634e3fbcc
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c ef824d733c9d6be2a79f7e30ff86c0d92716433b
+F src/timeline.c e34de8a78d74e301cdea2826c31835879431054a
 F src/tkt.c d6f7e6001d79d7ff3fed6a5898e3f7673b27c83c
 F src/tktsetup.c aa99ac0dfb65e441c421b769bf5703107298d7b4
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -592,7 +592,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d754ca84b5e7b3293fc18b2d33d1b91006cdc4b
-R 1c8b25cc08b5c1eba516cee4a7dda897
-U mistachkin
-Z 955876fca3e5a31fc9f0abe786ad9d1d
+P 3e0f48c76d6db12fdd943cd42981d86a90c28265
+R 4cda456312f7f0336a2ce28f392416fc
+T *branch * click-graph-to-diff
+T *sym-click-graph-to-diff *
+T -sym-trunk *
+U drh
+Z 7fb872514a621d4a93587375b16777f2

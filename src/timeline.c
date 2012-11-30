@@ -213,7 +213,8 @@ void www_print_timeline(
     /* style is not moved to css, because this is
     ** a technical div for the timeline graph
     */
-    @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
+    @ <div id="canvas" style="position:relative;width:1px;height:1px;"
+    @  onclick="clickOnGraph(event)"></div>
   }
   db_static_prepare(&qbranch,
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
@@ -313,7 +314,8 @@ void www_print_timeline(
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
+                           zUuid, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
@@ -493,14 +495,18 @@ void www_print_timeline(
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
 }
 
 /*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
-void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
+void timeline_output_graph_javascript(
+  GraphContext *pGraph,     /* The graph to be displayed */
+  int omitDescenders,       /* True to omit descenders */
+  int fileDiff              /* True for file diff.  False for check-in diff */
+){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
     int i;
@@ -537,6 +543,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     **        negative, then the x-coordinate is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen.
+    **    h:  The SHA1 hash of the object being graphed
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -578,7 +585,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("]}%s", pRow->pNext ? ",\n" : "];\n");
+      cgi_printf("],h:\"%s\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
@@ -600,6 +607,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
     @   canvasDiv.appendChild(n);
+    @   return n;
     @ }
     @ function absoluteY(id){
     @   var obj = gebi(id);
@@ -701,6 +709,8 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @     }
     @   }
     @ }
+    @ var selBox = null;
+    @ var selRow = null;
     @ function renderGraph(){
     @   var canvasDiv = gebi("canvas");
     @   while( canvasDiv.hasChildNodes() ){
@@ -738,6 +748,37 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
 #endif
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
+    @   }
+    @   if( selRow!=null ) clickOnRow(selRow);
+    @ }
+    @ function clickOnGraph(event){
+    @   var x=event.clientX-absoluteX("canvas");
+    @   var y=event.clientY-absoluteY("canvas");
+    @   for(var i in rowinfo){
+    @     p = rowinfo[i];
+    @     if( p.y<y-10 ) continue;
+    @     if( p.y>y+10 ) break;
+    @     if( p.x>x-10 && p.x<x+10 ){
+    @       clickOnRow(p);
+    @       break;
+    @     }
+    @   }
+    @ }
+    @ function clickOnRow(p){
+    @   if( selRow==null ){
+    @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    @     selRow = p;
+    @   }else if( selRow==p ){
+    @     var canvasDiv = gebi("canvas");
+    @     canvasDiv.removeChild(selBox);
+    @     selBox = null;
+    @     selRow = null;
+    @   }else{
+    if( fileDiff ){
+      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h;
+    }else{
+      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h;
+    }
     @   }
     @ }
     @ var lastId = "m"+rowinfo[rowinfo.length-1].id;
