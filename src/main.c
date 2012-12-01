@@ -374,6 +374,7 @@ static void expand_args_option(int argc, void *argv){
 
   g.argc = argc;
   g.argv = argv;
+  sqlite3_initialize();
 #if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
   for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
 #else
