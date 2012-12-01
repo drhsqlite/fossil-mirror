@@ -1,5 +1,5 @@
-C update\swrong\scomment
-D 2012-12-01T09:53:07.733
+C Add\smimetype\smappings\sfor\s.docx,\s.pptx,\sand\s.xlsx.
+D 2012-12-01T20:17:17.167
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -315,7 +315,7 @@ F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
 F src/diff.c d793daedef481f64749c3f551b17e4324778854a
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
-F src/doc.c 734e4bf7a6ffc54dfdb3ef03f647602753d02558
+F src/doc.c 261efbe9f412dfee56d4634dbcedc1364b38f216
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 99ab9fb47cfb20106564012b7678ca5d579060af
-R 722923f774959c90de5de2af5d222ed1
-U jan.nijtmans
-Z 3865237a6c3a9ba30a43681f492cd211
+P 39807cdf0c66fea3bde7347953182d40c92a7593
+R 7dbd890ff473e81ceef148fd5411beb3
+U drh
+Z eb731ebdbf6a65de02c3e889af8fa740
