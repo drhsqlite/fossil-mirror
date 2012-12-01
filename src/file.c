@@ -486,7 +486,7 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 **     *  Does not begin with "/"
 **     *  Does not contain any path element named "." or ".."
-**     *  Does not contain any of these characters in the path: "\*[]?"
+**     *  Does not contain any of these characters in the path: "\"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
