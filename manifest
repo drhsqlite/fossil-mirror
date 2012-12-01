@@ -1,5 +1,5 @@
-C Do\snot\sallow\sthe\s"fossil\sserver"\scommand\sto\sserve\sany\sstatic\scontent\sfile\nthat\scontains\s".fossil"\sanywhere\sin\sits\sname.\s\sThis\sprevents\srepository\nfiles\sand/or\stheir\sjournals\sfrom\sbeing\sdownloaded\sas\sstatic\scontent.
-D 2012-12-01T02:57:05.676
+C Improvements\sto\scommand-line\sargument\sglob\sexpansion\son\swindows.\s\sGlobbing\nnow\sworks\scorrectly\swhen\scompiled\swith\smingw-w64\sand\swith\smsvc.\s\sIt\sis\smostly\ncorrect\swhen\scompiled\swith\smingw,\sbut\sfails\sfor\ssome\sfiles\swith\snon-ascii\snames.
+D 2012-12-01T03:25:52.742
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,11 +347,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
-F src/main.c 92de0656d771efd37c2e3504bad47c13fa6ed5f1
+F src/main.c b2e5be5155fe9ea1ee9a018dff23a4881c399763
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 55750dffcb37208aec5fd569892c183f029c1fa6
+F src/makemake.tcl 84521afa2826317390550542f970b1d96ac953f0
 F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
@@ -493,9 +493,9 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc b9f41e07a1a46961d4d29738b9b13c708302efde
-F win/Makefile.mingw 12949a2402e7b66846ebf12e7ffac5f3fc5ad636
-F win/Makefile.mingw.mistachkin 72ade4337581d166007935fd3c0d87d7ae129366
-F win/Makefile.msc 9c66d542814826c406e646d037fe5af7c5ac250e
+F win/Makefile.mingw 716e609141807ae039d46ccc0b067ac9ce92b55a
+F win/Makefile.mingw.mistachkin 40d0b7c13518e06aaabc0112a7e50d46c196b152
+F win/Makefile.msc b007f0b23780ee23467ca6e8cb49f43e61e3b4a4
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 60714e1c62e91c34e8ad41ab49bf324c131f488a
 F win/include/dirent.h a02e08abaf451289a2502dc2aed9884592349c2e
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ed1e34c7607f3680f7ad6bd7d686ef9eb6699b3e
-R eaf89b6fcd1f7503a7c718fe1591367f
+P e726c8082ed4eb9370d4344732b3c1f35912a573 cc09cda247c9f8442872a69830fc83bab5a182e1
+R ffc8325121422b5e564e150d739328cb
 U drh
-Z aca887930f6b97814ccb0475a0a80b1b
+Z 13e24fc1016c054f3ff4f232fd4abe4d

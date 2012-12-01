@@ -507,6 +507,12 @@ endif
 #
 LIB = -static
 
+ifeq ($(PREFIX),)
+TCC += -DBROKEN_MINGW_CMDLINE
+else
+LIB += -municode
+endif
+
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
@@ -973,7 +979,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}

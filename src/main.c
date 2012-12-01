@@ -347,122 +347,6 @@ void fossil_atexit(void) {
   }
 }
 
-#if defined(_WIN32) && !defined(__MINGW32__)
-/*
-** Parse the command-line arguments passed to windows.  We do this
-** ourselves to work around bugs in the command-line parsing of MinGW.
-** It is possible (in theory) to only use this routine when compiling
-** with MinGW and to use built-in command-line parsing for MSVC and
-** MinGW-64.  However, the code is here, it is efficient, and works, and
-** by using it in all cases we do a better job of testing it.  If you suspect
-** a bug in this code, test your theory by invoking "fossil test-echo".
-**
-** This routine is copied from TCL with some reformatting.
-** The original comment text follows:
-**
-** Parse the Windows command line string into argc/argv. Done here
-** because we don't trust the builtin argument parser in crt0. Windows
-** applications are responsible for breaking their command line into
-** arguments.
-**
-** 2N backslashes + quote -> N backslashes + begin quoted string
-** 2N + 1 backslashes + quote -> literal
-** N backslashes + non-quote -> literal
-** quote + quote in a quoted string -> single quote
-** quote + quote not in quoted string -> empty string
-** quote -> begin quoted string
-**
-** Results:
-** Fills argcPtr with the number of arguments and argvPtr with the array
-** of arguments.
-*/
-#define wchar_isspace(X)  ((X)==' ' || (X)=='\t')
-static void parse_windows_command_line(
-  int *argcPtr,   /* Filled with number of argument strings. */
-  void *argvPtr   /* Filled with argument strings (malloc'd). */
-){
-  WCHAR *cmdLine, *p, *arg, *argSpace;
-  WCHAR **argv;
-  int argc, size, inquote, copy, slashes;
-
-  cmdLine = GetCommandLineW();
-
-  /*
-  ** Precompute an overly pessimistic guess at the number of arguments in
-  ** the command line by counting non-space spans.
-  */
-  size = 2;
-  for(p=cmdLine; *p!='\0'; p++){
-    if( wchar_isspace(*p) ){
-      size++;
-      while( wchar_isspace(*p) ){
-        p++;
-      }
-      if( *p=='\0' ){
-        break;
-      }
-    }
-  }
-
-  argSpace = fossil_malloc(size * sizeof(char*)
-    + (wcslen(cmdLine) * sizeof(WCHAR)) + sizeof(WCHAR));
-  argv = (WCHAR**)argSpace;
-  argSpace += size*(sizeof(char*)/sizeof(WCHAR));
-  size--;
-
-  p = cmdLine;
-  for(argc=0; argc<size; argc++){
-    argv[argc] = arg = argSpace;
-    while( wchar_isspace(*p) ){
-      p++;
-    }
-    if (*p == '\0') {
-      break;
-    }
-    inquote = 0;
-    slashes = 0;
-    while(1){
-      copy = 1;
-      while( *p=='\\' ){
-        slashes++;
-        p++;
-      }
-      if( *p=='"' ){
-        if( (slashes&1)==0 ){
-          copy = 0;
-          if( inquote && p[1]=='"' ){
-            p++;
-            copy = 1;
-          }else{
-            inquote = !inquote;
-          }
-        }
-        slashes >>= 1;
-      }
-      while( slashes ){
-        *arg = '\\';
-        arg++;
-        slashes--;
-      }
-      if( *p=='\0' || (!inquote && wchar_isspace(*p)) ){
-        break;
-      }
-      if( copy!=0 ){
-        *arg = *p;
-        arg++;
-      }
-      p++;
-    }
-    *arg = '\0';
-    argSpace = arg + 1;
-  }
-  argv[argc] = NULL;
-  *argcPtr = argc;
-  *((WCHAR ***)argvPtr) = argv;
-}
-#endif /* defined(_WIN32) && !defined(__MINGW32__) */
-
-
 /*
 ** Convert all arguments from mbcs (or unicode) to UTF-8. Then
 ** search g.argv for arguments "--args FILENAME". If found, then
@@ -484,20 +368,21 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
-#if defined(_WIN32) && !defined(__MINGW32__)
+#if defined(_WIN32)
   WCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
-#if defined(_WIN32) && !defined(__MINGW32__)
-  parse_windows_command_line(&g.argc, &g.argv);
+  sqlite3_initialize();
+#if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#else
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+#endif
+#if defined(_WIN32)
   GetModuleFileNameW(NULL, buf, MAX_PATH);
   g.nameOfExe = fossil_filename_to_utf8(buf);
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
-#elif defined(__APPLE__)
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
-  g.nameOfExe = g.argv[0];
 #else
   g.nameOfExe = g.argv[0];
 #endif
@@ -572,10 +457,16 @@ static char **copy_args(int argc, char **argv){
 }
 #endif
 
+
 /*
 ** This procedure runs first.
 */
+#if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
+int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
+int wmain(int argc, wchar_t **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
   const char *zCmdName = "unknown";
   int idx;

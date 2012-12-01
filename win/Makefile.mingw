@@ -177,6 +177,12 @@ endif
 #
 LIB = -static
 
+ifeq ($(PREFIX),)
+TCC += -DBROKEN_MINGW_CMDLINE
+else
+LIB += -municode
+endif
+
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
 LIB += -lssl -lcrypto -lgdi32
