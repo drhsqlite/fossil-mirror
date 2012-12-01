@@ -30,7 +30,10 @@
   *  Allow the deletion of multiple stash entries using multiple arguments
      to the "fossil stash rm" command.
   *  Enhance the "fossil server DIRECTORY" command to serve static content
-     files contained in DIRECTORY.
+     files contained in DIRECTORY.  For security, only files with a 
+     recognized suffix (such as *.html, *.jpg, *.txt, etc) will be delivered
+     as static content, and *.fossil files are not on the list of recognized
+     suffixes.  There are additional restrictions on the names of the files.
   *  Allow the "fossil ui" command to specify a directory as long as the
      the --notfound option is used.
   *  Add a configuration option that causes timeline messages to be rendered
@@ -70,8 +73,8 @@
      option is used.
   *  Set the action= attribute of &lt;form&gt; elements using javascript,
      as an addition defense against spam-bots.
-  *  Disallow invalid UTF8 characters (such as overlength characters or
-     characters in the surrogate pair range) in filename.
+  *  Disallow invalid UTF8 characters (such as characters in the surrogate
+     pair range) in filenames.
   *  Judge the UserAgent strings issued by the NetSurf webbrowser to be
      coming from a human, not from a bot.
   *  Add the zlib sources to the Fossil source tree (under compat/zlib) and

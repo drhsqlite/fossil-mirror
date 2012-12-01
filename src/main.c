@@ -1284,20 +1284,28 @@ static void process_one_web_page(const char *zNotFound){
       zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
       /* To avoid mischief, make sure the repository basename contains no
-      ** characters other than alphanumerics, "-", "/", "_", and "." beside
-      ** "/" or ".".
+      ** characters other than alphanumerics, "/", "_", "-", and ".", and
+      ** that "-" never occurs immediately after a "/" and that "." is always
+      ** surrounded by two alphanumerics.  Any character that does not 
+      ** satisfy these constraints is converted into "_".
       */
+      szFile = 0;
       for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
         char c = zRepo[j];
-        if( !fossil_isalnum(c) && c!='-' && c!='/'
-         && (c!='.' || zRepo[j+1]=='/' || zRepo[j-1]=='/' || zRepo[j+1]=='.')
-        ){
-          zRepo[j] = '_';
+        if( fossil_isalnum(c) ) continue;
+        if( c=='/' ) continue;
+        if( c=='_' ) continue;
+        if( c=='-' && zRepo[j-1]!='/' ) continue;
+        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+          continue;
         }
+        szFile = 1;
+        break;
       }
-      if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
-
-      szFile = file_size(zRepo);
+      if( szFile==0 ){
+        if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
+        szFile = file_size(zRepo);
+      }
       if( szFile<0 ){
         const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
