@@ -1415,7 +1415,7 @@ static void process_one_web_page(const char *zNotFound){
           i++;
           continue;
         }
-        if( file_isfile(zRepo) ){
+        if( file_isfile(zRepo) && strglob("*.fossil*",zRepo)==0 ){
           Blob content;
           blob_read_from_file(&content, zRepo);
           cgi_set_content_type(mimetype_from_name(zRepo));
