@@ -1299,6 +1299,7 @@ static void process_one_web_page(const char *zNotFound){
 
       szFile = file_size(zRepo);
       if( szFile<0 ){
+        const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
         if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
@@ -1306,10 +1307,14 @@ static void process_one_web_page(const char *zNotFound){
           i++;
           continue;
         }
-        if( file_isfile(zRepo) && strglob("*.fossil*",zRepo)==0 ){
+        if( file_isfile(zRepo)
+         && strglob("*.fossil*",zRepo)==0
+         && (zMimetype = mimetype_from_name(zRepo))!=0
+         && strcmp(zMimetype, "application/x-fossil-artifact")!=0
+        ){
           Blob content;
           blob_read_from_file(&content, zRepo);
-          cgi_set_content_type(mimetype_from_name(zRepo));
+          cgi_set_content_type(zMimetype);
           cgi_set_content(&content);
           cgi_reply();
           return;
