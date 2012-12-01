@@ -1703,6 +1703,12 @@ static void find_server_repository(int disallowDir){
 ** pathname selects among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
+** When REPOSITORY is a directory, the pathname must contain only
+** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
+** and every "." must be surrounded on both sides by alphanumerics or else
+** a 404 error is returned.  Static content files in the directory are
+** returned if they have a well-known suffix.  Repository files and their
+** journals are never returned as static content.
 **
 ** The --host option can be used to specify the hostname for the server.
 ** The --https option indicates that the request came from HTTPS rather
@@ -1824,19 +1830,28 @@ static int binaryOnPath(const char *zBinary){
 ** In the "server" command, the REPOSITORY can be a directory (aka folder)
 ** that contains one or more repositories with names ending in ".fossil".
 ** In that case, the first element of the URL is used to select among the
-** various repositories.
+** various repositories.  To thwart mischief, the pathname in the URL must
+** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
+** occur after "/", and every "." must be surrounded on both sides by
+** alphanumerics.  Any pathname that does not satisfy these constraints
+** results in a 404 error.  Files in REPOSITORY that have known suffixes
+** such as ".txt" or ".html" or ".jpeg" (but not ".fossil"!) will be
+** served as static content.
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by setting turning off the
 ** "localauth" setting.  Automatic login for the "server" command is available
 ** if the --localauth option is present and the "localauth" setting is off
-** and the connection is from localhost.
+** and the connection is from localhost.  The optional REPOSITORY argument
+** to "ui" may be a directory and will function as "server" if and only if
+** the --notfound option is used.
 **
 ** Options:
 **   --localauth         enable automatic login for requests from localhost
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --notfound URL      Redirect
 **
 ** See also: cgi, http, winsrv
 */

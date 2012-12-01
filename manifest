@@ -1,5 +1,5 @@
-C Additional\srestrictions\son\sthe\snames\sof\sfiles\sserved\sby\s\n"fossil\sserver\sDIRECTORY":\s(1)\sonly\salphanumerics,\s"_",\s"-",\s"/",\sand\s"."\ncharacters\sare\sallowed\sin\sthe\spathname.\s\s(2)\sA\s"-"\smay\snot\soccur\safter\na\s"/".\s\s(3)\sEvery\s"."\smust\sbe\ssurrounded\son\sboth\ssides\salphanumerics.\nThis\scheck-in\salso\supdates\sthe\schangelog\sfor\sthe\s1.25\srelease.
-D 2012-12-01T04:37:35.448
+C Update\sthe\sdocumentation\son\sthe\s"fossil\shttp"\sand\s"fossil\sserver"\scommands\nto\stalk\sabout\srestrictions\son\sfilenames\sand\sto\sdescribe\show\sstatic\scontent\nfiles\scan\sbe\sreturned.
+D 2012-12-01T04:49:38.958
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
-F src/main.c f25c47f1a3a638d6d84d5b1e4b6f846d9dd8ef4a
+F src/main.c c79503696828fe570fc096edce95fd4458996b61
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4a5e972e2c7f98ce309735b040364949edb370c8
-R 844202b4df20c05de35a88f552d286df
+P c71e096800109b95711c3586f8ebf380226751b8
+R 32615215af447eedd6200cdaa90fd1d6
 U drh
-Z 5da654d27f4618f1e6c5651c552ed321
+Z 885db469214816a5d92c6e359fa43192
