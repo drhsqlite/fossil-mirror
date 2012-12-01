@@ -496,7 +496,7 @@ static const char zDefaultView[] =
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
-@         WHERE tkt_id=$tkt_id} {
+@         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
