@@ -1,5 +1,5 @@
-C Add\smimetype\smappings\sfor\s.docx,\s.pptx,\sand\s.xlsx.
-D 2012-12-01T20:17:17.167
+C missing\sparameter\stype
+D 2012-12-03T20:48:48.744
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -365,7 +365,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 7a4d5d41eb33b6d9145d6af51135e56e409172cb
-F src/rebuild.c 08f17cdf7bbca599f174143982bbe6b7466802ac
+F src/rebuild.c f89df6aa8f431c589d6eaa964e5fc9b04788a1c6
 F src/report.c 02fe10d6a7bb2986d1f5b3c37f1f24e0ea4dc864
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c e5fed139255f0980d04af829d1f5351d841d04e9
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 39807cdf0c66fea3bde7347953182d40c92a7593
-R 7dbd890ff473e81ceef148fd5411beb3
-U drh
-Z eb731ebdbf6a65de02c3e889af8fa740
+P 4e23c42f7eb54e080c7eb5080e9780fd5aa93e3a
+R 3a2a813293aa867a3393e07d7bfd0801
+U jan.nijtmans
+Z e06d332c21ca5e037b6fe96ca55bc240

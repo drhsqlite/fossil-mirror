@@ -187,7 +187,7 @@ static void percent_complete(int permill){
 /*
 ** Called after each artifact is processed
 */
-static void rebuild_step_done(rid){
+static void rebuild_step_done(int rid){
   /* assert( bag_find(&bagDone, rid)==0 ); */
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
