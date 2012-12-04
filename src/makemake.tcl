@@ -393,6 +393,15 @@ BCC = gcc
 #
 FOSSIL_TCL_SOURCE = 1
 
+#### Check if the workaround for the MinGW command line handling needs to
+#    be enabled by default.
+#
+ifndef BROKEN_MINGW_CMDLINE
+ifeq ($(PREFIX),)
+BROKEN_MINGW_CMDLINE = 1
+endif
+endif
+
 #### The directories where the zlib include and library files are located.
 #
 ZINCDIR = $(SRCDIR)/../compat/zlib
@@ -476,6 +485,12 @@ RCC += -I$(TCLINCDIR)
 endif
 endif
 
+# With MinGW command line handling workaround
+ifdef BROKEN_MINGW_CMDLINE
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
+endif
+
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
@@ -507,9 +522,8 @@ endif
 #
 LIB = -static
 
-ifeq ($(PREFIX),)
-TCC += -DBROKEN_MINGW_CMDLINE
-else
+# MinGW: If available, use the Unicode capable runtime startup code.
+ifndef BROKEN_MINGW_CMDLINE
 LIB += -municode
 endif
 
