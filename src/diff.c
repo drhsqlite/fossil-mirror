@@ -2112,8 +2112,12 @@ void annotation_page(void){
   int i;
   int iLimit;
   int annFlags = 0;
+  int showLn = 0;        /* True if line numbers should be shown */
+  char zLn[10];          /* Line number buffer */
+  char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
 
+  showLn = P("ln")!=0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
@@ -2137,10 +2141,17 @@ void annotation_page(void){
     @ <hr>
     @ <h2>Annotation:</h2>
   }
+  if( showLn ){
+    sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
+    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
+  }else{
+    zLn[0] = 0;
+  }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
+    if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
+    @ %s(ann.aOrig[i].zSrc):%s(zLn) %h(ann.aOrig[i].z)
   }
   @ </pre>
   style_footer();
