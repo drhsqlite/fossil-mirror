@@ -1,5 +1,5 @@
-C Security:\s\sDo\snot\sserve\sstatic\sfiles\susing\sthe\s"http",\s"server",\sor\s"ui"\ncommands\sunless\sthe\s--files\soption\sappears\sand\sspecifies\sa\scomma-separated\nlist\sof\sGLOB\sexpressions\sthat\smatch\sall\sfiles\sto\sbe\sserved.
-D 2012-12-05T15:45:02.289
+C Pull\sthe\sSQLite\s3.7.15\sbeta\sfrom\supstream\sfor\stesting.
+D 2012-12-05T15:47:57.858
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -372,12 +372,12 @@ F src/schema.c e5fed139255f0980d04af829d1f5351d841d04e9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
 F src/setup.c 9e8ae79a84a575e482fbded085a14bec8faafb15
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
-F src/shell.c 098774bc09508316f72f646c418a86a8a959065c
+F src/shell.c c0f58633c0df084e292405e1ebe06a189c3ad7ad
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 5ff274c972e598b74454cd4a3149e9a49565cace
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
-F src/sqlite3.c 26529afe4555f649ddcc27768d51467b9368956b
-F src/sqlite3.h 8a2bacb81b8c267e805b3176181ea00b4bdc841a
+F src/sqlite3.c 955cc67ace8fb6226281807b542b761622253ecd
+F src/sqlite3.h dcc2825ac0f17b08c3a14ce1ae717799adec5392
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
 F src/style.c 0ac8a335700a2c870a6405ceb7556bd31f5c975e
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3c188df5ac70ae2c90c4b3db06658ca55f18f0a4
-R 489d364abdba539f58a1ae90f25d756f
+P 2c8557cc7a1147de0ca5cad4ea87ff5250ab8257
+R 91ff4c475665779fab14331ba7246d69
 U drh
-Z c75cb17fa57ef1cfa24969547c7f0c9d
+Z d5e2a766cde9f152e14a44bf155e0bcc
