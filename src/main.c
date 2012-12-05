@@ -1260,8 +1260,18 @@ static char *enter_chroot_jail(char *zRepo){
 **
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
+**
+** If the repository is not known, the a search is done through the
+** file hierarchy rooted at g.zRepositoryName for a suitable repository
+** with a name of $prefix.fossil, where $prefix is any prefix of PATH_INFO.
+** Or, if an ordinary file named $prefix is found, and $prefix matches
+** pFileGlob and $prefix does not match "*.fossil*" and the mimetype of
+** $prefix can be determined from its suffix, then the file $prefix is
+** returned as static text.
+**
+** If no suitable webpage is found, try to redirect to zNotFound.
 */
-static void process_one_web_page(const char *zNotFound){
+static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
@@ -1315,7 +1325,9 @@ static void process_one_web_page(const char *zNotFound){
           i++;
           continue;
         }
-        if( file_isfile(zRepo)
+        if( pFileGlob!=0
+         && file_isfile(zRepo)
+         && glob_match(pFileGlob, zRepo)
          && strglob("*.fossil*",zRepo)==0
          && (zMimetype = mimetype_from_name(zRepo))!=0
          && strcmp(zMimetype, "application/x-fossil-artifact")!=0
@@ -1529,6 +1541,7 @@ void cmd_cgi(void){
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
+  Glob *pFileGlob = 0;               /* Pattern for files */
   Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -1585,6 +1598,10 @@ void cmd_cgi(void){
       blob_reset(&value2);
       continue;
     }
+    if( blob_eq(&key, "files:") && blob_token(&line, &value) ){
+      pFileGlob = glob_create(blob_str(&value));
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
@@ -1594,7 +1611,7 @@ void cmd_cgi(void){
   if( nRedirect ){
     redirect_web_page(nRedirect, azRedirect);
   }else{
-    process_one_web_page(zNotFound);
+    process_one_web_page(zNotFound, pFileGlob);
   }
 }
 
@@ -1698,17 +1715,18 @@ static void find_server_repository(int disallowDir){
 ** handler from inetd, for example.  The argument is the name of the
 ** repository.
 **
-** If REPOSITORY is a directory that contains one or more repositories
-** with names of the form "*.fossil" then the first element of the URL
-** pathname selects among the various repositories.  If the pathname does
+** If REPOSITORY is a directory that contains one or more repositories,
+** either directly in REPOSITORY itself, or in subdirectories, and
+** with names of the form "*.fossil" then the a prefix of the URL pathname
+** selects from among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
 ** When REPOSITORY is a directory, the pathname must contain only
 ** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
 ** and every "." must be surrounded on both sides by alphanumerics or else
 ** a 404 error is returned.  Static content files in the directory are
-** returned if they have a well-known suffix.  Repository files and their
-** journals are never returned as static content.
+** returned if they match comma-separate GLOB pattern specified by --files
+** and do not match "*.fossil*" and have a well-known suffix.
 **
 ** The --host option can be used to specify the hostname for the server.
 ** The --https option indicates that the request came from HTTPS rather
@@ -1725,6 +1743,7 @@ static void find_server_repository(int disallowDir){
 **   --https          signal a request coming in via https
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
+**   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
 **
 ** See also: cgi, server, winsrv
@@ -1734,6 +1753,20 @@ void cmd_http(void){
   const char *zNotFound;
   const char *zHost;
   const char *zAltBase;
+  const char *zFileGlob;
+
+  /* The winhttp module passes the --files option as --files-urlenc with
+  ** the argument being URL encoded, to avoid wildcard expansion in the 
+  ** shell.  This option is for internal use and is undocumented.
+  */
+  zFileGlob = find_option("files-urlenc",0,1);
+  if( zFileGlob ){
+    char *z = mprintf("%s", zFileGlob);
+    dehttpize(z);
+    zFileGlob = z;
+  }else{
+    zFileGlob = find_option("files",0,1);
+  }
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
@@ -1759,7 +1792,7 @@ void cmd_http(void){
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(zIpAddr);
-  process_one_web_page(zNotFound);
+  process_one_web_page(zNotFound, glob_create(zFileGlob));
 }
 
 /*
@@ -1782,7 +1815,7 @@ void cmd_test_http(void){
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   cgi_handle_http_request(0);
-  process_one_web_page(0);
+  process_one_web_page(0, 0);
 }
 
 #if !defined(_WIN32)
@@ -1827,16 +1860,19 @@ static int binaryOnPath(const char *zBinary){
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
-** In the "server" command, the REPOSITORY can be a directory (aka folder)
-** that contains one or more repositories with names ending in ".fossil".
-** In that case, the first element of the URL is used to select among the
-** various repositories.  To thwart mischief, the pathname in the URL must
+** The REPOSITORY can be a directory (aka folder) that contains one or 
+** more repositories with names ending in ".fossil".  In this case, the 
+** a prefix of the URL pathname is used to search the directory for an
+** appropriate repository.  To thwart mischief, the pathname in the URL must
 ** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
 ** occur after "/", and every "." must be surrounded on both sides by
 ** alphanumerics.  Any pathname that does not satisfy these constraints
-** results in a 404 error.  Files in REPOSITORY that have known suffixes
-** such as ".txt" or ".html" or ".jpeg" (but not ".fossil"!) will be
-** served as static content.
+** results in a 404 error.  Files in REPOSITORY that match the comma-separated
+** list of glob patterns given by --files and that have known suffixes
+** such as ".txt" or ".html" or ".jpeg" and do not match the pattern
+** "*.fossil*" will be served as static content.  With the "ui" command,
+** the REPOSITORY can only be a directory if the --notfound option is
+** also present.
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by setting turning off the
@@ -1852,6 +1888,7 @@ static int binaryOnPath(const char *zBinary){
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
 **   --notfound URL      Redirect
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **
 ** See also: cgi, http, winsrv
 */
@@ -1864,12 +1901,14 @@ void cmd_webserver(void){
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
   const char *zAltBase;     /* Argument to the --baseurl option */
+  const char *zFileGlob;    /* Static content must match this */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
+  zFileGlob = find_option("files", 0, 1);
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   if( g.thTrace ){
@@ -1929,7 +1968,7 @@ void cmd_webserver(void){
   find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
-  process_one_web_page(zNotFound);
+  process_one_web_page(zNotFound, glob_create(zFileGlob));
 #else
   /* Win32 implementation */
   if( isUiCmd ){
@@ -1937,9 +1976,9 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close(1);
-  if( win32_http_service(iPort, zNotFound, flags) ){
+  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, flags);
+                      zStopperFile, zNotFound, zFileGlob, flags);
   }
 #endif
 }
