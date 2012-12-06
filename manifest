@@ -1,5 +1,5 @@
-C Increase\sthe\smaximum\sgraph\swith\sto\s40\srails.\s\sFix\sthe\sgraph\sdisplay\sfor\nindividual\sfiles,\swhich\swas\sbroken\sby\sthe\sprior\schange.
-D 2012-12-06T02:44:16.196
+C Disable\sthe\s"Diffs"\slink\sfrom\sthe\scheck-in\sinformation\spage.\s\sBetter\sto\suse\nthe\sclick-to-diff\sfeature\sof\sthe\sgraph.\s\sThe\scode\swas\sdisabled\susing\s#if\s0\nso\sit\sis\seasy\sto\sreactivate\sit\sif\sdesired.
+D 2012-12-06T02:51:56.109
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -329,7 +329,7 @@ F src/http_socket.c 326f54adf82358dbd3ea1780dda4a7edf19fd52d
 F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
 F src/http_transport.c 2ad73fe61bdd448fa7f89e00f7542d5b916e31a7
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 648cd4e8b955961fd2b46d39b828898971332be7
+F src/info.c cae2e17b6f668c0d3d17b4d4da37104b0f0f1647
 F src/json.c 7c2b9fa4d91d1e5324d5e1fc72b4f8cf22b8d007
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d57481a707e1d558d0535f3b961f6aecd3842033
-R 944eb77b159b5aa5d2fb5d0977e819d0
+P 8d4ee62b1876a1721057d5afd0e52b90b1e8e20f
+R 5a87fa710b2055f1d5ceb3d88c7bf5c2
 U drh
-Z 34c4158642ac8dc2b228b77bf9fb0f0d
+Z 74f0caa74221107b71fb5ff9b6eb6e6b

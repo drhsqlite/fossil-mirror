@@ -573,6 +573,7 @@ void ci_page(void){
                                      "   AND rid=%d",
                                      TAG_BRANCH, rid);
 
+#if 0
       /* Find nearby leaves to offer to diff against */
       db_prepare(&q,
          "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
@@ -616,6 +617,7 @@ void ci_page(void){
       if( seenDiffTitle ){
         @ </td></tr>
       }
+#endif
 
       /* The Download: line */
       if( g.perm.Zip ){
