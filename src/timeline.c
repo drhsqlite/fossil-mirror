@@ -485,11 +485,15 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w;
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
+      pGraph->iRailPitch = 18 - (pGraph->mxRail/3);
+      if( pGraph->iRailPitch<12 ) pGraph->iRailPitch = 12;
+      w = pGraph->mxRail*pGraph->iRailPitch + 30;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
     }
   }
@@ -513,6 +517,7 @@ void timeline_output_graph_javascript(
     char cSep;
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
+    @ var railPitch=%d(pGraph->iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -551,7 +556,7 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*20 - 3 + 4*(mo&3);
+        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -578,7 +583,7 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*20 - 8 + 4*pRow->mergeIn[i];
+          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -679,7 +684,7 @@ void timeline_output_graph_javascript(
     @   }
     @   var n = p.au.length;
     @   for(var i=0; i<n; i+=2){
-    @     var x1 = p.au[i]*20 + left;
+    @     var x1 = p.au[i]*railPitch + left;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
@@ -718,10 +723,10 @@ void timeline_output_graph_javascript(
     @   }
     @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   var width = nrail*20;
+    @   var width = nrail*railPitch;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
-    @     rowinfo[i].x = left + rowinfo[i].r*20;
+    @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
 #if 0

@@ -63,6 +63,7 @@ struct GraphRow {
 struct GraphContext {
   int nErr;                  /* Number of errors encountered */
   int mxRail;                /* Number of rails required to render the graph */
+  int iRailPitch;            /* Pixels between rail centers */
   GraphRow *pFirst;          /* First row in the list */
   GraphRow *pLast;           /* Last row in the list */
   int nBranch;               /* Number of distinct branches */
