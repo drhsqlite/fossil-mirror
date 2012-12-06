@@ -489,9 +489,7 @@ void www_print_timeline(
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
-      pGraph->iRailPitch = 18 - (pGraph->mxRail/3);
-      if( pGraph->iRailPitch<12 ) pGraph->iRailPitch = 12;
-      w = pGraph->mxRail*pGraph->iRailPitch + 30;
+      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
       @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
