@@ -661,17 +661,19 @@ int blob_tokenize(Blob *pIn, Blob *aToken, int nToken){
 ** Do printf-style string rendering and append the results to a blob.
 */
 void blob_appendf(Blob *pBlob, const char *zFormat, ...){
-  va_list ap;
-  va_start(ap, zFormat);
-  vxprintf(pBlob, zFormat, ap);
-  va_end(ap);
+  if( pBlob ){
+    va_list ap;
+    va_start(ap, zFormat);
+    vxprintf(pBlob, zFormat, ap);
+    va_end(ap);
+  }
 }
 void blob_vappendf(Blob *pBlob, const char *zFormat, va_list ap){
-  vxprintf(pBlob, zFormat, ap);
+  if( pBlob ) vxprintf(pBlob, zFormat, ap);
 }
 
 /*
-** Initalize a blob to the data on an input channel.  Return
+** Initialize a blob to the data on an input channel.  Return
 ** the number of bytes read into the blob.  Any prior content
 ** of the blob is discarded, not freed.
 */
@@ -800,7 +802,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
         */
         if( !(i==2 && zName[1]==':') ){
 #endif
-          if( file_mkdir(zName, 1) ){
+          if( file_mkdir(zName, 1) && file_isdir(zName)!=1 ){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
@@ -1085,4 +1087,54 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
   Blob swap = *pLeft;
   *pLeft = *pRight;
   *pRight = swap;
+}
+
+/*
+** Strip a possible byte-order-mark (BOM) from the blob. On Windows, if there
+** is either no BOM at all or an (le/be) UTF-16 BOM, a conversion to UTF-8 is
+** done.  If useMbcs is false and there is no BOM, the input string is assumed
+** to be UTF-8 already, so no conversion is done.
+*/
+void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
+  char *zUtf8;
+  int bomSize = 0;
+  if( starts_with_utf8_bom(pBlob, &bomSize) ){
+    struct Blob temp;
+    zUtf8 = blob_str(pBlob) + bomSize;
+    blob_zero(&temp);
+    blob_append(&temp, zUtf8, -1);
+    blob_swap(pBlob, &temp);
+    blob_reset(&temp);
+#ifdef _WIN32
+  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
+    /* Make sure the blob contains two terminating 0-bytes */
+    blob_append(pBlob, "", 1);
+    zUtf8 = blob_str(pBlob) + bomSize;
+    zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_zero(pBlob);
+    blob_append(pBlob, zUtf8, -1);
+    fossil_unicode_free(zUtf8);
+  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
+    unsigned int i = blob_size(pBlob);
+    zUtf8 = blob_buffer(pBlob);
+    while( i > 0 ){
+      /* swap bytes of unicode representation */
+      char zTemp = zUtf8[--i];
+      zUtf8[i] = zUtf8[i-1];
+      zUtf8[--i] = zTemp;
+    }
+    /* Make sure the blob contains two terminating 0-bytes */
+    blob_append(pBlob, "", 1);
+    zUtf8 = blob_str(pBlob) + bomSize;
+    zUtf8 = fossil_unicode_to_utf8(zUtf8);
+    blob_zero(pBlob);
+    blob_append(pBlob, zUtf8, -1);
+    fossil_unicode_free(zUtf8);
+  }else if( useMbcs ){
+    zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
+    blob_reset(pBlob);
+    blob_append(pBlob, zUtf8, -1);
+    fossil_mbcs_free(zUtf8);
+#endif /* _WIN32 */
+  }
 }

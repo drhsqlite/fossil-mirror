@@ -79,7 +79,7 @@ struct Th_Frame {
 **
 ** For an array variable, Th_Variable.zData is 0 and pHash points to
 ** a hash table mapping between array key name (a th1 string) and
-** a the pointer to the Th_Variable structure holding the scalar
+** a pointer to the Th_Variable structure holding the scalar
 ** value.
 */
 struct Th_Variable {
@@ -254,7 +254,7 @@ static int thHexdigit(char c){
 
 /*
 ** Argument pEntry points to an entry in a stack frame hash table
-** (Th_Frame.paVar). Decrement the refrerence count of the Th_Variable
+** (Th_Frame.paVar). Decrement the reference count of the Th_Variable
 ** structure that the entry points to. Free the Th_Variable if its
 ** reference count reaches 0.
 **
@@ -878,7 +878,7 @@ static int thEvalLocal(Th_Interp *interp, const char *zProgram, int nProgram){
         rc = p->xProc(interp, p->pContext, argc, azArg, argl);
       }
   
-      /* If an error occured, add this command to the stack trace report. */
+      /* If an error occurred, add this command to the stack trace report. */
       if( rc==TH_ERROR ){
         char *zRes;
         int nRes;
@@ -1061,7 +1061,7 @@ static Th_Variable *thFindValue(
   const char *zVar,     /* Pointer to variable name */
   int nVar,              /* Number of bytes at nVar */
   int create,            /* If true, create the variable if not found */
-  int arrayok            /* If true, an array is Ok. Othewise array==error */
+  int arrayok            /* If true, an array is Ok. Otherwise array==error */
 ){
   const char *zOuter;
   int nOuter;
@@ -1149,6 +1149,13 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
   }
 
   return Th_SetResult(interp, pValue->zData, pValue->nData);
+}
+
+/*
+** Return true if variable (zVar, nVar) exists.
+*/
+int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
+  return thFindValue(interp, zVar, nVar, 0, 0)!=0;
 }
 
 /*

@@ -18,6 +18,8 @@ the correct operation of the diff logic.
   *  <a href="../../../fdiff?v1=57b0d8183cab0e3d&v2=37b3ef49d73cdfe6"
      target="testwindow">Large diff of sqlite3.c</a>.  This diff was very
      slow prior to the preformance enhancement change [9e15437e97].
+  *  <a href="../../../info/bda00cbada#chunk42" target="testwindow">
+     A difficult indentation change.
 
 External:
 

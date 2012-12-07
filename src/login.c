@@ -356,7 +356,7 @@ void login_clear_login_data(){
                   "  'developer','reader')", g.userUid);
     cgi_replace_parameter(cookie, NULL)
       /* At the time of this writing, cgi_replace_parameter() was
-      ** "NULL-value-safe", and i'm hoping the NULL doesn't cause any
+      ** "NULL-value-safe", and I'm hoping the NULL doesn't cause any
       ** downstream problems here. We could alternately use "" here.
       */
       ;
@@ -387,7 +387,7 @@ static int prefix_match(const char *zPattern, const char *zStr){
 */
 static int isHuman(const char *zAgent){
   int i;
-  if( zAgent==0 ) return 0;  /* If not UserAgent, then probably a bot */
+  if( zAgent==0 ) return 0;  /* If no UserAgent, then probably a bot */
   for(i=0; zAgent[i]; i++){
     if( prefix_match("bot", zAgent+i) ) return 0;
     if( prefix_match("spider", zAgent+i) ) return 0;
@@ -406,6 +406,7 @@ static int isHuman(const char *zAgent){
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
   if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  if( memcmp(zAgent, "NetSurf/", 8)==0 ) return 1;
   return 0;
 }
 
@@ -469,7 +470,7 @@ void login_page(void){
   const char *zGoto = P("g");
   int anonFlag;
   char *zErrMsg = "";
-  int uid;                     /* User id loged in user */
+  int uid;                     /* User id logged in user */
   char *zSha1Pw;
   const char *zIpAddr;         /* IP address of requestor */
 
@@ -567,7 +568,7 @@ void login_page(void){
   if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
   }
-  @ <form action="login" method="post">
+  form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }
@@ -633,7 +634,7 @@ void login_page(void){
     @ Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %s(zCaptcha)
+    @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
@@ -654,7 +655,7 @@ void login_page(void){
     @ <p>To change your password, enter your old password and your
     @ new password twice below then press the "Change Password"
     @ button.</p>
-    @ <form action="login" method="post">
+    form_begin(0, "%R/login");
     @ <table>
     @ <tr><td class="login_out_label">Old Password:</td>
     @ <td><input type="password" name="p" size="30" /></td></tr>
@@ -762,7 +763,7 @@ static int login_find_user(
 }
 
 /*
-** This routine examines the login cookie to see if it exists and and
+** This routine examines the login cookie to see if it exists and
 ** is valid.  If the login cookie checks out, it then sets global
 ** variables appropriately.  Global variables set include g.userUid
 ** and g.zLogin and the g.perm family of permission booleans.
@@ -979,7 +980,8 @@ void login_set_capabilities(const char *zCap, unsigned flags){
                            g.perm.RdWiki = g.perm.WrWiki = g.perm.NewWiki =
                            g.perm.ApndWiki = g.perm.Hyperlink = g.perm.Clone = 
                            g.perm.NewTkt = g.perm.Password = g.perm.RdAddr =
-                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt = 1;
+                           g.perm.TktFmt = g.perm.Attach = g.perm.ApndTkt =
+                           g.perm.ModWiki = g.perm.ModTkt = 1;
                            /* Fall thru into Read/Write */
       case 'i':   g.perm.Read = g.perm.Write = 1;                     break;
       case 'o':   g.perm.Read = 1;                                 break;
@@ -994,6 +996,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'k':   g.perm.WrWiki = g.perm.RdWiki = g.perm.ApndWiki =1;    break;
       case 'm':   g.perm.ApndWiki = 1;                             break;
       case 'f':   g.perm.NewWiki = 1;                              break;
+      case 'l':   g.perm.ModWiki = 1;                              break;
 
       case 'e':   g.perm.RdAddr = 1;                               break;
       case 'r':   g.perm.RdTkt = 1;                                break;
@@ -1001,6 +1004,7 @@ void login_set_capabilities(const char *zCap, unsigned flags){
       case 'w':   g.perm.WrTkt = g.perm.RdTkt = g.perm.NewTkt = 
                   g.perm.ApndTkt = 1;                              break;
       case 'c':   g.perm.ApndTkt = 1;                              break;
+      case 'q':   g.perm.ModTkt = 1;                               break;
       case 't':   g.perm.TktFmt = 1;                               break;
       case 'b':   g.perm.Attach = 1;                               break;
       case 'x':   g.perm.Private = 1;                              break;
@@ -1060,11 +1064,12 @@ int login_has_capability(const char *zCap, int nCap){
       case 'i':  rc = g.perm.Write;     break;
       case 'j':  rc = g.perm.RdWiki;    break;
       case 'k':  rc = g.perm.WrWiki;    break;
+      case 'l':  rc = g.perm.ModWiki;   break;
       case 'm':  rc = g.perm.ApndWiki;  break;
       case 'n':  rc = g.perm.NewTkt;    break;
       case 'o':  rc = g.perm.Read;      break;
       case 'p':  rc = g.perm.Password;  break;
-      /* case 'q': */
+      case 'q':  rc = g.perm.ModTkt;    break;
       case 'r':  rc = g.perm.RdTkt;     break;
       case 's':  rc = g.perm.Setup;     break;
       case 't':  rc = g.perm.TktFmt;    break;
@@ -1143,7 +1148,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }
@@ -1158,7 +1163,7 @@ void login_insert_csrf_secret(void){
 
 /*
 ** Before using the results of a form, first call this routine to verify
-** that ths Anti-CSRF token is present and is valid.  If the Anti-CSRF token
+** that this Anti-CSRF token is present and is valid.  If the Anti-CSRF token
 ** is missing or is incorrect, that indicates a cross-site scripting attach
 ** so emits an error message and abort.
 */
@@ -1258,7 +1263,7 @@ void register_page(void){
   zCaptcha = captcha_render(zDecoded);
 
   /* Print out the registration form. */
-  @ <form action="register" method="post">
+  form_begin(0, "%R/register");
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
@@ -1288,8 +1293,8 @@ void register_page(void){
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
-  @ %s(zCaptcha)
-  @ </pre></td></tr></table>
+  @ %h(zCaptcha)
+  @ </pre></td></tr></table></div>
   @ </form>
   style_footer();
 
@@ -1339,7 +1344,7 @@ int login_group_sql(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zRepoName = db_column_text(&q, 1);
     if( file_size(zRepoName)<0 ){
-      /* Silently remove non-existant repositories from the login group. */
+      /* Silently remove non-existent repositories from the login group. */
       const char *zLabel = db_column_text(&q, 0);
       db_multi_exec(
          "DELETE FROM config WHERE name GLOB 'peer-*-%q'",

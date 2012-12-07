@@ -191,7 +191,7 @@ void merge_cmd(void){
     print_checkin_description(mid, 12, "merge-from:");
     print_checkin_description(pid, 12, "baseline:");
   }
-  vfile_check_signature(vid, 1, 0);
+  vfile_check_signature(vid, CKSIG_ENOTFILE);
   db_begin_transaction();
   if( !nochangeFlag ) undo_begin();
   load_vfile_from_rid(mid);
@@ -459,7 +459,8 @@ void merge_cmd(void){
         rc = -1;
         blob_zero(&r);
       }else{
-        rc = merge_3way(&p, zFullPath, &m, &r);
+        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
         if( !nochangeFlag ){
@@ -551,14 +552,16 @@ void merge_cmd(void){
 
   /* Report on conflicts
   */
-  if( !nochangeFlag ){
-    if( nConflict ){
-      fossil_print("WARNING: %d merge conflicts", nConflict);
-    }
-    if( nOverwrite ){
-      fossil_warning("WARNING: %d unmanaged files were overwritten",
-                     nOverwrite);
-    }
+  if( nConflict ){
+    fossil_warning("WARNING: %d merge conflicts", nConflict);
+  }
+  if( nOverwrite ){
+    fossil_warning("WARNING: %d unmanaged files were overwritten",
+                   nOverwrite);
+  }
+  if( nochangeFlag ){
+    fossil_warning("REMINDER: this was a dry run -"
+                   " no file were actually changed.");
   }
 
   /*

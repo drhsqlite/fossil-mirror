@@ -119,7 +119,7 @@ FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
 ** json_cmd_top() (CLI mode) will have set up the JSON-related
 ** environment. Implementations may generate a "result payload" of any
 ** JSON type by returning its value from this function (ownership is
-** tranferred to the caller). On error they should set
+** transferred to the caller). On error they should set
 ** g.json.resultCode to one of the FossilJsonCodes values and return
 ** either their payload object or NULL. Note that NULL is a legal
 ** success value - it simply means the response will contain no
@@ -135,12 +135,12 @@ FSL_JSON_E_DB_NOT_VALID = FSL_JSON_E_DB + 103
 ** b) generating a response payload (if applicable)
 ** c) Setting g.json's error state (if applicable). See json_set_err().
 **
-** It is imperitive that NO callback functions EVER output ANYTHING to
+** It is imperative that NO callback functions EVER output ANYTHING to
 ** stdout, as that will effectively corrupt any JSON output, and
 ** almost certainly will corrupt any HTTP response headers. Output
 ** sent to stderr ends up in my apache log, so that might be useful
-** for debuggering in some cases, but no such code should be left
-** enabled for non-debuggering builds.
+** for debugging in some cases, but no such code should be left
+** enabled for non-debugging builds.
 */
 typedef cson_value * (*fossil_json_f)();
 
@@ -177,7 +177,7 @@ typedef struct JsonPageDef{
   ** <0 = CLI only, >0 = HTTP only, 0==both
   **
   ** Now that we can simulate POST in CLI mode, the distinction
-  ** between them has disappeared in most (or all) cases, so 0 is the
+  ** between them has disappeared in most (or all) cases, so 0 is
   ** the standard value.
   **
   ** 201207: this is not needed any more. We can get rid of it. Or
@@ -210,7 +210,7 @@ const FossilJsonKeys_ FossilJsonKeys;
 ** element.
 **
 ** This function takes the command specified in
-** json_comand_arg(1+g.json.dispatchDepth) and searches pages for a
+** json_command_arg(1+g.json.dispatchDepth) and searches pages for a
 ** matching name. If found then that page's func() is called to fetch
 ** the payload, which is returned to the caller.
 **
@@ -253,7 +253,7 @@ cson_value * json_new_string_f( char const * fmt, ... );
 ** in.
 **
 ** Whether or not we need to take args from CLI or POST data makes a
-** difference in argument/parameter handling in many JSON rountines,
+** difference in argument/parameter handling in many JSON routines,
 ** and thus this distinction.
 */
 char fossil_has_json();

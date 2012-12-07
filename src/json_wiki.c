@@ -212,7 +212,7 @@ static cson_value * json_wiki_get_by_name_or_symname(char const * zPageName,
     int rid = symbolic_name_to_rid( zSymname ? zSymname : zPageName, "w" );
     if(rid<0){
       json_set_err(FSL_JSON_E_AMBIGUOUS_UUID,
-                   "UUID [%s] is ambiguious.", zSymname);
+                   "UUID [%s] is ambiguous.", zSymname);
       return NULL;
     }else if(rid==0){
       json_set_err(FSL_JSON_E_RESOURCE_NOT_FOUND,
