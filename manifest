@@ -1,5 +1,5 @@
-C Disable\sthe\s"Diffs"\slink\sfrom\sthe\scheck-in\sinformation\spage.\s\sBetter\sto\suse\nthe\sclick-to-diff\sfeature\sof\sthe\sgraph.\s\sThe\scode\swas\sdisabled\susing\s#if\s0\nso\sit\sis\seasy\sto\sreactivate\sit\sif\sdesired.
-D 2012-12-06T02:51:56.109
+C Get\sself-registration\sworking\sagain\safter\sadding\sjavascript-activated\sforms.
+D 2012-12-07T12:50:14.094
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -346,7 +346,7 @@ F src/json_timeline.c 7dd30421b8f0ca73b7cbf56d6072b1ecc630a166
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 92742314b80072acac6c25b1c59bea3df3f397e6
+F src/login.c 123ae61ba3b11ceaa6e356a47094f292af773e1f
 F src/main.c 7aa49de5fd3c502eb86c12c7f05c0209b50c23ed
 F src/main.mk 29fca1079a40e7ba073b55661b1d5274f55f33fa
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -380,7 +380,7 @@ F src/sqlite3.c 955cc67ace8fb6226281807b542b761622253ecd
 F src/sqlite3.h dcc2825ac0f17b08c3a14ce1ae717799adec5392
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c db565ff0ccdc2deea8631631a6f4217680ed3568
-F src/style.c 0ac8a335700a2c870a6405ceb7556bd31f5c975e
+F src/style.c 0969c1a371d00862a21f08b3ec9908e87783c157
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -592,7 +592,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8d4ee62b1876a1721057d5afd0e52b90b1e8e20f
-R 5a87fa710b2055f1d5ceb3d88c7bf5c2
+P 89ab1185bfdba4b3e9bcd63c8f558f307500f1d7
+R 35da64181cc1443e9c2fe0cd60281837
 U drh
-Z 74f0caa74221107b71fb5ff9b6eb6e6b
+Z 13555873d24e918e5e310928b9256cd9
