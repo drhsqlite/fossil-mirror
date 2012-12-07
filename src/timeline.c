@@ -755,8 +755,22 @@ void timeline_output_graph_javascript(
     @   if( selRow!=null ) clickOnRow(selRow);
     @ }
     @ function clickOnGraph(event){
+#ifdef OMIT_IE8_SUPPORT
     @   var x=event.clientX-absoluteX("canvas")+window.pageXOffset;
     @   var y=event.clientY-absoluteY("canvas")+window.pageYOffset;
+#else
+    @   var x=event.clientX-absoluteX("canvas");
+    @   var y=event.clientY-absoluteY("canvas");
+    @   if(window.pageXOffset!=null){
+    @     x += window.pageXOffset;
+    @     y += window.pageYOffset;
+    @   }else{
+    @     var d = window.document.documentElement;
+    @     if(document.compatMode!="CSS1Compat") d = d.body;
+    @     x += d.scrollLeft;
+    @     y += d.scrollRight;
+    @   }
+#endif
     @   for(var i in rowinfo){
     @     p = rowinfo[i];
     @     if( p.y<y-10 ) continue;
