@@ -768,7 +768,7 @@ void timeline_output_graph_javascript(
     @     var d = window.document.documentElement;
     @     if(document.compatMode!="CSS1Compat") d = d.body;
     @     x += d.scrollLeft;
-    @     y += d.scrollRight;
+    @     y += d.scrollTop;
     @   }
 #endif
     @   for(var i in rowinfo){
