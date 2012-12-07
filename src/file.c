@@ -37,8 +37,7 @@
 # include <direct.h>
 # include <windows.h>
 # include <sys/utime.h>
-#endif
-#ifdef __CYGWIN__
+#else
 # include <sys/time.h>
 #endif
 
