@@ -267,6 +267,7 @@ static int hascapCmd(
 ** "ssl"      = FOSSIL_ENABLE_SSL
 ** "tcl"      = FOSSIL_ENABLE_TCL
 ** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "markdown" = FOSSIL_ENABLE_MARKDOWN
 **
 */
 static int hasfeatureCmd(
@@ -302,6 +303,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
   else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_MARKDOWN)
+  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
     rc = 1;
   }
 #endif

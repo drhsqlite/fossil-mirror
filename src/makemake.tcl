@@ -73,6 +73,8 @@ set src {
   login
   main
   manifest
+  markdown
+  markdown_html
   md5
   merge
   merge3
@@ -376,6 +378,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_JSON = 1
 
+#### Enable markdown support
+#
+# FOSSIL_ENABLE_MARKDOWN = 1
+
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 # FOSSIL_ENABLE_SSL = 1
@@ -515,6 +521,12 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
+endif
+
+# With markdown support
+ifdef FOSSIL_ENABLE_MARKDOWN
+TCC += -DFOSSIL_ENABLE_MARKDOWN=1
+RCC += -DFOSSIL_ENABLE_MARKDOWN=1
 endif
 
 #### We add the -static option here so that we can build a static

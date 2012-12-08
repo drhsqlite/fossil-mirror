@@ -96,6 +96,8 @@ SRC   = add_.c \
         login_.c \
         main_.c \
         manifest_.c \
+        markdown_.c \
+        markdown_html_.c \
         md5_.c \
         merge_.c \
         merge3_.c \
@@ -197,6 +199,8 @@ OBJ   = $(OX)\add$O \
         $(OX)\login$O \
         $(OX)\main$O \
         $(OX)\manifest$O \
+        $(OX)\markdown$O \
+        $(OX)\markdown_html$O \
         $(OX)\md5$O \
         $(OX)\merge$O \
         $(OX)\merge3$O \
@@ -315,6 +319,8 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\login.obj >> $@
 	echo $(OX)\main.obj >> $@
 	echo $(OX)\manifest.obj >> $@
+	echo $(OX)\markdown.obj >> $@
+	echo $(OX)\markdown_html.obj >> $@
 	echo $(OX)\md5.obj >> $@
 	echo $(OX)\merge.obj >> $@
 	echo $(OX)\merge3.obj >> $@
@@ -772,6 +778,18 @@ $(OX)\manifest$O : manifest_.c manifest.h
 manifest_.c : $(SRCDIR)\manifest.c
 	translate$E $** > $@
 
+$(OX)\markdown$O : markdown_.c markdown.h
+	$(TCC) /Fo$@ -c markdown_.c
+
+markdown_.c : $(SRCDIR)\markdown.c
+	translate$E $** > $@
+
+$(OX)\markdown_html$O : markdown_html_.c markdown_html.h
+	$(TCC) /Fo$@ -c markdown_html_.c
+
+markdown_html_.c : $(SRCDIR)\markdown_html.c
+	translate$E $** > $@
+
 $(OX)\md5$O : md5_.c md5.h
 	$(TCC) /Fo$@ -c md5_.c
 
@@ -1093,6 +1111,8 @@ headers: makeheaders$E page_index.h VERSION.h
 			login_.c:login.h \
 			main_.c:main.h \
 			manifest_.c:manifest.h \
+			markdown_.c:markdown.h \
+			markdown_html_.c:markdown_html.h \
 			md5_.c:md5.h \
 			merge_.c:merge.h \
 			merge3_.c:merge3.h \

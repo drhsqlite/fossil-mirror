@@ -168,12 +168,14 @@ const char *mimetype_from_name(const char *zName){
     { "m",          1, "text/plain"                        },
     { "m3u",        3, "audio/x-mpegurl"                   },
     { "man",        3, "application/x-troff-man"           },
+    { "markdown",   8, "text/x-markdown"                   },
     { "me",         2, "application/x-troff-me"            },
     { "mesh",       4, "model/mesh"                        },
     { "mid",        3, "audio/midi"                        },
     { "midi",       4, "audio/midi"                        },
     { "mif",        3, "application/x-mif"                 },
     { "mime",       4, "www/mime"                          },
+    { "mkd",        3, "text/x-markdown"                   },
     { "mov",        3, "video/quicktime"                   },
     { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
@@ -500,6 +502,20 @@ void doc_page(void){
       wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
+#ifdef FOSSIL_ENABLE_MARKDOWN
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
+         && db_get_boolean("markdown", 0) ){
+    Blob title = BLOB_INITIALIZER;
+    Blob tail = BLOB_INITIALIZER;
+    markdown_to_html(&filebody, &title, &tail);
+    if( blob_size(&title)>0 ){
+      style_header(blob_str(&title));
+    }else{
+      style_header("Documentation");
+    }
+    blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
+    style_footer();
+#endif
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>
