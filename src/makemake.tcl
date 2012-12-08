@@ -73,9 +73,12 @@ set src {
   login
   main
   manifest
+  markdown
+  markdown_html
   md5
   merge
   merge3
+  moderate
   name
   path
   pivot
@@ -106,6 +109,7 @@ set src {
   update
   url
   user
+  utf8
   verify
   vfile
   wiki
@@ -366,9 +370,17 @@ OBJDIR = wbld
 #
 BCC = gcc
 
+#### Enable compiling with debug symbols (much larger binary)
+#
+# FOSSIL_ENABLE_SYMBOLS = 1
+
 #### Enable JSON (http://www.json.org) support using "cson"
 #
 # FOSSIL_ENABLE_JSON = 1
+
+#### Enable markdown support
+#
+# FOSSIL_ENABLE_MARKDOWN = 1
 
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
@@ -391,13 +403,19 @@ BCC = gcc
 #
 FOSSIL_TCL_SOURCE = 1
 
-#### The directories where the zlib include and library files are located.
-#    The recommended usage here is to use the Sysinternals junction tool
-#    to create a hard link between an "zlib-1.x.y" sub-directory of the
-#    Fossil source code directory and the target zlib source directory.
+#### Check if the workaround for the MinGW command line handling needs to
+#    be enabled by default.
 #
-ZINCDIR = $(SRCDIR)/../zlib-1.2.7
-ZLIBDIR = $(SRCDIR)/../zlib-1.2.7
+ifndef BROKEN_MINGW_CMDLINE
+ifeq ($(PREFIX),)
+BROKEN_MINGW_CMDLINE = 1
+endif
+endif
+
+#### The directories where the zlib include and library files are located.
+#
+ZINCDIR = $(SRCDIR)/../compat/zlib
+ZLIBDIR = $(SRCDIR)/../compat/zlib
 
 #### The directories where the OpenSSL include and library files are located.
 #    The recommended usage here is to use the Sysinternals junction tool
@@ -448,6 +466,13 @@ endif
 #
 TCC = $(PREFIX)gcc -Os -Wall -L$(ZLIBDIR) -I$(ZINCDIR)
 
+#### Add the necessary command line options to build with debugging
+#    symbols, if enabled.
+#
+ifdef FOSSIL_ENABLE_SYMBOLS
+TCC += -g
+endif
+
 #### Compile resources for use in building executables that will run
 #    on the target platform.
 #
@@ -468,6 +493,12 @@ else
 TCC += -L$(TCLLIBDIR) -I$(TCLINCDIR)
 RCC += -I$(TCLINCDIR)
 endif
+endif
+
+# With MinGW command line handling workaround
+ifdef BROKEN_MINGW_CMDLINE
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
 endif
 
 # With HTTPS support
@@ -501,10 +532,21 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
+# With markdown support
+ifdef FOSSIL_ENABLE_MARKDOWN
+TCC += -DFOSSIL_ENABLE_MARKDOWN=1
+RCC += -DFOSSIL_ENABLE_MARKDOWN=1
+endif
+
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
 LIB = -static
+
+# MinGW: If available, use the Unicode capable runtime startup code.
+ifndef BROKEN_MINGW_CMDLINE
+LIB += -municode
+endif
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
@@ -660,7 +702,10 @@ ifdef FOSSIL_ENABLE_TCL
 EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
-$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o
+zlib:
+	make -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+
+$(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
 
 # This rule prevents make from using its default rules to try build
@@ -684,12 +729,13 @@ setup: $(OBJDIR) $(APPNAME)
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
+  if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
+  append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
-append mhargs " \$(OBJDIR)/VERSION.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
+append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
@@ -912,53 +958,64 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
-
 # Uncomment below for SSL support
 SSL =
 SSLLIB =
-#SSL = -DFOSSIL_ENABLE_SSL=1
-#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# SSL = -DFOSSIL_ENABLE_SSL=1
+# SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
 
 # zlib options
-# When using precompiled from http://zlib.net/zlib125-dll.zip
-#ZINCDIR = C:\zlib125-dll\include
-#ZLIBDIR = C:\zlib125-dll\lib
-#ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(B)\compat\zlib
+ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+LIBDIR = -LIBPATH:$(ZLIBDIR)
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
-writeln "SQLITE_OPTIONS = $MSC_SQLITE_OPTIONS\n"
+set j " \\\n                 "
+writeln "SQLITE_OPTIONS = [join $MSC_SQLITE_OPTIONS $j]\n"
 writeln -nonewline "SRC   = "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
 writeln -nonewline "OBJ   = "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "\$(OX)\\$s\$O "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "        "
+  }
+  writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
-writeln "\$(OX)\\shell\$O \$(OX)\\sqlite3\$O \$(OX)\\th\$O \$(OX)\\th_lang\$O "
+writeln " \\"
+writeln "        \$(OX)\\shell\$O \\"
+writeln "        \$(OX)\\sqlite3\$O \\"
+writeln "        \$(OX)\\th\$O \\"
+writeln "        \$(OX)\\th_lang\$O"
 writeln {
-
 APPNAME = $(OX)\fossil$(E)
 
 all: $(OX) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+zlib:
+	@echo Building zlib from "$(ZLIBDIR)"...
+	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
@@ -1007,11 +1064,20 @@ page_index.h: mkindex$E $(SRC)
 
 clean:
 	-del $(OX)\*.obj
-	-del *.obj *_.c *.h *.map
-	-del headers linkopts
+	-del *.obj
+	-del *_.c
+	-del *.h
+	-del *.map
+	-del *.manifest
+	-del headers
+	-del linkopts
 
-realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+realclean: clean
+	-del $(APPNAME)
+	-del translate$E
+	-del mkindex$E
+	-del makeheaders$E
+	-del mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -1036,11 +1102,20 @@ foreach s [lsort $src] {
   writeln "\ttranslate\$E \$** > \$@\n"
 }
 
-writeln -nonewline "headers: makeheaders\$E page_index.h VERSION.h\n\tmakeheaders\$E "
+writeln "headers: makeheaders\$E page_index.h VERSION.h"
+writeln -nonewline "\tmakeheaders\$E "
+set i 0
 foreach s [lsort $src] {
-  writeln -nonewline "${s}_.c:$s.h "
+  if {$i > 0} {
+    writeln " \\"
+    writeln -nonewline "\t\t\t"
+  }
+  writeln -nonewline "${s}_.c:$s.h"; incr i
 }
-writeln "\$(SRCDIR)\\sqlite3.h \$(SRCDIR)\\th.h VERSION.h \$(SRCDIR)\\cson_amalgamation.h"
+writeln " \\\n\t\t\t\$(SRCDIR)\\sqlite3.h \\"
+writeln "\t\t\t\$(SRCDIR)\\th.h \\"
+writeln "\t\t\tVERSION.h \\"
+writeln "\t\t\t\$(SRCDIR)\\cson_amalgamation.h"
 writeln "\t@copy /Y nul: headers"
 
 

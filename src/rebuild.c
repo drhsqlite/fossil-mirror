@@ -187,7 +187,7 @@ static void percent_complete(int permill){
 /*
 ** Called after each artifact is processed
 */
-static void rebuild_step_done(rid){
+static void rebuild_step_done(int rid){
   /* assert( bag_find(&bagDone, rid)==0 ); */
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
@@ -207,7 +207,7 @@ static void rebuild_step_done(rid){
 ** called to run "fossil deconstruct" instead of the usual
 ** "fossil rebuild".  In that case, instead of rebuilding the
 ** cross-referencing information, write the file content out
-** to the approriate directory.
+** to the appropriate directory.
 **
 ** In both cases, this routine automatically recurses to process
 ** other artifacts that are deltas off of the current artifact.
@@ -319,7 +319,7 @@ static void rebuild_tag_trunk(void){
 }
 
 /*
-** Core function to rebuild the infomration in the derived tables of a
+** Core function to rebuild the information in the derived tables of a
 ** fossil repository from the blobs. This function is shared between
 ** 'rebuild_database' ('rebuild') and 'reconstruct_cmd'
 ** ('reconstruct'), both of which have to regenerate this information
@@ -349,7 +349,7 @@ int rebuild_db(int randomize, int doOut, int doClustering){
        " WHERE type='table'"
        " AND name NOT IN ('blob','delta','rcvfrom','user',"
                          "'config','shun','private','reportfmt',"
-                         "'concealed','accesslog')"
+                         "'concealed','accesslog','modreq')"
        " AND name NOT GLOB 'sqlite_*'"
     );
     if( zTable==0 ) break;
@@ -525,6 +525,7 @@ static void reconstruct_private_table(void){
 **   --pagesize N  Set the database pagesize to N. (512..65536 and power of 2)
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
+**   --deanalyze   Remove ANALYZE tables from the database
 **   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
 **
@@ -540,6 +541,7 @@ void rebuild_database(void){
   int newPagesize = 0;
   int activateWal;
   int runVacuum;
+  int runDeanalyze;
   int runCompress;
   int showStats;
 
@@ -548,6 +550,7 @@ void rebuild_database(void){
   randomizeFlag = find_option("randomize", 0, 0)!=0;
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
+  runDeanalyze = find_option("deanalyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
@@ -599,6 +602,10 @@ void rebuild_database(void){
     if( newPagesize ){
       db_multi_exec("PRAGMA page_size=%d", newPagesize);
       runVacuum = 1;
+    }
+    if( runDeanalyze ){
+      db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
+                    "DROP TABLE IF EXISTS sqlite_stat3;");
     }
     if( runVacuum ){
       fossil_print("Vacuuming the database... "); fflush(stdout);
@@ -774,11 +781,13 @@ void scrub_cmd(void){
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
   if( !bForce ){
     Blob ans;
+    char cReply;
     blob_zero(&ans);
     prompt_user(
          "Scrubbing the repository will permanently delete information.\n"
          "Changes cannot be undone.  Continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y' ){
       fossil_exit(1);
     }
   }
@@ -836,9 +845,9 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
-      fossil_mbcs_free(zUtf8Name);
+      fossil_filename_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
       }
@@ -860,7 +869,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_mbcs_free(zUnicodePath);
+  fossil_unicode_free(zUnicodePath);
 }
 
 /*
@@ -945,7 +954,7 @@ void deconstruct_cmd(void){
     if( zPrefixOpt[0]>='0' && zPrefixOpt[0]<='9' && !zPrefixOpt[1] ){
       prefixLength = (int)(*zPrefixOpt-'0');
     }else{
-      fossil_fatal("N(%s) is not a a valid prefix length!",zPrefixOpt);
+      fossil_fatal("N(%s) is not a valid prefix length!",zPrefixOpt);
     }
   }
   /* open repository and open query for all artifacts */
@@ -967,7 +976,7 @@ void deconstruct_cmd(void){
   }
 #else
   /* write access on windows is not checked, errors will be
-  ** dected on blob_write_to_file
+  ** detected on blob_write_to_file
   */
 #endif
   if( prefixLength ){

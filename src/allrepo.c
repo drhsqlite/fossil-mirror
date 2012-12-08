@@ -47,6 +47,23 @@ static char *quoteFilename(const char *zFilename){
   }
 }
 
+/*
+** Build a string that contains all of the command-line options
+** specified as arguments.  If the option name begins with "+" then
+** it takes an argument.  Without the "+" it does not.
+*/
+static void collect_argument(Blob *pExtra, const char *zArg){
+  if( find_option(zArg, 0, 0)!=0 ){
+    blob_appendf(pExtra, " --%s", zArg);
+  }
+}
+static void collect_argument_value(Blob *pExtra, const char *zArg){
+  const char *zValue = find_option(zArg, 0, 1);
+  if( zValue ){
+    blob_appendf(pExtra, " --%s %s", zArg, zValue);
+  }
+}
+
 
 /*
 ** COMMAND: all
@@ -91,6 +108,7 @@ void all_cmd(void){
   char *zSyscmd;
   char *zFossil;
   char *zQFilename;
+  Blob extra;
   int useCheckouts = 0;
   int quiet = 0;
   int testRun = 0;
@@ -109,20 +127,37 @@ void all_cmd(void){
   }
   n = strlen(g.argv[2]);
   db_open_config(1);
+  blob_zero(&extra);
   zCmd = g.argv[2];
   if( strncmp(zCmd, "list", n)==0 || strncmp(zCmd,"ls",n)==0 ){
     zCmd = "list";
     useCheckouts = find_option("ckout","c",0)!=0;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
+    collect_argument(&extra, "cluster");
+    collect_argument(&extra, "compress");
+    collect_argument(&extra, "noverify");
+    collect_argument_value(&extra, "pagesize");
+    collect_argument(&extra, "vacuum");
+    collect_argument(&extra, "deanalyze");
+    collect_argument(&extra, "wal");
+    collect_argument(&extra, "stat");
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
+  }else if( strncmp(zCmd, "test-orphans", n)==0 ){
+    zCmd = "test-orphans -R";
+  }else if( strncmp(zCmd, "test-missing", n)==0 ){
+    zCmd = "test-missing -q -R";
+    collect_argument(&extra, "notshunned");
   }else if( strncmp(zCmd, "changes", n)==0 ){
     zCmd = "changes --quiet --header --chdir";
     useCheckouts = 1;
@@ -182,7 +217,8 @@ void all_cmd(void){
       continue;
     }
     zQFilename = quoteFilename(zFilename);
-    zSyscmd = mprintf("%s %s %s", zFossil, zCmd, zQFilename);
+    zSyscmd = mprintf("%s %s %s%s",
+                      zFossil, zCmd, zQFilename, blob_str(&extra));
     if( !quiet || testRun ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);

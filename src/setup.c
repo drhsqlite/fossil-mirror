@@ -64,7 +64,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -94,6 +94,9 @@ void setup_page(void){
     "Edit HTML text inserted at the top of every page");
   setup_menu_entry("Footer", "setup_footer",
     "Edit HTML text inserted at the bottom of every page");
+  setup_menu_entry("Moderation", "setup_modreq",
+    "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
+    "edits and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
@@ -217,6 +220,8 @@ void setup_ulist(void){
      @   <td><i>Read-Wiki:</i> View wiki pages</td></tr>
      @ <tr><td valign="top"><b>k</b></td>
      @   <td><i>Write-Wiki:</i> Edit wiki pages</td></tr>
+     @ <tr><td valign="top"><b>l</b></td>
+     @   <td><i>Mod-Wiki:</i> Moderator for wiki pages</td></tr>
      @ <tr><td valign="top"><b>m</b></td>
      @   <td><i>Append-Wiki:</i> Append to wiki pages</td></tr>
      @ <tr><td valign="top"><b>n</b></td>
@@ -225,6 +230,8 @@ void setup_ulist(void){
      @   <td><i>Check-Out:</i> Check out versions</td></tr>
      @ <tr><td valign="top"><b>p</b></td>
      @   <td><i>Password:</i> Change your own password</td></tr>
+     @ <tr><td valign="top"><b>q</b></td>
+     @   <td><i>Mod-Tkt:</i> Moderator for tickets</td></tr>
      @ <tr><td valign="top"><b>r</b></td>
      @   <td><i>Read-Tkt:</i> View tickets</td></tr>
      @ <tr><td valign="top"><b>s</b></td>
@@ -294,18 +301,17 @@ static int isValidPwString(const char *zPw){
 */
 void user_edit(void){
   const char *zId, *zLogin, *zInfo, *zCap, *zPw;
-  char *oaa, *oas, *oar, *oaw, *oan, *oai, *oaj, *oao, *oap;
-  char *oak, *oad, *oac, *oaf, *oam, *oah, *oag, *oae;
-  char *oat, *oau, *oav, *oab, *oax, *oaz;
   const char *zGroup;
   const char *zOldLogin;
-  char *inherit[128];
   int doWrite;
-  int uid;
+  int uid, i;
   int higherUser = 0;  /* True if user being edited is SETUP and the */
                        /* user doing the editing is ADMIN.  Disallow editing */
+  char *inherit[128];
+  int a[128];
+  char *oa[128];
 
-  /* Must have ADMIN privleges to access this page
+  /* Must have ADMIN privileges to access this page
   */
   login_check_credentials();
   if( !g.perm.Admin ){ login_needed(); return; }
@@ -332,54 +338,15 @@ void user_edit(void){
   */
   doWrite = cgi_all("login","info","pw") && !higherUser;
   if( doWrite ){
-    char zCap[50];
-    int i = 0;
-    int aa = P("aa")!=0;
-    int ab = P("ab")!=0;
-    int ad = P("ad")!=0;
-    int ae = P("ae")!=0;
-    int ai = P("ai")!=0;
-    int aj = P("aj")!=0;
-    int ak = P("ak")!=0;
-    int an = P("an")!=0;
-    int ao = P("ao")!=0;
-    int ap = P("ap")!=0;
-    int ar = P("ar")!=0;
-    int as = g.perm.Setup && P("as")!=0;
-    int aw = P("aw")!=0;
-    int ac = P("ac")!=0;
-    int af = P("af")!=0;
-    int am = P("am")!=0;
-    int ah = P("ah")!=0;
-    int ag = P("ag")!=0;
-    int at = P("at")!=0;
-    int au = P("au")!=0;
-    int av = P("av")!=0;
-    int ax = P("ax")!=0;
-    int az = P("az")!=0;
-    if( aa ){ zCap[i++] = 'a'; }
-    if( ab ){ zCap[i++] = 'b'; }
-    if( ac ){ zCap[i++] = 'c'; }
-    if( ad ){ zCap[i++] = 'd'; }
-    if( ae ){ zCap[i++] = 'e'; }
-    if( af ){ zCap[i++] = 'f'; }
-    if( ah ){ zCap[i++] = 'h'; }
-    if( ag ){ zCap[i++] = 'g'; }
-    if( ai ){ zCap[i++] = 'i'; }
-    if( aj ){ zCap[i++] = 'j'; }
-    if( ak ){ zCap[i++] = 'k'; }
-    if( am ){ zCap[i++] = 'm'; }
-    if( an ){ zCap[i++] = 'n'; }
-    if( ao ){ zCap[i++] = 'o'; }
-    if( ap ){ zCap[i++] = 'p'; }
-    if( ar ){ zCap[i++] = 'r'; }
-    if( as ){ zCap[i++] = 's'; }
-    if( at ){ zCap[i++] = 't'; }
-    if( au ){ zCap[i++] = 'u'; }
-    if( av ){ zCap[i++] = 'v'; }
-    if( aw ){ zCap[i++] = 'w'; }
-    if( ax ){ zCap[i++] = 'x'; }
-    if( az ){ zCap[i++] = 'z'; }
+    char c;
+    char zCap[50], zNm[4];
+    zNm[0] = 'a';
+    zNm[2] = 0;
+    for(i=0, c='a'; c<='z'; c++){
+      zNm[1] = c;
+      a[c&0x7f] = (c!='s' || g.perm.Setup) && P(zNm)!=0;
+      if( a[c&0x7f] ) zCap[i++] = c;
+    }
 
     zCap[i] = 0;
     zPw = P("pw");
@@ -459,36 +426,16 @@ void user_edit(void){
   zInfo = "";
   zCap = "";
   zPw = "";
-  oaa = oab = oac = oad = oae = oaf = oag = oah = oai = oaj = oak = oam =
-        oan = oao = oap = oar = oas = oat = oau = oav = oaw = oax = oaz = "";
+  for(i='a'; i<='z'; i++) oa[i] = "";
   if( uid ){
     zLogin = db_text("", "SELECT login FROM user WHERE uid=%d", uid);
     zInfo = db_text("", "SELECT info FROM user WHERE uid=%d", uid);
     zCap = db_text("", "SELECT cap FROM user WHERE uid=%d", uid);
     zPw = db_text("", "SELECT pw FROM user WHERE uid=%d", uid);
-    if( strchr(zCap, 'a') ) oaa = " checked=\"checked\"";
-    if( strchr(zCap, 'b') ) oab = " checked=\"checked\"";
-    if( strchr(zCap, 'c') ) oac = " checked=\"checked\"";
-    if( strchr(zCap, 'd') ) oad = " checked=\"checked\"";
-    if( strchr(zCap, 'e') ) oae = " checked=\"checked\"";
-    if( strchr(zCap, 'f') ) oaf = " checked=\"checked\"";
-    if( strchr(zCap, 'g') ) oag = " checked=\"checked\"";
-    if( strchr(zCap, 'h') ) oah = " checked=\"checked\"";
-    if( strchr(zCap, 'i') ) oai = " checked=\"checked\"";
-    if( strchr(zCap, 'j') ) oaj = " checked=\"checked\"";
-    if( strchr(zCap, 'k') ) oak = " checked=\"checked\"";
-    if( strchr(zCap, 'm') ) oam = " checked=\"checked\"";
-    if( strchr(zCap, 'n') ) oan = " checked=\"checked\"";
-    if( strchr(zCap, 'o') ) oao = " checked=\"checked\"";
-    if( strchr(zCap, 'p') ) oap = " checked=\"checked\"";
-    if( strchr(zCap, 'r') ) oar = " checked=\"checked\"";
-    if( strchr(zCap, 's') ) oas = " checked=\"checked\"";
-    if( strchr(zCap, 't') ) oat = " checked=\"checked\"";
-    if( strchr(zCap, 'u') ) oau = " checked=\"checked\"";
-    if( strchr(zCap, 'v') ) oav = " checked=\"checked\"";
-    if( strchr(zCap, 'w') ) oaw = " checked=\"checked\"";
-    if( strchr(zCap, 'x') ) oax = " checked=\"checked\"";
-    if( strchr(zCap, 'z') ) oaz = " checked=\"checked\"";
+    for(i=0; zCap[i]; i++){
+      char c = zCap[i];
+      if( c>='a' && c<='z' ) oa[c&0x7f] = " checked=\"checked\"";
+    }
   }
 
   /* figure out inherited permissions */
@@ -564,55 +511,59 @@ void user_edit(void){
 #define B(x) inherit[x]
   @ <table border=0><tr><td valign="top">
   if( g.perm.Setup ){
-    @  <label><input type="checkbox" name="as"%s(oas) />%s(B('s'))Setup
+    @  <label><input type="checkbox" name="as"%s(oa['s']) />%s(B('s'))Setup
     @  </label><br />
   }
-  @  <label><input type="checkbox" name="aa"%s(oaa) />%s(B('a'))Admin
+  @  <label><input type="checkbox" name="aa"%s(oa['a']) />%s(B('a'))Admin
   @  </label><br />
-  @  <label><input type="checkbox" name="ad"%s(oad) />%s(B('d'))Delete
+  @  <label><input type="checkbox" name="ad"%s(oa['d']) />%s(B('d'))Delete
   @  </label><br />
-  @  <label><input type="checkbox" name="ae"%s(oae) />%s(B('e'))Email
+  @  <label><input type="checkbox" name="ae"%s(oa['e']) />%s(B('e'))Email
   @  </label><br />
-  @  <label><input type="checkbox" name="ap"%s(oap) />%s(B('p'))Password
+  @  <label><input type="checkbox" name="ap"%s(oa['p']) />%s(B('p'))Password
   @  </label><br />
-  @  <label><input type="checkbox" name="ai"%s(oai) />%s(B('i'))Check-In
+  @  <label><input type="checkbox" name="ai"%s(oa['i']) />%s(B('i'))Check-In
   @  </label><br />
-  @  <label><input type="checkbox" name="ao"%s(oao) />%s(B('o'))Check-Out
+  @  <label><input type="checkbox" name="ao"%s(oa['o']) />%s(B('o'))Check-Out
   @  </label><br />
-  @  <label><input type="checkbox" name="ah"%s(oah) />%s(B('h'))Hyperlinks
+  @  <label><input type="checkbox" name="ah"%s(oa['h']) />%s(B('h'))Hyperlinks
   @  </label><br />
-  @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="au"%s(oau) />%s(B('u'))Reader
-  @  </label><br />
-  @  <label><input type="checkbox" name="av"%s(oav) />%s(B('v'))Developer
-  @  </label><br />
-  @  <label><input type="checkbox" name="ag"%s(oag) />%s(B('g'))Clone
-  @  </label><br />
-  @  <label><input type="checkbox" name="aj"%s(oaj) />%s(B('j'))Read Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="af"%s(oaf) />%s(B('f'))New Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="am"%s(oam) />%s(B('m'))Append Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ak"%s(oak) />%s(B('k'))Write Wiki
-  @  </label><br />
-  @  <label><input type="checkbox" name="ab"%s(oab) />%s(B('b'))Attachments
+  @  <label><input type="checkbox" name="ab"%s(oa['b']) />%s(B('b'))Attachments
   @  </label><br />
   @ </td><td><td width="40"></td><td valign="top">
-  @  <label><input type="checkbox" name="ar"%s(oar) />%s(B('r'))Read Ticket
+  @  <label><input type="checkbox" name="au"%s(oa['u']) />%s(B('u'))Reader
   @  </label><br />
-  @  <label><input type="checkbox" name="an"%s(oan) />%s(B('n'))New Ticket
+  @  <label><input type="checkbox" name="av"%s(oa['v']) />%s(B('v'))Developer
   @  </label><br />
-  @  <label><input type="checkbox" name="ac"%s(oac) />%s(B('c'))Append Ticket
+  @  <label><input type="checkbox" name="ag"%s(oa['g']) />%s(B('g'))Clone
   @  </label><br />
-  @  <label><input type="checkbox" name="aw"%s(oaw) />%s(B('w'))Write Ticket
+  @  <label><input type="checkbox" name="aj"%s(oa['j']) />%s(B('j'))Read Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="at"%s(oat) />%s(B('t'))Ticket Report
+  @  <label><input type="checkbox" name="af"%s(oa['f']) />%s(B('f'))New Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="ax"%s(oax) />%s(B('x'))Private
+  @  <label><input type="checkbox" name="am"%s(oa['m']) />%s(B('m'))Append Wiki
   @  </label><br />
-  @  <label><input type="checkbox" name="az"%s(oaz) />%s(B('z'))Download Zip
-  @  </label>
+  @  <label><input type="checkbox" name="ak"%s(oa['k']) />%s(B('k'))Write Wiki
+  @  </label><br />
+  @  <label><input type="checkbox" name="al"%s(oa['l']) />%s(B('l'))Moderate
+  @  Wiki</label><br />
+  @ </td><td><td width="40"></td><td valign="top">
+  @  <label><input type="checkbox" name="ar"%s(oa['r']) />%s(B('r'))Read Ticket
+  @  </label><br />
+  @  <label><input type="checkbox" name="an"%s(oa['n']) />%s(B('n'))New Tickets
+  @  </label><br />
+  @  <label><input type="checkbox" name="ac"%s(oa['c']) />%s(B('c'))Append
+  @  To Ticket </label><br />
+  @  <label><input type="checkbox" name="aw"%s(oa['w']) />%s(B('w'))Write
+  @  Tickets </label><br />
+  @  <label><input type="checkbox" name="aq"%s(oa['q']) />%s(B('q'))Moderate
+  @  Tickets </label><br />
+  @  <label><input type="checkbox" name="at"%s(oa['t']) />%s(B('t'))Ticket
+  @  Report </label><br />
+  @  <label><input type="checkbox" name="ax"%s(oa['x']) />%s(B('x'))Private
+  @  </label><br />
+  @  <label><input type="checkbox" name="az"%s(oa['z']) />%s(B('z'))Download
+  @  Zip </label>
   @ </td></tr></table>
   @   </td>
   @ </tr>
@@ -986,6 +937,13 @@ void setup_access(void){
   @ even for relatively small projects.</p>
 
   @ <hr />
+  onoff_attribute("Require a CAPTCHA if not logged in",
+                  "require-captcha", "reqcapt", 1);
+  @ <p>Require a CAPTCHA for edit operations (appending, creating, or
+  @ editing wiki or tickets or adding attachments to wiki or tickets)
+  @ for users who are not logged in.</p>
+
+  @ <hr />
   entry_attribute("Public pages", 30, "public-pages",
                   "pubpage", "");
   @ <p>A comma-separated list of glob patterns for pages that are accessible
@@ -995,7 +953,6 @@ void setup_access(void){
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ </p>
-
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
@@ -1069,17 +1026,17 @@ void setup_login_group(void){
     @
     @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ <blockquote><table broder="0">
+    @ <blockquote><table border="0">
     @
     @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <td align="right"><b>Login on the above repo:</b></td>
+    @ <tr><td align="right"><b>Login on the above repo:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <td align="right"><b>Password:</b></td>
+    @ <tr><td align="right"><b>Password:</b></td>
     @ <td width="5"></td><td>
     @ <input type="password" size="20" name="pw"></td></tr>
     @
@@ -1090,7 +1047,7 @@ void setup_login_group(void){
     @
     @ <tr><td colspan="3" align="center">
     @ <input type="submit" value="Join" name="join"></td></tr>
-    @ </table>
+    @ </table></blockquote></div></form>
   }else{
     Stmt q;
     int n = 0;
@@ -1148,6 +1105,12 @@ void setup_timeline(void){
                   "timeline-block-markup", "tbm", 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup (paragraphs, tables, etc.)</p>
+
+  @ <hr />
+  onoff_attribute("Plaintext comments on timelines",
+                  "timeline-plaintext", "tpt", 0);
+  @ <p>In timeline displays, check-in comments are displayed literally,
+  @ without any wiki or HTML interpretation.</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1397,7 +1360,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }
@@ -1457,6 +1420,50 @@ void setup_footer(void){
   @ </pre></blockquote>
   style_footer();
   db_end_transaction(0);
+}
+
+/*
+** WEBPAGE: setup_modreq
+*/
+void setup_modreq(void){
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+
+  style_header("Moderator For Wiki And Tickets");
+  db_begin_transaction();
+  @ <form action="%R/setup_modreq" method="post"><div>
+  login_insert_csrf_secret();
+  @ <hr />
+  onoff_attribute("Moderate ticket changes",
+     "modreq-tkt", "modreq-tkt", 0);
+  @ <p>When enabled, any change to tickets is subject to the approval
+  @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
+  @ Ticket changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Ticket changes made by
+  @ a user who hwas the Mod-Tkt privilege are never subject to
+  @ moderation.
+  @
+  @ <hr />
+  onoff_attribute("Moderate wiki changes",
+     "modreq-wiki", "modreq-wiki", 0);
+  @ <p>When enabled, any change to wiki is subject to the approval
+  @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
+  @ Wiki changes enter the system and are shown locally, but are not
+  @ synced until they are approved.  The moderator has the option to 
+  @ delete the change rather than approve it.  Wiki changes made by
+  @ a user who has the Mod-Wiki privilege are never subject to
+  @ moderation.
+  @ </p>
+ 
+  @ <hr />
+  @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
+  @ </div></form>
+  db_end_transaction(0);
+  style_footer();
+
 }
 
 /*

@@ -72,8 +72,9 @@ void delete_private_content(void){
   fix_private_blob_dependencies(1);
   db_multi_exec(
     "DELETE FROM blob WHERE rid IN private;"
-    "DELETE FROM delta wHERE rid IN private;"
+    "DELETE FROM delta WHERE rid IN private;"
     "DELETE FROM private;"
+    "DROP TABLE IF EXISTS modreq;"
   );
 }
 
@@ -100,11 +101,11 @@ void delete_private_content(void){
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
-  const char *zPw;     /* The user clone password */
+  const char *zPw;            /* The user clone password */
   int nErr = 0;
-  int bPrivate;               /* Also clone private branches */
+  int bPrivate = 0;           /* Also clone private branches */
 
-  bPrivate = find_option("private",0,0)!=0;
+  if( find_option("private",0,0)!=0 ) bPrivate = SYNC_PRIVATE;
   url_proxy_options();
   if( g.argc < 4 ){
     usage("?OPTIONS? FILE-OR-URL NEW-REPOSITORY");
@@ -163,7 +164,7 @@ void clone_cmd(void){
     url_enable_proxy(0);
     url_get_password_if_needed();
     g.xlinkClusterOnly = 1;
-    nErr = client_sync(0,0,1,bPrivate,CONFIGSET_ALL,0);
+    nErr = client_sync(SYNC_CLONE | bPrivate,CONFIGSET_ALL,0);
     g.xlinkClusterOnly = 0;
     verify_cancel();
     db_end_transaction(0);

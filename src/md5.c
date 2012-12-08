@@ -368,7 +368,7 @@ char *md5sum_finish(Blob *pOut){
 
 /*
 ** Compute the MD5 checksum of a file on disk.  Store the resulting
-** checksum in the blob pCksum.  pCksum is assumed to be ininitialized.
+** checksum in the blob pCksum.  pCksum is assumed to be initialized.
 **
 ** Return the number of errors.
 */
@@ -435,6 +435,7 @@ void md5sum_test(void){
   Blob cksum;
   
   for(i=2; i<g.argc; i++){
+    blob_init(&cksum, "********** not found ***********", -1);
     if( g.argv[i][0]=='-' && g.argv[i][1]==0 ){
       blob_read_from_channel(&in, stdin, -1);
       md5sum_blob(&in, &cksum);

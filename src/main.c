@@ -72,10 +72,12 @@ struct FossilUserPerms {
   char NewWiki;          /* f: create new wiki via web */
   char ApndWiki;         /* m: append to wiki via web */
   char WrWiki;           /* k: edit wiki via web */
+  char ModWiki;          /* l: approve and publish wiki content (Moderator) */
   char RdTkt;            /* r: view tickets via web */
   char NewTkt;           /* n: create new tickets */
   char ApndTkt;          /* c: append to tickets via the web */
   char WrTkt;            /* w: make changes to tickets via web */
+  char ModTkt;           /* q: approve and publish ticket changes (Moderator) */
   char Attach;           /* b: add attachments */
   char TktFmt;           /* t: create new ticket report formats */
   char RdAddr;           /* e: read email addresses or other private data */
@@ -119,6 +121,7 @@ struct Global {
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
+  const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
   const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
@@ -129,7 +132,8 @@ struct Global {
   int fQuiet;             /* True if -quiet flag is present */
   int fHttpTrace;         /* Trace outbound HTTP requests */
   int fSystemTrace;       /* Trace calls to fossil_system(), --systemtrace */
-  int fNoSync;            /* Do not do an autosync even.  --nosync */
+  int fSshTrace;          /* Trace the SSH setup traffic */
+  int fNoSync;            /* Do not do an autosync ever.  --nosync */
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
@@ -143,6 +147,7 @@ struct Global {
   int xferPanic;          /* Write error messages in XFER protocol */
   int fullHttpReply;      /* True for full HTTP reply.  False for CGI reply */
   Th_Interp *interp;      /* The TH1 interpreter */
+  char *th1Setup;         /* The TH1 post-creation setup script, if any */
   FILE *httpIn;           /* Accept HTTP input from here */
   FILE *httpOut;          /* Send HTTP output here */
   int xlinkClusterOnly;   /* Set when cloning.  Only process clusters */
@@ -150,7 +155,8 @@ struct Global {
   int *aCommitFile;       /* Array of files to be committed */
   int markPrivate;        /* All new artifacts are private if true */
   int clockSkewSeen;      /* True if clocks on client and server out of sync */
-  char isHTTP;            /* True if erver/CGI modes, else assume CLI. */
+  int wikiFlags;          /* Wiki conversion flags applied to %w and %W */
+  char isHTTP;            /* True if server/CGI modes, else assume CLI. */
   char javascriptHyperlink; /* If true, set href= using script, not HTML */
 
   int urlIsFile;          /* True if a "file:" url */
@@ -341,122 +347,6 @@ void fossil_atexit(void) {
   }
 }
 
-#if defined(_WIN32)
-/*
-** Parse the command-line arguments passed to windows.  We do this
-** ourselves to work around bugs in the command-line parsing of MinGW.
-** It is possible (in theory) to only use this routine when compiling
-** with MinGW and to use built-in command-line parsing for MSVC and
-** MinGW-64.  However, the code is here, it is efficient, and works, and
-** by using it in all cases we do a better job of testing it.  If you suspect
-** a bug in this code, test your theory by invoking "fossil test-echo".
-**
-** This routine is copied from TCL with some reformatting.
-** The original comment text follows:
-**
-** Parse the Windows command line string into argc/argv. Done here
-** because we don't trust the builtin argument parser in crt0. Windows
-** applications are responsible for breaking their command line into
-** arguments.
-**
-** 2N backslashes + quote -> N backslashes + begin quoted string
-** 2N + 1 backslashes + quote -> literal
-** N backslashes + non-quote -> literal
-** quote + quote in a quoted string -> single quote
-** quote + quote not in quoted string -> empty string
-** quote -> begin quoted string
-**
-** Results:
-** Fills argcPtr with the number of arguments and argvPtr with the array
-** of arguments.
-*/
-#define wchar_isspace(X)  ((X)==' ' || (X)=='\t')
-static void parse_windows_command_line(
-  int *argcPtr,   /* Filled with number of argument strings. */
-  void *argvPtr   /* Filled with argument strings (malloc'd). */
-){
-  WCHAR *cmdLine, *p, *arg, *argSpace;
-  WCHAR **argv;
-  int argc, size, inquote, copy, slashes;
-
-  cmdLine = GetCommandLineW();
-
-  /*
-  ** Precompute an overly pessimistic guess at the number of arguments in
-  ** the command line by counting non-space spans.
-  */
-  size = 2;
-  for(p=cmdLine; *p!='\0'; p++){
-    if( wchar_isspace(*p) ){
-      size++;
-      while( wchar_isspace(*p) ){
-        p++;
-      }
-      if( *p=='\0' ){
-        break;
-      }
-    }
-  }
-
-  argSpace = fossil_malloc(size * sizeof(char*)
-    + (wcslen(cmdLine) * sizeof(WCHAR)) + sizeof(WCHAR));
-  argv = (WCHAR**)argSpace;
-  argSpace += size*(sizeof(char*)/sizeof(WCHAR));
-  size--;
-
-  p = cmdLine;
-  for(argc=0; argc<size; argc++){
-    argv[argc] = arg = argSpace;
-    while( wchar_isspace(*p) ){
-      p++;
-    }
-    if (*p == '\0') {
-      break;
-    }
-    inquote = 0;
-    slashes = 0;
-    while(1){
-      copy = 1;
-      while( *p=='\\' ){
-        slashes++;
-        p++;
-      }
-      if( *p=='"' ){
-        if( (slashes&1)==0 ){
-          copy = 0;
-          if( inquote && p[1]=='"' ){
-            p++;
-            copy = 1;
-          }else{
-            inquote = !inquote;
-          }
-        }
-        slashes >>= 1;
-      }
-      while( slashes ){
-        *arg = '\\';
-        arg++;
-        slashes--;
-      }
-      if( *p=='\0' || (!inquote && wchar_isspace(*p)) ){
-        break;
-      }
-      if( copy!=0 ){
-        *arg = *p;
-        arg++;
-      }
-      p++;
-    }
-    *arg = '\0';
-    argSpace = arg + 1;
-  }
-  argv[argc] = NULL;
-  *argcPtr = argc;
-  *((WCHAR ***)argvPtr) = argv;
-}
-#endif /* defined(_WIN32) */
-
-
 /*
 ** Convert all arguments from mbcs (or unicode) to UTF-8. Then
 ** search g.argv for arguments "--args FILENAME". If found, then
@@ -478,18 +368,21 @@ static void expand_args_option(int argc, void *argv){
   char **newArgv;           /* New expanded g.argv under construction */
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
-  int foundBom = -1;        /* -1= not searched yet, 0 = no; 1=yes */
-#ifdef _WIN32
-  wchar_t buf[MAX_PATH];
+#if defined(_WIN32)
+  WCHAR buf[MAX_PATH];
 #endif
 
   g.argc = argc;
   g.argv = argv;
-#ifdef _WIN32
-  parse_windows_command_line(&g.argc, &g.argv);
+  sqlite3_initialize();
+#if defined(_WIN32) && defined(BROKEN_MINGW_CMDLINE)
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_mbcs_to_utf8(g.argv[i]);
+#else
+  for(i=0; i<g.argc; i++) g.argv[i] = fossil_filename_to_utf8(g.argv[i]);
+#endif
+#if defined(_WIN32)
   GetModuleFileNameW(NULL, buf, MAX_PATH);
-  g.nameOfExe = fossil_unicode_to_utf8(buf);
-  for(i=0; i<g.argc; i++) g.argv[i] = fossil_unicode_to_utf8(g.argv[i]);
+  g.nameOfExe = fossil_filename_to_utf8(buf);
 #else
   g.nameOfExe = g.argv[0];
 #endif
@@ -516,6 +409,7 @@ static void expand_args_option(int argc, void *argv){
     }
     zInFile = NULL;
   }
+  blob_to_utf8_no_bom(&file, 1);
   z = blob_str(&file);
   for(k=0, nLine=1; z[k]; k++) if( z[k]=='\n' ) nLine++;
   newArgv = fossil_malloc( sizeof(char*)*(g.argc + nLine*2) );
@@ -526,19 +420,9 @@ static void expand_args_option(int argc, void *argv){
     if( n<=1 ) continue;
     z = blob_buffer(&line);
     z[n-1] = 0;
-    if (foundBom == -1) {
-      static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-      foundBom = memcmp(z, bom, 3)==0;
-      if( foundBom ) {
-        z += 3; n -= 3;
-      }
-    }
     if((n>1) && ('\r'==z[n-2])){
       if(n==2) continue /*empty line*/;
       z[n-2] = 0;
-    }
-    if (!foundBom) {
-      z = fossil_mbcs_to_utf8(z);
     }
     newArgv[j++] = z;
     if( z[0]=='-' ){
@@ -573,10 +457,16 @@ static char **copy_args(int argc, char **argv){
 }
 #endif
 
+
 /*
 ** This procedure runs first.
 */
+#if defined(_WIN32) && !defined(BROKEN_MINGW_CMDLINE)
+int _dowildcard = -1; /* This turns on command-line globbing in MinGW-w64 */
+int wmain(int argc, wchar_t **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
   const char *zCmdName = "unknown";
   int idx;
@@ -621,6 +511,7 @@ int main(int argc, char **argv)
     g.fSqlTrace = find_option("sqltrace", 0, 0)!=0;
     g.fSqlStats = find_option("sqlstats", 0, 0)!=0;
     g.fSystemTrace = find_option("systemtrace", 0, 0)!=0;
+    g.fSshTrace = find_option("sshtrace", 0, 0)!=0;
     if( g.fSqlTrace ) g.fSqlStats = 1;
     g.fSqlPrint = find_option("sqlprint", 0, 0)!=0;
     g.fHttpTrace = find_option("httptrace", 0, 0)!=0;
@@ -717,6 +608,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -750,6 +642,7 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
       cgi_reply();
     }else if( !g.fQuiet ){
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -792,6 +685,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_reply();
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -818,6 +712,7 @@ void fossil_warning(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
     }else{
       char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
+      fossil_force_newline();
       fossil_puts(zOut, 1);
       fossil_free(zOut);
     }
@@ -852,14 +747,14 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  WCHAR *zUnicode = fossil_utf8_to_unicode(zNewCmd);
   if( g.fSystemTrace ) {
     char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
     fossil_puts(zOut, 1);
     fossil_free(zOut);
   }
   rc = _wsystem(zUnicode);
-  fossil_mbcs_free(zUnicode);
+  fossil_unicode_free(zUnicode);
   free(zNewCmd);
 #else
   /* On unix, evaluate the command directly.
@@ -1365,8 +1260,18 @@ static char *enter_chroot_jail(char *zRepo){
 **
 ** Process the webpage specified by the PATH_INFO or REQUEST_URI
 ** environment variable.
+**
+** If the repository is not known, the a search is done through the
+** file hierarchy rooted at g.zRepositoryName for a suitable repository
+** with a name of $prefix.fossil, where $prefix is any prefix of PATH_INFO.
+** Or, if an ordinary file named $prefix is found, and $prefix matches
+** pFileGlob and $prefix does not match "*.fossil*" and the mimetype of
+** $prefix can be determined from its suffix, then the file $prefix is
+** returned as static text.
+**
+** If no suitable webpage is found, try to redirect to zNotFound.
 */
-static void process_one_web_page(const char *zNotFound){
+static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   const char *zPathInfo;
   char *zPath = NULL;
   int idx;
@@ -1389,23 +1294,50 @@ static void process_one_web_page(const char *zNotFound){
       zRepo = zToFree = mprintf("%s%.*s.fossil",g.zRepositoryName,i,zPathInfo);
 
       /* To avoid mischief, make sure the repository basename contains no
-      ** characters other than alphanumerics, "-", "/", and "_".
+      ** characters other than alphanumerics, "/", "_", "-", and ".", and
+      ** that "-" never occurs immediately after a "/" and that "." is always
+      ** surrounded by two alphanumerics.  Any character that does not 
+      ** satisfy these constraints is converted into "_".
       */
+      szFile = 0;
       for(j=strlen(g.zRepositoryName)+1, k=0; zRepo[j] && k<i-1; j++, k++){
-        if( !fossil_isalnum(zRepo[j]) && zRepo[j]!='-' && zRepo[j]!='/' ){
-          zRepo[j] = '_';
+        char c = zRepo[j];
+        if( fossil_isalnum(c) ) continue;
+        if( c=='/' ) continue;
+        if( c=='_' ) continue;
+        if( c=='-' && zRepo[j-1]!='/' ) continue;
+        if( c=='.' && fossil_isalnum(zRepo[j-1]) && fossil_isalnum(zRepo[j+1])){
+          continue;
         }
+        szFile = 1;
+        break;
       }
-      if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
-
-      szFile = file_size(zRepo);
-      if( zPathInfo[i]=='/' && szFile<0 ){
+      if( szFile==0 ){
+        if( zRepo[0]=='/' && zRepo[1]=='/' ){ zRepo++; j--; }
+        szFile = file_size(zRepo);
+      }
+      if( szFile<0 ){
+        const char *zMimetype;
         assert( fossil_strcmp(&zRepo[j], ".fossil")==0 );
         zRepo[j] = 0;
-        if( file_isdir(zRepo)==1 ){
+        if( zPathInfo[i]=='/' && file_isdir(zRepo)==1 ){
           fossil_free(zToFree);
           i++;
           continue;
+        }
+        if( pFileGlob!=0
+         && file_isfile(zRepo)
+         && glob_match(pFileGlob, zRepo)
+         && strglob("*.fossil*",zRepo)==0
+         && (zMimetype = mimetype_from_name(zRepo))!=0
+         && strcmp(zMimetype, "application/x-fossil-artifact")!=0
+        ){
+          Blob content;
+          blob_read_from_file(&content, zRepo);
+          cgi_set_content_type(zMimetype);
+          cgi_set_content(&content);
+          cgi_reply();
+          return;
         }
         zRepo[j] = '.';
       }
@@ -1536,7 +1468,7 @@ static void process_one_web_page(const char *zNotFound){
     ** Disabled by stephan when running in JSON mode because this
     ** particular parameter name is very common and i have had no end
     ** of grief with this handling. The JSON API never relies on the
-    ** handling below, and by disabling it in JSON mode i can remove
+    ** handling below, and by disabling it in JSON mode I can remove
     ** lots of special-case handling in several JSON handlers.
     */
 #ifdef FOSSIL_ENABLE_JSON
@@ -1609,6 +1541,7 @@ void cmd_cgi(void){
   const char *zNotFound = 0;
   char **azRedirect = 0;             /* List of repositories to redirect to */
   int nRedirect = 0;                 /* Number of entries in azRedirect */
+  Glob *pFileGlob = 0;               /* Pattern for files */
   Blob config, line, key, value, value2;
   if( g.argc==3 && fossil_strcmp(g.argv[1],"cgi")==0 ){
     zFile = g.argv[2];
@@ -1625,7 +1558,7 @@ void cmd_cgi(void){
     if( !blob_token(&line, &key) ) continue;
     if( blob_buffer(&key)[0]=='#' ) continue;
     if( blob_eq(&key, "debug:") && blob_token(&line, &value) ){
-      g.fDebug = fossil_fopen(blob_str(&value), "a");
+      g.fDebug = fossil_fopen(blob_str(&value), "ab");
       blob_reset(&value);
       continue;
     }
@@ -1665,6 +1598,10 @@ void cmd_cgi(void){
       blob_reset(&value2);
       continue;
     }
+    if( blob_eq(&key, "files:") && blob_token(&line, &value) ){
+      pFileGlob = glob_create(blob_str(&value));
+      continue;
+    }
   }
   blob_reset(&config);
   if( g.db==0 && g.zRepositoryName==0 && nRedirect==0 ){
@@ -1674,7 +1611,7 @@ void cmd_cgi(void){
   if( nRedirect ){
     redirect_web_page(nRedirect, azRedirect);
   }else{
-    process_one_web_page(zNotFound);
+    process_one_web_page(zNotFound, pFileGlob);
   }
 }
 
@@ -1692,7 +1629,7 @@ void cmd_cgi(void){
 **    redirect: * URL
 **
 ** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primative error message is returned.
+** very primitive error message is returned.
 */
 void redirect_web_page(int nRedirect, char **azRedirect){
   int i;                             /* Loop counter */
@@ -1750,9 +1687,13 @@ void redirect_web_page(int nRedirect, char **azRedirect){
 static void find_server_repository(int disallowDir){
   if( g.argc<3 ){
     db_must_be_within_tree();
-  }else if( !disallowDir && file_isdir(g.argv[2])==1 ){
-    g.zRepositoryName = mprintf("%s", g.argv[2]);
-    file_simplify_name(g.zRepositoryName, -1, 0);
+  }else if( file_isdir(g.argv[2])==1 ){
+    if( disallowDir ){
+      fossil_fatal("\"%s\" is a directory, not a repository file", g.argv[2]);
+    }else{
+      g.zRepositoryName = mprintf("%s", g.argv[2]);
+      file_simplify_name(g.zRepositoryName, -1, 0);
+    }
   }else{
     db_open_repository(g.argv[2]);
   }
@@ -1774,11 +1715,18 @@ static void find_server_repository(int disallowDir){
 ** handler from inetd, for example.  The argument is the name of the
 ** repository.
 **
-** If REPOSITORY is a directory that contains one or more repositories
-** with names of the form "*.fossil" then the first element of the URL
-** pathname selects among the various repositories.  If the pathname does
+** If REPOSITORY is a directory that contains one or more repositories,
+** either directly in REPOSITORY itself, or in subdirectories, and
+** with names of the form "*.fossil" then the a prefix of the URL pathname
+** selects from among the various repositories.  If the pathname does
 ** not select a valid repository and the --notfound option is available,
 ** then the server redirects (HTTP code 302) to the URL of --notfound.
+** When REPOSITORY is a directory, the pathname must contain only
+** alphanumerics, "_", "/", "-" and "." and no "-" may occur after a "/"
+** and every "." must be surrounded on both sides by alphanumerics or else
+** a 404 error is returned.  Static content files in the directory are
+** returned if they match comma-separate GLOB pattern specified by --files
+** and do not match "*.fossil*" and have a well-known suffix.
 **
 ** The --host option can be used to specify the hostname for the server.
 ** The --https option indicates that the request came from HTTPS rather
@@ -1795,6 +1743,7 @@ static void find_server_repository(int disallowDir){
 **   --https          signal a request coming in via https
 **   --nossl          signal that no SSL connections are available
 **   --notfound URL   use URL as "HTTP 404, object not found" page.
+**   --files GLOB     comma-separate glob patterns for static file to serve
 **   --baseurl URL    base URL (useful with reverse proxies)
 **
 ** See also: cgi, server, winsrv
@@ -1804,6 +1753,20 @@ void cmd_http(void){
   const char *zNotFound;
   const char *zHost;
   const char *zAltBase;
+  const char *zFileGlob;
+
+  /* The winhttp module passes the --files option as --files-urlenc with
+  ** the argument being URL encoded, to avoid wildcard expansion in the 
+  ** shell.  This option is for internal use and is undocumented.
+  */
+  zFileGlob = find_option("files-urlenc",0,1);
+  if( zFileGlob ){
+    char *z = mprintf("%s", zFileGlob);
+    dehttpize(z);
+    zFileGlob = z;
+  }else{
+    zFileGlob = find_option("files",0,1);
+  }
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
@@ -1829,7 +1792,7 @@ void cmd_http(void){
   find_server_repository(0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(zIpAddr);
-  process_one_web_page(zNotFound);
+  process_one_web_page(zNotFound, glob_create(zFileGlob));
 }
 
 /*
@@ -1839,6 +1802,10 @@ void cmd_http(void){
 ** Works like the http command but gives setup permission to all users.
 */
 void cmd_test_http(void){
+  g.thTrace = find_option("th-trace", 0, 0)!=0;
+  if( g.thTrace ){
+    blob_zero(&g.thLog);
+  }
   login_set_capabilities("sx", 0);
   g.useLocalauth = 1;
   cgi_set_parameter("REMOTE_ADDR", "127.0.0.1");
@@ -1848,7 +1815,7 @@ void cmd_test_http(void){
   g.cgiOutput = 1;
   g.fullHttpReply = 1;
   cgi_handle_http_request(0);
-  process_one_web_page(0);
+  process_one_web_page(0, 0);
 }
 
 #if !defined(_WIN32)
@@ -1893,22 +1860,35 @@ static int binaryOnPath(const char *zBinary){
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
-** In the "server" command, the REPOSITORY can be a directory (aka folder)
-** that contains one or more rspositories with names ending in ".fossil".
-** In that case, the first element of the URL is used to select among the
-** various repositories.
+** The REPOSITORY can be a directory (aka folder) that contains one or 
+** more repositories with names ending in ".fossil".  In this case, the 
+** a prefix of the URL pathname is used to search the directory for an
+** appropriate repository.  To thwart mischief, the pathname in the URL must
+** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may
+** occur after "/", and every "." must be surrounded on both sides by
+** alphanumerics.  Any pathname that does not satisfy these constraints
+** results in a 404 error.  Files in REPOSITORY that match the comma-separated
+** list of glob patterns given by --files and that have known suffixes
+** such as ".txt" or ".html" or ".jpeg" and do not match the pattern
+** "*.fossil*" will be served as static content.  With the "ui" command,
+** the REPOSITORY can only be a directory if the --notfound option is
+** also present.
 **
 ** By default, the "ui" command provides full administrative access without
 ** having to log in.  This can be disabled by setting turning off the
 ** "localauth" setting.  Automatic login for the "server" command is available
 ** if the --localauth option is present and the "localauth" setting is off
-** and the connection is from localhost.
+** and the connection is from localhost.  The optional REPOSITORY argument
+** to "ui" may be a directory and will function as "server" if and only if
+** the --notfound option is used.
 **
 ** Options:
 **   --localauth         enable automatic login for requests from localhost
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
+**   --notfound URL      Redirect
+**   --files GLOBLIST    Comma-separated list of glob patterns for static files
 **
 ** See also: cgi, http, winsrv
 */
@@ -1921,12 +1901,14 @@ void cmd_webserver(void){
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
   const char *zAltBase;     /* Argument to the --baseurl option */
+  const char *zFileGlob;    /* Static content must match this */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
   zStopperFile = find_option("stopper", 0, 1);
 #endif
 
+  zFileGlob = find_option("files", 0, 1);
   g.thTrace = find_option("th-trace", 0, 0)!=0;
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   if( g.thTrace ){
@@ -1944,7 +1926,7 @@ void cmd_webserver(void){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
   }
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
     iPort = mxPort = atoi(zPort);
   }else{
@@ -1983,10 +1965,10 @@ void cmd_webserver(void){
     fprintf(stderr, "====== SERVER pid %d =======\n", getpid());
   }
   g.cgiOutput = 1;
-  find_server_repository(isUiCmd);
+  find_server_repository(isUiCmd && zNotFound==0);
   g.zRepositoryName = enter_chroot_jail(g.zRepositoryName);
   cgi_handle_http_request(0);
-  process_one_web_page(zNotFound);
+  process_one_web_page(zNotFound, glob_create(zFileGlob));
 #else
   /* Win32 implementation */
   if( isUiCmd ){
@@ -1994,9 +1976,9 @@ void cmd_webserver(void){
     zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
   }
   db_close(1);
-  if( win32_http_service(iPort, zNotFound, flags) ){
+  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, flags);
+                      zStopperFile, zNotFound, zFileGlob, flags);
   }
 #endif
 }
@@ -2004,12 +1986,30 @@ void cmd_webserver(void){
 /*
 ** COMMAND:  test-echo
 **
+** Usage:  %fossil test-echo [--hex] ARGS...
+**
 ** Echo all command-line arguments (enclosed in [...]) to the screen so that
 ** wildcard expansion behavior of the host shell can be investigated.
+**
+** With the --hex option, show the output as hexadecimal.  This can be used
+** to verify the fossil_filename_to_utf8() routine on Windows and Mac.
 */
 void test_echo_cmd(void){
-  int i;
-  for(i=0; i<g.argc; i++){
-    fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+  int i, j;
+  if( find_option("hex",0,0)==0 ){
+    fossil_print("g.nameOfExe = [%s]\n", g.nameOfExe);
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [%s]\n", i, g.argv[i]);
+    }
+  }else{
+    unsigned char *z, c;
+    for(i=0; i<g.argc; i++){
+      fossil_print("argv[%d] = [", i);
+      z = (unsigned char*)g.argv[i];
+      for(j=0; (c = z[j])!=0; j++){
+        fossil_print("%02x", c);
+      }
+      fossil_print("]\n");
+    }
   }
 }

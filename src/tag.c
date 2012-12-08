@@ -343,7 +343,7 @@ void tag_add_artifact(
 **         Add a new tag or property to CHECK-IN. The tag will
 **         be usable instead of a CHECK-IN in commands such as
 **         update and merge.  If the --propagate flag is present,
-**         the tag value propages to all descendants of CHECK-IN
+**         the tag value propagates to all descendants of CHECK-IN
 **
 **     %fossil tag cancel ?--raw? TAGNAME CHECK-IN
 **

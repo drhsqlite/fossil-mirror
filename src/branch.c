@@ -140,9 +140,11 @@ void branch_new(void){
   blob_appendf(&branch, "Z %b\n", &mcksum);
   if( !noSign && clearsign(&branch, &branch) ){
     Blob ans;
+    char cReply;
     blob_zero(&ans);
     prompt_user("unable to sign manifest.  continue (y/N)? ", &ans);
-    if( blob_str(&ans)[0]!='y' ){
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y'){
       db_end_transaction(1);
       fossil_exit(1);
     }
@@ -176,7 +178,7 @@ void branch_new(void){
   db_end_transaction(0);
 
   /* Do an autosync push, if requested */
-  if( !isPrivate ) autosync(AUTOSYNC_PUSH);
+  if( !isPrivate ) autosync(SYNC_PUSH);
 }
 
 /*

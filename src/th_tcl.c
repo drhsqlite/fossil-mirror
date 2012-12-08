@@ -219,7 +219,7 @@ static int notifyPreOrPostEval(
 
   if ( !tclContext ){
     Th_ErrorMessage(interp,
-        "Invalid Tcl context", (const char *)"", 0);
+        "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
   xNotifyProc = bIsPost ? tclContext->xPostEval : tclContext->xPreEval;
@@ -399,7 +399,7 @@ static int tclInvoke_command(
     return TH_ERROR;
   }
   if( !cmdInfo.objProc ){
-    Th_ErrorMessage(interp, "Cannot invoke Tcl command:", argv[1], argl[1]);
+    Th_ErrorMessage(interp, "cannot invoke Tcl command:", argv[1], argl[1]);
     Tcl_DecrRefCount(objPtr);
     Tcl_Release((ClientData)tclInterp);
     return TH_ERROR;
@@ -535,7 +535,7 @@ static int loadTcl(
 #endif
   if( !pLibrary || !pxFindExecutable || !pxCreateInterp ){
     Th_ErrorMessage(interp,
-        "Invalid Tcl loader argument(s)", (const char *)"", 0);
+        "invalid Tcl loader argument(s)", (const char *)"", 0);
     return TH_ERROR;
   }
 #if defined(USE_TCL_STUBS)
@@ -551,7 +551,7 @@ static int loadTcl(
       }
       if( !xFindExecutable ){
         Th_ErrorMessage(interp,
-            "Could not locate Tcl_FindExecutable", (const char *)"", 0);
+            "could not locate Tcl_FindExecutable", (const char *)"", 0);
         dlclose(library);
         return TH_ERROR;
       }
@@ -562,7 +562,7 @@ static int loadTcl(
       }
       if( !xCreateInterp ){
         Th_ErrorMessage(interp,
-            "Could not locate Tcl_CreateInterp", (const char *)"", 0);
+            "could not locate Tcl_CreateInterp", (const char *)"", 0);
         dlclose(library);
         return TH_ERROR;
       }
@@ -573,7 +573,7 @@ static int loadTcl(
     }
   } while( --fileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
   Th_ErrorMessage(interp,
-      "Could not load Tcl shared library \"" TCL_LIBRARY_NAME "\"",
+      "could not load Tcl shared library \"" TCL_LIBRARY_NAME "\"",
       (const char *)"", 0);
   return TH_ERROR;
 #else
@@ -658,7 +658,7 @@ static int createTclInterp(
 
   if ( !tclContext ){
     Th_ErrorMessage(interp,
-        "Invalid Tcl context", (const char *)"", 0);
+        "invalid Tcl context", (const char *)"", 0);
     return TH_ERROR;
   }
   if ( tclContext->interp ){
@@ -681,7 +681,7 @@ static int createTclInterp(
 #endif
       Tcl_InterpDeleted(tclInterp) ){
     Th_ErrorMessage(interp,
-        "Could not create Tcl interpreter", (const char *)"", 0);
+        "could not create Tcl interpreter", (const char *)"", 0);
     return TH_ERROR;
   }
   tclContext->interp = tclInterp;

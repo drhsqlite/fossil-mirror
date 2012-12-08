@@ -218,7 +218,7 @@ int strglob(const char *zGlob, const char *z){
 
 /*
 ** Return true (non-zero) if zString matches any of the patterns in
-** the Glob.  The value returned is actually a 1-basd index of the pattern
+** the Glob.  The value returned is actually a 1-based index of the pattern
 ** that matched.  Return 0 if none of the patterns match zString.
 **
 ** A NULL glob matches nothing.
