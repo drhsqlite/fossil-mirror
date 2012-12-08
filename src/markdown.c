@@ -275,7 +275,7 @@ static int cmp_html_tag(const void *a, const void *b){
   const struct html_tag *hta = a;
   const struct html_tag *htb = b;
   if( hta->size!=htb->size ) return hta->size-htb->size;
-  return strncasecmp(hta->text, htb->text, hta->size);
+  return fossil_strnicmp(hta->text, htb->text, hta->size);
 }
 
 
@@ -369,16 +369,16 @@ static size_t tag_length(char *data, size_t size, enum mkd_autolink *autolink){
   /* scheme test */
   *autolink = MKDA_NOT_AUTOLINK;
   if( size>6
-   && strncasecmp(data+1, "http", 4)==0
+   && fossil_strnicmp(data+1, "http", 4)==0
    && (data[5]==':'
        || ((data[5]=='s' || data[5]=='S') && data[6]==':'))
   ){
     i = (data[5]==':') ? 6 : 7;
     *autolink = MKDA_NORMAL;
-  }else if( size>5 && strncasecmp(data+1, "ftp:", 4)==0 ){
+  }else if( size>5 && fossil_strnicmp(data+1, "ftp:", 4)==0 ){
     i = 5;
     *autolink = MKDA_NORMAL;
-  }else if( size>7 && strncasecmp(data+1, "mailto:", 7)==0 ){
+  }else if( size>7 && fossil_strnicmp(data+1, "mailto:", 7)==0 ){
     i = 8;
     /* not changing *autolink to go to the address test */
    }
@@ -1642,7 +1642,7 @@ static size_t htmlblock_end(struct html_tag *tag, char *data, size_t size){
 
   /* checking tag is a match */
   if( (tag->size+3)>=size
-    || strncasecmp(data+2, tag->text, tag->size)
+    || fossil_strnicmp(data+2, tag->text, tag->size)
     || data[tag->size+2]!='>'
   ){
     return 0;

@@ -1,5 +1,5 @@
-C Merge\smarkdown\ssupport\sfor\sembedded\sdocumentation\sinto\sthe\strunk.
-D 2012-12-08T00:41:01.148
+C In\sthe\smarkdown\sengine,\suse\sfossil_strnicmp()\sto\sallow\seasy\scompilation\swith\sMSVC.
+D 2012-12-08T01:01:28.802
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -353,7 +353,7 @@ F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl a7f04a925bce6fbc7e81c9fc45e0923faa98e47e
 F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
-F src/markdown.c d79f134a528b5a97e707d17768c86f901997eb9d
+F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
 F src/merge.c cab745f8a4edce9f09f9aab4a3cc6b220a4831b4
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0bb8184e3c1d21cd012db2f0cda8d915166e8504 de1ef7e99fd1ea4612304631d079a6dc5d32a3dc
-R 9367921b27661a5f8c333d6e6fdb2dda
+P 61079c3bef3257f1f4b247fec1252273a8a36a3c
+R 376dbe84cda21677bfc220f77f1547d4
 U mistachkin
-Z fd9b08451e04b138a46959616529a6ed
+Z 7cc1aba49f3854aa2d5cd40cc057452f
