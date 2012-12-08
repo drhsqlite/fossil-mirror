@@ -483,7 +483,9 @@ void ci_page(void){
     const char *zOrigDate;
     char *zThisBranch;
     double thisMtime;
+#if 0
     int seenDiffTitle = 0;
+#endif
 
     style_header(zTitle);
     login_anonymous_available();

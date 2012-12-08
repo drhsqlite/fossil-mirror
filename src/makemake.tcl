@@ -720,12 +720,13 @@ setup: $(OBJDIR) $(APPNAME)
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
+  if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
+  append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
-append mhargs " \$(OBJDIR)/VERSION.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
+append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
