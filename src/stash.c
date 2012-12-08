@@ -161,8 +161,9 @@ static int stash_create(void){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
 #ifdef _WIN32
-    static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-    blob_init(&prompt, (const char *) bom, 3);
+    int bomSize;
+    const unsigned char *bom = get_utf8_bom(&bomSize);
+    blob_init(&prompt, (const char *) bom, bomSize);
 #else
     blob_zero(&prompt);
 #endif

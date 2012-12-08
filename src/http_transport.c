@@ -195,6 +195,7 @@ void transport_global_startup(void){
       blob_appendf(&zCmd, " -p %d", g.urlPort);
 #endif
     }
+    fossil_force_newline();
     fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
     if( g.urlUser && g.urlUser[0] ){
       zHost = mprintf("%s@%s", g.urlUser, g.urlName);

@@ -352,7 +352,7 @@ void extra_cmd(void){
       "SELECT x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      fossil_all_reserved_names()
+      fossil_all_reserved_names(0)
   );
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   blob_zero(&rewrittenPathname);
@@ -432,7 +432,7 @@ void clean_cmd(void){
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
       " ORDER BY 1",
-      g.zLocalRoot, fossil_all_reserved_names()
+      g.zLocalRoot, fossil_all_reserved_names(0)
   );
   if( file_tree_name(g.zRepositoryName, &repo, 0) ){
     db_multi_exec("DELETE FROM sfile WHERE x=%B", &repo);
@@ -523,7 +523,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
       blob_append(&reply, zIn, -1);
     }
   }
-  blob_strip_bom(&reply, 1);
+  blob_to_utf8_no_bom(&reply, 1);
   blob_remove_cr(&reply);
   file_delete(zFile);
   free(zFile);
@@ -572,8 +572,9 @@ static void prepare_commit_comment(
 ){
   Blob prompt;
 #ifdef _WIN32
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-  blob_init(&prompt, (const char *) bom, 3);
+  int bomSize;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+  blob_init(&prompt, (const char *) bom, bomSize);
   if( zInit && zInit[0]) {
     blob_append(&prompt, zInit, -1);
   }
@@ -583,7 +584,6 @@ static void prepare_commit_comment(
   blob_append(&prompt,
     "\n"
     "# Enter comments on this check-in.  Lines beginning with # are ignored.\n"
-    "# The check-in comment follows wiki formatting rules.\n"
     "#\n", -1
   );
   blob_appendf(&prompt, "# user: %s\n", zUserOvrd ? zUserOvrd : g.zLogin);
@@ -659,7 +659,7 @@ static void checkin_verify_younger(
   );
   if( b ){
     fossil_fatal("ancestor check-in [%.10s] (%s) is not older (clock skew?)"
-                 " Use -f to override.", zUuid, zDate);
+                 " Use --allow-older to override.", zUuid, zDate);
   }
 #endif
 }
@@ -888,11 +888,16 @@ static void create_manifest(
 ** Issue a warning and give the user an opportunity to abandon out
 ** if a Unicode (UTF-16) byte-order-mark (BOM) or a \r\n line ending
 ** is seen in a text file.
+**
+** Return 1 if the user pressed 'c'. In that case, the file will have
+** been converted to UTF-8 (if it was UTF-16) with NL line-endings,
+** and the original file will have been renamed to "<filename>-original".
 */
-static void commit_warning(
-  const Blob *p,        /* The content of the file being committed. */
+static int commit_warning(
+  Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
+  int unicodeOk,        /* Non-zero if unicode warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
@@ -901,39 +906,66 @@ static void commit_warning(
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
-  if( allOk ) return;
-  fUnicode = starts_with_utf16_bom(p);
+  if( allOk ) return 0;
+  fUnicode = starts_with_utf16_bom(p, 0);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
+    const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
     if( eType==-1 && fUnicode ){
+      if ( crnlOk && unicodeOk ){
+        return 0; /* We don't want Unicode/CR/NL warnings for this file. */
+      }
       zWarning = "Unicode and CR/NL line endings";
     }else if( eType==-1 ){
       if( crnlOk ){
-        return; /* We don't want CR/NL warnings for this file. */
+        return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
     }else if( eType==0 ){
       if( binOk ){
-        return; /* We don't want binary warnings for this file. */
+        return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
+      zConvert = ""; /* We cannot convert binary files. */
     }else{
+      if ( unicodeOk ){
+        return 0; /* We don't want unicode warnings for this file. */
+      }
       zWarning = "Unicode";
+#ifndef _WIN32
+      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
+#endif
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s.  commit anyhow (a=all/y/N)? ",
-         blob_str(&fname), zWarning);
+         "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
+         blob_str(&fname), zWarning, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
     if( cReply=='a' || cReply=='A' ){
       allOk = 1;
+    }else if( *zConvert && (cReply=='c' || cReply=='C') ){
+      char *zOrig = file_newname(zFilename, "original", 1);
+      FILE *f;
+      blob_write_to_file(p, zOrig);
+      fossil_free(zOrig);
+      f = fossil_fopen(zFilename, "wb");
+      if( fUnicode ) {
+        int bomSize;
+        const unsigned char *bom = get_utf8_bom(&bomSize);
+        fwrite(bom, 1, bomSize, f);
+        blob_to_utf8_no_bom(p, 0);
+      }
+      blob_remove_cr(p);
+      fwrite(blob_buffer(p), 1, blob_size(p), f);
+      fclose(f);
+      return 1;
     }else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
@@ -941,6 +973,7 @@ static void commit_warning(
     blob_reset(&ans);
     blob_reset(&fname);
   }
+  return 0;
 }
 
 /*
@@ -983,8 +1016,19 @@ static int tagCmp(const void *a, const void *b){
 ** background color for a single check-in.  Subsequent check-ins revert
 ** to the default color.
 **
-** A check-in is not permitted to fork unless the --force or -f
-** option appears.  A check-in is not allowed against a closed leaf.
+** A check-in is not permitted to fork unless the --allow-fork option
+** appears.  An empty check-in (i.e. with nothing changed) is not
+** allowed unless the --allow-empty option appears.  A check-in may not
+** be older than its ancestor unless the --allow-older option appears.
+** If any of files in the check-in appear to contain unresolved merge
+** conflicts, the check-in will not be allowed unless the
+** --allow-conflict option is present.  In addition, the entire
+** check-in process may be aborted if a file contains content that
+** appears to be binary, Unicode text, or text with CR/NL line endings
+** unless the interactive user chooses to proceed.  If there is no
+** interactive user or these warnings should be skipped for some other
+** reason, the --no-warnings option may be used.  A check-in is not
+** allowed against a closed leaf.
 **
 ** The --private option creates a private check-in that is never synced.
 ** Children of private check-ins are automatically private.
@@ -992,19 +1036,21 @@ static int tagCmp(const void *a, const void *b){
 ** the --tag option applies the symbolic tag name to the check-in.
 **
 ** Options:
+**    --allow-conflict           allow unresolved merge conflicts
+**    --allow-empty              allow a commit with no changes
+**    --allow-fork               allow the commit to fork
+**    --allow-older              allow a commit older than its ancestor
 **    --baseline                 use a baseline manifest in the commit process
 **    --bgcolor COLOR            apply COLOR to this one check-in only
 **    --branch NEW-BRANCH-NAME   check in to this new branch
 **    --branchcolor COLOR        apply given COLOR to the branch
 **    --comment|-m COMMENT-TEXT  use COMMENT-TEXT as commit comment
 **    --delta                    use a delta manifest in the commit process
-**    --force|-f                 allow forking with this commit
 **    --message-file|-M FILE     read the commit comment from given file
+**    --no-warnings              omit all warnings about file contents
 **    --nosign                   do not attempt to sign this commit with gpg
 **    --private                  do not sync changes and their descendants
 **    --tag TAG-NAME             assign given tag TAG-NAME to the checkin
-**    --conflict                 allow unresolved merge conflicts
-**    --binary-ok                do not warn about committing binary files
 **
 ** See also: branch, changes, checkout, extra, sync
 */
@@ -1019,11 +1065,14 @@ void commit_cmd(void){
   char *zUuid;           /* UUID of the new check-in */
   int noSign = 0;        /* True to omit signing the manifest using GPG */
   int isAMerge = 0;      /* True if checking in a merge */
-  int forceFlag = 0;     /* Force a fork */
+  int noWarningFlag = 0; /* True if skipping all warnings */
+  int forceFlag = 0;     /* Undocumented: Disables all checks */
   int forceDelta = 0;    /* Force a delta-manifest */
   int forceBaseline = 0; /* Force a baseline-manifest */
   int allowConflict = 0; /* Allow unresolve merge conflicts */
-  int binaryOk = 0;      /* The --binary-ok flag */
+  int allowEmpty = 0;    /* Allow a commit with no changes */
+  int allowFork = 0;     /* Allow the commit to fork */
+  int allowOlder = 0;    /* Allow a commit older than its ancestor */
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
@@ -1044,6 +1093,7 @@ void commit_cmd(void){
   int szD;               /* Size of the delta manifest */
   int szB;               /* Size of the baseline manifest */
   int nConflict = 0;     /* Number of unresolved merge conflicts */
+  int abortCommit = 0;
   Blob ans;
   char cReply;
 
@@ -1057,10 +1107,14 @@ void commit_cmd(void){
   testRun = find_option("test",0,0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
+  allowConflict = find_option("allow-conflict",0,0)!=0;
+  allowEmpty = find_option("allow-empty",0,0)!=0;
+  allowFork = find_option("allow-fork",0,0)!=0;
+  allowOlder = find_option("allow-older",0,0)!=0;
+  noWarningFlag = find_option("no-warnings", 0, 0)!=0;
   zBranch = find_option("branch","b",1);
   zColor = find_option("bgcolor",0,1);
   zBrClr = find_option("branchcolor",0,1);
-  binaryOk = find_option("binary-ok",0,0)!=0;
   while( (zTag = find_option("tag",0,1))!=0 ){
     if( zTag[0]==0 ) continue;
     azTag = fossil_realloc((void *)azTag, sizeof(char*)*(nTag+2));
@@ -1075,7 +1129,6 @@ void commit_cmd(void){
   }
   zDateOvrd = find_option("date-override",0,1);
   zUserOvrd = find_option("user-override",0,1);
-  allowConflict = find_option("conflict",0,0)!=0;
   db_must_be_within_tree();
   noSign = db_get_boolean("omitsign", 0)|noSign;
   if( db_get_boolean("clearsign", 0)==0 ){ noSign = 1; }
@@ -1182,30 +1235,34 @@ void commit_cmd(void){
   hasChanges = unsaved_changes();
   db_begin_transaction();
   db_record_repository_filename(0);
-  if( hasChanges==0 && !isAMerge && !forceFlag ){
-    fossil_fatal("nothing has changed");
+  if( hasChanges==0 && !isAMerge && !allowEmpty && !forceFlag ){
+    fossil_fatal("nothing has changed; use --allow-empty to override");
   }
 
   /* If none of the files that were named on the command line have
-  ** been modified, bail out now unless the --force flag is used.
+  ** been modified, bail out now unless the --allow-empty or --force
+  ** flags is used.
   */
   if( g.aCommitFile
+   && !allowEmpty
    && !forceFlag
    && !db_exists(
         "SELECT 1 FROM vfile "
         " WHERE is_selected(id)"
         "   AND (chnged OR deleted OR rid=0 OR pathname!=origname)")
   ){
-    fossil_fatal("none of the selected files have changed; use -f"
-                 " or --force.");
+    fossil_fatal("none of the selected files have changed; use "
+                 "--allow-empty to override.");
   }
 
   /*
-  ** Do not allow a commit that will cause a fork unless the --force flag
-  ** is used or unless this is a private check-in.
+  ** Do not allow a commit that will cause a fork unless the --allow-fork
+  ** or --force flags is used, or unless this is a private check-in.
   */
-  if( zBranch==0 && forceFlag==0 && g.markPrivate==0 && !is_a_leaf(vid) ){
-    fossil_fatal("would fork.  \"update\" first or use -f or --force.");
+  if( zBranch==0 && allowFork==0 && forceFlag==0
+    && g.markPrivate==0 && !is_a_leaf(vid)
+  ){
+    fossil_fatal("would fork.  \"update\" first or use --allow-fork.");
   }
 
   /*
@@ -1224,7 +1281,7 @@ void commit_cmd(void){
   }else if( zComFile ){
     blob_zero(&comment);
     blob_read_from_file(&comment, zComFile);
-    blob_strip_bom(&comment, 1);
+    blob_to_utf8_no_bom(&comment, 1);
   }else{
     char *zInit = db_text(0, "SELECT value FROM vvar WHERE name='ci-comment'");
     prepare_commit_comment(&comment, zInit, zBranch, vid, zUserOvrd);
@@ -1254,23 +1311,26 @@ void commit_cmd(void){
   ** the identified files are inserted (if they have been modified).
   */
   db_prepare(&q,
-    "SELECT id, %Q || pathname, mrid, %s, chnged, %s FROM vfile "
+    "SELECT id, %Q || pathname, mrid, %s, chnged, %s, %s FROM vfile "
     "WHERE chnged==1 AND NOT deleted AND is_selected(id)",
-    g.zLocalRoot, glob_expr("pathname", db_get("crnl-glob","")),
-    glob_expr("pathname", db_get("binary-glob",""))
+    g.zLocalRoot,
+    glob_expr("pathname", db_get("crnl-glob","")),
+    glob_expr("pathname", db_get("binary-glob","")),
+    glob_expr("pathname", db_get("unicode-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, chnged;
+    int crnlOk, binOk, unicodeOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
     rid = db_column_int(&q, 2);
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
-    binOk = binaryOk || db_column_int(&q, 5);
+    binOk = db_column_int(&q, 5);
+    unicodeOk = db_column_int(&q, 6);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1279,7 +1339,11 @@ void commit_cmd(void){
     }else{
       blob_read_from_file(&content, zFullname);
     }
-    commit_warning(&content, crnlOk, binOk, zFullname);
+    /* Do not emit any warnings when they are disabled. */
+    if( !noWarningFlag ){
+      abortCommit |= commit_warning(&content, crnlOk, binOk,
+                                    unicodeOk, zFullname);
+    }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */
 
@@ -1299,7 +1363,11 @@ void commit_cmd(void){
   }
   db_finalize(&q);
   if( nConflict && !allowConflict ){
-    fossil_fatal("abort due to unresolve merge conflicts");
+    fossil_fatal("abort due to unresolved merge conflicts; "
+                 "use --allow-conflict to override");
+  } else if( abortCommit ){
+    fossil_fatal("one or more files were converted on your request; "
+                 "please re-test before committing");
   }
 
   /* Create the new manifest */
@@ -1310,7 +1378,7 @@ void commit_cmd(void){
     blob_zero(&manifest);
   }else{
     create_manifest(&manifest, 0, 0, &comment, vid,
-                    !forceFlag, useCksum ? &cksum1 : 0,
+                    !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
                     zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
                     azTag, &szB);
   }
@@ -1331,7 +1399,7 @@ void commit_cmd(void){
     if( pBaseline ){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, &comment, vid,
-                      !forceFlag, useCksum ? &cksum1 : 0,
+                      !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
                       zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
                       azTag, &szD);
       /*

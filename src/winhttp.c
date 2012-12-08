@@ -140,6 +140,7 @@ void win32_http_server(
   const char *zBrowser,     /* Command to launch browser.  (Or NULL) */
   const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
   const char *zNotFound,    /* The --notfound option, or NULL */
+  const char *zFileGlob,    /* The --fileglob option, or NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   WSADATA wd;
@@ -154,6 +155,9 @@ void win32_http_server(
   blob_zero(&options);
   if( zNotFound ){
     blob_appendf(&options, " --notfound %s", zNotFound);
+  }
+  if( zFileGlob ){
+    blob_appendf(&options, " --files-urlenc %T", zFileGlob);
   }
   if( g.useLocalauth ){
     blob_appendf(&options, " --localauth");
@@ -249,6 +253,7 @@ typedef struct HttpService HttpService;
 struct HttpService {
   int port;                 /* Port on which the http server should run */
   const char *zNotFound;    /* The --notfound option, or NULL */
+  const char *zFileGlob;    /* The --files option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
   const WCHAR *zServiceName;/* Name of the service */
@@ -258,13 +263,13 @@ struct HttpService {
 /*
 ** Variables used for running as windows service.
 */
-static HttpService hsData = {8080, NULL, 0, 0, NULL, INVALID_SOCKET};
+static HttpService hsData = {8080, NULL, NULL, 0, 0, NULL, INVALID_SOCKET};
 static SERVICE_STATUS ssStatus;
 static SERVICE_STATUS_HANDLE sshStatusHandle;
 
 /*
 ** Get message string of the last system error. Return a pointer to the
-** message string. Call fossil_mbcs_free() to deallocate any memory used
+** message string. Call fossil_unicode_free() to deallocate any memory used
 ** to store the message string when done.
 */
 static char *win32_get_last_errmsg(void){
@@ -399,7 +404,8 @@ static void WINAPI win32_http_service_main(
 
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
-                    NULL, NULL, hsData.zNotFound, hsData.flags);
+                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob,
+                    hsData.flags);
 
   /* Service has stopped now. */
   win32_report_service_status(SERVICE_STOPPED, NO_ERROR, 0);
@@ -427,6 +433,7 @@ LOCAL void win32_http_service_running(SOCKET s){
 int win32_http_service(
   int nPort,                /* TCP port number */
   const char *zNotFound,    /* The --notfound option, or NULL */
+  const char *zFileGlob,    /* The --files option, or NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   /* Define the service table. */
@@ -436,6 +443,7 @@ int win32_http_service(
   /* Initialize the HttpService structure. */
   hsData.port = nPort;
   hsData.zNotFound = zNotFound;
+  hsData.zFileGlob = zFileGlob;
   hsData.flags = flags;
 
   /* Try to start the control dispatcher thread for the service. */
@@ -576,6 +584,7 @@ void cmd_win32_service(void){
     const char *zPassword   = find_option("password", "W", 1);
     const char *zPort       = find_option("port", "P", 1);
     const char *zNotFound   = find_option("notfound", 0, 1);
+    const char *zFileGlob   = find_option("files", 0, 1);
     const char *zLocalAuth  = find_option("localauth", 0, 0);
     const char *zRepository = find_option("repository", "R", 1);
     Blob binPath;
@@ -619,6 +628,7 @@ void cmd_win32_service(void){
     blob_appendf(&binPath, "\"%s\" server", g.nameOfExe);
     if( zPort ) blob_appendf(&binPath, " --port %s", zPort);
     if( zNotFound ) blob_appendf(&binPath, " --notfound \"%s\"", zNotFound);
+    if( zFileGlob ) blob_appendf(&binPath, " --files-urlenc %T", zFileGlob);
     if( zLocalAuth ) blob_append(&binPath, " --localauth", -1);
     blob_appendf(&binPath, " \"%s\"", g.zRepositoryName);
     /* Create the service. */

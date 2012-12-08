@@ -399,6 +399,17 @@ const char zRepositorySchema2[] =
 @   title TEXT,
 @   comment TEXT
 @ );
+@ CREATE TABLE ticketchng(
+@   -- Do not change any column that begins with tkt_
+@   tkt_id INTEGER REFERENCES ticket,
+@   tkt_mtime DATE,
+@   -- Add as many fields as required below this line
+@   login TEXT,
+@   username TEXT,
+@   mimetype TEXT,
+@   icomment TEXT
+@ );
+@ CREATE INDEX ticketchng_idx1 ON ticketchng(tkt_id, tkt_mtime);
 ;
 
 /*

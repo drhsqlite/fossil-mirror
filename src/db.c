@@ -1328,7 +1328,11 @@ void db_initial_setup(
   }
   if( !db_is_global("autosync") ) db_set_int("autosync", 1, 0);
   if( !db_is_global("localauth") ) db_set_int("localauth", 0, 0);
+  if( !db_is_global("timeline-plaintext") ){
+    db_set_int("timeline-plaintext", 1, 0);
+  }
   db_create_default_users(0, zDefaultUser);
+  if( zDefaultUser ) g.zLogin = zDefaultUser;
   user_select();
 
   if( zTemplate ){
@@ -1713,7 +1717,7 @@ static char *db_get_do_versionable(const char *zName, char *zNonVersionedSetting
     Blob versionedPathname;
     char *zVersionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+    blob_appendf(&versionedPathname, "%s.fossil-settings/%s",
                  g.zLocalRoot, zName);
     zVersionedPathname = blob_str(&versionedPathname);
     if( file_size(zVersionedPathname)>=0 ){
@@ -2086,6 +2090,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
+#ifdef FOSSIL_ENABLE_MARKDOWN
+  { "markdown",      0,                0, 0, "off"                 },
+#endif
   { "max-upload",    0,               25, 0, "250000"              },
   { "mtime-changes", 0,                0, 0, "on"                  },
   { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
@@ -2101,6 +2108,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
+  { "unicode-glob",  0,               40, 1, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2216,6 +2224,11 @@ struct stControlSettings const ctrlSettings[] = {
 **     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
 **
+**    markdown         If enabled (and Fossil was compiled with markdown
+**                     support), the markdown engine will be used to render
+**                     embedded documentation conforming to the appropriate
+**                     content types (e.g. "text/x-markdown"). Default: off.
+**
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.
 **
@@ -2278,6 +2291,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
+**
+**    unicode-glob     The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "commit" command will
+**                     ignore when issuing warnings about text files that may
+**                     contain Unicode. Set to "*" to disable Unicode checking.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

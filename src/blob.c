@@ -1090,57 +1090,49 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 }
 
 /*
-** Strip a possible BOM from the blob. On Windows, if there
-** is either no BOM at all or an (le/be) UTF-16 BOM, a conversion
-** to UTF-8 is done.
-** If useMbcs is false and there is no BOM, the input string
-** is assumed to be UTF-8 already, so no conversion is done.
+** Strip a possible byte-order-mark (BOM) from the blob. On Windows, if there
+** is either no BOM at all or an (le/be) UTF-16 BOM, a conversion to UTF-8 is
+** done.  If useMbcs is false and there is no BOM, the input string is assumed
+** to be UTF-8 already, so no conversion is done.
 */
-void blob_strip_bom(Blob *pBlob, int useMbcs){
-  static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-#ifdef _WIN32
-  static const unsigned short ubom = 0xfeff;
-  static const unsigned short urbom = 0xfffe;
-#endif /* _WIN32 */
+void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
-  if( blob_size(pBlob)>2 && memcmp(blob_buffer(pBlob), bom, 3)==0 ) {
-	struct Blob temp;
-    zUtf8 = blob_str(pBlob) + 3;
+  int bomSize = 0;
+  if( starts_with_utf8_bom(pBlob, &bomSize) ){
+    struct Blob temp;
+    zUtf8 = blob_str(pBlob) + bomSize;
     blob_zero(&temp);
     blob_append(&temp, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
 #ifdef _WIN32
-  }else if( blob_size(pBlob)>1 && (blob_size(pBlob)&1)==0
-      && memcmp(blob_buffer(pBlob), &ubom, 2)==0 ) {
+  }else if( starts_with_utf16le_bom(pBlob, &bomSize) ){
     /* Make sure the blob contains two terminating 0-bytes */
     blob_append(pBlob, "", 1);
-    zUtf8 = blob_str(pBlob) + 2;
+    zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
-  }else if( blob_size(pBlob)>1 && (blob_size(pBlob)&1)==0
-      && memcmp(blob_buffer(pBlob), &urbom, 2)==0 ) {
+    fossil_unicode_free(zUtf8);
+  }else if( starts_with_utf16be_bom(pBlob, &bomSize) ){
     unsigned int i = blob_size(pBlob);
     zUtf8 = blob_buffer(pBlob);
     while( i > 0 ){
-        /* swap bytes of unicode representation */
-        char temp = zUtf8[--i];
-        zUtf8[i] = zUtf8[i-1];
-        zUtf8[--i] = temp;
+      /* swap bytes of unicode representation */
+      char zTemp = zUtf8[--i];
+      zUtf8[i] = zUtf8[i-1];
+      zUtf8[--i] = zTemp;
     }
     /* Make sure the blob contains two terminating 0-bytes */
     blob_append(pBlob, "", 1);
-    zUtf8 = blob_str(pBlob) + 2;
+    zUtf8 = blob_str(pBlob) + bomSize;
     zUtf8 = fossil_unicode_to_utf8(zUtf8);
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
-    fossil_mbcs_free(zUtf8);
-  }else if (useMbcs) {
+    fossil_unicode_free(zUtf8);
+  }else if( useMbcs ){
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
-    blob_zero(pBlob);
+    blob_reset(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_mbcs_free(zUtf8);
 #endif /* _WIN32 */

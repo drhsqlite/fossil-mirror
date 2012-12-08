@@ -31,7 +31,7 @@
 ** Return the N-th name.  The first name has N==0.  When all names have
 ** been used, return 0.
 */
-const char *fossil_reserved_name(int N){
+const char *fossil_reserved_name(int N, int omitRepo){
   /* Possible names of the local per-checkout database file and
   ** its associated journals
   */
@@ -90,21 +90,21 @@ const char *fossil_reserved_name(int N){
     if( N<count(azManifest) ) return azManifest[N];
     N -= count(azManifest);
   }
-  if( N<count(azRepo) ) return azRepo[N];
+  if( !omitRepo && N<count(azRepo) ) return azRepo[N];
   return 0;
 }
 
 /*
 ** Return a list of all reserved filenames as an SQL list.
 */
-const char *fossil_all_reserved_names(void){
+const char *fossil_all_reserved_names(int omitRepo){
   static char *zAll = 0;
   if( zAll==0 ){
     Blob x;
     int i;
     const char *z;
     blob_zero(&x);
-    for(i=0; (z = fossil_reserved_name(i))!=0; i++){
+    for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
       if( i>0 ) blob_append(&x, ",", 1);
       blob_appendf(&x, "'%q'", z);
     }
@@ -116,16 +116,19 @@ const char *fossil_all_reserved_names(void){
 /*
 ** COMMAND: test-reserved-names
 **
+** Usage: %fossil test-reserved-names [-omitrepo]
+**
 ** Show all reserved filenames for the current check-out.
 */
 void test_reserved_names(void){
   int i;
   const char *z;
+  int omitRepo = find_option("omitrepo",0,0)!=0;
   db_must_be_within_tree();
-  for(i=0; (z = fossil_reserved_name(i))!=0; i++){
+  for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
     fossil_print("%3d: %s\n", i, z);
   }
-  fossil_print("ALL: (%s)\n", fossil_all_reserved_names());
+  fossil_print("ALL: (%s)\n", fossil_all_reserved_names(omitRepo));
 }
 
 /*
@@ -140,7 +143,8 @@ static int add_one_file(
 ){
   const char *zCollate = caseSensitive ? "binary" : "nocase";
   if( !file_is_simple_pathname(zPath) ){
-    fossil_fatal("filename contains illegal characters: %s", zPath);
+    fossil_warning("filename contains illegal characters: %s", zPath);
+    return 0;
   }
   if( db_exists("SELECT 1 FROM vfile"
                 " WHERE pathname=%Q COLLATE %s", zPath, zCollate) ){
@@ -196,7 +200,7 @@ static int add_files_in_sfile(int vid, int caseSensitive){
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
-    for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
+    for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
       if( xCmp(zToAdd, zReserved)==0 ) break;
     }
     if( zReserved ) continue;

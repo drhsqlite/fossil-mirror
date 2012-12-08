@@ -26,19 +26,19 @@
 ** Usage: %fossil finfo ?OPTIONS? FILENAME
 **
 ** Print the complete change history for a single file going backwards
-** in time.  The default is -l.
+** in time.  The default mode is -l.
 **
-** For the -l|--log option: If "-b|--brief" is specified one line per revision
+** For the -l|--log mode: If "-b|--brief" is specified one line per revision
 ** is printed, otherwise the full comment is printed.  The "--limit N"
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
-** In the -s form prints the status as <status> <revision>.  This is
+** In the -s mode prints the status as <status> <revision>.  This is
 ** a quick status and does not check for up-to-date-ness of the file.
 **
-** In the -p form, there's an optional flag "-r|--revision REVISION".
+** In the -p mode, there's an optional flag "-r|--revision REVISION".
 ** The specified version (or the latest checked out version) is printed
-** to stdout.
+** to stdout.  The -p mode is another form of the "cat" command.
 **
 ** Options:
 **   --brief|-b           display a brief (one line / revision) summary
@@ -52,7 +52,7 @@
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
 **
-** See also: artifact, descendants, info, leaves
+** See also: artifact, cat, descendants, info, leaves
 */
 void finfo_cmd(void){
   capture_case_sensitive_option();
@@ -187,8 +187,9 @@ void finfo_cmd(void){
       if( zBr==0 ) zBr = "trunk";
       if( iBrief ){
         fossil_print("%s ", zDate);
-        zOut = sqlite3_mprintf("[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
-                               zCiUuid, zCom, zUser, zFileUuid, zBr);
+        zOut = sqlite3_mprintf(
+           "[%.10s] %s (user: %s, artifact: [%.10s], branch: %s)",
+           zCiUuid, zCom, zUser, zFileUuid, zBr);
         comment_print(zOut, 11, 79);
         sqlite3_free(zOut);
       }else{
@@ -203,6 +204,41 @@ void finfo_cmd(void){
     }
     db_finalize(&q);
     blob_reset(&fname);
+  }
+}
+
+/*
+** COMMAND: cat
+**
+** Usage: %fossil cat FILENAME ... ?OPTIONS?
+**
+** Print on standard output the content of one or more files as they exist
+** in the repository.  The version currently checked out is shown by default.
+** Other versions may be specified using the -r option.
+**
+** Options:
+**    -R|--repository FILE       Extract artifacts from repository FILE
+**    -r VERSION                 The specific check-in containing the file
+**
+** See also: finfo
+*/
+void cat_cmd(void){
+  int i;
+  int rc;
+  Blob content, fname;
+  const char *zRev;
+  db_find_and_open_repository(0, 0);
+  zRev = find_option("r","r",1);
+  for(i=2; i<g.argc; i++){
+    file_tree_name(g.argv[i], &fname, 1);
+    blob_zero(&content);
+    rc = historical_version_of_file(zRev, blob_str(&fname), &content, 0,0,0,0);
+    if( rc==0 ){
+      fossil_fatal("no such file: %s", g.argv[i]);
+    }
+    blob_write_to_file(&content, "-");
+    blob_reset(&fname);
+    blob_reset(&content);
   }
 }
 
@@ -311,7 +347,8 @@ void finfo_page(void){
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
-  @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
+  @ <div id="canvas" style="position:relative;width:1px;height:1px;"
+  @  onclick="clickOnGraph(event)"></div>
   @ <table id="timelineTable" class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
@@ -336,7 +373,8 @@ void finfo_page(void){
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
+    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+                         zUuid, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -406,12 +444,13 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @     </td><td></td></tr>
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0);
+  timeline_output_graph_javascript(pGraph, 0, 1);
   style_footer();
 }

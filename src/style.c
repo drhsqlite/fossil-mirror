@@ -68,10 +68,16 @@ int nFormAction = 0;
 ** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
 ** If g.javascriptHyperlink is true then the
 ** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If 
+** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate.
+** activate. 
+**
+** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
+** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
+** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
+** to 0 and only changes to one if the user lacks the Hyperlink (h) property
+** and the "auto-hyperlink" setting is enabled.
 **
 ** Filling in the href="URL" using javascript is a defense against bots.
 **
@@ -86,6 +92,11 @@ int nFormAction = 0;
 **
 ** There are two versions of this routine: href() does a plain hyperlink
 ** and xhref() adds extra attribute text.
+**
+** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
+** Most logged in users should have this property, since we can assume
+** that a logged in user is not a bot.  Only "nobody" lacks g.perm.Hyperlink,
+** typically.
 */
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
@@ -103,7 +114,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id=%d>", zExtra, nHref);
+  return mprintf("<a %s id='a%d'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -121,7 +132,7 @@ char *href(const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id=%d>", nHref);
+  return mprintf("<a id='a%d'>", nHref);
 }
 
 /*
@@ -151,13 +162,14 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink ) return;
+  if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
-  @ function u(i,h){gebi(i).href=h;}
-  for(i=0; i<nHref; i++){
-    @ u(%d(i+1),"%s(aHref[i])");
+  if( g.javascriptHyperlink ){
+    for(i=0; i<nHref; i++){
+      @ gebi("a%d(i+1)").href="%s(aHref[i])";
+    }
   }
   for(i=0; i<nFormAction; i++){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
@@ -220,17 +232,17 @@ void style_set_current_page(const char *zFormat, ...){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
 
   @ <!DOCTYPE html>
-  
+
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -297,7 +309,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-  
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -338,7 +350,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-  
+
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
@@ -368,7 +380,7 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] = 
+const char zDefaultHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
@@ -427,7 +439,7 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] = 
+const char zDefaultFooter[] =
 @ <div class="footer">
 @ Fossil version $release_version $manifest_version $manifest_date
 @ </div>
@@ -441,7 +453,7 @@ const char zDefaultFooter[] =
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
-const char zDefaultCSS[] = 
+const char zDefaultCSS[] =
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -470,7 +482,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -488,7 +500,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -573,7 +585,7 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* verbatim blocks */
 @ pre.verbatim {
 @    background-color: #f5f5f5;
@@ -690,12 +702,12 @@ const struct strctCssDefaults {
   { "table.browser",
     "format for the file display table",
     @ /* the format for wiki errors */
-    @   width: 100% ;
+    @   width: 100%;
     @   border: 0;
   },
   { "td.browser",
     "format for cells in the file browser",
-    @   width: 24% ;
+    @   width: 24%;
     @   vertical-align: top;
   },
   { "ul.browser",
@@ -868,6 +880,13 @@ const struct strctCssDefaults {
     @   text-align: center;
     @   border-collapse: collapse;
     @   border-spacing: 0;
+  },
+  { "table.report",
+    "Ticket report table formatting",
+    @   border-collapse:collapse;
+    @   border: 1px solid #999;
+    @   margin: 1em 0 1em 0;
+    @   cursor: pointer;
   },
   { "td.rpteditex",
     "format for example table cells on the report edit page",

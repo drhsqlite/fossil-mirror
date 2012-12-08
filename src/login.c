@@ -406,6 +406,7 @@ static int isHuman(const char *zAgent){
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
   if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  if( memcmp(zAgent, "NetSurf/", 8)==0 ) return 1;
   return 0;
 }
 
@@ -1293,7 +1294,7 @@ void register_page(void){
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
   @ %h(zCaptcha)
-  @ </pre></td></tr></table>
+  @ </pre></td></tr></table></div>
   @ </form>
   style_footer();
 

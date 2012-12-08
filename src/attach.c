@@ -522,7 +522,7 @@ void ainfo_page(void){
     const char *z;
     const char *zLn = P("ln");
     content_get(ridSrc, &attach);
-    blob_strip_bom(&attach, 0);
+    blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
       output_text_with_line_numbers(z, zLn);
@@ -532,7 +532,8 @@ void ainfo_page(void){
       @ </pre>
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
-    @ <img src="%R/raw?name=%s(zSrc)&m=%s(zMime)"></img>
+    @ <img src="%R/raw/%S(zSrc)?m=%s(zMime)"></img>
+    style_submenu_element("Image", "Image", "%R/raw/%S?m=%s", zSrc, zMime);
   }else{
     int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>

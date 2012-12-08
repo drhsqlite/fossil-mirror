@@ -325,18 +325,79 @@ int looks_like_utf16(const Blob *pContent){
 }
 
 /*
+** This function returns an array of bytes representing the byte-order-mark
+** for UTF-8.
+*/
+const unsigned char *get_utf8_bom(int *pnByte){
+  static const unsigned char bom[] = {
+    0xEF, 0xBB, 0xBF, 0x00, 0x00, 0x00
+  };
+  if( pnByte ) *pnByte = 3;
+  return bom;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-8
+** byte-order-mark (BOM).
+*/
+int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int bomSize = 0;
+  const unsigned char *bom = get_utf8_bom(&bomSize);
+
+  if( pnByte ) *pnByte = bomSize;
+  if( blob_size(pContent)<bomSize ) return 0;
+  return memcmp(z, bom, bomSize)==0;
+}
+
+/*
 ** This function returns non-zero if the blob starts with a UTF-16le or
 ** UTF-16be byte-order-mark (BOM).
 */
-int starts_with_utf16_bom(const Blob *pContent){
+int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
   int c1, c2;
 
+  if( pnByte ) *pnByte = 2;
   if( blob_size(pContent)<2 ) return 0;
   c1 = z[0]; c2 = z[1];
   if( (c1==(char)0xff) && (c2==(char)0xfe) ){
     return 1;
   }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16le
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( pnByte ) *pnByte = 2;
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
+    return 1;
+  }
+  return 0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16be
+** byte-order-mark (BOM).
+*/
+int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
+  const char *z = blob_buffer(pContent);
+  int c1, c2;
+
+  if( pnByte ) *pnByte = 2;
+  if( blob_size(pContent)<2 ) return 0;
+  c1 = z[0]; c2 = z[1];
+  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
     return 1;
   }
   return 0;
@@ -2051,8 +2112,12 @@ void annotation_page(void){
   int i;
   int iLimit;
   int annFlags = 0;
+  int showLn = 0;        /* True if line numbers should be shown */
+  char zLn[10];          /* Line number buffer */
+  char zFormat[10];      /* Format string for line numbers */
   Annotator ann;
 
+  showLn = P("ln")!=0;
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
@@ -2076,10 +2141,17 @@ void annotation_page(void){
     @ <hr>
     @ <h2>Annotation:</h2>
   }
+  if( showLn ){
+    sqlite3_snprintf(sizeof(zLn), zLn, "%d", ann.nOrig+1);
+    sqlite3_snprintf(sizeof(zFormat), zFormat, "%%%dd:", strlen(zLn));
+  }else{
+    zLn[0] = 0;
+  }
   @ <pre>
   for(i=0; i<ann.nOrig; i++){
     ((char*)ann.aOrig[i].z)[ann.aOrig[i].n] = 0;
-    @ %s(ann.aOrig[i].zSrc): %h(ann.aOrig[i].z)
+    if( showLn ) sqlite3_snprintf(sizeof(zLn), zLn, zFormat, i+1);
+    @ %s(ann.aOrig[i].zSrc):%s(zLn) %h(ann.aOrig[i].z)
   }
   @ </pre>
   style_footer();

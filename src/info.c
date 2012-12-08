@@ -483,7 +483,9 @@ void ci_page(void){
     const char *zOrigDate;
     char *zThisBranch;
     double thisMtime;
+#if 0
     int seenDiffTitle = 0;
+#endif
 
     style_header(zTitle);
     login_anonymous_available();
@@ -573,6 +575,7 @@ void ci_page(void){
                                      "   AND rid=%d",
                                      TAG_BRANCH, rid);
 
+#if 0
       /* Find nearby leaves to offer to diff against */
       db_prepare(&q,
          "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
@@ -616,6 +619,7 @@ void ci_page(void){
       if( seenDiffTitle ){
         @ </td></tr>
       }
+#endif
 
       /* The Download: line */
       if( g.perm.Zip ){
@@ -1113,7 +1117,10 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  @ </ul></ul>
+  if( prevName ){
+    @ </ul>
+  }
+  @ </ul>
   free(prevName);
   db_finalize(&q);
   db_prepare(&q,
@@ -1636,7 +1643,7 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <div>
-    blob_strip_bom(&content, 0);
+    blob_to_utf8_no_bom(&content, 0);
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
@@ -1646,7 +1653,7 @@ void artifact_page(void){
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_strip_bom(&content, 0);
+      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);
@@ -1656,7 +1663,9 @@ void artifact_page(void){
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
+      @ <img src="%R/raw/%S(zUuid)?m=%s(zMime)" />
+      style_submenu_element("Image", "Image",
+                            "%R/raw/%S?m=%s", zUuid, zMime);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
@@ -1713,6 +1722,12 @@ void tinfo_page(void){
   style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
   style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
+  if( P("plaintext") ){
+    style_submenu_element("Formatted", "Formatted", "%R/info/%S", zUuid);
+  }else{
+    style_submenu_element("Plaintext", "Plaintext",
+                          "%R/info/%S?plaintext", zUuid);
+  }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -1749,7 +1764,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng);
+  ticket_output_change_artifact(pTktChng, 0);
   manifest_destroy(pTktChng);
   style_footer();
 }
@@ -2155,7 +2170,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE|WIKI_NOBADLINKS);
+    @ %w(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

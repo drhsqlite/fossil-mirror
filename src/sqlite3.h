@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.15"
 #define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-11-09 21:40:02 5a3b07f0f5dfae7eea870303f52f37d6a17f1da2"
+#define SQLITE_SOURCE_ID      "2012-12-05 14:31:13 9f6c68856b694373b7ffb124abd996e519ba5921"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1598,6 +1598,22 @@ struct sqlite3_mem_methods {
 ** <dd> These options are obsolete and should not be used by new code.
 ** They are retained for backwards compatibility but are now no-ops.
 ** </dl>
+**
+** [[SQLITE_CONFIG_SQLLOG]]
+** <dt>SQLITE_CONFIG_SQLLOG
+** <dd>This option is only available if sqlite is compiled with the
+** SQLITE_ENABLE_SQLLOG pre-processor macro defined. The first argument should
+** be a pointer to a function of type void(*)(void*,sqlite3*,const char*, int).
+** The second should be of type (void*). The callback is invoked by the library
+** in three separate circumstances, identified by the value passed as the
+** fourth parameter. If the fourth parameter is 0, then the database connection
+** passed as the second argument has just been opened. The third argument
+** points to a buffer containing the name of the main database file. If the
+** fourth parameter is 1, then the SQL statement that the third parameter
+** points to has just been executed. Or, if the fourth parameter is 2, then
+** the connection being passed as the second parameter is being closed. The
+** third parameter is passed NULL In this case.
+** </dl>
 */
 #define SQLITE_CONFIG_SINGLETHREAD  1  /* nil */
 #define SQLITE_CONFIG_MULTITHREAD   2  /* nil */
@@ -1619,6 +1635,7 @@ struct sqlite3_mem_methods {
 #define SQLITE_CONFIG_PCACHE2      18  /* sqlite3_pcache_methods2* */
 #define SQLITE_CONFIG_GETPCACHE2   19  /* sqlite3_pcache_methods2* */
 #define SQLITE_CONFIG_COVERING_INDEX_SCAN 20  /* int */
+#define SQLITE_CONFIG_SQLLOG       21  /* xSqllog, void* */
 
 /*
 ** CAPI3REF: Database Connection Configuration Options

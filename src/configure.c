@@ -88,6 +88,7 @@ static struct {
   { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
+  { "timeline-plaintext",     CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
@@ -104,6 +105,7 @@ static struct {
   { "binary-glob",            CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
+  { "unicode-glob",           CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
 
