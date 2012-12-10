@@ -481,9 +481,9 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+#if 0
     char *zThisBranch;
     double thisMtime;
-#if 0
     int seenDiffTitle = 0;
 #endif
 
@@ -500,7 +500,9 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     zOrigDate = db_column_text(&q, 4);
+#if 0
     thisMtime = db_column_double(&q, 5);
+#endif
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -569,13 +571,13 @@ void ci_page(void){
       }
       db_finalize(&q);
 
+#if 0
       /* Select a few other branches to diff against */
       zThisBranch = db_text("trunk", "SELECT value FROM tagxref"
                                      " WHERE tagid=%d AND tagtype>0"
                                      "   AND rid=%d",
                                      TAG_BRANCH, rid);
 
-#if 0
       /* Find nearby leaves to offer to diff against */
       db_prepare(&q,
          "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
