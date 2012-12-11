@@ -1,5 +1,5 @@
-C Import\sthe\sSQLite\sfix\sfor\sinteger\sto\sfloating-point\soverflow\sfrom\supstream.\nFossil\sdoes\snot\sreally\sneed\sthis.\s\sThe\simport\sis\sfor\stesting\sSQLite.
-D 2012-12-11T01:05:15.398
+C Clarify\sthe\s"omitted\scheckin"\smessage\son\s"fossil\sbisect\svlist".
+D 2012-12-11T13:13:51.405
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -293,7 +293,7 @@ F src/add.c 4f9777f58961d887699beaea2c2695acfff03af4
 F src/allrepo.c 9a4f7592a877bab3c4cf834c08ff06afd0e8a039
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
-F src/bisect.c 2950f7d95ec6365afc22cd444cbf893b5ee3a46c
+F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
 F src/blob.c 36041aba343f922a15ca8c64e0a9e3b058f39066
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1caa5101700e512989d2a65aba7f6ae7de8630ea
-R 6fd21fec710fedcb1f8bed6ab1134d8e
+P d79ddface96751d8db09e75ee7b50e5c68655edb
+R 1890d3af51fc7c1b1dcbab0ccefebefc
 U drh
-Z 39d6226ad0eaae55c7bcb40ca38f0861
+Z a3a7a4a83865a3044d64f938ded295a4
