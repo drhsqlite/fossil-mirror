@@ -79,7 +79,7 @@ puts $out {
 <ul>
 <li> [./quickstart.wiki | Quick-start Guide]
 <li> [./faq.wiki | FAQ]
-<li> [./build.wiki | Building and installing Fossil]
+<li> [./build.wiki | Compiling and installing Fossil]
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> [/help | Command-line help]
