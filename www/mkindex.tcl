@@ -9,7 +9,7 @@
 set doclist {
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
-  build.wiki {Building and Installing Fossil}
+  build.wiki {Compiling and Installing Fossil}
   checkin_names.wiki {Checkin And Version Names}
   checkin.wiki {Check-in Checklist}
   changes.wiki {Fossil Changelog}
