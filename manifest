@@ -1,5 +1,5 @@
-C Add\sa\scompile-time\soption\s(WITHOUT_ICONV)\sthat\somits\sthe\suse\sof\siconv.h\nso\sthat\sFossil\scan\sbe\scompiled\son\sa\s10-year-old\sPPC\sMacbook.
-D 2012-12-11T16:23:29.592
+C Missed\sone\sspot\swhere\sWITHOUT_ICONV\sis\srequired\son\sthe\sprevious\scheck-in.
+D 2012-12-11T16:29:44.988
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -399,7 +399,7 @@ F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/update.c a226834189ce840be5332c8874449277d256aced
 F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
 F src/user.c be21df36f410f63b71ab7c3e8b8e981bbfb5b2ac
-F src/utf8.c 53fb069a45fb7d18a6983b835f82ce1080f0829e
+F src/utf8.c 502be83610745d657877926bec48ed4146fe2cc9
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c cebf0342c1b3452ad42d65234cfa460bb17925ba
 F src/wiki.c d389a9a510d81387de91cf2d394bb171d98a82a1
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b41ebf256f78e751fbd8fe35ca68bcae31847163
-R 8310463317beb88c36bed55ac7bde1f2
+P 722791a6a8ee0c50428d9a01f9024db6a9db9f05
+R 2489474b562ed2fd5db34d13ea07f5cc
 U drh
-Z 58c18e18868559ad780a3c0e2fa006fe
+Z 798d1b68f780c5f284c26c73bb24c9f0

@@ -159,7 +159,7 @@ char *fossil_filename_to_utf8(const void *zFilename){
 void fossil_filename_free(char *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   fossil_free(pOld);
 #else
   /* No-op on all other unix */
