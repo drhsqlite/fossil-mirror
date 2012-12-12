@@ -1031,6 +1031,36 @@ void blob_remove_cr(Blob *p){
 }
 
 /*
+** Convert blob from cp1252 to utf-8. As cp1252 is a superset
+** of iso8895-1, this is useful on UNIX as well.
+**
+** TODO: the bytes 0x80..0xBF need a special table, iso8895-1 works.
+*/
+void blob_cp1252_to_utf8(Blob *p){
+  unsigned char *z = (unsigned char *)p->aData;
+  int j   = p->nUsed;
+  int i, n;
+  for(i=n=0; i<j; i++){
+    if( z[i]>=0x80 ) n++;
+  }
+  j += n;
+  if( j>=p->nAlloc ){
+    blob_resize(p, j);
+    z = (unsigned char *)p->aData;
+  }
+  p->nUsed = j;
+  z[j] = 0;
+  while( j>i ){
+    if( z[--i]>=0x80 ){
+      z[--j] = 0x80 | (z[i]&0x3F);
+      z[--j] = 0xC0 | (z[i]>>6);
+    }else{
+      z[--j] = z[i];
+    }
+  }
+}
+
+/*
 ** Shell-escape the given string.  Append the result to a blob.
 */
 void shell_escape(Blob *pBlob, const char *zIn){

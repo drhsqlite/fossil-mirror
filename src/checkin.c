@@ -911,23 +911,36 @@ static int commit_warning(
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType<-2){
     const char *zWarning;
+    const char *zConvert;
     Blob ans;
     char cReply;
 
     if(eType==-4){
       zWarning = "long lines";
+      zConvert = "";
     }else{
       zWarning = "invalid UTF-8";
+      zConvert = "c=convert/";
     }
     blob_zero(&ans);
     file_relative_name(zFilename, &fname, 0);
     zMsg = mprintf(
-         "%s appears to be text, but contains %s.  commit anyhow (y/N)? ",
-         blob_str(&fname), zWarning);
+         "%s appears to be text, but contains %s.  commit anyhow (%sy/N)? ",
+         blob_str(&fname), zWarning, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
-    if( cReply!='y' && cReply!='Y' ){
+    if( *zConvert && (cReply=='c' || cReply=='C') ){
+      char *zOrig = file_newname(zFilename, "original", 1);
+      FILE *f;
+      blob_write_to_file(p, zOrig);
+      fossil_free(zOrig);
+      f = fossil_fopen(zFilename, "wb");
+      blob_cp1252_to_utf8(p);
+      fwrite(blob_buffer(p), 1, blob_size(p), f);
+      fclose(f);
+      return 1;
+    } else if( cReply!='y' && cReply!='Y' ){
       fossil_fatal("Abandoning commit due to %s in %s",
                    zWarning, blob_str(&fname));
     }
