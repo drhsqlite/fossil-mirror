@@ -1146,7 +1146,7 @@ void commit_cmd(void){
   /* So that older versions of Fossil (that do not understand delta-
   ** manifest) can continue to use this repository, do not create a new
   ** delta-manifest unless this repository already contains one or more
-  ** delta-manifets, or unless the delta-manifest is explicitly requested
+  ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
   */
   if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
