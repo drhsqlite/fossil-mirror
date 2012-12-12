@@ -1,5 +1,5 @@
-C Add\soptional\siso8859-1\sto\sutf-8\sconversion.\sStill\sto\sdo:\sspecial\scp1252\scharacters.
-D 2012-12-12T13:53:35.978
+C completed\scp1252\stable\sand\sconversion
+D 2012-12-12T15:35:31.301
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -294,7 +294,7 @@ F src/allrepo.c 9a4f7592a877bab3c4cf834c08ff06afd0e8a039
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
-F src/blob.c 49121a2f787a0c090a4385b5f3ece0cee4b4f97e
+F src/blob.c 88d683f8c98ca24c55041bb785f71f1348f57b82
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b70a320288c6f16313e0c60125b382480bc3d3c5
-R c315d7a6e93b700a9a2ab73855d5b37d
+P 4f060f6afb7d7a1cc268ce3b8b6a1b5180393152
+R 3b4b1ded2ce125e42cb4fdc877c451cf
 U jan.nijtmans
-Z c9c2906f34fa297bca6817f2e2ac7f34
+Z 6baedee10479bac4885cb522f6fcf301
