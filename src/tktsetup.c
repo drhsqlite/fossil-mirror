@@ -303,6 +303,7 @@ static const char zDefaultNew[] =
 @        set mimetype "text/plain"
 @      }
 @      submit_ticket
+@      set preview 1
 @   }
 @ </th1>
 @ <h1 style="text-align: center;">Enter A New Ticket</h1>
@@ -496,7 +497,7 @@ static const char zDefaultView[] =
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
-@         WHERE tkt_id=$tkt_id} {
+@         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
@@ -569,6 +570,7 @@ static const char zDefaultEdit[] =
 @       set mimetype text/plain
 @     }
 @     submit_ticket
+@     set preview 1
 @   }
 @ </th1>
 @ <table cellpadding="5">

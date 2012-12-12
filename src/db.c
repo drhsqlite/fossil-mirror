@@ -2076,6 +2076,9 @@ struct stControlSettings const ctrlSettings[] = {
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
+#ifdef FOSSIL_ENABLE_MARKDOWN
+  { "markdown",      0,                0, 0, "off"                 },
+#endif
   { "max-upload",    0,               25, 0, "250000"              },
   { "mtime-changes", 0,                0, 0, "on"                  },
   { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },
@@ -2206,6 +2209,11 @@ struct stControlSettings const ctrlSettings[] = {
 **    manifest         If enabled, automatically create files "manifest" and
 **     (versionable)   "manifest.uuid" in every checkout.  The SQLite and
 **                     Fossil repositories both require this.  Default: off.
+**
+**    markdown         If enabled (and Fossil was compiled with markdown
+**                     support), the markdown engine will be used to render
+**                     embedded documentation conforming to the appropriate
+**                     content types (e.g. "text/x-markdown"). Default: off.
 **
 **    max-upload       A limit on the size of uplink HTTP requests.  The
 **                     default is 250000 bytes.

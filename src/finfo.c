@@ -347,7 +347,8 @@ void finfo_page(void){
   @ <h2>%b(&title)</h2>
   blob_reset(&title);
   pGraph = graph_init();
-  @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
+  @ <div id="canvas" style="position:relative;width:1px;height:1px;"
+  @  onclick="clickOnGraph(event)"></div>
   @ <table id="timelineTable" class="timelineTable">
   while( db_step(&q)==SQLITE_ROW ){
     const char *zDate = db_column_text(&q, 0);
@@ -372,7 +373,8 @@ void finfo_page(void){
     }else if( brBg || zBgClr==0 || zBgClr[0]==0 ){
       zBgClr = strcmp(zBr,"trunk")==0 ? "" : hash_color(zBr);
     }
-    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr, 0);
+    gidx = graph_add_row(pGraph, frid, fpid>0 ? 1 : 0, &fpid, zBr, zBgClr,
+                         zUuid, 0);
     if( memcmp(zDate, zPrevDate, 10) ){
       sqlite3_snprintf(sizeof(zPrevDate), zPrevDate, "%.10s", zDate);
       @ <tr><td>
@@ -442,12 +444,13 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @     </td><td></td></tr>
     }
   }
   @ </table>
-  timeline_output_graph_javascript(pGraph, 0);
+  timeline_output_graph_javascript(pGraph, 0, 1);
   style_footer();
 }

@@ -481,9 +481,11 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
+#if 0
     char *zThisBranch;
     double thisMtime;
     int seenDiffTitle = 0;
+#endif
 
     style_header(zTitle);
     login_anonymous_available();
@@ -498,7 +500,9 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     zOrigDate = db_column_text(&q, 4);
+#if 0
     thisMtime = db_column_double(&q, 5);
+#endif
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -567,6 +571,7 @@ void ci_page(void){
       }
       db_finalize(&q);
 
+#if 0
       /* Select a few other branches to diff against */
       zThisBranch = db_text("trunk", "SELECT value FROM tagxref"
                                      " WHERE tagid=%d AND tagtype>0"
@@ -616,6 +621,7 @@ void ci_page(void){
       if( seenDiffTitle ){
         @ </td></tr>
       }
+#endif
 
       /* The Download: line */
       if( g.perm.Zip ){
@@ -1112,6 +1118,9 @@ int object_description(
     if( pDownloadName && blob_size(pDownloadName)==0 ){
       blob_append(pDownloadName, zName, -1);
     }
+  }
+  if( prevName ){
+    @ </ul>
   }
   @ </ul>
   free(prevName);

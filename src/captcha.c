@@ -469,6 +469,8 @@ int captcha_is_correct(void){
   const char *zSeed;
   const char *zEntered;
   const char *zDecode;
+  char z[30];
+  int i;
   if( !captcha_needed() ){
     return 1;  /* No captcha needed */
   }
@@ -477,7 +479,15 @@ int captcha_is_correct(void){
   zEntered = P("captcha");
   if( zEntered==0 || strlen(zEntered)!=8 ) return 0;
   zDecode = captcha_decode((unsigned int)atoi(zSeed));
-  if( strcmp(zDecode,zEntered)!=0 ) return 0;
+  assert( strlen(zDecode)==8 );
+  if( strlen(zEntered)!=8 ) return 0;
+  for(i=0; i<8; i++){
+    char c = zEntered[i];
+    if( c>='A' && c<='F' ) c += 'a' - 'A';
+    if( c=='O' ) c = '0';
+    z[i] = c;
+  }
+  if( memcmp(zDecode,z,8)!=0 ) return 0;
   return 1;
 }
 

@@ -13,6 +13,7 @@ options {
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
     json=0               => {Build with fossil JSON API enabled}
+    markdown=0           => {Build with markdown engine enabled}
 }
 
 # sqlite wants these types if possible
@@ -76,11 +77,15 @@ if {[opt-bool json]} {
     define FOSSIL_ENABLE_JSON
 }
 
+if {[opt-bool markdown]} {
+    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_MARKDOWN
+    define FOSSIL_ENABLE_MARKDOWN
+}
+
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
     define-append EXTRA_LDFLAGS -static
 }
-
 
 # Check for zlib, using the given location if specified
 set zlibpath [opt-val with-zlib]
@@ -223,6 +228,7 @@ if {![cc-check-function-in-lib socket {socket network}]} {
         define-append LIBS -lwsock32
     }
 }
+cc-check-function-in-lib iconv iconv
 
 # Check for getpassphrase() for Solaris 10 where getpass() truncates to 10 chars
 if {![cc-check-functions getpassphrase]} {

@@ -174,6 +174,7 @@ int report_query_authorizer(
     case SQLITE_READ: {
       static const char *const azAllowed[] = {
          "ticket",
+         "ticketchng",
          "blob",
          "filename",
          "mlink",
@@ -696,7 +697,7 @@ static int generate_html(
 
     /* The first time this routine is called, output a table header
     */
-    @ <tr>
+    @ <thead><tr>
     zTid = 0;
     for(i=0; i<nArg; i++){
       char *zName = azName[i];
@@ -718,7 +719,7 @@ static int generate_html(
     if( g.perm.Write && zTid ){
       @ <th>&nbsp;</th>
     }
-    @ </tr>
+    @ </tr></thead><tbody>
   }
   if( azArg==0 ){
     @ <tr><td colspan="%d(pState->nCol)">
@@ -916,6 +917,67 @@ int sqlite3_exec_readonly(
   return rc;
 }
 
+/*
+** Output Javascript code that will enables sorting of the table with
+** the id zTableId by clicking.
+**
+** The javascript is derived from:
+**
+**     http://www.webtoolkit.info/sortable-html-table.html
+**
+*/
+static void output_table_sorting_javascript(const char *zTableId){
+  @ <script>
+  @ function SortableTable(tableEl){
+  @   this.tbody = tableEl.getElementsByTagName('tbody');
+  @   this.sort = function (cell) {
+  @     var column = cell.cellIndex;
+  @     this.sortIndex = column;
+  @     var newRows = new Array();
+  @     for (j = 0; j < this.tbody[0].rows.length; j++) {
+  @        newRows[j] = this.tbody[0].rows[j];
+  @     }
+  @     newRows.sort(this.sortText);
+  @     if (cell.getAttribute("sortdir") == 'down') {
+  @        newRows.reverse();
+  @        cell.setAttribute('sortdir','up');
+  @     } else {
+  @        cell.setAttribute('sortdir','down');
+  @     }
+  @     for (i=0;i<newRows.length;i++) {
+  @       this.tbody[0].appendChild(newRows[i]);
+  @     }
+  @   }
+  @   this.sortText = function(a,b) {
+  @     var i = thisObject.sortIndex;
+  @     aa = a.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     bb = b.cells[i].textContent.replace(/^\W+/,'').toLowerCase();
+  @     if(aa==bb) return 0;
+  @     if(aa<bb) return -1;
+  @     return 1;
+  @   }
+  @   var thisObject = this;
+  @   var x = tableEl.getElementsByTagName('thead');
+  @   if(!(this.tbody && this.tbody[0].rows && this.tbody[0].rows.length>0)){
+  @     return;
+  @   }
+  @   if(x && x[0].rows && x[0].rows.length > 0) {
+  @     var sortRow = x[0].rows[0];
+  @   } else {
+  @     return;
+  @   }
+  @   for (var i=0; i<sortRow.cells.length; i++) {
+  @     sortRow.cells[i].sTable = this;
+  @     sortRow.cells[i].onclick = function () {
+  @       this.sTable.sort(this);
+  @       return false;
+  @     }
+  @   }
+  @ }
+  @ var t = new SortableTable(gebi("%s(zTableId)"));
+  @ </script>
+}
+
 
 /*
 ** WEBPAGE: /rptview
@@ -994,18 +1056,20 @@ void rptview_page(void){
     style_header(zTitle);
     output_color_key(zClrKey, 1, 
         "border=\"0\" cellpadding=\"3\" cellspacing=\"0\" class=\"report\"");
-    @ <table border="1" cellpadding="2" cellspacing="0" class="report">
+    @ <table border="1" cellpadding="2" cellspacing="0" class="report"
+    @  id="reportTable">
     sState.rn = rn;
     sState.nCount = 0;
     report_restrict_sql(&zErr1);
     sqlite3_exec_readonly(g.db, zSql, generate_html, &sState, &zErr2);
     report_unrestrict_sql();
-    @ </table>
+    @ </tbody></table>
     if( zErr1 ){
       @ <p class="reportError">Error: %h(zErr1)</p>
     }else if( zErr2 ){
       @ <p class="reportError">Error: %h(zErr2)</p>
     }
+    output_table_sorting_javascript("reportTable");
     style_footer();
   }else{
     report_restrict_sql(&zErr1);

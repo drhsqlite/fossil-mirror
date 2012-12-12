@@ -213,7 +213,8 @@ void www_print_timeline(
     /* style is not moved to css, because this is
     ** a technical div for the timeline graph
     */
-    @ <div id="canvas" style="position:relative;width:1px;height:1px;"></div>
+    @ <div id="canvas" style="position:relative;width:1px;height:1px;"
+    @  onclick="clickOnGraph(event)"></div>
   }
   db_static_prepare(&qbranch,
     "SELECT value FROM tagxref WHERE tagid=%d AND tagtype>0 AND rid=:rid",
@@ -313,7 +314,8 @@ void www_print_timeline(
         aParent[nParent++] = db_column_int(&qparent, 0);
       }
       db_reset(&qparent);
-      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr, isLeaf);
+      gidx = graph_add_row(pGraph, rid, nParent, aParent, zBr, zBgClr,
+                           zUuid, isLeaf);
       db_reset(&qbranch);
       @ <div id="m%d(gidx)"></div>
     }
@@ -483,30 +485,37 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w;
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
+      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
     }
   }
   @ </table>
   if( fchngQueryInit ) db_finalize(&fchngQuery);
-  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0);
+  timeline_output_graph_javascript(pGraph, (tmFlags & TIMELINE_DISJOINT)!=0, 0);
 }
 
 /*
 ** Generate all of the necessary javascript to generate a timeline
 ** graph.
 */
-void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
+void timeline_output_graph_javascript(
+  GraphContext *pGraph,     /* The graph to be displayed */
+  int omitDescenders,       /* True to omit descenders */
+  int fileDiff              /* True for file diff.  False for check-in diff */
+){
   if( pGraph && pGraph->nErr==0 && pGraph->nRow>0 ){
     GraphRow *pRow;
     int i;
     char cSep;
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
+    @ var railPitch=%d(pGraph->iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -537,6 +546,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     **        negative, then the x-coordinate is the absolute value of mi[]
     **        and a thin merge-arrow descender is drawn to the bottom of
     **        the screen.
+    **    h:  The SHA1 hash of the object being graphed
     */
     cgi_printf("var rowinfo = [\n");
     for(pRow=pGraph->pFirst; pRow; pRow=pRow->pNext){
@@ -544,7 +554,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*20 - 3 + 4*(mo&3);
+        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -571,14 +581,14 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*20 - 8 + 4*pRow->mergeIn[i];
+          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
         }
       }
       if( cSep=='[' ) cgi_printf("[");
-      cgi_printf("]}%s", pRow->pNext ? ",\n" : "];\n");
+      cgi_printf("],h:\"%s\"}%s", pRow->zUuid, pRow->pNext ? ",\n" : "];\n");
     }
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
@@ -600,6 +610,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   n.style.height = h+"px";
     @   n.style.backgroundColor = color;
     @   canvasDiv.appendChild(n);
+    @   return n;
     @ }
     @ function absoluteY(id){
     @   var obj = gebi(id);
@@ -671,7 +682,7 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   }
     @   var n = p.au.length;
     @   for(var i=0; i<n; i+=2){
-    @     var x1 = p.au[i]*20 + left;
+    @     var x1 = p.au[i]*railPitch + left;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
@@ -701,6 +712,8 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @     }
     @   }
     @ }
+    @ var selBox = null;
+    @ var selRow = null;
     @ function renderGraph(){
     @   var canvasDiv = gebi("canvas");
     @   while( canvasDiv.hasChildNodes() ){
@@ -708,10 +721,10 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
     @   }
     @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   var width = nrail*20;
+    @   var width = nrail*railPitch;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
-    @     rowinfo[i].x = left + rowinfo[i].r*20;
+    @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
 #if 0
@@ -738,6 +751,51 @@ void timeline_output_graph_javascript(GraphContext *pGraph, int omitDescenders){
 #endif
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
+    @   }
+    @   if( selRow!=null ) clickOnRow(selRow);
+    @ }
+    @ function clickOnGraph(event){
+#ifdef OMIT_IE8_SUPPORT
+    @   var x=event.clientX-absoluteX("canvas")+window.pageXOffset;
+    @   var y=event.clientY-absoluteY("canvas")+window.pageYOffset;
+#else
+    @   var x=event.clientX-absoluteX("canvas");
+    @   var y=event.clientY-absoluteY("canvas");
+    @   if(window.pageXOffset!=null){
+    @     x += window.pageXOffset;
+    @     y += window.pageYOffset;
+    @   }else{
+    @     var d = window.document.documentElement;
+    @     if(document.compatMode!="CSS1Compat") d = d.body;
+    @     x += d.scrollLeft;
+    @     y += d.scrollTop;
+    @   }
+#endif
+    @   for(var i in rowinfo){
+    @     p = rowinfo[i];
+    @     if( p.y<y-10 ) continue;
+    @     if( p.y>y+10 ) break;
+    @     if( p.x>x-10 && p.x<x+10 ){
+    @       clickOnRow(p);
+    @       break;
+    @     }
+    @   }
+    @ }
+    @ function clickOnRow(p){
+    @   if( selRow==null ){
+    @     selBox = drawBox("red",p.x-2,p.y-2,p.x+3,p.y+3);
+    @     selRow = p;
+    @   }else if( selRow==p ){
+    @     var canvasDiv = gebi("canvas");
+    @     canvasDiv.removeChild(selBox);
+    @     selBox = null;
+    @     selRow = null;
+    @   }else{
+    if( fileDiff ){
+      @     location.href="%R/fdiff?v1="+selRow.h+"&v2="+p.h;
+    }else{
+      @     location.href="%R/vdiff?from="+selRow.h+"&to="+p.h;
+    }
     @   }
     @ }
     @ var lastId = "m"+rowinfo[rowinfo.length-1].id;

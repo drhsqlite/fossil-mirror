@@ -267,6 +267,7 @@ static int hascapCmd(
 ** "ssl"      = FOSSIL_ENABLE_SSL
 ** "tcl"      = FOSSIL_ENABLE_TCL
 ** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "markdown" = FOSSIL_ENABLE_MARKDOWN
 **
 */
 static int hasfeatureCmd(
@@ -302,6 +303,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
   else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_MARKDOWN)
+  else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
     rc = 1;
   }
 #endif
@@ -603,6 +609,7 @@ static int queryCmd(
   int n, i;
   int res = TH_OK;
   int nVar;
+  char *zErr = 0;
 
   if( argc!=3 ){
     return Th_WrongNumArgs(interp, "query SQL CODE");
@@ -614,9 +621,13 @@ static int queryCmd(
   zSql = argv[1];
   nSql = argl[1];
   while( res==TH_OK && nSql>0 ){
+    zErr = 0;
+    sqlite3_set_authorizer(g.db, report_query_authorizer, (void*)&zErr);
     rc = sqlite3_prepare_v2(g.db, argv[1], argl[1], &pStmt, &zTail);
-    if( rc!=0 ){
-      Th_ErrorMessage(interp, "SQL error: ", sqlite3_errmsg(g.db), -1);
+    sqlite3_set_authorizer(g.db, 0, 0);
+    if( rc!=0 || zErr!=0 ){
+      Th_ErrorMessage(interp, "SQL error: ",
+                      zErr ? zErr : sqlite3_errmsg(g.db), -1);
       return TH_ERROR;
     }
     n = (int)(zTail - zSql);

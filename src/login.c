@@ -1294,7 +1294,7 @@ void register_page(void){
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
   @ %h(zCaptcha)
-  @ </pre></td></tr></table>
+  @ </pre></td></tr></table></div>
   @ </form>
   style_footer();
 
