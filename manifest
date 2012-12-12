@@ -1,5 +1,5 @@
-C type\nintegrate\slatest\sversion\sof\sdirent.h
-D 2012-12-12T22:03:51.316
+C Do\snot\senforce\sthe\srequirement\sthat\sfilenames\sin\smanifests\sbe\sstrict\sUTF8\nbecause\ssome\sbug\sor\sanother\sin\sa\slegacy\sversion\sof\sFossil\sallowed\sin\ssome\nLatin-1\sSuppliment\scharacters\sencoded\sas\sa\ssingle\sbyte\s(ex:\s0xf3)\sinstead\nof\sthe\scorrect\stwo-byte\sencoding\s(ex:\s0xc3\s0xb3)\sand\sso\sif\swe\sstart\senforcing\nstrict\sUTF8,\ssome\scheck-ins\sfrom\sthose\slegacy\sversions\sof\sFossil\swill\sbe\ninaccessible.
+D 2012-12-12T22:52:24.474
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -289,7 +289,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 4f9777f58961d887699beaea2c2695acfff03af4
+F src/add.c 5a42fac84a26a52b07ecaaff25c96d3209a46f20
 F src/allrepo.c 9a4f7592a877bab3c4cf834c08ff06afd0e8a039
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -315,11 +315,11 @@ F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
 F src/diff.c 69115cf5168a025bba6763cad565e4826bde23c3
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
-F src/doc.c 406bef34a5ce52a86599197161f008f47758a4d3
+F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
-F src/file.c f7b0bfc657dc37d0d8b76af444a3341f7113a2c2
+F src/file.c bce0996d79f9cfadb87127d58d72a260624db21c
 F src/finfo.c e8ab60027aadeb99680b9fefdb33ad1dd7dbe90a
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
@@ -352,7 +352,7 @@ F src/main.mk a1f6068e20a39b38a1bfa5c56ecf948032ccb813
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl c1b5edbec22463507fa9a660dd339bf480fbf65d
-F src/manifest.c a6e3018b403ad068285cb4de2f909bcd9a4b6483
+F src/manifest.c 1aeb389dd427dbcc63a12fff5821b35b9e7bc02f
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d5261ae5f0ce74cd8ef08dd985c3a00ffddae8a5
-R 9494fafd44d94ececa67dd4648a13af6
-U jan.nijtmans
-Z d2c22d6383c0a899b0050b476bd833c7
+P 8e50ff0c303872249114df3fd71f4ac4f0256d48
+R 9e0fc7102fd355112586a61e73e3e729
+U drh
+Z 24a56f0f4532c5440361d337965762f0

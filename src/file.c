@@ -489,39 +489,46 @@ int file_mkdir(const char *zName, int forceFlag){
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
+**
+** Invalid UTF8 characters result in a false return if bStrictUtf8 is
+** true.  If bStrictUtf8 is false, invalid UTF8 characters are silently
+** ignored.
 */
-int file_is_simple_pathname(const char *z){
+int file_is_simple_pathname(const char *z, int bStrictUtf8){
   int i;
   char c = z[0];
+  char maskNonAscii = bStrictUtf8 ? 0x80 : 0x00;
   if( c=='/' || c==0 ) return 0;
   if( c=='.' ){
     if( z[1]=='/' || z[1]==0 ) return 0;
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
   for(i=0; (c=z[i])!=0; i++){
-    if( (c & 0xf0) == 0xf0 ) {
-      /* Unicode characters > U+FFFF are not supported.
-       * Windows XP and earlier cannot handle them.
-       */
-      return 0;
-    }
-    if( (c & 0xf0) == 0xe0 ) {
-      /* This is a 3-byte UTF-8 character */
-      if ( (c & 0xfe) == 0xee ){
-        /* Range U+E000 - U+FFFF (Starting with 0xee or 0xef in UTF-8 ) */
-        if ( (c & 1) && ((z[i+1] & 0xff) >= 0xa4) ){
-          /* But exclude U+F900 - U+FFFF (0xef followed by byte >= 0xa4),
-           * which contain valid characters. */
-          continue;
-        }
-        /* Unicode character in the range U+E000 - U+F8FF are for
-         * private use, they shouldn't occur in filenames.  */
+    if( c & maskNonAscii ){
+      if( (c & 0xf0) == 0xf0 ) {
+        /* Unicode characters > U+FFFF are not supported.
+         * Windows XP and earlier cannot handle them.
+         */
         return 0;
       }
-      if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
-        /* Unicode character in the range U+D800 - U+DFFF are for
-         * surrogate pairs, they shouldn't occur in filenames. */
-        return 0;
+      if( (c & 0xf0) == 0xe0 ) {
+        /* This is a 3-byte UTF-8 character */
+        if ( (c & 0xfe) == 0xee ){
+          /* Range U+E000 - U+FFFF (Starting with 0xee or 0xef in UTF-8 ) */
+          if ( (c & 1) && ((z[i+1] & 0xff) >= 0xa4) ){
+            /* But exclude U+F900 - U+FFFF (0xef followed by byte >= 0xa4),
+             * which contain valid characters. */
+            continue;
+          }
+          /* Unicode character in the range U+E000 - U+F8FF are for
+           * private use, they shouldn't occur in filenames.  */
+          return 0;
+        }
+        if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
+          /* Unicode character in the range U+D800 - U+DFFF are for
+           * surrogate pairs, they shouldn't occur in filenames. */
+          return 0;
+        }
       }
     }
     if( c=='\\' ){

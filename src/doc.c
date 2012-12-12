@@ -382,11 +382,11 @@ void doc_page(void){
   zBaseline[i] = 0;
   zName += i;
   while( zName[0]=='/' ){ zName++; }
-  if( !file_is_simple_pathname(zName) ){
+  if( !file_is_simple_pathname(zName, 1) ){
     int n = strlen(zName);
     if( n>0 && zName[n-1]=='/' ){
       zName = mprintf("%sindex.html", zName);
-      if( !file_is_simple_pathname(zName) ){
+      if( !file_is_simple_pathname(zName, 1) ){
         goto doc_not_found;
       }
     }else{

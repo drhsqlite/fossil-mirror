@@ -432,7 +432,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
+        if( !file_is_simple_pathname(zName, 0) ){
           SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
@@ -526,7 +526,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x,0);
         if( zName==0 ) SYNTAX("missing filename on F-card");
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
+        if( !file_is_simple_pathname(zName, 0) ){
           SYNTAX("F-card filename is not a simple path");
         }
         zUuid = next_token(&x, &sz);
@@ -538,7 +538,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zPriorName = next_token(&x,0);
         if( zPriorName ){
           defossilize(zPriorName);
-          if( !file_is_simple_pathname(zPriorName) ){
+          if( !file_is_simple_pathname(zPriorName, 0) ){
             SYNTAX("F-card old filename is not a simple path");
           }
         }
