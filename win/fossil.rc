@@ -106,6 +106,9 @@ BEGIN
 #ifdef FOSSIL_ENABLE_JSON
       VALUE "JsonEnabled", "Yes, cson\0"
 #endif
+#ifdef FOSSIL_ENABLE_MARKDOWN
+      VALUE "MarkdownEnabled", "Yes\0"
+#endif
     END
   END
   BLOCK "VarFileInfo"
