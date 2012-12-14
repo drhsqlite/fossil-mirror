@@ -801,6 +801,37 @@ static int textLCS(
 }
 
 /*
+** Try to shift iStart as far as possible to the left.
+*/
+static void sbsShiftLeft(SbsLine *p, const char *z){
+  int i, j;
+  while( (i=p->iStart)>0 && z[i-1]==z[i] ){
+    for(j=i+1; j<p->iEnd && z[j-1]==z[j]; j++){}
+    if( j<p->iEnd ) break;
+    p->iStart--;
+    p->iEnd--;
+  }
+}
+
+/*
+** Simplify iStart and iStart2:
+**
+**    *  If iStart is a null-change then move iStart2 into iStart
+**    *  Make sure any null-changes are in canonoical form.
+*/
+static void sbsSimplifyLine(SbsLine *p){
+  if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iStart2;
+    p->iEnd = p->iEnd2;
+    p->zStart = p->zStart2;
+    p->iStart2 = 0;
+    p->iEnd2 = 0;
+  }
+  if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+}
+
+/*
 ** Write out lines that have been edited.  Adjust the highlight to cover
 ** only those parts of the line that actually changed.
 */
@@ -893,37 +924,31 @@ static void sbsWriteLineChange(
     sbsWriteLineno(p, lnLeft);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[0];
-    p->zStart = aLCS[2]==0 ? zClassRm : zClassChng;
+    if( aLCS[2]==0 ){
+      sbsShiftLeft(p, pLeft->z);
+      p->zStart = zClassRm;
+    }else{
+      p->zStart = zClassChng;
+    }
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
-    if( p->iStart==p->iEnd ){
-      p->iStart = p->iStart2;
-      p->iEnd = p->iEnd2;
-      p->zStart = p->zStart2;
-      p->iStart2 = 0;
-      p->iEnd2 = 0;
-    }
-    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+    sbsSimplifyLine(p);
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
     p->iStart = nPrefix;
     p->iEnd = nPrefix + aLCS[2];
-    p->zStart = aLCS[0]==0 ? zClassAdd : zClassChng;
+    if( aLCS[0]==0 ){
+      sbsShiftLeft(p, pRight->z);
+      p->zStart = zClassAdd;
+    }else{
+      p->zStart = zClassChng;
+    }
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
-    if( p->iStart==p->iEnd ){
-      p->iStart = p->iStart2;
-      p->iEnd = p->iEnd2;
-      p->zStart = p->zStart2;
-      p->iStart2 = 0;
-      p->iEnd2 = 0;
-    }
-    if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+    sbsSimplifyLine(p);
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }
