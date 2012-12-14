@@ -1,5 +1,5 @@
-C When\sdetermining\sthe\sinteractive\suser,\scheck\sthe\sFOSSIL_USER\senvironment\svariable.\s\sAlso,\sadd\sa\sproperty\sto\sthe\sWindows\sresource\sfile\sindicating\sif\smarkdown\ssupport\swas\scompiled\sinto\sthe\sbinary.
-D 2012-12-13T12:31:32.497
+C include\s<winsock2.h>\sbefore\s<ws2tcpip.h>\swhenever\sneeded.\s\nThanks\sto\sKonstantin\sKhomoutov\sfor\sreporting\sthis.
+D 2012-12-14T11:50:24.760
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -298,7 +298,7 @@ F src/blob.c 36041aba343f922a15ca8c64e0a9e3b058f39066
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c 40e2d5cf0d95670b89e08fbd83a42026ebfdea78
+F src/cgi.c 3911087555ce799af1abb10e01b1f6590c0e6746
 F src/checkin.c 70a3678f71ba3b73d31bd7f0f0abfc8e3d02072f
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -325,7 +325,7 @@ F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
-F src/http_socket.c 326f54adf82358dbd3ea1780dda4a7edf19fd52d
+F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
 F src/http_transport.c 2ad73fe61bdd448fa7f89e00f7542d5b916e31a7
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d48399bd3907820a8ebb75644c6e4784271fce9d
-R df6497e3fb2764ec58ed251e0506c32f
-U mistachkin
-Z bd99d357511321c895f319f0500608b8
+P 743b64ecf2380ca7057ad97d727f0d6d27d9b23a
+R 3682d2f846772a999e258a05b2d283a2
+U jan.nijtmans
+Z 1a4b8c4711a53165e66571fceb0e2ff4
