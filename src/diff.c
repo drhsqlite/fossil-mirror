@@ -1875,15 +1875,24 @@ void test_rawdiff_cmd(void){
 }
 
 /*
-** COMMAND: test-udiff
+** COMMAND: test-diff
+**
+** Usage: %fossil [options] FILE1 FILE2
 **
 ** Print the difference between two files.  The usual diff options apply.
 */
 void test_udiff_cmd(void){
   Blob a, b, out;
-  u64 diffFlag = diff_options();
+  u64 diffFlag;
 
+  if( find_option("tk",0,0)!=0 ){
+    diff_tk("test-diff", 2);
+    return;
+  }
+  find_option("i",0,0);
+  diffFlag = diff_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
+  diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);

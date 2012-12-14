@@ -1,5 +1,5 @@
-C include\s<winsock2.h>\sbefore\s<ws2tcpip.h>\swhenever\sneeded.\s\nThanks\sto\sKonstantin\sKhomoutov\sfor\sreporting\sthis.
-D 2012-12-14T11:50:24.760
+C Rename\sthe\stest-udiff\scommand\sto\stest-diff\sand\sgive\sit\sthe\scapability\sto\nuse\sthe\s--tk\soption.
+D 2012-12-14T18:58:45.280
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 143029e3d330ed4ff30c39c6212713492a0ae85d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
-F src/diff.c 69115cf5168a025bba6763cad565e4826bde23c3
+F src/diff.c 8832774f739817dc4022c752d25a040bd46b7fb2
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 743b64ecf2380ca7057ad97d727f0d6d27d9b23a
-R 3682d2f846772a999e258a05b2d283a2
-U jan.nijtmans
-Z 1a4b8c4711a53165e66571fceb0e2ff4
+P 0658068a237b8a5c3bc9df61e1b40f15da53b8ef
+R 421a3d562d3a6541b37c3b09515ce959
+U drh
+Z db2b8c2e34c1fb1232d92e29b31290d5
