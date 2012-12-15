@@ -429,10 +429,6 @@ static void appendDiffLine(
       blob_append(pOut, "<span class=\"diffrm\">", -1);
     }
     zHtml = htmlize(pLine->z, (pLine->h & LENGTH_MASK));
-    for(i=0; i<strlen(zHtml); i++){
-      char c = zHtml[i];
-      if( c=='\t' || c=='\r' || c=='\f' ) zHtml[i] = ' ';
-    }
     blob_append(pOut, zHtml, -1);
     fossil_free(zHtml);
     if( cPrefix!=' ' ){
