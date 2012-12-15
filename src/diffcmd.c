@@ -661,8 +661,14 @@ void diff_tk(const char *zSubCmd, int firstArg){
   blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( z[0]=='-' ){
+      if( strglob("*-html",z) ) continue;
+      if( strglob("*-y",z) ) continue;
+      if( strglob("*-i",z) ) continue;
+    }
     blob_append(&script, " ", 1);
-    shell_escape(&script, g.argv[i]);
+    shell_escape(&script, z);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   zTempFile = write_blob_to_temp_file(&script);

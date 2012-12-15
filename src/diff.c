@@ -1959,7 +1959,7 @@ void test_rawdiff_cmd(void){
 **
 ** Print the difference between two files.  The usual diff options apply.
 */
-void test_udiff_cmd(void){
+void test_diff_cmd(void){
   Blob a, b, out;
   u64 diffFlag;
 
@@ -1969,6 +1969,7 @@ void test_udiff_cmd(void){
   }
   find_option("i",0,0);
   diffFlag = diff_options();
+  verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
   diff_print_filenames(g.argv[2], g.argv[3], diffFlag);
   blob_read_from_file(&a, g.argv[2]);

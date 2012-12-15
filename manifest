@@ -1,5 +1,5 @@
-C Wrap\san\sover-long\ssource\scode\sline.\s\sNo\slogic\schanges.
-D 2012-12-15T14:19:08.798
+C Add\srobustness\sto\sthe\shandling\sof\scommand-line\soptions\sin\sthe\s"diff"\sand\n"test-diff"\scommands.
+D 2012-12-15T14:25:40.266
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,8 +313,8 @@ F src/db.c 143029e3d330ed4ff30c39c6212713492a0ae85d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
-F src/diff.c 277116b6b8ed514f4daf6cfd0ba510ed6fe37724
-F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
+F src/diff.c 0b777826bc4466cac4f2f0aa21b03b5af4734b24
+F src/diffcmd.c e2ac6b17d7358d38dd4da1e8e41107128fbe3c53
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1442cc7f4c58a20bbbf57f7283ea01a1eeee9f96
-R 9b839a587ae9065bc977c83e81f47faa
+P 84dc7b0f3f1bd50ce5467350d6efd72a25efd84d
+R e17d3ce2ec21444028efd80594acf788
 U drh
-Z 8eb742fad4a47ae7adf2bf66c22d215e
+Z 4ac17181318ce132b28dbc07f01a4272
