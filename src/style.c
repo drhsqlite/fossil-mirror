@@ -961,7 +961,7 @@ const struct strctCssDefaults {
   { "div.sbsdiff",
     "side-by-side diff display",
     @   font-family: monospace;
-    @   font-size: smaller;
+    @   font-size: xx-small;
     @   white-space: pre;
   },
   { "div.udiff",
