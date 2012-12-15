@@ -25,3 +25,10 @@ External:
 
   *  <a href="http://www.sqlite.org/src/fdiff?v1=aafcb21a74e41f9a&v2=a6d127dd05daf0f9#chunk3" target="testwindow">
      Code indentation change.</a>
+  *  <a href="http://www.sqlite.org/src/info/52e755943f">
+     A complex change (chunk 1) in which the alignment becomes so complex
+     that it is better for clarity to abandon it and just show the left
+     and right sides contiguously.</a>
+  *  <a href="http://www.sqlite.org/src/info/3d65c70343#chunk5">
+     An indentation change.  See especially lines 2313 and 2317 on the right,
+     that their green indentation addition is left-justified.</a>

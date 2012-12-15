@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sside-by-side\sdiff\sdisplay\sfor\sindentation\schanges\swith\nminor\sedits.
-D 2012-12-14T21:24:56.751
+C If\sthe\sleft/right\salignment\sin\sside-by-side\sdiff\sbecomes\stoo\sbusy\sand\shard\nfor\sa\shuman\sto\sread,\sthen\sshow\sit\ssimplified:\sas\sinserting\sone\sside\sand\nthen\sdeleting\sthe\sother.
+D 2012-12-15T00:59:47.810
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 143029e3d330ed4ff30c39c6212713492a0ae85d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
-F src/diff.c ca0160d5ae47049eccca2dcc749494f6b0dd919d
+F src/diff.c 853d818bc2c7251464371736481f0614da753f34
 F src/diffcmd.c ddb31a0297bc53a5002c6b4aebceccc7f14a6d12
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
@@ -411,7 +411,7 @@ F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
-F test/diff-test-1.wiki 2fb88044a8fb6bfc95c9aa0fab959f3f44657652
+F test/diff-test-1.wiki f17304e594f2e89536473ac016ea3dfc0596169d
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4cf8c16cd82f160a61038ea34dba1ca7a06d096b
-R c19f758c3c8825d90af14055175cee99
+P c4bbc4a9afcc35dcf43087b552732748215922c1
+R d24da1187ebb1a88cc087c92ba5bd7c4
 U drh
-Z e894f5cfe91420c4b423c09679a91c7a
+Z e977d901455848a9836890b8769157a5

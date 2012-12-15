@@ -1045,9 +1045,11 @@ static int match_dline(DLine *pA, DLine *pB){
 ** fossil_malloc().  (The caller needs to free the return value using
 ** fossil_free().)  Entries in the returned array have values as follows:
 **
-**    1.   Delete the next line of pLeft.
-**    2.   The next line of pLeft changes into the next line of pRight.
-**    3.   Insert the next line of pRight.
+**    1.     Delete the next line of pLeft.
+**    2.     Insert the next line of pRight.
+**    3...   The next line of pLeft changes into the next line of pRight.
+**
+** Values larger than three indicate better matches.
 **
 ** The length of the returned array will be just large enough to cause
 ** all elements of pLeft and pRight to be consumed.
@@ -1066,11 +1068,13 @@ static unsigned char *sbsAlignment(
   int *a;                      /* One row of the Wagner matrix */
   int *pToFree;                /* Space that needs to be freed */
   unsigned char *aM;           /* Wagner result matrix */
+  int nMatch, iMatch;          /* Number of matching lines and match score */
+  int mnLen;                   /* MIN(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   aM = fossil_malloc( (nLeft+1)*(nRight+1) );
   if( nLeft==0 ){
-    memset(aM, 3, nRight);
+    memset(aM, 2, nRight);
     return aM;
   }
   if( nRight==0 ){
@@ -1081,7 +1085,7 @@ static unsigned char *sbsAlignment(
   /* This algorithm is O(N**2).  So if N is too big, bail out with a
   ** simple (but stupid and ugly) result that doesn't take too long. */
   if( nLeft*nRight>100000 ){
-    memset(aM, 3, nRight);
+    memset(aM, 2, nRight);
     memset(aM+nRight, 1, nLeft);
     return aM;
   }
@@ -1095,7 +1099,7 @@ static unsigned char *sbsAlignment(
 
   /* Compute the best alignment */
   for(i=0; i<=nRight; i++){
-    aM[i] = 3;
+    aM[i] = 2;
     a[i] = i*50;
   }
   aM[0] = 0;
@@ -1105,16 +1109,16 @@ static unsigned char *sbsAlignment(
     aM[j*(nRight+1)] = 1;
     for(i=1; i<=nRight; i++){
       int m = a[i-1]+50;
-      int d = 3;
+      int d = 2;
       if( m>a[i]+50 ){
         m = a[i]+50;
         d = 1;
       }
       if( m>p ){
         int score = match_dline(&aLeft[j-1], &aRight[i-1]);
-        if( (score<66 || (i<j+1 && i>j-1)) && m>p+score ){
+        if( (score<=63 || (i<j+1 && i>j-1)) && m>p+score ){
           m = p+score;
-          d = 2;
+          d = 3 | score*4;
         }
       }
       p = a[i];
@@ -1127,13 +1131,16 @@ static unsigned char *sbsAlignment(
   i = nRight;
   j = nLeft;
   k = (nRight+1)*(nLeft+1)-1;
+  nMatch = iMatch = 0;
   while( i+j>0 ){
     unsigned char c = aM[k--];
-    if( c==2 ){
+    if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
-    }else if( c==3 ){
+      nMatch++;
+      iMatch += (c>>2);
+    }else if( c==2 ){
       assert( i>0 );
       i--;
     }else{
@@ -1145,6 +1152,22 @@ static unsigned char *sbsAlignment(
   k++;
   i = (nRight+1)*(nLeft+1) - k;
   memmove(aM, &aM[k], i);
+
+  /* If:
+  **   (1) the alignment is more than 25% longer than the longest side, and
+  **   (2) the average match cost exceeds 15
+  ** Then this is probably an alignment that will be difficult for humans
+  ** to read.  So instead, just show all of the right side inserted followed
+  ** by all of the left side deleted.
+  **
+  ** The coefficients for conditions (1) and (2) above are determined by
+  ** experimentation.  
+  */
+  mnLen = nLeft>nRight ? nLeft : nRight;
+  if( i*4>mnLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
+    memset(aM, 2, nRight);
+    memset(aM+nRight, 1, nLeft);
+  }
 
   /* Return the result */
   fossil_free(pToFree);
@@ -1296,7 +1319,7 @@ static void sbsDiff(
           assert( ma>0 );
           ma--;
           a++;
-        }else if( alignment[j]==2 ){
+        }else if( alignment[j]>=3 ){
           s.n = 0;
           sbsWriteLineChange(&s, &A[a], a, &B[b], b);
           blob_append(pOut, s.zLine, s.n);
