@@ -894,7 +894,9 @@ void verify_all_options(void){
   int i;
   for(i=1; i<g.argc; i++){
     if( g.argv[i][0]=='-' ){
-      fossil_fatal("unrecognized command-line option, or missing argument: %s", g.argv[i]);
+      fossil_fatal(
+        "unrecognized command-line option, or missing argument: %s",
+        g.argv[i]);
     }
   }
 }
