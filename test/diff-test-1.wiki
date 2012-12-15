@@ -21,15 +21,20 @@ the correct operation of the diff logic.
   *  <a href="../../../info/bda00cbada#chunk42" target="testwindow">
      A difficult indentation change.
   *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk13"
-      target="testwindow">Another tricky indentation.  Notice especially
-      lines 59398 and 59407 on the left</a>
+      target="testwindow">Another tricky indentation.</a>  Notice especially
+      lines 59398 and 59407 on the left.
   *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk13"
       target="testwindow">Inverse of the previous.</a>
   *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk24"
-      target="testwindow">A complex change that is difficult to align, and
-      hence falls back to the "delete left and insert right" strategy.</a>
+      target="testwindow">A complex change</a> that is difficult to align, and
+      hence falls back to the "delete left and insert right" strategy.
   *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk24"
       target="testwindow">Inverse of the previous.</a>
+  *  <a href="../../../fdiff?v1=21f9a00fe2fa4a17&v2=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes</a>
+      that are difficult to align.
+  *  <a href="../../../fdiff?v2=21f9a00fe2fa4a17&v1=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes inverted.</a>
 
 External:
 
