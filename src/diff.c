@@ -1045,9 +1045,10 @@ static int match_dline(DLine *pA, DLine *pB){
 ** fossil_malloc().  (The caller needs to free the return value using
 ** fossil_free().)  Entries in the returned array have values as follows:
 **
-**    1.     Delete the next line of pLeft.
-**    2.     Insert the next line of pRight.
-**    3...   The next line of pLeft changes into the next line of pRight.
+**    1.  Delete the next line of pLeft.
+**    2.  Insert the next line of pRight.
+**    3.  The next line of pLeft changes into the next line of pRight.
+**    4.  Delete one line from pLeft and add one line to pRight.
 **
 ** Values larger than three indicate better matches.
 **
@@ -1070,6 +1071,7 @@ static unsigned char *sbsAlignment(
   unsigned char *aM;           /* Wagner result matrix */
   int nMatch, iMatch;          /* Number of matching lines and match score */
   int mnLen;                   /* MIN(nLeft, nRight) */
+  int mxLen;                   /* MAX(nLeft, nRight) */
   int aBuf[100];               /* Stack space for a[] if nRight not to big */
 
   aM = fossil_malloc( (nLeft+1)*(nRight+1) );
@@ -1084,9 +1086,11 @@ static unsigned char *sbsAlignment(
 
   /* This algorithm is O(N**2).  So if N is too big, bail out with a
   ** simple (but stupid and ugly) result that doesn't take too long. */
+  mnLen = nLeft<nRight ? nLeft : nRight;
   if( nLeft*nRight>100000 ){
-    memset(aM, 2, nRight);
-    memset(aM+nRight, 1, nLeft);
+    memset(aM, 4, mnLen);
+    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
+    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
     return aM;
   }
 
@@ -1133,13 +1137,14 @@ static unsigned char *sbsAlignment(
   k = (nRight+1)*(nLeft+1)-1;
   nMatch = iMatch = 0;
   while( i+j>0 ){
-    unsigned char c = aM[k--];
+    unsigned char c = aM[k];
     if( c>=3 ){
       assert( i>0 && j>0 );
       i--;
       j--;
       nMatch++;
       iMatch += (c>>2);
+      aM[k] = 3;
     }else if( c==2 ){
       assert( i>0 );
       i--;
@@ -1147,6 +1152,7 @@ static unsigned char *sbsAlignment(
       assert( j>0 );
       j--;
     }
+    k--;
     aM[k] = aM[j*(nRight+1)+i];
   }
   k++;
@@ -1163,10 +1169,11 @@ static unsigned char *sbsAlignment(
   ** The coefficients for conditions (1) and (2) above are determined by
   ** experimentation.  
   */
-  mnLen = nLeft>nRight ? nLeft : nRight;
-  if( i*4>mnLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
-    memset(aM, 2, nRight);
-    memset(aM+nRight, 1, nLeft);
+  mxLen = nLeft>nRight ? nLeft : nRight;
+  if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
+    memset(aM, 4, mnLen);
+    if( nLeft>mnLen )  memset(aM+mnLen, 1, nLeft-mnLen);
+    if( nRight>mnLen ) memset(aM+mnLen, 2, nRight-mnLen);
   }
 
   /* Return the result */
@@ -1304,6 +1311,7 @@ static void sbsDiff(
       alignment = sbsAlignment(&A[a], ma, &B[b], mb);
       for(j=0; ma+mb>0; j++){
         if( alignment[j]==1 ){
+          /* Delete one line from the left */
           s.n = 0;
           sbsWriteLineno(&s, a);
           s.iStart = 0;
@@ -1319,7 +1327,8 @@ static void sbsDiff(
           assert( ma>0 );
           ma--;
           a++;
-        }else if( alignment[j]>=3 ){
+        }else if( alignment[j]==3 ){
+          /* The left line is changed into the right line */
           s.n = 0;
           sbsWriteLineChange(&s, &A[a], a, &B[b], b);
           blob_append(pOut, s.zLine, s.n);
@@ -1328,7 +1337,8 @@ static void sbsDiff(
           mb--;
           a++;
           b++;
-        }else{
+        }else if( alignment[j]==2 ){
+          /* Insert one line on the right */
           s.n = 0;
           sbsWriteSpace(&s, width + 7);
           if( escHtml ){
@@ -1345,7 +1355,27 @@ static void sbsDiff(
           assert( mb>0 );
           mb--;
           b++;
+        }else{
+          /* Delete from the left and insert on the right */
+          s.n = 0;
+          sbsWriteLineno(&s, a);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffrm\">";
+          s.iEnd = s.width;
+          sbsWriteText(&s, &A[a], SBS_PAD);
+          sbsWrite(&s, " | ", 3);
+          sbsWriteLineno(&s, b);
+          s.iStart = 0;
+          s.zStart = "<span class=\"diffadd\">";
+          s.iEnd = s.width;
+          sbsWriteText(&s, &B[b], SBS_NEWLINE);
+          blob_append(pOut, s.zLine, s.n);
+          ma--;
+          mb--;
+          a++;
+          b++;
         }
+          
       }
       fossil_free(alignment);
       if( i<nr-1 ){
