@@ -441,7 +441,9 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] =
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@ This page was generated in about
+@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
