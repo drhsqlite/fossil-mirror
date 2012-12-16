@@ -419,7 +419,6 @@ static void appendDiffLine(
   DLine *pLine,       /* The line to be output */
   int html            /* True if generating HTML.  False for plain text */
 ){
-  int i;
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
