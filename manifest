@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\sfooter\sto\sshow\sthe\sapproximate\stime\sneeded\sto\sgenerated\nthe\sHTML\sfor\sthe\spage.
-D 2012-12-16T17:13:29.585
+C Change\sthe\sfooter\sin\sthe\s'Enhanced\sDefault'\sskin\sto\sshow\sthe\sapproximate\stime\sneeded\sto\sgenerated\sthe\sHTML\sfor\sthe\spage.
+D 2012-12-17T00:38:23.843
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -376,7 +376,7 @@ F src/setup.c 9e8ae79a84a575e482fbded085a14bec8faafb15
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c c0f58633c0df084e292405e1ebe06a189c3ad7ad
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
-F src/skins.c 703f38c58d42b9b3a3cc4429481ef9d408908d74
+F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c 63c66569a1ffebd1f940cd9bc24781bb4b8abad5
 F src/sqlite3.c d5c4ff0532bd89c39fe299edab0c8119b4d2f97f
 F src/sqlite3.h 80583e4916434708327293b719a413d20c481cef
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 01d6ef7cf8935ee11d0dc63ed0773779da6d2569
-R a0e988845b67c8e1b72f9dae29e7e50c
-U drh
-Z 69baef96080c5476a9843609da9c1bee
+P ef6285a6a3c71f96364ca5eccc6cbd36a30494cd
+R 4c2ec92498be9cb1384d65e394f26033
+U mistachkin
+Z 29a750153408104269d094f9e9cc2ae1

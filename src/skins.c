@@ -1231,6 +1231,8 @@ static const char zBuiltinSkin5[] =
 @   set tclVersion [getTclVersion]
 @   set fossilUrl http://www.fossil-scm.org
 @   </th1>
+@   This page was generated in about
+@   <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
 @   <a href="$fossilUrl/">Fossil</a>
 @   version $release_version $tclVersion
 @   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>
