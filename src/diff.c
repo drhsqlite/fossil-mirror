@@ -25,7 +25,8 @@
 
 #if INTERFACE
 /*
-** Allowed flag parameters to the text_diff() and html_sbsdiff() functions:
+** Flag parameters to the text_diff() routine used to control the formatting
+** of the diff output.
 */
 #define DIFF_CONTEXT_MASK ((u64)0x0000ffff) /* Lines of context. Default if 0 */
 #define DIFF_WIDTH_MASK   ((u64)0x00ff0000) /* side-by-side column width */
@@ -54,7 +55,7 @@
 #endif /* INTERFACE */
 
 /*
-** Maximum length of a line in a text file, in bytes.  (8192)
+** Maximum length of a line in a text file, in bytes.  (2**13 = 8192 bytes)
 */
 #define LENGTH_MASK_SZ  13
 #define LENGTH_MASK     ((1<<LENGTH_MASK_SZ)-1)
@@ -118,6 +119,9 @@ struct DContext {
 **
 ** Return 0 if the file is binary or contains a line that is
 ** too long.
+**
+** Profiling show that in most cases this routine consumes the bulk of
+** the CPU time on a diff.
 */
 static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
   int nLine, i, j, k, x;
@@ -441,7 +445,7 @@ static void appendDiffLine(
 
 /*
 ** Add two line numbers to the beginning of an output line for a context
-** diff.  One or of the other of the two numbers might be zero, which means
+** diff.  One or the other of the two numbers might be zero, which means
 ** to leave that number field blank.  The "html" parameter means to format
 ** the output for HTML.
 */
@@ -523,7 +527,7 @@ static void contextDiff(
     }
 
     /* Show the header for this block, or if we are doing a modified
-    ** context diff that contains line numbers, show the separate from
+    ** context diff that contains line numbers, show the separator from
     ** the previous block.
     */
     nChunk++;
