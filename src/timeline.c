@@ -428,6 +428,8 @@ void www_print_timeline(
           "       (SELECT name FROM filename WHERE fnid=mlink.pfnid) AS oldnm"
           "  FROM mlink"
           " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
+          "   AND (fid>0 OR"
+               "   fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=:mid))"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;

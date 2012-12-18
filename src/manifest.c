@@ -1985,3 +1985,21 @@ int manifest_crosslink(int rid, Blob *pContent){
   assert( blob_is_reset(pContent) );
   return 1;
 }
+
+/*
+** COMMAND: test-crosslink
+**
+** Usage:  %fossil test-crosslink RECORDID
+**
+** Run the manifest_crosslink() routine on the artifact with the given
+** record ID.  This is typically done in the debugger.
+*/
+void test_crosslink_cmd(void){
+  int rid;
+  Blob content;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("RECORDID");
+  rid = name_to_rid(g.argv[2]);
+  content_get(rid, &content);
+  manifest_crosslink(rid, &content);
+}

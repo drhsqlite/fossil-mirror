@@ -1,5 +1,5 @@
-C Enhanced\scomments\sin\sthe\sdiff.c\ssource\scode\sfile.\s\sNo\scode\schanges.
-D 2012-12-17T14:00:44.940
+C Fix\sthe\sdisplay\sof\sfile\srenames\sso\sthat\sthey\sshow\sup\sas\sjust\srenames\sand\sdo\nnot\salso\sappear\sas\sa\sdelete.
+D 2012-12-18T02:38:58.995
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -329,7 +329,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c 0b10e8673797e04decc6930c986dc87dc6ab428b
 F src/http_transport.c 2ad73fe61bdd448fa7f89e00f7542d5b916e31a7
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 35cae71a5bd268804f9d06171852d30a3feb0bde
+F src/info.c 828119f197e54eae02e0e039bae27375451b13ee
 F src/json.c 7c2b9fa4d91d1e5324d5e1fc72b4f8cf22b8d007
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -352,7 +352,7 @@ F src/main.mk a1f6068e20a39b38a1bfa5c56ecf948032ccb813
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl c1b5edbec22463507fa9a660dd339bf480fbf65d
-F src/manifest.c 1aeb389dd427dbcc63a12fff5821b35b9e7bc02f
+F src/manifest.c 8d368b881c72e53c84c5eb0f6b3e3d0aa879e6ca
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
@@ -391,7 +391,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c b81a5660b8afbcaf9a1a63a3272abfcc8a763650
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c df0c9afd530b58b8bcd091e1d1ccb33e8e16816d
+F src/timeline.c 1550803a3b741cc1c691b2aa1e43089836dc961b
 F src/tkt.c d6f7e6001d79d7ff3fed6a5898e3f7673b27c83c
 F src/tktsetup.c bdce1faa3e88fd0d32b6c4ce45033200b8a4a259
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c6e645175072d2cb7a33184b2c670b861edebf5
-R 30dc5804dd9b5aeb1b135e92d493d63d
+P a39a992b4e02a92ff85a1173bfa0ff1d32d47383 6dba4c6a58c23436069fe78206c0fd0a445ff4be
+R 1aaade523c02e59f15bf9a0d492652e1
 U drh
-Z f7cc55f61fc15a9b03581600b5ad1d83
+Z 4470c7da452c3eecc87477ae4db1e988

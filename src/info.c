@@ -362,7 +362,7 @@ static void append_file_change_line(
         @ from %z(href("%R/artifact/%s",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%s",zNew))[%S(zNew)].</a>
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-        @ <p>Name change from
+        @ <p>Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
@@ -702,8 +702,10 @@ void ci_page(void){
        "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
+       "   AND (mlink.fid>0"
+              " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
        " ORDER BY name /*sort*/",
-       rid
+       rid, rid
     );
     diffFlags = construct_diff_flags(showDiff, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){
