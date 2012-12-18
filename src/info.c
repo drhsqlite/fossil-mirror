@@ -702,8 +702,10 @@ void ci_page(void){
        "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
+       "   AND (mlink.fid>0"
+              " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
        " ORDER BY name /*sort*/",
-       rid
+       rid, rid
     );
     diffFlags = construct_diff_flags(showDiff, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){

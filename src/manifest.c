@@ -1695,15 +1695,6 @@ int manifest_crosslink(int rid, Blob *pContent){
       wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
       free(zCom);
 
-      /* Remove file-delete entries if there is also a file-rename entry */
-      db_multi_exec(
-        "DELETE FROM mlink"
-        " WHERE mid=%d"
-        "   AND fid=0"
-        "   AND fnid IN (SELECT pfnid FROM mlink WHERE mid=%d);",
-        rid, rid
-      );
-
       /* If this is a delta-manifest, record the fact that this repository
       ** contains delta manifests, to free the "commit" logic to generate
       ** new delta manifests.
