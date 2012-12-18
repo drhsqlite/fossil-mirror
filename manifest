@@ -1,5 +1,5 @@
-C Fix\sthe\sdisplay\sof\sfile\srenames\sso\sthat\sthey\sshow\sup\sas\sjust\srenames\sand\sdo\nnot\salso\sappear\sas\sa\sdelete.
-D 2012-12-18T02:38:58.995
+C Add\shelp\stext\sfor\sthe\s'access-log'\ssetting.
+D 2012-12-18T03:59:37.435
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c b0293c07ed1687ef7437f3563e3d6112b58dc826
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 143029e3d330ed4ff30c39c6212713492a0ae85d
+F src/db.c 16ae24b7db41370f46c7832f29b273d8b1b2f1bf
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a39a992b4e02a92ff85a1173bfa0ff1d32d47383 6dba4c6a58c23436069fe78206c0fd0a445ff4be
-R 1aaade523c02e59f15bf9a0d492652e1
-U drh
-Z 4470c7da452c3eecc87477ae4db1e988
+P ebd36f9b2b278f719269402c7b4a18ed15f784df
+R 75289dbda3c973152af0a5976afa4028
+U mistachkin
+Z e2186db2453c7c4b16ec4c9deee32bf9

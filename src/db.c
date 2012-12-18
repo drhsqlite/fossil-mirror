@@ -2118,6 +2118,9 @@ struct stControlSettings const ctrlSettings[] = {
 ** The "unset" command clears a property setting.
 **
 **
+**    access-log       If enabled, record successful and failed login attempts
+**                     in the "accesslog" table.  Default: off
+**
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows
 **                     (existing links in repository created on Unix become
