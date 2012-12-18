@@ -362,7 +362,7 @@ static void append_file_change_line(
         @ from %z(href("%R/artifact/%s",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%s",zNew))[%S(zNew)].</a>
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-        @ <p>Name change from
+        @ <p>Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
