@@ -318,7 +318,7 @@ void ls_cmd(void){
 ** Options:
 **    --abs-paths      Display absolute pathnames.
 **    --dotfiles       include files beginning with a dot (".")
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
