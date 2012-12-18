@@ -1695,6 +1695,15 @@ int manifest_crosslink(int rid, Blob *pContent){
       wiki_extract_links(zCom, rid, 0, p->rDate, 1, WIKI_INLINE);
       free(zCom);
 
+      /* Remove file-delete entries if there is also a file-rename entry */
+      db_multi_exec(
+        "DELETE FROM mlink"
+        " WHERE mid=%d"
+        "   AND fid=0"
+        "   AND fnid IN (SELECT pfnid FROM mlink WHERE mid=%d);",
+        rid, rid
+      );
+
       /* If this is a delta-manifest, record the fact that this repository
       ** contains delta manifests, to free the "commit" logic to generate
       ** new delta manifests.
@@ -1984,4 +1993,22 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   assert( blob_is_reset(pContent) );
   return 1;
+}
+
+/*
+** COMMAND: test-crosslink
+**
+** Usage:  %fossil test-crosslink RECORDID
+**
+** Run the manifest_crosslink() routine on the artifact with the given
+** record ID.  This is typically done in the debugger.
+*/
+void test_crosslink_cmd(void){
+  int rid;
+  Blob content;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("RECORDID");
+  rid = name_to_rid(g.argv[2]);
+  content_get(rid, &content);
+  manifest_crosslink(rid, &content);
 }

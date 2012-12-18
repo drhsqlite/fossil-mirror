@@ -1,5 +1,5 @@
-C Enhanced\scomments\sin\sthe\sdiff.c\ssource\scode\sfile.\s\sNo\scode\schanges.
-D 2012-12-17T14:00:44.940
+C When\sa\sfile\sis\srenamed,\sdo\snot\sshow\sit\shas\shaving\sbeen\sdeleted\sin\saddition\nto\sbeing\srenamed.\s\sAfter\supgrading\sthrough\sthis\schange,\syou\smust\srun\n"fossil\srebuild"\sfor\sthe\sfix\sto\stake\seffect.
+D 2012-12-18T01:39:50.614
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -352,7 +352,7 @@ F src/main.mk a1f6068e20a39b38a1bfa5c56ecf948032ccb813
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl c1b5edbec22463507fa9a660dd339bf480fbf65d
-F src/manifest.c 1aeb389dd427dbcc63a12fff5821b35b9e7bc02f
+F src/manifest.c 60087615ca68e5d1284867bd152af8c61ff99d0e
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
@@ -594,7 +594,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0c6e645175072d2cb7a33184b2c670b861edebf5
-R 30dc5804dd9b5aeb1b135e92d493d63d
+P a39a992b4e02a92ff85a1173bfa0ff1d32d47383
+R 6ffb4728b122f095cc241baf1296a27c
+T *branch * improved-name-change-display
+T *sym-improved-name-change-display *
+T -sym-trunk *
 U drh
-Z f7cc55f61fc15a9b03581600b5ad1d83
+Z f5dbf84b8938b696f9be97d537a8dd63
