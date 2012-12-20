@@ -525,8 +525,6 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
             return 0;
           }
         }
-      }else if( c=='\\' ){
-        return 0;
       }
     }
     if( c=='/' ){
@@ -771,8 +769,8 @@ void cmd_test_canonical_name(void){
 /*
 ** Return TRUE if the given filename is canonical.
 **
-** Canonical names are full pathnames using "/" not "\" and which
-** contain no "/./" or "/../" terms.
+** Canonical names are full pathnames using "/" not "\" (on Windows)
+** and which contain no "/./" or "/../" terms.
 */
 int file_is_canonical(const char *z){
   int i;
@@ -783,7 +781,9 @@ int file_is_canonical(const char *z){
   ) return 0;
 
   for(i=0; z[i]; i++){
+#if defined(_WIN32)
     if( z[i]=='\\' ) return 0;
+#endif
     if( z[i]=='/' ){
       if( z[i+1]=='.' ){
         if( z[i+2]=='/' || z[i+2]==0 ) return 0;
