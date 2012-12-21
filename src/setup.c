@@ -96,7 +96,7 @@ void setup_page(void){
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
-    "edits and attachments.");
+    " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
