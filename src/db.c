@@ -335,6 +335,11 @@ int db_bind_str(Stmt *pStmt, const char *zParamName, Blob *pBlob){
                           blob_buffer(pBlob), blob_size(pBlob), SQLITE_STATIC);
 }
 
+/* Clear all bindings */
+int db_clear_bindings(Stmt *pStmt){
+  return sqlite3_clear_bindings(pStmt->pStmt);
+}
+
 /*
 ** Step the SQL statement.  Return either SQLITE_ROW or an error code
 ** or SQLITE_OK if the statement finishes successfully.

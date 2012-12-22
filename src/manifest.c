@@ -1186,11 +1186,12 @@ static void add_one_mlink(
     "INSERT INTO mlink(mid,pid,fid,fnid,pfnid,mperm)"
     "VALUES(:m,:p,:f,:n,:pfn,:mp)"
   );
+  db_clear_bindings(&s1);
   db_bind_int(&s1, ":m", mid);
-  db_bind_int(&s1, ":p", pid);
-  db_bind_int(&s1, ":f", fid);
+  if( pid ) db_bind_int(&s1, ":p", pid);
+  if( fid ) db_bind_int(&s1, ":f", fid);
   db_bind_int(&s1, ":n", fnid);
-  db_bind_int(&s1, ":pfn", pfnid);
+  if( pfnid) db_bind_int(&s1, ":pfn", pfnid);
   db_bind_int(&s1, ":mp", mperm);
   db_exec(&s1);
   if( pid && fid ){

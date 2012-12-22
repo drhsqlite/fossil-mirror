@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\sthe\slatest\strunk,\swith\ssupport\sfor\sthe\sforeign_key_check\npragma.
-D 2012-12-22T13:48:31.226
+C Use\sNULL\srather\sthan\s0\sfor\svalues\sin\sthe\sMLINK\stable\sthat\sare\sempty.
+D 2012-12-22T14:36:06.588
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c b0293c07ed1687ef7437f3563e3d6112b58dc826
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 8332fe5fb89b80d6b6d25a685c025c704aa45a74
 F src/cson_amalgamation.h 1497874d13be5d9e8ff6c4a625a2166988612b05
-F src/db.c 16ae24b7db41370f46c7832f29b273d8b1b2f1bf
+F src/db.c 30169236c2754841f2dac7f3b44df1aa0e03969e
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
@@ -352,7 +352,7 @@ F src/main.mk a1f6068e20a39b38a1bfa5c56ecf948032ccb813
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl c1b5edbec22463507fa9a660dd339bf480fbf65d
-F src/manifest.c 8d368b881c72e53c84c5eb0f6b3e3d0aa879e6ca
+F src/manifest.c da223d8fc821836cd0c6744845ff8c03d17ae38f
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
 F src/md5.c 78feb46ed27157dfe1d9c863c23df1dbbf761ef1
@@ -594,7 +594,10 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c89a694d5462bd00eaee94bf920fbae4b8c30536
-R c8279c88917e86eccb0150cef48cbf48
+P 558a17a686249c788569e696156314cc4cd930bf
+R 2f8216d1eeee2b02fd5af10cae69d11a
+T *branch * exp-foreign-keys
+T *sym-exp-foreign-keys *
+T -sym-trunk *
 U drh
-Z 1987b6f2fb80affae951bceb958b0961
+Z 191ad68f95ae6350a26417b76d271b34
