@@ -399,7 +399,7 @@ static int isHuman(const char *zAgent){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
-    if( strglob("*(compatible;?MSIE?[1-9]*", zAgent) ) return 1;
+    if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }

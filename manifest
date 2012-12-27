@@ -1,5 +1,5 @@
-C Update\sSQLite\sto\sthe\slatest\strunk,\swith\ssupport\sfor\sthe\sforeign_key_check\npragma.
-D 2012-12-22T13:48:31.226
+C Do\snot\sinterpret\sMSIE\sversion\s6\sand\searlier\sas\s"human"\sfor\sthe\spurposes\sof\nautomatically\senabling\shyperlinks.
+D 2012-12-27T03:06:28.659
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -346,7 +346,7 @@ F src/json_timeline.c 7dd30421b8f0ca73b7cbf56d6072b1ecc630a166
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 4c38b03f33cec0a71f92604c7f907dfb25a05a91
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 123ae61ba3b11ceaa6e356a47094f292af773e1f
+F src/login.c 9e8ee2a37cc07ca12f85f5738e868836d99f89f0
 F src/main.c 6f70d42a64168352e1d6b6088b0633b9e9af3fae
 F src/main.mk a1f6068e20a39b38a1bfa5c56ecf948032ccb813
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -594,7 +594,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c89a694d5462bd00eaee94bf920fbae4b8c30536
-R c8279c88917e86eccb0150cef48cbf48
+P 558a17a686249c788569e696156314cc4cd930bf
+R fa2562e2af623954bc56c0c749b7c8ed
 U drh
-Z 1987b6f2fb80affae951bceb958b0961
+Z 4998c4e367622fab3cdb083ac44d679e
