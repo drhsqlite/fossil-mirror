@@ -997,6 +997,17 @@ const struct strctCssDefaults {
     @   color: #b03800;
     @   font-style: italic;
   },
+  { "pre.th1result",
+    "format for th1 script results",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+  },
+  { "pre.th1error",
+    "format for th1 script errors",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+    @   color: red;
+  },
   { 0,
     0,
     0
