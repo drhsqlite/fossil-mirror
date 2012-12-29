@@ -117,7 +117,7 @@ void stat_page(void){
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days or approximately %.2f(n/356.24) years.
+  @ %d(n) days or approximately %.2f(n/365.24) years.
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
   @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
