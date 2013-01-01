@@ -40,6 +40,7 @@
 #define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
+#define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -1802,7 +1803,7 @@ static void diff_optimize(DContext *p){
 */
 int diff_context_lines(u64 diffFlags){
   int n = diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 ) n = 5;
+  if( n==0 && (diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
   return n;
 }
 
@@ -1905,15 +1906,15 @@ int *text_diff(
 **   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
-int diff_options(void){
+u64 diff_options(void){
   u64 diffFlags = 0;
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
+    diffFlags |= f + DIFF_CONTEXT_EX;
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     f *= DIFF_CONTEXT_MASK+1;
