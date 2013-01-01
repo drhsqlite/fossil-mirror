@@ -107,6 +107,7 @@ set src {
   tkt
   tktsetup
   undo
+  unicode
   update
   url
   user

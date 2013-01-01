@@ -4,7 +4,7 @@
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the Simplified BSD License (also
 ** known as the "2-Clause License" or "FreeBSD License".)
-
+**
 ** This program is distributed in the hope that it will be useful,
 ** but without any warranty; without even the implied warranty of
 ** merchantability or fitness for a particular purpose.
@@ -151,8 +151,7 @@ static unsigned re_next_char(const unsigned char **pzIn){
 
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
 static int re_word_char(int c){
-  return (c>='0' && c<='9') || (c>='a' && c<='z')
-      || (c>='A' && c<='Z') || c=='_';
+  return unicode_isalnum(c) || c=='_';
 }
 
 /* Return true if c is a "digit" character:  [0-9] */
