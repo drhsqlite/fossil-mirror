@@ -109,6 +109,7 @@ SRC   = add_.c \
         pqueue_.c \
         printf_.c \
         rebuild_.c \
+        regexp_.c \
         report_.c \
         rss_.c \
         schema_.c \
@@ -212,6 +213,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\pqueue$O \
         $(OX)\printf$O \
         $(OX)\rebuild$O \
+        $(OX)\regexp$O \
         $(OX)\report$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
@@ -332,6 +334,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
+	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
@@ -856,6 +859,12 @@ $(OX)\rebuild$O : rebuild_.c rebuild.h
 rebuild_.c : $(SRCDIR)\rebuild.c
 	translate$E $** > $@
 
+$(OX)\regexp$O : regexp_.c regexp.h
+	$(TCC) /Fo$@ -c regexp_.c
+
+regexp_.c : $(SRCDIR)\regexp.c
+	translate$E $** > $@
+
 $(OX)\report$O : report_.c report.h
 	$(TCC) /Fo$@ -c report_.c
 
@@ -1124,6 +1133,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			pqueue_.c:pqueue.h \
 			printf_.c:printf.h \
 			rebuild_.c:rebuild.h \
+			regexp_.c:regexp.h \
 			report_.c:report.h \
 			rss_.c:rss.h \
 			schema_.c:schema.h \

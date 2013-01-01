@@ -86,6 +86,7 @@ set src {
   pqueue
   printf
   rebuild
+  regexp
   report
   rss
   schema
