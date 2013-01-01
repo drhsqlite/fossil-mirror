@@ -104,6 +104,7 @@ struct ReCompiled {
   const char *zErr;           /* Error message to return */
   char *aOp;                  /* Operators for the virtual machine */
   int *aArg;                  /* Arguments to each operator */
+  unsigned (*xNextChar)(const unsigned char**);  /* Next character function */
   char zInit[12];             /* Initial text to match */
   int nInit;                  /* Number of characters in zInit */
   unsigned nState;            /* Number of entries in aOp[] and aArg[] */
@@ -147,6 +148,10 @@ static unsigned re_next_char(const unsigned char **pzIn){
     }
   }
   return c;
+}
+static unsigned re_next_char_nocase(const unsigned char **pzIn){
+  unsigned c = re_next_char(pzIn);
+  return unicode_fold(c,1);
 }
 
 /* Return true if c is a perl "word" character:  [A-Za-z0-9_] */
@@ -198,7 +203,7 @@ int re_exec(ReCompiled *pRe, const unsigned char *zIn){
   re_add_state(pNext, 0);
   while( c!=RE_EOF && pNext->nState>0 ){
     cPrev = c;
-    c = re_next_char(&zIn);
+    c = pRe->xNextChar(&zIn);
     pThis = pNext;
     pNext = &aStateSet[iSwap];
     iSwap = 1 - iSwap;
@@ -431,7 +436,7 @@ static const char *re_subcompile_string(ReCompiled *p){
   int iStart;
   unsigned c;
   const char *zErr;
-  while( (c = re_next_char(&p->zIn))!=0 ){
+  while( (c = p->xNextChar(&p->zIn))!=0 ){
     iStart = p->nState;
     switch( c ){
       case '|':
@@ -511,7 +516,7 @@ static const char *re_subcompile_string(ReCompiled *p){
         }else{
           re_append(p, RE_OP_CC_INC, 0);
         }
-        while( (c = re_next_char(&p->zIn))!=0 ){
+        while( (c = p->xNextChar(&p->zIn))!=0 ){
           if( c=='[' && p->zIn[0]==':' ){
             return "POSIX character classes not supported";
           }
@@ -519,7 +524,7 @@ static const char *re_subcompile_string(ReCompiled *p){
           if( p->zIn[0]=='-' && p->zIn[1] ){
             re_append(p, RE_OP_CC_RANGE, c);
             p->zIn++;
-            c = re_next_char(&p->zIn);
+            c = p->xNextChar(&p->zIn);
             if( c=='\\' ) c = re_esc_char(p);
             re_append(p, RE_OP_CC_RANGE, c);
           }else{
@@ -578,7 +583,7 @@ void re_free(ReCompiled *pRe){
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
-const char *re_compile(ReCompiled **ppRe, const char *zIn){
+const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   ReCompiled *pRe;
   const char *zErr;
   int i, j;
@@ -589,6 +594,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn){
     return "out of memory";
   }
   memset(pRe, 0, sizeof(*pRe));
+  pRe->xNextChar = noCase ? re_next_char_nocase : re_next_char;
   if( re_resize(pRe, 30) ){
     re_free(pRe);
     return "out of memory";
@@ -659,7 +665,7 @@ static void re_sql_func(
   if( pRe==0 ){
     zPattern = (const char*)sqlite3_value_text(argv[0]);
     if( zPattern==0 ) return;
-    zErr = re_compile(&pRe, zPattern);
+    zErr = re_compile(&pRe, zPattern, 0);
     if( zErr ){
       sqlite3_result_error(context, zErr, -1);
       return;
@@ -717,15 +723,20 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
 **
 ** Run a regular expression match over the named disk files, or against
 ** standard input if no disk files are named on the command-line.
+**
+** Options:
+**
+**   -i|--ignore-case    Ignore case
 */
 void re_test_grep(void){
   ReCompiled *pRe;
   const char *zErr;
+  int ignoreCase = find_option("ignore-case","i",0)!=0;
 
   if( g.argc<3 ){
     usage("REGEXP [FILE...]");
   }
-  zErr = re_compile(&pRe, g.argv[2]);
+  zErr = re_compile(&pRe, g.argv[2], ignoreCase);
   if( zErr ) fossil_fatal("%s", zErr);
   if( g.argc==3 ){
     grep(pRe, "-", stdin);

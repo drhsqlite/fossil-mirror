@@ -1,5 +1,5 @@
-C Enhance\sthe\sregexp\smatcher\sto\ssupport\sfull\sunicode\son\sthe\s\\b,\s\\w,\sand\s\\W\npatterns,\susing\scode\staken\sfrom\sthe\sFTS3\sunicode2\stokenizer.
-D 2013-01-01T21:09:20.707
+C Add\ssupport\sfor\scase\sfolding\sin\sthe\sregexp\smatcher.
+D 2013-01-01T21:25:51.451
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -368,7 +368,7 @@ F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 7a4d5d41eb33b6d9145d6af51135e56e409172cb
 F src/rebuild.c f89df6aa8f431c589d6eaa964e5fc9b04788a1c6
-F src/regexp.c f09b1ef4e318829a88ba39798f5b9ebfc9b3c73d
+F src/regexp.c 40ecb2d21188e6f0de4cc4c0817f5a21f6acdd8e
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c e5fed139255f0980d04af829d1f5351d841d04e9
@@ -596,7 +596,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e2552de8c636fe97c621ba6506133b544a2e7ec2
-R cd5557f1d025f3b9270896ded7511212
+P cb952c420da1252250ed0e2f69580dde90898275
+R dc2521e5a34202ccd04b5325c5853b06
 U drh
-Z 79e38f0d2ec6300ed502d2afa32f6886
+Z 031be4b73b3e8e1691f98926cf7cb521
