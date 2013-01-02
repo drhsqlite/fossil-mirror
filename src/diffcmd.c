@@ -111,7 +111,7 @@ void diff_file(
       }
     }else{
       blob_zero(&out);
-      text_diff(pFile1, &file2, &out, diffFlags);
+      text_diff(pFile1, &file2, &out, 0, diffFlags);
       if( blob_size(&out) ){
         diff_print_filenames(zName, zName2, diffFlags);
         fossil_print("%s\n", blob_str(&out));
@@ -212,7 +212,7 @@ void diff_file_mem(
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    text_diff(pFile1, pFile2, &out, diffFlags);
+    text_diff(pFile1, pFile2, &out, 0, diffFlags);
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print("%s\n", blob_str(&out));
 

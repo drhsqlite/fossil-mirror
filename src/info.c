@@ -309,12 +309,12 @@ static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
   }
   blob_zero(&out);
   if( diffFlags & DIFF_SIDEBYSIDE ){
-    text_diff(&from, &to, &out, diffFlags | DIFF_HTML);
+    text_diff(&from, &to, &out, 0, diffFlags | DIFF_HTML);
     @ <div class="sbsdiff">
     @ %s(blob_str(&out))
     @ </div>
   }else{
-    text_diff(&from, &to, &out, diffFlags | DIFF_LINENO | DIFF_HTML);
+    text_diff(&from, &to, &out, 0, diffFlags | DIFF_LINENO | DIFF_HTML);
     @ <div class="udiff">
     @ %s(blob_str(&out))
     @ </div>
@@ -1300,7 +1300,7 @@ void diff_page(void){
   }
   content_get(v1, &c1);
   content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, diffFlags);
+  text_diff(&c1, &c2, pOut, 0, diffFlags);
   blob_reset(&c1);
   blob_reset(&c2);
   if( !isPatch ){
