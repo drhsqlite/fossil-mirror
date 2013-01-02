@@ -193,7 +193,7 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
 
   in.z = zIn;
   in.i = 0;
-  in.mx = nIn>=0 ? nIn : strlen(zIn);
+  in.mx = nIn>=0 ? nIn : strlen((char const*)zIn);
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
     while( in.i+pRe->nInit<in.mx 
@@ -628,7 +628,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   pRe->sIn.z = (unsigned char*)zIn;
   pRe->sIn.i = 0;
-  pRe->sIn.mx = strlen(pRe->sIn.z);
+  pRe->sIn.mx = strlen(zIn);
   zErr = re_subcompile_re(pRe);
   if( zErr ){
     re_free(pRe);
