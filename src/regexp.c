@@ -180,7 +180,7 @@ static int re_space_char(int c){
 /* Run a compiled regular expression on the zero-terminated input
 ** string zIn[].  Return true on a match and false if there is no match.
 */
-int re_exec(ReCompiled *pRe, const unsigned char *zIn, int nIn){
+int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   ReStateSet aStateSet[2], *pThis, *pNext;
   ReStateNumber aSpace[100];
   ReStateNumber *pToFree;
@@ -277,7 +277,7 @@ int re_exec(ReCompiled *pRe, const unsigned char *zIn, int nIn){
         }
         case RE_OP_ACCEPT: {
           rc = 1;
-          goto re_exec_end;
+          goto re_execute_end;
         }
         case RE_OP_CC_INC:
         case RE_OP_CC_EXC: {
@@ -309,7 +309,7 @@ int re_exec(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   for(i=0; i<pNext->nState; i++){
     if( pRe->aOp[pNext->aState[i]]==RE_OP_ACCEPT ){ rc = 1; break; }
   }
-re_exec_end:
+re_execute_end:
   fossil_free(pToFree);
   return rc;
 }
@@ -601,7 +601,7 @@ void re_free(ReCompiled *pRe){
 
 /*
 ** Compile a textual regular expression in zIn[] into a compiled regular
-** expression suitable for us by re_exec() and return a pointer to the
+** expression suitable for us by re_execute() and return a pointer to the
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
@@ -702,7 +702,7 @@ static void re_sql_func(
   }
   zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
   if( zStr!=0 ){
-    sqlite3_result_int(context, re_exec(pRe, zStr, -1));
+    sqlite3_result_int(context, re_execute(pRe, zStr, -1));
   }
 }
 
@@ -733,7 +733,7 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
     ln++;
     n = (int)strlen(zLine);
     while( n && (zLine[n-1]=='\n' || zLine[n-1]=='\r') ) n--;
-    if( re_exec(pRe, (const unsigned char*)zLine, n) ){
+    if( re_execute(pRe, (const unsigned char*)zLine, n) ){
       printf("%s:%d:%.*s\n", zFile, ln, n, zLine);
     }
   }
