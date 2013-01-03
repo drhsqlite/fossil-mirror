@@ -425,7 +425,7 @@ static int re_dline_match(
   int N               /* Number of DLines to check */
 ){
   while( N-- ){
-    if( re_execute(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
+    if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
       return 1;
     }
     aDLine++;

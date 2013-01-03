@@ -180,7 +180,7 @@ static int re_space_char(int c){
 /* Run a compiled regular expression on the zero-terminated input
 ** string zIn[].  Return true on a match and false if there is no match.
 */
-int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
+int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   ReStateSet aStateSet[2], *pThis, *pNext;
   ReStateNumber aSpace[100];
   ReStateNumber *pToFree;
@@ -196,12 +196,12 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   in.mx = nIn>=0 ? nIn : strlen((char const*)zIn);
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
-    while( in.i+pRe->nInit<in.mx 
+    while( in.i+pRe->nInit<=in.mx 
         && (zIn[in.i]!=x || memcmp(zIn+in.i, pRe->zInit, pRe->nInit)!=0)
     ){
       in.i++;
     }
-    if( in.i+pRe->nInit>=in.mx ) return 0;
+    if( in.i+pRe->nInit>in.mx ) return 0;
   }
   if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
     pToFree = 0;
@@ -277,7 +277,7 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
         }
         case RE_OP_ACCEPT: {
           rc = 1;
-          goto re_execute_end;
+          goto re_match_end;
         }
         case RE_OP_CC_INC:
         case RE_OP_CC_EXC: {
@@ -309,7 +309,7 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   for(i=0; i<pNext->nState; i++){
     if( pRe->aOp[pNext->aState[i]]==RE_OP_ACCEPT ){ rc = 1; break; }
   }
-re_execute_end:
+re_match_end:
   fossil_free(pToFree);
   return rc;
 }
@@ -388,7 +388,7 @@ static unsigned re_esc_char(ReCompiled *p){
   int i, v = 0;
   char c;
   if( p->sIn.i>=p->sIn.mx ) return 0;
-  c = p->sIn.z[0];
+  c = p->sIn.z[p->sIn.i];
   if( c=='u' && p->sIn.i+5<p->sIn.mx ){
     v = 0;
     const unsigned char *zIn = p->sIn.z + p->sIn.i;
@@ -596,12 +596,13 @@ void re_free(ReCompiled *pRe){
   if( pRe ){
     fossil_free(pRe->aOp);
     fossil_free(pRe->aArg);
+    fossil_free(pRe);
   }
 }
 
 /*
 ** Compile a textual regular expression in zIn[] into a compiled regular
-** expression suitable for us by re_execute() and return a pointer to the
+** expression suitable for us by re_match() and return a pointer to the
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
@@ -628,13 +629,13 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   pRe->sIn.z = (unsigned char*)zIn;
   pRe->sIn.i = 0;
-  pRe->sIn.mx = strlen(zIn);
+  pRe->sIn.mx = strlen(pRe->sIn.z);
   zErr = re_subcompile_re(pRe);
   if( zErr ){
     re_free(pRe);
     return zErr;
   }
-  if( rePeek(pRe)=='$' && pRe->sIn.i+1==pRe->sIn.mx ){
+  if( rePeek(pRe)=='$' && pRe->sIn.i+1>=pRe->sIn.mx ){
     re_append(pRe, RE_OP_MATCH, RE_EOF);
     re_append(pRe, RE_OP_ACCEPT, 0);
     *ppRe = pRe;
@@ -661,6 +662,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
         break;
       }
     }
+    if( j>0 && pRe->zInit[j-1]==0 ) j--;
     pRe->nInit = j;
   }
   return pRe->zErr;
@@ -702,7 +704,7 @@ static void re_sql_func(
   }
   zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
   if( zStr!=0 ){
-    sqlite3_result_int(context, re_execute(pRe, zStr, -1));
+    sqlite3_result_int(context, re_match(pRe, zStr, -1));
   }
 }
 
@@ -733,7 +735,7 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
     ln++;
     n = (int)strlen(zLine);
     while( n && (zLine[n-1]=='\n' || zLine[n-1]=='\r') ) n--;
-    if( re_execute(pRe, (const unsigned char*)zLine, n) ){
+    if( re_match(pRe, (const unsigned char*)zLine, n) ){
       printf("%s:%d:%.*s\n", zFile, ln, n, zLine);
     }
   }

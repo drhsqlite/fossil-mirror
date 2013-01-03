@@ -1,5 +1,5 @@
-C regexp.c\s(re_next_char):\s3\soff-by-one\serrors,\sand\sdisallow\scharacters\s>\s0x10ffff\nunicode.c/diff.c:\sfix\ssome\sgcc\swarnings
-D 2013-01-03T13:38:01.387
+C Rename\sre_execute()\sto\sre_match().\s\sOther\sfixes\sto\sregex\smatcher\sbugs\sthat\nwere\sintroduced\swhen\sporting\sthe\scode\sfrom\sSQLite.
+D 2013-01-03T20:02:22.308
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 76df00abba46adbb18afd8da2272ea06d22d31e8
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
-F src/diff.c dcfa5085b0e15623ff6146bda83c2b150a111e70
+F src/diff.c deffd29b508f454a732630545b498513f3fc82d9
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
 F src/encode.c 25c283fc025b08b82e6a82b2a51e4c3aafcb2f52
@@ -368,7 +368,7 @@ F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c 7a4d5d41eb33b6d9145d6af51135e56e409172cb
 F src/rebuild.c f89df6aa8f431c589d6eaa964e5fc9b04788a1c6
-F src/regexp.c 12af7185e4d612c280f52ab1efe8da194488b46b
+F src/regexp.c ceedafbecd1a8bf0bd4b4a1a310cd4605b86b10a
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
 F src/schema.c e5fed139255f0980d04af829d1f5351d841d04e9
@@ -596,7 +596,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c77995e6507331e47ad1467d24bd9231891a252f
-R 04954bf34d83c83659ba8325e00e6318
-U jan.nijtmans
-Z 58d97899fed1ee9b7c7995717cf0bd3d
+P a13e0a20a8752b5c62a6c77c4b43a95c1162af19
+R dfd5d42f1b0957af4b61d54e4daae544
+U drh
+Z b40d2c0e03f067e806bca8ddc60aeecf
