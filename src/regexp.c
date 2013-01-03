@@ -174,7 +174,7 @@ static int re_digit_char(int c){
 
 /* Return true if c is a perl "space" character:  [ \t\r\n\v\f] */
 static int re_space_char(int c){
-  return c==' ' || c=='\t' || c=='\n' || c=='\v' || c=='\f';
+  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f' ;
 }
 
 /* Run a compiled regular expression on the zero-terminated input
