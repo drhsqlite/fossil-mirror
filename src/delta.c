@@ -18,7 +18,7 @@
 ** This module implements the delta compress algorithm.
 **
 ** Though developed specifically for fossil, the code in this file
-** is generally appliable and is thus easily separated from the
+** is generally applicable and is thus easily separated from the
 ** fossil source code base.  Nothing in this file depends on anything
 ** else in fossil.
 */

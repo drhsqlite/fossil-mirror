@@ -367,7 +367,7 @@ void eventedit_page(void){
     }
     blob_zero(&com);
     blob_append(&com, zComment, -1);
-    wiki_convert(&com, 0, WIKI_INLINE);
+    wiki_convert(&com, 0, WIKI_INLINE|WIKI_NOBADLINKS);
     @ </td></tr></table>
     @ </blockquote>
     @ <p><b>Page content preview:</b><p>

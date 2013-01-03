@@ -89,7 +89,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **   --nochange | -n         Dryrun:  do not actually make any changes; just
 **                           show what would have happened.
 **
-**   --case-sensitive BOOL   Overwrite the case-sensitive setting.  If false,
+**   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
@@ -459,7 +459,8 @@ void merge_cmd(void){
         rc = -1;
         blob_zero(&r);
       }else{
-        rc = merge_3way(&p, zFullPath, &m, &r);
+        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
         if( !nochangeFlag ){
@@ -551,14 +552,16 @@ void merge_cmd(void){
 
   /* Report on conflicts
   */
-  if( !nochangeFlag ){
-    if( nConflict ){
-      fossil_print("WARNING: %d merge conflicts", nConflict);
-    }
-    if( nOverwrite ){
-      fossil_warning("WARNING: %d unmanaged files were overwritten",
-                     nOverwrite);
-    }
+  if( nConflict ){
+    fossil_warning("WARNING: %d merge conflicts", nConflict);
+  }
+  if( nOverwrite ){
+    fossil_warning("WARNING: %d unmanaged files were overwritten",
+                   nOverwrite);
+  }
+  if( nochangeFlag ){
+    fossil_warning("REMINDER: this was a dry run -"
+                   " no file were actually changed.");
   }
 
   /*

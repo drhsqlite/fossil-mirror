@@ -22,7 +22,7 @@ proc cmd-line {testname args} {
   set i 1
   foreach {cmdline result} $args {
     fossil test-echo $cmdline
-    test cmd-line-$testname.$i {[lrange [split $::RESULT \n] 2 end]=="\{argv\[2\] = \[$result\]\}"}
+    test cmd-line-$testname.$i {[lrange [split $::RESULT \n] 3 end]=="\{argv\[2\] = \[$result\]\}"}
     incr i
   }
 }

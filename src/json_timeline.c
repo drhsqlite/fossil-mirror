@@ -92,7 +92,7 @@ static void json_timeline_temp_table(void){
 ** Return a pointer to a constant string that forms the basis
 ** for a timeline query for the JSON interface.
 */
-const char const * json_timeline_query(void){
+char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
   static const char zBaseSql[] =
     @ SELECT
@@ -631,7 +631,7 @@ static cson_value * json_timeline_ticket(){
     /*printf("rid=%d\n",rid);*/
     pMan = manifest_get(rid, CFTYPE_TICKET);
     if(!pMan){
-      /* this might be an attachment? i'm seeing this with
+      /* this might be an attachment? I'm seeing this with
          rid 15380, uuid [1292fef05f2472108].
 
          /json/artifact/1292fef05f2472108 returns not-found,

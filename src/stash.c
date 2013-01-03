@@ -24,7 +24,7 @@
 /*
 ** SQL code to implement the tables needed by the stash.
 */
-static const char zStashInit[] = 
+static const char zStashInit[] =
 @ CREATE TABLE IF NOT EXISTS %s.stash(
 @   stashid INTEGER PRIMARY KEY,     -- Unique stash identifier
 @   vid INTEGER,                     -- The baseline check-out for this stash
@@ -116,7 +116,7 @@ static void stash_add_file_or_dir(int stashid, int vid, const char *zFName){
       /* A modified file */
       Blob orig;
       Blob disk;
-      
+
       if( isNewLink ){
         blob_read_link(&disk, zPath);
       }else{
@@ -160,7 +160,13 @@ static int stash_create(void){
   if( zComment==0 ){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
+#ifdef _WIN32
+    int bomSize;
+    const unsigned char *bom = get_utf8_bom(&bomSize);
+    blob_init(&prompt, (const char *) bom, bomSize);
+#else
     blob_zero(&prompt);
+#endif
     blob_append(&prompt,
        "\n"
        "# Enter a description of what is being stashed.  Lines beginning\n"
@@ -239,7 +245,7 @@ static void stash_apply(int stashid, int nConflict){
         if( isLink ){
           symlink_create(blob_str(&b), zNPath);
         }else{
-          blob_write_to_file(&b, zNPath);          
+          blob_write_to_file(&b, zNPath);
         }
         file_wd_setexe(zNPath, isExec);
         fossil_print("UPDATE %s\n", zNew);
@@ -250,8 +256,8 @@ static void stash_apply(int stashid, int nConflict){
           blob_zero(&b); /* because we reset it later */
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
-          rc = merge_3way(&a, zOPath, &b, &out);
-          blob_write_to_file(&out, zNPath);          
+          rc = merge_3way(&a, zOPath, &b, &out, 0);
+          blob_write_to_file(&out, zNPath);
           blob_reset(&out);
           file_wd_setexe(zNPath, isExec);
         }
@@ -339,7 +345,7 @@ static void stash_diff(
         if( isOrigLink ){
           blob_read_link(&disk, zOPath);
         }else{
-          blob_read_from_file(&disk, zOPath);        
+          blob_read_from_file(&disk, zOPath);
         }
       }
       fossil_print("CHANGED %s\n", zNew);
@@ -446,7 +452,7 @@ static int stash_get_id(const char *zStashId){
 **  fossil stash gdiff ?STASHID?
 **
 **     Show diffs of the current working directory and what that
-**     directory would be if STASHID were applied.  
+**     directory would be if STASHID were applied.
 **
 ** SUMMARY:
 **  fossil stash
@@ -464,7 +470,7 @@ void stash_cmd(void){
   const char *zDb;
   const char *zCmd;
   int nCmd;
-  int stashid;
+  int stashid = 0;
 
   undo_capture_command_line();
   db_must_be_within_tree();
@@ -557,18 +563,27 @@ void stash_cmd(void){
   }else
   if( memcmp(zCmd, "drop", nCmd)==0 || memcmp(zCmd, "rm", nCmd)==0 ){
     int allFlag = find_option("all", 0, 0)!=0;
-    if( g.argc>4 ) usage("drop STASHID");
     if( allFlag ){
       Blob ans;
+      char cReply;
       blob_zero(&ans);
       prompt_user("This action is not undoable.  Continue (y/N)? ", &ans);
-      if( blob_str(&ans)[0]=='y' ){
+      cReply = blob_str(&ans)[0];
+      if( cReply=='y' || cReply=='Y' ){
         db_multi_exec("DELETE FROM stash; DELETE FROM stashfile;");
       }
-    }else{
-      stashid = stash_get_id(g.argc==4 ? g.argv[3] : 0);
+    }else if( g.argc>=4 ){
+      int i;
       undo_begin();
-      undo_save_stash(stashid);
+      for(i=3; i<g.argc; i++){
+        stashid = stash_get_id(g.argv[i]);
+        undo_save_stash(stashid);
+        stash_drop(stashid);
+      }
+      undo_finish();
+    }else{
+      undo_begin();
+      undo_save_stash(0);
       stash_drop(stashid);
       undo_finish();
     }

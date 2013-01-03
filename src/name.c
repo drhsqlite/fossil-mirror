@@ -64,7 +64,7 @@ int fossil_isdate(const char *z){
 **   *  "next"
 **
 ** Return the RID of the matching artifact.  Or return 0 if the name does not
-** match any known object.  Or return -1 if the name is ambiguious.
+** match any known object.  Or return -1 if the name is ambiguous.
 **
 ** The zType parameter specifies the type of artifact: ci, t, w, e, g. 
 ** If zType is NULL or "" or "*" then any type of artifact will serve.
@@ -153,13 +153,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
   /* "tag:" + symbolic-name */
   if( memcmp(zTag, "tag:", 4)==0 ){
     rid = db_int(0,
-       "SELECT event.objid"
+       "SELECT event.objid, max(event.mtime)"
        "  FROM tag, tagxref, event"
        " WHERE tag.tagname='sym-%q' "
        "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
        "   AND event.objid=tagxref.rid "
-       "   AND event.type GLOB '%q'"
-       " ORDER BY event.mtime DESC /*sort*/",
+       "   AND event.type GLOB '%q'",
        &zTag[4], zType
     );
     return rid;
@@ -207,14 +206,13 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
       zDate[nDate-2] = 0;
     }
     rid = db_int(0,
-      "SELECT event.objid"
+      "SELECT event.objid, max(event.mtime)"
       "  FROM tag, tagxref, event"
       " WHERE tag.tagname='sym-%q' "
       "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
       "   AND event.objid=tagxref.rid "
       "   AND event.mtime<=julianday(%Q)"
-      "   AND event.type GLOB '%q'"
-      " ORDER BY event.mtime DESC /*sort*/ ",
+      "   AND event.type GLOB '%q'",
       zTagBase, zDate, zType
     );
     return rid;
@@ -249,13 +247,12 @@ int symbolic_name_to_rid(const char *zTag, const char *zType){
 
   /* Symbolic name */
   rid = db_int(0,
-    "SELECT event.objid"
+    "SELECT event.objid, max(event.mtime)"
     "  FROM tag, tagxref, event"
     " WHERE tag.tagname='sym-%q' "
     "   AND tagxref.tagid=tag.tagid AND tagxref.tagtype>0 "
     "   AND event.objid=tagxref.rid "
-    "   AND event.type GLOB '%q'"
-    " ORDER BY event.mtime DESC /*sort*/ ",
+    "   AND event.type GLOB '%q'",
     zTag, zType
   );
   if( rid>0 ) return rid;
@@ -390,7 +387,7 @@ int name_to_rid(const char *zName){
 ** WEBPAGE: ambiguous
 ** URL: /ambiguous?name=UUID&src=WEBPAGE
 ** 
-** The UUID given by the name paramager is ambiguous.  Display a page
+** The UUID given by the name parameter is ambiguous.  Display a page
 ** that shows all possible choices and let the user select between them.
 */
 void ambiguous_page(void){

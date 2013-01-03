@@ -101,6 +101,80 @@ static char zDefaultSshCmd[] = "ssh -e none -T";
 #endif
 
 /*
+** Generate a random SSH link problem keyword
+*/
+static int random_probe(char *zProbe, int nProbe){
+  unsigned r[4];
+  sqlite3_randomness(sizeof(r), r);
+  sqlite3_snprintf(nProbe, zProbe, "probe-%08x%08x%08x%08x",
+                   r[0], r[1], r[2], r[3]);
+  return (int)strlen(zProbe);
+}
+
+/*
+** Bring up an SSH link.  This involves sending some "echo" commands and
+** get back appropriate responses.  The point is to move past the MOTD and
+** verify that the link is working.
+*/
+static void transport_ssh_startup(void){
+  char *zIn;                       /* An input line received back from remote */
+  int nWait;                       /* Number of times waiting for the MOTD */
+  char zProbe[40];                 /* Text of the random probe */
+  int nProbe;                      /* Size of probe message */
+  int nIn;                         /* Size of input */
+  static const int nBuf = 10000;   /* Size of input buffer */
+
+  zIn = fossil_malloc(nBuf);
+  nProbe = random_probe(zProbe, sizeof(zProbe));
+  fprintf(sshOut, "echo %s\n", zProbe);
+  fflush(sshOut);
+  if( g.fSshTrace ){
+    printf("Sent: [echo %s]\n", zProbe);
+    fflush(stdout);
+  }
+  memset(zIn, '*', nProbe);
+  for(nWait=1; nWait<=10; nWait++){
+    sshin_read(zIn+nProbe, nBuf-nProbe);
+    if( g.fSshTrace ){
+      printf("Got back-----------------------------------------------\n"
+             "%s\n"
+             "-------------------------------------------------------\n",
+             zIn+nProbe);
+    }
+    if( strstr(zIn, zProbe) ) break;
+    sqlite3_sleep(100*nWait);
+    nIn = (int)strlen(zIn);
+    memcpy(zIn, zIn+(nIn-nProbe), nProbe);
+    if( g.fSshTrace ){
+      printf("Fetching more text.  Looking for [%s]...\n", zProbe);
+      fflush(stdout);
+    }
+  }
+  nProbe = random_probe(zProbe, sizeof(zProbe));
+  fprintf(sshOut, "echo %s\n", zProbe);
+  fflush(sshOut);
+  if( g.fSshTrace ){
+    printf("Sent: [echo %s]\n", zProbe);
+    fflush(stdout);
+  }
+  sshin_read(zIn, nBuf);
+  if( zIn[0]==0 ){
+    sqlite3_sleep(250);
+    sshin_read(zIn, nBuf);
+  }
+  if( g.fSshTrace ){
+    printf("Got back-----------------------------------------------\n"
+           "%s\n"
+           "-------------------------------------------------------\n", zIn);
+  }
+  if( memcmp(zIn, zProbe, nProbe)!=0 ){
+    pclose2(sshIn, sshOut, sshPid);
+    fossil_fatal("ssh connection failed: [%s]", zIn);
+  }
+  fossil_free(zIn);
+}
+
+/*
 ** Global initialization of the transport layer
 */
 void transport_global_startup(void){
@@ -111,7 +185,6 @@ void transport_global_startup(void){
     const char *zSsh;  /* The base SSH command */
     Blob zCmd;         /* The SSH command */
     char *zHost;       /* The host name to contact */
-    char *zIn;         /* An input line received back from remote */
 
     zSsh = db_get("ssh-command", zDefaultSshCmd);
     blob_init(&zCmd, zSsh, -1);
@@ -122,6 +195,7 @@ void transport_global_startup(void){
       blob_appendf(&zCmd, " -p %d", g.urlPort);
 #endif
     }
+    fossil_force_newline();
     fossil_print("%s", blob_str(&zCmd));  /* Show the base of the SSH command */
     if( g.urlUser && g.urlUser[0] ){
       zHost = mprintf("%s@%s", g.urlUser, g.urlName);
@@ -156,19 +230,7 @@ void transport_global_startup(void){
       fossil_fatal("cannot start ssh tunnel using [%b]", &zCmd);
     }
     blob_reset(&zCmd);
-
-    /* Send an "echo" command to the other side to make sure that the
-    ** connection is up and working.
-    */
-    fprintf(sshOut, "echo test\n");
-    fflush(sshOut);
-    zIn = fossil_malloc(16000);
-    sshin_read(zIn, 16000);
-    if( memcmp(zIn, "test", 4)!=0 ){
-      pclose2(sshIn, sshOut, sshPid);
-      fossil_fatal("ssh connection failed: [%s]", zIn);
-    }
-    fossil_free(zIn);
+    transport_ssh_startup();
   }
 }
 
@@ -294,7 +356,7 @@ void transport_send(Blob *toSend){
 
 /*
 ** This routine is called when the outbound message is complete and
-** it is time to being recieving a reply.
+** it is time to being receiving a reply.
 */
 void transport_flip(void){
   if( g.urlIsSsh ){

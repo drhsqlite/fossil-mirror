@@ -117,7 +117,7 @@ internet these days. What makes Fossil worthy of attention?
   *  The [./concepts.wiki | concepts] behind fossil
   *  [./quickstart.wiki | Quick Start] guide to using fossil
   *  [./qandc.wiki | Questions &amp; Criticisms] directed at fossil.
-  *  [./build.wiki | Building And Installing]
+  *  [./build.wiki | Compiling and Installing]
   *  Fossil supports [./embeddeddoc.wiki | embedded documentation]
      that is versioned along with project source code.
   *  Fossil uses an [./fileformat.wiki | enduring file format] that is 

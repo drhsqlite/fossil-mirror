@@ -37,9 +37,9 @@ const char *mimetype_from_content(Blob *pBlob){
   int n;
   const unsigned char *x;
 
-  static const char isBinary[] = {
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 1,  0, 0, 1, 1,
-     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 1, 0,  1, 1, 1, 1,
+  static const char isBinary[256] = {
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 0, 0, 0,  0, 0, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,    1, 1, 0, 0,  1, 1, 1, 1
   };
 
   /* A table of mimetypes based on file content prefixes
@@ -60,7 +60,7 @@ const char *mimetype_from_content(Blob *pBlob){
   n = blob_size(pBlob);
   for(i=0; i<n; i++){
     unsigned char c = x[i];
-    if( c<=0x1f && isBinary[c] ){
+    if( isBinary[c] ){
       break;
     }
   }
@@ -124,6 +124,7 @@ const char *mimetype_from_name(const char *zName){
     { "dl",         2, "video/dl"                          },
     { "dms",        3, "application/octet-stream"          },
     { "doc",        3, "application/msword"                },
+    { "docx",       4, "application/msword"                },
     { "drw",        3, "application/drafting"              },
     { "dvi",        3, "application/x-dvi"                 },
     { "dwg",        3, "application/acad"                  },
@@ -167,12 +168,14 @@ const char *mimetype_from_name(const char *zName){
     { "m",          1, "text/plain"                        },
     { "m3u",        3, "audio/x-mpegurl"                   },
     { "man",        3, "application/x-troff-man"           },
+    { "markdown",   8, "text/x-markdown"                   },
     { "me",         2, "application/x-troff-me"            },
     { "mesh",       4, "model/mesh"                        },
     { "mid",        3, "audio/midi"                        },
     { "midi",       4, "audio/midi"                        },
     { "mif",        3, "application/x-mif"                 },
     { "mime",       4, "www/mime"                          },
+    { "mkd",        3, "text/x-markdown"                   },
     { "mov",        3, "video/quicktime"                   },
     { "movie",      5, "video/x-sgi-movie"                 },
     { "mp2",        3, "audio/mpeg"                        },
@@ -204,6 +207,7 @@ const char *mimetype_from_name(const char *zName){
     { "ppm",        3, "image/x-portable-pixmap"           },
     { "pps",        3, "application/mspowerpoint"          },
     { "ppt",        3, "application/mspowerpoint"          },
+    { "pptx",       4, "application/mspowerpoint"          },
     { "ppz",        3, "application/mspowerpoint"          },
     { "pre",        3, "application/x-freelance"           },
     { "prt",        3, "application/pro_eng"               },
@@ -278,6 +282,7 @@ const char *mimetype_from_name(const char *zName){
     { "xll",        3, "application/vnd.ms-excel"          },
     { "xlm",        3, "application/vnd.ms-excel"          },
     { "xls",        3, "application/vnd.ms-excel"          },
+    { "xlsx",       4, "application/vnd.ms-excel"          },
     { "xlw",        3, "application/vnd.ms-excel"          },
     { "xml",        3, "text/xml"                          },
     { "xpm",        3, "image/x-xpixmap"                   },
@@ -380,11 +385,11 @@ void doc_page(void){
   zBaseline[i] = 0;
   zName += i;
   while( zName[0]=='/' ){ zName++; }
-  if( !file_is_simple_pathname(zName) ){
+  if( !file_is_simple_pathname(zName, 1) ){
     int n = strlen(zName);
     if( n>0 && zName[n-1]=='/' ){
       zName = mprintf("%sindex.html", zName);
-      if( !file_is_simple_pathname(zName) ){
+      if( !file_is_simple_pathname(zName, 1) ){
         goto doc_not_found;
       }
     }else{
@@ -494,12 +499,26 @@ void doc_page(void){
     Blob title, tail;
     if( wiki_find_title(&filebody, &title, &tail) ){
       style_header(blob_str(&title));
-      wiki_convert(&tail, 0, 0);
+      wiki_convert(&tail, 0, WIKI_BUTTONS);
     }else{
       style_header("Documentation");
-      wiki_convert(&filebody, 0, 0);
+      wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
+#ifdef FOSSIL_ENABLE_MARKDOWN
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
+         && db_get_boolean("markdown", 0) ){
+    Blob title = BLOB_INITIALIZER;
+    Blob tail = BLOB_INITIALIZER;
+    markdown_to_html(&filebody, &title, &tail);
+    if( blob_size(&title)>0 ){
+      style_header(blob_str(&title));
+    }else{
+      style_header("Documentation");
+    }
+    blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
+    style_footer();
+#endif
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>

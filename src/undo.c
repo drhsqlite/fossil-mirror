@@ -303,14 +303,16 @@ void undo_save(const char *zPathname){
 void undo_save_stash(int stashid){
   const char *zDb = db_name("localdb");
   db_multi_exec(
-    "DROP TABLE IF EXISTS undo_stash;"
-    "CREATE TABLE %s.undo_stash AS"
+    "CREATE TABLE IF NOT EXISTS %s.undo_stash"
+    "  AS SELECT * FROM stash WHERE 0;"
+    "INSERT INTO undo_stash"
     " SELECT * FROM stash WHERE stashid=%d;",
     zDb, stashid
   );
   db_multi_exec(
-    "DROP TABLE IF EXISTS undo_stashfile;"
-    "CREATE TABLE %s.undo_stashfile AS"
+    "CREATE TABLE IF NOT EXISTS %s.undo_stashfile"
+    "  AS SELECT * FROM stashfile WHERE 0;"
+    "INSERT INTO undo_stashfile"
     " SELECT * FROM stashfile WHERE stashid=%d;",
     zDb, stashid
   );
@@ -322,7 +324,7 @@ void undo_save_stash(int stashid){
 void undo_finish(void){
   if( undoActive ){
     if( undoNeedRollback ){
-      fossil_print("\"fossil undo\" is available to undo changes"
+      fossil_print(" \"fossil undo\" is available to undo changes"
              " to the working checkout.\n");
     }
     undoActive = 0;

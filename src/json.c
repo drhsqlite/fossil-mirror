@@ -324,7 +324,7 @@ char const * json_rc_cstr( int code ){
 }
 
 /*
-** Adds v to the API-internal cleanup mechanism. key is ingored
+** Adds v to the API-internal cleanup mechanism. key is ignored
 ** (legacy) but might be re-introduced and "should" be a unique
 ** (app-wide) value.  Failure to insert an item may be caused by any
 ** of the following:
@@ -826,7 +826,7 @@ void json_main_bootstrap(){
   g.json.gc.a = cson_value_get_array(v);
   cson_value_add_reference(v)
     /* Needed to allow us to include this value in other JSON
-       containers without transfering ownership to those containers.
+       containers without transferring ownership to those containers.
        All other persistent g.json.XXX.v values get appended to
        g.json.gc.a, and therefore already have a live reference
        for this purpose.
@@ -1411,6 +1411,7 @@ cson_value * json_g_to_json(){
   INT(g, allowSymlinks);
 
   CSTR(g, zMainDbType);
+  CSTR(g, zConfigDbType);
   CSTR(g, zHome);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
@@ -1468,7 +1469,7 @@ cson_value * json_g_to_json(){
 ** it defaults to g.json.resultCode. If resultCode is (or defaults to)
 ** non-zero and payload is not NULL then this function calls
 ** cson_value_free(payload) and does not insert the payload into the
-** response. In either case, onwership of payload is transfered to (or
+** response. In either case, ownership of payload is transfered to (or
 ** shared with, if the caller holds a reference) this function.
 **
 ** pMsg is an optional message string property (resultText) of the
@@ -1539,7 +1540,7 @@ static cson_value * json_create_response( int resultCode,
       tmp = g.json.param.v;
       SET("$params");
     }
-    if(0){/*Only for debuggering, add some info to the response.*/
+    if(0){/*Only for debugging, add some info to the response.*/
       tmp = cson_value_new_integer( g.json.cmd.offset );
       cson_object_set( o, "cmd.offset", tmp );
       cson_object_set( o, "isCGI", cson_value_new_bool( g.isHTTP ) );
@@ -1554,7 +1555,7 @@ static cson_value * json_create_response( int resultCode,
     */
     double span;
     span = END_TIMER;
-    /* i'm actually seeing sub-ms runtimes in some tests, but a time of
+    /* I'm actually seeing sub-ms runtimes in some tests, but a time of
        0 is "just wrong", so we'll bump that up to 1ms.
     */
     cson_object_set(o,"procTimeMs", cson_value_new_integer((cson_int_t)((span>1.0)?span:1)));
@@ -1991,10 +1992,12 @@ cson_value * json_page_cap(){
   ADD(NewWiki,"createWiki");
   ADD(ApndWiki,"appendWiki");
   ADD(WrWiki,"editWiki");
+  ADD(ModWiki,"moderateWiki");
   ADD(RdTkt,"readTicket");
   ADD(NewTkt,"createTicket");
   ADD(ApndTkt,"appendTicket");
   ADD(WrTkt,"editTicket");
+  ADD(ModTkt,"moderateTicket");
   ADD(Attach,"attachFile");
   ADD(TktFmt,"createTicketReport");
   ADD(RdAddr,"readPrivate");
@@ -2184,7 +2187,7 @@ cson_value * json_page_dispatch_helper(JsonPageDef const * pages){
 
 
 /*
-** Impl of /json/rebuild. Requires admin previleges.
+** Impl of /json/rebuild. Requires admin privileges.
 */
 static cson_value * json_page_rebuild(){
   if( !g.perm.Admin ){
@@ -2357,7 +2360,7 @@ void json_page_top(void){
 **
 ** The commands include:
 **
-**   anonymousPassord
+**   anonymousPassword
 **   artifact
 **   branch
 **   cap
