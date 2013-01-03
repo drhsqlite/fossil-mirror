@@ -136,7 +136,7 @@ static unsigned re_next_char(ReInput *p){
   unsigned c;
   if( p->i>=p->mx ) return 0;
   c = p->z[p->i++];
-  if( c>0x80 ){
+  if( c>=0x80 ){
     if( (c&0xe0)==0xc0 && p->i<p->mx && (p->z[p->i]&0xc0)==0x80 ){
       c = (c&0x1f)<<6 | (p->z[p->i++]&0x3f);
       if( c<0x80 ) c = 0xfffd;
@@ -144,13 +144,13 @@ static unsigned re_next_char(ReInput *p){
            && (p->z[p->i+1]&0xc0)==0x80 ){
       c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
       p->i += 2;
-      if( c<0x3ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
+      if( c<=0x3ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
     }else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
            && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80 ){
       c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
                        | (p->z[p->i+2]&0x3f);
       p->i += 3;
-      if( c<0xffff ) c = 0xfffd;
+      if( c<=0xffff || c>0x10ffff ) c = 0xfffd;
     }else{
       c = 0xfffd;
     }

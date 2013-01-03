@@ -133,7 +133,7 @@ int unicode_isalnum(int c){
     return ( (aAscii[c >> 5] & (1 << (c & 0x001F)))==0 );
   }else if( c<(1<<22) ){
     unsigned int key = (((unsigned int)c)<<10) | 0x000003FF;
-    int iRes;
+    int iRes = 0;
     int iHi = sizeof(aEntry)/sizeof(aEntry[0]) - 1;
     int iLo = 0;
     while( iHi>=iLo ){

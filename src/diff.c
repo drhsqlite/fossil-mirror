@@ -425,7 +425,7 @@ static int re_dline_match(
   int N               /* Number of DLines to check */
 ){
   while( N-- ){
-    if( re_execute(pRe, aDLine->z, LENGTH(aDLine)) ){
+    if( re_execute(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
       return 1;
     }
     aDLine++;
@@ -1927,7 +1927,6 @@ int *text_diff(
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
-  int nContext;    /* Amount of context to display */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
