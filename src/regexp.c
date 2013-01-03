@@ -629,7 +629,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
   }
   pRe->sIn.z = (unsigned char*)zIn;
   pRe->sIn.i = 0;
-  pRe->sIn.mx = strlen(pRe->sIn.z);
+  pRe->sIn.mx = strlen(zIn);
   zErr = re_subcompile_re(pRe);
   if( zErr ){
     re_free(pRe);
@@ -657,7 +657,12 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
       }else if( x<=0xffff ){
         pRe->zInit[j++] = 0xd0 | (x>>12);
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
+        pRe->zInit[j++] = 0x80 | (x&0x3f);
+      }else if( x<=0x10ffff ){
+        pRe->zInit[j++] = 0xe0 | (x>>18);
+        pRe->zInit[j++] = 0x80 | ((x>>12)&0x3f);
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
+        pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
         break;
       }
