@@ -1,5 +1,5 @@
-C Make\sit\seasier\sto\shit\sthe\sgraph\snodes\sfor\sclick-to-diff\swhen\srunning\son\nphones\sand\stablets.
-D 2013-01-04T18:23:20.215
+C auto-captcha\sshould\sdefault\sto\s"off".
+D 2013-01-04T18:43:32.851
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -346,7 +346,7 @@ F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 9e8ee2a37cc07ca12f85f5738e868836d99f89f0
+F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
 F src/main.c 6f70d42a64168352e1d6b6088b0633b9e9af3fae
 F src/main.mk 371c336ab0c98f7bacd297c8a14657ae499b5665
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -596,7 +596,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c23e6444f55f60b2999084d136073f91fe68edbd
-R 4c043b77760b236764ed3d62a39fbe5c
+P 781e5bed896b2b9e0214ba2583074b0ef7f0eddf
+R 8f533a1bf466f27a956ddf2fb66bc8b4
 U drh
-Z f163651844866aa3dec68237cdae384f
+Z b64c91149026d29aabb2cff619e3bfa1
