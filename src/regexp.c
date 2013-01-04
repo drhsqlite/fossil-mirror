@@ -194,6 +194,8 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   in.z = zIn;
   in.i = 0;
   in.mx = nIn>=0 ? nIn : strlen((char const*)zIn);
+
+  /* Look for the initial prefix match, if there is one. */
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
     while( in.i+pRe->nInit<=in.mx 
@@ -203,6 +205,7 @@ int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
     }
     if( in.i+pRe->nInit>in.mx ) return 0;
   }
+
   if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
     pToFree = 0;
     aStateSet[0].aState = aSpace;
@@ -646,6 +649,15 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     re_free(pRe);
     return "unrecognized character";
   }
+
+  /* The following is a performance optimization.  If the regex begins with
+  ** ".*" (if the input regex lacks an initial "^") and afterwards there are
+  ** one or more matching characters, enter those matching characters into
+  ** zInit[].  The re_match() routine can then search ahead in the input 
+  ** string looking for the initial match without having to run the whole
+  ** regex engine over the string.  Do not worry able trying to match
+  ** unicode characters beyond plane 0 - those are very rare and this is
+  ** just an optimization. */
   if( pRe->aOp[0]==RE_OP_ANYSTAR ){
     for(j=0, i=1; j<sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
@@ -656,11 +668,6 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else if( x<=0xffff ){
         pRe->zInit[j++] = 0xd0 | (x>>12);
-        pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
-        pRe->zInit[j++] = 0x80 | (x&0x3f);
-      }else if( x<=0x10ffff ){
-        pRe->zInit[j++] = 0xe0 | (x>>18);
-        pRe->zInit[j++] = 0x80 | ((x>>12)&0x3f);
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
         pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
