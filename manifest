@@ -1,5 +1,5 @@
-C Pull\sthe\slatest\strunk\sversion\sof\sSQLite\sfrom\supstream.
-D 2013-01-07T14:45:33.654
+C Fix\s"fossil\srevert"\sso\sthat\sit\sworks\son\sfiles\sthat\shave\sbeen\srenamed.
+D 2013-01-07T15:03:43.346
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -398,7 +398,7 @@ F src/tktsetup.c bdce1faa3e88fd0d32b6c4ce45033200b8a4a259
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
-F src/update.c a226834189ce840be5332c8874449277d256aced
+F src/update.c 2600176f76efd53e291981c4bc3bf5fdaae23d38
 F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
 F src/user.c 2e3791745b2319b6ac691a066c3cd378a062e2d3
 F src/utf8.c 502be83610745d657877926bec48ed4146fe2cc9
@@ -596,7 +596,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8144cf150809f13d77b37bcf2e4c3d1a475eee47
-R f0f014839ed22ffc7d691c1d37314c59
+P 9ae863a5eb004f94031476536ab9d9b99398606e
+R 811002c36a78e5e835e8a1ef6e2a4065
 U drh
-Z 0083184157a69113940b5d00f8c74c02
+Z cdba4cc74708bf75b1fbd918ac7b33a2
