@@ -86,6 +86,7 @@ set src {
   pqueue
   printf
   rebuild
+  regexp
   report
   rss
   schema
@@ -106,6 +107,7 @@ set src {
   tkt
   tktsetup
   undo
+  unicode
   update
   url
   user
@@ -407,7 +409,7 @@ FOSSIL_TCL_SOURCE = 1
 #    be enabled by default.
 #
 ifndef BROKEN_MINGW_CMDLINE
-ifeq ($(PREFIX),)
+ifeq (,$(findstring w64-mingw32,$(PREFIX)))
 BROKEN_MINGW_CMDLINE = 1
 endif
 endif

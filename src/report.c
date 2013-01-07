@@ -174,6 +174,7 @@ int report_query_authorizer(
     case SQLITE_READ: {
       static const char *const azAllowed[] = {
          "ticket",
+         "ticketchng",
          "blob",
          "filename",
          "mlink",
