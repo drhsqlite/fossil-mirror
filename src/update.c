@@ -717,10 +717,14 @@ void revert_cmd(void){
     vfile_check_signature(vid, 0);
     db_multi_exec(
       "DELETE FROM vmerge;"
-      "INSERT INTO torevert "
-      "SELECT pathname"
-      "  FROM vfile "
-      " WHERE chnged OR deleted OR rid=0 OR pathname!=origname;"
+      "INSERT OR IGNORE INTO torevert "
+      " SELECT pathname"
+      "   FROM vfile "
+      "  WHERE chnged OR deleted OR rid=0 OR pathname!=origname "
+      " UNION ALL "
+      " SELECT origname"
+      "   FROM vfile"
+      "  WHERE origname!=pathname;"
     );
   }
   blob_zero(&record);
@@ -738,7 +742,8 @@ void revert_cmd(void){
     errCode = historical_version_of_file(zRevision, zFile, &record,
                                          &isLink, &isExe, 0, 2);
     if( errCode==2 ){
-      if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q", zFile)==0 ){
+      if( db_int(0, "SELECT rid FROM vfile WHERE pathname=%Q OR origname=%Q",
+                 zFile, zFile)==0 ){
         fossil_print("UNMANAGE: %s\n", zFile);
       }else{
         undo_save(zFile);

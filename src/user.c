@@ -305,11 +305,13 @@ static int attempt_user(const char *zLogin){
 **
 **   (3)  Check the default user in the repository
 **
-**   (4)  Try the USER environment variable.
+**   (4)  Try the FOSSIL_USER environment variable.
 **
-**   (5)  Try the USERNAME environment variable.
+**   (5)  Try the USER environment variable.
 **
-**   (6)  Check if the user can be extracted from the remote URL.
+**   (6)  Try the USERNAME environment variable.
+**
+**   (7)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
@@ -328,6 +330,8 @@ void user_select(void){
   if( g.localOpen && attempt_user(db_lget("default-user",0)) ) return;
 
   if( attempt_user(db_get("default-user", 0)) ) return;
+
+  if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return;
 
   if( attempt_user(fossil_getenv("USER")) ) return;
 

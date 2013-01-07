@@ -1620,7 +1620,7 @@ char *db_reveal(const char *zKey){
 ** This function registers auxiliary functions when the SQLite
 ** database connection is first established.
 */
-LOCAL void db_connection_init(void){
+void db_connection_init(void){
   sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
   sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
@@ -1635,6 +1635,7 @@ LOCAL void db_connection_init(void){
   if( g.fSqlTrace ){
     sqlite3_trace(g.db, db_sql_trace, 0);
   }
+  re_add_sql_func(g.db);
 }
 
 /*
@@ -2131,6 +2132,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 ** The "unset" command clears a property setting.
 **
+**
+**    access-log       If enabled, record successful and failed login attempts
+**                     in the "accesslog" table.  Default: off
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows

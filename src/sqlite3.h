@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.15"
-#define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-12-05 14:31:13 9f6c68856b694373b7ffb124abd996e519ba5921"
+#define SQLITE_VERSION        "3.7.16"
+#define SQLITE_VERSION_NUMBER 3007016
+#define SQLITE_SOURCE_ID      "2013-01-07 13:26:23 0a1207c895d9f77586a3a2a4965175909be90503"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -857,7 +857,6 @@ struct sqlite3_io_methods {
 ** compilation of the PRAGMA fails with an error.  ^The [SQLITE_FCNTL_PRAGMA]
 ** file control occurs at the beginning of pragma statement analysis and so
 ** it is able to override built-in [PRAGMA] statements.
-** </ul>
 **
 ** <li>[[SQLITE_FCNTL_BUSYHANDLER]]
 ** ^This file-control may be invoked by SQLite on the database file handle
@@ -869,6 +868,16 @@ struct sqlite3_io_methods {
 ** the array as the only argument. If it returns non-zero, then the operation
 ** should be retried. If it returns zero, the custom VFS should abandon the
 ** current operation.
+**
+** <li>[[SQLITE_FCNTL_TEMPFILENAME]]
+** ^Application can invoke this file-control to have SQLite generate a
+** temporary filename using the same algorithm that is followed to generate
+** temporary filenames for TEMP tables and other internal uses.  The
+** argument should be a char** which will be filled with the filename
+** written into memory obtained from [sqlite3_malloc()].  The caller should
+** invoke [sqlite3_free()] on the result to avoid a memory leak.
+**
+** </ul>
 */
 #define SQLITE_FCNTL_LOCKSTATE               1
 #define SQLITE_GET_LOCKPROXYFILE             2
@@ -885,6 +894,7 @@ struct sqlite3_io_methods {
 #define SQLITE_FCNTL_POWERSAFE_OVERWRITE    13
 #define SQLITE_FCNTL_PRAGMA                 14
 #define SQLITE_FCNTL_BUSYHANDLER            15
+#define SQLITE_FCNTL_TEMPFILENAME           16
 
 /*
 ** CAPI3REF: Mutex Handle
@@ -1582,7 +1592,7 @@ struct sqlite3_mem_methods {
 ** [SQLITE_USE_URI] symbol defined.
 **
 ** [[SQLITE_CONFIG_COVERING_INDEX_SCAN]] <dt>SQLITE_CONFIG_COVERING_INDEX_SCAN
-** <dd> This option taks a single integer argument which is interpreted as
+** <dd> This option takes a single integer argument which is interpreted as
 ** a boolean in order to enable or disable the use of covering indices for
 ** full table scans in the query optimizer.  The default setting is determined
 ** by the [SQLITE_ALLOW_COVERING_INDEX_SCAN] compile-time option, or is "on"

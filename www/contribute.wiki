@@ -77,6 +77,6 @@ the checklist and/or the automated test scripts to cover their additions.
 
 <h2>5.0 See Also</h2>
 
-  *  [./build.wiki | How To Build And Install Fossil]
+  *  [./build.wiki | How To Compile And Install Fossil]
   *  [./makefile.wiki | The Fossil Build Process]
   *  [./tech_overview.wiki | A Technical Overview of Fossil]

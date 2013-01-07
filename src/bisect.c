@@ -125,7 +125,7 @@ static void bisect_list(int abbreviated){
       nHidden++;
       continue;
     }else if( nHidden ){
-      fossil_print("  ... eliding %d check-ins\n", nHidden);
+      fossil_print("  ... %d other check-ins omitted\n", nHidden);
       nHidden = 0;
     }
     db_bind_int(&s, ":rid", p->rid);

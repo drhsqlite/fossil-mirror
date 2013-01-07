@@ -89,7 +89,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **   --nochange | -n         Dryrun:  do not actually make any changes; just
 **                           show what would have happened.
 **
-**   --case-sensitive BOOL   Overwrite the case-sensitive setting.  If false,
+**   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
