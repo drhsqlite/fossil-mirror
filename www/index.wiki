@@ -151,6 +151,8 @@ internet these days. What makes Fossil worthy of attention?
   *  Methods to [./checkin_names.wiki | identify a specific check-in].
   *  [./inout.wiki | Import and export] from and to Git.
   *  [./fossil-v-git.wiki | Fossil versus Git].
+  *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
+     (contributed by Gilles Ganault on 2013-01-08).
 
 <h3>Links For Fossil Developer:</h3>
 

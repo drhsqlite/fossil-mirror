@@ -1,5 +1,5 @@
-C Fix\san\sobsolete\scomment.\s\sNo\scode\schanges.
-D 2013-01-08T15:19:10.711
+C Added\sthe\s"Up\sand\srunning\sin\s5\sminutes"\sdocument\sby\sGilles\sGanault.
+D 2013-01-08T15:35:17.966
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -568,14 +568,14 @@ F www/fossil3.gif 0fa38d60655faf3da20c019583981cf6f71ae6fb
 F www/fossil_logo_small.gif 02f9b89eb0726d67bbbb6a6532a3a427ad8e1e83
 F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
-F www/index.wiki 902a426ea828e6687657a5bf7dbf7187736d8a30
+F www/index.wiki ad9df8ccad7131ff7ec35525197b72eaf7db30f7
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
-F www/mkindex.tcl 6319d01c1b6bae2fa8fdc1b64b5c69899709cca8
+F www/mkindex.tcl 3fb07fa13cbc0b7c55c78bc93d4f29b28ab48dea
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki 61884a6697b1fdaa0059059749b642b370b2ae28
+F www/permutedindex.wiki ae226e173d3d2c70e778f4da507305940e4d2fdc
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
@@ -596,7 +596,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1a52914b38d6d6f7f3b1c440f1b737034dd0e3bd
-R 9c8daa843c8c91e9c913f4743713d3e0
+P 17fbffa2dda371bb679246398846dc3ec88dd847
+R ea43e5ab536546d85b2a051db8ad1197
 U drh
-Z 2304abdad04258d43d4c5ae5f6a1a300
+Z d34d944982651e1c04c7a955121d97b7
