@@ -210,6 +210,8 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
+    fossil_print("checkin-count: %d\n",
+                 db_int(-1, "SELECT count(distinct mid) FROM mlink /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
