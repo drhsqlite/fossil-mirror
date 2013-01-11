@@ -84,6 +84,7 @@ static const char zDefaultTicketTable[] =
 @ CREATE TABLE ticketchng(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
 @   -- Add as many fields as required below this line
 @   login TEXT,

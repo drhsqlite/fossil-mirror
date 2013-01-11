@@ -36,8 +36,10 @@ static struct tktFieldInfo {
 } *aField;
 #define USEDBY_TICKET      01
 #define USEDBY_TICKETCHNG  02
+#define USEDBY_BOTH        03
 static int haveTicket = 0;     /* True if the TICKET table exists */
 static int haveTicketChng = 0; /* True if the TICKETCHNG table exists */
+static int haveTicketChngRid = 0;  /* True if TICKETCHNG.TKT_RID exists */
 
 /*
 ** Compare two entries in aField[] for sorting purposes
@@ -89,6 +91,7 @@ static void getAllTicketFields(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicketChng = 1;
+    if( strcmp(zFieldName,"tkt_rid")==0 ) haveTicketChngRid = 1;
     if( memcmp(zFieldName,"tkt_",4)==0 ) continue;
     if( (i = fieldId(zFieldName))>=0 ){
       aField[i].mUsed |= USEDBY_TICKETCHNG;
@@ -185,6 +188,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   Blob sql1, sql2, sql3;
   Stmt q;
   int i, j;
+  char *aUsed;
 
   if( tktid==0 ){
     db_multi_exec("INSERT INTO ticket(tkt_uuid, tkt_mtime) "
@@ -195,18 +199,18 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   blob_zero(&sql2);
   blob_zero(&sql3);
   blob_appendf(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
+  aUsed = fossil_malloc( nField );
+  memset(aUsed, 0, nField);
   for(i=0; i<p->nField; i++){
     const char *zName = p->aField[i].zName;
-    if( zName[0]=='+' ){
-      zName++;
-      if( (j = fieldId(zName))<0 ) continue;
-      if( aField[j].mUsed & USEDBY_TICKET ){
+    if( (j = fieldId(zName))<0 ) continue;
+    aUsed[j] = 1;
+    if( aField[j].mUsed & USEDBY_TICKET ){
+      if( zName[0]=='+' ){
+        zName++;
         blob_appendf(&sql1,", %s=coalesce(%s,'') || %Q",
                      zName, zName, p->aField[i].zValue);
-      }
-    }else{
-      if( (j = fieldId(zName))<0 ) continue;
-      if( aField[j].mUsed & USEDBY_TICKET ){
+      }else{
         blob_appendf(&sql1,", %s=%Q", zName, p->aField[i].zValue);
       }
     }
@@ -225,15 +229,36 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   db_finalize(&q);
   blob_reset(&sql1);
   if( blob_size(&sql2)>0 ){
-    db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
-                   "VALUES(%d,:mtime%s)",
-                  blob_str(&sql2), tktid, blob_str(&sql3));
+    int fromTkt = 0;
+    if( haveTicketChngRid ){
+      blob_append(&sql2, ",tkt_rid", -1);
+      blob_appendf(&sql3, ",%d", rid);
+    }
+    for(i=0; i<nField; i++){
+      if( aUsed[i]==0
+       && (aField[i].mUsed & USEDBY_BOTH)==USEDBY_BOTH
+      ){
+        fromTkt = 1;
+        blob_appendf(&sql2, ",%s", aField[i].zName);
+        blob_appendf(&sql3, ",%s", aField[i].zName);
+      }
+    }
+    if( fromTkt ){
+      db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
+                     "SELECT %d,:mtime%s FROM ticket WHERE tkt_id=%d",
+                     blob_str(&sql2), tktid, blob_str(&sql3), tktid);
+    }else{
+      db_prepare(&q, "INSERT INTO ticketchng(tkt_id,tkt_mtime%s)"
+                     "VALUES(%d,:mtime%s)",
+                     blob_str(&sql2), tktid, blob_str(&sql3));
+    }
     db_bind_double(&q, ":mtime", p->rDate);
     db_step(&q);
     db_finalize(&q);
   }
   blob_reset(&sql2);
   blob_reset(&sql3);
+  fossil_free(aUsed);
   return tktid;
 }
 
@@ -270,6 +295,7 @@ void ticket_rebuild_entry(const char *zTktUuid){
   }
   db_finalize(&q);
 }
+
 
 /*
 ** Create the TH1 interpreter and load the "common" code.
@@ -329,6 +355,28 @@ void ticket_rebuild(void){
   }
   db_finalize(&q);
   db_end_transaction(0);
+}
+
+/*
+** COMMAND: test-ticket-rebuild
+**
+** Usage: %fossil test-ticket-rebuild TICKETID|all
+**
+** Rebuild the TICKET and TICKETCHNG tables for the given ticket ID
+** or for ALL.
+*/
+void test_ticket_rebuild(void){
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("TICKETID|all");
+  if( fossil_strcmp(g.argv[2], "all")==0 ){
+    ticket_rebuild();
+  }else{
+    const char *zUuid;
+    zUuid = db_text(0, "SELECT substr(tagname,5) FROM tag"
+                       " WHERE tagname GLOB 'tkt-%q*'", g.argv[2]);
+    if( zUuid==0 ) fossil_fatal("no such ticket: %s", g.argv[2]);
+    ticket_rebuild_entry(zUuid);
+  }
 }
 
 /*
