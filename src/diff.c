@@ -40,6 +40,7 @@
 #define DIFF_WS_WARNING   ((u64)0x40000000) /* Warn about whitespace */
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
+#define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -415,18 +416,39 @@ static int same_dline(DLine *pA, DLine *pB){
 }
 
 /*
+** Return true if the regular expression *pRe matches any of the
+** N dlines
+*/
+static int re_dline_match(
+  ReCompiled *pRe,    /* The regular expression to be matched */
+  DLine *aDLine,      /* First of N DLines to compare against */
+  int N               /* Number of DLines to check */
+){
+  while( N-- ){
+    if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
+      return 1;
+    }
+    aDLine++;
+  }
+  return 0;
+}
+
+/*
 ** Append a single line of context-diff output to pOut.
 */
 static void appendDiffLine(
   Blob *pOut,         /* Where to write the line of output */
   char cPrefix,       /* One of " ", "+",  or "-" */
   DLine *pLine,       /* The line to be output */
-  int html            /* True if generating HTML.  False for plain text */
+  int html,           /* True if generating HTML.  False for plain text */
+  ReCompiled *pRe     /* Colorize only if line matches this Regex */
 ){
   blob_append(pOut, &cPrefix, 1);
   if( html ){
     char *zHtml;
-    if( cPrefix=='+' ){
+    if( pRe && re_dline_match(pRe, pLine, 1)==0 ){
+      cPrefix = ' ';
+    }else if( cPrefix=='+' ){
       blob_append(pOut, "<span class=\"diffadd\">", -1);
     }else if( cPrefix=='-' ){
       blob_append(pOut, "<span class=\"diffrm\">", -1);
@@ -464,7 +486,6 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
   if( html ) blob_append(pOut, "</span>", -1);
 }
 
-
 /*
 ** Given a raw diff p[] in which the p->aEdit[] array has been filled
 ** in, compute a context diff into pOut.
@@ -472,9 +493,8 @@ static void appendDiffLineno(Blob *pOut, int lnA, int lnB, int html){
 static void contextDiff(
   DContext *p,      /* The difference */
   Blob *pOut,       /* Output a context diff to here */
-  int nContext,     /* Number of lines of context */
-  int showLn,       /* Show line numbers */
-  int html          /* Render as HTML */
+  ReCompiled *pRe,  /* Only show changes that match this regex */
+  u64 diffFlags     /* Flags controlling the diff format */
 ){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */
@@ -489,7 +509,14 @@ static void contextDiff(
   int m;        /* Number of lines to output */
   int skip;     /* Number of lines to skip */
   int nChunk = 0;  /* Number of diff chunks seen so far */
+  int nContext;    /* Number of lines of context */
+  int showLn;      /* Show line numbers */
+  int html;        /* Render as HTML */
+  int showDivider = 0;  /* True to show the divider between diff blocks */
 
+  nContext = diff_context_lines(diffFlags);
+  showLn = (diffFlags & DIFF_LINENO)!=0;
+  html = (diffFlags & DIFF_HTML)!=0;
   A = p->aFrom;
   B = p->aTo;
   R = p->aEdit;
@@ -500,6 +527,31 @@ static void contextDiff(
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
 
+    /* If there is a regex, skip this block (generate no diff output)
+    ** if the regex matches or does not match both insert and delete.
+    ** Only display the block if one side matches but the other side does
+    ** not.
+    */
+    if( pRe ){
+      int hideBlock = 1;
+      int xa = a, xb = b;
+      for(i=0; hideBlock && i<nr; i++){
+        int c1, c2;
+        xa += R[r+i*3];
+        xb += R[r+i*3];
+        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        hideBlock = c1==c2;
+        xa += R[r+i*3+1];
+        xb += R[r+i*3+2];
+      }
+      if( hideBlock ){
+        a = xa;
+        b = xb;
+        continue;
+      }
+    }
+    
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
     */
@@ -532,8 +584,9 @@ static void contextDiff(
     */
     nChunk++;
     if( showLn ){
-      if( r==0 ){
+      if( !showDivider ){
         /* Do not show a top divider */
+        showDivider = 1;
       }else if( html ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.80c</span>\n", '.');
         blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
@@ -560,7 +613,7 @@ static void contextDiff(
     m = R[r] - skip;
     for(j=0; j<m; j++){
       if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &A[a+j], html);
+      appendDiffLine(pOut, ' ', &A[a+j], html, 0);
     }
     a += m;
     b += m;
@@ -569,21 +622,23 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
+        char cMark = '-';
         if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        appendDiffLine(pOut, '-', &A[a+j], html);
+        if( pRe && re_dline_match(pRe, &A[a+j], 1)==0 ) cMark = ' ';
+        appendDiffLine(pOut, '-', &A[a+j], html, pRe);
       }
       a += m;
       m = R[r+i*3+2];
       for(j=0; j<m; j++){
         if( showLn ) appendDiffLineno(pOut, 0, b+j+1, html);
-        appendDiffLine(pOut, '+', &B[b+j], html);
+        appendDiffLine(pOut, '+', &B[b+j], html, pRe);
       }
       b += m;
       if( i<nr-1 ){
         m = R[r+i*3+3];
         for(j=0; j<m; j++){
           if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-          appendDiffLine(pOut, ' ', &B[b+j], html);
+          appendDiffLine(pOut, ' ', &B[b+j], html, 0);
         }
         b += m;
         a += m;
@@ -596,7 +651,7 @@ static void contextDiff(
     if( m>nContext ) m = nContext;
     for(j=0; j<m; j++){
       if( showLn ) appendDiffLineno(pOut, a+j+1, b+j+1, html);
-      appendDiffLine(pOut, ' ', &B[b+j], html);
+      appendDiffLine(pOut, ' ', &B[b+j], html, 0);
     }
   }
 }
@@ -616,6 +671,7 @@ struct SbsLine {
   int iStart2;             /* Write zStart2 prior to character iStart2 */
   const char *zStart2;     /* A <span> tag */
   int iEnd2;               /* Write </span> prior to character iEnd2 */
+  ReCompiled *pRe;         /* Only colorize matching lines, if not NULL */
 };
 
 /*
@@ -641,9 +697,13 @@ static void sbsWriteText(SbsLine *p, DLine *pLine, unsigned flags){
   const char *zIn = pLine->z;
   char *z = &p->zLine[p->n];
   int w = p->width;
+  int colorize = p->escHtml;
+  if( colorize && p->pRe && re_dline_match(p->pRe, pLine, 1)==0 ){
+    colorize = 0;
+  }
   for(i=j=k=0; k<w && i<n; i++, k++){
     char c = zIn[i];
-    if( p->escHtml ){
+    if( colorize ){
       if( i==p->iStart ){
         int x = strlen(p->zStart);
         memcpy(z+j, p->zStart, x);
@@ -1197,9 +1257,8 @@ static int smallGap(int *R){
 static void sbsDiff(
   DContext *p,       /* The computed diff */
   Blob *pOut,        /* Write the results here */
-  int nContext,      /* Number of lines of context around each change */
-  int width,         /* Width of each column of output */
-  int escHtml        /* True to generate HTML output */
+  ReCompiled *pRe,   /* Only show changes that match this regex */
+  u64 diffFlags      /* Flags controlling the diff */
 ){
   DLine *A;     /* Left side of the diff */
   DLine *B;     /* Right side of the diff */
@@ -1215,12 +1274,16 @@ static void sbsDiff(
   int skip;     /* Number of lines to skip */
   int nChunk = 0; /* Number of chunks of diff output seen so far */
   SbsLine s;    /* Output line buffer */
+  int nContext; /* Lines of context above and below each change */
+  int showDivider = 0;  /* True to show the divider */
 
   memset(&s, 0, sizeof(s));
-  s.zLine = fossil_malloc( 15*width + 200 );
+  s.width = diff_width(diffFlags);
+  s.zLine = fossil_malloc( 15*s.width + 200 );
   if( s.zLine==0 ) return;
-  s.width = width;
-  s.escHtml = escHtml;
+  nContext = diff_context_lines(diffFlags);
+  s.escHtml = (diffFlags & DIFF_HTML)!=0;
+  s.pRe = pRe;
   s.iStart = -1;
   s.iStart2 = 0;
   s.iEnd = -1;
@@ -1233,6 +1296,31 @@ static void sbsDiff(
     /* Figure out how many triples to show in a single block */
     for(nr=1; R[r+nr*3]>0 && R[r+nr*3]<nContext*2; nr++){}
     /* printf("r=%d nr=%d\n", r, nr); */
+
+    /* If there is a regex, skip this block (generate no diff output)
+    ** if the regex matches or does not match both insert and delete.
+    ** Only display the block if one side matches but the other side does
+    ** not.
+    */
+    if( pRe ){
+      int hideBlock = 1;
+      int xa = a, xb = b;
+      for(i=0; hideBlock && i<nr; i++){
+        int c1, c2;
+        xa += R[r+i*3];
+        xb += R[r+i*3];
+        c1 = re_dline_match(pRe, &A[xa], R[r+i*3+1]);
+        c2 = re_dline_match(pRe, &B[xb], R[r+i*3+2]);
+        hideBlock = c1==c2;
+        xa += R[r+i*3+1];
+        xb += R[r+i*3+2];
+      }
+      if( hideBlock ){
+        a = xa;
+        b = xb;
+        continue;
+      }
+    }
 
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
@@ -1261,16 +1349,17 @@ static void sbsDiff(
     }
 
     /* Draw the separator between blocks */
-    if( r>0 ){
-      if( escHtml ){
+    if( showDivider ){
+      if( s.escHtml ){
         blob_appendf(pOut, "<span class=\"diffhr\">%.*c</span>\n",
-                           width*2+16, '.');
+                           s.width*2+16, '.');
       }else{
-        blob_appendf(pOut, "%.*c\n", width*2+16, '.');
+        blob_appendf(pOut, "%.*c\n", s.width*2+16, '.');
       }
     }
+    showDivider = 1;
     nChunk++;
-    if( escHtml ){
+    if( s.escHtml ){
       blob_appendf(pOut, "<a name=\"chunk%d\"></a>\n", nChunk);
     }
 
@@ -1317,7 +1406,7 @@ static void sbsDiff(
           s.zStart = "<span class=\"diffrm\">";
           s.iEnd = s.width;
           sbsWriteText(&s, &A[a], SBS_PAD);
-          if( escHtml ){
+          if( s.escHtml ){
             sbsWrite(&s, " &lt;\n", 6);
           }else{
             sbsWrite(&s, " <\n", 3);
@@ -1339,8 +1428,8 @@ static void sbsDiff(
         }else if( alignment[j]==2 ){
           /* Insert one line on the right */
           s.n = 0;
-          sbsWriteSpace(&s, width + 7);
-          if( escHtml ){
+          sbsWriteSpace(&s, s.width + 7);
+          if( s.escHtml ){
             sbsWrite(&s, " &gt; ", 6);
           }else{
             sbsWrite(&s, " > ", 3);
@@ -1802,7 +1891,7 @@ static void diff_optimize(DContext *p){
 */
 int diff_context_lines(u64 diffFlags){
   int n = diffFlags & DIFF_CONTEXT_MASK;
-  if( n==0 ) n = 5;
+  if( n==0 && (diffFlags & DIFF_CONTEXT_EX)==0 ) n = 5;
   return n;
 }
 
@@ -1834,10 +1923,10 @@ int *text_diff(
   Blob *pA_Blob,   /* FROM file */
   Blob *pB_Blob,   /* TO file */
   Blob *pOut,      /* Write diff here if not NULL */
+  ReCompiled *pRe, /* Only output changes where this Regexp matches */
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
-  int nContext;    /* Amount of context to display */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
@@ -1845,7 +1934,6 @@ int *text_diff(
     pA_Blob = pB_Blob;
     pB_Blob = pTemp;
   }
-  nContext = diff_context_lines(diffFlags);
   ignoreEolWs = (diffFlags & DIFF_IGNORE_EOLWS)!=0;
 
   /* Prepare the input files */
@@ -1869,13 +1957,10 @@ int *text_diff(
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
-    int escHtml = (diffFlags & DIFF_HTML)!=0;
     if( diffFlags & DIFF_SIDEBYSIDE ){
-      int width = diff_width(diffFlags);
-      sbsDiff(&c, pOut, nContext, width, escHtml);
+      sbsDiff(&c, pOut, pRe, diffFlags);
     }else{
-      int showLn = (diffFlags & DIFF_LINENO)!=0;
-      contextDiff(&c, pOut, nContext, showLn, escHtml);
+      contextDiff(&c, pOut, pRe, diffFlags);
     }
     fossil_free(c.aFrom);
     fossil_free(c.aTo);
@@ -1905,15 +1990,15 @@ int *text_diff(
 **   --unified              Unified diff.          ~DIFF_SIDEBYSIDE
 **   --width|-W N           N character lines.     DIFF_WIDTH_MASK
 */
-int diff_options(void){
+u64 diff_options(void){
   u64 diffFlags = 0;
   const char *z;
   int f;
   if( find_option("side-by-side","y",0)!=0 ) diffFlags |= DIFF_SIDEBYSIDE;
   if( find_option("unified",0,0)!=0 ) diffFlags &= ~DIFF_SIDEBYSIDE;
-  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>0 ){
+  if( (z = find_option("context","c",1))!=0 && (f = atoi(z))>=0 ){
     if( f > DIFF_CONTEXT_MASK ) f = DIFF_CONTEXT_MASK;
-    diffFlags |= f;
+    diffFlags |= f + DIFF_CONTEXT_EX;
   }
   if( (z = find_option("width","W",1))!=0 && (f = atoi(z))>0 ){
     f *= DIFF_CONTEXT_MASK+1;
@@ -1942,7 +2027,7 @@ void test_rawdiff_cmd(void){
   for(i=3; i<g.argc; i++){
     if( i>3 ) fossil_print("-------------------------------\n");
     blob_read_from_file(&b, g.argv[i]);
-    R = text_diff(&a, &b, 0, diffFlags);
+    R = text_diff(&a, &b, 0, 0, diffFlags);
     for(r=0; R[r] || R[r+1] || R[r+2]; r += 3){
       fossil_print(" copy %4d  delete %4d  insert %4d\n", R[r], R[r+1], R[r+2]);
     }
@@ -1961,12 +2046,19 @@ void test_rawdiff_cmd(void){
 void test_diff_cmd(void){
   Blob a, b, out;
   u64 diffFlag;
+  const char *zRe;           /* Regex filter for diff output */
+  ReCompiled *pRe = 0;       /* Regex filter for diff output */
 
   if( find_option("tk",0,0)!=0 ){
     diff_tk("test-diff", 2);
     return;
   }
   find_option("i",0,0);
+  zRe = find_option("regexp","e",1);
+  if( zRe ){
+    const char *zErr = re_compile(&pRe, zRe, 0);
+    if( zErr ) fossil_fatal("regex error: %s", zErr);
+  }
   diffFlag = diff_options();
   verify_all_options();
   if( g.argc!=4 ) usage("FILE1 FILE2");
@@ -1974,8 +2066,9 @@ void test_diff_cmd(void){
   blob_read_from_file(&a, g.argv[2]);
   blob_read_from_file(&b, g.argv[3]);
   blob_zero(&out);
-  text_diff(&a, &b, &out, diffFlag);
+  text_diff(&a, &b, &out, pRe, diffFlag);
   blob_write_to_file(&out, "-");
+  re_free(pRe);
 }
 
 /**************************************************************************

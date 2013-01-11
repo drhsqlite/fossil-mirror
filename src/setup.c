@@ -96,7 +96,7 @@ void setup_page(void){
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
-    "edits and attachments.");
+    " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
@@ -111,6 +111,8 @@ void setup_page(void){
     "Display repository statistics");
   setup_menu_entry("SQL", "admin_sql",
     "Enter raw SQL commands");
+  setup_menu_entry("TH1", "admin_th1",
+    "Enter raw TH1 commands");
   @ </table>
 
   style_footer();
@@ -1760,6 +1762,50 @@ void sql_page(void){
       }
       sqlite3_finalize(pStmt);
       @ </table>
+    }
+  }
+  style_footer();
+}
+
+
+/*
+** WEBPAGE: admin_th1
+**
+** Run raw TH1 commands using the web interface.  If Tcl integration was
+** enabled at compile-time and the "tcl" setting is enabled, Tcl commands
+** may be run as well.
+*/
+void th1_page(void){
+  const char *zQ = P("q");
+  int go = P("go")!=0;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  style_header("Raw TH1 Commands");
+  @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
+  @ run by this page.  If Tcl integration was enabled at compile-time and
+  @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
+  @
+  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  login_insert_csrf_secret();
+  @ TH1:<br />
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <input type="submit" name="go" value="Run TH1">
+  @ </form>
+  if( go ){
+    const char *zR;
+    int rc;
+    int n;
+    @ <hr />
+    login_verify_csrf_secret();
+    rc = Th_Eval(g.interp, 0, zQ, -1);
+    zR = Th_GetResult(g.interp, &n);
+    if( rc==TH_OK ){
+      @ <pre class="th1result">%h(zR)</pre>
+    }else{
+      @ <pre class="th1error">%h(zR)</pre>
     }
   }
   style_footer();

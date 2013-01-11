@@ -210,6 +210,8 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
+    fossil_print("checkin-count: %d\n",
+                 db_int(-1, "SELECT count(distinct mid) FROM mlink /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
@@ -289,9 +291,14 @@ static void showTags(int rid, const char *zNotGlob){
 
 
 /*
-** Append the difference between two RIDs to the output
+** Append the difference between artifacts to the output
 */
-static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
+static void append_diff(
+  const char *zFrom,    /* Diff from this artifact */
+  const char *zTo,      /*  ... to this artifact */
+  u64 diffFlags,        /* Diff formatting flags */
+  ReCompiled *pRe       /* Only show change matching this regex */
+){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -309,12 +316,12 @@ static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
   }
   blob_zero(&out);
   if( diffFlags & DIFF_SIDEBYSIDE ){
-    text_diff(&from, &to, &out, diffFlags | DIFF_HTML);
+    text_diff(&from, &to, &out, pRe, diffFlags | DIFF_HTML);
     @ <div class="sbsdiff">
     @ %s(blob_str(&out))
     @ </div>
   }else{
-    text_diff(&from, &to, &out, diffFlags | DIFF_LINENO | DIFF_HTML);
+    text_diff(&from, &to, &out, pRe, diffFlags | DIFF_LINENO | DIFF_HTML);
     @ <div class="udiff">
     @ %s(blob_str(&out))
     @ </div>
@@ -335,6 +342,7 @@ static void append_file_change_line(
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
   u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
+  ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.Hyperlink ){
@@ -352,7 +360,7 @@ static void append_file_change_line(
     }
     if( diffFlags ){
       @ <pre style="white-space:pre;">
-      append_diff(zOld, zNew, diffFlags);
+      append_diff(zOld, zNew, diffFlags, pRe);
       @ </pre>
     }
   }else{
@@ -378,7 +386,7 @@ static void append_file_change_line(
     }
     if( diffFlags ){
       @ <pre style="white-space:pre;">
-      append_diff(zOld, zNew, diffFlags);
+      append_diff(zOld, zNew, diffFlags, pRe);
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
@@ -446,6 +454,8 @@ void ci_page(void){
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
+  const char *zRe;     /* regex parameter */
+  ReCompiled *pRe = 0; /* regex */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -457,6 +467,8 @@ void ci_page(void){
     style_footer();
     return;
   }
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
@@ -694,6 +706,10 @@ void ci_page(void){
     }
     @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
     @ patch</a></div>
+    if( pRe ){
+      @ <p><b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b></p>
+    }
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
@@ -714,7 +730,7 @@ void ci_page(void){
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
       const char *zOldName = db_column_text(&q, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags, mperm);
+      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
     }
     db_finalize(&q);
   }
@@ -937,11 +953,15 @@ void vdiff_page(void){
   const char *zBranch;
   const char *zFrom;
   const char *zTo;
+  const char *zRe;
+  ReCompiled *pRe = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
 
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
   if( zBranch && zBranch[0] ){
     cgi_replace_parameter("from", mprintf("root:%s", zBranch));
@@ -973,7 +993,12 @@ void vdiff_page(void){
   checkin_description(ridFrom);
   @ </blockquote><h2>To:</h2><blockquote>
   checkin_description(ridTo);
-  @ </blockquote><hr /><p>
+  @ </blockquote>
+  if( pRe ){
+    @ <p><b>Only differences that match regular expression "%h(zRe)"
+    @ are shown.</b></p>
+  }
+  @<hr /><p>
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -991,11 +1016,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid, 0, 0, diffFlags, 0);
+                              pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName,
-                              0, pFileTo->zUuid, 0, diffFlags,
+                              0, pFileTo->zUuid, 0, diffFlags, pRe,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -1005,7 +1030,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName,
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, diffFlags,
+                              pFileTo->zUuid, 0, diffFlags, pRe,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
@@ -1258,7 +1283,7 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN
+** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN&regex=REGEX
 **
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
@@ -1271,8 +1296,11 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
+  const char *zRe;
+  ReCompiled *pRe = 0;
   u64 diffFlags;
   const char *zStyle = "sbsdiff";
+  const char *zReErr = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1298,9 +1326,11 @@ void diff_page(void){
       zStyle = "udiff";
     }
   }
+  zRe = P("regex");
+  if( zRe ) zReErr = re_compile(&pRe, zRe, 0);
   content_get(v1, &c1);
   content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, diffFlags);
+  text_diff(&c1, &c2, pOut, pRe, diffFlags);
   blob_reset(&c1);
   blob_reset(&c2);
   if( !isPatch ){
@@ -1327,6 +1357,10 @@ void diff_page(void){
       object_description(v1, 0, 0);
       @ <h2>To Artifact %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>:</h2>
       object_description(v2, 0, 0);
+    }
+    if( pRe ){
+      @ <b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b>
     }
     @ <hr />
     @ <div class="%s(zStyle)">

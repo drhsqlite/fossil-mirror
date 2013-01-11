@@ -24,7 +24,7 @@
 **
 **    (2)  The "repository" database
 **
-**    (3)  A local checkout database named "_FOSSIL_" or ".fos"
+**    (3)  A local checkout database named "_FOSSIL_" or ".fslckout"
 **         and located at the root of the local copy of the source tree.
 **
 */
@@ -91,7 +91,7 @@ static void db_err(const char *zFormat, ...){
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
+               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
@@ -646,7 +646,7 @@ void db_init_database(
 
   rc = sqlite3_open(zFileName, &db);
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("[%s] %s", zFileName, sqlite3_errmsg(db));
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
@@ -704,6 +704,7 @@ static sqlite3 *openDatabase(const char *zDbName){
   const char *zVfs;
   sqlite3 *db;
 
+  if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -711,7 +712,7 @@ static sqlite3 *openDatabase(const char *zDbName){
        zVfs
   );
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
@@ -1458,9 +1459,7 @@ static void db_sql_print(
 }
 static void db_sql_trace(void *notUsed, const char *zSql){
   int n = strlen(zSql);
-  char *zMsg = mprintf("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
-  fossil_puts(zMsg, 1);
-  fossil_free(zMsg);
+  fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
 }
 
 /*
@@ -1606,7 +1605,7 @@ char *db_reveal(const char *zKey){
 ** This function registers auxiliary functions when the SQLite
 ** database connection is first established.
 */
-LOCAL void db_connection_init(void){
+void db_connection_init(void){
   sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
   sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
@@ -1621,6 +1620,7 @@ LOCAL void db_connection_init(void){
   if( g.fSqlTrace ){
     sqlite3_trace(g.db, db_sql_trace, 0);
   }
+  re_add_sql_func(g.db);
 }
 
 /*

@@ -324,6 +324,7 @@ SRC = \
   $(SRCDIR)/pqueue.c \
   $(SRCDIR)/printf.c \
   $(SRCDIR)/rebuild.c \
+  $(SRCDIR)/regexp.c \
   $(SRCDIR)/report.c \
   $(SRCDIR)/rss.c \
   $(SRCDIR)/schema.c \
@@ -344,6 +345,7 @@ SRC = \
   $(SRCDIR)/tkt.c \
   $(SRCDIR)/tktsetup.c \
   $(SRCDIR)/undo.c \
+  $(SRCDIR)/unicode.c \
   $(SRCDIR)/update.c \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
@@ -428,6 +430,7 @@ TRANS_SRC = \
   $(OBJDIR)/pqueue_.c \
   $(OBJDIR)/printf_.c \
   $(OBJDIR)/rebuild_.c \
+  $(OBJDIR)/regexp_.c \
   $(OBJDIR)/report_.c \
   $(OBJDIR)/rss_.c \
   $(OBJDIR)/schema_.c \
@@ -448,6 +451,7 @@ TRANS_SRC = \
   $(OBJDIR)/tkt_.c \
   $(OBJDIR)/tktsetup_.c \
   $(OBJDIR)/undo_.c \
+  $(OBJDIR)/unicode_.c \
   $(OBJDIR)/update_.c \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
@@ -532,6 +536,7 @@ OBJ = \
  $(OBJDIR)/pqueue.o \
  $(OBJDIR)/printf.o \
  $(OBJDIR)/rebuild.o \
+ $(OBJDIR)/regexp.o \
  $(OBJDIR)/report.o \
  $(OBJDIR)/rss.o \
  $(OBJDIR)/schema.o \
@@ -552,6 +557,7 @@ OBJ = \
  $(OBJDIR)/tkt.o \
  $(OBJDIR)/tktsetup.o \
  $(OBJDIR)/undo.o \
+ $(OBJDIR)/unicode.o \
  $(OBJDIR)/update.o \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
@@ -749,6 +755,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/pqueue_.c:$(OBJDIR)/pqueue.h \
 		$(OBJDIR)/printf_.c:$(OBJDIR)/printf.h \
 		$(OBJDIR)/rebuild_.c:$(OBJDIR)/rebuild.h \
+		$(OBJDIR)/regexp_.c:$(OBJDIR)/regexp.h \
 		$(OBJDIR)/report_.c:$(OBJDIR)/report.h \
 		$(OBJDIR)/rss_.c:$(OBJDIR)/rss.h \
 		$(OBJDIR)/schema_.c:$(OBJDIR)/schema.h \
@@ -769,6 +776,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/tkt_.c:$(OBJDIR)/tkt.h \
 		$(OBJDIR)/tktsetup_.c:$(OBJDIR)/tktsetup.h \
 		$(OBJDIR)/undo_.c:$(OBJDIR)/undo.h \
+		$(OBJDIR)/unicode_.c:$(OBJDIR)/unicode.h \
 		$(OBJDIR)/update_.c:$(OBJDIR)/update.h \
 		$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 		$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
@@ -1343,6 +1351,14 @@ $(OBJDIR)/rebuild.o:	$(OBJDIR)/rebuild_.c $(OBJDIR)/rebuild.h  $(SRCDIR)/config.
 
 $(OBJDIR)/rebuild.h:	$(OBJDIR)/headers
 
+$(OBJDIR)/regexp_.c:	$(SRCDIR)/regexp.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/regexp.c >$(OBJDIR)/regexp_.c
+
+$(OBJDIR)/regexp.o:	$(OBJDIR)/regexp_.c $(OBJDIR)/regexp.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/regexp.o -c $(OBJDIR)/regexp_.c
+
+$(OBJDIR)/regexp.h:	$(OBJDIR)/headers
+
 $(OBJDIR)/report_.c:	$(SRCDIR)/report.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/report.c >$(OBJDIR)/report_.c
 
@@ -1502,6 +1518,14 @@ $(OBJDIR)/undo.o:	$(OBJDIR)/undo_.c $(OBJDIR)/undo.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/undo.o -c $(OBJDIR)/undo_.c
 
 $(OBJDIR)/undo.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/unicode_.c:	$(SRCDIR)/unicode.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/unicode.c >$(OBJDIR)/unicode_.c
+
+$(OBJDIR)/unicode.o:	$(OBJDIR)/unicode_.c $(OBJDIR)/unicode.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/unicode.o -c $(OBJDIR)/unicode_.c
+
+$(OBJDIR)/unicode.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/update_.c:	$(SRCDIR)/update.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/update.c >$(OBJDIR)/update_.c

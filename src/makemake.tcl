@@ -86,6 +86,7 @@ set src {
   pqueue
   printf
   rebuild
+  regexp
   report
   rss
   schema
@@ -106,6 +107,7 @@ set src {
   tkt
   tktsetup
   undo
+  unicode
   update
   url
   user
