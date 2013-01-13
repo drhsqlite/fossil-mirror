@@ -141,6 +141,110 @@ void stat_page(void){
 }
 
 /*
+** COMMAND: dbstat
+**
+** Show statistics and global information about the repository.
+*/
+void dbstat_cmd(void){
+  i64 t, fsize;
+  int n, m;
+  int szMax, szAvg;
+  const char *zDb;
+  int brief;
+  char zBuf[100];
+  const int colWidth = -20 /* printf alignment/width for left column */;
+  brief = find_option("brief", "b",0)!=0;
+  db_find_and_open_repository(0,0);
+  fsize = file_size(g.zRepositoryName);
+  bigSizeName(sizeof(zBuf), zBuf, fsize);
+  fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
+  if( !brief ){
+    n = db_int(0, "SELECT count(*) FROM blob");
+    m = db_int(0, "SELECT count(*) FROM delta");
+    fossil_print("%*s%d (stored as %d full text and %d delta blobs)\n",
+                 colWidth, "artifact-count:",
+                 n, n-m, m);
+    if( n>0 ){
+      int a, b;
+      Stmt q;
+      db_prepare(&q, "SELECT total(size), avg(size), max(size)"
+                     " FROM blob WHERE size>0");
+      db_step(&q);
+      t = db_column_int64(&q, 0);
+      szAvg = db_column_int(&q, 1);
+      szMax = db_column_int(&q, 2);
+      db_finalize(&q);
+      bigSizeName(sizeof(zBuf), zBuf, t);
+      fossil_print( "%*s%d bytes average, "
+                    "%d bytes max, %s total\n",
+                    colWidth, "artifact-sizes:",
+                    szAvg, szMax, zBuf);
+      if( t/fsize < 5 ){
+        b = 10;
+        fsize /= 10;
+      }else{
+        b = 1;
+      }
+      a = t/fsize;
+      fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
+    }
+    n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
+    fossil_print("%*s%d\n", colWidth, "checkin-count:", n);
+    n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
+    /* FIXME/TODO: add the change-count-per-type to each event type,
+    **   plus add 'Event' count
+    */
+#if 0
+    m = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+#endif
+    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "file-count:",
+                 n/*, m */);
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE tagname GLOB 'wiki-*'");
+#if 0
+    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
+                  "b.rid=e.objid AND e.type='w'");
+#endif
+    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "wikipage-count:",
+                 n/*, m */);
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE tagname GLOB 'tkt-*'");
+#if 0
+    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
+                   "b.rid=e.objid AND e.type='t'");
+#endif
+    fossil_print("%*s%d"/* (%d changes)*/"\n", colWidth, "ticket-count:",
+                 n/* , m */);
+  }
+  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
+                " + 0.99");
+  fossil_print("%*s%d days or approximately %.2f years.\n",
+               colWidth, "project-age:", n, n/365.24);
+  fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
+  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code",""));
+  fossil_print("%*s%s %s %s (%s)\n",
+               colWidth, "fossil-version:",
+               RELEASE_VERSION, MANIFEST_DATE, MANIFEST_VERSION,
+               COMPILER_NAME);
+  fossil_print("%*s%.19s [%.10s] (%s)\n",
+               colWidth, "sqlite-version:",
+               SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20],
+               SQLITE_VERSION);
+  zDb = db_name("repository");
+  fossil_print("%*s%d pages, %d bytes/page, %d free pages, "
+               "%s, %s mode\n",
+               colWidth, "database-stats:",
+               db_int(0, "PRAGMA %s.page_count", zDb),
+               db_int(0, "PRAGMA %s.page_size", zDb),
+               db_int(0, "PRAGMA %s.freelist_count", zDb),
+               db_text(0, "PRAGMA %s.encoding", zDb),
+               db_text(0, "PRAGMA %s.journal_mode", zDb));
+
+}
+
+
+
+/*
 ** WEBPAGE: urllist
 **
 ** Show ways in which this repository has been accessed
