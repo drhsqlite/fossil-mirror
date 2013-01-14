@@ -1,5 +1,5 @@
-C When\sautosync\sis\senabled,\sdo\sboth\sa\sPUSH\sand\sa\sPULL\sfollowing\seach\scommit.\nAdding\sthe\sPULL\shere\smakes\sdetection\sof\sa\sfork\swork\sbetter.
-D 2013-01-14T01:54:14.548
+C Change\sthe\soutput\sformat\sfor\sthe\s"fossil\sleaves"\scommand\sand\sadd\sthe\s--bybranch\ncommand-line\soption\swhich\sis\suseful\sfor\slooking\sfor\sforks.
+D 2013-01-14T12:52:29.308
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -312,7 +312,7 @@ F src/cson_amalgamation.h 0ee123041b05921eff3f45b9c7ec398b75374849
 F src/db.c 1a6339ddb28edb9733d798c7ec18554f2bb86675
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
-F src/descendants.c d3256df9639b71199f3e8b22b3a6321e5bca4b94
+F src/descendants.c 823b874248e1788d5543acb7cf5e22555ff21dcb
 F src/diff.c deffd29b508f454a732630545b498513f3fc82d9
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
@@ -392,7 +392,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c b81a5660b8afbcaf9a1a63a3272abfcc8a763650
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c a056650d1ae6a7544288c3f9c27f74e73f9739d2
+F src/timeline.c 2560da3ea2ed20a85769cd44f1c83f672b2db2c0
 F src/tkt.c e294a1af8cee448f34711f6fcc7d746451060b71
 F src/tktsetup.c 57ed694ac50795ae1647f48841a02d52095fc7b3
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 8a470fd4bca8a81c67503bc0aba61a932c4de4ef
-R 0357e6ac9fc91982ba2cb01c68779a8f
+P bee86ff39af2bc761291f9eb5b3586e742a3279d
+R 3e3c4e5eb9ac229b0e0054936a29295b
 U drh
-Z 83ae2c1f209899f5ef8a9e5bc37d9372
+Z dc00fe1e7e5df594099c36617bb08486
