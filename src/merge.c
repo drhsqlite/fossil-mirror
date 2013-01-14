@@ -175,22 +175,17 @@ void merge_cmd(void){
                     "       AND tagid=%d"
                     "       AND tagtype>0)"
       "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
-            "   WHERE tagid=%d AND rid=%d"
-            "     AND tagtype>0"
-            "   ORDER BY mtime DESC LIMIT 1) = "
+            "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
             " (SELECT value FROM tagxref"
-            "   WHERE tagid=%d AND rid=leaf.rid"
-            "     AND tagtype>0"
-            "   ORDER BY mtime DESC LIMIT 1)"
+            "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
       " ORDER BY event.mtime DESC LIMIT 1",
       vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
     );
     if( mid==0 ){
       fossil_fatal("no unmerged forks of branch \"%s\"",
         db_text(0, "SELECT value FROM tagxref"
-                   " WHERE tagid=%d AND rid=%d"
-                   "   AND tagtype>0"
-                   " ORDER BY mtime DESC LIMIT 1", TAG_BRANCH, vid)
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_BRANCH, vid)
       );
     }
     db_prepare(&q,
