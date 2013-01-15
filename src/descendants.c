@@ -362,7 +362,7 @@ void leaves_cmd(void){
   int showClosed = find_option("closed", 0, 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
   int byBranch = find_option("bybranch",0,0)!=0;
-  const char *zLastBr = 0;
+  char *zLastBr = 0;
   int n;
   char zLineNo[10];
 
