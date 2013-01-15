@@ -141,7 +141,7 @@ void stat_page(void){
 }
 
 /*
-** COMMAND: dbstat
+** COMMAND: dbstat*
 **
 ** Show statistics and global information about the repository.
 */
