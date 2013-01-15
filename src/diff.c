@@ -622,9 +622,7 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        char cMark = '-';
         if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        if( pRe && re_dline_match(pRe, &A[a+j], 1)==0 ) cMark = ' ';
         appendDiffLine(pOut, '-', &A[a+j], html, pRe);
       }
       a += m;

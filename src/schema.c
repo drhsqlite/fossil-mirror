@@ -387,6 +387,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
 @   status TEXT,
@@ -402,6 +403,7 @@ const char zRepositorySchema2[] =
 @ CREATE TABLE ticketchng(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
 @   -- Add as many fields as required below this line
 @   login TEXT,

@@ -1394,6 +1394,8 @@ void page_timeline(void){
 **    3.  Comment string and user
 **    4.  Number of non-merge children
 **    5.  Number of parents
+**    6.  mtime
+**    7.  branch
 */
 void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
@@ -1502,11 +1504,17 @@ const char *timeline_query_for_tty(void){
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
     @     || ')' as comment,
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim) AS primPlinkCount,
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim)
+    @        AS primPlinkCount,
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
-    @   event.mtime AS mtime
-    @ FROM event, blob
+    @   event.mtime AS mtime,
+    @   tagxref.value AS branch
+    @ FROM tag CROSS JOIN event CROSS JOIN blob CROSS JOIN tagxref
     @ WHERE blob.rid=event.objid
+    @   AND tag.tagname='branch'
+    @   AND tagxref.tagid=tag.tagid
+    @   AND tagxref.tagtype>0
+    @   AND tagxref.rid=blob.rid 
   ;
   return zBaseSql;
 }

@@ -1529,7 +1529,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync(SYNC_PUSH);
+    autosync(SYNC_PUSH|SYNC_PULL);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");
