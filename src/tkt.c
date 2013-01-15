@@ -37,9 +37,10 @@ static struct tktFieldInfo {
 #define USEDBY_TICKET      01
 #define USEDBY_TICKETCHNG  02
 #define USEDBY_BOTH        03
-static int haveTicket = 0;     /* True if the TICKET table exists */
-static int haveTicketChng = 0; /* True if the TICKETCHNG table exists */
-static int haveTicketChngRid = 0;  /* True if TICKETCHNG.TKT_RID exists */
+static u8 haveTicket = 0;        /* True if the TICKET table exists */
+static u8 haveTicketCTime = 0;   /* True if TICKET.TKT_CTIME exists */
+static u8 haveTicketChng = 0;    /* True if the TICKETCHNG table exists */
+static u8 haveTicketChngRid = 0; /* True if TICKETCHNG.TKT_RID exists */
 
 /*
 ** Compare two entries in aField[] for sorting purposes
@@ -78,7 +79,10 @@ static void getAllTicketFields(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicket = 1;
-    if( memcmp(zFieldName,"tkt_",4)==0 ) continue;
+    if( memcmp(zFieldName,"tkt_",4)==0 ){
+      if( strcmp(zFieldName, "tkt_ctime")==0 ) haveTicketCTime = 1;
+      continue;
+    }
     if( nField%10==0 ){
       aField = fossil_realloc(aField, sizeof(aField[0])*(nField+10) );
     }
@@ -91,8 +95,10 @@ static void getAllTicketFields(void){
   while( db_step(&q)==SQLITE_ROW ){
     const char *zFieldName = db_column_text(&q, 1);
     haveTicketChng = 1;
-    if( strcmp(zFieldName,"tkt_rid")==0 ) haveTicketChngRid = 1;
-    if( memcmp(zFieldName,"tkt_",4)==0 ) continue;
+    if( memcmp(zFieldName,"tkt_",4)==0 ){
+      if( strcmp(zFieldName,"tkt_rid")==0 ) haveTicketChngRid = 1;
+      continue;
+    }
     if( (i = fieldId(zFieldName))>=0 ){
       aField[i].mUsed |= USEDBY_TICKETCHNG;
       continue;
@@ -199,6 +205,9 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   blob_zero(&sql2);
   blob_zero(&sql3);
   blob_appendf(&sql1, "UPDATE OR REPLACE ticket SET tkt_mtime=:mtime");
+  if( haveTicketCTime ){
+    blob_appendf(&sql1, ", tkt_ctime=coalesce(tkt_ctime,:mtime)");
+  }
   aUsed = fossil_malloc( nField );
   memset(aUsed, 0, nField);
   for(i=0; i<p->nField; i++){
@@ -228,7 +237,7 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   db_step(&q);
   db_finalize(&q);
   blob_reset(&sql1);
-  if( blob_size(&sql2)>0 ){
+  if( blob_size(&sql2)>0 || haveTicketChngRid ){
     int fromTkt = 0;
     if( haveTicketChngRid ){
       blob_append(&sql2, ",tkt_rid", -1);

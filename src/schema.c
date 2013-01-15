@@ -387,6 +387,7 @@ const char zRepositorySchema2[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many field as required below this line
 @   type TEXT,
 @   status TEXT,
