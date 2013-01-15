@@ -515,14 +515,11 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
         /* This is a 3-byte UTF-8 character */
         if ( (c & 0xfe) == 0xee ){
           /* Range U+E000 - U+FFFF (Starting with 0xee or 0xef in UTF-8 ) */
-          if ( (c & 1) && ((z[i+1] & 0xff) >= 0xa4) ){
-            /* But exclude U+F900 - U+FFFF (0xef followed by byte >= 0xa4),
-             * which contain valid characters. */
-            continue;
+          if ( !(c & 1) || ((z[i+1] & 0xff) < 0xa4) ){
+            /* Unicode character in the range U+E000 - U+F8FF are for
+             * private use, they shouldn't occur in filenames.  */
+            return 0;
           }
-          /* Unicode character in the range U+E000 - U+F8FF are for
-           * private use, they shouldn't occur in filenames.  */
-          return 0;
         }
         if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
           /* Unicode character in the range U+D800 - U+DFFF are for
@@ -530,8 +527,7 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
           return 0;
         }
       }
-    }
-    if( c=='\\' ){
+    }else if( c=='\\' ){
       return 0;
     }
     if( c=='/' ){
