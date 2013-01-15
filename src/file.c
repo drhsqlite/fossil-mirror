@@ -519,7 +519,7 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
                * private use, they shouldn't occur in filenames.  */
               return 0;
             }
-          } else if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
+          }else if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
             /* Unicode character in the range U+D800 - U+DFFF are for
              * surrogate pairs, they shouldn't occur in filenames. */
             return 0;
