@@ -1,5 +1,5 @@
-C one\smore:\sif\swe\salready\sknow\sthe\scharacter\sis\sin\sthe\srange\sU+E000\s-\sU+FFFF,\sit\scannot\sbe\sa\ssurrogate\sany\smore.
-D 2013-01-15T10:21:36.296
+C Expanded\sthe\s"dbstat"\scommand\soutput\sa\sbit.
+D 2013-01-15T18:32:38.976
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -382,7 +382,7 @@ F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c dc438ffda9197b62f944e20b2553790c70fa584c
 F src/sqlite3.h 59df1ad22c2a4437fbde1b76900af8b8479094a2
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
-F src/stat.c 577dcdb23a96b50183f823d9664896e59a85cc38
+F src/stat.c a20db96cdbc07fb79ea47a768b019bc2c8fd696a
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 886e1bb2a8ed8e134f105ea66c37bf69ec671978
-R 0d973dfc166fa7c5d4a174d9b820806a
-U jan.nijtmans
-Z e3cdc8b0042dede9699e38b52b312b22
+P 4f510b66cb76c42e804e308f8f29e7de0b332b3f
+R c60b92631cfb7f68d6907c2ef809e12b
+U stephan
+Z 67a617dafd2c844fd369d02927dcdcfc

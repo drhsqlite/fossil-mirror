@@ -191,30 +191,19 @@ void dbstat_cmd(void){
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
     fossil_print("%*s%d\n", colWidth, "checkin-count:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    /* FIXME/TODO: add the change-count-per-type to each event type,
-    **   plus add 'Event' count
-    */
-#if 0
-    m = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
-#endif
-    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "file-count:",
-                 n/*, m */);
+    fossil_print("%*s%d across all branches\n", colWidth, "file-count:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
-#if 0
-    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
-                  "b.rid=e.objid AND e.type='w'");
-#endif
-    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "wikipage-count:",
-                 n/*, m */);
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipage-count:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
-#if 0
-    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
-                   "b.rid=e.objid AND e.type='t'");
-#endif
-    fossil_print("%*s%d"/* (%d changes)*/"\n", colWidth, "ticket-count:",
-                 n/* , m */);
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "ticket-count:", n, m);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    fossil_print("%*s%d\n", colWidth, "event-count:", n);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
+    fossil_print("%*s%d\n", colWidth, "tagchange-count:", n);
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
