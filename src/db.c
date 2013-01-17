@@ -644,11 +644,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-  rc = sqlite3_open(zFileName, &db);
-  if( rc!=SQLITE_OK ){
-    db_err("[%s] %s", zFileName, sqlite3_errmsg(db));
-  }
-  sqlite3_busy_timeout(db, 5000);
+  db = openDatabase(zFileName);
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -699,7 +695,7 @@ void db_checkin_mtime_function(
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
-static sqlite3 *openDatabase(const char *zDbName){
+LOCAL sqlite3 *openDatabase(const char *zDbName){
   int rc;
   const char *zVfs;
   sqlite3 *db;
