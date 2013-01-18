@@ -96,7 +96,7 @@ void stat_page(void){
       @ </td></tr>
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
-    n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+    n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
     @ %d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
@@ -120,7 +120,6 @@ void stat_page(void){
   @ %d(n) days or approximately %.2f(n/365.24) years.
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
-  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
   @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
   @ (%h(COMPILER_NAME))
