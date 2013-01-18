@@ -188,28 +188,27 @@ void dbstat_cmd(void){
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
-    fossil_print("%*s%d\n", colWidth, "checkin-count:", n);
+    fossil_print("%*s%d\n", colWidth, "checkins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    fossil_print("%*s%d across all branches\n", colWidth, "file-count:", n);
+    fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipage-count:", n, m);
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
     m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
-    fossil_print("%*s%d (%d changes)\n", colWidth, "ticket-count:", n, m);
+    fossil_print("%*s%d (%d changes)\n", colWidth, "tickets:", n, m);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
-    fossil_print("%*s%d\n", colWidth, "event-count:", n);
+    fossil_print("%*s%d\n", colWidth, "events:", n);
     n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
-    fossil_print("%*s%d\n", colWidth, "tagchange-count:", n);
+    fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   fossil_print("%*s%d days or approximately %.2f years.\n",
                colWidth, "project-age:", n, n/365.2425);
   fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
-  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code",""));
   fossil_print("%*s%s %s %s (%s)\n",
                colWidth, "fossil-version:",
                RELEASE_VERSION, MANIFEST_DATE, MANIFEST_VERSION,

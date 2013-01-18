@@ -1,5 +1,5 @@
-C Changed\sdays-per-year\sfrom\s365.24\sto\s365.2425,\swhich\sis\s(per\sWikipedia)\smore\scorrect\sover\slonger\stime\speriods\s(patch\sfrom\sJ.\svan\sden\sHoff).\sRemoved\sserverId\sfrom\s/json/stat\soutput,\sanalog\sto\scommit\s[6bb63a7364].
-D 2013-01-18T11:06:00.098
+C Changed\slabels\sfor\sdbstat\scommand\soutput\s(per\smailing\slist\sdiscussion).\sRemoved\sserver-id\sfield\sfrom\sdbstat\soutput\s(to\smatch\s/stat\spage\schange).
+D 2013-01-18T12:13:49.837
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -382,7 +382,7 @@ F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c 8a415f3ee851bbb9086ae5cdbf7c7146c0a68281
 F src/sqlite3.h 4a30840575398a344786d8169a93ab137040b1f8
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
-F src/stat.c 014d3c218922811887abb0ed9cd935eed9a04383
+F src/stat.c 4f88f8adaa342dd09a18210b183afdf5d78d192e
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e5f9b18d3604880840905bcfda6d00290bc2d92f
-R 3c4835cfee9aeeb0f538caddb339dc25
+P 823d3ed6d38323d63568fe6f3116069aa53b0561
+R 6fad59d0f0ef795b0150614ecb3f99a0
 U stephan
-Z fbaad18d00d0a54bc9468b05d5978f2c
+Z 3ca15a382aefa4f5cdbf93f40f2de6f6
