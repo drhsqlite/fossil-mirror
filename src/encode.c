@@ -136,7 +136,8 @@ static char *EncodeHttp(const char *zIn, int n, int encodeSlash){
   int other;
 # define IsSafeChar(X)  \
      (fossil_isalnum(X) || (X)=='.' || (X)=='$' \
-      || (X)=='~' || (X)=='-' || (X)=='_' || (X)==other)
+      || (X)=='~' || (X)=='-' || (X)=='_' \
+      || (!encodeSlash && ((X)=='/' || (X)==':')))
 
   if( zIn==0 ) return 0;
   if( n<0 ) n = strlen(zIn);
