@@ -174,7 +174,7 @@ static int re_digit_char(int c){
 
 /* Return true if c is a perl "space" character:  [ \t\r\n\v\f] */
 static int re_space_char(int c){
-  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f' ;
+  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f';
 }
 
 /* Run a compiled regular expression on the zero-terminated input
@@ -403,13 +403,13 @@ static unsigned re_esc_char(ReCompiled *p){
       return v;
     }
   }
-  if( c=='x' ){
+  if( c=='x' && p->sIn.i+2<p->sIn.mx ){
     const unsigned char *zIn = p->sIn.z + p->sIn.i;
-    if( p->sIn.i+2<p->sIn.mx ){
-      if( re_hex(zIn[1],&v) && re_hex(zIn[2],&v) ){
-        p->sIn.i += 3;
-        return v;
-      }
+    if( re_hex(zIn[1],&v)
+     && re_hex(zIn[2],&v)
+    ){
+      p->sIn.i += 3;
+      return v;
     }
   }
   for(i=0; zEsc[i] && zEsc[i]!=c; i++){}
