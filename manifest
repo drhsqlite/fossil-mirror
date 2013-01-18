@@ -1,5 +1,5 @@
-C Uniformity\sin\sthe\sdisplay\sof\sversion\snumbers\son\sthe\s/stat\spage.
-D 2013-01-18T02:19:29.173
+C Remove\san\sunused\svariable\sfrom\sthe\sURL\sencoder.
+D 2013-01-18T02:23:37.164
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -316,7 +316,7 @@ F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
 F src/diff.c 2ada0d35315b7ceb910b60ee426e7170025996fa
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 73c8be443597e6114798c60878ccd376e2d1c67b
-F src/encode.c 42bb27dd9ee4bb93753ad4790a121a9bf2c520bb
+F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c 085a62172af0f9fd703e2182f93dffc0cc418252
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P afec3f814d3dc5b2ad82e14485ae5c9b262d448e
-R 06cafc594e9cc655a4a58e8e4fd3d143
+P a89560616fca1a0d8346e750a216154c2de8f525
+R 06cdf0dd2f16067aede115eaeb9d7d50
 U drh
-Z 0ecb185ab9ee2022885c97c068f8cb64
+Z df5f17576638728ac330114fbd852ad6
