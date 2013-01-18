@@ -1,5 +1,5 @@
-C Avoid\sunnecessary\sescaping\sof\s:\scharacters\sin\sURLs\sin\sorder\sto\smake\sthe\nlinks\smore\sreadable.
-D 2013-01-18T02:11:05.197
+C Uniformity\sin\sthe\sdisplay\sof\sversion\snumbers\son\sthe\s/stat\spage.
+D 2013-01-18T02:19:29.173
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -382,7 +382,7 @@ F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c 8a415f3ee851bbb9086ae5cdbf7c7146c0a68281
 F src/sqlite3.h 4a30840575398a344786d8169a93ab137040b1f8
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
-F src/stat.c 72e33279008f9749475db5c6aec579f138b838a1
+F src/stat.c b65fa970251eb6ca5b82816927d64aa46b997bae
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6bb63a736493d0dbb718a33707cad210d052f53b
-R 067896a384fcc1cb79cc63d23365f0fb
+P afec3f814d3dc5b2ad82e14485ae5c9b262d448e
+R 06cafc594e9cc655a4a58e8e4fd3d143
 U drh
-Z b411ea7c0c304a4f0afd7d03720366f5
+Z 0ecb185ab9ee2022885c97c068f8cb64

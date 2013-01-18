@@ -121,8 +121,8 @@ void stat_page(void){
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
-  @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
-  @ (%h(COMPILER_NAME))
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
   @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
