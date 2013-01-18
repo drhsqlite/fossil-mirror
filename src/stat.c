@@ -68,7 +68,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
+    @ %d(n) (%d(n-m) fulltext and %d(m) deltas)
     @ </td></tr>
     if( n>0 ){
       int a, b;
