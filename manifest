@@ -1,5 +1,5 @@
-C Run\s"analyze"\safter\sa\srebuild.\sFor\ssmall\srepositories,\sthe\stime\sdoesn't\nmatter\sand\sfor\slarge\srepositories,\sthe\seffect\son\sthe\squery\splans\sare\shuge.\nPush/pull\sfor\sexample\swill\sotherwise\sdo\sa\ssequential\sscan\sof\sthe\sblob\stable\nand\sjoining\sthat\swith\sthe\sunclustered\stable\safterwards,\swhen\sthe\sother\sway\naround\sis\sseveral\sorder\sof\smagnitudes\smore\sefficient.
-D 2013-01-18T21:34:21.021
+C Fix\sthe\sSQL\sfor\sthe\scommand-line\stimeline\sso\sthat\sit\sworks\sfor\stimeline\sitems\nthat\sare\snot\sassociated\swith\sa\sparticular\sbranch.
+D 2013-01-20T10:57:52.667
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -392,7 +392,7 @@ F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c b81a5660b8afbcaf9a1a63a3272abfcc8a763650
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c 2560da3ea2ed20a85769cd44f1c83f672b2db2c0
+F src/timeline.c e84a78905007a947548cbfaa46f4edd95e89b784
 F src/tkt.c 7aa60d8cbdab168ff4c00eba24230596a2a6279a
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2f10a050c694431d0c87eca28b6b7a4751836cc6
-R 7f152fea34ed5adcda172508c5bea4bd
-U joerg
-Z 818d4bd288ad852583dc1383308d677c
+P 80bf94e0f7ea9eb64ad9c35ed61863d73160767e
+R 7affdf1e791991e1fce98bc203de1c09
+U drh
+Z 10ff3d4accdbedc6c95dab60e25e0888
