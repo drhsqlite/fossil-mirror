@@ -2093,7 +2093,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
-  { "unicode-glob",  0,               40, 1, ""                    },
+  { "encoding-glob", 0,               40, 1, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2280,10 +2280,11 @@ struct stControlSettings const ctrlSettings[] = {
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
 **
-**    unicode-glob     The VALUE is a comma or newline-separated list of GLOB
+**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
 **     (versionable)   patterns specifying files that the "commit" command will
 **                     ignore when issuing warnings about text files that may
-**                     contain Unicode. Set to "*" to disable Unicode checking.
+**                     use an encoding other than ASCII or UTF-8 . Set to "*"
+**                     to disable encoding checking.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

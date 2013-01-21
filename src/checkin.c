@@ -916,9 +916,11 @@ static int commit_warning(
     char cReply;
 
     if(eType==-4){
+      if (binOk) goto go_on;
       zWarning = "long lines";
       zConvert = "";
     }else{
+      if (unicodeOk) goto go_on;
       zWarning = "invalid UTF-8";
       zConvert = "c=convert/";
     }
@@ -945,6 +947,7 @@ static int commit_warning(
                    zWarning, blob_str(&fname));
     }
     blob_reset(&ans);
+  go_on:
     eType +=4 ;
   }
   if( eType==0 || eType==-1 || fUnicode ){
@@ -1354,7 +1357,7 @@ void commit_cmd(void){
     g.zLocalRoot,
     glob_expr("pathname", db_get("crnl-glob","")),
     glob_expr("pathname", db_get("binary-glob","")),
-    glob_expr("pathname", db_get("unicode-glob",""))
+    glob_expr("pathname", db_get("encoding-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
