@@ -519,7 +519,7 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
           return 0;
         }
         /* This is a 3-byte UTF-8 character */
-        unicode = ((c&0x0f)<<12) + ((c&0x3f)<<6) + (c&0x3f);
+        unicode = ((c&0x0f)<<12) + ((z[i+1]&0x3f)<<6) + (z[i+2]&0x3f);
         if( unicode <= 0x07ff ){
           /* overlong form */
           return 0;
@@ -539,13 +539,13 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
         }
       }
       do{
-        if( (z[1]&0xc0)!=0x80 ){
+        if( (z[i+1]&0xc0)!=0x80 ){
           /* Invalid continuation byte (multi-byte UTF-8) */
           return 0;
         }
         /* The hi-bits of c are used to keep track of the number of expected
          * continuation-bytes, so we don't need a separate counter. */
-        c<<=1; ++z;
+        c<<=1; ++i;
       }while( c>=0xc0 );
     }else if( c=='\\' ){
       return 0;
