@@ -441,7 +441,9 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] =
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@ This page was generated in about
+@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
@@ -588,8 +590,9 @@ const char zDefaultCSS[] =
 @
 @ /* verbatim blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @}
 @
 @ /* The label/value pairs on (for example) the ci page */
@@ -961,7 +964,7 @@ const struct strctCssDefaults {
   { "div.sbsdiff",
     "side-by-side diff display",
     @   font-family: monospace;
-    @   font-size: smaller;
+    @   font-size: xx-small;
     @   white-space: pre;
   },
   { "div.udiff",
@@ -993,6 +996,17 @@ const struct strctCssDefaults {
     "Moderation Pending message on timeline",
     @   color: #b03800;
     @   font-style: italic;
+  },
+  { "pre.th1result",
+    "format for th1 script results",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+  },
+  { "pre.th1error",
+    "format for th1 script errors",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+    @   color: red;
   },
   { 0,
     0,

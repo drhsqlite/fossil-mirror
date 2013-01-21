@@ -357,8 +357,9 @@ static const char zBuiltinSkin2[] =
 @
 @ /* <verbatim> blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @ }
 @
 @ /* The label/value pairs on (for example) the ci page */
@@ -597,8 +598,9 @@ static const char zBuiltinSkin3[] =
 @
 @ /* <verbatim> blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @ }
 @
 @ /* The label/value pairs on (for example) the ci page */
@@ -1085,9 +1087,10 @@ static const char zBuiltinSkin5[] =
 @
 @ /* verbatim blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
-@}
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
+@ }
 @
 @ /* The label/value pairs on (for example) the ci page */
 @ table.label-value th {
@@ -1228,6 +1231,8 @@ static const char zBuiltinSkin5[] =
 @   set tclVersion [getTclVersion]
 @   set fossilUrl http://www.fossil-scm.org
 @   </th1>
+@   This page was generated in about
+@   <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
 @   <a href="$fossilUrl/">Fossil</a>
 @   version $release_version $tclVersion
 @   <a href="$fossilUrl/index.html/info/$version">$manifest_version</a>

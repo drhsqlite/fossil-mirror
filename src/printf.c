@@ -873,6 +873,21 @@ void fossil_print(const char *zFormat, ...){
     fossil_puts(blob_str(&b), 0);
     blob_reset(&b);
   }
+  va_end(ap);
+}
+
+/*
+** Print a trace message on standard error.
+*/
+void fossil_trace(const char *zFormat, ...){
+  va_list ap;
+  Blob b;
+  va_start(ap, zFormat);
+  b = empty_blob;
+  vxprintf(&b, zFormat, ap);
+  fossil_puts(blob_str(&b), 1);
+  blob_reset(&b);
+  va_end(ap);
 }
 
 /*

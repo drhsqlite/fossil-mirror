@@ -24,7 +24,7 @@
 **
 **    (2)  The "repository" database
 **
-**    (3)  A local checkout database named "_FOSSIL_" or ".fos"
+**    (3)  A local checkout database named "_FOSSIL_" or ".fslckout"
 **         and located at the root of the local copy of the source tree.
 **
 */
@@ -91,7 +91,7 @@ static void db_err(const char *zFormat, ...){
   else if( g.cgiOutput ){
     g.cgiOutput = 0;
     cgi_printf("<h1>Database Error</h1>\n"
-               "<pre>%h</pre><p>%s</p>", z, zRebuildMsg);
+               "<pre>%h</pre>\n<p>%s</p>\n", z, zRebuildMsg);
     cgi_reply();
   }else{
     fprintf(stderr, "%s: %s\n\n%s", g.argv[0], z, zRebuildMsg);
@@ -486,16 +486,26 @@ int db_exec(Stmt *pStmt){
 */
 int db_multi_exec(const char *zSql, ...){
   Blob sql;
-  int rc;
+  int rc = SQLITE_OK;
   va_list ap;
-  char *zErr = 0;
+  const char *z, *zEnd;
+  sqlite3_stmt *pStmt;
   blob_init(&sql, 0, 0);
   va_start(ap, zSql);
   blob_vappendf(&sql, zSql, ap);
   va_end(ap);
-  rc = sqlite3_exec(g.db, blob_buffer(&sql), 0, 0, &zErr);
-  if( rc!=SQLITE_OK ){
-    db_err("%s\n%s", zErr, blob_buffer(&sql));
+  z = blob_str(&sql);
+  while( rc==SQLITE_OK && z[0] ){
+    pStmt = 0;
+    rc = sqlite3_prepare_v2(g.db, z, -1, &pStmt, &zEnd);
+    if( rc!=SQLITE_OK ) break;
+    if( pStmt ){
+      db.nPrepare++;
+      while( sqlite3_step(pStmt)==SQLITE_ROW ){}
+      rc = sqlite3_finalize(pStmt);
+      if( rc ) db_err("%s: {%.*s}", sqlite3_errmsg(g.db), (int)(zEnd-z), z);
+    }
+    z = zEnd;
   }
   blob_reset(&sql);
   return rc;
@@ -644,11 +654,7 @@ void db_init_database(
   const char *zSql;
   va_list ap;
 
-  rc = sqlite3_open(zFileName, &db);
-  if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
-  }
-  sqlite3_busy_timeout(db, 5000);
+  db = db_open(zFileName);
   sqlite3_exec(db, "BEGIN EXCLUSIVE", 0, 0, 0);
   rc = sqlite3_exec(db, zSchema, 0, 0, 0);
   if( rc!=SQLITE_OK ){
@@ -699,11 +705,12 @@ void db_checkin_mtime_function(
 ** Open a database file.  Return a pointer to the new database
 ** connection.  An error results in process abort.
 */
-static sqlite3 *openDatabase(const char *zDbName){
+LOCAL sqlite3 *db_open(const char *zDbName){
   int rc;
   const char *zVfs;
   sqlite3 *db;
 
+  if( g.fSqlTrace ) fossil_trace("-- sqlite3_open: [%s]\n", zDbName);
   zVfs = fossil_getenv("FOSSIL_VFS");
   rc = sqlite3_open_v2(
        zDbName, &db,
@@ -711,13 +718,26 @@ static sqlite3 *openDatabase(const char *zDbName){
        zVfs
   );
   if( rc!=SQLITE_OK ){
-    db_err(sqlite3_errmsg(db));
+    db_err("[%s]: %s", zDbName, sqlite3_errmsg(db));
   }
   sqlite3_busy_timeout(db, 5000);
   sqlite3_wal_autocheckpoint(db, 1);  /* Set to checkpoint frequently */
   sqlite3_create_function(db, "now", 0, SQLITE_ANY, 0, db_now_function, 0, 0);
   sqlite3_create_function(db, "checkin_mtime", 2, SQLITE_ANY, 0,
                           db_checkin_mtime_function, 0, 0);
+  sqlite3_create_function(db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
+  sqlite3_create_function(db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
+  sqlite3_create_function(db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
+  sqlite3_create_function(
+    db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  sqlite3_create_function(
+    db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
+  );
+  if( g.fSqlTrace ) sqlite3_trace(db, db_sql_trace, 0);
+  re_add_sql_func(db);
+  sqlite3_exec(db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
   return db;
 }
 
@@ -749,9 +769,8 @@ void db_open_or_attach(
 ){
   if( !g.db ){
     assert( g.zMainDbType==0 );
-    g.db = openDatabase(zDbName);
+    g.db = db_open(zDbName);
     g.zMainDbType = zLabel;
-    db_connection_init();
     if ( pWasAttached ) *pWasAttached = 0;
   }else{
     assert( g.zMainDbType!=0 );
@@ -822,7 +841,7 @@ void db_open_config(int useAttach){
     g.zConfigDbType = 0;
   }else{
     g.useAttach = 0;
-    g.dbConfig = openDatabase(zDbName);
+    g.dbConfig = db_open(zDbName);
     g.zConfigDbType = "configdb";
   }
   g.configOpen = 1;
@@ -1224,6 +1243,9 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
     zUser = db_get("default-user", 0);
   }
   if( zUser==0 ){
+    zUser = fossil_getenv("FOSSIL_USER");
+  }
+  if( zUser==0 ){
 #if defined(_WIN32)
     zUser = fossil_getenv("USERNAME");
 #else
@@ -1443,7 +1465,7 @@ void create_repository_cmd(void){
 ** The print() function writes its arguments on stdout, but only
 ** if the -sqlprint command-line option is turned on.
 */
-static void db_sql_print(
+LOCAL void db_sql_print(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -1456,18 +1478,16 @@ static void db_sql_print(
     }
   }
 }
-static void db_sql_trace(void *notUsed, const char *zSql){
+LOCAL void db_sql_trace(void *notUsed, const char *zSql){
   int n = strlen(zSql);
-  char *zMsg = mprintf("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
-  fossil_puts(zMsg, 1);
-  fossil_free(zMsg);
+  fossil_trace("%s%s\n", zSql, (n>0 && zSql[n-1]==';') ? "" : ";");
 }
 
 /*
 ** Implement the user() SQL function.  user() takes no arguments and
 ** returns the user ID of the current user.
 */
-static void db_sql_user(
+LOCAL void db_sql_user(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -1483,7 +1503,7 @@ static void db_sql_user(
 ** if available. Optional second argument will be returned if the first
 ** doesn't exist as a CGI parameter.
 */
-static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
+LOCAL void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv){
   const char* zP;
   if( argc!=1 && argc!=2 ) return;
   zP = P((const char*)sqlite3_value_text(argv[0]));
@@ -1514,7 +1534,7 @@ static void db_sql_cgi(sqlite3_context *context, int argc, sqlite3_value **argv)
 ** In the second form (3 arguments) return argument X if true and Y
 ** if false.  Except if Y is NULL then always return X.
 */
-static void file_is_selected(
+LOCAL void file_is_selected(
   sqlite3_context *context,
   int argc,
   sqlite3_value **argv
@@ -1600,27 +1620,6 @@ char *db_reveal(const char *zKey){
     zOut = mprintf("%s", zKey);
   }
   return zOut;
-}
-
-/*
-** This function registers auxiliary functions when the SQLite
-** database connection is first established.
-*/
-LOCAL void db_connection_init(void){
-  sqlite3_exec(g.db, "PRAGMA foreign_keys=OFF;", 0, 0, 0);
-  sqlite3_create_function(g.db, "user", 0, SQLITE_ANY, 0, db_sql_user, 0, 0);
-  sqlite3_create_function(g.db, "cgi", 1, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(g.db, "cgi", 2, SQLITE_ANY, 0, db_sql_cgi, 0, 0);
-  sqlite3_create_function(g.db, "print", -1, SQLITE_UTF8, 0,db_sql_print,0,0);
-  sqlite3_create_function(
-    g.db, "is_selected", 1, SQLITE_UTF8, 0, file_is_selected,0,0
-  );
-  sqlite3_create_function(
-    g.db, "if_selected", 3, SQLITE_UTF8, 0, file_is_selected,0,0
-  );
-  if( g.fSqlTrace ){
-    sqlite3_trace(g.db, db_sql_trace, 0);
-  }
 }
 
 /*
@@ -2117,6 +2116,9 @@ struct stControlSettings const ctrlSettings[] = {
 **
 ** The "unset" command clears a property setting.
 **
+**
+**    access-log       If enabled, record successful and failed login attempts
+**                     in the "accesslog" table.  Default: off
 **
 **    allow-symlinks   If enabled, don't follow symlinks, and instead treat
 **     (versionable)   them as symlinks on Unix. Has no effect on Windows

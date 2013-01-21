@@ -109,6 +109,7 @@ SRC   = add_.c \
         pqueue_.c \
         printf_.c \
         rebuild_.c \
+        regexp_.c \
         report_.c \
         rss_.c \
         schema_.c \
@@ -129,6 +130,7 @@ SRC   = add_.c \
         tkt_.c \
         tktsetup_.c \
         undo_.c \
+        unicode_.c \
         update_.c \
         url_.c \
         user_.c \
@@ -212,6 +214,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\pqueue$O \
         $(OX)\printf$O \
         $(OX)\rebuild$O \
+        $(OX)\regexp$O \
         $(OX)\report$O \
         $(OX)\rss$O \
         $(OX)\schema$O \
@@ -232,6 +235,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\tkt$O \
         $(OX)\tktsetup$O \
         $(OX)\undo$O \
+        $(OX)\unicode$O \
         $(OX)\update$O \
         $(OX)\url$O \
         $(OX)\user$O \
@@ -332,6 +336,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
+	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
@@ -356,6 +361,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\tkt.obj >> $@
 	echo $(OX)\tktsetup.obj >> $@
 	echo $(OX)\undo.obj >> $@
+	echo $(OX)\unicode.obj >> $@
 	echo $(OX)\update.obj >> $@
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
@@ -856,6 +862,12 @@ $(OX)\rebuild$O : rebuild_.c rebuild.h
 rebuild_.c : $(SRCDIR)\rebuild.c
 	translate$E $** > $@
 
+$(OX)\regexp$O : regexp_.c regexp.h
+	$(TCC) /Fo$@ -c regexp_.c
+
+regexp_.c : $(SRCDIR)\regexp.c
+	translate$E $** > $@
+
 $(OX)\report$O : report_.c report.h
 	$(TCC) /Fo$@ -c report_.c
 
@@ -974,6 +986,12 @@ $(OX)\undo$O : undo_.c undo.h
 	$(TCC) /Fo$@ -c undo_.c
 
 undo_.c : $(SRCDIR)\undo.c
+	translate$E $** > $@
+
+$(OX)\unicode$O : unicode_.c unicode.h
+	$(TCC) /Fo$@ -c unicode_.c
+
+unicode_.c : $(SRCDIR)\unicode.c
 	translate$E $** > $@
 
 $(OX)\update$O : update_.c update.h
@@ -1124,6 +1142,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			pqueue_.c:pqueue.h \
 			printf_.c:printf.h \
 			rebuild_.c:rebuild.h \
+			regexp_.c:regexp.h \
 			report_.c:report.h \
 			rss_.c:rss.h \
 			schema_.c:schema.h \
@@ -1144,6 +1163,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			tkt_.c:tkt.h \
 			tktsetup_.c:tktsetup.h \
 			undo_.c:undo.h \
+			unicode_.c:unicode.h \
 			update_.c:update.h \
 			url_.c:url.h \
 			user_.c:user.h \

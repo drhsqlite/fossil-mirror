@@ -107,9 +107,9 @@ extern "C" {
 ** [sqlite3_libversion_number()], [sqlite3_sourceid()],
 ** [sqlite_version()] and [sqlite_source_id()].
 */
-#define SQLITE_VERSION        "3.7.15"
-#define SQLITE_VERSION_NUMBER 3007015
-#define SQLITE_SOURCE_ID      "2012-12-10 22:19:14 bd7aeeb691fee69dd6a562138a7aba8e8e192272"
+#define SQLITE_VERSION        "3.7.16"
+#define SQLITE_VERSION_NUMBER 3007016
+#define SQLITE_SOURCE_ID      "2013-01-17 17:20:49 38852f158ab20bb4d7b264af987ec1538052bec3"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -1592,7 +1592,7 @@ struct sqlite3_mem_methods {
 ** [SQLITE_USE_URI] symbol defined.
 **
 ** [[SQLITE_CONFIG_COVERING_INDEX_SCAN]] <dt>SQLITE_CONFIG_COVERING_INDEX_SCAN
-** <dd> This option taks a single integer argument which is interpreted as
+** <dd> This option takes a single integer argument which is interpreted as
 ** a boolean in order to enable or disable the use of covering indices for
 ** full table scans in the query optimizer.  The default setting is determined
 ** by the [SQLITE_ALLOW_COVERING_INDEX_SCAN] compile-time option, or is "on"

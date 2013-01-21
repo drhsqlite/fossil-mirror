@@ -616,6 +616,9 @@ void rebuild_database(void){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
   }
+  fossil_print("Analyzing the database... "); fflush(stdout);
+  db_multi_exec("analyze");
+  fossil_print("done\n");
   if( showStats ){
     static struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },
