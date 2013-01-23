@@ -526,6 +526,7 @@ static void reconstruct_private_table(void){
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
 **   --deanalyze   Remove ANALYZE tables from the database
+**   --analyze     Run ANALYZE on the database after rebuilding
 **   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
 **
@@ -542,6 +543,7 @@ void rebuild_database(void){
   int activateWal;
   int runVacuum;
   int runDeanalyze;
+  int runAnalyze;
   int runCompress;
   int showStats;
 
@@ -551,6 +553,7 @@ void rebuild_database(void){
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
   runDeanalyze = find_option("deanalyze",0,0)!=0;
+  runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
@@ -607,6 +610,11 @@ void rebuild_database(void){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
                     "DROP TABLE IF EXISTS sqlite_stat3;");
     }
+    if( runAnalyze ){
+      fossil_print("Analyzing the database... "); fflush(stdout);
+      db_multi_exec("ANALYZE;");
+      fossil_print("done\n");
+    }
     if( runVacuum ){
       fossil_print("Vacuuming the database... "); fflush(stdout);
       db_multi_exec("VACUUM");
@@ -616,9 +624,6 @@ void rebuild_database(void){
       db_multi_exec("PRAGMA journal_mode=WAL;");
     }
   }
-  fossil_print("Analyzing the database... "); fflush(stdout);
-  db_multi_exec("analyze");
-  fossil_print("done\n");
   if( showStats ){
     static struct { int idx; const char *zLabel; } aStat[] = {
        { CFTYPE_ANY,       "Artifacts:" },

@@ -1,5 +1,5 @@
-C put\ssettings\sin\sright\salphabetical\sorder
-D 2013-01-23T10:38:30.227
+C Only\srun\sANALYZE\sif\sthe\s--analyze\sflag\sis\sprovided\sto\s"fossil\srebuild"\sor\n"fossil\sall\srebuild".
+D 2013-01-23T13:09:30.103
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,7 +290,7 @@ F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
 F src/add.c 5a42fac84a26a52b07ecaaff25c96d3209a46f20
-F src/allrepo.c 9a4f7592a877bab3c4cf834c08ff06afd0e8a039
+F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
@@ -367,7 +367,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c fea8142f6396aa9448db55bdbd94904673e7639f
-F src/rebuild.c 264f4ec871962c399991ab26c1c720c391b757c7
+F src/rebuild.c a652f086376487c2d8496182a6c3c30aec1097cc
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c ffc3940c51e757db6597f43d51eb899e654333c5
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1d462a683f082c66daffbe11885267e206ce8f2e
-R 8ccf20c167a56712a30f692cdfcb91d8
-U jan.nijtmans
-Z 03e9f44a4289dc863d5dc0d76ba2c60c
+P 4ddd099b573e4010da6f064ea29036e69c6a28ca
+R 715b3f7b56c297ab290d0386d8c42688
+U drh
+Z 2c8d72db9594b479197f76571e8d52dd
