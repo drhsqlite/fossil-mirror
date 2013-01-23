@@ -2175,12 +2175,12 @@ struct stControlSettings const ctrlSettings[] = {
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
 **
+**    editor           Text editor command used for check-in comments.
+**
 **    empty-dirs       A comma or newline-separated list of pathnames. On
 **     (versionable)   update and checkout commands, if no file or directory
 **                     exists with that name, an empty directory will be
 **                     created.
-**
-**    editor           Text editor command used for check-in comments.
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
@@ -2244,6 +2244,9 @@ struct stControlSettings const ctrlSettings[] = {
 **                     "Anonymous" in e.g. ticketing system. On the other hand
 **                     users can not be deleted. Default: off.
 **
+**    ssh-command      Command used to talk to a remote machine with
+**                     the "ssh://" protocol.
+**
 **    ssl-ca-location  The full pathname to a file containing PEM encoded
 **                     CA root certificates, or a directory of certificates
 **                     with filenames formed from the certificate hashes as
@@ -2261,9 +2264,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     This identity will be presented to SSL servers to
 **                     authenticate this client, in addition to the normal
 **                     password authentication.
-**
-**    ssh-command      Command used to talk to a remote machine with
-**                     the "ssh://" protocol.
 **
 **    tcl              If enabled (and Fossil was compiled with Tcl support),
 **                     Tcl integration commands will be added to the TH1
