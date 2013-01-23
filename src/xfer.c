@@ -398,7 +398,8 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     blob_reset(&uuid);
     return;
   }
-  if( time(NULL) >= pXfer->maxTime || pXfer->mxSend<=blob_size(pXfer->pOut) ){
+  if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) || 
+       pXfer->mxSend<=blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
     blob_appendf(pXfer->pOut, zFormat, pUuid);
     pXfer->nIGotSent++;
