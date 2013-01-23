@@ -492,40 +492,64 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 ** Invalid UTF8 characters result in a false return if bStrictUtf8 is
 ** true.  If bStrictUtf8 is false, invalid UTF8 characters are silently
-** ignored.
+** ignored. See http://en.wikipedia.org/wiki/UTF-8#Invalid_byte_sequences
+** and http://en.wikipedia.org/wiki/Unicode (for the noncharacters)
+**
+** The bStrictUtf8 flag is true for new inputs, but is false when parsing
+** legacy manifests, for backwards compatibility.
 */
 int file_is_simple_pathname(const char *z, int bStrictUtf8){
   int i;
-  char c = z[0];
+  unsigned char c = (unsigned char) z[0];
   char maskNonAscii = bStrictUtf8 ? 0x80 : 0x00;
   if( c=='/' || c==0 ) return 0;
   if( c=='.' ){
     if( z[1]=='/' || z[1]==0 ) return 0;
     if( z[1]=='.' && (z[2]=='/' || z[2]==0) ) return 0;
   }
-  for(i=0; (c=z[i])!=0; i++){
+  for(i=0; (c=(unsigned char)z[i])!=0; i++){
     if( c & maskNonAscii ){
-      if( (c & 0xf0) == 0xf0 ) {
-        /* Unicode characters > U+FFFF are not supported.
-         * Windows XP and earlier cannot handle them.
-         */
+      if( c<0xc2 ){
+        /* Invalid 1-byte UTF-8 sequence, or 2-byte overlong form. */
         return 0;
-      }
-      if( (c & 0xf0) == 0xe0 ) {
+      }else if( (c&0xe0)==0xe0 ){
+        /* 3-byte or more */
+        int unicode;
+        if( c&0x10 ){
+          /* Unicode characters > U+FFFF are not supported.
+           * Windows XP and earlier cannot handle them.
+           */
+          return 0;
+        }
         /* This is a 3-byte UTF-8 character */
-        if ( (c & 0xfe) == 0xee ){
-          /* Range U+E000 - U+FFFF (Starting with 0xee or 0xef in UTF-8 ) */
-          if ( !(c & 1) || ((z[i+1] & 0xff) < 0xa4) ){
-            /* Unicode character in the range U+E000 - U+F8FF are for
-             * private use, they shouldn't occur in filenames.  */
+        unicode = ((c&0x0f)<<12) + ((z[i+1]&0x3f)<<6) + (z[i+2]&0x3f);
+        if( unicode <= 0x07ff ){
+          /* overlong form */
+          return 0;
+        }else if( unicode>=0xe000 ){
+          /* U+E000..U+FFFF */
+          if( (unicode<=0xf8ff) || (unicode>=0xfffe) ){
+            /* U+E000..U+F8FF are for private use.
+             * U+FFFE..U+FFFF are noncharacters. */
+            return 0;
+          } else if( (unicode>=0xfdd0) && (unicode<=0xfdef) ){
+            /* U+FDD0..U+FDEF are noncharacters. */
             return 0;
           }
-        }else if( ((c & 0xff) == 0xed) && ((z[i+1] & 0xe0) == 0xa0) ){
-          /* Unicode character in the range U+D800 - U+DFFF are for
-           * surrogate pairs, they shouldn't occur in filenames. */
+        }else if( (unicode>=0xD800) && (unicode<=0xDFFF) ){
+          /* U+D800..U+DFFF are for surrogate pairs. */
           return 0;
         }
       }
+      do{
+        if( (z[i+1]&0xc0)!=0x80 ){
+          /* Invalid continuation byte (multi-byte UTF-8) */
+          return 0;
+        }
+        /* The hi-bits of c are used to keep track of the number of expected
+         * continuation-bytes, so we don't need a separate counter. */
+        c<<=1; ++i;
+      }while( c>=0xc0 );
     }else if( c=='\\' ){
       return 0;
     }
@@ -580,7 +604,7 @@ int file_simplify_name(char *z, int n, int slash){
 #endif
 
   /* Removing trailing "/" characters */
-  if ( !slash ){
+  if( !slash ){
     while( n>1 && z[n-1]=='/' ){ n--; }
   }
 
@@ -837,7 +861,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
       }else{
         blob_append(pOut, "..", 2);
         for(j=i+1; zPwd[j]; j++){
-          if( zPwd[j]=='/' ) {
+          if( zPwd[j]=='/' ){
             blob_append(pOut, "/..", 3);
           }
         }
@@ -854,7 +878,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     while( zPath[i-1]!='/' ){ i--; }
     blob_set(&tmp, "../");
     for(j=i; zPwd[j]; j++){
-      if( zPwd[j]=='/' ) {
+      if( zPwd[j]=='/' ){
         blob_append(&tmp, "../", 3);
       }
     }
