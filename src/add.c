@@ -142,7 +142,7 @@ static int add_one_file(
   int caseSensitive    /* True if filenames are case sensitive */
 ){
   const char *zCollate = caseSensitive ? "binary" : "nocase";
-  if( !file_is_simple_pathname(zPath) ){
+  if( !file_is_simple_pathname(zPath, 1) ){
     fossil_warning("filename contains illegal characters: %s", zPath);
     return 0;
   }

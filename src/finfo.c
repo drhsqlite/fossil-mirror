@@ -444,8 +444,9 @@ void finfo_page(void){
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @     </td><td></td></tr>
     }
   }

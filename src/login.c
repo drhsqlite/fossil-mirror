@@ -399,7 +399,7 @@ static int isHuman(const char *zAgent){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
-    if( strglob("*(compatible;?MSIE?[1-9]*", zAgent) ) return 1;
+    if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }
@@ -627,7 +627,7 @@ void login_page(void){
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
     char const *zDecoded = captcha_decode(uSeed);
-    int bAutoCaptcha = db_get_boolean("auto-captcha", 1);
+    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
     char *zCaptcha = captcha_render(zDecoded);
 
     @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
@@ -1294,7 +1294,7 @@ void register_page(void){
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
   @ %h(zCaptcha)
-  @ </pre></td></tr></table>
+  @ </pre></td></tr></table></div>
   @ </form>
   style_footer();
 

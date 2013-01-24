@@ -103,7 +103,7 @@ void fossil_unicode_free(void *pOld){
 #endif
 }
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(WITHOUT_ICONV)
 # include <iconv.h>
 #endif
 
@@ -135,7 +135,7 @@ char *fossil_filename_to_utf8(void *zFilename){
   }
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
   return zUtf;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   char *zIn = (char*)zFilename;
   char *zOut;
   iconv_t cd;
@@ -212,7 +212,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 void fossil_filename_free(void *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   fossil_free(pOld);
 #else
   /* No-op on all other unix */

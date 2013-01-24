@@ -306,7 +306,7 @@ static int isNumber(const char *z, int *realnum){
 /*
 ** A global char* and an SQL function to access its current value 
 ** from within an SQL statement. This program used to use the 
-** sqlite_exec_printf() API to substitute a string into an SQL statement.
+** sqlite_exec_printf() API to substitue a string into an SQL statement.
 ** The correct way to do this with sqlite3 is to use the bind API, but
 ** since the shell is built around the callback paradigm it would be a lot
 ** of work. Instead just use this hack, which is quite harmless.
@@ -541,6 +541,9 @@ static void output_c_string(FILE *out, const char *z){
     if( c=='\\' ){
       fputc(c, out);
       fputc(c, out);
+    }else if( c=='"' ){
+      fputc('\\', out);
+      fputc('"', out);
     }else if( c=='\t' ){
       fputc('\\', out);
       fputc('t', out);
@@ -796,14 +799,14 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
       if( p->cnt++==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
           output_c_string(p->out,azCol[i] ? azCol[i] : "");
-          fprintf(p->out, "%s", p->separator);
+          if(i<nArg-1) fprintf(p->out, "%s", p->separator);
         }
         fprintf(p->out,"\n");
       }
       if( azArg==0 ) break;
       for(i=0; i<nArg; i++){
         output_c_string(p->out, azArg[i] ? azArg[i] : p->nullvalue);
-        fprintf(p->out, "%s", p->separator);
+        if(i<nArg-1) fprintf(p->out, "%s", p->separator);
       }
       fprintf(p->out,"\n");
       break;
@@ -1150,7 +1153,7 @@ static int shell_exec(
         continue;
       }
 
-      /* save off the prepared statement handle and reset row count */
+      /* save off the prepared statment handle and reset row count */
       if( pArg ){
         pArg->pStmt = pStmt;
         pArg->cnt = 0;
@@ -1476,6 +1479,12 @@ static void open_db(struct callback_data *p){
     }
 #ifndef SQLITE_OMIT_LOAD_EXTENSION
     sqlite3_enable_load_extension(p->db, 1);
+#endif
+#ifdef SQLITE_ENABLE_REGEXP
+    {
+      extern int sqlite3_add_regexp_func(sqlite3*);
+      sqlite3_add_regexp_func(db);
+    }
 #endif
   }
 }
@@ -2018,6 +2027,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       p->mode = MODE_Html;
     }else if( n2==3 && strncmp(azArg[1],"tcl",n2)==0 ){
       p->mode = MODE_Tcl;
+      sqlite3_snprintf(sizeof(p->separator), p->separator, " ");
     }else if( n2==3 && strncmp(azArg[1],"csv",n2)==0 ){
       p->mode = MODE_Csv;
       sqlite3_snprintf(sizeof(p->separator), p->separator, ",");
@@ -2711,7 +2721,7 @@ static int process_input(struct callback_data *p, FILE *in){
     free(zSql);
   }
   free(zLine);
-  return errCnt;
+  return errCnt>0;
 }
 
 /*

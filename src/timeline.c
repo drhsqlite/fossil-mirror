@@ -213,7 +213,7 @@ void www_print_timeline(
     /* style is not moved to css, because this is
     ** a technical div for the timeline graph
     */
-    @ <div id="canvas" style="position:relative;width:1px;height:1px;"
+    @ <div id="canvas" style="position:relative;height:0px;width:0px;"
     @  onclick="clickOnGraph(event)"></div>
   }
   db_static_prepare(&qbranch,
@@ -221,7 +221,8 @@ void www_print_timeline(
     TAG_BRANCH
   );
 
-  @ <table id="timelineTable" class="timelineTable">
+  @ <table id="timelineTable" class="timelineTable"
+  @  onclick="clickOnGraph(event)">
   blob_zero(&comment);
   while( db_step(pQuery)==SQLITE_ROW ){
     int rid = db_column_int(pQuery, 0);
@@ -428,6 +429,8 @@ void www_print_timeline(
           "       (SELECT name FROM filename WHERE fnid=mlink.pfnid) AS oldnm"
           "  FROM mlink"
           " WHERE mid=:mid AND (pid!=fid OR pfnid>0)"
+          "   AND (fid>0 OR"
+               "   fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=:mid))"
           " ORDER BY 3 /*sort*/"
         );
         fchngQueryInit = 1;
@@ -485,11 +488,13 @@ void www_print_timeline(
       graph_free(pGraph);
       pGraph = 0;
     }else{
+      int w;
       /* style is not moved to css, because this is
       ** a technical div for the timeline graph
       */
+      w = (pGraph->mxRail+1)*pGraph->iRailPitch + 10;
       @ <tr><td></td><td>
-      @ <div id="grbtm" style="width:%d(pGraph->mxRail*20+30)px;"></div>
+      @ <div id="grbtm" style="width:%d(w)px;"></div>
       @ </td><td></td></tr>
     }
   }
@@ -513,6 +518,7 @@ void timeline_output_graph_javascript(
     char cSep;
     @ <script  type="text/JavaScript">
     @ /* <![CDATA[ */
+    @ var railPitch=%d(pGraph->iRailPitch);
 
     /* the rowinfo[] array contains all the information needed to generate
     ** the graph.  Each entry contains information for a single row:
@@ -551,7 +557,7 @@ void timeline_output_graph_javascript(
       if( mo<0 ){
         mo = 0;
       }else{
-        mo = (mo/4)*20 - 3 + 4*(mo&3);
+        mo = (mo/4)*pGraph->iRailPitch - 3 + 4*(mo&3);
       }
       cgi_printf("{id:%d,bg:\"%s\",r:%d,d:%d,mo:%d,mu:%d,u:%d,f:%d,au:",
         pRow->idx,                      /* id */
@@ -578,7 +584,7 @@ void timeline_output_graph_javascript(
       cSep = '[';
       for(i=0; i<GR_MAX_RAIL; i++){
         if( pRow->mergeIn[i] ){
-          int mi = i*20 - 8 + 4*pRow->mergeIn[i];
+          int mi = i*pGraph->iRailPitch - 8 + 4*pRow->mergeIn[i];
           if( pRow->mergeDown & (1<<i) ) mi = -mi;
           cgi_printf("%c%d", cSep, mi);
           cSep = ',';
@@ -679,7 +685,7 @@ void timeline_output_graph_javascript(
     @   }
     @   var n = p.au.length;
     @   for(var i=0; i<n; i+=2){
-    @     var x1 = p.au[i]*20 + left;
+    @     var x1 = p.au[i]*railPitch + left;
     @     var x0 = x1>p.x ? p.x+7 : p.x-6;
     @     var u = rowinfo[p.au[i+1]-1];
     @     if(u.id<p.id){
@@ -718,47 +724,37 @@ void timeline_output_graph_javascript(
     @   }
     @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   var width = nrail*20;
+    @   var width = nrail*railPitch;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
-    @     rowinfo[i].x = left + rowinfo[i].r*20;
+    @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
     @   }
     @   var btm = absoluteY("grbtm") + 10 - canvasY;
-#if 0
-    @   if( btm<32768 ){
-    @     canvasDiv.innerHTML = '<canvas id="timeline-canvas" '+
-    @        'style="position:absolute;left:'+(left-5)+'px;"' +
-    @        ' width="'+width+'" height="'+btm+'"><'+'/canvas>';
-    @     realCanvas = gebi('timeline-canvas');
-    @   }else{
-    @     realCanvas = 0;
-    @   }
-    @   var context;
-    @   if( realCanvas && realCanvas.getContext
-    @        && (context = realCanvas.getContext('2d'))) {
-    @     drawBox = function(color,x0,y0,x1,y1) {
-    @       if( y0>32767 || y1>32767 ) return;
-    @       if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
-    @       if( y0>y1 ){ var t=y0; y0=y1; y1=t; }
-    @       if(isNaN(x0) || isNaN(y0) || isNaN(x1) || isNaN(y1)) return;
-    @       context.fillStyle = color;
-    @       context.fillRect(x0-left+5,y0,x1-x0+1,y1-y0+1);
-    @     };
-    @   }
-#endif
     @   for(var i in rowinfo){
     @     drawNode(rowinfo[i], left, btm);
     @   }
     @   if( selRow!=null ) clickOnRow(selRow);
     @ }
     @ function clickOnGraph(event){
-    @   var x=event.clientX-absoluteX("canvas")+window.pageXOffset;
-    @   var y=event.clientY-absoluteY("canvas")+window.pageYOffset;
+    @   var x=event.clientX-absoluteX("canvas");
+    @   var y=event.clientY-absoluteY("canvas");
+    @   if(window.pageXOffset!=null){
+    @     x += window.pageXOffset;
+    @     y += window.pageYOffset;
+    @   }else{
+    @     var d = window.document.documentElement;
+    @     if(document.compatMode!="CSS1Compat") d = d.body;
+    @     x += d.scrollLeft;
+    @     y += d.scrollTop;
+    @   }
+    if( P("clicktest")!=0 ){
+      @ alert("click at "+x+","+y)
+    }
     @   for(var i in rowinfo){
     @     p = rowinfo[i];
-    @     if( p.y<y-10 ) continue;
-    @     if( p.y>y+10 ) break;
-    @     if( p.x>x-10 && p.x<x+10 ){
+    @     if( p.y<y-11 ) continue;
+    @     if( p.y>y+9 ) break;
+    @     if( p.x>x-11 && p.x<x+9 ){
     @       clickOnRow(p);
     @       break;
     @     }
@@ -1398,6 +1394,8 @@ void page_timeline(void){
 **    3.  Comment string and user
 **    4.  Number of non-merge children
 **    5.  Number of parents
+**    6.  mtime
+**    7.  branch
 */
 void print_timeline(Stmt *q, int mxLine, int showfiles){
   int nLine = 0;
@@ -1506,11 +1504,17 @@ const char *timeline_query_for_tty(void){
     @                  WHERE tagname GLOB 'sym-*' AND tag.tagid=tagxref.tagid
     @                    AND tagxref.rid=blob.rid AND tagxref.tagtype>0))
     @     || ')' as comment,
-    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim) AS primPlinkCount,
+    @   (SELECT count(*) FROM plink WHERE pid=blob.rid AND isprim)
+    @        AS primPlinkCount,
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
-    @   event.mtime AS mtime
-    @ FROM event, blob
+    @   event.mtime AS mtime,
+    @   tagxref.value AS branch
+    @ FROM tag CROSS JOIN event CROSS JOIN blob
+    @ LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
+    @   AND tagxref.tagtype>0
+    @   AND tagxref.rid=blob.rid 
     @ WHERE blob.rid=event.objid
+    @   AND tag.tagname='branch'
   ;
   return zBaseSql;
 }

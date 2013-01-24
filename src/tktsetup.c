@@ -69,6 +69,7 @@ static const char zDefaultTicketTable[] =
 @   tkt_id INTEGER PRIMARY KEY,
 @   tkt_uuid TEXT UNIQUE,
 @   tkt_mtime DATE,
+@   tkt_ctime DATE,
 @   -- Add as many fields as required below this line
 @   type TEXT,
 @   status TEXT,
@@ -84,6 +85,7 @@ static const char zDefaultTicketTable[] =
 @ CREATE TABLE ticketchng(
 @   -- Do not change any column that begins with tkt_
 @   tkt_id INTEGER REFERENCES ticket,
+@   tkt_rid INTEGER REFERENCES blob,
 @   tkt_mtime DATE,
 @   -- Add as many fields as required below this line
 @   login TEXT,
@@ -303,6 +305,7 @@ static const char zDefaultNew[] =
 @        set mimetype "text/plain"
 @      }
 @      submit_ticket
+@      set preview 1
 @   }
 @ </th1>
 @ <h1 style="text-align: center;">Enter A New Ticket</h1>
@@ -496,7 +499,7 @@ static const char zDefaultView[] =
 @               mimetype as xmimetype, icomment AS xcomment,
 @               username AS xusername
 @          FROM ticketchng
-@         WHERE tkt_id=$tkt_id} {
+@         WHERE tkt_id=$tkt_id AND length(icomment)>0} {
 @   if {$seenRow} {
 @     html "<hr>\n"
 @   } else {
@@ -569,6 +572,7 @@ static const char zDefaultEdit[] =
 @       set mimetype text/plain
 @     }
 @     submit_ticket
+@     set preview 1
 @   }
 @ </th1>
 @ <table cellpadding="5">

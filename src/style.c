@@ -71,7 +71,13 @@ int nFormAction = 0;
 ** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate.
+** activate. 
+**
+** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
+** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
+** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
+** to 0 and only changes to one if the user lacks the Hyperlink (h) property
+** and the "auto-hyperlink" setting is enabled.
 **
 ** Filling in the href="URL" using javascript is a defense against bots.
 **
@@ -86,6 +92,11 @@ int nFormAction = 0;
 **
 ** There are two versions of this routine: href() does a plain hyperlink
 ** and xhref() adds extra attribute text.
+**
+** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
+** Most logged in users should have this property, since we can assume
+** that a logged in user is not a bot.  Only "nobody" lacks g.perm.Hyperlink,
+** typically.
 */
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
@@ -103,7 +114,7 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id=%d>", zExtra, nHref);
+  return mprintf("<a %s id='a%d'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -121,7 +132,7 @@ char *href(const char *zFormat, ...){
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id=%d>", nHref);
+  return mprintf("<a id='a%d'>", nHref);
 }
 
 /*
@@ -151,13 +162,14 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink ) return;
+  if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
-  @ function u(i,h){gebi(i).href=h;}
-  for(i=0; i<nHref; i++){
-    @ u(%d(i+1),"%s(aHref[i])");
+  if( g.javascriptHyperlink ){
+    for(i=0; i<nHref; i++){
+      @ gebi("a%d(i+1)").href="%s(aHref[i])";
+    }
   }
   for(i=0; i<nFormAction; i++){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
@@ -429,7 +441,9 @@ const char zDefaultHeader[] =
 */
 const char zDefaultFooter[] =
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@ This page was generated in about
+@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
@@ -576,8 +590,9 @@ const char zDefaultCSS[] =
 @
 @ /* verbatim blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @}
 @
 @ /* The label/value pairs on (for example) the ci page */
@@ -869,6 +884,13 @@ const struct strctCssDefaults {
     @   border-collapse: collapse;
     @   border-spacing: 0;
   },
+  { "table.report",
+    "Ticket report table formatting",
+    @   border-collapse:collapse;
+    @   border: 1px solid #999;
+    @   margin: 1em 0 1em 0;
+    @   cursor: pointer;
+  },
   { "td.rpteditex",
     "format for example table cells on the report edit page",
     @   border-width: thin;
@@ -942,7 +964,7 @@ const struct strctCssDefaults {
   { "div.sbsdiff",
     "side-by-side diff display",
     @   font-family: monospace;
-    @   font-size: smaller;
+    @   font-size: xx-small;
     @   white-space: pre;
   },
   { "div.udiff",
@@ -974,6 +996,17 @@ const struct strctCssDefaults {
     "Moderation Pending message on timeline",
     @   color: #b03800;
     @   font-style: italic;
+  },
+  { "pre.th1result",
+    "format for th1 script results",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+  },
+  { "pre.th1error",
+    "format for th1 script errors",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+    @   color: red;
   },
   { 0,
     0,

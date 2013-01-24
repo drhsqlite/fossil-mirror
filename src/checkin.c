@@ -318,7 +318,7 @@ void ls_cmd(void){
 ** Options:
 **    --abs-paths      Display absolute pathnames.
 **    --dotfiles       include files beginning with a dot (".")
-**    --ignore <CSG>   ignore files matching patterns from the
+**    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
 **                     directory.
 **
@@ -1146,7 +1146,7 @@ void commit_cmd(void){
   /* So that older versions of Fossil (that do not understand delta-
   ** manifest) can continue to use this repository, do not create a new
   ** delta-manifest unless this repository already contains one or more
-  ** delta-manifets, or unless the delta-manifest is explicitly requested
+  ** delta-manifests, or unless the delta-manifest is explicitly requested
   ** by the --delta option.
   */
   if( !forceDelta && !db_get_boolean("seen-delta-manifest",0) ){
@@ -1529,7 +1529,7 @@ void commit_cmd(void){
   db_end_transaction(0);
 
   if( !g.markPrivate ){
-    autosync(SYNC_PUSH);
+    autosync(SYNC_PUSH|SYNC_PULL);
   }
   if( count_nonbranch_children(vid)>1 ){
     fossil_print("**** warning: a fork has occurred *****\n");

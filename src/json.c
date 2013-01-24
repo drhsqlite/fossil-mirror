@@ -2087,11 +2087,9 @@ cson_value * json_page_stat(){
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
-  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.24));
+  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.2425));
   sqlite3_snprintf(BufLen, zBuf, db_get("project-code",""));
   SETBUF(jo, "projectCode");
-  sqlite3_snprintf(BufLen, zBuf, db_get("server-code",""));
-  SETBUF(jo, "serverCode");
   cson_object_set(jo, "compiler", cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
 
   jv2 = cson_value_new_object();

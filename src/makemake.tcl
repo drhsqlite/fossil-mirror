@@ -73,6 +73,8 @@ set src {
   login
   main
   manifest
+  markdown
+  markdown_html
   md5
   merge
   merge3
@@ -84,6 +86,7 @@ set src {
   pqueue
   printf
   rebuild
+  regexp
   report
   rss
   schema
@@ -104,6 +107,7 @@ set src {
   tkt
   tktsetup
   undo
+  unicode
   update
   url
   user
@@ -376,6 +380,10 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_JSON = 1
 
+#### Enable markdown support
+#
+# FOSSIL_ENABLE_MARKDOWN = 1
+
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 # FOSSIL_ENABLE_SSL = 1
@@ -392,6 +400,15 @@ BCC = gcc
 #    This is useful when Tcl has been compiled statically with MinGW.
 #
 FOSSIL_TCL_SOURCE = 1
+
+#### Check if the workaround for the MinGW command line handling needs to
+#    be enabled by default.
+#
+ifndef BROKEN_MINGW_CMDLINE
+ifeq (,$(findstring w64-mingw32,$(PREFIX)))
+BROKEN_MINGW_CMDLINE = 1
+endif
+endif
 
 #### The directories where the zlib include and library files are located.
 #
@@ -476,6 +493,12 @@ RCC += -I$(TCLINCDIR)
 endif
 endif
 
+# With MinGW command line handling workaround
+ifdef BROKEN_MINGW_CMDLINE
+TCC += -DBROKEN_MINGW_CMDLINE=1
+RCC += -DBROKEN_MINGW_CMDLINE=1
+endif
+
 # With HTTPS support
 ifdef FOSSIL_ENABLE_SSL
 TCC += -DFOSSIL_ENABLE_SSL=1
@@ -502,10 +525,21 @@ TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
 endif
 
+# With markdown support
+ifdef FOSSIL_ENABLE_MARKDOWN
+TCC += -DFOSSIL_ENABLE_MARKDOWN=1
+RCC += -DFOSSIL_ENABLE_MARKDOWN=1
+endif
+
 #### We add the -static option here so that we can build a static
 #    executable that will run in a chroot jail.
 #
 LIB = -static
+
+# MinGW: If available, use the Unicode capable runtime startup code.
+ifndef BROKEN_MINGW_CMDLINE
+LIB += -municode
+endif
 
 # OpenSSL: Add the necessary libraries required, if enabled.
 ifdef FOSSIL_ENABLE_SSL
@@ -688,12 +722,13 @@ setup: $(OBJDIR) $(APPNAME)
 
 set mhargs {}
 foreach s [lsort $src] {
-  append mhargs " \$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
+  if {[string length $mhargs] > 0} {append mhargs " \\\n\t\t"}
+  append mhargs "\$(OBJDIR)/${s}_.c:\$(OBJDIR)/$s.h"
   set extra_h($s) {}
 }
-append mhargs " \$(SRCDIR)/sqlite3.h"
-append mhargs " \$(SRCDIR)/th.h"
-append mhargs " \$(OBJDIR)/VERSION.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/sqlite3.h"
+append mhargs " \\\n\t\t\$(SRCDIR)/th.h"
+append mhargs " \\\n\t\t\$(OBJDIR)/VERSION.h"
 writeln "\$(OBJDIR)/page_index.h: \$(TRANS_SRC) \$(OBJDIR)/mkindex"
 writeln "\t\$(MKINDEX) \$(TRANS_SRC) >$@\n"
 writeln "\$(OBJDIR)/headers:\t\$(OBJDIR)/page_index.h \$(OBJDIR)/makeheaders \$(OBJDIR)/VERSION.h"
@@ -973,7 +1008,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
