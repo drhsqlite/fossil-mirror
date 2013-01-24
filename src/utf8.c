@@ -135,6 +135,10 @@ char *fossil_filename_to_utf8(void *zFilename){
   }
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
   return zUtf;
+#elif defined(__CYGWIN__)
+  char *zOut;
+  zOut = fossil_strdup(zFilename);
+  return zOut;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   char *zIn = (char*)zFilename;
   char *zOut;
@@ -171,7 +175,7 @@ char *fossil_filename_to_utf8(void *zFilename){
 ** to deallocate any memory used to store the returned pointer when done.
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
-** characters '"', '*', ':', '<', '>', '?', '|' and '\\' are invalid
+** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
 ** to be used. Therefore, translated those to characters in the
 ** (private use area), in the range U+F001 - U+F07F, so those
 ** characters never arrive in any Windows API. The filenames might
@@ -188,17 +192,29 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
   if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
            && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
+    zUnicode[2] = '\\';
     wUnicode += 3;
   }
   while( *wUnicode != '\0' ){
     if ( (*wUnicode < 32) || wcschr(L"\"*<>?|:", *wUnicode) ){
       *wUnicode |= 0xF000;
+    }else if( *wUnicode == '/' ){
+      *wUnicode = '\\';
     }
     ++wUnicode;
   }
 
   return zUnicode;
-#elif defined(__APPLE__)
+#elif defined(__CYGWIN__)
+  char *zPath = fossil_strdup(zUtf8);
+  char *p = zPath;
+  while( (*p = *zUtf8++) != 0){
+    if (*p++ == '\\' ) {
+      p[-1] = '/';
+    }
+  }
+  return zPath;
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   return fossil_strdup(zUtf8);
 #else
   return (void *)zUtf8;  /* No-op on unix */
@@ -212,7 +228,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 void fossil_filename_free(void *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
-#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+#elif (defined(__APPLE__) && !defined(WITHOUT_ICONV)) || defined(__CYGWIN__)
   fossil_free(pOld);
 #else
   /* No-op on all other unix */
