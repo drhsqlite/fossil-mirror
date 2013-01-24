@@ -509,6 +509,10 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
   }
   for(i=0; (c=(unsigned char)z[i])!=0; i++){
     if( c & maskNonAscii ){
+      if( (z[++i]&0xc0)!=0x80 ){
+        /* Invalid first continuation byte */
+        return 0;
+      }
       if( c<0xc2 ){
         /* Invalid 1-byte UTF-8 sequence, or 2-byte overlong form. */
         return 0;
@@ -522,7 +526,7 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
           return 0;
         }
         /* This is a 3-byte UTF-8 character */
-        unicode = ((c&0x0f)<<12) + ((z[i+1]&0x3f)<<6) + (z[i+2]&0x3f);
+        unicode = ((c&0x0f)<<12) + ((z[i]&0x3f)<<6) + (z[i+1]&0x3f);
         if( unicode <= 0x07ff ){
           /* overlong form */
           return 0;
@@ -536,20 +540,15 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
             /* U+FDD0..U+FDEF are noncharacters. */
             return 0;
           }
-        }else if( (unicode>=0xD800) && (unicode<=0xDFFF) ){
+        }else if( (unicode>=0xd800) && (unicode<=0xdfff) ){
           /* U+D800..U+DFFF are for surrogate pairs. */
           return 0;
         }
-      }
-      do{
-        if( (z[i+1]&0xc0)!=0x80 ){
-          /* Invalid continuation byte (multi-byte UTF-8) */
+        if( (z[++i]&0xc0)!=0x80 ){
+          /* Invalid second continuation byte */
           return 0;
         }
-        /* The hi-bits of c are used to keep track of the number of expected
-         * continuation-bytes, so we don't need a separate counter. */
-        c<<=1; ++i;
-      }while( c>=0xc0 );
+      }
     }else if( c=='\\' ){
       return 0;
     }
