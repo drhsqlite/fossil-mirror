@@ -1,5 +1,5 @@
-C Further\ssimplification\sof\scontinuation\sbyte\scheckin\sin\sfilenames
-D 2013-01-24T10:18:42.423
+C Define\sCSON_FOSSIL_MODE\sin\scson_amalgamation.h\svia\sauto-generation\sprocess,\sas\sopposed\sto\ssetting\sit\sas\sa\scompiler\sflag.
+D 2013-01-24T14:15:29.957
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -308,7 +308,7 @@ F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c b0293c07ed1687ef7437f3563e3d6112b58dc826
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 31e0d7b8b6a899d16a30947458c437c262637926
-F src/cson_amalgamation.h 0ee123041b05921eff3f45b9c7ec398b75374849
+F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
 F src/db.c 2696a9edbe3b5b36c8e9b4a3ad7cda31dd3ea46b
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -597,7 +597,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 769c90a2300cb80bca45074110c083a9b1b622a7
-R 9354cef7fbb05af566760e8c5de5a67a
-U jan.nijtmans
-Z e15678b60240295cbae6790d6faa2df5
+P a5cd2dd64eb8e6207e346ea93c257f17bc1a59fa
+R 722ce9e4ea92773fba6e2c24bf119e63
+U stephan
+Z 3d3bed291aea5c9e43baba27e9ae7132
