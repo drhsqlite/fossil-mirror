@@ -105,7 +105,7 @@ static struct {
   { "binary-glob",            CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
-  { "unicode-glob",           CONFIGSET_PROJ },
+  { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
 

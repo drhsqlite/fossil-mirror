@@ -2093,7 +2093,7 @@ struct stControlSettings const ctrlSettings[] = {
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
-  { "unicode-glob",  0,               40, 1, ""                    },
+  { "encoding-glob",  0,              40, 1, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2181,6 +2181,12 @@ struct stControlSettings const ctrlSettings[] = {
 **     (versionable)   update and checkout commands, if no file or directory
 **                     exists with that name, an empty directory will be
 **                     created.
+**
+**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "commit" command will
+**                     ignore when issuing warnings about text files that may
+**                     use another encoding than ASCII or UTF-8. Set to "*"
+**                     to disable encoding checking.
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
@@ -2279,11 +2285,6 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
-**
-**    unicode-glob     The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "commit" command will
-**                     ignore when issuing warnings about text files that may
-**                     contain Unicode. Set to "*" to disable Unicode checking.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.
