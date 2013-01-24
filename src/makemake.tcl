@@ -310,7 +310,7 @@ writeln "\t\$(XTCC) -c \$(SRCDIR)/th_tcl.c -o \$(OBJDIR)/th_tcl.o\n"
 set opt {}
 writeln {
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops
@@ -753,7 +753,7 @@ writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/sqlite3.c -o \$(OBJDIR)/sqlite3.o\n"
 
 set opt {}
 writeln "\$(OBJDIR)/cson_amalgamation.o:\t\$(SRCDIR)/cson_amalgamation.c"
-writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE\n"
+writeln "\t\$(XTCC) $opt -c \$(SRCDIR)/cson_amalgamation.c -o \$(OBJDIR)/cson_amalgamation.o\n"
 writeln "\$(OBJDIR)/json.o \$(OBJDIR)/json_artifact.o \$(OBJDIR)/json_branch.o \$(OBJDIR)/json_config.o \$(OBJDIR)/json_diff.o \$(OBJDIR)/json_dir.o \$(OBJDIR)/jsos_finfo.o \$(OBJDIR)/json_login.o \$(OBJDIR)/json_query.o \$(OBJDIR)/json_report.o \$(OBJDIR)/json_tag.o \$(OBJDIR)/json_timeline.o \$(OBJDIR)/json_user.o \$(OBJDIR)/json_wiki.o : \$(SRCDIR)/json_detail.h\n"
 
 writeln "\$(OBJDIR)/shell.o:\t\$(SRCDIR)/shell.c \$(SRCDIR)/sqlite3.h"
@@ -962,13 +962,30 @@ ZINCDIR = $(B)\compat\zlib
 ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
+
+# Uncomment to enable markdown support
+# FOSSIL_ENABLE_MARKDOWN = 1
+
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(ZLIBDIR)
+
+!ifdef FOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON
+!endif
+
+!ifdef FOSSIL_ENABLE_MARKDOWN
+TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
+RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
+!endif
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
 set j " \\\n                 "
@@ -983,9 +1000,10 @@ foreach s [lsort $src] {
   writeln -nonewline "${s}_.c"; incr i
 }
 writeln "\n"
+set AdditionalObj [list shell sqlite3 th th_lang cson_amalgamation]
 writeln -nonewline "OBJ   = "
 set i 0
-foreach s [lsort $src] {
+foreach s [lsort [concat $src $AdditionalObj]] {
   if {$i > 0} {
     writeln " \\"
     writeln -nonewline "        "
@@ -993,10 +1011,7 @@ foreach s [lsort $src] {
   writeln -nonewline "\$(OX)\\$s\$O"; incr i
 }
 writeln " \\"
-writeln "        \$(OX)\\shell\$O \\"
-writeln "        \$(OX)\\sqlite3\$O \\"
-writeln "        \$(OX)\\th\$O \\"
-writeln "        \$(OX)\\th_lang\$O"
+writeln -nonewline "        \$(OX)\\fossil.res\n"
 writeln {
 APPNAME = $(OX)\fossil$(E)
 
@@ -1008,11 +1023,11 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc}
 set redir {>}
-foreach s [lsort [concat $src {shell sqlite3 th th_lang}]] {
+foreach s [lsort [concat $src $AdditionalObj]] {
   writeln "\techo \$(OX)\\$s.obj $redir \$@"
   set redir {>>}
 }
@@ -1049,8 +1064,8 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
-	cp $(SRCDIR)\cson_amalgamation.h $@
+$(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
+	$(TCC) /Fo$@ -c $**
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
@@ -1064,6 +1079,7 @@ clean:
 	-del *.manifest
 	-del headers
 	-del linkopts
+	-del *.res
 
 realclean: clean
 	-del $(APPNAME)
@@ -1094,6 +1110,9 @@ foreach s [lsort $src] {
   writeln "${s}_.c : \$(SRCDIR)\\$s.c"
   writeln "\ttranslate\$E \$** > \$@\n"
 }
+
+writeln "fossil.res : ..\\win\\fossil.rc"
+writeln "\t\$(RCC)  -fo \$@ \$**"
 
 writeln "headers: makeheaders\$E page_index.h VERSION.h"
 writeln -nonewline "\tmakeheaders\$E "
