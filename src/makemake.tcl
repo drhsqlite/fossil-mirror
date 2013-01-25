@@ -1111,7 +1111,7 @@ foreach s [lsort $src] {
   writeln "\ttranslate\$E \$** > \$@\n"
 }
 
-writeln "fossil.res : ..\\win\\fossil.rc"
+writeln "fossil.res : \$B\\win\\fossil.rc"
 writeln "\t\$(RCC)  -fo \$@ \$**"
 
 writeln "headers: makeheaders\$E page_index.h VERSION.h"

@@ -1093,7 +1093,7 @@ $(OX)\zip$O : zip_.c zip.h
 zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
 
-fossil.res : ..\win\fossil.rc
+fossil.res : $B\win\fossil.rc
 	$(RCC)  -fo $@ $**
 headers: makeheaders$E page_index.h VERSION.h
 	makeheaders$E add_.c:add.h \
