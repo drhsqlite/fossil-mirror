@@ -549,7 +549,7 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
           return 0;
         }
       }
-    }else if( c=='\\' ){
+    }else if( bStrictUtf8 && (c=='\\') ){
       return 0;
     }
     if( c=='/' ){
