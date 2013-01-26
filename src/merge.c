@@ -207,6 +207,7 @@ void merge_cmd(void){
     db_finalize(&q);
   }else{
     usage("?OPTIONS? ?VERSION?");
+    return;
   }
 
   if( zPivot ){

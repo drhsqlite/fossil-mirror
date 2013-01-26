@@ -25,13 +25,30 @@ ZINCDIR = $(B)\compat\zlib
 ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
+
+# Uncomment to enable markdown support
+# FOSSIL_ENABLE_MARKDOWN = 1
+
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
 LIBDIR = -LIBPATH:$(ZLIBDIR)
+
+!ifdef FOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON
+!endif
+
+!ifdef FOSSIL_ENABLE_MARKDOWN
+TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
+RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
+!endif
 
 SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
                  /DSQLITE_THREADSAFE=0 \
@@ -162,6 +179,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\comformat$O \
         $(OX)\configure$O \
         $(OX)\content$O \
+        $(OX)\cson_amalgamation$O \
         $(OX)\db$O \
         $(OX)\delta$O \
         $(OX)\deltacmd$O \
@@ -221,15 +239,19 @@ OBJ   = $(OX)\add$O \
         $(OX)\search$O \
         $(OX)\setup$O \
         $(OX)\sha1$O \
+        $(OX)\shell$O \
         $(OX)\shun$O \
         $(OX)\skins$O \
         $(OX)\sqlcmd$O \
+        $(OX)\sqlite3$O \
         $(OX)\stash$O \
         $(OX)\stat$O \
         $(OX)\style$O \
         $(OX)\sync$O \
         $(OX)\tag$O \
         $(OX)\tar$O \
+        $(OX)\th$O \
+        $(OX)\th_lang$O \
         $(OX)\th_main$O \
         $(OX)\timeline$O \
         $(OX)\tkt$O \
@@ -249,10 +271,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\xfer$O \
         $(OX)\xfersetup$O \
         $(OX)\zip$O \
-        $(OX)\shell$O \
-        $(OX)\sqlite3$O \
-        $(OX)\th$O \
-        $(OX)\th_lang$O
+        $(OX)\fossil.res
 
 APPNAME = $(OX)\fossil$(E)
 
@@ -264,7 +283,7 @@ zlib:
 
 $(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
@@ -284,6 +303,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\comformat.obj >> $@
 	echo $(OX)\configure.obj >> $@
 	echo $(OX)\content.obj >> $@
+	echo $(OX)\cson_amalgamation.obj >> $@
 	echo $(OX)\db.obj >> $@
 	echo $(OX)\delta.obj >> $@
 	echo $(OX)\deltacmd.obj >> $@
@@ -409,8 +429,8 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
-	cp $(SRCDIR)\cson_amalgamation.h $@
+$(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
+	$(TCC) /Fo$@ -c $**
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
@@ -424,6 +444,7 @@ clean:
 	-del *.manifest
 	-del headers
 	-del linkopts
+	-del *.res
 
 realclean: clean
 	-del $(APPNAME)
@@ -1072,6 +1093,8 @@ $(OX)\zip$O : zip_.c zip.h
 zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
 
+fossil.res : $B\win\fossil.rc
+	$(RCC)  -fo $@ $**
 headers: makeheaders$E page_index.h VERSION.h
 	makeheaders$E add_.c:add.h \
 			allrepo_.c:allrepo.h \

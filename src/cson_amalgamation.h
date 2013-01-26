@@ -1,4 +1,7 @@
 #ifdef FOSSIL_ENABLE_JSON
+#ifndef CSON_FOSSIL_MODE
+#define CSON_FOSSIL_MODE
+#endif
 /* auto-generated! Do not edit! */
 /* begin file include/wh/cson/cson.h */
 #if !defined(WANDERINGHORSE_NET_CSON_H_INCLUDED)

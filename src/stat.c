@@ -68,7 +68,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
+    @ %d(n) (%d(n-m) fulltext and %d(m) deltas)
     @ </td></tr>
     if( n>0 ){
       int a, b;
@@ -96,7 +96,7 @@ void stat_page(void){
       @ </td></tr>
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
-    n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+    n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
     @ %d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
@@ -117,13 +117,12 @@ void stat_page(void){
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days or approximately %.2f(n/365.24) years.
+  @ %d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
-  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
-  @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
-  @ (%h(COMPILER_NAME))
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
   @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
@@ -141,9 +140,16 @@ void stat_page(void){
 }
 
 /*
-** COMMAND: dbstat
+** COMMAND: dbstat*
 **
-** Show statistics and global information about the repository.
+** Usage: %fossil dbstat ?-brief | -b?
+**
+** Shows statistics and global information about the repository.
+**
+** The (-brief|-b) option removes any "long-running" statistics, namely
+** those whose calculations are known to slow down as the repository
+** grows.
+**
 */
 void dbstat_cmd(void){
   i64 t, fsize;
@@ -189,39 +195,27 @@ void dbstat_cmd(void){
       fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
     }
     n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
-    fossil_print("%*s%d\n", colWidth, "checkin-count:", n);
+    fossil_print("%*s%d\n", colWidth, "checkins:", n);
     n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
-    /* FIXME/TODO: add the change-count-per-type to each event type,
-    **   plus add 'Event' count
-    */
-#if 0
-    m = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
-#endif
-    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "file-count:",
-                 n/*, m */);
+    fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'wiki-*'");
-#if 0
-    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
-                  "b.rid=e.objid AND e.type='w'");
-#endif
-    fossil_print("%*s%d"/*  (%d changes) */"\n", colWidth, "wikipage-count:",
-                 n/*, m */);
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipages:", n, m);
     n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
                   " WHERE tagname GLOB 'tkt-*'");
-#if 0
-    m = db_int(0, "SELECT COUNT(*) FROM blob b JOIN event e WHERE "
-                   "b.rid=e.objid AND e.type='t'");
-#endif
-    fossil_print("%*s%d"/* (%d changes)*/"\n", colWidth, "ticket-count:",
-                 n/* , m */);
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "tickets:", n, m);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    fossil_print("%*s%d\n", colWidth, "events:", n);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
+    fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
   }
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   fossil_print("%*s%d days or approximately %.2f years.\n",
-               colWidth, "project-age:", n, n/365.24);
+               colWidth, "project-age:", n, n/365.2425);
   fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
-  fossil_print("%*s%s\n", colWidth, "server-id:", db_get("server-code",""));
   fossil_print("%*s%s %s %s (%s)\n",
                colWidth, "fossil-version:",
                RELEASE_VERSION, MANIFEST_DATE, MANIFEST_VERSION,

@@ -1509,12 +1509,12 @@ const char *timeline_query_for_tty(void){
     @   (SELECT count(*) FROM plink WHERE cid=blob.rid) AS plinkCount,
     @   event.mtime AS mtime,
     @   tagxref.value AS branch
-    @ FROM tag CROSS JOIN event CROSS JOIN blob CROSS JOIN tagxref
-    @ WHERE blob.rid=event.objid
-    @   AND tag.tagname='branch'
-    @   AND tagxref.tagid=tag.tagid
+    @ FROM tag CROSS JOIN event CROSS JOIN blob
+    @ LEFT JOIN tagxref ON tagxref.tagid=tag.tagid
     @   AND tagxref.tagtype>0
     @   AND tagxref.rid=blob.rid 
+    @ WHERE blob.rid=event.objid
+    @   AND tag.tagname='branch'
   ;
   return zBaseSql;
 }
