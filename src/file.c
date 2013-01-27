@@ -485,7 +485,6 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 **     *  Does not begin with "/"
 **     *  Does not contain any path element named "." or ".."
-**     *  Does not contain any of these characters in the path: "\"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
@@ -792,8 +791,8 @@ void cmd_test_canonical_name(void){
 /*
 ** Return TRUE if the given filename is canonical.
 **
-** Canonical names are full pathnames which contain no "/./" or "/../"
-** terms and (On Windows/Cygwin) using "/" not "\".
+** Canonical names are full pathnames using "/" not "\" and which
+** contain no "/./" or "/../" terms.
 */
 int file_is_canonical(const char *z){
   int i;
@@ -804,9 +803,7 @@ int file_is_canonical(const char *z){
   ) return 0;
 
   for(i=0; z[i]; i++){
-#if defined(_WIN32) || defined(__CYGWIN__)
     if( z[i]=='\\' ) return 0;
-#endif
     if( z[i]=='/' ){
       if( z[i+1]=='.' ){
         if( z[i+2]=='/' || z[i+2]==0 ) return 0;
