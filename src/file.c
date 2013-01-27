@@ -579,7 +579,7 @@ static int backup_dir(const char *z, int *pJ){
 /*
 ** Simplify a filename by
 **
-**  * Convert all \ into / on windows
+**  * Convert all \ into / on windows and cygwin
 **  * removing any trailing and duplicate /
 **  * removing /./
 **  * removing /A/../
@@ -592,8 +592,8 @@ int file_simplify_name(char *z, int n, int slash){
   int i, j;
   if( n<0 ) n = strlen(z);
 
-  /* On windows convert all \ characters to / */
-#if defined(_WIN32)
+  /* On windows/cygwin convert all \ characters to / */
+#if defined(_WIN32) || defined(__CYGWIN__)
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';
   }
@@ -704,7 +704,9 @@ void file_getcwd(char *zBuf, int nBuf){
 */
 int file_is_absolute_path(const char *zPath){
   if( zPath[0]=='/'
-#if defined(_WIN32)
+#if defined(__CYGWIN__)
+      || zPath[0]=='\\'
+#elif defined(_WIN32)
       || zPath[0]=='\\'
       || (strlen(zPath)>3 && zPath[1]==':'
            && (zPath[2]=='\\' || zPath[2]=='/'))
