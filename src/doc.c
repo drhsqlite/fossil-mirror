@@ -125,6 +125,8 @@ const char *mimetype_from_name(const char *zName){
     { "dms",        3, "application/octet-stream"          },
     { "doc",        3, "application/msword"                },
     { "docx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+    { "dot",        3, "application/msword"                },
+    { "dotx",       4, "application/vnd.openxmlformats-officedocument.wordprocessingml.template"},
     { "drw",        3, "application/drafting"              },
     { "dvi",        3, "application/x-dvi"                 },
     { "dwg",        3, "application/acad"                  },
