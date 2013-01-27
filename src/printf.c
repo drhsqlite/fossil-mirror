@@ -850,7 +850,7 @@ void fossil_puts(const char *z, int toStdErr){
 }
 
 /*
-** Force the the standard output cursor to move to the beginning 
+** Force the standard output cursor to move to the beginning 
 ** of a line, if it is not there already.
 */
 void fossil_force_newline(void){

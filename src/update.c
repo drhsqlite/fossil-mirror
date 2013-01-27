@@ -670,6 +670,9 @@ int historical_version_of_file(
 ** the version associated with baseline REVISION if the -r flag
 ** appears.
 **
+** If FILE was part of a rename operation, both the original file
+** and the renamed file are reverted.
+**
 ** Revert all files if no file name is provided.
 **
 ** If a file is reverted accidently, it can be restored using
@@ -708,7 +711,18 @@ void revert_cmd(void){
       Blob fname;
       zFile = mprintf("%/", g.argv[i]);
       file_tree_name(zFile, &fname, 1);
-      db_multi_exec("REPLACE INTO torevert VALUES(%B)", &fname);
+      db_multi_exec(
+        "REPLACE INTO torevert VALUES(%B);"
+        "INSERT OR IGNORE INTO torevert"
+        " SELECT pathname"
+        "   FROM vfile"
+        "  WHERE origname IN(%B)"
+        " UNION ALL"
+        " SELECT origname"
+        "   FROM vfile"
+        "  WHERE pathname IN(%B) AND origname IS NOT NULL;",
+        &fname, &fname, &fname
+      );
       blob_reset(&fname);
     }
   }else{
@@ -750,7 +764,13 @@ void revert_cmd(void){
         file_delete(zFull);
         fossil_print("DELETE: %s\n", zFile);
       }
-      db_multi_exec("DELETE FROM vfile WHERE pathname=%Q", zFile);
+      db_multi_exec(
+        "UPDATE vfile"
+        "   SET pathname=origname, origname=NULL"
+        " WHERE pathname=%Q AND origname!=pathname AND origname IS NOT NULL;"
+        "DELETE FROM vfile WHERE pathname=%Q",
+        zFile, zFile
+      );
     }else{
       sqlite3_int64 mtime;
       undo_save(zFile);
@@ -767,10 +787,9 @@ void revert_cmd(void){
       mtime = file_wd_mtime(zFull);
       db_multi_exec(
          "UPDATE vfile"
-         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid,"
-         "       pathname=coalesce(origname,pathname), origname=NULL"     
-         " WHERE pathname=%Q",
-         mtime, isExe, isLink, zFile
+         "   SET mtime=%lld, chnged=0, deleted=0, isexe=%d, islink=%d,mrid=rid"
+         " WHERE pathname=%Q OR origname=%Q",
+         mtime, isExe, isLink, zFile, zFile
       );
     }
     blob_reset(&record);

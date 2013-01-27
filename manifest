@@ -1,5 +1,5 @@
-C Handle\stranslation\sbetween\s'/'\sand\s'\\\\'\son\sWindows\sand\sCygwin
-D 2013-01-24T12:00:24.324
+C merge\strunk,\scombine\swith\s"allow-backslash-on-unix"\sbranch
+D 2013-01-27T20:29:11.452
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -40,7 +40,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 94e3e5652fbbe76e8a59ffa25e4ec5f8380aaca9
+F auto.def 36f7293d2d5386f9c6e929090cf7d6959c4d9ef6
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 25457f035f5cd3b31e13ccd1e6623b6b1b67fa60
 F autosetup/autosetup 6414861f6fd35b77beffdd4ff67e6f808fbeebb5 x
@@ -308,7 +308,7 @@ F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
 F src/configure.c b0293c07ed1687ef7437f3563e3d6112b58dc826
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 31e0d7b8b6a899d16a30947458c437c262637926
-F src/cson_amalgamation.h 0ee123041b05921eff3f45b9c7ec398b75374849
+F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
 F src/db.c 2696a9edbe3b5b36c8e9b4a3ad7cda31dd3ea46b
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
@@ -347,11 +347,11 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c 950bef2685217272b1a9ec5ed79a4dc272d19013
-F src/main.mk 371c336ab0c98f7bacd297c8a14657ae499b5665
+F src/main.c 3103b2d7af2c4cd5f7fc2c1053df494259ca9265
+F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl e5dd795a4ef7e2c430c3439f150f5a621f8934de
+F src/makemake.tcl b90fbdbe691dac205e8f7ce69c69b0cde4e84fbb
 F src/manifest.c 8d368b881c72e53c84c5eb0f6b3e3d0aa879e6ca
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
@@ -366,7 +366,7 @@ F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c fea8142f6396aa9448db55bdbd94904673e7639f
+F src/printf.c ae215f9af5daa65b64605e0ebb5d78f2f72bb38c
 F src/rebuild.c 0752bdbf7bffe69b781e130f5ee263c05c9278e6
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
@@ -382,7 +382,7 @@ F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c 8a415f3ee851bbb9086ae5cdbf7c7146c0a68281
 F src/sqlite3.h 4a30840575398a344786d8169a93ab137040b1f8
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
-F src/stat.c 4f88f8adaa342dd09a18210b183afdf5d78d192e
+F src/stat.c af83fa0b1f93924e1999b193ee06773e17083d56
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
 F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
@@ -398,7 +398,7 @@ F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
-F src/update.c 2600176f76efd53e291981c4bc3bf5fdaae23d38
+F src/update.c 62efa1b452526ee413b98ea1c335beeecd3e70b4
 F src/url.c c8a7221422c7c8410242f01b8ff17a1d4bd955c1
 F src/user.c 2e3791745b2319b6ac691a066c3cd378a062e2d3
 F src/utf8.c 7587d1b534442d8123eaffeb5478c80a78b368fb
@@ -425,6 +425,7 @@ F test/merge5.test 5447884e828abd47bb25d363342acc94269f36a8
 F test/merge5_repo.sql 742ca843c4a2cdc7f72c9e850aa0cac80c1457aa
 F test/merge_renames.test 5e04c75d53fdb4c89eeccb9fa1acf0ee741ad51e
 F test/release-checklist.wiki f05433096a91b7d12739d1429744e57ca3d9240a
+F test/revert.test 7c20e28f641dbb3ab991fa85f20abed0ff7e20d4
 F test/tester.tcl 72588ef325e19b908b0c9cbd9c521719e9649af7
 F test/th1-tcl.test dda70031d6113f07c165385664b5553ac79d42a3
 F test/th1-tcl1.txt befaf80706a16f52f2f4a552e2764601dcaa415d
@@ -497,12 +498,12 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 819c68d80dc035171370983b3dcb29bb308ec7f2
-F win/Makefile.mingw 7aff6f65e36ce261de3b340240dc89c5738d98d8
-F win/Makefile.mingw.mistachkin 4aec94d4cdeedfc453751c143b43a1cb8c5c176e
-F win/Makefile.msc b7f76471383cdea5fa68948efd259db694664b2a
+F win/Makefile.mingw cdfcf091afec367d87922a5f5e7d61c75619d475
+F win/Makefile.mingw.mistachkin 6d41e0f8f9ef303439b7fc37d4a247d3d62f6bb7
+F win/Makefile.msc 4081d81772c3a66e081eb19d8c09a5c8b076f4fe
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc e202bdc4e73c28101e6e3b32821cb05ab5ddd005
-F win/include/dirent.h be335c22209d3d396a38e142ee2c192b5ba33cf6
+F win/include/dirent.h e1e5f5c210c295a2c0786b5c96ecc7df393c99d7
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
@@ -597,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ba3e82f1894c454f1a2d75a68a17ba7649bd5d0a
-R 366406f24a4fcd6df994eae5492f7325
+P ba87fb1fecfa54a28922ead0c8e10a8cbc4dc2ed c3d74f4f633e4b28adb4e18baaee78a6482ed4c8 b9f0c78aaada9bb6a09e0b00ce1dc0714c01d67b
+R 35c7ba3c5168b154f84eaabbbb732dd7
 U jan.nijtmans
-Z 0bc5b9f952aad38c6f271759fa4048e1
+Z d34b5c1c0c783f1a037521b0f4fce5d2
