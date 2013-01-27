@@ -195,7 +195,7 @@ if {$ssldirs ne "none"} {
         define-append EXTRA_CFLAGS $cflags
         define-append EXTRA_LDFLAGS $ldflags
         define-append LIBS -lssl -lcrypto
-        msg-result "HTTP support enabled"
+        msg-result "HTTPS support enabled"
 
         # Silence OpenSSL deprecation warnings on Mac OS X 10.7.
         if {[string match *-darwin* [get-define host]]} {

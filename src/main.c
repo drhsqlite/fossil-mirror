@@ -965,7 +965,7 @@ void version_cmd(void){
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --all        Show both command and auxiliary commands
+**    %fossil help --all        Show both common and auxiliary commands
 **    %fossil help --test       Show test commands only
 **    %fossil help --aux        Show auxiliary commands only
 */
