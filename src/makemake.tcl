@@ -342,11 +342,11 @@ writeln {#!/usr/bin/make
 # file, edit "makemake.tcl" then run "tclsh makemake.tcl"
 # to regenerate this file.
 #
-# This is a makefile for use on Windows/Linux/Darwin/Cygwin using MinGW or
-# MinGW-w64.
+# This is a makefile for use on Cygwin/Darwin/FreeBSD/Linux/Windows using
+# MinGW or MinGW-w64.
 #
 
-#### Select one of MinGW, MinGW-64 (32-bit) or MinGW-w64 (64-bit) compilers.
+#### Select one of MinGW, MinGW-w64 (32-bit) or MinGW-w64 (64-bit) compilers.
 #    By default, this is an empty string (i.e. use the native compiler).
 #
 PREFIX =
@@ -696,7 +696,7 @@ EXTRAOBJ +=  $(OBJDIR)/th_tcl.o
 endif
 
 zlib:
-	make -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
+	$(MAKE) -C $(ZLIBDIR) PREFIX=$(PREFIX) -f win32/Makefile.gcc libz.a
 
 $(APPNAME):	$(OBJDIR)/headers $(OBJ) $(EXTRAOBJ) $(OBJDIR)/fossil.o zlib
 	$(TCC) -o $(APPNAME) $(OBJ) $(EXTRAOBJ) $(LIB) $(OBJDIR)/fossil.o
