@@ -66,19 +66,20 @@ static struct stat fileStat;
 **
 */
 static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
+  int rc;
 #if !defined(_WIN32)
+  char *zMbcs = fossil_utf8_to_filename(zFilename);
   if( isWd && g.allowSymlinks ){
-    return lstat(zFilename, buf);
+    rc = lstat(zMbcs, buf);
   }else{
-    return stat(zFilename, buf);
+    rc = stat(zMbcs, buf);
   }
 #else
-  int rc = 0;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   rc = _wstati64(zMbcs, buf);
+#endif
   fossil_filename_free(zMbcs);
   return rc;
-#endif
 }
 
 /*
@@ -307,10 +308,11 @@ int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = _waccess(zMbcs, flags);
-  fossil_filename_free(zMbcs);
 #else
-  int rc = access(zFilename, flags);
+  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  int rc = access(zMbcs, flags);
 #endif
+  fossil_filename_free(zMbcs);
   return rc;
 }
 
@@ -404,15 +406,16 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   memset(tv, 0, sizeof(tv[0])*2);
   tv[0].tv_sec = newMTime;
   tv[1].tv_sec = newMTime;
-  utimes(zFilename, tv);
+  char *zMbcs = fossil_utf8_to_filename(zFilename);
+  utimes(zMbcs, tv);
 #else
   struct _utimbuf tb;
   wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   tb.actime = newMTime;
   tb.modtime = newMTime;
   _wutime(zMbcs, &tb);
-  fossil_filename_free(zMbcs);
 #endif
+  fossil_filename_free(zMbcs);
 }
 
 /*
@@ -443,12 +446,13 @@ void test_set_mtime(void){
 */
 void file_delete(const char *zFilename){
 #ifdef _WIN32
-  wchar_t *z = fossil_utf8_to_unicode(zFilename);
+  wchar_t *z = fossil_utf8_to_filename(zFilename);
   _wunlink(z);
-  fossil_unicode_free(z);
 #else
+  char *z = fossil_utf8_to_filename(zFilename);
   unlink(zFilename);
 #endif
+  fossil_filename_free(z);
 }
 
 /*
@@ -466,14 +470,14 @@ int file_mkdir(const char *zName, int forceFlag){
   }
   if( rc!=1 ){
 #if defined(_WIN32)
-    int rc;
     wchar_t *zMbcs = fossil_utf8_to_filename(zName);
     rc = _wmkdir(zMbcs);
+#else
+    char *zMbcs = fossil_utf8_to_filename(zName);
+    rc = mkdir(zName, 0755);
+#endif
     fossil_filename_free(zMbcs);
     return rc;
-#else
-    return mkdir(zName, 0755);
-#endif
   }
   return 0;
 }
