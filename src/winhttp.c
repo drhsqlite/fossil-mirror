@@ -457,6 +457,15 @@ int win32_http_service(
   return 0;
 }
 
+/*
+** The ChangeServiceConfig2W and QueryServiceConfig2W functions are
+** loaded at run time in the cmd_win32_service function.  These
+** typedefs provide proper types for the function pointers.
+*/
+typedef BOOL (WINAPI *CHANGESERVICECONFIG2W)(SC_HANDLE, DWORD, LPVOID);
+typedef BOOL (WINAPI *QUERYSERVICECONFIG2W)(SC_HANDLE, DWORD, LPBYTE,
+                                            DWORD, LPDWORD);
+
 /* dupe ifdef needed for mkindex
 ** COMMAND: winsrv*
 ** Usage: fossil winsrv METHOD ?SERVICE-NAME? ?OPTIONS?
@@ -564,6 +573,21 @@ void cmd_win32_service(void){
   int n;
   const char *zMethod;
   const char *zSvcName = "Fossil-DSCM";    /* Default service name */
+  HINSTANCE hinstLib = NULL;
+  CHANGESERVICECONFIG2W ChangeServiceConfig2WAddr = NULL;
+  QUERYSERVICECONFIG2W QueryServiceConfig2WAddr = NULL;
+
+  /* The ChangeServiceConfig2W and QueryServiceConfig2W functions are
+  ** not supported on Windows NT 4.0, so we load them at run time with
+  ** GetProcAddress and only call them if they exist.
+  */
+  hinstLib = LoadLibrary(TEXT("advapi32.dll"));
+  if( NULL != hinstLib ){
+    ChangeServiceConfig2WAddr =
+      (CHANGESERVICECONFIG2W) GetProcAddress(hinstLib, "ChangeServiceConfig2W");
+    QueryServiceConfig2WAddr =
+      (QUERYSERVICECONFIG2W) GetProcAddress(hinstLib, "QueryServiceConfig2W");
+  }
 
   if( g.argc<3 ){
     usage("create|delete|show|start|stop ...");
@@ -651,7 +675,9 @@ void cmd_win32_service(void){
            );
     if( !hSvc ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Set the service description. */
-    ChangeServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION, &svcDescr);
+    if( ChangeServiceConfig2WAddr ){
+      ChangeServiceConfig2WAddr(hSvc, SERVICE_CONFIG_DESCRIPTION, &svcDescr);
+    }
     fossil_print("Service '%s' successfully created.\n", zSvcName);
     CloseServiceHandle(hSvc);
     CloseServiceHandle(hScm);
@@ -766,15 +792,20 @@ void cmd_win32_service(void){
       case SERVICE_DISABLED:      zSvcStartType = zSvcStartTypes[4]; break;
     }
     /* Get the service description. */
-    bStatus = QueryServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION,
-                                  NULL, 0, &nRequired);
-    if( !bStatus && GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
-      fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
+    if( QueryServiceConfig2WAddr ){
+      bStatus = QueryServiceConfig2WAddr(hSvc, SERVICE_CONFIG_DESCRIPTION,
+                                        NULL, 0, &nRequired);
+      if( !bStatus && GetLastError()!=ERROR_INSUFFICIENT_BUFFER ){
+        fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
+      }
+      pSvcDescr = fossil_malloc(nRequired);
+      bStatus = QueryServiceConfig2WAddr(hSvc, SERVICE_CONFIG_DESCRIPTION,
+                                    (LPBYTE)pSvcDescr, nRequired, &nRequired);
+      if( !bStatus ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
+    }else{
+      pSvcDescr = fossil_malloc(sizeof(SERVICE_DESCRIPTIONW));
+      pSvcDescr->lpDescription = L"";
     }
-    pSvcDescr = fossil_malloc(nRequired);
-    bStatus = QueryServiceConfig2W(hSvc, SERVICE_CONFIG_DESCRIPTION,
-                                  (LPBYTE)pSvcDescr, nRequired, &nRequired);
-    if( !bStatus ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
     /* Retrieves the current status of the specified service. */
     bStatus = QueryServiceStatus(hSvc, &sstat);
     if( !bStatus ) fossil_fatal(zErrFmt, zSvcName, win32_get_last_errmsg());
@@ -884,6 +915,9 @@ void cmd_win32_service(void){
   {
     fossil_fatal("METHOD should be one of:"
                  " create delete show start stop");
+  }
+  if( NULL != hinstLib ){
+    FreeLibrary(hinstLib);
   }
   return;
 }
