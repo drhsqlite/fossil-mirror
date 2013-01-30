@@ -17,6 +17,11 @@
 **
 ** An implementation of printf() with extra conversion fields.
 */
+
+/* prevent "fossil_strcmp" to be optimized using the assumption
+ * that its arguments cannot be NULL */
+#undef fossil_strcmp
+
 #include "config.h"
 #include "printf.h"
 
