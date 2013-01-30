@@ -1,12 +1,12 @@
-C Rename\s"unicode-glob"\ssetting\sto\s"encoding-glob".\nMention\sthe\sexistance\sof\sthe\s*-glob\ssettings\sin\sthe\s"fossil\scommit"\swarnings.\s\nAlphabetize\sthe\ssettings\slist.
-D 2013-01-29T09:15:18.032
+C Make\ssure\sthat\s"fossil_strcmp"\sis\sused\severywhere\sin\sstead\sof\s"strcmp":\sThe\s"strcmp"\sfunction\sfrom\sthe\sC\slibrary\sis\snot\susable\sin\sall\ssituations,\se.g.\swith\s--static\son\sLinux
+D 2013-01-30T10:03:19.982
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in ed20ed61a1d9a7c221b3c916bdda056f031dcd8e
+F Makefile.in 45248106bd1126b6871b86ef6a4d786781015409
 F VERSION 1be1d4e6740bc562e8911948b24289c61472f669
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c5ed222748d861aa0d76a7c0b2caa04942050ea2 f480173856136f6ad30686edc875de969a6f1a91
-R ebbc797e28958173552637c339e18f1f
+P 7d237c49f3a221378544bb852c729000da6b93ef
+R 22fa8eedb80f712bf9c0b0390f89629c
 U jan.nijtmans
-Z 00f155232dce53517a9130498f7ae422
+Z 2f9d851d9740ed128dfddefef313bf84
