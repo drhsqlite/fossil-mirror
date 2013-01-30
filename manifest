@@ -1,12 +1,12 @@
-C Make\ssure\sthat\s"fossil_strcmp"\sis\sused\severywhere\sin\sstead\sof\s"strcmp":\sThe\s"strcmp"\sfunction\sfrom\sthe\sC\slibrary\sis\snot\susable\sin\sall\ssituations,\se.g.\swith\s--static\son\sLinux\nDo\san\s#undef\sin\sprintf.c,\spreventing\sthat\sthe\sfossil_strcmp\sfunction\sis\soptimized\sfor\snon-null\sarguments.
-D 2013-01-30T13:10:02.956
+C Back\sout\sthe\sprevious\scheck-in\s-\sno\schanges\sneeded\sfor\sstrcmp().
+D 2013-01-30T18:14:26.698
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
 F BUILD.txt 624bb79c741d865e8f9823c1a546ac6782b9d1cc
 F COPYRIGHT-BSD2.txt c7dd1de9f9539a5a859c2b41fe4560604a774476
 F Makefile.classic 610ce9eedc0d35e35692fb8b0fc2fdd8359a04fd
-F Makefile.in 45248106bd1126b6871b86ef6a4d786781015409
+F Makefile.in ed20ed61a1d9a7c221b3c916bdda056f031dcd8e
 F VERSION 1be1d4e6740bc562e8911948b24289c61472f669
 F ajax/README 133f25a88f21479a20cc3b20a8dfa0f0fa807ffc
 F ajax/cgi-bin/fossil-json.cgi.example 5e1245c336a0666e3777c5ba46ce2bbcd6450619 x
@@ -366,7 +366,7 @@ F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c eda142ab1e3e0a0213d522c5b7a22831023cab0f
+F src/printf.c ae215f9af5daa65b64605e0ebb5d78f2f72bb38c
 F src/rebuild.c a652f086376487c2d8496182a6c3c30aec1097cc
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7d237c49f3a221378544bb852c729000da6b93ef 7ac0fd9d115d567955784ca888e530a1bb33a836
-R 86498e30bba5585edfc36365ba56395f
-U jan.nijtmans
-Z cb5906e2468e0c217bab166d5a2e6d0c
+P afffe486433251f3e9675e566c62849f38e09f7c
+R ebbc797e28958173552637c339e18f1f
+U drh
+Z 1be970e1dcc8de069939e2c15f57d5a6
