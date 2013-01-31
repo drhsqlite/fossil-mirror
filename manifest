@@ -1,5 +1,5 @@
-C Fixed\slist\snumbering\s(was\smissing\s#5).
-D 2013-01-31T10:53:44.898
+C Added\san\s"extern"\sto\swork\saround\sa\sduplicate-definition\slinking\serror\swith\sthe\stcc\scompiler.
+D 2013-01-31T18:12:54.020
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -334,7 +334,7 @@ F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
 F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
-F src/json_detail.h cdb624f66cb1c70be3ddd91c0cc8d4289c0df922
+F src/json_detail.h de45088189b929c36a6afd95c0177bd48babec1a
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
 F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 7dda61ec4a53b5949f13a49f0f66defd67fa7c1d
-R 6eb842f0914c1255fa36dc142a6169a0
+P 512def0fc8f996cbf5f18f9d9520f3e18a1f1da2
+R 7bd9561e144f8627b12cd9f98ee213b0
 U stephan
-Z 09b5eff9ee33a2d1ed267dbde5f66f68
+Z b0d80d041cdd5539c96d280870ea5f5a

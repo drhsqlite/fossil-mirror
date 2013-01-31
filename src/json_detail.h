@@ -201,7 +201,7 @@ typedef struct FossilJsonKeys_{
   char const * resultText;
   char const * timestamp;
 } FossilJsonKeys_;
-const FossilJsonKeys_ FossilJsonKeys;
+extern const FossilJsonKeys_ FossilJsonKeys;
 
 /*
 ** A page/command dispatch helper for fossil_json_f() implementations.
