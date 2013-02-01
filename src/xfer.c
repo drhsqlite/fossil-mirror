@@ -23,6 +23,12 @@
 #include <time.h>
 
 /*
+** Maximum number of HTTP redirects that any http_exchange() call will
+** follow before throwing a fatal error. Most browsers use a limit of 20.
+*/
+#define MAX_REDIRECTS 20
+
+/*
 ** This structure holds information about the current state of either
 ** a client or a server that is participating in xfer.
 */
@@ -1482,7 +1488,8 @@ int client_sync(
       fossil_print("waiting for server...");
     }
     fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0) ){
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
       nErr++;
       break;
     }
