@@ -123,6 +123,12 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 }
 
 /*
+** Maximum number of HTTP redirects that any http_exchange() call will
+** follow before throwing a fatal error. Most browsers use a limit of 20.
+*/
+#define MAX_REDIRECTS 20
+
+/*
 ** Sign the content in pSend, compress it, and send it to the server
 ** via HTTP or HTTPS.  Get a reply, uncompress the reply, and store the reply
 ** in pRecv.  pRecv is assumed to be uninitialized when
@@ -133,6 +139,15 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** in order to fill this structure appropriately.
 */
 int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
+  return _http_exchange(pSend, pReply, useLogin, 0);
+}
+
+/*
+** Actual implementation details of http_exchange(). This is done so we can
+** track the number of redirects without changing the signature of that
+** function and requiring callers to initialize numRedirects.
+*/
+int _http_exchange(Blob *pSend, Blob *pReply, int useLogin, int numRedirects){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -232,6 +247,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
         closeConnection = 0;
       }
     }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
+      if ( numRedirects>=MAX_REDIRECTS ){
+        fossil_fatal("redirect limit exceeded");
+      }
       int i, j;
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
@@ -243,7 +261,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
-      return http_exchange(pSend, pReply, useLogin);
+      return _http_exchange(pSend, pReply, useLogin, numRedirects + 1);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;

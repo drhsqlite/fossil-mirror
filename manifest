@@ -1,5 +1,5 @@
-C Added\san\s"extern"\sto\swork\saround\sa\sduplicate-definition\slinking\serror\swith\sthe\stcc\scompiler.
-D 2013-01-31T18:12:54.020
+C Limit\sthe\snumber\sof\sHTTP\sredirects\sthat\sany\shttp_exchange()\scall\swill\sfollow\sto\s20\s(the\slimit\sused\sby\smost\sbrowsers).\sPreviously,\sa\smisconfigured\sserver\sor\sincorrect\sURL\scould\scause\sFossil\sto\sfollow\san\sendless\strail\sof\sredirects\swithout\suser\sintervention.
+D 2013-02-01T07:01:06.463
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -324,7 +324,7 @@ F src/finfo.c e8ab60027aadeb99680b9fefdb33ad1dd7dbe90a
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c aabc48a43f702e7e2bf0476a96ec2d3ae07c37e1
+F src/http.c e93ee24b65e549badf619d7d7a7af613f28bf626
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 2ad73fe61bdd448fa7f89e00f7542d5b916e31a7
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 512def0fc8f996cbf5f18f9d9520f3e18a1f1da2
-R 7bd9561e144f8627b12cd9f98ee213b0
-U stephan
-Z b0d80d041cdd5539c96d280870ea5f5a
+P ba86c859dff83e89640091ea18dec5571630af2a
+R f35e8f0dc42d1c76543f48c158413074
+U joel
+Z 621e5626729fffb40058df51c7d14196
