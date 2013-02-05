@@ -137,6 +137,7 @@ struct Global {
   char *zPath;            /* Name of webpage being served */
   char *zExtra;           /* Extra path information past the webpage name */
   char *zBaseURL;         /* Full text of the URL being served */
+  const char *zAltBase;   /* Alternative URL root.  --baseurl */
   char *zTop;             /* Parent directory of zPath */
   const char *zContentType;  /* The content type of the input HTTP request */
   int iErrPriority;       /* Priority of current error message */
@@ -1118,20 +1119,26 @@ void test_all_help_page(void){
 ** leading "http://" and the host and port.
 **
 ** The g.zBaseURL is normally set based on HTTP_HOST and SCRIPT_NAME
-** environment variables.  However, if zAltBase is not NULL then it
+** environment variables.  However, if g.zAltBase is not NULL then it
 ** is the argument to the --baseurl option command-line option and
 ** g.zBaseURL and g.zTop is set from that instead.
+**
+** If g.zAltBase is set, then zRepoName may be a repository name (with a
+** leading slash ** but without the .fossil) with is concatenated to the
+** root.
 */
-static void set_base_url(const char *zAltBase){
+static void set_base_url(const char* zRepoName){
   int i;
   const char *zHost;
   const char *zMode;
   const char *zCur;
 
-  if( g.zBaseURL!=0 ) return;
-  if( zAltBase ){
+  fossil_free(g.zBaseURL);
+  if( g.zAltBase ){
     int i, n, c;
-    g.zTop = g.zBaseURL = mprintf("%s", zAltBase);
+    if (!zRepoName) zRepoName = "";
+    if (zRepoName[0] == '/') zRepoName++;
+    g.zTop = g.zBaseURL = mprintf("%s%s", g.zAltBase, zRepoName);
     if( memcmp(g.zTop, "http://", 7)!=0 && memcmp(g.zTop,"https://",8)!=0 ){
       fossil_fatal("argument to --baseurl should be 'http://host/path'"
                    " or 'https://host/path'");
@@ -1275,6 +1282,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
     char *zRepo, *zToFree;
     const char *zOldScript = PD("SCRIPT_NAME", "");
     char *zNewScript;
+    char *zRepoName;
     int j, k;
     i64 szFile;
 
@@ -1351,6 +1359,10 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       }
       break;
     }
+    /* Rebuild the base URL to add the repository name to the end. */
+    zRepoName = mprintf("%.*s", i, zPathInfo);
+    set_base_url(zRepoName);
+    fossil_free(zRepoName);
     zNewScript = mprintf("%s%.*s", zOldScript, i, zPathInfo);
     cgi_replace_parameter("PATH_INFO", &zPathInfo[i+1]);
     zPathInfo += i;
@@ -1364,6 +1376,8 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
           zRepo, zPathInfo, zNewScript);
     }
   }
+  else
+    set_base_url(0);
 
   /* Find the page that the user has requested, construct and deliver that
   ** page.
@@ -1371,7 +1385,6 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   if( g.zContentType && memcmp(g.zContentType, "application/x-fossil", 20)==0 ){
     zPathInfo = "/xfer";
   }
-  set_base_url(0);
   if( zPathInfo==0 || zPathInfo[0]==0
       || (zPathInfo[0]=='/' && zPathInfo[1]==0) ){
 #ifdef FOSSIL_ENABLE_JSON
@@ -1742,7 +1755,6 @@ void cmd_http(void){
   const char *zIpAddr;
   const char *zNotFound;
   const char *zHost;
-  const char *zAltBase;
   const char *zFileGlob;
 
   /* The winhttp module passes the --files option as --files-urlenc with
@@ -1760,12 +1772,14 @@ void cmd_http(void){
   zNotFound = find_option("notfound", 0, 1);
   g.useLocalauth = find_option("localauth", 0, 0)!=0;
   g.sslNotAvailable = find_option("nossl", 0, 0)!=0;
-  zAltBase = find_option("baseurl", 0, 1);
-  if( zAltBase ) set_base_url(zAltBase);
+  g.zAltBase = find_option("baseurl", 0, 1);
+  set_base_url(0);
   if( find_option("https",0,0)!=0 ) cgi_replace_parameter("HTTPS","on");
   zHost = find_option("host", 0, 1);
   if( zHost ) cgi_replace_parameter("HTTP_HOST",zHost);
   g.cgiOutput = 1;
+  g.httpIn = stdin;
+  g.httpOut = stdout;
   if( g.argc!=2 && g.argc!=3 && g.argc!=6 ){
     fossil_fatal("no repository specified");
   }
@@ -1775,8 +1789,6 @@ void cmd_http(void){
     g.httpOut = fossil_fopen(g.argv[4], "wb");
     zIpAddr = g.argv[5];
   }else{
-    g.httpIn = stdin;
-    g.httpOut = stdout;
     zIpAddr = 0;
   }
   find_server_repository(0);
@@ -1890,7 +1902,6 @@ void cmd_webserver(void){
   int isUiCmd;              /* True if command is "ui", not "server' */
   const char *zNotFound;    /* The --notfound option or NULL */
   int flags = 0;            /* Server flags */
-  const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
 
 #if defined(_WIN32)
@@ -1906,10 +1917,8 @@ void cmd_webserver(void){
   }
   zPort = find_option("port", "P", 1);
   zNotFound = find_option("notfound", 0, 1);
-  zAltBase = find_option("baseurl", 0, 1);
-  if( zAltBase ){
-    set_base_url(zAltBase);
-  }
+  g.zAltBase = find_option("baseurl", 0, 1);
+  set_base_url(0);
   if( g.argc!=2 && g.argc!=3 ) usage("?REPOSITORY?");
   isUiCmd = g.argv[1][0]=='u';
   if( isUiCmd ){

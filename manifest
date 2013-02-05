@@ -1,5 +1,5 @@
-C Allow\srestricting\sthe\stimeline\sRSS\sfeed\sto\sa\sspecific\sticket.
-D 2013-02-05T23:38:18.834
+C Fix\sissue\swhere\sthe\s--baseurl\swas\sinteracting\swith\sdirectory-full-of-\nrepositories\smode\sbadly\sand\sproducing\sincorrect\sURLs.
+D 2013-02-05T23:39:36.110
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c 3103b2d7af2c4cd5f7fc2c1053df494259ca9265
+F src/main.c ebc7deaca15da7457ec8036b157e43f9e5c5af04
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5634879fbe5a9f96739ca16d0d0373a37aced6b3
-R 28733248fec06e07c15317ce9f4c4e2e
+P 3f43ab397e289dc11b7d0b0865ba73f58f449e53
+R 9b1692f9671ea0edcc183bd8d10fe96c
 U dg
-Z c2697e516d00db223e4159678d128c22
+Z 700bf77081f3ed10a4dd89d8f0cd8aa9
