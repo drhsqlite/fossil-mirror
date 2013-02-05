@@ -826,7 +826,8 @@ static void renderMarkup(Blob *pOut, ParsedMarkup *p){
       blob_appendf(pOut, " %s", aAttribute[p->aAttr[i].iACode].zName);
       if( p->aAttr[i].zValue ){
         const char *zVal = p->aAttr[i].zValue;
-        if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/' ){
+        if( p->aAttr[i].iACode==ATTR_SRC && zVal[0]=='/'
+            && (zVal[0]==0 || zVal[1]!='/') ){
           blob_appendf(pOut, "=\"%s%s\"", g.zTop, zVal);
         }else{
           blob_appendf(pOut, "=\"%s\"", zVal);
@@ -1173,6 +1174,7 @@ static void openHyperlink(
    || strncmp(zTarget, "https:", 6)==0
    || strncmp(zTarget, "ftp:", 4)==0
    || strncmp(zTarget, "mailto:", 7)==0
+   || strncmp(zTarget, "//", 2)==0
   ){
     blob_appendf(p->pOut, "<a href=\"%s\">", zTarget);
   }else if( zTarget[0]=='/' ){
