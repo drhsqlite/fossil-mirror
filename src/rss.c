@@ -24,13 +24,24 @@
 
 /*
 ** WEBPAGE: timeline.rss
+** URL:  /timeline.rss/y=TYPE&n=LIMIT&tkt=UUID
+**
+** Produce an RSS feed of the timeline.
+**
+** TYPE may be: all, ci (show checkins only), t (show tickets only),
+** w (show wiki only). LIMIT is the number of items to show.
+**
+** If UUID is specified, then only changes for the specified ticket will
+** be shown. It probably only makes sense to use y=t if you're doing this.
 */
+
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  const char *zTicketUuid = PD("tkt",NULL);
   int nLimit = atoi(PD("n","20"));
   const char zSQL1[] =
     @ SELECT
@@ -64,6 +75,7 @@ void page_timeline_rss(void){
         blob_append(&bSQL, " AND event.type!='ci'", -1);
       }else if( g.perm.RdTkt ){
         blob_append(&bSQL, " AND event.type=='t'", -1);
+        
       }else{
         blob_append(&bSQL, " AND event.type=='w'", -1);
       }
@@ -77,6 +89,17 @@ void page_timeline_rss(void){
       assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
       blob_append(&bSQL, " AND event.type!='t'", -1);
     }
+  }
+
+  if ( zTicketUuid ){
+    int nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
+      zTicketUuid);
+    if ( nTagId == 0 ){
+      @ No such ticket: %h(zTicketUuid)
+      style_footer();
+      return;
+    }
+    blob_appendf(&bSQL, " AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)", nTagId);
   }
 
   blob_append( &bSQL, " ORDER BY event.mtime DESC", -1 );
