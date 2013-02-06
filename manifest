@@ -1,5 +1,5 @@
-C Merge\sfrom\strunk.
-D 2013-02-05T23:40:56.964
+C Allow\sfiltering\sby\sfilename,\stag\sor\swiki\spage\sas\swell\sas\sby\sticket\sUUID.\nBetter\shandling\sof\sinvalid\svalues\s(they\snow\sgenerate\sempty\sRSS\sfeeds\srather\nthan\sappending\sthe\sHTML\sfooter...).
+D 2013-02-06T17:37:49.416
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -370,7 +370,7 @@ F src/printf.c ae215f9af5daa65b64605e0ebb5d78f2f72bb38c
 F src/rebuild.c a652f086376487c2d8496182a6c3c30aec1097cc
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
-F src/rss.c f7ea5906586ab1cec5ad4e637e1bb8c72436ab00
+F src/rss.c 01e85ec41a53ad4b859dd9f697ccfaf72c3aa060
 F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
 F src/setup.c 6590422e30092778ae52cc9df6e601e2319c55b4
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fb80037e2652626f44f41b70453d48f746294b35 fe56e5aa4f000b9498966c0aabf050e7973ffb19
-R 22626687ced0b4dabb6a7656bb70c08d
+P 21da639fee8f1c13644a20eced98e25d6e997d89
+R 464f8615d4629457c035abcc69d785d8
 U dg
-Z c916e42fb033f6f5bba51e8189cfb5ba
+Z 7abb79399128f9f302e2380ef929e992
