@@ -65,6 +65,7 @@ void url_parse(const char *zUrl){
     int iStart;
     char *zLogin;
     char *zExe;
+    char cQuerySep = '?';
 
     g.urlIsFile = 0;
     if( zUrl[4]=='s' ){
@@ -77,6 +78,7 @@ void url_parse(const char *zUrl){
       g.urlProtocol = "ssh";
       g.urlDfltPort = 22;
       g.urlFossil = "fossil";
+      g.urlShell = 0;
       iStart = 6;
     }else{
       g.urlIsHttps = 0;
@@ -146,7 +148,14 @@ void url_parse(const char *zUrl){
       if( fossil_strcmp(zName,"fossil")==0 ){
         g.urlFossil = zValue;
         dehttpize(g.urlFossil);
-        zExe = mprintf("?fossil=%T", g.urlFossil);
+        zExe = mprintf("%cfossil=%T", cQuerySep, g.urlFossil);
+        cQuerySep = '&';
+      }
+      if( fossil_strcmp(zName,"shell")==0 ){
+        g.urlShell = zValue;
+        dehttpize(g.urlShell);
+        zExe = mprintf("%cshell=%T", cQuerySep, g.urlFossil);
+        cQuerySep = '&';
       }
     }
 

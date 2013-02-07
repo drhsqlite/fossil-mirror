@@ -172,7 +172,8 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
+  char *urlFossil;        /* The fossil query parameter on ssh: */
+  char *urlShell;         /* The shell query parameter on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -965,7 +966,7 @@ void version_cmd(void){
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --all        Show both command and auxiliary commands
+**    %fossil help --all        Show both common and auxiliary commands
 **    %fossil help --test       Show test commands only
 **    %fossil help --aux        Show auxiliary commands only
 */

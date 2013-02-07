@@ -2066,12 +2066,13 @@ struct stControlSettings const ctrlSettings[] = {
   { "diff-command",  0,               40, 0, ""                    },
   { "dont-push",     0,                0, 0, "off"                 },
   { "editor",        0,               32, 0, ""                    },
+  { "empty-dirs",    0,               40, 1, ""                    },
+  { "encoding-glob",  0,              40, 1, ""                    },
   { "gdiff-command", 0,               40, 0, "gdiff"               },
   { "gmerge-command",0,               40, 0, ""                    },
+  { "http-port",     0,               16, 0, "8080"                },
   { "https-login",   0,                0, 0, "off"                 },
   { "ignore-glob",   0,               40, 1, ""                    },
-  { "empty-dirs",    0,               40, 1, ""                    },
-  { "http-port",     0,               16, 0, "8080"                },
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
@@ -2085,15 +2086,14 @@ struct stControlSettings const ctrlSettings[] = {
   { "relative-paths",0,                0, 0, "on"                  },
   { "repo-cksum",    0,                0, 0, "on"                  },
   { "self-register", 0,                0, 0, "off"                 },
+  { "ssh-command",   0,               40, 0, ""                    },
   { "ssl-ca-location",0,              40, 0, ""                    },
   { "ssl-identity",  0,               40, 0, ""                    },
-  { "ssh-command",   0,               40, 0, ""                    },
-  { "th1-setup",     0,               40, 0, ""                    },
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",           0,                0, 0, "off"                 },
   { "tcl-setup",     0,               40, 0, ""                    },
 #endif
-  { "encoding-glob", 0,               40, 1, ""                    },
+  { "th1-setup",     0,               40, 0, ""                    },
   { "web-browser",   0,               32, 0, ""                    },
   { "white-foreground", 0,             0, 0, "off"                 },
   { 0,0,0,0,0 }
@@ -2175,12 +2175,18 @@ struct stControlSettings const ctrlSettings[] = {
 **    dont-push        Prevent this repository from pushing from client to
 **                     server.  Useful when setting up a private branch.
 **
+**    editor           Text editor command used for check-in comments.
+**
 **    empty-dirs       A comma or newline-separated list of pathnames. On
 **     (versionable)   update and checkout commands, if no file or directory
 **                     exists with that name, an empty directory will be
 **                     created.
 **
-**    editor           Text editor command used for check-in comments.
+**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
+**     (versionable)   patterns specifying files that the "commit" command will
+**                     ignore when issuing warnings about text files that may
+**                     use another encoding than ASCII or UTF-8. Set to "*"
+**                     to disable encoding checking.
 **
 **    gdiff-command    External command to run when performing a graphical
 **                     diff. If undefined, text diff will be used.
@@ -2244,6 +2250,9 @@ struct stControlSettings const ctrlSettings[] = {
 **                     "Anonymous" in e.g. ticketing system. On the other hand
 **                     users can not be deleted. Default: off.
 **
+**    ssh-command      Command used to talk to a remote machine with
+**                     the "ssh://" protocol.
+**
 **    ssl-ca-location  The full pathname to a file containing PEM encoded
 **                     CA root certificates, or a directory of certificates
 **                     with filenames formed from the certificate hashes as
@@ -2262,9 +2271,6 @@ struct stControlSettings const ctrlSettings[] = {
 **                     authenticate this client, in addition to the normal
 **                     password authentication.
 **
-**    ssh-command      Command used to talk to a remote machine with
-**                     the "ssh://" protocol.
-**
 **    tcl              If enabled (and Fossil was compiled with Tcl support),
 **                     Tcl integration commands will be added to the TH1
 **                     interpreter, allowing arbitrary Tcl expressions and
@@ -2279,12 +2285,6 @@ struct stControlSettings const ctrlSettings[] = {
 **    th1-setup        This is the setup script to be evaluated after creating
 **                     and initializing the TH1 interpreter.  By default, this
 **                     is empty and no extra setup is performed.
-**
-**    encoding-glob    The VALUE is a comma or newline-separated list of GLOB
-**     (versionable)   patterns specifying files that the "commit" command will
-**                     ignore when issuing warnings about text files that may
-**                     use an encoding other than ASCII or UTF-8 . Set to "*"
-**                     to disable encoding checking.
 **
 **    web-browser      A shell command used to launch your preferred
 **                     web browser when given a URL as an argument.

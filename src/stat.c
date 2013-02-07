@@ -142,7 +142,14 @@ void stat_page(void){
 /*
 ** COMMAND: dbstat*
 **
-** Show statistics and global information about the repository.
+** Usage: %fossil dbstat ?-brief | -b?
+**
+** Shows statistics and global information about the repository.
+**
+** The (-brief|-b) option removes any "long-running" statistics, namely
+** those whose calculations are known to slow down as the repository
+** grows.
+**
 */
 void dbstat_cmd(void){
   i64 t, fsize;

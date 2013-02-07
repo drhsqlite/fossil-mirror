@@ -380,68 +380,27 @@ const unsigned char *get_utf8_bom(int *pnByte){
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-8
-** byte-order-mark (BOM).
+** This function returns detected BOM size if the blob starts with
+** a UTF-8, UTF-16le or UTF-16be byte-order-mark (BOM).
 */
-int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
+int starts_with_bom(const Blob *pContent){
   const char *z = blob_buffer(pContent);
-  int bomSize = 0;
+  int c1, bomSize = 0;
   const unsigned char *bom = get_utf8_bom(&bomSize);
 
-  if( pnByte ) *pnByte = bomSize;
-  if( blob_size(pContent)<bomSize ) return 0;
-  return memcmp(z, bom, bomSize)==0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16le or
-** UTF-16be byte-order-mark (BOM).
-*/
-int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
+  if( (blob_size(pContent)>=bomSize)
+      && (memcmp(z, bom, bomSize)==0) ){
+    return bomSize;
   }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16le
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16be
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
+  /* Only accept UTF-16 BOM if the blob has an even number of bytes */
+  if( (blob_size(pContent)<2) || (blob_size(pContent)&1) ) return 0;
+  c1 = *((unsigned short *)z);
+  if( (c1==0xfffe) || (c1==0xfeff) ){
+    if( blob_size(pContent)>=4 ){
+      /* For UTF-32 BOM, always return 0. */
+      if( ((unsigned short *)z)[1] == 0 ) return 0;
+    }
+    return 2;
   }
   return 0;
 }
@@ -2409,7 +2368,7 @@ void annotate_cmd(void){
   showLog = find_option("log",0,0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ){
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2423,7 +2382,7 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;

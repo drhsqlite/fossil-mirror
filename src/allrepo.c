@@ -146,6 +146,7 @@ void all_cmd(void){
     collect_argument_value(&extra, "pagesize");
     collect_argument(&extra, "vacuum");
     collect_argument(&extra, "deanalyze");
+    collect_argument(&extra, "analyze");
     collect_argument(&extra, "wal");
     collect_argument(&extra, "stat");
   }else if( strncmp(zCmd, "sync", n)==0 ){

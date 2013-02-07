@@ -20,6 +20,14 @@
 #include "config.h"
 #include "xfer.h"
 
+#include <time.h>
+
+/*
+** Maximum number of HTTP redirects that any http_exchange() call will
+** follow before throwing a fatal error. Most browsers use a limit of 20.
+*/
+#define MAX_REDIRECTS 20
+
 /*
 ** This structure holds information about the current state of either
 ** a client or a server that is participating in xfer.
@@ -42,6 +50,7 @@ struct Xfer {
   int mxSend;         /* Stop sending "file" with pOut reaches this size */
   u8 syncPrivate;     /* True to enable syncing private content */
   u8 nextIsPrivate;   /* If true, next "file" received is a private */
+  time_t maxTime;     /* Time when this transfer should be finished */
 };
 
 
@@ -395,7 +404,8 @@ static void send_file(Xfer *pXfer, int rid, Blob *pUuid, int nativeDelta){
     blob_reset(&uuid);
     return;
   }
-  if( pXfer->mxSend<=blob_size(pXfer->pOut) ){
+  if( (pXfer->maxTime != -1 && time(NULL) >= pXfer->maxTime) || 
+       pXfer->mxSend<=blob_size(pXfer->pOut) ){
     const char *zFormat = isPriv ? "igot %b 1\n" : "igot %b\n";
     blob_appendf(pXfer->pOut, zFormat, pUuid);
     pXfer->nIGotSent++;
@@ -869,6 +879,9 @@ void page_xfer(void){
   xfer.pIn = &g.cgiIn;
   xfer.pOut = cgi_output_blob();
   xfer.mxSend = db_get_int("max-download", 5000000);
+  xfer.maxTime = db_get_int("max-download-time", 30);
+  if( xfer.maxTime<1 ) xfer.maxTime = 1;
+  xfer.maxTime += time(NULL);
   g.xferPanic = 1;
 
   db_begin_transaction();
@@ -1036,7 +1049,8 @@ void page_xfer(void){
         }
         blob_is_int(&xfer.aToken[2], &seqno);
         max = db_int(0, "SELECT max(rid) FROM blob");
-        while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max ){
+        while( xfer.mxSend>blob_size(xfer.pOut) && seqno<=max){
+          if( time(NULL) >= xfer.maxTime ) break;
           if( iVers>=3 ){
             send_compressed_file(&xfer, seqno);
           }else{
@@ -1330,6 +1344,7 @@ int client_sync(
   xfer.pIn = &recv;
   xfer.pOut = &send;
   xfer.mxSend = db_get_int("max-upload", 250000);
+  xfer.maxTime = -1;
   if( syncFlags & SYNC_PRIVATE ){
     g.perm.Private = 1;
     xfer.syncPrivate = 1;
@@ -1473,7 +1488,8 @@ int client_sync(
       fossil_print("waiting for server...");
     }
     fflush(stdout);
-    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0) ){
+    if( http_exchange(&send, &recv, (syncFlags & SYNC_CLONE)==0 || nCycle>0,
+        MAX_REDIRECTS) ){
       nErr++;
       break;
     }
