@@ -358,6 +358,10 @@ int starts_with_bom(const Blob *pContent){
   if( (blob_size(pContent)<2) || (blob_size(pContent)&1) ) return 0;
   c1 = *((unsigned short *)z);
   if( (c1==0xfffe) || (c1==0xfeff) ){
+    if( blob_size(pContent)>=4 ){
+      /* For UTF-32 BOM, always return 0. */
+      if( ((unsigned short *)z)[1] == 0 ) return 0;
+    }
     return 2;
   }
   return 0;
@@ -2326,7 +2330,7 @@ void annotate_cmd(void){
   showLog = find_option("log",0,0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ){
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2340,7 +2344,7 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
