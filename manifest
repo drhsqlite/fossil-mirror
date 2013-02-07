@@ -1,5 +1,5 @@
-C Add\sthe\sshell=\squery\sparameter\sto\sthe\sssh:\sscheme\sfor\scloning\sand\ssyncing.
-D 2013-02-07T00:24:35.185
+C Add\sthe\stest-ssh-far-side\scommand\sthat\scan\sbe\sused\sin\splace\sof\sa\sshell\nfor\sthe\sremote\sside\sof\san\sssh:\ssync.
+D 2013-02-07T02:08:06.642
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -327,7 +327,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c ac97cee94c1e12e69194d6a4868dd781642e744e
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
-F src/http_transport.c 5a3e208f5f6d5d086bf983a97eb52570c677b826
+F src/http_transport.c 93186773d7b2e07a59b6bdb1513226bfc7d97a59
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c ef94b35c1fd52a404a03c876a3153d7ac5f8aba2
 F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6e685da3904a341f34481b16295aa7fa8254c185
-R bcb3bd662476467ecba583a904f91fb9
+P 2163cd9666f2ae12d7cef23f41acb0816c74479b
+R 29e93e79e174888ca6130fa6b6681a29
 U drh
-Z a2d40726adff2179f02936204a361bed
+Z 8c8124e91af5814b5cd01f913272cc12
