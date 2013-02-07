@@ -901,13 +901,13 @@ static int commit_warning(
   const char *zFilename /* The full name of the file being committed. */
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
-  int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int fUnicode;           /* 1 if  blob starts with UTF-16 BOM */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0);
+  fUnicode = (starts_with_bom(p) == 2);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
