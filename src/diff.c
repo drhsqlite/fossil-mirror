@@ -375,44 +375,6 @@ int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-16le
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1;
-
-  if( pnByte ) *pnByte = 2;
-  if( (blob_size(pContent)<2) || (blob_size(pContent)&1)) return 0;
-  c1 = ((unsigned short *)z)[0];
-  if( c1==0xfeff ){
-    if( blob_size(pContent) < 4 ) return 1;
-    c1 = ((unsigned short *)z)[1];
-    if( c1 != 0 ) return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16be
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1;
-
-  if( pnByte ) *pnByte = 2;
-  if( (blob_size(pContent)<2) || (blob_size(pContent)&1)) return 0;
-  c1 = ((unsigned short *)z)[0];
-  if( c1==0xfffe ){
-    if( blob_size(pContent) < 4 ) return 1;
-    c1 = ((unsigned short *)z)[1];
-    if( c1 != 0 ) return 1;
-  }
-  return 0;
-}
-
-/*
 ** Return true if two DLine elements are identical.
 */
 static int same_dline(DLine *pA, DLine *pB){
