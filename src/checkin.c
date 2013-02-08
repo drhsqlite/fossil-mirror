@@ -621,7 +621,7 @@ static void prepare_commit_comment(
 */
 void select_commit_files(void){
   if( g.argc>2 ){
-    int ii;
+    int ii, jj=0;
     Blob b;
     blob_zero(&b);
     g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
@@ -631,12 +631,13 @@ void select_commit_files(void){
       file_tree_name(g.argv[ii], &b, 1);
       iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
-        fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
+        fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
+      } else {
+        g.aCommitFile[jj++] = iId;
       }
-      g.aCommitFile[ii-2] = iId;
       blob_reset(&b);
     }
-    g.aCommitFile[ii-2] = 0;
+    g.aCommitFile[jj] = 0;
   }
 }
 
