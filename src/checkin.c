@@ -618,8 +618,11 @@ static void prepare_commit_comment(
 ** If there were no arguments passed to [commit], aCommitFile is not
 ** allocated and remains NULL. Other parts of the code interpret this
 ** to mean "all files".
+**
+** Returns 1 if there was a warning, 0 otherwise.
 */
-void select_commit_files(void){
+int select_commit_files(void){
+  int result = 0;
   if( g.argc>2 ){
     int ii, jj=0;
     Blob b;
@@ -632,6 +635,7 @@ void select_commit_files(void){
       iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
+        result = 1;
       } else {
         g.aCommitFile[jj++] = iId;
       }
@@ -639,6 +643,7 @@ void select_commit_files(void){
     }
     g.aCommitFile[jj] = 0;
   }
+  return result;
 }
 
 /*
@@ -1202,7 +1207,12 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  select_commit_files();
+  if ( select_commit_files() ){
+    blob_zero(&ans);
+    prompt_user("continue (y/N)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+  }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
