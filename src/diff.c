@@ -1275,12 +1275,12 @@ static void sbsDiff(
 
   memset(&s, 0, sizeof(s));
   s.width = diff_width(diffFlags);
-  if (width == 0 && maxwidth == 0){ /* Autocalculate */
+  if (s.width == 0 && maxwidth == 0){ /* Autocalculate */
     Blob dump;
     /* Webserver */
     maxwidth = -1;
     blob_zero(&dump);
-    sbsDiff(&p, &dump, escHtml, diffFlags);
+    sbsDiff(p, &dump, pRe, diffFlags);
     s.width = maxwidth;
     blob_reset(&dump);
   }
@@ -2246,44 +2246,11 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
-<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
-
-  db_prepare(&q, 
-    "SELECT mlink.fid,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
-    "       date(event.mtime), "
-    "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
-    " WHERE mlink.fnid=%d"
-    "   AND mlink.mid=ancestor.rid"
-    "   AND event.objid=ancestor.rid"
-    " ORDER BY ancestor.generation ASC"
-    " LIMIT %d",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
-    fnid,
-    iLimit>0 ? iLimit : 10000000
-======= COMMON ANCESTOR content follows ============================
-
-  db_prepare(&q, 
-    "SELECT mlink.fid,"
-    "       (SELECT uuid FROM blob WHERE rid=mlink.%s),"
-    "       date(event.mtime), "
-    "       coalesce(event.euser,event.user) "
-    "  FROM ancestor, mlink, event"
-    " WHERE mlink.fnid=%d"
-    "   AND mlink.mid=ancestor.rid"
-    "   AND event.objid=ancestor.rid"
-    " ORDER BY ancestor.generation ASC"
-    " LIMIT %d",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
-    fnid,
-    iLimit>0 ? iLimit : 10000000
-======= MERGED IN content follows ==================================
   
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.fid),"
+    "       (SELECT uuid FROM blob WHERE rid=mlink.pid),"
     "       date(event.mtime),"
     "       coalesce(event.euser,event.user),"
     "       mlink.pid"
@@ -2292,34 +2259,18 @@ static void annotate_file(
     "   AND event.objid=mlink.mid"
     " ORDER BY event.mtime",
     (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
->>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   );
-<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zUuidFile = db_column_text(&q, 2);
-    const char *zUuidParentFile = db_column_text(&q, 3);
-    const char *zDate = db_column_text(&q, 4);
-    const char *zUser = db_column_text(&q, 5);
-======= COMMON ANCESTOR content follows ============================
-  while( db_step(&q)==SQLITE_ROW ){
-    int pid = db_column_int(&q, 0);
-    const char *zUuid = db_column_text(&q, 1);
-    const char *zDate = db_column_text(&q, 2);
-    const char *zUser = db_column_text(&q, 3);
-======= MERGED IN content follows ==================================
   
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
+    const char *zUuidFile = db_column_text(&q, 2);
+    const char *zUuidParentFile = db_column_text(&q, 3);
     const char *zDate = db_column_text(&q, 1);
     const char *zUser = db_column_text(&q, 2);
     int prevId = db_column_int(&q, 3);
->>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if( webLabel ){
-<<<<<<< BEGIN MERGE CONFLICT: local copy shown first <<<<<<<<<<<<<<<
       if (zUuidParentFile) {
         zLabel = mprintf(
             "<a href='%R/info/%s' %s>%.10s</a> "
@@ -2335,17 +2286,6 @@ static void annotate_file(
             zUuid, zInfoTarget, zUuid,
             zDate, zUser);
       }
-======= COMMON ANCESTOR content follows ============================
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s", 
-          zUuid, zUuid, zDate, zUser
-      );
-======= MERGED IN content follows ==================================
-      zLabel = mprintf(
-          "<a href='%R/info/%s' target='infowindow'>%.10s</a> %s %13.13s",
-          zUuid, zUuid, zDate, zUser
-      );
->>>>>>> END MERGE CONFLICT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     }else{
       zLabel = mprintf("%.10s %s %13.13s", zUuid, zDate, zUser);
     }

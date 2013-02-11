@@ -1,5 +1,5 @@
-C Merging\sfrom\strunk.\sI\sstill\shave\smerge\sconflicts\ssince\smy\sprevious\smerge.
-D 2013-02-11T19:30:51.080
+C Making\sit\sbuild;\sdiff\sdoesn't\swork\swell,\sabout\swith\scalculation,\syet.
+D 2013-02-11T19:46:51.963
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c fdedd8560d9216a1791b7c282f3a99616ac6a70b
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c a5d06771c230af9c66a0a6b36e303c71f4040ac3
+F src/diff.c 376b02686d33b22da8d7f61156719af0e1624eec
 F src/diffcmd.c 300318ae7df6983df5619b381653d4d84dbdc5d8
 F src/doc.c 87b7cb00cf3e69926340335943fb964429d02957
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b5b8448ecec0ab15b8f8d5a0734dde04c687883c a13e0a20a8752b5c62a6c77c4b43a95c1162af19 fab09a17105957aac5ced72bfbf65e1fc6ae0429
-R c1f3415462f72ae1ced5d646e5f0c56a
+P bdeb633a6ca008ae67823e6e88ea2f5d08179fb1
+R 457aa417b5593f4b2c1ee9ed4854628e
 U viriketo
-Z d9703e0c209e7eb65e752cd52d08f2a6
+Z 4038af7e37412eccd243c33307d4283e
