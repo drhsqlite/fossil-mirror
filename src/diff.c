@@ -1275,12 +1275,11 @@ static void sbsDiff(
 
   memset(&s, 0, sizeof(s));
   s.width = diff_width(diffFlags);
-  if (s.width == 0 && maxwidth == 0){ /* Autocalculate */
+  if( s.width == 0 ) { /* May Autocalculate */
     Blob dump;
-    /* Webserver */
-    maxwidth = -1;
+    maxwidth = -1; /* The webserver may call sbsDiff more than once per process */
     blob_zero(&dump);
-    sbsDiff(p, &dump, pRe, diffFlags);
+    sbsDiff(p, &dump, pRe, diffFlags | DIFF_WIDTH_MASK);
     s.width = maxwidth;
     blob_reset(&dump);
   }
