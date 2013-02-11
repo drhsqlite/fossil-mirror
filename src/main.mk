@@ -1148,7 +1148,7 @@ $(OBJDIR)/th_tcl.o:	$(SRCDIR)/th_tcl.c
 
 
 $(OBJDIR)/cson_amalgamation.o: $(SRCDIR)/cson_amalgamation.c
-	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o -DCSON_FOSSIL_MODE
+	$(XTCC) -c $(SRCDIR)/cson_amalgamation.c -o $(OBJDIR)/cson_amalgamation.o
 
 #
 # The list of all the targets that do not correspond to real files. This stops

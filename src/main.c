@@ -172,7 +172,8 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
+  char *urlFossil;        /* The fossil query parameter on ssh: */
+  char *urlShell;         /* The shell query parameter on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
@@ -607,10 +608,7 @@ NORETURN void fossil_panic(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">%h</p>", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("%s: %s\n", g.argv[0], z);
-      fossil_force_newline();
-      fossil_puts(zOut, 1);
-      fossil_free(zOut);
+      fossil_trace("%s: %s\n", g.argv[0], z);
     }
   }
   free(z);
@@ -638,13 +636,10 @@ NORETURN void fossil_fatal(const char *zFormat, ...){
   {
     if( g.cgiOutput ){
       g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
       cgi_reply();
     }else if( !g.fQuiet ){
-      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
-      fossil_force_newline();
-      fossil_puts(zOut, 1);
-      fossil_free(zOut);
+      fossil_trace("%s: %s\n", g.argv[0], z);
     }
   }
   free(z);
@@ -681,13 +676,10 @@ void fossil_fatal_recursive(const char *zFormat, ...){
   {
     if( g.cgiOutput ){
       g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
       cgi_reply();
     }else{
-      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
-      fossil_force_newline();
-      fossil_puts(zOut, 1);
-      fossil_free(zOut);
+      fossil_trace("%s: %s\n", g.argv[0], z);
     }
   }
   db_force_rollback();
@@ -709,12 +701,9 @@ void fossil_warning(const char *zFormat, ...){
 #endif
   {
     if( g.cgiOutput ){
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
-      char *zOut = mprintf("\r%s: %s\n", g.argv[0], z);
-      fossil_force_newline();
-      fossil_puts(zOut, 1);
-      fossil_free(zOut);
+      fossil_trace("%s: %s\n", g.argv[0], z);
     }
   }
   free(z);
@@ -749,9 +738,7 @@ int fossil_system(const char *zOrigCmd){
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
   WCHAR *zUnicode = fossil_utf8_to_unicode(zNewCmd);
   if( g.fSystemTrace ) {
-    char *zOut = mprintf("SYSTEM: %s\n", zNewCmd);
-    fossil_puts(zOut, 1);
-    fossil_free(zOut);
+    fossil_trace("SYSTEM: %s\n", zNewCmd);
   }
   rc = _wsystem(zUnicode);
   fossil_unicode_free(zUnicode);
@@ -979,7 +966,7 @@ void version_cmd(void){
 ** available commands one of:
 **
 **    %fossil help              Show common commands
-**    %fossil help --all        Show both command and auxiliary commands
+**    %fossil help --all        Show both common and auxiliary commands
 **    %fossil help --test       Show test commands only
 **    %fossil help --aux        Show auxiliary commands only
 */
@@ -1227,11 +1214,13 @@ static char *enter_chroot_jail(char *zRepo){
     }else{
       for(i=strlen(zDir)-1; i>0 && zDir[i]!='/'; i--){}
       if( zDir[i]!='/' ) fossil_panic("bad repository name: %s", zRepo);
-      zDir[i] = 0;
-      if( chdir(zDir) || chroot(zDir) || chdir("/") ){
-        fossil_fatal("unable to chroot into %s", zDir);
+      if( i>0 ){
+        zDir[i] = 0;
+        if( chdir(zDir) || chroot(zDir) || chdir("/") ){
+          fossil_fatal("unable to chroot into %s", zDir);
+        }
+        zDir[i] = '/';
       }
-      zDir[i] = '/';
       zRepo = &zDir[i];
     }
     if( stat(zRepo, &sStat)!=0 ){

@@ -210,6 +210,8 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
+    fossil_print("checkins:     %d\n",
+                 db_int(-1, "SELECT count(distinct mid) FROM mlink /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
@@ -1315,7 +1317,6 @@ void diff_page(void){
   ReCompiled *pRe = 0;
   u64 diffFlags;
   const char *zStyle = "sbsdiff";
-  const char *zReErr = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -1342,7 +1343,7 @@ void diff_page(void){
     }
   }
   zRe = P("regex");
-  if( zRe ) zReErr = re_compile(&pRe, zRe, 0);
+  if( zRe ) re_compile(&pRe, zRe, 0);
   content_get(v1, &c1);
   content_get(v2, &c2);
   text_diff(&c1, &c2, pOut, pRe, diffFlags);

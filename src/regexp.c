@@ -34,7 +34,7 @@
 **     \c      Character c where c is one of \{}()[]|*+?.
 **     \c      C-language escapes for c in afnrtv.  ex: \t or \n
 **     \uXXXX  Where XXXX is exactly 4 hex digits, unicode value XXXX
-**     \xXXX   Where XXX is any number of hex digits, unicode value XXX
+**     \xXX    Where XX is exactly 2 hex digits, unicode value XX
 **     [abc]   Any single character from the set abc
 **     [^abc]  Any single character not in the set abc
 **     [a-z]   Any single character in the range a-z
@@ -136,7 +136,7 @@ static unsigned re_next_char(ReInput *p){
   unsigned c;
   if( p->i>=p->mx ) return 0;
   c = p->z[p->i++];
-  if( c>0x80 ){
+  if( c>=0x80 ){
     if( (c&0xe0)==0xc0 && p->i<p->mx && (p->z[p->i]&0xc0)==0x80 ){
       c = (c&0x1f)<<6 | (p->z[p->i++]&0x3f);
       if( c<0x80 ) c = 0xfffd;
@@ -144,13 +144,13 @@ static unsigned re_next_char(ReInput *p){
            && (p->z[p->i+1]&0xc0)==0x80 ){
       c = (c&0x0f)<<12 | ((p->z[p->i]&0x3f)<<6) | (p->z[p->i+1]&0x3f);
       p->i += 2;
-      if( c<0x3ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
+      if( c<=0x3ff || (c>=0xd800 && c<=0xdfff) ) c = 0xfffd;
     }else if( (c&0xf8)==0xf0 && p->i+3<p->mx && (p->z[p->i]&0xc0)==0x80
            && (p->z[p->i+1]&0xc0)==0x80 && (p->z[p->i+2]&0xc0)==0x80 ){
       c = (c&0x07)<<18 | ((p->z[p->i]&0x3f)<<12) | ((p->z[p->i+1]&0x3f)<<6)
                        | (p->z[p->i+2]&0x3f);
       p->i += 3;
-      if( c<0xffff ) c = 0xfffd;
+      if( c<=0xffff || c>0x10ffff ) c = 0xfffd;
     }else{
       c = 0xfffd;
     }
@@ -174,13 +174,13 @@ static int re_digit_char(int c){
 
 /* Return true if c is a perl "space" character:  [ \t\r\n\v\f] */
 static int re_space_char(int c){
-  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f' ;
+  return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\v' || c=='\f';
 }
 
 /* Run a compiled regular expression on the zero-terminated input
 ** string zIn[].  Return true on a match and false if there is no match.
 */
-int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
+int re_match(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   ReStateSet aStateSet[2], *pThis, *pNext;
   ReStateNumber aSpace[100];
   ReStateNumber *pToFree;
@@ -194,15 +194,18 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   in.z = zIn;
   in.i = 0;
   in.mx = nIn>=0 ? nIn : strlen((char const*)zIn);
+
+  /* Look for the initial prefix match, if there is one. */
   if( pRe->nInit ){
     unsigned char x = pRe->zInit[0];
-    while( in.i+pRe->nInit<in.mx 
+    while( in.i+pRe->nInit<=in.mx 
         && (zIn[in.i]!=x || memcmp(zIn+in.i, pRe->zInit, pRe->nInit)!=0)
     ){
       in.i++;
     }
-    if( in.i+pRe->nInit>=in.mx ) return 0;
+    if( in.i+pRe->nInit>in.mx ) return 0;
   }
+
   if( pRe->nState<=(sizeof(aSpace)/(sizeof(aSpace[0])*2)) ){
     pToFree = 0;
     aStateSet[0].aState = aSpace;
@@ -277,7 +280,7 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
         }
         case RE_OP_ACCEPT: {
           rc = 1;
-          goto re_execute_end;
+          goto re_match_end;
         }
         case RE_OP_CC_INC:
         case RE_OP_CC_EXC: {
@@ -309,7 +312,7 @@ int re_execute(ReCompiled *pRe, const unsigned char *zIn, int nIn){
   for(i=0; i<pNext->nState; i++){
     if( pRe->aOp[pNext->aState[i]]==RE_OP_ACCEPT ){ rc = 1; break; }
   }
-re_execute_end:
+re_match_end:
   fossil_free(pToFree);
   return rc;
 }
@@ -380,7 +383,7 @@ static int re_hex(int c, int *pV){
 }
 
 /* A backslash character has been seen, read the next character and
-** return its intepretation.
+** return its interpretation.
 */
 static unsigned re_esc_char(ReCompiled *p){
   static const char zEsc[] = "afnrtv\\()*.+?[$^{|}]";
@@ -388,9 +391,8 @@ static unsigned re_esc_char(ReCompiled *p){
   int i, v = 0;
   char c;
   if( p->sIn.i>=p->sIn.mx ) return 0;
-  c = p->sIn.z[0];
-  if( c=='u' && p->sIn.i+5<p->sIn.mx ){
-    v = 0;
+  c = p->sIn.z[p->sIn.i];
+  if( c=='u' && p->sIn.i+4<p->sIn.mx ){
     const unsigned char *zIn = p->sIn.z + p->sIn.i;
     if( re_hex(zIn[1],&v)
      && re_hex(zIn[2],&v)
@@ -401,11 +403,12 @@ static unsigned re_esc_char(ReCompiled *p){
       return v;
     }
   }
-  if( c=='x' ){
-    v = 0;
-    for(i=1; p->sIn.i<p->sIn.mx && re_hex(p->sIn.z[p->sIn.i+i], &v); i++){}
-    if( i>1 ){
-      p->sIn.i += i;
+  if( c=='x' && p->sIn.i+2<p->sIn.mx ){
+    const unsigned char *zIn = p->sIn.z + p->sIn.i;
+    if( re_hex(zIn[1],&v)
+     && re_hex(zIn[2],&v)
+    ){
+      p->sIn.i += 3;
       return v;
     }
   }
@@ -596,12 +599,13 @@ void re_free(ReCompiled *pRe){
   if( pRe ){
     fossil_free(pRe->aOp);
     fossil_free(pRe->aArg);
+    fossil_free(pRe);
   }
 }
 
 /*
 ** Compile a textual regular expression in zIn[] into a compiled regular
-** expression suitable for us by re_execute() and return a pointer to the
+** expression suitable for us by re_match() and return a pointer to the
 ** compiled regular expression in *ppRe.  Return NULL on success or an
 ** error message if something goes wrong.
 */
@@ -634,7 +638,7 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     re_free(pRe);
     return zErr;
   }
-  if( rePeek(pRe)=='$' && pRe->sIn.i+1==pRe->sIn.mx ){
+  if( rePeek(pRe)=='$' && pRe->sIn.i+1>=pRe->sIn.mx ){
     re_append(pRe, RE_OP_MATCH, RE_EOF);
     re_append(pRe, RE_OP_ACCEPT, 0);
     *ppRe = pRe;
@@ -645,6 +649,15 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
     re_free(pRe);
     return "unrecognized character";
   }
+
+  /* The following is a performance optimization.  If the regex begins with
+  ** ".*" (if the input regex lacks an initial "^") and afterwards there are
+  ** one or more matching characters, enter those matching characters into
+  ** zInit[].  The re_match() routine can then search ahead in the input 
+  ** string looking for the initial match without having to run the whole
+  ** regex engine over the string.  Do not worry able trying to match
+  ** unicode characters beyond plane 0 - those are very rare and this is
+  ** just an optimization. */
   if( pRe->aOp[0]==RE_OP_ANYSTAR ){
     for(j=0, i=1; j<sizeof(pRe->zInit)-2 && pRe->aOp[i]==RE_OP_MATCH; i++){
       unsigned x = pRe->aArg[i];
@@ -656,11 +669,12 @@ const char *re_compile(ReCompiled **ppRe, const char *zIn, int noCase){
       }else if( x<=0xffff ){
         pRe->zInit[j++] = 0xd0 | (x>>12);
         pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
-        pRe->zInit[j++] = 0x80 | ((x>>6)&0x3f);
+        pRe->zInit[j++] = 0x80 | (x&0x3f);
       }else{
         break;
       }
     }
+    if( j>0 && pRe->zInit[j-1]==0 ) j--;
     pRe->nInit = j;
   }
   return pRe->zErr;
@@ -702,7 +716,7 @@ static void re_sql_func(
   }
   zStr = (const unsigned char*)sqlite3_value_text(argv[1]);
   if( zStr!=0 ){
-    sqlite3_result_int(context, re_execute(pRe, zStr, -1));
+    sqlite3_result_int(context, re_match(pRe, zStr, -1));
   }
 }
 
@@ -733,7 +747,7 @@ static void grep(ReCompiled *pRe, const char *zFile, FILE *in){
     ln++;
     n = (int)strlen(zLine);
     while( n && (zLine[n-1]=='\n' || zLine[n-1]=='\r') ) n--;
-    if( re_execute(pRe, (const unsigned char*)zLine, n) ){
+    if( re_match(pRe, (const unsigned char*)zLine, n) ){
       printf("%s:%d:%.*s\n", zFile, ln, n, zLine);
     }
   }

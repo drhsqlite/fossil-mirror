@@ -920,6 +920,15 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
+  entry_attribute("Download time limit", 11, "max-download-time", "mxdwnt",
+                  "30");
+
+  @ <p>Fossil tries to spend less than this many seconds gathering
+  @ the out-bound data of sync, clone, and pull packets.
+  @ If the client request takes longer, a partial reply is given similar
+  @ to the download packet limit. 30s is a reasonable default.</p>
+
+  @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1);

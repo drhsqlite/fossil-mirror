@@ -362,49 +362,15 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 */
 int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
-  int c1, c2;
+  int c1;
 
   if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16le
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16be
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
+  if( (blob_size(pContent)<2) || (blob_size(pContent)&1)) return 0;
+  c1 = ((unsigned short *)z)[0];
+  if( (c1==0xfeff) || (c1==0xfffe) ){
+    if( blob_size(pContent) < 4 ) return 1;
+    c1 = ((unsigned short *)z)[1];
+    if( c1 != 0 ) return 1;
   }
   return 0;
 }
@@ -426,7 +392,7 @@ static int re_dline_match(
   int N               /* Number of DLines to check */
 ){
   while( N-- ){
-    if( re_execute(pRe, aDLine->z, LENGTH(aDLine)) ){
+    if( re_match(pRe, (const unsigned char *)aDLine->z, LENGTH(aDLine)) ){
       return 1;
     }
     aDLine++;
@@ -623,9 +589,7 @@ static void contextDiff(
     for(i=0; i<nr; i++){
       m = R[r+i*3+1];
       for(j=0; j<m; j++){
-        char cMark = '-';
         if( showLn ) appendDiffLineno(pOut, a+j+1, 0, html);
-        if( pRe && re_dline_match(pRe, &A[a+j], 1)==0 ) cMark = ' ';
         appendDiffLine(pOut, '-', &A[a+j], html, pRe);
       }
       a += m;
@@ -1967,7 +1931,6 @@ int *text_diff(
   u64 diffFlags    /* DIFF_* flags defined above */
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
-  int nContext;    /* Amount of context to display */
   DContext c;
 
   if( diffFlags & DIFF_INVERT ){
