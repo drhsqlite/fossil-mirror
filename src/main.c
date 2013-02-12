@@ -173,7 +173,8 @@ struct Global {
   char *urlPasswd;        /* Password for http: */
   char *urlCanonical;     /* Canonical representation of the URL */
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
-  char *urlFossil;        /* The path of the ?fossil=path suffix on ssh: */
+  char *urlFossil;        /* The fossil query parameter on ssh: */
+  char *urlShell;         /* The shell query parameter on ssh: */
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
