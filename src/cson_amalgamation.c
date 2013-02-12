@@ -4351,7 +4351,7 @@ int cson_buffer_reserve( cson_buffer * buf, cson_size_t n )
     }
     else
     {
-        unsigned char * x = (unsigned char *)realloc( buf->mem, n );
+        unsigned char * x = (unsigned char *)cson_realloc( buf->mem, n, "cson_buffer::mem" );
         if( ! x ) return cson_rc.AllocError;
         memset( x + buf->used, 0, n - buf->used );
         buf->mem = x;
