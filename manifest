@@ -1,5 +1,5 @@
-C Fixing\sthe\srebuild\sof\sthe\sticket\sdatabases,\sso\sthey\sget\sproperly\sthe\scomments\nincluded\sby\smanifests'\s"+comment".\n\ndrh\ssays\snot\sto\sbe\sable\sto\sreproduce\sthis\sissue,\sbut\shere\sis\sa\sfix\sthat\smakes\nall\swork\sfor\sme.\n\nFeel\sfree\sto\srewrite\sthis\spatch\sto\smatch\syour\staste.
-D 2013-02-12T19:09:53.210
+C Revised\sticket\sprocessing\sto\salign\swith\scoding\sstyle\sguide,\sand\sfor\nclarity\sof\spresentation.
+D 2013-02-12T19:23:57.496
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -393,7 +393,7 @@ F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c b81a5660b8afbcaf9a1a63a3272abfcc8a763650
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c e84a78905007a947548cbfaa46f4edd95e89b784
-F src/tkt.c 3a2df824efecd527e342349f72c3e07a1f703a21
+F src/tkt.c 967b7f463b1095dd42a98910aafd093ad0be99f5
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a1d2cd84b8a66dba4277a461c15d0b80f1025e5f
-R 935b35b791a28f9cd537b959499e0879
-U viriketo
-Z a0959e02a9b5b3c9ff1e79178eadaf30
+P 9cca9398ab311a4076838e65723ed7200d743747
+R 955f8b22d657eb1f067583a10ec4e60a
+U drh
+Z 63639f2a957f3ba515f2f436c86c587d
