@@ -22,22 +22,9 @@
 #include "rss.h"
 #include <assert.h>
 
-static int append_tag_filter(Blob* bSQL, const char* zName, const char* zType)
-{
-  if ( zName ){
-    int nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB '%s-%q*'",
-      zType, zName);
-    if ( nTagId == 0 ){
-      return 0;
-    }
-    blob_appendf(bSQL, " AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)", nTagId);
-  }
-  return 1;
-}
-
 /*
 ** WEBPAGE: timeline.rss
-** URL:  /timeline.rss/y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&name=FILENAME&wiki=NAME
+** URL:  /timeline.rss/y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&wiki=NAME&name=FILENAME
 **
 ** Produce an RSS feed of the timeline.
 **
@@ -45,8 +32,11 @@ static int append_tag_filter(Blob* bSQL, const char* zName, const char* zType)
 ** w (show wiki only). LIMIT is the number of items to show.
 **
 ** tkt=UUID filters for only those events for the specified ticket. tag=TAG
-** filters for a tag, and name=FILENAME for a file. Some combinations may be
-** used.
+** filters for a tag, and wiki=NAME for a wiki page. Only one may be used.
+**
+** In addition, name=FILENAME filters for a specific file. This may be
+** combined with one of the other filters (useful for looking at a specific
+** branch).
 */
 
 void page_timeline_rss(void){
@@ -60,6 +50,7 @@ void page_timeline_rss(void){
   const char *zFilename = PD("name",NULL);
   const char *zWiki = PD("wiki",NULL);
   int nLimit = atoi(PD("n","20"));
+  int nTagId;
   const char zSQL1[] =
     @ SELECT
     @   blob.rid,
@@ -108,17 +99,36 @@ void page_timeline_rss(void){
     }
   }
 
-  if( !append_tag_filter(&bSQL, zTicketUuid, "tkt") ){
-    return;
-  }
-  if( !append_tag_filter(&bSQL, zTag, "sym") ){
-    return;
-  }
-  if( !append_tag_filter(&bSQL, zWiki, "wiki") ){
-    return;
+  if( zTicketUuid ){
+    nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'tkt-%q*'",
+      zTicketUuid);
+    if ( nTagId==0 ){
+      nTagId = -1;
+    }
+  }else if( zTag ){
+    nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'sym-%q*'",
+      zTag);
+    if ( nTagId==0 ){
+      nTagId = -1;
+    }
+  }else if( zWiki ){
+    nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB 'wiki-%q*'",
+      zWiki);
+    if ( nTagId==0 ){
+      nTagId = -1;
+    }
+  }else{
+    nTagId = 0;
   }
 
-  if ( zFilename ){
+  if( nTagId==-1 ){
+    blob_appendf(&bSQL, " AND 0");
+  }else if( nTagId!=0 ){
+    blob_appendf(&bSQL, " AND (EXISTS(SELECT 1 FROM tagxref"
+      " WHERE tagid=%d AND tagtype>0 AND rid=blob.rid))", nTagId);
+  }
+
+  if( zFilename ){
     blob_appendf(&bSQL,
       " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
         zFilename, filename_collation()
