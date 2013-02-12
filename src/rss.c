@@ -22,15 +22,43 @@
 #include "rss.h"
 #include <assert.h>
 
+static int append_tag_filter(Blob* bSQL, const char* zName, const char* zType)
+{
+  if ( zName ){
+    int nTagId = db_int(0, "SELECT tagid FROM tag WHERE tagname GLOB '%s-%q*'",
+      zType, zName);
+    if ( nTagId == 0 ){
+      return 0;
+    }
+    blob_appendf(bSQL, " AND objid IN (SELECT rid FROM tagxref WHERE tagid=%d)", nTagId);
+  }
+  return 1;
+}
+
 /*
 ** WEBPAGE: timeline.rss
+** URL:  /timeline.rss/y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&name=FILENAME&wiki=NAME
+**
+** Produce an RSS feed of the timeline.
+**
+** TYPE may be: all, ci (show checkins only), t (show tickets only),
+** w (show wiki only). LIMIT is the number of items to show.
+**
+** tkt=UUID filters for only those events for the specified ticket. tag=TAG
+** filters for a tag, and name=FILENAME for a file. Some combinations may be
+** used.
 */
+
 void page_timeline_rss(void){
   Stmt q;
   int nLine=0;
   char *zPubDate, *zProjectName, *zProjectDescr, *zFreeProjectName=0;
   Blob bSQL;
   const char *zType = PD("y","all"); /* Type of events.  All if NULL */
+  const char *zTicketUuid = PD("tkt",NULL);
+  const char *zTag = PD("tag",NULL);
+  const char *zFilename = PD("name",NULL);
+  const char *zWiki = PD("wiki",NULL);
   int nLimit = atoi(PD("n","20"));
   const char zSQL1[] =
     @ SELECT
@@ -64,6 +92,7 @@ void page_timeline_rss(void){
         blob_append(&bSQL, " AND event.type!='ci'", -1);
       }else if( g.perm.RdTkt ){
         blob_append(&bSQL, " AND event.type=='t'", -1);
+        
       }else{
         blob_append(&bSQL, " AND event.type=='w'", -1);
       }
@@ -77,6 +106,23 @@ void page_timeline_rss(void){
       assert( !g.perm.RdTkt &&& g.perm.Read && g.perm.RdWiki );
       blob_append(&bSQL, " AND event.type!='t'", -1);
     }
+  }
+
+  if( !append_tag_filter(&bSQL, zTicketUuid, "tkt") ){
+    return;
+  }
+  if( !append_tag_filter(&bSQL, zTag, "sym") ){
+    return;
+  }
+  if( !append_tag_filter(&bSQL, zWiki, "wiki") ){
+    return;
+  }
+
+  if ( zFilename ){
+    blob_appendf(&bSQL,
+      " AND (SELECT mlink.fnid FROM mlink WHERE event.objid=mlink.mid) IN (SELECT fnid FROM filename WHERE name=%Q %s)",
+        zFilename, filename_collation()
+    );
   }
 
   blob_append( &bSQL, " ORDER BY event.mtime DESC", -1 );

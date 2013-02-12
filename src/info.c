@@ -1725,7 +1725,7 @@ void tinfo_page(void){
   Manifest *pTktChng;
   int modPending;
   const char *zModAction;
-
+  char *zTktTitle;
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(); return; }
   rid = name_to_rid_www("name");
@@ -1754,6 +1754,7 @@ void tinfo_page(void){
       moderation_approve(rid);
     }
   }
+  zTktTitle = db_text("???", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName);
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
   style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
@@ -1778,13 +1779,14 @@ void tinfo_page(void){
     @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
   }
   @ <tr><th>Ticket:</th>
-  @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
+  @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a><br>%h(zTktTitle)</td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
   free(zDate);
+  free(zTktTitle);
   
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>
