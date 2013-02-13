@@ -213,11 +213,6 @@ void status_cmd(void){
 }
 
 /*
-** Implementation of the checkin_mtime SQL function
-*/
-
-
-/*
 ** COMMAND: ls
 **
 ** Usage: %fossil ls ?OPTIONS? ?VERSION?
