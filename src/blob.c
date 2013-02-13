@@ -1098,6 +1098,7 @@ void blob_swap( Blob *pLeft, Blob *pRight ){
 void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
   char *zUtf8;
   int bomSize = 0;
+  int bomReverse = 0;
   if( starts_with_utf8_bom(pBlob, &bomSize) ){
     struct Blob temp;
     zUtf8 = blob_str(pBlob) + bomSize;
@@ -1106,12 +1107,12 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
 #ifdef _WIN32
-  }else if( starts_with_utf16_bom(pBlob, &bomSize) ){
+  }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
     zUtf8 = blob_buffer(pBlob);
-    if (*((unsigned short *)zUtf8) == 0xfffe) {
+    if( bomReverse ){
       /* Found BOM, but with reversed bytes */
       unsigned int i = blob_size(pBlob);
-      while( i > 0 ){
+      while( i>0 ){
         /* swap bytes of unicode representation */
         char zTemp = zUtf8[--i];
         zUtf8[i] = zUtf8[i-1];

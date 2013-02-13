@@ -342,6 +342,31 @@ const unsigned char *get_utf8_bom(int *pnByte){
 }
 
 /*
+** This function returns an array of bytes representing the byte-order-mark
+** for UTF-16, either big-endian or little-endian.
+*/
+const unsigned char *get_utf16_bom(int *pnByte, int bReverse){
+  static const unsigned char bom_be[] = {
+    /*
+     * NOTE: The two extra bytes here are required by the
+     *       starts_with_utf16_bom() function, please do
+     *       not remove them.
+     */
+    0xFE, 0xFF, 0x00, 0x00
+  };
+  static const unsigned char bom_le[] = {
+    /*
+     * NOTE: The two extra bytes here are required by the
+     *       starts_with_utf16_bom() function, please do
+     *       not remove them.
+     */
+    0xFF, 0xFE, 0x00, 0x00
+  };
+  if( pnByte ) *pnByte = 2;
+  return bReverse ? bom_le : bom_be;
+}
+
+/*
 ** This function returns non-zero if the blob starts with a UTF-8
 ** byte-order-mark (BOM).
 */
@@ -356,20 +381,43 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-16le or
-** UTF-16be byte-order-mark (BOM).
+** This function returns non-zero if the blob starts with a UTF-16
+** byte-order-mark (BOM), in either big-endian (per the standard)
+** or little-endian (reversed) byte order.  If the blob starts with
+** a little-endian UTF-32 byte-order-mark (BOM), zero is returned.
 */
-int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
+int starts_with_utf16_bom(
+  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
+  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
+  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
+){
   const char *z = blob_buffer(pContent);
-  int c1;
+  int bomSize = 0;
+  const unsigned char *bom_be = get_utf16_bom(&bomSize, 0);
+  int size;
 
-  if( pnByte ) *pnByte = 2;
-  if( (blob_size(pContent)<2) || (blob_size(pContent)&1)) return 0;
-  c1 = ((unsigned short *)z)[0];
-  if( (c1==0xfeff) || (c1==0xfffe) ){
-    if( blob_size(pContent) < 4 ) return 1;
-    c1 = ((unsigned short *)z)[1];
-    if( c1 != 0 ) return 1;
+  if( pnByte ) *pnByte = bomSize;
+  if( pbReverse ) *pbReverse = -1; /* Unknown. */
+  size = blob_size(pContent);
+  if( (size<bomSize) || (size%2) ) return 0;
+  if( memcmp(z, bom_be, bomSize)==0 ){
+    if( pbReverse ) *pbReverse = 0;
+    return 1;
+  }else{
+    const unsigned char *bom_le = get_utf16_bom(&bomSize, 1);
+    if( memcmp(z, bom_le, bomSize)==0 ){
+      if( pbReverse ) *pbReverse = 1;
+      if( size<(2*bomSize) ) return 1;
+      /*
+       * NOTE: This check for a UTF-32 BOM relies on the extra bytes
+       *       normally present in the little-endian UTF-16 BOM as
+       *       returned by the get_utf16_bom() function.  If this
+       *       memcmp() call returns zero, that means the blob data
+       *       cannot possibly be UTF-16 because the trailing zero
+       *       bytes indicate a little-endian UTF-32 BOM instead.
+       */
+      if( memcmp(z+bomSize, bom_le+bomSize, bomSize)!=0 ) return 1;
+    }
   }
   return 0;
 }
