@@ -1,5 +1,5 @@
-C Add\sa\sdraft\sdocument\sdescribing\sthe\sticket\stables\sand\show\sthey\sare\ngenerated\sfrom\sticket\schange\sartifacts.
-D 2013-02-13T11:31:03.163
+C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sfrom\sthe\sSQLite\strunk.
+D 2013-02-13T14:12:34.826
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -375,12 +375,12 @@ F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
 F src/setup.c 6590422e30092778ae52cc9df6e601e2319c55b4
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
-F src/shell.c 48111200fb4839fc429164bbac773130f935f776
+F src/shell.c 4ca910fcf1b234aee7798155ccf30138b3afb238
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
 F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
-F src/sqlite3.c 8a415f3ee851bbb9086ae5cdbf7c7146c0a68281
-F src/sqlite3.h 4a30840575398a344786d8169a93ab137040b1f8
+F src/sqlite3.c 54222e4b6971a959ea97303ac8d54a491a6aab10
+F src/sqlite3.h 5421371cdf3d9539932cb90118483533efda2e97
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c af83fa0b1f93924e1999b193ee06773e17083d56
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 67f787dc4e2e4eab8e58943005312c90bf71dcb0
-R c5ec2341302da945210f91a7a580b956
+P d5be709c2021f7b815cf2505ce01a9f95f55983e
+R 77d2a70a2e703c38025f90f66b5b7ed8
 U drh
-Z a95af5f3a03368d28f9eaf8359255725
+Z 40905d67a487160f31a97a06cc84bab7
