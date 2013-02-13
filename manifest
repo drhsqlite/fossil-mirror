@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\sto\sthe\slatest\sfrom\sthe\sSQLite\strunk.
-D 2013-02-13T14:12:34.826
+C removed\san\sinvalid\sFIXME.\sComment\schanges\sonly.
+D 2013-02-13T17:43:00.397
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c ca5552de0f96c6026f0116d336fd5906fbe4e86e
+F src/main.c e51153fbab76c9bd99df839ec8095c3632e0e7fe
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d5be709c2021f7b815cf2505ce01a9f95f55983e
-R 77d2a70a2e703c38025f90f66b5b7ed8
-U drh
-Z 40905d67a487160f31a97a06cc84bab7
+P f7f764b760504295a453744137d5311340784142
+R 04c479298ac92694125968b9dbce3771
+U stephan
+Z 0f913032e97850aae07c13fd6c2e783b
