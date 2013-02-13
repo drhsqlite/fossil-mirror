@@ -1,5 +1,5 @@
-C Improvements\sto\sthe\sUTF-16\sBOM\sdetection.
-D 2013-02-13T03:14:49.586
+C "reverse"\sshould\smean\sbig-endian\son\slittle-endian\smachines.
+D 2013-02-13T09:28:24.213
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c f766f76aa53d9c5333f0315b6adfe9d194dc771e
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c dfad5ce773f8bd469e59139ce6c45ba3285fe81a
+F src/diff.c 99176d2f2e30685dd09524e066ee3df26a17d3a8
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -598,10 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 67f787dc4e2e4eab8e58943005312c90bf71dcb0
-R 65cfdf6623a887398b5b508f89205447
-T *branch * utf16Bom
-T *sym-utf16Bom *
-T -sym-trunk *
-U mistachkin
-Z a661d0168535bce5075901b2dd3ba872
+P 81c4d78137479fcdb64116a73468691ff0c763bb
+R 72790d7791a9f5371ac229f56c62c0f6
+U jan.nijtmans
+Z d8ac663c5b161baf62782d2d94a10628
