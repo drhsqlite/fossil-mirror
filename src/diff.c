@@ -358,7 +358,7 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 /*
 ** This function returns non-zero if the blob starts with a UTF-16
 ** byte-order-mark (BOM), either in the endianness of the machine
-** either in the reversed byte order.
+** or in reversed byte order.
 */
 int starts_with_utf16_bom(
   const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
@@ -384,7 +384,6 @@ int starts_with_utf16_bom(
     if( pbReverse ) *pbReverse = 0;
     if( size<(2*bomSize) ) return 1;
     if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
-    return 1;
   }
   return 0;
 }
