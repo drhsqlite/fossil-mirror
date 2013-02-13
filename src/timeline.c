@@ -596,9 +596,6 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
-#if 0
-    @ var realCanvas = null;
-#endif
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -650,12 +647,12 @@ void timeline_output_graph_javascript(
     @ function drawThinArrow(y,xFrom,xTo){
     @   if( xFrom<xTo ){
     @     drawBox("black",xFrom,y,xTo,y);
-    @     drawBox("black",xTo-4,y-1,xTo-2,y+1);
-    @     if( xTo>xFrom-8 ) drawBox("black",xTo-6,y-2,xTo-5,y+2);
+    @     drawBox("black",xTo-3,y-1,xTo-2,y+1);
+    @     drawBox("black",xTo-4,y-2,xTo-4,y+2);
     @   }else{
     @     drawBox("black",xTo,y,xFrom,y);
-    @     drawBox("black",xTo+2,y-1,xTo+4,y+1);
-    @     if( xTo+8<xFrom ) drawBox("black",xTo+5,y-2,xTo+6,y+2);
+    @     drawBox("black",xTo+2,y-1,xTo+3,y+1);
+    @     drawBox("black",xTo+4,y-2,xTo+4,y+2);
     @   }
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
@@ -724,7 +721,6 @@ void timeline_output_graph_javascript(
     @   }
     @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   var width = nrail*railPitch;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
