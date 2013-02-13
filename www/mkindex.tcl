@@ -51,6 +51,7 @@ set doclist {
   tech_overview.wiki {A Technical Overview Of The Design And Implementation
                       Of Fossil}
   tech_overview.wiki {SQLite Databases Used By Fossil}
+  tickets.wiki {The Fossil Ticket System}
   theory1.wiki {Thoughts On The Design Of The Fossil DVCS}
   webui.wiki {The Fossil Web Interface}
   wikitheory.wiki {Wiki In Fossil}
