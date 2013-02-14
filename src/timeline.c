@@ -662,9 +662,9 @@ void timeline_output_graph_javascript(
     @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
     }
     @   if( p.mo>0 ){
