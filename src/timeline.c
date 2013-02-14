@@ -636,7 +636,7 @@ void timeline_output_graph_javascript(
     @ }
     @ function drawUpArrow(x,y0,y1){
     @   drawBox("black",x,y0,x+1,y1);
-    @   if( y0+8>=y1 ){
+    @   if( y0+10>=y1 ){
     @     drawBox("black",x-1,y0+1,x+2,y0+2);
     @     drawBox("black",x-2,y0+3,x+3,y0+4);
     @   }else{
