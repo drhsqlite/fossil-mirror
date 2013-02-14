@@ -1142,6 +1142,7 @@ void page_timeline(void){
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    tmFlags |= TIMELINE_DISJOINT;
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
