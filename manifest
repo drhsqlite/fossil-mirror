@@ -1,5 +1,5 @@
-C More\saggressively\scompress\suparrows\sin\sthe\stimeline\swhen\sthe\slength\sof\sthe\narrow\sis\sshort.
-D 2013-02-14T21:58:42.577
+C Fix\sthe\sfile:\ssync\sprotocol\sso\sthat\sit\sworks\son\swindows\seven\sif\sthe\nclient\srepository\sis\sin\sa\sdirectory\sthat\scontains\snon-ASCII\scharacters\nin\sits\sname.
+D 2013-02-15T14:52:47.092
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -327,7 +327,7 @@ F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c ac97cee94c1e12e69194d6a4868dd781642e744e
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
-F src/http_transport.c 93186773d7b2e07a59b6bdb1513226bfc7d97a59
+F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
 F src/info.c ef94b35c1fd52a404a03c876a3153d7ac5f8aba2
 F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 162538351ddfbb53c09a03f2d8053a2f638a9719
-R 91279caf42c75a6fe05534c24c4644b8
+P 6267e24b39dc2b9ab9b02b2d5cd990da9db2fa6e
+R c57d039d749673f4fa0ea084f2fcadb5
 U drh
-Z 80fde05491656ba6614d79ae3f269fa7
+Z af3a18571a3e549bd749a11c0b436df5
