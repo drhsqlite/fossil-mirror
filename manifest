@@ -1,5 +1,5 @@
-C Fix\sthe\sfile:\ssync\sprotocol\sso\sthat\sit\sworks\son\swindows\seven\sif\sthe\nclient\srepository\sis\sin\sa\sdirectory\sthat\scontains\snon-ASCII\scharacters\nin\sits\sname.
-D 2013-02-15T14:52:47.092
+C On\sa\sside-by-side\sdiff,\sshift\ssmall\sdifferences\sas\sfar\sto\sthe\sleft\sas\spossible.
+D 2013-02-15T15:14:53.615
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c f766f76aa53d9c5333f0315b6adfe9d194dc771e
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c fc3d370f02b1738bda351bd80f28675e02191cde
+F src/diff.c 67175a9aec62750cd5654ba4e347a0d082709c21
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 6267e24b39dc2b9ab9b02b2d5cd990da9db2fa6e
-R c57d039d749673f4fa0ea084f2fcadb5
+P b5aab69514e9092065582c1bf6ea522074a03ba5
+R 9a451f24ee3d67c18155e8122ede167b
 U drh
-Z af3a18571a3e549bd749a11c0b436df5
+Z 74cb7c9f3d77bc6a7755f10afce2c721

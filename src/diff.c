@@ -895,8 +895,8 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
-  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
+  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
