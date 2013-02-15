@@ -2264,11 +2264,11 @@ static void annotate_file(
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
     const char *zUuid = db_column_text(&q, 0);
-    const char *zUuidFile = db_column_text(&q, 2);
-    const char *zUuidParentFile = db_column_text(&q, 3);
-    const char *zDate = db_column_text(&q, 1);
-    const char *zUser = db_column_text(&q, 2);
-    int prevId = db_column_int(&q, 3);
+    const char *zUuidFile = db_column_text(&q, 1);
+    const char *zUuidParentFile = db_column_text(&q, 2);
+    const char *zDate = db_column_text(&q, 3);
+    const char *zUser = db_column_text(&q, 4);
+    int prevId = db_column_int(&q, 5);
     if( webLabel ){
       if (zUuidParentFile) {
         zLabel = mprintf(

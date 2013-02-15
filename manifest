@@ -1,5 +1,5 @@
-C Picking\srecent\strunk\sfixes\son\stickets.
-D 2013-02-12T20:17:41.719
+C Fixing\sannotate.\sIt\swas\shanging.
+D 2013-02-15T14:37:54.716
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c fdedd8560d9216a1791b7c282f3a99616ac6a70b
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c f11493528a0acb71cc1a4692a15d8e0ed5689157
+F src/diff.c 4aee7b0bd8a70cd20a3336126c877ea29e58c481
 F src/diffcmd.c 300318ae7df6983df5619b381653d4d84dbdc5d8
 F src/doc.c 87b7cb00cf3e69926340335943fb964429d02957
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1b07b3d9b26d01b2634a0d35c7d5de9f1d9a49b7 67f787dc4e2e4eab8e58943005312c90bf71dcb0
-R b854dc4891fe17c4384ae9cfd68bb996
+P 7a8ed6d7df6b2149c76d610c5da759fb4d572bea
+R 1ff0f290b70db19332f75164465d06d0
 U viriketo
-Z 03f33c556f969ee3eb5b96151e421d4b
+Z b1c5d7f0bab88d652a6ec841232861b0
