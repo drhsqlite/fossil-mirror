@@ -908,7 +908,7 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0);
+  fUnicode = starts_with_utf16_bom(p, 0, 0);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;

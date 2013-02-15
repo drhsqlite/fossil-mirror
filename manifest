@@ -1,5 +1,5 @@
-C Formatting\stweaks\sto\sthe\s"dbstat"\scommand\sso\sthat\sit\sworks\sbetter\son\san\n80-column\sshell\swindow.
-D 2013-02-15T16:15:27.277
+C Improvements\sto\sUTF-16\sbyte-order-mark\sdetection.
+D 2013-02-15T19:57:11.301
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -294,12 +294,12 @@ F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 6bbd7e393a32d8f983cee00fefefe8de4417f5dd
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
-F src/blob.c a7eb950f4578b756ccd0df635e73d53349e8b3a4
+F src/blob.c 529020455d926b1d651204c594483e894af984c1
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3911087555ce799af1abb10e01b1f6590c0e6746
-F src/checkin.c d413d4b267d7c58ac110a00b74b423247d7ba7a4
+F src/checkin.c fc4451449a39db7ee44c9a22dd74ac0c79b0521d
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 3776a09e12b72b2158d18742e6b65708b8e5cfe1
@@ -313,7 +313,7 @@ F src/db.c f766f76aa53d9c5333f0315b6adfe9d194dc771e
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 67175a9aec62750cd5654ba4e347a0d082709c21
+F src/diff.c b697140bc39030b2eee49f517663732bd365138e
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b9625cfeb4198f1667148a268708dd112e8ba13c
-R b9a3d06bcc6633646537f4fc4f56e4c3
-U drh
-Z e9d0b188741c37ccc25e3b71ded528a2
+P 8522e0ab02507f2e8800897ad64bfa192b4d0a9d a49749ed5d777507c20b67ebc8dcce3131967600
+R 67aa1f497ccb175c6fa397de6b53bea2
+U mistachkin
+Z 683c2c6ea86bf809730458d679bf3cb0
