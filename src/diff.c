@@ -41,6 +41,7 @@
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
+#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -51,6 +52,12 @@
 
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
+
+#define DIFF_TOO_MANY_CHANGES_TXT \
+    "more than 10,000 changes\n"
+
+#define DIFF_TOO_MANY_CHANGES_HTML \
+    "<p class='generalError'>More than 10,000 changes</p>\n"
 
 #define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
 #endif /* INTERFACE */
@@ -1906,6 +1913,7 @@ int *text_diff(
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
   DContext c;
+  int i, nChng;
 
   if( diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
@@ -1931,7 +1939,26 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
-  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
+  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+    int i, m, n;
+    int *a = c.aEdit;
+    int mx = c.nEdit;
+    for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
+    if( n>10000 ){
+      fossil_free(c.aFrom);
+      fossil_free(c.aTo);
+      fossil_free(c.aEdit);
+      if( diffFlags & DIFF_HTML ){
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
+      }else{
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
+      }
+      return 0;
+    }
+  }
+  if( (diffFlags & DIFF_NOOPT)==0 ){
+    diff_optimize(&c);
+  }
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */

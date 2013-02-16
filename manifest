@@ -1,5 +1,5 @@
-C Version\s1.25
-D 2013-02-16T00:04:35.096
+C Limit\sthe\scomplexiting\sof\sthe\sdiff\sdisplay\son\scheck-in\sinformation\spages.
+D 2013-02-16T14:12:23.855
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c f766f76aa53d9c5333f0315b6adfe9d194dc771e
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c b697140bc39030b2eee49f517663732bd365138e
+F src/diff.c 881d1e37b7774a38298260401fc047dd989e4b12
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -329,7 +329,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c ef94b35c1fd52a404a03c876a3153d7ac5f8aba2
+F src/info.c 97f1d3c1886c1390d537dc49df69c9a9b889d9ff
 F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -599,10 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3d988df67062c5e099a609bb9c6e61a1e78c6fa5
-R 67aa1f497ccb175c6fa397de6b53bea2
-T +bgcolor * #d0c0ff
-T +sym-release *
-T +sym-version-1.25 *
+P d2e07756d9ecc5059fc652b28b72961c48cbb79f
+R a070d058369547fdd467678ae75458a3
 U drh
-Z c17422ad7f5a5044ac2288a247aa5582
+Z 9788b34c93d6be0cf66f47760898f734
