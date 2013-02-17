@@ -41,6 +41,7 @@
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
+#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -51,6 +52,12 @@
 
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
+
+#define DIFF_TOO_MANY_CHANGES_TXT \
+    "more than 10,000 changes\n"
+
+#define DIFF_TOO_MANY_CHANGES_HTML \
+    "<p class='generalError'>More than 10,000 changes</p>\n"
 
 #define looks_like_binary(blob) ((looks_like_utf8((blob))&3) == 0)
 #endif /* INTERFACE */
@@ -232,9 +239,8 @@ if( c<0xC0 || c>=0xF8 ){ \
 **
 ************************************ WARNING **********************************
 */
-
 int looks_like_utf8(const Blob *pContent){
-  unsigned char *z = (unsigned char *) blob_buffer(pContent);
+  const unsigned char *z = (unsigned char *) blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   unsigned int j;
   unsigned char c;
@@ -380,27 +386,48 @@ const unsigned char *get_utf8_bom(int *pnByte){
 }
 
 /*
-** This function returns detected BOM size if the blob starts with
-** a UTF-8, UTF-16le or UTF-16be byte-order-mark (BOM).
+** This function returns non-zero if the blob starts with a UTF-8
+** byte-order-mark (BOM).
 */
-int starts_with_bom(const Blob *pContent){
+int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
   const char *z = blob_buffer(pContent);
-  int c1, bomSize = 0;
+  int bomSize = 0;
   const unsigned char *bom = get_utf8_bom(&bomSize);
 
-  if( (blob_size(pContent)>=bomSize)
-      && (memcmp(z, bom, bomSize)==0) ){
-    return bomSize;
-  }
-  /* Only accept UTF-16 BOM if the blob has an even number of bytes */
-  if( (blob_size(pContent)<2) || (blob_size(pContent)&1) ) return 0;
-  c1 = *((unsigned short *)z);
-  if( (c1==0xfffe) || (c1==0xfeff) ){
-    if( blob_size(pContent)>=4 ){
-      /* For UTF-32 BOM, always return 0. */
-      if( ((unsigned short *)z)[1] == 0 ) return 0;
-    }
-    return 2;
+  if( pnByte ) *pnByte = bomSize;
+  if( blob_size(pContent)<bomSize ) return 0;
+  return memcmp(z, bom, bomSize)==0;
+}
+
+/*
+** This function returns non-zero if the blob starts with a UTF-16
+** byte-order-mark (BOM), either in the endianness of the machine
+** or in reversed byte order.
+*/
+int starts_with_utf16_bom(
+  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
+  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
+  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
+){
+  const char *z = blob_buffer(pContent);
+  int bomSize = 2;
+  static const unsigned short bom = 0xfeff;
+  static const unsigned short bom_reversed = 0xfffe;
+  static const unsigned short null = 0;
+  int size;
+
+  if( pnByte ) *pnByte = bomSize;
+  if( pbReverse ) *pbReverse = -1; /* Unknown. */
+  size = blob_size(pContent);
+  if( (size<bomSize) || (size%2) ) return 0;
+  if( memcmp(z, &bom_reversed, bomSize)==0 ){
+    if( pbReverse ) *pbReverse = 1;
+    if( size<(2*bomSize) ) return 1;
+    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
+  }else if( memcmp(z, &bom, bomSize)==0 ){
+    if( pbReverse ) *pbReverse = 0;
+    if( size<(2*bomSize) ) return 1;
+    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
   }
   return 0;
 }
@@ -926,8 +953,8 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
-  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
+  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -1948,7 +1975,26 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
-  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
+  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+    int i, m, n;
+    int *a = c.aEdit;
+    int mx = c.nEdit;
+    for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
+    if( n>10000 ){
+      fossil_free(c.aFrom);
+      fossil_free(c.aTo);
+      fossil_free(c.aEdit);
+      if( diffFlags & DIFF_HTML ){
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
+      }else{
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
+      }
+      return 0;
+    }
+  }
+  if( (diffFlags & DIFF_NOOPT)==0 ){
+    diff_optimize(&c);
+  }
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */
@@ -2368,7 +2414,7 @@ void annotate_cmd(void){
   showLog = find_option("log",0,0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if( g.argc<3 ){
+  if (g.argc<3) {
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2382,7 +2428,7 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if( cid == 0 ){
+  if (cid == 0){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;

@@ -314,7 +314,7 @@ int transport_open(void){
                                        g.zRepositoryName, iRandId);
       transport.zInFile = mprintf("%s-%llu-in.http", 
                                        g.zRepositoryName, iRandId);
-      transport.pFile = fopen(transport.zOutFile, "wb");
+      transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
         fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
       }
@@ -411,7 +411,7 @@ void transport_flip(void){
     );
     fossil_system(zCmd);
     free(zCmd);
-    transport.pFile = fopen(transport.zInFile, "rb");
+    transport.pFile = fossil_fopen(transport.zInFile, "rb");
   }
 }
 
