@@ -372,25 +372,20 @@ int starts_with_utf16_bom(
   int *pnByte,          /* OUT: The number of bytes used for the BOM. */
   int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
 ){
-  const char *z = blob_buffer(pContent);
-  int bomSize = 2;
+  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  const int bomSize = 2;
   static const unsigned short bom = 0xfeff;
   static const unsigned short bom_reversed = 0xfffe;
-  static const unsigned short null = 0;
-  int size;
+  int size = blob_size(pContent);
 
   if( pnByte ) *pnByte = bomSize;
   if( pbReverse ) *pbReverse = -1; /* Unknown. */
-  size = blob_size(pContent);
-  if( (size<bomSize) || (size%2) ) return 0;
-  if( memcmp(z, &bom_reversed, bomSize)==0 ){
+  if( (size<bomSize) || (size%2)
+    || (size>=(2*bomSize) && z[1]==0) ) return 0;
+  if( z[0] == bom_reversed ){
     if( pbReverse ) *pbReverse = 1;
-    if( size<(2*bomSize) ) return 1;
-    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
-  }else if( memcmp(z, &bom, bomSize)==0 ){
+  }else if( z[0] == bom ){
     if( pbReverse ) *pbReverse = 0;
-    if( size<(2*bomSize) ) return 1;
-    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
   }
   return 0;
 }
