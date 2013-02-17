@@ -1913,7 +1913,6 @@ int *text_diff(
 ){
   int ignoreEolWs; /* Ignore whitespace at the end of lines */
   DContext c;
-  int i, nChng;
 
   if( diffFlags & DIFF_INVERT ){
     Blob *pTemp = pA_Blob;
