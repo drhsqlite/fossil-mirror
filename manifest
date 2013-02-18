@@ -1,5 +1,5 @@
-C Update\ssrc/rss.c\swith\slatest\sversion\sfrom\sdg-misc\sbranch\s(original\sat\n[01e85ec4]).
-D 2013-02-12T16:57:55.592
+C /info/TICKET_UUID\snow\sonly\sshows\sthe\sticket\stitle\sif\sthe\sticket\sdb\shas\sa\stitle\sfield.
+D 2013-02-18T21:45:06.050
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c 3b18707d7f43241b62700dcda975b1af350c4c4a
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 31e0d7b8b6a899d16a30947458c437c262637926
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c f766f76aa53d9c5333f0315b6adfe9d194dc771e
+F src/db.c 442f1d7239a156db52125381e164c9b40f8f445d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -329,7 +329,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 93186773d7b2e07a59b6bdb1513226bfc7d97a59
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 5ba51f35a3b404547634cf4f30896e3f54413d7a
+F src/info.c 8a9f773c504b4c67e6f91a27871478c816f1f86e
 F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -598,7 +598,7 @@ F www/theory1.wiki 0f84e4669699e5912f3c95174921bd802bca731b
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1bc09124bd80b0ee7dba063e165e53e68dc356fb
-R 8ac4734bec1dec075846a632f8cc122c
-U dg
-Z bff722ee7ccd9d27468a21fca36734a6
+P a10282407c3013153c670e4276e3a1aabe3d93ce
+R 737e23166b3f76333673fcf467cca810
+U stephan
+Z a02bf4f61bad949ec1cfdb2d2349bdc3
