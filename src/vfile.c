@@ -461,7 +461,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   depth++;
 
   zDir = blob_str(pPath);
-  zNative = fossil_utf8_to_unicode(zDir);
+  zNative = fossil_utf8_to_filename(zDir);
   d = opendir(zNative);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -493,7 +493,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
     }
     closedir(d);
   }
-  fossil_unicode_free(zNative);
+  fossil_filename_free(zNative);
 
   depth--;
   if( depth==0 ){

@@ -843,7 +843,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  zUnicodePath = fossil_utf8_to_filename(zPath);
   d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -877,7 +877,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_unicode_free(zUnicodePath);
+  fossil_filename_free(zUnicodePath);
 }
 
 /*
