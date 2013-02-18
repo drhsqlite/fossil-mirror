@@ -1,5 +1,5 @@
-C Fixed\sticket\s[5df2715635b99bd46a]\s(check-in\scount\smismatch).
-D 2013-02-18T13:46:41.195
+C Update\sversion\sof\sOpenSSL\sthat\sis\sreferred\sto\sin\sthe\smakefiles.
+D 2013-02-18T22:35:57.966
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -351,7 +351,7 @@ F src/main.c e51153fbab76c9bd99df839ec8095c3632e0e7fe
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl b90fbdbe691dac205e8f7ce69c69b0cde4e84fbb
+F src/makemake.tcl ff512678ffac143a95f62882c1401f5f3e549a9b
 F src/manifest.c 8d368b881c72e53c84c5eb0f6b3e3d0aa879e6ca
 F src/markdown.c 8e73e822c94af4942ef4590ae66a77bd3a006a96
 F src/markdown_html.c ed95c33b8d508cadb41a2e24881bccbaa1f3170c
@@ -498,8 +498,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 819c68d80dc035171370983b3dcb29bb308ec7f2
-F win/Makefile.mingw cdfcf091afec367d87922a5f5e7d61c75619d475
-F win/Makefile.mingw.mistachkin 6d41e0f8f9ef303439b7fc37d4a247d3d62f6bb7
+F win/Makefile.mingw b1ca8352ef5d357edb0ab5ca1120d0584c728869
+F win/Makefile.mingw.mistachkin f51b785ca675817116ecaa8a3136d7f6e0482c7e
 F win/Makefile.msc 4081d81772c3a66e081eb19d8c09a5c8b076f4fe
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc e202bdc4e73c28101e6e3b32821cb05ab5ddd005
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a98467b661faa7f5c88a0e689d05ee610155eb7b
-R 6921b0e71cc1ce9a38bb810f6b959d7b
-U stephan
-Z 15ace3dd535a0b4defa86ad7f7968640
+P b27c0d6d3fd0abe50a14e85b557f16fdbab94fab
+R 14855965b2f9804ec78e68ee7c8b00a4
+U mistachkin
+Z b2c84d635ffc8f703da0dc83114c08a8
