@@ -211,7 +211,7 @@ void info_cmd(void){
       show_common_info(vid, "checkout:", 1, 1);
     }
     fossil_print("checkins:     %d\n",
-                 db_int(-1, "SELECT count(distinct mid) FROM mlink /*scan*/"));
+                 db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);

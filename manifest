@@ -1,5 +1,5 @@
-C Remove\stwo\sunused\svariables
-D 2013-02-17T14:43:47.317
+C Fixed\sticket\s[5df2715635b99bd46a]\s(check-in\scount\smismatch).
+D 2013-02-18T13:46:41.195
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -329,7 +329,7 @@ F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
 F src/import.c ec3ecbbc8e7bf68ad959ff329589a28870dc7758
-F src/info.c 97f1d3c1886c1390d537dc49df69c9a9b889d9ff
+F src/info.c e42d3214592750b5fbf8e1c7c33f0753e8cac36b
 F src/json.c b7fa6b4d1351645b73236f7a28dceb0b904ea2ad
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4f95ea8c56718447fc29f7566048b1c27edb6b8d
-R ae9cdd1e60850d113ec234bf36289b21
-U jan.nijtmans
-Z 27508e053cb59e243f54b9b191182020
+P a98467b661faa7f5c88a0e689d05ee610155eb7b
+R 6921b0e71cc1ce9a38bb810f6b959d7b
+U stephan
+Z 15ace3dd535a0b4defa86ad7f7968640
