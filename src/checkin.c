@@ -213,11 +213,6 @@ void status_cmd(void){
 }
 
 /*
-** Implementation of the checkin_mtime SQL function
-*/
-
-
-/*
 ** COMMAND: ls
 **
 ** Usage: %fossil ls ?OPTIONS? ?VERSION?
@@ -618,10 +613,13 @@ static void prepare_commit_comment(
 ** If there were no arguments passed to [commit], aCommitFile is not
 ** allocated and remains NULL. Other parts of the code interpret this
 ** to mean "all files".
+**
+** Returns 1 if there was a warning, 0 otherwise.
 */
-void select_commit_files(void){
+int select_commit_files(void){
+  int result = 0;
   if( g.argc>2 ){
-    int ii;
+    int ii, jj=0;
     Blob b;
     blob_zero(&b);
     g.aCommitFile = fossil_malloc(sizeof(int)*(g.argc-1));
@@ -631,13 +629,16 @@ void select_commit_files(void){
       file_tree_name(g.argv[ii], &b, 1);
       iId = db_int(-1, "SELECT id FROM vfile WHERE pathname=%Q", blob_str(&b));
       if( iId<0 ){
-        fossil_fatal("fossil knows nothing about: %s", g.argv[ii]);
+        fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
+        result = 1;
+      } else {
+        g.aCommitFile[jj++] = iId;
       }
-      g.aCommitFile[ii-2] = iId;
       blob_reset(&b);
     }
-    g.aCommitFile[ii-2] = 0;
+    g.aCommitFile[jj] = 0;
   }
+  return result;
 }
 
 /*
@@ -897,7 +898,7 @@ static int commit_warning(
   Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
-  int unicodeOk,        /* Non-zero if unicode warnings should be disabled. */
+  int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
@@ -907,35 +908,40 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0);
+  fUnicode = starts_with_utf16_bom(p, 0, 0);
   eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
+    const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
     if( eType==-1 && fUnicode ){
-      if ( crnlOk && unicodeOk ){
-        return 0; /* We don't want Unicode/CR/NL warnings for this file. */
+      if ( crnlOk && encodingOk ){
+        return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
-      zWarning = "Unicode and CR/NL line endings";
+      zWarning = "CR/NL line endings and Unicode";
+      zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
     }else if( eType==-1 ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
+      zDisable = "\"crnl-glob\" setting";
     }else if( eType==0 ){
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
       zWarning = "binary data";
+      zDisable = "\"binary-glob\" setting";
       zConvert = ""; /* We cannot convert binary files. */
     }else{
-      if ( unicodeOk ){
-        return 0; /* We don't want unicode warnings for this file. */
+      if ( encodingOk ){
+        return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
+      zDisable = "\"encoding-glob\" setting";
 #ifndef _WIN32
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
@@ -943,8 +949,9 @@ static int commit_warning(
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
     zMsg = mprintf(
-         "%s contains %s.  commit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, zConvert);
+         "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
+    	 "Commit anyhow (a=all/%sy/N)? ",
+         blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
     cReply = blob_str(&ans)[0];
@@ -1195,7 +1202,12 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  select_commit_files();
+  if ( select_commit_files() ){
+    blob_zero(&ans);
+    prompt_user("continue (y/N)? ", &ans);
+    cReply = blob_str(&ans)[0];
+    if( cReply!='y' && cReply!='Y' ) fossil_exit(1);;
+  }
   isAMerge = db_exists("SELECT 1 FROM vmerge WHERE id=0");
   if( g.aCommitFile && isAMerge ){
     fossil_fatal("cannot do a partial commit of a merge");
@@ -1316,13 +1328,13 @@ void commit_cmd(void){
     g.zLocalRoot,
     glob_expr("pathname", db_get("crnl-glob","")),
     glob_expr("pathname", db_get("binary-glob","")),
-    glob_expr("pathname", db_get("unicode-glob",""))
+    glob_expr("pathname", db_get("encoding-glob",""))
   );
   while( db_step(&q)==SQLITE_ROW ){
     int id, rid;
     const char *zFullname;
     Blob content;
-    int crnlOk, binOk, unicodeOk, chnged;
+    int crnlOk, binOk, encodingOk, chnged;
 
     id = db_column_int(&q, 0);
     zFullname = db_column_text(&q, 1);
@@ -1330,7 +1342,7 @@ void commit_cmd(void){
     crnlOk = db_column_int(&q, 3);
     chnged = db_column_int(&q, 4);
     binOk = db_column_int(&q, 5);
-    unicodeOk = db_column_int(&q, 6);
+    encodingOk = db_column_int(&q, 6);
 
     blob_zero(&content);
     if( file_wd_islink(zFullname) ){
@@ -1342,7 +1354,7 @@ void commit_cmd(void){
     /* Do not emit any warnings when they are disabled. */
     if( !noWarningFlag ){
       abortCommit |= commit_warning(&content, crnlOk, binOk,
-                                    unicodeOk, zFullname);
+                                    encodingOk, zFullname);
     }
     if( chnged==1 && contains_merge_marker(&content) ){
       Blob fname; /* Relative pathname of the file */

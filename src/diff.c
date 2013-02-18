@@ -41,6 +41,7 @@
 #define DIFF_NOOPT        (((u64)0x01)<<32) /* Suppress optimizations (debug) */
 #define DIFF_INVERT       (((u64)0x02)<<32) /* Invert the diff (debug) */
 #define DIFF_CONTEXT_EX   (((u64)0x04)<<32) /* Use context even if zero */
+#define DIFF_NOTTOOBIG    (((u64)0x08)<<32) /* Only display if not too big */
 
 /*
 ** These error messages are shared in multiple locations.  They are defined
@@ -51,6 +52,12 @@
 
 #define DIFF_CANNOT_COMPUTE_SYMLINK \
     "cannot compute difference between symlink and regular file\n"
+
+#define DIFF_TOO_MANY_CHANGES_TXT \
+    "more than 10,000 changes\n"
+
+#define DIFF_TOO_MANY_CHANGES_HTML \
+    "<p class='generalError'>More than 10,000 changes</p>\n"
 
 #define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
 #endif /* INTERFACE */
@@ -356,54 +363,34 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 }
 
 /*
-** This function returns non-zero if the blob starts with a UTF-16le or
-** UTF-16be byte-order-mark (BOM).
+** This function returns non-zero if the blob starts with a UTF-16
+** byte-order-mark (BOM), either in the endianness of the machine
+** or in reversed byte order.
 */
-int starts_with_utf16_bom(const Blob *pContent, int *pnByte){
+int starts_with_utf16_bom(
+  const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
+  int *pnByte,          /* OUT: The number of bytes used for the BOM. */
+  int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
+){
   const char *z = blob_buffer(pContent);
-  int c1, c2;
+  int bomSize = 2;
+  static const unsigned short bom = 0xfeff;
+  static const unsigned short bom_reversed = 0xfffe;
+  static const unsigned short null = 0;
+  int size;
 
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }else if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16le
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16le_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xff) && (c2==(char)0xfe) ){
-    return 1;
-  }
-  return 0;
-}
-
-/*
-** This function returns non-zero if the blob starts with a UTF-16be
-** byte-order-mark (BOM).
-*/
-int starts_with_utf16be_bom(const Blob *pContent, int *pnByte){
-  const char *z = blob_buffer(pContent);
-  int c1, c2;
-
-  if( pnByte ) *pnByte = 2;
-  if( blob_size(pContent)<2 ) return 0;
-  c1 = z[0]; c2 = z[1];
-  if( (c1==(char)0xfe) && (c2==(char)0xff) ){
-    return 1;
+  if( pnByte ) *pnByte = bomSize;
+  if( pbReverse ) *pbReverse = -1; /* Unknown. */
+  size = blob_size(pContent);
+  if( (size<bomSize) || (size%2) ) return 0;
+  if( memcmp(z, &bom_reversed, bomSize)==0 ){
+    if( pbReverse ) *pbReverse = 1;
+    if( size<(2*bomSize) ) return 1;
+    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
+  }else if( memcmp(z, &bom, bomSize)==0 ){
+    if( pbReverse ) *pbReverse = 0;
+    if( size<(2*bomSize) ) return 1;
+    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
   }
   return 0;
 }
@@ -929,8 +916,8 @@ static void sbsWriteLineChange(
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nSuffix = nLeft - nPrefix;
-  if( nPrefix+nSuffix > nRight ) nSuffix = nRight - nPrefix;
+  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
+  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -1951,7 +1938,26 @@ int *text_diff(
 
   /* Compute the difference */
   diff_all(&c);
-  if( (diffFlags & DIFF_NOOPT)==0 ) diff_optimize(&c);
+  if( (diffFlags & DIFF_NOTTOOBIG)!=0 ){
+    int i, m, n;
+    int *a = c.aEdit;
+    int mx = c.nEdit;
+    for(i=m=n=0; i<mx; i+=3){ m += a[i]; n += a[i+1]+a[i+2]; }
+    if( n>10000 ){
+      fossil_free(c.aFrom);
+      fossil_free(c.aTo);
+      fossil_free(c.aEdit);
+      if( diffFlags & DIFF_HTML ){
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_HTML, -1);
+      }else{
+        blob_append(pOut, DIFF_TOO_MANY_CHANGES_TXT, -1);
+      }
+      return 0;
+    }
+  }
+  if( (diffFlags & DIFF_NOOPT)==0 ){
+    diff_optimize(&c);
+  }
 
   if( pOut ){
     /* Compute a context or side-by-side diff into pOut */

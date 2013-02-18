@@ -212,7 +212,9 @@ static int ticket_insert(const Manifest *p, int rid, int tktid){
   memset(aUsed, 0, nField);
   for(i=0; i<p->nField; i++){
     const char *zName = p->aField[i].zName;
-    if( (j = fieldId(zName))<0 ) continue;
+    const char *zBaseName = zName[0]=='+' ? zName+1 : zName;
+    j = fieldId(zBaseName);
+    if( j<0 ) continue;
     aUsed[j] = 1;
     if( aField[j].mUsed & USEDBY_TICKET ){
       if( zName[0]=='+' ){

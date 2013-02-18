@@ -185,6 +185,7 @@ void transport_global_startup(void){
     const char *zSsh;  /* The base SSH command */
     Blob zCmd;         /* The SSH command */
     char *zHost;       /* The host name to contact */
+    int n;             /* Size of prefix string */
 
     zSsh = db_get("ssh-command", zDefaultSshCmd);
     blob_init(&zCmd, zSsh, -1);
@@ -221,9 +222,26 @@ void transport_global_startup(void){
     }else{
       zHost = mprintf("%s", g.urlName);
     }
+    n = blob_size(&zCmd);
     blob_append(&zCmd, " ", 1);
     shell_escape(&zCmd, zHost);
-    fossil_print(" %s\n", zHost);  /* Show the conclusion of the SSH command */
+    if( g.urlShell ){
+      blob_appendf(&zCmd, " %s", g.urlShell);
+    }else{
+#if defined(FOSSIL_ENABLE_SSH_FAR_SIDE)
+      /* The following works.  But only if the fossil on the remote side
+      ** is recent enough to support the test-ssh-far-side command.  That
+      ** command was added on 2013-02-06.  We will leave this turned off
+      ** until most fossil servers have upgraded to that version or a later
+      ** version.  The sync will still work as long as the shell on the far
+      ** side is bash and not tcsh.  And if the default far side shell is
+      ** tcsh, then the shell=/bin/bash query parameter can be used as a
+      ** work-around.  Enable this code after about a year...
+      */
+      blob_appendf(&zCmd, " exec %s test-ssh-far-side", g.urlFossil);
+#endif
+    }
+    fossil_print("%s\n", blob_str(&zCmd)+n);  /* Show tail of SSH command */
     free(zHost);
     popen2(blob_str(&zCmd), &sshIn, &sshOut, &sshPid);
     if( sshPid==0 ){
@@ -231,6 +249,30 @@ void transport_global_startup(void){
     }
     blob_reset(&zCmd);
     transport_ssh_startup();
+  }
+}
+
+/*
+** COMMAND: test-ssh-far-side
+**
+** Read lines of input text, one by one, and evaluate each line using
+** system().  The ssh: sync protocol uses this on the far side of the
+** SSH link.
+*/
+void test_ssh_far_side_cmd(void){
+  int i = 0;
+  int got;
+  char zLine[5000];
+  while( i<sizeof(zLine) ){
+    got = read(0, zLine+i, 1);
+    if( got==0 ) return;
+    if( zLine[i]=='\n' ){
+      zLine[i] = 0;
+      system(zLine);
+      i = 0;
+    }else{
+      i++;
+    }
   }
 }
 
@@ -253,9 +295,9 @@ int transport_open(void){
       shell_escape(&cmd, g.urlFossil);
       blob_append(&cmd, " test-http ", -1);
       shell_escape(&cmd, g.urlPath);
-      /* printf("%s\n", blob_str(&cmd)); fflush(stdout); */
-      fprintf(sshOut, "%s\n", blob_str(&cmd));
+      fprintf(sshOut, "%s || true\n", blob_str(&cmd));
       fflush(sshOut);
+      if( g.fSshTrace ) printf("Sent: [%s]\n", blob_str(&cmd));
       blob_reset(&cmd);
     }else if( g.urlIsHttps ){
       #ifdef FOSSIL_ENABLE_SSL
@@ -272,7 +314,7 @@ int transport_open(void){
                                        g.zRepositoryName, iRandId);
       transport.zInFile = mprintf("%s-%llu-in.http", 
                                        g.zRepositoryName, iRandId);
-      transport.pFile = fopen(transport.zOutFile, "wb");
+      transport.pFile = fossil_fopen(transport.zOutFile, "wb");
       if( transport.pFile==0 ){
         fossil_fatal("cannot output temporary file: %s", transport.zOutFile);
       }
@@ -369,7 +411,7 @@ void transport_flip(void){
     );
     fossil_system(zCmd);
     free(zCmd);
-    transport.pFile = fopen(transport.zInFile, "rb");
+    transport.pFile = fossil_fopen(transport.zInFile, "rb");
   }
 }
 
@@ -405,7 +447,6 @@ static int transport_fetch(char *zBuf, int N){
     int x;
     int wanted = N;
     got = 0;
-    /* printf("want %d bytes...\n", wanted); fflush(stdout); */
     while( wanted>0 ){
       x = read(sshIn, &zBuf[got], wanted);
       if( x<=0 ) break;
@@ -440,7 +481,10 @@ int transport_receive(char *zBuf, int N){
   int nByte = 0;    /* Bytes of content received */
 
   onHand = transport.nUsed - transport.iCursor;
-  /* printf("request %d with %d on hand\n", N, onHand); fflush(stdout); */
+  if( g.fSshTrace){
+    printf("Reading %d bytes with %d on hand...  ", N, onHand);
+    fflush(stdout);
+  }
   if( onHand>0 ){
     int toMove = onHand;
     if( toMove>N ) toMove = N;
@@ -462,6 +506,7 @@ int transport_receive(char *zBuf, int N){
       transport.nRcvd += got;
     }
   }
+  if( g.fSshTrace ) printf("Got %d bytes\n", nByte);
   return nByte;
 }
 
@@ -534,7 +579,7 @@ char *transport_receive_line(void){
     }
     i++;
   }
-   /* printf("Got line: [%s]\n", &transport.pBuf[iStart]); */
+  if( g.fSshTrace ) printf("Got line: [%s]\n", &transport.pBuf[iStart]);
   return &transport.pBuf[iStart];
 }
 

@@ -816,3 +816,4 @@ sed < zlib.pc.in "
 " | sed -e "
 s/\@VERSION\@/$VER/g;
 " > zlib.pc
+#

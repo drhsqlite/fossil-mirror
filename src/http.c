@@ -132,7 +132,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
+int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -233,6 +233,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }
     }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
+
+      if ( --maxRedirect == 0){
+        fossil_fatal("redirect limit exceeded");
+      }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
@@ -243,7 +247,7 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       fossil_print("redirect to %s\n", &zLine[i]);
       url_parse(&zLine[i]);
       transport_close();
-      return http_exchange(pSend, pReply, useLogin);
+      return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;

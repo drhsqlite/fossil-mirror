@@ -138,14 +138,17 @@
 <li><a href="sync.wiki">Sync Protocol &mdash; The Fossil</a></li>
 <li><a href="private.wiki">Syncing, and Deleting Private Branches &mdash; Creating,</a></li>
 <li><a href="custom_ticket.wiki">System &mdash; Customizing The Ticket</a></li>
+<li><a href="tickets.wiki">System &mdash; The Fossil Ticket</a></li>
 <li><a href="branching.wiki">Tagging &mdash; Branching, Forking, Merging, and</a></li>
 <li><a href="tech_overview.wiki">Technical Overview Of The Design And Implementation Of Fossil &mdash; A</a></li>
 <li><a href="../test/release-checklist.wiki">Testing Checklist &mdash; Pre-Release</a></li>
 <li><a href="makefile.wiki">The Fossil Build Process</a></li>
 <li><a href="sync.wiki">The Fossil Sync Protocol</a></li>
+<li><a href="tickets.wiki">The Fossil Ticket System</a></li>
 <li><a href="webui.wiki">The Fossil Web Interface</a></li>
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
 <li><a href="custom_ticket.wiki">Ticket System &mdash; Customizing The</a></li>
+<li><a href="tickets.wiki">Ticket System &mdash; The Fossil</a></li>
 <li><a href="bugtheory.wiki">Tracking In Fossil &mdash; Bug</a></li>
 <li><a href="fiveminutes.wiki">Update and Running in 5 Minutes as a Single User</a></li>
 <li><a href="fiveminutes.wiki">User &mdash; Update and Running in 5 Minutes as a Single</a></li>
