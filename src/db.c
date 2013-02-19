@@ -1264,13 +1264,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   );
   if( !setupUserOnly ){
     db_multi_exec(
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjor','Nobody');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
   }
