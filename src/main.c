@@ -1892,6 +1892,7 @@ void cmd_webserver(void){
   int flags = 0;            /* Server flags */
   const char *zAltBase;     /* Argument to the --baseurl option */
   const char *zFileGlob;    /* Static content must match this */
+  char *zIpAddr = 0;        /* Bind to this IP address */
 
 #if defined(_WIN32)
   const char *zStopperFile;    /* Name of file used to terminate server */
@@ -1918,6 +1919,12 @@ void cmd_webserver(void){
   }
   find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
+    int i;
+    for(i=strlen(zPort)-1; i>=0 && zPort[i]!=':'; i--){}
+    if( i>0 ){
+      zIpAddr = mprintf("%.*s", i, zPort);
+      zPort += i+1;
+    }
     iPort = mxPort = atoi(zPort);
   }else{
     iPort = db_get_int("http-port", 8080);
@@ -1943,10 +1950,14 @@ void cmd_webserver(void){
 #else
     zBrowser = db_get("web-browser", "open");
 #endif
-    zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+    if( zIpAddr ){
+      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+    }else{
+      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+    }
   }
   db_close(1);
-  if( cgi_http_server(iPort, mxPort, zBrowserCmd, flags) ){
+  if( cgi_http_server(iPort, mxPort, zBrowserCmd, zIpAddr, flags) ){
     fossil_fatal("unable to listen on TCP socket %d", iPort);
   }
   g.sslNotAvailable = 1;
@@ -1964,12 +1975,16 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
-    zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
+    if( zIpAddr ){
+      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+    }else{
+      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+    }
   }
   db_close(1);
   if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, zFileGlob, flags);
+                      zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }

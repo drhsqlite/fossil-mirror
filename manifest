@@ -1,5 +1,5 @@
-C Added\stimeline.rss\schanges\sto\schangelog.
-D 2013-02-20T18:54:12.162
+C All\sthe\s--port\soption\son\sthe\s"ui"\sand\s"server"\scommands\sto\sbegin\swith\san\nIP\saddress,\sthen\sbind\sto\sjust\sthat\sone\sIP\saddress.
+D 2013-02-20T20:57:51.955
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -298,7 +298,7 @@ F src/blob.c 529020455d926b1d651204c594483e894af984c1
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
-F src/cgi.c 3911087555ce799af1abb10e01b1f6590c0e6746
+F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
 F src/checkin.c fc4451449a39db7ee44c9a22dd74ac0c79b0521d
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c eb789db4c94dc7e4cdde3fac6eeeb15b66b6a2e2
+F src/main.c bc913795461307929bbf1e71bd473737e302b72f
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -406,7 +406,7 @@ F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c cebf0342c1b3452ad42d65234cfa460bb17925ba
 F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
-F src/winhttp.c a34c5b65085fc761139a9b44610c410c72e6e768
+F src/winhttp.c 57357cdff170f84a0263bce79139faf29586d83b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c 8b6d8bd0836847085a68d7a2172b7b93e3de3f1d
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P dbaf5209105ee8346acc6742ae48893ec133eb95
-R 06b1e569695efe20180cdf51a7cce905
-U stephan
-Z 8230be4d6429fe3d94c45d666b115fdf
+P d84ec60ddda06a0ce389644da058711f28b38a62 f4143c5b594fc836ffad4adf2b2d3411329c9ad0
+R 7ecaf8f4de3699c79e2d801f624383a1
+U drh
+Z 9aaeb27f56866b6367772dd8ac1af382
