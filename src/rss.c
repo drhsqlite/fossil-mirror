@@ -24,7 +24,7 @@
 
 /*
 ** WEBPAGE: timeline.rss
-** URL:  /timeline.rss/y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&wiki=NAME&name=FILENAME
+** URL:  /timeline.rss?y=TYPE&n=LIMIT&tkt=UUID&tag=TAG&wiki=NAME&name=FILENAME
 **
 ** Produce an RSS feed of the timeline.
 **

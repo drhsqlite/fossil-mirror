@@ -935,10 +935,13 @@ static void command_list(const char *zPrefix, int cmdMask){
 */
 void cmd_test_webpage_list(void){
   int i, nCmd;
-  const char *aCmd[count(aWebpage)];
-  for(i=nCmd=0; i<count(aWebpage); i++){
-    aCmd[nCmd++] = aWebpage[i].zName;
+  const char *aCmd[count(aCommand)];
+  for(i=nCmd=0; i<count(aCommand); i++){
+    if(0x08 & aCommand[i].cmdFlags){
+      aCmd[nCmd++] = aWebpage[i].zName;
+    }
   }
+  assert(nCmd && "page list is empty?");
   multi_column_list(aCmd, nCmd);
 }
 
@@ -968,6 +971,7 @@ void version_cmd(void){
 **    %fossil help --all        Show both common and auxiliary commands
 **    %fossil help --test       Show test commands only
 **    %fossil help --aux        Show auxiliary commands only
+**    %fossil help --www        Show list of WWW pages
 */
 void help_cmd(void){
   int rc, idx;
@@ -986,18 +990,22 @@ void help_cmd(void){
     command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
     return;
   }
-  if( find_option("aux",0,0) ){
+  else if( find_option("www",0,0) ){
+    command_list(0, CMDFLAG_WEBPAGE);
+    return;
+  }
+  else if( find_option("aux",0,0) ){
     command_list(0, CMDFLAG_2ND_TIER);
     return;
   }
-  if( find_option("test",0,0) ){
+  else if( find_option("test",0,0) ){
     command_list(0, CMDFLAG_TEST);
     return;
   }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
   if( rc==1 ){
     fossil_print("unknown command: %s\nAvailable commands:\n", g.argv[2]);
-    command_list(0, 0xff);
+    command_list(0, 0xff & ~CMDFLAG_WEBPAGE);
     fossil_exit(1);
   }else if( rc==2 ){
     fossil_print("ambiguous command prefix: %s\nMatching commands:\n",
@@ -1005,7 +1013,7 @@ void help_cmd(void){
     command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
-  z = aCmdHelp[idx];
+  z = aCmdHelp[idx].zText;
   if( z==0 ){
     fossil_fatal("no help available for the %s command",
        aCommand[idx].zName);
@@ -1043,7 +1051,7 @@ void help_page(void){
     }else if( rc==2 ){
       @ ambiguous command prefix: %s(zCmd)
     }else{
-      z = (char*)aCmdHelp[idx];
+      z = (char*)aCmdHelp[idx].zText;
       if( z==0 ){
         @ no help available for the %s(aCommand[idx].zName) command
       }else{
@@ -1106,7 +1114,7 @@ void test_all_help_page(void){
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
     @ <h2>%s(aCommand[i].zName):</h2>
     @ <blockquote><pre>
-    @ %h(aCmdHelp[i])
+    @ %h(aCmdHelp[i].zText)
     @ </pre></blockquote>
   }
   style_footer();
