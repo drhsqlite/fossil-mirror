@@ -1274,7 +1274,12 @@ void cgi_handle_http_request(const char *zIpAddr){
 ** Return 0 to each child as it runs.  If unable to establish a
 ** listening socket, return non-zero.
 */
-int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
+int cgi_http_server(
+  int mnPort, int mxPort,   /* Range of TCP ports to try */
+  const char *zBrowser,     /* Run this browser, if not NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not null */
+  int flags                 /* HTTP_SERVER_* flags */
+){
 #if defined(_WIN32)
   /* Use win32_http_server() instead */
   fossil_exit(1);
@@ -1293,7 +1298,12 @@ int cgi_http_server(int mnPort, int mxPort, char *zBrowser, int flags){
   while( iPort<=mxPort ){
     memset(&inaddr, 0, sizeof(inaddr));
     inaddr.sin_family = AF_INET;
-    if( flags & HTTP_SERVER_LOCALHOST ){
+    if( zIpAddr ){
+      inaddr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( inaddr.sin_addr.s_addr == (-1) ){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
       inaddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }else{
       inaddr.sin_addr.s_addr = htonl(INADDR_ANY);
