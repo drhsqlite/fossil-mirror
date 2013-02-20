@@ -1710,8 +1710,10 @@ int client_sync(
           syncFlags &= ~SYNC_PUSH;
           zMsg = 0;
         }
-        fossil_force_newline();
-        fossil_print("Server says: %s\n", zMsg);
+        if( zMsg && zMsg[0] ){
+          fossil_force_newline();
+          fossil_print("Server says: %s\n", zMsg);
+        }
       }else
 
       /*    pragma NAME VALUE...
@@ -1744,9 +1746,10 @@ int client_sync(
               go = 1;
             }
           }else{
-            blob_appendf(&xfer.err, "\rserver says: %s", zMsg);
+            blob_appendf(&xfer.err, "server says: %s\n", zMsg);
           }
-          fossil_warning("\rError: %s", zMsg);
+          fossil_force_newline();
+          fossil_warning("Error: %s", zMsg);
           nErr++;
           break;
         }
@@ -1762,10 +1765,11 @@ int client_sync(
           nErr++;
           break;
         }
-        blob_appendf(&xfer.err, "unknown command: [%b]", &xfer.aToken[0]);
+        blob_appendf(&xfer.err, "unknown command: [%b]\n", &xfer.aToken[0]);
       }
 
       if( blob_size(&xfer.err) ){
+        fossil_force_newline();
         fossil_warning("%b", &xfer.err);
         nErr++;
         break;

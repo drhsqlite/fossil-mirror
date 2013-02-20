@@ -1,5 +1,5 @@
-C All\sthe\s--port\soption\son\sthe\s"ui"\sand\s"server"\scommands\sto\sbegin\swith\san\nIP\saddress,\sthen\sbind\sto\sjust\sthat\sone\sIP\saddress.
-D 2013-02-20T20:57:51.955
+C Avoid\sintermingling\serror\smessage\swith\sstatus\soutput\sduring\sa\ssync.\nError\smessages\sshould\sappear\son\sa\sline\sby\sthemselves.
+D 2013-02-20T22:18:06.852
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -408,7 +408,7 @@ F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
 F src/winhttp.c 57357cdff170f84a0263bce79139faf29586d83b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c 8b6d8bd0836847085a68d7a2172b7b93e3de3f1d
+F src/xfer.c f45e35a3fa3773d70dde01ec06810d73202526e4
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d84ec60ddda06a0ce389644da058711f28b38a62 f4143c5b594fc836ffad4adf2b2d3411329c9ad0
-R 7ecaf8f4de3699c79e2d801f624383a1
+P 5dfbf7e5b65be7af7c4efe4a228d5d11faa4140b
+R 0f92f3e5cb39bfb09cb8fe601312e521
 U drh
-Z 9aaeb27f56866b6367772dd8ac1af382
+Z 12a4fe0b0c83d1cfcb85a110b3d87511
