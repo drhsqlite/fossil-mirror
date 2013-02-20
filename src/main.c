@@ -33,7 +33,7 @@
 #endif
 #if INTERFACE
 #ifdef FOSSIL_ENABLE_JSON
-#  include "cson_amalgamation.h" /* JSON API. Needed inside the INTERFACE block! */
+#  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
 #endif
 #ifdef FOSSIL_ENABLE_TCL
@@ -177,7 +177,8 @@ struct Global {
   int dontKeepUrl;        /* Do not persist the URL */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
-  const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of SSL client identity */
+  const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of
+                             ** SSL client identity */
   int useLocalauth;       /* No login required if from 127.0.0.1 */
   int noPswd;             /* Logged in without password (on 127.0.0.1) */
   int userUid;            /* Integer user id */
@@ -225,7 +226,8 @@ struct Global {
                                   responses and always exit() with
                                   code 0 to avoid an HTTP 500 error.
                                */
-    int resultCode;            /* used for passing back specific codes from /json callbacks. */
+    int resultCode;            /* used for passing back specific codes
+                               ** from /json callbacks. */
     int errorDetailParanoia;   /* 0=full error codes, 1=%10, 2=%100, 3=%1000 */
     cson_output_opt outOpt;    /* formatting options for JSON mode. */
     cson_value * authToken;    /* authentication token */
@@ -1927,7 +1929,8 @@ void cmd_webserver(void){
 #if !defined(__DARWIN__) && !defined(__APPLE__) && !defined(__HAIKU__)
     zBrowser = db_get("web-browser", 0);
     if( zBrowser==0 ){
-      static const char *const azBrowserProg[] = { "xdg-open", "gnome-open", "firefox" };
+      static const char *const azBrowserProg[] =
+          { "xdg-open", "gnome-open", "firefox", "google-chrome" };
       int i;
       zBrowser = "echo";
       for(i=0; i<sizeof(azBrowserProg)/sizeof(azBrowserProg[0]); i++){

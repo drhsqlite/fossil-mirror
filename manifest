@@ -1,5 +1,5 @@
-C Simplify/speedup\sstarts_with_utf16_bom\sand\senhance\sdoc\sfor\sit.
-D 2013-02-20T08:33:35.484
+C In\smain.c:\s\sShorten\sall\ssource\scode\slines\sto\sno\smore\sthan\s80\scharacters.\nAdd\sgoogle-chrome\sto\sthe\slist\sof\sbrowser\sto\stry\sto\slaunch\swith\sthe\s"ui"\ncommand.
+D 2013-02-20T15:08:01.499
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c e51153fbab76c9bd99df839ec8095c3632e0e7fe
+F src/main.c eb789db4c94dc7e4cdde3fac6eeeb15b66b6a2e2
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 646c4a67f9a5b212f338ccc311e1ce43c6cdc20a 1e70f211f9b37df4a8d9948b50f0585ca2ba7732
-R 9e4d54492341bff0566e5cdd93ab6775
-U jan.nijtmans
-Z 3ec99eee90f12a9943856089f06d175a
+P 957be426253c20e2412c1df602b5b379ecad18c2
+R 18143c58679021e94f5e90c6d3b8f9f4
+U drh
+Z 65d73d3afb2d8724a3825311054819c5
