@@ -1,5 +1,5 @@
-C Initial\s'help'\ssupport\sfor\sWEBPAGE\sentries.\sNot\syet\sfinished,\sbut\sseems\sto\swork\sin\sCLI\smode.
-D 2013-02-20T22:10:29.796
+C Modified\s/help\spage\sto\sshow\shelp\stext\sfor\s/pages.\sOnly\spages\swith\shelp\stext\sget\shyperlinks.
+D 2013-02-20T22:30:55.884
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c f5ae923bb15e1e10a34ffb6a2f97b5798b553835
+F src/main.c 3b340d4e75539d96c072c37ced634233c306bfcb
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -599,10 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d84ec60ddda06a0ce389644da058711f28b38a62
-R b1b7da1884010c735f6d63d61c3f160a
-T *branch * help-www
-T *sym-help-www *
-T -sym-trunk *
+P e788795bbfd0db1ca601670e3fae84967c58c8ad
+R 7d88536a59d8992a96afdb5f700d24a3
 U stephan
-Z 8b4b2c7750645d13c5f55e2cf68f4e3d
+Z 2abaaba2cea32ab51b71a631a4a0406e

@@ -1077,13 +1077,13 @@ void help_page(void){
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)==0 ) continue;
+      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       j++;
     }
     n = (j+6)/7;
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)==0 ) continue;
+      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
@@ -1098,6 +1098,38 @@ void help_page(void){
       @ </ul></td>
     }
     @ </tr></table>
+
+    @ <h1>Available pages:</h1>
+    @ (Only pages with help text are linked.)
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( '/'!=*z ) continue;
+      j++;
+    }
+    n = (j+5)/6;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( '/'!=*z ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+      }else{
+        @ <li>%s(z)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
   }
   style_footer();
 }
