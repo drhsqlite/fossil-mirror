@@ -1975,12 +1975,16 @@ void cmd_webserver(void){
   /* Win32 implementation */
   if( isUiCmd ){
     zBrowser = db_get("web-browser", "start");
-    zBrowserCmd = mprintf("%s http://127.0.0.1:%%d/", zBrowser);
+    if( zIpAddr ){
+      zBrowserCmd = mprintf("%s http://%s:%%d/ &", zBrowser, zIpAddr);
+    }else{
+      zBrowserCmd = mprintf("%s http://localhost:%%d/ &", zBrowser);
+    }
   }
   db_close(1);
-  if( win32_http_service(iPort, zNotFound, zFileGlob, zIpAddr, flags) ){
+  if( win32_http_service(iPort, zNotFound, zFileGlob, flags) ){
     win32_http_server(iPort, mxPort, zBrowserCmd,
-                      zStopperFile, zNotFound, zFileGlob, flags);
+                      zStopperFile, zNotFound, zFileGlob, zIpAddr, flags);
   }
 #endif
 }

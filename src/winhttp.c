@@ -411,7 +411,7 @@ static void WINAPI win32_http_service_main(
 
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
-                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob,
+                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob, 0,
                     hsData.flags);
 
   /* Service has stopped now. */
