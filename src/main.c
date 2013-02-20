@@ -1087,7 +1087,7 @@ void help_page(void){
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a>
+      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -1107,7 +1107,7 @@ void help_page(void){
       if( '/'!=*z ) continue;
       j++;
     }
-    n = (j+5)/6;
+    n = (j+4)/5;
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
       if( '/'!=*z ) continue;
