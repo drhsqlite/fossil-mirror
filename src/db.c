@@ -1876,6 +1876,27 @@ void db_lset_int(const char *zName, int value){
 }
 
 /*
+** Returns non-0 if the database (which must be open) table identified
+** by zTableName has a column named zColName (case-sensitive), else
+** returns 0.
+*/
+int db_table_has_column( char const *zTableName, char const *zColName ){
+  Stmt q = empty_Stmt;
+  int rc = 0;
+  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
+  while(SQLITE_ROW == db_step(&q)){
+    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
+    char const * zCol = db_column_text(&q, 1);
+    if(0==fossil_strcmp(zColName, zCol)){
+      rc = 1;
+      break;
+    }
+  }
+  db_finalize(&q);
+  return rc;
+}
+
+/*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
