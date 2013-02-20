@@ -365,34 +365,29 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 /*
 ** This function returns non-zero if the blob starts with a UTF-16
 ** byte-order-mark (BOM), either in the endianness of the machine
-** or in reversed byte order.
+** or in reversed byte order. The UTF-32 BOM is ruled out by checking
+** if the UTF-16 BOM is not immediately followed by (utf16) 0.
+** pnByte and pbReverse are only set when the function returns 1.
 */
 int starts_with_utf16_bom(
   const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
   int *pnByte,          /* OUT: The number of bytes used for the BOM. */
   int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
 ){
-  const char *z = blob_buffer(pContent);
-  int bomSize = 2;
-  static const unsigned short bom = 0xfeff;
-  static const unsigned short bom_reversed = 0xfffe;
-  static const unsigned short null = 0;
-  int size;
+  const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  int size = blob_size(pContent);
 
-  if( pnByte ) *pnByte = bomSize;
-  if( pbReverse ) *pbReverse = -1; /* Unknown. */
-  size = blob_size(pContent);
-  if( (size<bomSize) || (size%2) ) return 0;
-  if( memcmp(z, &bom_reversed, bomSize)==0 ){
+  if( (size<2) || (size%2)
+    || (size>=4 && z[1]==0) ) return 0;
+  if( z[0] == 0xfffe ){
     if( pbReverse ) *pbReverse = 1;
-    if( size<(2*bomSize) ) return 1;
-    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
-  }else if( memcmp(z, &bom, bomSize)==0 ){
+  }else if( z[0] == 0xfeff ){
     if( pbReverse ) *pbReverse = 0;
-    if( size<(2*bomSize) ) return 1;
-    if( memcmp(z+bomSize, &null, bomSize)!=0 ) return 1;
+  }else{
+    return 0;
   }
-  return 0;
+  if( pnByte ) *pnByte = 2;
+  return 1;
 }
 
 /*

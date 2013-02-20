@@ -1,5 +1,5 @@
-C Avoid\suniqueness\serrors\swhen\sinserting\sdefault\susers.
-D 2013-02-19T12:29:39.498
+C Simplify/speedup\sstarts_with_utf16_bom\sand\senhance\sdoc\sfor\sit.
+D 2013-02-20T08:33:35.484
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 5e4707b3361ed587ba6e02d537ec806d7c8c91a8
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c c686d984a49729495c224d7c54f66534b9f7a620
+F src/diff.c 6f375fd13cf806c6f76363f2a3dc2dc0335b78ed
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ab9b449190c7da30cd177ade18994e51a1a3c63a
-R 4f0bc428dfd42f70ec9ea17b14abdace
-U drh
-Z c1a77818d7dec402db5c17589a2421b4
+P 646c4a67f9a5b212f338ccc311e1ce43c6cdc20a 1e70f211f9b37df4a8d9948b50f0585ca2ba7732
+R 9e4d54492341bff0566e5cdd93ab6775
+U jan.nijtmans
+Z 3ec99eee90f12a9943856089f06d175a
