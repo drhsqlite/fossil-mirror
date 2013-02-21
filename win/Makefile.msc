@@ -152,6 +152,7 @@ SRC   = add_.c \
         url_.c \
         user_.c \
         utf8_.c \
+        util_.c \
         verify_.c \
         vfile_.c \
         wiki_.c \
@@ -262,6 +263,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\url$O \
         $(OX)\user$O \
         $(OX)\utf8$O \
+        $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
@@ -386,6 +388,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
 	echo $(OX)\utf8.obj >> $@
+	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
@@ -1039,6 +1042,12 @@ $(OX)\utf8$O : utf8_.c utf8.h
 utf8_.c : $(SRCDIR)\utf8.c
 	translate$E $** > $@
 
+$(OX)\util$O : util_.c util.h
+	$(TCC) /Fo$@ -c util_.c
+
+util_.c : $(SRCDIR)\util.c
+	translate$E $** > $@
+
 $(OX)\verify$O : verify_.c verify.h
 	$(TCC) /Fo$@ -c verify_.c
 
@@ -1191,6 +1200,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			url_.c:url.h \
 			user_.c:user.h \
 			utf8_.c:utf8.h \
+			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \

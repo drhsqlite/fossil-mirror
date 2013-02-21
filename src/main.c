@@ -336,7 +336,7 @@ static int name_search(
 ** atexit() handler which frees up "some" of the resources
 ** used by fossil.
 */
-void fossil_atexit(void) {
+static void fossil_atexit(void) {
 #ifdef FOSSIL_ENABLE_JSON
   cson_value_free(g.json.gc.v);
   memset(&g.json, 0, sizeof(g.json));
@@ -457,6 +457,45 @@ static char **copy_args(int argc, char **argv){
 }
 #endif
 
+/*
+** Return a name for an SQLite error code
+*/
+static const char *sqlite_error_code_name(int iCode){
+  static char zCode[30];
+  switch( iCode & 0xff ){
+    case SQLITE_OK:         return "SQLITE_OK";
+    case SQLITE_ERROR:      return "SQLITE_ERROR";
+    case SQLITE_PERM:       return "SQLITE_PERM";
+    case SQLITE_ABORT:      return "SQLITE_ABORT";
+    case SQLITE_BUSY:       return "SQLITE_BUSY";
+    case SQLITE_NOMEM:      return "SQLITE_NOMEM";
+    case SQLITE_READONLY:   return "SQLITE_READONLY";
+    case SQLITE_INTERRUPT:  return "SQLITE_INTERRUPT";
+    case SQLITE_IOERR:      return "SQLITE_IOERR";
+    case SQLITE_CORRUPT:    return "SQLITE_CORRUPT";
+    case SQLITE_FULL:       return "SQLITE_FULL";
+    case SQLITE_CANTOPEN:   return "SQLITE_CANTOPEN";
+    case SQLITE_PROTOCOL:   return "SQLITE_PROTOCOL";
+    case SQLITE_EMPTY:      return "SQLITE_EMPTY";
+    case SQLITE_SCHEMA:     return "SQLITE_SCHEMA";
+    case SQLITE_CONSTRAINT: return "SQLITE_CONSTRAINT";
+    case SQLITE_MISMATCH:   return "SQLITE_MISMATCH";
+    case SQLITE_MISUSE:     return "SQLITE_MISUSE";
+    case SQLITE_NOLFS:      return "SQLITE_NOLFS";
+    case SQLITE_FORMAT:     return "SQLITE_FORMAT";
+    case SQLITE_RANGE:      return "SQLITE_RANGE";
+    case SQLITE_NOTADB:     return "SQLITE_NOTADB";
+    default: {
+      sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
+    }
+  }
+  return zCode;
+}
+
+/* Error logs from SQLite */
+static void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
+  fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
+}
 
 /*
 ** This procedure runs first.
@@ -565,248 +604,6 @@ int main(int argc, char **argv)
 }
 
 /*
-** The following variable becomes true while processing a fatal error
-** or a panic.  If additional "recursive-fatal" errors occur while
-** shutting down, the recursive errors are silently ignored.
-*/
-static int mainInFatalError = 0;
-
-/*
-** Exit.  Take care to close the database first.
-*/
-NORETURN void fossil_exit(int rc){
-  db_close(1);
-  exit(rc);
-}
-
-/*
-** Print an error message, rollback all databases, and quit.  These
-** routines never return.
-*/
-NORETURN void fossil_panic(const char *zFormat, ...){
-  char *z;
-  va_list ap;
-  int rc = 1;
-  static int once = 1;
-  mainInFatalError = 1;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( 0, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput && once ){
-      once = 0;
-      cgi_printf("<p class=\"generalError\">%h</p>", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_trace("%s: %s\n", g.argv[0], z);
-    }
-  }
-  free(z);
-  db_force_rollback();
-  fossil_exit(rc);
-}
-
-NORETURN void fossil_fatal(const char *zFormat, ...){
-  char *z;
-  int rc = 1;
-  va_list ap;
-  mainInFatalError = 1;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  }
-  else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else if( !g.fQuiet ){
-      fossil_trace("%s: %s\n", g.argv[0], z);
-    }
-  }
-  free(z);
-  db_force_rollback();
-  fossil_exit(rc);
-}
-
-/* This routine works like fossil_fatal() except that if called
-** recursively, the recursive call is a no-op.
-**
-** Use this in places where an error might occur while doing
-** fatal error shutdown processing.  Unlike fossil_panic() and
-** fossil_fatal() which never return, this routine might return if
-** the fatal error handing is already in process.  The caller must
-** be prepared for this routine to return.
-*/
-void fossil_fatal_recursive(const char *zFormat, ...){
-  char *z;
-  va_list ap;
-  int rc = 1;
-  if( mainInFatalError ) return;
-  mainInFatalError = 1;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-#ifdef FOSSIL_ENABLE_JSON
-  if( g.json.isJsonMode ){
-    json_err( g.json.resultCode, z, 1 );
-    if( g.isHTTP ){
-      rc = 0 /* avoid HTTP 500 */;
-    }
-  } else
-#endif
-  {
-    if( g.cgiOutput ){
-      g.cgiOutput = 0;
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-      cgi_reply();
-    }else{
-      fossil_trace("%s: %s\n", g.argv[0], z);
-    }
-  }
-  db_force_rollback();
-  fossil_exit(rc);
-}
-
-
-/* Print a warning message */
-void fossil_warning(const char *zFormat, ...){
-  char *z;
-  va_list ap;
-  va_start(ap, zFormat);
-  z = vmprintf(zFormat, ap);
-  va_end(ap);
-#ifdef FOSSIL_ENABLE_JSON
-  if(g.json.isJsonMode){
-    json_warn( FSL_JSON_W_UNKNOWN, z );
-  }else
-#endif
-  {
-    if( g.cgiOutput ){
-      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
-    }else{
-      fossil_trace("%s: %s\n", g.argv[0], z);
-    }
-  }
-  free(z);
-}
-
-/*
-** Malloc and free routines that cannot fail
-*/
-void *fossil_malloc(size_t n){
-  void *p = malloc(n==0 ? 1 : n);
-  if( p==0 ) fossil_panic("out of memory");
-  return p;
-}
-void fossil_free(void *p){
-  free(p);
-}
-void *fossil_realloc(void *p, size_t n){
-  p = realloc(p, n);
-  if( p==0 ) fossil_panic("out of memory");
-  return p;
-}
-
-/*
-** This function implements a cross-platform "system()" interface.
-*/
-int fossil_system(const char *zOrigCmd){
-  int rc;
-#if defined(_WIN32)
-  /* On windows, we have to put double-quotes around the entire command.
-  ** Who knows why - this is just the way windows works.
-  */
-  char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  WCHAR *zUnicode = fossil_utf8_to_unicode(zNewCmd);
-  if( g.fSystemTrace ) {
-    fossil_trace("SYSTEM: %s\n", zNewCmd);
-  }
-  rc = _wsystem(zUnicode);
-  fossil_unicode_free(zUnicode);
-  free(zNewCmd);
-#else
-  /* On unix, evaluate the command directly.
-  */
-  if( g.fSystemTrace ) fprintf(stderr, "SYSTEM: %s\n", zOrigCmd);
-  rc = system(zOrigCmd);
-#endif
-  return rc;
-}
-
-/*
-** Turn off any NL to CRNL translation on the stream given as an
-** argument.  This is a no-op on unix but is necessary on windows.
-*/
-void fossil_binary_mode(FILE *p){
-#if defined(_WIN32)
-  _setmode(_fileno(p), _O_BINARY);
-#endif
-#ifdef __EMX__     /* OS/2 */
-  setmode(fileno(p), O_BINARY);
-#endif
-}
-
-
-
-/*
-** Return a name for an SQLite error code
-*/
-static const char *sqlite_error_code_name(int iCode){
-  static char zCode[30];
-  switch( iCode & 0xff ){
-    case SQLITE_OK:         return "SQLITE_OK";
-    case SQLITE_ERROR:      return "SQLITE_ERROR";
-    case SQLITE_PERM:       return "SQLITE_PERM";
-    case SQLITE_ABORT:      return "SQLITE_ABORT";
-    case SQLITE_BUSY:       return "SQLITE_BUSY";
-    case SQLITE_NOMEM:      return "SQLITE_NOMEM";
-    case SQLITE_READONLY:   return "SQLITE_READONLY";
-    case SQLITE_INTERRUPT:  return "SQLITE_INTERRUPT";
-    case SQLITE_IOERR:      return "SQLITE_IOERR";
-    case SQLITE_CORRUPT:    return "SQLITE_CORRUPT";
-    case SQLITE_FULL:       return "SQLITE_FULL";
-    case SQLITE_CANTOPEN:   return "SQLITE_CANTOPEN";
-    case SQLITE_PROTOCOL:   return "SQLITE_PROTOCOL";
-    case SQLITE_EMPTY:      return "SQLITE_EMPTY";
-    case SQLITE_SCHEMA:     return "SQLITE_SCHEMA";
-    case SQLITE_CONSTRAINT: return "SQLITE_CONSTRAINT";
-    case SQLITE_MISMATCH:   return "SQLITE_MISMATCH";
-    case SQLITE_MISUSE:     return "SQLITE_MISUSE";
-    case SQLITE_NOLFS:      return "SQLITE_NOLFS";
-    case SQLITE_FORMAT:     return "SQLITE_FORMAT";
-    case SQLITE_RANGE:      return "SQLITE_RANGE";
-    case SQLITE_NOTADB:     return "SQLITE_NOTADB";
-    default: {
-      sqlite3_snprintf(sizeof(zCode),zCode,"error code %d",iCode);
-    }
-  }
-  return zCode;
-}
-
-/* Error logs from SQLite */
-void fossil_sqlite_log(void *notUsed, int iCode, const char *zErrmsg){
-  fossil_warning("%s: %s", sqlite_error_code_name(iCode), zErrmsg);
-}
-
-/*
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
@@ -816,7 +613,7 @@ void usage(const char *zFormat){
 /*
 ** Remove n elements from g.argv beginning with the i-th element.
 */
-void remove_from_argv(int i, int n){
+static void remove_from_argv(int i, int n){
   int j;
   for(j=i+n; j<g.argc; i++, j++){
     g.argv[i] = g.argv[j];
@@ -1506,6 +1303,57 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
   cgi_reply();
 }
 
+/* If the CGI program contains one or more lines of the form
+**
+**    redirect:  repository-filename  http://hostname/path/%s
+**
+** then control jumps here.  Search each repository for an artifact ID
+** that matches the "name" CGI parameter and for the first match,
+** redirect to the corresponding URL with the "name" CGI parameter
+** inserted.  Paint an error page if no match is found.
+**
+** If there is a line of the form:
+**
+**    redirect: * URL
+**
+** Then a redirect is made to URL if no match is found.  Otherwise a
+** very primitive error message is returned.
+*/
+static void redirect_web_page(int nRedirect, char **azRedirect){
+  int i;                             /* Loop counter */
+  const char *zNotFound = 0;         /* Not found URL */
+  const char *zName = P("name");
+  set_base_url(0);
+  if( zName==0 ){
+    zName = P("SCRIPT_NAME");
+    if( zName && zName[0]=='/' ) zName++;
+  }
+  if( zName && validate16(zName, strlen(zName)) ){
+    for(i=0; i<nRedirect; i++){
+      if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
+        zNotFound = azRedirect[i*2+1];
+        continue;
+      }
+      db_open_repository(azRedirect[i*2]);
+      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
+        cgi_redirectf(azRedirect[i*2+1], zName);
+        return;
+      }
+      db_close(1);
+    }
+  }
+  if( zNotFound ){
+    cgi_redirectf(zNotFound, zName);
+  }else{
+    @ <html>
+    @ <head><title>No Such Object</title></head>
+    @ <body>
+    @ <p>No such object: <b>%h(zName)</b></p>
+    @ </body>
+    cgi_reply();
+  }
+}
+
 /*
 ** COMMAND: cgi*
 **
@@ -1602,57 +1450,6 @@ void cmd_cgi(void){
     redirect_web_page(nRedirect, azRedirect);
   }else{
     process_one_web_page(zNotFound, pFileGlob);
-  }
-}
-
-/* If the CGI program contains one or more lines of the form
-**
-**    redirect:  repository-filename  http://hostname/path/%s
-**
-** then control jumps here.  Search each repository for an artifact ID
-** that matches the "name" CGI parameter and for the first match,
-** redirect to the corresponding URL with the "name" CGI parameter
-** inserted.  Paint an error page if no match is found.
-**
-** If there is a line of the form:
-**
-**    redirect: * URL
-**
-** Then a redirect is made to URL if no match is found.  Otherwise a
-** very primitive error message is returned.
-*/
-void redirect_web_page(int nRedirect, char **azRedirect){
-  int i;                             /* Loop counter */
-  const char *zNotFound = 0;         /* Not found URL */
-  const char *zName = P("name");
-  set_base_url(0);
-  if( zName==0 ){
-    zName = P("SCRIPT_NAME");
-    if( zName && zName[0]=='/' ) zName++;
-  }
-  if( zName && validate16(zName, strlen(zName)) ){
-    for(i=0; i<nRedirect; i++){
-      if( fossil_strcmp(azRedirect[i*2],"*")==0 ){
-        zNotFound = azRedirect[i*2+1];
-        continue;
-      }
-      db_open_repository(azRedirect[i*2]);
-      if( db_exists("SELECT 1 FROM blob WHERE uuid GLOB '%s*'", zName) ){
-        cgi_redirectf(azRedirect[i*2+1], zName);
-        return;
-      }
-      db_close(1);
-    }
-  }
-  if( zNotFound ){
-    cgi_redirectf(zNotFound, zName);
-  }else{
-    @ <html>
-    @ <head><title>No Such Object</title></head>
-    @ <body>
-    @ <p>No such object: <b>%h(zName)</b></p>
-    @ </body>
-    cgi_reply();
   }
 }
 

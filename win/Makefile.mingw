@@ -350,6 +350,7 @@ SRC = \
   $(SRCDIR)/url.c \
   $(SRCDIR)/user.c \
   $(SRCDIR)/utf8.c \
+  $(SRCDIR)/util.c \
   $(SRCDIR)/verify.c \
   $(SRCDIR)/vfile.c \
   $(SRCDIR)/wiki.c \
@@ -456,6 +457,7 @@ TRANS_SRC = \
   $(OBJDIR)/url_.c \
   $(OBJDIR)/user_.c \
   $(OBJDIR)/utf8_.c \
+  $(OBJDIR)/util_.c \
   $(OBJDIR)/verify_.c \
   $(OBJDIR)/vfile_.c \
   $(OBJDIR)/wiki_.c \
@@ -562,6 +564,7 @@ OBJ = \
  $(OBJDIR)/url.o \
  $(OBJDIR)/user.o \
  $(OBJDIR)/utf8.o \
+ $(OBJDIR)/util.o \
  $(OBJDIR)/verify.o \
  $(OBJDIR)/vfile.o \
  $(OBJDIR)/wiki.o \
@@ -781,6 +784,7 @@ $(OBJDIR)/headers:	$(OBJDIR)/page_index.h $(OBJDIR)/makeheaders $(OBJDIR)/VERSIO
 		$(OBJDIR)/url_.c:$(OBJDIR)/url.h \
 		$(OBJDIR)/user_.c:$(OBJDIR)/user.h \
 		$(OBJDIR)/utf8_.c:$(OBJDIR)/utf8.h \
+		$(OBJDIR)/util_.c:$(OBJDIR)/util.h \
 		$(OBJDIR)/verify_.c:$(OBJDIR)/verify.h \
 		$(OBJDIR)/vfile_.c:$(OBJDIR)/vfile.h \
 		$(OBJDIR)/wiki_.c:$(OBJDIR)/wiki.h \
@@ -1558,6 +1562,14 @@ $(OBJDIR)/utf8.o:	$(OBJDIR)/utf8_.c $(OBJDIR)/utf8.h  $(SRCDIR)/config.h
 	$(XTCC) -o $(OBJDIR)/utf8.o -c $(OBJDIR)/utf8_.c
 
 $(OBJDIR)/utf8.h:	$(OBJDIR)/headers
+
+$(OBJDIR)/util_.c:	$(SRCDIR)/util.c $(OBJDIR)/translate
+	$(TRANSLATE) $(SRCDIR)/util.c >$(OBJDIR)/util_.c
+
+$(OBJDIR)/util.o:	$(OBJDIR)/util_.c $(OBJDIR)/util.h  $(SRCDIR)/config.h
+	$(XTCC) -o $(OBJDIR)/util.o -c $(OBJDIR)/util_.c
+
+$(OBJDIR)/util.h:	$(OBJDIR)/headers
 
 $(OBJDIR)/verify_.c:	$(SRCDIR)/verify.c $(OBJDIR)/translate
 	$(TRANSLATE) $(SRCDIR)/verify.c >$(OBJDIR)/verify_.c

@@ -84,7 +84,11 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
-  int urlOptional = find_option("autourl",0,0)!=0;
+  int urlOptional = 0;
+  if( find_option("autourl",0,0)!=0 ){
+    urlOptional = 1;
+    urlFlags = 0;
+  }
   if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;

@@ -430,7 +430,7 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  if( isatty(fileno(stdin)) ){
+  if( isatty(fileno(stdin)) && (g.urlFlags & URL_PROMPT_PW)!=0 ){
     char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
     fossil_force_newline();
@@ -466,7 +466,7 @@ void url_remember(void){
   if( g.urlFlags & URL_REMEMBER_PW ){
     db_set("last-sync-pw", obscure(g.urlPasswd), 0);
   }
-  g.urlFlags = URL_REMEMBER;
+  g.urlFlags |= URL_REMEMBER;
 }
 
 /* Preemptively prompt for a password if a username is given in the

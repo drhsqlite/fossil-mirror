@@ -112,6 +112,7 @@ set src {
   url
   user
   utf8
+  util
   verify
   vfile
   wiki
