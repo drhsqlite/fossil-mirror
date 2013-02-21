@@ -101,7 +101,6 @@ void delete_private_content(void){
 void clone_cmd(void){
   char *zPassword;
   const char *zDefaultUser;   /* Optional name of the default user */
-  const char *zPw;            /* The user clone password */
   int nErr = 0;
   int bPrivate = 0;           /* Also clone private branches */
 

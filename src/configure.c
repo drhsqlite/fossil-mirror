@@ -881,7 +881,6 @@ void configuration_cmd(void){
   ){
     int mask;
     const char *zServer = 0;
-    const char *zPw;
     int legacyFlag = 0;
     int overwriteFlag = 0;
 

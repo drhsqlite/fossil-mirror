@@ -30,7 +30,6 @@
 */
 int autosync(int flags){
   const char *zAutosync;
-  const char *zPw;
   int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
@@ -83,7 +82,6 @@ int autosync(int flags){
 */
 static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
-  const char *zPw = 0;
   unsigned configSync = 0;
   unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
   int urlOptional = find_option("autourl",0,0)!=0;
