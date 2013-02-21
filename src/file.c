@@ -74,9 +74,9 @@ static int fossil_stat(const char *zFilename, struct stat *buf, int isWd){
   }
 #else
   int rc = 0;
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   rc = _wstati64(zMbcs, buf);
-  fossil_unicode_free(zMbcs);
+  fossil_filename_free(zMbcs);
   return rc;
 #endif
 }
@@ -305,9 +305,9 @@ int file_wd_isdir(const char *zFilename){
 */
 int file_access(const char *zFilename, int flags){
 #ifdef _WIN32
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   int rc = _waccess(zMbcs, flags);
-  fossil_unicode_free(zMbcs);
+  fossil_filename_free(zMbcs);
 #else
   int rc = access(zFilename, flags);
 #endif
@@ -407,11 +407,11 @@ void file_set_mtime(const char *zFilename, i64 newMTime){
   utimes(zFilename, tv);
 #else
   struct _utimbuf tb;
-  wchar_t *zMbcs = fossil_utf8_to_unicode(zFilename);
+  wchar_t *zMbcs = fossil_utf8_to_filename(zFilename);
   tb.actime = newMTime;
   tb.modtime = newMTime;
   _wutime(zMbcs, &tb);
-  fossil_unicode_free(zMbcs);
+  fossil_filename_free(zMbcs);
 #endif
 }
 
@@ -443,9 +443,9 @@ void test_set_mtime(void){
 */
 void file_delete(const char *zFilename){
 #ifdef _WIN32
-  wchar_t *z = fossil_utf8_to_unicode(zFilename);
+  wchar_t *z = fossil_utf8_to_filename(zFilename);
   _wunlink(z);
-  fossil_unicode_free(z);
+  fossil_filename_free(z);
 #else
   unlink(zFilename);
 #endif
@@ -467,9 +467,9 @@ int file_mkdir(const char *zName, int forceFlag){
   if( rc!=1 ){
 #if defined(_WIN32)
     int rc;
-    wchar_t *zMbcs = fossil_utf8_to_unicode(zName);
+    wchar_t *zMbcs = fossil_utf8_to_filename(zName);
     rc = _wmkdir(zMbcs);
-    fossil_unicode_free(zMbcs);
+    fossil_filename_free(zMbcs);
     return rc;
 #else
     return mkdir(zName, 0755);
@@ -1139,9 +1139,9 @@ char *fossil_getenv(const char *zName){
 FILE *fossil_fopen(const char *zName, const char *zMode){
 #ifdef _WIN32
   wchar_t *uMode = fossil_utf8_to_unicode(zMode);
-  wchar_t *uName = fossil_utf8_to_unicode(zName);
+  wchar_t *uName = fossil_utf8_to_filename(zName);
   FILE *f = _wfopen(uName, uMode);
-  fossil_unicode_free(uName);
+  fossil_filename_free(uName);
   fossil_unicode_free(uMode);
 #else
   FILE *f = fopen(zName, zMode);
