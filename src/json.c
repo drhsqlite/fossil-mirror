@@ -1399,7 +1399,6 @@ cson_value * json_g_to_json(){
   INT(g, urlIsSsh);
   INT(g, urlPort);
   INT(g, urlDfltPort);
-  INT(g, dontKeepUrl);
   INT(g, useLocalauth);
   INT(g, noPswd);
   INT(g, userUid);

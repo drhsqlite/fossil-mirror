@@ -316,8 +316,6 @@ static int attempt_user(const char *zLogin){
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  char *zUrl;
-
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
