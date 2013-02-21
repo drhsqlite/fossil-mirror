@@ -974,8 +974,10 @@ void version_cmd(void){
 **    %fossil help --www        Show list of WWW pages
 */
 void help_cmd(void){
-  int rc, idx;
+  int rc, idx, isPage = 0;
   const char *z;
+  char const * zCmdOrPage;
+  char const * zCmdOrPagePlural;
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
@@ -1002,21 +1004,30 @@ void help_cmd(void){
     command_list(0, CMDFLAG_TEST);
     return;
   }
+  isPage = ('/' == *g.argv[2]) ? 1 : 0;
+  if(isPage){
+    zCmdOrPage = "page";
+    zCmdOrPagePlural = "pages";
+  }else{
+    zCmdOrPage = "command";
+    zCmdOrPagePlural = "commands";
+  }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fossil_print("unknown command: %s\nAvailable commands:\n", g.argv[2]);
-    command_list(0, 0xff & ~CMDFLAG_WEBPAGE);
+    fossil_print("unknown %s: %s\nAvailable %s:\n",
+                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
+    command_list(0, isPage ? CMDFLAG_WEBPAGE : (0xff & ~CMDFLAG_WEBPAGE));
     fossil_exit(1);
   }else if( rc==2 ){
-    fossil_print("ambiguous command prefix: %s\nMatching commands:\n",
-                 g.argv[2]);
+    fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
+                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
     command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
   z = aCmdHelp[idx].zText;
   if( z==0 ){
-    fossil_fatal("no help available for the %s command",
-       aCommand[idx].zName);
+    fossil_fatal("no help available for the %s %s",
+                 aCommand[idx].zName, zCmdOrPage);
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
