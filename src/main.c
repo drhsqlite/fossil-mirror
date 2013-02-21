@@ -1042,9 +1042,9 @@ void help_page(void){
   if( zCmd ){
     int rc, idx;
     char *z, *s, *d;
-
+    char const * zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
-    @ <h1>The "%s(zCmd)" command:</h1>
+    @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
     rc = name_search(zCmd, aCommand, count(aCommand), &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)
@@ -1115,9 +1115,9 @@ void help_page(void){
         @ <td valign="top"><ul>
       }
       if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
-        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
       }else{
-        @ <li>%s(z)</li>
+        @ <li>%s(z+1)</li>
       }
       j++;
       if( j>=n ){

@@ -1,5 +1,5 @@
-C Pedantically\sadded\sa\smissing\s/LI\scloser.\sChanged\s/help\sfor\spages\sto\s5\scols,\sso\sthe\swidth\smore\sor\sless\saligns\swith\sthe\s7-col\scommand\shelp\s(page\snames\sare\slonger\sthan\scommand\snames).
-D 2013-02-20T22:35:33.137
+C /help\snow\sremoves\sthe\sleading\sslashes\sfrom\sthe\spage\slist\s(looks\scleaner).\s/help?cmd=foo\snow\sshows\sa\sdifferent\slabel\sfor\spages\sand\scommands\s(differentiates\sbased\son\sexistence\sof\sleading\s/).
+D 2013-02-21T09:57:59.031
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c 00a99d2225b0e40e8dee8d88e9f34c8a269b031f
+F src/main.c 23ecc98e163ddff250f6d6c3050156dfdbcff26c
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P affccaa822793b11fbb05a11e3d6ba77065f8788
-R d590d7261e76106a23f3145981616005
+P 6ca6624499718ab3cf5de9c40f9b4a9ec2dad9ce
+R 70d4b19d39338a243cb8c80ba9eccd47
 U stephan
-Z 122b93711d6cdb3a55a3255047e6c581
+Z 352a556e8ea9ea02f582ca6d01088b0c
