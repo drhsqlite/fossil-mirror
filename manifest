@@ -1,5 +1,5 @@
-C Avoid\sintermingling\serror\smessage\swith\sstatus\soutput\sduring\sa\ssync.\nError\smessages\sshould\sappear\son\sa\sline\sby\sthemselves.
-D 2013-02-20T22:18:06.852
+C Improved\shandling\sfor\sremote\srepository\spasswords:\s\sWhen\sprompting\sfor\sthe\npassword,\salso\sask\sthe\suser\swhether\sor\snot\sto\sremember\sthe\spassword,\sas\nbrowsers\stypically\sdo\sfor\stheir\spassword\scache.
+D 2013-02-21T03:51:10.979
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -302,10 +302,10 @@ F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
 F src/checkin.c fc4451449a39db7ee44c9a22dd74ac0c79b0521d
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
-F src/clone.c 3776a09e12b72b2158d18742e6b65708b8e5cfe1
+F src/clone.c db6a8aed7a44cd09755b3cedab41460e4cf64157
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c 3b18707d7f43241b62700dcda975b1af350c4c4a
+F src/configure.c 384fb6201862ad14e035905e4494637023bec7d1
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
@@ -324,7 +324,7 @@ F src/finfo.c e8ab60027aadeb99680b9fefdb33ad1dd7dbe90a
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
-F src/http.c ac97cee94c1e12e69194d6a4868dd781642e744e
+F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
 F src/http_socket.c 168bdbca66811d5cb92dd8a02caf6a5133ee2375
 F src/http_ssl.c bfdb21dd47c0472ecdab613a0fec00754e7d3996
 F src/http_transport.c 111c393f1bb93a3585078d5ee23e0b3ecc1408fe
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c bc913795461307929bbf1e71bd473737e302b72f
+F src/main.c be285f713732c242e79415d721f0747cfbb47be6
 F src/main.mk 84ced07b8fcc016cfeba892e5bbb2d3c60c83968
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -384,7 +384,7 @@ F src/sqlite3.h 5421371cdf3d9539932cb90118483533efda2e97
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
-F src/sync.c 1c6a586e1e4e85d9d8f25d27d4b414efa3ed21e2
+F src/sync.c b2fb30369c9f3943d33fd29103c1a02d86f4486c
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
@@ -399,8 +399,8 @@ F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
 F src/update.c 62efa1b452526ee413b98ea1c335beeecd3e70b4
-F src/url.c 5273bda7f7b255eec172b6537948f8b845a49645
-F src/user.c 2e3791745b2319b6ac691a066c3cd378a062e2d3
+F src/url.c de1899872055613b1bcf5ab96be02a14aa87d2bb
+F src/user.c 613e166a392a7beeb07bf06ccf9d6041f3b8a47b
 F src/utf8.c 502be83610745d657877926bec48ed4146fe2cc9
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c cebf0342c1b3452ad42d65234cfa460bb17925ba
@@ -408,7 +408,7 @@ F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
 F src/winhttp.c 57357cdff170f84a0263bce79139faf29586d83b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
-F src/xfer.c f45e35a3fa3773d70dde01ec06810d73202526e4
+F src/xfer.c 1aba6fb0ec8d02c05a3aad9e6dd9ba0e6fe397f4
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
@@ -599,7 +599,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5dfbf7e5b65be7af7c4efe4a228d5d11faa4140b
-R 0f92f3e5cb39bfb09cb8fe601312e521
+P 2981ac51ffba45fb45794f76286976de78a09f1e
+R b71b0256141c3a47a239b59ee8cf7f8b
 U drh
-Z 12a4fe0b0c83d1cfcb85a110b3d87511
+Z 25d3092846bf87817ec23fd93b1dbbf1

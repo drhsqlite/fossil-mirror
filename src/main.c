@@ -174,7 +174,7 @@ struct Global {
   char *urlProxyAuth;     /* Proxy-Authorizer: string */
   char *urlFossil;        /* The fossil query parameter on ssh: */
   char *urlShell;         /* The shell query parameter on ssh: */
-  int dontKeepUrl;        /* Do not persist the URL */
+  unsigned urlFlags;      /* Boolean flags controlling URL processing */
 
   const char *zLogin;     /* Login name.  "" if not logged in. */
   const char *zSSLIdentity;  /* Value of --ssl-identity option, filename of

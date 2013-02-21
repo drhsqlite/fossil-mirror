@@ -337,11 +337,8 @@ void user_select(void){
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl ){
-    url_parse(zUrl);
-    if( attempt_user(g.urlUser) ) return;
-  }
+  url_parse(0, 0);
+  if( g.urlUser && attempt_user(g.urlUser) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

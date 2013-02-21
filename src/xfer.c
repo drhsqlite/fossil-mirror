@@ -1740,17 +1740,18 @@ int client_sync(
         if( (syncFlags & SYNC_CLONE)==0 || nCycle>0 ){
           char *zMsg = blob_terminate(&xfer.aToken[1]);
           defossilize(zMsg);
+          fossil_force_newline();
+          fossil_print("Error: %s\n", zMsg);
           if( fossil_strcmp(zMsg, "login failed")==0 ){
             if( nCycle<2 ){
-              if( !g.dontKeepUrl ) db_unset("last-sync-pw", 0);
+              g.urlPasswd = 0;
               go = 1;
+              if( g.cgiOutput==0 ) url_prompt_for_password();
             }
           }else{
             blob_appendf(&xfer.err, "server says: %s\n", zMsg);
+            nErr++;
           }
-          fossil_force_newline();
-          fossil_warning("Error: %s", zMsg);
-          nErr++;
           break;
         }
       }else
