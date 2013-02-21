@@ -28,6 +28,7 @@
 #define URL_REMEMBER         0x002  /* Remember the url for later reuse */
 #define URL_ASK_REMEMBER_PW  0x004  /* Ask whether to remember prompted pw */
 #define URL_REMEMBER_PW      0x008  /* Should remember pw */
+#define URL_PROMPTED         0x010  /* Prompted for PW already */
 
 #endif /* INTERFACE */
 
@@ -430,7 +431,10 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
-  if( isatty(fileno(stdin)) && (g.urlFlags & URL_PROMPT_PW)!=0 ){
+  if( isatty(fileno(stdin))
+   && (g.urlFlags & URL_PROMPT_PW)!=0
+   && (g.urlFlags & URL_PROMPTED)==0
+  ){
     char *zPrompt = mprintf("\rpassword for %s: ", g.urlUser);
     Blob x;
     fossil_force_newline();
@@ -438,6 +442,7 @@ void url_prompt_for_password(void){
     free(zPrompt);
     g.urlPasswd = mprintf("%b", &x);
     blob_reset(&x);
+    g.urlFlags |= URL_PROMPTED;
     if( g.urlPasswd[0]
      && (g.urlFlags & (URL_REMEMBER|URL_ASK_REMEMBER_PW))!=0
     ){
