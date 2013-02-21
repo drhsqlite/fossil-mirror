@@ -1000,6 +1000,7 @@ void fossil_fatal_recursive(const char *zFormat, ...){
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
       cgi_reply();
     }else{
+      fossil_force_newline();
       fossil_trace("%s\n", z);
     }
   }
@@ -1024,6 +1025,7 @@ void fossil_warning(const char *zFormat, ...){
     if( g.cgiOutput ){
       cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
     }else{
+      fossil_force_newline();
       fossil_trace("%s\n", z);
     }
   }
