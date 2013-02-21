@@ -55,7 +55,7 @@ int fossil_system(const char *zOrigCmd){
   ** Who knows why - this is just the way windows works.
   */
   char *zNewCmd = mprintf("\"%s\"", zOrigCmd);
-  WCHAR *zUnicode = fossil_utf8_to_unicode(zNewCmd);
+  wchar_t *zUnicode = fossil_utf8_to_unicode(zNewCmd);
   if( g.fSystemTrace ) {
     fossil_trace("SYSTEM: %s\n", zNewCmd);
   }

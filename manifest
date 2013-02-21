@@ -1,5 +1,5 @@
-C Do\snot\sprompt\sfor\sthe\ssync\spassword\smore\sthan\sonce.
-D 2013-02-21T14:54:37.773
+C Make\swin32\sbuild\scompile\sagain:\n-\smissing\sheaders\s<io.h>\sand\s<fcntl.h>\n-\sWCHAR\s->\swchar_t
+D 2013-02-21T15:50:37.787
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
-F src/main.c f2df76e6797b5c10bf8afad244d909d60feb4220
+F src/main.c af9dc5445e9add7a88f084f1713a63f40ab598be
 F src/main.mk b5f568034f869d49b7aac7a513269617d9187ba2
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -366,7 +366,7 @@ F src/path.c 59e624a3955da698692ee90eac3589f85eb4dff1
 F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
-F src/printf.c 6027a8d965b4ba4b52742796a8f12cbb40aa583c
+F src/printf.c 5ec7aa4962ee94a381a9eefd67faed2969d5e8a1
 F src/rebuild.c 0752bdbf7bffe69b781e130f5ee263c05c9278e6
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
@@ -402,12 +402,12 @@ F src/update.c 62efa1b452526ee413b98ea1c335beeecd3e70b4
 F src/url.c e4a5ff5abb6c63761c4c2748bb916c200041b8c8
 F src/user.c 303ae9b16c4c7d648479721ca69444c9fa713b14
 F src/utf8.c 1499bed11dd44b894e128025bc17f916c7275603
-F src/util.c bb167adb41275b0c4ba9c6100e1f7a352b7c7f9a
+F src/util.c 40229a2f2528cc4dd9a51676f60d1dd6eaef8f0a
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
 F src/vfile.c 621f1194ddc5a658112cdf619470b2e67a95ac1e
 F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
-F src/winhttp.c 57357cdff170f84a0263bce79139faf29586d83b
+F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
 F src/wysiwyg.c b33dbd03d8dc8622be7c4b9ee49bd093b81b5859
 F src/xfer.c 1aba6fb0ec8d02c05a3aad9e6dd9ba0e6fe397f4
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
@@ -600,7 +600,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 871a949296b6325c70fb1c9a229749f713278102
-R 313e24665c1131e50461ea436ea1791d
-U drh
-Z 060b20160ff29d9e9d623f6ddcaa5696
+P 1cd61c96bcfa53433d724c18f7c312f0f18db0fc
+R 4933bf274f59a975e6638cf89486b05c
+U jan.nijtmans
+Z 592303baead787791e8bb4fffce38520

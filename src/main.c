@@ -369,7 +369,7 @@ static void expand_args_option(int argc, void *argv){
   char const * zFileName;   /* input file name */
   FILE * zInFile;           /* input FILE */
 #if defined(_WIN32)
-  WCHAR buf[MAX_PATH];
+  wchar_t buf[MAX_PATH];
 #endif
 
   g.argc = argc;

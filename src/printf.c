@@ -20,6 +20,10 @@
 */
 #include "config.h"
 #include "printf.h"
+#if defined(_WIN32)
+#   include <io.h>
+#   include <fcntl.h>
+#endif
 
 /*
 ** Conversion types fall into various categories as defined by the
