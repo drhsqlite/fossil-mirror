@@ -1,5 +1,5 @@
-C Add\scode\sand\sdocumentation\sfor\sthe\sfossil_prompt.sh\sdemo\sscript\sfor\ssetting\nthe\sprompt\sof\sbash\saccording\sto\sthe\sstatus\sof\sthe\scurrent\sfossil\srepo.
-D 2013-02-21T19:08:41.590
+C Provide\sa\scompile-time\soption\sto\sopen\sthe\scheck-out\sdatabase\sfile\s(.fslckout\nor\s_FOSSIL_)\sin\sWAL\smode.\s\sAlso\sshorten\ssource\scode\slines\sto\s80\scharacters\nin\sdb.c.
+D 2013-02-21T22:21:42.505
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c 65a63db8818fe86dd40c0e3e9b569c003f1d0212
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 35a237cbfde663cc88d8c7dcf67d154ea08572f9
+F src/db.c 60885bef3a9b62da3007734a5e4a2885d92b2081
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -602,7 +602,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 32bb8c281955af78e0d4b9621d60a31ac09bcdaf
-R f8dad6094f5a8e1001bedece1b9717b7
+P 43988bc490beb71b2ed2fa58bdd3e62fc429b6b2
+R c7a032915cbc289b01edbf973e6d1675
 U drh
-Z 55d8b707c7cddc8bf72d58dba299fc33
+Z 60e8f5bd6e9df3f8fde864aed38732da
