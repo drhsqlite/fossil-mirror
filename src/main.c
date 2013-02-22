@@ -732,10 +732,13 @@ static void command_list(const char *zPrefix, int cmdMask){
 */
 void cmd_test_webpage_list(void){
   int i, nCmd;
-  const char *aCmd[count(aWebpage)];
-  for(i=nCmd=0; i<count(aWebpage); i++){
-    aCmd[nCmd++] = aWebpage[i].zName;
+  const char *aCmd[count(aCommand)];
+  for(i=nCmd=0; i<count(aCommand); i++){
+    if(0x08 & aCommand[i].cmdFlags){
+      aCmd[nCmd++] = aWebpage[i].zName;
+    }
   }
+  assert(nCmd && "page list is empty?");
   multi_column_list(aCmd, nCmd);
 }
 
@@ -765,10 +768,13 @@ void version_cmd(void){
 **    %fossil help --all        Show both common and auxiliary commands
 **    %fossil help --test       Show test commands only
 **    %fossil help --aux        Show auxiliary commands only
+**    %fossil help --www        Show list of WWW pages
 */
 void help_cmd(void){
-  int rc, idx;
+  int rc, idx, isPage = 0;
   const char *z;
+  char const * zCmdOrPage;
+  char const * zCmdOrPagePlural;
   if( g.argc<3 ){
     z = g.argv[0];
     fossil_print(
@@ -783,29 +789,42 @@ void help_cmd(void){
     command_list(0, CMDFLAG_1ST_TIER | CMDFLAG_2ND_TIER);
     return;
   }
-  if( find_option("aux",0,0) ){
+  else if( find_option("www",0,0) ){
+    command_list(0, CMDFLAG_WEBPAGE);
+    return;
+  }
+  else if( find_option("aux",0,0) ){
     command_list(0, CMDFLAG_2ND_TIER);
     return;
   }
-  if( find_option("test",0,0) ){
+  else if( find_option("test",0,0) ){
     command_list(0, CMDFLAG_TEST);
     return;
   }
+  isPage = ('/' == *g.argv[2]) ? 1 : 0;
+  if(isPage){
+    zCmdOrPage = "page";
+    zCmdOrPagePlural = "pages";
+  }else{
+    zCmdOrPage = "command";
+    zCmdOrPagePlural = "commands";
+  }
   rc = name_search(g.argv[2], aCommand, count(aCommand), &idx);
   if( rc==1 ){
-    fossil_print("unknown command: %s\nAvailable commands:\n", g.argv[2]);
-    command_list(0, 0xff);
+    fossil_print("unknown %s: %s\nAvailable %s:\n",
+                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
+    command_list(0, isPage ? CMDFLAG_WEBPAGE : (0xff & ~CMDFLAG_WEBPAGE));
     fossil_exit(1);
   }else if( rc==2 ){
-    fossil_print("ambiguous command prefix: %s\nMatching commands:\n",
-                 g.argv[2]);
+    fossil_print("ambiguous %s prefix: %s\nMatching %s:\n",
+                 zCmdOrPage, g.argv[2], zCmdOrPagePlural);
     command_list(g.argv[2], 0xff);
     fossil_exit(1);
   }
-  z = aCmdHelp[idx];
+  z = aCmdHelp[idx].zText;
   if( z==0 ){
-    fossil_fatal("no help available for the %s command",
-       aCommand[idx].zName);
+    fossil_fatal("no help available for the %s %s",
+                 aCommand[idx].zName, zCmdOrPage);
   }
   while( *z ){
     if( *z=='%' && strncmp(z, "%fossil", 7)==0 ){
@@ -831,16 +850,16 @@ void help_page(void){
   if( zCmd ){
     int rc, idx;
     char *z, *s, *d;
-
+    char const * zCmdOrPage = ('/'==*zCmd) ? "page" : "command";
     style_submenu_element("Command-List", "Command-List", "%s/help", g.zTop);
-    @ <h1>The "%s(zCmd)" command:</h1>
+    @ <h1>The "%s(zCmd)" %s(zCmdOrPage):</h1>
     rc = name_search(zCmd, aCommand, count(aCommand), &idx);
     if( rc==1 ){
       @ unknown command: %s(zCmd)
     }else if( rc==2 ){
       @ ambiguous command prefix: %s(zCmd)
     }else{
-      z = (char*)aCmdHelp[idx];
+      z = (char*)aCmdHelp[idx].zText;
       if( z==0 ){
         @ no help available for the %s(aCommand[idx].zName) command
       }else{
@@ -866,17 +885,17 @@ void help_page(void){
     @ <table border="0"><tr>
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)==0 ) continue;
+      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       j++;
     }
     n = (j+6)/7;
     for(i=j=0; i<count(aCommand); i++){
       const char *z = aCommand[i].zName;
-      if( strncmp(z,"test",4)==0 ) continue;
+      if( '/'==*z || strncmp(z,"test",4)==0 ) continue;
       if( j==0 ){
         @ <td valign="top"><ul>
       }
-      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a>
+      @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z)</a></li>
       j++;
       if( j>=n ){
         @ </ul></td>
@@ -887,6 +906,38 @@ void help_page(void){
       @ </ul></td>
     }
     @ </tr></table>
+
+    @ <h1>Available pages:</h1>
+    @ (Only pages with help text are linked.)
+    @ <table border="0"><tr>
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( '/'!=*z ) continue;
+      j++;
+    }
+    n = (j+4)/5;
+    for(i=j=0; i<count(aCommand); i++){
+      const char *z = aCommand[i].zName;
+      if( '/'!=*z ) continue;
+      if( j==0 ){
+        @ <td valign="top"><ul>
+      }
+      if( aCmdHelp[i].zText && *aCmdHelp[i].zText ){
+        @ <li><a href="%s(g.zTop)/help?cmd=%s(z)">%s(z+1)</a></li>
+      }else{
+        @ <li>%s(z+1)</li>
+      }
+      j++;
+      if( j>=n ){
+        @ </ul></td>
+        j = 0;
+      }
+    }
+    if( j>0 ){
+      @ </ul></td>
+    }
+    @ </tr></table>
+
   }
   style_footer();
 }
@@ -903,7 +954,7 @@ void test_all_help_page(void){
     if( memcmp(aCommand[i].zName, "test", 4)==0 ) continue;
     @ <h2>%s(aCommand[i].zName):</h2>
     @ <blockquote><pre>
-    @ %h(aCmdHelp[i])
+    @ %h(aCmdHelp[i].zText)
     @ </pre></blockquote>
   }
   style_footer();
