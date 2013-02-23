@@ -1,5 +1,5 @@
-C Added\s/json/status\scommand.
-D 2013-02-23T10:58:01.747
+C Added\s/json/status\sto\schangelog.
+D 2013-02-23T14:10:41.074
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -527,7 +527,7 @@ F www/build-icons/openbsd.gif f6eeddc2b1bcb0b5fbcac7a6be1afc98d4444b48
 F www/build-icons/src.gif b82914bcd9de7a1511db313dafdf37cfda0ab055
 F www/build-icons/win32.gif bfc3d418ac068df331d80494e8f866c40eb744c3
 F www/build.wiki f25efdbadf42d42c9254a4d9905941976079bd7f
-F www/changes.wiki 1924d56d517da0a77921ec6d60669e8ee133e061
+F www/changes.wiki 7658c486f04d2fa522e12cee2d556ffce51777e1
 F www/checkin.wiki 57faeb0861430c6bc83e179bf4e254c6e982370b
 F www/checkin_names.wiki de2c1160723e1631567896694e5f0f7976940a0c
 F www/cmd_.wiki-template a0e5ab8f206047b8513725a7ccda23b8ef7b3608
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b38bb4f9bd27d0347b62ecfac63c4b8f57b5c93b
-R 95e512dd2a9d350f664675d2c3c14bc4
+P d1e4d100ad1f4255494fdce795bd9cbd4d21d3fd
+R f76be1c19b91841d72115bd758c8b714
 U stephan
-Z c4d5c11b3145c7075129d127066a8469
+Z 04b4bfb7b2b6581fd7d81be453e3b56c
