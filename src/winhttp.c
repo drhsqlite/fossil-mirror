@@ -141,6 +141,7 @@ void win32_http_server(
   const char *zStopper,     /* Stop server when this file is exists (Or NULL) */
   const char *zNotFound,    /* The --notfound option, or NULL */
   const char *zFileGlob,    /* The --fileglob option, or NULL */
+  const char *zIpAddr,      /* Bind to this IP address, if not NULL */
   int flags                 /* One or more HTTP_SERVER_ flags */
 ){
   WSADATA wd;
@@ -149,7 +150,7 @@ void win32_http_server(
   int idCnt = 0;
   int iPort = mnPort;
   Blob options;
-  WCHAR zTmpPath[MAX_PATH];
+  wchar_t zTmpPath[MAX_PATH];
 
   if( zStopper ) file_delete(zStopper);
   blob_zero(&options);
@@ -172,7 +173,12 @@ void win32_http_server(
     }
     addr.sin_family = AF_INET;
     addr.sin_port = htons(iPort);
-    if( flags & HTTP_SERVER_LOCALHOST ){
+    if( zIpAddr ){
+      addr.sin_addr.s_addr = inet_addr(zIpAddr);
+      if( addr.sin_addr.s_addr == (-1) ){
+        fossil_fatal("not a valid IP address: %s", zIpAddr);
+      }
+    }else if( flags & HTTP_SERVER_LOCALHOST ){
       addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     }else{
       addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -200,7 +206,8 @@ void win32_http_server(
   if( !GetTempPathW(MAX_PATH, zTmpPath) ){
     fossil_fatal("unable to get path to the temporary directory.");
   }
-  zTempPrefix = mprintf("%sfossil_server_P%d_", fossil_unicode_to_utf8(zTmpPath), iPort);
+  zTempPrefix = mprintf("%sfossil_server_P%d_",
+                        fossil_unicode_to_utf8(zTmpPath), iPort);
   fossil_print("Listening for HTTP requests on TCP port %d\n", iPort);
   if( zBrowser ){
     zBrowser = mprintf(zBrowser, iPort);
@@ -256,7 +263,7 @@ struct HttpService {
   const char *zFileGlob;    /* The --files option, or NULL */
   int flags;                /* One or more HTTP_SERVER_ flags */
   int isRunningAsService;   /* Are we running as a service ? */
-  const WCHAR *zServiceName;/* Name of the service */
+  const wchar_t *zServiceName;/* Name of the service */
   SOCKET s;                 /* Socket on which the http server listens */
 };
 
@@ -404,7 +411,7 @@ static void WINAPI win32_http_service_main(
 
    /* Execute the http server */
   win32_http_server(hsData.port, hsData.port,
-                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob,
+                    NULL, NULL, hsData.zNotFound, hsData.zFileGlob, 0,
                     hsData.flags);
 
   /* Service has stopped now. */
