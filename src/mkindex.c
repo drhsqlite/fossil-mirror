@@ -176,6 +176,7 @@ void scan_for_func(char *zLine){
    && strlen(zLine)<sizeof(zHelp)-nHelp-1
    && nUsed>nFixed
    && memcmp(zLine,"** COMMAND:",11)!=0
+   && memcmp(zLine,"** WEBPAGE:",11)!=0
   ){
     if( zLine[2]=='\n' ){
       zHelp[nHelp++] = '\n';
@@ -244,7 +245,6 @@ int e_compare(const void *a, const void *b){
 */
 void build_table(void){
   int i;
-  int nType0;
 
   qsort(aEntry, nFixed, sizeof(aEntry[0]), e_compare);
   for(i=0; i<nFixed; i++){
@@ -262,6 +262,7 @@ void build_table(void){
     "#define CMDFLAG_1ST_TIER  0x01\n"
     "#define CMDFLAG_2ND_TIER  0x02\n"
     "#define CMDFLAG_TEST      0x04\n"
+    "#define CMDFLAG_WEBPAGE   0x08\n"
     "static const NameMap aWebpage[] = {\n"
   );
   for(i=0; i<nFixed && aEntry[i].eType==0; i++){
@@ -277,22 +278,24 @@ void build_table(void){
     if( aEntry[i].zIf ) printf("#endif\n");
   }
   printf("};\n");
-  nType0 = i;
   printf(
     "static const NameMap aCommand[] = {\n"
   );
-  for(i=nType0; i<nFixed && aEntry[i].eType==1; i++){
+  for(i=0; i<nFixed /*&& aEntry[i].eType==1*/; i++){
     const char *z = aEntry[i].zPath;
     int n = strlen(z);
-    int cmdFlags = 0x01;
-    if( z[n-1]=='*' ){
-      n--;
-      cmdFlags = 0x02;
-    }else if( memcmp(z, "test-", 5)==0 ){
-      cmdFlags = 0x04;
+    int cmdFlags = (1==aEntry[i].eType) ? 0x01 : 0x08;
+    if(0x01==cmdFlags){
+      if( z[n-1]=='*' ){
+        n--;
+        cmdFlags = 0x02;
+      }else if( memcmp(z, "test-", 5)==0 ){
+        cmdFlags = 0x04;
+      }
     }
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
-    printf("  { \"%.*s\",%*s %s,%*s %d },\n",
+    printf("  { \"%s%.*s\",%*s %s,%*s %d },\n",
+      (0x08 & cmdFlags) ? "/" : "",
       n, z,
       25-n, "",
       aEntry[i].zFunc,
@@ -302,7 +305,7 @@ void build_table(void){
     if( aEntry[i].zIf ) printf("#endif\n");
   }
   printf("};\n");
-  for(i=nType0; i<nFixed; i++){
+  for(i=0; i<nFixed; i++){
     char *z = aEntry[i].zHelp;
     if( z && z[0] ){
       if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
@@ -323,15 +326,17 @@ void build_table(void){
       aEntry[i].zHelp[0] = 0;
     }
   }
-  printf(
-    "static const char * const aCmdHelp[] = {\n"
-  );
-  for(i=nType0; i<nFixed; i++){
+  puts("struct CmdHelp {"
+       "int eType; "
+       "char const * zText;"
+       "};");
+  puts("static struct CmdHelp aCmdHelp[] = {");
+  for(i=0; i<nFixed; i++){
     if( aEntry[i].zIf ) printf("%s", aEntry[i].zIf);
     if( aEntry[i].zHelp==0 ){
-      printf("  0,\n");
+      printf("{%d, 0},\n", aEntry[i].eType);
     }else{
-      printf("  zHelp_%s,\n", aEntry[i].zFunc);
+      printf("{%d, zHelp_%s},\n", aEntry[i].eType, aEntry[i].zFunc);
     }
     if( aEntry[i].zIf ) printf("#endif\n");
   }

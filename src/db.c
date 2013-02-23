@@ -1264,13 +1264,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   );
   if( !setupUserOnly ){
     db_multi_exec(
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjor','Nobody');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
   }
@@ -1773,7 +1773,8 @@ char *db_get(const char *zName, char *zDefault){
     db_swap_connections();
   }
   if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
-    /* This is a versionable setting, try and get the info from a checked out file */
+    /* This is a versionable setting, try and get the info from a
+    ** checked out file */
     z = db_get_do_versionable(zName, z);
   }
   if( z==0 ){
@@ -1876,6 +1877,27 @@ void db_lset_int(const char *zName, int value){
 }
 
 /*
+** Returns non-0 if the database (which must be open) table identified
+** by zTableName has a column named zColName (case-sensitive), else
+** returns 0.
+*/
+int db_table_has_column( char const *zTableName, char const *zColName ){
+  Stmt q = empty_Stmt;
+  int rc = 0;
+  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
+  while(SQLITE_ROW == db_step(&q)){
+    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
+    char const * zCol = db_column_text(&q, 1);
+    if(0==fossil_strcmp(zColName, zCol)){
+      rc = 1;
+      break;
+    }
+  }
+  db_finalize(&q);
+  return rc;
+}
+
+/*
 ** Record the name of a local repository in the global_config() database.
 ** The repository filename %s is recorded as an entry with a "name" field
 ** of the following form:
@@ -1965,7 +1987,11 @@ void cmd_open(void){
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema, (char*)0);
+  db_init_database(LOCALDB_NAME, zLocalSchema,
+#ifdef FOSSIL_LOCAL_WAL
+                   "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
+#endif
+                   (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local();
   db_lset("repository", g.argv[2]);
@@ -1998,7 +2024,10 @@ void cmd_open(void){
 /*
 ** Print the value of a setting named zName
 */
-static void print_setting(const struct stControlSettings *ctrlSetting, int localOpen){
+static void print_setting(
+  const struct stControlSettings *ctrlSetting,
+  int localOpen
+){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
@@ -2023,9 +2052,11 @@ static void print_setting(const struct stControlSettings *ctrlSetting, int local
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, ctrlSetting->name);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+                 g.zLocalRoot, ctrlSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n", ctrlSetting->name);
+      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                   ctrlSetting->name);
     }
   }
   db_finalize(&q);

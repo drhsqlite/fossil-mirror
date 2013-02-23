@@ -105,6 +105,7 @@ SRC   = add_.c \
         json_login_.c \
         json_query_.c \
         json_report_.c \
+        json_status_.c \
         json_tag_.c \
         json_timeline_.c \
         json_user_.c \
@@ -152,6 +153,7 @@ SRC   = add_.c \
         url_.c \
         user_.c \
         utf8_.c \
+        util_.c \
         verify_.c \
         vfile_.c \
         wiki_.c \
@@ -211,6 +213,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\json_login$O \
         $(OX)\json_query$O \
         $(OX)\json_report$O \
+        $(OX)\json_status$O \
         $(OX)\json_tag$O \
         $(OX)\json_timeline$O \
         $(OX)\json_user$O \
@@ -262,6 +265,7 @@ OBJ   = $(OX)\add$O \
         $(OX)\url$O \
         $(OX)\user$O \
         $(OX)\utf8$O \
+        $(OX)\util$O \
         $(OX)\verify$O \
         $(OX)\vfile$O \
         $(OX)\wiki$O \
@@ -335,6 +339,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\json_login.obj >> $@
 	echo $(OX)\json_query.obj >> $@
 	echo $(OX)\json_report.obj >> $@
+	echo $(OX)\json_status.obj >> $@
 	echo $(OX)\json_tag.obj >> $@
 	echo $(OX)\json_timeline.obj >> $@
 	echo $(OX)\json_user.obj >> $@
@@ -386,6 +391,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
 	echo $(OX)\utf8.obj >> $@
+	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
@@ -463,6 +469,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -757,6 +764,12 @@ $(OX)\json_report$O : json_report_.c json_report.h
 json_report_.c : $(SRCDIR)\json_report.c
 	translate$E $** > $@
 
+$(OX)\json_status$O : json_status_.c json_status.h
+	$(TCC) /Fo$@ -c json_status_.c
+
+json_status_.c : $(SRCDIR)\json_status.c
+	translate$E $** > $@
+
 $(OX)\json_tag$O : json_tag_.c json_tag.h
 	$(TCC) /Fo$@ -c json_tag_.c
 
@@ -1039,6 +1052,12 @@ $(OX)\utf8$O : utf8_.c utf8.h
 utf8_.c : $(SRCDIR)\utf8.c
 	translate$E $** > $@
 
+$(OX)\util$O : util_.c util.h
+	$(TCC) /Fo$@ -c util_.c
+
+util_.c : $(SRCDIR)\util.c
+	translate$E $** > $@
+
 $(OX)\verify$O : verify_.c verify.h
 	$(TCC) /Fo$@ -c verify_.c
 
@@ -1144,6 +1163,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			json_login_.c:json_login.h \
 			json_query_.c:json_query.h \
 			json_report_.c:json_report.h \
+			json_status_.c:json_status.h \
 			json_tag_.c:json_tag.h \
 			json_timeline_.c:json_timeline.h \
 			json_user_.c:json_user.h \
@@ -1191,6 +1211,7 @@ headers: makeheaders$E page_index.h VERSION.h
 			url_.c:url.h \
 			user_.c:user.h \
 			utf8_.c:utf8.h \
+			util_.c:util.h \
 			verify_.c:verify.h \
 			vfile_.c:vfile.h \
 			wiki_.c:wiki.h \

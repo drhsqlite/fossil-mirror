@@ -26,34 +26,27 @@
 # include <windows.h>
 #endif
 
+#ifdef _WIN32
 /*
-** Translate MBCS to UTF8.  Return a pointer to the translated text.
+** Translate MBCS to UTF-8.  Return a pointer to the translated text.
 ** Call fossil_mbcs_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
 char *fossil_mbcs_to_utf8(const char *zMbcs){
-#ifdef _WIN32
   extern char *sqlite3_win32_mbcs_to_utf8(const char*);
   return sqlite3_win32_mbcs_to_utf8(zMbcs);
-#else
-  return (char*)zMbcs;  /* No-op on unix */
-#endif
 }
 
 /*
-** After translating from UTF8 to MBCS, invoke this routine to deallocate
+** After translating from UTF-8 to MBCS, invoke this routine to deallocate
 ** any memory used to hold the translation
 */
 void fossil_mbcs_free(char *zOld){
-#ifdef _WIN32
   sqlite3_free(zOld);
-#else
-  /* No-op on unix */
-#endif
 }
 
 /*
-** Translate Unicode text into UTF8.
+** Translate Unicode text into UTF-8.
 ** Return a pointer to the translated text.
 ** Call fossil_unicode_free() to deallocate any memory used to store the
 ** returned pointer when done.
@@ -68,12 +61,12 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
   WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
   return zUtf;
 #else
-  return (char *)zUnicode;  /* No-op on unix */
+  return fossil_strdup(zUtf8);  /* TODO: implement for unix */
 #endif
 }
 
 /*
-** Translate UTF8 to unicode for use in system calls.  Return a pointer to the
+** Translate UTF-8 to unicode for use in system calls.  Return a pointer to the
 ** translated text..  Call fossil_unicode_free() to deallocate any memory
 ** used to store the returned pointer when done.
 */
@@ -87,7 +80,7 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
   return zUnicode;
 #else
-  return (void *)zUtf8;  /* No-op on unix */
+  return fossil_strdup(zUtf8);  /* TODO: implement for unix */
 #endif
 }
 
@@ -99,17 +92,18 @@ void fossil_unicode_free(void *pOld){
 #ifdef _WIN32
   sqlite3_free(pOld);
 #else
-  /* No-op on unix */
+  fossil_free(pOld);
 #endif
 }
+#endif /* _WIN32 */
 
 #if defined(__APPLE__) && !defined(WITHOUT_ICONV)
 # include <iconv.h>
 #endif
 
 /*
-** Translate text from the filename character set into
-** to precomposed UTF8.  Return a pointer to the translated text.
+** Translate text from the filename character set into UTF-8.
+** Return a pointer to the translated text.
 ** Call fossil_filename_free() to deallocate any memory used to store the
 ** returned pointer when done.
 */
@@ -153,10 +147,32 @@ char *fossil_filename_to_utf8(const void *zFilename){
 }
 
 /*
-** Deallocate any memory that was previously allocated by
-** fossil_filename_to_utf8().
+** Translate text from UTF-8 to the filename character set.
+** Return a pointer to the translated text.
+** Call fossil_filename_free() to deallocate any memory used to store the
+** returned pointer when done.
 */
-void fossil_filename_free(char *pOld){
+void *fossil_utf8_to_filename(const char *zUtf8){
+#ifdef _WIN32
+  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  return zUnicode;
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+  return fossil_strdup(zUtf8);
+#else
+  return (void *)zUtf8;  /* No-op on unix */
+#endif
+}
+
+/*
+** Deallocate any memory that was previously allocated by
+** fossil_filename_to_utf8() or fossil_utf8_to_filename().
+*/
+void fossil_filename_free(void *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
@@ -167,7 +183,7 @@ void fossil_filename_free(char *pOld){
 }
 
 /*
-** Display UTF8 on the console.  Return the number of
+** Display UTF-8 on the console.  Return the number of
 ** Characters written. If stdout or stderr is redirected
 ** to a file, -1 is returned and nothing is written
 ** to the console.

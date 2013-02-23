@@ -176,6 +176,7 @@ void changes_cmd(void){
                  g.zLocalRoot);
   }
   blob_write_to_file(&report, "-");
+  blob_reset(&report);
 }
 
 /*
