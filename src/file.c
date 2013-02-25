@@ -353,6 +353,22 @@ const char *file_tail(const char *z){
 }
 
 /*
+** Return the head of a file pathname.  The head is everything leading up
+** to the last component of the path.  For example, the head of "/a/b/c.d" is "/a/b".
+** The trailing slash is removed.
+*/
+void file_head(const char *z, char *h){
+  int i = file_tail(z)-z;
+  if( !i ){
+    memmove(h, z, strlen(z));
+    return;
+  }
+  if( '/' == z[i-1] ) i--;
+  memmove(h, z, i);
+  h[i] = '\0';
+}
+
+/*
 ** Copy the content of a file from one place to another.
 */
 void file_copy(const char *zFrom, const char *zTo){
@@ -361,6 +377,11 @@ void file_copy(const char *zFrom, const char *zTo){
   char zBuf[8192];
   in = fossil_fopen(zFrom, "rb");
   if( in==0 ) fossil_fatal("cannot open \"%s\" for reading", zFrom);
+  file_head(zTo, zBuf);
+  if( !file_isdir(zBuf) )
+  {
+    file_mkdir(zBuf, 0);
+  }
   out = fossil_fopen(zTo, "wb");
   if( out==0 ) fossil_fatal("cannot open \"%s\" for writing", zTo);
   while( (got=fread(zBuf, 1, sizeof(zBuf), in))>0 ){
