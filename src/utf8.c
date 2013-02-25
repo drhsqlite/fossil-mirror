@@ -106,28 +106,33 @@ void fossil_unicode_free(void *pOld){
 ** Return a pointer to the translated text.
 ** Call fossil_filename_free() to deallocate any memory used to store the
 ** returned pointer when done.
+**
+** On Windows, translate some characters in the in the range
+** U+F001 - U+F07F (private use area) to ASCII. Cygwin sometimes
+** generates such filenames. See:
+** <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
 */
-char *fossil_filename_to_utf8(void *zFilename){
+char *fossil_filename_to_utf8(const void *zFilename){
 #if defined(_WIN32)
-  int nByte;
-  char *zUtf;
-  wchar_t *wUnicode = zFilename;
-  while( *wUnicode != 0 ){
-    if ( (*wUnicode & 0xff80) == 0xf000 ){
-      wchar_t converted = (*wUnicode & 0x7f);
-      /* Only really convert it when the resulting char is in the given range*/
-      if ( (converted < 32) || wcschr(L"\"*<>?|:", converted) ){
-        *wUnicode = converted;
-      }
-    }
-    ++wUnicode;
-  }
-  nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
-  zUtf = sqlite3_malloc( nByte );
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
+  char *zUtf = sqlite3_malloc( nByte );
+  char *pUtf, *qUtf;
   if( zUtf==0 ){
     return 0;
   }
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
+  pUtf = qUtf = zUtf;
+  while( *pUtf ) {
+    if( *pUtf == (char)0xef ){
+      wchar_t c = ((pUtf[1]&0x3f)<<6)|(pUtf[2]&0x3f);
+      /* Only really convert it when the resulting char is in range. */
+      if ( c && ((c <= ' ') || wcschr(L"\"*.:<>?|", c)) ){
+        *qUtf++ = c; pUtf+=3; continue;
+      }
+    }
+    *qUtf++ = *pUtf++;
+  }
+  *qUtf = 0;
   return zUtf;
 #elif defined(__CYGWIN__)
   char *zOut;
@@ -170,8 +175,8 @@ char *fossil_filename_to_utf8(void *zFilename){
 **
 ** On Windows, characters in the range U+0001 to U+0031 and the
 ** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
-** to be used. Therefore, translated those to characters in the
-** (private use area), in the range U+F001 - U+F07F, so those
+** to be used. Therefore, translate those to characters in the
+** in the range U+F001 - U+F07F (private use area), so those
 ** characters never arrive in any Windows API. The filenames might
 ** look strange in Windows explorer, but in the cygwin shell
 ** everything looks as expected.
@@ -195,7 +200,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     wUnicode += 3;
   }
   while( *wUnicode != '\0' ){
-    if ( (*wUnicode < 32) || wcschr(L"\"*<>?|:", *wUnicode) ){
+    if ( (*wUnicode < 32) || wcschr(L"\"*:<>?|", *wUnicode) ){
       *wUnicode |= 0xF000;
     }else if( *wUnicode == '/' ){
       *wUnicode = '\\';
@@ -241,7 +246,7 @@ void fossil_filename_free(void *pOld){
 */
 int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
-  int nChar;
+  int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
 
@@ -260,13 +265,16 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return 0;
   }
   nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
-  if( nChar==0 ){
-    free(zUnicode);
-    return 0;
+  /* Split WriteConsoleW call into multiple chunks, if necessary. See:
+   * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
+  while( written < nChar ){
+    int size = nChar-written;
+    if (size > 26000) size = 26000;
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
+        size, &dummy, 0);
+    written += size;
   }
-  zUnicode[nChar] = '\0';
-  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar,
-                &dummy, 0);
+  free(zUnicode);
   return nChar;
 #else
   return -1;  /* No-op on unix */
