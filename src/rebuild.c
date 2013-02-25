@@ -787,6 +787,8 @@ void scrub_cmd(void){
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  db_close(1);
+  db_open_repository(g.zRepositoryName);
   if( !bForce ){
     Blob ans;
     char cReply;

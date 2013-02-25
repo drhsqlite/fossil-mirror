@@ -884,6 +884,7 @@ static int isValidLocalDb(const char *zDbName){
   db_open_or_attach(zDbName, "localdb", 0);
   zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                          " WHERE name=='vfile'", db_name("localdb"));
+  if( zVFileDef==0 ) return 0;
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have

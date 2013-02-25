@@ -1,5 +1,5 @@
-C Split\sWriteConsoleW\scall\sinto\smultiple\schunks,\swhen\snecessary.\s\nSee\s[https://connect.microsoft.com/VisualStudio/feedback/details/635230]
-D 2013-02-25T09:33:22.882
+C Get\sthe\s"fossil\sscrub\s--private"\scommand\sworking\sagain.
+D 2013-02-25T17:42:28.418
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c 65a63db8818fe86dd40c0e3e9b569c003f1d0212
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 60885bef3a9b62da3007734a5e4a2885d92b2081
+F src/db.c 548546ee0242a348cf6c5ab02caf70a845b4354f
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -368,7 +368,7 @@ F src/pivot.c 01042d5f6f97e9a306678ece011e6333aeb18d91
 F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c f469cb614df5489d520f5ab0576597da4d157ba4
-F src/rebuild.c 0752bdbf7bffe69b781e130f5ee263c05c9278e6
+F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
 F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 16642f9c183f704122a66ad76e90124f19c40dfb
-R e3c05d4b0420a10b035e34c0dfdecd58
-U jan.nijtmans
-Z 28e9ab27b644a70d6a7146d6aed086c2
+P 8031947e594396ad845a325bcc994078178ca39d
+R 6f0dfe142ca9c5b7cf4ac4d9ccdc6365
+U drh
+Z 089967366811f3ef4ade662fd4d07a51
