@@ -190,7 +190,7 @@ void fossil_filename_free(void *pOld){
 */
 int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
-  int nChar;
+  int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
 
@@ -209,13 +209,16 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return 0;
   }
   nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
-  if( nChar==0 ){
-    free(zUnicode);
-    return 0;
+  /* Split WriteConsoleW call into multiple chunks, if necessary. See:
+   * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
+  while( written < nChar ){
+    int size = nChar-written;
+    if (size > 26000) size = 26000;
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
+        size, &dummy, 0);
+    written += size;
   }
-  zUnicode[nChar] = '\0';
-  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar,
-                &dummy, 0);
+  free(zUnicode);
   return nChar;
 #else
   return -1;  /* No-op on unix */
