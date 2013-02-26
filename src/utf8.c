@@ -106,6 +106,10 @@ void fossil_unicode_free(void *pOld){
 ** Return a pointer to the translated text.
 ** Call fossil_filename_free() to deallocate any memory used to store the
 ** returned pointer when done.
+**
+** This function must not convert '\' to '/' on windows/cygwin, as it is
+** used in places where we are not sure it's really filenames we are handling,
+** e.g. fossil_getenv() or handling the argv arguments from main().
 */
 char *fossil_filename_to_utf8(const void *zFilename){
 #if defined(_WIN32)
@@ -156,10 +160,17 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
   wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  while( *wUnicode != '\0' ){
+    if( *wUnicode == '/' ){
+      *wUnicode = '\\';
+    }
+    ++wUnicode;
+  }
   return zUnicode;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   return fossil_strdup(zUtf8);

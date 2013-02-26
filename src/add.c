@@ -390,7 +390,7 @@ int filenames_are_case_sensitive(void){
     if( zCaseSensitive ){
       caseSensitive = is_truth(zCaseSensitive);
     }else{
-#if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__DARWIN__) && !defined(__APPLE__)
       caseSensitive = 1;  /* Unix */
 #else
       caseSensitive = 0;  /* Windows and Mac */
