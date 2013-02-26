@@ -596,7 +596,7 @@ int file_simplify_name(char *z, int n, int slash){
   if( n<0 ) n = strlen(z);
 
   /* On windows and cygwin convert all \ characters to / */
-#if defined(_WIN32) && defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__CYGWIN__)
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';
   }

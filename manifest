@@ -1,5 +1,5 @@
-C Fix\stypo\sin\swiki\spage.
-D 2013-02-26T20:48:47.173
+C Fix\spreprocessor\scheck\sfor\sWin32/Cygwin\sin\sfile_simplify_name().
+D 2013-02-26T20:50:11.089
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -319,7 +319,7 @@ F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
-F src/file.c 316882816d33924095278a282705146754d2262f
+F src/file.c 2eb6a92484a7ebd203299e3c07bf41d6eec138f0
 F src/finfo.c e8ab60027aadeb99680b9fefdb33ad1dd7dbe90a
 F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d4b3e1d86d3d8e4e2a1f1dd3c081414e75230b80
-R 80bb5a14a817971b215ddc9ab20f9396
+P b72ef38d1b98ac6832b5ba7681b6a2650a313359
+R ea1a520ac58f3c172a43c4010d66aabe
 U mistachkin
-Z d54ba1b2badf532217aef18e776738b5
+Z f568abe46dba85ddc4694567ea893a60
