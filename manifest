@@ -1,5 +1,5 @@
-C Update\scustom\sMinGW\smakefile\sto\sinclude\sthe\snewly\sadded\ssource\scode\sfiles.
-D 2013-02-27T23:39:05.429
+C Fix\sartifact\slinks\sfor\sticket\sattachments.
+D 2013-02-27T23:41:02.637
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -394,7 +394,7 @@ F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c b81a5660b8afbcaf9a1a63a3272abfcc8a763650
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
 F src/timeline.c 64381fd7c3a373db091ad269e12b05b5ecb06836
-F src/tkt.c 967b7f463b1095dd42a98910aafd093ad0be99f5
+F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
@@ -603,7 +603,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c031089e15026c7671ea7e7395fbb150a3fdcb8d
-R a22993600568e098318066a2b4faa1ed
+P 93482cee82bc3f225c4e55895459af185a0f1907
+R 5c7cf5a85d313856561ac0f65d81c13a
+T *branch * tktAttachmentLinks
+T *sym-tktAttachmentLinks *
+T -sym-trunk *
 U mistachkin
-Z fe668d9bdc9e8a6210366357a368a6d6
+Z ff6679c446e9d058cfe820cd95e909a0
