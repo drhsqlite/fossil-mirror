@@ -19,5 +19,5 @@ type:
 For a permanent installation, you can graft the code into your
 <tt>.bashrc</tt> file in your home directory.
 
-The code is very simply (only 32 non-comment lines, as of this writing)
+The code is very simple (only 32 non-comment lines, as of this writing)
 and hence easy to customized.
