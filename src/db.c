@@ -826,7 +826,7 @@ void db_open_config(int useAttach){
   }
 #endif
   g.zHome = mprintf("%/", zHome);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
@@ -1983,7 +1983,7 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
 # define LOCALDB_NAME "./.fslckout"
