@@ -615,7 +615,7 @@ int historical_version_of_file(
   Blob *content,           /* Put the content here */
   int *pIsLink,            /* Set to true if file is link. */
   int *pIsExe,             /* Set to true if file is executable */
-  int *pEType,             /* Set to file type, look_like_text()&3 */
+  int *pEType,             /* Set to file type, looks_like_text() */
   int errCode              /* Error code if file not found.  Panic if 0. */
 ){
   Manifest *pManifest;
