@@ -595,8 +595,8 @@ int file_simplify_name(char *z, int n, int slash){
   int i, j;
   if( n<0 ) n = strlen(z);
 
-  /* On windows convert all \ characters to / */
-#if defined(_WIN32)
+  /* On windows and cygwin convert all \ characters to / */
+#if defined(_WIN32) || defined(__CYGWIN__)
   for(i=0; i<n; i++){
     if( z[i]=='\\' ) z[i] = '/';
   }
@@ -848,7 +848,7 @@ void file_relative_name(const char *zOrigName, Blob *pOut, int slash){
     file_getcwd(zBuf, sizeof(zBuf)-20);
     zPwd = file_without_drive_letter(zBuf);
     i = 1;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
     while( zPath[i] && fossil_tolower(zPwd[i])==fossil_tolower(zPath[i]) ) i++;
 #else
     while( zPath[i] && zPwd[i]==zPath[i] ) i++;

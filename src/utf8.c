@@ -106,6 +106,10 @@ void fossil_unicode_free(void *pOld){
 ** Return a pointer to the translated text.
 ** Call fossil_filename_free() to deallocate any memory used to store the
 ** returned pointer when done.
+**
+** This function must not convert '\' to '/' on windows/cygwin, as it is
+** used in places where we are not sure it's really filenames we are handling,
+** e.g. fossil_getenv() or handling the argv arguments from main().
 */
 char *fossil_filename_to_utf8(const void *zFilename){
 #if defined(_WIN32)
@@ -156,10 +160,17 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
   wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  while( *wUnicode != '\0' ){
+    if( *wUnicode == '/' ){
+      *wUnicode = '\\';
+    }
+    ++wUnicode;
+  }
   return zUnicode;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   return fossil_strdup(zUtf8);
@@ -190,7 +201,7 @@ void fossil_filename_free(void *pOld){
 */
 int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
 #ifdef _WIN32
-  int nChar;
+  int nChar, written = 0;
   wchar_t *zUnicode; /* Unicode version of zUtf8 */
   DWORD dummy;
 
@@ -209,13 +220,16 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
     return 0;
   }
   nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
-  if( nChar==0 ){
-    free(zUnicode);
-    return 0;
+  /* Split WriteConsoleW call into multiple chunks, if necessary. See:
+   * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
+  while( written < nChar ){
+    int size = nChar-written;
+    if (size > 26000) size = 26000;
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
+        size, &dummy, 0);
+    written += size;
   }
-  zUnicode[nChar] = '\0';
-  WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode, nChar,
-                &dummy, 0);
+  free(zUnicode);
   return nChar;
 #else
   return -1;  /* No-op on unix */

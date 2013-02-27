@@ -31,6 +31,9 @@
 #include "config.h"
 #if ! defined(_WIN32)
 #  include <pwd.h>
+#  if defined(__CYGWIN__)
+#    include <sys/cygwin.h>
+#  endif
 #endif
 #include <sqlite3.h>
 #include <sys/types.h>
@@ -795,7 +798,7 @@ void db_open_config(int useAttach){
   char *zDbName;
   const char *zHome;
   if( g.configOpen ) return;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
     zHome = fossil_getenv("APPDATA");
@@ -805,6 +808,15 @@ void db_open_config(int useAttach){
       if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
+#if defined(__CYGWIN__)
+  if( zHome!=0 ){
+    /* We now have the win32 path, but we need the Cygwin equivalent */
+    ssize_t size = cygwin_conv_path(CCP_WIN_A_TO_POSIX, zHome, 0, 0);
+    char *converted = fossil_malloc(size);
+    cygwin_conv_path(CCP_WIN_A_TO_POSIX, zHome, converted, size);
+    zHome = converted;
+  }
+#endif
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
@@ -826,7 +838,7 @@ void db_open_config(int useAttach){
   }
 #endif
   g.zHome = mprintf("%/", zHome);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
@@ -884,6 +896,7 @@ static int isValidLocalDb(const char *zDbName){
   db_open_or_attach(zDbName, "localdb", 0);
   zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                          " WHERE name=='vfile'", db_name("localdb"));
+  if( zVFileDef==0 ) return 0;
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
@@ -1982,7 +1995,7 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
 # define LOCALDB_NAME "./.fslckout"
