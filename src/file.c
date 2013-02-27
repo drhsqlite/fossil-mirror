@@ -1013,19 +1013,22 @@ void file_parse_uri(
 ** Construct a random temporary filename into zBuf[].
 */
 void file_tempname(int nBuf, char *zBuf){
-  static const char *azDirs[] = {
 #if defined(_WIN32)
+  const char *azDirs[] = {
      0, /* GetTempPath */
      0, /* TEMP */
      0, /* TMP */
+     ".",
+  };
 #else
+  static const char *azDirs[] = {
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
      "/temp",
-#endif
      ".",
   };
+#endif
   static const unsigned char zChars[] =
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -1072,8 +1075,9 @@ void file_tempname(int nBuf, char *zBuf){
   }while( file_size(zBuf)>=0 );
 
 #if defined(_WIN32)
-  fossil_unicode_free((char *)azDirs[1]);
-  fossil_unicode_free((char *)azDirs[2]);
+  fossil_filename_free((char *)azDirs[0]);
+  fossil_filename_free((char *)azDirs[1]);
+  fossil_filename_free((char *)azDirs[2]);
 #endif
 }
 
