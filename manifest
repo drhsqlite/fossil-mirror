@@ -1,5 +1,5 @@
-C plug\sminor\smemory\sleak
-D 2013-02-27T13:51:01.456
+C Fix\s"fossil\sremote\soff"\sso\sthat\sit\sworks\sagain.
+D 2013-02-27T21:28:46.142
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -385,7 +385,7 @@ F src/sqlite3.h 5421371cdf3d9539932cb90118483533efda2e97
 F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
-F src/sync.c 2e227c10817edb7ff9470b242aafb099a555134b
+F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 26ad1bce495990397b2a49dd229e6cb607923c00
-R bd52a978d4710d21a07e12a0a3440786
-U jan.nijtmans
-Z 7f4dd7cfb7334ad5bcd5b64c62d3dda3
+P 52fb2a71ad2a8164002e5a1bb13e7c1e8c5c07d7
+R cceb8971b7b40b9bc87f4a17de5b411b
+U drh
+Z 69fd29a09e4392a87f17dbcfc628ae39

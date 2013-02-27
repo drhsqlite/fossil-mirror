@@ -247,6 +247,7 @@ void remote_url_cmd(void){
   if( g.argc==3 ){
     db_unset("last-sync-url", 0);
     db_unset("last-sync-pw", 0);
+    if( is_false(g.argv[2]) ) return;
     url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW);
   }
   zUrl = db_get("last-sync-url", 0);
