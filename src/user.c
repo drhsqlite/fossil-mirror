@@ -134,6 +134,7 @@ void prompt_user(const char *zPrompt, Blob *pIn){
   char *z;
   char zLine[1000];
   blob_zero(pIn);
+  fossil_force_newline();
   fossil_print("%s", zPrompt);
   fflush(stdout);
   z = fgets(zLine, sizeof(zLine), stdin);
@@ -304,17 +305,17 @@ static int attempt_user(const char *zLogin){
 **
 **   (3)  Check the default user in the repository
 **
-**   (4)  Try the USER environment variable.
+**   (4)  Try the FOSSIL_USER environment variable.
 **
-**   (5)  Try the USERNAME environment variable.
+**   (5)  Try the USER environment variable.
 **
-**   (6)  Check if the user can be extracted from the remote URL.
+**   (6)  Try the USERNAME environment variable.
+**
+**   (7)  Check if the user can be extracted from the remote URL.
 **
 ** The user name is stored in g.zLogin.  The uid is in g.userUid.
 */
 void user_select(void){
-  char *zUrl;
-
   if( g.userUid ) return;
   if( g.zLogin ){
     if( attempt_user(g.zLogin)==0 ){
@@ -328,15 +329,14 @@ void user_select(void){
 
   if( attempt_user(db_get("default-user", 0)) ) return;
 
+  if( attempt_user(fossil_getenv("FOSSIL_USER")) ) return;
+
   if( attempt_user(fossil_getenv("USER")) ) return;
 
   if( attempt_user(fossil_getenv("USERNAME")) ) return;
 
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl ){
-    url_parse(zUrl);
-    if( attempt_user(g.urlUser) ) return;
-  }
+  url_parse(0, 0);
+  if( g.urlUser && attempt_user(g.urlUser) ) return;
 
   fossil_print(
     "Cannot figure out who you are!  Consider using the --user\n"

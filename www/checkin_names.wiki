@@ -16,8 +16,7 @@ names:
 <li> <b>tip</b>
 <li> <b>current</b>
 <li> <b>next</b>
-<li> <b>previous</b>
-<li> <b>ckout</b>
+<li> <b>previous</b> or <b>prev</b>
 </ul>
 </ul>
 </td></tr>
@@ -196,8 +195,8 @@ equivalent to the timestamp tag "5000-01-01".
 If the command is being run from a working check-out (not against a bare
 repository) then a few extra tags apply.  The "current" tag means the
 current check-out.  The "next" tag means the youngest child of the
-current check-out.  And the "previous" tag means the primary (non-merge)
-parent of the current check-out.
+current check-out.  And the "previous" or "prev" tag means the primary
+(non-merge) parent of the current check-out.
 
 <h2>Additional Examples</h2>
 

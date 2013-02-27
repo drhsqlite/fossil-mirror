@@ -306,7 +306,7 @@ static int isNumber(const char *z, int *realnum){
 /*
 ** A global char* and an SQL function to access its current value 
 ** from within an SQL statement. This program used to use the 
-** sqlite_exec_printf() API to substitute a string into an SQL statement.
+** sqlite_exec_printf() API to substitue a string into an SQL statement.
 ** The correct way to do this with sqlite3 is to use the bind API, but
 ** since the shell is built around the callback paradigm it would be a lot
 ** of work. Instead just use this hack, which is quite harmless.
@@ -541,6 +541,9 @@ static void output_c_string(FILE *out, const char *z){
     if( c=='\\' ){
       fputc(c, out);
       fputc(c, out);
+    }else if( c=='"' ){
+      fputc('\\', out);
+      fputc('"', out);
     }else if( c=='\t' ){
       fputc('\\', out);
       fputc('t', out);
@@ -796,14 +799,14 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
       if( p->cnt++==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
           output_c_string(p->out,azCol[i] ? azCol[i] : "");
-          fprintf(p->out, "%s", p->separator);
+          if(i<nArg-1) fprintf(p->out, "%s", p->separator);
         }
         fprintf(p->out,"\n");
       }
       if( azArg==0 ) break;
       for(i=0; i<nArg; i++){
         output_c_string(p->out, azArg[i] ? azArg[i] : p->nullvalue);
-        fprintf(p->out, "%s", p->separator);
+        if(i<nArg-1) fprintf(p->out, "%s", p->separator);
       }
       fprintf(p->out,"\n");
       break;
@@ -1150,7 +1153,7 @@ static int shell_exec(
         continue;
       }
 
-      /* save off the prepared statement handle and reset row count */
+      /* save off the prepared statment handle and reset row count */
       if( pArg ){
         pArg->pStmt = pStmt;
         pArg->cnt = 0;
@@ -1477,6 +1480,18 @@ static void open_db(struct callback_data *p){
 #ifndef SQLITE_OMIT_LOAD_EXTENSION
     sqlite3_enable_load_extension(p->db, 1);
 #endif
+#ifdef SQLITE_ENABLE_REGEXP
+    {
+      extern int sqlite3_add_regexp_func(sqlite3*);
+      sqlite3_add_regexp_func(db);
+    }
+#endif
+#ifdef SQLITE_ENABLE_SPELLFIX
+    {
+      extern int sqlite3_spellfix1_register(sqlite3*);
+      sqlite3_spellfix1_register(db);
+    }
+#endif
   }
 }
 
@@ -1522,17 +1537,18 @@ static void resolve_backslashes(char *z){
 ** Interpret zArg as a boolean value.  Return either 0 or 1.
 */
 static int booleanValue(char *zArg){
-  int val = atoi(zArg);
-  int j;
-  for(j=0; zArg[j]; j++){
-    zArg[j] = ToLower(zArg[j]);
+  int i;
+  for(i=0; zArg[i]>='0' && zArg[i]<='9'; i++){}
+  if( i>0 && zArg[i]==0 ) return atoi(zArg);
+  if( sqlite3_stricmp(zArg, "on")==0 || sqlite3_stricmp(zArg,"yes")==0 ){
+    return 1;
   }
-  if( strcmp(zArg,"on")==0 ){
-    val = 1;
-  }else if( strcmp(zArg,"yes")==0 ){
-    val = 1;
+  if( sqlite3_stricmp(zArg, "off")==0 || sqlite3_stricmp(zArg,"no")==0 ){
+    return 0;
   }
-  return val;
+  fprintf(stderr, "ERROR: Not a boolean value: \"%s\". Assuming \"no\".\n",
+          zArg);
+  return 0;
 }
 
 /*
@@ -1620,24 +1636,50 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   if( nArg==0 ) return 0; /* no tokens, no error */
   n = strlen30(azArg[0]);
   c = azArg[0][0];
-  if( c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0 && nArg>1 && nArg<4){
-    const char *zDestFile;
-    const char *zDb;
+  if( c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0 ){
+    const char *zDestFile = 0;
+    const char *zDb = 0;
+    const char *zKey = 0;
     sqlite3 *pDest;
     sqlite3_backup *pBackup;
-    if( nArg==2 ){
-      zDestFile = azArg[1];
-      zDb = "main";
-    }else{
-      zDestFile = azArg[2];
-      zDb = azArg[1];
+    int j;
+    for(j=1; j<nArg; j++){
+      const char *z = azArg[j];
+      if( z[0]=='-' ){
+        while( z[0]=='-' ) z++;
+        if( strcmp(z,"key")==0 && j<nArg-1 ){
+          zKey = azArg[++j];
+        }else
+        {
+          fprintf(stderr, "unknown option: %s\n", azArg[j]);
+          return 1;
+        }
+      }else if( zDestFile==0 ){
+        zDestFile = azArg[j];
+      }else if( zDb==0 ){
+        zDb = zDestFile;
+        zDestFile = azArg[j];
+      }else{
+        fprintf(stderr, "too many arguments to .backup\n");
+        return 1;
+      }
     }
+    if( zDestFile==0 ){
+      fprintf(stderr, "missing FILENAME argument on .backup\n");
+      return 1;
+    }
+    if( zDb==0 ) zDb = "main";
     rc = sqlite3_open(zDestFile, &pDest);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "Error: cannot open \"%s\"\n", zDestFile);
       sqlite3_close(pDest);
       return 1;
     }
+#ifdef SQLITE_HAS_CODEC
+    sqlite3_key(pDest, zKey, (int)strlen(zKey));
+#else
+    (void)zKey;
+#endif
     open_db(p);
     pBackup = sqlite3_backup_init(pDest, "main", p->db, zDb);
     if( pBackup==0 ){
@@ -1739,7 +1781,8 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     p->echoOn = booleanValue(azArg[1]);
   }else
 
-  if( c=='e' && strncmp(azArg[0], "exit", n)==0  && nArg==1 ){
+  if( c=='e' && strncmp(azArg[0], "exit", n)==0 ){
+    if( nArg>1 && (rc = atoi(azArg[1]))!=0 ) exit(rc);
     rc = 2;
   }else
 
@@ -2018,6 +2061,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       p->mode = MODE_Html;
     }else if( n2==3 && strncmp(azArg[1],"tcl",n2)==0 ){
       p->mode = MODE_Tcl;
+      sqlite3_snprintf(sizeof(p->separator), p->separator, " ");
     }else if( n2==3 && strncmp(azArg[1],"csv",n2)==0 ){
       p->mode = MODE_Csv;
       sqlite3_snprintf(sizeof(p->separator), p->separator, ",");
@@ -2711,7 +2755,7 @@ static int process_input(struct callback_data *p, FILE *in){
     free(zSql);
   }
   free(zLine);
-  return errCnt;
+  return errCnt>0;
 }
 
 /*

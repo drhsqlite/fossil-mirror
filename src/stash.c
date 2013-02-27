@@ -161,8 +161,9 @@ static int stash_create(void){
     Blob prompt;                       /* Prompt for stash comment */
     Blob comment;                      /* User comment reply */
 #ifdef _WIN32
-    static const unsigned char bom[] = { 0xEF, 0xBB, 0xBF };
-    blob_init(&prompt, (const char *) bom, 3);
+    int bomSize;
+    const unsigned char *bom = get_utf8_bom(&bomSize);
+    blob_init(&prompt, (const char *) bom, bomSize);
 #else
     blob_zero(&prompt);
 #endif
@@ -255,7 +256,7 @@ static void stash_apply(int stashid, int nConflict){
           blob_zero(&b); /* because we reset it later */
           fossil_print("***** Cannot merge symlink %s\n", zNew);
         }else{
-          rc = merge_3way(&a, zOPath, &b, &out);
+          rc = merge_3way(&a, zOPath, &b, &out, 0);
           blob_write_to_file(&out, zNPath);
           blob_reset(&out);
           file_wd_setexe(zNPath, isExec);

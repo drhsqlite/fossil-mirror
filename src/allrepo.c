@@ -134,8 +134,10 @@ void all_cmd(void){
     useCheckouts = find_option("ckout","c",0)!=0;
   }else if( strncmp(zCmd, "push", n)==0 ){
     zCmd = "push -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "pull", n)==0 ){
     zCmd = "pull -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "rebuild", n)==0 ){
     zCmd = "rebuild";
     collect_argument(&extra, "cluster");
@@ -144,10 +146,12 @@ void all_cmd(void){
     collect_argument_value(&extra, "pagesize");
     collect_argument(&extra, "vacuum");
     collect_argument(&extra, "deanalyze");
+    collect_argument(&extra, "analyze");
     collect_argument(&extra, "wal");
     collect_argument(&extra, "stat");
   }else if( strncmp(zCmd, "sync", n)==0 ){
     zCmd = "sync -autourl -R";
+    collect_argument(&extra, "verbose");
   }else if( strncmp(zCmd, "test-integrity", n)==0 ){
     zCmd = "test-integrity";
   }else if( strncmp(zCmd, "test-orphans", n)==0 ){

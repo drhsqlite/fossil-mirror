@@ -73,6 +73,7 @@ void attachlist_page(void){
     const char *zUser = db_column_text(&q, 5);
     const char *zUuid = db_column_text(&q, 6);
     int attachid = db_column_int(&q, 7);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     int i;
     char *zUrlTail;
     for(i=0; zFilename[i]; i++){
@@ -117,7 +118,7 @@ void attachlist_page(void){
         @ Added
       }
     }
-    @ by %h(zUser) on
+    @ by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     free(zUrlTail);
   }
@@ -237,6 +238,7 @@ void attachadd_page(void){
   const char *zTarget;
   const char *zTargetType;
   int szContent = atoi(PD("f:bytes","0"));
+  int goodCaptcha = 1;
 
   if( P("cancel") ) cgi_redirect(zFrom);
   if( zPage && zTkt ) fossil_redirect_home();
@@ -265,7 +267,7 @@ void attachadd_page(void){
   if( P("cancel") ){
     cgi_redirect(zFrom);
   }
-  if( P("ok") && szContent>0 ){
+  if( P("ok") && szContent>0 && (goodCaptcha = captcha_is_correct()) ){
     Blob content;
     Blob manifest;
     Blob cksum;
@@ -318,9 +320,12 @@ void attachadd_page(void){
     cgi_redirect(zFrom);
   }
   style_header("Add Attachment");
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   @ <h2>Add Attachment To %s(zTargetType)</h2>
-  @ <form action="%s(g.zTop)/attachadd" method="post"
-  @  enctype="multipart/form-data"><div>
+  form_begin("enctype='multipart/form-data'", "%R/attachadd");
+  @ <div>
   @ File to Attach:
   @ <input type="file" name="f" size="60" /><br />
   @ Description:<br />
@@ -333,7 +338,9 @@ void attachadd_page(void){
   @ <input type="hidden" name="from" value="%h(zFrom)" />
   @ <input type="submit" name="ok" value="Add Attachment" />
   @ <input type="submit" name="cancel" value="Cancel" />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   style_footer();
 }
 
@@ -434,7 +441,7 @@ void ainfo_page(void){
   if( P("del")
    && ((zTktUuid && g.perm.WrTkt) || (zWikiName && g.perm.WrWiki))
   ){
-    @ <form method="post" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <p>Confirm you want to delete the attachment shown below.
     @ <input type="submit" name="confirm" value="Confirm">
     @ </form>
@@ -498,7 +505,7 @@ void ainfo_page(void){
   if( isModerator && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
-    @ <form method="POST" action="%R/ainfo/%s(zUuid)">
+    form_begin(0, "%R/ainfo/%s", zUuid);
     @ <label><input type="radio" name="modaction" value="delete">
     @ Delete this change</label><br />
     @ <label><input type="radio" name="modaction" value="approve">
@@ -515,7 +522,7 @@ void ainfo_page(void){
     const char *z;
     const char *zLn = P("ln");
     content_get(ridSrc, &attach);
-    blob_strip_bom(&attach, 0);
+    blob_to_utf8_no_bom(&attach, 0);
     z = blob_str(&attach);
     if( zLn ){
       output_text_with_line_numbers(z, zLn);
@@ -525,9 +532,10 @@ void ainfo_page(void){
       @ </pre>
     }
   }else if( strncmp(zMime, "image/", 6)==0 ){
-    @ <img src="%R/raw?name=%s(zSrc)&m=%s(zMime)"></img>
+    @ <img src="%R/raw/%S(zSrc)?m=%s(zMime)"></img>
+    style_submenu_element("Image", "Image", "%R/raw/%S?m=%s", zSrc, zMime);
   }else{
-    int sz = db_int(0, "SELECT sz FROM blob WHERE rid=%d", ridSrc);
+    int sz = db_int(0, "SELECT size FROM blob WHERE rid=%d", ridSrc);
     @ <i>(file is %d(sz) bytes of binary data)</i>
   }
   @ </blockquote>
@@ -559,13 +567,14 @@ void attachment_list(
     const char *zUser = db_column_text(&q, 2);
     const char *zUuid = db_column_text(&q, 3);
     const char *zSrc = db_column_text(&q, 4);
+    const char *zDispUser = zUser && zUser[0] ? zUser : "anonymous";
     if( cnt==0 ){
       @ %s(zHeader)
     }
     cnt++;
     @ <li>
     @ %z(href("%R/artifact/%s",zSrc))%h(zFile)</a>
-    @ added by %h(zUser) on
+    @ added by %h(zDispUser) on
     hyperlink_to_date(zDate, ".");
     @ [%z(href("%R/ainfo/%s",zUuid))details</a>]
     @ </li>

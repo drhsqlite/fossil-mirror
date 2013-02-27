@@ -61,7 +61,7 @@ static int sameLines(Blob *pV1, Blob *pV2, int N){
 ** Look at the next edit triple in both aC1 and aC2.  (An "edit triple" is
 ** three integers describing the number of copies, deletes, and inserts in
 ** moving from the original to the edited copy of the file.) If the three
-** integers of the edit triples describe an identical edit, then return 1.  
+** integers of the edit triples describe an identical edit, then return 1.
 ** If the edits are different, return 0.
 */
 static int sameEdit(
@@ -156,7 +156,7 @@ static char const * const mergeMarker[] = {
 **
 ** The return is 0 upon complete success. If any input file is binary,
 ** -1 is returned and pOut is unmodified.  If there are merge
-** conflicts, the merge proceeds as best as it can and the number 
+** conflicts, the merge proceeds as best as it can and the number
 ** of conflicts is returns
 */
 static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
@@ -177,8 +177,8 @@ static int blob_merge(Blob *pPivot, Blob *pV1, Blob *pV2, Blob *pOut){
   ** pivot, and the third integer is the number of lines of text that are
   ** inserted.  The edit array ends with a triple of 0,0,0.
   */
-  aC1 = text_diff(pPivot, pV1, 0, 0);
-  aC2 = text_diff(pPivot, pV2, 0, 0);
+  aC1 = text_diff(pPivot, pV1, 0, 0, 0);
+  aC2 = text_diff(pPivot, pV2, 0, 0, 0);
   if( aC1==0 || aC2==0 ){
     free(aC1);
     free(aC2);
@@ -408,6 +408,13 @@ char *string_subst(const char *zInput, int nSubst, const char **azSubst){
   return blob_str(&x);
 }
 
+#if INTERFACE
+/*
+** Flags to the 3-way merger
+*/
+#define MERGE_DRYRUN  0x0001
+#endif
+
 
 /*
 ** This routine is a wrapper around blob_merge() with the following
@@ -430,53 +437,53 @@ int merge_3way(
   Blob *pPivot,       /* Common ancestor (older) */
   const char *zV1,    /* Name of file for version merging into (mine) */
   Blob *pV2,          /* Version merging from (yours) */
-  Blob *pOut          /* Output written here */
+  Blob *pOut,         /* Output written here */
+  unsigned mergeFlags /* Flags that control operation */
 ){
   Blob v1;            /* Content of zV1 */
   int rc;             /* Return code of subroutines and this routine */
-  char *zPivot;       /* Name of the pivot file */
-  char *zOrig;        /* Name of the original content file */
-  char *zOther;       /* Name of the merge file */
 
   blob_read_from_file(&v1, zV1);
   rc = blob_merge(pPivot, &v1, pV2, pOut);
-  if( rc!=0 ){
+  if( rc!=0 && (mergeFlags & MERGE_DRYRUN)==0 ){
+    char *zPivot;       /* Name of the pivot file */
+    char *zOrig;        /* Name of the original content file */
+    char *zOther;       /* Name of the merge file */
+
     zPivot = file_newname(zV1, "baseline", 1);
     blob_write_to_file(pPivot, zPivot);
     zOrig = file_newname(zV1, "original", 1);
     blob_write_to_file(&v1, zOrig);
     zOther = file_newname(zV1, "merge", 1);
     blob_write_to_file(pV2, zOther);
-  }
-  if( rc>0 ){
-    const char *zGMerge;   /* Name of the gmerge command */
+    if( rc>0 ){
+      const char *zGMerge;   /* Name of the gmerge command */
 
-    zGMerge = db_get("gmerge-command", 0);
-    if( zGMerge && zGMerge[0] ){
-      char *zOut;     /* Temporary output file */
-      char *zCmd;     /* Command to invoke */
-      const char *azSubst[8];  /* Strings to be substituted */
+      zGMerge = db_get("gmerge-command", 0);
+      if( zGMerge && zGMerge[0] ){
+        char *zOut;     /* Temporary output file */
+        char *zCmd;     /* Command to invoke */
+        const char *azSubst[8];  /* Strings to be substituted */
 
-      zOut = file_newname(zV1, "output", 1);
-      azSubst[0] = "%baseline";  azSubst[1] = zPivot;
-      azSubst[2] = "%original";  azSubst[3] = zOrig;
-      azSubst[4] = "%merge";     azSubst[5] = zOther;
-      azSubst[6] = "%output";    azSubst[7] = zOut;
-      zCmd = string_subst(zGMerge, 8, azSubst);
-      printf("%s\n", zCmd); fflush(stdout);
-      fossil_system(zCmd);
-      if( file_wd_size(zOut)>=0 ){
-        blob_read_from_file(pOut, zOut);
-        file_delete(zPivot);
-        file_delete(zOrig);
-        file_delete(zOther);
-        file_delete(zOut);
+        zOut = file_newname(zV1, "output", 1);
+        azSubst[0] = "%baseline";  azSubst[1] = zPivot;
+        azSubst[2] = "%original";  azSubst[3] = zOrig;
+        azSubst[4] = "%merge";     azSubst[5] = zOther;
+        azSubst[6] = "%output";    azSubst[7] = zOut;
+        zCmd = string_subst(zGMerge, 8, azSubst);
+        printf("%s\n", zCmd); fflush(stdout);
+        fossil_system(zCmd);
+        if( file_wd_size(zOut)>=0 ){
+          blob_read_from_file(pOut, zOut);
+          file_delete(zPivot);
+          file_delete(zOrig);
+          file_delete(zOther);
+          file_delete(zOut);
+        }
+        fossil_free(zCmd);
+        fossil_free(zOut);
       }
-      fossil_free(zCmd);
-      fossil_free(zOut);
     }
-  }
-  if( rc!=0 ){
     fossil_free(zPivot);
     fossil_free(zOrig);
     fossil_free(zOther);

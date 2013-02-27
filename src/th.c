@@ -1152,6 +1152,13 @@ int Th_GetVar(Th_Interp *interp, const char *zVar, int nVar){
 }
 
 /*
+** Return true if variable (zVar, nVar) exists.
+*/
+int Th_ExistsVar(Th_Interp *interp, const char *zVar, int nVar){
+  return thFindValue(interp, zVar, nVar, 0, 0)!=0;
+}
+
+/*
 ** String (zVar, nVar) must contain the name of a scalar variable or
 ** array member. If the variable does not exist it is created. The
 ** variable is set to the value supplied in string (zValue, nValue).

@@ -59,7 +59,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 /*
 ** COMMAND: merge
 **
-** Usage: %fossil merge ?OPTIONS? VERSION
+** Usage: %fossil merge ?OPTIONS? ?VERSION?
 **
 ** The argument VERSION is a version that should be merged into the
 ** current checkout.  All changes from VERSION back to the nearest
@@ -68,6 +68,9 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 ** single check-in VERSION are merged.  The --backout option causes
 ** the changes associated with VERSION to be removed from the current
 ** checkout rather than added.
+**
+** If the VERSION argument is omitted, then Fossil attempts to find
+** a recent fork on the current branch to merge.
 **
 ** Only file content is merged.  The result continues to use the
 ** file and directory names from the current checkout even if those
@@ -89,7 +92,7 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **   --nochange | -n         Dryrun:  do not actually make any changes; just
 **                           show what would have happened.
 **
-**   --case-sensitive BOOL   Overwrite the case-sensitive setting.  If false,
+**   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
@@ -133,9 +136,7 @@ void merge_cmd(void){
   forceFlag = find_option("force","f",0)!=0;
   zPivot = find_option("baseline",0,1);
   capture_case_sensitive_option();
-  if( g.argc!=3 ){
-    usage("VERSION");
-  }
+  verify_all_options();
   db_must_be_within_tree();
   caseSensitive = filenames_are_case_sensitive();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
@@ -143,10 +144,72 @@ void merge_cmd(void){
   if( vid==0 ){
     fossil_fatal("nothing is checked out");
   }
-  mid = name_to_typed_rid(g.argv[2], "ci");
-  if( mid==0 || !is_a_version(mid) ){
-    fossil_fatal("not a version: %s", g.argv[2]);
+
+  /* Find mid, the artifactID of the version to be merged into the current
+  ** check-out */
+  if( g.argc==3 ){
+    /* Mid is specified as an argument on the command-line */
+    mid = name_to_typed_rid(g.argv[2], "ci");
+    if( mid==0 || !is_a_version(mid) ){
+      fossil_fatal("not a version: %s", g.argv[2]);
+    }
+  }else if( g.argc==2 ){
+    /* No version specified on the command-line so pick the most recent
+    ** leaf that is (1) not the version currently checked out and (2)
+    ** has not already been merged into the current checkout and (3)
+    ** the leaf is not closed and (4) the leaf is in the same branch
+    ** as the current checkout. 
+    */
+    Stmt q;
+    if( pickFlag || backoutFlag ){
+      fossil_fatal("cannot use --cherrypick or --backout with a fork merge");
+    }
+    mid = db_int(0,
+      "SELECT leaf.rid"
+      "  FROM leaf, event"
+      " WHERE leaf.rid=event.objid"
+      "   AND leaf.rid!=%d"                                /* Constraint (1) */
+      "   AND leaf.rid NOT IN (SELECT merge FROM vmerge)"  /* Constraint (2) */
+      "   AND NOT EXISTS(SELECT 1 FROM tagxref"            /* Constraint (3) */
+                    "     WHERE rid=leaf.rid"
+                    "       AND tagid=%d"
+                    "       AND tagtype>0)"
+      "   AND (SELECT value FROM tagxref"                  /* Constraint (4) */
+            "   WHERE tagid=%d AND rid=%d AND tagtype>0) ="
+            " (SELECT value FROM tagxref"
+            "   WHERE tagid=%d AND rid=leaf.rid AND tagtype>0)"
+      " ORDER BY event.mtime DESC LIMIT 1",
+      vid, TAG_CLOSED, TAG_BRANCH, vid, TAG_BRANCH
+    );
+    if( mid==0 ){
+      fossil_fatal("no unmerged forks of branch \"%s\"",
+        db_text(0, "SELECT value FROM tagxref"
+                   " WHERE tagid=%d AND rid=%d AND tagtype>0",
+                   TAG_BRANCH, vid)
+      );
+    }
+    db_prepare(&q,
+      "SELECT blob.uuid,"
+          "   datetime(event.mtime,'localtime'),"
+          "   coalesce(ecomment, comment),"
+          "   coalesce(euser, user)"
+      "  FROM event, blob"
+      " WHERE event.objid=%d AND blob.rid=%d",
+      mid, mid
+    );
+    if( db_step(&q)==SQLITE_ROW ){
+      char *zCom = mprintf("Merging fork [%S] at %s by %s: \"%s\"",
+            db_column_text(&q, 0), db_column_text(&q, 1),
+            db_column_text(&q, 3), db_column_text(&q, 2));
+      comment_print(zCom, 0, 79);
+      fossil_free(zCom);
+    }
+    db_finalize(&q);
+  }else{
+    usage("?OPTIONS? ?VERSION?");
+    return;
   }
+
   if( zPivot ){
     pid = name_to_typed_rid(zPivot, "ci");
     if( pid==0 || !is_a_version(pid) ){
@@ -349,7 +412,7 @@ void merge_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     int idm = db_column_int(&q, 0);
     char *zName = db_text(0, "SELECT pathname FROM vfile WHERE id=%d", idm);
-    fossil_warning("WARNING - no common ancestor: %s\n", zName);
+    fossil_warning("WARNING - no common ancestor: %s", zName);
     free(zName);
     db_multi_exec("UPDATE fv SET idm=0 WHERE idm=%d", idm);
   }
@@ -459,7 +522,8 @@ void merge_cmd(void){
         rc = -1;
         blob_zero(&r);
       }else{
-        rc = merge_3way(&p, zFullPath, &m, &r);
+        unsigned mergeFlags = nochangeFlag ? MERGE_DRYRUN : 0;
+        rc = merge_3way(&p, zFullPath, &m, &r, mergeFlags);
       }
       if( rc>=0 ){
         if( !nochangeFlag ){
@@ -551,14 +615,16 @@ void merge_cmd(void){
 
   /* Report on conflicts
   */
-  if( !nochangeFlag ){
-    if( nConflict ){
-      fossil_print("WARNING: %d merge conflicts", nConflict);
-    }
-    if( nOverwrite ){
-      fossil_warning("WARNING: %d unmanaged files were overwritten",
-                     nOverwrite);
-    }
+  if( nConflict ){
+    fossil_warning("WARNING: %d merge conflicts", nConflict);
+  }
+  if( nOverwrite ){
+    fossil_warning("WARNING: %d unmanaged files were overwritten",
+                   nOverwrite);
+  }
+  if( nochangeFlag ){
+    fossil_warning("REMINDER: this was a dry run -"
+                   " no file were actually changed.");
   }
 
   /*

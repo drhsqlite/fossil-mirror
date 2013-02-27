@@ -88,9 +88,11 @@ static struct {
   { "index-page",             CONFIGSET_SKIN },
   { "timeline-block-markup",  CONFIGSET_SKIN },
   { "timeline-max-comment",   CONFIGSET_SKIN },
+  { "timeline-plaintext",     CONFIGSET_SKIN },
   { "adunit",                 CONFIGSET_SKIN },
   { "adunit-omit-if-admin",   CONFIGSET_SKIN },
   { "adunit-omit-if-user",    CONFIGSET_SKIN },
+  { "th1-setup",              CONFIGSET_ALL },
 
 #ifdef FOSSIL_ENABLE_TCL
   { "tcl",                    CONFIGSET_SKIN|CONFIGSET_TKT|CONFIGSET_XFER },
@@ -103,6 +105,7 @@ static struct {
   { "binary-glob",            CONFIGSET_PROJ },
   { "ignore-glob",            CONFIGSET_PROJ },
   { "crnl-glob",              CONFIGSET_PROJ },
+  { "encoding-glob",          CONFIGSET_PROJ },
   { "empty-dirs",             CONFIGSET_PROJ },
   { "allow-symlinks",         CONFIGSET_PROJ },
 
@@ -877,10 +880,10 @@ void configuration_cmd(void){
    || strncmp(zMethod, "sync", n)==0
   ){
     int mask;
-    const char *zServer;
-    const char *zPw;
+    const char *zServer = 0;
     int legacyFlag = 0;
     int overwriteFlag = 0;
+
     if( zMethod[0]!='s' ) legacyFlag = find_option("legacy",0,0)!=0;
     if( strncmp(zMethod,"pull",n)==0 ){
       overwriteFlag = find_option("overwrite",0,0)!=0;
@@ -892,27 +895,19 @@ void configuration_cmd(void){
     mask = configure_name_to_mask(g.argv[3], 1);
     if( g.argc==5 ){
       zServer = g.argv[4];
-      zPw = 0;
-      g.dontKeepUrl = 1;
-    }else{
-      zServer = db_get("last-sync-url", 0);
-      if( zServer==0 ){
-        fossil_fatal("no server specified");
-      }
-      zPw = unobscure(db_get("last-sync-pw", 0));
     }
-    url_parse(zServer);
-    if( g.urlPasswd==0 && zPw ) g.urlPasswd = mprintf("%s", zPw);
+    url_parse(zServer, URL_PROMPT_PW);
+    if( g.urlProtocol==0 ) fossil_fatal("no server URL specified");
     user_select();
     url_enable_proxy("via proxy: ");
     if( legacyFlag ) mask |= CONFIGSET_OLDFORMAT;
     if( overwriteFlag ) mask |= CONFIGSET_OVERWRITE;
     if( strncmp(zMethod, "push", n)==0 ){
-      client_sync(0,0,0,0,0,mask);
+      client_sync(0,0,(unsigned)mask);
     }else if( strncmp(zMethod, "pull", n)==0 ){
-      client_sync(0,0,0,0,mask,0);
+      client_sync(0,(unsigned)mask,0);
     }else{
-      client_sync(0,0,0,0,mask,mask);
+      client_sync(0,(unsigned)mask,(unsigned)mask);
     }
   }else
   if( strncmp(zMethod, "reset", n)==0 ){

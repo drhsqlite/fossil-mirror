@@ -29,10 +29,8 @@
 #include "config.h"
 #include "http_socket.h"
 #if defined(_WIN32)
-#  if defined(__MINGW32__)
-#    include <ws2tcpip.h>          
-#  endif
-#  include <windows.h>
+#  include <winsock2.h>
+#  include <ws2tcpip.h>
 #else
 #  include <netinet/in.h>
 #  include <arpa/inet.h>

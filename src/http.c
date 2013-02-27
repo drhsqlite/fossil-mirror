@@ -62,7 +62,6 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
     /* Password failure while doing a sync from the command-line interface */
     url_prompt_for_password();
     zPw = g.urlPasswd;
-    if( !g.dontKeepUrl ) db_set("last-sync-pw", obscure(zPw), 0);
   }
 
   /* If the first character of the password is "#", then that character is
@@ -74,6 +73,7 @@ static void http_build_login_card(Blob *pPayload, Blob *pLogin){
   /* The login card wants the SHA1 hash of the password, so convert the
   ** password to its SHA1 hash it it isn't already a SHA1 hash.
   */
+  /* fossil_print("\nzPw=[%s]\n", zPw); // TESTING ONLY */
   if( zPw && zPw[0] ) zPw = sha1_shared_secret(zPw, zLogin, 0);
 
   blob_append(&pw, zPw, -1);
@@ -132,7 +132,7 @@ static void http_build_header(Blob *pPayload, Blob *pHdr){
 ** url_parse() routine should have been called prior to this routine
 ** in order to fill this structure appropriately.
 */
-int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
+int http_exchange(Blob *pSend, Blob *pReply, int useLogin, int maxRedirect){
   Blob login;           /* The login card */
   Blob payload;         /* The complete payload including login card */
   Blob hdr;             /* The HTTP request header */
@@ -233,6 +233,10 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
       }
     }else if( rc==302 && fossil_strnicmp(zLine, "location:", 9)==0 ){
       int i, j;
+
+      if ( --maxRedirect == 0){
+        fossil_fatal("redirect limit exceeded");
+      }
       for(i=9; zLine[i] && zLine[i]==' '; i++){}
       if( zLine[i]==0 ) fossil_fatal("malformed redirect: %s", zLine);
       j = strlen(zLine) - 1; 
@@ -241,9 +245,9 @@ int http_exchange(Blob *pSend, Blob *pReply, int useLogin){
          zLine[j] = 0;
       }
       fossil_print("redirect to %s\n", &zLine[i]);
-      url_parse(&zLine[i]);
+      url_parse(&zLine[i], 0);
       transport_close();
-      return http_exchange(pSend, pReply, useLogin);
+      return http_exchange(pSend, pReply, useLogin, maxRedirect);
     }else if( fossil_strnicmp(zLine, "content-type: ", 14)==0 ){
       if( fossil_strnicmp(&zLine[14], "application/x-fossil-debug", -1)==0 ){
         isCompressed = 0;

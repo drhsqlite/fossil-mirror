@@ -49,12 +49,14 @@ static int sideboxUsed = 0;
 
 
 /*
-** List of hyperlinks that need to be resolved by javascript in
+** List of hyperlinks and forms that need to be resolved by javascript in
 ** the footer.
 */
 char **aHref = 0;
 int nHref = 0;
 int nHrefAlloc = 0;
+char **aFormAction = 0;
+int nFormAction = 0;
 
 /*
 ** Generate and return a anchor tag like this:
@@ -66,10 +68,16 @@ int nHrefAlloc = 0;
 ** variable.  The href="URL" form is used if g.javascriptHyperlink is false.
 ** If g.javascriptHyperlink is true then the
 ** id="ID" form is used and javascript is generated in the footer to cause
-** href values to be inserted after the page has loaded.  If 
+** href values to be inserted after the page has loaded.  If
 ** g.perm.History is false, then the <a id="ID"> form is still
 ** generated but the javascript is not generated so the links never
-** activate.
+** activate. 
+**
+** If the user lacks the Hyperlink (h) property and the "auto-hyperlink"
+** setting is true, then g.perm.Hyperlink is changed from 0 to 1 and
+** g.javascriptHyperlink is set to 1.  The g.javascriptHyperlink defaults
+** to 0 and only changes to one if the user lacks the Hyperlink (h) property
+** and the "auto-hyperlink" setting is enabled.
 **
 ** Filling in the href="URL" using javascript is a defense against bots.
 **
@@ -84,6 +92,11 @@ int nHrefAlloc = 0;
 **
 ** There are two versions of this routine: href() does a plain hyperlink
 ** and xhref() adds extra attribute text.
+**
+** g.perm.Hyperlink is true if the user has the Hyperlink (h) property.
+** Most logged in users should have this property, since we can assume
+** that a logged in user is not a bot.  Only "nobody" lacks g.perm.Hyperlink,
+** typically.
 */
 char *xhref(const char *zExtra, const char *zFormat, ...){
   char *zUrl;
@@ -92,14 +105,16 @@ char *xhref(const char *zExtra, const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a %s href=\"%z\">", zExtra, zUrl);
+    char *zHUrl = mprintf("<a %s href=\"%h\">", zExtra, zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a %s id=%d>", zExtra, nHref);
+  return mprintf("<a %s id='a%d'>", zExtra, nHref);
 }
 char *href(const char *zFormat, ...){
   char *zUrl;
@@ -108,14 +123,38 @@ char *href(const char *zFormat, ...){
   zUrl = vmprintf(zFormat, ap);
   va_end(ap);
   if( g.perm.Hyperlink && !g.javascriptHyperlink ){
-    return mprintf("<a href=\"%z\">", zUrl);
+    char *zHUrl = mprintf("<a href=\"%h\">", zUrl);
+    fossil_free(zUrl);
+    return zHUrl;
   }
   if( nHref>=nHrefAlloc ){
     nHrefAlloc = nHrefAlloc*2 + 10;
     aHref = fossil_realloc(aHref, nHrefAlloc*sizeof(aHref[0]));
   }
   aHref[nHref++] = zUrl;
-  return mprintf("<a id=%d>", nHref);
+  return mprintf("<a id='a%d'>", nHref);
+}
+
+/*
+** Generate <form method="post" action=ARG>.  The ARG value is inserted
+** by javascript.
+*/
+void form_begin(const char *zOtherArgs, const char *zAction, ...){
+  char *zLink;
+  va_list ap;
+  if( zOtherArgs==0 ) zOtherArgs = "";
+  va_start(ap, zAction);
+  zLink = vmprintf(zAction, ap);
+  va_end(ap);
+  if( g.perm.Hyperlink && !g.javascriptHyperlink ){
+    @ <form method="POST" action="%z(zLink)" %s(zOtherArgs)>
+  }else{
+    int n;
+    aFormAction = fossil_realloc(aFormAction, (nFormAction+1)*sizeof(char*));
+    aFormAction[nFormAction++] = zLink;
+    n = nFormAction;
+    @ <form id="form%d(n)" method="POST" action='%R/login' %s(zOtherArgs)>
+  }
 }
 
 /*
@@ -123,12 +162,17 @@ char *href(const char *zFormat, ...){
 */
 void style_resolve_href(void){
   int i;
-  if( !g.perm.Hyperlink || !g.javascriptHyperlink || nHref==0 ) return;
+  if( !g.perm.Hyperlink ) return;
+  if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
-  @ function u(i,h){gebi(i).href=h;}
-  for(i=0; i<nHref; i++){
-    @ u(%d(i+1),"%s(aHref[i])");
+  if( g.javascriptHyperlink ){
+    for(i=0; i<nHref; i++){
+      @ gebi("a%d(i+1)").href="%s(aHref[i])";
+    }
+  }
+  for(i=0; i<nFormAction; i++){
+    @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
   }
   @ /* ]]> */
   @ </script>
@@ -188,17 +232,17 @@ void style_set_current_page(const char *zFormat, ...){
 void style_header(const char *zTitleFormat, ...){
   va_list ap;
   char *zTitle;
-  const char *zHeader = db_get("header", (char*)zDefaultHeader);  
+  const char *zHeader = db_get("header", (char*)zDefaultHeader);
   login_check_credentials();
 
   va_start(ap, zTitleFormat);
   zTitle = vmprintf(zTitleFormat, ap);
   va_end(ap);
-  
+
   cgi_destination(CGI_HEADER);
 
   @ <!DOCTYPE html>
-  
+
   if( g.thTrace ) Th_Trace("BEGIN_HEADER<br />\n", -1);
 
   /* Generate the header up through the main menu */
@@ -265,7 +309,7 @@ void style_footer(void){
   const char *zFooter;
 
   if( !headerHasBeenGenerated ) return;
-  
+
   /* Go back and put the submenu at the top of the page.  We delay the
   ** creation of the submenu until the end so that we can add elements
   ** to the submenu while generating page text.
@@ -280,7 +324,7 @@ void style_footer(void){
       if( p->zLink==0 ){
         @ <span class="label">%h(p->zLabel)</span>
       }else{
-        @ <a class="label" href="%s(p->zLink)">%h(p->zLabel)</a>
+        @ <a class="label" href="%h(p->zLink)">%h(p->zLabel)</a>
       }
     }
     @ </div>
@@ -306,7 +350,7 @@ void style_footer(void){
   if( g.thTrace ) Th_Trace("BEGIN_FOOTER<br />\n", -1);
   Th_Render(zFooter);
   if( g.thTrace ) Th_Trace("END_FOOTER<br />\n", -1);
-  
+
   /* Render trace log if TH1 tracing is enabled. */
   if( g.thTrace ){
     cgi_append_content("<span class=\"thTrace\"><hr />\n", -1);
@@ -336,7 +380,7 @@ void style_sidebox_end(void){
 /*
 ** The default page header.
 */
-const char zDefaultHeader[] = 
+const char zDefaultHeader[] =
 @ <html>
 @ <head>
 @ <base href="$baseurl/$current_page" />
@@ -364,30 +408,30 @@ const char zDefaultHeader[] =
 @ <th1>
 @ html "<a href='$home$index_page'>Home</a>\n"
 @ if {[anycap jor]} {
-@   html "<a href='timeline'>Timeline</a>\n"
+@   html "<a href='$home/timeline'>Timeline</a>\n"
 @ }
 @ if {[hascap oh]} {
-@   html "<a href='dir?ci=tip'>Files</a>\n"
+@   html "<a href='$home/dir?ci=tip'>Files</a>\n"
 @ }
 @ if {[hascap o]} {
-@   html "<a href='brlist'>Branches</a>\n"
-@   html "<a href='taglist'>Tags</a>\n"
+@   html "<a href='$home/brlist'>Branches</a>\n"
+@   html "<a href='$home/taglist'>Tags</a>\n"
 @ }
 @ if {[hascap r]} {
-@   html "<a href='reportlist'>Tickets</a>\n"
+@   html "<a href='$home/reportlist'>Tickets</a>\n"
 @ }
 @ if {[hascap j]} {
-@   html "<a href='wiki'>Wiki</a>\n"
+@   html "<a href='$home/wiki'>Wiki</a>\n"
 @ }
 @ if {[hascap s]} {
-@   html "<a href='setup'>Admin</a>\n"
+@   html "<a href='$home/setup'>Admin</a>\n"
 @ } elseif {[hascap a]} {
-@   html "<a href='setup_ulist'>Users</a>\n"
+@   html "<a href='$home/setup_ulist'>Users</a>\n"
 @ }
 @ if {[info exists login]} {
-@   html "<a href='login'>Logout</a>\n"
+@   html "<a href='$home/login'>Logout</a>\n"
 @ } else {
-@   html "<a href='login'>Login</a>\n"
+@   html "<a href='$home/login'>Login</a>\n"
 @ }
 @ </th1></div>
 ;
@@ -395,9 +439,11 @@ const char zDefaultHeader[] =
 /*
 ** The default page footer
 */
-const char zDefaultFooter[] = 
+const char zDefaultFooter[] =
 @ <div class="footer">
-@ Fossil version $release_version $manifest_version $manifest_date
+@ This page was generated in about
+@ <th1>puts [expr {([utime]+[stime]+1000)/1000*0.001}]</th1>s by
+@ Fossil version $manifest_version $manifest_date
 @ </div>
 @ </body></html>
 ;
@@ -409,7 +455,7 @@ const char zDefaultFooter[] =
 ** The style sheet, send to the client only contains the ones,
 ** not defined in the user defined css.
 */
-const char zDefaultCSS[] = 
+const char zDefaultCSS[] =
 @ /* General settings for the entire page */
 @ body {
 @   margin: 0ex 1ex;
@@ -426,6 +472,7 @@ const char zDefaultCSS[] =
 @   font-weight: bold;
 @   color: #558195;
 @   min-width: 200px;
+@   white-space: nowrap;
 @ }
 @
 @ /* The page title centered at the top of each page */
@@ -437,7 +484,7 @@ const char zDefaultCSS[] =
 @   padding: 0 0 0 1em;
 @   color: #558195;
 @   vertical-align: bottom;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The login status message in the top right-hand corner */
@@ -455,7 +502,7 @@ const char zDefaultCSS[] =
 @ /* The header across the top of the page */
 @ div.header {
 @   display: table;
-@   width: 100% ;
+@   width: 100%;
 @ }
 @
 @ /* The main menu bar that appears at the top of the page beneath
@@ -540,11 +587,12 @@ const char zDefaultCSS[] =
 @ div.footer a:link { color: white; }
 @ div.footer a:visited { color: white; }
 @ div.footer a:hover { background-color: white; color: #558195; }
-@ 
+@
 @ /* verbatim blocks */
 @ pre.verbatim {
-@    background-color: #f5f5f5;
-@    padding: 0.5em;
+@   background-color: #f5f5f5;
+@   padding: 0.5em;
+@   white-space: pre-wrap;
 @}
 @
 @ /* The label/value pairs on (for example) the ci page */
@@ -657,18 +705,19 @@ const struct strctCssDefaults {
   { "table.browser",
     "format for the file display table",
     @ /* the format for wiki errors */
-    @   width: 100% ;
+    @   width: 100%;
     @   border: 0;
   },
   { "td.browser",
     "format for cells in the file browser",
-    @   width: 24% ;
+    @   width: 24%;
     @   vertical-align: top;
   },
   { "ul.browser",
     "format for the list in the file browser",
     @   margin-left: 0.5em;
     @   padding-left: 0.5em;
+    @   white-space: nowrap;
   },
   { "table.login_out",
     "table format for login/out label/input table",
@@ -680,6 +729,7 @@ const struct strctCssDefaults {
   { "div.captcha",
     "captcha display options",
     @   text-align: center;
+    @   padding: 1ex;
   },
   { "table.captcha",
     "format for the layout table, used for the captcha display",
@@ -834,6 +884,13 @@ const struct strctCssDefaults {
     @   border-collapse: collapse;
     @   border-spacing: 0;
   },
+  { "table.report",
+    "Ticket report table formatting",
+    @   border-collapse:collapse;
+    @   border: 1px solid #999;
+    @   margin: 1em 0 1em 0;
+    @   cursor: pointer;
+  },
   { "td.rpteditex",
     "format for example table cells on the report edit page",
     @   border-width: thin;
@@ -907,7 +964,7 @@ const struct strctCssDefaults {
   { "div.sbsdiff",
     "side-by-side diff display",
     @   font-family: monospace;
-    @   font-size: smaller;
+    @   font-size: xx-small;
     @   white-space: pre;
   },
   { "div.udiff",
@@ -939,6 +996,17 @@ const struct strctCssDefaults {
     "Moderation Pending message on timeline",
     @   color: #b03800;
     @   font-style: italic;
+  },
+  { "pre.th1result",
+    "format for th1 script results",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+  },
+  { "pre.th1error",
+    "format for th1 script errors",
+    @   white-space: pre-wrap;
+    @   word-wrap: break-word;
+    @   color: red;
   },
   { 0,
     0,

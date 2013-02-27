@@ -350,6 +350,7 @@ void descendants_cmd(void){
 ** Options:
 **   --all        show ALL leaves
 **   --closed     show only closed leaves
+**   --bybranch   order output by branch name
 **   --recompute  recompute the "leaf" table in the repository DB
 **
 ** See also: descendants, finfo, info, branch
@@ -360,6 +361,10 @@ void leaves_cmd(void){
   int showAll = find_option("all", 0, 0)!=0;
   int showClosed = find_option("closed", 0, 0)!=0;
   int recomputeFlag = find_option("recompute",0,0)!=0;
+  int byBranch = find_option("bybranch",0,0)!=0;
+  char *zLastBr = 0;
+  int n;
+  char zLineNo[10];
 
   db_find_and_open_repository(0,0);
   if( recomputeFlag ) leaf_rebuild();
@@ -371,9 +376,35 @@ void leaves_cmd(void){
   }else if( !showAll ){
     blob_appendf(&sql," AND NOT %z", leaf_is_closed_sql("blob.rid"));
   }
-  db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  if( byBranch ){
+    db_prepare(&q, "%s ORDER BY nullif(branch,'trunk') COLLATE nocase,"
+                   " event.mtime DESC",
+                   blob_str(&sql));
+  }else{
+    db_prepare(&q, "%s ORDER BY event.mtime DESC", blob_str(&sql));
+  }
   blob_reset(&sql);
-  print_timeline(&q, 2000, 0);
+  n = 0;
+  while( db_step(&q)==SQLITE_ROW ){
+    const char *zId = db_column_text(&q, 1);
+    const char *zDate = db_column_text(&q, 2);
+    const char *zCom = db_column_text(&q, 3);
+    const char *zBr = db_column_text(&q, 7);
+    char *z;
+
+    if( byBranch && fossil_strcmp(zBr, zLastBr)!=0 ){
+      fossil_print("*** %s ***\n", zBr);
+      fossil_free(zLastBr);
+      zLastBr = fossil_strdup(zBr);
+    }
+    n++;
+    sqlite3_snprintf(sizeof(zLineNo), zLineNo, "(%d)", n);
+    fossil_print("%6s ", zLineNo);
+    z = mprintf("%s [%.10s] %s", zDate, zId, zCom);
+    comment_print(z, 7, 79);
+    fossil_free(z);
+  }
+  fossil_free(zLastBr);
   db_finalize(&q);
 }
 
@@ -442,4 +473,69 @@ void leaves_page(void){
   @ }
   @ </script>
   style_footer();
+}
+
+#if INTERFACE
+/* Flag parameters to compute_uses_file() */
+#define USESFILE_DELETE   0x01  /* Include the check-ins where file deleted */
+
+#endif
+
+
+/*
+** Add to table zTab the record ID (rid) of every check-in that contains
+** the file fid.
+*/
+void compute_uses_file(const char *zTab, int fid, int usesFlags){
+  Bag seen;
+  Bag pending;
+  Stmt ins;
+  Stmt q;
+  int rid;
+
+  bag_init(&seen);
+  bag_init(&pending);
+  db_prepare(&ins, "INSERT OR IGNORE INTO \"%s\" VALUES(:rid)", zTab);
+  db_prepare(&q, "SELECT mid FROM mlink WHERE fid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&pending, mid);
+    bag_insert(&seen, mid);
+    db_bind_int(&ins, ":rid", mid);
+    db_step(&ins);
+    db_reset(&ins);
+  }
+  db_finalize(&q);
+  
+  db_prepare(&q, "SELECT mid FROM mlink WHERE pid=%d", fid);
+  while( db_step(&q)==SQLITE_ROW ){
+    int mid = db_column_int(&q, 0);
+    bag_insert(&seen, mid);
+    if( usesFlags & USESFILE_DELETE ){
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+  }
+  db_finalize(&q);
+  db_prepare(&q, "SELECT cid FROM plink WHERE pid=:rid");
+
+  while( (rid = bag_first(&pending))!=0 ){
+    bag_remove(&pending, rid);
+    db_bind_int(&q, ":rid", rid);
+    while( db_step(&q)==SQLITE_ROW ){
+      int mid = db_column_int(&q, 0);
+      if( bag_find(&seen, mid) ) continue;
+      bag_insert(&seen, mid);
+      bag_insert(&pending, mid);
+      db_bind_int(&ins, ":rid", mid);
+      db_step(&ins);
+      db_reset(&ins);
+    }
+    db_reset(&q);
+  }
+  db_finalize(&q);
+  db_finalize(&ins);
+  bag_clear(&seen);
+  bag_clear(&pending);
 }

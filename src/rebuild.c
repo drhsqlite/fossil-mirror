@@ -187,7 +187,7 @@ static void percent_complete(int permill){
 /*
 ** Called after each artifact is processed
 */
-static void rebuild_step_done(rid){
+static void rebuild_step_done(int rid){
   /* assert( bag_find(&bagDone, rid)==0 ); */
   bag_insert(&bagDone, rid);
   if( ttyOutput ){
@@ -526,6 +526,7 @@ static void reconstruct_private_table(void){
 **   --randomize   Scan artifacts in a random order
 **   --vacuum      Run VACUUM on the database after rebuilding
 **   --deanalyze   Remove ANALYZE tables from the database
+**   --analyze     Run ANALYZE on the database after rebuilding
 **   --wal         Set Write-Ahead-Log journalling mode on the database
 **   --stats       Show artifact statistics after rebuilding
 **
@@ -542,6 +543,7 @@ void rebuild_database(void){
   int activateWal;
   int runVacuum;
   int runDeanalyze;
+  int runAnalyze;
   int runCompress;
   int showStats;
 
@@ -551,6 +553,7 @@ void rebuild_database(void){
   doClustering = find_option("cluster", 0, 0)!=0;
   runVacuum = find_option("vacuum",0,0)!=0;
   runDeanalyze = find_option("deanalyze",0,0)!=0;
+  runAnalyze = find_option("analyze",0,0)!=0;
   runCompress = find_option("compress",0,0)!=0;
   zPagesize = find_option("pagesize",0,1);
   showStats = find_option("stats",0,0)!=0;
@@ -606,6 +609,11 @@ void rebuild_database(void){
     if( runDeanalyze ){
       db_multi_exec("DROP TABLE IF EXISTS sqlite_stat1;"
                     "DROP TABLE IF EXISTS sqlite_stat3;");
+    }
+    if( runAnalyze ){
+      fossil_print("Analyzing the database... "); fflush(stdout);
+      db_multi_exec("ANALYZE;");
+      fossil_print("done\n");
     }
     if( runVacuum ){
       fossil_print("Vacuuming the database... "); fflush(stdout);
@@ -779,6 +787,8 @@ void scrub_cmd(void){
   int privateOnly = find_option("private",0,0)!=0;
   int bNeedRebuild = 0;
   db_find_and_open_repository(OPEN_ANY_SCHEMA, 2);
+  db_close(1);
+  db_open_repository(g.zRepositoryName);
   if( !bForce ){
     Blob ans;
     char cReply;
@@ -835,7 +845,7 @@ void recon_read_dir(char *zPath){
   void *zUnicodePath;
   char *zUtf8Name;
 
-  zUnicodePath = fossil_utf8_to_unicode(zPath);
+  zUnicodePath = fossil_utf8_to_filename(zPath);
   d = opendir(zUnicodePath);
   if( d ){
     while( (pEntry=readdir(d))!=0 ){
@@ -845,9 +855,9 @@ void recon_read_dir(char *zPath){
       if( pEntry->d_name[0]=='.' ){
         continue;
       }
-      zUtf8Name = fossil_unicode_to_utf8(pEntry->d_name);
+      zUtf8Name = fossil_filename_to_utf8(pEntry->d_name);
       zSubpath = mprintf("%s/%s", zPath, zUtf8Name);
-      fossil_mbcs_free(zUtf8Name);
+      fossil_filename_free(zUtf8Name);
       if( file_isdir(zSubpath)==1 ){
         recon_read_dir(zSubpath);
       }
@@ -869,7 +879,7 @@ void recon_read_dir(char *zPath){
     fossil_panic("encountered error %d while trying to open \"%s\".",
                   errno, g.argv[3]);
   }
-  fossil_mbcs_free(zUnicodePath);
+  fossil_filename_free(zUnicodePath);
 }
 
 /*

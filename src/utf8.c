@@ -1,0 +1,237 @@
+/*
+** Copyright (c) 2012 D. Richard Hipp
+**
+** This program is free software; you can redistribute it and/or
+** modify it under the terms of the Simplified BSD License (also
+** known as the "2-Clause License" or "FreeBSD License".)
+
+** This program is distributed in the hope that it will be useful,
+** but without any warranty; without even the implied warranty of
+** merchantability or fitness for a particular purpose.
+**
+** Author contact information:
+**   drh@hwaci.com
+**   http://www.hwaci.com/drh/
+**
+*******************************************************************************
+**
+** This file contains utilities for converting text between UTF-8 (which
+** is always used internally) and whatever encodings are used by the underlying
+** filesystem and operating system.
+*/
+#include "config.h"
+#include "utf8.h"
+#include <sqlite3.h>
+#ifdef _WIN32
+# include <windows.h>
+#endif
+
+#ifdef _WIN32
+/*
+** Translate MBCS to UTF-8.  Return a pointer to the translated text.
+** Call fossil_mbcs_free() to deallocate any memory used to store the
+** returned pointer when done.
+*/
+char *fossil_mbcs_to_utf8(const char *zMbcs){
+  extern char *sqlite3_win32_mbcs_to_utf8(const char*);
+  return sqlite3_win32_mbcs_to_utf8(zMbcs);
+}
+
+/*
+** After translating from UTF-8 to MBCS, invoke this routine to deallocate
+** any memory used to hold the translation
+*/
+void fossil_mbcs_free(char *zOld){
+  sqlite3_free(zOld);
+}
+
+/*
+** Translate Unicode text into UTF-8.
+** Return a pointer to the translated text.
+** Call fossil_unicode_free() to deallocate any memory used to store the
+** returned pointer when done.
+*/
+char *fossil_unicode_to_utf8(const void *zUnicode){
+#ifdef _WIN32
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
+  char *zUtf = sqlite3_malloc( nByte );
+  if( zUtf==0 ){
+    return 0;
+  }
+  WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, zUtf, nByte, 0, 0);
+  return zUtf;
+#else
+  return fossil_strdup(zUtf8);  /* TODO: implement for unix */
+#endif
+}
+
+/*
+** Translate UTF-8 to unicode for use in system calls.  Return a pointer to the
+** translated text..  Call fossil_unicode_free() to deallocate any memory
+** used to store the returned pointer when done.
+*/
+void *fossil_utf8_to_unicode(const char *zUtf8){
+#ifdef _WIN32
+  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  return zUnicode;
+#else
+  return fossil_strdup(zUtf8);  /* TODO: implement for unix */
+#endif
+}
+
+/*
+** Deallocate any memory that was previously allocated by
+** fossil_unicode_to_utf8().
+*/
+void fossil_unicode_free(void *pOld){
+#ifdef _WIN32
+  sqlite3_free(pOld);
+#else
+  fossil_free(pOld);
+#endif
+}
+#endif /* _WIN32 */
+
+#if defined(__APPLE__) && !defined(WITHOUT_ICONV)
+# include <iconv.h>
+#endif
+
+/*
+** Translate text from the filename character set into UTF-8.
+** Return a pointer to the translated text.
+** Call fossil_filename_free() to deallocate any memory used to store the
+** returned pointer when done.
+**
+** This function must not convert '\' to '/' on windows/cygwin, as it is
+** used in places where we are not sure it's really filenames we are handling,
+** e.g. fossil_getenv() or handling the argv arguments from main().
+*/
+char *fossil_filename_to_utf8(const void *zFilename){
+#if defined(_WIN32)
+  int nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
+  char *zUtf = sqlite3_malloc( nByte );
+  if( zUtf==0 ){
+    return 0;
+  }
+  WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
+  return zUtf;
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+  char *zIn = (char*)zFilename;
+  char *zOut;
+  iconv_t cd;
+  size_t n, x;
+  for(n=0; zIn[n]>0 && zIn[n]<=0x7f; n++){}
+  if( zIn[n]!=0 && (cd = iconv_open("UTF-8", "UTF-8-MAC"))!=(iconv_t)-1 ){
+    char *zOutx;
+    char *zOrig = zIn;
+    size_t nIn, nOutx;
+    nIn = n = strlen(zIn);
+    nOutx = nIn+100;
+    zOutx = zOut = fossil_malloc( nOutx+1 );
+    x = iconv(cd, &zIn, &nIn, &zOutx, &nOutx);
+    if( x==(size_t)-1 ){
+      fossil_free(zOut);
+      zOut = fossil_strdup(zOrig);
+    }else{
+      zOut[n+100-nOutx] = 0;
+    }
+    iconv_close(cd);
+  }else{
+    zOut = fossil_strdup(zFilename);
+  }
+  return zOut;
+#else
+  return (char *)zFilename;  /* No-op on non-mac unix */
+#endif
+}
+
+/*
+** Translate text from UTF-8 to the filename character set.
+** Return a pointer to the translated text.
+** Call fossil_filename_free() to deallocate any memory used to store the
+** returned pointer when done.
+*/
+void *fossil_utf8_to_filename(const char *zUtf8){
+#ifdef _WIN32
+  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  wchar_t *wUnicode = zUnicode;
+  if( zUnicode==0 ){
+    return 0;
+  }
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  while( *wUnicode != '\0' ){
+    if( *wUnicode == '/' ){
+      *wUnicode = '\\';
+    }
+    ++wUnicode;
+  }
+  return zUnicode;
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+  return fossil_strdup(zUtf8);
+#else
+  return (void *)zUtf8;  /* No-op on unix */
+#endif
+}
+
+/*
+** Deallocate any memory that was previously allocated by
+** fossil_filename_to_utf8() or fossil_utf8_to_filename().
+*/
+void fossil_filename_free(void *pOld){
+#if defined(_WIN32)
+  sqlite3_free(pOld);
+#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+  fossil_free(pOld);
+#else
+  /* No-op on all other unix */
+#endif
+}
+
+/*
+** Display UTF-8 on the console.  Return the number of
+** Characters written. If stdout or stderr is redirected
+** to a file, -1 is returned and nothing is written
+** to the console.
+*/
+int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
+#ifdef _WIN32
+  int nChar, written = 0;
+  wchar_t *zUnicode; /* Unicode version of zUtf8 */
+  DWORD dummy;
+
+  static int istty[2] = { -1, -1 };
+  if( istty[toStdErr] == -1 ){
+    istty[toStdErr] = _isatty(toStdErr + 1) != 0;
+  }
+  if( !istty[toStdErr] ){
+    /* stdout/stderr is not a console. */
+    return -1;
+  }
+
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, NULL, 0);
+  zUnicode = malloc( (nChar + 1) *sizeof(zUnicode[0]) );
+  if( zUnicode==0 ){
+    return 0;
+  }
+  nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, nByte, zUnicode, nChar);
+  /* Split WriteConsoleW call into multiple chunks, if necessary. See:
+   * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
+  while( written < nChar ){
+    int size = nChar-written;
+    if (size > 26000) size = 26000;
+    WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
+        size, &dummy, 0);
+    written += size;
+  }
+  free(zUnicode);
+  return nChar;
+#else
+  return -1;  /* No-op on unix */
+#endif
+}

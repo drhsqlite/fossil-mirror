@@ -129,6 +129,7 @@ void wiki_page(void){
   char *zTag;
   int rid = 0;
   int isSandbox;
+  char *zUuid;
   Blob wiki;
   Manifest *pWiki = 0;
   const char *zPageName;
@@ -161,8 +162,9 @@ void wiki_page(void){
     if( g.perm.ModWiki ){
       @ <li> %z(href("%R/modreq"))Tend to pending moderation requests</a></li>
     }
-    @ <li> <form method="get" action="%s(g.zTop)/wfind"><div>
-    @     Search wiki titles: <input type="text" name="title"/>
+    @ <li>
+    form_begin(0, "%R/wfind");
+    @  <div>Search wiki titles: <input type="text" name="title"/>
     @  &nbsp; <input type="submit" /></div></form>
     @ </li>
     @ </ul>
@@ -173,6 +175,7 @@ void wiki_page(void){
   isSandbox = is_sandbox(zPageName);
   if( isSandbox ){
     zBody = db_get("sandbox",zBody);
+    rid = 0;
   }else{
     zTag = mprintf("wiki-%s", zPageName);
     rid = db_int(0, 
@@ -187,6 +190,13 @@ void wiki_page(void){
     }
   }
   if( !g.isHome ){
+    if( rid ){
+      style_submenu_element("Diff", "Last change",
+                 "%R/wdiff?name=%T&a=%d", zPageName, rid);
+      zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+      style_submenu_element("Details", "Details",
+                   "%R/info/%S", zUuid);
+    }
     if( (rid && g.perm.WrWiki) || (!rid && g.perm.NewWiki) ){
       if( db_get_boolean("wysiwyg-wiki", 0) ){
         style_submenu_element("Edit", "Edit Wiki Page",
@@ -255,6 +265,7 @@ void wikiedit_page(void){
   const char *z;
   char *zBody = (char*)P("w");
   int isWysiwyg = P("wysiwyg")!=0;
+  int goodCaptcha = 1;
 
   if( P("edit-wysiwyg")!=0 ){ isWysiwyg = 1; zBody = 0; }
   if( P("edit-markup")!=0 ){ isWysiwyg = 0; zBody = 0; }
@@ -296,7 +307,9 @@ void wikiedit_page(void){
       zBody = pWiki->zWiki;
     }
   }
-  if( P("submit")!=0 && zBody!=0 ){
+  if( P("submit")!=0 && zBody!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
     blob_zero(&wiki);
@@ -335,6 +348,9 @@ void wikiedit_page(void){
   }
   style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header("Edit: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error:  Incorrect security code.</p>
+  }
   blob_zero(&wiki);
   blob_append(&wiki, zBody, -1);
   if( P("preview")!=0 ){
@@ -350,7 +366,8 @@ void wikiedit_page(void){
   if( n>30 ) n = 30;
   if( !isWysiwyg ){
     /* Traditional markup-only editing */
-    @ <form method="post" action="%s(g.zTop)/wikiedit"><div>
+    form_begin(0, "%R/wikiedit");
+    @ <div>
     @ <textarea name="w" class="wikiedit" cols="80" 
     @  rows="%d(n)" wrap="virtual">%h(zBody)</textarea>
     @ <br />
@@ -362,8 +379,8 @@ void wikiedit_page(void){
   }else{
     /* Wysiwyg editing */
     Blob html, temp;
-    @ <form method="post" action="%s(g.zTop)/wikiedit"
-    @  onsubmit="wysiwygSubmit()"><div>
+    form_begin("onsubmit='wysiwygSubmit()'", "%R/wikiedit");
+    @ <div>
     @ <input type="hidden" name="wysiwyg" value="1" />
     blob_zero(&temp);
     wiki_convert(&wiki, &temp, 0);
@@ -376,12 +393,14 @@ void wikiedit_page(void){
     @ <input type="submit" name="edit-markup" value="Markup Editor"
     @  onclick='return confirm("Switching to markup-mode\nwill erase your WYSIWYG\nedits. Continue?")' />
   }
-  @ <input type="submit" name="submit" value="Apply These Changes" />
   login_insert_csrf_secret();
+  @ <input type="submit" name="submit" value="Apply These Changes" />
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ <input type="submit" name="cancel" value="Cancel"
   @  onclick='confirm("Abandon your changes?")' />
-  @ </div></form>
+  @ </div>
+  captcha_generate();
+  @ </form>
   manifest_destroy(pWiki);
   blob_reset(&wiki);
   style_footer();
@@ -412,7 +431,7 @@ void wikinew_page(void){
   style_header("Create A New Wiki Page");
   @ <p>Rules for wiki page names:</p>
   well_formed_wiki_name_rules();
-  @ <form method="post" action="%s(g.zTop)/wikinew">
+  form_begin(0, "%R/wikinew");
   @ <p>Name of new wiki page:
   @ <input style="width: 35;" type="text" name="name" value="%h(zName)" />
   @ <input type="submit" value="Create" />
@@ -457,6 +476,7 @@ void wikiappend_page(void){
   int isSandbox;
   const char *zPageName;
   const char *zUser;
+  int goodCaptcha = 1;
 
   login_check_credentials();
   zPageName = PD("name","");
@@ -479,7 +499,9 @@ void wikiappend_page(void){
     login_needed();
     return;
   }
-  if( P("submit")!=0 && P("r")!=0 && P("u")!=0 ){
+  if( P("submit")!=0 && P("r")!=0 && P("u")!=0
+   && (goodCaptcha = captcha_is_correct())
+  ){
     char *zDate;
     Blob cksum;
     Blob body;
@@ -527,6 +549,9 @@ void wikiappend_page(void){
   }
   style_set_current_page("%s?name=%T", g.zPath, zPageName);
   style_header("Append Comment To: %s", zPageName);
+  if( !goodCaptcha ){
+    @ <p class="generalError">Error: Incorrect security code.</p>
+  }
   if( P("preview")!=0 ){
     Blob preview;
     blob_zero(&preview);
@@ -537,7 +562,7 @@ void wikiappend_page(void){
     blob_reset(&preview);
   }
   zUser = PD("u", g.zLogin);
-  @ <form method="post" action="%s(g.zTop)/wikiappend">
+  form_begin(0, "%R/wikiappend");
   login_insert_csrf_secret();
   @ <input type="hidden" name="name" value="%h(zPageName)" />
   @ Your Name:
@@ -549,6 +574,7 @@ void wikiappend_page(void){
   @ <input type="submit" name="preview" value="Preview Your Comment" />
   @ <input type="submit" name="submit" value="Append Your Changes" />
   @ <input type="submit" name="cancel" value="Cancel" />
+  captcha_generate();
   @ </form>
   style_footer();
 }
@@ -643,7 +669,7 @@ void wdiff_page(void){
   }
   blob_zero(&d);
   diffFlags = construct_diff_flags(1,0);
-  text_diff(&w2, &w1, &d, diffFlags | DIFF_HTML | DIFF_LINENO);
+  text_diff(&w2, &w1, &d, 0, diffFlags | DIFF_HTML | DIFF_LINENO);
   @ <div class="udiff">
   @ %s(blob_str(&d))
   @ </div>

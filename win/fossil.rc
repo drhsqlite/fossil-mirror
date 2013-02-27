@@ -87,6 +87,11 @@ BEGIN
       VALUE "CompilerName", COMPILER_NAME "\0"
       VALUE "SQLiteVersion", "SQLite " SQLITE_VERSION " " SQLITE_SOURCE_ID "\0"
       VALUE "ZlibVersion", "zlib " ZLIB_VERSION "\0"
+#ifdef BROKEN_MINGW_CMDLINE
+      VALUE "CommandLineIsUnicode", "No\0"
+#else
+      VALUE "CommandLineIsUnicode", "Yes\0"
+#endif
 #ifdef FOSSIL_ENABLE_SSL
       VALUE "SslEnabled", "Yes, " OPENSSL_VERSION_TEXT "\0"
 #endif
@@ -100,6 +105,9 @@ BEGIN
 #endif
 #ifdef FOSSIL_ENABLE_JSON
       VALUE "JsonEnabled", "Yes, cson\0"
+#endif
+#ifdef FOSSIL_ENABLE_MARKDOWN
+      VALUE "MarkdownEnabled", "Yes\0"
 #endif
     END
   END

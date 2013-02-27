@@ -210,6 +210,8 @@ void info_cmd(void){
     if( vid ){
       show_common_info(vid, "checkout:", 1, 1);
     }
+    fossil_print("checkins:     %d\n",
+                 db_int(-1, "SELECT count(*) FROM event WHERE type='ci' /*scan*/"));
   }else{
     int rid;
     rid = name_to_rid(g.argv[2]);
@@ -289,9 +291,14 @@ static void showTags(int rid, const char *zNotGlob){
 
 
 /*
-** Append the difference between two RIDs to the output
+** Append the difference between artifacts to the output
 */
-static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
+static void append_diff(
+  const char *zFrom,    /* Diff from this artifact */
+  const char *zTo,      /*  ... to this artifact */
+  u64 diffFlags,        /* Diff formatting flags */
+  ReCompiled *pRe       /* Only show change matching this regex */
+){
   int fromid;
   int toid;
   Blob from, to, out;
@@ -309,12 +316,13 @@ static void append_diff(const char *zFrom, const char *zTo, u64 diffFlags){
   }
   blob_zero(&out);
   if( diffFlags & DIFF_SIDEBYSIDE ){
-    text_diff(&from, &to, &out, diffFlags | DIFF_HTML);
+    text_diff(&from, &to, &out, pRe, diffFlags | DIFF_HTML | DIFF_NOTTOOBIG);
     @ <div class="sbsdiff">
     @ %s(blob_str(&out))
     @ </div>
   }else{
-    text_diff(&from, &to, &out, diffFlags | DIFF_LINENO | DIFF_HTML);
+    text_diff(&from, &to, &out, pRe,
+           diffFlags | DIFF_LINENO | DIFF_HTML | DIFF_NOTTOOBIG);
     @ <div class="udiff">
     @ %s(blob_str(&out))
     @ </div>
@@ -335,6 +343,7 @@ static void append_file_change_line(
   const char *zNew,     /* blob.uuid after change.  NULL for deletes */
   const char *zOldName, /* Prior name.  NULL if no name change. */
   u64 diffFlags,        /* Flags for text_diff().  Zero to omit diffs */
+  ReCompiled *pRe,      /* Only show diffs that match this regex, if not NULL */
   int mperm             /* executable or symlink permission for zNew */
 ){
   if( !g.perm.Hyperlink ){
@@ -352,7 +361,7 @@ static void append_file_change_line(
     }
     if( diffFlags ){
       @ <pre style="white-space:pre;">
-      append_diff(zOld, zNew, diffFlags);
+      append_diff(zOld, zNew, diffFlags, pRe);
       @ </pre>
     }
   }else{
@@ -362,7 +371,7 @@ static void append_file_change_line(
         @ from %z(href("%R/artifact/%s",zOld))[%S(zOld)]</a>
         @ to %z(href("%R/artifact/%s",zNew))[%S(zNew)].</a>
       }else if( zOldName!=0 && fossil_strcmp(zName,zOldName)!=0 ){
-        @ <p>Name change from
+        @ <p>Name change
         @ from %z(href("%R/finfo?name=%T",zOldName))%h(zOldName)</a>
         @ to %z(href("%R/finfo?name=%T",zName))%h(zName)</a>.
       }else{
@@ -378,7 +387,7 @@ static void append_file_change_line(
     }
     if( diffFlags ){
       @ <pre style="white-space:pre;">
-      append_diff(zOld, zNew, diffFlags);
+      append_diff(zOld, zNew, diffFlags, pRe);
       @ </pre>
     }else if( zOld && zNew && fossil_strcmp(zOld,zNew)!=0 ){
       @ &nbsp;&nbsp;
@@ -446,6 +455,8 @@ void ci_page(void){
   const char *zName;   /* Name of the checkin to be displayed */
   const char *zUuid;   /* UUID of zName */
   const char *zParent; /* UUID of the parent checkin (if any) */
+  const char *zRe;     /* regex parameter */
+  ReCompiled *pRe = 0; /* regex */
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
@@ -457,6 +468,8 @@ void ci_page(void){
     style_footer();
     return;
   }
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
   zParent = db_text(0,
     "SELECT uuid FROM plink, blob"
@@ -481,9 +494,6 @@ void ci_page(void){
     const char *zComment;
     const char *zDate;
     const char *zOrigDate;
-    char *zThisBranch;
-    double thisMtime;
-    int seenDiffTitle = 0;
 
     style_header(zTitle);
     login_anonymous_available();
@@ -498,7 +508,6 @@ void ci_page(void){
     zComment = db_column_text(&q, 3);
     zDate = db_column_text(&q,1);
     zOrigDate = db_column_text(&q, 4);
-    thisMtime = db_column_double(&q, 5);
     @ <div class="section">Overview</div>
     @ <table class="label-value">
     @ <tr><th>SHA1&nbsp;Hash:</th><td>%s(zUuid)
@@ -567,64 +576,15 @@ void ci_page(void){
       }
       db_finalize(&q);
 
-      /* Select a few other branches to diff against */
-      zThisBranch = db_text("trunk", "SELECT value FROM tagxref"
-                                     " WHERE tagid=%d AND tagtype>0"
-                                     "   AND rid=%d",
-                                     TAG_BRANCH, rid);
-
-      /* Find nearby leaves to offer to diff against */
-      db_prepare(&q,
-         "SELECT tagxref.value, blob.uuid, min(%.17g-event.mtime)"
-         "  FROM leaf, event, tagxref, blob"
-         " WHERE event.mtime BETWEEN %.17g AND %.17g"
-         "   AND event.type='ci'"
-         "   AND event.objid=leaf.rid"
-         "   AND NOT %z"
-         "   AND tagxref.rid=event.objid"
-         "   AND tagxref.tagid=%d AND tagxref.tagtype>0"
-         "   AND tagxref.value!=%Q"
-         "   AND blob.rid=tagxref.rid"
-         " GROUP BY 1 ORDER BY 3",
-         thisMtime, thisMtime-7, thisMtime+7,
-         leaf_is_closed_sql("leaf.rid"),
-         TAG_BRANCH, zThisBranch
-      );
-      while( db_step(&q)==SQLITE_ROW ){
-        const char *zBr = db_column_text(&q, 0);
-        const char *zId = db_column_text(&q, 1);
-        if( !seenDiffTitle ){
-          @ <tr><th valign="top">Diffs:</th><td valign="top">
-          seenDiffTitle = 1;
-        }else{
-          @ |
-        }
-        @ %z(href("%R/vdiff?from=%S&to=%S",zId, zUuid))%h(zBr)</a>
-      }
-      db_finalize(&q);
-
-      if( fossil_strcmp(zThisBranch,"trunk")!=0 ){
-        if( !seenDiffTitle ){
-          @ <tr><th valign="top">Diffs:</th><td valign="top">
-          seenDiffTitle = 1;
-        }else{
-          @ |
-        }
-        @ %z(href("%R/vdiff?from=root:%S&to=%S",zUuid,zUuid))root of
-        @ this branch</a>
-      }
-      if( seenDiffTitle ){
-        @ </td></tr>
-      }
 
       /* The Download: line */
       if( g.perm.Zip ){
-        char *zUrl = mprintf("%R/tarball/%s-%S.tar.gz?uuid=%s",
+        char *zUrl = mprintf("%R/tarball/%t-%S.tar.gz?uuid=%s",
                              zProjName, zUuid, zUuid);
         @ </td></tr>
         @ <tr><th>Downloads:</th><td>
         @ %z(href("%s",zUrl))Tarball</a>
-        @ | %z(href("%R/zip/%s-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
+        @ | %z(href("%R/zip/%t-%S.zip?uuid=%s",zProjName,zUuid,zUuid))
         @         ZIP archive</a>
         fossil_free(zUrl);
       }
@@ -688,6 +648,10 @@ void ci_page(void){
     }
     @ %z(xhref("class='button'","%R/vpatch?from=%S&to=%S",zParent,zUuid))
     @ patch</a></div>
+    if( pRe ){
+      @ <p><b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b></p>
+    }
     db_prepare(&q,
        "SELECT name,"
        "       mperm,"
@@ -696,8 +660,10 @@ void ci_page(void){
        "       (SELECT name FROM filename WHERE filename.fnid=mlink.pfnid)"
        "  FROM mlink JOIN filename ON filename.fnid=mlink.fnid"
        " WHERE mlink.mid=%d"
+       "   AND (mlink.fid>0"
+              " OR mlink.fnid NOT IN (SELECT pfnid FROM mlink WHERE mid=%d))"
        " ORDER BY name /*sort*/",
-       rid
+       rid, rid
     );
     diffFlags = construct_diff_flags(showDiff, sideBySide);
     while( db_step(&q)==SQLITE_ROW ){
@@ -706,7 +672,7 @@ void ci_page(void){
       const char *zOld = db_column_text(&q,2);
       const char *zNew = db_column_text(&q,3);
       const char *zOldName = db_column_text(&q, 4);
-      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags, mperm);
+      append_file_change_line(zName, zOld, zNew, zOldName, diffFlags,pRe,mperm);
     }
     db_finalize(&q);
   }
@@ -867,7 +833,7 @@ static void checkin_description(int rid){
     const char *zUuid = db_column_text(&q, 3);
     const char *zTagList = db_column_text(&q, 4);
     Blob comment;
-    int wikiFlags = WIKI_INLINE;
+    int wikiFlags = WIKI_INLINE|WIKI_NOBADLINKS;
     if( db_get_boolean("timeline-block-markup", 0)==0 ){
       wikiFlags |= WIKI_NOBLOCK;
     }
@@ -887,7 +853,7 @@ static void checkin_description(int rid){
         for(i=0; z[i] && (z[i]!=',' || z[i+1]!=' '); i++){}
         blob_appendf(&links,
               "%z%#h</a>%.2s",
-              href("%R/timeline?r=%#t&nd&c=%s",i,z,zDate), i,z, &z[i]
+              href("%R/timeline?r=%#t&nd&c=%t",i,z,zDate), i,z, &z[i]
         );
         if( z[i]==0 ) break;
         z += i+2;
@@ -929,11 +895,15 @@ void vdiff_page(void){
   const char *zBranch;
   const char *zFrom;
   const char *zTo;
+  const char *zRe;
+  ReCompiled *pRe = 0;
 
   login_check_credentials();
   if( !g.perm.Read ){ login_needed(); return; }
   login_anonymous_available();
 
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   zBranch = P("branch");
   if( zBranch && zBranch[0] ){
     cgi_replace_parameter("from", mprintf("root:%s", zBranch));
@@ -965,7 +935,12 @@ void vdiff_page(void){
   checkin_description(ridFrom);
   @ </blockquote><h2>To:</h2><blockquote>
   checkin_description(ridTo);
-  @ </blockquote><hr /><p>
+  @ </blockquote>
+  if( pRe ){
+    @ <p><b>Only differences that match regular expression "%h(zRe)"
+    @ are shown.</b></p>
+  }
+  @<hr /><p>
 
   manifest_file_rewind(pFrom);
   pFileFrom = manifest_file_next(pFrom, 0);
@@ -983,11 +958,11 @@ void vdiff_page(void){
     }
     if( cmp<0 ){
       append_file_change_line(pFileFrom->zName,
-                              pFileFrom->zUuid, 0, 0, diffFlags, 0);
+                              pFileFrom->zUuid, 0, 0, diffFlags, pRe, 0);
       pFileFrom = manifest_file_next(pFrom, 0);
     }else if( cmp>0 ){
       append_file_change_line(pFileTo->zName,
-                              0, pFileTo->zUuid, 0, diffFlags,
+                              0, pFileTo->zUuid, 0, diffFlags, pRe,
                               manifest_file_mperm(pFileTo));
       pFileTo = manifest_file_next(pTo, 0);
     }else if( fossil_strcmp(pFileFrom->zUuid, pFileTo->zUuid)==0 ){
@@ -997,7 +972,7 @@ void vdiff_page(void){
     }else{
       append_file_change_line(pFileFrom->zName,
                               pFileFrom->zUuid,
-                              pFileTo->zUuid, 0, diffFlags,
+                              pFileTo->zUuid, 0, diffFlags, pRe,
                               manifest_file_mperm(pFileTo));
       pFileFrom = manifest_file_next(pFrom, 0);
       pFileTo = manifest_file_next(pTo, 0);
@@ -1113,7 +1088,10 @@ int object_description(
       blob_append(pDownloadName, zName, -1);
     }
   }
-  @ </ul></ul>
+  if( prevName ){
+    @ </ul>
+  }
+  @ </ul>
   free(prevName);
   db_finalize(&q);
   db_prepare(&q,
@@ -1247,7 +1225,7 @@ int object_description(
 
 /*
 ** WEBPAGE: fdiff
-** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN
+** URL: fdiff?v1=UUID&v2=UUID&patch&sbs=BOOLEAN&regex=REGEX
 **
 ** Two arguments, v1 and v2, identify the files to be diffed.  Show the
 ** difference between the two artifacts.  Show diff side by side unless sbs
@@ -1260,6 +1238,8 @@ void diff_page(void){
   Blob c1, c2, diff, *pOut;
   char *zV1;
   char *zV2;
+  const char *zRe;
+  ReCompiled *pRe = 0;
   u64 diffFlags;
   const char *zStyle = "sbsdiff";
 
@@ -1287,9 +1267,11 @@ void diff_page(void){
       zStyle = "udiff";
     }
   }
+  zRe = P("regex");
+  if( zRe ) re_compile(&pRe, zRe, 0);
   content_get(v1, &c1);
   content_get(v2, &c2);
-  text_diff(&c1, &c2, pOut, diffFlags);
+  text_diff(&c1, &c2, pOut, pRe, diffFlags);
   blob_reset(&c1);
   blob_reset(&c2);
   if( !isPatch ){
@@ -1316,6 +1298,10 @@ void diff_page(void){
       object_description(v1, 0, 0);
       @ <h2>To Artifact %z(href("%R/artifact/%S",zV2))[%S(zV2)]</a>:</h2>
       object_description(v2, 0, 0);
+    }
+    if( pRe ){
+      @ <b>Only differences that match regular expression "%h(zRe)"
+      @ are shown.</b>
     }
     @ <hr />
     @ <div class="%s(zStyle)">
@@ -1599,7 +1585,11 @@ void artifact_page(void){
   blob_zero(&downloadName);
   objType = object_description(rid, 0, &downloadName);
   style_submenu_element("Download", "Download",
-          "%s/raw/%T?name=%s", g.zTop, blob_str(&downloadName), zUuid);
+          "%R/raw/%T?name=%s", blob_str(&downloadName), zUuid);
+  if( db_exists("SELECT 1 FROM mlink WHERE fid=%d", rid) ){
+    style_submenu_element("Checkins Using", "Checkins Using",
+          "%R/timeline?uf=%s&n=200",zUuid);
+  }
   asText = P("txt")!=0;
   zMime = mimetype_from_name(blob_str(&downloadName));
   if( zMime ){
@@ -1632,7 +1622,7 @@ void artifact_page(void){
     wiki_convert(&content, 0, 0);
   }else if( renderAsHtml ){
     @ <div>
-    blob_strip_bom(&content, 0);
+    blob_to_utf8_no_bom(&content, 0);
     cgi_append_content(blob_buffer(&content), blob_size(&content));
     @ </div>
   }else{
@@ -1642,7 +1632,7 @@ void artifact_page(void){
     if( zMime==0 ){
       const char *zLn = P("ln");
       const char *z;
-      blob_strip_bom(&content, 0);
+      blob_to_utf8_no_bom(&content, 0);
       z = blob_str(&content);
       if( zLn ){
         output_text_with_line_numbers(z, zLn);
@@ -1652,7 +1642,9 @@ void artifact_page(void){
         @ </pre>
       }
     }else if( strncmp(zMime, "image/", 6)==0 ){
-      @ <img src="%s(g.zTop)/raw?name=%s(zUuid)&m=%s(zMime)"></img>
+      @ <img src="%R/raw/%S(zUuid)?m=%s(zMime)" />
+      style_submenu_element("Image", "Image",
+                            "%R/raw/%S?m=%s", zUuid, zMime);
     }else{
       @ <i>(file is %d(blob_size(&content)) bytes of binary data)</i>
     }
@@ -1675,7 +1667,7 @@ void tinfo_page(void){
   Manifest *pTktChng;
   int modPending;
   const char *zModAction;
-
+  char *zTktTitle;
   login_check_credentials();
   if( !g.perm.RdTkt ){ login_needed(); return; }
   rid = name_to_rid_www("name");
@@ -1704,11 +1696,20 @@ void tinfo_page(void){
       moderation_approve(rid);
     }
   }
+  zTktTitle = db_table_has_column( "ticket", "title" )
+      ? db_text("(No title)", "SELECT title FROM ticket WHERE tkt_uuid=%Q", zTktName)
+      : 0;
   style_header("Ticket Change Details");
   style_submenu_element("Raw", "Raw", "%R/artifact/%S", zUuid);
   style_submenu_element("History", "History", "%R/tkthistory/%s", zTktName);
   style_submenu_element("Page", "Page", "%R/tktview/%t", zTktName);
   style_submenu_element("Timeline", "Timeline", "%R/tkttimeline/%t", zTktName);
+  if( P("plaintext") ){
+    style_submenu_element("Formatted", "Formatted", "%R/info/%S", zUuid);
+  }else{
+    style_submenu_element("Plaintext", "Plaintext",
+                          "%R/info/%S?plaintext", zUuid);
+  }
 
   @ <div class="section">Overview</div>
   @ <p><table class="label-value">
@@ -1722,13 +1723,18 @@ void tinfo_page(void){
     @ <span class="modpending">*** Awaiting Moderator Approval ***</span>
   }
   @ <tr><th>Ticket:</th>
-  @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a></td></tr>
+  @ <td>%z(href("%R/tktview/%s",zTktName))%s(zTktName)</a>
+  if(zTktTitle){
+        @<br>%h(zTktTitle)
+  }
+  @</td></tr>
   @ <tr><th>Date:</th><td>
   hyperlink_to_date(zDate, "</td></tr>");
-  free(zDate);
   @ <tr><th>User:</th><td>
   hyperlink_to_user(pTktChng->zUser, zDate, "</td></tr>");
   @ </table>
+  free(zDate);
+  free(zTktTitle);
   
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>
@@ -1745,7 +1751,7 @@ void tinfo_page(void){
 
   @ <div class="section">Changes</div>
   @ <p>
-  ticket_output_change_artifact(pTktChng);
+  ticket_output_change_artifact(pTktChng, 0);
   manifest_destroy(pTktChng);
   style_footer();
 }
@@ -2151,7 +2157,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    wiki_convert(&comment, 0, WIKI_INLINE);
+    @ %w(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"
@@ -2181,9 +2187,9 @@ void ci_edit_page(void){
   }
   @ <p>Make changes to attributes of check-in
   @ [%z(href("%R/ci/%s",zUuid))%s(zUuid)</a>]:</p>
-  @ <form action="%s(g.zTop)/ci_edit" method="post"><div>
+  form_begin(0, "%R/ci_edit");
   login_insert_csrf_secret();
-  @ <input type="hidden" name="r" value="%S(zUuid)" />
+  @ <div><input type="hidden" name="r" value="%S(zUuid)" />
   @ <table border="0" cellspacing="10">
 
   @ <tr><td align="right" valign="top"><b>User:</b></td>

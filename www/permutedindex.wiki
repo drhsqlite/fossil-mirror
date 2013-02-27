@@ -4,7 +4,7 @@
 <ul>
 <li> [./quickstart.wiki | Quick-start Guide]
 <li> [./faq.wiki | FAQ]
-<li> [./build.wiki | Building and installing Fossil]
+<li> [./build.wiki | Compiling and installing Fossil]
 <li> [../COPYRIGHT-BSD2.txt | License]
 <li> [http://www.fossil-scm.org/schimpf-book/home | Jim Schimpf's book]
 <li> [/help | Command-line help]
@@ -12,16 +12,17 @@
 <a name="pindex"></a>
 <h2>Permuted Index:</h2>
 <ul>
+<li><a href="fiveminutes.wiki">5 Minutes as a Single User &mdash; Update and Running in</a></li>
 <li><a href="tech_overview.wiki">A Technical Overview Of The Design And Implementation Of Fossil</a></li>
 <li><a href="copyright-release.html">Agreement &mdash; Contributor License</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Algorithm &mdash; Fossil Delta Encoding</a></li>
+<li><a href="fiveminutes.wiki">as a Single User &mdash; Update and Running in 5 Minutes</a></li>
 <li><a href="faq.wiki">Asked Questions &mdash; Frequently</a></li>
 <li><a href="password.wiki">Authentication &mdash; Password Management And</a></li>
 <li><a href="private.wiki">Branches &mdash; Creating, Syncing, and Deleting Private</a></li>
 <li><a href="branching.wiki">Branching, Forking, Merging, and Tagging</a></li>
 <li><a href="bugtheory.wiki">Bug Tracking In Fossil</a></li>
 <li><a href="makefile.wiki">Build Process &mdash; The Fossil</a></li>
-<li><a href="build.wiki">Building and Installing Fossil</a></li>
 <li><a href="changes.wiki">Changelog &mdash; Fossil</a></li>
 <li><a href="checkin.wiki">Check-in Checklist</a></li>
 <li><a href="checkin_names.wiki">Checkin And Version Names</a></li>
@@ -31,6 +32,7 @@
 <li><a href="selfcheck.wiki">Checks &mdash; Fossil Repository Integrity Self</a></li>
 <li><a href="contribute.wiki">Code or Documentation To The Fossil Project &mdash; Contributing</a></li>
 <li><a href="style.wiki">Code Style Guidelines &mdash; Source</a></li>
+<li><a href="build.wiki">Compiling and Installing Fossil</a></li>
 <li><a href="concepts.wiki">Concepts &mdash; Fossil Core</a></li>
 <li><a href="server.wiki">Configure A Fossil Server &mdash; How To</a></li>
 <li><a href="shunning.wiki">Content From Fossil &mdash; Shunning: Deleting</a></li>
@@ -86,12 +88,13 @@
 <li><a href="newrepo.wiki">How To Create A New Fossil Repository</a></li>
 <li><a href="tech_overview.wiki">Implementation Of Fossil &mdash; A Technical Overview Of The Design And</a></li>
 <li><a href="inout.wiki">Import And Export To And From Git</a></li>
-<li><a href="build.wiki">Installing Fossil &mdash; Building and</a></li>
+<li><a href="build.wiki">Installing Fossil &mdash; Compiling and</a></li>
 <li><a href="selfcheck.wiki">Integrity Self Checks &mdash; Fossil Repository</a></li>
 <li><a href="webui.wiki">Interface &mdash; The Fossil Web</a></li>
 <li><a href="copyright-release.html">License Agreement &mdash; Contributor</a></li>
 <li><a href="password.wiki">Management And Authentication &mdash; Password</a></li>
 <li><a href="branching.wiki">Merging, and Tagging &mdash; Branching, Forking,</a></li>
+<li><a href="fiveminutes.wiki">Minutes as a Single User &mdash; Update and Running in 5</a></li>
 <li><a href="checkin_names.wiki">Names &mdash; Checkin And Version</a></li>
 <li><a href="newrepo.wiki">New Fossil Repository &mdash; How To Create A</a></li>
 <li><a href="foss-cklist.wiki">Open-Source Projects &mdash; Checklist For Successful</a></li>
@@ -117,12 +120,14 @@
 <li><a href="newrepo.wiki">Repository &mdash; How To Create A New Fossil</a></li>
 <li><a href="selfcheck.wiki">Repository Integrity Self Checks &mdash; Fossil</a></li>
 <li><a href="reviews.wiki">Reviews</a></li>
+<li><a href="fiveminutes.wiki">Running in 5 Minutes as a Single User &mdash; Update and</a></li>
 <li><a href="quotes.wiki">Saying About Fossil, Git, and DVCSes in General &mdash; Quotes: What People Are</a></li>
 <li><a href="selfcheck.wiki">Self Checks &mdash; Fossil Repository Integrity</a></li>
 <li><a href="selfhost.wiki">Self Hosting Repositories &mdash; Fossil</a></li>
 <li><a href="server.wiki">Server &mdash; How To Configure A Fossil</a></li>
 <li><a href="settings.wiki">Settings &mdash; Fossil</a></li>
 <li><a href="shunning.wiki">Shunning: Deleting Content From Fossil</a></li>
+<li><a href="fiveminutes.wiki">Single User &mdash; Update and Running in 5 Minutes as a</a></li>
 <li><a href="style.wiki">Source Code Style Guidelines</a></li>
 <li><a href="tech_overview.wiki">SQLite Databases Used By Fossil</a></li>
 <li><a href="ssl.wiki">SSL with Fossil &mdash; Using</a></li>
@@ -133,15 +138,20 @@
 <li><a href="sync.wiki">Sync Protocol &mdash; The Fossil</a></li>
 <li><a href="private.wiki">Syncing, and Deleting Private Branches &mdash; Creating,</a></li>
 <li><a href="custom_ticket.wiki">System &mdash; Customizing The Ticket</a></li>
+<li><a href="tickets.wiki">System &mdash; The Fossil Ticket</a></li>
 <li><a href="branching.wiki">Tagging &mdash; Branching, Forking, Merging, and</a></li>
 <li><a href="tech_overview.wiki">Technical Overview Of The Design And Implementation Of Fossil &mdash; A</a></li>
 <li><a href="../test/release-checklist.wiki">Testing Checklist &mdash; Pre-Release</a></li>
 <li><a href="makefile.wiki">The Fossil Build Process</a></li>
 <li><a href="sync.wiki">The Fossil Sync Protocol</a></li>
+<li><a href="tickets.wiki">The Fossil Ticket System</a></li>
 <li><a href="webui.wiki">The Fossil Web Interface</a></li>
 <li><a href="theory1.wiki">Thoughts On The Design Of The Fossil DVCS</a></li>
 <li><a href="custom_ticket.wiki">Ticket System &mdash; Customizing The</a></li>
+<li><a href="tickets.wiki">Ticket System &mdash; The Fossil</a></li>
 <li><a href="bugtheory.wiki">Tracking In Fossil &mdash; Bug</a></li>
+<li><a href="fiveminutes.wiki">Update and Running in 5 Minutes as a Single User</a></li>
+<li><a href="fiveminutes.wiki">User &mdash; Update and Running in 5 Minutes as a Single</a></li>
 <li><a href="ssl.wiki">Using SSL with Fossil</a></li>
 <li><a href="checkin_names.wiki">Version Names &mdash; Checkin And</a></li>
 <li><a href="fossil-v-git.wiki">Versus Git &mdash; Fossil</a></li>

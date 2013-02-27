@@ -115,10 +115,10 @@ void diff_file(
     }else if( eType1!=eType2 ){
       fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
     }else{
-      blob_strip_bom(pFile1, 2);
-      blob_strip_bom(&file2, 2);
+      blob_to_utf8_no_bom(pFile1, 2);
+      blob_to_utf8_no_bom(&file2, 2);
       blob_zero(&out);
-      text_diff(pFile1, &file2, &out, diffFlags);
+      text_diff(pFile1, &file2, &out, 0, diffFlags);
       if( blob_size(&out) ){
         diff_print_filenames(zName, zName2, diffFlags);
         fossil_print("%s\n", blob_str(&out));
@@ -220,9 +220,9 @@ void diff_file_mem(
     Blob out;      /* Diff output text */
 
     blob_zero(&out);
-    blob_strip_bom(pFile1, 2);
-    blob_strip_bom(pFile2, 2);
-    text_diff(pFile1, pFile2, &out, diffFlags);
+    blob_to_utf8_no_bom(pFile1, 2);
+    blob_to_utf8_no_bom(pFile2, 2);
+    text_diff(pFile1, pFile2, &out, 0, diffFlags);
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print("%s\n", blob_str(&out));
 
@@ -683,8 +683,14 @@ void diff_tk(const char *zSubCmd, int firstArg){
   blob_appendf(&script, "set cmd {| \"%/\" %s --html -y -i",
                g.nameOfExe, zSubCmd);
   for(i=firstArg; i<g.argc; i++){
+    const char *z = g.argv[i];
+    if( z[0]=='-' ){
+      if( strglob("*-html",z) ) continue;
+      if( strglob("*-y",z) ) continue;
+      if( strglob("*-i",z) ) continue;
+    }
     blob_append(&script, " ", 1);
-    shell_escape(&script, g.argv[i]);
+    shell_escape(&script, z);
   }
   blob_appendf(&script, "}\n%s", zDiffScript);
   zTempFile = write_blob_to_temp_file(&script);

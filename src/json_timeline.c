@@ -92,7 +92,7 @@ static void json_timeline_temp_table(void){
 ** Return a pointer to a constant string that forms the basis
 ** for a timeline query for the JSON interface.
 */
-const char const * json_timeline_query(void){
+char const * json_timeline_query(void){
   /* Field order MUST match that from json_timeline_temp_table()!!! */
   static const char zBaseSql[] =
     @ SELECT

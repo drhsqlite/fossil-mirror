@@ -241,6 +241,7 @@ static char const * json_err_cstr( int errCode ){
     C(DB_NEEDS_REBUILD,"Fossil repository needs to be rebuilt");
     C(DB_NOT_FOUND,"Fossil repository db file could not be found.");
     C(DB_NOT_VALID, "Fossil repository db file is not valid.");
+    C(DB_NEEDS_CHECKOUT, "Command requires a local checkout.");
 #undef C
     default:
       return "Unknown Error";
@@ -1399,7 +1400,6 @@ cson_value * json_g_to_json(){
   INT(g, urlIsSsh);
   INT(g, urlPort);
   INT(g, urlDfltPort);
-  INT(g, dontKeepUrl);
   INT(g, useLocalauth);
   INT(g, noPswd);
   INT(g, userUid);
@@ -1411,6 +1411,7 @@ cson_value * json_g_to_json(){
   INT(g, allowSymlinks);
 
   CSTR(g, zMainDbType);
+  CSTR(g, zConfigDbType);
   CSTR(g, zHome);
   CSTR(g, zLocalRoot);
   CSTR(g, zPath);
@@ -2086,11 +2087,9 @@ cson_value * json_page_stat(){
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
   cson_object_set(jo, "ageDays", cson_value_new_integer((cson_int_t)n));
-  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.24));
+  cson_object_set(jo, "ageYears", cson_value_new_double(n/365.2425));
   sqlite3_snprintf(BufLen, zBuf, db_get("project-code",""));
   SETBUF(jo, "projectCode");
-  sqlite3_snprintf(BufLen, zBuf, db_get("server-code",""));
-  SETBUF(jo, "serverCode");
   cson_object_set(jo, "compiler", cson_value_new_string(COMPILER_NAME, strlen(COMPILER_NAME)));
 
   jv2 = cson_value_new_object();
@@ -2121,14 +2120,18 @@ cson_value * json_page_stat(){
 ** are undefined.
 **
 ** The list is appended to pOut. The number of items (not bytes)
-** appended are returned.
+** appended are returned. If filterByMode is non-0 then the result
+** list will contain only commands which are able to run in the the
+** current run mode (CLI vs. HTTP).
 */
 static int json_pagedefs_to_string(JsonPageDef const * zPages,
-                                   Blob * pOut){
+                                   Blob * pOut, int filterByMode){
   int i = 0;
   for( ; zPages->name; ++zPages, ++i ){
-    if(g.isHTTP && zPages->runMode < 0) continue;
-    else if(zPages->runMode > 0) continue;
+    if(filterByMode){
+      if(g.isHTTP && zPages->runMode < 0) continue;
+      else if(zPages->runMode > 0) continue;
+    }
     blob_appendf(pOut, zPages->name, -1);
     if((zPages+1)->name){
       blob_append(pOut, ", ",2);
@@ -2156,7 +2159,7 @@ void json_dispatch_missing_args_err( JsonPageDef const * pCommands,
     zErrPrefix = "Try one of: ";
   }
   blob_append( &cmdNames, zErrPrefix, strlen(zErrPrefix) );
-  json_pagedefs_to_string(pCommands, &cmdNames);
+  json_pagedefs_to_string(pCommands, &cmdNames, 1);
   json_set_err(FSL_JSON_E_MISSING_ARGS, "%s",
                blob_str(&cmdNames));
   blob_reset(&cmdNames);
@@ -2249,6 +2252,8 @@ cson_value * json_page_user();
 cson_value * json_page_config();
 /* Impl in json_finfo.c. */
 cson_value * json_page_finfo();
+/* Impl in json_status.c. */
+cson_value * json_page_status();
 
 /*
 ** Mapping of names to JSON pages/commands.  Each name is a subpath of
@@ -2273,6 +2278,7 @@ static const JsonPageDef JsonPageDefs[] = {
 {"report", json_page_report, 0},
 {"resultCodes", json_page_resultCodes,0},
 {"stat",json_page_stat,0},
+{"status", json_page_status, 0},
 {"tag", json_page_tag,0},
 /*{"ticket", json_page_nyi,0},*/
 {"timeline", json_page_timeline,0},

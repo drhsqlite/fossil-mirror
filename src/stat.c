@@ -68,7 +68,7 @@ void stat_page(void){
     @ <tr><th>Number&nbsp;Of&nbsp;Artifacts:</th><td>
     n = db_int(0, "SELECT count(*) FROM blob");
     m = db_int(0, "SELECT count(*) FROM delta");
-    @ %d(n) (stored as %d(n-m) full text and %d(m) delta blobs)
+    @ %d(n) (%d(n-m) fulltext and %d(m) deltas)
     @ </td></tr>
     if( n>0 ){
       int a, b;
@@ -96,7 +96,7 @@ void stat_page(void){
       @ </td></tr>
     }
     @ <tr><th>Number&nbsp;Of&nbsp;Check-ins:</th><td>
-    n = db_int(0, "SELECT count(distinct mid) FROM mlink /*scan*/");
+    n = db_int(0, "SELECT count(*) FROM event WHERE type='ci' /*scan*/");
     @ %d(n)
     @ </td></tr>
     @ <tr><th>Number&nbsp;Of&nbsp;Files:</th><td>
@@ -117,13 +117,12 @@ void stat_page(void){
   @ <tr><th>Duration&nbsp;Of&nbsp;Project:</th><td>
   n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
                 " + 0.99");
-  @ %d(n) days or approximately %.2f(n/356.24) years.
+  @ %d(n) days or approximately %.2f(n/365.2425) years.
   @ </td></tr>
   @ <tr><th>Project&nbsp;ID:</th><td>%h(db_get("project-code",""))</td></tr>
-  @ <tr><th>Server&nbsp;ID:</th><td>%h(db_get("server-code",""))</td></tr>
   @ <tr><th>Fossil&nbsp;Version:</th><td>
-  @ %h(RELEASE_VERSION) %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
-  @ (%h(COMPILER_NAME))
+  @ %h(MANIFEST_DATE) %h(MANIFEST_VERSION)
+  @ (%h(RELEASE_VERSION)) [compiled using %h(COMPILER_NAME)]
   @ </td></tr>
   @ <tr><th>SQLite&nbsp;Version:</th><td>%.19s(SQLITE_SOURCE_ID)
   @ [%.10s(&SQLITE_SOURCE_ID[20])] (%s(SQLITE_VERSION))</td></tr>
@@ -139,6 +138,105 @@ void stat_page(void){
   @ </table>
   style_footer();
 }
+
+/*
+** COMMAND: dbstat*
+**
+** Usage: %fossil dbstat ?-brief | -b?
+**
+** Shows statistics and global information about the repository.
+**
+** The (-brief|-b) option removes any "long-running" statistics, namely
+** those whose calculations are known to slow down as the repository
+** grows.
+**
+*/
+void dbstat_cmd(void){
+  i64 t, fsize;
+  int n, m;
+  int szMax, szAvg;
+  const char *zDb;
+  int brief;
+  char zBuf[100];
+  const int colWidth = -19 /* printf alignment/width for left column */;
+  brief = find_option("brief", "b",0)!=0;
+  db_find_and_open_repository(0,0);
+  fsize = file_size(g.zRepositoryName);
+  bigSizeName(sizeof(zBuf), zBuf, fsize);
+  fossil_print( "%*s%s\n", colWidth, "repository-size:", zBuf );
+  if( !brief ){
+    n = db_int(0, "SELECT count(*) FROM blob");
+    m = db_int(0, "SELECT count(*) FROM delta");
+    fossil_print("%*s%d (stored as %d full text and %d delta blobs)\n",
+                 colWidth, "artifact-count:",
+                 n, n-m, m);
+    if( n>0 ){
+      int a, b;
+      Stmt q;
+      db_prepare(&q, "SELECT total(size), avg(size), max(size)"
+                     " FROM blob WHERE size>0");
+      db_step(&q);
+      t = db_column_int64(&q, 0);
+      szAvg = db_column_int(&q, 1);
+      szMax = db_column_int(&q, 2);
+      db_finalize(&q);
+      bigSizeName(sizeof(zBuf), zBuf, t);
+      fossil_print( "%*s%d average, "
+                    "%d max, %s total\n",
+                    colWidth, "artifact-sizes:",
+                    szAvg, szMax, zBuf);
+      if( t/fsize < 5 ){
+        b = 10;
+        fsize /= 10;
+      }else{
+        b = 1;
+      }
+      a = t/fsize;
+      fossil_print("%*s%d:%d\n", colWidth, "compression-ratio:", a, b);
+    }
+    n = db_int(0, "SELECT COUNT(*) FROM event e WHERE e.type='ci'");
+    fossil_print("%*s%d\n", colWidth, "checkins:", n);
+    n = db_int(0, "SELECT count(*) FROM filename /*scan*/");
+    fossil_print("%*s%d across all branches\n", colWidth, "files:", n);
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE tagname GLOB 'wiki-*'");
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='w'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "wikipages:", n, m);
+    n = db_int(0, "SELECT count(*) FROM tag  /*scan*/"
+                  " WHERE tagname GLOB 'tkt-*'");
+    m = db_int(0, "SELECT COUNT(*) FROM event WHERE type='t'");
+    fossil_print("%*s%d (%d changes)\n", colWidth, "tickets:", n, m);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='e'");
+    fossil_print("%*s%d\n", colWidth, "events:", n);
+    n = db_int(0, "SELECT COUNT(*) FROM event WHERE type='g'");
+    fossil_print("%*s%d\n", colWidth, "tagchanges:", n);
+  }
+  n = db_int(0, "SELECT julianday('now') - (SELECT min(mtime) FROM event)"
+                " + 0.99");
+  fossil_print("%*s%d days or approximately %.2f years.\n",
+               colWidth, "project-age:", n, n/365.2425);
+  fossil_print("%*s%s\n", colWidth, "project-id:", db_get("project-code",""));
+  fossil_print("%*s%s %s [%s] (%s)\n",
+               colWidth, "fossil-version:",
+               MANIFEST_DATE, MANIFEST_VERSION, RELEASE_VERSION,
+               COMPILER_NAME);
+  fossil_print("%*s%.19s [%.10s] (%s)\n",
+               colWidth, "sqlite-version:",
+               SQLITE_SOURCE_ID, &SQLITE_SOURCE_ID[20],
+               SQLITE_VERSION);
+  zDb = db_name("repository");
+  fossil_print("%*s%d pages, %d bytes/pg, %d free pages, "
+               "%s, %s mode\n",
+               colWidth, "database-stats:",
+               db_int(0, "PRAGMA %s.page_count", zDb),
+               db_int(0, "PRAGMA %s.page_size", zDb),
+               db_int(0, "PRAGMA %s.freelist_count", zDb),
+               db_text(0, "PRAGMA %s.encoding", zDb),
+               db_text(0, "PRAGMA %s.journal_mode", zDb));
+
+}
+
+
 
 /*
 ** WEBPAGE: urllist

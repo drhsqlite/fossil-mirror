@@ -168,12 +168,15 @@ void export_cmd(void){
   ** of a check-in 
   */
   fossil_binary_mode(stdout);
-  db_multi_exec("CREATE TEMPORARY TABLE newblob(rid INTEGER KEY, srcid INTEGER)");
+  db_multi_exec("CREATE TEMP TABLE newblob(rid INTEGER KEY, srcid INTEGER)");
   db_multi_exec("CREATE INDEX newblob_src ON newblob(srcid)");
   db_multi_exec(
     "INSERT INTO newblob"
     " SELECT DISTINCT fid,"
-    "  CASE WHEN EXISTS(SELECT 1 FROM delta WHERE rid=fid AND NOT EXISTS(SELECT 1 FROM oldblob WHERE srcid=fid))"
+    "  CASE WHEN EXISTS(SELECT 1 FROM delta"
+                       " WHERE rid=fid"
+                       "   AND NOT EXISTS(SELECT 1 FROM oldblob"
+                                         " WHERE srcid=fid))"
     "   THEN (SELECT srcid FROM delta WHERE rid=fid)"
     "   ELSE 0"
     "  END"
@@ -249,7 +252,12 @@ void export_cmd(void){
     printf(" %s +0000\n", zSecondsSince1970);
     if( zComment==0 ) zComment = "null comment";
     printf("data %d\n%s\n", (int)strlen(zComment), zComment);
-    db_prepare(&q3, "SELECT pid FROM plink WHERE cid=%d AND isprim", ckinId);
+    db_prepare(&q3,
+      "SELECT pid FROM plink"
+      " WHERE cid=%d AND isprim"
+      "   AND pid IN (SELECT objid FROM event)",
+      ckinId
+    );
     if( db_step(&q3) == SQLITE_ROW ){
       printf("from :%d\n", COMMITMARK(db_column_int(&q3, 0)));
       db_prepare(&q4,

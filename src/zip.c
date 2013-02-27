@@ -154,7 +154,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   memset(zHdr, 0, sizeof(zHdr));
   put32(&zHdr[0], 0x04034b50);
   put16(&zHdr[4], 0x000a);
-  put16(&zHdr[6], 0);
+  put16(&zHdr[6], 0x0800);
   put16(&zHdr[8], iMethod);
   put16(&zHdr[10], dosTime);
   put16(&zHdr[12], dosDate);
@@ -219,7 +219,7 @@ void zip_add_file(const char *zName, const Blob *pFile, int mPerm){
   put32(&zBuf[0], 0x02014b50);
   put16(&zBuf[4], 0x0317);
   put16(&zBuf[6], 0x000a);
-  put16(&zBuf[8], 0);
+  put16(&zBuf[8], 0x0800);
   put16(&zBuf[10], iMethod);
   put16(&zBuf[12], dosTime);
   put16(&zBuf[14], dosDate);

@@ -9,7 +9,7 @@ and painlessly.</p>
     <p>Fossil is a single self-contained C program.  You need to
     either download a 
     <a href="http://www.fossil-scm.org/download.html">precompiled binary</a>
-    or <a href="build.wiki">build it yourself</a> from sources.
+    or <a href="build.wiki">compile it yourself</a> from sources.
     Install fossil by putting the fossil binary
     someplace on your $PATH.</p>
     

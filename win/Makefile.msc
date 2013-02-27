@@ -14,46 +14,280 @@ OX     = .
 O      = .obj
 E      = .exe
 
-# Maybe MSCDIR, SSL, ZLIB, or INCL needs adjustment
-MSCDIR = c:\msc
-
 # Uncomment below for SSL support
 SSL =
 SSLLIB =
-#SSL = -DFOSSIL_ENABLE_SSL=1
-#SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
+# SSL = -DFOSSIL_ENABLE_SSL=1
+# SSLLIB  = ssleay32.lib libeay32.lib user32.lib gdi32.lib advapi32.lib
 
 # zlib options
-# When using precompiled from http://zlib.net/zlib125-dll.zip
-#ZINCDIR = C:\zlib125-dll\include
-#ZLIBDIR = C:\zlib125-dll\lib
-#ZLIB    = zdll.lib
-ZINCDIR = $(MSCDIR)\extra\include
-ZLIBDIR = $(MSCDIR)\extra\lib
+ZINCDIR = $(B)\compat\zlib
+ZLIBDIR = $(B)\compat\zlib
 ZLIB    = zlib.lib
 
-INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(MSCDIR)\extra\include -I$(ZINCDIR)
+# Uncomment to enable JSON API
+# FOSSIL_ENABLE_JSON = 1
+
+# Uncomment to enable markdown support
+# FOSSIL_ENABLE_MARKDOWN = 1
+
+INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
 BCC    = $(CC) $(CFLAGS)
 TCC    = $(CC) -c $(CFLAGS) $(MSCDEF) $(SSL) $(INCL)
+RCC    = rc -D_WIN32 -D_MSC_VER $(INCL)
 LIBS   = $(ZLIB) ws2_32.lib advapi32.lib $(SSLLIB)
-LIBDIR = -LIBPATH:$(MSCDIR)\extra\lib -LIBPATH:$(ZLIBDIR)
+LIBDIR = -LIBPATH:$(ZLIBDIR)
 
-SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 /DSQLITE_THREADSAFE=0 /DSQLITE_DEFAULT_FILE_FORMAT=4 /DSQLITE_ENABLE_STAT3 /Dlocaltime=fossil_localtime /DSQLITE_ENABLE_LOCKING_STYLE=0
+!ifdef FOSSIL_ENABLE_JSON
+TCC = $(TCC) -DFOSSIL_ENABLE_JSON
+RCC = $(RCC) -DFOSSIL_ENABLE_JSON
+!endif
 
-SRC   = add_.c allrepo_.c attach_.c bag_.c bisect_.c blob_.c branch_.c browse_.c captcha_.c cgi_.c checkin_.c checkout_.c clearsign_.c clone_.c comformat_.c configure_.c content_.c db_.c delta_.c deltacmd_.c descendants_.c diff_.c diffcmd_.c doc_.c encode_.c event_.c export_.c file_.c finfo_.c glob_.c graph_.c gzip_.c http_.c http_socket_.c http_ssl_.c http_transport_.c import_.c info_.c json_.c json_artifact_.c json_branch_.c json_config_.c json_diff_.c json_dir_.c json_finfo_.c json_login_.c json_query_.c json_report_.c json_tag_.c json_timeline_.c json_user_.c json_wiki_.c leaf_.c login_.c main_.c manifest_.c md5_.c merge_.c merge3_.c moderate_.c name_.c path_.c pivot_.c popen_.c pqueue_.c printf_.c rebuild_.c report_.c rss_.c schema_.c search_.c setup_.c sha1_.c shun_.c skins_.c sqlcmd_.c stash_.c stat_.c style_.c sync_.c tag_.c tar_.c th_main_.c timeline_.c tkt_.c tktsetup_.c undo_.c update_.c url_.c user_.c verify_.c vfile_.c wiki_.c wikiformat_.c winhttp_.c wysiwyg_.c xfer_.c xfersetup_.c zip_.c 
+!ifdef FOSSIL_ENABLE_MARKDOWN
+TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
+RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
+!endif
 
-OBJ   = $(OX)\add$O $(OX)\allrepo$O $(OX)\attach$O $(OX)\bag$O $(OX)\bisect$O $(OX)\blob$O $(OX)\branch$O $(OX)\browse$O $(OX)\captcha$O $(OX)\cgi$O $(OX)\checkin$O $(OX)\checkout$O $(OX)\clearsign$O $(OX)\clone$O $(OX)\comformat$O $(OX)\configure$O $(OX)\content$O $(OX)\db$O $(OX)\delta$O $(OX)\deltacmd$O $(OX)\descendants$O $(OX)\diff$O $(OX)\diffcmd$O $(OX)\doc$O $(OX)\encode$O $(OX)\event$O $(OX)\export$O $(OX)\file$O $(OX)\finfo$O $(OX)\glob$O $(OX)\graph$O $(OX)\gzip$O $(OX)\http$O $(OX)\http_socket$O $(OX)\http_ssl$O $(OX)\http_transport$O $(OX)\import$O $(OX)\info$O $(OX)\json$O $(OX)\json_artifact$O $(OX)\json_branch$O $(OX)\json_config$O $(OX)\json_diff$O $(OX)\json_dir$O $(OX)\json_finfo$O $(OX)\json_login$O $(OX)\json_query$O $(OX)\json_report$O $(OX)\json_tag$O $(OX)\json_timeline$O $(OX)\json_user$O $(OX)\json_wiki$O $(OX)\leaf$O $(OX)\login$O $(OX)\main$O $(OX)\manifest$O $(OX)\md5$O $(OX)\merge$O $(OX)\merge3$O $(OX)\moderate$O $(OX)\name$O $(OX)\path$O $(OX)\pivot$O $(OX)\popen$O $(OX)\pqueue$O $(OX)\printf$O $(OX)\rebuild$O $(OX)\report$O $(OX)\rss$O $(OX)\schema$O $(OX)\search$O $(OX)\setup$O $(OX)\sha1$O $(OX)\shun$O $(OX)\skins$O $(OX)\sqlcmd$O $(OX)\stash$O $(OX)\stat$O $(OX)\style$O $(OX)\sync$O $(OX)\tag$O $(OX)\tar$O $(OX)\th_main$O $(OX)\timeline$O $(OX)\tkt$O $(OX)\tktsetup$O $(OX)\undo$O $(OX)\update$O $(OX)\url$O $(OX)\user$O $(OX)\verify$O $(OX)\vfile$O $(OX)\wiki$O $(OX)\wikiformat$O $(OX)\winhttp$O $(OX)\wysiwyg$O $(OX)\xfer$O $(OX)\xfersetup$O $(OX)\zip$O $(OX)\shell$O $(OX)\sqlite3$O $(OX)\th$O $(OX)\th_lang$O 
+SQLITE_OPTIONS = /DSQLITE_OMIT_LOAD_EXTENSION=1 \
+                 /DSQLITE_THREADSAFE=0 \
+                 /DSQLITE_DEFAULT_FILE_FORMAT=4 \
+                 /DSQLITE_ENABLE_STAT3 \
+                 /Dlocaltime=fossil_localtime \
+                 /DSQLITE_ENABLE_LOCKING_STYLE=0
 
+SRC   = add_.c \
+        allrepo_.c \
+        attach_.c \
+        bag_.c \
+        bisect_.c \
+        blob_.c \
+        branch_.c \
+        browse_.c \
+        captcha_.c \
+        cgi_.c \
+        checkin_.c \
+        checkout_.c \
+        clearsign_.c \
+        clone_.c \
+        comformat_.c \
+        configure_.c \
+        content_.c \
+        db_.c \
+        delta_.c \
+        deltacmd_.c \
+        descendants_.c \
+        diff_.c \
+        diffcmd_.c \
+        doc_.c \
+        encode_.c \
+        event_.c \
+        export_.c \
+        file_.c \
+        finfo_.c \
+        glob_.c \
+        graph_.c \
+        gzip_.c \
+        http_.c \
+        http_socket_.c \
+        http_ssl_.c \
+        http_transport_.c \
+        import_.c \
+        info_.c \
+        json_.c \
+        json_artifact_.c \
+        json_branch_.c \
+        json_config_.c \
+        json_diff_.c \
+        json_dir_.c \
+        json_finfo_.c \
+        json_login_.c \
+        json_query_.c \
+        json_report_.c \
+        json_status_.c \
+        json_tag_.c \
+        json_timeline_.c \
+        json_user_.c \
+        json_wiki_.c \
+        leaf_.c \
+        login_.c \
+        main_.c \
+        manifest_.c \
+        markdown_.c \
+        markdown_html_.c \
+        md5_.c \
+        merge_.c \
+        merge3_.c \
+        moderate_.c \
+        name_.c \
+        path_.c \
+        pivot_.c \
+        popen_.c \
+        pqueue_.c \
+        printf_.c \
+        rebuild_.c \
+        regexp_.c \
+        report_.c \
+        rss_.c \
+        schema_.c \
+        search_.c \
+        setup_.c \
+        sha1_.c \
+        shun_.c \
+        skins_.c \
+        sqlcmd_.c \
+        stash_.c \
+        stat_.c \
+        style_.c \
+        sync_.c \
+        tag_.c \
+        tar_.c \
+        th_main_.c \
+        timeline_.c \
+        tkt_.c \
+        tktsetup_.c \
+        undo_.c \
+        unicode_.c \
+        update_.c \
+        url_.c \
+        user_.c \
+        utf8_.c \
+        util_.c \
+        verify_.c \
+        vfile_.c \
+        wiki_.c \
+        wikiformat_.c \
+        winhttp_.c \
+        wysiwyg_.c \
+        xfer_.c \
+        xfersetup_.c \
+        zip_.c
+
+OBJ   = $(OX)\add$O \
+        $(OX)\allrepo$O \
+        $(OX)\attach$O \
+        $(OX)\bag$O \
+        $(OX)\bisect$O \
+        $(OX)\blob$O \
+        $(OX)\branch$O \
+        $(OX)\browse$O \
+        $(OX)\captcha$O \
+        $(OX)\cgi$O \
+        $(OX)\checkin$O \
+        $(OX)\checkout$O \
+        $(OX)\clearsign$O \
+        $(OX)\clone$O \
+        $(OX)\comformat$O \
+        $(OX)\configure$O \
+        $(OX)\content$O \
+        $(OX)\cson_amalgamation$O \
+        $(OX)\db$O \
+        $(OX)\delta$O \
+        $(OX)\deltacmd$O \
+        $(OX)\descendants$O \
+        $(OX)\diff$O \
+        $(OX)\diffcmd$O \
+        $(OX)\doc$O \
+        $(OX)\encode$O \
+        $(OX)\event$O \
+        $(OX)\export$O \
+        $(OX)\file$O \
+        $(OX)\finfo$O \
+        $(OX)\glob$O \
+        $(OX)\graph$O \
+        $(OX)\gzip$O \
+        $(OX)\http$O \
+        $(OX)\http_socket$O \
+        $(OX)\http_ssl$O \
+        $(OX)\http_transport$O \
+        $(OX)\import$O \
+        $(OX)\info$O \
+        $(OX)\json$O \
+        $(OX)\json_artifact$O \
+        $(OX)\json_branch$O \
+        $(OX)\json_config$O \
+        $(OX)\json_diff$O \
+        $(OX)\json_dir$O \
+        $(OX)\json_finfo$O \
+        $(OX)\json_login$O \
+        $(OX)\json_query$O \
+        $(OX)\json_report$O \
+        $(OX)\json_status$O \
+        $(OX)\json_tag$O \
+        $(OX)\json_timeline$O \
+        $(OX)\json_user$O \
+        $(OX)\json_wiki$O \
+        $(OX)\leaf$O \
+        $(OX)\login$O \
+        $(OX)\main$O \
+        $(OX)\manifest$O \
+        $(OX)\markdown$O \
+        $(OX)\markdown_html$O \
+        $(OX)\md5$O \
+        $(OX)\merge$O \
+        $(OX)\merge3$O \
+        $(OX)\moderate$O \
+        $(OX)\name$O \
+        $(OX)\path$O \
+        $(OX)\pivot$O \
+        $(OX)\popen$O \
+        $(OX)\pqueue$O \
+        $(OX)\printf$O \
+        $(OX)\rebuild$O \
+        $(OX)\regexp$O \
+        $(OX)\report$O \
+        $(OX)\rss$O \
+        $(OX)\schema$O \
+        $(OX)\search$O \
+        $(OX)\setup$O \
+        $(OX)\sha1$O \
+        $(OX)\shell$O \
+        $(OX)\shun$O \
+        $(OX)\skins$O \
+        $(OX)\sqlcmd$O \
+        $(OX)\sqlite3$O \
+        $(OX)\stash$O \
+        $(OX)\stat$O \
+        $(OX)\style$O \
+        $(OX)\sync$O \
+        $(OX)\tag$O \
+        $(OX)\tar$O \
+        $(OX)\th$O \
+        $(OX)\th_lang$O \
+        $(OX)\th_main$O \
+        $(OX)\timeline$O \
+        $(OX)\tkt$O \
+        $(OX)\tktsetup$O \
+        $(OX)\undo$O \
+        $(OX)\unicode$O \
+        $(OX)\update$O \
+        $(OX)\url$O \
+        $(OX)\user$O \
+        $(OX)\utf8$O \
+        $(OX)\util$O \
+        $(OX)\verify$O \
+        $(OX)\vfile$O \
+        $(OX)\wiki$O \
+        $(OX)\wikiformat$O \
+        $(OX)\winhttp$O \
+        $(OX)\wysiwyg$O \
+        $(OX)\xfer$O \
+        $(OX)\xfersetup$O \
+        $(OX)\zip$O \
+        $(OX)\fossil.res
 
 APPNAME = $(OX)\fossil$(E)
 
 all: $(OX) $(APPNAME)
 
-$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts
+zlib:
+	@echo Building zlib from "$(ZLIBDIR)"...
+	@pushd "$(ZLIBDIR)" && nmake /f win32\Makefile.msc $(ZLIB) && popd
+
+$(APPNAME) : translate$E mkindex$E headers $(OBJ) $(OX)\linkopts zlib
 	cd $(OX) 
-	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) @linkopts
+	link /NODEFAULTLIB:msvcrt -OUT:$@ $(LIBDIR) Wsetargv.obj fossil.res @linkopts
 
 $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\add.obj > $@
@@ -73,6 +307,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\comformat.obj >> $@
 	echo $(OX)\configure.obj >> $@
 	echo $(OX)\content.obj >> $@
+	echo $(OX)\cson_amalgamation.obj >> $@
 	echo $(OX)\db.obj >> $@
 	echo $(OX)\delta.obj >> $@
 	echo $(OX)\deltacmd.obj >> $@
@@ -104,6 +339,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\json_login.obj >> $@
 	echo $(OX)\json_query.obj >> $@
 	echo $(OX)\json_report.obj >> $@
+	echo $(OX)\json_status.obj >> $@
 	echo $(OX)\json_tag.obj >> $@
 	echo $(OX)\json_timeline.obj >> $@
 	echo $(OX)\json_user.obj >> $@
@@ -112,6 +348,8 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\login.obj >> $@
 	echo $(OX)\main.obj >> $@
 	echo $(OX)\manifest.obj >> $@
+	echo $(OX)\markdown.obj >> $@
+	echo $(OX)\markdown_html.obj >> $@
 	echo $(OX)\md5.obj >> $@
 	echo $(OX)\merge.obj >> $@
 	echo $(OX)\merge3.obj >> $@
@@ -123,6 +361,7 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\pqueue.obj >> $@
 	echo $(OX)\printf.obj >> $@
 	echo $(OX)\rebuild.obj >> $@
+	echo $(OX)\regexp.obj >> $@
 	echo $(OX)\report.obj >> $@
 	echo $(OX)\rss.obj >> $@
 	echo $(OX)\schema.obj >> $@
@@ -147,9 +386,12 @@ $(OX)\linkopts: $B\win\Makefile.msc
 	echo $(OX)\tkt.obj >> $@
 	echo $(OX)\tktsetup.obj >> $@
 	echo $(OX)\undo.obj >> $@
+	echo $(OX)\unicode.obj >> $@
 	echo $(OX)\update.obj >> $@
 	echo $(OX)\url.obj >> $@
 	echo $(OX)\user.obj >> $@
+	echo $(OX)\utf8.obj >> $@
+	echo $(OX)\util.obj >> $@
 	echo $(OX)\verify.obj >> $@
 	echo $(OX)\vfile.obj >> $@
 	echo $(OX)\wiki.obj >> $@
@@ -193,19 +435,29 @@ $(OX)\th_lang$O : $(SRCDIR)\th_lang.c
 
 VERSION.h : mkversion$E $B\manifest.uuid $B\manifest $B\VERSION
 	$** > $@
-$(OBJDIR)\cson_amalgamation.h : $(SRCDIR)\cson_amalgamation.h
-	cp $(SRCDIR)\cson_amalgamation.h $@
+$(OX)\cson_amalgamation$O : $(SRCDIR)\cson_amalgamation.c
+	$(TCC) /Fo$@ -c $**
 
 page_index.h: mkindex$E $(SRC) 
 	$** > $@
 
 clean:
 	-del $(OX)\*.obj
-	-del *.obj *_.c *.h *.map
-	-del headers linkopts
+	-del *.obj
+	-del *_.c
+	-del *.h
+	-del *.map
+	-del *.manifest
+	-del headers
+	-del linkopts
+	-del *.res
 
-realclean:
-	-del $(APPNAME) translate$E mkindex$E makeheaders$E mkversion$E
+realclean: clean
+	-del $(APPNAME)
+	-del translate$E
+	-del mkindex$E
+	-del makeheaders$E
+	-del mkversion$E
 
 $(OBJDIR)\json$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_artifact$O : $(SRCDIR)\json_detail.h
@@ -217,6 +469,7 @@ $(OBJDIR)\json_finfo$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_login$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_query$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_report$O : $(SRCDIR)\json_detail.h
+$(OBJDIR)\json_status$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_tag$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_timeline$O : $(SRCDIR)\json_detail.h
 $(OBJDIR)\json_user$O : $(SRCDIR)\json_detail.h
@@ -511,6 +764,12 @@ $(OX)\json_report$O : json_report_.c json_report.h
 json_report_.c : $(SRCDIR)\json_report.c
 	translate$E $** > $@
 
+$(OX)\json_status$O : json_status_.c json_status.h
+	$(TCC) /Fo$@ -c json_status_.c
+
+json_status_.c : $(SRCDIR)\json_status.c
+	translate$E $** > $@
+
 $(OX)\json_tag$O : json_tag_.c json_tag.h
 	$(TCC) /Fo$@ -c json_tag_.c
 
@@ -557,6 +816,18 @@ $(OX)\manifest$O : manifest_.c manifest.h
 	$(TCC) /Fo$@ -c manifest_.c
 
 manifest_.c : $(SRCDIR)\manifest.c
+	translate$E $** > $@
+
+$(OX)\markdown$O : markdown_.c markdown.h
+	$(TCC) /Fo$@ -c markdown_.c
+
+markdown_.c : $(SRCDIR)\markdown.c
+	translate$E $** > $@
+
+$(OX)\markdown_html$O : markdown_html_.c markdown_html.h
+	$(TCC) /Fo$@ -c markdown_html_.c
+
+markdown_html_.c : $(SRCDIR)\markdown_html.c
 	translate$E $** > $@
 
 $(OX)\md5$O : md5_.c md5.h
@@ -623,6 +894,12 @@ $(OX)\rebuild$O : rebuild_.c rebuild.h
 	$(TCC) /Fo$@ -c rebuild_.c
 
 rebuild_.c : $(SRCDIR)\rebuild.c
+	translate$E $** > $@
+
+$(OX)\regexp$O : regexp_.c regexp.h
+	$(TCC) /Fo$@ -c regexp_.c
+
+regexp_.c : $(SRCDIR)\regexp.c
 	translate$E $** > $@
 
 $(OX)\report$O : report_.c report.h
@@ -745,6 +1022,12 @@ $(OX)\undo$O : undo_.c undo.h
 undo_.c : $(SRCDIR)\undo.c
 	translate$E $** > $@
 
+$(OX)\unicode$O : unicode_.c unicode.h
+	$(TCC) /Fo$@ -c unicode_.c
+
+unicode_.c : $(SRCDIR)\unicode.c
+	translate$E $** > $@
+
 $(OX)\update$O : update_.c update.h
 	$(TCC) /Fo$@ -c update_.c
 
@@ -761,6 +1044,18 @@ $(OX)\user$O : user_.c user.h
 	$(TCC) /Fo$@ -c user_.c
 
 user_.c : $(SRCDIR)\user.c
+	translate$E $** > $@
+
+$(OX)\utf8$O : utf8_.c utf8.h
+	$(TCC) /Fo$@ -c utf8_.c
+
+utf8_.c : $(SRCDIR)\utf8.c
+	translate$E $** > $@
+
+$(OX)\util$O : util_.c util.h
+	$(TCC) /Fo$@ -c util_.c
+
+util_.c : $(SRCDIR)\util.c
 	translate$E $** > $@
 
 $(OX)\verify$O : verify_.c verify.h
@@ -817,6 +1112,117 @@ $(OX)\zip$O : zip_.c zip.h
 zip_.c : $(SRCDIR)\zip.c
 	translate$E $** > $@
 
+fossil.res : $B\win\fossil.rc
+	$(RCC)  -fo $@ $**
 headers: makeheaders$E page_index.h VERSION.h
-	makeheaders$E add_.c:add.h allrepo_.c:allrepo.h attach_.c:attach.h bag_.c:bag.h bisect_.c:bisect.h blob_.c:blob.h branch_.c:branch.h browse_.c:browse.h captcha_.c:captcha.h cgi_.c:cgi.h checkin_.c:checkin.h checkout_.c:checkout.h clearsign_.c:clearsign.h clone_.c:clone.h comformat_.c:comformat.h configure_.c:configure.h content_.c:content.h db_.c:db.h delta_.c:delta.h deltacmd_.c:deltacmd.h descendants_.c:descendants.h diff_.c:diff.h diffcmd_.c:diffcmd.h doc_.c:doc.h encode_.c:encode.h event_.c:event.h export_.c:export.h file_.c:file.h finfo_.c:finfo.h glob_.c:glob.h graph_.c:graph.h gzip_.c:gzip.h http_.c:http.h http_socket_.c:http_socket.h http_ssl_.c:http_ssl.h http_transport_.c:http_transport.h import_.c:import.h info_.c:info.h json_.c:json.h json_artifact_.c:json_artifact.h json_branch_.c:json_branch.h json_config_.c:json_config.h json_diff_.c:json_diff.h json_dir_.c:json_dir.h json_finfo_.c:json_finfo.h json_login_.c:json_login.h json_query_.c:json_query.h json_report_.c:json_report.h json_tag_.c:json_tag.h json_timeline_.c:json_timeline.h json_user_.c:json_user.h json_wiki_.c:json_wiki.h leaf_.c:leaf.h login_.c:login.h main_.c:main.h manifest_.c:manifest.h md5_.c:md5.h merge_.c:merge.h merge3_.c:merge3.h moderate_.c:moderate.h name_.c:name.h path_.c:path.h pivot_.c:pivot.h popen_.c:popen.h pqueue_.c:pqueue.h printf_.c:printf.h rebuild_.c:rebuild.h report_.c:report.h rss_.c:rss.h schema_.c:schema.h search_.c:search.h setup_.c:setup.h sha1_.c:sha1.h shun_.c:shun.h skins_.c:skins.h sqlcmd_.c:sqlcmd.h stash_.c:stash.h stat_.c:stat.h style_.c:style.h sync_.c:sync.h tag_.c:tag.h tar_.c:tar.h th_main_.c:th_main.h timeline_.c:timeline.h tkt_.c:tkt.h tktsetup_.c:tktsetup.h undo_.c:undo.h update_.c:update.h url_.c:url.h user_.c:user.h verify_.c:verify.h vfile_.c:vfile.h wiki_.c:wiki.h wikiformat_.c:wikiformat.h winhttp_.c:winhttp.h wysiwyg_.c:wysiwyg.h xfer_.c:xfer.h xfersetup_.c:xfersetup.h zip_.c:zip.h $(SRCDIR)\sqlite3.h $(SRCDIR)\th.h VERSION.h $(SRCDIR)\cson_amalgamation.h
+	makeheaders$E add_.c:add.h \
+			allrepo_.c:allrepo.h \
+			attach_.c:attach.h \
+			bag_.c:bag.h \
+			bisect_.c:bisect.h \
+			blob_.c:blob.h \
+			branch_.c:branch.h \
+			browse_.c:browse.h \
+			captcha_.c:captcha.h \
+			cgi_.c:cgi.h \
+			checkin_.c:checkin.h \
+			checkout_.c:checkout.h \
+			clearsign_.c:clearsign.h \
+			clone_.c:clone.h \
+			comformat_.c:comformat.h \
+			configure_.c:configure.h \
+			content_.c:content.h \
+			db_.c:db.h \
+			delta_.c:delta.h \
+			deltacmd_.c:deltacmd.h \
+			descendants_.c:descendants.h \
+			diff_.c:diff.h \
+			diffcmd_.c:diffcmd.h \
+			doc_.c:doc.h \
+			encode_.c:encode.h \
+			event_.c:event.h \
+			export_.c:export.h \
+			file_.c:file.h \
+			finfo_.c:finfo.h \
+			glob_.c:glob.h \
+			graph_.c:graph.h \
+			gzip_.c:gzip.h \
+			http_.c:http.h \
+			http_socket_.c:http_socket.h \
+			http_ssl_.c:http_ssl.h \
+			http_transport_.c:http_transport.h \
+			import_.c:import.h \
+			info_.c:info.h \
+			json_.c:json.h \
+			json_artifact_.c:json_artifact.h \
+			json_branch_.c:json_branch.h \
+			json_config_.c:json_config.h \
+			json_diff_.c:json_diff.h \
+			json_dir_.c:json_dir.h \
+			json_finfo_.c:json_finfo.h \
+			json_login_.c:json_login.h \
+			json_query_.c:json_query.h \
+			json_report_.c:json_report.h \
+			json_status_.c:json_status.h \
+			json_tag_.c:json_tag.h \
+			json_timeline_.c:json_timeline.h \
+			json_user_.c:json_user.h \
+			json_wiki_.c:json_wiki.h \
+			leaf_.c:leaf.h \
+			login_.c:login.h \
+			main_.c:main.h \
+			manifest_.c:manifest.h \
+			markdown_.c:markdown.h \
+			markdown_html_.c:markdown_html.h \
+			md5_.c:md5.h \
+			merge_.c:merge.h \
+			merge3_.c:merge3.h \
+			moderate_.c:moderate.h \
+			name_.c:name.h \
+			path_.c:path.h \
+			pivot_.c:pivot.h \
+			popen_.c:popen.h \
+			pqueue_.c:pqueue.h \
+			printf_.c:printf.h \
+			rebuild_.c:rebuild.h \
+			regexp_.c:regexp.h \
+			report_.c:report.h \
+			rss_.c:rss.h \
+			schema_.c:schema.h \
+			search_.c:search.h \
+			setup_.c:setup.h \
+			sha1_.c:sha1.h \
+			shun_.c:shun.h \
+			skins_.c:skins.h \
+			sqlcmd_.c:sqlcmd.h \
+			stash_.c:stash.h \
+			stat_.c:stat.h \
+			style_.c:style.h \
+			sync_.c:sync.h \
+			tag_.c:tag.h \
+			tar_.c:tar.h \
+			th_main_.c:th_main.h \
+			timeline_.c:timeline.h \
+			tkt_.c:tkt.h \
+			tktsetup_.c:tktsetup.h \
+			undo_.c:undo.h \
+			unicode_.c:unicode.h \
+			update_.c:update.h \
+			url_.c:url.h \
+			user_.c:user.h \
+			utf8_.c:utf8.h \
+			util_.c:util.h \
+			verify_.c:verify.h \
+			vfile_.c:vfile.h \
+			wiki_.c:wiki.h \
+			wikiformat_.c:wikiformat.h \
+			winhttp_.c:winhttp.h \
+			wysiwyg_.c:wysiwyg.h \
+			xfer_.c:xfer.h \
+			xfersetup_.c:xfersetup.h \
+			zip_.c:zip.h \
+			$(SRCDIR)\sqlite3.h \
+			$(SRCDIR)\th.h \
+			VERSION.h \
+			$(SRCDIR)\cson_amalgamation.h
 	@copy /Y nul: headers

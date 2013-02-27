@@ -175,13 +175,13 @@ void wysiwygEditor(
   @ ErvEI1zZuOgYFlakECEZFi0GgTGKEBATFmJAVXweVOoKEQgABB9IQDCmrLpjETrQQlhHjINrT
   @ q/b7/i8fp8PAQA7" />
 
-  @ <img class="intLink" title="Add indentation"
+  @ <img class="intLink" title="Delete indentation"
   @ onclick="formatDoc('outdent');"
   @ src="data:image/gif;base64,R0lGODlhFgAWAMIHAAAAADljwliE35GjuaezxtDV3NHa7P
   @ ///yH5BAEAAAcALAAAAAAWABYAAAM2eLrc/jDKCQG9F2i7u8agQgyK1z2EIBil+TWqEMxhMcz
   @ sYVJ3e4ahk+sFnAgtxSQDqWw6n5cEADs=" />
 
-  @ <img class="intLink" title="Delete indentation"
+  @ <img class="intLink" title="Add indentation"
   @ onclick="formatDoc('indent');"
   @ src="data:image/gif;base64,R0lGODlhFgAWAOMIAAAAADljwl9vj1iE35GjuaezxtDV3N
   @ Ha7P///////////////////////////////yH5BAEAAAgALAAAAAAWABYAAAQ7EMlJq704650

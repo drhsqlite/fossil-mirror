@@ -60,7 +60,7 @@ cson_value * json_generate_diff(const char *zFrom, const char *zTo,
   content_get(fromid, &from);
   content_get(toid, &to);
   blob_zero(&out);
-  text_diff(&from, &to, &out, flags);
+  text_diff(&from, &to, &out, 0, flags);
   blob_reset(&from);
   blob_reset(&to);
   outLen = blob_size(&out);

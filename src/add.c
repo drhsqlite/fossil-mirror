@@ -31,7 +31,7 @@
 ** Return the N-th name.  The first name has N==0.  When all names have
 ** been used, return 0.
 */
-const char *fossil_reserved_name(int N){
+const char *fossil_reserved_name(int N, int omitRepo){
   /* Possible names of the local per-checkout database file and
   ** its associated journals
   */
@@ -62,38 +62,73 @@ const char *fossil_reserved_name(int N){
      "manifest.uuid",
   };
 
+  /*
+  ** Names of repository files, if they exist in the checkout.
+  */
+  static const char *azRepo[4] = { 0, 0, 0, 0 };
+
   /* Cached setting "manifest" */
   static int cachedManifest = -1;
 
   if( cachedManifest == -1 ){
+    Blob repo;
     cachedManifest = db_get_boolean("manifest",0);
+    blob_zero(&repo);
+    if( file_tree_name(g.zRepositoryName, &repo, 0) ){
+      const char *zRepo = blob_str(&repo);
+      azRepo[0] = zRepo;
+      azRepo[1] = mprintf("%s-journal", zRepo);
+      azRepo[2] = mprintf("%s-wal", zRepo);
+      azRepo[3] = mprintf("%s-shm", zRepo);
+    }
   }
 
-  if( N>=0 && N<count(azName) ) return azName[N];
-  if( N>=count(azName) && N<count(azName)+count(azManifest)
-      && cachedManifest ){
-    return azManifest[N-count(azName)];
+  if( N<0 ) return 0;
+  if( N<count(azName) ) return azName[N];
+  N -= count(azName);
+  if( cachedManifest ){
+    if( N<count(azManifest) ) return azManifest[N];
+    N -= count(azManifest);
   }
+  if( !omitRepo && N<count(azRepo) ) return azRepo[N];
   return 0;
 }
 
 /*
 ** Return a list of all reserved filenames as an SQL list.
 */
-const char *fossil_all_reserved_names(void){
+const char *fossil_all_reserved_names(int omitRepo){
   static char *zAll = 0;
   if( zAll==0 ){
     Blob x;
     int i;
     const char *z;
     blob_zero(&x);
-    for(i=0; (z = fossil_reserved_name(i))!=0; i++){
+    for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
       if( i>0 ) blob_append(&x, ",", 1);
       blob_appendf(&x, "'%q'", z);
     }
     zAll = blob_str(&x);
   }
   return zAll;
+}
+
+/*
+** COMMAND: test-reserved-names
+**
+** Usage: %fossil test-reserved-names [-omitrepo]
+**
+** Show all reserved filenames for the current check-out.
+*/
+void test_reserved_names(void){
+  int i;
+  const char *z;
+  int omitRepo = find_option("omitrepo",0,0)!=0;
+  db_must_be_within_tree();
+  for(i=0; (z = fossil_reserved_name(i, omitRepo))!=0; i++){
+    fossil_print("%3d: %s\n", i, z);
+  }
+  fossil_print("ALL: (%s)\n", fossil_all_reserved_names(omitRepo));
 }
 
 /*
@@ -107,8 +142,9 @@ static int add_one_file(
   int caseSensitive    /* True if filenames are case sensitive */
 ){
   const char *zCollate = caseSensitive ? "binary" : "nocase";
-  if( !file_is_simple_pathname(zPath) ){
-    fossil_fatal("filename contains illegal characters: %s", zPath);
+  if( !file_is_simple_pathname(zPath, 1) ){
+    fossil_warning("filename contains illegal characters: %s", zPath);
+    return 0;
   }
   if( db_exists("SELECT 1 FROM vfile"
                 " WHERE pathname=%Q COLLATE %s", zPath, zCollate) ){
@@ -164,7 +200,7 @@ static int add_files_in_sfile(int vid, int caseSensitive){
   while( db_step(&loop)==SQLITE_ROW ){
     const char *zToAdd = db_column_text(&loop, 0);
     if( fossil_strcmp(zToAdd, zRepo)==0 ) continue;
-    for(i=0; (zReserved = fossil_reserved_name(i))!=0; i++){
+    for(i=0; (zReserved = fossil_reserved_name(i, 0))!=0; i++){
       if( xCmp(zToAdd, zReserved)==0 ) break;
     }
     if( zReserved ) continue;
@@ -228,7 +264,7 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   db_multi_exec(
      "CREATE INDEX IF NOT EXISTS vfile_pathname "
      "  ON vfile(pathname COLLATE nocase)"
@@ -354,7 +390,7 @@ int filenames_are_case_sensitive(void){
     if( zCaseSensitive ){
       caseSensitive = is_truth(zCaseSensitive);
     }else{
-#if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__DARWIN__) && !defined(__APPLE__)
       caseSensitive = 1;  /* Unix */
 #else
       caseSensitive = 0;  /* Windows and Mac */
@@ -502,6 +538,16 @@ void addremove_cmd(void){
 ** The original name of the file is zOrig.  The new filename is zNew.
 */
 static void mv_one_file(int vid, const char *zOrig, const char *zNew){
+  int x = db_int(-1, "SELECT deleted FROM vfile WHERE pathname=%Q", zNew);
+  if( x>=0 ){
+    if( x==0 ){
+      fossil_fatal("cannot rename '%s' to '%s' since another file named '%s'"
+                   " is currently under management", zOrig, zNew, zNew); 
+    }else{
+      fossil_fatal("cannot rename '%s' to '%s' since the delete of '%s' has "
+                   "not yet been committed", zOrig, zNew, zNew);
+    }
+  }
   fossil_print("RENAME %s %s\n", zOrig, zNew);
   db_multi_exec(
     "UPDATE vfile SET pathname='%q' WHERE pathname='%q' AND vid=%d",

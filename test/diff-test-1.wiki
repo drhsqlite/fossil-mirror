@@ -20,8 +20,31 @@ the correct operation of the diff logic.
      slow prior to the preformance enhancement change [9e15437e97].
   *  <a href="../../../info/bda00cbada#chunk42" target="testwindow">
      A difficult indentation change.
+  *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk13"
+      target="testwindow">Another tricky indentation.</a>  Notice especially
+      lines 59398 and 59407 on the left.
+  *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk13"
+      target="testwindow">Inverse of the previous.</a>
+  *  <a href="../../../fdiff?v1=955cc67ace8fb622&v2=e2e1c87b86664b45#chunk24"
+      target="testwindow">A complex change</a> that is difficult to align, and
+      hence falls back to the "delete left and insert right" strategy.
+  *  <a href="../../../fdiff?v2=955cc67ace8fb622&v1=e2e1c87b86664b45#chunk24"
+      target="testwindow">Inverse of the previous.</a>
+  *  <a href="../../../fdiff?v1=21f9a00fe2fa4a17&v2=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes</a>
+      that are difficult to align.
+  *  <a href="../../../fdiff?v2=21f9a00fe2fa4a17&v1=d5c4ff0532bd89c3#chunk5"
+      target="testwindow">sqlite3.c changes inverted.</a>
 
 External:
 
   *  <a href="http://www.sqlite.org/src/fdiff?v1=aafcb21a74e41f9a&v2=a6d127dd05daf0f9#chunk3" target="testwindow">
      Code indentation change.</a>
+  *  <a href="http://www.sqlite.org/src/info/52e755943f" target="testwindow">
+     A complex change (chunk 1) in which the alignment becomes so complex
+     that it is better for clarity to abandon it and just show the left
+     and right sides contiguously.</a>
+  *  <a href="http://www.sqlite.org/src/info/3d65c70343#chunk5"
+     target="testwindow">
+     An indentation change.  See especially lines 2313 and 2317 on the right,
+     that their green indentation addition is left-justified.</a>

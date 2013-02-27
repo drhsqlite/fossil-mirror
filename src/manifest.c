@@ -432,7 +432,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( zName==0 || zTarget==0 ) goto manifest_syntax_error;      
         if( p->zAttachName!=0 ) goto manifest_syntax_error;
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
+        if( !file_is_simple_pathname(zName, 0) ){
           SYNTAX("invalid filename on A-card");
         }
         defossilize(zTarget);
@@ -526,7 +526,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zName = next_token(&x,0);
         if( zName==0 ) SYNTAX("missing filename on F-card");
         defossilize(zName);
-        if( !file_is_simple_pathname(zName) ){
+        if( !file_is_simple_pathname(zName, 0) ){
           SYNTAX("F-card filename is not a simple path");
         }
         zUuid = next_token(&x, &sz);
@@ -538,7 +538,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         zPriorName = next_token(&x,0);
         if( zPriorName ){
           defossilize(zPriorName);
-          if( !file_is_simple_pathname(zPriorName) ){
+          if( !file_is_simple_pathname(zPriorName, 0) ){
             SYNTAX("F-card old filename is not a simple path");
           }
         }
@@ -835,7 +835,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
     }
   }
-  if( x.z<x.zEnd ) SYNTAX("card in the wrong order");
+  if( x.z<x.zEnd ) SYNTAX("extra characters at end of card");
 
   if( p->nFile>0 || p->zRepoCksum!=0 || p->zBaseline ){
     if( p->nCChild>0 ) SYNTAX("M-card in check-in");
@@ -1554,7 +1554,7 @@ void manifest_ticket_event(
       }
     }
     if( zNewStatus ){
-      blob_appendf(&comment, "%h ticket [%.10s]: <i>%s</i>",
+      blob_appendf(&comment, "%h ticket [%.10s]: <i>%h</i>",
          zNewStatus, pManifest->zTicketUuid, zTitle
       );
       if( pManifest->nField>1 ){
@@ -1568,7 +1568,7 @@ void manifest_ticket_event(
          "SELECT %s FROM ticket WHERE tkt_uuid='%s'",
          zStatusColumn, pManifest->zTicketUuid
       );
-      blob_appendf(&comment, "Ticket [%.10s] <i>%s</i> status still %h with "
+      blob_appendf(&comment, "Ticket [%.10s] <i>%h</i> status still %h with "
            "%d other change%s",
            pManifest->zTicketUuid, zTitle, zNewStatus, pManifest->nField,
            pManifest->nField==1 ? "" : "s"
@@ -1870,8 +1870,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     ){
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to wiki page [%h]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to wiki page [%h]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from wiki page [%h]",
              p->zAttachName, p->zAttachTarget);
@@ -1885,8 +1886,9 @@ int manifest_crosslink(int rid, Blob *pContent){
     }else{
       char *zComment;
       if( p->zAttachSrc && p->zAttachSrc[0] ){
-        zComment = mprintf("Add attachment \"%h\" to ticket [%.10s]",
-             p->zAttachName, p->zAttachTarget);
+        zComment = mprintf(
+             "Add attachment [%R/artifact/%S|%h] to ticket [%S]",
+             p->zAttachSrc, p->zAttachName, p->zAttachTarget);
       }else{
         zComment = mprintf("Delete attachment \"%h\" from ticket [%.10s]",
              p->zAttachName, p->zAttachTarget);
@@ -1982,4 +1984,22 @@ int manifest_crosslink(int rid, Blob *pContent){
   }
   assert( blob_is_reset(pContent) );
   return 1;
+}
+
+/*
+** COMMAND: test-crosslink
+**
+** Usage:  %fossil test-crosslink RECORDID
+**
+** Run the manifest_crosslink() routine on the artifact with the given
+** record ID.  This is typically done in the debugger.
+*/
+void test_crosslink_cmd(void){
+  int rid;
+  Blob content;
+  db_find_and_open_repository(0, 0);
+  if( g.argc!=3 ) usage("RECORDID");
+  rid = name_to_rid(g.argv[2]);
+  content_get(rid, &content);
+  manifest_crosslink(rid, &content);
 }

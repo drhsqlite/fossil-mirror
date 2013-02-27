@@ -399,13 +399,14 @@ static int isHuman(const char *zAgent){
     if( atoi(&zAgent[8])<4 ) return 0;  /* Many bots advertise as Mozilla/3 */
     if( strglob("*Firefox/[1-9]*", zAgent) ) return 1;
     if( strglob("*Chrome/[1-9]*", zAgent) ) return 1;
-    if( strglob("*(compatible;?MSIE?[1-9]*", zAgent) ) return 1;
+    if( strglob("*(compatible;?MSIE?[1789]*", zAgent) ) return 1;
     if( strglob("*AppleWebKit/[1-9]*(KHTML*", zAgent) ) return 1;
     return 0;
   }
   if( memcmp(zAgent, "Opera/", 6)==0 ) return 1;
   if( memcmp(zAgent, "Safari/", 7)==0 ) return 1;
   if( memcmp(zAgent, "Lynx/", 5)==0 ) return 1;
+  if( memcmp(zAgent, "NetSurf/", 8)==0 ) return 1;
   return 0;
 }
 
@@ -567,7 +568,7 @@ void login_page(void){
   if( zGoto && P("anon")==0 ){
     @ <p>A login is required for <a href="%h(zGoto)">%h(zGoto)</a>.</p>
   }
-  @ <form action="login" method="post">
+  form_begin(0, "%R/login");
   if( zGoto ){
     @ <input type="hidden" name="g" value="%h(zGoto)" />
   }
@@ -626,14 +627,14 @@ void login_page(void){
   if( zAnonPw ){
     unsigned int uSeed = captcha_seed();
     char const *zDecoded = captcha_decode(uSeed);
-    int bAutoCaptcha = db_get_boolean("auto-captcha", 1);
+    int bAutoCaptcha = db_get_boolean("auto-captcha", 0);
     char *zCaptcha = captcha_render(zDecoded);
 
     @ <p><input type="hidden" name="cs" value="%u(uSeed)" />
     @ Visitors may enter <b>anonymous</b> as the user-ID with
     @ the 8-character hexadecimal password shown below:</p>
     @ <div class="captcha"><table class="captcha"><tr><td><pre>
-    @ %s(zCaptcha)
+    @ %h(zCaptcha)
     @ </pre></td></tr></table>
     if( bAutoCaptcha ) {
         @ <input type="button" value="Fill out captcha"
@@ -654,7 +655,7 @@ void login_page(void){
     @ <p>To change your password, enter your old password and your
     @ new password twice below then press the "Change Password"
     @ button.</p>
-    @ <form action="login" method="post">
+    form_begin(0, "%R/login");
     @ <table>
     @ <tr><td class="login_out_label">Old Password:</td>
     @ <td><input type="password" name="p" size="30" /></td></tr>
@@ -1147,7 +1148,7 @@ void login_anonymous_available(void){
                 "   AND cap LIKE '%%h%%'") ){
     const char *zUrl = PD("REQUEST_URI", "index");
     @ <p>Many <span class="disabled">hyperlinks are disabled.</span><br />
-    @ Use <a href="%s(g.zTop)/login?anon=1&g=%T(zUrl)">anonymous login</a>
+    @ Use <a href="%s(g.zTop)/login?anon=1&amp;g=%T(zUrl)">anonymous login</a>
     @ to enable hyperlinks.</p>
   }
 }
@@ -1262,7 +1263,7 @@ void register_page(void){
   zCaptcha = captcha_render(zDecoded);
 
   /* Print out the registration form. */
-  @ <form action="register" method="post">
+  form_begin(0, "%R/register");
   if( P("g") ){
     @ <input type="hidden" name="g" value="%h(P("g"))" />
   }
@@ -1292,8 +1293,8 @@ void register_page(void){
   @ <td><input type="submit" name="new" value="Register" /></td></tr>
   @ </table>
   @ <div class="captcha"><table class="captcha"><tr><td><pre>
-  @ %s(zCaptcha)
-  @ </pre></td></tr></table>
+  @ %h(zCaptcha)
+  @ </pre></td></tr></table></div>
   @ </form>
   style_footer();
 

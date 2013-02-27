@@ -64,7 +64,7 @@ void setup_page(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError"><b>Configuration Error:</b> Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the <a href="setup_header">HTML header</a>!</p>
   }
 
@@ -96,7 +96,7 @@ void setup_page(void){
     "Edit HTML text inserted at the bottom of every page");
   setup_menu_entry("Moderation", "setup_modreq",
     "Enable/Disable requiring moderator approval of Wiki and/or Ticket"
-    "edits and attachments.");
+    " changes and attachments.");
   setup_menu_entry("Ad-Unit", "setup_adunit",
     "Edit HTML text for an ad unit inserted after the menu bar");
   setup_menu_entry("Logo", "setup_logo",
@@ -111,6 +111,8 @@ void setup_page(void){
     "Display repository statistics");
   setup_menu_entry("SQL", "admin_sql",
     "Enter raw SQL commands");
+  setup_menu_entry("TH1", "admin_th1",
+    "Enter raw TH1 commands");
   @ </table>
 
   style_footer();
@@ -918,6 +920,15 @@ void setup_access(void){
   @ reasonable number.</p>
 
   @ <hr />
+  entry_attribute("Download time limit", 11, "max-download-time", "mxdwnt",
+                  "30");
+
+  @ <p>Fossil tries to spend less than this many seconds gathering
+  @ the out-bound data of sync, clone, and pull packets.
+  @ If the client request takes longer, a partial reply is given similar
+  @ to the download packet limit. 30s is a reasonable default.</p>
+
+  @ <hr />
   onoff_attribute(
       "Enable hyperlinks for \"nobody\" based on User-Agent and Javascript",
       "auto-hyperlink", "autohyperlink", 1);
@@ -937,6 +948,13 @@ void setup_access(void){
   @ even for relatively small projects.</p>
 
   @ <hr />
+  onoff_attribute("Require a CAPTCHA if not logged in",
+                  "require-captcha", "reqcapt", 1);
+  @ <p>Require a CAPTCHA for edit operations (appending, creating, or
+  @ editing wiki or tickets or adding attachments to wiki or tickets)
+  @ for users who are not logged in.</p>
+
+  @ <hr />
   entry_attribute("Public pages", 30, "public-pages",
                   "pubpage", "");
   @ <p>A comma-separated list of glob patterns for pages that are accessible
@@ -946,7 +964,6 @@ void setup_access(void){
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ </p>
-
 
   @ <hr />
   onoff_attribute("Allow users to register themselves",
@@ -1020,17 +1037,17 @@ void setup_login_group(void){
     @
     @ <form action="%s(g.zTop)/setup_login_group" method="post"><div>
     login_insert_csrf_secret();
-    @ <blockquote><table broder="0">
+    @ <blockquote><table border="0">
     @
     @ <tr><td align="right"><b>Repository filename in group to join:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="50" value="%h(zRepo)" name="repo"></td></tr>
     @
-    @ <td align="right"><b>Login on the above repo:</b></td>
+    @ <tr><td align="right"><b>Login on the above repo:</b></td>
     @ <td width="5"></td><td>
     @ <input type="text" size="20" value="%h(zLogin)" name="login"></td></tr>
     @
-    @ <td align="right"><b>Password:</b></td>
+    @ <tr><td align="right"><b>Password:</b></td>
     @ <td width="5"></td><td>
     @ <input type="password" size="20" name="pw"></td></tr>
     @
@@ -1041,7 +1058,7 @@ void setup_login_group(void){
     @
     @ <tr><td colspan="3" align="center">
     @ <input type="submit" value="Join" name="join"></td></tr>
-    @ </table>
+    @ </table></blockquote></div></form>
   }else{
     Stmt q;
     int n = 0;
@@ -1099,6 +1116,12 @@ void setup_timeline(void){
                   "timeline-block-markup", "tbm", 0);
   @ <p>In timeline displays, check-in comments can be displayed with or
   @ without block markup (paragraphs, tables, etc.)</p>
+
+  @ <hr />
+  onoff_attribute("Plaintext comments on timelines",
+                  "timeline-plaintext", "tpt", 0);
+  @ <p>In timeline displays, check-in comments are displayed literally,
+  @ without any wiki or HTML interpretation.</p>
 
   @ <hr />
   onoff_attribute("Use Universal Coordinated Time (UTC)",
@@ -1348,7 +1371,7 @@ void setup_header(void){
   ** if it does not. */
   if( !cgi_header_contains("<base href=") ){
     @ <p class="generalError">Please add
-    @ <tt>&lt;base href="$baseurl/$current_page"&gt</tt> after
+    @ <tt>&lt;base href="$baseurl/$current_page"&gt;</tt> after
     @ <tt>&lt;head&gt;</tt> in the header!
     @ <input type="submit" name="fixbase" value="Add &lt;base&gt; Now"></p>
   }
@@ -1748,6 +1771,50 @@ void sql_page(void){
       }
       sqlite3_finalize(pStmt);
       @ </table>
+    }
+  }
+  style_footer();
+}
+
+
+/*
+** WEBPAGE: admin_th1
+**
+** Run raw TH1 commands using the web interface.  If Tcl integration was
+** enabled at compile-time and the "tcl" setting is enabled, Tcl commands
+** may be run as well.
+*/
+void th1_page(void){
+  const char *zQ = P("q");
+  int go = P("go")!=0;
+  login_check_credentials();
+  if( !g.perm.Setup ){
+    login_needed();
+  }
+  db_begin_transaction();
+  style_header("Raw TH1 Commands");
+  @ <p><b>Caution:</b> There are no restrictions on the TH1 that can be
+  @ run by this page.  If Tcl integration was enabled at compile-time and
+  @ the "tcl" setting is enabled, Tcl commands may be run as well.</p>
+  @
+  @ <form method="post" action="%s(g.zTop)/admin_th1">
+  login_insert_csrf_secret();
+  @ TH1:<br />
+  @ <textarea name="q" rows="5" cols="80">%h(zQ)</textarea><br />
+  @ <input type="submit" name="go" value="Run TH1">
+  @ </form>
+  if( go ){
+    const char *zR;
+    int rc;
+    int n;
+    @ <hr />
+    login_verify_csrf_secret();
+    rc = Th_Eval(g.interp, 0, zQ, -1);
+    zR = Th_GetResult(g.interp, &n);
+    if( rc==TH_OK ){
+      @ <pre class="th1result">%h(zR)</pre>
+    }else{
+      @ <pre class="th1error">%h(zR)</pre>
     }
   }
   style_footer();
