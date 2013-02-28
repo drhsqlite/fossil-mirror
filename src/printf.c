@@ -166,11 +166,16 @@ static int StrNLen32(const char *z, int N){
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
+**
+** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
+** flags) and is false for plain "%w".  The ! indicates that the text is
+** to be rendered on a form rather than the timeline and that block markup
+** is acceptable even if the "timeline-block-markup" setting is false.
 */
-static int wiki_convert_flags(void){
+static int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
   if( wikiFlags==0 ){
-    if( db_get_boolean("timeline-block-markup", 0) ){
+    if( altForm2 || db_get_boolean("timeline-block-markup", 0) ){
       wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     }else{
       wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
@@ -724,7 +729,7 @@ int vxprintf(
         char *zWiki = va_arg(ap, char*);
         Blob wiki;
         blob_init(&wiki, zWiki, limit);
-        wiki_convert(&wiki, pBlob, wiki_convert_flags());
+        wiki_convert(&wiki, pBlob, wiki_convert_flags(flag_altform2));
         blob_reset(&wiki);
         length = width = 0;
         break;
