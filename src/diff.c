@@ -857,9 +857,16 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 **
 **    *  If iStart is a null-change then move iStart2 into iStart
 **    *  Make sure any null-changes are in canonoical form.
+**    *  Make sure all changes are at character boundaries for
+**       multi-byte characters.
 */
 static void sbsSimplifyLine(SbsLine *p){
-  if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+  if( p->iStart2==p->iEnd2 ){
+    p->iStart2 = p->iEnd2 = 0;
+  }else if( p->iStart2 ){
+    while( p->iStart2>0 && (p->zLine[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
+    while( (p->zLine[p->iEnd2+1]&0xc0)==0x80 ) p->iEnd2++;
+  }
   if( p->iStart==p->iEnd ){
     p->iStart = p->iStart2;
     p->iEnd = p->iEnd2;
@@ -867,7 +874,12 @@ static void sbsSimplifyLine(SbsLine *p){
     p->iStart2 = 0;
     p->iEnd2 = 0;
   }
-  if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iEnd = -1;
+  }else if( p->iStart>0 ){
+    while( p->iStart>0 && (p->zLine[p->iStart]&0xc0)==0x80 ) p->iStart--;
+    while( (p->zLine[p->iEnd+1]&0xc0)==0x80 ) p->iEnd++;
+  }
 }
 
 /*
@@ -883,6 +895,7 @@ static void sbsWriteLineChange(
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
@@ -898,21 +911,28 @@ static void sbsWriteLineChange(
   zLeft = pLeft->z;
   nRight = pRight->h & LENGTH_MASK;
   zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
 
   nPrefix = 0;
-  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
     nPrefix++;
   }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
   nSuffix = 0;
-  if( nPrefix<nLeft && nPrefix<nRight ){
-    while( nSuffix<nLeft && nSuffix<nRight
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort 
            && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
     }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix+1]&0xc0)==0x80 ) nSuffix--;
+    }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
-  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
+  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){

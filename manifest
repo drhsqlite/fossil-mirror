@@ -1,5 +1,5 @@
-C Show\scheck-in\scomments\sin\sblock\sstyle\sin\sall\scontexts\sother\sthan\stimeline\nregardless\sof\sthe\stimeline-block-markup\ssetting.\s\sThe\stimeline-block-markup\nsetting\sonly\seffects\sthe\stimeline.
-D 2013-02-28T20:10:44.867
+C Make\ssure\sside-by-side\sdiff\shighlighting\sencloses\scomplete\sUTF8\scharacters\sand\ndoes\snot\sdivide\sa\sUTF8\scharacter\sinto\stwo\sinvalid\scharacters.
+D 2013-02-28T20:44:45.683
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 6afd8ac00f7566c139975ec046ac8bd742c41d52
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 6f375fd13cf806c6f76363f2a3dc2dc0335b78ed
+F src/diff.c be58c56a6d95465aa47287eef00c330ecf565e8c
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 93482cee82bc3f225c4e55895459af185a0f1907
-R cd63b92a0327b87e567e9df41bb6ad27
+P cae8b6964d73c61dffc0ca89ffc471135a8813a5
+R 3fef3c09725ee90f36434de291f835cd
 U drh
-Z 678e37d04c1379e8b290aea4fece9fd4
+Z c02a462a821161b916eff0d8cba4d512
