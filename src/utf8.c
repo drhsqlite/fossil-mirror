@@ -120,6 +120,10 @@ char *fossil_filename_to_utf8(const void *zFilename){
   }
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
   return zUtf;
+#elif defined(__CYGWIN__)
+  char *zOut;
+  zOut = fossil_strdup(zFilename);
+  return zOut;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   char *zIn = (char*)zFilename;
   char *zOut;
@@ -172,6 +176,25 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     ++wUnicode;
   }
   return zUnicode;
+#elif defined(__CYGWIN__)
+  char *zPath, *p;
+  if( fossil_isalpha(zUtf8[0]) && (zUtf8[1]==':')
+      && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
+    int n = strlen(zUtf8);
+    zPath = fossil_malloc( n+10 );
+    memcpy(zPath, "/cygdrive/", 10);
+    zPath[10] = zUtf8[0];
+    memcpy(zPath+11, zUtf8+2, n-1);
+  } else {
+    zPath = fossil_strdup(zUtf8);
+  }
+  zUtf8 = p = zPath;
+  while( (*p = *zUtf8++) != 0){
+    if (*p++ == '\\' ) {
+      p[-1] = '/';
+    }
+  }
+  return zPath;
 #elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
   return fossil_strdup(zUtf8);
 #else
@@ -186,7 +209,7 @@ void *fossil_utf8_to_filename(const char *zUtf8){
 void fossil_filename_free(void *pOld){
 #if defined(_WIN32)
   sqlite3_free(pOld);
-#elif defined(__APPLE__) && !defined(WITHOUT_ICONV)
+#elif (defined(__APPLE__) && !defined(WITHOUT_ICONV)) || defined(__CYGWIN__)
   fossil_free(pOld);
 #else
   /* No-op on all other unix */

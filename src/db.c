@@ -31,9 +31,6 @@
 #include "config.h"
 #if ! defined(_WIN32)
 #  include <pwd.h>
-#  if defined(__CYGWIN__)
-#    include <sys/cygwin.h>
-#  endif
 #endif
 #include <sqlite3.h>
 #include <sys/types.h>
@@ -796,7 +793,7 @@ void db_open_or_attach(
 */
 void db_open_config(int useAttach){
   char *zDbName;
-  const char *zHome;
+  char *zHome;
   if( g.configOpen ) return;
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
@@ -810,11 +807,10 @@ void db_open_config(int useAttach){
   }
 #if defined(__CYGWIN__)
   if( zHome!=0 ){
-    /* We now have the win32 path, but we need the Cygwin equivalent */
-    ssize_t size = cygwin_conv_path(CCP_WIN_A_TO_POSIX, zHome, 0, 0);
-    char *converted = fossil_malloc(size);
-    cygwin_conv_path(CCP_WIN_A_TO_POSIX, zHome, converted, size);
-    zHome = converted;
+    /* We now have the win32 path, but we need the Cygwin equivalent. */
+    char *zPath = fossil_utf8_to_filename(zHome);
+    fossil_filename_free(zHome);
+    zHome = zPath;
   }
 #endif
   if( zHome==0 ){
@@ -832,8 +828,8 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#ifndef _WIN32
-  if( access(zHome, W_OK) ){
+#if !defined(_WIN32) && !defined(__CYGWIN__)
+  if( file_access(zHome, W_OK) ){
     fossil_fatal("home directory %s must be writeable", zHome);
   }
 #endif
@@ -858,6 +854,7 @@ void db_open_config(int useAttach){
   }
   g.configOpen = 1;
   free(zDbName);
+  fossil_filename_free(zHome);
 }
 
 
