@@ -1,5 +1,5 @@
-C Make\ssure\sside-by-side\sdiff\shighlighting\sencloses\scomplete\sUTF8\scharacters\sand\ndoes\snot\sdivide\sa\sUTF8\scharacter\sinto\stwo\sinvalid\scharacters.
-D 2013-02-28T20:44:45.683
+C Change\sa\smemcmp\sinto\sa\sstrncmp\sin\sregexp.c\sin\sorder\sto\savoid\sthe\s\npossibility\sof\sa\sbuffer\soverread\swith\soptimized\smemcmp\simplementations.
+D 2013-03-01T01:15:07.222
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -369,7 +369,7 @@ F src/popen.c efac5b7a7cfeca174dd42637809b6acd2eeeb820
 F src/pqueue.c dc6f71d9256f7087a85715cb05e78faeb151f026
 F src/printf.c dfb60656855b282ac3e99ce494ef124ca05dd9cd
 F src/rebuild.c 01cd0cd7b2baee0ec438968994da3dfeead6c8a0
-F src/regexp.c c8fb75a1615fd4bb026f1885e24ab93f5778a9e6
+F src/regexp.c 21d9fc39c12675bd4c6912a60c4ab0a03d8b2615
 F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P cae8b6964d73c61dffc0ca89ffc471135a8813a5
-R 3fef3c09725ee90f36434de291f835cd
+P e2b34906761dd94ae5c0701c12ac636605272d06
+R 8152e4dde6044540444f4e60dfd5549b
 U drh
-Z c02a462a821161b916eff0d8cba4d512
+Z 4dabe7294c86b1cda2b12b0861d726fa
