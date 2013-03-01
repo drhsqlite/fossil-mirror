@@ -1,5 +1,5 @@
-C Teach\sfossil_utf8_to_filename()\show\sto\shandle\swin32\spaths\son\sCygwin.\sUse\sthis\sfunction\swhere-ever\spossible.
-D 2013-03-01T13:19:02.782
+C Enable\saccess\scheck\son\sHOME\sdirectory\sfor\swin32/cygwin
+D 2013-03-01T13:45:16.717
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,7 +309,7 @@ F src/configure.c 65a63db8818fe86dd40c0e3e9b569c003f1d0212
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 23a8ce5f7730dbc79a5e55ce4c567b3a4afdab61
+F src/db.c 9636187e79dda30666797e424573267a20943a7d
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -603,7 +603,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 380485de9962dd3c89af87b65a671501dfc7ccf3
-R 03483b55152b27b4076ae8885309fdb7
+P caf2eb25fa2485ee7b57d3fac3e74fd0b40cb946
+R 8252642b3dcafd0b5b7497888a6cf3c1
 U jan.nijtmans
-Z bd617fc61d58d6e326901a8c344b920c
+Z e1baf8996504f37ab3455d3a3a3aea69
