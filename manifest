@@ -1,5 +1,5 @@
-C Check\sin\stwo\sversion\sof\sLoren\sIpsum\sin\sGreek\sto\suse\sas\sa\stest\sof\sthe\nside-by-side\sdiff\swith\smultibyte\sUTF8\stext.
-D 2013-03-02T17:49:12.797
+C Add\sthe\scomparison\sof\sGreek\sLorem\sIpsum\sto\sthe\sside-by-side\sdiff\stesting\nsuite.
+D 2013-03-02T17:55:01.445
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -414,10 +414,10 @@ F src/xfer.c 1aba6fb0ec8d02c05a3aad9e6dd9ba0e6fe397f4
 F src/xfersetup.c 8fdd9e4e407abb865bcb7934bb4e47b93392ac7d
 F src/zip.c 05668eb0320200978083c0fd30796db686b428bf
 F test/Greek-Lipsum-1.txt 55659c6e062994f462feae602db99df94d5a4d83
-F test/Greek-Lipsum-2.txt 4f70c682e44f1788660bcf1442f5fb97497a33ba
+F test/Greek-Lipsum-2.txt e3b3df6e8dd627b516e18105656345352a471b0c
 F test/cmdline.test 4532df2c904f035fc2a3be3bca6c5514def515a8
 F test/delta1.test a13b6b3efec3c09d07229f887d57a46cae0fb0e6
-F test/diff-test-1.wiki 80d1c6426435fc7e704398231b43130d0580638d
+F test/diff-test-1.wiki f4077124f6013080fbf1f4ab1764b82546d04484
 F test/file1.test c8ec3b63bafeae6f2d90f90038f71b7a84181148
 F test/graph-test-1.wiki bd31afde18724d6440846dfa6e1834685d89ba87
 F test/many-www.tcl 4f2bfa076db6dde808b6155b65a6f1016aac0391
@@ -605,7 +605,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1fbc742da90920212acbf7675a7e23e33d1305ef
-R 3987c5c567d5f810b467211f22fa90b1
+P 256815f9c5a4f06836b4d4bb31bb150618839761
+R 4edc870b966df1b52bd2f328f46f0b93
 U drh
-Z cd675cb77a2d5205d2e640fdc65b7521
+Z 0c88423702b3041390caf6ea7975a065
