@@ -431,6 +431,7 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
+  if( g.urlIsSsh || g.urlIsFile ) return;
   if( isatty(fileno(stdin))
    && (g.urlFlags & URL_PROMPT_PW)!=0
    && (g.urlFlags & URL_PROMPTED)==0
