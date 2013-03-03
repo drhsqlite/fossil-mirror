@@ -607,7 +607,7 @@ int main(int argc, char **argv)
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_fatal("Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s", g.argv[0], g.argv[1], zFormat);
 }
 
 /*
