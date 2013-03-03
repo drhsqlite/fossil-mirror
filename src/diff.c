@@ -59,7 +59,7 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
+#define looks_like_binary(blob) ((looks_like_utf8((blob))&3) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -201,6 +201,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
+**
 ************************************ WARNING **********************************
 **
 ** This function does not validate that the blob content is properly formed
@@ -217,32 +221,33 @@ int looks_like_utf8(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
   /* Check individual lines.
   */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   j = (c!='\n');
+  if( c==0 ){
+    return 0;  /* Zero byte in a file -> binary */
+  }
   while( --n>0 ){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
     if( c=='\n' ){
-      int c2 = z[-1];
-      if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+      if( z[-1]=='\r' ){
+        flags |= 2;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= 1;  /* Very long line, continue */
       }
       j = 0;
     }
   }
-  if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  if( (flags&1) || (j>LENGTH_MASK) ){
+    return -4;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return 1-flags;  /* No problems seen -> not binary */
 }
 
 /*
@@ -291,6 +296,10 @@ int looks_like_utf8(const Blob *pContent){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-16.
 **
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
+**
 ************************************ WARNING **********************************
 **
 ** This function does not validate that the blob content is properly formed
@@ -307,11 +316,11 @@ int looks_like_utf16(const Blob *pContent){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
   /* Check individual lines.
   */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
   if( c==0 ) return 0;  /* NUL character in a file -> binary */
@@ -322,18 +331,18 @@ int looks_like_utf16(const Blob *pContent){
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        result = -1;  /* Contains CR/NL, continue */
+        flags |= 2;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= 1;  /* Very long line, continue */
       }
       j = 0;
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  if( (flags&1) || (j>LENGTH_MASK) ){
+    return -4;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return 1-flags;  /* No problems seen -> not binary */
 }
 
 /*
