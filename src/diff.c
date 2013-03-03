@@ -227,10 +227,8 @@ int looks_like_utf8(const Blob *pContent){
   */
   if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
+  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   j = (c!='\n');
-  if( c==0 ){
-    return 0;  /* Zero byte in a file -> binary */
-  }
   while( --n>0 ){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
@@ -339,7 +337,7 @@ int looks_like_utf16(const Blob *pContent){
       j = 0;
     }
   }
-  if( (flags&1) || (j>LENGTH_MASK) ){
+  if( (flags&1) || (j>UTF16_LENGTH_MASK) ){
     return -4;  /* Very long line -> binary */
   }
   return 1-flags;  /* No problems seen -> not binary */
