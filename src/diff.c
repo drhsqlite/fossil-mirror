@@ -59,7 +59,7 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
+#define looks_like_binary(blob) ((looks_like_utf8((blob))&3) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -201,6 +201,10 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-8.
 **
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
+**
 ************************************ WARNING **********************************
 **
 ** This function does not validate that the blob content is properly formed
@@ -217,11 +221,11 @@ int looks_like_utf8(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
   /* Check individual lines.
   */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   j = (c!='\n');
@@ -229,20 +233,19 @@ int looks_like_utf8(const Blob *pContent){
     c = *++z; ++j;
     if( c==0 ) return 0;  /* Zero byte in a file -> binary */
     if( c=='\n' ){
-      int c2 = z[-1];
-      if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+      if( z[-1]=='\r' ){
+        flags |= 2;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= 1;  /* Very long line, continue */
       }
       j = 0;
     }
   }
-  if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  if( (flags&1) || (j>LENGTH_MASK) ){
+    return -4;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return 1-flags;  /* No problems seen -> not binary */
 }
 
 /*
@@ -291,6 +294,10 @@ int looks_like_utf8(const Blob *pContent){
 **         delimited by carriage-return, line-feed pairs; however, the
 **         encoding may not be UTF-16.
 **
+** (-4) -- The same as 0, but the determination is based on the fact that
+**         the blob might be text (any encoding) but it has a line length
+**         bigger than the diff logic in fossil can handle.
+**
 ************************************ WARNING **********************************
 **
 ** This function does not validate that the blob content is properly formed
@@ -307,11 +314,11 @@ int looks_like_utf16(const Blob *pContent){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
   /* Check individual lines.
   */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
   if( c==0 ) return 0;  /* NUL character in a file -> binary */
@@ -322,18 +329,18 @@ int looks_like_utf16(const Blob *pContent){
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        result = -1;  /* Contains CR/NL, continue */
+        flags |= 2;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= 1;  /* Very long line, continue */
       }
       j = 0;
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  if( (flags&1) || (j>UTF16_LENGTH_MASK) ){
+    return -4;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return 1-flags;  /* No problems seen -> not binary */
 }
 
 /*
@@ -857,9 +864,16 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 **
 **    *  If iStart is a null-change then move iStart2 into iStart
 **    *  Make sure any null-changes are in canonoical form.
+**    *  Make sure all changes are at character boundaries for
+**       multi-byte characters.
 */
-static void sbsSimplifyLine(SbsLine *p){
-  if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+static void sbsSimplifyLine(SbsLine *p, const char *z){
+  if( p->iStart2==p->iEnd2 ){
+    p->iStart2 = p->iEnd2 = 0;
+  }else if( p->iStart2 ){
+    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
+    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+  }
   if( p->iStart==p->iEnd ){
     p->iStart = p->iStart2;
     p->iEnd = p->iEnd2;
@@ -867,7 +881,12 @@ static void sbsSimplifyLine(SbsLine *p){
     p->iStart2 = 0;
     p->iEnd2 = 0;
   }
-  if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iEnd = -1;
+  }else if( p->iStart>0 ){
+    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
+    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
+  }
 }
 
 /*
@@ -883,6 +902,7 @@ static void sbsWriteLineChange(
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
@@ -898,21 +918,27 @@ static void sbsWriteLineChange(
   zLeft = pLeft->z;
   nRight = pRight->h & LENGTH_MASK;
   zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
 
   nPrefix = 0;
-  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
     nPrefix++;
   }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
   nSuffix = 0;
-  if( nPrefix<nLeft && nPrefix<nRight ){
-    while( nSuffix<nLeft && nSuffix<nRight
-           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
+    }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix]&0xc0)==0x80 ) nSuffix--;
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
-  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
+  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -972,7 +998,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zLeft+nPrefix);
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
@@ -987,7 +1013,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zRight+nPrefix);
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }

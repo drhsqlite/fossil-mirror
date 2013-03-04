@@ -708,11 +708,9 @@ void file_getcwd(char *zBuf, int nBuf){
 */
 int file_is_absolute_path(const char *zPath){
   if( zPath[0]=='/'
-#if defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__CYGWIN__)
       || zPath[0]=='\\'
-#elif defined(_WIN32)
-      || zPath[0]=='\\'
-      || (strlen(zPath)>3 && zPath[1]==':'
+      || (fossil_isalpha(zPath[0]) && zPath[1]==':'
            && (zPath[2]=='\\' || zPath[2]=='/'))
 #endif
   ){
@@ -733,17 +731,17 @@ int file_is_absolute_path(const char *zPath){
 */
 void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
   if( file_is_absolute_path(zOrigName) ){
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
     char *zOut;
 #endif
     blob_set(pOut, zOrigName);
     blob_materialize(pOut);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
     /*
-    ** On Windows, normalize the drive letter to upper case.
+    ** On Windows/cygwin, normalize the drive letter to upper case.
     */
     zOut = blob_str(pOut);
-    if( fossil_isalpha(zOut[0]) && zOut[1]==':' ){
+    if( fossil_islower(zOut[0]) && zOut[1]==':' ){
       zOut[0] = fossil_toupper(zOut[0]);
     }
 #endif
@@ -754,7 +752,7 @@ void file_canonical_name(const char *zOrigName, Blob *pOut, int slash){
     /*
     ** On Windows, normalize the drive letter to upper case.
     */
-    if( fossil_isalpha(zPwd[0]) && zPwd[1]==':' ){
+    if( fossil_islower(zPwd[0]) && zPwd[1]==':' ){
       zPwd[0] = fossil_toupper(zPwd[0]);
     }
 #endif
@@ -803,8 +801,8 @@ void cmd_test_canonical_name(void){
 int file_is_canonical(const char *z){
   int i;
   if( z[0]!='/'
-#if defined(_WIN32)
-    && (z[0]==0 || z[1]!=':' || z[2]!='/')
+#if defined(_WIN32) || defined(__CYGWIN__)
+    && (!fossil_isupper(z[0]) || z[1]!=':' || z[2]!='/')
 #endif
   ) return 0;
 
@@ -1016,19 +1014,22 @@ void file_parse_uri(
 ** Construct a random temporary filename into zBuf[].
 */
 void file_tempname(int nBuf, char *zBuf){
-  static const char *azDirs[] = {
 #if defined(_WIN32)
+  const char *azDirs[] = {
      0, /* GetTempPath */
      0, /* TEMP */
      0, /* TMP */
+     ".",
+  };
 #else
+  static const char *const azDirs[] = {
      "/var/tmp",
      "/usr/tmp",
      "/tmp",
      "/temp",
-#endif
      ".",
   };
+#endif
   static const unsigned char zChars[] =
     "abcdefghijklmnopqrstuvwxyz"
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -1075,8 +1076,9 @@ void file_tempname(int nBuf, char *zBuf){
   }while( file_size(zBuf)>=0 );
 
 #if defined(_WIN32)
-  fossil_unicode_free((char *)azDirs[1]);
-  fossil_unicode_free((char *)azDirs[2]);
+  fossil_filename_free((char *)azDirs[0]);
+  fossil_filename_free((char *)azDirs[1]);
+  fossil_filename_free((char *)azDirs[2]);
 #endif
 }
 

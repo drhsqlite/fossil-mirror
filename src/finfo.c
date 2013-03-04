@@ -420,7 +420,7 @@ void finfo_page(void){
       }
     }
     hyperlink_to_uuid(zShortCkin);
-    @ %h(zCom) (user: 
+    @ %w(zCom) (user: 
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){
