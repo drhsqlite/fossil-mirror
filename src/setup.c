@@ -1177,7 +1177,7 @@ void setup_settings(void){
   }
 
   style_header("Settings");
-  db_open_local();
+  db_open_local(0);
   db_begin_transaction();
   @ <p>This page provides a simple interface to the "fossil setting" command.
   @ See the "fossil help setting" output below for further information on

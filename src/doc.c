@@ -397,7 +397,7 @@ void doc_page(void){
       goto doc_not_found;
     }
   }
-  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local()==0 ){
+  if( fossil_strcmp(zBaseline,"ckout")==0 && db_open_local(0)==0 ){
     sqlite3_snprintf(sizeof(zBaseline), zBaseline, "tip");
   }
   if( fossil_strcmp(zBaseline,"ckout")==0 ){
