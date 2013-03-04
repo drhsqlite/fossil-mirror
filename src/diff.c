@@ -1410,7 +1410,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           if( s.escHtml ){
             sbsWrite(&s, " &lt;\n", 6);
@@ -1443,7 +1443,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           assert( mb>0 );
@@ -1455,13 +1455,13 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           sbsWrite(&s, " | ", 3);
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           ma--;
