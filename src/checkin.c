@@ -968,7 +968,7 @@ static int commit_warning(
       }
       zWarning = "Unicode";
       zDisable = "\"encoding-glob\" setting";
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__CYGWIN__)
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
     }
