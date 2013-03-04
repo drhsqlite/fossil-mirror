@@ -828,9 +828,11 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
+#if !defined(_WIN32)
   if( file_access(zHome, W_OK) ){
     fossil_fatal("home directory %s must be writeable", zHome);
   }
+#endif
   g.zHome = mprintf("%/", zHome);
 #if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
