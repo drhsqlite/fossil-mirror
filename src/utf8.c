@@ -25,6 +25,14 @@
 #ifdef _WIN32
 # include <windows.h>
 #endif
+#ifdef __CYGWIN__
+# include <sys/cygwin.h>
+# define CP_UTF8 65001
+  __declspec(dllimport) extern __stdcall int WideCharToMultiByte(int, int,
+      const char *, int, const char *, int, const char *, const char *);
+  __declspec(dllimport) extern __stdcall int MultiByteToWideChar(int, int,
+      const char *, int, wchar_t*, int);
+#endif
 
 #ifdef _WIN32
 /*
@@ -44,6 +52,7 @@ char *fossil_mbcs_to_utf8(const char *zMbcs){
 void fossil_mbcs_free(char *zOld){
   sqlite3_free(zOld);
 }
+#endif /* _WIN32 */
 
 /*
 ** Translate Unicode text into UTF-8.
@@ -52,7 +61,7 @@ void fossil_mbcs_free(char *zOld){
 ** returned pointer when done.
 */
 char *fossil_unicode_to_utf8(const void *zUnicode){
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zUnicode, -1, 0, 0, 0, 0);
   char *zUtf = sqlite3_malloc( nByte );
   if( zUtf==0 ){
@@ -71,7 +80,7 @@ char *fossil_unicode_to_utf8(const void *zUnicode){
 ** used to store the returned pointer when done.
 */
 void *fossil_utf8_to_unicode(const char *zUtf8){
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
   wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
   if( zUnicode==0 ){
@@ -89,13 +98,12 @@ void *fossil_utf8_to_unicode(const char *zUtf8){
 ** fossil_unicode_to_utf8().
 */
 void fossil_unicode_free(void *pOld){
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   sqlite3_free(pOld);
 #else
   fossil_free(pOld);
 #endif
 }
-#endif /* _WIN32 */
 
 #if defined(__APPLE__) && !defined(WITHOUT_ICONV)
 # include <iconv.h>
@@ -162,13 +170,13 @@ char *fossil_filename_to_utf8(const void *zFilename){
 */
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
-  int nByte = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
-  wchar_t *zUnicode = sqlite3_malloc( nByte * 2 );
+  int nChar = MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, 0, 0);
+  wchar_t *zUnicode = sqlite3_malloc( nChar * 2 );
   wchar_t *wUnicode = zUnicode;
   if( zUnicode==0 ){
     return 0;
   }
-  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nByte);
+  MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
   while( *wUnicode != '\0' ){
     if( *wUnicode == '/' ){
       *wUnicode = '\\';
@@ -180,18 +188,27 @@ void *fossil_utf8_to_filename(const char *zUtf8){
   char *zPath, *p;
   if( fossil_isalpha(zUtf8[0]) && (zUtf8[1]==':')
       && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
-    int n = strlen(zUtf8);
-    zPath = fossil_malloc( n+10 );
-    memcpy(zPath, "/cygdrive/", 10);
-    zPath[10] = zUtf8[0];
-    memcpy(zPath+11, zUtf8+2, n-1);
+    /* win32 absolute path starting with drive specifier. */
+    int nByte;
+    wchar_t zUnicode[2000];
+    wchar_t *wUnicode = zUnicode;
+    MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, count(zUnicode));
+    while( *wUnicode != '\0' ){
+      if( *wUnicode == '/' ){
+        *wUnicode = '\\';
+      }
+      ++wUnicode;
+    }
+    nByte = cygwin_conv_path(CCP_WIN_W_TO_POSIX, zUnicode, NULL, 0);
+    zPath = fossil_malloc(nByte);
+    cygwin_conv_path(CCP_WIN_W_TO_POSIX, zUnicode, zPath, nByte);
   } else {
     zPath = fossil_strdup(zUtf8);
-  }
-  zUtf8 = p = zPath;
-  while( (*p = *zUtf8++) != 0){
-    if (*p++ == '\\' ) {
-      p[-1] = '/';
+    zUtf8 = p = zPath;
+    while( (*p = *zUtf8++) != 0){
+      if (*p++ == '\\' ) {
+        p[-1] = '/';
+      }
     }
   }
   return zPath;
