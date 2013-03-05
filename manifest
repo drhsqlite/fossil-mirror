@@ -1,5 +1,5 @@
-C Don't\strigger\sthe\slong-lines\swarning\sif\sthe\slong\sline\sis\sfollowed\sby\sa\snull-byte:\sit's\sa\snormal\sbinary\sfile\sthen.\nre-write\slooks_like_utf8/16\sto\shandle\scrlf\sthe\ssame\sway\sas\slong\slines\s(thanks,\sJoe,\sfor\sthe\slong-lines\srewrite!)
-D 2013-03-05T09:24:33.025
+C Proposed\sfix\sfor\s[ed23ef59cf]:\sFossil\signoring\s"binary-glob"\ssetting
+D 2013-03-05T10:04:30.409
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -321,7 +321,7 @@ F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c6ad62e5a9e835418ad34304d42e78faea4da1e9
 F src/finfo.c a76fc99c499556346835db279e3c4b434ac6ba69
-F src/glob.c 3d47a43dc9acc1e65fa0d89e43bd5215335fc46d
+F src/glob.c 09eb3c462804297801bcf6dd60fa7825c3394bd6
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
 F src/http.c e9f82fa14d0e894ed987a12d7d5a1477ada6115e
@@ -605,7 +605,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 10fbcda270363ce07ad379c105ffb336ee8fcdbb
-R 3c26cc65c4c03086fd90158ed73dc6b9
+P ab2920c2b9478b41563d2747e960a02b53c62f59
+R 5788cb3f384326cfb5de90f0acbac7e6
+T *branch * ticket-ed23ef59cf
+T *sym-ticket-ed23ef59cf *
+T -sym-trunk *
 U jan.nijtmans
-Z d9d7c67b4df0f0a1d405bc5969975c42
+Z 6050a209c6ff4a1d802287f7e78efac1
