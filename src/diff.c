@@ -59,7 +59,7 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob), 0) == 0)
+#define looks_like_binary(blob) (looks_like_utf8((blob), 0, 0) != 1)
 #endif /* INTERFACE */
 
 /*
@@ -188,18 +188,13 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** determine the type of content it appears to contain.  Possible return
 ** values are:
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-8.
+**  (1) -- The content appears to consist entirely of text;
+**         however, the encoding may not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL characters or an extremely long line.  Since this function
 **         does not understand UTF-16, it may falsely consider UTF-16 text
 **         to be binary.
-**
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-8.
 **
 ************************************ WARNING **********************************
 **
@@ -211,18 +206,23 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** If pbLongLine is not NULL and the blob is detected as being binary only because
+** of long lines, the integer pointed to is set to 1. Otherwise, it is left as is.
+** If pbCrlf is not NULL and the blob contains crlf, the integer pointed
+** to is set to 1. Otherwise, it is left as is.
+**
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent, int *pbLongLine){
+int looks_like_utf8(const Blob *pContent, int *pbLongLine, int *pbCrlf){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int crlf = 0;
+  int longline = 0;
 
   /* Check individual lines.
   */
-  if( pbLongLine ) *pbLongLine = 0;
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* Zero byte in a file -> binary */
   j = (c!='\n');
@@ -232,20 +232,20 @@ int looks_like_utf8(const Blob *pContent, int *pbLongLine){
     if( c=='\n' ){
       int c2 = z[-1];
       if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+        crlf = 1;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
-        if( pbLongLine ) *pbLongLine = 1;
-        return 0;  /* Very long line -> binary */
+        longline = 1;  /* Contains long line, continue */
       }
       j = 0;
     }
   }
-  if( j>LENGTH_MASK ){
+  if( longline || (j>LENGTH_MASK) ){
     if( pbLongLine ) *pbLongLine = 1;
     return 0;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  if( pbCrlf && crlf) *pbCrlf = 1;
+  return 1;  /* No problems seen -> not binary */
 }
 
 /*
@@ -281,18 +281,13 @@ int looks_like_utf8(const Blob *pContent, int *pbLongLine){
 ** determine the type of content it appears to contain.  Possible return
 ** values are:
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-16.
+**  (1) -- The content appears to consist entirely of text;
+**         however, the encoding may not be UTF-16.
 **
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL characters or an extremely long line.  Since this function
 **         does not understand UTF-8, it may falsely consider UTF-8 text
 **         to be binary.
-**
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-16.
 **
 ************************************ WARNING **********************************
 **
@@ -304,18 +299,23 @@ int looks_like_utf8(const Blob *pContent, int *pbLongLine){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** If pbLongLine is not NULL and the blob is detected as being binary only because
+** of long lines, the integer pointed to is set to 1. Otherwise, it is left as is.
+** If pbCrlf is not NULL and the blob contains crlf, the integer pointed
+** to is set to 1. Otherwise, it is left as is.
+**
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent, int *pbLongLine){
+int looks_like_utf16(const Blob *pContent, int *pbLongLine, int *pbCrlf){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+  int crlf = 0;
+  int longline = 0;
 
   /* Check individual lines.
   */
-  if( pbLongLine ) *pbLongLine = 0;
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return 1;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
   if( c==0 ) return 0;  /* NUL character in a file -> binary */
@@ -326,20 +326,20 @@ int looks_like_utf16(const Blob *pContent, int *pbLongLine){
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        result = -1;  /* Contains CR/NL, continue */
+        crlf = 1;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
-        if( pbLongLine ) *pbLongLine = 1;
-        return 0;  /* Very long line -> binary */
+        longline = 1;  /* Contains long line, continue */
       }
       j = 0;
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
+  if( longline || j>UTF16_LENGTH_MASK ){
     if( pbLongLine ) *pbLongLine = 1;
     return 0;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  if( pbCrlf ) *pbCrlf = crlf;
+  return 1;  /* No problems seen -> not binary */
 }
 
 /*

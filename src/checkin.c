@@ -904,29 +904,30 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
-  int longLine;           /* non-zero if blob has "long lines" */
+  int longLine = 0;       /* non-zero if blob has "long lines" */
+  int crlf = 0;           /* non-zero if blob has "crlf" */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p, &longLine) :
-                     looks_like_utf8(p, &longLine);
-  if( eType==0 || eType==-1 || fUnicode ){
+  eType = fUnicode ? looks_like_utf16(p, &longLine, &crlf) :
+                     looks_like_utf8(p, &longLine, &crlf);
+  if( eType==0 || crlf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==-1 && fUnicode ){
+    if( crlf && fUnicode ){
       if ( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( eType==-1 ){
+    }else if( crlf ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
