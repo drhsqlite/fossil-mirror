@@ -904,13 +904,15 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int longLine;           /* non-zero if blob has "long lines" */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
+  eType = fUnicode ? looks_like_utf16(p, &longLine) :
+                     looks_like_utf8(p, &longLine);
   if( eType==0 || eType==-1 || fUnicode ){
     const char *zWarning;
     const char *zDisable;
@@ -934,7 +936,11 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      zWarning = "binary data";
+      if( longLine ){
+        zWarning = "long lines";
+      }else{
+        zWarning = "binary data";
+      }
       zDisable = "\"binary-glob\" setting";
       zConvert = ""; /* We cannot convert binary files. */
     }else{

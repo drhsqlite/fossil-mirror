@@ -59,7 +59,7 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_binary(blob) (looks_like_utf8((blob)) == 0)
+#define looks_like_binary(blob) (looks_like_utf8((blob), 0) == 0)
 #endif /* INTERFACE */
 
 /*
@@ -213,7 +213,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent){
+int looks_like_utf8(const Blob *pContent, int *pbLongLine){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
@@ -221,6 +221,7 @@ int looks_like_utf8(const Blob *pContent){
 
   /* Check individual lines.
   */
+  if( pbLongLine ) *pbLongLine = 0;
   if( n==0 ) return result;  /* Empty file -> text */
   c = *z;
   if( c==0 ) return 0;  /* Zero byte in a file -> binary */
@@ -234,12 +235,14 @@ int looks_like_utf8(const Blob *pContent){
         result = -1;  /* Contains CR/NL, continue */
       }
       if( j>LENGTH_MASK ){
+        if( pbLongLine ) *pbLongLine = 1;
         return 0;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
   if( j>LENGTH_MASK ){
+    if( pbLongLine ) *pbLongLine = 1;
     return 0;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */
@@ -303,7 +306,7 @@ int looks_like_utf8(const Blob *pContent){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent){
+int looks_like_utf16(const Blob *pContent, int *pbLongLine){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
@@ -311,6 +314,7 @@ int looks_like_utf16(const Blob *pContent){
 
   /* Check individual lines.
   */
+  if( pbLongLine ) *pbLongLine = 0;
   if( n==0 ) return result;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
@@ -325,12 +329,14 @@ int looks_like_utf16(const Blob *pContent){
         result = -1;  /* Contains CR/NL, continue */
       }
       if( j>UTF16_LENGTH_MASK ){
+        if( pbLongLine ) *pbLongLine = 1;
         return 0;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
   if( j>UTF16_LENGTH_MASK ){
+    if( pbLongLine ) *pbLongLine = 1;
     return 0;  /* Very long line -> binary */
   }
   return result;  /* No problems seen -> not binary */

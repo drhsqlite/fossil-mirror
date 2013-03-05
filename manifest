@@ -1,5 +1,5 @@
-C Revert\scheck-in\s[3a74f9fe52],\swhich\sadded\sa\sspecial\swarning\sfor\soverly\slong\slines\sbeing\sdetected\sas\sbinary\sfiles.
-D 2013-03-05T01:27:00.237
+C Add\swarning\sfor\soverly\slong\slines\sfound\sduring\sthe\scommit\sprocess.
+D 2013-03-05T02:06:50.655
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 43399db3c57f3f977765565a1350f36df759ffd8
+F src/checkin.c 6e9b8a83aaa2bea8e4a25dadd220a3d2dd007f18
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -313,7 +313,7 @@ F src/db.c 0418b6958250df25f8279f266ec7adea13cb9864
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 7c4d3451fa03ef37aff869b56cb66c3174fb3f70
+F src/diff.c aefa41cd65804e7d174541f81477d212cbefb748
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -605,7 +605,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3b09348fd48fd3662c96b2eba562716d4e066dd9 dd9e030bc9dfff17fc687c446e4e6c410143a7b5
-R 4b30f89988aba384c9b6612f8231954e
+P ccdd1abba7c752a5d99abe34edc69cb31cf758e9
+R 5552da968c422c82ec83958c3b772b4c
 U mistachkin
-Z 8f1e5a4308c74a4cfce583cab2d95639
+Z 40df0248380d00df84a2357577f63488
