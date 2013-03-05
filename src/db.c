@@ -794,7 +794,7 @@ void db_open_or_attach(
 void db_open_config(int useAttach){
   char *zDbName;
   char *zHome;
-  if( g.configOpen ) return;
+  if( g.configDbName ) return;
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
@@ -805,14 +805,6 @@ void db_open_config(int useAttach){
       if( zDrive && zHome ) zHome = mprintf("%s%s", zDrive, zHome);
     }
   }
-#if defined(__CYGWIN__)
-  if( zHome!=0 ){
-    /* We now have the win32 path, but we need the Cygwin equivalent. */
-    char *zPath = fossil_utf8_to_filename(zHome);
-    fossil_filename_free(zHome);
-    zHome = zPath;
-  }
-#endif
   if( zHome==0 ){
     fossil_fatal("cannot locate home directory - "
                 "please set the LOCALAPPDATA or APPDATA or HOMEPATH "
@@ -828,21 +820,23 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#if !defined(_WIN32)
-  if( file_access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
-#endif
-  g.zHome = mprintf("%/", zHome);
 #if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
+  if( file_access(zHome, W_OK) ){
+    fossil_fatal("home directory %s must be writeable", zHome);
+  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( file_access(zDbName, W_OK) ){
+    fossil_fatal("configuration file %s must be writeable", zDbName);
+  }
+#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
@@ -852,9 +846,7 @@ void db_open_config(int useAttach){
     g.dbConfig = db_open(zDbName);
     g.zConfigDbType = "configdb";
   }
-  g.configOpen = 1;
-  free(zDbName);
-  fossil_filename_free(zHome);
+  g.configDbName = zDbName;
 }
 
 
@@ -1214,7 +1206,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.configOpen = 0;
+  g.configDbName = NULL;
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
@@ -1777,7 +1769,7 @@ char *db_get(const char *zName, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.configOpen ){
+  if( z==0 && g.configDbName ){
     db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1824,7 +1816,7 @@ void db_unset(const char *zName, int globalFlag){
 }
 int db_is_global(const char *zName){
   int rc = 0;
-  if( g.configOpen ){
+  if( g.configDbName ){
     db_swap_connections();
     rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1845,7 +1837,7 @@ int db_get_int(const char *zName, int dflt){
   }else{
     rc = SQLITE_DONE;
   }
-  if( rc==SQLITE_DONE && g.configOpen ){
+  if( rc==SQLITE_DONE && g.configDbName ){
     db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
