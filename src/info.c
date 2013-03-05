@@ -200,8 +200,8 @@ void info_cmd(void){
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
     if( bDetail ) extraRepoInfo();
-    if( g.configDbName ){
-      fossil_print("config-db:    %s\n", g.configDbName);
+    if( g.zConfigDbName ){
+      fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
     fossil_print("project-code: %s\n", db_get("project-code", ""));
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;

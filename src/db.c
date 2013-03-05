@@ -794,7 +794,7 @@ void db_open_or_attach(
 void db_open_config(int useAttach){
   char *zDbName;
   char *zHome;
-  if( g.configDbName ) return;
+  if( g.zConfigDbName ) return;
 #if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
@@ -846,7 +846,7 @@ void db_open_config(int useAttach){
     g.dbConfig = db_open(zDbName);
     g.zConfigDbType = "configdb";
   }
-  g.configDbName = zDbName;
+  g.zConfigDbName = zDbName;
 }
 
 
@@ -1206,7 +1206,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.configDbName = NULL;
+  g.zConfigDbName = NULL;
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
@@ -1769,7 +1769,7 @@ char *db_get(const char *zName, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.configDbName ){
+  if( z==0 && g.zConfigDbName ){
     db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1816,7 +1816,7 @@ void db_unset(const char *zName, int globalFlag){
 }
 int db_is_global(const char *zName){
   int rc = 0;
-  if( g.configDbName ){
+  if( g.zConfigDbName ){
     db_swap_connections();
     rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1837,7 +1837,7 @@ int db_get_int(const char *zName, int dflt){
   }else{
     rc = SQLITE_DONE;
   }
-  if( rc==SQLITE_DONE && g.configDbName ){
+  if( rc==SQLITE_DONE && g.zConfigDbName ){
     db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();

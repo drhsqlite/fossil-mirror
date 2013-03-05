@@ -205,8 +205,8 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
-  if( g.configDbName ){
-    fossil_print("config-db:    %s\n", g.configDbName);
+  if( g.zConfigDbName ){
+    fossil_print("config-db:    %s\n", g.zConfigDbName);
   }
   vid = db_lget_int("checkout", 0);
   if( vid ){

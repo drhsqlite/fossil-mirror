@@ -1374,7 +1374,7 @@ cson_value * json_g_to_json(){
   INT(g, argc);
   INT(g, isConst);
   INT(g, useAttach);
-  CSTR(g, configDbName);
+  CSTR(g, zConfigDbName);
   INT(g, repositoryOpen);
   INT(g, localOpen);
   INT(g, minPrefix);
