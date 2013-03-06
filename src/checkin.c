@@ -927,7 +927,18 @@ static int commit_warning(
     Blob ans;
     char cReply;
 
-    if( fHasCrLf && fUnicode ){
+    if( eType==0 ){
+      if( binOk ){
+        return 0; /* We don't want binary warnings for this file. */
+      }
+      if( fHasLength ){
+        zWarning = "long lines";
+      }else{
+        zWarning = "binary data";
+      }
+      zDisable = "\"binary-glob\" setting";
+      zConvert = ""; /* We cannot convert binary files. */
+    }else if( fHasCrLf && fUnicode ){
       if ( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
@@ -939,17 +950,6 @@ static int commit_warning(
       }
       zWarning = "CR/NL line endings";
       zDisable = "\"crnl-glob\" setting";
-    }else if( eType==0 ){
-      if( binOk ){
-        return 0; /* We don't want binary warnings for this file. */
-      }
-      if( fHasLength ){
-        zWarning = "long lines";
-      }else{
-        zWarning = "binary data";
-      }
-      zDisable = "\"binary-glob\" setting";
-      zConvert = ""; /* We cannot convert binary files. */
     }else{
       if ( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
