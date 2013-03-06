@@ -907,30 +907,33 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
-  int longLine = 0;       /* non-zero if blob has "long lines" */
-  int crlf = 0;           /* non-zero if blob has "crlf" */
+  int lookFlags;          /* output flags from looks_like_utf8/utf16() */
+  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
+  int fHasLength;         /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p, &longLine, &crlf) :
-                     looks_like_utf8(p, &longLine, &crlf);
-  if( eType==0 || crlf || fUnicode ){
+  eType = fUnicode ? looks_like_utf16(p, &lookFlags) :
+                     looks_like_utf8(p, &lookFlags);
+  fHasCrLf = (lookFlags & LOOK_CRLF);
+  fHasLength = (lookFlags & LOOK_LENGTH);
+  if( eType==0 || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( crlf && fUnicode ){
+    if( fHasCrLf && fUnicode ){
       if ( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( crlf ){
+    }else if( fHasCrLf ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
@@ -940,7 +943,7 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( longLine ){
+      if( fHasLength ){
         zWarning = "long lines";
       }else{
         zWarning = "binary data";
