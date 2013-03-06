@@ -223,7 +223,7 @@ void db_force_rollback(void){
 */
 void db_commit_hook(int (*x)(void), int sequence){
   int i;
-  assert( db.nCommitHook < sizeof(db.aHook)/sizeof(db.aHook[1]) );
+  assert( db.nCommitHook < count(db.aHook) );
   for(i=0; i<db.nCommitHook; i++){
     assert( x!=db.aHook[i].xHook );
     if( db.aHook[i].sequence>sequence ){
@@ -922,28 +922,28 @@ static int isValidLocalDb(const char *zDbName){
 ** For legacy, also look for ".fos".  The use of ".fos" is deprecated
 ** since "fos" has negative connotations in Hungarian, we are told.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and
+** If no valid _FOSSIL_ or .fslckout file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
 ** This routine always opens the user database regardless of whether or
-** not the repository database is found.  If the _FOSSIL_ or .fos file
+** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *const aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
+  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
-    if( file_access(zPwd, W_OK) ) break;
-    for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+    for(i=0; i<count(aDbName); i++){
+      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
+      if( file_access(zPwd, W_OK) ) continue;
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -1630,7 +1630,7 @@ char *db_reveal(const char *zKey){
 int is_truth(const char *zVal){
   static const char *const azOn[] = { "on", "yes", "true", "1" };
   int i;
-  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+  for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
   return 0;
@@ -1638,7 +1638,7 @@ int is_truth(const char *zVal){
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
   int i;
-  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+  for(i=0; i<count(azOff); i++){
     if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;
   }
   return 0;
