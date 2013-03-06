@@ -250,15 +250,28 @@ void glob_free(Glob *pGlob){
 **
 ** Usage:  %fossil test-glob PATTERN STRING...
 **
-** PATTERN is a comma-separated list of glob patterns.  Show which of
-** the STRINGs that follow match the PATTERN.
+** PATTERN is a comma- and whitespace-separated list of optionally
+** quoted glob patterns.  Show which of the STRINGs that follow match
+** the PATTERN.
+**
+** If PATTERN begins with "@" the the rest of the pattern is understood
+** to be a setting name (such as binary-glob, crln-glob, or encoding-glob)
+** and the value of that setting is used as the actually glob pattern.
 */
 void glob_test_cmd(void){
   Glob *pGlob;
   int i;
+  char *zPattern;
   if( g.argc<4 ) usage("PATTERN STRING ...");
-  fossil_print("SQL expression: %s\n", glob_expr("x", g.argv[2]));
-  pGlob = glob_create(g.argv[2]);
+  zPattern = g.argv[2];
+  if( zPattern[0]=='@' ){
+    db_find_and_open_repository(OPEN_ANY_SCHEMA,0);
+    zPattern = db_get(zPattern+1, 0);
+    if( zPattern==0 ) fossil_fatal("no such setting: %s", g.argv[2]+1);
+    fossil_print("GLOB pattern: %s\n", zPattern);
+  }
+  fossil_print("SQL expression: %s\n", glob_expr("x", zPattern));
+  pGlob = glob_create(zPattern);
   for(i=0; i<pGlob->nPattern; i++){
     fossil_print("pattern[%d] = [%s]\n", i, pGlob->azPattern[i]);
   }
