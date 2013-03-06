@@ -1,5 +1,5 @@
 C merge\strunk
-D 2013-03-06T14:40:04.524
+D 2013-03-06T15:40:18.023
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c 39be689a3524461809f9f0f27d502369993947a9
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c a9ee4af8df2bbaa55f0cf405e05ca4bc4a6aa26f
+F src/diff.c c759ede46247918b0c700c6b49f65067850fa43b
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 23380615245f59c7b04629f8526df94d498baf68
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -502,7 +502,7 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 18768de6524ee0c7b714891d9319602fc257036e
-F win/Makefile.mingw 9399cc8bb232e2ddb0d17ea98e5f8432b84881a0
+F win/Makefile.mingw 8f7e9c5ce2b6132f716b553759282ee142072fb7
 F win/Makefile.mingw.mistachkin 561b0b6a0d8c2d98bc5cca5ecfa965a5e868a9b0
 F win/Makefile.msc 39fd933d835eef50618646f5831887b5b53c9eb4
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
@@ -605,7 +605,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1b61defd58092e375cc3fd4857138bf874906adc f7b355b311ab07c4c8455d58c532dd586022a280
-R 719ff650091110e9dafa80c55753c368
+P 7aa9f66f926c0317b6056a5577da90c609c7c343 af0ca3b4eb272bbc5337f7855ff47ec150572387
+R 2000e0cbbc8bb612d261b643162fa98b
 U jan.nijtmans
-Z b6642a77d28cbc0b7f27fb692f673f68
+Z 8dc6484a4bb6cb05cb73df4e8c4c8831
