@@ -225,41 +225,39 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 int looks_like_utf8(const Blob *pContent, int *pFlags){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
+  int j, c, flags = LOOK_NONE;
 
-  if( pFlags ) *pFlags = LOOK_NONE;
+  if( pFlags ) *pFlags = flags;
   if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
   if( c==0 ){
-    if( pFlags ) *pFlags |= LOOK_NUL;
+    if( pFlags ) *pFlags = LOOK_NUL;
     return 0;  /* NUL character in a file -> binary */
   }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
     if( c==0 ){
-      if( pFlags ) *pFlags |= LOOK_NUL;
+      if( pFlags ) *pFlags = LOOK_NUL;
       return 0;  /* NUL character in a file -> binary */
     }
     if( c=='\n' ){
       int c2 = z[-1];
-      if( pFlags ){
-        *pFlags |= LOOK_LF;
-        if( c2=='\r' ){
-          *pFlags |= LOOK_CRLF;
-        }
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= LOOK_CRLF;
       }
       if( j>LENGTH_MASK ){
-        if( pFlags ) *pFlags |= LOOK_LENGTH;
-        return 0;  /* Very long line -> binary */
+        flags |= LOOK_LENGTH;
       }
       j = 0;
     }
   }
-  if( j>LENGTH_MASK ){
-    if( pFlags ) *pFlags |= LOOK_LENGTH;
+  if( (flags&LOOK_LENGTH) || (j>LENGTH_MASK) ){
+    if( pFlags ) *pFlags = LOOK_LENGTH;
     return 0;  /* Very long line -> binary */
   }
+  if( pFlags ) *pFlags = flags;
   return 1;  /* No problems seen -> not binary */
 }
 
@@ -319,42 +317,40 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
 int looks_like_utf16(const Blob *pContent, int *pFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
+  int j, c, flags = LOOK_NONE;
 
-  if( pFlags ) *pFlags = LOOK_NONE;
+  if( pFlags ) *pFlags = flags;
   if( n==0 ) return 1;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
   if( c==0 ){
-    if( pFlags ) *pFlags |= LOOK_NUL;
+    if( pFlags ) *pFlags = LOOK_NUL;
     return 0;  /* NUL character in a file -> binary */
   }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
   while( (n-=2)>0 ){
     c = *++z; ++j;
     if( c==0 ){
-      if( pFlags ) *pFlags |= LOOK_NUL;
+      if( pFlags ) *pFlags = LOOK_NUL;
       return 0;  /* NUL character in a file -> binary */
     }
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
-      if( pFlags ){
-        *pFlags |= LOOK_LF;
-        if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-          *pFlags |= LOOK_CRLF;
-        }
+      flags |= LOOK_LF;
+      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
+        flags |= LOOK_CRLF;
       }
       if( j>UTF16_LENGTH_MASK ){
-        if( pFlags ) *pFlags |= LOOK_LENGTH;
-        return 0;  /* Very long line -> binary */
+        flags |= LOOK_LENGTH;
       }
       j = 0;
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
-    if( pFlags ) *pFlags |= LOOK_LENGTH;
+  if( (flags&LOOK_LENGTH) || (j>UTF16_LENGTH_MASK) ){
+    if( pFlags ) *pFlags = LOOK_LENGTH;
     return 0;  /* Very long line -> binary */
   }
+  if( pFlags ) *pFlags = flags;
   return 1;  /* No problems seen -> not binary */
 }
 
