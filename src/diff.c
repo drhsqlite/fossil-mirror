@@ -2448,3 +2448,34 @@ void annotate_cmd(void){
                  ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
 }
+
+/*
+** COMMAND: test-looks-like-utf
+**
+** Usage:  %fossil test-looks-like-utf FILENAME
+**
+** FILENAME is the name of a file to check for textual content in the UTF-8
+** and/or UTF-16 encodings.
+*/
+void looks_like_utf_test_cmd(void){
+  Blob blob;     /* the contents of the specified file */
+  int eType;     /* return value of looks_like_utf8/utf16() */
+  int fUtf8;     /* return value of starts_with_utf8_bom() */
+  int fUtf16;    /* return value of starts_with_utf16_bom() */
+  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  if( g.argc<3 ) usage("FILENAME");
+  blob_read_from_file(&blob, g.argv[2]);
+  fUtf8 = starts_with_utf8_bom(&blob, 0);
+  fUtf16 = starts_with_utf16_bom(&blob, 0, 0);
+  eType = fUtf16 ? looks_like_utf16(&blob, &lookFlags) :
+                   looks_like_utf8(&blob, &lookFlags);
+  fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
+  fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
+  fossil_print("Starts with UTF-16 BOM: %s\n",fUtf16?"yes":"no");
+  fossil_print("Looks like UTF-%s: %s\n", fUtf16?"16":"8",eType?"yes":"no");
+  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
+  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
+  fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
+  blob_reset(&blob);
+}
