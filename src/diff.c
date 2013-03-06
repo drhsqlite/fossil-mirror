@@ -59,7 +59,21 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_binary(blob) ((looks_like_utf8((blob))&3) == 0)
+/*
+** This macro is designed to return non-zero if the specified blob contains
+** data that MAY be binary in nature; otherwise, zero will be returned.
+*/
+#define looks_like_binary(blob) (looks_like_utf8((blob), 0) == 0)
+
+/*
+** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
+** to convey status information about the blob content.
+*/
+#define LOOK_NONE   ((int)0x00000000) /* Nothing special was found. */
+#define LOOK_NUL    ((int)0x00000001) /* One or more NUL chars were found. */
+#define LOOK_LF     ((int)0x00000002) /* One or more LF chars were found. */
+#define LOOK_CRLF   ((int)0x00000004) /* One or more CR/LF pairs were found. */
+#define LOOK_LENGTH ((int)0x00000008) /* An over length line was found. */
 #endif /* INTERFACE */
 
 /*
@@ -188,22 +202,13 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** determine the type of content it appears to contain.  Possible return
 ** values are:
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-8.
+**  (1) -- The content appears to consist entirely of text; however, the
+**         encoding may not be UTF-8.
 **
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL characters or an extremely long line.  Since this function
 **         does not understand UTF-16, it may falsely consider UTF-16 text
 **         to be binary.
-**
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-8.
-**
-** (-4) -- The same as 0, but the determination is based on the fact that
-**         the blob might be text (any encoding) but it has a line length
-**         bigger than the diff logic in fossil can handle.
 **
 ************************************ WARNING **********************************
 **
@@ -217,35 +222,45 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent){
+int looks_like_utf8(const Blob *pContent, int *pFlags){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
-  /* Check individual lines.
-  */
+  if( pFlags ) *pFlags = LOOK_NONE;
   if( n==0 ) return 1;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+  if( c==0 ){
+    if( pFlags ) *pFlags |= LOOK_NUL;
+    return 0;  /* NUL character in a file -> binary */
+  }
   j = (c!='\n');
   while( --n>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
+    if( c==0 ){
+      if( pFlags ) *pFlags |= LOOK_NUL;
+      return 0;  /* NUL character in a file -> binary */
+    }
     if( c=='\n' ){
-      if( z[-1]=='\r' ){
-        flags |= 2;  /* Contains CR/NL, continue */
+      int c2 = z[-1];
+      if( pFlags ){
+        *pFlags |= LOOK_LF;
+        if( c2=='\r' ){
+          *pFlags |= LOOK_CRLF;
+        }
       }
       if( j>LENGTH_MASK ){
-        flags |= 1;  /* Very long line, continue */
+        if( pFlags ) *pFlags |= LOOK_LENGTH;
+        return 0;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
-  if( (flags&1) || (j>LENGTH_MASK) ){
-    return -4;  /* Very long line -> binary */
+  if( j>LENGTH_MASK ){
+    if( pFlags ) *pFlags |= LOOK_LENGTH;
+    return 0;  /* Very long line -> binary */
   }
-  return 1-flags;  /* No problems seen -> not binary */
+  return 1;  /* No problems seen -> not binary */
 }
 
 /*
@@ -281,22 +296,13 @@ int looks_like_utf8(const Blob *pContent){
 ** determine the type of content it appears to contain.  Possible return
 ** values are:
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-16.
+**  (1) -- The content appears to consist entirely of text; however, the
+**         encoding may not be UTF-16.
 **
 **  (0) -- The content appears to be binary because it contains embedded
 **         NUL characters or an extremely long line.  Since this function
 **         does not understand UTF-8, it may falsely consider UTF-8 text
 **         to be binary.
-**
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-16.
-**
-** (-4) -- The same as 0, but the determination is based on the fact that
-**         the blob might be text (any encoding) but it has a line length
-**         bigger than the diff logic in fossil can handle.
 **
 ************************************ WARNING **********************************
 **
@@ -310,37 +316,46 @@ int looks_like_utf8(const Blob *pContent){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent){
+int looks_like_utf16(const Blob *pContent, int *pFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c;
-  int flags = 0;  /* bit 0 = long lines found, 1 = CR/NL found. */
 
-  /* Check individual lines.
-  */
+  if( pFlags ) *pFlags = LOOK_NONE;
   if( n==0 ) return 1;  /* Empty file -> text */
   if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   c = *z;
-  if( c==0 ) return 0;  /* NUL character in a file -> binary */
+  if( c==0 ){
+    if( pFlags ) *pFlags |= LOOK_NUL;
+    return 0;  /* NUL character in a file -> binary */
+  }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
   while( (n-=2)>0 ){
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* NUL character in a file -> binary */
+    if( c==0 ){
+      if( pFlags ) *pFlags |= LOOK_NUL;
+      return 0;  /* NUL character in a file -> binary */
+    }
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
-      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        flags |= 2;  /* Contains CR/NL, continue */
+      if( pFlags ){
+        *pFlags |= LOOK_LF;
+        if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
+          *pFlags |= LOOK_CRLF;
+        }
       }
       if( j>UTF16_LENGTH_MASK ){
-        flags |= 1;  /* Very long line, continue */
+        if( pFlags ) *pFlags |= LOOK_LENGTH;
+        return 0;  /* Very long line -> binary */
       }
       j = 0;
     }
   }
-  if( (flags&1) || (j>UTF16_LENGTH_MASK) ){
-    return -4;  /* Very long line -> binary */
+  if( j>UTF16_LENGTH_MASK ){
+    if( pFlags ) *pFlags |= LOOK_LENGTH;
+    return 0;  /* Very long line -> binary */
   }
-  return 1-flags;  /* No problems seen -> not binary */
+  return 1;  /* No problems seen -> not binary */
 }
 
 /*
@@ -1410,7 +1425,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           if( s.escHtml ){
             sbsWrite(&s, " &lt;\n", 6);
@@ -1443,7 +1458,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           assert( mb>0 );
@@ -1455,13 +1470,13 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           sbsWrite(&s, " | ", 3);
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           ma--;

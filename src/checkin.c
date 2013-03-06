@@ -205,6 +205,9 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
+  if( g.zConfigDbName ){
+    fossil_print("config-db:    %s\n", g.zConfigDbName);
+  }
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -904,52 +907,33 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int lookFlags;          /* output flags from looks_like_utf8/utf16() */
+  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
+  int fHasLength;         /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType==-4){
-    const char *zWarning;
-    const char *zDisable;
-    Blob ans;
-    char cReply;
-
-    if (!binOk) {
-      zWarning = "long lines";
-      zDisable = "\"binary-glob\" setting";
-      blob_zero(&ans);
-      file_relative_name(zFilename, &fname, 0);
-      zMsg = mprintf(
-           "%s appears to be text, but contains %s. Use --no-warnings or the"
-           " %s to disable this warning.\nCommit anyhow (a=all/y/N)? ",
-           blob_str(&fname), zWarning, zDisable);
-      prompt_user(zMsg, &ans);
-      fossil_free(zMsg);
-      cReply = blob_str(&ans)[0];
-      if( cReply!='y' && cReply!='Y' ){
-        fossil_fatal("Abandoning commit due to %s in %s",
-                     zWarning, blob_str(&fname));
-      }
-      blob_reset(&ans);
-    }
-  }
-  if( eType==0 || eType==-1 || fUnicode ){
+  eType = fUnicode ? looks_like_utf16(p, &lookFlags) :
+                     looks_like_utf8(p, &lookFlags);
+  fHasCrLf = (lookFlags & LOOK_CRLF);
+  fHasLength = (lookFlags & LOOK_LENGTH);
+  if( eType==0 || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==-1 && fUnicode ){
+    if( fHasCrLf && fUnicode ){
       if ( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( eType==-1 ){
+    }else if( fHasCrLf ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
@@ -959,7 +943,11 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      zWarning = "binary data";
+      if( fHasLength ){
+        zWarning = "long lines";
+      }else{
+        zWarning = "binary data";
+      }
       zDisable = "\"binary-glob\" setting";
       zConvert = ""; /* We cannot convert binary files. */
     }else{
@@ -968,7 +956,7 @@ static int commit_warning(
       }
       zWarning = "Unicode";
       zDisable = "\"encoding-glob\" setting";
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__CYGWIN__)
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
     }
@@ -976,7 +964,7 @@ static int commit_warning(
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
-    	 "Commit anyhow (a=all/%sy/N)? ",
+         "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
