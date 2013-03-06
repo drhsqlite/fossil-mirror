@@ -56,7 +56,7 @@ char *glob_expr(const char *zVal, const char *zGlobList){
     }else{
       cTerm = ',';
     }
-    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm; i++){}
+    for(i=0; zGlobList[i] && zGlobList[i]!=cTerm && zGlobList[i]!='\n'; i++){}
     if( cTerm==',' ){
       while( i>0 && fossil_isspace(zGlobList[i-1]) ){ i--; }
     }
