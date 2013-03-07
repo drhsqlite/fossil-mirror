@@ -221,7 +221,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
-** Whether or not this function examines the entire contents of the blob are
+** Whether or not this function examines the entire contents of the blob is
 ** officially unspecified.
 **
 ************************************ WARNING **********************************
@@ -318,7 +318,7 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
-** Whether or not this function examines the entire contents of the blob are
+** Whether or not this function examines the entire contents of the blob is
 ** officially unspecified.
 **
 ************************************ WARNING **********************************
