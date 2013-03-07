@@ -1,5 +1,5 @@
-C Enhance\sthe\sGLOB\sprocessing\son\ssettings\slike\sbinary-glob\sso\sthat\sany\ssequence\nof\scommas\sand/or\swhitespace\sserves\sas\sa\sdelimiter.\s\sDelimiters\sinside\sof\squotes\nare\spart\sthe\sglob\spattern\sand\sare\signored.\s\sEnhance\sthe\stest-glob\scommand\nto\sverify\scorrect\soperation\sof\sthe\sglobber.
-D 2013-03-06T20:53:10.605
+C For\sthe\slooks_like_utf*()\sfunctions,\scontinue\sto\sexamine\sblob\scontent\sin\sorder\sto\sfully\sset\sthe\soutput\sflags,\seven\sif\sit\sappears\sto\sbe\sbinary.\s\sAlso,\sincrease\sthe\sstrictness\sof\sstarts_with_utf16_bom()\sand\smake\sit\smore\saccurate.
+D 2013-03-07T01:12:26.383
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c efe743b3134ed629edcd01a9ea51a05731023cba
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 1922493f655f6a2bb17cdbb9bf34518b615b0f0b
+F src/diff.c dc8a1eb26c6bca737ec24bd0c89b8cdccd74e866
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -606,7 +606,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d9ae4ee73f72232444f9931585ffa9dc0965372 ad44353d9056c9c710075539d4a25e4a83a1e49e
-R 1d74457a0e49463e57d26ce10a9b9b5a
-U drh
-Z a81fb307b1fbcd80529aea1ec9b3cfbf
+P a93b58cf83ce00d069fbbd99bc6aa6cc51e3fa65
+R 4e04211a7a66f6f33f92173ffa3fb57a
+U mistachkin
+Z bc14c16667e348bf5d3efbbf7e35c198
