@@ -1209,10 +1209,11 @@ void setup_settings(void){
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
     if( pSet->width!=0 && pSet->versionable){
-      textarea_attribute(pSet->name, /*rows*/ 3, /*cols*/ 20, pSet->name,
+      @<b>%s(pSet->name)</b> (v)<br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def);
-      @  (v)<br />
+      @<br />
     }
   }
   @ </td></tr></table>
