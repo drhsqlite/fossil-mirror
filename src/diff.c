@@ -335,7 +335,7 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
   if( n==0 ) return result;  /* Empty file -> text */
   if( n%2 ){
     if( pFlags ) *pFlags |= LOOK_ODD;
-    result = 0;  /* Odd number of bytes -> binary (or UTF-8) */
+    return 0;  /* Odd number of bytes -> binary (or UTF-8) */
   }
   c = *z;
   if( c==0 ){
