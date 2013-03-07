@@ -71,10 +71,11 @@
 */
 #define LOOK_NONE   ((int)0x00000000) /* Nothing special was found. */
 #define LOOK_NUL    ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_LF     ((int)0x00000002) /* One or more LF chars were found. */
-#define LOOK_CRLF   ((int)0x00000004) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH ((int)0x00000008) /* An over length line was found. */
-#define LOOK_ODD    ((int)0x00000010) /* An odd number of bytes was found. */
+#define LOOK_CR     ((int)0x00000002) /* One or more CR chars were found. */
+#define LOOK_LF     ((int)0x00000004) /* One or more LF chars were found. */
+#define LOOK_CRLF   ((int)0x00000008) /* One or more CR/LF pairs were found. */
+#define LOOK_LENGTH ((int)0x00000010) /* An over length line was found. */
+#define LOOK_ODD    ((int)0x00000020) /* An odd number of bytes was found. */
 #endif /* INTERFACE */
 
 /*
@@ -258,6 +259,8 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c=='\r' ){
+      if( pFlags ) *pFlags |= LOOK_CR;
     }
   }
   if( j>LENGTH_MASK ){
@@ -359,6 +362,8 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c==UTF16BE_CR || c==UTF16LE_CR ){
+      if( pFlags ) *pFlags |= LOOK_CR;
     }
   }
   if( j>UTF16_LENGTH_MASK ){
@@ -2489,6 +2494,7 @@ void looks_like_utf_test_cmd(void){
   fossil_print("Starts with UTF-16 BOM: %s\n",fUtf16?"yes":"no");
   fossil_print("Looks like UTF-%s: %s\n",fUtf16?"16":"8",eType?"yes":"no");
   fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
+  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
   fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
   fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
