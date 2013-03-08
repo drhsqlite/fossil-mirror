@@ -916,8 +916,16 @@ static int commit_warning(
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p, &lookFlags) :
-                     looks_like_utf8(p, &lookFlags);
+  if (fUnicode) {
+    eType = looks_like_utf16(p, &lookFlags);
+    if ( lookFlags&LOOK_ODD ){
+      /* It cannot be unicode, so try again as single-byte encoding */
+      fUnicode = 0;
+      eType = looks_like_utf8(p, &lookFlags);
+    }
+  }else{
+    eType = looks_like_utf8(p, &lookFlags);
+  }
   fHasCrLf = (lookFlags & LOOK_CRLF);
   fHasLength = (lookFlags & LOOK_LENGTH);
   if( eType==0 || fHasCrLf || fUnicode ){
