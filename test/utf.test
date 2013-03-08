@@ -33,10 +33,11 @@ array set enc [list \
      2 unicode      \
 ]
 
-array set bom [list \
-     0 ""           \
-     1 \xEF\xBB\xBF \
-     2 \xFF\xFE     \
+array set bom [list                                        \
+     0 ""                                                  \
+     1 \xEF\xBB\xBF                                        \
+     2 [expr {$tcl_platform(byteOrder) eq "littleEndian" ? \
+         "\xFF\xFE" : "\xFE\xFF"}] \
 ]
 
 array set data [list                         \
