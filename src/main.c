@@ -116,13 +116,12 @@ struct Global {
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
-  int configOpen;         /* True if the config database is open */
+  const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
-  const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -607,7 +606,7 @@ int main(int argc, char **argv)
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_fatal("Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s", g.argv[0], g.argv[1], zFormat);
 }
 
 /*

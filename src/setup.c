@@ -1680,7 +1680,7 @@ void sql_page(void){
   @ Any subsequent statements will be silently ignored.</p>
   @
   @ <p>Database names:<ul><li>repository &rarr; %s(db_name("repository"))
-  if( g.configOpen ){
+  if( g.zConfigDbName ){
     @ <li>config &rarr; %s(db_name("configdb"))
   }
   if( g.localOpen ){

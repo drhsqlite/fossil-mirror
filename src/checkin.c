@@ -205,6 +205,9 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
+  if( g.zConfigDbName ){
+    fossil_print("config-db:    %s\n", g.zConfigDbName);
+  }
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -904,91 +907,72 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int lookFlags;          /* output flags from looks_like_utf8/utf16() */
+  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
+  int fHasLength;         /* the blob contains an overly long line */
+  int fInvalid;           /* the blob contains invalid utf-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType<-2){
-    const char *zWarning;
-    const char *zDisable;
-    const char *zConvert;
-    Blob ans;
-    char cReply;
-
-    if(eType==-4){
-      if (binOk) goto go_on;
-      zWarning = "long lines";
-      zDisable = "\"binary-glob\" setting";
-      zConvert = "";
-    }else{
-      if (encodingOk) goto go_on;
-      zWarning = "invalid UTF-8";
-      zDisable = "\"encoding-glob\" setting";
-      zConvert = "c=convert/";
+  if (fUnicode) {
+    eType = looks_like_utf16(p, &lookFlags);
+    if ( lookFlags&LOOK_ODD ){
+      /* It cannot be unicode, so try again as single-byte encoding */
+      fUnicode = 0;
+      eType = looks_like_utf8(p, &lookFlags);
     }
-    blob_zero(&ans);
-    file_relative_name(zFilename, &fname, 0);
-    zMsg = mprintf(
-         "%s appears to be text, but contains %s. Use --no-warnings or the"
-    	 " %s to disable this warning.\nCommit anyhow (a=all/%sy/N)? ",
-         blob_str(&fname), zWarning, zDisable, zConvert);
-    prompt_user(zMsg, &ans);
-    fossil_free(zMsg);
-    cReply = blob_str(&ans)[0];
-    if( *zConvert && (cReply=='c' || cReply=='C') ){
-      char *zOrig = file_newname(zFilename, "original", 1);
-      FILE *f;
-      blob_write_to_file(p, zOrig);
-      fossil_free(zOrig);
-      f = fossil_fopen(zFilename, "wb");
-      blob_cp1252_to_utf8(p);
-      fwrite(blob_buffer(p), 1, blob_size(p), f);
-      fclose(f);
-      return 1;
-    } else if( cReply!='y' && cReply!='Y' ){
-      fossil_fatal("Abandoning commit due to %s in %s",
-                   zWarning, blob_str(&fname));
-    }
-    blob_reset(&ans);
-  go_on:
-    eType +=4 ;
+  }else{
+    eType = looks_like_utf8(p, &lookFlags);
   }
-  if( eType==0 || eType==-1 || fUnicode ){
+  fHasCrLf = (lookFlags & LOOK_CRLF);
+  fHasLength = (lookFlags & LOOK_LENGTH);
+  fInvalid = (lookFlags & LOOK_INVALID);
+  if( eType==0 || fHasCrLf || fUnicode || fInvalid ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==-1 && fUnicode ){
+    if( eType==0 ){
+      if( binOk ){
+        return 0; /* We don't want binary warnings for this file. */
+      }
+      if( fHasLength ){
+        zWarning = "long lines";
+      }else{
+        zWarning = "binary data";
+      }
+      zDisable = "\"binary-glob\" setting";
+      zConvert = ""; /* We cannot convert binary files. */
+    }else if( fHasCrLf && fUnicode ){
       if ( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( eType==-1 ){
+    }else if( fInvalid ){
+      if( encodingOk ){
+        return 0; /* We don't want encoding warnings for this file. */
+      }
+      zWarning = "invalid UTF-8";
+      zDisable = "\"encoding-glob\" setting";
+    }else if( fHasCrLf ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
       zDisable = "\"crnl-glob\" setting";
-    }else if( eType==0 ){
-      if( binOk ){
-        return 0; /* We don't want binary warnings for this file. */
-      }
-      zWarning = "binary data";
-      zDisable = "\"binary-glob\" setting";
-      zConvert = ""; /* We cannot convert binary files. */
     }else{
       if ( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
       zDisable = "\"encoding-glob\" setting";
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__CYGWIN__)
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
     }
@@ -996,7 +980,7 @@ static int commit_warning(
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
-    	 "Commit anyhow (a=all/%sy/N)? ",
+         "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
@@ -1014,8 +998,12 @@ static int commit_warning(
         const unsigned char *bom = get_utf8_bom(&bomSize);
         fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
+      }else  if( fInvalid ){
+        blob_cp1252_to_utf8(p);
       }
-      blob_remove_cr(p);
+      if( fHasCrLf ) {
+        blob_remove_cr(p);
+      }
       fwrite(blob_buffer(p), 1, blob_size(p), f);
       fclose(f);
       return 1;

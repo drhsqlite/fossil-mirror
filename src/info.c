@@ -200,11 +200,9 @@ void info_cmd(void){
       fossil_print("local-root:   %s\n", g.zLocalRoot);
     }
     if( bDetail ) extraRepoInfo();
-#if defined(_WIN32)
-    if( g.zHome ){
-      fossil_print("user-home:    %s\n", g.zHome);
+    if( g.zConfigDbName ){
+      fossil_print("config-db:    %s\n", g.zConfigDbName);
     }
-#endif
     fossil_print("project-code: %s\n", db_get("project-code", ""));
     vid = g.localOpen ? db_lget_int("checkout", 0) : 0;
     if( vid ){
@@ -531,10 +529,10 @@ void ci_page(void){
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th><td>%w(zEComment)</td></tr>
-      @ <tr><th>Original&nbsp;Comment:</th><td>%w(zComment)</td></tr>
+      @ <tr><th>Edited&nbsp;Comment:</th><td>%!w(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th><td>%!w(zComment)</td></tr>
     }else{
-      @ <tr><th>Comment:</th><td>%w(zComment)</td></tr>
+      @ <tr><th>Comment:</th><td>%!w(zComment)</td></tr>
     }
     if( g.perm.Admin ){
       db_prepare(&q,
@@ -1077,7 +1075,7 @@ int object_description(
     if( zBr && zBr[0] ){
       @ on branch %z(href("%R/timeline?r=%T",zBr))%h(zBr)</a>
     }
-    @ - %w(zCom) (user:
+    @ - %!w(zCom) (user:
     hyperlink_to_user(zUser,zDate,")");
     if( g.perm.Hyperlink ){
       @ %z(href("%R/annotate?checkin=%S&filename=%T",zVers,zName))
@@ -1160,7 +1158,7 @@ int object_description(
       if( zType[0]!='e' ){
         hyperlink_to_uuid(zUuid);
       }
-      @ - %w(zCom) by
+      @ - %!w(zCom) by
       hyperlink_to_user(zUser,zDate," on");
       hyperlink_to_date(zDate, ".");
       if( pDownloadName && blob_size(pDownloadName)==0 ){
@@ -2157,7 +2155,7 @@ void ci_edit_page(void){
     }else{
       @ <tr><td>
     }
-    @ %w(blob_str(&comment))
+    @ %!w(blob_str(&comment))
     blob_zero(&suffix);
     blob_appendf(&suffix, "(user: %h", zNewUser);
     db_prepare(&q, "SELECT substr(tagname,5) FROM tagxref, tag"

@@ -1,0 +1,3963 @@
+#
+# Copyright (c) 2013 D. Richard Hipp
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the Simplified BSD License (also
+# known as the "2-Clause License" or "FreeBSD License".)
+#
+# This program is distributed in the hope that it will be useful,
+# but without any warranty; without even the implied warranty of
+# merchantability or fitness for a particular purpose.
+#
+# Author contact information:
+#   drh@hwaci.com
+#   http://www.hwaci.com/drh/
+#
+############################################################################
+#
+# Test UTF-8/UTF-16 detection
+#
+
+proc utf-check {testname args} {
+  set i 1
+  foreach {fileName result} $args {
+    fossil test-looks-like-utf $fileName
+    test utf-check-$testname.$i {$::RESULT eq $result}
+    incr i
+  }
+}
+
+array set enc [list \
+     0 binary       \
+     1 binary       \
+     2 unicode      \
+]
+
+array set bom [list                                        \
+     0 ""                                                  \
+     1 \xEF\xBB\xBF                                        \
+     2 [expr {$tcl_platform(byteOrder) eq "littleEndian" ? \
+         "\xFF\xFE" : "\xFE\xFF"}] \
+]
+
+array set data [list                         \
+     0 ""                                    \
+     1 A                                     \
+     2 AB                                    \
+     3 ABC                                   \
+     4 ABCD                                  \
+     5 A\r                                   \
+     6 AB\r                                  \
+     7 ABC\r                                 \
+     8 ABCD\r                                \
+     9 A\n                                   \
+    10 AB\n                                  \
+    11 ABC\n                                 \
+    12 ABCD\n                                \
+    13 A\r\n                                 \
+    14 AB\r\n                                \
+    15 ABC\r\n                               \
+    16 ABCD\r\n                              \
+    17 \x00A                                 \
+    18 \x00AB                                \
+    19 \x00ABC                               \
+    20 \x00ABCD                              \
+    21 \x00A\r                               \
+    22 \x00AB\r                              \
+    23 \x00ABC\r                             \
+    24 \x00ABCD\r                            \
+    25 \x00A\n                               \
+    26 \x00AB\n                              \
+    27 \x00ABC\n                             \
+    28 \x00ABCD\n                            \
+    29 \x00A\r\n                             \
+    30 \x00AB\r\n                            \
+    31 \x00ABC\r\n                           \
+    32 \x00ABCD\r\n                          \
+    33 A\x00                                 \
+    34 AB\x00                                \
+    35 ABC\x00                               \
+    36 ABCD\x00                              \
+    37 A\x00\r                               \
+    38 AB\x00\r                              \
+    39 ABC\x00\r                             \
+    40 ABCD\x00\r                            \
+    41 A\x00\n                               \
+    42 AB\x00\n                              \
+    43 ABC\x00\n                             \
+    44 ABCD\x00\n                            \
+    45 A\x00\r\n                             \
+    46 AB\x00\r\n                            \
+    47 ABC\x00\r\n                           \
+    48 ABCD\x00\r\n                          \
+    49 \x00A\x00                             \
+    50 \x00AB\x00                            \
+    51 \x00ABC\x00                           \
+    52 \x00ABCD\x00                          \
+    53 \x00A\x00\r                           \
+    54 \x00AB\x00\r                          \
+    55 \x00ABC\x00\r                         \
+    56 \x00ABCD\x00\r                        \
+    57 \x00A\x00\n                           \
+    58 \x00AB\x00\n                          \
+    59 \x00ABC\x00\n                         \
+    60 \x00ABCD\x00\n                        \
+    61 \x00A\x00\r\n                         \
+    62 \x00AB\x00\r\n                        \
+    63 \x00ABC\x00\r\n                       \
+    64 \x00ABCD\x00\r\n                      \
+    65 [string repeat A 8193]                \
+    66 [string repeat A 8193]\r              \
+    67 [string repeat A 8193]\n              \
+    68 [string repeat A 8193]\r\n            \
+    69 [string repeat ABCD 2049]             \
+    70 [string repeat ABCD 2049]\r           \
+    71 [string repeat ABCD 2049]\n           \
+    72 [string repeat ABCD 2049]\r\n         \
+    73 \x00[string repeat A 8193]            \
+    74 \x00[string repeat A 8193]\r          \
+    75 \x00[string repeat A 8193]\n          \
+    76 \x00[string repeat A 8193]\r\n        \
+    77 \x00[string repeat ABCD 2049]         \
+    78 \x00[string repeat ABCD 2049]\r       \
+    79 \x00[string repeat ABCD 2049]\n       \
+    80 \x00[string repeat ABCD 2049]\r\n     \
+    81 [string repeat A 8193]\x00            \
+    82 [string repeat A 8193]\x00\r          \
+    83 [string repeat A 8193]\x00\n          \
+    84 [string repeat A 8193]\x00\r\n        \
+    85 [string repeat ABCD 2049]\x00         \
+    86 [string repeat ABCD 2049]\x00\r       \
+    87 [string repeat ABCD 2049]\x00\n       \
+    88 [string repeat ABCD 2049]\x00\r\n     \
+    89 \x00[string repeat A 8193]\x00        \
+    90 \x00[string repeat A 8193]\x00\r      \
+    91 \x00[string repeat A 8193]\x00\n      \
+    92 \x00[string repeat A 8193]\x00\r\n    \
+    93 \x00[string repeat ABCD 2049]\x00     \
+    94 \x00[string repeat ABCD 2049]\x00\r   \
+    95 \x00[string repeat ABCD 2049]\x00\n   \
+    96 \x00[string repeat ABCD 2049]\x00\r\n \
+]
+
+proc deleteTestFiles { path num } {
+  set fn $num
+  for {set i 0} {$i < [array size ::bom]} {incr i} {
+    for {set j 0} {$j < [array size ::data]} {incr j} {
+      file delete [file join $path utf-check-$fn-$i-$j.jnk]
+      incr fn
+    }
+  }
+}
+
+proc createTestFiles { path num } {
+  set fn $num
+  for {set i 0} {$i < [array size ::bom]} {incr i} {
+    for {set j 0} {$j < [array size ::data]} {incr j} {
+      set f [open [file join $path utf-check-$fn-$i-$j.jnk] \
+          {WRONLY CREAT TRUNC}]; incr fn
+      fconfigure $f -encoding binary -translation binary
+      puts -nonewline $f $::bom($i)
+      if {$::enc($i) ne "binary"} then {
+        puts -nonewline $f [encoding convertto $::enc($i) $::data($j)]
+      } else {
+        puts -nonewline $f $::data($j)
+      }
+      flush $f; close $f
+    }
+  }
+}
+
+set tempPath [expr {[info exists env(TEMP)] ? \
+    $env(TEMP) : [file dirname [info script]]}]
+
+if {$tcl_platform(platform) eq "windows"} then {
+  set tempPath [string map [list \\ /] $tempPath]
+}
+
+createTestFiles $tempPath 100
+
+utf-check 100 [file join $tempPath utf-check-100-0-0.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-100-0-0.jnk" has 0 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 101 [file join $tempPath utf-check-101-0-1.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-101-0-1.jnk" has 1 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 102 [file join $tempPath utf-check-102-0-2.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-102-0-2.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 103 [file join $tempPath utf-check-103-0-3.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-103-0-3.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 104 [file join $tempPath utf-check-104-0-4.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-104-0-4.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 105 [file join $tempPath utf-check-105-0-5.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-105-0-5.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 106 [file join $tempPath utf-check-106-0-6.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-106-0-6.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 107 [file join $tempPath utf-check-107-0-7.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-107-0-7.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 108 [file join $tempPath utf-check-108-0-8.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-108-0-8.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 109 [file join $tempPath utf-check-109-0-9.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-109-0-9.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 110 [file join $tempPath utf-check-110-0-10.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-110-0-10.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 111 [file join $tempPath utf-check-111-0-11.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-111-0-11.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 112 [file join $tempPath utf-check-112-0-12.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-112-0-12.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 113 [file join $tempPath utf-check-113-0-13.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-113-0-13.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 114 [file join $tempPath utf-check-114-0-14.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-114-0-14.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 115 [file join $tempPath utf-check-115-0-15.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-115-0-15.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 116 [file join $tempPath utf-check-116-0-16.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-116-0-16.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 117 [file join $tempPath utf-check-117-0-17.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-117-0-17.jnk" has 1 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 118 [file join $tempPath utf-check-118-0-18.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-118-0-18.jnk" has 1 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 119 [file join $tempPath utf-check-119-0-19.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-119-0-19.jnk" has 1 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 120 [file join $tempPath utf-check-120-0-20.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-120-0-20.jnk" has 1 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 121 [file join $tempPath utf-check-121-0-21.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-121-0-21.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 122 [file join $tempPath utf-check-122-0-22.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-122-0-22.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 123 [file join $tempPath utf-check-123-0-23.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-123-0-23.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 124 [file join $tempPath utf-check-124-0-24.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-124-0-24.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 125 [file join $tempPath utf-check-125-0-25.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-125-0-25.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 126 [file join $tempPath utf-check-126-0-26.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-126-0-26.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 127 [file join $tempPath utf-check-127-0-27.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-127-0-27.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 128 [file join $tempPath utf-check-128-0-28.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-128-0-28.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 129 [file join $tempPath utf-check-129-0-29.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-129-0-29.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 130 [file join $tempPath utf-check-130-0-30.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-130-0-30.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 131 [file join $tempPath utf-check-131-0-31.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-131-0-31.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 132 [file join $tempPath utf-check-132-0-32.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-132-0-32.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 133 [file join $tempPath utf-check-133-0-33.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-133-0-33.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 134 [file join $tempPath utf-check-134-0-34.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-134-0-34.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 135 [file join $tempPath utf-check-135-0-35.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-135-0-35.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 136 [file join $tempPath utf-check-136-0-36.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-136-0-36.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 137 [file join $tempPath utf-check-137-0-37.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-137-0-37.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 138 [file join $tempPath utf-check-138-0-38.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-138-0-38.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 139 [file join $tempPath utf-check-139-0-39.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-139-0-39.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 140 [file join $tempPath utf-check-140-0-40.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-140-0-40.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 141 [file join $tempPath utf-check-141-0-41.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-141-0-41.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 142 [file join $tempPath utf-check-142-0-42.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-142-0-42.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 143 [file join $tempPath utf-check-143-0-43.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-143-0-43.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 144 [file join $tempPath utf-check-144-0-44.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-144-0-44.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 145 [file join $tempPath utf-check-145-0-45.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-145-0-45.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 146 [file join $tempPath utf-check-146-0-46.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-146-0-46.jnk" has 5 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 147 [file join $tempPath utf-check-147-0-47.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-147-0-47.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 148 [file join $tempPath utf-check-148-0-48.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-148-0-48.jnk" has 7 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 149 [file join $tempPath utf-check-149-0-49.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-149-0-49.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 150 [file join $tempPath utf-check-150-0-50.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-150-0-50.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 151 [file join $tempPath utf-check-151-0-51.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-151-0-51.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 152 [file join $tempPath utf-check-152-0-52.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-152-0-52.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 153 [file join $tempPath utf-check-153-0-53.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-153-0-53.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 154 [file join $tempPath utf-check-154-0-54.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-154-0-54.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 155 [file join $tempPath utf-check-155-0-55.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-155-0-55.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 156 [file join $tempPath utf-check-156-0-56.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-156-0-56.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 157 [file join $tempPath utf-check-157-0-57.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-157-0-57.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 158 [file join $tempPath utf-check-158-0-58.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-158-0-58.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 159 [file join $tempPath utf-check-159-0-59.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-159-0-59.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 160 [file join $tempPath utf-check-160-0-60.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-160-0-60.jnk" has 3 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 161 [file join $tempPath utf-check-161-0-61.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-161-0-61.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 162 [file join $tempPath utf-check-162-0-62.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-162-0-62.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 163 [file join $tempPath utf-check-163-0-63.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-163-0-63.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 164 [file join $tempPath utf-check-164-0-64.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-164-0-64.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 165 [file join $tempPath utf-check-165-0-65.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-165-0-65.jnk" has 8193 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 166 [file join $tempPath utf-check-166-0-66.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-166-0-66.jnk" has 8194 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 167 [file join $tempPath utf-check-167-0-67.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-167-0-67.jnk" has 8194 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 168 [file join $tempPath utf-check-168-0-68.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-168-0-68.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 169 [file join $tempPath utf-check-169-0-69.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-169-0-69.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 170 [file join $tempPath utf-check-170-0-70.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-170-0-70.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 171 [file join $tempPath utf-check-171-0-71.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-171-0-71.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 172 [file join $tempPath utf-check-172-0-72.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-172-0-72.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 173 [file join $tempPath utf-check-173-0-73.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-173-0-73.jnk" has 8194 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 174 [file join $tempPath utf-check-174-0-74.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-174-0-74.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 175 [file join $tempPath utf-check-175-0-75.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-175-0-75.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 176 [file join $tempPath utf-check-176-0-76.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-176-0-76.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 177 [file join $tempPath utf-check-177-0-77.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-177-0-77.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 178 [file join $tempPath utf-check-178-0-78.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-178-0-78.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 179 [file join $tempPath utf-check-179-0-79.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-179-0-79.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 180 [file join $tempPath utf-check-180-0-80.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-180-0-80.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 181 [file join $tempPath utf-check-181-0-81.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-181-0-81.jnk" has 8194 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 182 [file join $tempPath utf-check-182-0-82.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-182-0-82.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 183 [file join $tempPath utf-check-183-0-83.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-183-0-83.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 184 [file join $tempPath utf-check-184-0-84.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-184-0-84.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 185 [file join $tempPath utf-check-185-0-85.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-185-0-85.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 186 [file join $tempPath utf-check-186-0-86.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-186-0-86.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 187 [file join $tempPath utf-check-187-0-87.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-187-0-87.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 188 [file join $tempPath utf-check-188-0-88.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-188-0-88.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 189 [file join $tempPath utf-check-189-0-89.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-189-0-89.jnk" has 8195 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 190 [file join $tempPath utf-check-190-0-90.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-190-0-90.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 191 [file join $tempPath utf-check-191-0-91.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-191-0-91.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 192 [file join $tempPath utf-check-192-0-92.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-192-0-92.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 193 [file join $tempPath utf-check-193-0-93.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-193-0-93.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 194 [file join $tempPath utf-check-194-0-94.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-194-0-94.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 195 [file join $tempPath utf-check-195-0-95.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-195-0-95.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 196 [file join $tempPath utf-check-196-0-96.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-196-0-96.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 197 [file join $tempPath utf-check-197-1-0.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-197-1-0.jnk" has 3 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 198 [file join $tempPath utf-check-198-1-1.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-198-1-1.jnk" has 4 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 199 [file join $tempPath utf-check-199-1-2.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-199-1-2.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 200 [file join $tempPath utf-check-200-1-3.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-200-1-3.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 201 [file join $tempPath utf-check-201-1-4.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-201-1-4.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 202 [file join $tempPath utf-check-202-1-5.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-202-1-5.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 203 [file join $tempPath utf-check-203-1-6.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-203-1-6.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 204 [file join $tempPath utf-check-204-1-7.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-204-1-7.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 205 [file join $tempPath utf-check-205-1-8.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-205-1-8.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 206 [file join $tempPath utf-check-206-1-9.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-206-1-9.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 207 [file join $tempPath utf-check-207-1-10.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-207-1-10.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 208 [file join $tempPath utf-check-208-1-11.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-208-1-11.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 209 [file join $tempPath utf-check-209-1-12.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-209-1-12.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 210 [file join $tempPath utf-check-210-1-13.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-210-1-13.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 211 [file join $tempPath utf-check-211-1-14.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-211-1-14.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 212 [file join $tempPath utf-check-212-1-15.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-212-1-15.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 213 [file join $tempPath utf-check-213-1-16.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-213-1-16.jnk" has 9 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 214 [file join $tempPath utf-check-214-1-17.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-214-1-17.jnk" has 4 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 215 [file join $tempPath utf-check-215-1-18.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-215-1-18.jnk" has 4 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 216 [file join $tempPath utf-check-216-1-19.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-216-1-19.jnk" has 4 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 217 [file join $tempPath utf-check-217-1-20.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-217-1-20.jnk" has 4 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 218 [file join $tempPath utf-check-218-1-21.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-218-1-21.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 219 [file join $tempPath utf-check-219-1-22.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-219-1-22.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 220 [file join $tempPath utf-check-220-1-23.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-220-1-23.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 221 [file join $tempPath utf-check-221-1-24.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-221-1-24.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 222 [file join $tempPath utf-check-222-1-25.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-222-1-25.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 223 [file join $tempPath utf-check-223-1-26.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-223-1-26.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 224 [file join $tempPath utf-check-224-1-27.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-224-1-27.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 225 [file join $tempPath utf-check-225-1-28.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-225-1-28.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 226 [file join $tempPath utf-check-226-1-29.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-226-1-29.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 227 [file join $tempPath utf-check-227-1-30.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-227-1-30.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 228 [file join $tempPath utf-check-228-1-31.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-228-1-31.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 229 [file join $tempPath utf-check-229-1-32.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-229-1-32.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: yes
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 230 [file join $tempPath utf-check-230-1-33.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-230-1-33.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 231 [file join $tempPath utf-check-231-1-34.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-231-1-34.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 232 [file join $tempPath utf-check-232-1-35.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-232-1-35.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 233 [file join $tempPath utf-check-233-1-36.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-233-1-36.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 234 [file join $tempPath utf-check-234-1-37.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-234-1-37.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 235 [file join $tempPath utf-check-235-1-38.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-235-1-38.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 236 [file join $tempPath utf-check-236-1-39.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-236-1-39.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 237 [file join $tempPath utf-check-237-1-40.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-237-1-40.jnk" has 9 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 238 [file join $tempPath utf-check-238-1-41.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-238-1-41.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 239 [file join $tempPath utf-check-239-1-42.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-239-1-42.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 240 [file join $tempPath utf-check-240-1-43.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-240-1-43.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 241 [file join $tempPath utf-check-241-1-44.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-241-1-44.jnk" has 9 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 242 [file join $tempPath utf-check-242-1-45.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-242-1-45.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 243 [file join $tempPath utf-check-243-1-46.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-243-1-46.jnk" has 8 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 244 [file join $tempPath utf-check-244-1-47.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-244-1-47.jnk" has 9 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 245 [file join $tempPath utf-check-245-1-48.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-245-1-48.jnk" has 10 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 246 [file join $tempPath utf-check-246-1-49.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-246-1-49.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 247 [file join $tempPath utf-check-247-1-50.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-247-1-50.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 248 [file join $tempPath utf-check-248-1-51.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-248-1-51.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 249 [file join $tempPath utf-check-249-1-52.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-249-1-52.jnk" has 5 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 250 [file join $tempPath utf-check-250-1-53.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-250-1-53.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 251 [file join $tempPath utf-check-251-1-54.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-251-1-54.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 252 [file join $tempPath utf-check-252-1-55.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-252-1-55.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 253 [file join $tempPath utf-check-253-1-56.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-253-1-56.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 254 [file join $tempPath utf-check-254-1-57.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-254-1-57.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 255 [file join $tempPath utf-check-255-1-58.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-255-1-58.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 256 [file join $tempPath utf-check-256-1-59.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-256-1-59.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 257 [file join $tempPath utf-check-257-1-60.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-257-1-60.jnk" has 6 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 258 [file join $tempPath utf-check-258-1-61.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-258-1-61.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 259 [file join $tempPath utf-check-259-1-62.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-259-1-62.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 260 [file join $tempPath utf-check-260-1-63.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-260-1-63.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 261 [file join $tempPath utf-check-261-1-64.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-261-1-64.jnk" has 7 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 262 [file join $tempPath utf-check-262-1-65.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-262-1-65.jnk" has 8196 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 263 [file join $tempPath utf-check-263-1-66.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-263-1-66.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 264 [file join $tempPath utf-check-264-1-67.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-264-1-67.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 265 [file join $tempPath utf-check-265-1-68.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-265-1-68.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 266 [file join $tempPath utf-check-266-1-69.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-266-1-69.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 267 [file join $tempPath utf-check-267-1-70.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-267-1-70.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 268 [file join $tempPath utf-check-268-1-71.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-268-1-71.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 269 [file join $tempPath utf-check-269-1-72.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-269-1-72.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: no
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 270 [file join $tempPath utf-check-270-1-73.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-270-1-73.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 271 [file join $tempPath utf-check-271-1-74.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-271-1-74.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 272 [file join $tempPath utf-check-272-1-75.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-272-1-75.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 273 [file join $tempPath utf-check-273-1-76.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-273-1-76.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 274 [file join $tempPath utf-check-274-1-77.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-274-1-77.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 275 [file join $tempPath utf-check-275-1-78.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-275-1-78.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 276 [file join $tempPath utf-check-276-1-79.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-276-1-79.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 277 [file join $tempPath utf-check-277-1-80.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-277-1-80.jnk" has 8202 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 278 [file join $tempPath utf-check-278-1-81.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-278-1-81.jnk" has 8197 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 279 [file join $tempPath utf-check-279-1-82.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-279-1-82.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 280 [file join $tempPath utf-check-280-1-83.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-280-1-83.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 281 [file join $tempPath utf-check-281-1-84.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-281-1-84.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 282 [file join $tempPath utf-check-282-1-85.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-282-1-85.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 283 [file join $tempPath utf-check-283-1-86.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-283-1-86.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 284 [file join $tempPath utf-check-284-1-87.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-284-1-87.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 285 [file join $tempPath utf-check-285-1-88.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-285-1-88.jnk" has 8202 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 286 [file join $tempPath utf-check-286-1-89.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-286-1-89.jnk" has 8198 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 287 [file join $tempPath utf-check-287-1-90.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-287-1-90.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 288 [file join $tempPath utf-check-288-1-91.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-288-1-91.jnk" has 8199 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 289 [file join $tempPath utf-check-289-1-92.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-289-1-92.jnk" has 8200 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 290 [file join $tempPath utf-check-290-1-93.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-290-1-93.jnk" has 8201 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 291 [file join $tempPath utf-check-291-1-94.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-291-1-94.jnk" has 8202 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 292 [file join $tempPath utf-check-292-1-95.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-292-1-95.jnk" has 8202 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 293 [file join $tempPath utf-check-293-1-96.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-293-1-96.jnk" has 8203 bytes.
+Starts with UTF-8 BOM: yes
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 294 [file join $tempPath utf-check-294-2-0.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-294-2-0.jnk" has 2 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 295 [file join $tempPath utf-check-295-2-1.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-295-2-1.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 296 [file join $tempPath utf-check-296-2-2.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-296-2-2.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 297 [file join $tempPath utf-check-297-2-3.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-297-2-3.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 298 [file join $tempPath utf-check-298-2-4.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-298-2-4.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 299 [file join $tempPath utf-check-299-2-5.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-299-2-5.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 300 [file join $tempPath utf-check-300-2-6.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-300-2-6.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 301 [file join $tempPath utf-check-301-2-7.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-301-2-7.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 302 [file join $tempPath utf-check-302-2-8.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-302-2-8.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 303 [file join $tempPath utf-check-303-2-9.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-303-2-9.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 304 [file join $tempPath utf-check-304-2-10.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-304-2-10.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 305 [file join $tempPath utf-check-305-2-11.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-305-2-11.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 306 [file join $tempPath utf-check-306-2-12.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-306-2-12.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 307 [file join $tempPath utf-check-307-2-13.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-307-2-13.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 308 [file join $tempPath utf-check-308-2-14.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-308-2-14.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 309 [file join $tempPath utf-check-309-2-15.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-309-2-15.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 310 [file join $tempPath utf-check-310-2-16.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-310-2-16.jnk" has 14 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 311 [file join $tempPath utf-check-311-2-17.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-311-2-17.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 312 [file join $tempPath utf-check-312-2-18.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-312-2-18.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 313 [file join $tempPath utf-check-313-2-19.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-313-2-19.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 314 [file join $tempPath utf-check-314-2-20.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-314-2-20.jnk" has 4 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 315 [file join $tempPath utf-check-315-2-21.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-315-2-21.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 316 [file join $tempPath utf-check-316-2-22.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-316-2-22.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 317 [file join $tempPath utf-check-317-2-23.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-317-2-23.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 318 [file join $tempPath utf-check-318-2-24.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-318-2-24.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 319 [file join $tempPath utf-check-319-2-25.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-319-2-25.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 320 [file join $tempPath utf-check-320-2-26.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-320-2-26.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 321 [file join $tempPath utf-check-321-2-27.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-321-2-27.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 322 [file join $tempPath utf-check-322-2-28.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-322-2-28.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 323 [file join $tempPath utf-check-323-2-29.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-323-2-29.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 324 [file join $tempPath utf-check-324-2-30.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-324-2-30.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 325 [file join $tempPath utf-check-325-2-31.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-325-2-31.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 326 [file join $tempPath utf-check-326-2-32.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-326-2-32.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 327 [file join $tempPath utf-check-327-2-33.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-327-2-33.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 328 [file join $tempPath utf-check-328-2-34.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-328-2-34.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 329 [file join $tempPath utf-check-329-2-35.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-329-2-35.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 330 [file join $tempPath utf-check-330-2-36.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-330-2-36.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 331 [file join $tempPath utf-check-331-2-37.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-331-2-37.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 332 [file join $tempPath utf-check-332-2-38.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-332-2-38.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 333 [file join $tempPath utf-check-333-2-39.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-333-2-39.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 334 [file join $tempPath utf-check-334-2-40.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-334-2-40.jnk" has 14 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 335 [file join $tempPath utf-check-335-2-41.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-335-2-41.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 336 [file join $tempPath utf-check-336-2-42.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-336-2-42.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 337 [file join $tempPath utf-check-337-2-43.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-337-2-43.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 338 [file join $tempPath utf-check-338-2-44.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-338-2-44.jnk" has 14 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 339 [file join $tempPath utf-check-339-2-45.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-339-2-45.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 340 [file join $tempPath utf-check-340-2-46.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-340-2-46.jnk" has 12 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 341 [file join $tempPath utf-check-341-2-47.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-341-2-47.jnk" has 14 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 342 [file join $tempPath utf-check-342-2-48.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-342-2-48.jnk" has 16 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 343 [file join $tempPath utf-check-343-2-49.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-343-2-49.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 344 [file join $tempPath utf-check-344-2-50.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-344-2-50.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 345 [file join $tempPath utf-check-345-2-51.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-345-2-51.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 346 [file join $tempPath utf-check-346-2-52.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-346-2-52.jnk" has 6 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 347 [file join $tempPath utf-check-347-2-53.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-347-2-53.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 348 [file join $tempPath utf-check-348-2-54.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-348-2-54.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 349 [file join $tempPath utf-check-349-2-55.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-349-2-55.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 350 [file join $tempPath utf-check-350-2-56.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-350-2-56.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 351 [file join $tempPath utf-check-351-2-57.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-351-2-57.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 352 [file join $tempPath utf-check-352-2-58.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-352-2-58.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 353 [file join $tempPath utf-check-353-2-59.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-353-2-59.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 354 [file join $tempPath utf-check-354-2-60.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-354-2-60.jnk" has 8 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 355 [file join $tempPath utf-check-355-2-61.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-355-2-61.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 356 [file join $tempPath utf-check-356-2-62.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-356-2-62.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 357 [file join $tempPath utf-check-357-2-63.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-357-2-63.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 358 [file join $tempPath utf-check-358-2-64.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-358-2-64.jnk" has 10 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: no
+Has flag LOOK_ODD: no}]
+
+utf-check 359 [file join $tempPath utf-check-359-2-65.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-359-2-65.jnk" has 16388 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 360 [file join $tempPath utf-check-360-2-66.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-360-2-66.jnk" has 16390 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 361 [file join $tempPath utf-check-361-2-67.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-361-2-67.jnk" has 16390 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 362 [file join $tempPath utf-check-362-2-68.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-362-2-68.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 363 [file join $tempPath utf-check-363-2-69.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-363-2-69.jnk" has 16394 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 364 [file join $tempPath utf-check-364-2-70.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-364-2-70.jnk" has 16396 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 365 [file join $tempPath utf-check-365-2-71.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-365-2-71.jnk" has 16396 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 366 [file join $tempPath utf-check-366-2-72.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-366-2-72.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 367 [file join $tempPath utf-check-367-2-73.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-367-2-73.jnk" has 16390 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 368 [file join $tempPath utf-check-368-2-74.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-368-2-74.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 369 [file join $tempPath utf-check-369-2-75.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-369-2-75.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 370 [file join $tempPath utf-check-370-2-76.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-370-2-76.jnk" has 16394 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 371 [file join $tempPath utf-check-371-2-77.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-371-2-77.jnk" has 16396 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 372 [file join $tempPath utf-check-372-2-78.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-372-2-78.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 373 [file join $tempPath utf-check-373-2-79.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-373-2-79.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 374 [file join $tempPath utf-check-374-2-80.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-374-2-80.jnk" has 16400 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 375 [file join $tempPath utf-check-375-2-81.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-375-2-81.jnk" has 16390 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 376 [file join $tempPath utf-check-376-2-82.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-376-2-82.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 377 [file join $tempPath utf-check-377-2-83.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-377-2-83.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 378 [file join $tempPath utf-check-378-2-84.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-378-2-84.jnk" has 16394 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 379 [file join $tempPath utf-check-379-2-85.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-379-2-85.jnk" has 16396 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 380 [file join $tempPath utf-check-380-2-86.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-380-2-86.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 381 [file join $tempPath utf-check-381-2-87.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-381-2-87.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 382 [file join $tempPath utf-check-382-2-88.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-382-2-88.jnk" has 16400 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: yes
+Looks like UTF-16: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: yes
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 383 [file join $tempPath utf-check-383-2-89.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-383-2-89.jnk" has 16392 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 384 [file join $tempPath utf-check-384-2-90.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-384-2-90.jnk" has 16394 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 385 [file join $tempPath utf-check-385-2-91.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-385-2-91.jnk" has 16394 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 386 [file join $tempPath utf-check-386-2-92.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-386-2-92.jnk" has 16396 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 387 [file join $tempPath utf-check-387-2-93.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-387-2-93.jnk" has 16398 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 388 [file join $tempPath utf-check-388-2-94.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-388-2-94.jnk" has 16400 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: no
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 389 [file join $tempPath utf-check-389-2-95.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-389-2-95.jnk" has 16400 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: no
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+utf-check 390 [file join $tempPath utf-check-390-2-96.jnk] \
+    [string map [list %TEMP% $tempPath \r\n \n] \
+{File "%TEMP%/utf-check-390-2-96.jnk" has 16402 bytes.
+Starts with UTF-8 BOM: no
+Starts with UTF-16 BOM: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
+Has flag LOOK_CR: yes
+Has flag LOOK_LF: yes
+Has flag LOOK_CRLF: no
+Has flag LOOK_LENGTH: yes
+Has flag LOOK_ODD: no}]
+
+deleteTestFiles $tempPath 100

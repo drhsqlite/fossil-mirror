@@ -794,7 +794,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
     for(i=1; i<nName; i++){
       if( zName[i]=='/' ){
         zName[i] = 0;
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         /*
         ** On Windows, local path looks like: C:/develop/project/file.txt
         ** The if stops us from trying to create a directory of a drive letter
@@ -806,7 +806,7 @@ int blob_write_to_file(Blob *pBlob, const char *zFilename){
             fossil_fatal_recursive("unable to create directory %s", zName);
             return 0;
           }
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
         }
 #endif
         zName[i] = '/';
@@ -1161,7 +1161,7 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_append(&temp, zUtf8, -1);
     blob_swap(pBlob, &temp);
     blob_reset(&temp);
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__CYGWIN__)
   }else if( starts_with_utf16_bom(pBlob, &bomSize, &bomReverse) ){
     zUtf8 = blob_buffer(pBlob);
     if( bomReverse ){
@@ -1181,6 +1181,8 @@ void blob_to_utf8_no_bom(Blob *pBlob, int useMbcs){
     blob_zero(pBlob);
     blob_append(pBlob, zUtf8, -1);
     fossil_unicode_free(zUtf8);
+#endif /* _WIN32 ||  __CYGWIN__ */
+#if defined(_WIN32)
   }else if( useMbcs ){
     zUtf8 = fossil_mbcs_to_utf8(blob_str(pBlob));
     blob_reset(pBlob);

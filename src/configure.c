@@ -890,7 +890,7 @@ void configuration_cmd(void){
     }
     url_proxy_options();
     if( g.argc!=4 && g.argc!=5 ){
-      usage("pull AREA ?URL?");
+      usage(mprintf("%s AREA ?URL?", zMethod));
     }
     mask = configure_name_to_mask(g.argv[3], 1);
     if( g.argc==5 ){
