@@ -230,7 +230,7 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 int looks_like_utf8(const Blob *pContent, int *pFlags){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c, result = 1; /* Assume UTF-8 text, prove otherwise */
+  int j, c, result = 1;  /* Assume UTF-8 text, prove otherwise */
 
   if( pFlags ) *pFlags = LOOK_NONE;
   if( n==0 ) return result;  /* Empty file -> text */
@@ -329,13 +329,14 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
 int looks_like_utf16(const Blob *pContent, int *pFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c, result = 1; /* Assume UTF-16 text, prove otherwise */
+  int j, c, result = 1;  /* Assume UTF-16 text, prove otherwise */
 
   if( pFlags ) *pFlags = LOOK_NONE;
   if( n==0 ) return result;  /* Empty file -> text */
-  if( n%2 ){
+  if( n%sizeof(WCHAR_T) ){
     if( pFlags ) *pFlags |= LOOK_ODD;
-    return 0;  /* Odd number of bytes -> binary (or UTF-8) */
+    result = 0;  /* Odd number of bytes -> binary (UTF-8?) */
+    if ( n<sizeof(WCHAR_T) ) return result;  /* One byte -> binary (UTF-8?) */
   }
   c = *z;
   if( c==0 ){
@@ -343,7 +344,9 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
     result = 0;  /* NUL character in a file -> binary */
   }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
-  while( (n-=2)>0 ){
+  while( 1 ){
+    if ( n<sizeof(WCHAR_T) ) break;
+    n -= sizeof(WCHAR_T);
     c = *++z; ++j;
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
