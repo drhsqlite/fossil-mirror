@@ -89,10 +89,10 @@ static int enableOutputCmd(
 /*
 ** Return a name for a TH1 return code.
 */
-const char *Th_ReturnCodeName(int rc){
+const char *Th_ReturnCodeName(int rc, int nullIfOk){
   static char zRc[32];
   switch( rc ){
-    case TH_OK:       return "TH_OK";
+    case TH_OK:       return nullIfOk ? 0 : "TH_OK";
     case TH_ERROR:    return "TH_ERROR";
     case TH_BREAK:    return "TH_BREAK";
     case TH_RETURN:   return "TH_RETURN";
@@ -744,7 +744,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     }
     if( g.thTrace ){
       Th_Trace("th1-setup {%h} => %h<br />\n", g.th1Setup,
-               Th_ReturnCodeName(rc));
+               Th_ReturnCodeName(rc, 0));
     }
   }
 }
@@ -933,4 +933,20 @@ void test_th_render(void){
   blob_zero(&in);
   blob_read_from_file(&in, g.argv[2]);
   Th_Render(blob_str(&in));
+}
+
+/*
+** COMMAND: test-th-eval
+*/
+void test_th_eval(void){
+  int rc;
+  const char *zRc;
+  if( g.argc!=3 ){
+    usage("script");
+  }
+  Th_FossilInit(0, 0);
+  rc = Th_Eval(g.interp, 0, g.argv[2], -1);
+  zRc = Th_ReturnCodeName(rc, 1);
+  fossil_print("%s%s%s\n", zRc, zRc ? ": " : "",
+      Th_GetResult(g.interp, 0));
 }
