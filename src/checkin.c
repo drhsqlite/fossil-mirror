@@ -436,20 +436,22 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
-    }else if( allFlag || glob_match(pIgnore, db_column_text(&q, 0)+n) ){
-      file_delete(db_column_text(&q, 0));
-    }else{
+    }else if( !allFlag && !glob_match(pIgnore, db_column_text(&q, 0)+n) ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (y/a=all/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply=='y' || cReply=='Y' ){
-        file_delete(db_column_text(&q, 0));
+      if( cReply=='a' || cReply=='A' ){
+        allFlag = 0;
+      }else if( cReply!='y' && cReply!='Y' ){
+        continue;
       }
     }
+    file_delete(db_column_text(&q, 0));
+    fossil_print("removed unmanaged file \"%s\"\n", db_column_text(&q,0));
   }
   glob_free(pIgnore);
   db_finalize(&q);
