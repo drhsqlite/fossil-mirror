@@ -916,11 +916,12 @@ static int commit_warning(
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  if (fUnicode) {
+  if( fUnicode ){
     eType = looks_like_utf16(p, &lookFlags);
-    if ( lookFlags&LOOK_ODD ){
-      /* It cannot be unicode, so try again as single-byte encoding */
+    if( lookFlags&LOOK_ODD ){
+      /* Content with an odd number of bytes cannot be UTF-16. */
       fUnicode = 0;
+      /* Therefore, check if the content appears to be UTF-8. */
       eType = looks_like_utf8(p, &lookFlags);
     }
   }else{
