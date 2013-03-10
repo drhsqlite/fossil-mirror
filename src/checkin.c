@@ -426,7 +426,6 @@ void clean_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
-  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -440,21 +439,23 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
-    }else if( allFlag ){
-      file_delete(db_column_text(&q, 0));
-    }else{
+    }else if( !allFlag ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply=='y' || cReply=='Y' ){
-        file_delete(db_column_text(&q, 0));
+      if( cReply=='a' || cReply=='A' ){
+        allFlag = 1;
+      }else if( cReply!='y' && cReply!='Y' ){
+        continue;
       }
     }
+    file_delete(db_column_text(&q, 0));
   }
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
