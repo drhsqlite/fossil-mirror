@@ -1,0 +1,11 @@
+*.a
+*.dll
+*.o
+*.obj
+*_.c
+*_.h
+Makefile
+wbld/*
+bld/*
+autoconfig.h
+config.log

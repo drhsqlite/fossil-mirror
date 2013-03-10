@@ -382,21 +382,18 @@ void extra_cmd(void){
 **
 ** You will be prompted before removing each file. If you are
 ** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued.
+** optional --force flag and no prompts will be issued. The
+** "ignore-glob" setting specifies for which files the prompting
+** will be skipped. You can override this with --ignore option.
 **
 ** Files and subdirectories whose names begin with "." are
 ** normally ignored.  They are included if the "--dotfiles" option
 ** is used.
 **
-** The GLOBPATTERN is a comma-separated list of GLOB expressions for
-** files that are ignored.  The GLOBPATTERN specified by the "ignore-glob"
-** is used if the --ignore option is omitted.
-**
 ** Options:
 **    --dotfiles       include files beginning with a dot (".")
 **    --force          Remove files without prompting
-**    --ignore <CSG>   ignore files matching patterns from the
-**                     comma separated list of glob patterns.
+**    --ignore <CSG>   Override the "ignore-glob" setting
 **    --temp           Remove only Fossil-generated temporary files
 **
 ** See also: addremove, extra, status
@@ -425,8 +422,7 @@ void clean_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
-  glob_free(pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, NULL);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -440,7 +436,7 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
-    }else if( allFlag ){
+    }else if( allFlag || glob_match(pIgnore, db_column_text(&q, 0)+n) ){
       file_delete(db_column_text(&q, 0));
     }else{
       Blob ans;
@@ -455,6 +451,7 @@ void clean_cmd(void){
       }
     }
   }
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
