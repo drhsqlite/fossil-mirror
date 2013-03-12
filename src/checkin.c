@@ -426,6 +426,7 @@ void clean_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -439,6 +440,7 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
+      continue;
     }else if( !allFlag ){
       Blob ans;
       char cReply;
@@ -455,7 +457,6 @@ void clean_cmd(void){
     }
     file_delete(db_column_text(&q, 0));
   }
-  glob_free(pIgnore);
   db_finalize(&q);
 }
 

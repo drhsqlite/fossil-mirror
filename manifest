@@ -1,5 +1,5 @@
-C Fix\sdetermination\sof\sLOOK_CR/LOOK_LF\sto\sinclude\sthe\sfirst\scharacter\sin\sthe\sfile,\seliminating\soverlap\swith\sLOOK_CRLF.\s\nThis\sway,\sinconsistant\sline\sendings\scan\sbe\sdetermined\sby\sverifying\sthat\sat\smost\sone\sof\sthe\sflags\sLOOK_CR/LOOK_LF/LOOK_CRLF\smay\sbe\sset.\s\nTest\scases\sadapted\saccordingly.
-D 2013-03-12T12:00:39.402
+C Fix\s"fossil\sclean\s--test"\snot\sto\sremove\sfiles.
+D 2013-03-12T15:30:51.806
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 6718b8546f5a82a665c4994d930e745be2ac98b8
+F src/checkin.c 97497a085f8151bc786ed6f449c236bdf0bbd5c3
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d586f2edfc0ffd8784dfb2743d848fe4ba1b76d0
-R dbec50048639efc70277d98a143a9594
+P c1d35267418026b4697b428c9d8789daa3977808
+R 7bef8f1240ce2cc48ee7173fc56f6820
 U jan.nijtmans
-Z eb18666957f0c5d080ec4576e506eab1
+Z ba5c0c60243383911d68d2c57fd3e0cf
