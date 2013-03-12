@@ -1,5 +1,5 @@
-C Fix\s"fossil\sclean\s--test"\snot\sto\sremove\sfiles.
-D 2013-03-12T15:30:51.806
+C Modify\sthe\slooks_like_utf*()\sfunctions\sto\sdetect\slone\sCR\sand\sLF\scharacters\sand\sset\snew\soutput\sflags\saccordingly.
+D 2013-03-12T22:37:45.866
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -313,7 +313,7 @@ F src/db.c efe743b3134ed629edcd01a9ea51a05731023cba
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 2d452d0ea63c81d9f7478693886e77b835068727
+F src/diff.c d1fbeeef30fbdc07232bffa88902728340f35475
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -444,7 +444,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 2f4cbab34f59aff7507ea524a91cee648c3f24ac
+F test/utf.test 30a364daf94ffd568dc73849474941071f60ebb6
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c1d35267418026b4697b428c9d8789daa3977808
-R 7bef8f1240ce2cc48ee7173fc56f6820
-U jan.nijtmans
-Z ba5c0c60243383911d68d2c57fd3e0cf
+P 1c8efa5cabec9cecaa5cc70517f713b12989c4fd
+R e1cb3ec6113c2c5c9e00515ed74c6726
+U mistachkin
+Z 70777eecec5fb3c984b20d9cd046c3e3
