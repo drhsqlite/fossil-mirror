@@ -71,8 +71,8 @@
 */
 #define LOOK_NONE   ((int)0x00000000) /* Nothing special was found. */
 #define LOOK_NUL    ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_CR     ((int)0x00000002) /* One or more CR chars were found. */
-#define LOOK_LF     ((int)0x00000004) /* One or more LF chars were found. */
+#define LOOK_CR     ((int)0x00000002) /* One or more CR chars were found not followed by LF. */
+#define LOOK_LF     ((int)0x00000004) /* One or more LF chars were found not preceded by CR. */
 #define LOOK_CRLF   ((int)0x00000008) /* One or more CR/LF pairs were found. */
 #define LOOK_LENGTH ((int)0x00000010) /* An over length line was found. */
 #define LOOK_ODD    ((int)0x00000020) /* An odd number of bytes was found. */
@@ -240,6 +240,7 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
     result = 0;  /* NUL character in a file -> binary */
   }
   j = (c!='\n');
+  if( !j && pFlags ) *pFlags |= LOOK_LF;
   while( --n>0 ){
     c = *++z; ++j;
     if( c==0 ){
@@ -249,9 +250,10 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
     if( c=='\n' ){
       int c2 = z[-1];
       if( pFlags ){
-        *pFlags |= LOOK_LF;
         if( c2=='\r' ){
           *pFlags |= LOOK_CRLF;
+        }else{
+          *pFlags |= LOOK_LF;
         }
       }
       if( j>LENGTH_MASK ){
@@ -259,9 +261,12 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c=='\r' ){
+    }else if( z[-1]=='\r' ){
       if( pFlags ) *pFlags |= LOOK_CR;
     }
+  }
+  if( z[0]=='\r' ){
+    if( pFlags ) *pFlags |= LOOK_CR;
   }
   if( j>LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
@@ -344,6 +349,7 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
     result = 0;  /* NUL character in a file -> binary */
   }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
+  if( !j && pFlags ) *pFlags |= LOOK_LF;
   while( 1 ){
     if ( n<sizeof(WCHAR_T) ) break;
     n -= sizeof(WCHAR_T);
@@ -355,9 +361,10 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
     if( c==UTF16BE_LF || c==UTF16LE_LF ){
       int c2 = z[-1];
       if( pFlags ){
-        *pFlags |= LOOK_LF;
         if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
           *pFlags |= LOOK_CRLF;
+        }else{
+          *pFlags |= LOOK_LF;
         }
       }
       if( j>UTF16_LENGTH_MASK ){
@@ -365,9 +372,12 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c==UTF16BE_CR || c==UTF16LE_CR ){
+    }else if( z[-1]==UTF16BE_CR || z[-1]==UTF16LE_CR ){
       if( pFlags ) *pFlags |= LOOK_CR;
     }
+  }
+  if( z[0]==UTF16BE_CR || z[0]==UTF16LE_CR ){
+    if( pFlags ) *pFlags |= LOOK_CR;
   }
   if( j>UTF16_LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
