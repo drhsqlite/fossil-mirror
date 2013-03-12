@@ -1,11 +1,9 @@
 *.a
-*.dll
+*.lib
 *.o
 *.obj
-*_.c
-*_.h
 Makefile
-wbld/*
 bld/*
+wbld/*
 autoconfig.h
 config.log
