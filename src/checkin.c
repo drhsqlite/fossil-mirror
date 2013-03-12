@@ -448,6 +448,7 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
+      continue;
     }else if( !allFlag && !glob_match(pIgnore, db_column_text(&q, 0)+n) ){
       Blob ans;
       char cReply;

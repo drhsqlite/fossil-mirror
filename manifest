@@ -1,5 +1,5 @@
-C Add\s--keep\soption\sto\s"fossil\sclean",\sand\sversionable\s"keep-glob"\ssetting
-D 2013-03-12T15:48:20.925
+C fix\s"fossil\sclean\s--test"
+D 2013-03-12T15:54:45.840
 F .fossil-settings/ignore-glob c3c253a2282142c5e4ab1d4e99ea9122cc7bb1fc
 F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
@@ -301,7 +301,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 590346e7e695bb2f5dd299aaeb0ff02ddcccbb3c
+F src/checkin.c 6796a51b95542105072c3ab229f8f0275d7200a0
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b72908bc5b94307abf9a934f357a01d2f0c835df 1c8efa5cabec9cecaa5cc70517f713b12989c4fd
-R 613e336e8cce746ada388e21ae31dd68
+P 6c72cab73ca1f51bd25ab44717aa3f940e61beed
+R d7cd8be4d593f408cfe46dc23fdbc998
 U jan.nijtmans
-Z 80fc66779789a9159a8dcaf2e8e00496
+Z e53bf2acc1f3dcd2490dbf2a27178e71
