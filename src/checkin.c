@@ -426,7 +426,6 @@ void clean_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
-  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -440,21 +439,23 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
-    }else if( allFlag ){
-      file_delete(db_column_text(&q, 0));
-    }else{
+    }else if( !allFlag ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply=='y' || cReply=='Y' ){
-        file_delete(db_column_text(&q, 0));
+      if( cReply=='a' || cReply=='A' ){
+        allFlag = 1;
+      }else if( cReply!='y' && cReply!='Y' ){
+        continue;
       }
     }
+    file_delete(db_column_text(&q, 0));
   }
+  glob_free(pIgnore);
   db_finalize(&q);
 }
 
@@ -917,20 +918,21 @@ static int commit_warning(
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  if (fUnicode) {
+  if( fUnicode ){
     eType = looks_like_utf16(p, &lookFlags);
-    if ( lookFlags&LOOK_ODD ){
-      /* It cannot be unicode, so try again as single-byte encoding */
+    if( lookFlags&LOOK_ODD ){
+      /* Content with an odd number of bytes cannot be UTF-16. */
       fUnicode = 0;
+      /* Therefore, check if the content appears to be UTF-8. */
       eType = looks_like_utf8(p, &lookFlags);
     }
   }else{
     eType = looks_like_utf8(p, &lookFlags);
   }
   fHasCrLf = (lookFlags & LOOK_CRLF);
-  fHasLength = (lookFlags & LOOK_LENGTH);
+  fHasLength = (lookFlags & LOOK_LENGTH) && !(lookFlags & LOOK_NUL);
   fInvalid = (lookFlags & LOOK_INVALID);
-  if( eType==0 || fHasCrLf || fUnicode || fInvalid ){
+  if( eType==0 || fHasCrLf || fHasLength || fUnicode || fInvalid ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
