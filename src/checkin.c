@@ -380,20 +380,22 @@ void extra_cmd(void){
 ** files that are not officially part of the checkout. This operation
 ** cannot be undone.
 **
-** You will be prompted before removing each file. If you are
-** sure you wish to remove all "extra" files you can specify the
-** optional --force flag and no prompts will be issued. The
-** "ignore-glob" setting specifies for which files the prompting
-** will be skipped. You can override this with --ignore option.
+** You will be prompted before removing each file, except for files
+** matching the pattern specified with --ignore.  The GLOBPATTERN
+** specified by the "ignore-glob" setting is used if the --ignore
+** option is omitted.  If you are sure you wish to remove all "extra"
+** files you can specify the optional --force flag and no prompts will
+** be issued.
 **
 ** Files and subdirectories whose names begin with "." are
-** normally ignored.  They are included if the "--dotfiles" option
+** normally skipped.  They are included if the "--dotfiles" option
 ** is used.
 **
 ** Options:
 **    --dotfiles       include files beginning with a dot (".")
 **    --force          Remove files without prompting
-**    --ignore <CSG>   Override the "ignore-glob" setting
+**    --ignore <CSG>   don't prompt for files matching this
+**                     comma separated list of glob patterns.
 **    --temp           Remove only Fossil-generated temporary files
 **
 ** See also: addremove, extra, status
@@ -439,13 +441,13 @@ void clean_cmd(void){
     }else if( !allFlag && !glob_match(pIgnore, db_column_text(&q, 0)+n) ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (y/a=all/N)? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
       if( cReply=='a' || cReply=='A' ){
-        allFlag = 0;
+        allFlag = 1;
       }else if( cReply!='y' && cReply!='Y' ){
         continue;
       }
@@ -915,11 +917,12 @@ static int commit_warning(
 
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
-  if (fUnicode) {
+  if( fUnicode ){
     eType = looks_like_utf16(p, &lookFlags);
-    if ( lookFlags&LOOK_ODD ){
-      /* It cannot be unicode, so try again as single-byte encoding */
+    if( lookFlags&LOOK_ODD ){
+      /* Content with an odd number of bytes cannot be UTF-16. */
       fUnicode = 0;
+      /* Therefore, check if the content appears to be UTF-8. */
       eType = looks_like_utf8(p, &lookFlags);
     }
   }else{

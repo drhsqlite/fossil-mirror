@@ -22,6 +22,14 @@ set dir [file dirname [info script]]
 
 ###############################################################################
 
+fossil test-th-eval "hasfeature tcl"
+
+if {$::RESULT ne "1"} then {
+  puts "Fossil was not compiled with Tcl support."; return
+}
+
+###############################################################################
+
 set env(TH1_ENABLE_TCL) 1; # Tcl integration must be enabled for this test.
 
 ###############################################################################
