@@ -463,8 +463,8 @@ void clean_cmd(void){
         continue;
       }
     }
-    file_delete(db_column_text(&q, 0));
     fossil_print("removed unmanaged file \"%s\"\n", db_column_text(&q,0));
+    file_delete(db_column_text(&q, 0));
   }
   glob_free(pIgnore);
   db_finalize(&q);
