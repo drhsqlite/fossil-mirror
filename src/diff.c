@@ -240,8 +240,6 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
   if( c==0 ){
     if( pFlags ) *pFlags |= LOOK_NUL;
     result = 0;  /* NUL character in a file -> binary */
-  }else if( c=='\r' && pFlags && (n<2 || z[1]!='\n') ){
-    *pFlags |= LOOK_LONE_CR;
   }
   j = (c!='\n');
   if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
@@ -251,22 +249,22 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
+    }
+    if( c=='\n' ){
       if( pFlags ){
-        if( c2=='\r' ){
-          *pFlags |= LOOK_CRLF;
-        }else{
-          *pFlags |= LOOK_LONE_LF;
-        }
+        *pFlags |= (c2=='\r')?LOOK_CRLF:LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
         if( pFlags ) *pFlags |= LOOK_LENGTH;
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c=='\r' && pFlags && (n<1 || z[1]!='\n') ){
+    }else if( c2=='\r' && pFlags ){
       *pFlags |= LOOK_LONE_CR;
     }
+  }
+  if( c=='\r' && pFlags ){
+    *pFlags |= LOOK_LONE_CR;
   }
   if( j>LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
@@ -347,9 +345,6 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
   if( c==0 ){
     if( pFlags ) *pFlags |= LOOK_NUL;
     result = 0;  /* NUL character in a file -> binary */
-  }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags
-      && (n<(2*sizeof(WCHAR_T)) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF)) ){
-    *pFlags |= LOOK_LONE_CR;
   }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
   if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
@@ -361,23 +356,22 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
-    }else if( c==UTF16BE_LF || c==UTF16LE_LF ){
+    }
+    if( c==UTF16BE_LF || c==UTF16LE_LF ){
       if( pFlags ){
-        if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-          *pFlags |= LOOK_CRLF;
-        }else{
-          *pFlags |= LOOK_LONE_LF;
-        }
+        *pFlags |= (c2==UTF16BE_CR||c2==UTF16LE_CR)?LOOK_CRLF:LOOK_LONE_LF;
       }
       if( j>UTF16_LENGTH_MASK ){
         if( pFlags ) *pFlags |= LOOK_LENGTH;
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags
-        && (n<sizeof(WCHAR_T) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF)) ){
+    }else if( (c2==UTF16BE_CR || c2==UTF16LE_CR) && pFlags ){
       *pFlags |= LOOK_LONE_CR;
     }
+  }
+  if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags ){
+    *pFlags |= LOOK_LONE_CR;
   }
   if( j>UTF16_LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
