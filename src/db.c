@@ -223,7 +223,7 @@ void db_force_rollback(void){
 */
 void db_commit_hook(int (*x)(void), int sequence){
   int i;
-  assert( db.nCommitHook < sizeof(db.aHook)/sizeof(db.aHook[1]) );
+  assert( db.nCommitHook < count(db.aHook) );
   for(i=0; i<db.nCommitHook; i++){
     assert( x!=db.aHook[i].xHook );
     if( db.aHook[i].sequence>sequence ){
@@ -771,11 +771,11 @@ void db_open_or_attach(
     assert( g.zMainDbType==0 );
     g.db = db_open(zDbName);
     g.zMainDbType = zLabel;
-    if ( pWasAttached ) *pWasAttached = 0;
+    if( pWasAttached ) *pWasAttached = 0;
   }else{
     assert( g.zMainDbType!=0 );
     db_attach(zDbName, zLabel);
-    if ( pWasAttached ) *pWasAttached = 1;
+    if( pWasAttached ) *pWasAttached = 1;
   }
 }
 
@@ -793,9 +793,9 @@ void db_open_or_attach(
 */
 void db_open_config(int useAttach){
   char *zDbName;
-  const char *zHome;
-  if( g.configOpen ) return;
-#if defined(_WIN32)
+  char *zHome;
+  if( g.zConfigDbName ) return;
+#if defined(_WIN32) || defined(__CYGWIN__)
   zHome = fossil_getenv("LOCALAPPDATA");
   if( zHome==0 ){
     zHome = fossil_getenv("APPDATA");
@@ -820,21 +820,23 @@ void db_open_config(int useAttach){
   if( file_isdir(zHome)!=1 ){
     fossil_fatal("invalid home directory: %s", zHome);
   }
-#ifndef _WIN32
-  if( access(zHome, W_OK) ){
-    fossil_fatal("home directory %s must be writeable", zHome);
-  }
-#endif
-  g.zHome = mprintf("%/", zHome);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   /* . filenames give some window systems problems and many apps problems */
   zDbName = mprintf("%//_fossil", zHome);
 #else
+  if( file_access(zHome, W_OK) ){
+    fossil_fatal("home directory %s must be writeable", zHome);
+  }
   zDbName = mprintf("%s/.fossil", zHome);
 #endif
   if( file_size(zDbName)<1024*3 ){
     db_init_database(zDbName, zConfigSchema, (char*)0);
   }
+#if defined(_WIN32) || defined(__CYGWIN__)
+  if( file_access(zDbName, W_OK) ){
+    fossil_fatal("configuration file %s must be writeable", zDbName);
+  }
+#endif
   if( useAttach ){
     db_open_or_attach(zDbName, "configdb", &g.useAttach);
     g.dbConfig = 0;
@@ -844,8 +846,7 @@ void db_open_config(int useAttach){
     g.dbConfig = db_open(zDbName);
     g.zConfigDbType = "configdb";
   }
-  g.configOpen = 1;
-  free(zDbName);
+  g.zConfigDbName = zDbName;
 }
 
 
@@ -884,6 +885,7 @@ static int isValidLocalDb(const char *zDbName){
   db_open_or_attach(zDbName, "localdb", 0);
   zVFileDef = db_text(0, "SELECT sql FROM %s.sqlite_master"
                          " WHERE name=='vfile'", db_name("localdb"));
+  if( zVFileDef==0 ) return 0;
 
   /* If the "isexe" column is missing from the vfile table, then
   ** add it now.   This code added on 2010-03-06.  After all users have
@@ -920,28 +922,27 @@ static int isValidLocalDb(const char *zDbName){
 ** For legacy, also look for ".fos".  The use of ".fos" is deprecated
 ** since "fos" has negative connotations in Hungarian, we are told.
 **
-** If no valid _FOSSIL_ or .fos file is found, we move up one level and
+** If no valid _FOSSIL_ or .fslckout file is found, we move up one level and
 ** try again. Once the file is found, the g.zLocalRoot variable is set
 ** to the root of the repository tree and this routine returns 1.  If
 ** no database is found, then this routine return 0.
 **
 ** This routine always opens the user database regardless of whether or
-** not the repository database is found.  If the _FOSSIL_ or .fos file
+** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
 int db_open_local(void){
   int i, n;
   char zPwd[2000];
-  static const char *const aDbName[] = { "/_FOSSIL_", "/.fslckout", "/.fos" };
+  static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
 
   if( g.localOpen) return 1;
   file_getcwd(zPwd, sizeof(zPwd)-20);
   n = strlen(zPwd);
   if( n==1 && zPwd[0]=='/' ) zPwd[0] = '.';
   while( n>0 ){
-    if( file_access(zPwd, W_OK) ) break;
-    for(i=0; i<sizeof(aDbName)/sizeof(aDbName[0]); i++){
-      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "%s", aDbName[i]);
+    for(i=0; i<count(aDbName); i++){
+      sqlite3_snprintf(sizeof(zPwd)-n, &zPwd[n], "/%s", aDbName[i]);
       if( isValidLocalDb(zPwd) ){
         /* Found a valid checkout database file */
         zPwd[n] = 0;
@@ -1204,7 +1205,7 @@ void db_close(int reportErrors){
   }
   g.repositoryOpen = 0;
   g.localOpen = 0;
-  g.configOpen = 0;
+  g.zConfigDbName = NULL;
   sqlite3_wal_checkpoint(g.db, 0);
   sqlite3_close(g.db);
   g.db = 0;
@@ -1264,13 +1265,13 @@ void db_create_default_users(int setupUserOnly, const char *zDefaultUser){
   );
   if( !setupUserOnly ){
     db_multi_exec(
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('anonymous',hex(randomblob(8)),'hmncz','Anon');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('nobody','','gjor','Nobody');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('developer','','dei','Dev');"
-       "INSERT INTO user(login,pw,cap,info)"
+       "INSERT OR IGNORE INTO user(login,pw,cap,info)"
        "   VALUES('reader','','kptw','Reader');"
     );
   }
@@ -1628,7 +1629,7 @@ char *db_reveal(const char *zKey){
 int is_truth(const char *zVal){
   static const char *const azOn[] = { "on", "yes", "true", "1" };
   int i;
-  for(i=0; i<sizeof(azOn)/sizeof(azOn[0]); i++){
+  for(i=0; i<count(azOn); i++){
     if( fossil_stricmp(zVal,azOn[i])==0 ) return 1;
   }
   return 0;
@@ -1636,7 +1637,7 @@ int is_truth(const char *zVal){
 int is_false(const char *zVal){
   static const char *const azOff[] = { "off", "no", "false", "0" };
   int i;
-  for(i=0; i<sizeof(azOff)/sizeof(azOff[0]); i++){
+  for(i=0; i<count(azOff); i++){
     if( fossil_stricmp(zVal,azOff[i])==0 ) return 1;
   }
   return 0;
@@ -1767,13 +1768,14 @@ char *db_get(const char *zName, char *zDefault){
   if( g.repositoryOpen ){
     z = db_text(0, "SELECT value FROM config WHERE name=%Q", zName);
   }
-  if( z==0 && g.configOpen ){
+  if( z==0 && g.zConfigDbName ){
     db_swap_connections();
     z = db_text(0, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
   }
   if( ctrlSetting!=0 && ctrlSetting->versionable && g.localOpen ){
-    /* This is a versionable setting, try and get the info from a checked out file */
+    /* This is a versionable setting, try and get the info from a
+    ** checked out file */
     z = db_get_do_versionable(zName, z);
   }
   if( z==0 ){
@@ -1813,7 +1815,7 @@ void db_unset(const char *zName, int globalFlag){
 }
 int db_is_global(const char *zName){
   int rc = 0;
-  if( g.configOpen ){
+  if( g.zConfigDbName ){
     db_swap_connections();
     rc = db_exists("SELECT 1 FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1834,7 +1836,7 @@ int db_get_int(const char *zName, int dflt){
   }else{
     rc = SQLITE_DONE;
   }
-  if( rc==SQLITE_DONE && g.configOpen ){
+  if( rc==SQLITE_DONE && g.zConfigDbName ){
     db_swap_connections();
     v = db_int(dflt, "SELECT value FROM global_config WHERE name=%Q", zName);
     db_swap_connections();
@@ -1873,6 +1875,27 @@ int db_lget_int(const char *zName, int dflt){
 }
 void db_lset_int(const char *zName, int value){
   db_multi_exec("REPLACE INTO vvar(name,value) VALUES(%Q,%d)", zName, value);
+}
+
+/*
+** Returns non-0 if the database (which must be open) table identified
+** by zTableName has a column named zColName (case-sensitive), else
+** returns 0.
+*/
+int db_table_has_column( char const *zTableName, char const *zColName ){
+  Stmt q = empty_Stmt;
+  int rc = 0;
+  db_prepare( &q, "PRAGMA table_info(%Q)", zTableName );
+  while(SQLITE_ROW == db_step(&q)){
+    /* Columns: (cid, name, type, notnull, dflt_value, pk) */
+    char const * zCol = db_column_text(&q, 1);
+    if(0==fossil_strcmp(zColName, zCol)){
+      rc = 1;
+      break;
+    }
+  }
+  db_finalize(&q);
+  return rc;
 }
 
 /*
@@ -1960,12 +1983,16 @@ void cmd_open(void){
   }
   file_canonical_name(g.argv[2], &path, 0);
   db_open_repository(blob_str(&path));
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
 # define LOCALDB_NAME "./.fslckout"
 #endif
-  db_init_database(LOCALDB_NAME, zLocalSchema, (char*)0);
+  db_init_database(LOCALDB_NAME, zLocalSchema,
+#ifdef FOSSIL_LOCAL_WAL
+                   "COMMIT; PRAGMA journal_mode=WAL; BEGIN;",
+#endif
+                   (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
   db_open_local();
   db_lset("repository", g.argv[2]);
@@ -1998,7 +2025,10 @@ void cmd_open(void){
 /*
 ** Print the value of a setting named zName
 */
-static void print_setting(const struct stControlSettings *ctrlSetting, int localOpen){
+static void print_setting(
+  const struct stControlSettings *ctrlSetting,
+  int localOpen
+){
   Stmt q;
   if( g.repositoryOpen ){
     db_prepare(&q,
@@ -2023,9 +2053,11 @@ static void print_setting(const struct stControlSettings *ctrlSetting, int local
     /* Check to see if this is overridden by a versionable settings file */
     Blob versionedPathname;
     blob_zero(&versionedPathname);
-    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s", g.zLocalRoot, ctrlSetting->name);
+    blob_appendf(&versionedPathname, "%s/.fossil-settings/%s",
+                 g.zLocalRoot, ctrlSetting->name);
     if( file_size(blob_str(&versionedPathname))>=0 ){
-      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n", ctrlSetting->name);
+      fossil_print("  (overridden by contents of file .fossil-settings/%s)\n",
+                   ctrlSetting->name);
     }
   }
   db_finalize(&q);

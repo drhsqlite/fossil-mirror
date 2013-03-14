@@ -179,6 +179,7 @@ void changes_cmd(void){
                  g.zLocalRoot);
   }
   blob_write_to_file(&report, "-");
+  blob_reset(&report);
 }
 
 /*
@@ -207,6 +208,9 @@ void status_cmd(void){
        /* 012345678901234 */
   fossil_print("repository:   %s\n", db_repository_filename());
   fossil_print("local-root:   %s\n", g.zLocalRoot);
+  if( g.zConfigDbName ){
+    fossil_print("config-db:    %s\n", g.zConfigDbName);
+  }
   vid = db_lget_int("checkout", 0);
   if( vid ){
     show_common_info(vid, "checkout:", 1, 1);
@@ -214,11 +218,6 @@ void status_cmd(void){
   db_record_repository_filename(0);
   changes_cmd();
 }
-
-/*
-** Implementation of the checkin_mtime SQL function
-*/
-
 
 /*
 ** COMMAND: ls
@@ -444,20 +443,22 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
-    }else if( allFlag ){
-      file_delete(db_column_text(&q, 0));
-    }else{
+      continue;
+    }else if( !allFlag ){
       Blob ans;
       char cReply;
-      char *prompt = mprintf("remove unmanaged file \"%s\" (y/N)? ",
+      char *prompt = mprintf("remove unmanaged file \"%s\" (a=all/y/N)? ",
                               db_column_text(&q, 0));
       blob_zero(&ans);
       prompt_user(prompt, &ans);
       cReply = blob_str(&ans)[0];
-      if( cReply=='y' || cReply=='Y' ){
-        file_delete(db_column_text(&q, 0));
+      if( cReply=='a' || cReply=='A' ){
+        allFlag = 1;
+      }else if( cReply!='y' && cReply!='Y' ){
+        continue;
       }
     }
+    file_delete(db_column_text(&q, 0));
   }
   db_finalize(&q);
 }
@@ -911,46 +912,63 @@ static int commit_warning(
 ){
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int lookFlags;          /* output flags from looks_like_utf8/utf16() */
+  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0);
-  eType = fUnicode ? looks_like_utf16(p) : looks_like_utf8(p);
-  if( eType==0 || eType==-1 || fUnicode ){
+  fUnicode = starts_with_utf16_bom(p, 0, 0);
+  if( fUnicode ){
+    eType = looks_like_utf16(p, &lookFlags);
+    if( lookFlags&LOOK_ODD ){
+      /* Content with an odd number of bytes cannot be UTF-16. */
+      fUnicode = 0;
+      /* Therefore, check if the content appears to be UTF-8. */
+      eType = looks_like_utf8(p, &lookFlags);
+    }
+  }else{
+    eType = looks_like_utf8(p, &lookFlags);
+  }
+  fHasCrLf = (lookFlags & LOOK_CRLF);
+  if( eType==0 || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==-1 && fUnicode ){
-      if ( crnlOk && encodingOk ){
+    if( eType==0 ){
+      if( binOk ){
+        return 0; /* We don't want binary warnings for this file. */
+      }
+      if( (lookFlags&LOOK_LENGTH) && !(lookFlags&LOOK_NUL) ){
+        zWarning = "long lines";
+      }else{
+        zWarning = "binary data";
+      }
+      zDisable = "\"binary-glob\" setting";
+      zConvert = ""; /* We cannot convert binary files. */
+    }else if( fHasCrLf && fUnicode ){
+      if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( eType==-1 ){
+    }else if( fHasCrLf ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
       zWarning = "CR/NL line endings";
       zDisable = "\"crnl-glob\" setting";
-    }else if( eType==0 ){
-      if( binOk ){
-        return 0; /* We don't want binary warnings for this file. */
-      }
-      zWarning = "binary data";
-      zDisable = "\"binary-glob\" setting";
-      zConvert = ""; /* We cannot convert binary files. */
     }else{
-      if ( encodingOk ){
+      if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
       zDisable = "\"encoding-glob\" setting";
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__CYGWIN__)
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
     }
@@ -958,7 +976,7 @@ static int commit_warning(
     blob_zero(&ans);
     zMsg = mprintf(
          "%s contains %s. Use --no-warnings or the %s to disable this warning.\n"
-    	 "Commit anyhow (a=all/%sy/N)? ",
+         "Commit anyhow (a=all/%sy/N)? ",
          blob_str(&fname), zWarning, zDisable, zConvert);
     prompt_user(zMsg, &ans);
     fossil_free(zMsg);
@@ -1210,7 +1228,7 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  if ( select_commit_files() ){
+  if( select_commit_files() ){
     blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];

@@ -936,7 +936,7 @@ void tkthistory_page(void){
       }else{
         @ 
         @ <li><p>Add attachment
-        @ "%z(href("%R/artifact/%S",zSrc))%h(zFile)</a>"
+        @ "%z(href("%R/artifact/%S",zSrc))%s(zFile)</a>"
       }
       @ [%z(href("%R/artifact/%T",zChngUuid))%s(zShort)</a>]
       @ (rid %d(rid)) by

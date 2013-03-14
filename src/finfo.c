@@ -22,7 +22,7 @@
 
 /*
 ** COMMAND: finfo
-** 
+**
 ** Usage: %fossil finfo ?OPTIONS? FILENAME
 **
 ** Print the complete change history for a single file going backwards
@@ -57,7 +57,7 @@
 void finfo_cmd(void){
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  if (find_option("status","s",0)) {
+  if( find_option("status","s",0) ){
     Stmt q;
     Blob line;
     Blob fname;
@@ -75,7 +75,7 @@ void finfo_cmd(void){
         "  FROM vfile WHERE vfile.pathname=%B %s",
         &fname, filename_collation());
     blob_zero(&line);
-    if ( db_step(&q)==SQLITE_ROW ) {
+    if( db_step(&q)==SQLITE_ROW ) {
       Blob uuid;
       int isDeleted = db_column_int(&q, 1);
       int isNew = db_column_int(&q,2) == 0;
@@ -249,7 +249,7 @@ void cat_cmd(void){
 ** WEBPAGE: finfo
 ** URL: /finfo?name=FILENAME
 **
-** Show the change history for a single file. 
+** Show the change history for a single file.
 **
 ** Additional query parameters:
 **
@@ -267,7 +267,7 @@ void finfo_page(void){
   const char *zA;
   const char *zB;
   int n;
-  
+
   Blob title;
   Blob sql;
   HQuery url;
@@ -290,7 +290,7 @@ void finfo_page(void){
   zFilename = PD("name","");
   url_add_parameter(&url, "name", zFilename);
   blob_zero(&sql);
-  blob_appendf(&sql, 
+  blob_appendf(&sql,
     "SELECT"
     " datetime(event.mtime,'localtime'),"            /* Date of change */
     " coalesce(event.ecomment, event.comment),"      /* Check-in comment */
@@ -405,7 +405,7 @@ void finfo_page(void){
       @ %z(href("%R/artifact/%s",zUuid))[%S(zUuid)]</a> part of check-in
     }else{
       char *zNewName;
-      zNewName = db_text(0, 
+      zNewName = db_text(0,
         "SELECT name FROM filename WHERE fnid = "
         "   (SELECT fnid FROM mlink"
         "     WHERE mid=%d"
@@ -420,7 +420,7 @@ void finfo_page(void){
       }
     }
     hyperlink_to_uuid(zShortCkin);
-    @ %h(zCom) (user: 
+    @ %w(zCom) (user:
     hyperlink_to_user(zUser, zDate, "");
     @ branch: %h(zBr))
     if( g.perm.Hyperlink && zUuid ){

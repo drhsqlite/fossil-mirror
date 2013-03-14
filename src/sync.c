@@ -29,9 +29,7 @@
 ** Return the number of errors.
 */
 int autosync(int flags){
-  const char *zUrl;
   const char *zAutosync;
-  const char *zPw;
   int rc;
   int configSync = 0;       /* configuration changes transferred */
   if( g.fNoSync ){
@@ -51,14 +49,10 @@ int autosync(int flags){
   }else{
     /* Autosync defaults on.  To make it default off, "return" here. */
   }
-  zUrl = db_get("last-sync-url", 0);
-  if( zUrl==0 ){
-    return 0;  /* No default server */
-  }
-  zPw = unobscure(db_get("last-sync-pw", 0));
-  url_parse(zUrl);
+  url_parse(0, URL_REMEMBER);
+  if( g.urlProtocol==0 ) return 0;  
   if( g.urlUser!=0 && g.urlPasswd==0 ){
-    g.urlPasswd = mprintf("%s", zPw);
+    g.urlPasswd = unobscure(db_get("last-sync-pw", 0));
   }
 #if 0 /* Disabled for now */
   if( (flags & AUTOSYNC_PULL)!=0 && db_get_boolean("auto-shun",1) ){
@@ -88,10 +82,14 @@ int autosync(int flags){
 */
 static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   const char *zUrl = 0;
-  const char *zPw = 0;
   unsigned configSync = 0;
-  int urlOptional = find_option("autourl",0,0)!=0;
-  g.dontKeepUrl = find_option("once",0,0)!=0;
+  unsigned urlFlags = URL_REMEMBER | URL_PROMPT_PW;
+  int urlOptional = 0;
+  if( find_option("autourl",0,0)!=0 ){
+    urlOptional = 1;
+    urlFlags = 0;
+  }
+  if( find_option("once",0,0)!=0 ) urlFlags &= ~URL_REMEMBER;
   if( find_option("private",0,0)!=0 ){
     *pSyncFlags |= SYNC_PRIVATE;
   }
@@ -102,27 +100,14 @@ static void process_sync_args(unsigned *pConfigFlags, unsigned *pSyncFlags){
   db_find_and_open_repository(0, 0);
   db_open_config(0);
   if( g.argc==2 ){
-    zUrl = db_get("last-sync-url", 0);
-    zPw = unobscure(db_get("last-sync-pw", 0));
     if( db_get_boolean("auto-shun",1) ) configSync = CONFIGSET_SHUN;
   }else if( g.argc==3 ){
     zUrl = g.argv[2];
   }
-  if( zUrl==0 ){
+  url_parse(zUrl, urlFlags);
+  if( g.urlProtocol==0 ){
     if( urlOptional ) fossil_exit(0);
     usage("URL");
-  }
-  url_parse(zUrl);
-  if( g.urlUser!=0 && g.urlPasswd==0 && g.urlIsSsh==0 ){
-    if( zPw==0 ){
-      url_prompt_for_password();
-    }else{
-      g.urlPasswd = mprintf("%s", zPw);
-    }
-  }
-  if( !g.dontKeepUrl ){
-    db_set("last-sync-url", g.urlCanonical, 0);
-    if( g.urlPasswd ) db_set("last-sync-pw", obscure(g.urlPasswd), 0);
   }
   user_select();
   if( g.argc==2 ){
@@ -260,28 +245,17 @@ void remote_url_cmd(void){
     usage("remote-url ?URL|off?");
   }
   if( g.argc==3 ){
-    if( fossil_strcmp(g.argv[2],"off")==0 ){
-      db_unset("last-sync-url", 0);
-      db_unset("last-sync-pw", 0);
-    }else{
-      url_parse(g.argv[2]);
-      if( g.urlUser && g.urlPasswd==0 && g.urlIsSsh==0 ){
-        url_prompt_for_password();
-      }
-      db_set("last-sync-url", g.urlCanonical, 0);
-      if( g.urlPasswd ){
-        db_set("last-sync-pw", obscure(g.urlPasswd), 0);
-      }else{
-        db_unset("last-sync-pw", 0);
-      }
-    }
+    db_unset("last-sync-url", 0);
+    db_unset("last-sync-pw", 0);
+    if( is_false(g.argv[2]) ) return;
+    url_parse(g.argv[2], URL_REMEMBER|URL_PROMPT_PW);
   }
   zUrl = db_get("last-sync-url", 0);
   if( zUrl==0 ){
     fossil_print("off\n");
     return;
   }else{
-    url_parse(zUrl);
+    url_parse(zUrl, 0);
     fossil_print("%s\n", g.urlCanonical);
   }
 }

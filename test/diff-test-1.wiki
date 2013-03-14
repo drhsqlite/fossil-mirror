@@ -35,6 +35,10 @@ the correct operation of the diff logic.
       that are difficult to align.
   *  <a href="../../../fdiff?v2=21f9a00fe2fa4a17&v1=d5c4ff0532bd89c3#chunk5"
       target="testwindow">sqlite3.c changes inverted.</a>
+  *  <a href="../../../fdiff?v1=4f70c682e44f&v2=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek.</a>
+  *  <a href="../../../fdiff?v2=4f70c682e44f&v1=55659c6e062994f"
+      target="testwindow">Lorem Ipsum in Greek inverted.</a>
 
 External:
 

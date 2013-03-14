@@ -15,10 +15,15 @@
 **
 *******************************************************************************
 **
-** An implementation of printf() with extra conversion fields.
+** This file contains implementions of routines for formatting output
+** (ex: mprintf()) and for output to the console.
 */
 #include "config.h"
 #include "printf.h"
+#if defined(_WIN32)
+#   include <io.h>
+#   include <fcntl.h>
+#endif
 
 /*
 ** Conversion types fall into various categories as defined by the
@@ -161,11 +166,16 @@ static int StrNLen32(const char *z, int N){
 ** Return an appropriate set of flags for wiki_convert() for displaying
 ** comments on a timeline.  These flag settings are determined by
 ** configuration parameters.
+**
+** The altForm2 argument is true for "%!w" (with the "!" alternate-form-2
+** flags) and is false for plain "%w".  The ! indicates that the text is
+** to be rendered on a form rather than the timeline and that block markup
+** is acceptable even if the "timeline-block-markup" setting is false.
 */
-static int wiki_convert_flags(void){
+static int wiki_convert_flags(int altForm2){
   static int wikiFlags = 0;
   if( wikiFlags==0 ){
-    if( db_get_boolean("timeline-block-markup", 0) ){
+    if( altForm2 || db_get_boolean("timeline-block-markup", 0) ){
       wikiFlags = WIKI_INLINE | WIKI_NOBADLINKS;
     }else{
       wikiFlags = WIKI_INLINE | WIKI_NOBLOCK | WIKI_NOBADLINKS;
@@ -719,7 +729,7 @@ int vxprintf(
         char *zWiki = va_arg(ap, char*);
         Blob wiki;
         blob_init(&wiki, zWiki, limit);
-        wiki_convert(&wiki, pBlob, wiki_convert_flags());
+        wiki_convert(&wiki, pBlob, wiki_convert_flags(flag_altform2));
         blob_reset(&wiki);
         length = width = 0;
         break;
@@ -890,68 +900,156 @@ void fossil_trace(const char *zFormat, ...){
   va_end(ap);
 }
 
+
 /*
-** Like strcmp() except that it accepts NULL pointers.  NULL sorts before
-** all non-NULL string pointers.  Also, this strcmp() is a binary comparison
-** that does not consider locale.
+** The following variable becomes true while processing a fatal error
+** or a panic.  If additional "recursive-fatal" errors occur while
+** shutting down, the recursive errors are silently ignored.
 */
-int fossil_strcmp(const char *zA, const char *zB){
-  if( zA==0 ){
-    if( zB==0 ) return 0;
-    return -1;
-  }else if( zB==0 ){
-    return +1;
-  }else{
-    int a, b;
-    do{
-      a = *zA++;
-      b = *zB++;
-    }while( a==b && a!=0 );
-    return ((unsigned char)a) - (unsigned char)b;
+static int mainInFatalError = 0;
+
+/*
+** Print an error message, rollback all databases, and quit.  These
+** routines never return.
+*/
+NORETURN void fossil_panic(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  int rc = 1;
+  static int once = 1;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( 0, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
   }
+  else
+#endif
+  {
+    if( g.cgiOutput && once ){
+      once = 0;
+      cgi_printf("<p class=\"generalError\">%h</p>", z);
+      cgi_reply();
+    }else if( !g.fQuiet ){
+      fossil_force_newline();
+      fossil_trace("Fossil internal error: %s\n", z);
+    }
+  }
+  free(z);
+  db_force_rollback();
+  fossil_exit(rc);
 }
-int fossil_strncmp(const char *zA, const char *zB, int nByte){
-  if( zA==0 ){
-    if( zB==0 ) return 0;
-    return -1;
-  }else if( zB==0 ){
-    return +1;
-  }else if( nByte>0 ){
-    int a, b;
-    do{
-      a = *zA++;
-      b = *zB++;
-    }while( a==b && a!=0 && (--nByte)>0 );
-    return ((unsigned char)a) - (unsigned char)b;
-  }else{
-    return 0;
+
+NORETURN void fossil_fatal(const char *zFormat, ...){
+  char *z;
+  int rc = 1;
+  va_list ap;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( g.json.resultCode, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
   }
+  else
+#endif
+  {
+    if( g.cgiOutput ){
+      g.cgiOutput = 0;
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
+      cgi_reply();
+    }else if( !g.fQuiet ){
+      fossil_force_newline();
+      fossil_trace("%s\n", z);
+    }
+  }
+  free(z);
+  db_force_rollback();
+  fossil_exit(rc);
+}
+
+/* This routine works like fossil_fatal() except that if called
+** recursively, the recursive call is a no-op.
+**
+** Use this in places where an error might occur while doing
+** fatal error shutdown processing.  Unlike fossil_panic() and
+** fossil_fatal() which never return, this routine might return if
+** the fatal error handing is already in process.  The caller must
+** be prepared for this routine to return.
+*/
+void fossil_fatal_recursive(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  int rc = 1;
+  if( mainInFatalError ) return;
+  mainInFatalError = 1;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if( g.json.isJsonMode ){
+    json_err( g.json.resultCode, z, 1 );
+    if( g.isHTTP ){
+      rc = 0 /* avoid HTTP 500 */;
+    }
+  } else
+#endif
+  {
+    if( g.cgiOutput ){
+      g.cgiOutput = 0;
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
+      cgi_reply();
+    }else{
+      fossil_force_newline();
+      fossil_trace("%s\n", z);
+    }
+  }
+  db_force_rollback();
+  fossil_exit(rc);
+}
+
+
+/* Print a warning message */
+void fossil_warning(const char *zFormat, ...){
+  char *z;
+  va_list ap;
+  va_start(ap, zFormat);
+  z = vmprintf(zFormat, ap);
+  va_end(ap);
+#ifdef FOSSIL_ENABLE_JSON
+  if(g.json.isJsonMode){
+    json_warn( FSL_JSON_W_UNKNOWN, z );
+  }else
+#endif
+  {
+    if( g.cgiOutput ){
+      cgi_printf("<p class=\"generalError\">\n%h\n</p>\n", z);
+    }else{
+      fossil_force_newline();
+      fossil_trace("%s\n", z);
+    }
+  }
+  free(z);
 }
 
 /*
-** Case insensitive string comparison.
+** Turn off any NL to CRNL translation on the stream given as an
+** argument.  This is a no-op on unix but is necessary on windows.
 */
-int fossil_strnicmp(const char *zA, const char *zB, int nByte){
-  if( zA==0 ){
-    if( zB==0 ) return 0;
-    return -1;
-  }else if( zB==0 ){
-    return +1;
-  }
-  if( nByte<0 ) nByte = strlen(zB);
-  return sqlite3_strnicmp(zA, zB, nByte);
-}
-int fossil_stricmp(const char *zA, const char *zB){
-  int nByte;
-  int rc;
-  if( zA==0 ){
-    if( zB==0 ) return 0;
-    return -1;
-  }else if( zB==0 ){
-    return +1;
-  }
-  nByte = strlen(zB);
-  rc = sqlite3_strnicmp(zA, zB, nByte);
-  if( rc==0 && zA[nByte] ) rc = 1;
-  return rc;
+void fossil_binary_mode(FILE *p){
+#if defined(_WIN32)
+  _setmode(_fileno(p), _O_BINARY);
+#endif
+#ifdef __EMX__     /* OS/2 */
+  setmode(fileno(p), O_BINARY);
+#endif
 }

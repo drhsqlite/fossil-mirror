@@ -264,7 +264,7 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
   db_multi_exec(
      "CREATE INDEX IF NOT EXISTS vfile_pathname "
      "  ON vfile(pathname COLLATE nocase)"
@@ -390,7 +390,7 @@ int filenames_are_case_sensitive(void){
     if( zCaseSensitive ){
       caseSensitive = is_truth(zCaseSensitive);
     }else{
-#if !defined(_WIN32) && !defined(__DARWIN__) && !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__DARWIN__) && !defined(__APPLE__)
       caseSensitive = 1;  /* Unix */
 #else
       caseSensitive = 0;  /* Windows and Mac */

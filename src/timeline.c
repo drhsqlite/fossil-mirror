@@ -595,9 +595,6 @@ void timeline_output_graph_javascript(
     cgi_printf("var nrail = %d\n", pGraph->mxRail+1);
     graph_free(pGraph);
     @ var canvasDiv = gebi("canvas");
-#if 0
-    @ var realCanvas = null;
-#endif
     @ function drawBox(color,x0,y0,x1,y1){
     @   var n = document.createElement("div");
     @   if( x0>x1 ){ var t=x0; x0=x1; x1=t; }
@@ -638,7 +635,7 @@ void timeline_output_graph_javascript(
     @ }
     @ function drawUpArrow(x,y0,y1){
     @   drawBox("black",x,y0,x+1,y1);
-    @   if( y0+8>=y1 ){
+    @   if( y0+10>=y1 ){
     @     drawBox("black",x-1,y0+1,x+2,y0+2);
     @     drawBox("black",x-2,y0+3,x+3,y0+4);
     @   }else{
@@ -649,12 +646,12 @@ void timeline_output_graph_javascript(
     @ function drawThinArrow(y,xFrom,xTo){
     @   if( xFrom<xTo ){
     @     drawBox("black",xFrom,y,xTo,y);
-    @     drawBox("black",xTo-4,y-1,xTo-2,y+1);
-    @     if( xTo>xFrom-8 ) drawBox("black",xTo-6,y-2,xTo-5,y+2);
+    @     drawBox("black",xTo-3,y-1,xTo-2,y+1);
+    @     drawBox("black",xTo-4,y-2,xTo-4,y+2);
     @   }else{
     @     drawBox("black",xTo,y,xFrom,y);
-    @     drawBox("black",xTo+2,y-1,xTo+4,y+1);
-    @     if( xTo+8<xFrom ) drawBox("black",xTo+5,y-2,xTo+6,y+2);
+    @     drawBox("black",xTo+2,y-1,xTo+3,y+1);
+    @     drawBox("black",xTo+4,y-2,xTo+4,y+2);
     @   }
     @ }
     @ function drawThinLine(x0,y0,x1,y1){
@@ -664,9 +661,9 @@ void timeline_output_graph_javascript(
     @   drawBox("black",p.x-5,p.y-5,p.x+6,p.y+6);
     @   drawBox(p.bg,p.x-4,p.y-4,p.x+5,p.y+5);
     @   if( p.u>0 ) drawUpArrow(p.x, rowinfo[p.u-1].y+6, p.y-5);
+    @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
     if( !omitDescenders ){
       @   if( p.u==0 ) drawUpArrow(p.x, 0, p.y-5);
-      @   if( p.f&1 ) drawBox("black",p.x-1,p.y-1,p.x+2,p.y+2);
       @   if( p.d ) drawUpArrow(p.x, p.y+6, btm);
     }
     @   if( p.mo>0 ){
@@ -723,7 +720,6 @@ void timeline_output_graph_javascript(
     @   }
     @   var canvasY = absoluteY("timelineTable");
     @   var left = absoluteX("m"+rowinfo[0].id) - absoluteX("canvas") + 15;
-    @   var width = nrail*railPitch;
     @   for(var i in rowinfo){
     @     rowinfo[i].y = absoluteY("m"+rowinfo[i].id) + 10 - canvasY;
     @     rowinfo[i].x = left + rowinfo[i].r*railPitch;
@@ -1145,6 +1141,7 @@ void page_timeline(void){
     blob_appendf(&desc, "Parents and children of check-in ");
     zUuid = db_text("", "SELECT uuid FROM blob WHERE rid=%d", f_rid);
     blob_appendf(&desc, "%z[%.10s]</a>", href("%R/info/%s", zUuid), zUuid);
+    tmFlags |= TIMELINE_DISJOINT;
   }else{
     /* Otherwise, a timeline based on a span of time */
     int n;
