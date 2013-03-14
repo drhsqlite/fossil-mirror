@@ -2303,7 +2303,7 @@ static void annotate_file(
   annotation_start(p, &toAnnotate);
   db_begin_transaction();
   db_multi_exec(
-     "CREATE TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
+     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
      "DELETE FROM vseen;"
   );
 
