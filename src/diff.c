@@ -2288,6 +2288,7 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
@@ -2300,7 +2301,13 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
+  db_begin_transaction();
+  db_multi_exec(
+     "CREATE TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM vseen;"
+  );
 
+  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime),"
@@ -2309,6 +2316,7 @@ static void annotate_file(
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
+    "   AND mlink.pid NOT IN vseen"
     " ORDER BY %s event.mtime",
     (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
     (annFlags & ANN_FILE_ANCEST)!=0 ?
@@ -2335,6 +2343,9 @@ static void annotate_file(
     p->azVers[p->nVers-1] = zLabel;
     content_get(rid, &step);
     annotation_step(p, &step, zLabel);
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
     blob_reset(&step);
     db_reset(&q);
     rid = prevId;
@@ -2342,6 +2353,8 @@ static void annotate_file(
     cnt++;
   }
   db_finalize(&q);
+  db_finalize(&ins);
+  db_end_transaction(0);
 }
 
 /*
