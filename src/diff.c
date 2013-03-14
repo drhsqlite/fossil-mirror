@@ -71,13 +71,13 @@
 */
 #define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
 #define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
-#define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
-#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
-#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
-#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
-#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
+#define LOOK_LONE_CR ((int)0x00000002) /* An unpaired CR char was found. */
+#define LOOK_LONE_LF ((int)0x00000004) /* An unpaired CR char was found. */
+#define LOOK_CRLF    ((int)0x00000008) /* One or more CR/LF pairs were found. */
+#define LOOK_LENGTH  ((int)0x00000010) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000020) /* An odd number of bytes was found. */
+#define LOOK_CR (LOOK_LONE_CR|LOOK_CRLF) /* One or more CR chars were found. */
+#define LOOK_LF (LOOK_LONE_LF|LOOK_CRLF) /* One or more LF chars were found. */
 #endif /* INTERFACE */
 
 /*
@@ -240,20 +240,19 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
   if( c==0 ){
     if( pFlags ) *pFlags |= LOOK_NUL;
     result = 0;  /* NUL character in a file -> binary */
-  }else if( (c=='\r') && pFlags ){
-    *pFlags |= LOOK_CR;
+  }else if( c=='\r' && pFlags && (n<2 || z[1]!='\n') ){
+    *pFlags |= LOOK_LONE_CR;
   }
   j = (c!='\n');
-  if( !j && pFlags ) *pFlags |= LOOK_LF;
+  if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
   while( --n>0 ){
+    int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
     }else if( c=='\n' ){
-      int c2 = z[-1];
       if( pFlags ){
-        *pFlags |= LOOK_LF;
         if( c2=='\r' ){
           *pFlags |= LOOK_CRLF;
         }else{
@@ -265,13 +264,8 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c=='\r' ){
-      if( pFlags ){
-        *pFlags |= LOOK_CR;
-        if( n<=1 || z[1]!='\n' ){
-          *pFlags |= LOOK_LONE_CR;
-        }
-      }
+    }else if( c=='\r' && pFlags && (n<1 || z[1]!='\n') ){
+      *pFlags |= LOOK_LONE_CR;
     }
   }
   if( j>LENGTH_MASK ){
@@ -353,12 +347,14 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
   if( c==0 ){
     if( pFlags ) *pFlags |= LOOK_NUL;
     result = 0;  /* NUL character in a file -> binary */
-  }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags ){
-    *pFlags |= LOOK_CR;
+  }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags
+      && (n<(2*sizeof(WCHAR_T)) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF)) ){
+    *pFlags |= LOOK_LONE_CR;
   }
   j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
-  if( !j && pFlags ) *pFlags |= LOOK_LF;
+  if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
   while( 1 ){
+    int c2 = c;
     if ( n<sizeof(WCHAR_T) ) break;
     n -= sizeof(WCHAR_T);
     c = *++z; ++j;
@@ -366,9 +362,7 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
     }else if( c==UTF16BE_LF || c==UTF16LE_LF ){
-      int c2 = z[-1];
       if( pFlags ){
-        *pFlags |= LOOK_LF;
         if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
           *pFlags |= LOOK_CRLF;
         }else{
@@ -380,13 +374,9 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c==UTF16BE_CR || c==UTF16LE_CR ){
-      if( pFlags ){
-        *pFlags |= LOOK_CR;
-        if( n<=1 || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF) ){
-          *pFlags |= LOOK_LONE_CR;
-        }
-      }
+    }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags
+        && (n<sizeof(WCHAR_T) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF)) ){
+      *pFlags |= LOOK_LONE_CR;
     }
   }
   if( j>UTF16_LENGTH_MASK ){
