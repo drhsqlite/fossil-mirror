@@ -7,3 +7,5 @@ bld/*
 wbld/*
 autoconfig.h
 config.log
+fossil
+fossil.exe

@@ -2267,7 +2267,8 @@ void test_annotate_step_cmd(void){
 }
 
 /* Annotation flags */
-#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+#define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
+#define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2308,8 +2309,10 @@ static void annotate_file(
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
+    " ORDER BY %s event.mtime",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
+    (annFlags & ANN_FILE_ANCEST)!=0 ?
+         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
   );
 
   db_bind_int(&q, ":rid", rid);
@@ -2354,7 +2357,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;
-  int annFlags = 0;
+  int annFlags = ANN_FILE_ANCEST;
   int showLn = 0;        /* True if line numbers should be shown */
   char zLn[10];          /* Line number buffer */
   char zFormat[10];      /* Format string for line numbers */
@@ -2370,6 +2373,7 @@ void annotation_page(void){
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
+  compute_direct_ancestors(mid, 10000000);
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
@@ -2463,6 +2467,7 @@ void annotate_cmd(void){
     fossil_panic("unable to find manifest");
   }
   if( fileVers ) annFlags |= ANN_FILE_VERS;
+  annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
