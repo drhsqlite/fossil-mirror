@@ -1733,7 +1733,7 @@ void tinfo_page(void){
   @ </table>
   free(zDate);
   free(zTktTitle);
-  
+
   if( g.perm.ModTkt && modPending ){
     @ <div class="section">Moderation</div>
     @ <blockquote>
@@ -1926,7 +1926,7 @@ void render_color_chooser(
     }
   }
   @ </tr><tr>
-  if (stdClrFound){
+  if( stdClrFound ){
     @ <td colspan="6">
     @ <input type="radio" name="%s(zId)" value="%h(aColor[nColor].zColor)" />
   }else{

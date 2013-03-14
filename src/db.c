@@ -771,11 +771,11 @@ void db_open_or_attach(
     assert( g.zMainDbType==0 );
     g.db = db_open(zDbName);
     g.zMainDbType = zLabel;
-    if ( pWasAttached ) *pWasAttached = 0;
+    if( pWasAttached ) *pWasAttached = 0;
   }else{
     assert( g.zMainDbType!=0 );
     db_attach(zDbName, zLabel);
-    if ( pWasAttached ) *pWasAttached = 1;
+    if( pWasAttached ) *pWasAttached = 1;
   }
 }
 

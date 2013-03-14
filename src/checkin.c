@@ -921,7 +921,6 @@ static int commit_warning(
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
-  int fHasLength;         /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -940,7 +939,6 @@ static int commit_warning(
     eType = looks_like_utf8(p, &lookFlags);
   }
   fHasCrLf = (lookFlags & LOOK_CRLF);
-  fHasLength = (lookFlags & LOOK_LENGTH);
   if( eType==0 || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
@@ -952,7 +950,7 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( fHasLength ){
+      if( (lookFlags&LOOK_LENGTH) && !(lookFlags&LOOK_NUL) ){
         zWarning = "long lines";
       }else{
         zWarning = "binary data";
@@ -960,7 +958,7 @@ static int commit_warning(
       zDisable = "\"binary-glob\" setting";
       zConvert = ""; /* We cannot convert binary files. */
     }else if( fHasCrLf && fUnicode ){
-      if ( crnlOk && encodingOk ){
+      if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
@@ -972,7 +970,7 @@ static int commit_warning(
       zWarning = "CR/NL line endings";
       zDisable = "\"crnl-glob\" setting";
     }else{
-      if ( encodingOk ){
+      if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
@@ -1237,7 +1235,7 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  if ( select_commit_files() ){
+  if( select_commit_files() ){
     blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
