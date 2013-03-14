@@ -339,7 +339,7 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
   if( n%sizeof(WCHAR_T) ){
     if( pFlags ) *pFlags |= LOOK_ODD;
     result = 0;  /* Odd number of bytes -> binary (UTF-8?) */
-    if ( n<sizeof(WCHAR_T) ) return result;  /* One byte -> binary (UTF-8?) */
+    if( n<sizeof(WCHAR_T) ) return result;  /* One byte -> binary (UTF-8?) */
   }
   c = *z;
   if( c==0 ){
@@ -350,7 +350,7 @@ int looks_like_utf16(const Blob *pContent, int *pFlags){
   if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
   while( 1 ){
     int c2 = c;
-    if ( n<sizeof(WCHAR_T) ) break;
+    if( n<sizeof(WCHAR_T) ) break;
     n -= sizeof(WCHAR_T);
     c = *++z; ++j;
     if( c==0 ){
@@ -578,7 +578,7 @@ static void contextDiff(
         continue;
       }
     }
-    
+
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
     */
@@ -1270,7 +1270,7 @@ static unsigned char *sbsAlignment(
   ** by all of the left side deleted.
   **
   ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.  
+  ** experimentation.
   */
   mxLen = nLeft>nRight ? nLeft : nRight;
   if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
@@ -1507,7 +1507,7 @@ static void sbsDiff(
           a++;
           b++;
         }
-          
+
       }
       fossil_free(alignment);
       if( i<nr-1 ){
@@ -2299,7 +2299,7 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
-  
+
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime),"
@@ -2311,7 +2311,7 @@ static void annotate_file(
     " ORDER BY event.mtime",
     (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
   );
-  
+
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
@@ -2436,7 +2436,7 @@ void annotate_cmd(void){
   showLog = find_option("log",0,0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ) {
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2450,7 +2450,7 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;

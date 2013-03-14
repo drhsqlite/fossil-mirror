@@ -141,7 +141,7 @@ void setup_ulist(void){
   @ <span class="note">Users:</span>
   @ <table class="usetupUserList">
   prevLevel = 0;
-  db_prepare(&s, 
+  db_prepare(&s,
      "SELECT uid, login, cap, info, 1 FROM user"
      " WHERE login IN ('anonymous','nobody','developer','reader') "
      " UNION ALL "
@@ -252,7 +252,7 @@ void setup_ulist(void){
      @   <td><i>Private:</i> Push and/or pull private branches</td></tr>
      @ <tr><td valign="top"><b>z</b></td>
      @   <td><i>Zip download:</i> Download a baseline via the
-     @   <tt>/zip</tt> URL even without 
+     @   <tt>/zip</tt> URL even without
      @    check<span class="capability">o</span>ut
      @    and <span class="capability">h</span>istory permissions</td></tr>
   @ </table>
@@ -359,7 +359,7 @@ void user_edit(void){
       @
       @ <p><a href="setup_uedit?id=%d(uid)">[Bummer]</a></p>
       style_footer();
-      return;      
+      return;
     }
     if( isValidPwString(zPw) ){
       zPw = sha1_shared_secret(zPw, zLogin, 0);
@@ -396,7 +396,7 @@ void user_edit(void){
         );
         zOldLogin = zLogin;
       }
-      blob_appendf(&sql, 
+      blob_appendf(&sql,
         "UPDATE user SET login=%Q,"
         "  pw=coalesce(shared_secret(%Q,%Q,"
                 "(SELECT value FROM config WHERE name='project-code')),pw),"
@@ -645,7 +645,7 @@ void user_edit(void){
   @ <li><p>
   @ The <span class="capability">Delete</span> privilege give the user the
   @ ability to erase wiki, tickets, and attachments that have been added
-  @ by anonymous users.  This capability is intended for deletion of spam. 
+  @ by anonymous users.  This capability is intended for deletion of spam.
   @ The delete capability is only in effect for 24 hours after the item
   @ is first posted.  The <span class="usertype">Setup</span> user can
   @ delete anything at any time.
@@ -702,7 +702,7 @@ void user_edit(void){
   @ <li><p>
   @ The <span class="capability">EMail</span> privilege allows the display of
   @ sensitive information such as the email address of users and contact
-  @ information on tickets. Recommended OFF for 
+  @ information on tickets. Recommended OFF for
   @ <span class="usertype">anonymous</span> and for
   @ <span class="usertype">nobody</span> but ON for
   @ <span class="usertype">developer</span>.
@@ -726,7 +726,7 @@ void user_edit(void){
   @ No login is required for user <span class="usertype">nobody</span>. The
   @ capabilities of the <span class="usertype">nobody</span> user are
   @ inherited by all users, regardless of whether or not they are logged in.
-  @ To disable universal access to the repository, make sure no user named 
+  @ To disable universal access to the repository, make sure no user named
   @ <span class="usertype">nobody</span> exists or that the
   @ <span class="usertype">nobody</span> user has no capabilities
   @ enabled. The password for <span class="usertype">nobody</span> is ignore.
@@ -751,9 +751,9 @@ void user_edit(void){
   @ The <span class="usertype">developer</span> user is intended as a template
   @ for trusted users with check-in privileges. When adding new trusted users,
   @ simply select the <span class="capability">developer</span> privilege to
-  @ cause the new user to inherit all privileges of the 
+  @ cause the new user to inherit all privileges of the
   @ <span class="usertype">developer</span>
-  @ user.  Similarly, the <span class="usertype">reader</span> user is a 
+  @ user.  Similarly, the <span class="usertype">reader</span> user is a
   @ template for users who are allowed more access than
   @ <span class="usertype">anonymous</span>,
   @ but less than a <span class="usertype">developer</span>.
@@ -835,7 +835,7 @@ static void textarea_attribute(
   if( rows>0 && cols>0 ){
     @ <textarea id="id%s(zQP)" name="%s(zQP)" rows="%d(rows)"
     @ cols="%d(cols)">%h(z)</textarea>
-    if (zLabel && *zLabel){
+    if( zLabel && *zLabel ){
       @ <span class="textareaLabel">%s(zLabel)</span>
     }
   }
@@ -897,7 +897,7 @@ void setup_access(void){
   @ </p>
   @
   @ <hr />
-  entry_attribute("IP address terms used in login cookie", 3, 
+  entry_attribute("IP address terms used in login cookie", 3,
                   "ip-prefix-terms", "ipt", "2");
   @ <p>The number of octets of of the IP address used in the login cookie.
   @ Set to zero to omit the IP address from the login cookie.  A value of
@@ -960,7 +960,7 @@ void setup_access(void){
   @ <p>A comma-separated list of glob patterns for pages that are accessible
   @ without needing a login and using the privileges given by the
   @ "Default privileges" setting below.  Example use case: Set this field
-  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the 
+  @ to "/doc/trunk/www/*" to give anonymous users read-only permission to the
   @ latest version of the embedded documentation in the www/ folder without
   @ allowing them to see the rest of the source code.
   @ </p>
@@ -968,11 +968,11 @@ void setup_access(void){
   @ <hr />
   onoff_attribute("Allow users to register themselves",
                   "self-register", "selfregister", 0);
-  @ <p>Allow users to register themselves through the HTTP UI. 
-  @ The registration form always requires filling in a CAPTCHA 
+  @ <p>Allow users to register themselves through the HTTP UI.
+  @ The registration form always requires filling in a CAPTCHA
   @ (<em>auto-captcha</em> setting is ignored). Still, bear in mind that anyone
   @ can register under any user name. This option is useful for public projects
-  @ where you do not want everyone in any ticket discussion to be named 
+  @ where you do not want everyone in any ticket discussion to be named
   @ "Anonymous".</p>
 
   @ <hr />
@@ -1130,7 +1130,7 @@ void setup_timeline(void){
   @ Zulu) instead of in local time.  On this server, local time is currently
   g.fTimeFormat = 2;
   tmDiff = db_double(0.0, "SELECT julianday('now')");
-  tmDiff = db_double(0.0, 
+  tmDiff = db_double(0.0,
         "SELECT (julianday(%.17g,'localtime')-julianday(%.17g))*24.0",
         tmDiff, tmDiff);
   sqlite3_snprintf(sizeof(zTmDiff), zTmDiff, "%.1f", tmDiff);
@@ -1452,7 +1452,7 @@ void setup_modreq(void){
   @ <p>When enabled, any change to tickets is subject to the approval
   @ a ticket moderator - a user with the "q" or Mod-Tkt privilege.
   @ Ticket changes enter the system and are shown locally, but are not
-  @ synced until they are approved.  The moderator has the option to 
+  @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Ticket changes made by
   @ a user who hwas the Mod-Tkt privilege are never subject to
   @ moderation.
@@ -1463,12 +1463,12 @@ void setup_modreq(void){
   @ <p>When enabled, any change to wiki is subject to the approval
   @ a ticket moderator - a user with the "l" or Mod-Wiki privilege.
   @ Wiki changes enter the system and are shown locally, but are not
-  @ synced until they are approved.  The moderator has the option to 
+  @ synced until they are approved.  The moderator has the option to
   @ delete the change rather than approve it.  Wiki changes made by
   @ a user who has the Mod-Wiki privilege are never subject to
   @ moderation.
   @ </p>
- 
+
   @ <hr />
   @ <p><input type="submit"  name="submit" value="Apply Changes" /></p>
   @ </div></form>

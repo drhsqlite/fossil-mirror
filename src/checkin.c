@@ -940,7 +940,7 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( lookFlags&(LOOK_LENGTH) && !lookFlags&(LOOK_NUL) ){
+      if( (lookFlags&LOOK_LENGTH) && !(lookFlags&LOOK_NUL) ){
         zWarning = "long lines";
       }else{
         zWarning = "binary data";
@@ -948,7 +948,7 @@ static int commit_warning(
       zDisable = "\"binary-glob\" setting";
       zConvert = ""; /* We cannot convert binary files. */
     }else if( fHasCrLf && fUnicode ){
-      if ( crnlOk && encodingOk ){
+      if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
       zWarning = "CR/NL line endings and Unicode";
@@ -960,7 +960,7 @@ static int commit_warning(
       zWarning = "CR/NL line endings";
       zDisable = "\"crnl-glob\" setting";
     }else{
-      if ( encodingOk ){
+      if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
@@ -1225,7 +1225,7 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  if ( select_commit_files() ){
+  if( select_commit_files() ){
     blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];
