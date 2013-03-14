@@ -1,5 +1,5 @@
-C The\sVSEEN\stable\sadded\sin\sthe\sprevious\scheck-in\sshould\sbe\sa\sTEMP\stable.
-D 2013-03-14T20:45:39.172
+C Do\snot\saccept\sthe\sSHA1\spassword\shash\sas\sa\slegitimate\spassword\son\sthe\nlogin\sscreen.
+D 2013-03-14T21:14:46.379
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -347,7 +347,7 @@ F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 0653afe89cae80b756ab95bdc4cf20bbd301c6fe
+F src/login.c 9f80610c8abdd0118409daa55bb0fb787840f2a2
 F src/main.c c28402bb276c3c7555ebed5885e66a26f3cc3a06
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 1605649f3e16812127d36210c650a47b012c3529
-R e3d463a34f7c956ff1851b2af0ef83fe
+P ec4c9787c9f1593f9b062bbe9c4946b1a06facf7
+R e5cf702e54f63d6b9a8a3c07289b4b6b
 U drh
-Z af1a79fc1dcbdc59ae66a4f48da4caa8
+Z 9c1cb31fae668eda59b1c95138064f52
