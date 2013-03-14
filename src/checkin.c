@@ -910,7 +910,9 @@ static int commit_warning(
   int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
+  int fHasNul;            /* the blob contains one or more NUL chars */
   int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
+  int fHasLength;         /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -928,7 +930,9 @@ static int commit_warning(
   }else{
     eType = looks_like_utf8(p, &lookFlags);
   }
+  fHasNul = (lookFlags & LOOK_NUL);
   fHasCrLf = (lookFlags & LOOK_CRLF);
+  fHasLength = (lookFlags & LOOK_LENGTH);
   if( eType==0 || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
@@ -940,7 +944,7 @@ static int commit_warning(
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( (lookFlags&LOOK_LENGTH) && !(lookFlags&LOOK_NUL) ){
+      if( !fHasNul && fHasLength ){
         zWarning = "long lines";
       }else{
         zWarning = "binary data";
