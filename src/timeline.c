@@ -451,7 +451,7 @@ void www_print_timeline(
           inUl = 1;
         }
         if( (tmFlags & TIMELINE_FRENAMES)!=0 ){
-          if( !isNew && !isDel && fossil_strcmp(zOld,zNew)!=0 && zOldName!=0 ){
+          if( !isNew && !isDel && zOldName!=0 ){
             @ <li> %h(zOldName) &rarr; %h(zFilename)
           }
           continue;
