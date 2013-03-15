@@ -744,13 +744,38 @@ void cmd_test_webpage_list(void){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version
+** Usage: %fossil version ?-verbose|-v?
 **
 ** Print the source code version number for the fossil executable.
+** If the verbose option is specified, additional details will
+** be output about what optional features this binary was compiled
+** with
 */
 void version_cmd(void){
   fossil_print("This is fossil version " RELEASE_VERSION " "
                 MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+  if(!find_option("verbose","v",0)){
+    return;
+  }else{
+    fossil_print("Compiled with the following features enabled:\n",
+                 COMPILER_NAME);
+    int count = 0;
+#if defined(FOSSIL_ENABLE_SSL)
+    ++count;
+    fossil_print("\tSSL\n");
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+    ++count;
+    fossil_print("\tTCL\n");
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+    ++count;
+    fossil_print("\tJSON\n");
+#endif
+    if(!count){
+      fossil_print("\tno optional features enabled.\n");
+    }
+  }
 }
 
 
