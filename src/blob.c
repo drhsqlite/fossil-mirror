@@ -1016,7 +1016,8 @@ void blob_add_cr(Blob *p){
 #endif
 
 /*
-** Remove every \r character from the given blob.
+** Remove every \r character from the given blob. If not followed
+** by \n, insert \n.
 */
 void blob_remove_cr(Blob *p){
   int i, j;
@@ -1025,6 +1026,7 @@ void blob_remove_cr(Blob *p){
   z = p->aData;
   for(i=j=0; z[i]; i++){
     if( z[i]!='\r' ) z[j++] = z[i];
+    else if( z[i+1]!='\n') z[j++] = '\n';
   }
   z[j] = 0;
   p->nUsed = j;

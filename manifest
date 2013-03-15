@@ -1,5 +1,5 @@
-C Add\stwo\snew\sutf-16\stest-cases,\swhich\swere\shandled\swrong\sup\sto\snow,\sand\sfix\sthe\scode\saccordingly.
-D 2013-03-15T10:05:10.578
+C Allow\sblob_remove_cr()\sto\sbe\sused\sfor\sboth\s\\r\\n\s->\s\\n\sas\swell\sas\s\\r\s->\s\\n\sconversions.
+D 2013-03-15T11:32:00.928
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -294,7 +294,7 @@ F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
-F src/blob.c 25313f3db21386d0269b83753decadf988054397
+F src/blob.c c07e26dc0f61edccd394c9646fce14cd11acdfb7
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d772ff72199d65f3bdf6f025635d0fdd7860d4f8
-R 1fd6bf81df35fb3fcb1dc6369255b6e4
+P fab2b8aea5b7c9055bd3baaf9e4e400f9c644452
+R ce4ba8cfd350bdfc5ff2788f2865e208
 U jan.nijtmans
-Z fe33041928a128291d8d21bf5bb8fc6f
+Z d063793364199d775afcd81a37a6680f
