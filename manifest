@@ -1,5 +1,5 @@
-C Don't\slet\slooks_like_utf8/16\sdecide\sany\smore\swhether\sthe\sblob\sis\stext\sor\sbinary.\sCalling\scode\scan\sdo\sthat\sbased\son\sthe\sreturned\sflags.\nThis\ssimplifies\slooks_like_utf8/16\sa\slot.
-D 2013-03-15T12:23:14.588
+C Fix\sticket\s[38cecac15f]:\stest-move-repository\srequires\saccess\sto\soriginal\srepository
+D 2013-03-15T14:07:57.465
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -309,13 +309,13 @@ F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 83b8555363cdbbad0454dc237a3a7736ba6b240b
+F src/db.c 490dbd0440834d8006cb2e4c5657565cfcb90a9c
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
 F src/diff.c 985ae12de3102793d9693814d272cecb9ac97f5c
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
-F src/doc.c fbee05bb2adcc03625521780ef6c980d6dc9d921
+F src/doc.c 23380615245f59c7b04629f8526df94d498baf68
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
@@ -341,7 +341,7 @@ F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
 F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
-F src/json_status.c d2507fb4053f675b5a8cdd62107d4a41b10600f7
+F src/json_status.c e95054838372a514918169a2c81811f530b88516
 F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
 F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
@@ -374,7 +374,7 @@ F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
-F src/setup.c 14ff7b35a8152714bf8a30ff0f9312e71470b307
+F src/setup.c aafb7caa029379b8a5f90c346c089a62fd2c05a7
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 57348f9ae80e590c2d19c7708079d0eac026d252
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4b2c2a519f02525a1e4a10f3e764dc4a16412b81
-R 18cf594aa0dba043012f0914da77c8b6
+P 276b34955bd4880495400e1f22214c583605270d 820f64320b24bb585ad8323a6fc1ace0b9f8b2e7
+R 98f08f7f455991faabced549a04c3cd4
 U jan.nijtmans
-Z 3d569aeab8efb8b5f92683908ff27815
+Z e41bbd61ce7c63517e80a9787c8e57f2
