@@ -907,7 +907,6 @@ static int commit_warning(
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
-  int eType;              /* return value of looks_like_utf8/utf16() */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   int fHasNul;            /* the blob contains one or more NUL chars */
@@ -920,27 +919,27 @@ static int commit_warning(
   if( allOk ) return 0;
   fUnicode = starts_with_utf16_bom(p, 0, 0);
   if( fUnicode ){
-    eType = looks_like_utf16(p, &lookFlags);
+    lookFlags = looks_like_utf16(p);
     if( lookFlags&LOOK_ODD ){
       /* Content with an odd number of bytes cannot be UTF-16. */
       fUnicode = 0;
       /* Therefore, check if the content appears to be UTF-8. */
-      eType = looks_like_utf8(p, &lookFlags);
+      lookFlags = looks_like_utf8(p);
     }
   }else{
-    eType = looks_like_utf8(p, &lookFlags);
+    lookFlags = looks_like_utf8(p);
   }
   fHasNul = (lookFlags & LOOK_NUL);
   fHasCrLf = (lookFlags & LOOK_CRLF);
   fHasLength = (lookFlags & LOOK_LENGTH);
-  if( eType==0 || fHasCrLf || fUnicode ){
+  if( fHasNul || fHasLength || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==0 ){
+    if( fHasNul || fHasLength ){
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
