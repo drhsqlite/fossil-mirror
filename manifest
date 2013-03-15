@@ -1,5 +1,5 @@
-C Added\sbasic\simplementation\sof\sRFE\sticket\s[3a2a26513220342]:\s-verbose\soption\sfor\sthe\s"version"\scommand.
-D 2013-03-15T14:49:41.671
+C Fixed\sa\sC99ism\s(decl\safter\scode).
+D 2013-03-15T14:53:11.676
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -348,7 +348,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 9f80610c8abdd0118409daa55bb0fb787840f2a2
-F src/main.c 1f82cf1848881af48dc5db7f2c6252b76c5ebf0f
+F src/main.c 1902bcd3b4436962b29fc0ef2351b9674f765d8f
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0d55a0ad0fc44da035042d8696dd9b18ab419b37
-R 7ceef4ec7d0d9c9a72d4c56e68fc0eab
+P 1be15a57f1a64478aabd54019f97db5ba1e85a73
+R fe9be07a3c419f384a1f996bfa5889b9
 U stephan
-Z b2994f9527a8881969806976497b020e
+Z a3372bc406b497b7f534a50e3f95f011

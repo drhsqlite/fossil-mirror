@@ -757,9 +757,9 @@ void version_cmd(void){
   if(!find_option("verbose","v",0)){
     return;
   }else{
+    int count = 0;
     fossil_print("Compiled with the following features enabled:\n",
                  COMPILER_NAME);
-    int count = 0;
 #if defined(FOSSIL_ENABLE_SSL)
     ++count;
     fossil_print("\tSSL\n");
