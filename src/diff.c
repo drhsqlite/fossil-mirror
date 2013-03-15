@@ -70,14 +70,15 @@
 ** to convey status information about the blob content.
 */
 #define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
-#define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
-#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
+#define LOOK_REVERSE ((int)0x00000001) /* Reversed UTF-16 BOM is found. */
+#define LOOK_NUL     ((int)0x00000002) /* One or more NUL chars were found. */
 #define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
-#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
-#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
-#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
-#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
+#define LOOK_LONE_LF ((int)0x00000008) /* An unpaired LF char was found. */
+#define LOOK_CRLF    ((int)0x00000010) /* One or more CR/LF pairs were found. */
+#define LOOK_LENGTH  ((int)0x00000020) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000040) /* An odd number of bytes was found. */
+#define LOOK_CR (LOOK_LONE_CR|LOOK_CRLF) /* One or more CR chars were found. */
+#define LOOK_LF (LOOK_LONE_LF|LOOK_CRLF) /* One or more LF chars were found. */
 #endif /* INTERFACE */
 
 /*
@@ -240,42 +241,31 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
   if( c==0 ){
     if( pFlags ) *pFlags |= LOOK_NUL;
     result = 0;  /* NUL character in a file -> binary */
-  }else if( (c=='\r') && pFlags ){
-    *pFlags |= LOOK_CR;
-    if( n<=1 || z[1]!='\n' ){
-      *pFlags |= LOOK_LONE_CR;
-    }
   }
   j = (c!='\n');
-  if( !j && pFlags ) *pFlags |= (LOOK_LF|LOOK_LONE_LF);
+  if( !j && pFlags ) *pFlags |= LOOK_LONE_LF;
   while( --n>0 ){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
+    }
+    if( c=='\n' ){
       if( pFlags ){
-        *pFlags |= LOOK_LF;
-        if( c2=='\r' ){
-          *pFlags |= LOOK_CRLF;
-        }else{
-          *pFlags |= LOOK_LONE_LF;
-        }
+        *pFlags |= (c2=='\r')?LOOK_CRLF:LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
         if( pFlags ) *pFlags |= LOOK_LENGTH;
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c=='\r' ){
-      if( pFlags ){
-        *pFlags |= LOOK_CR;
-        if( n<=1 || z[1]!='\n' ){
-          *pFlags |= LOOK_LONE_CR;
-        }
-      }
+    }else if( c2=='\r' && pFlags ){
+      *pFlags |= LOOK_LONE_CR;
     }
+  }
+  if( c=='\r' && pFlags ){
+    *pFlags |= LOOK_LONE_CR;
   }
   if( j>LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
@@ -302,15 +292,6 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
 */
 #define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
 #define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
-
-/*
-** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
-** encodings.
-*/
-#define UTF16BE_CR  ((WCHAR_T)'\r')
-#define UTF16BE_LF  ((WCHAR_T)'\n')
-#define UTF16LE_CR  (((WCHAR_T)'\r')<<(sizeof(char)<<3))
-#define UTF16LE_LF  (((WCHAR_T)'\n')<<(sizeof(char)<<3))
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -343,57 +324,41 @@ int looks_like_utf8(const Blob *pContent, int *pFlags){
 int looks_like_utf16(const Blob *pContent, int *pFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c, result = 1;  /* Assume UTF-16 text, prove otherwise */
+  int j = 1, c, result = 1;  /* Assume UTF-16 text, prove otherwise */
 
-  if( pFlags ) *pFlags = LOOK_NONE;
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( !starts_with_utf16_bom(pContent, 0, pFlags) ) return 0;  /* Not UTF-16. */
   if( n%sizeof(WCHAR_T) ){
     if( pFlags ) *pFlags |= LOOK_ODD;
     result = 0;  /* Odd number of bytes -> binary (UTF-8?) */
-    if( n<sizeof(WCHAR_T) ) return result;  /* One byte -> binary (UTF-8?) */
   }
   c = *z;
-  if( c==0 ){
-    if( pFlags ) *pFlags |= LOOK_NUL;
-    result = 0;  /* NUL character in a file -> binary */
-  }else if( (c==UTF16BE_CR || c==UTF16LE_CR) && pFlags ){
-    *pFlags |= LOOK_CR;
-    if( n<=sizeof(WCHAR_T) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF) ){
-      *pFlags |= LOOK_LONE_CR;
-    }
-  }
-  j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
-  if( !j && pFlags ) *pFlags |= (LOOK_LF|LOOK_LONE_LF);
   while( 1 ){
     int c2 = c;
     if( n<sizeof(WCHAR_T) ) break;
     n -= sizeof(WCHAR_T);
     c = *++z; ++j;
+    if (pFlags && ((*pFlags)&LOOK_REVERSE) ){
+      c = ((c<<8)&0xff00) | ((c>>8)&0xff);
+    }
     if( c==0 ){
       if( pFlags ) *pFlags |= LOOK_NUL;
       result = 0;  /* NUL character in a file -> binary */
-    }else if( c==UTF16BE_LF || c==UTF16LE_LF ){
+    }
+    if( c=='\n' ){
       if( pFlags ){
-        *pFlags |= LOOK_LF;
-        if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-          *pFlags |= LOOK_CRLF;
-        }else{
-          *pFlags |= LOOK_LONE_LF;
-        }
+        *pFlags |= (c2=='\r')?LOOK_CRLF:LOOK_LONE_LF;
       }
       if( j>UTF16_LENGTH_MASK ){
         if( pFlags ) *pFlags |= LOOK_LENGTH;
         result = 0;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c==UTF16BE_CR || c==UTF16LE_CR ){
-      if( pFlags ){
-        *pFlags |= LOOK_CR;
-        if( n<=sizeof(WCHAR_T) || (z[1]!=UTF16BE_LF && z[1]!=UTF16LE_LF) ){
-          *pFlags |= LOOK_LONE_CR;
-        }
-      }
+    }else if( (c2=='\r') && pFlags ){
+      *pFlags |= LOOK_LONE_CR;
     }
+  }
+  if( (c=='\r') && pFlags ){
+    *pFlags |= LOOK_LONE_CR;
   }
   if( j>UTF16_LENGTH_MASK ){
     if( pFlags ) *pFlags |= LOOK_LENGTH;
@@ -447,9 +412,9 @@ int starts_with_utf16_bom(
   if( size<bomSize ) return 0;  /* No: cannot read BOM. */
   if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
   if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = 1;
+    if( pbReverse ) *pbReverse = LOOK_REVERSE;
   }else if( z[0]==0xfeff ){
-    if( pbReverse ) *pbReverse = 0;
+    if( pbReverse ) *pbReverse = LOOK_NONE;
   }else{
     return 0; /* No: UTF-16 byte-order-mark not found. */
   }
