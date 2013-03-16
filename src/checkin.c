@@ -917,9 +917,9 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0, 0);
+  fUnicode = starts_with_utf16_bom(p, 0, &lookFlags);
   if( fUnicode ){
-    lookFlags = looks_like_utf16(p);
+    lookFlags = looks_like_utf16(p, lookFlags);
     if( lookFlags&LOOK_ODD ){
       /* Content with an odd number of bytes cannot be UTF-16. */
       fUnicode = 0;

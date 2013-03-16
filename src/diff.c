@@ -70,7 +70,6 @@
 ** to convey status information about the blob content.
 */
 #define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
-#define LOOK_REVERSE ((int)0x00000001) /* Reversed UTF-16 BOM is found. */
 #define LOOK_NUL     ((int)0x00000002) /* One or more NUL chars were found. */
 #define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
 #define LOOK_LONE_LF ((int)0x00000008) /* An unpaired LF char was found. */
@@ -79,6 +78,10 @@
 #define LOOK_ODD     ((int)0x00000040) /* An odd number of bytes was found. */
 #define LOOK_CR (LOOK_LONE_CR|LOOK_CRLF) /* One or more CR chars were found. */
 #define LOOK_LF (LOOK_LONE_LF|LOOK_CRLF) /* One or more LF chars were found. */
+
+/* Only used in starts_with_utf16_bom() and looks_like_utf16() */
+#define LOOK_REVERSE ((int)0x00000001) /* Reversed UTF-16 BOM is found. */
+
 #endif /* INTERFACE */
 
 /*
@@ -298,12 +301,11 @@ int looks_like_utf8(const Blob *pContent){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent){
+int looks_like_utf16(const Blob *pContent, int flags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j = 1, c, flags = LOOK_NONE;
+  int j = 1, c;
 
-  if( !starts_with_utf16_bom(pContent, 0, &flags) ) return flags;
   if( n%sizeof(WCHAR_T) ){
     flags |= LOOK_ODD;
   }
@@ -2468,8 +2470,8 @@ void looks_like_utf_test_cmd(void){
   if( g.argc<3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
-  fUtf16 = starts_with_utf16_bom(&blob, 0, 0);
-  lookFlags = fUtf16 ? looks_like_utf16(&blob) :
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &lookFlags);
+  lookFlags = fUtf16 ? looks_like_utf16(&blob, lookFlags) :
                        looks_like_utf8(&blob);
   eType = !(lookFlags&(LOOK_NUL|LOOK_LENGTH|LOOK_ODD));
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
