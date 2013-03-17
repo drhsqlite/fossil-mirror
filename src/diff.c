@@ -75,7 +75,6 @@
 #define LOOK_LONE_LF ((int)0x00000008) /* An unpaired LF char was found. */
 #define LOOK_CRLF    ((int)0x00000010) /* One or more CR/LF pairs were found. */
 #define LOOK_LENGTH  ((int)0x00000020) /* An over length line was found. */
-#define LOOK_ODD     ((int)0x00000040) /* An odd number of bytes was found. */
 #define LOOK_CR (LOOK_LONE_CR|LOOK_CRLF) /* One or more CR chars were found. */
 #define LOOK_LF (LOOK_LONE_LF|LOOK_CRLF) /* One or more LF chars were found. */
 
@@ -306,9 +305,6 @@ int looks_like_utf16(const Blob *pContent, int flags){
   unsigned int n = blob_size(pContent);
   int j = 1, c;
 
-  if( n%sizeof(WCHAR_T) ){
-    flags |= LOOK_ODD;
-  }
   c = *z;
   while( n>=sizeof(WCHAR_T) ){
     int c2 = c;
@@ -2473,7 +2469,7 @@ void looks_like_utf_test_cmd(void){
   fUtf16 = starts_with_utf16_bom(&blob, 0, &lookFlags);
   lookFlags = fUtf16 ? looks_like_utf16(&blob, lookFlags) :
                        looks_like_utf8(&blob);
-  eType = !(lookFlags&(LOOK_NUL|LOOK_LENGTH|LOOK_ODD));
+  eType = !(lookFlags&(LOOK_NUL|LOOK_LENGTH)) && !((blob_size(&blob)&1) && fUtf16);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
   fossil_print("Starts with UTF-16 BOM: %s\n",fUtf16?"yes":"no");
@@ -2487,6 +2483,5 @@ void looks_like_utf_test_cmd(void){
                (lookFlags&LOOK_LONE_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
   fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
-  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
   blob_reset(&blob);
 }
