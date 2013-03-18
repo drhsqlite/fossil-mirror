@@ -1,5 +1,5 @@
-C Fixes\sto\sthe\sverbose\smode\sof\sthe\sversion\scommand.\s\sAlso,\smake\ssure\sto\sconsistently\sorder\soptional\sfeature\slists.
-D 2013-03-18T06:09:21.000
+C Improve\sconsistency\sof\sthe\sversion\sinformation.
+D 2013-03-18T07:05:48.171
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -348,7 +348,7 @@ F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
 F src/login.c 9f80610c8abdd0118409daa55bb0fb787840f2a2
-F src/main.c 59910538b416275e5cd17b6b3ce23aafe8b3bb99
+F src/main.c 5c6077255c25da8e7fe29f0d6c1b739f7cadebc1
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -508,7 +508,7 @@ F win/Makefile.mingw 8f7e9c5ce2b6132f716b553759282ee142072fb7
 F win/Makefile.mingw.mistachkin 561b0b6a0d8c2d98bc5cca5ecfa965a5e868a9b0
 F win/Makefile.msc 39fd933d835eef50618646f5831887b5b53c9eb4
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc e202bdc4e73c28101e6e3b32821cb05ab5ddd005
+F win/fossil.rc 3f631d7af9a6e6ba92de5e69c452aa9264a4ae07
 F win/include/dirent.h e1e5f5c210c295a2c0786b5c96ecc7df393c99d7
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e3f9a42b583134074a24270af8cac4c3d31f2927
-R 247aed0bb87f6a3957eae41912f4bd0d
+P b85a18ba2016312f71b3f8e200e3ff60628458bd
+R 0618fc473a30f49fc141590dbfdb69ca
 U mistachkin
-Z 8bc792fad384197d3f3bb7e8d60dfe2f
+Z 201b4fbd5b073238e6e328ec6721a6ef

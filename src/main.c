@@ -31,13 +31,17 @@
 #else
 #  include <errno.h> /* errno global */
 #endif
+#include "zlib.h"
+#ifdef FOSSIL_ENABLE_SSL
+#  include "openssl/opensslv.h"
+#endif
 #if INTERFACE
+#ifdef FOSSIL_ENABLE_TCL
+#  include "tcl.h"
+#endif
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
-#endif
-#ifdef FOSSIL_ENABLE_TCL
-#include "tcl.h"
 #endif
 
 /*
@@ -753,20 +757,22 @@ void cmd_test_webpage_list(void){
 */
 void version_cmd(void){
   fossil_print("This is fossil version " RELEASE_VERSION " "
-                MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+               MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
   if(!find_option("verbose","v",0)){
     return;
   }else{
     int count = 0;
-    fossil_print("Compiled using %s with the following features enabled:\n",
-                 COMPILER_NAME);
+    fossil_print("\nCompiled using \"%s\" with\nSQLite %s [%s],\nzlib %s, "
+                 "and the following optional features enabled:\n\n",
+                 COMPILER_NAME, SQLITE_VERSION, SQLITE_SOURCE_ID,
+                 ZLIB_VERSION);
 #if defined(FOSSIL_ENABLE_SSL)
     ++count;
-    fossil_print("\tSSL\n");
+    fossil_print("\tSSL (%s)\n", OPENSSL_VERSION_TEXT);
 #endif
 #if defined(FOSSIL_ENABLE_TCL)
     ++count;
-    fossil_print("\tTCL\n");
+    fossil_print("\tTCL (Tcl %s)\n", TCL_PATCH_LEVEL);
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
     ++count;
@@ -774,14 +780,14 @@ void version_cmd(void){
 #endif
 #if defined(FOSSIL_ENABLE_JSON)
     ++count;
-    fossil_print("\tJSON\n");
+    fossil_print("\tJSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
 #if defined(FOSSIL_ENABLE_MARKDOWN)
     ++count;
     fossil_print("\tMARKDOWN\n");
 #endif
     if( !count ){
-      fossil_print("\tno optional features enabled.\n");
+      fossil_print("\tNo optional features were enabled.\n");
     }
   }
 }
