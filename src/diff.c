@@ -63,24 +63,22 @@
 ** This macro is designed to return non-zero if the specified blob contains
 ** data that MAY be binary in nature; otherwise, zero will be returned.
 */
-#define looks_like_binary(blob) !(looks_like_utf8(blob)&(LOOK_LENGTH|LOOK_NUL))
+#define looks_like_binary(blob) ((looks_like_utf8(blob)&LOOK_BINARY)!=LOOK_NONE)
 
 /*
 ** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
 ** to convey status information about the blob content.
 */
 #define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
-#define LOOK_NUL     ((int)0x00000002) /* One or more NUL chars were found. */
+#define LOOK_NUL     ((int)0x00000001) /* One or more NUL chars were found. */
+#define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
 #define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
-#define LOOK_LONE_LF ((int)0x00000008) /* An unpaired LF char was found. */
-#define LOOK_CRLF    ((int)0x00000010) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH  ((int)0x00000020) /* An over length line was found. */
-#define LOOK_CR (LOOK_LONE_CR|LOOK_CRLF) /* One or more CR chars were found. */
-#define LOOK_LF (LOOK_LONE_LF|LOOK_CRLF) /* One or more LF chars were found. */
-
-/* Only used in starts_with_utf16_bom() and looks_like_utf16() */
-#define LOOK_REVERSE ((int)0x00000001) /* Reversed UTF-16 BOM is found. */
-
+#define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
+#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
+#define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
+#define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LENGTH | LOOK_ODD) /* Probably binary. */
 #endif /* INTERFACE */
 
 /*
@@ -206,8 +204,20 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 
 /*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Its return
-** value is a combination of the LOOK_XXX flags above.
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
+**
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-8.
+**
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-16, it may
+**                falsely consider UTF-16 text to be binary.
+**
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -227,36 +237,45 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 int looks_like_utf8(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c, flags = LOOK_NONE;
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
 
   if( n==0 ) return flags;  /* Empty file -> text */
   c = *z;
   if( c==0 ){
-    flags |= LOOK_NUL;
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=1 || z[1]!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+    }
   }
   j = (c!='\n');
-  if( !j ) flags |= LOOK_LONE_LF;
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
   while( --n>0 ){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
-      flags |= LOOK_NUL;
-    }
-    if( c=='\n' ){
-      flags |= (c2=='\r')?LOOK_CRLF:LOOK_LONE_LF;
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= LOOK_CRLF;  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
       if( j>LENGTH_MASK ){
-        flags |= LOOK_LENGTH;
+        flags |= LOOK_LENGTH;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c2=='\r' ){
-      flags |= LOOK_LONE_CR;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=1 || z[1]!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
     }
   }
-  if( c=='\r' ){
-    flags |= LOOK_LONE_CR;
-  }
   if( j>LENGTH_MASK ){
-    flags |= LOOK_LENGTH;
+    flags |= LOOK_LENGTH;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -281,9 +300,27 @@ int looks_like_utf8(const Blob *pContent){
 #define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
 
 /*
+** This macro is used to swap the byte order of a UTF-16 character in the
+** looks_like_utf16() function.
+*/
+#define UTF16_SWAP(ch)        (((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF)
+
+/*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Its return
-** value is a combination of the LOOK_XXX flags above.
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
+**
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-16.
+**
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-8, it may
+**                falsely consider UTF-8 text to be binary.
+**
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -300,37 +337,61 @@ int looks_like_utf8(const Blob *pContent){
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent, int flags){
+int looks_like_utf16(const Blob *pContent, int bReverse){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j = 1, c;
+  int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
 
+  if( n==0 ) return flags;  /* Empty file -> text */
+  if( n%sizeof(WCHAR_T) ){
+    flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
+    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
+  }
   c = *z;
-  while( n>=sizeof(WCHAR_T) ){
+  if( bReverse ){
+    c = UTF16_SWAP(c);
+  }
+  if( c==0 ){
+    flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=sizeof(WCHAR_T) || z[1]!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+    }
+  }
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( 1 ){
     int c2 = c;
     n -= sizeof(WCHAR_T);
-    c = *++z; ++j;
-    if( flags&LOOK_REVERSE ){
-      c = ((c<<8)&0xff00) | ((c>>8)&0xff);
+    if( n<sizeof(WCHAR_T) ) break;
+    c = *++z;
+    if( bReverse ){
+      c = UTF16_SWAP(c);
     }
+    ++j;
     if( c==0 ){
-      flags |= LOOK_NUL;
-    }
-    if( c=='\n' ){
-      flags |= (c2=='\r')?LOOK_CRLF:LOOK_LONE_LF;
+      flags |= LOOK_NUL;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
+      if( c2=='\r' ){
+        flags |= LOOK_CRLF;  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
+      }
       if( j>UTF16_LENGTH_MASK ){
-        flags |= LOOK_LENGTH;
-       }
+        flags |= LOOK_LENGTH;  /* Very long line -> binary */
+      }
       j = 0;
-    }else if( c2=='\r' ){
-      flags |= LOOK_LONE_CR;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=sizeof(WCHAR_T) || z[1]!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
     }
-  }
-  if( c=='\r' ){
-    flags |= LOOK_LONE_CR;
   }
   if( j>UTF16_LENGTH_MASK ){
-    flags |= LOOK_LENGTH;
+    flags |= LOOK_LENGTH;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -380,14 +441,22 @@ int starts_with_utf16_bom(
   if( size<bomSize ) return 0;  /* No: cannot read BOM. */
   if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
   if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = LOOK_REVERSE;
+    if( pbReverse ) *pbReverse = 1;
   }else if( z[0]==0xfeff ){
-    if( pbReverse ) *pbReverse = LOOK_NONE;
+    if( pbReverse ) *pbReverse = 0;
   }else{
     return 0; /* No: UTF-16 byte-order-mark not found. */
   }
   if( pnByte ) *pnByte = bomSize;
   return 1; /* Yes. */
+}
+
+/*
+** Returns non-zero if the specified content could be valid UTF-16.
+*/
+int could_be_utf16(const Blob *pContent, int *pbReverse){
+  return (blob_size(pContent) % sizeof(WCHAR_T) == 0) ?
+      starts_with_utf16_bom(pContent, 0, pbReverse) : 0;
 }
 
 /*
@@ -2459,21 +2528,22 @@ void annotate_cmd(void){
 */
 void looks_like_utf_test_cmd(void){
   Blob blob;     /* the contents of the specified file */
-  int eType;     /* return value of looks_like_utf8/utf16() */
   int fUtf8;     /* return value of starts_with_utf8_bom() */
   int fUtf16;    /* return value of starts_with_utf16_bom() */
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  int bReverse = 0; /* non-zero -> UTF-16 byte order reversed */
   if( g.argc<3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
-  fUtf16 = starts_with_utf16_bom(&blob, 0, &lookFlags);
-  lookFlags = fUtf16 ? looks_like_utf16(&blob, lookFlags) :
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &bReverse);
+  lookFlags = fUtf16 ? looks_like_utf16(&blob, bReverse) :
                        looks_like_utf8(&blob);
-  eType = !(lookFlags&(LOOK_NUL|LOOK_LENGTH)) && !((blob_size(&blob)&1) && fUtf16);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
-  fossil_print("Starts with UTF-16 BOM: %s\n",fUtf16?"yes":"no");
-  fossil_print("Looks like UTF-%s: %s\n",fUtf16?"16":"8",eType?"yes":"no");
+  fossil_print("Starts with UTF-16 BOM: %s\n",
+               fUtf16?(bReverse?"reversed":"yes"):"no");
+  fossil_print("Looks like UTF-%s: %s\n",fUtf16?"16":"8",
+               (lookFlags&LOOK_BINARY)?"no":"yes");
   fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
   fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
   fossil_print("Has flag LOOK_LONE_CR: %s\n",
@@ -2483,5 +2553,6 @@ void looks_like_utf_test_cmd(void){
                (lookFlags&LOOK_LONE_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
   fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
+  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
   blob_reset(&blob);
 }

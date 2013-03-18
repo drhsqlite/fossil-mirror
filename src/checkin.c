@@ -907,6 +907,7 @@ static int commit_warning(
   int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
+  int bReverse;           /* UTF-16 byte order is reversed? */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   int fHasNul;            /* the blob contains one or more NUL chars */
@@ -917,9 +918,15 @@ static int commit_warning(
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = !(blob_size(p)&1) && starts_with_utf16_bom(p, 0, &lookFlags);
+  fUnicode = could_be_utf16(p, &bReverse);
   if( fUnicode ){
-    lookFlags = looks_like_utf16(p, lookFlags);
+    lookFlags = looks_like_utf16(p, bReverse);
+    if( lookFlags & LOOK_ODD ){
+      /* Content with an odd number of bytes cannot be UTF-16. */
+      fUnicode = 0;
+      /* Therefore, check if the content appears to be UTF-8. */
+      lookFlags = looks_like_utf8(p);
+    }
   }else{
     lookFlags = looks_like_utf8(p);
   }
