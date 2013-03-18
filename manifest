@@ -1,5 +1,5 @@
-C Remove\sdead\scode\sfrom\scheckin.c\nFix\sLOOK_BINARY\smacro:\sLOOK_ODD\sdoesn't\ssay\sanything\sabout\sbeing\sbinary\sor\snot,\sit\sonly\smeans\sit\scannot\sbe\sUTF-16.
-D 2013-03-18T09:30:36.832
+C Add\stest-cases\susing\sreverse\sUTF-16\sBOM,\sand\sthe\sunicode\scharacters\sU+0A00\sand\sU+0D00
+D 2013-03-18T11:45:21.954
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -444,7 +444,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test c27875a9ae2af4ec1cbaf1198ea26d4c90f23e31
+F test/utf.test 3ebd13aa4c3c8c2f98c83bdc376e63732e25ee8c
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 757585fb282536e4cf0deb7d1cd7426f80f82222
-R 973f4e9e854b42c3c78bdf3bd8f7c153
+P 12ce0041f5aef5c97ec09be0297a733ce3427e2c a9f1cbbd6cf7b856152f48af0eb3bce2821a647b
+R 49e0e869f41bc34dceb6808a11d7e919
 U jan.nijtmans
-Z 720c546a0fae6c61fd2803919faea6b8
+Z f44c4ab591e0493305c810c1280a1d23
