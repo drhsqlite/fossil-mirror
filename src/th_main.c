@@ -263,10 +263,10 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "json"     = FOSSIL_ENABLE_JSON
 ** "ssl"      = FOSSIL_ENABLE_SSL
 ** "tcl"      = FOSSIL_ENABLE_TCL
 ** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "json"     = FOSSIL_ENABLE_JSON
 ** "markdown" = FOSSIL_ENABLE_MARKDOWN
 **
 */
@@ -286,11 +286,6 @@ static int hasfeatureCmd(
   if(NULL==zArg){
     /* placeholder for following ifdefs... */
   }
-#if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
-    rc = 1;
-  }
-#endif
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
     rc = 1;
@@ -303,6 +298,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
   else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
     rc = 1;
   }
 #endif

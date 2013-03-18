@@ -758,7 +758,7 @@ void version_cmd(void){
     return;
   }else{
     int count = 0;
-    fossil_print("Compiled with the following features enabled:\n",
+    fossil_print("Compiled using %s with the following features enabled:\n",
                  COMPILER_NAME);
 #if defined(FOSSIL_ENABLE_SSL)
     ++count;
@@ -768,11 +768,19 @@ void version_cmd(void){
     ++count;
     fossil_print("\tTCL\n");
 #endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+    ++count;
+    fossil_print("\tTCL_STUBS\n");
+#endif
 #if defined(FOSSIL_ENABLE_JSON)
     ++count;
     fossil_print("\tJSON\n");
 #endif
-    if(!count){
+#if defined(FOSSIL_ENABLE_MARKDOWN)
+    ++count;
+    fossil_print("\tMARKDOWN\n");
+#endif
+    if( !count ){
       fossil_print("\tno optional features enabled.\n");
     }
   }
