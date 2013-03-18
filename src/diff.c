@@ -78,7 +78,7 @@
 #define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
 #define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
 #define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
-#define LOOK_BINARY  (LOOK_NUL | LOOK_LENGTH | LOOK_ODD) /* Probably binary. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LENGTH) /* Binary. */
 #endif /* INTERFACE */
 
 /*
@@ -2530,19 +2530,21 @@ void looks_like_utf_test_cmd(void){
   Blob blob;     /* the contents of the specified file */
   int fUtf8;     /* return value of starts_with_utf8_bom() */
   int fUtf16;    /* return value of starts_with_utf16_bom() */
+  int fUnicode;  /* return value of could_be_utf16() */
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
   int bReverse = 0; /* non-zero -> UTF-16 byte order reversed */
   if( g.argc<3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
   fUtf16 = starts_with_utf16_bom(&blob, 0, &bReverse);
-  lookFlags = fUtf16 ? looks_like_utf16(&blob, bReverse) :
+  fUnicode = could_be_utf16(&blob, &bReverse);
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bReverse) :
                        looks_like_utf8(&blob);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
   fossil_print("Starts with UTF-16 BOM: %s\n",
                fUtf16?(bReverse?"reversed":"yes"):"no");
-  fossil_print("Looks like UTF-%s: %s\n",fUtf16?"16":"8",
+  fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
                (lookFlags&LOOK_BINARY)?"no":"yes");
   fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
   fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");

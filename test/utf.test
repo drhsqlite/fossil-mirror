@@ -6530,7 +6530,7 @@ utf-check 549 utf-check-549-2-0-1.jnk \
 {File "%TEMP%/utf-check-549-2-0-1.jnk" has 3 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -6538,7 +6538,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 550 utf-check-550-2-1-0.jnk \
 {File "%TEMP%/utf-check-550-2-1-0.jnk" has 4 bytes.
@@ -6558,15 +6558,15 @@ utf-check 551 utf-check-551-2-1-1.jnk \
 {File "%TEMP%/utf-check-551-2-1-1.jnk" has 5 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 552 utf-check-552-2-2-0.jnk \
 {File "%TEMP%/utf-check-552-2-2-0.jnk" has 4 bytes.
@@ -6586,15 +6586,15 @@ utf-check 553 utf-check-553-2-2-1.jnk \
 {File "%TEMP%/utf-check-553-2-2-1.jnk" has 5 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 554 utf-check-554-2-3-0.jnk \
 {File "%TEMP%/utf-check-554-2-3-0.jnk" has 6 bytes.
@@ -6614,15 +6614,15 @@ utf-check 555 utf-check-555-2-3-1.jnk \
 {File "%TEMP%/utf-check-555-2-3-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 556 utf-check-556-2-4-0.jnk \
 {File "%TEMP%/utf-check-556-2-4-0.jnk" has 6 bytes.
@@ -6642,15 +6642,15 @@ utf-check 557 utf-check-557-2-4-1.jnk \
 {File "%TEMP%/utf-check-557-2-4-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 558 utf-check-558-2-5-0.jnk \
 {File "%TEMP%/utf-check-558-2-5-0.jnk" has 8 bytes.
@@ -6670,15 +6670,15 @@ utf-check 559 utf-check-559-2-5-1.jnk \
 {File "%TEMP%/utf-check-559-2-5-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 560 utf-check-560-2-6-0.jnk \
 {File "%TEMP%/utf-check-560-2-6-0.jnk" has 10 bytes.
@@ -6698,15 +6698,15 @@ utf-check 561 utf-check-561-2-6-1.jnk \
 {File "%TEMP%/utf-check-561-2-6-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 562 utf-check-562-2-7-0.jnk \
 {File "%TEMP%/utf-check-562-2-7-0.jnk" has 12 bytes.
@@ -6726,15 +6726,15 @@ utf-check 563 utf-check-563-2-7-1.jnk \
 {File "%TEMP%/utf-check-563-2-7-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 564 utf-check-564-2-8-0.jnk \
 {File "%TEMP%/utf-check-564-2-8-0.jnk" has 6 bytes.
@@ -6754,15 +6754,15 @@ utf-check 565 utf-check-565-2-8-1.jnk \
 {File "%TEMP%/utf-check-565-2-8-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 566 utf-check-566-2-9-0.jnk \
 {File "%TEMP%/utf-check-566-2-9-0.jnk" has 8 bytes.
@@ -6782,15 +6782,15 @@ utf-check 567 utf-check-567-2-9-1.jnk \
 {File "%TEMP%/utf-check-567-2-9-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 568 utf-check-568-2-10-0.jnk \
 {File "%TEMP%/utf-check-568-2-10-0.jnk" has 10 bytes.
@@ -6810,15 +6810,15 @@ utf-check 569 utf-check-569-2-10-1.jnk \
 {File "%TEMP%/utf-check-569-2-10-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 570 utf-check-570-2-11-0.jnk \
 {File "%TEMP%/utf-check-570-2-11-0.jnk" has 12 bytes.
@@ -6838,15 +6838,15 @@ utf-check 571 utf-check-571-2-11-1.jnk \
 {File "%TEMP%/utf-check-571-2-11-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 572 utf-check-572-2-12-0.jnk \
 {File "%TEMP%/utf-check-572-2-12-0.jnk" has 8 bytes.
@@ -6866,15 +6866,15 @@ utf-check 573 utf-check-573-2-12-1.jnk \
 {File "%TEMP%/utf-check-573-2-12-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 574 utf-check-574-2-13-0.jnk \
 {File "%TEMP%/utf-check-574-2-13-0.jnk" has 10 bytes.
@@ -6894,15 +6894,15 @@ utf-check 575 utf-check-575-2-13-1.jnk \
 {File "%TEMP%/utf-check-575-2-13-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 576 utf-check-576-2-14-0.jnk \
 {File "%TEMP%/utf-check-576-2-14-0.jnk" has 12 bytes.
@@ -6922,15 +6922,15 @@ utf-check 577 utf-check-577-2-14-1.jnk \
 {File "%TEMP%/utf-check-577-2-14-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 578 utf-check-578-2-15-0.jnk \
 {File "%TEMP%/utf-check-578-2-15-0.jnk" has 14 bytes.
@@ -6950,15 +6950,15 @@ utf-check 579 utf-check-579-2-15-1.jnk \
 {File "%TEMP%/utf-check-579-2-15-1.jnk" has 15 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 580 utf-check-580-2-16-0.jnk \
 {File "%TEMP%/utf-check-580-2-16-0.jnk" has 4 bytes.
@@ -6978,15 +6978,15 @@ utf-check 581 utf-check-581-2-16-1.jnk \
 {File "%TEMP%/utf-check-581-2-16-1.jnk" has 5 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 582 utf-check-582-2-17-0.jnk \
 {File "%TEMP%/utf-check-582-2-17-0.jnk" has 6 bytes.
@@ -7006,15 +7006,15 @@ utf-check 583 utf-check-583-2-17-1.jnk \
 {File "%TEMP%/utf-check-583-2-17-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 584 utf-check-584-2-18-0.jnk \
 {File "%TEMP%/utf-check-584-2-18-0.jnk" has 8 bytes.
@@ -7034,15 +7034,15 @@ utf-check 585 utf-check-585-2-18-1.jnk \
 {File "%TEMP%/utf-check-585-2-18-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 586 utf-check-586-2-19-0.jnk \
 {File "%TEMP%/utf-check-586-2-19-0.jnk" has 10 bytes.
@@ -7062,15 +7062,15 @@ utf-check 587 utf-check-587-2-19-1.jnk \
 {File "%TEMP%/utf-check-587-2-19-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 588 utf-check-588-2-20-0.jnk \
 {File "%TEMP%/utf-check-588-2-20-0.jnk" has 6 bytes.
@@ -7090,15 +7090,15 @@ utf-check 589 utf-check-589-2-20-1.jnk \
 {File "%TEMP%/utf-check-589-2-20-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 590 utf-check-590-2-21-0.jnk \
 {File "%TEMP%/utf-check-590-2-21-0.jnk" has 8 bytes.
@@ -7118,15 +7118,15 @@ utf-check 591 utf-check-591-2-21-1.jnk \
 {File "%TEMP%/utf-check-591-2-21-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 592 utf-check-592-2-22-0.jnk \
 {File "%TEMP%/utf-check-592-2-22-0.jnk" has 10 bytes.
@@ -7146,15 +7146,15 @@ utf-check 593 utf-check-593-2-22-1.jnk \
 {File "%TEMP%/utf-check-593-2-22-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 594 utf-check-594-2-23-0.jnk \
 {File "%TEMP%/utf-check-594-2-23-0.jnk" has 12 bytes.
@@ -7174,15 +7174,15 @@ utf-check 595 utf-check-595-2-23-1.jnk \
 {File "%TEMP%/utf-check-595-2-23-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 596 utf-check-596-2-24-0.jnk \
 {File "%TEMP%/utf-check-596-2-24-0.jnk" has 6 bytes.
@@ -7202,15 +7202,15 @@ utf-check 597 utf-check-597-2-24-1.jnk \
 {File "%TEMP%/utf-check-597-2-24-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 598 utf-check-598-2-25-0.jnk \
 {File "%TEMP%/utf-check-598-2-25-0.jnk" has 8 bytes.
@@ -7230,15 +7230,15 @@ utf-check 599 utf-check-599-2-25-1.jnk \
 {File "%TEMP%/utf-check-599-2-25-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 600 utf-check-600-2-26-0.jnk \
 {File "%TEMP%/utf-check-600-2-26-0.jnk" has 10 bytes.
@@ -7258,15 +7258,15 @@ utf-check 601 utf-check-601-2-26-1.jnk \
 {File "%TEMP%/utf-check-601-2-26-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 602 utf-check-602-2-27-0.jnk \
 {File "%TEMP%/utf-check-602-2-27-0.jnk" has 12 bytes.
@@ -7286,15 +7286,15 @@ utf-check 603 utf-check-603-2-27-1.jnk \
 {File "%TEMP%/utf-check-603-2-27-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 604 utf-check-604-2-28-0.jnk \
 {File "%TEMP%/utf-check-604-2-28-0.jnk" has 8 bytes.
@@ -7314,15 +7314,15 @@ utf-check 605 utf-check-605-2-28-1.jnk \
 {File "%TEMP%/utf-check-605-2-28-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 606 utf-check-606-2-29-0.jnk \
 {File "%TEMP%/utf-check-606-2-29-0.jnk" has 10 bytes.
@@ -7342,15 +7342,15 @@ utf-check 607 utf-check-607-2-29-1.jnk \
 {File "%TEMP%/utf-check-607-2-29-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 608 utf-check-608-2-30-0.jnk \
 {File "%TEMP%/utf-check-608-2-30-0.jnk" has 12 bytes.
@@ -7370,15 +7370,15 @@ utf-check 609 utf-check-609-2-30-1.jnk \
 {File "%TEMP%/utf-check-609-2-30-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 610 utf-check-610-2-31-0.jnk \
 {File "%TEMP%/utf-check-610-2-31-0.jnk" has 14 bytes.
@@ -7398,15 +7398,15 @@ utf-check 611 utf-check-611-2-31-1.jnk \
 {File "%TEMP%/utf-check-611-2-31-1.jnk" has 15 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 612 utf-check-612-2-32-0.jnk \
 {File "%TEMP%/utf-check-612-2-32-0.jnk" has 6 bytes.
@@ -7874,7 +7874,7 @@ utf-check 645 utf-check-645-2-48-1.jnk \
 {File "%TEMP%/utf-check-645-2-48-1.jnk" has 7 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -7882,7 +7882,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 646 utf-check-646-2-49-0.jnk \
 {File "%TEMP%/utf-check-646-2-49-0.jnk" has 8 bytes.
@@ -7902,7 +7902,7 @@ utf-check 647 utf-check-647-2-49-1.jnk \
 {File "%TEMP%/utf-check-647-2-49-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -7910,7 +7910,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 648 utf-check-648-2-50-0.jnk \
 {File "%TEMP%/utf-check-648-2-50-0.jnk" has 10 bytes.
@@ -7930,7 +7930,7 @@ utf-check 649 utf-check-649-2-50-1.jnk \
 {File "%TEMP%/utf-check-649-2-50-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -7938,7 +7938,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 650 utf-check-650-2-51-0.jnk \
 {File "%TEMP%/utf-check-650-2-51-0.jnk" has 12 bytes.
@@ -7958,7 +7958,7 @@ utf-check 651 utf-check-651-2-51-1.jnk \
 {File "%TEMP%/utf-check-651-2-51-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -7966,7 +7966,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 652 utf-check-652-2-52-0.jnk \
 {File "%TEMP%/utf-check-652-2-52-0.jnk" has 8 bytes.
@@ -7986,7 +7986,7 @@ utf-check 653 utf-check-653-2-52-1.jnk \
 {File "%TEMP%/utf-check-653-2-52-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -7994,7 +7994,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 654 utf-check-654-2-53-0.jnk \
 {File "%TEMP%/utf-check-654-2-53-0.jnk" has 10 bytes.
@@ -8014,7 +8014,7 @@ utf-check 655 utf-check-655-2-53-1.jnk \
 {File "%TEMP%/utf-check-655-2-53-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -8022,7 +8022,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 656 utf-check-656-2-54-0.jnk \
 {File "%TEMP%/utf-check-656-2-54-0.jnk" has 12 bytes.
@@ -8042,7 +8042,7 @@ utf-check 657 utf-check-657-2-54-1.jnk \
 {File "%TEMP%/utf-check-657-2-54-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -8050,7 +8050,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 658 utf-check-658-2-55-0.jnk \
 {File "%TEMP%/utf-check-658-2-55-0.jnk" has 14 bytes.
@@ -8070,7 +8070,7 @@ utf-check 659 utf-check-659-2-55-1.jnk \
 {File "%TEMP%/utf-check-659-2-55-1.jnk" has 15 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -8078,7 +8078,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 660 utf-check-660-2-56-0.jnk \
 {File "%TEMP%/utf-check-660-2-56-0.jnk" has 8 bytes.
@@ -8098,7 +8098,7 @@ utf-check 661 utf-check-661-2-56-1.jnk \
 {File "%TEMP%/utf-check-661-2-56-1.jnk" has 9 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -8106,7 +8106,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 662 utf-check-662-2-57-0.jnk \
 {File "%TEMP%/utf-check-662-2-57-0.jnk" has 10 bytes.
@@ -8126,7 +8126,7 @@ utf-check 663 utf-check-663-2-57-1.jnk \
 {File "%TEMP%/utf-check-663-2-57-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -8134,7 +8134,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 664 utf-check-664-2-58-0.jnk \
 {File "%TEMP%/utf-check-664-2-58-0.jnk" has 12 bytes.
@@ -8154,7 +8154,7 @@ utf-check 665 utf-check-665-2-58-1.jnk \
 {File "%TEMP%/utf-check-665-2-58-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -8162,7 +8162,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 666 utf-check-666-2-59-0.jnk \
 {File "%TEMP%/utf-check-666-2-59-0.jnk" has 14 bytes.
@@ -8182,7 +8182,7 @@ utf-check 667 utf-check-667-2-59-1.jnk \
 {File "%TEMP%/utf-check-667-2-59-1.jnk" has 15 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -8190,7 +8190,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 668 utf-check-668-2-60-0.jnk \
 {File "%TEMP%/utf-check-668-2-60-0.jnk" has 10 bytes.
@@ -8210,15 +8210,15 @@ utf-check 669 utf-check-669-2-60-1.jnk \
 {File "%TEMP%/utf-check-669-2-60-1.jnk" has 11 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 670 utf-check-670-2-61-0.jnk \
 {File "%TEMP%/utf-check-670-2-61-0.jnk" has 12 bytes.
@@ -8238,15 +8238,15 @@ utf-check 671 utf-check-671-2-61-1.jnk \
 {File "%TEMP%/utf-check-671-2-61-1.jnk" has 13 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 672 utf-check-672-2-62-0.jnk \
 {File "%TEMP%/utf-check-672-2-62-0.jnk" has 14 bytes.
@@ -8266,15 +8266,15 @@ utf-check 673 utf-check-673-2-62-1.jnk \
 {File "%TEMP%/utf-check-673-2-62-1.jnk" has 15 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 674 utf-check-674-2-63-0.jnk \
 {File "%TEMP%/utf-check-674-2-63-0.jnk" has 16 bytes.
@@ -8294,15 +8294,15 @@ utf-check 675 utf-check-675-2-63-1.jnk \
 {File "%TEMP%/utf-check-675-2-63-1.jnk" has 17 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: no
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 676 utf-check-676-2-64-0.jnk \
 {File "%TEMP%/utf-check-676-2-64-0.jnk" has 8 bytes.
@@ -8770,15 +8770,15 @@ utf-check 709 utf-check-709-2-80-1.jnk \
 {File "%TEMP%/utf-check-709-2-80-1.jnk" has 16389 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 710 utf-check-710-2-81-0.jnk \
 {File "%TEMP%/utf-check-710-2-81-0.jnk" has 16390 bytes.
@@ -8798,15 +8798,15 @@ utf-check 711 utf-check-711-2-81-1.jnk \
 {File "%TEMP%/utf-check-711-2-81-1.jnk" has 16391 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 712 utf-check-712-2-82-0.jnk \
 {File "%TEMP%/utf-check-712-2-82-0.jnk" has 16390 bytes.
@@ -8826,15 +8826,15 @@ utf-check 713 utf-check-713-2-82-1.jnk \
 {File "%TEMP%/utf-check-713-2-82-1.jnk" has 16391 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 714 utf-check-714-2-83-0.jnk \
 {File "%TEMP%/utf-check-714-2-83-0.jnk" has 16392 bytes.
@@ -8854,15 +8854,15 @@ utf-check 715 utf-check-715-2-83-1.jnk \
 {File "%TEMP%/utf-check-715-2-83-1.jnk" has 16393 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 716 utf-check-716-2-84-0.jnk \
 {File "%TEMP%/utf-check-716-2-84-0.jnk" has 16394 bytes.
@@ -8882,15 +8882,15 @@ utf-check 717 utf-check-717-2-84-1.jnk \
 {File "%TEMP%/utf-check-717-2-84-1.jnk" has 16395 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 718 utf-check-718-2-85-0.jnk \
 {File "%TEMP%/utf-check-718-2-85-0.jnk" has 16396 bytes.
@@ -8910,15 +8910,15 @@ utf-check 719 utf-check-719-2-85-1.jnk \
 {File "%TEMP%/utf-check-719-2-85-1.jnk" has 16397 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 720 utf-check-720-2-86-0.jnk \
 {File "%TEMP%/utf-check-720-2-86-0.jnk" has 16396 bytes.
@@ -8938,15 +8938,15 @@ utf-check 721 utf-check-721-2-86-1.jnk \
 {File "%TEMP%/utf-check-721-2-86-1.jnk" has 16397 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 722 utf-check-722-2-87-0.jnk \
 {File "%TEMP%/utf-check-722-2-87-0.jnk" has 16398 bytes.
@@ -8966,15 +8966,15 @@ utf-check 723 utf-check-723-2-87-1.jnk \
 {File "%TEMP%/utf-check-723-2-87-1.jnk" has 16399 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
-Has flag LOOK_NUL: no
+Looks like UTF-8: no
+Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 724 utf-check-724-2-88-0.jnk \
 {File "%TEMP%/utf-check-724-2-88-0.jnk" has 16390 bytes.
@@ -9218,7 +9218,7 @@ utf-check 741 utf-check-741-2-96-1.jnk \
 {File "%TEMP%/utf-check-741-2-96-1.jnk" has 16391 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -9226,7 +9226,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 742 utf-check-742-2-97-0.jnk \
 {File "%TEMP%/utf-check-742-2-97-0.jnk" has 16392 bytes.
@@ -9246,7 +9246,7 @@ utf-check 743 utf-check-743-2-97-1.jnk \
 {File "%TEMP%/utf-check-743-2-97-1.jnk" has 16393 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -9254,7 +9254,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 744 utf-check-744-2-98-0.jnk \
 {File "%TEMP%/utf-check-744-2-98-0.jnk" has 16392 bytes.
@@ -9274,7 +9274,7 @@ utf-check 745 utf-check-745-2-98-1.jnk \
 {File "%TEMP%/utf-check-745-2-98-1.jnk" has 16393 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -9282,7 +9282,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 746 utf-check-746-2-99-0.jnk \
 {File "%TEMP%/utf-check-746-2-99-0.jnk" has 16394 bytes.
@@ -9302,15 +9302,15 @@ utf-check 747 utf-check-747-2-99-1.jnk \
 {File "%TEMP%/utf-check-747-2-99-1.jnk" has 16395 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 748 utf-check-748-2-100-0.jnk \
 {File "%TEMP%/utf-check-748-2-100-0.jnk" has 16396 bytes.
@@ -9330,7 +9330,7 @@ utf-check 749 utf-check-749-2-100-1.jnk \
 {File "%TEMP%/utf-check-749-2-100-1.jnk" has 16397 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -9338,7 +9338,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 750 utf-check-750-2-101-0.jnk \
 {File "%TEMP%/utf-check-750-2-101-0.jnk" has 16398 bytes.
@@ -9358,7 +9358,7 @@ utf-check 751 utf-check-751-2-101-1.jnk \
 {File "%TEMP%/utf-check-751-2-101-1.jnk" has 16399 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
 Has flag LOOK_LONE_CR: yes
@@ -9366,7 +9366,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 752 utf-check-752-2-102-0.jnk \
 {File "%TEMP%/utf-check-752-2-102-0.jnk" has 16398 bytes.
@@ -9386,7 +9386,7 @@ utf-check 753 utf-check-753-2-102-1.jnk \
 {File "%TEMP%/utf-check-753-2-102-1.jnk" has 16399 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: no
 Has flag LOOK_LONE_CR: no
@@ -9394,7 +9394,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 754 utf-check-754-2-103-0.jnk \
 {File "%TEMP%/utf-check-754-2-103-0.jnk" has 16400 bytes.
@@ -9414,15 +9414,15 @@ utf-check 755 utf-check-755-2-103-1.jnk \
 {File "%TEMP%/utf-check-755-2-103-1.jnk" has 16401 bytes.
 Starts with UTF-8 BOM: no
 Starts with UTF-16 BOM: yes
-Looks like UTF-16: no
+Looks like UTF-8: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: no
+Has flag LOOK_LONE_CR: yes
 Has flag LOOK_LF: yes
-Has flag LOOK_LONE_LF: no
-Has flag LOOK_CRLF: yes
+Has flag LOOK_LONE_LF: yes
+Has flag LOOK_CRLF: no
 Has flag LOOK_LENGTH: yes
-Has flag LOOK_ODD: yes}
+Has flag LOOK_ODD: no}
 
 utf-check 756 utf-check-756-2-104-0.jnk \
 {File "%TEMP%/utf-check-756-2-104-0.jnk" has 16392 bytes.

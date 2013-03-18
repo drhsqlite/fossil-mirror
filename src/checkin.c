@@ -921,12 +921,6 @@ static int commit_warning(
   fUnicode = could_be_utf16(p, &bReverse);
   if( fUnicode ){
     lookFlags = looks_like_utf16(p, bReverse);
-    if( lookFlags & LOOK_ODD ){
-      /* Content with an odd number of bytes cannot be UTF-16. */
-      fUnicode = 0;
-      /* Therefore, check if the content appears to be UTF-8. */
-      lookFlags = looks_like_utf8(p);
-    }
   }else{
     lookFlags = looks_like_utf8(p);
   }
