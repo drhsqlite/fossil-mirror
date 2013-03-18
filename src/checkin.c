@@ -525,7 +525,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
     }
   }
   blob_to_utf8_no_bom(&reply, 1);
-  blob_remove_cr(&reply);
+  blob_to_lf_only(&reply);
   file_delete(zFile);
   free(zFile);
   blob_zero(pComment);
@@ -996,7 +996,7 @@ static int commit_warning(
         fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
       }
-      blob_remove_cr(p);
+      blob_to_lf_only(p);
       fwrite(blob_buffer(p), 1, blob_size(p), f);
       fclose(f);
       return 1;
