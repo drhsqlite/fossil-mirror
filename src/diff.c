@@ -76,9 +76,10 @@
 #define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
 #define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
 #define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
+#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
 #define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
-#define LOOK_BINARY  (LOOK_NUL | LOOK_LENGTH) /* Binary. */
+#define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
 #endif /* INTERFACE */
 
 /*
@@ -259,12 +260,12 @@ int looks_like_utf8(const Blob *pContent){
     }else if( c=='\n' ){
       flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= LOOK_CRLF;  /* Found LF preceded by CR */
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
         flags |= LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
-        flags |= LOOK_LENGTH;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
     }else if( c=='\r' ){
@@ -275,7 +276,7 @@ int looks_like_utf8(const Blob *pContent){
     }
   }
   if( j>LENGTH_MASK ){
-    flags |= LOOK_LENGTH;  /* Very long line -> binary */
+    flags |= LOOK_LONG;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -303,7 +304,7 @@ int looks_like_utf8(const Blob *pContent){
 ** This macro is used to swap the byte order of a UTF-16 character in the
 ** looks_like_utf16() function.
 */
-#define UTF16_SWAP(ch)        (((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF)
+#define UTF16_SWAP(ch)        ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -348,10 +349,16 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
   }
   c = *z;
+  if( bReverse ){
+    c = UTF16_SWAP(c);
+  }
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-  }else if( bReverse ){
-    c = UTF16_SWAP(c);
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=sizeof(WCHAR_T) || UTF16_SWAP(z[1])!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+    }
   }
   j = (c!='\n');
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
@@ -360,31 +367,32 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     n -= sizeof(WCHAR_T);
     if( n<sizeof(WCHAR_T) ) break;
     c = *++z;
+    if( bReverse ){
+      c = UTF16_SWAP(c);
+    }
     ++j;
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( bReverse ){
-      c = UTF16_SWAP(c);
-    }
-    if( c=='\n' ){
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
       if( c2=='\r' ){
-        flags |= (LOOK_CRLF | LOOK_CR | LOOK_LF);
+        flags |= (LOOK_CR | LOOK_CRLF);  /* Found LF preceded by CR */
       }else{
-        flags |= (LOOK_LONE_LF | LOOK_LF);
+        flags |= LOOK_LONE_LF;
       }
       if( j>UTF16_LENGTH_MASK ){
-        flags |= LOOK_LENGTH;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c2=='\r' ){
-      flags |= (LOOK_CR | LOOK_LONE_CR);
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=sizeof(WCHAR_T) || UTF16_SWAP(z[1])!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
     }
   }
-  if( c=='\r' ){
-    flags |= (LOOK_CR | LOOK_LONE_CR);  /* Found CR as last char */
-  }
   if( j>UTF16_LENGTH_MASK ){
-    flags |= LOOK_LENGTH;  /* Very long line -> binary */
+    flags |= LOOK_LONG;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -2525,18 +2533,19 @@ void looks_like_utf_test_cmd(void){
   int fUtf16;    /* return value of starts_with_utf16_bom() */
   int fUnicode;  /* return value of could_be_utf16() */
   int lookFlags; /* output flags from looks_like_utf8/utf16() */
-  int bReverse = 0; /* non-zero -> UTF-16 byte order reversed */
-  if( g.argc<3 ) usage("FILENAME");
+  int bRevUtf16 = 0; /* non-zero -> UTF-16 byte order reversed */
+  int bRevUnicode = 0; /* non-zero -> UTF-16 byte order reversed */
+  if( g.argc!=3 ) usage("FILENAME");
   blob_read_from_file(&blob, g.argv[2]);
   fUtf8 = starts_with_utf8_bom(&blob, 0);
-  fUtf16 = starts_with_utf16_bom(&blob, 0, &bReverse);
-  fUnicode = could_be_utf16(&blob, &bReverse);
-  lookFlags = fUnicode ? looks_like_utf16(&blob, bReverse) :
-                       looks_like_utf8(&blob);
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
+  fUnicode = could_be_utf16(&blob, &bRevUnicode);
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode) :
+                         looks_like_utf8(&blob);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
   fossil_print("Starts with UTF-16 BOM: %s\n",
-               fUtf16?(bReverse?"reversed":"yes"):"no");
+               fUtf16?(bRevUtf16?"reversed":"yes"):"no");
   fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
                (lookFlags&LOOK_BINARY)?"no":"yes");
   fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
@@ -2547,7 +2556,8 @@ void looks_like_utf_test_cmd(void){
   fossil_print("Has flag LOOK_LONE_LF: %s\n",
                (lookFlags&LOOK_LONE_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
-  fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
+  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
   fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
+  fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
   blob_reset(&blob);
 }

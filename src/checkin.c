@@ -912,7 +912,7 @@ static int commit_warning(
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   int fHasNul;            /* the blob contains one or more NUL chars */
   int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
-  int fHasLength;         /* the blob contains an overly long line */
+  int fHasLong;           /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -926,19 +926,19 @@ static int commit_warning(
   }
   fHasNul = (lookFlags & LOOK_NUL);
   fHasCrLf = (lookFlags & LOOK_CRLF);
-  fHasLength = (lookFlags & LOOK_LENGTH);
-  if( fHasNul || fHasLength || fHasCrLf || fUnicode ){
+  fHasLong = (lookFlags & LOOK_LONG);
+  if( fHasNul || fHasLong || fHasCrLf || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( fHasNul || fHasLength ){
+    if( fHasNul || fHasLong ){
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( !fHasNul && fHasLength ){
+      if( !fHasNul && fHasLong ){
         zWarning = "long lines";
       }else{
         zWarning = "binary data";

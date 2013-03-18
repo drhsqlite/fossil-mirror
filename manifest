@@ -1,5 +1,5 @@
-C Adapt\stest-case\s112\ssuch\sthat\sit\scontains\sa\sreversed\sCR/LF,\sa\scase\snot\scovered\sbefore.\nFix\sdetection\sof\sreversed\sCR/LF\sand\slone\sCR\sin\sreversed\sUTF-16\scase.
-D 2013-03-18T12:37:28.899
+C Make\ssure\sthat\sLOOK_CR\sis\sset\seven\swhen\sa\sCR/LF\spair\sis\sdetected.\s\sRename\sthe\sLOOK_LENGTH\sflag\sto\sLOOK_LONG\sfor\sclarify.\s\sAdd\sLOOK_SHORT\sflag\sto\sindicate\sthat\sthe\slooks_like_utf16()\sfunction\sdid\snot\sperform\sa\sfull\scheck.\s\sSupport\stests\sfor\sUTF-16\sin\sreverse\sbyte\sorder.\s\sEnhancements\sto\sthe\stest-looks-like-utf\scommand.
+D 2013-03-18T23:47:10.951
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c b63ca38053209bef8e17c7ae6ae21f6e697a199f
+F src/checkin.c b33fda7aac6552220d035e7e9da620ec88463f6d
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -313,7 +313,7 @@ F src/db.c 490dbd0440834d8006cb2e4c5657565cfcb90a9c
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 0215008a2205e48eaf36536ea0a9491ed5cc3a72
+F src/diff.c 5cf2b21355d2b296bd6f9d1d86eb963700432ade
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 23380615245f59c7b04629f8526df94d498baf68
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -444,7 +444,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 4d95bf959a78f51879bc68488d52553b062efa9f
+F test/utf.test 4598e233a7f36a823d4a47a9d857d69a59683581
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P d1f0c4b93e29d719a17cc2e97034b73ec33354a9
-R 7f76111d0cb0f6e75987f097735d8d7f
-U jan.nijtmans
-Z 1b608e66abf08f14ede5a62901ee5830
+P a4cdc7235a92342204a193a6504de066def41110
+R cf73a9acbc8b4fad182c6cf067d959bf
+U mistachkin
+Z f5565c02eb329b1f6c9e0fe79314329d
