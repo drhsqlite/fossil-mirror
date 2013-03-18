@@ -348,16 +348,10 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
   }
   c = *z;
-  if( bReverse ){
-    c = UTF16_SWAP(c);
-  }
   if( c==0 ){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-  }else if( c=='\r' ){
-    flags |= LOOK_CR;
-    if( n<=sizeof(WCHAR_T) || z[1]!='\n' ){
-      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-    }
+  }else if( bReverse ){
+    c = UTF16_SWAP(c);
   }
   j = (c!='\n');
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
@@ -366,29 +360,28 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     n -= sizeof(WCHAR_T);
     if( n<sizeof(WCHAR_T) ) break;
     c = *++z;
-    if( bReverse ){
-      c = UTF16_SWAP(c);
-    }
     ++j;
     if( c==0 ){
       flags |= LOOK_NUL;  /* NUL character in a file -> binary */
-    }else if( c=='\n' ){
-      flags |= LOOK_LF;
+    }else if( bReverse ){
+      c = UTF16_SWAP(c);
+    }
+    if( c=='\n' ){
       if( c2=='\r' ){
-        flags |= LOOK_CRLF;  /* Found LF preceded by CR */
+        flags |= (LOOK_CRLF | LOOK_CR | LOOK_LF);
       }else{
-        flags |= LOOK_LONE_LF;
+        flags |= (LOOK_LONE_LF | LOOK_LF);
       }
       if( j>UTF16_LENGTH_MASK ){
         flags |= LOOK_LENGTH;  /* Very long line -> binary */
       }
       j = 0;
-    }else if( c=='\r' ){
-      flags |= LOOK_CR;
-      if( n<=sizeof(WCHAR_T) || z[1]!='\n' ){
-        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
-      }
+    }else if( c2=='\r' ){
+      flags |= (LOOK_CR | LOOK_LONE_CR);
     }
+  }
+  if( c=='\r' ){
+    flags |= (LOOK_CR | LOOK_LONE_CR);  /* Found CR as last char */
   }
   if( j>UTF16_LENGTH_MASK ){
     flags |= LOOK_LENGTH;  /* Very long line -> binary */
