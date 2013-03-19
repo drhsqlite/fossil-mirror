@@ -8053,7 +8053,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8323,7 +8323,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8353,7 +8353,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8383,7 +8383,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8413,7 +8413,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8803,7 +8803,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8833,7 +8833,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8863,7 +8863,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -8893,7 +8893,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -9763,7 +9763,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -9793,7 +9793,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -9823,7 +9823,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -9853,7 +9853,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -10453,7 +10453,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -10573,7 +10573,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -10933,7 +10933,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -11053,7 +11053,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -11383,7 +11383,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: yes
 Has flag LOOK_NUL: no
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
@@ -11623,7 +11623,7 @@ Starts with UTF-16 BOM: yes
 Looks like UTF-16: no
 Has flag LOOK_NUL: yes
 Has flag LOOK_CR: yes
-Has flag LOOK_LONE_CR: yes
+Has flag LOOK_LONE_CR: no
 Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
