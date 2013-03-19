@@ -910,9 +910,6 @@ static int commit_warning(
   int bReverse;           /* UTF-16 byte order is reversed? */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
-  int fHasNul;            /* the blob contains one or more NUL chars */
-  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
-  int fHasLength;         /* the blob contains an overly long line */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
@@ -924,38 +921,46 @@ static int commit_warning(
   }else{
     lookFlags = looks_like_utf8(p);
   }
-  fHasNul = (lookFlags & LOOK_NUL);
-  fHasCrLf = (lookFlags & LOOK_CRLF);
-  fHasLength = (lookFlags & LOOK_LENGTH);
-  if( fHasNul || fHasLength || fHasCrLf || fUnicode ){
+  if( lookFlags&(LOOK_BINARY|LOOK_LONG|LOOK_LONE_CR|LOOK_CRLF) || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( fHasNul || fHasLength ){
+    if( lookFlags&(LOOK_BINARY|LOOK_LONG) ){
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( !fHasNul && fHasLength ){
+      if( (lookFlags&LOOK_LONE_CR) && !(lookFlags&LOOK_NUL) ){
+        zWarning = "CR line endings (would be handled as binary)";
+      }else if( (lookFlags&LOOK_LONG) && !(lookFlags&LOOK_NUL) ){
         zWarning = "long lines";
+        zConvert = ""; /* We cannot convert binary files. */
       }else{
         zWarning = "binary data";
+        zConvert = ""; /* We cannot convert binary files. */
       }
       zDisable = "\"binary-glob\" setting";
-      zConvert = ""; /* We cannot convert binary files. */
-    }else if( fHasCrLf && fUnicode ){
+    }else if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) && fUnicode ){
       if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
-      zWarning = "CR/NL line endings and Unicode";
+      if( lookFlags&LOOK_LONE_CR ){
+        zWarning = "CR line endings and Unicode";
+      }else{
+        zWarning = "CR/NL line endings and Unicode";
+      }
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( fHasCrLf ){
+    }else if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
-      zWarning = "CR/NL line endings";
+      if( lookFlags&LOOK_LONE_CR ){
+        zWarning = "CR line endings";
+      }else{
+        zWarning = "CR/NL line endings";
+      }
       zDisable = "\"crnl-glob\" setting";
     }else{
       if( encodingOk ){
@@ -990,7 +995,9 @@ static int commit_warning(
         fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
       }
-      blob_to_lf_only(p);
+      if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) ){
+        blob_to_lf_only(p);
+      }
       fwrite(blob_buffer(p), 1, blob_size(p), f);
       fclose(f);
       return 1;

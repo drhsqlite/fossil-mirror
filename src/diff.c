@@ -76,9 +76,9 @@
 #define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
 #define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
 #define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
-#define LOOK_LENGTH  ((int)0x00000040) /* An over length line was found. */
+#define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
 #define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
-#define LOOK_BINARY  (LOOK_NUL | LOOK_LENGTH) /* Binary. */
+#define LOOK_BINARY  (LOOK_NUL | LOOK_LONG) /* Binary. */
 #endif /* INTERFACE */
 
 /*
@@ -264,7 +264,7 @@ int looks_like_utf8(const Blob *pContent){
         flags |= LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
-        flags |= LOOK_LENGTH;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
     }else if( c=='\r' ){
@@ -275,7 +275,7 @@ int looks_like_utf8(const Blob *pContent){
     }
   }
   if( j>LENGTH_MASK ){
-    flags |= LOOK_LENGTH;  /* Very long line -> binary */
+    flags |= LOOK_LONG;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -373,7 +373,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
         flags |= (LOOK_LONE_LF | LOOK_LF);
       }
       if( j>UTF16_LENGTH_MASK ){
-        flags |= LOOK_LENGTH;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
     }else if( c2=='\r' ){
@@ -384,7 +384,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     flags |= (LOOK_CR | LOOK_LONE_CR);  /* Found CR as last char */
   }
   if( j>UTF16_LENGTH_MASK ){
-    flags |= LOOK_LENGTH;  /* Very long line -> binary */
+    flags |= LOOK_LONG;  /* Very long line -> binary */
   }
   return flags;
 }
@@ -2547,7 +2547,7 @@ void looks_like_utf_test_cmd(void){
   fossil_print("Has flag LOOK_LONE_LF: %s\n",
                (lookFlags&LOOK_LONE_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
-  fossil_print("Has flag LOOK_LENGTH: %s\n",(lookFlags&LOOK_LENGTH)?"yes":"no");
+  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
   fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
   blob_reset(&blob);
 }
