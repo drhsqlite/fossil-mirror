@@ -62,7 +62,35 @@
 #define DIFF_TOO_MANY_CHANGES_HTML \
     "<p class='generalError'>More than 10,000 changes</p>\n"
 
-#define looks_like_text(blob) (looks_like_utf8(blob)&3)
+/*
+** This macro is designed to return zero if the specified blob is binary
+** in nature (contains NUL bytes).
+*/
+#define looks_like_text(lookFlags, blob) \
+  do { \
+    int result = 0; \
+    if (could_be_utf16(blob, &result)) { \
+      result = looks_like_utf16(blob, result); \
+    }else{ \
+      result = looks_like_utf8(blob); \
+    } \
+    (lookFlags) = result&(LOOK_TEXT|LOOK_LONG); \
+  }while(0)
+
+/*
+** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
+** to convey status information about the blob content.
+*/
+#define LOOK_NONE    ((int)0x00000000) /* Nothing special was found. */
+#define LOOK_UNICODE ((int)0x00000002) /* Might contain valid Unicode. */
+#define LOOK_TEXT    ((int)0x00000003) /* 0=binary,1=text, 2=UTF16, 3=reversed-UTF16 */
+#define LOOK_CR      ((int)0x00000004) /* One or more CR chars were found. */
+#define LOOK_LONE_CR ((int)0x00000008) /* An unpaired CR char was found. */
+#define LOOK_LF      ((int)0x00000010) /* One or more LF chars were found. */
+#define LOOK_LONE_LF ((int)0x00000020) /* An unpaired CR char was found. */
+#define LOOK_CRLF    ((int)0x00000040) /* One or more CR/LF pairs were found. */
+#define LOOK_LONG    ((int)0x00000080) /* An over length line was found. */
+#define LOOK_ODD     ((int)0x00000100) /* An odd number of bytes was found. */
 #endif /* INTERFACE */
 
 /*
@@ -188,23 +216,20 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 
 /*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Possible return
-** values are:
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-8.
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-8.
 **
-**  (0) -- The content appears to be binary because it contains embedded
-**         NUL characters or an extremely long line.  Since this function
-**         does not understand UTF-16, it may falsely consider UTF-16 text
-**         to be binary.
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-16, it may
+**                falsely consider UTF-16 text to be binary.
 **
-** (-1,-2) UTF-16 (le/be)
-**
-** (-3) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-8.
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -216,78 +241,55 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** Whether or not this function examines the entire contents of the blob is
+** officially unspecified.
+**
 ************************************ WARNING **********************************
 */
 int looks_like_utf8(const Blob *pContent){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
-  int result = 1;  /* Assume UTF-8 text with no CR/NL */
+  int j, c, flags = 1;  /* Assume UTF-8 text, prove otherwise */
 
-  /* Check individual lines.
-  */
-  if( n==0 ) return result;  /* Empty file -> text */
+  if( n==0 ) return flags;  /* Empty file -> text */
   c = *z;
-  if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-  j = (c!='\n');
-  if ( (n&1)==0 ){ /* UTF-16 must have an even blob length */
-    if ( (c==0xff) && (z[1]==0xfe) ){ /* UTF-16 LE BOM */
-      result = -1;
-      while( (n-=2)>0 ){
-        c = *(z+=2); ++j;
-        if( z[1]==0 ){ /* High-byte must be 0 for further checks */
-          if( c==0 ) return 0;  /* Zero char in a file -> binary */
-          if( c=='\n' ){
-            if( j>LENGTH_MASK ){
-              return 0;  /* Very long line -> binary */
-            }
-            j = 0;
-          }
-        }
-        if( j>LENGTH_MASK ){
-          return 0;  /* Very long line -> binary */
-        }
-      }
-      return result;
-    } else if ( (c==0xfe) && (z[1]==0xff) ){ /* UTF-16 BE BOM */
-      result = -2;
-      ++z;
-      while( (n-=2)>0 ){
-        c = *(z+=2); ++j;
-        if ( z[-1]==0 ){ /* High-byte must be 0 for further checks */
-          if( c==0 ) return 0;  /* Zero char in a file -> binary */
-          if( c=='\n' ){
-            if( j>LENGTH_MASK ){
-              return 0;  /* Very long line -> binary */
-            }
-            j = 0;
-          }
-        }
-        if( j>LENGTH_MASK ){
-          return 0;  /* Very long line -> binary */
-        }
-      }
-      return result;
+  if( c==0 ){
+    return 0;  /* NUL character in a file -> binary */
+  }else if( c=='\r' ){
+    flags |= LOOK_CR;
+    if( n<=1 || z[1]!='\n' ){
+      flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
   while( --n>0 ){
+    int c2 = c;
     c = *++z; ++j;
-    if( c==0 ) return 0;  /* Zero byte in a file -> binary */
-    if( c=='\n' ){
-      int c2 = z[-1];
+    if( c==0 ){
+      return 0;  /* NUL character in a file -> binary */
+    }else if( c=='\n' ){
+      flags |= LOOK_LF;
       if( c2=='\r' ){
-        result = -1;  /* Contains CR/NL, continue */
+        flags |= LOOK_CRLF;  /* Found LF preceded by CR */
+      }else{
+        flags |= LOOK_LONE_LF;
       }
       if( j>LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c=='\r' ){
+      flags |= LOOK_CR;
+      if( n<=1 || z[1]!='\n' ){
+        flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
+      }
     }
   }
   if( j>LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+    flags |= LOOK_LONG;  /* Very long line -> binary */
   }
-  return result;  /* No problems seen -> not binary */
+  return flags;
 }
 
 /*
@@ -310,31 +312,27 @@ int looks_like_utf8(const Blob *pContent){
 #define UTF16_LENGTH_MASK     (LENGTH_MASK/3)
 
 /*
-** The carriage-return / line-feed characters in the UTF-16be and UTF-16le
-** encodings.
+** This macro is used to swap the byte order of a UTF-16 character in the
+** looks_like_utf16() function.
 */
-#define UTF16BE_CR  ((WCHAR_T)'\r')
-#define UTF16BE_LF  ((WCHAR_T)'\n')
-#define UTF16LE_CR  (((WCHAR_T)'\r')<<(sizeof(char)<<3))
-#define UTF16LE_LF  (((WCHAR_T)'\n')<<(sizeof(char)<<3))
+#define UTF16_SWAP(ch)        (((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF)
 
 /*
 ** This function attempts to scan each logical line within the blob to
-** determine the type of content it appears to contain.  Possible return
-** values are:
+** determine the type of content it appears to contain.  The return value
+** is a combination of one or more of the LOOK_XXX flags (see above):
 **
-**  (1) -- The content appears to consist entirely of text, with lines
-**         delimited by line-feed characters; however, the encoding may
-**         not be UTF-16.
+** !LOOK_BINARY -- The content appears to consist entirely of text; however,
+**                 the encoding may not be UTF-16.
 **
-**  (0) -- The content appears to be binary because it contains embedded
-**         NUL characters or an extremely long line.  Since this function
-**         does not understand UTF-8, it may falsely consider UTF-8 text
-**         to be binary.
+** LOOK_BINARY -- The content appears to be binary because it contains one
+**                or more embedded NUL characters or an extremely long line.
+**                Since this function does not understand UTF-8, it may
+**                falsely consider UTF-8 text to be binary.
 **
-** (-1) -- The content appears to consist entirely of text, with lines
-**         delimited by carriage-return, line-feed pairs; however, the
-**         encoding may not be UTF-16.
+** Additional flags (i.e. those other than the ones included in LOOK_BINARY)
+** may be present in the result as well; however, they should not impact the
+** determination of text versus binary content.
 **
 ************************************ WARNING **********************************
 **
@@ -346,39 +344,61 @@ int looks_like_utf8(const Blob *pContent){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
+** Whether or not this function examines the entire contents of the blob is
+** officially unspecified.
+**
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent){
+int looks_like_utf16(const Blob *pContent, int bReverse){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
-  int j, c;
-  int result = 1;  /* Assume UTF-16 text with no CR/NL */
+  int j, c, flags = 2|(bReverse!=0);  /* Assume UTF-16 text, prove otherwise */
 
-  /* Check individual lines.
-  */
-  if( n==0 ) return result;  /* Empty file -> text */
-  if( n%2 ) return 0;  /* Odd number of bytes -> binary (or UTF-8) */
+  if( n==0 ) return flags;  /* Empty file -> text */
+  if( n%sizeof(WCHAR_T) ){
+    flags |= LOOK_ODD;  /* Odd number of bytes -> binary (UTF-8?) */
+    if( n<sizeof(WCHAR_T) ) return flags;  /* One byte -> binary (UTF-8?) */
+  }
   c = *z;
-  if( c==0 ) return 0;  /* NUL character in a file -> binary */
-  j = ((c!=UTF16BE_LF) && (c!=UTF16LE_LF));
-  while( (n-=2)>0 ){
-    c = *++z; ++j;
-    if( c==0 ) return 0;  /* NUL character in a file -> binary */
-    if( c==UTF16BE_LF || c==UTF16LE_LF ){
-      int c2 = z[-1];
-      if( c2==UTF16BE_CR || c2==UTF16LE_CR ){
-        result = -1;  /* Contains CR/NL, continue */
+  if( c==0 )
+    return 0;  /* NUL character in a file -> binary */
+  if( bReverse ){
+    c = UTF16_SWAP(c);
+  }
+  j = (c!='\n');
+  if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
+  while( 1 ){
+    int c2 = c;
+    n -= sizeof(WCHAR_T);
+    if( n<sizeof(WCHAR_T) ) break;
+    c = *++z;
+    ++j;
+    if( c==0 )
+      return 0;  /* NUL character in a file -> binary */
+    if( bReverse ){
+      c = UTF16_SWAP(c);
+    }
+    if( c=='\n' ){
+      if( c2=='\r' ){
+        flags |= (LOOK_CRLF | LOOK_CR | LOOK_LF);
+      }else{
+        flags |= (LOOK_LONE_LF | LOOK_LF);
       }
       if( j>UTF16_LENGTH_MASK ){
-        return 0;  /* Very long line -> binary */
+        flags |= LOOK_LONG;  /* Very long line -> binary */
       }
       j = 0;
+    }else if( c2=='\r' ){
+      flags |= (LOOK_CR | LOOK_LONE_CR);
     }
   }
-  if( j>UTF16_LENGTH_MASK ){
-    return 0;  /* Very long line -> binary */
+  if( c=='\r' ){
+    flags |= (LOOK_CR | LOOK_LONE_CR);  /* Found CR as last char */
   }
-  return result;  /* No problems seen -> not binary */
+  if( j>UTF16_LENGTH_MASK ){
+    flags |= LOOK_LONG;  /* Very long line -> binary */
+  }
+  return flags;
 }
 
 /*
@@ -420,19 +440,28 @@ int starts_with_utf16_bom(
   int *pbReverse        /* OUT: Non-zero for BOM in reverse byte-order. */
 ){
   const unsigned short *z = (unsigned short *)blob_buffer(pContent);
+  int bomSize = sizeof(unsigned short);
   int size = blob_size(pContent);
 
-  if( (size<2) || (size%2)
-    || (size>=4 && z[1]==0) ) return 0;
-  if( z[0] == 0xfffe ){
+  if( size<bomSize ) return 0;  /* No: cannot read BOM. */
+  if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
+  if( z[0]==0xfffe ){
     if( pbReverse ) *pbReverse = 1;
-  }else if( z[0] == 0xfeff ){
+  }else if( z[0]==0xfeff ){
     if( pbReverse ) *pbReverse = 0;
   }else{
-    return 0;
+    return 0; /* No: UTF-16 byte-order-mark not found. */
   }
-  if( pnByte ) *pnByte = 2;
-  return 1;
+  if( pnByte ) *pnByte = bomSize;
+  return 1; /* Yes. */
+}
+
+/*
+** Returns non-zero if the specified content could be valid UTF-16.
+*/
+int could_be_utf16(const Blob *pContent, int *pbReverse){
+  return (blob_size(pContent) % sizeof(WCHAR_T) == 0) ?
+      starts_with_utf16_bom(pContent, 0, pbReverse) : 0;
 }
 
 /*
@@ -578,7 +607,7 @@ static void contextDiff(
         continue;
       }
     }
-    
+
     /* For the current block comprising nr triples, figure out
     ** how many lines of A and B are to be displayed
     */
@@ -902,9 +931,16 @@ static void sbsShiftLeft(SbsLine *p, const char *z){
 **
 **    *  If iStart is a null-change then move iStart2 into iStart
 **    *  Make sure any null-changes are in canonoical form.
+**    *  Make sure all changes are at character boundaries for
+**       multi-byte characters.
 */
-static void sbsSimplifyLine(SbsLine *p){
-  if( p->iStart2==p->iEnd2 ) p->iStart2 = p->iEnd2 = 0;
+static void sbsSimplifyLine(SbsLine *p, const char *z){
+  if( p->iStart2==p->iEnd2 ){
+    p->iStart2 = p->iEnd2 = 0;
+  }else if( p->iStart2 ){
+    while( p->iStart2>0 && (z[p->iStart2]&0xc0)==0x80 ) p->iStart2--;
+    while( (z[p->iEnd2]&0xc0)==0x80 ) p->iEnd2++;
+  }
   if( p->iStart==p->iEnd ){
     p->iStart = p->iStart2;
     p->iEnd = p->iEnd2;
@@ -912,7 +948,12 @@ static void sbsSimplifyLine(SbsLine *p){
     p->iStart2 = 0;
     p->iEnd2 = 0;
   }
-  if( p->iStart==p->iEnd ) p->iStart = p->iEnd = -1;
+  if( p->iStart==p->iEnd ){
+    p->iStart = p->iEnd = -1;
+  }else if( p->iStart>0 ){
+    while( p->iStart>0 && (z[p->iStart]&0xc0)==0x80 ) p->iStart--;
+    while( (z[p->iEnd]&0xc0)==0x80 ) p->iEnd++;
+  }
 }
 
 /*
@@ -928,6 +969,7 @@ static void sbsWriteLineChange(
 ){
   int nLeft;           /* Length of left line in bytes */
   int nRight;          /* Length of right line in bytes */
+  int nShort;          /* Shortest of left and right */
   int nPrefix;         /* Length of common prefix */
   int nSuffix;         /* Length of common suffix */
   const char *zLeft;   /* Text of the left line */
@@ -943,21 +985,27 @@ static void sbsWriteLineChange(
   zLeft = pLeft->z;
   nRight = pRight->h & LENGTH_MASK;
   zRight = pRight->z;
+  nShort = nLeft<nRight ? nLeft : nRight;
 
   nPrefix = 0;
-  while( nPrefix<nLeft && nPrefix<nRight && zLeft[nPrefix]==zRight[nPrefix] ){
+  while( nPrefix<nShort && zLeft[nPrefix]==zRight[nPrefix] ){
     nPrefix++;
   }
+  if( nPrefix<nShort ){
+    while( nPrefix>0 && (zLeft[nPrefix]&0xc0)==0x80 ) nPrefix--;
+  }
   nSuffix = 0;
-  if( nPrefix<nLeft && nPrefix<nRight ){
-    while( nSuffix<nLeft && nSuffix<nRight
-           && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
+  if( nPrefix<nShort ){
+    while( nSuffix<nShort && zLeft[nLeft-nSuffix-1]==zRight[nRight-nSuffix-1] ){
       nSuffix++;
+    }
+    if( nSuffix<nShort ){
+      while( nSuffix>0 && (zLeft[nLeft-nSuffix]&0xc0)==0x80 ) nSuffix--;
     }
     if( nSuffix==nLeft || nSuffix==nRight ) nPrefix = 0;
   }
-  if( nPrefix+nSuffix > nLeft ) nPrefix = nLeft - nSuffix;
-  if( nPrefix+nSuffix > nRight ) nPrefix = nRight - nSuffix;
+  if( nPrefix+nSuffix > nShort ) nPrefix = nShort - nSuffix;
+
 
   /* A single chunk of text inserted on the right */
   if( nPrefix+nSuffix==nLeft ){
@@ -1017,7 +1065,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[1];
     p->iEnd2 = nLeft - nSuffix;
     p->zStart2 = aLCS[3]==nRightDiff ? zClassRm : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zLeft+nPrefix);
     sbsWriteText(p, pLeft, SBS_PAD);
     sbsWrite(p, " | ", 3);
     sbsWriteLineno(p, lnRight);
@@ -1032,7 +1080,7 @@ static void sbsWriteLineChange(
     p->iStart2 = nPrefix + aLCS[3];
     p->iEnd2 = nRight - nSuffix;
     p->zStart2 = aLCS[1]==nLeftDiff ? zClassAdd : zClassChng;
-    sbsSimplifyLine(p);
+    sbsSimplifyLine(p, zRight+nPrefix);
     sbsWriteText(p, pRight, SBS_NEWLINE);
     return;
   }
@@ -1251,7 +1299,7 @@ static unsigned char *sbsAlignment(
   ** by all of the left side deleted.
   **
   ** The coefficients for conditions (1) and (2) above are determined by
-  ** experimentation.  
+  ** experimentation.
   */
   mxLen = nLeft>nRight ? nLeft : nRight;
   if( i*4>mxLen*5 && (nMatch==0 || iMatch/nMatch>15) ){
@@ -1429,7 +1477,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           if( s.escHtml ){
             sbsWrite(&s, " &lt;\n", 6);
@@ -1462,7 +1510,7 @@ static void sbsDiff(
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           assert( mb>0 );
@@ -1474,13 +1522,13 @@ static void sbsDiff(
           sbsWriteLineno(&s, a);
           s.iStart = 0;
           s.zStart = "<span class=\"diffrm\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&A[a]);
           sbsWriteText(&s, &A[a], SBS_PAD);
           sbsWrite(&s, " | ", 3);
           sbsWriteLineno(&s, b);
           s.iStart = 0;
           s.zStart = "<span class=\"diffadd\">";
-          s.iEnd = s.width;
+          s.iEnd = LENGTH(&B[b]);
           sbsWriteText(&s, &B[b], SBS_NEWLINE);
           blob_append(pOut, s.zLine, s.n);
           ma--;
@@ -1488,7 +1536,7 @@ static void sbsDiff(
           a++;
           b++;
         }
-          
+
       }
       fossil_free(alignment);
       if( i<nr-1 ){
@@ -2248,7 +2296,8 @@ void test_annotate_step_cmd(void){
 }
 
 /* Annotation flags */
-#define ANN_FILE_VERS  0x001  /* Show file version rather than commit version */
+#define ANN_FILE_VERS    0x01   /* Show file vers rather than commit vers */
+#define ANN_FILE_ANCEST  0x02   /* Prefer check-ins in the ANCESTOR table */
 
 /*
 ** Compute a complete annotation on a file.  The file is identified
@@ -2268,6 +2317,7 @@ static void annotate_file(
   int rid;             /* Artifact ID of the file being annotated */
   char *zLabel;        /* Label to apply to a line */
   Stmt q;              /* Query returning all ancestor versions */
+  Stmt ins;            /* Inserts into the temporary VSEEN table */
   int cnt = 0;         /* Number of versions examined */
 
   /* Initialize the annotation */
@@ -2280,7 +2330,13 @@ static void annotate_file(
   }
   if( iLimit<=0 ) iLimit = 1000000000;
   annotation_start(p, &toAnnotate);
-  
+  db_begin_transaction();
+  db_multi_exec(
+     "CREATE TEMP TABLE IF NOT EXISTS vseen(rid INTEGER PRIMARY KEY);"
+     "DELETE FROM vseen;"
+  );
+
+  db_prepare(&ins, "INSERT OR IGNORE INTO vseen(rid) VALUES(:rid)");
   db_prepare(&q,
     "SELECT (SELECT uuid FROM blob WHERE rid=mlink.%s),"
     "       date(event.mtime),"
@@ -2289,10 +2345,13 @@ static void annotate_file(
     "  FROM mlink, event"
     " WHERE mlink.fid=:rid"
     "   AND event.objid=mlink.mid"
-    " ORDER BY event.mtime",
-    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid"
+    "   AND mlink.pid NOT IN vseen"
+    " ORDER BY %s event.mtime",
+    (annFlags & ANN_FILE_VERS)!=0 ? "fid" : "mid",
+    (annFlags & ANN_FILE_ANCEST)!=0 ?
+         "(mlink.mid IN (SELECT rid FROM ancestor)) DESC,":""
   );
-  
+
   db_bind_int(&q, ":rid", rid);
   if( iLimit==0 ) iLimit = 1000000000;
   while( rid && iLimit>cnt && db_step(&q)==SQLITE_ROW ){
@@ -2313,6 +2372,9 @@ static void annotate_file(
     p->azVers[p->nVers-1] = zLabel;
     content_get(rid, &step);
     annotation_step(p, &step, zLabel);
+    db_bind_int(&ins, ":rid", rid);
+    db_step(&ins);
+    db_reset(&ins);
     blob_reset(&step);
     db_reset(&q);
     rid = prevId;
@@ -2320,6 +2382,8 @@ static void annotate_file(
     cnt++;
   }
   db_finalize(&q);
+  db_finalize(&ins);
+  db_end_transaction(0);
 }
 
 /*
@@ -2335,7 +2399,7 @@ void annotation_page(void){
   int fnid;
   int i;
   int iLimit;
-  int annFlags = 0;
+  int annFlags = ANN_FILE_ANCEST;
   int showLn = 0;        /* True if line numbers should be shown */
   char zLn[10];          /* Line number buffer */
   char zFormat[10];      /* Format string for line numbers */
@@ -2351,6 +2415,7 @@ void annotation_page(void){
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
+  compute_direct_ancestors(mid, 10000000);
   style_header("File Annotation");
   if( P("filevers") ) annFlags |= ANN_FILE_VERS;
   annotate_file(&ann, fnid, mid, g.perm.Hyperlink, iLimit, annFlags);
@@ -2417,7 +2482,7 @@ void annotate_cmd(void){
   showLog = find_option("log",0,0)!=0;
   fileVers = find_option("filevers",0,0)!=0;
   db_must_be_within_tree();
-  if (g.argc<3) {
+  if( g.argc<3 ) {
     usage("FILENAME");
   }
   file_tree_name(g.argv[2], &treename, 1);
@@ -2431,7 +2496,7 @@ void annotate_cmd(void){
     fossil_fatal("not part of current checkout: %s", zFilename);
   }
   cid = db_lget_int("checkout", 0);
-  if (cid == 0){
+  if( cid == 0 ){
     fossil_fatal("Not in a checkout");
   }
   if( iLimit<=0 ) iLimit = 1000000000;
@@ -2444,6 +2509,7 @@ void annotate_cmd(void){
     fossil_panic("unable to find manifest");
   }
   if( fileVers ) annFlags |= ANN_FILE_VERS;
+  annFlags |= ANN_FILE_ANCEST;
   annotate_file(&ann, fnid, mid, 0, iLimit, annFlags);
   if( showLog ){
     for(i=0; i<ann.nVers; i++){
@@ -2455,4 +2521,45 @@ void annotate_cmd(void){
     fossil_print("%s: %.*s\n",
                  ann.aOrig[i].zSrc, ann.aOrig[i].n, ann.aOrig[i].z);
   }
+}
+
+/*
+** COMMAND: test-looks-like-utf
+**
+** Usage:  %fossil test-looks-like-utf FILENAME
+**
+** FILENAME is the name of a file to check for textual content in the UTF-8
+** and/or UTF-16 encodings.
+*/
+void looks_like_utf_test_cmd(void){
+  Blob blob;     /* the contents of the specified file */
+  int fUtf8;     /* return value of starts_with_utf8_bom() */
+  int fUtf16;    /* return value of starts_with_utf16_bom() */
+  int fUnicode;  /* return value of could_be_utf16() */
+  int lookFlags; /* output flags from looks_like_utf8/utf16() */
+  int bReverse = 0; /* non-zero -> UTF-16 byte order reversed */
+  if( g.argc<3 ) usage("FILENAME");
+  blob_read_from_file(&blob, g.argv[2]);
+  fUtf8 = starts_with_utf8_bom(&blob, 0);
+  fUtf16 = starts_with_utf16_bom(&blob, 0, &bReverse);
+  fUnicode = could_be_utf16(&blob, &bReverse);
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bReverse) :
+                       looks_like_utf8(&blob);
+  fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
+  fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
+  fossil_print("Starts with UTF-16 BOM: %s\n",
+               fUtf16?(bReverse?"reversed":"yes"):"no");
+  fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
+               ((lookFlags==0) || (lookFlags&LOOK_LONG))?"no":"yes");
+  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags==0)?"yes":"no");
+  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_CR: %s\n",
+               (lookFlags&LOOK_LONE_CR)?"yes":"no");
+  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONE_LF: %s\n",
+               (lookFlags&LOOK_LONE_LF)?"yes":"no");
+  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
+  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
+  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
+  blob_reset(&blob);
 }

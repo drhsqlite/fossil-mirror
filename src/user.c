@@ -41,12 +41,12 @@ static void strip_string(Blob *pBlob, char *z){
   blob_append(pBlob, z, -1);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__BIONIC__)
 #ifdef __MINGW32__
 #include <conio.h>
 #endif
 /*
-** getpass for Windows
+** getpass for Windows and Android
 */
 static char *getpass(const char *prompt){
   static char pwd[64];
@@ -55,7 +55,11 @@ static char *getpass(const char *prompt){
   fputs(prompt,stderr);
   fflush(stderr);
   for(i=0; i<sizeof(pwd)-1; ++i){
+#if defined(_WIN32)
     pwd[i] = _getch();
+#else
+    pwd[i] = getc(stdin);
+#endif
     if(pwd[i]=='\r' || pwd[i]=='\n'){
       break;
     }

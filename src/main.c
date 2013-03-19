@@ -31,13 +31,17 @@
 #else
 #  include <errno.h> /* errno global */
 #endif
+#include "zlib.h"
+#ifdef FOSSIL_ENABLE_SSL
+#  include "openssl/opensslv.h"
+#endif
 #if INTERFACE
+#ifdef FOSSIL_ENABLE_TCL
+#  include "tcl.h"
+#endif
 #ifdef FOSSIL_ENABLE_JSON
 #  include "cson_amalgamation.h" /* JSON API. */
 #  include "json_detail.h"
-#endif
-#ifdef FOSSIL_ENABLE_TCL
-#include "tcl.h"
 #endif
 
 /*
@@ -116,13 +120,12 @@ struct Global {
   sqlite3 *db;            /* The connection to the databases */
   sqlite3 *dbConfig;      /* Separate connection for global_config table */
   int useAttach;          /* True if global_config is attached to repository */
-  int configOpen;         /* True if the config database is open */
+  const char *zConfigDbName;/* Path of the config database. NULL if not open */
   sqlite3_int64 now;      /* Seconds since 1970 */
   int repositoryOpen;     /* True if the main repository database is open */
   char *zRepositoryName;  /* Name of the repository database */
   const char *zMainDbType;/* "configdb", "localdb", or "repository" */
   const char *zConfigDbType;  /* "configdb", "localdb", or "repository" */
-  const char *zHome;      /* Name of user home directory */
   int localOpen;          /* True if the local database is open */
   char *zLocalRoot;       /* The directory holding the  local database */
   int minPrefix;          /* Number of digits needed for a distinct UUID */
@@ -607,7 +610,7 @@ int main(int argc, char **argv)
 ** Print a usage comment and quit
 */
 void usage(const char *zFormat){
-  fossil_fatal("Usage: %s %s %s\n", g.argv[0], g.argv[1], zFormat);
+  fossil_fatal("Usage: %s %s %s", g.argv[0], g.argv[1], zFormat);
 }
 
 /*
@@ -638,7 +641,7 @@ const char *find_option(const char *zLong, const char *zShort, int hasArg){
   nLong = strlen(zLong);
   for(i=1; i<g.argc; i++){
     char *z;
-    if (i+hasArg >= g.argc) break;
+    if( i+hasArg >= g.argc ) break;
     z = g.argv[i];
     if( z[0]!='-' ) continue;
     z++;
@@ -745,13 +748,48 @@ void cmd_test_webpage_list(void){
 /*
 ** COMMAND: version
 **
-** Usage: %fossil version
+** Usage: %fossil version ?-verbose|-v?
 **
 ** Print the source code version number for the fossil executable.
+** If the verbose option is specified, additional details will
+** be output about what optional features this binary was compiled
+** with
 */
 void version_cmd(void){
   fossil_print("This is fossil version " RELEASE_VERSION " "
-                MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+               MANIFEST_VERSION " " MANIFEST_DATE " UTC\n");
+  if(!find_option("verbose","v",0)){
+    return;
+  }else{
+    int count = 0;
+    fossil_print("\nCompiled using \"%s\" with\nSQLite %s [%s],\nzlib %s, "
+                 "and the following optional features enabled:\n\n",
+                 COMPILER_NAME, SQLITE_VERSION, SQLITE_SOURCE_ID,
+                 ZLIB_VERSION);
+#if defined(FOSSIL_ENABLE_SSL)
+    ++count;
+    fossil_print("\tSSL (%s)\n", OPENSSL_VERSION_TEXT);
+#endif
+#if defined(FOSSIL_ENABLE_TCL)
+    ++count;
+    fossil_print("\tTCL (Tcl %s)\n", TCL_PATCH_LEVEL);
+#endif
+#if defined(FOSSIL_ENABLE_TCL_STUBS)
+    ++count;
+    fossil_print("\tTCL_STUBS\n");
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+    ++count;
+    fossil_print("\tJSON (API %s)\n", FOSSIL_JSON_API_VERSION);
+#endif
+#if defined(FOSSIL_ENABLE_MARKDOWN)
+    ++count;
+    fossil_print("\tMARKDOWN\n");
+#endif
+    if( !count ){
+      fossil_print("\tNo optional features were enabled.\n");
+    }
+  }
 }
 
 
@@ -1134,7 +1172,7 @@ static void process_one_web_page(const char *zNotFound, Glob *pFileGlob){
       /* To avoid mischief, make sure the repository basename contains no
       ** characters other than alphanumerics, "/", "_", "-", and ".", and
       ** that "-" never occurs immediately after a "/" and that "." is always
-      ** surrounded by two alphanumerics.  Any character that does not 
+      ** surrounded by two alphanumerics.  Any character that does not
       ** satisfy these constraints is converted into "_".
       */
       szFile = 0;
@@ -1594,7 +1632,7 @@ void cmd_http(void){
   const char *zFileGlob;
 
   /* The winhttp module passes the --files option as --files-urlenc with
-  ** the argument being URL encoded, to avoid wildcard expansion in the 
+  ** the argument being URL encoded, to avoid wildcard expansion in the
   ** shell.  This option is for internal use and is undocumented.
   */
   zFileGlob = find_option("files-urlenc",0,1);
@@ -1698,8 +1736,8 @@ static int binaryOnPath(const char *zBinary){
 ** the web server.  The "ui" command also binds to 127.0.0.1 and so will
 ** only process HTTP traffic from the local machine.
 **
-** The REPOSITORY can be a directory (aka folder) that contains one or 
-** more repositories with names ending in ".fossil".  In this case, the 
+** The REPOSITORY can be a directory (aka folder) that contains one or
+** more repositories with names ending in ".fossil".  In this case, the
 ** a prefix of the URL pathname is used to search the directory for an
 ** appropriate repository.  To thwart mischief, the pathname in the URL must
 ** contain only alphanumerics, "_", "/", "-", and ".", and no "-" may

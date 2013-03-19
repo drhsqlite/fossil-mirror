@@ -327,7 +327,8 @@ void url_enable_proxy(const char *zMsg){
       zProxy = fossil_getenv("http_proxy");
     }
   }
-  if( zProxy && zProxy[0] && !is_false(zProxy) ){
+  if( zProxy && zProxy[0] && !is_false(zProxy)
+      && !g.urlIsSsh && !g.urlIsFile ){
     char *zOriginalUrl = g.urlCanonical;
     char *zOriginalHost = g.urlHostname;
     char *zOriginalUser = g.urlUser;
@@ -431,6 +432,7 @@ char *url_render(
 ** in g.urlPasswd.
 */
 void url_prompt_for_password(void){
+  if( g.urlIsSsh || g.urlIsFile ) return;
   if( isatty(fileno(stdin))
    && (g.urlFlags & URL_PROMPT_PW)!=0
    && (g.urlFlags & URL_PROMPTED)==0

@@ -105,7 +105,7 @@ void diff_file(
       zName2 = zName;
     }
     if( !fIncludeBinary ){
-      eType2 = looks_like_text(&file2);
+      looks_like_text(eType2, &file2);
     }
     /* Compute and output the differences */
     if( diffFlags & DIFF_BRIEF ){
@@ -157,8 +157,8 @@ void diff_file(
           blob_read_from_file(&file2, zFile2);
         }
       }
-      eType2 = looks_like_text(&file2);
-      if( eType2!=1 ){
+      looks_like_text(eType2, &file2);
+      if( (eType2&3)!=1 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
@@ -414,7 +414,7 @@ static void diff_all_against_disk(
         blob_zero(&content);
       }
       if( !fIncludeBinary ){
-        eType = looks_like_text(&content);
+        looks_like_text(eType, &content);
       }
       diff_print_index(zPathname, diffFlags);
       diff_file(&content, eType, zFullName, zPathname, zDiffCmd,
@@ -512,8 +512,8 @@ static void diff_manifest_entry(
     blob_zero(&f2);
   }
   if ( !fIncludeBinary ){
-    eType = looks_like_text(&f1);
-    eType2 = looks_like_text(&f2);
+    looks_like_text(eType, &f1);
+    looks_like_text(eType2, &f2);
   }
   if( eType!=eType2 ){
     diff_print_filenames(zName, zName, diffFlags);

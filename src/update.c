@@ -643,7 +643,7 @@ int historical_version_of_file(
       manifest_destroy(pManifest);
       rc = content_get(rid, content);
       if( rc && pEType ){
-        *pEType = looks_like_text(content);
+        looks_like_text(*pEType, content);
       }
       return rc;
     }

@@ -39,7 +39,6 @@ is stable.
 **
 */
 cson_value * json_page_status(){
-  char const * zSql = NULL;
   Stmt q = empty_Stmt;
   cson_object * oPay;
   /*cson_object * files;*/
@@ -49,7 +48,7 @@ cson_value * json_page_status(){
   i64 iMtime;
   cson_array * aFiles;
 
-  if(!db_open_local()){
+  if(!db_open_local(0)){
     json_set_err(FSL_JSON_E_DB_NEEDS_CHECKOUT, NULL);
     return NULL;
   }
@@ -103,7 +102,6 @@ cson_value * json_page_status(){
   );
   while( db_step(&q)==SQLITE_ROW ){
     const char *zPathname = db_column_text(&q,0);
-    const char *zDisplayName = zPathname;
     int isDeleted = db_column_int(&q, 1);
     int isChnged = db_column_int(&q,2);
     int isNew = db_column_int(&q,3)==0;
