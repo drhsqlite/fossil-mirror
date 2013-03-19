@@ -297,14 +297,15 @@ int looks_like_utf8(const Blob *pContent){
 ** The number of bytes represented by this value cannot exceed LENGTH_MASK
 ** bytes, because that is the line buffer size used by the diff engine.
 */
-#define UTF16_LENGTH_MASK_SZ  (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
-#define UTF16_LENGTH_MASK     ((1<<UTF16_LENGTH_MASK_SZ)-1)
+#define UTF16_LENGTH_MASK_SZ   (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
+#define UTF16_LENGTH_MASK      ((1<<UTF16_LENGTH_MASK_SZ)-1)
 
 /*
 ** This macro is used to swap the byte order of a UTF-16 character in the
 ** looks_like_utf16() function.
 */
-#define UTF16_SWAP(ch)        ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
+#define UTF16_SWAP(ch)         ((((ch) << 8) & 0xFF00) | (((ch) >> 8) & 0xFF))
+#define UTF16_SWAP_IF(expr,ch) ((expr) ? UTF16_SWAP((ch)) : (ch))
 
 /*
 ** This function attempts to scan each logical line within the blob to
@@ -356,7 +357,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
     flags |= LOOK_NUL;  /* NUL character in a file -> binary */
   }else if( c=='\r' ){
     flags |= LOOK_CR;
-    if( n<=sizeof(WCHAR_T) || UTF16_SWAP(z[1])!='\n' ){
+    if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
       flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
     }
   }
@@ -386,7 +387,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
       j = 0;
     }else if( c=='\r' ){
       flags |= LOOK_CR;
-      if( n<=sizeof(WCHAR_T) || UTF16_SWAP(z[1])!='\n' ){
+      if( n<=sizeof(WCHAR_T) || UTF16_SWAP_IF(bReverse, z[1])!='\n' ){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
     }
