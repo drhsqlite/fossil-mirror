@@ -426,6 +426,7 @@ void clean_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
   vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
       " WHERE x NOT IN (%s)"
@@ -439,6 +440,7 @@ void clean_cmd(void){
   while( db_step(&q)==SQLITE_ROW ){
     if( testFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
+      continue;
     }else if( !allFlag ){
       Blob ans;
       char cReply;
@@ -455,7 +457,6 @@ void clean_cmd(void){
     }
     file_delete(db_column_text(&q, 0));
   }
-  glob_free(pIgnore);
   db_finalize(&q);
 }
 
@@ -524,7 +525,7 @@ void prompt_for_user_comment(Blob *pComment, Blob *pPrompt){
     }
   }
   blob_to_utf8_no_bom(&reply, 1);
-  blob_remove_cr(&reply);
+  blob_to_lf_only(&reply);
   file_delete(zFile);
   free(zFile);
   blob_zero(pComment);
@@ -903,80 +904,77 @@ static int commit_warning(
   Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
-  int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
-  int eType;              /* return value of looks_like_utf8/utf16() */
+  int bReverse;           /* UTF-16 byte order is reversed? */
   int fUnicode;           /* return value of starts_with_utf16_bom() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
-  int fHasCrLf;           /* the blob contains one or more CR/LF pairs */
-  int fHasLength;         /* the blob contains an overly long line */
-  int fInvalid;           /* the blob contains invalid utf-8 */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
   static int allOk = 0;   /* Set to true to disable this routine */
 
   if( allOk ) return 0;
-  fUnicode = starts_with_utf16_bom(p, 0, 0);
+  fUnicode = could_be_utf16(p, &bReverse);
   if( fUnicode ){
-    eType = looks_like_utf16(p, &lookFlags);
-    if( lookFlags&LOOK_ODD ){
-      /* Content with an odd number of bytes cannot be UTF-16. */
-      fUnicode = 0;
-      /* Therefore, check if the content appears to be UTF-8. */
-      eType = looks_like_utf8(p, &lookFlags);
-    }
+    lookFlags = looks_like_utf16(p, bReverse);
   }else{
-    eType = looks_like_utf8(p, &lookFlags);
+    lookFlags = looks_like_utf8(p);
   }
-  fHasCrLf = (lookFlags & LOOK_CRLF);
-  fHasLength = (lookFlags & LOOK_LENGTH) && !(lookFlags & LOOK_NUL);
-  fInvalid = (lookFlags & LOOK_INVALID);
-  if( eType==0 || fHasCrLf || fHasLength || fUnicode || fInvalid ){
+  if( lookFlags&(LOOK_BINARY|LOOK_INVALID|LOOK_LONG|LOOK_CR) || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
     Blob ans;
     char cReply;
 
-    if( eType==0 ){
+    if( lookFlags&(LOOK_BINARY|LOOK_LONG) ){
       if( binOk ){
         return 0; /* We don't want binary warnings for this file. */
       }
-      if( fHasLength ){
+      if( (lookFlags&LOOK_LONE_CR) && !(lookFlags&LOOK_NUL) ){
+        zWarning = "CR line endings (would be handled as binary)";
+      }else if( (lookFlags&LOOK_LONG) && !(lookFlags&LOOK_NUL) ){
         zWarning = "long lines";
+        zConvert = ""; /* We cannot convert binary files. */
       }else{
         zWarning = "binary data";
+        zConvert = ""; /* We cannot convert binary files. */
       }
       zDisable = "\"binary-glob\" setting";
-      zConvert = ""; /* We cannot convert binary files. */
-    }else if( fHasCrLf && fUnicode ){
-      if ( crnlOk && encodingOk ){
+    }else if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) && fUnicode ){
+      if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
-      zWarning = "CR/NL line endings and Unicode";
-      zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( fInvalid ){
-      if( encodingOk ){
-        return 0; /* We don't want encoding warnings for this file. */
+      if( lookFlags&LOOK_LONE_CR ){
+        zWarning = "CR line endings and Unicode";
+      }else{
+        zWarning = "CR/NL line endings and Unicode";
       }
-      zWarning = "invalid UTF-8";
-      zDisable = "\"encoding-glob\" setting";
-    }else if( fHasCrLf ){
+      zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
+    }else if( lookFlags&LOOK_CR ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
-      zWarning = "CR/NL line endings";
+      if( lookFlags&LOOK_LONE_CR ){
+        zWarning = "CR line endings";
+      }else{
+        zWarning = "CR/NL line endings";
+      }
       zDisable = "\"crnl-glob\" setting";
     }else{
-      if ( encodingOk ){
+      if( encodingOk ){
         return 0; /* We don't want encoding warnings for this file. */
       }
-      zWarning = "Unicode";
-      zDisable = "\"encoding-glob\" setting";
+      if (fUnicode){
+        zWarning = "Unicode";
 #if !defined(_WIN32) && !defined(__CYGWIN__)
-      zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
+        zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
+      }else{
+        zWarning = "invalid UTF-8";
+      }
+      zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);
@@ -1000,11 +998,11 @@ static int commit_warning(
         const unsigned char *bom = get_utf8_bom(&bomSize);
         fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
-      }else  if( fInvalid ){
+      }else  if( lookFlags&LOOK_INVALID ){
         blob_cp1252_to_utf8(p);
       }
-      if( fHasCrLf ) {
-        blob_remove_cr(p);
+      if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) ){
+        blob_to_lf_only(p);
       }
       fwrite(blob_buffer(p), 1, blob_size(p), f);
       fclose(f);
@@ -1238,7 +1236,7 @@ void commit_cmd(void){
   ** for each file to be committed. Or, if aCommitFile is NULL, all files
   ** should be committed.
   */
-  if ( select_commit_files() ){
+  if( select_commit_files() ){
     blob_zero(&ans);
     prompt_user("continue (y/N)? ", &ans);
     cReply = blob_str(&ans)[0];

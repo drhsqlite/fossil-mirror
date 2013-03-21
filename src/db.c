@@ -771,11 +771,11 @@ void db_open_or_attach(
     assert( g.zMainDbType==0 );
     g.db = db_open(zDbName);
     g.zMainDbType = zLabel;
-    if ( pWasAttached ) *pWasAttached = 0;
+    if( pWasAttached ) *pWasAttached = 0;
   }else{
     assert( g.zMainDbType!=0 );
     db_attach(zDbName, zLabel);
-    if ( pWasAttached ) *pWasAttached = 1;
+    if( pWasAttached ) *pWasAttached = 1;
   }
 }
 
@@ -931,7 +931,7 @@ static int isValidLocalDb(const char *zDbName){
 ** not the repository database is found.  If the _FOSSIL_ or .fslckout file
 ** is found, it is attached to the open database connection too.
 */
-int db_open_local(void){
+int db_open_local(const char *zDbName){
   int i, n;
   char zPwd[2000];
   static const char aDbName[][10] = { "_FOSSIL_", ".fslckout", ".fos" };
@@ -953,7 +953,7 @@ int db_open_local(void){
         g.zLocalRoot = mprintf("%s/", zPwd);
         g.localOpen = 1;
         db_open_config(0);
-        db_open_repository(0);
+        db_open_repository(zDbName);
         return 1;
       }
     }
@@ -1046,7 +1046,7 @@ void db_find_and_open_repository(int bFlags, int nArgUsed){
     zRep = g.argv[nArgUsed];
   }
   if( zRep==0 ){
-    if( db_open_local()==0 ){
+    if( db_open_local(0)==0 ){
       goto rep_not_found;
     }
     zRep = db_repository_filename();
@@ -1132,14 +1132,14 @@ void move_repo_cmd(void){
   if( g.argc!=3 ){
     usage("PATHNAME");
   }
-  if( db_open_local()==0 ){
-    fossil_fatal("not in a local checkout");
-    return;
-  }
   file_canonical_name(g.argv[2], &repo, 0);
   zRepo = blob_str(&repo);
   if( file_access(zRepo, 0) ){
     fossil_fatal("no such file: %s", zRepo);
+  }
+  if( db_open_local(zRepo)==0 ){
+    fossil_fatal("not in a local checkout");
+    return;
   }
   db_open_or_attach(zRepo, "test_repo", 0);
   db_lset("repository", blob_str(&repo));
@@ -1151,7 +1151,7 @@ void move_repo_cmd(void){
 ** Open the local database.  If unable, exit with an error.
 */
 void db_must_be_within_tree(void){
-  if( db_open_local()==0 ){
+  if( db_open_local(0)==0 ){
     fossil_fatal("current directory is not within an open checkout");
   }
   db_open_repository(0);
@@ -1966,7 +1966,6 @@ void db_record_repository_filename(const char *zName){
 ** See also: close
 */
 void cmd_open(void){
-  Blob path;
   int vid;
   int keepFlag;
   int allowNested;
@@ -1978,11 +1977,10 @@ void cmd_open(void){
   if( g.argc!=3 && g.argc!=4 ){
     usage("REPOSITORY-FILENAME ?VERSION?");
   }
-  if( !allowNested && db_open_local() ){
+  if( !allowNested && db_open_local(0) ){
     fossil_panic("already within an open tree rooted at %s", g.zLocalRoot);
   }
-  file_canonical_name(g.argv[2], &path, 0);
-  db_open_repository(blob_str(&path));
+  db_open_repository(g.argv[2]);
 #if defined(_WIN32) || defined(__CYGWIN__)
 # define LOCALDB_NAME "./_FOSSIL_"
 #else
@@ -1994,9 +1992,9 @@ void cmd_open(void){
 #endif
                    (char*)0);
   db_delete_on_failure(LOCALDB_NAME);
-  db_open_local();
+  db_open_local(0);
   db_lset("repository", g.argv[2]);
-  db_record_repository_filename(blob_str(&path));
+  db_record_repository_filename(g.argv[2]);
   vid = db_int(0, "SELECT pid FROM plink y"
                   " WHERE NOT EXISTS(SELECT 1 FROM plink x WHERE x.cid=y.pid)");
   if( vid==0 ){
@@ -2344,7 +2342,7 @@ void setting_cmd(void){
     usage("PROPERTY ?-global?");
   }
   if( g.argc==2 ){
-    int openLocal = db_open_local();
+    int openLocal = db_open_local(0);
     for(i=0; ctrlSettings[i].name; i++){
       print_setting(&ctrlSettings[i], openLocal);
     }
@@ -2368,7 +2366,7 @@ void setting_cmd(void){
       db_set(ctrlSettings[i].name, g.argv[3], globalFlag);
     }else{
       isManifest = 0;
-      print_setting(&ctrlSettings[i], db_open_local());
+      print_setting(&ctrlSettings[i], db_open_local(0));
     }
     if( isManifest && g.localOpen ){
       manifest_to_disk(db_lget_int("checkout", 0));

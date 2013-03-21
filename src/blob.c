@@ -381,7 +381,7 @@ void blob_resize(Blob *pBlob, unsigned int newSize){
 
 /*
 ** Make sure a blob is nul-terminated and is not a pointer to unmanaged
-** space.  Return a pointer to the
+** space.  Return a pointer to the data.
 */
 char *blob_materialize(Blob *pBlob){
   blob_resize(pBlob, pBlob->nUsed);
@@ -1016,15 +1016,15 @@ void blob_add_cr(Blob *p){
 #endif
 
 /*
-** Remove every \r character from the given blob.
+** Remove every \r character from the given blob, replacing each one with
+** a \n character if it was not already part of a \r\n pair.
 */
-void blob_remove_cr(Blob *p){
+void blob_to_lf_only(Blob *p){
   int i, j;
-  char *z;
-  blob_materialize(p);
-  z = p->aData;
+  char *z = blob_materialize(p);
   for(i=j=0; z[i]; i++){
     if( z[i]!='\r' ) z[j++] = z[i];
+    else if( z[i+1]!='\n' ) z[j++] = '\n';
   }
   z[j] = 0;
   p->nUsed = j;

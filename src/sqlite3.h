@@ -109,7 +109,7 @@ extern "C" {
 */
 #define SQLITE_VERSION        "3.7.16"
 #define SQLITE_VERSION_NUMBER 3007016
-#define SQLITE_SOURCE_ID      "2013-03-11 13:37:52 f9027cb47bdec8dcebf1f038921b28d9e9928c18"
+#define SQLITE_SOURCE_ID      "2013-03-13 00:13:25 839aa91faf1db7025d90fa3c65e50efb829b053b"
 
 /*
 ** CAPI3REF: Run-Time Library Version Numbers
@@ -288,7 +288,7 @@ typedef sqlite_uint64 sqlite3_uint64;
 ** [sqlite3_blob_close | close] all [BLOB handles], and 
 ** [sqlite3_backup_finish | finish] all [sqlite3_backup] objects associated
 ** with the [sqlite3] object prior to attempting to close the object.  ^If
-** sqlite3_close() is called on a [database connection] that still has
+** sqlite3_close_v2() is called on a [database connection] that still has
 ** outstanding [prepared statements], [BLOB handles], and/or
 ** [sqlite3_backup] objects then it returns SQLITE_OK but the deallocation
 ** of resources is deferred until all [prepared statements], [BLOB handles],

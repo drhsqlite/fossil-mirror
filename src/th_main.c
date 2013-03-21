@@ -263,10 +263,10 @@ static int hascapCmd(
 ** Return true if the fossil binary has the given compile-time feature
 ** enabled. The set of features includes:
 **
-** "json"     = FOSSIL_ENABLE_JSON
 ** "ssl"      = FOSSIL_ENABLE_SSL
 ** "tcl"      = FOSSIL_ENABLE_TCL
 ** "tclStubs" = FOSSIL_ENABLE_TCL_STUBS
+** "json"     = FOSSIL_ENABLE_JSON
 ** "markdown" = FOSSIL_ENABLE_MARKDOWN
 **
 */
@@ -286,11 +286,6 @@ static int hasfeatureCmd(
   if(NULL==zArg){
     /* placeholder for following ifdefs... */
   }
-#if defined(FOSSIL_ENABLE_JSON)
-  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
-    rc = 1;
-  }
-#endif
 #if defined(FOSSIL_ENABLE_SSL)
   else if( 0 == fossil_strnicmp( zArg, "ssl", 3 ) ){
     rc = 1;
@@ -303,6 +298,11 @@ static int hasfeatureCmd(
 #endif
 #if defined(FOSSIL_ENABLE_TCL_STUBS)
   else if( 0 == fossil_strnicmp( zArg, "tclStubs", 8 ) ){
+    rc = 1;
+  }
+#endif
+#if defined(FOSSIL_ENABLE_JSON)
+  else if( 0 == fossil_strnicmp( zArg, "json", 4 ) ){
     rc = 1;
   }
 #endif
@@ -667,6 +667,49 @@ static int queryCmd(
 }
 
 /*
+** TH1 command:     regexp ?-nocase? ?--? exp string
+**
+** Checks the string against the specified regular expression and returns
+** non-zero if it matches.  If the regular expression is invalid or cannot
+** be compiled, an error will be generated.
+*/
+#define REGEXP_WRONGNUMARGS "regexp ?-nocase? ?--? exp string"
+static int regexpCmd(
+  Th_Interp *interp,
+  void *p,
+  int argc,
+  const char **argv,
+  int *argl
+){
+  int rc;
+  int noCase = 0;
+  int nArg = 1;
+  ReCompiled *pRe = 0;
+  const char *zErr;
+  if( argc<3 || argc>5 ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  if( fossil_strcmp(argv[nArg], "-nocase")==0 ){
+    noCase = 1; nArg++;
+  }
+  if( fossil_strcmp(argv[nArg], "--")==0 ) nArg++;
+  if( nArg+2!=argc ){
+    return Th_WrongNumArgs(interp, REGEXP_WRONGNUMARGS);
+  }
+  zErr = re_compile(&pRe, argv[nArg], noCase);
+  if( !zErr ){
+    Th_SetResultInt(interp, re_match(pRe,
+        (const unsigned char *)argv[nArg+1], argl[nArg+1]));
+    rc = TH_OK;
+  }else{
+    Th_SetResult(interp, zErr, -1);
+    rc = TH_ERROR;
+  }
+  re_free(pRe);
+  return rc;
+}
+
+/*
 ** Make sure the interpreter has been initialized.  Initialize it if
 ** it has not been already.
 **
@@ -693,6 +736,7 @@ void Th_FossilInit(int needConfig, int forceSetup){
     {"puts",          putsCmd,              (void*)&aFlags[1]},
     {"query",         queryCmd,             0},
     {"randhex",       randhexCmd,           0},
+    {"regexp",        regexpCmd,            0},
     {"repository",    repositoryCmd,        0},
     {"stime",         stimeCmd,             0},
     {"utime",         utimeCmd,             0},
