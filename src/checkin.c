@@ -904,11 +904,11 @@ static int commit_warning(
   Blob *p,              /* The content of the file being committed. */
   int crnlOk,           /* Non-zero if CR/NL warnings should be disabled. */
   int binOk,            /* Non-zero if binary warnings should be disabled. */
-  int encodingOk,        /* Non-zero if encoding warnings should be disabled. */
+  int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
   int bReverse;           /* UTF-16 byte order is reversed? */
-  int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int fUnicode;           /* return value of could_be_utf16() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
@@ -967,10 +967,10 @@ static int commit_warning(
         return 0; /* We don't want encoding warnings for this file. */
       }
       zWarning = "Unicode";
-      zDisable = "\"encoding-glob\" setting";
 #if !defined(_WIN32) && !defined(__CYGWIN__)
       zConvert = ""; /* On Unix, we cannot easily convert Unicode files. */
 #endif
+      zDisable = "\"encoding-glob\" setting";
     }
     file_relative_name(zFilename, &fname, 0);
     blob_zero(&ans);

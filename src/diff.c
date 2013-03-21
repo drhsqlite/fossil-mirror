@@ -79,6 +79,7 @@
 #define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
 #define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
 #define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
+#define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
 #define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
 #endif /* INTERFACE */
 
@@ -2558,6 +2559,8 @@ void looks_like_utf_test_cmd(void){
                (lookFlags&LOOK_LONE_LF)?"yes":"no");
   fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
   fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
+  fossil_print("Has flag LOOK_INVALID: %s\n",
+               (lookFlags&LOOK_INVALID)?"yes":"no");
   fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
   fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
   blob_reset(&blob);
