@@ -908,7 +908,7 @@ static int commit_warning(
   const char *zFilename /* The full name of the file being committed. */
 ){
   int bReverse;           /* UTF-16 byte order is reversed? */
-  int fUnicode;           /* return value of starts_with_utf16_bom() */
+  int fUnicode;           /* return value of could_be_utf16() */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */
   char *zMsg;             /* Warning message */
   Blob fname;             /* Relative pathname of the file */
@@ -921,7 +921,7 @@ static int commit_warning(
   }else{
     lookFlags = looks_like_utf8(p);
   }
-  if( lookFlags&(LOOK_BINARY|LOOK_INVALID|LOOK_LONG|LOOK_CR) || fUnicode ){
+  if( lookFlags&(LOOK_BINARY|LOOK_LONG|LOOK_CR|LOOK_INVALID) || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";

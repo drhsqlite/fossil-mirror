@@ -1,5 +1,5 @@
-C merge\strunk\s(testcases\snot\sadapted\syet!)
-D 2013-03-21T10:57:59.004
+C merge\strunk
+D 2013-03-21T12:37:04.004
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 8c5da0def38b821207ac9b8aeb7d8847df5be684
+F src/checkin.c 1c0132b5de33afb436ebfee821df873831ce0fc3
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -444,7 +444,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 83f243d6dd60bdacdd813ce80fef317c6a92e954
+F test/utf.test 4735c9a37bcaca5245209887c1f88102dcc1262a
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 0a93bf105af2589fbf5a29e4e7bce3f46a239e76 b4bec3753dd6106eaa840275aa891277609a33f2
-R 6f98085ad2aced1aad13ae9da6f74597
+P 43aa3b2d8b9ff2d4ce1cffbccf08e7f141bc67c1 3ec3909b17ec8a1150325b215ad558d2ffcfd96a
+R a9b09ecf8080b5703eb213b948a861bc
 U jan.nijtmans
-Z 2a4b67b8374b5652364a1fe29bd61781
+Z ea04dce262247a43360058f7265b9bb8
