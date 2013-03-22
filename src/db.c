@@ -2181,15 +2181,15 @@ struct stControlSettings const ctrlSettings[] = {
 **    case-sensitive   If TRUE, the files whose names differ only in case
 **                     care considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
-**                     TRUE for unix and FALSE for windows and mac.
+**                     TRUE for unix and FALSE for windows, Cygwin and mac.
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
 **                     be unsigned.  Default: off
 **
 **    crnl-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR+NL line endings.
-**                     Set to "*" to disable CR+NL checking.
+**     (versionable)   text files in which it is ok to have NL or CR+NL line
+**                     endings. Set to "*" to disable NL/CR+NL checking.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server

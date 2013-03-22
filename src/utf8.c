@@ -118,15 +118,33 @@ void fossil_unicode_free(void *pOld){
 ** This function must not convert '\' to '/' on windows/cygwin, as it is
 ** used in places where we are not sure it's really filenames we are handling,
 ** e.g. fossil_getenv() or handling the argv arguments from main().
+**
+** On Windows, translate some characters in the in the range
+** U+F001 - U+F07F (private use area) to ASCII. Cygwin sometimes
+** generates such filenames. See:
+** <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
 */
 char *fossil_filename_to_utf8(const void *zFilename){
 #if defined(_WIN32)
   int nByte = WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, 0, 0, 0, 0);
   char *zUtf = sqlite3_malloc( nByte );
+  char *pUtf, *qUtf;
   if( zUtf==0 ){
     return 0;
   }
   WideCharToMultiByte(CP_UTF8, 0, zFilename, -1, zUtf, nByte, 0, 0);
+  pUtf = qUtf = zUtf;
+  while( *pUtf ) {
+    if( *pUtf == (char)0xef ){
+      wchar_t c = ((pUtf[1]&0x3f)<<6)|(pUtf[2]&0x3f);
+      /* Only really convert it when the resulting char is in range. */
+      if ( c && ((c < ' ') || wcschr(L"\"*:<>?|", c)) ){
+        *qUtf++ = c; pUtf+=3; continue;
+      }
+    }
+    *qUtf++ = *pUtf++;
+  }
+  *qUtf = 0;
   return zUtf;
 #elif defined(__CYGWIN__)
   char *zOut;
@@ -163,10 +181,20 @@ char *fossil_filename_to_utf8(const void *zFilename){
 }
 
 /*
-** Translate text from UTF-8 to the filename character set.
-** Return a pointer to the translated text.
-** Call fossil_filename_free() to deallocate any memory used to store the
-** returned pointer when done.
+** Translate UTF-8 to unicode for use in filename translations.
+** Return a pointer to the translated text..  Call fossil_filename_free()
+** to deallocate any memory used to store the returned pointer when done.
+**
+** On Windows, characters in the range U+0001 to U+0031 and the
+** characters '"', '*', ':', '<', '>', '?' and '|' are invalid
+** to be used. Therefore, translate those to characters in the
+** in the range U+F001 - U+F07F (private use area), so those
+** characters never arrive in any Windows API. The filenames might
+** look strange in Windows explorer, but in the cygwin shell
+** everything looks as expected.
+**
+** See: <http://cygwin.com/cygwin-ug-net/using-specialnames.html>
+**
 */
 void *fossil_utf8_to_filename(const char *zUtf8){
 #ifdef _WIN32
@@ -177,8 +205,16 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     return 0;
   }
   MultiByteToWideChar(CP_UTF8, 0, zUtf8, -1, zUnicode, nChar);
+  /* If path starts with "<drive>:/" or "<drive>:\", don't translate the ':' */
+  if( fossil_isalpha(zUtf8[0]) && zUtf8[1]==':'
+           && (zUtf8[2]=='\\' || zUtf8[2]=='/')) {
+    zUnicode[2] = '\\';
+    wUnicode += 3;
+  }
   while( *wUnicode != '\0' ){
-    if( *wUnicode == '/' ){
+    if ( (*wUnicode < ' ') || wcschr(L"\"*:<>?|", *wUnicode) ){
+      *wUnicode |= 0xF000;
+    }else if( *wUnicode == '/' ){
       *wUnicode = '\\';
     }
     ++wUnicode;

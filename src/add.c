@@ -376,7 +376,7 @@ void capture_case_sensitive_option(void){
 **
 ** The case-sensitive setting determines the default value.  If
 ** the case-sensitive setting is undefined, then case sensitivity
-** defaults on for Mac and Windows and off for all other unix.
+** defaults on for Cygwin, Mac and Windows and off for all other unix.
 **
 ** The --case-sensitive BOOLEAN command-line option overrides any
 ** setting.
@@ -393,7 +393,7 @@ int filenames_are_case_sensitive(void){
 #if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__DARWIN__) && !defined(__APPLE__)
       caseSensitive = 1;  /* Unix */
 #else
-      caseSensitive = 0;  /* Windows and Mac */
+      caseSensitive = 0;  /* Cygwin, Windows and Mac */
 #endif
       caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
     }

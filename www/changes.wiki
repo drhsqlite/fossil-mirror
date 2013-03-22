@@ -1,11 +1,17 @@
 <title>Change Log</title>
 
 <h2>Changes For Version 1.26 (as yet unreleased)</h2>
+  *  Win32: Fossil now understands Cygwin paths containing one or more of
+     the characters <nowiki>"*:<>?|</nowiki>. Those are normally forbidden in
+     win32. This means that the win32 fossil.exe is better usable in a Cygwin
+     environment. See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-specialchars].
+  *  Cygwin: Fossil now understands win32 absolute paths starting with a drive letter
+     everywhere. The default value of the "case-sensitive" setting is now FALSE.
   *  Enhancements to /timeline.rss, adding more flags for filtering
      results, including the ability to subscribe to changes made
      to individual tickets. For example: [/timeline.rss?y=t&tkt=12fceeec82].
   *  JSON API: added the 'status' command to report local checkout status.
-
 
 <h2>Changes For Version 1.25 (2013-02-16)</h2>
   *  Enhancements to ticket processing. There are now two tables: TICKET and
