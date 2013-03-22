@@ -1,5 +1,5 @@
-C Add\sflag\sLOOK_INVALID,\snot\sused\syet.\nAdd\smany\smore\sUTF8/16\stest-cases.
-D 2013-03-21T12:06:24.969
+C typo,\smention\sCygwin\sas\swell.
+D 2013-03-22T10:36:17.867
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -289,7 +289,7 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 5c49a47abaa58b1a65dedc34fe6705962d0756db
+F src/add.c 59f2454b5bdfb78092f6b9be009ed3d4b276fb76
 F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b4bec3753dd6106eaa840275aa891277609a33f2
-R c5c189cc71a435b8d8feb5ad94e87e13
+P 3ec3909b17ec8a1150325b215ad558d2ffcfd96a
+R f72ef565820bc38d0bd488b5d35e50a8
 U jan.nijtmans
-Z 11a738f3a22b9db4829ccd7bce4048ed
+Z 37a3374ae0b08a520dd3086e891c828a
