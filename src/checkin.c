@@ -921,7 +921,7 @@ static int commit_warning(
   }else{
     lookFlags = looks_like_utf8(p);
   }
-  if( lookFlags&(LOOK_BINARY|LOOK_LONG|LOOK_LONE_CR|LOOK_CRLF) || fUnicode ){
+  if( lookFlags&(LOOK_BINARY|LOOK_LONG|LOOK_CR) || fUnicode ){
     const char *zWarning;
     const char *zDisable;
     const char *zConvert = "c=convert/";
@@ -942,24 +942,28 @@ static int commit_warning(
         zConvert = ""; /* We cannot convert binary files. */
       }
       zDisable = "\"binary-glob\" setting";
-    }else if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) && fUnicode ){
+    }else if( lookFlags&(LOOK_CR) && fUnicode ){
       if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
-      if( lookFlags&LOOK_LONE_CR ){
+      if( (lookFlags&LOOK_EOL) == LOOK_LONE_CR ){
         zWarning = "CR line endings and Unicode";
-      }else{
+      }else if( (lookFlags&LOOK_EOL) == LOOK_CRLF ){
         zWarning = "CR/NL line endings and Unicode";
+      }else{
+        zWarning = "mixed line endings and Unicode";
       }
       zDisable = "\"crnl-glob\" and \"encoding-glob\" settings";
-    }else if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) ){
+    }else if( lookFlags&LOOK_CR ){
       if( crnlOk ){
         return 0; /* We don't want CR/NL warnings for this file. */
       }
-      if( lookFlags&LOOK_LONE_CR ){
+      if( (lookFlags&LOOK_EOL) == LOOK_LONE_CR ){
         zWarning = "CR line endings";
-      }else{
+      }else if( (lookFlags&LOOK_EOL) == LOOK_CRLF ){
         zWarning = "CR/NL line endings";
+      }else{
+        zWarning = "mixed line endings";
       }
       zDisable = "\"crnl-glob\" setting";
     }else{
@@ -995,7 +999,7 @@ static int commit_warning(
         fwrite(bom, 1, bomSize, f);
         blob_to_utf8_no_bom(p, 0);
       }
-      if( lookFlags&(LOOK_LONE_CR|LOOK_CRLF) ){
+      if( lookFlags&LOOK_CR ){
         blob_to_lf_only(p);
       }
       fwrite(blob_buffer(p), 1, blob_size(p), f);

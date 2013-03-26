@@ -81,6 +81,7 @@
 #define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
 #define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
 #define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
+#define LOOK_EOL  (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Any eol type. */
 #endif /* INTERFACE */
 
 /*
