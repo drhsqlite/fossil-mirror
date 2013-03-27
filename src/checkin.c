@@ -637,7 +637,7 @@ int select_commit_files(void){
       if( iId<0 ){
         fossil_warning("fossil knows nothing about: %s", g.argv[ii]);
         result = 1;
-      } else {
+      }else{
         g.aCommitFile[jj++] = iId;
       }
       blob_reset(&b);
@@ -917,9 +917,9 @@ static int commit_warning(
   if( allOk ) return 0;
   fUnicode = could_be_utf16(p, &bReverse);
   if( fUnicode ){
-    lookFlags = looks_like_utf16(p, bReverse);
+    lookFlags = looks_like_utf16(p, bReverse, LOOK_NUL);
   }else{
-    lookFlags = looks_like_utf8(p);
+    lookFlags = looks_like_utf8(p, LOOK_NUL);
   }
   if( lookFlags&(LOOK_BINARY|LOOK_LONG|LOOK_CR) || fUnicode ){
     const char *zWarning;
@@ -942,7 +942,7 @@ static int commit_warning(
         zConvert = ""; /* We cannot convert binary files. */
       }
       zDisable = "\"binary-glob\" setting";
-    }else if( lookFlags&(LOOK_CR) && fUnicode ){
+    }else if( (lookFlags&LOOK_CR) && fUnicode ){
       if( crnlOk && encodingOk ){
         return 0; /* We don't want CR/NL and Unicode warnings for this file. */
       }
@@ -1409,7 +1409,7 @@ void commit_cmd(void){
   if( nConflict && !allowConflict ){
     fossil_fatal("abort due to unresolved merge conflicts; "
                  "use --allow-conflict to override");
-  } else if( abortCommit ){
+  }else if( abortCommit ){
     fossil_fatal("one or more files were converted on your request; "
                  "please re-test before committing");
   }

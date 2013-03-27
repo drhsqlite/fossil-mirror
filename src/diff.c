@@ -63,7 +63,7 @@
 ** This macro is designed to return non-zero if the specified blob contains
 ** data that MAY be binary in nature; otherwise, zero will be returned.
 */
-#define looks_like_binary(blob) ((looks_like_utf8(blob)&LOOK_BINARY)!=LOOK_NONE)
+#define looks_like_binary(blob) ((looks_like_utf8(blob, LOOK_BINARY)&LOOK_BINARY)!=LOOK_NONE)
 
 /*
 ** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
@@ -232,12 +232,12 @@ static DLine *break_into_lines(const char *z, int n, int *pnLine, int ignoreWS){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
-** Whether or not this function examines the entire contents of the blob is
-** officially unspecified.
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf8(const Blob *pContent){
+int looks_like_utf8(const Blob *pContent, int stopFlags){
   const char *z = blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c, flags = LOOK_NONE;  /* Assume UTF-8 text, prove otherwise */
@@ -254,7 +254,7 @@ int looks_like_utf8(const Blob *pContent){
   }
   j = (c!='\n');
   if( !j ) flags |= (LOOK_LF | LOOK_LONE_LF);  /* Found LF as first char */
-  while( --n>0 ){
+  while( !(flags&stopFlags) && --n>0 ){
     int c2 = c;
     c = *++z; ++j;
     if( c==0 ){
@@ -336,12 +336,12 @@ int looks_like_utf8(const Blob *pContent){
 ** The only code points that this function cares about are the NUL character,
 ** carriage-return, and line-feed.
 **
-** Whether or not this function examines the entire contents of the blob is
-** officially unspecified.
+** This function examines the contents of the blob until one of the flags
+** specified in "stopFlags" is set.
 **
 ************************************ WARNING **********************************
 */
-int looks_like_utf16(const Blob *pContent, int bReverse){
+int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   const WCHAR_T *z = (WCHAR_T *)blob_buffer(pContent);
   unsigned int n = blob_size(pContent);
   int j, c, flags = LOOK_NONE;  /* Assume UTF-16 text, prove otherwise */
@@ -368,7 +368,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse){
   while( 1 ){
     int c2 = c;
     n -= sizeof(WCHAR_T);
-    if( n<sizeof(WCHAR_T) ) break;
+    if( (flags&stopFlags) || n<sizeof(WCHAR_T) ) break;
     c = *++z;
     if( bReverse ){
       c = UTF16_SWAP(c);
@@ -2543,8 +2543,8 @@ void looks_like_utf_test_cmd(void){
   fUtf8 = starts_with_utf8_bom(&blob, 0);
   fUtf16 = starts_with_utf16_bom(&blob, 0, &bRevUtf16);
   fUnicode = could_be_utf16(&blob, &bRevUnicode);
-  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode) :
-                         looks_like_utf8(&blob);
+  lookFlags = fUnicode ? looks_like_utf16(&blob, bRevUnicode, 0) :
+                         looks_like_utf8(&blob, 0);
   fossil_print("File \"%s\" has %d bytes.\n",g.argv[2],blob_size(&blob));
   fossil_print("Starts with UTF-8 BOM: %s\n",fUtf8?"yes":"no");
   fossil_print("Starts with UTF-16 BOM: %s\n",

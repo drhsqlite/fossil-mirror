@@ -202,11 +202,11 @@ void *fossil_utf8_to_filename(const char *zUtf8){
     nByte = cygwin_conv_path(CCP_WIN_W_TO_POSIX, zUnicode, NULL, 0);
     zPath = fossil_malloc(nByte);
     cygwin_conv_path(CCP_WIN_W_TO_POSIX, zUnicode, zPath, nByte);
-  } else {
+  }else{
     zPath = fossil_strdup(zUtf8);
     zUtf8 = p = zPath;
     while( (*p = *zUtf8++) != 0){
-      if (*p++ == '\\' ) {
+      if( *p++ == '\\' ) {
         p[-1] = '/';
       }
     }
@@ -264,7 +264,7 @@ int fossil_utf8_to_console(const char *zUtf8, int nByte, int toStdErr){
    * <https://connect.microsoft.com/VisualStudio/feedback/details/635230> */
   while( written < nChar ){
     int size = nChar-written;
-    if (size > 26000) size = 26000;
+    if( size > 26000 ) size = 26000;
     WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE - toStdErr), zUnicode+written,
         size, &dummy, 0);
     written += size;

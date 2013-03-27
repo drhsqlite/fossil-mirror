@@ -2188,8 +2188,8 @@ struct stControlSettings const ctrlSettings[] = {
 **                     be unsigned.  Default: off
 **
 **    crnl-glob        A comma or newline-separated list of GLOB patterns for
-**     (versionable)   text files in which it is ok to have CR+NL line endings.
-**                     Set to "*" to disable CR+NL checking.
+**     (versionable)   text files in which it is ok to have CR, CR+NL or mixed
+**                     line endings. Set to "*" to disable CR+NL checking.
 **
 **    default-perms    Permissions given automatically to new users.  For more
 **                     information on permissions see Users page in Server
