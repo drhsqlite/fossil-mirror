@@ -63,7 +63,8 @@
 ** This macro is designed to return non-zero if the specified blob contains
 ** data that MAY be binary in nature; otherwise, zero will be returned.
 */
-#define looks_like_binary(blob) ((looks_like_utf8(blob, LOOK_BINARY)&LOOK_BINARY)!=LOOK_NONE)
+#define looks_like_binary(blob) \
+    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
 
 /*
 ** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
@@ -81,7 +82,7 @@
 #define LOOK_SHORT   ((int)0x00000100) /* Unable to perform full check. */
 #define LOOK_INVALID ((int)0x00000200) /* Invalid sequence was found. */
 #define LOOK_BINARY  (LOOK_NUL | LOOK_LONG | LOOK_SHORT) /* May be binary. */
-#define LOOK_EOL  (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Any eol type. */
+#define LOOK_EOL     (LOOK_LONE_CR | LOOK_LONE_LF | LOOK_CRLF) /* Line seps. */
 #endif /* INTERFACE */
 
 /*

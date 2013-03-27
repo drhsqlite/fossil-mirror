@@ -1,5 +1,5 @@
-C Update\sthe\sbuilt-in\sSQLite\ssources\sto\sthe\slatest\s3.7.16.1\sbeta\sfor\sthe\npurpose\sof\stesting\sSQLite.
-D 2013-03-27T20:53:57.693
+C Make\sthe\sintent\sof\sthe\scode\sin\scommit_warning()\sclearer.\s\sStyle\scleanup.
+D 2013-03-27T23:13:12.086
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 0d9ca4de12102402adad390aeffe081c771c4184
+F src/checkin.c b3c6e86cc0af54d27fb448cb9b84dbcbac873de3
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -313,7 +313,7 @@ F src/db.c 6ab99146ac592232547ef0370e799e57a865d80b
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 4396e6743d44c1231ac7d017b6c420a1a8af3ee1
+F src/diff.c 7017c616d083c1bae574f52d699028ccce111a09
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 23380615245f59c7b04629f8526df94d498baf68
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 79f7eb2fc5c906cbc3fb3df8bc25fb49e7242ed2
-R 20cf7f4c08e385c35231e9dbb293db63
-U drh
-Z 43c93b2629dfb7a697a6eb62a3478f8b
+P 2e9be37f502f5d973250ecc019104517613033ec
+R 340d32c875680b25374d9322014b3116
+U mistachkin
+Z 2e4d0ef5fe87a41e51dd3550b32dc0ae
