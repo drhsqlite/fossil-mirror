@@ -99,8 +99,7 @@ struct TclContext {
   int argc;              /* Number of original (expanded) arguments. */
   char **argv;           /* Full copy of the original (expanded) arguments. */
   void *library;         /* The Tcl library module handle. */
-  void *xFindExecutable; /* See tcl_FindExecutableProc in th_tcl.c. */
-  void *xCreateInterp;   /* See tcl_CreateInterpProc in th_tcl.c. */
+  void *xInitSubsystems; /* See tcl_InitSubsystemsProc in th_tcl.c. */
   Tcl_Interp *interp;    /* The on-demand created Tcl interpreter. */
   char *setup;           /* The optional Tcl setup script. */
   void *xPreEval;        /* Optional, called before Tcl_Eval*(). */

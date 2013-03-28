@@ -115,23 +115,19 @@
 #      endif
 #    endif /* defined(__CYGWIN__) */
 #  endif /* defined(_WIN32) */
-#  ifndef TCL_FINDEXECUTABLE_NAME
-#    define TCL_FINDEXECUTABLE_NAME "_Tcl_FindExecutable"
-#  endif
-#  ifndef TCL_CREATEINTERP_NAME
-#    define TCL_CREATEINTERP_NAME "_Tcl_CreateInterp"
+#  ifndef TCL_INITSUBSYSTEMS_NAME
+#    define TCL_INITSUBSYSTEMS_NAME "_Tcl_InitSubsystems"
 #  endif
 #endif /* defined(USE_TCL_STUBS) */
 
 /*
-** The function types for Tcl_FindExecutable and Tcl_CreateInterp are needed
+** The function types for Tcl_InitSubsystems are needed
 ** when the Tcl library is being loaded dynamically by a stubs-enabled
 ** application (i.e. the inverse of using a stubs-enabled package).  These are
 ** the only Tcl API functions that MUST be called prior to being able to call
 ** Tcl_InitStubs (i.e. because it requires a Tcl interpreter).
  */
-typedef void (tcl_FindExecutableProc) (CONST char * argv0);
-typedef Tcl_Interp *(tcl_CreateInterpProc) (void);
+typedef Tcl_Interp *(tcl_InitSubsystemsProc) (int flags, ...);
 
 /*
 ** The function types for the "hook" functions to be called before and after a
@@ -189,8 +185,7 @@ struct TclContext {
   int argc;           /* Number of original arguments. */
   char **argv;        /* Full copy of the original arguments. */
   void *library;      /* The Tcl library module handle. */
-  tcl_FindExecutableProc *xFindExecutable; /* Tcl_FindExecutable() pointer. */
-  tcl_CreateInterpProc *xCreateInterp;     /* Tcl_CreateInterp() pointer. */
+  tcl_InitSubsystemsProc *xInitSubsystems; /* Tcl_FindExecutable() pointer. */
   Tcl_Interp *interp; /* The on-demand created Tcl interpreter. */
   char *setup;        /* The optional Tcl setup script. */
   tcl_NotifyProc *xPreEval;  /* Optional, called before Tcl_Eval*(). */
@@ -527,13 +522,12 @@ static void Th1DeleteProc(
 static int loadTcl(
   Th_Interp *interp,
   void **pLibrary,
-  tcl_FindExecutableProc **pxFindExecutable,
-  tcl_CreateInterpProc **pxCreateInterp
+  tcl_InitSubsystemsProc **pxInitSubsystems
 ){
 #if defined(USE_TCL_STUBS)
   char fileName[] = TCL_LIBRARY_NAME;
 #endif
-  if( !pLibrary || !pxFindExecutable || !pxCreateInterp ){
+  if( !pLibrary || !pxInitSubsystems ){
     Th_ErrorMessage(interp,
         "invalid Tcl loader argument(s)", (const char *)"", 0);
     return TH_ERROR;
@@ -542,33 +536,20 @@ static int loadTcl(
   do {
     void *library = dlopen(fileName, RTLD_NOW | RTLD_GLOBAL);
     if( library ){
-      tcl_FindExecutableProc *xFindExecutable;
-      tcl_CreateInterpProc *xCreateInterp;
-      const char *procName = TCL_FINDEXECUTABLE_NAME;
-      xFindExecutable = (tcl_FindExecutableProc *)dlsym(library, procName + 1);
-      if( !xFindExecutable ){
-        xFindExecutable = (tcl_FindExecutableProc *)dlsym(library, procName);
+      tcl_InitSubsystemsProc *xInitSubsystems;
+      const char *procName = TCL_INITSUBSYSTEMS_NAME;
+      xInitSubsystems = (tcl_InitSubsystemsProc *)dlsym(library, procName + 1);
+      if( !xInitSubsystems ){
+        xInitSubsystems = (tcl_InitSubsystemsProc *)dlsym(library, procName);
       }
-      if( !xFindExecutable ){
+      if( !xInitSubsystems ){
         Th_ErrorMessage(interp,
-            "could not locate Tcl_FindExecutable", (const char *)"", 0);
-        dlclose(library);
-        return TH_ERROR;
-      }
-      procName = TCL_CREATEINTERP_NAME;
-      xCreateInterp = (tcl_CreateInterpProc *)dlsym(library, procName + 1);
-      if( !xCreateInterp ){
-        xCreateInterp = (tcl_CreateInterpProc *)dlsym(library, procName);
-      }
-      if( !xCreateInterp ){
-        Th_ErrorMessage(interp,
-            "could not locate Tcl_CreateInterp", (const char *)"", 0);
+            "could not locate Tcl_InitSubsystems", (const char *)"", 0);
         dlclose(library);
         return TH_ERROR;
       }
       *pLibrary = library;
-      *pxFindExecutable = xFindExecutable;
-      *pxCreateInterp = xCreateInterp;
+      *pxInitSubsystems = xInitSubsystems;
       return TH_OK;
     }
   } while( --fileName[TCL_MINOR_OFFSET]>'3' ); /* Tcl 8.4+ */
@@ -578,66 +559,9 @@ static int loadTcl(
   return TH_ERROR;
 #else
   *pLibrary = 0;
-  *pxFindExecutable = Tcl_FindExecutable;
-  *pxCreateInterp = Tcl_CreateInterp;
+  *pxInitSubsystems = Tcl_InitSubsystems;
   return TH_OK;
 #endif
-}
-
-/*
-** Sets the "argv0", "argc", and "argv" script variables in the Tcl interpreter
-** based on the supplied command line arguments.
- */
-static int setTclArguments(
-  Tcl_Interp *pInterp,
-  int argc,
-  char **argv
-){
-  Tcl_Obj *objPtr;
-  Tcl_Obj *resultObjPtr;
-  Tcl_Obj *listPtr;
-  int rc = TCL_OK;
-  if( argc<=0 || !argv ){
-    return TCL_OK;
-  }
-  objPtr = Tcl_NewStringObj(argv[0], -1);
-  Tcl_IncrRefCount(objPtr);
-  resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv0", NULL, objPtr,
-      TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
-  if( !resultObjPtr ){
-    return TCL_ERROR;
-  }
-  objPtr = Tcl_NewIntObj(argc - 1);
-  Tcl_IncrRefCount(objPtr);
-  resultObjPtr = Tcl_SetVar2Ex(pInterp, "argc", NULL, objPtr,
-      TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-  Tcl_DecrRefCount(objPtr);
-  if( !resultObjPtr ){
-    return TCL_ERROR;
-  }
-  listPtr = Tcl_NewListObj(0, NULL);
-  Tcl_IncrRefCount(listPtr);
-  if( argc>1 ){
-    while( --argc ){
-      objPtr = Tcl_NewStringObj(*++argv, -1);
-      Tcl_IncrRefCount(objPtr);
-      rc = Tcl_ListObjAppendElement(pInterp, listPtr, objPtr);
-      Tcl_DecrRefCount(objPtr);
-      if( rc!=TCL_OK ){
-        break;
-      }
-    }
-  }
-  if( rc==TCL_OK ){
-    resultObjPtr = Tcl_SetVar2Ex(pInterp, "argv", NULL, listPtr,
-        TCL_GLOBAL_ONLY|TCL_LEAVE_ERR_MSG);
-    if( !resultObjPtr ){
-      rc = TCL_ERROR;
-    }
-  }
-  Tcl_DecrRefCount(listPtr);
-  return rc;
 }
 
 /*
@@ -652,7 +576,6 @@ static int createTclInterp(
   struct TclContext *tclContext = (struct TclContext *)pContext;
   int argc;
   char **argv;
-  char *argv0 = 0;
   Tcl_Interp *tclInterp;
   char *setup;
 
@@ -664,17 +587,12 @@ static int createTclInterp(
   if ( tclContext->interp ){
     return TH_OK;
   }
-  if( loadTcl(interp, &tclContext->library, &tclContext->xFindExecutable,
-              &tclContext->xCreateInterp)!=TH_OK ){
+  if( loadTcl(interp, &tclContext->library, &tclContext->xInitSubsystems)!=TH_OK ){
     return TH_ERROR;
   }
   argc = tclContext->argc;
   argv = tclContext->argv;
-  if( argc>0 && argv ){
-    argv0 = argv[0];
-  }
-  tclContext->xFindExecutable(argv0);
-  tclInterp = tclContext->xCreateInterp();
+  tclInterp = tclContext->xInitSubsystems(TCL_INIT_CREATE_UTF8, argc, argv);
   if( !tclInterp ||
 #if defined(USE_TCL_STUBS)
       !Tcl_InitStubs(tclInterp, "8.4", 0) ||
@@ -688,13 +606,6 @@ static int createTclInterp(
   if( Tcl_Init(tclInterp)!=TCL_OK ){
     Th_ErrorMessage(interp,
         "Tcl initialization error:", Tcl_GetStringResult(tclInterp), -1);
-    Tcl_DeleteInterp(tclInterp);
-    tclContext->interp = tclInterp = 0;
-    return TH_ERROR;
-  }
-  if( setTclArguments(tclInterp, argc, argv)!=TCL_OK ){
-    Th_ErrorMessage(interp,
-        "Tcl error setting arguments:", Tcl_GetStringResult(tclInterp), -1);
     Tcl_DeleteInterp(tclInterp);
     tclContext->interp = tclInterp = 0;
     return TH_ERROR;
