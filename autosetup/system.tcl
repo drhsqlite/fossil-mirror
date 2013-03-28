@@ -106,7 +106,7 @@ proc write-if-changed {file buf {script {}}} {
 # If $outfile is blank/omitted, $template should end with ".in" which
 # is removed to create the output file name.
 #
-# Each pattern of the form @define@ is replaced by the corresponding
+# Each pattern of the form @define@ is replaced the the corresponding
 # define, if it exists, or left unchanged if not.
 # 
 # The special value @srcdir@ is subsituted with the relative
@@ -217,7 +217,8 @@ if {$host eq ""} {
 }
 define cross [get-env CROSS $cross]
 
-set prefix [opt-val prefix /usr/local]
+# Do "define defaultprefix myvalue" to set the default prefix *before* the first "use"
+set prefix [opt-val prefix [get-define defaultprefix /usr/local]]
 
 # These are for compatibility with autoconf
 define target [get-define host]
@@ -254,7 +255,7 @@ define SHELL [get-env SHELL [find-an-executable sh bash ksh]]
 
 # Windows vs. non-Windows
 switch -glob -- [get-define host] {
-	*-*-ming* - *-*-cygwin {
+	*-*-ming* - *-*-cygwin - *-*-msys {
 		define-feature windows
 		define EXEEXT .exe
 	}
