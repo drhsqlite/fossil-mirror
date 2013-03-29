@@ -2181,7 +2181,7 @@ struct stControlSettings const ctrlSettings[] = {
 **    case-sensitive   If TRUE, the files whose names differ only in case
 **                     care considered distinct.  If FALSE files whose names
 **                     differ only in case are the same file.  Defaults to
-**                     TRUE for unix and FALSE for windows and mac.
+**                     TRUE for unix and FALSE for Cygwin, Mac and Windows.
 **
 **    clearsign        When enabled, fossil will attempt to sign all commits
 **                     with gpg.  When disabled (the default), commits will
