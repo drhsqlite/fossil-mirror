@@ -101,6 +101,7 @@ Allowed cards in the manifest are as follows:
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
+<b>N</b> <i>mimetype</i>
 <b>P</b> <i>SHA1-hash</i>+<br>
 <b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
 <b>R</b> <i>repository-checksum</i><br>
@@ -160,6 +161,10 @@ new permission letters in the future.
 The optional 4th argument is the name of the same file as it existed in
 the parent check-in.  If the name of the file is unchanged from its
 parent, then the 4th argument is omitted.
+
+A manifest has zero or one N-cards.  The N-card specifies the mimetype for the
+text in the comment of the C-card.  If the N-card is omitted, a default mimetype
+is used.
 
 A manifest has zero or one P-cards.  Most manifests have one P-card.
 The P-card has a varying number of arguments that
@@ -345,6 +350,7 @@ the following card types:
 <blockquote>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>L</b> <i>wiki-title</i><br />
+<b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
 <b>U</b> <i>user-name</i><br />
 <b>W</b> <i>size</i> <b>\n</b> <i>text</i> <b>\n</b><br />
@@ -353,7 +359,10 @@ the following card types:
 
 The D card is the date and time when the wiki page was edited.
 The P card specifies the parent wiki pages, if any.  The L card
-gives the name of the wiki page.  The U card specifies the login
+gives the name of the wiki page.  The optional N card specifies
+the mimetype of the wiki text.  If the N card is omitted, the
+mimetype is assumed to be text/x-fossil.  
+The U card specifies the login
 of the user who made this edit to the wiki page.  The Z card is
 the usual checksum over the either artifact and is required.
 
@@ -424,6 +433,7 @@ The following cards are allowed on an attachment artifact:
 <b>A</b> <i>filename target</i> ?<i>source</i>?<br />
 <b>C</b> <i>comment</i><br />
 <b>D</b> <i>time-and-date-stamp</i><br />
+<b>N</b> <i>mimetype</i><br />
 <b>U</b> <i>user-name</i><br />
 <b>Z</b> <i>checksum</i>
 </blockquote>
@@ -440,6 +450,10 @@ The C card is optional, but there can only be one.
 
 A single D card is required to give the date and time when the attachment
 was applied.
+
+There may be zero or one N cards.  The N card specifies the mimetype of the
+comment text provided in the C card.  If the N card is omitted, the C card
+mimetype is taken to be text/plain.
 
 A single U card gives the name of the user to added the attachment.
 If an attachment is added anonymously, then the U card may be omitted.
@@ -461,6 +475,7 @@ The following cards are allowed on an event artifact:
 <b>C</b> <i>comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br />
 <b>E</b> <i>event-time</i> <i>event-id</i><br />
+<b>N</b> <i>mimetype</i><br />
 <b>P</b> <i>parent-artifact-id</i>+<br />
 <b>T</b> <b>+</b><i>tag-name</i> <b>*</b> <i>value</i><br />
 <b>U</b> <i>user-name</i><br />
@@ -480,6 +495,11 @@ where the event is displayed) and a unique identifier for the event.
 When there are multiple artifacts with the same event-id, the one with
 the most recent D card is the only one used.  The event-id must be a
 40-character lower-case hexadecimal string.
+
+The optional N card specifies the mimetype of the text of the event
+that is contained in the W card.  If the N card is omitted, then the
+W card text mimetype is assumed to be text/x-fossil, which is the
+Fossil wiki format.
 
 The option P card specifies a prior event with the same event-id from
 which the current event is an edit.  The P card is a hint to the system
@@ -629,6 +649,16 @@ appear on Fossil artifacts:
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
 <td align=center>&nbsp;</td>
+</tr>
+<tr>
+<td><b>N</b> <i>mimetype</i></td>
+<td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
+<td align=center>&nbsp;</td>
+<td align=center><b>X</b></td>
+<td align=center><b>X</b></td>
 </tr>
 <tr>
 <td><b>P</b> <i>uuid ...</i></td>

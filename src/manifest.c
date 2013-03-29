@@ -70,6 +70,7 @@ struct Manifest {
   char *zRepoCksum;     /* MD5 checksum of the baseline content.  R card. */
   char *zWiki;          /* Text of the wiki page.  W card. */
   char *zWikiTitle;     /* Name of the wiki page. L card. */
+  char *zMimetype;      /* Mime type of wiki or comment text.  N card.  */
   double rEventDate;    /* Date of an event.  E card. */
   char *zEventId;       /* UUID for an event.  E card. */
   char *zTicketUuid;    /* UUID for a ticket. K card. */
@@ -646,6 +647,18 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
       }
 
       /*
+      **    N <uuid>
+      **
+      ** An N-line identifies the mimetype of wiki or comment text.
+      */
+      case 'N': {
+        if( p->zMimetype!=0 ) SYNTAX("more than one N-card");
+        p->zMimetype = next_token(&x,0);
+        if( p->zMimetype==0 ) SYNTAX("missing mimetype on N-card");
+        break;
+      }
+
+      /*
       **     P <uuid> ...
       **
       ** Specify one or more other artifacts where are the parents of
@@ -860,6 +873,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
      || p->zWikiTitle
      || p->zEventId
      || p->zAttachName
+     || p->zMimetype
     ){
       SYNTAX("cluster contains a card other than M- or Z-");
     }
@@ -875,6 +889,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zTicketUuid==0 ) SYNTAX("missing K-card in ticket");
     if( p->zUser==0 ) SYNTAX("missing U-card in ticket");
     if( p->zAttachName ) SYNTAX("A-card in ticket");
+    if( p->zMimetype) SYNTAX("N-card in ticket");
     if( !seenZ ) SYNTAX("missing Z-card in ticket");
     p->type = CFTYPE_TICKET;
   }else if( p->zEventId ){
@@ -905,6 +920,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
     if( p->zWikiTitle ) SYNTAX("L-card on tag");
     if( p->zTicketUuid ) SYNTAX("K-card in tag");
     if( p->zAttachName ) SYNTAX("A-card in tag");
+    if( p->zMimetype ) SYNTAX("N-card in tag");
     if( !seenZ ) SYNTAX("missing Z-card on tag");
     p->type = CFTYPE_CONTROL;
   }else if( p->zAttachName ){
