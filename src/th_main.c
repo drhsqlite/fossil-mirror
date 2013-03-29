@@ -306,11 +306,9 @@ static int hasfeatureCmd(
     rc = 1;
   }
 #endif
-#if defined(FOSSIL_ENABLE_MARKDOWN)
   else if( 0 == fossil_strnicmp( zArg, "markdown", 8 ) ){
     rc = 1;
   }
-#endif
   if( g.thTrace ){
     Th_Trace("[hasfeature %#h] => %d<br />\n", argl[1], zArg, rc);
   }

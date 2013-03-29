@@ -171,6 +171,7 @@ const char *mimetype_from_name(const char *zName){
     { "m3u",        3, "audio/x-mpegurl"                   },
     { "man",        3, "application/x-troff-man"           },
     { "markdown",   8, "text/x-markdown"                   },
+    { "md",         2, "text/x-markdown"                   },
     { "me",         2, "application/x-troff-me"            },
     { "mesh",       4, "model/mesh"                        },
     { "mid",        3, "audio/midi"                        },
@@ -506,9 +507,7 @@ void doc_page(void){
       wiki_convert(&filebody, 0, WIKI_BUTTONS);
     }
     style_footer();
-#ifdef FOSSIL_ENABLE_MARKDOWN
-  }else if( fossil_strcmp(zMime, "text/x-markdown")==0
-         && db_get_boolean("markdown", 0) ){
+  }else if( fossil_strcmp(zMime, "text/x-markdown")==0 ){
     Blob title = BLOB_INITIALIZER;
     Blob tail = BLOB_INITIALIZER;
     markdown_to_html(&filebody, &title, &tail);
@@ -519,7 +518,6 @@ void doc_page(void){
     }
     blob_append(cgi_output_blob(), blob_buffer(&tail), blob_size(&tail));
     style_footer();
-#endif
   }else if( fossil_strcmp(zMime, "text/plain")==0 ){
     style_header("Documentation");
     @ <blockquote><pre>

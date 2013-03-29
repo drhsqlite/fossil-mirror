@@ -19,8 +19,6 @@
 ** using an external renderer.
 */
 
-#ifdef FOSSIL_ENABLE_MARKDOWN
-
 #include "config.h"
 #include "markdown.h"
 
@@ -2240,5 +2238,3 @@ void markdown(
   blobarray_zero(rndr.work, rndr.make.max_work_stack);
   fossil_free(rndr.work);
 }
-
-#endif /* def FOSSIL_ENABLE_MARKDOWN */
