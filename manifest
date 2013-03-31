@@ -1,5 +1,5 @@
-C Added\stimelineComment\sand\sinfoComment\sCSS\sclasses,\sper\ssuggestion\sby\sBaptiste\sDaroussin.
-D 2013-03-30T10:13:37.601
+C Fix\sfor\s[2cfd96b2ba]:\sImprove\signore-glob.\sThis\schanges\sthe\sUI\sregarding\sversionable\ssettings\swith\sa\sstring\svalue\sto\suse\sa\smulti-line\sinput\sfield.\sAlready\slooks\squite\sgood,\sbut\sfeedback\son\slayout\sperfectioning\sappreciated!
+D 2013-03-31T18:56:42.672
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -374,7 +374,7 @@ F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
-F src/setup.c aafb7caa029379b8a5f90c346c089a62fd2c05a7
+F src/setup.c 77a46d93fee97f1b076a3102154dac6fdf2030b0
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 57348f9ae80e590c2d19c7708079d0eac026d252
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -607,7 +607,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P fc413110eb990d28bc8340b7c209babd1295513c
-R 7f8f8970d54584e6df885e508ab47010
-U stephan
-Z 7932412d1de01c684cad0ab5b51347f6
+P f9d4e0853b6650294117fd08683aa8358983f974 3546a84c1fdeba33ccf6183cad13aa1290e4000c
+R fdb612c078c963233148f02dd8a1c5cb
+U jan.nijtmans
+Z 4fcd03939fe3825dbf8d676594be249b
