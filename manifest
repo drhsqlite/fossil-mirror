@@ -1,5 +1,5 @@
-C Add\sthe\sN-card\sto\scontrol\sartifacts\sfor\swiki,\scheckins,\sevents,\sand\nattachments,\swhich\sopens\sup\sthe\spossibility\s(not\syet\simplemented)\sof\nbeing\sable\sto\ssave\swiki\stext,\scheck-in\scomments,\sevent\stext,\sand\nattachment\sdescriptions\sin\sa\svariety\sof\sformats,\ssuch\sas\ntext/plain,\stext/html,\sor\stext/x-markdown.
-D 2013-03-29T16:38:48.418
+C Add\sthe\s--mimetype\soption\sto\sthe\s"commit"\scommand.
+D 2013-04-01T13:50:28.905
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -299,7 +299,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c b3c6e86cc0af54d27fb448cb9b84dbcbac873de3
+F src/checkin.c 6cef5be470a841fffe357fd0b4d7b4712ad3f13d
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -353,7 +353,7 @@ F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 50dd051b0e5b41d57413ca5d35e237b8604476e8
-F src/manifest.c 0f1f907507b0c35f2fb392f5b05484440089b8cc
+F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 9b589c858e3bed3514f6e6fd0cd6c55a8835a353
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
@@ -565,7 +565,7 @@ F www/encode9.gif 7aca8807ddf4eff0b01745b0dc3012cea104a817
 F www/event.wiki 0e537ff94259ffa0f056b75365091f19153c9d0b
 F www/faq.tcl d8f6f65fdd348b664496f5edd956545b71ff0e6a
 F www/faq.wiki f4c4247ef0889e554685f27177e6123fcc7aaeb4
-F www/fileformat.wiki 08ecddfcdf4618cf832ff679145b20bf81d72a13
+F www/fileformat.wiki 552b13ef010bd38bfd061199542eed1d5df5bf15
 F www/fiveminutes.wiki f83379e169ba6f17066f2988ad3a4bbf27984748
 F www/foss-cklist.wiki 881f1c5f69f1880c756152cff7a6f9c78ce72d4f
 F www/fossil-v-git.wiki 1462aaee5753b210e32854000fe6a4705a06620d
@@ -608,7 +608,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 02f312e698ee699cf66e8fc229d9aa1f866d2f78
-R 3730be0e08bbc42e57ac8edb8ccb6fc2
+P 2336a2d86e3eb7b390a5fb344605fd88a6273c58
+R 35cc9b7b68031af47ad2063466b3a814
 U drh
-Z b2c1a4c15a066ac02266bf2dc4b5f19c
+Z f05623f11b7e7b0550cbc1bcab8d816b

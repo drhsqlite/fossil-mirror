@@ -101,7 +101,7 @@ Allowed cards in the manifest are as follows:
 <b>C</b> <i>checkin-comment</i><br>
 <b>D</b> <i>time-and-date-stamp</i><br>
 <b>F</b> <i>filename</i> <i>SHA1-hash</i> <i>permissions</i> <i>old-name</i><br>
-<b>N</b> <i>mimetype</i>
+<b>N</b> <i>mimetype</i><br>
 <b>P</b> <i>SHA1-hash</i>+<br>
 <b>Q</b> (<b>+</b>|<b>-</b>)<i>SHA1-hash ?SHA1-hash?</i><br>
 <b>R</b> <i>repository-checksum</i><br>

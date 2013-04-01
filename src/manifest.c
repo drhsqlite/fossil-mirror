@@ -655,6 +655,7 @@ Manifest *manifest_parse(Blob *pContent, int rid, Blob *pErr){
         if( p->zMimetype!=0 ) SYNTAX("more than one N-card");
         p->zMimetype = next_token(&x,0);
         if( p->zMimetype==0 ) SYNTAX("missing mimetype on N-card");
+        defossilize(p->zMimetype);
         break;
       }
 
