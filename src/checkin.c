@@ -1445,15 +1445,11 @@ void commit_cmd(void){
   }
   sCiInfo.pComment = &comment;
   sCiInfo.pCksum =  useCksum ? &cksum1 : 0;
+  sCiInfo.verifyDate = !allowOlder && !forceFlag;
   if( forceDelta ){
     blob_zero(&manifest);
   }else{
     create_manifest(&manifest, 0, 0, vid, &sCiInfo, &szB);
-#if 0                   
-                    !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
-                    zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
-                    azTag, &szB);
-#endif
   }
 
   /* See if a delta-manifest would be more appropriate */
@@ -1472,12 +1468,6 @@ void commit_cmd(void){
     if( pBaseline ){
       Blob delta;
       create_manifest(&delta, zBaselineUuid, pBaseline, vid, &sCiInfo, &szD);
-
-#if 0
-                      !allowOlder && !forceFlag, useCksum ? &cksum1 : 0,
-                      zDateOvrd, zUserOvrd, zBranch, zColor, zBrClr,
-                      azTag, &szD);
-#endif
       /*
       ** At this point, two manifests have been constructed, either of
       ** which would work for this checkin.  The first manifest (held
