@@ -1,5 +1,5 @@
-C Fix\sthe\s--allow-older\sand\s--force\soptions\sfor\spermitting\sout-of-order\ndating\sof\scheck-ins.
-D 2013-04-01T14:02:40.878
+C Remove\sunused\svariable
+D 2013-04-01T16:12:57.431
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -355,7 +355,7 @@ F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
 F src/makemake.tcl 50dd051b0e5b41d57413ca5d35e237b8604476e8
 F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
-F src/markdown.c 9b589c858e3bed3514f6e6fd0cd6c55a8835a353
+F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
 F src/merge.c 8da0ad761068d2ff6f5273f38f870464dc623fad
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4dcea802366a8af81679fb86db16b62d2469b35c
-R e8b153ba058aaa3235f9137330e8dfed
-U drh
-Z fad684559bfe19dd620d51c71b829b4f
+P 086612a5a89e81e2ea880b8897570ce47cf84014
+R d68f5552c0bce8db427daf1e9554ee01
+U jan.nijtmans
+Z bdfc6b88a51baebf1542c1cfd7c90c39
