@@ -1,5 +1,5 @@
-C Fix\sto\sauto.def\srelated\sto\smaking\smarkdown\son\sby\sdefault.
-D 2013-04-01T16:53:50.432
+C Remove\sa\scouple\ssuperfluous\schecks\sfor\smarkdown\sas\san\soptional\sfeature\s(i.e.\snow\sthat\sit's\salways\senabled).
+D 2013-04-01T18:18:03.449
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -310,7 +310,7 @@ F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c 44064e7fd95c47cead556fc6811b73f3c5308d9a
+F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -507,10 +507,10 @@ F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 18768de6524ee0c7b714891d9319602fc257036e
 F win/Makefile.mingw 4faaced1dfb1d9efbe9c9e38329e6be06be6b6bf
-F win/Makefile.mingw.mistachkin 561b0b6a0d8c2d98bc5cca5ecfa965a5e868a9b0
+F win/Makefile.mingw.mistachkin 85d86f582fa90f58b0cdadcacbfb636f7afb58ee
 F win/Makefile.msc eac469fc5fa63ae86eae639626b5f7ae71503d5b
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
-F win/fossil.rc 3f631d7af9a6e6ba92de5e69c452aa9264a4ae07
+F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
 F win/include/dirent.h e1e5f5c210c295a2c0786b5c96ecc7df393c99d7
 F win/include/unistd.h ddc438e19cac10d66b2ce8bfa12292599a5d0128
 F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 5a920d726b7c365f18b1ab8b4fb3b772e6ec4bf8
-R 441fbc32f83d83bcb905c3a67f986473
-U drh
-Z c35f028a64bcedeb4638b0e1b5c5be25
+P ce93b460aef12780a79dd4b8baf0f2a7c204c72b
+R a73fd14f67ab535df3c82b32dd809f96
+U mistachkin
+Z 888f6870e325ccb337a60c9d07bb566d
