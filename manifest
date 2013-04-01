@@ -1,5 +1,5 @@
-C Remove\sa\scouple\ssuperfluous\schecks\sfor\smarkdown\sas\san\soptional\sfeature\s(i.e.\snow\sthat\sit's\salways\senabled).
-D 2013-04-01T18:18:03.449
+C Allow\seasier\scompilation\swith\sOpenSSL\senabled\susing\sMSVC.\s\sFix\sfor\s[5b2300c692].
+D 2013-04-01T20:54:26.548
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -353,7 +353,7 @@ F src/main.c c98bf2b7bf11961cbe94aaddc836506b2245925b
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 50dd051b0e5b41d57413ca5d35e237b8604476e8
+F src/makemake.tcl 36862337fa1d6ad9cfd36cb889522a13711d558b
 F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -508,7 +508,7 @@ F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 18768de6524ee0c7b714891d9319602fc257036e
 F win/Makefile.mingw 4faaced1dfb1d9efbe9c9e38329e6be06be6b6bf
 F win/Makefile.mingw.mistachkin 85d86f582fa90f58b0cdadcacbfb636f7afb58ee
-F win/Makefile.msc eac469fc5fa63ae86eae639626b5f7ae71503d5b
+F win/Makefile.msc e9d4e180241440301aa4084cea22ba89cf8cc7d6
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
 F win/include/dirent.h e1e5f5c210c295a2c0786b5c96ecc7df393c99d7
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P ce93b460aef12780a79dd4b8baf0f2a7c204c72b
-R a73fd14f67ab535df3c82b32dd809f96
+P 5acc36b1252f4d822722f07d6b28ce917a507373
+R a6d8d082709ae71a2ec37a1e2a0467b4
 U mistachkin
-Z 888f6870e325ccb337a60c9d07bb566d
+Z e20172a4e846b31ab6e140169a580197
