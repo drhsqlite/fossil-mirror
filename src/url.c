@@ -327,7 +327,8 @@ void url_enable_proxy(const char *zMsg){
       zProxy = fossil_getenv("http_proxy");
     }
   }
-  if( zProxy && zProxy[0] && !is_false(zProxy) ){
+  if( zProxy && zProxy[0] && !is_false(zProxy)
+      && !g.urlIsSsh && !g.urlIsFile ){
     char *zOriginalUrl = g.urlCanonical;
     char *zOriginalHost = g.urlHostname;
     char *zOriginalUser = g.urlUser;

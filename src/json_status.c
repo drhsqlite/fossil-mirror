@@ -48,7 +48,7 @@ cson_value * json_page_status(){
   i64 iMtime;
   cson_array * aFiles;
 
-  if(!db_open_local()){
+  if(!db_open_local(0)){
     json_set_err(FSL_JSON_E_DB_NEEDS_CHECKOUT, NULL);
     return NULL;
   }

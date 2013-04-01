@@ -13,7 +13,6 @@ options {
     lineedit=1           => {Disable line editing}
     fossil-debug=0       => {Build with fossil debugging enabled}
     json=0               => {Build with fossil JSON API enabled}
-    markdown=0           => {Build with markdown engine enabled}
 }
 
 # sqlite wants these types if possible
@@ -78,8 +77,7 @@ if {[opt-bool json]} {
 }
 
 if {[opt-bool markdown]} {
-    define-append EXTRA_CFLAGS -DFOSSIL_ENABLE_MARKDOWN
-    define FOSSIL_ENABLE_MARKDOWN
+    # no-op.  Markdown is now enabled by default.
 }
 
 if {[opt-bool static]} {

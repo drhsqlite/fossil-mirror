@@ -529,10 +529,10 @@ void ci_page(void){
       hyperlink_to_user(zUser,zDate,"</td></tr>");
     }
     if( zEComment ){
-      @ <tr><th>Edited&nbsp;Comment:</th><td>%!w(zEComment)</td></tr>
-      @ <tr><th>Original&nbsp;Comment:</th><td>%!w(zComment)</td></tr>
+      @ <tr><th>Edited&nbsp;Comment:</th><td class="infoComment">%!w(zEComment)</td></tr>
+      @ <tr><th>Original&nbsp;Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
     }else{
-      @ <tr><th>Comment:</th><td>%!w(zComment)</td></tr>
+      @ <tr><th>Comment:</th><td class="infoComment">%!w(zComment)</td></tr>
     }
     if( g.perm.Admin ){
       db_prepare(&q,

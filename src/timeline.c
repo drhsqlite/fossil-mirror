@@ -112,6 +112,7 @@ void hyperlink_to_user(const char *zU, const char *zD, const char *zSuf){
 #define TIMELINE_FCHANGES 0x0020  /* Detail file changes */
 #define TIMELINE_BRCOLOR  0x0040  /* Background color by branch name */
 #define TIMELINE_UCOLOR   0x0080  /* Background color by user */
+#define TIMELINE_FRENAMES 0x0100  /* Detail only file name changes */
 #endif
 
 /*
@@ -358,10 +359,10 @@ void www_print_timeline(
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      @ %w(blob_str(&truncated))
+      @ <span class="timelineComment">%w(blob_str(&truncated))</span>
       blob_reset(&truncated);
     }else{
-      @ %w(blob_str(&comment))
+      @ <span class="timelineComment">%w(blob_str(&comment))</span>
     }
     blob_reset(&comment);
 
@@ -417,7 +418,9 @@ void www_print_timeline(
     }
 
     /* Generate the file-change list if requested */
-    if( (tmFlags & TIMELINE_FCHANGES)!=0 && zType[0]=='c' && g.perm.Hyperlink ){
+    if( (tmFlags & (TIMELINE_FCHANGES|TIMELINE_FRENAMES))!=0
+     && zType[0]=='c' && g.perm.Hyperlink
+    ){
       int inUl = 0;
       if( !fchngQueryInit ){
         db_prepare(&fchngQuery,
@@ -447,6 +450,12 @@ void www_print_timeline(
           @ <ul class="filelist">
           inUl = 1;
         }
+        if( (tmFlags & TIMELINE_FRENAMES)!=0 ){
+          if( !isNew && !isDel && zOldName!=0 ){
+            @ <li> %h(zOldName) &rarr; %h(zFilename)
+          }
+          continue;
+        }          
         if( isNew ){
           @ <li> %h(zFilename) (new file) &nbsp;
           @ %z(xhref("target='diffwindow'","%R/artifact/%S",zNew))
@@ -954,8 +963,10 @@ char *names_of_file(const char *zUuid){
 **    from=UUID      Path from...
 **    to=UUID          ... to this
 **    nomerge          ... avoid merge links on the path
+**    uf=FUUID       Show only checkins that use given file version
 **    brbg           Background color from branch name
 **    ubg            Background color from user
+**    namechng       Show only checkins that filename changes
 **
 ** p= and d= can appear individually or together.  If either p= or d=
 ** appear, then u=, y=, a=, and b= are ignored.
@@ -983,6 +994,7 @@ void page_timeline(void){
   const char *zSearch = P("s");      /* Search string */
   const char *zUses = P("uf");       /* Only show checkins hold this file */
   int useDividers = P("nd")==0;      /* Show dividers if "nd" is missing */
+  int renameOnly = P("namechng")!=0; /* Show only checkins that rename files */
   int tagid;                         /* Tag ID */
   int tmFlags;                       /* Timeline flags */
   const char *zThisTag = 0;          /* Suppress links to this tag */
@@ -1045,6 +1057,13 @@ void page_timeline(void){
     }else{
       zUses = 0;
     }
+  }
+  if( renameOnly ){
+    db_multi_exec(
+      "CREATE TEMP TABLE rnfile(rid INTEGER PRIMARY KEY);"
+      "INSERT OR IGNORE INTO rnfile"
+      "  SELECT mid FROM mlink WHERE pfnid>0 AND pfnid!=fnid;"
+    );
   }
 
   style_header("Timeline");
@@ -1152,6 +1171,9 @@ void page_timeline(void){
     url_add_parameter(&url, "n", zNEntry);
     if( zUses ){
       blob_appendf(&sql, " AND event.objid IN usesfile ");
+    }
+    if( renameOnly ){
+      blob_appendf(&sql, " AND event.objid IN rnfile ");
     }
     if( tagid>0 ){
       blob_appendf(&sql,
@@ -1293,6 +1315,10 @@ void page_timeline(void){
       blob_appendf(&desc, " using file %s version %z%S</a>", zFilenames,
                    href("%R/artifact/%S",zUses), zUses);
       tmFlags |= TIMELINE_DISJOINT;
+    }
+    if( renameOnly ){
+      blob_appendf(&desc, " that contain filename changes");
+      tmFlags |= TIMELINE_DISJOINT|TIMELINE_FRENAMES;
     }
     if( zUser ){
       blob_appendf(&desc, " by user %h", zUser);

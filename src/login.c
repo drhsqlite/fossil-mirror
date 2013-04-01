@@ -218,8 +218,8 @@ int login_search_uid(char const *zUsername, char const *zPasswd){
              " WHERE login=%Q"
              "   AND length(cap)>0 AND length(pw)>0"
              "   AND login NOT IN ('anonymous','nobody','developer','reader')"
-             "   AND (pw=%Q OR pw=%Q)",
-             zUsername, zPasswd, zSha1Pw
+             "   AND (pw=%Q OR (length(pw)<>40 AND pw=%Q))",
+             zUsername, zSha1Pw, zPasswd
              );
   free(zSha1Pw);
   return uid;

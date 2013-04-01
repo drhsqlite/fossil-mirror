@@ -382,10 +382,6 @@ BCC = gcc
 #
 # FOSSIL_ENABLE_JSON = 1
 
-#### Enable markdown support
-#
-# FOSSIL_ENABLE_MARKDOWN = 1
-
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 # FOSSIL_ENABLE_SSL = 1
@@ -525,12 +521,6 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
-endif
-
-# With markdown support
-ifdef FOSSIL_ENABLE_MARKDOWN
-TCC += -DFOSSIL_ENABLE_MARKDOWN=1
-RCC += -DFOSSIL_ENABLE_MARKDOWN=1
 endif
 
 #### We add the -static option here so that we can build a static
@@ -968,9 +958,6 @@ ZLIB    = zlib.lib
 # Uncomment to enable JSON API
 # FOSSIL_ENABLE_JSON = 1
 
-# Uncomment to enable markdown support
-# FOSSIL_ENABLE_MARKDOWN = 1
-
 INCL   = -I. -I$(SRCDIR) -I$B\win\include -I$(ZINCDIR)
 
 CFLAGS = -nologo -MT -O2
@@ -983,11 +970,6 @@ LIBDIR = -LIBPATH:$(ZLIBDIR)
 !ifdef FOSSIL_ENABLE_JSON
 TCC = $(TCC) -DFOSSIL_ENABLE_JSON
 RCC = $(RCC) -DFOSSIL_ENABLE_JSON
-!endif
-
-!ifdef FOSSIL_ENABLE_MARKDOWN
-TCC = $(TCC) -DFOSSIL_ENABLE_MARKDOWN
-RCC = $(RCC) -DFOSSIL_ENABLE_MARKDOWN
 !endif
 }
 regsub -all {[-]D} $SQLITE_OPTIONS {/D} MSC_SQLITE_OPTIONS
