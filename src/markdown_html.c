@@ -19,8 +19,6 @@
 ** XHTML output.
 */
 
-#ifdef FOSSIL_ENABLE_MARKDOWN
-
 #include "config.h"
 #include "markdown_html.h"
 
@@ -407,5 +405,3 @@ void markdown_to_html(
   blob_reset(output_body);
   markdown(output_body, input_markdown, &html_renderer);
 }
-
-#endif /* def FOSSIL_ENABLE_MARKDOWN */

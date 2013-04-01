@@ -2106,9 +2106,6 @@ struct stControlSettings const ctrlSettings[] = {
   { "localauth",     0,                0, 0, "off"                 },
   { "main-branch",   0,               40, 0, "trunk"               },
   { "manifest",      0,                0, 1, "off"                 },
-#ifdef FOSSIL_ENABLE_MARKDOWN
-  { "markdown",      0,                0, 0, "off"                 },
-#endif
   { "max-upload",    0,               25, 0, "250000"              },
   { "mtime-changes", 0,                0, 0, "on"                  },
   { "pgp-command",   0,               40, 0, "gpg --clearsign -o " },

@@ -782,10 +782,6 @@ void version_cmd(void){
     ++count;
     fossil_print("\tJSON (API %s)\n", FOSSIL_JSON_API_VERSION);
 #endif
-#if defined(FOSSIL_ENABLE_MARKDOWN)
-    ++count;
-    fossil_print("\tMARKDOWN\n");
-#endif
     if( !count ){
       fossil_print("\tNo optional features were enabled.\n");
     }
