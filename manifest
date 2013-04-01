@@ -1,5 +1,5 @@
-C Remove\sunused\svariable
-D 2013-04-01T16:12:57.431
+C Fix\sto\sauto.def\srelated\sto\smaking\smarkdown\son\sby\sdefault.
+D 2013-04-01T16:53:50.432
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -40,7 +40,7 @@ F art/encode6.tex 460b9901beab1ec022abe860fc4b494652dad206
 F art/encode7.tex 52fdbf5294043369dde8c7859168454d130d449a
 F art/encode8.tex 002741146eee8ee5b8a99ddd27246e2b926fbf32
 F art/encode9.tex 84df5abf42b007748ec0ea1e3bd4ad2628502335
-F auto.def 24792bf0b7cc57ba536a879666356495ef4e7689
+F auto.def 3604675d337b6956c6f73898ef7d5f28ccd2a74a
 F autosetup/LICENSE 34b2f1d7acba3eeb992e4281307640989cd08d0a
 F autosetup/README.autosetup 4e0b671b54288fc64d851d056822ee5fec4d3365
 F autosetup/autosetup 90ded6ed5126743fe48de4b33103e508700f06a1 x
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 086612a5a89e81e2ea880b8897570ce47cf84014
-R d68f5552c0bce8db427daf1e9554ee01
-U jan.nijtmans
-Z bdfc6b88a51baebf1542c1cfd7c90c39
+P 5a920d726b7c365f18b1ab8b4fb3b772e6ec4bf8
+R 441fbc32f83d83bcb905c3a67f986473
+U drh
+Z c35f028a64bcedeb4638b0e1b5c5be25

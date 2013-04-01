@@ -76,9 +76,9 @@ if {[opt-bool json]} {
     define FOSSIL_ENABLE_JSON
 }
 
-if {[opt-bool markdown]} {
-    # no-op.  Markdown is now enabled by default.
-}
+#if {[opt-bool markdown]} {
+#    # no-op.  Markdown is now enabled by default.
+#}
 
 if {[opt-bool static]} {
     # XXX: This will not work on all systems.
