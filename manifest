@@ -1,5 +1,5 @@
-C Fix\stypo:\sSSL\sand\sJSON\sshould\snot\sbe\senabled\sby\sdefault\sin\sthe\sMSVC\smakefile.
-D 2013-04-01T20:56:46.815
+C More\scompact,\sbetter\sreadable,\soutput\sfor\stest-looks-like-utf\scommand.
+D 2013-04-02T08:36:14.823
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -314,7 +314,7 @@ F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 7017c616d083c1bae574f52d699028ccce111a09
+F src/diff.c 76c461ebd7c2261081e4a50d863ee9f2e34a1e0d
 F src/diffcmd.c bb11b3f9fb3e4b6d36dc261b0a6bba464b230848
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -446,7 +446,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test 1376006765736c83b42b7bcb878d9e0c3b2c082b
+F test/utf.test 4ee1fa7cf2ef71233f460385266fee9e66fec0e8
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c46e5f933d96658263039633066bf7534a8ecbd7
-R 5412740552cc4c069bb6aa934ae7ef48
-U mistachkin
-Z 737f23f6105dc72850e1195ed0373999
+P 9f931a7569268c455d7231b68f9fd5d2c741d872
+R 15076e8e14536506d0e2405f8aa02c70
+U jan.nijtmans
+Z ec746d6bbe2559bdaf6c31871ab0fbc5

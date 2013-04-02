@@ -2552,18 +2552,19 @@ void looks_like_utf_test_cmd(void){
                fUtf16?(bRevUtf16?"reversed":"yes"):"no");
   fossil_print("Looks like UTF-%s: %s\n",fUnicode?"16":"8",
                (lookFlags&LOOK_BINARY)?"no":"yes");
-  fossil_print("Has flag LOOK_NUL: %s\n",(lookFlags&LOOK_NUL)?"yes":"no");
-  fossil_print("Has flag LOOK_CR: %s\n",(lookFlags&LOOK_CR)?"yes":"no");
-  fossil_print("Has flag LOOK_LONE_CR: %s\n",
-               (lookFlags&LOOK_LONE_CR)?"yes":"no");
-  fossil_print("Has flag LOOK_LF: %s\n",(lookFlags&LOOK_LF)?"yes":"no");
-  fossil_print("Has flag LOOK_LONE_LF: %s\n",
-               (lookFlags&LOOK_LONE_LF)?"yes":"no");
-  fossil_print("Has flag LOOK_CRLF: %s\n",(lookFlags&LOOK_CRLF)?"yes":"no");
-  fossil_print("Has flag LOOK_LONG: %s\n",(lookFlags&LOOK_LONG)?"yes":"no");
-  fossil_print("Has flag LOOK_INVALID: %s\n",
-               (lookFlags&LOOK_INVALID)?"yes":"no");
-  fossil_print("Has flag LOOK_ODD: %s\n",(lookFlags&LOOK_ODD)?"yes":"no");
-  fossil_print("Has flag LOOK_SHORT: %s\n",(lookFlags&LOOK_SHORT)?"yes":"no");
+  fossil_print("Line endings:%s%s%s%s%s%s\n",
+               (lookFlags&LOOK_CR)?" ANY_CR":"",
+               (lookFlags&LOOK_LONE_CR)?" LONE_CR":"",
+               (lookFlags&LOOK_LF)?" ANY_LF":"",
+               (lookFlags&LOOK_LONE_LF)?" LONE_LF":"",
+               (lookFlags&LOOK_CRLF)?" CRLF":"",
+               (lookFlags&LOOK_EOL)?"":" NONE");
+  fossil_print("Other flags:%s%s%s%s%s%s\n",
+               (lookFlags&LOOK_NUL)?" NUL":"",
+               (lookFlags&LOOK_LONG)?" LONG":"",
+               (lookFlags&LOOK_INVALID)?" INVALID":"",
+               (lookFlags&LOOK_ODD)?" ODD":"",
+               (lookFlags&LOOK_SHORT)?" SHORT":"",
+               (lookFlags&(LOOK_NUL|LOOK_LONG|LOOK_INVALID|LOOK_ODD|LOOK_SHORT))?"":" NONE");
   blob_reset(&blob);
 }
