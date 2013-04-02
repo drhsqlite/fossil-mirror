@@ -2565,6 +2565,6 @@ void looks_like_utf_test_cmd(void){
                (lookFlags&LOOK_INVALID)?" INVALID":"",
                (lookFlags&LOOK_ODD)?" ODD":"",
                (lookFlags&LOOK_SHORT)?" SHORT":"",
-               (lookFlags&(LOOK_NUL|LOOK_LONG|LOOK_INVALID|LOOK_ODD|LOOK_SHORT))?"":" NONE");
+               (lookFlags&(LOOK_BINARY|LOOK_INVALID|LOOK_ODD))?"":" NONE");
   blob_reset(&blob);
 }
