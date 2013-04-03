@@ -1,5 +1,5 @@
-C Implement\sLOOK_SHORT\sflag\nRe-order\stest-cases\ssuch\sthat\sadding\sto\s"data"\sarray\swill\snot\sresult\sin\smore\srenumberings\sany\smore.\sThis\sshould\sprevent\sthe\s"More\sthan\s10,000\schanges"\sin\ssome\s(not\sall)\scases.
-D 2013-04-03T09:39:38.764
+C Make\sthe\sMinGW\smakefile\sconsistent\swith\sthe\sMSVC\sone\sin\swhere\sit\sattempts\sto\slocate\sthe\sOpenSSL\sdirectory.
+D 2013-04-03T12:13:44.740
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -353,7 +353,7 @@ F src/main.c c98bf2b7bf11961cbe94aaddc836506b2245925b
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
-F src/makemake.tcl 36862337fa1d6ad9cfd36cb889522a13711d558b
+F src/makemake.tcl 9af08991b3bafd9a4864940785db973d7064bc13
 F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
@@ -506,8 +506,8 @@ F tools/fossil_chat.tcl c673398270c85c8d0a2f06bb89815bb27cb6ffc6
 F tools/fossilwiki 7d167aaa9d5114d0fa0962c92befe26615e9fcbc x
 F win/Makefile.PellesCGMake 957d805f29abe0340050448949e7e43713bde7f5
 F win/Makefile.dmc 18768de6524ee0c7b714891d9319602fc257036e
-F win/Makefile.mingw 4faaced1dfb1d9efbe9c9e38329e6be06be6b6bf
-F win/Makefile.mingw.mistachkin 85d86f582fa90f58b0cdadcacbfb636f7afb58ee
+F win/Makefile.mingw 180888b62fa9512c616f40feb14021f7df6c078f
+F win/Makefile.mingw.mistachkin 959a257fa73b000c0e9704c4d7c98d2027b49b70
 F win/Makefile.msc ca7c43fff746e018e712340016aead255d79dd80
 F win/fossil.ico 01423a2d71e01558a94d6cd6525f6a98977f29ee
 F win/fossil.rc 97e249d74193a71520e4f83d0f74dd87439899c2
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 9f931a7569268c455d7231b68f9fd5d2c741d872
-R 6db0a470dde1c957e1db754d825d195e
-U jan.nijtmans
-Z d1f1b4bd72a1cdda27497d2ff09b49b9
+P 1686ff716a49d4b7242374c7bfb3b6f7ec13d92b
+R 6ebeb5d659ef44b52f8b28d10828b402
+U mistachkin
+Z 04247d3719f4bf5389d9f8506bba63ed
