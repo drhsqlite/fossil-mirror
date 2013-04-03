@@ -278,6 +278,9 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
       }
     }
   }
+  if( n ){
+    flags |= LOOK_SHORT;  /* Not the whole blob is examined */
+  }
   if( j>LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
   }
@@ -394,6 +397,9 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
         flags |= LOOK_LONE_CR;  /* More chars, next char is not LF */
       }
     }
+  }
+  if( n ){
+    flags |= LOOK_SHORT;  /* Not the whole blob is examined */
   }
   if( j>UTF16_LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
