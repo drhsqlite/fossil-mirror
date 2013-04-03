@@ -489,7 +489,6 @@ int file_mkdir(const char *zName, int forceFlag){
 **
 **     *  Does not begin with "/"
 **     *  Does not contain any path element named "." or ".."
-**     *  Does not contain any of these characters in the path: "\"
 **     *  Does not end with "/".
 **     *  Does not contain two or more "/" characters in a row.
 **     *  Contains at least one character
@@ -553,8 +552,6 @@ int file_is_simple_pathname(const char *z, int bStrictUtf8){
           return 0;
         }
       }
-    }else if( bStrictUtf8 && (c=='\\') ){
-      return 0;
     }
     if( c=='/' ){
       if( z[i+1]=='/' ) return 0;
