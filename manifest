@@ -1,5 +1,7 @@
-C Fix\stypo:\sSSL\sand\sJSON\sshould\snot\sbe\senabled\sby\sdefault\sin\sthe\sMSVC\smakefile.
-D 2013-04-01T20:56:46.815
+C rebase
+D 2013-04-03T07:36:05.443
+F .fossil-settings/ignore-glob 0725829b6760fba0092763557c70bee27763538b
+F .fossil-settings/keep-glob 3ed6aa34e7396bad5468607064d39be9269d93d6
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -300,17 +302,17 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 2c7cf173e9eff2e2d305c24425d57bbdd7f6031f
+F src/checkin.c 08f89cf6f019ecc299d9201ad953d82ea8bb633b
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
 F src/comformat.c 4c6ab3776e9c591937c70ac4b88b7e816021e314
 F src/config.h b0d94a1b2de290c448a18ba3b33b1b3ae97d02dd
-F src/configure.c 8b7010c57e0b33b0bf0493e764fffa8c835ea7c8
+F src/configure.c d92790817452fbbbaa0db443e8b5c62ec1f90234
 F src/content.c b0e1dc9ae86f79cfca36fe0ee826108d86f852fd
 F src/cson_amalgamation.c 5cb9365b7d6c5aba118776662123b69cbaac7959
 F src/cson_amalgamation.h 4e9be49388ddae9efdb112dd0366eb08bb063aad
-F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
+F src/db.c e9369aa05f0b18528bd57086d9adb063a4fe3175
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
@@ -334,7 +336,7 @@ F src/info.c 8bf181c8c79102c3dc860b46a60070360a97ff59
 F src/json.c e4b806d8503d4e1dd7f6ab8e840e442b5e3ba61c
 F src/json_artifact.c 3ef77d2b3668355f452e1350fed063d483ace765
 F src/json_branch.c e1702c32da3916ea9ae3bb8521d8a48130d237ae
-F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
+F src/json_config.c 46c2e909e06d0b62c5177097945f52656433e9d9
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
@@ -609,7 +611,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P c46e5f933d96658263039633066bf7534a8ecbd7
-R 5412740552cc4c069bb6aa934ae7ef48
-U mistachkin
-Z 737f23f6105dc72850e1195ed0373999
+P 9f931a7569268c455d7231b68f9fd5d2c741d872 bdd97904848b1365152f2b89644f01818e1b31d5
+R c42ae3ff4e9ace4977c7fbce390dc0dd
+T *branch * clear-with-ignore
+T *sym-clear-with-ignore *
+T -sym-trunk *
+U jan.nijtmans
+Z 9dd5411f2e8b0e58d03bd85a00c1f105
