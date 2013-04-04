@@ -19,8 +19,6 @@
 ** using an external renderer.
 */
 
-#ifdef FOSSIL_ENABLE_MARKDOWN
-
 #include "config.h"
 #include "markdown.h"
 
@@ -961,7 +959,7 @@ static size_t char_link(
   struct Blob *content = 0;
   struct Blob *link = 0;
   struct Blob *title = 0;
-  int text_has_nl = 0, ret;
+  int ret;
 
   /* checking whether the correct renderer exists */
   if( (is_img && !rndr->make.image) || (!is_img && !rndr->make.link) ){
@@ -970,7 +968,7 @@ static size_t char_link(
 
   /* looking for the matching closing bracket */
   for(level=1; i<size; i++){
-    if( data[i]=='\n' )        text_has_nl = 1;
+    if( data[i]=='\n' )        /* do nothing */;
     else if( data[i-1]=='\\' ) continue;
     else if( data[i]=='[' )    level += 1;
     else if( data[i]==']' ){
@@ -2240,5 +2238,3 @@ void markdown(
   blobarray_zero(rndr.work, rndr.make.max_work_stack);
   fossil_free(rndr.work);
 }
-
-#endif /* def FOSSIL_ENABLE_MARKDOWN */

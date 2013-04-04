@@ -5213,7 +5213,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5229,7 +5229,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5245,7 +5245,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5261,7 +5261,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5277,7 +5277,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5293,7 +5293,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5309,7 +5309,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5325,7 +5325,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5357,7 +5357,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5373,7 +5373,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5389,7 +5389,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5405,7 +5405,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5421,7 +5421,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5437,7 +5437,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5453,7 +5453,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5469,7 +5469,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5485,7 +5485,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5501,7 +5501,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5517,7 +5517,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5533,7 +5533,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5549,7 +5549,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5565,7 +5565,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5581,7 +5581,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5597,7 +5597,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5613,7 +5613,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5629,7 +5629,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5645,7 +5645,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5661,7 +5661,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5677,7 +5677,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5693,7 +5693,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5709,7 +5709,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5725,7 +5725,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5741,7 +5741,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5757,7 +5757,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5773,7 +5773,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5789,7 +5789,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5805,7 +5805,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5821,7 +5821,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5837,7 +5837,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5853,7 +5853,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5869,7 +5869,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5885,7 +5885,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5901,7 +5901,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5917,7 +5917,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5933,7 +5933,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5949,7 +5949,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5965,7 +5965,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5981,7 +5981,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -5997,7 +5997,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6013,7 +6013,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6029,7 +6029,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6045,7 +6045,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6061,7 +6061,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6077,7 +6077,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6093,7 +6093,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6109,7 +6109,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6125,7 +6125,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6141,7 +6141,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6157,7 +6157,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6173,7 +6173,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6189,7 +6189,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6205,7 +6205,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6221,7 +6221,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6237,7 +6237,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6253,7 +6253,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6269,7 +6269,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6285,7 +6285,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6301,7 +6301,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6317,7 +6317,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6333,7 +6333,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6349,7 +6349,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6365,7 +6365,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6381,7 +6381,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6397,7 +6397,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6413,7 +6413,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6429,7 +6429,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6445,7 +6445,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6461,7 +6461,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6477,7 +6477,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6493,7 +6493,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6509,7 +6509,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6525,7 +6525,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6541,7 +6541,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6557,7 +6557,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6573,7 +6573,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6589,7 +6589,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6605,7 +6605,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6621,7 +6621,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6637,7 +6637,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6653,7 +6653,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6669,7 +6669,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6685,7 +6685,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6701,7 +6701,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6717,7 +6717,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6733,7 +6733,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6749,7 +6749,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6765,7 +6765,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6781,7 +6781,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6797,7 +6797,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6813,7 +6813,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6829,7 +6829,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6845,7 +6845,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6861,7 +6861,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6877,7 +6877,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6893,7 +6893,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6909,7 +6909,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6925,7 +6925,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6941,7 +6941,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6957,7 +6957,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6973,7 +6973,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -6989,7 +6989,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7005,7 +7005,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7021,7 +7021,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7037,7 +7037,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7053,7 +7053,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7069,7 +7069,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7085,7 +7085,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7101,7 +7101,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7117,7 +7117,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7133,7 +7133,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7149,7 +7149,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7165,7 +7165,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7181,7 +7181,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7197,7 +7197,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7213,7 +7213,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7229,7 +7229,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7245,7 +7245,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7261,7 +7261,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7277,7 +7277,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7293,7 +7293,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7309,7 +7309,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7325,7 +7325,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7341,7 +7341,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7357,7 +7357,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7373,7 +7373,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7389,7 +7389,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7405,7 +7405,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7421,7 +7421,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7437,7 +7437,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7453,7 +7453,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7469,7 +7469,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7485,7 +7485,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7501,7 +7501,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7517,7 +7517,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7533,7 +7533,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7549,7 +7549,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7565,7 +7565,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7581,7 +7581,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7597,7 +7597,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7613,7 +7613,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7629,7 +7629,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7645,7 +7645,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7661,7 +7661,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7677,7 +7677,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7693,7 +7693,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7709,7 +7709,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7725,7 +7725,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7741,7 +7741,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7757,7 +7757,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7773,7 +7773,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7789,7 +7789,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7805,7 +7805,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7821,7 +7821,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7837,7 +7837,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7853,7 +7853,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7869,7 +7869,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7885,7 +7885,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7901,7 +7901,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7917,7 +7917,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7933,7 +7933,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7949,7 +7949,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7965,7 +7965,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7981,7 +7981,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -7997,7 +7997,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8013,7 +8013,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8029,7 +8029,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8045,7 +8045,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8061,7 +8061,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8077,7 +8077,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8093,7 +8093,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8109,7 +8109,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8125,7 +8125,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8141,7 +8141,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8157,7 +8157,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8173,7 +8173,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8189,7 +8189,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8205,7 +8205,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8221,7 +8221,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8237,7 +8237,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8253,7 +8253,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8269,7 +8269,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8285,7 +8285,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8301,7 +8301,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8317,7 +8317,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8333,7 +8333,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8349,7 +8349,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8365,7 +8365,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8381,7 +8381,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8397,7 +8397,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8413,7 +8413,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8429,7 +8429,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8445,7 +8445,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8461,7 +8461,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8477,7 +8477,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8493,7 +8493,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8509,7 +8509,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8525,7 +8525,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8541,7 +8541,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8557,7 +8557,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8573,7 +8573,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8589,7 +8589,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8605,7 +8605,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8621,7 +8621,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8637,7 +8637,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8653,7 +8653,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8669,7 +8669,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8685,7 +8685,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8701,7 +8701,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8717,7 +8717,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8733,7 +8733,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8749,7 +8749,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8765,7 +8765,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8781,7 +8781,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8797,7 +8797,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8813,7 +8813,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8829,7 +8829,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8845,7 +8845,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8861,7 +8861,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8877,7 +8877,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8893,7 +8893,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8909,7 +8909,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: yes
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8925,7 +8925,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8941,7 +8941,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8957,7 +8957,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8973,7 +8973,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -8989,7 +8989,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9005,7 +9005,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9021,7 +9021,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9037,7 +9037,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9053,7 +9053,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9069,7 +9069,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9085,7 +9085,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9101,7 +9101,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9117,7 +9117,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9133,7 +9133,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9149,7 +9149,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9165,7 +9165,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9181,7 +9181,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9197,7 +9197,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9213,7 +9213,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9229,7 +9229,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9245,7 +9245,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9261,7 +9261,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9277,7 +9277,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9293,7 +9293,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9309,7 +9309,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9325,7 +9325,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9341,7 +9341,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9357,7 +9357,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9373,7 +9373,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9389,7 +9389,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9405,7 +9405,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9421,7 +9421,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9437,7 +9437,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9453,7 +9453,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9469,7 +9469,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -9485,7 +9485,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10237,7 +10237,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10253,7 +10253,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10269,7 +10269,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10285,7 +10285,7 @@ Has flag LOOK_LF: no
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10301,7 +10301,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10317,7 +10317,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: yes
 Has flag LOOK_CRLF: no
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10333,7 +10333,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 
@@ -10349,7 +10349,7 @@ Has flag LOOK_LF: yes
 Has flag LOOK_LONE_LF: no
 Has flag LOOK_CRLF: yes
 Has flag LOOK_LONG: no
-Has flag LOOK_INVALID: no
+Has flag LOOK_INVALID: yes
 Has flag LOOK_ODD: no
 Has flag LOOK_SHORT: no}
 

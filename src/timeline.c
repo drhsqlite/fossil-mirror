@@ -359,10 +359,10 @@ void www_print_timeline(
       blob_zero(&truncated);
       blob_append(&truncated, blob_buffer(&comment), mxWikiLen);
       blob_append(&truncated, "...", 3);
-      @ %w(blob_str(&truncated))
+      @ <span class="timelineComment">%w(blob_str(&truncated))</span>
       blob_reset(&truncated);
     }else{
-      @ %w(blob_str(&comment))
+      @ <span class="timelineComment">%w(blob_str(&comment))</span>
     }
     blob_reset(&comment);
 
