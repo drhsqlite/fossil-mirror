@@ -941,7 +941,7 @@ static int commit_warning(
   }else{
     lookFlags = looks_like_utf8(p, LOOK_NUL);
   }
-  fHasAnyCr = (lookFlags & LOOK_CR);
+  fHasAnyCr = (lookFlags & LOOK_ANY_CR);
   fBinary = (lookFlags & LOOK_BINARY);
   fHasLoneCrOnly = ((lookFlags & LOOK_EOL) == LOOK_LONE_CR);
   fHasCrLfOnly = ((lookFlags & LOOK_EOL) == LOOK_CRLF);
