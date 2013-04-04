@@ -263,11 +263,8 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
     if( prev>=0x80 ){
       if( (prev<0xC0) || (prev>=0xF8) || (next&0xC0)!=0x80){
    	    flags |= LOOK_INVALID;  /* Invalid 1-byte or >4-byte UTF-8, continue */
-      }else if( prev >= 0xE0  ){
-        next = prev<<=1; /* So far it's valid, go to next round */
-        continue;
-      }else if( n==0 ){
-        goto look_utf8_end;
+      }else{
+        next = (prev >= 0xE0) ? (prev<<1) : ' ';
       }
     }
     if( next=='\n' ){
@@ -297,7 +294,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
   if( n ){
     flags |= LOOK_SHORT;  /* Not the whole blob is examined */
   }
-look_utf8_end:
   if( j>LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
   }
