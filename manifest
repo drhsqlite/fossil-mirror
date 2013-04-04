@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-04-04T11:35:48.880
+C don't\suse\stabs
+D 2013-04-04T12:02:01.335
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -446,7 +446,7 @@ F test/th1-tcl8.txt b23e37710b3902febbc89f986697503afacf6809
 F test/th1-tcl9.txt e27a24481044739c1429ff02a7b3b4b8d92d7673
 F test/update-test-1.sh 6812a27babef50e8888641f52936a7db3d3c9d6f
 F test/update-test-2.sh a976664f21390761543dcd93b290bd9beed96667
-F test/utf.test d35afb3fbd111b8db2a4b55c8da17a3babc98521
+F test/utf.test 5137277ed39e7c47c6737af9cda8f0370560c1a0
 F test/valgrind-www.tcl 921135f07258d89e3876e074808ca7b462b92eb4
 F tools/cvs2fossil/changeset 60a9ddc157ed086dbc7a06ef3b3c188148814be0
 F tools/cvs2fossil/cvs2fossil df73a69477f7abbe7d25d905d4604d01b567ef26
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 4310b0b2edd57a3b8e85bdb3f94f4d5595a15a10 468f1346594fbf427280df95c26c70d956939906
-R b9b5d9cc80bb55b0e0b654c9b567eee1
+P d8bc29f346cca87dc4f76f8081e7eeec54ae6b86
+R f651fcee88d605cfe22d46025cb40c91
 U jan.nijtmans
-Z bc782f95abcc5e2e5f8a2e0c93b34949
+Z 2282eee76e0c4ec4f2f4a41917f5c70a

@@ -56,9 +56,9 @@ array set bom [list                                         \
       0 ""                                                  \
       1 \xEF\xBB\xBF                                        \
       2 [expr {$tcl_platform(byteOrder) eq "littleEndian" ? \
-          "\xFF\xFE" : "\xFE\xFF"}]                         \
+            "\xFF\xFE" : "\xFE\xFF"}]                       \
       3 [expr {$tcl_platform(byteOrder) eq "littleEndian" ? \
-          "\xFE\xFF" : "\xFF\xFE"}]                         \
+            "\xFE\xFF" : "\xFF\xFE"}]                       \
 ]
 
 array set data [list                          \
