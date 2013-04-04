@@ -75,7 +75,7 @@
 #define LOOK_CR      ((int)0x00000002) /* One or more CR chars were found. */
 #define LOOK_LONE_CR ((int)0x00000004) /* An unpaired CR char was found. */
 #define LOOK_LF      ((int)0x00000008) /* One or more LF chars were found. */
-#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired CR char was found. */
+#define LOOK_LONE_LF ((int)0x00000010) /* An unpaired LF char was found. */
 #define LOOK_CRLF    ((int)0x00000020) /* One or more CR/LF pairs were found. */
 #define LOOK_LONG    ((int)0x00000040) /* An over length line was found. */
 #define LOOK_ODD     ((int)0x00000080) /* An odd number of bytes was found. */
