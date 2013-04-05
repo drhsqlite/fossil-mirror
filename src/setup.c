@@ -1199,15 +1199,21 @@ void setup_settings(void){
   }
   @ </td><td style="width:50px;"></td><td valign="top">
   for(pSet=ctrlSettings; pSet->name!=0; pSet++){
-    if( pSet->width!=0 ){
-      entry_attribute(pSet->name, /*pSet->width*/ 40, pSet->name,
+    if( pSet->width!=0 && !pSet->versionable){
+      entry_attribute(pSet->name, /*pSet->width*/ 25, pSet->name,
                       pSet->var!=0 ? pSet->var : pSet->name,
                       (char*)pSet->def);
-      if( pSet->versionable ){
-        @  (v)<br />
-      } else {
-        @ <br />
-      }
+      @ <br />
+    }
+  }
+  @ </td><td style="width:50px;"></td><td valign="top">
+  for(pSet=ctrlSettings; pSet->name!=0; pSet++){
+    if( pSet->width!=0 && pSet->versionable){
+      @<b>%s(pSet->name)</b> (v)<br />
+      textarea_attribute("", /*rows*/ 3, /*cols*/ 20, pSet->name,
+                      pSet->var!=0 ? pSet->var : pSet->name,
+                      (char*)pSet->def);
+      @<br />
     }
   }
   @ </td></tr></table>

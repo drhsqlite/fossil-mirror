@@ -46,10 +46,6 @@ BCC = gcc
 #
 FOSSIL_ENABLE_JSON = 1
 
-#### Enable markdown support
-#
-FOSSIL_ENABLE_MARKDOWN = 1
-
 #### Enable HTTPS support via OpenSSL (links to libssl and libcrypto)
 #
 FOSSIL_ENABLE_SSL = 1
@@ -86,8 +82,8 @@ ZLIBDIR = $(SRCDIR)/../compat/zlib
 #    to create a hard link between an "openssl-1.x" sub-directory of the
 #    Fossil source code directory and the target OpenSSL source directory.
 #
-OPENSSLINCDIR = $(SRCDIR)/../openssl-1.0.1e/include
-OPENSSLLIBDIR = $(SRCDIR)/../openssl-1.0.1e
+OPENSSLINCDIR = $(SRCDIR)/../compat/openssl-1.0.1e/include
+OPENSSLLIBDIR = $(SRCDIR)/../compat/openssl-1.0.1e
 
 #### Either the directory where the Tcl library is installed or the Tcl
 #    source code directory resides (depending on the value of the macro
@@ -189,12 +185,6 @@ endif
 ifdef FOSSIL_ENABLE_JSON
 TCC += -DFOSSIL_ENABLE_JSON=1
 RCC += -DFOSSIL_ENABLE_JSON=1
-endif
-
-# With markdown support
-ifdef FOSSIL_ENABLE_MARKDOWN
-TCC += -DFOSSIL_ENABLE_MARKDOWN=1
-RCC += -DFOSSIL_ENABLE_MARKDOWN=1
 endif
 
 #### We add the -static option here so that we can build a static

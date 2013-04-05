@@ -319,7 +319,7 @@ static void stash_diff(
       fossil_print("ADDED %s\n", zNew);
       diff_print_index(zNew, diffFlags);
       if( !fIncludeBinary ){
-        looks_like_text(eType, &a);
+        eType = looks_like_text(&a);
       }
       diff_file_mem(&empty, &a, eType, zNew, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
@@ -336,7 +336,7 @@ static void stash_diff(
       }
       diff_print_index(zNew, diffFlags);
       if( !fIncludeBinary){
-        looks_like_text(eType, &a);
+        eType = looks_like_text(&a);
       }
       diff_file_mem(&a, &empty, eType, zOrig, zDiffCmd,
                     zBinGlob, fIncludeBinary, diffFlags);
@@ -361,8 +361,8 @@ static void stash_diff(
         blob_delta_apply(&a, &delta, &b);
         int eType2 = 0;
         if( !fIncludeBinary ){
-          looks_like_text(eType, pBase);
-          looks_like_text(eType2, &b);
+          eType = looks_like_text(pBase);
+          eType2 = looks_like_text(&b);
         }
         if( eType!=eType2 ){
           diff_print_filenames(zOrig, zNew, diffFlags);
