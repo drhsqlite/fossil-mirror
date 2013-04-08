@@ -364,9 +364,15 @@ static void stash_diff(
           eType = looks_like_text(pBase);
           eType2 = looks_like_text(&b);
         }
-        if( DIFFERENT_ENCODING(eType, eType2) ){
+        if( (eType == 0) || (eType2 == 0) ){
           diff_print_filenames(zOrig, zNew, diffFlags);
-          printf(DIFF_CANNOT_COMPUTE_ENCODING);
+          fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+        }else if( DIFFERENT_ENCODING(eType, eType2) ){
+          diff_print_filenames(zOrig, zNew, diffFlags);
+          fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
+        }else if( (eType|eType2)&LOOK_LONG ){
+          diff_print_filenames(zOrig, zNew, diffFlags);
+          fossil_print(DIFF_CANNOT_COMPUTE_LONGLINES);
         }else{
           diff_file_mem(pBase, &b, eType, zNew, zDiffCmd,
                         zBinGlob, fIncludeBinary, diffFlags);

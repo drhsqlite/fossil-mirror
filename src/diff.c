@@ -50,6 +50,9 @@
 #define DIFF_CANNOT_COMPUTE_BINARY \
     "cannot compute difference between binary files\n"
 
+#define DIFF_CANNOT_COMPUTE_LONGLINES \
+    "cannot compute difference between files which contain long lines\n"
+
 #define DIFF_CANNOT_COMPUTE_ENCODING \
     "cannot compute difference between files with different encoding\n"
 
@@ -320,14 +323,6 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 #endif
 
 /*
-** Maximum length of a line in a text file, in UTF-16 characters.  (4096)
-** The number of bytes represented by this value cannot exceed LENGTH_MASK
-** bytes, because that is the line buffer size used by the diff engine.
-*/
-#define UTF16_LENGTH_MASK_SZ   (LENGTH_MASK_SZ-(sizeof(WCHAR_T)-sizeof(char)))
-#define UTF16_LENGTH_MASK      ((1<<UTF16_LENGTH_MASK_SZ)-1)
-
-/*
 ** This macro is used to swap the byte order of a UTF-16 character in the
 ** looks_like_utf16() function.
 */
@@ -394,8 +389,11 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     	next = UTF16_SWAP(next);
     }
     ++j;
-    if( next>=0xfffe ){
-      flags |= LOOK_INVALID;
+    if( next>0xff ){
+      j += (next > 0x7ff) ? 2 : 1;
+      if( next>=0xfffe ){
+        flags |= LOOK_INVALID;
+      }
     }else if( next=='\n' ){
       if( prev=='\r' ){
         flags |= LOOK_CRLF;  /* Found LF preceded by CR */
@@ -420,7 +418,7 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
   if( n ){
     flags |= LOOK_SHORT;  /* Not the whole blob is examined */
   }
-  if( j>UTF16_LENGTH_MASK ){
+  if( j>LENGTH_MASK ){
     flags |= LOOK_LONG;  /* Very long line -> binary */
   }
   if( !(flags&LOOK_NUL) ){
@@ -436,15 +434,15 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
 int looks_like_text(const Blob *pContent){
   int result = 0;
   if( could_be_utf16(pContent, &result) ) {
-    result = looks_like_utf16(pContent, result, LOOK_BINARY);
+    result = looks_like_utf16(pContent, result, LOOK_NUL);
   }else{
     result = looks_like_utf8(pContent, LOOK_NUL);
     if( result&LOOK_NUL && blob_size(pContent) % sizeof(WCHAR_T) == 0 ){
-      result = looks_like_utf16(pContent, result, LOOK_BINARY|LOOK_INVALID);
+      result = looks_like_utf16(pContent, result, LOOK_NUL|LOOK_INVALID);
       if( result&LOOK_INVALID ) return 0;
     }
   }
-  return (result&LOOK_BINARY) ? 0 : result;
+  return (result&LOOK_NUL) ? 0 : result;
 }
 
 /*

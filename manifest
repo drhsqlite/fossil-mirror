@@ -1,5 +1,5 @@
-C Implement\sLOOK_UNICODE\sfor\sutf-16,\sand\suse\sit\sto\sdetect\sUTF-16\swithout\sBOM\sin\snetwork\sbyte\sorder
-D 2013-04-08T09:03:56.996
+C Consistant\suse\sof\sDIFF_CANNOT_COMPUTE_???\smessages
+D 2013-04-08T10:42:07.975
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -314,8 +314,8 @@ F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 9d2311d5c80e0b2645eb67729bb5a905780c6ee5
-F src/diffcmd.c 8c0a563bafec494c59bde80a2dd26e378e515bbc
+F src/diff.c ccf0675c662ee263e0d7cbbdd05321126c1242b7
+F src/diffcmd.c efa89b05bd1904c9d94c178eeca1be3fbeb9d579
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
@@ -383,7 +383,7 @@ F src/skins.c 850cb3518094003a6780e61fb0611b2598fe2cfb
 F src/sqlcmd.c a59638aa4c009c2b3f4802c0df25541efcc4fc14
 F src/sqlite3.c a7853952cdc0eb0ad9a23f323252e807e05c42d7
 F src/sqlite3.h bc59b63502d9116cb3700c6eca5d82b87ffcc4c6
-F src/stash.c 06e5d6c18102c632c4cbd5729f72796ea145a034
+F src/stash.c 43f73e4a6f8a893bb33be753c1df4e67e23fc3a9
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
@@ -609,7 +609,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P a7e77a66b0b77026b10db7eb9cefa5a01aa781ad
-R a5208a0ec08a9a25069536d05efce7a1
+P 2d14d82c6b7665d283be31e7fd69044aa4c9b323
+R 742b8573af0bbcb0cf83fdebd146d44c
 U jan.nijtmans
-Z 505e2bb862112db372acd0ff7d065075
+Z 7c277b4d05ce9fcf3aa7a213671a640a

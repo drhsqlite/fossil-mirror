@@ -112,8 +112,12 @@ void diff_file(
       if( blob_compare(pFile1, &file2) ){
         fossil_print("CHANGED  %s\n", zName);
       }
+    }else if( (eType1 == 0) || (eType2 == 0) ){
+      fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
     }else if( DIFFERENT_ENCODING(eType1, eType2) ){
       fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
+    }else if( (eType1|eType2)&LOOK_LONG ){
+      fossil_print(DIFF_CANNOT_COMPUTE_LONGLINES);
     }else{
       blob_to_utf8_no_bom(pFile1, 2);
       blob_to_utf8_no_bom(&file2, 2);
@@ -136,7 +140,7 @@ void diff_file(
     if( !fIncludeBinary ){
       Blob file2;
       int eType2;
-      if( eType1!=1 ){
+      if( eType1==0 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         return;
       }
@@ -158,7 +162,7 @@ void diff_file(
         }
       }
       eType2 = looks_like_text(&file2);
-      if( (eType2&3)!=1 ){
+      if( eType2==0 ){
         fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
         blob_reset(&file2);
         return;
@@ -462,9 +466,15 @@ static void diff_one_two_versions(
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
+  }else if( (eType == 0) || (eType2 == 0) ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
   }else if( DIFFERENT_ENCODING(eType, eType2) ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
+  }else if( (eType|eType2)&LOOK_LONG ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_LONGLINES);
   }else{
     diff_file_mem(&v1, &v2, eType, zName, zDiffCmd,
                   zBinGlob, fIncludeBinary, diffFlags);
@@ -515,9 +525,15 @@ static void diff_manifest_entry(
     eType = looks_like_text(&f1);
     eType2 = looks_like_text(&f2);
   }
-  if( DIFFERENT_ENCODING(eType, eType2) ){
+  if( (eType == 0) || (eType2 == 0) ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_BINARY);
+  }else if( DIFFERENT_ENCODING(eType, eType2) ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
+  }else if( (eType|eType2)&LOOK_LONG ){
+    diff_print_filenames(zName, zName, diffFlags);
+    fossil_print(DIFF_CANNOT_COMPUTE_LONGLINES);
   }else{
     diff_file_mem(&f1, &f2, eType, zName, zDiffCmd,
                   zBinGlob, fIncludeBinary, diffFlags);
