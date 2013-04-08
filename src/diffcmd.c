@@ -112,7 +112,7 @@ void diff_file(
       if( blob_compare(pFile1, &file2) ){
         fossil_print("CHANGED  %s\n", zName);
       }
-    }else if( eType1!=eType2 ){
+    }else if( DIFFERENT_ENCODING(eType1, eType2) ){
       fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
     }else{
       blob_to_utf8_no_bom(pFile1, 2);
@@ -462,7 +462,7 @@ static void diff_one_two_versions(
   if( isLink1 != isLink2 ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_SYMLINK);
-  }else if( eType!=eType2 ){
+  }else if( DIFFERENT_ENCODING(eType, eType2) ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
   }else{
@@ -515,7 +515,7 @@ static void diff_manifest_entry(
     eType = looks_like_text(&f1);
     eType2 = looks_like_text(&f2);
   }
-  if( eType!=eType2 ){
+  if( DIFFERENT_ENCODING(eType, eType2) ){
     diff_print_filenames(zName, zName, diffFlags);
     fossil_print(DIFF_CANNOT_COMPUTE_ENCODING);
   }else{

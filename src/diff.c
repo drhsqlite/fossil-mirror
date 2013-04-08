@@ -66,8 +66,8 @@
 ** This macro is designed to return non-zero if the specified blob contains
 ** data that MAY be binary in nature; otherwise, zero will be returned.
 */
-#define looks_like_binary(blob) \
-    ((looks_like_utf8((blob), LOOK_BINARY) & LOOK_BINARY) != LOOK_NONE)
+#define DIFFERENT_ENCODING(eType1, eType2) \
+    (((eType1)^(eType2))&LOOK_TEXT)
 
 /*
 ** Output flags for the looks_like_utf8() and looks_like_utf16() routines used
@@ -358,7 +358,7 @@ int looks_like_utf8(const Blob *pContent, int stopFlags){
 ** switches between the UTF-16be and UTF-16le encodings occur.
 **
 ** The only code points that this function cares about are the NUL character,
-** carriage-return, and line-feed.
+** carriage-return, line-feed, 0xFFFE and 0xFFFF.
 **
 ** This function examines the contents of the blob until one of the flags
 ** specified in "stopFlags" is set.
@@ -394,7 +394,9 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
     	next = UTF16_SWAP(next);
     }
     ++j;
-    if( next=='\n' ){
+    if( next>=0xfffe ){
+      flags |= LOOK_INVALID;
+    }else if( next=='\n' ){
       if( prev=='\r' ){
         flags |= LOOK_CRLF;  /* Found LF preceded by CR */
       }else{
@@ -433,10 +435,14 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
 */
 int looks_like_text(const Blob *pContent){
   int result = 0;
-  if (could_be_utf16(pContent, &result)) {
-      result = looks_like_utf16(pContent, result, LOOK_BINARY);
+  if( could_be_utf16(pContent, &result) ) {
+    result = looks_like_utf16(pContent, result, LOOK_BINARY);
   }else{
-      result = looks_like_utf8(pContent, LOOK_BINARY);
+    result = looks_like_utf8(pContent, LOOK_NUL);
+    if( result&LOOK_NUL && blob_size(pContent) % sizeof(WCHAR_T) == 0 ){
+      result = looks_like_utf16(pContent, result, LOOK_BINARY|LOOK_INVALID);
+      if( result&LOOK_INVALID ) return 0;
+    }
   }
   return (result&LOOK_BINARY) ? 0 : result;
 }
@@ -472,7 +478,7 @@ int starts_with_utf8_bom(const Blob *pContent, int *pnByte){
 ** byte-order-mark (BOM), either in the endianness of the machine
 ** or in reversed byte order. The UTF-32 BOM is ruled out by checking
 ** if the UTF-16 BOM is not immediately followed by (utf16) 0.
-** pnByte and pbReverse are only set when the function returns 1.
+** pnByte is only set when the function returns 1.
 */
 int starts_with_utf16_bom(
   const Blob *pContent, /* IN: Blob content to perform BOM detection on. */
@@ -482,14 +488,17 @@ int starts_with_utf16_bom(
   const unsigned short *z = (unsigned short *)blob_buffer(pContent);
   int bomSize = sizeof(unsigned short);
   int size = blob_size(pContent);
+  static const int one = 1;
 
   if( size<bomSize ) return 0;  /* No: cannot read BOM. */
   if( size>=(2*bomSize) && z[1]==0 ) return 0;  /* No: possible UTF-32. */
-  if( z[0]==0xfffe ){
-    if( pbReverse ) *pbReverse = 1;
-  }else if( z[0]==0xfeff ){
+  if( z[0]==0xfeff ){
     if( pbReverse ) *pbReverse = 0;
+  }else if( z[0]==0xfffe ){
+    if( pbReverse ) *pbReverse = 1;
   }else{
+    /* No BOM, assume network byte order. See RFC 2781.*/
+    if( pnByte ) *pbReverse = *(char *)&one;
     return 0; /* No: UTF-16 byte-order-mark not found. */
   }
   if( pnByte ) *pnByte = bomSize;

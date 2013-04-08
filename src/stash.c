@@ -364,7 +364,7 @@ static void stash_diff(
           eType = looks_like_text(pBase);
           eType2 = looks_like_text(&b);
         }
-        if( eType!=eType2 ){
+        if( DIFFERENT_ENCODING(eType, eType2) ){
           diff_print_filenames(zOrig, zNew, diffFlags);
           printf(DIFF_CANNOT_COMPUTE_ENCODING);
         }else{
