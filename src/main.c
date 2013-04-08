@@ -1756,6 +1756,7 @@ static int binaryOnPath(const char *zBinary){
 **
 ** Options:
 **   --localauth         enable automatic login for requests from localhost
+**   --localhost         listen on 127.0.0.1 only (always true for "ui")
 **   -P|--port TCPPORT   listen to request on port TCPPORT
 **   --th-trace          trace TH1 execution (for debugging purposes)
 **   --baseurl URL       Use URL as the base (useful for reverse proxies)
@@ -1798,6 +1799,8 @@ void cmd_webserver(void){
   if( isUiCmd ){
     flags |= HTTP_SERVER_LOCALHOST;
     g.useLocalauth = 1;
+  }else if ( find_option("localhost", 0, 0)!=0 ){
+    flags |= HTTP_SERVER_LOCALHOST;
   }
   find_server_repository(isUiCmd && zNotFound==0);
   if( zPort ){
