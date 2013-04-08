@@ -269,8 +269,8 @@ void bisect_cmd(void){
     Blob log, id;
     int ridBad = 0;
     int ridGood = 0;
-    foundCmd = 1;
     int cnt = 0, i;
+    foundCmd = 1;
     db_begin_transaction();
     zLog = db_lget("bisect-log","");
     blob_init(&log, zLog, -1);
