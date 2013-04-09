@@ -953,7 +953,7 @@ void setup_access(void){
                   "auto-hyperlink-mouseover", "ahmo", 0);
   @ <br>
   entry_attribute("Delay before enabling hyperlinks (milliseconds)", 5,
-                  "auto-hyperlink-delay", "ah-delay", "0");
+                  "auto-hyperlink-delay", "ah-delay", "10");
   @ </blockquote>
   @ <p>Hyperlinks for user "nobody" are normally enabled as soon as the page
   @ finishes loading.  But the first check-box below can be set to require mouse

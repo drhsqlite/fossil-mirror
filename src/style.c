@@ -162,7 +162,7 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
-  int nDelay = db_get_int("auto-hyperlink-delay",0);
+  int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
