@@ -14,11 +14,13 @@
 <ul>
 <li><a href="fiveminutes.wiki">5 Minutes as a Single User &mdash; Update and Running in</a></li>
 <li><a href="tech_overview.wiki">A Technical Overview Of The Design And Implementation Of Fossil</a></li>
+<li><a href="antibot.wiki">against Spiders and Bots &mdash; Defense</a></li>
 <li><a href="copyright-release.html">Agreement &mdash; Contributor License</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Algorithm &mdash; Fossil Delta Encoding</a></li>
 <li><a href="fiveminutes.wiki">as a Single User &mdash; Update and Running in 5 Minutes</a></li>
 <li><a href="faq.wiki">Asked Questions &mdash; Frequently</a></li>
 <li><a href="password.wiki">Authentication &mdash; Password Management And</a></li>
+<li><a href="antibot.wiki">Bots &mdash; Defense against Spiders and</a></li>
 <li><a href="private.wiki">Branches &mdash; Creating, Syncing, and Deleting Private</a></li>
 <li><a href="branching.wiki">Branching, Forking, Merging, and Tagging</a></li>
 <li><a href="bugtheory.wiki">Bug Tracking In Fossil</a></li>
@@ -44,6 +46,7 @@
 <li><a href="qandc.wiki">Criticisms &mdash; Questions And</a></li>
 <li><a href="custom_ticket.wiki">Customizing The Ticket System</a></li>
 <li><a href="tech_overview.wiki">Databases Used By Fossil &mdash; SQLite</a></li>
+<li><a href="antibot.wiki">Defense against Spiders and Bots</a></li>
 <li><a href="shunning.wiki">Deleting Content From Fossil &mdash; Shunning:</a></li>
 <li><a href="private.wiki">Deleting Private Branches &mdash; Creating, Syncing, and</a></li>
 <li><a href="delta_encoder_algorithm.wiki">Delta Encoding Algorithm &mdash; Fossil</a></li>
@@ -129,6 +132,7 @@
 <li><a href="shunning.wiki">Shunning: Deleting Content From Fossil</a></li>
 <li><a href="fiveminutes.wiki">Single User &mdash; Update and Running in 5 Minutes as a</a></li>
 <li><a href="style.wiki">Source Code Style Guidelines</a></li>
+<li><a href="antibot.wiki">Spiders and Bots &mdash; Defense against</a></li>
 <li><a href="tech_overview.wiki">SQLite Databases Used By Fossil</a></li>
 <li><a href="ssl.wiki">SSL with Fossil &mdash; Using</a></li>
 <li><a href="quickstart.wiki">Start Guide &mdash; Fossil Quick</a></li>

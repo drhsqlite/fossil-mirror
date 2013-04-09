@@ -1,5 +1,5 @@
-C Change\sthe\sdefault\sauto-hyperlink-delay\sfrom\s0\sto\s10\smilliseconds.
-D 2013-04-09T13:30:04.036
+C Add\sthe\s"Defense\sagainst\sSpiders"\sdocumentation\spage.
+D 2013-04-09T14:58:17.543
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -517,6 +517,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
+F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
@@ -580,14 +581,14 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/index.wiki ad9df8ccad7131ff7ec35525197b72eaf7db30f7
+F www/index.wiki 1c5775055e63b20f3d3d8ebc1f9f3ba2f417becd
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
-F www/mkindex.tcl 7148f89320417fefdd3a9609c4d5d777586332c5
+F www/mkindex.tcl f421d2ed0ec2a86b38b29b92d8cc53189f155785
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki fe0a1b38bcc131497f03481c1f734c5888bc3664
+F www/permutedindex.wiki d9c46be7992e6e131b56e8c65ad8e83ef9bb8f21
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
@@ -609,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 96f3e8392275dc2dad5092e0e8b423d186ae3c91
-R aaa5db44b3b4ccb57c0dc9ed89083ebd
+P ddd16596775681ba7477514f9e5bac7b26d67ed7
+R 375187a4ea5d00cbaf0755185878f78e
 U drh
-Z 161b736401f7ff123d4d841e964732db
+Z 645980080de291d3431085ebdf1d03d1

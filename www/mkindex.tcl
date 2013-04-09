@@ -7,6 +7,7 @@
 #
 
 set doclist {
+  antibot.wiki {Defense against Spiders and Bots}
   bugtheory.wiki {Bug Tracking In Fossil}
   branching.wiki {Branching, Forking, Merging, and Tagging}
   build.wiki {Compiling and Installing Fossil}

@@ -133,7 +133,8 @@ internet these days. What makes Fossil worthy of attention?
   *  [./settings.wiki | Settings] control the behaviour of fossil.
   *  [./ssl.wiki | Use SSL] to encrypt communication with the server.
   *  There is a
-    [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list] (with publicly readable
+     [http://lists.fossil-scm.org:8080/cgi-bin/mailman/listinfo/fossil-users | mailing list]
+    (with publicly readable
      [http://www.mail-archive.com/fossil-users@lists.fossil-scm.org | archives]
      available for discussing fossil issues.
   *  [./stats.wiki | Performance statistics] taken from real-world projects
@@ -153,6 +154,7 @@ internet these days. What makes Fossil worthy of attention?
   *  [./fossil-v-git.wiki | Fossil versus Git].
   *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
      (contributed by Gilles Ganault on 2013-01-08).
+  *  [./antibot.wiki | How Fossil defense against abuse by spiders and bots]
 
 <h3>Links For Fossil Developer:</h3>
 
