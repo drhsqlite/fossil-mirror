@@ -154,7 +154,7 @@ internet these days. What makes Fossil worthy of attention?
   *  [./fossil-v-git.wiki | Fossil versus Git].
   *  [./fiveminutes.wiki | Up and running in 5 minutes as a single user]
      (contributed by Gilles Ganault on 2013-01-08).
-  *  [./antibot.wiki | How Fossil defense against abuse by spiders and bots]
+  *  [./antibot.wiki | How Fossil defends against abuse by spiders and bots].
 
 <h3>Links For Fossil Developer:</h3>
 
