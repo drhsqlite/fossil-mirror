@@ -20,7 +20,7 @@ You can also set a setting globally on your local machine. The value will be use
 
 Most of the settings control the behaviour of fossil on your local machine, largely acting to reflect your preference on how you want to use Fossil, how you communicate with the server, or options for hosting a repository on the web. 
 
-However, for historical reasons, some settings affect how you work with versioned files. These are <tt>allow-symlinks</tt>, <tt>binary-glob</tt>, <tt>crnl-glob</tt>, <tt>empty-dirs</tt>, <tt>encoding-glob</tt>, <tt>ignore-glob</tt> and <tt>manifest</tt>. The most important is <tt>ignore-glob</tt> which specifies which files should be ignored when looking for unmanaged files with the <tt>extras</tt> command.
+However, for historical reasons, some settings affect how you work with versioned files. These are <tt>allow-symlinks</tt>, <tt>binary-glob</tt>, <tt>crnl-glob</tt>, <tt>empty-dirs</tt>, <tt>encoding-glob</tt>, <tt>ignore-glob</tt>, <tt>keep-glob</tt> and <tt>manifest</tt>. The most important is <tt>ignore-glob</tt> which specifies which files should be ignored when looking for unmanaged files with the <tt>extras</tt> command.
 
 Because these options can change over time, and the inconvenience of replicating changes, these settings are "versionable". As well as being able to be set using the <tt>settings</tt> command or the web interface, you can created versioned files in the <tt>.fossil-settings</tt> directory named with the setting name. The contents of the file is the value of the setting, and these files are checked in, committed, merged, and so on, as with any other file.
 

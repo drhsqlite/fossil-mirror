@@ -1,0 +1,11 @@
+*.a
+*.lib
+*.o
+*.obj
+Makefile
+bld/*
+wbld/*
+autoconfig.h
+config.log
+fossil
+fossil.exe

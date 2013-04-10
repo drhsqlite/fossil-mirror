@@ -66,6 +66,7 @@ static const struct JsonConfigProperty {
 { "project-description",    CONFIGSET_PROJ },
 { "manifest",               CONFIGSET_PROJ },
 { "ignore-glob",            CONFIGSET_PROJ },
+{ "keep-glob",              CONFIGSET_PROJ },
 { "crnl-glob",              CONFIGSET_PROJ },
 { "empty-dirs",             CONFIGSET_PROJ },
 { "allow-symlinks",         CONFIGSET_PROJ },
