@@ -1,5 +1,5 @@
-C Document\sencoding-glob\ssetting
-D 2013-04-10T11:04:06.633
+C Add\sthe\sdkf\stkchat\sfossil\squote\sto\sthe\squotes.wiki\sdocument.
+D 2013-04-10T15:16:23.737
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -593,7 +593,7 @@ F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 70ea6e6d986c5fb7e13049717fd2c103ad7a7dc1
-F www/quotes.wiki 5deaf1966801b130f717bec64f68239a3f6b3cb4
+F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
 F www/reviews.wiki dde09a2cd7d4ba78b1ae8b8ddca57fa39cfb6c66
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 681b17ce0ed5046c2d5b4940dc5a215341c5a47d
-R 4230202d44115a43f462e193f1f5775a
-U jan.nijtmans
-Z aeb0c1dbe63636a08291d478b168bac6
+P 375648368c724712f94b8496cd05cc8eea4bfd12
+R 6589d1b527cd27a49e397d8a1cef7815
+U drh
+Z ae3fa7c39808a6f15026dbc876fa5c78
