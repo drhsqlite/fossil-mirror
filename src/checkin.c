@@ -1145,7 +1145,6 @@ void commit_cmd(void){
   const char *zComFile;  /* Read commit message from this file */
   int nTag = 0;          /* Number of --tag arguments */
   const char *zTag;      /* A single --tag argument */
-  const char **azTag = 0;/* Array of all --tag arguments */
   Blob manifest;         /* Manifest in baseline form */
   Blob muuid;            /* Manifest uuid */
   Blob cksum1, cksum2;   /* Before and after commit checksums */
@@ -1203,8 +1202,8 @@ void commit_cmd(void){
   /* Escape special characters in tags and put all tags in sorted order */
   if( nTag ){
     int i;
-    for(i=0; i<nTag; i++) azTag[i] = mprintf("%F", azTag[i]);
-    qsort((void*)azTag, nTag, sizeof(azTag[0]), tagCmp);
+    for(i=0; i<nTag; i++) sCiInfo.azTag[i] = mprintf("%F", sCiInfo.azTag[i]);
+    qsort((void*)sCiInfo.azTag, nTag, sizeof(sCiInfo.azTag[0]), tagCmp);
   }
 
   /* So that older versions of Fossil (that do not understand delta-
