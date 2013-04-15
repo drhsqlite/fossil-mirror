@@ -432,17 +432,33 @@ int looks_like_utf16(const Blob *pContent, int bReverse, int stopFlags){
 ** in nature (contains NUL bytes), a combination of LOOK_??? flags otherwise.
 */
 int looks_like_text(const Blob *pContent){
-  int result = 0;
-  if( could_be_utf16(pContent, &result) ) {
-    result = looks_like_utf16(pContent, result, LOOK_NUL);
+  int bReverse = 0;
+  int lookFlags = 0;
+
+  if ((blob_size(pContent) % sizeof(WCHAR_T) != 0) ){
+    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+  }else if( starts_with_utf16_bom(pContent, 0, &bReverse) ) {
+    lookFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL);
   }else{
-    result = looks_like_utf8(pContent, LOOK_NUL);
-    if( result&LOOK_NUL && blob_size(pContent) % sizeof(WCHAR_T) == 0 ){
-      result = looks_like_utf16(pContent, result, LOOK_NUL|LOOK_INVALID);
-      if( result&LOOK_INVALID ) return 0;
+    lookFlags = looks_like_utf8(pContent, LOOK_NUL);
+    if( lookFlags&LOOK_NUL ){
+      /* Might be UTF-16 without BOM in big-endian order. See clause
+       * D98 of conformance (section 3.10) of the Unicode standard. */
+      int tryFlags = looks_like_utf16(pContent, bReverse, LOOK_NUL|LOOK_INVALID);
+      if( !(tryFlags&LOOK_NUL) ){
+        if ( !(tryFlags&LOOK_INVALID) && (tryFlags&LOOK_EOL)){
+          lookFlags = tryFlags;
+        }else{
+          /* Try UTF-16 without BOM in little-endian order as well. */
+          tryFlags = looks_like_utf16(pContent, !bReverse, LOOK_INVALID);
+          if ( !(tryFlags&LOOK_INVALID) && (tryFlags&LOOK_EOL)){
+            lookFlags = tryFlags;
+          }
+        }
+      }
     }
   }
-  return (result&LOOK_NUL) ? 0 : result;
+  return (lookFlags&LOOK_NUL) ? 0 : lookFlags;
 }
 
 /*

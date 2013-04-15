@@ -1,5 +1,5 @@
-C Consistant\suse\sof\sDIFF_CANNOT_COMPUTE_???\smessages
-D 2013-04-08T10:42:07.975
+C merge\strunk
+D 2013-04-15T12:35:17.630
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -294,13 +294,13 @@ F src/add.c 59f2454b5bdfb78092f6b9be009ed3d4b276fb76
 F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
-F src/bisect.c 2be3eb35213e1d0263e8ce7044d9fd82a729e5a9
+F src/bisect.c 639666952af95c3113252f1c1068420202ddd2da
 F src/blob.c 13336c7d7be6efa815cf25f24fdfa77c5379e5fd
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 411cc777283f93f4f1ee7c5b23dcab329262ee2b
+F src/checkin.c 4db06eb8e6b3a82279ce5f52119ef1a2aee73bc1
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -314,7 +314,7 @@ F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c ccf0675c662ee263e0d7cbbdd05321126c1242b7
+F src/diff.c 333f4487b1a6ea351b98409e14bba7b6959d3043
 F src/diffcmd.c efa89b05bd1904c9d94c178eeca1be3fbeb9d579
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -348,8 +348,8 @@ F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
-F src/login.c 9f80610c8abdd0118409daa55bb0fb787840f2a2
-F src/main.c c98bf2b7bf11961cbe94aaddc836506b2245925b
+F src/login.c 1e932b06a9ed604b53c4b5c3a16327d1ae649192
+F src/main.c 0f1532e72da776ab05833a8298cee40744fb377c
 F src/main.mk c428f1570bb4338a60813da2f62a875239fff17a
 F src/makeheaders.c d0855feacdb7145573d938c85de645de51b4b277
 F src/makeheaders.html 4428f89f94c3b333b106171fe63f2c175d0ee53b
@@ -375,7 +375,7 @@ F src/report.c 15ce9b5e124693272c52d064c9bc19cfd2f05cbb
 F src/rss.c 406f700189da3bac75e44331fa5f8791be13c9e6
 F src/schema.c fba2109f21f12c2626ff9e56ecbec522a96472a9
 F src/search.c fe3c94ac8caed5d0e7ffe4e39240f7be00d97d0d
-F src/setup.c 77a46d93fee97f1b076a3102154dac6fdf2030b0
+F src/setup.c 92a0497d219bec5755c95fb9fc6e1ee96ba83360
 F src/sha1.c f53023fce07825fc3726c840aacc7a6c809b4a8b
 F src/shell.c 57348f9ae80e590c2d19c7708079d0eac026d252
 F src/shun.c 1ce0ff50a45881d34376ed4e35ed2af938843dc7
@@ -385,7 +385,7 @@ F src/sqlite3.c a7853952cdc0eb0ad9a23f323252e807e05c42d7
 F src/sqlite3.h bc59b63502d9116cb3700c6eca5d82b87ffcc4c6
 F src/stash.c 43f73e4a6f8a893bb33be753c1df4e67e23fc3a9
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
-F src/style.c 75879ef8f6dc282d8b417caa80d82182ce09f938
+F src/style.c 04f142dc7d20eb2d9383e7be0359c4c01df81334
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
 F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
@@ -517,6 +517,7 @@ F www/CollRev1.gif 3ca46d72571bc56d114d467ec8d291541c9ae932
 F www/CollRev2.gif 581afba0a01d5fd62e06ebbed88e76e51a5d1d6c
 F www/CollRev3.gif 996e26f2d6182a95e4e0781529cd34178e3bfa25
 F www/CollRev4.gif 2344026a4ce78a39b198ccbd3accd554798aa915
+F www/antibot.wiki 544a983a29e19f0330fc9b16d78795789b2d566f
 F www/apple-touch-icon.png 68adbb71243e6c7c4eddeeeda339c76ef77084e5
 F www/background.jpg 85f8f27f45a743484488e6c5cf0bd060137973a8
 F www/branch01.gif a288153196b8f3fc5fabe00c92101000717cb491
@@ -580,24 +581,24 @@ F www/fossil_logo_small2.gif 2a25c3c9b9f266b884e98fe0f73da2341e6fe733
 F www/fossil_logo_small3.gif 6c2768dcb62988ab402a8b0a3d9bd290cbe6c132
 F www/fossil_prompt.sh b0e3a47ea763b336736f6371e2a461d858eb73c1
 F www/fossil_prompt.wiki 8ea400e45e41184d859cf9e3cc0186c5fa81c5be
-F www/index.wiki ad9df8ccad7131ff7ec35525197b72eaf7db30f7
+F www/index.wiki ae8abb3fe16d5efe740a6ef869a441a2af9b5cfc
 F www/inout.wiki 129f8d006a5d0e22d46232467114f3379fce55e4
 F www/makefile.wiki 96942c40714a113c04eb513430cf751df334a138
 F www/mkdownload.tcl aee0dd47312f829882863e0bec1c60d689224d94
-F www/mkindex.tcl 7148f89320417fefdd3a9609c4d5d777586332c5
+F www/mkindex.tcl f421d2ed0ec2a86b38b29b92d8cc53189f155785
 F www/newrepo.wiki f0b0a01e2dcf85b2d50f14196775e89c808a3b0b
 F www/password.wiki 6763f5a1822e755e08355911fad7bd85c17db478
-F www/permutedindex.wiki fe0a1b38bcc131497f03481c1f734c5888bc3664
+F www/permutedindex.wiki d9c46be7992e6e131b56e8c65ad8e83ef9bb8f21
 F www/pop.wiki 4d3304b679288f55ddcbc7ce51656b60c92eaf2d
 F www/private.wiki fc70653732315835fd8672e4ebecaab44b86ff47
 F www/qandc.wiki e7cec2ffe243af74f6dd47a9994320ef09682acf
 F www/quickstart.wiki 70ea6e6d986c5fb7e13049717fd2c103ad7a7dc1
-F www/quotes.wiki 5deaf1966801b130f717bec64f68239a3f6b3cb4
+F www/quotes.wiki 6d0079e2cfc8b55d71f36210670f409f6ad4de52
 F www/reviews.wiki dde09a2cd7d4ba78b1ae8b8ddca57fa39cfb6c66
 F www/selfcheck.wiki 126aadd43e97b5af73235f5e88ad49358382f2fa
 F www/selfhost.wiki d9bcd969d75abca0c0d25d2f38327399a48075a1
 F www/server.wiki d74d0c320c455abd2cf4dd1490d78e0bd8839dd9
-F www/settings.wiki 11cbeeb86f67352b9912ff701438cca2b3db7f80
+F www/settings.wiki c3d81b172c9ff704486b399e0dc179835090bd1c
 F www/shunning.wiki 716aa915e219fb4b881ba095c9dcd9e33b4016ab
 F www/ssl.wiki f381ee310d2953040b9172a19de4d865f5885a97
 F www/stats.wiki 69851d26ed42c1ba987f526dd85dac2f3891a673
@@ -609,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 2d14d82c6b7665d283be31e7fd69044aa4c9b323
-R 742b8573af0bbcb0cf83fdebd146d44c
+P b18276cbde4f2dd30d9aa7b701c9900b76aa75fc c42aaa259f2b3595856d7e7da413e7279faf0319
+R 29b574d7d73a519560c35cdf64e4e2d1
 U jan.nijtmans
-Z 7c277b4d05ce9fcf3aa7a213671a640a
+Z 8e4220bd05bab1ab1d81e4f7d26bb08d

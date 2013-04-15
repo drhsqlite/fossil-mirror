@@ -162,10 +162,12 @@ void form_begin(const char *zOtherArgs, const char *zAction, ...){
 */
 void style_resolve_href(void){
   int i;
+  int nDelay = db_get_int("auto-hyperlink-delay",10);
   if( !g.perm.Hyperlink ) return;
   if( nHref==0 && nFormAction==0 ) return;
   @ <script type="text/JavaScript">
   @ /* <![CDATA[ */
+  @ function setAllHrefs(){
   if( g.javascriptHyperlink ){
     for(i=0; i<nHref; i++){
       @ gebi("a%d(i+1)").href="%s(aHref[i])";
@@ -173,6 +175,17 @@ void style_resolve_href(void){
   }
   for(i=0; i<nFormAction; i++){
     @ gebi("form%d(i+1)").action="%s(aFormAction[i])";
+  }
+  @ }
+  if( db_get_boolean("auto-hyperlink-mouseover",0) ){
+    /* Require mouse movement prior to activating hyperlinks */
+    @ document.getElementsByTagName("body")[0].onmousemove=function(){
+    @   setTimeout("setAllHrefs();",%d(nDelay));
+    @   this.onmousemove = null;
+    @ }
+  }else{
+    /* Active hyperlinks right away */
+    @ setTimeout("setAllHrefs();",%d(nDelay));
   }
   @ /* ]]> */
   @ </script>
@@ -908,7 +921,7 @@ const struct strctCssDefaults {
     @ ** to a standard jscolor definition with java script in the footer. */
   },
   { "div.endContent",
-    "format for end of content area, to be used to clear page flow(sidebox on branch,..",
+    "format for end of content area, to be used to clear page flow.",
     @   clear: both;
   },
   { "p.generalError",
