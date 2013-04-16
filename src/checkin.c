@@ -923,7 +923,6 @@ static int commit_warning(
   int encodingOk,       /* Non-zero if encoding warnings should be disabled. */
   const char *zFilename /* The full name of the file being committed. */
 ){
-  int bReverse;           /* UTF-16 byte order is reversed? */
   int fUnicode;           /* return value of could_be_utf16() */
   int fBinary;            /* does the blob content appear to be binary? */
   int lookFlags;          /* output flags from looks_like_utf8/utf16() */

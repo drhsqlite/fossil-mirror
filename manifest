@@ -1,5 +1,5 @@
-C merge\strunk
-D 2013-04-15T12:35:17.630
+C More\scomments
+D 2013-04-16T09:01:46.581
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -300,7 +300,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 4db06eb8e6b3a82279ce5f52119ef1a2aee73bc1
+F src/checkin.c a81accc839b55907da2c862bafcc69c8d129752c
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -314,7 +314,7 @@ F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c 333f4487b1a6ea351b98409e14bba7b6959d3043
+F src/diff.c ea1f1cbc4ac86a97b52b5f04cee80582303b6d53
 F src/diffcmd.c efa89b05bd1904c9d94c178eeca1be3fbeb9d579
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P b18276cbde4f2dd30d9aa7b701c9900b76aa75fc c42aaa259f2b3595856d7e7da413e7279faf0319
-R 29b574d7d73a519560c35cdf64e4e2d1
+P 3d82be0e3f3d698e6543a6e5c0dc0ce836b17036
+R 57a583194fb0cdb33eb3b99e2203021b
 U jan.nijtmans
-Z 8e4220bd05bab1ab1d81e4f7d26bb08d
+Z 56f911e062b19659e2e401820028f820
