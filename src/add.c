@@ -264,12 +264,12 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-#if defined(_WIN32) || defined(__CYGWIN__)
-  db_multi_exec(
-     "CREATE INDEX IF NOT EXISTS vfile_pathname "
-     "  ON vfile(pathname COLLATE nocase)"
-  );
-#endif
+  if( caseSensitive ){
+    db_multi_exec(
+       "CREATE INDEX IF NOT EXISTS vfile_pathname "
+       "  ON vfile(pathname COLLATE nocase)"
+    );
+  }
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
   
@@ -283,7 +283,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore, caseSensitive);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -499,7 +499,7 @@ void addremove_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore, caseSensitive);
   glob_free(pIgnore);
   nAdd = add_files_in_sfile(vid, caseSensitive);
 
