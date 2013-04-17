@@ -434,7 +434,8 @@ static int is_temporary_file(const char *zName){
 ** excluded from the scan.  Name matching occurs after the first
 ** nPrefix characters are elided from the filename.
 */
-void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
+void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore,
+    int caseSensitive){
   DIR *d;
   int origSize;
   const char *zDir;
@@ -455,7 +456,8 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
   if( depth==0 ){
     db_prepare(&ins,
        "INSERT OR IGNORE INTO sfile(x) SELECT :file"
-       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE pathname=:file)"
+       "  WHERE NOT EXISTS(SELECT 1 FROM vfile WHERE"
+       " pathname=:file %s)", caseSensitive ? "" : "COLLATE nocase"
     );
   }
   depth++;
@@ -479,7 +481,7 @@ void vfile_scan(Blob *pPath, int nPrefix, unsigned scanFlags, Glob *pIgnore){
         /* do nothing */
       }else if( file_wd_isdir(zPath)==1 ){
         if( !vfile_top_of_checkout(zPath) ){
-          vfile_scan(pPath, nPrefix, scanFlags, pIgnore);
+          vfile_scan(pPath, nPrefix, scanFlags, pIgnore, caseSensitive);
         }
       }else if( file_wd_isfile_or_link(zPath) ){
         if( (scanFlags & SCAN_TEMP)==0 || is_temporary_file(zUtf8) ){

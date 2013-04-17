@@ -316,6 +316,7 @@ void ls_cmd(void){
 **
 ** Options:
 **    --abs-paths      Display absolute pathnames.
+**    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
 **    --ignore <CSG>   ignore files matching patterns from the argument
 **    --rel-paths      Display pathnames relative to the current working
@@ -333,9 +334,12 @@ void extra_cmd(void){
   Glob *pIgnore;
   Blob rewrittenPathname;
   const char *zPathname, *zDisplayName;
+  int caseSensitive;
 
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
+  capture_case_sensitive_option();
   db_must_be_within_tree();
+  caseSensitive = filenames_are_case_sensitive();
   cwdRelative = determine_cwd_relative_option();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY %s)",
                 filename_collation());
@@ -345,7 +349,7 @@ void extra_cmd(void){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore, caseSensitive);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT x FROM sfile"
@@ -393,6 +397,7 @@ void extra_cmd(void){
 ** is used if the --ignore option is omitted.
 **
 ** Options:
+**    --case-sensitive <BOOL> override case-sensitive setting
 **    --dotfiles       include files beginning with a dot (".")
 **    --force          Remove files without prompting
 **    --ignore <CSG>   ignore files matching patterns from the
@@ -410,13 +415,16 @@ void clean_cmd(void){
   int n;
   Glob *pIgnore;
   int testFlag = 0;
+  int caseSensitive;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
   testFlag = find_option("test",0,0)!=0;
+  capture_case_sensitive_option();
   db_must_be_within_tree();
+  caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -425,7 +433,7 @@ void clean_cmd(void){
   n = strlen(g.zLocalRoot);
   blob_init(&path, g.zLocalRoot, n-1);
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore, caseSensitive);
   glob_free(pIgnore);
   db_prepare(&q,
       "SELECT %Q || x FROM sfile"
