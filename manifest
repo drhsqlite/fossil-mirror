@@ -1,5 +1,5 @@
-C Only\screate\sindex\swhen\s"case-sensitive"\sis\soff.
-D 2013-04-17T10:15:25.296
+C Document\s"fossil\stag\s--type\sTYPE"\sand\s"fossil\stimeline\s--count\sN\s--type\sTYPE"
+D 2013-04-17T14:00:25.236
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -387,14 +387,14 @@ F src/stash.c 14ea4bd43021a6607a66d5c9c891be8838afcfb7
 F src/stat.c 9bb2418c3fe03786a62f747a993fb575a5e20f42
 F src/style.c 04f142dc7d20eb2d9383e7be0359c4c01df81334
 F src/sync.c f8b3aad3185b0ad034b60fc33523b54f327bb86d
-F src/tag.c 3ec3bc586ab255da7c04188ff8fae451c9d28f8c
+F src/tag.c b0359c168de125f622f0d523b2215f1d85efecf6
 F src/tar.c 2ccfdb903a093f30890362f49c679a369e9893d1
 F src/th.c a561c58c237b3eb43eaf55e6f9cc6a9b8a26e5d1
 F src/th.h dc507dba5d0826a4416173233ea0eca8b14c1fd7
 F src/th_lang.c 6d19a8a13f5a7563c2cfb6035687612418bfb6b5
 F src/th_main.c 37a0b5fff4fafe55fef7730ebc7324c0c5a5a037
 F src/th_tcl.c ca7a3032c6b966f14e268a30f6a565467af0ec2b
-F src/timeline.c 173e2bf3260ada1735be98c02fd6726e7a36564f
+F src/timeline.c fd8f085ba0f433ba49eaa6f42106da191969aea6
 F src/tkt.c 41f2bd5a1c57301bc8d2a4a48cc1551875fd635e
 F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P e8e444eceb2628b2caf8443a443b3be827ed7bde
-R 2fef2b4bb7c98e90c957e9cc49e1f2df
+P 87ac9af8c672c14b9d5483cc3cf71470d09fb127
+R 38f984b0d2092cc77b05b48269db037c
 U jan.nijtmans
-Z e926ee3b155c83964ff6258ae21028b7
+Z 66c8323ee88e0b2c742b8cd79bc2d46e

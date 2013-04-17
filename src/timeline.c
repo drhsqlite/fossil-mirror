@@ -1557,7 +1557,7 @@ static int isIsoDate(const char *z){
 /*
 ** COMMAND: timeline
 **
-** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n N? ?-t TYPE? ?-showfiles?
+** Usage: %fossil timeline ?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE? ?-showfiles?
 **
 ** Print a summary of activity going backwards in date and time
 ** specified or from the current date and time if no arguments
@@ -1622,7 +1622,7 @@ void timeline_cmd(void){
     }else if( strncmp(g.argv[2],"parents",k)==0 ){
       mode = 4;
     }else if(!zType && !zCount){
-      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t TYPE?");
+      usage("?WHEN? ?BASELINE|DATETIME? ?-n|--count N? ?-t|--type TYPE?");
     }
     if( '-' != *g.argv[3] ){
       zOrigin = g.argv[3];
