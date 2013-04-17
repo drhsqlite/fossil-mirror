@@ -270,7 +270,7 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  if( caseSensitive ){
+  if( !caseSensitive ){
     db_multi_exec(
        "CREATE INDEX IF NOT EXISTS vfile_pathname "
        "  ON vfile(pathname COLLATE nocase)"
