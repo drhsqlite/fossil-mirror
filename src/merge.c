@@ -83,20 +83,20 @@ void print_checkin_description(int rid, int indent, const char *zLabel){
 **                           a sequence of changes in a branch to be merged
 **                           without having to merge the entire branch.
 **
-**   --detail                Show additional details of the merge
-**
 **   --binary GLOBPATTERN    Treat files that match GLOBPATTERN as binary
 **                           and do not try to merge parallel changes.  This
 **                           option overrides the "binary-glob" setting.
-**
-**   --nochange | -n         Dryrun:  do not actually make any changes; just
-**                           show what would have happened.
 **
 **   --case-sensitive BOOL   Override the case-sensitive setting.  If false,
 **                           files whose names differ only in case are taken
 **                           to be the same file.
 **
+**   --detail                Show additional details of the merge
+**
 **   --force | -f            Force the merge even if it would be a no-op.
+**
+**   --nochange | -n         Dryrun:  do not actually make any changes; just
+**                           show what would have happened.
 */
 void merge_cmd(void){
   int vid;              /* Current version "V" */

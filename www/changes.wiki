@@ -8,7 +8,9 @@
      [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-specialchars].
   *  Cygwin: Fossil now understands win32 absolute paths starting with a drive
      letter everywhere. The default value of the "case-sensitive" setting is
-     now FALSE.
+     now FALSE, except when case-sensitivity is enabled in the Windows kernel.
+     See
+     [http://cygwin.com/cygwin-ug-net/using-specialnames.html#pathnames-casesensitive]
   *  Enhancements to /timeline.rss, adding more flags for filtering
      results, including the ability to subscribe to changes made
      to individual tickets. For example: [/timeline.rss?y=t&tkt=12fceeec82].

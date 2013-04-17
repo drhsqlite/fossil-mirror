@@ -22,6 +22,12 @@
 #include "add.h"
 #include <assert.h>
 #include <dirent.h>
+#ifdef __CYGWIN__
+  __declspec(dllimport) extern __stdcall int RegOpenKeyExW(void *, void *,
+      int, int, void *);
+  __declspec(dllimport) extern __stdcall int RegQueryValueExW(void *, void *,
+      int, void *, void *, void *);
+#endif
 
 /*
 ** This routine returns the names of files in a working checkout that
@@ -264,12 +270,12 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-#if defined(_WIN32) || defined(__CYGWIN__)
-  db_multi_exec(
-     "CREATE INDEX IF NOT EXISTS vfile_pathname "
-     "  ON vfile(pathname COLLATE nocase)"
-  );
-#endif
+  if( caseSensitive ){
+    db_multi_exec(
+       "CREATE INDEX IF NOT EXISTS vfile_pathname "
+       "  ON vfile(pathname COLLATE nocase)"
+    );
+  }
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
   
@@ -377,8 +383,10 @@ void capture_case_sensitive_option(void){
 ** The case-sensitive setting determines the default value.  If
 ** the case-sensitive setting is undefined, then case sensitivity
 ** defaults off for Cygwin, Mac and Windows and on for all other unix.
+** If case-sensitivity is enabled in the windows kernel, the Cygwin port
+** of fossil.exe can detect that, and modifies the default to 'on'.
 **
-** The --case-sensitive BOOLEAN command-line option overrides any
+** The --case-sensitive <BOOL> command-line option overrides any
 ** setting.
 */
 int filenames_are_case_sensitive(void){
@@ -390,10 +398,21 @@ int filenames_are_case_sensitive(void){
     if( zCaseSensitive ){
       caseSensitive = is_truth(zCaseSensitive);
     }else{
-#if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__DARWIN__) && !defined(__APPLE__)
-      caseSensitive = 1;  /* Unix */
+#if defined(_WIN32) || defined(__DARWIN__) || defined(__APPLE__)
+      caseSensitive = 0;  /* Mac and Windows */
+#elif defined(__CYGWIN__)
+      /* Cygwin can be configured to be case-sensitive, check this. */
+      void *hKey;
+      int value = 1, length = sizeof(int);
+      caseSensitive = 0;  /* Cygwin default */
+      if( (RegOpenKeyExW((void *)0x80000002, L"SYSTEM\\CurrentControlSet\\"
+          "Control\\Session Manager\\kernel", 0, 1, (void *)&hKey)
+          == 0) && (RegQueryValueExW(hKey, L"obcaseinsensitive",
+          0, NULL, (void *)&value, (void *)&length) == 0) && !value ){
+        caseSensitive = 1;
+      }
 #else
-      caseSensitive = 0;  /* Cygwin, Mac and Windows */
+      caseSensitive = 1;  /* Unix */
 #endif
       caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
     }

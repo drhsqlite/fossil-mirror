@@ -738,19 +738,19 @@ const char *diff_get_binary_glob(void){
 ** This option overrides the "binary-glob" setting.
 **
 ** Options:
+**   --binary PATTERN    Treat files that match the glob PATTERN as binary
 **   --branch BRANCH     Show diff of all changes on BRANCH
 **   --brief             Show filenames only
 **   --context|-c N      Use N lines of context 
+**   --diff-binary BOOL  Include binary files when using external commands
 **   --from|-r VERSION   select VERSION as source for the diff
-**   -i                  use internal diff logic
+**   --internal|-i       use internal diff logic
 **   --new-file|-N       output complete text of added or deleted files
+**   --side-by-side|-y   side-by-side diff
 **   --tk                Launch a Tcl/Tk GUI for display
 **   --to VERSION        select VERSION as target for the diff
-**   --side-by-side|-y   side-by-side diff
 **   --unified           unified diff
 **   --width|-W N        Width of lines in side-by-side diff 
-**   --diff-binary BOOL  Include binary files when using external commands
-**   --binary PATTERN    Treat files that match the glob PATTERN as binary
 */
 void diff_cmd(void){
   int isGDiff;               /* True for gdiff.  False for normal diff */

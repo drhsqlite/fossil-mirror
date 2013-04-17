@@ -42,15 +42,15 @@
 **
 ** Options:
 **   --brief|-b           display a brief (one line / revision) summary
+**   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
+**                        boolean: "yes", "no", "true", "false", etc.
 **   --limit N            display the first N changes
 **   --log|-l             select log mode (the default)
 **   --offset P           skip P changes
-**   -p                   select print mode
+**   --print|-p           select print mode
 **   --revision|-r R      print the given revision (or ckout, if none is given)
 **                        to stdout (only in print mode)
-**   -s                   select status mode (print a status indicator for FILE)
-**   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
-**                        boolean: "yes", "no", "true", "false", etc.
+**   --status|-s          select status mode (print a status indicator for FILE)
 **
 ** See also: artifact, cat, descendants, info, leaves
 */
