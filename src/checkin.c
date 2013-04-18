@@ -106,8 +106,8 @@ static void status_report(
   while( db_step(&q)==SQLITE_ROW ){
     const char *zLabel = "MERGED_WITH";
     switch( db_column_int(&q, 1) ){
-      case -1:  zLabel = "CHERRYPICK ";  break;
-      case -2:  zLabel = "BACKOUT    ";  break;
+      case -1:  zLabel = "CHERRYPICK";  break;
+      case -2:  zLabel = "BACKOUT   ";  break;
     }
     blob_append(report, zPrefix, nPrefix);
     blob_appendf(report, "%s %s\n", zLabel, db_column_text(&q, 0));
@@ -864,8 +864,20 @@ static void create_manifest(
   }
   db_finalize(&q2);
   free(zDate);
-
   blob_appendf(pOut, "\n");
+
+  db_prepare(&q2,
+    "SELECT CASE vmerge.id WHEN -1 THEN '+' ELSE '-' END || blob.uuid"
+    "  FROM vmerge, blob"
+    " WHERE vmerge.id<0"
+    "   AND blob.rid=vmerge.merge"
+    " ORDER BY 1");
+  while( db_step(&q2)==SQLITE_ROW ){
+    const char *zCherrypickUuid = db_column_text(&q2, 0);
+    blob_appendf(pOut, "Q %s\n", zCherrypickUuid);
+  }
+  db_finalize(&q2);
+
   if( p->pCksum ) blob_appendf(pOut, "R %b\n", p->pCksum);
   zColor = p->zColor;
   if( p->zBranch && p->zBranch[0] ){

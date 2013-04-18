@@ -629,9 +629,8 @@ void merge_cmd(void){
   ** Clean up the mid and pid VFILE entries.  Then commit the changes.
   */
   db_multi_exec("DELETE FROM vfile WHERE vid!=%d", vid);
-  db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(%d,%d)",
-                pickFlag ? -1 : (backoutFlag ? -2 : 0), mid);
   if( pickFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-1,%d)",mid);
     /* For a cherry-pick merge, make the default check-in comment the same
     ** as the check-in comment on the check-in that is being merged in. */
     db_multi_exec(
@@ -640,6 +639,10 @@ void merge_cmd(void){
        "  WHERE type='ci' AND objid=%d",
        mid
     );
+  }else if( backoutFlag ){
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(-2,%d)",pid);
+  }else{
+    db_multi_exec("INSERT OR IGNORE INTO vmerge(id,merge) VALUES(0,%d)", mid);
   }
   undo_finish();
   db_end_transaction(nochangeFlag);
