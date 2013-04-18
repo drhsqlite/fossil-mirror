@@ -1,5 +1,5 @@
-C Document\s"fossil\stag\s--type\sTYPE"\sand\s"fossil\stimeline\s--count\sN\s--type\sTYPE"
-D 2013-04-17T14:00:25.236
+C Use\sthe\sfunction\sfilename_collation()\severywhere\sin\sstead\sof\spassing\scaseSensitive\sas\sparameter.
+D 2013-04-18T08:46:17.557
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,17 +290,17 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 4e0cdee344d6cf02157358046b8cedfeba905b36
+F src/add.c 90ebd9e477ff499b7e091b5cb20716bffeb49fa2
 F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 639666952af95c3113252f1c1068420202ddd2da
 F src/blob.c 8ba8a0156a79cd41840f5e0363522a0d96c2e444
 F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
-F src/browse.c 067d05273ecf987d1a4c95dadd1d4067bd9c1212
+F src/browse.c 274fe290975588128a5162a3627341db40b311bf
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 58c4ef13205b4cf997fd743afcf863b3e1a48545
+F src/checkin.c 0ebaed5c81cb271d3e6b0bea50cad30b1f750c30
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -358,7 +358,7 @@ F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
-F src/merge.c b6fffc86cc71472d37045466d60c587095114c8a
+F src/merge.c 70ca325fb5c9d5169cab735093909ece045412fc
 F src/merge3.c 33796c5a85ecc1af33f53e9c7c89cbce53d761fc
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
@@ -406,7 +406,7 @@ F src/user.c f2f1863ca13c39d35997247b95990a8fda235fd6
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
 F src/util.c 40229a2f2528cc4dd9a51676f60d1dd6eaef8f0a
 F src/verify.c 4ef13b79edfbc7af5e36e97af4910f49afbd9301
-F src/vfile.c 332c7a22993bf575c44eaac64a45f15199339934
+F src/vfile.c d64ed2ed6fe15bcab131b823e5f0e9e0a9a92e89
 F src/wiki.c 2fb45814f335dc9ae34543b2a7755cf3e7342512
 F src/wikiformat.c 4639b20aa755d60dd7a1f6d94cd3601147df151d
 F src/winhttp.c b8342e4cfe308d53b1dfc6d9d2080f28a70da54b
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 87ac9af8c672c14b9d5483cc3cf71470d09fb127
-R 38f984b0d2092cc77b05b48269db037c
+P f8e526c212a28988ea0a8839c51d74053229c761
+R a439a12e08f448e64fed69c6270dcdea
 U jan.nijtmans
-Z 66c8323ee88e0b2c742b8cd79bc2d46e
+Z 4b5c6c486b160cf79d19b6fe2e6cab15

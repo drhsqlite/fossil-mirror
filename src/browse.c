@@ -210,6 +210,13 @@ void page_dir(void){
     ManifestFile *pPrev = 0;
     int nPrev = 0;
     int c;
+    int (*xCmp)(const char*,const char*,int);
+
+    if( filenames_are_case_sensitive() ){
+      xCmp = fossil_strncmp;
+    }else{
+      xCmp = fossil_strnicmp;
+    }
 
     db_prepare(&ins,
        "INSERT OR IGNORE INTO localfiles VALUES(pathelement(:x,0), :u)"
@@ -217,13 +224,13 @@ void page_dir(void){
     manifest_file_rewind(pM);
     while( (pFile = manifest_file_next(pM,0))!=0 ){
       if( nD>0 
-       && (filenames_strncmp(pFile->zName, zD, nD-1)!=0
+       && (xCmp(pFile->zName, zD, nD-1)!=0
            || pFile->zName[nD-1]!='/')
       ){
         continue;
       }
       if( pPrev
-       && filenames_strncmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
+       && xCmp(&pFile->zName[nD],&pPrev->zName[nD],nPrev)==0
        && (pFile->zName[nD+nPrev]==0 || pFile->zName[nD+nPrev]=='/')
       ){
         continue;

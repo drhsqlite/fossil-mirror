@@ -144,18 +144,16 @@ void test_reserved_names(void){
 */
 static int add_one_file(
   const char *zPath,   /* Tree-name of file to add. */
-  int vid,             /* Add to this VFILE */
-  int caseSensitive    /* True if filenames are case sensitive */
+  int vid              /* Add to this VFILE */
 ){
-  const char *zCollate = caseSensitive ? "binary" : "nocase";
   if( !file_is_simple_pathname(zPath, 1) ){
     fossil_warning("filename contains illegal characters: %s", zPath);
     return 0;
   }
   if( db_exists("SELECT 1 FROM vfile"
-                " WHERE pathname=%Q COLLATE %s", zPath, zCollate) ){
+                " WHERE pathname=%Q %s", zPath, filename_collation()) ){
     db_multi_exec("UPDATE vfile SET deleted=0"
-                  " WHERE pathname=%Q COLLATE %s", zPath, zCollate);
+                  " WHERE pathname=%Q %s", zPath, filename_collation());
   }else{
     char *zFullname = mprintf("%s%s", g.zLocalRoot, zPath);
     db_multi_exec(
@@ -178,7 +176,7 @@ static int add_one_file(
 **
 ** Automatically exclude the repository file.
 */
-static int add_files_in_sfile(int vid, int caseSensitive){
+static int add_files_in_sfile(int vid){
   const char *zRepo;        /* Name of the repository database file */
   int nAdd = 0;             /* Number of files added */
   int i;                    /* Loop counter */
@@ -193,14 +191,10 @@ static int add_files_in_sfile(int vid, int caseSensitive){
   }else{
     zRepo = blob_str(&repoName);
   }
-  if( caseSensitive ){
+  if( filenames_are_case_sensitive() ){
     xCmp = fossil_strcmp;
   }else{
     xCmp = fossil_stricmp;
-    db_multi_exec(
-      "CREATE INDEX IF NOT EXISTS vfile_nocase"
-      "    ON vfile(pathname COLLATE nocase)"
-    );
   }
   db_prepare(&loop, "SELECT x FROM sfile ORDER BY x");
   while( db_step(&loop)==SQLITE_ROW ){
@@ -210,7 +204,7 @@ static int add_files_in_sfile(int vid, int caseSensitive){
       if( xCmp(zToAdd, zReserved)==0 ) break;
     }
     if( zReserved ) continue;
-    nAdd += add_one_file(zToAdd, vid, caseSensitive);
+    nAdd += add_one_file(zToAdd, vid);
   }
   db_finalize(&loop);
   blob_reset(&repoName);
@@ -253,14 +247,12 @@ void add_cmd(void){
   int nRoot;                 /* Full path characters in g.zLocalRoot */
   const char *zIgnoreFlag;   /* The --ignore option or ignore-glob setting */
   Glob *pIgnore;             /* Ignore everything matching this glob pattern */
-  int caseSensitive;         /* True if filenames are case sensitive */
   unsigned scanFlags = 0;    /* Flags passed to vfile_scan() */
 
   zIgnoreFlag = find_option("ignore",0,1);
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -270,12 +262,6 @@ void add_cmd(void){
   }
   db_begin_transaction();
   db_multi_exec("CREATE TEMP TABLE sfile(x TEXT PRIMARY KEY)");
-  if( !caseSensitive ){
-    db_multi_exec(
-       "CREATE INDEX IF NOT EXISTS vfile_pathname "
-       "  ON vfile(pathname COLLATE nocase)"
-    );
-  }
   pIgnore = glob_create(zIgnoreFlag);
   nRoot = strlen(g.zLocalRoot);
   
@@ -289,7 +275,7 @@ void add_cmd(void){
     zName = blob_str(&fullName);
     isDir = file_wd_isdir(zName);
     if( isDir==1 ){
-      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore, caseSensitive);
+      vfile_scan(&fullName, nRoot-1, scanFlags, pIgnore);
     }else if( isDir==0 ){
       fossil_warning("not found: %s", zName);
     }else if( file_access(zName, R_OK) ){
@@ -305,7 +291,7 @@ void add_cmd(void){
   }
   glob_free(pIgnore);
 
-  add_files_in_sfile(vid, caseSensitive);
+  add_files_in_sfile(vid);
   db_end_transaction(0);
 }
 
@@ -416,6 +402,12 @@ int filenames_are_case_sensitive(void){
 #endif
       caseSensitive = db_get_boolean("case-sensitive",caseSensitive);
     }
+    if( !caseSensitive ){
+      db_multi_exec(
+         "CREATE INDEX IF NOT EXISTS vfile_nocase "
+         "  ON vfile(pathname COLLATE nocase)"
+      );
+    }
   }
   return caseSensitive;
 }
@@ -429,18 +421,6 @@ int filenames_are_case_sensitive(void){
 */
 const char *filename_collation(void){
   return filenames_are_case_sensitive() ? "" : "COLLATE nocase";
-}
-
-/*
-** Do a strncmp() operation which is either case-sensitive or not
-** depending on the setting of filenames_are_case_sensitive().
-*/
-int filenames_strncmp(const char *zA, const char *zB, int nByte){
-  if( filenames_are_case_sensitive() ){
-    return fossil_strncmp(zA,zB,nByte);
-  }else{
-    return fossil_strnicmp(zA,zB,nByte);
-  }
 }
 
 /*
@@ -487,7 +467,6 @@ void addremove_cmd(void){
   const char *zIgnoreFlag = find_option("ignore",0,1);
   unsigned scanFlags = find_option("dotfiles",0,0)!=0 ? SCAN_ALL : 0;
   int isTest = find_option("test",0,0)!=0;
-  int caseSensitive;
   int n;
   Stmt q;
   int vid;
@@ -497,7 +476,6 @@ void addremove_cmd(void){
 
   capture_case_sensitive_option();
   db_must_be_within_tree();
-  caseSensitive = filenames_are_case_sensitive();
   if( zIgnoreFlag==0 ){
     zIgnoreFlag = db_get("ignore-glob", 0);
   }
@@ -518,9 +496,9 @@ void addremove_cmd(void){
   blob_init(&path, g.zLocalRoot, n-1);
   /* now we read the complete file structure into a temp table */
   pIgnore = glob_create(zIgnoreFlag);
-  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore, caseSensitive);
+  vfile_scan(&path, blob_size(&path), scanFlags, pIgnore);
   glob_free(pIgnore);
-  nAdd = add_files_in_sfile(vid, caseSensitive);
+  nAdd = add_files_in_sfile(vid);
 
   /* step 2: search for missing files */
   db_prepare(&q,

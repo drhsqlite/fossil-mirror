@@ -115,7 +115,6 @@ void merge_cmd(void){
   int i;                /* Loop counter */
   int nConflict = 0;    /* Number of conflicts seen */
   int nOverwrite = 0;   /* Number of unmanaged files overwritten */
-  int caseSensitive;    /* True for case-sensitive filenames */
   Stmt q;
 
 
@@ -138,7 +137,6 @@ void merge_cmd(void){
   capture_case_sensitive_option();
   verify_all_options();
   db_must_be_within_tree();
-  caseSensitive = filenames_are_case_sensitive();
   if( zBinGlob==0 ) zBinGlob = db_get("binary-glob",0);
   vid = db_lget_int("checkout", 0);
   if( vid==0 ){
@@ -277,7 +275,7 @@ void merge_cmd(void){
   db_multi_exec(
     "DROP TABLE IF EXISTS fv;"
     "CREATE TEMP TABLE fv("
-    "  fn TEXT PRIMARY KEY COLLATE %s,"  /* The filename */
+    "  fn TEXT PRIMARY KEY %s,"  /* The filename */
     "  idv INTEGER,"              /* VFILE entry for current version */
     "  idp INTEGER,"              /* VFILE entry for the pivot */
     "  idm INTEGER,"              /* VFILE entry for version merging in */
@@ -291,7 +289,7 @@ void merge_cmd(void){
     "  islinkv BOOLEAN,"          /* True if current version is a symlink */
     "  islinkm BOOLEAN"           /* True if merged version in is a symlink */
     ");",
-    caseSensitive ? "binary" : "nocase"
+    filename_collation()
   );
 
   /* Add files found in V
