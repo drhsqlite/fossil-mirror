@@ -29,7 +29,7 @@
 ** in time.  The default mode is -l.
 **
 ** For the -l|--log mode: If "-b|--brief" is specified one line per revision
-** is printed, otherwise the full comment is printed.  The "--limit N"
+** is printed, otherwise the full comment is printed.  The "--count N"
 ** and "--offset P" options limits the output to the first N changes
 ** after skipping P changes.
 **
@@ -44,7 +44,7 @@
 **   --brief|-b           display a brief (one line / revision) summary
 **   --case-sensitive B   Enable or disable case-sensitive filenames.  B is a
 **                        boolean: "yes", "no", "true", "false", etc.
-**   --limit N            display the first N changes
+**   --count|n N          display the first N changes
 **   --log|-l             select log mode (the default)
 **   --offset P           skip P changes
 **   --print|-p           select print mode
@@ -142,7 +142,11 @@ void finfo_cmd(void){
     if( find_option("log","l",0) ){
       /* this is the default, no-op */
     }
-    zLimit = find_option("limit",0,1);
+    zLimit = find_option("count","n",1);
+    if( !zLimit ){
+      /* deprecated */
+      zLimit = find_option("limit",0,1);
+    }
     iLimit = zLimit ? atoi(zLimit) : -1;
     zOffset = find_option("offset",0,1);
     iOffset = zOffset ? atoi(zOffset) : 0;

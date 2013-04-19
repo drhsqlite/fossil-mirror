@@ -200,7 +200,7 @@ static cson_value * json_tag_find(){
   char const * zType2 = NULL;
   char fRaw = 0;
   Stmt q = empty_Stmt;
-  int limit = 0;
+  int count = 0;
   int tagid = 0;
 
   if( !g.perm.Read ){
@@ -232,7 +232,7 @@ static cson_value * json_tag_find(){
     }
   }
 
-  limit = json_find_option_int("limit",NULL,"n",0);
+  count = json_find_option_int("count",NULL,"n",0);
   fRaw = json_find_option_bool("raw",NULL,NULL,0);
   
   tagid = db_int(0, "SELECT tagid FROM tag WHERE tagname='%s' || %Q",
@@ -244,7 +244,7 @@ static cson_value * json_tag_find(){
   cson_object_set(pay, "name", json_new_string(zName));
   cson_object_set(pay, "raw", cson_value_new_bool(fRaw));
   cson_object_set(pay, "type", json_new_string(zType2));
-  cson_object_set(pay, "limit", json_new_int(limit));
+  cson_object_set(pay, "count", json_new_int(count));
 
 #if 1
   if( tagid<=0 ){
@@ -262,7 +262,7 @@ static cson_value * json_tag_find(){
                "   AND blob.rid=tagxref.rid"
                "%s LIMIT %d",
                zName,
-               (limit>0)?"":"--", limit
+               (count>0)?"":"--", count
                );
     while( db_step(&q)==SQLITE_ROW ){
       if(!listV){
@@ -304,7 +304,7 @@ static cson_value * json_tag_find(){
                " ORDER BY event.mtime DESC"
                "%s LIMIT %d",
                zSqlBase, zType, tagid,
-               (limit>0)?"":"--", limit
+               (count>0)?"":"--", count
                );
     listV = json_stmt_to_array_of_obj(&q, NULL);
     db_finalize(&q);

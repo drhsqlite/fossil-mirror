@@ -412,13 +412,13 @@ void clean_cmd(void){
   Stmt q;
   int n;
   Glob *pIgnore;
-  int testFlag = 0;
+  int nochangeFlag = 0;
 
   allFlag = find_option("force","f",0)!=0;
   if( find_option("dotfiles",0,0)!=0 ) scanFlags |= SCAN_ALL;
   if( find_option("temp",0,0)!=0 ) scanFlags |= SCAN_TEMP;
   zIgnoreFlag = find_option("ignore",0,1);
-  testFlag = find_option("test",0,0)!=0;
+  nochangeFlag = find_option("nochange","n",0)!=0;
   capture_case_sensitive_option();
   db_must_be_within_tree();
   if( zIgnoreFlag==0 ){
@@ -442,7 +442,7 @@ void clean_cmd(void){
   }
   db_multi_exec("DELETE FROM sfile WHERE x IN (SELECT pathname FROM vfile)");
   while( db_step(&q)==SQLITE_ROW ){
-    if( testFlag ){
+    if( nochangeFlag ){
       fossil_print("%s\n", db_column_text(&q,0));
       continue;
     }else if( !allFlag ){
@@ -1156,7 +1156,7 @@ void commit_cmd(void){
   char *zManifestFile;   /* Name of the manifest file */
   int useCksum;          /* True if checksums should be computed and verified */
   int outputManifest;    /* True to output "manifest" and "manifest.uuid" */
-  int testRun;           /* True for a test run.  Debugging only */
+  int nochangeFlag;      /* True for a test run.  Debugging only */
   CheckinInfo sCiInfo;   /* Information about this check-in */
   const char *zComFile;  /* Read commit message from this file */
   int nTag = 0;          /* Number of --tag arguments */
@@ -1180,7 +1180,7 @@ void commit_cmd(void){
   if( forceDelta && forceBaseline ){
     fossil_fatal("cannot use --delta and --baseline together");
   }
-  testRun = find_option("test",0,0)!=0;
+  nochangeFlag = find_option("nochange","n",0)!=0;
   zComment = find_option("comment","m",1);
   forceFlag = find_option("force", "f", 0)!=0;
   allowConflict = find_option("allow-conflict",0,0)!=0;
@@ -1524,7 +1524,7 @@ void commit_cmd(void){
   /* If the --test option is specified, output the manifest file
   ** and rollback the transaction.
   */
-  if( testRun ){
+  if( nochangeFlag ){
     blob_write_to_file(&manifest, "");
   }
 
@@ -1603,7 +1603,7 @@ void commit_cmd(void){
 
   /* Commit */
   db_multi_exec("DELETE FROM vvar WHERE name='ci-comment'");
-  if( testRun ){
+  if( nochangeFlag ){
     db_end_transaction(1);
     exit(1);
   }

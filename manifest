@@ -1,5 +1,5 @@
-C Record\scherrypicks\sand\sbackouts\sin\sthe\sQ\scard\sof\sthe\scheck-in\smanifest.\nThis\sis\sthe\sfirst\sstep\sin\sadding\sdisplay\sof\scherry-picks,\nticket\s[eaf1c4fdbeeca8eb].
-D 2013-04-18T18:53:17.376
+C Rename\s"--limit"\sto\s"--count"\sand\s"--test"\sto\s"--nochange"\sin\ssome\sfossil\scommands
+D 2013-04-19T07:55:57.356
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,8 +290,8 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 90ebd9e477ff499b7e091b5cb20716bffeb49fa2
-F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
+F src/add.c 584b0e1d51e0cb1208af6703f91383d3631bff0d
+F src/allrepo.c 60350f7b0e3e6922ce59b14f562716049d8bdb0d
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 639666952af95c3113252f1c1068420202ddd2da
@@ -300,7 +300,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 274fe290975588128a5162a3627341db40b311bf
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 67fa1349056fd5ae3b700d9242e8c45cade2dbe0
+F src/checkin.c b36c83b51efa55405e50ce4c316df0062ba3c052
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -314,14 +314,14 @@ F src/db.c ad785bdf21569056f623ef3cd5ca99ca2fd9a1e5
 F src/delta.c 2c7e11a91b2aa2196c3f3d4cf2c20ff158bddd2e
 F src/deltacmd.c 08f55239e28aa9530f3f53006f7b69b03fb51ede
 F src/descendants.c 1563c0dfdefadf3a7742f1779aa6e1f82e2b121d
-F src/diff.c e09a3a97c8a7c06a3007180d3ee68e08d7efdaf9
+F src/diff.c 6fbdbce6c5c15f1bf01e2636365e6cdf5b7a0fa0
 F src/diffcmd.c 18f0957e6fb05b47fab116c3e4c1a10f91ca6121
 F src/doc.c 41fa32991941d8de3f4a486e3625d1bb893860eb
 F src/encode.c 5bc20d85da5e9131050dc4aa0ee626d587b5f73c
 F src/event.c 479cd7832e3c0dad48ed67e54d5c24b5fe6c4a79
 F src/export.c 4a5a11c666166cc8c25362357c8c6681e5ad6764
 F src/file.c c6ad62e5a9e835418ad34304d42e78faea4da1e9
-F src/finfo.c 883a6ae8abde8a724633b74a4712f12fac71a673
+F src/finfo.c f0402096073d246497f50a679cc116049d462cef
 F src/glob.c 66cd71e83a07fe617fb862d6237d283430d91d14
 F src/graph.c d2f9ba3faa6cc3b9cbf085b1faa8bc942cc75cf0
 F src/gzip.c 743b7f32ef93b5a303896993a2c175dce6660219
@@ -338,13 +338,13 @@ F src/json_config.c b2889cba59ce53ff43545c0cce903a8917debb6d
 F src/json_detail.h a5ef58bb4838f64de4fb3d95a7a561d89a92e127
 F src/json_diff.c 784180c67a6bb8547dcb9adc430678c8286ab3ff
 F src/json_dir.c 333e845a99528efd60788325e628bbcec3b43153
-F src/json_finfo.c f96cb3c19176b1667ea3956e48099ed5af8803d4
+F src/json_finfo.c 1478c6ea8a3c6c35b7dd54db07c55c3777fadb6c
 F src/json_login.c d8daafbf01d285a7c64b9ef08c1e5875f8efa65f
 F src/json_query.c 017ab69953ee208381dc210ee01716585f1bac15
-F src/json_report.c 1bce5178ec70545ec16becdbaac22d785d1880ba
+F src/json_report.c c9d1ff573487bf285a852b738df13ce63d1449fd
 F src/json_status.c e95054838372a514918169a2c81811f530b88516
-F src/json_tag.c 70261471bbfe05f47af230561053a4fcbbeba5a9
-F src/json_timeline.c 53d8af60d170add430d83f990da945d3c1d1b939
+F src/json_tag.c c7f865721a3f90c65434126f8837fe4d763bf5f3
+F src/json_timeline.c 654a637f52d8dc0e46512bdecae9be8a5fb88fa8
 F src/json_user.c b68775a2900614e8365637635bd26bac378d506c
 F src/json_wiki.c 58841d7f80bca3c98f1fe7aba7039fdb9be48e8f
 F src/leaf.c 7746adfcb013ec9886da259ffe5a87270d44e406
@@ -610,7 +610,10 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3c781f4f0b6df2501ea71e313e3ba3f8b52aca33
-R 980d4ecee222cfdfe1085a1ed2e3b11d
-U drh
-Z e964d2b6f73068507145ebd32f951ba5
+P 91aa222d7f2a874663dcff6fe33d46d3326f7cbf
+R d0dae35cda14fe26d4cb678021a1fad2
+T *branch * count-nochange
+T *sym-count-nochange *
+T -sym-trunk *
+U jan.nijtmans
+Z 075c1f6f006d7e9ddfe3de39a3af397b

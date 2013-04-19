@@ -226,24 +226,24 @@ static char json_timeline_add_time_clause(Blob *pSql){
 }
 
 /*
-** Tries to figure out a timeline query length limit base on
+** Tries to figure out a timeline query length count base on
 ** environment parameters. If it can it returns that value,
 ** else it returns some statically defined default value.
 **
-** Never returns a negative value. 0 means no limit.
+** Never returns a negative value. 0 means no count.
 */
-static int json_timeline_limit(int defaultLimit){
-  int limit = -1;
+static int json_timeline_count(int defaultCount){
+  int count = -1;
   if(!g.isHTTP){/* CLI mode */
-    char const * arg = find_option("limit","n",1);
+    char const * arg = find_option("count","n",1);
     if(arg && *arg){
-      limit = atoi(arg);
+    	count = atoi(arg);
     }
   }
-  if( (limit<0) && fossil_has_json() ){
-    limit = json_getenv_int("limit",-1);
+  if( (count<0) && fossil_has_json() ){
+    count = json_getenv_int("count",-1);
   }
-  return (limit<0) ? defaultLimit : limit;
+  return (count<0) ? defaultCount : count;
 }
 
 /*
@@ -263,7 +263,7 @@ static int json_timeline_limit(int defaultLimit){
 static int json_timeline_setup_sql( char const * zEventType,
                                     Blob * pSql,
                                     cson_object * pPayload ){
-  int limit;
+  int count;
   assert( zEventType && *zEventType && pSql );
   json_timeline_temp_table();
   blob_append(pSql, "INSERT OR IGNORE INTO json_timeline ", -1);
@@ -273,12 +273,12 @@ static int json_timeline_setup_sql( char const * zEventType,
     return FSL_JSON_E_INVALID_ARGS;
   }
   json_timeline_add_time_clause(pSql);
-  limit = json_timeline_limit(20);
-  if(limit>0){
-    blob_appendf(pSql,"LIMIT %d ",limit);
+  count = json_timeline_count(20);
+  if(count>0){
+    blob_appendf(pSql,"LIMIT %d ",count);
   }
   if(pPayload){
-    cson_object_set(pPayload, "limit", json_new_int(limit));
+    cson_object_set(pPayload, "count", json_new_int(count));
   }
   return 0;
 }
@@ -344,7 +344,7 @@ static cson_value * json_timeline_branch(){
   cson_value * pay = NULL;
   Blob sql = empty_blob;
   Stmt q = empty_Stmt;
-  int limit = 0;
+  int count = 0;
   if(!g.perm.Read){
     json_set_err(FSL_JSON_E_DENIED,
                  "Requires 'o' permissions.");
@@ -370,9 +370,9 @@ static cson_value * json_timeline_branch(){
                "  WHERE tagtype>0 AND tagid=%d AND srcid!=0)"
                " ORDER BY event.mtime DESC",
                TAG_BRANCH);
-  limit = json_timeline_limit(20);
-  if(limit>0){
-    blob_appendf(&sql," LIMIT %d ",limit);
+  count = json_timeline_count(20);
+  if(count>0){
+    blob_appendf(&sql," LIMIT %d ",count);
   }
   db_prepare(&q,"%s", blob_str(&sql));
   blob_reset(&sql);
@@ -406,8 +406,8 @@ static cson_value * json_timeline_branch(){
        other /json/timeline/xyz APIs...
     */
     outer = cson_new_object();
-    if(limit>0){
-      cson_object_set( outer, "limit", json_new_int(limit) );
+    if(count>0){
+      cson_object_set( outer, "count", json_new_int(count) );
     }
     cson_object_set( outer, "timeline", pay );
     pay = cson_object_value(outer);

@@ -2417,7 +2417,7 @@ void annotation_page(void){
   mid = name_to_typed_rid(PD("checkin","0"),"ci");
   fnid = db_int(0, "SELECT fnid FROM filename WHERE name=%Q", P("filename"));
   if( mid==0 || fnid==0 ){ fossil_redirect_home(); }
-  iLimit = atoi(PD("limit","-1"));
+  iLimit = atoi(PD("count","-1"));
   if( !db_exists("SELECT 1 FROM mlink WHERE mid=%d AND fnid=%d",mid,fnid) ){
     fossil_redirect_home();
   }
@@ -2461,7 +2461,7 @@ void annotation_page(void){
 ** the file was last modified.
 **
 ** Options:
-**   --limit N       Only look backwards in time by N versions
+**   --count|-n N    Only look backwards in time by N versions
 **   --log           List all versions analyzed
 **   --filevers      Show file version numbers rather than check-in versions
 **
@@ -2476,13 +2476,17 @@ void annotate_cmd(void){
   char *zFilename;  /* Canonical filename */
   Annotator ann;    /* The annotation of the file */
   int i;            /* Loop counter */
-  const char *zLimit; /* The value to the --limit option */
+  const char *zLimit; /* The value to the --count option */
   int iLimit;       /* How far back in time to look */
   int showLog;      /* True to show the log */
   int fileVers;     /* Show file version instead of check-in versions */
   int annFlags = 0; /* Flags to control annotation properties */
 
-  zLimit = find_option("limit",0,1);
+  zLimit = find_option("count","n",1);
+  if(!zLimit){
+    /* deprecated */
+    zLimit = find_option("limit",0,1);
+  }
   if( zLimit==0 || zLimit[0]==0 ) zLimit = "-1";
   iLimit = atoi(zLimit);
   showLog = find_option("log",0,0)!=0;

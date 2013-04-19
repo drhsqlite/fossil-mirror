@@ -35,7 +35,7 @@ cson_value * json_page_finfo(){
   Stmt q = empty_Stmt;
   char const * zAfter = NULL;
   char const * zBefore = NULL;
-  int limit = -1;
+  int count = -1;
   int currentRow = 0;
   char const * zCheckin = NULL;
   char sort = -1;
@@ -61,7 +61,7 @@ cson_value * json_page_finfo(){
   
   zBefore = json_find_option_cstr("before",NULL,"b");
   zAfter = json_find_option_cstr("after",NULL,"a");
-  limit = json_find_option_int("limit",NULL,"n", -1);
+  count = json_find_option_int("count",NULL,"n", -1);
   zCheckin = json_find_option_cstr("checkin",NULL,"ci");
 
   blob_appendf(&sql, 
@@ -114,8 +114,8 @@ cson_value * json_page_finfo(){
 
   pay = cson_new_object();
   cson_object_set(pay, "name", json_new_string(zFilename));
-  if( limit > 0 ){
-    cson_object_set(pay, "limit", json_new_int(limit));
+  if( count > 0 ){
+    cson_object_set(pay, "count", json_new_int(count));
   }
   checkins = cson_new_array();
   cson_object_set(pay, "checkins", cson_array_value(checkins));
@@ -134,7 +134,7 @@ cson_value * json_page_finfo(){
     cson_object_set(row, "size", cson_value_new_integer( (cson_int_t)db_column_int64(&q,8) ));
     cson_object_set(row, "state",
                     json_new_string(json_artifact_status_to_string(isNew,isDel)));
-    if( (0 < limit) && (++currentRow >= limit) ){
+    if( (0 < count) && (++currentRow >= count) ){
       break;
     }
   }

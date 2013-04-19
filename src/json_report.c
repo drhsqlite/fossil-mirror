@@ -155,7 +155,7 @@ static cson_value * json_report_list(){
 **
 ** report=int (CLI: -report # or -r #) is the report number to run.
 **
-** limit=int (CLI: -limit # or -n #) -n is for compat. with other commands.
+** count=int (CLI: -count # or -n #) -n is for compat. with other commands.
 **
 ** format=a|o Specifies result format: a=each row is an arry, o=each
 ** row is an object.  Default=o.
@@ -168,7 +168,7 @@ static cson_value * json_report_run(){
   char const * zFmt;
   char * zTitle = NULL;
   Blob sql = empty_blob;
-  int limit = 0;
+  int count = 0;
   cson_value * colNames = NULL;
   int i;
 
@@ -199,7 +199,7 @@ static cson_value * json_report_run(){
     goto error;
   }
 
-  limit = json_find_option_int("limit",NULL,"n",-1);
+  count = json_find_option_int("count",NULL,"n",-1);
 
   
   /* Copy over report's SQL...*/
@@ -213,8 +213,8 @@ static cson_value * json_report_run(){
 
   cson_object_set(pay, "report", json_new_int(nReport));
   cson_object_set(pay, "title", json_new_string(zTitle));
-  if(limit>0){
-    cson_object_set(pay, "limit", json_new_int((limit<0) ? 0 : limit));
+  if(count>0){
+    cson_object_set(pay, "count", json_new_int((count<0) ? 0 : count));
   }
   free(zTitle);
   zTitle = NULL;
@@ -228,7 +228,7 @@ static cson_value * json_report_run(){
 
   colNames = cson_sqlite3_column_names(q.pStmt);
   cson_object_set( pay, "columnNames", colNames);
-  for( i = 0 ; ((limit>0) ?(i < limit) : 1)
+  for( i = 0 ; ((count>0) ?(i < count) : 1)
          && (SQLITE_ROW == db_step(&q));
        ++i){
     cson_value * row = ('a'==*zFmt)
