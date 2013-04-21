@@ -111,16 +111,15 @@ void all_cmd(void){
   Blob extra;
   int useCheckouts = 0;
   int quiet = 0;
-  int testRun = 0;
+  int dryRunFlag = 0;
   int stopOnError = find_option("dontstop",0,0)==0;
   int rc;
   Bag outOfDate;
   
-  /* The undocumented --test option causes no changes to occur to any
-  ** repository, but instead show what would have happened.  Intended for
-  ** test and debugging use.
-  */
-  testRun = find_option("test",0,0)!=0;
+  dryRunFlag = find_option("dry-run","n",0)!=0;
+  if( !dryRunFlag ){
+    dryRunFlag = find_option("test",0,0)!=0; /* deprecated */
+  }
 
   if( g.argc<3 ){
     usage("changes|list|ls|pull|push|rebuild|sync");
@@ -171,7 +170,7 @@ void all_cmd(void){
     for(j=3; j<g.argc; j++){
       char *zSql = mprintf("DELETE FROM global_config"
                            " WHERE name GLOB 'repo:%q'", g.argv[j]);
-      if( testRun ){
+      if( dryRunFlag ){
         fossil_print("%s\n", zSql);
       }else{
         db_multi_exec("%s", zSql);
@@ -220,11 +219,11 @@ void all_cmd(void){
     zQFilename = quoteFilename(zFilename);
     zSyscmd = mprintf("%s %s %s%s",
                       zFossil, zCmd, zQFilename, blob_str(&extra));
-    if( !quiet || testRun ){
+    if( !quiet || dryRunFlag ){
       fossil_print("%s\n", zSyscmd);
       fflush(stdout);
     }
-    rc = testRun ? 0 : fossil_system(zSyscmd);
+    rc = dryRunFlag ? 0 : fossil_system(zSyscmd);
     free(zSyscmd);
     free(zQFilename);
     if( stopOnError && rc ){
@@ -247,7 +246,7 @@ void all_cmd(void){
       zSep = ",";
     }
     blob_appendf(&sql, ")");
-    if( testRun ){
+    if( dryRunFlag ){
       fossil_print("%s\n", blob_str(&sql));
     }else{
       db_multi_exec(blob_str(&sql));

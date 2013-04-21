@@ -1,5 +1,5 @@
-C Record\scherrypicks\sand\sbackouts\sin\sthe\sQ\scard\sof\sthe\scheck-in\smanifest.\nThis\sis\sthe\sfirst\sstep\sin\sadding\sdisplay\sof\scherry-picks,\nticket\s[eaf1c4fdbeeca8eb].
-D 2013-04-18T18:53:17.376
+C Add\s-n|--dry-run\soptions\sto\scommands\swhich\salready\shave\s--test\sor\s--nochange.
+D 2013-04-21T21:59:32.486
 F .project b7b33febfaccfeae87eb1d782cd0c675679b7dc7
 F .settings/org.eclipse.core.resources.prefs 6d8a06b0a3395c74037897476eadb764d7f2d22d
 F .settings/org.eclipse.core.runtime.prefs 6cc9381da1eff8e6dac0e41121d3cce3f1b4761b
@@ -290,8 +290,8 @@ F configure 239cde01aca7fc63a2903f85bd2a6414189f1bd4 x
 F debian/makedeb.sh b57db65590abc4216946cecd9850a94fd3a4b19f
 F fossil.nsi 7d2f5e7424fdc4e35d609228dd4b92e019c6d5d6
 F src/Makefile 102203d824d778194b79680bef8a553d5e6d9819
-F src/add.c 90ebd9e477ff499b7e091b5cb20716bffeb49fa2
-F src/allrepo.c de8fed4fe46c27a0a5f968fad56ab527c742b1d4
+F src/add.c bacecabce8aeaeea43ae3c9522d9bbb56dce17f3
+F src/allrepo.c 20abf42351c564d42821f33a399393c8713f0285
 F src/attach.c 008bdd9bf717497f3a50cf0930105c81548d8a81
 F src/bag.c 8cafeaba3ccb77f3a63bf165f7e09b387bd34f5f
 F src/bisect.c 639666952af95c3113252f1c1068420202ddd2da
@@ -300,7 +300,7 @@ F src/branch.c 0481ffeeb3b36c4523e0bd4638beef7ba4ea1f8b
 F src/browse.c 274fe290975588128a5162a3627341db40b311bf
 F src/captcha.c 3137eba0a94496a91ecbe55480da20dc374612a7
 F src/cgi.c 3e4c2da6f5d3719e7b0436465b74c4d16860a8bb
-F src/checkin.c 67fa1349056fd5ae3b700d9242e8c45cade2dbe0
+F src/checkin.c 18957e81e06217b3bb53023661b9f4ae888017b8
 F src/checkout.c ee5eed2fbc554077bda3f018da95cdb52724e0c8
 F src/clearsign.c 7ad6d8eebc228f0f5ba6bb1362985b845e272060
 F src/clone.c 9263a45493914a1f7635956382ff132229762ae0
@@ -358,7 +358,7 @@ F src/manifest.c 18f07ec33d8fe75a42ff3823a27e375d591b5d99
 F src/markdown.c 4118a71bae5968f1b8d177a72f8b7a93002875db
 F src/markdown_html.c 8029139ecfa00a73c7bf8acec4c8b03c8a3e4657
 F src/md5.c e1c6fb412ad1556e5a189786be40585e8c9ffcee
-F src/merge.c b5be7e5f34cf3dc12ceca89ecb377d04dfeb88be
+F src/merge.c 4cb17a9e041b8f13fb3d6ff972f7c7c910866538
 F src/merge3.c 33796c5a85ecc1af33f53e9c7c89cbce53d761fc
 F src/mkindex.c fc3bb10f2f7365bf02fd914cfb37d9fe2a685292
 F src/mkversion.c c647b15dfcc13684c0028264d5ec5ec87643715d
@@ -400,7 +400,7 @@ F src/tktsetup.c e736285953cc223d6f30a5c540627913aa75f884
 F src/translate.c db8493b8b2ef7226ea9402462aa678768e89ed5c
 F src/undo.c 0562747017d48d937cae781a9890f62d8a50b3ff
 F src/unicode.c 02092a24d2a0704eeb5a548ce6c070d4392175f9
-F src/update.c 62efa1b452526ee413b98ea1c335beeecd3e70b4
+F src/update.c eb67722184f9454d975901e239343450adedf142
 F src/url.c baacb800ac0dd6ca6c5b809a0d6b4130d613cd4d
 F src/user.c f2f1863ca13c39d35997247b95990a8fda235fd6
 F src/utf8.c 93f947717c7f77e8eddef0e1b3bdccf24e0700f3
@@ -610,7 +610,7 @@ F www/tickets.wiki 74561cedee65fa362e67970911a0415f723457db
 F www/uitest.html b4160b619cb6694c0caebd13422b15a3182e5dee
 F www/webui.wiki d6f45339cf55d9e249afc46f062e1fd62519231f
 F www/wikitheory.wiki 4100c1164995d26295591cf8d4170a87ad8d1c43
-P 3c781f4f0b6df2501ea71e313e3ba3f8b52aca33
-R 980d4ecee222cfdfe1085a1ed2e3b11d
-U drh
-Z e964d2b6f73068507145ebd32f951ba5
+P 91aa222d7f2a874663dcff6fe33d46d3326f7cbf
+R 13c914f2037b479459de901f09ed0fb2
+U jan.nijtmans
+Z 567351a276e5d5ef370e7dcad6ab26a2
